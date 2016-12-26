@@ -171,10 +171,11 @@ let AppAddServiceModal = React.createClass({
 
 function mapStateToProps(state, props) {
   const registry = DEFAULT_REGISTRY
+  const { cluster } =  state.entities.current
   return {
     registry,
     imageList: state.images,
-    cluster: state.entities.current.cluster.clusterID
+    cluster: cluster.clusterID
   }
 }
 

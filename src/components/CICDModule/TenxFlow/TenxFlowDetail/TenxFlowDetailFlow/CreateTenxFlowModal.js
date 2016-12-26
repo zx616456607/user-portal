@@ -718,7 +718,7 @@ let CreateTenxFlowModal = React.createClass({
               scope.closeCreateNewFlow();
               getTenxFlowStateList(flowId)
             }
-            notification.success('持续集成', '创建成功');
+            notification.success('创建成功');
           },
           isAsync: true
         }

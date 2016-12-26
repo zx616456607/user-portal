@@ -11,15 +11,19 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import Sider from '../../../components/Sider/Standard'
 import App from '../'
+import UpgradeModal from '../../../components/AccountModal/Version/UpgradeModal'
 
 class StandardApp extends Component {
   constructor(props) {
     super(props)
   }
-
   render() {
     return (
-      <App siderStyle='mini' Sider={Sider} {...this.props} />
+      <App
+       siderStyle='mini'
+       Sider={Sider}
+       UpgradeModal={UpgradeModal}
+       {...this.props} />
     )
   }
 }

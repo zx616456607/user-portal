@@ -115,11 +115,11 @@ class BaseInfo extends Component {
       storageValue: parseInt(this.props.databaseInfo.volumeInfo.size)
     }
   }
-  
   render() {
     const {databaseInfo ,dbName }= this.props
     const parentScope = this.props.scope
     const podSpec = databaseInfo.podList.pods[0].podSpec
+    const storagePrc = parentScope.props.resourcePrice /100
     const modalContent = (
       <div className="modal-content">
         <div className="modal-header">更改实例数  <Icon type='cross' onClick={() => parentScope.colseModal()} className='cursor' style={{ float: 'right' }} /></div>
@@ -128,14 +128,14 @@ class BaseInfo extends Component {
         <div className="modal-li">
           <span className="spanLeft">存储大小</span>
           {/* <Slider min={500} max={10000} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} step={100} /> */}
-          <InputNumber  onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} /> &nbsp; M
+          <InputNumber min={500} max={10240} step={100} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} /> &nbsp; M
         </div>
         <div className="modal-price">
           <div className="price-left">
-            <div className="keys">实例：￥20/个（个*小时）* 1 个</div>
-            <div className="keys">储存：￥10/（GB*小时）</div>
+            <div className="keys">实例：<span className="unit">￥0.04</span>/（个*小时）* { parentScope.state.replicas } 个</div>
+            <div className="keys">储存：<span className="unit">￥{ storagePrc } </span>/（GB*小时）* { parentScope.state.replicas } 个</div>
           </div>
-          <div className="price-unit">合计：<span style={{color:'#21ADEB'}}>￥</span><span className="unit">20元/小时</span></div>
+          <div className="price-unit">合计：<span style={{color:'#21ADEB'}}>￥</span><span className="unit blod">{(parentScope.state.storageValue /1000 * storagePrc * parentScope.state.replicas + ( parentScope.state.replicas * 0.04)).toFixed(3)} 元/小时</span></div>
         </div>
         {parentScope.state.putModaling ?
           <div className="modal-footer"><Button size="large" onClick={() => parentScope.colseModal()}>取消</Button><Button size="large" loading={true} type="primary">保存</Button></div>
@@ -205,7 +205,6 @@ class ModalDetail extends Component {
       putModaling: false
     }
   }
-
   deleteDatebaseCluster(dbName) {
     //this function for use delete the database
     const { deleteDatabaseCluster, cluster, scope, database } = this.props;
@@ -442,6 +441,7 @@ function mapStateToProps(state, props) {
     isFetching,
     cluster: cluster.clusterID,
     databaseInfo: databaseInfo,
+    resourcePrice: cluster.resourcePrice.storage //storage
     // podSpec: databaseInfo.pods[0].podSpec
   }
 }

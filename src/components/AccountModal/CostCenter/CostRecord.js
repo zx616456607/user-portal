@@ -421,21 +421,29 @@ class CostRecord extends Component{
         '1': '容器服务',
         '3': '主机服务',
         '4': '存储服务',
-      }
-      if (standard) {
-        items.map(function(item) {
-          item.type = typeMap[item.type]
-          item.unitPrice = '￥ ' + (item.unitPrice / 100).toFixed(2)
-          item.amount = '￥ ' + (item.amount / 100).toFixed(2)
-          item.startTime = formatDate(item.startTime)
-        })
-        return items
+        '5': '工作任务',
+        '6': '专业版订购',
       }
       items.map(function(item) {
-        item.type = typeMap[item.type]
-        item.unitPrice = (item.unitPrice / 100).toFixed(2) + 'T币'
-        item.amount = (item.amount / 100).toFixed(2) + 'T币'
+        const itemRawType = item.type
+        item.type = typeMap[itemRawType]
+
+        if (standard) {
+          item.unitPrice = '￥ ' + (item.unitPrice / 100)
+          item.amount = '￥ ' + (item.amount / 100)
+        } else {
+          item.unitPrice = (item.unitPrice / 100) + 'T币'
+          item.amount = (item.amount / 100) + 'T币'
+        }
+        if (itemRawType === '6') {
+          item.unitPrice += '/月'
+          item.continueTime += '月'
+        } else {
+          item.unitPrice += '/小时'
+          item.continueTime += '分钟'
+        }
         item.startTime = formatDate(item.startTime)
+        item.clusterName = item.clusterName || '-'
       })
       return items
     }
@@ -482,7 +490,7 @@ class CostRecord extends Component{
               { text: '容器服务', value: '容' },
             ],
             filteredValue: filteredInfo.svcType,
-            onFilter: (value, record) => record.svcType.indexOf(value) === 0,
+            onFilter: (value, record) => record.type.indexOf(value) === 0,
           },
           {
             title: '单价',
@@ -602,7 +610,6 @@ class CostRecord extends Component{
                               isNaN(item.sum) ? '-' :
                                 standard ? '￥ ' + item.sum/100 :
                                            item.sum/100 + 'T币'
-                                                
                             }
                           </Col>
                         </Row>

@@ -29,6 +29,7 @@ class UserPanel extends Component {
     super(props)
     this.handleVisibleChange = this.handleVisibleChange.bind(this)
     this.renderMenuItems = this.renderMenuItems.bind(this)
+    this.getEdition = this.getEdition.bind(this)
     this.getTitle = this.getTitle.bind(this)
     this.getContent = this.getContent.bind(this)
     this.state = {
@@ -43,9 +44,49 @@ class UserPanel extends Component {
     })
   }
 
+  getEdition() {
+    const { loginUser } = this.props
+    const { envEdition } = loginUser
+    if(mode !== standard) {
+      return ''
+    }
+    if (envEdition == 0) {
+      return (
+        <Link to="/account/version">
+          <img className="edition" alt="升级专业版" title="升级专业版" src="/img/version/proIcon-gray.png"/>
+        </Link>
+      )
+    }
+    if (envEdition == 1) {
+      return (
+        <Link to="/account/version">
+          <img className="edition" alt="专业版" title="专业版" src="/img/version/proIcon.png"/>
+        </Link>
+      )
+    }
+    return
+  }
+
   getTitle() {
     const { loginUser } = this.props
-    const { userName, email, avatar } = loginUser
+    const { userName, email, avatar, certInfos } = loginUser
+    let certName = '个人'
+    let certStatus = false
+    if (mode === standard) {
+      if (certInfos && certInfos.length >= 0) {
+        let length = certInfos.length
+        for (let i = 0; i < length; i++) {
+          if (certInfos[i].type == 2 && certInfos[i].status == 4) {
+            certName = "企业"
+            break
+          }
+          if (certInfos[i].type == 3 && certInfos[i].status == 4) {
+            certName = "组织"
+            break
+          }
+        }
+      }
+    }
     return (
       <div className='logTitle'>
         <div className='logAvatar'>
@@ -57,11 +98,18 @@ class UserPanel extends Component {
         </div>
         <div className="loginText">
           <div className="text">
-            <p className="userName">{userName}</p>
+            <p className="userName">
+              {userName}
+              {this.getEdition()}
+            </p>
             <p className="email">{email || '...'}</p>
           </div>
         </div>
-        <div className='loginTag'>个人</div>
+         {
+            mode === standard
+            ? <div className='loginTag'>{certName}</div>
+            : ''
+         }
       </div>
     )
   }

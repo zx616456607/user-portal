@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  SuccessRegister
+ *  
  *
  * v0.1 - 2016/12/23
  * @author ZhaoXueYu
@@ -69,11 +69,13 @@ let SpendResetEmail = React.createClass({
     const { form, registerUser, sendResetPasswordLink } = this.props
     const { validateFields, resetFields } = form
     const self = this
+
     e.preventDefault()
     validateFields((errors, values) => {
       if (!!errors) {
         return
       }
+      this.getEmail(values.email)
       this.setState({
         submitting: true,
       })
@@ -104,17 +106,34 @@ let SpendResetEmail = React.createClass({
   },
   //邮箱识别
   getEmail (url) {
-    console.log('url',url)
     if (url.match('@')) {
       let addr = url.split('@')[1]
       for (let j in EMAIL_HASH) {
         this.setState({
           toEmail: EMAIL_HASH[addr]
         })
-        return
       }
     }
-    return false
+    return
+  },
+  //
+  renderGetEmail () {
+    const { toEmail } = this.state
+    console.log('toEmail',toEmail)
+    if (toEmail === '' || !toEmail) {
+      return (
+        <span>
+          登录你的邮箱，确认验证邮件
+        </span>
+      )
+    }
+    return (
+      <Button className='passBtn'>
+        <a href={toEmail} target='_blank'>
+          登录邮箱
+        </a>
+      </Button>
+    )
   },
   componentWillMount() {
     const { resetFields } = this.props.form
@@ -137,7 +156,7 @@ let SpendResetEmail = React.createClass({
     })
     return (
   	  <div>
-  	    <div className='successTitle'>
+  	    <div className='resetTitle'>
             重置密码
         </div>
         {
@@ -146,11 +165,10 @@ let SpendResetEmail = React.createClass({
 	          <ul className='successInf' style={{marginBottom: 24}}>
 	            <li>
 	              已发送到 { getFieldValue('email') } ,请
-	              <Button className='passBtn' onClick={() => this.getEmail(email)}>
-	                <a href={this.state.toEmail} target='_blank'>
-	                  登录邮箱
-	                </a>
-	              </Button>
+                {
+                  this.renderGetEmail()
+                }
+	              
 	            </li>
 	            <li>重置密码 , 该邮件的有效期为24小时</li>
 	            <li className='rePass'>
@@ -161,7 +179,7 @@ let SpendResetEmail = React.createClass({
 	            </li>
 	          </ul>
   	      </div> :
-  	      <div className='registerForm' style={{marginTop:20, minWidth: 300}}>
+  	      <div className='resetForm' style={{marginTop:20, minWidth: 300}}>
   	          <Form>
   	            <FormItem
   	              {...formItemLayout}
@@ -187,7 +205,7 @@ let SpendResetEmail = React.createClass({
   	                className="subBtn"
   	                style={{marginBottom: 20}}
   	              >
-  	                {submitting ? '发送中...' : '发送邮箱'}
+  	                {submitting ? '发送中...' : '发送邮件'}
   	              </Button>
   	            </FormItem>
   	          </Form>

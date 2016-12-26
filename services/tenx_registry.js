@@ -236,10 +236,10 @@ exports.updateImageInfo = function(username, imageObj) {
 /*
 Only for admin user to use, and only get the number of all images
 */
-exports.queryRegistryStats = function() {
+exports.queryRegistryStats = function(username) {
   var registry = new registryAPIs()
   return new Promise(function (resolve, reject) {
-    registry.getRepositoryStats(function(statusCode, result, err) {
+    registry.getRepositoryStats(username, function(statusCode, result, err) {
       if (err) {
         return reject(err)
       }

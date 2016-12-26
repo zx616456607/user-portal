@@ -438,6 +438,7 @@ DockerRegistryAPIs.prototype.getTagsV2 = function (user, repositoryName, callbac
 };
 
 DockerRegistryAPIs.prototype.refreshToken = function(user, repository, callback) {
+  var method = 'refreshToken'
   var requestUser = (user == "" ? user : this.registryConfig.user);
   var exchangeURL = this.registryConfig.v2AuthServer + "/auth?account=" + requestUser + "&scope=repository:" + repository + ":pull&service=" + this.registryConfig.v2Server;
   // Use exchangeURL as the key
@@ -929,15 +930,15 @@ DockerRegistryAPIs.prototype.getAuthorizationHeader = function (onbehalfUser) {
   return authHeader;
 }
 
-// Only for admin user to use
-DockerRegistryAPIs.prototype.getRepositoryStats = function (callback) {
+// For user or teamspace
+DockerRegistryAPIs.prototype.getRepositoryStats = function (username, callback) {
   var method = "getRepositoryStats";
   logger.debug(method, "Querying repository stats ...");
 
-  var requestUrl = this.getAPIPrefix() + "/admin/repositories/stats";
+  var requestUrl = this.getAPIPrefix() + "/repositories/stats";
 
   logger.debug(method, "Request url: " + requestUrl);
-  this.sendRequest(requestUrl, 'GET', null, callback);
+  this.sendRequest(requestUrl, 'GET', null, callback, username);
 }
 
 module.exports = DockerRegistryAPIs;

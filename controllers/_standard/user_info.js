@@ -20,6 +20,8 @@ const sendCaptchaToPhone = require('../../utils/captchaSms').sendCaptchaToPhone
 const emailUtil = require('../../utils/email')
 const security = require('../../utils/security')
 const activationMixCode = 'tEn.Xclou210*'
+const stdConfigs = require('../../configs/_standard')
+const config = require('../../configs')
 
 /*
 Get basic user info including user and certificate
@@ -59,7 +61,11 @@ exports.upTokenToQiniu = function* () {
   let qnAPI = new qiniuAPI(bucketName)
   let token = qnAPI.getUpToken(fileName)
   let qiniuConfig = qnAPI.getQiniuConfig()
-
+  // Different upload url for different protocol
+  let uploadUrl = 'http://upload.qiniu.com'
+  if (config.protocol === 'https') {
+    uploadUrl = 'https://up.qbox.me'
+  }
   if (token === '') {
     this.status = 400
     this.body = 'Invalid bucket or file name'
@@ -68,7 +74,7 @@ exports.upTokenToQiniu = function* () {
 
   this.body = {
     upToken: token,
-    uploadUrl: 'http://upload.qiniu.com',
+    uploadUrl: uploadUrl,
     origin: qiniuConfig.origin
   }
 }
@@ -139,7 +145,7 @@ exports.registerUser = function* () {
   logger.info(method, "call apiserver result:", result)
   if (result && result.data && result.data.email) {
     const activationCode = genActivationCode(result.data.email)
-    const userActivationURL = `https://console.tenxcloud.com/users/activation?code=${encodeURIComponent(activationCode)}`
+    const userActivationURL = `${stdConfigs.host}/users/activation?code=${encodeURIComponent(activationCode)}`
     try {
       emailUtil.sendUserActivationEmail(user.email, userActivationURL)
     } catch (e) {
@@ -237,7 +243,7 @@ exports.sendResetPasswordLink = function* () {
     })
   })
 
-  const link = `https://console.tenxcloud.com/rpw?email=${email}&code=${encodeURIComponent(code)}`
+  const link = `${stdConfigs.host}/rpw?email=${email}&code=${encodeURIComponent(code)}`
   try {
     yield emailUtil.sendResetPasswordEmail(email, link)
     this.body = {
@@ -311,7 +317,7 @@ exports.activateUserByEmail = function* () {
 }
 
 function genUserActivationURL(code) {
-  return `https://console.tenxcloud.com/users/activation?code=${encodeURIComponent(code)}`
+  return `${stdConfigs.host}/users/activation?code=${encodeURIComponent(code)}`
 }
 
 function genActivationCode(email) {

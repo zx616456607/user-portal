@@ -25,8 +25,9 @@ exports.getImages = function* () {
   const loginUser = this.session.loginUser
   const query = this.query || {}
   var q = query.q || ""
+  const registryUser = loginUser.teamspace || loginUser.user
 
-  const result = yield registryService.getImages(loginUser.user, q)
+  const result = yield registryService.getImages(registryUser, q)
   this.body = {
     server: registryConfig.v2Server,
     data: result
@@ -36,11 +37,8 @@ exports.getImages = function* () {
 exports.getPrivateImages = function* () {
   const loginUser = this.session.loginUser
   let result
-  if (loginUser.teamspace) {
-    result = yield registryService.getPrivateRepositories(loginUser.teamspace, 1)
-  } else {
-    result = yield registryService.getPrivateRepositories(loginUser.user, 1)
-  }
+  const registryUser = loginUser.teamspace || loginUser.user
+  result = yield registryService.getPrivateRepositories(registryUser, 1)
 
   this.body = {
     server: registryConfig.v2Server,
@@ -50,7 +48,8 @@ exports.getPrivateImages = function* () {
 
 exports.getFavouriteImages = function* () {
   const loginUser = this.session.loginUser
-  const result = yield registryService.getFavouriteRepositories(loginUser.user, 1)
+  const registryUser = loginUser.teamspace || loginUser.user
+  const result = yield registryService.getFavouriteRepositories(registryUser, 1)
 
   this.body = {
     server: registryConfig.v2Server,
@@ -67,8 +66,8 @@ exports.updateImageInfo = function* () {
   Object.keys(properties).forEach(function(key) {
     imageObj[key] = properties[key]
   })
-
-  const result = yield registryService.updateImageInfo(loginUser.user, imageObj)
+  const registryUser = loginUser.teamspace || loginUser.user
+  const result = yield registryService.updateImageInfo(registryUser, imageObj)
 
   this.body = {
     data: result
@@ -76,10 +75,11 @@ exports.updateImageInfo = function* () {
 }
 
 exports.getImageTags = function* () {
+  const loginUser = this.session.loginUser
   const registry = this.params.registry
   const imageFullName = this.params.user + '/' + this.params.name
-  const loginUser = this.session.loginUser
-  const result = yield registryService.getImageTags(loginUser.user, imageFullName)
+  const registryUser = loginUser.teamspace || loginUser.user
+  const result = yield registryService.getImageTags(registryUser, imageFullName)
   this.body = {
     server: registryConfig.v2Server,
     name: imageFullName,
@@ -88,11 +88,12 @@ exports.getImageTags = function* () {
 }
 
 exports.getImageConfigs = function* () {
+  const loginUser = this.session.loginUser
   const registry = this.params.registry
   const imageFullName = this.params.user + '/' + this.params.name
   const tag = this.params.tag
-  const loginUser = this.session.loginUser
-  const result = yield registryService.getImageConfigs(loginUser.user, imageFullName, tag)
+  const registryUser = loginUser.teamspace || loginUser.user
+  const result = yield registryService.getImageConfigs(registryUser, imageFullName, tag)
   this.body = {
     server: registryConfig.v2Server,
     name: imageFullName,
@@ -102,11 +103,12 @@ exports.getImageConfigs = function* () {
 }
 
 exports.getImageInfo = function* () {
+  const loginUser = this.session.loginUser
   const registry = this.params.registry
   const imageFullName = this.params.user + '/' + this.params.name
   const tag = this.params.tag
-  const loginUser = this.session.loginUser
-  const result = yield registryService.getImageInfo(loginUser.user, imageFullName)
+  const registryUser = loginUser.teamspace || loginUser.user
+  const result = yield registryService.getImageInfo(registryUser, imageFullName)
   this.body = {
     server: registryConfig.v2Server,
     name: imageFullName,
@@ -119,7 +121,9 @@ exports.checkImage = function* () {
   const imageFullName = this.params.user + '/' + this.params.name
   const tag = this.params.tag
   const loginUser = this.session.loginUser
-  const result = yield registryService.getImageInfo(loginUser.user, imageFullName, true)
+  let owner = loginUser.user
+  const registryUser = loginUser.teamspace || loginUser.user
+  const result = yield registryService.getImageInfo(registryUser, imageFullName, true)
   this.body = {
     server: registryConfig.v2Server,
     name: imageFullName,
@@ -128,10 +132,11 @@ exports.checkImage = function* () {
 }
 
 exports.deleteImage = function* () {
+  const loginUser = this.session.loginUser
   const registry = this.params.registry
   const image = this.params.image
-  const loginUser = this.session.loginUser
-  const result = yield registryService.deleteImage(loginUser.user, image)
+  const registryUser = loginUser.teamspace || loginUser.user
+  const result = yield registryService.deleteImage(registryUser, image)
 
   this.body = {
     server: registryConfig.v2Server,
@@ -140,8 +145,10 @@ exports.deleteImage = function* () {
 }
 
 exports.queryServerStats = function* () {
+  const loginUser = this.session.loginUser
   const registry = this.params.registry
-  const result = yield registryService.queryRegistryStats()
+  const registryUser = loginUser.teamspace || loginUser.user
+  const result = yield registryService.queryRegistryStats(registryUser)
   this.body = {
     server: registryConfig.v2Server,
     data: result

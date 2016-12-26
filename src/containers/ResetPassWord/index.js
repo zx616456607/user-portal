@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  SuccessRegister
+ *  
  *
  * v0.1 - 2016/12/22
  * @author ZhaoXueYu
@@ -13,6 +13,7 @@ import { connect } from 'react-redux'
 import CommitReset from './CommitReset'
 import SpendResetEmail from './SpendResetEmail'
 import './style/ResetPassWord.less'
+import Top from '../../components/Top'
 
 class ResetPassWord extends Component {
   constructor (props) {
@@ -34,9 +35,10 @@ class ResetPassWord extends Component {
   }
   render(){
     return (
-      <div id='RegisterPage'>
-        <div className='register'>
-          <div id='SuccessRegister'>
+      <div id='ResetPassWord'>
+        <Top />
+        <div className='reset'>
+          <div className='resetContant'>
           {
             this.renderResetForm()
           }

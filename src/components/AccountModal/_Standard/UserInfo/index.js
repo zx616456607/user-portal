@@ -161,7 +161,7 @@ class BaseInfo extends Component {
       return false
     }
     let fileName = namespace + (new Date() - 0) + '.' + ext
-    const filePath = this.uploadInstance.refs.upload.refs.inner.refs.file.value
+    const filePath = file.name
     const reader = new FileReader()
     const dataUrl = reader.readAsDataURL(file)
     reader.addEventListener('load', function () {
@@ -228,6 +228,45 @@ class BaseInfo extends Component {
       filePath: '',
       fileName: ''
     })
+  }
+  renderEdition(envEdition) {
+    return (
+      <span className="value">
+        {
+          envEdition == 0
+          ? <span>标准版<img className="edition" alt="升级专业版" title="升级专业版" src="/img/version/proIcon-gray.png"/></span>
+          : <span>专业版<img className="edition" alt="专业版" title="专业版" src="/img/version/proIcon.png"/></span>
+        }
+        <Button style={{ marginLeft: '10px' }} onClick={() => browserHistory.push('/account/version#pro')}>
+          {
+            envEdition == 0
+            ? '了解专业版'
+            : '查看详情'
+          }
+        </Button> &nbsp;
+        <Icon type="question-circle-o" />
+      </span>
+    )
+    if (envEdition == 0) {
+      return (
+        <span className="value">
+          <span>标准版<img className="edition" alt="升级专业版" title="升级专业版" src="/img/version/proIcon-gray.png"/></span>
+          <Button style={{ marginLeft: '10px' }} onClick={() => browserHistory.push('/account/version#pro')}>
+            了解专业版
+          </Button> &nbsp;
+          <Icon type="question-circle-o" />
+        </span>
+      )
+    }
+    return (
+      <span className="value">
+        <span>专业版<img className="edition" alt="专业版" title="专业版" src="/img/version/proIcon.png"/></span>
+        <Button style={{ marginLeft: '10px' }} onClick={() => browserHistory.push('/account/version')}>
+          查看详情
+        </Button> &nbsp;
+        <Icon type="question-circle-o" />
+      </span>
+    )
   }
   render() {
     // const {getFieldProps} = this.props.form
@@ -299,6 +338,10 @@ class BaseInfo extends Component {
                 <Button className="btn-auth" style={{ marginLeft: '10px' }} onClick={() => this.cert('company')}>{this.getCertStatus(companyCert.status)}</Button> &nbsp;
                 <Icon type="question-circle-o" />
               </span>
+            </li>
+            <li>
+              <span className="key">版本</span>
+              {this.renderEdition(userDetail.envEdition)}
             </li>
             {this.state.editEmail ?
               <li>

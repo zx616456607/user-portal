@@ -114,6 +114,7 @@ module.exports = function (Router) {
   router.get('/teams/:team_id/clusters', teamController.getTeamClusters)
   router.get('/teams/:team_id/clusters/all', teamController.getAllClusters)
   router.get('/teams/:team_id/users', teamController.getTeamUsers)
+  router.get('/teams/:team_id', teamController.getTeamDetail)
   router.post('/teams', teamController.createTeam)
   router.delete('/teams/:team_id', teamController.deleteTeam)
   router.post('/teams/:team_id/spaces', teamController.createTeamspace)
@@ -234,6 +235,7 @@ module.exports = function (Router) {
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id', devopsController.updateFlowStage)
   router.get('/ci-flows/:flow_id/stages/:stage_id', devopsController.getStage)
   router.get('/devops/ci-flows/:flow_id/stages/:stage_id/getStageBuildLogs', devopsController.getStageBuildLogList)
+  router.put('/devops/ci-flows/:flow_id/stages/:stage_id/link/:target_id', devopsController.updateStageLink)
 
   // CD rules
   router.post('/devops/ci-flows/:flow_id/cd-rules', devopsController.createCDRule)

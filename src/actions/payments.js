@@ -4,7 +4,7 @@
  */
 
 /**
- * Redux actions for wechat pay
+ * Redux actions for payments
  *
  * v0.1 - 2016-09-23
  * @author Zhangpc
@@ -20,11 +20,11 @@ export const WECHAT_PAY_QR_CODE_FAILURE = 'WECHAT_PAY_QR_CODE_FAILURE'
 
 // Fetches wechat pay qr code from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchWechatPayQrCode(amount, teamspace) {
+function fetchWechatPayQrCode(amount, teamspace, query) {
   let endpoint = `${API_URL_PREFIX}/payments/wechat_pay`
-  /*if (query) {
+  if (query) {
     endpoint += `?${toQuerystring(query)}`
-  }*/
+  }
   return {
     [FETCH_API]: {
       types: [WECHAT_PAY_QR_CODE_REQUEST, WECHAT_PAY_QR_CODE_SUCCESS, WECHAT_PAY_QR_CODE_FAILURE],
@@ -43,9 +43,9 @@ function fetchWechatPayQrCode(amount, teamspace) {
 
 // Fetches wechat pay qr code from API
 // Relies on Redux Thunk middleware.
-export function getWechatPayQrCode(amount, teamspace) {
+export function getWechatPayQrCode(amount, teamspace, query) {
   return (dispatch) => {
-    return dispatch(fetchWechatPayQrCode(amount, teamspace))
+    return dispatch(fetchWechatPayQrCode(amount, teamspace, query))
   }
 }
 

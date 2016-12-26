@@ -132,7 +132,7 @@ class StorageDetail extends Component {
                   <StorageBind pool={StorageInfo.imagePool} cluster={StorageInfo.cluster} volumeName={ StorageInfo.volumeName } />
                 </TabPane>
                 <TabPane tab="租赁信息" key="2" >
-                  <StorageRental />
+                  <StorageRental config={this.props.resourcePrice} size={StorageInfo.size}/>
                 </TabPane>
               </Tabs>
             </Card>
@@ -158,7 +158,8 @@ function mapStateToProps(state, props) {
   const StorageInfo  = state.storage.storageDetail.StorageInfo || defaultInfo
   return {
     isFetching: state.storage.storageDetail.isFetching,
-    StorageInfo
+    StorageInfo,
+    resourcePrice: cluster.resourcePrice
   }
 }
 

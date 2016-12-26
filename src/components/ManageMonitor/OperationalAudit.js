@@ -464,10 +464,6 @@ function returnOperationList(scope) {
     {
       value: '18',
       label: (<FormattedMessage {...menusText.Expand} />)
-    },
-    {
-      value: '0',
-      label: (<FormattedMessage {...menusText.Unknown} />)
     }
   ];
   return operationalList;
@@ -1434,7 +1430,6 @@ class OperationalAudit extends Component {
             </Select>
             <DatePicker onChange={this.onChangeStartTime} style={{ marginRight: 20, marginTop: 10, float: 'left' }} showTime format='yyyy-MM-dd HH:mm:ss' size='large' />
             <DatePicker onChange={this.onChangeEndTime} style={{ marginRight: 20, marginTop: 10, float: 'left' }} showTime format='yyyy-MM-dd HH:mm:ss' size='large' />
-            <Input onChange={this.onChangeNamespace} className='namespaceInput' type='text' size='large' />
             <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch}>
               <i className='fa fa-wpforms'></i> <FormattedMessage {...menusText.search} />
             </Button>

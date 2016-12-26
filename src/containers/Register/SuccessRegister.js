@@ -11,6 +11,8 @@ import React, { Component } from 'react'
 import { Card, Button, message } from 'antd'
 import { connect } from 'react-redux'
 import { EMAIL_HASH } from '../../constants'
+import './style/SuccessRegister.less'
+import Top from '../../components/Top'
 
 
 let SuccessRegister = React.createClass({
@@ -30,7 +32,7 @@ let SuccessRegister = React.createClass({
         return
       }
     }
-    return false
+    return
   },
   sendAcvivationEmail () {
     const {email, code, sendActivationEmail} = this.props
@@ -46,41 +48,63 @@ let SuccessRegister = React.createClass({
         },
         failed: {
           func: (err) => {
+            console.log('4444444',err.statusCode)
             let msg = '邮件发送失败'
             if (err.statusCode === 500) {
               msg = '邮件发送失败，请重试'
             }
-            message.success(msg)
+            console.log('message',msg)
+            message.error(`${msg}`)
           },
           isAsync: true
         },
       })
   },
-  
+  renderGetEmail () {
+    const { toEmail } = this.state
+    if (toEmail === '' || !toEmail) {
+      return (
+        <span></span>
+      )
+    }
+    return (
+      <Button className='successBtn'>
+        <a href={toEmail} target='_blank'>
+          登录邮箱查收验证邮件
+        </a>
+      </Button>
+    )
+  },
+  componentWillMount () {
+    const {email} = this.props
+    if (email && email !== '') {
+      this.getEmail(email)
+    }
+  },
   render(){
     const {email} = this.props
 
     return (
       <div id='RegisterPage'>
-        <div className='register' style={{width:'40%'}}>
-          <div id='SuccessRegister'>
+        <div className='register' id='SuccessRegister'>
+          <Card style={{width: 440}}>
+            <Top />
             <div className='successTitle'>
               注册成功
             </div>
             <ul className='successInf'>
               <li>您注册的邮箱是&nbsp;:&nbsp;{email}</li>
-              <li>我们已经给您的邮箱发送了一封验证邮件&nbsp;,&nbsp;请登录您的注册邮箱完成用户验证</li>
+              <li>我们已经给您的邮箱发送了一封验证邮件 , 
+              请登录您的邮箱完成用户验证</li>
             </ul>
-            <Button className='successBtn' onClick={() => this.getEmail(email)}>
-              <a href={this.state.toEmail} target='_blank'>
-                登录邮箱查收验证邮件
-              </a>
-            </Button>
+            {
+              this.renderGetEmail()
+            }
             <div className='successTip'>
               <span>没有收到邮件?</span>
-              <span style={{color:'#2db7f5'}} onClick={() => this.sendAcvivationEmail()}>请点击重新发送</span>
+              <span style={{color:'#2db7f5',cursor:'pointer'}} onClick={() => this.sendAcvivationEmail()}>请点击重新发送</span>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     )

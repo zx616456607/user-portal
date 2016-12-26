@@ -5,6 +5,7 @@
  * v0.1 - 2016-12-20
  * @author mengyuan
  */
+'use strict'
 
 const logger = require('./logger').getLogger('captchaSms')
 const urllib = require('urllib')
@@ -45,9 +46,9 @@ function sendCaptchaToPhone(mobile, redisConf) {
       }
       if (reply == null) {
         logger.info(method, 'frequence limit not timeout, not send captcha sms')
-        const err = new Error('短信发送太快了，请稍后再试')
-        err.status = 403
-        return reject(err)
+        const returnError = new Error('短信发送太快了，请稍后再试')
+        returnError.status = 403
+        return reject(returnError)
       }
       resolve()
     })
@@ -90,9 +91,9 @@ function sendCaptchaToPhone(mobile, redisConf) {
           return reject(internalError)
         }
         const parseString = require('xml2js').parseString
-        parseString(data, function(err, result) {
-          if (err) {
-            logger.error(method, 'parse response xml failed. return xml:', data, 'err:', err)
+        parseString(data, function(err2, result) {
+          if (err2) {
+            logger.error(method, 'parse response xml failed. return xml:', data, 'err:', err2)
             return reject(internalError)
           }
           if (result && result.SubmitResult && result.SubmitResult.code.length === 1) {
@@ -102,14 +103,14 @@ function sendCaptchaToPhone(mobile, redisConf) {
               logger.info(method, `send captcha(${captcha}) to phone(${mobile}) success`)
               return resolve(captcha)
             case '4085': {
-              const err = new Error('同一手机号验证码短信发送超出5条')
-              err.status = 400
-              return reject(err)
+              const err3 = new Error('同一手机号验证码短信发送超出5条')
+              err3.status = 400
+              return reject(err3)
             }
             case '4030': {
-              const err = new Error('手机号码已被列入黑名单')
-              err.status = 400
-              return reject(err)
+              const err4 = new Error('手机号码已被列入黑名单')
+              err4.status = 400
+              return reject(err4)
             }
             default:
               return reject(internalError)

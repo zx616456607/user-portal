@@ -8,6 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
+import { browserHistory } from 'react-router'
 import { Menu, Button, Card, Input ,Modal} from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -16,21 +17,29 @@ import "./style/Normal.less"
 
 class VersionNoraml extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.changePage = this.changePage.bind(this)
+    this.handleUpgrade = this.handleUpgrade.bind(this)
+    const { hash } = props
+    let currentPage = 'first'
+    if (hash === '#pro') {
+      currentPage = 'second'
+    }
     this.state = {
-      currentPage: 'first'
+      currentPage,
+      upgradeModalShow: false,
     }
   }
 
   componentWillMount() {
     document.title = '版本 | 时速云'
   }
-  
+
   changePage() {
     //this function for change page
-    const { currentPage } = this.state;
-    if(currentPage == 'first') {
+    const { pathname } = this.props
+    const { currentPage } = this.state
+    if (currentPage == 'first') {
       this.setState({
         currentPage: 'second'
       })
@@ -40,8 +49,13 @@ class VersionNoraml extends Component {
       })
     }
   }
-  
+
+  handleUpgrade() {
+    browserHistory.push('/account/balance/payment#upgrade')
+  }
+
   render() {
+    const { upgradeModalShow } = this.state
     return (
       <div id = 'VersionNoraml'>
         {
@@ -155,7 +169,7 @@ class VersionNoraml extends Component {
                   <span className='versionTitle'>标准版功能</span>
                   <span className='priceTitle'>￥0/月</span>
                 </div>
-                <div className='box'>               
+                <div className='box'>
                   <div className='commonBox'>
                     <div className='commonTitleBox'>
                       <span className='commonIcon'></span>
@@ -247,7 +261,7 @@ class VersionNoraml extends Component {
                   <img className='aniImg' src='/img/version/arrow.png' />
                   <div className='colorLine' />
                 </div>
-                <Button size='large' type='primary'>
+                <Button size='large' type='primary' onClick={this.handleUpgrade}>
                   <span>升级专业版</span>
                 </Button>
               </div>
@@ -256,7 +270,7 @@ class VersionNoraml extends Component {
                   <span className='versionTitle'>专业版功能</span>
                   <span className='priceTitle'>￥99/月</span>
                 </div>
-                <div className='box'>               
+                <div className='box'>
                   <div className='commonBox'>
                     <div className='commonTitleBox'>
                       <span className='commonIcon'></span>
@@ -369,7 +383,11 @@ VersionNoraml.propTypes = {
 }
 
 function mapStateToProps(state, props) {
+  const { location } = props
+  const { pathname, hash } = location
   return {
+    pathname,
+    hash,
   }
 }
 

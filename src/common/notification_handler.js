@@ -13,6 +13,12 @@ import React from 'react'
 import { Spin, notification } from 'antd'
 import { genRandomString } from './tools'
 
+// Set notification global
+notification.config({
+  top: 60,
+  duration: 10,
+})
+
 class NotificationHandler {
   // timeout is optional, and used for loading interval
   constructor(timeout) {
@@ -47,13 +53,15 @@ class NotificationHandler {
     }, timeout)
   }
   // Show success notification
-  success(message) {
+  success(message, description) {
+    let desc = description || ''
     notification.success({
       message: (
         <div style={{ fontSize: '13px', paddingRight: '20px', color: '#666'}}>
           {message}
         </div>
-      )
+      ),
+      description: desc,
     })
   }
   // Show info notification
@@ -67,13 +75,20 @@ class NotificationHandler {
     })
   }
   // Show warn notification
-  warn(message) {
+  warn(message, description, duration) {
+    let desc = description || ''
+    let timeout = duration
+    if (timeout === undefined) {
+      timeout = 10
+    }
     notification.info({
       message: (
         <div style={{ fontSize: '13px', paddingRight: '20px', color: '#666'}}>
           {message}
         </div>
-      )
+      ),
+      description: desc,
+      duration: timeout
     })
   }
   // Show error notification: message & description

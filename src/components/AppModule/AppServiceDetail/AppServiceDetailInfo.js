@@ -20,22 +20,20 @@ function cpuFormat(memory) {
     switch(newMemory) {
       case 1:
         return '1CPU（共享）';
-        break;
       case 2:
         return '1CPU（共享）';
-        break;
       case 4:
         return '1CPU';
-        break;
-      case 8:
+      case 16:
+        return '1CPU';
+      case 16:
+        return '1CPU';
+      case 32:
         return '2CPU';
-        break;
       case 256:
         return '1CPU（共享）';
-        break;
       case 512:
         return '1CPU（共享）';
-        break;
     }
   } else {
     return '-';
@@ -56,7 +54,7 @@ export default class AppServiceDetailInfo extends Component {
       if(container.env) {
         container.env.forEach(env => {
           ele.push(
-            <div className="dataBox">
+            <div className="dataBox" key={env.name}>
                <div className="commonTitle">
                  {env.name}
                </div>

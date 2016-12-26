@@ -67,8 +67,8 @@ class Register extends Component{
     let register = (
       <div key='b' id='RegisterPage'>
         <Top/>
-        <div className='register' style={{width:'40%'}}>
-          <Card className="registerForm" bordered={false}>
+        <div className='register registerFlex'>
+          <Card className="registerForm" bordered={false} style={{width: 440,padding: '0 24px 24px'}}>
             <div className='backToPage' onClick={this.handlePageChange}>&lt;&lt;&nbsp;&nbsp;&nbsp;重选注册账户类型</div>
             {
               this.state.person ?
@@ -82,14 +82,15 @@ class Register extends Component{
     let registerPage = (
       <div key='a' id='RegisterPage'>
         <Top/>
-        <div className='register' style={{padding:0}}>
-          <Card className="registerForm" bordered={false} style={{margin:'30px 50px 0'}}>
-            <AccountType onChange={this.handlePageChange} />
-          </Card>
-          <div className="accountFooter">
-            *&nbsp;个人帐户可以升级到企业帐户，但是企业帐户不可降级为个人帐户<br/>
-            *&nbsp;注册并完成认证后方可享受以上测试金及支持服务
-          </div>
+        <div className='register'>
+          <div className='registerTitle'></div>
+            <Card className="registerForm" bordered={false} style={{width: 720}}>
+              <AccountType onChange={this.handlePageChange} />
+              <div className="accountFooter">
+                *&nbsp;个人帐户可以升级到企业帐户，但是企业帐户不可降级为个人帐户<br/>
+                *&nbsp;注册并完成认证后方可享受以上测试金及支持服务
+              </div>
+            </Card>
         </div>
       </div>
     )

@@ -25,6 +25,10 @@ import { handleOnMessage } from './status'
 import { SHOW_ERROR_PAGE_ACTION_TYPES, LOGIN_EXPIRED_MESSAGE } from '../../constants'
 import errorHandler from './error_handler'
 import Intercom from 'react-intercom'
+import NotificationHandler from '../../common/notification_handler'
+
+const standard = require('../../../configs/constants').STANDARD_MODE
+const mode = require('../../../configs/model').mode
 
 class App extends Component {
   constructor(props) {
@@ -33,10 +37,13 @@ class App extends Component {
     this.handleLoginModalCancel = this.handleLoginModalCancel.bind(this)
     this.onStatusWebsocketSetup = this.onStatusWebsocketSetup.bind(this)
     this.getStatusWatchWs = this.getStatusWatchWs.bind(this)
+    this.handleUpgradeModalClose = this.handleUpgradeModalClose.bind(this)
     this.state = {
       siderStyle: props.siderStyle,
       loginModalVisible: false,
       loadLoginUserSuccess: true,
+      upgradeModalShow: false,
+      upgradeFrom: null,
     }
   }
 
@@ -70,8 +77,25 @@ class App extends Component {
       return
     }
     const { statusCode, message } = errorMessage.error
+    // 登录失效
     if (message === LOGIN_EXPIRED_MESSAGE) {
       this.setState({ loginModalVisible: true })
+      return
+    }
+    // 升级版本
+    if (statusCode === 412) {
+      let { kind, level } = message.details
+      level = parseInt(level)
+      // 超出专业版限额，发工单联系客服
+      let notification = new NotificationHandler()
+      if (level > 1) {
+        notification.warn(`您需要的资源超出专业版限额，请通过右下角联系客服`, '', null)
+        return
+      }
+      this.setState({
+        upgradeModalShow: true,
+        upgradeFrom: kind
+      })
       return
     }
     if (pathname !== this.props.pathname) {
@@ -112,7 +136,14 @@ class App extends Component {
     const { error } = errorMessage
 
     const { statusCode, message } = error
+    // 登录失效
     if (message === LOGIN_EXPIRED_MESSAGE) {
+      resetErrorMessage()
+      return
+    }
+
+    // 升级版本
+    if (statusCode === 412) {
       resetErrorMessage()
       return
     }
@@ -162,9 +193,10 @@ class App extends Component {
     if (!loginUser.tenxApi) {
       return
     }
+    let protocol = window.location.protocol == 'http:' ? 'ws:' : 'wss:'
     return (
       <Websocket
-        url={`ws://${loginUser.tenxApi.host}/spi/v2/watch`}
+        url={`${protocol}//${loginUser.tenxApi.host}/spi/v2/watch`}
         onSetup={this.onStatusWebsocketSetup}
         debug={false} />
     )
@@ -189,9 +221,30 @@ class App extends Component {
     }
     return children
   }
+
+  handleUpgradeModalClose() {
+    this.setState({
+      upgradeModalShow: false,
+    })
+  }
+
   render() {
-    let { children, pathname, redirectUrl, loginUser, Sider } = this.props
-    const { loginModalVisible, loadLoginUserSuccess, loginErr, siderStyle } = this.state
+    let {
+      children,
+      pathname,
+      redirectUrl,
+      loginUser,
+      Sider,
+      UpgradeModal,
+    } = this.props
+    const {
+      loginModalVisible,
+      loadLoginUserSuccess,
+      loginErr,
+      siderStyle,
+      upgradeModalShow,
+      upgradeFrom,
+    } = this.state
     const scope = this
     if (isEmptyObject(loginUser) && loadLoginUserSuccess) {
       return (
@@ -247,6 +300,13 @@ class App extends Component {
         </Modal>
         {this.getStatusWatchWs()}
         <Intercom appID='okj9h5pl' { ...user } />
+        {
+          UpgradeModal &&
+          <UpgradeModal
+            closeModal={this.handleUpgradeModalClose}
+            currentType={upgradeFrom}
+            visible={upgradeModalShow} />
+        }
       </div>
     )
   }
@@ -262,6 +322,7 @@ App.propTypes = {
   siderStyle: PropTypes.oneOf(['mini', 'bigger']),
   Sider: PropTypes.any.isRequired,
   intl: PropTypes.object.isRequired,
+  UpgradeModal: PropTypes.object, // 升级模块
 }
 
 App.defaultProps = {
