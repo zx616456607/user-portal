@@ -15,6 +15,9 @@ const i18n = require('i18next')
 const apiFactory = require('./api_factory')
 const logger = require('../utils/logger').getLogger('services/index')
 const constants = require('../constants')
+const config = require('../configs')
+const devOps = require('../configs/devops')
+const constantsConfig = require('../configs/constants')
 const USER_CURRENT_CONFIG = constants.USER_CURRENT_CONFIG
 
 exports.setUserCurrentConfigCookie = function* (loginUser) {
@@ -61,6 +64,7 @@ exports.getLicense = function* (loginUser) {
     plain.status = 'LICENSE_OK'
     plain.code = 0
   } catch (err) {
+    logger.error(err.stack)
     if (err.statusCode === 404) {
       plain.status = 'NO_LICENSE'
     } else {
@@ -74,6 +78,32 @@ exports.getLicense = function* (loginUser) {
       message: i18n.t(`common:license.${plain.status}`)
     }
   }
+}
+
+/**
+ * Add config into user for frontend websocket
+ *
+ * @param {Object} user
+ * @returns {Object}
+ */
+exports.addConfigsForWS = function (user) {
+  const NODE_ENV = config.node_env
+  const NODE_ENV_PROD = constantsConfig.NODE_ENV_PROD
+  const tenxApi = config.tenx_api
+  // Add api config
+  user.tenxApi = {
+    protocol: (NODE_ENV === NODE_ENV_PROD ? tenxApi.external_protocol : tenxApi.protocol),
+    host: (NODE_ENV === NODE_ENV_PROD ? tenxApi.external_host : tenxApi.host),
+  }
+  // Add devOps config
+  if (NODE_ENV === NODE_ENV_PROD) {
+    devOps.protocol = devOps.external_protocol
+    devOps.host = devOps.external_host
+  }
+  delete devOps.external_protocol
+  delete devOps.external_host
+  user.cicdApi = devOps
+  return user
 }
 
 function _decrypt(text) {
