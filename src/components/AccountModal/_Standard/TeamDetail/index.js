@@ -14,7 +14,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import InviteNewMemberModal from '../../InviteNewMemberModal'
 import { loadUserTeamList } from '../../../../actions/user'
-import { loadTeamUserListStd, removeTeamusersStd, cancelInvitation, dissolveTeam, sendInvitation } from '../../../../actions/team'
+import { loadTeamUserListStd, removeTeamusersStd, cancelInvitation, dissolveTeam, sendInvitation, getTeamDetail } from '../../../../actions/team'
 import DelTeamModal from '../../DelTeamModal'
 
 const confirm = Modal.confirm;
@@ -227,8 +227,9 @@ class TeamDetail extends Component {
     ]
   }
   componentWillMount() {
-    const { loadTeamUserListStd, teamID, } = this.props
-    loadTeamUserListStd(teamID, { sort: 'a,userName', size: 100, page: 1 })  
+    const { loadTeamUserListStd, teamID, getTeamDetail} = this.props
+    getTeamDetail(teamID)
+    loadTeamUserListStd(teamID, { sort: 'a,userName', size: 100, page: 1 })
   }
   
   render() {
@@ -301,6 +302,7 @@ function mapStateToProp(state, props) {
   const { team_id, team_name } = props.params
   let currentRole = false
   const { loginUser } = state.entities
+<<<<<<< HEAD
   const { user } = state
   console.log('user',user)
   if (user.teams && user.teams.result && user.teams.result.data
@@ -313,6 +315,12 @@ function mapStateToProp(state, props) {
         currentRole = item.isCreator
       }
     })
+=======
+  const { user, team } = state
+
+  if (team.teamDetail) {
+     currentRole = team.teamDetail.isCreator
+>>>>>>> qqq/dev-branch
   }
 
   let teamUserList = []
@@ -369,4 +377,5 @@ export default connect(mapStateToProp, {
   loadUserTeamList,
   dissolveTeam,
   sendInvitation,
+  getTeamDetail,
 })(TeamDetail)

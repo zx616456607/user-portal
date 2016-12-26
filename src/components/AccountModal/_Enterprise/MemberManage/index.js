@@ -46,7 +46,7 @@ let MemberTable = React.createClass({
     const { sortName } = this.state
     const { page, pageSize, filter } = this.props.scope.state
     let sort = this.getSort(!sortName, 'userName')
-    console.log('handle---sort',sort)
+    console.log('handle---sort',sort, "page and size: ", page, pageSize)
     loadUserList({
       page: page,
       size: pageSize,
@@ -61,12 +61,14 @@ let MemberTable = React.createClass({
   handleSortTeam() {
     const { loadUserList } = this.props.scope.props
     const { sortTeam } = this.state
+    const {page, pageSize, filter} = this.props.scope.state
     let sort = this.getSort(!sortTeam, 'teamCount')
+    console.log('handle---sortTeamCount',sort, "page and pageSize: ", page, pageSize)
     loadUserList({
-      page: this.state.page,
-      size: this.state.pageSize,
       sort,
-      filter: this.state.filter,
+      page: page,
+      size: pageSize,
+      filter: filter,
     })
     this.setState({
       sortTeam: !sortTeam,
@@ -76,12 +78,14 @@ let MemberTable = React.createClass({
   handleSortBalance() {
     const { loadUserList } = this.props.scope.props
     const { sortBalance } = this.state
+    const {page, pageSize, filter} = this.props.scope.state
     let sort = this.getSort(!sortBalance, 'balance')
+    console.log('handle---sortBalance',sort, "page and pageSize: ", page, pageSize)
     loadUserList({
-      page: this.state.page,
-      size: this.state.pageSize,
       sort,
-      filter: this.state.filter,
+      page: page,
+      size: pageSize,
+      filter: filter
     })
     this.setState({
       sortBalance: !sortBalance,

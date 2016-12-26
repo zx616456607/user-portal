@@ -133,9 +133,9 @@ class BaseInfo extends Component {
         <div className="modal-price">
           <div className="price-left">
             <div className="keys">实例：<span className="unit">￥0.04</span>/（个*小时）* { parentScope.state.replicas } 个</div>
-            <div className="keys">储存：<span className="unit">￥{ storagePrc }</span>/（GB*小时）</div>
+            <div className="keys">储存：<span className="unit">￥{ storagePrc } </span>/（GB*小时）* { parentScope.state.replicas } 个</div>
           </div>
-          <div className="price-unit">合计：<span style={{color:'#21ADEB'}}>￥</span><span className="unit blod">{(parentScope.state.storageValue /1000 * storagePrc +( parentScope.state.replicas * 0.04)).toFixed(3)} 元/小时</span></div>
+          <div className="price-unit">合计：<span style={{color:'#21ADEB'}}>￥</span><span className="unit blod">{(parentScope.state.storageValue /1000 * storagePrc * parentScope.state.replicas + ( parentScope.state.replicas * 0.04)).toFixed(3)} 元/小时</span></div>
         </div>
         {parentScope.state.putModaling ?
           <div className="modal-footer"><Button size="large" onClick={() => parentScope.colseModal()}>取消</Button><Button size="large" loading={true} type="primary">保存</Button></div>

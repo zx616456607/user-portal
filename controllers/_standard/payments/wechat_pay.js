@@ -27,6 +27,7 @@ exports.createPrepayRecord = function* () {
   delete this.session.payment_status
   // 交易金额默认为人民币交易，接口中参数支付金额单位为【分】，参数值不能带小数。对账单中的交易金额单位为【元】
   const body = this.request.body
+  const query = this.query
   let amount = body.amount
   if (!amount) {
     const err = new Error('amount is needed')
@@ -49,8 +50,8 @@ exports.createPrepayRecord = function* () {
       charge_amount: amount,
       order_type: 100, // 100 微信，101 支付宝
       verification_key: verificationKey,
-      upgrade: parseInt(body.upgrade),
-      duration: parseInt(body.duration),
+      upgrade: parseInt(query.upgrade),
+      duration: parseInt(query.duration),
     }
     const paymentOrderResult = yield spi.payments.create(paymentOrder)
     // step2: get qr code by wechat pay api

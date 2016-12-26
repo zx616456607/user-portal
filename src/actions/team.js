@@ -673,3 +673,24 @@ export function loginAndJointeam(email, password, invitationCode, callback) {
     return dispatch(fetchLoginAndJointeam(email, password, invitationCode, callback))
   }
 }
+
+export const GET_TEAM_DETAIL_REQUEST = 'GET_TEAM_DETAIL_REQUEST'
+export const GET_TEAM_DETAIL_SUCCESS = 'GET_TEAM_DETAIL_SUCCESS'
+export const GET_TEAM_DETAIL_FAILURE = 'GET_TEAM_DETAIL_FAILURE'
+
+function fetchGetTeamDetail(teamID) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}`
+  return {
+    [FETCH_API]: {
+      types: [GET_TEAM_DETAIL_REQUEST, GET_TEAM_DETAIL_SUCCESS, GET_TEAM_DETAIL_FAILURE],
+      endpoint,
+      schema: {},
+    },
+  }
+}
+
+export function getTeamDetail(teamID) {
+  return (dispatch, getState) => {
+    return dispatch(fetchGetTeamDetail(teamID))
+  }
+}

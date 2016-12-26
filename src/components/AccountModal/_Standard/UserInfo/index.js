@@ -161,7 +161,7 @@ class BaseInfo extends Component {
       return false
     }
     let fileName = namespace + (new Date() - 0) + '.' + ext
-    const filePath = this.uploadInstance.refs.upload.refs.inner.refs.file.value
+    const filePath = file.name
     const reader = new FileReader()
     const dataUrl = reader.readAsDataURL(file)
     reader.addEventListener('load', function () {

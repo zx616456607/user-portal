@@ -63,13 +63,14 @@ class AppServiceRental extends Component {
   }
   render() {
     const { serviceDetail } = this.props
+    const detaContainer = this.props.serviceDetail.spec.template.spec.containers[0]
     const dataRow = this.props.serviceDetail.spec.template.spec.containers.map((list, index)=> {
         return(
           <tr key={index}>
             <td>{this.props.serviceName}</td>
             <td>{this.formetCpuMemory(list.resources.requests.memory)}</td>
             <td>{serviceDetail.spec.replicas}</td>
-            <td>{this.formetPrice(list.resources.requests.memory) * (serviceDetail.spec.replicas) }元/小时</td>
+            <td>{this.formetPrice(list.resources.requests.memory) }元/小时</td>
           </tr>
         )
     })
@@ -84,7 +85,7 @@ class AppServiceRental extends Component {
           </div>
           */}
           <div className="dataBox" style={{padding:'0 25px'}}>
-            <div className="priceCount">合计价格：<span className="unit">￥60/小时</span></div>
+            <div className="priceCount">合计价格：<span className="unit">￥{this.formetPrice(detaContainer.resources.requests.memory) * (serviceDetail.spec.replicas) }/小时</span></div>
             <table className="table">
               <thead>
                 <tr>
