@@ -34,7 +34,7 @@ class UserBalance extends Component {
     document.title = '充值/续费 | 时速云'
     const { loadLoginUserDetail, loadUserTeamspaceList } = this.props
     loadLoginUserDetail()
-    loadUserTeamspaceList('default', { size: -1 }).then(({response}) => {
+    loadUserTeamspaceList('default', { size: 100 }).then(({response}) => {
       const { teamspaces } = response.result
       if (teamspaces && teamspaces[0]) {
         let currentTeam = teamspaces[0]
@@ -115,7 +115,7 @@ class UserBalance extends Component {
             <div className="moneyRow text-center">
               <i className="fa fa-users" />
               <div className="notText">您还没有团队账户，可以尝试创建团队</div>
-              <Button type="primary" onClick={() => browserHistory.push('/account/team')}>去创建</Button>
+              <Button type="primary" onClick={() => browserHistory.push('/account/teams')}>去创建</Button>
             </div>
           }
           {teamspaces.length > 0 ?

@@ -15,7 +15,7 @@ import SearchInput from '../../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserTeamList } from '../../../../actions/user'
 import {
-  createTeamAndSpace, 
+  createTeamAndSpace,
   addTeamusers, removeTeamusers, loadTeamUserList,
   checkTeamName, sendInvitation, quitTeam, dissolveTeam, getTeamDissoveable
 } from '../../../../actions/team'
@@ -162,7 +162,7 @@ let TeamTable = React.createClass({
   },
   //添加新成员
   addNewMember(teamID) {
-    this.props.loadTeamUserList(teamID, ({ size: -1 }))
+    this.props.loadTeamUserList(teamID, ({ size: 100 }))
     this.setState({
       addMember: true,
       nowTeamID: teamID
@@ -181,7 +181,7 @@ let TeamTable = React.createClass({
       showInviteModal: false
     })
   },
-  
+
   handleNewMemberOk() {
     const { addTeamusers, loadUserTeamList, rowKey } = this.props
     const { targetKeys, nowTeamID } = this.state
@@ -251,7 +251,7 @@ let TeamTable = React.createClass({
     let { sortedInfo, filteredInfo, targetKeys, showDelModal, sort } = this.state
     const { searchResult, filter } = this.props.scope.state
     const { scope, data, quitTeam, loadUserTeamList, dissolveTeam } = this.props
-    
+
     filteredInfo = filteredInfo || {}
     //分页器配置
     const pagination = {
@@ -313,7 +313,7 @@ let TeamTable = React.createClass({
         width: '10%',
         className: 'teamName',
         render: (text, record, index) => (
-          <Link to={`/account/team/${record.name}/${record.key}`}>{text}</Link>
+          <Link to={`/account/teams/${record.key}`}>{text}</Link>
         )
       },
       {
@@ -460,6 +460,7 @@ class MyTeam extends Component {
       filter: '',
       sort: 'a,teamName',
       showCreateSucModal: false,
+      newTeamID: '',
     }
   }
   //展示Modal
@@ -476,18 +477,19 @@ class MyTeam extends Component {
     notification.spin(`创建团队 ${team.teamName} 中...`)
     createTeamAndSpace(team, {
       success: {
-        func: () => {
+        func: (result) => {
           notification.close()
+          this.setState({
+            visible: false,
+            showCreateSucModal: true,
+            newTeamID: result.data.teamID,
+          })
           loadUserTeamList('default', {
             page: 1,
             current: 1,
             size: pageSize,
             sort,
             filter,
-          })
-          this.setState({
-            visible: false,
-            showCreateSucModal: true,
           })
         },
         isAsync: true,
@@ -517,7 +519,7 @@ class MyTeam extends Component {
   }
   render() {
     const scope = this
-    const { visible,showCreateSucModal } = this.state
+    const { visible,showCreateSucModal,newTeamID } = this.state
     const {
       teams, addTeamusers, loadUserTeamList,
       teamUserIDList, loadTeamUserList, checkTeamName, quitTeam, dissolveTeam
@@ -548,6 +550,7 @@ class MyTeam extends Component {
           <CreateTeamSuccessModal
             visible={showCreateSucModal}
             closeCreateSucModal={this.closeCreateSucModal}
+            teamID={newTeamID}
           />
           <CreateTeamModal
             scope={scope}
@@ -578,14 +581,13 @@ class MyTeam extends Component {
 }
 
 function mapStateToProp(state, props) {
-  console.log('state',state)
   let teamsData = {
     items:[],
   }
   let total = 0
   let teamUserIDList = []
   const teams = state.user.teams
-  
+
   if (!teams.isFetching && teams.result && teams.result.data && teams.result.data.data) {
     teamsData = teams.result.data.data
     teamsData.items.map((item) => {
@@ -599,7 +601,7 @@ function mapStateToProp(state, props) {
   return {
     teams: teamsData,
     total,
-    
+
   }
 }
 

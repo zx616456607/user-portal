@@ -20,7 +20,7 @@ import PublicSpace from './ImageCenter/PublicSpace.js'
 import OtherSpace from './ImageCenter/OtherSpace.js'
 import './style/ImageCenter.less'
 import { LoadOtherImage, addOtherStore, getImageDetailInfo, deleteOtherImage } from '../../actions/app_center'
-import { findIndex } from 'lodash'
+import findIndex from 'lodash/findIndex'
 import NotificationHandler from '../../common/notification_handler'
 
 let TweenOneGroup = TweenOne.TweenOneGroup;

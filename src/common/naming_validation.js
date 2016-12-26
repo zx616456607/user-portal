@@ -33,7 +33,9 @@ export function validateServiceConfig(name) {
   if (name.length < 3 || name.length > 63) {
     return false
   }
-  let regx = new RegExp('^[a-zA-Z][-_.a-zA-Z0-9]{1,61}[a-zA-Z0-9]$')
+  // TODO: not work with below syntax
+  // let regx = /^[a-z0-9]+([-.~/][a-z0-9]+)*$/
+  let regx = new RegExp('^[a-zA-Z][-_.a-zA-Z0-9]{0,61}[a-zA-Z0-9]$')
   if (!regx.test(name)) {
     return false
   }
