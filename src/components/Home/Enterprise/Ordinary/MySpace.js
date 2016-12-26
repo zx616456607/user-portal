@@ -406,7 +406,11 @@ class MySpace extends Component{
             </Card>
           </Col>
           <Col span={6} className='log'>
-          { isFetchingAuditLog ? <div className="loadingBox"><Spin size="large"></Spin></div>: this.getOperationLog()}
+          { isFetchingAuditLog ? [
+            <Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
+              <div className="loadingBox"><Spin size="large"></Spin></div>
+            </Card>
+            ] : this.getOperationLog()}
           </Col>
           <Col span={6} className='warn'>
             <Card title="告警" bordered={false} bodyStyle={{height:410}}>
