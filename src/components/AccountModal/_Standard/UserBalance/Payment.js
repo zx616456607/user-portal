@@ -201,7 +201,7 @@ class UserPay extends Component {
       upgrade,
       duration: period,
     }
-    getWechatPayQrCode(0.01, rechargeTarget.namespace, query).then(({ response, type }) => {
+    getWechatPayQrCode(amount, rechargeTarget.namespace, query).then(({ response, type }) => {
       const { codeUrl, nonceStr, orderId } = response.result
       this.setState({
         qrCode: {
