@@ -20,8 +20,80 @@
     font-weight: normal;
     font-size: 13px;
   }
+
+
+
   .content {
-    .clusterCost {}
+    .clusterCost {
+      .loginUser {
+        display: flex;
+        justify-content: space-between;
+        .logAvatar {
+          width: 46px;
+          height: 46px;
+          line-height: 46px;
+          border-radius: 50%;
+          color: #fff;
+          background-color: #D2EDFE;
+          float: left;
+          text-align: center;
+          font-size: 38px;
+          img {
+            height: 100%;
+            width: 100%;
+          }
+        }
+        .loginText {
+          padding-left: 7px;
+          flex:1;
+          .text {
+            line-height: 20px;
+            padding-top: 8px;
+            .userName {
+              font-size: 16px;
+              color: #46b2fa;
+              .edition {
+                width: 15px;
+                height: 15px;
+                margin-left: 5px;
+              }
+            }
+            .email {
+              font-size: 12px;
+            }
+          }
+        }
+        .loginTag {
+          float: right;
+          height: 20px;
+          line-height: 20px;
+          text-align: center;
+          font-size: 12px;
+          width: 40px;
+          margin-top: 18px;
+          border-radius: 2px;
+          color: #fff;
+          background-color: #c4c4c4;
+        }
+      }
+      .userCost {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 10px 0;
+        i {
+          display: inline-block;
+          width: 10px;
+          height: 10px;
+          margin-right: 5px;
+          border-radius: 3px;
+        }
+        .costNum {
+          flex:1;
+          text-align: left;
+        }
+      }
+    }
     .sysState {
       .errorDot {
         display: inline-block;
