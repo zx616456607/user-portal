@@ -15,7 +15,8 @@ import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
-import { remove, findIndex } from 'lodash'
+import remove from 'lodash/remove'
+import findIndex from 'lodash/findIndex'
 import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP } from '../../constants'
 import './style/storage.less'
@@ -543,7 +544,7 @@ class Storage extends Component {
       let volumeArray = this.state.volumeArray
       if (e.target.checked) {
         if (findIndex(volumeArray, { name }) >= 0) {
-          return 
+          return
         }
         volumeArray.push({
           name,
@@ -576,7 +577,7 @@ class Storage extends Component {
     }
   }
   handleInputName(e) {
-        
+
     let name = e.target.value;
     let errorMsg = volNameCheck(name, '存储名称');
     let errorFlag = false;
@@ -627,7 +628,7 @@ class Storage extends Component {
               <Button type="primary" size="large" onClick={this.showModal}>
                 <i className="fa fa-plus" /><FormattedMessage {...messages.createTitle} />
               </Button>
-              <Button type="ghost" className="stopBtn" size="large" onClick={() => { this.showDeleteModal() } } 
+              <Button type="ghost" className="stopBtn" size="large" onClick={() => { this.showDeleteModal() } }
                 disabled={!this.state.volumeArray || this.state.volumeArray.length < 1}>
                 <i className="fa fa-trash-o" /><FormattedMessage {...messages.delete} />
               </Button>
