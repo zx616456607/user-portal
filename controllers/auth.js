@@ -15,7 +15,6 @@ const logger = require('../utils/logger').getLogger('controllers/auth')
 const svgCaptcha = require('svg-captcha')
 const indexService = require('../services')
 const config = require('../configs')
-const devOps = require("../configs/devops")
 const enterpriseMode = require('../configs/constants').ENTERPRISE_MODE
 const emailUtil = require("../utils/email")
 const security = require("../utils/security")
@@ -119,16 +118,19 @@ exports.verifyUser = function* () {
     token: result.apiToken,
     role: result.role,
     balance: result.balance,
-    tenxApi: config.tenx_api,
-    cicdApi: devOps
   }
+  // Add config into user for frontend websocket
+  indexService.addConfigsForWS(loginUser)
   result.tenxApi = loginUser.tenxApi
   result.cicdApi = loginUser.cicdApi
-  const licenseObj = yield indexService.getLicense(loginUser)
-  if (licenseObj.plain.code === -1) {
-    const err = new Error(licenseObj.message)
-    err.status = 403
-    throw err
+  // Private cloud need check users license
+  if (config.running_mode === enterpriseMode) {
+    const licenseObj = yield indexService.getLicense(loginUser)
+    if (licenseObj.plain.code === -1) {
+      const err = new Error(licenseObj.message)
+      err.status = 403
+      throw err
+    }
   }
   yield indexService.setUserCurrentConfigCookie.apply(this, [loginUser])
   // Delete sensitive information
@@ -248,13 +250,13 @@ exports.verifyUserAndJoinTeam = function* () {
     logger.error(`Get user MD5 encrypted watch token failed.`)
     logger.error(err.stack)
   }
-  
+
   // join team
   const joinTeamBody = {
     code: body.invitationCode
   }
   yield spi.teams.createBy(['join'], null, joinTeamBody)
-  
+
   this.session.loginUser = loginUser
   delete result.active
   this.body = {
