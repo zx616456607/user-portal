@@ -36,7 +36,7 @@ const menusText = defineMessages({
   },
   creageCodeStore: {
     id: 'CICD.TenxStorm.creageCodeStore',
-    defaultMessage: '创建代码仓库',
+    defaultMessage: '关联代码仓库',
   },
   logout: {
     id: 'CICD.TenxStorm.logout',
@@ -225,6 +225,12 @@ const MyComponent = React.createClass({
       }
     })
   },
+  showGtilabModal() {
+    this.setState({ authorizeModal: true })
+    setTimeout(function(){
+      document.getElementById('codeSrc').focus()
+    },0)
+  },
   changeUrl(e) {
     this.setState({ regUrl: e.target.value })
   },
@@ -244,8 +250,8 @@ const MyComponent = React.createClass({
     if (!config) {
       return (
         <div style={{ lineHeight: '150px', paddingLeft: '250px' }}>
-          <Button type="primary" size="large" onClick={() => { this.setState({ authorizeModal: true }) } }>添加 Gitlab 代码仓库</Button>
-          <Modal title="添加 Gitlab 代码仓库" visible={this.state.authorizeModal}
+          <Button type="primary" size="large" onClick={() => this.showGtilabModal() }>添加 GitLab 代码仓库</Button>
+          <Modal title="添加 GitLab 代码仓库" visible={this.state.authorizeModal}
             footer={[
               <Button key="back" type="ghost" size="large" onClick={() => { this.setState({ authorizeModal: false }) } }>取消</Button>,
               <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={() => this.registryRepo()}>确定</Button>,
@@ -253,9 +259,9 @@ const MyComponent = React.createClass({
             >
             <div style={{ padding: "0 20px" }}>
               <p style={{ lineHeight: '30px' }}>仓库地址：
-                <Input placeholder="http://*** | https://***" onChange={this.changeUrl} value={this.state.regUrl} size="large" />
+                <Input placeholder="http://*** | https://***" id="codeSrc" onChange={this.changeUrl} value={this.state.regUrl} size="large" />
               </p>
-              <p style={{ lineHeight: '30px' }}>Private Token:
+              <p style={{ lineHeight: '30px' }}>Private Token：
                 <Input placeholder="Private Token: " size="large" onChange={this.changeToken} value={this.state.regToken} />
               </p>
             </div>
@@ -319,7 +325,8 @@ class CodeRepo extends Component {
   }
 
   loadData() {
-    const {getRepoList } = this.props
+    const {getRepoList, getUserInfo} = this.props
+    const self = this
     getRepoList('gitlab', {
       success: {
         func: (res) => {
@@ -360,13 +367,13 @@ class CodeRepo extends Component {
     const gitlabBud = (
       <span className="section">
         <i className="icon gitlab"></i>
-        gitlab
+        GitLab
       </span>
     )
     const githubBud = (
       <span className="section">
         <i className="icon github"></i>
-        github
+        GitHub
       </span>
     )
     const svnBud = (

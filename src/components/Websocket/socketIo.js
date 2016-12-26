@@ -21,7 +21,10 @@ class Websocket extends Component {
     if(!path) {
       path = '/'
     }
-    let ws = io(url + path, {
+    if(!protocol) protocol = 'http'
+    if(protocol == 'http') protocol = 'ws'
+    else protocol = 'wss'
+    let ws = io(protocol + '://' + url + path, {
         transports: ['websocket']
     })
     this.setState({

@@ -175,7 +175,7 @@ class Service extends Component {
           }
           Modal.error({
             title: '创建配置组',
-            content: (<h2>{errorText}</h2>),
+            content: (<h3>{errorText}</h3>),
           });
         }
       }
