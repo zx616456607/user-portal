@@ -73,9 +73,7 @@ class MySpace extends Component{
          if(index > 5) return
          if(index === 0) {
            return ele.push(
-             <Timeline.Item
-
-             >
+             <Timeline.Item>
                <div className="logItem">
                  <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''} ${formatResourceName(item.resourceName)}`}</div>
                  <div className="logInf">
@@ -404,7 +402,11 @@ class MySpace extends Component{
             </Card>
           </Col>
           <Col span={6} className='log'>
-          { isFetchingAuditLog ? <div className="loadingBox"><Spin size="large"></Spin></div>: this.getOperationLog()}
+          { isFetchingAuditLog ? [
+            <Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
+              <div className="loadingBox"><Spin size="large"></Spin></div>
+            </Card>
+            ] : this.getOperationLog() }
           </Col>
           <Col span={6} className='warn'>
             <Card title="告警" bordered={false} bodyStyle={{height:410}}>
