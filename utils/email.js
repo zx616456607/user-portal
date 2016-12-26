@@ -18,6 +18,7 @@ const logger = require('./logger').getLogger('email')
 const config = require('../configs')
 const fs = require('fs')
 const self = this
+const EMAIL_TEMPLATES_DIR = `__dirname/../templates/email`
 
 /**
  * Send email use SMTP
@@ -69,10 +70,10 @@ exports.sendUserCreationEmail = function (to, creatorName, creatorEmail, userNam
     subject: subject, // Subject line
   }
 
-  fs.readFile('templates/email/user_creation.html', 'utf8', function (err, data) {
+  fs.readFile(`${EMAIL_TEMPLATES_DIR}/user_creation.html`, 'utf8', function (err, data) {
     if (err) {
       logger.error(method, err)
-      reject(err)
+      return
     }
     data = data.replace(/\${subject}/g, subject)
     data = data.replace(/\${creatorName}/g, creatorName)
@@ -99,10 +100,10 @@ exports.sendInviteTeamMemberEmail = function (to, invitorName, invitorEmail, tea
     subject: subject, // Subject line
   }
 
-  fs.readFile('templates/email/invite_team_member.html', 'utf8', function (err, data) {
+  fs.readFile(`${EMAIL_TEMPLATES_DIR}/invite_team_member.html`, 'utf8', function (err, data) {
     if (err) {
       logger.error(method, err)
-      reject(err)
+      return
     }
     data = data.replace(/\${subject}/g, subject)
     data = data.replace(/\${invitorName}/g, invitorName)
@@ -128,10 +129,10 @@ exports.sendCancelInvitationEmail = function (to, invitorName, invitorEmail, tea
     subject: subject, // Subject line
   }
 
-  fs.readFile('templates/email/cancel_invitation.html', 'utf8', function (err, data) {
+  fs.readFile(`${EMAIL_TEMPLATES_DIR}/cancel_invitation.html`, 'utf8', function (err, data) {
     if (err) {
       logger.error(method, err)
-      reject(err)
+      return
     }
     data = data.replace(/\${subject}/g, subject)
     data = data.replace(/\${invitorName}/g, invitorName)
@@ -165,10 +166,10 @@ exports.sendDismissTeamEmail = function (teamAdminName, teamAdminEmail, teamMemb
       continue
     }
 
-    fs.readFile('templates/email/' + templateFiles[i], 'utf8', function (err, data) {
+    fs.readFile(`${EMAIL_TEMPLATES_DIR}/aa/${templateFiles[i]}`, 'utf8', function (err, data) {
       if (err) {
         logger.error(method, err)
-        reject(err)
+        return
       }
       data = data.replace(/\${subject}/g, subject)
       data = data.replace(/\${teamAdminName}/g, teamAdminName)
@@ -204,10 +205,10 @@ exports.sendExitTeamEmail = function (teamAdminEmail, teamMemberEmail, teamMembe
       continue
     }
 
-    fs.readFile('templates/email/remove_team_member.html', 'utf8', function (err, data) {
+    fs.readFile(`${EMAIL_TEMPLATES_DIR}/remove_team_member.html`, 'utf8', function (err, data) {
       if (err) {
         logger.error(method, err)
-        reject(err)
+        return
       }
       data = data.replace(/\${subject}/g, subject)
       data = data.replace(/\${content}/g, contents[i])
@@ -240,10 +241,10 @@ exports.sendRemoveTeamMemberEmail = function (teamAdminName, teamAdminEmail, tea
       continue
     }
 
-    fs.readFile('templates/email/remove_team_member.html', 'utf8', function (err, data) {
+    fs.readFile(`${EMAIL_TEMPLATES_DIR}/remove_team_member.html`, 'utf8', function (err, data) {
       if (err) {
         logger.error(method, err)
-        reject(err)
+        return
       }
       data = data.replace(/\${subject}/g, subject)
       data = data.replace(/\${content}/g, contents[i])
@@ -272,7 +273,7 @@ exports.sendResetPasswordEmail = function (to, resetPasswordURL) {
     subject: subject, // Subject line
   }
 
-  let data = fs.readFileSync('templates/email/reset_password.html', 'utf8');
+  let data = fs.readFileSync(`${EMAIL_TEMPLATES_DIR}/reset_password.html`, 'utf8');
 
   data = data.replace(/\${subject}/g, subject)
   data = data.replace(/\${systemEmail}/g, systemEmail)
@@ -308,7 +309,7 @@ exports.sendChargeSuccessEmail = function (to, payMethod, payAmount, payBalance,
     subject: subject, // Subject line
   }
 
-  fs.readFile('templates/email/charge_success.html', 'utf8', function (err, data) {
+  fs.readFile(`${EMAIL_TEMPLATES_DIR}/charge_success.html`, 'utf8', function (err, data) {
     if (err) {
       logger.error(method, err)
       return
@@ -337,10 +338,10 @@ exports.sendUserActivationEmail = function (to, userActivationURL) {
     subject: subject, // Subject line
   }
 
-  fs.readFile('templates/email/user_activation.html', 'utf8', function (err, data) {
+  fs.readFile(`${EMAIL_TEMPLATES_DIR}/user_activation.html`, 'utf8', function (err, data) {
     if (err) {
       logger.error(method, err)
-      reject(err)
+        return
     }
     data = data.replace(/\${subject}/g, subject)
     data = data.replace(/\${systemEmail}/g, systemEmail)
