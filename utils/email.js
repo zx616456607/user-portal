@@ -166,7 +166,7 @@ exports.sendDismissTeamEmail = function (teamAdminName, teamAdminEmail, teamMemb
       continue
     }
 
-    fs.readFile(`${EMAIL_TEMPLATES_DIR}/aa/${templateFiles[i]}`, 'utf8', function (err, data) {
+    fs.readFile(`${EMAIL_TEMPLATES_DIR}/${templateFiles[i]}`, 'utf8', function (err, data) {
       if (err) {
         logger.error(method, err)
         return
