@@ -17,6 +17,7 @@ import { connect } from 'react-redux'
 import { loadStdClusterInfo } from '../../../../actions/overview_cluster'
 import ProgressBox from '../../../ProgressBox'
 import { Link } from 'react-router'
+import { AVATAR_HOST } from '../../../../constants'
 
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -212,6 +213,20 @@ class Ordinary extends Component{
     const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,clusterDbServices,spaceName,clusterName,clusterNodeSpaceConsumption,loginUser} = this.props
     const { userName, email, avatar, certInfos } = loginUser
     let certName = '个人'
+    //判断类别
+    if (certInfos && certInfos.length >= 0) {
+      let length = certInfos.length
+      for (let i = 0; i < length; i++) {
+        if (certInfos[i].type == 2 && certInfos[i].status == 4) {
+          certName = "企业"
+          break
+        }
+        if (certInfos[i].type == 3 && certInfos[i].status == 4) {
+          certName = "组织"
+          break
+        }
+      }
+    }
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
       boxPos = (clusterStorage.usedSize/(clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(4)
@@ -515,42 +530,44 @@ class Ordinary extends Component{
         <Row className="title">{spaceName} - {clusterName}</Row>
         <Row className="content" gutter={16}>
           <Col span={6} className='clusterCost'>
-            <Card title="帐户余额" bordered={false} bodyStyle={{height:200,display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
+            <Card title="帐户余额" bordered={false}>
               {/*<ReactEcharts
                 notMerge={true}
                 option={getClusterCostOption(clusterNodeSpaceConsumption.consumption/100, clusterNodeSpaceConsumption.balance/100)}
                 style={{height:'200px'}}
               />*/}
-              <div className='loginUser'>
-                <div className='logAvatar'>
-                    <img alt={userName} src={avatar} />
-                </div>
-                <div className="loginText">
-                  <div className="text">
-                    <p className="userName">
-                      {userName}
-                    </p>
-                    <p className="email">{email || '...'}</p>
+              <div className='costInfo'>
+                <div className='loginUser'>
+                  <div className='logAvatar'>
+                      <img alt={userName} src={`${AVATAR_HOST}${avatar}`} />
                   </div>
-                </div>
-                <div className='loginTag'>{certName}</div>
-              </div>
-              <div>
-                <div className='userCost'>
-                  <div>
-                    <i style={{backgroundColor:'#46b2fa'}}></i>
-                    余额&nbsp;:&nbsp;
+                  <div className="loginText">
+                    <div className="text">
+                      <p className="userName">
+                        {userName}
+                      </p>
+                      <p className="email">{email || '...'}</p>
+                    </div>
                   </div>
-                  <span className='costNum'>¥{clusterNodeSpaceConsumption.consumption/100}</span>
-                  <Button type='primary'><Link to='/account/balance'>去充值</Link></Button>
+                  <div className='loginTag'>{certName}</div>
                 </div>
-                <div className='userCost'>
-                  <div>
-                    <i style={{backgroundColor: '#28bd83'}}></i>
-                    消费&nbsp;:&nbsp;
+                <div>
+                  <div className='userCost'>
+                    <div>
+                      <i style={{backgroundColor:'#46b2fa'}}></i>
+                      余额&nbsp;:&nbsp;
+                    </div>
+                    <span className='costNum'>¥{clusterNodeSpaceConsumption.consumption/100}</span>
+                    <Button type='primary'><Link to='/account/balance'>去充值</Link></Button>
                   </div>
-                  <span className='costNum'>¥{clusterNodeSpaceConsumption.balance/100}</span>
-                  <Button type='primary'><Link to='/account/cost'>去查看</Link></Button>
+                  <div className='userCost'>
+                    <div>
+                      <i style={{backgroundColor: '#28bd83'}}></i>
+                      消费&nbsp;:&nbsp;
+                    </div>
+                    <span className='costNum'>¥{clusterNodeSpaceConsumption.balance/100}</span>
+                    <Button type='primary'><Link to='/account/cost'>去查看</Link></Button>
+                  </div>
                 </div>
               </div>
             </Card>

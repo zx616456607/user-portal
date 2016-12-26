@@ -174,7 +174,7 @@ class UserPanel extends Component {
           text: '修改密码',
         },
         {
-          to: '/account/team',
+          to: '/account/teams',
           svgHref: '#logteam',
           text: '我的团队',
         },
