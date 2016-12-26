@@ -71,6 +71,9 @@ let SvnComponent = React.createClass({
   },
   setModalStaus(status) {
     const scope = this.props.form
+    setTimeout(function() {
+      document.getElementById('name').focus()
+    }, 0);
     if (status) {
       scope.resetFields()
     }
@@ -78,6 +81,10 @@ let SvnComponent = React.createClass({
   },
   svnNameCheck(rule, value, callback) {
     //this function for format svn name
+    if (!value) {
+      callback()
+      return
+    }
     let errorMsg = appNameCheck(value, '名称');
     if(errorMsg == 'success') {
       callback();
@@ -153,61 +160,58 @@ let SvnComponent = React.createClass({
     };
     const forName = getFieldProps('name', {
       rules: [
-        { message: "输入名称" },
+        { required: true, message: "请输入名称" },
         { validator: this.svnNameCheck }
       ],
-      initialValue: ''
     });
     const forUrl = getFieldProps('address', {
       rules: [
-        { required: true, message: "输入地址" }
+        { required: true, message: "请输入地址" }
       ],
-      initialValue: ''
     });
     const forType = getFieldProps('type', {
       initialValue: true
     });
     const forUsername = getFieldProps('username', {
-      initialValue: ''
     });
     const forPassword = getFieldProps('password', {
-      initialValue: ''
     });
     return (
       <div style={{ lineHeight: '150px', paddingLeft: '250px' }}>
         <Button type="primary" size="large" onClick={() => this.setModalStaus(true)}>添加 SVN 代码仓库</Button>
-        <Modal title="添加代码源" wrapClassName="svnModal" visible={this.state.authorizeModal}
-          onCancel={() => this.setModalStaus(false)}
+        <Modal title="添加 SVN 代码源" wrapClassName="svnModal" visible={this.state.authorizeModal}
+          onCancel={() => this.setModalStaus(false)} maskClosable={false}
           footer={null}
           >
           <div style={{ padding: "25px 0" }}>
             <Form horizontal onSubmit={this.handleSubmit}>
-              <FormItem  {...formItemLayout} hasFeedback label="名称：">
-                <Input placeholder="输入名称" size="large" {...forName} />
+              <FormItem  {...formItemLayout} hasFeedback label="名称 ：">
+                <Input placeholder="输入名称" id="name" size="large" {...forName} />
               </FormItem>
 
-              <FormItem {...formItemLayout} hasFeedback label="地址：" >
-                <Input placeholder="" size="large" {...forUrl} />
+              <FormItem {...formItemLayout} hasFeedback label="地址 ：" >
+                <Input placeholder="http://*** | https://***" size="large" {...forUrl} />
               </FormItem>
 
-              <FormItem {...formItemLayout} label="类型：">
+              <FormItem {...formItemLayout} label="类型 ：">
                 <Switch defaultChecked={true} {...forType } onChange={(e) => { this.setState({ privateType: e }) } } checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
               </FormItem>
 
               {!this.state.privateType ?
                 [<QueueAnim type='right' key='svnModal-type'>
-                  <FormItem {...formItemLayout} label="用户名: ">
+                  <FormItem {...formItemLayout} label="用户名 : ">
                     <Input placeholder="输入用户名称" size="large" {...forUsername } />
                   </FormItem>
 
-                  <FormItem {...formItemLayout} label="密码: ">
+                  <FormItem {...formItemLayout} label="密码 : ">
                     <Input type="password" placeholder="请输入密码" {...forPassword} />
                   </FormItem>
                 </QueueAnim>]
                 : null
               }
               <FormItem wrapperCol={{ span: 16, offset: 6 }} style={{ marginTop: 24 }}>
-                <Button type="primary" htmlType="submit" loading={this.state.submiting}>确定</Button>
+                <Button type="ghost" onClick={()=>this.setState({authorizeModal: false})}>取消</Button>
+                <Button type="primary" htmlType="submit" loading={this.state.submiting} style={{marginLeft:'8px'}}>确定</Button>
               </FormItem>
             </Form>
 
