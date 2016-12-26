@@ -14,6 +14,7 @@ import React, { Component, PropTypes } from 'react'
 import { Icon, Popover, Button } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import "./style/UserPanel.less"
+import { AVATAR_HOST } from '../../constants'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -92,7 +93,7 @@ class UserPanel extends Component {
         <div className='logAvatar'>
           {
             mode === standard
-            ? (<img alt={userName} src={avatar} />)
+            ? (<img alt={userName} src={`${AVATAR_HOST}${avatar}`} />)
             : userName.substr(0, 1).toUpperCase()
           }
         </div>

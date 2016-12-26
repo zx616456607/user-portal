@@ -22,11 +22,13 @@ const config = {
   session_key: 'tce',
   session_secret: ['tenxcloud_dashboard', 'secret_dream008'],
   tenx_api: {
+    external_protocol: env.TENX_API_EXTERNAL_PROTOCOL || 'https',
+    external_host: env.TENX_API_EXTERNAL_HOST || 'apiv2.tenxcloud.com',
     protocol: env.TENX_API_PROTOCOL || 'http',
     host: env.TENX_API_HOST || '192.168.1.103:48000'
     // host: "localhost:8000" || env.TENX_API_HOST
-    // host: "192.168.0.30:8000" || env.TENX_API_HOST
-//     host: "192.168.0.230:8000" || env.TENX_API_HOST
+    // host: "192.168.0.8:8000" || env.TENX_API_HOST
+    // host: "192.168.0.230:8000" || env.TENX_API_HOST
     // host: "192.168.3.3:48000" || env.TENX_API_HOST
   },
   mail_server: {

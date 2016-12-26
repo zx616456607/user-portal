@@ -272,7 +272,7 @@ if (config.protocol !== 'https') {
     key: fs.readFileSync(prikeyfile),
     cert: fs.readFileSync(certfile)
   }
-  const server = https.createServer(httpsoptions, app.callback()).listen(config.port, config.host, function () {
+  server = https.createServer(httpsoptions, app.callback()).listen(config.port, config.host, function () {
     setTimeout(function () {
       logger.info(`${app.name}@${app.version} is listening on port ${config.port}`)
       logger.info(`Open up https://${config.hostname}:${config.port}/ in your browser`)

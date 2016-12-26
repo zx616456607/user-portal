@@ -20,6 +20,8 @@ import { loadStandardUserInfo, changeUserInfo } from '../../../../actions/user.j
 import { getQiNiuToken } from '../../../../actions/upload.js'
 import NotificationHandler from '../../../../common/notification_handler.js'
 import uploadFile from '../../../../common/upload.js'
+import { AVATAR_HOST } from '../../../../constants'
+import { loadLoginUserDetail } from '../../../../actions/entities'
 
 const TabPane = Tabs.TabPane
 const createForm = Form.create
@@ -64,7 +66,7 @@ class BaseInfo extends Component {
       const self = this
       const fileName = this.state.fileName
       const file = this.state.file
-      this.props.getQiNiuToken('certificate', fileName, {
+      this.props.getQiNiuToken('avatars', fileName, {
         success: {
           func: (result) => {
             self.setState({
@@ -84,10 +86,11 @@ class BaseInfo extends Component {
               size: 2 * 1024 * 1024,
               fileType: ['jpg', 'png', 'gif']
             }).then(response => {
-              const url = `${result.origin}/${response.key}`
+              const url = `${response.key}`
               self.setState({
                 userIconsrc: url,
-                disabledButton: false
+                disabledButton: false,
+                isBase64: false
               })
               self.changeUserAvator(url)
             }).catch(err => {
@@ -126,7 +129,9 @@ class BaseInfo extends Component {
             })
             notification.close()
             notification.success('更换头像成功')
-          }
+            self.props.loadLoginUserDetail()
+          },
+          isAsync: true
         },
         failed: {
           func: (result) => {
@@ -169,7 +174,8 @@ class BaseInfo extends Component {
         filePath: filePath,
         file: file,
         fileName: fileName,
-        userIconsrc: reader.result
+        userIconsrc: reader.result,
+        isBase64: true
       })
     }, false)
     return false
@@ -216,7 +222,8 @@ class BaseInfo extends Component {
       currentKey: key,
       userIconsrc: user.avatar,
       filePath: '',
-      fileName: ''
+      fileName: '',
+      isBase64: false
     })
   }
   hideModal() {
@@ -310,7 +317,7 @@ class BaseInfo extends Component {
       <div className="baseInfo">
         <div className="topBox">
           <div className="userimage">
-            <img src={`${userDetail.avatar}`} />
+            <img src={`${AVATAR_HOST}${userDetail.avatar}`} />
           </div>
           <div className="topbar userBtn">
             <p>Hi, 换个自己喜欢的头像吧！</p>
@@ -398,17 +405,17 @@ class BaseInfo extends Component {
             <TabPane tab="个性头像选择" key="11">
               <div className="images">
                 <div className="leftBox">
-                  <img src="/img/standard/icon-1.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-1.jpg')} />
-                  <img src="/img/standard/icon-2.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-2.jpg')} />
-                  <img src="/img/standard/icon-3.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-3.jpg')} />
-                  <img src="/img/standard/icon-4.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-4.jpg')} />
-                  <img src="/img/standard/icon-5.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-5.jpg')} />
-                  <img src="/img/standard/icon-6.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-6.jpg')} />
-                  <img src="/img/standard/icon-1.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-1.jpg')} />
+                  <img src={`${AVATAR_HOST}icon-1.jpg`} className="userIcon" onClick={() => this.setUserIcon('icon-1.jpg')} />
+                  <img src={`${AVATAR_HOST}icon-2.jpg`} className="userIcon" onClick={() => this.setUserIcon('icon-2.jpg')} />
+                  <img src={`${AVATAR_HOST}icon-3.jpg`} className="userIcon" onClick={() => this.setUserIcon('icon-3.jpg')} />
+                  <img src={`${AVATAR_HOST}icon-4.jpg`} className="userIcon" onClick={() => this.setUserIcon('icon-4.jpg')} />
+                  <img src={`${AVATAR_HOST}icon-5.jpg`} className="userIcon" onClick={() => this.setUserIcon('icon-5.jpg')} />
+                  <img src={`${AVATAR_HOST}icon-6.jpg`} className="userIcon" onClick={() => this.setUserIcon('icon-6.jpg')} />
+                  <img src={`${AVATAR_HOST}icon-7.jpg`} className="userIcon" onClick={() => this.setUserIcon('icon-7.jpg')} />
                 </div>
                 <div className="rightBox">
                   <div className="useIcon">
-                    <img src={`${this.state.userIconsrc}`} />
+                    <img src={`${AVATAR_HOST}${this.state.userIconsrc}`} />
                   </div>
                   <div>头像预览</div>
                 </div>
@@ -428,7 +435,7 @@ class BaseInfo extends Component {
                 </div>
                 <div className="rightBox">
                   <div className="useIcon">
-                    <img src= {this.state.userIconsrc} />
+                    <img src= {this.state.isBase64 ? this.state.userIconsrc : AVATAR_HOST + this.state.userIconsrc} />
                   </div>
                   <div>头像预览</div>
                 </div>
@@ -450,7 +457,8 @@ function baseInfoMapStateToProps(state) {
 BaseInfo = connect(baseInfoMapStateToProps, {
   loadStandardUserInfo,
   changeUserInfo,
-  getQiNiuToken
+  getQiNiuToken,
+  loadLoginUserDetail
 })(BaseInfo)
 
 
