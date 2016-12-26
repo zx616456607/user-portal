@@ -210,7 +210,7 @@ let TeamTable = React.createClass({
       sort,
       filter,
       showSizeChanger: true,
-      defaultPageSize: 5,
+      defaultPageSize: 10,
       defaultCurrent: 1,
       current: this.props.scope.state.current,
       pageSizeOptions: ['5', '10', '15', '20'],
@@ -364,7 +364,7 @@ class TeamManage extends Component {
       notFound: false,
       visible: false,
       teamName: '',
-      pageSize: 5,
+      pageSize: 10,
       page: 1,
       current: 1,
       sort: 'a,teamName'
@@ -415,7 +415,7 @@ class TeamManage extends Component {
     document.title = '团队管理 | 时速云'
     this.props.loadUserTeamList('default', {
       page: 1,
-      size: 5,
+      size: 10,
       sort: "a,teamName",
       filter: "",
     })

@@ -19,12 +19,6 @@ import DelTeamModal from '../../DelTeamModal'
 
 const confirm = Modal.confirm;
 
-const data = [
-  {key: '1',name: 'zhaoxy1',tel: '123',email:'1111@tenxcloud.com',role:1},
-  {key: '2',name: 'zhaoxy2',tel: '123',email:'1111@tenxcloud.com',role:1},
-  {key: '3',name: 'zhaoxy3',tel: '123',email:'1111@tenxcloud.com',role:1},
-  {key: '4',name: 'zhaoxy4',tel: '123',email:'1111@tenxcloud.com',role:1},
-]
 class TeamDetail extends Component {
   constructor(props) {
     super(props)
@@ -285,6 +279,7 @@ class TeamDetail extends Component {
                   visible={showDelModal}
                   closeDelTeamModal={this.closeDelTeamModal}
                   teamID={teamID}
+                  teamName={teamName}
                   dissolveTeam={dissolveTeam}
                   loadUserTeamList={loadUserTeamList}
                 />
