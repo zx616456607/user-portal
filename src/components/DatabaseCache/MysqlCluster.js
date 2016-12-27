@@ -180,7 +180,7 @@ class MysqlCluster extends Component {
           <ModalDetail scope={parentScope} database={this.props.database} dbName={this.state.currentDatabase} />
         </Modal>
         <Modal visible={this.state.CreateDatabaseModalShow}
-          className='CreateDatabaseModal' maskClosable={false}
+          className='CreateDatabaseModal' maskClosable={false} width={600}
           title='创建数据库集群'
           onCancel={() => { this.setState({ CreateDatabaseModalShow: false }) } }
           >
