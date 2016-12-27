@@ -255,7 +255,7 @@ class Admin extends Component{
                       return (
                         <Row className="teamCostItem">
                           <Col span={16} style={{paddingLeft:40}}>{item.teamname}</Col>
-                          <Col span={8} style={{paddingLeft:10}}>消费 {item.consumption / 100} T</Col>
+                          <Col span={8} style={{paddingLeft:10}}>消费 {parseAmount(item.consumption).fullAmount}</Col>
                         </Row>
                       )
                     })

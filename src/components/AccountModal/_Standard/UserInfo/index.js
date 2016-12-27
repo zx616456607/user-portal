@@ -20,6 +20,7 @@ import { loadStandardUserInfo, changeUserInfo } from '../../../../actions/user.j
 import { getQiNiuToken } from '../../../../actions/upload.js'
 import NotificationHandler from '../../../../common/notification_handler.js'
 import uploadFile from '../../../../common/upload.js'
+import { parseAmount } from '../../../../common/tools.js'
 import { AVATAR_HOST } from '../../../../constants'
 import { loadLoginUserDetail } from '../../../../actions/entities'
 
@@ -324,7 +325,7 @@ class BaseInfo extends Component {
             <Button type="primary" onClick={() => this.setState({ uploadModalVisible: true })}>更换头像</Button>
           </div>
           <div className="to-recharge">
-            <p className="money">{userDetail.balance / 100 }元</p>
+            <p className="money">{ parseAmount(userDetail.balance).amount }元</p>
             <p className="money-desc">我的帐户余额</p>
             <Button type="primary"><Link to="/account/balance/payment">去充值</Link></Button>
           </div>
