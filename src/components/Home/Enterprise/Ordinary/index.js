@@ -16,6 +16,7 @@ import { getAppStatus, getServiceStatus, getContainerStatus } from '../../../../
 import { connect } from 'react-redux'
 import { loadClusterInfo } from '../../../../actions/overview_cluster'
 import ProgressBox from '../../../ProgressBox'
+import { parseAmount } from '../../../../common/tools'
 
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -208,11 +209,11 @@ class Ordinary extends Component{
     clusterAppStatus.svcMap.get('Pending')?clusterAppStatus.svcMap.get('Pending'):0
     //容器
     let conRunning = clusterAppStatus.podMap.get('Running')
-    let conFailed = clusterAppStatus.podMap.get('Failed') || 0 + 
+    let conFailed = clusterAppStatus.podMap.get('Failed') || 0 +
       clusterAppStatus.podMap.get('Abnormal')?clusterAppStatus.podMap.get('Abnormal'):0
     let conOthers = clusterAppStatus.podMap.get('Pending')?clusterAppStatus.podMap.get('Pending'):0 +
       clusterAppStatus.podMap.get('Terminating')?clusterAppStatus.podMap.get('Terminating'):0 +
-      clusterAppStatus.podMap.get('Unknown')?clusterAppStatus.podMap.get('Unknown'):0 
+      clusterAppStatus.podMap.get('Unknown')?clusterAppStatus.podMap.get('Unknown'):0
 
     appRunning = appRunning ? appRunning:0
     appStopped = appStopped ? appStopped:0
@@ -738,7 +739,7 @@ class Ordinary extends Component{
             <Card title="本日该集群消费" bordered={false} bodyStyle={{height:220,padding:'0 24px'}}>
               <ReactEcharts
                 notMerge={true}
-                option={getClusterCostOption(clusterNodeSpaceConsumption.consumption/100, clusterNodeSpaceConsumption.balance/100)}
+                option={getClusterCostOption(parseAmount(clusterNodeSpaceConsumption.consumption).amount, parseAmount(clusterNodeSpaceConsumption.balance).amount)}
                 style={{height:'200px'}}
                 showLoading={isFetching}
               />
