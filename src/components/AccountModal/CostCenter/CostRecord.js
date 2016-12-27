@@ -19,7 +19,7 @@ import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
 import { loadConsumptionDetail, loadConsumptionTrend, loadSpaceSummaryInDay, loadSpaceSummary } from '../../../actions/consumption'
 import TeamCost from './TeamCost'
 import ReactEcharts from 'echarts-for-react'
-import { formatDate } from '../../../common/tools'
+import { formatDate, parseAmount } from '../../../common/tools'
 import moment from 'moment'
 
 const MonthPicker = DatePicker.MonthPicker

@@ -13,6 +13,7 @@ import './style/TeamCost.less'
 import { connect } from 'react-redux'
 import ReactEcharts from 'echarts-for-react'
 import { loadTeamSummary } from '../../../actions/consumption'
+import { parseAmount } from '../../../common/tools'
 import moment from 'moment'
 
 const MonthPicker = DatePicker.MonthPicker
@@ -87,8 +88,8 @@ class TeamCost extends Component{
       let cost = 0
       let balance = 0
       if (!teamSummary.isFetching) {
-        cost = teamSummary.consumption / 100
-        balance = teamSummary.balance / 100
+        cost = parseAmount(teamSummary.consumption).amount
+        balance = parseAmount(teamSummary.balance).amount
       }
       return {
         tooltip: {

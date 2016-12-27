@@ -15,6 +15,7 @@ import { Icon, Button, Popover, } from 'antd'
 import PopContent from '../../../PopSelect/Content'
 import { loadLoginUserDetail } from '../../../../actions/entities'
 import { loadUserTeamspaceList } from '../../../../actions/user'
+import { parseAmount } from '../../../../common/tools'
 import './style/balance.less'
 
 class UserBalance extends Component {
@@ -64,10 +65,10 @@ class UserBalance extends Component {
     let { balance, envEdition } = loginUser
     let spaceBalance = currentTeam.balance
     if (balance !== undefined) {
-      balance = (balance / 100).toFixed(2)
+      balance = parseAmount(balance).amount
     }
     if (spaceBalance !== undefined) {
-      spaceBalance = (spaceBalance / 100).toFixed(2)
+      spaceBalance = parseAmount(spaceBalance).amount
     }
     // show team name instand of space name in standard mode
     teamspaces.map(space => {

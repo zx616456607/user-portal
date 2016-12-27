@@ -20,7 +20,7 @@ import { upgradeOrRenewalsEdition } from '../../../../actions/user_preference'
 import QRCode from 'qrcode.react'
 import NotificationHandler from '../../../../common/notification_handler'
 import './style/balance.less'
-import { formatDate } from '../../../../common/tools'
+import { formatDate, parseAmount } from '../../../../common/tools'
 
 const periodPrice = {
   period_1: 99,
@@ -389,7 +389,7 @@ class UserPay extends Component {
       }*/
       this.setState({
         payType: method,
-        amount: chargeAmount / 100,
+        amount: parseAmount(chargeAmount).amount,
         balance: newBalance,
         payStatusModal: true,
         payStatusAskModal: false,
@@ -422,7 +422,7 @@ class UserPay extends Component {
     } = this.state
     let userBalance = loginUser.balance
     if (userBalance !== undefined) {
-      userBalance = userBalance / 100
+      userBalance = parseAmount(userBalance).amount
     }
     // 续费升级
     if (hash === '#upgrade' || hash === '#renewals') {
@@ -662,7 +662,7 @@ class UserPay extends Component {
       upgradeModalVisible,
     } = this.state
     if (balance !== undefined) {
-      balance = (balance / 100).toFixed(2)
+      balance = parseAmount(balance).amount
     }
     return (
       <div id="UserPay">

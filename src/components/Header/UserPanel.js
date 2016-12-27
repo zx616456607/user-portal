@@ -15,6 +15,7 @@ import { Icon, Popover, Button } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import "./style/UserPanel.less"
 import { AVATAR_HOST } from '../../constants'
+import { parseAmount } from '../../common/tools'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -132,7 +133,7 @@ class UserPanel extends Component {
     const { loginUser } = this.props
     let { balance } = loginUser
     if (balance !== undefined) {
-      balance = (balance / 100).toFixed(2)
+      balance = parseAmount(balance).amount
     }
     let menuItems = [
       {
