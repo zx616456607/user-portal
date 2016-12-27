@@ -18,6 +18,7 @@ import { setCurrent } from '../../actions/entities'
 import { loadTeamClustersList } from '../../actions/team'
 import NotificationHandler from '../../common/notification_handler'
 import { MY_SPACE } from '../../constants'
+import { parseAmount } from '../../common/tools.js'
 import './style/CreateDatabase.less'
 
 const Option = Select.Option;
@@ -33,16 +34,6 @@ let CreateDatabase = React.createClass({
       onselectCluster: true,
       cluster: this.props.cluster
     }
-  },
-  componentDidMount() {
-    // this.setState({
-    //   cluster: this.props.teamCluster[0].clusterID,
-    // });
-    // const {form, current} = this.props
-    // form.setFieldsValue({
-    //   'namespaceSelect': current.space.spaceName,
-    //   'clusterSelect': current.cluster.clusterName,
-    // })
   },
   componentWillReceiveProps(nextProps) {
     // if create box close return default select cluster
@@ -284,6 +275,9 @@ let CreateDatabase = React.createClass({
     });
     const storageNumber = getFieldValue('replicas');
     const strongSize = getFieldValue('storageSelect');
+    const hourPrice = parseAmount((strongSize /1000 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio , 4)
+    const countPrice = parseAmount((strongSize /1000 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio * 24 * 30, 4)
+
     return (
       <div id='CreateDatabase' type='right'>
         <Form horizontal>
@@ -375,10 +369,13 @@ let CreateDatabase = React.createClass({
             </div>
             <div className="modal-price">
               <div className="price-left">
-                <div className="keys">实例：￥0.04/（个*小时）* { storageNumber } 个</div>
-                <div className="keys">储存：￥{ this.props.resourcePrice /100 }/（GB*小时）* {storageNumber} 个</div>
+                <div className="keys">实例：￥{parseAmount(this.props.resourcePrice['2x'], 4).amount}/（个*小时）* { storageNumber } 个</div>
+                <div className="keys">存储：￥{ parseAmount(this.props.resourcePrice.storage, 4).amount}/（GB*小时）* {storageNumber} 个</div>
               </div>
-              <div className="price-unit">合计：<span style={{color:'#21ADEB'}}>￥</span><span className="unit">{(this.props.resourcePrice /100 * (strongSize /1000) * storageNumber + (storageNumber * 0.04)).toFixed(3)}元/小时</span></div>
+              <div className="price-unit">
+                <p>合计：<span className="unit blod">￥{ hourPrice.amount }元/小时</span></p>
+                <p className="unit">（约：￥{ countPrice.amount }元/月）</p>
+              </div>
             </div>
           </div>
           <div className='btnBox'>
@@ -421,7 +418,7 @@ function mapStateToProps(state, props) {
     isFetching,
     teamspaces,
     teamCluster,
-    resourcePrice: cluster.resourcePrice.storage //storage
+    resourcePrice: cluster.resourcePrice //storage
   }
 
 }

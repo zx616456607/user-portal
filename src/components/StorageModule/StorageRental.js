@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Icon } from 'antd'
-// import { calcuDate } from '../../../common/tools.js'
+import { parseAmount } from '../../common/tools.js'
 import './style/StorageRental.less'
 
 class StorageRental extends Component {
@@ -18,7 +18,10 @@ class StorageRental extends Component {
   }
 
   render() {
-    const strongSize = this.props.config.storage * this.props.size /1000 /100
+    const strongSize = this.props.config.storage * this.props.size /1000
+    const storagePrice = parseAmount(this.props.config.storage, 4)
+    const hourPrice = parseAmount(strongSize, 4)
+    const countPrice = parseAmount(strongSize *24*30, 4)
     return (
       <div id="StorageRental">
         <div className="info">
@@ -30,12 +33,12 @@ class StorageRental extends Component {
           </div>
           */}
           <div className="dataBox">
-            <p><Icon type="pay-circle-o" /> 价格：<span className="unit">{ this.props.config.storage /100}元</span> /（GB*小时）</p>
+            <p><Icon type="pay-circle-o" /> 价格：<span className="unit">{ storagePrice.amount }元</span> /（GB*小时）</p>
             <p><Icon type="hdd" /> 大小：<span className="unit">{this.props.size}M</span></p>
           </div>
           <div className="dataBox">
-            <div className="priceCount">合计：<span className="blod unit">{(strongSize).toFixed(3)}/小时</span>
-            <span className="unit" style={{marginLeft:'15px'}}>(约￥{(strongSize *24*30).toFixed(2)}元/月)</span>
+            <div className="priceCount">合计：<span className="unit">￥</span><span className="blod unit">{ hourPrice.amount }/小时</span>
+            <span className="unit" style={{marginLeft:'15px'}}>(约￥{ countPrice.amount }元/月)</span>
           </div>
           </div>
         </div>
