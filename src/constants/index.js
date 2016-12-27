@@ -67,3 +67,5 @@ export const EMAIL_HASH = {
   'foxmail.coom': 'http://www.foxmail.com',
   'wo.com.cn': 'mail.wo.com.cn/smsmail',
 }
+export const AMOUNT_CONVERSION = 10000 // 10000 = 1 元
+export const AMOUNT_DEFAULT_PRECISION = 2 // 小数点后两位

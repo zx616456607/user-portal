@@ -14,8 +14,17 @@ var gulp = require('gulp');//图片压缩
 // });
 // svg merge
 var svgSymbols = require('gulp-svg-symbols');
-gulp.task('svg', function () {
+var svgmin = require('gulp-svgmin')
+gulp.task('svgbuild', ['minsvg', 'svg'])
+
+gulp.task('minsvg', function() {
   return gulp.src('./static/img/**/*.svg')
+    .pipe(svgmin())
+    .pipe(gulp.dest('./static/img/svgMin'))
+})
+
+gulp.task('svg', ['minsvg'], function () {
+  return gulp.src('./static/img/svgMin/**/*.svg')
     .pipe(svgSymbols())
     .pipe(gulp.dest('./static/img/sider/svg/'));
 })

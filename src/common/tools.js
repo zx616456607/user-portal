@@ -12,6 +12,8 @@
 
 import moment from 'moment'
 import { AMOUNT_CONVERSION, AMOUNT_DEFAULT_PRECISION } from '../constants'
+import { STANDARD_MODE } from '../../configs/constants'
+import { mode } from '../../configs/model'
 
 const locale = window.appLocale.locale
 // Set moment internationalize
@@ -196,18 +198,26 @@ export function isEmptyObject(obj) {
 }
 
 /**
- * Parse api amount to yuan
+ * Parse api amount to human money
  *
  * @export
  * @param {Number|String} amount
  * @param {Number} precision
- * @returns {Number}
+ * @returns {Object}
+ * ```
+ * {
+ *   amount: 0.25,
+ *   unit: '￥' || 'T',
+ *   fullAmount: '￥ 0.25' || '0.25 T'
+ * }
+ * ```
  */
 export function parseAmount(amount, precision) {
+  const data = {}
   amount = parseInt(amount)
   precision = parseInt(precision)
   if (isNaN(amount)) {
-    return 0
+    amount = 0
   }
   if (!precision || isNaN(precision) || precision < 2) {
     precision = AMOUNT_DEFAULT_PRECISION
@@ -216,7 +226,15 @@ export function parseAmount(amount, precision) {
   if (precision > conversionLog10) {
     precision = conversionLog10
   }
-  amount = Math.ceil(amount / Math.pow(10, conversionLog10 - precision))
+  amount = Math.floor(amount / Math.pow(10, conversionLog10 - precision))
   amount = amount / Math.pow(10, precision)
-  return amount
+  data.amount = amount
+  if (mode === STANDARD_MODE) {
+    data.unit = '￥'
+    data.fullAmount = `${data.unit} ${amount}`
+  } else {
+    data.unit = 'T'
+    data.fullAmount = `${amount} ${data.unit}`
+  }
+  return data
 }

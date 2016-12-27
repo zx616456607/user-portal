@@ -17,8 +17,12 @@ import { Button, Alert, Card, Spin, Input, Modal } from 'antd'
 import './style/Integration.less'
 import IntegrationDetail from './IntegrationDetail'
 import CreateVSphereModal from './CreateVSphereModal'
+const mode = require('../../../configs/model').mode
+const standard = require('../../../configs/constants').STANDARD_MODE
 
 const ButtonGroup = Button.Group;
+
+let standardFlag = (mode == standard ? true : false);
 
 const menusText = defineMessages({
   tooltips: {
@@ -190,9 +194,9 @@ class Integration extends Component {
             <div className='rightBox'>
               {
                 /*item.status == 'installed' ? */[
-                  <Button className='installedBtn' key={'installedBtn' + index} size='large' type='ghost' disabled
+                  <Button className='installedBtn' key={'installedBtn' + index} size='large' type={standardFlag ? 'primary':'ghost'} disabled={standardFlag}
                     style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
-                    <FormattedMessage {...menusText.showAppDetail} />
+                    <span>{standardFlag ? '敬请期待' : [<FormattedMessage {...menusText.showAppDetail} />]}</span>
                   </Button>
                 ] /*: null*/
               }
@@ -215,11 +219,11 @@ class Integration extends Component {
             </div>
             <div style={{ clear:'both' }}></div>
             {
-              /*item.status == 'installed' ?*/ [
+              !standardFlag ? [
                 <div className='installedFlag' key='installedFlag'>
                   <FormattedMessage {...menusText.installedFlag} />
                 </div>
-              ] /*: null*/
+              ] : null
             }
           </div>
         )
@@ -307,7 +311,7 @@ class Integration extends Component {
                               </div>
                               <div className='rightBox'>
                                 <Button className='unintsallBtn' key='unintsallBtn' size='large' type='primary'
-                                  style={{ width: '102px' }} onClick={this.openCreateIntegration.bind(this)}>
+                                  style={{ width: '102px' }} onClick={this.openCreateIntegration.bind(this)} disabled>
                                   <FormattedMessage {...menusText.uninstall} />
                                 </Button>
                               </div>
