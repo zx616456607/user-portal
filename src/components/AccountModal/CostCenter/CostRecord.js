@@ -442,7 +442,7 @@ class CostRecord extends Component{
           item.unitPrice += '/小时'
           item.continueTime += '分钟'
         }
-        item.startTime = formatDate(item.startTime)
+        item.createTime = item.createTime ? formatDate(item.createTime) : formatDate(item.startTime)
         item.clusterName = item.clusterName || '-'
       })
       return items
@@ -503,9 +503,9 @@ class CostRecord extends Component{
             key: 'amount',
           },
           {
-            title: '生效时间',
-            dataIndex: 'startTime',
-            key: 'startTime',
+            title: '扣费时间',
+            dataIndex: 'createTime',
+            key: 'createTime',
           },
           {
             title: '消费时长',
