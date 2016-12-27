@@ -251,7 +251,7 @@ const menusText = defineMessages({
   },
   ThirdPartyRegistry: {
     id: 'ManageMonitor.operationalAudit.ThirdPartyRegistry',
-    defaultMessage: '第三方容器',
+    defaultMessage: '第三方镜像仓库',
   },
   Volume: {
     id: 'ManageMonitor.operationalAudit.Volume',
@@ -742,7 +742,7 @@ function statusFormat(status, scope, createTime) {
   }
 }
 
-function formatResourceName(resourceName) {
+function formatResourceName(resourceName, resourceId) {
   //this function for format the resourceName
   if (resourceName.indexOf('{') > -1) {
     let newBody = JSON.parse(resourceName);
@@ -774,6 +774,12 @@ function formatResourceName(resourceName) {
       return newName;
     }
   } else {
+    if(resourceName.length == 0) {
+      if(resourceId.length == 0) {
+        return '-';
+      }
+      return resourceId;
+    }
     return resourceName;
   }
 }
@@ -825,8 +831,8 @@ let MyComponent = React.createClass({
           <div className='obj commonTitle'>
             <span className='objSpan' style={{ top: '5px' }}><FormattedMessage {...menusText.objType} />{resourceFormat(item.resourceType, scope)}</span>
             <span className='objSpan' style={{ top: '-2px' }}>
-              <Tooltip placement="topLeft" title={formatResourceName(item.resourceName)}>
-                <span><FormattedMessage {...menusText.objName} />{formatResourceName(item.resourceName)}{item.resourceId ? " - " + item.resourceId : ''}</span>
+              <Tooltip placement="topLeft" title={formatResourceName(item.resourceName, item.resourceId)}>
+                <span><FormattedMessage {...menusText.objName} />{formatResourceName(item.resourceName, item.resourceId)}</span>
               </Tooltip>
             </span>
           </div>

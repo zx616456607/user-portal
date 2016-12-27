@@ -167,7 +167,10 @@ class AppServiceLog extends Component {
         if (log.log === '无更多日志\n') {
           return (<span key={index}>{ `${log.log}\npage ${page}\n` }</span>)
         }
-        return (<span key={index}>{ `page ${page}\n${time ? `[${time}] ${log.log}` : log.log}` }</span>)
+        return (
+          <span key={index}>
+            { `page ${page}\n${time ? `[${time}] ${log.log}` : log.log}` }
+          </span>)
       }
       if (index + 1 === remainder && page !== 1) {
         return (<span key={index}>{ `page ${--page}\n${time ? `[${time}] ${log.log}` : log.log}` }</span>)
@@ -175,7 +178,11 @@ class AppServiceLog extends Component {
       if ((index + 1) % 50 === 0 && page !== 1) {
         return (<span key={index}>{ `page ${--page}\n${time ? `[${time}] ${log.log}` : log.log}` }</span>)
       }
-      return (<span key={log.id} index={index}>{ time ? `[${time}] ${log.log}` : log.log}</span>)
+      return (
+        <span key={log.id} index={index}>
+          { time ? [<span><span className='timeSpan'>{'[' + time + ']'}</span> {log.log}</span>] : log.log}
+        </span>
+        )
     })
     return logContent
   }
