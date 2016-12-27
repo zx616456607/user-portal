@@ -40,7 +40,7 @@ class ConfigModal extends Component {
     let limits = resources.limits || DEFAULT_CONTAINER_RESOURCES.limits
     let memory = limits.memory || DEFAULT_CONTAINER_RESOURCES.limits.memory
     this.setState({
-      composeType: parseInt(memory)
+      composeType: memory.indexOf('Gi') > -1 ? parseInt(memory) * 1024 : parseInt(memory)
     })
   }
 
