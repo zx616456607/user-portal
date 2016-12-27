@@ -12,6 +12,7 @@
 
 const crypto = require('crypto')
 const i18n = require('i18next')
+const _ = require('lodash')
 const apiFactory = require('./api_factory')
 const logger = require('../utils/logger').getLogger('services/index')
 const constants = require('../constants')
@@ -96,13 +97,14 @@ exports.addConfigsForWS = function (user) {
     host: (NODE_ENV === NODE_ENV_PROD ? tenxApi.external_host : tenxApi.host),
   }
   // Add devOps config
+  const cicdConfig = _.cloneDeep(devOps)
   if (NODE_ENV === NODE_ENV_PROD) {
-    devOps.protocol = devOps.external_protocol
-    devOps.host = devOps.external_host
+    cicdConfig.protocol = cicdConfig.external_protocol
+    cicdConfig.host = cicdConfig.external_host
   }
-  delete devOps.external_protocol
-  delete devOps.external_host
-  user.cicdApi = devOps
+  delete cicdConfig.external_protocol
+  delete cicdConfig.external_host
+  user.cicdApi = cicdConfig
   return user
 }
 
