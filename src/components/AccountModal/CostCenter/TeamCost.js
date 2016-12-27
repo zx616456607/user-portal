@@ -162,7 +162,7 @@ class TeamCost extends Component{
           let find = false
           for (const item of teamSummary.items) {
             if (item.time == day) {
-              yAxisData.push(item.cost/100)
+              yAxisData.push(parseAmount(item.cost).amount)
               find = true
               continue
             }
