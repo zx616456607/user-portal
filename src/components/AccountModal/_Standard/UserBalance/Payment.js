@@ -330,6 +330,9 @@ class UserPay extends Component {
     let otherAmount = false
     if (!amount) {
       otherAmount = true
+      setTimeout(function(){
+        document.getElementById('inputAmount').focus()
+      },100)
     }
     this.setState({
       amount,
@@ -505,7 +508,7 @@ class UserPay extends Component {
         <ul className="sendInfo">
           <li>温馨提示：</li>
           <li>1. 充值金额会在当天到账。如遇问题，可查看 <Icon type="link" />充值帮助。</li>
-          <li>2. 您可以通过三种方式充值：微信充值、支付宝、银行转账（线下汇款充值）。采用线下汇款方式到账会有延误，强烈建议采用支付宝，微信支持。 </li>
+          <li>2. 您可以通过三种方式充值：微信充值、支付宝、银行转账（线下汇款充值）。采用线下汇款方式到账会有延误，强烈建议采用支付宝，微信支付。 </li>
           <li>3. 累计充值金额满￥200后可提交工单申请发票 </li>
         </ul>
         <div className="payDetail">
@@ -540,7 +543,7 @@ class UserPay extends Component {
               <div className="triangle"></div>
               <Icon type="check" />
             </div>
-            <Button size="large" onClick={() => this.setAmount(false)} style={{ marginRight: '10px' }}>其他金额</Button>
+            <Button size="large" type={this.state.otherAmount ? 'primary': ''} onClick={() => this.setAmount(false)} style={{ marginRight: '10px' }}>其他金额</Button>
             {
               otherAmount ?
                 <InputNumber
