@@ -10,7 +10,7 @@
 
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
-import encoding from 'text-encoding'
+// import encoding from 'text-encoding'
 
 export const STORAGE_LIST_REQUEST = 'STORAGE_LIST_REQUEST'
 export const STORAGE_LIST_SUCCESS = 'STORAGE_LIST_SUCCESS'
@@ -265,7 +265,7 @@ export function uploadFileOptions(options) {
   }
 }
 
-export const STORAGE_EXPORT_FILE_REQUEST = 'STORAGE_EXPORT_FILE_REQUEST'
+/*export const STORAGE_EXPORT_FILE_REQUEST = 'STORAGE_EXPORT_FILE_REQUEST'
 export const STORAGE_EXPORT_FILE_SUCCESS = 'STORAGE_EXPORT_FILE_SUCCESS'
 export const STORAGE_EXPORT_FILE_FAILURE = 'STORAGE_EXPORT_FILE_FAILURE'
 export const STORAGE_EXPORT_FILE_DONE    = 'STORAGE_EXPORT_FILE_DONE'
@@ -291,7 +291,7 @@ export function exportFile(pool, cluster, volumeName, callback) {
   //   },
   //   callback
   // }
-}
+}*/
 
 
 export const STORAGE_BEFORE_EXPORT_FILE_REQUEST = 'STORAGE_BEFORE_EXPORT_FILE_REQUEST'
@@ -309,7 +309,7 @@ export function beforeExportFile(pool, cluster, volumeName, callback) {
 }
 
 
-function _consume(dispath, reader) {
+/*function _consume(dispath, reader) {
   const decoder = new encoding.TextDecoder("utf-8")
   return _pump()
   function _pump() {
@@ -326,7 +326,7 @@ function _consume(dispath, reader) {
       return _pump()
     })
   }
-}
+}*/
 
 
 
