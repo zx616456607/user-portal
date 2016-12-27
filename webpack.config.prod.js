@@ -64,10 +64,6 @@ module.exports = {
   },
 
   plugins: [
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('production'),
-      'process.env.RUNNING_MODE': JSON.stringify('standard'),
-    }),
     // 删除重复数据
     new webpack.optimize.DedupePlugin(),
     // 设置分块传输最大数量和最小size
