@@ -17,6 +17,7 @@ export const TENX_MARK = 'tenxcloud.com'
 export const CREATE_APP_ANNOTATIONS = 'tenxcloud.com/schemaPortname'
 export const LABEL_APPNAME = `${TENX_MARK}/appName`
 export const USERNAME_REG_EXP = /^[a-z][-a-z0-9]{1,40}[a-z0-9]$/
+export const USERNAME_REG_EXP_OLD = /^[a-z][-a-z0-9_]{1,40}[a-z0-9]$/
 export const STORAGENAME_REG_EXP = /^[a-z][-a-z0-9_]{2,14}$/
 export const EMAIL_REG_EXP = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/
 export const HOST = 'localhost:8003'

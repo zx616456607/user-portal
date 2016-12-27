@@ -19,7 +19,7 @@ import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
 import { loadConsumptionDetail, loadConsumptionTrend, loadSpaceSummaryInDay, loadSpaceSummary } from '../../../actions/consumption'
 import TeamCost from './TeamCost'
 import ReactEcharts from 'echarts-for-react'
-import { formatDate } from '../../../common/tools'
+import { formatDate, parseAmount } from '../../../common/tools'
 import moment from 'moment'
 
 const MonthPicker = DatePicker.MonthPicker
@@ -186,7 +186,7 @@ class CostRecord extends Component{
         let find = false
         for (const item of consumptionTrend) {
           if (item.time == month) {
-            yAxisData.push(item.cost/100)
+            yAxisData.push(parseAmount(item.cost).amount)
             find = true
             continue
           }
@@ -332,7 +332,7 @@ class CostRecord extends Component{
           let find = false
           for (const item of spaceSummaryInDay.items) {
             if (item.time == day) {
-              yAxisData.push(item.cost/100)
+              yAxisData.push(parseAmount(item.cost).amount)
               find = true
               continue
             }
@@ -442,7 +442,7 @@ class CostRecord extends Component{
           item.unitPrice += '/小时'
           item.continueTime += '分钟'
         }
-        item.startTime = formatDate(item.startTime)
+        item.createTime = item.createTime ? formatDate(item.createTime) : formatDate(item.startTime)
         item.clusterName = item.clusterName || '-'
       })
       return items
@@ -503,9 +503,9 @@ class CostRecord extends Component{
             key: 'amount',
           },
           {
-            title: '生效时间',
-            dataIndex: 'startTime',
-            key: 'startTime',
+            title: '扣费时间',
+            dataIndex: 'createTime',
+            key: 'createTime',
           },
           {
             title: '消费时长',
@@ -607,9 +607,9 @@ class CostRecord extends Component{
                           <Col span={16} style={{paddingLeft:60}}>{item.name}</Col>
                           <Col span={8} style={{paddingLeft:20}}>
                             {
-                              isNaN(item.sum) ? '-' :
-                                standard ? '￥ ' + item.sum/100 :
-                                           item.sum/100 + 'T币'
+                              isNaN(item.sum)
+                              ? '-'
+                              : parseAmount(item.sum).fullAmount
                             }
                           </Col>
                         </Row>

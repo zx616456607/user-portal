@@ -11,11 +11,12 @@
 'use strict'
 
 const constants = require('../constants')
+const clone = require('lodash/cloneDeep')
 const DEFAULT_CONTAINER_RESOURCES = constants.DEFAULT_CONTAINER_RESOURCES
 const DEFAULT_CONTAINER_RESOURCES_MEMORY = constants.DEFAULT_CONTAINER_RESOURCES_MEMORY
 
 exports.getResourcesByMemory = function (memory) {
-  let resources = DEFAULT_CONTAINER_RESOURCES
+  let resources = clone(DEFAULT_CONTAINER_RESOURCES)
   memory = parseInt(memory || DEFAULT_CONTAINER_RESOURCES_MEMORY)
   switch (memory) {
     case 256:
@@ -39,6 +40,7 @@ exports.getResourcesByMemory = function (memory) {
       resources.limits.memory = '4096Mi'
       resources.requests.cpu = '700m'
       resources.requests.memory = '4096Mi'
+      break
     case 8192:
       resources.limits.memory = '8192Mi'
       resources.requests.cpu = '1200m'

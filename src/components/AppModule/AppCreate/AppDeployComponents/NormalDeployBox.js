@@ -28,7 +28,7 @@ let MyComponent = React.createClass({
   getInitialState() {
     return {
       name: '',
-      size: 100,
+      size: 500,
       format: 'ext4',
     }
   },

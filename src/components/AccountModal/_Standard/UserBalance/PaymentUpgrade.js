@@ -15,6 +15,7 @@ import { Icon, Input, Button, Modal, Row, Col, Spin, InputNumber, } from 'antd'
 import { MIN_PAY_AMOUNT, PAY_AMOUNT_STEP } from '../../../../constants'
 import { loadLoginUserDetail } from '../../../../actions/entities'
 import { loadUserTeamspaceList } from '../../../../actions/user'
+import { parseAmount }from '../../../../common/tools'
 import { getWechatPayQrCode, getWechatPayOrder, getPayOrderStatus } from '../../../../actions/payments'
 import QRCode from 'qrcode.react'
 import NotificationHandler from '../../../../common/notification_handler'
@@ -233,7 +234,7 @@ class UserPayUpgrade extends Component {
       }
       this.setState({
         payType: method,
-        amount: chargeAmount / 100,
+        amount: parseAmount(chargeAmount).amount,
         balance: newBalance,
         payStatusModal: true,
         payStatusAskModal: false,
@@ -262,7 +263,7 @@ class UserPayUpgrade extends Component {
       wechatPayModal,
     } = this.state
     if (balance !== undefined) {
-      balance = (balance / 100).toFixed(2)
+      balance = parseAmount(balance).amount
     }
     return (
       <div id="UserPayUpgrade">

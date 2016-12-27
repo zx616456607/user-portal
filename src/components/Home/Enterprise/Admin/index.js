@@ -13,6 +13,7 @@ import './style/Admin.less'
 import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
 import { loadTeamInfo } from '../../../../actions/overview_team'
+import { parseAmount } from '../../../../common/tools'
 
 function getOption(cost, rest) {
   return {
@@ -238,7 +239,7 @@ class Admin extends Component{
               <Col span={10} style={{height:170}}>
                   <ReactEcharts
                     notMerge={true}
-                    option={getOption(teamConsumption.consumption/100, teamConsumption.balance/100)}
+                    option={getOption(parseAmount(teamConsumption.consumption).amount, parseAmount(teamConsumption.balance).amount)}
                     style={{height:170}}
                   />
               </Col>
@@ -255,7 +256,7 @@ class Admin extends Component{
                       return (
                         <Row className="teamCostItem">
                           <Col span={16} style={{paddingLeft:40}}>{item.teamname}</Col>
-                          <Col span={8} style={{paddingLeft:10}}>消费 {item.consumption / 100} T</Col>
+                          <Col span={8} style={{paddingLeft:10}}>消费 {parseAmount(item.consumption).fullAmount}</Col>
                         </Row>
                       )
                     })

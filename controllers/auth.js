@@ -224,16 +224,19 @@ exports.verifyUserAndJoinTeam = function* () {
     token: result.apiToken,
     role: result.role,
     balance: result.balance,
-    tenxApi: config.tenx_api,
-    cicdApi: devOps
   }
+  // Add config into user for frontend websocket
+  indexService.addConfigsForWS(loginUser)
   result.tenxApi = loginUser.tenxApi
   result.cicdApi = loginUser.cicdApi
-  const licenseObj = yield indexService.getLicense(loginUser)
-  if (licenseObj.plain.code === -1) {
-    const err = new Error(licenseObj.message)
-    err.status = 403
-    throw err
+  // Private cloud need check users license
+  if (config.running_mode === enterpriseMode) {
+    const licenseObj = yield indexService.getLicense(loginUser)
+    if (licenseObj.plain.code === -1) {
+      const err = new Error(licenseObj.message)
+      err.status = 403
+      throw err
+    }
   }
   yield indexService.setUserCurrentConfigCookie.apply(this, [loginUser])
   // Delete sensitive information

@@ -80,6 +80,10 @@ let EmailRow = React.createClass({
         },
         failed: {
           func: (result) => {
+            if(result.message.message == 'not authorized'){
+              noti.error('密码输入不正确')
+              return
+  	        }
             notification.close()
             notification.error(result.message.message)
           }
@@ -107,7 +111,7 @@ let EmailRow = React.createClass({
         <span className="key">邮箱</span>
         <div className="editList">
           <FormItem>
-            <Input size="large" {...emailPassword} placeholder="当前账户密码" />
+            <Input type="password" size="large" {...emailPassword} placeholder="当前账户密码" />
           </FormItem>
           <FormItem >
             <Input size="large" {...newEmailProps} placeholder="输入新邮箱" />

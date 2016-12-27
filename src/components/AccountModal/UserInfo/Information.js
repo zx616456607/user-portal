@@ -12,6 +12,7 @@ import { Row, Col, Card, Button, Input, Icon, Form } from 'antd'
 import './style/Information.less'
 import { connect } from 'react-redux'
 import { updateUser } from '../../../actions/user'
+import { parseAmount } from '../../../common/tools'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -167,7 +168,7 @@ class Information extends Component {
       default:
         roleName = "普通用户"
     }
-    let balance = (userDetail.balance || 0) / 100
+    let balance = parseAmount(userDetail.balance || 0).amount
     return (
       <div id='Information'>
         <Row className="Item">

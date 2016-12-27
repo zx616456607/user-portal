@@ -329,10 +329,14 @@ let MyComponent = React.createClass({
     return (
       <div className="dataBox">
         {items}
-        <Modal title={this.state.modalTitle} visible={this.state.visible} 
-          onOk={(e) => { this.handleSure() } } onCancel={(e) => { this.cancelModal() } }
-          okText="确定" cancelText="取消" className="storageModal"
-        >
+        <Modal title={this.state.modalTitle} visible={this.state.visible} okText="确定" cancelText="取消"
+         footer={[
+            <Button key="back" type="ghost" size="large" onClick={(e) => { this.cancelModal() } }>取消</Button>,
+            <Button key="submit" type="primary" size="large" disabled={isActing} loading={this.state.loading} onClick={(e) => { this.handleSure() } }>
+              确定
+            </Button>
+          ]}
+         >
           <div className={this.state.modalType === 'resize' ? 'show' : 'hide'}>
             <Row style={{ height: '40px' }}>
               <Col span="3" className="text-center" style={{ lineHeight: '30px' }}><FormattedMessage {...messages.name} /></Col>
@@ -474,7 +478,7 @@ class Storage extends Component {
     this.props.createStorage(storageConfig, {
       success: {
         func: () => {
-          isActing = true
+          isActing = false
           self.setState({
             visible: false,
             name: '',
@@ -669,11 +673,15 @@ class Storage extends Component {
               </Button>
               <Modal title={formatMessage(messages.createModalTitle)}
                 visible={this.state.visible}
-                onOk={(e) => { this.handleOk() } }
-                onCancel={() => { this.handleCancel() } }
                 okText={formatMessage(messages.createBtn)}
                 cancelText={formatMessage(messages.cancelBtn)}
                 className='createAppStorageModal'
+                footer={[
+                   <Button key="back" type="ghost" size="large" onClick={() => { this.handleCancel() }}>取消</Button>,
+                   <Button key="submit" type="primary" size="large" disabled={isActing} loading={this.state.loading} onClick={(e) => { this.handleOk() } }>
+                   确定
+                   </Button>
+                ]}
                 >
                 <Row style={{ height: '45px' }}>
                   <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>
