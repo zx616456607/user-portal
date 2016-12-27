@@ -393,7 +393,7 @@ class ModalDetail extends Component {
               <div className="desc">{databaseInfo.serviceInfo.name}/{databaseInfo.serviceInfo.namespace}</div>
               <div> 状态：
                 {databaseInfo.podInfo.running >0 ?
-                  <span className="Running" style={{top:'0'}}> <i className="fa fa-circle"></i> 运行 </span>
+                  <span className="normal" style={{top:'0'}}> <i className="fa fa-circle"></i> 运行 </span>
                   :null
                 }
                 {databaseInfo.podInfo.pending >0 ?

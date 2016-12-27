@@ -63,7 +63,7 @@ const MyComponent = React.createClass({
     }
     if (config.length < 1) {
       return (
-        <div className='loadingBox'>
+        <div className='loadingBox' style={{clear:'both'}}>
           无容器实例
         </div>
       )

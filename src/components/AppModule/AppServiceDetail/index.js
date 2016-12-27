@@ -56,7 +56,6 @@ class AppServiceDetail extends Component {
     this.stopService = this.stopService.bind(this)
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
     this.openTerminalModal = this.openTerminalModal.bind(this)
-    this.handleMenuDisabled = this.handleMenuDisabled.bind(this)
     this.state = {
       activeTabKey: props.selectTab || DEFAULT_TAB,
       TerminalLayoutModal: false,
@@ -376,9 +375,8 @@ class AppServiceDetail extends Component {
 AppServiceDetail.propTypes = {
   loadServiceDetail: PropTypes.func.isRequired,
   loadServiceContainerList: PropTypes.func.isRequired,
-  service: PropTypes.object.isRequired,
   isServiceDetailFetching: PropTypes.bool.isRequired,
-  containers: PropTypes.array.isRequired,
+  // containers: PropTypes.array.isRequired,
   isContainersFetching: PropTypes.bool.isRequired,
 }
 
