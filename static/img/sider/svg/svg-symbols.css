@@ -1,156 +1,658 @@
+.lost {
+  width: 260px;
+  height: 200px;
+}
+<![CDATA[ ]]>
+.toplogo {
+  width: 200px;
+  height: 70px;
+}
+.st0{fill:#008bd5}
+.st1{fill:#00aedc}
+.st2{fill:#262626}
+
+.appcenterbuildimage {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#272536}
+.st1{fill:none;stroke:#272536;stroke-miterlimit:10}
+
+.appcentercollect {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
+.appcentercopy {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
+.appcenterdownload {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
 .appcenterlogo {
   width: 20px;
   height: 20px;
 }
-#appcenterlogo .st0{fill:#56ABE4;}
-#appcenterlogo .st1{fill:#FFFFFF;}
+.st0{fill:#56abe4}
+.st1{fill:#fff}
+
+.appcenterupload {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
+.gitlab {
+  width: 128px;
+  height: 128px;
+}
+
+.jenkins {
+  width: 180px;
+  height: 180px;
+}
+
+.mongo {
+  width: 200px;
+  height: 200px;
+}
+
+.mysql {
+  width: 200px;
+  height: 200px;
+}
+
+.redis {
+  width: 200px;
+  height: 200px;
+}
+
+.spark {
+  width: 967px;
+  height: 627px;
+}
+
+.tomcat {
+  width: 200px;
+  height: 200px;
+}
+
+.weblogic12 {
+  width: 1000px;
+  height: 1000px;
+}
+
+.zookeeper {
+  width: 1000px;
+  height: 1000px;
+}
+
+.cicdarrow {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+.st1{fill:#231815}
+
+.cicdbuildfast {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#272636}
+
+.cicdcreate {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
+.cicdedit {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
+.cicdfilter {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
+.cicdflowhead {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#272536}
+.st1{fill:none;stroke:#272536;stroke-miterlimit:10}
+
+.cicdlog {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#272636}
+
+.cicdprivate {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
+.cicdpublic {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
+.cicdreflash {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
+.cicdrunbuild {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
+.cicdtrash {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
+.commoneye {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#999}
+
+.headercluster {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
+.headerteam {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666}
+
+.headerteamspace {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#272636}
+
+.headerzone {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666}
+
+.account {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#fff}
+
+.accountselected {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#1aa2e7}
+
+.add {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#fff}
 
 .addselected {
   width: 40px;
   height: 40px;
 }
-#addselected .st0{fill:#1AA2E7;}
+.st0{fill:#1aa2e7}
+
+.app {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#fff}
+
+.appcreatelayout {
+  width: 200px;
+  height: 200px;
+}
 
 .appcreatemodelselect {
   width: 50px;
   height: 50px;
 }
-#appcreatemodelselect .st0 { fill: #00A1EA; }
-#appcreatemodelselect .st1 { fill: #FFFFFF; }
+.st0{fill:#00a1ea}
+.st1{fill:#fff}
 
 .applining {
   width: 50px;
   height: 50px;
 }
-#applining .applining0{fill:none;stroke:url(#XMLID_3_);stroke-miterlimit:10;}
-#applining .applining1{fill:none;stroke:url(#XMLID_4_);stroke-miterlimit:10;stroke-dasharray:4.1818,2.0909;}
-#applining .applining2{fill:none;stroke:url(#XMLID_5_);stroke-miterlimit:10;}
-#applining .applining3{fill:none;stroke:url(#XMLID_6_);stroke-miterlimit:10;stroke-dasharray:4.1818,2.0909;}
+.applining0,.applining1{fill:none;stroke:url(#XMLID_3_);stroke-miterlimit:10}
+.applining1{stroke:url(#XMLID_4_);stroke-dasharray:4.1818,2.0909}
+.applining2,.applining3{fill:none;stroke:url(#XMLID_5_);stroke-miterlimit:10}
+.applining3{stroke:url(#XMLID_6_);stroke-dasharray:4.1818,2.0909}
 
 .appselected {
   width: 40px;
   height: 40px;
 }
-#appselected .st0{fill:#1AA2E7;}
+.st0{fill:#1aa2e7}
+
+.appstore {
+  width: 200px;
+  height: 200px;
+}
+
+.branch {
+  width: 22.9px;
+  height: 7px;
+}
+.st0{fill:#37b8f2}
+
+.center {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#fff}
 
 .centerselected {
   width: 40px;
   height: 40px;
 }
-#centerselected .st0{fill:#1AA2E7;}
+.st0{fill:#1aa2e7}
+
+.cicd {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#fff}
 
 .cicdselected {
   width: 40px;
   height: 40px;
 }
-#cicdselected .st0{fill:#1AA2E7;}
+.st0{fill:#1aa2e7}
 
 .database-selected {
   width: 40px;
   height: 40px;
 }
-#database-selected .st0{fill:#1AA2E7;}
+.st0{fill:#1aa2e7}
 
-.homeappcountcolor {
+.database {
   width: 40px;
   height: 40px;
 }
-#homeappcountcolor .st0{fill:#2CA2F3;}
-#homeappcountcolor .st1{fill:#E8F5FD;}
-#homeappcountcolor .st2{fill:#C8E8FC;}
-
-.homebuildcountcolor {
-  width: 40px;
-  height: 40px;
-}
-#homebuildcountcolor .st0{fill:#2CA2F3;}
-#homebuildcountcolor .st1{fill:#ECF7FD;}
-
-.homecontainercountcolor {
-  width: 40px;
-  height: 40px;
-}
-#homecontainercountcolor .st0{fill:#2CA2F3;}
-#homecontainercountcolor .st1{fill:#E8F5FD;}
-
-.homeimagecountcolor {
-  width: 40px;
-  height: 40px;
-}
-#homeimagecountcolor .st0{fill:#2CA2F3;}
-#homeimagecountcolor .st1{fill:#E8F5FD;}
-
-.homelayoutcountcolor {
-  width: 40px;
-  height: 40px;
-}
-#homelayoutcountcolor .st0{fill:#F0A582;}
-#homelayoutcountcolor .st1{fill:#FDE8DD;}
-
-.homesavecountcolor {
-  width: 40px;
-  height: 40px;
-}
-#homesavecountcolor .st0{fill:#7474F7;}
-#homesavecountcolor .st1{fill:#F1F1FE;}
-
-.homeselected {
-  width: 40px;
-  height: 40px;
-}
-#homeselected .st0{fill:#1AA2E7;}
-
-.homeservicecountcolor {
-  width: 40px;
-  height: 40px;
-}
-#homeservicecountcolor .st0{fill:#2CA2F3;}
-
-.homespacecountcolor {
-  width: 40px;
-  height: 40px;
-}
-#homespacecountcolor .st0{fill:#2CA2F3;}
-#homespacecountcolor .st1{fill:#E8F5FD;}
+.st0{fill:#fff}
 
 .errorcolor {
   width: 100px;
   height: 100px;
 }
-#errorcolor .st0{fill:url(#SVGID_1_);stroke:#E20A2E;stroke-miterlimit:10;}
+.st0{fill:url(#SVGID_1_);stroke:#e20a2e;stroke-miterlimit:10}
+
+.home {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#666}
+
+.homeapiservice {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
+.homeappcount {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#fff}
+
+.homeappcountcolor {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#2ca2f3}
+.st1{fill:#e8f5fd}
+.st2{fill:#c8e8fc}
+
+.homebuildcount {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#fff}
+
+.homebuildcountcolor {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#2ca2f3}
+.st1{fill:#ecf7fd}
+
+.homecontainercount {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#fff}
+
+.homecontainercountcolor {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#2ca2f3}
+.st1{fill:#e8f5fd}
+
+.homedocker {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
+.homeimagecount {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#fff}
+
+.homeimagecountcolor {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#2ca2f3}
+.st1{fill:#e8f5fd}
+
+.homelayoutcount {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#fff}
+
+.homelayoutcountcolor {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#f0a582}
+.st1{fill:#fde8dd}
+
+.homelogging {
+  width: 20px;
+  height: 20px;
+}
+
+.homesavecount {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#fff}
+
+.homesavecountcolor {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#7474f7}
+.st1{fill:#f1f1fe}
+
+.homeselected {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#1aa2e7}
+
+.homeservicecount {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#2ca2f3}
+
+.homeservicecountcolor {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#2ca2f3}
+
+.homespacecount {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#fff}
+
+.homespacecountcolor {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#2ca2f3}
+.st1{fill:#e8f5fd}
 
 .homewww {
   width: 20px;
   height: 20px;
 }
-#homewww .st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536;}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
 
-#logo .st0{fill:#008BD5;}
-#logo .st1{fill:#00AEDC;}
+.logaccountinf {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#262536}
+
+.logchangepass {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
+.logcostrecord {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
+.loginlogo {
+  width: 478px;
+  height: 149px;
+}
+
+.logo {
+  width: 200px;
+  height: 200px;
+}
+.st0{fill:#008bd5}
+.st1{fill:#00aedc}
+
+.logteam {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536}
+
+.managemoniter {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#fff}
 
 .managemoniterselected {
   width: 40px;
   height: 40px;
 }
-#managemoniterselected .st0{fill:#1AA2E7;}
+.st0{fill:#1aa2e7}
+
+.message {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#fff}
 
 .messageselected {
   width: 40px;
   height: 40px;
 }
-#messageselected .st0{fill:#1AA2E7;}
+.st0{fill:#1aa2e7}
+
+.more {
+  width: 200px;
+  height: 200px;
+}
+<![CDATA[ ]]>
+.setting {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#fff}
 
 .settingselected {
   width: 40px;
   height: 40px;
 }
-#settingselected .st0{fill:#1AA2E7;}
+.st0{fill:#1aa2e7}
+
+.step {
+  width: 200px;
+  height: 200px;
+}
+.st0{fill:#999}
+
+.stepline {
+  width: 50px;
+  height: 50px;
+}
+.st0{fill:#999}
+
+.system {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#fff}
 
 .systemselected {
   width: 40px;
   height: 40px;
 }
-#systemselected .st0{fill:#1AA2E7;}
+.st0{fill:#1aa2e7}
 
-#tipcopy .st0{fill:none;}
-#tipcopy .st1{fill:#5B5B5B;}
+.terminal {
+  width: 200px;
+  height: 200px;
+}
+.st0{fill:#fff}
+
+.tipcopy {
+  width: 56.7px;
+  height: 56.7px;
+}
+.st0{fill:none}
+.st1{fill:#5b5b5b}
+
+.auth-img {
+  width: 32px;
+  height: 24px;
+}
+.st0{fill:#fff}
+
+.auth-img2 {
+  width: 32px;
+  height: 24px;
+}
+.st0{fill:#fff}
+
+.auth-symbols {
+  width: 100px;
+  height: 100px;
+}
+
+.settingapp {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#999}
+
+.settingbalance {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666}
+
+.settingbase {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666}
+
+.settingcluster {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666}
+
+.settingcontainer {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666}
+
+.settingname {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666}
+
+.settingopt {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666}
+
+.settingownteam {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666}
+
+.settingperspace {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666}
+
+.settingservice {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666}
+
+.settingsycname {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666}
+
+.settingteamspace {
+  width: 200px;
+  height: 200px;
+}
+.st0{fill:#666}
+
+.settingtranname {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666}
+
