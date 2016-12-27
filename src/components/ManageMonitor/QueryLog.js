@@ -839,7 +839,7 @@ class QueryLog extends Component {
     }
     return (
       <QueueAnim className='QueryLogBox' type='right'>
-        <div id='QueryLog' key='QueryLog'>
+        <div id='QueryLog' key='QueryLog' className={this.state.bigLog ? 'bigLogContainer' :''} >
           <div className='bigTitle'>
             <span><FormattedMessage {...menusText.title} /></span>
           </div>
@@ -941,7 +941,7 @@ class QueryLog extends Component {
             </div>
             <div style={{ clear: 'both' }}></div>
           </div>
-          <Card className={this.state.bigLog ? 'logBox' : 'logBox'}>
+          <Card className={this.state.bigLog ? 'bigLogBox logBox' : 'logBox'}>
             <div className='titleBox'>
               <span className='keywordSpan'>{this.state.searchKeyword ? '关键词' + this.state.searchKeyword + '结果查询页' : '结果查询页'}</span>
               <i className={this.state.bigLog ? 'fa fa-compress' : 'fa fa-expand'} onClick={this.onChangeBigLog} />
