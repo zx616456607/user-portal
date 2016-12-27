@@ -4,6 +4,8 @@ import './style/RechargeRecord.less'
 import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../../actions/user'
 import { loadTeamClustersList } from '../../../actions/team'
+import { parseAmount } from '../../../common/tools'
+import { AMOUNT_CONVERSION } from '../../../constants'
 import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
 import { loadChargeRecord, loadNotifyRule, setNotifyRule } from '../../../actions/consumption'
 import PopSelect from '../../PopSelect'
@@ -65,7 +67,7 @@ class RechargeRecord extends Component {
       threshold,
     } = this.state
     let notifyWay = (notifyMailCheckBox ? 1 : 0) + (notifyCenterCheckBox ? 2 : 0)
-    setNotifyRule(this.state.currentNamespace, threshold * 100, notifyWay)
+    setNotifyRule(this.state.currentNamespace, threshold * AMOUNT_CONVERSION, notifyWay)
   }
   handleCancel() {
     this.setState({
@@ -145,9 +147,9 @@ class RechargeRecord extends Component {
       let items = JSON.parse(JSON.stringify(chargeRecord.items))
       if (standard) {
         items.map(function (item) {
-          item.before = '￥ ' + (item.before / 100).toFixed(2)
-          item.charge = '￥ ' + (item.charge / 100).toFixed(2)
-          item.after = '￥ ' + (item.after / 100).toFixed(2)
+          item.before = '￥ ' + parseAmount(item.before).amount
+          item.charge = '￥ ' + parseAmount(item.charge).amount
+          item.after = '￥ ' + parseAmount(item.after).amount
           item.time = moment(item.time).format('YYYY-MM-DD HH:mm:ss')
           item.orderType = parseInt(item.orderType)
           switch (item.orderType) {
@@ -171,9 +173,9 @@ class RechargeRecord extends Component {
         return items
       }
       items.map(function (item) {
-        item.before = (item.before / 100).toFixed(2) + 'T币'
-        item.charge = (item.charge / 100).toFixed(2) + 'T币'
-        item.after = (item.after / 100).toFixed(2) + 'T币'
+        item.before = parseAmount(item.before).fullAmount
+        item.charge = parseAmount(item.charge).fullAmount
+        item.after = parseAmount(item.after).fullAmount
         item.time = moment(item.time).format('YYYY-MM-DD HH:mm:ss')
       })
       return items
@@ -394,7 +396,7 @@ function mapStateToProps(state, props) {
     notifyWay: 0,
   }
   if (notifyRule.isFetching === false && notifyRule.result && notifyRule.result.data) {
-    notifyRuleData.threshold = notifyRule.result.data.threshold / 100
+    notifyRuleData.threshold = parseAmount(notifyRule.result.data.threshold).amount
     notifyRuleData.notifyWay = notifyRule.result.data.notifyWay
   }
   return {
