@@ -11,6 +11,7 @@
 var path = require('path')
 var webpack = require('webpack')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
+var WebpackMd5Hash = require('webpack-md5-hash')
 
 module.exports = {
   // devtool: 'cheap-source-map',
@@ -29,8 +30,8 @@ module.exports = {
   output: {
     path: path.join(__dirname, 'dist'),
     publicPath: '',
-    filename: '[name].js',
-    chunkFilename: '[id].chunk.js',
+    filename: '[name].[chunkhash].js',
+    chunkFilename: 'chunk.[id].[chunkhash].js',
     publicPath: '/js/'
   },
 
@@ -70,10 +71,10 @@ module.exports = {
     new webpack.optimize.LimitChunkCountPlugin({maxChunks: 18}),
     new webpack.optimize.MinChunkSizePlugin({minChunkSize: 200000}),
     // new webpack.optimize.CommonsChunkPlugin('vendor', 'common.js'),
-    new webpack.optimize.CommonsChunkPlugin('common', 'common.js'),
+    new webpack.optimize.CommonsChunkPlugin('common', 'common.[chunkhash].js'),
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.NoErrorsPlugin(),
-    new ExtractTextPlugin('[name].css', { allChunks: true }),
+    new ExtractTextPlugin('index.[chunkhash].css', { allChunks: true }),
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false
@@ -81,6 +82,13 @@ module.exports = {
     }),
     new webpack.BannerPlugin('Licensed Materials - Property of tenxcloud.com\n\
     (C) Copyright 2016 TenxCloud. All Rights Reserved.\n\
-    https://www.tenxcloud.com')
+    https://www.tenxcloud.com'),
+    function() {
+      this.plugin('done', function(stats) {
+        require('fs').writeFileSync(
+          path.join(__dirname, 'stats.json'),
+          JSON.stringify(stats.toJson()))
+      })
+    }
   ]
 }

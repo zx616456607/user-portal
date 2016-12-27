@@ -4,20 +4,18 @@
  */
 
 /*
- * Root routes
+ * Root routes - enterprise
  *
  * v0.1 - 2016-11-22
  * @author Zhangpc
 */
 
-const standard = require('../../configs/constants').STANDARD_MODE
-const mode = require('../../configs/model').mode
 const rootRoutes = {
   childRoutes: [{
     path: '/login',
     getComponent: (location, cb) => {
       require.ensure([], (require) => {
-        cb(null, mode === standard ? require('../containers/Login/Standard').default : require('../containers/Login/Enterprise').default)
+        cb(null, require('../containers/Login/Enterprise').default)
       })
     },
   },{
@@ -43,11 +41,11 @@ const rootRoutes = {
     },
   },{
     path: '/',
-    component: mode === standard ? require('../containers/App/Standard').default : require('../containers/App/Enterprise').default,
+    component: require('../containers/App/Enterprise').default,
     indexRoute: {
       getComponent: (location, cb) => {
         require.ensure([], (require) => {
-          cb(null, mode === standard ? require('../containers/IndexPage/Standard').default : require('../containers/IndexPage/Enterprise').default)
+          cb(null, require('../containers/IndexPage/Enterprise').default)
         })
       },
     },
@@ -99,7 +97,7 @@ const rootRoutes = {
       path: 'account',
       component: require('../containers/Account').default,
       indexRoute: {
-        component: mode === standard ? require('../components/AccountModal/_Standard/UserInfo').default : require('../components/AccountModal/UserInfo').default,
+        component: require('../components/AccountModal/UserInfo').default,
       },
       getChildRoutes: (location, cb) => {
         require.ensure([], function (require) {
@@ -108,9 +106,9 @@ const rootRoutes = {
       },
     }, {
       path: 'setting',
-      component: mode === standard ? require('../containers/App/Standard').default : require('../containers/Setting').default,
+      component: require('../containers/Setting').default,
       indexRoute: {
-        component: mode === standard ? require('../containers/IndexPage/Standard').default : require('../components/SettingModal/Version').default,
+        component: require('../components/SettingModal/Version').default,
       },
       getChildRoutes: (location, cb) => {
         require.ensure([], function (require) {

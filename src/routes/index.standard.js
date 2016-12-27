@@ -4,7 +4,7 @@
  */
 
 /*
- * Root routes
+ * Root routes - standard
  *
  * v0.1 - 2016-11-22
  * @author Zhangpc
