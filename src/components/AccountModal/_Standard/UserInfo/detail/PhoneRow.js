@@ -14,6 +14,7 @@ import { sendRegisterPhoneCaptcha, changeUserInfo } from '../../../../../actions
 import NotificationHandler from '../../../../../common/notification_handler.js'
 const createForm = Form.create
 const FormItem = Form.Item
+import { PHONE_REGEX } from '../../../../../constants'
 
 
 let PhoneRow = React.createClass({
@@ -28,7 +29,7 @@ let PhoneRow = React.createClass({
       callback([new Error('请输入手机号码')])
       return
     }
-    if (!/\d{11}/.test(values)) {
+    if (!PHONE_REGEX.test(values)) {
       callback([new Error('请输入正确的号码')])
       return
     }
@@ -66,7 +67,7 @@ let PhoneRow = React.createClass({
   sendCode() {
     const { getFieldProps } = this.props.form
     const phone = getFieldProps('phone').value
-    if(!phone || !/\d{11}/.test(phone)) {
+    if(!phone || !PHONE_REGEX.test(phone)) {
       return
     }
     this.setState({
