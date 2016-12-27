@@ -18,6 +18,7 @@ import { loadAutoScale, deleteAutoScale, updateAutoScale } from '../../../action
 import { INSTANCE_AUTO_SCALE_MAX_CPU, INSTANCE_MAX_NUM } from '../../../../constants'
 import './style/AppAutoScale.less'
 import NotificationHandler from '../../../common/notification_handler'
+import { isStorageUsed } from '../../../common/tools'
 
 const confirm = Modal.confirm
 
@@ -54,26 +55,17 @@ class AppAutoScale extends Component {
   componentWillReceiveProps(nextProps) {
     const { cluster, serviceName, autoScale, replicas, isAutoScaleOpen, volumes } = nextProps
     this.setState({
-      isAutoScaleOpen: isAutoScaleOpen
+      isAutoScaleOpen: isAutoScaleOpen,
+      isAvailable: !isStorageUsed(volumes)
     })
     if (serviceName === this.props.serviceName) {
       return
-    }
-    let available = true
-    if (volumes) {
-      for (var i in volumes) {
-        if (volumes[i].rbd) {
-          available = false
-          break
-        }
-      }
     }
 
     this.setState({
       minReplicas: autoScale.minReplicas || replicas,
       maxReplicas: autoScale.maxReplicas || replicas,
-      targetCPUUtilizationPercentage: autoScale.targetCPUUtilizationPercentage || 30,
-      isAvailable: available
+      targetCPUUtilizationPercentage: autoScale.targetCPUUtilizationPercentage || 30
     })
     loadData(nextProps)
   }
