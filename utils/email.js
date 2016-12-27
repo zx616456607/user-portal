@@ -19,7 +19,7 @@ const config = require('../configs')
 const fs = require('fs')
 const self = this
 const EMAIL_TEMPLATES_DIR = `${__dirname}/../templates/email`
-logger
+
 /**
  * Send email use SMTP
  *
