@@ -32,7 +32,7 @@
     border-radius: 10px;
     border: 1px solid #21ADEB;
     background: #E4F5FD;
-    clear: both;
+    overflow: hidden;
     height: 80px;
     margin:20px 40px;
     padding:0px 20px;
@@ -41,9 +41,10 @@
       .keys{line-height: 30px;}
     }
     .price-unit{
+      padding-top: 15px;
       text-align: center;
       width: 50%;float: left;
-      line-height: 80px;height: 80px;
+      height: 80px;
       border-left: 1px dashed #21ADEB;
     }
     .unit{color: #21ADEB; }
@@ -433,4 +434,13 @@
       }
     }
   }
+  .unit{color: #21ADEB; }
+  .blod{font-size: 22px;}
+  .containerPrc{
+    border-top: 1px solid @boxColor;
+    line-height: 30px;
+    padding:10px;
+    i{padding-right: 15px;}
+  }
+  .countPrice{border-top: 1px solid @boxColor;padding:10px;}
 }

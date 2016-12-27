@@ -436,7 +436,6 @@ let NormalDeployBox = React.createClass({
     imageTagsIsFetching: PropTypes.bool.isRequired,
     loadImageDetailTag: PropTypes.func.isRequired,
     loadImageDetailTagConfig: PropTypes.func.isRequired,
-    selectComposeType: PropTypes.func.isRequired,
     loadPublicImageList: PropTypes.func
   },
   selectComposeType(type) {

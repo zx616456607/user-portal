@@ -11,7 +11,6 @@ import '../style/Invite.less'
 import React, { PropTypes } from 'react'
 import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row } from 'antd'
 import { connect } from 'react-redux'
-import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../../constants'
 import { browserHistory } from 'react-router'
 import NotificationHandler from '../../../common/notification_handler'
 

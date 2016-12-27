@@ -26,6 +26,7 @@ import TipSvcDomain from '../TipSvcDomain'
 import { getAppStatus } from '../../common/status_identify'
 import NotificationHandler from '../../common/notification_handler'
 import errorHandler from '../../containers/App/error_handler'
+import AppServiceRental from './AppServiceDetail/AppServiceRental'
 
 const DEFAULT_TAB = '#service'
 
@@ -191,7 +192,7 @@ class AppDetail extends Component {
                 <div className='rightInfo'>
                   <Form horizontal>
                     <div className='introduction' style={{ height: '115px'}}>
-                    <FormItem hasFeedback style={{ 'margin-bottom': '0px'}}>
+                    <FormItem hasFeedback style={{ marginBottom: '0px'}}>
                       描述：
                       {this.state.editDesc ? null :
                         <Button style={{ float: 'right', top: '-8px' }} onClick={() => this.setState({editDesc:true})} disabled={this.state.editDesc}>
@@ -245,6 +246,9 @@ class AppDetail extends Component {
                     cluster={this.props.cluster}
                     appName={this.props.appName} />
                 </TabPane>
+                <TabPane tab="租赁信息" key="#rentalInfo">
+                  <AppServiceRental serviceName={appName} serviceDetail={app.services} />
+                </TabPane>
               </Tabs>
             </Card>
           </div>
@@ -260,8 +264,8 @@ AppDetail.propTypes = {
   // Injected by React Redux
   cluster: PropTypes.string.isRequired,
   appName: PropTypes.string.isRequired,
-  app: PropTypes.object.isRequired,
-  isFetching: PropTypes.bool.isRequired,
+  // app: PropTypes.object.isRequired,
+  // isFetching: PropTypes.bool.isRequired,
   loadAppDetail: PropTypes.func.isRequired
 }
 

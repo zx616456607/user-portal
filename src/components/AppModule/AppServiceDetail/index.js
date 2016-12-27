@@ -361,7 +361,7 @@ class AppServiceDetail extends Component {
                 <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} />
               </TabPane>
               <TabPane tab='租赁信息' key='#rentalInfo'>
-                <AppServiceRental serviceName={service.metadata.name} serviceDetail={serviceDetail} />
+                <AppServiceRental serviceName={service.metadata.name} serviceDetail={[serviceDetail]} />
               </TabPane>
             </Tabs>
           </div>
