@@ -210,6 +210,7 @@ export function isEmptyObject(obj) {
  *   unit: '￥' || 'T',
  *   fullAmount: '￥ 0.25' || '0.25 T'
  * }
+ * ```
  */
 export function parseAmount(amount, precision) {
   const data = {}
