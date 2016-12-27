@@ -17,7 +17,7 @@ export default function uploadFile(file, options, callback) {
   const filename = file.name
   let start = filename.lastIndexOf('.')
   const fileType = filename.substring(start + 1, filename.length)
-  if(options.fileType.indexOf(fileType) < 0 ) {
+  if(options.fileType.indexOf(fileType.toLowerCase()) < 0 ) {
     return {
       error: `file type must be ${options.fileType.join(',')}`
     }
