@@ -435,7 +435,7 @@ let NotLogUser = React.createClass({
             loading={submitting}
             {...submitProps}
             className="subBtn">
-            {submitting ? '注册中...' : '注册并加入团队'}
+            {submitting ? '注册中...' : '注册并加入团队（新版注册暂未开放）'}
           </Button>
         </FormItem>
       </Form>
