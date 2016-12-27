@@ -117,6 +117,10 @@ let PhoneRow = React.createClass({
         },
         failed: {
           func: (result) => {
+            if(result.message.message == 'not authorized'){
+              noti.error('密码输入不正确')
+              return
+  	        }
             noti.close()
             noti.error(result.message.message)
           }
