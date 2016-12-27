@@ -150,7 +150,7 @@ let PhoneRow = React.createClass({
         <span className="key">手机</span>
         <div className="editPhoneList">
           <FormItem>
-            <Input size="large" {...phonePasswordProps} placeholder="当前账户密码" style={{ width: '73%' }} />
+            <Input type="password" size="large" {...phonePasswordProps} placeholder="当前账户密码" style={{ width: '73%' }} />
           </FormItem>
           <div className="editPhone">
             <FormItem>

@@ -162,6 +162,10 @@ let PasswordRow = React.createClass({
         failed: {
           func: (result) => {
             notification.close()
+            if(result.message.message == 'not authorized'){
+              notification.error('密码输入不正确')
+              return
+            }
             notification.error(result.message.message)
           }
         }
