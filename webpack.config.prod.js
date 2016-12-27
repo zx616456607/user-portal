@@ -13,12 +13,13 @@ var webpack = require('webpack')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 module.exports = {
-  // devtool: 'source-map',
+  // devtool: 'cheap-source-map',
 
   entry: {
     main: './src/entry/index.js',
     en: './src/entry/en.js',
-    zh: './src/entry/zh.js'
+    zh: './src/entry/zh.js',
+    // vendor: ['react', 'lodash', 'moment', 'codemirror', 'antd'],
   },
 
   resolve: {
@@ -63,9 +64,12 @@ module.exports = {
   },
 
   plugins: [
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('production'),
-    }),
+    // 删除重复数据
+    new webpack.optimize.DedupePlugin(),
+    // 设置分块传输最大数量和最小size
+    new webpack.optimize.LimitChunkCountPlugin({maxChunks: 18}),
+    new webpack.optimize.MinChunkSizePlugin({minChunkSize: 200000}),
+    // new webpack.optimize.CommonsChunkPlugin('vendor', 'common.js'),
     new webpack.optimize.CommonsChunkPlugin('common', 'common.js'),
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.NoErrorsPlugin(),
@@ -75,6 +79,8 @@ module.exports = {
         warnings: false
       }
     }),
-    new webpack.BannerPlugin('Licensed Materials - Property of tenxcloud.com\n(C) Copyright 2016 TenxCloud. All Rights Reserved.\nhttps://www.tenxcloud.com')
+    new webpack.BannerPlugin('Licensed Materials - Property of tenxcloud.com\n\
+    (C) Copyright 2016 TenxCloud. All Rights Reserved.\n\
+    https://www.tenxcloud.com')
   ]
 }
