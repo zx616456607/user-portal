@@ -190,9 +190,9 @@ class Integration extends Component {
             <div className='rightBox'>
               {
                 /*item.status == 'installed' ? */[
-                  <Button className='installedBtn' key={'installedBtn' + index} size='large' type='ghost' disabled
+                  <Button className='installedBtn' key={'installedBtn' + index} size='large' type='primary' disabled
                     style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
-                    <FormattedMessage {...menusText.showAppDetail} />
+                    <span>敬请期待</span>
                   </Button>
                 ] /*: null*/
               }
@@ -215,11 +215,11 @@ class Integration extends Component {
             </div>
             <div style={{ clear:'both' }}></div>
             {
-              /*item.status == 'installed' ?*/ [
+              /*item.status == 'installed' ? [
                 <div className='installedFlag' key='installedFlag'>
                   <FormattedMessage {...menusText.installedFlag} />
                 </div>
-              ] /*: null*/
+              ] : null*/
             }
           </div>
         )
@@ -307,7 +307,7 @@ class Integration extends Component {
                               </div>
                               <div className='rightBox'>
                                 <Button className='unintsallBtn' key='unintsallBtn' size='large' type='primary'
-                                  style={{ width: '102px' }} onClick={this.openCreateIntegration.bind(this)}>
+                                  style={{ width: '102px' }} onClick={this.openCreateIntegration.bind(this)} disabled>
                                   <FormattedMessage {...menusText.uninstall} />
                                 </Button>
                               </div>

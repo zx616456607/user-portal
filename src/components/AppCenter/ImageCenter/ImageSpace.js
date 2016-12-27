@@ -329,7 +329,7 @@ class ImageSpace extends Component {
               </span>
               <p>2.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageSecondTips} /></p>
               <span className="codeSpan">
-                sudo docker tag  tenxcloud/hello-world:latest {this.props.server}/&lt;username&gt;/&lt;repository&gt;:&lt;tag&gt;
+                sudo docker tag  tenxcloud/ubuntu:latest {this.props.server}/&lt;username&gt;/&lt;repository&gt;:&lt;tag&gt;
               </span>
               <p>3.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageThirdTips} /></p>
               <span className="codeSpan">
