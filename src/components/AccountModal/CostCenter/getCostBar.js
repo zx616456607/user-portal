@@ -12,7 +12,6 @@ import { parseAmount } from '../../../common/tools'
 export function getCostBar (costArr, summaryData, standard, transformDate){
   let xAxisData = costArr
   let yAxisData = []
-  let maxYAxisValue = 90 // default 90 + 10 = 100
   if (!summaryData.isFetching && summaryData.month != '') {
     let days = []
     let firstDay = `${summaryData.month}-01`
@@ -30,9 +29,7 @@ export function getCostBar (costArr, summaryData, standard, transformDate){
       let find = false
       for (const item of summaryData.items) {
         if (item.time == day) {
-          const price = parseAmount(item.cost).amount
-          yAxisData.push(price)
-          maxYAxisValue = price > maxYAxisValue ? price : maxYAxisValue
+          yAxisData.push(parseAmount(item.cost).amount)
           find = true
           continue
         }
@@ -46,8 +43,6 @@ export function getCostBar (costArr, summaryData, standard, transformDate){
       days[i] = parseInt(days[i].substr(8))
     }
     xAxisData = days
-    // ceiling maxYAxisValue. 123.4567 => 130
-    maxYAxisValue = (parseInt(maxYAxisValue / 10) + 1) * 10
   }
   return {
     color: ['#3398DB'],
@@ -56,7 +51,6 @@ export function getCostBar (costArr, summaryData, standard, transformDate){
       axisPointer : {
         type : 'shadow'
       },
-
       formatter: standard ? (transformDate() + '-{b}<br/>消费 ￥{c}') :
                             (transformDate() + '-{b}<br/>消费 {c}T币'),
       textStyle: {
@@ -95,9 +89,7 @@ export function getCostBar (costArr, summaryData, standard, transformDate){
     yAxis : [
       {
         type : 'value',
-        max: maxYAxisValue,
         splitNumber: 2,
-        interval: maxYAxisValue / 2,
         splitLine: {
           show: true,
           lineStyle: {
