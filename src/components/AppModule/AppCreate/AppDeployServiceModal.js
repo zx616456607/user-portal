@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form, Switch, Select, Collapse, Dropdown, Modal, Checkbox, Button, Card, Menu, Input, InputNumber, Radio, Icon } from 'antd'
+import { Form, Switch, Select, Collapse, Dropdown, Modal, Checkbox, Button, Card, Menu, Input, InputNumber, Radio, Icon, notification } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import NormalDeployBox from './AppDeployComponents/NormalDeployBox'
 import AssitDeployBox from './AppDeployComponents/AssitDeployBox'
@@ -384,7 +384,7 @@ let AppDeployServiceModal = React.createClass({
     deploymentList.addContainer(serviceName, image)
     deploymentList.setContainerResources(serviceName, ImageConfig.resources.limits.memory)
     //ports
-    if (portKey) {
+    if (portKey) { 
       getFieldValue('portKey').map((k, index) => {
         let portType = getFieldProps(`portType${k}`).value;
         let newIndex = index + 1;
@@ -420,6 +420,12 @@ let AppDeployServiceModal = React.createClass({
           )
         }
       })
+    } else {
+      notification['warning']({
+        message: '创建服务：高级设置',
+        description: '映射端口数量最少为一个！',
+      });
+      return;
     }
     //env
     if (envKey) {
