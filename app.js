@@ -21,7 +21,6 @@ const logger = require('./utils/logger').getLogger('app')
 const app = koa()
 const terminal = require('./controllers/web_terminal')
 
-
 global.Promise = require('bluebird')
 // Disabled reject unauthorized
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
@@ -120,9 +119,21 @@ if (config.session_store === 'true' && redisHost) {
 }
 app.use(session(sessionOpts))
 
+// Compress static files
+const compress = require('koa-compress')
+app.use(compress({
+  filter: function (content_type) {
+    return /text/i.test(content_type)
+  },
+  threshold: 2048,
+  flush: require('zlib').Z_SYNC_FLUSH
+}))
+
 // Serve files from ./public
 const serve = require('koa-static')
-app.use(serve(__dirname + '/static'))
+app.use(serve(__dirname + '/static', {
+  maxage: 1000 * 60 * 60 * 24 * 7 // 静态文件一周的缓存
+}))
 
 // Website favicon
 const favicon = require('koa-favicon')
