@@ -17,7 +17,7 @@ export default function uploadFile(file, options, callback) {
   const filename = file.name
   let start = filename.lastIndexOf('.')
   const fileType = filename.substring(start + 1, filename.length)
-  if(options.fileType.indexOf(fileType) < 0 ) {
+  if(options.fileType.indexOf(fileType.toLowerCase()) < 0 ) {
     return {
       error: `file type must be ${options.fileType.join(',')}`
     }
@@ -42,6 +42,9 @@ export default function uploadFile(file, options, callback) {
     body: formData
     //mode: 'no-cors'
   }).then(response => {
+    if(response.status >= 400){
+      throw new Error("上传失败")
+    }
     notification.close()
     notification.success('文件上传成功')
     if(callback) {

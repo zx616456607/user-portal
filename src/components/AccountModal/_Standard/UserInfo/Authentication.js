@@ -147,7 +147,7 @@ class Indivduals extends Component {
     const index = file.name.lastIndexOf('.')
     let ext = file.name.substring(index + 1)
     let fileName = this.props.namespace + (new Date() - 0) + '.' + ext
-    this.props.getQiNiuToken('certificate', fileName, {
+    this.props.getQiNiuToken('certificate', {fileName, protocol: window.location.protocol}, {
       success: {
         func: (result)=> {
           self.setState({

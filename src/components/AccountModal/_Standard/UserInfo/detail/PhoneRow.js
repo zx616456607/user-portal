@@ -8,7 +8,7 @@
  * @author Bai Yu
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form } from 'antd'
+import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Select } from 'antd'
 import { connect } from 'react-redux'
 import { sendRegisterPhoneCaptcha, changeUserInfo } from '../../../../../actions/user.js'
 import NotificationHandler from '../../../../../common/notification_handler.js'
@@ -97,7 +97,6 @@ let PhoneRow = React.createClass({
     e.preventDefault()
     const self = this
     const scope = this.props.scope
-    console.log(this.props.form)
     this.props.form.validateFields(['phonePassword', 'phone', 'code'], (errors, values) => {
       if (errors) {
         return
@@ -118,12 +117,16 @@ let PhoneRow = React.createClass({
         },
         failed: {
           func: (result) => {
+            noti.close()
             if(result.message.message == 'not authorized'){
               noti.error('密码输入不正确')
               return
   	        }
-            noti.close()
-            noti.error(result.message.message)
+            if(result.message.message) {
+              noti.error(result.message.message)
+              return
+            }
+            noti.error(result.message)
           }
         }
       })
@@ -159,11 +162,9 @@ let PhoneRow = React.createClass({
           </FormItem>
           <div className="editPhone">
             <FormItem>
-              <Dropdown overlay={{}}>
-                <Button type="ghost" size="large" style={{ float: 'left' }}>
-                  中国 （+86） <Icon type="down" />
-                </Button>
-              </Dropdown>
+                <Select defaultValue="china" style={{ width: 120 }}>
+                  <Option value="china">中国 （+86）</Option>
+               </Select>
               <Input size="large" {...newPhone} className="phoneNumber" placeholder="新手机号" style={{ width: '50%' }} />
             </FormItem>
           </div>

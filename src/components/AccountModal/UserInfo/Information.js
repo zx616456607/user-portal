@@ -41,13 +41,13 @@ let ResetPassWord = React.createClass({
   },
 
   handleSubmit(e) {
-    const { userDetail } = this.props
+    const { userID, userDetail } = this.props
     e.preventDefault();
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         return;
       }
-      this.props.updateUser('default',
+      this.props.updateUser(userID,
         {
           password: values.passwd
         }, {
@@ -155,7 +155,7 @@ class Information extends Component {
   }
   render() {
     const { revisePass } = this.state
-    const { userDetail, updateUser } = this.props
+    const { userID, userDetail, updateUser } = this.props
 
     let roleName
     switch (userDetail.role) {
@@ -192,7 +192,7 @@ class Information extends Component {
           <Col span={20}>
             {
               revisePass ?
-                <ResetPassWord updateUser={updateUser} userDetail={userDetail} onChange={this.resetPsw} />
+                <ResetPassWord updateUser={updateUser} userID={userID} userDetail={userDetail} onChange={this.resetPsw} />
                 :
                 <Button type="primary" onClick={this.handleRevise}>修改密码</Button>
             }

@@ -103,10 +103,10 @@ class ContainerLogs extends Component {
     })
     this.ws = ws
     const { cluster, containerName, loginUser, current } = this.props
-    const { watchToken, namespace } = loginUser
+    const { watchToken, namespace, userName } = loginUser
     const watchAuthInfo = {
       accessToken: watchToken,
-      namespace: namespace,
+      namespace: userName,
       type: 'log',
       name: containerName,
       cluster,
