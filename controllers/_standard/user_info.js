@@ -52,6 +52,7 @@ exports.upTokenToQiniu = function* () {
   // Get bucket and file name from body
   const bucketName = this.query.bucket
   const fileName = this.query.fileName
+  const protocol = this.query.protocol
   if (!bucketName || !fileName) {
     this.status = 400
     this.body = 'bucket and fileName are required.'
@@ -63,7 +64,7 @@ exports.upTokenToQiniu = function* () {
   let qiniuConfig = qnAPI.getQiniuConfig()
   // Different upload url for different protocol
   let uploadUrl = 'http://upload.qiniu.com'
-  if (config.protocol === 'https') {
+  if (protocol === 'https') {
     uploadUrl = 'https://up.qbox.me'
   }
   if (token === '') {

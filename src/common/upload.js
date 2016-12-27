@@ -42,6 +42,9 @@ export default function uploadFile(file, options, callback) {
     body: formData
     //mode: 'no-cors'
   }).then(response => {
+    if(response.status >= 400){
+      throw new Error("上传失败")
+    }
     notification.close()
     notification.success('文件上传成功')
     if(callback) {
