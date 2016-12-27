@@ -233,7 +233,7 @@ let MyComponent = React.createClass({
     });
   },
   showAction(e, type, one, two) {
-    e.preventDefault()
+    e.stopPropagation()
     if (type === 'format') {
       this.setState({
         visible: true,
