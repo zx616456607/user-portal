@@ -460,7 +460,7 @@
   "ManageMonitor.operationalAudit.ConfigGroup": "配置组",
   "ManageMonitor.operationalAudit.Node": "主机",
   "ManageMonitor.operationalAudit.NodeMetrics": "主机指标",
-  "ManageMonitor.operationalAudit.ThirdPartyRegistry": "第三方容器",
+  "ManageMonitor.operationalAudit.ThirdPartyRegistry": "第三方镜像仓库",
   "ManageMonitor.operationalAudit.Volume": "存储",
   "ManageMonitor.operationalAudit.VolumeConsumption": "存储使用",
   "ManageMonitor.operationalAudit.allstatus": "所有状态",

@@ -533,7 +533,7 @@ class Ordinary extends Component{
             <Card title="帐户余额" bordered={false}>
               {/*<ReactEcharts
                 notMerge={true}
-                option={getClusterCostOption(clusterNodeSpaceConsumption.consumption/100, clusterNodeSpaceConsumption.balance/100)}
+                option={getClusterCostOption(parseAmount(clusterNodeSpaceConsumption.consumption).amount, parseAmount(clusterNodeSpaceConsumption.balance).amount)}
                 style={{height:'200px'}}
               />*/}
               <div className='costInfo'>
@@ -563,7 +563,7 @@ class Ordinary extends Component{
                   <div className='userCost'>
                     <div>
                       <i style={{backgroundColor: '#28bd83'}}></i>
-                      消费&nbsp;:&nbsp
+                      消费&nbsp;:&nbsp;
                     </div>
                     <span className='costNum'>¥{parseAmount(clusterNodeSpaceConsumption.consumption).amount}</span>
                     <Button type='primary'><Link to='/account/cost'>去查看</Link></Button>

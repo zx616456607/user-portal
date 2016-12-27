@@ -239,7 +239,7 @@ class Admin extends Component{
               <Col span={10} style={{height:170}}>
                   <ReactEcharts
                     notMerge={true}
-                    option={getOption(teamConsumption.consumption/100, teamConsumption.balance/100)}
+                    option={getOption(parseAmount(teamConsumption.consumption).amount, parseAmount(teamConsumption.balance).amount)}
                     style={{height:170}}
                   />
               </Col>
