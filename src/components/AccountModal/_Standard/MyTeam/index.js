@@ -25,6 +25,7 @@ import NotificationHandler from '../../../../common/notification_handler'
 import ExitTeamModal from '../../ExitTeamModal'
 import CreateTeamSuccessModal from '../../CreateTeamSuccessModal'
 import InviteNewMemberModal from '../../InviteNewMemberModal'
+import { parseAmount } from '../../../../common/tools'
 import moment from 'moment'
 
 const confirm = Modal.confirm;
@@ -594,7 +595,7 @@ function mapStateToProp(state, props) {
       item.role = item.isCreator ? '创建者（管理员）' : '普通成员'
       item.key = item.id
       item.creationTime = moment(item.creationTime).fromNow()
-      item.balance = item.balance / 100
+      item.balance = parseAmount(item.balance).amount
     })
     total = teamsData.total
   }

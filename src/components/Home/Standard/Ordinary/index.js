@@ -17,6 +17,7 @@ import { connect } from 'react-redux'
 import { loadStdClusterInfo } from '../../../../actions/overview_cluster'
 import ProgressBox from '../../../ProgressBox'
 import { Link } from 'react-router'
+import { parseAmount } from '../../../../common/tools'
 import { AVATAR_HOST } from '../../../../constants'
 
 function getClusterCostOption(costValue, restValue) {
@@ -532,7 +533,7 @@ class Ordinary extends Component{
             <Card title="帐户余额" bordered={false}>
               {/*<ReactEcharts
                 notMerge={true}
-                option={getClusterCostOption(clusterNodeSpaceConsumption.consumption/100, clusterNodeSpaceConsumption.balance/100)}
+                option={getClusterCostOption(parseAmount(clusterNodeSpaceConsumption.consumption).amount, parseAmount(clusterNodeSpaceConsumption.balance).amount)}
                 style={{height:'200px'}}
               />*/}
               <div className='costInfo'>
@@ -556,7 +557,7 @@ class Ordinary extends Component{
                       <i style={{backgroundColor:'#46b2fa'}}></i>
                       余额&nbsp;:&nbsp;
                     </div>
-                    <span className='costNum'>¥{clusterNodeSpaceConsumption.consumption/100}</span>
+                    <span className='costNum'>¥{parseAmount(clusterNodeSpaceConsumption.balance).amount}</span>
                     <Button type='primary'><Link to='/account/balance'>去充值</Link></Button>
                   </div>
                   <div className='userCost'>
@@ -564,7 +565,7 @@ class Ordinary extends Component{
                       <i style={{backgroundColor: '#28bd83'}}></i>
                       消费&nbsp;:&nbsp;
                     </div>
-                    <span className='costNum'>¥{clusterNodeSpaceConsumption.balance/100}</span>
+                    <span className='costNum'>¥{parseAmount(clusterNodeSpaceConsumption.consumption).amount}</span>
                     <Button type='primary'><Link to='/account/cost'>去查看</Link></Button>
                   </div>
                 </div>

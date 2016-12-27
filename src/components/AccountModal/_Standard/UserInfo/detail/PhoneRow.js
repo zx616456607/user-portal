@@ -117,6 +117,10 @@ let PhoneRow = React.createClass({
         },
         failed: {
           func: (result) => {
+            if(result.message.message == 'not authorized'){
+              noti.error('密码输入不正确')
+              return
+  	        }
             noti.close()
             noti.error(result.message.message)
           }
@@ -150,7 +154,7 @@ let PhoneRow = React.createClass({
         <span className="key">手机</span>
         <div className="editPhoneList">
           <FormItem>
-            <Input size="large" {...phonePasswordProps} placeholder="当前账户密码" style={{ width: '73%' }} />
+            <Input type="password" size="large" {...phonePasswordProps} placeholder="当前账户密码" style={{ width: '73%' }} />
           </FormItem>
           <div className="editPhone">
             <FormItem>
