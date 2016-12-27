@@ -13,7 +13,8 @@ import './style/Admin.less'
 import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
 import { loadTeamInfo } from '../../../../actions/overview_team'
-
+import { parseAmount } from '../../../../common/tools'
+ 
 function getOption(cost, rest) {
   return {
     title: {
