@@ -105,15 +105,17 @@ function mapStateToProps(state, props) {
   const {invitationInfo} = state.team
   let teamName = ''
   let email = ''
-  let isUser = true
+  let isUser = false
   let invitationStatus = 0
   if (!invitationInfo.isFetching && invitationInfo.result && invitationInfo.result.data.data) {
+    console.log('invitationInfo.result.data.data.isUser',invitationInfo.result.data.data.isUser)
     teamName = invitationInfo.result.data.data.teamName
     email = invitationInfo.result.data.data.email
     isUser = invitationInfo.result.data.data.isUser
     invitationStatus = invitationInfo.result.data.data.status
   }
-
+  console.log('isUser',isUser)
+  console.log('invitationInfo',invitationInfo)
   return {
     code,
     teamName,

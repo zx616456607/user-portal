@@ -431,6 +431,7 @@ let NotLogUser = React.createClass({
             htmlType="submit"
             type="primary"
             onClick={this.handleSubmit}
+            disabled
             loading={submitting}
             {...submitProps}
             className="subBtn">
