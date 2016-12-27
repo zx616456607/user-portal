@@ -67,7 +67,7 @@ class BaseInfo extends Component {
       const self = this
       const fileName = this.state.fileName
       const file = this.state.file
-      this.props.getQiNiuToken('avatars', fileName, {
+      this.props.getQiNiuToken('avatars', {fileName, protocol: window.location.protocol}, {
         success: {
           func: (result) => {
             self.setState({
@@ -152,7 +152,7 @@ class BaseInfo extends Component {
     let ext = file.name.substring(index + 1)
     const fileType = ['jpg', 'png', 'gif']
     const notification = new NotificationHandler()
-    if (fileType.indexOf(ext) < 0) {
+    if (fileType.indexOf(ext.toLowerCase()) < 0) {
       notification.error('头像格式仅支持jpg/png/gif')
       this.setState({
         disabledButton: true
@@ -234,7 +234,8 @@ class BaseInfo extends Component {
       file: '',
       userIconsrc: user.avatar,
       filePath: '',
-      fileName: ''
+      fileName: '',
+      isBase64: false
     })
   }
   renderEdition(envEdition) {

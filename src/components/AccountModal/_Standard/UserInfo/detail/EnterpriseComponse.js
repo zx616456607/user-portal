@@ -20,7 +20,7 @@ let EnterpriseComponse = React.createClass({
       userLicense:{},
       userFrontId:{},
       backId:{},
-      disabled: true
+      disabled: false
     }
   },
   componentWillMount() {
@@ -153,7 +153,7 @@ let EnterpriseComponse = React.createClass({
     const index = file.name.lastIndexOf('.')
     let ext = file.name.substring(index + 1)
     let fileName = this.props.namespace + (new Date() - 0) + '.' + ext
-    this.props.scope.props.getQiNiuToken('certificate', fileName, {
+    this.props.scope.props.getQiNiuToken('certificate', {fileName, protocol: window.location.protocol}, {
       success: {
         func: (result)=> {
           self.setState({
@@ -382,7 +382,7 @@ let EnterpriseComponse = React.createClass({
             
                 <Upload listType="picture-card" accept="image/*" fileList={frontId} beforeUpload={(file) => 
                   this.beforeUpload(file, 'frontId') 
-                } customRequest={() => true }  onRemove={() => this.removeFile('frontId')} disabled={ frontId ? true : false}>
+                } customRequest={() => true }  onRemove={() => this.removeFile('frontId')} disabled={ frontId  ? true : false}>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
@@ -400,7 +400,7 @@ let EnterpriseComponse = React.createClass({
                
                 <Upload listType="picture-card" accept="image/*" fileList={backId} beforeUpload={(file) => 
                   this.beforeUpload(file, 'backId') 
-                } customRequest={() => true }  onRemove={() => this.removeFile('backId')}  disabled={ backId ? true : false}>
+                } customRequest={() => true }  onRemove={() => this.removeFile('backId')}  disabled={ backId  ? true : false}>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>

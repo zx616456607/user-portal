@@ -232,7 +232,8 @@ let MyComponent = React.createClass({
       size: value,
     });
   },
-  showAction(type, one, two) {
+  showAction(e, type, one, two) {
+    e.stopPropagation()
     if (type === 'format') {
       this.setState({
         visible: true,
@@ -264,7 +265,8 @@ let MyComponent = React.createClass({
     })
   },
 
-  selectByline(item) {
+  selectByline(e, item) {
+    if(item.isUsed) return
     this.props.saveVolumeArray({target:{checked:!this.isChecked(item.name)}}, item.name)
   },
 
@@ -273,12 +275,12 @@ let MyComponent = React.createClass({
     let list = this.props.storage;
     if (!list || !list.storageList) return (<div></div>)
     let items = list.storageList.map((item) => {
-      const menu = (<Menu onClick={(e) => { this.showAction('format', item.name, item.format) } } style={{ width: '80px' }}>
+      const menu = (<Menu onClick={(e) => { this.showAction(e, 'format', item.name, item.format) } } style={{ width: '80px' }}>
         <Menu.Item key="1" disabled={item.isUsed}><FormattedMessage {...messages.formatting} /></Menu.Item>
       </Menu>
       )
       return (
-        <div className="appDetail" key={item.name} onClick={this.selectByline.bind(this, item)}>
+        <div className="appDetail" key={item.name} onClick={(e) => this.selectByline(e, item)}>
           <div className="selectIconTitle commonData">
             <Checkbox disabled={item.isUsed} onChange={(e) => this.onchange(e, item.name)} checked={this.isChecked(item.name)}></Checkbox>
           </div>
@@ -311,7 +313,7 @@ let MyComponent = React.createClass({
             {!item.isUsed ?
               <Dropdown overlay={menu}>
                 <Button type="ghost" disabled={item.isUsed}>
-                  <span className="divider" onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><FormattedMessage {...messages.dilation} /> </span><Icon type="down" />
+                  <span className="divider" onClick={(e) => { this.showAction(e, 'resize', item.name, item.totalSize) } }><FormattedMessage {...messages.dilation} /> </span><Icon type="down" />
                 </Button>
               </Dropdown>
             :

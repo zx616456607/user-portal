@@ -80,8 +80,9 @@ let EmailRow = React.createClass({
         },
         failed: {
           func: (result) => {
+            notification.close()
             if(result.message.message == 'not authorized'){
-              noti.error('密码输入不正确')
+              notification.error('密码输入不正确')
               return
   	        }
             notification.close()

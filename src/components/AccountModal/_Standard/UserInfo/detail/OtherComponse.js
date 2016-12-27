@@ -20,7 +20,7 @@ let OtherComponse = React.createClass({
       userLicense:{},
       userFrontId:{},
       backId:{},
-      disabled: true
+      disabled: false
     }
   },
   componentWillMount(){
@@ -152,7 +152,7 @@ let OtherComponse = React.createClass({
     const index = file.name.lastIndexOf('.')
     let ext = file.name.substring(index + 1)
     let fileName = this.props.namespace + (new Date() - 0) + '.' + ext
-    this.props.scope.props.getQiNiuToken('certificate', fileName, {
+    this.props.scope.props.getQiNiuToken('certificate', {fileName, protocol: window.location.protocol}, {
       success: {
         func: (result)=> {
           self.setState({
