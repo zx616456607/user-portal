@@ -10,7 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { Card, Icon } from 'antd'
 import { connect } from 'react-redux'
-import { calcuDate } from '../../../common/tools.js'
+import { calcuDate, parseAmount} from '../../../common/tools.js'
 import './style/AppServiceDetailInfo.less'
 
 class AppServiceRental extends Component {
@@ -47,19 +47,19 @@ class AppServiceRental extends Component {
     const { resourcePrice } = this.props
     switch(size) {
       case '256Mi':
-        return resourcePrice['1x'] /100
+        return resourcePrice['1x']
       case '512Mi':
-        return resourcePrice['2x'] /100
+        return resourcePrice['2x']
       case '1GB':
-        return resourcePrice['4x'] /100
+        return resourcePrice['4x']
       case '2GB':
-        return resourcePrice['8x'] /100
+        return resourcePrice['8x']
       case '4GB':
-        return resourcePrice['16x'] /100
+        return resourcePrice['16x']
       case '8Gb':
-        return resourcePrice['32x'] /100
+        return resourcePrice['32x']
       default:
-        return resourcePrice['1x'] /100;
+        return resourcePrice['1x']
     }
   }
   // 合计价格
@@ -72,6 +72,7 @@ class AppServiceRental extends Component {
   }
   render() {
     const { serviceDetail } = this.props
+    if (!this.props.serviceDetail[0]){ return(<div></div>)}
     const detaContainer = this.props.serviceDetail[0].spec.template.spec.containers[0]
     const dataRow = serviceDetail.map((list, index)=> {
         return(
@@ -79,10 +80,14 @@ class AppServiceRental extends Component {
             <td>{list.metadata.name}</td>
             <td>{this.formetCpuMemory(list.spec.template.spec.containers[0].resources.requests.memory)}</td>
             <td>{serviceDetail[0].spec.replicas}</td>
-            <td>{this.formetPrice(list.spec.template.spec.containers[0].resources.requests.memory) }元/小时</td>
+            <td>{this.formetPrice(list.spec.template.spec.containers[0].resources.requests.memory) /10000 }元/小时</td>
           </tr>
         )
     })
+    let countPrice = this.countPrice(serviceDetail) * 24 * 30
+    const hourPrice = this.countPrice(serviceDetail) /10000
+    countPrice = parseAmount(countPrice, 4)
+
     return (
       <Card id="AppServiceDetailInfo">
         <div className="info">
@@ -95,8 +100,9 @@ class AppServiceRental extends Component {
           */}
           <div className="dataBox" style={{padding:'0 25px'}}>
             <div className="priceCount">合计价格：
-              <span className="unit blod">￥{this.countPrice(serviceDetail) }元/小时</span>
-              <span className="unit" style={{marginLeft:'10px'}}>（约：￥{this.countPrice(serviceDetail) * 30}元/月）</span>
+              <span className="unit">￥</span>
+              <span className="unit blod">{ hourPrice }元/小时</span>
+              <span className="unit" style={{marginLeft:'10px'}}>（约：￥{ countPrice.amount }元/月）</span>
             </div>
             <table className="table">
               <thead>

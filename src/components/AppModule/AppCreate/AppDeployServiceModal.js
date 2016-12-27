@@ -17,6 +17,7 @@ import ComposeDeployBox from './AppDeployComponents/ComposeDeployBox'
 import EnviroDeployBox from './AppDeployComponents/EnviroDeployBox'
 import "./style/AppDeployServiceModal.less"
 import { connect } from 'react-redux'
+import { parseAmount } from '../../../common/tools.js'
 import { CREATE_APP_ANNOTATIONS } from '../../../constants'
 
 const Deployment = require('../../../../kubernetes/objects/deployment')
@@ -27,7 +28,7 @@ const FormItem = Form.Item;
 
 let AppDeployServiceModal = React.createClass({
   propTypes: {
-    cluster: PropTypes.string.isRequired,
+    cluster: PropTypes.object.isRequired,
     serviceList: PropTypes.array,
   },
   getInitialState: function () {
@@ -600,6 +601,10 @@ let AppDeployServiceModal = React.createClass({
     const {currentSelectedImage, registryServer, isCreate, other} = parentScope.state
     const { form, serviceOpen } = this.props
     const { composeType, disable } = this.state
+    const unitPrice = parseAmount(price[this.state.composeType+'x'], 4)
+    const hourPrice = parseAmount(price[this.state.composeType+'x'] * instanceNum, 4)
+    const countPrice = parseAmount(price[this.state.composeType+'x'] * instanceNum * 24 * 30, 4) // 24h * 30d
+
     return (
       <div id="AppDeployServiceModal">
         <Form horizontal onSubmit={this.handleForm} >
@@ -631,11 +636,11 @@ let AppDeployServiceModal = React.createClass({
           <div className="btnBox">
             <div className="modal-price">
               <div className="price-left">
-                <span className="keys">实例：<span className="unit">{price[this.state.composeType+'x'] * 1 /100 }</span> 元/小时</span>
+                <span className="keys">实例：<span className="unit">{ unitPrice.amount}</span> 元/小时</span>
               </div>
               <div className="price-unit">合计：<span className="unit">￥</span>
-                <span className="unit blod">{(price[this.state.composeType+'x'] * 1 /100 * instanceNum).toFixed(2) }元/小时</span> &nbsp;
-                <span className="unit">（约￥：{(price[this.state.composeType+'x'] * 1 /100 * instanceNum * 720).toFixed(2) }/月）</span>
+                <span className="unit blod">{ hourPrice.amount }元/小时</span> &nbsp;
+                <span className="unit">（约￥：{ countPrice.amount }/月）</span>
               </div>
             </div>
             <div className="text-center">
