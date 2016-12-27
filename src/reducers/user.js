@@ -37,7 +37,9 @@ function standardUserDetail(state = {}, action) {
       })
     }
     case ActionTypes.USER_CHANGE_USERINFO_REQUEST: {
-      return state
+      return Object.assign({}, state, {
+        isFetching: false
+      })
     }
     case ActionTypes.USER_CHANGE_USERINFO_SUCCESS: {
       const resultState = cloneDeep(state)
@@ -53,7 +55,9 @@ function standardUserDetail(state = {}, action) {
       return resultState
     }
     case ActionTypes.USER_CHANGE_USERINFO_FAILURE: {
-      return state
+       return Object.assign({}, state, {
+        isFetching: false
+      })
     }
     default: {
       return state
@@ -93,7 +97,7 @@ function userCertificate (state ={}, action) {
     case ActionTypes.GET_USER_CERTIFICATE_FAILURE: {
       return Object.assign({}, defaultInfo, {
         isFetching: false,
-        certificate: null
+        certificate: ''
       })
     }
     default: {

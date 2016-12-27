@@ -173,12 +173,12 @@ let MemberTable = React.createClass({
       onShowSizeChange(current, pageSize) {
         scope.props.loadUserList({
           page: current,
-          size: pageSize,
+          size: 10,
           sort,
           filter: scope.state.filter,
         })
         scope.setState({
-          pageSize: pageSize,
+          pageSize: 10,
           page: current,
           current: 1,
         })
@@ -190,12 +190,12 @@ let MemberTable = React.createClass({
         }
         scope.props.loadUserList({
           page: current,
-          size: pageSize,
+          size: 10,
           sort,
           filter: scope.state.filter
         })
         scope.setState({
-          pageSize: pageSize,
+          pageSize: 10,
           page: current,
           current: current,
         })

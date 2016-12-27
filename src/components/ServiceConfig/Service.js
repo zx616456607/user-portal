@@ -107,8 +107,7 @@ class Service extends Component {
       configArray: []
     }
   }
-  componentWillMount() {
-  }
+
   configModal(visible) {
     if (visible) {
       this.setState({
@@ -150,17 +149,12 @@ class Service extends Component {
     this.props.createConfigGroup(configs, {
       success: {
         func: () => {
+          notification.success('创建成功')
           self.setState({
             createModal: false,
             myTextInput: ''
           })
-          self.props.loadConfigGroup(cluster, {
-            success: {
-              func: () => {
-                notification.success('创建成功')
-              }
-            }
-          })
+          self.props.loadConfigGroup(cluster)
         },
         isAsync: true
       },

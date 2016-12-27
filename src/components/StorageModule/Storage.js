@@ -20,7 +20,7 @@ import findIndex from 'lodash/findIndex'
 import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP } from '../../constants'
 import './style/storage.less'
-import { calcuDate } from '../../common/tools'
+import { calcuDate, parseAmount } from '../../common/tools'
 import { volNameCheck } from '../../common/naming_validation'
 import NotificationHandler from '../../common/notification_handler'
 
@@ -232,7 +232,8 @@ let MyComponent = React.createClass({
       size: value,
     });
   },
-  showAction(type, one, two) {
+  showAction(e, type, one, two) {
+    e.stopPropagation()
     if (type === 'format') {
       this.setState({
         visible: true,
@@ -264,7 +265,8 @@ let MyComponent = React.createClass({
     })
   },
 
-  selectByline(item) {
+  selectByline(e, item) {
+    if(item.isUsed) return
     this.props.saveVolumeArray({target:{checked:!this.isChecked(item.name)}}, item.name)
   },
 
@@ -273,12 +275,12 @@ let MyComponent = React.createClass({
     let list = this.props.storage;
     if (!list || !list.storageList) return (<div></div>)
     let items = list.storageList.map((item) => {
-      const menu = (<Menu onClick={(e) => { this.showAction('format', item.name, item.format) } } style={{ width: '80px' }}>
+      const menu = (<Menu onClick={(e) => { this.showAction(e, 'format', item.name, item.format) } } style={{ width: '80px' }}>
         <Menu.Item key="1" disabled={item.isUsed}><FormattedMessage {...messages.formatting} /></Menu.Item>
       </Menu>
       )
       return (
-        <div className="appDetail" key={item.name} onClick={this.selectByline.bind(this, item)}>
+        <div className="appDetail" key={item.name} onClick={(e) => this.selectByline(e, item)}>
           <div className="selectIconTitle commonData">
             <Checkbox disabled={item.isUsed} onChange={(e) => this.onchange(e, item.name)} checked={this.isChecked(item.name)}></Checkbox>
           </div>
@@ -308,24 +310,38 @@ let MyComponent = React.createClass({
                 <span onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><FormattedMessage {...messages.dilation} /> </span><Icon type="down" />
               </Button>
             </Dropdown>*/}
-            <Dropdown.Button overlay={menu} className={item.isUsed ? 'disabled' : ''} disabled={item.isUsed} type='ghost' onClick={(e) => this.showAction('resize', item.name, item.totalSize)}>
-              <div><FormattedMessage {...messages.dilation} /></div>
-            </Dropdown.Button>
+            {!item.isUsed ?
+              <Dropdown overlay={menu}>
+                <Button type="ghost" disabled={item.isUsed}>
+                  <span className="divider" onClick={(e) => { this.showAction(e, 'resize', item.name, item.totalSize) } }><FormattedMessage {...messages.dilation} /> </span><Icon type="down" />
+                </Button>
+              </Dropdown>
+            :
+              <Dropdown overlay={menu} visible={false}>
+                <Button type="ghost" disabled={item.isUsed}>
+                  <span className="divider"><FormattedMessage {...messages.dilation} /> </span><Icon type="down" />
+                </Button>
+              </Dropdown>
+            }
           </div>
         </div>
       );
     });
+    const { scope } = this.props
+    const { resourcePrice } = scope.props.currentCluster
+    const hourPrice = parseAmount(this.state.size /1000 * resourcePrice.storage, 4)
+    const countPrice = parseAmount(this.state.size /1000 * resourcePrice.storage * 24 *30, 4)
     return (
       <div className="dataBox">
         {items}
-        <Modal title={this.state.modalTitle} visible={this.state.visible} okText="确定" cancelText="取消"
+        <Modal title={this.state.modalTitle} visible={this.state.visible} okText="确定" cancelText="取消" className="storageModal" width={600}
          footer={[
             <Button key="back" type="ghost" size="large" onClick={(e) => { this.cancelModal() } }>取消</Button>,
             <Button key="submit" type="primary" size="large" disabled={isActing} loading={this.state.loading} onClick={(e) => { this.handleSure() } }>
               确定
             </Button>
           ]}
-        >
+         >
           <div className={this.state.modalType === 'resize' ? 'show' : 'hide'}>
             <Row style={{ height: '40px' }}>
               <Col span="3" className="text-center" style={{ lineHeight: '30px' }}><FormattedMessage {...messages.name} /></Col>
@@ -333,12 +349,23 @@ let MyComponent = React.createClass({
             </Row>
             <Row style={{ height: '40px' }}>
               <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{formatMessage(messages.size)}</Col>
-              <Col span="12"><Slider min={this.state.modalSize} max={10240} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
+              <Col span="12">
+                <Slider min={this.state.modalSize} max={10240} step={100} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
               <Col span="8">
                 <InputNumber min={this.state.modalSize} max={10240} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
                 <span style={{ paddingLeft: 10 }} >MB</span>
               </Col>
             </Row>
+            <div className="modal-price">
+              <div className="price-left">
+                存储：￥{ resourcePrice.storage /10000 } 元/(GB*小时)
+              </div>
+              <div className="price-unit">
+                <p>合计：<span className="unit">￥</span><span className="unit blod"> { hourPrice.amount } 元/ 小时</span></p>
+                <p><span className="unit">（约：￥</span><span className="unit"> { countPrice.amount } 元/ 小时</span></p>
+              </div>
+            </div>
+
           </div>
           <div className={this.state.modalType === 'format' ? 'show' : 'hide'}>
             <div style={{ height: '30px' }}>确定格式化存储卷{this.state.modalName}吗? <span style={{ color: 'red' }}>(格式化后数据将被清除)。</span></div>
@@ -637,8 +664,9 @@ class Storage extends Component {
   render() {
     const { formatMessage } = this.props.intl
     if (!this.props.currentCluster.resourcePrice) return <div></div>
-    const storagePrice = this.props.currentCluster.resourcePrice.storage /100
-
+    const storagePrice = this.props.currentCluster.resourcePrice.storage /10000
+    const hourPrice = parseAmount(this.state.size / 1000 * this.props.currentCluster.resourcePrice.storage, 4)
+    const countPrice = parseAmount(this.state.size / 1000 * this.props.currentCluster.resourcePrice.storage * 24 *30, 4)
     return (
       <QueueAnim className="StorageList" type="right">
         <div id="StorageList" key="StorageList">
@@ -695,10 +723,11 @@ class Storage extends Component {
                 </Row>
                 <div className="modal-price">
                   <div className="price-left">
-                    储存：￥{ storagePrice } /(GB*小时)
+                    存储：￥{ storagePrice } /(GB*小时)
                   </div>
                   <div className="price-unit">
-                    合计：<span className="unit">￥</span><span className="unit blod">{parseFloat((this.state.size / 1000 * storagePrice)).toFixed(2)} / 小时</span>
+                    <p>合计：<span className="unit">￥</span><span className="unit blod">{ hourPrice.amount } / 小时</span></p>
+                    <p><span className="unit">（约：￥</span><span className="unit">{ countPrice.amount } / 月）</span></p>
                   </div>
                 </div>
               </Modal>
@@ -734,6 +763,7 @@ class Storage extends Component {
               cluster={this.props.cluster}
               imagePool={this.props.currentImagePool}
               loadStorageList={() => { this.props.loadStorageList(this.props.currentImagePool, this.props.cluster) } }
+              scope ={ this }
               />
           </Card>
         </div>

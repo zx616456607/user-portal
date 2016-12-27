@@ -15,6 +15,8 @@ import QueueAnim from 'rc-queue-anim'
 import AppAddServiceModal from './AppAddServiceModal'
 import AppDeployServiceModal from './AppDeployServiceModal'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { parseAmount } from '../../../common/tools.js'
+
 import "./style/ServiceList.less"
 
 
@@ -96,8 +98,8 @@ class MyComponent extends Component {
     })
   }
   render() {
-    var config = this.props.scope.state.servicesList;
-    var items = config.map((item) => {
+    const  config = this.props.scope.state.servicesList;
+    const items = config.map((item) => {
       return (
         <div key={item.id} className={this.checkedFunc(item.id) ? "selectedService serviceDetail" : "serviceDetail"}>
           <div className="selectIconTitle commonData">
@@ -114,6 +116,9 @@ class MyComponent extends Component {
           </div>
           <div className="resource commonData">
             {item.resource}
+          </div>
+          <div className="resource commonData" style={{paddingLeft:'15px'}}>
+            {item.inf.Deployment.spec.replicas}
           </div>
           <div className="opera commonData">
             <Button className="viewBtn" type="ghost" size="large" onClick={() => this.checkService(item.name, item.inf, item.imageName)}>
@@ -274,6 +279,7 @@ class ServiceList extends Component {
   }
   formetServer(size) {
     const { resourcePrice } = this.props.cluster
+    if (!resourcePrice) return 0
     switch(size) {
       case '1C/256M':
         return resourcePrice['1x']
@@ -285,24 +291,25 @@ class ServiceList extends Component {
         return resourcePrice['8x']
       case '1C/4G':
         return resourcePrice['16x']
-      case '1C/8G':
+      case '2C/8G':
         return resourcePrice['32x']
       default:
         return resourcePrice['1x'];
     }
   }
+
   formetPrice() {
     //  返回计算后单价
     const { servicesList } = this.state
     const priceArr = []
     servicesList.forEach((list, index)=> {
-      priceArr.push(this.formetServer(servicesList[index].resource) * (servicesList[index].inf.Deployment.spec.replicas) /100)//number
+      priceArr.push(this.formetServer(servicesList[index].resource) * (servicesList[index].inf.Deployment.spec.replicas))//number
     })
     let result = 0;
     for(let i = 0; i < priceArr.length; i++) {
       result += priceArr[i];
     }
-    return result = parseFloat(result.toFixed(2))
+    return result
   }
   countSize() {
   // 返回 服务数量
@@ -317,12 +324,33 @@ class ServiceList extends Component {
     }
     return result
   }
-  
+  countConfig() {
+    const { servicesList } = this.state
+    let priceArr =[],unit ={}
+    servicesList.forEach((list, index)=> {
+      priceArr.push({
+        cpu: parseInt(list.resource.split('/')[0]) * list.inf.Deployment.spec.replicas,
+        memory: parseInt(list.inf.Deployment.spec.template.spec.containers[0].resources.requests.memory)  * list.inf.Deployment.spec.replicas
+      })
+    })
+    let cpuNumber = 0, memory = 0
+    for(let i = 0; i < priceArr.length; i++) {
+      cpuNumber += priceArr[i].cpu;
+      memory += priceArr[i].memory;
+    }
+    return unit = {
+      cpu: cpuNumber,
+      memory
+    }
+  }
   render() {
     const parentScope = this
     const { servicesList, isFetching , cluster} = this.props
     const price = this.props.cluster.resourcePrice
-
+    const configData = this.countConfig()
+    let hourPrice = this.formetPrice()
+    const countPrice = parseAmount(hourPrice *24 *30, 4) // * hourPrice 上下的顺序不能乱了
+    hourPrice = parseAmount(hourPrice, 4)
     return (
       <QueueAnim id="ServiceList"
         type="right"
@@ -355,6 +383,9 @@ class ServiceList extends Component {
               <div className="resource commonData">
                 计算资源
               </div>
+              <div className="resource commonData">
+                容器数量
+              </div>
               <div className="opera commonData">
                 操作
               </div>
@@ -364,10 +395,11 @@ class ServiceList extends Component {
           </div>
           <div className="modal-price">
             <div className="price-left">
-              <span className="keys">实例：<span className="unit">{this.formetPrice()}</span>/（个*小时）* <span className="unit">{this.countSize()}</span>个</span>
+              <span className="keys">计算资源：<span className="unit">{configData.cpu}C/{configData.memory /1024 }G </span></span>
             </div>
             <div className="price-unit">合计：<span className="unit">￥</span>
-              <span className="unit blod">{(this.formetPrice() * this.countSize()).toFixed(2)}元/小时</span> &nbsp;
+              <span className="unit blod" style={{marginRight:'10px'}}>{ hourPrice.amount }元/小时</span>
+              <span className="unit">（约：{ countPrice.amount }元/月）</span>
             </div>
           </div>
           <div className="btnBox">
