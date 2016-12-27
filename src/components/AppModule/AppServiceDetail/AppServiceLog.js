@@ -158,6 +158,9 @@ class AppServiceLog extends Component {
     if (!logs || logs.length <= 0) return '无日志'
     let page = Math.ceil(logs.length / 50)
     let remainder = logs.length % 50
+    function spellTimeLogs(time, log) {
+      return time ? (<span className='logDetailSpan'><span className='timeSpan'>[{time}]</span> {log.log}</span>) : log.log
+    }
     const logContent = logs.map((log, index) => {
       let time = ''
       if (log.timeNano) {
@@ -169,18 +172,29 @@ class AppServiceLog extends Component {
         }
         return (
           <span key={index}>
-            { `page ${page}\n${time ? `[${time}] ${log.log}` : log.log}` }
+            { `page ${page}\n` }
+            {spellTimeLogs(time, log)}
           </span>)
       }
       if (index + 1 === remainder && page !== 1) {
-        return (<span key={index}>{ `page ${--page}\n${time ? `[${time}] ${log.log}` : log.log}` }</span>)
+        return (
+          <span key={index}>
+            { `page ${--page}\n` }
+            {spellTimeLogs(time, log)}
+          </span>
+        )
       }
       if ((index + 1) % 50 === 0 && page !== 1) {
-        return (<span key={index}>{ `page ${--page}\n${time ? `[${time}] ${log.log}` : log.log}` }</span>)
+        return (
+          <span key={index}>
+            { `page ${--page}\n` }
+            {spellTimeLogs(time, log)}
+          </span>
+        )
       }
       return (
         <span key={log.id} index={index}>
-          { time ? [<span><span className='timeSpan'>{'[' + time + ']'}</span> {log.log}</span>] : log.log}
+          {spellTimeLogs(time, log)}
         </span>
         )
     })
