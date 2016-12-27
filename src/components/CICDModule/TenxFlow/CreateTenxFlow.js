@@ -22,7 +22,7 @@ import { browserHistory } from 'react-router';
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
 const FormItem = Form.Item;
-const DefaultEmailAddress = 'service@tenxcloud.com'
+let DefaultEmailAddress = ''
 const defaultEditOpts = {
   readOnly: false,
 }
@@ -427,7 +427,10 @@ let CreateTenxFlow = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-
+  const {entities} = state
+  if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
+    DefaultEmailAddress = entities.loginUser.info.email
+  }
   return {
 
   }

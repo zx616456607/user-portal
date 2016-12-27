@@ -22,7 +22,7 @@ import NotificationHandler from '../../../../common/notification_handler'
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
 const FormItem = Form.Item;
-const DefaultEmailAddress = 'service@tenxcloud.com'
+let DefaultEmailAddress = ''
 
 const menusText = defineMessages({
   email: {
@@ -348,7 +348,10 @@ let TenxFlowDetailAlert = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-
+  const {entities} = state
+  if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
+    DefaultEmailAddress = entities.loginUser.info.email
+  }
   return {
 
   }

@@ -190,7 +190,7 @@ class Integration extends Component {
             <div className='rightBox'>
               {
                 /*item.status == 'installed' ? */[
-                  <Button className='installedBtn' key={'installedBtn' + index} size='large' type='ghost'
+                  <Button className='installedBtn' key={'installedBtn' + index} size='large' type='ghost' disabled
                     style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
                     <FormattedMessage {...menusText.showAppDetail} />
                   </Button>
