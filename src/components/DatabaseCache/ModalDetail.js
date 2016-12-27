@@ -16,7 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadDbClusterDetail, deleteDatabaseCluster, putDbClusterDetail, loadDbCacheList } from '../../actions/database_cache'
 import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
-import { formatDate } from '../../common/tools.js'
+import { formatDate, parseAmount} from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
 const Panel = Collapse.Panel;
 const ButtonGroup = Button.Group
@@ -119,7 +119,12 @@ class BaseInfo extends Component {
     const {databaseInfo ,dbName }= this.props
     const parentScope = this.props.scope
     const podSpec = databaseInfo.podList.pods[0].podSpec
-    const storagePrc = parentScope.props.resourcePrice /100
+    let storagePrc = parentScope.props.resourcePrice.storage
+    let containerPrc = parentScope.props.resourcePrice['2x']
+    const hourPrice = parseAmount((parentScope.state.storageValue /1000 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ) * parentScope.props.resourcePrice.dbRatio, 4)
+    const countPrice = parseAmount((parentScope.state.storageValue /1000 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc) * parentScope.props.resourcePrice.dbRatio * 24 * 30 , 4)
+    storagePrc = parseAmount(storagePrc, 4)
+    containerPrc = parseAmount(containerPrc, 4)
     const modalContent = (
       <div className="modal-content">
         <div className="modal-header">更改实例数  <Icon type='cross' onClick={() => parentScope.colseModal()} className='cursor' style={{ float: 'right' }} /></div>
@@ -132,10 +137,17 @@ class BaseInfo extends Component {
         </div>
         <div className="modal-price">
           <div className="price-left">
-            <div className="keys">实例：<span className="unit">￥0.04</span>/（个*小时）* { parentScope.state.replicas } 个</div>
-            <div className="keys">储存：<span className="unit">￥{ storagePrc } </span>/（GB*小时）* { parentScope.state.replicas } 个</div>
+            <div className="keys">实例：<span className="unit">￥{ containerPrc.amount } </span>/（个*小时）* { parentScope.state.replicas } 个</div>
+            <div className="keys">存储：<span className="unit">￥{ storagePrc.amount } </span>/（GB*小时）* { parentScope.state.replicas } 个</div>
           </div>
-          <div className="price-unit">合计：<span style={{color:'#21ADEB'}}>￥</span><span className="unit blod">{(parentScope.state.storageValue /1000 * storagePrc * parentScope.state.replicas + ( parentScope.state.replicas * 0.04)).toFixed(3)} 元/小时</span></div>
+          <div className="price-unit">
+            <p>合计：
+            <span className="unit blod">￥{ hourPrice.amount } 元/小时</span>
+            </p>
+            <p>
+            <span className="unit">（约：￥{ countPrice.amount } 元/月）</span>
+            </p>
+          </div>
         </div>
         {parentScope.state.putModaling ?
           <div className="modal-footer"><Button size="large" onClick={() => parentScope.colseModal()}>取消</Button><Button size="large" loading={true} type="primary">保存</Button></div>
@@ -189,7 +201,17 @@ class BaseInfo extends Component {
           <Collapse accordion>
             {volumeMount}
           </Collapse>
+
+          <div className='configHead'>租赁信息</div>
+          <div className="containerPrc">
+            <p><Icon type="pay-circle-o" /> 实例：<span className="unit">￥{ containerPrc.amount }/（个*小时）</span> * {databaseInfo.podInfo.desired}个</p>
+            <p><Icon type="hdd" /> 存储：<span className="unit">￥{ storagePrc.amount }/（GB*小时）</span> * {databaseInfo.podInfo.desired}个</p>
+          </div>
+          <div className="countPrice">
+            合计价格：<span className="unit">￥</span><span className="unit blod">{hourPrice.amount}元/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：￥{countPrice.amount}元/月）</span>
+          </div>
         </div>
+        
       </div>
     )
   }
@@ -441,7 +463,7 @@ function mapStateToProps(state, props) {
     isFetching,
     cluster: cluster.clusterID,
     databaseInfo: databaseInfo,
-    resourcePrice: cluster.resourcePrice.storage //storage
+    resourcePrice: cluster.resourcePrice //storage
     // podSpec: databaseInfo.pods[0].podSpec
   }
 }
@@ -461,5 +483,6 @@ export default connect(mapStateToProps, {
   loadDbClusterDetail,
   deleteDatabaseCluster,
   putDbClusterDetail,
-  loadDbCacheList
+  loadDbCacheList,
+  parseAmount
 })(ModalDetail)
