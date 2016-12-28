@@ -123,10 +123,10 @@ let Login = React.createClass({
       callback()
       return
     }
-    if (!USERNAME_REG_EXP_OLD.test(value)) {
+    /*if (!USERNAME_REG_EXP_OLD.test(value)) {
       callback([new Error('用户名填写错误')])
       return
-    }
+    }*/
     callback()
   },
 
