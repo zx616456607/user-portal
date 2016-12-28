@@ -127,7 +127,7 @@ let CreateTeamModal = React.createClass({
             hasFeedback
             help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
             >
-            <Input {...nameProps} autoComplete={false} placeholder="新团队名称" />
+            <Input {...nameProps} autoComplete={false} placeholder="新团队名称" id="teamInput"/>
           </FormItem>
         </Form>
       </Modal>

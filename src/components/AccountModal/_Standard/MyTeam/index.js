@@ -74,7 +74,7 @@ let TeamTable = React.createClass({
     let sort = this.getSort(!sortTeamName, 'name')
     loadUserTeamList('default', {
       page,
-      size: pageSize,
+      size: 10,
       sort,
       filter,
     })
@@ -90,7 +90,7 @@ let TeamTable = React.createClass({
     let sort = this.getSort(!sortMember, 'member')
     loadUserTeamList('default', {
       page,
-      size: pageSize,
+      size: 10,
       sort,
       filter,
     })
@@ -107,7 +107,7 @@ let TeamTable = React.createClass({
     let sort = this.getSort(!sortCreateTime, 'time')
     loadUserTeamList('default', {
       page,
-      size: pageSize,
+      size: 10,
       sort,
       filter,
     })
@@ -124,7 +124,7 @@ let TeamTable = React.createClass({
     let sort = this.getSort(!sortBalance, 'balance')
     loadUserTeamList('default', {
       page,
-      size: pageSize,
+      size: 10,
       sort,
       filter,
     })
@@ -141,7 +141,7 @@ let TeamTable = React.createClass({
     let sort = this.getSort(!sortRole, 'role')
     loadUserTeamList('default', {
       page,
-      size: pageSize,
+      size: 10,
       sort,
       filter,
     })
@@ -195,7 +195,7 @@ let TeamTable = React.createClass({
             func: () => {
               loadUserTeamList('default', {
                 page: page,
-                size: size,
+                size: 10,
                 sort: sort,
                 filter: filter,
               })
@@ -261,7 +261,7 @@ let TeamTable = React.createClass({
       sort,
       filter,
       showSizeChanger: true,
-      defaultPageSize: 5,
+      defaultPageSize: 10,
       defaultCurrent: 1,
       current: this.props.scope.state.current,
       pageSizeOptions: ['5', '10', '15', '20'],
@@ -455,7 +455,7 @@ class MyTeam extends Component {
       notFound: false,
       visible: false,
       teamName: '',
-      pageSize: 5,
+      pageSize: 10,
       page: 1,
       current: 1,
       filter: '',
@@ -469,6 +469,9 @@ class MyTeam extends Component {
     this.setState({
       visible: true,
     })
+    setTimeout(function() {
+      document.getElementById('teamInput').focus()
+    }, 100)
   }
   //创建团队
   teamOnSubmit(team) {
@@ -489,7 +492,7 @@ class MyTeam extends Component {
           loadUserTeamList('default', {
             page: 1,
             current: 1,
-            size: pageSize,
+            size: 10,
             sort,
             filter,
           })
@@ -514,7 +517,7 @@ class MyTeam extends Component {
     document.title = '我的团队 | 时速云'
     this.props.loadUserTeamList('default', {
       page: 1,
-      size: 5,
+      size: 10,
       sort: "a,teamName",
       filter: "",
     })

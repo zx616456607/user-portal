@@ -115,7 +115,7 @@ class StorageDetail extends Component {
                     <FormattedMessage {...messages.useLevel} />
                     ：&nbsp;&nbsp;
                     <Progress strokeWidth={8} showInfo={false} status="active" percent={ consumption} />
-                    &nbsp;&nbsp;{ StorageInfo.consumption } / { StorageInfo.size } MB
+                    &nbsp;&nbsp;{ StorageInfo.consumption } / { StorageInfo.size } M
                   </div>
                 </div>
                 <div style={{ clear:"both" }}></div>
