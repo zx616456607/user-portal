@@ -268,13 +268,13 @@ let TeamTable = React.createClass({
       onShowSizeChange(current, pageSize) {
         scope.props.loadUserTeamList('default', {
           page: current,
-          size: pageSize,
+          size: 10,
           sort,
           filter,
         })
         scope.setState({
           page: current,
-          pageSize: pageSize,
+          pageSize: 10,
           current: 1,
         })
       },
@@ -282,13 +282,13 @@ let TeamTable = React.createClass({
         const {pageSize} = scope.state
         scope.props.loadUserTeamList('default', {
           page: current,
-          size: pageSize,
+          size: 10,
           sort,
           filter,
         })
         scope.setState({
           page: current,
-          pageSize: pageSize,
+          pageSize: 10,
           current: current,
         })
       },

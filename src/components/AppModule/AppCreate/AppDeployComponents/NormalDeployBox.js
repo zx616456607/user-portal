@@ -436,7 +436,6 @@ let NormalDeployBox = React.createClass({
     imageTagsIsFetching: PropTypes.bool.isRequired,
     loadImageDetailTag: PropTypes.func.isRequired,
     loadImageDetailTagConfig: PropTypes.func.isRequired,
-    selectComposeType: PropTypes.func.isRequired,
     loadPublicImageList: PropTypes.func
   },
   selectComposeType(type) {
@@ -723,7 +722,7 @@ let NormalDeployBox = React.createClass({
                   {...getFieldProps('instanceNum', {
                     initialValue: '1'
                   }) } disabled={form.getFieldValue('volumeSwitch')}
-                  size="large" min={1} max={100} />
+                  size="large" min={1} max={10} />
                 &nbsp;&nbsp;个
               </FormItem>
               <div style={{ clear: "both" }}></div>

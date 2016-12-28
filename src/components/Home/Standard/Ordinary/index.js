@@ -676,11 +676,11 @@ class Ordinary extends Component{
               <Col span={12} className='storageInf'>
                 <div className="storageInfList">
                   <Row className='storageInfItem'>
-                    <Col span={12}>已使用</Col>
+                    <Col span={12}>已用配额</Col>
                     <Col span={12} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.usedSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={12}>空闲</Col>
+                    <Col span={12}>可用配额</Col>
                     <Col span={12} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.freeSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>
