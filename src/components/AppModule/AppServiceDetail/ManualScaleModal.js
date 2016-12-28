@@ -14,6 +14,7 @@ import { Row, Col, Slider, InputNumber, Modal, Button, Spin, message } from 'ant
 import { INSTANCE_MAX_NUM } from '../../../../constants'
 import { manualScaleService } from '../../../actions/services'
 import NotificationHandler from '../../../common/notification_handler'
+import { isStorageUsed } from '../../../common/tools'
 
 class ManualScaleModal extends Component {
   constructor(props) {
@@ -22,7 +23,8 @@ class ManualScaleModal extends Component {
     this.handleModalOK = this.handleModalOK.bind(this)
     this.handleModalCancel = this.handleModalCancel.bind(this)
     this.state = {
-      realNum: 1
+      realNum: 1,
+      scalable: false,
     }
   }
 
@@ -40,7 +42,8 @@ class ManualScaleModal extends Component {
       return
     }
     this.setState({
-      realNum: service.spec.replicas
+      realNum: service.spec.replicas,
+      scalable: !isStorageUsed(service.spec.template.spec.volumes)
     })
   }
 
@@ -107,6 +110,7 @@ class ManualScaleModal extends Component {
       <Button
         key="submit" type="primary"
         size="large" loading={this.state.loading}
+        disabled={!this.state.scalable}
         onClick={this.handleModalOK} >
         保 存
       </Button>
@@ -152,7 +156,8 @@ class ManualScaleModal extends Component {
           </Row>
           <Row>
             <Col style={{ color: '#a0a0a0', textAlign: 'left', marginTop: '20px' }}>
-              注: 实例数量调整 , 保存后系统将调整实例数量至设置预期. (若自动伸缩开启, 则无法手动扩展)
+              注: {this.state.scalable ? '实例数量调整 , 保存后系统将调整实例数量至设置预期. (若自动伸缩开启, 则无法手动扩展)' :
+                     '已挂载存储卷的服务不允许进行水平扩展'}
             </Col>
           </Row>
         </div>
