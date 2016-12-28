@@ -50,20 +50,20 @@ let CreateDatabase = React.createClass({
       currentType: database
     });
   },
-  onChangeNamespace(teamID) {
+  onChangeNamespace(spaceName) {
     //this function for user change the namespace
     //when the namespace is changed, the function would be get all clusters of new namespace
     const { teamspaces, loadTeamClustersList, setCurrent, form, current } = this.props
     let newTeamspaces = ([MY_SPACE]).concat(teamspaces)
     newTeamspaces.map(space => {
-       if (space.namespace == teamID) {
+       if (space.namespace == spaceName) {
         // setCurrent({
         //   space,
         //   team: {
         //     teamID: teamID
         //   }
         // })
-        loadTeamClustersList(teamID, { size: 100 }, {
+        loadTeamClustersList(space.teamID, { size: 100 }, {
           success: {
             func: (result) => {
               if(result.data.length > 0) {
