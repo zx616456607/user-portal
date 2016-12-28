@@ -63,7 +63,7 @@ class MySpace extends Component{
   }
   getOperationLog() {
     const logs = this.props.auditLog
-     const ele = []
+    const ele = []
     if (!logs.logs) {
       return (<Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
           <div className='loadingBox'>
