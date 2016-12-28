@@ -369,8 +369,8 @@ let CreateDatabase = React.createClass({
             </div>
             <div className="modal-price">
               <div className="price-left">
-                <div className="keys">实例：￥{parseAmount(this.props.resourcePrice['2x'], 4).amount}/（个*小时）* { storageNumber } 个</div>
-                <div className="keys">存储：￥{ parseAmount(this.props.resourcePrice.storage, 4).amount}/（GB*小时）* {storageNumber} 个</div>
+                <div className="keys">实例：￥{parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).amount}/（个*小时）* { storageNumber } 个</div>
+                <div className="keys">存储：￥{ parseAmount(this.props.resourcePrice.storage * this.props.resourcePrice.dbRatio, 4).amount}/（GB*小时）* {storageNumber} 个</div>
               </div>
               <div className="price-unit">
                 <p>合计：<span className="unit blod">￥{ hourPrice.amount }元/小时</span></p>
