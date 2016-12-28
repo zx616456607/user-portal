@@ -78,7 +78,6 @@ class NotificationHandler {
   }
   // Show warn notification
   warn(message, description, duration) {
-    console.log(arguments)
     let desc = description || ''
     let timeout = duration
     if (timeout === undefined) {
