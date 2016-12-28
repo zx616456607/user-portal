@@ -14,6 +14,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import InviteNewMemberModal from '../../InviteNewMemberModal'
 import { loadUserTeamList } from '../../../../actions/user'
+import NotificationHandler from '../../../../common/notification_handler'
 import { loadTeamUserListStd, removeTeamusersStd, cancelInvitation, dissolveTeam, sendInvitation, getTeamDetail } from '../../../../actions/team'
 import DelTeamModal from '../../DelTeamModal'
 
@@ -33,6 +34,7 @@ class TeamDetail extends Component {
     this.handleAddNewMember = this.handleAddNewMember.bind(this)
     this.closeInviteModal = this.closeInviteModal.bind(this)
     this.closeDelTeamModal = this.closeDelTeamModal.bind(this)
+    this.inviteOnSubmit = this.inviteOnSubmit.bind(this)
 
     this.state = {
       filteredInfo: null,
@@ -85,13 +87,51 @@ class TeamDetail extends Component {
       onCancel() { },
     })
   }
+  //发送邀请
+  inviteOnSubmit(teamID, emails) {
+    const { sendInvitation, loadTeamUserListStd } = this.props
+    let notification = new NotificationHandler()
+    notification.spin(`发送邀请中...`)
+    sendInvitation(teamID, emails, {
+      success: {
+        func: (result) => {
+          notification.close()
+          loadTeamUserListStd(teamID, { sort: 'a,userName', size: 100, page: 1 })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: (err) => {
+          notification.close()
+          notification.error(`邀请成员失败`, err.message.message)
+        }
+      }
+    })
+  }
+
   //取消邀请
   handleCancelInvite (email) {
-    const { cancelInvitation ,teamID } = this.props
+    const { cancelInvitation ,teamID, loadTeamUserListStd } = this.props
     confirm({
       title: '您是否确认要取消邀请',
       onOk() {
-        cancelInvitation(teamID, email)
+        let notification = new NotificationHandler()
+        notification.spin(`取消邀请中...`)
+        cancelInvitation(teamID, email, {
+          success: {
+            func: (result) => {
+              notification.close()
+              loadTeamUserListStd(teamID, { sort: 'a,userName', size: 100, page: 1 })
+            },
+            isAsync: true,
+          },
+          failed: {
+            func: (err) => {
+              notification.close()
+              notification.error(`取消邀请失败`, err.message.message)
+            }
+          }
+        })
       },
       onCancel() { },
     })
@@ -270,7 +310,7 @@ class TeamDetail extends Component {
                   visible={ showInviteModal }
                   closeInviteModal={this.closeInviteModal}
                   teamID={teamID}
-                  sendInvitation={this.props.sendInvitation}
+                  inviteOnSubmit={this.inviteOnSubmit}
                 />
                 <Button icon='logout' className='delTeamBtn' onClick={() => this.handleDelTeam(teamID)}>
                   解散团队
@@ -305,10 +345,10 @@ function mapStateToProp(state, props) {
   const { user, team } = state
   let teamName = ''
   if (team.teamDetail) {
-     currentRole = team.teamDetail.isCreator
      if (team.teamDetail.result && team.teamDetail.result.result && team.teamDetail.result.result.teams) {
        if (team.teamDetail.result.result.teams.length > 0) {
         teamName = team.teamDetail.result.result.teams[0].teamName
+        currentRole = team.teamDetail.result.result.teams[0].isCreator
        }
      }
   }
