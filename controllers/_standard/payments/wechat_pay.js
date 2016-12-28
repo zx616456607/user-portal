@@ -18,7 +18,8 @@ const wechatPay = require('../../../pay/wechat_pay')
 const logger = require('../../../utils/logger').getLogger('wechat_pay')
 const _this = this
 const payments = require('./')
-
+const AMOUNT_CONVERSION = require('../../../constants').AMOUNT_CONVERSION
+const WECHAT_PAY_AMOUNT_CONVERSION = 100
 /**
  * Create a new prepay record
  */
@@ -34,7 +35,7 @@ exports.createPrepayRecord = function* () {
     err.staus = 400
     throw err
   }
-  amount = parseInt(amount * 100)
+  amount = parseInt(amount * WECHAT_PAY_AMOUNT_CONVERSION) / WECHAT_PAY_AMOUNT_CONVERSION
   if (isNaN(amount)) {
     const err = new Error('pay amount illegal')
     err.staus = 400
@@ -47,7 +48,7 @@ exports.createPrepayRecord = function* () {
     const spi = apiFactory.getTenxSysSignSpi(loginUser)
     const verificationKey = uuid.v4()
     const paymentOrder = {
-      charge_amount: amount,
+      charge_amount: amount * AMOUNT_CONVERSION,
       order_type: 100, // 100 微信，101 支付宝
       verification_key: verificationKey,
       upgrade: parseInt(query.upgrade),
@@ -58,11 +59,11 @@ exports.createPrepayRecord = function* () {
     const orderId = paymentOrderResult.data.order_id
     const timestrap = (new Date()).getTime()
     const wechatOrder = {
-      body: '[时速云]充值' + (amount / 100) + '元',
+      body: '[时速云]充值' + amount + '元',
       nonce_str: uuid.v4().replace(/-/g, ''),
       attach: verificationKey, // 附加数据，作为 API server 验证的标志
       out_trade_no: paymentOrderResult.data.order_id,
-      total_fee: amount,
+      total_fee: amount * WECHAT_PAY_AMOUNT_CONVERSION,
       spbill_create_ip: this.request.ip,
       trade_type: wechatConfig.trade_type,
       product_id: `tenx_${amount}_${timestrap}` // 商品id
@@ -175,7 +176,7 @@ function* updateOrder(order, loginUser) {
   // Async notification has no loginUser, so here do not use loginUser by api server support
   const spi = apiFactory.getTenxSysSignSpi()
   const data = {
-    charge_amount: parseInt(order.total_fee),  // 成功支付的金额
+    charge_amount: parseInt(order.total_fee * (AMOUNT_CONVERSION / WECHAT_PAY_AMOUNT_CONVERSION)),  // 成功支付的金额
     order_type: 100,
     order_id: order.transaction_id, // 支付宝、微信的订单号
     verification_key: order.attach, // 对应请求的key
