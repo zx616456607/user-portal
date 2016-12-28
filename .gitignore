@@ -32,6 +32,7 @@ static/js/main.js.map
 static/js/*.chunk.js.map
 static/locales/frontend/*.js.map
 static/style/main.css
+static/bundles/
 manifest.json
 static/webpack_dll/
 stats.json
