@@ -80,6 +80,7 @@ class InviteNewMemberModal extends Component{
   }
  
   renderTag (props) {
+    console.log('xxxxx')
     let {tag, key, disabled, onRemove, classNameRemove, getTagDisplayValue,...other} = props
     let {rightTags} = this.state
     if (!EMAIL_REG_EXP.test(tag)) {
@@ -128,7 +129,7 @@ class InviteNewMemberModal extends Component{
         <div className='inviteModal'>
           <Row className='inviteTitle'>
             <Col span={12}>
-              邮箱邀请
+              请输入被邀请人的邮箱后按Tab或回车键添加
             </Col>
             <Col className="inviteCount" span={12}>
               还可添加{maxInvitationNum - tags.length}人
