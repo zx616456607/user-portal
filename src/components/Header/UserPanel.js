@@ -162,7 +162,7 @@ class UserPanel extends Component {
         {
           to: '/account',
           svgHref: '#logaccountinf',
-          text: '我的账户',
+          text: '我的帐户',
         },
         {
           to: '/account/cost',
@@ -187,12 +187,12 @@ class UserPanel extends Component {
           <div className='balance'>
             <p>帐户余额 &nbsp;:</p>
             <p>
-              <span className="number">{balance || '-'}</span>
               {
                 mode === standard?
                 <span className="unit">¥</span>:
                 <span className="unit">T币</span>
               }
+              <span className="number">{balance}</span>
             </p>
           </div>
           {

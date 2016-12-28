@@ -274,7 +274,7 @@ class UserPayUpgrade extends Component {
         </div>
         <ul className="sendInfo">
           <li>温馨提示：</li>
-          <li>1. 充值金额会在当天到账。如遇问题，可查看 <Icon type="link" />充值帮助。</li>
+          <li>1. 充值金额会在当天到帐。如遇问题，可查看 <Icon type="link" />充值帮助。</li>
           <li>2. 您可以通过三种方式充值：微信充值、支付宝、用户余额。 </li>
           <li>3. 累计充值金额满￥200后可提交工单申请发票 </li>
         </ul>

@@ -14,6 +14,7 @@ import { sendRegisterPhoneCaptcha, changeUserInfo } from '../../../../../actions
 import NotificationHandler from '../../../../../common/notification_handler.js'
 const createForm = Form.create
 const FormItem = Form.Item
+import { PHONE_REGEX } from '../../../../../constants'
 
 
 let PhoneRow = React.createClass({
@@ -28,7 +29,7 @@ let PhoneRow = React.createClass({
       callback([new Error('请输入手机号码')])
       return
     }
-    if (!/\d{11}/.test(values)) {
+    if (!PHONE_REGEX.test(values)) {
       callback([new Error('请输入正确的号码')])
       return
     }
@@ -41,11 +42,11 @@ let PhoneRow = React.createClass({
       return
     }
     if (values.length < 3) {
-      callback([new Error('账户密码不少于3个字符')])
+      callback([new Error('帐户密码不少于3个字符')])
       return
     }
     if (values.length > 63) {
-      callback([new Error('账户密码字符不超过63个字符')])
+      callback([new Error('帐户密码字符不超过63个字符')])
       return
     }
     callback()
@@ -66,7 +67,7 @@ let PhoneRow = React.createClass({
   sendCode() {
     const { getFieldProps } = this.props.form
     const phone = getFieldProps('phone').value
-    if(!phone || !/\d{11}/.test(phone)) {
+    if(!phone || !PHONE_REGEX.test(phone)) {
       return
     }
     this.setState({
@@ -135,7 +136,7 @@ let PhoneRow = React.createClass({
     const {getFieldProps} = this.props.form
     const phonePasswordProps = getFieldProps('phonePassword', {
       rules: [
-        { whitespace: true, message: '请输入当前账户密码', require: true },
+        { whitespace: true, message: '请输入当前帐户密码', require: true },
         { validator: this.phonePasswordExists }
       ]
     })
@@ -157,7 +158,7 @@ let PhoneRow = React.createClass({
         <span className="key">手机</span>
         <div className="editPhoneList">
           <FormItem>
-            <Input type="password" size="large" {...phonePasswordProps} placeholder="当前账户密码" style={{ width: '73%' }} />
+            <Input type="password" size="large" {...phonePasswordProps} placeholder="当前帐户密码" style={{ width: '73%' }} />
           </FormItem>
           <div className="editPhone">
             <FormItem>

@@ -10,7 +10,9 @@
  */
 'use strict'
 
-// const apiFactory = require('./api_factory')
+const apiFactory = require('./api_factory')
+const configIndex = require('../configs')
+const enterpriseMode = require('../configs/constants').ENTERPRISE_MODE
 const logger = require('../utils/logger').getLogger('middlewares')
 const constants = require('../constants')
 const USER_CURRENT_CONFIG = constants.USER_CURRENT_CONFIG
@@ -63,5 +65,98 @@ exports.auth = function* (next) {
     teamspace = null
   }
   this.session.loginUser.teamspace = teamspace
+  yield next
+}
+
+exports.verifyUser = function* (next) {
+  const method = 'verifyUser'
+  const body = this.request.body
+  if (!body || (!body.username && !body.email) || !body.password) {
+    const err = new Error('username(email), password and captcha are required.')
+    err.status = 400
+    throw err
+  }
+  if (configIndex.running_mode === enterpriseMode) {
+    if (!body.captcha) {
+      const err = new Error('username(email), password and captcha are required.')
+      err.status = 400
+      throw err
+    }
+    body.captcha = body.captcha.toLowerCase()
+    if (body.captcha !== this.session.captcha) {
+      logger.error(method, `captcha error: ${body.captcha} | ${this.session.captcha}(session)`)
+      const err = new Error('CAPTCHA_ERROR')
+      err.status = 400
+      throw err
+    }
+  }
+  const data = {
+    password: body.password,
+  }
+  if (body.username) {
+    data.userName = body.username
+  }
+  if (body.email) {
+    data.email = body.email
+  }
+  if (body.inviteCode) {
+    data.inviteCode = body.inviteCode
+  }
+  const api = apiFactory.getApi()
+  let result = {}
+  try {
+    result = yield api.users.createBy(['login'], null, data)
+  } catch (err) {
+    // Better handle error >= 500
+    if (err.statusCode >= 500) {
+      const returnError = new Error("服务异常，请联系管理员或者稍候重试")
+      returnError.status = err.statusCode
+      throw returnError
+    } else {
+      throw err
+    }
+  }
+  // These message(and watchToken etc.) will be save to session
+  const loginUser = {
+    user: result.userName,
+    id: result.userID,
+    namespace: result.namespace,
+    email: result.email,
+    phone: result.phone,
+    token: result.apiToken,
+    role: result.role,
+    balance: result.balance,
+  }
+  // Add config into user for frontend websocket
+  indexService.addConfigsForWS(loginUser)
+  result.tenxApi = loginUser.tenxApi
+  result.cicdApi = loginUser.cicdApi
+  // Private cloud need check users license
+  if (configIndex.running_mode === enterpriseMode) {
+    const licenseObj = yield indexService.getLicense(loginUser)
+    if (licenseObj.plain.code === -1) {
+      const err = new Error(licenseObj.message)
+      err.status = 403
+      throw err
+    }
+  }
+  yield indexService.setUserCurrentConfigCookie.apply(this, [loginUser])
+  // Delete sensitive information
+  delete result.userID
+  delete result.statusCode
+  delete result.apiToken
+  // Get user MD5 encrypted watch token
+  try {
+    const spi = apiFactory.getSpi(loginUser)
+    const watchToken = yield spi.watch.getBy(['token'])
+    result.watchToken = watchToken.data
+    loginUser.watchToken = watchToken.data
+  } catch (err) {
+    logger.error(`Get user MD5 encrypted watch token failed.`)
+    logger.error(err.stack)
+  }
+
+  this.session.loginUser = loginUser
+  this.request.result = result
   yield next
 }

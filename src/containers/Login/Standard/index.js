@@ -84,7 +84,7 @@ let Login = React.createClass({
           func: (err) => {
             let msg = err.message.message || err.message
             if (err.statusCode === 401 && err.message === 'NOT_ACTIVE' && err.email && err.code) {
-              browserHistory.push(`/register?email=${err.email}&code=${err.code}`)
+              browserHistory.push(`/register?email=${err.email}&code=${err.code}&msg=${err.message}`)
               resetFields()
               return
             }
@@ -123,10 +123,10 @@ let Login = React.createClass({
       callback()
       return
     }
-    if (!USERNAME_REG_EXP_OLD.test(value)) {
+    /*if (!USERNAME_REG_EXP_OLD.test(value)) {
       callback([new Error('用户名填写错误')])
       return
-    }
+    }*/
     callback()
   },
 

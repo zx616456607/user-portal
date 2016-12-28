@@ -123,6 +123,11 @@ let CreateTenxFlow = React.createClass({
     this.setState({
       currentType: e.target.value
     });
+    if (e.target.value == 1) {
+      setTimeout(function() {
+        document.getElementById('flowName').focus()
+      },100)
+    }
   },
   yamlInputCheck(rule, value, callback){
     if(this.state.currentType == '2' && !!!value){
@@ -330,7 +335,7 @@ let CreateTenxFlow = React.createClass({
           </div>
           <div className='input'>
             <FormItem className='flowTypeForm'>
-              <RadioGroup {...radioFlowTypeProps} >
+              <RadioGroup {...radioFlowTypeProps}>
                 <Radio key='a' value={'1'}><FormattedMessage {...menusText.viewDefine} /></Radio>
                 <Radio key='b' value={'2'}><FormattedMessage {...menusText.yamlDefine} /></Radio>
               </RadioGroup>
@@ -353,7 +358,7 @@ let CreateTenxFlow = React.createClass({
                 help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
                 style={{ width:'220px' }}
               >
-                <Input {...nameProps} type='text' size='large' />
+                <Input {...nameProps} placeholder="请输入TenxFlow名称" type='text' size='large' id="flowName" />
               </FormItem>
             </div>
             <div style={{ clear:'both' }} />

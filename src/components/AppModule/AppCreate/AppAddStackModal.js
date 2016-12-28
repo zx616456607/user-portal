@@ -146,7 +146,6 @@ class AppAddStackModal extends Component {
     return (
       <div id="AppAddStackModal" key="AppAddStackModal">
         <div className="operaBox">
-          <span className="titleSpan">选择编排类型</span>
           {/* <Button type={this.state.currentImageType == "primary" ? "primary" : "ghost"} size="large" onClick={this.selectImageType.bind(this, "privary")}>
             公有
           </Button>
@@ -155,10 +154,9 @@ class AppAddStackModal extends Component {
           </Button>
          */}
           <div className="inputBox">
-            <Input size="large" placeholder="按镜像名称搜索" onPressEnter={(e) => this.gosearchStack(e)} />
+            <Input size="large" placeholder="按名称搜索" onPressEnter={(e) => this.gosearchStack(e)} />
             <i className="fa fa-search"></i>
           </div>
-          <div style={{ clear: "both" }}></div>
         </div>
         <Tabs defaultActiveKey="1" onChange={(e) => this.changeType(e)}>
           <TabPane tab='私有' key="private-stack"><PrivateComponent scope={this} parentScope= { parentScope } data={this.props.myStackList} /></TabPane>

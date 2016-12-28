@@ -23,14 +23,14 @@ class Network extends Component {
     const option = new EchartsOption('网络')
     const { networkReceived, networkTransmitted } = this.props
     option.addYAxis('value', {
-      formatter: '{value} B'
+      formatter: '{value} KB'
     })
     networkReceived.data.map((item) => {
       let timeData = []
       let values = []
       item.metrics.map((metric) => {
         timeData.push(metric.timestamp)
-        values.push(metric.value)
+        values.push((metric.value/1000000).toFixed(2))
       })
       option.setXAxisData(timeData)
       option.addSeries(values, `${item.containerName} 上传`)
@@ -40,7 +40,7 @@ class Network extends Component {
       let values = []
       item.metrics.map((metric) => {
         timeData.push(metric.timestamp)
-        values.push(metric.value)
+        values.push((metric.value/1000000).toFixed(2))
       })
       option.setXAxisData(timeData)
       option.addSeries(values, `${item.containerName} 下载`)

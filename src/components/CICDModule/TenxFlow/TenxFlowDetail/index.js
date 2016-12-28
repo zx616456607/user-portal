@@ -94,7 +94,8 @@ class TenxFlowDetail extends Component {
       startBuild: false,
       showImage: [],
       statusName: 0,
-      refreshFlag: false
+      refreshFlag: false,
+      showTargeImage:false
     }
   }
   flowState() {
@@ -189,6 +190,8 @@ class TenxFlowDetail extends Component {
     //this function for user build all stages
     //and the state changed will be trigger the children's recivice props
     //and start build flow functon will be trigger in children
+    let notification = new NotificationHandler()
+    notification.success('构建中...')
     this.setState({
       startBuild: true
     })
@@ -217,6 +220,7 @@ class TenxFlowDetail extends Component {
     const config = { registry: DEFAULT_REGISTRY, image }
     let notification = new NotificationHandler()
     let space = this.props.flowInfo.namespace
+    this.setState({showTargeImage: false})
     this.props.checkImage(config, {
       success: {
         func: (res) => {
@@ -234,7 +238,9 @@ class TenxFlowDetail extends Component {
       }
     })
   }
-
+  handleVisibleChange(visible) {
+    this.setState({ showTargeImage: visible });
+  }
   refreshStageList() {
     //this function for refrash
     this.setState({
@@ -255,7 +261,7 @@ class TenxFlowDetail extends Component {
     }
     const checkImage = this.state.showImage.length > 0 && this.state.showImage.map(list => {
       return (
-        <div onClick={() => this.goCheckImage(list)} key={list} style={{ lineHeight: '25px' }}><a>{list}</a></div>
+        <div className="cursor" onClick={() => this.goCheckImage(list)} key={list} style={{ lineHeight: '25px' }}><a>{list}</a></div>
       )
     })
     return (
@@ -280,7 +286,7 @@ class TenxFlowDetail extends Component {
                 <FormattedMessage {...menusText.deloyStart} />
               </Button>
               {this.state.showImage.length > 0 ?
-                <Popover placement="topLeft" title="查看镜像" content={checkImage} >
+                <Popover placement="topLeft" title="查看镜像" content={checkImage} visible={this.state.showTargeImage} onVisibleChange={(visible)=>this.handleVisibleChange(visible)}>
                   <Button size='large' type='ghost'>
                     <i className='fa fa-eye' />&nbsp;
                     <FormattedMessage {...menusText.checkImage} />

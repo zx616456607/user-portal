@@ -25,7 +25,7 @@ class UserBalance extends Component {
     this.handleTeamListVisibleChange = this.handleTeamListVisibleChange.bind(this)
     this.state = {
       currentTeam: {
-        name: '团队账户'
+        name: '团队帐户'
       },
       teamListVisible: false,
     }
@@ -81,7 +81,7 @@ class UserBalance extends Component {
     return (
       <div id="UserBalance">
         <div className="myAccount">
-          <div className="topRow"><Icon type="user" className="typeIcon" />我的账户</div>
+          <div className="topRow"><Icon type="user" className="typeIcon" />我的帐户</div>
           <div className="moneyRow">
             <div>余额：<span className="money">{balance || '-'}元</span></div>
             {/*<div>其中优惠券￥5元，充值金额￥100元 &nbsp;<Icon type="question-circle-o" /></div>*/}
@@ -96,7 +96,7 @@ class UserBalance extends Component {
             <Icon type="team" className="typeIcon" />
             <Popover
               placement="bottomLeft"
-              title="选择团队账户"
+              title="选择团队帐户"
               content={
                 <PopContent
                   list={teamspaces}
@@ -119,7 +119,7 @@ class UserBalance extends Component {
             :
             <div className="moneyRow text-center">
               <i className="fa fa-users" />
-              <div className="notText">您还没有团队账户，可以尝试创建团队</div>
+              <div className="notText">您还没有团队帐户，可以尝试创建团队</div>
               <Button type="primary" onClick={() => browserHistory.push('/account/teams')}>去创建</Button>
             </div>
           }

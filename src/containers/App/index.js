@@ -11,7 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
 import { resetErrorMessage } from '../../actions'
-import { Icon, Menu, notification, Modal, Button, Spin, } from 'antd'
+import { Icon, Menu, Modal, Button, Spin, } from 'antd'
 import ErrorPage from '../ErrorPage'
 import Header from '../../components/Header'
 import Sider from '../../components/Sider/Enterprise'
@@ -70,6 +70,7 @@ class App extends Component {
     const { errorMessage, current, pathname, resetErrorMessage } = nextProps
     const { statusWatchWs } = this.props.sockets
     const { space, cluster } = current
+    let notification = new NotificationHandler()
     if (space.namespace !== this.props.current.space.namespace || cluster.clusterID !== this.props.current.cluster.clusterID) {
       statusWatchWs && statusWatchWs.close()
     }
@@ -82,12 +83,16 @@ class App extends Component {
       this.setState({ loginModalVisible: true })
       return
     }
+    // 余额不足
+    if (statusCode === 402) {
+      notification.warn('操作失败', message.message, null)
+      return
+    }
     // 升级版本
     if (statusCode === 412) {
       let { kind, level } = message.details
       level = parseInt(level)
       // 超出专业版限额，发工单联系客服
-      let notification = new NotificationHandler()
       if (level > 1) {
         notification.warn(`您需要的资源超出专业版限额，请通过右下角联系客服`, '', null)
         return
@@ -142,6 +147,12 @@ class App extends Component {
       return
     }
 
+    // 余额不足
+    if (statusCode === 402) {
+      resetErrorMessage()
+      return
+    }
+
     // 升级版本
     if (statusCode === 412) {
       resetErrorMessage()
@@ -153,23 +164,16 @@ class App extends Component {
     }
 
     errorHandler(error, intl)
-    /*notification.error({
-      message: `${statusCode} error`,
-      description: JSON.stringify(message),
-      duration: 10,
-      // duration: null,
-      onClose: handleDismissClick
-    })*/
 
     setTimeout(resetErrorMessage)
   }
 
   onStatusWebsocketSetup(ws) {
     const { setSockets, loginUser, current } = this.props
-    const { watchToken, namespace, userName } = loginUser
+    const { watchToken, namespace } = loginUser
     const watchAuthInfo = {
       accessToken: watchToken,
-      namespace: userName
+      namespace: namespace
     }
     if (current.space.namespace !== 'default') {
       watchAuthInfo.teamspace = current.space.namespace

@@ -374,6 +374,9 @@ class TeamManage extends Component {
     this.setState({
       visible: true,
     })
+    setTimeout(function() {
+      document.getElementById('teamInput').focus()
+    }, 100)
   }
   teamOnSubmit(team) {
     const { createTeam, loadUserTeamList } = this.props

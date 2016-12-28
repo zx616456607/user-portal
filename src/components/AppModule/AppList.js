@@ -277,7 +277,6 @@ let MyComponent = React.createClass({
           </div>
           <div className='actionBox commonData'>
             <Dropdown.Button
-              getPopupContainer={document.getElementById('AppList')}
               overlay={dropdown} type='ghost'
               onClick={this.goStack.bind(this, item.name)}>
               查看编排
@@ -874,7 +873,7 @@ AppList.propTypes = {
   pathname: PropTypes.string.isRequired,
   page: PropTypes.number.isRequired,
   size: PropTypes.number.isRequired,
-  total: PropTypes.number.isRequired,
+  // total: PropTypes.number.isRequired,
   sortOrder: PropTypes.string.isRequired,
   sortBy: PropTypes.string.isRequired,
 }

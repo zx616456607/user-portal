@@ -489,7 +489,7 @@ export const SEND_INVITATION_REQUEST = 'SEND_INVITATION_REQUEST'
 export const SEND_INVITATION_SUCCESS = 'SEND_INVITATION_SUCCESS'
 export const SEND_INVITATION_FAILURE = 'SEND_INVITATION_FAILURE'
 
-function fetchSendInvitation(teamID, emails) {
+function fetchSendInvitation(teamID, emails, callback) {
   let endpoint = `${API_URL_PREFIX}/teams/${teamID}/invitations`
   return {
     [FETCH_API]: {
@@ -500,13 +500,14 @@ function fetchSendInvitation(teamID, emails) {
         method: 'POST',
         body: emails,
       },
-    }
+    },
+    callback
   }
 }
 
-export function sendInvitation(teamID, emails) {
+export function sendInvitation(teamID, emails, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchSendInvitation(teamID, emails))
+    return dispatch(fetchSendInvitation(teamID, emails, callback))
   }
 }
 

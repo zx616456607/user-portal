@@ -4,9 +4,11 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=11, chrome=1">
-  <link rel="stylesheet" type="text/css" href="/style/index.css" />
-  <link rel="stylesheet" type="text/css" href="/js/lib/fontAwesome/css/font-awesome.min.css" />
-  <link rel="stylesheet" type="text/css" href="/img/sider/svg/svg-symbols.css?_=20161228104019" />
+  <% htmlWebpackPlugin.files.css.map(function(css){ %>
+  <link rel="stylesheet" type="text/css" href="<%= css %>" />
+  <% }) %>
+  <link rel="stylesheet" type="text/css" href="/js/lib/fontAwesome/css/font-awesome.min.css?_=<%= htmlWebpackPlugin.options.timestrap %>" />
+  <link rel="stylesheet" type="text/css" href="/img/sider/svg/svg-symbols.css?_=<%= htmlWebpackPlugin.options.timestrap %>" />
   <!--[if lt IE 10]>
     <script src="https://as.alipayobjects.com/g/component/??console-polyfill/0.2.2/index.js,es5-shim/4.5.7/es5-shim.min.js,es5-shim/4.5.7/es5-sham.min.js,html5shiv/3.7.2/html5shiv.min.js,media-match/2.0.2/media.match.min.js"></script>
   <![endif]-->
@@ -45,18 +47,21 @@
     console.log = function(){}
   </script>
   <title>
-    <%= title %>
+    <%= htmlWebpackPlugin.options.title %>
   </title>
 </head>
 
 <body>
-  <script src="/js/svg.js?_=20161228104019"></script>
+  <script src="/js/svg.js?_=<%= htmlWebpackPlugin.options.timestrap %>"></script>
   <div id="root">
-    <%- body %>
+    <%= htmlWebpackPlugin.options.body %>
   </div>
-  <script src="/js/common.js?_=20161228104019"></script>
-  <script src="/locales/frontend/<%= intl_locale %>.js?_=20161228104019"></script>
-  <script src="/js/main.js?_=20161228104019"></script>
+  <% htmlWebpackPlugin.files.js.map(function(js, index){ %>
+  <% if (js.indexOf('/bundles/zh') === 0) { %>
+    <script src="/bundles/<%= htmlWebpackPlugin.options.intl_locale %>.js?_=<%= htmlWebpackPlugin.options.timestrap %>"></script>
+  <% return} %>
+  <script src="<%= js %>"></script>
+  <% }) %>
   <script>
     var _hmt = _hmt || [];
     (function() {
@@ -81,7 +86,5 @@
       })();
     })();
   </script>
-
 </body>
-
 </html>
