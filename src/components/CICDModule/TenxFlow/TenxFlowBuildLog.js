@@ -12,6 +12,7 @@ import { Spin, Icon, Collapse, Alert } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import $ from 'n-zepto'
+import moment from 'moment'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../constants'
@@ -159,9 +160,10 @@ function checkStatusIcon(status) {
 }
 
 function dateFormat(dateString) {
-  //this function for user format string to date
-  let newString = dateString.replace('T', ' ').replace(/-/g, '/').split('.')[0];
-  return newString;
+  if (!dateString) {
+    return '';
+  }
+  return moment(dateString).format("YYYY-MM-DD HH:mm:ss")
 }
 
 let MyComponent = React.createClass({
