@@ -265,13 +265,13 @@ class PrivateCompose extends Component {
               <p><FormattedMessage {...menusText.tooltipsForth} /></p>
             </div>
           } />
+          <div className='operaBox'>
+            <Button className='addBtn' size='large' type='primary' onClick={() => this.detailModal(true)}>
+              <i className='fa fa-plus'></i>&nbsp;
+              <FormattedMessage {...menusText.createCompose} />
+            </Button>
+          </div>
           <Card className='PrivateComposeCard'>
-            <div className='operaBox'>
-              <Button className='addBtn' size='large' type='primary' onClick={() => this.detailModal(true)}>
-                <i className='fa fa-plus'></i>&nbsp;
-                <FormattedMessage {...menusText.createCompose} />
-              </Button>
-            </div>
             <div className='titleBox'>
               <div className='name'>
                 <FormattedMessage {...menusText.name} />

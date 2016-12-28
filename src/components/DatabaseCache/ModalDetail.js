@@ -119,10 +119,10 @@ class BaseInfo extends Component {
     const {databaseInfo ,dbName }= this.props
     const parentScope = this.props.scope
     const podSpec = databaseInfo.podList.pods[0].podSpec
-    let storagePrc = parentScope.props.resourcePrice.storage
-    let containerPrc = parentScope.props.resourcePrice['2x']
-    const hourPrice = parseAmount((parentScope.state.storageValue /1000 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ) * parentScope.props.resourcePrice.dbRatio, 4)
-    const countPrice = parseAmount((parentScope.state.storageValue /1000 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc) * parentScope.props.resourcePrice.dbRatio * 24 * 30 , 4)
+    let storagePrc = parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
+    let containerPrc = parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
+    const hourPrice = parseAmount((parentScope.state.storageValue /1000 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ), 4)
+    const countPrice = parseAmount((parentScope.state.storageValue /1000 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc) * 24 * 30 , 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
     const modalContent = (
