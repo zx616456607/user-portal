@@ -301,7 +301,7 @@ class TeamDetail extends Component {
               </Card>
             </div>:
             <div>
-              <Alert message="这里展示了该团队的团队成员信息，作为创建者您可管理团队、邀请新成员、解散团队、移除团队成员和跳转到“我的账户”。" />
+              <Alert message="这里展示了该团队的团队成员信息，作为创建者您可管理团队、邀请新成员、解散团队、移除团队成员和跳转到“我的帐户”。" />
               <Row className="memberOption">
                 <Button icon='plus' className='quitTeamBtn' onClick={() => this.handleAddNewMember(teamID)}>
                   邀请新成员

@@ -161,17 +161,17 @@ let MyComponent = React.createClass({
       )
     }
     let items = config.map((item, index) => {
-      const dropdown = (
-        <Menu onClick={this.operaMenuClick.bind(this, item)}
-          style={{ width: '130px' }}
-          >
-          <Menu.Item key='2'>
-            <i className='fa fa-eye' style={{ float:'left',lineHeight:'18px',marginRight:'5px' }} />
-            <span style={{ float:'left' }} ><FormattedMessage {...menusText.viewBulidLog} /></span>
-            <div style={{ clear:'both' }}></div>
-          </Menu.Item>
-        </Menu>
-      );
+      // const dropdown = (
+      //   <Menu onClick={this.operaMenuClick.bind(this, item)}
+      //     style={{ width: '130px' }}
+      //     >
+      //     <Menu.Item key='2'>
+      //       <i className='fa fa-eye' style={{ float:'left',lineHeight:'18px',marginRight:'5px' }} />
+      //       <span style={{ float:'left' }} ><FormattedMessage {...menusText.viewBulidLog} /></span>
+      //       <div style={{ clear:'both' }}></div>
+      //     </Menu.Item>
+      //   </Menu>
+      // );
       return (
         <div className='LogDetail' key={item.buildId + index} >
           <div className='leftBox'>
