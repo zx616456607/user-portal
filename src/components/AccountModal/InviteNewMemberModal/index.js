@@ -45,7 +45,7 @@ export default class InviteNewMemberModal extends Component{
     })
     // 发送邀请
     if (passTags.length > 0) {
-      this.props.sendInvitation(teamID ,passTags)
+      this.props.inviteOnSubmit(teamID ,passTags)
     }
     closeInviteModal() //关闭弹窗
   }
