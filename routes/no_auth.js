@@ -12,6 +12,7 @@
 'use strict'
 
 const authController = require('../controllers/auth')
+const middlewares = require('../services/middlewares')
 
 module.exports = function (Router) {
   const router = new Router({})
@@ -20,7 +21,7 @@ module.exports = function (Router) {
   router.get('/login', authController.login)
   router.get('/logout', authController.logout)
   router.post('/logout', authController.logout)
-  router.post('/auth/users/verify', authController.verifyUser)
+  router.post('/auth/users/verify', middlewares.verifyUser, authController.verifyUser)
   // Captcha
   router.get('/captcha/gen', authController.generateCaptcha)
   router.get('/captcha/:captcha/verify', authController.checkCaptchaIsCorrect)
