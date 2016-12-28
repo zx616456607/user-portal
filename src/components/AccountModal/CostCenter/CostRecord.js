@@ -333,11 +333,11 @@ class CostRecord extends Component{
         item.type = typeMap[itemRawType]
 
         if (standard) {
-          item.unitPrice = '￥ ' + (item.unitPrice / 100)
-          item.amount = '￥ ' + (item.amount / 100)
+          item.unitPrice = '￥ ' + parseAmount(item.unitPrice).amount
+          item.amount = '￥ ' + parseAmount(item.amount).amount
         } else {
-          item.unitPrice = (item.unitPrice / 100) + 'T币'
-          item.amount = (item.amount / 100) + 'T币'
+          item.unitPrice = parseAmount(item.unitPrice).fullAmount
+          item.amount = parseAmount(item.amount).fullAmount
         }
         if (itemRawType === '6') {
           item.unitPrice += '/月'
@@ -474,9 +474,9 @@ class CostRecord extends Component{
           }
         </Card>
         {
-          (loginUser.info.role === 1 && currentTeamName)?
+          standard ? <div></div> : ((loginUser.info.role === 1 && currentTeamName)?
           <TeamCost currentSpaceName = {currentSpaceName} currentTeamName={currentTeamName} currentNamespace={currentNamespace} standard={standard}/>:
-          <div></div>
+          <div></div>)
         }
         <Row gutter={16} className='currentMonth'>
           <Col span={12} className='teamCost'>
@@ -556,8 +556,8 @@ class CostRecord extends Component{
 
 
 function getSpaceMonthCost(balance, cost, standard) {
-    balance = (balance || 0) / 100
-    cost = (cost || 0) / 100
+    balance = parseAmount(balance || 0).amount
+    cost =parseAmount(cost || 0).amount
     return {
       color: ['#46b2fa', '#2abe84'],
       backgroundColor: '#fff',

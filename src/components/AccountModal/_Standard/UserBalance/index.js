@@ -33,14 +33,18 @@ class UserBalance extends Component {
 
   componentWillMount() {
     document.title = '充值/续费 | 时速云'
-    const { loadLoginUserDetail, loadUserTeamspaceList } = this.props
+    const { currentTeamName, loadLoginUserDetail, loadUserTeamspaceList } = this.props
     loadLoginUserDetail()
     loadUserTeamspaceList('default', { size: 100 }).then(({response}) => {
       const { teamspaces } = response.result
-      if (teamspaces && teamspaces[0]) {
-        let currentTeam = teamspaces[0]
-        this.setState({
-          currentTeam,
+      if (teamspaces) {
+        teamspaces.map(teamspace => {
+          if (teamspace.teamName == currentTeamName) {
+            let currentTeam = teamspace
+            this.setState({
+              currentTeam,
+            })
+          }
         })
       }
     })
@@ -176,11 +180,16 @@ class UserBalance extends Component {
 }
 
 function mapStateToProps(state, props) {
+  let currentTeamName = ""
+  if (props.location && props.location.query) {
+     currentTeamName = props.location.query.team
+  }
   const { entities, user } = state
   const { current, loginUser } = entities
   const { teamspaces } = user
   return {
     current,
+    currentTeamName,
     loginUser: loginUser.info,
     isTeamsFetching: teamspaces.isFetching,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),

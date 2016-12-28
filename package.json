@@ -103,6 +103,7 @@
     "gulp": "^3.9.1",
     "gulp-svg-symbols": "^2.0.2",
     "gulp-svgmin": "^1.2.3",
+    "html-webpack-plugin": "^2.24.1",
     "humps": "^1.1.0",
     "isomorphic-fetch": "^2.2.1",
     "json-loader": "^0.5.4",
@@ -139,6 +140,7 @@
     "webpack": "^1.13.2",
     "webpack-dev-middleware": "^1.6.1",
     "webpack-hot-middleware": "^2.12.2",
+    "webpack-md5-hash": "^0.0.5",
     "whatwg-fetch": "^2.0.1"
   }
 }

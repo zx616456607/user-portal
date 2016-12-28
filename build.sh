@@ -14,25 +14,22 @@ build_user_portal() {
 
   node_modules/.bin/webpack -p
 
-  rm -f static/js/common.js static/js/main.js static/js/*.chunk.js static/locales/frontend/*.js
-  rm -f static/style/main.css
+  rm -f static/js/common.*
+  rm -f static/js/main.*
+  rm -f static/js/chunk.*
+  rm -f static/locales/frontend/*.js
+  rm -f static/style/main.*
 
-  # rm *.js.map
-  # rm -f static/js/common.js.map static/js/main.js.map static/js/*.chunk.js.map static/locales/frontend/*.js.map
+  rm -rf static/static/bundles/*
 
-  cp dist/common.js static/js/common.js
-  cp dist/main.js static/js/main.js
-  cp dist/*.chunk.js static/js/
-  cp dist/zh.js static/locales/frontend/zh.js
-  cp dist/en.js static/locales/frontend/en.js
-  cp dist/main.css static/style/main.css
-
-  # cp *.js.map
-  # cp dist/common.js.map static/js/common.js.map
-  # cp dist/main.js.map static/js/main.js.map
-  # cp dist/*.chunk.js.map static/js/
-  # cp dist/zh.js.map static/locales/frontend/zh.js.map
-  # cp dist/en.js.map static/locales/frontend/en.js.map
+  cp dist/common.* static/bundles/
+  cp dist/main.* static/bundles/
+  cp dist/chunk.* static/bundles/
+  # Rename files for intl
+  cp dist/zh.*.js static/bundles/zh.js
+  cp dist/en.*.js static/bundles/en.js
+  cp dist/index.* static/bundles/
+  cp dist/src/index.html index.html
 
   set +x
 }

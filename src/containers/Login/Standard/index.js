@@ -9,7 +9,7 @@
  * @author Zhangpc
  */
 import React, { PropTypes } from 'react'
-import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row, } from 'antd'
+import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row, Spin, } from 'antd'
 import './style/Login.less'
 import { verifyCaptcha, login } from '../../../actions/entities'
 import { connect } from 'react-redux'
@@ -37,6 +37,7 @@ let Login = React.createClass({
       intCheckFocus: false,
       passWord: false,
       intCodeFocus: false,
+      loginSucess: false,
     }
   },
 
@@ -70,6 +71,7 @@ let Login = React.createClass({
           func: (result) => {
             self.setState({
               submitting: false,
+              loginSucess: true,
               submitProps: {},
             })
             message.success(`用户 ${values.name} 登录成功`)
@@ -121,10 +123,10 @@ let Login = React.createClass({
       callback()
       return
     }
-    if (!USERNAME_REG_EXP_OLD.test(value)) {
+    /*if (!USERNAME_REG_EXP_OLD.test(value)) {
       callback([new Error('用户名填写错误')])
       return
-    }
+    }*/
     callback()
   },
 
@@ -263,7 +265,7 @@ let Login = React.createClass({
 
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
-    const { random, submitting, loginResult, submitProps } = this.state
+    const { random, submitting, loginResult, submitProps, loginSucess } = this.state
     const nameProps = getFieldProps('name', {
       rules: [
         { required: true, min: 3, message: '用户名至少为 3 个字符' },
@@ -290,6 +292,14 @@ let Login = React.createClass({
     })
     const formItemLayout = {
       wrapperCol: { span: 24 },
+    }
+    // 登录成功显示加载动画
+    if (loginSucess) {
+      return (
+        <div className="loading">
+          <Spin size="large" />
+        </div>
+      )
     }
     return (
       <div id="LoginBgStd">

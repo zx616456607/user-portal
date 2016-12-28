@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { DatePicker } from 'antd'
+import { DatePicker, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -151,7 +151,13 @@ class AppServiceLog extends Component {
   }
   getLogs() {
     const cluster = this.props.cluster
-    if (!this.props.serviceLogs[cluster] || !this.props.serviceLogs[cluster].logs) {
+    if (!this.props.serviceLogs[cluster] ) {
+      return '无日志'
+    }
+    if(this.props.serviceLogs[cluster].isFetching){
+      return <div className="loadingBox"><Spin size="large"></Spin></div>
+    }
+    if(!this.props.serviceLogs[cluster].logs){
       return '无日志'
     }
     const logs = this.props.serviceLogs[cluster].logs.data

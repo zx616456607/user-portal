@@ -25,11 +25,15 @@ logs
 static/js/common.js
 static/js/main.js
 static/js/*.chunk.js
+static/js/chunk.*
 static/locales/frontend/*.js
 static/js/common.js.map
 static/js/main.js.map
 static/js/*.chunk.js.map
 static/locales/frontend/*.js.map
 static/style/main.css
+static/bundles/
 manifest.json
 static/webpack_dll/
+stats.json
+index.html
