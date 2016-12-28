@@ -556,7 +556,7 @@ class CostRecord extends Component{
 
 
 function getSpaceMonthCost(balance, cost, standard) {
-    balance = parseAmount(balance || 0).fullAmount
+    balance = parseAmount(balance || 0).amount
     cost =parseAmount(cost || 0).amount
     return {
       color: ['#46b2fa', '#2abe84'],

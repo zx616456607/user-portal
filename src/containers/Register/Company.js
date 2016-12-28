@@ -12,7 +12,7 @@ import { Tabs, Button, Form, Input, Card, Tooltip, message, Alert, Col, Row, Rad
 import { connect } from 'react-redux'
 import { registerUser, sendRegisterPhoneCaptcha } from '../../actions/user'
 import { browserHistory } from 'react-router'
-import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../constants'
+import { USERNAME_REG_EXP, EMAIL_REG_EXP, PHONE_REGEX } from '../../constants'
 import NotificationHandler from '../../common/notification_handler'
 
 const createForm = Form.create
@@ -51,6 +51,11 @@ let Company = React.createClass({
     validateFields((errors, values) => {
       if (!!errors) {
         return
+      }
+      if (!values.password || !values.captcha ||
+        !USERNAME_REG_EXP.test(values.userName) || !PHONE_REGEX.test(values.tel) ||
+        !EMAIL_REG_EXP.test(values.email) || !values.certCode) {
+        retrun
       }
       this.setState({
         submitting: true,
@@ -165,8 +170,8 @@ let Company = React.createClass({
       callback()
       return
     }
-    if(value.length !== 11){
-      callback([new Error('请输入11位的手机号')])
+    if(!PHONE_REGEX.test(value)){
+      callback([new Error('请输入正确的号码')])
       return
     }
     callback()
@@ -176,6 +181,37 @@ let Company = React.createClass({
    */
   //发送验证码
   changeCaptcha() {
+    // send captcha
+    let passValidate = false
+    const { validateFields } = this.props.form
+    validateFields((err, values) => {
+      if (err) {
+        return
+      }
+      const phone = values.tel
+      if (!phone || !PHONE_REGEX.test(phone)) {
+        return
+      }
+      this.props.sendRegisterPhoneCaptcha(phone, {
+        success: {
+          func: () => {
+            let notification = new NotificationHandler()
+            notification.success(`发送邀请码成功`)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            let notification = new NotificationHandler()
+            notification.error(`发送邀请码失败`, err.message)
+          }
+        }
+      })
+    })
+
+    if (!passValidate) {
+      return
+    }
     this.setState({
       captchaLoading: true,
       countDownTimeText: '60s 后重新发送',
@@ -197,33 +233,6 @@ let Company = React.createClass({
       })
       clearInterval(time)
     },1000)
-
-    // send captcha
-    const { validateFields } = this.props.form
-    validateFields((err, values) => {
-      if (err) {
-        return
-      }
-      const phone = values.tel
-      if (!phone) {
-        return
-      }
-      this.props.sendRegisterPhoneCaptcha(phone, {
-        success: {
-          func: () => {
-            let notification = new NotificationHandler()
-            notification.success(`发送邀请码成功`)
-          },
-          isAsync: true
-        },
-        failed: {
-          func: (err) => {
-            let notification = new NotificationHandler()
-            notification.error(`发送邀请码失败`, err.message)
-          }
-        }
-      })
-    })
   },
   //失去输入框焦点
   intOnBlur(current) {

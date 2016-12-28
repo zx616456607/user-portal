@@ -233,7 +233,8 @@ let MyComponent = React.createClass({
     });
   },
   showAction(e, type, one, two) {
-    e.stopPropagation()
+    if(e.stopPropagation) e.stopPropagation()
+    else e.cancelable = true
     if (type === 'format') {
       this.setState({
         visible: true,
@@ -311,9 +312,9 @@ let MyComponent = React.createClass({
               </Button>
             </Dropdown>*/}
             {!item.isUsed ?
-              <Dropdown overlay={menu}>
+              <Dropdown overlay={menu} onClick={(e) => { this.showAction(e, 'resize', item.name, item.totalSize) } }>
                 <Button type="ghost" disabled={item.isUsed}>
-                  <span className="divider" onClick={(e) => { this.showAction(e, 'resize', item.name, item.totalSize) } }><FormattedMessage {...messages.dilation} /> </span><Icon type="down" />
+                  <span className="divider"><FormattedMessage {...messages.dilation} /> </span><Icon type="down" />
                 </Button>
               </Dropdown>
             :

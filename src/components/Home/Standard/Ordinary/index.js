@@ -136,6 +136,7 @@ class Ordinary extends Component{
       tab1: true,
       tab2: false,
       tab3: false,
+      isTeam: false
     }
   }
 
@@ -154,7 +155,11 @@ class Ordinary extends Component{
       loadStdClusterInfo(clusterID)
       return
     }
-
+    if(current.team.teamID !== 'default') {
+      this.setState({
+        isTeam: true
+      })
+    }
   }
   handleDataBaseClick(current){
     if(current === 'tab1'){
@@ -555,7 +560,7 @@ class Ordinary extends Component{
                   <div className='userCost'>
                     <div>
                       <i style={{backgroundColor:'#46b2fa'}}></i>
-                      余额&nbsp;:&nbsp;
+                      {this.state.isTeam ? '团队余额' : '我的余额'}&nbsp;:&nbsp;
                     </div>
                     <span className='costNum'>¥{parseAmount(clusterNodeSpaceConsumption.balance).amount}</span>
                     <Button type='primary'><Link to='/account/balance'>去充值</Link></Button>
@@ -563,7 +568,7 @@ class Ordinary extends Component{
                   <div className='userCost'>
                     <div>
                       <i style={{backgroundColor: '#28bd83'}}></i>
-                      消费&nbsp;:&nbsp;
+                      今日消费&nbsp;:&nbsp;
                     </div>
                     <span className='costNum'>¥{parseAmount(clusterNodeSpaceConsumption.consumption).amount}</span>
                     <Button type='primary'><Link to='/account/cost'>去查看</Link></Button>

@@ -170,10 +170,10 @@ class App extends Component {
 
   onStatusWebsocketSetup(ws) {
     const { setSockets, loginUser, current } = this.props
-    const { watchToken, namespace, userName } = loginUser
+    const { watchToken, namespace } = loginUser
     const watchAuthInfo = {
       accessToken: watchToken,
-      namespace: userName
+      namespace: namespace
     }
     if (current.space.namespace !== 'default') {
       watchAuthInfo.teamspace = current.space.namespace

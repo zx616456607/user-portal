@@ -63,10 +63,11 @@ class MySpace extends Component{
   }
   getOperationLog() {
     const logs = this.props.auditLog
-    if (!logs.logs || logs.logs.records.length <= 0) {
+    const ele = []
+    if (!logs.logs) {
       return <div></div>
     }
-    const ele = []
+    if(logs.logs.records.length <= 0)logs.logs.records = []
     let index = 0
     logs.logs.records.forEach(item => {
          if(!item.operationType) return
@@ -95,7 +96,7 @@ class MySpace extends Component{
          </Timeline.Item>)
          index++
       })
-
+  if(ele.length == 0) ele.push(<div>暂无审计日志</div>)
     return (
       <Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
         <Timeline style={{ height: 374, padding: '24px' ,overflowY:'hidden'}}>

@@ -50,20 +50,20 @@ let CreateDatabase = React.createClass({
       currentType: database
     });
   },
-  onChangeNamespace(teamID) {
+  onChangeNamespace(spaceName) {
     //this function for user change the namespace
     //when the namespace is changed, the function would be get all clusters of new namespace
     const { teamspaces, loadTeamClustersList, setCurrent, form, current } = this.props
     let newTeamspaces = ([MY_SPACE]).concat(teamspaces)
     newTeamspaces.map(space => {
-       if (space.namespace == teamID) {
+       if (space.namespace == spaceName) {
         // setCurrent({
         //   space,
         //   team: {
         //     teamID: teamID
         //   }
         // })
-        loadTeamClustersList(teamID, { size: 100 }, {
+        loadTeamClustersList(space.teamID, { size: 100 }, {
           success: {
             func: (result) => {
               if(result.data.length > 0) {
@@ -369,8 +369,8 @@ let CreateDatabase = React.createClass({
             </div>
             <div className="modal-price">
               <div className="price-left">
-                <div className="keys">实例：￥{parseAmount(this.props.resourcePrice['2x'], 4).amount}/（个*小时）* { storageNumber } 个</div>
-                <div className="keys">存储：￥{ parseAmount(this.props.resourcePrice.storage, 4).amount}/（GB*小时）* {storageNumber} 个</div>
+                <div className="keys">实例：￥{parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).amount}/（个*小时）* { storageNumber } 个</div>
+                <div className="keys">存储：￥{ parseAmount(this.props.resourcePrice.storage * this.props.resourcePrice.dbRatio, 4).amount}/（GB*小时）* {storageNumber} 个</div>
               </div>
               <div className="price-unit">
                 <p>合计：<span className="unit blod">￥{ hourPrice.amount }元/小时</span></p>
