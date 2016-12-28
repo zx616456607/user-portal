@@ -78,7 +78,7 @@ export function getServiceStatus(service) {
   }
   if (unavailableReplicas > 0 && (!availableReplicas || availableReplicas < replicas)) {
     status.phase = 'Pending'
-  } else if (observedGeneration >= metadata.generation && replicas === updatedReplicas) {
+  } else if (observedGeneration >= metadata.generation && replicas === updatedReplicas && replicas > 0) {
     status.availableReplicas = updatedReplicas
     status.phase = 'Running'
   } else if (updatedReplicas && unavailableReplicas) {
