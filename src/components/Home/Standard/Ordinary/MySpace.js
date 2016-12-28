@@ -63,14 +63,14 @@ class MySpace extends Component{
   }
   getOperationLog() {
     const logs = this.props.auditLog
-    if (!logs.logs || logs.logs.records.length <= 0) {
+    const ele = []
+    if (!logs.logs) {
       return (
         <Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
           <div className='loadingBox'>
             <span>暂无数据</span>
           </div>
-        </Card>
-      )
+        </Card>)
     }
     if(logs.logs.records.length <= 0)logs.logs.records = []
     let index = 0
