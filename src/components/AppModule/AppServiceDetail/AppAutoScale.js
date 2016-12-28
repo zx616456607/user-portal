@@ -56,6 +56,7 @@ class AppAutoScale extends Component {
     const { cluster, serviceName, autoScale, replicas, isAutoScaleOpen, volumes } = nextProps
     this.setState({
       isAutoScaleOpen: isAutoScaleOpen,
+      edit: false,
       isAvailable: !isStorageUsed(volumes)
     })
     if (serviceName === this.props.serviceName) {
