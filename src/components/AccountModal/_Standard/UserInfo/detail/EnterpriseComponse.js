@@ -26,7 +26,9 @@ let EnterpriseComponse = React.createClass({
   componentWillMount() {
     const config = this.props.config
     if(!config) return
-
+    this.setState({
+      disabled: true
+    })
     const userLicense = {
       uid: -1,
       name: '',
@@ -61,6 +63,7 @@ let EnterpriseComponse = React.createClass({
   },
   componentWillReceiveProps(nextProps) {
     if(nextProps.config) {
+
       const config = nextProps.config
       const userLicense = {
           uid: -1,
@@ -88,6 +91,7 @@ let EnterpriseComponse = React.createClass({
           backId,
           userFrontId,
           userLicense,
+          disabled: true
         })
       } else {
         if(userLicense.url !== this.props.config.enterpriseCertPic) {

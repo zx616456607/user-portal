@@ -32,7 +32,7 @@ module.exports = function (request) {
           return querys
         }
         Object.keys(object).forEach((key) => {
-          if (object.hasOwnProperty(key)) {
+          if (Object.hasOwnProperty(key)) {
             querys += `&${key}=${object[key]}`
           }
         })
