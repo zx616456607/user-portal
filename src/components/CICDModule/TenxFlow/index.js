@@ -294,6 +294,9 @@ class TenxFlowList extends Component {
     this.setState({
       createTenxFlowModal: true
     });
+    setTimeout(function() {
+      document.getElementById('flowName').focus()
+    },500)
   }
 
   closeCreateTenxFlowModal() {

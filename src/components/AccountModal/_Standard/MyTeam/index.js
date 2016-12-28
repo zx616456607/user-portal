@@ -469,6 +469,9 @@ class MyTeam extends Component {
     this.setState({
       visible: true,
     })
+    setTimeout(function() {
+      document.getElementById('teamInput').focus()
+    }, 100)
   }
   //创建团队
   teamOnSubmit(team) {
