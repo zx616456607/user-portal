@@ -20,7 +20,7 @@ import findIndex from 'lodash/findIndex'
 import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP } from '../../constants'
 import './style/storage.less'
-import { calcuDate } from '../../common/tools'
+import { calcuDate, parseAmount } from '../../common/tools'
 import { volNameCheck } from '../../common/naming_validation'
 import NotificationHandler from '../../common/notification_handler'
 
@@ -327,11 +327,14 @@ let MyComponent = React.createClass({
         </div>
       );
     });
-    const { storagePrice } = this.props
+    const { scope } = this.props
+    const { resourcePrice } = scope.props.currentCluster
+    const hourPrice = parseAmount(this.state.size /1000 * resourcePrice.storage, 4)
+    const countPrice = parseAmount(this.state.size /1000 * resourcePrice.storage * 24 *30, 4)
     return (
       <div className="dataBox">
         {items}
-        <Modal title={this.state.modalTitle} visible={this.state.visible} okText="确定" cancelText="取消"
+        <Modal title={this.state.modalTitle} visible={this.state.visible} okText="确定" cancelText="取消" className="storageModal" width={600}
          footer={[
             <Button key="back" type="ghost" size="large" onClick={(e) => { this.cancelModal() } }>取消</Button>,
             <Button key="submit" type="primary" size="large" disabled={isActing} loading={this.state.loading} onClick={(e) => { this.handleSure() } }>
@@ -346,7 +349,8 @@ let MyComponent = React.createClass({
             </Row>
             <Row style={{ height: '40px' }}>
               <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{formatMessage(messages.size)}</Col>
-              <Col span="12"><Slider min={this.state.modalSize} max={10240} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
+              <Col span="12">
+                <Slider min={this.state.modalSize} max={10240} step={100} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
               <Col span="8">
                 <InputNumber min={this.state.modalSize} max={10240} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
                 <span style={{ paddingLeft: 10 }} >MB</span>
@@ -354,10 +358,11 @@ let MyComponent = React.createClass({
             </Row>
             <div className="modal-price">
               <div className="price-left">
-                存储：￥{ storagePrice } /(GB*小时)
+                存储：￥{ resourcePrice.storage /10000 } 元/(GB*小时)
               </div>
               <div className="price-unit">
-                合计：<span className="unit">￥</span><span className="unit blod">{parseFloat((this.state.size / 1000 * storagePrice)).toFixed(3)} / 小时</span>
+                <p>合计：<span className="unit">￥</span><span className="unit blod"> { hourPrice.amount } 元/ 小时</span></p>
+                <p><span className="unit">（约：￥</span><span className="unit"> { countPrice.amount } 元/ 小时</span></p>
               </div>
             </div>
 
@@ -659,8 +664,9 @@ class Storage extends Component {
   render() {
     const { formatMessage } = this.props.intl
     if (!this.props.currentCluster.resourcePrice) return <div></div>
-    const storagePrice = this.props.currentCluster.resourcePrice.storage /100
-
+    const storagePrice = this.props.currentCluster.resourcePrice.storage /10000
+    const hourPrice = parseAmount(this.state.size / 1000 * this.props.currentCluster.resourcePrice.storage, 4)
+    const countPrice = parseAmount(this.state.size / 1000 * this.props.currentCluster.resourcePrice.storage * 24 *30, 4)
     return (
       <QueueAnim className="StorageList" type="right">
         <div id="StorageList" key="StorageList">
@@ -720,7 +726,8 @@ class Storage extends Component {
                     存储：￥{ storagePrice } /(GB*小时)
                   </div>
                   <div className="price-unit">
-                    合计：<span className="unit">￥</span><span className="unit blod">{parseFloat((this.state.size / 1000 * storagePrice)).toFixed(3)} / 小时</span>
+                    <p>合计：<span className="unit">￥</span><span className="unit blod">{ hourPrice.amount } / 小时</span></p>
+                    <p><span className="unit">（约：￥</span><span className="unit">{ countPrice.amount } / 月）</span></p>
                   </div>
                 </div>
               </Modal>
@@ -756,7 +763,7 @@ class Storage extends Component {
               cluster={this.props.cluster}
               imagePool={this.props.currentImagePool}
               loadStorageList={() => { this.props.loadStorageList(this.props.currentImagePool, this.props.cluster) } }
-              storagePrice ={ storagePrice }
+              scope ={ this }
               />
           </Card>
         </div>

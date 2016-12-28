@@ -330,7 +330,7 @@ class ServiceList extends Component {
     servicesList.forEach((list, index)=> {
       priceArr.push({
         cpu: parseInt(list.resource.split('/')[0]) * list.inf.Deployment.spec.replicas,
-        memory: parseInt(list.inf.Deployment.spec.template.spec.containers[0].resources.requests.memory)
+        memory: parseInt(list.inf.Deployment.spec.template.spec.containers[0].resources.requests.memory)  * list.inf.Deployment.spec.replicas
       })
     })
     let cpuNumber = 0, memory = 0
@@ -348,7 +348,7 @@ class ServiceList extends Component {
     const { servicesList, isFetching , cluster} = this.props
     const price = this.props.cluster.resourcePrice
     const configData = this.countConfig()
-    let hourPrice = this.formetPrice() * this.countSize()
+    let hourPrice = this.formetPrice()
     const countPrice = parseAmount(hourPrice *24 *30, 4) // * hourPrice 上下的顺序不能乱了
     hourPrice = parseAmount(hourPrice, 4)
     return (

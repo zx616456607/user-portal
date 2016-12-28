@@ -72,7 +72,7 @@ class AppServiceRental extends Component {
   }
   render() {
     const { serviceDetail } = this.props
-    if (!this.props.serviceDetail[0]){ return(<div></div>)}
+    if (!this.props.serviceDetail[0].spec){ return(<div className='loadingBox' style={{clear:'both',background:'white'}}>请求错误</div>)}
     const detaContainer = this.props.serviceDetail[0].spec.template.spec.containers[0]
     const dataRow = serviceDetail.map((list, index)=> {
         return(

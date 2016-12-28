@@ -159,7 +159,7 @@ class AppServiceLog extends Component {
     let page = Math.ceil(logs.length / 50)
     let remainder = logs.length % 50
     function spellTimeLogs(time, log) {
-      return time ? (<span><span className='timeSpan'>[{time}]</span> {log.log}</span>) : log.log
+      return time ? (<span className='logDetailSpan'><span className='timeSpan'>[{time}]</span> {log.log}</span>) : log.log
     }
     const logContent = logs.map((log, index) => {
       let time = ''
