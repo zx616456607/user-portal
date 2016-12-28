@@ -484,6 +484,7 @@ class MyTeam extends Component {
             visible: false,
             showCreateSucModal: true,
             newTeamID: result.data.teamID,
+            teamName: team.teamName,
           })
           loadUserTeamList('default', {
             page: 1,
@@ -520,7 +521,7 @@ class MyTeam extends Component {
   }
   render() {
     const scope = this
-    const { visible,showCreateSucModal,newTeamID } = this.state
+    const { visible,showCreateSucModal,teamName, newTeamID } = this.state
     const {
       teams, addTeamusers, loadUserTeamList,
       teamUserIDList, loadTeamUserList, checkTeamName, quitTeam, dissolveTeam
@@ -552,6 +553,7 @@ class MyTeam extends Component {
             visible={showCreateSucModal}
             closeCreateSucModal={this.closeCreateSucModal}
             teamID={newTeamID}
+            teamName={teamName}
           />
           <CreateTeamModal
             scope={scope}

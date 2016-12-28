@@ -283,7 +283,7 @@ class TeamDetail extends Component {
                   dissolveTeam={dissolveTeam}
                   loadUserTeamList={loadUserTeamList}
                 />
-                <Link to='/account/balance'>
+                <Link to={`/account/balance?team=${teamName}`}>
                   <Button icon='pay-circle-o' className='rechargeBtn'>
                     去充值
                   </Button>

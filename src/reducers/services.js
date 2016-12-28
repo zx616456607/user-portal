@@ -300,6 +300,7 @@ function serviceLogs(state = {}, action) {
       if (!action.response.result.data) return uState
       uState[cluster].logs.data = union(action.response.result.data, uState[cluster].logs.data)
       if (uState[cluster].logs.data.length % 50 !== 0) uState[cluster].logs.data.unshift({ log: '无更多日志\n' })
+      uState[cluster].isFetching = false
       return uState
     case ActionTypes.SERVICE_LOGS_FAILURE:
       return merge({}, defaultState, state, {
