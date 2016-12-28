@@ -10,7 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Spin, message, Tooltip } from 'antd'
 import { connect } from 'react-redux'
-import { browserHistory, Link } from 'react-router'
+import { browserHistory } from 'react-router'
 import Authentication from './Authentication'
 import './style/UserInfo.less'
 import PhoneRow from './detail/PhoneRow'
@@ -325,7 +325,9 @@ class BaseInfo extends Component {
           <div className="to-recharge">
             <p className="money">{ parseAmount(userDetail.balance).amount }元</p>
             <p className="money-desc">我的帐户余额</p>
-            <Link to="/account/balance/payment"><Button type="primary">去充值</Button></Link>
+            <Button type="primary" onClick={() => browserHistory.push('/account/balance/payment')}>
+              去充值
+            </Button>
           </div>
         </div>
         <div className="myInfo">
