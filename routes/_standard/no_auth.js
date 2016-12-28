@@ -25,6 +25,7 @@ const wechatPayController = require('../../controllers/_standard/payments/wechat
 const userController = require('../../controllers/_standard/user_info')
 const authController = require('../../controllers/auth')
 const wechatPayMiddleware = require('../../pay/wechat_pay').middleware
+const middlewares = require('../../services/middlewares')
 const API_URL_PREFIX = '/api/v2'
 
 module.exports = function (Router) {
@@ -42,7 +43,7 @@ module.exports = function (Router) {
   router.get(`/users/activation`, userController.activateUserByEmail)
 
   // login and jointeam
-  router.post(`${API_URL_PREFIX}/stdusers/loginAndJointeam`, authController.verifyUserAndJoinTeam)
+  router.post(`${API_URL_PREFIX}/stdusers/loginAndJointeam`, middlewares.verifyUser, authController.verifyUserAndJoinTeam)
 
   // Reset password
   router.put(`${API_URL_PREFIX}/users/:email/resetpwlink`, userController.sendResetPasswordLink)
@@ -60,6 +61,6 @@ module.exports = function (Router) {
   // router.get('/register', indexCtl.index) // not open register
   //resetpassword
   router.get('/rpw', indexCtl.index)
-  
+
   return router.routes()
 }
