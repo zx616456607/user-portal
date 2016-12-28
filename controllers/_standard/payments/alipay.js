@@ -18,6 +18,7 @@ const aliPayConfig = require('../../../configs/_standard/alipay_config')
 const apiFactory = require('../../../services/api_factory')
 const logger = require('../../../utils/logger.js').getLogger('alipay')
 const payments = require('./')
+const AMOUNT_CONVERSION = require('../../../constants').AMOUNT_CONVERSION
 
 // alipay.on('verify_fail', function() {
 //   logger.info('emit verify_fail')
@@ -76,7 +77,7 @@ exports.rechare = function* () {
   aliPayConfig.extra_common_param = uuid.v4()
   const siginApi = apiFactory.getTenxSysSignSpi(user)
   const apiResult = yield siginApi.payments.create({
-    charge_amount: paymentAmount * 100,
+    charge_amount: paymentAmount * AMOUNT_CONVERSION,
     order_type: 101,
     verification_key: aliPayConfig.extra_common_param,
     upgrade: parseInt(body.upgrade),
@@ -157,7 +158,7 @@ function _requestSignUpdateApi(user, data) {
     order_id: data.out_trade_no,
     order_type: 101,
     verification_key: data.extra_common_param,
-    charge_amount: num * 100,
+    charge_amount: num * AMOUNT_CONVERSION,
     detail: JSON.stringify(data)
   }
   // Async notification has no loginUser, so here do not use loginUser by api server support
