@@ -238,3 +238,16 @@ export function parseAmount(amount, precision) {
   }
   return data
 }
+
+export function isStorageUsed(volumes) {
+  let used = false
+  if (volumes) {
+    for (var i in volumes) {
+      if (volumes[i].rbd) {
+        used = true
+        break
+      }
+    }
+  }
+  return used
+}

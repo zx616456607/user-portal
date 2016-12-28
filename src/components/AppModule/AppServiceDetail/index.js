@@ -351,6 +351,7 @@ class AppServiceDetail extends Component {
                 <AppAutoScale
                   replicas={service.spec.replicas}
                   serviceName={service.metadata.name}
+                  volumes={service.spec.template.spec.volumes}
                   cluster={service.cluster} />
               </TabPane>
               <TabPane tab='日志' key='#logs'>
