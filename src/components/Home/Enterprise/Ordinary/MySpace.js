@@ -63,7 +63,8 @@ class MySpace extends Component{
   }
   getOperationLog() {
     const logs = this.props.auditLog
-    if (!logs.logs || logs.logs.records.length <= 0) {
+    const ele = []
+    if (!logs.logs) {
       return (<Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
           <div className='loadingBox'>
             <span>暂无数据</span>
@@ -101,7 +102,7 @@ class MySpace extends Component{
          </Timeline.Item>)
          index++
       })
-      if(ele.length == 0) ele.push(<div>暂无审计日志</div>)
+    if(ele.length == 0) ele.push(<div>暂无审计日志</div>)
     return (
       <Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
         <Timeline style={{ height: 374, padding: '24px' ,overflowY:'hidden'}}>
