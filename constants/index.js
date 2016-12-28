@@ -37,3 +37,5 @@ exports.ANNOTATION_SVC_SCHEMA_PORTNAME = 'tenxcloud.com/schemaPortname'
 exports.ROLE_USER = 0
 exports.ROLE_TEAM_ADMIN = 1
 exports.PHONE_REGEX = /(^(13\d|14[57]|15[^4,\D]|17[678]|18\d)\d{8}|170[059]\d{7})$/
+exports.AMOUNT_CONVERSION = 10000 // 10000 = 1 元
+exports.AMOUNT_DEFAULT_PRECISION = 2 // 小数点后两位
