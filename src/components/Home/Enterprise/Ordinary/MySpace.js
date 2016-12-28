@@ -64,7 +64,11 @@ class MySpace extends Component{
   getOperationLog() {
     const logs = this.props.auditLog
     if (!logs.logs || logs.logs.records.length <= 0) {
-      return <div></div>
+      return (<Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
+          <div className='loadingBox'>
+            <span>暂无数据</span>
+          </div>
+        </Card>)
     }
     const ele = []
     let index = 0
@@ -88,7 +92,7 @@ class MySpace extends Component{
          }
          ele.push(<Timeline.Item >
            <div className="logItem">
-             <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''} ${formatResourceName(item.resourceName)}`}}</div>
+             <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''} ${formatResourceName(item.resourceName)}`}</div>
              <div className="logInf">
                {calcuDate(item.time)}
                <div className="logTime"> {`持续${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>

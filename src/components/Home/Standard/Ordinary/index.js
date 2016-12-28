@@ -550,6 +550,7 @@ class Ordinary extends Component{
                     </div>
                   </div>
                   <div className='loginTag'>{certName}</div>
+                  <div style={{ clear: 'both' }}></div>
                 </div>
                 <div>
                   <div className='userCost'>
@@ -558,7 +559,7 @@ class Ordinary extends Component{
                       余额&nbsp;:&nbsp;
                     </div>
                     <span className='costNum'>¥{parseAmount(clusterNodeSpaceConsumption.balance).amount}</span>
-                    <Button type='primary'><Link to='/account/balance'>去充值</Link></Button>
+                    <Link to='/account/balance'><Button type='primary'>去充值</Button></Link>
                   </div>
                   <div className='userCost'>
                     <div>
@@ -566,7 +567,7 @@ class Ordinary extends Component{
                       消费&nbsp;:&nbsp;
                     </div>
                     <span className='costNum'>¥{parseAmount(clusterNodeSpaceConsumption.consumption).amount}</span>
-                    <Button type='primary'><Link to='/account/cost'>去查看</Link></Button>
+                    <Link to='/account/cost'><Button type='primary'>去查看</Button></Link>
                   </div>
                 </div>
               </div>

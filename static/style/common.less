@@ -16,6 +16,7 @@ svg path {
 }
 //header
 .tenx-layout-header {
+  -webkit-transition: all 0.3s;
   transition: all 0.3s;
   z-index: 100;
   position: fixed;
@@ -36,6 +37,7 @@ svg path {
 }
 //sider
 .tenx-layout-sider {
+  -webkit-transition: all 0.3s;
   transition: all 0.3s;
   z-index: 100;
   position: fixed;
@@ -50,6 +52,8 @@ svg path {
   }
 }
 .tenx-layout-content {
+  z-index: 200;
+  -webkit-transition: all 0.3s;
   transition: all 0.3s;
   padding-top: 55px;
   margin-left: 60px;
@@ -61,6 +65,7 @@ svg path {
   margin-left: 200px;
   width: calc(~"100% - 200px");
   .CommonSecondMenu {
+    -webkit-transform: translateX(-140px) !important;
     transform: translateX(-140px) !important;
   }
   .CommonSecondContent {

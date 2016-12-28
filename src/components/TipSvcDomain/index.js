@@ -75,6 +75,7 @@ class AppTip extends Component {
     const { appDomain, scope } = this.props
     let urlData = []
     let item = appDomain.map((item, index) => {
+      console.log(item)
       urlData = item.data
       if (item.data.length === 0) {
         return (

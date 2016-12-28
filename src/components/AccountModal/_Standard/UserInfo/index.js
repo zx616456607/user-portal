@@ -325,7 +325,7 @@ class BaseInfo extends Component {
           <div className="to-recharge">
             <p className="money">{ parseAmount(userDetail.balance).amount }元</p>
             <p className="money-desc">我的帐户余额</p>
-            <Button type="primary"><Link to="/account/balance/payment">去充值</Link></Button>
+            <Link to="/account/balance/payment"><Button type="primary">去充值</Button></Link>
           </div>
         </div>
         <div className="myInfo">
