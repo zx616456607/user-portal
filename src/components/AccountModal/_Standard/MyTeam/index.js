@@ -406,7 +406,7 @@ let TeamTable = React.createClass({
                 visible={this.state.nowTeamID === record.key && this.state.showInviteModal}
                 closeInviteModal={this.closeInviteModal}
                 teamID={record.id}
-                sendInvitation={this.props.sendInvitation}
+                inviteOnSubmit={this.props.inviteOnSubmit}
               />
               <DelTeamModal
                 visible={this.state.nowTeamID === record.key && showDelModal}
@@ -450,6 +450,7 @@ class MyTeam extends Component {
     this.showModal = this.showModal.bind(this)
     this.teamOnSubmit = this.teamOnSubmit.bind(this)
     this.closeCreateSucModal = this.closeCreateSucModal.bind(this)
+    this.inviteOnSubmit = this.inviteOnSubmit.bind(this)
     this.state = {
       searchResult: [],
       notFound: false,
@@ -472,6 +473,10 @@ class MyTeam extends Component {
     setTimeout(function() {
       document.getElementById('teamInput').focus()
     }, 100)
+  }
+  inviteOnSubmit(teamID, emails) {
+    const { sendInvitation } = this.props
+    sendInvitation(teamID, emails)
   }
   //创建团队
   teamOnSubmit(team) {
@@ -575,7 +580,7 @@ class MyTeam extends Component {
               loadUserTeamList={loadUserTeamList}
               loadTeamUserList={loadTeamUserList}
               teamUserIDList={teamUserIDList}
-              sendInvitation={this.props.sendInvitation}
+              inviteOnSubmit={this.inviteOnSubmit}
               quitTeam={quitTeam}
               dissolveTeam={dissolveTeam}
             />
