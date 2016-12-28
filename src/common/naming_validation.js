@@ -35,7 +35,7 @@ export function validateServiceConfig(name) {
   }
   // TODO: not work with below syntax
   // let regx = /^[a-z0-9]+([-.~/][a-z0-9]+)*$/
-  let regx = new RegExp('^[a-zA-Z][-_.a-zA-Z0-9]{0,61}[a-zA-Z0-9]$')
+  let regx = new RegExp('^[-_.a-zA-Z0-9]{3,63}$')
   if (!regx.test(name)) {
     return false
   }
@@ -187,8 +187,8 @@ export function appEnvCheck(name, itemName, existNameFlag) {
     return errorMsg;
   }
   //min length check
-  if(name.length < 3) {
-    errorMsg = '请输入3个以上字符';
+  if(name.length < 2) {
+    errorMsg = '请输入2个以上字符';
     return errorMsg;
   }
   //existName check

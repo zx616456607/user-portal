@@ -121,12 +121,13 @@ class AppStore extends Component {
     //this function for user search special app
     let keyword = e.target.value;
     const { defaultAppStoreList } = this.state;
-    let newList = [];
-    defaultAppStoreList.map((item) => {
-      if(item.name.indexOf(keyword) > -1) {
-        newList.push(item)
+    const newList = defaultAppStoreList.filter(list => {
+      const search =  new RegExp(keyword)
+      if ( search.test(list.name.toLowerCase()) ) {
+        return true
       }
-    });
+      return false
+    })
     this.setState({
       appStoreList: newList
     })
@@ -142,7 +143,7 @@ class AppStore extends Component {
           <div className="operaBox">
             <div className="line"></div>
             <span>选择应用</span>
-            <Input placeholder="搜索应用~" size="large"  onChange={this.onSearchApp} />
+            <Input placeholder="搜索应用" size="large"  onChange={this.onSearchApp} />
             <Button>
               <i className="fa fa-search"></i>
             </Button>

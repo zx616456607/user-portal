@@ -48,12 +48,10 @@ let SuccessRegister = React.createClass({
         },
         failed: {
           func: (err) => {
-            console.log('4444444',err.statusCode)
             let msg = '邮件发送失败'
             if (err.statusCode === 500) {
               msg = '邮件发送失败，请重试'
             }
-            console.log('message',msg)
             message.error(`${msg}`)
           },
           isAsync: true
@@ -82,7 +80,7 @@ let SuccessRegister = React.createClass({
     }
   },
   render(){
-    const {email} = this.props
+    const { email, msg } = this.props
 
     return (
       <div id='RegisterPage'>
@@ -90,11 +88,15 @@ let SuccessRegister = React.createClass({
           <Card style={{width: 440}}>
             <Top />
             <div className='successTitle'>
-              注册成功
+            {
+              msg === 'NOT_ACTIVE'
+              ? '邮箱未激活'
+              : '注册成功'
+            }
             </div>
             <ul className='successInf'>
               <li>您注册的邮箱是&nbsp;:&nbsp;{email}</li>
-              <li>我们已经给您的邮箱发送了一封验证邮件 , 
+              <li>我们已经给您的邮箱发送了一封验证邮件 ,
               请登录您的邮箱完成用户验证</li>
             </ul>
             {

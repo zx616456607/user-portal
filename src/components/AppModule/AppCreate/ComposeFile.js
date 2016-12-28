@@ -95,36 +95,38 @@ class ComposeFile extends Component {
     const {appName, appDescYaml, remark} = this.state
     const { cluster } = this.props
     let notification = new NotificationHandler()
-    let appConfig = {
-      cluster,
-      template: appDescYaml,
-      appName: appName,
-      desc: remark,
-    }
-    let self = this
-    if (appConfig.appName == '') {
-      notification.error('请填写应用名称')
-      return
-    }
-    if (appConfig.template == '') {
-      notification.error('请选择编排文件')
-      return
-    }
-    this.props.createApp(appConfig, {
-      success: {
-        func: () => {
-          self.setState({
-            appName: '',
-            remark: '',
-          })
-          localStorage.removeItem('servicesList')
-          localStorage.removeItem('selectedList')
-          localStorage.removeItem('transientAppName')
-          browserHistory.push('/app_manage')
+    this.props.form.validateFields((errors, values) => {
+      if (!!errors) {
+        return;
+      }
+      let appConfig = {
+        cluster,
+        template: appDescYaml,
+        appName: appName,
+        desc: remark,
+      }
+      let self = this
+      if (appConfig.template == '') {
+        notification.error('请选择编排文件')
+        return
+      }
+      this.props.createApp(appConfig, {
+        success: {
+          func: () => {
+            self.setState({
+              appName: '',
+              remark: '',
+            })
+            localStorage.removeItem('servicesList')
+            localStorage.removeItem('selectedList')
+            localStorage.removeItem('transientAppName')
+            browserHistory.push('/app_manage')
+          },
+          isAsync: true
         },
-        isAsync: true
-      },
-    })
+      })
+
+    });
   }
   handleYaml(e) {
     this.setState({
@@ -225,9 +227,8 @@ class ComposeFile extends Component {
     const { getFieldProps, getFieldValue, getFieldError, isFieldValidating } = this.props.form
     const appNameFormCheck = getFieldProps('appNameFormCheck', {
       rules: [
-        { validator: this.appNameCheck },
-      ],
-      initialValue: this.state.appName
+        { validator: this.appNameCheck }
+      ]
     })
 
     const remarkFormCheck = getFieldProps('remarkFormCheck', {
@@ -271,7 +272,7 @@ class ComposeFile extends Component {
               {this.state.stackType ?
 
                 <div className="topBox">
-                  <span>编排类型</span>
+                  <span>编排文件</span>
                   <span>{this.state.templateName}</span>
                   <Button size="large" type="primary" onClick={() => this.selectStack()}>
                     选择编排
@@ -281,7 +282,7 @@ class ComposeFile extends Component {
                 : null
               }
               <div className="bottomBox">
-                <span className='titleSpan'>编排文件</span>
+                <span className='titleSpan'>编排内容</span>
                 <div className="textareaBox">
                   <YamlEditor value={appDescYaml} options={defaultEditOpts} parentId={'AppCreate'} callback={this.editYamlSetState} />
                 </div>

@@ -95,7 +95,7 @@ module.exports = {
       }
     }),
     new webpack.BannerPlugin('Licensed Materials - Property of tenxcloud.com\n\
-    (C) Copyright 2016 TenxCloud. All Rights Reserved.\n\
+    (C) Copyright 2017 TenxCloud. All Rights Reserved.\n\
     https://www.tenxcloud.com'),
     function() {
       this.plugin('done', function(stats) {

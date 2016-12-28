@@ -363,16 +363,16 @@ class RechargeRecord extends Component {
             </Row>
             <Row style={{ paddingLeft: '22px', height: 28 }}>
               <Col span={4} style={{ color: '#7a7a7a' }}>提醒方式</Col>
-              <Col span={20}>
-                <Checkbox checked={notifyCenterCheckBox} style={{ color: '#7a7a7a', fontSize: '14px' }} onChange={this.onNotifyCenterCheckBoxChange}>通知中心</Checkbox>
-              </Col>
-            </Row>
-            <Row style={{ paddingLeft: '22px', height: 30 }}>
-              <Col span={4} />
-              <Col span={20}>
+               <Col span={20}>
                 <Checkbox checked={notifyMailCheckBox} style={{ color: '#7a7a7a', fontSize: '14px' }} onChange={this.onNotifyMailCheckBoxChange}>{'邮件(' + this.props.loginUser.info.email + ')'}</Checkbox>
               </Col>
             </Row>
+            {/*<Row style={{ paddingLeft: '22px', height: 30 }}>
+              <Col span={4} />
+              <Col span={20}>
+                <Checkbox checked={notifyCenterCheckBox} style={{ color: '#7a7a7a', fontSize: '14px' }} onChange={this.onNotifyCenterCheckBoxChange}>通知中心</Checkbox>
+              </Col>
+            </Row>*/}
           </div>
         </Modal>
       </div>

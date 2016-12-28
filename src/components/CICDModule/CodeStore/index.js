@@ -330,7 +330,13 @@ class CodeStore extends Component {
     });
   }
   handleSearch(e) {
-    const names = e.target.value
+    let names =''
+    if (e) {
+      names = e.target.value
+      this.props.searchProject(names)
+      return
+    }
+    names = document.getElementById('searchBox').value
     this.props.searchProject(names)
   }
   handleFilter(type) {
@@ -366,8 +372,8 @@ class CodeStore extends Component {
               <FormattedMessage {...menusText.linkCode} />
               </Button>
             </Link>
-            <Input className='searchBox' onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
-            <i className='fa fa-search'></i>
+            <Input className='searchBox' onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' id="searchBox"/>
+            <i className='fa fa-search' onClick={() => this.handleSearch()}></i>
             <div style={{ clear: 'both' }}></div>
           </div>
           <Card className='tenxflowBox'>

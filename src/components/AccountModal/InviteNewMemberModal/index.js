@@ -57,11 +57,15 @@ class InviteNewMemberModal extends Component{
     })
     // 发送邀请
     if (passTags.length > 0) {
-      this.props.sendInvitation(teamID ,passTags)
+// <<<<<<< HEAD
+      this.props.inviteOnSubmit(teamID ,passTags)
     } else {
       let notification = new NotificationHandler()
       notification.error('没有正确的邮箱，请修正后重试')
       return
+// =======
+      // this.props.inviteOnSubmit(teamID ,passTags)
+// >>>>>>> upstream/dev-branch
     }
     closeInviteModal() //关闭弹窗
   }
@@ -80,7 +84,6 @@ class InviteNewMemberModal extends Component{
   }
  
   renderTag (props) {
-    console.log('xxxxx')
     let {tag, key, disabled, onRemove, classNameRemove, getTagDisplayValue,...other} = props
     let {rightTags} = this.state
     if (!EMAIL_REG_EXP.test(tag)) {
@@ -151,8 +154,6 @@ class InviteNewMemberModal extends Component{
 }
 
 function mapStateToProp(state, props) {
-  console.log('state.el', state)
-  console.log('state.entities.loginUser.info.email', state.entities.loginUser.info.email)
   return {
     userEmail: state.entities.loginUser.info.email,
   }

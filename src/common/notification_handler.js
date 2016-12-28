@@ -62,6 +62,7 @@ class NotificationHandler {
         </div>
       ),
       description: desc,
+      duration: 5,
     })
   }
   // Show info notification
@@ -71,7 +72,8 @@ class NotificationHandler {
         <div style={{ fontSize: '13px', paddingRight: '20px', color: '#666'}}>
           {message}
         </div>
-      )
+      ),
+      duration: 5,
     })
   }
   // Show warn notification

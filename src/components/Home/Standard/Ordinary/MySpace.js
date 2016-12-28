@@ -63,10 +63,16 @@ class MySpace extends Component{
   }
   getOperationLog() {
     const logs = this.props.auditLog
-    if (!logs.logs || logs.logs.records.length <= 0) {
-      return <div></div>
-    }
     const ele = []
+    if (!logs.logs) {
+      return (
+        <Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
+          <div className='loadingBox'>
+            <span>暂无数据</span>
+          </div>
+        </Card>)
+    }
+    if(logs.logs.records.length <= 0)logs.logs.records = []
     let index = 0
     logs.logs.records.forEach(item => {
          if(!item.operationType) return
@@ -86,16 +92,16 @@ class MySpace extends Component{
          }
          ele.push(<Timeline.Item >
            <div className="logItem">
-             <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''} ${formatResourceName(item.resourceName)}`}}</div>
+             <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''} ${formatResourceName(item.resourceName)}`}</div>
              <div className="logInf">
                {calcuDate(item.time)}
                <div className="logTime"> {`持续${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
              </div>
            </div>
          </Timeline.Item>)
-         index++
+         index++;
       })
-
+  if(ele.length == 0) ele.push(<div>暂无审计日志</div>)
     return (
       <Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
         <Timeline style={{ height: 374, padding: '24px' ,overflowY:'hidden'}}>
