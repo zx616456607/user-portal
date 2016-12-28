@@ -11,15 +11,16 @@
 var path = require('path')
 var webpack = require('webpack')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
-// var WebpackMd5Hash = require('webpack-md5-hash')
+var WebpackMd5Hash = require('webpack-md5-hash')
+var HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
   // devtool: 'cheap-source-map',
-
+  // !入口文件的顺序不能动！
   entry: {
-    main: './src/entry/index.js',
-    en: './src/entry/en.js',
     zh: './src/entry/zh.js',
+    en: './src/entry/en.js',
+    main: './src/entry/index.js',
     // vendor: ['react', 'lodash', 'moment', 'codemirror', 'antd'],
   },
 
@@ -30,11 +31,9 @@ module.exports = {
   output: {
     path: path.join(__dirname, 'dist'),
     publicPath: '',
-    filename: '[name].js',
-    chunkFilename: 'chunk.[id].js',
-    // filename: '[name].[chunkhash].js',
-    // chunkFilename: 'chunk.[id].[chunkhash].js',
-    publicPath: '/js/'
+    filename: '[name].[chunkhash].js',
+    chunkFilename: 'chunk.[id].[chunkhash].js',
+    publicPath: '/bundles/'
   },
 
   externals: {
@@ -67,17 +66,29 @@ module.exports = {
   },
 
   plugins: [
+    new HtmlWebpackPlugin({
+      inject: false, // disabled inject
+      chunks: ['zh', 'main', 'common'],
+      minify: {
+        collapseWhitespace: true,
+      },
+      title: '<%= title %>',
+      body: '<%- body %>',
+      intl_locale: '<%= intl_locale %>',
+      timestrap: (+ new Date()),
+      template: path.join(__dirname, 'src/templates/index.html'),
+      filename: path.join(__dirname, 'dist/src/index.html'),
+    }),
     // 删除重复数据
     new webpack.optimize.DedupePlugin(),
-    // 设置分块传输最大数量和最小size
+    // 设置分块传输最大数量和最小 size
     new webpack.optimize.LimitChunkCountPlugin({maxChunks: 18}),
     new webpack.optimize.MinChunkSizePlugin({minChunkSize: 200000}),
-    // new webpack.optimize.CommonsChunkPlugin('common', 'common.[chunkhash].js'),
-    new webpack.optimize.CommonsChunkPlugin('common', 'common.js'),
+    // new webpack.optimize.CommonsChunkPlugin('vendor', 'common.js'),
+    new webpack.optimize.CommonsChunkPlugin('common', 'common.[chunkhash].js'),
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.NoErrorsPlugin(),
-    // new ExtractTextPlugin('index.[chunkhash].css', { allChunks: true }),
-    new ExtractTextPlugin('index.css', { allChunks: true }),
+    new ExtractTextPlugin('index.[chunkhash].css', { allChunks: true }),
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false
@@ -86,12 +97,12 @@ module.exports = {
     new webpack.BannerPlugin('Licensed Materials - Property of tenxcloud.com\n\
     (C) Copyright 2016 TenxCloud. All Rights Reserved.\n\
     https://www.tenxcloud.com'),
-    // function() {
-    //   this.plugin('done', function(stats) {
-    //     require('fs').writeFileSync(
-    //       path.join(__dirname, 'stats.json'),
-    //       JSON.stringify(stats.toJson()))
-    //   })
-    // }
+    function() {
+      this.plugin('done', function(stats) {
+        require('fs').writeFileSync(
+          path.join(__dirname, 'stats.json'),
+          JSON.stringify(stats.toJson()))
+      })
+    }
   ]
 }

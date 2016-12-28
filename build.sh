@@ -20,12 +20,16 @@ build_user_portal() {
   rm -f static/locales/frontend/*.js
   rm -f static/style/main.*
 
-  cp dist/common.* static/js/
-  cp dist/main.* static/js/
-  cp dist/chunk.* static/js/
-  cp dist/zh.* static/locales/frontend/
-  cp dist/en.* static/locales/frontend/
-  cp dist/index.* static/style/
+  rm -rf static/static/bundles/*
+
+  cp dist/common.* static/bundles/
+  cp dist/main.* static/bundles/
+  cp dist/chunk.* static/bundles/
+  # Rename files for intl
+  cp dist/zh.*.js static/bundles/zh.js
+  cp dist/en.*.js static/bundles/en.js
+  cp dist/index.* static/bundles/
+  cp dist/src/index.html index.html
 
   set +x
 }
