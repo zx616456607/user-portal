@@ -166,7 +166,6 @@ class PortDetail extends Component {
 PortDetail.propTypes = {
   cluster: PropTypes.string.isRequired,
   serviceName: PropTypes.string.isRequired,
-  container: PropTypes.object.isRequired,
   loading: PropTypes.bool.isRequired,
 }
 

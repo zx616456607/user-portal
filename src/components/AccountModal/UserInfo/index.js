@@ -33,7 +33,7 @@ class UserInfo extends Component {
     loadUserTeamList(userID ? userID : 'default', null)
   }
   render() {
-    const { userDetail, appCount, serviceCount, containerCount, teamspaces, teams, editPass } = this.props
+    const { userID, userDetail, appCount, serviceCount, containerCount, teamspaces, teams, editPass } = this.props
     const href = window.location.href;
     let memberFlag = false;
     if(href.indexOf('account/user') > -1) {
@@ -46,7 +46,7 @@ class UserInfo extends Component {
         </Row>
         <Row className="content">
           <Card>
-            <Information userDetail={userDetail} editPass={editPass} />
+            <Information userID={userID} userDetail={userDetail} editPass={editPass} />
           </Card>
         </Row>
         <Row className="title">

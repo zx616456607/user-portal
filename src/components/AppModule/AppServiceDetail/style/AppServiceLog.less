@@ -1,7 +1,7 @@
 #AppServiceLog {
   font-size: 12px;
   .bottomBox {
-    padding: 0px !important;
+    padding: 0 !important;
     -webkit-transition: all 0.3s;
     transition: all 0.3s;
     .introBox {
@@ -16,13 +16,13 @@
         height: 40px;
         line-height: 40px;
         background-color: #333333;
-        span{
+        span {
           float: right;
           margin-right: 20px;
-          .ant-input:hover{
+          .ant-input:hover {
             border-color: inherit;
           }
-          i{
+          i {
             font-size: 13px;
           }
         }
@@ -33,7 +33,7 @@
           margin-right: 10px;
           cursor: pointer;
         }
-        .ant-calendar-picker-clear{
+        .ant-calendar-picker-clear {
           margin-right: 20px !important;
         }
       }
@@ -43,6 +43,14 @@
         max-height: 460px;
         overflow: auto;
         color: #37fc34;
+        .logDetailSpan {
+          display: block;
+          width: 100%;
+          min-height: 14px;
+          line-height: 16px;
+          word-break: break-all;
+          white-space: pre-wrap;
+        }
         .timeSpan {
           color: #ffff00;
         }
