@@ -93,7 +93,7 @@ function matchClass(state, config) {
       }
     }
   } else {
-    return null;
+    return 'normalCodeMirror';
   }
 }
 
@@ -144,9 +144,6 @@ class Editor extends Component {
       if(Boolean(parentId)) {
         document.getElementById(parentId).style.transform = 'none';
       }
-      setTimeout(function(){
-        document.getElementById('CodeMirror').style.position = 'fixed';
-      })
     } else {
       this.setState({
         currentBox: 'normal'
@@ -154,7 +151,6 @@ class Editor extends Component {
       if(Boolean(parentId)) {
         document.getElementById(parentId).style.transform = 'translateX(0px)';
       }
-      document.getElementById('CodeMirror').style.position = 'relative';
     }
   }
 

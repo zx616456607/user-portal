@@ -25,19 +25,20 @@
     .clusterCost {
       .ant-card-body {
         height: 200px;
-        display: flex;
+        width: 100%;
         justify-content: center;
         align-items: center;
       }
       .costInfo {
-        flex: 1;
+        margin: 0 auto;
+        width: 100%;
         max-width: 300px;
-        display: flex;
+        height: 152px;
         justify-content: space-between;
-        flex-direction: column;
       }
       .loginUser {
-        display: flex;
+        width: 100%;
+        max-width: 300px;
         justify-content: space-between;
         .logAvatar {
           width: 46px;
@@ -52,11 +53,12 @@
           img {
             height: 100%;
             width: 100%;
+            border-radius: 50%;
           }
         }
         .loginText {
+          float: left;
           padding-left: 7px;
-          flex:1;
           .text {
             line-height: 20px;
             padding-top: 8px;
