@@ -474,9 +474,9 @@ class CostRecord extends Component{
           }
         </Card>
         {
-          (loginUser.info.role === 1 && currentTeamName)?
+          standard ? <div></div> : ((loginUser.info.role === 1 && currentTeamName)?
           <TeamCost currentSpaceName = {currentSpaceName} currentTeamName={currentTeamName} currentNamespace={currentNamespace} standard={standard}/>:
-          <div></div>
+          <div></div>)
         }
         <Row gutter={16} className='currentMonth'>
           <Col span={12} className='teamCost'>
