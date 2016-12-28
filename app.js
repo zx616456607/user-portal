@@ -61,7 +61,7 @@ app.use(function* (next) {
 
 // Webpack for debug
 global.CONFIG_PROD = true
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV !== 'production') {
   global.CONFIG_PROD = false
 }
 global.indexHtml = global.CONFIG_PROD ? 'index' : 'index.debug'
@@ -129,11 +129,14 @@ app.use(compress({
   flush: require('zlib').Z_SYNC_FLUSH
 }))
 
-// Serve files from ./public
+// Serve files from ./static
 const serve = require('koa-static')
-app.use(serve(__dirname + '/static', {
-  maxage: 1000 * 60 * 60 * 24 * 7 // 静态文件一周的缓存
-}))
+const staticOpts = {}
+// Open cache in production mode
+if (global.CONFIG_PROD) {
+  staticOpts.maxage = 1000 * 60 * 60 * 24 * 7 // 静态文件一周的缓存
+}
+app.use(serve(__dirname + '/static', staticOpts))
 
 // Website favicon
 const favicon = require('koa-favicon')
