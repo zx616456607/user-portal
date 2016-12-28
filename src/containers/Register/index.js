@@ -44,10 +44,10 @@ class Register extends Component{
   }
   renderRegisterPage(register,registerPage){
     const { registerPageShow, registerShow } = this.state
-    const {email, code, sendActivationEmail} = this.props
+    const {email, code, msg, sendActivationEmail} = this.props
     if (email) {
       return (
-        <SuccessRegister email={email} code={code} sendActivationEmail={sendActivationEmail} />
+        <SuccessRegister email={email} code={code} msg={msg} sendActivationEmail={sendActivationEmail} />
       )
     }
 
@@ -101,10 +101,11 @@ class Register extends Component{
   }
 }
 function mapStateToProps (state,props) {
-  let {email, code} = props.location.query
+  let { email, code, msg } = props.location.query
   return {
     code,
     email,
+    msg,
   }
 }
 Register = connect(mapStateToProps, {

@@ -84,7 +84,7 @@ let Login = React.createClass({
           func: (err) => {
             let msg = err.message.message || err.message
             if (err.statusCode === 401 && err.message === 'NOT_ACTIVE' && err.email && err.code) {
-              browserHistory.push(`/register?email=${err.email}&code=${err.code}`)
+              browserHistory.push(`/register?email=${err.email}&code=${err.code}&msg=${err.message}`)
               resetFields()
               return
             }
