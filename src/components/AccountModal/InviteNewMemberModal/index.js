@@ -12,12 +12,14 @@ import { Modal,Alert,Icon,Button,Row,Col,Input,Tag,Select } from 'antd'
 import TagsInput from 'react-tagsinput'
 import 'react-tagsinput/react-tagsinput.css'
 import {EMAIL_REG_EXP} from '../../../constants'
+import NotificationHandler from '../../../common/notification_handler'
+import { connect } from 'react-redux'
 
 
 const Option = Select.Option;
 let valuesArr = []
 
-export default class InviteNewMemberModal extends Component{
+class InviteNewMemberModal extends Component{
   constructor(props){
     super(props)
     this.handleOk = this.handleOk.bind(this)
@@ -36,16 +38,30 @@ export default class InviteNewMemberModal extends Component{
     }
   }
   handleOk() {
-    const { closeInviteModal, teamID } = this.props
+    const { closeInviteModal, teamID, userEmail } = this.props
     const { tags } = this.state
     let passTags = [] //正确的邮件
-    
+    // can't invite self
+    const inviteSelf = tags.some((item) => {
+      return item === userEmail
+    })
+
+    if (inviteSelf) {
+      let notification = new NotificationHandler()
+      notification.error(`请移除自己的邮箱 ${userEmail} 后重试`)
+      return
+    }
+
     passTags=tags.filter((item) => {
       return EMAIL_REG_EXP.test(item)
     })
     // 发送邀请
     if (passTags.length > 0) {
       this.props.sendInvitation(teamID ,passTags)
+    } else {
+      let notification = new NotificationHandler()
+      notification.error('没有正确的邮箱，请修正后重试')
+      return
     }
     closeInviteModal() //关闭弹窗
   }
@@ -55,13 +71,11 @@ export default class InviteNewMemberModal extends Component{
   }
   
   handleTagsChange (value){
-    console.log('value',value)
     this.setState({
       tags:value
     })
   }
   handleChangeInput(tag) {
-    console.log('tag',tag)
     this.setState({tag})
   }
  
@@ -95,7 +109,8 @@ export default class InviteNewMemberModal extends Component{
   }
   render(){
     const { visible } = this.props
-    const { valueArr, disabled } = this.state
+    const { valueArr, disabled, tags } = this.state
+    const maxInvitationNum = 20
 
     return (
       <Modal title='邀请新成员'
@@ -116,7 +131,7 @@ export default class InviteNewMemberModal extends Component{
               邮箱邀请
             </Col>
             <Col className="inviteCount" span={12}>
-              还可添加20人
+              还可添加{maxInvitationNum - tags.length}人
             </Col>
           </Row>
           <TagsInput value={this.state.tags}
@@ -124,7 +139,7 @@ export default class InviteNewMemberModal extends Component{
                      renderTag={this.renderTag}
                      renderInput={this.renderInput}
                      inputProps={{className: 'react-tagsinput-input', placeholder: ''}}
-                     maxTags={20}
+                     maxTags={maxInvitationNum}
                      addKeys={[9, 13,186]}
                      onChangeInput={this.handleChangeInput}
           />
@@ -133,3 +148,12 @@ export default class InviteNewMemberModal extends Component{
     )
   }
 }
+
+function mapStateToProp(state, props) {
+  console.log('state.el', state)
+  console.log('state.entities.loginUser.info.email', state.entities.loginUser.info.email)
+  return {
+    userEmail: state.entities.loginUser.info.email,
+  }
+}
+export default connect(mapStateToProp, {})(InviteNewMemberModal)
