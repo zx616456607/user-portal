@@ -25,7 +25,7 @@ build_user_portal() {
   cp dist/chunk.* static/js/
   cp dist/zh.* static/locales/frontend/
   cp dist/en.* static/locales/frontend/
-  cp dist/main.* static/style/
+  cp dist/index.* static/style/
 
   set +x
 }
