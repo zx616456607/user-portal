@@ -33,7 +33,7 @@ const menusText = defineMessages({
   },
   creageCodeStore: {
     id: 'CICD.TenxStorm.creageCodeStore',
-    defaultMessage: '创建代码仓库',
+    defaultMessage: '关联代码仓库',
   },
   logout: {
     id: 'CICD.TenxStorm.logout',

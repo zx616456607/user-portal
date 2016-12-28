@@ -149,6 +149,16 @@ const MyComponent = React.createClass({
           success: {
             func: () => {
               notification.success('解除激活成功')
+            },
+            isAsync: true
+          },
+          failed: {
+            func: (res) => {
+              if (res.statusCode == 412) {
+                notification.error('该项目正在被TenxFlow引用，请解除引用后重试')
+              } else {
+                notification.error('解除激活失败')
+              }
             }
           }
         })
