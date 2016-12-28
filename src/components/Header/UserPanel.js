@@ -162,7 +162,7 @@ class UserPanel extends Component {
         {
           to: '/account',
           svgHref: '#logaccountinf',
-          text: '我的账户',
+          text: '我的帐户',
         },
         {
           to: '/account/cost',

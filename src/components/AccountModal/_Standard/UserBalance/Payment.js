@@ -147,7 +147,7 @@ class UserPay extends Component {
     }
     amount *= 100
     if (type === 'user_balance' && amount > loginUser.balance) {
-      notification.warn(`您的账户余额不足`, `请选择充值的方式进行升级`)
+      notification.warn(`您的帐户余额不足`, `请选择充值的方式进行升级`)
       newState.payBtnDisabled = true
     } else {
       newState.payBtnDisabled = false
@@ -610,7 +610,7 @@ class UserPay extends Component {
                 <Col span="4">联系人手机</Col>
                 <Col span="4">您在时速云登录邮箱</Col>
                 <Col span="4">汇款银行账号</Col>
-                <Col span="4">要充值的账号名称</Col>
+                <Col span="4">要充值的帐号名称</Col>
               </Row>
               <p className="list-top">3. 充值结果反馈</p>
               <div className="list-row">

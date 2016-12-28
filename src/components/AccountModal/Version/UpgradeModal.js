@@ -122,7 +122,7 @@ class UpgradeModal extends Component {
               </div>
               <div className={ currentType == 'user' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>账户中心</span>
+                <span className='infoSpan'>帐户中心</span>
               </div>
             </div>
             <div className='rightBox'>
@@ -162,7 +162,7 @@ class UpgradeModal extends Component {
               </div>
               <div className={ currentType == 'user' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>账户中心</span>
+                <span className='infoSpan'>帐户中心</span>
               </div>
               <div className={ currentType == 'team' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <img className='commonImg' src='/img/version/proIcon.png' />

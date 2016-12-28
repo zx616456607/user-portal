@@ -147,10 +147,10 @@ class VersionNoraml extends Component {
                   <div className='commonBox'>
                     <div className='commonTitleBox'>
                       <span className='commonIcon'></span>
-                      <span className='commonTitle'>账户中心</span>
+                      <span className='commonTitle'>帐户中心</span>
                     </div>
                     <div className='commonInfo'>
-                      <span className='commonSpan'>我的账户</span>
+                      <span className='commonSpan'>我的帐户</span>
                       <span className='commonSpan'>费用中心</span>
                     </div>
                   </div>
@@ -246,10 +246,10 @@ class VersionNoraml extends Component {
                   <div className='commonBox'>
                     <div className='commonTitleBox'>
                       <span className='commonIcon'></span>
-                      <span className='commonTitle'>账户中心</span>
+                      <span className='commonTitle'>帐户中心</span>
                     </div>
                     <div className='commonInfo'>
-                      <span className='commonSpan'>我的账户</span>
+                      <span className='commonSpan'>我的帐户</span>
                       <span className='commonSpan'>费用中心</span>
                     </div>
                   </div>
@@ -350,10 +350,10 @@ class VersionNoraml extends Component {
                   <div className='commonBox'>
                     <div className='commonTitleBox'>
                       <span className='commonIcon'></span>
-                      <span className='commonTitle'>账户中心</span>
+                      <span className='commonTitle'>帐户中心</span>
                     </div>
                     <div className='commonInfo'>
-                      <span className='commonSpan'>我的账户</span>
+                      <span className='commonSpan'>我的帐户</span>
                       <span className='commonSpan'>费用中心</span>
                     </div>
                   </div>

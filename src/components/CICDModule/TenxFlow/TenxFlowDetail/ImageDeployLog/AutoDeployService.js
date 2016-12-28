@@ -364,7 +364,6 @@ let AutoDeployService = React.createClass({
   render() {
     const { formatMessage } = this.props.intl;
     const { getFieldProps, getFieldValue } = this.props.form;
-    console.log(this.props.cdImageList)
     getFieldProps('rulesList', {
       initialValue: [0],
     });

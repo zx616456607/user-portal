@@ -11,9 +11,6 @@
 */
 
 const databaseCacheRoutes = [{
-  path: 'mongo_cluster',
-  component: require('../components/DatabaseCache/MongoCluster').default,
-},{
   path: 'redis_cluster',
   component: require('../components/DatabaseCache/RedisCluster').default,
 },{
