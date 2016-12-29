@@ -146,6 +146,9 @@ let CICDSettingModal = React.createClass({
       this.setState({
         editBranch: true
       });
+      setTimeout(function() {
+        document.getElementById('branchInput').focus()
+      },100)
     } else {
       this.setState({
         editBranch: false
@@ -162,6 +165,9 @@ let CICDSettingModal = React.createClass({
       this.setState({
         editTag: true
       });
+      setTimeout(function() {
+        document.getElementById('tagInput').focus()
+      },100)
     } else {
       this.setState({
         editTag: false
@@ -174,6 +180,9 @@ let CICDSettingModal = React.createClass({
       this.setState({
         editBranch: true
       });
+      setTimeout(function() {
+        document.getElementById('branchInput').focus()
+      },100)
     } else {
       this.setState({
         editBranch: false
@@ -186,6 +195,9 @@ let CICDSettingModal = React.createClass({
       this.setState({
         editTag: true
       });
+      setTimeout(function() {
+        document.getElementById('tagInput').focus()
+      },100)
     } else {
       this.setState({
         editTag: false
