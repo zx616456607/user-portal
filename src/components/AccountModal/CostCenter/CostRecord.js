@@ -666,6 +666,10 @@ function mapStateToProps (state,props) {
       sum: '-',
     }]
   }
+  spaceSummaryData.clusterConsumptions.map((item) => {
+    item.name = item.name || '-'
+    item.name = (item.name === '__PRO_EDITION') ? '-（注：专业版扣费）' : item.name
+  })
   return {
     current,
     loginUser,
