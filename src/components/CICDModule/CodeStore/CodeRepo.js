@@ -237,7 +237,7 @@ const MyComponent = React.createClass({
   changeToken(e) {
     this.setState({ regToken: e.target.value })
   },
-  clostAddGitlabModal() {
+  closeAddGitlabModal() {
     //this function for close modal and set from to null
     this.setState({
       authorizeModal: false,
@@ -260,7 +260,7 @@ const MyComponent = React.createClass({
         <div style={{ lineHeight: '150px', paddingLeft: '250px' }}>
           <Button type="primary" size="large" onClick={() => this.showGtilabModal() }>添加 GitLab 代码仓库</Button>
           <Modal title="添加 GitLab 代码仓库" visible={this.state.authorizeModal} maskClosable={false}
-            onCancel={this.clostAddGitlabModal}
+            onCancel={this.closeAddGitlabModal}
             footer={[
               <Button key="back" type="ghost" size="large" onClick={() => { this.setState({ authorizeModal: false }) } }>取消</Button>,
               <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={() => this.registryRepo()}>确定</Button>,
