@@ -323,7 +323,10 @@ class BaseInfo extends Component {
             <Button type="primary" onClick={() => this.setState({ uploadModalVisible: true })}>更换头像</Button>
           </div>
           <div className="to-recharge">
-            <p className="money">{ parseAmount(userDetail.balance).amount }元</p>
+            <p className="money">
+              <span className="unit">￥</span>
+              <span className="number">{ parseAmount(userDetail.balance).amount }</span>
+            </p>
             <p className="money-desc">我的帐户余额</p>
             <Button type="primary" onClick={() => browserHistory.push('/account/balance/payment')}>
               去充值

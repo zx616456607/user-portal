@@ -333,11 +333,11 @@ class CostRecord extends Component{
         item.type = typeMap[itemRawType]
 
         if (standard) {
-          item.unitPrice = '￥ ' + parseAmount(item.unitPrice).amount
-          item.amount = '￥ ' + parseAmount(item.amount).amount
+          item.unitPrice = '￥ ' + parseAmount(item.unitPrice, 4).amount
+          item.amount = '￥ ' + parseAmount(item.amount, 4).amount
         } else {
-          item.unitPrice = parseAmount(item.unitPrice).fullAmount
-          item.amount = parseAmount(item.amount).fullAmount
+          item.unitPrice = parseAmount(item.unitPrice, 4).fullAmount
+          item.amount = parseAmount(item.amount, 4).fullAmount
         }
         if (itemRawType === '6') {
           item.unitPrice += '/月'
