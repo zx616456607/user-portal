@@ -37,14 +37,18 @@ class UserBalance extends Component {
     loadLoginUserDetail()
     loadUserTeamspaceList('default', { size: 100 }).then(({response}) => {
       const { teamspaces } = response.result
+      let currentTeam
       if (teamspaces) {
         teamspaces.map(teamspace => {
           if (teamspace.teamName == currentTeamName) {
-            let currentTeam = teamspace
-            this.setState({
-              currentTeam,
-            })
+            currentTeam = teamspace
           }
+        })
+        if (!currentTeam) {
+          currentTeam = teamspaces[0]
+        }
+        this.setState({
+          currentTeam,
         })
       }
     })
@@ -83,8 +87,10 @@ class UserBalance extends Component {
         <div className="myAccount">
           <div className="topRow"><Icon type="user" className="typeIcon" />我的帐户</div>
           <div className="moneyRow">
-            <div>余额：<span className="money">{balance || '-'}元</span></div>
-            {/*<div>其中优惠券￥5元，充值金额￥100元 &nbsp;<Icon type="question-circle-o" /></div>*/}
+            <div>余额：
+              <span className="unit">￥</span>
+              <span className="money">{balance}</span>
+            </div>
           </div>
           <div className="rechargeRow">
             <Button type="primary" size="large" onClick={() => browserHistory.push('/account/balance/payment')}>立即充值</Button>
@@ -113,8 +119,10 @@ class UserBalance extends Component {
           </div>
           {teamspaces.length > 0 ?
             <div className="moneyRow">
-              <div>余额：<span className="money">{spaceBalance}元</span></div>
-              {/*<div>其中优惠券￥15元，充值金额￥1000元 &nbsp;<Icon type="question-circle-o" /></div>*/}
+              <div>余额：
+                <span className="unit">￥</span>
+                <span className="money">{spaceBalance}</span>
+              </div>
             </div>
             :
             <div className="moneyRow text-center">
@@ -145,7 +153,10 @@ class UserBalance extends Component {
                 <img className="edition" alt="升级专业版" title="升级专业版" src="/img/version/proIcon-gray.png"/>
                 &nbsp;标准版
               </div>
-              <div className="moneyRow"><span className="money">0元/月</span></div>
+              <div className="moneyRow">
+                <span className="unit">￥</span>
+                <span className="money">0/月</span>
+              </div>
               <div className="rechargeRow">
                 <Button
                   type="primary"
@@ -162,7 +173,10 @@ class UserBalance extends Component {
                 <img className="edition" alt="专业版" title="专业版" src="/img/version/proIcon.png"/>
                 &nbsp;专业版
               </div>
-              <div className="moneyRow"><span className="money">99元/月</span></div>
+              <div className="moneyRow">
+                <span className="unit">￥</span>
+                <span className="money">99</span>/月
+              </div>
               <div className="rechargeRow">
                 <Button
                   type="primary"

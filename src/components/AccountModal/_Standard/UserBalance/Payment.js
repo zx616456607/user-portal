@@ -533,11 +533,6 @@ class UserPay extends Component {
               <div className="triangle"></div>
               <Icon type="check" />
             </div>
-            <div className={amount == '400' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setAmount(400)}>
-              <span>400</span>
-              <div className="triangle"></div>
-              <Icon type="check" />
-            </div>
             <div className={amount == '500' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setAmount(500)}>
               <span>500</span>
               <div className="triangle"></div>

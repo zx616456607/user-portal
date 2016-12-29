@@ -128,16 +128,17 @@ class AppAddStackModal extends Component {
     this.props.loadMyStack(DEFAULT_REGISTRY)
   }
   changeType(type) {
+    document.getElementById('stackName').focus()
     this.setState({
       currentImageType: type
     })
   }
-  gosearchStack(e) {
+  gosearchStack() {
     const stackType = this.state.currentImageType
     const config = {
       stackType,
       registry: DEFAULT_REGISTRY,
-      imageName: e.target.value
+      imageName: document.getElementById('stackName').value
     }
     this.props.searchStack(config)
   }
@@ -154,8 +155,8 @@ class AppAddStackModal extends Component {
           </Button>
          */}
           <div className="inputBox">
-            <Input size="large" placeholder="按名称搜索" onPressEnter={(e) => this.gosearchStack(e)} />
-            <i className="fa fa-search"></i>
+            <Input size="large" placeholder="按名称搜索" onPressEnter={() => this.gosearchStack()} id="stackName"/>
+            <i className="fa fa-search" onClick={()=> this.gosearchStack()}></i>
           </div>
         </div>
         <Tabs defaultActiveKey="1" onChange={(e) => this.changeType(e)}>

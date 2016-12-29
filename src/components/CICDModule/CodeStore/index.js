@@ -140,11 +140,11 @@ const MyComponent = React.createClass({
   },
   notActive(id) {
     const self = this
+    let notification = new NotificationHandler()
     Modal.confirm({
       title: '解除激活',
       content: '您是否确认要解除这项内容',
       onOk() {
-        let notification = new NotificationHandler()
         self.props.scope.props.removeProject(id, {
           success: {
             func: () => {
@@ -154,7 +154,7 @@ const MyComponent = React.createClass({
           },
           failed: {
             func: (res) => {
-              if (res.statusCode == 412) {
+              if (res.statusCode == 400) {
                 notification.error('该项目正在被TenxFlow引用，请解除引用后重试')
               } else {
                 notification.error('解除激活失败')

@@ -244,7 +244,7 @@ class GithubComponent extends Component {
     if (!githubList) {
       return (
         <div style={{ lineHeight: '150px', paddingLeft: '250px' }}>
-          <Button type="primary" size="large" onClick={() => this.handSyncCode()}>授权、同步 Github 代码源</Button>
+          <Button type="primary" size="large" onClick={() => this.handSyncCode()}>授权、同步 GitHub 代码源</Button>
         </div>
       )
     }
