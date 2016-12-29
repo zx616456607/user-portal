@@ -38,8 +38,8 @@ let UsefulDeployBox = React.createClass({
               }) }
               >
               <Radio key="a" value={"null"}>无</Radio>
-              <Radio key="b" value={"http"}>http</Radio>
-              <Radio key="c" value={"tcp"}>tcp</Radio>
+              <Radio key="b" value={"http"}>HTTP</Radio>
+              <Radio key="c" value={"tcp"}>TCP</Radio>
             </RadioGroup>
           </FormItem>
           { getFieldValue('getUsefulType') == "http" ? [

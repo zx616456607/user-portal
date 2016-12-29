@@ -63,7 +63,14 @@ let MyComponentEnviro = React.createClass({
   add() {
     const { form } = this.props.parentScope.props;
     let envKey = form.getFieldValue('envKey');
-    uuidEnviro = envKey[envKey.length - 1] + 1;
+    let nanFlag = isNaN(envKey[envKey.length - 1]);
+    let newEnv = 0;
+    if(!nanFlag) {
+      newEnv = envKey[envKey.length - 1];
+    } else {
+      newEnv = -1;
+    }
+    uuidEnviro = newEnv + 1;
     envKey = envKey.concat(uuidEnviro);
     form.setFieldsValue({
       envKey,
@@ -272,7 +279,8 @@ let MyComponentPort = React.createClass({
                   rules: [{
                     required: true,
                     message: '请选择端口类型',
-                  },]
+                  }],
+                  initialValue: 'TCP'
                 })}
                   showSearch
                   optionFilterProp="children"
