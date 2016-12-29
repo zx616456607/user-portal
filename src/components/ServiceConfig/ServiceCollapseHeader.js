@@ -62,7 +62,7 @@ class CollapseHeader extends Component {
       return
     }
     if (!validateServiceConfig(this.state.configName)) {
-      notification.error('名称须以字母开头，由英文字母、数字、点（.）、下划线（_）和连字符（-）组成，长度为 3-63 个字符')
+      notification.error('名称由英文字母、数字、点（.）、下划线（_）和连字符（-）组成，长度为 3-63 个字符')
       return
     }
     let configfile = {
