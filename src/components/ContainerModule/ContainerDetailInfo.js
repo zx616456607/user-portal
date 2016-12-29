@@ -13,6 +13,8 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/ContainerDetailInfo.less"
+const mode = require('../../../configs/model').mode
+const standard = require('../../../configs/constants').STANDARD_MODE
 
 export default class ContainerDetailInfo extends Component {
   constructor(props) {
@@ -95,9 +97,12 @@ export default class ContainerDetailInfo extends Component {
             <div className="commonTitle">
               镜像
           </div>
-            <div className="commonTitle">
+            {
+              mode !== standard &&
+              <div className="commonTitle">
               所属节点
-          </div>
+              </div>
+            }
             <div style={{ clear: "both" }}></div>
           </div>
           <div className="dataBox">
@@ -107,9 +112,12 @@ export default class ContainerDetailInfo extends Component {
             <div className="commonTitle">
               {container.images.join(', ') || '-'}
             </div>
-            <div className="commonTitle">
-              {container.status.hostIP}
-            </div>
+            {
+              mode !== standard &&
+              <div className="commonTitle">
+                {container.status.hostIP}
+              </div>
+            }
             <div style={{ clear: "both" }}></div>
           </div>
         </div>
