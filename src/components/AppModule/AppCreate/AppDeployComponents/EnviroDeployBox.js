@@ -165,7 +165,14 @@ let MyComponentPort = React.createClass({
   add() {
     const { form } = this.props.parentScope.props;
     let portKey = form.getFieldValue('portKey');
-    uuidPort = portKey[portKey.length - 1] + 1;
+    let nanFlag = isNaN(portKey[portKey.length - 1]);
+    let newPort = 0;
+    if(!nanFlag) {
+      newPort = portKey[portKey.length - 1];
+    } else {
+      newPort = -1;
+    }
+    uuidPort = newPort + 1;
     portKey = portKey.concat(uuidPort);
     form.setFieldsValue({
       portKey,
@@ -173,6 +180,9 @@ let MyComponentPort = React.createClass({
   },
   portsExists(index, rule, value, callback) {
     const {getFieldValue, getFieldProps} = this.props.form
+    this.setState({
+      addDis: false
+    })
     if (!value) {
       callback([new Error('抱歉，必须填端口.')])
       this.setState({
