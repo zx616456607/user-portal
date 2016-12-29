@@ -418,11 +418,11 @@ class MySpace extends Component{
               <div className="warnListWrap">
                 <Timeline className="warnList">
                   {
-                    spaceWarnings.length === 0?
-                      <div className="noWarnImg">
+                    spaceWarnings.length === 0 ?
+                      [<div className="noWarnImg">
                         <img src="/img/homeNoWarn.png" alt="NoWarn"/>
                         <div>暂时无系统告警</div>
-                      </div>:
+                      </div>] :
                     spaceWarnings.map((item,index) => {
                       return (
                         <Timeline.Item dot={
