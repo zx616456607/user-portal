@@ -37,14 +37,18 @@ class UserBalance extends Component {
     loadLoginUserDetail()
     loadUserTeamspaceList('default', { size: 100 }).then(({response}) => {
       const { teamspaces } = response.result
+      let currentTeam
       if (teamspaces) {
         teamspaces.map(teamspace => {
           if (teamspace.teamName == currentTeamName) {
-            let currentTeam = teamspace
-            this.setState({
-              currentTeam,
-            })
+            currentTeam = teamspace
           }
+        })
+        if (!currentTeam) {
+          currentTeam = teamspaces[0]
+        }
+        this.setState({
+          currentTeam,
         })
       }
     })
