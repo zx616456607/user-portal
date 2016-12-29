@@ -25,6 +25,7 @@ const Service = require('../../../../kubernetes/objects/service')
 const Panel = Collapse.Panel;
 const createForm = Form.create;
 const FormItem = Form.Item;
+let noPortFlag = false;
 
 let AppDeployServiceModal = React.createClass({
   propTypes: {
@@ -224,12 +225,14 @@ let AppDeployServiceModal = React.createClass({
     })
   },
   componentWillMount() {
+    noPortFlag = false;
     document.title = '部署应用 | 时速云'
     if (!this.props.scope.state.isCreate) {
       this.setForm()
     }
   },
   componentWillReceiveProps(nextProps) {
+    noPortFlag = false;
     const {serviceOpen} = nextProps
     if (serviceOpen != this.props.serviceOpen && serviceOpen) {
       if (serviceOpen) {
@@ -384,7 +387,7 @@ let AppDeployServiceModal = React.createClass({
     deploymentList.addContainer(serviceName, image)
     deploymentList.setContainerResources(serviceName, ImageConfig.resources.limits.memory)
     //ports
-    if (portKey) { 
+    if (portKey.length > 0) { 
       getFieldValue('portKey').map((k, index) => {
         let portType = getFieldProps(`portType${k}`).value;
         let newIndex = index + 1;
@@ -425,6 +428,7 @@ let AppDeployServiceModal = React.createClass({
         message: '创建服务：高级设置',
         description: '映射端口数量最少为一个！',
       });
+      noPortFlag = true;
       return;
     }
     //env
@@ -574,11 +578,13 @@ let AppDeployServiceModal = React.createClass({
         })
         this.submitNewService()
       }
-      this.props.form.resetFields()
-      parentScope.setState({
-        serviceModalShow: false,
-        deployServiceModalShow: false, // for add service
-      })
+      if(!noPortFlag) {        
+        this.props.form.resetFields()
+        parentScope.setState({
+          serviceModalShow: false,
+          deployServiceModalShow: false, // for add service
+        })
+      }
     })
   },
   closeModal() {
