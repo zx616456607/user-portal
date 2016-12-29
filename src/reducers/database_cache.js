@@ -56,15 +56,18 @@ function databaseAllList(state = {}, action) {
       return merge({}, defaultState, state, {
         [clusterType]: { isFetching: true }
       })
-    case ActionTypes.GET_DATABASE_CACHE_ALL_LIST_SUCCESS:
+    case ActionTypes.GET_DATABASE_CACHE_ALL_LIST_SUCCESS:{
+      const bak = cloneDeep(action.response.result.databaseList || [])
       return Object.assign({}, state, {
         [clusterType]: {
           isFetching: false,
           database: clusterType,
-          bak: action.response.result.databaseList || [],
+          bak,
           databaseList: action.response.result.databaseList || []
         }
       })
+
+    }
     case ActionTypes.GET_DATABASE_CACHE_ALL_LIST_FAILURE:
       return merge({}, defaultState, state, {
         [clusterType]: { isFetching: false }

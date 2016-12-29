@@ -544,13 +544,17 @@ class Ordinary extends Component{
               <div className='costInfo'>
                 <div className='loginUser'>
                   <div className='logAvatar'>
+                    <Link to='/account'>
                       <img alt={userName} src={`${AVATAR_HOST}${avatar}`} />
+                    </Link>
                   </div>
                   <div className="loginText">
                     <div className="text">
-                      <p className="userName">
-                        {userName}
-                      </p>
+                      <Link to='/account'>
+                        <p className="userName">
+                          {userName}
+                        </p>
+                      </Link>
                       <p className="email">{email || '...'}</p>
                     </div>
                   </div>

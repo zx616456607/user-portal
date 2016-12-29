@@ -91,6 +91,7 @@ function fetchCreateDbCluster(newDb, callback) {
       types: [CREATE_DATABASE_CACHE_REQUEST, CREATE_DATABASE_CACHE_SUCCESS, CREATE_DATABASE_CACHE_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${newDb.cluster}/dbservices`,
       options: {
+        headers: { teamspace: newDb.teamspace },
         method: 'POST',
         body: newDb
       },

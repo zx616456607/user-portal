@@ -13,9 +13,6 @@
 const databaseCacheRoutes = [{
   path: 'redis_cluster',
   component: require('../components/DatabaseCache/RedisCluster').default,
-},{
-  path: 'database_storage',
-  component: require('../components/DatabaseCache/DatabaseStorage').default,
 }]
 
 export default databaseCacheRoutes
