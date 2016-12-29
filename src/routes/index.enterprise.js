@@ -112,7 +112,7 @@ const rootRoutes = {
       },
       getChildRoutes: (location, cb) => {
         require.ensure([], function (require) {
-          cb(null, mode === standard ? null : require('./setting').default)
+          cb(null, require('./setting').default)
         })
       },
     }, {
