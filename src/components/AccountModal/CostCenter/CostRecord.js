@@ -494,7 +494,7 @@ class CostRecord extends Component{
                     <svg className="headerclusterSvg">
                       <use xlinkHref="#settingcluster"/>
                     </svg>
-                    集群名称
+                    {standard ? '区域' : '集群名称'}
                   </Col>
                   <Col span={8} className="teamCostListTitle">
                     <svg className="headerclusterSvg">

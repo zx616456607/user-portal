@@ -17,8 +17,12 @@ import { getOperationLogList } from '../../actions/manage_monitor'
 import { formatDate } from '../../common/tools.js'
 import './style/OperationalAudit.less'
 import NotificationHandler from '../../common/notification_handler'
+const mode = require('../../../configs/model').mode
+const standard = require('../../../configs/constants').STANDARD_MODE
 
 const Option = Select.Option;
+
+let standardFlag = (mode == standard ? true : false);
 
 const menusText = defineMessages({
   headTitle: {
@@ -385,14 +389,18 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.TeamSpaces',
     defaultMessage: '团队空间',
   },
-  Cluster: {
-    id: 'ManageMonitor.operationalAudit.Cluster',
-    defaultMessage: '集群',
-  },
   runningError: {
     id: 'ManageMonitor.operationalAudit.runningError',
     defaultMessage: '未完成',
-  }, 
+  },
+  areaTitle: {
+    id: 'ManageMonitor.operationalAudit.areaTitle',
+    defaultMessage: '区域',
+  },
+  clusterTitle: {
+    id: 'ManageMonitor.operationalAudit.clusterTitle',
+    defaultMessage: '集群名',
+  },
 });
 
 function returnOperationList(scope) {
@@ -606,7 +614,7 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.TeamSpaces)
       break;
     case '35':
-      return formatMessage(menusText.Cluster)
+      return formatMessage(menusText.cluster)
       break;
     case '36':
       return formatMessage(menusText.Repo)
@@ -1113,7 +1121,7 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[8]);
         break;
       case '35':
-        //Cluster
+        //cluster
         showOperationalList = [];
         break;
       case '36':
@@ -1471,7 +1479,7 @@ class OperationalAudit extends Component {
                 <FormattedMessage {...menusText.env} />
               </div>
               <div className='cluster commonTitle'>
-                <FormattedMessage {...menusText.cluster} />
+                {standardFlag ? [<FormattedMessage {...menusText.areaTitle} />] : [<FormattedMessage {...menusText.clusterTitle} />] }
               </div>
               <div className='status commonTitle'>
                 <FormattedMessage {...menusText.status} />

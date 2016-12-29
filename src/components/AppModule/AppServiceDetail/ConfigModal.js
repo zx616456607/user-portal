@@ -67,13 +67,18 @@ class ConfigModal extends Component {
     notification.spin(`服务 ${serviceName} 配置更改中...`)
     changeQuotaService(cluster, serviceName, { requests, limits }, {
       success: {
-        func: () => {
+        func: (res) => {
           loadServiceList(cluster, appName)
           parentScope.setState({
             configModal: false
           })
-          notification.close()
-          notification.success(`服务 ${serviceName} 配置已成功更改`)
+          if(res.data.code == 200) {          
+            notification.close()
+            notification.success(`服务 ${serviceName} 配置已成功更改`)
+          } else {
+            notification.close()
+            notification.error(`更改服务 ${serviceName} 配置失败`)
+          }
         },
         isAsync: true
       },
@@ -127,7 +132,6 @@ class ConfigModal extends Component {
           <Row>
             <Col className="itemTitle" span={4} style={{ textAlign: 'left' }}>
               选择配置
-              <i className="anticon anticon-question-circle-o" />
             </Col>
             <Col className="itemBody" span={20}>
               <div className="operaBox">
