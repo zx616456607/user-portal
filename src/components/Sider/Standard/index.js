@@ -87,9 +87,14 @@ class Slider extends Component {
     if(pathname != oldPathname) {      
       let currentOpenMenu = checkUrlSelectedKey(pathname);
       let currentSelectedMenu = checkUrlOpenKeys(pathname);
+      let currentKey = pathname.split('/')[1];
+      if(currentKey == '') {
+        currentKey = 'home'
+      }
       this.setState({
         currentOpenMenu: currentOpenMenu,
-        currentSelectedMenu: currentSelectedMenu
+        currentSelectedMenu: currentSelectedMenu,
+        currentKey: currentKey
       });
     }
   }
