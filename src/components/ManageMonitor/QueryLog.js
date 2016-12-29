@@ -841,9 +841,6 @@ class QueryLog extends Component {
     return (
       <QueueAnim className='QueryLogBox' type='right'>
         <div id='QueryLog' key='QueryLog' className={this.state.bigLog ? 'bigLogContainer' :''} >
-          <div className='bigTitle'>
-            <span><FormattedMessage {...menusText.title} /></span>
-          </div>
           <div className='operaBox'>
             <div className='commonBox'>
               <span className='titleSpan'><FormattedMessage {...menusText.user} /></span>

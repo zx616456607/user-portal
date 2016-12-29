@@ -910,6 +910,7 @@ class ServiceList extends Component {
           key="demo"
           type="right"
           >
+          <div key='animateBox'>
           <div className='operationBox'>
             <div className='leftBox'>
               <Button type='ghost' size='large' onClick={this.batchStartService} disabled={!runBtn}>
@@ -1023,6 +1024,7 @@ class ServiceList extends Component {
               loading={isFetching}
               bindingDomains={this.props.bindingDomains} />
           </Card>
+          </div>
           <Modal
             title='垂直居中的对话框'
             visible={this.state.modalShow}
