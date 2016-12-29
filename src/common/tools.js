@@ -11,7 +11,7 @@
 'use strict'
 
 import moment from 'moment'
-import { AMOUNT_CONVERSION, AMOUNT_DEFAULT_PRECISION } from '../constants'
+import { AMOUNT_CONVERSION, AMOUNT_DEFAULT_PRECISION } from '../../constants'
 import { STANDARD_MODE } from '../../configs/constants'
 import { mode } from '../../configs/model'
 
