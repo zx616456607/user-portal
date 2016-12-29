@@ -201,6 +201,9 @@ class ServiceList extends Component {
     this.setState({
       modalShow: true
     });
+    setTimeout(function() {
+      document.getElementById('soImageName').focus()
+    },100)
   }
 
 

@@ -34,7 +34,6 @@ class ComposeFile extends Component {
     super(props);
     this.subApp = this.subApp.bind(this)
     this.handleYaml = this.handleYaml.bind(this)
-    this.handleVisibleChange = this.handleVisibleChange.bind(this)
     this.confirm = this.confirm.bind(this)
     this.cancel = this.cancel.bind(this)
     this.handleForm = this.handleForm.bind(this)
@@ -211,6 +210,9 @@ class ComposeFile extends Component {
     this.setState({
       modalShow: true
     })
+    setTimeout(function() {
+      document.getElementById('stackName').focus()
+    },100)
   }
   cacheAppName() {
     localStorage.setItem("transientAppName", this.state.appName || '')

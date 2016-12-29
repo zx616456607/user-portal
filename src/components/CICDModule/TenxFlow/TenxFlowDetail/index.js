@@ -313,7 +313,7 @@ class TenxFlowDetail extends Component {
             <TabPane tab='TenxFlow构建记录' key='2'><TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} /></TabPane>
             <TabPane tab='镜像部署记录' key='3'><ImageDeployLogBox scope={scope} flowId={flowInfo.flowId} /></TabPane>
             <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} notify={flowInfo.notificationConfig} flowId={flowInfo.flowId} /></TabPane>
-            <TabPane tab='TenxFow Yaml 描述' key='5'><TenxFlowDetailYaml flowId={flowInfo.flowId} yaml={this.state.yamlContent} /></TabPane>
+            <TabPane tab='TenxFlow Yaml 描述' key='5'><TenxFlowDetailYaml flowId={flowInfo.flowId} yaml={this.state.yamlContent} /></TabPane>
             <TabPane tab='设置' key='6'><TenxFlowDetailSetting scope={scope} flowId={flowInfo.flowId} /></TabPane>
           </Tabs>
         </div>
