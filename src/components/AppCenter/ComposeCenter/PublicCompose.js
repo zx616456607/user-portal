@@ -199,7 +199,8 @@ class PublicCompose extends Component {
 }
 
 PublicCompose.propTypes = {
-  intl: PropTypes.object.isRequired
+  intl: PropTypes.object.isRequired,
+  loadStack: PropTypes.func.isRequired
 }
 
 function mapStateToProps(state, props) {

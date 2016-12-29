@@ -157,6 +157,7 @@ let CICDSettingModal = React.createClass({
     this.setState({
       useTag: e.target.checked
     });
+    // document.getElementById('tagInput').focus()
     if(e.target.checked) {
       this.setState({
         editTag: true
@@ -334,7 +335,7 @@ let CICDSettingModal = React.createClass({
               </div>
               <div className='inputBox'>
                 <FormItem style={{ width:'380px',float:'left',marginRight:'18px' }}>
-                  <Input {...branchProps} onBlur={this.onBlurBranch} type='text' size='large' disabled={ (!this.state.editBranch) } />
+                  <Input {...branchProps} onBlur={this.onBlurBranch} type='text' id="branchInput" size='large' disabled={ (!this.state.editBranch) } />
                 </FormItem>
                 {
                   !this.state.editBranch ? [
@@ -354,7 +355,7 @@ let CICDSettingModal = React.createClass({
               </div>
               <div className='request inputBox'>
                 <FormItem style={{ width:'380px',float:'left',marginRight:'18px' }}>
-                  <Input {...tagProps} onBlur={this.onBlurTag} type='text' size='large' disabled={ !this.state.editTag} />
+                  <Input {...tagProps} onBlur={this.onBlurTag} type='text' id="tagInput" size='large' disabled={ !this.state.editTag} />
                 </FormItem>
                 {
                   !this.state.editTag ? [

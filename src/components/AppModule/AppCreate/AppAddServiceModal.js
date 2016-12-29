@@ -81,15 +81,15 @@ let AppAddServiceModal = React.createClass({
   },
   selectImageType(currentType) {
     //the function for user select image type
+    document.getElementById('soImageName').focus()
     if (currentType === this.state.currentImageType) return
     this.setState({
       currentImageType: currentType,
-      imageName: '',
       [currentType]: false
     });
     const imageList = this.props.imageList[currentType]
     if (this.state[currentType]) {
-      return this.searchImage(currentType, '')
+      return this.searchImage(currentType)
     }
     if (imageList && imageList[this.props.registry] && imageList[this.props.registry].imageList.length > 0) {
       return
@@ -101,14 +101,9 @@ let AppAddServiceModal = React.createClass({
     const { registry, loadPublicImageList } = this.props
     this.props.publicImages(registry)
   },
-  getImageName(e) {
-    this.setState({
-      imageName: e.target.value
-    })
-  },
-  searchImage(imageType, currentImageName) {
+  searchImage(imageType) {
     const type = imageType || this.state.currentImageType
-    let imageName = this.state.imageName
+    let imageName = document.getElementById('soImageName').value
     if (imageType) imageName = ''
     if (imageName) {
       this.setState({
@@ -154,8 +149,8 @@ let AppAddServiceModal = React.createClass({
             收藏
           </Button>
           <div className="inputBox">
-            <Input size="large" placeholder="按镜像名称搜索" onChange={e => this.getImageName(e)} onPressEnter={() => this.searchImage()} value={this.state.imageName} />
-            <i className="fa fa-search"></i>
+            <Input size="large" placeholder="按镜像名称搜索" onPressEnter={() => this.searchImage()} id="soImageName" />
+            <i className="fa fa-search cursor" onClick={() => this.searchImage()}></i>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
