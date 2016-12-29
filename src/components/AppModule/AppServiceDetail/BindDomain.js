@@ -99,7 +99,7 @@ class BindDomain extends Component {
     })
     let cnameMessage = CName_Default_Message;
     if (domainList.length > 0) {
-      cnameMessage = this.getCName();
+      cnameMessage = this.getCName(service);
     }
     this.setState({
       containerPorts: containerPorts,
@@ -120,6 +120,10 @@ class BindDomain extends Component {
     const port = this.state.bindPort
     const domain = this.state.newValue
     let notification = new NotificationHandler()
+    if(this.state.domainList.length >= 10) {
+      notificatione.error('最多绑定10个域名')
+      return
+    }
     if (!/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+.?/.test(domain)) {
       notification.error('请填写正确的域名')
       return
@@ -173,15 +177,20 @@ class BindDomain extends Component {
           }
         },
         failed: {
-          func: () => {
+          func: (result) => {
             notification.close()
+            if(result.message.message === 'Internal error occurred: domain is already bound') {
+              notification.error('此域名已被绑定')
+              return
+            }
             notification.error('添加域名绑定失败')
           }
         }
       })
   }
-  getCName() {
+  getCName(service) {
     let cname = '该集群未定义域名，不能提供CNAME地址'
+    if(!service) service = this.props.service
     if (this.props.bindingDomains) {
       let currentDomain = []
       try {
@@ -189,8 +198,8 @@ class BindDomain extends Component {
       } catch (e) {
         currentDomain = []
       }
-      if (currentDomain.length > 0) {
-        cname = this.props.service.metadata.name + '-' + this.props.service.metadata.namespace + '.' + currentDomain[0]
+      if (currentDomain.length > 0 && service.metadata) {
+        cname = service.metadata.name + '-' + service.metadata.namespace + '.' + currentDomain[0]
       }
     }
     return cname
