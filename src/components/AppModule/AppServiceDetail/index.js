@@ -178,10 +178,13 @@ class AppServiceDetail extends Component {
   handleMenuDisabled(key) {
     const { scope } = this.props
     const service = scope.state.currentShowInstance
+    //当点击停止的时候，只有status为Running的时候才可以点击
+    //当点击重新部署的时候，只有status为Running的时候才可以点击
+    //当状态为启动中的时候，只可进行删除操作
     if (service.status) {
       if (key === 'stop' && service.status.phase === 'Stopped') {
         return true
-      } else if (key === 'restart' && service.status.phase === 'Running') {
+      } else if (key === 'restart' && service.status.phase !== 'Running') {
         return true
       }
     }
@@ -206,10 +209,10 @@ class AppServiceDetail extends Component {
     const service = scope.state.currentShowInstance || serviceDetail
     service.status = getServiceStatusByContainers(service, containers)
     const operaMenu = (<Menu>
-      <Menu.Item key='restart' disabled={() => this.handleMenuDisabled('restart')}>
+      <Menu.Item key='restart' disabled={this.handleMenuDisabled('restart')}>
         <span onClick={() => this.restartService(service)}>重新部署</span>
       </Menu.Item>
-      <Menu.Item key='stop' disabled={() => this.handleMenuDisabled('stop')}>
+      <Menu.Item key='stop' disabled={this.handleMenuDisabled('stop')}>
         <span onClick={() => this.stopService(service)}>停止</span>
       </Menu.Item>
       <Menu.Item key='delete'>
