@@ -37,7 +37,6 @@ class UserBalance extends Component {
     document.title = '充值/续费 | 时速云'
     const { currentTeamName, loadLoginUserDetail, loadUserTeamspaceList } = this.props
     let testingKnowFlag = window.localStorage.getItem('testingKnowFlag');
-      console.log(!Boolean(testingKnowFlag))
     if(!Boolean(testingKnowFlag)) {
       this.setState({
         testingKonwShow: true
