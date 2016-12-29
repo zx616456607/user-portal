@@ -308,7 +308,6 @@ class CostRecord extends Component{
             <Option value="all">全部</Option>
             <Option value="1">容器服务</Option>
             <Option value="4">存储服务</Option>
-            <Option value="5">工作任务</Option>
             <Option value="6">专业版订购</Option>
           </Select>
         </div>
