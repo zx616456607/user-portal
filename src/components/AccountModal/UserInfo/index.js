@@ -21,16 +21,25 @@ class UserInfo extends Component {
   constructor(props) {
     super(props)
     this.state = {
-
     }
   }
   componentWillMount() {
-    document.title = '我的帐户 | 时速云'
     const { userID, loadUserDetail, loadUserAppInfo, loadUserTeamspaceDetailList, loadUserTeamList } = this.props
+    document.title = userID ? '成员管理 | 时速云' : '我的帐户 | 时速云'
     loadUserDetail(userID ? userID : 'default')
     loadUserAppInfo(userID ? userID : 'default')
     loadUserTeamspaceDetailList(userID ? userID : 'default', null)
     loadUserTeamList(userID ? userID : 'default', null)
+  }
+  componentWillReceiveProps(nextProps) {
+    const { userID, loadUserDetail, loadUserAppInfo, loadUserTeamspaceDetailList, loadUserTeamList } = nextProps
+    if (this.props.userID != userID) {
+      document.title = userID ? '成员管理 | 时速云' : '我的帐户 | 时速云'
+      loadUserDetail(userID ? userID : 'default')
+      loadUserAppInfo(userID ? userID : 'default')
+      loadUserTeamspaceDetailList(userID ? userID : 'default', null)
+      loadUserTeamList(userID ? userID : 'default', null)
+    }
   }
   render() {
     const { userID, userDetail, appCount, serviceCount, containerCount, teamspaces, teams, editPass } = this.props

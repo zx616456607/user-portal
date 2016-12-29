@@ -387,7 +387,7 @@ let AppDeployServiceModal = React.createClass({
     deploymentList.addContainer(serviceName, image)
     deploymentList.setContainerResources(serviceName, ImageConfig.resources.limits.memory)
     //ports
-    if (portKey.length > 0) { 
+    if (Boolean(portKey) && portKey.length > 0) { 
       getFieldValue('portKey').map((k, index) => {
         let portType = getFieldProps(`portType${k}`).value;
         let newIndex = index + 1;
