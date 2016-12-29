@@ -335,7 +335,7 @@ let MyComponent = React.createClass({
     return (
       <div className="dataBox">
         {items}
-        <Modal title={this.state.modalTitle} visible={this.state.visible} okText="确定" cancelText="取消" className="storageModal" width={600}
+        <Modal title={this.state.modalTitle} visible={this.state.visible} okText="确定" cancelText="取消" className="storageModal" width={600} onCancel= {() => this.cancelModal() }
          footer={[
             <Button key="back" type="ghost" size="large" onClick={(e) => { this.cancelModal() } }>取消</Button>,
             <Button key="submit" type="primary" size="large" disabled={isActing} loading={this.state.loading} onClick={(e) => { this.handleSure() } }>
@@ -685,6 +685,7 @@ class Storage extends Component {
                 okText={formatMessage(messages.createBtn)}
                 cancelText={formatMessage(messages.cancelBtn)}
                 className='createAppStorageModal'
+                onCancel= {() => this.handleCancel() }
                 footer={[
                    <Button key="back" type="ghost" size="large" onClick={() => { this.handleCancel() }}>取消</Button>,
                    <Button key="submit" type="primary" size="large" disabled={isActing} loading={this.state.loading} onClick={(e) => { this.handleOk() } }>

@@ -154,16 +154,10 @@ class BaseInfo extends Component {
     const notification = new NotificationHandler()
     if (fileType.indexOf(ext.toLowerCase()) < 0) {
       notification.error('头像格式仅支持jpg/png/gif')
-      this.setState({
-        disabledButton: true
-      })
       return false
     }
     if (file.size > 2 * 1024 * 1024) {
       notification.error('头像图片大小应小于2mb')
-      this.setState({
-        disabledButton: true
-      })
       return false
     }
     let fileName = namespace + (new Date() - 0) + '.' + ext
@@ -252,24 +246,6 @@ class BaseInfo extends Component {
             ? '了解专业版'
             : '查看详情'
           }
-        </Button> &nbsp;
-      </span>
-    )
-    if (envEdition == 0) {
-      return (
-        <span className="value">
-          <span>标准版<img className="edition" alt="升级专业版" title="升级专业版" src="/img/version/proIcon-gray.png"/></span>
-          <Button style={{ marginLeft: '10px' }} onClick={() => browserHistory.push('/account/version#pro')}>
-            了解专业版
-          </Button> &nbsp;
-        </span>
-      )
-    }
-    return (
-      <span className="value">
-        <span>专业版<img className="edition" alt="专业版" title="专业版" src="/img/version/proIcon.png"/></span>
-        <Button style={{ marginLeft: '10px' }} onClick={() => browserHistory.push('/account/version')}>
-          查看详情
         </Button> &nbsp;
       </span>
     )
