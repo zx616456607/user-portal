@@ -19,7 +19,7 @@ exports.listConfigGroups = function* () {
   this.status = response.code
   if (response.code >= 400) {
     const err = new Error(`list configgrups fails, error: ${response.data}`)
-    err.status = reponse.code
+    err.status = response.code
     throw err
   }
   let data = [];
@@ -64,7 +64,7 @@ exports.createConfigGroup = function* () {
   let response = yield api.createBy([cluster, 'configgroups',  groupName], null, null)
   if (response.code >= 400) {
     const err = new Error(`list config groups fails ${response.body}`)
-    err.status = reponse.code
+    err.status = response.code
     throw err
   }
 
@@ -85,7 +85,7 @@ exports.deleteConfigGroup = function* () {
   let response = yield api.batchDeleteBy([cluster, 'configgroups', 'batch-delete'], null, groups)
   if (response.code >= 400) {
     const err = new Error(`delete config groups fails: ${response.body}`)
-    err.status = reponse.code
+    err.status = response.code
     throw err
   }
   this.status = response.code
@@ -109,7 +109,7 @@ exports.createConfigFiles = function* () {
   let response = yield api.createBy([cluster, 'configgroups', group, 'configs', fileName], null, data)
   if (response.code >= 400) {
     const err = new Error(`create config files fails: ${response.body}`)
-    err.status = reponse.code
+    err.status = response.code
     throw err
   }
   this.status = response.code
@@ -128,7 +128,7 @@ exports.loadConfigFiles = function* () {
   let response = yield api.getBy([cluster, 'configgroups', group, 'configs', fileName])
   if (response.code >= 400) {
     const err = new Error(`load config files fails: ${response.body}`)
-    err.status = reponse.code
+    err.status = response.code
     throw err
   }
   this.status = response.code
@@ -148,7 +148,7 @@ exports.updateConfigFile = function* () {
   let response = yield api.updateBy([cluster, 'configgroups', group, 'configs', fileName], null, data)
   if (response.code >= 400) {
     const err = new Error(`update config file ${filename} fails: ${response.body}`)
-    err.status = reponse.code
+    err.status = response.code
     throw err
   }
   this.status = response.code

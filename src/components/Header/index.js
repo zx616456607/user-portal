@@ -269,7 +269,9 @@ class Header extends Component {
         </div>
         <div className="rightBox">
           <div className="docBtn">
-            <FormattedMessage {...menusText.doc}/>即将开放
+            <a href="http://docs.tenxcloud.com" target="_blank">
+              <FormattedMessage {...menusText.doc}/>
+            </a>
           </div>
           <UserPanel loginUser={loginUser}/>
         </div>

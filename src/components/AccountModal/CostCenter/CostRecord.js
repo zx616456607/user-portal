@@ -44,15 +44,15 @@ class CostRecord extends Component{
       currentSpaceName: '我的空间',
       currentTeamName: '',
       currentNamespace: '',
-      filteredInfo: null,
       sortedInfo: null,
       consumptionDetailCurrentPage: 1, // start from 1
       consumptionDetailPageSize: 10,
       consumptionDetailTimeBegin: '',
       consumptionDetailTimeEnd: '',
+      consumptionDetailDate: '',
+      consumptionDetailType: 'all',
       consumptionSpaceSummaryDate: '',
       consumptionSpaceSummaryInDayDate: '',
-      consumptionDetailDate: '',
       teamListVisible: false,
     }
   }
@@ -76,8 +76,9 @@ class CostRecord extends Component{
       consumptionDetailTimeEnd,
       consumptionSpaceSummaryDate,
       consumptionSpaceSummaryInDayDate,
+      consumptionDetailType,
     } = this.state
-    loadConsumptionDetail(space.namespace, 0, this.state.consumptionDetailPageSize, consumptionDetailTimeBegin, consumptionDetailTimeEnd)
+    loadConsumptionDetail(space.namespace, 0, this.state.consumptionDetailPageSize, consumptionDetailTimeBegin, consumptionDetailTimeEnd, consumptionDetailType)
     loadConsumptionTrend(space.namespace)
     loadSpaceSummaryInDay(space.namespace, consumptionSpaceSummaryInDayDate)
     loadSpaceSummary(space.namespace, consumptionSpaceSummaryDate)
@@ -103,25 +104,24 @@ class CostRecord extends Component{
   }
   handleTableChange(pagination, filters, sorter){
     this.setState({
-      filteredInfo: filters,
       sortedInfo: sorter,
     });
   }
   handleFilter(value,option,e){
-    let filterValue = ''
-    switch(value){
-      case 'containter':
-       filterValue = '容'
-       break
-      default :
-       filterValue = ''
-       break
-    }
+    const {
+      loadConsumptionDetail,
+    } = this.props
+    const {
+      currentNamespace,
+      consumptionDetailPageSize,
+      consumptionDetailTimeBegin,
+      consumptionDetailTimeEnd,
+    } =  this.state
     this.setState({
-      filteredInfo: {
-        svcType: [filterValue]
-      }
+      consumptionDetailType: value,
+      consumptionDetailCurrentPage: 1,
     })
+    loadConsumptionDetail(currentNamespace, 0, consumptionDetailPageSize, consumptionDetailTimeBegin, consumptionDetailTimeEnd, value)
   }
 
   componentWillMount() {
@@ -170,12 +170,10 @@ class CostRecord extends Component{
       currentSpaceName,
       currentTeamName,
       currentNamespace,
-      filteredInfo,
       sortedInfo,
       teamListVisible,
     } = this.state
     sortedInfo = sortedInfo || {};
-    filteredInfo = filteredInfo || {};
     let getSpaceCostSixMonths = function() {
       let xAxisData = []
       let yAxisData = []
@@ -275,7 +273,7 @@ class CostRecord extends Component{
       if (timeBegin == 'Invalid date' || timeEnd == 'Invalid date') {
         return
       }
-      loadConsumptionDetail(_this.state.currentNamespace, 0, _this.state.consumptionDetailPageSize, timeBegin, timeEnd)
+      loadConsumptionDetail(_this.state.currentNamespace, 0, _this.state.consumptionDetailPageSize, timeBegin, timeEnd, _this.state.consumptionDetailType)
       // set state
       _this.setState({
         consumptionDetailCurrentPage: 1,
@@ -308,7 +306,9 @@ class CostRecord extends Component{
           <Select defaultValue="all" style={{ width: 120, float: 'left',marginLeft: '40px'}}
                   onSelect={(value,option) => this.handleFilter(value,option)}>
             <Option value="all">全部</Option>
-            <Option value="containter">容器服务</Option>
+            <Option value="1">容器服务</Option>
+            <Option value="4">存储服务</Option>
+            <Option value="6">专业版订购</Option>
           </Select>
         </div>
       </div>
@@ -358,15 +358,27 @@ class CostRecord extends Component{
       total: consumptionDetail.total,
       showSizeChanger: true,
       onShowSizeChange(current, pageSize) {
-        loadConsumptionDetail(_this.state.currentNamespace, 0, pageSize)
+        const {
+          currentNamespace,
+          consumptionDetailTimeBegin,
+          consumptionDetailTimeEnd,
+          consumptionDetailType,
+        } = _this.state
+        loadConsumptionDetail(currentNamespace, 0, pageSize, consumptionDetailTimeBegin, consumptionDetailTimeEnd, consumptionDetailType)
         _this.setState({
           consumptionDetailPageSize: pageSize,
           consumptionDetailCurrentPage: 1,
         })
       },
       onChange(current) {
-        const pageSize = _this.state.consumptionDetailPageSize
-        loadConsumptionDetail(_this.state.currentNamespace, (current-1) * pageSize, pageSize, _this.state.consumptionDetailTimeBegin, _this.state.consumptionDetailTimeEnd)
+        const {
+          currentNamespace,
+          consumptionDetailTimeBegin,
+          consumptionDetailTimeEnd,
+          consumptionDetailType,
+          consumptionDetailPageSize,
+        } = _this.state
+        loadConsumptionDetail(currentNamespace, (current-1) * consumptionDetailPageSize, consumptionDetailPageSize, consumptionDetailTimeBegin, consumptionDetailTimeEnd, consumptionDetailType)
         _this.setState({
           consumptionDetailCurrentPage: current,
         })
@@ -390,11 +402,6 @@ class CostRecord extends Component{
             title: '服务类型',
             dataIndex: 'type',
             key: 'type',
-            filters: [
-              { text: '容器服务', value: '容' },
-            ],
-            filteredValue: filteredInfo.svcType,
-            onFilter: (value, record) => record.type.indexOf(value) === 0,
           },
           {
             title: '单价',
