@@ -412,7 +412,8 @@ let InstanceModal = React.createClass({
     })
     scope.setState({
       currentInstance: tempList,
-      instancePopup: false
+      instancePopup: false,
+      selectedInstance: false
     });
   },
   onCancelSelectedAllInstance() {

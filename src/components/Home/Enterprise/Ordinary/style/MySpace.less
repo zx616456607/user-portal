@@ -100,13 +100,11 @@
       position: relative;
       height: 100%;
       .warnList {
-        position: absolute;
-        left: 50%;
-        top: 22px;
-        transform: translateX(-50%);
+        margin-top: 22px;
+        width: 100%;
         .warnItem {
           height: 80px;
-          width: 210px;
+          width: calc(~"100% - 24px");    
           background-color: #f5f5f5;
           position: relative;
           top: -18px;
