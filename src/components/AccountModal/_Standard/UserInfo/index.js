@@ -41,6 +41,7 @@ class BaseInfo extends Component {
     }
   }
   componentWillMount() {
+    document.title = '我的帐户 | 时速云'
     const self = this
     const { loadStandardUserInfo } = this.props
     loadStandardUserInfo({
