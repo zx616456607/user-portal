@@ -166,17 +166,8 @@ let CreateDatabase = React.createClass({
       if (this.state.onselectCluster) {
         values.clusterSelect = this.state.cluster
       }
-      const body = {
-        cluster: values.clusterSelect,
-        // cluster: 'e0e6f297f1b3285fb81d27742255cfcf11', // @ todo
-        serviceName: values.name,
-        password: values.password,
-        replicas: values.replicas,
-        volumeSize: values.storageSelect,
-        templateId
-      }
       let notification = new NotificationHandler()
-      if (body.replicas > 5) {
+      if (values.replicas > 5) {
         notification.error('副本数不能大于5')
         return
       }
@@ -192,6 +183,16 @@ let CreateDatabase = React.createClass({
           return newCluster = list
         }
       })
+      const body = {
+        cluster: values.clusterSelect,
+        // cluster: 'e0e6f297f1b3285fb81d27742255cfcf11', // @ todo
+        serviceName: values.name,
+        password: values.password,
+        replicas: values.replicas,
+        volumeSize: values.storageSelect,
+        teamspace: newSpace.namespace,
+        templateId
+      }
       CreateDbCluster(body, {
         success: {
           func: ()=> {

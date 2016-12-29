@@ -128,7 +128,7 @@ class BaseInfo extends Component {
     const modalContent = (
       <div className="modal-content">
         <div className="modal-header">更改实例数  <Icon type='cross' onClick={() => parentScope.colseModal()} className='cursor' style={{ float: 'right' }} /></div>
-        <div className="modal-li padTop"><span className="spanLeft">数据库用户名</span><span>{dbName}</span></div>
+        <div className="modal-li padTop"><span className="spanLeft">服务名称</span><span>{dbName}</span></div>
         <div className="modal-li"><span className="spanLeft">实例副本</span><InputNumber  onChange={(e) => parentScope.setState({ replicas: e })} value={parentScope.state.replicas} min={1} max={5} /> &nbsp; 个</div>
         <div className="modal-li">
           <span className="spanLeft">存储大小</span>
@@ -180,11 +180,11 @@ class BaseInfo extends Component {
             <div><div className='configHead'>参数</div>
               <ul className='parse-list'>
                 <li><span className='key'>key</span> <span className='value'>value</span></li>
-                <li><span className='key'>name</span> <span className='value'>{podSpec.containers[0].env ? podSpec.containers[0].env[0].name : ''}</span></li>
+                <li><span className='key'>用户名：</span> <span className='value'>root</span></li>
                 {this.state.passShow ?
-                  <li><span className='key'>password</span> <span className='value'>{podSpec.containers[0].env ? podSpec.containers[0].env[0].value : ''}</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
+                  <li><span className='key'>密码：</span> <span className='value'>{podSpec.containers[0].env ? podSpec.containers[0].env[0].value : ''}</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
                   :
-                  <li><span className='key'>password</span> <span className='value'>******</span><span className="pasBtn" onClick={() => this.setState({ passShow: true })}><i className="fa fa-eye"></i> 显示</span></li>
+                  <li><span className='key'>密码：</span> <span className='value'>******</span><span className="pasBtn" onClick={() => this.setState({ passShow: true })}><i className="fa fa-eye"></i> 显示</span></li>
                 }
               </ul>
             </div>

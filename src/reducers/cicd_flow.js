@@ -290,7 +290,7 @@ function getDockerfileList(state = {}, action) {
       const seState = cloneDeep(state)
       const lists = seState.bak.filter(list => {
         const search = new RegExp(action.names)
-        if (search.test(list.name)) {
+        if (search.test(list.name && list.stageName)) {
           return true
         }
         return false
