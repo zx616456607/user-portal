@@ -28,6 +28,9 @@ exports.getDetail = function* () {
   if (this.query.timeEnd) {
     query.timeEnd = this.query.timeEnd
   }
+  if (this.query.type && this.query.type != 'all') {
+    query.type = this.query.type
+  }
   const result = yield api.consumptions.getBy(['detail'], query)
   this.body = {
     data: result.data

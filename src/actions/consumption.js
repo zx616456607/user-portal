@@ -16,7 +16,7 @@ export const CONSUMPTION_DETAIL_REQUEST = 'CONSUMPTION_DETAIL_REQUEST'
 export const CONSUMPTION_DETAIL_SUCCESS = 'CONSUMPTION_DETAIL_SUCCESS'
 export const CONSUMPTION_DETAIL_FAILURE = 'CONSUMPTION_DETAIL_FAILURE'
 
-function fetchDetail(teamspace, from, size, timeBegin, timeEnd) {
+function fetchDetail(teamspace, from, size, timeBegin, timeEnd, type) {
   let query = {}
   if (from) {
     query.from = from
@@ -29,6 +29,9 @@ function fetchDetail(teamspace, from, size, timeBegin, timeEnd) {
   }
   if (timeEnd) {
     query.timeEnd = timeEnd
+  }
+  if (type && type != 'all') {
+    query.type = type
   }
   if (!teamspace) {
     teamspace = 'default'
@@ -47,9 +50,9 @@ function fetchDetail(teamspace, from, size, timeBegin, timeEnd) {
   }
 }
 
-export function loadConsumptionDetail(teamspace, from, size, timeBegin, timeEnd) {
+export function loadConsumptionDetail(teamspace, from, size, timeBegin, timeEnd, type) {
   return (dispatch, getState) => {
-    return dispatch(fetchDetail(teamspace, from, size, timeBegin, timeEnd))
+    return dispatch(fetchDetail(teamspace, from, size, timeBegin, timeEnd, type))
   }
 }
 
