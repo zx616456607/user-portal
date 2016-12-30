@@ -27,6 +27,7 @@ import { getAppStatus } from '../../common/status_identify'
 import NotificationHandler from '../../common/notification_handler'
 import errorHandler from '../../containers/App/error_handler'
 import AppServiceRental from './AppServiceDetail/AppServiceRental'
+import appSVG from '../../assets/img/app.svg'
 
 const DEFAULT_TAB = '#service'
 
@@ -151,7 +152,7 @@ class AppDetail extends Component {
           <div key='ca' className='AppInfo' id='AppInfo'>
             <Card className='topCard'>
               <div className='imgBox'>
-                <img src='/img/app.svg' />
+                <img src={appSVG} />
               </div>
               <div className='infoBox'>
                 <p className='appTitle'>
