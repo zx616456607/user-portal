@@ -65,37 +65,52 @@ let PhoneRow = React.createClass({
     return
   },
   sendCode() {
+    if(this.state.sendCode) return
+    this.setState({
+      sendCode: true
+    })
     const notifi = new NotificationHandler()
     const { getFieldProps } = this.props.form
     const phone = getFieldProps('phone').value
     if(!phone || !PHONE_REGEX.test(phone)) {
       return
     }
-    this.setState({
-      captchaLoading: true,
-      countDownTimeText: '60s 后重新发送'
-    })
-    let wait = 59
-    //重新发送定时器
-    let time = setInterval(() => {
-      let text = wait + 's 后重新发送'
-      wait--
-      if(wait >= -1){
-        this.setState({
-          countDownTimeText: text
-        })
-        return
-      }
-      this.setState({
-        captchaLoading: false,
-        countDownTimeText: '发送验证码'
-      })
-      clearInterval(time)
-    }, 1000)
     this.props.sendRegisterPhoneCaptcha(phone, {
-      failed: {
+      success: {
         func: () => {
-          notifi.error('验证码发送失败, 请刷新重试')
+          notifi.success('验证码已发送, 请注意查看')
+          this.setState({
+            sendCode: false
+          })
+          this.setState({
+            captchaLoading: true,
+            countDownTimeText: '60s 后重新发送'
+          })
+          let wait = 59
+          //重新发送定时器
+          let time = setInterval(() => {
+            let text = wait + 's 后重新发送'
+            wait--
+            if (wait >= -1) {
+              this.setState({
+                countDownTimeText: text
+              })
+              return
+            }
+            this.setState({
+              captchaLoading: false,
+              countDownTimeText: '发送验证码'
+            })
+            clearInterval(time)
+          }, 1000)
+        }
+      },
+      failed: {
+        func: (result) => {
+          this.setState({
+            sendCode: false
+          })
+          notifi.error(result.message)
         }
       }
     })
