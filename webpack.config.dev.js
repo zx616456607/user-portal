@@ -51,6 +51,9 @@ module.exports = {
       exclude: /node_modules/,
       include: __dirname
     }, {
+　　　 test: /\.(jpe?g|png|gif|svg)$/,
+　　　 loader: 'url-loader?limit=5192&name=img/[name].[hash:8].[ext]' // 5KB 以下图片自动转成 base64 码
+　　 }, {
       test: /\.json$/,
       loader: 'json-loader'
     }, {
@@ -72,6 +75,6 @@ module.exports = {
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoErrorsPlugin(),
-    new webpack.BannerPlugin('Licensed Materials - Property of tenxcloud.com\n(C) Copyright 2016 TenxCloud. All Rights Reserved.\nhttps://www.tenxcloud.com')
+    new webpack.BannerPlugin('Licensed Materials - Property of tenxcloud.com\n(C) Copyright 2016~2017 TenxCloud. All Rights Reserved.\nhttps://www.tenxcloud.com')
   ]
 }

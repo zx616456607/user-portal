@@ -69,3 +69,4 @@ export const EMAIL_HASH = {
   'foxmail.coom': 'http://www.foxmail.com',
   'wo.com.cn': 'mail.wo.com.cn/smsmail',
 }
+export const TIMESTRAP = 1483084989915
