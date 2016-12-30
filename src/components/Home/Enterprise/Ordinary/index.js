@@ -1425,7 +1425,6 @@ function mapStateToProp(state,props) {
     if (clusterInfo.result.dbservices) {
       let data = clusterInfo.result.dbservices
       clusterDbServicesData = getDbServiceStatus(data)
-      console.log("clusterDbServicesData: ", clusterDbServicesData)
     }
     if (clusterInfo.result.nodesummary) {
       clusterNodeSummaryData = clusterInfo.result.nodesummary
