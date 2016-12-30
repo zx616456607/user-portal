@@ -602,7 +602,6 @@ function mapStateToProp(state, props) {
 
   if (!teams.isFetching && teams.result && teams.result.data && teams.result.data.data) {
     teamsData = cloneDeep(teams.result.data.data)
-    //
     teamsData.items.map((item) => {
       item.role = item.isCreator ? '创建者（管理员）' : '普通成员'
       item.key = item.id
