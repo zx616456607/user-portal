@@ -94,9 +94,7 @@ module.exports = {
         warnings: false
       }
     }),
-    new webpack.BannerPlugin('Licensed Materials - Property of tenxcloud.com\n\
-    (C) Copyright 2017 TenxCloud. All Rights Reserved.\n\
-    https://www.tenxcloud.com'),
+    new webpack.BannerPlugin('Licensed Materials - Property of tenxcloud.com\n(C) Copyright 2017 TenxCloud. All Rights Reserved.\nhttps://www.tenxcloud.com'),
     function() {
       this.plugin('done', function(stats) {
         require('fs').writeFileSync(
