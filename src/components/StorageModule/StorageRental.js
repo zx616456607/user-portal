@@ -18,7 +18,7 @@ class StorageRental extends Component {
   }
 
   render() {
-    const strongSize = this.props.config.storage * this.props.size /1000
+    const strongSize = this.props.config.storage * this.props.size /1024
     const storagePrice = parseAmount(this.props.config.storage, 4)
     const hourPrice = parseAmount(strongSize, 4)
     const countPrice = parseAmount(strongSize *24*30, 4)

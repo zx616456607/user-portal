@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import { loadPublicImageList, loadPrivateImageList, searchPublicImages, loadFavouriteList, searchFavoriteImages, searchPrivateImages } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/AppAddServiceModal.less'
-import defaultPNG from '../../../assets/img/default.png'
+import serverSVG from '../../../assets/img/server.svg'
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -47,7 +47,7 @@ const MyComponent = React.createClass({
     const items = images.map((item) => {
       return (
         <div key={item.name} className="serviceDetail">
-          <img className="imgUrl" src={defaultPNG} />
+          <img className="imgUrl" src={serverSVG} />
           <div className="infoBox">
             <span className="name">{item.name}</span> <span className="type">{item.category || ''}</span><br />
             <span className="intro">{item.description}</span>

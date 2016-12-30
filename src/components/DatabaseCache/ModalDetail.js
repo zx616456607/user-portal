@@ -18,7 +18,7 @@ import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import { formatDate, parseAmount} from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
-import defaultPNG from '../../assets/img/default.png'
+import serverSVG from '../../assets/img/server.svg'
 
 const Panel = Collapse.Panel;
 const ButtonGroup = Button.Group
@@ -123,8 +123,8 @@ class BaseInfo extends Component {
     const podSpec = databaseInfo.podList.pods[0].podSpec
     let storagePrc = parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
     let containerPrc = parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
-    const hourPrice = parseAmount((parentScope.state.storageValue /1000 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ), 4)
-    const countPrice = parseAmount((parentScope.state.storageValue /1000 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc) * 24 * 30 , 4)
+    const hourPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ), 4)
+    const countPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc) * 24 * 30 , 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
     const modalContent = (
@@ -135,7 +135,7 @@ class BaseInfo extends Component {
         <div className="modal-li">
           <span className="spanLeft">存储大小</span>
           {/* <Slider min={500} max={10000} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} step={100} /> */}
-          <InputNumber min={500} max={10240} step={100} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} /> &nbsp; M
+          <InputNumber min={500} max={10240} step={20} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} /> &nbsp; M
         </div>
         <div className="modal-price">
           <div className="price-left">
@@ -385,7 +385,7 @@ class ModalDetail extends Component {
         <div className='titleBox'>
           <Icon className='closeBtn' type='cross' onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className='imgBox'>
-            <img src={defaultPNG} />
+            <img src={serverSVG} />
           </div>
           <div className='infoBox'>
             <p className='instanceName'>
