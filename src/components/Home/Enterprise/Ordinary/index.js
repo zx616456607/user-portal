@@ -269,13 +269,13 @@ class Ordinary extends Component{
     let mySQLStopped = 0
     let mySQLOthers = 0
     if(mysqlData.size !== 0){
-      mysqlData.get('failed')?mysqlData.get('failed'):0
-      mysqlData.get('pending')?mysqlData.get('pending'):0
-      mysqlData.get('running')?mysqlData.get('running'):0
-      mysqlData.get('unknown')?mysqlData.get('unknown'):0
-      mySQLRunning = mysqlData.get('running')
-      mySQLStopped = mysqlData.get('failed') + mysqlData.get('unknown')
-      mySQLOthers = mysqlData.get('pending')
+      const failedCount = mysqlData.get('failed')?mysqlData.get('failed'):0
+      const pendingCount = mysqlData.get('pending')?mysqlData.get('pending'):0
+      const runningCount = mysqlData.get('running')?mysqlData.get('running'):0
+      const unknownCount = mysqlData.get('unknown')?mysqlData.get('unknown'):0
+      mySQLRunning = runningCount
+      mySQLStopped = failedCount + unknownCount
+      mySQLOthers = pendingCount
     }
     //Mongo
     const mongoData = clusterDbServices.get('mongo')
@@ -283,13 +283,13 @@ class Ordinary extends Component{
     let mongoStopped = 0
     let mongoOthers = 0
     if(mongoData.size !== 0){
-      mongoData.get('failed')?mongoData.get('failed'):0
-      mongoData.get('pending')?mongoData.get('pending'):0
-      mongoData.get('running')?mongoData.get('running'):0
-      mongoData.get('unknown')?mongoData.get('unknown'):0
-      mongoRunning = mongoData.get('running')
-      mongoStopped = mongoData.get('failed') + mongoData.get('unknown')
-      mongoOthers = mongoData.get('pending')
+      const failedCount = mongoData.get('failed')?mongoData.get('failed'):0
+      const pendingCount = mongoData.get('pending')?mongoData.get('pending'):0
+      const runningCount = mongoData.get('running')?mongoData.get('running'):0
+      const unknownCount = mongoData.get('unknown')?mongoData.get('unknown'):0
+      mongoRunning = runningCount
+      mongoStopped = failedCount + unknownCount
+      mongoOthers = pendingCount
     }
     //Redis
     const redisData = clusterDbServices.get('redis')
@@ -297,13 +297,13 @@ class Ordinary extends Component{
     let redisStopped = 0
     let redisOthers = 0
     if(redisData.size !== 0){
-      redisData.get('failed')?redisData.get('failed'):0
-      redisData.get('pending')?redisData.get('pending'):0
-      redisData.get('running')?redisData.get('running'):0
-      redisData.get('unknown')?redisData.get('unknown'):0
-      redisRunning = redisData.get('running')
-      redisStopped = redisData.get('failed') + redisData.get('unknown')
-      redisOthers = redisData.get('pending')
+      const failedCount = redisData.get('failed')?redisData.get('failed'):0
+      const pendingCount = redisData.get('pending')?redisData.get('pending'):0
+      const runningCount = redisData.get('running')?redisData.get('running'):0
+      const unknownCount = redisData.get('unknown')?redisData.get('unknown'):0
+      redisRunning = runningCount
+      redisStopped = failedCount + unknownCount
+      redisOthers = pendingCount
     }
     //Options
     let appOption = {
@@ -1231,8 +1231,8 @@ function getDbServiceStatus(data) {
   data.petSets.map(petSet => {
     let key = "unknown"
     if (petSet.objectMeta && petSet.objectMeta.labels
-      && petSet.objectMeta.labels.appType) {
-      key = petSet.objectMeta.labels.appType
+      && petSet.objectMeta.labels['tenxcloud.com/petsetType']) {
+      key = petSet.objectMeta.labels['tenxcloud.com/petsetType']
     }
 
     let map = dbServiceMap.get(key)
