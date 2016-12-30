@@ -15,7 +15,7 @@ import NotificationHandler from '../../../../../common/notification_handler.js'
 const createForm = Form.create
 const FormItem = Form.Item
 import { PHONE_REGEX } from '../../../../../constants'
-
+let isAction = false
 
 let PhoneRow = React.createClass({
   getInitialState() {
@@ -65,10 +65,8 @@ let PhoneRow = React.createClass({
     return
   },
   sendCode() {
-    if(this.state.sendCode) return
-    this.setState({
-      sendCode: true
-    })
+    if(isAction) return
+    isAction = true
     const notifi = new NotificationHandler()
     const { getFieldProps } = this.props.form
     const phone = getFieldProps('phone').value
@@ -79,9 +77,7 @@ let PhoneRow = React.createClass({
       success: {
         func: () => {
           notifi.success('验证码已发送, 请注意查看')
-          this.setState({
-            sendCode: false
-          })
+          isAction = false
           this.setState({
             captchaLoading: true,
             countDownTimeText: '60s 后重新发送'
@@ -107,9 +103,7 @@ let PhoneRow = React.createClass({
       },
       failed: {
         func: (result) => {
-          this.setState({
-            sendCode: false
-          })
+          isAction = false
           notifi.error(result.message)
         }
       }
