@@ -325,7 +325,7 @@ class CodeRepo extends Component {
   constructor(props) {
     super(props);
     this.loadData = this.loadData.bind(this)
-    const type = location.search ? location.search.split('?')[1] : 'gitlab'
+    const type = location.search ? location.search.split('?')[1] : 'github'
     if (type) {
       this.state = {
         repokey: type
@@ -355,7 +355,7 @@ class CodeRepo extends Component {
     })
   }
 
-  componentWillMount() {
+  componentDidMount() {
     document.title = '关联代码库 | 时速云';
     const { getRepoList } = this.props
     const self = this
@@ -414,8 +414,8 @@ class CodeRepo extends Component {
             <div className="card-container">
               <p style={{ paddingLeft: '36px', lineHeight: '40px' }}>选择代码源</p>
               <Tabs type="card" onChange={(e) => { this.setState({ repokey: e }) } } activeKey={this.state.repokey}>
-                <TabPane tab={gitlabBud} key="gitlab"><MyComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser} config={this.props.repoList} /></TabPane>
                 <TabPane tab={githubBud} key="github"><GithubComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
+                <TabPane tab={gitlabBud} key="gitlab"><MyComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser} config={this.props.repoList} /></TabPane>
                 <TabPane tab={svnBud} key="svn"><SvnComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
 
               </Tabs>

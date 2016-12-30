@@ -151,7 +151,7 @@ class AppDetail extends Component {
           <div key='ca' className='AppInfo' id='AppInfo'>
             <Card className='topCard'>
               <div className='imgBox'>
-                <img src='/img/app.png' />
+                <img src='/img/app.svg' />
               </div>
               <div className='infoBox'>
                 <p className='appTitle'>

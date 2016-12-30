@@ -568,7 +568,7 @@ class Ordinary extends Component{
                       {this.state.isTeam ? '团队余额' : '我的余额'}&nbsp;:&nbsp;
                     </div>
                     <span className='costNum'>¥{parseAmount(clusterNodeSpaceConsumption.balance).amount}</span>
-                    <Link to='/account/balance'><Button type='primary'>去充值</Button></Link>
+                    <Link to='/account/balance/payment'><Button type='primary'>去充值</Button></Link>
                   </div>
                   <div className='userCost'>
                     <div>
@@ -613,7 +613,7 @@ class Ordinary extends Component{
                   <tbody>
                   <tr>
                     <td>
-                      <img className="stateImg" src="/img/homeKubernetes.png"/>
+                      <img className="stateImg" style={{width:'18px'}} src="/img/sider/engine.svg"/>
                       Engine
                     </td>
                     <td>

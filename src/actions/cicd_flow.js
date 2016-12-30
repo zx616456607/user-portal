@@ -160,7 +160,7 @@ function fetchAddCodeRepo(type, obj, callback) {
         body: body
       }
     },
-    names: obj.name.toLowerCase(),
+    names: obj.name.substr(0, 1).toLowerCase() + obj.name.substr(1),
     callback: callback
   }
 }
@@ -197,7 +197,7 @@ function fetchAddGithupRepo(obj, callback) {
       }
     },
     names: obj.name,
-    users: obj.owner.username.toLowerCase(),
+    users: obj.owner.username.substr(0, 1).toLowerCase() + obj.owner.username.substr(1),
     callback: callback
   }
 }

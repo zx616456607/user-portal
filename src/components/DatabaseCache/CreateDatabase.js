@@ -276,8 +276,8 @@ let CreateDatabase = React.createClass({
     });
     const storageNumber = getFieldValue('replicas');
     const strongSize = getFieldValue('storageSelect');
-    const hourPrice = parseAmount((strongSize /1000 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio , 4)
-    const countPrice = parseAmount((strongSize /1000 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio * 24 * 30, 4)
+    const hourPrice = parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio , 4)
+    const countPrice = parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio * 24 * 30, 4)
 
     return (
       <div id='CreateDatabase' type='right'>
@@ -348,7 +348,7 @@ let CreateDatabase = React.createClass({
               </div>
               <div className='inputBox'>
                 <FormItem  style={{ width: '80px', float: 'left' }}>
-                  <InputNumber {...selectStorageProps}  defaultValue={500} min={500} step={100} max={10000} size='large' disabled={isFetching}/>
+                  <InputNumber {...selectStorageProps}  defaultValue={500} min={500} step={20} max={10240} size='large' disabled={isFetching}/>
                 </FormItem>
                 <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>M</span>
               </div>
