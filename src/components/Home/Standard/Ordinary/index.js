@@ -605,7 +605,7 @@ class Ordinary extends Component{
               clusterSysinfo.k8s.status === '' ||
               clusterSysinfo.dns.status === '' ||
               clusterSysinfo.apiserver.status === '' ||
-              clusterSysinfo.cicd.status === '' ||
+              clusterSysinfo.monitor.status === '' ||
               clusterSysinfo.logging.status === ''
             }>
               <Card title="健康状态" bordered={false} bodyStyle={{height:200,padding:'10px 20px 10px 20px'}}>
@@ -647,10 +647,10 @@ class Ordinary extends Component{
                       <svg className="stateSvg">
                         <use xlinkHref="#cicd" />
                       </svg>
-                      CI/CD
+                      Monitor
                     </td>
                     <td>
-                      <SvcState currentState={clusterSysinfo.cicd.status} />
+                      <SvcState currentState={clusterSysinfo.monitor.status} />
                     </td>
                   </tr>
                   <tr>
@@ -1028,7 +1028,7 @@ function mapStateToProp(state,props) {
       version: "",
       status: ""
     },
-    cicd:{
+    monitor:{
       version: "",
       status: ""
     },
@@ -1125,12 +1125,12 @@ function mapStateToProp(state,props) {
           clusterSysinfoData.apiserver.status = data.apiserver.status
         }
       }
-      if (data.cicd) {
-        if (data.cicd.version) {
-          clusterSysinfoData.cicd.version = data.cicd.version
+      if (data.monitor) {
+        if (data.monitor.version) {
+          clusterSysinfoData.monitor.version = data.monitor.version
         }
-        if (data.cicd.status) {
-          clusterSysinfoData.cicd.status = data.cicd.status
+        if (data.monitor.status) {
+          clusterSysinfoData.monitor.status = data.monitor.status
         }
       }
       if (data.logging) {
