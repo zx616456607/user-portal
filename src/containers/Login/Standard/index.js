@@ -17,6 +17,7 @@ import { USERNAME_REG_EXP_OLD, EMAIL_REG_EXP } from '../../../constants'
 import { browserHistory } from 'react-router'
 import { genRandomString } from '../../../common/tools'
 import { Link } from 'react-router'
+import LogInLogo from '../../../assets/img/sider/LogInLogo.svg'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -306,7 +307,8 @@ let Login = React.createClass({
         <div className="login">
           <Row style={{ textAlign: 'center' }}>
             <a href='https://www.tenxcloud.com/' target='_blank' className='logoLink'>
-              <img src="/img/sider/LogInLogo.svg" alt="logo" className="logo" />
+              {/*<img src="/img/sider/LogInLogo.svg" alt="logo" className="logo" />*/}
+              <img src={LogInLogo} alt="logo" className="logo" />
               <div className="logtext" style={{ fontSize: '14px' }}>技术领先的容器云计算服务商</div>
             </a>
           </Row>

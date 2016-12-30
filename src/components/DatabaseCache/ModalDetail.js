@@ -18,6 +18,8 @@ import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import { formatDate, parseAmount} from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
+import defaultPNG from '../../assets/img/default.png'
+
 const Panel = Collapse.Panel;
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm;
@@ -211,7 +213,7 @@ class BaseInfo extends Component {
             合计价格：<span className="unit">￥</span><span className="unit blod">{hourPrice.amount}元/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：￥{countPrice.amount}元/月）</span>
           </div>
         </div>
-        
+
       </div>
     )
   }
@@ -353,7 +355,7 @@ class ModalDetail extends Component {
   }
   colseModal() {
     const storageValue = parseInt(this.props.databaseInfo.volumeInfo.size)
-    this.setState({ 
+    this.setState({
       putVisible: false,
       putModaling:false,
       replicas: this.props.databaseInfo.podInfo.desired,
@@ -383,7 +385,7 @@ class ModalDetail extends Component {
         <div className='titleBox'>
           <Icon className='closeBtn' type='cross' onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className='imgBox'>
-            <img src='/img/default.png' />
+            <img src={defaultPNG} />
           </div>
           <div className='infoBox'>
             <p className='instanceName'>

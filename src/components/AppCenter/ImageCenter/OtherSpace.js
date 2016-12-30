@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import {DeleteOtherImage, SearchOtherImage, getOtherImageList} from '../../../actions/app_center'
-
+import dockerPNG from '../../../assets/img/docker.png'
 import "./style/OtherSpace.less"
 import ImageDetailBox from './ImageDetail/OtherDetail.js'
 
@@ -87,7 +87,7 @@ const MyComponent = React.createClass({
       return (
         <div className="imageDetail" key={item} >
           <div className="imageBox">
-            <img src="/img/docker.png" />
+            <img src={dockerPNG} />
           </div>
           <div className="contentBox">
             <span className="title" onClick={this.showImageDetail.bind(this, item)}>
