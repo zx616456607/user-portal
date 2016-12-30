@@ -382,7 +382,6 @@ class Admin extends Component{
 
 function mapStateToProp(state,props) {
   let teamDetailData = {
-    memberCnt: 0,
     appCnt: 0,
     svcCnt: 0,
     podCnt: 0,
