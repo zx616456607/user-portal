@@ -142,10 +142,10 @@ class Admin extends Component{
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
                       <use xlinkHref="#homespacecountcolor" />
                     </svg>
-                    空间
+                    成员数
                   </div>
                   <div style={{textAlign:'left',fontSize: '13px'}} className='tabCell'>
-                    {teamDetail.spaceCnt} 个
+                    {teamDetail.memberCnt} 个
                   </div>
                 </Col>
                 <Col span={12} className='tab'>
@@ -225,7 +225,7 @@ class Admin extends Component{
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
                       <use xlinkHref="#homebuildcountcolor" />
                     </svg>
-                    构建项目
+                    TenxFlow
                   </div>
                    <div style={{textAlign:'right',fontSize: '13px'}} className='tabCell'>
                     {teamDetail.flowCnt} 个
@@ -251,7 +251,7 @@ class Admin extends Component{
                 <Row className='teamCostListContent'>
                   {
                     teamConsumption.detail.length === 0 ?
-                      <div style={{ fontSize:'13px',color:'#666',float:'left',marginLeft:'38%',marginTop:'30px'}}>暂时消费记录</div> :
+                      <div style={{ fontSize:'13px',color:'#666',float:'left',marginLeft:'38%',marginTop:'30px'}}>暂无消费记录</div> :
                     teamConsumption.detail.map((item) => {
                       return (
                         <Row className="teamCostItem">
@@ -382,7 +382,6 @@ class Admin extends Component{
 
 function mapStateToProp(state,props) {
   let teamDetailData = {
-    spaceCnt: 0,
     appCnt: 0,
     svcCnt: 0,
     podCnt: 0,
@@ -390,6 +389,7 @@ function mapStateToProp(state,props) {
     templateCnt: 0,
     volumeCnt: 0,
     flowCnt: 0,
+    memberCnt:0,
   }
   let teamOperationsData = {
     appCreate: 0,
@@ -411,8 +411,8 @@ function mapStateToProp(state,props) {
   if (teamInfo.result) {
     if (teamInfo.result.teamdetail) {
       let data = teamInfo.result.teamdetail
-      if (data.spaceCnt) {
-        teamDetailData.spaceCnt = data.spaceCnt
+      if (data.memberCnt) {
+        teamDetailData.memberCnt = data.memberCnt
       }
       if (data.appCnt) {
         teamDetailData.appCnt = data.appCnt
