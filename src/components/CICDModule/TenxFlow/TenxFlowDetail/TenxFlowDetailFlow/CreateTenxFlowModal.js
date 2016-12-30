@@ -641,6 +641,8 @@ let CreateTenxFlowModal = React.createClass({
           shellList.push(values['shellCode' + item]);
         }
       });
+      console.log('------------------------')
+      console.log(values)
       let body = {
         'metadata': {
           'name': values.flowName,

@@ -438,6 +438,9 @@ class TenxFlowDetailFlowCard extends Component {
     //this function for alert user the ci rules change sucees
     let notification = new NotificationHandler()
     notification.success('CI规则', 'CI规则修改成功~');
+    const scope = this.props.scope
+    const flowId = scope.props.flowId
+    scope.props.getTenxFlowStateList(flowId)
   }
 
   openTenxFlowDeployLogModal(stageId) {
