@@ -16,6 +16,8 @@ import { Link, browserHistory } from 'react-router'
 import "./style/UserPanel.less"
 import { AVATAR_HOST } from '../../constants'
 import { parseAmount } from '../../common/tools'
+import proIcon from '../../assets/img/version/proIcon.png'
+import proIconGray from '../../assets/img/version/proIcon-gray.png'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -55,14 +57,14 @@ class UserPanel extends Component {
     if (envEdition == 0) {
       return (
         <Link to="/account/version">
-          <img className="edition" alt="升级专业版" title="升级专业版" src="/img/version/proIcon-gray.png"/>
+          <img className="edition" alt="升级专业版" title="升级专业版" src={proIconGray}/>
         </Link>
       )
     }
     if (envEdition == 1) {
       return (
         <Link to="/account/version">
-          <img className="edition" alt="专业版" title="专业版" src="/img/version/proIcon.png"/>
+          <img className="edition" alt="专业版" title="专业版" src={proIcon}/>
         </Link>
       )
     }

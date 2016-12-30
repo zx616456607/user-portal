@@ -23,6 +23,7 @@ import { browserHistory } from 'react-router'
 import ContainerStatus from '../TenxStatus/ContainerStatus'
 import { formatDate } from '../../common/tools'
 import NotificationHandler from '../../common/notification_handler'
+import defaultPNG from '../../assets/img/default.png'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -166,7 +167,7 @@ class ContainerDetail extends Component {
           <div key="ca" className="containerInfo" id='containerInfo'>
             <Card className="topCard">
               <div className="imgBox">
-                <img src="/img/default.png" />
+                <img src={defaultPNG} />
               </div>
               <div className="infoBox">
                 <p className="appTitle">

@@ -14,6 +14,7 @@ import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/storeDetail.less'
 import YamlEditor from '../../Editor/Yaml'
+import { TIMESTRAP } from '../../../constants'
 
 const TabPane = Tabs.TabPane;
 
@@ -51,7 +52,7 @@ class DetailStack extends Component {
       <div className="infoList">
         <YamlEditor value={data.content} />
       </div>
-      
+
     )
   }
 }
@@ -65,12 +66,12 @@ class DetailBox extends Component {
     return (
       <div className="appStoreDetail" key="appStoreDetail">
         <div className="topTitle">
-          
+
           <span className="rightColse" onClick={()=> {scope.setState({detailModal: false})} }><Icon type="cross" /></span>
         </div>
         <div className="wrapContent">
           <div className="boxDeploy">
-            <img className="detailImage" src={data.imageUrl} />
+            <img className="detailImage" src={`${data.imageUrl}?_=${TIMESTRAP}`} />
             <ul className="detailType">
               <li><h3>{data.name}</h3></li>
               <li>类型：{data.category}</li>

@@ -32,6 +32,7 @@ import { TENX_MARK } from '../../../constants'
 import { addPodWatch, removePodWatch } from '../../../containers/App/status'
 import TipSvcDomain from '../../TipSvcDomain'
 import { getServiceStatusByContainers } from '../../../common/status_identify'
+import defaultPNG from '../../../assets/img/default.png'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -235,7 +236,7 @@ class AppServiceDetail extends Component {
           <Icon className='closeBtn' type='cross' onClick={this.closeModal} />
           {/*<i className='closeBtn fa fa-times' onClick={this.closeModal}></i>*/}
           <div className='imgBox'>
-            <img src='/img/default.png' />
+            <img src={defaultPNG} />
           </div>
           <div className='infoBox'>
             <p className='instanceName'>

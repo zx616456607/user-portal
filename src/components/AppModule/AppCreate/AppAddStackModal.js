@@ -14,6 +14,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadMyStack, loadStack, searchStack, loadStackDetail } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/AppAddStackModal.less'
+import defaultPNG from '../../../assets/img/default.png'
 const TabPane = Tabs.TabPane
 
 class PrivateComponent extends Component {
@@ -39,7 +40,7 @@ class PrivateComponent extends Component {
     const itemList = data.map(list => {
       return (
         <div className="list" key={`private-`+list.name}>
-          <img className="imgUrl" src="/img/default.png" />
+          <img className="imgUrl" src={defaultPNG} />
           <div className="infoBox">
             <div className="textoverflow">名称：{list.name} </div>
             <div className="textoverflow">描述：{list.description}</div>
@@ -92,7 +93,7 @@ class PublicComponent extends Component {
     const itemList = stackList.map(list => {
       return (
         <div className="list" key={`public`+ list.name}>
-          <img className="imgUrl" src="/img/default.png" />
+          <img className="imgUrl" src={defaultPNG} />
           <div className="infoBox">{list.name}</div>
           <div className="deployBtn">
             <Button type="primary" onClick={() => this.deployStack(list)}>

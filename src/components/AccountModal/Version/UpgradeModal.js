@@ -16,6 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import VersionNoraml from './Normal'
 import VersionProfress from './Profress'
 import "./style/UpgradeModal.less"
+import proIcon from '../../../assets/img/version/proIcon.png'
 
 class UpgradeModal extends Component {
   constructor(props) {
@@ -138,12 +139,12 @@ class UpgradeModal extends Component {
                 <span className='infoSpan'>存储管理（50G）</span>
               </div>
               <div className={ currentType == 'appcenter' ? 'activeInfo littleInfo' : 'littleInfo'}>
-                <img className='commonImg' src='/img/version/proIcon.png' />
+                <img className='commonImg' src={proIcon} />
                 <span className='littleIcon'></span>
                 <span className='infoSpan'>交付中心（20个镜像）</span>
               </div>
               <div className={ currentType == 'cicd' ? 'activeInfo littleInfo' : 'littleInfo'}>
-                <img className='commonImg' src='/img/version/proIcon.png' />
+                <img className='commonImg' src={proIcon} />
                 <span className='littleIcon'></span>
                 <span className='infoSpan'>CI/CD完整版（5个项目）<br />代码库（Github、GitLab、SVN）</span>
               </div>
@@ -156,7 +157,7 @@ class UpgradeModal extends Component {
                 <span className='infoSpan'>集成中心（集成应用）</span>
               </div>
               <div className={ currentType == 'log' ? 'activeInfo littleInfo' : 'littleInfo'}>
-                <img className='commonImg' src='/img/version/proIcon.png' />
+                <img className='commonImg' src={proIcon} />
                 <span className='littleIcon'></span>
                 <span className='infoSpan'>操作审计、日志中心（一年以内日志）</span>
               </div>
@@ -165,7 +166,7 @@ class UpgradeModal extends Component {
                 <span className='infoSpan'>帐户中心</span>
               </div>
               <div className={ currentType == 'team' ? 'activeInfo littleInfo' : 'littleInfo'}>
-                <img className='commonImg' src='/img/version/proIcon.png' />
+                <img className='commonImg' src={proIcon} />
                 <span className='littleIcon'></span>
                 <span className='infoSpan'>团队管理</span>
               </div>

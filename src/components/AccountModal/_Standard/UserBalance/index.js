@@ -17,6 +17,9 @@ import { loadLoginUserDetail } from '../../../../actions/entities'
 import { loadUserTeamspaceList } from '../../../../actions/user'
 import { parseAmount } from '../../../../common/tools'
 import './style/balance.less'
+import proIcon from '../../../../assets/img/version/proIcon.png'
+import proIconGray from '../../../../assets/img/version/proIcon-gray.png'
+import knowntag from '../../../../assets/img/version/knowntag.png'
 
 class UserBalance extends Component {
   constructor(props) {
@@ -75,7 +78,7 @@ class UserBalance extends Component {
       teamListVisible: visible
     })
   }
-  
+
   closeTestingKnowModal() {
     //this function for close test know modal
     this.setState({
@@ -166,7 +169,7 @@ class UserBalance extends Component {
           ? (
             <div className="version">
               <div className="topRow">
-                <img className="edition" alt="升级专业版" title="升级专业版" src="/img/version/proIcon-gray.png"/>
+                <img className="edition" alt="升级专业版" title="升级专业版" src={proIconGray} />
                 &nbsp;标准版
               </div>
               <div className="moneyRow">
@@ -186,7 +189,7 @@ class UserBalance extends Component {
           : (
             <div className="version">
               <div className="topRow">
-                <img className="edition" alt="专业版" title="专业版" src="/img/version/proIcon.png"/>
+                <img className="edition" alt="专业版" title="专业版" src={proIcon} />
                 &nbsp;专业版
               </div>
               <div className="moneyRow">
@@ -206,9 +209,9 @@ class UserBalance extends Component {
         }
         <Modal visible={this.state.testingKonwShow} className='testingKnowModal'>
           <div className='titleBox'>
-            <img className='tagImg' src='/img/version/knowntag.png' />
+            <img className='tagImg' src={knowntag} />
             <p>时速云内测期间须知</p>
-            <Icon className='closeBtn' type='cross' onClick={this.closeTestingKnowModal} />            
+            <Icon className='closeBtn' type='cross' onClick={this.closeTestingKnowModal} />
           </div>
           <div className='infoBox'>
             <p className='bigTitle'>更新须知</p>

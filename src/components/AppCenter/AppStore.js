@@ -17,7 +17,7 @@ import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadAppStore , loadStackDetail } from '../../actions/app_center'
 import DetailBox from './StoreDetail'
-import { DEFAULT_REGISTRY } from '../../constants'
+import { DEFAULT_REGISTRY, TIMESTRAP } from '../../constants'
 
 import "./style/ImageStore.less"
 
@@ -66,7 +66,7 @@ const MyComponent = React.createClass({
               return (
                 <Card className="imageDetail">
                   <div className="imgBox" onClick={()=>this.showDetail(imageDetail.id)}>
-                    <img src={imageDetail.imageUrl} />
+                    <img src={`${imageDetail.imageUrl}?_=${TIMESTRAP}`} />
                   </div>
                   <div className="intro">
                     <span className="span7 textoverflow">{imageDetail.name}</span>

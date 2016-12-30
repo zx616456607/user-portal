@@ -17,6 +17,12 @@ import { loadUserTeamspaceList } from '../../../actions/user'
 import { loadTeamClustersList } from '../../../actions/team'
 import { setCurrent } from '../../../actions/entities'
 import { MY_SPACE } from '../../../constants'
+import image from '../../../assets/img/app/appStore.png'
+import imageHover from '../../../assets/img/app/appStoreHover.png'
+import appStore from '../../../assets/img/app/appStore.png'
+import appStoreHover from '../../../assets/img/app/appStoreHover.png'
+import composeFile from '../../../assets/img/app/composeFile.png'
+import composeFileHover from '../../../assets/img/app/composeFileHover.png'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -189,7 +195,7 @@ class CreateModel extends Component {
           <div className="topBox">
             <div className="contentBox">
               <div className={createModel == "fast" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"} onClick={this.selectCreateModel.bind(this, "fast")}>
-                <img src={createModel == "fast" ? '/img/app/imageHover.png' : '/img/app/image.png'} />
+                <img src={createModel == "fast" ? imageHover : image} />
                 <div className="infoBox">
                   <p>镜像仓库</p>
                   <span>通过镜像仓库创建应用</span>
@@ -200,7 +206,7 @@ class CreateModel extends Component {
                 <i className="fa fa-check"></i>
               </div>
               <div className={createModel == "store" ? "appStore commonBox selectedBox" : "appStore commonBox"} onClick={this.selectCreateModel.bind(this, "store")}>
-                <img src={createModel == "store" ? '/img/app/appStoreHover.png' : '/img/app/appStore.png'} />
+                <img src={createModel == "store" ? appStoreHover : appStore} />
                 <div className="infoBox">
                   <p>应用商店</p>
                   <span>通过应用商店创建应用</span>
@@ -211,7 +217,7 @@ class CreateModel extends Component {
                 <i className="fa fa-check"></i>
               </div>
               <div className={createModel == "layout" ? "layout commonBox selectedBox" : "layout commonBox"} onClick={this.selectCreateModel.bind(this, "layout")}>
-                <img src={createModel == "layout" ? '/img/app/composeFileHover.png' : '/img/app/composeFile.png'} />
+                <img src={createModel == "layout" ? composeFileHover : composeFile} />
                 <div className="infoBox">
                   <p>编排文件</p>
                   <span>通过编排文件创建应用</span>

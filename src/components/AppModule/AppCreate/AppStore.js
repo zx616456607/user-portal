@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadAppStore } from '../../../actions/app_center'
-import { DEFAULT_REGISTRY } from '../../../constants'
+import { DEFAULT_REGISTRY, TIMESTRAP } from '../../../constants'
 import "./style/AppStore.less"
 
 
@@ -55,7 +55,7 @@ let MyComponent = React.createClass({
           onClick={this.onSelect.bind(this, item.id)}
           >
           <Card className="imgBox">
-            <img src={item.imageUrl} />
+            <img src={`${item.imageUrl}?_=${TIMESTRAP}`} />
             <i className="selectIcon fa fa-check-circle"></i>
           </Card>
           <span className="textoverflow">{item.name}</span>
@@ -104,7 +104,7 @@ class AppStore extends Component {
     if (this.state.condition) {
      // 直接执行下一步
      const temid = this.state.selectedList
-     browserHistory.push(`/app_manage/app_create/compose_file?templateid=${temid}`) 
+     browserHistory.push(`/app_manage/app_create/compose_file?templateid=${temid}`)
     } else {
       this.setState({ visible });  // 进行确认
     }
