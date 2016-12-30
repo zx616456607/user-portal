@@ -71,6 +71,7 @@ let PhoneRow = React.createClass({
     const { getFieldProps } = this.props.form
     const phone = getFieldProps('phone').value
     if(!phone || !PHONE_REGEX.test(phone)) {
+      isAction = false
       return
     }
     this.props.sendRegisterPhoneCaptcha(phone, {
