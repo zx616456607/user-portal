@@ -23,6 +23,8 @@ import uploadFile from '../../../../common/upload.js'
 import { parseAmount } from '../../../../common/tools.js'
 import { AVATAR_HOST } from '../../../../constants'
 import { loadLoginUserDetail } from '../../../../actions/entities'
+import proIcon from '../../../../assets/img/version/proIcon.png'
+import proIconGray from '../../../../assets/img/version/proIcon-gray.png'
 
 const TabPane = Tabs.TabPane
 const createForm = Form.create
@@ -238,8 +240,8 @@ class BaseInfo extends Component {
       <span className="value">
         {
           envEdition == 0
-          ? <span>标准版<img className="edition" alt="升级专业版" title="升级专业版" src="/img/version/proIcon-gray.png"/></span>
-          : <span>专业版<img className="edition" alt="专业版" title="专业版" src="/img/version/proIcon.png"/></span>
+          ? <span>标准版<img className="edition" alt="升级专业版" title="升级专业版" src={proIconGray}/></span>
+          : <span>专业版<img className="edition" alt="专业版" title="专业版" src={proIcon}/></span>
         }
         <Button style={{ marginLeft: '10px' }} onClick={() => browserHistory.push('/account/version#pro')}>
           {

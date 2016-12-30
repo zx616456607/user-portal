@@ -1,13 +1,14 @@
 import React, { Component } from 'react'
 import { Modal,Alert,Icon,Button,Row,Col,Input } from 'antd'
 import {Link} from 'react-router'
+import homeNoWarn from '../../../assets/img/homeNoWarn.png'
 
 export default class CreateTeamSuccessModal extends Component{
   constructor(props){
     super(props)
     this.handleCancel = this.handleCancel.bind(this)
     this.state = {
-      
+
     }
   }
   handleCancel() {
@@ -24,7 +25,7 @@ export default class CreateTeamSuccessModal extends Component{
         onCancel={this.handleCancel}
       >
         <div className="successInf">
-          <img src="/img/homeNoWarn.png" alt="" className="successImg"/>
+          <img src={homeNoWarn} alt="" className="successImg"/>
           <div>团队创建成功</div>
         </div>
         <div className="successOpt">

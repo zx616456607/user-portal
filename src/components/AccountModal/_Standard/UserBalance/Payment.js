@@ -22,6 +22,10 @@ import NotificationHandler from '../../../../common/notification_handler'
 import './style/balance.less'
 import { formatDate, parseAmount } from '../../../../common/tools'
 import { AMOUNT_CONVERSION } from '../../../../../constants'
+import alipay from '../../../../assets/img/standard/allpay.png'
+import weixin from '../../../../assets/img/standard/weixin.png'
+import userBalance from '../../../../assets/img/standard/userBalance.png'
+import proImg from '../../../../assets//img/version/proImg.png'
 
 const periodPrice = {
   period_1: 99,
@@ -467,14 +471,14 @@ class UserPay extends Component {
               <div
                 className={payType == 'alipay' ? 'wrap-img selected' : 'wrap-img'}
                 onClick={() => this.changePayType('alipay')}>
-                <img src="/img/standard/allpay.png" />
+                <img src={alipay} />
                 <Icon type="check" />
                 <div className="triangle"></div> {/*no remove */}
               </div>
               <div
                 className={payType == 'wechat_pay' ? 'wrap-img selected' : 'wrap-img'}
                 onClick={() => this.changePayType('wechat_pay')}>
-                <img src="/img/standard/weixin.png" alt="" />
+                <img src={weixin} alt="" />
                 <Icon type="check" />
                 <div className="triangle"></div> {/*no remove */}
               </div>
@@ -482,7 +486,7 @@ class UserPay extends Component {
                 <div
                   className={payType == 'user_balance' ? 'wrap-img selected' : 'wrap-img'}
                   onClick={() => this.changePayType('user_balance')}>
-                  <img className='userBalanceImg' src='/img/standard/userBalance.png' />
+                  <img className='userBalanceImg' src={userBalance} />
                   <Icon type="check" />
                   <div className="triangle"></div> {/*no remove */}
                 </div>
@@ -567,14 +571,14 @@ class UserPay extends Component {
               <div
                 className={payType == 'alipay' ? 'wrap-img selected' : 'wrap-img'}
                 onClick={() => this.changePayType('alipay')}>
-                <img src="/img/standard/allpay.png" />
+                <img src={alipay} />
                 <Icon type="check" />
                 <div className="triangle"></div> {/*no remove */}
               </div>
               <div
                 className={payType == 'wechat_pay' ? 'wrap-img selected' : 'wrap-img'}
                 onClick={() => this.changePayType('wechat_pay')}>
-                <img src="/img/standard/weixin.png" alt="" />
+                <img src={weixin} alt="" />
                 <Icon type="check" />
                 <div className="triangle"></div> {/*no remove */}
               </div>
@@ -628,7 +632,7 @@ class UserPay extends Component {
       return (
         <div>
           <div>
-            <img alt="专业版" title="专业版" src="/img/version/proImg.png"/>
+            <img alt="专业版" title="专业版" src={proImg}/>
           </div>
           <p className="successText">恭喜您升级到专业版</p>
         </div>
@@ -773,12 +777,6 @@ class UserPay extends Component {
             </Button>,
           ]}
           >
-          {/*<div>
-            <div>
-              <img alt="专业版" title="专业版" src="/img/version/proImg.png"/>
-            </div>
-            <p className="successText">恭喜您升级到专业版</p>
-          </div>*/}
           {this.getUpgradeModalContent()}
           <br />
         </Modal>
