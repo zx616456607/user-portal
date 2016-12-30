@@ -21,6 +21,7 @@ import QRCode from 'qrcode.react'
 import NotificationHandler from '../../../../common/notification_handler'
 import './style/balance.less'
 import { formatDate, parseAmount } from '../../../../common/tools'
+import { AMOUNT_CONVERSION } from '../../../../../constants'
 
 const periodPrice = {
   period_1: 99,
@@ -145,7 +146,7 @@ class UserPay extends Component {
     const newState = {
       payType: type,
     }
-    amount *= 100
+    amount *= AMOUNT_CONVERSION
     if (type === 'user_balance' && amount > loginUser.balance) {
       notification.warn(`您的帐户余额不足`, `请选择充值的方式进行升级`)
       newState.payBtnDisabled = true

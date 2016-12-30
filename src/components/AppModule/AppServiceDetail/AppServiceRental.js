@@ -72,7 +72,13 @@ class AppServiceRental extends Component {
   }
   render() {
     const { serviceDetail } = this.props
-    if (!this.props.serviceDetail[0].spec){ return(<div className='loadingBox' style={{clear:'both',background:'white'}}>请求错误</div>)}
+    if (!serviceDetail[0] || !serviceDetail[0].spec){
+      return(
+        <div className='loadingBox' style={{clear:'both',background:'white'}}>
+        无
+        </div>
+        )
+      }
     const detaContainer = this.props.serviceDetail[0].spec.template.spec.containers[0]
     const dataRow = serviceDetail.map((list, index)=> {
         return(
@@ -95,7 +101,7 @@ class AppServiceRental extends Component {
           {/*<div className="starts">
             <p><Icon type="clock-circle-o" /> 开始计费：2016.12.12. 15：50</p>
             <p><Icon type="clock-circle-o" /> 停止计费：2016.12.22. 15：50</p>
-            
+
           </div>
           */}
           <div className="dataBox" style={{padding:'0 25px'}}>
@@ -119,7 +125,7 @@ class AppServiceRental extends Component {
             </table>
           </div>
         </div>
-        
+
       </Card>
     )
   }

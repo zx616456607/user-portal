@@ -199,9 +199,12 @@ function fetchCodeStoreName(project, codeList) {
 
 function fetchDockerFilePath(spec) {
   if (!!spec.build) {
-    let tempList = spec.build.dockerfilePath.split('/');
-    tempList = tempList.slice(1).join('/');
-    return tempList + '/' +spec.build.dockerfileName;
+    let dPath = spec.build.dockerfilePath
+    // Hide 1st / letter
+    if (dPath.indexOf('/') == 0) {
+      dPath = dPath.substring(1)
+    }
+    return dPath + spec.build.dockerfileName;
   }
   return null;
 }
@@ -780,13 +783,16 @@ let EditTenxFlowModal = React.createClass({
         } else {
           tmpDockerFileUrl = values.dockerFileUrl;
         }
-        let tempDockerFileList = tmpDockerFileUrl.split('/');
-        tmpDockerFileUrl = tempDockerFileList.slice(0, tempDockerFileList.length -1).join('/');
-        imageBuildBody.DockerfileName = tempDockerFileList[tempDockerFileList.length -1].length > 0 ? tempDockerFileList[tempDockerFileList.length -1] : 'Dockerfile';
         if (tmpDockerFileUrl.indexOf('/') != 0) {
-          imageBuildBody.DockerfilePath = '/' + tmpDockerFileUrl;
+          tmpDockerFileUrl = '/' + tmpDockerFileUrl
+        }
+        // It's a directory
+        if (tmpDockerFileUrl.endsWith('/')) {
+          imageBuildBody.DockerfilePath = tmpDockerFileUrl
+          imageBuildBody.DockerfileName = ''
         } else {
-          imageBuildBody.DockerfilePath = tmpDockerFileUrl;
+          imageBuildBody.DockerfilePath = tmpDockerFileUrl.substring(0, tmpDockerFileUrl.lastIndexOf('/') + 1)
+          imageBuildBody.DockerfileName = tmpDockerFileUrl.substring(tmpDockerFileUrl.lastIndexOf('/') + 1)
         }
         body.spec.build = imageBuildBody;
       }
