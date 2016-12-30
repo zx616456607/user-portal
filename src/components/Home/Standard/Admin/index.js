@@ -411,9 +411,6 @@ function mapStateToProp(state,props) {
   if (teamInfo.result) {
     if (teamInfo.result.teamdetail) {
       let data = teamInfo.result.teamdetail
-      if (data.spaceCnt) {
-        teamDetailData.spaceCnt = data.spaceCnt
-      }
       if (data.memberCnt) {
         teamDetailData.memberCnt = data.memberCnt
       }
