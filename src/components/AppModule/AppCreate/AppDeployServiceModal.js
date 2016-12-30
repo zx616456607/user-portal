@@ -20,6 +20,7 @@ import { connect } from 'react-redux'
 import { parseAmount } from '../../../common/tools.js'
 import { CREATE_APP_ANNOTATIONS } from '../../../constants'
 
+const DEFAULT_COMPOSE_TYPE = '2'
 const Deployment = require('../../../../kubernetes/objects/deployment')
 const Service = require('../../../../kubernetes/objects/service')
 const Panel = Collapse.Panel;
@@ -34,7 +35,7 @@ let AppDeployServiceModal = React.createClass({
   },
   getInitialState: function () {
     return {
-      composeType: "1",
+      composeType: DEFAULT_COMPOSE_TYPE,
       runningCode: "1",
       getImageType: "1",
       stateService: false,
@@ -113,7 +114,7 @@ let AppDeployServiceModal = React.createClass({
   },
   setPorts(ports, ServicePorts, form, annotations) {
     //this function for init port to form
-    const portsArr = [] 
+    const portsArr = []
     if (!!ports && ports.length > 0 && !!annotations) {
       let tempAnnotations = annotations;
       let protocolList = tempAnnotations['tenxcloud.com/schemaPortname'].split(',');
@@ -387,7 +388,7 @@ let AppDeployServiceModal = React.createClass({
     deploymentList.addContainer(serviceName, image)
     deploymentList.setContainerResources(serviceName, ImageConfig.resources.limits.memory)
     //ports
-    if (Boolean(portKey) && portKey.length > 0) { 
+    if (Boolean(portKey) && portKey.length > 0) {
       getFieldValue('portKey').map((k, index) => {
         let portType = getFieldProps(`portType${k}`).value;
         let newIndex = index + 1;
@@ -543,7 +544,7 @@ let AppDeployServiceModal = React.createClass({
     }
     this.props.form.resetFields()
     this.setState({
-      composeType: "1",
+      composeType: DEFAULT_COMPOSE_TYPE,
       runningCode: "1",
       getImageType: "1",
       stateService: false,
@@ -578,7 +579,7 @@ let AppDeployServiceModal = React.createClass({
         })
         this.submitNewService()
       }
-      if(!noPortFlag) {        
+      if(!noPortFlag) {
         this.props.form.resetFields()
         parentScope.setState({
           serviceModalShow: false,
@@ -595,7 +596,7 @@ let AppDeployServiceModal = React.createClass({
     })
     this.props.form.resetFields()
     this.setState({
-      composeType: "1",
+      composeType: DEFAULT_COMPOSE_TYPE,
       runningCode: "1",
       getImageType: "1",
       stateService: false,

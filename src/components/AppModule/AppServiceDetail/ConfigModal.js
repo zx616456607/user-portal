@@ -72,7 +72,7 @@ class ConfigModal extends Component {
           parentScope.setState({
             configModal: false
           })
-          if(res.data.code == 200) {          
+          if(res.data.code == 200) {
             notification.close()
             notification.success(`服务 ${serviceName} 配置已成功更改`)
           } else {
@@ -137,7 +137,7 @@ class ConfigModal extends Component {
               <div className="operaBox">
                 <div className="selectCompose">
                   <ul className="composeList">
-                    <li className="composeDetail">
+                    {/*<li className="composeDetail">
                       <Button type={composeType == 256 ? "primary" : "ghost"}
                         onClick={() => this.selectComposeType(256)}>
                         <div className="topBox">
@@ -148,7 +148,7 @@ class ConfigModal extends Component {
                           <span>1CPU&nbsp;(共享)</span>
                         </div>
                       </Button>
-                    </li>
+                    </li>*/}
                     <li className="composeDetail">
                       <Button type={composeType == 512 ? "primary" : "ghost"}
                         onClick={() => this.selectComposeType(512)}>

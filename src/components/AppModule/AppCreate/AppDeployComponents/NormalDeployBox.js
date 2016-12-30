@@ -274,7 +274,7 @@ let MyComponent = React.createClass({
                   {mountPath[k - 1]}
                 </span> :
                 <Input {...getFieldProps(`volumePath${k}`, {
-                  rules: [{ validator: self.dirExists.bind(self, k) }] 
+                  rules: [{ validator: self.dirExists.bind(self, k) }]
                 }) } className="urlInt" />
             }
             <Select className="imageTag" size="large" placeholder="请选择一个存储卷"
@@ -473,7 +473,7 @@ let NormalDeployBox = React.createClass({
     }
     if(checkMsg == 'success') {
       let existFlag = false;
-      //check local name exist 
+      //check local name exist
       if(!isCreate) {
         const oldServiceName = this.props.form.getFieldProps('name').value
         servicesList.map((service) => {
@@ -511,8 +511,8 @@ let NormalDeployBox = React.createClass({
           isAsync: true
         }
       });
-    } else {     
-      callback([new Error(checkMsg)]);      
+    } else {
+      callback([new Error(checkMsg)]);
     }
   },
   componentWillMount() {
@@ -625,7 +625,7 @@ let NormalDeployBox = React.createClass({
             <div className="selectCompose">
               <span className="commonSpan">容器配置</span>
               <ul className="composeList">
-                <li className="composeDetail">
+                {/*<li className="composeDetail">
                   <Button type={composeType == "1" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "1")}>
                     <div className="topBox">
                       1X
@@ -635,7 +635,7 @@ let NormalDeployBox = React.createClass({
                       <span>1CPU&nbsp;(共享)</span>
                     </div>
                   </Button>
-                </li>
+                </li>*/}
                 <li className="composeDetail">
                   <Button type={composeType == "2" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "2")}>
                     <div className="topBox">
