@@ -103,7 +103,7 @@ class BindDomain extends Component {
     }
     this.setState({
       containerPorts: containerPorts,
-      bindPort: port || containerPorts[0],
+      bindPort: containerPorts[0],
       domainList: domainList,
       cnameNotice: cnameMessage
     })
@@ -121,7 +121,7 @@ class BindDomain extends Component {
     const domain = this.state.newValue
     let notification = new NotificationHandler()
     if(this.state.domainList.length >= 10) {
-      notificatione.error('最多绑定10个域名')
+      notification.error('最多绑定10个域名')
       return
     }
     if (!/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+.?/.test(domain)) {
@@ -263,6 +263,7 @@ class BindDomain extends Component {
   }
   render() {
     const parentScope = this;
+    console.log('=======', this.state.bindPort)
     return (
       <div id="bindDomain">
         <Alert message='Tips:添加域名绑定后，需要在域名服务器上，将指定域名的CNAME指向下面表格中系统生成的"CNAME地址"' type="info" />
@@ -280,7 +281,7 @@ class BindDomain extends Component {
         </div>
         <Card className="infoBox">
           <div className="protocol">
-            <Select size="large" style={{ width: "90%" }} disabled={this.state.disabled} onChange={(value) => this.selectPort(value)} defaultValue={this.state.bindPort}>
+            <Select size="large" style={{ width: "90%" }} disabled={this.state.disabled} onChange={(value) => this.selectPort(value)} value={this.state.bindPort}>
               {this.getPorts()}
             </Select>
           </div>

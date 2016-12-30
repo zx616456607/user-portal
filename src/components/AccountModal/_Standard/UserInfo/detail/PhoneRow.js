@@ -65,6 +65,7 @@ let PhoneRow = React.createClass({
     return
   },
   sendCode() {
+    const notifi = new NotificationHandler()
     const { getFieldProps } = this.props.form
     const phone = getFieldProps('phone').value
     if(!phone || !PHONE_REGEX.test(phone)) {
@@ -91,7 +92,13 @@ let PhoneRow = React.createClass({
       })
       clearInterval(time)
     }, 1000)
-    this.props.sendRegisterPhoneCaptcha(phone)
+    this.props.sendRegisterPhoneCaptcha(phone, {
+      failed: {
+        func: () => {
+          notifi.error('验证码发送失败, 请刷新重试')
+        }
+      }
+    })
   },
   handPhone(e) {
     e.preventDefault()
