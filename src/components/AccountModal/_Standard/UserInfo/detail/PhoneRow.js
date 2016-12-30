@@ -15,7 +15,7 @@ import NotificationHandler from '../../../../../common/notification_handler.js'
 const createForm = Form.create
 const FormItem = Form.Item
 import { PHONE_REGEX } from '../../../../../constants'
-
+let isAction = false
 
 let PhoneRow = React.createClass({
   getInitialState() {
@@ -65,33 +65,50 @@ let PhoneRow = React.createClass({
     return
   },
   sendCode() {
+    if(isAction) return
+    isAction = true
+    const notifi = new NotificationHandler()
     const { getFieldProps } = this.props.form
     const phone = getFieldProps('phone').value
     if(!phone || !PHONE_REGEX.test(phone)) {
+      isAction = false
       return
     }
-    this.setState({
-      captchaLoading: true,
-      countDownTimeText: '60s 后重新发送'
-    })
-    let wait = 59
-    //重新发送定时器
-    let time = setInterval(() => {
-      let text = wait + 's 后重新发送'
-      wait--
-      if(wait >= -1){
-        this.setState({
-          countDownTimeText: text
-        })
-        return
+    this.props.sendRegisterPhoneCaptcha(phone, {
+      success: {
+        func: () => {
+          notifi.success('验证码已发送, 请注意查看')
+          isAction = false
+          this.setState({
+            captchaLoading: true,
+            countDownTimeText: '60s 后重新发送'
+          })
+          let wait = 59
+          //重新发送定时器
+          let time = setInterval(() => {
+            let text = wait + 's 后重新发送'
+            wait--
+            if (wait >= -1) {
+              this.setState({
+                countDownTimeText: text
+              })
+              return
+            }
+            this.setState({
+              captchaLoading: false,
+              countDownTimeText: '发送验证码'
+            })
+            clearInterval(time)
+          }, 1000)
+        }
+      },
+      failed: {
+        func: (result) => {
+          isAction = false
+          notifi.error(result.message)
+        }
       }
-      this.setState({
-        captchaLoading: false,
-        countDownTimeText: '发送验证码'
-      })
-      clearInterval(time)
-    }, 1000)
-    this.props.sendRegisterPhoneCaptcha(phone)
+    })
   },
   handPhone(e) {
     e.preventDefault()
