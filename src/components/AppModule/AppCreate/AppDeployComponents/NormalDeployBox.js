@@ -469,7 +469,7 @@ let NormalDeployBox = React.createClass({
     let i = 0
     let checkMsg = 'success'
     if (!validateK8sResource(value)) {
-      checkMsg = '可由字母、数字、中划线组成，以字母开头，字母或者数字结尾'
+      checkMsg = '可由3~63位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾'
     }
     if(checkMsg == 'success') {
       let existFlag = false;
