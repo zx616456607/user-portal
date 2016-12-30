@@ -27,6 +27,7 @@ import CreateTeamSuccessModal from '../../CreateTeamSuccessModal'
 import InviteNewMemberModal from '../../InviteNewMemberModal'
 import { parseAmount } from '../../../../common/tools'
 import moment from 'moment'
+import cloneDeep from 'lodash/cloneDeep'
 
 const confirm = Modal.confirm;
 
@@ -600,7 +601,7 @@ function mapStateToProp(state, props) {
   const teams = state.user.teams
 
   if (!teams.isFetching && teams.result && teams.result.data && teams.result.data.data) {
-    teamsData = teams.result.data.data
+    teamsData = cloneDeep(teams.result.data.data)
     teamsData.items.map((item) => {
       item.role = item.isCreator ? '创建者（管理员）' : '普通成员'
       item.key = item.id
