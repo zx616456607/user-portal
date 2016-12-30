@@ -145,7 +145,7 @@ class Admin extends Component{
                     成员数
                   </div>
                   <div style={{textAlign:'left',fontSize: '13px'}} className='tabCell'>
-                    {teamDetail.spaceCnt} 个
+                    {teamDetail.memberCnt} 个
                   </div>
                 </Col>
                 <Col span={12} className='tab'>
@@ -251,7 +251,7 @@ class Admin extends Component{
                 <Row className='teamCostListContent'>
                   {
                     teamConsumption.detail.length === 0 ?
-                      <div style={{ fontSize:'13px',color:'#666',float:'left',marginLeft:'38%',marginTop:'30px'}}>暂时消费记录</div> :
+                      <div style={{ fontSize:'13px',color:'#666',float:'left',marginLeft:'38%',marginTop:'30px'}}>暂无消费记录</div> :
                     teamConsumption.detail.map((item) => {
                       return (
                         <Row className="teamCostItem">
@@ -382,7 +382,7 @@ class Admin extends Component{
 
 function mapStateToProp(state,props) {
   let teamDetailData = {
-    spaceCnt: 0,
+    memberCnt: 0,
     appCnt: 0,
     svcCnt: 0,
     podCnt: 0,
