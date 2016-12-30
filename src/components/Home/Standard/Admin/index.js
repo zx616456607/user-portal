@@ -142,7 +142,7 @@ class Admin extends Component{
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
                       <use xlinkHref="#homespacecountcolor" />
                     </svg>
-                    空间
+                    成员数
                   </div>
                   <div style={{textAlign:'left',fontSize: '13px'}} className='tabCell'>
                     {teamDetail.spaceCnt} 个
@@ -225,7 +225,7 @@ class Admin extends Component{
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
                       <use xlinkHref="#homebuildcountcolor" />
                     </svg>
-                    构建项目
+                    TenxFlow
                   </div>
                    <div style={{textAlign:'right',fontSize: '13px'}} className='tabCell'>
                     {teamDetail.flowCnt} 个
@@ -390,6 +390,7 @@ function mapStateToProp(state,props) {
     templateCnt: 0,
     volumeCnt: 0,
     flowCnt: 0,
+    memberCnt:0,
   }
   let teamOperationsData = {
     appCreate: 0,
@@ -413,6 +414,9 @@ function mapStateToProp(state,props) {
       let data = teamInfo.result.teamdetail
       if (data.spaceCnt) {
         teamDetailData.spaceCnt = data.spaceCnt
+      }
+      if (data.memberCnt) {
+        teamDetailData.memberCnt = data.memberCnt
       }
       if (data.appCnt) {
         teamDetailData.appCnt = data.appCnt
