@@ -248,13 +248,13 @@ class AppAutoScale extends Component {
             }
           </div>
         </div>
-        {this.state.isAvailable ? 
+        {this.state.isAvailable ?
           <Alert message="注: 系统将根据设定的CPU阈值来自动的『扩展,或减少』该服务所『缺少,或冗余』的实例数量" type="info" /> :
-          <Alert message="注: 已挂载存储卷的服务不允许设置弹性伸缩" type="info" />}
+          <Alert message="注: 已挂载存储卷的服务为有状态服务，有状态服务不允许设置弹性伸缩" type="info" />}
         <Card>
           <Row className="cardItem">
             <Col className="itemTitle" span={4} style={{ textAlign: 'right' }}>服务名称</Col>
-            <Col className="itemBody" span={20}>ngnix-test</Col>
+            <Col className="itemBody" span={20}>{this.props.serviceName}</Col>
           </Row>
           <Row className="cardItem">
             <Col className="itemTitle" span={4} style={{ textAlign: 'right' }}>最小实例数量</Col>
