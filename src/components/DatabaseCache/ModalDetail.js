@@ -16,7 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadDbClusterDetail, deleteDatabaseCluster, putDbClusterDetail, loadDbCacheList } from '../../actions/database_cache'
 import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
-import { formatDate, parseAmount} from '../../common/tools.js'
+import { calcuDate, parseAmount} from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
 import serverSVG from '../../assets/img/server.svg'
 
@@ -46,7 +46,7 @@ class VolumeHeader extends Component {
           </div>
         </Col>
         <Col span="10">
-          创建时间&nbsp;&nbsp;{formatDate(data.objectMeta.creationTimestamp)}
+          创建时间&nbsp;&nbsp;{calcuDate(data.objectMeta.creationTimestamp)}
         </Col>
       </Row>
     )
@@ -86,7 +86,7 @@ class VolumeDetail extends Component {
                 <tbody>
                   <tr>
                     <td style={{ padding: '15px' }}>
-                      <div style={{ width: '200px' }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px' }} />{configFileItem}</div>
+                      <div style={{ width: '100px' }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px' }} />{configFileItem}</div>
                     </td>
 
                     <td style={{ width: '130px', textAlign: 'center' }}>
@@ -181,7 +181,7 @@ class BaseInfo extends Component {
           {this.props.database == 'mysql' ?
             <div><div className='configHead'>参数</div>
               <ul className='parse-list'>
-                <li><span className='key'>key</span> <span className='value'>value</span></li>
+                <li><span className='key'>参数名</span> <span className='value'>参数值</span></li>
                 <li><span className='key'>用户名：</span> <span className='value'>root</span></li>
                 {this.state.passShow ?
                   <li><span className='key'>密码：</span> <span className='value'>{podSpec.containers[0].env ? podSpec.containers[0].env[0].value : ''}</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>

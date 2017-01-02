@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Radio, Icon, Spin, Button } from 'antd'
+import { Row, Col, Card, Radio, Icon, Spin, Tooltip, Button } from 'antd'
 import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
@@ -555,7 +555,9 @@ class Ordinary extends Component{
                           {userName}
                         </p>
                       </Link>
-                      <p className="email">{email || '...'}</p>
+                      <Tooltip title={email}>
+                        <p className="email">{email || '...'}</p>
+                      </Tooltip>
                     </div>
                   </div>
                   <div className='loginTag'>{certName}</div>
@@ -567,7 +569,7 @@ class Ordinary extends Component{
                       <i style={{backgroundColor:'#46b2fa'}}></i>
                       {this.state.isTeam ? '团队余额' : '我的余额'}&nbsp;:&nbsp;
                     </div>
-                    <span className='costNum'>¥{parseAmount(clusterNodeSpaceConsumption.balance).amount}</span>
+                    <span className='costNum'>¥ {parseAmount(clusterNodeSpaceConsumption.balance).amount}</span>
                     <Link to='/account/balance/payment'><Button type='primary'>去充值</Button></Link>
                   </div>
                   <div className='userCost'>
@@ -575,7 +577,7 @@ class Ordinary extends Component{
                       <i style={{backgroundColor: '#28bd83'}}></i>
                       今日消费&nbsp;:&nbsp;
                     </div>
-                    <span className='costNum'>¥{parseAmount(clusterNodeSpaceConsumption.consumption).amount}</span>
+                    <span className='costNum'>¥ {parseAmount(clusterNodeSpaceConsumption.consumption).amount}</span>
                     <Link to='/account/cost'><Button type='primary'>去查看</Button></Link>
                   </div>
                 </div>
