@@ -239,7 +239,7 @@ class Ordinary extends Component{
     //应用
     let appRunning = clusterAppStatus.appMap.get('Running')
     let appStopped = clusterAppStatus.appMap.get('Stopped')
-    let appOthers = clusterAppStatus.appMap.get('Unknown')
+    let appOthers = clusterAppStatus.appMap.get('Unknown') || 0 + clusterAppStatus.appMap.get('Pending') || 0
     //服务
     let svcRunning = clusterAppStatus.svcMap.get('Running')
     let svcStopped = clusterAppStatus.svcMap.get('Stopped')
@@ -247,7 +247,8 @@ class Ordinary extends Component{
     clusterAppStatus.svcMap.get('Pending')?clusterAppStatus.svcMap.get('Pending'):0
     //容器
     let conRunning = clusterAppStatus.podMap.get('Running')
-    let conFailed = clusterAppStatus.podMap.get('Failed')
+    let conFailed = clusterAppStatus.podMap.get('Failed') || 0 +
+      clusterAppStatus.podMap.get('Abnormal')?clusterAppStatus.podMap.get('Abnormal'):0
     let conOthers = clusterAppStatus.podMap.get('Pending')?clusterAppStatus.podMap.get('Pending'):0 +
     clusterAppStatus.podMap.get('Terminating')?clusterAppStatus.podMap.get('Terminating'):0 +
     clusterAppStatus.podMap.get('Unknown')?clusterAppStatus.podMap.get('Unknown'):0
