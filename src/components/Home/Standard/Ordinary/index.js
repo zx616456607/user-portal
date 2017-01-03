@@ -973,7 +973,6 @@ function getStatus(data) {
        setMap(podMap, status.phase)
      })
   }
-  console.log('appMapappMapappMap',appMap)
   return {appMap, svcMap, podMap}
 }
 
