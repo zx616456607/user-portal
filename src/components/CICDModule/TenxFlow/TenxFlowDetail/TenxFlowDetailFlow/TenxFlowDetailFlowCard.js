@@ -319,10 +319,10 @@ class TenxFlowDetailFlowCard extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let ciRulesOpened = nextProps.config.spec.ci.enabled == 1 ? true : false;
-    this.setState({
-      ciRulesOpened: ciRulesOpened
-    });
+    // let ciRulesOpened = nextProps.config.spec.ci.enabled == 1 ? true : false;
+    // this.setState({
+    //   ciRulesOpened: ciRulesOpened
+    // });
   }
 
   editFlow() {
@@ -342,7 +342,7 @@ class TenxFlowDetailFlowCard extends Component {
     if (e) {
       getTenxflowCIRules(flowId);
       this.setState({
-        cicdSetModalShow: true
+        cicdSetModalShow: true,
       });
       return
     }
@@ -369,9 +369,6 @@ class TenxFlowDetailFlowCard extends Component {
         _this.setState({
           cicdSetModalShow: false,
           ciRulesOpened: false
-        });
-        _this.setState({
-          cicdSetModalShow: false
         });
       },
       onCancel() { }
@@ -441,6 +438,9 @@ class TenxFlowDetailFlowCard extends Component {
     const scope = this.props.scope
     const flowId = scope.props.flowId
     scope.props.getTenxFlowStateList(flowId)
+    this.setState({
+      ciRulesOpened: true
+    })
   }
 
   openTenxFlowDeployLogModal(stageId) {
