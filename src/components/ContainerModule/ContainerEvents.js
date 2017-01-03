@@ -25,6 +25,32 @@ let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
   },
+
+  /**
+   * Filter and replace events
+   * 过滤、替换事件
+   * @param {Array} events
+   * @returns {Array}
+   */
+  filterEvents(events) {
+    let targetEvents = []
+    if (!events) {
+      return targetEvents
+    }
+    events.map(event => {
+      let { reason } = event
+      reason = reason.toLowerCase()
+      switch (reason) {
+        case 'failedmount':
+          event.message = '尝试挂载存储卷失败，重试中...'
+          targetEvents.push(event)
+        default:
+          targetEvents.push(event)
+      }
+    })
+    return targetEvents
+  },
+
   render: function () {
     let { config, isFetching } = this.props;
     if (isFetching) {
@@ -34,6 +60,7 @@ let MyComponent = React.createClass({
         </div>
       )
     }
+    config = this.filterEvents(config)
     if (!!!config || config.length < 1) {
       return (
         <div className="noData" >

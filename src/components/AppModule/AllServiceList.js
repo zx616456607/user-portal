@@ -83,20 +83,40 @@ const MyComponent = React.createClass({
           restartBtn: false,
         })
       }
+      if (checkedList[0].status.phase === 'Pending') {
+        scope.setState({
+          runBtn: false,
+          stopBtn: true,
+          restartBtn: false,
+        })
+      }
       return
     }
     if (checkedList.length > 1) {
       let runCount = 0
       let stopCount = 0
-      checkedList.map((item, index) => {
-        item.status.phase === 'Running' ? runCount++ : stopCount++
+      let pending = 0
+      checkedList.forEach((item, index) => {
+        if(item.status.phase === 'Running') {
+          runCount++
+        }
+        else if(item.status.phase === 'Pending') {
+          pending++
+        } else {
+          stopCount++
+        }
       })
-      if (runCount === checkedList.length) {
+      if (runCount + pending === checkedList.length) {
         scope.setState({
           runBtn: false,
           stopBtn: true,
           restartBtn: true,
         })
+        if (pending) {
+          scope.setState({
+            restartBtn: false
+          })
+        }
         return
       }
       if (stopCount === checkedList.length) {
@@ -154,19 +174,40 @@ const MyComponent = React.createClass({
           })
           return
         }
+        if (checkedList[0].status.phase === 'Pending') {
+          scope.setState({
+            runBtn: false,
+            stopBtn: true,
+            restartBtn: false,
+          })
+        }
       }
       if (checkedList.length > 1) {
         let runCount = 0
         let stopCount = 0
+        let pending = 0
         checkedList.map((item, index) => {
-          item.status.phase === 'Running' ? runCount++ : stopCount++
+          if (item.status.phase === 'Running') {
+            runCount++
+          }
+          else if (item.status.phase === 'Pending') {
+            pending++
+          } else {
+            stopCount++
+          }
         })
-        if (runCount === checkedList.length) {
+
+        if (runCount + pending === checkedList.length) {
           scope.setState({
             runBtn: false,
             stopBtn: true,
             restartBtn: true,
           })
+          if (pending) {
+            scope.setState({
+              restartBtn: false
+            })
+          }
           return
         }
         if (stopCount === checkedList.length) {

@@ -226,6 +226,7 @@ let Login = React.createClass({
   componentDidMount() {
     ReactDom.findDOMNode(this.refs.intName.refs.input).focus()
   },
+
   onChange(e) {
     console.log('e', e)
   },

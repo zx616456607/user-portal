@@ -19,6 +19,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadStorageInfo } from '../../actions/storage'
 import "./style/StorageDetail.less"
 import { DEFAULT_IMAGE_POOL } from '../../constants'
+import storagePNG from '../../assets/img/storage.png'
 
 function loadData(props) {
   const { loadStorageInfo } = props
@@ -94,7 +95,7 @@ class StorageDetail extends Component {
           <div key="ca" className="AppInfo">
             <Card className="topCard">
               <div className="imgBox">
-                <img src="/img/storage.png" />
+                <img src={storagePNG} />
               </div>
               <div className="infoBox">
                 <div className="appTitle">

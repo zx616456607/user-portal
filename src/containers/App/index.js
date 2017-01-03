@@ -22,7 +22,7 @@ import { isEmptyObject } from '../../common/tools'
 import { updateContainerList, updateAppList } from '../../actions/app_manage'
 import { updateAppServicesList, updateServiceContainersList, updateServicesList } from '../../actions/services'
 import { handleOnMessage } from './status'
-import { SHOW_ERROR_PAGE_ACTION_TYPES, LOGIN_EXPIRED_MESSAGE } from '../../constants'
+import { SHOW_ERROR_PAGE_ACTION_TYPES, LOGIN_EXPIRED_MESSAGE, PAYMENT_REQUIRED_CODE, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
 import errorHandler from './error_handler'
 import Intercom from 'react-intercom'
 import NotificationHandler from '../../common/notification_handler'
@@ -84,12 +84,12 @@ class App extends Component {
       return
     }
     // 余额不足
-    if (statusCode === 402) {
+    if (statusCode === PAYMENT_REQUIRED_CODE) {
       notification.warn('操作失败', message.message, null)
       return
     }
     // 升级版本
-    if (statusCode === 412) {
+    if (statusCode === UPGRADE_EDITION_REQUIRED_CODE) {
       let { kind, level } = message.details
       level = parseInt(level)
       // 超出专业版限额，发工单联系客服
@@ -148,13 +148,13 @@ class App extends Component {
     }
 
     // 余额不足
-    if (statusCode === 402) {
+    if (statusCode === PAYMENT_REQUIRED_CODE) {
       resetErrorMessage()
       return
     }
 
     // 升级版本
-    if (statusCode === 412) {
+    if (statusCode === UPGRADE_EDITION_REQUIRED_CODE) {
       resetErrorMessage()
       return
     }

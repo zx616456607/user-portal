@@ -73,19 +73,62 @@ const MyComponent = React.createClass({
           stopBtn: true,
           restartBtn: true,
         })
-      } else if (checkedList[0].status.phase === 'Stopped') {
+      } 
+      if (checkedList[0].status.phase === 'Stopped') {
         scope.setState({
           runBtn: true,
           stopBtn: false,
           restartBtn: false,
         })
       }
+      if (checkedList[0].status.phase === 'Pending') {
+        scope.setState({
+          runBtn: false,
+          stopBtn: true,
+          restartBtn: false,
+        })
+      }
     } else if (checkedList.length > 1) {
+      let runCount = 0
+      let stopCount = 0
+      let pending = 0
+      checkedList.forEach((item, index) => {
+        if(item.status.phase === 'Running') {
+          runCount++
+        }
+        else if(item.status.phase === 'Pending') {
+          pending++
+        } else {
+          stopCount++
+        }
+      })
+      if (runCount + pending === checkedList.length) {
+        scope.setState({
+          runBtn: false,
+          stopBtn: true,
+          restartBtn: true,
+        })
+        if (pending) {
+          scope.setState({
+            restartBtn: false
+          })
+        }
+        return
+      }
+      if (stopCount === checkedList.length) {
+        scope.setState({
+          runBtn: true,
+          stopBtn: false,
+          restartBtn: false,
+        })
+        return
+      }
       scope.setState({
         runBtn: true,
         stopBtn: true,
         restartBtn: true,
       })
+      return
     }
     scope.setState({
       serviceList
@@ -117,19 +160,62 @@ const MyComponent = React.createClass({
             stopBtn: true,
             restartBtn: true,
           })
-        } else if (checkedList[0].status.phase === 'Stopped') {
+        }
+        if (checkedList[0].status.phase === 'Stopped') {
           scope.setState({
             runBtn: true,
             stopBtn: false,
             restartBtn: false,
           })
         }
+        if (checkedList[0].status.phase === 'Pending') {
+          scope.setState({
+            runBtn: false,
+            stopBtn: true,
+            restartBtn: false,
+          })
+        }
       } else if (checkedList.length > 1) {
+        let runCount = 0
+        let stopCount = 0
+        let pending = 0
+        checkedList.forEach((item, index) => {
+          if (item.status.phase === 'Running') {
+            runCount++
+          }
+          else if (item.status.phase === 'Pending') {
+            pending++
+          } else {
+            stopCount++
+          }
+        })
+        if (runCount + pending === checkedList.length) {
+          scope.setState({
+            runBtn: false,
+            stopBtn: true,
+            restartBtn: true,
+          })
+          if (pending) {
+            scope.setState({
+              restartBtn: false
+            })
+          }
+          return
+        }
+        if (stopCount === checkedList.length) {
+          scope.setState({
+            runBtn: true,
+            stopBtn: false,
+            restartBtn: false,
+          })
+          return
+        }
         scope.setState({
           runBtn: true,
           stopBtn: true,
           restartBtn: true,
         })
+        return
       }
       scope.setState({
         serviceList

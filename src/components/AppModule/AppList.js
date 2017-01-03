@@ -69,19 +69,37 @@ let MyComponent = React.createClass({
         })
         return
       }
+      if (checkedList[0].status.phase === 'Pending') {
+        parentScope.setState({
+          runBtn: false,
+          stopBtn: true,
+          restartBtn: false,
+        })
+      }
     }
     if (checkedList.length > 1) {
       let runCount = 0
       let stopCount = 0
+      let pending = 0
       checkedList.map((item, index) => {
-        item.status.phase === 'Running' ? runCount++ : stopCount++
+        if(item.status.phase === 'Running') {
+          runCount++
+        }
+        else if(item.status.phase === 'Pending') {
+          pending++
+        } else {
+          stopCount++
+        }
       })
-      if (runCount === checkedList.length) {
+      if (runCount + pending === checkedList.length) {
         parentScope.setState({
           runBtn: false,
           stopBtn: true,
           restartBtn: true,
         })
+        if(pending){
+          restartBtn: false
+        }
         return
       }
       if (stopCount === checkedList.length) {
@@ -144,6 +162,14 @@ let MyComponent = React.createClass({
           })
           return
         }
+        if (checkedList[0].status.phase === 'Pending') {
+          parentScope.setState({
+            runBtn: false,
+            stopBtn: true,
+            restartBtn: true,
+          })
+          return
+        }
         if (checkedList[0].status.phase === 'Stopped') {
           parentScope.setState({
             runBtn: true,
@@ -156,15 +182,28 @@ let MyComponent = React.createClass({
       if (checkedList.length > 1) {
         let runCount = 0
         let stopCount = 0
+        let pending = 0
         checkedList.map((item, index) => {
-          item.status.phase === 'Running' ? runCount++ : stopCount++
+          if (item.status.phase === 'Running') {
+            runCount++
+          }
+          if (item.status.phase === 'Pending') {
+            pending++
+          } else {
+            stopCount++
+          }
         })
-        if (runCount === checkedList.length) {
+        if (runCount + pending === checkedList.length) {
           parentScope.setState({
             runBtn: false,
             stopBtn: true,
             restartBtn: true,
           })
+          if(pending) {
+            parentScope.setState({
+              restartBtn: false
+            })
+          }
           return
         }
         if (stopCount === checkedList.length) {

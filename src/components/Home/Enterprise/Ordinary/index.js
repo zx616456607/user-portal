@@ -201,7 +201,7 @@ class Ordinary extends Component{
     //应用
     let appRunning = clusterAppStatus.appMap.get('Running')
     let appStopped = clusterAppStatus.appMap.get('Stopped')
-    let appOthers = clusterAppStatus.appMap.get('Unknown')
+    let appOthers = clusterAppStatus.appMap.get('Unknown') || 0 + clusterAppStatus.appMap.get('Pending') || 0
     //服务
     let svcRunning = clusterAppStatus.svcMap.get('Running')
     let svcStopped = clusterAppStatus.svcMap.get('Stopped')
@@ -784,9 +784,7 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#homeapiservice" />
-                      </svg>
+                      <img className="stateImg" style={{width:'18px'}} src="/img/sider/engine.svg" />
                       API Server
                     </td>
                     <td>

@@ -10,27 +10,29 @@
 import React, { Component } from 'react'
 import { Button } from 'antd'
 import './style/AccountType.less'
+import registerPerAccountPNG from '../../assets/img/registerPerAccount.png'
+import registerComAccountPNG from '../../assets/img/registerComAccount.png'
 
 export default class AccountType extends Component{
   constructor(props){
     super(props)
     this.handlePageChange = this.handlePageChange.bind(this)
-    
+
     this.state = {
-      
+
     }
   }
   handlePageChange (person) {
     const { onChange } = this.props
     onChange(person)
   }
-  
+
   render(){
     return (
       <div id="AccountType">
         <div className="accountInf" style={{paddingRight:'40px',borderRight:'1px dashed #d5d5d5'}}>
           <div className="accountImg">
-            <img src="./img/registerPerAccount.png" alt="registerPerAccount"/>
+            <img src={registerPerAccountPNG} alt="registerPerAccount"/>
           </div>
           <div className="accountTitle">
             <div className="line"></div>
@@ -47,7 +49,7 @@ export default class AccountType extends Component{
         </div>
         <div className="accountInf" style={{paddingLeft:'40px'}}>
           <div className="accountImg">
-            <img src="./img/registerComAccount.png" alt="registerPerAccount"/>
+            <img src={registerComAccountPNG} alt="registerPerAccount"/>
           </div>
           <div className="accountTitle">
             <div className="line"></div>

@@ -83,7 +83,7 @@
           term.write("||     | |  __/ | | |>  < (__| | (_) | |_| | (_| |   ||\r\n"); 
           term.write("||     |_|\\___|_| |_/_/\\_\\___|_|\\___/ \\__,_|\\__,_|   ||\r\n"); 
           term.write("||                                                   ||\r\n"); 
-          term.write("***********************************Tenxcloud Enterprise\r\n\r\n"); 
+          term.write("*************************** TenxCloud Container Termial\r\n\r\n"); 
                                                                                                                 
 
           //term.write('\x1b[31mWelcome to Tenxcloud Web Terminal!\x1b[m\r\n\r\n');
@@ -122,7 +122,7 @@
           setInterval(function(){
             var time = (new Date()).getTime()
             if (time - last_health > health_timeout){
-                ws.close();
+              ws.close();
             } else {
               // Wait for not busy time
               if (ws.bufferedAmount == 0) {
