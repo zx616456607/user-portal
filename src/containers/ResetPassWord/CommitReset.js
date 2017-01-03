@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  
+ *
  *
  * v0.1 - 2016/12/23
  * @author ZhaoXueYu
@@ -11,7 +11,8 @@ import React, { Component } from 'react'
 import { Button, Form, Input, message } from 'antd'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import {resetPassword} from '../../actions/user.js'
+import { resetPassword } from '../../actions/user'
+import homeNoWarnPNG from '../../assets/img/homeNoWarn.png'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -31,7 +32,7 @@ let CommitReset = React.createClass({
       resetSuccess: true,
     }
   },
-  
+
   checkPass(rule, value, callback) {
     const { validateFields } = this.props.form
     callback()
@@ -160,7 +161,7 @@ let CommitReset = React.createClass({
       this.state.resetSuccess ?
         <div className='resetSuccess'>
           <div className='resetSucImg'>
-            <img src='/img/homeNoWarn.png' />
+            <img src={homeNoWarnPNG} />
           </div>
           <div className='resetSucInf'>
             <div className='resetSucText'>重置密码成功 ! </div>

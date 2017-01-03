@@ -16,10 +16,18 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getQueryLogList } from '../../actions/manage_monitor'
 import { loadServiceContainerList } from '../../actions/services'
 import { loadUserTeamspaceList } from '../../actions/user'
+import { throwError } from '../../actions'
 import { getClusterOfQueryLog, getServiceOfQueryLog } from '../../actions/manage_monitor'
 import './style/QueryLog.less'
 import { formatDate } from '../../common/tools'
+import { mode } from '../../../configs/model'
+import { STANDARD_MODE } from '../../../configs/constants'
+import { UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
+import moment from 'moment'
 
+const DATE_PIRCKER_FORMAT = 'yyyy-MM-dd'
+const YESTERDAY = new Date(moment(moment().subtract(1, 'day')).format('YYYY-MM-DD'))
+const standardFlag = (mode == STANDARD_MODE ? true : false);
 const Option = Select.Option;
 
 const menusText = defineMessages({
@@ -526,6 +534,7 @@ class QueryLog extends Component {
     this.onChangeBigLog = this.onChangeBigLog.bind(this);
     this.onChangeQueryType = this.onChangeQueryType.bind(this);
     this.submitSearch = this.submitSearch.bind(this);
+    this.throwUpgradeError = this.throwUpgradeError.bind(this);
     this.state = {
       namespacePopup: false,
       currentNamespace: null,
@@ -548,8 +557,8 @@ class QueryLog extends Component {
       selectedCluster: false,
       selectedSerivce: false,
       selectedInstance: false,
-      start_time: null,
-      end_time: null,
+      start_time: '',
+      end_time: '',
       key_word: null,
       searchKeyword: null,
       bigLog: false,
@@ -557,10 +566,16 @@ class QueryLog extends Component {
     }
   }
 
+
+  disabledDate(current) {
+    // can not select days after today
+    return current && current.getTime() > Date.now();
+  }
+
   componentWillMount() {
-    const { formatMessage } = this.props.intl;
+    const { loadUserTeamspaceList, current, query, intl } = this.props;
+    const { formatMessage } = intl;
     document.title = formatMessage(menusText.headTitle);
-    const { loadUserTeamspaceList, current, query } = this.props;
     const _this = this;
     loadUserTeamspaceList('default', { size: 100 }, {
       success: {
@@ -741,18 +756,42 @@ class QueryLog extends Component {
     })
   }
 
-  onChangeStartTime(e, str) {
-    //this function for change the start time
+  onChangeStartTime(date, str) {
+    if (new Date(str) <= YESTERDAY) {
+      this.throwUpgradeError()
+      str = ''
+    }
     this.setState({
       start_time: str
     });
   }
 
-  onChangeEndTime(e, str) {
+  onChangeEndTime(date, str) {
     //this function for change the end time
+    if (new Date(str) <= YESTERDAY) {
+      this.throwUpgradeError()
+      str = ''
+    }
     this.setState({
       end_time: str
     });
+  }
+
+  // The user of standard edition can only select today, if not open the upgrade modal
+  throwUpgradeError(){
+    const { loginUser, throwError } = this.props
+    if (!standardFlag || loginUser.envEdition > 0) {
+      return
+    }
+    const error = new Error()
+    error.statusCode = UPGRADE_EDITION_REQUIRED_CODE
+    error.message = {
+      details: {
+        kind: 'Logging',
+        level: '0',
+      }
+    }
+    throwError(error)
   }
 
   onChangeKeyword(e) {
@@ -828,10 +867,11 @@ class QueryLog extends Component {
   }
 
   render() {
-    const {logs, isFetching} = this.props;
-    const { formatMessage } = this.props.intl;
+    const { logs, isFetching, intl } = this.props;
+    const { formatMessage } = intl;
     const scope = this;
-    if (this.state.gettingNamespace) {
+    const { gettingNamespace, start_time, end_time } = this.state;
+    if (gettingNamespace) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -916,12 +956,24 @@ class QueryLog extends Component {
             </div>
             <div className='commonBox'>
               <span className='titleSpan'><FormattedMessage {...menusText.startTime} /></span>
-              <DatePicker onChange={this.onChangeStartTime} style={{ float: 'left', minWidth: '155px', width: 'calc(100% - 85px)' }} format='yyyy-MM-dd' size='large' />
+              <DatePicker
+                disabledDate={this.disabledDate}
+                onChange={this.onChangeStartTime}
+                value={start_time}
+                style={{ float: 'left', minWidth: '155px', width: 'calc(100% - 85px)' }}
+                format={DATE_PIRCKER_FORMAT}
+                size='large' />
               <div style={{ clear: 'both' }}></div>
             </div>
             <div className='commonBox'>
               <span className='titleSpan'><FormattedMessage {...menusText.endTime} /></span>
-              <DatePicker onChange={this.onChangeEndTime} style={{ float: 'left', minWidth: '155px', width: 'calc(100% - 85px)' }} format='yyyy-MM-dd' size='large' />
+              <DatePicker
+                disabledDate={this.disabledDate}
+                onChange={this.onChangeEndTime}
+                value={end_time}
+                style={{ float: 'left', minWidth: '155px', width: 'calc(100% - 85px)' }}
+                format={DATE_PIRCKER_FORMAT}
+                size='large' />
               <div style={{ clear: 'both' }}></div>
             </div>
             <div className='commonBox'>
@@ -955,7 +1007,7 @@ class QueryLog extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { current } = state.entities
+  const { current, loginUser } = state.entities
   const { cluster } = current
   const { teamspaces } = state.user
   const { teamClusters } = state.team
@@ -973,6 +1025,7 @@ function mapStateToProps(state, props) {
   const containersList = serviceContainers[cluster.clusterID] || defaultContainers
   const { query } = props.location
   return {
+    loginUser: loginUser.info,
     isTeamspacesFetching: teamspaces.isFetching,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
     isTeamClustersFetching: teamClusters.isFetching,
@@ -1000,5 +1053,6 @@ export default connect(mapStateToProps, {
   loadServiceContainerList,
   loadUserTeamspaceList,
   getClusterOfQueryLog,
-  getServiceOfQueryLog
+  getServiceOfQueryLog,
+  throwError,
 })(QueryLog)

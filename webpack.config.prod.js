@@ -77,6 +77,7 @@ module.exports = {
       chunks: ['zh', 'main', 'common'],
       minify: {
         collapseWhitespace: true,
+        minifyJS: true,
       },
       title: '<%= title %>',
       body: '<%- body %>',

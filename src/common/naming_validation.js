@@ -41,6 +41,23 @@ export function validateServiceConfig(name) {
   }
   return true
 }
+
+/*
+ * Validation for config file of config group
+ */
+export function validateServiceConfigFile(name) {
+  if (!name) {
+    return false
+  }
+  if (name.length > 253) {
+    return false
+  }
+  let regx = new RegExp('^\\.?[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*')
+  if (!regx.test(name)) {
+    return false
+  }
+  return true
+}
 /*
 Validation for app name
 */

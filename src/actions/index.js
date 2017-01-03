@@ -15,3 +15,18 @@ export function resetErrorMessage() {
     type: RESET_ERROR_MESSAGE
   }
 }
+
+export const THROW_ERROR = 'THROW_ERROR'
+/**
+ * Throw an error to state
+ *
+ * @export
+ * @param {Object} error
+ * @returns {Object}
+ */
+export function throwError(error) {
+  return {
+    type: THROW_ERROR,
+    error
+  }
+}
