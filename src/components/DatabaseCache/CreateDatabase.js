@@ -211,12 +211,9 @@ let CreateDatabase = React.createClass({
         },
         failed: {
           func: (res)=> {
-            scope.setState({
-              CreateDatabaseModalShow: false
-            });
-            _this.props.form.resetFields();
+            _this.setState({loading: false})
             if (res.statusCode == 409) {
-              notification.error('数据库服务 ' + values.name + ' 已经存在')
+              notification.error('数据库服务 ' + values.name + ' 同已有资源冲突，请修改名称后重试')
             } else {
               notification.error('创建数据库服务失败')
             }
