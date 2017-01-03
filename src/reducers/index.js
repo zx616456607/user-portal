@@ -32,7 +32,7 @@ import overviewCluster from './overview_cluster'
 import overviewSpace from './overview_space'
 import consumption from './consumption'
 import userPreference from './user_preference'
-import { LOGIN_EXPIRED_MESSAGE } from '../constants'
+import { LOGIN_EXPIRED_MESSAGE, PAYMENT_REQUIRED_CODE, UPGRADE_EDITION_REQUIRED_CODE, } from '../constants'
 
 
 // Updates error message to notify about the failed fetches.
@@ -72,8 +72,8 @@ function actionCallback(state = null, action) {
   if (action.type.indexOf('_FAILURE') >= 0) {
     if (!callback.failed) return state
     // Mark error is already handled(except login expired)
-    if (action.error.statusCode !== 402 // 余额不足
-       && action.error.statusCode !== 412 // 升级版本
+    if (action.error.statusCode !== PAYMENT_REQUIRED_CODE // 余额不足
+       && action.error.statusCode !== UPGRADE_EDITION_REQUIRED_CODE // 升级版本
        && action.error.message !== LOGIN_EXPIRED_MESSAGE) {
       action.error.handledByCallback = true
     }
