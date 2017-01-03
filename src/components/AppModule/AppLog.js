@@ -66,6 +66,14 @@ let MyComponent = React.createClass({
   onchange: function () {
 
   },
+  getDetailMsg: function (item) {
+    let msg = ''
+    // 2: create service 3: delete service
+    if (item.operationCode === 2 || item.operationCode === 3) {
+      msg = `(${item.detail})`
+    }
+    return msg
+  },
   render: function () {
     if(!this.props.appLogs || !this.props.appLogs.result || this.props.appLogs.result.data <= 0 ) {
       return  <div className="logDetail"></div>
@@ -84,7 +92,7 @@ let MyComponent = React.createClass({
               {formatOperation(item.operation)}{formatResult(item.result)}
             </div>
             <div className="message">
-              { !item.detail ? '' : `消息&nbsp;:&nbsp${item.detail}`}
+              { this.getDetailMsg(item)}
             </div>
             <div className="createTime">
               {item.time}
