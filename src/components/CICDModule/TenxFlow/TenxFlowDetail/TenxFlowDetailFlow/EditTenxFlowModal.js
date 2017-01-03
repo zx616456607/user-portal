@@ -834,7 +834,6 @@ let EditTenxFlowModal = React.createClass({
   render() {
     const { formatMessage } = this.props.intl;
     const { config, form, codeList, supportedDependencies, imageList} = this.props;
-    console.log(config)
     const shellList = config.spec.container.args ? config.spec.container.args : [];
     const servicesList = config.spec.container.dependencies ? config.spec.container.dependencies : [];
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;

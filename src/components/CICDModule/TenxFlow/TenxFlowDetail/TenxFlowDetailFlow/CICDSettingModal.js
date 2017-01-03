@@ -121,12 +121,12 @@ let CICDSettingModal = React.createClass({
         }
         if(Boolean(config.config.branch)) {
           this.setState({
-            useBranch: true,
+            useBranch: true
           });
         }
         if(Boolean(config.config.tag)) {
           this.setState({
-            useTag: true,
+            useTag: true
           });
         }
         if(Boolean(config.config.mergeRequest)) {
