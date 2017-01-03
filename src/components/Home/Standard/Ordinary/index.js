@@ -577,7 +577,7 @@ class Ordinary extends Component{
                       <i style={{backgroundColor: '#28bd83'}}></i>
                       今日消费&nbsp;:&nbsp;
                     </div>
-                    <span className='costNum'>¥ {parseAmount(clusterNodeSpaceConsumption.consumption).amount}</span>
+                    <span className='costNum'>¥ {parseAmount(clusterNodeSpaceConsumption.consumption).amount + '(全区域)'}</span>
                     <Link to='/account/cost'><Button type='primary'>去查看</Button></Link>
                   </div>
                 </div>
