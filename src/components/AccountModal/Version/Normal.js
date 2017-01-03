@@ -14,6 +14,8 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import "./style/Normal.less"
+import arrow from '../../../assets/img/version/arrow.png'
+import proIcon from '../../../assets/img/version/proIcon.png'
 
 class VersionNoraml extends Component {
   constructor(props) {
@@ -258,7 +260,7 @@ class VersionNoraml extends Component {
               </div>
               <div className='middleBox'>
                 <div className='aniBox'>
-                  <img className='aniImg' src='/img/version/arrow.png' />
+                  <img className='aniImg' src={arrow} />
                   <div className='colorLine' />
                 </div>
                 <Button size='large' type='primary' onClick={this.handleUpgrade}>
@@ -294,7 +296,7 @@ class VersionNoraml extends Component {
                     </div>
                   </div>
                   <div className='commonBox'>
-                    <img className='commonImg' src='/img/version/proIcon.png' />
+                    <img className='commonImg' src={proIcon} />
                     <div className='commonTitleBox'>
                       <span className='commonIcon'></span>
                       <span className='commonTitle'>交付中心</span>
@@ -306,7 +308,7 @@ class VersionNoraml extends Component {
                     </div>
                   </div>
                   <div className='commonBox'>
-                    <img className='commonImg' src='/img/version/proIcon.png' />
+                    <img className='commonImg' src={proIcon} />
                     <div className='commonTitleBox'>
                       <span className='commonIcon'></span>
                       <span className='commonTitle'>CI/CD</span>
@@ -337,7 +339,7 @@ class VersionNoraml extends Component {
                     </div>
                   </div>
                   <div className='commonBox'>
-                    <img className='commonImg' src='/img/version/proIcon.png' />
+                    <img className='commonImg' src={proIcon} />
                     <div className='commonTitleBox'>
                       <span className='commonIcon'></span>
                       <span className='commonTitle'>管理与日志</span>
@@ -358,7 +360,7 @@ class VersionNoraml extends Component {
                     </div>
                   </div>
                   <div className='commonBox'>
-                    <img className='commonImg' src='/img/version/proIcon.png' />
+                    <img className='commonImg' src={proIcon} />
                     <div className='commonTitleBox'>
                       <span className='commonIcon'></span>
                       <span className='commonTitle'>团队管理</span>

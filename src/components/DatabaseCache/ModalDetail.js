@@ -16,8 +16,10 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadDbClusterDetail, deleteDatabaseCluster, putDbClusterDetail, loadDbCacheList } from '../../actions/database_cache'
 import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
-import { formatDate, parseAmount} from '../../common/tools.js'
+import { calcuDate, parseAmount} from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
+import serverSVG from '../../assets/img/server.svg'
+
 const Panel = Collapse.Panel;
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm;
@@ -44,7 +46,7 @@ class VolumeHeader extends Component {
           </div>
         </Col>
         <Col span="10">
-          创建时间&nbsp;&nbsp;{formatDate(data.objectMeta.creationTimestamp)}
+          创建时间&nbsp;&nbsp;{calcuDate(data.objectMeta.creationTimestamp)}
         </Col>
       </Row>
     )
@@ -84,7 +86,7 @@ class VolumeDetail extends Component {
                 <tbody>
                   <tr>
                     <td style={{ padding: '15px' }}>
-                      <div style={{ width: '200px' }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px' }} />{configFileItem}</div>
+                      <div style={{ width: '100px' }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px' }} />{configFileItem}</div>
                     </td>
 
                     <td style={{ width: '130px', textAlign: 'center' }}>
@@ -121,8 +123,8 @@ class BaseInfo extends Component {
     const podSpec = databaseInfo.podList.pods[0].podSpec
     let storagePrc = parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
     let containerPrc = parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
-    const hourPrice = parseAmount((parentScope.state.storageValue /1000 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ), 4)
-    const countPrice = parseAmount((parentScope.state.storageValue /1000 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc) * 24 * 30 , 4)
+    const hourPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ), 4)
+    const countPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc) * 24 * 30 , 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
     const modalContent = (
@@ -133,7 +135,7 @@ class BaseInfo extends Component {
         <div className="modal-li">
           <span className="spanLeft">存储大小</span>
           {/* <Slider min={500} max={10000} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} step={100} /> */}
-          <InputNumber min={500} max={10240} step={100} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} /> &nbsp; M
+          <InputNumber min={500} max={10240} step={20} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} /> &nbsp; M
         </div>
         <div className="modal-price">
           <div className="price-left">
@@ -179,7 +181,7 @@ class BaseInfo extends Component {
           {this.props.database == 'mysql' ?
             <div><div className='configHead'>参数</div>
               <ul className='parse-list'>
-                <li><span className='key'>key</span> <span className='value'>value</span></li>
+                <li><span className='key'>参数名</span> <span className='value'>参数值</span></li>
                 <li><span className='key'>用户名：</span> <span className='value'>root</span></li>
                 {this.state.passShow ?
                   <li><span className='key'>密码：</span> <span className='value'>{podSpec.containers[0].env ? podSpec.containers[0].env[0].value : ''}</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
@@ -211,7 +213,7 @@ class BaseInfo extends Component {
             合计价格：<span className="unit">￥</span><span className="unit blod">{hourPrice.amount}元/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：￥{countPrice.amount}元/月）</span>
           </div>
         </div>
-        
+
       </div>
     )
   }
@@ -353,7 +355,7 @@ class ModalDetail extends Component {
   }
   colseModal() {
     const storageValue = parseInt(this.props.databaseInfo.volumeInfo.size)
-    this.setState({ 
+    this.setState({
       putVisible: false,
       putModaling:false,
       replicas: this.props.databaseInfo.podInfo.desired,
@@ -383,7 +385,7 @@ class ModalDetail extends Component {
         <div className='titleBox'>
           <Icon className='closeBtn' type='cross' onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className='imgBox'>
-            <img src='/img/default.png' />
+            <img src={serverSVG} />
           </div>
           <div className='infoBox'>
             <p className='instanceName'>

@@ -29,10 +29,9 @@ module.exports = {
   },
 
   output: {
-    path: path.join(__dirname, 'dist'),
-    publicPath: '',
-    filename: '[name].[chunkhash].js',
-    chunkFilename: 'chunk.[id].[chunkhash].js',
+    path: path.join(__dirname, 'static/bundles'),
+    filename: '[name].[chunkhash:8].js',
+    chunkFilename: 'chunk.[id].[chunkhash:8].js',
     publicPath: '/bundles/'
   },
 
@@ -48,6 +47,13 @@ module.exports = {
       exclude: /node_modules/,
       include: __dirname
     }, {
+　　　 test: /\.(jpe?g|png|gif|svg)$/,
+　　　 loader: 'url-loader', // 5KB 以下图片自动转成 base64 码
+      query: {
+        limit: 5120, // 5KB 以下图片自动转成 base64 码
+        name: 'img/[name].[hash:8].[ext]',
+      },
+　　 }, {
       test: /\.json$/,
       loader: 'json-loader'
     }, {
@@ -77,7 +83,7 @@ module.exports = {
       intl_locale: '<%= intl_locale %>',
       timestrap: (+ new Date()),
       template: path.join(__dirname, 'src/templates/index.html'),
-      filename: path.join(__dirname, 'dist/src/index.html'),
+      filename: path.join(__dirname, 'index.html'),
     }),
     // 删除重复数据
     new webpack.optimize.DedupePlugin(),
@@ -85,10 +91,10 @@ module.exports = {
     new webpack.optimize.LimitChunkCountPlugin({maxChunks: 18}),
     new webpack.optimize.MinChunkSizePlugin({minChunkSize: 200000}),
     // new webpack.optimize.CommonsChunkPlugin('vendor', 'common.js'),
-    new webpack.optimize.CommonsChunkPlugin('common', 'common.[chunkhash].js'),
+    new webpack.optimize.CommonsChunkPlugin('common', 'common.[chunkhash:8].js'),
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.NoErrorsPlugin(),
-    new ExtractTextPlugin('index.[chunkhash].css', { allChunks: true }),
+    new ExtractTextPlugin('index.[chunkhash:8].css', { allChunks: true }),
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false

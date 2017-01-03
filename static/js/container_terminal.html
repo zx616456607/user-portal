@@ -7,9 +7,10 @@
   <script src="term.js"></script>
   <script>
     "use strict";
-     var ws
-     var term
-     var connected = false;
+    const health_timeout = 120000 // 2 minutes for real timeout
+    var ws
+    var term
+    var connected = false;
     // Initialize everything when the window finishes loading
     window.addEventListener("load", function(event) {
         webSocketConnect()
@@ -114,6 +115,24 @@
            closeWebSocket(ws, term)
          }
         });
+        // Current health time
+        var last_health = (new Date()).getTime()
+        ws.onopen = function(){
+          // Send heart beat every 30 seconds
+          setInterval(function(){
+            var time = (new Date()).getTime()
+            if (time - last_health > health_timeout){
+                ws.close();
+            } else {
+              // Wait for not busy time
+              if (ws.bufferedAmount == 0) {
+                ws.send('~echo~');
+                // Refresh the last health time
+                last_health = time;
+              }
+            }
+          }, 30000);
+        }
       }
     }
 

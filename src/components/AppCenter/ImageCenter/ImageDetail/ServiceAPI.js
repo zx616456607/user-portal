@@ -74,9 +74,9 @@ class ServiceAPI extends Component {
     const { isFetching, configList } = this.props;
     if (isFetching) {
       return (
-        <Card className='loadingBox'>
+        <div className='loadingBox'>
           <Spin size='large' />
-        </Card>
+        </div>
       )
     }
     if (!configList) {

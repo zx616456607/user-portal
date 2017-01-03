@@ -10,26 +10,34 @@ set -e
 
 build_user_portal() {
   set -x
-  rm -rf dist
+  outputPath="static/bundles"
+  # rm -rf dist
+  rm -rf ${outputPath}
 
   node_modules/.bin/webpack -p
 
-  rm -f static/js/common.*
-  rm -f static/js/main.*
-  rm -f static/js/chunk.*
-  rm -f static/locales/frontend/*.js
-  rm -f static/style/main.*
+  cp ${outputPath}/zh.*.js ${outputPath}/zh.js
+  rm -f ${outputPath}/zh.*.js
+  cp ${outputPath}/en.*.js ${outputPath}/en.js
+  rm -f ${outputPath}/en.*.js
 
-  rm -rf static/static/bundles/*
+  # rm -f static/js/common.*
+  # rm -f static/js/main.*
+  # rm -f static/js/chunk.*
+  # rm -f static/locales/frontend/*.js
+  # rm -f static/style/main.*
 
-  cp dist/common.* static/bundles/
-  cp dist/main.* static/bundles/
-  cp dist/chunk.* static/bundles/
-  # Rename files for intl
-  cp dist/zh.*.js static/bundles/zh.js
-  cp dist/en.*.js static/bundles/en.js
-  cp dist/index.* static/bundles/
-  cp dist/src/index.html index.html
+  # rm -rf static/static/bundles/*
+
+  # cp dist/common.* static/bundles/
+  # cp dist/main.* static/bundles/
+  # cp dist/chunk.* static/bundles/
+  # # Rename files for intl
+  # cp dist/zh.*.js static/bundles/zh.js
+  # cp dist/en.*.js static/bundles/en.js
+  # cp dist/index.* static/bundles/
+  # cp dist/src/index.html index.html
+  # cp dist/img/* static/bundles/img/
 
   set +x
 }

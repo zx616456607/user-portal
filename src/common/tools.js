@@ -226,7 +226,7 @@ export function parseAmount(amount, precision) {
   if (precision > conversionLog10) {
     precision = conversionLog10
   }
-  amount = Math.floor(amount / Math.pow(10, conversionLog10 - precision))
+  amount = Math.ceil(amount / Math.pow(10, conversionLog10 - precision))
   amount = amount / Math.pow(10, precision)
   data.amount = amount
   if (mode === STANDARD_MODE) {

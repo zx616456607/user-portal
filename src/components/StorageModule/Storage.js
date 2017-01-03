@@ -330,8 +330,8 @@ let MyComponent = React.createClass({
     });
     const { scope } = this.props
     const { resourcePrice } = scope.props.currentCluster
-    const hourPrice = parseAmount(this.state.size /1000 * resourcePrice.storage, 4)
-    const countPrice = parseAmount(this.state.size /1000 * resourcePrice.storage * 24 *30, 4)
+    const hourPrice = parseAmount(this.state.size /1024 * resourcePrice.storage, 4)
+    const countPrice = parseAmount(this.state.size /1024 * resourcePrice.storage * 24 *30, 4)
     return (
       <div className="dataBox">
         {items}
@@ -351,9 +351,9 @@ let MyComponent = React.createClass({
             <Row style={{ height: '40px' }}>
               <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{formatMessage(messages.size)}</Col>
               <Col span="12">
-                <Slider min={this.state.modalSize} max={10240} step={100} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
+                <Slider min={this.state.modalSize} max={10240} step={20} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
               <Col span="8">
-                <InputNumber min={this.state.modalSize} max={10240} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
+                <InputNumber min={this.state.modalSize} max={10240} step={20} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
                 <span style={{ paddingLeft: 10 }} >MB</span>
               </Col>
             </Row>
@@ -666,8 +666,8 @@ class Storage extends Component {
     const { formatMessage } = this.props.intl
     if (!this.props.currentCluster.resourcePrice) return <div></div>
     const storagePrice = this.props.currentCluster.resourcePrice.storage /10000
-    const hourPrice = parseAmount(this.state.size / 1000 * this.props.currentCluster.resourcePrice.storage, 4)
-    const countPrice = parseAmount(this.state.size / 1000 * this.props.currentCluster.resourcePrice.storage * 24 *30, 4)
+    const hourPrice = parseAmount(this.state.size / 1024 * this.props.currentCluster.resourcePrice.storage, 4)
+    const countPrice = parseAmount(this.state.size / 1024 * this.props.currentCluster.resourcePrice.storage * 24 *30, 4)
     return (
       <QueueAnim className="StorageList" type="right">
         <div id="StorageList" key="StorageList">
@@ -707,10 +707,10 @@ class Storage extends Component {
                     {formatMessage(messages.size)}
                   </Col>
                   <Col span="12">
-                    <Slider min={500} max={10240} step={100} onChange={this.onChange} value={this.state.size} />
+                    <Slider min={500} max={10240} step={20} onChange={this.onChange} value={this.state.size} />
                   </Col>
                   <Col span="8">
-                    <InputNumber min={500} max={10240} style={{ marginLeft: '16px' }} value={this.state.size} onChange={this.onChange} />
+                    <InputNumber min={500} max={10240} step={20} style={{ marginLeft: '16px' }} value={this.state.size} onChange={this.onChange} />
                     <span style={{ paddingLeft: 10 }} >MB</span>
                   </Col>
                 </Row>

@@ -78,7 +78,7 @@ exports.getStdClusterOverview = function* () {
              api.overview.getBy(["clusters", cluster, "storagestatus"]),
              api.overview.getBy(["clusters", cluster, "appstatus"]),
              k8sapi.getBy([cluster, "dbservices"]),
-             api.overview.getBy(["clusters", cluster, "space-consumption"]),]
+             api.overview.getBy(["space-consumption"]),]
   let operations = {}
   if (result && result[0] && result[0].data) {
     operations = result[0].data
