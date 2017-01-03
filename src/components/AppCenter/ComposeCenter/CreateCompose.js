@@ -113,7 +113,7 @@ class CreateCompose extends Component {
             notification.success(`创建编排 ${values.name} 成功`)
             scope.props.form.resetFields();
             scope.setState({
-              currentYaml: null
+              currentYaml: ""
             });
           },
           isAsync: true
@@ -124,7 +124,7 @@ class CreateCompose extends Component {
             notification.error(`创建编排 ${values.name} 失败`, err.message.message)
             scope.props.form.resetFields();
             scope.setState({
-              currentYaml: null
+              currentYaml: ""
             });
           }
         }
@@ -169,7 +169,7 @@ class CreateCompose extends Component {
             notification.success(`更新编排 ${values.name} 成功`)
             scope.props.form.resetFields();
             scope.setState({
-              currentYaml: null
+              currentYaml: ""
             });
           },
           isAsync: true
@@ -184,7 +184,7 @@ class CreateCompose extends Component {
             notification.error(`更新编排 ${values.name} 失败`, err.message.message)
             scope.props.form.resetFields();
             scope.setState({
-              currentYaml: null
+              currentYaml: ""
             });
           }
         }
