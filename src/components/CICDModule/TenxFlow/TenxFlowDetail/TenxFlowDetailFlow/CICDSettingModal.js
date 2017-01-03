@@ -89,7 +89,7 @@ let CICDSettingModal = React.createClass({
       editTag: false
     }
   },
-  componetWillMount() {
+  componentWillMount() {
     const {isFetching, ciRules} = this.props;
     if(!isFetching) {
       if(Boolean(ciRules)) {
@@ -112,7 +112,7 @@ let CICDSettingModal = React.createClass({
     }
   },
   componentWillReceiveProps(nextProps) {
-    const {isFetching, ciRules} = nextProps;
+    const {isFetching, ciRules } = nextProps;
     if(!isFetching) {
       if(Boolean(ciRules)) {
         let config = ciRules.results;
@@ -302,7 +302,16 @@ let CICDSettingModal = React.createClass({
     });
     UpdateTenxflowCIRules(flowId, body, {
       success: {
-        func: () => scope.ciRulesChangeSuccess(),
+        func: () => { 
+          scope.ciRulesChangeSuccess()
+          _this.setState({
+            useBranch: false,
+            useTag: false,
+            useRequest: false,
+            editBranch: false,
+            editTag: false
+          })
+        },
         isAsync: true
       }
     })
