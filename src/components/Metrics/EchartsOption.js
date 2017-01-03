@@ -32,7 +32,7 @@ class EchartsOption {
       align: 'left'
     }
     this.grid = [{
-      left: 50,
+      left: 70,
       right: 50,
     }]
     this.xAxis = {
@@ -70,7 +70,7 @@ class EchartsOption {
         lineStyle: {
           type: 'dashed'
         }
-      }
+      },
     }
     if (type) {
       yAxisItem.type = type

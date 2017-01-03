@@ -22,7 +22,7 @@ import './style/CodeStore.less'
 const menusText = defineMessages({
   tooltips: {
     id: 'CICD.TenxStorm.tooltips',
-    defaultMessage: '代码仓库：这里完成构建前的准备工作，开发者可以在这里关联企业里业务代码所在的托管仓库，关联好代码仓库后，选择激活代码项目为可构建状态，以便后续构建TenxFlow时选择可构建的代码库。',
+    defaultMessage: '代码仓库：这里完成构建前的准备工作，开发者可以在这里关联企业里业务代码所在的代码仓库，关联好代码仓库后，选择激活代码项目为可构建状态，以便后续构建TenxFlow时选择可构建的代码项目。',
   },
   show: {
     id: 'CICD.TenxStorm.show',
@@ -245,7 +245,7 @@ const MyComponent = React.createClass({
           ]}
           >
           <div style={{ padding: "0 20px" }}>
-            <p style={{ lineHeight: '40px' }}>* 将该URL填入到 {this.state.repoType}项目的Web Hooks URL中</p>
+            <p style={{ lineHeight: '40px' }}>* 将该URL填入到 {this.state.repoType.replace('l', 'L').replace('h', 'H')}项目的Web Hooks URL中</p>
             <div style={{ padding: '10px', border: '1px solid #d9d9d9', wordWrap: 'break-word' }} className="valueBox">{this.state.webhookUrl}</div>
             <p style={{ opacity: '0', position: 'absolute' }}><Input type="textarea" className="CodeCopy" autosize={{ minRows: 2, maxRows: 6 }} value={this.state.webhookUrl} /></p>
             <p style={{ marginTop: '10px' }}>
@@ -265,7 +265,7 @@ const MyComponent = React.createClass({
             <p style={{ lineHeight: '30px' }}>检测到关联的代码托管系统：</p>
             <p style={{ lineHeight: '40px' }}><span style={{ color: '#00A0EA' }} className="name">仓库: {this.state.repoType}/ {this.state.itemName} </span>  <span style={{ color: '#00A0EA', marginLeft: '20px' }} className="type">属性：{this.state.itemType == 1 ? "私有" : "公有"}</span> </p>
 
-            <p style={{ lineHeight: '40px' }}>* 请手动配置以下公钥到<span style={{textTransform:'capitalize'} }>{this.state.repoType}</span>项目中：</p>
+            <p style={{ lineHeight: '40px' }}>* 请手动配置以下公钥到<span style={{textTransform:'capitalize'} }>{this.state.repoType.replace('l', 'L').replace('h', 'H')}</span>项目中：</p>
             <div style={{ padding: '10px', border: '1px solid #d9d9d9', wordWrap: 'break-word' }}>{this.state.publicKey}</div>
             <p style={{ opacity: '0', position: 'absolute' }}><Input type="textarea" className="KeyCopy" autosize={{ minRows: 2, maxRows: 6 }} value={this.state.publicKey} /></p>
             <p style={{ marginTop: '10px' }}>
