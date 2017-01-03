@@ -225,7 +225,7 @@ class Editor extends Component {
             { currentBox == 'normal' ? [<Icon type='arrow-salt' key='arrow-salt' onClick={this.changeBoxSize.bind(this)}/>] : [<Icon type='shrink' key='shrink' onClick={this.changeBoxSize.bind(this)} />] }
             { title == 'Yaml' ? [
               <Tooltip placement='left'
-                getTooltipContainer={() => document.getElementById('CodeMirror')}
+                getTooltipContainer={() => document.getElementsByClassName('editOperaBox')[0]}
                 title={<FormattedMessage {...menusText.Tooltip} />}>
                 <Icon type='question-circle-o' />
               </Tooltip>

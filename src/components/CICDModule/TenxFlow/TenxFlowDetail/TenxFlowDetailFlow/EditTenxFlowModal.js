@@ -594,6 +594,7 @@ let EditTenxFlowModal = React.createClass({
   handleSubmit(e) {
     //this function for user submit the form
     const { scope, config, updateTenxFlowState, flowId, stageId, rootScope, setDockerfile } = this.props;
+    const enabled = config.spec.ci.enabled || 0
     const { getTenxFlowStateList } = rootScope.props;
     const _this = this;
     this.props.form.validateFields((errors, values) => {
@@ -755,6 +756,9 @@ let EditTenxFlowModal = React.createClass({
             'id': _this.state.currentCodeStore,
             'branch': _this.state.currentCodeStoreBranch
           },
+          ci: {
+            enabled
+          }
         }
       }
       //if user select the customer type (5), ths customType must be input

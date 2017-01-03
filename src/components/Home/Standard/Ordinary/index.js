@@ -577,7 +577,7 @@ class Ordinary extends Component{
                       <i style={{backgroundColor: '#28bd83'}}></i>
                       今日消费&nbsp;:&nbsp;
                     </div>
-                    <span className='costNum'>¥ {parseAmount(clusterNodeSpaceConsumption.consumption).amount}</span>
+                    <span className='costNum'>¥ {parseAmount(clusterNodeSpaceConsumption.consumption).amount + '(全区域)'}</span>
                     <Link to='/account/cost'><Button type='primary'>去查看</Button></Link>
                   </div>
                 </div>
@@ -615,7 +615,7 @@ class Ordinary extends Component{
                   <tbody>
                   <tr>
                     <td>
-                      <img className="stateImg" style={{width:'18px'}} src="/img/sider/engine.svg"/>
+                      <img className="stateImg" src="/img/homeKubernetes.png" />
                       Engine
                     </td>
                     <td>
@@ -646,9 +646,7 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#cicd" />
-                      </svg>
+                      <img className="stateImg" style={{width:'18px'}} src="/img/sider/engine.svg" />
                       Monitor
                     </td>
                     <td>

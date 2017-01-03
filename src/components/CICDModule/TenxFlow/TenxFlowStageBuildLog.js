@@ -22,7 +22,7 @@ function formatLog(log) {
   let showLogs = newLog.map((item, index) => {
     return (
       <div className='stageBuildLogDetail' key={ 'stageBuildLogDetail' + index }>
-        <span><pre dangerouslySetInnerHTML={{__html:item}}></pre></span>
+        <span><span dangerouslySetInnerHTML={{__html:item}}></span></span>
       </div>
     )
   });
