@@ -16,6 +16,8 @@ import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, 
 import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import NotificationHandler from '../../../common/notification_handler'
+import logo2xPNG from '../../../assets/img/sider/logo@2x.png'
+import logoPNG from '../../../assets/img/sider/logo.png'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -80,11 +82,11 @@ class Slider extends Component {
       currentSelectedMenu: currentSelectedMenu
     });
   }
-  
+
   componentWillReceiveProps(nextProps) {
     const { pathname } = nextProps;
     const oldPathname = this.props.pathname;
-    if(pathname != oldPathname) {      
+    if(pathname != oldPathname) {
       let currentOpenMenu = checkUrlSelectedKey(pathname);
       let currentSelectedMenu = checkUrlOpenKeys(pathname);
       let currentKey = pathname.split('/')[1];
@@ -221,7 +223,7 @@ class Slider extends Component {
       }
     }
   }
-  
+
   onOpenBigMenu(e) {
     //this function for show only one menu opened
     let currentOpenMenu = checkUrlOpenKeys(e.key + '/' + e.key);
@@ -229,7 +231,7 @@ class Slider extends Component {
       currentOpenMenu: currentOpenMenu
     })
   }
-  
+
   onCloseBigMenu(e) {
     //this function for close big menu callback
     this.setState({
@@ -269,7 +271,7 @@ class Slider extends Component {
             <ul className='siderTop'>
               <li className='logoItem'>
                 <Link to='/'>
-                  <img className='logo' src='/img/sider/logo@2x.png' />
+                  <img className='logo' src={logo2xPNG} />
                 </Link>
               </li>
               <li onClick={this.selectModel.bind(this, 'home', '#home')} className={currentKey == 'home' ? 'selectedLi' : ''} >
@@ -365,7 +367,7 @@ class Slider extends Component {
             <div key='siderBigger' className='siderBigger'>
               <div className='logBox'>
                 <Link to='/'>
-                  <img className='logo' src='/img/sider/logo.png' />
+                  <img className='logo' src={logoPNG} />
                 </Link>
               </div>
               <Menu
@@ -496,13 +498,13 @@ class Slider extends Component {
                       <span><div className='sideCircle'></div> 关系型数据库</span>
                     </Link>
                   </Menu.Item>
-                
+
                   <Menu.Item key='redis_cluster'>
                     <Link to='/database_cache/redis_cluster'>
                       <span><div className='sideCircle'></div> 缓存</span>
                     </Link>
                   </Menu.Item>
-                  
+
                   <div className='sline'></div>
                 </SubMenu>
                 <Menu.Item key='integration'>

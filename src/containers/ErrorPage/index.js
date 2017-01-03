@@ -10,6 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { Link } from 'react-router'
 import './style/ErrorPage.less'
+import error404PNG from '../../assets/img/error404.png'
 
 class ErrorPage extends Component {
   constructor(props) {
@@ -51,7 +52,7 @@ class ErrorPage extends Component {
     return (
       <div id='NotFoundErrorPageBox' className='CommonSecondContent'>
         <p className='codeTitle'>{code}</p>
-        <img className='errorImg' src='/img/error404.png' />
+        <img className='errorImg' src={error404PNG} />
         <p>{message}</p>
         <p>
           <Link to='/'>
