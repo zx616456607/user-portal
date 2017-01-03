@@ -40,7 +40,13 @@ let Invite = React.createClass({
       <div id="InvitePage">
         <div className="Invite">
           <Row>
-            <div className="InviteTitle">立即加入</div>
+            <div className="InviteTitle">
+            {
+              isUser ?
+              '立即登录' :
+              '立即加入'
+            }
+            </div>
             <div className="Invitetext">
               {
                 isUser ?'登录':'注册'
