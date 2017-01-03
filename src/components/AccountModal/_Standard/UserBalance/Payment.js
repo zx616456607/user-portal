@@ -24,8 +24,8 @@ import { formatDate, parseAmount } from '../../../../common/tools'
 import { AMOUNT_CONVERSION } from '../../../../../constants'
 import alipay from '../../../../assets/img/standard/allpay.png'
 import weixin from '../../../../assets/img/standard/weixin.png'
-import userBalance from '../../../../assets/img/standard/userBalance.png'
-import proImg from '../../../../assets//img/version/proImg.png'
+import userBalancePNG from '../../../../assets/img/standard/userBalance.png'
+import proImg from '../../../../assets/img/version/proImg.png'
 
 const periodPrice = {
   period_1: 99,
@@ -486,7 +486,7 @@ class UserPay extends Component {
                 <div
                   className={payType == 'user_balance' ? 'wrap-img selected' : 'wrap-img'}
                   onClick={() => this.changePayType('user_balance')}>
-                  <img className='userBalanceImg' src={userBalance} />
+                  <img className='userBalanceImg' src={userBalancePNG} />
                   <Icon type="check" />
                   <div className="triangle"></div> {/*no remove */}
                 </div>
