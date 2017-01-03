@@ -15,7 +15,7 @@
 var qn = require('qn')
 var utility = require('utility')
 var logger = require('../utils/logger.js').getLogger('qiniu_api')
-var storeConfig = require('../configs/_standard/qiniu') 
+var storeConfig = require('../configs/_standard/qiniu')
 
 // 5 mins to make token expired
 const ExpireTime = 300
