@@ -136,7 +136,7 @@ let MyComponent = React.createClass({
         return
       }
       if (checkedList.length === 1) {
-        if (checkedList[0].status.phase === 'Running') {
+        if (checkedList[0].status.phase === 'Running' || checkedList[0].status.phase === 'Starting' || checkedList[0].status.phase === 'Pending' ||checkedList[0].status.phase === 'Deploying') {
           parentScope.setState({
             runBtn: false,
             stopBtn: true,
