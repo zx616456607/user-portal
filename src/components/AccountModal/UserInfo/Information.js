@@ -98,7 +98,7 @@ let ResetPassWord = React.createClass({
       }],
     });
     return (
-      <div id='ResetPassWord'>
+      <div id='UserInfReset'>
         <Form horizontal form={this.props.form}>
           <Row>
             <Col>
