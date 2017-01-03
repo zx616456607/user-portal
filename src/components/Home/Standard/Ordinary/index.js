@@ -615,7 +615,7 @@ class Ordinary extends Component{
                   <tbody>
                   <tr>
                     <td>
-                      <img className="stateImg" style={{width:'18px'}} src="/img/sider/engine.svg"/>
+                      <img className="stateImg" src="/img/homeKubernetes.png" />
                       Engine
                     </td>
                     <td>
@@ -646,9 +646,7 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#cicd" />
-                      </svg>
+                      <img className="stateImg" style={{width:'18px'}} src="/img/sider/engine.svg" />
                       Monitor
                     </td>
                     <td>

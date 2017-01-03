@@ -50,6 +50,10 @@ class CreateCompose extends Component {
       this.setState({
         currentYaml: currentYaml
       })
+    } else {
+      this.setState({
+        currentYaml: ''
+      })
     }
   }
 
@@ -108,6 +112,9 @@ class CreateCompose extends Component {
             notification.close()
             notification.success(`创建编排 ${values.name} 成功`)
             scope.props.form.resetFields();
+            scope.setState({
+              currentYaml: null
+            });
           },
           isAsync: true
         },
@@ -115,6 +122,10 @@ class CreateCompose extends Component {
           func: (err) => {
             notification.close()
             notification.error(`创建编排 ${values.name} 失败`, err.message.message)
+            scope.props.form.resetFields();
+            scope.setState({
+              currentYaml: null
+            });
           }
         }
       })
@@ -157,6 +168,9 @@ class CreateCompose extends Component {
             notification.close()
             notification.success(`更新编排 ${values.name} 成功`)
             scope.props.form.resetFields();
+            scope.setState({
+              currentYaml: null
+            });
           },
           isAsync: true
         },
@@ -168,6 +182,10 @@ class CreateCompose extends Component {
             });*/
             notification.close()
             notification.error(`更新编排 ${values.name} 失败`, err.message.message)
+            scope.props.form.resetFields();
+            scope.setState({
+              currentYaml: null
+            });
           }
         }
       })
@@ -195,6 +213,7 @@ class CreateCompose extends Component {
   render() {
     const scope = this.props.scope;
     const paretnState = this.props.paretnState
+    const { createModalShow } = paretnState;
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
     const nameProps = getFieldProps('name', {
       rules: [
