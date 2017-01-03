@@ -18,6 +18,8 @@ import { browserHistory } from 'react-router'
 import { genRandomString } from '../../../common/tools'
 import { Link } from 'react-router'
 import LogInLogo from '../../../assets/img/sider/LogInLogo.svg'
+import loginMethodWeixinPNG from '../../../assets/img/loginMethodWeixin.png'
+import ReactDom from 'react-dom'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -264,6 +266,10 @@ let Login = React.createClass({
     resetFields()
   },
 
+  componentDidMount() {
+    ReactDom.findDOMNode(this.refs.intName.refs.input).focus()
+  },
+
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps, loginSucess } = this.state
@@ -414,7 +420,7 @@ let Login = React.createClass({
                   <div className="methodIcon">
                     <Tooltip title='即将开放'>
                       <div className='weixin'>
-                        <img src='/img/loginMethodWeixin.png'/>
+                        <img src={loginMethodWeixinPNG}/>
                       </div>
                     </Tooltip>
                   </div>
