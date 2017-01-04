@@ -21,6 +21,7 @@ import { browserHistory } from 'react-router'
 import AppAddStackModal from './AppAddStackModal'
 import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../common/notification_handler'
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -163,22 +164,25 @@ class ComposeFile extends Component {
     if (errorMsg != 'success') {
       return callback([new Error(errorMsg)])
     }
-    checkAppName(cluster, value, {
-      success: {
-        func: (result) => {
-          if (result.data) {
-            errorMsg = appNameCheck(value, '应用名称', true)
-            callback([new Error(errorMsg)])
-            return
-          }
-          this.setState({
-            appName: value,
-          })
-          callback()
-        },
-        isAsync: true
-      }
-    })
+    clearTimeout(this.appNameCheckTimeout)
+    this.appNameCheckTimeout = setTimeout(() => {
+      checkAppName(cluster, value, {
+        success: {
+          func: (result) => {
+            if (result.data) {
+              errorMsg = appNameCheck(value, '应用名称', true)
+              callback([new Error(errorMsg)])
+              return
+            }
+            this.setState({
+              appName: value,
+            })
+            callback()
+          },
+          isAsync: true
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
   }
   remarkCheck(rule, value, callback) {
     this.setState({

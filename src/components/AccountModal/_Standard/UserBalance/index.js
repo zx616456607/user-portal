@@ -49,6 +49,9 @@ class UserBalance extends Component {
         if (!currentTeam) {
           currentTeam = teamspaces[0]
         }
+        if (!currentTeam) {
+          return
+        }
         this.setState({
           currentTeam,
         })
