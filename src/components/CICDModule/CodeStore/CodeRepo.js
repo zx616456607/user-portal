@@ -286,7 +286,7 @@ const MyComponent = React.createClass({
       return (
         <div className='CodeTable' key={item.name} >
           <div className="name textoverflow">{item.name}</div>
-          <div className="type">{item.type == false ? "public" : "private"}</div>
+          <div className="type">{item.private ? "private" : "public"}</div>
           <div className="action">
             {(item.managedProject && item.managedProject.active == 1) ?
               <span><Button type="ghost" disabled>已激活</Button>
