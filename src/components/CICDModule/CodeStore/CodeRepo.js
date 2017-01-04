@@ -186,7 +186,11 @@ const MyComponent = React.createClass({
             message = message.message
           }
           notification.close()
-          notification.error(`代码仓库添加失败`, '仓库地址或者私有Token有误！')
+          if (err.statusCode === 412) {
+            notification.error(`代码仓库添加失败`, '不允许添加此类型的代码仓库！')
+          } else {
+            notification.error(`代码仓库添加失败`, '仓库地址或者私有Token有误！')
+          }
           self.setState({ loading: false })
         }
       }

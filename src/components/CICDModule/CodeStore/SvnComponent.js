@@ -15,6 +15,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { addSvnManaged, getUserInfo } from '../../../actions/cicd_flow'
 import { appNameCheck } from '../../../common/naming_validation'
+import NotificationHandler from '../../../common/notification_handler'
 
 const TabPane = Tabs.TabPane
 const FormItem = Form.Item;
@@ -142,11 +143,9 @@ let SvnComponent = React.createClass({
         },
         failed: {
           func: (res) => {
+            let notification = new NotificationHandler()
             self.setState({ submiting: false })
-            Modal.warning({
-              title: '添加失败!',
-              content: (<h3>{res.message.message}</h3>),
-            });
+            notification.error('添加失败!')
           }
         }
       })

@@ -104,13 +104,20 @@ function githubRepo(state = {}, action) {
           githubList: false,
         })
       }
+      const username = Object.keys(action.response.result.data.results)[0]
+      const users = action.response.result.data.results[username].user
+      let repos = {}
+      for (var k in action.response.result.data.results) {
+        repos[action.response.result.data.results[k].user] = action.response.result.data.results[k].repos
+      }
+      action.response.result.data.results = repos
       const lists = cloneDeep(action.response.result.data.results)
-      const users = Object.keys(lists)[0]
+
       return Object.assign({}, state, {
         isFetching: false,
         githubList: action.response.result.data.results,
         bak: lists,
-        users: users
+        users
       })
     }
     case ActionTypes.GET_GITHUB_LIST_FAILURE: {
