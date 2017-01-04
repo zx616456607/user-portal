@@ -271,14 +271,14 @@ class TeamDetail extends Component {
     getTeamDetail(teamID)
     loadTeamUserListStd(teamID, { sort: 'a,userName', size: 100, page: 1 })
   }
-  
+
   render() {
     const scope = this
     let { sortedInfo, filteredInfo, sortMemberName, sort,filter, showInviteModal, showDelModal} = this.state
     const { teamName, teamID, currentRole, teamUserList, dissolveTeam, loadUserTeamList, sendInvitation } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    
+
     return (
       <div id='TeamDetail'>
         <Row style={{ marginBottom: 20 }}>
@@ -323,7 +323,7 @@ class TeamDetail extends Component {
                   dissolveTeam={dissolveTeam}
                   loadUserTeamList={loadUserTeamList}
                 />
-                <Link to={`/account/balance?team=${teamName}`}>
+                <Link to={`/account/balance/payment?team=${teamName}`}>
                   <Button icon='pay-circle-o' className='rechargeBtn'>
                     去充值
                   </Button>
