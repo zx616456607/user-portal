@@ -22,11 +22,10 @@ import './style/QueryLog.less'
 import { formatDate } from '../../common/tools'
 import { mode } from '../../../configs/model'
 import { STANDARD_MODE } from '../../../configs/constants'
-import { UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
+import { UPGRADE_EDITION_REQUIRED_CODE, DATE_PIRCKER_FORMAT } from '../../constants'
 import moment from 'moment'
 
-const DATE_PIRCKER_FORMAT = 'yyyy-MM-dd'
-const YESTERDAY = new Date(moment(moment().subtract(1, 'day')).format('YYYY-MM-DD'))
+const YESTERDAY = new Date(moment(moment().subtract(1, 'day')).format(DATE_PIRCKER_FORMAT))
 const standardFlag = (mode == STANDARD_MODE ? true : false);
 const Option = Select.Option;
 
@@ -756,27 +755,28 @@ class QueryLog extends Component {
     })
   }
 
-  onChangeStartTime(date, str) {
-    if (new Date(str) <= YESTERDAY) {
-      str = this.throwUpgradeError(str)
-    }
+  onChangeStartTime(date) {
+    let dateStr = moment(date).format(DATE_PIRCKER_FORMAT)
+    dateStr = this.throwUpgradeError(dateStr)
     this.setState({
-      start_time: str
+      start_time: dateStr
     });
   }
 
-  onChangeEndTime(date, str) {
+  onChangeEndTime(date) {
     //this function for change the end time
-    if (new Date(str) <= YESTERDAY) {
-      str = this.throwUpgradeError(str)
-    }
+    let dateStr = moment(date).format(DATE_PIRCKER_FORMAT)
+    dateStr = this.throwUpgradeError(dateStr)
     this.setState({
-      end_time: str
+      end_time: dateStr
     });
   }
 
   // The user of standard edition can only select today, if not open the upgrade modal
   throwUpgradeError(dateStr){
+    if (new Date(dateStr) > YESTERDAY) {
+      return dateStr
+    }
     const { loginUser, throwError } = this.props
     if (!standardFlag || loginUser.envEdition > 0) {
       return dateStr
@@ -960,7 +960,6 @@ class QueryLog extends Component {
                 onChange={this.onChangeStartTime}
                 value={start_time}
                 style={{ float: 'left', minWidth: '155px', width: 'calc(100% - 85px)' }}
-                format={DATE_PIRCKER_FORMAT}
                 size='large' />
               <div style={{ clear: 'both' }}></div>
             </div>
@@ -971,7 +970,6 @@ class QueryLog extends Component {
                 onChange={this.onChangeEndTime}
                 value={end_time}
                 style={{ float: 'left', minWidth: '155px', width: 'calc(100% - 85px)' }}
-                format={DATE_PIRCKER_FORMAT}
                 size='large' />
               <div style={{ clear: 'both' }}></div>
             </div>

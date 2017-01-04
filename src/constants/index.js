@@ -72,3 +72,4 @@ export const EMAIL_HASH = {
 export const TIMESTRAP = 1483084989915
 export const PAYMENT_REQUIRED_CODE = 402
 export const UPGRADE_EDITION_REQUIRED_CODE = 412
+export const DATE_PIRCKER_FORMAT = 'YYYY-MM-DD'
