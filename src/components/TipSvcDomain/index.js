@@ -9,7 +9,6 @@
  */
 import React, { Component } from 'react'
 import { Tooltip, Badge, Timeline, Icon, Row, Col, Popover } from 'antd'
-import $ from 'n-zepto'
 import './style/TipSvcDomain.less'
 
 class SvcTip extends Component {
