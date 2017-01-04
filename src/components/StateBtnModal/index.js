@@ -9,8 +9,6 @@
  */
 import React, { Component } from 'react'
 import { Alert, Icon } from 'antd'
-import StopModal from './StopModal'
-import StartModal from './StartModal'
 import './style/StateBtnModal.less'
 
 export default class StateBtnModal extends Component{
@@ -21,7 +19,7 @@ export default class StateBtnModal extends Component{
     }
   }
   render(){
-    const { state, appList,serviceList,scope } = this.props
+    const { state, appList, serviceList, scope } = this.props
     let alertText = ''
     let tip = ''
     let tbInf = ''
@@ -80,6 +78,15 @@ export default class StateBtnModal extends Component{
       case 'Stopped':
         checkedState = 'Stopped'
         break;
+      /*case 'Starting':
+        checkedState = 'Stopped'
+        break;
+      case 'Pending':
+        checkedState = 'Stopped'
+        break;
+      case 'Deploying':
+        checkedState = 'Stopped'
+        break;*/
       default:
         checkedState = state
         break;

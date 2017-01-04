@@ -70,3 +70,5 @@ export const EMAIL_HASH = {
   'wo.com.cn': 'mail.wo.com.cn/smsmail',
 }
 export const TIMESTRAP = 1483084989915
+export const PAYMENT_REQUIRED_CODE = 402
+export const UPGRADE_EDITION_REQUIRED_CODE = 412
