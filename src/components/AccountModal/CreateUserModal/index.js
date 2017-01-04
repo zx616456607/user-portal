@@ -12,7 +12,7 @@
 
 import React from 'react'
 import { Input, Modal, Form, Checkbox, Tooltip, Icon, Button, } from 'antd'
-import { USERNAME_REG_EXP } from '../../../constants'
+import { USERNAME_REG_EXP, ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -62,7 +62,7 @@ let CreateUserModal = React.createClass({
           }
         }
       })
-    }, 800);
+    }, ASYNC_VALIDATOR_TIMEOUT);
   },
   checkPass(rule, value, callback) {
     const { validateFields } = this.props.form;

@@ -11,7 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Icon, Spin } from 'antd'
 import { connect } from 'react-redux'
 import filter from 'lodash/filter'
-import { DEFAULT_REGISTRY } from '../../../../constants'
+import { DEFAULT_REGISTRY, ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import { appNameCheck, validateK8sResource } from '../../../../common/naming_validation'
 import { loadImageDetailTag, loadImageDetailTagConfig, getOtherImageTag, loadOtherDetailTagConfig } from '../../../../actions/app_center'
 import { checkServiceName } from '../../../../actions/app_manage'
@@ -513,7 +513,7 @@ let NormalDeployBox = React.createClass({
             isAsync: true
           }
         });
-      }, 800)
+      }, ASYNC_VALIDATOR_TIMEOUT)
     } else {
       callback([new Error(checkMsg)]);
     }

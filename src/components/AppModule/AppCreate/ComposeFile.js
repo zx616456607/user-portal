@@ -21,6 +21,7 @@ import { browserHistory } from 'react-router'
 import AppAddStackModal from './AppAddStackModal'
 import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../common/notification_handler'
+import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -181,7 +182,7 @@ class ComposeFile extends Component {
           isAsync: true
         }
       })
-    }, 800)
+    }, ASYNC_VALIDATOR_TIMEOUT)
   }
   remarkCheck(rule, value, callback) {
     this.setState({
