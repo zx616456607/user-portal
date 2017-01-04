@@ -758,8 +758,7 @@ class QueryLog extends Component {
 
   onChangeStartTime(date, str) {
     if (new Date(str) <= YESTERDAY) {
-      this.throwUpgradeError()
-      str = ''
+      str = this.throwUpgradeError(str)
     }
     this.setState({
       start_time: str
@@ -769,8 +768,7 @@ class QueryLog extends Component {
   onChangeEndTime(date, str) {
     //this function for change the end time
     if (new Date(str) <= YESTERDAY) {
-      this.throwUpgradeError()
-      str = ''
+      str = this.throwUpgradeError(str)
     }
     this.setState({
       end_time: str
@@ -778,10 +776,10 @@ class QueryLog extends Component {
   }
 
   // The user of standard edition can only select today, if not open the upgrade modal
-  throwUpgradeError(){
+  throwUpgradeError(dateStr){
     const { loginUser, throwError } = this.props
     if (!standardFlag || loginUser.envEdition > 0) {
-      return
+      return dateStr
     }
     const error = new Error()
     error.statusCode = UPGRADE_EDITION_REQUIRED_CODE
@@ -792,6 +790,7 @@ class QueryLog extends Component {
       }
     }
     throwError(error)
+    return ''
   }
 
   onChangeKeyword(e) {
