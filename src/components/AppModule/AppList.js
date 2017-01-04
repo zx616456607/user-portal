@@ -154,7 +154,7 @@ let MyComponent = React.createClass({
         return
       }
       if (checkedList.length === 1) {
-        if (checkedList[0].status.phase === 'Running') {
+        if (checkedList[0].status.phase === 'Running' || checkedList[0].status.phase === 'Starting' || checkedList[0].status.phase === 'Pending' ||checkedList[0].status.phase === 'Deploying') {
           parentScope.setState({
             runBtn: false,
             stopBtn: true,
@@ -270,6 +270,7 @@ let MyComponent = React.createClass({
       )
     }
     const items = config.map((item) => {
+      console.log('item',item)
       const dropdown = (
         <Menu onClick={this.appOperaClick.bind(this, item)}
           style={{ width: '100px' }}
@@ -636,7 +637,7 @@ class AppList extends Component {
     let runningApps = []
 
     checkedAppList.map((app, index) => {
-      if (app.status.phase === 'Running') {
+      if (app.status.phase === 'Running' || app.status.phase === 'Starting' || app.status.phase === 'Pending' || app.status.phase === 'Deploying') {
         runningApps.push(app)
       }
     })
@@ -684,7 +685,7 @@ class AppList extends Component {
     let runningApps = []
 
     checkedAppList.map((app, index) => {
-      if (app.status.phase === 'Running') {
+      if (app.status.phase === 'Running' || app.status.phase === 'Starting' || app.status.phase === 'Pending' || app.status.phase === 'Deploying') {
         runningApps.push(app)
       }
     })
