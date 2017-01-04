@@ -324,30 +324,30 @@ class ImageSpace extends Component {
               onCancel={this.closeUploadModal} onOk={this.closeUploadModal}
               >
               <p>1.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageFirstTips} /></p>
-              <span className="codeSpan">
+              <pre className="codeSpan">
                 sudo docker login {this.props.server}
-              </span>
+              </pre>
               <p>2.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageSecondTips} /></p>
-              <span className="codeSpan">
-                sudo docker tag  tenxcloud/ubuntu:latest {this.props.server}/&lt;username&gt;/&lt;repository&gt;:&lt;tag&gt;
-              </span>
+              <pre className="codeSpan">
+                {`sudo docker tag tenxcloud/ubuntu:latest ${this.props.server}/<username>/<repository>:<tag>`}
+              </pre>
               <p>3.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageThirdTips} /></p>
-              <span className="codeSpan">
-                sudo docker push {this.props.server}/&lt;username&gt;/&lt;repository&gt;:&lt;tag&gt;
-              </span>
+              <pre className="codeSpan">
+                {`sudo docker push ${this.props.server}/<username>/<repository>:<tag>`}
+              </pre>
             </Modal>
             <Modal title={<FormattedMessage {...menusText.downloadImage} />} className="uploadImageModal" visible={this.state.downloadModalVisible}
               onCancel={this.closeDownloadModal} onOk={this.closeDownloadModal}
               >
               <p><FormattedMessage {...menusText.downloadImageFirstTips} /></p>
               <p><i className="fa fa-exclamation-triangle"></i>&nbsp;<FormattedMessage {...menusText.downloadImageSecondTips} /></p>
-              <span className="codeSpan">
-                sudo docker pull {this.props.server}/&lt;username&gt;/&lt;repository&gt;:&lt;tag&gt;
-            </span>
+              <pre className="codeSpan">
+                {`sudo docker pull ${this.props.server}/<username>/<repository>:<tag>`}
+              </pre>
               <p><i className="fa fa-exclamation-triangle"></i>&nbsp;<FormattedMessage {...menusText.downloadImageThirdTips} /></p>
-              <span className="codeSpan">
+              <pre className="codeSpan">
                 sudo docker tag  {this.props.server}/tenxcloud/hello-world:latst tenxcloud/hello-world:latest
-            </span>
+              </pre>
             </Modal>
             <Modal
               visible={this.state.privateDetailModal}
