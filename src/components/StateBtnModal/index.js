@@ -78,15 +78,6 @@ export default class StateBtnModal extends Component{
       case 'Stopped':
         checkedState = 'Stopped'
         break;
-      /*case 'Starting':
-        checkedState = 'Stopped'
-        break;
-      case 'Pending':
-        checkedState = 'Stopped'
-        break;
-      case 'Deploying':
-        checkedState = 'Stopped'
-        break;*/
       default:
         checkedState = state
         break;

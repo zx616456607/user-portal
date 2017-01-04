@@ -34,7 +34,7 @@ let MyComponent = React.createClass({
     parentScope: React.PropTypes.object,
   },
   onchange: function (e) {
-    e.stopPropagation();
+    e.stopPropagation()
     const { value, checked } = e.target
     const { parentScope } = this.props
     const { appList } = parentScope.state
@@ -607,7 +607,6 @@ class AppList extends Component {
     startApps(cluster, appNames, {
       success: {
         func: () => {
-          // self.loadData()
           self.setState({
             runBtn: false,
             stopBtn: false,
@@ -704,7 +703,6 @@ class AppList extends Component {
     restartApps(cluster, appNames, {
       success: {
         func: () => {
-          // self.loadData()
           self.setState({
             runBtn: false,
             stopBtn: false,
