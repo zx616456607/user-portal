@@ -231,7 +231,7 @@ export default class TipSvcDomain extends Component {
           </div>
         )
       } else if (appDomain.length === 1) {
-        if (appDomain[0].data.length <= 1) {
+        if (appDomain[0].data.length == 1) {
           /* if (appDomain[0].data[0].indexOf('http://') === -1 || appDomain[0].data[0].indexOf('https://') === -1) {
             return (
               <a target='_blank' href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a>
