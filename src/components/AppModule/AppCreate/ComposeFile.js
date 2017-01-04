@@ -163,22 +163,25 @@ class ComposeFile extends Component {
     if (errorMsg != 'success') {
       return callback([new Error(errorMsg)])
     }
-    checkAppName(cluster, value, {
-      success: {
-        func: (result) => {
-          if (result.data) {
-            errorMsg = appNameCheck(value, '应用名称', true)
-            callback([new Error(errorMsg)])
-            return
-          }
-          this.setState({
-            appName: value,
-          })
-          callback()
-        },
-        isAsync: true
-      }
-    })
+    clearTimeout(this.appNameCheckTimeout)
+    this.appNameCheckTimeout = setTimeout(() => {
+      checkAppName(cluster, value, {
+        success: {
+          func: (result) => {
+            if (result.data) {
+              errorMsg = appNameCheck(value, '应用名称', true)
+              callback([new Error(errorMsg)])
+              return
+            }
+            this.setState({
+              appName: value,
+            })
+            callback()
+          },
+          isAsync: true
+        }
+      })
+    }, 800)
   }
   remarkCheck(rule, value, callback) {
     this.setState({

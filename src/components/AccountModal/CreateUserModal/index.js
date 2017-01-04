@@ -38,28 +38,31 @@ let CreateUserModal = React.createClass({
     this.setState({
       disabled: true
     })
-    checkUserName(value, {
-      success: {
-        func: (result) => {
-          _this.setState({
-            disabled: false
-          })
-          if (result.data) {
-            callback([new Error('用户名已经存在')])
-            return
+    clearTimeout(this.userExistsTimeout)
+    this.userExistsTimeout = setTimeout(() => {
+      checkUserName(value, {
+        success: {
+          func: (result) => {
+            _this.setState({
+              disabled: false
+            })
+            if (result.data) {
+              callback([new Error('用户名已经存在')])
+              return
+            }
+            callback()
           }
-          callback()
+        },
+        failed: {
+          func: (err) => {
+            _this.setState({
+              disabled: false
+            })
+            callback([new Error('用户名校验失败')])
+          }
         }
-      },
-      failed: {
-        func: (err) => {
-          _this.setState({
-            disabled: false
-          })
-          callback([new Error('用户名校验失败')])
-        }
-      }
-    })
+      })
+    }, 800);
   },
   checkPass(rule, value, callback) {
     const { validateFields } = this.props.form;

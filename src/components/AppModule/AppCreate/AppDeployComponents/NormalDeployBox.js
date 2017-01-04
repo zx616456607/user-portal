@@ -463,7 +463,7 @@ let NormalDeployBox = React.createClass({
       loadImageTagConfigs(tag, this.props)
     }
   },
-  userExists(rule, value, callback) {
+  serviceNameExists(rule, value, callback) {
     const { checkServiceName, isCreate, cluster } = this.props
     const { servicesList } = this.props.scope.props.scope.state
     let i = 0
@@ -496,21 +496,24 @@ let NormalDeployBox = React.createClass({
         return;
       }
       //check all name exist
-      checkServiceName(cluster, value, {
-        success: {
-          func: (result) => {
-            if(result.data) {
-              existFlag = true;
-              checkMsg = appNameCheck(value, '服务名称', true);
-              callback([new Error(checkMsg)])
-              return;
-            } else {
-              callback();
-            }
-          },
-          isAsync: true
-        }
-      });
+      clearTimeout(this.serviceNameExistsTimeout)
+      this.serviceNameExistsTimeout = setTimeout(() => {
+        checkServiceName(cluster, value, {
+          success: {
+            func: (result) => {
+              if(result.data) {
+                existFlag = true;
+                checkMsg = appNameCheck(value, '服务名称', true);
+                callback([new Error(checkMsg)])
+                return;
+              } else {
+                callback();
+              }
+            },
+            isAsync: true
+          }
+        });
+      }, 800)
     } else {
       callback([new Error(checkMsg)]);
     }
@@ -550,7 +553,7 @@ let NormalDeployBox = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form
     const nameProps = getFieldProps('name', {
       rules: [
-        { validator: this.userExists },
+        { validator: this.serviceNameExists },
       ],
     });
     const {registryServer, currentSelectedImage, tagConfig, registry} = this.props
