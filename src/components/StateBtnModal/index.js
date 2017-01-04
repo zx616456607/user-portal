@@ -54,6 +54,10 @@ export default class StateBtnModal extends Component{
         opt = '快速重启'
         stateText = '可以快速重启'
         break
+      case 'Delete' :
+        opt = '删除'
+        stateText = '可以删除'
+        break
       default :
         alertText = ''
         tip = ''
