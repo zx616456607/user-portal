@@ -207,17 +207,6 @@ let MyComponent = React.createClass({
     }
     callback()
   },
-  valideVolumeName(rule, values, callback) {
-    if(!values) {
-      return callback(new Error('请填写存储名称'))
-    }
-    const message = volNameCheck(values) 
-    if(message !== 'success'){
-      return callback(new Error(message))
-    }
-    callback()
-    return
-  },
   render: function () {
     const { getFieldProps, getFieldValue } = this.props.form
     const registry = this.props.registry
