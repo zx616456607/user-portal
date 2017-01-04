@@ -18,6 +18,7 @@ import { checkServiceName } from '../../../../actions/app_manage'
 import { loadFreeVolume, createStorage } from '../../../../actions/storage'
 import "./style/NormalDeployBox.less"
 import NotificationHandler from '../../../../common/notification_handler'
+import { volNameCheck } from '../../../../common/naming_validation'
 
 const Option = Select.Option;
 const OptGroup = Select.OptGroup;
@@ -147,6 +148,11 @@ let MyComponent = React.createClass({
       notification.error('请填写存储名称')
       return
     }
+    const message = volNameCheck(this.state.name)
+    if(message !== 'success'){
+      notification.error(message) 
+      return
+    }
     notification.spin('存储卷创建中...')
     let storageConfig = {
       driver: 'rbd',
@@ -217,7 +223,7 @@ let MyComponent = React.createClass({
       return <div className='loadingBox'>
         <Spin size='large' />
       </div>
-    }
+      }
     isFetching = this.props.createState.isFetching
     if (isFetching) {
       return <div className='loadingBox'>
@@ -235,7 +241,7 @@ let MyComponent = React.createClass({
           <ul>
             <li className="volumeDetail">
               <div className="input">
-                <Input className="volumeInt" type="text" placeholder="存储卷名称" onChange={(e) => { this.getVolumeName(e) } } />
+                <Input className="volumeInt" type="text"  placeholder="存储卷名称" onChange={(e) => { this.getVolumeName(e) } } />
               </div>
               <div className="input">
                 <InputNumber className="volumeInt" type="text" placeholder="存储卷大小" defaultValue="500" min={500} max="10240" onChange={(value) => this.getVolumeSize(value)} />

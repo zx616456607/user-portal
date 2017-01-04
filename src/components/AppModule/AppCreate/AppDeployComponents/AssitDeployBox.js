@@ -37,7 +37,7 @@ let AssitDeployBox = React.createClass({
     //the function for user select get datetime from the local host or use it's own time
     const parentScope = this.props.scope;
     parentScope.setState({
-      currentDate: e.target.value
+      currentDate: e.target.checked
     });
   },
 
