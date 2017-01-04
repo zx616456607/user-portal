@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Timeline, Popover, Spin, Icon } from 'antd'
+import { Row, Col, Card, Timeline, Popover, Spin, Icon, Modal } from 'antd'
 import './style/MySpace.less'
 import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
@@ -17,20 +17,28 @@ import { calcuDate } from "../../../../common/tools"
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Link } from 'react-router'
 import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../../actions/overview_space'
+import knowntag from '../../../../assets/img/version/knowntag.png'
 
 class MySpace extends Component{
   constructor(props){
     super(props)
     this.calcPer = this.calcPer.bind(this)
-
+    this.closeTestingKnowModal = this.closeTestingKnowModal.bind(this)
     this.state = {
       cicdStates: true,
       ImageStates: true,
+      testingKonwShow: false
     }
   }
 
   componentWillMount() {
-
+    let testingKnowFlag = window.localStorage.getItem('testingKnowFlag');
+    if(!Boolean(testingKnowFlag)) {
+      this.setState({
+        testingKonwShow: true
+      });
+      window.localStorage.setItem('testingKnowFlag', true);
+    }
   }
   componentDidMount() {
     const { loadSpaceInfo, loadSpaceCICDStats, loadSpaceImageStats, getOperationLogList } = this.props
@@ -59,6 +67,12 @@ class MySpace extends Component{
     getOperationLogList({
       from: 0,
       size: 5
+    })
+  }
+  closeTestingKnowModal() {
+    //this function for close test know modal
+    this.setState({
+      testingKonwShow: false
     })
   }
   getOperationLog() {
@@ -444,6 +458,37 @@ class MySpace extends Component{
             </Card>
           </Col>
         </Row>
+        <Modal visible={this.state.testingKonwShow} className='testingKnowModal'>
+          <div className='titleBox'>
+            <img className='tagImg' src={knowntag} />
+            <p>时速云内测期间须知</p>
+            <Icon className='closeBtn' type='cross' onClick={this.closeTestingKnowModal} />
+          </div>
+          <div className='infoBox'>
+            <p className='bigTitle'>更新须知</p>
+            <div className='infoDetail'>
+              <div className='num'>1</div>
+              <span className='info'>旧平台中的『资源』待内测结束后，将为您逐渐稳步迁移到新平台</span>
+            </div>
+            <div className='infoDetail'>
+              <div className='num'>2</div>
+              <span className='info'>新平台与旧平台的『计费』是相对独立的，内测结束后会将两平台费用&消费整合统一管理</span>
+            </div>
+            <div className='infoDetail'>
+              <div className='num'>3</div>
+              <span className='info'>完成新版中『个人认证』或『企业认证』，可以获得体验金</span>
+            </div>
+            <div className='infoDetail'>
+              <div className='num'>4</div>
+              <span className='info'>若为 v2.0 专业版，在团队中『邀请新成员』，未注册过时速云账号的新成员可到时速云官网注册</span>
+            </div>
+          </div>
+          <div className='btnBox'>
+            <div className='knowBtn' onClick={this.closeTestingKnowModal}>
+              <span>知道了</span>
+            </div>
+          </div>
+        </Modal>
       </div>
     )
   }

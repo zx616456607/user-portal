@@ -1414,28 +1414,24 @@ class OperationalAudit extends Component {
         <div id='operationalAudit' key='operationalAudit'>
           <div className='operaBox'>
             <Cascader
-              changeOnSelect
               options={resourceOption}
               allowClear={true}
               displayRender={this.onShowResource}
               onChange={this.onChangeResource}
-              getPopupContainer={() => document.getElementById('operationalAudit')}
-              expandTrigger='hover'
               size='large'
               className='resourceSelect'
+              popupClassName='resourceSelectPopup'
               placeholder={formatMessage(menusText.selectObject)}
               />
             <Select showSearch className='eventSelect'
               placeholder={formatMessage(menusText.selectEvent)}
               onChange={this.onChangeObject} size='large' allowClear={true}
-              getPopupContainer={() => document.getElementById('operationalAudit')}
               >
               {operationalSelectOptions}
             </Select>
             <Select showSearch className='statusSelect'
               onChange={this.onChangeStatus} size='large' allowClear={true}
               placeholder={formatMessage(menusText.selectStatus)}
-              getPopupContainer={() => document.getElementById('operationalAudit')}
               >
               <Option value=''><FormattedMessage {...menusText.allstatus} /></Option>
               <Option value='running'><FormattedMessage {...menusText.running} /></Option>
@@ -1479,7 +1475,7 @@ class OperationalAudit extends Component {
                 <FormattedMessage {...menusText.env} />
               </div>
               <div className='cluster commonTitle'>
-                {standardFlag ? [<FormattedMessage {...menusText.areaTitle} />] : [<FormattedMessage {...menusText.clusterTitle} />] }
+                {standardFlag ? [<FormattedMessage {...menusText.areaTitle} key='areaTitle' />] : [<FormattedMessage {...menusText.clusterTitle} key='clusterTitle' />] }
               </div>
               <div className='status commonTitle'>
                 <FormattedMessage {...menusText.status} />
