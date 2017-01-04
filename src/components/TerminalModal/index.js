@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import { Icon, Tabs, Modal } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../constants'
-import $ from 'n-zepto'
+import $ from 'jquery'
 import './style/TerminalModal.less'
 
 const TabPane = Tabs.TabPane;
@@ -64,7 +64,7 @@ class TerminalModal extends Component {
     let box = $('#TerminalModal .titleBox');
     let bodyHeight = $(document.body)[0].clientHeight;
     box.mousedown(function(ee){
-      if(ee.path[0].className != 'titleBox') {
+      if(ee.currentTarget.className != 'titleBox') {
         return;
       }
       $('#TerminalModal .cover').css('display','block');
@@ -76,8 +76,7 @@ class TerminalModal extends Component {
         if(newHeight <= 35) {
           newHeight = 35;
         }
-        newHeight = newHeight + 'px !important';
-        $('.TerminalLayoutModal').css('height',newHeight);
+        $('.TerminalLayoutModal').css('cssText','height:' + newHeight + 'px !important;transition:all !important;');
       })
     })
     doc.mouseup(function(){
@@ -94,11 +93,7 @@ class TerminalModal extends Component {
   
   minWindow(){
     //this function for minx the modal
-    $('.TerminalLayoutModal').css('transition', 'all 0.3s');
-    $('.TerminalLayoutModal').css('height', '35px !important');
-    setTimeout(function(){
-      $('.TerminalLayoutModal').css('transition', 'all');
-    })
+    $('.TerminalLayoutModal').css('cssText','height:35px !important;transition:all 0.3s !important;');
   }
   
   closeWindow(e){

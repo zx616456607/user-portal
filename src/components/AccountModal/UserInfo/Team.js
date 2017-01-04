@@ -54,9 +54,9 @@ let TeamList = React.createClass ({
               }
               return (
                 <Row className={className} key={team.teamID}>
-                  <Col span={4}>{team.teamName}</Col>
-                  <Col span={4}>{team.spaceCount}</Col>
-                  <Col span={4}>{team.clusterCount}</Col>
+                  <Col span={4} className='contentItem' title={team.teamName}>{team.teamName}</Col>
+                  <Col span={4} className='contentItem'>{team.spaceCount}</Col>
+                  <Col span={4} className='contentItem'>{team.clusterCount}</Col>
                 </Row>
               )
             }):

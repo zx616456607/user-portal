@@ -114,17 +114,18 @@ class Admin extends Component{
   constructor(props){
     super(props)
     this.state = {
-
+      
     }
   }
 
   componentWillMount() {
-
+    
   }
   componentDidMount(){
     const { loadTeamInfo } = this.props
     loadTeamInfo()
   }
+  
   render(){
     const { spaceName } = this.props
     const teamDetail = this.props.teamDetail
