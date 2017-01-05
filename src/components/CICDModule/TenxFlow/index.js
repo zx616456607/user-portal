@@ -47,8 +47,8 @@ const menusText = defineMessages({
     defaultMessage: '操作',
   },
   tooltips: {
-    id: 'CICD.Tenxflow.TenxFlowList.tooltips',
-    defaultMessage: 'TenxFlow：这里完成【代码项目构建、测试】等流程的定义与执行，可以实现若干个（≥1）项目组成的一个Flow，由若干个项目流程化完成一个Flow，直至完成整个总项目，其中大部分流程以生成应用镜像为结束标志。',
+    id: 'CICD.Tenxflow.TenxFlowList.tooltips',    
+    defaultMessage: 'TenxFlow：这里完成【代码项目构建、编译、测试】等CI/CD流程的定义与执行，每个TenxFlow可以由若干个（≥1）流程化的子项目组成，每个子项目所执行的任务可以通过卡片的方式进行定义和展示。',
   },
   create: {
     id: 'CICD.Tenxflow.TenxFlowList.create',

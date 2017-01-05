@@ -35,7 +35,15 @@ class ContainerLogs extends Component {
   }
 
   componentWillMount() {
-    //
+    //bind 'esc' key down
+    const scope = this;
+    document.addEventListener('keyup', function(){
+      if(scope.state.logSize == 'big') {
+        scope.setState({
+          logSize: 'normal'
+        });
+      }
+    })
   }
 
   // For issue http://jira.tenxcloud.com/browse/CRYSTAL-1630
