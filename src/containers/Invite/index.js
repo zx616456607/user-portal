@@ -37,7 +37,6 @@ let Invite = React.createClass({
     const { loginResult } = this.state
     const { email, teamName, code, isUser, login, registerUserAndJoinTeam, invitationStatus, sendRegisterPhoneCaptcha, loginAndJointeam } = this.props
     let state = 2
-    console.log('invitationStatus',invitationStatus)
     return (
       <div id="InvitePage">
         <div className="Invite">
