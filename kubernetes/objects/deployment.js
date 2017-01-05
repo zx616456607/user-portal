@@ -351,17 +351,29 @@ class Deployment {
 
   syncTimeZoneWithNode(containerName) {
     const volume = {
-      "name": "tenxcloud-time-zone",
+      "name": "tenxcloud-time-localtime",
       "hostPath": {
         "path": "/etc/localtime"
       }
     }
     const volumeMounts = {
-      name: "tenxcloud-time-zone",
+      name: "tenxcloud-time-localtime",
       mountPath: "/etc/localtime",
       readOnly: true
     }
+    const zoneVolume = {
+      "name": "tenxcloud-time-zone",
+      "hostPath": {
+        "path": "/etc/timezone"
+      }
+    }
+    const zoneVolumeMounts = {
+      name: "tenxcloud-time-zone",
+      mountPath: "/etc/timezone",
+      readOnly: true
+    }
     this.addContainerVolume.apply(this, [containerName, volume, volumeMounts])
+    this.addContainerVolume.apply(this, [containerName, zoneVolume, zoneVolumeMounts])
   }
 
   // ~ probe={port, path, initialDelaySeconds, timeoutSeconds, periodSeconds}

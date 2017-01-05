@@ -11,13 +11,14 @@ import React, { Component, PropTypes } from 'react'
 import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Icon, Spin } from 'antd'
 import { connect } from 'react-redux'
 import filter from 'lodash/filter'
-import { DEFAULT_REGISTRY } from '../../../../constants'
+import { DEFAULT_REGISTRY, ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
 import { appNameCheck, validateK8sResource } from '../../../../common/naming_validation'
 import { loadImageDetailTag, loadImageDetailTagConfig, getOtherImageTag, loadOtherDetailTagConfig } from '../../../../actions/app_center'
 import { checkServiceName } from '../../../../actions/app_manage'
 import { loadFreeVolume, createStorage } from '../../../../actions/storage'
 import "./style/NormalDeployBox.less"
 import NotificationHandler from '../../../../common/notification_handler'
+import { volNameCheck } from '../../../../common/naming_validation'
 
 const Option = Select.Option;
 const OptGroup = Select.OptGroup;
@@ -147,6 +148,11 @@ let MyComponent = React.createClass({
       notification.error('请填写存储名称')
       return
     }
+    const message = volNameCheck(this.state.name)
+    if(message !== 'success'){
+      notification.error(message) 
+      return
+    }
     notification.spin('存储卷创建中...')
     let storageConfig = {
       driver: 'rbd',
@@ -217,7 +223,7 @@ let MyComponent = React.createClass({
       return <div className='loadingBox'>
         <Spin size='large' />
       </div>
-    }
+      }
     isFetching = this.props.createState.isFetching
     if (isFetching) {
       return <div className='loadingBox'>
@@ -235,7 +241,7 @@ let MyComponent = React.createClass({
           <ul>
             <li className="volumeDetail">
               <div className="input">
-                <Input className="volumeInt" type="text" placeholder="存储卷名称" onChange={(e) => { this.getVolumeName(e) } } />
+                <Input className="volumeInt" type="text"  placeholder="存储卷名称" onChange={(e) => { this.getVolumeName(e) } } />
               </div>
               <div className="input">
                 <InputNumber className="volumeInt" type="text" placeholder="存储卷大小" defaultValue="500" min={500} max="10240" onChange={(value) => this.getVolumeSize(value)} />
@@ -463,7 +469,7 @@ let NormalDeployBox = React.createClass({
       loadImageTagConfigs(tag, this.props)
     }
   },
-  userExists(rule, value, callback) {
+  serviceNameExists(rule, value, callback) {
     const { checkServiceName, isCreate, cluster } = this.props
     const { servicesList } = this.props.scope.props.scope.state
     let i = 0
@@ -496,21 +502,24 @@ let NormalDeployBox = React.createClass({
         return;
       }
       //check all name exist
-      checkServiceName(cluster, value, {
-        success: {
-          func: (result) => {
-            if(result.data) {
-              existFlag = true;
-              checkMsg = appNameCheck(value, '服务名称', true);
-              callback([new Error(checkMsg)])
-              return;
-            } else {
-              callback();
-            }
-          },
-          isAsync: true
-        }
-      });
+      clearTimeout(this.serviceNameExistsTimeout)
+      this.serviceNameExistsTimeout = setTimeout(() => {
+        checkServiceName(cluster, value, {
+          success: {
+            func: (result) => {
+              if(result.data) {
+                existFlag = true;
+                checkMsg = appNameCheck(value, '服务名称', true);
+                callback([new Error(checkMsg)])
+                return;
+              } else {
+                callback();
+              }
+            },
+            isAsync: true
+          }
+        });
+      }, ASYNC_VALIDATOR_TIMEOUT)
     } else {
       callback([new Error(checkMsg)]);
     }
@@ -550,7 +559,7 @@ let NormalDeployBox = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form
     const nameProps = getFieldProps('name', {
       rules: [
-        { validator: this.userExists },
+        { validator: this.serviceNameExists },
       ],
     });
     const {registryServer, currentSelectedImage, tagConfig, registry} = this.props

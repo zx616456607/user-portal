@@ -61,12 +61,14 @@ class CodeList extends Component {
   componentWillMount() {
     const loadingList = {}
     const data = this.props.data
-    for (let i = 0; i < data.length; i++) {
-      loadingList[i] = false
+    if (data) {
+      for (let i = 0; i < data.length; i++) {
+        loadingList[i] = false
+      }
+      this.setState({
+        loadingList
+      })
     }
-    this.setState({
-      loadingList
-    })
   }
 
   // let CodeList = React.createClass({
@@ -103,7 +105,7 @@ class CodeList extends Component {
   notActive(id, index) {
     const parentScope = this.props.scope
     const loadingList = {}
-    const users = parentScope.state.users.toLowerCase()
+    const users = parentScope.state.users
     loadingList[index] = false
     this.setState({
       loadingList
@@ -128,25 +130,28 @@ class CodeList extends Component {
         </div>
       )
     }
-    let items = data.map((item, index) => {
-      return (
-        <div className='CodeTable' key={item.name} >
-          <div className="name textoverflow">{item.name}</div>
-          <div className="type">{item.private ? "private" : 'public'}</div>
-          <div className="action">
-            {(item.managedProject && item.managedProject.active == 1) ?
-              <span><Button type="ghost" disabled>已激活</Button>
-                <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>撤销</a></span>
-              :
-              <Tooltip placement="right" title="可构建项目">
-                <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >激活</Button>
-              </Tooltip>
-            }
-          </div>
+    let items = []
+    if (data) {
+      items = data.map((item, index) => {
+        return (
+          <div className='CodeTable' key={item.name} >
+            <div className="name textoverflow">{item.name}</div>
+            <div className="type">{item.private ? "private" : 'public'}</div>
+            <div className="action">
+              {(item.managedProject && item.managedProject.active == 1) ?
+                <span><Button type="ghost" disabled>已激活</Button>
+                  <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>撤销</a></span>
+                :
+                <Tooltip placement="right" title="可构建项目">
+                  <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >激活</Button>
+                </Tooltip>
+              }
+            </div>
 
-        </div>
-      );
-    });
+          </div>
+        );
+      });
+    }
     return (
       <QueueAnim type="right" key="detail-list">
         {items}
@@ -170,7 +175,7 @@ class GithubComponent extends Component {
       success: {
         func: (res) => {
           if (res.data.hasOwnProperty('results')) {
-            const users = Object.keys(res.data.results)[0].toLowerCase()
+            const users = res.data.results[Object.keys(res.data.results)[0]].user
             self.setState({ users })
           }
         }
@@ -218,12 +223,12 @@ class GithubComponent extends Component {
   }
   handleSearch(e) {
     const image = e.target.value
-    const users = this.state.users.toLowerCase()
+    const users = this.state.users
     this.props.searchGithubList(users, image)
   }
   changeSearch(e) {
     const image = e.target.value
-    const users = this.state.users.toLowerCase()
+    const users = this.state.users
     if (image == '') {
       this.props.searchGithubList(users, image)
     }

@@ -110,3 +110,18 @@ exports.handleExecError = function(method, err) {
   logger.error(method, JSON.stringify(err))
   return err
 }
+// Generate random string with specified length
+exports.genRandomString = function(mytoken, len){
+    var token="0123456789qwertyuioplkjhgfdsazxcvbnm"
+    if (!len) {
+      len = mytoken
+      mytoken =null
+    } else if(mytoken) {
+      token = mytoken;
+    }
+    var result="";
+    for(var   i=0;i< len;i++)   {
+        result += token.charAt(Math.ceil(Math.random()*100000000)%token.length);
+    }
+    return result;
+}

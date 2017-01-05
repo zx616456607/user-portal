@@ -14,14 +14,22 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/AppServiceLog.less"
 import { formateDate } from '../../../common/tools'
+import { DATE_PIRCKER_FORMAT, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
 import { loadServiceLogs, clearServiceLogs } from '../../../actions/services'
+import { throwError } from '../../../actions'
+import { mode } from '../../../../configs/model'
+import { STANDARD_MODE } from '../../../../configs/constants'
+import moment from 'moment'
+
+const YESTERDAY = new Date(moment(moment().subtract(1, 'day')).format(DATE_PIRCKER_FORMAT))
+const standardFlag = (mode == STANDARD_MODE ? true : false);
 
 class AppServiceLog extends Component {
   constructor(props) {
     super(props)
     this.resizeLog = this.resizeLog.bind(this)
     this.state = {
-      currentDate: formateDate(new Date(), 'YYYY-MM-DD'),
+      currentDate: formateDate(new Date(), DATE_PIRCKER_FORMAT),
       pageIndex: 1,
       pageSize: 50,
       useGetLogs: true,
@@ -65,7 +73,7 @@ class AppServiceLog extends Component {
        return
      }
      this.setState({
-       currentDate: formateDate(new Date(), 'YYYY-MM-DD'),
+       currentDate: formateDate(new Date(), DATE_PIRCKER_FORMAT),
        pageIndex: 1,
        pageSize: 50,
        useGetLogs: true,
@@ -119,7 +127,9 @@ class AppServiceLog extends Component {
     const cluster = tcluster || this.props.cluster
     const serviceName = tserviceName || this.props.serviceName
     const self = this
-    date = formateDate(date, 'YYYY-MM-DD')
+    date = formateDate(date, DATE_PIRCKER_FORMAT)
+    date = this.throwUpgradeError(date)
+    if (!date) return
     if (!refresh && date === this.state.currentDate) return
     this.setState({
       currentDate: date,
@@ -148,6 +158,26 @@ class AppServiceLog extends Component {
           isAsync: true
         }
       })
+  }
+  // The user of standard edition can only select today, if not open the upgrade modal
+  throwUpgradeError(dateStr){
+    if (new Date(dateStr) > YESTERDAY) {
+      return dateStr
+    }
+    const { loginUser, throwError } = this.props
+    if (!standardFlag || loginUser.envEdition > 0) {
+      return dateStr
+    }
+    const error = new Error()
+    error.statusCode = UPGRADE_EDITION_REQUIRED_CODE
+    error.message = {
+      details: {
+        kind: 'Logging',
+        level: '0',
+      }
+    }
+    throwError(error)
+    return ''
   }
   getLogs() {
     const cluster = this.props.cluster
@@ -222,6 +252,10 @@ class AppServiceLog extends Component {
       })
     }
   }
+  disabledDate(current) {
+    // can not select days after today
+    return current && current.getTime() > Date.now();
+  }
   render() {
     return (
       <div id="AppServiceLog">
@@ -230,7 +264,11 @@ class AppServiceLog extends Component {
             <div className="operaBox">
               <i className="fa fa-expand" onClick={this.resizeLog}></i>
               <i className="fa fa-refresh" onClick={() => { this.refreshLogs() } }></i>
-              <DatePicker className="datePicker" onChange={(date) => this.changeCurrentDate(date) } value={this.state.currentDate}/>
+              <DatePicker
+                disabledDate={this.disabledDate}
+                className="datePicker"
+                onChange={(date) => this.changeCurrentDate(date) }
+                value={this.state.currentDate}/>
             </div>
             <div className="infoBox" ref={(c) => this.infoBox = c} onScroll ={ () => this.moutseRollLoadLogs() }>
               <pre> { this.getLogs() } </pre>
@@ -245,13 +283,16 @@ class AppServiceLog extends Component {
 }
 
 function mapStateToProps(state) {
+  const { loginUser } = state.entities
   return {
-    serviceLogs: state.services.serviceLogs
+    loginUser: loginUser.info,
+    serviceLogs: state.services.serviceLogs,
   }
 }
 AppServiceLog = connect(mapStateToProps, {
   loadServiceLogs,
-  clearServiceLogs
+  clearServiceLogs,
+  throwError,
 })(AppServiceLog)
 
 export default AppServiceLog
