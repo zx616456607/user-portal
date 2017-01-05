@@ -23,7 +23,7 @@ import { browserHistory } from 'react-router'
 import ContainerStatus from '../TenxStatus/ContainerStatus'
 import { formatDate } from '../../common/tools'
 import NotificationHandler from '../../common/notification_handler'
-import serverSVG from '../../assets/img/server.svg'
+import serverSVG from '../../assets/img/app.png'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup

@@ -65,7 +65,6 @@ export default class ContainerDetailInfo extends Component {
         })
         if (!isShow) return
         configMap.items.forEach(item => {
-          console.log(item)
           ele.push(
             <div key={configMap.name + item.key}>
               <div className="commonTitle">{configMap.name}</div>

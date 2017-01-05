@@ -8,61 +8,73 @@
  * @author ZhaoXueYu
  */
 import React, { Component, PropTypes } from 'react'
+import { connect } from 'react-redux'
 import { Breadcrumb } from 'antd'
 import SecondSider from '../../components/SecondSider'
 import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
 import './style/account.less'
+import { ROLE_USER, ROLE_TEAM_ADMIN } from '../../../constants'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
 let menuList = []
-if (mode === standard) {
-  menuList = [
-    {
-      url: '/account',
-      name: '我的帐户'
-    },
-    {
-      url: '/account/teams',
-      name: '我的团队'
-    },
-    {
-      url: '/account/balance',
-      name: '充值/续费'
-    },
-    {
-      url: '/account/cost',
-      name: '费用中心'
-    },
-    {
-      url: '/account/version',
-      name: '版本'
-    }
-  ]
-} else {
-  menuList = [
-    {
-      url: '/account',
-      name: '我的帐户'
-    },
-    {
-      url: '/account/member',
-      name: '成员管理'
-    },
-    {
-      url: '/account/team',
-      name: '团队管理'
-    },
-    {
-      url: '/account/cost',
-      name: '费用中心'
-    }
-  ]
-}
+
+const menuList_standard = [
+  {
+    url: '/account',
+    name: '我的帐户'
+  },
+  {
+    url: '/account/teams',
+    name: '我的团队'
+  },
+  {
+    url: '/account/balance',
+    name: '充值/续费'
+  },
+  {
+    url: '/account/cost',
+    name: '费用中心'
+  },
+  {
+    url: '/account/version',
+    name: '版本'
+  }
+]
+
+const menuList_enterprise_admin = [
+  {
+    url: '/account',
+    name: '我的帐户'
+  },
+  {
+    url: '/account/member',
+    name: '成员管理'
+  },
+  {
+    url: '/account/team',
+    name: '团队管理'
+  },
+  {
+    url: '/account/cost',
+    name: '费用中心'
+  }
+]
+
+const menuList_enterprise_user = [
+  {
+    url: '/account',
+    name: '我的帐户'
+  },
+  {
+    url: '/account/cost',
+    name: '费用中心'
+  }
+]
 
 
-export default class Account extends Component {
+class Account extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -71,8 +83,16 @@ export default class Account extends Component {
   }
 
   render() {
-    const { children } = this.props
+    const { children, role } = this.props
     const scope = this
+    let menuList = menuList_standard
+    if (mode != standard) {
+      if (role == ROLE_TEAM_ADMIN) {
+        menuList = menuList_enterprise_admin
+      } else {
+        menuList = menuList_enterprise_user
+      }
+    }
     return (
       <div id="Account">
         <QueueAnim
@@ -96,3 +116,17 @@ Account.propTypes = {
   // Injected by React Router
   children: PropTypes.node
 }
+
+function mapStateToProp(state) {
+  let role = ROLE_USER
+  const {entities} = state
+  if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
+    role = entities.loginUser.info.role
+  }
+  return {
+    role
+  }
+}
+
+export default connect(mapStateToProp, {
+})(Account)
