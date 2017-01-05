@@ -40,10 +40,11 @@ export default class AccountType extends Component{
             <div className="line"></div>
           </div>
           <ul className="accountList accountListR">
-            <li>可使用时速云 TenxCloud 所有应用资源</li>
-            <li>可使用时速云 TenxFlow 持续集成、自动、部署</li>
-            <li>可创建1个3人团队，完成小项目协作（购专业版可提升配额）</li>
-            <li>5元 时速云TenxCloud 测试金</li>
+            <li>可使用 时速云TenxCloud 容器服务</li>
+            <li>可使用 时速云TenxCloud 持续集成、自动部署服务</li>
+            <li>可使用 时速云TenxCloud 数据库与缓存产品服务</li>
+            <li>个人开发者级别的资源配额</li>
+            <li>认证后 时速云TenxCloud 体验金￥5</li>
           </ul>
           <Button onClick={() => this.handlePageChange(true)} className="personBtn">注册个人帐户</Button>
         </div>
@@ -57,11 +58,11 @@ export default class AccountType extends Component{
             <div className="line"></div>
           </div>
           <ul className="accountList accountListL">
-            <li>可使用时速云 TenxCloud 所有应用资源</li>
-            <li>可使用时速云 TenxFlow 持续集成、自动、部署</li>
-            <li>可创建1个3人团队，完成小项目协作（购专业版可提升配额）</li>
-            <li>50元 时速云TenxCloud 测试金</li>
-            <li>免费的点对点销售&工程师跟进支持</li>
+            <li>可使用 时速云TenxCloud 容器服务</li>
+            <li>可使用 时速云TenxCloud 持续集成、自动部署服务</li>
+            <li>可使用 时速云TenxCloud 数据库与缓存产品服务</li>
+            <li>企业生产级别的资源配额</li>
+            <li>认证后 时速云TenxCloud 体验金￥50</li>
           </ul>
           <div>
             <Button onClick={() => this.handlePageChange(false)} className="companyBtn">注册企业帐户</Button>

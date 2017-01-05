@@ -24,8 +24,9 @@ export default class Top extends Component {
   	  <div id='Top'>
   	  	<div className='topWrap'>
   	  	  <div className='topLogo'>
-
-            <img src="/img/TopLogo.svg" alt="logo" className="logo" />
+            <a href='https://www.tenxcloud.com' target='_blank'>
+              <img src="/img/TopLogo.svg" alt="logo" className="logo" />
+            </a>
           </div>
   	  	  <div className='topNav'>
   	  	    <div className='navItem'>
@@ -39,7 +40,7 @@ export default class Top extends Component {
             </div>
   	  	    <span style={{lineHeight:'25px'}}>|</span>
   	  	    <div className='log'>
-  	  	      <div className='navItem'>
+  	  	      <div className='navItem' style={{marginLeft: 0}}>
                 <Link to='/login'>登录</Link>
               </div>
   	  	      <div className='navItem'>
