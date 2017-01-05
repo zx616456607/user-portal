@@ -36,7 +36,7 @@ export default class AccountType extends Component{
           </div>
           <div className="accountTitle">
             <div className="line"></div>
-            <div className="accountText">个人账户</div>
+            <div className="accountText">个人帐户</div>
             <div className="line"></div>
           </div>
           <ul className="accountList accountListR">
@@ -45,7 +45,7 @@ export default class AccountType extends Component{
             <li>可创建1个3人团队，完成小项目协作（购专业版可提升配额）</li>
             <li>5元 时速云TenxCloud 测试金</li>
           </ul>
-          <Button onClick={() => this.handlePageChange(true)} className="personBtn">注册个人账户</Button>
+          <Button onClick={() => this.handlePageChange(true)} className="personBtn">注册个人帐户</Button>
         </div>
         <div className="accountInf" style={{paddingLeft:'40px'}}>
           <div className="accountImg">
@@ -53,7 +53,7 @@ export default class AccountType extends Component{
           </div>
           <div className="accountTitle">
             <div className="line"></div>
-            <div className="accountText">企业账户</div>
+            <div className="accountText">企业帐户</div>
             <div className="line"></div>
           </div>
           <ul className="accountList accountListL">
@@ -64,7 +64,7 @@ export default class AccountType extends Component{
             <li>免费的点对点销售&工程师跟进支持</li>
           </ul>
           <div>
-            <Button onClick={() => this.handlePageChange(false)} className="companyBtn">注册企业账户</Button>
+            <Button onClick={() => this.handlePageChange(false)} className="companyBtn">注册企业帐户</Button>
           </div>
         </div>
       </div>

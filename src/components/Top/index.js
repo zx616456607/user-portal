@@ -9,7 +9,6 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import {  } from 'antd'
 import './style/Top.less'
 import { Link } from 'react-router'
 
@@ -25,10 +24,13 @@ export default class Top extends Component {
   	  <div id='Top'>
   	  	<div className='topWrap'>
   	  	  <div className='topLogo'>
+          
             <img src="/img/TopLogo.svg" alt="logo" className="logo" />
           </div>
   	  	  <div className='topNav'>
-  	  	    <div className='navItem'>官网首页</div>
+  	  	    <div className='navItem'>
+              <a href='https://www.tenxcloud.com' target='_blank'>官网首页</a>
+            </div>
   	  	    <div className='navItem'>
               <a href='http://doc.tenxcloud.com' target='_blank'>文档中心</a>
             </div>
@@ -40,7 +42,9 @@ export default class Top extends Component {
   	  	      <div className='navItem'>
                 <Link to='/login'>登录</Link>
               </div>
-  	  	      <div className='navItem'>注册</div>
+  	  	      <div className='navItem'>
+                <Link to='/register'>注册</Link>
+              </div>
   	        </div>
   	  	  </div>
   	  	</div>
