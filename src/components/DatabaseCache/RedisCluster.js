@@ -108,6 +108,7 @@ class RedisDatabase extends Component {
     this.createDatabaseShow = this.createDatabaseShow.bind(this);
     this.state = {
       detailModal: false,
+      putVisible: false,
       currentDatabase: null,
       CreateDatabaseModalShow: false
     }
@@ -136,17 +137,31 @@ class RedisDatabase extends Component {
     })
   }
   componentWillReceiveProps(nextProps) {
-    const { form, current, loadTeamClustersList} = nextProps
+    const { form, current} = nextProps
     if (current.space.namespace === this.props.current.space.namespace && current.cluster.clusterID === this.props.current.cluster.clusterID) {
       return
     }
     this.props.loadDbCacheList(current.cluster.clusterID, 'redis')
+  }
+  shouldComponentUpdate(nextProps, nextState) {
+    if (!nextState.detailModal) {
+      this.setState({putVisible: false})
+    }
+    return nextState
+  }
+  putModal() {
+    this.setState({
+      putVisible: !this.state.putVisible
+    })
   }
   createDatabaseShow() {
     //this function for user show the modal of create database
     this.setState({
       CreateDatabaseModalShow: true
     });
+    setTimeout(function() {
+      document.getElementById('dbName').focus()
+    }, 100);
   }
   handSearch(e) {
     if (e) {
@@ -158,7 +173,7 @@ class RedisDatabase extends Component {
   }
 
   render() {
-    const parentScope = this;
+    const _this = this;
     const { isFetching, databaseList } = this.props;
     return (
       <QueueAnim id='mysqlDatabase' type='right'>
@@ -172,20 +187,20 @@ class RedisDatabase extends Component {
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()} />
             </span>
           </div>
-          <MyComponent scope={parentScope} isFetching={isFetching} config={databaseList} />
+          <MyComponent scope={_this} isFetching={isFetching} config={databaseList} />
         </div>
         <Modal visible={this.state.detailModal}
           className='AppServiceDetail' transitionName='move-right'
           onCancel={() => { this.setState({ detailModal: false }) } }
           >
-          <ModalDetail scope={parentScope} database={this.props.database} dbName={this.state.currentDatabase} />
+          <ModalDetail scope={_this} putVisible={ _this.state.putVisible } database={this.props.database} dbName={this.state.currentDatabase} />
         </Modal>
         <Modal visible={this.state.CreateDatabaseModalShow}
           className='CreateDatabaseModal' maskClosable={false}
           title='创建数据库集群' width={600}
           onCancel={() => { this.setState({ CreateDatabaseModalShow: false }) } }
           >
-          <CreateDatabase scope={parentScope} dbservice={this.state.dbservice} database={'redis'} />
+          <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={'redis'} />
         </Modal>
       </QueueAnim>
     )

@@ -11,10 +11,12 @@ import React, { Component, PropTypes } from 'react'
 import { Input, Modal, Checkbox, Button, Card, Menu, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import { loadPublicImageList, loadPrivateImageList, searchPublicImages, loadFavouriteList, searchFavoriteImages, searchPrivateImages } from '../../../actions/app_center'
+import {
+  loadPublicImageList, loadPrivateImageList, searchPublicImages,
+  loadFavouriteList, searchFavoriteImages, searchPrivateImages, publicFilterServer
+} from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/AppAddServiceModal.less'
-import serverSVG from '../../../assets/img/server.svg'
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -47,7 +49,9 @@ const MyComponent = React.createClass({
     const items = images.map((item) => {
       return (
         <div key={item.name} className="serviceDetail">
-          <img className="imgUrl" src={serverSVG} />
+          <svg className='imgUrl'>
+            <use xlinkHref='#appcenterlogo' />
+          </svg>
           <div className="infoBox">
             <span className="name">{item.name}</span> <span className="type">{item.category || ''}</span><br />
             <span className="intro">{item.description}</span>
@@ -128,6 +132,10 @@ let AppAddServiceModal = React.createClass({
       return this.props.searchFavoriteImages({ imageName: imageName, registry: this.props.registry })
     }
   },
+  filterServer(type) {
+    console.log('click', type)
+    this.props.publicFilterServer(this.props.registry,type)
+  },
   render: function () {
     const parentScope = this
     const { scope } = this.props
@@ -155,6 +163,21 @@ let AppAddServiceModal = React.createClass({
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
+        {/*<div className="serverType">
+          <div className="serverTitle">
+            <span className="selected">时速云官方</span>
+            <span>时速云 ● 镜像广场</span>
+          </div>
+          <div className="serverKey">
+            <span className="btns primary" onClick={()=> this.filterServer('all')}>全部</span>
+            <span className="btns" onClick={()=> this.filterServer('runtime')}>运行环境</span>
+            <span className="btns" onClick={()=> this.filterServer('server')}>Web服务器</span>
+            <span className="btns" onClick={()=> this.filterServer('database')}>数据库与缓存</span>
+            <span className="btns" onClick={()=> this.filterServer('system')}>操作系统</span>
+            <span className="btns" onClick={()=> this.filterServer('others')}>中间件与其他</span>
+          </div>
+        </div>
+        */}
         <MyComponent
           scope={parentScope}
           images={images.imageList}
@@ -181,5 +204,6 @@ export default connect(mapStateToProps, {
   fockImages: loadFavouriteList,
   searchPublicImages,
   searchFavoriteImages,
-  searchPrivateImages
+  searchPrivateImages,
+  publicFilterServer
 })(AppAddServiceModal)

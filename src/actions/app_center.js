@@ -57,6 +57,16 @@ export function searchPublicImages(registry, image) {
   }
 }
 
+export const IMAGE_PUBLIC_TYPE = 'IMAGE_PUBLIC_TYPE'
+
+export function publicFilterServer(registry, server) {
+  return {
+    type: IMAGE_PUBLIC_TYPE,
+    registry,
+    server
+  }
+}
+
 export const IMAGE_SEARCH_PRIVATE = "IMAGE_SEARCH_PRIVATE"
 
 export function searchPrivateImages(condition) {

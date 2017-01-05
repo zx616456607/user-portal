@@ -120,6 +120,7 @@ class BaseInfo extends Component {
   render() {
     const {databaseInfo ,dbName }= this.props
     const parentScope = this.props.scope
+    const rootScope = parentScope.props.scope
     const podSpec = databaseInfo.podList.pods[0].podSpec
     let storagePrc = parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
     let containerPrc = parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
@@ -135,7 +136,7 @@ class BaseInfo extends Component {
         <div className="modal-li">
           <span className="spanLeft">存储大小</span>
           {/* <Slider min={500} max={10000} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} step={100} /> */}
-          <InputNumber min={500} max={10240} step={20} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} /> &nbsp; M
+          <InputNumber min={500} max={10240} step={20} disabled={true} value={parentScope.state.storageValue} /> &nbsp; M
         </div>
         <div className="modal-price">
           <div className="price-left">
@@ -194,9 +195,9 @@ class BaseInfo extends Component {
           }
           <div className='configHead'>实例副本 <span>{databaseInfo.podInfo.desired}个 &nbsp;</span>
             <Popover content={modalContent} title={null} trigger="click" overlayClassName="putmodalPopover"
-              visible={parentScope.state.putVisible}
+              visible={rootScope.state.putVisible} getTooltipContainer={()=> document.getElementById('AppServiceDetail')}
               >
-              <Button type="primary" size="large" onClick={() => parentScope.putModal()}>更改实例数</Button>
+              <Button type="primary" size="large" onClick={() => parentScope.props.scope.putModal()}>更改实例数</Button>
             </Popover>
 
           </div>
@@ -281,7 +282,7 @@ class ModalDetail extends Component {
       }
     });
   }
-
+  
   componentWillReceiveProps(nextProps) {
     //this function for user select different image
     //the nextProps is mean new props, and the this.props didn't change
@@ -318,8 +319,9 @@ class ModalDetail extends Component {
   }
 
   putModal() {
-    this.setState({
-      putVisible: !this.state.putVisible
+    const putVisible = this.props.scope.state.putVisible
+    this.props.scope.setState({
+      putVisible: !putVisible
     })
   }
   handSave() {
@@ -348,15 +350,10 @@ class ModalDetail extends Component {
       }
     })
   }
-  onChangeStorage(value) {
-    this.setState({
-      storageValue:value
-    })
-  }
   colseModal() {
     const storageValue = parseInt(this.props.databaseInfo.volumeInfo.size)
+    this.putModal()
     this.setState({
-      putVisible: false,
       putModaling:false,
       replicas: this.props.databaseInfo.podInfo.desired,
       storageValue
