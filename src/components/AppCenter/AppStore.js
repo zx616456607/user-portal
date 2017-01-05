@@ -182,9 +182,8 @@ class AppStore extends Component {
     const { formatMessage } = this.props.intl;
     const scope = this;
     const {appStoreList} = this.props
-
-    if (!appStoreList) {
-      return (<div></div>)
+    if (!appStoreList || appStoreList.length === 0) {
+      return (<div className="imageNoData">暂无应用，请联系管理员进行初始化</div>)
     }
     const storeList = appStoreList.map((list, index) => {
       return (
