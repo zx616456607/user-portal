@@ -63,7 +63,6 @@ let MyComponent = React.createClass({
     volumeKey = volumeKey.filter((key) => {
       return key !== k;
     });
-    console.log(volumeKey)
     if (volumeKey.length <= 0) {
       const registry = this.props.registry
       const {imageVersion} = this.props
