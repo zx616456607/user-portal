@@ -20,7 +20,6 @@ import DockerFile from './Dockerfile'
 import Attribute from './Attribute'
 import './style/ImageDetailBox.less'
 import NotificationHandler from '../../../../common/notification_handler'
-import serverSVG from '../../../../assets/img/server.svg'
 
 const TabPane = Tabs.TabPane;
 
@@ -201,7 +200,9 @@ class ImageDetailBox extends Component {
       <div id="ImageDetailBox">
         <div className="headerBox">
           <div className="imgBox">
-            <img src={serverSVG} />
+            <svg className='appcenterlogo'>
+              <use xlinkHref='#appcenterlogo' />
+            </svg>
           </div>
           <div className="infoBox">
             <p className="imageName">{imageDetail.name ? imageDetail.name : imageDetail.imageName}</p>

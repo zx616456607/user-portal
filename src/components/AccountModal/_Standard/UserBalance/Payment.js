@@ -45,6 +45,7 @@ class UserPay extends Component {
     this.checkPayOrderStatus = this.checkPayOrderStatus.bind(this)
     this.renderPayments = this.renderPayments.bind(this)
     this.getUpgradeModalContent = this.getUpgradeModalContent.bind(this)
+    this.handleChargeTarget = this.handleChargeTarget.bind(this)
     const { hash } = props
     let title = '充值'
     let amount = 100
@@ -86,61 +87,90 @@ class UserPay extends Component {
     }
   }
 
+  /**
+   * Handle charge target when query change
+   *
+   * @param {String} teamName
+   *
+   * @memberOf UserPay
+   */
+  handleChargeTarget(teamName) {
+    const { loadUserTeamspaceList, loadLoginUserDetail, getPayOrderStatus, orderId } = this.props
+    if (!teamName) {
+      this.setState({
+        rechargeTarget: {
+          loading: false,
+        }
+      })
+      return
+    }
+    this.setState({
+      payBtnDisabled: true,
+      rechargeTarget: {
+        loading: true
+      }
+    })
+    loadUserTeamspaceList('default', { size: 100 }).then(({response}) => {
+      const { teamspaces } = response.result
+      this.setState({
+        payBtnDisabled: false,
+        rechargeTarget: {
+          loading: false,
+        }
+      })
+      teamspaces.map(space => {
+        if (space.teamName === teamName) {
+          this.setState({
+            payBtnDisabled: false,
+            rechargeTarget: {
+              namespace: space.namespace,
+              teamBalance: space.balance,
+            }
+          })
+        }
+      })
+    }).catch(err => {
+      this.setState({
+        payBtnDisabled: false,
+        rechargeTarget: {
+          loading: false,
+        }
+      })
+    })
+  }
+
   componentWillMount() {
     const { teamName, title } = this.state
     document.title = `${title} | 时速云`
-    const { loadUserTeamspaceList, getPayOrderStatus, orderId } = this.props
-    // Load team list
-    if (teamName) {
-      this.setState({
-        payBtnDisabled: true,
-        rechargeTarget: {
-          loading: true
-        }
-      })
-      loadUserTeamspaceList('default', { size: 100 }).then(({response}) => {
-        const { teamspaces } = response.result
-        this.setState({
-          payBtnDisabled: false,
-          rechargeTarget: {
-            loading: false,
-          }
-        })
-        teamspaces.map(space => {
-          if (space.teamName === teamName) {
-            this.setState({
-              payBtnDisabled: false,
-              rechargeTarget: {
-                namespace: space.namespace
-              }
-            })
-          }
-        })
-      }).catch(err => {
-        this.setState({
-          payBtnDisabled: false,
-          rechargeTarget: {
-            loading: false,
-          }
-        })
-      })
-    }
+    const { loadLoginUserDetail, orderId } = this.props
+    // Load login user detail
+    loadLoginUserDetail()
+    // Handle charge target
+    this.handleChargeTarget(teamName)
     // Load order status
     if (orderId) {
       this.checkPayOrderStatus()
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { teamName } = nextProps
+    if (teamName !== this.props.teamName) {
+      this.handleChargeTarget(teamName)
+    }
+  }
+
   renderRechargeTarget() {
+    const { loginUser } = this.props
     const { rechargeTarget, teamName } = this.state
-    const { loading, namespace } = rechargeTarget
+    const { loading, namespace, teamBalance } = rechargeTarget
     if (loading) {
       return <Icon type='loading' />
     }
     if (namespace) {
-      return `${teamName} 团队`
+      return <span>{teamName} 团队（余额：<font color="#52b7fa">{parseAmount(teamBalance).fullAmount}</font>）</span>
     }
-    return '个人帐户'
+    return <span>个人帐户（余额：<font color="#52b7fa">{parseAmount(loginUser.balance).fullAmount}</font>）</span>
   }
 
   changePayType(type) {
@@ -374,27 +404,6 @@ class UserPay extends Component {
       if (upgradeOrRenewalsResult) {
         return
       }
-      /*if (chargePurpose) {
-        let { endTime, chargeType } = chargePurpose
-        // `chargeType === 0` 代表充值成功，升级失败
-        // `chargeType === 1` 代表充值成功，续费失败
-        // `chargeType === 2` 代表充值成功，升级成功
-        // `chargeType === 3` 代表充值成功，续费成功
-        if (chargeType < 2) {
-          this.setState({
-            payStatusAskModal: false,
-          })
-          notification.warn(`充值成功，${chargeType === 1 ? '续费': '升级'}失败，请检查帐户余额`, '', null)
-          return
-        }
-        this.setState({
-          payStatusAskModal: false,
-          upgradeModalVisible: true,
-          endTime: formatDate(endTime),
-        })
-        loadLoginUserDetail()
-        return
-      }*/
       this.setState({
         payType: method,
         amount: parseAmount(chargeAmount).amount,

@@ -417,8 +417,8 @@ class ServiceList extends Component {
     this.confirmStopServices = this.confirmStopServices.bind(this)
     this.batchRestartServices = this.batchRestartServices.bind(this)*/
     // this.confirmRestartServices = this.confirmRestartServices.bind(this)
-    this.batchDeleteServices = this.batchDeleteServices.bind(this)
-    this.confirmDeleteServices = this.confirmDeleteServices.bind(this)
+    // this.batchDeleteServices = this.batchDeleteServices.bind(this)
+    // this.confirmDeleteServices = this.confirmDeleteServices.bind(this)
     // this.confirmQuickRestartService = this.confirmQuickRestartService.bind(this)
     this.onPageChange = this.onPageChange.bind(this)
     // this.showRollingUpdateModal = this.showRollingUpdateModal.bind(this)
@@ -430,6 +430,7 @@ class ServiceList extends Component {
     this.batchStopService = this.batchStopService.bind(this)
     this.batchRestartService = this.batchRestartService.bind(this)
     this.batchQuickRestartService = this.batchQuickRestartService.bind(this)
+    this.batchDeleteServices = this.batchDeleteServices.bind(this)
     this.handleStartServiceOk = this.handleStartServiceOk.bind(this)
     this.handleStartServiceCancel = this.handleStartServiceCancel.bind(this)
     this.handleStopServiceOk = this.handleStopServiceOk.bind(this)
@@ -438,6 +439,9 @@ class ServiceList extends Component {
     this.handleRestarServiceCancel = this.handleRestarServiceCancel.bind(this)
     this.handleQuickRestarServiceOk = this.handleQuickRestarServiceOk.bind(this)
     this.handleQuickRestarServiceCancel = this.handleQuickRestarServiceCancel.bind(this)
+    this.handleDeleteServiceOk = this.handleDeleteServiceOk.bind(this)
+    this.handleDeleteServiceCancel = this.handleDeleteServiceCancel.bind(this)
+
     this.state = {
       modalShow: false,
       currentShowInstance: null,
@@ -458,6 +462,7 @@ class ServiceList extends Component {
       StopServiceModal: false,
       RestarServiceModal: false,
       QuickRestarServiceModal: false,
+      DeleteServiceModal: false,
       detail: false,
     }
   }
@@ -589,6 +594,11 @@ class ServiceList extends Component {
   batchQuickRestartService() {
     this.setState({
       QuickRestarServiceModal: true
+    })
+  }
+  batchDeleteServices() {
+    this.setState({
+      DeleteServiceModal: true
     })
   }
 
@@ -831,8 +841,45 @@ class ServiceList extends Component {
       QuickRestarServiceModal: false,
     })
   }
+  handleDeleteServiceOk() {
+    const self = this
+    const { cluster, appName, loadAllServices, deleteServices, intl, serviceList } = this.props
+    const checkedServiceList = serviceList.filter((service) => service.checked)
+    
+    const serviceNames = checkedServiceList.map((service) => service.metadata.name)
+    const allServices = self.state.serviceList
+    allServices.map((service) => {
+      if (serviceNames.indexOf(service.metadata.name) > -1) {
+        service.status.phase = 'Terminating'
+      }
+    })
+    self.setState({
+      DeleteServiceModal: false,
+      serviceList: allServices
+    })
+    deleteServices(cluster, serviceNames, {
+      success: {
+        func: () => {
+          self.loadAllServices(self.props)
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          errorHandler(err, intl)
+          self.loadAllServices(self.props)
+        },
+        isAsync: true
+      }
+    })
+  }
+  handleDeleteServiceCancel() {
+    this.setState({
+      DeleteServiceModal: false,
+    })
+  }
 
-  batchDeleteServices(e) {
+  /*batchDeleteServices(e) {
     const { serviceList } = this.state
     const checkedServiceList = serviceList.filter((service) => service.checked)
     this.confirmDeleteServices(checkedServiceList)
@@ -885,7 +932,7 @@ class ServiceList extends Component {
       },
       onCancel() { },
     })
-  }
+  }*/
   closeModal() {
     this.setState({
       modalShow: false
@@ -972,9 +1019,9 @@ class ServiceList extends Component {
       handleRestarServiceOk: this.handleRestarServiceOk,
       batchRestartService: this.batchRestartService,
       batchStopService: this.batchStopService,
-
-      confirmStopServices: this.confirmStopServices,
-      confirmDeleteServices: this.confirmDeleteServices,
+      batchDeleteServices: this.batchDeleteServices,
+      // confirmStopServices: this.confirmStopServices,
+      // confirmDeleteServices: this.confirmDeleteServices,
     }
     const operaMenu = (
       <Menu>
@@ -1019,6 +1066,11 @@ class ServiceList extends Component {
               <Button type='ghost' size='large' onClick={this.batchDeleteServices} disabled={!isChecked}>
                 <i className='fa fa-trash-o'></i>删除
               </Button>
+              <Modal title="删除操作" visible={this.state.DeleteServiceModal}
+                onOk={this.handleDeleteServiceOk} onCancel={this.handleDeleteServiceCancel}
+                >
+                <StateBtnModal serviceList={serviceList} state='Delete' />
+              </Modal>
               <Button type='ghost' size="large" onClick={this.batchQuickRestartService} disabled={!restartBtn}>
                 <i className="fa fa-bolt"></i>重启
               </Button>
@@ -1075,7 +1127,7 @@ class ServiceList extends Component {
                 服务名称
             </div>
               <div className='status commonTitle'>
-                运行状态
+                状态
             </div>
               <div className='appname commonTitle'>
                 所属应用

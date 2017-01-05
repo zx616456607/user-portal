@@ -31,11 +31,11 @@ const menusText = defineMessages({
   },
   tooltip: {
     id: 'CICD.Tenxflow.TenxFlowDetailFlow.tooltip',
-    defaultMessage: 'TenxFlow流程定义，这里您可以定义一系列构建所需要的项目执行过程，可以是代码构建，亦或是开发自测，也可以是自动化集成、并实现自动化部署的一个All-In-One Platform',
+    defaultMessage: 'TenxFlow流程定义：这里可以定义一个TenxFlow项目的执行流程，每个卡片对应一个子项目，分别执行镜像构建、代码编译、单元测试或者集成测试等子任务，大部分流程以生成应用镜像作为结束。',
   },
   add: {
     id: 'CICD.Tenxflow.TenxFlowDetailFlow.add',
-    defaultMessage: '添加Flow项目',
+    defaultMessage: '添加子项目',
   },
 })
 

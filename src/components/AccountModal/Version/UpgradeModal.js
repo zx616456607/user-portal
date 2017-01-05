@@ -107,7 +107,7 @@ class UpgradeModal extends Component {
               </div>
               <div className={ currentType == 'cicd' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>CI/CD完整版（2个项目）代码库（Github）</span>
+                <span className='infoSpan'>CI/CD标准版（不超过 2 个构建流程，8个构建步骤）代码库（GitHub）</span>
               </div>
               <div className={ currentType == 'database' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
@@ -146,7 +146,7 @@ class UpgradeModal extends Component {
               <div className={ currentType == 'cicd' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <img className='commonImg' src={proIcon} />
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>CI/CD完整版（5个项目）<br />代码库（Github、GitLab、SVN）</span>
+                <span className='infoSpan'>CI/CD完整版（流程、步骤数量不限）<br />代码库（GitHub、GitLab、SVN）</span>
               </div>
               <div className={ currentType == 'database' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>

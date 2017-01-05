@@ -9,6 +9,7 @@
  */
 'use strict'
 let yaml = require('js-yaml')
+let utils = require('../utils')
 const Service = require('../kubernetes/objects/service')
 const apiFactory = require('../services/api_factory')
 
@@ -41,8 +42,17 @@ exports.createNewDBService = function* () {
   }
   const appTemplate = yield templateApi.getBy([basicInfo.templateId])
   let yamlContent = appTemplate.data.content
+  // For base petset and service
   yamlContent = yamlContent.replace(/\{\{name\}\}/g, basicInfo.serviceName).replace("{{size}}", basicInfo.volumeSize).replace("{{password}}", basicInfo.password).replace("{{replicas}}", basicInfo.replicas)
-
+  // For external service access
+  let externalName = basicInfo.serviceName + '-' + utils.genRandomString(5)
+  yamlContent = yamlContent.replace(/\{\{external-name\}\}/g, externalName)
+  // Port will be generated randomly
+  //yamlContent = yamlContent.replace("{{external-port}}", "")
+  if (!basicInfo.externalIP) {
+    basicInfo.externalIP = ''
+  }
+  yamlContent = yamlContent.replace("{{external-ip}}", basicInfo.externalIP)
   const result = yield api.createBy([cluster, 'dbservices'], {category: appTemplate.data.category}, yamlContent);
 
   this.body = {
@@ -139,7 +149,6 @@ exports.getDBService = function* () {
   }
   if (database.serviceInfo) {
     delete database.serviceInfo.labels
-    delete database.serviceInfo.annotations
     delete database.serviceInfo.selector
   }
 

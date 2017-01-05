@@ -184,7 +184,7 @@ let SetStageFileLink = React.createClass({
       <div id='SetStageFileLink' key='SetStageFileLink'>
         <div className='titleBox'>
           <span>设置共享目录</span>
-          <Icon type='cross' />
+          <Icon type='cross' onClick={this.closeModal} />
         </div>
         <Form horizontal>
           <div className='commonInputBox'>

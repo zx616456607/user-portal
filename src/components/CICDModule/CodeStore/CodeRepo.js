@@ -186,7 +186,11 @@ const MyComponent = React.createClass({
             message = message.message
           }
           notification.close()
-          notification.error(`代码仓库添加失败`, '仓库地址或者私有Token有误！')
+          if (err.statusCode === 412) {
+            notification.error(`代码仓库添加失败`, '不允许添加此类型的代码仓库！')
+          } else {
+            notification.error(`代码仓库添加失败`, '仓库地址或者私有Token有误！')
+          }
           self.setState({ loading: false })
         }
       }
@@ -282,7 +286,7 @@ const MyComponent = React.createClass({
       return (
         <div className='CodeTable' key={item.name} >
           <div className="name textoverflow">{item.name}</div>
-          <div className="type">{item.type == false ? "public" : "private"}</div>
+          <div className="type">{item.private ? "private" : "public"}</div>
           <div className="action">
             {(item.managedProject && item.managedProject.active == 1) ?
               <span><Button type="ghost" disabled>已激活</Button>

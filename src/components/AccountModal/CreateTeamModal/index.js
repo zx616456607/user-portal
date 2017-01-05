@@ -12,7 +12,7 @@
 
 import React from 'react'
 import { Input, Modal, Form, Button, } from 'antd'
-import { USERNAME_REG_EXP } from '../../../constants'
+import { USERNAME_REG_EXP, ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -38,28 +38,31 @@ let CreateTeamModal = React.createClass({
     this.setState({
       disabled: true
     })
-    checkTeamName(value, {
-      success: {
-        func: (result) => {
-          _this.setState({
-            disabled: false
-          })
-          if (result.data) {
-            callback([new Error('团队名称已被占用，请修改后重试')])
-            return
+    clearTimeout(this.teamExistsTimeout)
+    this.teamExistsTimeout = setTimeout(() => {
+      checkTeamName(value, {
+        success: {
+          func: (result) => {
+            _this.setState({
+              disabled: false
+            })
+            if (result.data) {
+              callback([new Error('团队名称已被占用，请修改后重试')])
+              return
+            }
+            callback()
           }
-          callback()
+        },
+        failed: {
+          func: (err) => {
+            _this.setState({
+              disabled: false
+            })
+            callback([new Error('团队名校验失败')])
+          }
         }
-      },
-      failed: {
-        func: (err) => {
-          _this.setState({
-            disabled: false
-          })
-          callback([new Error('团队名校验失败')])
-        }
-      }
-    })
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
   },
   handleOk() {
     const { form, onSubmit, scope } = this.props

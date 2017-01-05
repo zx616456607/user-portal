@@ -35,7 +35,7 @@ let MyComponent = React.createClass({
     parentScope: React.PropTypes.object,
   },
   onchange: function (e) {
-    e.stopPropagation();
+    e.stopPropagation()
     const { value, checked } = e.target
     const { parentScope } = this.props
     const { appList } = parentScope.state
@@ -246,11 +246,12 @@ let MyComponent = React.createClass({
     batchRestartApps([app])
   },
   deleteApp: function (name) {
-    const { confirmDeleteApps } = this.props.funcs
+    const { confirmDeleteApps, batchDeleteApps } = this.props.funcs
     const app = {
       name
     }
-    confirmDeleteApps([app])
+    // confirmDeleteApps([app])
+    batchDeleteApps([app])
   },
   goStack(appName, e) {
     e.stopPropagation()
@@ -342,14 +343,15 @@ class AppList extends Component {
     super(props)
     this.loadData = this.loadData.bind(this)
     this.onAllChange = this.onAllChange.bind(this)
-    this.confirmDeleteApps = this.confirmDeleteApps.bind(this)
-    this.batchDeleteApps = this.batchDeleteApps.bind(this)
+    // this.confirmDeleteApps = this.confirmDeleteApps.bind(this)
+    // this.batchDeleteApps = this.batchDeleteApps.bind(this)
     this.searchApps = this.searchApps.bind(this)
     this.onPageChange = this.onPageChange.bind(this)
     this.onShowSizeChange = this.onShowSizeChange.bind(this)
     this.sortApps = this.sortApps.bind(this)
 
     this.batchStartApps = this.batchStartApps.bind(this)
+    this.batchDeleteApps = this.batchDeleteApps.bind(this)
     this.batchStopApps = this.batchStopApps.bind(this)
     this.batchRestartApps = this.batchRestartApps.bind(this)
     this.handleStartAppsOk = this.handleStartAppsOk.bind(this)
@@ -358,6 +360,9 @@ class AppList extends Component {
     this.handleStopAppsCancel = this.handleStopAppsCancel.bind(this)
     this.handleRestarAppsOk = this.handleRestarAppsOk.bind(this)
     this.handleRestarAppsCancel = this.handleRestarAppsCancel.bind(this)
+    this.handleDeleteAppsOk = this.handleDeleteAppsOk.bind(this)
+    this.handleDeleteAppsCancel = this.handleDeleteAppsCancel.bind(this)
+
     this.state = {
       appList: props.appList,
       searchInputValue: props.name,
@@ -368,6 +373,7 @@ class AppList extends Component {
       startAppsModal: false,
       stopAppsModal: false,
       restarAppsModal: false,
+      deleteAppsModal: false,
     }
   }
 
@@ -477,7 +483,7 @@ class AppList extends Component {
     })
   }
 
-  confirmDeleteApps(appList) {
+  /*confirmDeleteApps(appList) {
     const self = this
     const { cluster, deleteApps, intl } = this.props
     const appNames = appList.map((app) => app.name)
@@ -513,13 +519,25 @@ class AppList extends Component {
           resolve()
         });
       },
-      onCancel() { },
+      onCancel() {},
     });
-  }
-  batchDeleteApps(e) {
-    const { appList } = this.state
+  }*/
+  batchDeleteApps(app) {
+    /*const { appList } = this.state
     const checkedAppList = appList.filter((app) => app.checked)
-    this.confirmDeleteApps(checkedAppList)
+    this.confirmDeleteApps(checkedAppList)*/
+    const { appList } = this.state
+    if (app) {
+      appList.map((item) => {
+        item.checked = false
+        if (item.name === app[0].name) {
+          item.checked = true
+        }
+      });
+    }
+    this.setState({
+      deleteAppsModal: true
+    })
   }
 
   searchApps(e) {
@@ -619,7 +637,6 @@ class AppList extends Component {
     startApps(cluster, appNames, {
       success: {
         func: () => {
-          // self.loadData()
           self.setState({
             runBtn: false,
             stopBtn: false,
@@ -726,7 +743,6 @@ class AppList extends Component {
     restartApps(cluster, appNames, {
       success: {
         func: () => {
-          // self.loadData()
           self.setState({
             runBtn: false,
             stopBtn: false,
@@ -749,6 +765,43 @@ class AppList extends Component {
       restarAppsModal: false,
     })
   }
+  handleDeleteAppsOk() {
+    const self = this
+    const { cluster, deleteApps, intl, appList } = this.props
+    const checkedAppList = appList.filter((app) => app.checked)
+    
+    const appNames = checkedAppList.map((app) => app.name)
+    const allApps = self.state.appList
+    allApps.map((app) => {
+      if (appNames.indexOf(app.name) > -1) {
+        app.status.phase = 'Terminating'
+      }
+    })
+    self.setState({
+      deleteAppsModal: false,
+      appList: allApps
+    })
+    deleteApps(cluster, appNames, {
+      success: {
+        func: () => {
+          self.loadData(self.props)
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          errorHandler(err, intl)
+          self.loadData(self.props)
+        },
+        isAsync: true
+      }
+    })
+  }
+  handleDeleteAppsCancel() {
+    this.setState({
+      deleteAppsModal: false,
+    })
+  }
   render() {
     const scope = this
     const { name, pathname, page, size, sortOrder, sortBy, total, cluster, isFetching, startApps, stopApps } = this.props
@@ -763,9 +816,10 @@ class AppList extends Component {
       confirmStopApps: this.confirmStopApps,
       confirmStartApps: this.confirmStartApps,
       confirmRestartApps: this.confirmRestartApps,
-      confirmDeleteApps: this.confirmDeleteApps,
+      // confirmDeleteApps: this.confirmDeleteApps,
       batchStopApps: this.batchStopApps,
       batchRestartApps: this.batchRestartApps,
+      batchDeleteApps: this.batchDeleteApps,
     }
 
     // kind: asc:升序（向上的箭头） desc:降序（向下的箭头）
@@ -819,9 +873,14 @@ class AppList extends Component {
               <Button type='ghost' size='large' onClick={() => this.loadData(this.props)}>
                 <i className='fa fa-refresh' />刷新
               </Button>
-              <Button type='ghost' size='large' onClick={this.batchDeleteApps} disabled={!isChecked}>
+              <Button type='ghost' size='large' onClick={() => this.batchDeleteApps()} disabled={!isChecked}>
                 <i className='fa fa-trash-o' />删除
               </Button>
+              <Modal title="删除操作" visible={this.state.deleteAppsModal}
+                onOk={this.handleDeleteAppsOk} onCancel={this.handleDeleteAppsCancel}
+                >
+                <StateBtnModal appList={appList} state='Delete' />
+              </Modal>
               <Button type='ghost' size='large' onClick={() => this.batchRestartApps()} disabled={!restartBtn}>
                 <i className='fa fa-undo' />重新部署
               </Button>
