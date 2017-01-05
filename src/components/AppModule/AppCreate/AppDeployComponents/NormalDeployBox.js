@@ -63,10 +63,13 @@ let MyComponent = React.createClass({
     volumeKey = volumeKey.filter((key) => {
       return key !== k;
     });
-
+    console.log(volumeKey)
     if (volumeKey.length <= 0) {
       const registry = this.props.registry
-      const mountPath = this.props.tagConfig[registry].configList.mountPath
+      const {imageVersion} = this.props
+      const self = this
+      const mountPath = this.props.tagConfig[registry].configList[imageVersion].mountPath
+      if(!mountPath) return
       volumeKey = mountPath.map((i, index) => { return index + 1 })
       form.setFieldsValue({
         volumeSwitch: false,

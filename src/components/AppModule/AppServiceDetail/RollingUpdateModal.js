@@ -47,9 +47,10 @@ class RollingUpdateModal extends Component {
     const containers = service.spec.template.spec.containers
     containers.map((container) => {
       let { image } = container
-      let tag = image.substr(image.indexOf(':') + 1)
-      let imageSrc = image.substring(0, image.indexOf(tag) - 1)
-      let fullName = image.substring(image.indexOf('/') + 1, image.indexOf(tag) - 1)
+      let tagIndex = image.indexOf(':')
+      let tag = image.substr(tagIndex + 1)
+      let imageSrc = image.substring(0, tagIndex)
+      let fullName = image.substring(image.indexOf('/') + 1, tagIndex)
       container.imageObj = {
         tag,
         imageSrc,
