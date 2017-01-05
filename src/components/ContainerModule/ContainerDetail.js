@@ -218,7 +218,7 @@ class ContainerDetail extends Component {
                 activeKey={activeTabKey}
                 onTabClick={this.onTabClick}
                 >
-                <TabPane tab="容器配置" key="#configs" >
+                <TabPane tab="配置" key="#configs" >
                   <ContainerDetailInfo key="#configs" container={container} />
                 </TabPane>
                 <TabPane tab="监控" key="#monitor" >

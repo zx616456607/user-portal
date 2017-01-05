@@ -1037,7 +1037,7 @@ class ServiceList extends Component {
                 服务名称
             </div>
               <div className='status commonTitle'>
-                运行状态
+                状态
             </div>
               <div className='appname commonTitle'>
                 所属应用

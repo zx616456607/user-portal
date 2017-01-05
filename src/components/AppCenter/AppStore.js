@@ -35,7 +35,6 @@ const MyComponent = React.createClass({
     config: React.PropTypes.array
   },
   showDetail(id) {
-    console.log('id is', id)
     const parentScope = this.props.scope
     const {loadStackDetail} = parentScope.props
     loadStackDetail(id, {
@@ -66,11 +65,11 @@ const MyComponent = React.createClass({
               return (
                 <Card className="imageDetail">
                   <div className="imgBox" onClick={()=>this.showDetail(imageDetail.id)}>
-                    <img src={`${imageDetail.imageUrl}?_=${TIMESTRAP}`} />
+                    <img className={imageDetail.name.split(' ')[0]} src={`${imageDetail.imageUrl}?_=${TIMESTRAP}`} />
                   </div>
                   <div className="intro">
                     <span className="span7 textoverflow">{imageDetail.name}</span>
-                    <span className="span2"><Link to={`/app_manage/app_create/compose_file?templateid=${imageDetail.id}`} ><Button className="btn-deploy">部署</Button></Link></span>
+                    <span className='span2'><Link to={`/app_manage/app_create/compose_file?templateid=${imageDetail.id}`} ><Button className="btn-deploy">部署</Button></Link></span>
                   </div>
                 </Card>
               )
@@ -182,7 +181,7 @@ class AppStore extends Component {
     const { formatMessage } = this.props.intl;
     const scope = this;
     const {appStoreList} = this.props
-
+    console.log(appStoreList)
     if (!appStoreList) {
       return (<div></div>)
     }
