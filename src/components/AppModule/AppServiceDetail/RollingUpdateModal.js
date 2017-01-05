@@ -48,6 +48,9 @@ class RollingUpdateModal extends Component {
     containers.map((container) => {
       let { image } = container
       let tagIndex = image.indexOf(':')
+      if(tagIndex < 0) {
+        tagIndex = image.length
+      }
       let tag = image.substr(tagIndex + 1)
       let imageSrc = image.substring(0, tagIndex)
       let fullName = image.substring(image.indexOf('/') + 1, tagIndex)
