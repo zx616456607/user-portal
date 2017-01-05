@@ -62,7 +62,7 @@ const MyComponent = React.createClass({
       scope.setState({
         runBtn: false,
         stopBtn: false,
-        restartBtn: false,
+        restartBtn: false
       })
       return
     }
@@ -81,7 +81,7 @@ const MyComponent = React.createClass({
           restartBtn: false,
         })
       }
-      if (checkedList[0].status.phase === 'Pending') {
+      if (checkedList[0].status.phase === 'Pending' || checkedList[0].status.phase === 'Starting' || checkedList[0].status.phase === 'Deploying') {
         scope.setState({
           runBtn: false,
           stopBtn: true,
@@ -96,7 +96,7 @@ const MyComponent = React.createClass({
         if(item.status.phase === 'Running') {
           runCount++
         }
-        else if(item.status.phase === 'Pending') {
+        else if(item.status.phase === 'Pending' || item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
           pending++
         } else {
           stopCount++
@@ -168,7 +168,7 @@ const MyComponent = React.createClass({
             restartBtn: false,
           })
         }
-        if (checkedList[0].status.phase === 'Pending') {
+        if (checkedList[0].status.phase === 'Pending' || checkedList[0].status.phase === 'Starting' || checkedList[0].status.phase === 'Deploying') {
           scope.setState({
             runBtn: false,
             stopBtn: true,
@@ -183,7 +183,7 @@ const MyComponent = React.createClass({
           if (item.status.phase === 'Running') {
             runCount++
           }
-          else if (item.status.phase === 'Pending') {
+          else if (item.status.phase === 'Pending'|| item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
             pending++
           } else {
             stopCount++
@@ -297,8 +297,8 @@ const MyComponent = React.createClass({
     const { cluster, serviceList, loading, page, size, total } = this.props
     if (loading) {
       return (
-        <div className='loadingBox'>
-          <Spin size='large' />
+        <div className="loadingBox">
+          <Spin size="large" />
         </div>
       )
     }
@@ -353,7 +353,7 @@ const MyComponent = React.createClass({
           </div>
           <div className="service commonData appSvcListDomain">
             <Tooltip title={svcDomain.length > 0 ? svcDomain[0] : ""}>
-              <TipSvcDomain svcDomain={svcDomain} parentNode='appSvcListDomain' />
+              <TipSvcDomain svcDomain={svcDomain} parentNode="appSvcListDomain" />
             </Tooltip>
           </div>
           <div className="createTime commonData">
@@ -363,7 +363,7 @@ const MyComponent = React.createClass({
           </div>
           <div className="actionBox commonData">
             <Dropdown.Button
-              overlay={dropdown} type='ghost'
+              overlay={dropdown} type="ghost"
               onClick={() => this.modalShow(item)}>
               <Icon type="eye-o" />
               <span>查看</span>
@@ -450,6 +450,19 @@ class AppServiceList extends Component {
     this.setState({
       serviceList
     })
+    if (checked) {
+      this.setState({
+        runBtn: true,
+        stopBtn: true,
+        restartBtn: true,
+      })
+    } else {
+      this.setState({
+        runBtn: false,
+        stopBtn: false,
+        restartBtn: false,
+      })
+    }
   }
 
   componentWillMount() {
@@ -520,6 +533,11 @@ class AppServiceList extends Component {
         service.status.phase = 'Starting'
       }
     })
+    if(serviceNames.length <= 0 ) {
+      const noti = new NotificationHandler()
+      noti.error('没有可操作的服务')
+      return
+    }
     self.setState({
       serviceList
     })
@@ -558,7 +576,7 @@ class AppServiceList extends Component {
       checkedServiceList = [this.state.currentShowInstance]
     }
     checkedServiceList.map((service, index) => {
-      if (service.status.phase === 'Running') {
+      if (service.status.phase === 'Running' || service.status.phase === 'Pending' || service.status.phase === 'Starting' || service.status.phase === 'Deploying') {
         runningServices.push(service)
       }
     })
@@ -569,6 +587,11 @@ class AppServiceList extends Component {
         service.status.phase = 'Stopping'
       }
     })
+    if (serviceNames.length <= 0) {
+      const noti = new NotificationHandler()
+      noti.error('没有可以操作的服务')
+      return
+    }
     self.setState({
       serviceList: allServices
     })
@@ -632,6 +655,11 @@ class AppServiceList extends Component {
         service.status.phase = 'Redeploying'
       }
     })
+    if (serviceNames.length <= 0) {
+      const noti = new NotificationHandler()
+      noti.error('没有可以操作的服务')
+      return
+    }
     self.setState({
       serviceList: allServices,
       RestarServiceModal: false,
@@ -680,6 +708,11 @@ class AppServiceList extends Component {
         service.status.phase = 'Restarting'
       }
     })
+    if (serviceNames.length <= 0) {
+      const noti = new NotificationHandler()
+      noti.error('没有可以操作的服务')
+      return
+    }
     self.setState({
       serviceList
     })
@@ -751,6 +784,11 @@ class AppServiceList extends Component {
               service.status.phase = 'Terminating'
             }
           })
+          if (allServices.length <= 0) {
+            const noti = new NotificationHandler()
+            noti.error('没有可以操作的服务')
+            return
+          }
           self.setState({
             serviceList: allServices
           })
@@ -776,25 +814,6 @@ class AppServiceList extends Component {
       addServiceModalShow: true
     })
   }
-
-  onPageChange(page) {
-    if (page === this.props.page) {
-      return
-    }
-    const { pathname, size, name } = this.props
-    const query = {}
-    if (page !== DEFAULT_PAGE) {
-      query.page = page
-      query.size = size
-    }
-    if (name) {
-      query.name = name
-    }
-    browserHistory.push({
-      pathname,
-      query
-    })
-  }
   onShowSizeChange(page, size) {
     if (size === this.props.size) {
       return
@@ -816,7 +835,6 @@ class AppServiceList extends Component {
       query
     })
   }
-
   onPageChange(page) {
     if (page === this.props.page) {
       return
@@ -926,12 +944,12 @@ class AppServiceList extends Component {
             <Modal title="重新部署操作" visible={this.state.RestarServiceModal}
               onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
               >
-              <StateBtnModal serviceList={serviceList} scope={parentScope} state='Restart' />
+              <StateBtnModal serviceList={serviceList} scope={parentScope} state="Restart" />
             </Modal>
             <Modal title="启动操作" visible={this.state.StartServiceModal}
               onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
               >
-              <StateBtnModal serviceList={serviceList} state='Running' />
+              <StateBtnModal serviceList={serviceList} state="Running" />
             </Modal>
             <Button size="large" onClick={this.batchStopService} disabled={!stopBtn}>
               <i className="fa fa-stop"></i>
@@ -944,7 +962,7 @@ class AppServiceList extends Component {
             <Modal title="停止操作" visible={this.state.StopServiceModal}
               onOk={this.handleStopServiceOk} onCancel={this.handleStopServiceCancel}
               >
-              <StateBtnModal serviceList={serviceList} scope={parentScope} state='Stopped' />
+              <StateBtnModal serviceList={serviceList} scope={parentScope} state="Stopped" />
             </Modal>
             <Button size="large" onClick={this.batchDeleteServices} disabled={!isChecked}>
               <i className="fa fa-trash"></i>
@@ -957,7 +975,7 @@ class AppServiceList extends Component {
             <Modal title="重启操作" visible={this.state.QuickRestarServiceModal}
               onOk={this.handleQuickRestarServiceOk} onCancel={this.handleQuickRestarServiceCancel}
               >
-              <StateBtnModal serviceList={serviceList} state='QuickRestar' />
+              <StateBtnModal serviceList={serviceList} state="QuickRestar" />
             </Modal>
             <Dropdown overlay={operaMenu} trigger={['click']}>
               <Button size="large" disabled={!isChecked}>
@@ -965,8 +983,8 @@ class AppServiceList extends Component {
                 <i className="fa fa-caret-down"></i>
               </Button>
             </Dropdown>
-            <div className='rightBox'>
-              <span className='totalPage'>共 {total}条</span>
+            <div className="rightBox">
+              <span className="totalPage">共 {total}条</span>
               <div className="paginationBox">
                 <Pagination
                   className="inlineBlock"

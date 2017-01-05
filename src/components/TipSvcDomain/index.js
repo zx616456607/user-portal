@@ -18,12 +18,12 @@ class SvcTip extends Component {
   render() {
     const { svcDomain } = this.props
     let item = svcDomain.map((element, index) => {
-      const info = element.split(',')
-      let linkURL = 'http://' + info[1]
+      let linkURL = 'http://' + element.domain
       return (
-        <li key={element}>
-        {info[0]}&nbsp;&nbsp;
-          <a href={linkURL} target='_blank'>{info[1]}</a>
+        <li key={element.domain}>
+          <a href="javascript:void(0)" > 容器端口:{element.interPort}</a>
+          &nbsp;&nbsp;
+          <a href={linkURL} target='_blank'>{element.isInternal ? '内网' : '外网'}:{element.domain}</a>
         </li>
       )
     })
@@ -65,11 +65,10 @@ class AppTip extends Component {
   }
   startCopyCode(url) {
     //this function for copy code to input
-    let newUrl = 'http://' + url;
     const { scope } = this.props;
     let code = document.getElementsByClassName('privateCodeInput');
     for(let index = 0; index < code.length; index++) {
-      code[index].value = newUrl;
+      code[index].value = url.domain;
     }
   }
   render() {
@@ -85,8 +84,7 @@ class AppTip extends Component {
         )
       }
       if (item.data.length === 1) {
-        const info = item.data[0].split(',')
-        let linkURL = 'http://' + info[1]
+        let linkURL = 'http://' + item.data[0].domain
         return (
           <div>
             <Row className='firstSvc'>
@@ -97,10 +95,10 @@ class AppTip extends Component {
               </Timeline.Item>
               <Timeline.Item dot={<div></div>}>
                 <svg className='branchSvg'><use xlinkHref='#branch' /></svg>
-                {info[0]}&nbsp;&nbsp;
-                <a href={linkURL} target='_blank'>{item.data[0]}</a>
+                <a href="javascript:void(0)">容器端口:{item.data[0].interPort}</a>&nbsp;&nbsp;
+                <a href={linkURL} target='_blank'>{item.data[0].isInternal ? '内网' : '外网'}:{item.data[0].domain}</a>
                 <Tooltip placement='top' title={scope.state.copyStatus ? '复制成功' : '点击复制'}>
-                  <svg className='tipCopySvg' onClick={this.copyCode} onMouseLeave={this.returnDefaultTooltip} onMouseEnter={this.startCopyCode.bind(this, item.data[0])}><use xlinkHref='#appcentercopy' /></svg>
+                  <svg className='tipCopySvg' onClick={this.copyCode} onMouseLeave={this.returnDefaultTooltip} onMouseEnter={this.startCopyCode.bind(this, item.data[0].domain)}><use xlinkHref='#appcentercopy' /></svg>
                 </Tooltip>
               </Timeline.Item>
             </Timeline>
@@ -124,13 +122,12 @@ class AppTip extends Component {
                       </Timeline.Item>
                     )
                   }
-                  const info = url.split(',')
-                  let linkURL = 'http://' + info[1]
+                  let linkURL = 'http://' + url.domain
                   return (
                     <Timeline.Item dot={<div></div>}>
                       <svg className='branchSvg'><use xlinkHref='#branch' /></svg>
-                      {info[0]}&nbsp;&nbsp;
-                      <a href={linkURL} target='_blank'>{info[1]}</a>
+                      <a href="javascript:void(0)">容器端口:{url.interPort}</a>&nbsp;&nbsp;
+                      <a href={linkURL} target='_blank'>{url.isInternal ? '内网' : '外网'}:{url.domain}</a>
                       <Tooltip placement='top' title={scope.state.copyStatus ? '复制成功' : '点击复制'}>
                         <svg className='tipCopySvg' onClick={this.copyCode} onMouseLeave={this.returnDefaultTooltip} onMouseEnter={this.startCopyCode.bind(this, url)}><use xlinkHref='#appcentercopy' /></svg>
                       </Tooltip>
@@ -189,24 +186,22 @@ export default class TipSvcDomain extends Component {
             </div>
           )
         }*/
-        const info = svcDomain[0].split(',')
-        let linkURL = 'http://' + info[1]
+        let linkURL = 'http://' + svcDomain[0].domain
         return (
           <div id='TipSvcDomain'>
-            <a target='_blank' href={linkURL}>{info[1]}</a>
+            <a target='_blank' href={linkURL}>{svcDomain[0].domain}</a>
           </div>
         )
       }
       if (svcDomain.length > 1) {
-        const info = svcDomain[0].split(',')
-        let linkURL = 'http://' + info[1]
+        let linkURL = 'http://' + svcDomain[0].domain
         return (
           <div className='TipSvcDomain'>
             <span className='appDomain'>
               {
                 //(svcDomain[0].indexOf('http://') !== -1 || svcDomain[0].indexOf('https://') !== -1) ?
                 //  <a target='_blank' href={svcDomain[0]}>{svcDomain[0]}</a> : svcDomain[0]
-                 <a target='_blank' href={linkURL}>{info[1]}</a>
+                 <a target='_blank' href={linkURL}>{svcDomain[0].domain}</a>
               }
             </span>
             <Popover placement='right'
@@ -241,22 +236,20 @@ export default class TipSvcDomain extends Component {
               <a target='_blank' href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a>
             )
           }**/
-          const info = appDomain[0].data[0].split(',')
-          let linkURL = 'http://' + info[1]
+          let linkURL = 'http://' + appDomain[0].data[0].domain
           return (
-            <a target='_blank' href={linkURL}>{info[1]}</a>
+            <a target='_blank' href={linkURL}>{appDomain[0].data[0].domain}</a>
           )
         }
         if (appDomain[0].data.length > 1) {
-          const info = appDomain[0].data[0].split(',')
-          let linkURL = 'http://' + info[1]
+          let linkURL = 'http://' + appDomain[0].data[0].domain
           return (
             <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
               <span className='appDomain'>
                 {
                   //(appDomain[0].data[0].indexOf('http://') !== -1 || appDomain[0].data[0].indexOf('https://') !== -1) ?
                   //  <a target='_blank' href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a> : appDomain[0].data[0]
-                  <a target='_blank' href={linkURL}>{info[1]}</a>
+                  <a target='_blank' href={linkURL}>{appDomain[0].data[0].domain}</a>
                 }
               </span>
               <Popover placement={type ? 'rightBottom' : 'rightTop'}
@@ -274,13 +267,12 @@ export default class TipSvcDomain extends Component {
           )
         }
       } else {
-        const info = appDomain[0].data[0].split(',')
-        let linkURL = 'http://' + info[1]
+        let linkURL = 'http://' + appDomain[0].data[0].domain
         return (
           <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
             <span className='appDomain'>
               {
-                <a target='_blank' href={linkURL}>{info[1]}</a>
+                <a target='_blank' href={linkURL}>{appDomain[0].data[0].domain}</a>
               }
             </span>
             <Popover placement={type ? 'rightBottom' : 'rightTop'}

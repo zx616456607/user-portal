@@ -24,6 +24,7 @@ import TipSvcDomain from '../TipSvcDomain'
 import { addAppWatch, removeAppWatch } from '../../containers/App/status'
 import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
+import NotificationHandler from '../../common/notification_handler'
 
 const confirm = Modal.confirm
 const ButtonGroup = Button.Group
@@ -98,7 +99,9 @@ let MyComponent = React.createClass({
           restartBtn: true,
         })
         if(pending){
-          restartBtn: false
+          parentScope.setState({
+            restartBtn: false
+          })
         }
         return
       }
@@ -270,7 +273,6 @@ let MyComponent = React.createClass({
       )
     }
     const items = config.map((item) => {
-      console.log('item',item)
       const dropdown = (
         <Menu onClick={this.appOperaClick.bind(this, item)}
           style={{ width: '100px' }}
@@ -490,6 +492,11 @@ class AppList extends Component {
               app.status.phase = 'Terminating'
             }
           })
+          if (appNames.length <= 0) {
+            const noti = new NotificationHandler()
+            noto.error('没有可以操作的应用')
+            return
+          }
           deleteApps(cluster, appNames, {
             success: {
               func: () => self.loadData(self.props),
@@ -600,6 +607,11 @@ class AppList extends Component {
         app.status.phase = 'Starting'
       }
     })
+    if(appNames.length <= 0)  {
+      const noti = new NotificationHandler()
+      noto.error('没有可以操作的应用')
+      return
+    }
     self.setState({
       startAppsModal: false,
       appList: allApps
@@ -648,6 +660,11 @@ class AppList extends Component {
         app.status.phase = 'Stopping'
       }
     })
+    if(appNames.length <= 0)  {
+      const noti = new NotificationHandler()
+      noto.error('没有可以操作的应用')
+      return
+    }
     self.setState({
       stopAppsModal: false,
       appList: allApps
@@ -691,12 +708,17 @@ class AppList extends Component {
     })
     const appNames = runningApps.map((app) => app.name)
     const allApps = self.state.appList
-
+    
     allApps.map((app) => {
       if (appNames.indexOf(app.name) > -1) {
         app.status.phase = 'Redeploying'
       }
     })
+    if(appNames.length <= 0)  {
+      const noti = new NotificationHandler()
+      noto.error('没有可以操作的应用')
+      return
+    }
     self.setState({
       restarAppsModal: false,
       appList: allApps
