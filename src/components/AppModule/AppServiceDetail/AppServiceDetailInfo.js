@@ -24,10 +24,10 @@ function cpuFormat(memory) {
         return '1CPU（共享）';
       case 4:
         return '1CPU';
+      case 8:
+        return '2CPU';
       case 16:
-        return '1CPU';
-      case 16:
-        return '1CPU';
+        return '2CPU';
       case 32:
         return '2CPU';
       case 256:
@@ -125,7 +125,7 @@ export default class AppServiceDetailInfo extends Component {
               { cpuFormat(serviceDetail.spec.template.spec.containers[0].resources.requests.memory) || '-'}
             </div>
             <div className="commonTitle">
-              {serviceDetail.spec.template.spec.containers[0].resources.requests.memory + 'B' || '-'}
+              {serviceDetail.spec.template.spec.containers[0].resources.requests.memory.replace('i', '') + 'B' || '-'}
             </div>
             <div className="commonTitle">
               10G

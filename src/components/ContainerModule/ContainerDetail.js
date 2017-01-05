@@ -167,7 +167,9 @@ class ContainerDetail extends Component {
           <div key="ca" className="containerInfo" id='containerInfo'>
             <Card className="topCard">
               <div className="imgBox">
-                <img src={serverSVG} />
+                <svg>
+                  <use xlinkHref='#server' />
+                </svg>
               </div>
               <div className="infoBox">
                 <p className="appTitle">
