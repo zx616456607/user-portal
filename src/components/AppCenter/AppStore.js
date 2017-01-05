@@ -180,10 +180,9 @@ class AppStore extends Component {
     const { current } = this.state;
     const { formatMessage } = this.props.intl;
     const scope = this;
-    const {appStoreList} = this.props
-    console.log(appStoreList)
-    if (!appStoreList) {
-      return (<div></div>)
+    let {appStoreList} = this.props
+    if (!appStoreList || appStoreList.length === 0) {
+      return (<div className="imageNoData">暂无应用</div>)
     }
     const storeList = appStoreList.map((list, index) => {
       return (
