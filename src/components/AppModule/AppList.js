@@ -494,7 +494,7 @@ class AppList extends Component {
           })
           if (appNames.length <= 0) {
             const noti = new NotificationHandler()
-            noto.error('没有可以操作的应用')
+            noti.error('没有可以操作的应用')
             return
           }
           deleteApps(cluster, appNames, {
@@ -609,7 +609,7 @@ class AppList extends Component {
     })
     if(appNames.length <= 0)  {
       const noti = new NotificationHandler()
-      noto.error('没有可以操作的应用')
+      noti.error('没有可以操作的应用')
       return
     }
     self.setState({
@@ -662,7 +662,7 @@ class AppList extends Component {
     })
     if(appNames.length <= 0)  {
       const noti = new NotificationHandler()
-      noto.error('没有可以操作的应用')
+      noti.error('没有可以操作的应用')
       return
     }
     self.setState({
@@ -716,7 +716,7 @@ class AppList extends Component {
     })
     if(appNames.length <= 0)  {
       const noti = new NotificationHandler()
-      noto.error('没有可以操作的应用')
+      noti.error('没有可以操作的应用')
       return
     }
     self.setState({
