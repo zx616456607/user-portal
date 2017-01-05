@@ -27,7 +27,7 @@ exports.listConfigGroups = function* () {
     let item = {name: configgroup.native.metadata.name, configs: [], creationTimestamp: configgroup.native.metadata.creationTimestamp}
     if (configgroup.extended && configgroup.extended && configgroup.extended.configs) {
       configgroup.extended.configs.forEach(function(c) {
-        item.configs.push({displayName: c.name, name: c.rawName})
+        item.configs.push({name: c.name, rawName: c.rawName})
       })
     }
     item.size = item.configs.length
