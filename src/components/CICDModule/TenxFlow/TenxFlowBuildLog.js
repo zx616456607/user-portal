@@ -177,6 +177,9 @@ let MyComponent = React.createClass({
     const { getFlowBuildStageLogs } = scope.props;
     if(e.length > 0){
       let index = e[e.length -1].replace('LogDetail','');
+      if (config[index].status == 2) {
+        return
+      }
       config[index].isFetching = true;
       scope.setState({
         currentLogList: config
@@ -235,7 +238,7 @@ let MyComponent = React.createClass({
             <div className='line'></div>
           </div>
           <div className='rightInfo'>
-            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} logInfo={item}/>
+            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} logInfo={item} flowId={flowId}/>
           </div>
         </Panel>
       );
