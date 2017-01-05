@@ -95,19 +95,32 @@ function publicImages(state = {}, action) {
       return merge({}, defaultState, state, {
         [registry]: { isFetching: true }
       })
-    case ActionTypes.IMAGE_PUBLIC_LIST_SUCCESS:
+    case ActionTypes.IMAGE_PUBLIC_LIST_SUCCESS: {
+      const bakList =cloneDeep(action.response.result.data)
       return {
         [registry]: {
           isFetching: false,
           registry,
           server: action.response.result.server,
-          imageList: action.response.result.data || []
+          imageList: action.response.result.data || [],
+          bakList
         }
       }
+    }
     case ActionTypes.IMAGE_PUBLIC_LIST_FAILURE:
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
+    case ActionTypes.IMAGE_PUBLIC_TYPE: {
+      const typeState = cloneDeep(state)
+      const temp = typeState[action.registry].bakList.map(list => {
+        if (list.category == action.server) {
+          return list
+        }
+      })
+      typeState[action.registry].imageList = temp
+      return typeState
+    }
     default:
       return state
   }

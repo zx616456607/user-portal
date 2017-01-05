@@ -26,7 +26,7 @@
     }
     .imageDetail {
       .ant-card-body {
-        padding: 0 !important;
+        padding: 0;
       }
       float: left;
       width: 200px;
@@ -36,16 +36,19 @@
       margin-right: 10px;
       margin-bottom: 10px;
       .imgBox {
-        width: 90%;
+        width: 140px;
         height: 140px;
         // padding: 20px 0 0 50px;
         text-align: center;
-        line-height: 140px;
-        padding-top: 20px;
+        position: relative;
+        left: 30px;
         cursor: pointer;
+        display: table-cell;
+        vertical-align: middle;
         img {
           max-height: 90%;
           max-width: 90px;
+          vertical-align: middle;
         }
       }
       .intro {

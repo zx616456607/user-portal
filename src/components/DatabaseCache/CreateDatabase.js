@@ -49,6 +49,7 @@ let CreateDatabase = React.createClass({
     this.setState({
       currentType: database
     });
+    document.getElementById('dbName').focus()
   },
   onChangeNamespace(spaceName) {
     //this function for user change the namespace
@@ -322,7 +323,7 @@ let CreateDatabase = React.createClass({
                   hasFeedback
                   help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
                   >
-                  <Input {...nameProps} size='large' placeholder="请输入名称" disabled={isFetching} maxLength={20} />
+                  <Input {...nameProps} size='large' id="dbName" placeholder="请输入名称" disabled={isFetching} maxLength={20} />
                 </FormItem>
               </div>
               <div style={{ clear: 'both' }}></div>
