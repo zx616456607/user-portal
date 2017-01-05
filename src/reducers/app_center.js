@@ -96,13 +96,22 @@ function publicImages(state = {}, action) {
         [registry]: { isFetching: true }
       })
     case ActionTypes.IMAGE_PUBLIC_LIST_SUCCESS: {
-      const bakList =cloneDeep(action.response.result.data)
+      const bakList = cloneDeep(action.response.result.data)
+      let imageList = action.response.result.data || []
+      if (action.serverType) {
+        imageList = bakList.filter(list => {
+          if (/^tenxcloud/.test(list.name)) {
+            return true
+          }
+          return false
+        })
+      }
       return {
         [registry]: {
           isFetching: false,
           registry,
           server: action.response.result.server,
-          imageList: action.response.result.data || [],
+          imageList,
           bakList
         }
       }
@@ -111,11 +120,38 @@ function publicImages(state = {}, action) {
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
+  // server type default tenxcloud
     case ActionTypes.IMAGE_PUBLIC_TYPE: {
       const typeState = cloneDeep(state)
-      const temp = typeState[action.registry].bakList.map(list => {
+      const bakList = typeState[action.registry].bakList
+      let imageListOs = []
+      if (bakList.length > 0) {
+        imageListOs = bakList.filter(list => {
+          if (/^tenxcloud/.test(list.name)) {
+            return true
+          }
+          return false
+        })
+      }
+      const imageList = cloneDeep(imageListOs)
+      const temp = []
+      if (action.server == 'all') {
+        typeState[action.registry].imageList = imageListOs
+        return typeState
+      }
+      if (action.server == 'hub') {
+        imageListOs = bakList.filter(list => {
+          if (!/^tenxcloud/.test(list.name)) {
+            return true
+          }
+          return false
+        })
+        typeState[action.registry].imageList = imageListOs
+        return typeState
+      }
+      imageList.forEach(list => {
         if (list.category == action.server) {
-          return list
+          temp.push(list)
         }
       })
       typeState[action.registry].imageList = temp
