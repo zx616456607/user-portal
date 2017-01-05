@@ -173,7 +173,8 @@ class AppServiceDetail extends Component {
   delteService(service) {
     const { funcs } = this.props
     const self = this
-    funcs.confirmDeleteServices([service])
+    // funcs.confirmDeleteServices([service])
+    funcs.batchDeleteServices()
   }
 
   handleMenuDisabled(key) {
