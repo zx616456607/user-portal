@@ -47,9 +47,12 @@ exports.createNewDBService = function* () {
   // For external service access
   let externalName = basicInfo.serviceName + '-' + utils.genRandomString(5)
   yamlContent = yamlContent.replace(/\{\{external-name\}\}/g, externalName)
-  yamlContent = yamlContent.replace("{{external-port}}", 12345)
-  // TODO: get external IP from cluster
-  yamlContent = yamlContent.replace("{{external-ip}}", "192.168.1.26")
+  // Port will be generated randomly
+  //yamlContent = yamlContent.replace("{{external-port}}", "")
+  if (!basicInfo.externalIP) {
+    basicInfo.externalIP = ''
+  }
+  yamlContent = yamlContent.replace("{{external-ip}}", basicInfo.externalIP)
   const result = yield api.createBy([cluster, 'dbservices'], {category: appTemplate.data.category}, yamlContent);
 
   this.body = {
@@ -146,7 +149,6 @@ exports.getDBService = function* () {
   }
   if (database.serviceInfo) {
     delete database.serviceInfo.labels
-    delete database.serviceInfo.annotations
     delete database.serviceInfo.selector
   }
 
