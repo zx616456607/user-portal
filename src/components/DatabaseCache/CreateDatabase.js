@@ -184,9 +184,16 @@ let CreateDatabase = React.createClass({
           return newCluster = list
         }
       })
+      let externalIP = ''
+      if (newCluster.publicIPs && newCluster.publicIPs != "") {
+        let ips = eval(newCluster.publicIPs)
+        if (ips && ips.length > 0) {
+          externalIP = ips[0]
+        }
+      }
       const body = {
         cluster: values.clusterSelect,
-        // cluster: 'e0e6f297f1b3285fb81d27742255cfcf11', // @ todo
+        externalIP: externalIP,
         serviceName: values.name,
         password: values.password,
         replicas: values.replicas,
