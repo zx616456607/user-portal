@@ -24,7 +24,6 @@ let CreateTeamModal = React.createClass({
     }
   },
   teamExists(rule, value, callback) {
-    console.log('check!')
     const _this = this
     this.setState({
       disabled: true
