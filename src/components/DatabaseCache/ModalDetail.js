@@ -11,7 +11,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import { Button, Icon, Spin, Modal, Collapse, Row, Col, Dropdown, Slider, Timeline, Popover, InputNumber, Tabs } from 'antd'
+import { Button, Icon, Spin, Modal, Collapse, Row, Col, Dropdown, Slider, Timeline, Popover, InputNumber, Tabs, Tooltip} from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadDbClusterDetail, deleteDatabaseCluster, putDbClusterDetail, loadDbCacheList } from '../../actions/database_cache'
 import './style/ModalDetail.less'
@@ -118,6 +118,24 @@ class BaseInfo extends Component {
       storageValue: parseInt(this.props.databaseInfo.volumeInfo.size)
     }
   }
+  copyDownloadCode() {
+    //this function for user click the copy btn and copy the download code
+    const scope = this;
+    let code = document.getElementsByClassName("databaseCodeInput");
+    code[0].select();
+    document.execCommand("Copy", false);
+    scope.setState({
+      copySuccess: true
+    });
+  }
+  returnDefaultTooltip() {
+    const scope = this;
+    setTimeout(function () {
+      scope.setState({
+        copySuccess: false
+      });
+    }, 500);
+  }
   render() {
     const { domainSuffix, databaseInfo ,dbName } = this.props
     const parentScope = this.props.scope
@@ -198,6 +216,12 @@ class BaseInfo extends Component {
             <span className='listLink'>
               {externalPort != ''? databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort : '-'}
             </span>
+            <Tooltip title={this.state.copySuccess ? '复制成功' : '点击复制'}>
+              <svg style={{width:'50px', height:'16px',verticalAlign:'middle'}} onClick={()=> this.copyDownloadCode()} onMouseLeave={()=> this.returnDefaultTooltip()}>
+                <use xlinkHref='#appcentercopy' style={{fill: '#2db7f5'}}/>
+              </svg>
+            </Tooltip>
+            <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {externalPort != ''? databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort : '-'}/>
           </div>
           <div className='configList'><span className='listKey'>副本数：</span>{databaseInfo.podInfo.pending + databaseInfo.podInfo.running}/{databaseInfo.podInfo.desired}个</div>
           {this.props.database == 'mysql' ?

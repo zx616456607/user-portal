@@ -83,7 +83,7 @@ const MyComponent = React.createClass({
           restartBtn: false,
         })
       }
-      if (checkedList[0].status.phase === 'Pending') {
+      if (checkedList[0].status.phase === 'Pending' || checkedList[0].status.phase === 'Starting' || checkedList[0].status.phase === 'Deploying') {
         scope.setState({
           runBtn: false,
           stopBtn: true,
@@ -100,7 +100,7 @@ const MyComponent = React.createClass({
         if(item.status.phase === 'Running') {
           runCount++
         }
-        else if(item.status.phase === 'Pending') {
+        else if(item.status.phase === 'Pending' || item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
           pending++
         } else {
           stopCount++
@@ -174,7 +174,7 @@ const MyComponent = React.createClass({
           })
           return
         }
-        if (checkedList[0].status.phase === 'Pending') {
+        if (checkedList[0].status.phase === 'Pending' || checkedList[0].status.phase === 'Starting' || checkedList[0].status.phase === 'Deploying') {
           scope.setState({
             runBtn: false,
             stopBtn: true,
@@ -190,7 +190,7 @@ const MyComponent = React.createClass({
           if (item.status.phase === 'Running') {
             runCount++
           }
-          else if (item.status.phase === 'Pending') {
+          else if (item.status.phase === 'Pending' || item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
             pending++
           } else {
             stopCount++
@@ -495,8 +495,20 @@ class ServiceList extends Component {
     this.setState({
       serviceList
     })
+    if (checked) {
+      this.setState({
+        runBtn: true,
+        stopBtn: true,
+        restartBtn: true,
+      })
+    } else {
+      this.setState({
+        runBtn: false,
+        stopBtn: false,
+        restartBtn: false,
+      })
+    }
   }
-
   componentWillMount() {
     const { appName } = this.props
     document.title = '服务列表 | 时速云'
@@ -607,8 +619,13 @@ class ServiceList extends Component {
         service.status.phase = 'Starting'
       }
     })
+    if (serviceNames.length <= 0) {
+      const noti = new NotificationHandler()
+      noti.error('没有可以操作的服务')
+      return
+    }
     self.setState({
-      serviceList
+      serviceList: allServices
     })
     startServices(cluster, serviceNames, {
       success: {
@@ -645,7 +662,7 @@ class ServiceList extends Component {
       checkedServiceList = [this.state.currentShowInstance]
     }
     checkedServiceList.map((service, index) => {
-      if (service.status.phase === 'Running') {
+      if (service.status.phase === 'Running' || service.status.phase === 'Pending' || service.status.phase === 'Starting' || service.status.phase === 'Deploying') {
         runningServices.push(service)
       }
     })
@@ -656,6 +673,11 @@ class ServiceList extends Component {
         service.status.phase = 'Stopping'
       }
     })
+    if (serviceNames.length <= 0) {
+      const noti = new NotificationHandler()
+      noti.error('没有可以操作的服务')
+      return
+    }
     self.setState({
       serviceList: allServices
     })
@@ -724,10 +746,16 @@ class ServiceList extends Component {
         }
       }
     })
+    if (serviceNames.length <= 0) {
+      const noti = new NotificationHandler()
+      noti.error('没有可以操作的服务')
+      return
+    }
     self.setState({
       serviceList: allServices,
       RestarServiceModal: false,
     })
+
     restartServices(cluster, serviceNames, {
       success: {
         func: () => {
@@ -772,6 +800,11 @@ class ServiceList extends Component {
         service.status.phase = 'Restarting'
       }
     })
+    if (serviceNames.length <= 0) {
+      const noti = new NotificationHandler()
+      noti.error('没有可以操作的服务')
+      return
+    }
     self.setState({
       serviceList
     })
@@ -881,6 +914,11 @@ class ServiceList extends Component {
               service.status.phase = 'Terminating'
             }
           })
+          if (serviceNames.length <= 0) {
+            const noti = new NotificationHandler()
+            noti.error('没有可以操作的服务')
+            return
+          }
           self.setState({
             serviceList: allServices
           })
