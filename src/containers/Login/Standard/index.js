@@ -316,8 +316,12 @@ let Login = React.createClass({
           <Row style={{ textAlign: 'center' }}>
             <a href='https://www.tenxcloud.com/' target='_blank' className='logoLink'>
               {/*<img src="/img/sider/LogInLogo.svg" alt="logo" className="logo" />*/}
-              <img src={LogInLogo} alt="logo" className="logo" />
-              <div className="logtext" style={{ fontSize: '14px' }}>技术领先的容器云计算服务商</div>
+              {/*<img src={LogInLogo} alt="logo" className="logo" />*/}
+
+              {/*<div className='logTitle'>时速云</div>
+              <div className="logtext" style={{ fontSize: '14px' }}>技术领先的容器云计算服务商</div>*/}
+
+              <div className='logTitle'>登&nbsp;&nbsp;录</div>
             </a>
           </Row>
           <Card className="loginForm" bordered={false}>
@@ -374,7 +378,7 @@ let Login = React.createClass({
                   />
               </FormItem>*/}
 
-              <FormItem
+              {/*<FormItem
                 {...formItemLayout}
                 hasFeedback
                 className="formItemName"
@@ -388,7 +392,7 @@ let Login = React.createClass({
                 <Tooltip placement="top" title="点击更换">
                   <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
                 </Tooltip>
-              </FormItem>
+              </FormItem>*/}
 
               <FormItem wrapperCol={{ span: 24, }}>
                 <Button
