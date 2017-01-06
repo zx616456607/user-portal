@@ -134,9 +134,12 @@ class BaseInfo extends Component {
       domain = eval(domainSuffix)[0]
     }
     let portAnnotation = databaseInfo.serviceInfo.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
-    let externalPort = portAnnotation.split('/')
-    if (externalPort && externalPort.length > 1) {
-      externalPort = externalPort[2]
+    let externalPort = ''
+    if (portAnnotation) {
+      externalPort = portAnnotation.split('/')
+      if (externalPort && externalPort.length > 1) {
+        externalPort = externalPort[2]
+      }
     }
     const modalContent = (
       <div className="modal-content">
@@ -193,7 +196,7 @@ class BaseInfo extends Component {
               <Icon type='link' />&nbsp;出口地址：
             </span>
             <span className='listLink'>
-              {databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort}
+              {externalPort != ''? databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort : '-'}
             </span>
           </div>
           <div className='configList'><span className='listKey'>副本数：</span>{databaseInfo.podInfo.pending + databaseInfo.podInfo.running}/{databaseInfo.podInfo.desired}个</div>
