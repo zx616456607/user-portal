@@ -213,6 +213,7 @@ class Header extends Component {
       teamspaces,
       isTeamClustersFetching,
       teamClusters,
+      migrated,
     } = this.props
     const {
       spacesVisible,
@@ -227,7 +228,6 @@ class Header extends Component {
       cluster.name = cluster.clusterName
     })
     let selectValue = mode === standard ? current.space.teamName : current.space.spaceName
-    let migrated = 0
     return (
       <div id="header">
         <div className="space">
@@ -292,12 +292,13 @@ class Header extends Component {
 
 function mapStateToProps(state, props) {
   const { current, loginUser } = state.entities
-  const { teamspaces, migrated } = state.user
+  const { teamspaces } = state.user
   const { teamClusters } = state.team
   console.log('state.user',state)
   return {
     current,
     loginUser: loginUser.info,
+    migrated: loginUser.info.migrated || 0,
     isTeamspacesFetching: teamspaces.isFetching,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
     isTeamClustersFetching: teamClusters.isFetching,
