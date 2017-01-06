@@ -14,7 +14,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadMyStack, loadStack, searchStack, loadStackDetail } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/AppAddStackModal.less'
-import serverSVG from '../../../assets/img/server.svg'
+
 const TabPane = Tabs.TabPane
 
 class PrivateComponent extends Component {
@@ -40,7 +40,9 @@ class PrivateComponent extends Component {
     const itemList = data.map(list => {
       return (
         <div className="list" key={`private-`+list.name}>
-          <img className="imgUrl" src={serverSVG} />
+          <svg className="imgUrl">
+            <use xlinkHref='#server' />
+          </svg>
           <div className="infoBox">
             <div className="textoverflow">名称：{list.name} </div>
             <div className="textoverflow">描述：{list.description}</div>
@@ -93,7 +95,9 @@ class PublicComponent extends Component {
     const itemList = stackList.map(list => {
       return (
         <div className="list" key={`public`+ list.name}>
-          <img className="imgUrl" src={serverSVG} />
+          <svg className="imgUrl">
+            <use xlinkHref='#server' />
+          </svg>
           <div className="infoBox">{list.name}</div>
           <div className="deployBtn">
             <Button type="primary" onClick={() => this.deployStack(list)}>

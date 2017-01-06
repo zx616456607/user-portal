@@ -18,7 +18,6 @@ import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import { calcuDate, parseAmount} from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
-import serverSVG from '../../assets/img/server.svg'
 import { ANNOTATION_SVC_SCHEMA_PORTNAME } from '../../../constants'
 
 const Panel = Collapse.Panel;
@@ -428,7 +427,9 @@ class ModalDetail extends Component {
         <div className='titleBox'>
           <Icon className='closeBtn' type='cross' onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className='imgBox'>
-            <img src={serverSVG} />
+            <svg>
+              <use xlinkHref='server' />
+            </svg>
           </div>
           <div className='infoBox'>
             <p className='instanceName'>

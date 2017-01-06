@@ -17,6 +17,8 @@ import { Button, Alert, Card, Spin, Input, Modal } from 'antd'
 import './style/Integration.less'
 import IntegrationDetail from './IntegrationDetail'
 import CreateVSphereModal from './CreateVSphereModal'
+import vmwareImg from '../../assets/img/appstore/vmware.png'
+import cephImg from '../../assets/img/appstore/ceph.png'
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
 
@@ -176,7 +178,7 @@ class Integration extends Component {
         return (
           <div className='appDetail'>
             <div className='leftBox'>
-              <img src='/img/appstore/vmware.png' />
+              <img src={vmwareImg} />
             </div>
             <div className='middleBox'>
               <div className='appInfo'>
@@ -274,7 +276,7 @@ class Integration extends Component {
                           { integrations.length == 0 ? [
                             <div className='appDetail' key='noAppDetail'>
                               <div className='leftBox'>
-                                <img src='/img/appstore/vmware.png' />
+                                <img src={vmwareImg} />
                               </div>
                               <div className='middleBox'>
                                 <div className='appInfo'>
@@ -320,7 +322,7 @@ class Integration extends Component {
                           ] : null }
                           <div className='cephDetail appDetail'>
                             <div className='leftBox'>
-                              <img src='/img/appstore/ceph.png' />
+                              <img src={cephImg} />
                             </div>
                             <div className='middleBox'>
                               <div className='appInfo'>

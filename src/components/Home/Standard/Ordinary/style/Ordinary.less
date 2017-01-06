@@ -59,7 +59,7 @@
         .loginText {
           float: left;
           padding-left: 7px;
-          width: 50%;
+          width: calc(~"100% - 90px");
           display: block;
           white-space: nowrap;
           overflow: hidden;
@@ -68,8 +68,12 @@
             line-height: 20px;
             padding-top: 8px;
             .userName {
+              width: 100%;
               font-size: 16px;
               color: #46b2fa;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
               .edition {
                 width: 15px;
                 height: 15px;
@@ -77,7 +81,11 @@
               }
             }
             .email {
+              width: 100%;
               font-size: 12px;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
             }
           }
         }
