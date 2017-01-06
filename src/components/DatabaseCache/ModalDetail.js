@@ -167,7 +167,7 @@ class BaseInfo extends Component {
         <div className="modal-li">
           <span className="spanLeft">存储大小</span>
           {/* <Slider min={500} max={10000} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} step={100} /> */}
-          <InputNumber min={500} max={10240} step={20} disabled={true} value={parentScope.state.storageValue} /> &nbsp; M
+          <InputNumber min={512} step={512} max={20480} disabled={true} value={parentScope.state.storageValue} /> &nbsp; M
         </div>
         <div className="modal-price">
           <div className="price-left">
