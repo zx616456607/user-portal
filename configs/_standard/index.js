@@ -27,7 +27,7 @@ const config = {
   // sendcloud 邮箱配置
   sendcloud: {
     apiUser: 'tenxcloud_net_trigger',
-    // apiKey: 'ndUMLMCUNDapKdZC',
+    apiKey: 'ndUMLMCUNDapKdZC',
     from: 'noreply@tenxcloud.net',
     fromname: '时速云',
     apiUserBatch: 'tenxcloud_net_batch'
