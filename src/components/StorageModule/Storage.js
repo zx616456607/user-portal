@@ -129,8 +129,8 @@ let MyComponent = React.createClass({
     return {
       visible: false,
       modalTitle: '',
-      modalSize: 500,
-      size: 500
+      modalSize: 512,
+      size: 512
     };
   },
   propTypes: {
@@ -351,9 +351,9 @@ let MyComponent = React.createClass({
             <Row style={{ height: '40px' }}>
               <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{formatMessage(messages.size)}</Col>
               <Col span="12">
-                <Slider min={this.state.modalSize} max={10240} step={20} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
+                <Slider min={this.state.modalSize} max={20480} step={512} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
               <Col span="8">
-                <InputNumber min={this.state.modalSize} max={10240} step={20} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
+                <InputNumber min={this.state.modalSize} max={20480} step={512} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
                 <span style={{ paddingLeft: 10 }} >MB</span>
               </Col>
             </Row>
@@ -417,7 +417,7 @@ class Storage extends Component {
       volumeArray: [],
       currentType: 'ext4',
       inputName: '',
-      size: 500,
+      size: 512,
       nameError: false,
       nameErrorMsg: ''
     }
@@ -490,7 +490,7 @@ class Storage extends Component {
           self.setState({
             visible: false,
             name: '',
-            size: 500,
+            size: 512,
             currentType: 'ext4'
           })
           notification.close()
@@ -517,7 +517,7 @@ class Storage extends Component {
     this.setState({
       nameError: false,
       visible: false,
-      size: 500,
+      size: 512,
       name: '',
       currentType: 'ext4'
     });
@@ -707,10 +707,10 @@ class Storage extends Component {
                     {formatMessage(messages.size)}
                   </Col>
                   <Col span="12">
-                    <Slider min={500} max={10240} step={20} onChange={this.onChange} value={this.state.size} />
+                    <Slider min={512} max={20480} step={512} onChange={this.onChange} value={this.state.size} />
                   </Col>
                   <Col span="8">
-                    <InputNumber min={500} max={10240} step={20} style={{ marginLeft: '16px' }} value={this.state.size} onChange={this.onChange} />
+                    <InputNumber min={512} max={20480} step={512} style={{ marginLeft: '16px' }} value={this.state.size} onChange={this.onChange} />
                     <span style={{ paddingLeft: 10 }} >MB</span>
                   </Col>
                 </Row>

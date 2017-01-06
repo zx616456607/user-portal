@@ -63,7 +63,7 @@ class API extends Component{
             <tr>
               <td className="tableTitle">API 文档</td>
               <td>
-                <a href="###">API 全面开放中，敬请期待</a>
+                <a href="http://docs.tenxcloud.com/api" target="_blank">打开帮助文档</a>
               </td>
             </tr>
           </tbody>

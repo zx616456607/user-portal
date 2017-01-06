@@ -152,9 +152,12 @@ class BaseInfo extends Component {
       domain = eval(domainSuffix)[0]
     }
     let portAnnotation = databaseInfo.serviceInfo.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
-    let externalPort = portAnnotation.split('/')
-    if (externalPort && externalPort.length > 1) {
-      externalPort = externalPort[2]
+    let externalPort = ''
+    if (portAnnotation) {
+      externalPort = portAnnotation.split('/')
+      if (externalPort && externalPort.length > 1) {
+        externalPort = externalPort[2]
+      }
     }
     const modalContent = (
       <div className="modal-content">
@@ -164,7 +167,7 @@ class BaseInfo extends Component {
         <div className="modal-li">
           <span className="spanLeft">存储大小</span>
           {/* <Slider min={500} max={10000} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} step={100} /> */}
-          <InputNumber min={500} max={10240} step={20} disabled={true} value={parentScope.state.storageValue} /> &nbsp; M
+          <InputNumber min={512} step={512} max={20480} disabled={true} value={parentScope.state.storageValue} /> &nbsp; M
         </div>
         <div className="modal-price">
           <div className="price-left">
@@ -210,16 +213,15 @@ class BaseInfo extends Component {
             <span className='listKey'>
               <Icon type='link' />&nbsp;出口地址：
             </span>
-            <span className='listLink' style={{color:'#2db7f5'}}>
-              {databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort}
-              <Icon type='link' />&nbsp;访问地址：
+            <span className='listLink'>
+              {externalPort != ''? databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort : '-'}
             </span>
             <Tooltip title={this.state.copySuccess ? '复制成功' : '点击复制'}>
               <svg style={{width:'50px', height:'16px',verticalAlign:'middle'}} onClick={()=> this.copyDownloadCode()} onMouseLeave={()=> this.returnDefaultTooltip()}>
                 <use xlinkHref='#appcentercopy' style={{fill: '#2db7f5'}}/>
               </svg>
             </Tooltip>
-            <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue={'tcp://' + databaseInfo.serviceInfo.name + '.' + databaseInfo.serviceInfo.namespace + '.svc.cluster.local'} />
+            <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {externalPort != ''? databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort : '-'}/>
           </div>
           <div className='configList'><span className='listKey'>副本数：</span>{databaseInfo.podInfo.pending + databaseInfo.podInfo.running}/{databaseInfo.podInfo.desired}个</div>
           {this.props.database == 'mysql' ?
