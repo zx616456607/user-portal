@@ -359,11 +359,11 @@ let MyComponent = React.createClass({
             </Row>
             <div className="modal-price">
               <div className="price-left">
-                存储：￥{ resourcePrice.storage /10000 } 元/(GB*小时)
+                存储：{hourPrice.unit == '￥'? '￥': ''}{ resourcePrice.storage /10000 } {hourPrice.unit == '￥'? '元': 'T'}/(GB*小时)
               </div>
               <div className="price-unit">
-                <p>合计：<span className="unit">￥</span><span className="unit blod"> { hourPrice.amount } 元/ 小时</span></p>
-                <p><span className="unit">（约：￥</span><span className="unit"> { countPrice.amount } 元/ 小时</span></p>
+                <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod"> { hourPrice.amount }{hourPrice.unit == '￥'? '元': ''}/小时</span></p>
+                <p><span className="unit">（约：</span><span className="unit"> { countPrice.fullAmount }{hourPrice.unit == '￥'? '元': ''}/小时</span></p>
               </div>
             </div>
 
@@ -681,7 +681,7 @@ class Storage extends Component {
                 <i className="fa fa-trash-o" /><FormattedMessage {...messages.delete} />
               </Button>
               <Modal title={formatMessage(messages.createModalTitle)}
-                visible={this.state.visible}
+                visible={this.state.visible} width={550}
                 okText={formatMessage(messages.createBtn)}
                 cancelText={formatMessage(messages.cancelBtn)}
                 className='createAppStorageModal'
@@ -725,11 +725,11 @@ class Storage extends Component {
                 </Row>
                 <div className="modal-price">
                   <div className="price-left">
-                    存储：￥{ storagePrice } /(GB*小时)
+                    存储：{hourPrice.unit == '￥' ? '￥' : ''}{ storagePrice } {hourPrice.unit == '￥' ? '元' : 'T'}/(GB*小时)
                   </div>
                   <div className="price-unit">
-                    <p>合计：<span className="unit">￥</span><span className="unit blod">{ hourPrice.amount } / 小时</span></p>
-                    <p><span className="unit">（约：￥</span><span className="unit">{ countPrice.amount } / 月）</span></p>
+                    <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod">{ hourPrice.amount }{hourPrice.unit == '￥'? '元': ''}/小时</span></p>
+                    <p><span className="unit">（约：</span><span className="unit">{ countPrice.fullAmount }{hourPrice.unit == '￥'? '元': ''}/月）</span></p>
                   </div>
                 </div>
               </Modal>
