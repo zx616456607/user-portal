@@ -41,14 +41,13 @@ export function parseServiceDomain(item, bindingDomainStr) {
         domain = domain.replace(/^(http:\/\/.*):80$/, '$1')
         // if prefix is https://, remove suffix :443
         domain = domain.replace(/^(https:\/\/.*):443$/, '$1')
-        domain = port.targetPort + ',' + domain
-        domains.push(domain)
+        domains.push({domain, isInternal: false, interPort: port.targetPort})
       })
     })
   }
   // parse interanl domain item.portForInternal is ["1234", "4567", "5234"]
   if (item && item.metadata.name && item.portForInternal) {
-    item.portForInternal.map((port) => domains.push(port + ',' + item.metadata.name + ":" + port))
+    item.portForInternal.map((port) => domains.push({domain: item.metadata.name + ":" + port, isInternal: true, interPort: port}))
   }
   return domains
 }

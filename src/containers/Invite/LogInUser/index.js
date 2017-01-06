@@ -13,6 +13,7 @@ import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row } from 'an
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import NotificationHandler from '../../../common/notification_handler'
+import { Link } from 'react-router'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -174,7 +175,7 @@ let LogInUser = React.createClass({
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps } = this.state
-    const { email } = this.props
+    const { email, invitationStatus, teamName } = this.props
     const passwdProps = getFieldProps('password', {
       rules: [
         { required: true, whitespace: true, message: '请填写密码' },
@@ -185,6 +186,23 @@ let LogInUser = React.createClass({
       wrapperCol: { span: 24 },
     }
     return (
+      invitationStatus === 2 ?
+      <div>
+        <Row className='Invited'>
+          <Col className='InvitedItem'>您的邮箱</Col>
+          <Col className='InvitedItem' style={{color: '#f7a54d'}}>{email}</Col>
+          <Col className='InvitedItem'>已加入团队&nbsp;&nbsp;{teamName}</Col>
+        </Row>
+        <Link to='/login'>
+          <Button
+            htmlType="submit"
+            type="primary"
+            className="subBtn">
+            登录
+          </Button>
+        </Link>
+      </div>
+      :
       <Form onSubmit={this.handleSubmit}>
         <input style={{ display: 'none' }} />
         <FormItem

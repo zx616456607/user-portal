@@ -167,7 +167,9 @@ class ContainerDetail extends Component {
           <div key="ca" className="containerInfo" id='containerInfo'>
             <Card className="topCard">
               <div className="imgBox">
-                <img src={serverSVG} />
+                <svg>
+                  <use xlinkHref='#server' />
+                </svg>
               </div>
               <div className="infoBox">
                 <p className="appTitle">
@@ -218,7 +220,7 @@ class ContainerDetail extends Component {
                 activeKey={activeTabKey}
                 onTabClick={this.onTabClick}
                 >
-                <TabPane tab="容器配置" key="#configs" >
+                <TabPane tab="配置" key="#configs" >
                   <ContainerDetailInfo key="#configs" container={container} />
                 </TabPane>
                 <TabPane tab="监控" key="#monitor" >

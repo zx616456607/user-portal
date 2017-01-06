@@ -25,6 +25,7 @@ import ImageDeployLogBox from './ImageDeployLogBox.js'
 import TenxFlowDetailFlow from './TenxFlowDetailFlow.js'
 import TenxFlowBuildLog from '../TenxFlowBuildLog'
 import NotificationHandler from '../../../../common/notification_handler'
+import flowImg from '../../../../assets/img/flow.png'
 
 const TabPane = Tabs.TabPane;
 
@@ -271,7 +272,7 @@ class TenxFlowDetail extends Component {
         <div id='TenxFlowDetail' key='TenxFlowDetail'>
           <Card className='infoBox'>
             <div className='imgBox' >
-              <img src='/img/flow.png' />
+              <img src={flowImg} />
             </div>
             <p className='title'>{flowInfo.name}</p>
             <div className='msgBox'>

@@ -66,12 +66,13 @@ class DetailBox extends Component {
     return (
       <div className="appStoreDetail" key="appStoreDetail">
         <div className="topTitle">
-
           <span className="rightColse" onClick={()=> {scope.setState({detailModal: false})} }><Icon type="cross" /></span>
         </div>
         <div className="wrapContent">
           <div className="boxDeploy">
-            <img className="detailImage" src={`${data.imageUrl}?_=${TIMESTRAP}`} />
+            <div className='imgBox'>
+              <img className={"detailImage " + data.name.split(' ')[0]} src={`${data.imageUrl}?_=${TIMESTRAP}`} />
+            </div>
             <ul className="detailType">
               <li><h3>{data.name}</h3></li>
               <li>类型：{data.category}</li>

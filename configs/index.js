@@ -28,7 +28,7 @@ const config = {
     host: env.TENX_API_HOST || '192.168.1.103:48000'
     // host: "localhost:8000" || env.TENX_API_HOST
     // host: "192.168.0.8:8000" || env.TENX_API_HOST
-    // host: "192.168.0.230:8000" || env.TENX_API_HOST
+//     host: "192.168.0.104:8000" || env.TENX_API_HOST
     // host: "192.168.3.3:48000" || env.TENX_API_HOST
   },
   mail_server: {
