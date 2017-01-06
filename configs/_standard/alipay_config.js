@@ -9,7 +9,7 @@
  * @author Zhangpc
 */
 
-const host = require('./').host
+const url = require('../').url
 const alipay = {
   //↓↓↓↓↓↓↓↓↓↓请在这里配置您的基本信息↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 
@@ -25,16 +25,16 @@ const alipay = {
   sign_type: 'MD5',
 
   // 域名
-  host: host,
+  url: url,
 
   // 访问模式,根据自己的服务器是否支持ssl访问，若支持请选择https；若不支持请选择http
   transport: 'https',
 
   // 支付宝付款成功后返回的页面
-  create_direct_pay_by_user_return_url: `${host}/api/v2/payments/alipay/direct`,
+  create_direct_pay_by_user_return_url: `${url}/api/v2/payments/alipay/direct`,
 
   // 支付宝异步通知页面
-  create_direct_pay_by_user_notify_url: `${host}/api/v2/payments/alipay/notify`,
+  create_direct_pay_by_user_notify_url: `${url}/api/v2/payments/alipay/notify`,
 
 
   // ca证书路径地址，用于curl中ssl校验 请保证cacert.pem文件在当前文件夹目录中

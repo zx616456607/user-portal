@@ -24,13 +24,14 @@ const config = {
     account: env.USERPORTAL_IHUYI_ACCOUNT || 'cf_huangqg',
     apiKey: env.USERPORTAL_IHUYI_APIKEY || '9611f970a6075b81becfdadf593882f5',
   },
-  host: env.USERPORTAL_HOST || 'https://console.tenxcloud.com',
-}
-
-if (node_env === 'staging') {
-  config.host = 'http://v2-api.tenxcloud.com'
-} else if (node_env === 'development') {
-  config.host = `http://localhost:${port}`
+  // sendcloud 邮箱配置
+  sendcloud: {
+    apiUser: 'tenxcloud_net_trigger',
+    // apiKey: 'ndUMLMCUNDapKdZC',
+    from: 'noreply@tenxcloud.net',
+    fromname: '时速云',
+    apiUserBatch: 'tenxcloud_net_batch'
+  },
 }
 
 module.exports = config
