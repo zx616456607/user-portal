@@ -80,19 +80,19 @@ class AppServiceRental extends Component {
         )
       }
     const detaContainer = this.props.serviceDetail[0].spec.template.spec.containers[0]
+    let countPrice = this.countPrice(serviceDetail) * 24 * 30
+    const hourPrice = this.countPrice(serviceDetail) /10000
+    countPrice = parseAmount(countPrice, 4)
     const dataRow = serviceDetail.map((list, index)=> {
         return(
           <tr key={index}>
             <td>{list.metadata.name}</td>
             <td>{this.formetCpuMemory(list.spec.template.spec.containers[0].resources.requests.memory)}</td>
             <td>{serviceDetail[0].spec.replicas}</td>
-            <td>{this.formetPrice(list.spec.template.spec.containers[0].resources.requests.memory) /10000 }元/小时</td>
+            <td>{this.formetPrice(list.spec.template.spec.containers[0].resources.requests.memory) /10000 } {countPrice.unit == '￥' ? '元': 'T'}/小时</td>
           </tr>
         )
     })
-    let countPrice = this.countPrice(serviceDetail) * 24 * 30
-    const hourPrice = this.countPrice(serviceDetail) /10000
-    countPrice = parseAmount(countPrice, 4)
 
     return (
       <Card id="AppServiceDetailInfo">
@@ -106,9 +106,9 @@ class AppServiceRental extends Component {
           */}
           <div className="dataBox" style={{padding:'0 25px'}}>
             <div className="priceCount">合计价格：
-              <span className="unit">￥</span>
-              <span className="unit blod">{ hourPrice }元/小时</span>
-              <span className="unit" style={{marginLeft:'10px'}}>（约：￥{ countPrice.amount }元/月）</span>
+              <span className="unit">{ countPrice.unit == '￥' ? '￥': '' }</span>
+              <span className="unit blod">{ hourPrice } { countPrice.unit == '￥' ? '元': 'T' }/小时</span>
+              <span className="unit" style={{marginLeft:'10px'}}>（约：{ countPrice.fullAmount }{ countPrice.unit =='￥'? '元':'' }/月）</span>
             </div>
             <table className="table">
               <thead>
