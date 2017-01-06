@@ -20,6 +20,7 @@ import { Link } from 'react-router'
 import LogInLogo from '../../../assets/img/sider/LogInLogo.svg'
 import loginMethodWeixinPNG from '../../../assets/img/loginMethodWeixin.png'
 import ReactDom from 'react-dom'
+import Top from '../../../components/Top'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -261,7 +262,7 @@ let Login = React.createClass({
     const { resetFields } = this.props.form
     const { from } = this.props
     if (from === 'active') {
-      message.success('账户已经激活')
+      message.success('帐户已经激活')
     }
     resetFields()
   },
@@ -285,12 +286,12 @@ let Login = React.createClass({
         { validator: this.checkPass },
       ],
     })
-    const codeProps = getFieldProps('code', {
+    /*const codeProps = getFieldProps('code', {
       rules: [
         { required: false, message: '请填写邀请码' },
         { validator: this.checkCode },
       ],
-    })
+    })*/
     const captchaProps = getFieldProps('captcha', {
       rules: [
         { required: true, message: '请填写验证码' },
@@ -310,6 +311,7 @@ let Login = React.createClass({
     }
     return (
       <div id="LoginBgStd">
+        <Top/>
         <div className="login">
           <Row style={{ textAlign: 'center' }}>
             <a href='https://www.tenxcloud.com/' target='_blank' className='logoLink'>
@@ -355,7 +357,7 @@ let Login = React.createClass({
                   />
               </FormItem>
 
-              <FormItem
+              {/*<FormItem
                 {...formItemLayout}
                 hasFeedback
                 className="formItemName"
@@ -370,7 +372,7 @@ let Login = React.createClass({
                   ref="intCode"
                   style={{ height: 35 }}
                   />
-              </FormItem>
+              </FormItem>*/}
 
               <FormItem
                 {...formItemLayout}
@@ -401,17 +403,16 @@ let Login = React.createClass({
               </FormItem>
             </Form>
             <div className='logInFooter'>
-              {/* disable for now
                 <div className='footerTip'>
                 <div className='toRegister'>
-                  <span>*&nbsp;还没有时速云账户?</span>
+                  <span>*&nbsp;还没有时速云帐户?</span>
                   <Link to='/register'>立即注册</Link>
                 </div>
                 <div className='toReset'>
                   <Link to='/rpw'>忘记密码</Link>
                 </div>
               </div>
-                <div className='moreMethod'>
+                {/*<div className='moreMethod'>
                   <div className='methodTitle'>
                     <div className='line'></div>
                     <div className='methodText'>更多登录方式</div>
@@ -424,8 +425,7 @@ let Login = React.createClass({
                       </div>
                     </Tooltip>
                   </div>
-                </div>
-              */}
+                </div>*/}
             </div>
           </Card>
         </div>

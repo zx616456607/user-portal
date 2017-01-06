@@ -39,6 +39,7 @@ export default class ExitTeamModal extends Component{
       success: {
         func: () => {
           notification.close()
+          
           loadUserTeamList()
         },
         isAsync: true,

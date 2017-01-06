@@ -36,7 +36,7 @@ module.exports = function (Router) {
   router.get(`${API_URL_PREFIX}/teams/invitations`, teamController.getInvitationInfo)
 
   //Regiser User
-  // router.post(`${API_URL_PREFIX}/stdusers`, userController.registerUser) // not open register
+  router.post(`${API_URL_PREFIX}/stdusers`, userController.registerUser) // not open register
   router.post(`${API_URL_PREFIX}/stdusers/jointeam`, userController.registerUserAndJoinTeam)
   router.post(`${API_URL_PREFIX}/stdusers/captchas`, userController.sendCaptcha)
   router.post(`${API_URL_PREFIX}/stdusers/activationemail`, userController.sendUserActivationEmail)
@@ -58,7 +58,7 @@ module.exports = function (Router) {
   )
 
   //register
-  // router.get('/register', indexCtl.index) // not open register
+  router.get('/register', indexCtl.index) // not open register
   //resetpassword
   router.get('/rpw', indexCtl.index)
 
