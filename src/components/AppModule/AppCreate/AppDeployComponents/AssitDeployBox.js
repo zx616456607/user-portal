@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Radio } from 'antd'
+import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Radio, Icon } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -40,7 +40,71 @@ let AssitDeployBox = React.createClass({
       currentDate: e.target.checked
     });
   },
-
+  getCMD() {
+    const { form } = this.props
+    const parentScope = this.props.scope
+    const { getFieldProps, getFieldError, isFieldValidating } = form
+    const cmdKey = form.getFieldProps('cmdKey', {
+      initialValue: [1]
+    }).value
+    const self = this
+    const runningCode = parentScope.state.runningCode
+    const ele = cmdKey.map(cmd => {
+      return (<FormItem className="runningCodeForm" hasFeedback>
+          <Input key={cmd} style={{display: runningCode == "1"? 'block' : 'none'}}
+          {...getFieldProps("cmd" + cmd)}
+          className="entryInput" size="large"
+          disabled={true} />
+        </FormItem>)
+    })
+    return ele
+  },
+  getUserCMD() {
+    const { form } = this.props
+    const parentScope = this.props.scope
+    const { getFieldProps, getFieldError, isFieldValidating } = form
+    const cmdKey = form.getFieldProps('userCMDKey', {
+      initialValue: [1]
+    }).value
+    const self = this
+    const runningCode = parentScope.state.runningCode
+    const ele = cmdKey.map(cmd => {
+      return (<FormItem className="runningCodeForm" hasFeedback>
+          <Input key={"userCMD"+cmd} style={{display: runningCode == "1"? 'none' : 'block'}}
+          {...getFieldProps("userCMD" + cmd)}
+          className="entryInput" size="large"/>
+          <i className="fa fa-trash" onClick={() => self.remove(cmd)} style={{display: runningCode == "1"? 'none' : 'block'}}/>
+        </FormItem>)
+    })
+    return ele
+  },
+  add() {
+    const { form } = this.props
+    const parentScope = this.props.scope
+    const { getFieldProps, getFieldError, isFieldValidating } = form
+    let cmdKey = form.getFieldProps('userCMDKey', {
+      initialValue: [1]
+    }).value
+    cmdKey.push(cmdKey.length + 1)
+    form.setFieldsValue({
+      userCMDKey: cmdKey,
+      [`userCMD${cmdKey.length + 1}`]: ''
+    })
+  },
+  remove(index) {
+    const { form } = this.props
+    const parentScope = this.props.scope
+    const { getFieldProps, getFieldError, isFieldValidating } = form
+    let cmdKey = form.getFieldProps('userCMDKey', {
+      initialValue: [1]
+    }).value
+    const i = cmdKey.indexOf(index)
+    cmdKey.splice(i, 1)
+    form.setFieldsValue({
+      [`userCMD${index}`]: '',
+      userCMDKey: cmdKey
+    })
+  },
   render:function () {
     const { form } = this.props
     const parentScope = this.props.scope;
@@ -71,14 +135,16 @@ let AssitDeployBox = React.createClass({
                     <Radio key="a" value={"1"}>镜像默认</Radio>
                     <Radio key="b" value={"2"}>自定义</Radio>
                   </RadioGroup>
-                </FormItem>
-                <FormItem className="runningCodeForm" hasFeedback>
-                  <Input
-                    {...getFieldProps('args', {}) }
-                    className="entryInput" size="large"
-                    disabled={parentScope.state.runningCode == "1" ? true : false} />
-                </FormItem>
+                </FormItem>       
+                 {this.getCMD()}     
+                 {this.getUserCMD()}
+                 {parentScope.state.runningCode == '1' ? '' :  <div onClick={this.add}>
+                    <Icon type="plus-circle-o" />
+                    <span>添加一个容器目录</span>
+                    </div>
+                 } 
               </div>
+    
               <div style={{ clear: "both" }}></div>
             </div>
             <div className="inputBox">

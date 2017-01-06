@@ -250,8 +250,8 @@ class Deployment {
       if (!container.args) {
         container.args = []
       }
-      if (typeof args == 'Array') {
-        container.args.push(args)
+      if (Array.isArray(args)) {
+        container.args = container.args.concat(args)
       } else {
         let argArray = args.split(' ')
         argArray.forEach(function(arg) {
@@ -271,8 +271,8 @@ class Deployment {
       if (!container.commands) {
         container.commands = []
       }
-      if (typeof commands == 'Array') {
-        container.commands.push(commands)
+      if (Array.isArray(commands)) {
+        container.commands = container.commands.concat(commands)
       } else {
         let cmdArray = commands.split(' ')
         cmdArray.forEach(function(cmd) {

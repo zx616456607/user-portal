@@ -443,7 +443,16 @@ let AppDeployServiceModal = React.createClass({
       })
     }
     //args 执行命令
-    if (this.state.runningCode === '2') {
+    if (this.state.runningCode === '1') {
+      const args = getFieldValue('cmdKey').map(i => {
+        return getFieldValue(`cmd${i}`)
+      })
+      console.log(args)
+      deploymentList.addContainerArgs(serviceName, args)
+    } else {
+      const args = getFieldValue('userCMDKey').map(i => {
+        return getFieldValue(`userCMD${i}`)
+      })
       deploymentList.addContainerArgs(serviceName, args)
     }
     if (command && command != "") {

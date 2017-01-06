@@ -399,6 +399,32 @@ function setPorts(containerPorts, form) {
   }
 }
 
+function setCMD(container, form) {
+  console.log(container)
+  const key = []
+  const key1 =[]
+  let cmds
+  let args = []
+  if(container.entrypoint) {
+    cmds = container.entrypoint
+    args = container.cmd
+  } else {
+    cmds = container.cmd
+  }
+  if(!cmds) cmds = []
+  cmds.forEach((cmd, index) => {
+    key.push(index + 1)
+    key1.push(index + 1)
+    form.setFieldsValue({
+      cmdKey: key,
+      userCMDKey: key1,
+      [`cmd${index + 1}`]: cmd + (args[index] ? args[index] : ''),
+      [`userCMD${index + 1}`]: cmd + (args[index] ? args[index] : '')
+    })
+  })
+}
+
+
 function setEnv(defaultEnv, form) {
   const envArr = []
   if (defaultEnv) {
@@ -422,9 +448,10 @@ function loadImageTagConfigs(tag, props) {
             return
           }
           const { form } = props
-          const { containerPorts, defaultEnv } = result.configInfo
+          const { containerPorts, defaultEnv, cmd, entrypoint } = result.configInfo
           setPorts(containerPorts, form)
           setEnv(defaultEnv, form)
+          setCMD({cmd, entrypoint}, form)
         },
         isAsync: true
       }
@@ -437,9 +464,10 @@ function loadImageTagConfigs(tag, props) {
             return
           }
           const { form } = props
-          const { containerPorts, defaultEnv } = result.data
+          const { containerPorts, defaultEnv, cmd, entrypoint } = result.data
           setPorts(containerPorts, form)
           setEnv(defaultEnv, form)
+          setCMD({cmd, entrypoint}, form)
         },
         isAsync: true
       }
