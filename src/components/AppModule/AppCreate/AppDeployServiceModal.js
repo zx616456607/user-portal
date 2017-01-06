@@ -475,7 +475,8 @@ let AppDeployServiceModal = React.createClass({
         volumeInfo = volumeInfo.split('/')
         if (volumeChecked) {
           deploymentList.addContainerVolume(serviceName, {
-            name: volumeInfo[0] + '-' + k,
+           // name: volumeInfo[0] + '-' + k,
+            name: 'volume-' + k,
             image: volumeInfo[0],
             fsType: volumeInfo[1]
           }, {
@@ -484,7 +485,7 @@ let AppDeployServiceModal = React.createClass({
             })
         } else {
           deploymentList.addContainerVolume(serviceName, {
-            name: volumeInfo[0] + '-' + k,
+            name: 'volume-' + k,
             image: volumeInfo[0],
             fsType: volumeInfo[1]
           }, {
