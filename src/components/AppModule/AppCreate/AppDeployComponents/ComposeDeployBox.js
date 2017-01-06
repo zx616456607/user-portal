@@ -169,10 +169,10 @@ let MyComponent = React.createClass({
     return configGroup.map((item, index) => {
       plainOptions[index] = {}
       plainOptions[index].name = item.name
-      plainOptions[index].displayName = []
+      plainOptions[index].rawName = []
       plainOptions[index].key = []
       item.configs.forEach(config => {
-        plainOptions[index].displayName.push(config.displayName)
+        plainOptions[index].rawName.push(config.rawName)
         plainOptions[index].key.push(config.name)
       })
       if (!item.configs || item.configs.length < 1) {
@@ -206,9 +206,9 @@ let MyComponent = React.createClass({
     })
     const pl = plainOptions[plIndex]
     const nameArray = []
-    const displayNames = pl.displayName
+    const rawNames = pl.rawName
     const checkAll = this.state.checkAll
-    if (checkedList.length === displayNames.length) {
+    if (checkedList.length === rawNames.length) {
       checkAll[index] = true
       this.setState({
         checkAll
@@ -220,8 +220,8 @@ let MyComponent = React.createClass({
       })
     }
     checkedList.forEach(item => {
-      let index = findIndex(displayNames, displayName => {
-        return displayName === item
+      let index = findIndex(rawNames, rawName => {
+        return rawName === item
       })
       nameArray.push(pl.key[index])
     })
@@ -272,7 +272,7 @@ let MyComponent = React.createClass({
       items: config.configs.map(item => {
         return {
           key: item.name,
-          path: item.displayName
+          path: item.rawName
         }
       })
     }
@@ -308,7 +308,7 @@ let MyComponent = React.createClass({
     let plIndex = findIndex(this.state.plainOptions, pl => {
       return pl.name === configName
     })
-    return this.state.plainOptions[plIndex].displayName
+    return this.state.plainOptions[plIndex].rawName
   },
   getInitValue(k) {
     const { form } = this.props
