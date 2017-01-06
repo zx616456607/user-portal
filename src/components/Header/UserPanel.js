@@ -91,13 +91,17 @@ class UserPanel extends Component {
         }
       }
     }
+    let userNameInitials = ''
+    if (userName) {
+      userNameInitials = userName.substr(0, 1).toUpperCase()
+    }
     return (
       <div className='logTitle'>
         <div className='logAvatar'>
           {
             mode === standard
             ? (<img alt={userName} src={`${AVATAR_HOST}${avatar}`} />)
-            : userName.substr(0, 1).toUpperCase()
+            : userNameInitials
           }
         </div>
         <div className="loginText">

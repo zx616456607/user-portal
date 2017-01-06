@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, } from 'antd'
+import { Row, Col, Card, Icon} from 'antd'
 import './style/Admin.less'
 import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
@@ -140,10 +140,8 @@ class Admin extends Component{
               <Row className="teamInfItem" gutter={16}>
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
-                    <svg className="teamInfSvg" style={{margin:'0 5px'}}>
-                      <use xlinkHref="#homespacecountcolor" />
-                    </svg>
-                    成员数
+                    <Icon type="team" style={{color: '#46ADF4', margin: '0 5px',fontSize: '14px'}}/>
+                    成员
                   </div>
                   <div style={{textAlign:'left',fontSize: '13px'}} className='tabCell'>
                     {teamDetail.memberCnt} 个

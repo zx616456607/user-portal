@@ -11,6 +11,8 @@
  */
 import * as ActionTypes from '../actions/entities'
 import merge from 'lodash/merge'
+import { STANDARD_MODE } from '../../configs/constants'
+import { mode } from '../../configs/model'
 
 function current(state, action) {
   switch (action.type) {
@@ -24,6 +26,10 @@ function current(state, action) {
       }
       if (!current.cluster) {
         current.cluster = state.cluster
+      }
+      current.unit = 'T'
+      if (mode === STANDARD_MODE) {
+        current.unit = '￥'
       }
       return Object.assign({}, state, current)
     default:

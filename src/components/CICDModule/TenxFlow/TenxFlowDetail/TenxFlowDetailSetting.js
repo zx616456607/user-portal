@@ -68,9 +68,11 @@ let TenxFlowDetailSetting = React.createClass ({
         <i className='fa fa-exclamation-triangle' />&nbsp;
         <FormattedMessage {...menusText.tooltips} />
       </p>
-      <Button className='deleteBtn' size='large' type='ghost' onClick={this.deleteConfirm}>
-        <FormattedMessage {...menusText.delete} />
-      </Button>
+      <p className="text-center">
+        <Button className='deleteBtn' size='large' type='ghost' onClick={this.deleteConfirm}>
+          <FormattedMessage {...menusText.delete} />
+        </Button>
+      </p>
     </Card>
     )
   }

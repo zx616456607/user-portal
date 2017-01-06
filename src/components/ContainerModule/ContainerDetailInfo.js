@@ -65,7 +65,6 @@ export default class ContainerDetailInfo extends Component {
         })
         if (!isShow) return
         configMap.items.forEach(item => {
-          console.log(item)
           ele.push(
             <div key={configMap.name + item.key}>
               <div className="commonTitle">{configMap.name}</div>
@@ -189,7 +188,7 @@ export default class ContainerDetailInfo extends Component {
           </div>
         </div>
         <div className="storage commonBox">
-          <span className="titleSpan">服务相关配置</span>
+          <span className="titleSpan">服务配置</span>
           <div className="titleBox">
             <div className="commonTitle">
               配置组

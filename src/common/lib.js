@@ -7,5 +7,5 @@
  * v0.1 - 2016-09-07
  * @author Zhangpc
  */
-import '../../static/style/common.less'
-import '../../static/style/markdown.less'
+import '../assets/style/common.less'
+import '../assets/style/markdown.less'

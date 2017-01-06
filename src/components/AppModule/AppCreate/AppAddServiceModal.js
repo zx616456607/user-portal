@@ -11,10 +11,12 @@ import React, { Component, PropTypes } from 'react'
 import { Input, Modal, Checkbox, Button, Card, Menu, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import { loadPublicImageList, loadPrivateImageList, searchPublicImages, loadFavouriteList, searchFavoriteImages, searchPrivateImages } from '../../../actions/app_center'
+import {
+  loadPublicImageList, loadPrivateImageList, searchPublicImages,
+  loadFavouriteList, searchFavoriteImages, searchPrivateImages, publicFilterServer
+} from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/AppAddServiceModal.less'
-import serverSVG from '../../../assets/img/server.svg'
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -47,9 +49,11 @@ const MyComponent = React.createClass({
     const items = images.map((item) => {
       return (
         <div key={item.name} className="serviceDetail">
-          <img className="imgUrl" src={serverSVG} />
+          <svg className='imgUrl'>
+            <use xlinkHref='#appcenterlogo' />
+          </svg>
           <div className="infoBox">
-            <span className="name">{item.name}</span> <span className="type">{item.category || ''}</span><br />
+            <span className="name">{item.name}</span> <br />
             <span className="intro">{item.description}</span>
           </div>
           <Button type="primary" size="large" onClick={this.modalShow.bind(this, item.name, registryServer)}>
@@ -77,7 +81,9 @@ let AppAddServiceModal = React.createClass({
       currentImageType: "publicImages",
       publicImages: false,
       privateImages: false,
-      fockImages: false
+      fockImages: false,
+      selectRepo: 'local',// 服务 Title
+      serverType: 'all' // 服务类型 default all
     }
   },
   selectImageType(currentType) {
@@ -99,8 +105,8 @@ let AppAddServiceModal = React.createClass({
   },
   componentWillMount() {
     document.title = '添加应用 | 时速云'
-    const { registry, loadPublicImageList } = this.props
-    this.props.publicImages(registry)
+    const { registry, publicFilterServer} = this.props
+    this.props.publicImages(registry, 'all')
   },
   searchImage(imageType) {
     const type = imageType || this.state.currentImageType
@@ -119,14 +125,47 @@ let AppAddServiceModal = React.createClass({
       if (imageName) {
         return this.props.searchPublicImages(this.props.registry, imageName)
       }
-      this.props.publicImages(this.props.registry)
+      this.setState({selectRepo: 'local'})
+      this.props.publicImages(this.props.registry, 'all')
     }
     if (type === 'privateImages') {
+      this.setState({selectRepo: false})
       return this.props.searchPrivateImages({ imageName: imageName, registry: this.props.registry })
     }
     if (type === 'fockImages') {
+      this.setState({selectRepo: false})
       return this.props.searchFavoriteImages({ imageName: imageName, registry: this.props.registry })
     }
+  },
+  selectRepo(type) {
+    this.setState({selectRepo: type})
+    if (type =='hub') {
+      this.props.publicFilterServer(this.props.registry,'hub')
+      return
+    }
+    this.props.publicFilterServer(this.props.registry, this.state.serverType)
+  },
+  filterServer(type) {
+    this.setState({serverType: type})
+    this.props.publicFilterServer(this.props.registry,type)
+  },
+  serverHeader() {
+    if (this.state.selectRepo == 'local') {
+      return (
+        <div className="serverKey">
+          <span className={this.state.serverType =='all' ? 'btns primary': 'btns'} onClick={()=> this.filterServer('all')}>全部</span>
+          <span className={this.state.serverType =='runtime' ? 'btns primary': 'btns'} onClick={()=> this.filterServer('runtime')}>运行环境</span>
+          <span className={this.state.serverType =='server' ? 'btns primary': 'btns'} onClick={()=> this.filterServer('server')}>Web服务器</span>
+          <span className={this.state.serverType =='database' ? 'btns primary': 'btns'} onClick={()=> this.filterServer('database')}>数据库与缓存</span>
+          <span className={this.state.serverType =='os' ? 'btns primary': 'btns'} onClick={()=> this.filterServer('os')}>操作系统</span>
+          <span className={this.state.serverType =='others' ? 'btns primary': 'btns'} onClick={()=> this.filterServer('others')}>中间件与其他</span>
+        </div>
+      )
+    }
+    return (
+      <div className="serverKey">
+      </div>
+    )
   },
   render: function () {
     const parentScope = this
@@ -155,6 +194,17 @@ let AppAddServiceModal = React.createClass({
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
+        { this.state.currentImageType == 'publicImages' ?
+          <div className="serverType">
+            <div className="serverTitle">
+              <span className={this.state.selectRepo == 'local' ? 'selected': ''} onClick={()=> this.selectRepo('local')}>官方镜像</span>
+              <span className={this.state.selectRepo == 'hub' ? 'selected': ''} onClick={()=> this.selectRepo('hub')}>镜像广场 | 时速云 </span>
+            </div>
+            {this.serverHeader()}
+          </div>
+          :
+            null
+          }
         <MyComponent
           scope={parentScope}
           images={images.imageList}
@@ -181,5 +231,6 @@ export default connect(mapStateToProps, {
   fockImages: loadFavouriteList,
   searchPublicImages,
   searchFavoriteImages,
-  searchPrivateImages
+  searchPrivateImages,
+  publicFilterServer
 })(AppAddServiceModal)

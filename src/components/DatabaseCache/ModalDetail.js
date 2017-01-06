@@ -11,7 +11,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import { Button, Icon, Spin, Modal, Collapse, Row, Col, Dropdown, Slider, Timeline, Popover, InputNumber, Tabs } from 'antd'
+import { Button, Icon, Spin, Modal, Collapse, Row, Col, Dropdown, Slider, Timeline, Popover, InputNumber, Tabs, Tooltip} from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadDbClusterDetail, deleteDatabaseCluster, putDbClusterDetail, loadDbCacheList } from '../../actions/database_cache'
 import './style/ModalDetail.less'
@@ -19,6 +19,7 @@ import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import { calcuDate, parseAmount} from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
 import serverSVG from '../../assets/img/server.svg'
+import { ANNOTATION_SVC_SCHEMA_PORTNAME } from '../../../constants'
 
 const Panel = Collapse.Panel;
 const ButtonGroup = Button.Group
@@ -117,9 +118,28 @@ class BaseInfo extends Component {
       storageValue: parseInt(this.props.databaseInfo.volumeInfo.size)
     }
   }
+  copyDownloadCode() {
+    //this function for user click the copy btn and copy the download code
+    const scope = this;
+    let code = document.getElementsByClassName("databaseCodeInput");
+    code[0].select();
+    document.execCommand("Copy", false);
+    scope.setState({
+      copySuccess: true
+    });
+  }
+  returnDefaultTooltip() {
+    const scope = this;
+    setTimeout(function () {
+      scope.setState({
+        copySuccess: false
+      });
+    }, 500);
+  }
   render() {
-    const {databaseInfo ,dbName }= this.props
+    const { domainSuffix, databaseInfo ,dbName } = this.props
     const parentScope = this.props.scope
+    const rootScope = parentScope.props.scope
     const podSpec = databaseInfo.podList.pods[0].podSpec
     let storagePrc = parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
     let containerPrc = parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
@@ -127,6 +147,18 @@ class BaseInfo extends Component {
     const countPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc) * 24 * 30 , 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
+    let domain = ''
+    if (domainSuffix) {
+      domain = eval(domainSuffix)[0]
+    }
+    let portAnnotation = databaseInfo.serviceInfo.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
+    let externalPort = ''
+    if (portAnnotation) {
+      externalPort = portAnnotation.split('/')
+      if (externalPort && externalPort.length > 1) {
+        externalPort = externalPort[2]
+      }
+    }
     const modalContent = (
       <div className="modal-content">
         <div className="modal-header">更改实例数  <Icon type='cross' onClick={() => parentScope.colseModal()} className='cursor' style={{ float: 'right' }} /></div>
@@ -135,7 +167,7 @@ class BaseInfo extends Component {
         <div className="modal-li">
           <span className="spanLeft">存储大小</span>
           {/* <Slider min={500} max={10000} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} step={100} /> */}
-          <InputNumber min={500} max={10240} step={20} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} /> &nbsp; M
+          <InputNumber min={500} max={10240} step={20} disabled={true} value={parentScope.state.storageValue} /> &nbsp; M
         </div>
         <div className="modal-price">
           <div className="price-left">
@@ -171,11 +203,25 @@ class BaseInfo extends Component {
           <div className='configHead'>配置信息</div>
           <div className='configList'>
             <span className='listKey'>
-              <Icon type='link' />&nbsp;访问地址：
-              </span>
-            <span className='listLink'>
-              {'tcp://' + databaseInfo.serviceInfo.name + '.' + databaseInfo.serviceInfo.namespace + '.svc.cluster.local'}
+              <Icon type='link' />&nbsp;内网地址：
             </span>
+            <span className='listLink'>
+              {databaseInfo.serviceInfo.name + ':' + databaseInfo.serviceInfo.ports[0].port}
+            </span>
+          </div>
+          <div className='configList'>
+            <span className='listKey'>
+              <Icon type='link' />&nbsp;出口地址：
+            </span>
+            <span className='listLink'>
+              {externalPort != ''? databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort : '-'}
+            </span>
+            <Tooltip title={this.state.copySuccess ? '复制成功' : '点击复制'}>
+              <svg style={{width:'50px', height:'16px',verticalAlign:'middle'}} onClick={()=> this.copyDownloadCode()} onMouseLeave={()=> this.returnDefaultTooltip()}>
+                <use xlinkHref='#appcentercopy' style={{fill: '#2db7f5'}}/>
+              </svg>
+            </Tooltip>
+            <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {externalPort != ''? databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort : '-'}/>
           </div>
           <div className='configList'><span className='listKey'>副本数：</span>{databaseInfo.podInfo.pending + databaseInfo.podInfo.running}/{databaseInfo.podInfo.desired}个</div>
           {this.props.database == 'mysql' ?
@@ -194,9 +240,9 @@ class BaseInfo extends Component {
           }
           <div className='configHead'>实例副本 <span>{databaseInfo.podInfo.desired}个 &nbsp;</span>
             <Popover content={modalContent} title={null} trigger="click" overlayClassName="putmodalPopover"
-              visible={parentScope.state.putVisible}
+              visible={rootScope.state.putVisible} getTooltipContainer={()=> document.getElementById('AppServiceDetail')}
               >
-              <Button type="primary" size="large" onClick={() => parentScope.putModal()}>更改实例数</Button>
+              <Button type="primary" size="large" onClick={() => parentScope.props.scope.putModal()}>更改实例数</Button>
             </Popover>
 
           </div>
@@ -281,7 +327,7 @@ class ModalDetail extends Component {
       }
     });
   }
-
+  
   componentWillReceiveProps(nextProps) {
     //this function for user select different image
     //the nextProps is mean new props, and the this.props didn't change
@@ -318,8 +364,9 @@ class ModalDetail extends Component {
   }
 
   putModal() {
-    this.setState({
-      putVisible: !this.state.putVisible
+    const putVisible = this.props.scope.state.putVisible
+    this.props.scope.setState({
+      putVisible: !putVisible
     })
   }
   handSave() {
@@ -348,15 +395,10 @@ class ModalDetail extends Component {
       }
     })
   }
-  onChangeStorage(value) {
-    this.setState({
-      storageValue:value
-    })
-  }
   colseModal() {
     const storageValue = parseInt(this.props.databaseInfo.volumeInfo.size)
+    this.putModal()
     this.setState({
-      putVisible: false,
       putModaling:false,
       replicas: this.props.databaseInfo.podInfo.desired,
       storageValue
@@ -371,7 +413,8 @@ class ModalDetail extends Component {
     })
   }
   render() {
-    const { scope, dbName, isFetching, databaseInfo } = this.props;
+    const { scope, dbName, isFetching, databaseInfo, domainSuffix } = this.props;
+
     if (isFetching || databaseInfo == null) {
       return (
         <div className='loadingBox'>
@@ -438,7 +481,7 @@ class ModalDetail extends Component {
               activeKey={this.state.activeTabKey}
               >
               <TabPane tab='基础信息' key='#BaseInfo'>
-                <BaseInfo databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                <BaseInfo domainSuffix={domainSuffix} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
               </TabPane>
               <TabPane tab='事件' key='#events'>
                 <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} />
@@ -464,6 +507,7 @@ function mapStateToProps(state, props) {
   return {
     isFetching,
     cluster: cluster.clusterID,
+    domainSuffix: cluster.bindingDomains,
     databaseInfo: databaseInfo,
     resourcePrice: cluster.resourcePrice //storage
     // podSpec: databaseInfo.pods[0].podSpec

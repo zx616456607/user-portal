@@ -128,9 +128,13 @@ function checkClass(popup, isError) {
 
 function keywordFormat(log, scope) {
   let str = scope.state.key_word;
-  let reg = new RegExp(str, "gi");
-  log = log.replace(reg, "<font style='color:rgb(255, 255, 0)'>" + str + "</font>");
-  return log;
+  if(str != '*') {    
+    let reg = new RegExp(str, "gi");
+    log = log.replace(reg, "<font style='color:rgb(255, 255, 0)'>" + str + "</font>");
+    return log;
+  } else {
+    return log;
+  }
 }
 
 function timeFormat(time) {

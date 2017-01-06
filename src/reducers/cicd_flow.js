@@ -707,8 +707,10 @@ function getStageBuildLogList(state = {}, action) {
     case ActionTypes.CHANGE_CI_FLOW_STATUS: {
       const cloneStats = cloneDeep(state)
       const {index, status, log} = action.body
-      cloneStats.logs[index].status = status
-      cloneStats.logs[index].logInfo = log
+      if (cloneStats) {
+        cloneStats.logs[index].status = status
+        cloneStats.logs[index].logInfo = log
+      }
       return cloneStats
     }
     default:
