@@ -15,8 +15,9 @@ import { connect } from 'react-redux'
 import InviteNewMemberModal from '../../InviteNewMemberModal'
 import { loadUserTeamList } from '../../../../actions/user'
 import NotificationHandler from '../../../../common/notification_handler'
-import { loadTeamUserListStd, removeTeamusersStd, cancelInvitation, dissolveTeam, sendInvitation, getTeamDetail } from '../../../../actions/team'
+import { loadTeamUserListStd, removeTeamusersStd, cancelInvitation, dissolveTeam, sendInvitation, getTeamDetail, quitTeam } from '../../../../actions/team'
 import DelTeamModal from '../../DelTeamModal'
+import ExitTeamModal from '../../ExitTeamModal'
 
 const confirm = Modal.confirm;
 
@@ -35,6 +36,7 @@ class TeamDetail extends Component {
     this.closeInviteModal = this.closeInviteModal.bind(this)
     this.closeDelTeamModal = this.closeDelTeamModal.bind(this)
     this.inviteOnSubmit = this.inviteOnSubmit.bind(this)
+    this.closeExitTeamModal = this.closeExitTeamModal.bind(this)
 
     this.state = {
       filteredInfo: null,
@@ -47,7 +49,7 @@ class TeamDetail extends Component {
       current: 1,
       showInviteModal: false,
       showDelModal: false,
-
+      showExitModal: false,
     }
   }
   //表单变化(排序,删选)
@@ -138,7 +140,16 @@ class TeamDetail extends Component {
   }
   //去充值
   //退出团队
-  handleQuiteTeam (teamID) {
+  handleQuiteTeam () {
+    this.setState({
+      showExitModal: true
+    })
+  }
+  //关闭退出团队弹框
+  closeExitTeamModal() {
+    this.setState({
+      showExitModal: false
+    })
   }
   //解散团队
   handleDelTeam (teamID) {
@@ -274,8 +285,8 @@ class TeamDetail extends Component {
 
   render() {
     const scope = this
-    let { sortedInfo, filteredInfo, sortMemberName, sort,filter, showInviteModal, showDelModal} = this.state
-    const { teamName, teamID, currentRole, teamUserList, dissolveTeam, loadUserTeamList, sendInvitation } = this.props
+    let { sortedInfo, filteredInfo, sortMemberName, sort,filter, showInviteModal, showDelModal, showExitModal} = this.state
+    const { teamName, teamID, currentRole, teamUserList, dissolveTeam, loadUserTeamList, sendInvitation, quitTeam } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
 
@@ -292,9 +303,17 @@ class TeamDetail extends Component {
             <div>
               <Alert message="这里展示了该团队的团队成员信息，作为普通成员您可退出团队。" />
               <Row className="memberOption">
-                <Button icon='logout' className='quitTeamBtn' onClick={() => this.handleQuiteTeam(teamID)}>
+                <Button icon='logout' className='quitTeamBtn' onClick={() => this.handleQuiteTeam()}>
                   退出团队
                 </Button>
+                <ExitTeamModal
+                  visible={showExitModal}
+                  closeExitTeamModal={this.closeExitTeamModal}
+                  teamName={teamName}
+                  teamID={teamID}
+                  quitTeam={quitTeam}
+                  loadUserTeamList={loadUserTeamList}
+                />
               </Row>
               <Card className="content">
                 <Table columns={this.getColumns(currentRole)} dataSource={teamUserList} onChange={this.handleTableChange} pagination={false}/>
@@ -408,4 +427,5 @@ export default connect(mapStateToProp, {
   dissolveTeam,
   sendInvitation,
   getTeamDetail,
+  quitTeam,
 })(TeamDetail)

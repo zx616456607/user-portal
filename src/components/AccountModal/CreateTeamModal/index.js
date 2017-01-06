@@ -20,24 +20,24 @@ const FormItem = Form.Item
 let CreateTeamModal = React.createClass({
   getInitialState() {
     return {
-      disabled: false,
+      disabled: true,
     }
   },
   teamExists(rule, value, callback) {
     const _this = this
+    this.setState({
+      disabled: true
+    })
     if (!value) {
       callback([new Error('请输入团队名')])
       return
     }
     const { checkTeamName } = this.props.funcs
     if (!USERNAME_REG_EXP.test(value)) {
-      callback([new Error('以小写字母开头，且由小写字母和数字组成，长度为3-42个字符')])
+      callback(new Error('以小写字母开头，且由小写字母和数字组成，长度为3-42个字符'))
       return
     }
-    // Disabled submit button when checkTeamName
-    this.setState({
-      disabled: true
-    })
+    
     clearTimeout(this.teamExistsTimeout)
     this.teamExistsTimeout = setTimeout(() => {
       checkTeamName(value, {
@@ -47,7 +47,10 @@ let CreateTeamModal = React.createClass({
               disabled: false
             })
             if (result.data) {
-              callback([new Error('团队名称已被占用，请修改后重试')])
+              _this.setState({
+                disabled: true
+              })
+              callback(new Error('团队名称已被占用，请修改后重试'))
               return
             }
             callback()
@@ -56,13 +59,13 @@ let CreateTeamModal = React.createClass({
         failed: {
           func: (err) => {
             _this.setState({
-              disabled: false
+              disabled: true
             })
-            callback([new Error('团队名校验失败')])
+            callback(new Error('团队名校验失败'))
           }
         }
       })
-    }, ASYNC_VALIDATOR_TIMEOUT)
+    }, 0)
   },
   handleOk() {
     const { form, onSubmit, scope } = this.props
@@ -105,6 +108,7 @@ let CreateTeamModal = React.createClass({
       <Modal title="创建团队" visible={visible}
         onOk={this.handleOk} onCancel={this.handleCancel}
         wrapClassName="NewTeamForm"
+        key="NewTeamForm"
         width="463px"
         footer={[
           <Button
@@ -123,16 +127,19 @@ let CreateTeamModal = React.createClass({
             提 交
           </Button>,
         ]}>
-        <Form horizontal>
-          <FormItem
-            {...formItemLayout}
-            label="名称"
-            hasFeedback
-            help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
-            >
-            <Input {...nameProps} autoComplete={false} placeholder="新团队名称" id="teamInput"/>
-          </FormItem>
-        </Form>
+        <div key='modalDiv'>
+          <Form horizontal key='modalForm'>
+            <FormItem
+              {...formItemLayout}
+              label="名称"
+              hasFeedback
+              help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
+              key='nameInputForm'
+              >
+              <Input key='nameInput' {...nameProps} autoComplete='off' placeholder="新团队名称" id="teamInput" type='text'/>
+            </FormItem>
+          </Form>
+        </div>
       </Modal>
     )
   }

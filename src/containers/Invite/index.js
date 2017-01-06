@@ -13,9 +13,10 @@ import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row, Modal } f
 import { connect } from 'react-redux'
 import NotLogUser from './NotLogUser'
 import LogInUser from './LogInUser'
-import { getInvitationInfo, joinTeam, loginAndJointeam } from '../../actions/team'
+import { getInvitationInfo, loginAndJointeam } from '../../actions/team'
 import { registerUserAndJoinTeam, sendRegisterPhoneCaptcha } from '../../actions/user'
 import { login } from '../../actions/entities'
+import { Link } from 'react-router'
 
 function noop() {
   return false
@@ -34,7 +35,7 @@ let Invite = React.createClass({
   },
   render() {
     const { loginResult } = this.state
-    const { email,teamName,code,isUser, login, joinTeam, registerUserAndJoinTeam, invitationStatus, sendRegisterPhoneCaptcha, loginAndJointeam } = this.props
+    const { email, teamName, code, isUser, login, registerUserAndJoinTeam, invitationStatus, sendRegisterPhoneCaptcha, loginAndJointeam } = this.props
     let state = 2
     return (
       <div id="InvitePage">
@@ -43,17 +44,23 @@ let Invite = React.createClass({
             <div className="InviteTitle">
             {
               isUser ?
-              '立即登录' :
+                invitationStatus === 2 ?
+                '已经加入' :
+                '立即登录' :
               '立即加入'
             }
             </div>
-            <div className="Invitetext">
-              {
-                isUser ?'登录':'注册'
-              }
-              并加入团队&nbsp;
-              <span>{ teamName }</span>
-            </div>
+            {
+              invitationStatus === 2 ?
+              <div></div> :
+              <div className="Invitetext">
+                {
+                  isUser ?'登录':'注册'
+                }
+                并加入团队&nbsp;
+                <span>{ teamName }</span>
+              </div>
+            }
           </Row>
           <Card className="loginForm" bordered={false}>
             <div>
@@ -63,10 +70,9 @@ let Invite = React.createClass({
             </div>
             {
               isUser ?
-              <LogInUser email={email} login={login} loginAndJointeam={loginAndJointeam} code={code} invitationStatus={invitationStatus}/>:
+              <LogInUser email={email} login={login} loginAndJointeam={loginAndJointeam} code={code} invitationStatus={invitationStatus} teamName={teamName}/>:
               <NotLogUser email={email}
                 registerUserAndJoinTeam={registerUserAndJoinTeam}
-                joinTeam={joinTeam}
                 code={code}
                 invitationStatus={invitationStatus}
                 sendRegisterPhoneCaptcha={sendRegisterPhoneCaptcha} />
@@ -74,9 +80,7 @@ let Invite = React.createClass({
             {
               isUser ?
               <div className="formTip" style={{textAlign:'right'}}>
-              {/**
-                <a href="/reset" target="_blank" style={{color:'#4691d2'}}>忘记密码</a>
-                **/}
+                <Link to='/rpw' style={{color:'#4691d2'}}>忘记密码</Link>
               </div>:
               <div className="formTip">*&nbsp;注册表示您同意遵守&nbsp;
                 <a href="https://www.tenxcloud.com/terms" target="_blank" style={{color:'#4691d2'}}>
@@ -135,7 +139,6 @@ function mapStateToProps(state, props) {
 Invite = connect(mapStateToProps, {
   getInvitationInfo,
   login,
-  joinTeam,
   loginAndJointeam,
   registerUserAndJoinTeam,
   sendRegisterPhoneCaptcha,

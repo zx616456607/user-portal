@@ -31,8 +31,7 @@ let CreateDatabase = React.createClass({
       currentType: this.props.database,
       showPwd: 'text',
       firstFocues: true,
-      onselectCluster: true,
-      cluster: this.props.cluster
+      onselectCluster: true
     }
   },
   componentWillReceiveProps(nextProps) {
@@ -86,8 +85,9 @@ let CreateDatabase = React.createClass({
     //this function for check the new database name is exist or not
     const { databaseNames } = this.props;
     let existFlag = false;
-    if (!value) {
+    if (!Boolean(value)) {
       callback();
+      return
     } else {
       databaseNames.map((item) => {
         if (value == item) {
@@ -165,7 +165,7 @@ let CreateDatabase = React.createClass({
         }
       })
       if (this.state.onselectCluster) {
-        values.clusterSelect = this.state.cluster
+        values.clusterSelect = this.props.cluster
       }
       let notification = new NotificationHandler()
       if (values.replicas > 5) {
@@ -184,9 +184,16 @@ let CreateDatabase = React.createClass({
           return newCluster = list
         }
       })
+      let externalIP = ''
+      if (newCluster.publicIPs && newCluster.publicIPs != "") {
+        let ips = eval(newCluster.publicIPs)
+        if (ips && ips.length > 0) {
+          externalIP = ips[0]
+        }
+      }
       const body = {
         cluster: values.clusterSelect,
-        // cluster: 'e0e6f297f1b3285fb81d27742255cfcf11', // @ todo
+        externalIP: externalIP,
         serviceName: values.name,
         password: values.password,
         replicas: values.replicas,
@@ -239,7 +246,7 @@ let CreateDatabase = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating ,getFieldValue} = this.props.form;
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, message: '请输入数据库集群名称' },
+        { required: true, whitespace: true ,message:'请输入数据库集群名称'},
         { validator: this.databaseExists },
       ],
     });
@@ -321,7 +328,7 @@ let CreateDatabase = React.createClass({
               <div className='inputBox'>
                 <FormItem
                   hasFeedback
-                  help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
+                   help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
                   >
                   <Input {...nameProps} size='large' id="dbName" placeholder="请输入名称" disabled={isFetching} maxLength={20} />
                 </FormItem>

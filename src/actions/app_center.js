@@ -35,14 +35,15 @@ export const IMAGE_PUBLIC_LIST_FAILURE = 'IMAGE_PUBLIC_LIST_FAILURE'
 
 // Fetches apps list from API unless it is cached.
 // public image list
-export function loadPublicImageList(registry) {
+export function loadPublicImageList(registry, serverType = null) {
   return {
     registry,
     [FETCH_API]: {
       types: [IMAGE_PUBLIC_LIST_REQUEST, IMAGE_PUBLIC_LIST_SUCCESS, IMAGE_PUBLIC_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/registries/${registry}`,
       schema: Schemas.REGISTRYS
-    }
+    },
+    serverType
   }
 }
 
