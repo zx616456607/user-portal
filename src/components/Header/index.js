@@ -268,6 +268,11 @@ class Header extends Component {
           </div>
         </div>
         <div className="rightBox">
+          <div className='backVersion'>
+            <a href='https://console.tenxcloud.com' target='_blank'>
+              <img src='/img/newVersionBtn.png'/>
+            </a>
+          </div>
           <div className="docBtn">
             <a href="http://docs.tenxcloud.com" target="_blank">
               <FormattedMessage {...menusText.doc}/>
@@ -282,8 +287,9 @@ class Header extends Component {
 
 function mapStateToProps(state, props) {
   const { current, loginUser } = state.entities
-  const { teamspaces } = state.user
+  const { teamspaces, migrated } = state.user
   const { teamClusters } = state.team
+  console.log('state.user',state.user)
   return {
     current,
     loginUser: loginUser.info,
