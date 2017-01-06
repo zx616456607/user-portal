@@ -16,7 +16,7 @@ import LogInUser from './LogInUser'
 import { getInvitationInfo, loginAndJointeam } from '../../actions/team'
 import { registerUserAndJoinTeam, sendRegisterPhoneCaptcha } from '../../actions/user'
 import { login } from '../../actions/entities'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 
 function noop() {
   return false
@@ -29,14 +29,29 @@ let Invite = React.createClass({
   },
   componentWillMount() {
     const {
-      getInvitationInfo, code,
+      getInvitationInfo,
+      code,
     } = this.props
-    getInvitationInfo(code)
+    getInvitationInfo(code,{
+      success: {
+        func: (result) => {
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          browserHistory.push('/login')
+        },
+        isAsync: true
+      }
+    })
+
   },
   render() {
     const { loginResult } = this.state
     const { email, teamName, code, isUser, login, registerUserAndJoinTeam, invitationStatus, sendRegisterPhoneCaptcha, loginAndJointeam } = this.props
-    let state = 2
+    console.log('invitationStatus',invitationStatus)
+    console.log('isUser',isUser)
     return (
       <div id="InvitePage">
         <div className="Invite">
@@ -95,7 +110,7 @@ let Invite = React.createClass({
         </div>
         <Modal
         wrapClassName='cancelInvite'
-        visible={state === 1}
+        visible={invitationStatus === 1}
         width='350px'
         closable={false}
         >
@@ -125,7 +140,6 @@ function mapStateToProps(state, props) {
     isUser = invitationInfo.result.data.data.isUser
     invitationStatus = invitationInfo.result.data.data.status
   }
-  console.log('isUser',isUser)
   console.log('invitationInfo',invitationInfo)
   return {
     code,
