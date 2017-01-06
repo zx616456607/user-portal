@@ -179,8 +179,12 @@ let MyComponent = React.createClass({
         isAsync: true
       },
       failed: {
-        func: () => {
+        func: (result) => {
           notification.close()
+          if(result.statusCode == 409){
+            notification.error('存储名称已被占用')
+            return
+          }
           notification.error('存储卷创建失败')
         }
       }
@@ -213,8 +217,8 @@ let MyComponent = React.createClass({
     const registry = this.props.registry
     const {imageVersion} = this.props
     const self = this
-    if (!this.props.tagConfig[registry]) return
-    if (!this.props.tagConfig[registry].configList) return
+    if (!this.props.tagConfig[registry]) return <div></div>
+    if (!this.props.tagConfig[registry].configList) return <div></div>
     const mountPath = this.props.tagConfig[registry].configList[imageVersion].mountPath
     if (!this.props.avaliableVolume.data && !getFieldValue('volumeName1')) {
       return <div></div>
@@ -313,7 +317,14 @@ let MyComponent = React.createClass({
   }
 })
 
-function mapStateToMyComponentProp(state) {
+function mapStateToMyComponentProp(state, props) {
+  if(props.other) {
+    return {
+      avaliableVolume: state.storage.avaliableVolume,
+      tagConfig: state.getImageTagConfig.otherTagConfig,
+      createState: state.storage.createStorage
+    }
+  }
   return {
     avaliableVolume: state.storage.avaliableVolume,
     tagConfig: state.getImageTagConfig.imageTagConfig,
@@ -721,6 +732,7 @@ let NormalDeployBox = React.createClass({
                   cluster={cluster}
                   imageVersion={imageVersion}
                   registry={this.props.registry}
+                  other={this.props.other}
                   serviceOpen={this.props.serviceOpen} />
               ] : null}
               <div style={{ clear: "both" }}></div>
@@ -750,7 +762,7 @@ function mapStateToProps(state, props) {
     registry: DEFAULT_REGISTRY,
     tag: []
   }
-  const {currentSelectedImage} = props
+  const {currentSelectedImage } = props
   const {imageTag, otherImageTag} = state.getImageTag
   let targetImageTag
   if (imageTag[DEFAULT_REGISTRY]) {
