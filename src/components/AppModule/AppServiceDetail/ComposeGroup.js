@@ -38,9 +38,7 @@ let MyComponent = React.createClass({
           id: ++index,
           mountPod: filter(container.volumeMounts, ['name', volume.name])[0].mountPath,
           group: volume.configMap.name,
-          file: volume.configMap.items.map(i => {
-            return i.path
-          })
+          file: volume.configMap.items
         })
       }
     })
@@ -98,9 +96,7 @@ let MyComponent = React.createClass({
           id: ++index,
           mountPod: filter(container.volumeMounts, ['name', volume.name])[0].mountPath,
           group: volume.configMap.name,
-          file: volume.configMap.items.map(i => {
-            return i.path
-          })
+          file: volume.configMap.items
         })
       }
     })
@@ -136,8 +132,11 @@ let MyComponent = React.createClass({
           <div className="commonData">
             <span>{item.group}</span>
           </div>
-          <div className="composefile commonData" onClick={() => this.loadConfigData(item.group, item.file) }>
-            <span>{item.file}</span>
+          <div className="composefile commonData">
+           {item.file.map(list =>{
+              return  <span onClick={() => this.loadConfigData(item.group, list.path) }>{list.path} </span>
+            })
+           }
           </div>
           <div style={{ clear: "both" }}></div>
         </div>

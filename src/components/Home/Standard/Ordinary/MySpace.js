@@ -482,7 +482,7 @@ class MySpace extends Component{
             </div>
             <div className='infoDetail'>
               <div className='num'>4</div>
-              <span className='info'>若为 v2.0 专业版，在团队中『邀请新成员』，未注册过时速云账号的新成员可到时速云官网注册</span>
+              <span className='info'>若为 v2.0 专业版，在团队中『邀请新成员』，未注册过时速云帐号的新成员可到时速云官网注册</span>
             </div>
           </div>
           <div className='btnBox'>

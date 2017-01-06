@@ -489,7 +489,7 @@ let Person = React.createClass({
               表单---end
             */}
             <div className="formTip">*&nbsp;注册表示您同意遵守&nbsp;
-              <a href="https://www.tenxcloud.com/terms" target="_blank" style={{color:'#4691d2'}}>
+              <a href="https://www.tenxcloud.com/aboutus.html?serviceList" target="_blank" style={{color:'#4691d2'}}>
                 时速云&nbsp;TenxCloud&nbsp;服务条款
               </a>
             </div>
