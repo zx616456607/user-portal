@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Icon, Button, DatePicker, Table, Select, Popover } from 'antd'
+import { Row, Col, Card, Icon, Button, DatePicker, Table, Select, Popover, Tooltip } from 'antd'
 import './style/CostRecord.less'
 import PopSelect from '../../PopSelect'
 import PopContent from '../../PopSelect/Content'
@@ -497,13 +497,13 @@ class CostRecord extends Component{
               </Col>
               <Col span={14} className='teamCostList'>
                 <Row>
-                  <Col span={16} style={{paddingLeft:40}} className="teamCostListTitle">
+                  <Col span={14} style={{paddingLeft:40}} className="teamCostListTitle">
                     <svg className="headerclusterSvg">
                       <use xlinkHref="#settingcluster"/>
                     </svg>
                     {standard ? '区域' : '集群名称'}
                   </Col>
-                  <Col span={8} className="teamCostListTitle">
+                  <Col span={10} className="teamCostListTitle">
                     <svg className="headerclusterSvg">
                       <use xlinkHref="#settingbalance"/>
                     </svg>
@@ -515,8 +515,12 @@ class CostRecord extends Component{
                     spaceSummary.clusterConsumptions.map((item) => {
                       return (
                         <Row className="teamCostItem">
-                          <Col span={16} style={{paddingLeft:60}}>{item.name}</Col>
-                          <Col span={8} style={{paddingLeft:20}}>
+                          <Col span={14} style={{paddingLeft:40}}>
+                            <Tooltip title={item.name}>
+                              <span>{item.name}</span>
+                            </Tooltip>
+                          </Col>
+                          <Col span={10} >
                             {
                               isNaN(item.sum)
                               ? '-'

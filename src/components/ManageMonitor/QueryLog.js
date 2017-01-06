@@ -845,7 +845,7 @@ class QueryLog extends Component {
     let key_word = this.state.key_word;
     if (this.state.queryType) {
       if (key_word && key_word.length > 0) {
-        key_word = '*' + this.state.key_word + '*';
+        key_word = '*' + this.state.key_word.trim() + '*';
       }
     }
     let body = {
@@ -983,9 +983,9 @@ class QueryLog extends Component {
               <div style={{ clear: 'both' }}></div>
             </div>
             <div className='commonBox'>
-              <Checkbox onChange={this.onChangeQueryType} checked={this.state.queryType} style={{ marginLeft: '29px' }}>
+              <Checkbox onChange={this.onChangeQueryType} checked={this.state.queryType} style={{ marginLeft: '29px', display: 'none' }}>
                 <FormattedMessage {...menusText.searchType} /></Checkbox>
-              <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch}>
+              <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch} style={{ marginLeft: '29px' }}>
                 <i className='fa fa-wpforms'></i>
                 <FormattedMessage {...menusText.search} />
               </Button>

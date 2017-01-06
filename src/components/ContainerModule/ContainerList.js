@@ -184,7 +184,7 @@ const MyComponent = React.createClass({
           </div>
           <div className='actionBox commonData'>
             <Dropdown.Button
-              overlay={dropdown} type='ghost' size='large'
+              overlay={dropdown} type='ghost'
               onClick={this.openTerminalModal.bind(this, item)}>
               <svg className='terminal'>
                 <use xlinkHref='#terminal' />
