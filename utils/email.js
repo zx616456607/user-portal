@@ -86,7 +86,6 @@ exports.sendEmail = sendEmail
  * @returns {Promise}
  */
 function sendEmailBySendcloud(mailOptions) {
-  console.log(mailOptions)
   // Standard mode use condfigs/_standard
   if (config.running_mode === constants.STANDARD_MODE) {
     config.sendcloud = require('../configs/_standard').sendcloud
