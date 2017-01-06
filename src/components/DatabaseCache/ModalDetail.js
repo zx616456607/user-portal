@@ -18,7 +18,6 @@ import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import { calcuDate, parseAmount} from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
-import serverSVG from '../../assets/img/server.svg'
 import { ANNOTATION_SVC_SCHEMA_PORTNAME } from '../../../constants'
 
 const Panel = Collapse.Panel;
@@ -171,15 +170,16 @@ class BaseInfo extends Component {
         </div>
         <div className="modal-price">
           <div className="price-left">
-            <div className="keys">实例：<span className="unit">￥{ containerPrc.amount } </span>/（个*小时）* { parentScope.state.replicas } 个</div>
-            <div className="keys">存储：<span className="unit">￥{ storagePrc.amount } </span>/（GB*小时）* { parentScope.state.replicas } 个</div>
+            <div className="keys">实例：<span className="unit">{ containerPrc.fullAmount }</span>/（个*小时）* { parentScope.state.replicas } 个</div>
+            <div className="keys">存储：<span className="unit">{ storagePrc.fullAmount }</span>/（GB*小时）* { parentScope.state.replicas } 个</div>
           </div>
           <div className="price-unit">
             <p>合计：
-            <span className="unit blod">￥{ hourPrice.amount } 元/小时</span>
+            <span className="unit">{countPrice.unit=='￥' ? ' ￥' : ''}</span>
+            <span className="unit blod">{ hourPrice.amount }{containerPrc.unit=='￥'? ' 元' : ''}/小时</span>
             </p>
             <p>
-            <span className="unit">（约：￥{ countPrice.amount } 元/月）</span>
+            <span className="unit">（约：{ countPrice.fullAmount } {containerPrc.unit=='￥'? ' 元' : ''}/月）</span>
             </p>
           </div>
         </div>
@@ -252,11 +252,11 @@ class BaseInfo extends Component {
 
           <div className='configHead'>租赁信息</div>
           <div className="containerPrc">
-            <p><Icon type="pay-circle-o" /> 实例：<span className="unit">￥{ containerPrc.amount }/（个*小时）</span> * {databaseInfo.podInfo.desired}个</p>
-            <p><Icon type="hdd" /> 存储：<span className="unit">￥{ storagePrc.amount }/（GB*小时）</span> * {databaseInfo.podInfo.desired}个</p>
+            <p><Icon type="pay-circle-o" /> 实例：<span className="unit">{ containerPrc.fullAmount }/（个*小时）</span> * {databaseInfo.podInfo.desired}个</p>
+            <p><Icon type="hdd" /> 存储：<span className="unit">{ storagePrc.fullAmount }/（GB*小时）</span> * {databaseInfo.podInfo.desired}个</p>
           </div>
           <div className="countPrice">
-            合计价格：<span className="unit">￥</span><span className="unit blod">{hourPrice.amount}元/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：￥{countPrice.amount}元/月）</span>
+            合计价格：<span className="unit">{hourPrice.unit =='￥' ? '￥': ''}</span><span className="unit blod">{hourPrice.amount}{hourPrice.unit =='￥' ? '元': 'T'}/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：{countPrice.fullAmount} {countPrice.unit=='￥'? '元':''}/月）</span>
           </div>
         </div>
 
@@ -428,7 +428,9 @@ class ModalDetail extends Component {
         <div className='titleBox'>
           <Icon className='closeBtn' type='cross' onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className='imgBox'>
-            <img src={serverSVG} />
+            <svg>
+              <use xlinkHref='server' />
+            </svg>
           </div>
           <div className='infoBox'>
             <p className='instanceName'>

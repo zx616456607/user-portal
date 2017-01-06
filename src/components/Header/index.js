@@ -213,6 +213,7 @@ class Header extends Component {
       teamspaces,
       isTeamClustersFetching,
       teamClusters,
+      migrated,
     } = this.props
     const {
       spacesVisible,
@@ -268,6 +269,15 @@ class Header extends Component {
           </div>
         </div>
         <div className="rightBox">
+        {
+          migrated === 1 ?
+          <div className='backVersion'>
+            <a href='https://console.tenxcloud.com' target='_blank'>
+              <img src='/img/newVersionBtn.png'/>
+            </a>
+          </div> :
+          <div></div>
+        }
           <div className="docBtn">
             <a href="http://docs.tenxcloud.com" target="_blank">
               <FormattedMessage {...menusText.doc}/>
@@ -284,9 +294,11 @@ function mapStateToProps(state, props) {
   const { current, loginUser } = state.entities
   const { teamspaces } = state.user
   const { teamClusters } = state.team
+  console.log('state.user',state)
   return {
     current,
     loginUser: loginUser.info,
+    migrated: loginUser.info.migrated || 0,
     isTeamspacesFetching: teamspaces.isFetching,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
     isTeamClustersFetching: teamClusters.isFetching,

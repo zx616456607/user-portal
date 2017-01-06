@@ -14,8 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import {DeleteOtherImage, SearchOtherImage, getOtherImageList} from '../../../actions/app_center'
-import dockerPNG from '../../../assets/img/docker.png'
-import "./style/OtherSpace.less"
+import './style/OtherSpace.less'
 import ImageDetailBox from './ImageDetail/OtherDetail.js'
 
 const SubMenu = Menu.SubMenu
@@ -85,25 +84,27 @@ const MyComponent = React.createClass({
     }
     let items = config.map((item) => {
       return (
-        <div className="imageDetail" key={item} >
-          <div className="imageBox">
-            <img src={dockerPNG} />
+        <div className='imageDetail' key={item} >
+          <div className='imageBox'>
+            <svg className='appcenterlogo'>
+              <use xlinkHref='#appcenterlogo' />
+            </svg>
           </div>
-          <div className="contentBox">
-            <span className="title" onClick={this.showImageDetail.bind(this, item)}>
+          <div className='contentBox'>
+            <span className='title' onClick={this.showImageDetail.bind(this, item)}>
               {item}
             </span><br />
-            <span className="type">
+            <span className='type'>
               <FormattedMessage {...menusText.belong} />&nbsp;私有
             </span>
-            <span className="imageUrl textoverflow">
+            <span className='imageUrl textoverflow'>
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
-            <span className="">{ipAddress}/{item}</span>
+            <span className=''>{ipAddress}/{item}</span>
             </span>
 
           </div>
-          <div className="btnBox">
-            <Button type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${ipAddress}&imageName=${item}&other=${this.props.imageId}`)}>
+          <div className='btnBox'>
+            <Button type='ghost' onClick={()=>browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${ipAddress}&imageName=${item}&other=${this.props.imageId}`)}>
               <FormattedMessage {...menusText.deployService} />
             </Button>
           </div>
@@ -111,7 +112,7 @@ const MyComponent = React.createClass({
       );
     });
     return (
-      <div className="imageList">
+      <div className='imageList'>
         {items}
       </div>
     );
@@ -177,39 +178,39 @@ class OtherSpace extends Component {
     const scope = this;
     const otherHead = this.props.otherHead
     return (
-      <QueueAnim className="OtherSpace"
-        type="right"
+      <QueueAnim className='OtherSpace'
+        type='right'
         >
-        <div id="OtherSpace" key="OtherSpace">
-          <Card className="OtherSpaceCard">
-            <div className="operaBox">
-              <div className="infoBox">
-                <div className="url">
-                  <i className="fa fa-link"></i>&nbsp;&nbsp;
+        <div id='OtherSpace' key='OtherSpace'>
+          <Card className='OtherSpaceCard'>
+            <div className='operaBox'>
+              <div className='infoBox'>
+                <div className='url'>
+                  <i className='fa fa-link'></i>&nbsp;&nbsp;
                     {otherHead.url}
                 </div>
                 {otherHead.username ?
-                <div className="name">
-                  <i className="fa fa-user"></i>&nbsp;&nbsp;
+                <div className='name'>
+                  <i className='fa fa-user'></i>&nbsp;&nbsp;
                   {otherHead.username}
                 </div>
                 :null
                 }
               </div>
-              <Button className="logout" size="large" type="ghost" onClick={()=>this.deleteImage(this.props.imageId)}>
+              <Button className='logout' size='large' type='ghost' onClick={()=>this.deleteImage(this.props.imageId)}>
                 <FormattedMessage {...menusText.logout} />
               </Button>
-              <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" onPressEnter={(e)=>this.searchImage(e)}/>
-              <i className="fa fa-search"></i>
-              <div style={{ clear: "both" }}></div>
+              <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' onPressEnter={(e)=>this.searchImage(e)}/>
+              <i className='fa fa-search'></i>
+              <div style={{ clear: 'both' }}></div>
             </div>
             <MyComponent scope={scope} parentScope={this.props.scope.parentScope} isFetching={this.props.isFetching} imageId ={this.props.imageId} otherHead={otherHead} config={this.props.imageList} />
           </Card>
         </div>
         <Modal
           visible={this.state.imageDetailModalShow}
-          className="AppServiceDetail"
-          transitionName="move-right"
+          className='AppServiceDetail'
+          transitionName='move-right'
           onCancel={this.closeImageDetailModal}
           >
           <ImageDetailBox scope={scope}  server={otherHead.url} parentScope={rootscope} imageId ={this.props.imageId} config={this.state.currentImage} />

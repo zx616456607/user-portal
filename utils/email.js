@@ -441,10 +441,10 @@ exports.sendResetPasswordEmail = function(to, resetPasswordURL) {
 exports.sendChargeSuccessEmail = function (to, payMethod, payAmount, payBalance, paymentsHistoryUrl, teamName) {
   const method = 'sendChargeSuccessEmail'
 
-  let subject = `个人账户充值到账通知`
-  let payTarget = `个人账户`
+  let subject = `个人帐户充值到帐通知`
+  let payTarget = `个人帐户`
   if (teamName) {
-    subject = `团队账户充值到账通知`
+    subject = `团队帐户充值到帐通知`
     payTarget = `团队 ${teamName} `
   }
   payMethod = switchPayTypeToText(payMethod)

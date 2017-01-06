@@ -18,6 +18,8 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Link } from 'react-router'
 import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../../actions/overview_space'
 import knowntag from '../../../../assets/img/version/knowntag.png'
+import homeCICD from '../../../../assets/img/homeCICD.png'
+import homeNoWarn from '../../../../assets/img/homeNoWarn.png'
 
 class MySpace extends Component{
   constructor(props){
@@ -252,7 +254,7 @@ class MySpace extends Component{
             <Card title="CI/CD" bordered={false} bodyStyle={{height:175,padding:0}}>
               <Row style={{height:130}}>
                 <Col span={12} style={{height:130,lineHeight:'130px',textAlign:'center'}}>
-                  <img src='/img/homeCICD.png' style={{display:'inline-block',verticalAlign:'middle'}}/>
+                  <img src={homeCICD} style={{display:'inline-block',verticalAlign:'middle'}}/>
                 </Col>
                 <Col className='cicdInf' span={12}>
                   <table>
@@ -434,7 +436,7 @@ class MySpace extends Component{
                   {
                     spaceWarnings.length === 0 ?
                       [<div className="noWarnImg">
-                        <img src="/img/homeNoWarn.png" alt="NoWarn"/>
+                        <img src={homeNoWarn} alt="NoWarn"/>
                         <div>暂时无系统告警</div>
                       </div>] :
                     spaceWarnings.map((item,index) => {
@@ -480,7 +482,7 @@ class MySpace extends Component{
             </div>
             <div className='infoDetail'>
               <div className='num'>4</div>
-              <span className='info'>若为 v2.0 专业版，在团队中『邀请新成员』，未注册过时速云账号的新成员可到时速云官网注册</span>
+              <span className='info'>若为 v2.0 专业版，在团队中『邀请新成员』，未注册过时速云帐号的新成员可到时速云官网注册</span>
             </div>
           </div>
           <div className='btnBox'>
