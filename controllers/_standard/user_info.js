@@ -20,8 +20,7 @@ const sendCaptchaToPhone = require('../../utils/captchaSms').sendCaptchaToPhone
 const emailUtil = require('../../utils/email')
 const security = require('../../utils/security')
 const activationMixCode = 'tEn.Xclou210*'
-const stdConfigs = require('../../configs/_standard')
-const config = require('../../configs')
+const configs = require('../../configs')
 
 /*
 Get basic user info including user and certificate
@@ -146,7 +145,7 @@ exports.registerUser = function* () {
   logger.info(method, "call apiserver result:", result)
   if (result && result.data && result.data.email) {
     const activationCode = genActivationCode(result.data.email)
-    const userActivationURL = `${stdConfigs.host}/users/activation?code=${encodeURIComponent(activationCode)}`
+    const userActivationURL = `${configs.url}/users/activation?code=${encodeURIComponent(activationCode)}`
     try {
       emailUtil.sendUserActivationEmail(user.email, userActivationURL)
     } catch (e) {
@@ -233,7 +232,7 @@ exports.sendResetPasswordLink = function* () {
   const spi = apiFactory.getSpi()
   const result = yield spi.users.getBy([email, 'resetpwcode'])
   const code = result.Code
-  const key = `${redisKeyPrefix.resetPassword}#${email}` 
+  const key = `${redisKeyPrefix.resetPassword}#${email}`
   yield new Promise((resolve, reject) => {
     redisClient.set(key, code, 'EX',  24*60*60, (error) => {
       if (error) {
@@ -244,7 +243,7 @@ exports.sendResetPasswordLink = function* () {
     })
   })
 
-  const link = `${stdConfigs.host}/rpw?email=${email}&code=${encodeURIComponent(code)}`
+  const link = `${configs.url}/rpw?email=${email}&code=${encodeURIComponent(code)}`
   try {
     yield emailUtil.sendResetPasswordEmail(email, link)
     this.body = {
@@ -308,7 +307,7 @@ exports.activateUserByEmail = function* () {
     err.status = 400
     throw err
   }
-  
+
   // code is valid, call apiserver to set user status to activated
   yield spi.users.createBy(['activations'], null, {email})
 
@@ -318,7 +317,7 @@ exports.activateUserByEmail = function* () {
 }
 
 function genUserActivationURL(code) {
-  return `${stdConfigs.host}/users/activation?code=${encodeURIComponent(code)}`
+  return `${configs.url}/users/activation?code=${encodeURIComponent(code)}`
 }
 
 function genActivationCode(email) {
