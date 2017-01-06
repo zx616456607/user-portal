@@ -93,14 +93,14 @@ class UpgradeModal extends Component {
               <div className='littleTitle'>
                 <span>标准版</span>￥<span>0</span>/月
               </div>
-              <div className={ currentType == 'app' ? 'activeInfo littleInfo' : 'littleInfo'}>
+              {/*<div className={ currentType == 'app' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
                 <span className='infoSpan'>应用管理（5个应用）</span>
               </div>
               <div className={ currentType == 'storage' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
                 <span className='infoSpan'>存储管理（10G）</span>
-              </div>
+              </div>*/}
               <div className={ currentType == 'appcenter' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
                 <span className='infoSpan'>交付中心（2个镜像）</span>
@@ -130,14 +130,14 @@ class UpgradeModal extends Component {
               <div className='littleTitle'>
                 <span>专业版</span>￥<span>99</span>/月
               </div>
-              <div className={ currentType == 'app' ? 'activeInfo littleInfo' : 'littleInfo'}>
+              {/*<div className={ currentType == 'app' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
                 <span className='infoSpan'>应用管理（20个应用）</span>
               </div>
               <div className={ currentType == 'storage' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
                 <span className='infoSpan'>存储管理（50G）</span>
-              </div>
+              </div>*/}
               <div className={ currentType == 'appcenter' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <img className='commonImg' src={proIcon} />
                 <span className='littleIcon'></span>
