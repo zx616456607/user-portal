@@ -515,20 +515,21 @@ export const GET_INVITATION_INFO_REQUEST = 'GET_INVITATION_INFO_REQUEST'
 export const GET_INVITATION_INFO_SUCCESS = 'GET_INVITATION_INFO_SUCCESS'
 export const GET_INVITATION_INFO_FAILURE = 'GET_INVITATION_INFO_FAILURE'
 
-function fetchInvitationInfo(code) {
+function fetchInvitationInfo(code,callback) {
   let endpoint = `${API_URL_PREFIX}/teams/invitations?code=${code}`
   return {
     [FETCH_API]: {
       types: [GET_INVITATION_INFO_REQUEST, GET_INVITATION_INFO_SUCCESS, GET_INVITATION_INFO_FAILURE],
       endpoint,
       schema: {},
-    }
+    },
+    callback
   }
 }
 
-export function getInvitationInfo(code) {
+export function getInvitationInfo(code, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchInvitationInfo(code))
+    return dispatch(fetchInvitationInfo(code, callback))
   }
 }
 

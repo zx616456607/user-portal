@@ -517,7 +517,7 @@ let Company = React.createClass({
           <FormItem
             {...formItemLayout}
             className="formItemName"
-            style={{borderTop:'1px dashed #d5d5d5',paddingTop:0,height:25}}
+            style={{borderTop:'1px dashed #d5d5d5',paddingTop:'10px',height:25}}
           >
             <RadioGroup {...getFieldProps('certType', { initialValue: 2 ,onChange: this.handleCertTypeChange})}>
               <Radio value={2} style={{cursor:'pointer'}}>企业单位</Radio>
@@ -579,7 +579,7 @@ let Company = React.createClass({
          表单---end
          */}
         <div className="formTip">*&nbsp;注册表示您同意遵守&nbsp;
-          <a href="https://www.tenxcloud.com/terms" target="_blank" style={{color:'#4691d2'}}>
+          <a href="https://www.tenxcloud.com/aboutus.html?serviceList" target="_blank" style={{color:'#4691d2'}}>
             时速云&nbsp;TenxCloud&nbsp;服务条款
           </a>
         </div>
