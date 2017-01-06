@@ -214,7 +214,7 @@ export function isEmptyObject(obj) {
  */
 export function parseAmount(amount, precision) {
   const data = {}
-  amount = parseInt(amount)
+  amount = Math.ceil(amount)
   precision = parseInt(precision)
   if (isNaN(amount)) {
     amount = 0
