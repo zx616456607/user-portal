@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Button, Form, Input, message } from 'antd'
+import { Button, Form, Input, message,notification } from 'antd'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { resetPassword } from '../../actions/user'
@@ -30,6 +30,7 @@ let CommitReset = React.createClass({
       rePassWord: false,
       intRePassFocus: false,
       resetSuccess: false,
+      btnState: false,
     }
   },
 
@@ -114,33 +115,47 @@ let CommitReset = React.createClass({
             self.setState({
               submitting: false,
               resetSuccess: true,
+              btnState: false,
             })
           },
           isAsync: true
         },
         failed: {
           func: (err) => {
+            console.log('err',err)
             self.setState({
               submitting: false,
               resetSuccess: false,
+              btnState: true,
             })
             message.error('重置失败')
+            
           }
         }
       })
     })
   },
+  renderBtnText (submitting) {
+    if (submitting) {
+      return (
+        <span>重置中. . .</span>
+      )
+    }
+    return (
+        <span>重置</span>
+    )
+  },
   componentWillMount() {
     const { resetFields } = this.props.form
     resetFields()
   },
-
+  
   render(){
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form
-    const { submitting, spendEmail } = this.state
+    const { submitting, spendEmail, btnState } = this.state
     const { email } = this.props
     const passwdProps = getFieldProps('password', {
       rules: [
@@ -222,8 +237,11 @@ let CommitReset = React.createClass({
                   loading={submitting}
                   className="subBtn"
                   style={{marginBottom: 20}}
+                  disabled={btnState}
                 >
-                  {submitting ? '重置中...' : '重置密码'}
+                  {
+                    this.renderBtnText(submitting)
+                  }
                 </Button>
               </FormItem>
             </Form>

@@ -52,13 +52,10 @@ class Register extends Component{
     }
 
     return (
-      <QueueAnim component="div"
-                  type={this.state.person?['left']:['right']}
-                  ease={['easeOutQuart', 'easeInOutQuart']}
-                  key='register'>
+      <div>
         {registerPageShow ? registerPage : null}
         {registerShow ? register : null}
-      </QueueAnim>
+      </div>
     )
   }
   componentWillMount(){
