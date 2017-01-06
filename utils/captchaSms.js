@@ -113,6 +113,7 @@ function sendCaptchaToPhone(mobile, redisConf) {
               return reject(err4)
             }
             default:
+              logger.error(method, `send captcha(${captcha}) to phone(${mobile}) failed. respond code(${code})`)
               return reject(internalError)
             }
           }

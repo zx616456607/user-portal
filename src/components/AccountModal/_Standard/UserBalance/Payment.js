@@ -160,7 +160,7 @@ class UserPay extends Component {
     }
   }
 
-  renderRechargeTarget() {
+  renderRechargeTarget(options) {
     const { loginUser } = this.props
     const { rechargeTarget, teamName } = this.state
     const { loading, namespace, teamBalance } = rechargeTarget
@@ -168,9 +168,16 @@ class UserPay extends Component {
       return <Icon type='loading' />
     }
     if (namespace) {
-      return <span>{teamName} 团队（余额：<font color="#52b7fa">{parseAmount(teamBalance).fullAmount}</font>）</span>
+      return <span>{teamName} 团队{this._renderRechargeTargetBalance(teamBalance, options)}</span>
     }
-    return <span>个人帐户（余额：<font color="#52b7fa">{parseAmount(loginUser.balance).fullAmount}</font>）</span>
+    return <span>个人帐户{this._renderRechargeTargetBalance(loginUser.balance, options)}</span>
+  }
+
+  _renderRechargeTargetBalance(balance, options) {
+    if (options && options.balance === false) {
+      return
+    }
+    return <span>（余额：<font color="#52b7fa">{parseAmount(balance).fullAmount}</font>）</span>
   }
 
   changePayType(type) {
@@ -715,8 +722,8 @@ class UserPay extends Component {
           <div className="paySuccess"><Icon type="check" /></div>
           <p className="payText">支付成功</p>
           <br />
-          <p>通过{payType === 'alipay' ? `支付宝` : `微信`}向 <a>{this.renderRechargeTarget()}</a></p>
-          <p>充值金额为 <span className="success"> {amount}</span> 元，当前团队余额为 <a>{balance}</a> 元</p>
+          <p>通过{payType === 'alipay' ? `支付宝` : `微信`}向 <a>{this.renderRechargeTarget({balance: false})}</a></p>
+          <p>充值金额为 <span className="success"> {amount}</span> 元，当前帐户余额为 <a>{balance}</a> 元</p>
         </Modal>
         {/* 充值成功 end Modal */}
 

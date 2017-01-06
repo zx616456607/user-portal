@@ -254,7 +254,7 @@ let CreateDatabase = React.createClass({
       initialValue: 1
     });
     const selectStorageProps = getFieldProps('storageSelect', {
-      initialValue: 500
+      initialValue: 512
     });
     const passwdProps = getFieldProps('password', {
       rules: [
@@ -353,7 +353,7 @@ let CreateDatabase = React.createClass({
               </div>
               <div className='inputBox'>
                 <FormItem  style={{ width: '80px', float: 'left' }}>
-                  <InputNumber {...selectStorageProps}  defaultValue={500} min={500} step={20} max={10240} size='large' disabled={isFetching}/>
+                  <InputNumber {...selectStorageProps}  defaultValue={512} min={512} step={512} max={20480} size='large' disabled={isFetching}/>
                 </FormItem>
                 <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>M</span>
               </div>
