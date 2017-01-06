@@ -78,7 +78,9 @@ class UpgradeModal extends Component {
     let { visible, currentType } = this.props;
     currentType = this.switchType(currentType)
     return (
-      <Modal className='upgradeModalBox'
+      <Modal
+        wrapClassName='wrapUpgradeModalBox'
+        className='upgradeModalBox'
         onCancel={this.handleCancel}
         visible={visible}
         width={620}
