@@ -286,12 +286,12 @@ let Login = React.createClass({
         { validator: this.checkPass },
       ],
     })
-    const codeProps = getFieldProps('code', {
+    /*const codeProps = getFieldProps('code', {
       rules: [
         { required: false, message: '请填写邀请码' },
         { validator: this.checkCode },
       ],
-    })
+    })*/
     const captchaProps = getFieldProps('captcha', {
       rules: [
         { required: true, message: '请填写验证码' },
@@ -357,7 +357,7 @@ let Login = React.createClass({
                   />
               </FormItem>
 
-              <FormItem
+              {/*<FormItem
                 {...formItemLayout}
                 hasFeedback
                 className="formItemName"
@@ -372,7 +372,7 @@ let Login = React.createClass({
                   ref="intCode"
                   style={{ height: 35 }}
                   />
-              </FormItem>
+              </FormItem>*/}
 
               <FormItem
                 {...formItemLayout}
