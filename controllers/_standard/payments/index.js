@@ -15,7 +15,7 @@
 const apiFactory = require('../../../services/api_factory')
 const emailUtils = require('../../../utils/email')
 const logger = require('../../../utils/logger').getLogger('payments')
-const stdConfigs = require('../../../configs/_standard')
+const configs = require('../../../configs')
 const AMOUNT_CONVERSION = require('../../../constants').AMOUNT_CONVERSION
 
 exports.getOrderStatusFromSession = function* () {
@@ -65,6 +65,6 @@ exports.sendPaySuccessEmail = function (email, type, amount, order) {
   let balance = order.new_balance
   amount = parseInt(amount) / AMOUNT_CONVERSION
   balance = parseInt(balance) / AMOUNT_CONVERSION
-  const payHistoryUrl = `${stdConfigs.host}/account/cost#payments`
-  emailUtils.sendChargeSuccessEmail(email, type, amount, balance, payHistoryUrl, order.team_name)
+  const payHistoryUrl = `${configs.url}/account/cost#payments`
+  return emailUtils.sendChargeSuccessEmail(email, type, amount, balance, payHistoryUrl, order.team_name)
 }

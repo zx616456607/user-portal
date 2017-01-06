@@ -18,6 +18,7 @@ const config = {
   protocol: env.DASHBOARD_PROTOCOL || 'http',
   hostname: env.DASHBOARD_HOST || '0.0.0.0',
   port: env.DASHBOARD_PORT || 8003,
+  url: env.USERPORTAL_URL || 'https://portal.tenxcloud.com', // USERPORTAL_URL env is only useful in production environments
   intl_cookie_name: 'intl_locale',
   session_key: 'tce',
   session_secret: ['tenxcloud_dashboard', 'secret_dream008'],
@@ -41,12 +42,26 @@ const config = {
     },
     service_mail: "service@tenxcloud.com"
   },
+  // sendcloud 邮箱配置
+  sendcloud: {
+    apiUser: env.SENDCLOUD_API_USER,
+    apiKey: env.SENDCLOUD_API_KEY,
+    from: env.SENDCLOUD_FROM,
+    fromname: env.SENDCLOUD_FROM_NAME,
+    apiUserBatch: env.SENDCLOUD_API_USER_BATCH
+  },
   session_store: env.USERPORTAL_REDIS_SESSION_STORE || 'true',
   redis: {
     host: env.USERPORTAL_REDIS_HOST || '192.168.1.87',
     port: env.USERPORTAL_REDIS_PORT || 6380,
     password: env.USERPORTAL_REDIS_PWD || '',
   }
+}
+const node_env = config.node_env
+if (node_env === 'staging') {
+  config.url = 'http://v2-api.tenxcloud.com'
+} else if (node_env === 'development') {
+  config.url = `http://localhost:${config.port}`
 }
 
 module.exports = config
