@@ -9,7 +9,7 @@
  */
 import React, { Component } from 'react'
 import { Tabs, Button, Form, Input, Card, Tooltip, message, Alert, Col, Row  } from 'antd'
-import { USERNAME_REG_EXP, EMAIL_REG_EXP, PHONE_REGEX } from '../../constants'
+import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP, PHONE_REGEX } from '../../constants'
 import { connect } from 'react-redux'
 import { registerUser, sendRegisterPhoneCaptcha } from '../../actions/user'
 import { browserHistory } from 'react-router'
@@ -50,9 +50,9 @@ let Person = React.createClass({
         return
       }
       if (!values.password || !values.captcha ||
-        !USERNAME_REG_EXP.test(values.userName) || !PHONE_REGEX.test(values.tel) ||
+        !USERNAME_REG_EXP_NEW.test(values.userName) || !PHONE_REGEX.test(values.tel) ||
         !EMAIL_REG_EXP.test(values.email)) {
-        retrun
+        return
       }
       this.setState({
         submitting: true,
@@ -122,12 +122,16 @@ let Person = React.createClass({
 */
   //用户名验证
   checkUserName(rule, value, callback) {
-    if (!value || value.length < 3) {
-      callback()
+    if (!value) {
+      callback([new Error('请填写用户名')])
       return
     }
-    if (!USERNAME_REG_EXP.test(value)) {
-      callback([new Error('用户名填写错误')])
+    if (value.length < 5 || value.length > 40) {
+      callback([new Error('长度为5~40个字符')])
+      return
+    }
+    if (!USERNAME_REG_EXP_NEW.test(value)) {
+      callback([new Error('以[a~z]开头，允许[0~9]、[-]，长度5~40个字符')])
       return
     }
     callback()
@@ -147,7 +151,15 @@ let Person = React.createClass({
   //密码验证
   checkPass(rule, value, callback) {
     if (!value) {
-      callback()
+      callback([new Error('请填写密码')])
+      return
+    }
+    if (value.length < 6 || value.length > 16) {
+      callback([new Error('长度为6~16个字符')])
+      return
+    }
+    if (/^[^0-9]+$/.test(value) || /^[^a-zA-Z]+$/.test(value)) {
+      callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
       return
     }
     callback()
@@ -339,7 +351,6 @@ let Person = React.createClass({
     //用户名规则
     const userNameProps = getFieldProps('userName', {
       rules: [
-        { required: true, min: 3, message: '用户名至少为 3 个字符' },
         { validator: this.checkUserName },
       ],
     })
@@ -353,7 +364,6 @@ let Person = React.createClass({
     //密码规则
     const passwdProps = getFieldProps('password', {
       rules: [
-        { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
       ],
     })
@@ -438,7 +448,7 @@ let Person = React.createClass({
                 hasFeedback
                 className="formItemName"
               >
-                <div className={this.state.intTelFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>手机号</div>
+                <div className={this.state.intTelFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'tel')}>手机号</div>
                 <Input {...telProps} autoComplete="off"
                        onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                        onBlur={this.intOnBlur.bind(this, 'tel')}

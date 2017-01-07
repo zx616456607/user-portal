@@ -12,7 +12,7 @@
 
 import React from 'react'
 import { Input, Modal, Form, Checkbox, Tooltip, Icon, Button, } from 'antd'
-import { USERNAME_REG_EXP, ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
+import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -30,8 +30,12 @@ let CreateUserModal = React.createClass({
       return
     }
     const { checkUserName } = this.props.funcs
-    if (!USERNAME_REG_EXP.test(value)) {
-      callback([new Error('抱歉，用户名不合法。')])
+    if (value.length < 5 || value.length > 40) {
+      callback([new Error('长度为5~40个字符')])
+      return
+    }
+    if (!USERNAME_REG_EXP_NEW.test(value)) {
+      callback([new Error('以[a~z]开头，允许[0~9]、[-]，长度5~40个字符')])
       return
     }
     // Disabled submit button when checkUserName
@@ -65,11 +69,19 @@ let CreateUserModal = React.createClass({
     }, ASYNC_VALIDATOR_TIMEOUT);
   },
   checkPass(rule, value, callback) {
-    if (value.length < 3 || value.length > 45) {
-      callback([new Error('密码长度为3 ~ 45')])
+    const { validateFields } = this.props.form
+    if (!value) {
+      callback([new Error('请填写密码')])
       return
     }
-    const { validateFields } = this.props.form;
+    if (value.length < 6 || value.length > 16) {
+      callback([new Error('长度为6~16个字符')])
+      return
+    }
+    if (/^[^0-9]+$/.test(value) || /^[^a-zA-Z]+$/.test(value)) {
+      callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
+      return
+    }
     if (value) {
       validateFields(['rePasswd'], { force: true });
     }
@@ -157,7 +169,6 @@ let CreateUserModal = React.createClass({
     })
     const passwdProps = getFieldProps('passwd', {
       rules: [
-        { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
       ],
     })
