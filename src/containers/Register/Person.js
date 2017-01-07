@@ -351,7 +351,6 @@ let Person = React.createClass({
     //用户名规则
     const userNameProps = getFieldProps('userName', {
       rules: [
-        { required: true, min: 3, message: '用户名至少为 3 个字符' },
         { validator: this.checkUserName },
       ],
     })
