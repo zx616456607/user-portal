@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Icon, Spin } from 'antd'
+import { Form, Select, Input, InputNumber, Modal, Tooltip, Checkbox, Button, Card, Menu, Switch, Icon, Spin } from 'antd'
 import { connect } from 'react-redux'
 import filter from 'lodash/filter'
 import { DEFAULT_REGISTRY, ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
@@ -151,7 +151,7 @@ let MyComponent = React.createClass({
     }
     const message = volNameCheck(this.state.name)
     if(message !== 'success'){
-      notification.error(message) 
+      notification.error(message)
       return
     }
     notification.spin('存储卷创建中...')
@@ -743,7 +743,7 @@ let NormalDeployBox = React.createClass({
               <div style={{ clear: "both" }}></div>
             </div>
             <div className="stateService">
-              <span className="commonSpan">服务类型</span>
+              <span className="commonSpan">服务类型 <a href="http://docs.tenxcloud.com/faq#3-you-zhuang-tai-fu-wu-yu-wu-zhuang-tai-fu-wu-de-qu-bie" target="_blank"><Tooltip title="若需数据持久化，请使用有状态服务"><Icon type="question-circle-o" /></Tooltip></a></span>
               <Switch className="changeBtn" disabled={switchDisable}
                 {...getFieldProps('volumeSwitch', {
                   valuePropName: 'checked',
