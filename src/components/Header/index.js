@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Menu, Dropdown, Select, Input, Form } from 'antd'
+import { Menu, Dropdown, Select, Input, Form, Icon } from 'antd'
 import { FormattedMessage, defineMessages } from 'react-intl'
 import "./style/header.less"
 import querystring from 'querystring'
@@ -270,10 +270,13 @@ class Header extends Component {
         </div>
         <div className="rightBox">
         {
-          migrated === 1 ?
+          migrated === 0 ?
           <div className='backVersion'>
             <a href='https://console.tenxcloud.com' target='_blank'>
-              <img src='/img/newVersionBtn.png'/>
+              <span className='backIcon'>
+                <Icon type="double-right"/>
+              </span>
+              <span className='backText'>返回旧版</span>
             </a>
           </div> :
           <div></div>

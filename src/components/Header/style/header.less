@@ -82,16 +82,34 @@
     margin-right: 20px;
     .backVersion {
       float: left;
+      height: 30px;
+      line-height: 30px;
+      width: 130px;
       margin: 0 5px;
       cursor: pointer;
       border-radius: 3px;
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
+      overflow: hidden;
       a {
         display: inline-block;
         width: 100%;
         height: 100%;
-        padding: 0 15px;
-        img {
-          vertical-align: middle;
+        .backIcon {
+          display: inline-block;
+          height: 100%;
+          width: 30px;
+          background-color: #03bf99;
+          text-align: center;
+          color: #fff;
+        }
+        .backText {
+          display: inline-block;
+          width: 100px;
+          color: #fff;
+          text-align: center;
+          background-color: #00cc99;
         }
       }
     }
