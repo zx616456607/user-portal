@@ -55,6 +55,10 @@ const config = {
     host: env.USERPORTAL_REDIS_HOST || '192.168.1.87',
     port: env.USERPORTAL_REDIS_PORT || 6380,
     password: env.USERPORTAL_REDIS_PWD || '',
+  },
+  tenxSysSign: {
+    key: 'SYSTEM_CALL_SIGNATURE',
+    value: env.SYSTEM_CALL_SIGNATURE|| '8e059c94-f760-4f85-8910-f94c27cf0ff5'
   }
 }
 const node_env = config.node_env

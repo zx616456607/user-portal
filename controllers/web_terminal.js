@@ -4,7 +4,6 @@ const https = require('https')
 const os = require('os')
 const urllib = require('urllib')
 const config = require('../configs')
-const tenxKey = require('../configs/_standard/index')
 
 //var wsUrl = "wss://kubelet:kubelet@" + data['host'] + ":" + data['port'] + "/api/v1/namespaces/" + data['namespace'] + "/pods/" + data['pod'] + "/exec?stdout=1&stdin=1&stderr=1&tty=1&command=%2Fbin%2Fsh&command=-i";
 module.exports = function (server, redis) {
@@ -20,7 +19,7 @@ module.exports = function (server, redis) {
     const apiPath = `/spi/v2/clusters/${cluster}/access`
     urllib.request(config.tenx_api.protocol + '://' + config.tenx_api.host + apiPath, {
       headers: {
-        [tenxKey.tenxSysSign.key]: tenxKey.tenxSysSign.value
+        [config.tenxSysSign.key]: config.tenxSysSign.value
       }
     }).then(result => {
       let clusterInfo = JSON.parse(result.data.toString())
