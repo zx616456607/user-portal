@@ -195,7 +195,7 @@ let PasswordRow = React.createClass({
     const parentScope = this.props.scope
     return (
       <Form horizontal form={this.props.form}>
-        <span className="key">密码</span>
+        <span className="key" style={{float: 'left'}}>密码</span>
         <div className="editList" style={{ width: '400px' }}>
           <Row>
             <Col span="12">

@@ -121,7 +121,7 @@ class Indivduals extends Component {
       }
       if (this.props.config.userScanPic != userScan.url) {
         this.setState({
-          userScanPic
+          userScan
         })
       }
     }
@@ -508,11 +508,11 @@ class Enterprise extends Component {
   }
 }
 
-function mapStateToProps(state, props) {
-  return {}
+function enterpriseMapStateToProps(state, props) {
+  return props
 }
 
-Enterprise =  connect(mapStateToProps, {
+Enterprise =  connect(enterpriseMapStateToProps, {
   getQiNiuToken
 })(Enterprise)
 
