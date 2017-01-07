@@ -144,6 +144,7 @@ class RechargeRecord extends Component {
       if (!Array.isArray(chargeRecord.items)) {
         return []
       }
+      console.log('chargeRecord',chargeRecord)
       let items = JSON.parse(JSON.stringify(chargeRecord.items))
       if (standard) {
         items.map(function (item) {
@@ -249,9 +250,6 @@ class RechargeRecord extends Component {
         },
       ]
     }
-    let rechargecolumns = [
-
-    ]
     let alertMessage = (
       <div style={{ color: '#137bb8', lineHeight: '28px', }}>
         <Icon type="smile" style={{ marginRight: 10 }} /> 温馨提示: <br />

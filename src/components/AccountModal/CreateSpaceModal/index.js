@@ -12,7 +12,7 @@
 
 import React from 'react'
 import { Input, Modal, Form, Button, } from 'antd'
-import { USERNAME_REG_EXP } from '../../../constants'
+import { USERNAME_REG_EXP_NEW } from '../../../constants'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -31,7 +31,7 @@ let CreateSpaceModal = React.createClass({
     }
     const { teamID, funcs } = this.props
     const { checkTeamSpaceName } = funcs
-    if (!USERNAME_REG_EXP.test(value)) {
+    if (!USERNAME_REG_EXP_NEW.test(value)) {
       callback([new Error('抱歉，空间名不合法。')])
       return
     }
