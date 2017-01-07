@@ -122,7 +122,6 @@ let CommitReset = React.createClass({
         },
         failed: {
           func: (err) => {
-            console.log('err',err)
             self.setState({
               submitting: false,
               resetSuccess: false,
