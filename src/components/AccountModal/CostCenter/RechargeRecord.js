@@ -163,7 +163,7 @@ class RechargeRecord extends Component {
               item.orderType = '线下汇款'
               break
             case 103:
-              item.orderType = '解散'+item.detail+'团队的退款'
+              item.orderType = '解散"'+item.detail+'"团队的退款'
               break
             default:
               item.orderType = '-'
