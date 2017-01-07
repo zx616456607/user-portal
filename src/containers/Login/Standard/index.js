@@ -432,7 +432,7 @@ let Login = React.createClass({
           </Card>
         </div>
         <div className="footer">
-          © 2017 时速云 公有云
+          © 2017 时速云 京ICP备14045471号
         </div>
       </div>
     )
