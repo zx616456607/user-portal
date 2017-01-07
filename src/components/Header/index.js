@@ -270,7 +270,7 @@ class Header extends Component {
         </div>
         <div className="rightBox">
         {
-          migrated === 0 ?
+          migrated === 1 ?
           <div className='backVersion'>
             <a href='https://console.tenxcloud.com' target='_blank'>
               <span className='backIcon'>
