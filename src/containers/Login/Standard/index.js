@@ -312,7 +312,7 @@ let Login = React.createClass({
         <Top/>
         <div className="login">
           <Row style={{ textAlign: 'center' }}>
-            <a href='https://www.tenxcloud.com/' target='_blank' className='logoLink'>
+            <a className='logoLink'>
               {/*<img src="/img/sider/LogInLogo.svg" alt="logo" className="logo" />*/}
               {/*<img src={LogInLogo} alt="logo" className="logo" />*/}
 
