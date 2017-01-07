@@ -79,20 +79,21 @@ let AppDeployServiceModal = React.createClass({
   },
   getUsefulType(livenessProbe, form) {
     if (livenessProbe) {
-      form.setFieldsValue({
-        liveInitialDelaySeconds: livenessProbe.initialDelaySeconds,
-        liveTimeoutSeconds: livenessProbe.timeoutSeconds,
-        livePeriodSeconds: livenessProbe.periodSeconds,
-      })
       if (livenessProbe.httpGet) {
         form.setFieldsValue({
-          livePort: livenessProbe.httpGet.port,
-          livePath: livenessProbe.httpGet.path,
+          httpLivePort: livenessProbe.httpGet.port,
+          httpLivePath: livenessProbe.httpGet.path,
+          httpLiveInitialDelaySeconds: livenessProbe.initialDelaySeconds,
+          httpLiveTimeoutSeconds: livenessProbe.timeoutSeconds,
+          httpLivePeriodSeconds: livenessProbe.periodSeconds
         })
         return 'http'
       } else if (livenessProbe.tcpSocket) {
         form.setFieldsValue({
-          livePort: livenessProbe.tcpSocket.port,
+          tcpLivePort: livenessProbe.tcpSocket.port,
+          tcpLiveInitialDelaySeconds: livenessProbe.initialDelaySeconds,
+          tcpLiveTimeoutSeconds: livenessProbe.timeoutSeconds,
+          tcpLivePeriodSeconds: livenessProbe.periodSeconds
         })
         return 'tcp'
       }
@@ -314,11 +315,16 @@ let AppDeployServiceModal = React.createClass({
     let imageVersion = getFieldProps('imageVersion').value    //镜像版本
     let volumeSwitch = getFieldProps('volumeSwitch').value //服务类型
 
-    let livePort = getFieldProps('livePort').value   //高可用端口
-    let liveInitialDelaySeconds = getFieldProps('liveInitialDelaySeconds').value //首次延时
-    let liveTimeoutSeconds = getFieldProps('liveTimeoutSeconds').value //检查超时
-    let livePeriodSeconds = getFieldProps('livePeriodSeconds').value //检查间隔
-    let livePath = getFieldProps('livePath').value //高可用路径
+    let httpLivePort = getFieldProps('httpLivePort').value   //高可用端口
+    let httpLiveInitialDelaySeconds = getFieldProps('httpLiveInitialDelaySeconds').value //首次延时
+    let httpLiveTimeoutSeconds = getFieldProps('httpLiveTimeoutSeconds').value //检查超时
+    let httpLivePeriodSeconds = getFieldProps('httpLivePeriodSeconds').value //检查间隔
+    let httpLivePath = getFieldProps('httpLivePath').value //高可用路径  
+    let tcpLivePort = getFieldProps('tcpLivePort').value   //高可用端口
+    let tcpLiveInitialDelaySeconds = getFieldProps('tcpLiveInitialDelaySeconds').value //首次延时
+    let tcpLiveTimeoutSeconds = getFieldProps('tcpLiveTimeoutSeconds').value //检查超时
+    let tcpLivePeriodSeconds = getFieldProps('tcpLivePeriodSeconds').value //检查间隔
+    
     let command = getFieldProps('entryInput').value // 入口命令
     let args = getFieldProps('args').value //启动命令参数
     //let config = getFileProps('config').value
@@ -579,13 +585,24 @@ let AppDeployServiceModal = React.createClass({
     }
     //livenessProbe 高可用
     if ((getFieldValue('getUsefulType') !== 'null') && (getFieldValue('getUsefulType'))) {
-      deploymentList.setLivenessProbe(serviceName, getFieldValue('getUsefulType').toUpperCase(), {
-        port: parseInt(livePort),
-        path: livePath,
-        initialDelaySeconds: parseInt(liveInitialDelaySeconds),
-        timeoutSeconds: parseInt(liveTimeoutSeconds),
-        periodSeconds: parseInt(livePeriodSeconds)
-      })
+      if(getFieldValue('getUsefulType') == 'http') {        
+        deploymentList.setLivenessProbe(serviceName, getFieldValue('getUsefulType').toUpperCase(), {
+          port: parseInt(httpLivePort),
+          path: httpLivePath,
+          initialDelaySeconds: parseInt(httpLiveInitialDelaySeconds),
+          timeoutSeconds: parseInt(httpLiveTimeoutSeconds),
+          periodSeconds: parseInt(httpLivePeriodSeconds)
+        })
+      } else {
+        //tcp
+        deploymentList.setLivenessProbe(serviceName, getFieldValue('getUsefulType').toUpperCase(), {
+          port: parseInt(tcpLivePort),
+          path: httpLivePath,
+          initialDelaySeconds: parseInt(tcpLiveInitialDelaySeconds),
+          timeoutSeconds: parseInt(tcpLiveTimeoutSeconds),
+          periodSeconds: parseInt(tcpLivePeriodSeconds)
+        })
+      }
     }
 
     /*Service*/

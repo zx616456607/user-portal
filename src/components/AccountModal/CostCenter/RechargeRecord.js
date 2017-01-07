@@ -163,7 +163,7 @@ class RechargeRecord extends Component {
               item.orderType = '线下汇款'
               break
             case 103:
-              item.orderType = '解散团队的退款'
+              item.orderType = '解散"'+item.detail+'"团队的退款'
               break
             default:
               item.orderType = '-'
@@ -249,9 +249,6 @@ class RechargeRecord extends Component {
         },
       ]
     }
-    let rechargecolumns = [
-
-    ]
     let alertMessage = (
       <div style={{ color: '#137bb8', lineHeight: '28px', }}>
         <Icon type="smile" style={{ marginRight: 10 }} /> 温馨提示: <br />

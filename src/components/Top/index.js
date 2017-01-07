@@ -24,7 +24,7 @@ export default class Top extends Component {
   	  <div id='Top'>
   	  	<div className='topWrap'>
   	  	  <div className='topLogo'>
-            <a href='https://www.tenxcloud.com' target='_blank'>
+            <a href='/'>
               <img src="/img/TopLogo.svg" alt="logo" className="logo" />
             </a>
           </div>
@@ -33,17 +33,20 @@ export default class Top extends Component {
               <a href='https://www.tenxcloud.com' target='_blank'>官网首页</a>
             </div>
   	  	    <div className='navItem'>
-              <a href='http://docs.tenxcloud.com' target='_blank'>文档中心</a>
+              <a href='http://docs.tenxcloud.com' target='_blank'>文档帮助</a>
             </div>
   	  	    <div className='navItem'>
-              <a href='https://www.tenxcloud.com/aboutus.html?aboutus' target='_blank'>关于</a>
+              <a href='http://open.tenxcloud.com' target='_blank'>问答社区</a>
+            </div>
+            <div className='navItem'>
+              <a href='http://blog.tenxcloud.com' target='_blank'>技术博客</a>
             </div>
   	  	    <span style={{lineHeight:'25px'}}>|</span>
   	  	    <div className='log'>
   	  	      <div className='navItem' style={{marginLeft: 0}}>
                 <Link to='/login'>登录</Link>
               </div>
-  	  	      <div className='navItem'>
+  	  	      <div className='navRegister'>
                 <Link to='/register'>注册</Link>
               </div>
   	        </div>

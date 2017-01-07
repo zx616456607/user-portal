@@ -15,10 +15,6 @@ const node_env = require('../').node_env
 const port = require('../').port
 
 const config = {
-  tenxSysSign: {
-    key: 'TenxCloud-System-Signature',
-    value: '8e059c94-f760-4f85-8910-f94c27cf0ff5'
-  },
   sms: {
     host: 'https://106.ihuyi.com/webservice/sms.php',
     account: env.USERPORTAL_IHUYI_ACCOUNT || 'cf_huangqg',

@@ -9,6 +9,8 @@
  */
 'use strict'
 
+const config = require('../../../configs')
+
 exports.getAuthHeader = function (authInfo) {
   if (!authInfo) {
     return {}
@@ -29,9 +31,9 @@ exports.getAuthHeader = function (authInfo) {
     auth.teamspace = authInfo.teamspace
   }
   // TenxCloud System Signature for payment etc.
-  const tenxSysSign = authInfo['TenxCloud-System-Signature']
+  const tenxSysSign = authInfo[config.tenxSysSign.key]
   if (tenxSysSign) {
-    auth['TenxCloud-System-Signature'] = tenxSysSign
+    auth[config.tenxSysSign.key] = tenxSysSign
   }
   return auth
 }

@@ -105,8 +105,12 @@ let AppAddServiceModal = React.createClass({
   },
   componentWillMount() {
     document.title = '添加应用 | 时速云'
-    const { registry, publicFilterServer} = this.props
-    this.props.publicImages(registry, 'all')
+    const { registry, publicFilterServer, unit} = this.props
+    if (unit == '￥') {
+      this.props.publicImages(registry, 'all')
+      return
+    }
+    this.props.publicImages(registry)
   },
   searchImage(imageType) {
     const type = imageType || this.state.currentImageType
@@ -148,6 +152,20 @@ let AppAddServiceModal = React.createClass({
   filterServer(type) {
     this.setState({serverType: type})
     this.props.publicFilterServer(this.props.registry,type)
+  },
+  serverBlock() {
+    //  public cloud and public image
+    if (this.props.unit == '￥' && this.state.currentImageType == 'publicImages') {
+      return (
+      <div className="serverType">
+        <div className="serverTitle">
+          <span className={this.state.selectRepo == 'local' ? 'selected': ''} onClick={()=> this.selectRepo('local')}>官方镜像</span>
+          <span className={this.state.selectRepo == 'hub' ? 'selected': ''} onClick={()=> this.selectRepo('hub')}>镜像广场 | 时速云 </span>
+        </div>
+        {this.serverHeader()}
+      </div>  
+      )
+    }
   },
   serverHeader() {
     if (this.state.selectRepo == 'local') {
@@ -194,17 +212,7 @@ let AppAddServiceModal = React.createClass({
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
-        { this.state.currentImageType == 'publicImages' ?
-          <div className="serverType">
-            <div className="serverTitle">
-              <span className={this.state.selectRepo == 'local' ? 'selected': ''} onClick={()=> this.selectRepo('local')}>官方镜像</span>
-              <span className={this.state.selectRepo == 'hub' ? 'selected': ''} onClick={()=> this.selectRepo('hub')}>镜像广场 | 时速云 </span>
-            </div>
-            {this.serverHeader()}
-          </div>
-          :
-            null
-          }
+        { this.serverBlock() }
         <MyComponent
           scope={parentScope}
           images={images.imageList}
@@ -217,11 +225,12 @@ let AppAddServiceModal = React.createClass({
 
 function mapStateToProps(state, props) {
   const registry = DEFAULT_REGISTRY
-  const { cluster } =  state.entities.current
+  const { cluster, unit } =  state.entities.current
   return {
     registry,
     imageList: state.images,
-    cluster: cluster.clusterID
+    cluster: cluster.clusterID,
+    unit
   }
 }
 

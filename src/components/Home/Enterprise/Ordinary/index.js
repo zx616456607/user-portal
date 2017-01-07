@@ -35,9 +35,9 @@ function getClusterCostOption(costValue, restValue) {
       data:[{name:'余额'}, {name:'消费'}],
       formatter: function (name) {
         if(name === '余额'){
-          return name + '：￥' + restValue
+          return name + '：' + restValue.fullAmount
         } else {
-          return name + '：￥' + costValue
+          return name + '：' + costValue.fullAmount
         }
       },
       textStyle: {
@@ -57,8 +57,8 @@ function getClusterCostOption(costValue, restValue) {
         radius : '45%',
         center: ['30%', '50%'],
         data:[
-          {value:restValue, name:'余额'},
-          {value:costValue, name:'消费',selected:true},
+          {value:restValue.amount, name:'余额'},
+          {value:costValue.amount, name:'消费',selected:true},
         ],
         itemStyle: {
           normal: {
@@ -743,7 +743,7 @@ class Ordinary extends Component{
             <Card title="本日该集群消费" bordered={false} bodyStyle={{height:220,padding:'0 24px'}}>
               <ReactEcharts
                 notMerge={true}
-                option={getClusterCostOption(parseAmount(clusterNodeSpaceConsumption.consumption).amount, parseAmount(clusterNodeSpaceConsumption.balance).amount)}
+                option={getClusterCostOption(parseAmount(clusterNodeSpaceConsumption.consumption), parseAmount(clusterNodeSpaceConsumption.balance))}
                 style={{height:'200px'}}
                 showLoading={isFetching}
               />

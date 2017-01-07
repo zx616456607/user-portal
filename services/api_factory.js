@@ -90,8 +90,8 @@ exports.getSpi = function (loginUser) {
 // Spi with tenxSysSign in header for payment etc.
 exports.getTenxSysSignSpi = function (loginUser) {
   if (!loginUser) loginUser = {}
-  const configStd = require('../configs/_standard')
-  const tenxSysSign = configStd.tenxSysSign
+  const config = require('../configs')
+  const tenxSysSign = config.tenxSysSign
   loginUser[tenxSysSign.key] = tenxSysSign.value
   const spiConfig = {
     protocol: config.tenx_api.protocol,

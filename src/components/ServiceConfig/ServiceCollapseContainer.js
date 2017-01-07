@@ -54,7 +54,6 @@ function formatVolumeMounts(data, groupname, name) {
         for (let k = 0; k < data[i].services[j].spec.template.spec.volumes.length; k++) {
           let cm = data[i].services[j].spec.template.spec.volumes[k]
           if (cm.configMap && cm.configMap.name == groupname) {
-            volumesMap[cm.name] = cm.configMap
             for (let l = 0; l < data[i].services[j].spec.template.spec.volumes[k].configMap.items.length; l++) {
               if (data[i].services[j].spec.template.spec.volumes[k].configMap.items[l].key == name) {
                 volumesMap[cm.name] = true

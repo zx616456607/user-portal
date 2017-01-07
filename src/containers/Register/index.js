@@ -52,13 +52,10 @@ class Register extends Component{
     }
 
     return (
-      <QueueAnim component="div"
-                  type={this.state.person?['left']:['right']}
-                  ease={['easeOutQuart', 'easeInOutQuart']}
-                  key='register'>
+      <div>
         {registerPageShow ? registerPage : null}
         {registerShow ? register : null}
-      </QueueAnim>
+      </div>
     )
   }
   componentWillMount(){
@@ -68,7 +65,7 @@ class Register extends Component{
       <div key='b' id='RegisterPage'>
         <Top/>
         <div className='register registerFlex'>
-          <Card className="registerForm" bordered={false} style={{width: 440, height: `${this.state.person?521:605}`,padding: '0 24px 24px'}}>
+          <Card className="registerForm" bordered={false} style={{width: 440, height: `${this.state.person?'570px':'650px'}`,padding: '0 50px 24px'}}>
             <div className='backToPage' onClick={this.handlePageChange}>&lt;&lt;&nbsp;&nbsp;&nbsp;重选注册帐户类型</div>
             {
               this.state.person ?
@@ -83,7 +80,7 @@ class Register extends Component{
       <div key='a' id='RegisterPage'>
         <Top/>
         <div className='register'>
-            <Card className="registerForm" bordered={false} style={{width: 720}}>
+            <Card className="registerForm" bordered={false} style={{width: 680}}>
               <AccountType onChange={this.handlePageChange} />
               <div className="accountFooter">
                 *&nbsp;个人帐户可以升级到企业帐户，但是企业帐户不可降级为个人帐户<br/>

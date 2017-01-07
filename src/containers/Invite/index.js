@@ -50,8 +50,7 @@ let Invite = React.createClass({
   render() {
     const { loginResult } = this.state
     const { email, teamName, code, isUser, login, registerUserAndJoinTeam, invitationStatus, sendRegisterPhoneCaptcha, loginAndJointeam } = this.props
-    console.log('invitationStatus',invitationStatus)
-    console.log('isUser',isUser)
+
     return (
       <div id="InvitePage">
         <div className="Invite">
@@ -106,7 +105,7 @@ let Invite = React.createClass({
           </Card>
         </div>
         <div className="footer">
-          © 2017 时速云 公有云
+          © 2017 时速云 京ICP备14045471号
         </div>
         <Modal
         wrapClassName='cancelInvite'
@@ -134,13 +133,11 @@ function mapStateToProps(state, props) {
   let isUser = false
   let invitationStatus = 0
   if (!invitationInfo.isFetching && invitationInfo.result && invitationInfo.result.data.data) {
-    console.log('invitationInfo.result.data.data.isUser',invitationInfo.result.data.data.isUser)
     teamName = invitationInfo.result.data.data.teamName
     email = invitationInfo.result.data.data.email
     isUser = invitationInfo.result.data.data.isUser
     invitationStatus = invitationInfo.result.data.data.status
   }
-  console.log('invitationInfo',invitationInfo)
   return {
     code,
     teamName,
