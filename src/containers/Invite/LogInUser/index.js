@@ -93,10 +93,6 @@ let LogInUser = React.createClass({
       })
     })
   },
-  checkPass(rule, value, callback) {
-    const { validateFields } = this.props.form
-    callback()
-  },
   intOnBlur(current) {
     const { getFieldProps } = this.props.form
     if (current === 'pass') {
@@ -179,7 +175,6 @@ let LogInUser = React.createClass({
     const passwdProps = getFieldProps('password', {
       rules: [
         { required: true, whitespace: true, message: '请填写密码' },
-        { validator: this.checkPass },
       ],
     })
     const formItemLayout = {
