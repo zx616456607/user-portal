@@ -13,6 +13,7 @@ import './style/Information.less'
 import { connect } from 'react-redux'
 import { updateUser } from '../../../actions/user'
 import { parseAmount } from '../../../common/tools'
+import NotificationHandler from '../../../common/notification_handler'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -43,7 +44,8 @@ let ResetPassWord = React.createClass({
   handleSubmit(e) {
     const { userID, userDetail } = this.props
     e.preventDefault();
-    console.log(userID)
+    const noti = new NotificationHandler()
+    noti.spin('修改密码中')
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         return;
@@ -54,6 +56,8 @@ let ResetPassWord = React.createClass({
         }, {
           success: {
             func: () => {
+              noti.close()
+              noti.success('密码修改成功')
               this.props.form.resetFields()
               this.props.onChange()
             }
@@ -67,9 +71,6 @@ let ResetPassWord = React.createClass({
       callback('密码长度应为6~16位')
       return
     }
-    // if (value) {
-    //   validateFields(['rePasswd'], { force: true });
-    // }
     if(/^[0-9]*$/.test(value) || /^[a-zA-z]*$/.test(value)) {
       callback('密码不能为纯数字或字母');
       return
