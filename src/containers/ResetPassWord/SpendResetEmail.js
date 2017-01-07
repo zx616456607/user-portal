@@ -98,10 +98,6 @@ let SpendResetEmail = React.createClass({
               spendEmail: true,
             })
             message.error('发送失败,请点击重新发送')
-            notification.open({
-              message: '这是标题',
-              description: '这是提示框的文案这是提示框的文案这是提示框的文案这是提示框的文案这是提示框的文案这是提示框的文案这是提示框的文案',
-            });
           },
           isAsync: true
         }

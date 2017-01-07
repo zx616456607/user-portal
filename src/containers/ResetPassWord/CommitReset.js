@@ -173,7 +173,7 @@ let CommitReset = React.createClass({
       }],
     })
     return (
-      this.state.resetSuccess ?
+      !this.state.resetSuccess ?
         <div className='resetSuccess'>
           <div className='resetSucImg'>
             <img src={homeNoWarnPNG} />
@@ -188,7 +188,7 @@ let CommitReset = React.createClass({
           </div>
         </div> :
         <div>
-          <div className='resetTitle'>
+          {/*<div className='resetTitle'>
             重置密码
           </div>
           <div className='resetForm' style={{marginTop:20, minWidth: 300}}>
@@ -245,7 +245,7 @@ let CommitReset = React.createClass({
                 </Button>
               </FormItem>
             </Form>
-          </div>
+          </div>*/}
         </div>
     )
   }
