@@ -43,6 +43,7 @@ let ResetPassWord = React.createClass({
   handleSubmit(e) {
     const { userID, userDetail } = this.props
     e.preventDefault();
+    console.log(userID)
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         return;
@@ -62,19 +63,26 @@ let ResetPassWord = React.createClass({
   },
   checkPass(rule, value, callback) {
     const { validateFields } = this.props.form;
-    if (value) {
-      validateFields(['rePasswd'], { force: true });
+    if(!value || value.length < 7 || value.length > 17) {
+      callback('密码长度应为6~16位')
+      return
     }
-    callback();
+    // if (value) {
+    //   validateFields(['rePasswd'], { force: true });
+    // }
+    if(/^[0-9]*$/.test(value) || /^[a-zA-z]*$/.test(value)) {
+      callback('密码不能为纯数字或字母');
+      return
+    }
+    return callback()
   },
-
   checkPass2(rule, value, callback) {
     const { getFieldValue } = this.props.form;
     if (value && value !== getFieldValue('passwd')) {
       callback('两次输入密码不一致！');
-    } else {
-      callback();
+      return
     }
+    return callback()
   },
   componentDidMount(){
     this.refs.intPass.refs.input.focus()
