@@ -143,14 +143,6 @@ let Login = React.createClass({
       callback([new Error('请填写密码')])
       return
     }
-    if (value.length < 6 || value.length > 16) {
-      callback([new Error('长度为6~16个字符')])
-      return
-    }
-    if (/^[^0-9]+$/.test(value) || /^[^a-zA-Z]+$/.test(value)) {
-      callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
-      return
-    }
     callback()
   },
   /*checkCode(rule, value, callback) {
