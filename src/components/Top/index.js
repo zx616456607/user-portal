@@ -43,7 +43,7 @@ export default class Top extends Component {
   	  	      <div className='navItem' style={{marginLeft: 0}}>
                 <Link to='/login'>登录</Link>
               </div>
-  	  	      <div className='navItem'>
+  	  	      <div className='navRegister'>
                 <Link to='/register'>注册</Link>
               </div>
   	        </div>
