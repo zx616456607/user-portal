@@ -190,7 +190,8 @@ let SpendResetEmail = React.createClass({
   	                邮箱
   	              </div>
   	              
-  	              <Input {...emailProps} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'email')}
+  	              <Input {...emailProps} autoComplete="off"
+                         onBlur={this.intOnBlur.bind(this, 'email')}
   	                     onFocus={this.intOnFocus.bind(this, 'email')}
   	                     ref="intEmail"
   	                     style={{ height: 35 }} />
