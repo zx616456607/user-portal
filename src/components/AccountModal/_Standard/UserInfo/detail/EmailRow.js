@@ -109,7 +109,7 @@ let EmailRow = React.createClass({
     })
     return (
       <Form horizontal form={this.props.form}>
-        <span className="key">邮箱</span>
+        <span className="key" style={{float: 'left'}}>邮箱</span>
         <div className="editList">
           <FormItem>
             <Input type="password" size="large" {...emailPassword} placeholder="当前帐户密码" />
