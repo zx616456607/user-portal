@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Button, Form, Input, message } from 'antd'
+import { Button, Form, Input, message,notification } from 'antd'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { resetPassword } from '../../actions/user'
@@ -30,6 +30,7 @@ let CommitReset = React.createClass({
       rePassWord: false,
       intRePassFocus: false,
       resetSuccess: false,
+      btnState: false,
     }
   },
 
@@ -114,6 +115,7 @@ let CommitReset = React.createClass({
             self.setState({
               submitting: false,
               resetSuccess: true,
+              btnState: false,
             })
           },
           isAsync: true
@@ -123,24 +125,36 @@ let CommitReset = React.createClass({
             self.setState({
               submitting: false,
               resetSuccess: false,
+              btnState: true,
             })
             message.error('重置失败')
+            
           }
         }
       })
     })
   },
+  renderBtnText (submitting) {
+    if (submitting) {
+      return (
+        <span>重置中. . .</span>
+      )
+    }
+    return (
+        <span>重置</span>
+    )
+  },
   componentWillMount() {
     const { resetFields } = this.props.form
     resetFields()
   },
-
+  
   render(){
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form
-    const { submitting, spendEmail } = this.state
+    const { submitting, spendEmail, btnState } = this.state
     const { email } = this.props
     const passwdProps = getFieldProps('password', {
       rules: [
@@ -158,7 +172,7 @@ let CommitReset = React.createClass({
       }],
     })
     return (
-      this.state.resetSuccess ?
+      !this.state.resetSuccess ?
         <div className='resetSuccess'>
           <div className='resetSucImg'>
             <img src={homeNoWarnPNG} />
@@ -173,7 +187,7 @@ let CommitReset = React.createClass({
           </div>
         </div> :
         <div>
-          <div className='resetTitle'>
+          {/*<div className='resetTitle'>
             重置密码
           </div>
           <div className='resetForm' style={{marginTop:20, minWidth: 300}}>
@@ -222,12 +236,15 @@ let CommitReset = React.createClass({
                   loading={submitting}
                   className="subBtn"
                   style={{marginBottom: 20}}
+                  disabled={btnState}
                 >
-                  {submitting ? '重置中...' : '重置密码'}
+                  {
+                    this.renderBtnText(submitting)
+                  }
                 </Button>
               </FormItem>
             </Form>
-          </div>
+          </div>*/}
         </div>
     )
   }

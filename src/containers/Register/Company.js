@@ -479,7 +479,7 @@ let Company = React.createClass({
             hasFeedback
             className="formItemName"
           >
-            <div className={this.state.intTelFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>手机号</div>
+            <div className={this.state.intTelFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'tel')}>手机号</div>
             <Input {...telProps} autoComplete="off"
                    onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                    onBlur={this.intOnBlur.bind(this, 'tel')}
