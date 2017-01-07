@@ -119,7 +119,6 @@ let SpendResetEmail = React.createClass({
   //
   renderGetEmail () {
     const { toEmail } = this.state
-    console.log('toEmail',toEmail)
     if (toEmail === '' || !toEmail) {
       return (
         <span>
@@ -146,7 +145,6 @@ let SpendResetEmail = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form
     const { submitting, spendEmail } = this.state
     let email = this.props.email || getFieldValue('email')
-    console.log('email',email)
     //邮箱验证规则
     const emailProps = getFieldProps('email', {
       rules: [

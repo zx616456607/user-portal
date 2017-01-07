@@ -34,7 +34,7 @@ let CreateTeamModal = React.createClass({
     }
     const { checkTeamName } = this.props.funcs
     if (!USERNAME_REG_EXP_NEW.test(value)) {
-      callback(new Error('以小写字母开头，且由小写字母和数字组成，长度为5-40个字符'))
+      callback(new Error('以[a~z]开头，允许[0~9]、[-]，长度5~40个字符'))
       return
     }
     

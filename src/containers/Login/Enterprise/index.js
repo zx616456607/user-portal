@@ -111,14 +111,6 @@ let Login = React.createClass({
       callback()
       return
     }
-    if (value.length < 5 || value.length > 40) {
-      callback([new Error('长度为5~40个字符')])
-      return
-    }
-    if (!USERNAME_REG_EXP_NEW.test(value)) {
-      callback([new Error('以[a~z]开头，允许[0~9]、[-]，长度5~40个字符')])
-      return
-    }
     callback()
   },
 
@@ -206,7 +198,6 @@ let Login = React.createClass({
   intOnFocus(current) {
     if (current === 'name') {
       this.refs.intName.refs.input.focus()
-      console.log('onfocus')
       this.setState({
         intNameFocus: true
       })
@@ -232,10 +223,6 @@ let Login = React.createClass({
 
   componentDidMount() {
     ReactDom.findDOMNode(this.refs.intName.refs.input).focus()
-  },
-
-  onChange(e) {
-    console.log('e', e)
   },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form

@@ -127,14 +127,6 @@ let Login = React.createClass({
       callback()
       return
     }
-    if (value.length < 5 || value.length > 40) {
-      callback([new Error('长度为5~40个字符')])
-      return
-    }
-    if (!USERNAME_REG_EXP_NEW.test(value)) {
-      callback([new Error('以[a~z]开头，允许[0~9]、[-]，长度5~40个字符')])
-      return
-    }
     callback()
   },
 

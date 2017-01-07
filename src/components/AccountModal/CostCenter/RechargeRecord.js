@@ -144,7 +144,6 @@ class RechargeRecord extends Component {
       if (!Array.isArray(chargeRecord.items)) {
         return []
       }
-      console.log('chargeRecord',chargeRecord)
       let items = JSON.parse(JSON.stringify(chargeRecord.items))
       if (standard) {
         items.map(function (item) {

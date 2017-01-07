@@ -141,9 +141,6 @@ let NotLogUser = React.createClass({
       callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
       return
     }
-    if (value) {
-      validateFields(['rePasswd'], { force: true });
-    }
     callback()
   },
   checkPass2(rule, value, callback) {

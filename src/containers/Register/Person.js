@@ -365,7 +365,6 @@ let Person = React.createClass({
     //密码规则
     const passwdProps = getFieldProps('password', {
       rules: [
-        { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
       ],
     })
