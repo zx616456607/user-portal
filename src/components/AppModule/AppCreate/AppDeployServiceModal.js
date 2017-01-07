@@ -505,7 +505,6 @@ let AppDeployServiceModal = React.createClass({
       const args = getFieldValue('cmdKey').map(i => {
         return getFieldValue(`cmd${i}`)
       })
-      console.log(args)
       deploymentList.addContainerArgs(serviceName, args)
     } else {
       const args = getFieldValue('userCMDKey').map(i => {
@@ -702,7 +701,7 @@ let AppDeployServiceModal = React.createClass({
             />
           <Collapse>
             <Panel header={assitBoxTitle} key="1" className="assitBigBox">
-              <AssitDeployBox scope={scope} form={form} currentSelectedImage={currentSelectedImage} other={other} isCreate={isCreate} registryServer={registryServer}/>
+              <AssitDeployBox scope={scope} form={form}/>
             </Panel>
             <Panel header={usefulBoxitle} key="2" className="usefulBigBox">
               <UsefulDeployBox scope={scope} form={form} />
