@@ -129,8 +129,8 @@ let MyComponent = React.createClass({
     return {
       visible: false,
       modalTitle: '',
-      modalSize: 500,
-      size: 500
+      modalSize: 512,
+      size: 512
     };
   },
   propTypes: {
@@ -351,19 +351,19 @@ let MyComponent = React.createClass({
             <Row style={{ height: '40px' }}>
               <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{formatMessage(messages.size)}</Col>
               <Col span="12">
-                <Slider min={this.state.modalSize} max={10240} step={20} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
+                <Slider min={this.state.modalSize} max={20480} step={512} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
               <Col span="8">
-                <InputNumber min={this.state.modalSize} max={10240} step={20} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
+                <InputNumber min={this.state.modalSize} max={20480} step={512} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
                 <span style={{ paddingLeft: 10 }} >MB</span>
               </Col>
             </Row>
             <div className="modal-price">
               <div className="price-left">
-                存储：￥{ resourcePrice.storage /10000 } 元/(GB*小时)
+                存储：{hourPrice.unit == '￥'? '￥': ''}{ resourcePrice.storage /10000 } {hourPrice.unit == '￥'? '元': 'T'}/(GB*小时)
               </div>
               <div className="price-unit">
-                <p>合计：<span className="unit">￥</span><span className="unit blod"> { hourPrice.amount } 元/ 小时</span></p>
-                <p><span className="unit">（约：￥</span><span className="unit"> { countPrice.amount } 元/ 小时</span></p>
+                <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod"> { hourPrice.amount }{hourPrice.unit == '￥'? '元': ''}/小时</span></p>
+                <p><span className="unit">（约：</span><span className="unit"> { countPrice.fullAmount }{hourPrice.unit == '￥'? '元': ''}/小时</span></p>
               </div>
             </div>
 
@@ -417,7 +417,7 @@ class Storage extends Component {
       volumeArray: [],
       currentType: 'ext4',
       inputName: '',
-      size: 500,
+      size: 512,
       nameError: false,
       nameErrorMsg: ''
     }
@@ -490,7 +490,7 @@ class Storage extends Component {
           self.setState({
             visible: false,
             name: '',
-            size: 500,
+            size: 512,
             currentType: 'ext4'
           })
           notification.close()
@@ -517,7 +517,7 @@ class Storage extends Component {
     this.setState({
       nameError: false,
       visible: false,
-      size: 500,
+      size: 512,
       name: '',
       currentType: 'ext4'
     });
@@ -681,7 +681,7 @@ class Storage extends Component {
                 <i className="fa fa-trash-o" /><FormattedMessage {...messages.delete} />
               </Button>
               <Modal title={formatMessage(messages.createModalTitle)}
-                visible={this.state.visible}
+                visible={this.state.visible} width={550}
                 okText={formatMessage(messages.createBtn)}
                 cancelText={formatMessage(messages.cancelBtn)}
                 className='createAppStorageModal'
@@ -707,10 +707,10 @@ class Storage extends Component {
                     {formatMessage(messages.size)}
                   </Col>
                   <Col span="12">
-                    <Slider min={500} max={10240} step={20} onChange={this.onChange} value={this.state.size} />
+                    <Slider min={512} max={20480} step={512} onChange={this.onChange} value={this.state.size} />
                   </Col>
                   <Col span="8">
-                    <InputNumber min={500} max={10240} step={20} style={{ marginLeft: '16px' }} value={this.state.size} onChange={this.onChange} />
+                    <InputNumber min={512} max={20480} step={512} style={{ marginLeft: '16px' }} value={this.state.size} onChange={this.onChange} />
                     <span style={{ paddingLeft: 10 }} >MB</span>
                   </Col>
                 </Row>
@@ -725,11 +725,11 @@ class Storage extends Component {
                 </Row>
                 <div className="modal-price">
                   <div className="price-left">
-                    存储：￥{ storagePrice } /(GB*小时)
+                    存储：{hourPrice.unit == '￥' ? '￥' : ''}{ storagePrice } {hourPrice.unit == '￥' ? '元' : 'T'}/(GB*小时)
                   </div>
                   <div className="price-unit">
-                    <p>合计：<span className="unit">￥</span><span className="unit blod">{ hourPrice.amount } / 小时</span></p>
-                    <p><span className="unit">（约：￥</span><span className="unit">{ countPrice.amount } / 月）</span></p>
+                    <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod">{ hourPrice.amount }{hourPrice.unit == '￥'? '元': ''}/小时</span></p>
+                    <p><span className="unit">（约：</span><span className="unit">{ countPrice.fullAmount }{hourPrice.unit == '￥'? '元': ''}/月）</span></p>
                   </div>
                 </div>
               </Modal>

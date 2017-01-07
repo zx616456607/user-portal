@@ -245,7 +245,7 @@ const MyComponent = React.createClass({
           ]}
           >
           <div style={{ padding: "0 20px" }}>
-            <p style={{ lineHeight: '40px' }}>* 将该URL填入到 {this.state.repoType ? this.state.repoType.replace('l', 'L').replace('h', 'H') : ''}项目的Web Hooks URL中</p>
+            <p style={{ lineHeight: '40px' }}>* 将该URL填入到 {this.state.repoType ? this.state.repoType.replace('l', 'L').replace('h', 'H').replace('g', 'G') : ''}项目的Web Hooks URL中</p>
             <div style={{ padding: '10px', border: '1px solid #d9d9d9', wordWrap: 'break-word' }} className="valueBox">{this.state.webhookUrl}</div>
             <p style={{ opacity: '0', position: 'absolute' }}><Input type="textarea" className="CodeCopy" autosize={{ minRows: 2, maxRows: 6 }} value={this.state.webhookUrl} /></p>
             <p style={{ marginTop: '10px' }}>

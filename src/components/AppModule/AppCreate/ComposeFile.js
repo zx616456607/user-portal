@@ -69,13 +69,39 @@ class ComposeFile extends Component {
   }
   componentWillMount() {
     const { templateid } = this.props.location.query
+    const { externalIPs } = this.props
     const self = this
     if (templateid) {
       this.props.loadStackDetail(templateid, {
         success: {
           func: (res) => {
+            let yamlContent = res.data.data.content
+            let convertedContent = ''
+            // Parse yaml and set the external ip for service template
+            if(yamlContent.indexOf('---') > -1) {
+              let yamlList = yamlContent.split('---');
+              yamlList.map((item, index) => {
+                try {
+                  let yamlObj = yaml.safeLoad(item)
+                  if (yamlObj.kind === "Service") {
+                    // Update external IP to current cluster one
+                    if ((!yamlObj.spec.externalIPs ||  yamlObj.spec.externalIPs == "") && externalIPs) {
+                      yamlObj.spec.externalIPs = eval(externalIPs)
+                    }
+                  }
+                  convertedContent += yaml.dump(yamlObj)
+                  if (index != codeList.length - 1) {
+                    convertedContent += '---\n'
+                  }
+                } catch(error) {
+                  let notification = new NotificationHandler()
+                  notification.error("加载编排文件失败，请检查后重试.")
+                  return
+                }
+              })
+            }
             self.setState({
-              appDescYaml: res.data.data.content,
+              appDescYaml: convertedContent,
               stackType: false
             })
           }
@@ -333,6 +359,7 @@ function mapStateToProps(state) {
   const { cluster } = state.entities.current
   return {
     cluster: cluster.clusterID,
+    externalIPs: cluster.publicIPs,
     createApp: state.apps.createApp,
     checkAppName: state.apps.checkAppName
   }

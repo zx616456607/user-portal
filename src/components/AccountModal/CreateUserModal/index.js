@@ -65,6 +65,10 @@ let CreateUserModal = React.createClass({
     }, ASYNC_VALIDATOR_TIMEOUT);
   },
   checkPass(rule, value, callback) {
+    if (value.length < 3 || value.length > 45) {
+      callback([new Error('密码长度为3 ~ 45')])
+      return
+    }
     const { validateFields } = this.props.form;
     if (value) {
       validateFields(['rePasswd'], { force: true });

@@ -29,7 +29,7 @@ let CommitReset = React.createClass({
       passWord: false,
       rePassWord: false,
       intRePassFocus: false,
-      resetSuccess: true,
+      resetSuccess: false,
     }
   },
 
@@ -165,9 +165,7 @@ let CommitReset = React.createClass({
           </div>
           <div className='resetSucInf'>
             <div className='resetSucText'>重置密码成功 ! </div>
-            <Button
-              className='subBtn'
-            >
+            <Button className='subBtn'>
               <Link to='/login'>
                 去登录
               </Link>

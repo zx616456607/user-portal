@@ -11,14 +11,13 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import { Button, Icon, Spin, Modal, Collapse, Row, Col, Dropdown, Slider, Timeline, Popover, InputNumber, Tabs } from 'antd'
+import { Button, Icon, Spin, Modal, Collapse, Row, Col, Dropdown, Slider, Timeline, Popover, InputNumber, Tabs, Tooltip} from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadDbClusterDetail, deleteDatabaseCluster, putDbClusterDetail, loadDbCacheList } from '../../actions/database_cache'
 import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import { calcuDate, parseAmount} from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
-import serverSVG from '../../assets/img/server.svg'
 import { ANNOTATION_SVC_SCHEMA_PORTNAME } from '../../../constants'
 
 const Panel = Collapse.Panel;
@@ -118,6 +117,24 @@ class BaseInfo extends Component {
       storageValue: parseInt(this.props.databaseInfo.volumeInfo.size)
     }
   }
+  copyDownloadCode() {
+    //this function for user click the copy btn and copy the download code
+    const scope = this;
+    let code = document.getElementsByClassName("databaseCodeInput");
+    code[0].select();
+    document.execCommand("Copy", false);
+    scope.setState({
+      copySuccess: true
+    });
+  }
+  returnDefaultTooltip() {
+    const scope = this;
+    setTimeout(function () {
+      scope.setState({
+        copySuccess: false
+      });
+    }, 500);
+  }
   render() {
     const { domainSuffix, databaseInfo ,dbName } = this.props
     const parentScope = this.props.scope
@@ -134,9 +151,12 @@ class BaseInfo extends Component {
       domain = eval(domainSuffix)[0]
     }
     let portAnnotation = databaseInfo.serviceInfo.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
-    let externalPort = portAnnotation.split('/')
-    if (externalPort && externalPort.length > 1) {
-      externalPort = externalPort[2]
+    let externalPort = ''
+    if (portAnnotation) {
+      externalPort = portAnnotation.split('/')
+      if (externalPort && externalPort.length > 1) {
+        externalPort = externalPort[2]
+      }
     }
     const modalContent = (
       <div className="modal-content">
@@ -146,19 +166,20 @@ class BaseInfo extends Component {
         <div className="modal-li">
           <span className="spanLeft">存储大小</span>
           {/* <Slider min={500} max={10000} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} step={100} /> */}
-          <InputNumber min={500} max={10240} step={20} disabled={true} value={parentScope.state.storageValue} /> &nbsp; M
+          <InputNumber min={512} step={512} max={20480} disabled={true} value={parentScope.state.storageValue} /> &nbsp; M
         </div>
         <div className="modal-price">
           <div className="price-left">
-            <div className="keys">实例：<span className="unit">￥{ containerPrc.amount } </span>/（个*小时）* { parentScope.state.replicas } 个</div>
-            <div className="keys">存储：<span className="unit">￥{ storagePrc.amount } </span>/（GB*小时）* { parentScope.state.replicas } 个</div>
+            <div className="keys">实例：<span className="unit">{ containerPrc.fullAmount }</span>/（个*小时）* { parentScope.state.replicas } 个</div>
+            <div className="keys">存储：<span className="unit">{ storagePrc.fullAmount }</span>/（GB*小时）* { parentScope.state.replicas } 个</div>
           </div>
           <div className="price-unit">
             <p>合计：
-            <span className="unit blod">￥{ hourPrice.amount } 元/小时</span>
+            <span className="unit">{countPrice.unit=='￥' ? ' ￥' : ''}</span>
+            <span className="unit blod">{ hourPrice.amount }{containerPrc.unit=='￥'? ' 元' : ''}/小时</span>
             </p>
             <p>
-            <span className="unit">（约：￥{ countPrice.amount } 元/月）</span>
+            <span className="unit">（约：{ countPrice.fullAmount } {containerPrc.unit=='￥'? ' 元' : ''}/月）</span>
             </p>
           </div>
         </div>
@@ -193,8 +214,14 @@ class BaseInfo extends Component {
               <Icon type='link' />&nbsp;出口地址：
             </span>
             <span className='listLink'>
-              {databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort}
+              {externalPort != ''? databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort : '-'}
             </span>
+            <Tooltip title={this.state.copySuccess ? '复制成功' : '点击复制'}>
+              <svg style={{width:'50px', height:'16px',verticalAlign:'middle'}} onClick={()=> this.copyDownloadCode()} onMouseLeave={()=> this.returnDefaultTooltip()}>
+                <use xlinkHref='#appcentercopy' style={{fill: '#2db7f5'}}/>
+              </svg>
+            </Tooltip>
+            <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {externalPort != ''? databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort : '-'}/>
           </div>
           <div className='configList'><span className='listKey'>副本数：</span>{databaseInfo.podInfo.pending + databaseInfo.podInfo.running}/{databaseInfo.podInfo.desired}个</div>
           {this.props.database == 'mysql' ?
@@ -225,11 +252,11 @@ class BaseInfo extends Component {
 
           <div className='configHead'>租赁信息</div>
           <div className="containerPrc">
-            <p><Icon type="pay-circle-o" /> 实例：<span className="unit">￥{ containerPrc.amount }/（个*小时）</span> * {databaseInfo.podInfo.desired}个</p>
-            <p><Icon type="hdd" /> 存储：<span className="unit">￥{ storagePrc.amount }/（GB*小时）</span> * {databaseInfo.podInfo.desired}个</p>
+            <p><Icon type="pay-circle-o" /> 实例：<span className="unit">{ containerPrc.fullAmount }/（个*小时）</span> * {databaseInfo.podInfo.desired}个</p>
+            <p><Icon type="hdd" /> 存储：<span className="unit">{ storagePrc.fullAmount }/（GB*小时）</span> * {databaseInfo.podInfo.desired}个</p>
           </div>
           <div className="countPrice">
-            合计价格：<span className="unit">￥</span><span className="unit blod">{hourPrice.amount}元/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：￥{countPrice.amount}元/月）</span>
+            合计价格：<span className="unit">{hourPrice.unit =='￥' ? '￥': ''}</span><span className="unit blod">{hourPrice.amount}{hourPrice.unit =='￥' ? '元': 'T'}/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：{countPrice.fullAmount} {countPrice.unit=='￥'? '元':''}/月）</span>
           </div>
         </div>
 
@@ -401,7 +428,9 @@ class ModalDetail extends Component {
         <div className='titleBox'>
           <Icon className='closeBtn' type='cross' onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className='imgBox'>
-            <img src={serverSVG} />
+            <svg>
+              <use xlinkHref='server' />
+            </svg>
           </div>
           <div className='infoBox'>
             <p className='instanceName'>

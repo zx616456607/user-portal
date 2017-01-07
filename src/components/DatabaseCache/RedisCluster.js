@@ -20,8 +20,10 @@ import { DEFAULT_REGISTRY } from '../../../constants'
 import ModalDetail from './ModalDetail.js'
 import CreateDatabase from './CreateDatabase.js'
 import NotificationHandler from '../../common/notification_handler'
+import { formatDate } from '../../common/tools.js'
 // import './style/RedisCluster.less'
 import './style/MysqlCluster.less'
+import redisImg from '../../assets/img/test/redis.jpg'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -55,7 +57,7 @@ let MyComponent = React.createClass({
         <div className='List' key={index}>
           <div className='list-wrap'>
             <div className='detailHead'>
-              <img src='/img/test/redis.jpg' />
+              <img src={redisImg} />
               <div className='detailName'>
                 {item.serivceName}
               </div>
@@ -78,16 +80,11 @@ let MyComponent = React.createClass({
                   :null
                 }
               </li>
-              <li>
-                <span className='listKey'>地址</span>
-                <span className='listLink'>
-                  <Tooltip placement="topLeft" title={item.objectMeta.name + '.' + item.objectMeta.namespace + '.svc.cluster.local'}>
-                    <span>{item.objectMeta.name + '.' + item.objectMeta.namespace + '.svc.cluster.local'}</span>
-                  </Tooltip>
-                </span>
-                <div style={{ clear: 'both' }}></div>
-              </li>
               <li><span className='listKey'>副本数</span>{item.pods.pending + item.pods.running}/{item.pods.desired}个<div style={{ clear: 'both' }}></div></li>
+              <li>
+                <span className='listKey'>创建时间</span>
+                <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
+              </li>
               <li><span className='listKey'>存储大小</span>{item.volumeSize ? item.volumeSize :'0'}<div style={{ clear: 'both' }}></div></li>
             </ul>
           </div>

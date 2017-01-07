@@ -19,7 +19,7 @@ const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 const logger = require('../../utils/logger').getLogger('team')
-const stdConfigs = require('../../configs/_standard')
+const configs = require('../../configs')
 
 exports.createTeamAndSpace = function* () {
   const loginUser = this.session.loginUser
@@ -70,7 +70,7 @@ exports.createInvitations = function* () {
   // send email
   if (result.code === 200 && result.data && result.data.codes && result.data.teamName) {
     for (let email in result.data.codes) {
-      const invitationURL = `${stdConfigs.host}/teams/invite?code=${encodeURIComponent(result.data.codes[email])}`
+      const invitationURL = `${configs.url}/teams/invite?code=${encodeURIComponent(result.data.codes[email])}`
       try {
         emailUtil.sendInviteTeamMemberEmail(email, loginUser.user, loginUser.email,result.data.teamName ,invitationURL)
       }
@@ -216,12 +216,12 @@ exports.getTeamUsers = function* () {
   let invitedUsers = []
   if (result && result.data && result.data.invitedUsers) {
     invitedUsers = result.data.invitedUsers
-  } 
+  }
   let users = []
   if (result && result.data && result.data.users) {
     users = result.data.users
-  } 
-  
+  }
+
   this.body = {
     invitedUsers,
     users,

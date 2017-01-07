@@ -49,27 +49,34 @@ function formatVolumeMounts(data, groupname, name) {
   if (data.length == 0) return
   for (let i = 0; i < data.length; i++) {
     for (let j = 0; j < data[i].services.length; j++) {
+      let volumesMap = {}
       if (data[i].services[j].spec.template.spec.volumes) {
         for (let k = 0; k < data[i].services[j].spec.template.spec.volumes.length; k++) {
-          if (data[i].services[j].spec.template.spec.volumes[k].configMap && data[i].services[j].spec.template.spec.volumes[k].configMap.name == groupname) {
+          let cm = data[i].services[j].spec.template.spec.volumes[k]
+          if (cm.configMap && cm.configMap.name == groupname) {
+            volumesMap[cm.name] = cm.configMap
             for (let l = 0; l < data[i].services[j].spec.template.spec.volumes[k].configMap.items.length; l++) {
               if (data[i].services[j].spec.template.spec.volumes[k].configMap.items[l].key == name) {
-                for (let v = 0; v < data[i].services[j].spec.template.spec.containers[l].volumeMounts.length; v++) {
-                  let others = [
-                    {
-                      imageName: data[i].name,
-                      serviceName: data[i].services[j].metadata.name,
-                      mountPath: data[i].services[j].spec.template.spec.containers[l].volumeMounts[v].mountPath
-                    }
-                  ]
-                  volumeMounts = unionWith(volumeMounts, others, isEqual)
-                }
+                volumesMap[cm.name] = true
               }
             }
           }
         }
       }
-
+      let containers = data[i].services[j].spec.template.spec.containers
+      for (var k in containers) {
+        if (containers[k].volumeMounts) {
+          for (var l in containers[k].volumeMounts) {
+            if (volumesMap[containers[k].volumeMounts[l].name]) {
+              volumeMounts = unionWith(volumeMounts, [{
+                imageName: data[i].name,
+                serviceName: data[i].services[j].metadata.name,
+                mountPath: containers[k].volumeMounts[l].mountPath
+              }], isEqual)
+            }
+          }
+        }
+      }
     }
   }
   return volumeMounts

@@ -13,7 +13,6 @@ import { Link, browserHistory} from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import ImageVersion from './ImageVersion.js'
-import serverSVG from '../../../../assets/img/server.svg'
 import './style/ImageDetailBox.less'
 
 const TabPane = Tabs.TabPane;
@@ -110,7 +109,9 @@ class OtherDetail extends Component {
       <div id="ImageDetailBox">
         <div className="headerBox">
           <div className="imgBox">
-            <img src={serverSVG} />
+            <svg className='appcenterlogo'>
+              <use xlinkHref='#appcenterlogo' />
+            </svg>
           </div>
           <div className="infoBox">
             <p className="imageName">{imageDetail}</p>

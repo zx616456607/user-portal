@@ -27,10 +27,6 @@ function current(state, action) {
       if (!current.cluster) {
         current.cluster = state.cluster
       }
-      if (mode === STANDARD_MODE) {
-        current.unit = '￥'
-      }
-      current.unit = 'T'
       return Object.assign({}, state, current)
     default:
       return state

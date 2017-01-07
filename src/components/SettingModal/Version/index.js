@@ -58,37 +58,37 @@ export default class Version extends Component{
                 <Row className='contentList firstItem'>
                   <Col span={8}>TenxCloud Admin Console</Col>
                   <Col span={8}>管理运维平台</Col>
-                  <Col span={8}>2.0</Col>
+                  <Col span={8}>v2.0</Col>
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>TenxCloud User Portal</Col>
                   <Col span={8}>用户使用中心</Col>
-                  <Col span={8}>2.0</Col>
+                  <Col span={8}>v2.0</Col>
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>TenxCloud Application Center</Col>
                   <Col span={8}>应用中心</Col>
-                  <Col span={8}>2.0</Col>
+                  <Col span={8}>v2.0</Col>
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>TenxCloud Container Engine</Col>
                   <Col span={8}>容器引擎</Col>
-                  <Col span={8}>2.0</Col>
+                  <Col span={8}>v2.0</Col>
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>TenxCloud CI/CD Center</Col>
                   <Col span={8}>持续集成交付中心</Col>
-                  <Col span={8}>2.0</Col>
+                  <Col span={8}>v2.0</Col>
                 </Row>
-                <Row className='contentList'>
+                {/*<Row className='contentList'>
                   <Col span={8}>TenxCloud API Gateway</Col>
                   <Col span={8}>API 网关中心</Col>
                   <Col span={8}>2.0</Col>
-                </Row>
+                </Row>*/}
                 <Row className='contentList'>
                   <Col span={8}>TenxCloud Integration Center</Col>
                   <Col span={8}>集成中心</Col>
-                  <Col span={8}>2.0</Col>
+                  <Col span={8}>v2.0</Col>
                 </Row>
               </div>
             </Row>
@@ -119,24 +119,20 @@ export default class Version extends Component{
                   </Col>
                 </Row>
                 <Row className='contentList firstItem'>
-                  <Col span={8}>kubernetes</Col>
-                  <Col span={8}>2.0</Col>
+                  <Col span={8}>Kubernetes</Col>
+                  <Col span={8}>v1.4.1</Col>
                 </Row>
                 <Row className='contentList'>
-                  <Col span={8}>etcd</Col>
-                  <Col span={8}>2.0</Col>
+                  <Col span={8}>Etcd</Col>
+                  <Col span={8}>v3.0.12</Col>
                 </Row>
                 <Row className='contentList'>
-                  <Col span={8}>docker</Col>
-                  <Col span={8}>2.0</Col>
+                  <Col span={8}>Docker</Col>
+                  <Col span={8}>v1.12.5</Col>
                 </Row>
                 <Row className='contentList'>
-                  <Col span={8}>registry</Col>
-                  <Col span={8}>2.0</Col>
-                </Row>
-                <Row className='contentList'>
-                  <Col span={8}>AppStore</Col>
-                  <Col span={8}>2.0</Col>
+                  <Col span={8}>Registry</Col>
+                  <Col span={8}>v2.4.1</Col>
                 </Row>
               </div>
             </Row>

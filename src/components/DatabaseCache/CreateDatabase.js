@@ -31,8 +31,7 @@ let CreateDatabase = React.createClass({
       currentType: this.props.database,
       showPwd: 'text',
       firstFocues: true,
-      onselectCluster: true,
-      cluster: this.props.cluster
+      onselectCluster: true
     }
   },
   componentWillReceiveProps(nextProps) {
@@ -86,8 +85,9 @@ let CreateDatabase = React.createClass({
     //this function for check the new database name is exist or not
     const { databaseNames } = this.props;
     let existFlag = false;
-    if (!value) {
+    if (!Boolean(value)) {
       callback();
+      return
     } else {
       databaseNames.map((item) => {
         if (value == item) {
@@ -165,7 +165,7 @@ let CreateDatabase = React.createClass({
         }
       })
       if (this.state.onselectCluster) {
-        values.clusterSelect = this.state.cluster
+        values.clusterSelect = this.props.cluster
       }
       let notification = new NotificationHandler()
       if (values.replicas > 5) {
@@ -246,7 +246,7 @@ let CreateDatabase = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating ,getFieldValue} = this.props.form;
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, message: '请输入数据库集群名称' },
+        { required: true, whitespace: true ,message:'请输入数据库集群名称'},
         { validator: this.databaseExists },
       ],
     });
@@ -254,7 +254,7 @@ let CreateDatabase = React.createClass({
       initialValue: 1
     });
     const selectStorageProps = getFieldProps('storageSelect', {
-      initialValue: 500
+      initialValue: 512
     });
     const passwdProps = getFieldProps('password', {
       rules: [
@@ -328,7 +328,7 @@ let CreateDatabase = React.createClass({
               <div className='inputBox'>
                 <FormItem
                   hasFeedback
-                  help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
+                   help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
                   >
                   <Input {...nameProps} size='large' id="dbName" placeholder="请输入名称" disabled={isFetching} maxLength={20} />
                 </FormItem>
@@ -353,7 +353,7 @@ let CreateDatabase = React.createClass({
               </div>
               <div className='inputBox'>
                 <FormItem  style={{ width: '80px', float: 'left' }}>
-                  <InputNumber {...selectStorageProps}  defaultValue={500} min={500} step={20} max={10240} size='large' disabled={isFetching}/>
+                  <InputNumber {...selectStorageProps}  defaultValue={512} min={512} step={512} max={20480} size='large' disabled={isFetching}/>
                 </FormItem>
                 <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>M</span>
               </div>
@@ -375,12 +375,12 @@ let CreateDatabase = React.createClass({
             </div>
             <div className="modal-price">
               <div className="price-left">
-                <div className="keys">实例：￥{parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).amount}/（个*小时）* { storageNumber } 个</div>
-                <div className="keys">存储：￥{ parseAmount(this.props.resourcePrice.storage * this.props.resourcePrice.dbRatio, 4).amount}/（GB*小时）* {storageNumber} 个</div>
+                <div className="keys">实例：{parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
+                <div className="keys">存储：{ parseAmount(this.props.resourcePrice.storage * this.props.resourcePrice.dbRatio, 4).fullAmount}/（GB*小时）* {storageNumber} 个</div>
               </div>
               <div className="price-unit">
-                <p>合计：<span className="unit blod">￥{ hourPrice.amount }元/小时</span></p>
-                <p className="unit">（约：￥{ countPrice.amount }元/月）</p>
+                <p>合计：<span className="unit">{countPrice.unit=='￥' ? ' ￥' : ''}</span><span className="unit blod">{ hourPrice.amount }{countPrice.unit=='￥'? ' 元' : ''}/小时</span></p>
+                <p className="unit">（约：{ countPrice.fullAmount }{countPrice.unit=='￥'? ' 元' : ''}/月）</p>
               </div>
             </div>
           </div>
