@@ -190,6 +190,13 @@ class ServiceList extends Component {
       this.setState({modalShow: true})
     }
   }
+  componentDidMount() {
+    const backPath = this.props.routes[this.props.routes.length -2].path
+    const selfPath = this.props.route.path
+    if ('fast_create' == selfPath && backPath == 'app_create') {
+      this.setState({ modalShow: true })
+    }
+  }
   closeModal() {
     this.setState({
       modalShow: false
