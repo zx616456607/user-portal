@@ -400,7 +400,6 @@ function setPorts(containerPorts, form) {
 }
 
 function setCMD(container, form) {
-  console.log(container)
   const key = []
   const key1 =[]
   let cmds
