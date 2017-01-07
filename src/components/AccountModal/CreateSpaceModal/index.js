@@ -32,7 +32,7 @@ let CreateSpaceModal = React.createClass({
     const { teamID, funcs } = this.props
     const { checkTeamSpaceName } = funcs
     if (!USERNAME_REG_EXP_NEW.test(value)) {
-      callback([new Error('抱歉，空间名不合法。')])
+      callback([new Error('以[a~z]开头，允许[0~9]、[-]，长度5~40个字符')])
       return
     }
     // Disabled submit button when checkTeamSpaceName
