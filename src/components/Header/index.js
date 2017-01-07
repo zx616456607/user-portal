@@ -294,7 +294,6 @@ function mapStateToProps(state, props) {
   const { current, loginUser } = state.entities
   const { teamspaces } = state.user
   const { teamClusters } = state.team
-  console.log('state.user',state)
   return {
     current,
     loginUser: loginUser.info,
