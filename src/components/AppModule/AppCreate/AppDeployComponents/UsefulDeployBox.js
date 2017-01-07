@@ -23,18 +23,22 @@ let UsefulDeployBox = React.createClass({
     const parentScope = this.props.scope;
     const { getFieldProps, getFieldError, isFieldValidating ,getFieldValue} = form
     const runningCodeProps = getFieldProps('imageUrl', {});
-    const livePort = getFieldProps('livePort', {});
-    const liveInitialDelaySeconds = getFieldProps('liveInitialDelaySeconds', {});
-    const liveTimeoutSeconds = getFieldProps('liveTimeoutSeconds', {})
-    const livePeriodSeconds = getFieldProps('livePeriodSeconds', {})
-    const livePath = getFieldProps('livePath', {})
+    const httpLivePort = getFieldProps('httpLivePort', {});
+    const httpLiveInitialDelaySeconds = getFieldProps('httpLiveInitialDelaySeconds', {});
+    const httpLiveTimeoutSeconds = getFieldProps('httpLiveTimeoutSeconds', { });
+    const httpLivePeriodSeconds = getFieldProps('httpLivePeriodSeconds', {});
+    const httpLivePath = getFieldProps('httpLivePath', {});
+    const tcpLivePort = getFieldProps('tcpLivePort', {});
+    const tcpLiveInitialDelaySeconds = getFieldProps('tcpLiveInitialDelaySeconds', {});
+    const tcpLiveTimeoutSeconds = getFieldProps('tcpLiveTimeoutSeconds', {});
+    const tcpLivePeriodSeconds = getFieldProps('tcpLivePeriodSeconds', {});
     return (
       <div id="UsefulDeployBox">
         <div className="usefulBox">
           <FormItem>
             <RadioGroup
               {...getFieldProps('getUsefulType', {
-                initialValue: 'null'
+                initialValue: 'null',
               }) }
               >
               <Radio key="a" value={"null"}>无</Radio>
@@ -61,16 +65,16 @@ let UsefulDeployBox = React.createClass({
               </div>
               <div className="input">
                 <div className="commonInput">
-                  <Input type="text" {...livePort} />
+                  <Input type="text" {...httpLivePort} />
                 </div>
                 <div className="commonInput">
-                  <Input type="text"  {...liveInitialDelaySeconds} />&nbsp;&nbsp;s
+                  <Input type="text"  {...httpLiveInitialDelaySeconds} />&nbsp;&nbsp;s
                 </div>
                 <div className="commonInput">
-                  <Input type="text" {...liveTimeoutSeconds} />&nbsp;&nbsp;s
+                  <Input type="text" {...httpLiveTimeoutSeconds} />&nbsp;&nbsp;s
                 </div>
                 <div className="commonInput">
-                  <Input type="text" {...livePeriodSeconds} />&nbsp;&nbsp;s
+                  <Input type="text" {...httpLivePeriodSeconds} />&nbsp;&nbsp;s
                 </div>
                 <div style={{ clear: "both" }}></div>
               </div>
@@ -83,7 +87,7 @@ let UsefulDeployBox = React.createClass({
               <div className="input">
                 <span style={{ float: "left", marginLeft: "10px" }}>/</span>
                 <div className="commonInput">
-                  <Input type="text" {...livePath} />
+                  <Input type="text" {...httpLivePath} />
                 </div>
                 <div style={{ clear: "both" }}></div>
               </div>
@@ -108,16 +112,16 @@ let UsefulDeployBox = React.createClass({
               </div>
               <div className="input">
                 <div className="commonInput">
-                  <Input type="text" {...livePort} />
+                  <Input type="text" {...tcpLivePort} />
                 </div>
                 <div className="commonInput">
-                  <Input type="text" {...liveInitialDelaySeconds} />&nbsp;&nbsp;s
+                  <Input type="text" {...tcpLiveInitialDelaySeconds} />&nbsp;&nbsp;s
                 </div>
                 <div className="commonInput">
-                  <Input type="text" {...liveTimeoutSeconds} />&nbsp;&nbsp;s
+                  <Input type="text" {...tcpLiveTimeoutSeconds} />&nbsp;&nbsp;s
                 </div>
                 <div className="commonInput">
-                  <Input type="text" {...livePeriodSeconds} />&nbsp;&nbsp;s
+                  <Input type="text" {...tcpLivePeriodSeconds} />&nbsp;&nbsp;s
                 </div>
                 <div style={{ clear: "both" }}></div>
               </div>
