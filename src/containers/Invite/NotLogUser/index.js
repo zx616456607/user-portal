@@ -36,6 +36,7 @@ let NotLogUser = React.createClass({
       intUserNameFocus: false,
       captchaLoading: false,
       countDownTimeText: '发送验证码',
+      btnState: true,
     }
   },
   
@@ -50,6 +51,7 @@ let NotLogUser = React.createClass({
       }
       this.setState({
         submitting: true,
+        btnState: true,
         submitProps: {
           disabled: 'disabled'
         }
@@ -151,12 +153,6 @@ let NotLogUser = React.createClass({
       callback()
     }
   },
-  checkCaptcha(rule, value, callback) {
-    if (!value) {
-      callback()
-      return
-    }
-  },
   checkTel(rule, value, callback){
     if(!value){
       callback()
@@ -175,7 +171,7 @@ let NotLogUser = React.createClass({
       countDownTimeText: '60s 后重新发送',
     })
     //重新发送定时器
-    let wait = 59
+    let wait = 2
     let time = setInterval(() => {
       let text = wait + 's 后重新发送'
       wait--
@@ -195,7 +191,8 @@ let NotLogUser = React.createClass({
     // send captcha
     const { validateFields } = this.props.form
     validateFields((err, values) => {
-      if (err) {
+      if (err && values.captcha !== '' && values.captcha) {
+        console.log('err',err,values)
         return
       }
       const phone = values.tel
@@ -207,6 +204,9 @@ let NotLogUser = React.createClass({
           func: () => {
             let notification = new NotificationHandler()
             notification.success(`发送邀请码成功`)
+            this.setState({
+              btnState: false
+            })
           },
           isAsync: true
         },
@@ -214,6 +214,9 @@ let NotLogUser = React.createClass({
           func: (err) => {
             let notification = new NotificationHandler()
             notification.error(`发送邀请码失败`, err.message)
+            this.setState({
+              btnState: true
+            })
           }
         }
       })
@@ -312,7 +315,7 @@ let NotLogUser = React.createClass({
   },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
-    const { random, submitting, loginResult, submitProps } = this.state
+    const { random, submitting, loginResult, submitProps, btnState } = this.state
     const { email } = this.props
     const userNameProps = getFieldProps('userName', {
       rules: [
@@ -340,10 +343,9 @@ let NotLogUser = React.createClass({
       ],
     })
     const captchaProps = getFieldProps('captcha', {
-      /*rules: [
+      rules: [
         { required: true, message: '请填写验证码' },
-        { validator: this.checkCaptcha },
-      ],*/
+      ],
     })
 
     const formItemLayout = {
@@ -445,6 +447,7 @@ let NotLogUser = React.createClass({
             type="primary"
             onClick={this.handleSubmit}
             loading={submitting}
+            disabled={btnState}
             {...submitProps}
             className="subBtn">
             {submitting ? '注册中...' : '注册并加入团队'}
