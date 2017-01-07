@@ -312,7 +312,8 @@ let Login = React.createClass({
         <Top/>
         <div className="login">
           <Row style={{ textAlign: 'center' }}>
-            <a className='logoLink'>
+            <span className='logoLink'>
+
               {/*<img src="/img/sider/LogInLogo.svg" alt="logo" className="logo" />*/}
               {/*<img src={LogInLogo} alt="logo" className="logo" />*/}
 
@@ -320,7 +321,7 @@ let Login = React.createClass({
               <div className="logtext" style={{ fontSize: '14px' }}>技术领先的容器云计算服务商</div>*/}
 
               <div className='logTitle'>登&nbsp;&nbsp;录</div>
-            </a>
+            </span>
           </Row>
           <Card className="loginForm" bordered={false}>
             <div>
