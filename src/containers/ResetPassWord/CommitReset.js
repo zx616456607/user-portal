@@ -228,7 +228,7 @@ let CommitReset = React.createClass({
                 hasFeedback
                 className="formItemName"
               >
-                <div className={this.state.intRePassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>确认密码</div>
+                <div className={this.state.intRePassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'rePasswd')}>确认密码</div>
                 <Input {...rePasswdProps} autoComplete="off" type={this.state.rePassWord ? 'password' : 'text'}
                        onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                        onBlur={this.intOnBlur.bind(this, 'rePasswd')}
