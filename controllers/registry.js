@@ -393,4 +393,5 @@ function _isValidRegistryConfig() {
     logger.warn("No valid tenxcloud registry configured, should check the configuration in the database.")
     return false
   }
+  return true
 }
