@@ -113,7 +113,7 @@ class VersionNoraml extends Component {
                     </div>
                     <div className='commonInfo'>
                       <span className='commonSpan'>代码仓库（Github）</span>
-                      <span className='commonSpan'>TenxFlow（2个Flow）</span>
+                      <span className='commonSpan'>TenxFlow（2个TenxFlow，8个子项目）</span>
                       <span className='commonSpan'>Dockerfile</span>
                     </div>
                   </div>
@@ -123,8 +123,7 @@ class VersionNoraml extends Component {
                       <span className='commonTitle'>数据库集群与缓存</span>
                     </div>
                     <div className='commonInfo'>
-                      <span className='commonSpan'>关系型数据库</span>
-                      <span className='commonSpan'>缓存</span>
+                      <span className='commonSpan'>关系型数据库&nbsp;&&nbsp;缓存（共2个）</span>
                     </div>
                   </div>
                   <div className='commonBox'>
@@ -212,7 +211,7 @@ class VersionNoraml extends Component {
                     </div>
                     <div className='commonInfo'>
                       <span className='commonSpan'>代码仓库（Github）</span>
-                      <span className='commonSpan'>TenxFlow（2个Flow）</span>
+                      <span className='commonSpan'>TenxFlow（2个TenxFlow，8个子项目）</span>
                       <span className='commonSpan'>Dockerfile</span>
                     </div>
                   </div>
@@ -222,8 +221,7 @@ class VersionNoraml extends Component {
                       <span className='commonTitle'>数据库集群与缓存</span>
                     </div>
                     <div className='commonInfo'>
-                      <span className='commonSpan'>关系型数据库</span>
-                      <span className='commonSpan'>缓存</span>
+                      <span className='commonSpan'>关系型数据库&nbsp;&&nbsp;缓存（共2个）</span>
                     </div>
                   </div>
                   <div className='commonBox'>
@@ -315,18 +313,18 @@ class VersionNoraml extends Component {
                     </div>
                     <div className='commonInfo'>
                       <span className='commonSpan'>代码仓库（Github、GitLab、SVN）</span>
-                      <span className='commonSpan'>TenxFlow（5个Flow）</span>
+                      <span className='commonSpan'>TenxFlow（不限）</span>
                       <span className='commonSpan'>Dockerfile</span>
                     </div>
                   </div>
                   <div className='commonBox'>
+                    <img className='commonImg' src={proIcon} />
                     <div className='commonTitleBox'>
                       <span className='commonIcon'></span>
                       <span className='commonTitle'>数据库集群与缓存</span>
                     </div>
                     <div className='commonInfo'>
-                      <span className='commonSpan'>关系型数据库</span>
-                      <span className='commonSpan'>缓存</span>
+                      <span className='commonSpan'>关系型数据库&nbsp;&&nbsp;缓存（共8个）</span>
                     </div>
                   </div>
                   <div className='commonBox'>
