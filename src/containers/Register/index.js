@@ -80,7 +80,7 @@ class Register extends Component{
       <div key='a' id='RegisterPage'>
         <Top/>
         <div className='register'>
-            <Card className="registerForm" bordered={false} style={{width: 720}}>
+            <Card className="registerForm" bordered={false} style={{width: 680}}>
               <AccountType onChange={this.handlePageChange} />
               <div className="accountFooter">
                 *&nbsp;个人帐户可以升级到企业帐户，但是企业帐户不可降级为个人帐户<br/>

@@ -13,7 +13,7 @@
 var logger  = require('../../utils/logger').getLogger('registryAPIs');
 var request = require('request');
 var async   = require('async');
-var config  = require('../../configs/registry')
+var registryConfigLoader = require('../registryConfigLoader')
 
 var TokenCacheMgr = []
 var TokenExpiredTime = 3600 // seconds
@@ -21,8 +21,11 @@ var TokenExpiredTime = 3600 // seconds
  * Docker registry APIs
  */
 function DockerRegistryAPIs(registryConfig) {
-  if (!this.registryConfig) {
-    this.registryConfig = config
+  if (registryConfig) {
+    this.registryConfig = registryConfig
+  } else {
+    // Get registry config from registry loader
+    this.registryConfig = registryConfigLoader.GetRegistryConfig()
   }
 }
 
@@ -406,7 +409,7 @@ DockerRegistryAPIs.prototype.getTagsV2 = function (user, repositoryName, callbac
   this.refreshToken(user, repositoryName, function(err, resp, token){
     if (err) {
       logger.error(method, err);
-      callback(500, body, err);
+      callback(500, resp, err);
       return;
     }
     if (callback) {
@@ -414,7 +417,7 @@ DockerRegistryAPIs.prototype.getTagsV2 = function (user, repositoryName, callbac
       // Get the image id for specified tag
       var statusCode = resp ? resp.statusCode : 200;
       if (resp.statusCode != 200) {
-        return callback(404, body);
+        return callback(404, resp);
       }
       var token = token;
       var tagRequestUrl = self.registryConfig.v2ServerProtocol + "://" + self.registryConfig.v2Server + "/v2/" + repositoryName + "/tags/list";
@@ -428,7 +431,7 @@ DockerRegistryAPIs.prototype.getTagsV2 = function (user, repositoryName, callbac
       }, function (err, resp, result) {
         if (err) {
           logger.error(method, err);
-          callback(500, this.body, err);
+          callback(500, resp, err);
           return;
         }
         callback(resp.statusCode, result.tags);
