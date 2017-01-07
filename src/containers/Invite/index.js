@@ -50,7 +50,7 @@ let Invite = React.createClass({
   render() {
     const { loginResult } = this.state
     const { email, teamName, code, isUser, login, registerUserAndJoinTeam, invitationStatus, sendRegisterPhoneCaptcha, loginAndJointeam } = this.props
-    
+
     return (
       <div id="InvitePage">
         <div className="Invite">
@@ -105,7 +105,7 @@ let Invite = React.createClass({
           </Card>
         </div>
         <div className="footer">
-          © 2017 时速云 公有云
+          © 2017 时速云 京ICP备14045471号
         </div>
         <Modal
         wrapClassName='cancelInvite'
