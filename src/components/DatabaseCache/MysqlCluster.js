@@ -21,6 +21,7 @@ import CreateDatabase from './CreateDatabase.js'
 import NotificationHandler from '../../common/notification_handler'
 import { formatDate } from '../../common/tools.js'
 import './style/MysqlCluster.less'
+import mysqlImg from '../../assets/img/test/mysql.jpg'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -54,7 +55,7 @@ let MyComponent = React.createClass({
         <div className='List' key={index}>
           <div className='list-wrap'>
             <div className='detailHead'>
-              <img src='/img/test/mysql.jpg' />
+              <img src={mysqlImg} />
               <div className='detailName'>
                 {item.serivceName}
               </div>

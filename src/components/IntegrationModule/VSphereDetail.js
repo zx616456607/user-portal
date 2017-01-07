@@ -17,6 +17,10 @@ import { Button, Spin, Select, Icon, Tooltip } from 'antd'
 import { getIntegrationPodDetail } from '../../actions/integration'
 import './style/VSphereDetail.less'
 import ProgressBox from '../ProgressBox'
+import cpuImg from '../../assets/img/integration/cpu.png'
+import memoryImg from '../../assets/img/integration/memory.png'
+import networkImg from '../../assets/img/integration/network.png'
+import diskImg from '../../assets/img/integration/disk.png'
 
 const Option = Select.Option;
 
@@ -507,18 +511,18 @@ class VSphereDetail extends Component {
               <div style={{ clear: 'both' }}></div>
               <div className='bottomBox'>
                 <div className='cpu commonBox'>
-                  <img src='/img/integration/cpu.png' />
+                  <img src={cpuImg} />
                   <p>CPU共 {cpuTotal} 核</p>
                   <p>CPU 可用 {cpuFree} 核</p>
                 </div>
                 <div className='memory commonBox'>
-                  <img src='/img/integration/memory.png' />
+                  <img src={memoryImg} />
                   <p>内存共 {diskFormat(memoryTotal)}</p>
                   <p>可用{diskFormat(memoryTotal - memoryUsedTotal)}</p>                 
                 </div>
                 <div className='network commonBox'>
                   <div className='leftCommon'>
-                    <img src='/img/integration/network.png' />
+                    <img src={networkImg} />
                     <p>网络共{netTotal}个</p>
                     <p>可访问{netHealtTotal}个</p>
                   </div>
@@ -534,7 +538,7 @@ class VSphereDetail extends Component {
                 </div>
                 <div className='disk commonBox'>
                   <div className='leftCommon'>
-                    <img src='/img/integration/disk.png' />
+                    <img src={diskImg} />
                     <p>磁盘共 {diskFormat(diskTotal)}</p>
                     <p>已用 {diskFormat(diskUsed)}</p>
                   </div>

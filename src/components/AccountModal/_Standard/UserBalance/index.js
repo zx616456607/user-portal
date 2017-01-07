@@ -105,6 +105,7 @@ class UserBalance extends Component {
         <div className="myTeam">
           <div className="topRow">
             <Icon type="team" className="typeIcon" />
+            <span style={{ marginRight: '8px' }}>我的团队</span>
             <Popover
               placement="bottomLeft"
               title="选择团队帐户"

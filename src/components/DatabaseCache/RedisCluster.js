@@ -23,6 +23,7 @@ import NotificationHandler from '../../common/notification_handler'
 import { formatDate } from '../../common/tools.js'
 // import './style/RedisCluster.less'
 import './style/MysqlCluster.less'
+import redisImg from '../../assets/img/test/redis.jpg'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -56,7 +57,7 @@ let MyComponent = React.createClass({
         <div className='List' key={index}>
           <div className='list-wrap'>
             <div className='detailHead'>
-              <img src='/img/test/redis.jpg' />
+              <img src={redisImg} />
               <div className='detailName'>
                 {item.serivceName}
               </div>
