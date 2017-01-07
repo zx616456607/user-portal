@@ -261,7 +261,7 @@ const MyComponent = React.createClass({
 
     if (!config) {
       return (
-        <div style={{ lineHeight: '150px', paddingLeft: '250px' }}>
+        <div style={{ lineHeight: '150px', paddingLeft: '42%', paddingBottom: '16px' }}>
           <Button type="primary" size="large" onClick={() => this.showGtilabModal() }>添加 GitLab 代码仓库</Button>
           <Modal title="添加 GitLab 代码仓库" visible={this.state.authorizeModal} maskClosable={false}
             onCancel={this.closeAddGitlabModal}

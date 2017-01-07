@@ -47,7 +47,7 @@ const menusText = defineMessages({
     defaultMessage: '操作',
   },
   tooltips: {
-    id: 'CICD.Tenxflow.TenxFlowList.tooltips',    
+    id: 'CICD.Tenxflow.TenxFlowList.tooltips',
     defaultMessage: 'TenxFlow：这里完成【代码项目构建、编译、测试】等CI/CD流程的定义与执行，每个TenxFlow可以由若干个（≥1）流程化的子项目组成，每个子项目所执行的任务可以通过卡片的方式进行定义和展示。',
   },
   create: {
@@ -392,10 +392,10 @@ class TenxFlowList extends Component {
               </div>
             </div>
             <MyComponent scope={scope} config={flowList} isFetching={isFetching} />
-            {flowList.length < 1 && !searchingFlag ? 
-              <div style={{ lineHeight: '150px', textAlign: 'center' }}>目前还没有添加任何TenxFlow</div> : 
-              (flowList.length < 1 && searchingFlag ? 
-                <div style={{ lineHeight: '150px', textAlign: 'center' }}>没有匹配到相关TenxFlow</div> : null)}
+            {flowList.length < 1 && !searchingFlag ?
+              <div className='loadingBox'>暂无数据</div> :
+              (flowList.length < 1 && searchingFlag ?
+                <div className='loadingBox'>没有找到匹配的 TenxFlow</div> : null)}
           </Card>
         </div>
         <Modal

@@ -33,7 +33,7 @@ export default class Top extends Component {
               <a href='https://www.tenxcloud.com' target='_blank'>官网首页</a>
             </div>
   	  	    <div className='navItem'>
-              <a href='http://docs.tenxcloud.com' target='_blank'>文档帮助</a>
+              <a href='http://docs.tenxcloud.com' target='_blank'>文档中心</a>
             </div>
   	  	    <div className='navItem'>
               <a href='http://open.tenxcloud.com' target='_blank'>问答社区</a>
