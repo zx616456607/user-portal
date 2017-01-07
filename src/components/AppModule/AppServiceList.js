@@ -73,7 +73,7 @@ const MyComponent = React.createClass({
           stopBtn: true,
           restartBtn: true,
         })
-      } 
+      }
       if (checkedList[0].status.phase === 'Stopped') {
         scope.setState({
           runBtn: true,
@@ -305,7 +305,7 @@ const MyComponent = React.createClass({
     if (serviceList.length < 1) {
       return (
         <div className="loadingBox">
-          服务列表为空
+          暂无数据
         </div>
       )
     }
@@ -409,7 +409,7 @@ class AppServiceList extends Component {
     this.handleQuickRestarServiceCancel = this.handleQuickRestarServiceCancel.bind(this)
     this.handleDeleteServiceOk = this.handleDeleteServiceOk.bind(this)
     this.handleDeleteServiceCancel = this.handleDeleteServiceCancel.bind(this)
-    
+
     this.state = {
       modalShow: false,
       currentShowInstance: null,
@@ -525,7 +525,7 @@ class AppServiceList extends Component {
       DeleteServiceModal: true
     })
   }
-  
+
   handleStartServiceOk() {
     const self = this
     const { cluster, startServices, serviceList, appName, intl } = this.props
@@ -763,7 +763,7 @@ class AppServiceList extends Component {
     const self = this
     const { cluster, appName, loadServiceList, deleteServices, intl, serviceList } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
-    
+
     const serviceNames = checkedServiceList.map((service) => service.metadata.name)
     const allServices = self.state.serviceList
     allServices.map((service) => {

@@ -313,6 +313,7 @@ let Login = React.createClass({
         <div className="login">
           <Row style={{ textAlign: 'center' }}>
             <span className='logoLink'>
+
               {/*<img src="/img/sider/LogInLogo.svg" alt="logo" className="logo" />*/}
               {/*<img src={LogInLogo} alt="logo" className="logo" />*/}
 
