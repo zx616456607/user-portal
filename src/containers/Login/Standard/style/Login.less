@@ -7,11 +7,17 @@
   width: 100%;
   position: absolute;
   height: 100%;
+  display: -webkit-box;
   display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-box-align: center;
   -webkit-align-items: center;
+  -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: center;
   -webkit-justify-content: center;
+  -ms-flex-pack: center;
   justify-content: center;
   .login {
     width: 400px;
@@ -128,7 +134,13 @@
     }
     .logInFooter {
       .footerTip {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
         display: flex;
+        -webkit-box-pack: justify;
+        -webkit-justify-content: space-between;
+        -ms-flex-pack: justify;
         justify-content: space-between;
         .toRegister {
           span {
@@ -139,7 +151,13 @@
       .moreMethod {
         margin-top: 40px;
         .methodTitle {
+          display: -webkit-box;
+          display: -webkit-flex;
+          display: -ms-flexbox;
           display: flex;
+          -webkit-box-align: center;
+          -webkit-align-items: center;
+          -ms-flex-align: center;
           align-items: center;
           color: #d5d5d5;
           .methodText {

@@ -21,8 +21,14 @@
     .ant-tabs-bar {
     	margin-bottom: 35px;
       .ant-tabs-nav-scroll {
-         display: flex;
-         justify-content: center;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-pack: center;
+        -webkit-justify-content: center;
+        -ms-flex-pack: center;
+        justify-content: center;
         .ant-tabs-nav {
 
         }
@@ -120,7 +126,13 @@
         }
         .ant-radio-group {
           width: 100%;
+          display: -webkit-box;
+          display: -webkit-flex;
+          display: -ms-flexbox;
           display: flex;
+          -webkit-box-pack: center;
+          -webkit-justify-content: center;
+          -ms-flex-pack: center;
           justify-content: center;
         }
       }

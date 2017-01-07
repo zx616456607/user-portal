@@ -198,7 +198,13 @@
     }
   }
   .successOpt {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
     display: flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
     align-items: center;
     height: 60px;
     line-height: 60px;
@@ -206,6 +212,9 @@
     border-top:1px solid #e7ecf2;
     background-color: #f7f8fb;
     .wrap {
+      -webkit-box-flex: auto;
+      -webkit-flex: auto;
+      -ms-flex: auto;
       flex: auto;
       .successBtn {
         float: right;
