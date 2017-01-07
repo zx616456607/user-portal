@@ -13,16 +13,40 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/AssitDeployBox.less"
+
 const createForm = Form.create;
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 let AssitDeployBox = React.createClass({
+  getInitialState() {
+    return {}
+  },
   changeRunningCode(e) {
     //the function for change user select image default code or set it by himself
     const parentScope = this.props.scope;
     parentScope.setState({
       runningCode: e.target.value
     });
+    if(e.target.value == '1') {
+      this.setState({
+        notV: true 
+      })
+      const form = this.props.form
+      const { getFieldValue, resetFields, setFields } = form
+      const key = getFieldValue('userCMDKey')
+      key.forEach(k => {
+        const v = getFieldValue(`userCMD${k}`)
+        setFields({
+          [`userCMD${k}`]: {
+            name: `userCMD${k}`, value: v, errors: null, validating: true
+          }
+        })
+      })
+      return
+    }
+    this.setState({
+      notV: false
+    })
   },
 
   changeGetImageType(e) {
@@ -32,7 +56,13 @@ let AssitDeployBox = React.createClass({
       getImageType: e.target.value
     });
   },
-
+  validCMD(rule, value, callback) {
+    if(!value) {
+      callback(new Error('请填写启动命令'))
+      return
+    }
+    return callback()
+  }, 
   changeCurrentDate(e) {
     //the function for user select get datetime from the local host or use it's own time
     const parentScope = this.props.scope;
@@ -50,10 +80,15 @@ let AssitDeployBox = React.createClass({
     const self = this
     const runningCode = parentScope.state.runningCode
     const ele = cmdKey.map(cmd => {
-      return (<FormItem className="runningCodeForm" hasFeedback>
-          <Input key={cmd} style={{display: runningCode == "1"? 'block' : 'none'}}
-          {...getFieldProps("cmd" + cmd)}
-          className="entryInput" size="large"
+      return (<FormItem className="runningCodeForm" style={{paddingLeft:'120px'}} key={cmd} sdfsad="sadfasdf">
+          <Input style={{display: runningCode == "1"? 'block' : 'none'}}
+          {...getFieldProps("cmd" + cmd, {
+           rules: [
+          { whitespace: true, require: true },
+          { validator: self.validCMD}
+          ]
+          })}
+          className="entryInput " size="large"
           disabled={true} />
         </FormItem>)
     })
@@ -67,14 +102,33 @@ let AssitDeployBox = React.createClass({
       initialValue: [1]
     }).value
     const self = this
+    let rule = {
+      rules: [
+        { whitespace: true, require: true },
+        { validator: self.validCMD}
+      ]
+    }
+    if(this.state.notV) {
+      rule = {}
+    }
     const runningCode = parentScope.state.runningCode
-    const ele = cmdKey.map(cmd => {
-      return (<FormItem className="runningCodeForm" hasFeedback>
-          <Input key={"userCMD"+cmd} style={{display: runningCode == "1"? 'none' : 'block'}}
-          {...getFieldProps("userCMD" + cmd)}
-          className="entryInput" size="large"/>
-          <i className="fa fa-trash" onClick={() => self.remove(cmd)} style={{display: runningCode == "1"? 'none' : 'block'}}/>
-        </FormItem>)
+    const ele = cmdKey.map((cmd, index) => {
+      let f = 'left' 
+      if(index == 0) {
+        f = 'none'
+      }
+      let d = 'none'
+      if(runningCode == '2' && index != 0) {
+        d = 'inline-block'
+      }
+      return (<FormItem className="runningCodeForm" style={{paddingLeft:'120px'}}  key={"userCMD"+cmd}>
+        <Input style={{display: runningCode == "2"? 'block' : 'none', width:'220px', float: f, marginTop: '5px'}}
+        {...getFieldProps("userCMD" + cmd, {
+           ...rule
+        })}
+        size="large"/>
+          <Icon type="delete" onClick={() => self.remove(cmd)} style={{display: d, marginLeft: '10px', paddingTop: '16px', cursor: 'pointer'}}/>
+          </FormItem>)
     })
     return ele
   },
@@ -124,7 +178,7 @@ let AssitDeployBox = React.createClass({
             </div>
             <div className="inputBox">
               <span className="commonSpan">启动命令</span>
-              <div className="selectBox">
+              <div className="selectBox" style={{height: 'auto'}}>
                 <FormItem>
                   <RadioGroup
                     {...getFieldProps('runningCode', {
@@ -138,8 +192,8 @@ let AssitDeployBox = React.createClass({
                 </FormItem>       
                  {this.getCMD()}     
                  {this.getUserCMD()}
-                 {parentScope.state.runningCode == '1' ? '' :  <div onClick={this.add}>
-                    <Icon type="plus-circle-o" />
+                 {parentScope.state.runningCode == '1' ? '' :  <div onClick={this.add} style={{paddingLeft: '120px', cursor: 'pointer'}}>
+                    <Icon type="plus-circle-o" style={{paddingRight: '5px'}}/>
                     <span>添加一个容器目录</span>
                     </div>
                  } 
@@ -172,4 +226,4 @@ let AssitDeployBox = React.createClass({
   }
 })
 
-export default AssitDeployBox;
+export default AssitDeployBox
