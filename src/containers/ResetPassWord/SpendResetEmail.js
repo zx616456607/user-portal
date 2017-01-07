@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Button, Form, Input, message } from 'antd'
+import { Button, Form, Input, message, notification} from 'antd'
 import { connect } from 'react-redux'
 import { EMAIL_REG_EXP, EMAIL_HASH } from '../../constants'
 import {sendResetPasswordLink} from '../../actions/user.js'
