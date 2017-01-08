@@ -470,11 +470,11 @@ class MySpace extends Component{
             <p className='bigTitle'>升级须知</p>
             <div className='infoDetail'>
               <div className='num'>1</div>
-              <span className='info'>旧平台中的『资源』待迁移结束后，将为逐渐稳步迁移到新平台</span>
+              <span className='info'>老版本中的『资源』待迁移结束后，将为逐渐稳步迁移到新版本</span>
             </div>
             <div className='infoDetail'>
               <div className='num'>2</div>
-              <span className='info'>新平台与旧平台的『计费』是相对独立的，账户完成迁移后会将两平台费用&消费整合统一管理</span>
+              <span className='info'>新版本与旧版本的『计费』是相对独立的，账户完成迁移后会将两平台费用&消费整合统一管理</span>
             </div>
             <div className='infoDetail'>
               <div className='num'>3</div>
@@ -482,7 +482,7 @@ class MySpace extends Component{
             </div>
             <div className='infoDetail'>
               <div className='num'>4</div>
-              <span className='info'>若为 v2.0 专业版，在团队中『邀请新成员』，未注册过时速云帐号的新成员可到时速云官网注册</span>
+              <span className='info'>若为 v2.0 专业版，在团队中『邀请新成员』，未注册过时速云帐号的新成员可到时速云官网注册 &nbsp;<a href="http://docs.tenxcloud.com/guide/upgradeTo2.0" target="_blank">了解更多 &gt;&gt;</a></span>
             </div>
           </div>
           <div className='btnBox'>

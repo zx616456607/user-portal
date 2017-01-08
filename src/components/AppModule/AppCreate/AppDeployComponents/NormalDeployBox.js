@@ -743,7 +743,7 @@ let NormalDeployBox = React.createClass({
               <div style={{ clear: "both" }}></div>
             </div>
             <div className="stateService">
-              <span className="commonSpan">服务类型 <a href="http://docs.tenxcloud.com/faq#3-you-zhuang-tai-fu-wu-yu-wu-zhuang-tai-fu-wu-de-qu-bie" target="_blank"><Tooltip title="若需数据持久化，请使用有状态服务"><Icon type="question-circle-o" /></Tooltip></a></span>
+              <span className="commonSpan">服务类型 <a href="http://docs.tenxcloud.com/faq#you-zhuang-tai-fu-wu-yu-wu-zhuang-tai-fu-wu-de-qu-bie" target="_blank"><Tooltip title="若需数据持久化，请使用有状态服务"><Icon type="question-circle-o" /></Tooltip></a></span>
               <Switch className="changeBtn" disabled={switchDisable}
                 {...getFieldProps('volumeSwitch', {
                   valuePropName: 'checked',
