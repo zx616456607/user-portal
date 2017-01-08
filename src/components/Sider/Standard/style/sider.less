@@ -16,7 +16,6 @@
     }
     .logoItem {
       margin-bottom: 20px;
-      background-color: #333c47;
     }
     li {
       padding: 0 !important;
@@ -64,14 +63,23 @@
   //顶部栏样式
   .siderTop {
     .logo {
-      width: 28px;
-      margin: 9px 0 0 15px;
+      margin: 9px 0 0 10px;
+      padding: 7px;
+      width: 40px;
+      height: 44px;
+      border-radius: 4px;
+      background-color: #333c47;
+      -webkit-transition: all 0.3s linear;
+      transition: all 0.3s linear;
     }
     li:first-child {
       height: 55px;
     }
     li:first-child:hover {
-      background-color: rgba(255,255,255,0.2);
+      background-color: rgba(0,0,0,0);
+      .logo {       
+        background-color: rgba(255,255,255,0.2);
+      }
     }
   }
   //底部栏样式
