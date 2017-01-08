@@ -463,18 +463,18 @@ class MySpace extends Component{
         <Modal visible={this.state.testingKonwShow} className='testingKnowModal'>
           <div className='titleBox'>
             <img className='tagImg' src={knowntag} />
-            <p>时速云内测期间须知</p>
+            <p>时速云 2.0 升级须知</p>
             <Icon className='closeBtn' type='cross' onClick={this.closeTestingKnowModal} />
           </div>
           <div className='infoBox'>
-            <p className='bigTitle'>更新须知</p>
+            <p className='bigTitle'>升级须知</p>
             <div className='infoDetail'>
               <div className='num'>1</div>
-              <span className='info'>旧平台中的『资源』待内测结束后，将为您逐渐稳步迁移到新平台</span>
+              <span className='info'>旧平台中的『资源』待迁移结束后，将为逐渐稳步迁移到新平台</span>
             </div>
             <div className='infoDetail'>
               <div className='num'>2</div>
-              <span className='info'>新平台与旧平台的『计费』是相对独立的，内测结束后会将两平台费用&消费整合统一管理</span>
+              <span className='info'>新平台与旧平台的『计费』是相对独立的，账户完成迁移后会将两平台费用&消费整合统一管理</span>
             </div>
             <div className='infoDetail'>
               <div className='num'>3</div>
