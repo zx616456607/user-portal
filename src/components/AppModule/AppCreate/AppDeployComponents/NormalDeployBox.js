@@ -670,7 +670,7 @@ let NormalDeployBox = React.createClass({
           </div>
           <div className="operaBox">
             <div className="selectCompose">
-              <span className="commonSpan">容器配置 <Tooltip title="专业版及企业认证用户可工单申请扩大容器配置"><Icon type="question-circle-o" /></Tooltip></span>
+              <span className="commonSpan">容器配置 <Tooltip title="专业版及企业认证用户可申请扩大容器配置"><Icon type="question-circle-o" /></Tooltip></span>
               <ul className="composeList">
                 {/*<li className="composeDetail">
                   <Button type={composeType == "1" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "1")}>
