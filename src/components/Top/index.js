@@ -50,7 +50,7 @@ export default class Top extends Component {
                   <Link to='/login'>登录</Link>
                 </div>
                 <div className='navRegister'>
-                  <Link to='/register'>注册</Link>
+                  <Link to='/signup'>注册</Link>
                 </div>
               </div>
             </div>
