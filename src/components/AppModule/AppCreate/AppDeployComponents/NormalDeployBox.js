@@ -670,7 +670,7 @@ let NormalDeployBox = React.createClass({
           </div>
           <div className="operaBox">
             <div className="selectCompose">
-              <span className="commonSpan">容器配置</span>
+              <span className="commonSpan">容器配置 <Tooltip title="专业版及企业认证用户可工单申请扩大容器配置"><Icon type="question-circle-o" /></Tooltip></span>
               <ul className="composeList">
                 {/*<li className="composeDetail">
                   <Button type={composeType == "1" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "1")}>
@@ -686,7 +686,7 @@ let NormalDeployBox = React.createClass({
                 <li className="composeDetail">
                   <Button type={composeType == "2" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "2")}>
                     <div className="topBox">
-                      2X
+                      1X
                    </div>
                     <div className="bottomBox">
                       <span>512M&nbsp;内存</span><br />
@@ -697,29 +697,29 @@ let NormalDeployBox = React.createClass({
                 <li className="composeDetail">
                   <Button type={composeType == "4" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "4")}>
                     <div className="topBox">
-                      4X
+                      2X
                    </div>
                     <div className="bottomBox">
                       <span>1GB&nbsp;内存</span><br />
-                      <span>1CPU&nbsp;(共享)</span>
+                      <span>1CPU&nbsp;</span>
                     </div>
                   </Button>
                 </li>
                 <li className="composeDetail">
                   <Button type={composeType == "8" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "8")}>
                     <div className="topBox">
-                      8X
+                      4X
                    </div>
                     <div className="bottomBox">
                       <span>2GB&nbsp;内存</span><br />
-                      <span>1CPU&nbsp;(共享)</span>
+                      <span>1CPU&nbsp;</span>
                     </div>
                   </Button>
                 </li>
                 <li className="composeDetail">
                   <Button type={composeType == "16" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "16")}>
                     <div className="topBox">
-                      16X
+                      8X
                    </div>
                     <div className="bottomBox">
                       <span>4GB&nbsp;内存</span><br />
@@ -730,7 +730,7 @@ let NormalDeployBox = React.createClass({
                 <li className="composeDetail">
                   <Button type={composeType == "32" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "32")}>
                     <div className="topBox">
-                      32X
+                      16X
                    </div>
                     <div className="bottomBox">
                       <span>8GB&nbsp;内存</span><br />
