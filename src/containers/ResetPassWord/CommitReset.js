@@ -35,7 +35,18 @@ let CommitReset = React.createClass({
   },
 
   checkPass(rule, value, callback) {
-    const { validateFields } = this.props.form
+    if (!value) {
+      callback([new Error('请填写密码')])
+      return
+    }
+    if (value.length < 6 || value.length > 16) {
+      callback([new Error('长度为6~16个字符')])
+      return
+    }
+    if (/^[^0-9]+$/.test(value) || /^[^a-zA-Z]+$/.test(value)) {
+      callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
+      return
+    }
     callback()
   },
   checkPass2(rule, value, callback) {
@@ -128,7 +139,6 @@ let CommitReset = React.createClass({
               btnState: true,
             })
             message.error('重置失败')
-            
           }
         }
       })
@@ -158,7 +168,6 @@ let CommitReset = React.createClass({
     const { email } = this.props
     const passwdProps = getFieldProps('password', {
       rules: [
-        { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
       ],
     })
@@ -219,7 +228,7 @@ let CommitReset = React.createClass({
                 hasFeedback
                 className="formItemName"
               >
-                <div className={this.state.intRePassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>确认密码</div>
+                <div className={this.state.intRePassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'rePasswd')}>确认密码</div>
                 <Input {...rePasswdProps} autoComplete="off" type={this.state.rePassWord ? 'password' : 'text'}
                        onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                        onBlur={this.intOnBlur.bind(this, 'rePasswd')}

@@ -158,7 +158,7 @@ const MyComponent = React.createClass({
     }
     if (config.length === 0) {
       return (
-        <div style={{lineHeight: '150px', textAlign: 'center'}}>目前没有任何云端Dockerfile</div>
+        <div className='loadingBox'>暂无数据</div>
       )
     }
     let items = config.map((item, index) => {
@@ -240,7 +240,7 @@ class DockerFile extends Component {
     document.title = 'Dockerfile | 时速云';
     this.props.getDockerfileList()
   }
-  
+
   componentWillReceiveProps(nextProps) {
     const { currentSpace } = nextProps
     if (currentSpace && this.props.currentSpace && currentSpace != this.props.currentSpace) {

@@ -38,10 +38,10 @@ class MySpace extends Component{
     let testingKnowFlag = window.localStorage.getItem('testingKnowFlag');
     if(!Boolean(testingKnowFlag)) {
       this.setState({
-        newTestingKonwShow: true        
+        newTestingKonwShow: false        
       });
       this.setState({
-        oldTestingKonwShow: true
+        oldTestingKonwShow: false
       })
       window.localStorage.setItem('testingKnowFlag', true);
     }

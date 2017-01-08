@@ -193,7 +193,7 @@ class ServiceList extends Component {
   componentDidMount() {
     const backPath = this.props.routes[this.props.routes.length -2].path
     const selfPath = this.props.route.path
-    if ('fast_create' == selfPath && backPath == 'app_create') {
+    if ('fast_create' == selfPath && backPath == 'app_create' && location.searh == '') {
       this.setState({ modalShow: true })
     }
   }

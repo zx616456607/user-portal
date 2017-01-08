@@ -132,7 +132,7 @@ class PopSelect extends Component {
           </Input.Group>
         </div>
         <div>
-          <ul className="searchList">
+          <ul className="searchList" style={{ paddingLeft: '15px' }}>
             {searchList}
           </ul>
         </div>

@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Icon, Spin } from 'antd'
+import { Form, Select, Input, InputNumber, Modal, Tooltip, Checkbox, Button, Card, Menu, Switch, Icon, Spin } from 'antd'
 import { connect } from 'react-redux'
 import filter from 'lodash/filter'
 import { DEFAULT_REGISTRY, ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
@@ -151,7 +151,7 @@ let MyComponent = React.createClass({
     }
     const message = volNameCheck(this.state.name)
     if(message !== 'success'){
-      notification.error(message) 
+      notification.error(message)
       return
     }
     notification.spin('存储卷创建中...')
@@ -398,6 +398,30 @@ function setPorts(containerPorts, form) {
     })
   }
 }
+function setCMD(container, form) {
+  const key = []
+  const key1 =[]
+  let cmds
+  let args = []
+  if(container.entrypoint) {
+    cmds = container.entrypoint
+    args = container.cmd
+  } else {
+    cmds = container.cmd
+  }
+  if(!cmds) cmds = []
+  cmds.forEach((cmd, index) => {
+    key.push(index + 1)
+    key1.push(index + 1)
+    form.setFieldsValue({
+      cmdKey: key,
+      userCMDKey: key1,
+      [`cmd${index + 1}`]: cmd + (args[index] ? args[index] : ''),
+      [`userCMD${index + 1}`]: cmd + (args[index] ? args[index] : '')
+    })
+  })
+}
+
 
 function setEnv(defaultEnv, form) {
   const envArr = []
@@ -422,9 +446,10 @@ function loadImageTagConfigs(tag, props) {
             return
           }
           const { form } = props
-          const { containerPorts, defaultEnv } = result.configInfo
+          const { containerPorts, defaultEnv, cmd, entrypoint } = result.configInfo
           setPorts(containerPorts, form)
           setEnv(defaultEnv, form)
+          setCMD({cmd, entrypoint}, form)
         },
         isAsync: true
       }
@@ -437,9 +462,10 @@ function loadImageTagConfigs(tag, props) {
             return
           }
           const { form } = props
-          const { containerPorts, defaultEnv } = result.data
+          const { containerPorts, defaultEnv, cmd, entrypoint } = result.data
           setPorts(containerPorts, form)
           setEnv(defaultEnv, form)
+          setCMD({cmd, entrypoint}, form)
         },
         isAsync: true
       }
@@ -717,7 +743,7 @@ let NormalDeployBox = React.createClass({
               <div style={{ clear: "both" }}></div>
             </div>
             <div className="stateService">
-              <span className="commonSpan">服务类型</span>
+              <span className="commonSpan">服务类型 <a href="http://docs.tenxcloud.com/faq#3-you-zhuang-tai-fu-wu-yu-wu-zhuang-tai-fu-wu-de-qu-bie" target="_blank"><Tooltip title="若需数据持久化，请使用有状态服务"><Icon type="question-circle-o" /></Tooltip></a></span>
               <Switch className="changeBtn" disabled={switchDisable}
                 {...getFieldProps('volumeSwitch', {
                   valuePropName: 'checked',

@@ -12,29 +12,30 @@
   .register {
     position: relative;
     height: 100%;
-    padding-top: 7%;
+    padding-top: 5%;
     min-height: 650px;
     width:100%;
     background: url("../../../assets/img/login-bg.jpg") 50% 50% / cover no-repeat fixed;
     .ant-card {
       overflow: inherit;
     }
-    .ant-tabs-bar {
-    	margin-bottom: 35px;
-      .ant-tabs-nav-scroll {
-        display: -webkit-box;
-        display: -webkit-flex;
-        display: -ms-flexbox;
-        display: flex;
-        -webkit-box-pack: center;
-        -webkit-justify-content: center;
-        -ms-flex-pack: center;
-        justify-content: center;
-        .ant-tabs-nav {
-
+    .ant-tabs {
+      overflow: inherit;
+      .ant-tabs-bar {
+        margin-bottom: 35px;
+        .ant-tabs-nav-scroll {
+          display: -webkit-box;
+          display: -webkit-flex;
+          display: -ms-flexbox;
+          display: flex;
+          -webkit-box-pack: center;
+          -webkit-justify-content: center;
+          -ms-flex-pack: center;
+          justify-content: center;
         }
       }
     }
+
     .registerForm {
       margin: 0 auto;
       .backToPage {
@@ -116,7 +117,7 @@
           font-weight: normal;
           -webkit-transform: translateY(25px);
           transform: translateY(25px);
-          color: #aaa;
+          color: #666;
           -webkit-transition: all 0.5s;
           transition: all 0.5s;
           cursor: text;

@@ -172,7 +172,7 @@ let PhoneRow = React.createClass({
     const parentScope = this.props.scope
     return (
       <Form horizontal form={this.props.form}>
-        <span className="key">手机</span>
+        <span className="key" style={{float: 'left'}}>手机</span>
         <div className="editPhoneList">
           <FormItem>
             <Input type="password" size="large" {...phonePasswordProps} placeholder="当前帐户密码" style={{ width: '73%' }} />

@@ -13,7 +13,7 @@ import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row, Spin, } f
 import './style/Login.less'
 import { login } from '../../../actions/entities'
 import { connect } from 'react-redux'
-import { USERNAME_REG_EXP_OLD, EMAIL_REG_EXP } from '../../../constants'
+import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
 import { browserHistory } from 'react-router'
 import { genRandomString } from '../../../common/tools'
 import { Link } from 'react-router'
@@ -115,8 +115,8 @@ let Login = React.createClass({
   },
 
   checkName(rule, value, callback) {
-    if (!value || value.length < 3) {
-      callback()
+    if (!value) {
+      callback([new Error('请填写用户名')])
       return
     }
     if (value.indexOf('@') > -1) {
@@ -127,14 +127,14 @@ let Login = React.createClass({
       callback()
       return
     }
-    /*if (!USERNAME_REG_EXP_OLD.test(value)) {
-      callback([new Error('用户名填写错误')])
-      return
-    }*/
     callback()
   },
 
   checkPass(rule, value, callback) {
+    if (!value) {
+      callback([new Error('请填写密码')])
+      return
+    }
     callback()
   },
   /*checkCode(rule, value, callback) {
@@ -276,13 +276,11 @@ let Login = React.createClass({
     const { random, submitting, loginResult, submitProps, loginSucess } = this.state
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, min: 3, message: '用户名至少为 3 个字符' },
         { validator: this.checkName },
       ],
     })
     const passwdProps = getFieldProps('password', {
       rules: [
-        { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
       ],
     })
@@ -314,7 +312,8 @@ let Login = React.createClass({
         <Top/>
         <div className="login">
           <Row style={{ textAlign: 'center' }}>
-            <a href='https://www.tenxcloud.com/' target='_blank' className='logoLink'>
+            <span className='logoLink'>
+
               {/*<img src="/img/sider/LogInLogo.svg" alt="logo" className="logo" />*/}
               {/*<img src={LogInLogo} alt="logo" className="logo" />*/}
 
@@ -322,7 +321,7 @@ let Login = React.createClass({
               <div className="logtext" style={{ fontSize: '14px' }}>技术领先的容器云计算服务商</div>*/}
 
               <div className='logTitle'>登&nbsp;&nbsp;录</div>
-            </a>
+            </span>
           </Row>
           <Card className="loginForm" bordered={false}>
             <div>
@@ -434,7 +433,7 @@ let Login = React.createClass({
           </Card>
         </div>
         <div className="footer">
-          © 2017 时速云 公有云
+          © 2017 时速云 京ICP备14045471号
         </div>
       </div>
     )

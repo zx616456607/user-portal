@@ -360,6 +360,9 @@ export const USER_UPDATE_FAILURE = 'USER_UPDATE_FAILURE'
 // Update user from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchUpdateUser(userID, body, callback) {
+  if(!userID) {
+    userID = 'default'
+  }
   let endpoint = `${API_URL_PREFIX}/users/${userID}`
   return {
     [FETCH_API]: {

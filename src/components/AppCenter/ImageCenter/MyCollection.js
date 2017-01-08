@@ -85,7 +85,7 @@ let MyComponent = React.createClass({
     }
     if (imageList.length === 0) {
       return (
-        <div style={{lineHeight:'100px',height:'200px',paddingLeft:'40px'}}>您还没有收藏镜像！</div>
+        <div style={{lineHeight:'80px',height:'80px',paddingLeft:'40px'}}>您还没有收藏的镜像。</div>
       )
     }
     let items = imageList.map((item, index) => {

@@ -163,7 +163,7 @@ class RechargeRecord extends Component {
               item.orderType = '线下汇款'
               break
             case 103:
-              item.orderType = '解散团队的退款'
+              item.orderType = '解散"'+item.detail+'"团队的退款'
               break
             default:
               item.orderType = '-'
@@ -249,15 +249,12 @@ class RechargeRecord extends Component {
         },
       ]
     }
-    let rechargecolumns = [
-
-    ]
     let alertMessage = (
       <div style={{ color: '#137bb8', lineHeight: '28px', }}>
         <Icon type="smile" style={{ marginRight: 10 }} /> 温馨提示: <br />
         1. 此设置可根据您的个人情况进行更改, &nbsp;您所设置的内容不会影响到其他协作者<br />
         2. 您可在
-        <Link to="/account">
+        <Link to="/account" style={{margin: '0 4px'}}>
           <Button type='primary' style={{ color: '#fff', width: 90, height: 28 }}>我的信息</Button>
         </Link>
         中填写或修改接受提醒的邮箱地址
@@ -358,7 +355,7 @@ class RechargeRecord extends Component {
                     <span></span>:
                     <span>T币</span>
                   }
-                时发送提醒
+                &nbsp;时发送提醒
               </Col>
             </Row>
             <Row style={{ paddingLeft: '22px', height: 28 }}>

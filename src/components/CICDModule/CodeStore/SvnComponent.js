@@ -125,7 +125,7 @@ let SvnComponent = React.createClass({
             self.setState({
               authorizeModal: false,
               submiting: false,
-              privateType: true // default switch on switch private or public 
+              privateType: true // default switch on switch private or public
             })
             self.props.form.resetFields()
             Modal.confirm({
@@ -176,7 +176,7 @@ let SvnComponent = React.createClass({
     const forPassword = getFieldProps('password', {
     });
     return (
-      <div style={{ lineHeight: '150px', paddingLeft: '250px' }}>
+      <div style={{ lineHeight: '150px', paddingLeft: '42%', paddingBottom: '16px' }}>
         <Button type="primary" size="large" onClick={() => this.setModalStaus(true)}>添加 SVN 代码仓库</Button>
         <Modal title="添加 SVN 代码源" wrapClassName="svnModal" visible={this.state.authorizeModal}
           onCancel={() => this.setModalStaus(false)} maskClosable={false}

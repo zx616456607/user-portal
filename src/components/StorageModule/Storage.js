@@ -274,7 +274,14 @@ let MyComponent = React.createClass({
   render() {
     const { formatMessage } = this.props.intl
     let list = this.props.storage;
-    if (!list || !list.storageList) return (<div></div>)
+    if (!list || !list.storageList) return (<div className='loadingBox'>暂无数据</div>)
+    if (list.storageList.length < 1) {
+      return (
+        <div className='loadingBox'>
+          暂无数据
+        </div>
+      )
+    }
     let items = list.storageList.map((item) => {
       const menu = (<Menu onClick={(e) => { this.showAction(e, 'format', item.name, item.format) } } style={{ width: '80px' }}>
         <Menu.Item key="1" disabled={item.isUsed}><FormattedMessage {...messages.formatting} /></Menu.Item>

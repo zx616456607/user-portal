@@ -313,7 +313,7 @@ const MyComponent = React.createClass({
     if (serviceList.length < 1) {
       return (
         <div className="loadingBox">
-          服务列表为空
+          暂无数据
         </div>
       )
     }
@@ -690,7 +690,7 @@ class ServiceList extends Component {
       })
       let notification = new NotificationHandler()
       notification.error('请选择要停止的服务')
-      return 
+      return
     }
     stopServices(cluster, serviceNames, {
       success: {
@@ -845,7 +845,7 @@ class ServiceList extends Component {
     const self = this
     const { cluster, appName, loadAllServices, deleteServices, intl, serviceList } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
-    
+
     const serviceNames = checkedServiceList.map((service) => service.metadata.name)
     const allServices = self.state.serviceList
     allServices.map((service) => {

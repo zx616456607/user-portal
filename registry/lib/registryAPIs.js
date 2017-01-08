@@ -6,6 +6,8 @@
 /* Util classes for docker registry API
  * Document reference: https://docs.docker.com/reference/api/registry_api
  *
+ * NOTE: Extension and registry server should use the same protocol
+ *
  * v0.1 - 2015-03-21
  * @author Wang Lei
 */
@@ -13,7 +15,7 @@
 var logger  = require('../../utils/logger').getLogger('registryAPIs');
 var request = require('request');
 var async   = require('async');
-var config  = require('../../configs/registry')
+var registryConfigLoader = require('../registryConfigLoader')
 
 var TokenCacheMgr = []
 var TokenExpiredTime = 3600 // seconds
@@ -21,8 +23,11 @@ var TokenExpiredTime = 3600 // seconds
  * Docker registry APIs
  */
 function DockerRegistryAPIs(registryConfig) {
-  if (!this.registryConfig) {
-    this.registryConfig = config
+  if (registryConfig) {
+    this.registryConfig = registryConfig
+  } else {
+    // Get registry config from registry loader
+    this.registryConfig = registryConfigLoader.GetRegistryConfig()
   }
 }
 
@@ -406,7 +411,7 @@ DockerRegistryAPIs.prototype.getTagsV2 = function (user, repositoryName, callbac
   this.refreshToken(user, repositoryName, function(err, resp, token){
     if (err) {
       logger.error(method, err);
-      callback(500, body, err);
+      callback(500, resp, err);
       return;
     }
     if (callback) {
@@ -414,10 +419,10 @@ DockerRegistryAPIs.prototype.getTagsV2 = function (user, repositoryName, callbac
       // Get the image id for specified tag
       var statusCode = resp ? resp.statusCode : 200;
       if (resp.statusCode != 200) {
-        return callback(404, body);
+        return callback(404, resp);
       }
       var token = token;
-      var tagRequestUrl = self.registryConfig.v2ServerProtocol + "://" + self.registryConfig.v2Server + "/v2/" + repositoryName + "/tags/list";
+      var tagRequestUrl = self.registryConfig.protocol + "://" + self.registryConfig.v2Server + "/v2/" + repositoryName + "/tags/list";
       logger.info("Get tag url: " + tagRequestUrl);
       request.get({
         url: tagRequestUrl,
@@ -428,7 +433,7 @@ DockerRegistryAPIs.prototype.getTagsV2 = function (user, repositoryName, callbac
       }, function (err, resp, result) {
         if (err) {
           logger.error(method, err);
-          callback(500, this.body, err);
+          callback(500, resp, err);
           return;
         }
         callback(resp.statusCode, result.tags);
@@ -506,7 +511,7 @@ DockerRegistryAPIs.prototype.getImageSize = function (user, repositoryName, tag,
         return callback(404, body);
       }
       var token = body.token;
-      var manifestRequestUrl = self.registryConfig.v2ServerProtocol + "://" + self.registryConfig.v2Server + "/v2/" + repositoryName + "/manifests/" + tag;
+      var manifestRequestUrl = self.registryConfig.protocol + "://" + self.registryConfig.v2Server + "/v2/" + repositoryName + "/manifests/" + tag;
       logger.info("Get manifests url: " + manifestRequestUrl);
       request.get({
         url: manifestRequestUrl,
@@ -558,7 +563,7 @@ DockerRegistryAPIs.prototype.getImageJsonInfoV2 = function (user, repositoryName
     },
     function (token, callback) {
       // Get the tag first ...
-      var tagRequestUrl = self.registryConfig.v2ServerProtocol + "://" + self.registryConfig.v2Server + "/v2/" + repositoryName + "/tags/list";
+      var tagRequestUrl = self.registryConfig.protocol + "://" + self.registryConfig.v2Server + "/v2/" + repositoryName + "/tags/list";
       request.get({
         url: tagRequestUrl,
         json: true,
@@ -591,7 +596,7 @@ DockerRegistryAPIs.prototype.getImageJsonInfoV2 = function (user, repositoryName
       });
     },
     function (token, tag, callback) {
-      var jsonInfoRequestUrl = self.registryConfig.v2ServerProtocol + "://" + self.registryConfig.v2Server + "/v2/" + repositoryName + "/manifests/" + tag;
+      var jsonInfoRequestUrl = self.registryConfig.protocol + "://" + self.registryConfig.v2Server + "/v2/" + repositoryName + "/manifests/" + tag;
       logger.info("Get image json url: " + jsonInfoRequestUrl);
       request.get({
         url: jsonInfoRequestUrl,
@@ -605,7 +610,7 @@ DockerRegistryAPIs.prototype.getImageJsonInfoV2 = function (user, repositoryName
           callback(err, result);
           return;
         }
-        var layerRequestUrl = self.registryConfig.v2ServerProtocol + "://" + self.registryConfig.v2Server + "/v2/" + repositoryName + "/manifests/" + tag;
+        var layerRequestUrl = self.registryConfig.protocol + "://" + self.registryConfig.v2Server + "/v2/" + repositoryName + "/manifests/" + tag;
         logger.info("Get layer info url: " + layerRequestUrl);
         request.get({
           url: layerRequestUrl,

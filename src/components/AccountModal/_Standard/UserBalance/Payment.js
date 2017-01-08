@@ -602,38 +602,38 @@ class UserPay extends Component {
             <div className="pay-row" style={{ marginTop: '20px' }}>
               {this.renderPayButton()}
             </div>
-            <div className="downRow">② 线下汇款充值</div>
+            <div className="downRow">② 银行转账充值</div>
             <br />
             <div className="tips">
-              <p className="list-top">1. 打款至时速云指定收款账号  <span className="timeout">注意：请妥善保管汇款底单</span></p>
+              <p className="list-top">1. 转账或汇款至时速云指定收款账号  <span className="timeout">注意：请妥善保管银行回单</span></p>
               <Row className="list-row">
-                <Col span="8">开户行</Col>
-                <Col span="8">户名</Col>
+                <Col span="8">开户银行</Col>
+                <Col span="8">账户名称</Col>
                 <Col span="8">账号</Col>
               </Row>
               <Row className="ticket">
                 <Col span="8">招商银行股份有限公司北京中关村支行</Col>
-                <Col span="8">北京云思畅想有限责任公司</Col>
+                <Col span="8">北京云思畅想科技有限公司</Col>
                 <Col span="8">110912611610301</Col>
               </Row>
               <p className="list-top">2. 与我们联系</p>
               <div className="list-row">
-                打款后，请拔打电话<a href="phone:400-626-1876">（400-626-1876）</a>，
-              发送邮件<a href="mailto:service@tenxcloud.com">（service@tenxcloud.com）</a>或<a>右下角工单</a>的方式与我们联系并提供下列信息：（以便工作人员与您联系并登记到您的名下）</div>
+                转账或汇款后，请通过 <a>右下角工单</a> ，或拔打电话<a href="phone:400-626-1876">（400-626-1876）</a>，
+              发送邮件<a href="mailto:service@tenxcloud.com">（service@tenxcloud.com）</a>的方式与我们联系，并提供下列信息：（以便工作人员与您联系并登记到您的名下）</div>
               <Row className="ticket">
-                <Col span="4">汇款人单位和姓名</Col>
-                <Col span="4">汇款底单</Col>
+                <Col span="4">汇款人单位或姓名</Col>
+                <Col span="4">银行回单</Col>
                 <Col span="4">联系人手机</Col>
-                <Col span="4">您在时速云登录邮箱</Col>
+                <Col span="4">登录邮箱</Col>
                 <Col span="4">汇款银行账号</Col>
                 <Col span="4">要充值的帐号名称</Col>
               </Row>
               <p className="list-top">3. 充值结果反馈</p>
               <div className="list-row">
-                打款并提交汇款信息后，您可以前往 <Link to="/account">充值记录</Link> 查询页面查看您的充值记录
+                充值并提交汇款信息后，您可以前往 <Link to="/account">充值记录</Link> 查询页面查看您的充值记录
               </div>
               <div className="timeout">
-                （由于银行处理时间影响，充值记录会有延误）
+                （由于银行处理时间影响，充值记录可能会有延迟）
               </div>
             </div>
           </div>

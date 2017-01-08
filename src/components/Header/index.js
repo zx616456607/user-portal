@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Menu, Dropdown, Select, Input, Form } from 'antd'
+import { Menu, Dropdown, Select, Input, Form, Icon } from 'antd'
 import { FormattedMessage, defineMessages } from 'react-intl'
 import "./style/header.less"
 import querystring from 'querystring'
@@ -38,7 +38,7 @@ const InputGroup = Input.Group
 const menusText = defineMessages({
   doc: {
     id: 'Header.menu.doc',
-    defaultMessage: '文档',
+    defaultMessage: '文档中心',
   },
   user: {
     id: 'Header.menu.user',
@@ -273,7 +273,10 @@ class Header extends Component {
           migrated === 1 ?
           <div className='backVersion'>
             <a href='https://console.tenxcloud.com' target='_blank'>
-              <img src='/img/newVersionBtn.png'/>
+              <span className='backIcon'>
+                <Icon type="double-right"/>
+              </span>
+              <span className='backText'>返回旧版</span>
             </a>
           </div> :
           <div></div>
@@ -281,6 +284,11 @@ class Header extends Component {
           <div className="docBtn">
             <a href="http://docs.tenxcloud.com" target="_blank">
               <FormattedMessage {...menusText.doc}/>
+            </a>
+          </div>
+          <div className="docBtn">
+            <a href="http://docs.tenxcloud.com/faq" target="_blank">
+              FAQ
             </a>
           </div>
           <UserPanel loginUser={loginUser}/>

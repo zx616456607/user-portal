@@ -90,7 +90,7 @@ class ComposeFile extends Component {
                     }
                   }
                   convertedContent += yaml.dump(yamlObj)
-                  if (index != codeList.length - 1) {
+                  if (index != yamlList.length - 1) {
                     convertedContent += '---\n'
                   }
                 } catch(error) {
