@@ -407,7 +407,7 @@ class ServiceList extends Component {
             </div>
             <div className="price-unit">合计：<span className="unit">{ countPrice.unit =='￥'? '￥':'' }</span>
               <span className="unit blod" style={{marginRight:'10px'}}>{ hourPrice.amount }{ countPrice.unit =='￥'? '':'T' }/小时</span>
-              <span className="unit">（约：{ countPrice.fullAmount }{ countPrice.unit =='￥'? '':'' }/月）</span>
+              <span className="unit">（约：{ countPrice.fullAmount }/月）</span>
             </div>
           </div>
           <div className="btnBox">
