@@ -16,10 +16,12 @@ import "./style/AppServiceLog.less"
 import { formateDate } from '../../../common/tools'
 import { DATE_PIRCKER_FORMAT, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
 import { loadServiceLogs, clearServiceLogs } from '../../../actions/services'
+import { loadContainerDetailEvents } from '../../../actions/app_manage'
 import { throwError } from '../../../actions'
 import { mode } from '../../../../configs/model'
 import { STANDARD_MODE } from '../../../../configs/constants'
 import moment from 'moment'
+import merge from 'lodash/merge'
 
 const YESTERDAY = new Date(moment(moment().subtract(1, 'day')).format(DATE_PIRCKER_FORMAT))
 const standardFlag = (mode == STANDARD_MODE ? true : false);
@@ -28,18 +30,19 @@ class AppServiceLog extends Component {
   constructor(props) {
     super(props)
     this.resizeLog = this.resizeLog.bind(this)
+    this.loadContainersEvents = this.loadContainersEvents.bind(this)
     this.state = {
       currentDate: formateDate(new Date(), DATE_PIRCKER_FORMAT),
       pageIndex: 1,
       pageSize: 50,
       useGetLogs: true,
       preScroll: 0,
-      logSize: 'normal'
+      logSize: 'normal',
+      serviceLogs: [],
     }
   }
   componentWillMount() {
-    const cluster = this.props.cluster
-    const serviceName = this.props.serviceName
+    const { cluster, serviceName } = this.props
     const self = this
     this.props.loadServiceLogs(cluster, serviceName, {
       size: 50
@@ -52,6 +55,10 @@ class AppServiceLog extends Component {
                 useGetLogs: false
               })
             }
+            // Show events when log empty
+            if (!result.data || result.data.length === 0) {
+              self.loadContainersEvents()
+            }
           },
           isAsync: true
         }
@@ -60,26 +67,48 @@ class AppServiceLog extends Component {
       pageIndex: 2
     })
   }
+  loadContainersEvents() {
+    const { cluster, loadContainerDetailEvents, containers } = this.props
+    containers.map(container => {
+      loadContainerDetailEvents(cluster, container.metadata.name)
+    })
+  }
   componentWillUnmount() {
     const cluster = this.props.cluster
     const serviceName = this.props.serviceName
     this.props.clearServiceLogs(cluster, serviceName)
   }
-  componentWillReceiveProps(nextProp) {
-     const { serviceDetailmodalShow } = nextProp
+  componentWillReceiveProps(nextProps) {
+     const { serviceDetailmodalShow, serviceLogs, eventLogs, cluster } = nextProps
+     let state = {
+       serviceLogs,
+     }
+     const clusterLogs = this.state.serviceLogs[cluster]
+     if (!clusterLogs || !clusterLogs['logs'] || !clusterLogs['logs']['data'] || clusterLogs['logs']['data'].length == 0) {
+       state.serviceLogs = {
+         [cluster]: {
+           logs: {
+             data: eventLogs
+           }
+         }
+       }
+     }
+     this.setState(state)
      if(serviceDetailmodalShow == this.props.serviceDetailmodalShow) return
      if(!serviceDetailmodalShow){
        this.props.clearServiceLogs(this.props.cluster, this.props.serviceName)
        return
      }
-     this.setState({
+     state = merge({}, state, {
        currentDate: formateDate(new Date(), DATE_PIRCKER_FORMAT),
        pageIndex: 1,
        pageSize: 50,
        useGetLogs: true,
-       preScroll: 0
+       preScroll: 0,
+       serviceLogs,
      })
-     this.changeCurrentDate(new Date(), true, nextProp.cluster, nextProp.serviceName),0
+     this.setState(state)
+     this.changeCurrentDate(new Date(), true, nextProp.cluster, nextProp.serviceName)
   }
   moutseRollLoadLogs() {
     if (!this.state.useGetLogs) return
@@ -113,6 +142,10 @@ class AppServiceLog extends Component {
               self.setState({
                 useGetLogs: true
               })
+            }
+            // Show events when log empty
+            if (!result.data || result.data.length === 0) {
+              self.loadContainersEvents()
             }
           },
           isAsync: true
@@ -180,17 +213,19 @@ class AppServiceLog extends Component {
     return ''
   }
   getLogs() {
-    const cluster = this.props.cluster
-    if (!this.props.serviceLogs[cluster] ) {
+    const { cluster } = this.props
+    const { serviceLogs } = this.state
+    const clusterLogs = serviceLogs[cluster]
+    if (!clusterLogs ) {
       return '无日志'
     }
-    if(this.props.serviceLogs[cluster].isFetching){
+    if(clusterLogs.isFetching){
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
-    if(!this.props.serviceLogs[cluster].logs){
+    if(!clusterLogs.logs){
       return '无日志'
     }
-    const logs = this.props.serviceLogs[cluster].logs.data
+    const logs = clusterLogs.logs.data
     if (!logs || logs.length <= 0) return '无日志'
     let page = Math.ceil(logs.length / 50)
     let remainder = logs.length % 50
@@ -282,17 +317,54 @@ class AppServiceLog extends Component {
   }
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
   const { loginUser } = state.entities
+  const { containerDetailEvents } = state.containers
+  const { cluster } = props
+  const defaultEvents = {
+    isFetching: false,
+    eventList: []
+  }
+  let allContainerEvents = containerDetailEvents[cluster]
+  const eventLogs = []
+  if (!allContainerEvents) {
+    allContainerEvents = {}
+  }
+  for(let key in allContainerEvents) {
+    if (allContainerEvents.hasOwnProperty(key)) {
+      let events = allContainerEvents[key] || defaultEvents
+      let { eventList } = events
+      eventList.map((event, index) => {
+        let { type, message, lastSeen, objectMeta } = event
+        let timeNano = + new Date(lastSeen) * 1000000 + ''
+        let eventLog = {
+          id: `${objectMeta.name}_${index}`,
+          name: key,
+          mark: 'event',
+          kind: 'instance',
+          time_nano: timeNano,
+          log: message + '\n',
+        }
+        /*if (type !== 'Normal') {
+          eventLog.log += ` <font color="orange">${message}</font>`
+        } else {
+          eventLog.log += ` <font>${message}</font>`
+        }*/
+        eventLogs.push(eventLog)
+      })
+    }
+  }
   return {
     loginUser: loginUser.info,
     serviceLogs: state.services.serviceLogs,
+    eventLogs,
   }
 }
 AppServiceLog = connect(mapStateToProps, {
   loadServiceLogs,
   clearServiceLogs,
   throwError,
+  loadContainerDetailEvents,
 })(AppServiceLog)
 
 export default AppServiceLog
