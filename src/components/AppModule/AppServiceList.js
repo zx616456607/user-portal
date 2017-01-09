@@ -25,6 +25,7 @@ import {
   deleteServices,
   quickRestartServices
 } from '../../actions/services'
+import { LOAD_STATUS_TIMEOUT } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
@@ -442,6 +443,11 @@ class AppServiceList extends Component {
       success: {
         func: (result) => {
           addDeploymentWatch(cluster, self.props, result.data)
+          // For fix issue #CRYSTAL-1604(load list again for update status)
+          clearTimeout(self.loadStatusTimeout)
+          self.loadStatusTimeout = setTimeout(() => {
+            loadServiceList(cluster, appName, { page, size, name })
+          }, LOAD_STATUS_TIMEOUT)
         },
         isAsync: true
       }
