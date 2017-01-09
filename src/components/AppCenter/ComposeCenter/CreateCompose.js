@@ -79,6 +79,7 @@ class CreateCompose extends Component {
     e.preventDefault();
     const parentScope = this.props.scope;
     const form = this.props.form
+    console.log(this.state.currentYaml)
     form.validateFields((errors, values) => {
       if (!!errors) {
         //it's mean there are some thing is null,user didn't input
