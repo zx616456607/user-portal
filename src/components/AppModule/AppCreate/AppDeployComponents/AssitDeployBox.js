@@ -194,7 +194,7 @@ let AssitDeployBox = React.createClass({
                  {this.getUserCMD()}
                  {parentScope.state.runningCode == '1' ? '' :  <div onClick={this.add} style={{paddingLeft: '120px', cursor: 'pointer'}}>
                     <Icon type="plus-circle-o" style={{paddingRight: '5px'}}/>
-                    <span>添加一个容器目录</span>
+                    <span>添加一个启动命令</span>
                     </div>
                  } 
               </div>

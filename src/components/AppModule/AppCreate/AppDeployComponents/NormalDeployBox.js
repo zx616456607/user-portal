@@ -401,14 +401,7 @@ function setPorts(containerPorts, form) {
 function setCMD(container, form) {
   const key = []
   const key1 =[]
-  let cmds
-  let args = []
-  if(container.entrypoint) {
-    cmds = container.entrypoint
-    args = container.cmd
-  } else {
-    cmds = container.cmd
-  }
+  let cmds = container.cmd
   if(!cmds) cmds = []
   cmds.forEach((cmd, index) => {
     key.push(index + 1)
@@ -416,8 +409,8 @@ function setCMD(container, form) {
     form.setFieldsValue({
       cmdKey: key,
       userCMDKey: key1,
-      [`cmd${index + 1}`]: cmd + (args[index] ? args[index] : ''),
-      [`userCMD${index + 1}`]: cmd + (args[index] ? args[index] : '')
+      [`cmd${index + 1}`]: cmd,
+      [`userCMD${index + 1}`]: cmd
     })
   })
 }
