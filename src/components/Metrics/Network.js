@@ -14,6 +14,13 @@ import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from './EchartsOption'
 
+function formatGrid(count) {
+  //this fucntion for format grid css
+  //due to the network counts > 6, this grid would be display wrong
+  let initHeight = 300 + ((count - 4)/2)*25;
+  return initHeight + 'px';
+}
+
 class Network extends Component {
   constructor(props) {
     super(props)
@@ -45,8 +52,10 @@ class Network extends Component {
       option.setXAxisData(timeData)
       option.addSeries(values, `${item.containerName} 下载`)
     })
+    option.setGirdForDataNetWork(networkTransmitted.data.length + networkReceived.data.length)
     return (
       <ReactEcharts
+        style={{ height: formatGrid(networkTransmitted.data.length + networkReceived.data.length) }}
         notMerge={true}
         option={option}
         showLoading={networkReceived.isFetching || networkTransmitted.isFetching}

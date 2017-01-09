@@ -29,7 +29,9 @@ class EchartsOption {
     }
     this.legend = {
       data: [],
-      align: 'left'
+      align: 'left',
+      left: 50,
+      right: 50
     }
     this.grid = [{
       left: 70,
@@ -110,6 +112,44 @@ class EchartsOption {
       seriesItem.type = type
     }
     this.series.push(seriesItem)
+  }
+  
+  setGirdForDataNetWork(count) {
+    //for network grid format
+    let clientWidth = document.body.clientWidth;
+    let num = (count - 4)/2;
+    let windowResizeChange = 0;
+    if(clientWidth >= 1600) {
+      windowResizeChange = -50;
+    }
+    if(clientWidth >= 1800) {
+      windowResizeChange = -100;
+    }
+    let initTop = 85 + num * 20 + windowResizeChange;
+    this.grid = [{
+      top: initTop,
+      left: 70,
+      right: 70,
+    }]
+  }
+  
+  setGirdForDataCommon(count) {
+    //for memory and cpu grid format
+    let clientWidth = document.body.clientWidth;
+    let num = (count - 4)/2;
+    let windowResizeChange = 0;
+    if(clientWidth > 1600) {
+      windowResizeChange = -50;
+    }
+    if(clientWidth >= 1800) {
+      windowResizeChange = -60;
+    }
+    let initTop = 85 + num * 15 + windowResizeChange;
+    this.grid = [{
+      top: initTop,
+      left: 70,
+      right: 70,
+    }]
   }
 }
 

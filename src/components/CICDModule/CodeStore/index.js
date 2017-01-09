@@ -240,6 +240,8 @@ const MyComponent = React.createClass({
         {items}
 
         <Modal title="手动添加WebHook" visible={this.state.showModal}
+          onCancel={() => { this.setState({ showModal: false }) }}
+          maskClosable={false}
           footer={[
             <Button key="back" type="ghost" size="large" onClick={() => { this.setState({ showModal: false }) } }>关闭</Button>,
           ]}
