@@ -73,7 +73,7 @@ class CodeList extends Component {
 
   // let CodeList = React.createClass({
 
-  addBuild(item, index) {
+  addBuild(item, index, repoUser) {
     const loadingList = {}
     const self = this
     loadingList[index] = true
@@ -81,6 +81,7 @@ class CodeList extends Component {
       loadingList
     })
     let notification = new NotificationHandler()
+    item.repoUser = repoUser
     this.props.scope.props.addGithubRepo(item, {
       success: {
         func: () => {
@@ -121,7 +122,7 @@ class CodeList extends Component {
   }
 
   render() {
-    const { data, isFetching} = this.props
+    const { data, isFetching, repoUser } = this.props
     const scope = this
     if (isFetching) {
       return (
@@ -143,7 +144,7 @@ class CodeList extends Component {
                   <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>撤销</a></span>
                 :
                 <Tooltip placement="right" title="可构建项目">
-                  <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >激活</Button>
+                  <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index, repoUser)} >激活</Button>
                 </Tooltip>
               }
             </div>
@@ -257,7 +258,7 @@ class GithubComponent extends Component {
       for (let i in githubList) {
         codeList.push(
           <TabPane tab={<span><Icon type="user" />{i}</span>} key={i}>
-            <CodeList scope={scope} isFetching={isFetching} data={githubList[i]} />
+            <CodeList scope={scope} isFetching={isFetching} repoUser={i} data={githubList[i]} />
           </TabPane>
         )
       }
