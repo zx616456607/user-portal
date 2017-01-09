@@ -230,7 +230,7 @@ class CreateModel extends Component {
               <div style={{ clear: "both" }}></div>
               <div className="envirBox">
                 <Form>
-                  <FormItem hasFeedback key="space">
+                  <FormItem hasFeedback key="space" style={{minWidth:'220px'}}>
                     <span>部署环境</span>
                     <Select size="large"
                       placeholder="请选择空间"
