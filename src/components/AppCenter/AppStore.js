@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input ,Modal} from 'antd'
+import { Menu, Button, Card, Input, Spin, Modal} from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import ScrollAnim from 'rc-scroll-anim'
 import Animate from 'rc-animate'
@@ -182,7 +182,7 @@ class AppStore extends Component {
     const scope = this;
     let {appStoreList} = this.props
     if (!appStoreList || appStoreList.length === 0) {
-      return (<div className="imageNoData">暂无应用</div>)
+      return (<div className='loadingBox'><Spin size='large' /></div>)
     }
     const storeList = appStoreList.map((list, index) => {
       return (

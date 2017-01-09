@@ -19,6 +19,10 @@ import ProgressBox from '../../../ProgressBox'
 import { Link } from 'react-router'
 import { parseAmount } from '../../../../common/tools'
 import { AVATAR_HOST } from '../../../../constants'
+import homeKubernetes from '../../../../assets/img/homeKubernetes.png'
+import homeMySQL from '../../../../assets/img/homeMySQL.png'
+import homeMongoCluster from '../../../../assets/img/homeMongoCluster.png'
+import homeRedis from '../../../../assets/img/homeRedis.png'
 
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -578,7 +582,7 @@ class Ordinary extends Component{
                       <i style={{backgroundColor: '#28bd83'}}></i>
                       今日消费&nbsp;:&nbsp;
                     </div>
-                    <span className='costNum'>¥ {parseAmount(clusterNodeSpaceConsumption.consumption).amount + '(全区域)'}</span>
+                    <span className='costNum'>¥ {parseAmount(clusterNodeSpaceConsumption.consumption).amount}&nbsp; <Tooltip title="全区域"><Icon type="question-circle-o" /></Tooltip></span>
                     <Link to='/account/cost'><Button type='primary'>去查看</Button></Link>
                   </div>
                 </div>
@@ -616,7 +620,7 @@ class Ordinary extends Component{
                   <tbody>
                   <tr>
                     <td>
-                      <img className="stateImg" src="/img/homeKubernetes.png" />
+                      <img className="stateImg" src={homeKubernetes} />
                       Engine
                     </td>
                     <td>
@@ -714,7 +718,7 @@ class Ordinary extends Component{
               </Row>
               <Row style={{display: this.state.tab1?'block':'none',height:130}}>
                 <Col span={12} className='dbImg'>
-                  <img src="/img/homeMySQL.png" alt="MySQL"/>
+                  <img src={homeMySQL} alt="MySQL"/>
                 </Col>
                 <Col span={12} className='dbInf'>
                   <table>
@@ -752,7 +756,7 @@ class Ordinary extends Component{
               </Row>
               <Row style={{display: this.state.tab2?'block':'none',height:130}}>
                 <Col span={12} className='dbImg'>
-                  <img src="/img/homeMongoCluster.png" alt="MongoCluster"/>
+                  <img src={homeMongoCluster} alt="MongoCluster"/>
                 </Col>
                 <Col span={12} className='dbInf'>
                   <table>
@@ -790,7 +794,7 @@ class Ordinary extends Component{
               </Row>
               <Row style={{display: this.state.tab3?'block':'none',height:130}}>
                 <Col span={12} className='dbImg'>
-                  <img src="/img/homeRedis.png" alt="Redis"/>
+                  <img src={homeRedis} alt="Redis"/>
                 </Col>
                 <Col span={12} className='dbInf'>
                   <table>

@@ -12,7 +12,7 @@ import { Tabs, Button, Form, Input, Card, Tooltip, message, Alert, Col, Row, Rad
 import { connect } from 'react-redux'
 import { registerUser, sendRegisterPhoneCaptcha } from '../../actions/user'
 import { browserHistory } from 'react-router'
-import { USERNAME_REG_EXP, EMAIL_REG_EXP, PHONE_REGEX } from '../../constants'
+import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP, PHONE_REGEX } from '../../constants'
 import NotificationHandler from '../../common/notification_handler'
 
 const createForm = Form.create
@@ -53,9 +53,9 @@ let Company = React.createClass({
         return
       }
       if (!values.password || !values.captcha ||
-        !USERNAME_REG_EXP.test(values.userName) || !PHONE_REGEX.test(values.tel) ||
+        !USERNAME_REG_EXP_NEW.test(values.userName) || !PHONE_REGEX.test(values.tel) ||
         !EMAIL_REG_EXP.test(values.email) || !values.certCode) {
-        retrun
+        return
       }
       this.setState({
         submitting: true,
@@ -82,7 +82,7 @@ let Company = React.createClass({
               submitProps: {},
             })
             message.success(`注册成功`)
-            browserHistory.push(`/register?email=${result.email}&code=${result.code}`)
+            browserHistory.push(`/signup?email=${result.email}&code=${result.code}`)
             resetFields()
           },
           isAsync: true
@@ -127,12 +127,16 @@ let Company = React.createClass({
    */
   //用户名验证
   checkUserName(rule, value, callback) {
-    if (!value || value.length < 3) {
-      callback()
+    if (!value) {
+      callback([new Error('请填写用户名')])
       return
     }
-    if (!USERNAME_REG_EXP.test(value)) {
-      callback([new Error('用户名填写错误')])
+    if (value.length < 5 || value.length > 40) {
+      callback([new Error('长度为5~40个字符')])
+      return
+    }
+    if (!USERNAME_REG_EXP_NEW.test(value)) {
+      callback([new Error('以[a~z]开头，允许[0~9]、[-]，长度5~40个字符')])
       return
     }
     callback()
@@ -152,7 +156,15 @@ let Company = React.createClass({
   //密码验证
   checkPass(rule, value, callback) {
     if (!value) {
-      callback()
+      callback([new Error('请填写密码')])
+      return
+    }
+    if (value.length < 6 || value.length > 16) {
+      callback([new Error('长度为6~16个字符')])
+      return
+    }
+    if (/^[^0-9]+$/.test(value) || /^[^a-zA-Z]+$/.test(value)) {
+      callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
       return
     }
     callback()
@@ -160,7 +172,7 @@ let Company = React.createClass({
   //验证码
   checkCaptcha(rule, value, callback) {
     if (!value) {
-      callback()
+      callback([new Error('请填写验证码')])
       return
     }
   },
@@ -182,7 +194,7 @@ let Company = React.createClass({
   //发送验证码
   changeCaptcha() {
     // send captcha
-    let passValidate = false
+    // let passValidate = false
     const { validateFields } = this.props.form
     validateFields((err, values) => {
       if (err) {
@@ -192,47 +204,44 @@ let Company = React.createClass({
       if (!phone || !PHONE_REGEX.test(phone)) {
         return
       }
+      this.setState({
+        captchaLoading: true,
+        countDownTimeText: '60s 后重新发送',
+      })
+      let wait = 59
+      //重新发送定时器
+      let time = setInterval(() => {
+        let text = wait + 's 后重新发送'
+        wait--
+        if(wait >= -1){
+          this.setState({
+            countDownTimeText: text
+          })
+          return
+        }
+        this.setState({
+          captchaLoading: false,
+          countDownTimeText: '发送验证码',
+        })
+        clearInterval(time)
+      },1000)
+
       this.props.sendRegisterPhoneCaptcha(phone, {
         success: {
           func: () => {
             let notification = new NotificationHandler()
-            notification.success(`发送邀请码成功`)
+            notification.success(`发送验证码成功`)
           },
           isAsync: true
         },
         failed: {
           func: (err) => {
             let notification = new NotificationHandler()
-            notification.error(`发送邀请码失败`, err.message)
+            notification.error(`发送验证码失败`, err.message)
           }
         }
       })
     })
-
-    if (!passValidate) {
-      return
-    }
-    this.setState({
-      captchaLoading: true,
-      countDownTimeText: '60s 后重新发送',
-    })
-    let wait = 59
-    //重新发送定时器
-    let time = setInterval(() => {
-      let text = wait + 's 后重新发送'
-      wait--
-      if(wait >= -1){
-        this.setState({
-          countDownTimeText: text
-        })
-        return
-      }
-      this.setState({
-        captchaLoading: false,
-        countDownTimeText: '发送验证码',
-      })
-      clearInterval(time)
-    },1000)
   },
   //失去输入框焦点
   intOnBlur(current) {
@@ -382,7 +391,6 @@ let Company = React.createClass({
     //用户名规则
     const userNameProps = getFieldProps('userName', {
       rules: [
-        { required: true, min: 3, message: '用户名至少为 3 个字符' },
         { validator: this.checkUserName },
       ],
     })
@@ -396,7 +404,6 @@ let Company = React.createClass({
     //密码规则
     const passwdProps = getFieldProps('password', {
       rules: [
-        { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
       ],
     })
@@ -452,7 +459,7 @@ let Company = React.createClass({
             className="formItemName"
           >
             <div className={this.state.intEmailFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'email')}>邮箱</div>
-            
+
             <Input {...emailProps} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'email')}
                    onFocus={this.intOnFocus.bind(this, 'email')}
                    ref="intEmail"
@@ -479,7 +486,7 @@ let Company = React.createClass({
             hasFeedback
             className="formItemName"
           >
-            <div className={this.state.intTelFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>手机号</div>
+            <div className={this.state.intTelFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'tel')}>手机号</div>
             <Input {...telProps} autoComplete="off"
                    onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                    onBlur={this.intOnBlur.bind(this, 'tel')}
@@ -512,7 +519,7 @@ let Company = React.createClass({
               </Button>
             </Tooltip>
           </FormItem>
-          
+
           {/*单位选择*/}
           <FormItem
             {...formItemLayout}
@@ -592,7 +599,7 @@ Company = createForm()(Company)
 
 function mapStateToProps(state,props) {
   return {
-    
+
   }
 }
 Company = connect(mapStateToProps,{

@@ -81,7 +81,7 @@ class ServiceAPI extends Component {
     }
     if (!configList) {
       return (
-        <div style={{lineHeight:'50px'}}>Not Config files</div>
+        <div style={{lineHeight:'50px'}}>没有加载到该版本的配置信息</div>
       )
     }
     let portsShow = null, dataStorageShow = null, cmdShow = null, entrypointShow = null;

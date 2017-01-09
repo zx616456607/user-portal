@@ -18,6 +18,7 @@ export const CREATE_APP_ANNOTATIONS = 'tenxcloud.com/schemaPortname'
 export const LABEL_APPNAME = `${TENX_MARK}/appName`
 export const USERNAME_REG_EXP = /^[a-z][-a-z0-9]{1,40}[a-z0-9]$/
 export const USERNAME_REG_EXP_OLD = /^[a-z][-a-z0-9_]{1,40}[a-z0-9]$/
+export const USERNAME_REG_EXP_NEW = /^[a-z][-a-z0-9]{3,38}[a-z0-9]$/
 export const STORAGENAME_REG_EXP = /^[a-z][-a-z0-9_]{2,14}$/
 export const EMAIL_REG_EXP = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/
 export const PHONE_REGEX = /(^(13\d|14[57]|15[^4,\D]|17[678]|18\d)\d{8}|170[059]\d{7})$/

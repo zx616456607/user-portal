@@ -18,8 +18,9 @@ import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import { calcuDate, parseAmount} from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
-import serverSVG from '../../assets/img/server.svg'
 import { ANNOTATION_SVC_SCHEMA_PORTNAME } from '../../../constants'
+import mysqlImg from '../../assets/img/test/mysql.jpg'
+import redisImg from '../../assets/img/test/redis.jpg'
 
 const Panel = Collapse.Panel;
 const ButtonGroup = Button.Group
@@ -138,6 +139,7 @@ class BaseInfo extends Component {
   }
   render() {
     const { domainSuffix, databaseInfo ,dbName } = this.props
+    console.log(databaseInfo)
     const parentScope = this.props.scope
     const rootScope = parentScope.props.scope
     const podSpec = databaseInfo.podList.pods[0].podSpec
@@ -167,7 +169,7 @@ class BaseInfo extends Component {
         <div className="modal-li">
           <span className="spanLeft">存储大小</span>
           {/* <Slider min={500} max={10000} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} step={100} /> */}
-          <InputNumber min={512} step={512} max={20480} disabled={true} value={parentScope.state.storageValue} /> &nbsp; M
+          <InputNumber min={512} step={512} max={20480} disabled={true} value={databaseInfo.volumeInfo.size} /> &nbsp;
         </div>
         <div className="modal-price">
           <div className="price-left">
@@ -224,7 +226,7 @@ class BaseInfo extends Component {
             </Tooltip>
             <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {externalPort != ''? databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort : '-'}/>
           </div>
-          <div className='configList'><span className='listKey'>副本数：</span>{databaseInfo.podInfo.pending + databaseInfo.podInfo.running}/{databaseInfo.podInfo.desired}个</div>
+          <div className='configList'><span className='listKey'>副本数：</span>{this.props.currentData.pending + this.props.currentData.running}/{this.props.currentData.desired}个</div>
           {this.props.database == 'mysql' ?
             <div><div className='configHead'>参数</div>
               <ul className='parse-list'>
@@ -239,7 +241,7 @@ class BaseInfo extends Component {
             </div>
             : null
           }
-          <div className='configHead'>实例副本 <span>{databaseInfo.podInfo.desired}个 &nbsp;</span>
+          <div className='configHead'>实例副本 <span>{this.props.currentData.desired}个 &nbsp;</span>
             <Popover content={modalContent} title={null} trigger="click" overlayClassName="putmodalPopover"
               visible={rootScope.state.putVisible} getTooltipContainer={()=> document.getElementById('AppServiceDetail')}
               >
@@ -375,7 +377,7 @@ class ModalDetail extends Component {
     const parentScope = this.props.scope
     const _this = this
     const notification = new NotificationHandler()
-    this.putModal()
+    
     this.setState({putModaling: true})
     putDbClusterDetail(cluster, dbName, this.state.replicas, {
       success: {
@@ -429,7 +431,7 @@ class ModalDetail extends Component {
         <div className='titleBox'>
           <Icon className='closeBtn' type='cross' onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className='imgBox'>
-            <img src={serverSVG} />
+            <img src={ this.props.database == 'mysql' ? mysqlImg : redisImg} />
           </div>
           <div className='infoBox'>
             <p className='instanceName'>
@@ -482,7 +484,7 @@ class ModalDetail extends Component {
               activeKey={this.state.activeTabKey}
               >
               <TabPane tab='基础信息' key='#BaseInfo'>
-                <BaseInfo domainSuffix={domainSuffix} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                <BaseInfo domainSuffix={domainSuffix} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
               </TabPane>
               <TabPane tab='事件' key='#events'>
                 <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} />

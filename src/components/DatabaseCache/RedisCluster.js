@@ -23,6 +23,7 @@ import NotificationHandler from '../../common/notification_handler'
 import { formatDate } from '../../common/tools.js'
 // import './style/RedisCluster.less'
 import './style/MysqlCluster.less'
+import redisImg from '../../assets/img/test/redis.jpg'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -32,7 +33,8 @@ let MyComponent = React.createClass({
     const { scope } = this.props;
     scope.setState({
       detailModal: true,
-      currentDatabase: database
+      currentData: database,
+      currentDatabase: database.serivceName
     })
   },
   render: function () {
@@ -56,12 +58,12 @@ let MyComponent = React.createClass({
         <div className='List' key={index}>
           <div className='list-wrap'>
             <div className='detailHead'>
-              <img src='/img/test/redis.jpg' />
+              <img src={redisImg} />
               <div className='detailName'>
                 {item.serivceName}
               </div>
               <div className='detailName'>
-                <Button type='ghost' size='large' onClick={this.showDetailModal.bind(this, item.serivceName)}><Icon type='bars' />展开详情</Button>
+                <Button type='ghost' size='large' onClick={this.showDetailModal.bind(this, item)}><Icon type='bars' />展开详情</Button>
               </div>
             </div>
             <ul className='detailParse'>
@@ -189,7 +191,7 @@ class RedisDatabase extends Component {
           className='AppServiceDetail' transitionName='move-right'
           onCancel={() => { this.setState({ detailModal: false }) } }
           >
-          <ModalDetail scope={_this} putVisible={ _this.state.putVisible } database={this.props.database} dbName={this.state.currentDatabase} />
+          <ModalDetail scope={_this} putVisible={ _this.state.putVisible } database={this.props.database} currentData={this.state.currentData} dbName={this.state.currentDatabase} />
         </Modal>
         <Modal visible={this.state.CreateDatabaseModalShow}
           className='CreateDatabaseModal' maskClosable={false}

@@ -70,17 +70,13 @@
     padding: 30px;
     background-color: #FFFFFF;
     .imgBox {
+      padding-top: 10px;
       float: left;
       width: 120px;
       height: 120px;
       border-radius: 10px;
       box-shadow: 0 0 5px #C2C2C2;
-      img {
-        width: 118px;
-        height: 118px;
-        border-radius: 10px;
-        padding: 20px;
-      }
+      img{max-width: 100%;}
     }
     .closeBtn {
       position: absolute;
@@ -92,6 +88,9 @@
     .infoBox {
       .appSvcDetailDomain {
         .address {
+          display: -webkit-box;
+          display: -webkit-flex;
+          display: -ms-flexbox;
           display: flex;
           height: 30px;
           line-height: 30px;

@@ -95,21 +95,21 @@ class UpgradeModal extends Component {
               <div className='littleTitle'>
                 <span>标准版</span>￥<span>0</span>/月
               </div>
-              {/*<div className={ currentType == 'app' ? 'activeInfo littleInfo' : 'littleInfo'}>
+              <div className={ currentType == 'app' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>应用管理（5个应用）</span>
+                <span className='infoSpan'>应用管理</span>
               </div>
               <div className={ currentType == 'storage' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>存储管理（10G）</span>
-              </div>*/}
+                <span className='infoSpan'>存储管理</span>
+              </div>
               <div className={ currentType == 'appcenter' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
                 <span className='infoSpan'>交付中心（2个镜像）</span>
               </div>
               <div className={ currentType == 'cicd' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>CI/CD标准版（不超过 2 个构建流程，8个构建步骤）代码库（GitHub）</span>
+                <span className='infoSpan'>CI/CD标准版（2 个TenxFlow，8个子项目）代码库（GitHub）</span>
               </div>
               <div className={ currentType == 'database' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
@@ -132,14 +132,14 @@ class UpgradeModal extends Component {
               <div className='littleTitle'>
                 <span>专业版</span>￥<span>99</span>/月
               </div>
-              {/*<div className={ currentType == 'app' ? 'activeInfo littleInfo' : 'littleInfo'}>
+              <div className={ currentType == 'app' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>应用管理（20个应用）</span>
+                <span className='infoSpan'>应用管理</span>
               </div>
               <div className={ currentType == 'storage' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>存储管理（50G）</span>
-              </div>*/}
+                <span className='infoSpan'>存储管理</span>
+              </div>
               <div className={ currentType == 'appcenter' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <img className='commonImg' src={proIcon} />
                 <span className='littleIcon'></span>
@@ -148,9 +148,10 @@ class UpgradeModal extends Component {
               <div className={ currentType == 'cicd' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <img className='commonImg' src={proIcon} />
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>CI/CD完整版（流程、步骤数量不限）<br />代码库（GitHub、GitLab、SVN）</span>
+                <span className='infoSpan'>CI/CD完整版（数量不限）<br />代码库（GitHub、GitLab、SVN）</span>
               </div>
               <div className={ currentType == 'database' ? 'activeInfo littleInfo' : 'littleInfo'}>
+                <img className='commonImg' src={proIcon} />
                 <span className='littleIcon'></span>
                 <span className='infoSpan'>数据库集群&缓存集群（8个集群）</span>
               </div>
@@ -170,7 +171,7 @@ class UpgradeModal extends Component {
               <div className={ currentType == 'team' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <img className='commonImg' src={proIcon} />
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>团队管理</span>
+                <span className='infoSpan'>团队管理（1个团队*10个成员）</span>
               </div>
             </div>
             <div style={{ clear:'both' }}></div>

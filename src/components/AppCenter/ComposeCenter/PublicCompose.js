@@ -107,7 +107,7 @@ const MyComponent = React.createClass({
     const config = this.props.config
     if (config.length == 0) {
       return(
-        <div className="notData">您还没有编排，去创建一个吧！</div>
+        <div className="loadingBox">暂无数据</div>
       )
     }
     let items = config.map((item) => {

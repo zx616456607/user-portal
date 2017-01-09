@@ -1,27 +1,43 @@
 #LoginBg{
-  font-family: "Helvetica Neue",Helvetica,"Microsoft YaHei",Arial,"宋体","Hiragino Sans GB",STHeiti,"WenQuanYi Micro Hei",SimSun,sans-serif;
-  background: url(../../../../assets/img/banner1.jpg) 50% 50% / cover no-repeat fixed;
+  font-family: core, "Avenir Next", "Helvetica Neue", Helvetica, Arial, "Source Han Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi MicroHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: url("../../../../assets/img/login-bg3.jpg") 50% 50% / cover no-repeat fixed;
   -webkit-background-size:contain;
   background-size:100% 100%;
   background-color: #000;
   width: 100%;
   position: absolute;
   height: 100%;
+  display: -webkit-box;
   display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-box-align: center;
   -webkit-align-items: center;
+  -ms-flex-align: center;
   align-items: center;
+  -webkit-box-pack: center;
   -webkit-justify-content: center;
+  -ms-flex-pack: center;
   justify-content: center;
   .login {
     width: 400px;
     background-color: #fff;
     border-radius: 5px;
     padding: 30px 50px 0 50px;
+    .logoLink {
+      display: inline-block;
+      width: 100%;
+      height: 100%;
+      color: #666;
+    }
     .logo {
       display: inline-block;
       width: 180px;
       height: 57px;
+    }
+    .logTitle {
+      font-size: 24px;
     }
     .logtext {
       line-height: 40px;
@@ -91,7 +107,7 @@
           font-weight: normal;
           -webkit-transform: translateY(25px);
           transform: translateY(25px);
-          color: #aaa;
+          color: #666;
           -webkit-transition: all 0.5s;
           transition: all 0.5s;
           cursor: text;
@@ -119,13 +135,12 @@
     }
   }
   .footer{
-    background: #efefef;
     text-align: center;
-    color: #666;
+    color: #FFF;
     position: absolute;
     bottom: 0;
     left: 0;
-    width:100%;
+    width: 100%;
     font-size: 12px;
     height: 40px;
     line-height: 40px;

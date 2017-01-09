@@ -13,10 +13,11 @@ import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row } from 'an
 import './style/Login.less'
 import { verifyCaptcha, login } from '../../../actions/entities'
 import { connect } from 'react-redux'
-import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../constants'
+import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
 import { browserHistory } from 'react-router'
 import { genRandomString } from '../../../common/tools'
 import ReactDom from 'react-dom'
+import Top from '../../../components/Top'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -99,8 +100,8 @@ let Login = React.createClass({
   },
 
   checkName(rule, value, callback) {
-    if (!value || value.length < 3) {
-      callback()
+    if (!value) {
+      callback([new Error('请填写用户名')])
       return
     }
     if (value.indexOf('@') > -1) {
@@ -111,15 +112,14 @@ let Login = React.createClass({
       callback()
       return
     }
-    if (!USERNAME_REG_EXP.test(value)) {
-      callback([new Error('用户名填写错误')])
-      return
-    }
     callback()
   },
 
   checkPass(rule, value, callback) {
-    const { validateFields } = this.props.form
+    if (!value) {
+      callback([new Error('请填写密码')])
+      return
+    }
     callback()
   },
 
@@ -199,7 +199,6 @@ let Login = React.createClass({
   intOnFocus(current) {
     if (current === 'name') {
       this.refs.intName.refs.input.focus()
-      console.log('onfocus')
       this.setState({
         intNameFocus: true
       })
@@ -226,22 +225,16 @@ let Login = React.createClass({
   componentDidMount() {
     ReactDom.findDOMNode(this.refs.intName.refs.input).focus()
   },
-
-  onChange(e) {
-    console.log('e', e)
-  },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps } = this.state
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, min: 3, message: '用户名至少为 3 个字符' },
         { validator: this.checkName },
       ],
     })
     const passwdProps = getFieldProps('password', {
       rules: [
-        { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
       ],
     })
@@ -256,13 +249,12 @@ let Login = React.createClass({
     }
     return (
       <div id="LoginBg">
+        <Top/>
         <div className="login">
           <Row style={{ textAlign: 'center' }}>
-            {/*<svg className="logo">
-                <use xlinkHref="#loginlogo"/>
-              </svg>*/}
-            <img src="/img/sider/LogInLogo.svg" alt="logo" className="logo" />
-            <div className="logtext" style={{ fontSize: '14px' }}>技术领先的容器云计算服务商</div>
+            <span className='logoLink'>
+              <div className='logTitle'>登&nbsp;&nbsp;录</div>
+            </span>
           </Row>
           <Card className="loginForm" bordered={false}>
             <div>
@@ -334,7 +326,7 @@ let Login = React.createClass({
           </Card>
         </div>
         <div className="footer">
-          © 2016 时速云 企业版 v2.0
+          © 2017 北京云思畅想科技有限公司 &nbsp;|&nbsp; 时速云企业版 v2.0
           </div>
       </div>
     )

@@ -10,10 +10,10 @@
  */
 'use strict'
 
-const registryConfig      = require('../configs/registry')
-const apiFactory          = require('../services/api_factory')
-const registryService     = require('../services/tenx_registry')
-const SpecRegistryService = require('../services/docker_registry')
+const apiFactory           = require('../services/api_factory')
+const registryService      = require('../services/tenx_registry')
+const SpecRegistryService  = require('../services/docker_registry')
+const registryConfigLoader = require('../registry/registryConfigLoader')
 
 const securityUtil        = require('../utils/security')
 const logger              = require('../utils/logger.js').getLogger("registry")
@@ -26,10 +26,13 @@ exports.getImages = function* () {
   const query = this.query || {}
   var q = query.q || ""
   const registryUser = loginUser.teamspace || loginUser.user
-
+  if (!_isValidRegistryConfig()) {
+    this.body = {}
+    return
+  }
   const result = yield registryService.getImages(registryUser, q)
   this.body = {
-    server: registryConfig.v2Server,
+    server: registryConfigLoader.GetRegistryConfig().v2Server,
     data: result
   }
 }
@@ -38,10 +41,14 @@ exports.getPrivateImages = function* () {
   const loginUser = this.session.loginUser
   let result
   const registryUser = loginUser.teamspace || loginUser.user
+  if (!_isValidRegistryConfig()) {
+    this.body = {}
+    return
+  }
   result = yield registryService.getPrivateRepositories(registryUser, 1)
 
   this.body = {
-    server: registryConfig.v2Server,
+    server: registryConfigLoader.GetRegistryConfig().v2Server,
     data: result
   }
 }
@@ -49,10 +56,14 @@ exports.getPrivateImages = function* () {
 exports.getFavouriteImages = function* () {
   const loginUser = this.session.loginUser
   const registryUser = loginUser.teamspace || loginUser.user
+  if (!_isValidRegistryConfig()) {
+    this.body = {}
+    return
+  }
   const result = yield registryService.getFavouriteRepositories(registryUser, 1)
 
   this.body = {
-    server: registryConfig.v2Server,
+    server: registryConfigLoader.GetRegistryConfig().v2Server,
     data: result
   }
 }
@@ -67,6 +78,10 @@ exports.updateImageInfo = function* () {
     imageObj[key] = properties[key]
   })
   const registryUser = loginUser.teamspace || loginUser.user
+  if (!_isValidRegistryConfig()) {
+    this.body = {}
+    return
+  }
   const result = yield registryService.updateImageInfo(registryUser, imageObj)
 
   this.body = {
@@ -79,9 +94,13 @@ exports.getImageTags = function* () {
   const registry = this.params.registry
   const imageFullName = this.params.user + '/' + this.params.name
   const registryUser = loginUser.teamspace || loginUser.user
+  if (!_isValidRegistryConfig()) {
+    this.body = {}
+    return
+  }
   const result = yield registryService.getImageTags(registryUser, imageFullName)
   this.body = {
-    server: registryConfig.v2Server,
+    server: registryConfigLoader.GetRegistryConfig().v2Server,
     name: imageFullName,
     data: result
   }
@@ -93,9 +112,13 @@ exports.getImageConfigs = function* () {
   const imageFullName = this.params.user + '/' + this.params.name
   const tag = this.params.tag
   const registryUser = loginUser.teamspace || loginUser.user
+  if (!_isValidRegistryConfig()) {
+    this.body = {}
+    return
+  }
   const result = yield registryService.getImageConfigs(registryUser, imageFullName, tag)
   this.body = {
-    server: registryConfig.v2Server,
+    server: registryConfigLoader.GetRegistryConfig().v2Server,
     name: imageFullName,
     tag,
     data: result
@@ -108,9 +131,13 @@ exports.getImageInfo = function* () {
   const imageFullName = this.params.user + '/' + this.params.name
   const tag = this.params.tag
   const registryUser = loginUser.teamspace || loginUser.user
+  if (!_isValidRegistryConfig()) {
+    this.body = {}
+    return
+  }
   const result = yield registryService.getImageInfo(registryUser, imageFullName)
   this.body = {
-    server: registryConfig.v2Server,
+    server: registryConfigLoader.GetRegistryConfig().v2Server,
     name: imageFullName,
     data: result
   }
@@ -123,9 +150,13 @@ exports.checkImage = function* () {
   const loginUser = this.session.loginUser
   let owner = loginUser.user
   const registryUser = loginUser.teamspace || loginUser.user
+  if (!_isValidRegistryConfig()) {
+    this.body = {}
+    return
+  }
   const result = yield registryService.getImageInfo(registryUser, imageFullName, true)
   this.body = {
-    server: registryConfig.v2Server,
+    server: registryConfigLoader.GetRegistryConfig().v2Server,
     name: imageFullName,
     data: result
   }
@@ -136,10 +167,13 @@ exports.deleteImage = function* () {
   const registry = this.params.registry
   const image = this.params.image
   const registryUser = loginUser.teamspace || loginUser.user
+  if (!_isValidRegistryConfig()) {
+    this.body = {}
+    return
+  }
   const result = yield registryService.deleteImage(registryUser, image)
-
   this.body = {
-    server: registryConfig.v2Server,
+    server: registryConfigLoader.GetRegistryConfig().v2Server,
     message: result
   }
 }
@@ -148,9 +182,13 @@ exports.queryServerStats = function* () {
   const loginUser = this.session.loginUser
   const registry = this.params.registry
   const registryUser = loginUser.teamspace || loginUser.user
+  if (!_isValidRegistryConfig()) {
+    this.body = {}
+    return
+  }
   const result = yield registryService.queryRegistryStats(registryUser)
   this.body = {
-    server: registryConfig.v2Server,
+    server: registryConfigLoader.GetRegistryConfig().v2Server,
     data: result
   }
 }
@@ -194,7 +232,7 @@ exports.getPrivateRegistries = function* () {
 
   this.status = result.code
   this.body = {
-    server: registryConfig.v2Server,
+    server: registryConfigLoader.GetRegistryConfig().v2Server,
     data: result.data
   }
 }
@@ -348,4 +386,12 @@ function* _getRegistryServerInfo(session, user, id){
     }
   }
   return serverInfo
+}
+
+function _isValidRegistryConfig() {
+  if (!registryConfigLoader.GetRegistryConfig().host) {
+    logger.warn("No valid tenxcloud registry configured, should check the configuration in the database.")
+    return false
+  }
+  return true
 }

@@ -18,6 +18,8 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Link } from 'react-router'
 import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../../actions/overview_space'
 import knowntag from '../../../../assets/img/version/knowntag.png'
+import homeCICD from '../../../../assets/img/homeCICD.png'
+import homeNoWarn from '../../../../assets/img/homeNoWarn.png'
 
 class MySpace extends Component{
   constructor(props){
@@ -252,7 +254,7 @@ class MySpace extends Component{
             <Card title="CI/CD" bordered={false} bodyStyle={{height:175,padding:0}}>
               <Row style={{height:130}}>
                 <Col span={12} style={{height:130,lineHeight:'130px',textAlign:'center'}}>
-                  <img src='/img/homeCICD.png' style={{display:'inline-block',verticalAlign:'middle'}}/>
+                  <img src={homeCICD} style={{display:'inline-block',verticalAlign:'middle'}}/>
                 </Col>
                 <Col className='cicdInf' span={12}>
                   <table>
@@ -434,7 +436,7 @@ class MySpace extends Component{
                   {
                     spaceWarnings.length === 0 ?
                       [<div className="noWarnImg">
-                        <img src="/img/homeNoWarn.png" alt="NoWarn"/>
+                        <img src={homeNoWarn} alt="NoWarn"/>
                         <div>暂时无系统告警</div>
                       </div>] :
                     spaceWarnings.map((item,index) => {
@@ -461,18 +463,18 @@ class MySpace extends Component{
         <Modal visible={this.state.testingKonwShow} className='testingKnowModal'>
           <div className='titleBox'>
             <img className='tagImg' src={knowntag} />
-            <p>时速云内测期间须知</p>
+            <p>时速云 2.0 升级须知</p>
             <Icon className='closeBtn' type='cross' onClick={this.closeTestingKnowModal} />
           </div>
           <div className='infoBox'>
-            <p className='bigTitle'>更新须知</p>
+            <p className='bigTitle'>升级须知</p>
             <div className='infoDetail'>
               <div className='num'>1</div>
-              <span className='info'>旧平台中的『资源』待内测结束后，将为您逐渐稳步迁移到新平台</span>
+              <span className='info'>老版本中的『资源』待迁移结束后，将为逐渐稳步迁移到新版本</span>
             </div>
             <div className='infoDetail'>
               <div className='num'>2</div>
-              <span className='info'>新平台与旧平台的『计费』是相对独立的，内测结束后会将两平台费用&消费整合统一管理</span>
+              <span className='info'>新版本与旧版本的『计费』是相对独立的，账户完成迁移后会将两平台费用&消费整合统一管理</span>
             </div>
             <div className='infoDetail'>
               <div className='num'>3</div>
@@ -480,7 +482,7 @@ class MySpace extends Component{
             </div>
             <div className='infoDetail'>
               <div className='num'>4</div>
-              <span className='info'>若为 v2.0 专业版，在团队中『邀请新成员』，未注册过时速云帐号的新成员可到时速云官网注册</span>
+              <span className='info'>若为 v2.0 专业版，在团队中『邀请新成员』，未注册过时速云帐号的新成员可到时速云官网注册 &nbsp;<a href="http://docs.tenxcloud.com/guide/upgradeTo2.0" target="_blank">了解更多 &gt;&gt;</a></span>
             </div>
           </div>
           <div className='btnBox'>

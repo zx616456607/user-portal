@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Button, Form, Input, message } from 'antd'
+import { Button, Form, Input, message, notification} from 'antd'
 import { connect } from 'react-redux'
 import { EMAIL_REG_EXP, EMAIL_HASH } from '../../constants'
 import {sendResetPasswordLink} from '../../actions/user.js'
@@ -119,7 +119,6 @@ let SpendResetEmail = React.createClass({
   //
   renderGetEmail () {
     const { toEmail } = this.state
-    console.log('toEmail',toEmail)
     if (toEmail === '' || !toEmail) {
       return (
         <span>
@@ -146,7 +145,6 @@ let SpendResetEmail = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form
     const { submitting, spendEmail } = this.state
     let email = this.props.email || getFieldValue('email')
-    console.log('email',email)
     //邮箱验证规则
     const emailProps = getFieldProps('email', {
       rules: [
@@ -192,7 +190,8 @@ let SpendResetEmail = React.createClass({
   	                邮箱
   	              </div>
   	              
-  	              <Input {...emailProps} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'email')}
+  	              <Input {...emailProps} autoComplete="off"
+                         onBlur={this.intOnBlur.bind(this, 'email')}
   	                     onFocus={this.intOnFocus.bind(this, 'email')}
   	                     ref="intEmail"
   	                     style={{ height: 35 }} />

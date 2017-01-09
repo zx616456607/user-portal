@@ -11,9 +11,9 @@
 import React, { PropTypes } from 'react'
 import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row, Spin, } from 'antd'
 import './style/Login.less'
-import { verifyCaptcha, login } from '../../../actions/entities'
+import { login } from '../../../actions/entities'
 import { connect } from 'react-redux'
-import { USERNAME_REG_EXP_OLD, EMAIL_REG_EXP } from '../../../constants'
+import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
 import { browserHistory } from 'react-router'
 import { genRandomString } from '../../../common/tools'
 import { Link } from 'react-router'
@@ -38,9 +38,9 @@ let Login = React.createClass({
       submitProps: {},
       intNameFocus: false,
       intPassFocus: false,
-      intCheckFocus: false,
+      // intCheckFocus: false,
       passWord: false,
-      intCodeFocus: false,
+      // intCodeFocus: false,
       loginSucess: false,
     }
   },
@@ -62,8 +62,8 @@ let Login = React.createClass({
       })
       const body = {
         password: values.password,
-        captcha: values.captcha,
-        inviteCode : values.code,
+        // captcha: values.captcha,
+        // inviteCode : values.code,
       }
       if (values.name.indexOf('@') > -1) {
         body.email = values.name
@@ -88,13 +88,13 @@ let Login = React.createClass({
           func: (err) => {
             let msg = err.message.message || err.message
             if (err.statusCode === 401 && err.message === 'NOT_ACTIVE' && err.email && err.code) {
-              browserHistory.push(`/register?email=${err.email}&code=${err.code}&msg=${err.message}`)
+              browserHistory.push(`/signup?email=${err.email}&code=${err.code}&msg=${err.message}`)
               resetFields()
               return
             }
-            if (err.statusCode === 403 && err.message.message === 'NOT_INVITED') {
+            /*if (err.statusCode === 403 && err.message.message === 'NOT_INVITED') {
               msg = "邀请码无效"
-            }
+            }*/
             if (err.statusCode == 401) {
               msg = "用户名或者密码错误"
             }
@@ -105,7 +105,7 @@ let Login = React.createClass({
               },
               submitProps: {},
             })
-            self.changeCaptcha()
+            // self.changeCaptcha()
             resetFields(['password'])
           },
           isAsync: true
@@ -115,8 +115,8 @@ let Login = React.createClass({
   },
 
   checkName(rule, value, callback) {
-    if (!value || value.length < 3) {
-      callback()
+    if (!value) {
+      callback([new Error('请填写用户名')])
       return
     }
     if (value.indexOf('@') > -1) {
@@ -127,24 +127,24 @@ let Login = React.createClass({
       callback()
       return
     }
-    /*if (!USERNAME_REG_EXP_OLD.test(value)) {
-      callback([new Error('用户名填写错误')])
-      return
-    }*/
     callback()
   },
 
   checkPass(rule, value, callback) {
+    if (!value) {
+      callback([new Error('请填写密码')])
+      return
+    }
     callback()
   },
-  checkCode(rule, value, callback) {
-    /*if (value.length > 20) {
+  /*checkCode(rule, value, callback) {
+    if (value.length > 20) {
       callback([new Error('邀请码无效')])
       return
-    }*/
+    }
     callback()
-  },
-  checkCaptcha(rule, value, callback) {
+  },*/
+  /*checkCaptcha(rule, value, callback) {
     if (!value) {
       callback()
       return
@@ -172,9 +172,9 @@ let Login = React.createClass({
         isAsync: true
       },
     })
-  },
+  },*/
 
-  changeCaptcha() {
+  /*changeCaptcha() {
     const { resetFields, getFieldProps } = this.props.form
     const captcha = getFieldProps('captcha').value
     if (captcha) {
@@ -183,7 +183,7 @@ let Login = React.createClass({
     this.setState({
       random: genRandomString(),
     })
-  },
+  },*/
 
   intOnBlur(current) {
     const { getFieldProps } = this.props.form
@@ -206,7 +206,7 @@ let Login = React.createClass({
       }
       return
     }
-    if (current === 'code') {
+    /*if (current === 'code') {
       let code = getFieldProps('code').value
       if (code === '' || !code) {
         this.setState({
@@ -214,15 +214,15 @@ let Login = React.createClass({
         })
       }
       return
-    }
-    if (current === 'check') {
+    }*/
+    /*if (current === 'check') {
       let captcha = getFieldProps('captcha').value
       if (captcha === '' || !captcha) {
         this.setState({
           intCheckFocus: false
         })
       }
-    }
+    }*/
     return
   },
 
@@ -242,19 +242,19 @@ let Login = React.createClass({
       })
       return
     }
-    if (current === 'code') {
+    /*if (current === 'code') {
       this.refs.intCode.refs.input.focus()
       this.setState({
         intCodeFocus: true,
       })
       return
-    }
-    if (current === 'check') {
+    }*/
+    /*if (current === 'check') {
       this.refs.intCheck.refs.input.focus()
       this.setState({
         intCheckFocus: true
       })
-    }
+    }*/
     return
   },
 
@@ -276,13 +276,11 @@ let Login = React.createClass({
     const { random, submitting, loginResult, submitProps, loginSucess } = this.state
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, min: 3, message: '用户名至少为 3 个字符' },
         { validator: this.checkName },
       ],
     })
     const passwdProps = getFieldProps('password', {
       rules: [
-        { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
       ],
     })
@@ -292,12 +290,12 @@ let Login = React.createClass({
         { validator: this.checkCode },
       ],
     })*/
-    const captchaProps = getFieldProps('captcha', {
+    /*const captchaProps = getFieldProps('captcha', {
       rules: [
         { required: true, message: '请填写验证码' },
-        { validator: this.checkCaptcha },
+       { validator: this.checkCaptcha },
       ],
-    })
+    })*/
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
@@ -314,11 +312,16 @@ let Login = React.createClass({
         <Top/>
         <div className="login">
           <Row style={{ textAlign: 'center' }}>
-            <a href='https://www.tenxcloud.com/' target='_blank' className='logoLink'>
+            <span className='logoLink'>
+
               {/*<img src="/img/sider/LogInLogo.svg" alt="logo" className="logo" />*/}
-              <img src={LogInLogo} alt="logo" className="logo" />
-              <div className="logtext" style={{ fontSize: '14px' }}>技术领先的容器云计算服务商</div>
-            </a>
+              {/*<img src={LogInLogo} alt="logo" className="logo" />*/}
+
+              {/*<div className='logTitle'>时速云</div>
+              <div className="logtext" style={{ fontSize: '14px' }}>技术领先的容器云计算服务商</div>*/}
+
+              <div className='logTitle'>登&nbsp;&nbsp;录</div>
+            </span>
           </Row>
           <Card className="loginForm" bordered={false}>
             <div>
@@ -374,7 +377,7 @@ let Login = React.createClass({
                   />
               </FormItem>*/}
 
-              <FormItem
+              {/*<FormItem
                 {...formItemLayout}
                 hasFeedback
                 className="formItemName"
@@ -388,7 +391,7 @@ let Login = React.createClass({
                 <Tooltip placement="top" title="点击更换">
                   <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
                 </Tooltip>
-              </FormItem>
+              </FormItem>*/}
 
               <FormItem wrapperCol={{ span: 24, }}>
                 <Button
@@ -406,7 +409,7 @@ let Login = React.createClass({
                 <div className='footerTip'>
                 <div className='toRegister'>
                   <span>*&nbsp;还没有时速云帐户?</span>
-                  <Link to='/register'>立即注册</Link>
+                  <Link to='/signup'>立即注册</Link>
                 </div>
                 <div className='toReset'>
                   <Link to='/rpw'>忘记密码</Link>
@@ -430,7 +433,7 @@ let Login = React.createClass({
           </Card>
         </div>
         <div className="footer">
-          © 2017 时速云 公有云
+          © 2017 时速云 京ICP备14045471号
         </div>
       </div>
     )
@@ -448,7 +451,6 @@ function mapStateToProps(state, props) {
 Login = createForm()(Login)
 
 Login = connect(mapStateToProps, {
-  verifyCaptcha,
   login,
 })(Login)
 

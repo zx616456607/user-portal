@@ -17,6 +17,10 @@ import { connect } from 'react-redux'
 import { loadClusterInfo } from '../../../../actions/overview_cluster'
 import ProgressBox from '../../../ProgressBox'
 import { parseAmount } from '../../../../common/tools'
+import homeKubernetes from '../../../../assets/img/homeKubernetes.png'
+import homeMySQL from '../../../../assets/img/homeMySQL.png'
+import homeMongoCluster from '../../../../assets/img/homeMongoCluster.png'
+import homeRedis from '../../../../assets/img/homeRedis.png'
 
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -31,9 +35,9 @@ function getClusterCostOption(costValue, restValue) {
       data:[{name:'余额'}, {name:'消费'}],
       formatter: function (name) {
         if(name === '余额'){
-          return name + '：￥' + restValue
+          return name + '：' + restValue.fullAmount
         } else {
-          return name + '：￥' + costValue
+          return name + '：' + costValue.fullAmount
         }
       },
       textStyle: {
@@ -53,8 +57,8 @@ function getClusterCostOption(costValue, restValue) {
         radius : '45%',
         center: ['30%', '50%'],
         data:[
-          {value:restValue, name:'余额'},
-          {value:costValue, name:'消费',selected:true},
+          {value:restValue.amount, name:'余额'},
+          {value:costValue.amount, name:'消费',selected:true},
         ],
         itemStyle: {
           normal: {
@@ -739,7 +743,7 @@ class Ordinary extends Component{
             <Card title="本日该集群消费" bordered={false} bodyStyle={{height:220,padding:'0 24px'}}>
               <ReactEcharts
                 notMerge={true}
-                option={getClusterCostOption(parseAmount(clusterNodeSpaceConsumption.consumption).amount, parseAmount(clusterNodeSpaceConsumption.balance).amount)}
+                option={getClusterCostOption(parseAmount(clusterNodeSpaceConsumption.consumption), parseAmount(clusterNodeSpaceConsumption.balance))}
                 style={{height:'200px'}}
                 showLoading={isFetching}
               />
@@ -758,7 +762,7 @@ class Ordinary extends Component{
                   <tbody>
                   <tr>
                     <td>
-                      <img className="stateImg" src="/img/homeKubernetes.png"/>
+                      <img className="stateImg" src={homeKubernetes}/>
                       Kubernetes
                     </td>
                     <td>
@@ -1003,7 +1007,7 @@ class Ordinary extends Component{
               </Row>
               <Row style={{display: this.state.tab1?'block':'none',height:130}}>
                 <Col span={12} className='dbImg'>
-                  <img src="/img/homeMySQL.png" alt="MySQL"/>
+                  <img src={homeMySQL} alt="MySQL"/>
                 </Col>
                 <Col span={12} className='dbInf'>
                   <table>
@@ -1041,7 +1045,7 @@ class Ordinary extends Component{
               </Row>
               <Row style={{display: this.state.tab2?'block':'none',height:130}}>
                 <Col span={12} className='dbImg'>
-                  <img src="/img/homeMongoCluster.png" alt="MongoCluster"/>
+                  <img src={homeMongoCluster} alt="MongoCluster"/>
                 </Col>
                 <Col span={12} className='dbInf'>
                   <table>
@@ -1079,7 +1083,7 @@ class Ordinary extends Component{
               </Row>
               <Row style={{display: this.state.tab3?'block':'none',height:130}}>
                 <Col span={12} className='dbImg'>
-                  <img src="/img/homeRedis.png" alt="Redis"/>
+                  <img src={homeRedis} alt="Redis"/>
                 </Col>
                 <Col span={12} className='dbInf'>
                   <table>

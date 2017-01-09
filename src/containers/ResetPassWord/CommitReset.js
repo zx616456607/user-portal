@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Button, Form, Input, message } from 'antd'
+import { Button, Form, Input, message,notification } from 'antd'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { resetPassword } from '../../actions/user'
@@ -30,11 +30,23 @@ let CommitReset = React.createClass({
       rePassWord: false,
       intRePassFocus: false,
       resetSuccess: false,
+      btnState: false,
     }
   },
 
   checkPass(rule, value, callback) {
-    const { validateFields } = this.props.form
+    if (!value) {
+      callback([new Error('请填写密码')])
+      return
+    }
+    if (value.length < 6 || value.length > 16) {
+      callback([new Error('长度为6~16个字符')])
+      return
+    }
+    if (/^[^0-9]+$/.test(value) || /^[^a-zA-Z]+$/.test(value)) {
+      callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
+      return
+    }
     callback()
   },
   checkPass2(rule, value, callback) {
@@ -114,6 +126,7 @@ let CommitReset = React.createClass({
             self.setState({
               submitting: false,
               resetSuccess: true,
+              btnState: false,
             })
           },
           isAsync: true
@@ -123,6 +136,7 @@ let CommitReset = React.createClass({
             self.setState({
               submitting: false,
               resetSuccess: false,
+              btnState: true,
             })
             message.error('重置失败')
           }
@@ -130,21 +144,30 @@ let CommitReset = React.createClass({
       })
     })
   },
+  renderBtnText (submitting) {
+    if (submitting) {
+      return (
+        <span>重置中. . .</span>
+      )
+    }
+    return (
+        <span>重置</span>
+    )
+  },
   componentWillMount() {
     const { resetFields } = this.props.form
     resetFields()
   },
-
+  
   render(){
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form
-    const { submitting, spendEmail } = this.state
+    const { submitting, spendEmail, btnState } = this.state
     const { email } = this.props
     const passwdProps = getFieldProps('password', {
       rules: [
-        { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
       ],
     })
@@ -165,11 +188,11 @@ let CommitReset = React.createClass({
           </div>
           <div className='resetSucInf'>
             <div className='resetSucText'>重置密码成功 ! </div>
-            <Button className='subBtn'>
-              <Link to='/login'>
+            <Link to='/login'>
+              <Button className='subBtn'>
                 去登录
-              </Link>
-            </Button>
+              </Button>
+            </Link>
           </div>
         </div> :
         <div>
@@ -205,7 +228,7 @@ let CommitReset = React.createClass({
                 hasFeedback
                 className="formItemName"
               >
-                <div className={this.state.intRePassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>确认密码</div>
+                <div className={this.state.intRePassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'rePasswd')}>确认密码</div>
                 <Input {...rePasswdProps} autoComplete="off" type={this.state.rePassWord ? 'password' : 'text'}
                        onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                        onBlur={this.intOnBlur.bind(this, 'rePasswd')}
@@ -222,8 +245,11 @@ let CommitReset = React.createClass({
                   loading={submitting}
                   className="subBtn"
                   style={{marginBottom: 20}}
+                  disabled={btnState}
                 >
-                  {submitting ? '重置中...' : '重置密码'}
+                  {
+                    this.renderBtnText(submitting)
+                  }
                 </Button>
               </FormItem>
             </Form>

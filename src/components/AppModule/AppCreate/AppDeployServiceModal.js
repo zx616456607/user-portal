@@ -18,8 +18,7 @@ import EnviroDeployBox from './AppDeployComponents/EnviroDeployBox'
 import "./style/AppDeployServiceModal.less"
 import { connect } from 'react-redux'
 import { parseAmount } from '../../../common/tools.js'
-import { CREATE_APP_ANNOTATIONS } from '../../../constants'
-
+import { CREATE_APP_ANNOTATIONS, DEFAULT_REGISTRY } from '../../../constants'
 const DEFAULT_COMPOSE_TYPE = '2'
 const Deployment = require('../../../../kubernetes/objects/deployment')
 const Service = require('../../../../kubernetes/objects/service')
@@ -80,20 +79,21 @@ let AppDeployServiceModal = React.createClass({
   },
   getUsefulType(livenessProbe, form) {
     if (livenessProbe) {
-      form.setFieldsValue({
-        liveInitialDelaySeconds: livenessProbe.initialDelaySeconds,
-        liveTimeoutSeconds: livenessProbe.timeoutSeconds,
-        livePeriodSeconds: livenessProbe.periodSeconds,
-      })
       if (livenessProbe.httpGet) {
         form.setFieldsValue({
-          livePort: livenessProbe.httpGet.port,
-          livePath: livenessProbe.httpGet.path,
+          httpLivePort: livenessProbe.httpGet.port,
+          httpLivePath: livenessProbe.httpGet.path,
+          httpLiveInitialDelaySeconds: livenessProbe.initialDelaySeconds,
+          httpLiveTimeoutSeconds: livenessProbe.timeoutSeconds,
+          httpLivePeriodSeconds: livenessProbe.periodSeconds
         })
         return 'http'
       } else if (livenessProbe.tcpSocket) {
         form.setFieldsValue({
-          livePort: livenessProbe.tcpSocket.port,
+          tcpLivePort: livenessProbe.tcpSocket.port,
+          tcpLiveInitialDelaySeconds: livenessProbe.initialDelaySeconds,
+          tcpLiveTimeoutSeconds: livenessProbe.timeoutSeconds,
+          tcpLivePeriodSeconds: livenessProbe.periodSeconds
         })
         return 'tcp'
       }
@@ -157,10 +157,79 @@ let AppDeployServiceModal = React.createClass({
               ['portTcpType' + (index + 1)]: 'auto',
             })
           }
-
         }
       })
     }
+  },
+  validCMD(rule, value, callback) {
+    if(!value) {
+      callback(new Error('请填写启动命令'))
+      return
+    }
+    return callback()
+  },
+  setArg(args, form) {
+    if (args && args.length > 0) {
+      form.setFieldsValue({
+        args: args
+      })
+    }
+    let config = this.props.tagConfig[DEFAULT_REGISTRY]
+    if(!config || config.isFetching) {
+      return
+    }
+    const { getFieldValue, setFieldsValue, getFieldProps } = form
+    const tag = config.configList.tag
+    config = config.configList[tag]
+    const defaultArg = config.cmd
+    if(!args || args.length <= 0) return
+    const cmdKey = []
+    const userCMDKey = []
+    const self = this
+    args.forEach((arg, index) => {
+      userCMDKey.push(index + 1)
+      getFieldProps(`userCMD${index + 1}`, {
+        initialValue: arg,
+      })
+    })
+    defaultArg.forEach((arg, index) => {
+      cmdKey.push(index + 1)
+      getFieldProps(`cmd${index + 1}`, {
+        initialValue: arg,
+      })
+    })
+    setFieldsValue({
+      cmdKey: cmdKey,
+      userCMDKey: userCMDKey
+    })
+    if(args.length != defaultArg.length) {
+      this.setState({
+        runningCode: '2'
+      })
+      form.setFieldsValue({
+        runningCode: '2'
+      })
+      return
+    }
+    const isDefault = args.some(arg => {
+      return defaultArg.indexOf(arg) >= 0
+    })
+    if(isDefault) {
+      this.setState({
+        runningCode: '1'
+      })
+      form.setFieldsValue({
+       runningCode: '1'
+      })
+    } else {
+      this.setState({
+        runningCode: '2'
+      })
+      form.setFieldsValue({
+        runningCode: '2'
+      })
+    }
+ 
   },
   setForm() {
     const { scope } = this.props
@@ -207,20 +276,10 @@ let AppDeployServiceModal = React.createClass({
         entryInput: entryInput.join(' ')
       })
     }
-    if (args && args != '') {
-      form.setFieldsValue({
-        args: args.join(' ')
-      })
-      // Set the customized radio and enable the input
-      form.setFieldsValue({
-       runningCode: "2"
-      })
-      this.setState({
-        runningCode: "2"
-      })
-    }
+ 
     this.setEnv(env, form)
     this.setPorts(ports, ServicePorts, form, annotations)
+    this.setArg(args, form)
     this.setState({
       composeType: this.limits(),
     })
@@ -256,11 +315,16 @@ let AppDeployServiceModal = React.createClass({
     let imageVersion = getFieldProps('imageVersion').value    //镜像版本
     let volumeSwitch = getFieldProps('volumeSwitch').value //服务类型
 
-    let livePort = getFieldProps('livePort').value   //高可用端口
-    let liveInitialDelaySeconds = getFieldProps('liveInitialDelaySeconds').value //首次延时
-    let liveTimeoutSeconds = getFieldProps('liveTimeoutSeconds').value //检查超时
-    let livePeriodSeconds = getFieldProps('livePeriodSeconds').value //检查间隔
-    let livePath = getFieldProps('livePath').value //高可用路径
+    let httpLivePort = getFieldProps('httpLivePort').value   //高可用端口
+    let httpLiveInitialDelaySeconds = getFieldProps('httpLiveInitialDelaySeconds').value //首次延时
+    let httpLiveTimeoutSeconds = getFieldProps('httpLiveTimeoutSeconds').value //检查超时
+    let httpLivePeriodSeconds = getFieldProps('httpLivePeriodSeconds').value //检查间隔
+    let httpLivePath = getFieldProps('httpLivePath').value //高可用路径  
+    let tcpLivePort = getFieldProps('tcpLivePort').value   //高可用端口
+    let tcpLiveInitialDelaySeconds = getFieldProps('tcpLiveInitialDelaySeconds').value //首次延时
+    let tcpLiveTimeoutSeconds = getFieldProps('tcpLiveTimeoutSeconds').value //检查超时
+    let tcpLivePeriodSeconds = getFieldProps('tcpLivePeriodSeconds').value //检查间隔
+    
     let command = getFieldProps('entryInput').value // 入口命令
     let args = getFieldProps('args').value //启动命令参数
     //let config = getFileProps('config').value
@@ -443,7 +507,15 @@ let AppDeployServiceModal = React.createClass({
       })
     }
     //args 执行命令
-    if (this.state.runningCode === '2') {
+    if (this.state.runningCode === '1') {
+      const args = getFieldValue('cmdKey').map(i => {
+        return getFieldValue(`cmd${i}`)
+      })
+      deploymentList.addContainerArgs(serviceName, args)
+    } else {
+      const args = getFieldValue('userCMDKey').map(i => {
+        return getFieldValue(`userCMD${i}`)
+      })
       deploymentList.addContainerArgs(serviceName, args)
     }
     if (command && command != "") {
@@ -513,13 +585,24 @@ let AppDeployServiceModal = React.createClass({
     }
     //livenessProbe 高可用
     if ((getFieldValue('getUsefulType') !== 'null') && (getFieldValue('getUsefulType'))) {
-      deploymentList.setLivenessProbe(serviceName, getFieldValue('getUsefulType').toUpperCase(), {
-        port: parseInt(livePort),
-        path: livePath,
-        initialDelaySeconds: parseInt(liveInitialDelaySeconds),
-        timeoutSeconds: parseInt(liveTimeoutSeconds),
-        periodSeconds: parseInt(livePeriodSeconds)
-      })
+      if(getFieldValue('getUsefulType') == 'http') {        
+        deploymentList.setLivenessProbe(serviceName, getFieldValue('getUsefulType').toUpperCase(), {
+          port: parseInt(httpLivePort),
+          path: httpLivePath,
+          initialDelaySeconds: parseInt(httpLiveInitialDelaySeconds),
+          timeoutSeconds: parseInt(httpLiveTimeoutSeconds),
+          periodSeconds: parseInt(httpLivePeriodSeconds)
+        })
+      } else {
+        //tcp
+        deploymentList.setLivenessProbe(serviceName, getFieldValue('getUsefulType').toUpperCase(), {
+          port: parseInt(tcpLivePort),
+          path: httpLivePath,
+          initialDelaySeconds: parseInt(tcpLiveInitialDelaySeconds),
+          timeoutSeconds: parseInt(tcpLiveTimeoutSeconds),
+          periodSeconds: parseInt(tcpLivePeriodSeconds)
+        })
+      }
     }
 
     /*Service*/
@@ -635,7 +718,7 @@ let AppDeployServiceModal = React.createClass({
             />
           <Collapse>
             <Panel header={assitBoxTitle} key="1" className="assitBigBox">
-              <AssitDeployBox scope={scope} form={form} />
+              <AssitDeployBox scope={scope} form={form}/>
             </Panel>
             <Panel header={usefulBoxitle} key="2" className="usefulBigBox">
               <UsefulDeployBox scope={scope} form={form} />
@@ -707,10 +790,19 @@ const advanceBoxTitle = (
   </div>
 );
 
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
+  const parentScope = props.scope
+  const {other} = parentScope.state
+  if(props.other) {
+    return {
+      tagConfig: state.getImageTagConfig.otherTagConfig,
+      cluster
+    }
+  }
   return {
-    cluster,
+    tagConfig: state.getImageTagConfig.imageTagConfig,
+    cluster
   }
 }
 

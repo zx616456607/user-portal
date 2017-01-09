@@ -3,21 +3,25 @@
   position: fixed;
   top: 0;
   left: 0;
-  height: 66px;
+  height: 60px;
   background-color: #fff;
   width: 100%;
-  box-shadow:0px 2px 5px #b5b8c1;
-  z-index: 10000;
+  box-shadow:0px 0px 3px #ddd;
+  z-index: 100;
   .topWrap {
-  	display: flex;
-  	width: 80%;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+  	width: 92%;
   	margin: 0 auto;
   	background-color: #fff;
   	justify-content:space-between;
   	align-items: center;
     height: 100%;
   	.topLogo {
-      width: 138px;
+      width: 110px;
       a {
         display: inline-block;
         width: 100%;
@@ -25,40 +29,70 @@
       }
   	}
   	.topNav {
-  	  flex:1;
-  	  display: flex;
+      float: right;
+      -ms-flex: 1;
+      -webkit-box-flex: 1;
+      -webkit-flex: 1;
+      -moz-box-flex: 1;
+      flex:1;
+      display: -moz-box;
+      display: -ms-flexbox;
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: flex;
       justify-content: flex-end;
       font-size: 14px;
-      .navItem {
-      	margin: 0 5px;
-      	height: 28px;
-      	line-height: 28px;
-      	cursor: pointer;
-      	border-radius: 3px;
+      .navRegister {
+        float: right;
+        margin: 0 5px;
+        height: 30px;
+        line-height: 30px;
+        cursor: pointer;
+        border-radius: 3px;
+        background-color: #2db7f5;
+        color: #fff;
         a {
           display: inline-block;
           width: 100%;
           height: 100%;
           padding: 0 15px;
-          color: #666;
+          color: #fff !important;
         }
-      	&:hover {
-      	  background-color: #34c8e6;
-      	  color: #fff;
+      }
+      .navItem {
+        float: right;
+      	margin: 0 5px;
+      	height: 28px;
+      	line-height: 28px;
+      	cursor: pointer;
+        a {
+          display: inline-block;
+          width: 100%;
+          height: 100%;
+          padding: 0 15px;
+          color: #4c4847;
+        }
+        &:hover {
+          color: #34c8e6;
           a {
-            color: #fff;
+            color: #34c8e6;
           }
-      	}
+        }
       }
       .log {
-      	display: flex;
+        float: right;
+      	display: -moz-box;
+        display: -ms-flexbox;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
       	align-items: center;
       	cursor: pointer;
       	border-radius: 3px;
       	padding-left: 5px;
-		.navItem {
-		  margin: 0 5px;
-		}
+    		.navItem {
+    		  margin: 0 5px;
+    		}
       }
   	}
   }

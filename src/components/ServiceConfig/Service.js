@@ -62,7 +62,7 @@ class CollapseList extends Component {
         </div>
       )
     }
-    if (groupData.length === 0) return (<div style={{ lineHeight: '50px' }}>还没有创建过配置组</div>)
+    if (groupData.length === 0) return (<div style={{ lineHeight: '50px', 'padding-left': '45%' }}>暂无数据</div>)
     let groups = groupData.map((group) => {
       return (
         <Collapse.Panel

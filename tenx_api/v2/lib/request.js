@@ -54,10 +54,15 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
     if (object.options) {
       options.headers = _.merge(options.headers, object.options)
     }
+
+    // For file upload, volume etc...
     if (object.stream) {
       options.stream = object.stream
       options.timeout = 36000000
       delete options.contentType
+    } else {
+      object.contentType = options.contentType
+      object.dataType = options.dataType
     }
     logger.info(`<-- [${options.method || 'GET'}] ${url}`)
     logger.debug(`--> [options]`, options)
@@ -82,6 +87,7 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
         }
       )
     }
+
     urllib.request(url, object, (err, data, res) => {
       if (err) {
         err.statusCode = err.res.statusCode
@@ -94,7 +100,7 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
         return callback(null, data)
       }
 
-      callback(errors.get(result.res))
+      callback(errors.get(res))
     })
   }
 

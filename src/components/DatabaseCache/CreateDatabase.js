@@ -379,7 +379,7 @@ let CreateDatabase = React.createClass({
                 <div className="keys">存储：{ parseAmount(this.props.resourcePrice.storage * this.props.resourcePrice.dbRatio, 4).fullAmount}/（GB*小时）* {storageNumber} 个</div>
               </div>
               <div className="price-unit">
-                <p>合计：<span className="unit">{countPrice.unit=='￥' ? ' ￥' : ''}</span><span className="unit blod">{ hourPrice.amount }{countPrice.unit=='￥'? ' 元' : ''}/小时</span></p>
+                <p>合计：<span className="unit">{countPrice.unit=='￥' ? ' ￥' : ''}</span><span className="unit blod">{ hourPrice.amount }{countPrice.unit=='￥'? ' 元' : ' T'}/小时</span></p>
                 <p className="unit">（约：{ countPrice.fullAmount }{countPrice.unit=='￥'? ' 元' : ''}/月）</p>
               </div>
             </div>

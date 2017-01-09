@@ -8,16 +8,20 @@
     padding: 30px;
     background-color: #FFFFFF;
     .imgBox {
+      padding-top: 20px;
+      padding-left: 20px;
       float: left;
       width: 120px;
       height: 120px;
       border-radius: 10px;
       box-shadow: 0 0 5px #C2C2C2;
-      img {
-        width: 118px;
-        height: 118px;
+      svg {
+        width: 80px;
+        height: 80px;
         border-radius: 10px;
-        padding: 20px;
+        use {
+          fill: #9AA5AF;
+        }
       }
     }
     .closeBtn {
@@ -30,6 +34,9 @@
     .infoBox {
       .appSvcDetailDomain {
         .address {
+          display: -webkit-box;
+          display: -webkit-flex;
+          display: -ms-flexbox;
           display: flex;
           height: 30px;
           line-height: 30px;
@@ -105,7 +112,7 @@
       }
     }
     .ant-card-bordered {
-      //      background-color: #f8f8f8;
+      
     }
     .ant-tabs-bar {
       padding-top: 3px;
