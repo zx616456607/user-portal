@@ -413,9 +413,9 @@ function setCMD(container, form) {
       [`userCMD${index + 1}`]: cmd
     })
   })
-		form.setFieldsValue({
-		  entryInput: container.entrypoint
-		})
+  form.setFieldsValue({
+    entryInput: container.entrypoint
+  })
 }
 
 
