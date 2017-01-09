@@ -359,11 +359,11 @@ const menusText = defineMessages({
   },
   CINotification: {
     id: 'ManageMonitor.operationalAudit.CINotification',
-    defaultMessage: 'CI',
+    defaultMessage: 'CI构建',
   },
   CDNotification: {
     id: 'ManageMonitor.operationalAudit.CDNotification',
-    defaultMessage: 'CD',
+    defaultMessage: 'CD部署镜像',
   },
   User: {
     id: 'ManageMonitor.operationalAudit.User',

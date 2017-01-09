@@ -733,11 +733,11 @@ let AppDeployServiceModal = React.createClass({
           <div className="btnBox">
             <div className="modal-price">
               <div className="price-left">
-                <span className="keys">实例：<span className="unit">{ unitPrice.fullAmount}</span> { countPrice.unit =='￥'? '元':'' }/小时</span>
+                <span className="keys">实例：<span className="unit">{ unitPrice.fullAmount}</span>/小时</span>
               </div>
               <div className="price-unit">合计：<span className="unit">{ countPrice.unit =='￥'? '￥':'' }</span>
-                <span className="unit blod">{ hourPrice.amount }{ countPrice.unit =='￥'? '元':'T' }/小时</span> &nbsp;
-                <span className="unit">（约：{ countPrice.fullAmount }{ countPrice.unit =='￥'? '元':'' }/月）</span>
+                <span className="unit blod">{ hourPrice.amount }{ countPrice.unit =='￥'? '':'T' }/小时</span> &nbsp;
+                <span className="unit">（约：{ countPrice.fullAmount }/月）</span>
               </div>
             </div>
             <div className="text-center">

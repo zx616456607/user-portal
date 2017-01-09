@@ -274,7 +274,14 @@ let MyComponent = React.createClass({
   render() {
     const { formatMessage } = this.props.intl
     let list = this.props.storage;
-    if (!list || !list.storageList) return (<div></div>)
+    if (!list || !list.storageList) return (<div className='loadingBox'>暂无数据</div>)
+    if (list.storageList.length < 1) {
+      return (
+        <div className='loadingBox'>
+          暂无数据
+        </div>
+      )
+    }
     let items = list.storageList.map((item) => {
       const menu = (<Menu onClick={(e) => { this.showAction(e, 'format', item.name, item.format) } } style={{ width: '80px' }}>
         <Menu.Item key="1" disabled={item.isUsed}><FormattedMessage {...messages.formatting} /></Menu.Item>
@@ -359,11 +366,11 @@ let MyComponent = React.createClass({
             </Row>
             <div className="modal-price">
               <div className="price-left">
-                存储：{hourPrice.unit == '￥'? '￥': ''}{ resourcePrice.storage /10000 } {hourPrice.unit == '￥'? '元': 'T'}/(GB*小时)
+                存储：{hourPrice.unit == '￥'? '￥': ''}{ resourcePrice.storage /10000 } {hourPrice.unit == '￥'? '': 'T'}/(GB*小时)
               </div>
               <div className="price-unit">
-                <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod"> { hourPrice.amount }{hourPrice.unit == '￥'? '元': ''}/小时</span></p>
-                <p><span className="unit">（约：</span><span className="unit"> { countPrice.fullAmount }{hourPrice.unit == '￥'? '元': ''}/小时</span></p>
+                <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod"> { hourPrice.amount }{hourPrice.unit == '￥'? '': 'T'}/小时</span></p>
+    <p><span className="unit">（约：</span><span className="unit"> { countPrice.fullAmount }/小时）</span></p>
               </div>
             </div>
 
@@ -725,11 +732,11 @@ class Storage extends Component {
                 </Row>
                 <div className="modal-price">
                   <div className="price-left">
-                    存储：{hourPrice.unit == '￥' ? '￥' : ''}{ storagePrice } {hourPrice.unit == '￥' ? '元' : 'T'}/(GB*小时)
+                    存储：{hourPrice.unit == '￥' ? '￥' : ''}{ storagePrice } {hourPrice.unit == '￥' ? '' : 'T'}/(GB*小时)
                   </div>
                   <div className="price-unit">
-                    <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod">{ hourPrice.amount }{hourPrice.unit == '￥'? '元': ''}/小时</span></p>
-                    <p><span className="unit">（约：</span><span className="unit">{ countPrice.fullAmount }{hourPrice.unit == '￥'? '元': ''}/月）</span></p>
+                    <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod">{ hourPrice.amount }{hourPrice.unit == '￥'? '': 'T'}/小时</span></p>
+                    <p><span className="unit">（约：</span><span className="unit">{ countPrice.fullAmount }/月）</span></p>
                   </div>
                 </div>
               </Modal>

@@ -191,9 +191,7 @@ class ServiceList extends Component {
     }
   }
   componentDidMount() {
-    const backPath = this.props.routes[this.props.routes.length -2].path
-    const selfPath = this.props.route.path
-    if ('fast_create' == selfPath && backPath == 'app_create') {
+    if (window.previousLocation === "/app_manage/app_create") {
       this.setState({ modalShow: true })
     }
   }
@@ -408,8 +406,8 @@ class ServiceList extends Component {
               <span className="keys">计算资源：<span className="unit">{configData.cpu}C/{configData.memory /1024 }G </span></span>
             </div>
             <div className="price-unit">合计：<span className="unit">{ countPrice.unit =='￥'? '￥':'' }</span>
-              <span className="unit blod" style={{marginRight:'10px'}}>{ hourPrice.amount }{ countPrice.unit =='￥'? '元':'T' }/小时</span>
-              <span className="unit">（约：{ countPrice.fullAmount }{ countPrice.unit =='￥'? '元':'' }/月）</span>
+              <span className="unit blod" style={{marginRight:'10px'}}>{ hourPrice.amount }{ countPrice.unit =='￥'? '':'T' }/小时</span>
+              <span className="unit">（约：{ countPrice.fullAmount }/月）</span>
             </div>
           </div>
           <div className="btnBox">

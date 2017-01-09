@@ -88,7 +88,7 @@ let Login = React.createClass({
           func: (err) => {
             let msg = err.message.message || err.message
             if (err.statusCode === 401 && err.message === 'NOT_ACTIVE' && err.email && err.code) {
-              browserHistory.push(`/register?email=${err.email}&code=${err.code}&msg=${err.message}`)
+              browserHistory.push(`/signup?email=${err.email}&code=${err.code}&msg=${err.message}`)
               resetFields()
               return
             }
@@ -312,7 +312,8 @@ let Login = React.createClass({
         <Top/>
         <div className="login">
           <Row style={{ textAlign: 'center' }}>
-            <a href='https://www.tenxcloud.com/' target='_blank' className='logoLink'>
+            <span className='logoLink'>
+
               {/*<img src="/img/sider/LogInLogo.svg" alt="logo" className="logo" />*/}
               {/*<img src={LogInLogo} alt="logo" className="logo" />*/}
 
@@ -320,7 +321,7 @@ let Login = React.createClass({
               <div className="logtext" style={{ fontSize: '14px' }}>技术领先的容器云计算服务商</div>*/}
 
               <div className='logTitle'>登&nbsp;&nbsp;录</div>
-            </a>
+            </span>
           </Row>
           <Card className="loginForm" bordered={false}>
             <div>
@@ -408,7 +409,7 @@ let Login = React.createClass({
                 <div className='footerTip'>
                 <div className='toRegister'>
                   <span>*&nbsp;还没有时速云帐户?</span>
-                  <Link to='/register'>立即注册</Link>
+                  <Link to='/signup'>立即注册</Link>
                 </div>
                 <div className='toReset'>
                   <Link to='/rpw'>忘记密码</Link>

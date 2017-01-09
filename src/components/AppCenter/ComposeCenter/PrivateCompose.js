@@ -174,7 +174,7 @@ const MyList = React.createClass({
     }
     if (!config || config.length == 0) {
       return (
-        <div className="notData">您还没有编排，去创建一个吧！</div>
+        <div className="loadingBox">暂无数据</div>
       )
     }
     let items = config.map((item, index) => {
@@ -301,6 +301,7 @@ class PrivateCompose extends Component {
           className='AppServiceDetail'
           transitionName='move-right'
           onCancel={() => this.detailModal(false)}
+          maskClosable={false}
           >
           <CreateCompose scope={scope} paretnState={this.state} loadMyStack={this.props.loadMyStack} updateStack={this.props.updateStack} createStack={this.props.createStack} registry={this.props.registry} />
         </Modal>

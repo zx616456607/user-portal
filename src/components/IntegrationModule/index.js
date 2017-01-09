@@ -29,7 +29,7 @@ let standardFlag = (mode == standard ? true : false);
 const menusText = defineMessages({
   tooltips: {
     id: 'Integration.IntegrationIndex.tooltips',
-    defaultMessage: '企业集成应用中心，这里有时速云企业版提供了业内顶尖的企业管理和开发者工具集合，您可以在这里一键安装，并且在当前控制台完成所有应用的安装、卸载以及对应功能的管理。',
+    defaultMessage: '集成中心提供了业内主流的基础管理软件和开发者工具集合，您可以在这里一键集成安装，并且在当前控制台完成所有应用的安装、卸载以及对应功能的管理。',
   },
   allApps: {
     id: 'Integration.IntegrationIndex.allApps',
@@ -93,27 +93,27 @@ class Integration extends Component {
       createIntegrationModal: false
     }
   }
-  
+
   componentWillMount() {
     document.title = '集成中心 | 时速云';
     const { getAllIntegration } = this.props;
     getAllIntegration();
   }
-  
+
   onChangeShowType(type) {
     //this function for user change the type of app list
     this.setState({
       currentShowApps: type
     });
   }
-  
+
   onChangeAppType(type) {
     //this function for user change the type of app
     this.setState({
       currentAppType: type
     });
   }
-  
+
   ShowDetailInfo(id) {
     //this function for view the app detail info
     this.setState({
@@ -121,21 +121,21 @@ class Integration extends Component {
       currentIntegration: id
     });
   }
-  
+
   openCreateIntegration() {
     //this function for user open the create integration modal
     this.setState({
       createIntegrationModal: true
     })
   }
-  
+
   closeCreateIntegration() {
     //this function for user close the create integration modal
     this.setState({
       createIntegrationModal: false
     });
   }
-  
+
   render() {
     const { formatMessage } = this.props.intl;
     const {isFetching, integrations} = this.props;
@@ -148,7 +148,7 @@ class Integration extends Component {
       )
     }
     let appShow = null;
-    if(integrations.length > 0) {  
+    if(integrations.length > 0) {
       appShow = integrations.map((item, index) => {
         let envList = (
           <div>
@@ -194,14 +194,10 @@ class Integration extends Component {
               <div style={{ clear:'both' }}></div>
             </div>
             <div className='rightBox'>
-              {
-                /*item.status == 'installed' ? */[
-                  <Button className='installedBtn' key={'installedBtn' + index} size='large' type={standardFlag ? 'primary':'ghost'} disabled={standardFlag}
-                    style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
-                    <span>{standardFlag ? '敬请期待' : [<FormattedMessage {...menusText.showAppDetail} />]}</span>
-                  </Button>
-                ] /*: null*/
-              }
+              <Button className='installedBtn' key={'installedBtn' + index} size='large' type={standardFlag ? 'primary':'ghost'} disabled={standardFlag}
+                style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
+                <span>{ standardFlag ? [<span>敬请期待</span>] : [<FormattedMessage {...menusText.showAppDetail} />] }</span>
+              </Button>
               {
                 item.status == 'running' ? [
                   <Button className='runningBtn' key={'runningBtn' + index} size='large' type='primary'>
@@ -211,7 +207,7 @@ class Integration extends Component {
                 ] : null
               }
               {
-                item.status == 'unintsall' ? [
+                (item.status == 'unintsall' && !standardFlag) ? [
                   <Button className='unintsallBtn' key={'unintsallBtn' + index} size='large' type='primary'
                     style={{ width: '102px' }}>
                     <FormattedMessage {...menusText.uninstall} />
@@ -313,8 +309,8 @@ class Integration extends Component {
                               </div>
                               <div className='rightBox'>
                                 <Button className='unintsallBtn' key='unintsallBtn' size='large' type='primary'
-                                  style={{ width: '102px' }} onClick={this.openCreateIntegration.bind(this)} disabled>
-                                  <FormattedMessage {...menusText.uninstall} />
+                                  style={{ width: '102px' }} onClick={this.openCreateIntegration.bind(this)} disabled={standardFlag}>
+                                  <span>{ standardFlag ? [<span>敬请期待</span>] : [<FormattedMessage {...menusText.showAppDetail} />] }</span>
                                 </Button>
                               </div>
                               <div style={{ clear:'both' }}></div>

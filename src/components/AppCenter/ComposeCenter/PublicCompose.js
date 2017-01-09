@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, Dropdown, Modal } from 'antd'
+import { Alert, Menu, Button, Card, Input, Dropdown } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -107,7 +107,7 @@ const MyComponent = React.createClass({
     const config = this.props.config
     if (config.length == 0) {
       return(
-        <div className="notData">您还没有编排，去创建一个吧！</div>
+        <div className="loadingBox">暂无数据</div>
       )
     }
     let items = config.map((item) => {

@@ -17,6 +17,7 @@ import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
 import { browserHistory } from 'react-router'
 import { genRandomString } from '../../../common/tools'
 import ReactDom from 'react-dom'
+import Top from '../../../components/Top'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -248,13 +249,12 @@ let Login = React.createClass({
     }
     return (
       <div id="LoginBg">
+        <Top/>
         <div className="login">
           <Row style={{ textAlign: 'center' }}>
-            {/*<svg className="logo">
-                <use xlinkHref="#loginlogo"/>
-              </svg>*/}
-            <img src="/img/sider/LogInLogo.svg" alt="logo" className="logo" />
-            <div className="logtext" style={{ fontSize: '14px' }}>技术领先的容器云计算服务商</div>
+            <span className='logoLink'>
+              <div className='logTitle'>登&nbsp;&nbsp;录</div>
+            </span>
           </Row>
           <Card className="loginForm" bordered={false}>
             <div>
@@ -326,7 +326,7 @@ let Login = React.createClass({
           </Card>
         </div>
         <div className="footer">
-          © 2016 时速云 企业版 v2.0
+          © 2017 北京云思畅想科技有限公司 &nbsp;|&nbsp; 时速云企业版 v2.0
           </div>
       </div>
     )

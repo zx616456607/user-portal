@@ -22,7 +22,7 @@ import './style/CodeStore.less'
 const menusText = defineMessages({
   tooltips: {
     id: 'CICD.TenxStorm.tooltips',
-    defaultMessage: '代码仓库：这里完成构建前的准备工作，开发者可以在这里关联企业里业务代码所在的代码仓库，关联好代码仓库后，选择激活代码项目为可构建状态，以便后续构建TenxFlow时选择可构建的代码项目。',
+    defaultMessage: '代码仓库：这里完成构建前的准备工作，开发者可以在这里关联企业里业务代码所在的代码仓库，关联好代码仓库后，选择激活代码项目为可构建状态，以便后续构建 TenxFlow 时选择可构建的代码项目。',
   },
   show: {
     id: 'CICD.TenxStorm.show',
@@ -168,7 +168,7 @@ const MyComponent = React.createClass({
   },
   render: function () {
     const { config, scope, formatMessage } = this.props
-    if (!config || config.length == 0) return (<div style={{ lineHeight: '150px', textAlign: 'center' }}>暂无数据</div>)
+    if (!config || config.length == 0) return (<div style={{ lineHeight: '50px', textAlign: 'center' }}>暂无数据</div>)
     let items = config.map((item) => {
       const dropdown = (
         item.webhookUrl ?
@@ -240,6 +240,8 @@ const MyComponent = React.createClass({
         {items}
 
         <Modal title="手动添加WebHook" visible={this.state.showModal}
+          onCancel={() => { this.setState({ showModal: false }) }}
+          maskClosable={false}
           footer={[
             <Button key="back" type="ghost" size="large" onClick={() => { this.setState({ showModal: false }) } }>关闭</Button>,
           ]}

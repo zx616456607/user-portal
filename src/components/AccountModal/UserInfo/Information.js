@@ -67,7 +67,7 @@ let ResetPassWord = React.createClass({
   },
   checkPass(rule, value, callback) {
     const { validateFields } = this.props.form;
-    if(!value || value.length < 7 || value.length > 17) {
+    if(!value || value.length < 6 || value.length > 16) {
       callback('密码长度应为6~16位')
       return
     }

@@ -14,6 +14,13 @@ import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import EchartsOption from './EchartsOption'
 
+function formatGrid(count) {
+  //this fucntion for format grid css
+  //due to the memory counts > 6, this grid would be display wrong
+  let initHeight = 300 + ((count - 4)/2)*25;
+  return initHeight + 'px';
+}
+
 class Memory extends Component {
   constructor(props) {
     super(props)
@@ -36,8 +43,10 @@ class Memory extends Component {
       option.setXAxisData(timeData)
       option.addSeries(values, item.containerName)
     })
+    option.setGirdForDataCommon(data.length)
     return (
       <ReactEcharts
+        style={{ height: formatGrid(data.length) }}
         notMerge={true}
         option={option}
         showLoading={isFetching}

@@ -23,7 +23,7 @@ setTimeout(function() {
       logger.info("Registry configuration loaded: " + config.protocol + "://" + config.host + ":" + config.port)
     }
   })
-}, 5000)
+}, 2000)
 
 // Get registry configuration from api service
 exports.GetRegistryConfig = function (callback) {

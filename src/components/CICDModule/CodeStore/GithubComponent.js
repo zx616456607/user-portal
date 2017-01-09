@@ -114,7 +114,16 @@ class CodeList extends Component {
     parentScope.props.notGithubProject(users, id, {
       success: {
         func: () => {
-          notification.success('撤消成功')
+          notification.success('解除激活成功')
+        }
+      },
+      failed: {
+        func: (res) => {
+          if (res.statusCode == 400) {
+            notification.error('该项目正在被TenxFlow引用，请解除引用后重试')
+          } else {
+            notification.error('解除激活失败')
+          }
         }
       }
     })
@@ -140,7 +149,7 @@ class CodeList extends Component {
             <div className="action">
               {(item.managedProject && item.managedProject.active == 1) ?
                 <span><Button type="ghost" disabled>已激活</Button>
-                  <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>撤销</a></span>
+                  <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>解除</a></span>
                 :
                 <Tooltip placement="right" title="可构建项目">
                   <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >激活</Button>
@@ -164,8 +173,10 @@ class GithubComponent extends Component {
   constructor(props) {
     super(props);
     this.loadData = this.loadData.bind(this)
+    this.searchClick = this.searchClick.bind(this)
     this.state = {
-      repokey: 'github'
+      repokey: 'github',
+      currentSearch: ''
     }
   }
 
@@ -224,14 +235,25 @@ class GithubComponent extends Component {
   handleSearch(e) {
     const image = e.target.value
     const users = this.state.users
+    this.setState({
+      currentSearch: image
+    })
     this.props.searchGithubList(users, image)
   }
   changeSearch(e) {
     const image = e.target.value
     const users = this.state.users
+    this.setState({
+      currentSearch: image
+    })
     if (image == '') {
       this.props.searchGithubList(users, image)
     }
+  }
+  searchClick() {
+    const image = this.state.currentSearch
+    const users = this.state.users
+    this.props.searchGithubList(users, image)
   }
   syncRepoList() {
     const types = this.state.repokey
@@ -248,7 +270,7 @@ class GithubComponent extends Component {
     let codeList = []
     if (!githubList) {
       return (
-        <div style={{ lineHeight: '150px', paddingLeft: '250px' }}>
+        <div style={{ lineHeight: '150px', paddingLeft: '40%', paddingBottom: '16px' }}>
           <Button type="primary" size="large" onClick={() => this.handSyncCode()}>授权、同步 GitHub 代码源</Button>
         </div>
       )
@@ -271,7 +293,7 @@ class GithubComponent extends Component {
           <div className="action">
             {(item.managedProject && item.managedProject.active == 1) ?
               <span><Button type="ghost" disabled>已激活</Button>
-                <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>撤销</a></span>
+                <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>解除</a></span>
               :
               <Tooltip placement="right" title="可构建项目">
                 <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >激活</Button>
@@ -292,7 +314,7 @@ class GithubComponent extends Component {
           <Icon type="reload" onClick={() => this.syncRepoList()} />
           <div className="right-search">
             <Input className='searchBox' size="large" style={{ width: '180px' }} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
-            <i className='fa fa-search'></i>
+            <i className='fa fa-search' onClick={this.searchClick}></i>
           </div>
         </div>
 

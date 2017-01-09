@@ -77,7 +77,7 @@ let Person = React.createClass({
               submitProps: {},
             })
             message.success(`注册成功`)
-            browserHistory.push(`/register?email=${result.email}&code=${result.code}`)
+            browserHistory.push(`/signup?email=${result.email}&code=${result.code}`)
             resetFields()
           },
           isAsync: true
@@ -204,19 +204,19 @@ let Person = React.createClass({
         success: {
           func: () => {
             let notification = new NotificationHandler()
-            notification.success(`发送邀请码成功`)
+            notification.success(`发送验证码成功`)
           },
           isAsync: true
         },
         failed: {
           func: (err) => {
             let notification = new NotificationHandler()
-            notification.error(`发送邀请码失败`, err.message)
+            notification.error(`发送验证码失败`, err.message)
           }
         }
       })
     })
-    
+
     if (!passValidate) {
       return
     }
@@ -481,7 +481,7 @@ let Person = React.createClass({
                   </Button>
                 </Tooltip>
               </FormItem>
-              
+
               {/*注册按钮*/}
               <FormItem wrapperCol={{ span: 24, }}>
                 <Button
@@ -515,7 +515,7 @@ let Person = React.createClass({
 Person = createForm()(Person)
 function mapStateToProps(state,props) {
   return {
-    
+
   }
 }
 
