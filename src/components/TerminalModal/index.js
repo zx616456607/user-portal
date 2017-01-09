@@ -29,7 +29,8 @@ class TerminalModal extends Component {
     this.state = {
       currentShow: null,
       currentTab: null,
-      terminalList: []
+      terminalList: [],
+      terminalType: 'normal'
     }
   }
   
@@ -54,7 +55,7 @@ class TerminalModal extends Component {
       });
       scope.setState({
         terminalList: terminalList
-      })
+      });
     }
   }
   
@@ -63,6 +64,7 @@ class TerminalModal extends Component {
     let doc = $(document);
     let box = $('#TerminalModal .titleBox');
     let bodyHeight = $(document.body)[0].clientHeight;
+    let scope = this;
     box.mousedown(function(ee){
       if(ee.currentTarget.className != 'titleBox') {
         return;
@@ -75,6 +77,9 @@ class TerminalModal extends Component {
         }
         if(newHeight <= 35) {
           newHeight = 35;
+          this.setState({
+            terminalType: 'min'
+          });
         }
         $('.TerminalLayoutModal').css('cssText','height:' + newHeight + 'px !important;transition:all !important;');
       })
@@ -93,7 +98,18 @@ class TerminalModal extends Component {
   
   minWindow(){
     //this function for minx the modal
-    $('.TerminalLayoutModal').css('cssText','height:35px !important;transition:all 0.3s !important;');
+    const { terminalType } = this.state;
+    if(terminalType == 'normal') {      
+      $('.TerminalLayoutModal').css('cssText','height:35px !important;transition:all 0.3s !important;');
+      this.setState({
+        terminalType: 'min'
+      })
+    } else {
+      $('.TerminalLayoutModal').css('cssText','height:550px !important;transition:all 0.3s !important;');
+      this.setState({
+        terminalType: 'normal'
+      })
+    }
   }
   
   closeWindow(e){
@@ -228,7 +244,9 @@ class TerminalModal extends Component {
     const _this = this;
     const operaBox = (
       <div className='operaBox'>
-        <i className='fa fa-window-minimize' onClick={this.minWindow} />
+        <svg onClick={this.minWindow} >
+          <use xlinkHref={this.state.terminalType == 'normal' ? '#minwindow' : '#maxwindow'} />
+        </svg>
         <Icon type='cross' onClick={this.closeWindow} />
       </div>
     )

@@ -17,7 +17,6 @@ import { connect } from 'react-redux'
 import { loadClusterInfo } from '../../../../actions/overview_cluster'
 import ProgressBox from '../../../ProgressBox'
 import { parseAmount } from '../../../../common/tools'
-import homeKubernetes from '../../../../assets/img/homeKubernetes.png'
 import homeMySQL from '../../../../assets/img/homeMySQL.png'
 import homeMongoCluster from '../../../../assets/img/homeMongoCluster.png'
 import homeRedis from '../../../../assets/img/homeRedis.png'
@@ -762,7 +761,9 @@ class Ordinary extends Component{
                   <tbody>
                   <tr>
                     <td>
-                      <img className="stateImg" src={homeKubernetes}/>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#homekubernetes" />
+                      </svg>
                       Kubernetes
                     </td>
                     <td>
