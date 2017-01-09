@@ -21,9 +21,9 @@ SENDCLOUD_FROM | `undefined` | SendCloud 邮件服务商 发件地址
 SENDCLOUD_FROM_NAME | `undefined` | SendCloud 邮件服务商 发件人
 SENDCLOUD_API_USER_BATCH | `undefined` | SendCloud 邮件服务商 批量邮件 api_user
 USERPORTAL_REDIS_SESSION_STORE | `'true'` | 是否将 `session` 存储在 redis 中，依赖于 redis 的配置 | `'true'`, `'false'`
-USERPORTAL_REDIS_HOST | `'192.168.1.87'` | redis 地址
-USERPORTAL_REDIS_PORT | `'6380'` | redis 端口
-USERPORTAL_REDIS_PWD | `''` | redis 密码
+REDIS_HOST | `'192.168.1.87'` | redis 地址
+REDIS_PORT | `'6380'` | redis 端口
+REDIS_PWD | `''` | redis 密码
 DEVOPS_PROTOCOL | `'http'` | DevOps 服务的内网协议 | `'http'`, `'https'`
 DEVOPS_HOST | `'192.168.1.103:38090'` | DevOps 服务的内网地址 | `'http'`, `'https'`
 DEVOPS_EXTERNAL_PROTOCOL | `'https'` | DevOps 服务的外网协议 | `'http'`, `'https'`

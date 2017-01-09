@@ -10,6 +10,7 @@
 import React, { Component } from 'react'
 import { Modal,Alert,Icon,Button,Row,Col,Input } from 'antd'
 import NotificationHandler from '../../../common/notification_handler'
+import { browserHistory } from 'react-router'
 
 let message = (
   <Row className="tip">
@@ -32,14 +33,17 @@ export default class ExitTeamModal extends Component{
     }
   }
   handleExitTeamOk() {
-    const { closeExitTeamModal, quitTeam, teamID, loadUserTeamList } = this.props
+    const { closeExitTeamModal, quitTeam, teamID, loadUserTeamList, detailPage } = this.props
     let notification = new NotificationHandler()
     notification.spin(`退出团队中...`)
     quitTeam(teamID, {
       success: {
         func: () => {
           notification.close()
-          
+          if (detailPage) {
+            browserHistory.push('/account/teams')
+            return
+          }
           loadUserTeamList()
         },
         isAsync: true,

@@ -33,12 +33,12 @@ class StorageRental extends Component {
           </div>
           */}
           <div className="dataBox">
-            <p><Icon type="pay-circle-o" /> 价格：<span className="unit">{ storagePrice.fullAmount }{storagePrice.unit == '￥' ? '元':''}</span> /（GB*小时）</p>
+            <p><Icon type="pay-circle-o" /> 价格：<span className="unit">{ storagePrice.fullAmount }</span> /（GB*小时）</p>
             <p><Icon type="hdd" /> 大小：<span className="unit">{this.props.size}Mi</span></p>
           </div>
           <div className="dataBox">
-            <div className="priceCount">合计：<span className="unit">{storagePrice.unit == '￥' ? '￥':''}</span><span className="blod unit">{ hourPrice.amount } {storagePrice.unit == '￥' ? '元':'T'}/小时</span>
-            <span className="unit" style={{marginLeft:'15px'}}>(约{ countPrice.fullAmount }元/月)</span>
+            <div className="priceCount">合计：<span className="unit">{storagePrice.unit == '￥' ? '￥':''}</span><span className="blod unit">{ hourPrice.amount } {storagePrice.unit == '￥' ? '':'T'}/小时</span>
+            <span className="unit" style={{marginLeft:'15px'}}>(约{ countPrice.fullAmount }/月)</span>
           </div>
           </div>
         </div>
