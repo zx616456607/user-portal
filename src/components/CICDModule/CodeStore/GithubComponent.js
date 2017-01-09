@@ -173,8 +173,10 @@ class GithubComponent extends Component {
   constructor(props) {
     super(props);
     this.loadData = this.loadData.bind(this)
+    this.searchClick = this.searchClick.bind(this)
     this.state = {
-      repokey: 'github'
+      repokey: 'github',
+      currentSearch: ''
     }
   }
 
@@ -233,14 +235,25 @@ class GithubComponent extends Component {
   handleSearch(e) {
     const image = e.target.value
     const users = this.state.users
+    this.setState({
+      currentSearch: image
+    })
     this.props.searchGithubList(users, image)
   }
   changeSearch(e) {
     const image = e.target.value
     const users = this.state.users
+    this.setState({
+      currentSearch: image
+    })
     if (image == '') {
       this.props.searchGithubList(users, image)
     }
+  }
+  searchClick() {
+    const image = this.state.currentSearch
+    const users = this.state.users
+    this.props.searchGithubList(users, image)
   }
   syncRepoList() {
     const types = this.state.repokey
@@ -301,7 +314,7 @@ class GithubComponent extends Component {
           <Icon type="reload" onClick={() => this.syncRepoList()} />
           <div className="right-search">
             <Input className='searchBox' size="large" style={{ width: '180px' }} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
-            <i className='fa fa-search'></i>
+            <i className='fa fa-search' onClick={this.searchClick}></i>
           </div>
         </div>
 

@@ -161,6 +161,7 @@ class Ordinary extends Component{
         })
       }
       window.localStorage.setItem(`testingKnowFlag${displayName}`, true);
+      window.localStorage.setItem('userMigratedType', migrated);
     }
   }
   componentDidMount(){

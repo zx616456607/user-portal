@@ -641,7 +641,7 @@ class Slider extends Component {
         }
         <ul className='changeSiderUl'>
           <Tooltip placement='right' title={siderStyle == 'mini' ? '展开导航栏' : null} getTooltipContainer={() => document.getElementById('siderTooltip')}>
-            <li onClick={this.changeSiderStyle}>
+            <li className='changeStyleBox' onClick={this.changeSiderStyle}>
               <span>
                 {siderStyle == 'mini' ? [<i key='fa-indent' className='fa fa-indent'></i>] : [<i key='fa-outdent' className='fa fa-outdent'></i>]}
               </span>
