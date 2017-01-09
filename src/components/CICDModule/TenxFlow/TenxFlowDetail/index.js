@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { getTenxFlowDetail, getTenxflowBuildLastLogs, getTenxFlowYAML, deploymentLog, getTenxflowBuildLogs } from '../../../../actions/cicd_flow'
+import { getTenxFlowDetail, getTenxflowBuildLastLogs, getTenxFlowYAML, deploymentLog, getTenxflowBuildLogs, getCdInimage } from '../../../../actions/cicd_flow'
 import { checkImage } from '../../../../actions/app_center'
 import './style/TenxFlowDetail.less'
 import TenxFlowDetailAlert from './TenxFlowDetailAlert.js'
@@ -123,33 +123,22 @@ class TenxFlowDetail extends Component {
   }
   componentWillMount() {
     document.title = 'TenxFlow | 时速云';
-    const { getTenxFlowDetail } = this.props;
+    const { getTenxFlowDetail, getCdInimage } = this.props;
     let { search } = this.props.location;
     search = search.split('?')[1].split('&')[0]
     const self = this
-    getTenxFlowDetail(search, {
-      success: {
-        func: (res) => {
-          const result = res.data.results.stageInfo
-          const showImage = []
-          if (result.length > 0) {
-            result.forEach(list => {
-              if (list.spec.hasOwnProperty('build')) {
-                showImage.push(res.data.results.namespace + '/' + list.spec.build.image)
-              }
-            })
-          }
-          self.setState({
-            showImage
-          })
-        }
-      }
-    });
+    getTenxFlowDetail(search)
+    getCdInimage(search)
     this.flowState()
   }
 
   componentWillReceiveProps(nextProps) {
     const { currentSpace } = nextProps;
+    if (nextProps.cdImageList) {
+      this.setState({
+        showImage:nextProps.cdImageList
+      })
+    }
     if (currentSpace && this.props.currentSpace && currentSpace != this.props.currentSpace) {
       browserHistory.push(`/ci_cd/tenx_flow`)
       return
@@ -220,7 +209,7 @@ class TenxFlowDetail extends Component {
   goCheckImage(image) {
     const config = { registry: DEFAULT_REGISTRY, image }
     let notification = new NotificationHandler()
-    let space = this.props.flowInfo.namespace
+    const {namespace, owner} = this.props.flowInfo
     this.setState({showTargeImage: false})
     this.props.checkImage(config, {
       success: {
@@ -229,7 +218,7 @@ class TenxFlowDetail extends Component {
             notification.error('镜像不存在，请先执行构建')
             return
           }
-          if (space != res.data.contributor) {
+          if (namespace != res.data.contributor && owner != res.data.contributor) {
             notification.error('没有权限访问该镜像')
             return
           }
@@ -339,7 +328,8 @@ function mapStateToProps(state, props) {
     isFetching: false,
     logs: []
   }
-  const { getTenxflowDetail, getTenxflowBuildLastLogs } = state.cicd_flow;
+  const { getTenxflowDetail, getTenxflowBuildLastLogs, getCdImage } = state.cicd_flow;
+  const { cdImageList } = getCdImage || []
   const { isFetching, flowInfo } = getTenxflowDetail || defaultFlowInfo;
   const buildFetching = getTenxflowBuildLastLogs.isFetching || deafaultFlowLog.isFetching;
   const { logs } = getTenxflowBuildLastLogs;
@@ -347,6 +337,7 @@ function mapStateToProps(state, props) {
     isFetching,
     flowInfo,
     buildFetching,
+    cdImageList,
     logs,
     currentSpace: state.entities.current.space.namespace
   }
@@ -362,6 +353,7 @@ export default connect(mapStateToProps, {
   getTenxflowBuildLastLogs,
   checkImage,
   deploymentLog,
+  getCdInimage,
   getTenxflowBuildLogs
 })(injectIntl(TenxFlowDetail, {
   withRef: true,
