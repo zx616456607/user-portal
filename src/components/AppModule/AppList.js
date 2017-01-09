@@ -15,6 +15,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
 import { loadAppList, stopApps, deleteApps, restartApps, startApps } from '../../actions/app_manage'
+import { LOAD_STATUS_TIMEOUT } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { calcuDate } from '../../common/tools'
 import { browserHistory } from 'react-router'
@@ -389,6 +390,11 @@ class AppList extends Component {
         func: (result) => {
           // Add app status watch, props must include statusWatchWs!!!
           addAppWatch(cluster, self.props, result.data)
+          // For fix issue #CRYSTAL-1604(load list again for update status)
+          clearTimeout(self.loadStatusTimeout)
+          self.loadStatusTimeout = setTimeout(() => {
+            loadAppList(cluster, { page, size, name, sortOrder, sortBy })
+          }, LOAD_STATUS_TIMEOUT)
         },
         isAsync: true
       }
@@ -725,7 +731,7 @@ class AppList extends Component {
     })
     const appNames = runningApps.map((app) => app.name)
     const allApps = self.state.appList
-    
+
     allApps.map((app) => {
       if (appNames.indexOf(app.name) > -1) {
         app.status.phase = 'Redeploying'
@@ -769,7 +775,7 @@ class AppList extends Component {
     const self = this
     const { cluster, deleteApps, intl, appList } = this.props
     const checkedAppList = appList.filter((app) => app.checked)
-    
+
     const appNames = checkedAppList.map((app) => app.name)
     const allApps = self.state.appList
     allApps.map((app) => {

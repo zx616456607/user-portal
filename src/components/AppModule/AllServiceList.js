@@ -37,7 +37,7 @@ import AppDeployServiceModal from './AppCreate/AppDeployServiceModal'
 import TipSvcDomain from '../TipSvcDomain'
 import yaml from 'js-yaml'
 import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
-import { LABEL_APPNAME } from '../../constants'
+import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT } from '../../constants'
 import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
@@ -482,6 +482,11 @@ class ServiceList extends Component {
           let { services } = result.data
           let deployments = services.map(service => service.deployment)
           addDeploymentWatch(cluster, self.props, deployments)
+          // For fix issue #CRYSTAL-1604(load list again for update status)
+          clearTimeout(self.loadStatusTimeout)
+          self.loadStatusTimeout = setTimeout(() => {
+            loadAllServices(cluster, query)
+          }, LOAD_STATUS_TIMEOUT)
         },
         isAsync: true
       }
