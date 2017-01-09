@@ -38,10 +38,10 @@ exports.GetRegistryConfig = function (callback) {
       if (!registryLocalStorage.host) {
         logger.warn("No valid tenxcloud registry configured, should check the configuration in the database.")
       }
-      callback(null, result.data)
+      callback && callback(null, result.data)
     } else {
       logger.error("Failed to get registry config from api service: " + JSON.stringify(err))
-      callback(err, result)
+      callback && callback(err, result)
     }
   })
 }
