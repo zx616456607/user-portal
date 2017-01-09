@@ -114,7 +114,16 @@ class CodeList extends Component {
     parentScope.props.notGithubProject(users, id, {
       success: {
         func: () => {
-          notification.success('撤消成功')
+          notification.success('解除激活成功')
+        }
+      },
+      failed: {
+        func: (res) => {
+          if (res.statusCode == 400) {
+            notification.error('该项目正在被TenxFlow引用，请解除引用后重试')
+          } else {
+            notification.error('解除激活失败')
+          }
         }
       }
     })
@@ -140,7 +149,7 @@ class CodeList extends Component {
             <div className="action">
               {(item.managedProject && item.managedProject.active == 1) ?
                 <span><Button type="ghost" disabled>已激活</Button>
-                  <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>撤销</a></span>
+                  <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>解除</a></span>
                 :
                 <Tooltip placement="right" title="可构建项目">
                   <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >激活</Button>
@@ -271,7 +280,7 @@ class GithubComponent extends Component {
           <div className="action">
             {(item.managedProject && item.managedProject.active == 1) ?
               <span><Button type="ghost" disabled>已激活</Button>
-                <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>撤销</a></span>
+                <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>解除</a></span>
               :
               <Tooltip placement="right" title="可构建项目">
                 <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >激活</Button>

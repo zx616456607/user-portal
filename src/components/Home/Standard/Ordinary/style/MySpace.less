@@ -201,20 +201,25 @@
       font-size: 16px;
     }
     .infoDetail {
+      position: relative;
       width: 100%;
       min-height: 24px;
-      line-break: 24px;
-      .num {
-        margin-top: 5px;
-        margin-right: 10px;
-        float: left;
-        width: 14px;
-        height: 14px;
-        line-height: 14px;
-        color: #FFFFFF;
-        text-align: center;
-        font-size: 14px;
-        border-radius: 3px;
+      line-height: 24px;
+      .circleIcon {
+        position: absolute;
+        top: 10px;
+        left: 12px;
+        width: 4px;
+        height: 4px;
+        border-radius: 2px;
+        background-color: #00A1EA;
+      }
+      .squareIcon {
+        position: absolute;
+        top: 10px;
+        left: 23px;
+        width: 4px;
+        height: 4px;
         background-color: #00A1EA;
       }
       .info {

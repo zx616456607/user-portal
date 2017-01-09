@@ -25,27 +25,13 @@ class MySpace extends Component{
   constructor(props){
     super(props)
     this.calcPer = this.calcPer.bind(this)
-    this.closeTestingKnowModal = this.closeTestingKnowModal.bind(this)
     this.state = {
       cicdStates: true,
-      ImageStates: true,
-      oldTestingKonwShow: false,
-      newTestingKonwShow: false
+      ImageStates: true
     }
   }
 
-  componentWillMount() {
-    let testingKnowFlag = window.localStorage.getItem('testingKnowFlag');
-    if(!Boolean(testingKnowFlag)) {
-      this.setState({
-        newTestingKonwShow: false        
-      });
-      this.setState({
-        oldTestingKonwShow: false
-      })
-      window.localStorage.setItem('testingKnowFlag', true);
-    }
-  }
+  componentWillMount() {}
   componentDidMount() {
     const { loadSpaceInfo, loadSpaceCICDStats, loadSpaceImageStats, getOperationLogList } = this.props
     loadSpaceCICDStats({
@@ -73,13 +59,6 @@ class MySpace extends Component{
     getOperationLogList({
       from: 0,
       size: 5
-    })
-  }
-  closeTestingKnowModal() {
-    //this function for close test know modal
-    this.setState({
-      newTestingKonwShow: false,
-      oldTestingKonwShow: false,
     })
   }
   getOperationLog() {
@@ -465,84 +444,6 @@ class MySpace extends Component{
             </Card>
           </Col>
         </Row>
-        <Modal visible={this.state.oldTestingKonwShow} className='testingKnowModal'>
-          <div className='titleBox'>
-            <p>欢迎使用时速云</p>
-            <Icon className='closeBtn' type='cross' onClick={this.closeTestingKnowModal} />
-          </div>
-          <div className='infoBox'>
-            <div className='infoDetail'>
-              <span className='info'>欢迎使用时速云 2.0 新版本 Portal 控制台，检测到您为时速云老用户，并且还未完成迁移：</span>
-            </div>
-            <div className='infoDetail'>
-              <span className='info'>新版本即日起正式开放，更多丰富特性等你发现；</span>
-            </div>
-            <div className='infoDetail'>
-              <span className='info'>时速云日前，以向您的注册邮箱，发送了升级邮件；</span>
-            </div>
-            <div className='infoDetail'>
-              <span className='info'>新版本，在迁移日期前，将保持与旧版本独立的帐户余额&amp;消费；</span>
-            </div>
-            <div className='infoDetail'>
-              <span className='info'>我要将旧版本上运行的应用向新版本迁移：</span>
-            </div>
-            <div className='infoDetail'>
-              <span className='info'>自行完成迁移</span>
-            </div>
-            <div className='infoDetail'>
-              <span className='info'>无状态的服务，可以直接在新版通过镜像启动即可完成迁移；</span>
-            </div>
-            <div className='infoDetail'>
-              <span className='info'>有状态的服务的存储，可以通过登录终端，将数据通过 SCP 等命令，传输至新版本；</span>
-            </div>
-            <div className='infoDetail'>
-              <span className='info'>官方自动迁移</span>
-            </div>
-            <div className='infoDetail'>
-              <span className='info'>时速云团队会在通知的迁移日期，自动将旧平台的运行应用迁移至新平台Portal；</span>
-            </div>
-            <div className='infoDetail'>
-              <span className='info'>更多详细迁移说明&amp;指南，请<a href="http://docs.tenxcloud.com/guide/upgradeTo2.0" target="_blank">点击这里查看</a>；</span>
-            </div>
-          </div>
-          <div className='btnBox'>
-            <div className='knowBtn' onClick={this.closeTestingKnowModal}>
-              <span>知道了</span>
-            </div>
-          </div>
-        </Modal>
-        <Modal visible={this.state.newTestingKonwShow} className='testingKnowModal'>
-          <div className='titleBox'>
-            <p>欢迎使用时速云</p>
-            <Icon className='closeBtn' type='cross' onClick={this.closeTestingKnowModal} />
-          </div>
-          <div className='infoBox'>
-            <div className='infoDetail'>
-              <span className='info'>欢迎使用时速云2.0新版本Portal控制台，这里你可以通过一键的方式创建高弹性的后端服务，这里你几乎可以实现关于容器的一切想法，快来体验新时代的云计算平台吧！</span>
-            </div>
-            <div className='infoDetail' style={{ marginTop: '20px', marginBottom: '10px' }}>
-              <span className='info'>为了让你更好的上手时速云平台，我们做了一些小Demo，请享用！</span>
-            </div>
-            <div className='infoDetail' style={{ lineHeight: '30px' }}>
-              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;了解容器&云计算相关知识&nbsp;→&nbsp;<a href='http://docs.tenxcloud.com/guide/concepts' target="_blank"><span style={{ color: '#00A1EA',cursor: 'pointer' }}>点击这里</span></a>；</span>
-            </div>
-            <div className='infoDetail' style={{ lineHeight: '30px' }}>
-              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;创建我的第一个容器小应用&nbsp;→&nbsp;<a href='http://docs.tenxcloud.com/quick-start/' target="_blank"><span style={{ color: '#00A1EA',cursor: 'pointer' }}>点击这里</span></a>；</span>
-            </div>
-            <div className='infoDetail' style={{ lineHeight: '30px' }}>
-              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;创建我的第一个TenxFlow项目&nbsp;→&nbsp;<a href='http://docs.tenxcloud.com/quick-start/create-first-flow' target="_blank"><span style={{ color: '#00A1EA',cursor: 'pointer' }}>点击这里</span></a>；</span>
-            </div>
-            <div className='infoDetail littleInfoDetail'>
-              <span className='info' style={{ paddingLeft: '11px' }}><span style={{ color: '#00A1EA' }}>▪</span>&nbsp;实现代码构建成容器镜像，进而启动镜像为容器小应用；</span><br />
-              <span className='info' style={{ paddingLeft: '11px' }}><span style={{ color: '#00A1EA' }}>▪</span>&nbsp;通过TenxFlow还可以实现更多开发过程中的各环节自动化，期待你的发现；</span>
-            </div>
-          </div>
-          <div className='btnBox'>
-            <div className='knowBtn' onClick={this.closeTestingKnowModal}>
-              <span>知道了</span>
-            </div>
-          </div>
-        </Modal>
       </div>
     )
   }

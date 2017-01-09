@@ -16,7 +16,6 @@ import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, 
 import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import NotificationHandler from '../../../common/notification_handler'
-import logo2xPNG from '../../../assets/img/sider/logo@2x.png'
 import logoPNG from '../../../assets/img/sider/logo.png'
 
 const SubMenu = Menu.SubMenu
@@ -27,6 +26,9 @@ function checkUrlSelectedKey(pathname) {
   //this function for check the pathname and return the selected key of menu
   let pathList = pathname.split('/');
   if (pathList.length == 2) {
+    if(pathList[1].length == 0) {
+      return ['home', 'home'];
+    }
     return [pathList[1], pathList[1] + '_default']
   } else {
     if(pathList[1] == 'app_manage' && pathList[2] == 'detail') {
@@ -43,6 +45,9 @@ function checkUrlOpenKeys(pathname) {
   //this function for check the pathname and return the opened key of menu
   let pathList = pathname.split('/');
   if (pathList.length == 2) {
+    if(pathList[1].length == 0) {
+      return ['home', 'home'];
+    }
     return [pathList[1], pathList[1] + '_default']
   } else {
     if(pathList[1] == 'app_manage' && pathList[2] == 'detail') {
@@ -74,6 +79,9 @@ class Slider extends Component {
   componentWillMount() {
     const { pathname } = this.props;
     let currentKey = pathname.split('/')[1];
+    if(!Boolean(currentKey)) {
+      currentKey = 'home';
+    }
     let currentOpenMenu = checkUrlSelectedKey(pathname);
     let currentSelectedMenu = checkUrlOpenKeys(pathname);
     this.setState({
@@ -87,9 +95,12 @@ class Slider extends Component {
     const { pathname } = nextProps;
     const oldPathname = this.props.pathname;
     if(pathname != oldPathname) {
+      let currentKey = pathname.split('/')[1];
+      if(!Boolean(currentKey)) {
+        currentKey = 'home';
+      }
       let currentOpenMenu = checkUrlSelectedKey(pathname);
       let currentSelectedMenu = checkUrlOpenKeys(pathname);
-      let currentKey = pathname.split('/')[1];
       if(currentKey == '') {
         currentKey = 'home'
       }
@@ -271,7 +282,9 @@ class Slider extends Component {
             <ul className='siderTop'>
               <li className='logoItem'>
                 <Link to='/'>
-                  <img className='logo' src={logo2xPNG} />
+                  <svg className='logo'>
+                    <use xlinkHref='#sidernewlogo' />
+                  </svg>
                 </Link>
               </li>
               <li onClick={this.selectModel.bind(this, 'home', '#home')} className={currentKey == 'home' ? 'selectedLi' : ''} >
