@@ -107,8 +107,8 @@ class AppServiceRental extends Component {
           <div className="dataBox" style={{padding:'0 25px'}}>
             <div className="priceCount">合计价格：
               <span className="unit">{ countPrice.unit == '￥' ? '￥': '' }</span>
-              <span className="unit blod">{ hourPrice } { countPrice.unit == '￥' ? '元': 'T' }/小时</span>
-              <span className="unit" style={{marginLeft:'10px'}}>（约：{ countPrice.fullAmount }{ countPrice.unit =='￥'? '元':'' }/月）</span>
+              <span className="unit blod">{ hourPrice } { countPrice.unit == '￥' ? '': 'T' }/小时</span>
+              <span className="unit" style={{marginLeft:'10px'}}>（约：{ countPrice.fullAmount }/月）</span>
             </div>
             <table className="table">
               <thead>

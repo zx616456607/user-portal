@@ -171,7 +171,7 @@ let NotLogUser = React.createClass({
       countDownTimeText: '60s 后重新发送',
     })
     //重新发送定时器
-    let wait = 2
+    let wait = 59
     let time = setInterval(() => {
       let text = wait + 's 后重新发送'
       wait--
@@ -192,13 +192,13 @@ let NotLogUser = React.createClass({
     const { validateFields } = this.props.form
     validateFields((err, values) => {
       if (err && values.captcha !== '' && values.captcha) {
-        console.log('err',err,values)
         return
       }
       const phone = values.tel
       if (!phone) {
         return
       }
+      console.log('tel',phone)
       this.props.sendRegisterPhoneCaptcha(phone, {
         success: {
           func: () => {
