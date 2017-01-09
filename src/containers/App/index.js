@@ -67,12 +67,16 @@ class App extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { errorMessage, current, pathname, resetErrorMessage } = nextProps
+    const { errorMessage, current, pathname, resetErrorMessage, redirectUrl } = nextProps
     const { statusWatchWs } = this.props.sockets
     const { space, cluster } = current
     let notification = new NotificationHandler()
     if (space.namespace !== this.props.current.space.namespace || cluster.clusterID !== this.props.current.cluster.clusterID) {
       statusWatchWs && statusWatchWs.close()
+    }
+    // Set previous location
+    if (redirectUrl !== this.props.redirectUrl) {
+      window.previousLocation = this.props.redirectUrl
     }
     if (!errorMessage) {
       return

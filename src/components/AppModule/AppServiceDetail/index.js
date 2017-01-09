@@ -28,7 +28,7 @@ import './style/AppServiceDetail.less'
 import TerminalModal from '../../TerminalModal'
 import { parseServiceDomain } from '../../parseDomain'
 import ServiceStatus from '../../TenxStatus/ServiceStatus'
-import { TENX_MARK } from '../../../constants'
+import { TENX_MARK, LOAD_STATUS_TIMEOUT } from '../../../constants'
 import { addPodWatch, removePodWatch } from '../../../containers/App/status'
 import TipSvcDomain from '../../TipSvcDomain'
 import { getServiceStatusByContainers } from '../../../common/status_identify'
@@ -78,6 +78,11 @@ class AppServiceDetail extends Component {
         func: (result) => {
           // Add pod status watch, props must include statusWatchWs!!!
           addPodWatch(cluster, self.props, result.data)
+          // For fix issue #CRYSTAL-2079(load list again for update status)
+          clearTimeout(self.loadStatusTimeout)
+          self.loadStatusTimeout = setTimeout(() => {
+            loadServiceContainerList(cluster, serviceName)
+          }, LOAD_STATUS_TIMEOUT)
         },
         isAsync: true
       }
