@@ -14,7 +14,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/TenxFlowStageBuildLog.less'
 import WebSocket from '../../Websocket/socketIo'
 import { changeCiFlowStatus } from '../../../actions/cicd_flow'
-
+import $ from 'jquery'
 
 function formatLog(log) {
   //this function for format log
@@ -50,7 +50,7 @@ class TenxFlowStageBuildLog extends Component {
     this.setState({
       status: status
     })
-  }
+  }  
   onSetup(socket) {
     const logInfo = this.props.logInfo
     const self = this
@@ -60,12 +60,16 @@ class TenxFlowStageBuildLog extends Component {
       let oldLogs = self.state.logs
       self.setState({
         logs: oldLogs + data.toString()
-      })
+      });
+      let height = $('#TenxFlowStageBuildLog .infoBox').css('height')
+      $('#TenxFlowStageBuildLog').animate({
+        scrollTop: height + 'px'
+      },100)
     })
     socket.on("ciLogs-ended", function(data) {
       self.props.changeCiFlowStatus(self.props.index, data.state, self.state.logs)
     })
-  }
+  } 
   render() {
     const scope = this;
     let { logs, isFetching } = this.props;

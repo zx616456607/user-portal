@@ -16,7 +16,6 @@ import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, 
 import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import NotificationHandler from '../../../common/notification_handler'
-import logo2xPNG from '../../../assets/img/sider/logo@2x.png'
 import logoPNG from '../../../assets/img/sider/logo.png'
 
 const SubMenu = Menu.SubMenu
@@ -27,6 +26,9 @@ function checkUrlSelectedKey(pathname) {
   //this function for check the pathname and return the selected key of menu
   let pathList = pathname.split('/');
   if (pathList.length == 2) {
+    if(pathList[1].length == 0) {
+      return ['home', 'home'];
+    }
     return [pathList[1], pathList[1] + '_default']
   } else {
     if(pathList[1] == 'app_manage' && pathList[2] == 'detail') {
@@ -43,6 +45,9 @@ function checkUrlOpenKeys(pathname) {
   //this function for check the pathname and return the opened key of menu
   let pathList = pathname.split('/');
   if (pathList.length == 2) {
+    if(pathList[1].length == 0) {
+      return ['home', 'home'];
+    }
     return [pathList[1], pathList[1] + '_default']
   } else {
     if(pathList[1] == 'app_manage' && pathList[2] == 'detail') {
@@ -63,17 +68,24 @@ class Slider extends Component {
     this.onSelectMenu = this.onSelectMenu.bind(this);
     this.onOpenBigMenu = this.onOpenBigMenu.bind(this);
     this.onCloseBigMenu = this.onCloseBigMenu.bind(this);
+    this.openNavModal = this.openNavModal.bind(this);
+    this.closeNavModal = this.closeNavModal.bind(this);
     this.state = {
       currentKey: 'home',
       isUnzip: false,
       currentOpenMenu: null,
-      currentSelectedMenu: null
+      currentSelectedMenu: null,
+      newTestingKonwShow: false,
+      oldTestingKonwShow: false
     }
   }
 
   componentWillMount() {
     const { pathname } = this.props;
     let currentKey = pathname.split('/')[1];
+    if(!Boolean(currentKey)) {
+      currentKey = 'home';
+    }
     let currentOpenMenu = checkUrlSelectedKey(pathname);
     let currentSelectedMenu = checkUrlOpenKeys(pathname);
     this.setState({
@@ -87,9 +99,12 @@ class Slider extends Component {
     const { pathname } = nextProps;
     const oldPathname = this.props.pathname;
     if(pathname != oldPathname) {
+      let currentKey = pathname.split('/')[1];
+      if(!Boolean(currentKey)) {
+        currentKey = 'home';
+      }
       let currentOpenMenu = checkUrlSelectedKey(pathname);
       let currentSelectedMenu = checkUrlOpenKeys(pathname);
-      let currentKey = pathname.split('/')[1];
       if(currentKey == '') {
         currentKey = 'home'
       }
@@ -239,6 +254,28 @@ class Slider extends Component {
     })
   }
 
+  openNavModal() {
+    //this function for open the nav modal
+    let userMigratedType = window.localStorage.getItem('userMigratedType');
+    if(userMigratedType != 1) {
+      this.setState({
+        newTestingKonwShow: true
+      })
+    } else {
+      this.setState({
+        oldTestingKonwShow: true
+      })
+    }
+  }
+  
+  closeNavModal() {
+    //this function for close the nav modal
+    this.setState({
+      oldTestingKonwShow: false,
+      newTestingKonwShow: false
+    })
+  }
+
   render() {
     const { siderStyle } = this.props
     const { currentKey } = this.state
@@ -271,7 +308,9 @@ class Slider extends Component {
             <ul className='siderTop'>
               <li className='logoItem'>
                 <Link to='/'>
-                  <img className='logo' src={logo2xPNG} />
+                  <svg className='logo'>
+                    <use xlinkHref='#sidernewlogo' />
+                  </svg>
                 </Link>
               </li>
               <li onClick={this.selectModel.bind(this, 'home', '#home')} className={currentKey == 'home' ? 'selectedLi' : ''} >
@@ -586,8 +625,28 @@ class Slider extends Component {
         ] : null
         }
         <ul className='changeSiderUl'>
+          <li className='navBox'>
+            {
+              siderStyle == 'mini' ? [
+                <Tooltip placement='right' title='新版引导'getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <div className='miniNavBtn' onClick={this.openNavModal}>
+                    <svg>
+                      <use xlinkHref='#navbtn' />
+                    </svg>
+                  </div>
+                </Tooltip>
+              ] : [
+                <div className='navBtn' onClick={this.openNavModal}>
+                  <svg>
+                    <use xlinkHref='#navbtn' />
+                  </svg>
+                  <span>新版引导</span>
+                </div>
+              ]
+            }
+          </li>
           <Tooltip placement='right' title={siderStyle == 'mini' ? '展开导航栏' : null} getTooltipContainer={() => document.getElementById('siderTooltip')}>
-            <li onClick={this.changeSiderStyle}>
+            <li className='changeStyleBox' onClick={this.changeSiderStyle}>
               <span>
                 {siderStyle == 'mini' ? [<i key='fa-indent' className='fa fa-indent'></i>] : [<i key='fa-outdent' className='fa fa-outdent'></i>]}
               </span>
@@ -595,6 +654,89 @@ class Slider extends Component {
             </li>
           </Tooltip>
         </ul>
+        <Modal visible={this.state.oldTestingKonwShow} className='testingKnowModal'>
+          <div className='titleBox'>
+            <p>欢迎使用时速云</p>
+            <Icon className='closeBtn' type='cross' onClick={this.closeNavModal} />
+          </div>
+          <div className='infoBox'>
+            <div className='infoDetail'>
+              <span className='info'>欢迎使用时速云 2.0 新版本 Portal 控制台，检测到您为时速云老用户，并且还未完成迁移：</span>
+            </div>
+            <div className='infoDetail'>
+              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;新版本即日起正式开放，更多丰富特性等你发现；</span>
+            </div>
+            <div className='infoDetail'>
+              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;时速云日前，以向您的注册邮箱，发送了升级邮件；</span>
+            </div>
+            <div className='infoDetail'>
+              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;新版本，在迁移日期前，将保持与旧版本独立的帐户余额&amp;消费；</span>
+            </div>
+            <div className='infoDetail'>
+              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;我要将旧版本上运行的应用向新版本迁移：</span>
+            </div>
+            <div className='infoDetail'>
+              <div className='circleIcon'></div>
+              <span className='info' style={{ paddingLeft: '22px' }}>自行完成迁移</span>
+            </div>
+            <div className='infoDetail'>
+              <div className='squareIcon'></div>
+              <span className='info' style={{ paddingLeft: '33px' }}>无状态的服务，可以直接在新版通过镜像启动即可完成迁移；</span>
+            </div>
+            <div className='infoDetail'>
+              <div className='squareIcon'></div>
+              <span className='info' style={{ paddingLeft: '33px' }}>有状态的服务的存储，可以通过登录终端，将数据通过 SCP 等命令，传输至新版本；</span>
+            </div>
+            <div className='infoDetail'>
+              <div className='circleIcon'></div>
+              <span className='info' style={{ paddingLeft: '22px' }}>官方自动迁移</span>
+            </div>
+            <div className='infoDetail'>
+              <div className='squareIcon'></div>
+              <span className='info' style={{ paddingLeft: '33px' }}>时速云团队会在通知的迁移日期，自动将旧平台的运行应用迁移至新平台Portal；</span>
+            </div>
+            <div className='infoDetail'>
+              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;更多详细迁移说明&amp;指南，请<a href="http://docs.tenxcloud.com/guide/upgradeTo2.0" target="_blank">点击这里查看</a>；</span>
+            </div>
+          </div>
+          <div className='btnBox'>
+            <div className='knowBtn' onClick={this.closeNavModal}>
+              <span>知道了</span>
+            </div>
+          </div>
+        </Modal>
+        <Modal visible={this.state.newTestingKonwShow} className='testingKnowModal'>
+          <div className='titleBox'>
+            <p>欢迎使用时速云</p>
+            <Icon className='closeBtn' type='cross' onClick={this.closeNavModal} />
+          </div>
+          <div className='infoBox'>
+            <div className='infoDetail'>
+              <span className='info'>欢迎使用时速云2.0新版本Portal控制台，这里你可以通过一键的方式创建高弹性的后端服务，这里你几乎可以实现关于容器的一切想法，快来体验新时代的云计算平台吧！</span>
+            </div>
+            <div className='infoDetail' style={{ marginTop: '20px', marginBottom: '10px' }}>
+              <span className='info'>为了让你更好的上手时速云平台，我们做了一些小Demo，请享用！</span>
+            </div>
+            <div className='infoDetail' style={{ lineHeight: '30px' }}>
+              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;了解容器&云计算相关知识&nbsp;→&nbsp;<a href='http://docs.tenxcloud.com/guide/concepts' target="_blank"><span style={{ color: '#00A1EA',cursor: 'pointer' }}>点击这里</span></a>；</span>
+            </div>
+            <div className='infoDetail' style={{ lineHeight: '30px' }}>
+              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;创建我的第一个容器小应用&nbsp;→&nbsp;<a href='http://docs.tenxcloud.com/quick-start/' target="_blank"><span style={{ color: '#00A1EA',cursor: 'pointer' }}>点击这里</span></a>；</span>
+            </div>
+            <div className='infoDetail' style={{ lineHeight: '30px' }}>
+              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;创建我的第一个TenxFlow项目&nbsp;→&nbsp;<a href='http://docs.tenxcloud.com/quick-start/create-first-flow' target="_blank"><span style={{ color: '#00A1EA',cursor: 'pointer' }}>点击这里</span></a>；</span>
+            </div>
+            <div className='infoDetail littleInfoDetail'>
+              <span className='info' style={{ paddingLeft: '11px' }}><span style={{ color: '#00A1EA' }}>▪</span>&nbsp;实现代码构建成容器镜像，进而启动镜像为容器小应用；</span><br />
+              <span className='info' style={{ paddingLeft: '11px' }}><span style={{ color: '#00A1EA' }}>▪</span>&nbsp;通过TenxFlow还可以实现更多开发过程中的各环节自动化，期待你的发现；</span>
+            </div>
+          </div>
+          <div className='btnBox'>
+            <div className='knowBtn' onClick={this.closeNavModal}>
+              <span>知道了</span>
+            </div>
+          </div>
+        </Modal>
       </div>
     )
   }

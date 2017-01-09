@@ -16,7 +16,7 @@
     }
     .logoItem {
       margin-bottom: 20px;
-      background-color: #333c47;
+      
     }
     li {
       padding: 0 !important;
@@ -64,14 +64,22 @@
   //顶部栏样式
   .siderTop {
     .logo {
-      width: 28px;
-      margin: 9px 0 0 15px;
+      margin: 9px 0 0 10px;
+      padding: 5px;
+      width: 38px;
+      height: 40px;
+      border-radius: 4px;
+      background-color: #333c47;
+      -webkit-transition: all 0.3s linear;
+      transition: all 0.3s linear;
     }
     li:first-child {
       height: 55px;
     }
     li:first-child:hover {
-      background-color: rgba(255,255,255,0.2);
+      .logo {       
+        background-color: rgba(255,255,255,0.2);
+      }
     }
   }
   //底部栏样式
@@ -94,7 +102,7 @@
     left: 0;
     bottom: 0;
     width: 100%;
-    li {
+    .changeStyleBox {
       line-height: 40px;
       text-align: center;
       font-size: 14px;
@@ -107,7 +115,7 @@
     }
   }
   .siderBiggerBox {
-    height: calc(~"100% - 50px");
+    height: calc(~"100% - 90px");
   }
   .siderBigger {
     height: 100%;
@@ -146,7 +154,6 @@
     }
     .sline {
       clear: both;
-      height: 10px;
     }
     .ant-menu-dark .ant-menu-inline.ant-menu-sub {
       background-color: #333c47;
@@ -174,7 +181,6 @@
       padding: 0 !important;
       height: 45px !important;
       line-height: 45px !important;
-      margin-top: 5px;
       color: #c4c4c4;
       a {
         width: 100%;

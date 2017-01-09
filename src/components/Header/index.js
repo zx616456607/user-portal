@@ -23,6 +23,7 @@ import { MY_SPACE } from '../../constants'
 import { browserHistory } from 'react-router'
 import NotificationHandler from '../../common/notification_handler'
 import UserPanel from './UserPanel'
+import backOldBtn from '../../assets/img/headerBackOldArrow.png'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -271,14 +272,14 @@ class Header extends Component {
         <div className="rightBox">
         {
           migrated === 1 ?
-          <div className='backVersion'>
-            <a href='https://console.tenxcloud.com' target='_blank'>
-              <span className='backIcon'>
-                <Icon type="double-right"/>
-              </span>
+          <a href='https://console.tenxcloud.com' target='_blank'>
+            <div className='backVersion'>
+              <div className='imgBox'>
+                <img src={backOldBtn} />
+              </div>
               <span className='backText'>返回旧版</span>
-            </a>
-          </div> :
+            </div>
+          </a> :
           <div></div>
         }
           <div className="docBtn">

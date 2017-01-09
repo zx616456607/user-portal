@@ -243,6 +243,7 @@ const MyComponent = React.createClass({
   },
   closeAddGitlabModal() {
     //this function for close modal and set from to null
+    console.log('aaaaa')
     this.setState({
       authorizeModal: false,
       regUrl: '',
