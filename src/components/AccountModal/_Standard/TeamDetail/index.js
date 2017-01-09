@@ -313,6 +313,7 @@ class TeamDetail extends Component {
                   teamID={teamID}
                   quitTeam={quitTeam}
                   loadUserTeamList={loadUserTeamList}
+                  detailPage = {true}
                 />
               </Row>
               <Card className="content">
