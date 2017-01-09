@@ -42,6 +42,7 @@ export default class ExitTeamModal extends Component{
           notification.close()
           if (detailPage) {
             browserHistory.push('/account/teams')
+            return
           }
           loadUserTeamList()
         },
