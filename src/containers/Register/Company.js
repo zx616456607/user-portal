@@ -82,7 +82,7 @@ let Company = React.createClass({
               submitProps: {},
             })
             message.success(`注册成功`)
-            browserHistory.push(`/register?email=${result.email}&code=${result.code}`)
+            browserHistory.push(`/signup?email=${result.email}&code=${result.code}`)
             resetFields()
           },
           isAsync: true
@@ -459,7 +459,7 @@ let Company = React.createClass({
             className="formItemName"
           >
             <div className={this.state.intEmailFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'email')}>邮箱</div>
-            
+
             <Input {...emailProps} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'email')}
                    onFocus={this.intOnFocus.bind(this, 'email')}
                    ref="intEmail"
@@ -519,7 +519,7 @@ let Company = React.createClass({
               </Button>
             </Tooltip>
           </FormItem>
-          
+
           {/*单位选择*/}
           <FormItem
             {...formItemLayout}
@@ -599,7 +599,7 @@ Company = createForm()(Company)
 
 function mapStateToProps(state,props) {
   return {
-    
+
   }
 }
 Company = connect(mapStateToProps,{

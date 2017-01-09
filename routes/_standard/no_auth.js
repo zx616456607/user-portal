@@ -58,7 +58,8 @@ module.exports = function (Router) {
   )
 
   //register
-  router.get('/register', indexCtl.index) // not open register
+  router.get('/signup', indexCtl.index) // not open register
+
   //resetpassword
   router.get('/rpw', indexCtl.index)
 

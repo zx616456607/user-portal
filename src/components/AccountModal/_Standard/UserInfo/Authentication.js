@@ -211,7 +211,7 @@ class Indivduals extends Component {
       const notification = new NotificationHandler()
       let hold = self.state.userHold
       let scan = self.state.userScan
-      let certId 
+      let certId
       if(update) {
         let individualCert = self.props.config
         certId = individualCert.certID
@@ -272,7 +272,7 @@ class Indivduals extends Component {
         }
         notification.error(message)
       }
-    }) 
+    })
   }
   removeFile(type) {
     if(this.state.isAllDisable) {
@@ -297,7 +297,7 @@ class Indivduals extends Component {
     let individualCert = this.props.config
     let update = false
     if(individualCert) {
-      update = true 
+      update = true
     }
     if(!individualCert) individualCert = {}
     const name = getFieldProps('name', {
@@ -345,8 +345,8 @@ class Indivduals extends Component {
             <div className="list">
               <span className="key">手持身份证照片 <span className="important">*</span></span>
               <div className="upload">
-                <Upload listType="picture-card" accept="image/*" fileList={hold} beforeUpload={(file) => 
-                  this.beforeUpload(file, 'hold') 
+                <Upload listType="picture-card" accept="image/*" fileList={hold} beforeUpload={(file) =>
+                  this.beforeUpload(file, 'hold')
                 } customRequest={() => true } onRemove={() => this.removeFile('hold')} disabled={ hold || isAllDisable ? true : false}>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
@@ -354,7 +354,7 @@ class Indivduals extends Component {
               </div>
               <ul className="chk">
                 <li>1.持有者需正面、免冠、未化妆、双手持身份证且露出手臂</li>
-                <li>2.身份证为本人持有，不得盗用他人身份证且不得遮挡持有者面部，身份证全部信息（包换身份证号、头像）需清晰可辩认</li>
+                <li>2.身份证为本人持有，不得盗用他人身份证且不得遮挡持有者面部，身份证全部信息需清晰可辩认</li>
                 <li>3.照片未经任何软件编辑修改</li>
                 <li>4.上传照片支持（gif/jpg/jpeg/png/bmp 图片格式，大小不超过3M）</li>
               </ul>
@@ -362,7 +362,7 @@ class Indivduals extends Component {
             <div className="list">
               <span className="key">身份证反面扫描 <span className="important">*</span></span>
               <div className="upload">
-                <Upload listType="picture-card" fileList={scan} disabled={ scan || isAllDisable ? true : false } beforeUpload={ (file) => 
+                <Upload listType="picture-card" fileList={scan} disabled={ scan || isAllDisable ? true : false } beforeUpload={ (file) =>
                  this.beforeUpload(file, 'scan')
                 } onRemove={() => this.removeFile('scan')} accept="image/*">
                   <Icon type="plus" />
@@ -486,7 +486,7 @@ class Enterprise extends Component {
           :null
           }
         </div>
-        
+
         <Tabs defaultActiveKey={this.state.trytype} type="card"  onChange={(e)=> this.changeType(e)}>
           <TabPane tab="请选择组织类型" key="4" disabled ></TabPane>
           <TabPane tab={ enterprise } key="2" disabled={certType =='3' ? true : false}><EnterpriseComponse config={ this.props.config } scope={this} namespace={this.props.namespace}/></TabPane>
@@ -502,7 +502,7 @@ class Enterprise extends Component {
           <div>如有任何疑问，请您与时速云团队联系</div>
           <div>电话：<a>400-626-1876</a> 邮箱： <a href="mailto:service@tenxcloud.com">service@tenxcloud.com</a></div>
         </Modal>
-        
+
       </div>
     )
   }
@@ -567,7 +567,7 @@ class Authentication extends Component {
     }
     return (
       <div className="Authentication" >
-        <Tabs  type="card" activeKey={activeKey} onTabClick={(e) => this.tabClick(e)}> 
+        <Tabs  type="card" activeKey={activeKey} onTabClick={(e) => this.tabClick(e)}>
           <TabPane tab="企业用户" key="1"><Enterprise hash={hash} config={certificate.enterprise || certificate.other} scope={this} namespace={this.props.namespace}/></TabPane>
           <TabPane tab="个人用户" key="2"><Indivduals hash={hash} config={certificate.individual} scope={this}/></TabPane>
         </Tabs>

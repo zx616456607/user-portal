@@ -279,7 +279,7 @@ let OtherComponse = React.createClass({
       }
     });
   },
-  
+
    render() {
     const data = this.props.config || {}
     const { getFieldProps } = this.props.form;
@@ -339,9 +339,9 @@ let OtherComponse = React.createClass({
             <div className="list">
               <span className="key">组织机构代码扫描件 <span className="important">*</span></span>
               <div className="upload">
-                
-                <Upload listType="picture-card" accept="image/*" fileList={userLicense} beforeUpload={(file) => 
-                  this.beforeUpload(file, 'userLicense') 
+
+                <Upload listType="picture-card" accept="image/*" fileList={userLicense} beforeUpload={(file) =>
+                  this.beforeUpload(file, 'userLicense')
                 } customRequest={() => true }  onRemove={() => this.removeFile('userLicense')} disabled={ userLicense ? true : false}>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
@@ -382,14 +382,14 @@ let OtherComponse = React.createClass({
             <div className="list">
               <span className="key">负责人身份证正面扫描 <span className="important">*</span></span>
               <div className="upload">
-            
-                <Upload listType="picture-card" accept="image/*" fileList={frontId} beforeUpload={(file) => 
-                  this.beforeUpload(file, 'frontId') 
+
+                <Upload listType="picture-card" accept="image/*" fileList={frontId} beforeUpload={(file) =>
+                  this.beforeUpload(file, 'frontId')
                 } customRequest={() => true }  onRemove={() => this.removeFile('frontId')} disabled={ frontId ? true : false}>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
-        
+
               </div>
               <ul className="chk">
                 <li>&nbsp;</li>
@@ -400,18 +400,18 @@ let OtherComponse = React.createClass({
             <div className="list">
               <span className="key">负责人身份证反面扫描 <span className="important">*</span></span>
               <div className="upload">
-               
-                <Upload accept="image/*" listType="picture-card" fileList={backId} beforeUpload={(file) => 
-                  this.beforeUpload(file, 'backId') 
+
+                <Upload accept="image/*" listType="picture-card" fileList={backId} beforeUpload={(file) =>
+                  this.beforeUpload(file, 'backId')
                 } customRequest={() => true }  onRemove={() => this.removeFile('backId')}  disabled={ backId ? true : false}>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
-              
+
               </div>
               <ul className="chk">
                 <li>1.身份证信息清晰可辨认</li>
-                <li>2.身份证为本人持有，不得盗用他人身份证且不得遮挡持有者面部，身份证全部信息（包换身份证号、头像）需清晰可辩认</li>
+                <li>2.身份证为本人持有，不得盗用他人身份证且不得遮挡持有者面部，身份证全部信息需清晰可辩认</li>
                 <li>3.照片未经任何软件编辑修改</li>
                 <li>4.上传照片支持（gif/jpg/jpeg/png/bmp 图片格式，大小不超过3M）</li>
               </ul>
