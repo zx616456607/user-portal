@@ -244,7 +244,9 @@ class TerminalModal extends Component {
     const _this = this;
     const operaBox = (
       <div className='operaBox'>
-        <i className='fa fa-window-minimize' onClick={this.minWindow} />
+        <svg onClick={this.minWindow} >
+          <use xlinkHref={this.state.terminalType == 'normal' ? '#minwindow' : '#maxwindow'} />
+        </svg>
         <Icon type='cross' onClick={this.closeWindow} />
       </div>
     )
