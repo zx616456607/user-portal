@@ -16,6 +16,7 @@ import { formatDate } from '../../common/tools'
 import { ecma48SgrEscape } from '../../common/ecma48_sgr_escape'
 import './style/ContainerLogs.less'
 // import { clearContainerLogs } from '../../actions/app_manage'
+import { loadContainerDetailEvents } from '../../actions/app_manage'
 import Websocket from '../Websocket'
 import { MAX_LOGS_NUMBER } from '../../constants'
 class ContainerLogs extends Component {
@@ -31,6 +32,7 @@ class ContainerLogs extends Component {
       logSize: 'normal',
       watchStatus: 'play',
       logs: [],
+      logsLoading: false,
     }
   }
 
@@ -59,6 +61,18 @@ class ContainerLogs extends Component {
   componentWillUnmount() {
     const ws = this.ws
     ws && ws.close()
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { eventLogs } = nextProps
+    const { logs } = this.state
+    // Set events to logs when logs empty
+    if (logs.length === 0) {
+      this.setState({
+        logs: eventLogs,
+        logsLoading: false
+      })
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -107,10 +121,11 @@ class ContainerLogs extends Component {
 
   onLogsWebsocketSetup(ws) {
     this.setState({
-      logs: []
+      logs: [],
+      logsLoading: true
     })
+    const { cluster, containerName, loginUser, current, loadContainerDetailEvents } = this.props
     this.ws = ws
-    const { cluster, containerName, loginUser, current } = this.props
     const { watchToken, namespace } = loginUser
     const watchAuthInfo = {
       accessToken: watchToken,
@@ -145,15 +160,23 @@ class ContainerLogs extends Component {
       if (logsLen > MAX_LOGS_NUMBER) {
         logs.splice(0, (logsLen - MAX_LOGS_NUMBER))
       }
-      this.setState({
-        logs
-      })
+      const state = {
+        logs,
+        logsLoading: false,
+      }
+      if (logs.length === 0) {
+        state.logsLoading = true
+      }
+      this.setState(state)
     }
+    setTimeout(() => {
+      loadContainerDetailEvents(cluster, containerName)
+    }, 1500);
   }
 
   renderLog(logObj, index) {
-    let { name, log } = logObj
-    const dateReg = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{9}(Z|(\+\d{2}:\d{2}))\b/
+    let { name, log, mark } = logObj
+    const dateReg = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{9})?(Z|(\+\d{2}:\d{2}))\b/
     let logDateArray = log.match(dateReg)
     let logDate
     if (logDateArray && logDateArray[0]) {
@@ -165,7 +188,11 @@ class ContainerLogs extends Component {
         <span style={{ color: 'yellow' }}>[{name}] </span>
         {
           logDate &&
-          <span style={{ color: 'orange' }}>[{formatDate(logDate)}]</span>
+          <span style={{ color: 'orange' }}>[{formatDate(logDate)}] </span>
+        }
+        {
+          mark &&
+          <span style={{ color: '#57c5f7' }}>[{mark}] </span>
         }
         <span dangerouslySetInnerHTML={{ __html: ecma48SgrEscape(log) }}></span>
       </div>
@@ -191,9 +218,20 @@ class ContainerLogs extends Component {
   }
 
   getLogs() {
-    const { logs } = this.state
+    const { logs, logsLoading } = this.state
+    if (logsLoading) {
+      return (
+        <div className='logDetail'>
+          <span>loading ...</span>
+        </div>
+      )
+    }
     if (logs.length < 1) {
-      return <span>No logs.</span>
+      return (
+        <div className='logDetail'>
+          <span>No logs.</span>
+        </div>
+      )
     }
     return logs.map(this.renderLog)
   }
@@ -243,17 +281,44 @@ class ContainerLogs extends Component {
   }
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
   const { current, loginUser } = state.entities
+  const { cluster, containerName } = props
+  const defaultEvents = {
+    isFetching: false,
+    eventList: []
+  }
+  const { containerDetailEvents } = state.containers
+  if (!containerDetailEvents[cluster]) {
+    containerDetailEvents[cluster] = {}
+  }
+  const { eventList, isFetching } = containerDetailEvents[cluster][containerName] || defaultEvents
+  let eventLogs = []
+  eventList.map(event => {
+    let { type, message, lastSeen, objectMeta } = event
+    let eventLog = {
+      name: objectMeta.name.substring(0, objectMeta.name.indexOf('-')),
+      mark: 'event',
+      log: lastSeen,
+    }
+    if (type !== 'Normal') {
+      eventLog.log += ` <font color="orange">${message}</font>`
+    } else {
+      eventLog.log += ` <font>${message}</font>`
+    }
+    eventLogs.push(eventLog)
+  })
   return {
     containerLogs: state.containers.containerLogs,
     loginUser: loginUser.info,
     current,
+    eventLogs,
   }
 }
 
 ContainerLogs = connect(mapStateToProps, {
   // clearContainerLogs,
+  loadContainerDetailEvents,
 })(ContainerLogs)
 
 export default ContainerLogs

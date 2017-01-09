@@ -251,3 +251,29 @@ export function isStorageUsed(volumes) {
   }
   return used
 }
+
+/**
+ * Filter and replace events
+ * 过滤、替换事件
+ * @param {Array} events
+ * @returns {Array}
+ */
+export function filtEvents(events) {
+  let targetEvents = []
+  if (!events) {
+    return targetEvents
+  }
+  events.map(event => {
+    let { reason } = event
+    reason = reason.toLowerCase()
+    switch (reason) {
+      case 'failedmount':
+        event.message = '尝试挂载存储卷失败，重试中...'
+        targetEvents.push(event)
+        break
+      default:
+        targetEvents.push(event)
+    }
+  })
+  return targetEvents
+}

@@ -26,31 +26,6 @@ let MyComponent = React.createClass({
     config: React.PropTypes.array
   },
 
-  /**
-   * Filter and replace events
-   * 过滤、替换事件
-   * @param {Array} events
-   * @returns {Array}
-   */
-  filterEvents(events) {
-    let targetEvents = []
-    if (!events) {
-      return targetEvents
-    }
-    events.map(event => {
-      let { reason } = event
-      reason = reason.toLowerCase()
-      switch (reason) {
-        case 'failedmount':
-          event.message = '尝试挂载存储卷失败，重试中...'
-          targetEvents.push(event)
-        default:
-          targetEvents.push(event)
-      }
-    })
-    return targetEvents
-  },
-
   render: function () {
     let { config, isFetching } = this.props;
     if (isFetching) {
@@ -60,7 +35,6 @@ let MyComponent = React.createClass({
         </div>
       )
     }
-    config = this.filterEvents(config)
     if (!!!config || config.length < 1) {
       return (
         <div className="noData" >
@@ -68,9 +42,9 @@ let MyComponent = React.createClass({
         </div>
       )
     }
-    let items = config.map((item) => {
+    let items = config.map((item, index) => {
       return (
-        <div className='logDetail' key={item.id} >
+        <div className='logDetail' key={`container_event_${index}`} >
           <div className='iconBox' >
             <div className='line' ></div>
             <div className={item.type == 'Normal' ? 'icon fa fa-check-circle success' : 'icon fa fa-times-circle fail'} > </div>
@@ -130,14 +104,16 @@ ContainerEvents.propTypes = {
 }
 
 function mapStateToProps(state, props) {
-  const { cluster } = props
+  const { cluster, containerName } = props
   const defaultEvents = {
     isFetching: false,
-    cluster,
-    eventList: []
+    eventList: [],
   }
   const { containerDetailEvents } = state.containers
-  const { eventList, isFetching } = containerDetailEvents[cluster] || defaultEvents
+  if (!containerDetailEvents[cluster]) {
+    containerDetailEvents[cluster] = {}
+  }
+  const { eventList, isFetching } = containerDetailEvents[cluster][containerName] || defaultEvents
 
   return {
     eventList,
