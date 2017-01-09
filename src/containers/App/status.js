@@ -211,7 +211,7 @@ function _addWatch(props, config) {
     if (times > MAX_SEND_MSG_INTERVAL) {
       clearInterval(sendMsgInterval)
     }
-  }, 1000)
+  }, 2000)
 }
 
 function _changeListByWatch(list, response) {

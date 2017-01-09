@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ContainerList.less'
 import { loadContainerList, deleteContainers, updateContainerList } from '../../actions/app_manage'
-import { LABEL_APPNAME } from '../../constants'
+import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { calcuDate } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
@@ -83,7 +83,7 @@ const MyComponent = React.createClass({
         hadFlag = true;
       }
     });
-    if(!hadFlag) {      
+    if(!hadFlag) {
       currentContainer.push(item)
     }
     parentScope.setState({
@@ -236,6 +236,11 @@ class ContainerList extends Component {
         func: (result) => {
           // Add pod status watch, props must include statusWatchWs!!!
           addPodWatch(cluster, selt.props, result.data)
+          // For fix issue #CRYSTAL-2079(load list again for update status)
+          clearTimeout(self.loadStatusTimeout)
+          self.loadStatusTimeout = setTimeout(() => {
+            loadContainerList(cluster, { page, size, name, sortOrder })
+          }, LOAD_STATUS_TIMEOUT)
         },
         isAsync: true
       }
