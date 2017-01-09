@@ -148,8 +148,8 @@ class Ordinary extends Component{
 
   componentWillMount() {
     const {loginUser} = this.props;
-    const {migrated} = loginUser;
-    let testingKnowFlag = window.localStorage.getItem('testingKnowFlag');
+    const {migrated, displayName} = loginUser;
+    let testingKnowFlag = window.localStorage.getItem(`testingKnowFlag${displayName}`);
     if(!Boolean(testingKnowFlag)) {
       if(migrated != 1) {        
         this.setState({
@@ -160,7 +160,7 @@ class Ordinary extends Component{
           oldTestingKonwShow: true
         })
       }
-      window.localStorage.setItem('testingKnowFlag', true);
+      window.localStorage.setItem(`testingKnowFlag${displayName}`, true);
     }
   }
   componentDidMount(){
