@@ -23,6 +23,9 @@ class ContainerProgress extends Component{
       
     }
   }
+  componentWillMount() {
+    
+  }
   render(){
     const columns = [
       {

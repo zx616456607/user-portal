@@ -269,9 +269,7 @@ let Login = React.createClass({
   },
 
   componentDidMount() {
-    const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     ReactDom.findDOMNode(this.refs.intName.refs.input).focus()
-    console.log('pass')
   },
 
   render() {
@@ -354,7 +352,7 @@ let Login = React.createClass({
                 className="formItemName"
                 >
                 <div className={this.state.intPassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>密码</div>
-                <Input {...passwdProps} autoComplete="off" type={this.state.passWord ? 'password' : 'password'}
+                <Input {...passwdProps} autoComplete="off" type={this.state.passWord ? 'password' : 'text'}
                   onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                   onBlur={this.intOnBlur.bind(this, 'pass')}
                   onFocus={this.intOnFocus.bind(this, 'pass')}
