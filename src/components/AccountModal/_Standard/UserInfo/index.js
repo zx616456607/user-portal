@@ -391,8 +391,8 @@ class BaseInfo extends Component {
               <div className="images">
                 <div className="leftBox">
                   <img src={`${AVATAR_HOST}icon-1.jpg`} className="userIcon" onClick={() => this.setUserIcon('icon-1.jpg')} />
-                  <img src={`${AVATAR_HOST}icon-2.jpg`} className="userIcon" onClick={() => this.setUserIcon('icon-2.jpg')} />
-                  <img src={`${AVATAR_HOST}icon-3.jpg`} className="userIcon" onClick={() => this.setUserIcon('icon-3.jpg')} />
+                  <img src={`${AVATAR_HOST}icon-10.jpg`} className="userIcon" onClick={() => this.setUserIcon('icon-10.jpg')} />
+                  <img src={`${AVATAR_HOST}icon-8.jpg`} className="userIcon" onClick={() => this.setUserIcon('icon-8.jpg')} />
                   <img src={`${AVATAR_HOST}icon-4.jpg`} className="userIcon" onClick={() => this.setUserIcon('icon-4.jpg')} />
                   <img src={`${AVATAR_HOST}icon-5.jpg`} className="userIcon" onClick={() => this.setUserIcon('icon-5.jpg')} />
                   <img src={`${AVATAR_HOST}icon-6.jpg`} className="userIcon" onClick={() => this.setUserIcon('icon-6.jpg')} />

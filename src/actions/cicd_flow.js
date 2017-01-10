@@ -198,6 +198,7 @@ function fetchAddGithupRepo(obj, callback) {
     },
     names: obj.name,
     users: obj.owner.username,
+    repoUser: obj.repoUser,
     callback: callback
   }
 }

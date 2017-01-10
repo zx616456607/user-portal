@@ -15,6 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import ContainerDetailInfo from "./ContainerDetailInfo.js"
 import ContainerLogs from "./ContainerLogs"
 import ContainerEvents from "./ContainerEvents"
+import ContainerProgress from './ContainerProgress'
 import "./style/ContainerDetail.less"
 import { loadContainerDetail, deleteContainers } from '../../actions/app_manage'
 import ContainerMonitior from './ContainerMonitior'
@@ -237,6 +238,10 @@ class ContainerDetail extends Component {
                 </TabPane>
                 <TabPane tab="事件" key="#events" >
                   <ContainerEvents key="#events" containerName={containerName} cluster={cluster} />
+                </TabPane>
+
+                <TabPane tab="进程" key="#progress" >
+                  <ContainerProgress key="#progress" containerName={containerName} cluster={cluster} />
                 </TabPane>
               </Tabs>
             </Card>

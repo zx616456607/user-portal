@@ -933,10 +933,17 @@ class AppServiceList extends Component {
         isAsync: true
       },
       failed: {
-        func: () => {
+        func: (err) => {
           self.loadServices(self.props)
           notification.close()
-          notification.error(`服务 ${Service.metadata.name} 添加失败`)
+          let errMsg
+          // Handle port conflict error
+          if (err.statusCode == 409) {
+            if (err.message.message.indexOf('ip_port') > 0) {
+              errMsg = '端口冲突，请检查服务端口'
+            }
+          }
+          notification.error(`服务 ${Service.metadata.name} 添加失败` + (errMsg ? ' => ' + errMsg : ''))
         },
         isAsync: true
       }

@@ -99,6 +99,16 @@
       }
       .formItemName {
         height: 50px;
+        input:-webkit-autofill {
+          background-color: #fff !important;
+          -webkit-box-shadow: 0 0 0px 1000px white inset;
+          -webkit-text-fill-color: #333;
+        }
+        input:-webkit-autofill:focus {
+          background-color: #fff !important;
+          -webkit-box-shadow: 0 0 0px 1000px white inset;
+          -webkit-text-fill-color: #333;
+        }
         .intName {
           font-size: 12px;
           position: absolute;
@@ -146,6 +156,18 @@
         .toRegister {
           span {
             margin-right: 10px;
+          }
+          a {
+            &:hover {
+              color: #1687ef;
+            }
+          }
+        }
+        .toReset {
+          a {
+            &:hover {
+              color: #1687ef;
+            }
           }
         }
       }
