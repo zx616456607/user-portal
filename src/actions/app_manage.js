@@ -467,6 +467,14 @@ function fetchDeleteContainers(cluster, body, callback) {
   }
 }
 
+// Fetches containers list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function deleteContainers(cluster, body, callback) {
+  return (dispatch) => {
+    return dispatch(fetchDeleteContainers(cluster, body, callback))
+  }
+}
+
 export const CONTAINER_GET_PROCESS_REQUEST = 'CONTAINER_GET_PROCESS_REQUEST'
 export const CONTAINER_GET_PROCESS_SUCCESS = 'CONTAINER_GET_PROCESS_SUCCESS'
 export const CONTAINER_GET_PROCESS_FAILURE = 'CONTAINER_GET_PROCESS_FAILURE'
