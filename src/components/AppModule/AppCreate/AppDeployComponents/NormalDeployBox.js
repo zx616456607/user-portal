@@ -401,14 +401,7 @@ function setPorts(containerPorts, form) {
 function setCMD(container, form) {
   const key = []
   const key1 =[]
-  let cmds
-  let args = []
-  if(container.entrypoint) {
-    cmds = container.entrypoint
-    args = container.cmd
-  } else {
-    cmds = container.cmd
-  }
+  let cmds = container.cmd
   if(!cmds) cmds = []
   cmds.forEach((cmd, index) => {
     key.push(index + 1)
@@ -416,9 +409,12 @@ function setCMD(container, form) {
     form.setFieldsValue({
       cmdKey: key,
       userCMDKey: key1,
-      [`cmd${index + 1}`]: cmd + (args[index] ? args[index] : ''),
-      [`userCMD${index + 1}`]: cmd + (args[index] ? args[index] : '')
+      [`cmd${index + 1}`]: cmd,
+      [`userCMD${index + 1}`]: cmd
     })
+  })
+  form.setFieldsValue({
+    entryInput: container.entrypoint
   })
 }
 
@@ -686,7 +682,7 @@ let NormalDeployBox = React.createClass({
                 <li className="composeDetail">
                   <Button type={composeType == "2" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "2")}>
                     <div className="topBox">
-                      1X
+                      2X
                    </div>
                     <div className="bottomBox">
                       <span>512M&nbsp;内存</span><br />
@@ -697,7 +693,7 @@ let NormalDeployBox = React.createClass({
                 <li className="composeDetail">
                   <Button type={composeType == "4" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "4")}>
                     <div className="topBox">
-                      2X
+                      4X
                    </div>
                     <div className="bottomBox">
                       <span>1GB&nbsp;内存</span><br />
@@ -708,7 +704,7 @@ let NormalDeployBox = React.createClass({
                 <li className="composeDetail">
                   <Button type={composeType == "8" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "8")}>
                     <div className="topBox">
-                      4X
+                      8X
                    </div>
                     <div className="bottomBox">
                       <span>2GB&nbsp;内存</span><br />
@@ -719,7 +715,7 @@ let NormalDeployBox = React.createClass({
                 <li className="composeDetail">
                   <Button type={composeType == "16" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "16")}>
                     <div className="topBox">
-                      8X
+                      16X
                    </div>
                     <div className="bottomBox">
                       <span>4GB&nbsp;内存</span><br />
@@ -730,7 +726,7 @@ let NormalDeployBox = React.createClass({
                 <li className="composeDetail">
                   <Button type={composeType == "32" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "32")}>
                     <div className="topBox">
-                      16X
+                      32X
                    </div>
                     <div className="bottomBox">
                       <span>8GB&nbsp;内存</span><br />

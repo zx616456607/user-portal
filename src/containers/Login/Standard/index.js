@@ -265,6 +265,7 @@ let Login = React.createClass({
       message.success('帐户已经激活')
     }
     resetFields()
+    
   },
 
   componentDidMount() {
