@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import { Table, Tooltip } from 'antd'
 import './style/ContainerProgress.less'
-import {connect} from 'react-redux'
+import { connect } from 'react-redux'
 
 const data = [
   {userName:1,PID:1,CPU:9999,MEM:9999,vmSize:13,vmRSS:13,status:'R',startTime:'11/11',cpuTime:'11/11',cmd:'/bin/sh',},
@@ -19,9 +19,60 @@ const data = [
 class ContainerProgress extends Component{
   constructor(props){
     super(props)
+    this.getDataSource = this.getDataSource.bind(this)
+    this.renderStatus = this.renderStatus.bind(this)
     this.state = {
       
     }
+  }
+  getDataSource (data) {
+    data.map((item,index) => {
+      item.CPU = item.CPU/100 + '%'
+      item.MEM = item.MEM/100 + '%'
+      
+    })
+    return data
+  }
+  renderStatus (text) {
+    let status = text
+    let IconColor = '#ddd'
+    switch (text) {
+      case 'R' :
+        status = 'R (运行)'
+        IconColor = '#2db561'
+        break
+      case 'S' :
+        status = 'S (休眠)'
+        break
+      case 'D' :
+        status = 'D (不可中断)'
+        IconColor = '#616161'
+        break
+      case 'Z' :
+        status = 'Z (僵死)'
+        IconColor = '#fbb15c'
+        break
+      case 'T' :
+        status = 'T (停止或追踪停止)'
+        IconColor = '#f5595a'
+        break
+      case 't' :
+        status = 't (追踪停止)'
+        IconColor = '#f5595a'
+        break
+      case 'W' :
+        status = 'W (进入内存交换)'
+        break
+      case 'X' :
+        status = 'X (退出)'
+        break
+      case 'x' :
+        status = 'x (退出)'
+        break
+    }
+    return (
+      <div><i className="statusIcon" style={{backgroundColor:IconColor}}/>{status}</div>
+    )
   }
   componentWillMount() {
     
@@ -62,6 +113,7 @@ class ContainerProgress extends Component{
         title: '进程状态',
         dataIndex: 'status',
         key: 'status',
+        render: (text,record,index) => this.renderStatus(text)
       },
       {
         title: '启动时间',
@@ -92,7 +144,7 @@ class ContainerProgress extends Component{
         <span className="titleSpan">进程信息</span>
         <Table
           columns={columns}
-          dataSource={data}
+          dataSource={this.getDataSource(data)}
           pagination={false}
         />
       </div>
