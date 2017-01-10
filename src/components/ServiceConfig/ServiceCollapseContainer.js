@@ -318,7 +318,7 @@ class CollapseContainer extends Component {
           visible={this.state.modalConfigFile}
           onOk={() => this.editConfigFile(this.props.groupname)}
           onCancel={() => { this.setState({ modalConfigFile: false }) } }
-          width = "800px"
+          width = "600px"
           >
           <div className='configFile-inf'>
             <p className='configFile-tip' style={{ color: '#16a3ea', height: '35px', textIndent: '12px' }}>

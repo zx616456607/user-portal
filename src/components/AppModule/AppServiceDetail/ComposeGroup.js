@@ -152,7 +152,7 @@ let MyComponent = React.createClass({
            <Button type="primary" onClick={() => { this.setState({ modalConfigFile: false }) } }>确定</Button>
           }
           onCancel={() => { this.setState({ modalConfigFile: false }) } }
-          width="800px"
+          width="600px"
           >
           <div className='configFile-name'>
             <div className="ant-col-3 key">名称：</div>
