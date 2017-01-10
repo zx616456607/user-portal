@@ -11,6 +11,7 @@ import React, { Component } from 'react'
 import { Table, Tooltip } from 'antd'
 import './style/ContainerProgress.less'
 import { connect } from 'react-redux'
+import { getPodProcess } from '../../actions/app_manage'
 
 const data = [
   {key:1,userName:1,PID:1,CPU:9999,MEM:9999,vmSize:13,vmRSS:13,status:'R',startTime:'11/11',cpuTime:'11/11',cmd:'/bin/sh',},
@@ -93,7 +94,8 @@ class ContainerProgress extends Component{
     )
   }
   componentWillMount() {
-    
+    const { cluster, containerName, getPodProcess } = this.props
+    getPodProcess(cluster, containerName)
   }
   render(){
     const columns = [
@@ -162,18 +164,23 @@ class ContainerProgress extends Component{
         <span className="titleSpan">进程信息</span>
         <Table
           columns={columns}
-          dataSource={this.getDataSource(data)}
+          dataSource={this.getDataSource(this.props.processList)}
           pagination={false}
         />
       </div>
     )
   }
 }
-function mapStateToProps (state,props) {
+function mapStateToProps (state, props) {
+  let processList = []
+  const result = state.containers.containerProcess
+  if (result && result.isFetching === false && result.result.data.code === 200) {
+    processList = result.result.data.data
+  }
   return {
-    
+    processList,
   }
 }
 export default connect(mapStateToProps,{
-  
+  getPodProcess,
 })(ContainerProgress)

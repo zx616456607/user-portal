@@ -121,3 +121,15 @@ exports.deleteContainers = function* () {
     data: result
   }
 }
+
+exports.getProcess = function* () {
+  const cluster = this.params.cluster
+  const instance = this.params.name
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'instances', instance, 'process'])
+  this.body = {
+    cluster,
+    data: result
+  }
+}
