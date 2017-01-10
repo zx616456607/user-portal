@@ -1,16 +1,38 @@
 #TeamDetail {
   .back {
     display: inline-block;
-    width: 54px;
+    float: left;
     height: 30px;
-    line-height: 30px;
-    text-align: center;
-    color: #fff;
-    background-color: #00a0ea;
-    border-radius: 15px 0 0 15px;
+    .backjia {
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-bottom: 15px solid transparent;
+      border-top: 15px solid transparent;
+      border-right: 15px solid #00A0E9;
+      font-size: 0;
+      line-height: 0;
+    }
+    .btn-back {
+      display: inline-block;
+      background: #00A0E9;
+      color: white;
+      height: 30px;
+      line-height: 30px;
+      vertical-align: top;
+      width: 43px;
+      padding-left: 5px;
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
   }
   .title {
+    float: left;
+    margin-top: 6px;
     height: 18px;
+    line-height: 18px;
     border-left: 8px solid #24a7eb;
     font-size: 16px;
     padding-left: 8px;

@@ -25,23 +25,13 @@ class MySpace extends Component{
   constructor(props){
     super(props)
     this.calcPer = this.calcPer.bind(this)
-    this.closeTestingKnowModal = this.closeTestingKnowModal.bind(this)
     this.state = {
       cicdStates: true,
-      ImageStates: true,
-      testingKonwShow: false
+      ImageStates: true
     }
   }
 
-  componentWillMount() {
-    let testingKnowFlag = window.localStorage.getItem('testingKnowFlag');
-    if(!Boolean(testingKnowFlag)) {
-      this.setState({
-        testingKonwShow: true
-      });
-      window.localStorage.setItem('testingKnowFlag', true);
-    }
-  }
+  componentWillMount() {}
   componentDidMount() {
     const { loadSpaceInfo, loadSpaceCICDStats, loadSpaceImageStats, getOperationLogList } = this.props
     loadSpaceCICDStats({
@@ -69,12 +59,6 @@ class MySpace extends Component{
     getOperationLogList({
       from: 0,
       size: 5
-    })
-  }
-  closeTestingKnowModal() {
-    //this function for close test know modal
-    this.setState({
-      testingKonwShow: false
     })
   }
   getOperationLog() {
@@ -460,37 +444,6 @@ class MySpace extends Component{
             </Card>
           </Col>
         </Row>
-        <Modal visible={this.state.testingKonwShow} className='testingKnowModal'>
-          <div className='titleBox'>
-            <img className='tagImg' src={knowntag} />
-            <p>时速云 2.0 升级须知</p>
-            <Icon className='closeBtn' type='cross' onClick={this.closeTestingKnowModal} />
-          </div>
-          <div className='infoBox'>
-            <p className='bigTitle'>升级须知</p>
-            <div className='infoDetail'>
-              <div className='num'>1</div>
-              <span className='info'>老版本中的『资源』待迁移结束后，将为逐渐稳步迁移到新版本</span>
-            </div>
-            <div className='infoDetail'>
-              <div className='num'>2</div>
-              <span className='info'>新版本与旧版本的『计费』是相对独立的，账户完成迁移后会将两平台费用&消费整合统一管理</span>
-            </div>
-            <div className='infoDetail'>
-              <div className='num'>3</div>
-              <span className='info'>完成新版中『个人认证』或『企业认证』，可以获得体验金</span>
-            </div>
-            <div className='infoDetail'>
-              <div className='num'>4</div>
-              <span className='info'>若为 v2.0 专业版，在团队中『邀请新成员』，未注册过时速云帐号的新成员可到时速云官网注册 &nbsp;<a href="http://docs.tenxcloud.com/guide/upgradeTo2.0" target="_blank">了解更多 &gt;&gt;</a></span>
-            </div>
-          </div>
-          <div className='btnBox'>
-            <div className='knowBtn' onClick={this.closeTestingKnowModal}>
-              <span>知道了</span>
-            </div>
-          </div>
-        </Modal>
       </div>
     )
   }

@@ -73,7 +73,7 @@ class CodeList extends Component {
 
   // let CodeList = React.createClass({
 
-  addBuild(item, index) {
+  addBuild(item, index, repoUser) {
     const loadingList = {}
     const self = this
     loadingList[index] = true
@@ -81,6 +81,7 @@ class CodeList extends Component {
       loadingList
     })
     let notification = new NotificationHandler()
+    item.repoUser = repoUser
     this.props.scope.props.addGithubRepo(item, {
       success: {
         func: () => {
@@ -114,14 +115,23 @@ class CodeList extends Component {
     parentScope.props.notGithubProject(users, id, {
       success: {
         func: () => {
-          notification.success('撤消成功')
+          notification.success('解除激活成功')
+        }
+      },
+      failed: {
+        func: (res) => {
+          if (res.statusCode == 400) {
+            notification.error('该项目正在被TenxFlow引用，请解除引用后重试')
+          } else {
+            notification.error('解除激活失败')
+          }
         }
       }
     })
   }
 
   render() {
-    const { data, isFetching} = this.props
+    const { data, isFetching, repoUser } = this.props
     const scope = this
     if (isFetching) {
       return (
@@ -140,10 +150,10 @@ class CodeList extends Component {
             <div className="action">
               {(item.managedProject && item.managedProject.active == 1) ?
                 <span><Button type="ghost" disabled>已激活</Button>
-                  <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>撤销</a></span>
+                  <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>解除</a></span>
                 :
                 <Tooltip placement="right" title="可构建项目">
-                  <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >激活</Button>
+                  <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index, repoUser)} >激活</Button>
                 </Tooltip>
               }
             </div>
@@ -164,8 +174,10 @@ class GithubComponent extends Component {
   constructor(props) {
     super(props);
     this.loadData = this.loadData.bind(this)
+    this.searchClick = this.searchClick.bind(this)
     this.state = {
-      repokey: 'github'
+      repokey: 'github',
+      currentSearch: ''
     }
   }
 
@@ -224,14 +236,25 @@ class GithubComponent extends Component {
   handleSearch(e) {
     const image = e.target.value
     const users = this.state.users
+    this.setState({
+      currentSearch: image
+    })
     this.props.searchGithubList(users, image)
   }
   changeSearch(e) {
     const image = e.target.value
     const users = this.state.users
+    this.setState({
+      currentSearch: image
+    })
     if (image == '') {
       this.props.searchGithubList(users, image)
     }
+  }
+  searchClick() {
+    const image = this.state.currentSearch
+    const users = this.state.users
+    this.props.searchGithubList(users, image)
   }
   syncRepoList() {
     const types = this.state.repokey
@@ -257,7 +280,7 @@ class GithubComponent extends Component {
       for (let i in githubList) {
         codeList.push(
           <TabPane tab={<span><Icon type="user" />{i}</span>} key={i}>
-            <CodeList scope={scope} isFetching={isFetching} data={githubList[i]} />
+            <CodeList scope={scope} isFetching={isFetching} repoUser={i} data={githubList[i]} />
           </TabPane>
         )
       }
@@ -271,7 +294,7 @@ class GithubComponent extends Component {
           <div className="action">
             {(item.managedProject && item.managedProject.active == 1) ?
               <span><Button type="ghost" disabled>已激活</Button>
-                <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>撤销</a></span>
+                <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>解除</a></span>
               :
               <Tooltip placement="right" title="可构建项目">
                 <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >激活</Button>
@@ -292,7 +315,7 @@ class GithubComponent extends Component {
           <Icon type="reload" onClick={() => this.syncRepoList()} />
           <div className="right-search">
             <Input className='searchBox' size="large" style={{ width: '180px' }} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
-            <i className='fa fa-search'></i>
+            <i className='fa fa-search' onClick={this.searchClick}></i>
           </div>
         </div>
 

@@ -42,6 +42,12 @@ function formatOperation(opera) {
     case 'delete app':
       return (<span>删除应用</span>)
       break;
+    case 'redeploy service':
+      return (<span>重新部署服务</span>)
+    case 'stop service':
+      return (<span>停止服务</span>)
+    case 'start service':
+      return (<span>启动服务</span>)
   }
 }
 
@@ -68,8 +74,9 @@ let MyComponent = React.createClass({
   },
   getDetailMsg: function (item) {
     let msg = ''
-    // 2: create service 3: delete service
-    if (item.operationCode === 2 || item.operationCode === 3) {
+    // 2: create service, 3: delete service, 8: stop service, 9: start service, 10: restart service
+    if (item.operationCode === 2 || item.operationCode === 3
+      || item.operationCode === 8 || item.operationCode === 9 || item.operationCode === 10) {
       msg = `(${item.detail})`
     }
     return msg
