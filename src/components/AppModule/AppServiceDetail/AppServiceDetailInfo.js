@@ -125,7 +125,7 @@ export default class AppServiceDetailInfo extends Component {
               { cpuFormat(serviceDetail.spec.template.spec.containers[0].resources.requests.memory) || '-'}
             </div>
             <div className="commonTitle">
-              {serviceDetail.spec.template.spec.containers[0].resources.requests.memory.replace('i', '') + 'B' || '-'}
+              {serviceDetail.spec.template.spec.containers[0].resources.requests.memory.replace('i', '') || '-'}
             </div>
             <div className="commonTitle">
               10G
