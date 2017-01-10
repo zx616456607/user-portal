@@ -760,6 +760,13 @@ class QueryLog extends Component {
   }
 
   onChangeStartTime(date) {
+    //this function for change the start time
+    if(!Boolean(date)) {
+      this.setState({
+        start_time: null
+      });
+      return;
+    }
     let dateStr = moment(date).format(DATE_PIRCKER_FORMAT)
     dateStr = this.throwUpgradeError(dateStr)
     this.setState({
@@ -769,6 +776,12 @@ class QueryLog extends Component {
 
   onChangeEndTime(date) {
     //this function for change the end time
+    if(!Boolean(date)) {
+      this.setState({
+        end_time: null
+      });
+      return;
+    }
     let dateStr = moment(date).format(DATE_PIRCKER_FORMAT)
     dateStr = this.throwUpgradeError(dateStr)
     this.setState({
