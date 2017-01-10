@@ -899,7 +899,7 @@ class QueryLog extends Component {
         <div id='QueryLog' key='QueryLog' className={this.state.bigLog ? 'bigLogContainer' :''} >
           <div className='operaBox'>
             <div className='commonBox'>
-              <span className='titleSpan'><FormattedMessage {...menusText.user} /></span>
+              <span className='titleSpan'>{standardFlag ? [<span>团队：</span>] : [<FormattedMessage {...menusText.user} />]}</span>
               <Popover
                 content={<NamespaceModal scope={scope} namespace={this.state.namespaceList} />}
                 trigger='click'
@@ -917,7 +917,7 @@ class QueryLog extends Component {
               <div style={{ clear: 'both' }}></div>
             </div>
             <div className='commonBox'>
-              <span className='titleSpan'><FormattedMessage {...menusText.cluster} /></span>
+              <span className='titleSpan'>{standardFlag ? [<span>区域：</span>] : [<FormattedMessage {...menusText.cluster} />]}</span>
               <Popover
                 content={<ClusterModal scope={scope} cluster={this.state.clusterList} isFetching={this.state.gettingCluster} />}
                 trigger='click'
