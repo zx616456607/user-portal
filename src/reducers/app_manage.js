@@ -396,6 +396,11 @@ export function containers(state = {}, action) {
       REQUEST: ActionTypes.CONTAINER_BATCH_DELETE_REQUEST,
       SUCCESS: ActionTypes.CONTAINER_BATCH_DELETE_SUCCESS,
       FAILURE: ActionTypes.CONTAINER_BATCH_DELETE_FAILURE
-    }, state.deleteContainers, action)
+    }, state.deleteContainers, action),
+    containerProcess: reducerFactory({
+      REQUEST: ActionTypes.CONTAINER_GET_PROCESS_REQUEST,
+      SUCCESS: ActionTypes.CONTAINER_GET_PROCESS_SUCCESS,
+      FAILURE: ActionTypes.CONTAINER_GET_PROCESS_FAILURE
+    }, state.containerProcess, action),
   }
 }

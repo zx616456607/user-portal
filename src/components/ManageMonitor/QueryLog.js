@@ -760,6 +760,13 @@ class QueryLog extends Component {
   }
 
   onChangeStartTime(date) {
+    //this function for change the start time
+    if(!Boolean(date)) {
+      this.setState({
+        start_time: null
+      });
+      return;
+    }
     let dateStr = moment(date).format(DATE_PIRCKER_FORMAT)
     dateStr = this.throwUpgradeError(dateStr)
     this.setState({
@@ -769,6 +776,12 @@ class QueryLog extends Component {
 
   onChangeEndTime(date) {
     //this function for change the end time
+    if(!Boolean(date)) {
+      this.setState({
+        end_time: null
+      });
+      return;
+    }
     let dateStr = moment(date).format(DATE_PIRCKER_FORMAT)
     dateStr = this.throwUpgradeError(dateStr)
     this.setState({
@@ -886,7 +899,7 @@ class QueryLog extends Component {
         <div id='QueryLog' key='QueryLog' className={this.state.bigLog ? 'bigLogContainer' :''} >
           <div className='operaBox'>
             <div className='commonBox'>
-              <span className='titleSpan'><FormattedMessage {...menusText.user} /></span>
+              <span className='titleSpan'>{standardFlag ? [<span>团队：</span>] : [<FormattedMessage {...menusText.user} />]}</span>
               <Popover
                 content={<NamespaceModal scope={scope} namespace={this.state.namespaceList} />}
                 trigger='click'
@@ -904,7 +917,7 @@ class QueryLog extends Component {
               <div style={{ clear: 'both' }}></div>
             </div>
             <div className='commonBox'>
-              <span className='titleSpan'><FormattedMessage {...menusText.cluster} /></span>
+              <span className='titleSpan'>{standardFlag ? [<span>区域：</span>] : [<FormattedMessage {...menusText.cluster} />]}</span>
               <Popover
                 content={<ClusterModal scope={scope} cluster={this.state.clusterList} isFetching={this.state.gettingCluster} />}
                 trigger='click'

@@ -28,6 +28,20 @@ const config = {
     fromname: '时速云',
     apiUserBatch: 'tenxcloud_net_batch'
   },
+  // for wechat login
+  wechat:{
+    AppID: 'wx6717878a07894186',
+    AppSecret: 'ba7d3ec16f4cfd8b26def56cc65b2df7',
+    api_url: 'https://api.weixin.qq.com',
+    qr_url: 'https://mp.weixin.qq.com',
+    Login_EventKey: '1008',
+    tenxwechat_url: 'http://tenxwechat-393242712wssy.tenxapp.com'
+  },
+  wechat_user:{
+    user: env.WECHAT_SERVER_USER || 'tenxcloud_carrot',
+    password: env.WECHAT_SERVER_PASS || 'E2jVVOVeREnmTvf_3yUDwkNuxSGDa4H-U_yQWmdj75Ii4GIhH-RBw',
+    type: 'basic',
+  }
 }
 
 module.exports = config
