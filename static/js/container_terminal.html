@@ -60,7 +60,7 @@
         if(!connected) {
           window.parent.webTerminalCallBack(data['pod'], 'timeout')
         }
-      }, 5000);
+      }, 10000); // 10 seconds for timeout
       terminalConnect();
       // Create a new terminal connection to a container
       function terminalConnect() {
