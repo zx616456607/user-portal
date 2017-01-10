@@ -230,7 +230,15 @@ class AppServiceLog extends Component {
     let page = Math.ceil(logs.length / 50)
     let remainder = logs.length % 50
     function spellTimeLogs(time, log) {
-      return time ? (<span className='logDetailSpan'><span className='timeSpan'>[{time}]</span> {log.log}</span>) : log.log
+      return time
+             ? (
+               <span className='logDetailSpan'>
+                 <span className='timeSpan'>[{time}] </span>
+                 { log.mark && <span className='timeSpan'>[{log.mark}] </span> }
+                 { log.log }
+               </span>
+             )
+             : log.log
     }
     const logContent = logs.map((log, index) => {
       let time = ''
@@ -267,7 +275,7 @@ class AppServiceLog extends Component {
         <span key={log.id} index={index}>
           {spellTimeLogs(time, log)}
         </span>
-        )
+      )
     })
     return logContent
   }
@@ -342,7 +350,7 @@ function mapStateToProps(state, props) {
           name: key,
           mark: 'event',
           kind: 'instance',
-          time_nano: timeNano,
+          timeNano: timeNano,
           log: message + '\n',
         }
         /*if (type !== 'Normal') {
