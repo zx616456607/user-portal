@@ -15,6 +15,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import reducerFactory from './factory'
 import { DEFAULT_PAGE_SIZE } from '../../constants'
 import { getAppStatus, getContainerStatus } from '../common/status_identify'
+import { filtEvents } from '../common/tools'
 
 function appItems(state = {}, action) {
   const cluster = action.cluster
@@ -306,29 +307,38 @@ function containerDetailEvents(state = {}, action) {
   const containerName = action.containerName
   const defaultState = {
     [cluster]: {
-      isFetching: false,
-      containerName,
-      eventList: []
+      [containerName]: {
+        isFetching: false,
+        eventList: [],
+      },
     }
   }
+  let eventList
   switch (action.type) {
     case ActionTypes.CONTAINER_DETAIL_EVENTS_REQUEST:
       return merge({}, defaultState, state, {
         [cluster]: {
-          isFetching: true
+          [containerName]: {
+            isFetching: true
+          }
         }
       })
     case ActionTypes.CONTAINER_DETAIL_EVENTS_SUCCESS:
+      eventList = filtEvents(action.response.result.data.events)
       return Object.assign({}, state, {
         [cluster]: {
-          isFetching: false,
-          eventList: action.response.result.data.events
+          [containerName]: {
+            isFetching: false,
+            eventList
+          }
         }
       })
     case ActionTypes.CONTAINER_DETAIL_EVENTS_FAILURE:
       return merge({}, defaultState, state, {
         [cluster]: {
-          isFetching: false
+          [containerName]: {
+            isFetching: false
+          }
         }
       })
     default:

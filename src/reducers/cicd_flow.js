@@ -150,13 +150,14 @@ function githubRepo(state = {}, action) {
     // add github active
     case ActionTypes.ADD_GITHUB_PROJECT_SUCCESS: {
       const addState = cloneDeep(state)
-      const indexs = findIndex(addState.githubList[action.users], (item) => {
+      const user = action.repoUser ? action.repoUser : action.users
+      const indexs = findIndex(addState.githubList[user], (item) => {
         if (item.name === action.names) {
           return true
         }
         return false
       })
-      addState.githubList[action.users][indexs].managedProject = {
+      addState.githubList[user][indexs].managedProject = {
         active: 1,
         id: action.response.result.data.projectId
       }
