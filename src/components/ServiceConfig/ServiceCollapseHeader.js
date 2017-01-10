@@ -206,7 +206,7 @@ class CollapseHeader extends Component {
             visible={this.state.modalConfigFile}
             onOk={(e) => this.createConfigFile(collapseHeader.name)}
             onCancel={(e) => this.createConfigModal(e, false)}
-            width = "800px"
+            width = "600px"
             >
             <div className="configFile-inf" style={{ padding: '0 10px' }}>
               <p className="configFile-tip" style={{ color: "#16a3ea", height: '35px', textIndent: '10px' }}>

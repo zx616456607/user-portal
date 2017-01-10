@@ -16,6 +16,33 @@ import "./style/ContainerDetailInfo.less"
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
 
+function cpuFormat(memory) {
+  //this function for format cpu
+  if(Boolean(memory)) {
+    let newMemory = parseInt(memory.replace('Mi','').replace('Gi'))
+    switch(newMemory) {
+      case 1:
+        return '1CPU（共享）';
+      case 2:
+        return '1CPU（共享）';
+      case 4:
+        return '1CPU';
+      case 8:
+        return '2CPU';
+      case 16:
+        return '2CPU';
+      case 32:
+        return '3CPU';
+      case 256:
+        return '1CPU（共享）';
+      case 512:
+        return '1CPU（共享）';
+    }
+  } else {
+    return '-';
+  }
+}
+
 export default class ContainerDetailInfo extends Component {
   constructor(props) {
     super(props);
@@ -139,10 +166,10 @@ export default class ContainerDetailInfo extends Component {
               -
               </div>
             <div className="commonTitle">
-              {container.spec.containers[0].resources.requests.memory + 'B' || '-'}
+              {container.spec.containers[0].resources.requests.memory.replace('i', '') || '-'}
             </div>
             <div className="commonTitle">
-              {container.spec.containers[0].resources.requests.cpu || '-'}
+              {cpuFormat(container.spec.containers[0].resources.requests.memory)}
             </div>
             <div style={{ clear: "both" }}></div>
           </div>
