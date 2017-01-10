@@ -19,24 +19,19 @@ class AppServiceRental extends Component {
   }
   formetCpuMemory(memory) {
     if(Boolean(memory)) {
-      let newMemory = parseInt(memory.replace('Mi','').replace('Gi'))
-      switch(newMemory) {
-        case 1:
-          return '1CPU（共享）/256M';
-        case 2:
-          return '1CPU（共享）/512M';
-        case 4:
+      switch(memory) {
+        case '1Gi':
           return '1CPU/1G';
-        case 8:
+        case '2Gi':
           return '1CPU/2G';
-        case 16:
+        case '4Gi':
           return '1CPU/4G';
-        case 32:
+        case '8Gi':
           return '2CPU/8G';
-        case 256:
-          return '1CPU（共享）/256M';
-        case 512:
-          return '1CPU（共享）/512M';
+        case '16Gi':
+          return '2CPU/16G';
+        default:
+          return '1CPU（共享）/512Mi';
       }
     } else {
       return '-';
@@ -50,13 +45,13 @@ class AppServiceRental extends Component {
         return resourcePrice['1x']
       case '512Mi':
         return resourcePrice['2x']
-      case '1GB':
+      case '1Gi':
         return resourcePrice['4x']
-      case '2GB':
+      case '2Gi':
         return resourcePrice['8x']
-      case '4GB':
+      case '4Gi':
         return resourcePrice['16x']
-      case '8Gb':
+      case '8Gi':
         return resourcePrice['32x']
       default:
         return resourcePrice['1x']
