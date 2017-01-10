@@ -73,7 +73,6 @@ class AppTip extends Component {
   }
   render() {
     const { appDomain, scope } = this.props
-    console.log('appDomain',appDomain)
     let item = appDomain.map((item, index) => {
       if (item.data.length === 0) {
         return (
@@ -95,7 +94,13 @@ class AppTip extends Component {
               <Timeline.Item dot={<div></div>}>
                 <svg className='branchSvg'><use xlinkHref='#branch' /></svg>
                 <a href="javascript:void(0)">容器端口:{item.data[0].interPort}</a>&nbsp;&nbsp;
-                <a href={linkURL} target='_blank'>{item.data[0].isInternal ? '内网' : '外网'}:{item.data[0].domain}</a>
+                <a href={linkURL} target='_blank'>
+                  {
+                    item.data[0].isInternal ? '内网' : '外网'
+                  }:{
+                    item.data[0].domain
+                  }
+                </a>
                 <Tooltip placement='top' title={scope.state.copyStatus ? '复制成功' : '点击复制'}>
                   <svg className='tipCopySvg' onClick={this.copyCode} onMouseLeave={this.returnDefaultTooltip} onMouseEnter={this.startCopyCode.bind(this, item.data[0].domain)}><use xlinkHref='#appcentercopy' /></svg>
                 </Tooltip>
