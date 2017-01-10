@@ -41,18 +41,12 @@ class CreateCompose extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { paretnState } = nextProps;
+    const { paretnState, scope } = nextProps;
     let currentYaml = '';
-    if (!!paretnState.stackItemContent) {
+    if (!!paretnState.stackItemContent && scope.state.createModalShow) {
       currentYaml = paretnState.stackItemContent;
-    }
-    if (currentYaml != "") {
       this.setState({
         currentYaml: currentYaml
-      })
-    } else {
-      this.setState({
-        currentYaml: ''
       })
     }
   }
@@ -69,8 +63,11 @@ class CreateCompose extends Component {
     e.preventDefault();
     this.props.form.resetFields();
     const scope = this.props.scope;
+    this.setState({
+      currentYaml: ''
+    });
     scope.setState({
-      createModalShow: false
+      createModalShow: false,
     });
   }
 
@@ -109,8 +106,8 @@ class CreateCompose extends Component {
             parentScope.setState({
               createModalShow: false
             });
-            notification.close()
-            notification.success(`创建编排 ${values.name} 成功`)
+            notification.close();
+            notification.success(`创建编排 ${values.name} 成功`);
             scope.props.form.resetFields();
             scope.setState({
               currentYaml: ""

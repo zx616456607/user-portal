@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/EnviroDeployBox.less"
 import { appEnvCheck } from '../../../../common/naming_validation'
+
 const createForm = Form.create;
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -243,7 +244,7 @@ let MyComponentPort = React.createClass({
       return;
     } else {
       let tempPort  = parseInt(value);
-      if( tempPort < 1025 || tempPort > 65535 ) {
+      if( tempPort < 1024 || tempPort > 65535 ) {
         callback([new Error('指定端口号范围1024 ~ 65535')])
         return;
       } else {       
