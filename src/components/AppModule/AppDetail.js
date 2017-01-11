@@ -125,7 +125,7 @@ class AppDetail extends Component {
   }
 
   render() {
-    const { children, appName, app, isFetching, location } = this.props
+    const { children, appName, app, isFetching, location, bindingDomains, bindingIPs } = this.props
     const { activeTabKey, serviceList } = this.state
     if (isFetching || !app) {
       return (
@@ -139,7 +139,7 @@ class AppDetail extends Component {
     if (app && app.services && app.services[0]) {
       updateDate = app.services[0].metadata.creationTimestamp
     }
-    const appDomain = parseAppDomain(app, this.props.bindingDomains)
+    const appDomain = parseAppDomain(app, bindingDomains, bindingIPs)
     const descProps = this.props.form.getFieldProps('desc', {initialValue: this.state.desc || app.description})
     return (
       <div id='AppDetail'>
@@ -289,6 +289,7 @@ function mapStateToProps(state, props) {
   return {
     cluster: cluster.clusterID,
     bindingDomains: state.entities.current.cluster.bindingDomains,
+    bindingIPs: state.entities.current.cluster.bindingIPs,
     appName: app_name,
     app,
     isFetching,
