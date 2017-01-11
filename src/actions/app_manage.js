@@ -474,3 +474,23 @@ export function deleteContainers(cluster, body, callback) {
     return dispatch(fetchDeleteContainers(cluster, body, callback))
   }
 }
+
+export const CONTAINER_GET_PROCESS_REQUEST = 'CONTAINER_GET_PROCESS_REQUEST'
+export const CONTAINER_GET_PROCESS_SUCCESS = 'CONTAINER_GET_PROCESS_SUCCESS'
+export const CONTAINER_GET_PROCESS_FAILURE = 'CONTAINER_GET_PROCESS_FAILURE'
+
+function fetchPodProcess(cluster, name) {
+  return {
+    [FETCH_API]: {
+      types: [CONTAINER_GET_PROCESS_REQUEST, CONTAINER_GET_PROCESS_SUCCESS, CONTAINER_GET_PROCESS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/containers/${name}/process`,
+      schema: {},
+    },
+  }
+}
+
+export function getPodProcess(cluster, name) {
+  return (dispatch) => {
+    return dispatch(fetchPodProcess(cluster, name))
+  }
+}

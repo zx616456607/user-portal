@@ -45,4 +45,3 @@ exports.GetRegistryConfig = function (callback) {
     }
   })
 }
-
