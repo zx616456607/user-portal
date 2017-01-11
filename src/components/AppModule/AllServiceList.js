@@ -302,7 +302,7 @@ const MyComponent = React.createClass({
     })
   },
   render: function () {
-    const { cluster, serviceList, loading, page, size, total } = this.props
+    const { cluster, serviceList, loading, page, size, total,bindingDomains, bindingIPs } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -335,7 +335,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const svcDomain = parseServiceDomain(item, this.props.bindingDomains)
+      const svcDomain = parseServiceDomain(item, bindingDomains,bindingIPs)
       const images = item.spec.template.spec.containers.map(container => {
         return container.image
       })
@@ -1233,6 +1233,7 @@ function mapStateToProps(state, props) {
     cluster: cluster.clusterID,
     statusWatchWs,
     bindingDomains: state.entities.current.cluster.bindingDomains,
+    bindingIPs: state.entities.current.cluster.bindingIPs,
     currentCluster: cluster,
     name,
     pathname,
