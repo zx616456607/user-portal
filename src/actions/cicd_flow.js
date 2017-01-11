@@ -160,7 +160,7 @@ function fetchAddCodeRepo(type, obj, callback) {
         body: body
       }
     },
-    names: obj.name.substr(0, 1).toLowerCase() + obj.name.substr(1),
+    names: obj.name,
     callback: callback
   }
 }

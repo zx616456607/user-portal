@@ -63,7 +63,7 @@ const MyComponent = React.createClass({
           <div className="imageBox">
             {item.imageList.map((imageDetail) => {
               return (
-                <Card className="imageDetail">
+                <Card className="imageDetail" key={imageDetail.name}>
                   <div className="imgBox" onClick={()=>this.showDetail(imageDetail.id)}>
                     <img className={imageDetail.name.split(' ')[0]} src={`${imageDetail.imageUrl}?_=${TIMESTRAP}`} />
                   </div>

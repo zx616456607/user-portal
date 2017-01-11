@@ -338,11 +338,9 @@ const MyComponent = React.createClass({
             <Checkbox value={item.metadata.name} checked={item.checked} onChange={this.onchange} />
           </div>
           <div className="name commonData">
-            <Tooltip title={item.metadata.name}>
-              <span className="viewBtn" onClick={() => this.modalShow(item)}>
-                {item.metadata.name}
-              </span>
-            </Tooltip>
+            <span className="viewBtn" onClick={() => this.modalShow(item)}>
+              {item.metadata.name}
+            </span>
           </div>
           <div className="status commonData">
             <ServiceStatus service={item} />
@@ -358,9 +356,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="createTime commonData">
-            <Tooltip title={calcuDate(item.metadata.creationTimestamp ? item.metadata.creationTimestamp : '')}>
-              <span>{calcuDate(item.metadata.creationTimestamp || '')}</span>
-            </Tooltip>
+            <span>{calcuDate(item.metadata.creationTimestamp || '')}</span>
           </div>
           <div className="actionBox commonData">
             <Dropdown.Button
