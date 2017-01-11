@@ -427,7 +427,7 @@ class ModalDetail extends Component {
 
     return (
       <div id='AppServiceDetail' className="dbServiceDetail">
-        <div className='titleBox'>
+        <div className='topBox'>
           <Icon className='closeBtn' type='cross' onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className='imgBox'>
             <img src={ this.props.database == 'mysql' ? mysqlImg : redisImg} />
