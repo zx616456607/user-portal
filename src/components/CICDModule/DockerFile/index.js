@@ -164,11 +164,6 @@ const MyComponent = React.createClass({
     let items = config.map((item, index) => {
       const dropdown = (
         <Menu onClick={this.operaMenuClick.bind(this, item)} style={{ width: '150px' }}>
-          <Menu.Item key='1'>
-            <span><i className='fa fa-eye' />&nbsp;
-            <FormattedMessage {...menusText.show} />
-            </span>
-          </Menu.Item>
           <Menu.Item key='2'>
             <span><i className='fa fa-pencil-square-o'></i>&nbsp;
             <FormattedMessage {...menusText.editDockerFile} />
