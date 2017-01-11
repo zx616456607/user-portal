@@ -295,7 +295,7 @@ const MyComponent = React.createClass({
     })
   },
   render: function () {
-    const { cluster, serviceList, loading, page, size, total } = this.props
+    const { cluster, serviceList, loading, page, size, total, bindingDomains, bindingIPs} = this.props
     if (loading) {
       return (
         <div className="loadingBox">
@@ -328,7 +328,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const svcDomain = parseServiceDomain(item, this.props.bindingDomains)
+      const svcDomain = parseServiceDomain(item, bindingDomains,bindingIPs)
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -1207,6 +1207,7 @@ function mapStateToProps(state, props) {
     cluster: cluster.clusterID,
     statusWatchWs,
     bindingDomains: state.entities.current.cluster.bindingDomains,
+    bindingIPs: state.entities.current.cluster.bindingIPs,
     appName,
     pathname,
     page,

@@ -259,7 +259,7 @@ let MyComponent = React.createClass({
     browserHistory.push(`/app_manage/detail/${appName}#stack`)
   },
   render: function () {
-    const { config, loading } = this.props
+    const { config, loading, bindingDomains, bindingIPs } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -292,7 +292,8 @@ let MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const appDomain = parseAppDomain(item, this.props.bindingDomains)
+      
+      const appDomain = parseAppDomain(item, bindingDomains, bindingIPs)
       return (
         <div className={item.checked ? 'appDetail appDetailSelected' : 'appDetail'} key={item.name} onClick={this.selectAppByline.bind(this, item)} >
           <div className='selectIconTitle commonData'>
@@ -979,7 +980,9 @@ class AppList extends Component {
               loading={isFetching}
               parentScope={scope}
               funcs={funcs}
-              bindingDomains={this.props.bindingDomains} />
+              bindingDomains={this.props.bindingDomains}
+              bindingIPs={this.props.bindingIPs}
+            />
           </Card>
         </div>
       </QueueAnim>
@@ -1038,6 +1041,7 @@ function mapStateToProps(state, props) {
     cluster: cluster.clusterID,
     statusWatchWs,
     bindingDomains: state.entities.current.cluster.bindingDomains,
+    bindingIPs: state.entities.current.cluster.bindingIPs,
     currentCluster: cluster,
     pathname,
     page,
