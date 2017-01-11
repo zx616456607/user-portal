@@ -12,39 +12,45 @@ import { Table, Tooltip } from 'antd'
 import './style/ContainerProgress.less'
 import { connect } from 'react-redux'
 import { getPodProcess } from '../../actions/app_manage'
-
-const data = [
-  {key:1,userName:1,PID:1,CPU:9999,MEM:9999,vmSize:13,vmRSS:13,status:'R',startTime:'11/11',cpuTime:'11/11',cmd:'/bin/sh',},
-  {key:2,userName:2,PID:1,CPU:9999,MEM:9999,vmSize:13,vmRSS:13,status:'S',startTime:'11/11',cpuTime:'11/11',cmd:'/bin/sh/bin/sh/bin/sh',},
-  {key:3,userName:3,PID:1,CPU:9999,MEM:9999,vmSize:13,vmRSS:13,status:'D',startTime:'11/11',cpuTime:'11/11',cmd:'/bin/sh/bin/sh',},
-  {key:4,userName:4,PID:1,CPU:9999,MEM:9999,vmSize:13,vmRSS:13,status:'Z',startTime:'11/11',cpuTime:'11/11',cmd:'/bin/sh/bin/sh/bin/sh/bin/sh/bin/sh/bin/sh',},
-  {key:5,userName:5,PID:1,CPU:9999,MEM:9999,vmSize:13,vmRSS:13,status:'T',startTime:'11/11',cpuTime:'11/11',cmd:'/bin/sh/bin/sh/bin/sh/bin/sh',},
-  {key:6,userName:6,PID:1,CPU:9999,MEM:9999,vmSize:13,vmRSS:13,status:'t',startTime:'11/11',cpuTime:'11/11',cmd:'/bin/sh/bin/sh',},
-  {key:7,userName:7,PID:1,CPU:9999,MEM:9999,vmSize:13,vmRSS:13,status:'W',startTime:'11/11',cpuTime:'11/11',cmd:'/bin/sh/bin/sh',},
-  {key:8,userName:8,PID:1,CPU:9999,MEM:9999,vmSize:13,vmRSS:13,status:'X',startTime:'11/11',cpuTime:'11/11',cmd:'/bin/sh',},
-  {key:9,userName:9,PID:1,CPU:9999,MEM:9999,vmSize:13,vmRSS:13,status:'x',startTime:'11/11',cpuTime:'11/11',cmd:'/bin/sh/bin/sh/bin/sh/bin/sh/bin/sh',},
-  {key:10,userName:10,PID:1,CPU:9999,MEM:9999,vmSize:13,vmRSS:13,status:'K',startTime:'11/11',cpuTime:'11/11',cmd:'/bin/sh',},
-  {key:11,userName:11,PID:1,CPU:9999,MEM:9999,vmSize:13,vmRSS:13,status:'W',startTime:'11/11',cpuTime:'11/11',cmd:'/bin/sh',},
-  {key:12,userName:12,PID:1,CPU:9999,MEM:9999,vmSize:13,vmRSS:13,status:'P',startTime:'11/11',cpuTime:'11/11',cmd:'/bin/sh',},
-]
+import { formatDate } from '../../common/tools'
+import moment from 'moment'
 
 class ContainerProgress extends Component{
   constructor(props){
     super(props)
     this.getDataSource = this.getDataSource.bind(this)
     this.renderStatus = this.renderStatus.bind(this)
+    this.bytesToSize = this.bytesToSize.bind(this)
     this.state = {
-      
+
     }
   }
-  getDataSource (data) {
-    data.map((item,index) => {
-      item.CPU = item.CPU/100 + '%'
-      item.MEM = item.MEM/100 + '%'
-      
-    })
-    return data
+  bytesToSize(bytes) {
+    if (bytes === 0) return '0 KB'
+    let k = 1024
+    let sizes = ['KB', 'MB', 'GB', 'TB']
+    let i = Math.floor(Math.log(bytes) / Math.log(k))
+    return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i]
   }
+  getDataSource (processList) {
+    if (!Array.isArray(processList)) {
+      return []
+    }
+    if(processList.length === 0){
+      return
+    }
+    let items = JSON.parse(JSON.stringify(processList))
+    items.map((item,index) => {
+      item.cpuPercent = item.cpuPercent/100 + '%'
+      item.memPercent = item.memPercent/100 + '%'
+      item.vmSize = this.bytesToSize(item.vmSize)
+      item.vmRSS = this.bytesToSize(item.vmRSS)
+      item.startTime = formatDate(item.startTime)
+      item.cpuTime = moment(item.cpuTime).format('HH:mm:ss')
+    })
+    return items
+  }
+  
   renderStatus (text) {
     let status = text
     let IconColor = '#999'
@@ -97,6 +103,7 @@ class ContainerProgress extends Component{
     const { cluster, containerName, getPodProcess } = this.props
     getPodProcess(cluster, containerName)
   }
+  
   render(){
     const columns = [
       {
@@ -106,18 +113,18 @@ class ContainerProgress extends Component{
       },
       {
         title: 'PID',
-        dataIndex: 'PID',
-        key: 'PID',
+        dataIndex: 'pid',
+        key: 'pid',
       },
       {
         title: 'CPU',
-        dataIndex: 'CPU',
-        key: 'CPU',
+        dataIndex: 'cpuPercent',
+        key: 'cpuPercent',
       },
       {
         title: 'MEM',
-        dataIndex: 'MEM',
-        key: 'MEM',
+        dataIndex: 'memPercent',
+        key: 'memPercent',
       },
       {
         title: '占用虚拟内存',
@@ -158,13 +165,13 @@ class ContainerProgress extends Component{
         },
       },
     ]
-    
+    const {processList} = this.props
     return (
       <div id='ContainerProgress'>
         <span className="titleSpan">进程信息</span>
         <Table
           columns={columns}
-          dataSource={this.getDataSource(this.props.processList)}
+          dataSource={this.getDataSource(processList)}
           pagination={false}
         />
       </div>
@@ -174,8 +181,11 @@ class ContainerProgress extends Component{
 function mapStateToProps (state, props) {
   let processList = []
   const result = state.containers.containerProcess
-  if (result && result.isFetching === false && result.result.data.code === 200) {
+  try {
     processList = result.result.data.data
+  }
+  catch (e) {
+    processList = []
   }
   return {
     processList,

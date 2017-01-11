@@ -34,6 +34,7 @@ class EchartsOption {
       right: 50
     }
     this.grid = [{
+      top: 50,
       left: 70,
       right: 50,
     }]
@@ -117,6 +118,9 @@ class EchartsOption {
   setGirdForDataNetWork(count) {
     //for network grid format
     let clientWidth = document.body.clientWidth;
+    if(count < 4) {
+      return;
+    }
     let num = (count - 4)/2;
     let windowResizeChange = 0;
     if(clientWidth >= 1600) {
@@ -136,6 +140,9 @@ class EchartsOption {
   setGirdForDataCommon(count) {
     //for memory and cpu grid format
     let clientWidth = document.body.clientWidth;
+    if(count < 4) {
+      return;
+    }
     let num = (count - 4)/2;
     let windowResizeChange = 0;
     if(clientWidth > 1600) {
