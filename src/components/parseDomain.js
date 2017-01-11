@@ -10,10 +10,14 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
   let bindingIP = []
   try {
     bindingDomain = JSON.parse(bindingDomainStr)
-    bindingIP = JSON.parse(bindingIPStr)
   }
   catch (e) {
     bindingDomain = []
+  }
+  try {
+    bindingIP = JSON.parse(bindingIPStr)
+  }
+  catch (e) {
     bindingIP = []
   }
   let domains = []

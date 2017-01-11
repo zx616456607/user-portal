@@ -361,19 +361,7 @@ class Deployment {
       mountPath: "/etc/localtime",
       readOnly: true
     }
-    const zoneVolume = {
-      "name": "tenxcloud-time-zone",
-      "hostPath": {
-        "path": "/etc/timezone"
-      }
-    }
-    const zoneVolumeMounts = {
-      name: "tenxcloud-time-zone",
-      mountPath: "/etc/timezone",
-      readOnly: true
-    }
     this.addContainerVolume.apply(this, [containerName, volume, volumeMounts])
-    this.addContainerVolume.apply(this, [containerName, zoneVolume, zoneVolumeMounts])
   }
 
   // ~ probe={port, path, initialDelaySeconds, timeoutSeconds, periodSeconds}
