@@ -148,10 +148,6 @@ let PasswordRow = React.createClass({
         return errors
       }
       const notification = new NotificationHandler()
-      // if (/^\d/.test(values.newpassword)) {
-      //   notification.error('密码不能为数字开头')
-      //   return
-      // }
       notification.spin('修改密码中')
       changeUserInfo({
         password: values.password,
