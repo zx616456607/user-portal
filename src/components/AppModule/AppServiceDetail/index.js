@@ -207,6 +207,8 @@ class AppServiceDetail extends Component {
       containers,
       isContainersFetching,
       appName,
+      bindingDomains,
+      bindingIPs
     } = this.props
     const { activeTabKey, currentContainer } = this.state
     let nocache = currentContainer.map((item) => {
@@ -225,7 +227,7 @@ class AppServiceDetail extends Component {
         <span onClick={() => this.delteService(service)}>删除</span>
       </Menu.Item>
     </Menu>);
-    const svcDomain = parseServiceDomain(service, this.props.bindingDomains)
+    const svcDomain = parseServiceDomain(service, bindingDomains, bindingIPs)
     const { availableReplicas, replicas } = service.status
     let containerShow = containers.map((item, index) => {
       return (
@@ -435,6 +437,7 @@ function mapStateToProps(state, props) {
     cluster,
     statusWatchWs,
     bindingDomains: state.entities.current.cluster.bindingDomains,
+    bindingIPs: state.entities.current.cluster.bindingIPs,
     serviceName,
     serviceDetail: targetService.service,
     isServiceDetailFetching: targetService.isFetching,

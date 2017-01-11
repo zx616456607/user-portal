@@ -5,44 +5,54 @@
  * @author mengyuan
  */
 
-export function parseServiceDomain(item, bindingDomainStr) {
+export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
   let bindingDomain = []
+  let bindingIP = []
   try {
     bindingDomain = JSON.parse(bindingDomainStr)
+    bindingIP = JSON.parse(bindingIPStr)
   }
   catch (e) {
     bindingDomain = []
+    bindingIP = []
   }
   let domains = []
   // parse external domain, item.portsForExternal is array like [{name:"abasd",port:12345,protocol:"TCP",targetPort:1234},...]
-  if (item && item.metadata
-    && item.portsForExternal
-    && bindingDomain.length > 0) {
+  if (item && item.metadata && item.portsForExternal) {
     item.portsForExternal.map((port) => {
       let nameInfo = item.metadata.name
       let portInfo = ":" + port.proxyPort
-      if (bindingDomain && port.protocol.toLowerCase() == 'http') {
-        // Remove port number and use port name as url prefix
+      if (bindingIP && bindingDomain && port.protocol.toLowerCase() == 'http') {
         portInfo = ''
         nameInfo = port.name
       }
-      bindingDomain.map((bindingDomain) => {
-        let domain = ''
-        // 检查是bindingDomain是否是IP，（此正则并不精确但在此处够用了）
-        if (/^(\d{1,3}\.){3}\d{1,3}$/.test(bindingDomain)) {
-          // e.g. http://192.168.1.123:1234
-          domain = bindingDomain + portInfo
-        }
-        else {
-          // e.g. http://servicename-mengyuan.test.tenxcloud.com:8080
-          domain = nameInfo+ '-' + item.metadata.namespace + '.' + bindingDomain + portInfo
-        }
-        // if prefix is http://, remove suffix :80
-        domain = domain.replace(/^(http:\/\/.*):80$/, '$1')
-        // if prefix is https://, remove suffix :443
-        domain = domain.replace(/^(https:\/\/.*):443$/, '$1')
-        domains.push({domain, isInternal: false, interPort: port.targetPort})
-      })
+      if (bindingIP.length > 0 && bindingDomain.length == 0) {
+        bindingIP.map((bindingIP) => {
+          let domain = bindingIP + portInfo
+          domain = domain.replace(/^(http:\/\/.*):80$/, '$1')
+          domain = domain.replace(/^(https:\/\/.*):443$/, '$1')
+          domains.push({domain, isInternal: false, interPort: port.targetPort})
+        })
+      }
+      else if (bindingDomain.length > 0) {
+        bindingDomain.map((bindingDomain) => {
+          let domain = ''
+          // 检查是bindingDomain是否是IP，（此正则并不精确但在此处够用了）
+          if (/^(\d{1,3}\.){3}\d{1,3}$/.test(bindingDomain)) {
+            // e.g. http://192.168.1.123:1234
+            domain = bindingDomain + portInfo
+          }
+          else {
+            // e.g. http://servicename-mengyuan.test.tenxcloud.com:8080
+            domain = nameInfo+ '-' + item.metadata.namespace + '.' + bindingDomain + portInfo
+          }
+          // if prefix is http://, remove suffix :80
+          domain = domain.replace(/^(http:\/\/.*):80$/, '$1')
+          // if prefix is https://, remove suffix :443
+          domain = domain.replace(/^(https:\/\/.*):443$/, '$1')
+          domains.push({domain, isInternal: false, interPort: port.targetPort})
+        })
+      }
     })
   }
   // parse interanl domain item.portForInternal is ["1234", "4567", "5234"]
@@ -52,12 +62,12 @@ export function parseServiceDomain(item, bindingDomainStr) {
   return domains
 }
 
-export function parseAppDomain(app, bindingDomainStr) {
+export function parseAppDomain(app, bindingDomainStr, bindingIPStr) {
   let domains = []
   app.services.map((item) => {
     domains.push({
       name: item.metadata.name,
-      data: parseServiceDomain(item, bindingDomainStr)
+      data: parseServiceDomain(item, bindingDomainStr, bindingIPStr)
     })
   })
   return domains
