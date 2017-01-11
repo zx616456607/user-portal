@@ -15,12 +15,6 @@ import { getPodProcess } from '../../actions/app_manage'
 import { formatDate } from '../../common/tools'
 import moment from 'moment'
 
-const data = [
-  {key:1,userName:1,PID:1,
-    vmSize:13,vmRSS:13,
-    status:'R',startTime:'11/11',cpuTime:'11/11',cmd:'/bin/sh',},
-]
-
 class ContainerProgress extends Component{
   constructor(props){
     super(props)
@@ -32,22 +26,20 @@ class ContainerProgress extends Component{
     }
   }
   bytesToSize(bytes) {
-    if (bytes === 0) return '0 KB';
-    let k = 1024,
-      sizes = ['KB', 'MB', 'GB', 'TB'],
-      i = Math.floor(Math.log(bytes) / Math.log(k))
-    return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+    if (bytes === 0) return '0 KB'
+    let k = 1024
+    let sizes = ['KB', 'MB', 'GB', 'TB']
+    let i = Math.floor(Math.log(bytes) / Math.log(k))
+    return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i]
   }
   getDataSource (processList) {
     if (!Array.isArray(processList)) {
       return []
     }
     if(processList.length === 0){
-      console.log('no')
       return
     }
     let items = JSON.parse(JSON.stringify(processList))
-    console.log('processList',processList)
     items.map((item,index) => {
       item.cpuPercent = item.cpuPercent/100 + '%'
       item.memPercent = item.memPercent/100 + '%'
