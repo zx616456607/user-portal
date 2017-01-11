@@ -67,6 +67,43 @@ exports.getServiceMetrics = function* () {
   }
 }
 
+exports.getAllServiceMetrics = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const query = this.query
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(user)
+  const result = yield api.getBy([cluster, 'services', serviceName, 'instances'])
+  const instances = result.data.instances || []
+  let promiseArray = [];
+  const promiseCpuArray = instances.map((instance) => {
+    query.type = METRICS_CPU
+    return _getContainerMetrics(user, cluster, instance, query)
+  })
+  promiseArray.push({cpu: promiseCpuArray})
+  const promiseMemoryArray = instances.map((instance) => {
+    query.type = METRICS_MEMORY
+    return _getContainerMetrics(user, cluster, instance, query)
+  })
+  promiseArray.push({memory: promiseMemoryArray})
+  const promiseNetworkTransmitArray = instances.map((instance) => {
+    query.type = METRICSS_NETWORK_TRANSMITTED
+    return _getContainerMetrics(user, cluster, instance, query)
+  })
+  promiseArray.push({networkTrans: promiseNetworkTransmitArray})
+  const promiseNetworkRecivceArray = instances.map((instance) => {
+    query.type = METRICS_NETWORK_RECEIVED
+    return _getContainerMetrics(user, cluster, instance, query)
+  })
+  promiseArray.push({networkRec: promiseNetworkRecivceArray})
+  const results = yield promiseArray
+  this.body = {
+    cluster,
+    serviceName,
+    data: results
+  }
+}
+
 exports.getAppMetrics = function* () {
   const cluster = this.params.cluster
   const appName = this.params.app_name

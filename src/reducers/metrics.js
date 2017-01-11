@@ -21,7 +21,7 @@ export default function metrics(
       CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}
     },
     services: {
-      CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}
+      CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}, allservicesmetrics: {}
     },
     apps: {
       CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}, appAllMetrics: {}
@@ -71,6 +71,11 @@ export default function metrics(
         SUCCESS: ActionTypes.METRICS_SERVICE_NETWORK_TRANSMITTED_SUCCESS,
         FAILURE: ActionTypes.METRICS_SERVICE_NETWORK_TRANSMITTED_FAILURE
       }, state.services.networkTransmitted, action, option),
+      allservicesmetrics: reducerFactory({
+        REQUEST: ActionTypes.GET_ALL_METRICS_SERVICE_REQUEST,
+        SUCCESS: ActionTypes.GET_ALL_METRICS_SERVICE_SUCCESS,
+        FAILURE: ActionTypes.GET_ALL_METRICS_SERVICE_FAILURE
+      }, state.services.allservicesmetrics, action, option),
     },
     apps: {
       CPU: reducerFactory({

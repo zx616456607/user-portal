@@ -230,6 +230,32 @@ export function loadServiceMetricsNetworkTransmitted(cluster, serviceName, query
   }
 }
 
+//get all data
+export const GET_ALL_METRICS_SERVICE_REQUEST = 'GET_ALL_METRICS_SERVICE_REQUEST'
+export const GET_ALL_METRICS_SERVICE_SUCCESS = 'GET_ALL_METRICS_SERVICE_SUCCESS'
+export const GET_ALL_METRICS_SERVICE_FAILURE = 'GET_ALL_METRICS_SERVICE_FAILURE'
+
+function fetchServiceAllOfMetrics(cluster, serviceName, query = {}) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/getAllMetrics`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    cluster,
+    serviceName,
+    [FETCH_API]: {
+      types: [GET_ALL_METRICS_SERVICE_REQUEST, GET_ALL_METRICS_SERVICE_SUCCESS, GET_ALL_METRICS_SERVICE_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+export function loadServiceAllOfMetrics(cluster, serviceName, query) {
+  return (dispatch) => {
+    return dispatch(fetchServiceAllOfMetrics(cluster, serviceName, query))
+  }
+}
+
 // ~~ app
 // cpu
 export const METRICS_APP_CPU_REQUEST = 'METRICS_APP_CPU_REQUEST'
