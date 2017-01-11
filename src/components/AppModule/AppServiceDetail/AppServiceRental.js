@@ -83,7 +83,7 @@ class AppServiceRental extends Component {
           <tr key={index}>
             <td>{list.metadata.name}</td>
             <td>{this.formetCpuMemory(list.spec.template.spec.containers[0].resources.requests.memory)}</td>
-            <td>{serviceDetail[0].spec.replicas}</td>
+            <td>{list.spec.replicas}</td>
             <td>{this.formetPrice(list.spec.template.spec.containers[0].resources.requests.memory) /10000 } {countPrice.unit == '￥' ? '元': 'T'}/小时</td>
           </tr>
         )
@@ -111,7 +111,7 @@ class AppServiceRental extends Component {
                   <th>名称</th>
                   <th>计算（CPU/内存）</th>
                   <th>数量</th>
-                  <th>价格</th>
+                  <th>单价</th>
                 </tr>
               </thead>
               <tbody>
