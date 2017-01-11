@@ -121,6 +121,32 @@ export function loadContainerMetricsNetworkTransmitted(cluster, containerName, q
   }
 }
 
+//get all data
+export const GET_ALL_METRICS_CONTAINER_REQUEST = 'GET_ALL_METRICS_CONTAINER_REQUEST'
+export const GET_ALL_METRICS_CONTAINER_SUCCESS = 'GET_ALL_METRICS_CONTAINER_SUCCESS'
+export const GET_ALL_METRICS_CONTAINER_FAILURE = 'GET_ALL_METRICS_CONTAINER_FAILURE'
+
+function fetchContainerAllOfMetrics(cluster, containerName, query = {}) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/metrics`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    cluster,
+    containerName,
+    [FETCH_API]: {
+      types: [GET_ALL_METRICS_CONTAINER_REQUEST, GET_ALL_METRICS_CONTAINER_SUCCESS, GET_ALL_METRICS_CONTAINER_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+export function loadContainerAllOfMetrics(cluster, containerName, query) {
+  return (dispatch) => {
+    return dispatch(fetchContainerAllOfMetrics(cluster, containerName, query))
+  }
+}
+
 // ~~ service
 // cpu
 export const METRICS_SERVICE_CPU_REQUEST = 'METRICS_SERVICE_CPU_REQUEST'
@@ -362,5 +388,29 @@ function fetchAppMetricsNetworkTransmitted(cluster, appName, query = {}) {
 export function loadAppMetricsNetworkTransmitted(cluster, appName, query) {
   return (dispatch) => {
     return dispatch(fetchAppMetricsNetworkTransmitted(cluster, appName, query))
+  }
+}
+export const GET_ALL_METRICS_APP_REQUEST = 'GET_ALL_METRICS_APP_REQUEST'
+export const GET_ALL_METRICS_APP_SUCCESS = 'GET_ALL_METRICS_APP_SUCCESS'
+export const GET_ALL_METRICS_APP_FAILURE = 'GET_ALL_METRICS_APP_FAILURE'
+
+function fetchAppAllOfMetrics(cluster, appName, query = {}) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/metrics`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    cluster,
+    appName,
+    [FETCH_API]: {
+      types: [GET_ALL_METRICS_APP_REQUEST, GET_ALL_METRICS_APP_SUCCESS, GET_ALL_METRICS_APP_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+export function loadAppAllOfMetrics(cluster, appName, query) {
+  return (dispatch) => {
+    return dispatch(fetchAppAllOfMetrics(cluster, appName, query))
   }
 }

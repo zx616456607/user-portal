@@ -68,6 +68,10 @@ class ServiceMonitior extends Component {
     loadData(nextProps, { start: this.changeTime(1) })
   }
   
+  componentWillUnmount() {
+    clearInterval(metricsInterval)
+  }
+  
   setIntervalFunc() {
     //this function for setInterval
     let query = this.state.currentStart;
