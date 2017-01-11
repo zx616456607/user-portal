@@ -10,7 +10,7 @@
 
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import { Checkbox, Card, Menu, Button, Dropdown, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, Tooltip } from 'antd'
+import { Checkbox, Card, Menu, Button, Dropdown, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, Tooltip ,Spin} from 'antd'
 import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
@@ -23,6 +23,7 @@ import './style/storage.less'
 import { calcuDate, parseAmount } from '../../common/tools'
 import { volNameCheck } from '../../common/naming_validation'
 import NotificationHandler from '../../common/notification_handler'
+import noStorageImg from '../../assets/img/no_data/no_storage.png'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -274,14 +275,7 @@ let MyComponent = React.createClass({
   render() {
     const { formatMessage } = this.props.intl
     let list = this.props.storage;
-    if (!list || !list.storageList) return (<div className='loadingBox'>暂无数据</div>)
-    if (list.storageList.length < 1) {
-      return (
-        <div className='loadingBox'>
-          暂无数据
-        </div>
-      )
-    }
+
     let items = list.storageList.map((item) => {
       const menu = (<Menu onClick={(e) => { this.showAction(e, 'format', item.name, item.format) } } style={{ width: '80px' }}>
         <Menu.Item key="1" disabled={item.isUsed}><FormattedMessage {...messages.formatting} /></Menu.Item>
@@ -370,7 +364,7 @@ let MyComponent = React.createClass({
               </div>
               <div className="price-unit">
                 <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod"> { hourPrice.amount }{hourPrice.unit == '￥'? '': 'T'}/小时</span></p>
-    <p><span className="unit">（约：</span><span className="unit"> { countPrice.fullAmount }/小时）</span></p>
+                <p><span className="unit">（约：</span><span className="unit"> { countPrice.fullAmount }/小时）</span></p>
               </div>
             </div>
 
@@ -672,9 +666,18 @@ class Storage extends Component {
   render() {
     const { formatMessage } = this.props.intl
     if (!this.props.currentCluster.resourcePrice) return <div></div>
+    if (!this.props.storageList[this.props.currentImagePool]) return <div></div>
     const storagePrice = this.props.currentCluster.resourcePrice.storage /10000
     const hourPrice = parseAmount(this.state.size / 1024 * this.props.currentCluster.resourcePrice.storage, 4)
     const countPrice = parseAmount(this.state.size / 1024 * this.props.currentCluster.resourcePrice.storage * 24 *30, 4)
+    const dataStorage = this.props.storageList[this.props.currentImagePool].storageList
+    if (this.props.storageList[this.props.currentImagePool].isFetching) {
+      return (
+        <div className="loadingBox">
+          <Spin size="large"></Spin> 
+        </div>
+      ) 
+    }
     return (
       <QueueAnim className="StorageList" type="right">
         <div id="StorageList" key="StorageList">
@@ -751,6 +754,8 @@ class Storage extends Component {
             </div>
             <div className="clearDiv"></div>
           </div>
+          {dataStorage.length >0 ?
+    
           <Card className="storageBox appBox">
             <div className="appTitle">
               <div className="selectIconTitle commonTitle">
@@ -775,6 +780,9 @@ class Storage extends Component {
               scope ={ this }
               />
           </Card>
+          :
+          <div className='text-center'><img src={noStorageImg} /><div>您还没有存储卷，创建一个吧！ <Button type="primary" size="large" onClick={this.showModal}>创建</Button></div></div>
+          } 
         </div>
       </QueueAnim>
     )
@@ -789,7 +797,7 @@ Storage.propTypes = {
 function mapStateToProps(state) {
   const { cluster } = state.entities.current
   return {
-    storageList: state.storage.storageList,
+    storageList: state.storage.storageList || [],
     createStorage: state.storage.createStorage,
     deleteStorage: state.storage.deleteStorage,
     currentImagePool: DEFAULT_IMAGE_POOL,
