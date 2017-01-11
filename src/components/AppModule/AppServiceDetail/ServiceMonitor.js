@@ -84,7 +84,7 @@ class ServiceMonitior extends Component {
       })
       metricsInterval = setInterval(() => {    
         loadServiceAllOfMetrics(cluster, serviceName, query)
-      }, 5000);
+      }, 60000);
     }
   }
 
