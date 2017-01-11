@@ -667,7 +667,7 @@ class Slider extends Component {
               <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;新版本即日起正式开放，更多丰富特性等你发现；</span>
             </div>
             <div className='infoDetail'>
-              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;时速云日前，以向您的注册邮箱，发送了升级邮件；</span>
+              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;时速云日前，已向您的注册邮箱，发送了升级邮件；</span>
             </div>
             <div className='infoDetail'>
               <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;新版本，在迁移日期前，将保持与旧版本独立的帐户余额&amp;消费；</span>
