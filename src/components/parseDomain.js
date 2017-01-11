@@ -17,26 +17,22 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
     bindingIP = []
   }
   let domains = []
-
   // parse external domain, item.portsForExternal is array like [{name:"abasd",port:12345,protocol:"TCP",targetPort:1234},...]
   if (item && item.metadata && item.portsForExternal) {
     item.portsForExternal.map((port) => {
       let nameInfo = item.metadata.name
       let portInfo = ":" + port.proxyPort
       if (bindingIP && bindingDomain && port.protocol.toLowerCase() == 'http') {
-        // Remove port number and use port name as url prefix
         portInfo = ''
         nameInfo = port.name
       }
       if (bindingIP.length > 0 && bindingDomain.length == 0) {
         bindingIP.map((bindingIP) => {
-          let domain = ''
-          domain = bindingIP + portInfo
+          let domain = bindingIP + portInfo
+          domain = domain.replace(/^(http:\/\/.*):80$/, '$1')
+          domain = domain.replace(/^(https:\/\/.*):443$/, '$1')
+          domains.push({domain, isInternal: false, interPort: port.targetPort})
         })
-        domain = domain.replace(/^(http:\/\/.*):80$/, '$1')
-        // if prefix is https://, remove suffix :443
-        domain = domain.replace(/^(https:\/\/.*):443$/, '$1')
-        domains.push({domain, isInternal: false, interPort: port.targetPort})
       }
       else if (bindingDomain.length > 0) {
         bindingDomain.map((bindingDomain) => {
@@ -66,12 +62,12 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
   return domains
 }
 
-export function parseAppDomain(app, bindingDomainStr) {
+export function parseAppDomain(app, bindingDomainStr, bindingIPStr) {
   let domains = []
   app.services.map((item) => {
     domains.push({
       name: item.metadata.name,
-      data: parseServiceDomain(item, bindingDomainStr)
+      data: parseServiceDomain(item, bindingDomainStr, bindingIPStr)
     })
   })
   return domains
