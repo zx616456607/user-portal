@@ -259,7 +259,7 @@ let CreateDatabase = React.createClass({
     const passwdProps = getFieldProps('password', {
       rules: [
         {
-          required: true,
+          required: this.state.currentType == 'mysql' ? true : false,
           whitespace: true,
           message: '请填写密码'
         },
@@ -346,7 +346,7 @@ let CreateDatabase = React.createClass({
                 <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>个</span>
               </div>
               <div style={{ clear: 'both' }}></div>
-            </div>
+            </div>            
             <div className='commonBox'>
               <div className='title'>
                 <span>存储大小</span>
@@ -359,6 +359,8 @@ let CreateDatabase = React.createClass({
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
+            {this.state.currentType == 'mysql' ?
+            
             <div className='commonBox'>
               <div className='title'>
                 <span>密码</span>
@@ -373,6 +375,8 @@ let CreateDatabase = React.createClass({
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
+            : null
+            }
             <div className="modal-price">
               <div className="price-left">
                 <div className="keys">实例：{parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>

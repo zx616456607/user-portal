@@ -93,15 +93,15 @@ let MyComponent = React.createClass({
     const { deleteTenxFlowSingle, getTenxFlowList } = scope.props;
     let notification = new NotificationHandler()
     Modal.confirm({
-      title: '您是否确认要删除这项内容',
-      content: (<h3>{item.name}</h3>),
+      title: `删除TenxFlow （${item.name}） `,
+      content: (`请注意，删除TenxFlow，将清除项目的所有历史数据以及相关的镜像，且该操作不能被恢复，您确定要删除?`),
       onOk() {
-        notification.spin(`删除 flow ${item.name} 中...`);
+        notification.spin(`删除 TenxFlow ${item.name} 中...`);
         deleteTenxFlowSingle(flowId, {
           success: {
             func: () => {
               notification.close()
-              notification.success(`删除 flow ${item.name} 成功`);
+              notification.success(`删除 TenxFlow ${item.name} 成功`);
               scope.loadData()
             },
             isAsync: true
@@ -114,7 +114,7 @@ let MyComponent = React.createClass({
                   break;
               }
               notification.close()
-              notification.error(`删除 flow ${item.name} 失败`);
+              notification.error(`删除 TenxFlow ${item.name} 失败`);
             }
           }
         })

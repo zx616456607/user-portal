@@ -103,6 +103,10 @@ let PasswordRow = React.createClass({
       callback([new Error('请输入新密码')])
       return
     }
+    if (/^\d+$/.test(values)) {
+        callback(new Error('密码不能为纯数字'))
+        return
+    }
     if (values.length < 3) {
       callback([new Error('帐户密码不少于3个字符')])
       return
@@ -140,11 +144,14 @@ let PasswordRow = React.createClass({
     const {form, changeUserInfo } = this.props
 		const scope = this.props.scope
     form.validateFields(['password', 'newpassword', 'againpassword'], (errors, values) => {
-      console.log(errors)
       if (errors) {
         return errors
       }
       const notification = new NotificationHandler()
+      // if (/^\d/.test(values.newpassword)) {
+      //   notification.error('密码不能为数字开头')
+      //   return
+      // }
       notification.spin('修改密码中')
       changeUserInfo({
         password: values.password,
