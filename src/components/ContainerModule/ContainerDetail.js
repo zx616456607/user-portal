@@ -239,9 +239,9 @@ class ContainerDetail extends Component {
                 <TabPane tab="事件" key="#events" >
                   <ContainerEvents key="#events" containerName={containerName} cluster={cluster} />
                 </TabPane>
-                <TabPane tab="进程" key="#progress" >
+                {/*<TabPane tab="进程" key="#progress" >
                   <ContainerProgress key="#progress" containerName={containerName} cluster={cluster} />
-                </TabPane>
+                </TabPane>*/}
               </Tabs>
             </Card>
           </div>

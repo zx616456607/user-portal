@@ -74,7 +74,7 @@ const menusText = defineMessages({
   },
   tooltipsFirst: {
     id: 'CICD.Tenxflow.AutoDeployService.tooltipsFirst',
-    defaultMessage: '检测到当前Flow构建生成的镜像，还未部署过应用或服务，请先使用该镜像直接创建',
+    defaultMessage: '检测到当前TenxFlow构建生成的镜像，还未部署过应用或服务，请先使用该镜像直接创建',
   },
   tooltipsSecond: {
     id: 'CICD.Tenxflow.AutoDeployService.tooltipsSecond',

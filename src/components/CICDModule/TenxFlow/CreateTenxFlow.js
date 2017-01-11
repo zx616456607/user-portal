@@ -34,7 +34,7 @@ const menusText = defineMessages({
   },
   create: {
     id: 'CICD.Tenxflow.CreateTenxFlow.create',
-    defaultMessage: '创建Flow方式',
+    defaultMessage: '创建TenxFlow方式',
   },
   viewDefine: {
     id: 'CICD.Tenxflow.CreateTenxFlow.viewDefine',
@@ -312,7 +312,7 @@ let CreateTenxFlow = React.createClass({
     });
     const radioFlowTypeProps = getFieldProps('radioFlow', {
       rules: [
-        { required: true, message: '请选择创建Flow方式' },
+        { required: true, message: '请选择创建TenxFlow方式' },
       ],
       onChange: this.onChangeFlowType,
       initialValue: '1'
