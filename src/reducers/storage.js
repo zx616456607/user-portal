@@ -36,7 +36,7 @@ function storageList(state = {}, action) {
         }
       })
     case ActionTypes.STORAGE_LIST_FAILURE:
-      return merge({}, defaultState, state, {
+      return Object.assign({}, state, defaultState, {
         [pool]: { isFetching: false }
       })
     default:

@@ -226,14 +226,17 @@ class Ordinary extends Component{
       return size + 'MB'
     }
     if(size < 1024*1024){
-      result = this.thousandBitSeparator((size/1024).toFixed(2))
+      /*result = this.thousandBitSeparator((size/1024).toFixed(2))*/
+      result = this.thousandBitSeparator((size/1024).toFixed(0))
       return result + 'GB'
     }
     if(size < 1024*1024*1024){
-      result = this.thousandBitSeparator((size/(1024*1024)).toFixed(2))
+      /*result = this.thousandBitSeparator((size/(1024*1024)).toFixed(2))*/
+      result = this.thousandBitSeparator((size/(1024*1024)).toFixed(0))
       return result + 'T'
     }
-    result = this.thousandBitSeparator((size/(1024*1024*1024)).toFixed(2))
+    /*result = this.thousandBitSeparator((size/(1024*1024*1024)).toFixed(2))*/
+    result = this.thousandBitSeparator((size/(1024*1024*1024)).toFixed(0))
     return result + 'T'
   }
   closeTestingKnowModal() {
@@ -718,12 +721,12 @@ class Ordinary extends Component{
               <Col span={12} className='storageInf'>
                 <div className="storageInfList">
                   <Row className='storageInfItem'>
-                    <Col span={12}>已用配额</Col>
-                    <Col span={12} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.usedSize)}</Col>
+                    <Col span={16}>已用配额</Col>
+                    <Col span={8} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.usedSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={12}>可用配额</Col>
-                    <Col span={12} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.freeSize)}</Col>
+                    <Col span={16}>可用配额</Col>
+                    <Col span={8} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.freeSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>
                     <Col span={12}>存储卷</Col>

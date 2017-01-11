@@ -1127,7 +1127,7 @@ class Ordinary extends Component{
               <span>计算资源使用率<div style={{width:30,display:'inline-block'}}></div><span style={{fontSize: '12px',color:'#666'}}>注: 显示使用率前三的节点</span></span>
             } bordered={false} bodyStyle={{height:200,padding:'0px 20px'}}>
               <Row gutter={16} style={{height:200}}>
-                <Col span={6}>
+                <Col span={8}>
                   <ReactEcharts
                     notMerge={true}
                     option={CPUOption}
@@ -1135,7 +1135,7 @@ class Ordinary extends Component{
                     showLoading={isFetching}
                   />
                 </Col>
-                <Col span={6}>
+                <Col span={8}>
                   <ReactEcharts
                     notMerge={true}
                     option={memoryOption}
@@ -1143,15 +1143,7 @@ class Ordinary extends Component{
                     showLoading={isFetching}
                   />
                 </Col>
-                <Col span={6}>
-                  <ReactEcharts
-                    notMerge={true}
-                    option={diskOption}
-                    style={{height:'200px'}}
-                    showLoading={isFetching}
-                  />
-                </Col>
-                <Col span={6} style={{borderLeft: '1px solid #e2e2e2',height:'200px'}}>
+                <Col span={8} style={{borderLeft: '1px solid #e2e2e2',height:'200px'}}>
                   <Row style={{fontSize:'14px',textAlign: 'center',height:60,lineHeight:'60px'}}>主机状态</Row>
                   <table>
                     <tbody>
