@@ -265,7 +265,7 @@ const MyComponent = React.createClass({
           >
           <div style={{ padding: "0 20px" }}>
             <p style={{ lineHeight: '30px' }}>检测到关联的代码托管系统：</p>
-            <p style={{ lineHeight: '40px' }}><span style={{ color: '#00A0EA' }} className="name">仓库: {this.state.repoType}/ {this.state.itemName} </span>  <span style={{ color: '#00A0EA', marginLeft: '20px' }} className="type">属性：{this.state.itemType == 1 ? "私有" : "公有"}</span> </p>
+            <p style={{ lineHeight: '40px' }}><span style={{ color: '#00A0EA' }} className="name">仓库: {this.state.itemName} </span>  <span style={{ color: '#00A0EA', marginLeft: '20px' }} className="type">属性：{this.state.itemType == 1 ? "私有" : "公有"}</span> </p>
 
             <p style={{ lineHeight: '40px' }}>* 请手动配置以下公钥到<span style={{textTransform:'capitalize'} }>{this.state.repoType ? this.state.repoType.replace('l', 'L').replace('h', 'H') : ''}</span>项目中：</p>
             <div style={{ padding: '10px', border: '1px solid #d9d9d9', wordWrap: 'break-word' }}>{this.state.publicKey}</div>

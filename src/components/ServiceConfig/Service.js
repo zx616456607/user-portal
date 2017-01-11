@@ -20,7 +20,7 @@ import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
 import remove from 'lodash/remove'
 import { loadConfigGroup, configGroupName, createConfigGroup, deleteConfigGroup } from '../../actions/configs'
-
+import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
 
 class CollapseList extends Component {
   constructor(props) {
@@ -62,7 +62,14 @@ class CollapseList extends Component {
         </div>
       )
     }
-    if (groupData.length === 0) return (<div style={{ lineHeight: '50px', 'padding-left': '45%' }}>暂无数据</div>)
+    if (groupData.length === 0) {
+      return (
+        <div className="text-center">
+          <img src={noConfigGroupImg} />
+          <div>您还没有配置组，创建一个吧！<Button type="primary" size="large" onClick={() => this.props.scope.configModal(true)}>创建</Button></div>
+        </div>
+      )
+    }
     let groups = groupData.map((group) => {
       return (
         <Collapse.Panel
@@ -267,13 +274,14 @@ class Service extends Component {
             <div className="create-conf-g" style={{ padding: '20px 0' }}>
               <div style={{ height: 25 }}>
                 <span style={{ width: '50px', display: 'inline-block', fontSize: '14px' }}> 名称 : </span>
-                <Input type="text" ref={(ref) => { this.nameInput = ref; } } style={{ width: '80%' }} value={this.state.myTextInput} onPressEnter={() => this.btnCreateConfigGroup()} onChange={(e) => this.createModalInput(e)} />
+                <Input type="text" size="large" ref={(ref) => { this.nameInput = ref; } } style={{ width: '80%' }} value={this.state.myTextInput} onPressEnter={() => this.btnCreateConfigGroup()} onChange={(e) => this.createModalInput(e)} />
               </div>
             </div>
           </Modal>
           {/*创建配置组-弹出层-end*/}
           {/*折叠面板-start*/}
           <CollapseList
+            scope={this}
             cluster={cluster}
             loadConfigGroup={this.props.loadConfigGroup}
             groupData={configGroup}

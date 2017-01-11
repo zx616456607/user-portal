@@ -381,6 +381,7 @@ class TenxFlowDetailFlowCard extends Component {
     const { scope, deleteTenxFlowStateDetail, flowId } = this.props;
     const { getTenxFlowStateList } = scope.props;
     let notification = new NotificationHandler()
+    const self = this
     switch (key) {
       case 'deleteStage':
         confirm({
@@ -391,7 +392,13 @@ class TenxFlowDetailFlowCard extends Component {
               success: {
                 func: () => {
                   notification.success('删除构建项目', '删除构建项目成功');
-                  getTenxFlowStateList(flowId);
+                  getTenxFlowStateList(flowId, {
+                    success: {
+                      func: (results) => {
+                        self.handWebSocket(scope, results)
+                      }
+                    }
+                  });
                 },
                 isAsync: true
               }
@@ -402,7 +409,26 @@ class TenxFlowDetailFlowCard extends Component {
         break;
     }
   }
-
+  handWebSocket(scope, res){
+    let buildingList = []
+    res.data.results.map((item) => {
+      let buildId = null;
+      if (!Boolean(item.lastBuildStatus)) {
+        buildId = null;
+      } else {
+        buildId = item.lastBuildStatus.buildId;
+      }
+      let buildItem = {
+        buildId: buildId,
+        stageId: item.metadata.id
+      }
+      if (item.lastBuildStatus) {
+        buildItem.status = item.lastBuildStatus.status
+      }
+      buildingList.push(buildItem)
+    })
+    scope.onSetup(scope.state.socket, buildingList)
+  }
   viewCicdBoxP(e) {
     //this function for open the modal of cicd
     const { getTenxflowCIRules, flowId } = this.props;

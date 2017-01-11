@@ -22,6 +22,7 @@ import NotificationHandler from '../../common/notification_handler'
 import { formatDate } from '../../common/tools.js'
 import './style/MysqlCluster.less'
 import mysqlImg from '../../assets/img/test/mysql.jpg'
+import noDbImgs from '../../assets/img/no_data/no_db.png'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -46,8 +47,9 @@ let MyComponent = React.createClass({
     }
     if (config.length == 0) {
       return (
-        <div className='loadingBox'>
-          <span>暂无数据</span>
+        <div className="text-center">
+          <img src={noDbImgs} />
+          <div>还没有MySQL集群，创建一个！ <Button type="primary" size="large" onClick={()=> this.props.scope.createDatabaseShow()}>创建集群</Button></div>
         </div>
       )
     }
