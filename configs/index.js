@@ -25,10 +25,10 @@ const config = {
   tenx_api: {
     external_protocol: env.TENX_API_EXTERNAL_PROTOCOL || 'https',
     external_host: env.TENX_API_EXTERNAL_HOST || 'apiv2.tenxcloud.com',
-//  protocol: env.TENX_API_PROTOCOL || 'http',
-    protocol: env.TENX_API_PROTOCOL || 'https',
-//  host: env.TENX_API_HOST || '192.168.1.103:48000'
-    host: env.TENX_API_HOST || 'apiv2.tenxcloud.com'
+    protocol: env.TENX_API_PROTOCOL || 'http',
+//  protocol: env.TENX_API_PROTOCOL || 'https',
+    host: env.TENX_API_HOST || '192.168.1.103:48000'
+//  host: env.TENX_API_HOST || 'apiv2.tenxcloud.com'
     // host: "localhost:8000" || env.TENX_API_HOST
     // host: "192.168.0.8:8000" || env.TENX_API_HOST
 //     host: "192.168.0.104:8000" || env.TENX_API_HOST
