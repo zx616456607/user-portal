@@ -65,16 +65,16 @@ let UsefulDeployBox = React.createClass({
               </div>
               <div className="input">
                 <div className="commonInput">
-                  <Input type="text" {...httpLivePort} />
+                  <Input type="text" size="large" {...httpLivePort} />
                 </div>
                 <div className="commonInput">
-                  <Input type="text"  {...httpLiveInitialDelaySeconds} />&nbsp;&nbsp;s
+                  <Input type="text" size="large" {...httpLiveInitialDelaySeconds} />&nbsp;&nbsp;s
                 </div>
                 <div className="commonInput">
-                  <Input type="text" {...httpLiveTimeoutSeconds} />&nbsp;&nbsp;s
+                  <Input type="text" size="large" {...httpLiveTimeoutSeconds} />&nbsp;&nbsp;s
                 </div>
                 <div className="commonInput">
-                  <Input type="text" {...httpLivePeriodSeconds} />&nbsp;&nbsp;s
+                  <Input type="text" size="large" {...httpLivePeriodSeconds} />&nbsp;&nbsp;s
                 </div>
                 <div style={{ clear: "both" }}></div>
               </div>
@@ -87,7 +87,7 @@ let UsefulDeployBox = React.createClass({
               <div className="input">
                 <span style={{ float: "left", marginLeft: "10px" }}>/</span>
                 <div className="commonInput">
-                  <Input type="text" {...httpLivePath} />
+                  <Input type="text" size="large" {...httpLivePath} />
                 </div>
                 <div style={{ clear: "both" }}></div>
               </div>
@@ -112,16 +112,16 @@ let UsefulDeployBox = React.createClass({
               </div>
               <div className="input">
                 <div className="commonInput">
-                  <Input type="text" {...tcpLivePort} />
+                  <Input type="text" size="large" {...tcpLivePort} />
                 </div>
                 <div className="commonInput">
-                  <Input type="text" {...tcpLiveInitialDelaySeconds} />&nbsp;&nbsp;s
+                  <Input type="text" size="large" {...tcpLiveInitialDelaySeconds} />&nbsp;&nbsp;s
                 </div>
                 <div className="commonInput">
-                  <Input type="text" {...tcpLiveTimeoutSeconds} />&nbsp;&nbsp;s
+                  <Input type="text" size="large" {...tcpLiveTimeoutSeconds} />&nbsp;&nbsp;s
                 </div>
                 <div className="commonInput">
-                  <Input type="text" {...tcpLivePeriodSeconds} />&nbsp;&nbsp;s
+                  <Input type="text" size="large" {...tcpLivePeriodSeconds} />&nbsp;&nbsp;s
                 </div>
                 <div style={{ clear: "both" }}></div>
               </div>

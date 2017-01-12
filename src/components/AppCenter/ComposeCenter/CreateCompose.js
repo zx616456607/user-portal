@@ -21,10 +21,6 @@ const createForm = Form.create;
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 
-const defaultEditOpts = {
-  readOnly: false,
-}
-
 class CreateCompose extends Component {
   constructor(props) {
     super(props);
@@ -41,10 +37,10 @@ class CreateCompose extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { paretnState, scope } = nextProps;
+    const { parentState, scope } = nextProps;
     let currentYaml = '';
-    if (!!paretnState.stackItemContent && scope.state.createModalShow) {
-      currentYaml = paretnState.stackItemContent;
+    if (!!parentState.stackItemContent && scope.state.createModalShow) {
+      currentYaml = parentState.stackItemContent;
       this.setState({
         currentYaml: currentYaml
       })
@@ -206,27 +202,43 @@ class CreateCompose extends Component {
       callback([new Error(errorMsg)])
     }
   }
-
+  bottomBtnAction() {
+    const parentState = this.props.parentState
+    if (this.props.readOnly) {
+      return
+    }
+    if (parentState.stackItem.name){
+      return (
+        <Button size='large' type='primary' onClick={this.updateSubmit}> 保存</Button>
+      )
+    }
+    return (
+      <Button size='large' type='primary' onClick={this.handleSubmit}> 确定</Button>
+    )
+  }
   render() {
     const scope = this.props.scope;
-    const paretnState = this.props.paretnState
-    const { createModalShow } = paretnState;
+    const parentState = this.props.parentState
+    const defaultEditOpts = {
+      readOnly: this.props.readOnly ? true : false,
+    }
+    const { createModalShow } = parentState;
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
     const nameProps = getFieldProps('name', {
       rules: [
         { message: '编排名称' },
         { validator: this.composeFileNameCheck }
       ],
-      initialValue: paretnState.stackItem.name
+      initialValue: parentState.stackItem.name
     });
     const descProps = getFieldProps('desc', {
       rules: [
         { required: true, message: '描述信息' },
       ],
-      initialValue: paretnState.stackItem.description
+      initialValue: parentState.stackItem.description
     });
     const switchProps = getFieldProps('checked', {
-      initialValue: paretnState.stackItem.isPublic == 1 ? true : false
+      initialValue: parentState.stackItem.isPublic == 1 ? true : false
     })
     return (
       <div id='createCompose' key='createCompose'>
@@ -237,7 +249,7 @@ class CreateCompose extends Component {
             </div>
             <div className='rightBox'>
               <FormItem hasFeedback style={{ width: '220px' }} >
-                <Input {...nameProps} disabled={paretnState.stackItem.name ? true : false} />
+                <Input {...nameProps} disabled={parentState.stackItem.name ? true : false} />
               </FormItem>
             </div>
             <div style={{ clear: 'both' }}></div>
@@ -248,7 +260,7 @@ class CreateCompose extends Component {
             </div>
             <div className='rightBox' style={{ width: '100px', paddingTop: '8px' }}>
               <FormItem hasFeedback>
-                <Switch {...switchProps} defaultChecked={paretnState.stackItem.isPublic == 1 ? true : false} checkedChildren={'公开'} unCheckedChildren={'私有'} onChange={this.onChangeAttr} />
+                <Switch {...switchProps} defaultChecked={parentState.stackItem.isPublic == 1 ? true : false} checkedChildren={'公开'} unCheckedChildren={'私有'} onChange={this.onChangeAttr} />
               </FormItem>
             </div>
             <div style={{ clear: 'both' }}></div>
@@ -279,7 +291,7 @@ class CreateCompose extends Component {
             取消
         </Button>
           {
-            paretnState.stackItem.name ? [<Button size='large' type='primary' onClick={this.updateSubmit}> 保存</Button>] : [<Button size='large' type='primary' onClick={this.handleSubmit}> 确定</Button>]
+           this.bottomBtnAction() 
           }
         </div>
       </div>
