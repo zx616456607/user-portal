@@ -70,28 +70,41 @@ exports.auth = function* (next) {
 
 exports.verifyUser = function* (next) {
   const method = 'verifyUser'
-  const body = this.request.body
-  if (!body || (!body.username && !body.email) || !body.password) {
-    const err = new Error('username(email), password and captcha are required.')
+  const body = this.request.body || {}
+  const accountID = this.session.wechat_account_id
+  const data = {}
+  let err
+  delete this.session.wechat_account_id
+  // For wechat login
+  if (body.accountType === 'wechat') {
+    if (!accountID){
+      err = new Error('username(email), password are required.')
+      err.status = 400
+      throw err
+    }
+    data.accountType = body.accountType
+    data.accountID = accountID
+  } else if ((!body.username && !body.email) || !body.password) {
+    err = new Error('username(email), password are required.')
     err.status = 400
     throw err
   }
-  // if (configIndex.running_mode === enterpriseMode) {
-  //   if (!body.captcha) {
-  //     const err = new Error('username(email), password and captcha are required.')
-  //     err.status = 400
-  //     throw err
-  //   }
-  //   body.captcha = body.captcha.toLowerCase()
-  //   if (body.captcha !== this.session.captcha) {
-  //     logger.error(method, `captcha error: ${body.captcha} | ${this.session.captcha}(session)`)
-  //     const err = new Error('CAPTCHA_ERROR')
-  //     err.status = 400
-  //     throw err
-  //   }
-  // }
-  const data = {
-    password: body.password,
+  /*if (configIndex.running_mode === enterpriseMode) {
+    if (!body.captcha) {
+      const err = new Error('username(email), password and captcha are required.')
+      err.status = 400
+      throw err
+    }
+    body.captcha = body.captcha.toLowerCase()
+    if (body.captcha !== this.session.captcha) {
+      logger.error(method, `captcha error: ${body.captcha} | ${this.session.captcha}(session)`)
+      const err = new Error('CAPTCHA_ERROR')
+      err.status = 400
+      throw err
+    }
+  }*/
+  if (body.password) {
+    data.password = body.password
   }
   if (body.username) {
     data.userName = body.username

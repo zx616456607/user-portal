@@ -28,19 +28,39 @@ Get basic user info including user and certificate
 exports.getMyAccountInfo = function* () {
 
   const loginUser = this.session.loginUser
-  const userID = this.session.loginUser.id
+  const userID = loginUser.id
 
   const api = apiFactory.getApi(loginUser)
-  // Get User info
-  const result = yield api.users.getBy([userID])
-  const userInfo = result.data ? result.data : {}
+  const reqArray = []
+  // Get user info
+  reqArray.push(api.users.getBy([userID]))
+
   // Get certificate info
   const spi = apiFactory.getSpi(loginUser)
-  const certInfo = yield spi.certificates.get()
+  reqArray.push(spi.certificates.get())
+
+  // Get user 3rd accounts
+  reqArray.push(api.users.getBy([userID, 'bindings']))
+
+  const results = yield reqArray
+  let userInfo = results[0]
+  userInfo = userInfo.data ? userInfo.data : {}
+  let certInfo = results[1]
+  let user3rdAccounts = results[2]
+  try {
+    user3rdAccounts.map(account => {
+      account.accountDetail = JSON.parse(account.accountDetail)
+    })
+  } catch (error) {
+    user3rdAccounts.map(account => {
+      account.accountDetail = {}
+    })
+  }
 
   this.body = {
-    userInfo: userInfo,
-    certInfo: certInfo
+    userInfo,
+    certInfo,
+    user3rdAccounts,
   }
 }
 
