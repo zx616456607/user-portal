@@ -124,6 +124,7 @@
   "AppCenter.ComposeCenter.Stack.opera": "操作",
   "AppCenter.ComposeCenter.Stack.desc": "描述",
   "AppCenter.ComposeCenter.Stack.deployService": "部署服务",
+  "AppCenter.ComposeCenter.Stack.showService": "查看编排",
   "AppCenter.ComposeCenter.Stack.editService": "编辑服务",
   "AppCenter.ComposeCenter.Stack.deleteService": "删除服务",
   "AppCenter.ComposeCenter.Stack.createCompose": "创建编排",
