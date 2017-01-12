@@ -36,6 +36,13 @@ let MyComponent = React.createClass({
   componentWillMount() {
     this.props.loadFreeVolume(this.props.cluster)
   },
+  componentWillReceiveProps(nextProps) {
+    const form = nextProps.form
+    const { resetFields } = form
+    if(!nextProps.serviceOpen) {
+      resetFields(['volumeKey', 'volumePath', 'volumeMounts', 'volumeChecked', 'volumeChecked', 'volumeName'])
+    }
+  },
   getFormValue() {
     const { form } = this.props
     const { getFieldValue, setFieldsValue, getFieldProps} = form
@@ -219,7 +226,8 @@ let MyComponent = React.createClass({
     const self = this
     if (!this.props.tagConfig[registry]) return <div></div>
     if (!this.props.tagConfig[registry].configList) return <div></div>
-    const mountPath = this.props.tagConfig[registry].configList[imageVersion].mountPath
+    let mountPath = this.props.tagConfig[registry].configList[imageVersion].mountPath
+    if(!mountPath) mountPath = []
     if (!this.props.avaliableVolume.data && !getFieldValue('volumeName1')) {
       return <div></div>
     }
@@ -740,7 +748,7 @@ let NormalDeployBox = React.createClass({
             </div>
             <div className="stateService">
               <span className="commonSpan">服务类型 <a href="http://docs.tenxcloud.com/faq#you-zhuang-tai-fu-wu-yu-wu-zhuang-tai-fu-wu-de-qu-bie" target="_blank"><Tooltip title="若需数据持久化，请使用有状态服务"><Icon type="question-circle-o" /></Tooltip></a></span>
-              <Switch className="changeBtn" disabled={switchDisable}
+              <Switch className="changeBtn" 
                 {...getFieldProps('volumeSwitch', {
                   valuePropName: 'checked',
                   onChange: (e)=> this.changeSwitchOption(e)
