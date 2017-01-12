@@ -54,6 +54,16 @@ exports.registerRepo = function* () {
     data: result
   }
 }
+// Get supported repos
+exports.getSupportedRepository = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["repos", 'supported'], null)
+
+  this.body = {
+    data: result
+  }
+}
 
 exports.listRepository = function* () {
   const loginUser = this.session.loginUser

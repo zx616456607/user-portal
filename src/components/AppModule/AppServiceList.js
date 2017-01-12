@@ -440,10 +440,10 @@ class AppServiceList extends Component {
         func: (result) => {
           addDeploymentWatch(cluster, self.props, result.data)
           // For fix issue #CRYSTAL-1604(load list again for update status)
-          clearTimeout(self.loadStatusTimeout)
+          /*clearTimeout(self.loadStatusTimeout)
           self.loadStatusTimeout = setTimeout(() => {
             loadServiceList(cluster, appName, { page, size, name })
-          }, LOAD_STATUS_TIMEOUT)
+          }, LOAD_STATUS_TIMEOUT)*/
         },
         isAsync: true
       }

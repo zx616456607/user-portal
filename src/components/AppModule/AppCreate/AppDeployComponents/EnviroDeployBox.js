@@ -105,7 +105,7 @@ let MyComponentEnviro = React.createClass({
               </FormItem>
             </div>
             <div className="input">
-              <Input {...getFieldProps(`envValue${k}`, {}) } className="composeUrl" type="text" />
+              <Input {...getFieldProps(`envValue${k}`, {}) } size="large" className="composeUrl" type="text" />
             </div>
             <div className="opera">
               <i className="fa fa-trash-o" onClick={() => this.remove(k)}/>

@@ -124,6 +124,7 @@
   "AppCenter.ComposeCenter.Stack.opera": "Opera",
   "AppCenter.ComposeCenter.Stack.desc": "Description",
   "AppCenter.ComposeCenter.Stack.deployService": "Deploy Service",
+  "AppCenter.ComposeCenter.Stack.showService": "View Service",
   "AppCenter.ComposeCenter.Stack.editService": "Edit Service",
   "AppCenter.ComposeCenter.Stack.deleteService": "Delete Service",
   "AppCenter.ComposeCenter.Stack.createCompose": "Create Compose",
