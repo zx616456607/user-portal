@@ -8,7 +8,7 @@
  * @author Bai Yu
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Spin, message, Tooltip } from 'antd'
+import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Spin, message, Tooltip, } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import Authentication from './Authentication'
@@ -16,15 +16,17 @@ import './style/UserInfo.less'
 import PhoneRow from './detail/PhoneRow'
 import EmailRow from './detail/EmailRow'
 import PasswordRow from './detail/PassowrdRow'
-import { loadStandardUserInfo, changeUserInfo } from '../../../../actions/user.js'
-import { getQiNiuToken } from '../../../../actions/upload.js'
-import NotificationHandler from '../../../../common/notification_handler.js'
-import uploadFile from '../../../../common/upload.js'
-import { parseAmount } from '../../../../common/tools.js'
-import { AVATAR_HOST } from '../../../../constants'
+import { loadStandardUserInfo, changeUserInfo } from '../../../../actions/user'
+import { bindWechat, unbindWechat } from '../../../../actions/user_3rd_account'
+import { getQiNiuToken } from '../../../../actions/upload'
+import NotificationHandler from '../../../../common/notification_handler'
+import uploadFile from '../../../../common/upload'
+import { parseAmount } from '../../../../common/tools'
+import { AVATAR_HOST, USER_3RD_ACCOUNT_TYPES } from '../../../../constants'
 import { loadLoginUserDetail } from '../../../../actions/entities'
 import proIcon from '../../../../assets/img/version/proIcon.png'
 import proIconGray from '../../../../assets/img/version/proIcon-gray.png'
+import WechatQRCodeTicket from '../../../WechatQRCodeTicket'
 
 const TabPane = Tabs.TabPane
 const createForm = Form.create
@@ -32,6 +34,9 @@ const createForm = Form.create
 class BaseInfo extends Component {
   constructor(props) {
     super(props)
+    this.onScanChange = this.onScanChange.bind(this)
+    this.setUser3rdAccountState = this.setUser3rdAccountState.bind(this)
+    this.handleUnbind = this.handleUnbind.bind(this)
     this.state = {
       editEmail: false,
       editPsd: (props.hash === '#edit_pass' ? true : false),
@@ -39,7 +44,8 @@ class BaseInfo extends Component {
       uploadModalVisible: false,
       userIconsrc: 'avatars.png',
       disabledButton: false,
-      currentKey: '11'
+      currentKey: '11',
+      user3rdAccounts: [],
     }
   }
   componentWillMount() {
@@ -55,6 +61,16 @@ class BaseInfo extends Component {
         }
       }
     })
+  }
+  componentWillReceiveProps(nextProps) {
+    const { user } = nextProps
+    if (!user || !user.user3rdAccounts) {
+      return
+    }
+    this.setUser3rdAccountState(user.user3rdAccounts)
+  }
+  componentWillUnmount(){
+    //
   }
   closeEdit(editType) {
     this.setState({
@@ -253,17 +269,119 @@ class BaseInfo extends Component {
       </span>
     )
   }
+  onScanChange(scan){
+    const notification = new NotificationHandler()
+    notification.spin('绑定微信帐户中...')
+    const { bindWechat } = this.props
+    const account = {
+      accountType: 'wechat'
+    }
+    bindWechat(account).then(({ response, type }) => {
+      notification.close()
+      notification.success('绑定微信帐户成功')
+      account.accountDetail = response.result
+      this.setUser3rdAccountState([account])
+    }).catch(err => {
+      // Must catch err here, response may be null
+      notification.close()
+      notification.error('绑定微信帐户失败')
+    })
+  }
+  /**
+   * Format accounts and set state
+   *
+   * @param {Array} accounts
+   *
+   * @memberOf BaseInfo
+   */
+  setUser3rdAccountState(accounts) {
+    let { markUpdate } = this.state
+    const notBindAccountTypes = USER_3RD_ACCOUNT_TYPES.concat()
+    accounts.map(account => {
+      const { accountType } = account
+      let index = notBindAccountTypes.indexOf(accountType)
+      if (index > -1) {
+        notBindAccountTypes.splice(index, 1)
+      }
+    })
+    notBindAccountTypes.map(accountType => {
+      accounts.push({
+        accountType,
+        accountDetail: null,
+      })
+    })
+    this.setState({
+      user3rdAccounts: accounts,
+    })
+  }
+  handleUnbind(accountType){
+    const notification = new NotificationHandler()
+    notification.spin('解除绑定中...')
+    const { unbindWechat } = this.props
+    const { user3rdAccounts } = this.state
+    unbindWechat({accountType}).then(({ response, type }) => {
+      notification.close()
+      const { status } = response.result
+      if (status === 'Success') {
+        notification.success('解除绑定成功')
+        let accounts = user3rdAccounts.filter(account => account.accountType !== accountType)
+        this.setUser3rdAccountState(accounts)
+        return
+      }
+      throw new Error('解除绑定失败')
+    }).catch(err => {
+      // Must catch err here, response may be null
+      notification.close()
+      notification.error('解除绑定失败')
+    })
+  }
+  renderWechatAccount(account) {
+    const { accountType, accountDetail } = account
+    if (!accountDetail) {
+      return (
+        <div className="send-tu" key="wechat">
+          <div className="backcolor">
+            <i className="fa fa-wechat"></i>
+          </div>
+          <WechatQRCodeTicket
+            message="微信扫一扫立即绑定"
+            triggerElement={<Button className="btn-success">立即绑定</Button>}
+            getTooltipContainer={() => document.getElementById('baseInfo')}
+            onScanChange={this.onScanChange} />
+        </div>
+      )
+    }
+    const { nickname } = accountDetail
+    return(
+      <div className="send-tu" key="wechat">
+        <div className="backcolor wechat-success">
+          <i className="fa fa-wechat"></i>
+        </div>
+        <div className="name">{nickname}</div>
+        <Button onClick={() => this.handleUnbind(accountType)}>解除绑定</Button>
+      </div>
+    )
+  }
+  renderUser3rdAccount(account) {
+    const { accountType } = account
+    switch(accountType) {
+      case 'wechat':
+        return this.renderWechatAccount(account)
+    }
+  }
   render() {
     // const {getFieldProps} = this.props.form
     let { user } = this.props
     if(!user) {
       return <div></div>
     }
-    if(user.isFetching) {
+    const { isFetching } = user
+    const { user3rdAccounts } = this.state
+    if(isFetching) {
       return (
         <div className="loadingBox">
-            <Spin size="large"></Spin>
-          </div>
+          <Spin size="large"></Spin>
+        </div>
       )
     }
     const userDetail = user.userInfo
@@ -292,7 +410,7 @@ class BaseInfo extends Component {
       companyCert = {}
     }
     return (
-      <div className="baseInfo">
+      <div className="baseInfo" id="baseInfo">
         <div className="topBox">
           <div className="userimage">
             <img src={`${AVATAR_HOST}${userDetail.avatar}`} />
@@ -371,17 +489,14 @@ class BaseInfo extends Component {
           </ul>
         </div>
 
-        <div className="wechatBox" style={{display: 'none'}}>
+        <div className="wechatBox">
           <div className="hand">
             <span className="title">登录授权</span>
             <span className="other">第三方</span>
           </div>
-          <div className="send-tu">
-            <div className="backcolor">
-              <i className="fa fa-wechat"></i>
-            </div>
-            <Button className="btn-success" title="即将开放" disabled>立即绑定</Button>
-          </div>
+          {
+            user3rdAccounts.map(account => this.renderUser3rdAccount(account))
+          }
         </div>
         <Modal title={'更换头像'} className="uploadIconModal" visible={this.state.uploadModalVisible}
           onCancel={() => this.hideModal()} onOk={() => this.UploadIconModal()} width={600}
@@ -443,7 +558,9 @@ BaseInfo = connect(baseInfoMapStateToProps, {
   loadStandardUserInfo,
   changeUserInfo,
   getQiNiuToken,
-  loadLoginUserDetail
+  loadLoginUserDetail,
+  bindWechat,
+  unbindWechat,
 })(BaseInfo)
 
 

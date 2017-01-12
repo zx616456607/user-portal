@@ -76,3 +76,4 @@ export const UPGRADE_EDITION_REQUIRED_CODE = 412
 export const DATE_PIRCKER_FORMAT = 'YYYY-MM-DD'
 export const ASYNC_VALIDATOR_TIMEOUT = 800
 export const LOAD_STATUS_TIMEOUT = 2000
+export const USER_3RD_ACCOUNT_TYPES = ['wechat']
