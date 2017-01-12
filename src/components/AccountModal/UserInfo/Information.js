@@ -45,11 +45,11 @@ let ResetPassWord = React.createClass({
     const { userID, userDetail } = this.props
     e.preventDefault();
     const noti = new NotificationHandler()
-    noti.spin('修改密码中')
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         return;
       }
+      noti.spin('修改密码中')
       this.props.updateUser(userID,
         {
           password: values.passwd
@@ -112,9 +112,9 @@ let ResetPassWord = React.createClass({
           <Row>
             <Col>
               <FormItem hasFeedback>
-                <Input type={password} className="passInt" {...passwdProps} autoComplete="off" ref='intPass' />
+                <Input type={password} className="passInt" {...passwdProps} placeholder="输入新密码" autoComplete="off" ref='intPass' />
                 <Icon type="eye"
-                  onClick={this.handleChange}
+                  onClick={this.handleChange} 
                   className={password === 'text' ? 'passIcon' : ''} />
               </FormItem>
             </Col>

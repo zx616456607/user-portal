@@ -11,7 +11,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Radio } from 'antd'
+import { Radio, Button } from 'antd'
 import './style/TimeControl.less'
 
 const RadioButton = Radio.Button;
@@ -23,9 +23,20 @@ class TimeControl extends Component {
   }
 
   render() {
-    const { onChange } = this.props
+    const { onChange, setInterval, intervalStatus } = this.props
     return (
       <div id="TimeControl">
+        {
+          /*!intervalStatus ? [
+            <Button type="ghost" size="large" style={{ marginRight: '7px' }} onClick={setInterval}>
+              <span>自动刷新</span>
+            </Button>
+          ] : [
+            <Button type="ghost" size="large" style={{ marginRight: '7px' }} onClick={setInterval}>
+              <span><i className='fa fa-stop' style={{ marginRight: '7px' }} />停止</span>
+            </Button>
+          ]*/
+        }
         <RadioGroup defaultValue="1" size="large" onChange={onChange}>
           <RadioButton value="1">1小时</RadioButton>
           <RadioButton value="6">6小时</RadioButton>

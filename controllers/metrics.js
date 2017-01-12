@@ -43,6 +43,39 @@ exports.getContainerMetrics = function* () {
   }
 }
 
+exports.getAllContainerMetrics = function* () {
+  const cluster = this.params.cluster
+  const containerName = this.params.container_name
+  const query = this.query
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(user)
+  const containerResult = yield api.getBy([cluster, 'instances', containerName, 'detail'])
+  const instance = containerResult.data || {}
+  let promiseArray = [];
+  query.type = METRICS_CPU
+  const promiseCpuArray = _getContainerMetrics(user, cluster, instance, query)
+  promiseArray.push({cpu: promiseCpuArray})
+  
+  query.type = METRICS_MEMORY
+  const promiseMemoryArray = _getContainerMetrics(user, cluster, instance, query)
+  promiseArray.push({memory: promiseMemoryArray})
+  
+  query.type = METRICSS_NETWORK_TRANSMITTED
+  const promiseNetworkTransmitArray = _getContainerMetrics(user, cluster, instance, query)
+  promiseArray.push({networkTrans: promiseNetworkTransmitArray})
+  
+  query.type = METRICS_NETWORK_RECEIVED
+  const promiseNetworkRecivceArray = _getContainerMetrics(user, cluster, instance, query)
+  promiseArray.push({networkRec: promiseNetworkRecivceArray})
+  
+  const results = yield promiseArray
+  this.body = {
+    cluster,
+    containerName,
+    data: results
+  }
+}
+
 exports.getServiceMetrics = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
@@ -59,6 +92,43 @@ exports.getServiceMetrics = function* () {
   const promiseArray = instances.map((instance) => {
     return _getContainerMetrics(user, cluster, instance, query)
   })
+  const results = yield promiseArray
+  this.body = {
+    cluster,
+    serviceName,
+    data: results
+  }
+}
+
+exports.getAllServiceMetrics = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const query = this.query
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(user)
+  const result = yield api.getBy([cluster, 'services', serviceName, 'instances'])
+  const instances = result.data.instances || []
+  let promiseArray = [];
+  const promiseCpuArray = instances.map((instance) => {
+    query.type = METRICS_CPU
+    return _getContainerMetrics(user, cluster, instance, query)
+  })
+  promiseArray.push({cpu: promiseCpuArray})
+  const promiseMemoryArray = instances.map((instance) => {
+    query.type = METRICS_MEMORY
+    return _getContainerMetrics(user, cluster, instance, query)
+  })
+  promiseArray.push({memory: promiseMemoryArray})
+  const promiseNetworkTransmitArray = instances.map((instance) => {
+    query.type = METRICSS_NETWORK_TRANSMITTED
+    return _getContainerMetrics(user, cluster, instance, query)
+  })
+  promiseArray.push({networkTrans: promiseNetworkTransmitArray})
+  const promiseNetworkRecivceArray = instances.map((instance) => {
+    query.type = METRICS_NETWORK_RECEIVED
+    return _getContainerMetrics(user, cluster, instance, query)
+  })
+  promiseArray.push({networkRec: promiseNetworkRecivceArray})
   const results = yield promiseArray
   this.body = {
     cluster,
@@ -91,6 +161,57 @@ exports.getAppMetrics = function* () {
     const instances = result.data.instances || []
     instances.map((instance) => {
       instancesPromiseArray.push(_getContainerMetrics(user, cluster, instance, query))
+    })
+  })
+  const results = yield instancesPromiseArray
+  this.body = {
+    cluster,
+    appName,
+    data: results
+  }
+}
+
+exports.getAllAppMetrics = function* () {
+  const cluster = this.params.cluster
+  const appName = this.params.app_name
+  const query = this.query
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(user)
+  // Top 10 services
+  const servicesResult = yield api.getBy([cluster, 'apps', appName, 'services'])
+  const services = servicesResult.data.services || []
+  const servicesPromiseArray = services.map((service) => {
+    let serviceName = service.deployment.metadata.name
+    return api.getBy([cluster, 'services', serviceName, 'instances'])
+  })
+  const instancesResults = yield servicesPromiseArray
+  const instancesPromiseArray = []
+  instancesResults.map((result) => {
+    const instances = result.data.instances || []
+    instances.map((instance) => {
+      let promiseArray = [];
+      const promiseCpuArray = instances.map((instance) => {
+        query.type = METRICS_CPU
+        return _getContainerMetrics(user, cluster, instance, query)
+      })
+      promiseArray.push({cpu: promiseCpuArray})
+      const promiseMemoryArray = instances.map((instance) => {
+        query.type = METRICS_MEMORY
+        return _getContainerMetrics(user, cluster, instance, query)
+      })
+      promiseArray.push({memory: promiseMemoryArray})
+      const promiseNetworkTransmitArray = instances.map((instance) => {
+        query.type = METRICSS_NETWORK_TRANSMITTED
+        return _getContainerMetrics(user, cluster, instance, query)
+      })
+      promiseArray.push({networkTrans: promiseNetworkTransmitArray})
+      const promiseNetworkRecivceArray = instances.map((instance) => {
+        query.type = METRICS_NETWORK_RECEIVED
+        return _getContainerMetrics(user, cluster, instance, query)
+      })
+      promiseArray.push({networkRec: promiseNetworkRecivceArray})
+      let results = promiseArray
+      instancesPromiseArray.push(results)
     })
   })
   const results = yield instancesPromiseArray
