@@ -49,7 +49,8 @@ export function getContainerStatus(container) {
  */
 export function getServiceStatus(service) {
   const { status, metadata } = service
-  let replicas = service.spec.replicas
+  const specReplicas = service.spec.replicas
+  let replicas = specReplicas
   if (replicas === undefined) {
     replicas = metadata.annotations[`${TENX_MARK}/replicas`]
   }
@@ -73,7 +74,7 @@ export function getServiceStatus(service) {
     metadata.annotations = {}
   }
   status.replicas = replicas
-  if (phase) {
+  if (phase && phase !== 'Running') {
     return status
   }
   if (unavailableReplicas > 0 && (!availableReplicas || availableReplicas < replicas)) {
@@ -88,6 +89,14 @@ export function getServiceStatus(service) {
     status.phase = 'Stopped'
   } else {
     status.phase = 'Running'
+  }
+  // For issue #CRYSTAL-2478
+  // Add spec.replicas analyzing conditions
+  if (specReplicas === 0 && availableReplicas > 0) {
+    status.phase = 'Stopping'
+    status.availableReplicas = 0
+  } else if (specReplicas > 0 && availableReplicas < 1) {
+    status.phase = 'Pending'
   }
   return status
 }
