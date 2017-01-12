@@ -18,7 +18,7 @@ const option = {
 export default function metrics(
   state = {
     containers: {
-      CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}
+      CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}, allcontainersmetrics: {}
     },
     services: {
       CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}, allservicesmetrics: {}
@@ -49,6 +49,11 @@ export default function metrics(
         SUCCESS: ActionTypes.METRICS_CONTAINER_NETWORK_TRANSMITTED_SUCCESS,
         FAILURE: ActionTypes.METRICS_CONTAINER_NETWORK_TRANSMITTED_FAILURE
       }, state.containers.networkTransmitted, action, option),
+      allcontainersmetrics: reducerFactory({
+        REQUEST: ActionTypes.GET_ALL_METRICS_CONTAINER_REQUEST,
+        SUCCESS: ActionTypes.GET_ALL_METRICS_CONTAINER_SUCCESS,
+        FAILURE: ActionTypes.GET_ALL_METRICS_CONTAINER_FAILURE
+      }, state.containers.allcontainersmetrics, action, option),
     },
     services: {
       CPU: reducerFactory({
@@ -98,6 +103,11 @@ export default function metrics(
         SUCCESS: ActionTypes.METRICS_APP_NETWORK_TRANSMITTED_SUCCESS,
         FAILURE: ActionTypes.METRICS_APP_NETWORK_TRANSMITTED_FAILURE
       }, state.apps.networkTransmitted, action, option),
+      appAllMetrics: reducerFactory({
+        REQUEST: ActionTypes.GET_ALL_METRICS_APP_REQUEST,
+        SUCCESS: ActionTypes.GET_ALL_METRICS_APP_SUCCESS,
+        FAILURE: ActionTypes.GET_ALL_METRICS_APP_FAILURE
+      }, state.apps.appAllMetrics, action, option),
     }
   }
 }
