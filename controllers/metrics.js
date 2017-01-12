@@ -52,31 +52,27 @@ exports.getAllContainerMetrics = function* () {
   const containerResult = yield api.getBy([cluster, 'instances', containerName, 'detail'])
   const instance = containerResult.data || {}
   let promiseArray = [];
-  const promiseCpuArray = instances.map((instance) => {
-    query.type = METRICS_CPU
-    return _getContainerMetrics(user, cluster, instance, query)
-  })
+  query.type = METRICS_CPU
+  const promiseCpuArray = _getContainerMetrics(user, cluster, instance, query)
   promiseArray.push({cpu: promiseCpuArray})
-  const promiseMemoryArray = instances.map((instance) => {
-    query.type = METRICS_MEMORY
-    return _getContainerMetrics(user, cluster, instance, query)
-  })
+  
+  query.type = METRICS_MEMORY
+  const promiseMemoryArray = _getContainerMetrics(user, cluster, instance, query)
   promiseArray.push({memory: promiseMemoryArray})
-  const promiseNetworkTransmitArray = instances.map((instance) => {
-    query.type = METRICSS_NETWORK_TRANSMITTED
-    return _getContainerMetrics(user, cluster, instance, query)
-  })
+  
+  query.type = METRICSS_NETWORK_TRANSMITTED
+  const promiseNetworkTransmitArray = _getContainerMetrics(user, cluster, instance, query)
   promiseArray.push({networkTrans: promiseNetworkTransmitArray})
-  const promiseNetworkRecivceArray = instances.map((instance) => {
-    query.type = METRICS_NETWORK_RECEIVED
-    return _getContainerMetrics(user, cluster, instance, query)
-  })
+  
+  query.type = METRICS_NETWORK_RECEIVED
+  const promiseNetworkRecivceArray = _getContainerMetrics(user, cluster, instance, query)
   promiseArray.push({networkRec: promiseNetworkRecivceArray})
+  
   const results = yield promiseArray
   this.body = {
     cluster,
     containerName,
-    data: [result]
+    data: results
   }
 }
 
@@ -214,11 +210,11 @@ exports.getAllAppMetrics = function* () {
         return _getContainerMetrics(user, cluster, instance, query)
       })
       promiseArray.push({networkRec: promiseNetworkRecivceArray})
-      const results = yield promiseArray
+      let results = promiseArray
       instancesPromiseArray.push(results)
     })
   })
-  const results = instancesPromiseArray
+  const results = yield instancesPromiseArray
   this.body = {
     cluster,
     appName,

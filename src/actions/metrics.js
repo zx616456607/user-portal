@@ -127,7 +127,7 @@ export const GET_ALL_METRICS_CONTAINER_SUCCESS = 'GET_ALL_METRICS_CONTAINER_SUCC
 export const GET_ALL_METRICS_CONTAINER_FAILURE = 'GET_ALL_METRICS_CONTAINER_FAILURE'
 
 function fetchContainerAllOfMetrics(cluster, containerName, query = {}) {
-  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/metrics`
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/getAllmetrics`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
@@ -395,7 +395,7 @@ export const GET_ALL_METRICS_APP_SUCCESS = 'GET_ALL_METRICS_APP_SUCCESS'
 export const GET_ALL_METRICS_APP_FAILURE = 'GET_ALL_METRICS_APP_FAILURE'
 
 function fetchAppAllOfMetrics(cluster, appName, query = {}) {
-  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/metrics`
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/getAllMetrics`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }

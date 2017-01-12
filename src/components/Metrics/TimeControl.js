@@ -29,7 +29,7 @@ class TimeControl extends Component {
         {
           /*!intervalStatus ? [
             <Button type="ghost" size="large" style={{ marginRight: '7px' }} onClick={setInterval}>
-              <span><i className='fa fa-refresh' style={{ marginRight: '7px' }} />刷新</span>
+              <span>自动刷新</span>
             </Button>
           ] : [
             <Button type="ghost" size="large" style={{ marginRight: '7px' }} onClick={setInterval}>

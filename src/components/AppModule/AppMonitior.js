@@ -20,7 +20,7 @@ const RadioGroup = Radio.Group;
 let metricsInterval;
 
 function loadData(props, query) {
-  const { cluster, appName, loadAppMetricsCPU, loadAppMetricsMemory, loadAppMetricsNetworkReceived, loadAppMetricsNetworkTransmitted, getAllAppMonitorData } = props
+  const { cluster, appName, loadAppMetricsCPU, loadAppMetricsMemory, loadAppMetricsNetworkReceived, loadAppMetricsNetworkTransmitted } = props
   loadAppMetricsCPU(cluster, appName, query)
   loadAppMetricsMemory(cluster, appName, query)
   loadAppMetricsNetworkReceived(cluster, appName, query)
@@ -71,18 +71,18 @@ class AppMonitior extends Component {
         intervalStatus: false
       })
     } else {      
-      const { cluster, serviceName, loadServiceAllOfMetrics } = this.props
+      const { cluster, appName, loadAppAllOfMetrics } = this.props
       this.setState({
         intervalStatus: true
       })
       metricsInterval = setInterval(() => {    
-        loadServiceAllOfMetrics(cluster, serviceName, query)
-      }, 5000);
+        loadAppAllOfMetrics(cluster, appName, query)
+      }, 60000);
     }
   }
 
   render() {
-    const { cpu, memory, networkReceived, networkTransmitted, allAppMetrics } = this.props
+    const { cpu, memory, networkReceived, networkTransmitted, appAllMetrics } = this.props
     const { intervalStatus } = this.state
     let showCpu = {
       data: [],
@@ -100,15 +100,17 @@ class AppMonitior extends Component {
       data: [],
       isFetching: false
     };
-    if(allServiceMetrics.data.length > 0) {
-      showCpu.data = allServiceMetrics.data[0].cpu;
-      showCpu.isFetching = false;
-      showMemory.data = allServiceMetrics.data[1].memory;
-      showMemory.isFetching = false;
-      showNetworkTrans.data = allServiceMetrics.data[2].networkTrans;
-      showNetworkTrans.isFetching = false;
-      showNetworkRec.data = allServiceMetrics.data[3].networkRec;
-      showNetworkRec.isFetching = false;
+    if(appAllMetrics.data.length > 0) {
+      appAllMetrics.data.map((metric) => {        
+        showCpu.data.push(metric[0].cpu[0]);
+        showCpu.isFetching = false;
+        showMemory.data.push(metric[1].memory[0]);
+        showMemory.isFetching = false;
+        showNetworkTrans.data.push(metric[2].networkTrans[0]);
+        showNetworkTrans.isFetching = false;
+        showNetworkRec.data.push(metric[3].networkRec[0]);
+        showNetworkRec.isFetching = false;
+      })
     } else {
       showCpu = cpu;
       showMemory = memory;
@@ -190,5 +192,6 @@ export default connect(mapStateToProps, {
   loadAppMetricsCPU,
   loadAppMetricsMemory,
   loadAppMetricsNetworkReceived,
-  loadAppMetricsNetworkTransmitted
+  loadAppMetricsNetworkTransmitted,
+  loadAppAllOfMetrics
 })(AppMonitior)
