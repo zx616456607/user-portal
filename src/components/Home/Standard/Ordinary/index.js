@@ -135,7 +135,7 @@ class Ordinary extends Component{
     this.handleDataBaseClick = this.handleDataBaseClick.bind(this)
     this.handleSize = this.handleSize.bind(this)
     this.thousandBitSeparator = this.thousandBitSeparator.bind(this)
-    this.closeTestingKnowModal = this.closeTestingKnowModal.bind(this)
+    this.closeNavModal = this.closeNavModal.bind(this)
     this.state = {
       tab1: true,
       tab2: false,
@@ -239,7 +239,7 @@ class Ordinary extends Component{
     result = this.thousandBitSeparator((size/(1024*1024*1024)).toFixed(0))
     return result + 'T'
   }
-  closeTestingKnowModal() {
+  closeNavModal() {
     //this function for close test know modal
     this.setState({
       newTestingKonwShow: false,
@@ -973,85 +973,121 @@ class Ordinary extends Component{
           </Col>
         </Row>
         <MySpace spaceName={spaceName} />
-        <Modal visible={this.state.oldTestingKonwShow} className='testingKnowModal'>
+        <Modal visible={this.state.oldTestingKonwShow} className='testingKnowModal' width='600'>
           <div className='titleBox'>
             <p>欢迎使用时速云</p>
-            <Icon className='closeBtn' type='cross' onClick={this.closeTestingKnowModal} />
+            <Icon className='closeBtn' type='cross' onClick={this.closeNavModal} />
           </div>
           <div className='infoBox'>
             <div className='infoDetail'>
-              <span className='info'>欢迎使用时速云 2.0 新版本 Portal 控制台，检测到您为时速云老用户，并且还未完成迁移：</span>
+              <span className='info'>欢迎使用时速云 2.0 新版本控制台！检测当前为时速云老用户，以下信息与你同步：</span>
             </div>
             <div className='infoDetail'>
-              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;新版本即日起正式开放，更多丰富特性等你发现；</span>
+              <span className='info'><span style={{ color: '#00A1EA', fontSize: '12px' }}>▶</span>&nbsp;关于余额：</span>
             </div>
             <div className='infoDetail'>
-              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;时速云日前，已向您的注册邮箱，发送了升级邮件；</span>
+              <div className='numBox' style={{ marginLeft: '12px' }}>1</div>              
+              <span className='info' style={{ paddingLeft: '5px' }}>在迁移完成之前，新版本与旧版本暂时独立的帐户余额&消费；</span>
             </div>
             <div className='infoDetail'>
-              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;新版本，在迁移日期前，将保持与旧版本独立的帐户余额&amp;消费；</span>
+              <div className='numBox' style={{ marginLeft: '12px' }}>2</div>       
+              <span className='info' style={{ paddingLeft: '5px' }}>官方迁移完成后，将合并新老版本的帐户余额及消费相关信息；</span>
             </div>
             <div className='infoDetail'>
-              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;我要将旧版本上运行的应用向新版本迁移：</span>
+              <div className='numBox' style={{ marginLeft: '12px' }}>3</div>           
+              <span className='info' style={{ paddingLeft: '5px' }}>用户自行迁移的，可提前通过工单申请合并新老版本费用部分；</span>
             </div>
             <div className='infoDetail'>
-              <div className='circleIcon'></div>
-              <span className='info' style={{ paddingLeft: '22px' }}>自行完成迁移</span>
+              <span className='info'><span style={{ color: '#00A1EA', fontSize: '12px' }}>▶</span>&nbsp;关于迁移（即1.x→2.0）：</span>
             </div>
             <div className='infoDetail'>
-              <div className='squareIcon'></div>
-              <span className='info' style={{ paddingLeft: '33px' }}>无状态的服务，可以直接在新版通过镜像启动即可完成迁移；</span>
-            </div>
-            <div className='infoDetail'>
-              <div className='squareIcon'></div>
-              <span className='info' style={{ paddingLeft: '33px' }}>有状态的服务的存储，可以通过登录终端，将数据通过 SCP 等命令，传输至新版本；</span>
-            </div>
-            <div className='infoDetail'>
-              <div className='circleIcon'></div>
-              <span className='info' style={{ paddingLeft: '22px' }}>官方自动迁移</span>
+              <div className='numBox' style={{ marginLeft: '12px' }}>1</div>
+              <span className='info' style={{ paddingLeft: '0px' }}>【用户自行】进行迁移 </span>
             </div>
             <div className='infoDetail'>
               <div className='squareIcon'></div>
-              <span className='info' style={{ paddingLeft: '33px' }}>时速云团队会在通知的迁移日期，自动将旧平台的运行应用迁移至新平台Portal；</span>
+              <div className='info' style={{ marginLeft: '33px' }}>使用『容器本地』存储类：即无状态的服务，可以直接在新版通过镜像启动即可完成迁移；</div>
             </div>
             <div className='infoDetail'>
-              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;更多详细迁移说明&amp;指南，请<a href="http://docs.tenxcloud.com/guide/upgradeTo2.0" target="_blank">点击这里查看</a>；</span>
+              <div className='squareIcon'></div>
+              <div className='info' style={{ marginLeft: '33px' }}>通过『存储卷』持久化类：即有状态的服务，可以通过登录终端，将数据通过 SCP 等命令，传输至新版本；</div>
+            </div>
+            <div className='infoDetail'>
+              <div className='numBox' style={{ marginLeft: '12px' }}>2</div>
+              <span className='info' style={{ paddingLeft: '0px' }}>【时速云官方】自动迁移  </span>
+            </div>
+            <div className='infoDetail'>
+              <div className='squareIcon'></div>
+              <div className='info' style={{ marginLeft: '33px' }}>时速云团队会在通知的迁移日期，自动将旧平台的运行应用迁移至新平台Portal；</div>
+            </div>
+            <div className='infoDetail'>
+              <span className='info'><span style={{ color: '#00A1EA', fontSize: '12px' }}>▶</span>&nbsp;更多详细迁移说明&amp;指南，请<a href="http://docs.tenxcloud.com/guide/upgradeTo2.0" target="_blank">点击这里查看</a>；</span>
             </div>
           </div>
           <div className='btnBox'>
-            <div className='knowBtn' onClick={this.closeTestingKnowModal}>
+            <div className='knowBtn' onClick={this.closeNavModal}>
               <span>知道了</span>
             </div>
           </div>
         </Modal>
-        <Modal visible={this.state.newTestingKonwShow} className='testingKnowModal'>
+        <Modal visible={this.state.newTestingKonwShow} className='testingKnowModal' width='600'>
           <div className='titleBox'>
             <p>欢迎使用时速云</p>
-            <Icon className='closeBtn' type='cross' onClick={this.closeTestingKnowModal} />
+            <Icon className='closeBtn' type='cross' onClick={this.closeNavModal} />
           </div>
           <div className='infoBox'>
             <div className='infoDetail'>
-              <span className='info'>欢迎使用时速云2.0新版本Portal控制台，这里你可以通过一键的方式创建高弹性的后端服务，这里你几乎可以实现关于容器的一切想法，快来体验新时代的云计算平台吧！</span>
+              <span className='info'>欢迎使用时速云 2.0 新版本 Portal 控制台，这里你几乎可以实现关于容器的一切想法，快来体验新时代的云计算平台吧！ </span>
             </div>
             <div className='infoDetail' style={{ marginTop: '20px', marginBottom: '10px' }}>
               <span className='info'>为了让你更好的上手时速云平台，我们做了一些小Demo，请享用！</span>
             </div>
             <div className='infoDetail' style={{ lineHeight: '30px' }}>
-              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;了解容器&云计算相关知识&nbsp;→&nbsp;<a href='http://docs.tenxcloud.com/guide/concepts' target="_blank"><span style={{ color: '#00A1EA',cursor: 'pointer' }}>点击这里</span></a>；</span>
+              <span className='info'><span style={{ color: '#00A1EA', fontSize: '12px' }}>▶</span>&nbsp;了解容器&Kubernetes&云计算相关知识&nbsp;→&nbsp;<a href='http://docs.tenxcloud.com/guide/concepts' target="_blank"><span style={{ color: '#00A1EA',cursor: 'pointer' }}>点击这里</span></a>；</span>
             </div>
             <div className='infoDetail' style={{ lineHeight: '30px' }}>
-              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;创建我的第一个容器小应用&nbsp;→&nbsp;<a href='http://docs.tenxcloud.com/quick-start/' target="_blank"><span style={{ color: '#00A1EA',cursor: 'pointer' }}>点击这里</span></a>；</span>
+              <span className='info'><span style={{ color: '#00A1EA', fontSize: '12px' }}>▶</span>&nbsp;创建我的第一个容器小应用&nbsp;→&nbsp;<a href='http://docs.tenxcloud.com/quick-start/' target="_blank"><span style={{ color: '#00A1EA',cursor: 'pointer' }}>点击这里</span></a>；</span>
             </div>
             <div className='infoDetail' style={{ lineHeight: '30px' }}>
-              <span className='info'><span style={{ color: '#00A1EA' }}>▶</span>&nbsp;创建我的第一个TenxFlow项目&nbsp;→&nbsp;<a href='http://docs.tenxcloud.com/quick-start/create-first-flow' target="_blank"><span style={{ color: '#00A1EA',cursor: 'pointer' }}>点击这里</span></a>；</span>
+              <span className='info'><span style={{ color: '#00A1EA', fontSize: '12px' }}>▶</span>&nbsp;创建我的第一个 TenxFlow 项目（持续集成、自动部署）&nbsp;→&nbsp;<a href='http://docs.tenxcloud.com/quick-start/create-first-flow' target="_blank"><span style={{ color: '#00A1EA',cursor: 'pointer' }}>点击这里</span></a>；</span>
             </div>
             <div className='infoDetail littleInfoDetail'>
               <span className='info' style={{ paddingLeft: '11px' }}><span style={{ color: '#00A1EA' }}>▪</span>&nbsp;实现代码构建成容器镜像，进而启动镜像为容器小应用；</span><br />
-              <span className='info' style={{ paddingLeft: '11px' }}><span style={{ color: '#00A1EA' }}>▪</span>&nbsp;通过TenxFlow还可以实现更多开发过程中的各环节自动化，期待你的发现；</span>
+              <span className='info' style={{ paddingLeft: '11px' }}><span style={{ color: '#00A1EA' }}>▪</span>&nbsp;通过 TenxFlow 还可以实现开发过程中的更多环节自动化，期待你的发现；</span>
+            </div>
+            <div className='infoDetail' style={{ marginTop: '20px', marginBottom: '10px' }}>
+              <span className='info'>来开启你的的Docker开发者之旅吧！ </span>
+            </div>
+            <div className='infoDetail'>
+              <div className='littleUrl'>
+                <div className='numBox'>1</div>
+                <a href='http://docs.tenxcloud.com/developer/' target="_blank">Java开发者之旅</a>
+              </div>
+              <div className='littleUrl'>
+                <div className='numBox'>2</div>
+                <a href='http://docs.tenxcloud.com/developer/php' target="_blank">PHP开发者之旅</a>
+              </div>
+              <div className='littleUrl'>
+                <div className='numBox'>3</div>
+                <a href='http://docs.tenxcloud.com/developer/python' target="_blank">Python开发者之旅</a>
+              </div>
+              <div className='littleUrl'>
+                <div className='numBox'>4</div>
+                <a href='http://docs.tenxcloud.com/developer/node' target="_blank">Node.js开发者之旅</a>
+              </div>
+              <div className='littleUrl'>
+                <div className='numBox'>5</div>
+                <a href='http://docs.tenxcloud.com/developer/golang' target="_blank">Golang开发者之旅</a>
+              </div>
+              <div className='littleUrl'>
+                <div className='numBox'>6</div>
+                <a href='http://docs.tenxcloud.com/developer/lamp' target="_blank">LAMP开发者之旅</a>
+              </div>
+              <div style={{ clear: 'both' }}></div>
             </div>
           </div>
           <div className='btnBox'>
-            <div className='knowBtn' onClick={this.closeTestingKnowModal}>
+            <div className='knowBtn' onClick={this.closeNavModal}>
               <span>知道了</span>
             </div>
           </div>

@@ -294,40 +294,36 @@ class ContainerList extends Component {
     this.confirmDeleteContainer(checkedContainerList)
   }
 
-  confirmDeleteContainer(containerList) {
-    const self = this
+  confirmDeleteContainer(checkedContainerList) {
+    // change to handleOk()
+    this.setState({Relocating: true, checkedContainerList})
+  }
+  handleOk() {
     const {cluster, deleteContainers, updateContainerList } = this.props
     const allContainers = this.props.containerList
-    const containerNames = containerList.map((container) => container.metadata.name)
-    confirm({
-      title: `您是否确认要重新分配这${containerNames.length}个容器`,
-      content: containerNames.join(', '),
-      onOk() {
-        return new Promise((resolve) => {
-          resolve()
-          allContainers.map(container => {
-            if (containerNames.indexOf(container.metadata.name) > -1) {
-              container.status.phase = 'Rebuilding'
-              container.status.progress = {
-                percent: 25
-              }
-            }
-          })
-          updateContainerList(cluster, allContainers)
-          deleteContainers(cluster, containerNames, {
-            success: {
-              func: () => {
-                // loadData(self.props)
-              },
-              isAsync: true
-            }
-          })
-        });
-      },
-      onCancel() { },
+    const containerNames = this.state.checkedContainerList.map((container) => container.metadata.name)
+    this.setState({Relocating: false})
+    return new Promise((resolve) => {
+      resolve()
+      allContainers.map(container => {
+        if (containerNames.indexOf(container.metadata.name) > -1) {
+          container.status.phase = 'Rebuilding'
+          container.status.progress = {
+            percent: 25
+          }
+        }
+      })
+      updateContainerList(cluster, allContainers)
+      deleteContainers(cluster, containerNames, {
+        success: {
+          func: () => {
+            // loadData(self.props)
+          },
+          isAsync: true
+        }
+      })
     });
   }
-
   searchContainers(e) {
     const {name, pathname, sortOrder } = this.props
     const {searchInputValue} = this.state
@@ -476,6 +472,13 @@ class ContainerList extends Component {
             </div>
             <div className='clearDiv'></div>
           </div>
+          <Modal title="重新分配操作" visible={this.state.Relocating}
+            onOk={()=> this.handleOk()} onCancel={()=> this.setState({Relocating: false})} >
+            <div className="confirm" style={{color: '#00a0ea'}}>
+              <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
+              您是否确定要重新分配这{checkedContainerList.length}个容器 ?
+           </div>
+          </Modal>
           <Card className='containerBox'>
             <div className='containerTitle'>
               <div className='selectIconTitle commonTitle'>

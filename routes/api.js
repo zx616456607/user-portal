@@ -193,8 +193,11 @@ module.exports = function (Router) {
 
   // Metrics
   router.get('/clusters/:cluster/containers/:container_name/metrics', metricsController.getContainerMetrics)
+  router.get('/clusters/:cluster/containers/:container_name/getAllmetrics', metricsController.getAllContainerMetrics)
   router.get('/clusters/:cluster/services/:service_name/metrics', metricsController.getServiceMetrics)
+  router.get('/clusters/:cluster/services/:service_name/getAllMetrics', metricsController.getAllServiceMetrics)
   router.get('/clusters/:cluster/apps/:app_name/metrics', metricsController.getAppMetrics)
+  router.get('/clusters/:cluster/apps/:app_name/getAllMetrics', metricsController.getAllAppMetrics)
   // router.get('/clusters/:cluster/apps/:app_name/getAllMetrics', metricsController.getAppAllMetrics)
 
   // Manage Monitor

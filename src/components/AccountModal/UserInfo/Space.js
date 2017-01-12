@@ -16,6 +16,7 @@ import { loadTeamClustersList } from '../../../actions/team'
 import { connect } from 'react-redux'
 import PopContent from '../../PopSelect/Content'
 import NotificationHandler from '../../../common/notification_handler'
+import { parseAmount } from '../../../common/tools'
 
 let PersonalSpace = React.createClass({
   getInitialState() {
@@ -116,7 +117,7 @@ let TeamSpace = React.createClass({
           <Col span={2}>{teamspace.appCount}</Col>
           <Col span={2}>{teamspace.serviceCount}</Col>
           <Col span={2}>{teamspace.containerCount}</Col>
-          <Col span={3}>{teamspace.balance}</Col>
+          <Col span={3}>{parseAmount(teamspace.balance).fullAmount}</Col>
           <Col span={4}>
             <Popover
               placement="right"
