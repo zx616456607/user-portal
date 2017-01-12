@@ -55,8 +55,6 @@ exports.getWechatAuthUrl = function* () {
     delete this.session.wechat_ticket
   }, QRTicket.expire_seconds * 1000)
   delete QRTicket.ticket
-  console.log(`-------------------------------`)
-  console.log(this.session.wechat_ticket)
   this.body = QRTicket
 }
 
