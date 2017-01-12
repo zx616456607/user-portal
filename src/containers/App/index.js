@@ -29,6 +29,7 @@ import NotificationHandler from '../../common/notification_handler'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
+const standardFlag = mode === standard
 
 class App extends Component {
   constructor(props) {
@@ -307,7 +308,10 @@ class App extends Component {
           </div>
         </Modal>
         {this.getStatusWatchWs()}
-        <Intercom appID='okj9h5pl' { ...user } />
+        {
+          standardFlag &&
+          <Intercom appID='okj9h5pl' { ...user } />
+        }
         {
           UpgradeModal &&
           <UpgradeModal
