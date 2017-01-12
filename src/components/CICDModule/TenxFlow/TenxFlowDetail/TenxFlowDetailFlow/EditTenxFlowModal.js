@@ -756,9 +756,7 @@ let EditTenxFlowModal = React.createClass({
             'id': _this.state.currentCodeStore,
             'branch': _this.state.currentCodeStoreBranch
           },
-          ci: {
-            enabled
-          }
+          ci: config.spec.ci
         }
       }
       //if user select the customer type (5), ths customType must be input
