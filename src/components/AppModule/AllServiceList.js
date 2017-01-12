@@ -479,10 +479,10 @@ class ServiceList extends Component {
           let deployments = services.map(service => service.deployment)
           addDeploymentWatch(cluster, self.props, deployments)
           // For fix issue #CRYSTAL-1604(load list again for update status)
-          clearTimeout(self.loadStatusTimeout)
+          /*clearTimeout(self.loadStatusTimeout)
           self.loadStatusTimeout = setTimeout(() => {
             loadAllServices(cluster, query)
-          }, LOAD_STATUS_TIMEOUT)
+          }, LOAD_STATUS_TIMEOUT)*/
         },
         isAsync: true
       }
