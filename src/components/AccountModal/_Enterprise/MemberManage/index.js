@@ -14,6 +14,7 @@ import SearchInput from '../../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserList, createUser, deleteUser, checkUserName } from '../../../../actions/user'
 import { Link } from 'react-router'
+import { parseAmount } from '../../../../common/tools'
 import CreateUserModal from '../../CreateUserModal'
 import NotificationHandler from '../../../../common/notification_handler'
 
@@ -483,7 +484,7 @@ function mapStateToProp(state) {
             email: item.email,
             style: role,
             team: item.teamCount,
-            balance: item.balance,
+            balance: parseAmount(item.balance).fullAmount,
           }
         )
       })
