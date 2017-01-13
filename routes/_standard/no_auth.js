@@ -26,6 +26,7 @@ const userController = require('../../controllers/_standard/user_info')
 const authController = require('../../controllers/auth')
 const wechatPayMiddleware = require('../../pay/wechat_pay').middleware
 const middlewares = require('../../services/middlewares')
+const user3rdAccountCtl = require('../../controllers/_standard/user_3rd_account')
 const API_URL_PREFIX = '/api/v2'
 
 module.exports = function (Router) {
@@ -56,6 +57,10 @@ module.exports = function (Router) {
     wechatPayMiddleware(wechatPayController.getInitConfig()).getNotify().done(),
     wechatPayController.notify
   )
+
+  // 3rd account
+  router.get(`${API_URL_PREFIX}/3rd_account/wechat/auth`, user3rdAccountCtl.getWechatAuthUrl)
+  router.get(`${API_URL_PREFIX}/3rd_account/wechat/auth/status`, user3rdAccountCtl.checkWechatAuthStatus)
 
   //register
   router.get('/signup', indexCtl.index) // not open register
