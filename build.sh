@@ -29,7 +29,7 @@ build_user_portal_backend() {
   node_modules/.bin/webpack --config webpack.config.backend.js
 
   # 如果在执行脚本时传递 '--clean=all' 参数，构建完成后会删除源文件
-  if [ "${CLEAN_ALL_FILES_FLAG}" = "true" ] then
+  if [ "${CLEAN_ALL_FILES_FLAG}" = "true" ]; then
       mkdir -p ${tmp}
       # copy files to tmp dir
       cp ${outputPath}/app.js ${tmp}/app.js
@@ -60,7 +60,7 @@ else
   # build frontend files
   build_user_portal
   # build backend files
-  if [ "$2" = "--clean=all" ] then
+  if [ "$2" = "--clean=all" ]; then
       CLEAN_ALL_FILES_FLAG="true"
   fi
   # 只有在私有云，而且在执行脚本时传递 '--build=all' 参数，才会构建后端代码
