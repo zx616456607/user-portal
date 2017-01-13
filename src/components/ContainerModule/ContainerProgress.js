@@ -21,6 +21,8 @@ class ContainerProgress extends Component{
     this.getDataSource = this.getDataSource.bind(this)
     this.renderStatus = this.renderStatus.bind(this)
     this.bytesToSize = this.bytesToSize.bind(this)
+    this.formatSeconds = this.formatSeconds.bind(this)
+    this.renderCmd = this.renderCmd.bind(this)
     this.state = {
 
     }
@@ -37,7 +39,7 @@ class ContainerProgress extends Component{
       return []
     }
     if(processList.length === 0){
-      return
+      return []
     }
     let items = JSON.parse(JSON.stringify(processList))
     items.map((item,index) => {
@@ -46,11 +48,30 @@ class ContainerProgress extends Component{
       item.vmSize = this.bytesToSize(item.vmSize)
       item.vmRSS = this.bytesToSize(item.vmRSS)
       item.startTime = formatDate(item.startTime)
-      item.cpuTime = moment(item.cpuTime).format('HH:mm:ss')
+      item.cpuTime = this.formatSeconds(item.cpuTime)
     })
     return items
   }
-  
+  formatSeconds (time) {
+    let h = parseInt(time / 3600)
+    if (h < 10) {
+      h = "0" + h
+    }
+    let m = parseInt((time - h*3600) / 60)
+    if (m < 10) {
+      m = "0" + m
+    }
+    let s = parseInt((time - h*3600) % 60)
+    if (s < 10) {
+      s = "0" + s
+    }
+    let length = h + ":" + m + ":" + s
+    if (time >= 0) {
+      return length
+    } else {
+      return "-"
+    }
+  }
   renderStatus (text) {
     let status = text
     let IconColor = '#999'
@@ -99,70 +120,83 @@ class ContainerProgress extends Component{
       <div><i className="statusIcon" style={{backgroundColor:IconColor}}/>{status}</div>
     )
   }
+  renderCmd (text) {
+    return (
+      <Tooltip title={text} placement="topLeft">
+        <div className='cmdTab'>
+          {text}
+        </div>
+      </Tooltip>
+    )
+  }
   componentWillMount() {
     const { cluster, containerName, getPodProcess } = this.props
     getPodProcess(cluster, containerName)
   }
-  
+
   render(){
     const columns = [
       {
         title: '用户名',
         dataIndex: 'userName',
         key: 'userName',
+        width:'10%'
       },
       {
         title: 'PID',
         dataIndex: 'pid',
         key: 'pid',
+        width:'10%'
       },
       {
         title: 'CPU',
         dataIndex: 'cpuPercent',
         key: 'cpuPercent',
+        width:'10%'
       },
       {
         title: 'MEM',
         dataIndex: 'memPercent',
         key: 'memPercent',
+        width:'10%'
       },
       {
         title: '占用虚拟内存',
         dataIndex: 'vmSize',
         key: 'vmSize',
+        width:'10%'
       },
       {
         title: '占用物理内存',
         dataIndex: 'vmRSS',
         key: 'vmRSS',
+        width:'10%'
       },
       {
         title: '进程状态',
         dataIndex: 'status',
         key: 'status',
-        render: (text,record,index) => this.renderStatus(text)
+        render: (text,record,index) => this.renderStatus(text),
+        width:'10%'
       },
       {
         title: '启动时间',
         dataIndex: 'startTime',
         key: 'startTime',
+        width:'10%'
       },
       {
         title: '使用CPU时间',
         dataIndex: 'cpuTime',
         key: 'cpuTime',
+        width:'10%'
       },
       {
         title: '命令',
         dataIndex: 'cmd',
         key: 'cmd',
-        render: (text,record,index) => {
-          return (
-            <Tooltip title={text} placement="topLeft">
-              <span className='cmdTab'>{text}</span>
-            </Tooltip>
-          )
-        },
+        width:'10%',
+        render: (text,record,index) => this.renderCmd(text),
       },
     ]
     const {processList} = this.props
