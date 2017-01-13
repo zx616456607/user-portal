@@ -342,8 +342,8 @@ class ComposeFile extends Component {
         </Form>
         <Modal title="选择编排文件"
           visible={this.state.modalShow}
-          className="AppAddServiceModal"
-          wrapClassName="appAddServiceModal"
+          className="AddStackModal"
+          width="650px"
           onCancel={() => this.closeModal()}
           >
           <AppAddStackModal scope={this} />

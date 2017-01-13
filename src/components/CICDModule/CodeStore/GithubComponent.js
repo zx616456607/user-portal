@@ -219,16 +219,31 @@ class GithubComponent extends Component {
       onCancel() { },
     });
   }
-
   handSyncCode() {
     const { registryGithub } = this.props
+    const parentScope = this.props.scope
+    const typeList = parentScope.state.typeList
+    if (!typeList.includes('github')) {
+      parentScope.setState({typeVisible: true})
+      return
+    }
+    this.setState({
+      typeVisible: true
+    })
     let notification = new NotificationHandler()
     notification.spin(`正在执行中...`)
+    this.setState({loading: true})
     registryGithub('github', {
       success: {
         func: (res) => {
-          notification.close()
+          // notification.close()
           window.location.href = res.data.results.url
+        }
+      },
+      failed: {
+        func: (res) => {
+          notification.close()
+          notification.error('授权失败', res.message)
         }
       }
     })
@@ -272,7 +287,11 @@ class GithubComponent extends Component {
     if (!githubList) {
       return (
         <div style={{ lineHeight: '100px', paddingLeft: '130px', paddingBottom: '16px' }}>
+        {this.state.loading ?
+          <Button type="primary" size="large" loading={true}>授权、同步 GitHub 代码源</Button>
+        :
           <Button type="primary" size="large" onClick={() => this.handSyncCode()}>授权、同步 GitHub 代码源</Button>
+        }
         </div>
       )
     }
@@ -307,7 +326,7 @@ class GithubComponent extends Component {
     });
     */}
     return (
-      <QueueAnim key="github-Component" type="right" className='codelink'>
+      <div key="github-Component" type="right" className='codelink'>
         <div className="tableHead">
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={() => this.removeRepo()} style={{ margin: '0 20px' }} />
@@ -323,7 +342,7 @@ class GithubComponent extends Component {
           {codeList}
         </Tabs>
 
-      </QueueAnim>
+      </div>
     );
   }
 }

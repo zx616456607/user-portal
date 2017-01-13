@@ -24,10 +24,11 @@ const terminal = require('./controllers/web_terminal')
 global.Promise = require('bluebird')
 // Disabled reject unauthorized
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+// Set root dir to global
+global.__root__dirname = __dirname
 /*
  * Koa middlewares
  */
-
 // For koa logs
 const koaLogger = require('koa-logger')
 app.use(koaLogger())
@@ -95,7 +96,7 @@ const sessionOpts = {
   key: config.session_key,
   rolling: true,
   cookie: {
-    maxAge: 1000 * 60 * 30 // half an hour in ms
+    maxAge: 1000 * 60 * 720 // 720 minuts(half a day)
   }
 }
 

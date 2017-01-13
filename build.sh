@@ -2,14 +2,11 @@
 set -e
 # build document
 
-# MODEL=enterprise
-
-# gen_model_config() {
-#   echo -e "\nmodule.exports = require('./model.$MODEL')" >> "configs/model.js"
-# }
-
+MODE=${RUNNING_MODE}
+CLEAN_ALL_FILES_FLAG="false"
 build_user_portal() {
   set -x
+  echo "start build frontend files ..."
   outputPath="static/bundles"
   # rm -rf dist
   rm -rf ${outputPath}
@@ -21,23 +18,30 @@ build_user_portal() {
   cp ${outputPath}/en.*.js ${outputPath}/en.js
   rm -f ${outputPath}/en.*.js
 
-  # rm -f static/js/common.*
-  # rm -f static/js/main.*
-  # rm -f static/js/chunk.*
-  # rm -f static/locales/frontend/*.js
-  # rm -f static/style/main.*
+  set +x
+}
 
-  # rm -rf static/static/bundles/*
+build_user_portal_backend() {
+  set -x
+  echo "start build backtend files ..."
+  outputPath="dist"
+  tmp="user_portal_tmp"
+  node_modules/.bin/webpack --config webpack.config.backend.js
 
-  # cp dist/common.* static/bundles/
-  # cp dist/main.* static/bundles/
-  # cp dist/chunk.* static/bundles/
-  # # Rename files for intl
-  # cp dist/zh.*.js static/bundles/zh.js
-  # cp dist/en.*.js static/bundles/en.js
-  # cp dist/index.* static/bundles/
-  # cp dist/src/index.html index.html
-  # cp dist/img/* static/bundles/img/
+  # 如果在执行脚本时传递 '--clean=all' 参数，构建完成后会删除源文件
+  if [ "${CLEAN_ALL_FILES_FLAG}" = "true" ]; then
+      mkdir -p ${tmp}
+      # copy files to tmp dir
+      cp ${outputPath}/app.js ${tmp}/app.js
+      cp -rf static ${tmp}/
+      cp index.html ${tmp}/index.html
+      # rm all source files
+      ls | grep -v ${tmp} | grep -v node_modules | xargs rm -rf
+      mv ${tmp}/* ./
+      rm -rf ${tmp}
+  else
+      cp ${outputPath}/app.js ./backend.js
+  fi
 
   set +x
 }
@@ -50,14 +54,22 @@ sh build.sh
 EOF
 #注意： Windows下也可使用（需要安装git）
 else
-  # if [ "$1" = "--model=SE" ]; then
-  #   echo "build in SE model"
-  #   MODEL=standard
-  # fi
   echo "start build ${project}"
   echo "node_env: ${NODE_ENV}"
-  echo "running_mode: ${RUNNING_MODE}"
-  # gen_model_config
+  echo "running_mode: ${MODE}"
+  # build frontend files
   build_user_portal
+  # build backend files
+  if [ "$2" = "--clean=all" ]; then
+      CLEAN_ALL_FILES_FLAG="true"
+  fi
+  # 只有在私有云，而且在执行脚本时传递 '--build=all' 参数，才会构建后端代码
+  if [ "${MODE}" = "enterprise" ] && [ "$1" = "--build=all" ]; then
+      echo "***********************************"
+      echo "* will build backend              *"
+      echo "* will delete all source files ...*"
+      echo "***********************************"
+      build_user_portal_backend
+  fi
   echo "build ${project} success"
 fi

@@ -13,9 +13,24 @@
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
 
+export const GET_REPO_TYPE_REQUEST = 'GET_REPO_TYPE_REQUEST'
+export const GET_REPO_TYPE_SUCCESS = 'GET_REPO_TYPE_SUCCESS'
+export const GET_REPO_TYPE_FAILURE = 'GET_REPO_TYPE_FAILURE'
+
+export function getRepoType(callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_REPO_TYPE_REQUEST, GET_REPO_TYPE_SUCCESS, GET_REPO_TYPE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/repos/supported`,
+      schema: {}
+    },
+    callback
+  }
+}
 export const GET_REPOS_LIST_REQUEST = 'GET_REPOS_LIST_REQUEST'
 export const GET_REPOS_LIST_SUCCESS = 'GET_REPOS_LIST_SUCCESS'
 export const GET_REPOS_LIST_FAILURE = 'GET_REPOS_LIST_FAILURE'
+
 
 function fetchCodeStormList(types, callback) {
   return {

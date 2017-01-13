@@ -277,3 +277,22 @@ export function filtEvents(events) {
   })
   return targetEvents
 }
+
+/*
+  *判断是否有域名
+  *bindingDomain --- '' , '[]' , '['']' , null , undefind
+*/
+
+export function isDomain (bindingDomainStr) {
+  let bindingDomain = ''
+  try {
+    bindingDomain = JSON.parse(bindingDomainStr)
+  }
+  catch (e) {
+    return false
+  }
+  if (bindingDomain.length === 0 || bindingDomain[0] === '') {
+    return false
+  }
+  return true
+}

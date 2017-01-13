@@ -99,7 +99,7 @@ class WechatQRCodeTicket extends Component {
     this.getStatusTimes ++
     getWechatAuthQrCodeStatus().then(({ response, type }) => {
       const { status, message } = response.result
-      if (message === 'scan' || message === 'subsribe') {
+      if (message === 'scan' || message === 'subscribe') {
         onScanChange(true)
         this.setState({
           visible: false,

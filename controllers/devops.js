@@ -164,7 +164,18 @@ exports.getUserInfo = function* () {
 exports.getAuthRedirectUrl = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
+
   const api = apiFactory.getDevOpsApi(loginUser)
+  const typeResult = yield api.getBy(["repos", 'supported'], null)
+
+  if (typeResult.indexOf(repoType) < 0) {
+    this.status = 404
+    this.body = {
+      message: '还没有正确配置 ' + repoType + ', 更正后可以正常使用集成功能'
+    }
+    return
+  }
+
   if ('github' == repoType) {
     // console.info('save space:', this.session.loginUser.teamspace)
     this.session.authRepoInSpace = this.session.loginUser.teamspace

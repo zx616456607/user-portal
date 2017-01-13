@@ -34,6 +34,13 @@ WECHAT_SERVER_USER | `undefined` | 微信 server basic 认证 username | *只适
 WECHAT_SERVER_PASS | `undefined` | 微信 server basic 认证 password | *只适用于公有云*
 **注：外网协议及端口用于 user-portal 浏览器直连 API**
 
+### 全局变量说明
+变量名 | 说明 | 举例
+---|---|---
+`__dirname` | 当前文件所在目录的路径名称 | `D:\\cloudDream\\projects\\private_cloud\\enterprise-2.0\\user-portal\\services`
+`__root__dirname` | 项目的根目录名称 | `D:\\cloudDream\\projects\\private_cloud\\enterprise-2.0\\user-portal`
+**注：`__root__dirname` 在一个项目中是固定的，推荐大家在做读取文件操作时使用 `__root__dirname` 而不是 `__dirname`，后端代码会使用 webpack 打包成一个文件，如果使用 `__dirname` 可能会导致打包后运行出错**
+
 ### 后端相关控制逻辑
 * 生产、测试环境区分, 修改 `configs/index.js`，默认为 `dev` 开发环境，生产环境设置 `NODE_ENV` 为 `production`
 ```javascript

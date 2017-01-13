@@ -16,6 +16,7 @@ import { DEFAULT_CONTAINER_RESOURCES, DEFAULT_CONTAINER_RESOURCES_MEMORY } from 
 import { changeQuotaService } from '../../../actions/services'
 import { getResourcesByMemory } from '../../../../kubernetes/utils'
 import NotificationHandler from '../../../common/notification_handler'
+import { isStorageUsed } from '../../../common/tools'
 
 class ConfigModal extends Component {
   constructor(props) {
@@ -24,7 +25,8 @@ class ConfigModal extends Component {
     this.handleConfigOK = this.handleConfigOK.bind(this)
     this.handleConfigCancel = this.handleConfigCancel.bind(this)
     this.state = {
-      composeType: parseInt(DEFAULT_CONTAINER_RESOURCES_MEMORY)
+      composeType: parseInt(DEFAULT_CONTAINER_RESOURCES_MEMORY),
+      haveRBDVolume: false,
     }
   }
 
@@ -40,7 +42,8 @@ class ConfigModal extends Component {
     let limits = resources.limits || DEFAULT_CONTAINER_RESOURCES.limits
     let memory = limits.memory || DEFAULT_CONTAINER_RESOURCES.limits.memory
     this.setState({
-      composeType: memory.indexOf('Gi') > -1 ? parseInt(memory) * 1024 : parseInt(memory)
+      composeType: memory.indexOf('Gi') > -1 ? parseInt(memory) * 1024 : parseInt(memory),
+      haveRBDVolume: isStorageUsed(service.spec.template.spec.volumes),
     })
   }
 
@@ -218,7 +221,7 @@ class ConfigModal extends Component {
           </Row>
           <Row>
             <Col style={{ color: '#a0a0a0', textAlign: 'left', marginTop: '20px' }}>
-              注: 重新选择配置 , 保存后系统将重启该服务的所有实例.
+              注: 重新选择配置 , 保存后系统将重启该服务的所有实例。{this.state.haveRBDVolume ? '此服务已挂载存储卷，不支持滚动更新，服务会有短暂不可用时间！' : ' 将进行滚动升级。'}
             </Col>
           </Row>
         </div>

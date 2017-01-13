@@ -20,7 +20,7 @@ const config = require('../configs')
 
 // Init and handle i18n
 exports.handle = function () {
-  const nsFills = fs.readdirSync(path.join(__dirname, '../static/locales/backend/zh'))
+  const nsFills = fs.readdirSync(path.join(__root__dirname, 'static/locales/backend/zh'))
   let i18nNS = []
   nsFills.forEach(function (name) {
     if (path.extname(name) === '.json') {
@@ -33,7 +33,7 @@ exports.handle = function () {
     fallbackLng: DEFAULT_LOCALE,
     debug: false,
     backend: {
-      loadPath: path.join(__dirname, '../static/locales/backend/{{lng}}/{{ns}}.json')
+      loadPath: path.join(__root__dirname, 'static/locales/backend/{{lng}}/{{ns}}.json')
     },
     detection: {
       order: ['cookie', 'header'],
