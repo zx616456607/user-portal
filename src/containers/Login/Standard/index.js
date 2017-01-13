@@ -469,7 +469,7 @@ let Login = React.createClass({
                 <div className="methodIcon">
                   <div className='weixin'>
                     <WechatQRCodeTicket
-                      message="微信扫一扫立即绑定"
+                      message="微信扫一扫立即登录"
                       triggerElement={<img src={loginMethodWeixinPNG}/>}
                       getTooltipContainer={() => document.getElementById('LoginBgStd')}
                       onScanChange={this.onScanChange} />
