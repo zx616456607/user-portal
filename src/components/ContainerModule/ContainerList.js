@@ -237,10 +237,10 @@ class ContainerList extends Component {
           // Add pod status watch, props must include statusWatchWs!!!
           addPodWatch(cluster, selt.props, result.data)
           // For fix issue #CRYSTAL-2079(load list again for update status)
-          clearTimeout(self.loadStatusTimeout)
+          /*clearTimeout(self.loadStatusTimeout)
           self.loadStatusTimeout = setTimeout(() => {
             loadContainerList(cluster, { page, size, name, sortOrder })
-          }, LOAD_STATUS_TIMEOUT)
+          }, LOAD_STATUS_TIMEOUT)*/
         },
         isAsync: true
       }

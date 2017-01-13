@@ -21,6 +21,7 @@ import LogInLogo from '../../../assets/img/sider/LogInLogo.svg'
 import loginMethodWeixinPNG from '../../../assets/img/loginMethodWeixin.png'
 import ReactDom from 'react-dom'
 import Top from '../../../components/Top'
+import WechatQRCodeTicket from '../../../components/WechatQRCodeTicket'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -265,11 +266,54 @@ let Login = React.createClass({
       message.success('帐户已经激活')
     }
     resetFields()
-    
+
   },
 
   componentDidMount() {
     ReactDom.findDOMNode(this.refs.intName.refs.input).focus()
+  },
+
+  onScanChange(scan) {
+    const self = this
+    self.setState({
+      submitting: true,
+    })
+    const { login, redirect } = this.props
+    const body = {
+      accountType: 'wechat'
+    }
+    login(body, {
+      success: {
+        func: (result) => {
+          self.setState({
+            submitting: false,
+            loginSucess: true,
+          })
+          message.success(`用户 ${result.user.userName} 登录成功`)
+          browserHistory.push(redirect || '/')
+          resetFields()
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          const { statusCode } = err
+          const errMsg = err.message
+          let msg = errMsg.message || errMsg
+          if (statusCode == 404) {
+            msg = '您的微信还未绑定时速云平台账户，请使用账户密码登录后，在“我的账户”中进行绑定'
+          }
+          self.setState({
+            submitting: false,
+            loginResult: {
+              error: msg
+            },
+            submitProps: {},
+          })
+        },
+        isAsync: true
+      },
+    })
   },
 
   render() {
@@ -416,20 +460,22 @@ let Login = React.createClass({
                   <Link to='/rpw'>忘记密码</Link>
                 </div>
               </div>
-                {/*<div className='moreMethod'>
-                  <div className='methodTitle'>
-                    <div className='line'></div>
-                    <div className='methodText'>更多登录方式</div>
-                    <div className='line'></div>
+              <div className='moreMethod'>
+                <div className='methodTitle'>
+                  <div className='line'></div>
+                  <div className='methodText'>更多登录方式</div>
+                  <div className='line'></div>
+                </div>
+                <div className="methodIcon">
+                  <div className='weixin'>
+                    <WechatQRCodeTicket
+                      message="微信扫一扫立即登录"
+                      triggerElement={<img src={loginMethodWeixinPNG}/>}
+                      getTooltipContainer={() => document.getElementById('LoginBgStd')}
+                      onScanChange={this.onScanChange} />
                   </div>
-                  <div className="methodIcon">
-                    <Tooltip title='即将开放'>
-                      <div className='weixin'>
-                        <img src={loginMethodWeixinPNG}/>
-                      </div>
-                    </Tooltip>
-                  </div>
-                </div>*/}
+                </div>
+              </div>
             </div>
           </Card>
         </div>

@@ -12,6 +12,7 @@
 
 import React, { Component, PropTypes } from 'react'
 import { Icon, Popover, Button } from 'antd'
+import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import "./style/UserPanel.less"
 import { AVATAR_HOST } from '../../constants'
@@ -21,6 +22,7 @@ import proIconGray from '../../assets/img/version/proIcon-gray.png'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
+import { ROLE_USER, ROLE_TEAM_ADMIN } from '../../../constants'
 
 /**
  * User panel in the upper right corner
@@ -136,7 +138,7 @@ class UserPanel extends Component {
   }
 
   getContent() {
-    const { loginUser } = this.props
+    const { loginUser, role } = this.props
     let { balance } = loginUser
     if (balance !== undefined) {
       balance = parseAmount(balance).amount
@@ -157,12 +159,21 @@ class UserPanel extends Component {
         svgHref: '#logchangepass',
         text: '修改密码',
       },
-      {
-        to: '/account',
+    ]
+    if (role === ROLE_TEAM_ADMIN) {
+      menuItems.push({
+        to: '/account/team',
         svgHref: '#logteam',
         text: '我的团队',
-      },
-    ]
+      })
+    } else {
+      menuItems.push({
+        to: '/account/cost#payments',
+        // TODO: replace it
+        svgHref: '#logpayment',
+        text: '充值记录',
+      })
+    }
     if (mode === standard) {
       menuItems = [
         {
@@ -256,4 +267,16 @@ UserPanel.propTypes = {
   loginUser: PropTypes.object.isRequired,
 }
 
-export default UserPanel
+function mapStateToProp(state) {
+  let role = ROLE_USER
+  const {entities} = state
+  if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
+    role = entities.loginUser.info.role
+  }
+  return {
+    role
+  }
+}
+
+export default connect(mapStateToProp, {
+})(UserPanel)

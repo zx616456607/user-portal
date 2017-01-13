@@ -36,12 +36,20 @@ exports.createNewDBService = function* () {
     err.status = 400
     throw err
   }
-    if (!basicInfo.serviceName || !basicInfo.volumeSize || !basicInfo.replicas || !basicInfo.password) {
-    const err = new Error('serviceName, volumeSize, replicas, password are required')
+  if (!basicInfo.serviceName || !basicInfo.volumeSize || !basicInfo.replicas) {
+    const err = new Error('serviceName, volumeSize, replicas are required')
     err.status = 400
     throw err
   }
   const appTemplate = yield templateApi.getBy([basicInfo.templateId])
+  if (appTemplate.data.category == 'mysql') {
+    // Check password for some template
+    if (!basicInfo.password) {
+      const err = new Error('password is required')
+      err.status = 400
+      throw err
+    }
+  }
   let yamlContent = appTemplate.data.content
   // For base petset and service
   yamlContent = yamlContent.replace(/\{\{name\}\}/g, basicInfo.serviceName).replace("{{size}}", basicInfo.volumeSize).replace("{{password}}", basicInfo.password).replace("{{replicas}}", basicInfo.replicas)

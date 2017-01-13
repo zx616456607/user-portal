@@ -8,15 +8,16 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, Dropdown } from 'antd'
-import { Link } from 'react-router'
+import { Alert, Menu, Button, Card, Input, Dropdown, Modal } from 'antd'
+import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import "./style/PublicCompose.less"
-import { loadStack } from '../../../actions/app_center'
+import { loadStack, loadStackDetail } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import { calcuDate } from '../../../common/tools'
+import CreateCompose from './CreateCompose'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -67,13 +68,9 @@ const menusText = defineMessages({
     id: 'AppCenter.ComposeCenter.Stack.deployService',
     defaultMessage: '部署服务',
   },
-  editService: {
-    id: 'AppCenter.ComposeCenter.Stack.editService',
-    defaultMessage: '编辑服务',
-  },
-  deleteService: {
-    id: 'AppCenter.ComposeCenter.Stack.deleteService',
-    defaultMessage: '删除服务',
+  showService: {
+    id: 'AppCenter.ComposeCenter.Stack.showService',
+    defaultMessage: '查看服务',
   },
   createCompose: {
     id: 'AppCenter.ComposeCenter.Stack.createCompose',
@@ -103,6 +100,23 @@ const MyComponent = React.createClass({
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
+  actionStack(itemId, itemIndex) {
+    const scope = this
+    this.props.scope.props.loadStackDetail(itemId, {
+      success: {
+        func: (res) => {
+          scope.props.scope.setState({
+            stackItemContent: res.data.data.content
+          })
+        }
+      }
+    })
+    this.props.scope.setState({
+      createModalShow: true,
+      stackItem: this.props.config[itemIndex]
+    });
+
+  },
   render: function () {
     const config = this.props.config
     if (config.length == 0) {
@@ -110,9 +124,17 @@ const MyComponent = React.createClass({
         <div className="loadingBox">暂无数据</div>
       )
     }
-    let items = config.map((item) => {
+    let items = config.map((item, index) => {
+      const dropdown = (
+        <Menu onClick={()=> browserHistory.push(`/app_manage/app_create/compose_file?templateid=${item.id}`)} style={{ width: '100px' }}>
+          <Menu.Item key={`&${item.id}`}>
+           <FormattedMessage {...menusText.deployService} />
+          </Menu.Item>
+         
+        </Menu>
+      );
       return (
-        <div className="composeDetail" key={item.id} >
+        <div className="composeDetail" key={`item-${index}`} >
           <div className="name textoverflow">
             <span className="maxSpan">{item.name}</span>
           </div>
@@ -127,11 +149,9 @@ const MyComponent = React.createClass({
             {calcuDate(item.createTime)}
           </div>
           <div className="opera">
-            <Link to={`/app_manage/app_create/compose_file?templateid=${item.id}`}>
-            <Button type="ghost">
-              <FormattedMessage {...menusText.deployService} />
-            </Button>
-            </Link>
+            <Dropdown.Button overlay={dropdown} onClick={()=> this.actionStack(item.id, index)}>
+              <FormattedMessage {...menusText.showService} />
+            </Dropdown.Button>
           </div>
         </div>
       );
@@ -157,7 +177,6 @@ class PublicCompose extends Component {
 
   render() {
     const { formatMessage } = this.props.intl;
-    const scope = this.props.scope;
     return (
       <QueueAnim className="PublicCompose"
         type="right"
@@ -190,9 +209,18 @@ class PublicCompose extends Component {
               </div>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent scope={scope} config={this.props.stackList} />
+            <MyComponent scope={this} config={this.props.stackList} />
           </Card>
         </div>
+        <Modal
+          visible={this.state.createModalShow}
+          className='AppServiceDetail'
+          transitionName='move-right'
+          onCancel={() => this.detailModal(false)}
+          maskClosable={false}
+          >
+          <CreateCompose scope={this} parentState={this.state} loadMyStack={this.props.loadMyStack} readOnly={true} registry={this.props.registry} />
+        </Modal>
       </QueueAnim>
     )
   }
@@ -220,14 +248,9 @@ function mapStateToProps(state, props) {
   }
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    loadStack: (DEFAULT_REGISTRY) => {
-      dispatch(loadStack(DEFAULT_REGISTRY))
-    }
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(PublicCompose, {
+export default connect(mapStateToProps, {
+  loadStack,
+  loadStackDetail
+})(injectIntl(PublicCompose, {
   withRef: true,
 }))

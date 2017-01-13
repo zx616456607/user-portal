@@ -292,7 +292,7 @@ let MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      
+
       const appDomain = parseAppDomain(item, bindingDomains, bindingIPs)
       return (
         <div className={item.checked ? 'appDetail appDetailSelected' : 'appDetail'} key={item.name} onClick={this.selectAppByline.bind(this, item)} >
@@ -392,10 +392,10 @@ class AppList extends Component {
           // Add app status watch, props must include statusWatchWs!!!
           addAppWatch(cluster, self.props, result.data)
           // For fix issue #CRYSTAL-1604(load list again for update status)
-          clearTimeout(self.loadStatusTimeout)
+          /*clearTimeout(self.loadStatusTimeout)
           self.loadStatusTimeout = setTimeout(() => {
             loadAppList(cluster, { page, size, name, sortOrder, sortBy })
-          }, LOAD_STATUS_TIMEOUT)
+          }, LOAD_STATUS_TIMEOUT)*/
         },
         isAsync: true
       }

@@ -100,6 +100,7 @@ let AutoDeployService = React.createClass({
       editingList: { match_tag: '' },
       value: 1,
       serviceList: [],
+      storageMounted: {},
       addDelpoyRow: false
     }
   },
@@ -240,21 +241,37 @@ let AutoDeployService = React.createClass({
       success: {
         func: (res) => {
           let provinceData = []
+          let storageMounted = {}
           if (res.data.length > 0) {
             res.data.forEach((item) => {
               if (item.services.length > 0) {
-                if (item.services[0].spec.template.spec.containers[0].image.indexOf(imageName) > 0) {
-                  provinceData.push({
-                    imagename: item.services[0].metadata.name,
-                    bindId: item.services[0].metadata.uid
+                item.services.forEach((service) => {
+                  if (service.spec.template.spec.volumes && service.spec.template.spec.volumes.length > 0) {
+                    service.spec.template.spec.volumes.forEach((vol) => {
+                      if (vol.rbd) {
+                        storageMounted[service.metadata.name] = true
+                      }
+                    })
+                  }
+                  service.spec.template.spec.containers.forEach((container) => {
+                    let substrs = container.image.split(imageName)
+                    //按imageName分隔
+                    if (substrs.length == 2 && substrs[0][substrs[0].length - 1] == '/' && (substrs[1].length == 0 || substrs[1][0] == ':') ) {
+                      // 如分隔成两部分且前一部分为‘仓库/’，后一部分为‘:tag’或无tag时
+                      provinceData.push({
+                        imagename: service.metadata.name,
+                        bindId: service.metadata.uid
+                      })
+                    }
                   })
-                }
+                })
               }
             })
           }
           // console.log(provinceData)
           self.setState({
             serviceList: provinceData,
+            storageMounted,
             deployment_id: provinceData.length > 0 ? provinceData[0].bindId : '',
             deployment_name: provinceData.length > 0 ? provinceData[0].imagename : ''
           })
@@ -291,8 +308,9 @@ let AutoDeployService = React.createClass({
       deployment_id: ids
     })
   },
-  addReule() {
+  addRule() {
     // @ push reule
+    let strategy = this.state.storageMounted[this.state.deployment_name] ? 1 : this.state.value
     const config = {
       flowId: this.props.flowId,
       image_name: this.state.image_name,
@@ -302,7 +320,7 @@ let AutoDeployService = React.createClass({
         deployment_name: this.state.deployment_name,
         deployment_id: this.state.deployment_id
       },
-      upgrade_strategy: this.state.value,
+      upgrade_strategy: strategy,
     }
     let notification = new NotificationHandler()
     if (!config.binding_service.cluster_id) {
@@ -495,6 +513,15 @@ let AutoDeployService = React.createClass({
 
     })
 
+    let isVolMounted = this.state.storageMounted[this.state.deployment_name]
+    let strategyGroup = (
+      <div className='updateType commonItem'>
+        <RadioGroup disabled={isVolMounted} onChange={(e) => this.setStateType('value', e)} value={this.state.value}>
+          <Radio key='a' value={1}><FormattedMessage {...menusText.normalUpdate} /></Radio>
+          <Radio key='b' value={2}><FormattedMessage {...menusText.imageUpdate} /></Radio>
+        </RadioGroup>
+      </div>
+    )
 
     return (
       <div id='AutoDeployService' key='AutoDeployService'>
@@ -574,14 +601,15 @@ let AutoDeployService = React.createClass({
                         <Option value="2">不匹配版本</Option>
                       </Select>
                     </div>
-                    <div className='updateType commonItem'>
-                      <RadioGroup onChange={(e) => this.setStateType('value', e)} value={this.state.value}>
-                        <Radio key='a' value={1}><FormattedMessage {...menusText.normalUpdate} /></Radio>
-                        <Radio key='b' value={2}><FormattedMessage {...menusText.imageUpdate} /></Radio>
-                      </RadioGroup>
-                    </div>
+                    {
+                      isVolMounted ? 
+                        [<Tooltip placement='top' title="挂载存储卷的服务不支持灰度升级">
+                           {strategyGroup}
+                         </Tooltip>] : 
+                        strategyGroup
+                    }
                     <div className='opera commonItem'>
-                      <Button className='cancelBtn' type='primary' onClick={() => self.addReule()}>
+                      <Button className='cancelBtn' type='primary' onClick={() => self.addRule()}>
                         添加
                     </Button>
                       <Button style={{ marginLeft: '10px' }} className='cancelBtn' type='ghost' onClick={() => self.cancelReule()}>

@@ -25,6 +25,7 @@ const paymentsController = require('../../controllers/_standard/payments')
 const wechatPayController = require('../../controllers/_standard/payments/wechat_pay')
 const alipayController = require('../../controllers/_standard/payments/alipay')
 const userPreferenceController = require('../../controllers/_standard/user_preference')
+const user3rdAccountCtl = require('../../controllers/_standard/user_3rd_account')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -62,6 +63,10 @@ module.exports = function (Router) {
   // Get user account info
   router.get('/myaccount', userInfoController.getMyAccountInfo)
   router.patch('/myaccount', userInfoController.changeUserInfo)
+
+  // 3rd account bind
+  router.patch('/users/bind', user3rdAccountCtl.bindAccount)
+  router.patch('/users/unbind', user3rdAccountCtl.unbindAccount)
 
   // Get qiniu upload token
   router.get('/store/token', userInfoController.upTokenToQiniu)

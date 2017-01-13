@@ -209,6 +209,7 @@ module.exports = function (Router) {
   // DevOps service: CI/CD
   router.get('/devops/stats', devopsController.getStats)
   // Repos
+  router.get('/devops/repos/supported', devopsController.getSupportedRepository)
   router.post('/devops/repos/:type', devopsController.registerRepo)
   router.get('/devops/repos/:type', devopsController.listRepository)
   router.put('/devops/repos/:type', devopsController.syncRepository)

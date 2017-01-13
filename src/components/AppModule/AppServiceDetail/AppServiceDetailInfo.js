@@ -58,10 +58,9 @@ export default class AppServiceDetailInfo extends Component {
                <div className="commonTitle">
                  {env.name}
                </div>
-               <div className="commonTitle">
+               <div className="commonValue">
                 {env.value}
-               </div> 
-              <div style={{ clear: 'both' }}></div>
+               </div>
             </div>
           )
         })
@@ -138,11 +137,10 @@ export default class AppServiceDetailInfo extends Component {
           <div className="titleBox">
             <div className="commonTitle">
               变量名
-          </div>
-            <div className="commonTitle">
+            </div>
+            <div className="commonValue">
               变量值
-          </div>
-            <div style={{ clear: 'both' }}></div>
+            </div>
           </div>
           {this.getEnvList(serviceDetail)}
         </div>

@@ -481,7 +481,7 @@ class CostRecord extends Component{
           }
         </Card>
         {
-          standard ? <div></div> : ((loginUser.info.role === 1 && currentTeamName)?
+          standard ? <div></div> : ((loginUser.info.role === 1 && currentNamespace !== '' && currentNamespace !== 'default')?
           <TeamCost currentSpaceName = {currentSpaceName} currentTeamName={currentTeamName} currentNamespace={currentNamespace} standard={standard}/>:
           <div></div>)
         }

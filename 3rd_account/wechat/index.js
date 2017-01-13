@@ -3,8 +3,8 @@
  * (C) Copyright 2017 TenxCloud. All Rights Reserved.
  */
 /**
- * Wechat login - Standard
- *
+ * Wechat API - Standard
+ * Document reference: http://mp.weixin.qq.com/wiki/home/index.html
  * v0.1 - 2017-01-10
  * @author Zhangpc
  */
@@ -14,6 +14,7 @@ const logger = require('../../utils/logger').getLogger('wechat')
 const indexConfig = require('../../configs/_standard')
 const oauth = require('../../tenx_api/v2/lib/oauth')
 const request = require('../request')('wechat')
+const DEFAULT_LANG = 'zh_CN'
 
 class Wechat {
   constructor(config) {
@@ -101,6 +102,9 @@ class Wechat {
    * @memberOf Wechat
    */
   getUserInfo(access_token, openid, lang) {
+    if (!lang) {
+      lang = DEFAULT_LANG
+    }
     const url = `${this.config.api_url}/cgi-bin/user/info`
     return request(url, {
       method: 'GET',

@@ -235,7 +235,7 @@ let AppDeployServiceModal = React.createClass({
         runningCode: '2'
       })
     }
- 
+
   },
   setForm() {
     const { scope } = this.props
@@ -322,12 +322,12 @@ let AppDeployServiceModal = React.createClass({
     let httpLiveInitialDelaySeconds = getFieldProps('httpLiveInitialDelaySeconds').value //首次延时
     let httpLiveTimeoutSeconds = getFieldProps('httpLiveTimeoutSeconds').value //检查超时
     let httpLivePeriodSeconds = getFieldProps('httpLivePeriodSeconds').value //检查间隔
-    let httpLivePath = getFieldProps('httpLivePath').value //高可用路径  
+    let httpLivePath = getFieldProps('httpLivePath').value //高可用路径
     let tcpLivePort = getFieldProps('tcpLivePort').value   //高可用端口
     let tcpLiveInitialDelaySeconds = getFieldProps('tcpLiveInitialDelaySeconds').value //首次延时
     let tcpLiveTimeoutSeconds = getFieldProps('tcpLiveTimeoutSeconds').value //检查超时
     let tcpLivePeriodSeconds = getFieldProps('tcpLivePeriodSeconds').value //检查间隔
-    
+
     let command = getFieldProps('entryInput').value // 入口命令
     let args = getFieldProps('args').value //启动命令参数
     //let config = getFileProps('config').value
@@ -588,7 +588,7 @@ let AppDeployServiceModal = React.createClass({
     }
     //livenessProbe 高可用
     if ((getFieldValue('getUsefulType') !== 'null') && (getFieldValue('getUsefulType'))) {
-      if(getFieldValue('getUsefulType') == 'http') {        
+      if(getFieldValue('getUsefulType') == 'http') {
         deploymentList.setLivenessProbe(serviceName, getFieldValue('getUsefulType').toUpperCase(), {
           port: parseInt(httpLivePort),
           path: httpLivePath,
@@ -801,7 +801,7 @@ function mapStateToProps(state, props) {
   if(props.other) {
     return {
       tagConfig: state.getImageTagConfig.otherTagConfig,
-      cluster
+      cluster,
     }
   }
   return {
@@ -811,7 +811,7 @@ function mapStateToProps(state, props) {
 }
 
 AppDeployServiceModal = connect(mapStateToProps, {
-  //
+
 })(AppDeployServiceModal)
 
 AppDeployServiceModal = createForm()(AppDeployServiceModal);

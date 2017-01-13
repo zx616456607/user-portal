@@ -303,7 +303,7 @@ class PrivateCompose extends Component {
           onCancel={() => this.detailModal(false)}
           maskClosable={false}
           >
-          <CreateCompose scope={scope} paretnState={this.state} loadMyStack={this.props.loadMyStack} updateStack={this.props.updateStack} createStack={this.props.createStack} registry={this.props.registry} />
+          <CreateCompose scope={scope} parentState={this.state} loadMyStack={this.props.loadMyStack} updateStack={this.props.updateStack} createStack={this.props.createStack} registry={this.props.registry} />
         </Modal>
       </QueueAnim>
     )
