@@ -28,7 +28,7 @@ build_user_portal_backend() {
   mkdir ${tmp}
   # copy files to tmp dir
   cp ${outputPath}/app.js ${tmp}/app.js
-  cp static/* ${tmp}/static
+  cp -rf static ${tmp}/
   cp index.html ${tmp}/index.html
   # rm all source files
   ls | grep -v ${tmp} | xargs rm -rf
