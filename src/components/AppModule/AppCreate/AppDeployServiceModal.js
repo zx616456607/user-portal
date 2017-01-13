@@ -168,7 +168,11 @@ let AppDeployServiceModal = React.createClass({
     }
     return callback()
   },
-  setArg(args, form) {
+  setArg() {
+    const { scope } = this.props
+    const { form } = this.props
+    if(this.props.scope.state.isCreate) return
+    const args = scope.state.checkInf.Deployment.spec.template.spec.containers[0].args
     if (args && args.length > 0) {
       form.setFieldsValue({
         args: args
@@ -181,22 +185,24 @@ let AppDeployServiceModal = React.createClass({
     const { getFieldValue, setFieldsValue, getFieldProps } = form
     const tag = config.configList.tag
     config = config.configList[tag]
-    const defaultArg = config.cmd
-    if(!args || args.length <= 0) return
+    let defaultArg = config.cmd
+    if(!args || args.length <= 0) {
+      this.setState({
+        runningCode: '1'
+      })
+      return
+    }
     const cmdKey = []
     const userCMDKey = []
     const self = this
     args.forEach((arg, index) => {
       userCMDKey.push(index + 1)
-      getFieldProps(`userCMD${index + 1}`, {
-        initialValue: arg,
-      })
+      setFieldsValue({[`userCMD${index + 1}`]: arg})
     })
+    if(!defaultArg) defaultArg = []
     defaultArg.forEach((arg, index) => {
       cmdKey.push(index + 1)
-      getFieldProps(`cmd${index + 1}`, {
-        initialValue: arg,
-      })
+      setFieldsValue({[`cmd${index + 1}`]: arg})
     })
     setFieldsValue({
       cmdKey: cmdKey,
@@ -243,7 +249,6 @@ let AppDeployServiceModal = React.createClass({
     const volumes = this.props.scope.state.checkInf.Deployment.spec.template.spec.volumes
     let imageVersion = scope.state.checkInf.Deployment.spec.template.spec.containers[0].image.split(':')[1]
     const entryInput = scope.state.checkInf.Deployment.spec.template.spec.containers[0].commands
-    const args = scope.state.checkInf.Deployment.spec.template.spec.containers[0].args
     form.setFieldsValue({
       name: scope.state.checkInf.Service.metadata.name,
       imageVersion: imageVersion,
@@ -276,10 +281,8 @@ let AppDeployServiceModal = React.createClass({
         entryInput: entryInput.join(' ')
       })
     }
-
     this.setEnv(env, form)
     this.setPorts(ports, ServicePorts, form, annotations)
-    this.setArg(args, form)
     this.setState({
       composeType: this.limits(),
     })
@@ -715,10 +718,11 @@ let AppDeployServiceModal = React.createClass({
             form={form}
             cluster={this.props.cluster}
             other={other}
+            setArg={()=> this.setArg()}
             />
           <Collapse>
             <Panel header={assitBoxTitle} key="1" className="assitBigBox">
-              <AssitDeployBox scope={scope} form={form}/>
+              <AssitDeployBox scope={scope} form={form} serviceOpen={this.props.serviceOpen}/>
             </Panel>
             <Panel header={usefulBoxitle} key="2" className="usefulBigBox">
               <UsefulDeployBox scope={scope} form={form} />

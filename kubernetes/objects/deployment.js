@@ -247,6 +247,8 @@ class Deployment {
       if (container.name !== containerName) {
         return
       }
+      if(!args) return
+      if(args.length == 1 && !args[0]) return
       if (!container.args) {
         container.args = []
       }
