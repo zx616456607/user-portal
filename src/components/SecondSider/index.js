@@ -20,6 +20,12 @@ function currentPathNameCheck(scope, menuList) {
   let pathname = window.location.pathname;
   let flag = true;
   //this check the pathname from the image_store
+  if (pathname.indexOf('/account/user/') > -1) { // for more membership infomation
+    scope.setState({
+      current: 'secondSider1'
+    })
+    return
+  }
   menuList.map((item, index) => {
     if(index != 0) {      
       let checkPath = pathname.indexOf(item.url)
