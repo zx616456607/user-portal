@@ -31,9 +31,9 @@ build_user_portal_backend() {
   cp -rf static ${tmp}/
   cp index.html ${tmp}/index.html
   # rm all source files
-  ls | grep -v ${tmp} | xargs rm -rf
+  ls | grep -v ${tmp} | grep -v node_modules | xargs rm -rf
   mv ${tmp}/* ./
-  rm ${tmp}
+  rm -rf ${tmp}
 
   set +x
 }
@@ -50,9 +50,9 @@ else
   echo "node_env: ${NODE_ENV}"
   echo "running_mode: ${MODE}"
   build_user_portal
-  # 只有在私有云，而且在执行脚本时传递 '--build=all' 参数
+  # 只有在私有云，而且在执行脚本时传递 '--clean=all' 参数
   # 才会构建后端代码，且在构建完成后会删除源文件
-  if [ "$1" = "--delete_src=all" ] && [ "${MODE}" = "enterprise" ]; then
+  if [ "$1" = "--clean=all" ] && [ "${MODE}" = "enterprise" ]; then
       echo "***********************************"
       echo "* will build backend              *"
       echo "* will delete all source files ...*"

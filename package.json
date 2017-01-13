@@ -20,7 +20,10 @@
     "win-pro": "set NODE_ENV=production&& set RUNNING_MODE=enterprise&& node app.js",
     "win-pro-std": "set NODE_ENV=production&& set RUNNING_MODE=standard&& node app.js",
     "docker-base-build": "docker build -t tenxcloud/user-portal:base-4.4.7 -f Dockerfile.base .",
-    "win-build-std-back": "set NODE_ENV=production&& set RUNNING_MODE=standard&& webpack --config webpack.config.backend.js",
+    "build-all": "export NODE_ENV=production&& export RUNNING_MODE=enterprise&& sh build.sh",
+    "build-all-clean": "export NODE_ENV=production&& export RUNNING_MODE=enterprise&& sh build.sh --clean=all",
+    "win-build-all": "set NODE_ENV=production&& set RUNNING_MODE=enterprise&& sh build.sh",
+    "win-build-all-clean": "set NODE_ENV=production&& set RUNNING_MODE=enterprise&& sh build.sh --clean=all",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
