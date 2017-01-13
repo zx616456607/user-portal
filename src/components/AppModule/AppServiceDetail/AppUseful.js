@@ -16,6 +16,7 @@ import merge from 'lodash/merge'
 import "./style/AppUseful.less"
 import { changeServiceAvailability } from '../../../actions/services'
 import NotificationHandler from '../../../common/notification_handler'
+import { isStorageUsed } from '../../../common/tools'
 
 const InputGroup = Input.Group;
 const Option = Select.Option;
@@ -33,12 +34,16 @@ class AppUseful extends Component {
       checkType: "null",
       editFlag: true,
       switchDisable: false,
+      haveRBDVolume: false,
       submitInfo: {}
     }
   }
   componentWillMount() {
     const service = this.props.service
     if (!service.spec) return
+    this.setState({
+        haveRBDVolume: isStorageUsed(service.spec.template.spec.volumes),
+    })
     this.setLivenessProbe(service)
   }
   componentWillReceiveProps(nextProps) {
@@ -51,10 +56,14 @@ class AppUseful extends Component {
         editFlag: true,
         switchDisable: false,
         submitInfo: {},
-        livenessProbe: {}
+        livenessProbe: {},
+        haveRBDVolume: false,
       })
       return
     }
+    this.setState({
+        haveRBDVolume: isStorageUsed(service.spec.template.spec.volumes),
+    })
     this.setLivenessProbe(nextProps.service, serviceDetailmodalShow)
   }
   setLivenessProbe(service, serviceDetailmodalShow) {
@@ -255,6 +264,7 @@ class AppUseful extends Component {
           <span>设置高可用</span>
           <Switch value={this.state.currentUseful} className="switch" defaultChecked={this.state.currentUseful} onChange={this.changeCheckType} disabled={this.state.switchDisable} />
           <span className="status">{this.state.currentUseful ? "已开启" : "已关闭"}</span>
+          <span className="tips">{this.state.haveRBDVolume ? "（因挂载存储卷，此修改不能平滑更新，服务将短暂不可用！）" : ""}</span>
         </div>
         <div className="settingBox">
           <span className="titleSpan">配置信息</span>
