@@ -134,7 +134,6 @@ class TenxFlowDetail extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { currentSpace } = nextProps;
-    console.log('nextprops', nextProps)
     if (nextProps.cdImageList) {
       this.setState({
         showImage:nextProps.cdImageList
