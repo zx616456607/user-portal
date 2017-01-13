@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/EnviroDeployBox.less"
 import { appEnvCheck } from '../../../../common/naming_validation'
+import { isDomain } from '../../../../common/tools'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -27,7 +28,7 @@ function currentShowInputType(form, type, index) {
   //this function for check different type
   const {getFieldValue, getFieldProps} = form;
   let value = getFieldProps(`portType${index}`).value;
-  if(value == type) {   
+  if(value == type) {
     return true;
   } else {
     return false;
@@ -38,7 +39,7 @@ function currentShowTcpInputType(form, index) {
   //this function for check tcp different type
   const {getFieldValue, getFieldProps} = form;
   let value = getFieldProps(`portTcpType${index}`).value;
-  if(value == 'special') {   
+  if(value == 'special') {
     return true;
   } else {
     return false;
@@ -59,7 +60,7 @@ let MyComponentEnviro = React.createClass({
     form.setFieldsValue({
       envKey,
     })
-    
+
   },
   add() {
     const { form } = this.props.parentScope.props;
@@ -224,7 +225,7 @@ let MyComponentPort = React.createClass({
             addDis: true,
           })
           return
-        } else {             
+        } else {
           callback();
           return;
         }
@@ -236,7 +237,7 @@ let MyComponentPort = React.createClass({
     let errorFlag = false;
     getFieldValue('portKey').map((k) => {
       if(value === getFieldProps(`portUrl${k}`).value && k != index ) {
-        errorFlag = true;       
+        errorFlag = true;
       }
     })
     if(errorFlag) {
@@ -247,18 +248,20 @@ let MyComponentPort = React.createClass({
       if( tempPort < 1024 || tempPort > 65535 ) {
         callback([new Error('指定端口号范围1024 ~ 65535')])
         return;
-      } else {       
+      } else {
         callback();
         return;
       }
     }
-    
+
   },
+
   render: function () {
     const scopeThis = this;
     const { form, parentScope } = this.props
     const { intDis ,addDis} = this.state
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
+    const { bindingDomains } = parentScope.props.cluster
     getFieldProps('portKey', {
       initialValue: [],
     })
@@ -287,7 +290,7 @@ let MyComponentPort = React.createClass({
                   optionFilterProp="children"
                   notFoundContent="无法找到"
                   className="portGroup" size="large">
-                  <Option value="HTTP">HTTP</Option>
+                  <Option value="HTTP" disabled={!isDomain(bindingDomains)}>HTTP</Option>
                   <Option value="TCP">TCP</Option>
                   {/*<Option value="udp">Udp</Option>*/}
                 </Select>
@@ -303,7 +306,7 @@ let MyComponentPort = React.createClass({
                         message: '请选择端口类型',
                       },],
                       initialValue: 'auto'
-                    })} 
+                    })}
                     className='tcpSelect'
                     size="large">
                     <Option value="auto">动态生成</Option>
