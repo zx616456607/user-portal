@@ -19,7 +19,34 @@ const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 let AssitDeployBox = React.createClass({
   getInitialState() {
-    return {}
+    return {
+      notV: true
+    }
+  },
+  componentWillReceiveProps(nextProps) {
+    const parentScope = nextProps.scope
+    if(parentScope.state.runningCode == '2') {
+      this.setState({
+        notV: false
+      })
+    } else {
+      this.setState({
+        notV: true
+      })
+    }
+    if(!nextProps.serviceOpen){
+      const { form } = nextProps
+      const { resetFields, getFieldValue } = form
+      const keys = getFieldValue('cmdKey')
+      const userCMDKey = getFieldValue('userCMDKey')
+      keys.forEach(key => {
+        resetFields([`cmd${key}`])
+      })
+      userCMDKey.forEach(key => {
+        resetFields([`userCMD${key}`])
+      })
+      resetFields(['cmdKey', 'userCMDKey'])
+    }
   },
   changeRunningCode(e) {
     //the function for change user select image default code or set it by himself
@@ -83,10 +110,6 @@ let AssitDeployBox = React.createClass({
       return (<FormItem className="runningCodeForm" style={{paddingLeft:'120px'}} key={cmd} sdfsad="sadfasdf">
           <Input style={{display: runningCode == "1"? 'block' : 'none'}}
           {...getFieldProps("cmd" + cmd, {
-           rules: [
-          { whitespace: true, require: true },
-          { validator: self.validCMD}
-          ]
           })}
           className="entryInput " size="large"
           disabled={true} />

@@ -441,11 +441,13 @@ function setEnv(defaultEnv, form) {
   }
 }
 function loadImageTagConfigs(tag, props) {
-  const { currentSelectedImage, loadImageDetailTagConfig, scope, isCreate, loadOtherDetailTagConfig} = props
+  console.log("sdfsdfa")
+  const { currentSelectedImage, loadImageDetailTagConfig, scope, isCreate, loadOtherDetailTagConfig, setArg} = props
   if (typeof tag === 'object') {
     loadOtherDetailTagConfig(tag, {
       success: {
         func: (result) => {
+          setArg()
           if (!isCreate) {
             return
           }
@@ -462,6 +464,7 @@ function loadImageTagConfigs(tag, props) {
     loadImageDetailTagConfig(DEFAULT_REGISTRY, currentSelectedImage, tag, {
       success: {
         func: (result) => {
+          setArg()
           if (!isCreate) {
             return
           }
