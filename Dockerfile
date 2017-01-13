@@ -8,7 +8,7 @@ ADD . /usr/src/app/
 
 # package files
 RUN chmod +x /usr/src/app/build.sh
-RUN /usr/src/app/build.sh
+RUN /usr/src/app/build.sh --build=all
 RUN rm -rf /usr/src/app/src
 
 EXPOSE 8003

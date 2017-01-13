@@ -2,11 +2,7 @@
 set -e
 # build document
 
-# MODEL=enterprise
-
-# gen_model_config() {
-#   echo -e "\nmodule.exports = require('./model.$MODEL')" >> "configs/model.js"
-# }
+MODE=${RUNNING_MODE}
 
 build_user_portal() {
   set -x
@@ -21,23 +17,23 @@ build_user_portal() {
   cp ${outputPath}/en.*.js ${outputPath}/en.js
   rm -f ${outputPath}/en.*.js
 
-  # rm -f static/js/common.*
-  # rm -f static/js/main.*
-  # rm -f static/js/chunk.*
-  # rm -f static/locales/frontend/*.js
-  # rm -f static/style/main.*
+  set +x
+}
 
-  # rm -rf static/static/bundles/*
-
-  # cp dist/common.* static/bundles/
-  # cp dist/main.* static/bundles/
-  # cp dist/chunk.* static/bundles/
-  # # Rename files for intl
-  # cp dist/zh.*.js static/bundles/zh.js
-  # cp dist/en.*.js static/bundles/en.js
-  # cp dist/index.* static/bundles/
-  # cp dist/src/index.html index.html
-  # cp dist/img/* static/bundles/img/
+build_user_portal_backend() {
+  set -x
+  outputPath="dist"
+  tmp="user_portal_tmp"
+  node_modules/.bin/webpack --config webpack.config.backend.js
+  mkdir ${tmp}
+  # copy files to tmp dir
+  cp ${outputPath}/app.js ${tmp}/app.js
+  cp static/* ${tmp}/static
+  cp index.html ${tmp}/index.html
+  # rm all source files
+  ls | grep -v ${tmp} | xargs rm -rf
+  mv ${tmp}/* ./
+  rm ${tmp}
 
   set +x
 }
@@ -50,14 +46,18 @@ sh build.sh
 EOF
 #注意： Windows下也可使用（需要安装git）
 else
-  # if [ "$1" = "--model=SE" ]; then
-  #   echo "build in SE model"
-  #   MODEL=standard
-  # fi
   echo "start build ${project}"
   echo "node_env: ${NODE_ENV}"
-  echo "running_mode: ${RUNNING_MODE}"
-  # gen_model_config
+  echo "running_mode: ${MODE}"
   build_user_portal
+  # 只有在私有云，而且在执行脚本时传递 '--build=all' 参数
+  # 才会构建后端代码，且在构建完成后会删除源文件
+  if [ "$1" = "--delete_src=all" ] && [ "${MODE}" = "enterprise" ]; then
+      echo "***********************************"
+      echo "* will build backend              *"
+      echo "* will delete all source files ...*"
+      echo "***********************************"
+      build_user_portal_backend
+  fi
   echo "build ${project} success"
 fi

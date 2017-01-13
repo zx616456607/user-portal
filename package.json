@@ -20,7 +20,7 @@
     "win-pro": "set NODE_ENV=production&& set RUNNING_MODE=enterprise&& node app.js",
     "win-pro-std": "set NODE_ENV=production&& set RUNNING_MODE=standard&& node app.js",
     "docker-base-build": "docker build -t tenxcloud/user-portal:base-4.4.7 -f Dockerfile.base .",
-    "docker-build": "docker build -t tenxcloud/user-portal:dev-branch .",
+    "win-build-std-back": "set NODE_ENV=production&& set RUNNING_MODE=standard&& webpack --config webpack.config.backend.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -91,6 +91,7 @@
     "babel-preset-es2015": "^6.14.0",
     "babel-preset-react": "^6.11.1",
     "babel-preset-react-hmre": "^1.1.1",
+    "babel-preset-stage-0": "^6.16.0",
     "babel-preset-stage-2": "^6.13.0",
     "classnames": "^2.2.5",
     "codemirror": "^5.21.0",
