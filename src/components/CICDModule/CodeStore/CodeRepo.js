@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/CodeRepo.less'
-import { getRepoList, addCodeRepo, notActiveProject, deleteRepo, registryRepo, syncRepoList, searchCodeRepo, getUserInfo } from '../../../actions/cicd_flow'
+import { getRepoType, getRepoList, addCodeRepo, notActiveProject, deleteRepo, registryRepo, syncRepoList, searchCodeRepo, getUserInfo } from '../../../actions/cicd_flow'
 import GithubComponent from './GithubComponent'
 import SvnComponent from './SvnComponent'
 import NotificationHandler from '../../../common/notification_handler'
@@ -93,6 +93,27 @@ const MyComponent = React.createClass({
       regUrl: '',
       regToken: ''
     }
+  },
+  componentWillMount() {
+    const {getRepoList, getUserInfo} = this.props.scope.props
+    const self = this.props.scope
+    getRepoList('gitlab', {
+      success: {
+        func: (res) => {
+          if (res.data.total > 0) {
+            let loadingList = {}
+            self.props.getUserInfo('gitlab')
+            for (let i = 0; i < res.data.results.length; i++) {
+              loadingList[i] = false
+            }
+            self.setState({
+              loadingList
+            })
+          }
+        },
+        isAsync: true
+      }
+    })
   },
   copyItemKey() {
     const scope = this;
@@ -230,6 +251,12 @@ const MyComponent = React.createClass({
     })
   },
   showGtilabModal() {
+    const parentScope = this.props.scope
+    const typeList = parentScope.state.typeList
+    if (!typeList.includes('gitlab')) {
+      parentScope.setState({typeVisible: true})
+      return
+    }
     this.setState({ authorizeModal: true })
     setTimeout(function(){
       document.getElementById('codeSrc').focus()
@@ -243,7 +270,6 @@ const MyComponent = React.createClass({
   },
   closeAddGitlabModal() {
     //this function for close modal and set from to null
-    console.log('aaaaa')
     this.setState({
       authorizeModal: false,
       regUrl: '',
@@ -271,7 +297,7 @@ const MyComponent = React.createClass({
               <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={() => this.registryRepo()}>确定</Button>,
             ]}
             >
-            <div style={{ padding: "0 20px" }}>
+            <div>
               <p style={{ lineHeight: '30px' }}>仓库地址：
                 <Input placeholder="http://*** | https://***" id="codeSrc" onChange={this.changeUrl} value={this.state.regUrl} size="large" />
               </p>
@@ -329,7 +355,6 @@ const MyComponent = React.createClass({
 class CodeRepo extends Component {
   constructor(props) {
     super(props);
-    this.loadData = this.loadData.bind(this)
     const type = location.search ? location.search.split('?')[1] : 'github'
     if (type) {
       this.state = {
@@ -337,16 +362,29 @@ class CodeRepo extends Component {
       }
     }
   }
-
-  loadData() {
+  componentWillMount () {
+    document.title = '关联代码库 | 时速云';
+    const _this = this
+    const {getRepoList, getUserInfo} = this.props
+    this.props.getRepoType({
+      success: {
+        func: (res) => {
+          _this.setState({typeList: res.data})
+        //  this.loadData(res.data[0])
+        },
+        isAsync: true
+      }
+    })
+  }
+  loadData(repo) {
     const {getRepoList, getUserInfo} = this.props
     const self = this
-    getRepoList('gitlab', {
+    getRepoList(repo, {
       success: {
         func: (res) => {
           if (res.data.total > 0) {
             let loadingList = {}
-            self.props.getUserInfo('gitlab')
+            self.props.getUserInfo(repo)
             for (let i = 0; i < res.data.results.length; i++) {
               loadingList[i] = false
             }
@@ -360,18 +398,21 @@ class CodeRepo extends Component {
     })
   }
 
-  componentDidMount() {
-    document.title = '关联代码库 | 时速云';
-    const { getRepoList } = this.props
-    const self = this
-    this.loadData()
-  }
-
   componentWillReceiveProps(nextProps) {
     const { currentSpace } = nextProps;
     if (currentSpace && this.props.currentSpace && currentSpace != this.props.currentSpace) {
-      this.loadData()
+      // this.loadData()
       return
+    }
+  }
+  formetRepoType(type) {
+    switch(type) {
+      case 'github':
+        return 'GitHub'
+      case 'gitlab':
+        return 'GitLab'
+      default:
+        return 'SVN'
     }
   }
 
@@ -415,17 +456,22 @@ class CodeRepo extends Component {
             </Link>
             <p className="topText"><FormattedMessage {...menusText.creageCodeStore} /></p>
           </div>
-          <div>
-            <div className="card-container">
-              <p style={{ paddingLeft: '36px', lineHeight: '40px' }}>选择代码源</p>
-              <Tabs type="card" onChange={(e) => { this.setState({ repokey: e }) } } activeKey={this.state.repokey}>
-                <TabPane tab={githubBud} key="github"><GithubComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
-                <TabPane tab={gitlabBud} key="gitlab"><MyComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser} config={this.props.repoList} /></TabPane>
-                <TabPane tab={svnBud} key="svn"><SvnComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
+          <div className="card-container">
+            <p style={{ paddingLeft: '36px', lineHeight: '40px' }}>选择代码源</p>
+            <Tabs type="card" onChange={(e) => this.setState({ repokey: e }) } activeKey={this.state.repokey}>
+              <TabPane tab={githubBud} key="github"><GithubComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
+              <TabPane tab={gitlabBud} key="gitlab"><MyComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser} config={this.props.repoList} /></TabPane>
+              <TabPane tab={svnBud} key="svn"><SvnComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
 
-              </Tabs>
-            </div>
+            </Tabs>
           </div>
+          <Modal title={'选择代码源'} visible={this.state.typeVisible}
+            onCancel={()=> this.setState({typeVisible: false}) }
+            footer={[<Button type="primary" size="large" onClick={()=> this.setState({typeVisible: false})}>确定</Button>]} >
+            <p style={{color:'#00a0ea'}}>
+              <i className="anticon anticon-question-circle-o" style={{marginRight: '5px'}}></i>还没有正确配置 {this.formetRepoType(this.state.repokey)}，更正后可以正常使用集成功能！
+            </p>
+          </Modal>
 
         </div>
       </QueueAnim>
@@ -461,6 +507,7 @@ CodeRepo.propTypes = {
 }
 
 export default connect(mapStateToProps, {
+  getRepoType,
   getRepoList,
   addCodeRepo,
   deleteRepo,

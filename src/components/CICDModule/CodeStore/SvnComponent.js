@@ -71,6 +71,12 @@ let SvnComponent = React.createClass({
     }
   },
   setModalStaus(status) {
+    const parentScope = this.props.scope
+    const typeList = parentScope.state.typeList
+    if (!typeList.includes('svn')) {
+      parentScope.setState({typeVisible: true})
+      return
+    }
     const scope = this.props.form
     setTimeout(function() {
       document.getElementById('name').focus()
@@ -155,7 +161,7 @@ let SvnComponent = React.createClass({
     const { config, scope, formatMessage } = this.props
     const { getFieldProps, getFieldValue } = this.props.form;
     const formItemLayout = {
-      labelCol: { span: 6 }, wrapperCol: { span: 14 }
+      labelCol: { span: 3 }, wrapperCol: { span: 18 }
     };
     const forName = getFieldProps('name', {
       rules: [
@@ -180,9 +186,10 @@ let SvnComponent = React.createClass({
         <Button type="primary" size="large" onClick={() => this.setModalStaus(true)}>添加 SVN 代码仓库</Button>
         <Modal title="添加 SVN 代码源" wrapClassName="svnModal" visible={this.state.authorizeModal}
           onCancel={() => this.setModalStaus(false)} maskClosable={false}
-          footer={null}
+          footer={[<Button type="ghost" size="large" onClick={()=>this.setState({authorizeModal: false})}>取消</Button>,
+          <Button type="primary" size="large" htmlType="submit" loading={this.state.submiting} style={{marginLeft:'8px'}}>确定</Button>]}
           >
-          <div style={{ padding: "25px 0" }}>
+          <div style={{ paddingTop: "20px" }}>
             <Form horizontal onSubmit={this.handleSubmit}>
               <FormItem  {...formItemLayout} hasFeedback label="名称 ：">
                 <Input placeholder="输入名称" id="name" size="large" {...forName} />
@@ -208,10 +215,7 @@ let SvnComponent = React.createClass({
                 </QueueAnim>]
                 : null
               }
-              <FormItem wrapperCol={{ span: 16, offset: 6 }} style={{ marginTop: 24 }}>
-                <Button type="ghost" onClick={()=>this.setState({authorizeModal: false})}>取消</Button>
-                <Button type="primary" htmlType="submit" loading={this.state.submiting} style={{marginLeft:'8px'}}>确定</Button>
-              </FormItem>
+
             </Form>
 
           </div>
