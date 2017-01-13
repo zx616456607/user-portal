@@ -194,25 +194,18 @@ class Integration extends Component {
               <div style={{ clear:'both' }}></div>
             </div>
             <div className='rightBox'>
-              <Button className='installedBtn' key={'installedBtn' + index} size='large' type={standardFlag ? 'primary':'ghost'} disabled={standardFlag}
-                style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
-                <span>{ standardFlag ? [<span>敬请期待</span>] : [<FormattedMessage {...menusText.showAppDetail} />] }</span>
-              </Button>
               {
-                item.status == 'running' ? [
-                  <Button className='runningBtn' key={'runningBtn' + index} size='large' type='primary'>
-                    <i className='fa fa-cog fa-spin'></i>&nbsp;
-                    <FormattedMessage {...menusText.running} />
+                standardFlag ? [  
+                  <Button className='installedBtn' key={'installedBtn' + index} size='large' type={standardFlag ? 'primary':'ghost'} disabled={standardFlag}
+                    style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
+                    <span><span>敬请期待</span></span>
                   </Button>
-                ] : null
-              }
-              {
-                (item.status == 'unintsall' && !standardFlag) ? [
-                  <Button className='unintsallBtn' key={'unintsallBtn' + index} size='large' type='primary'
-                    style={{ width: '102px' }}>
-                    <FormattedMessage {...menusText.uninstall} />
+                ] : [  
+                  <Button className='installedBtn' key={'installedBtn' + index} size='large' type={standardFlag ? 'primary':'ghost'} disabled={standardFlag}
+                    style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
+                    <span><FormattedMessage {...menusText.showAppDetail} /></span>
                   </Button>
-                ] : null
+                ]
               }
             </div>
             <div style={{ clear:'both' }}></div>
@@ -310,7 +303,7 @@ class Integration extends Component {
                               <div className='rightBox'>
                                 <Button className='unintsallBtn' key='unintsallBtn' size='large' type='primary'
                                   style={{ width: '102px' }} onClick={this.openCreateIntegration.bind(this)} disabled={standardFlag}>
-                                  <span>{ standardFlag ? [<span>敬请期待</span>] : [<FormattedMessage {...menusText.showAppDetail} />] }</span>
+                                  <span>{ standardFlag ? [<span>敬请期待</span>] : [<FormattedMessage {...menusText.uninstall} />] }</span>
                                 </Button>
                               </div>
                               <div style={{ clear:'both' }}></div>

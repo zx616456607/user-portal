@@ -37,7 +37,7 @@
       white-space: nowrap;
     }
     .opera {
-      // width: 25%;
+      width: calc(~"28% - 40px");
     }
     .titleBox {
       height: 40px;
@@ -88,6 +88,9 @@
     }
     .blod {
       font-size: 22px;
+      @media (max-width: 1300px) {
+        font-size: 21px;
+      }
     }
     .price-unit {
       position: relative;
@@ -97,7 +100,9 @@
       border-left: 1px dashed #7DCFF5;
     }
     .monthUnit {
-      @media (max-width: 1500px) {        
+      margin-left: 10px;
+      @media (max-width: 1500px) {
+        margin-left: 0px;        
         position: absolute;
         left: 70px;
         bottom: 5px;
