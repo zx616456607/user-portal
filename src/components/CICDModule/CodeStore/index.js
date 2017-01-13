@@ -246,7 +246,7 @@ const MyComponent = React.createClass({
             <Button key="back" type="ghost" size="large" onClick={() => { this.setState({ showModal: false }) } }>关闭</Button>,
           ]}
           >
-          <div style={{ padding: "0 20px" }}>
+          <div>
             <p style={{ lineHeight: '40px' }}>* 将该URL填入到 {this.state.repoType ? this.state.repoType.replace('l', 'L').replace('h', 'H').replace('g', 'G') : ''}项目的Web Hooks URL中</p>
             <div style={{ padding: '10px', border: '1px solid #d9d9d9', wordWrap: 'break-word' }} className="valueBox">{this.state.webhookUrl}</div>
             <p style={{ opacity: '0', position: 'absolute' }}><Input type="textarea" className="CodeCopy" autosize={{ minRows: 2, maxRows: 6 }} value={this.state.webhookUrl} /></p>
@@ -263,7 +263,7 @@ const MyComponent = React.createClass({
             <Button key="back" type="ghost" size="large" onClick={() => { this.setState({ keyModal: false }) } }>关闭</Button>,
           ]}
           >
-          <div style={{ padding: "0 20px" }}>
+          <div>
             <p style={{ lineHeight: '30px' }}>检测到关联的代码托管系统：</p>
             <p style={{ lineHeight: '40px' }}><span style={{ color: '#00A0EA' }} className="name">仓库: {this.state.itemName} </span>  <span style={{ color: '#00A0EA', marginLeft: '20px' }} className="type">属性：{this.state.itemType == 1 ? "私有" : "公有"}</span> </p>
 
