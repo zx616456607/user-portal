@@ -441,7 +441,6 @@ function setEnv(defaultEnv, form) {
   }
 }
 function loadImageTagConfigs(tag, props) {
-  console.log("sdfsdfa")
   const { currentSelectedImage, loadImageDetailTagConfig, scope, isCreate, loadOtherDetailTagConfig, setArg} = props
   if (typeof tag === 'object') {
     loadOtherDetailTagConfig(tag, {
