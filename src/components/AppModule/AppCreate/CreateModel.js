@@ -228,45 +228,46 @@ class CreateModel extends Component {
                 <i className="fa fa-check"></i>
               </div>
               <div style={{ clear: "both" }}></div>
-              <div className="envirBox">
-                <Form>
-                  <FormItem hasFeedback key="space" style={{minWidth:'220px'}}>
-                    <span>部署环境</span>
-                    <Select size="large"
-                      placeholder="请选择空间"
-                      style={{ width: 150 }}
-                      {...spaceFormCheck}>
-                      <Option value="default">我的空间</Option>
-                      {
-                        teamspaces.map(space => {
-                          return (
-                            <Option key={space.namespace} value={space.namespace}>
-                              {space.spaceName}
-                            </Option>
-                          )
-                        })
-                      }
-                    </Select>
-                  </FormItem>
-                  <FormItem hasFeedback key="cluster">
-                    <Select size="large"
-                      placeholder="请选择集群"
-                      style={{ width: 150 }}
-                      {...clusterFormCheck}>
-                      {
-                        teamClusters.map(cluster => {
-                          return (
-                            <Option key={cluster.clusterID} value={cluster.clusterID}>
-                              {cluster.clusterName}
-                            </Option>
-                          )
-                        })
-                      }
-                    </Select>
-                  </FormItem>
-                </Form>
-              </div>
+              
             </div>
+          </div>
+          <div className="envirBox">
+            <Form>
+              <FormItem hasFeedback key="space" style={{ minWidth: '220px' }}>
+                <span>部署环境</span>
+                <Select size="large"
+                  placeholder="请选择空间"
+                  style={{ width: 150 }}
+                  {...spaceFormCheck}>
+                  <Option value="default">我的空间</Option>
+                  {
+                    teamspaces.map(space => {
+                      return (
+                        <Option key={space.namespace} value={space.namespace}>
+                          {space.spaceName}
+                        </Option>
+                      )
+                    })
+                  }
+                </Select>
+              </FormItem>
+              <FormItem hasFeedback key="cluster">
+                <Select size="large"
+                  placeholder="请选择集群"
+                  style={{ width: 150 }}
+                  {...clusterFormCheck}>
+                  {
+                    teamClusters.map(cluster => {
+                      return (
+                        <Option key={cluster.clusterID} value={cluster.clusterID}>
+                          {cluster.clusterName}
+                        </Option>
+                      )
+                    })
+                  }
+                </Select>
+              </FormItem>
+            </Form>
           </div>
           <div className="bottomBox">
             <Link to="/app_manage">

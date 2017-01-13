@@ -14,6 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getProjectList, getCodeStoreBranchDetail } from '../../../../../actions/cicd_flow'
+import NotificationHandler from '../../../../../common/notification_handler'
 import './style/CodeStoreListModal.less'
 
 const Option = Select.Option;
@@ -99,6 +100,16 @@ let CodeStoreListModal = React.createClass({
             projectList: tempList,
             errorSelect: null
           });
+        }
+      },
+      failed: {
+        func: (err) => {
+          let notif = new NotificationHandler
+          if (err.statusCode == 401) {
+            notif.error('查询失败', '没有权限访问该镜像版本', 5)
+            return
+          }
+           notif.error('查询失败', '没有权限或者镜像不存在', 5)
         }
       }
     })
