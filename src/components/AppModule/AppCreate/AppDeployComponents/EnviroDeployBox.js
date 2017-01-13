@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/EnviroDeployBox.less"
 import { appEnvCheck } from '../../../../common/naming_validation'
+import { isDomain } from '../../../../common/tools'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -289,7 +290,7 @@ let MyComponentPort = React.createClass({
                   optionFilterProp="children"
                   notFoundContent="无法找到"
                   className="portGroup" size="large">
-                  <Option value="HTTP" disabled={bindingDomains === ''}>HTTP</Option>
+                  <Option value="HTTP" disabled={!isDomain(bindingDomains)}>HTTP</Option>
                   <Option value="TCP">TCP</Option>
                   {/*<Option value="udp">Udp</Option>*/}
                 </Select>
