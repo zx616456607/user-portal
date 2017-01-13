@@ -230,6 +230,12 @@ class GithubComponent extends Component {
           notification.close()
           window.location.href = res.data.results.url
         }
+      },
+      failed: {
+        func: (res) => {
+          notification.close()
+          notification.error('授权失败', res.message)
+        }
       }
     })
   }
