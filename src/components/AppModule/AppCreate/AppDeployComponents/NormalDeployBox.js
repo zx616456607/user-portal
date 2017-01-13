@@ -12,7 +12,7 @@ import { Form, Select, Input, InputNumber, Modal, Tooltip, Checkbox, Button, Car
 import { connect } from 'react-redux'
 import filter from 'lodash/filter'
 import { DEFAULT_REGISTRY, ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
-import { appNameCheck, validateK8sResource } from '../../../../common/naming_validation'
+import { appNameCheck, validateK8sResourceForServiceName } from '../../../../common/naming_validation'
 import { loadImageDetailTag, loadImageDetailTagConfig, getOtherImageTag, loadOtherDetailTagConfig } from '../../../../actions/app_center'
 import { checkServiceName } from '../../../../actions/app_manage'
 import { loadFreeVolume, createStorage } from '../../../../actions/storage'
@@ -516,8 +516,8 @@ let NormalDeployBox = React.createClass({
     const { servicesList } = this.props.scope.props.scope.state
     let i = 0
     let checkMsg = 'success'
-    if (!validateK8sResource(value)) {
-      checkMsg = '可由3~63位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾'
+    if (!validateK8sResourceForServiceName(value)) {
+      checkMsg = '可由3~24位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾'
     }
     if(checkMsg == 'success') {
       let existFlag = false;
