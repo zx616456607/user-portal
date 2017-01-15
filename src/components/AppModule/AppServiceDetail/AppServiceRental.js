@@ -90,7 +90,7 @@ class AppServiceRental extends Component {
     })
 
     return (
-      <Card id="AppServiceDetailInfo">
+      <div id="AppServiceDetailInfo" className="ant-card AppServiceRental">
         <div className="info">
           <span className="titleSpan">租赁信息</span>
           {/*<div className="starts">
@@ -99,7 +99,7 @@ class AppServiceRental extends Component {
 
           </div>
           */}
-          <div className="dataBox" style={{padding:'0 25px'}}>
+          <div className="dataBox">
             <div className="priceCount">合计价格：
               <span className="unit">{ countPrice.unit == '￥' ? '￥': '' }</span>
               <span className="unit blod">{ hourPrice } { countPrice.unit == '￥' ? '': 'T' }/小时</span>
@@ -120,8 +120,7 @@ class AppServiceRental extends Component {
             </table>
           </div>
         </div>
-
-      </Card>
+      </div>
     )
   }
 }
