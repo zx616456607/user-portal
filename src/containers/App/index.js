@@ -303,7 +303,11 @@ class App extends Component {
           ]}
           >
           <div style={{ textAlign: 'center' }}>
-            <p><img src="/img/lost.svg" /></p>
+            <p>
+              <svg>
+                <use xlinkHref='#lost' />
+              </svg>
+            </p>
             <p>您的登录状态已失效，请登录后继续当前操作</p>
           </div>
         </Modal>

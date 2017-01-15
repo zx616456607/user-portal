@@ -12,6 +12,7 @@ import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, 
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
+import $ from 'jquery'
 import "./style/EnviroDeployBox.less"
 import { appEnvCheck } from '../../../../common/naming_validation'
 import { isDomain } from '../../../../common/tools'
@@ -255,7 +256,14 @@ let MyComponentPort = React.createClass({
     }
 
   },
-
+  changePortType(index, e) {
+    //this function for change tcp port type and auto focus input
+    if(e == 'special') {
+      setTimeout(() => {      
+        $('#portUrl'+index).focus();
+      })
+    }
+  },
   render: function () {
     const scopeThis = this;
     const { form, parentScope } = this.props
@@ -305,14 +313,15 @@ let MyComponentPort = React.createClass({
                       rules: [{
                         message: '请选择端口类型',
                       },],
-                      initialValue: 'auto'
-                    })}
+                      initialValue: 'auto',
+                      onChange: this.changePortType.bind(scopeThis, k)
+                    })} 
                     className='tcpSelect'
                     size="large">
                     <Option value="auto">动态生成</Option>
                     <Option value="special">指定端口</Option>
                   </Select>
-                  { currentShowTcpInputType(form, k) ? [<FormItem className='tcpInputForm' key={`portUrl${k}`}><Input {...getFieldProps(`portUrl${k}`, {rules: [{validator: this.podPortExist.bind(scopeThis, k)}]}) } style={{ width: '100px' }} type="text" size="large" /></FormItem>] : null}
+                  { currentShowTcpInputType(form, k) ? [<FormItem className={`tcpInputForm tcpInputForm${k}`} key={`portUrl${k}`}><Input {...getFieldProps(`portUrl${k}`, {rules: [{validator: this.podPortExist.bind(scopeThis, k)}]}) } style={{ width: '100px' }} type="text" size="large" /></FormItem>] : null}
                 </div>
                 ] : null }
               </div>
@@ -379,7 +388,7 @@ let EnviroDeployBox = React.createClass({
                 <div className="mapping portCommonTitle">
                   <span>映射主机端口</span>
                 </div>
-                <div className="portCommonTitle">
+                <div className="opera portCommonTitle">
                   <span>操作</span>
                 </div>
                 <div style={{ clear: "both" }}></div>

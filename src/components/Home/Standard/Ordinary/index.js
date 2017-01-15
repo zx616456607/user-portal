@@ -600,17 +600,27 @@ class Ordinary extends Component{
                   <div className='userCost'>
                     <div>
                       <i style={{backgroundColor:'#46b2fa'}}></i>
-                      {this.state.isTeam ? '团队余额' : '我的余额'}&nbsp;:&nbsp;
+                      {this.state.isTeam ? '团队余额' : '我的余额'}：
                     </div>
-                    <span className='costNum'>¥ {parseAmount(clusterNodeSpaceConsumption.balance).amount}</span>
+                    <span className='costNum'>
+                      <Tooltip title={'¥ ' + parseAmount(clusterNodeSpaceConsumption.balance).amount}>
+                        <span>¥ {parseAmount(clusterNodeSpaceConsumption.balance).amount}</span>
+                      </Tooltip>
+                    </span>
                     <Link to='/account/balance/payment'><Button type='primary'>去充值</Button></Link>
                   </div>
                   <div className='userCost'>
                     <div>
                       <i style={{backgroundColor: '#28bd83'}}></i>
-                      今日消费&nbsp;:&nbsp;
+                      今日消费：
                     </div>
-                    <span className='costNum'>¥ {parseAmount(clusterNodeSpaceConsumption.consumption).amount}&nbsp; <Tooltip title="全区域"><Icon type="question-circle-o" /></Tooltip></span>
+                    <span className='costNum'>
+                      <Tooltip title={'¥ ' + parseAmount(clusterNodeSpaceConsumption.consumption).amount}>
+                        <span>¥ {parseAmount(clusterNodeSpaceConsumption.consumption).amount}</span>
+                      </Tooltip>
+                      &nbsp;
+                      <Tooltip title="全区域"><Icon type="question-circle-o" /></Tooltip>
+                    </span>
                     <Link to='/account/cost'><Button type='primary'>去查看</Button></Link>
                   </div>
                 </div>
@@ -681,7 +691,9 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <img className="stateImg" style={{width:'18px'}} src="/img/sider/engine.svg" />
+                      <svg className="stateSvg">
+                        <use xlinkHref="#engine" />
+                      </svg>
                       Monitor
                     </td>
                     <td>

@@ -28,7 +28,9 @@ export default class Top extends Component {
           <div className='topWrap'>
             <div className='topLogo'>
               <a href='/'>
-                <img src="/img/TopLogo.svg" alt="logo" className="logo" />
+                <svg>
+                  <use xlinkHref='#toplogo' />
+                </svg>
               </a>
             </div>
             <div className='topNav'>
@@ -63,7 +65,9 @@ export default class Top extends Component {
           <div className='topWrap'>
             <div className='topLogo'>
               <a href='/'>
-                <img src="/img/TopLogo.svg" alt="logo" className="logo" />
+                <svg>
+                  <use xlinkHref='#toplogo' />
+                </svg>
               </a>
             </div>
             <div className='topNav'>

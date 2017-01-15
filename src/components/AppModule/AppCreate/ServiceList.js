@@ -104,7 +104,7 @@ class MyComponent extends Component {
         <div key={item.id} className={this.checkedFunc(item.id) ? "selectedService serviceDetail" : "serviceDetail"}>
           <div className="selectIconTitle commonData">
             &nbsp;
-            {/*<Checkbox checked={this.checkedFunc(item.id)} onChange={() => this.onchange(item.id)} />*/}
+            <Checkbox checked={this.checkedFunc(item.id)} onChange={() => this.onchange(item.id)} />
           </div>
           <div className="name commonData">
             <span className="viewSpan" onClick={this.modalShow.bind(this, item)}>
@@ -165,6 +165,12 @@ class ServiceList extends Component {
   }
 
   componentWillMount() {
+    let forCacheServiceList = localStorage.getItem('forCacheServiceList');
+    if(!forCacheServiceList) {      
+      localStorage.removeItem('servicesList')
+      localStorage.removeItem('selectedList')
+      localStorage.setItem('forCacheServiceList', false)
+    }
     const serviceList = JSON.parse(localStorage.getItem('servicesList'))
     if (serviceList) {
       this.setState({
@@ -241,17 +247,20 @@ class ServiceList extends Component {
       this.setState({ visible });
       return;
     }
-    if (this.state.servicesList.length >0 && this.state.selectedList.length ==0) {
+    if (this.state.servicesList.length <= 0) {
       Modal.warning({
         title: '选择服务',
         content: '请选择至少一个服务才能创建',
       });
       return
     }
-    if (this.state.servicesList.length >0) {
+    if (this.state.servicesList.length > 0) {
      // 直接执行下一步
       localStorage.setItem('servicesList', JSON.stringify(this.state.servicesList))
-      localStorage.setItem('selectedList', JSON.stringify(this.state.selectedList))
+      let tempList = this.state.servicesList.map((service) => {
+        return service.id;
+      })
+      localStorage.setItem('selectedList', JSON.stringify(tempList))
       browserHistory.push(`/app_manage/app_create/compose_file?query=fast_create`)
     } else {
       this.setState({ visible });  // 进行确认
@@ -369,18 +378,16 @@ class ServiceList extends Component {
               <i className="fa fa-plus" />&nbsp;
               添加服务
             </Button>
-            {/*<Button size="large" type="ghost" onClick={this.delAllSelected}>
+            <Button size="large" type="ghost" onClick={this.delAllSelected}>
               <i className="fa fa-trash" />&nbsp;
               删除
             </Button>
-            --批量删除 ---  
-          */} 
           </div>
           <div className="dataBox">
             <div className="titleBox">
               <div className="selectIconTitle commonData">
                 &nbsp;
-                {/*<Checkbox checked={this.allSelectedChecked()} onChange={() => this.onchange()} />*/}
+                <Checkbox checked={this.allSelectedChecked()} onChange={() => this.onchange()} />
               </div>
               <div className="name commonData">
                 服务名称
@@ -406,7 +413,7 @@ class ServiceList extends Component {
               <span className="keys">计算资源：<span className="unit">{configData.cpu}C/{configData.memory /1024 }G </span></span>
             </div>
             <div className="price-unit">合计：<span className="unit">{ countPrice.unit =='￥'? '￥':'' }</span>
-              <span className="unit blod" style={{marginRight:'10px'}}>{ hourPrice.amount }{ countPrice.unit =='￥'? '':'T' }/小时</span>
+              <span className="unit blod">{ hourPrice.amount }{ countPrice.unit =='￥'? '':'T' }/小时</span>
               <span className="unit monthUnit">（约：{ countPrice.fullAmount }/月）</span>
             </div>
           </div>
@@ -414,8 +421,7 @@ class ServiceList extends Component {
             <Link to={`/app_manage/app_create`}>
               <Button type="primary" size="large" onClick={this.delServicesList}>
                 上一步
-
-            </Button>
+              </Button>
             </Link>
             <Link to={`/app_manage/app_create/compose_file`}>
             </Link>

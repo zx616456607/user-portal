@@ -107,7 +107,8 @@ let AssitDeployBox = React.createClass({
     const self = this
     const runningCode = parentScope.state.runningCode
     const ele = cmdKey.map(cmd => {
-      return (<FormItem className="runningCodeForm" style={{paddingLeft:'120px'}} key={cmd} sdfsad="sadfasdf">
+      return (
+        <FormItem className="runningCodeForm" style={{paddingLeft:'120px'}} key={cmd} sdfsad="sadfasdf">
           <Input style={{display: runningCode == "1"? 'block' : 'none'}}
           {...getFieldProps("cmd" + cmd, {
           })}
@@ -120,7 +121,7 @@ let AssitDeployBox = React.createClass({
   getUserCMD() {
     const { form } = this.props
     const parentScope = this.props.scope
-    const { getFieldProps, getFieldError, isFieldValidating } = form
+    const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form
     const cmdKey = form.getFieldProps('userCMDKey', {
       initialValue: [1]
     }).value
@@ -134,24 +135,26 @@ let AssitDeployBox = React.createClass({
     if(this.state.notV) {
       rule = {}
     }
-    const runningCode = parentScope.state.runningCode
+    const runningCode = parentScope.state.runningCode;
+    let defalutKeyCount = form.getFieldValue('cmdKey').length;
     const ele = cmdKey.map((cmd, index) => {
       let f = 'left' 
       if(index == 0) {
         f = 'none'
       }
       let d = 'none'
-      if(runningCode == '2' && index != 0) {
+      if(runningCode == '2' && index >= defalutKeyCount) {
         d = 'inline-block'
       }
-      return (<FormItem className="runningCodeForm" style={{paddingLeft:'120px'}}  key={"userCMD"+cmd}>
-        <Input style={{display: runningCode == "2"? 'block' : 'none', width:'220px', float: f, marginTop: '5px'}}
-        {...getFieldProps("userCMD" + cmd, {
-           ...rule
-        })}
-        size="large"/>
+      return (
+        <FormItem className="runningCodeForm" style={{paddingLeft:'120px'}}  key={"userCMD"+cmd}>
+          <Input style={{display: runningCode == "2"? 'block' : 'none', width:'220px', float: f, marginTop: '5px'}}
+          {...getFieldProps("userCMD" + cmd, {
+             ...rule
+          })}
+          size="large"/>
           <Icon type="delete" onClick={() => self.remove(cmd)} style={{display: d, marginLeft: '10px', paddingTop: '16px', cursor: 'pointer'}}/>
-          </FormItem>)
+        </FormItem>)
     })
     return ele
   },
@@ -215,10 +218,12 @@ let AssitDeployBox = React.createClass({
                 </FormItem>       
                  {this.getCMD()}     
                  {this.getUserCMD()}
-                 {parentScope.state.runningCode == '1' ? '' :  <div onClick={this.add} style={{paddingLeft: '120px', cursor: 'pointer'}}>
-                    <Icon type="plus-circle-o" style={{paddingRight: '5px'}}/>
-                    <span>添加一个启动命令</span>
-                    </div>
+                 {parentScope.state.runningCode == '1' ? '' : [
+                      <div onClick={this.add} style={{paddingLeft: '120px', cursor: 'pointer'}}>
+                        <Icon type="plus-circle-o" style={{paddingRight: '5px'}}/>
+                        <span>添加一个启动命令</span>
+                      </div>
+                    ]
                  } 
               </div>
     

@@ -247,6 +247,7 @@ class ComposeFile extends Component {
   cacheAppName() {
     localStorage.setItem("transientAppName", this.state.appName || '')
     // console.info("cached app name:", localStorage.getItem("transientAppName"));
+    localStorage.setItem("forCacheServiceList", true);
     browserHistory.goBack()
   }
   closeModal() {

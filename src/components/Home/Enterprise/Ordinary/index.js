@@ -789,7 +789,9 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <img className="stateImg" style={{width:'18px'}} src="/img/sider/engine.svg" />
+                      <svg className="stateSvg">
+                        <use xlinkHref="#engine" />
+                      </svg>
                       API Server
                     </td>
                     <td>
