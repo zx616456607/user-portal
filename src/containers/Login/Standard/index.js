@@ -39,9 +39,7 @@ let Login = React.createClass({
       submitProps: {},
       intNameFocus: false,
       intPassFocus: false,
-      // intCheckFocus: false,
       passWord: false,
-      // intCodeFocus: false,
       loginSucess: false,
     }
   },
@@ -116,6 +114,7 @@ let Login = React.createClass({
   },
 
   checkName(rule, value, callback) {
+    const { getFieldProps } = this.props.form
     if (!value) {
       callback([new Error('请填写用户名')])
       return
@@ -128,6 +127,9 @@ let Login = React.createClass({
       callback()
       return
     }
+    this.setState({
+      intPassFocus: true
+    })
     callback()
   },
 
@@ -138,53 +140,6 @@ let Login = React.createClass({
     }
     callback()
   },
-  /*checkCode(rule, value, callback) {
-    if (value.length > 20) {
-      callback([new Error('邀请码无效')])
-      return
-    }
-    callback()
-  },*/
-  /*checkCaptcha(rule, value, callback) {
-    if (!value) {
-      callback()
-      return
-    }
-    const { verifyCaptcha } = this.props
-    if (!/^[a-zA-Z0-9]{4}$/.test(value)) {
-      callback([new Error('验证码输入错误')])
-      return
-    }
-    verifyCaptcha(value, {
-      success: {
-        func: (result) => {
-          if (!result.correct) {
-            callback([new Error('验证码输入错误')])
-            return
-          }
-          callback()
-        },
-        isAsync: true
-      },
-      failed: {
-        func: (err) => {
-          callback([new Error('校验错误')])
-        },
-        isAsync: true
-      },
-    })
-  },*/
-
-  /*changeCaptcha() {
-    const { resetFields, getFieldProps } = this.props.form
-    const captcha = getFieldProps('captcha').value
-    if (captcha) {
-      resetFields(['captcha'])
-    }
-    this.setState({
-      random: genRandomString(),
-    })
-  },*/
 
   intOnBlur(current) {
     const { getFieldProps } = this.props.form
@@ -207,23 +162,6 @@ let Login = React.createClass({
       }
       return
     }
-    /*if (current === 'code') {
-      let code = getFieldProps('code').value
-      if (code === '' || !code) {
-        this.setState({
-          intCodeFocus: false
-        })
-      }
-      return
-    }*/
-    /*if (current === 'check') {
-      let captcha = getFieldProps('captcha').value
-      if (captcha === '' || !captcha) {
-        this.setState({
-          intCheckFocus: false
-        })
-      }
-    }*/
     return
   },
 
@@ -243,19 +181,6 @@ let Login = React.createClass({
       })
       return
     }
-    /*if (current === 'code') {
-      this.refs.intCode.refs.input.focus()
-      this.setState({
-        intCodeFocus: true,
-      })
-      return
-    }*/
-    /*if (current === 'check') {
-      this.refs.intCheck.refs.input.focus()
-      this.setState({
-        intCheckFocus: true
-      })
-    }*/
     return
   },
 
@@ -266,18 +191,10 @@ let Login = React.createClass({
       message.success('帐户已经激活')
     }
     resetFields()
-
   },
 
   componentDidMount() {
     ReactDom.findDOMNode(this.refs.intName.refs.input).focus()
-    console.log('this.refs.intName.refs.input.props.value',this.refs.intName.props.value);
-    console.log('this.refs.intName.refs.input.props',this.refs.intName.props);
-    console.log('this.refs.intName',this.refs.intName);
-    setTimeout(
-      console.log('this.refs.intName.refs.input.props2',this.refs.intName.props),8000
-    )
-    console.log('this.refs.intName---',ReactDom.findDOMNode(this.refs.intName.refs.input).getAttribute('value'));
   },
 
   onScanChange(scan) {
@@ -336,18 +253,6 @@ let Login = React.createClass({
         { validator: this.checkPass },
       ],
     })
-    /*const codeProps = getFieldProps('code', {
-      rules: [
-        { required: false, message: '请填写邀请码' },
-        { validator: this.checkCode },
-      ],
-    })*/
-    /*const captchaProps = getFieldProps('captcha', {
-      rules: [
-        { required: true, message: '请填写验证码' },
-       { validator: this.checkCaptcha },
-      ],
-    })*/
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
