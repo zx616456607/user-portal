@@ -151,11 +151,11 @@ class Ordinary extends Component{
     const {migrated, displayName} = loginUser;
     let testingKnowFlag = window.localStorage.getItem(`testingKnowFlag${displayName}`);
     if(!Boolean(testingKnowFlag)) {
-      if(migrated != 1) {        
+      if(migrated != 1) {
         this.setState({
-          newTestingKonwShow: true        
+          newTestingKonwShow: true
         });
-      } else {        
+      } else {
         this.setState({
           oldTestingKonwShow: true
         })
@@ -986,15 +986,15 @@ class Ordinary extends Component{
               <span className='info'><span style={{ color: '#00A1EA', fontSize: '12px' }}>▶</span>&nbsp;关于余额：</span>
             </div>
             <div className='infoDetail'>
-              <div className='numBox' style={{ marginLeft: '12px' }}>1</div>              
+              <div className='numBox' style={{ marginLeft: '12px' }}>1</div>
               <span className='info' style={{ paddingLeft: '5px' }}>在迁移完成之前，新版本与旧版本暂时独立的帐户余额&消费；</span>
             </div>
             <div className='infoDetail'>
-              <div className='numBox' style={{ marginLeft: '12px' }}>2</div>       
+              <div className='numBox' style={{ marginLeft: '12px' }}>2</div>
               <span className='info' style={{ paddingLeft: '5px' }}>官方迁移完成后，将合并新老版本的帐户余额及消费相关信息；</span>
             </div>
             <div className='infoDetail'>
-              <div className='numBox' style={{ marginLeft: '12px' }}>3</div>           
+              <div className='numBox' style={{ marginLeft: '12px' }}>3</div>
               <span className='info' style={{ paddingLeft: '5px' }}>用户自行迁移的，可提前通过工单申请合并新老版本费用部分；</span>
             </div>
             <div className='infoDetail'>

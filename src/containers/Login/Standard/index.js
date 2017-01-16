@@ -271,6 +271,13 @@ let Login = React.createClass({
 
   componentDidMount() {
     ReactDom.findDOMNode(this.refs.intName.refs.input).focus()
+    console.log('this.refs.intName.refs.input.props.value',this.refs.intName.props.value);
+    console.log('this.refs.intName.refs.input.props',this.refs.intName.props);
+    console.log('this.refs.intName',this.refs.intName);
+    setTimeout(
+      console.log('this.refs.intName.refs.input.props2',this.refs.intName.props),8000
+    )
+    console.log('this.refs.intName---',ReactDom.findDOMNode(this.refs.intName.refs.input).getAttribute('value'));
   },
 
   onScanChange(scan) {
@@ -358,13 +365,6 @@ let Login = React.createClass({
         <div className="login">
           <Row style={{ textAlign: 'center' }}>
             <span className='logoLink'>
-
-              {/*<img src="/img/sider/LogInLogo.svg" alt="logo" className="logo" />*/}
-              {/*<img src={LogInLogo} alt="logo" className="logo" />*/}
-
-              {/*<div className='logTitle'>时速云</div>
-              <div className="logtext" style={{ fontSize: '14px' }}>技术领先的容器云计算服务商</div>*/}
-
               <div className='logTitle'>登&nbsp;&nbsp;录</div>
             </span>
           </Row>
@@ -375,7 +375,6 @@ let Login = React.createClass({
               }
             </div>
             <Form onSubmit={this.handleSubmit}>
-              <input style={{ display: 'none' }} />
               <FormItem
                 {...formItemLayout}
                 hasFeedback
@@ -384,10 +383,15 @@ let Login = React.createClass({
                 >
                 <div className={this.state.intNameFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'name')}>用户名 / 邮箱</div>
 
-                <Input {...nameProps} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'name')}
+                <Input {...nameProps}
+                  autoComplete="on"
+                  onBlur={this.intOnBlur.bind(this, 'name')}
                   onFocus={this.intOnFocus.bind(this, 'name')}
                   ref="intName"
-                  style={{ height: 35 }} />
+                  style={{ height: 35 }}
+                  name='name'
+                  tabindex='1'
+                />
               </FormItem>
 
               <FormItem
@@ -396,12 +400,16 @@ let Login = React.createClass({
                 className="formItemName"
                 >
                 <div className={this.state.intPassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>密码</div>
-                <Input {...passwdProps} autoComplete="off" type={this.state.passWord ? 'password' : 'text'}
+                <Input {...passwdProps}
+                  type='password'
                   onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                   onBlur={this.intOnBlur.bind(this, 'pass')}
                   onFocus={this.intOnFocus.bind(this, 'pass')}
                   ref="intPass"
+                  autoComplete="on"
                   style={{ height: 35 }}
+                  name='password'
+                  tabindex='2'
                   />
               </FormItem>
 
