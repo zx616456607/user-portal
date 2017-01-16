@@ -192,7 +192,7 @@ class TenxFlowDetailFlow extends Component {
             success: {
               func: (res) => {
                 let search = location.search
-                search = search.split('?')[1]
+                search = search.split('?')[1].split('&')[0]
                 _this.props.scope.props.getCdInimage(search)
               },
               isAsync: true
