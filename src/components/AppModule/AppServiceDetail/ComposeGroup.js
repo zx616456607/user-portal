@@ -65,15 +65,15 @@ let MyComponent = React.createClass({
       }
     })
 	},
-  componentWillReceiveProps(nextProp) {
-    const { serviceDetailmodalShow } = nextProp
+  componentWillReceiveProps(nextProps) {
+    const { serviceDetailmodalShow } = nextProps
     if (!serviceDetailmodalShow) {
       this.setState({
         config: []
       })
       return
     }
-    const service = nextProp.service
+    const service = nextProps.service
     if (!service.spec) {
       this.setState({
         config: []
@@ -110,7 +110,7 @@ let MyComponent = React.createClass({
     let loading = ''
     if(configData) {
       const { isFetching } = configData
-      
+
       if(isFetching) {
         loading= <div className="loadingBox" style={{position: 'absolute'}}><Spin size="large" /></div>
       }
