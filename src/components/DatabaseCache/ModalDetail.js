@@ -138,7 +138,7 @@ class BaseInfo extends Component {
     }, 500);
   }
   render() {
-    const { domainSuffix, databaseInfo ,dbName } = this.props
+    const { publicIPs, domainSuffix, databaseInfo ,dbName } = this.props
     const parentScope = this.props.scope
     const rootScope = parentScope.props.scope
     const podSpec = databaseInfo.podList.pods[0].podSpec
@@ -152,12 +152,24 @@ class BaseInfo extends Component {
     if (domainSuffix) {
       domain = eval(domainSuffix)[0]
     }
+    let publicIP = ''
+    if (publicIPs) {
+      publicIP = eval(publicIPs)[0]
+    }
     let portAnnotation = databaseInfo.serviceInfo.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
     let externalPort = ''
     if (portAnnotation) {
       externalPort = portAnnotation.split('/')
       if (externalPort && externalPort.length > 1) {
         externalPort = externalPort[2]
+      }
+    }
+    let externalUrl = '-'
+    if (externalPort != '') {
+      if (domain) {
+        externalUrl = databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort
+      } else {
+        externalUrl = publicIP + ':' + externalPort
       }
     }
     const modalContent = (
@@ -216,7 +228,7 @@ class BaseInfo extends Component {
               <Icon type='link' />&nbsp;出口地址：
             </span>
             <span className='listLink'>
-              {externalPort != ''? databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort : '-'}
+              {externalUrl}
             </span>
             <Tooltip title={this.state.copySuccess ? '复制成功' : '点击复制'}>
               <svg style={{width:'50px', height:'16px',verticalAlign:'middle'}} onClick={()=> this.copyDownloadCode()} onMouseLeave={()=> this.returnDefaultTooltip()}>
@@ -415,7 +427,7 @@ class ModalDetail extends Component {
     })
   }
   render() {
-    const { scope, dbName, isFetching, databaseInfo, domainSuffix } = this.props;
+    const { scope, dbName, isFetching, databaseInfo, domainSuffix, publicIPs } = this.props;
 
     if (isFetching || databaseInfo == null) {
       return (
@@ -483,7 +495,7 @@ class ModalDetail extends Component {
               activeKey={this.state.activeTabKey}
               >
               <TabPane tab='基础信息' key='#BaseInfo'>
-                <BaseInfo domainSuffix={domainSuffix} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                <BaseInfo domainSuffix={domainSuffix} publicIPs={publicIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
               </TabPane>
               <TabPane tab='事件' key='#events'>
                 <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} />
@@ -510,6 +522,7 @@ function mapStateToProps(state, props) {
     isFetching,
     cluster: cluster.clusterID,
     domainSuffix: cluster.bindingDomains,
+    publicIPs: cluster.publicIPs,
     databaseInfo: databaseInfo,
     resourcePrice: cluster.resourcePrice //storage
     // podSpec: databaseInfo.pods[0].podSpec
