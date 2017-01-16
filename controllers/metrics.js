@@ -55,19 +55,19 @@ exports.getAllContainerMetrics = function* () {
   query.type = METRICS_CPU
   const promiseCpuArray = _getContainerMetrics(user, cluster, instance, query)
   promiseArray.push({cpu: promiseCpuArray})
-  
+
   query.type = METRICS_MEMORY
   const promiseMemoryArray = _getContainerMetrics(user, cluster, instance, query)
   promiseArray.push({memory: promiseMemoryArray})
-  
+
   query.type = METRICSS_NETWORK_TRANSMITTED
   const promiseNetworkTransmitArray = _getContainerMetrics(user, cluster, instance, query)
   promiseArray.push({networkTrans: promiseNetworkTransmitArray})
-  
+
   query.type = METRICS_NETWORK_RECEIVED
   const promiseNetworkRecivceArray = _getContainerMetrics(user, cluster, instance, query)
   promiseArray.push({networkRec: promiseNetworkRecivceArray})
-  
+
   const results = yield promiseArray
   this.body = {
     cluster,
@@ -224,8 +224,8 @@ exports.getAllAppMetrics = function* () {
 
 function _getContainerMetrics(user, cluster, instance, query) {
   const containerName = instance.metadata.name
-  const resources = instance.spec.containers[0].resources || DEFAULT_CONTAINER_RESOURCES_CPU
-  const requests = resources.requests || DEFAULT_CONTAINER_RESOURCES_CPU.requests
+  const resources = instance.spec.containers[0].resources || DEFAULT_CONTAINER_RESOURCES
+  const requests = resources.requests || DEFAULT_CONTAINER_RESOURCES.requests
   // const cpu = parseInt(requests.cpu || DEFAULT_CONTAINER_RESOURCES_CPU)
   // const memory = parseInt(requests.memory || DEFAULT_CONTAINER_RESOURCES_MEMORY) * 1024 * 1024
   const type = query.type

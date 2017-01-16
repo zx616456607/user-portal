@@ -20,7 +20,6 @@ class Container {
         memory: "256M"
       },
       requests: {
-        cpu: "60m",
         memory: "256Mi"
       }
     }

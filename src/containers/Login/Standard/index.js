@@ -228,7 +228,7 @@ let Login = React.createClass({
           const errMsg = err.message
           let msg = errMsg.message || errMsg
           if (statusCode == 404) {
-            msg = '您的微信还未绑定时速云平台账户，请使用账户密码登录后，在“我的账户”中进行绑定'
+            msg = '您的微信还未绑定时速云平台帐户，请使用帐户密码登录后，在“我的帐户”中进行绑定'
           }
           self.setState({
             submitting: false,
