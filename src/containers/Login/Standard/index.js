@@ -318,7 +318,7 @@ let Login = React.createClass({
                   style={{ height: 35 }}
                   name='password'
                   tabindex='2'
-                  />
+                />
               </FormItem>
 
               {/*<FormItem
