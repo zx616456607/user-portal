@@ -24,7 +24,6 @@ import redisImg from '../../assets/img/test/redis.jpg'
 
 const Panel = Collapse.Panel;
 const ButtonGroup = Button.Group
-const confirm = Modal.confirm;
 const TabPane = Tabs.TabPane;
 
 class VolumeHeader extends Component {
@@ -282,7 +281,6 @@ class BaseInfo extends Component {
 class ModalDetail extends Component {
   constructor() {
     super()
-    this.deleteDatebaseCluster = this.deleteDatebaseCluster.bind(this)
     this.state = {
       currentDatabase: null,
       activeTabKey:'#BaseInfo',
@@ -295,33 +293,29 @@ class ModalDetail extends Component {
     const { loadDbClusterDetail } = scope.props;
     const _this = this
     const clusterTypes = scope.state.clusterTypes
-    confirm({
-      title: '您是否确认要删除 ' + dbName,
-      onOk() {
-        let notification = new NotificationHandler()
-        _this.setState({ deleteBtn: true })
-        deleteDatabaseCluster(cluster, dbName, database, {
-          success: {
-            func: () => {
-              notification.success('删除成功')
-              scope.setState({
-                detailModal: false
-              });
-            }
-          },
-          failed: {
-            func: (res) => {
-              scope.setState({
-                detailModal: false
-              });
-              _this.setState({deleteBtn: false})
-              notification.error('删除失败', res.message.message)
-            }
-          }
-        });
+    this.setState({delModal: false})
+    let notification = new NotificationHandler()
+    _this.setState({ deleteBtn: true })
+    deleteDatabaseCluster(cluster, dbName, database, {
+      success: {
+        func: () => {
+          notification.success('删除成功')
+          scope.setState({
+            detailModal: false
+          });
+        }
       },
-      onCancel() { },
+      failed: {
+        func: (res) => {
+          scope.setState({
+            detailModal: false
+          });
+          _this.setState({deleteBtn: false})
+          notification.error('删除失败', res.message.message)
+        }
+      }
     });
+ 
   }
 
   componentWillMount() {
@@ -477,7 +471,7 @@ class ModalDetail extends Component {
                     删除集群
                 </Button>
                   :
-                  <Button size='large' className='btn-danger' type='ghost' onClick={this.deleteDatebaseCluster.bind(this, dbName)}>
+                  <Button size='large' className='btn-danger' type='ghost' onClick={()=> this.setState({delModal: true}) }>
                     <Icon type='delete' />删除集群
                 </Button>
                 }
@@ -486,7 +480,11 @@ class ModalDetail extends Component {
           </div>
           <div style={{ clear: 'both' }}></div>
         </div>
-
+        <Modal title="删除集群操作" visible={this.state.delModal}
+          onOk={()=> this.deleteDatebaseCluster(dbName)} onCancel={()=> this.setState({delModal: false})}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除数据库 { dbName }?</div>
+        </Modal>
         <div className='bottomBox'>
           <div className='siderBox'>
             <Tabs

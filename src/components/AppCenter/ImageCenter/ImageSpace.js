@@ -95,37 +95,34 @@ const MyComponent = React.createClass({
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
-  btnDeleteImage: function (image) {
+  getInitialState() {
+    return {delModal: false}
+  },
+  btnDeleteImage: function () {
     //this function for user delete select imagex
     const {deleteImage} = this.props.scope.props
     const config = {
       registry: DEFAULT_REGISTRY,
-      image
+      image: this.state.imageName
     }
-    Modal.confirm({
-      title: '确定要删除所选中的镜像？',
-      okText: '确定',
-      cancelText: '取消',
-      onOk() {
-        let notification = new NotificationHandler()
-        notification.spin(`删除镜像 ${image} 中...`)
-        deleteImage(config, {
-          success: {
-            func: () => {
-              notification.close()
-              notification.success('删除成功！')
-            }
-          },
-          failed: {
-            func: (res) => {
-              notification.close()
-              notification.error('删除失败')
-            }
-          }
-        })
-
+    this.setState({delModal: false})
+    let notification = new NotificationHandler()
+    notification.spin(`删除镜像 ${this.state.imageName} 中...`)
+    deleteImage(config, {
+      success: {
+        func: () => {
+          notification.close()
+          notification.success('删除成功！')
+        }
+      },
+      failed: {
+        func: (res) => {
+          notification.close()
+          notification.error('删除失败')
+        }
       }
     })
+
   },
   componentWillMount() {
     const imagename = location.search.split('imageName=')[1]
@@ -189,7 +186,7 @@ const MyComponent = React.createClass({
     }
     let items = imageList.map((item, index) => {
       const dropdown = (
-        <Menu onClick={this.btnDeleteImage.bind(this, item.name)}
+        <Menu onClick={()=> this.setState({delModal: true, imageName: item.name})}
           style={{ width: "100px" }}
           >
           <Menu.Item key={item.id}>
@@ -235,6 +232,11 @@ const MyComponent = React.createClass({
     return (
       <div className="imageList">
         {items}
+        <Modal title="删除镜像操作" visible={this.state.delModal}
+          onOk={() => this.btnDeleteImage(item.name)} onCancel={() => this.setState({ delModal: false })}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>您确定要删除镜像 {this.state.imageName}?</div>
+        </Modal>
       </div>
     );
   }

@@ -196,42 +196,38 @@ class Service extends Component {
       cluster,
       "groups": configArray
     }
-    Modal.confirm({
-      title: '您是否确认要删除这些配置组',
-      content: configArray.map(item => item).join('，'),
-      onOk() {
-        self.props.deleteConfigGroup(configData, {
-          success: {
-            func: (res) => {
-              const errorText = []
-              if (res.message.length > 0) {
-                res.message.forEach(function (list) {
-                  errorText.push({
-                    name: list.name,
-                    text: list.error
-                  })
-                })
-                const content = errorText.map(list => {
-                  return (
-                    <h3>{list.name}：{list.text}</h3>
-                  )
-                })
-                Modal.error({
-                  title: '删除配置组失败!',
-                  content
-                })
-              } else {
-                notification.success('删除成功')
-              }
-              self.setState({
-                configArray: []
+    this.setState({delModal: false})
+    self.props.deleteConfigGroup(configData, {
+      success: {
+        func: (res) => {
+          const errorText = []
+          if (res.message.length > 0) {
+            res.message.forEach(function (list) {
+              errorText.push({
+                name: list.name,
+                text: list.error
               })
-            },
-            isAsync: true
+            })
+            const content = errorText.map(list => {
+              return (
+                <h3>{list.name}：{list.text}</h3>
+              )
+            })
+            Modal.error({
+              title: '删除配置组失败!',
+              content
+            })
+          } else {
+            notification.success('删除成功')
           }
-        })
+          self.setState({
+            configArray: []
+          })
+        },
+        isAsync: true
       }
     })
+
   }
   handChageProp() {
     return (
@@ -258,7 +254,7 @@ class Service extends Component {
           <Button type="primary" size="large" onClick={(e) => this.configModal(true)}>
             <i className="fa fa-plus" /> 创建配置组
           </Button>
-          <Button size="large" onClick={() => this.btnDeleteGroup()} style={{ marginLeft: "12px" }}
+          <Button size="large" onClick={() => this.setState({delModal: true})} style={{ marginLeft: "12px" }}
             disabled={!this.state.configArray || this.state.configArray.length < 1}>
             <i className="fa fa-trash-o" /> 删除
           </Button>
@@ -279,6 +275,11 @@ class Service extends Component {
             </div>
           </Modal>
           {/*创建配置组-弹出层-end*/}
+          <Modal title="删除配置操作" visible={this.state.delModal}
+          onOk={()=> this.btnDeleteGroup()} onCancel={()=> this.setState({delModal: false})}
+          >
+            <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除配置组 {this.state.configArray.map(item => item).join('，')} ?</div>
+          </Modal>
           {/*折叠面板-start*/}
           <CollapseList
             scope={this}

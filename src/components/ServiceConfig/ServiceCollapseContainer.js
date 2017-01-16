@@ -148,55 +148,51 @@ class CollapseContainer extends Component {
   setInputValue(e) {
     this.setState({ configtextarea: e.target.value })
   }
-  deleteConfigFile(group, Name) {
+  deleteConfigModal(group, Name) {
+    this.setState({configName: Name, configGroup: group, delModal: true})
+  }
+  deleteConfigFile() {
     let configs = []
-    configs.push(Name)
+    configs.push(this.state.configName)
     const groups = {
-      group,
+      group: this.state.configGroup,
       cluster: this.props.cluster,
       configs
     }
     const self = this
     const {parentScope} = this.props
     let notification = new NotificationHandler()
-    Modal.confirm({
-      title: '您是否确认要删除这项内容',
-      content: Name,
-      onOk() {
-        self.props.deleteConfigName(groups, {
-          success: {
-            func: (res) => {
-              const errorText =[]
-              if (res.message.length > 0) {
-                res.message.forEach(function(list){
-                  errorText.push({
-                    name: list.name,
-                    text: list.error
-                  })
-                })
-                const content = errorText.map(list => {
-                  return (
-                    <h3>{list.name} ：{list.text}</h3>
-                  )
-                })
-                Modal.error({
-                  title:'删除配置文件失败!',
-                  content
-                })
-              } else {
-                notification.success('删除配置文件成功')
-                self.props.configGroupName(groups)
-              }
-            },
-            isAsync: true
+    this.setState({delModal: false})
+    self.props.deleteConfigName(groups, {
+      success: {
+        func: (res) => {
+          const errorText = []
+          if (res.message.length > 0) {
+            res.message.forEach(function (list) {
+              errorText.push({
+                name: list.name,
+                text: list.error
+              })
+            })
+            const content = errorText.map(list => {
+              return (
+                <h3>{list.name} ：{list.text}</h3>
+              )
+            })
+            Modal.error({
+              title: '删除配置文件失败!',
+              content
+            })
+          } else {
+            notification.success('删除配置文件成功')
+            self.props.configGroupName(groups)
           }
-        })
-
-      },
-      onCancel() {
-        return
+        },
+        isAsync: true
       }
-    });
+    })
+
+     
   }
   render() {
     const { collapseContainer, groupname } = this.props
@@ -261,7 +257,7 @@ class CollapseContainer extends Component {
                       onClick={() => this.editConfigModal(this.props.groupname, configFileItem.name)}>
                       <Icon type='edit' />
                     </Button>
-                    <Button type='ghost' onClick={() => this.deleteConfigFile(this.props.groupname, configFileItem.name)} style={{ marginLeft: '10px', height: '30px', padding: '0 9px', backgroundColor: '#fff' }} className='config-cross'>
+                    <Button type='ghost' onClick={() => this.deleteConfigModal(this.props.groupname, configFileItem.name)} style={{ marginLeft: '10px', height: '30px', padding: '0 9px', backgroundColor: '#fff' }} className='config-cross'>
                       <Icon type='cross' />
                     </Button>
                   </td>
@@ -334,6 +330,11 @@ class CollapseContainer extends Component {
               </FormItem>
             </Form>
           </div>
+        </Modal>
+        <Modal title="删除配置文件操作" visible={this.state.delModal}
+          onOk={()=> this.deleteConfigFile()} onCancel={()=> this.setState({delModal: false})}
+        >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除配置文件 {this.state.configName}?</div>
         </Modal>
         {/*              修改配置文件-弹出层-end                */}
       </Row>
