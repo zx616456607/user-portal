@@ -39,9 +39,6 @@ let Login = React.createClass({
       submitProps: {},
       intNameFocus: false,
       intPassFocus: false,
-      // intCheckFocus: false,
-      passWord: false,
-      // intCodeFocus: false,
       loginSucess: false,
     }
   },
@@ -116,6 +113,7 @@ let Login = React.createClass({
   },
 
   checkName(rule, value, callback) {
+    const { getFieldProps } = this.props.form
     if (!value) {
       callback([new Error('请填写用户名')])
       return
@@ -128,6 +126,9 @@ let Login = React.createClass({
       callback()
       return
     }
+    this.setState({
+      intPassFocus: true
+    })
     callback()
   },
 
@@ -138,53 +139,6 @@ let Login = React.createClass({
     }
     callback()
   },
-  /*checkCode(rule, value, callback) {
-    if (value.length > 20) {
-      callback([new Error('邀请码无效')])
-      return
-    }
-    callback()
-  },*/
-  /*checkCaptcha(rule, value, callback) {
-    if (!value) {
-      callback()
-      return
-    }
-    const { verifyCaptcha } = this.props
-    if (!/^[a-zA-Z0-9]{4}$/.test(value)) {
-      callback([new Error('验证码输入错误')])
-      return
-    }
-    verifyCaptcha(value, {
-      success: {
-        func: (result) => {
-          if (!result.correct) {
-            callback([new Error('验证码输入错误')])
-            return
-          }
-          callback()
-        },
-        isAsync: true
-      },
-      failed: {
-        func: (err) => {
-          callback([new Error('校验错误')])
-        },
-        isAsync: true
-      },
-    })
-  },*/
-
-  /*changeCaptcha() {
-    const { resetFields, getFieldProps } = this.props.form
-    const captcha = getFieldProps('captcha').value
-    if (captcha) {
-      resetFields(['captcha'])
-    }
-    this.setState({
-      random: genRandomString(),
-    })
-  },*/
 
   intOnBlur(current) {
     const { getFieldProps } = this.props.form
@@ -202,33 +156,21 @@ let Login = React.createClass({
       if (password === '' || !password) {
         this.setState({
           intPassFocus: false,
-          passWord: true,
         })
       }
       return
     }
-    /*if (current === 'code') {
-      let code = getFieldProps('code').value
-      if (code === '' || !code) {
-        this.setState({
-          intCodeFocus: false
-        })
-      }
-      return
-    }*/
-    /*if (current === 'check') {
-      let captcha = getFieldProps('captcha').value
-      if (captcha === '' || !captcha) {
-        this.setState({
-          intCheckFocus: false
-        })
-      }
-    }*/
     return
   },
 
   intOnFocus(current) {
     if (current === 'name') {
+      const { getFieldProps } = this.props.form
+      if (getFieldProps('password').value === '') {
+        this.setState({
+          intPassFocus: true
+        })
+      }
       this.refs.intName.refs.input.focus()
       this.setState({
         intNameFocus: true
@@ -239,23 +181,9 @@ let Login = React.createClass({
       this.refs.intPass.refs.input.focus()
       this.setState({
         intPassFocus: true,
-        passWord: true,
       })
       return
     }
-    /*if (current === 'code') {
-      this.refs.intCode.refs.input.focus()
-      this.setState({
-        intCodeFocus: true,
-      })
-      return
-    }*/
-    /*if (current === 'check') {
-      this.refs.intCheck.refs.input.focus()
-      this.setState({
-        intCheckFocus: true
-      })
-    }*/
     return
   },
 
@@ -266,7 +194,6 @@ let Login = React.createClass({
       message.success('帐户已经激活')
     }
     resetFields()
-
   },
 
   componentDidMount() {
@@ -329,18 +256,6 @@ let Login = React.createClass({
         { validator: this.checkPass },
       ],
     })
-    /*const codeProps = getFieldProps('code', {
-      rules: [
-        { required: false, message: '请填写邀请码' },
-        { validator: this.checkCode },
-      ],
-    })*/
-    /*const captchaProps = getFieldProps('captcha', {
-      rules: [
-        { required: true, message: '请填写验证码' },
-       { validator: this.checkCaptcha },
-      ],
-    })*/
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
@@ -358,13 +273,6 @@ let Login = React.createClass({
         <div className="login">
           <Row style={{ textAlign: 'center' }}>
             <span className='logoLink'>
-
-              {/*<img src="/img/sider/LogInLogo.svg" alt="logo" className="logo" />*/}
-              {/*<img src={LogInLogo} alt="logo" className="logo" />*/}
-
-              {/*<div className='logTitle'>时速云</div>
-              <div className="logtext" style={{ fontSize: '14px' }}>技术领先的容器云计算服务商</div>*/}
-
               <div className='logTitle'>登&nbsp;&nbsp;录</div>
             </span>
           </Row>
@@ -375,7 +283,6 @@ let Login = React.createClass({
               }
             </div>
             <Form onSubmit={this.handleSubmit}>
-              <input style={{ display: 'none' }} />
               <FormItem
                 {...formItemLayout}
                 hasFeedback
@@ -384,10 +291,15 @@ let Login = React.createClass({
                 >
                 <div className={this.state.intNameFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'name')}>用户名 / 邮箱</div>
 
-                <Input {...nameProps} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'name')}
+                <Input {...nameProps}
+                  autoComplete="on"
+                  onBlur={this.intOnBlur.bind(this, 'name')}
                   onFocus={this.intOnFocus.bind(this, 'name')}
                   ref="intName"
-                  style={{ height: 35 }} />
+                  style={{ height: 35 }}
+                  name='name'
+                  tabindex='1'
+                />
               </FormItem>
 
               <FormItem
@@ -396,12 +308,16 @@ let Login = React.createClass({
                 className="formItemName"
                 >
                 <div className={this.state.intPassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>密码</div>
-                <Input {...passwdProps} autoComplete="off" type={this.state.passWord ? 'password' : 'text'}
+                <Input {...passwdProps}
+                  type='password'
                   onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                   onBlur={this.intOnBlur.bind(this, 'pass')}
                   onFocus={this.intOnFocus.bind(this, 'pass')}
                   ref="intPass"
+                  autoComplete="on"
                   style={{ height: 35 }}
+                  name='password'
+                  tabindex='2'
                   />
               </FormItem>
 
