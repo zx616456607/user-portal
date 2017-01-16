@@ -23,7 +23,6 @@ exports.DEFAULT_CONTAINER_RESOURCES = {
     "memory": exports.DEFAULT_CONTAINER_RESOURCES_MEMORY
   },
   "requests": {
-    "cpu": exports.DEFAULT_CONTAINER_RESOURCES_CPU,
     "memory": exports.DEFAULT_CONTAINER_RESOURCES_MEMORY
   }
 }
