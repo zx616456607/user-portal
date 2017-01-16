@@ -39,7 +39,6 @@ let Login = React.createClass({
       submitProps: {},
       intNameFocus: false,
       intPassFocus: false,
-      passWord: false,
       loginSucess: false,
     }
   },
@@ -157,7 +156,6 @@ let Login = React.createClass({
       if (password === '' || !password) {
         this.setState({
           intPassFocus: false,
-          passWord: true,
         })
       }
       return
@@ -167,6 +165,12 @@ let Login = React.createClass({
 
   intOnFocus(current) {
     if (current === 'name') {
+      const { getFieldProps } = this.props.form
+      if (getFieldProps('password').value === '') {
+        this.setState({
+          intPassFocus: true
+        })
+      }
       this.refs.intName.refs.input.focus()
       this.setState({
         intNameFocus: true
@@ -177,7 +181,6 @@ let Login = React.createClass({
       this.refs.intPass.refs.input.focus()
       this.setState({
         intPassFocus: true,
-        passWord: true,
       })
       return
     }
