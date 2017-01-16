@@ -76,7 +76,6 @@ class VolumeDetail extends Component {
         return list.mountPath
       }
     })
-
     return (
       <Row className='file-list'>
         <Timeline>
@@ -87,7 +86,7 @@ class VolumeDetail extends Component {
                 <tbody>
                   <tr>
                     <td style={{ padding: '15px' }}>
-                      <div style={{ width: '200px' }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px' }} />{configFileItem}</div>
+                      <div style={{ width: this.props.selfScope.state.winWidth }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px' }} />{configFileItem}</div>
                     </td>
 
                     <td style={{ width: '130px', textAlign: 'center' }}>
@@ -118,6 +117,14 @@ class BaseInfo extends Component {
       storageValue: parseInt(this.props.databaseInfo.volumeInfo.size)
     }
   }
+  componentDidMount() {
+    const winWidth = document.body.clientWidth
+    if (winWidth > 1440) {
+      this.setState({winWidth: '220px'})
+      return
+    }
+    this.setState({winWidth: '120px'})
+  }
   copyDownloadCode() {
     //this function for user click the copy btn and copy the download code
     const scope = this;
@@ -140,6 +147,7 @@ class BaseInfo extends Component {
     const { publicIPs, domainSuffix, databaseInfo ,dbName } = this.props
     const parentScope = this.props.scope
     const rootScope = parentScope.props.scope
+    const selfScope = this
     const podSpec = databaseInfo.podList.pods[0].podSpec
     let storagePrc = parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
     let containerPrc = parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
@@ -206,7 +214,7 @@ class BaseInfo extends Component {
     const volumeMount = databaseInfo.podList.pods.map((list, index) => {
       return (
         <Panel header={<VolumeHeader data={list} />} key={'volumeMount-' + index}>
-          <VolumeDetail volumes={list} key={'VolumeDetail-' + index} />
+          <VolumeDetail volumes={list} key={'VolumeDetail-' + index} selfScope={selfScope}/>
         </Panel>
       )
     })
