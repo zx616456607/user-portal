@@ -13,7 +13,6 @@ const vendors = [
   'isomorphic-fetch',
   'lodash',
   'moment',
-  'n-zepto',
   'normalizr',
   'rc-animate',
   'rc-queue-anim',

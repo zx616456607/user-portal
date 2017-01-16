@@ -342,7 +342,6 @@ let AppDeployServiceModal = React.createClass({
           memory: "256Mi"
         },
         requests: {
-          cpu: "60m",
           memory: "256Mi"
         }
       },
@@ -357,7 +356,6 @@ let AppDeployServiceModal = React.createClass({
                 memory: "256Mi"
               },
               requests: {
-                cpu: "60m",
                 memory: "256Mi"
               }
             },
@@ -371,7 +369,6 @@ let AppDeployServiceModal = React.createClass({
                 memory: "512Mi"
               },
               requests: {
-                cpu: "125m",
                 memory: "512Mi"
               }
             },
@@ -385,7 +382,6 @@ let AppDeployServiceModal = React.createClass({
                 memory: "1024Mi"
               },
               requests: {
-                cpu: "250m",
                 memory: "1024Mi"
               }
             },
@@ -399,7 +395,6 @@ let AppDeployServiceModal = React.createClass({
                 memory: "2048Mi"
               },
               requests: {
-                cpu: "500m",
                 memory: "2048Mi"
               }
             },
@@ -413,7 +408,6 @@ let AppDeployServiceModal = React.createClass({
                 memory: "4096Mi"
               },
               requests: {
-                cpu: "1000m",
                 memory: "4096Mi"
               }
             },
@@ -427,7 +421,6 @@ let AppDeployServiceModal = React.createClass({
                 memory: "8192Mi"
               },
               requests: {
-                cpu: "2000m",
                 memory: "8192Mi"
               }
             },
@@ -441,7 +434,6 @@ let AppDeployServiceModal = React.createClass({
                 memory: "125Mi"
               },
               requests: {
-                cpu: "60m",
                 memory: "125Mi"
               }
             },
