@@ -221,7 +221,7 @@ class ConfigModal extends Component {
           </Row>
           <Row>
             <Col style={{ color: '#a0a0a0', textAlign: 'left', marginTop: '20px' }}>
-              注: 重新选择配置 , 保存后系统将重启该服务的所有实例。{this.state.haveRBDVolume ? '此服务已挂载存储卷，不支持平滑更新。更新完成前您的服务会短暂不可用！' : '此服务更新配置过程中不影响正常访问。'}
+              注: 重新选择配置 , 保存后系统将重启该服务的所有实例。{this.state.haveRBDVolume ? '此服务已挂载存储卷，不支持滚动更新，服务会有短暂不可用时间！' : ' 将进行滚动升级。'}
             </Col>
           </Row>
         </div>

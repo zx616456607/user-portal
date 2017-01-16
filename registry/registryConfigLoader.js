@@ -16,9 +16,8 @@ const apiFactory = require('../services/api_factory')
 var registryLocalStorage = ''
 
 // Initialize it at server startup, wait for 5 seconds
-var self = this
 setTimeout(function() {
-  self.GetRegistryConfig(function(err, config) {
+  GetRegistryConfig(function(err, config) {
     if (!err) {
       logger.info("Registry configuration loaded: " + config.protocol + "://" + config.host + ":" + config.port)
     }
@@ -26,7 +25,7 @@ setTimeout(function() {
 }, 2000)
 
 // Get registry configuration from api service
-exports.GetRegistryConfig = function (callback) {
+function GetRegistryConfig(callback) {
   if (registryLocalStorage != '') {
     return registryLocalStorage
   }
@@ -45,3 +44,4 @@ exports.GetRegistryConfig = function (callback) {
     }
   })
 }
+exports.GetRegistryConfig = GetRegistryConfig

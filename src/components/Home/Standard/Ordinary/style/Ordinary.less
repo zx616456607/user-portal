@@ -122,6 +122,7 @@
           height: 10px;
           margin-right: 5px;
           border-radius: 3px;
+          cursor: pointer;
         }
         .costNum {
           -webkit-box-flex: 1;
@@ -129,6 +130,12 @@
           -ms-flex: 1;
           flex: 1;
           text-align: left;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        button {
+          padding: 4px 10px;
         }
       }
     }

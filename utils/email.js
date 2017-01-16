@@ -18,7 +18,7 @@ const logger = require('./logger').getLogger('email')
 const config = require('../configs')
 const constants = require('../configs/constants')
 const fs = require('fs')
-const EMAIL_TEMPLATES_DIR = `${__dirname}/../templates/email`
+const EMAIL_TEMPLATES_DIR = `${__root__dirname}/templates/email`
 const SendCloud = require('sendcloud')
 
 /**

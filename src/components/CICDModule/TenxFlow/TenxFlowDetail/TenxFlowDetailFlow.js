@@ -188,7 +188,16 @@ class TenxFlowDetailFlow extends Component {
           _this.setState({
             buildingList: buildingList
           });
-          getTenxFlowStateList(flowId);
+          getTenxFlowStateList(flowId, {
+            success: {
+              func: (res) => {
+                let search = location.search
+                search = search.split('?')[1]
+                _this.props.scope.props.getCdInimage(search)
+              },
+              isAsync: true
+            }
+          });
         },
         isAsync: true
       }

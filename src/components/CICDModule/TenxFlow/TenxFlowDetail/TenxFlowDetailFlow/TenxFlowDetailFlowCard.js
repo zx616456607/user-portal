@@ -388,6 +388,8 @@ class TenxFlowDetailFlowCard extends Component {
           title: '确定删除构建项目？',
           content: `确定删除构建项目 ${name}`,
           onOk() {
+            console.log(self.props.scope)
+            return
             deleteTenxFlowStateDetail(flowId, item, {
               success: {
                 func: () => {

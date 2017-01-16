@@ -607,7 +607,7 @@ DockerRegistryAPIs.prototype.getImageJsonInfoV2 = function (user, repositoryName
       }, function (err, resp, configInfo) {
         if (err) {
           logger.error(method, err);
-          callback(err, result);
+          callback(err, configInfo);
           return;
         }
         var layerRequestUrl = self.getRegistryUrl() + "/v2/" + repositoryName + "/manifests/" + tag;
@@ -627,7 +627,7 @@ DockerRegistryAPIs.prototype.getImageJsonInfoV2 = function (user, repositoryName
           }
           logger.debug(JSON.stringify(layerInfo));
           // Return the config info of latest layer
-          result = {}
+          var result = {}
           if (configInfo && configInfo.history) {
             result.configInfo = configInfo.history[0].v1Compatibility;
           }

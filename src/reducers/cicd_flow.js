@@ -493,7 +493,6 @@ function getTenxflowStageList(state = {}, action) {
       })
     case ActionTypes.CHANGE_SINGLE_TENX_FLOW_STATE:
       const body = action.body
-      console.log(state)
       const cloneState = cloneDeep(state)
       cloneState.stageList.forEach(item => {
         if(!item.lastBuildStatus) {
