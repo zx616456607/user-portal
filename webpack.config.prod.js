@@ -15,7 +15,7 @@ var WebpackMd5Hash = require('webpack-md5-hash')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
-  // devtool: 'cheap-source-map',
+  devtool: 'cheap-source-map',
   // !入口文件的顺序不能动！
   entry: {
     zh: './src/entry/zh.js',
