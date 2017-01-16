@@ -4,6 +4,7 @@
   "description": "tenxcloud dashbaord 2.0",
   "main": "app.js",
   "scripts": {
+    "install": "npm install --registry=https://registry.npm.taobao.org",
     "start": "npm run dev",
     "staging": "export NODE_ENV=staging&& export RUNNING_MODE=standard&& node app.js",
     "build-dll": "webpack --config webpack.ddl.config",
