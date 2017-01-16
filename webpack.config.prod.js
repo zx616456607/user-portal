@@ -16,7 +16,6 @@ var HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
   // devtool: 'cheap-source-map',
-  devtool: 'source-map',
   // !入口文件的顺序不能动！
   entry: {
     zh: './src/entry/zh.js',
