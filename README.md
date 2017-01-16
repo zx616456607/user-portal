@@ -151,7 +151,7 @@ npm run win-pro
 npm run win-pro-std
 ```
 
-> 注意：如果在开发环境出现 404 错误，请修改 node_modules/webpack-dev-middleware/middleware.js 文件(大约258行)，修改如下：
+> 注意：如果在开发环境出现 404 错误，请修改 node_modules/webpack-dev-middleware/middleware.js 文件(大约219行)，修改如下：
 ```javascript
 if(options.headers) {
     for(var name in options.headers) {
