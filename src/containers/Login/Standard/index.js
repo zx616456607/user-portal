@@ -244,6 +244,7 @@ let Login = React.createClass({
   },
 
   render() {
+    console.log(this)
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps, loginSucess } = this.state
     const nameProps = getFieldProps('name', {
