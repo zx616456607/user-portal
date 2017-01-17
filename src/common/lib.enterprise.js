@@ -7,9 +7,6 @@
  * v0.1 - 2016-09-07
  * @author Zhangpc
  */
-
-if (process.env.RUNNING_MODE === 'standard') { // Magic code, do not change
-  module.exports = require('./lib.standard')
-} else {
-  module.exports = require('./lib.enterprise')
-}
+import '../assets/style/index.enterprise.less'
+import '../assets/style/common.less'
+import '../assets/style/markdown.less'
