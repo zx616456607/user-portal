@@ -108,7 +108,7 @@ class AppServiceLog extends Component {
        serviceLogs,
      })
      this.setState(state)
-     this.changeCurrentDate(new Date(), true, nextProp.cluster, nextProp.serviceName)
+     this.changeCurrentDate(new Date(), true, nextProps.cluster, nextProps.serviceName)
   }
   moutseRollLoadLogs() {
     if (!this.state.useGetLogs) return
