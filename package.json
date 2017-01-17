@@ -85,7 +85,7 @@
     "xml2js": "^0.4.17"
   },
   "devDependencies": {
-    "antd": "~1.11.0",
+    "antd": "~1.11.6",
     "assert": "~1.4.1",
     "babel-core": "~6.21.0",
     "babel-loader": "~6.2.10",
