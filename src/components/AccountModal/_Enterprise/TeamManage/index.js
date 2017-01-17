@@ -23,8 +23,6 @@ import MemberTransfer from '../../MemberTransfer'
 import CreateTeamModal from '../../CreateTeamModal'
 import NotificationHandler from '../../../../common/notification_handler'
 
-const confirm = Modal.confirm;
-
 let TeamTable = React.createClass({
   getInitialState() {
     return {

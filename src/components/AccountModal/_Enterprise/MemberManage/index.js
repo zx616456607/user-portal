@@ -356,7 +356,7 @@ let MemberTable = React.createClass({
           dataSource={searchResult.length === 0 ? data : searchResult}
           pagination={pagination}
           onChange={this.onTableChange} />
-          <Modal title="删除团队操作" visible={this.state.delModal}
+          <Modal title="删除成员操作" visible={this.state.delModal}
             onOk={()=> this.delMember()} onCancel={()=> this.setState({delModal: false})}
           >
           <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除成员 {this.state.userManage ? this.state.userManage.name : ''} ?</div>
