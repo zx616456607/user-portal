@@ -108,6 +108,9 @@ const MyList = React.createClass({
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
+  getInitialState() {
+    return {delModal: false}
+  },
   actionStack(item) {
     const scope = this
     const list = item.key.split('&')[0]
@@ -131,37 +134,34 @@ const MyList = React.createClass({
       return
     }
     //this function for user delete select image
+    this.setState({delModal: true, stackItemName: item})
+  },
+  deleteAction() {
+    const item = this.state.stackItemName
     const config = { registry: DEFAULT_REGISTRY, id: item.key.match(/(.+&)(.+)(\?.+)/)[2] }
     const stack = item.key.split("@")[1]
-    Modal.confirm({
-      title: `删除编排 `,
-      content: <h3>{`您确定要删除编排 ${stack}`}</h3>,
-      onOk() {
-        let notification = new NotificationHandler()
-        notification.spin(`删除编排 ${stack} 中...`)
-        scope.props.deleteMyStack(config, {
-          success: {
-            func: () => {
-              notification.close()
-              notification.success(`删除编排 ${stack} 成功`)
-              // scope.props.loadMyStack(DEFAULT_REGISTRY)
-            },
-            isAsync: true
-          },
-          failed: {
-            func: () => {
-              notification.close()
-              notification.error(`删除编排 ${stack} 失败`)
-              // scope.props.loadMyStack(DEFAULT_REGISTRY)
-            },
-            isAsync: true
-          }
-        })
+    let notification = new NotificationHandler()
+    notification.spin(`删除编排 ${stack} 中...`)
+    this.setState({delModal: false})
+    this.props.deleteMyStack(config, {
+      success: {
+        func: () => {
+          notification.close()
+          notification.success(`删除编排 ${stack} 成功`)
+          // scope.props.loadMyStack(DEFAULT_REGISTRY)
+        },
+        isAsync: true
       },
-      onCancel() { },
+      failed: {
+        func: () => {
+          notification.close()
+          notification.error(`删除编排 ${stack} 失败`)
+          // scope.props.loadMyStack(DEFAULT_REGISTRY)
+        },
+        isAsync: true
+      }
     })
   },
-
   render: function () {
     const config = this.props.config;
     const isFetching = this.props.isFetching
@@ -219,6 +219,11 @@ const MyList = React.createClass({
     return (
       <div className='composeList'>
         {items}
+        <Modal title="删除编排操作" visible={this.state.delModal}
+          onOk={()=> this.deleteAction()} onCancel={()=> this.setState({delModal: false})}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您确定要删除编排 {this.state.stackItemName ? this.state.stackItemName.key.split('@')[1]: null} ?</div>
+        </Modal>
       </div>
     );
   }

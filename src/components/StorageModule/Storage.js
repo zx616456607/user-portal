@@ -27,7 +27,6 @@ import noStorageImg from '../../assets/img/no_data/no_storage.png'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
-const confirm = Modal.confirm;
 let isActing = false
 
 const messages = defineMessages({
@@ -534,6 +533,7 @@ class Storage extends Component {
     volumeArray = volumeArray.map(item => {
       return item.name
     })
+    this.setState({delModal: false})
     let notification = new NotificationHandler()
     notification.spin("删除存储中")
     this.props.deleteStorage(this.props.currentImagePool, this.props.cluster, { volumes: volumeArray }, {
@@ -646,23 +646,6 @@ class Storage extends Component {
   searchByStorageName(e) {
     this.props.loadStorageList(this.props.currentImagePool, this.props.cluster, this.state.storageName)
   }
-  showDeleteModal() {
-    let notification = new NotificationHandler()
-    if (this.state.volumeArray.length <= 0) {
-      notification.error('请选择要删除的存储')
-      return
-    }
-    const self = this
-    Modal.confirm({
-      title: '提示',
-      content: `确定要删除 ${this.state.volumeArray.map(item => item.name).join(',')} 存储卷吗?`,
-      okText: '删除',
-      cancelText: '取消',
-      onOk() {
-        self.deleteStorage()
-      }
-    });
-  }
   render() {
     const { formatMessage } = this.props.intl
     if (!this.props.currentCluster.resourcePrice) return <div></div>
@@ -686,10 +669,15 @@ class Storage extends Component {
               <Button type="primary" size="large" onClick={this.showModal}>
                 <i className="fa fa-plus" /><FormattedMessage {...messages.createTitle} />
               </Button>
-              <Button type="ghost" className="stopBtn" size="large" onClick={() => { this.showDeleteModal() } }
+              <Button type="ghost" className="stopBtn" size="large" onClick={() => { this.setState({delModal: true}) } }
                 disabled={!this.state.volumeArray || this.state.volumeArray.length < 1}>
                 <i className="fa fa-trash-o" /><FormattedMessage {...messages.delete} />
               </Button>
+              <Modal title="删除存储卷操作" visible={this.state.delModal}
+                onOk={()=> this.deleteStorage()} onCancel={()=> this.setState({delModal: false})}
+              >
+                <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除{this.state.volumeArray.map(item => item.name).join(',')} 存储卷吗?</div>
+              </Modal>
               <Modal title={formatMessage(messages.createModalTitle)}
                 visible={this.state.visible} width={550}
                 okText={formatMessage(messages.createBtn)}
