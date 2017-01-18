@@ -19,8 +19,6 @@ import { loadTeamUserListStd, removeTeamusersStd, cancelInvitation, dissolveTeam
 import DelTeamModal from '../../DelTeamModal'
 import ExitTeamModal from '../../ExitTeamModal'
 
-const confirm = Modal.confirm;
-
 class TeamDetail extends Component {
   constructor(props) {
     super(props)
