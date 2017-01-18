@@ -85,42 +85,44 @@ let MyComponent = React.createClass({
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
-  operaMenuClick: function (item, e) {
+  getInitialState() {
+    return {
+      delFlowModal: false
+    }
+  },
+  operaMenuClick: function (item) {
     //this function for user click the dropdown menu
-    let key = e.key;
-    let { flowId } = item;
+    this.setState({delFlowModal: true, item})
+    return
+  },
+  delFlowAction() {
+    let { flowId } = this.state.item;
+    const { item } = this.state
     const { scope } = this.props;
     const { deleteTenxFlowSingle, getTenxFlowList } = scope.props;
     let notification = new NotificationHandler()
-    Modal.confirm({
-      title: `删除TenxFlow （${item.name}） `,
-      content: (`请注意，删除TenxFlow，将清除项目的所有历史数据以及相关的镜像，且该操作不能被恢复，您确定要删除?`),
-      onOk() {
-        notification.spin(`删除 TenxFlow ${item.name} 中...`);
-        deleteTenxFlowSingle(flowId, {
-          success: {
-            func: () => {
-              notification.close()
-              notification.success(`删除 TenxFlow ${item.name} 成功`);
-              scope.loadData()
-            },
-            isAsync: true
-          },
-          failed: {
-            func: (res) => {
-              let statusCode = res.statusCode;
-              switch (statusCode) {
-                case 500:
-                  break;
-              }
-              notification.close()
-              notification.error(`删除 TenxFlow ${item.name} 失败`);
-            }
+    notification.spin(`删除 TenxFlow ${item.name} 中...`);
+    deleteTenxFlowSingle(flowId, {
+      success: {
+        func: () => {
+          notification.close()
+          notification.success(`删除 TenxFlow ${item.name} 成功`);
+          scope.loadData()
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (res) => {
+          let statusCode = res.statusCode;
+          switch (statusCode) {
+            case 500:
+              break;
           }
-        })
+          notification.close()
+          notification.error(`删除 TenxFlow ${item.name} 失败`);
+        }
       }
-    });
-
+    })
   },
   showDeloyLog: function (item, e) {
     //this function for show user the deploy log of the tenxflow
@@ -227,6 +229,14 @@ let MyComponent = React.createClass({
     return (
       <div className='tenxflowList'>
         {items}
+        <Modal title="删除TenxFlow操作" visible={this.state.delFlowModal}
+          onOk={()=> this.delFlowAction()} onCancel={()=> this.setState({delFlowModal: false})}
+          >
+          <Alert message="请注意，删除TenxFlow，将清除项目的所有历史数据以及相关的镜像，且该操作不能被恢复" type="warning" showIcon/>
+          <div className="modalColor" style={{lineHeight:'30px'}}><i className="anticon anticon-question-circle-o" style={{marginRight: '8px',marginLeft:'16px'}}></i>
+            您确定要删除?
+          </div>
+        </Modal>
       </div>
     );
   }

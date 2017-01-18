@@ -29,8 +29,6 @@ import { parseAmount } from '../../../../common/tools'
 import moment from 'moment'
 import cloneDeep from 'lodash/cloneDeep'
 
-const confirm = Modal.confirm;
-
 //团队列表组件
 let TeamTable = React.createClass({
   getInitialState() {

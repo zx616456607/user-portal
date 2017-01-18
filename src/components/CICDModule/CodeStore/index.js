@@ -139,32 +139,30 @@ const MyComponent = React.createClass({
     });
   },
   notActive(id) {
-    const self = this
+    this.setState({activeModal: true, activeId: id})
+    // this.targeActive(id)
+    return
+  },
+  targeActive() {
+    this.setState({activeModal: false})
     let notification = new NotificationHandler()
-    Modal.confirm({
-      title: '解除激活',
-      content: '您是否确认要解除这项内容',
-      onOk() {
-        self.props.scope.props.removeProject(id, {
-          success: {
-            func: () => {
-              notification.success('解除激活成功')
-            },
-            isAsync: true
-          },
-          failed: {
-            func: (res) => {
-              if (res.statusCode == 400) {
-                notification.error('该项目正在被TenxFlow引用，请解除引用后重试')
-              } else {
-                notification.error('解除激活失败')
-              }
-            }
-          }
-        })
+    this.props.scope.props.removeProject(this.state.activeId, {
+      success: {
+        func: () => {
+          notification.success('解除激活成功')
+        },
+        isAsync: true
       },
-      onCancel() { return },
-    });
+      failed: {
+        func: (res) => {
+          if (res.statusCode == 400) {
+            notification.error('该项目正在被TenxFlow引用，请解除引用后重试')
+          } else {
+            notification.error('解除激活失败')
+          }
+        }
+      }
+    })
   },
   render: function () {
     const { config, scope, formatMessage } = this.props
@@ -177,12 +175,12 @@ const MyComponent = React.createClass({
             >
             <Menu.Item key={`1@${item.name}`}>
               <i className='fa fa-eye' />&nbsp;
-            WebHook
-          </Menu.Item>
+              WebHook
+            </Menu.Item>
             {item.isPrivate == 1 ?
               <Menu.Item key={`2@${item.name}`}>
                 <span><i className='fa fa-pencil-square-o' />&nbsp;
-            <FormattedMessage {...menusText.show} />
+                <FormattedMessage {...menusText.show} />
                 </span>
               </Menu.Item>
               : null
@@ -194,7 +192,7 @@ const MyComponent = React.createClass({
             >
             <Menu.Item key={`2@${item.name}`}>
               <span><i className='fa fa-pencil-square-o' />&nbsp;
-          <FormattedMessage {...menusText.show} />
+              <FormattedMessage {...menusText.show} />
               </span>
             </Menu.Item>
           </Menu>
@@ -276,6 +274,12 @@ const MyComponent = React.createClass({
               </Tooltip>
             </p>
           </div>
+        </Modal>
+
+        <Modal title="解除激活操作" visible={this.state.activeModal}
+          onOk={()=> this.targeActive()} onCancel={()=> this.setState({activeModal: false})}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要解除激活这项操作?</div>
         </Modal>
       </div>
     );

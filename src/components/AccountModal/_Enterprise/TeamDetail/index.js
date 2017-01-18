@@ -21,8 +21,6 @@ import MemberTransfer from '../../MemberTransfer'
 import CreateSpaceModal from '../../CreateSpaceModal'
 import NotificationHandler from '../../../../common/notification_handler'
 
-const confirm = Modal.confirm;
-
 let MemberList = React.createClass({
   getInitialState() {
     return {
@@ -58,43 +56,39 @@ let MemberList = React.createClass({
     })
   },
 
-  delTeamMember(userID) {
+  delTeamMember() {
     const { removeTeamusers, teamID, loadTeamUserList } = this.props
     const { sortUser, userPageSize, userPage, filter } = this.state
     let self = this
-    confirm({
-      title: '确认从团队中移除该用户?',
-      onOk() {
-        let notification = new NotificationHandler()
-        removeTeamusers(teamID, userID, {
-          success: {
-            func: () => {
-              notification.success("移除用户成功")
-              loadTeamUserList(teamID, {
-                sort: sortUser,
-                page: 1,
-                size: userPageSize,
-                filter,
-              })
-              self.setState({
-                current: 1,
-              })
-            },
-            isAsync: true
-          },
-          failed: {
-            func: (err) => {
-              if (err.statusCode == 401) {
-                notification.error("没有权限从团队中移除创建者")
-              } else {
-                notification.error(err.message.message)
-              }
-            }
-          }
-        })
+    this.setState({UserModal: false})
+    let notification = new NotificationHandler()
+    removeTeamusers(teamID, this.state.userId, {
+      success: {
+        func: () => {
+          notification.success("移除用户成功")
+          loadTeamUserList(teamID, {
+            sort: sortUser,
+            page: 1,
+            size: userPageSize,
+            filter,
+          })
+          self.setState({
+            current: 1,
+          })
+        },
+        isAsync: true
       },
-      onCancel() { }
-    });
+      failed: {
+        func: (err) => {
+          if (err.statusCode == 401) {
+            notification.error("没有权限从团队中移除创建者")
+          } else {
+            notification.error(err.message.message)
+          }
+        }
+      }
+    })
+     
   },
   onShowSizeChange(current, pageSize) {
     let { sortUser, filter } = this.state
@@ -215,7 +209,7 @@ let MemberList = React.createClass({
         key: 'edit',
         render: (text, record, index) => (
           <div className="cardBtns">
-            <Button icon="delete" className="delBtn" onClick={this.delTeamMember.bind(this, record.key)}>
+            <Button icon="delete" className="delBtn" onClick={()=> this.setState({userId: record.key, UserModal: true, userName: record.name}) }>
               移除
             </Button>
           </div>
@@ -231,6 +225,12 @@ let MemberList = React.createClass({
           rowKey={record => record.key}
           onChange={this.onTableChange}
           />
+        <Modal title="移除成员操作" visible={this.state.UserModal}
+          onOk={()=> this.delTeamMember()} onCancel={()=> this.setState({UserModal: false})}
+        >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要移除成员 {this.state.userName ? this.state.userName : ''} ?</div>
+        </Modal>
+       
       </div>
     )
   }
@@ -296,29 +296,25 @@ let TeamList = React.createClass({
       spaceCurrent: current,
     })
   },
-  delTeamSpace(spaceID) {
+  delTeamSpace() {
     const { deleteTeamspace, teamID, loadTeamspaceList, sortSpace, spacePage, spacePageSize, onChange } = this.props
-    confirm({
-      title: '您是否确认要删除这项内容',
-      onOk() {
-        deleteTeamspace(teamID, spaceID, {
-          success: {
-            func: () => {
-              loadTeamspaceList(teamID, {
-                sort: sortSpace,
-                page: 1,
-                size: spacePageSize,
-              })
-              onChange({
-                spaceCurrent: 1
-              })
-            },
-            isAsync: true
-          }
-        })
-      },
-      onCancel() { },
-    });
+    this.setState({TeamModal: false})
+    deleteTeamspace(teamID, this.state.spaceID, {
+      success: {
+        func: () => {
+          loadTeamspaceList(teamID, {
+            sort: sortSpace,
+            page: 1,
+            size: spacePageSize,
+          })
+          onChange({
+            spaceCurrent: 1
+          })
+        },
+        isAsync: true
+      }
+    })
+      
   },
   render: function () {
     const { teamSpacesList, teamSpacesTotal, current } = this.props
@@ -380,7 +376,7 @@ let TeamList = React.createClass({
         dataIndex: 'opt',
         key: 'opt',
         render: (text, record, index) => (
-          <Button icon="delete" className="delBtn" onClick={() => this.delTeamSpace(record.key)}>
+          <Button icon="delete" className="delBtn" onClick={()=> this.setState({TeamModal: true, spaceID: record.key, teamName: record.spaceName})}>
             删除
           </Button>
         )
@@ -389,6 +385,11 @@ let TeamList = React.createClass({
     return (
       <div id='TeamList'>
         <Table columns={columns} dataSource={teamSpacesList} pagination={pagination} />
+         <Modal title="删除团队操作" visible={this.state.TeamModal}
+          onOk={()=> this.delTeamSpace()} onCancel={()=> this.setState({TeamModal: false})}
+        >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除该团队空间 {this.state.teamName ? this.state.teamName : ''} ?</div>
+        </Modal>
       </div>
     )
   }

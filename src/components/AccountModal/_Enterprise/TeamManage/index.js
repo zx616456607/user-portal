@@ -23,8 +23,6 @@ import MemberTransfer from '../../MemberTransfer'
 import CreateTeamModal from '../../CreateTeamModal'
 import NotificationHandler from '../../../../common/notification_handler'
 
-const confirm = Modal.confirm;
-
 let TeamTable = React.createClass({
   getInitialState() {
     return {
@@ -52,38 +50,35 @@ let TeamTable = React.createClass({
       notFound: false,
     })
   },
-  delTeam(teamID, teamName) {
+  delTeam() {
     const {deleteTeam, loadUserTeamList} = this.props.scope.props
     const {page, pageSize, sort, filter} = this.props.scope.state
-    confirm({
-      title: '确认要删除团队 ' + teamName + ' ?',
-      onOk() {
-        let notification = new NotificationHandler()
-        notification.spin(`删除 ${teamName} 中...`)
-        deleteTeam(teamID, {
-          success: {
-            func: () => {
-              notification.close()
-              notification.success(`删除 ${teamName} 成功`)
-              loadUserTeamList('default', {
-                page: page,
-                size: pageSize,
-                sort,
-                filter,
-              })
-            },
-            isAsync: true
-          },
-          failed: {
-            func: (err) => {
-              notification.close()
-              notification.error(`删除 ${teamName} 失败: ` + err.message.message)
-            }
-          }
-        })
+    const { teamName, teamID } = this.state
+    this.setState({delTeamModal: false})
+    let notification = new NotificationHandler()
+    notification.spin(`删除 ${teamName} 中...`)
+    deleteTeam(teamID, {
+      success: {
+        func: () => {
+          notification.close()
+          notification.success(`删除 ${teamName} 成功`)
+          loadUserTeamList('default', {
+            page: page,
+            size: pageSize,
+            sort,
+            filter,
+          })
+        },
+        isAsync: true
       },
-      onCancel() { }
-    });
+      failed: {
+        func: (err) => {
+          notification.close()
+          notification.error(`删除 ${teamName} 失败: ` + err.message.message)
+        }
+      }
+    })
+
   },
   getSort(order, column) {
     var query = {}
@@ -338,17 +333,24 @@ let TeamTable = React.createClass({
                 teamID={record.key}
                 teamUserIDList={teamUserIDList} />
             </Modal>
-            <Button icon="delete" className="delBtn" onClick={() => this.delTeam(record.key, record.team)}>删除</Button>
+            <Button icon="delete" className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
           </div>
         )
       },
     ]
     return (
+      <div>
       <Table columns={columns}
         dataSource={searchResult.length === 0 ? data : searchResult}
         pagination={pagination}
         onChange={this.handleChange}
       />
+      <Modal title="删除团队操作" visible={this.state.delTeamModal}
+        onOk={()=> this.delTeam()} onCancel={()=> this.setState({delTeamModal: false})}
+      >
+      <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除团队 {this.state.teamName} ?</div>
+     </Modal>
+     </div>
     )
   },
 })
