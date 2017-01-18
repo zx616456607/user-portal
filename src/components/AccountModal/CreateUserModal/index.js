@@ -215,7 +215,7 @@ let CreateUserModal = React.createClass({
             hasFeedback
             help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
             >
-            <Input {...nameProps} placeholder="新成员名称" />
+            <Input {...nameProps} placeholder="新成员名称" id="newUser"/>
           </FormItem>
 
           <FormItem

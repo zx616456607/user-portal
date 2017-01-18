@@ -388,6 +388,9 @@ class MemberManage extends Component {
     this.setState({
       visible: true,
     })
+    setTimeout(function() {
+      document.getElementById('newUser').focus()
+    }, 500);
   }
   componentWillMount() {
     document.title = '成员管理 | 时速云'
