@@ -536,7 +536,7 @@ let AppDeployServiceModal = React.createClass({
       noArgsAndCommandFlag = true;
       notification['warning']({
         message: '创建服务：辅助设置',
-        description: '进入点与启动命令必须有一个！',
+        description: '进入点与启动命令至少定义其中一个！',
       });
       return;
     }
