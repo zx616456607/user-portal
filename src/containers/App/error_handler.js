@@ -47,6 +47,10 @@ const messages = defineMessages({
     id: 'App.error.502',
     defaultMessage: '请求{resource}无响应',
   },
+  error503: {
+    id: 'App.error.503',
+    defaultMessage: '服务暂时不可用，请稍后重试',
+  },
   error504: {
     id: 'App.error.504',
     defaultMessage: '请求{resource}超时',
@@ -55,6 +59,12 @@ const messages = defineMessages({
 
 export default function handler(error, intl) {
   const { formatMessage } = intl
+  if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+    error.message = {
+      code: 503,
+      message: ''
+    }
+  }
   const defaultError = formatMessage(messages.error)
   let { message, description, duration } = _errorFormat(error)
   notification.error({
@@ -67,7 +77,7 @@ export default function handler(error, intl) {
   function _errorFormat(error) {
     const errorMessage = error.message
     let { message, details, code } = errorMessage
-    if (!message) {
+    if (message === undefined) {
       message = error.message
     }
     const { title, duration } = _translateMessageByCode(errorMessage)
@@ -108,12 +118,12 @@ export default function handler(error, intl) {
       data.title = formatMessage(messages.error400, { resource })
       return data
     }
-    if (code > 500) {
-      data.title = formatMessage(messages.error500, { resource })
-      return data
-    }
     if (code == 502) {
       data.title = formatMessage(messages.error502, { resource })
+      return data
+    }
+    if (code == 503) {
+      data.title = formatMessage(messages.error503)
       return data
     }
     if (code == 504) {
