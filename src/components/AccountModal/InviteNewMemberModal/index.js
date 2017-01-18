@@ -127,10 +127,10 @@ class InviteNewMemberModal extends Component{
       >
         <div className='inviteModal'>
           <Row className='inviteTitle'>
-            <Col span={12}>
+            <Col span={16}>
               请输入被邀请人的邮箱后按Tab或回车键添加
             </Col>
-            <Col className="inviteCount" span={12}>
+            <Col className="inviteCount" span={8}>
               还可添加{maxInvitationNum - tags.length}人
             </Col>
           </Row>
