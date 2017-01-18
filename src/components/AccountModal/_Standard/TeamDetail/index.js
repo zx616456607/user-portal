@@ -28,8 +28,6 @@ class TeamDetail extends Component {
     this.getSort = this.getSort.bind(this)
     this.handleSortMemberName = this.handleSortMemberName.bind(this)
     this.getColumns = this.getColumns.bind(this)
-    this.handleRemoveMember = this.handleRemoveMember.bind(this)
-    this.handleCancelInvite = this.handleCancelInvite.bind(this)
     this.handleQuiteTeam = this.handleQuiteTeam.bind(this)
     this.handleDelTeam = this.handleDelTeam.bind(this)
     this.handleAddNewMember = this.handleAddNewMember.bind(this)
@@ -79,15 +77,10 @@ class TeamDetail extends Component {
     })
   }
   //移除成员
-  handleRemoveMember (userName) {
+  handleRemoveMember () {
     const { removeTeamusersStd ,teamID } = this.props
-    confirm({
-      title: '您是否确认要移除该成员',
-      onOk() {
-        removeTeamusersStd(teamID, userName)
-      },
-      onCancel() { },
-    })
+    removeTeamusersStd(teamID, this.state.userName)
+    
   }
   //发送邀请
   inviteOnSubmit(teamID, emails) {
@@ -112,31 +105,27 @@ class TeamDetail extends Component {
   }
 
   //取消邀请
-  handleCancelInvite (email) {
+  handleCancelInvite () {
     const { cancelInvitation ,teamID, loadTeamUserListStd } = this.props
-    confirm({
-      title: '您是否确认要取消邀请',
-      onOk() {
-        let notification = new NotificationHandler()
-        notification.spin(`取消邀请中...`)
-        cancelInvitation(teamID, email, {
-          success: {
-            func: (result) => {
-              notification.close()
-              loadTeamUserListStd(teamID, { sort: 'a,userName', size: 100, page: 1 })
-            },
-            isAsync: true,
-          },
-          failed: {
-            func: (err) => {
-              notification.close()
-              notification.error(`取消邀请失败`, err.message.message)
-            }
-          }
-        })
+    this.setState({activeModal: false})
+    let notification = new NotificationHandler()
+    notification.spin(`取消邀请中...`)
+    cancelInvitation(teamID, this.state.userEmail, {
+      success: {
+        func: (result) => {
+          notification.close()
+          loadTeamUserListStd(teamID, { sort: 'a,userName', size: 100, page: 1 })
+        },
+        isAsync: true,
       },
-      onCancel() { },
+      failed: {
+        func: (err) => {
+          notification.close()
+          notification.error(`取消邀请失败`, err.message.message)
+        }
+      }
     })
+      
   }
   //去充值
   //退出团队
@@ -271,8 +260,8 @@ class TeamDetail extends Component {
           </Link>
           :
           record.role == "-" ?
-            <Button className="tabOptBtn hoverRed" icon="cross" onClick={() => this.handleCancelInvite(record.key)}>取消邀请</Button>:
-            <Button className="tabOptBtn hoverRed" icon="delete" onClick={() => this.handleRemoveMember(record.name)}>移除</Button>
+            <Button className="tabOptBtn hoverRed" icon="cross" onClick={() => this.setState({userEmail:record.key, activeModal: true})}>取消邀请</Button>:
+            <Button className="tabOptBtn hoverRed" icon="delete" onClick={() => this.setState({userName:record.name, removeModal: true})}>移除</Button>
         )
       },
     ]
@@ -357,6 +346,16 @@ class TeamDetail extends Component {
               </Card>
             </div>
         }
+        <Modal title="取消邀请操作" visible={this.state.activeModal}
+          onOk={()=> this.handleCancelInvite()} onCancel={()=> this.setState({activeModal: false})}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要取消邀请这个成员?</div>
+        </Modal>
+        <Modal title="移除成员操作" visible={this.state.removeModal}
+          onOk={()=> this.handleRemoveMember()} onCancel={()=> this.setState({removeModal: false})}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要移除成员 {this.state.userName ? this.state.userName: ''} ?</div>
+        </Modal>
       </div>
     )
   }
