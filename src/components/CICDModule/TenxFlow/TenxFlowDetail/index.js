@@ -344,8 +344,8 @@ function mapStateToProps(state, props) {
   const { getTenxflowDetail, getTenxflowBuildLastLogs, getCdImage } = state.cicd_flow;
   const { cdImageList } = getCdImage || []
   const { isFetching, flowInfo } = getTenxflowDetail || defaultFlowInfo;
-  const buildFetching = getTenxflowBuildLastLogs.isFetching || deafaultFlowLog.isFetching;
-  const { logs } = getTenxflowBuildLastLogs;
+  const buildFetching = getTenxflowBuildLastLogs ? getTenxflowBuildLastLogs.isFetching : deafaultFlowLog.isFetching
+  const logs = getTenxflowBuildLastLogs ? getTenxflowBuildLastLogs.logs : deafaultFlowLog.logs;
   return {
     isFetching,
     flowInfo,

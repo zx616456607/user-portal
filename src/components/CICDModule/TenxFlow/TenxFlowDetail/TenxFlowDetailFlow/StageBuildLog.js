@@ -372,7 +372,7 @@ class StageBuildLog extends Component {
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='paddingBox'>
-          <MyComponent config={logs} scope={scope} flowId={flowId} />
+        <MyComponent config={logs} scope={scope} flowId={flowId} getTenxflowBuildLastLogs={(flowId)=>this.props.getTenxflowBuildLastLogs(flowId)}/>
           <div style={{ clear: 'both' }}></div>
         </div>
       </div>
@@ -393,7 +393,8 @@ StageBuildLog.propTypes = {
 
 export default connect(mapStateToProps, {
   getFlowBuildStageLogs,
-  StopTenxflowBuild
+  StopTenxflowBuild,
+  getTenxflowBuildLastLogs
 })(injectIntl(StageBuildLog, {
   withRef: true,
 }));

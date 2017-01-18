@@ -688,6 +688,7 @@ function getTenxflowBuildLastLogs(state = {}, action) {
         clonestate.logs[index].status = status
         clonestate.logs[index].logInfo = log
       }
+
       return clonestate
     default:
       return state
@@ -740,14 +741,14 @@ function getStageBuildLogList(state = {}, action) {
         isFetching: false
       })
     case ActionTypes.CHANGE_CI_FLOW_STATUS: {
-      const cloneStats = cloneDeep(state)
+      const cloneState = cloneDeep(state)
       const {index, status, log} = action.body
-      if (cloneStats) {
-        if (!cloneStats.logs) return
-        cloneStats.logs[index].status = status
-        cloneStats.logs[index].logInfo = log
+      if (cloneState) {
+        if (!cloneState.logs) return
+        cloneState.logs[index].status = status
+        cloneState.logs[index].logInfo = log
       }
-      return cloneStats
+      return cloneState
     }
     default:
       return state

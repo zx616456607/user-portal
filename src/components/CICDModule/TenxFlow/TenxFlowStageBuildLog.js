@@ -71,7 +71,8 @@ class TenxFlowStageBuildLog extends Component {
       if (callback) {
         callback(data)
       }
-      if(!self.props.index) return
+      if(self.props.index != 0 && !self.props.index) return
+      console.log(data)
       self.props.changeCiFlowStatus(self.props.index, data.state, self.state.logs)
       if(callback) {
         callback(data)
