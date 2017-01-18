@@ -26,6 +26,7 @@ const Panel = Collapse.Panel;
 const createForm = Form.create;
 const FormItem = Form.Item;
 let noPortFlag = false;
+let noArgsAndCommandFlag = false;
 
 let AppDeployServiceModal = React.createClass({
   propTypes: {
@@ -289,6 +290,7 @@ let AppDeployServiceModal = React.createClass({
   },
   componentWillMount() {
     noPortFlag = false;
+    noArgsAndCommandFlag = false;
     document.title = '部署应用 | 时速云'
     if (!this.props.scope.state.isCreate) {
       this.setForm()
@@ -296,6 +298,7 @@ let AppDeployServiceModal = React.createClass({
   },
   componentWillReceiveProps(nextProps) {
     noPortFlag = false;
+    noArgsAndCommandFlag = false;
     const {serviceOpen} = nextProps
     if (serviceOpen != this.props.serviceOpen && serviceOpen) {
       if (serviceOpen) {
@@ -501,22 +504,42 @@ let AppDeployServiceModal = React.createClass({
         )
       })
     }
+    //due to entry point and start command must be have last one
+    //so we check both of them, if both of them is null, we will callback error
+    let checkArgsFlag = true;//for check args is null or not
+    let checkCommandFlag = true;//for check command is null or not
     //args 执行命令
     if (this.state.runningCode === '1') {
       const args = getFieldValue('cmdKey').map(i => {
+        if(!Boolean(getFieldValue(`cmd${i}`)) || getFieldValue(`cmd${i}`).length == 0) {
+          checkArgsFlag = false;
+        }
         return getFieldValue(`cmd${i}`)
       })
       deploymentList.addContainerArgs(serviceName, args)
     } else {
       const args = getFieldValue('userCMDKey').map(i => {
+        if(!Boolean(getFieldValue(`userCMD${i}`)) || getFieldValue(`userCMD${i}`).length == 0) {
+          checkArgsFlag = false;
+        }
         return getFieldValue(`userCMD${i}`)
       })
       deploymentList.addContainerArgs(serviceName, args)
     }
+    //command
     if (command && command != "") {
       deploymentList.addContainerCommand(serviceName, command)
+    } else {
+      checkCommandFlag = false;
     }
-    //command
+    if(!checkCommandFlag && !checkArgsFlag) {
+      noArgsAndCommandFlag = true;
+      notification['warning']({
+        message: '创建服务：辅助设置',
+        description: '进入点与启动命令至少定义其中一个！',
+      });
+      return;
+    }
     //imagePullPolicy 重新部署
     if (scope.getImageType === '2') {
       deploymentList.setContainerImagePullPolicy(serviceName, 'Always')
@@ -658,7 +681,7 @@ let AppDeployServiceModal = React.createClass({
         })
         this.submitNewService()
       }
-      if(!noPortFlag) {
+      if(!noPortFlag && !noArgsAndCommandFlag) {
         this.props.form.resetFields()
         parentScope.setState({
           serviceModalShow: false,

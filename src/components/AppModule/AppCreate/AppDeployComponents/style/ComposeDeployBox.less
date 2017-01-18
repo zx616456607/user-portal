@@ -1,9 +1,9 @@
-#ComposeDeployBox{
+#ComposeDeployBox {
   .composeBox {
     padding-left: 40px;
     padding-right: 24px;
-    .ant-form-item{
-      margin-bottom: 0px !important;
+    .ant-form-item {
+      margin-bottom: 0 !important;
     }
     .title {
       display: block;
@@ -28,7 +28,7 @@
           text-align: left;
         }
       }
-      ul{
+      ul {
         border: 1px solid #E5E5E5;
         border-bottom: 0;
       }
@@ -59,7 +59,7 @@
           float: left;
           width: 25%;
           .ant-checkbox-wrapper {
-            margin-left: 0px !important;
+            margin-left: 0 !important;
             margin-right: 8px !important;
           }
         }
@@ -78,9 +78,15 @@
       position: relative;
       margin-top: 10px;
       padding-left: 25px;
-      cursor: pointer;
-      font-size: 14px;
+      width: 70px;
       height: 30px;
+      font-size: 14px;
+      cursor: pointer;
+      -webkit-transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+      transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+      &:hover {
+        color: #2db7f5;
+      }
       i {
         position: absolute;
         top: 5px;

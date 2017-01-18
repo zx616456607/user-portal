@@ -41,6 +41,7 @@ class ComposeFile extends Component {
     this.appNameCheck = this.appNameCheck.bind(this)
     this.remarkCheck = this.remarkCheck.bind(this)
     this.editYamlSetState = this.editYamlSetState.bind(this)
+    this.handleVisibleChange = this.handleVisibleChange.bind(this)
 
     let serviceList = JSON.parse(localStorage.getItem('servicesList'))
     let selectedList = JSON.parse(localStorage.getItem('selectedList'))

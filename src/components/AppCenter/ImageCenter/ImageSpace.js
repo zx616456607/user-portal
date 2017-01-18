@@ -13,7 +13,7 @@ import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadPrivateImageList, getImageDetailInfo, deleteImage, checkImage } from '../../../actions/app_center'
+import { loadPrivateImageList, getImageDetailInfo, deleteImage, checkImage, searchPrivateImages } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import "./style/ImageSpace.less"
 import ImageDetailBox from './ImageDetail'
@@ -181,7 +181,7 @@ const MyComponent = React.createClass({
     }
     if (imageList.length === 0) {
       return (
-        <div style={{ lineHeight: '100px', height: '200px', paddingLeft: '40px' }}>您还没有镜像，去上传一个吧！</div>
+        <div style={{ lineHeight: '100px', height: '200px', paddingLeft: '30px' }}>您还没有镜像，去上传一个吧！</div>
       )
     }
     let items = imageList.map((item, index) => {
@@ -294,6 +294,13 @@ class ImageSpace extends Component {
       privateDetailModal: false
     });
   }
+  searchImage() {
+    const condition = {
+      imageName: this.state.imageName || '', 
+      registry: this.props.registry
+    }
+    this.props.searchPrivateImages(condition)
+  }
 
   render() {
     const { formatMessage } = this.props.intl;
@@ -319,7 +326,10 @@ class ImageSpace extends Component {
                 </svg>
                 <FormattedMessage {...menusText.downloadImage} />
               </Button>
-
+              <span className="searchBox">
+                <Input className="searchInput" size="large" placeholder="搜索" type="text" onChange={(e)=> this.setState({imageName: e.target.value})} onPressEnter={()=> this.searchImage()} />
+                <i className="fa fa-search" onClick={()=> this.searchImage()}></i>
+              </span>
             </div>
             <MyComponent scope={scope} isFetching={this.props.isFetching} imageList={imageList} registryServer={server} imageInfo={imageInfo} getImageDetailInfo={(obj, callback) => this.props.getImageDetailInfo(obj, callback)} />
             <Modal title={<FormattedMessage {...menusText.uploadImage} />} className="uploadImageModal" visible={this.state.uploadModalVisible}
@@ -412,7 +422,8 @@ export default connect(mapStateToProps, {
   loadPrivateImageList,
   getImageDetailInfo,
   deleteImage,
-  checkImage
+  checkImage,
+  searchPrivateImages
 })(injectIntl(ImageSpace, {
   withRef: true,
 }))
