@@ -601,5 +601,6 @@
   "App.error.409": "Request {resource} conflict",
   "App.error.500": "Internal server error for request {resource}",
   "App.error.502": "Request {resource} bad gateway",
+  "App.error.503": "Service unavailable. Please try again later",
   "App.error.504": "Request {resource} gateway timeout"
 }
