@@ -83,7 +83,7 @@ class AppServiceLog extends Component {
      let state = {
        serviceLogs,
      }
-     const clusterLogs = this.state.serviceLogs[cluster]
+     const clusterLogs = serviceLogs[cluster]
      if (!clusterLogs || !clusterLogs['logs'] || !clusterLogs['logs']['data'] || clusterLogs['logs']['data'].length == 0) {
        state.serviceLogs = {
          [cluster]: {
