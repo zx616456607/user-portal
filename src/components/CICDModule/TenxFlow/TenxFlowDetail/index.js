@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { getTenxFlowDetail, getTenxflowBuildLastLogs, getTenxFlowYAML, deploymentLog, getTenxflowBuildLogs, getCdInimage } from '../../../../actions/cicd_flow'
+import { getTenxFlowDetail, getTenxflowBuildLastLogs, getTenxFlowYAML, deploymentLog, getTenxflowBuildLogs, getCdInimage, changeBuildStatus } from '../../../../actions/cicd_flow'
 import { checkImage } from '../../../../actions/app_center'
 import './style/TenxFlowDetail.less'
 import TenxFlowDetailAlert from './TenxFlowDetailAlert.js'
@@ -237,7 +237,20 @@ class TenxFlowDetail extends Component {
       refreshFlag: true
     });
   }
-
+  callback(flowId) {
+    const {getTenxflowBuildLastLogs, changeBuildStatus} = this.props
+    return ()=> {
+      getTenxflowBuildLastLogs(flowId, {
+        success: {
+          func: (result) => {
+            const info = result.data.results.results
+            changeBuildStatus(info.buildId, info.status)
+          },
+          isAsync: true
+        }
+      })
+    }
+  }
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
@@ -312,7 +325,7 @@ class TenxFlowDetail extends Component {
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={flowInfo.flowId} />
+          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={flowInfo.flowId} callback={this.callback(flowInfo.flowId)}/>
         </Modal>
       </QueueAnim>
     )
@@ -354,7 +367,8 @@ export default connect(mapStateToProps, {
   checkImage,
   deploymentLog,
   getCdInimage,
-  getTenxflowBuildLogs
+  getTenxflowBuildLogs,
+  changeBuildStatus
 })(injectIntl(TenxFlowDetail, {
   withRef: true,
 }));

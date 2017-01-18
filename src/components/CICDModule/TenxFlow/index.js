@@ -13,13 +13,14 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getTenxFlowList, deleteTenxFlowSingle, getTenxflowBuildLastLogs, CreateTenxflowBuild, getTenxflowBuildDetailLogs } from '../../../actions/cicd_flow'
+import { getTenxFlowList, deleteTenxFlowSingle, getTenxflowBuildLastLogs, CreateTenxflowBuild, getTenxflowBuildDetailLogs, changeTenxFlowStatus, changeFlowStatus } from '../../../actions/cicd_flow'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
 import TenxFlowBuildLog from './TenxFlowBuildLog'
 import moment from 'moment'
 import './style/TenxFlowList.less'
-import cloneDeep from 'lodash/cloneDeep'
+import cloneDeep from 'lodash/cloneDeep' 
+import findIndex from 'lodash/findIndex'
 import NotificationHandler from '../../../common/notification_handler'
 
 const SubMenu = Menu.SubMenu
@@ -153,7 +154,7 @@ let MyComponent = React.createClass({
         func: (res) => {
           Modal.error({
             title: '构建失败',
-            content: (res.message.results.message)
+            content: (res.message.message)
           });
         }
       }
@@ -342,7 +343,46 @@ class TenxFlowList extends Component {
       searchingFlag: searchingFlag
     })
   }
-
+  callback(flowId) {
+    const count = this.props.config ? this.props.config.length : 0
+    const self = this
+    const flowList = self.props.flowList
+    return (data) => {
+      const { getTenxflowBuildLastLogs, getTenxFlowDetail, changeFlowStatus } = this.props;
+      getTenxflowBuildLastLogs(flowId, {
+        success: {
+          func: (result) => {
+            const flowListState = cloneDeep(this.state.flowListState)
+            const index = findIndex(flowList, flow => {
+              return flow.flowId == flowId
+            })
+            if(index < 0 ) return
+            const status = result.data.results.results.status
+            flowListState[index].status = status
+            self.setState({
+              flowListState
+            })
+            changeFlowStatus(flowId, status)
+          },
+          isAsync: true
+        },
+        failed: {
+          func:() => {
+            const flowListState = cloneDeep(this.state.flowListState)
+            const index = findIndex(flowListState, flow => {
+              return flow.flowId == flowId
+            })
+            if (index < 0) return
+            flowListState[index].status == 1
+            self.setState({
+              flowListState
+            })
+            changeFlowStatus(flowId, 1)
+          }
+        }
+      })
+    }
+  }
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
@@ -356,6 +396,7 @@ class TenxFlowList extends Component {
         </div>
       )
     }
+
     if (flowList.length < 1 && !searchingFlag) {
       message = " * 目前还没有添加任何 TenxFlow"
     } else if (flowList.length < 1 && searchingFlag) {
@@ -411,7 +452,7 @@ class TenxFlowList extends Component {
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} />
+          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} callback={this.callback(this.state.currentFlowId)}/>
         </Modal>
       </QueueAnim>
     )
@@ -450,7 +491,8 @@ export default connect(mapStateToProps, {
   deleteTenxFlowSingle,
   getTenxflowBuildLastLogs,
   CreateTenxflowBuild,
-  getTenxflowBuildDetailLogs
+  getTenxflowBuildDetailLogs,
+  changeFlowStatus
 })(injectIntl(TenxFlowList, {
   withRef: true,
 }));

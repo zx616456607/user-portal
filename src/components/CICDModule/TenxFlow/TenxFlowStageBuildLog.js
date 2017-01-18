@@ -53,6 +53,7 @@ class TenxFlowStageBuildLog extends Component {
   }  
   onSetup(socket) {
     const logInfo = this.props.logInfo
+    const callback = this.props.callback
     const self = this
    
     socket.emit("ciLogs", {flowId: this.props.flowId, stageId: logInfo.stageId, stageBuildId: logInfo.buildId })
@@ -67,7 +68,14 @@ class TenxFlowStageBuildLog extends Component {
       },100)
     })
     socket.on("ciLogs-ended", function(data) {
+      if (callback) {
+        callback(data)
+      }
+      if(!self.props.index) return
       self.props.changeCiFlowStatus(self.props.index, data.state, self.state.logs)
+      if(callback) {
+        callback(data)
+      }
     })
   } 
   render() {

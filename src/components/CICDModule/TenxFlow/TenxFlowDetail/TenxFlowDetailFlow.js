@@ -284,7 +284,6 @@ class TenxFlowDetailFlow extends Component {
       if (data.status !== 200) { return }
       if (data.results.buildStatus == 2) {
         let buildingList = []
-        console.log('------------------------------------------------------------update')
         getTenxFlowStateList(flowId, {
           success: {
             func: (res) => {
