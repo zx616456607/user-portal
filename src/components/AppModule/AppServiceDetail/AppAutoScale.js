@@ -20,8 +20,6 @@ import './style/AppAutoScale.less'
 import NotificationHandler from '../../../common/notification_handler'
 import { isStorageUsed } from '../../../common/tools'
 
-const confirm = Modal.confirm
-
 function loadData(props) {
   const { cluster, serviceName, loadAutoScale } = props
   loadAutoScale(cluster, serviceName)
@@ -102,7 +100,6 @@ class AppAutoScale extends Component {
 
   handleSwitch() {
     const { isAutoScaleOpen } = this.state
-    const self = this
     if (!isAutoScaleOpen) {
       this.setState({
         saveText: '开启并保存',
@@ -110,45 +107,43 @@ class AppAutoScale extends Component {
       })
       return
     }
+  this.setState({closeModal: true})
+
+  }
+  closeAutoScale() {
     const { cluster, serviceName, deleteAutoScale, loadAutoScale } = this.props
+    const self = this
+    this.setState({closeModal: false})
     let notification = new NotificationHandler()
-    confirm({
-      title: `您是否确定要关闭自动伸缩？`,
-      // content: '',
-      onOk() {
-        return new Promise((resolve) => {
-          resolve()
-          notification.spin('正在保存中...')
-          deleteAutoScale(cluster, serviceName, {
-            success: {
-              func: () => {
-                loadAutoScale(cluster, serviceName, {
-                  success: {
-                    func: () => {
-                      self.setState({
-                        isAutoScaleOpen: false
-                      })
-                      notification.close()
-                      notification.success('自动伸缩已关闭')
-                    }
-                  }
-                })
-              },
-              isAsync: true
-            },
-            failed: {
-              func: () => {
-                notification.close()
-                notification.error('关闭自动伸缩失败')
+    return new Promise((resolve) => {
+      resolve()
+      notification.spin('正在保存中...')
+      deleteAutoScale(cluster, serviceName, {
+        success: {
+          func: () => {
+            loadAutoScale(cluster, serviceName, {
+              success: {
+                func: () => {
+                  self.setState({
+                    isAutoScaleOpen: false
+                  })
+                  notification.close()
+                  notification.success('自动伸缩已关闭')
+                }
               }
-            }
-          })
-        })
-      },
-      onCancel() { },
+            })
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            notification.close()
+            notification.error('关闭自动伸缩失败')
+          }
+        }
+      })
     })
   }
-
   handleEdit() {
     this.setState({
       saveText: '保存',
@@ -336,6 +331,11 @@ class AppAutoScale extends Component {
           </Row>
           <Row className="cardItem" />
         </Card>
+        <Modal title="关闭弹性伸缩操作" visible={this.state.closeModal}
+          onOk={()=> this.closeAutoScale()} onCancel={()=> this.setState({closeModal: false})}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要关闭此项弹性伸缩?</div>
+        </Modal>
       </div>
     )
   }

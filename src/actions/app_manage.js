@@ -19,12 +19,16 @@ export const APP_LIST_FAILURE = 'APP_LIST_FAILURE'
 // Fetches app list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchAppList(cluster, query, callback) {
+  // Front-end customization requirements
+  let { customizeOpts } = query || {}
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps`
   if (query) {
+    delete query.customizeOpts
     endpoint += `?${toQuerystring(query)}`
   }
   return {
     cluster,
+    customizeOpts,
     [FETCH_API]: {
       types: [APP_LIST_REQUEST, APP_LIST_SUCCESS, APP_LIST_FAILURE],
       endpoint,
@@ -323,11 +327,14 @@ export const CONTAINER_LIST_FAILURE = 'CONTAINER_LIST_FAILURE'
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchContainerList(cluster, query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers`
+  let { customizeOpts } = query || {}
   if (query) {
+    delete query.customizeOpts
     endpoint += `?${toQuerystring(query)}`
   }
   return {
     cluster,
+    customizeOpts,
     [FETCH_API]: {
       types: [CONTAINER_LIST_REQUEST, CONTAINER_LIST_SUCCESS, CONTAINER_LIST_FAILURE],
       endpoint,

@@ -231,7 +231,7 @@ function getProject(state = {}, action) {
       const filterState = cloneDeep(state)
       if (action.types == 'all') {
         filterState.projectList = filterState.bak
-        return {  ...filterState }
+        return { ...filterState }
       }
       const lists = filterState.bak.filter(list => {
         if (list.isPrivate == action.types) {
@@ -323,7 +323,7 @@ function deployLog(state = {}, action) {
     case ActionTypes.GET_DEPLOY_LOG_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        deployList: 　action.response.result.data.results
+        deployList: action.response.result.data.results
       })
     case ActionTypes.GET_DEPLOY_LOG_FAILURE:
       return Object.assign({}, state, {
@@ -351,7 +351,7 @@ function getCdRules(state = {}, action) {
       }
       return Object.assign({}, state, {
         isFetching: false,
-        cdRulesList: 　action.response.result.data.results
+        cdRulesList: action.response.result.data.results
       })
     case ActionTypes.GET_CD_RULES_LIST_FAILURE:
       return Object.assign({}, state, {
@@ -364,7 +364,7 @@ function getCdRules(state = {}, action) {
         return item.ruleId == action.ruleId
       })
       cdState.cdRulesList.splice(cin, 1)
-      return {...cdState }
+      return { ...cdState }
 
     default:
       return state
@@ -415,7 +415,19 @@ function getTenxflowList(state = {}, action) {
       return merge({}, defaultState, state, {
         isFetching: false
       })
-
+    case ActionTypes.CHANGE_FLOW_STATUS_SUCCESS: {
+      const flowId = action.flowId
+      const status = action.status
+      const cloneState = cloneDeep(state)
+      const index = findIndex(cloneState.flowList, (item) => {
+        return item.flowId == flowId
+      })
+      if (index < 0) {
+        return cloneState
+      }
+      cloneState.flowList[index].status = status
+      return cloneState
+    }
     default:
       return state
   }
@@ -495,10 +507,10 @@ function getTenxflowStageList(state = {}, action) {
       const body = action.body
       const cloneState = cloneDeep(state)
       cloneState.stageList.forEach(item => {
-        if(!item.lastBuildStatus) {
+        if (!item.lastBuildStatus) {
           return
         }
-        if(item.metadata.id == body.stageId && item.lastBuildStatus.buildId == body.stageBuildId) {
+        if (item.metadata.id == body.stageId && item.lastBuildStatus.buildId == body.stageBuildId) {
           item.lastBuildStatus.status = body.buildStatus
         }
       })
@@ -604,6 +616,19 @@ function getTenxflowBuildLogs(state = {}, action) {
       return merge({}, defaultState, state, {
         isFetching: false
       })
+    case ActionTypes.CHANGE_BUILD_STATUS:
+      if(!state.logs || state.logs.length <=0 ) return state
+      const cloneState = cloneDeep(state)
+      const index = findIndex(cloneState.logs, log => {
+        return log.buildId == action.buildId
+      })
+      if(index < 0){
+        return cloneState
+      }
+      cloneState.logs[index].status = action.status
+      return cloneState
+      return
+      return cloneState
     default:
       return state
   }
@@ -634,6 +659,7 @@ function getTenxflowBuildDetailLogs(state = {}, action) {
   }
 }
 
+
 function getTenxflowBuildLastLogs(state = {}, action) {
   const defaultState = {
     isFetching: false,
@@ -654,6 +680,16 @@ function getTenxflowBuildLastLogs(state = {}, action) {
       return merge({}, defaultState, state, {
         isFetching: false
       })
+    case ActionTypes.CHANGE_CI_FLOW_STATUS:
+      const clonestate = cloneDeep(state)
+      const {index, status, log} = action.body
+      if (clonestate) {
+        if (!clonestate.logs || !clonestate.logs[index]) return
+        clonestate.logs[index].status = status
+        clonestate.logs[index].logInfo = log
+      }
+
+      return clonestate
     default:
       return state
   }
@@ -705,36 +741,37 @@ function getStageBuildLogList(state = {}, action) {
         isFetching: false
       })
     case ActionTypes.CHANGE_CI_FLOW_STATUS: {
-      const cloneStats = cloneDeep(state)
+      const cloneState = cloneDeep(state)
       const {index, status, log} = action.body
-      if (cloneStats) {
-        cloneStats.logs[index].status = status
-        cloneStats.logs[index].logInfo = log
+      if (cloneState) {
+        if (!cloneState.logs) return
+        cloneState.logs[index].status = status
+        cloneState.logs[index].logInfo = log
       }
-      return cloneStats
+      return cloneState
     }
     default:
       return state
   }
 }
 
-function availableImage(state ={}, action) {
+function availableImage(state = {}, action) {
   const defaultState = {
     isFetching: false,
     imageList: []
   }
-  switch(action.type) {
+  switch (action.type) {
     case ActionTypes.GET_AVAILABLE_IMAGE_REQUEST: {
-      return merge({}, defaultState, {isFetching: true})
+      return merge({}, defaultState, { isFetching: true })
     }
     case ActionTypes.GET_AVAILABLE_IMAGE_SUCCESS: {
       const result = action.response.result.data.results || []
       const imageList = []
       const temp = {}
-      for(let a in result) {
+      for (let a in result) {
         let key = result[a].categoryName
         if (!temp[key]) {
-          temp[key] = {imageList:[], title: key}
+          temp[key] = { imageList: [], title: key }
           temp[key].imageList.push(result[a])
         } else {
           temp[key].imageList.push(result[a])

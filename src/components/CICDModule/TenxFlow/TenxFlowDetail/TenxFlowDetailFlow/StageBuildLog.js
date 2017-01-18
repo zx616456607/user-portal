@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getFlowBuildStageLogs, StopTenxflowBuild } from '../../../../../actions/cicd_flow'
+import { getFlowBuildStageLogs, StopTenxflowBuild, getTenxflowBuildLastLogs } from '../../../../../actions/cicd_flow'
 import moment from 'moment'
 import './style/StageBuildLog.less'
 import TenxFlowStageBuildLog from '../../TenxFlowStageBuildLog'
@@ -203,6 +203,12 @@ let MyComponent = React.createClass({
       })
     }
   },
+  callback(flowId) {
+    return () => {
+      const {getTenxflowBuildLastLogs} = this.props
+      getTenxflowBuildLastLogs(flowId)
+    }
+  },
   render: function () {
     const { config, scope, flowId } = this.props;
 
@@ -249,7 +255,7 @@ let MyComponent = React.createClass({
             <div className='line'></div>
           </div>
           <div className='rightInfo'>
-            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} logInfo={item} flowId={flowId} index={index} />
+            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} logInfo={item} flowId={flowId} index={index} callback={this.callback(flowId)}/>
           </div>
         </Panel>
       );
@@ -366,7 +372,7 @@ class StageBuildLog extends Component {
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='paddingBox'>
-          <MyComponent config={logs} scope={scope} flowId={flowId} />
+        <MyComponent config={logs} scope={scope} flowId={flowId} getTenxflowBuildLastLogs={(flowId)=>this.props.getTenxflowBuildLastLogs(flowId)}/>
           <div style={{ clear: 'both' }}></div>
         </div>
       </div>
@@ -387,7 +393,8 @@ StageBuildLog.propTypes = {
 
 export default connect(mapStateToProps, {
   getFlowBuildStageLogs,
-  StopTenxflowBuild
+  StopTenxflowBuild,
+  getTenxflowBuildLastLogs
 })(injectIntl(StageBuildLog, {
   withRef: true,
 }));

@@ -435,15 +435,19 @@ class AppServiceList extends Component {
     const {
       cluster, appName, loadServiceList, page, size, name
     } = nextProps || this.props
-    loadServiceList(cluster, appName, { page, size, name }, {
+    const query = { page, size, name }
+    loadServiceList(cluster, appName, query, {
       success: {
         func: (result) => {
           addDeploymentWatch(cluster, self.props, result.data)
           // For fix issue #CRYSTAL-1604(load list again for update status)
-          /*clearTimeout(self.loadStatusTimeout)
+          clearTimeout(self.loadStatusTimeout)
+          query.customizeOpts = {
+            keepChecked: true,
+          }
           self.loadStatusTimeout = setTimeout(() => {
-            loadServiceList(cluster, appName, { page, size, name })
-          }, LOAD_STATUS_TIMEOUT)*/
+            loadServiceList(cluster, appName, query)
+          }, LOAD_STATUS_TIMEOUT)
         },
         isAsync: true
       }

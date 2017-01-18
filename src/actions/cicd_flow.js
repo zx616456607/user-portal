@@ -688,6 +688,18 @@ export function getTenxFlowList(callback) {
   }
 }
 
+export const CHANGE_FLOW_STATUS_SUCCESS = 'CHANGE_FLOW_STATUS_SUCCESS'
+
+export function changeFlowStatus(flowId, status, callback) {
+  return {
+    type: CHANGE_FLOW_STATUS_SUCCESS,
+    flowId: flowId,
+    status: status,
+    callback,
+    response: {}
+  }
+}
+
 export const CHANGE_SINGLE_TENX_FLOW_STATE = "CHANGE_SINGLE_TENX_FLOW_STATE"
 
 export function changeSingleState(body) {
@@ -1089,6 +1101,26 @@ export function getTenxflowBuildDetailLogs(flowId, flowBuildId, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchTenxflowBuildDetailLogs(flowId, flowBuildId, callback))
   }
+}
+
+export const CHANGE_BUILD_STATUS = 'CHANGE_BUILD_STATUS'
+export function changeBuildStatus(buildId, status) {
+  return {
+    type: CHANGE_BUILD_STATUS,
+    status,
+    buildId
+  }
+}
+
+
+export const CHANGE_TENX_FLOW_STATUS = 'CHANGE_TENX_FLOW_STATUS'
+
+export function changeTenxFlowStatus(flowId, status) {
+   return {
+     type: CHANGE_TENX_FLOW_STATUS,
+     status: status,
+     flowId: flowId
+   }
 }
 
 export const GET_FLOW_BUILD_LAST_LOG_REQUEST = 'GET_FLOW_BUILD_LAST_LOG_REQUEST'

@@ -649,7 +649,8 @@ function mapStateToProps(state, props) {
   const { isFetching, ciRules } = getTenxflowCIRules || defaultCiRules
   const { getStageBuildLogList } = state.cicd_flow
   const { logs } = getStageBuildLogList || defaultLogList
-  const buildFetching = getStageBuildLogList.isFetching || defaultLogList.isFetching
+
+  const buildFetching = getStageBuildLogList ? getStageBuildLogList.isFetching : defaultLogList.isFetching
   return {
     isFetching,
     ciRules,
