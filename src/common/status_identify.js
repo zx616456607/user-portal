@@ -95,6 +95,7 @@ export function getServiceStatus(service) {
   if (specReplicas === 0 && availableReplicas > 0) {
     status.phase = 'Stopping'
   } else if (specReplicas > 0 && availableReplicas < 1) {
+    unavailableReplicas = specReplicas
     status.phase = 'Pending'
   }
   return status
