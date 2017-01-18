@@ -41,7 +41,7 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
           domains.push({domain, isInternal: false, interPort: port.targetPort})
         })
       }
-      else if (bindingDomain.length > 0) {
+      else if (isDomain(bindingDomain)) {
         bindingDomain.map((bindingDomain) => {
           let domain = ''
           // 检查是bindingDomain是否是IP，（此正则并不精确但在此处够用了）
