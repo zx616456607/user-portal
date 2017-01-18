@@ -161,32 +161,27 @@ let AutoDeployService = React.createClass({
     const {form} = this.props
     form.resetFields()
   },
-  removeRule(ruleId) {
+  removeRule() {
     const flowId = this.props.flowId
     const self = this
-    Modal.confirm({
-      title: '删除自动部署服务',
-      content: (<h3>您是否确认要删除这项内容</h3>),
-      onOk() {
-        let notification = new NotificationHandler()
-        notification.spin(`自动部署服务规则删除中...`)
-        self.props.deleteCdRule(flowId, ruleId, {
-          success: {
-            func: () => {
-              notification.close()
-              notification.success(`自动部署服务规则删除成功`)
-            }
-          },
-          failed: {
-            func: () => {
-              notification.close()
-              notification.error(`自动部署服务规则删除失败`)
-            }
-          }
-        })
+    this.setState({delAuthModal: false})
+    let notification = new NotificationHandler()
+    notification.spin(`自动部署服务规则删除中...`)
+    self.props.deleteCdRule(flowId, this.state.ruleId, {
+      success: {
+        func: () => {
+          notification.close()
+          notification.success(`自动部署服务规则删除成功`)
+        }
       },
-      onCancel() { },
+      failed: {
+        func: () => {
+          notification.close()
+          notification.error(`自动部署服务规则删除失败`)
+        }
+      }
     })
+      
   },
   updateReule(item) {
     // console.log('list in', item.ruleId)
@@ -490,7 +485,7 @@ let AutoDeployService = React.createClass({
                 </span>
                 */}
                 {!self.state.editingList[item.ruleId] ? [
-                  <Button type="ghost" onClick={() => self.removeRule(item.ruleId)}>删除</Button>
+                  <Button type="ghost" onClick={() => self.setState({ruleId:item.ruleId, delAuthModal: true})}>删除</Button>
                 ] :
                   [
                     <span>
@@ -642,7 +637,11 @@ let AutoDeployService = React.createClass({
           </div>
           }
 
-
+          <Modal title="删除自动部署操作" visible={this.state.delAuthModal}
+          onOk={()=> this.removeRule()} onCancel={()=> this.setState({delAuthModal: false})}
+          >
+            <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除自动部署这项操作?</div>
+          </Modal>
         </div>
       </div>
     );

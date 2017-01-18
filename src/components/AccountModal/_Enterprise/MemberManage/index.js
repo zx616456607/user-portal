@@ -99,36 +99,40 @@ let MemberTable = React.createClass({
       notFound: false,
     })
   },
-  delMember(record) {
+  delMember() {
     const { scope } = this.props
+    const record = this.state.userManage
     if (record.style === "系统管理员") {
       confirm({
         title: '不能删除系统管理员',
       });
       return
     }
-    confirm({
-      title: '您是否确认要删除这项内容',
-      onOk() {
-        scope.props.deleteUser(record.key, {
-          success: {
-            func: () => {
-              scope.props.loadUserList({
-                page: 1,
-                size: scope.state.pageSize,
-                sort: scope.state.sort,
-                filter: scope.state.filter,
-              })
-              scope.setState({
-                current: 1
-              })
-            },
-            isAsync: true
-          },
-        })
+    this.setState({delModal: false})
+    let notification = new NotificationHandler()
+    scope.props.deleteUser(record.key, {
+      success: {
+        func: () => {
+          notification.success('删除成功')
+          scope.props.loadUserList({
+            page: 1,
+            size: scope.state.pageSize,
+            sort: scope.state.sort,
+            filter: scope.state.filter,
+          })
+          scope.setState({
+            current: 1
+          })
+        },
+        isAsync: true
       },
-      onCancel() { },
-    });
+      failed: {
+        func: () => {
+        notification.error('删除失败')
+        }
+      }
+    })
+  
   },
   onTableChange(pagination, filters, sorter) {
     // 点击分页、筛选、排序时触发
@@ -331,7 +335,7 @@ let MemberTable = React.createClass({
                 管理
             </Button>
             </Link>
-            <Button icon="delete" className="delBtn" onClick={() => this.delMember(record)}>
+            <Button icon="delete" className="delBtn" onClick={() => this.setState({delModal: true,userManage: record})}>
               删除
             </Button>
           </div>
@@ -347,10 +351,17 @@ let MemberTable = React.createClass({
       )
     } else {
       return (
+        <div>
         <Table columns={columns}
           dataSource={searchResult.length === 0 ? data : searchResult}
           pagination={pagination}
           onChange={this.onTableChange} />
+          <Modal title="删除成员操作" visible={this.state.delModal}
+            onOk={()=> this.delMember()} onCancel={()=> this.setState({delModal: false})}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除成员 {this.state.userManage ? this.state.userManage.name : ''} ?</div>
+        </Modal>
+        </div>
       )
     }
   },

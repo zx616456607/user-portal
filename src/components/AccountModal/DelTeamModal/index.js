@@ -129,7 +129,7 @@ class DelTeamModal extends Component{
     return (
       <Modal
         wrapClassName="DelTeamModal"
-        title="确认解散"
+        title="解散团队操作"
         visible={visible}
         onOK={this.handleOk}
         onCancel={this.handleCancel}

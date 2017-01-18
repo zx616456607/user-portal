@@ -35,53 +35,52 @@ const menusText = defineMessages({
   },
 })
 
-let TenxFlowDetailSetting = React.createClass ({
+let TenxFlowDetailSetting = React.createClass({
   getInitialState: function () {
     return {
+      delFlowModal: false
     }
   },
-  componentWillMount () {
+  componentWillMount() {
     document.title = 'TenxFlow | 时速云';
   },
-  deleteConfirm: function () {
+  delFlowAction() {
     const { deleteTenxFlowSingle, flowId } = this.props;
-    const { formatMessage } = this.props.intl;
-    confirm({
-      title: formatMessage(menusText.deleteConfirm),
-      onOk() {
-        deleteTenxFlowSingle(flowId, {
-          success: {
-            func: () => browserHistory.push('/ci_cd/tenx_flow'),
-            isAsync: true
-          }
-        })
-      },
-      onCancel() {},
-    });
+    deleteTenxFlowSingle(flowId, {
+      success: {
+        func: () => browserHistory.push('/ci_cd/tenx_flow'),
+        isAsync: true
+      }
+    })
   },
   render() {
     const { formatMessage } = this.props.intl;
     const { scope, flowId } = this.props;
     return (
-    <Card id='TenxFlowDetailSetting' key='TenxFlowDetailSetting'>
-      <p>
-        <i className='fa fa-exclamation-triangle' />&nbsp;
+      <Card id='TenxFlowDetailSetting' key='TenxFlowDetailSetting'>
+        <p>
+          <i className='fa fa-exclamation-triangle' />&nbsp;
         <FormattedMessage {...menusText.tooltips} />
-      </p>
-      <p className="text-center">
-        <Button className='deleteBtn' size='large' type='ghost' onClick={this.deleteConfirm}>
-          <FormattedMessage {...menusText.delete} />
-        </Button>
-      </p>
-    </Card>
+        </p>
+        <p className="text-center">
+          <Button className='deleteBtn' size='large' type='ghost' onClick={()=> this.setState({delFlowModal: true})}>
+            <FormattedMessage {...menusText.delete} />
+          </Button>
+        </p>
+        <Modal title="删除TenxFlow操作" visible={this.state.delFlowModal}
+          onOk={() => this.delFlowAction()} onCancel={() => this.setState({ delFlowModal: false })}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i> <FormattedMessage {...menusText.deleteConfirm} />?</div>
+        </Modal>
+      </Card>
     )
   }
 });
 
 function mapStateToProps(state, props) {
-  
+
   return {
-    
+
   }
 }
 
