@@ -95,9 +95,13 @@ let SpendResetEmail = React.createClass({
           func: (err) => {
             self.setState({
               submitting: false,
-              spendEmail: true,
+              spendEmail: false,
             })
-            message.error('发送失败,请点击重新发送')
+            let msg = '发送失败，请重试'
+            if (err.statusCode === 404 && err.message && err.message.details && err.message.details.kind === 'email') {
+              msg = '此邮箱不存在，请修改后再试'
+            }
+            message.error(msg)
           },
           isAsync: true
         }
