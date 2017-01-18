@@ -375,40 +375,31 @@ class TenxFlowDetailFlowCard extends Component {
     })
   }
 
-  operaMenuClick(item, name, e) {
+  operaMenuClick(item) {
     //this function for user click the dropdown menu
-    let key = e.key;
+    this.setState({delFlowModal: true, stageId: item})
+  }
+  delFlowItem() {
     const { scope, deleteTenxFlowStateDetail, flowId } = this.props;
     const { getTenxFlowStateList } = scope.props;
     let notification = new NotificationHandler()
     const self = this
-    switch (key) {
-      case 'deleteStage':
-        confirm({
-          title: '确定删除构建项目？',
-          content: `确定删除构建项目 ${name}`,
-          onOk() {
-            return
-            deleteTenxFlowStateDetail(flowId, item, {
-              success: {
-                func: () => {
-                  notification.success('删除构建项目', '删除构建项目成功');
-                  getTenxFlowStateList(flowId, {
-                    success: {
-                      func: (results) => {
-                        self.handWebSocket(scope, results)
-                      }
-                    }
-                  });
-                },
-                isAsync: true
+    this.setState({delFlowModal: false})
+    deleteTenxFlowStateDetail(flowId, this.state.stageId, {
+      success: {
+        func: () => {
+          notification.success('删除构建项目', '删除构建项目成功');
+          getTenxFlowStateList(flowId, {
+            success: {
+              func: (results) => {
+                self.handWebSocket(scope, results)
               }
-            })
-          },
-          onCancel() { },
-        });
-        break;
-    }
+            }
+          });
+        },
+        isAsync: true
+      }
+    })
   }
   handWebSocket(scope, res){
     let buildingList = []
@@ -497,7 +488,7 @@ class TenxFlowDetailFlowCard extends Component {
     let { config, index, scope, currentFlowEdit, flowId, codeList, isFetching, ciRules, buildFetching, logs, supportedDependencies, totalLength, imageList } = this.props;
     const scopeThis = this;
     const dropdown = (
-      <Menu onClick={this.operaMenuClick.bind(this, config.metadata.id, config.metadata.name)} style={{ width: '110px' }}>
+      <Menu onClick={this.operaMenuClick.bind(this, config.metadata.id)} style={{ width: '110px' }}>
         <Menu.Item key='deleteStage' disabled={index == (totalLength - 1) ? false : true}>
           <Icon type='delete' style={{ float: 'left', lineHeight: '16px', marginRight: '5px', fontSize: '14px' }} />
           <span style={{ float: 'left', lineHeight: '16px', fontSize: '14px' }} ><FormattedMessage {...menusText.deleteBtn} /></span>
@@ -634,6 +625,11 @@ class TenxFlowDetailFlowCard extends Component {
           className='tenxFlowCicdSetting'
           >
           <SetStageFileLink scope={scopeThis} flowId={flowId} config={config} />
+        </Modal>
+        <Modal title="删除构建项目操作" visible={this.state.delFlowModal}
+          onOk={()=> this.delFlowItem()} onCancel={()=> this.setState({delFlowModal: false})}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除构建项目 {config.metadata.name} 这项操作?</div>
         </Modal>
       </div>
     )

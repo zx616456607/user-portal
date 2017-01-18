@@ -141,29 +141,24 @@ class OtherSpace extends Component {
     });
   }
 
-  deleteImage(id) {
-    const scope = this
+  deleteImage() {
     const parentScope = this.props.scope
-    Modal.confirm({
-      title: '删除第三方镜像',
-      content: '您是否确认要删除这项内容',
-      onOk() {
-        scope.props.DeleteOtherImage(id, {
-          success:{
-            func: () => {
-              const imageRow = scope.props.imageRow
-              parentScope.setState({
-                otherImageHead: imageRow,
-                current: 'imageSpace',
-                otherSpace: ''
-              })
-            },
-            isAsync: true
-          }
-        })
-      },
-      onCancel() {}
+    this.setState({delModal: false})
+    const scope = this
+    this.props.DeleteOtherImage(this.state.imageId, {
+      success:{
+        func: () => {
+          const imageRow = scope.props.imageRow
+          parentScope.setState({
+            otherImageHead: imageRow,
+            current: 'imageSpace',
+            otherSpace: ''
+          })
+        },
+        isAsync: true
+      }
     })
+      
   }
 
   searchImage(e) {
@@ -197,7 +192,7 @@ class OtherSpace extends Component {
                 :null
                 }
               </div>
-              <Button className='logout' size='large' type='ghost' onClick={()=>this.deleteImage(this.props.imageId)}>
+              <Button className='logout' size='large' type='ghost' onClick={()=>this.setState({imageId:this.props.imageId, delModal: true})}>
                 <FormattedMessage {...menusText.logout} />
               </Button>
               <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' onPressEnter={(e)=>this.searchImage(e)}/>
@@ -214,6 +209,11 @@ class OtherSpace extends Component {
           onCancel={this.closeImageDetailModal}
           >
           <ImageDetailBox scope={scope}  server={otherHead.url} parentScope={rootscope} imageId ={this.props.imageId} config={this.state.currentImage} />
+        </Modal>
+        <Modal title="删除第三方镜像操作" visible={this.state.delModal}
+          onOk={()=> this.deleteImage()} onCancel={()=> this.setState({delModal: false})}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除这项操作?</div>
         </Modal>
       </QueueAnim>
     )

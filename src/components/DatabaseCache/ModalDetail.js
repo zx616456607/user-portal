@@ -24,7 +24,6 @@ import redisImg from '../../assets/img/test/redis.jpg'
 
 const Panel = Collapse.Panel;
 const ButtonGroup = Button.Group
-const confirm = Modal.confirm;
 const TabPane = Tabs.TabPane;
 
 class VolumeHeader extends Component {
@@ -77,7 +76,6 @@ class VolumeDetail extends Component {
         return list.mountPath
       }
     })
-
     return (
       <Row className='file-list'>
         <Timeline>
@@ -88,7 +86,7 @@ class VolumeDetail extends Component {
                 <tbody>
                   <tr>
                     <td style={{ padding: '15px' }}>
-                      <div style={{ width: '200px' }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px' }} />{configFileItem}</div>
+                      <div style={{ width: this.props.selfScope.state.winWidth }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px' }} />{configFileItem}</div>
                     </td>
 
                     <td style={{ width: '130px', textAlign: 'center' }}>
@@ -119,6 +117,14 @@ class BaseInfo extends Component {
       storageValue: parseInt(this.props.databaseInfo.volumeInfo.size)
     }
   }
+  componentDidMount() {
+    const winWidth = document.body.clientWidth
+    if (winWidth > 1440) {
+      this.setState({winWidth: '220px'})
+      return
+    }
+    this.setState({winWidth: '120px'})
+  }
   copyDownloadCode() {
     //this function for user click the copy btn and copy the download code
     const scope = this;
@@ -141,6 +147,7 @@ class BaseInfo extends Component {
     const { publicIPs, domainSuffix, databaseInfo ,dbName } = this.props
     const parentScope = this.props.scope
     const rootScope = parentScope.props.scope
+    const selfScope = this
     const podSpec = databaseInfo.podList.pods[0].podSpec
     let storagePrc = parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
     let containerPrc = parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
@@ -207,7 +214,7 @@ class BaseInfo extends Component {
     const volumeMount = databaseInfo.podList.pods.map((list, index) => {
       return (
         <Panel header={<VolumeHeader data={list} />} key={'volumeMount-' + index}>
-          <VolumeDetail volumes={list} key={'VolumeDetail-' + index} />
+          <VolumeDetail volumes={list} key={'VolumeDetail-' + index} selfScope={selfScope}/>
         </Panel>
       )
     })
@@ -282,7 +289,6 @@ class BaseInfo extends Component {
 class ModalDetail extends Component {
   constructor() {
     super()
-    this.deleteDatebaseCluster = this.deleteDatebaseCluster.bind(this)
     this.state = {
       currentDatabase: null,
       activeTabKey:'#BaseInfo',
@@ -295,33 +301,29 @@ class ModalDetail extends Component {
     const { loadDbClusterDetail } = scope.props;
     const _this = this
     const clusterTypes = scope.state.clusterTypes
-    confirm({
-      title: '您是否确认要删除 ' + dbName,
-      onOk() {
-        let notification = new NotificationHandler()
-        _this.setState({ deleteBtn: true })
-        deleteDatabaseCluster(cluster, dbName, database, {
-          success: {
-            func: () => {
-              notification.success('删除成功')
-              scope.setState({
-                detailModal: false
-              });
-            }
-          },
-          failed: {
-            func: (res) => {
-              scope.setState({
-                detailModal: false
-              });
-              _this.setState({deleteBtn: false})
-              notification.error('删除失败', res.message.message)
-            }
-          }
-        });
+    this.setState({delModal: false})
+    let notification = new NotificationHandler()
+    _this.setState({ deleteBtn: true })
+    deleteDatabaseCluster(cluster, dbName, database, {
+      success: {
+        func: () => {
+          notification.success('删除成功')
+          scope.setState({
+            detailModal: false
+          });
+        }
       },
-      onCancel() { },
+      failed: {
+        func: (res) => {
+          scope.setState({
+            detailModal: false
+          });
+          _this.setState({deleteBtn: false})
+          notification.error('删除失败', res.message.message)
+        }
+      }
     });
+ 
   }
 
   componentWillMount() {
@@ -477,7 +479,7 @@ class ModalDetail extends Component {
                     删除集群
                 </Button>
                   :
-                  <Button size='large' className='btn-danger' type='ghost' onClick={this.deleteDatebaseCluster.bind(this, dbName)}>
+                  <Button size='large' className='btn-danger' type='ghost' onClick={()=> this.setState({delModal: true}) }>
                     <Icon type='delete' />删除集群
                 </Button>
                 }
@@ -486,7 +488,11 @@ class ModalDetail extends Component {
           </div>
           <div style={{ clear: 'both' }}></div>
         </div>
-
+        <Modal title="删除集群操作" visible={this.state.delModal}
+          onOk={()=> this.deleteDatebaseCluster(dbName)} onCancel={()=> this.setState({delModal: false})}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除数据库 { dbName }?</div>
+        </Modal>
         <div className='bottomBox'>
           <div className='siderBox'>
             <Tabs

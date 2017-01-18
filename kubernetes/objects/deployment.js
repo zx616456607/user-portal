@@ -156,9 +156,10 @@ class Deployment {
                 }
                 if (ct.resources.requests) {
                   let requests = {}
-                  if (ct.resources.requests.cpu) {
+                  // Handle cpu allocation in api-server side
+                  /*if (ct.resources.requests.cpu) {
                     requests.cpu = ct.resources.requests.cpu
-                  }
+                  }*/
                   if (ct.resources.requests.memory) {
                     requests.memory = ct.resources.requests.memory
                   }

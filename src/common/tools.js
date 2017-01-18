@@ -280,7 +280,7 @@ export function filtEvents(events) {
 
 /*
   *判断是否有域名
-  *bindingDomain --- '' , '[]' , '['']' , null , undefind
+  *bindingDomain --- '' , '[]' , '[""]' , null , undefind
 */
 
 export function isDomain (bindingDomainStr) {

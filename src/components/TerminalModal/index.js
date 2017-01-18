@@ -115,33 +115,28 @@ class TerminalModal extends Component {
   closeWindow(e){
     //this function for close the modal
     e.stopPropagation();
+    this.setState({closeModal: true})
+  }
+  closeWindowAction() {
     const _this = this;
-    confirm({
-      title: '关闭终端链接',
-      content: `确定要关闭所有终端链接么?`,
-      onOk() {      
-        const { scope, config } = _this.props;
-        config.map((item, index) => {
-          let frameKey = item.metadata.name + index;
-          if(item.terminalStatus == 'success') {     
-            if(!!window.frames[frameKey].contentWindow) {          
-              window.frames[frameKey].contentWindow.closeTerminal();
-            } else {
-              window.frames[frameKey].closeTerminal()
-            }
-          }
-        })
-        _this.setState({
-          terminalList: []
-        })
-        scope.setState({
-          TerminalLayoutModal: false,
-          currentContainer: []
-        });
-      },
-      onCancel() {
-        
-      },
+    const { scope, config } = _this.props;
+    config.map((item, index) => {
+      let frameKey = item.metadata.name + index;
+      if(item.terminalStatus == 'success') {     
+        if(!!window.frames[frameKey].contentWindow) {          
+          window.frames[frameKey].contentWindow.closeTerminal();
+        } else {
+          window.frames[frameKey].closeTerminal()
+        }
+      }
+    })
+    _this.setState({
+      closeModal:false,
+      terminalList: []
+    })
+    scope.setState({
+      TerminalLayoutModal: false,
+      currentContainer: []
     });
   }
   
@@ -196,46 +191,40 @@ class TerminalModal extends Component {
     }    
   }
   
-  closeTerminal(config, index) {
+  closeTerminal() {
     //this function for user close the current terminal
     //and we will ask user make sure to close the terminal or not
     const _this = this;
-    confirm({
-      title: '关闭终端链接',
-      content: `确定要关闭${config.metadata.name}的终端链接么?`,
-      onOk() {      
-        const { scope } = _this.props;
-        const { currentContainer } = scope.state;
-        let newList = [];
-        currentContainer.map((item) => {
-          if(item.metadata.name != config.metadata.name) {
-            newList.push(item);
-          }
-        });
-        scope.setState({
-          currentContainer: newList
-        });
-        _this.setState({
-          terminalList: newList
-        })
-        let frameKey = config.metadata.name + index;
-        if(config.terminalStatus == 'success') {          
-          if(!!window.frames[frameKey].contentWindow) {          
-            window.frames[frameKey].contentWindow.closeTerminal();
-          } else {
-            window.frames[frameKey].closeTerminal()
-          }
-        }
-        if(newList.length == 0) {
-          scope.setState({
-            TerminalLayoutModal: false
-          });
-        }
-      },
-      onCancel() {
-        
-      },
+    const config = this.state.terminalName
+    const { scope } = _this.props;
+    const { currentContainer } = scope.state;
+    let newList = [];
+    currentContainer.map((item) => {
+      if(item.metadata.name != config.metadata.name) {
+        newList.push(item);
+      }
     });
+    scope.setState({
+      currentContainer: newList
+    });
+    _this.setState({
+      terminalList: newList,
+      onlyModal: false
+    })
+    let frameKey = config.metadata.name + this.state.terminalIndex;
+    if(config.terminalStatus == 'success') {          
+      if(!!window.frames[frameKey].contentWindow) {          
+        window.frames[frameKey].contentWindow.closeTerminal();
+      } else {
+        window.frames[frameKey].closeTerminal()
+      }
+    }
+    if(newList.length == 0) {
+      scope.setState({
+        TerminalLayoutModal: false
+      });
+    }
+     
   }
   
   render() {
@@ -261,7 +250,7 @@ class TerminalModal extends Component {
             const titleTab = (
               <div>
                 <span>{item.metadata.name}</span>
-                <Icon type='cross' onClick={_this.closeTerminal.bind(_this, item, index)}/>
+                <Icon type='cross' onClick={()=> this.setState({onlyModal: true, terminalName: item, terminalIndex: index})}/>
               </div>
             )
             return (
@@ -298,6 +287,18 @@ class TerminalModal extends Component {
         <div className='titleBox'></div>
         <div className='cover'></div>
         {tabsShow}
+        {/* close all modal */}
+        <Modal title="关闭终端链接操作" visible={this.state.closeModal}
+          onOk={()=> this.closeWindowAction()} onCancel={()=> this.setState({closeModal: false})}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要关闭所有终端链接么?</div>
+        </Modal>
+        {/* close only modal */}
+        <Modal title="关闭终端链接操作" visible={this.state.onlyModal}
+          onOk={()=> this.closeTerminal()} onCancel={()=> this.setState({onlyModal: false})}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要关闭此终端链接?</div>
+        </Modal>
       </div>
     )
   }
