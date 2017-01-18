@@ -61,25 +61,21 @@ class MyComponent extends Component {
       currentShowInstance: instanceId
     });
   }
-  deleteService(name) {
+  deleteService() {
+    const { serverName } = this.state
     const self = this
-    Modal.confirm({
-      title: '您是否确认要删除这1个服务',
-      content: `${name}`,
-      onOk() {
-        const oldList = self.props.scope.state.servicesList
-        const newList = oldList.filter((item) => item.name !== name)
-        const oldSeleList = self.props.scope.state.selectedList
-        const newSeleList = oldSeleList.filter((item) => item !== name)
-        self.props.scope.setState({
-          servicesList: newList,
-          selectedList: newSeleList
-        })
-        localStorage.setItem('servicesList', JSON.stringify(newList))
-        localStorage.setItem('selectedList', JSON.stringify(newSeleList))
-      },
-      onCancel() { },
+    this.setState({delModal: false})
+    const oldList = self.props.scope.state.servicesList
+    const newList = oldList.filter((item) => item.name !== serverName)
+    const oldSeleList = self.props.scope.state.selectedList
+    const newSeleList = oldSeleList.filter((item) => item !== serverName)
+    this.props.scope.setState({
+      servicesList: newList,
+      selectedList: newSeleList
     })
+    localStorage.setItem('servicesList', JSON.stringify(newList))
+    localStorage.setItem('selectedList', JSON.stringify(newSeleList))
+
   }
   checkService(name, inf, imageName) {
     let registryServer
@@ -125,7 +121,7 @@ class MyComponent extends Component {
               <i className="fa fa-eye" />&nbsp;
               <span>查看</span>
             </Button>
-            <Button type="ghost" size="large" onClick={() => this.deleteService(item.name)}>
+            <Button type="ghost" size="large" onClick={() => this.setState({delModal: true, serverName: item.name})}>
               <i className="fa fa-trash" />&nbsp;
               <span>删除</span>
             </Button>
@@ -137,6 +133,11 @@ class MyComponent extends Component {
     return (
       <div className="serviceList">
         {items}
+        <Modal title="删除服务操作" visible={this.state.delModal}
+          onOk={()=> this.deleteService()} onCancel={()=> this.setState({delModal: false})}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除这1个服务?</div>
+        </Modal>
       </div>
     );
   }
@@ -279,20 +280,15 @@ class ServiceList extends Component {
     })
     if(serviceName.length <= 0) return
     const self = this
-    Modal.confirm({
-      title: `确定删除这 ${selectedList.length} 个服务吗?`,
-      content: `${serviceName.join(',')}`,
-      onOk() {
-          let newServiceList = servicesList.filter(function(service) {
-              return !selectedList.includes(service.id)
-          })
-          self.setState({
-              servicesList: newServiceList,
-              selectedList: []
-          })
-      },
-      onCancel() { },
+    this.setState({delAllModal: false})
+    let newServiceList = servicesList.filter(function(service) {
+      return !selectedList.includes(service.id)
     })
+    self.setState({
+      servicesList: newServiceList,
+      selectedList: []
+    })
+
   }
   formetServer(size) {
     const { resourcePrice } = this.props.cluster
@@ -378,10 +374,17 @@ class ServiceList extends Component {
               <i className="fa fa-plus" />&nbsp;
               添加服务
             </Button>
-            <Button size="large" type="ghost" onClick={this.delAllSelected}>
-              <i className="fa fa-trash" />&nbsp;
-              删除
-            </Button>
+            {this.state.selectedList.length >0 ?
+              <Button size="large" type="ghost" onClick={()=> this.setState({delAllModal: true})}>
+                <i className="fa fa-trash" />&nbsp;
+                删除
+              </Button>
+              :
+              <Button size="large" type="ghost" disabled={true}>
+                <i className="fa fa-trash" />&nbsp;
+                删除
+              </Button>
+            }
           </div>
           <div className="dataBox">
             <div className="titleBox">
@@ -448,6 +451,11 @@ class ServiceList extends Component {
             >
             <AppDeployServiceModal scope={parentScope} servicesList={servicesList} checkInf={this.state.checkInf} serviceOpen={this.state.serviceModalShow} />
           </Modal>
+          <Modal title="删除服务操作" visible={this.state.delAllModal}
+          onOk={()=> this.delAllSelected()} onCancel={()=> this.setState({delAllModal: false})}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除这 {this.state.selectedList.length}个服务?</div>
+        </Modal>
         </div>
       </QueueAnim>
     )

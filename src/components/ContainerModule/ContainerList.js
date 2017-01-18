@@ -475,7 +475,7 @@ class ContainerList extends Component {
           <Modal title="重新分配操作" visible={this.state.Relocating}
             onOk={()=> this.handleOk()} onCancel={()=> this.setState({Relocating: false})} >
             <div className="confirm" style={{color: '#00a0ea'}}>
-              <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
+              <Icon type="question-circle-o" style={{ marginRight: '8px' }} />
               您是否确定要重新分配这{checkedContainerList.length}个容器 ?
            </div>
           </Modal>
