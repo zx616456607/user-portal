@@ -14,10 +14,10 @@ import union from 'lodash/union'
 import reducerFactory from './factory'
 import cloneDeep from 'lodash/cloneDeep'
 import { getServiceStatus, getContainerStatus } from '../common/status_identify'
+import { mergeStateByOpts } from './utils'
 
 function serviceItems(state = {}, action) {
-  const cluster = action.cluster
-  const appName = action.appName
+  const { cluster, appName, customizeOpts } = action
   const defaultState = {
     [cluster]: {
       [appName]: {
@@ -47,6 +47,7 @@ function serviceItems(state = {}, action) {
         service.status = getServiceStatus(service)
         return service
       })
+      serviceList = mergeStateByOpts(state[cluster][appName]['serviceList'], serviceList, 'metadata.name', customizeOpts)
       return Object.assign({}, state, {
         [cluster]: {
           [appName]: {
@@ -128,7 +129,7 @@ function serviceDetail(state = {}, action) {
   }
 }
 function serviceList(state = {}, action) {
-  const cluster = action.cluster
+  const { cluster, customizeOpts } = action
   switch (action.type) {
     case ActionTypes.SERVICE_GET_ALL_LIST_REQUEST: {
       return merge({}, state, {
@@ -140,13 +141,15 @@ function serviceList(state = {}, action) {
       })
     }
     case ActionTypes.SERVICE_GET_ALL_LIST_SUCCESS: {
+      let services = action.response.result.data.services.map(service => {
+        service.deployment.cluster = service.cluster
+        service.deployment.status = getServiceStatus(service.deployment)
+        return service.deployment
+      })
+      services = mergeStateByOpts(state.services, services, 'metadata.name', customizeOpts)
       return merge({}, {
         count: action.response.result.data.count,
-        services: action.response.result.data.services.map(service => {
-          service.deployment.cluster = service.cluster
-          service.deployment.status = getServiceStatus(service.deployment)
-          return service.deployment
-        }),
+        services,
         total: action.response.result.data.total,
       }, { isFetching: false })
     }
@@ -175,8 +178,7 @@ function serviceList(state = {}, action) {
 
 
 function serviceContainers(state = {}, action) {
-  const cluster = action.cluster
-  const serviceName = action.serviceName
+  const { cluster, serviceName, customizeOpts} = action
   const defaultState = {
     [cluster]: {
       [serviceName]: {
@@ -202,6 +204,7 @@ function serviceContainers(state = {}, action) {
         container.status = getContainerStatus(container)
         return container
       })
+      containerList = mergeStateByOpts(state[cluster][serviceName]['containerList'], containerList, 'metadata.name', customizeOpts)
       return Object.assign({}, state, {
         [cluster]: {
           [serviceName]: {

@@ -296,3 +296,43 @@ export function isDomain (bindingDomainStr) {
   }
   return true
 }
+
+/**
+ * Get type of param
+ * return `undefined|null|string|number|object|array|function|boolean`
+ * @export
+ * @param {any} param
+ * @returns {String}
+ */
+export function getType(param) {
+  let type = Object.prototype.toString.call(param)
+  type = type.replace(/\[object /, '')
+  type = type.replace(/\]/, '')
+  return type.toLowerCase()
+}
+
+/**
+ * return value by key
+ *
+ * @param {Object} obj
+ * @param {String} key 'name.name2.name3'
+ * @returns
+ */
+export function getValue(obj, key) {
+  if(!obj) {
+    return
+  }
+  let combinedKeys = key.split('.')
+  let value = obj
+  combinedKeys.every(cKey => {
+    value = value[cKey]
+    if (!value) {
+      return false
+    }
+    return true
+  })
+  if (typeof(value) === 'object') {
+    return JSON.stringify(value)
+  }
+  return value
+}

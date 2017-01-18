@@ -188,8 +188,8 @@ let Login = React.createClass({
   },
 
   componentWillMount() {
-    const { resetFields } = this.props.form
-    const { from } = this.props
+    const { form, from } = this.props
+    const { resetFields } = form
     if (from === 'active') {
       message.success('帐户已经激活')
     }
@@ -205,7 +205,8 @@ let Login = React.createClass({
     self.setState({
       submitting: true,
     })
-    const { login, redirect } = this.props
+    const { login, redirect, form } = this.props
+    const { resetFields } = form
     const body = {
       accountType: 'wechat'
     }

@@ -16,9 +16,10 @@ import reducerFactory from './factory'
 import { DEFAULT_PAGE_SIZE } from '../../constants'
 import { getAppStatus, getContainerStatus } from '../common/status_identify'
 import { filtEvents } from '../common/tools'
+import { mergeStateByOpts } from './utils'
 
 function appItems(state = {}, action) {
-  const cluster = action.cluster
+  const { cluster, customizeOpts } = action
   const defaultState = {
     [cluster]: {
       isFetching: false,
@@ -44,6 +45,7 @@ function appItems(state = {}, action) {
         app.status = getAppStatus(app.services)
         return app
       })
+      appList = mergeStateByOpts(state[cluster]['appList'], appList, 'name', customizeOpts)
       return Object.assign({}, state, {
         [cluster]: {
           isFetching: false,
@@ -209,7 +211,7 @@ export function apps(state = { appItmes: {} }, action) {
 // ~~~ containers
 
 function containerItems(state = {}, action) {
-  const { cluster } = action
+  const { cluster, customizeOpts } = action
   const defaultState = {
     [cluster]: {
       isFetching: false,
@@ -236,6 +238,7 @@ function containerItems(state = {}, action) {
         container.status = getContainerStatus(container)
         return container
       })
+      containers = mergeStateByOpts(state[cluster]['containerList'], containers, 'metadata.name', customizeOpts)
       return Object.assign({}, state, {
         [cluster]: {
           isFetching: false,

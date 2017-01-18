@@ -20,12 +20,15 @@ export const SERVICE_LIST_FAILURE = 'SERVICE_LIST_FAILURE'
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchServiceList(cluster, appName, query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/services`
+  const { customizeOpts } = query || {}
   if (query) {
+    delete query.customizeOpts
     endpoint += `?${toQuerystring(query)}`
   }
   return {
     cluster,
     appName,
+    customizeOpts,
     [FETCH_API]: {
       types: [SERVICE_LIST_REQUEST, SERVICE_LIST_SUCCESS, SERVICE_LIST_FAILURE],
       endpoint,
@@ -241,10 +244,12 @@ export const SERVICE_CONTAINERS_LIST_FAILURE = 'SERVICE_CONTAINERS_LIST_FAILURE'
 
 // Fetches container list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchServiceContainerList(cluster, serviceName, callback) {
+function fetchServiceContainerList(cluster, serviceName, query, callback) {
+  const { customizeOpts } = query || {}
   return {
     cluster,
     serviceName,
+    customizeOpts,
     [FETCH_API]: {
       types: [SERVICE_CONTAINERS_LIST_REQUEST, SERVICE_CONTAINERS_LIST_SUCCESS, SERVICE_CONTAINERS_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/containers`,
@@ -256,9 +261,9 @@ function fetchServiceContainerList(cluster, serviceName, callback) {
 
 // Fetches containers list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadServiceContainerList(cluster, serviceName, callback) {
+export function loadServiceContainerList(cluster, serviceName, query, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchServiceContainerList(cluster, serviceName, callback))
+    return dispatch(fetchServiceContainerList(cluster, serviceName, query, callback))
   }
 }
 
@@ -613,8 +618,9 @@ export const SERVICE_GET_ALL_LIST_REQUEST = 'SERVICE_GET_ALL_LIST_REQUEST'
 export const SERVICE_GET_ALL_LIST_SUCCESS = 'SERVICE_GET_ALL_LIST_SUCCESS'
 export const SERVICE_GET_ALL_LIST_FAILURE = 'SERVICE_GET_ALL_LIST_FAILURE'
 
-export function fetchAllServices(cluster, {pageIndex, pageSize, name}, callback) {
+export function fetchAllServices(cluster, {pageIndex, pageSize, name, customizeOpts}, callback) {
   return {
+    customizeOpts,
     [FETCH_API]: {
       types: [SERVICE_GET_ALL_LIST_REQUEST, SERVICE_GET_ALL_LIST_SUCCESS, SERVICE_GET_ALL_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services?pageIndex=${pageIndex}&pageSize=${pageSize}${name ? `&name=${name}` : ''}`,
