@@ -51,6 +51,10 @@ const menusText = defineMessages({
     id: 'CICD.TenxStorm.copySuccess',
     defaultMessage: '复制成功',
   },
+  sureCancellationCode: {
+    id: 'CICD.TenxStorm.sureCancellationCode',
+    defaultMessage: '您是否确认要注销这项代码源',
+  },
 })
 
 
@@ -210,14 +214,9 @@ class GithubComponent extends Component {
   removeRepo() {
     const scope = this.props.scope
     const repoItem = scope.state.repokey
-    Modal.confirm({
-      title: '注销代码源',
-      content: '您是否确认要注销这项代码源',
-      onOk() {
-        scope.props.deleteRepo(repoItem)
-      },
-      onCancel() { },
-    });
+    this.setState({removeModal: false})
+    scope.props.deleteRepo(repoItem)
+     
   }
   handSyncCode() {
     const { registryGithub } = this.props
@@ -329,7 +328,7 @@ class GithubComponent extends Component {
       <div key="github-Component" type="right" className='codelink'>
         <div className="tableHead">
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
-            <Icon type="logout" onClick={() => this.removeRepo()} style={{ margin: '0 20px' }} />
+            <Icon type="logout" onClick={() => this.setState({removeModal: true})} style={{ margin: '0 20px' }} />
           </Tooltip>
           <Icon type="reload" onClick={() => this.syncRepoList()} />
           <div className="right-search">
@@ -341,7 +340,11 @@ class GithubComponent extends Component {
         <Tabs onChange={(e) => this.changeList(e)}>
           {codeList}
         </Tabs>
-
+        <Modal title="注销代码源操作" visible={this.state.removeModal}
+          onOk={()=> this.removeRepo()} onCancel={()=> this.setState({removeModal: false})}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i> {formatMessage(menusText.sureCancellationCode)}?</div>
+        </Modal>
       </div>
     );
   }

@@ -148,15 +148,8 @@ const MyComponent = React.createClass({
   removeRepo() {
     const scope = this.props.scope
     const repoItem = scope.state.repokey
-    const { formatMessage } = this.props
-    Modal.confirm({
-      title: formatMessage(menusText.CancellationCode),
-      content: formatMessage(menusText.sureCancellationCode),
-      onOk() {
-        scope.props.deleteRepo(repoItem)
-      },
-      onCancel() { },
-    });
+    this.setState({removeModal: false})
+    scope.props.deleteRepo(repoItem)
   },
   registryRepo() {
     const url = this.state.regUrl
@@ -333,7 +326,7 @@ const MyComponent = React.createClass({
         <div className="tableHead">
           <Icon type="user" /> {this.props.repoUser ? this.props.repoUser.username : ''}
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
-            <Icon type="logout" onClick={() => this.removeRepo()} style={{ margin: '0 20px' }} />
+            <Icon type="logout" onClick={() => this.setState({removeModal: true})} style={{ margin: '0 20px' }} />
           </Tooltip>
           <Tooltip placement="top" title={formatMessage(menusText.syncCode)}>
             <Icon type="reload" onClick={this.syncRepoList} />
@@ -346,7 +339,11 @@ const MyComponent = React.createClass({
         {/*  @project  Head end    */}
 
         {items}
-
+        <Modal title="注销代码源操作" visible={this.state.removeModal}
+          onOk={()=> this.removeRepo()} onCancel={()=> this.setState({removeModal: false})}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i> {formatMessage(menusText.sureCancellationCode)}?</div>
+        </Modal>
       </div>
     );
   }

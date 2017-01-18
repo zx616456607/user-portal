@@ -18,8 +18,6 @@ import { deleteTenxFlowSingle } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailSetting.less'
 import { browserHistory } from 'react-router';
 
-const confirm = Modal.confirm;
-
 const menusText = defineMessages({
   tooltips: {
     id: 'CICD.Tenxflow.TenxFlowDetailSetting.tooltips',

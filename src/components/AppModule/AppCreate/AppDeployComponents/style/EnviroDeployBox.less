@@ -74,10 +74,10 @@
           width: 25%;
           text-align: left;
         }
-        .protocol{
+        .protocol {
           width: 20%;
         }
-        .mapping{
+        .mapping {
           width: 35%;
         }
         .opera {
@@ -117,7 +117,7 @@
           padding-left: 10px;
           float: left;
           width: 35%;
-          .podPort{
+          .podPort {
             width: 100%;
             min-height: 1px;
           }
@@ -164,7 +164,6 @@
     .addBtn {
       position: relative;
       margin-top: 10px;
-      cursor: pointer;
       font-size: 14px;
       height: 30px;
       i {
@@ -178,10 +177,16 @@
       }
       .ant-btn {
         border: none;
-        width: 100%;
+        width: 150px;
         text-align: left;
-        background-color: #fff;
         color: #666;
+        background-color: #fff;
+        cursor: pointer;
+        -webkit-transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+        transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+        &:hover {
+          color: #2db7f5;
+        }
       }
     }
   }

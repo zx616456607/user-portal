@@ -100,7 +100,7 @@ let SvnComponent = React.createClass({
     }
   },
   handleSubmit(e) {
-    e.preventDefault();
+    e ? e.preventDefault() : null
     const self = this
     const parentScope = this.props.scope.state
     this.props.form.validateFields((errors, values) => {
@@ -131,20 +131,10 @@ let SvnComponent = React.createClass({
             self.setState({
               authorizeModal: false,
               submiting: false,
+              actionModal: true,
               privateType: true // default switch on switch private or public
             })
             self.props.form.resetFields()
-            Modal.confirm({
-              title: '添加成功!',
-              content: (<h3>是否去查看所添加的项目！</h3>),
-              cancelText: '取消',
-              okText: '确定',
-              onOk() {
-                browserHistory.push('/ci_cd')
-              },
-              onCancel() {
-              }
-            });
           }
         },
         failed: {
@@ -187,10 +177,10 @@ let SvnComponent = React.createClass({
         <Modal title="添加 SVN 代码源" wrapClassName="svnModal" visible={this.state.authorizeModal}
           onCancel={() => this.setModalStaus(false)} maskClosable={false}
           footer={[<Button type="ghost" size="large" onClick={()=>this.setState({authorizeModal: false})}>取消</Button>,
-          <Button type="primary" size="large" htmlType="submit" loading={this.state.submiting} style={{marginLeft:'8px'}}>确定</Button>]}
+          <Button type="primary" size="large" htmlType="submit" onClick={()=> this.handleSubmit()} loading={this.state.submiting} style={{marginLeft:'8px'}}>确定</Button>]}
           >
           <div style={{ paddingTop: "20px" }}>
-            <Form horizontal onSubmit={this.handleSubmit}>
+            <Form horizontal onSubmit={(e)=> this.handleSubmit(e)}>
               <FormItem  {...formItemLayout} hasFeedback label="名称 ：">
                 <Input placeholder="输入名称" id="name" size="large" {...forName} />
               </FormItem>
@@ -220,6 +210,12 @@ let SvnComponent = React.createClass({
 
           </div>
 
+        </Modal>
+        
+        <Modal title="添加成功操作" visible={this.state.actionModal}
+          onOk={()=> browserHistory.push('/ci_cd')} onCancel={()=> this.setState({actionModal: false})}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i> 是否去查看所添加的项目！</div>
         </Modal>
       </div>
     )
