@@ -72,17 +72,21 @@ class AppServiceDetail extends Component {
       loadServiceContainerList
     } = nextProps || this.props
     document.title = `${serviceName} 服务详情页 | 时速云`
+    const query = {}
     loadServiceDetail(cluster, serviceName)
-    loadServiceContainerList(cluster, serviceName, {
+    loadServiceContainerList(cluster, serviceName, null, {
       success: {
         func: (result) => {
           // Add pod status watch, props must include statusWatchWs!!!
           addPodWatch(cluster, self.props, result.data)
           // For fix issue #CRYSTAL-2079(load list again for update status)
-          /*clearTimeout(self.loadStatusTimeout)
+          clearTimeout(self.loadStatusTimeout)
+          query.customizeOpts = {
+            keepChecked: true,
+          }
           self.loadStatusTimeout = setTimeout(() => {
-            loadServiceContainerList(cluster, serviceName)
-          }, LOAD_STATUS_TIMEOUT)*/
+            loadServiceContainerList(cluster, serviceName, query)
+          }, LOAD_STATUS_TIMEOUT)
         },
         isAsync: true
       }

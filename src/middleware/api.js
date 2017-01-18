@@ -11,7 +11,7 @@
 import { Schema, arrayOf, normalize } from 'normalizr'
 import { camelizeKeys } from 'humps'
 import 'isomorphic-fetch'
-import { genRandomString } from '../common/tools'
+import { genRandomString, getType } from '../common/tools'
 import 'whatwg-fetch' // For Edge browser
 
 // Fetches an API response
@@ -34,8 +34,8 @@ function fetchApi(endpoint, options, schema) {
     if (!options.headers['Content-Type']) {
       options.headers['Content-Type'] = 'application/json'
     }
-    let bodyType = Object.prototype.toString.call(options.body)
-    if (bodyType === '[object Object]' || bodyType === '[object Array]') {
+    let bodyType = getType(options.body)
+    if (bodyType === 'object' || bodyType === 'array') {
       options.body = JSON.stringify(options.body)
     }
   }

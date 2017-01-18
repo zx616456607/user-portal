@@ -17,7 +17,6 @@ import $ from 'jquery'
 import './style/TerminalModal.less'
 
 const TabPane = Tabs.TabPane;
-const confirm = Modal.confirm;
 
 class TerminalModal extends Component {
   constructor(props) {

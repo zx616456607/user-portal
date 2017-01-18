@@ -128,7 +128,7 @@ function checkClass(popup, isError) {
 
 function keywordFormat(log, scope) {
   let str = scope.state.key_word;
-  if(str != '*') {    
+  if(str != '*') {
     let reg = new RegExp(str, "gi");
     log = log.replace(reg, "<font style='color:rgb(255, 255, 0)'>" + str + "</font>");
     return log;
@@ -684,7 +684,7 @@ class QueryLog extends Component {
         selectedSerivce: false,
       });
       const { loadServiceContainerList } = this.props;
-      loadServiceContainerList(this.state.currentClusterId, name, {
+      loadServiceContainerList(this.state.currentClusterId, name, null, {
         success: {
           func: (res) => {
             _this.setState({

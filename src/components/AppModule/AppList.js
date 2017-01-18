@@ -385,16 +385,20 @@ class AppList extends Component {
       size, name, sortOrder,
       sortBy
     } = nextProps || this.props
-    loadAppList(cluster, { page, size, name, sortOrder, sortBy }, {
+    const query = { page, size, name, sortOrder, sortBy }
+    loadAppList(cluster, query, {
       success: {
         func: (result) => {
           // Add app status watch, props must include statusWatchWs!!!
           addAppWatch(cluster, self.props, result.data)
           // For fix issue #CRYSTAL-1604(load list again for update status)
-          /*clearTimeout(self.loadStatusTimeout)
+          clearTimeout(self.loadStatusTimeout)
+          query.customizeOpts = {
+            keepChecked: true,
+          }
           self.loadStatusTimeout = setTimeout(() => {
-            loadAppList(cluster, { page, size, name, sortOrder, sortBy })
-          }, LOAD_STATUS_TIMEOUT)*/
+            loadAppList(cluster, query)
+          }, LOAD_STATUS_TIMEOUT)
         },
         isAsync: true
       }

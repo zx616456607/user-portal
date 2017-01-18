@@ -105,10 +105,14 @@
   .addBtn {
     width: 140px;
     font-size: 14px;
-    // padding-top: 20px;
     cursor: pointer;
+    -webkit-transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
     i {
       margin-right: 10px;
+    }
+    &:hover {
+      color: #2db7f5;
     }
   }
 }

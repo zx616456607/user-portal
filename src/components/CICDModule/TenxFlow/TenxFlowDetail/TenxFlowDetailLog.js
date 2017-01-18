@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { getTenxflowBuildLogs, getTenxflowBuildDetailLogs } from '../../../../actions/cicd_flow'
+import { getTenxflowBuildLogs, getTenxflowBuildDetailLogs, getTenxflowBuildLastLogs, changeBuildStatus } from '../../../../actions/cicd_flow'
 import moment from 'moment'
 import './style/TenxFLowDetailLog.less'
 import TenxFlowBuildLog from '../TenxFlowBuildLog'
@@ -249,13 +249,30 @@ class TenxFLowDetailLog extends Component {
   
   getBuildLogDetailInfo(buildId) {
     //this function for show user the detail log info
-    const { getTenxflowBuildDetailLogs, flowId } = this.props;
+    const { getTenxflowBuildLastLogs, flowId } = this.props;
     this.setState({
       TenxFlowDeployLogModal: true
     })
-    getTenxflowBuildDetailLogs(flowId, buildId)
+    getTenxflowBuildLastLogs(flowId)
   }
-
+  callback(flowId) {
+    const { getTenxflowBuildLastLogs, changeBuildStatus } = this.props
+    return () => {
+      getTenxflowBuildLastLogs(flowId, {
+        success: {
+          func: (result) => {
+            const info = result.data.results.results
+            changeBuildStatus(info.buildId, info.status)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+          }
+        }
+      })
+    }
+  }
   render() {
     const { scope, isFetching, logs, spaceName, flowName, detailFetching, detailLogs, flowId } = this.props;
     const thisScope = this;
@@ -265,7 +282,7 @@ class TenxFLowDetailLog extends Component {
         <Modal visible={this.state.TenxFlowDeployLogModal}
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal} >
-          <TenxFlowBuildLog scope={thisScope} flowId={flowId} isFetching={detailFetching} logs={detailLogs}/>
+          <TenxFlowBuildLog scope={thisScope} flowId={flowId} isFetching={detailFetching} logs={detailLogs} callback={this.callback(flowId)}/>
         </Modal>
       </Card>
     )
@@ -284,10 +301,10 @@ function mapStateToProps(state, props) {
   const { current } = state.entities
   const { space } = current
   const { spaceName } = space
-  const { getTenxflowBuildLogs, getTenxflowBuildDetailLogs } = state.cicd_flow
+  const { getTenxflowBuildLogs, getTenxflowBuildLastLogs } = state.cicd_flow
   const { logs, isFetching } = getTenxflowBuildLogs || defaultLogs
-  const detailLogs = getTenxflowBuildDetailLogs.logs || defaultDetailStageLogs.logs
-  const detailFetching = getTenxflowBuildDetailLogs.isFetching || defaultDetailStageLogs.detailFetching
+  const detailLogs = getTenxflowBuildLastLogs.logs || defaultDetailStageLogs.logs
+  const detailFetching = getTenxflowBuildLastLogs.isFetching || defaultDetailStageLogs.detailFetching
   return {
     isFetching,
     logs,
@@ -303,7 +320,9 @@ TenxFLowDetailLog.propTypes = {
 
 export default connect(mapStateToProps, {
   getTenxflowBuildLogs,
-  getTenxflowBuildDetailLogs
+  getTenxflowBuildDetailLogs,
+  getTenxflowBuildLastLogs,
+  changeBuildStatus
 })(injectIntl(TenxFLowDetailLog, {
   withRef: true,
 }));
