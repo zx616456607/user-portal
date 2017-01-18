@@ -126,7 +126,7 @@
           setInterval(function(){
             var time = (new Date()).getTime()
             if (time - last_health > health_timeout){
-              ws.close();
+              closeWebSocket(ws, term)
             } else {
               // Wait for not busy time
               if (ws.bufferedAmount == 0) {
