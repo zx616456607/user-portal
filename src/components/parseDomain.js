@@ -5,6 +5,8 @@
  * @author mengyuan
  */
 
+import { isDomain } from '../common/tools'
+
 export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
   let bindingDomain = []
   let bindingIP = []
@@ -20,6 +22,7 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
   catch (e) {
     bindingIP = []
   }
+
   let domains = []
   // parse external domain, item.portsForExternal is array like [{name:"abasd",port:12345,protocol:"TCP",targetPort:1234},...]
   if (item && item.metadata && item.portsForExternal) {
@@ -30,7 +33,7 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
         portInfo = ''
         nameInfo = port.name
       }
-      if (bindingIP.length > 0 && bindingDomain.length == 0) {
+      if (bindingIP.length > 0 && !isDomain(bindingDomain)) {
         bindingIP.map((bindingIP) => {
           let domain = bindingIP + portInfo
           domain = domain.replace(/^(http:\/\/.*):80$/, '$1')
