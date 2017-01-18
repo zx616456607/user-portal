@@ -231,16 +231,20 @@ class ContainerList extends Component {
       loadContainerList, cluster, page,
       size, name, sortOrder,
     } = nextProps || this.props
-    loadContainerList(cluster, { page, size, name, sortOrder }, {
+    const query = { page, size, name, sortOrder }
+    loadContainerList(cluster, query, {
       success: {
         func: (result) => {
           // Add pod status watch, props must include statusWatchWs!!!
           addPodWatch(cluster, selt.props, result.data)
           // For fix issue #CRYSTAL-2079(load list again for update status)
-          /*clearTimeout(self.loadStatusTimeout)
+          clearTimeout(self.loadStatusTimeout)
+          query.customizeOpts = {
+            keepChecked: true,
+          }
           self.loadStatusTimeout = setTimeout(() => {
-            loadContainerList(cluster, { page, size, name, sortOrder })
-          }, LOAD_STATUS_TIMEOUT)*/
+            loadContainerList(cluster, query)
+          }, LOAD_STATUS_TIMEOUT)
         },
         isAsync: true
       }
