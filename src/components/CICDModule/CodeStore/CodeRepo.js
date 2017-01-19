@@ -332,7 +332,7 @@ const MyComponent = React.createClass({
             <Icon type="reload" onClick={this.syncRepoList} />
           </Tooltip>
           <div className="right-search">
-            <Input className='searchBox' size="large" onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} style={{ width: '180px' }} placeholder={formatMessage(menusText.search)} type='text' />
+            <Input className='searchBox' size="large" onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} style={{ width: '180px', paddingRight:'28px'}} placeholder={formatMessage(menusText.search)} type='text' />
             <i className='fa fa-search'>  </i>
           </div>
         </div>

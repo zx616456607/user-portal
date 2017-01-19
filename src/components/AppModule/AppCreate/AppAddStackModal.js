@@ -160,7 +160,7 @@ class AppAddStackModal extends Component {
           </Button>
          */}
           <div className="inputBox">
-            <Input size="large" placeholder="按名称搜索" onPressEnter={() => this.gosearchStack()} id="stackName"/>
+            <Input size="large" style={{paddingRight: '28px'}} placeholder="按名称搜索" onPressEnter={() => this.gosearchStack()} id="stackName"/>
             <i className="fa fa-search" onClick={()=> this.gosearchStack()}></i>
           </div>
         </div>
