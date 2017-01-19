@@ -299,7 +299,7 @@ let Login = React.createClass({
                   ref="intName"
                   style={{ height: 35 }}
                   name='name'
-                  tabindex='1'
+                  tabIndex='1'
                 />
               </FormItem>
 
@@ -318,8 +318,8 @@ let Login = React.createClass({
                   autoComplete="on"
                   style={{ height: 35 }}
                   name='password'
-                  tabindex='2'
-                  />
+                  tabIndex='2'
+                />
               </FormItem>
 
               {/*<FormItem
