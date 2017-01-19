@@ -748,7 +748,7 @@ function mapStateToProp(state, props) {
               key: item.spaceID,
               spaceName: item.spaceName,
               description: item.description,
-              appCount: item.balance,
+              appCount: item.appCount,
             }
           )
         })
