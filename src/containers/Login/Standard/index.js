@@ -123,8 +123,6 @@ let Login = React.createClass({
         callback([new Error('邮箱地址填写错误')])
         return
       }
-      callback()
-      return
     }
     this.setState({
       intPassFocus: true
