@@ -250,28 +250,6 @@ let CICDSettingModal = React.createClass({
       cicdSetModalShow: false
     });
   },
-  checkBranch(rule, value, callback) {
-    if(this.state.useBranch) {
-      if(!Boolean(value) || value.length == 0) {
-        callback(new Error(['请输入Branch名称']))
-      } else {
-        callback()
-      }
-    } else {
-      callback()
-    }
-  },
-  checkTag(rule, value, callback) {
-    if(this.state.useTag) {
-      if(!Boolean(value) || value.length == 0) {
-        callback(new Error(['请输入Tag名称']))
-      } else {
-        callback()
-      }
-    } else {
-      callback()
-    }
-  },
   handleSubmit(e) {
     //this function for user submit the form
     const { scope, UpdateTenxflowCIRules, flowId } = this.props;
@@ -279,13 +257,52 @@ let CICDSettingModal = React.createClass({
     const { useBranch, useTag, useRequest } = this.state;
     let branchInput = null;
     let tagInput = null;
-    let checkFlag = true;
     this.props.form.validateFields((errors, values) => {
       if(!!errors) {
+        console.log(errors)
         e.preventDefault();
-        checkFlag = false;
         return;
       }
+      let body = {
+        enabled: 1,
+        config: {
+          branch: null,
+          tag: null,
+          mergeRequest: null
+        }
+      }
+      if(useBranch) {
+        body.config.branch = {
+          name: branchInput.branch
+        }
+      }
+      if(useTag) {
+        body.config.tag = {
+          name: tagInput.tag
+        }
+      }
+      if(useRequest) {
+        body.config.mergeRequest = useRequest;
+      }
+      scope.setState({
+        cicdSetModalShow: false,
+        ciRulesOpened: true
+      });
+      UpdateTenxflowCIRules(flowId, body, {
+        success: {
+          func: () => { 
+            scope.ciRulesChangeSuccess()
+            _this.setState({
+              useBranch: false,
+              useTag: false,
+              useRequest: false,
+              editBranch: false,
+              editTag: false
+            })
+          },
+          isAsync: true
+        }
+      })
     });
     /*if(useBranch) {
       this.props.form.validateFields(['branch'],(errors, values) => {
@@ -307,49 +324,6 @@ let CICDSettingModal = React.createClass({
         tagInput = values;
       });
     }*/
-    if(!checkFlag) {
-      return;
-    }
-    let body = {
-      enabled: 1,
-      config: {
-        branch: null,
-        tag: null,
-        mergeRequest: null
-      }
-    }
-    if(useBranch) {
-      body.config.branch = {
-        name: branchInput.branch
-      }
-    }
-    if(useTag) {
-      body.config.tag = {
-        name: tagInput.tag
-      }
-    }
-    if(useRequest) {
-      body.config.mergeRequest = useRequest;
-    }
-    scope.setState({
-      cicdSetModalShow: false,
-      ciRulesOpened: true
-    });
-    UpdateTenxflowCIRules(flowId, body, {
-      success: {
-        func: () => { 
-          scope.ciRulesChangeSuccess()
-          _this.setState({
-            useBranch: false,
-            useTag: false,
-            useRequest: false,
-            editBranch: false,
-            editTag: false
-          })
-        },
-        isAsync: true
-      }
-    })
   },
   render() {
     const { formatMessage } = this.props.intl;
@@ -365,14 +339,12 @@ let CICDSettingModal = React.createClass({
     const branchProps = getFieldProps('branch', {
       rules: [
         { required: true, message: '请输入Branch名称' },
-        { validator: this.checkBranch },
       ],
       initialValue: checkBranchInit(ciRules.results),
     });
     const tagProps = getFieldProps('tag', {
       rules: [
         { required: true, message: '请输入Tag名称' },
-        { validator: this.checkTag },
       ],
       initialValue: checkTagInit(ciRules.results),
     });
