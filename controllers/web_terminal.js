@@ -50,12 +50,6 @@ module.exports = function (server, redis) {
         client.write(_formatProxyResponse(res))
         client.pipe(socket)
         socket.pipe(client)
-        socket.on('error', error => {
-          console.log(error)
-        })
-        socket.on('close', ()=> {
-          console.log('close webwsocket')
-        })
       })
       proxy.on('error', (error) => {
         console.error('webterminal error', error)
