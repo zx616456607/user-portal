@@ -178,7 +178,8 @@ let CICDSettingModal = React.createClass({
     //this function for edit branch
     if(this.state.useBranch ) {
       this.setState({
-        editBranch: true
+        editBranch: true,
+        noBranch: false
       });
       setTimeout(function() {
         document.getElementById('branchInput').focus()
@@ -193,7 +194,8 @@ let CICDSettingModal = React.createClass({
     //this function for edit tag
     if(this.state.useTag) {
       this.setState({
-        editTag: true
+        editTag: true,
+        noTag: false
       });
       setTimeout(function() {
         document.getElementById('tagInput').focus()
@@ -244,7 +246,9 @@ let CICDSettingModal = React.createClass({
       useTag: false,
       useRequest: false,
       editBranch: false,
-      editTag: false
+      editTag: false,
+      noBranch: false,
+      noTag: false
     });
     scope.setState({
       cicdSetModalShow: false
@@ -257,10 +261,19 @@ let CICDSettingModal = React.createClass({
     const { useBranch, useTag, useRequest } = this.state;
     let branchInput = null;
     let tagInput = null;
+    let checkFlag = true;
+    this.setState({
+      noBranch: false,
+      tagInput: false
+    })
     if(useBranch) {
       this.props.form.validateFields(['branch'],(errors, values) => {
         if (!!errors) {
           e.preventDefault();
+          checkFlag = false;
+          _this.setState({
+            noBranch: true
+          });
           return;
         }
         branchInput = values;
@@ -270,10 +283,17 @@ let CICDSettingModal = React.createClass({
       this.props.form.validateFields(['tag'],(errors, values) => {
         if (!!errors) {
           e.preventDefault();
+          checkFlag = false;
+          _this.setState({
+            noTag: true
+          });
           return;
         }
         tagInput = values;
       });
+    }
+    if(!checkFlag) {
+      return;
     }
     let body = {
       enabled: 1,
@@ -340,6 +360,7 @@ let CICDSettingModal = React.createClass({
       initialValue: checkTagInit(ciRules.results),
     });
     return (
+    <Form horizontal>
       <div id='CICDSettingModal' key='CICDSettingModal'>
         <div className='titleBox'>
           <span><FormattedMessage {...menusText.cicdTitle} /></span>
@@ -347,7 +368,6 @@ let CICDSettingModal = React.createClass({
         </div>
         <div className='paddingBox'>
           <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
-          <Form horizontal>
             <div className='branch commonBox'>
               <div className='checkBox'>
                 <FormItem>
@@ -356,7 +376,8 @@ let CICDSettingModal = React.createClass({
               </div>
               <div className='inputBox'>
                 <FormItem style={{ width:'380px',float:'left',marginRight:'18px' }}>
-                  <Input {...branchProps} onBlur={this.onBlurBranch} type='text' id="branchInput" size='large' disabled={ (!this.state.editBranch) } />
+                  <Input className={ this.state.noBranch ? 'noBranchInput' : '' } key='branchInput' {...branchProps} onBlur={this.onBlurBranch} type='text' id='branchInput' size='large' disabled={ (!this.state.editBranch) } />
+                  { this.state.noBranch ? [<span className='noValueSpan'>请输入Branch名称</span>] : null}
                 </FormItem>
                 {
                   !this.state.editBranch ? [
@@ -376,7 +397,8 @@ let CICDSettingModal = React.createClass({
               </div>
               <div className='request inputBox'>
                 <FormItem style={{ width:'380px',float:'left',marginRight:'18px' }}>
-                  <Input {...tagProps} onBlur={this.onBlurTag} type='text' id="tagInput" size='large' disabled={ !this.state.editTag} />
+                  <Input className={ this.state.noTag ? 'noTagInput' : '' } key='tagInput' {...tagProps} onBlur={this.onBlurTag} type='text' id='tagInput' size='large' disabled={ !this.state.editTag} />
+                  { this.state.noTag ? [<span className='noValueSpan'>请输入Tag名称</span>] : null}
                 </FormItem>
                 {
                   !this.state.editTag ? [
@@ -395,7 +417,6 @@ let CICDSettingModal = React.createClass({
                 </FormItem>
               </div>
             </div>
-          </Form>
         </div>
         <div className='BtnBox'>
           <Button size='large' onClick={this.handleReset}>
@@ -406,6 +427,7 @@ let CICDSettingModal = React.createClass({
           </Button>
         </div>
       </div>
+    </Form>
     )
   }
 });
