@@ -322,7 +322,11 @@ function containerDetailEvents(state = {}, action) {
       return merge({}, defaultState, state, {
         [cluster]: {
           [containerName]: {
-            isFetching: true
+            isFetching: (
+              state && state[cluster] && state[cluster][containerName]
+                ? false
+                : true
+            )
           }
         }
       })
