@@ -65,7 +65,8 @@ class ComposeFile extends Component {
       visible: false,
       condition: true,
       modalShow: false,
-      stackType: true
+      stackType: true,
+      createDisabled: false,
     }
   }
   componentWillMount() {
@@ -182,6 +183,7 @@ class ComposeFile extends Component {
   appNameCheck(rule, value, callback) {
     // const { needAppName} = this.state
     const { cluster, checkAppName } = this.props
+    const self = this
     /*if (!value || needAppName) {
       callback([new Error('请输入应用名称')])
       // validateAppName
@@ -192,10 +194,16 @@ class ComposeFile extends Component {
       return callback([new Error(errorMsg)])
     }
     clearTimeout(this.appNameCheckTimeout)
+    this.setState({
+      createDisabled: true,
+    })
     this.appNameCheckTimeout = setTimeout(() => {
       checkAppName(cluster, value, {
         success: {
           func: (result) => {
+            self.setState({
+              createDisabled: false,
+            })
             if (result.data) {
               errorMsg = appNameCheck(value, '应用名称', true)
               callback([new Error(errorMsg)])
@@ -207,6 +215,13 @@ class ComposeFile extends Component {
             callback()
           },
           isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            self.setState({
+              createDisabled: false,
+            })
+          }
         }
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
@@ -257,7 +272,7 @@ class ComposeFile extends Component {
     })
   }
   render() {
-    const { appDescYaml, remark } = this.state
+    const { appDescYaml, remark, createDisabled } = this.state
     const { getFieldProps, getFieldValue, getFieldError, isFieldValidating } = this.props.form
     const appNameFormCheck = getFieldProps('appNameFormCheck', {
       rules: [
@@ -335,7 +350,7 @@ class ComposeFile extends Component {
                   上一步
                   </Button>
               </Popconfirm>
-              <Button size="large" type="primary" className="createBtn" onClick={this.subApp}>
+              <Button disabled={createDisabled} size="large" type="primary" className="createBtn" onClick={this.subApp}>
                 创建
               </Button>
             </div>
