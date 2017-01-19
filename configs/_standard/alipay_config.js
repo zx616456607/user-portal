@@ -10,6 +10,8 @@
 */
 
 const url = require('../').url
+const path = require('path')
+
 const alipay = {
   //↓↓↓↓↓↓↓↓↓↓请在这里配置您的基本信息↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 
@@ -38,7 +40,7 @@ const alipay = {
 
 
   // ca证书路径地址，用于curl中ssl校验 请保证cacert.pem文件在当前文件夹目录中
-  cacert:'./sslkey/certificate.pem'
+  cacert: path.join(__root__dirname, './sslkey/certificate.pem')
 
   //↑↑↑↑↑↑↑↑↑↑请在这里配置您的基本信息↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 }

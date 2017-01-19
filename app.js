@@ -281,8 +281,8 @@ if (config.protocol !== 'https') {
 } else {
   // Https server
   const https = require('https')
-  const prikeyfile = './sslkey/privatekey.pem'
-  const certfile = './sslkey/certificate.pem'
+  const prikeyfile = path.join(__root__dirname, './sslkey/privatekey.pem')
+  const certfile = path.join(__root__dirname, './sslkey/certificate.pem')
   const httpsoptions = {
     key: fs.readFileSync(prikeyfile),
     cert: fs.readFileSync(certfile)
