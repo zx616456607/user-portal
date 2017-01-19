@@ -153,7 +153,7 @@ exports.notify = function* () {
   const method = 'notify'
   const order = this.request.wechat_pay_notify_message
   try {
-    if (order.trade_state !== 'SUCCESS') {
+    if (order.result_code !== 'SUCCESS') {
       logger.warn(method, `trade_state is ${order.trade_state}`, JSON.stringify(order))
       res.reply('success')
       return

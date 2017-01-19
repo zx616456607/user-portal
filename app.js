@@ -166,7 +166,7 @@ app.use(favicon(__dirname + '/static/favicon.ico'))
 
 if (config.running_mode === constants.STANDARD_MODE) {
   app.use(function* (next) {
-    if (this.request.url === '/payments/wechat_pay/notify') {
+    if (this.request.url.indexOf('/payments/wechat_pay/notify') >= 0) {
       this.request.headers['content-type'] = 'text/plain'
     }
     yield next
