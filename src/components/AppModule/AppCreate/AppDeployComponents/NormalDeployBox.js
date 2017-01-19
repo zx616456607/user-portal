@@ -22,7 +22,6 @@ import { volNameCheck } from '../../../../common/naming_validation'
 
 const Option = Select.Option;
 const OptGroup = Select.OptGroup;
-const createForm = Form.create;
 const FormItem = Form.Item;
 let uuid = 1;
 let MyComponent = React.createClass({
@@ -750,7 +749,7 @@ let NormalDeployBox = React.createClass({
             </div>
             <div className="stateService">
               <span className="commonSpan">服务类型 <a href="http://docs.tenxcloud.com/faq#you-zhuang-tai-fu-wu-yu-wu-zhuang-tai-fu-wu-de-qu-bie" target="_blank"><Tooltip title="若需数据持久化，请使用有状态服务"><Icon type="question-circle-o" /></Tooltip></a></span>
-              <Switch className="changeBtn" 
+              <Switch className="changeBtn"
                 {...getFieldProps('volumeSwitch', {
                   valuePropName: 'checked',
                   onChange: (e)=> this.changeSwitchOption(e)

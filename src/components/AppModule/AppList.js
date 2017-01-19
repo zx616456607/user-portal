@@ -914,6 +914,7 @@ class AppList extends Component {
                   } }
                   value={searchInputValue}
                   placeholder='按应用名搜索'
+                  style={{paddingRight: '28px'}}
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchApps} />
               </div>

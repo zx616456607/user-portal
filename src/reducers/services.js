@@ -194,7 +194,11 @@ function serviceContainers(state = {}, action) {
       return merge({}, defaultState, state, {
         [cluster]: {
           [serviceName]: {
-            isFetching: true
+            isFetching: (
+              state && state[cluster] && state[cluster][serviceName]
+                ? false
+                : true
+            )
           }
         }
       })

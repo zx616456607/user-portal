@@ -332,7 +332,7 @@ class GithubComponent extends Component {
           </Tooltip>
           <Icon type="reload" onClick={() => this.syncRepoList()} />
           <div className="right-search">
-            <Input className='searchBox' size="large" style={{ width: '180px' }} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
+            <Input className='searchBox' size="large" style={{ width: '180px', paddingRight:'28px'}} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
             <i className='fa fa-search' onClick={this.searchClick}></i>
           </div>
         </div>

@@ -737,7 +737,7 @@ class Storage extends Component {
                 <i className="fa fa-search cursor" onClick={() => this.searchByStorageName()}/>
               </div>
               <div className="littleRight">
-                <Input size="large" placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchStorageName(e)} onPressEnter={() => this.searchByStorageName()} />
+                <Input size="large" style={{paddingRight: '28px'}} placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchStorageName(e)} onPressEnter={() => this.searchByStorageName()} />
               </div>
             </div>
             <div className="clearDiv"></div>

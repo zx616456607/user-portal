@@ -71,7 +71,6 @@ class SearchInput extends Component{
       },{
         success:{
           func: () => {
-            console.log('filter',filter)
             scope.setState({
               page: 1,
               current: 1,
@@ -194,6 +193,7 @@ class SearchInput extends Component{
               onChange={this.handleInt}
               placeholder={placeholder?placeholder:"请输入关键词搜索"}
               onPressEnter={this.handleSearch}
+              style={{paddingRight: '28px'}}
             />
           </div>
         </div>

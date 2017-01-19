@@ -90,7 +90,16 @@ class App extends Component {
     }
     // 余额不足
     if (statusCode === PAYMENT_REQUIRED_CODE) {
-      notification.warn('操作失败', message.message, null)
+      let msg = '余额不足，请充值后重试'
+      if (space.namespace !== 'default') {
+        if (standardFlag) {
+          msg = '团队余额不足，请充值后重试'
+        }
+        else {
+          msg = '团队空间余额不足，请充值后重试'
+        }
+      }
+      notification.warn('操作失败', msg, null)
       return
     }
     // 升级版本
