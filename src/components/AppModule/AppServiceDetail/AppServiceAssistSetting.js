@@ -10,7 +10,6 @@
  */
 import React from 'react'
 import { Card, Spin, Form, Input, Checkbox, Radio, Icon, } from 'antd'
-import QueueAnim from 'rc-queue-anim'
 import './style/AppServiceAssistSetting.less'
 import { formatDate } from '../../../common/tools'
 import { TENX_LOCAL_TIME_VOLUME } from '../../../../constants'
