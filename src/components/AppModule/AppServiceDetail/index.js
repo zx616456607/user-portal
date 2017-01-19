@@ -13,6 +13,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import ContainerList from './AppContainerList'
 import AppServiceDetailInfo from './AppServiceDetailInfo'
+import AppServiceAssistSetting from './AppServiceAssistSetting'
 import ComposeGroup from './ComposeGroup'
 import BindDomain from './BindDomain'
 import PortDetail from './PortDetail'
@@ -320,6 +321,11 @@ class AppServiceDetail extends Component {
               </TabPane>
               <TabPane tab='基础信息' key='#basic'>
                 <AppServiceDetailInfo
+                  serviceDetail={serviceDetail}
+                  loading={isServiceDetailFetching} />
+              </TabPane>
+              <TabPane tab='辅助设置' key='#setting'>
+                <AppServiceAssistSetting
                   serviceDetail={serviceDetail}
                   loading={isServiceDetailFetching} />
               </TabPane>
