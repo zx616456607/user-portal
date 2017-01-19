@@ -44,3 +44,4 @@ exports.TENX_LOCAL_TIME_VOLUME = {
     "path": "/etc/localtime"
   }
 }
+exports.DEFAULT_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss'
