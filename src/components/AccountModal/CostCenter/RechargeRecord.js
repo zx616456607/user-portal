@@ -341,8 +341,8 @@ class RechargeRecord extends Component {
               <Col span={20} style={{ color: '#666666' }}>我的空间可用余额小于&nbsp;
                 {
                   standard?
-                  <span>¥</span>:
-                  <span></span>
+                  <span>¥ </span>:
+                  null
                 }
                 <InputNumber
                   value={threshold}
@@ -355,8 +355,8 @@ class RechargeRecord extends Component {
                   />
                   {
                     standard?
-                    <span></span>:
-                    <span>T币</span>
+                    null :
+                    <span> T币</span>
                   }
                 &nbsp;时发送提醒
               </Col>

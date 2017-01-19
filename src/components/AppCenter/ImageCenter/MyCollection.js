@@ -13,7 +13,7 @@ import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadFavouriteList, getImageDetailInfo } from '../../../actions/app_center'
+import { loadFavouriteList, getImageDetailInfo, searchFavoriteImages} from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 
 import "./style/MyCollection.less"
@@ -85,7 +85,7 @@ let MyComponent = React.createClass({
     }
     if (imageList.length === 0) {
       return (
-        <div style={{lineHeight:'80px',height:'80px',paddingLeft:'40px'}}>您还没有收藏的镜像。</div>
+        <div style={{lineHeight:'20px',height:'60px',paddingLeft:'30px'}}>您还没有收藏的镜像。</div>
       )
     }
     let items = imageList.map((item, index) => {
@@ -147,7 +147,11 @@ class MyCollection extends Component {
       imageDetailModalShow: false
     });
   }
-
+  searchImages() {
+    const { registry, searchFavoriteImages } = this.props
+    const condition = {imageName: this.state.imageName, registry }
+    searchFavoriteImages(condition)
+  }
   render() {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
@@ -160,6 +164,11 @@ class MyCollection extends Component {
         <div id="MyCollection" key="MyCollection">
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type="info" />
           <Card className="MyCollectionCard">
+            <div className="operaBox">
+              <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" onChange={(e)=> this.setState({imageName: e.target.value})} onPressEnter={()=> this.searchImages()} />
+              <i className="fa fa-search"></i>
+              <div style={{ clear: "both" }}></div>
+            </div>
             <MyComponent scope={scope} isFetching={this.props.isFetching} registryServer={this.props.server} getImageDetailInfo={(obj, callback) => this.props.getImageDetailInfo(obj, callback)} config={imageList} />
           </Card>
         </div>
@@ -202,17 +211,10 @@ function mapStateToProps(state, props) {
   }
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    loadFavouriteList: (registry) => {
-      dispatch(loadFavouriteList(registry))
-    },
-    getImageDetailInfo: (obj, callback) => {
-      dispatch(getImageDetailInfo(obj, callback))
-    },
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(MyCollection, {
+export default connect(mapStateToProps, {
+  loadFavouriteList,
+  getImageDetailInfo,
+  searchFavoriteImages
+})(injectIntl(MyCollection, {
   withRef: true,
 }))

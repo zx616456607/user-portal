@@ -292,7 +292,6 @@ let MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-
       const appDomain = parseAppDomain(item, bindingDomains, bindingIPs)
       return (
         <div className={item.checked ? 'appDetail appDetailSelected' : 'appDetail'} key={item.name} onClick={this.selectAppByline.bind(this, item)} >
