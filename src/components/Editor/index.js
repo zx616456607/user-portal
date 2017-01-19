@@ -233,7 +233,7 @@ class Editor extends Component {
             }
             <span style={{ float: 'left', color: '#16B9FE', marginRight: '10px' }}>主题：</span>
             <Select
-              style={{ width: '170px', float: 'left', marginTop: '11.5px', marginRight: '20px' }}
+              style={{ width: '170px', float: 'left', marginTop: '10.5px', marginRight: '20px' }}
               defaultValue={currentTheme}
               onChange={this.onChangeTheme.bind(this)}>
               {themeShow}
