@@ -257,54 +257,7 @@ let CICDSettingModal = React.createClass({
     const { useBranch, useTag, useRequest } = this.state;
     let branchInput = null;
     let tagInput = null;
-    this.props.form.validateFields((errors, values) => {
-      if(!!errors) {
-        console.log(errors)
-        e.preventDefault();
-        return;
-      }
-      let body = {
-        enabled: 1,
-        config: {
-          branch: null,
-          tag: null,
-          mergeRequest: null
-        }
-      }
-      if(useBranch) {
-        body.config.branch = {
-          name: branchInput.branch
-        }
-      }
-      if(useTag) {
-        body.config.tag = {
-          name: tagInput.tag
-        }
-      }
-      if(useRequest) {
-        body.config.mergeRequest = useRequest;
-      }
-      scope.setState({
-        cicdSetModalShow: false,
-        ciRulesOpened: true
-      });
-      UpdateTenxflowCIRules(flowId, body, {
-        success: {
-          func: () => { 
-            scope.ciRulesChangeSuccess()
-            _this.setState({
-              useBranch: false,
-              useTag: false,
-              useRequest: false,
-              editBranch: false,
-              editTag: false
-            })
-          },
-          isAsync: true
-        }
-      })
-    });
-    /*if(useBranch) {
+    if(useBranch) {
       this.props.form.validateFields(['branch'],(errors, values) => {
         if (!!errors) {
           e.preventDefault();
@@ -323,7 +276,47 @@ let CICDSettingModal = React.createClass({
         }
         tagInput = values;
       });
-    }*/
+    }
+    let body = {
+      enabled: 1,
+      config: {
+        branch: null,
+        tag: null,
+        mergeRequest: null
+      }
+    }
+    if(useBranch) {
+      body.config.branch = {
+        name: branchInput.branch
+      }
+    }
+    if(useTag) {
+      body.config.tag = {
+        name: tagInput.tag
+      }
+    }
+    if(useRequest) {
+      body.config.mergeRequest = useRequest;
+    }
+    scope.setState({
+      cicdSetModalShow: false,
+      ciRulesOpened: true
+    });
+    UpdateTenxflowCIRules(flowId, body, {
+      success: {
+        func: () => { 
+          scope.ciRulesChangeSuccess()
+          _this.setState({
+            useBranch: false,
+            useTag: false,
+            useRequest: false,
+            editBranch: false,
+            editTag: false
+          })
+        },
+        isAsync: true
+      }
+    })
   },
   render() {
     const { formatMessage } = this.props.intl;
