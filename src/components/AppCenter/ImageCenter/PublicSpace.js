@@ -155,8 +155,8 @@ class PublicSpace extends Component {
       imageDetailModalShow: false
     });
   }
-  searchImages(e) {
-    let image = e.target.value
+  searchImages() {
+    let image = this.state.imageName
     const { registry, searchPublicImages } = this.props
     searchPublicImages(registry, image)
   }
@@ -177,8 +177,8 @@ class PublicSpace extends Component {
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type="info" />
           <Card className="PublicSpaceCard">
             <div className="operaBox">
-              <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" onPressEnter={(e)=> this.searchImages(e)} />
-              <i className="fa fa-search"></i>
+              <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" onChange={(e)=> this.setState({imageName: e.target.value})} onPressEnter={()=> this.searchImages()} />
+              <i className="fa fa-search" onClick={()=> this.searchImages()}></i>
               <div style={{ clear: "both" }}></div>
             </div>
             <MyComponent scope={scope} getImageDetailInfo={(obj, callback) => this.props.getImageDetailInfo(obj, callback)} loading={isFetching} config={config} />
