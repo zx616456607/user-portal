@@ -92,7 +92,7 @@ class App extends Component {
     if (statusCode === PAYMENT_REQUIRED_CODE) {
       let msg = '余额不足，请充值后重试'
       if (space.namespace !== 'default') {
-        if (!standardFlag) {
+        if (standardFlag) {
           msg = '团队余额不足，请充值后重试'
         }
         else {
