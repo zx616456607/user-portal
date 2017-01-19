@@ -101,7 +101,7 @@ exports.notify = function* () {
   })
   if (isverify) {
     const apiResult = yield _requestSignUpdateApi(null, body)
-    this.status = apiResult.statusCode
+    this.status = 200
     this.body = apiResult
     return
   }
