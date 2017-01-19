@@ -10,7 +10,6 @@
     const health_timeout = 120000 // 2 minutes for real timeout
     var ws
     var term
-    window.cmda="cdma"
     var connected = false;
     function utf8_to_b64( str ) {
         return window.btoa(window.unescape(encodeURIComponent( str )));
@@ -120,11 +119,6 @@
            closeWebSocket(ws, term)
          }
         });
-        ws.addEventListener('close', function(){
-          if (data) {
-            window.parent.closeWebTerminalCallback(data['pod'] +','+ data['index'])
-          }
-        })
         // Current health time
         var last_health = (new Date()).getTime()
         ws.onopen = function(){
@@ -146,7 +140,7 @@
       }
     }
 
-    function closeWebSocket(ws, term, data) {
+    function closeWebSocket(ws, term) {
       if (ws) {
          if(ws.readyState == 1) {
            //exit sh process

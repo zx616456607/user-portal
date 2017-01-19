@@ -59,7 +59,6 @@ class TerminalModal extends Component {
   }
   
   componentDidMount() {
-    window.closeWebTerminalCallback = this.closeWebTerminalCallback.bind(this)
     //bind change modal height event
     let doc = $(document);
     let box = $('#TerminalModal .titleBox');
@@ -191,11 +190,11 @@ class TerminalModal extends Component {
     }    
   }
   
-  closeTerminal(terminalName, terminalIndex) {
+  closeTerminal() {
     //this function for user close the current terminal
     //and we will ask user make sure to close the terminal or not
     const _this = this;
-    const config = terminalName || this.state.terminalName
+    const config = this.state.terminalName
     const { scope } = _this.props;
     const { currentContainer } = scope.state;
     let newList = [];
@@ -211,7 +210,7 @@ class TerminalModal extends Component {
       terminalList: newList,
       onlyModal: false
     })
-    let frameKey = config.metadata.name + (terminalIndex || this.state.terminalIndex);
+    let frameKey = config.metadata.name + this.state.terminalIndex;
     if(config.terminalStatus == 'success') {          
       if(!!window.frames[frameKey].contentWindow) {          
         window.frames[frameKey].contentWindow.closeTerminal();
@@ -224,23 +223,9 @@ class TerminalModal extends Component {
         TerminalLayoutModal: false
       });
     }
+     
   }
-  closeWebTerminalCallback(key){
-    if(!key)return
-    //TODO
-    return
-    // const self = this
-    // const temp = key.split(',')
-    // this.closeTerminal({
-    //   terminalName:{
-    //     metadata: {
-    //       name: temp[0]
-    //     }
-    //   },
-    //   terminalStatus: "success",
-    //   terminalIndex: temp[1]
-    // })
-  }
+  
   render() {
     const { scope } = this.props;
     let config = this.state.terminalList;
@@ -261,11 +246,10 @@ class TerminalModal extends Component {
         size='small'>     
         {
           config.map((item, index) => {
-           _this[item.metadata.name+index] = ()=> _this.setState({terminalName: item, terminalIndex: index})
             const titleTab = (
               <div>
                 <span>{item.metadata.name}</span>
-                <Icon type='cross' onClick={()=> _this.setState({onlyModal: true, terminalName: item, terminalIndex: index})} />
+                <Icon type='cross' onClick={()=> this.setState({onlyModal: true, terminalName: item, terminalIndex: index})}/>
               </div>
             )
             return (
@@ -282,7 +266,7 @@ class TerminalModal extends Component {
                     ] : null
                   }
                   <iframe id={item.metadata.name + index} key={'iframe' + index}
-                    src={`/js/container_terminal.html?namespace=${item.metadata.namespace}&pod=${item.metadata.name}&cluster=${this.props.cluster}&index=${index}`} />
+                    src={`/js/container_terminal.html?namespace=${item.metadata.namespace}&pod=${item.metadata.name}&cluster=${this.props.cluster}`} />
                   {
                     item.terminalStatus == 'timeout' ? [
                       <div className='webLoadingBox' key={'webLoadingBox' + index}>
