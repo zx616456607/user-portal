@@ -232,9 +232,9 @@ class AppServiceLog extends Component {
     function spellTimeLogs(time, log) {
       return (
         <span className='logDetailSpan'>
-          { time && <span className='timeSpan'>[{time}] </span> }
           { log.mark && <span className='markSpan'>[{log.mark}] </span> }
           { log.name && <span className='nameSpan'>[{log.name}] </span> }
+          { time && <span className='timeSpan'>[{time}] </span> }
           { log.log }
         </span>
       )
