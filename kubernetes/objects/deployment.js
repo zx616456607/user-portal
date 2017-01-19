@@ -9,6 +9,8 @@
  */
 'use strict'
 
+const constants = require('../../constants')
+const TENX_LOCAL_TIME_VOLUME = constants.TENX_LOCAL_TIME_VOLUME
 const DEFAULT_DISKTYPE = 'rbd'
 const Container = require('./container')
 const TENXCLOUD_PREFIX = 'tenxcloud.com/'
@@ -266,21 +268,21 @@ class Deployment {
     })
   }
 
-  addContainerCommand(containerName, commands) {
+  addContainerCommand(containerName, command) {
     this.spec.template.spec.containers.map((container) => {
       if (container.name !== containerName) {
         return
       }
-      if (!container.commands) {
-        container.commands = []
+      if (!container.command) {
+        container.command = []
       }
-      if (Array.isArray(commands)) {
-        container.commands = container.commands.concat(commands)
+      if (Array.isArray(command)) {
+        container.command = container.command.concat(command)
       } else {
-        let cmdArray = commands.split(' ')
+        let cmdArray = command.split(' ')
         cmdArray.forEach(function(cmd) {
           if (cmd != "") {
-            container.commands.push(cmd)
+            container.command.push(cmd)
           }
         })
       }
@@ -353,18 +355,12 @@ class Deployment {
   }
 
   syncTimeZoneWithNode(containerName) {
-    const volume = {
-      "name": "tenxcloud-time-localtime",
-      "hostPath": {
-        "path": "/etc/localtime"
-      }
-    }
     const volumeMounts = {
-      name: "tenxcloud-time-localtime",
-      mountPath: "/etc/localtime",
+      name: TENX_LOCAL_TIME_VOLUME.name,
+      mountPath: TENX_LOCAL_TIME_VOLUME.hostPath.path,
       readOnly: true
     }
-    this.addContainerVolume.apply(this, [containerName, volume, volumeMounts])
+    this.addContainerVolume.apply(this, [containerName, TENX_LOCAL_TIME_VOLUME, volumeMounts])
   }
 
   // ~ probe={port, path, initialDelaySeconds, timeoutSeconds, periodSeconds}
