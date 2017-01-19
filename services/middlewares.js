@@ -10,6 +10,7 @@
  */
 'use strict'
 
+const useragent = require('useragent')
 const apiFactory = require('./api_factory')
 const configIndex = require('../configs')
 const enterpriseMode = require('../configs/constants').ENTERPRISE_MODE
@@ -47,13 +48,21 @@ exports.auth = function* (next) {
     if (requestUrl.indexOf(redirectUrl) < 0 && requestUrl !== '/') {
       redirectUrl += `?redirect=${requestUrl}`
     }
-    switch (this.accepts('json', 'html')) {
+    switch (this.accepts('json', 'html', 'text')) {
       case 'html':
         this.status = 302
         this.redirect(redirectUrl)
         return
       default:
+        const agent = useragent.parse(this.headers['user-agent'])
+        // Compatible with IE9-
+        if (agent.family === 'IE' && agent.major < 9) {
+          this.status = 302
+          this.redirect(redirectUrl)
+          return
+        }
         this.status = 401
+        this.headers['content-type'] = 'application/json'
         this.body = {
           message: 'LOGIN_EXPIRED'
         }

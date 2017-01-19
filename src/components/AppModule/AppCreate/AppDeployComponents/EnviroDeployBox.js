@@ -242,12 +242,12 @@ let MyComponentPort = React.createClass({
       }
     })
     if(errorFlag) {
-      callback([new Error('映射主机端口重复.')])
+      callback([new Error('服务端口已被占用.')])
       return;
     } else {
       let tempPort  = parseInt(value);
-      if( tempPort < 1024 || tempPort > 65535 ) {
-        callback([new Error('指定端口号范围1024 ~ 65535')])
+      if( tempPort < 10000 || tempPort > 65535 ) {
+        callback([new Error('指定端口号范围10000 ~ 65535')])
         return;
       } else {
         callback();
@@ -386,7 +386,7 @@ let EnviroDeployBox = React.createClass({
                   <span>协议</span>
                 </div>
                 <div className="mapping portCommonTitle">
-                  <span>映射主机端口</span>
+                  <span>映射服务端口</span>
                 </div>
                 <div className="opera portCommonTitle">
                   <span>操作</span>

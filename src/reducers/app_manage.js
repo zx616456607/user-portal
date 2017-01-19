@@ -15,7 +15,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import reducerFactory from './factory'
 import { DEFAULT_PAGE_SIZE } from '../../constants'
 import { getAppStatus, getContainerStatus } from '../common/status_identify'
-import { filtEvents } from '../common/tools'
+import { filtEvents } from './utils'
 import { mergeStateByOpts } from './utils'
 
 function appItems(state = {}, action) {
