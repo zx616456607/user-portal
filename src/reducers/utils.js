@@ -39,3 +39,37 @@ export function mergeStateByOpts(state, newState, key, options) {
   })
   return newState
 }
+
+/**
+ * Filter and replace events
+ * 过滤、替换事件
+ * @param {Array} events
+ * @returns {Array}
+ */
+export function filtEvents(events) {
+  let targetEvents = []
+  if (!events) {
+    return targetEvents
+  }
+  events.map(event => {
+    let { reason } = event
+    reason = reason.toLowerCase()
+    switch (reason) {
+      case 'failedmount':
+        event.message = '尝试挂载存储卷失败，重试中...'
+        targetEvents.push(event)
+        break
+      case 'failedscheduling':
+        if (event.message.indexOf('PersisitentVolumeClaim is not bound') > -1) {
+          item.type == 'Normal'
+          event.reason = 'Scheduling'
+          event.message = '调度中...'
+        }
+        targetEvents.push(event)
+        break
+      default:
+        targetEvents.push(event)
+    }
+  })
+  return targetEvents
+}
