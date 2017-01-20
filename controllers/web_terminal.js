@@ -4,6 +4,7 @@ const https = require('https')
 const os = require('os')
 const urllib = require('urllib')
 const config = require('../configs')
+const queryString = require('querystring')
 
 //var wsUrl = "wss://kubelet:kubelet@" + data['host'] + ":" + data['port'] + "/api/v1/namespaces/" + data['namespace'] + "/pods/" + data['pod'] + "/exec?stdout=1&stdin=1&stderr=1&tty=1&command=%2Fbin%2Fsh&command=-i";
 module.exports = function (server, redis) {
@@ -35,19 +36,27 @@ module.exports = function (server, redis) {
       headers.hostname = host
       headers.port = port
       const apiVersion = clusterInfo.apiVersion
-       headers.path = `/api/${apiVersion}/namespaces/${namespace}/pods/${podName}/exec?stdout=1&stdin=1&stderr=1&tty=1&command=%2Fbin%2Fsh&command=-i`
-    const proxy = https.request(headers)
-    proxy.on('upgrade', (res, socket, head) => {
-      client.write(_formatProxyResponse(res))
-      client.pipe(socket)
-      socket.pipe(client)
-    })
-    proxy.on('error', (error) => {
-      console.error('webterminal error', error)
-      client.write("Sorry, cant't connect to this container ")
-      return
-    })
-    proxy.end()
+      headers.path = `/api/${apiVersion}/namespaces/${namespace}/pods/${podName}/exec?stdout=1&stdin=1&stderr=1&tty=1&command=%2Fbin%2Fsh&command=-c&command=${queryString.escape('if [ -x "/bin/bash" ]; then /bin/bash;else /bin/sh;fi')}`
+      const proxy = https.request(headers, res=> {
+        let data = ''
+        res.on('data', d=> {
+          data+=d.toString()
+        })
+        res.on('end', ()=> {
+          console.error(data.toString())
+        })
+      })
+      proxy.on('upgrade', (res, socket, head) => {
+        client.write(_formatProxyResponse(res))
+        client.pipe(socket)
+        socket.pipe(client)
+      })
+      proxy.on('error', (error) => {
+        console.error('webterminal error', error)
+        client.write("Sorry, cant't connect to this container ")
+        return
+      })
+      proxy.end()
     }).catch(err => {
       console.error('webterminal error', err)
       client.write('conect error')

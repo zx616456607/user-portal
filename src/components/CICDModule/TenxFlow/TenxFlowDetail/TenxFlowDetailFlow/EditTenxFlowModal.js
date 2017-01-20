@@ -1037,10 +1037,10 @@ let EditTenxFlowModal = React.createClass({
                 <svg className='codeSvg'>
                   <use xlinkHref='#cicdreflash' />
                 </svg>
-                <FormattedMessage {...menusText.selectCode} />
+                {this.state.currentCodeStore ? [<FormattedMessage {...menusText.selectCode} />] : [<span>选择代码库</span>]}
               </Button>
               {this.state.currentCodeStore ? [
-                <Button type='ghost' size='large' style={{ marginLeft: '15px' }} onClick={this.deleteCodeStore}>
+                <Button key='deleteCodeBtn' type='ghost' size='large' style={{ marginLeft: '15px' }} onClick={this.deleteCodeStore}>
                   <Icon type='delete' style={{ marginRight: '7px' }} />
                   <FormattedMessage {...menusText.deleteCode} />
                 </Button>
