@@ -518,6 +518,8 @@ let AppDeployServiceModal = React.createClass({
           return getFieldValue(`cmd${i}`)
         })
         deploymentList.addContainerArgs(serviceName, args)
+      } else {
+        checkArgsFlag = false;
       }
     } else {
       if(getFieldValue('userCMDKey')) {
@@ -528,9 +530,12 @@ let AppDeployServiceModal = React.createClass({
           return getFieldValue(`userCMD${i}`)
         })
         deploymentList.addContainerArgs(serviceName, args)
+      } else {
+        checkArgsFlag = false;
       }
     }
     //command
+console.log(command)
     if (command && command != "") {
       deploymentList.addContainerCommand(serviceName, command)
     } else {
