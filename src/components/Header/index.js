@@ -31,6 +31,21 @@ const team = mode === standard ? '团队' : '空间'
 const zone = mode === standard ? '区域' : '集群'
 const selectTeam = mode === standard ? '选择团队' : '选择空间'
 const selectZone = mode === standard ? '选择区域' : '选择集群'
+// The following routes and their sub-routes will show select space or select cluster
+const SPACE_CLUSTER_PATHNAME_MAP = {
+  space: [
+    '/',
+    '/app_manage',
+    '/database_cache',
+    '/app_center/stack_center',
+    '/ci_cd',
+  ],
+  cluster: [
+    '/',
+    '/app_manage',
+    '/database_cache',
+  ],
+}
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -85,7 +100,7 @@ class Header extends Component {
 
   handleSpaceChange(space) {
     const _this = this
-    const { loadTeamClustersList, setCurrent, current } = this.props
+    const { loadTeamClustersList, setCurrent, current, showCluster } = this.props
     /*if (space.namespace === current.space.namespace) {
       return
     }*/
@@ -107,7 +122,7 @@ class Header extends Component {
           })
           _this.setState({
             spacesVisible: false,
-            clustersVisible: true,
+            clustersVisible: (showCluster ? true : false),
           })
         },
         isAsync: true
@@ -152,6 +167,7 @@ class Header extends Component {
       browserHistory.push('/')
     }
   }
+
   componentWillMount() {
     const {
       loadTeamClustersList,
@@ -215,6 +231,8 @@ class Header extends Component {
       isTeamClustersFetching,
       teamClusters,
       migrated,
+      showSpace,
+      showCluster,
     } = this.props
     const {
       spacesVisible,
@@ -231,44 +249,52 @@ class Header extends Component {
     let selectValue = mode === standard ? current.space.teamName : current.space.spaceName
     return (
       <div id="header">
-        <div className="space">
-          <div className="spaceTxt">
-            <svg className='headerteamspace'>
-              <use xlinkHref='#headerteamspace' />
-            </svg>
-            <span style={{ marginLeft: 15 }}>{team}</span>
-          </div>
-          <div className="spaceBtn">
-            <PopSelect
-              title={selectTeam}
-              btnStyle={false}
-              special={true}
-              visible={spacesVisible}
-              list={teamspaces}
-              loading={isTeamspacesFetching}
-              onChange={this.handleSpaceChange}
-              selectValue={selectValue}
-              popTeamSelect={mode === standard} />
-          </div>
-        </div>
-        <div className="cluster">
-          <div className="clusterTxt">
-            <svg className='headercluster'>
-              <use xlinkHref='#headercluster' />
-            </svg>
-            <span style={{ marginLeft: 20 }}>{zone}</span>
-          </div>
-          <div className="envirBox">
-            <PopSelect
-              title={selectZone}
-              btnStyle={false}
-              visible={clustersVisible}
-              list={teamClusters}
-              loading={isTeamClustersFetching}
-              onChange={this.handleClusterChange}
-              selectValue={current.cluster.clusterName || '...'} />
-          </div>
-        </div>
+        {
+          showSpace && (
+            <div className="space">
+              <div className="spaceTxt">
+                <svg className='headerteamspace'>
+                  <use xlinkHref='#headerteamspace' />
+                </svg>
+                <span style={{ marginLeft: 15 }}>{team}</span>
+                </div>
+                <div className="spaceBtn">
+                  <PopSelect
+                    title={selectTeam}
+                    btnStyle={false}
+                    special={true}
+                    visible={spacesVisible}
+                    list={teamspaces}
+                    loading={isTeamspacesFetching}
+                    onChange={this.handleSpaceChange}
+                    selectValue={selectValue}
+                    popTeamSelect={mode === standard} />
+                </div>
+            </div>
+          )
+        }
+        {
+          showCluster && (
+            <div className="cluster">
+              <div className="clusterTxt">
+                <svg className='headercluster'>
+                  <use xlinkHref='#headercluster' />
+                </svg>
+                <span style={{ marginLeft: 20 }}>{zone}</span>
+              </div>
+              <div className="envirBox">
+                <PopSelect
+                  title={selectZone}
+                  btnStyle={false}
+                  visible={clustersVisible}
+                  list={teamClusters}
+                  loading={isTeamClustersFetching}
+                  onChange={this.handleClusterChange}
+                  selectValue={current.cluster.clusterName || '...'} />
+              </div>
+            </div>
+          )
+        }
         <div className="rightBox">
         {
           migrated === 1 ?
@@ -300,9 +326,40 @@ class Header extends Component {
 }
 
 function mapStateToProps(state, props) {
+  const { pathname } = props
   const { current, loginUser } = state.entities
   const { teamspaces } = state.user
   const { teamClusters } = state.team
+  let showSpace = false
+  let showCluster = false
+  SPACE_CLUSTER_PATHNAME_MAP.space.every(path => {
+    if (path == '/') {
+      if (pathname == '/') {
+        showSpace = true
+        return false
+      }
+      return true
+    }
+    if (pathname.indexOf(path) == 0) {
+      showSpace = true
+      return false
+    }
+    return true
+  })
+  SPACE_CLUSTER_PATHNAME_MAP.cluster.every(path => {
+    if (path == '/') {
+      if (pathname == '/') {
+        showCluster = true
+        return false
+      }
+      return true
+    }
+    if (pathname.indexOf(path) == 0) {
+      showCluster = true
+      return false
+    }
+    return true
+  })
   return {
     current,
     loginUser: loginUser.info,
@@ -311,6 +368,8 @@ function mapStateToProps(state, props) {
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
     isTeamClustersFetching: teamClusters.isFetching,
     teamClusters: (teamClusters.result ? teamClusters.result.data : []),
+    showSpace,
+    showCluster,
   }
 }
 
