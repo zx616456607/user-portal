@@ -249,7 +249,7 @@ let AppDeployServiceModal = React.createClass({
     const ServicePorts = this.props.scope.state.checkInf.Service.spec.ports
     const volumes = this.props.scope.state.checkInf.Deployment.spec.template.spec.volumes
     let imageVersion = scope.state.checkInf.Deployment.spec.template.spec.containers[0].image.split(':')[1]
-    const entryInput = scope.state.checkInf.Deployment.spec.template.spec.containers[0].commands
+    const entryInput = scope.state.checkInf.Deployment.spec.template.spec.containers[0].command
     form.setFieldsValue({
       name: scope.state.checkInf.Service.metadata.name,
       imageVersion: imageVersion,
@@ -510,21 +510,25 @@ let AppDeployServiceModal = React.createClass({
     let checkCommandFlag = true;//for check command is null or not
     //args 执行命令
     if (this.state.runningCode === '1') {
-      const args = getFieldValue('cmdKey').map(i => {
-        if(!Boolean(getFieldValue(`cmd${i}`)) || getFieldValue(`cmd${i}`).length == 0) {
-          checkArgsFlag = false;
-        }
-        return getFieldValue(`cmd${i}`)
-      })
-      deploymentList.addContainerArgs(serviceName, args)
+      if (getFieldValue('cmdKey')) {
+        const args = getFieldValue('cmdKey').map(i => {
+          if (!Boolean(getFieldValue(`cmd${i}`)) || getFieldValue(`cmd${i}`).length == 0) {
+            checkArgsFlag = false;
+          }
+          return getFieldValue(`cmd${i}`)
+        })
+        deploymentList.addContainerArgs(serviceName, args)
+      }
     } else {
-      const args = getFieldValue('userCMDKey').map(i => {
-        if(!Boolean(getFieldValue(`userCMD${i}`)) || getFieldValue(`userCMD${i}`).length == 0) {
-          checkArgsFlag = false;
-        }
-        return getFieldValue(`userCMD${i}`)
-      })
-      deploymentList.addContainerArgs(serviceName, args)
+      if(getFieldValue('userCMDKey')) {
+        const args = getFieldValue('userCMDKey').map(i => {
+          if (!Boolean(getFieldValue(`userCMD${i}`)) || getFieldValue(`userCMD${i}`).length == 0) {
+            checkArgsFlag = false;
+          }
+          return getFieldValue(`userCMD${i}`)
+        })
+        deploymentList.addContainerArgs(serviceName, args)
+      }
     }
     //command
     if (command && command != "") {
