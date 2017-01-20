@@ -241,46 +241,27 @@ class MySpace extends Component{
                   <img src={homeCICD} style={{display:'inline-block',verticalAlign:'middle'}}/>
                 </Col>
                 <Col className='cicdInf' span={12}>
-                  <table>
-                    <tbody>
-                    <tr>
-                      <td>
-                        {/*<svg className="stateSvg">
-                          <use xlinkHref="#settingname" />
-                        </svg>*/}
-                        <div className='cicdDot' style={{backgroundColor:'#13c563'}}></div>
-                        构建成功
-                      </td>
-                      <td className="cicdNum">
-                        {spaceCICDStats.succeedNumber} 个
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        {/*<svg className="stateSvg">
-                          <use xlinkHref="#settingname" />
-                        </svg>*/}
-                        <div className='cicdDot' style={{backgroundColor:'#f7676d'}}></div>
-                        构建失败
-                      </td>
-                      <td className="cicdNum">
-                        {spaceCICDStats.failedNumber} 个
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        {/*<svg className="stateSvg">
-                          <use xlinkHref="#settingname" />
-                        </svg>*/}
-                        <div className='cicdDot' style={{backgroundColor:'#46b2fa'}}></div>
-                        正在构建
-                      </td>
-                      <td className="cicdNum">
-                        {spaceCICDStats.runningNumber} 个
-                      </td>
-                    </tr>
-                    </tbody>
-                  </table>
+                  <Row className='cicdNum'>
+                    <Col span={16}>
+                      <div className='cicdDot' style={{backgroundColor:'#13c563'}}></div>
+                      构建成功
+                    </Col>
+                    <Col span={8} style={{textAlign:'right'}}>{spaceCICDStats.succeedNumber} 个</Col>
+                  </Row>
+                  <Row className='cicdNum'>
+                    <Col span={16}>
+                      <div className='cicdDot' style={{backgroundColor:'#f7676d'}}></div>
+                      构建失败
+                    </Col>
+                    <Col span={8} style={{textAlign:'right'}}>{spaceCICDStats.failedNumber} 个</Col>
+                  </Row>
+                  <Row className='cicdNum'>
+                    <Col span={16}>
+                      <div className='cicdDot' style={{backgroundColor:'#46b2fa'}}></div>
+                      正在构建
+                    </Col>
+                    <Col span={8} style={{textAlign:'right'}}>{spaceCICDStats.runningNumber} 个</Col>
+                  </Row>
                 </Col>
               </Row>
               <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px'}}>
