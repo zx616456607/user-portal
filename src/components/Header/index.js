@@ -31,19 +31,20 @@ const team = mode === standard ? '团队' : '空间'
 const zone = mode === standard ? '区域' : '集群'
 const selectTeam = mode === standard ? '选择团队' : '选择空间'
 const selectZone = mode === standard ? '选择区域' : '选择集群'
-// The following routes and their sub-routes will show select space or select cluster
+// The following routes RegExp will show select space or select cluster
 const SPACE_CLUSTER_PATHNAME_MAP = {
   space: [
-    '/',
-    '/app_manage',
-    '/database_cache',
-    '/app_center/stack_center',
-    '/ci_cd',
+    /^\/$/,
+    /\/app_manage/,
+    /\/database_cache/,
+    /^\/app_center\/?$/,
+    /\/app_center\/stack_center/,
+    /\/ci_cd/,
   ],
   cluster: [
-    '/',
-    '/app_manage',
-    '/database_cache',
+    /^\/$/,
+    /\/app_manage/,
+    /\/database_cache/,
   ],
 }
 
@@ -333,28 +334,14 @@ function mapStateToProps(state, props) {
   let showSpace = false
   let showCluster = false
   SPACE_CLUSTER_PATHNAME_MAP.space.every(path => {
-    if (path == '/') {
-      if (pathname == '/') {
-        showSpace = true
-        return false
-      }
-      return true
-    }
-    if (pathname.indexOf(path) == 0) {
+    if (pathname.search(path) == 0) {
       showSpace = true
       return false
     }
     return true
   })
   SPACE_CLUSTER_PATHNAME_MAP.cluster.every(path => {
-    if (path == '/') {
-      if (pathname == '/') {
-        showCluster = true
-        return false
-      }
-      return true
-    }
-    if (pathname.indexOf(path) == 0) {
+    if (pathname.search(path) == 0) {
       showCluster = true
       return false
     }
