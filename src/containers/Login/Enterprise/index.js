@@ -238,6 +238,8 @@ let Login = React.createClass({
         { validator: this.checkPass },
       ],
     })
+    // Avoid show password in html element
+    delete passwdProps.value
     // const captchaProps = getFieldProps('captcha', {
     //   rules: [
     //     { required: true, message: '请填写验证码' },
