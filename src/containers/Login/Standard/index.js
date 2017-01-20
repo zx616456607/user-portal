@@ -255,6 +255,8 @@ let Login = React.createClass({
         { validator: this.checkPass },
       ],
     })
+    // Avoid show password in html element
+    delete passwdProps.value
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
