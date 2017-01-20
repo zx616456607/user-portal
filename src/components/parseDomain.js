@@ -33,7 +33,7 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
         portInfo = ''
         nameInfo = port.name
       }
-      if (bindingIP.length > 0 && !isDomain(bindingDomain)) {
+      if (bindingIP.length > 0 && !isDomain(bindingDomainStr)) {
         bindingIP.map((bindingIP) => {
           let domain = bindingIP + portInfo
           domain = domain.replace(/^(http:\/\/.*):80$/, '$1')
@@ -41,7 +41,7 @@ export function parseServiceDomain(item, bindingDomainStr, bindingIPStr) {
           domains.push({domain, isInternal: false, interPort: port.targetPort})
         })
       }
-      else if (isDomain(bindingDomain)) {
+      else if (isDomain(bindingDomainStr)) {
         bindingDomain.map((bindingDomain) => {
           let domain = ''
           // 检查是bindingDomain是否是IP，（此正则并不精确但在此处够用了）
