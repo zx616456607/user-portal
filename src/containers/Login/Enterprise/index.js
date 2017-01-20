@@ -232,14 +232,13 @@ let Login = React.createClass({
       rules: [
         { validator: this.checkName },
       ],
+      getValueProps: () => {}, // Avoid show password in html element
     })
     const passwdProps = getFieldProps('password', {
       rules: [
         { validator: this.checkPass },
       ],
     })
-    // Avoid show password in html element
-    delete passwdProps.value
     // const captchaProps = getFieldProps('captcha', {
     //   rules: [
     //     { required: true, message: '请填写验证码' },
