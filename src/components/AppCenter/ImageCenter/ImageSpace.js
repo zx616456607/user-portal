@@ -260,6 +260,12 @@ class ImageSpace extends Component {
   componentWillMount() {
     this.props.loadPrivateImageList(DEFAULT_REGISTRY);
   }
+  componentWillReceiveProps(nextProps) {
+    const { space } = nextProps
+    if (space.namespace !== this.props.space.namespace) {
+      this.props.loadPrivateImageList(DEFAULT_REGISTRY)
+    }
+  }
   openUploadModal() {
     //this function for user open the upload image modal
     this.setState({
@@ -296,7 +302,7 @@ class ImageSpace extends Component {
   }
   searchImage() {
     const condition = {
-      imageName: this.state.imageName || '', 
+      imageName: this.state.imageName || '',
       registry: this.props.registry
     }
     this.props.searchPrivateImages(condition)
@@ -387,7 +393,6 @@ function mapStateToProps(state, props) {
     registry: DEFAULT_REGISTRY,
     imageList: [],
     server: ''
-
   }
   const defaultConfig = {
     isFetching: false,
@@ -396,13 +401,15 @@ function mapStateToProps(state, props) {
   const { privateImages, imagesInfo } = state.images
   const { imageList, isFetching, registry, server} = privateImages[DEFAULT_REGISTRY] || defaultPrivateImages
   const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
+  const { space } = state.entities.current
 
   return {
     imageList,
     isFetching,
     imageInfo,
     registry,
-    server
+    server,
+    space,
   }
 }
 
