@@ -11,7 +11,7 @@
 'use strict'
 
 import moment from 'moment'
-import { AMOUNT_CONVERSION, AMOUNT_DEFAULT_PRECISION } from '../../constants'
+import { AMOUNT_CONVERSION, AMOUNT_DEFAULT_PRECISION, DEFAULT_TIME_FORMAT } from '../../constants'
 import { STANDARD_MODE } from '../../configs/constants'
 import { mode } from '../../configs/model'
 
@@ -46,11 +46,12 @@ if (locale === 'zh') {
  * @param {any} timestamp
  * @returns
  */
-export function formatDate(timestamp) {
+export function formatDate(timestamp, format) {
+  format = format || DEFAULT_TIME_FORMAT
   if (!timestamp || timestamp === '') {
-    return moment(new Date()).format("YYYY-MM-DD HH:mm:ss")
+    return moment(new Date()).format(format)
   } else {
-    return moment(timestamp).format("YYYY-MM-DD HH:mm:ss")
+    return moment(timestamp).format(format)
   }
 }
 
@@ -71,7 +72,7 @@ export function calcuDate(beginDate) {
 // h hour
 // m minute
 // s second
-export function formateDate(date, format) {
+/*export function formateDate(date, format) {
   if (Object.prototype.toString.call(date).indexOf('Date') < 0) {
     return date
   }
@@ -90,7 +91,7 @@ export function formateDate(date, format) {
     return text.toString().length === 2 ? text : `0${text}`
   }
   return format.replace(/YYYY/, uDate.year).replace(/MM/, _addZero(uDate.month)).replace(/DD/, _addZero(uDate.day)).replace(/hh/, _addZero(uDate.hour)).replace(/mm/, _addZero(uDate.minute)).replace(/ss/, _addZero(uDate.second))
-}
+}*/
 
 
 export function toQuerystring(obj, sep, eq) {

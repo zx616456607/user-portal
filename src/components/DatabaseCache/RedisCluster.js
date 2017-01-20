@@ -23,7 +23,7 @@ import NotificationHandler from '../../common/notification_handler'
 import { formatDate } from '../../common/tools.js'
 // import './style/RedisCluster.less'
 import './style/MysqlCluster.less'
-import redisImg from '../../assets/img/test/redis.jpg'
+import redisImg from '../../assets/img/database_cache/redis.jpg'
 import noDbImgs from '../../assets/img/no_data/no_db.png'
 
 let MyComponent = React.createClass({
@@ -183,7 +183,7 @@ class RedisDatabase extends Component {
               <i className='fa fa-plus' />&nbsp;Redis集群
           </Button>
             <span className='rightSearch'>
-              <Input size='large' placeholder='搜索' style={{ width: 200 }} ref="redisRef" onPressEnter={(e)=> this.handSearch(e)}/>
+              <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight:'28px' }} ref="redisRef" onPressEnter={(e)=> this.handSearch(e)}/>
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()} />
             </span>
           </div>
@@ -221,7 +221,7 @@ function mapStateToProps(state, props) {
   const { current } = state.entities
   return {
     cluster: cluster.clusterID,
-    // cluster: 'e0e6f297f1b3285fb81d27742255cfcf11',// @todo default 
+    // cluster: 'e0e6f297f1b3285fb81d27742255cfcf11',// @todo default
     current,
     database,
     databaseList: databaseList,

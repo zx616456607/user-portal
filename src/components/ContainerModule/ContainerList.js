@@ -457,6 +457,7 @@ class ContainerList extends Component {
                   } }
                   value={searchInputValue}
                   placeholder='按容器名称搜索'
+                  style={{paddingRight: '28px'}}
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchContainers} />
               </div>

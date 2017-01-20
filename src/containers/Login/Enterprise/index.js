@@ -232,6 +232,7 @@ let Login = React.createClass({
       rules: [
         { validator: this.checkName },
       ],
+      getValueProps: () => {}, // Avoid show password in html element
     })
     const passwdProps = getFieldProps('password', {
       rules: [

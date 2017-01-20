@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/AppServiceLog.less"
-import { formateDate } from '../../../common/tools'
+import { formatDate } from '../../../common/tools'
 import { DATE_PIRCKER_FORMAT, UPGRADE_EDITION_REQUIRED_CODE } from '../../../constants'
 import { loadServiceLogs, clearServiceLogs } from '../../../actions/services'
 import { loadContainerDetailEvents } from '../../../actions/app_manage'
@@ -32,7 +32,7 @@ class AppServiceLog extends Component {
     this.resizeLog = this.resizeLog.bind(this)
     this.loadContainersEvents = this.loadContainersEvents.bind(this)
     this.state = {
-      currentDate: formateDate(new Date(), DATE_PIRCKER_FORMAT),
+      currentDate: formatDate(new Date(), DATE_PIRCKER_FORMAT),
       pageIndex: 1,
       pageSize: 50,
       useGetLogs: true,
@@ -100,7 +100,7 @@ class AppServiceLog extends Component {
        return
      }
      state = merge({}, state, {
-       currentDate: formateDate(new Date(), DATE_PIRCKER_FORMAT),
+       currentDate: formatDate(new Date(), DATE_PIRCKER_FORMAT),
        pageIndex: 1,
        pageSize: 50,
        useGetLogs: true,
@@ -160,7 +160,7 @@ class AppServiceLog extends Component {
     const cluster = tcluster || this.props.cluster
     const serviceName = tserviceName || this.props.serviceName
     const self = this
-    date = formateDate(date, DATE_PIRCKER_FORMAT)
+    date = formatDate(date, DATE_PIRCKER_FORMAT)
     date = this.throwUpgradeError(date)
     if (!date) return
     if (!refresh && date === this.state.currentDate) return
@@ -219,7 +219,7 @@ class AppServiceLog extends Component {
     if (!clusterLogs ) {
       return '无日志'
     }
-    if(clusterLogs.isFetching){
+    if(clusterLogs.isFetching && (!clusterLogs.logs || !clusterLogs.logs.data)){
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
     if(!clusterLogs.logs){
@@ -230,20 +230,20 @@ class AppServiceLog extends Component {
     let page = Math.ceil(logs.length / 50)
     let remainder = logs.length % 50
     function spellTimeLogs(time, log) {
-      return time
-             ? (
-               <span className='logDetailSpan'>
-                 <span className='timeSpan'>[{time}] </span>
-                 { log.mark && <span className='timeSpan'>[{log.mark}] </span> }
-                 { log.log }
-               </span>
-             )
-             : log.log
+      return (
+        <span className='logDetailSpan'>
+          { log.mark && <span className='markSpan'>[{log.mark}] </span> }
+          { log.name && <span className='nameSpan'>[{log.name}] </span> }
+          { time && <span className='timeSpan'>[{time}] </span> }
+          { log.log }
+        </span>
+      )
     }
     const logContent = logs.map((log, index) => {
       let time = ''
       if (log.timeNano) {
-        time = new Date(parseInt(log.timeNano.substring(0, 13))).toLocaleString()
+        time = new Date(parseInt(log.timeNano.substring(0, 13)))
+        time = formatDate(time)
       }
       if (index === 0) {
         if (log.log === '无更多日志\n') {

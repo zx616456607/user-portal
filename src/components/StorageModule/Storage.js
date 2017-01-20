@@ -312,17 +312,21 @@ let MyComponent = React.createClass({
               </Button>
             </Dropdown>*/}
             {!item.isUsed ?
-              <Dropdown overlay={menu} onClick={(e) => { this.showAction(e, 'resize', item.name, item.totalSize) } }>
-                <Button type="ghost" disabled={item.isUsed}>
-                  <span className="divider"><FormattedMessage {...messages.dilation} /> </span><Icon type="down" />
-                </Button>
-              </Dropdown>
+              <Dropdown.Button 
+                overlay={menu} 
+                type='ghost'
+                onClick={(e) => { this.showAction(e, 'resize', item.name, item.totalSize) } }
+                 disabled={item.isUsed}>
+                <span className="divider"><FormattedMessage {...messages.dilation} /> </span>
+              </Dropdown.Button>
             :
-              <Dropdown overlay={menu} visible={false}>
-                <Button type="ghost" disabled={item.isUsed}>
-                  <span className="divider"><FormattedMessage {...messages.dilation} /> </span><Icon type="down" />
-                </Button>
-              </Dropdown>
+              <Dropdown.Button 
+                overlay={menu}
+                type='ghost'
+                visible={false}
+                disabled={item.isUsed}>
+                  <span className="divider"><FormattedMessage {...messages.dilation} /> </span>
+              </Dropdown.Button>
             }
           </div>
         </div>
@@ -737,7 +741,7 @@ class Storage extends Component {
                 <i className="fa fa-search cursor" onClick={() => this.searchByStorageName()}/>
               </div>
               <div className="littleRight">
-                <Input size="large" placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchStorageName(e)} onPressEnter={() => this.searchByStorageName()} />
+                <Input size="large" style={{paddingRight: '28px'}} placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchStorageName(e)} onPressEnter={() => this.searchByStorageName()} />
               </div>
             </div>
             <div className="clearDiv"></div>

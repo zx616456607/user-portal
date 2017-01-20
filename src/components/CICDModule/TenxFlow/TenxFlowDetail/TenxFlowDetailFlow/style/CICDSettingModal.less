@@ -30,7 +30,29 @@
       }
     }
     .inputBox {
+      position: relative;
       padding-left: 22px;
+      .noTagInput,
+      .noBranchInput {
+        border: 1px solid #f50;
+        box-shadow: 0 0 0 2px rgba(255, 85, 0, 0.2);
+      }
+      .noValueSpan {
+        position: absolute;
+        left: 0;
+        bottom: -20px;
+        padding: 0 5px !important;
+        word-break: keep-all;
+        white-space: nowrap;
+        width: fit-content;
+        width: -webkit-fit-content;
+        width: -moz-fit-content;
+        height: 18px;
+        line-height: 18px !important;
+        color: #FFFFFF !important;
+        border-radius: 4px;
+        background-color: #fe4e50;
+      }
     }
     .fa {
       font-size: 18px;

@@ -286,7 +286,7 @@ class App extends Component {
         <div id='siderTooltip'></div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-header' : 'tenx-layout-header-bigger tenx-layout-header'}>
           <div className='tenx-layout-wrapper'>
-            <Header />
+            <Header pathname={pathname} />
           </div>
         </div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-sider' : 'tenx-layout-sider-bigger tenx-layout-sider'}>

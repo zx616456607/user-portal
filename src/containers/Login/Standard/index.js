@@ -17,7 +17,6 @@ import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
 import { browserHistory } from 'react-router'
 import { genRandomString } from '../../../common/tools'
 import { Link } from 'react-router'
-import LogInLogo from '../../../assets/img/sider/LogInLogo.svg'
 import loginMethodWeixinPNG from '../../../assets/img/loginMethodWeixin.png'
 import ReactDom from 'react-dom'
 import Top from '../../../components/Top'
@@ -254,6 +253,7 @@ let Login = React.createClass({
       rules: [
         { validator: this.checkPass },
       ],
+      getValueProps: () => {}, // Avoid show password in html element
     })
     const formItemLayout = {
       wrapperCol: { span: 24 },

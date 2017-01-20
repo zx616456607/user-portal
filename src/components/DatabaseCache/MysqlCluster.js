@@ -21,7 +21,7 @@ import CreateDatabase from './CreateDatabase.js'
 import NotificationHandler from '../../common/notification_handler'
 import { formatDate } from '../../common/tools.js'
 import './style/MysqlCluster.less'
-import mysqlImg from '../../assets/img/test/mysql.jpg'
+import mysqlImg from '../../assets/img/database_cache/mysql.png'
 import noDbImgs from '../../assets/img/no_data/no_db.png'
 
 let MyComponent = React.createClass({
@@ -135,7 +135,7 @@ class MysqlCluster extends Component {
       }
     })
   }
-  
+
   componentWillReceiveProps(nextProps) {
     const { form, current} = nextProps
     if (current.space.namespace === this.props.current.space.namespace && current.cluster.clusterID === this.props.current.cluster.clusterID) {
@@ -183,7 +183,7 @@ class MysqlCluster extends Component {
               <i className='fa fa-plus' />&nbsp;MySQL集群
           </Button>
             <span className='rightSearch'>
-              <Input size='large' placeholder='搜索' style={{ width: 200 }} ref="mysqlRef" onPressEnter={(e)=> this.handSearch(e)} />
+              <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight:'28px'}} ref="mysqlRef" onPressEnter={(e)=> this.handSearch(e)} />
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()}/>
             </span>
           </div>

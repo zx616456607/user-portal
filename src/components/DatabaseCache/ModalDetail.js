@@ -19,8 +19,8 @@ import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import { calcuDate, parseAmount} from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
 import { ANNOTATION_SVC_SCHEMA_PORTNAME } from '../../../constants'
-import mysqlImg from '../../assets/img/test/mysql.jpg'
-import redisImg from '../../assets/img/test/redis.jpg'
+import mysqlImg from '../../assets/img/database_cache/mysql.png'
+import redisImg from '../../assets/img/database_cache/redis.jpg'
 
 const Panel = Collapse.Panel;
 const ButtonGroup = Button.Group
@@ -323,7 +323,7 @@ class ModalDetail extends Component {
         }
       }
     });
- 
+
   }
 
   componentWillMount() {
@@ -343,7 +343,7 @@ class ModalDetail extends Component {
       }
     });
   }
-  
+
   componentWillReceiveProps(nextProps) {
     //this function for user select different image
     //the nextProps is mean new props, and the this.props didn't change
@@ -390,7 +390,7 @@ class ModalDetail extends Component {
     const parentScope = this.props.scope
     const _this = this
     const notification = new NotificationHandler()
-    
+
     this.setState({putModaling: true})
     putDbClusterDetail(cluster, dbName, this.state.replicas, {
       success: {
