@@ -23,7 +23,7 @@ import NotificationHandler from '../../common/notification_handler'
 import { formatDate } from '../../common/tools.js'
 // import './style/RedisCluster.less'
 import './style/MysqlCluster.less'
-import redisImg from '../../assets/img/test/redis.jpg'
+import redisImg from '../../assets/img/database_cache/redis.jpg'
 import noDbImgs from '../../assets/img/no_data/no_db.png'
 
 let MyComponent = React.createClass({
@@ -221,7 +221,7 @@ function mapStateToProps(state, props) {
   const { current } = state.entities
   return {
     cluster: cluster.clusterID,
-    // cluster: 'e0e6f297f1b3285fb81d27742255cfcf11',// @todo default 
+    // cluster: 'e0e6f297f1b3285fb81d27742255cfcf11',// @todo default
     current,
     database,
     databaseList: databaseList,
