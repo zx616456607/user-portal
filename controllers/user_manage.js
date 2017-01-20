@@ -19,6 +19,7 @@ const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 const ROLE_TEAM_ADMIN = 1
 const config = require('../configs')
 const standardMode = require('../configs/constants').STANDARD_MODE
+const serviceIndex = require('../services')
 
 /*
 Only return the detail of one user
@@ -31,9 +32,12 @@ exports.getUserDetail = function* () {
   const result = yield api.users.getBy([userID])
   const user = result ? result.data : {}
   if (this.params.user_id === 'default') {
-    user.tenxApi = loginUser.tenxApi
+    // For get loginUser info when user refresh page
     user.watchToken = loginUser.watchToken
-    user.cicdApi = loginUser.cicdApi
+    // Get config from config file and update session
+    serviceIndex.addConfigsForWS(user)
+    loginUser.tenxApi = user.tenxApi
+    loginUser.cicdApi = user.cicdApi
     // Delete sensitive information
     delete user.userID
     delete user.statusCode

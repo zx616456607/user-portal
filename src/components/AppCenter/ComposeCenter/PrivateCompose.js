@@ -237,9 +237,18 @@ class PrivateCompose extends Component {
       stackItem: ''
     }
   }
+
   componentWillMount() {
     this.props.loadMyStack(DEFAULT_REGISTRY);
   }
+
+  componentWillReceiveProps(nextProps) {
+    const { space } = nextProps
+    if (space.namespace !== this.props.space.namespace) {
+      this.props.loadMyStack(DEFAULT_REGISTRY)
+    }
+  }
+
   detailModal(modal) {
     //this function for user open the create compose modal
     this.setState({
@@ -319,20 +328,22 @@ PrivateCompose.propTypes = {
   intl: PropTypes.object.isRequired,
   loadMyStack: PropTypes.func.isRequired
 }
+
 function mapStateToProps(state, props) {
   const defaultPrivateImages = {
     isFetching: false,
     registry: DEFAULT_REGISTRY,
     myStackList: [],
-
   }
   const { stackCenter } = state.images
   const { myStackList, isFetching, registry } = stackCenter[DEFAULT_REGISTRY] || defaultPrivateImages
+  const { space } = state.entities.current
 
   return {
     myStackList,
     isFetching,
     registry,
+    space,
   }
 }
 

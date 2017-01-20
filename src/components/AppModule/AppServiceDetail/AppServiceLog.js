@@ -219,7 +219,7 @@ class AppServiceLog extends Component {
     if (!clusterLogs ) {
       return '无日志'
     }
-    if(clusterLogs.isFetching){
+    if(clusterLogs.isFetching && (!clusterLogs.logs || !clusterLogs.logs.data)){
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
     if(!clusterLogs.logs){

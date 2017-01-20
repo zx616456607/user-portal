@@ -21,7 +21,7 @@ import CreateDatabase from './CreateDatabase.js'
 import NotificationHandler from '../../common/notification_handler'
 import { formatDate } from '../../common/tools.js'
 import './style/MysqlCluster.less'
-import mysqlImg from '../../assets/img/test/mysql.jpg'
+import mysqlImg from '../../assets/img/database_cache/mysql.png'
 import noDbImgs from '../../assets/img/no_data/no_db.png'
 
 let MyComponent = React.createClass({
@@ -135,7 +135,7 @@ class MysqlCluster extends Component {
       }
     })
   }
-  
+
   componentWillReceiveProps(nextProps) {
     const { form, current} = nextProps
     if (current.space.namespace === this.props.current.space.namespace && current.cluster.clusterID === this.props.current.cluster.clusterID) {

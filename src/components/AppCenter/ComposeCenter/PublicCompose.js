@@ -130,7 +130,7 @@ const MyComponent = React.createClass({
           <Menu.Item key={`&${item.id}`}>
            <FormattedMessage {...menusText.deployService} />
           </Menu.Item>
-         
+
         </Menu>
       );
       return (
@@ -166,13 +166,21 @@ const MyComponent = React.createClass({
 
 class PublicCompose extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
-
+      //
     }
   }
+
   componentWillMount() {
-    this.props.loadStack(DEFAULT_REGISTRY);
+    this.props.loadStack(DEFAULT_REGISTRY)
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { space } = nextProps
+    if (space.namespace !== this.props.space.namespace) {
+      this.props.loadStack(DEFAULT_REGISTRY)
+    }
   }
 
   render() {
@@ -236,15 +244,16 @@ function mapStateToProps(state, props) {
     isFetching: false,
     registry: DEFAULT_REGISTRY,
     stackList: [],
-
   }
   const { stackCenter } = state.images
   const { stackList, isFetching, registry } = stackCenter[DEFAULT_REGISTRY] || defaultPrivateImages
+  const { space } = state.entities.current
 
   return {
     stackList,
     isFetching,
     registry,
+    space,
   }
 }
 
