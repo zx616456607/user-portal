@@ -80,6 +80,10 @@ let MyComponent = React.createClass({
                   <span>失败 {item.pods.pending} 个 </span>
                   :null
                 }
+                {item.pods.desired <= 0 ?
+                  <span> 已停止 </span>
+                  :null
+                }
               </li>
               <li><span className='listKey'>副本数</span>{item.pods.pending + item.pods.running}/{item.pods.desired}个</li>
               <li>

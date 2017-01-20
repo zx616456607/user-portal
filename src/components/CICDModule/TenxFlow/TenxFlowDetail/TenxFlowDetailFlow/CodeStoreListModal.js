@@ -106,10 +106,10 @@ let CodeStoreListModal = React.createClass({
         func: (err) => {
           let notif = new NotificationHandler
           if (err.statusCode == 401) {
-            notif.error('查询失败', '没有权限访问该镜像版本', 5)
+            notif.error('查询失败', '没有权限访问代码分支信息', 5)
             return
           }
-           notif.error('查询失败', '没有权限或者镜像不存在', 5)
+           notif.error('查询失败', '无法获取代码分支信息，检查网络或者是否授权', 5)
         }
       }
     })

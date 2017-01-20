@@ -148,7 +148,10 @@ class BaseInfo extends Component {
     const parentScope = this.props.scope
     const rootScope = parentScope.props.scope
     const selfScope = this
-    const podSpec = databaseInfo.podList.pods[0].podSpec
+    let podSpec = {}
+    if (databaseInfo.podList.pods && databaseInfo.podList.pods.length > 0) {
+      podSpec = databaseInfo.podList.pods[0].podSpec
+    }
     let storagePrc = parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
     let containerPrc = parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
     const hourPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ), 4)
@@ -430,7 +433,24 @@ class ModalDetail extends Component {
   }
   render() {
     const { scope, dbName, isFetching, databaseInfo, domainSuffix, publicIPs } = this.props;
-
+    let statusClass = 'normal'
+    let statusText = '运行中'
+    if (databaseInfo) {
+      if (databaseInfo.podInfo.pending > 0){
+        statusClass = 'stop'
+        statusText = '启动中'
+      } else if (databaseInfo.podInfo.failed > 0) {
+        statusClass = 'error'
+        statusText = '发生错误'
+      } else {
+        statusClass = 'stop'
+        statusText = '已停止'
+      }
+      if (!databaseInfo.podList.pods || databaseInfo.podList.pods.length == 0) {
+        statusClass = 'stop'
+        statusText = '已停止'
+      }
+    }
     if (isFetching || databaseInfo == null) {
       return (
         <div className='loadingBox'>
@@ -453,18 +473,7 @@ class ModalDetail extends Component {
             <div className='leftBox TenxStatus'>
               <div className="desc">{databaseInfo.serviceInfo.name}/{databaseInfo.serviceInfo.namespace}</div>
               <div> 状态：
-                {databaseInfo.podInfo.running >0 ?
-                  <span className="normal" style={{top:'0'}}> <i className="fa fa-circle"></i> 运行 </span>
-                  :null
-                }
-                {databaseInfo.podInfo.pending >0 ?
-                  <span className="stop" style={{top:'0'}}> <i className="fa fa-circle"></i> 停止 </span>
-                  :null
-                }
-                {databaseInfo.podInfo.failed >0 ?
-                  <span className="error" style={{top:'0'}}> <i className="fa fa-circle"></i> 失败 </span>
-                  :null
-                }
+              <span className={statusClass} style={{top:'0'}}> <i className="fa fa-circle"></i> {statusText} </span>
               </div>
 
             </div>
