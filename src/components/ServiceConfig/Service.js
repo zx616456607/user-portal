@@ -16,11 +16,14 @@ import QueueAnim from 'rc-queue-anim'
 import { validateK8sResource } from '../../common/naming_validation'
 import CollapseHeader from './ServiceCollapseHeader'
 import CollapseContainer from './ServiceCollapseContainer'
+import CreateConfigModal from './CreateConfigModal'
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
 import remove from 'lodash/remove'
 import { loadConfigGroup, configGroupName, createConfigGroup, deleteConfigGroup } from '../../actions/configs'
 import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
+
+const createForm = Form.create
 
 class CollapseList extends Component {
   constructor(props) {
@@ -110,7 +113,6 @@ class Service extends Component {
     super(props)
     this.state = {
       createModal: false,
-      myTextInput: '',
       configArray: []
     }
   }
@@ -121,9 +123,9 @@ class Service extends Component {
         createModal: visible,
         myTextInput: '',
       })
-      setTimeout(() => {
-        this.nameInput.refs.input.focus()
-      })
+      setTimeout(function(){
+        document.getElementById('newConfigName').focus()
+      },500)
     } else {
       this.setState({
         createModal: false,
@@ -131,58 +133,8 @@ class Service extends Component {
       })
     }
   }
-  createModalInput(e) {
-    this.setState({
-      myTextInput: e.target.value
-    })
-  }
-  btnCreateConfigGroup() {
-    let notification = new NotificationHandler()
-    let groupName = this.state.myTextInput
-    if (!groupName) {
-      notification.error('请输入配置组名称')
-      return
-    }
-    if (!validateK8sResource(groupName)) {
-      notification.error('名称须以字母开头，由小写英文字母、数字和连字符（-）组成，长度为 3-63 个字符')
-      return
-    }
-    let self = this
-    const { cluster } = this.props
-    let configs = {
-      groupName,
-      cluster
-    }
-    this.props.createConfigGroup(configs, {
-      success: {
-        func: () => {
-          notification.success('创建成功')
-          self.setState({
-            createModal: false,
-            myTextInput: ''
-          })
-          self.props.loadConfigGroup(cluster)
-        },
-        isAsync: true
-      },
-      failed: {
-        func: (res) => {
-          let errorText
-          switch (res.message.code) {
-            case 403: errorText = '添加的配置过多'; break
-            case 409: errorText = '配置组已存在'; break
-            case 500: errorText = '网络异常'; break
-            default: errorText = '缺少参数或格式错误'
-          }
-          Modal.error({
-            title: '创建配置组',
-            content: (<h3>{errorText}</h3>),
-          });
-        }
-      }
-    })
 
-  }
+
   btnDeleteGroup() {
     let notification = new NotificationHandler()
     let configArray = this.state.configArray
@@ -259,21 +211,15 @@ class Service extends Component {
             <i className="fa fa-trash-o" /> 删除
           </Button>
           {/*创建配置组-弹出层-start*/}
-          <Modal
-            title="创建配置组"
-            wrapClassName="server-create-modal"
-            maskClosable={false}
-            visible={this.state.createModal}
-            onOk={() => this.btnCreateConfigGroup()}
-            onCancel={(e) => this.configModal(false)}
-            >
-            <div className="create-conf-g" style={{ padding: '20px 0' }}>
+         
+            <CreateConfigModal scope={this} />
+            {/* <div className="create-conf-g" style={{ padding: '20px 0' }}>
               <div style={{ height: 25 }}>
                 <span style={{ width: '50px', display: 'inline-block', fontSize: '14px' }}> 名称 : </span>
                 <Input type="text" size="large" ref={(ref) => { this.nameInput = ref; } } style={{ width: '80%' }} value={this.state.myTextInput} onPressEnter={() => this.btnCreateConfigGroup()} onChange={(e) => this.createModalInput(e)} />
               </div>
-            </div>
-          </Modal>
+            </div>*/}
+         
           {/*创建配置组-弹出层-end*/}
           <Modal title="删除配置操作" visible={this.state.delModal}
           onOk={()=> this.btnDeleteGroup()} onCancel={()=> this.setState({delModal: false})}
