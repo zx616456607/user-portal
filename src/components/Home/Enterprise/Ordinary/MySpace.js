@@ -17,8 +17,7 @@ import { calcuDate } from "../../../../common/tools"
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Link } from 'react-router'
 import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../../actions/overview_space'
-
-
+import homeCICDImg from '../../../../assets/img/homeCICD.png'
 
 class MySpace extends Component{
   constructor(props){
@@ -242,7 +241,7 @@ class MySpace extends Component{
             <Card title="CI/CD" bordered={false} bodyStyle={{height:175,padding:0}}>
               <Row style={{height:130}}>
                 <Col span={12} style={{height:130,lineHeight:'130px',textAlign:'center'}}>
-                  <img src='/img/homeCICD.png' style={{display:'inline-block',verticalAlign:'middle'}}/>
+                  <img src={homeCICDImg} style={{display:'inline-block',verticalAlign:'middle'}}/>
                 </Col>
                 <Col className='cicdInf' span={12}>
                   <table>
