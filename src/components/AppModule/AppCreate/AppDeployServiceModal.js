@@ -186,7 +186,16 @@ let AppDeployServiceModal = React.createClass({
     const { getFieldValue, setFieldsValue, getFieldProps } = form
     const tag = config.configList.tag
     config = config.configList[tag]
-    let defaultArg = config.cmd
+    let defaultArg = []//config.cmd
+    let defaultEntryPoint = config.entrypoint
+    if(!defaultEntryPoint) defaultEntryPoint = []
+    defaultEntryPoint.forEach((item, index) => {
+      if(index == 0) return
+      defaultArg.push(item)
+    })
+    if(config.cmd) {
+      defaultArg = defaultArg.concat(config.cmd)
+    }
     if(!args || args.length <= 0) {
       this.setState({
         runningCode: '1'
@@ -535,7 +544,6 @@ let AppDeployServiceModal = React.createClass({
       }
     }
     //command
-console.log(command)
     if (command && command != "") {
       deploymentList.addContainerCommand(serviceName, command)
     } else {
