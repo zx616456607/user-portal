@@ -120,10 +120,12 @@ class ContainerLogs extends Component {
   }
 
   onLogsWebsocketSetup(ws) {
-    this.setState({
-      logs: [],
+    const _this = this
+    let { logs } = this.state
+    const initState = {
       logsLoading: true
-    })
+    }
+    this.setState(initState)
     const { cluster, containerName, loginUser, current, loadContainerDetailEvents } = this.props
     this.ws = ws
     const { watchToken, namespace } = loginUser
@@ -139,6 +141,12 @@ class ContainerLogs extends Component {
     }
     ws.send(JSON.stringify(watchAuthInfo))
     ws.onmessage = (event) => {
+      clearTimeout(this.logsLoadingTimeout)
+      this.logsLoadingTimeout = setTimeout(function() {
+        _this.setState({
+          logsLoading: false,
+        })
+      }, 1500)
       let { data } = event
       data = JSON.parse(data)
       const { name, log } = data
@@ -146,7 +154,6 @@ class ContainerLogs extends Component {
         return
       }
       const logArray = log.split('\n')
-      let { logs } = this.state
       logArray.map(log => {
         if (!log) return
         logs.push({
@@ -162,10 +169,6 @@ class ContainerLogs extends Component {
       }
       const state = {
         logs,
-        logsLoading: false,
-      }
-      if (logs.length === 0) {
-        state.logsLoading = true
       }
       this.setState(state)
     }
@@ -219,14 +222,7 @@ class ContainerLogs extends Component {
 
   getLogs() {
     const { logs, logsLoading } = this.state
-    if (logsLoading) {
-      return (
-        <div className='logDetail'>
-          <span>loading ...</span>
-        </div>
-      )
-    }
-    if (logs.length < 1) {
+    if (!logsLoading && logs.length < 1) {
       return (
         <div className='logDetail'>
           <span>No logs.</span>
@@ -238,7 +234,7 @@ class ContainerLogs extends Component {
 
   render() {
     const { containerName, serviceName } = this.props
-    const { logSize, watchStatus } = this.state
+    const { logSize, watchStatus, logsLoading } = this.state
     const iconType = this.loopWatchStatus()
     return (
       <div id='ContainerLogs'>
@@ -262,6 +258,11 @@ class ContainerLogs extends Component {
             <div className='infoBox' ref={(c) => this.infoBox = c}>
               <pre>
                 {this.getLogs()}
+                {logsLoading && (
+                  <div className='logDetail'>
+                    <span>loading ...</span>
+                  </div>
+                )}
               </pre>
               <pre id='logsBottom'></pre>
             </div>
