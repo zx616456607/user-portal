@@ -290,7 +290,7 @@ class App extends Component {
           </div>
         </div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-sider' : 'tenx-layout-sider-bigger tenx-layout-sider'}>
-          <Sider pathname={pathname} scope={scope} siderStyle={this.state.siderStyle} />
+          <Sider pathname={redirectUrl} scope={scope} siderStyle={this.state.siderStyle} />
         </div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-content' : 'tenx-layout-content-bigger tenx-layout-content'}>
           {this.getChildren()}
