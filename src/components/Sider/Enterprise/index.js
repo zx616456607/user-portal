@@ -86,6 +86,10 @@ class Slider extends Component {
     }
     let currentOpenMenu = checkUrlSelectedKey(pathname);
     let currentSelectedMenu = checkUrlOpenKeys(pathname);
+    if (pathname.indexOf('/account/costCenter') > -1) {
+      currentOpenMenu = 'costCenter#consumptions'
+      currentSelectedMenu = 'costCenter#consumptions'
+    }
     this.setState({
       currentKey: currentKey,
       currentOpenMenu: currentOpenMenu,
@@ -103,6 +107,13 @@ class Slider extends Component {
       }
       let currentOpenMenu = checkUrlSelectedKey(pathname);
       let currentSelectedMenu = checkUrlOpenKeys(pathname);
+      console.log('currentKey',currentKey)
+      console.log('currentOpenMenu',currentOpenMenu)
+      console.log('currentSelectedMenu',currentSelectedMenu)
+      if (pathname.indexOf('/account/costCenter') > -1) {
+        currentOpenMenu = 'costCenter#consumptions'
+        currentSelectedMenu = 'costCenter#consumptions'
+      }
       this.setState({
         currentKey: currentKey,
         currentOpenMenu: currentOpenMenu,
@@ -593,9 +604,19 @@ class Slider extends Component {
                     </Link>
                   </Menu.Item> : <div></div>
                   }
-                  <Menu.Item key='cost'>
+                  {/*<Menu.Item key='cost'>
                     <Link to='/account/cost'>
                       <span><div className='sideCircle'></div> 费用中心</span>
+                    </Link>
+                  </Menu.Item>*/}
+                  <Menu.Item key='costCenter#consumptions'>
+                    <Link to='/account/costCenter#consumptions'>
+                      <span><div className='sideCircle'></div> 消费记录</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='costCenter#payments'>
+                    <Link to='/account/costCenter#payments'>
+                      <span><div className='sideCircle'></div> 充值记录</span>
                     </Link>
                   </Menu.Item>
                   <div className='sline'></div>
