@@ -30,7 +30,6 @@ let MyComponent = React.createClass({
     this.props.loadK8sService(this.props.cluster, serviceName, {
       success: {
         func: (res) => {
-          console.log('request ing ',  serviceName)
           let openPort = []
           for(let i=0;i< res.data[serviceName].spec.ports.length; i++) {
             openPort.push(false)
@@ -56,12 +55,11 @@ let MyComponent = React.createClass({
     this.props.loadK8sService(nextProps.cluster, nextProps.serviceName)
   },
   editPort(name, index) {
-    console.log('server name', name, index)
     const openPort = {[index]: true}
     this.setState({openPort})
   },
   deletePort(name) {
-    console.log('del server port', name)
+  
   },
   handCancel(i) {
     // cancel action 
@@ -69,10 +67,8 @@ let MyComponent = React.createClass({
     this.setState({openPort})
   },
   changeSsl(key) {
-    console.log('select ssl', key)
   },
   remove(k) {
-    console.log('key',k)
     const { form } = this.props;
     // can use data-binding to get
     let keys = form.getFieldValue('keys');
