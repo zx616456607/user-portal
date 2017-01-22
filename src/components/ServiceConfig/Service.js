@@ -2,10 +2,10 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  Storage list
+ *  config group list
  *
  * v0.1 - 2016/9/22
- * @author ZhaoXueYu
+ * @author BaiYu
  */
 
 import React, { Component, PropTypes } from 'react'
@@ -16,14 +16,13 @@ import QueueAnim from 'rc-queue-anim'
 import { validateK8sResource } from '../../common/naming_validation'
 import CollapseHeader from './ServiceCollapseHeader'
 import CollapseContainer from './ServiceCollapseContainer'
+// import CreateConfigModal from './CreateConfigModal'
 import CreateConfigModal from './CreateConfigModal'
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
 import remove from 'lodash/remove'
 import { loadConfigGroup, configGroupName, createConfigGroup, deleteConfigGroup } from '../../actions/configs'
 import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
-
-const createForm = Form.create
 
 class CollapseList extends Component {
   constructor(props) {
@@ -129,7 +128,6 @@ class Service extends Component {
     } else {
       this.setState({
         createModal: false,
-        myTextInput: '',
       })
     }
   }
@@ -211,14 +209,8 @@ class Service extends Component {
             <i className="fa fa-trash-o" /> 删除
           </Button>
           {/*创建配置组-弹出层-start*/}
-         
-            <CreateConfigModal scope={this} />
-            {/* <div className="create-conf-g" style={{ padding: '20px 0' }}>
-              <div style={{ height: 25 }}>
-                <span style={{ width: '50px', display: 'inline-block', fontSize: '14px' }}> 名称 : </span>
-                <Input type="text" size="large" ref={(ref) => { this.nameInput = ref; } } style={{ width: '80%' }} value={this.state.myTextInput} onPressEnter={() => this.btnCreateConfigGroup()} onChange={(e) => this.createModalInput(e)} />
-              </div>
-            </div>*/}
+          
+          <CreateConfigModal scope={this} />
          
           {/*创建配置组-弹出层-end*/}
           <Modal title="删除配置操作" visible={this.state.delModal}
