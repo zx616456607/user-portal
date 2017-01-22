@@ -186,7 +186,16 @@ let AppDeployServiceModal = React.createClass({
     const { getFieldValue, setFieldsValue, getFieldProps } = form
     const tag = config.configList.tag
     config = config.configList[tag]
-    let defaultArg = config.cmd
+    let defaultArg = []//config.cmd
+    let defaultEntryPoint = config.entrypoint
+    if(!defaultEntryPoint) defaultEntryPoint = []
+    defaultEntryPoint.forEach((item, index) => {
+      if(index == 0) return
+      defaultArg.push(item)
+    })
+    if(config.cmd) {
+      defaultArg = defaultArg.concat(config.cmd)
+    }
     if(!args || args.length <= 0) {
       this.setState({
         runningCode: '1'
@@ -249,7 +258,7 @@ let AppDeployServiceModal = React.createClass({
     const ServicePorts = this.props.scope.state.checkInf.Service.spec.ports
     const volumes = this.props.scope.state.checkInf.Deployment.spec.template.spec.volumes
     let imageVersion = scope.state.checkInf.Deployment.spec.template.spec.containers[0].image.split(':')[1]
-    const entryInput = scope.state.checkInf.Deployment.spec.template.spec.containers[0].commands
+    const entryInput = scope.state.checkInf.Deployment.spec.template.spec.containers[0].command
     form.setFieldsValue({
       name: scope.state.checkInf.Service.metadata.name,
       imageVersion: imageVersion,
@@ -510,21 +519,29 @@ let AppDeployServiceModal = React.createClass({
     let checkCommandFlag = true;//for check command is null or not
     //args 执行命令
     if (this.state.runningCode === '1') {
-      const args = getFieldValue('cmdKey').map(i => {
-        if(!Boolean(getFieldValue(`cmd${i}`)) || getFieldValue(`cmd${i}`).length == 0) {
-          checkArgsFlag = false;
-        }
-        return getFieldValue(`cmd${i}`)
-      })
-      deploymentList.addContainerArgs(serviceName, args)
+      if (getFieldValue('cmdKey')) {
+        const args = getFieldValue('cmdKey').map(i => {
+          if (!Boolean(getFieldValue(`cmd${i}`)) || getFieldValue(`cmd${i}`).length == 0) {
+            checkArgsFlag = false;
+          }
+          return getFieldValue(`cmd${i}`)
+        })
+        deploymentList.addContainerArgs(serviceName, args)
+      } else {
+        checkArgsFlag = false;
+      }
     } else {
-      const args = getFieldValue('userCMDKey').map(i => {
-        if(!Boolean(getFieldValue(`userCMD${i}`)) || getFieldValue(`userCMD${i}`).length == 0) {
-          checkArgsFlag = false;
-        }
-        return getFieldValue(`userCMD${i}`)
-      })
-      deploymentList.addContainerArgs(serviceName, args)
+      if(getFieldValue('userCMDKey')) {
+        const args = getFieldValue('userCMDKey').map(i => {
+          if (!Boolean(getFieldValue(`userCMD${i}`)) || getFieldValue(`userCMD${i}`).length == 0) {
+            checkArgsFlag = false;
+          }
+          return getFieldValue(`userCMD${i}`)
+        })
+        deploymentList.addContainerArgs(serviceName, args)
+      } else {
+        checkArgsFlag = false;
+      }
     }
     //command
     if (command && command != "") {

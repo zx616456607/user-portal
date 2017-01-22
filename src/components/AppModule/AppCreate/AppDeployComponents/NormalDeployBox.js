@@ -409,19 +409,36 @@ function setCMD(container, form) {
   const key = []
   const key1 =[]
   let cmds = container.cmd
+  let entrypoint = container.entrypoint
+  if(!entrypoint) entrypoint = []
   if(!cmds) cmds = []
-  cmds.forEach((cmd, index) => {
-    key.push(index + 1)
-    key1.push(index + 1)
+  let index = 1
+  entrypoint.forEach((item, i) => {
+    if(i == 0) return
+    key.push(index)
+    key1.push(index)
     form.setFieldsValue({
       cmdKey: key,
       userCMDKey: key1,
-      [`cmd${index + 1}`]: cmd,
-      [`userCMD${index + 1}`]: cmd
+      [`cmd${index}`]: item,
+      [`userCMD${index}`]: item
     })
+    index++
   })
+  cmds.forEach((cmd, i) => {
+    key.push(index)
+    key1.push(index)
+    form.setFieldsValue({
+      cmdKey: key,
+      userCMDKey: key1,
+      [`cmd${index}`]: cmd,
+      [`userCMD${index}`]: cmd
+    })
+    index++
+  })
+  
   form.setFieldsValue({
-    entryInput: container.entrypoint
+    entryInput: entrypoint[0]
   })
 }
 

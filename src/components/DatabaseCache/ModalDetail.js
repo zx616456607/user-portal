@@ -144,11 +144,14 @@ class BaseInfo extends Component {
     }, 500);
   }
   render() {
-    const { publicIPs, domainSuffix, databaseInfo ,dbName } = this.props
+    const { bindingIPs, domainSuffix, databaseInfo ,dbName } = this.props
     const parentScope = this.props.scope
     const rootScope = parentScope.props.scope
     const selfScope = this
-    const podSpec = databaseInfo.podList.pods[0].podSpec
+    let podSpec = {}
+    if (databaseInfo.podList.pods && databaseInfo.podList.pods.length > 0) {
+      podSpec = databaseInfo.podList.pods[0].podSpec
+    }
     let storagePrc = parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
     let containerPrc = parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
     const hourPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ), 4)
@@ -159,9 +162,9 @@ class BaseInfo extends Component {
     if (domainSuffix) {
       domain = eval(domainSuffix)[0]
     }
-    let publicIP = ''
-    if (publicIPs) {
-      publicIP = eval(publicIPs)[0]
+    let bindingIP = ''
+    if (bindingIPs) {
+      bindingIP = eval(bindingIPs)[0]
     }
     let portAnnotation = databaseInfo.serviceInfo.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
     let externalPort = ''
@@ -176,7 +179,7 @@ class BaseInfo extends Component {
       if (domain) {
         externalUrl = databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort
       } else {
-        externalUrl = publicIP + ':' + externalPort
+        externalUrl = bindingIP + ':' + externalPort
       }
     }
     const modalContent = (
@@ -429,8 +432,25 @@ class ModalDetail extends Component {
     })
   }
   render() {
-    const { scope, dbName, isFetching, databaseInfo, domainSuffix, publicIPs } = this.props;
-
+    const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs } = this.props;
+    let statusClass = 'normal'
+    let statusText = '运行中'
+    if (databaseInfo) {
+      if (databaseInfo.podInfo.pending > 0){
+        statusClass = 'stop'
+        statusText = '启动中'
+      } else if (databaseInfo.podInfo.failed > 0) {
+        statusClass = 'error'
+        statusText = '发生错误'
+      } else {
+        statusClass = 'stop'
+        statusText = '已停止'
+      }
+      if (!databaseInfo.podList.pods || databaseInfo.podList.pods.length == 0) {
+        statusClass = 'stop'
+        statusText = '已停止'
+      }
+    }
     if (isFetching || databaseInfo == null) {
       return (
         <div className='loadingBox'>
@@ -453,18 +473,7 @@ class ModalDetail extends Component {
             <div className='leftBox TenxStatus'>
               <div className="desc">{databaseInfo.serviceInfo.name}/{databaseInfo.serviceInfo.namespace}</div>
               <div> 状态：
-                {databaseInfo.podInfo.running >0 ?
-                  <span className="normal" style={{top:'0'}}> <i className="fa fa-circle"></i> 运行 </span>
-                  :null
-                }
-                {databaseInfo.podInfo.pending >0 ?
-                  <span className="stop" style={{top:'0'}}> <i className="fa fa-circle"></i> 停止 </span>
-                  :null
-                }
-                {databaseInfo.podInfo.failed >0 ?
-                  <span className="error" style={{top:'0'}}> <i className="fa fa-circle"></i> 失败 </span>
-                  :null
-                }
+              <span className={statusClass} style={{top:'0'}}> <i className="fa fa-circle"></i> {statusText} </span>
               </div>
 
             </div>
@@ -501,7 +510,7 @@ class ModalDetail extends Component {
               activeKey={this.state.activeTabKey}
               >
               <TabPane tab='基础信息' key='#BaseInfo'>
-                <BaseInfo domainSuffix={domainSuffix} publicIPs={publicIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                <BaseInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
               </TabPane>
               <TabPane tab='事件' key='#events'>
                 <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} />
@@ -528,7 +537,7 @@ function mapStateToProps(state, props) {
     isFetching,
     cluster: cluster.clusterID,
     domainSuffix: cluster.bindingDomains,
-    publicIPs: cluster.publicIPs,
+    bindingIPs: cluster.bindingIPs,
     databaseInfo: databaseInfo,
     resourcePrice: cluster.resourcePrice //storage
     // podSpec: databaseInfo.pods[0].podSpec

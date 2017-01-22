@@ -31,14 +31,14 @@ class CPU extends Component {
     const { cpu } = this.props
     const { isFetching, data } = cpu
     option.addYAxis('value', {
-      formatter: '{value} m'
+      formatter: '{value} %'
     })
     data.map((item) => {
       let timeData = []
       let values = []
       item.metrics.map((metric) => {
         timeData.push(metric.timestamp)
-        values.push(metric.value)
+        values.push((metric.floatValue*100).toFixed(1))
       })
       option.setXAxisData(timeData)
       option.addSeries(values, item.containerName)
