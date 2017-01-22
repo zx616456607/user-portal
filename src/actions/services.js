@@ -348,19 +348,20 @@ export const SERVICE_GET_K8S_SERVICE_SUCCESS = 'SERVICE_GET_K8S_SERVICE_SUCCESS'
 export const SERVICE_GET_K8S_SERVICE_FAILURE = 'SERVICE_GET_PORT_FAILURE'
 export const SERVICE_CLEAR_K8S_SERVICE = 'SERVICE_CLEAR_K8S_SERVICE'
 
-function fetchK8sService(cluster, serviceName) {
+function fetchK8sService(cluster, serviceName, callback) {
   return {
     [FETCH_API]: {
       types: [SERVICE_GET_K8S_SERVICE_REQUEST, SERVICE_GET_K8S_SERVICE_SUCCESS, SERVICE_GET_K8S_SERVICE_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/k8s-service`,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
-export function loadK8sService(cluster, serviceName) {
+export function loadK8sService(cluster, serviceName, callback) {
   return (dispath, getState) => {
-    return dispath(fetchK8sService(cluster, serviceName))
+    return dispath(fetchK8sService(cluster, serviceName, callback))
   }
 }
 

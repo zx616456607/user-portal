@@ -116,7 +116,7 @@ let CreateTeamModal = React.createClass({
             type="ghost"
             size="large"
             onClick={this.handleCancel}>
-            返 回
+            取 消
           </Button>,
           <Button
             key="submit"
