@@ -213,6 +213,8 @@ class Service extends Component {
           <CreateConfigModal scope={this} />
          
           {/*创建配置组-弹出层-end*/}
+
+          {/* 删除配置组-弹出层-*/}
           <Modal title="删除配置操作" visible={this.state.delModal}
           onOk={()=> this.btnDeleteGroup()} onCancel={()=> this.setState({delModal: false})}
           >

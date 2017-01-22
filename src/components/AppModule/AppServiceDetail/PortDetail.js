@@ -8,13 +8,14 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Card, Spin, Dropdown, Icon, Menu, Button, Select, Input } from 'antd'
+import { Card, Spin, Dropdown, Icon, Menu, Button, Select, Input, Form } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/PortDetail.less"
 import { loadK8sService, clearK8sService } from '../../../actions/services'
 import findIndex from 'lodash/findIndex'
+let uuid=0
 
 let MyComponent = React.createClass({
   getInitialState() {
@@ -70,8 +71,34 @@ let MyComponent = React.createClass({
   changeSsl(key) {
     console.log('select ssl', key)
   },
+  remove(k) {
+    console.log('key',k)
+    const { form } = this.props;
+    // can use data-binding to get
+    let keys = form.getFieldValue('keys');
+    keys = keys.filter((key) => {
+      return key !== k;
+    });
+    // can use data-binding to set
+    form.setFieldsValue({
+      keys,
+    });
+  },
+  add() {
+    uuid++;
+    const { form } = this.props;
+    // can use data-binding to get
+    let keys = form.getFieldValue('keys');
+    keys = keys.concat(uuid);
+    // can use data-binding to set
+    // important! notify form to detect changes
+    form.setFieldsValue({
+      keys,
+    });
+  },
   render: function () {
     const {k8sService} = this.props
+    const { getFieldProps, getFieldValue } = this.props.form
     if (k8sService.isFetching) {
       return (
         <div className='loadingBox'>
@@ -117,6 +144,77 @@ let MyComponent = React.createClass({
         </div>
       )
     }
+    getFieldProps('keys', {
+      initialValue: [],
+    });
+
+    const formItems = getFieldValue('keys').map((k) => {
+      return (
+        <div className="portDetail" key={`list${k}`}>
+          <div className="commonData span2">
+            <Form.Item key={k}>
+              <Input {...getFieldProps(`name${k}`, {
+                rules: [{
+                  required: true,
+                  whitespace: true,
+                  message: '端口名称',
+                }],
+              })} style={{ width: '80%', marginRight: 8 }}
+              />
+            </Form.Item>
+          </div>
+          <div className="commonData">
+            <Form.Item key={k}>
+              <Input {...getFieldProps(`port${k}`, {
+                rules: [{
+                  required: true,
+                  whitespace: true,
+                  message: '输入容器端口',
+                }],
+              })} style={{ width: '80%', marginRight: 8 }}
+              />
+            </Form.Item>
+          </div>
+          <div className="commonData">
+          <Form.Item  key={k}>
+              <Select {...getFieldProps(`ssl${k}`, {
+                rules: [{
+                  required: true,
+                  whitespace: true,
+                  message: '输入端口名称',
+                }],
+                initialValue: "HTTP"
+              })} style={{width:'80px'}}>
+              <Select.Option key="HTTP">HTTP</Select.Option>
+              <Select.Option key="TCP">TCP</Select.Option>
+            </Select>
+            </Form.Item>
+            
+          </div>
+          <div className="commonData span3">
+    
+            <Select  {...getFieldProps(`serverPort${k}`, {
+                rules: [{
+                  required: true,
+                  whitespace: true,
+                  message: '选择端口协议',
+                }],
+                initialValue: '动态生成'
+              })} style={{width:'100px'}}>
+              <Select.Option key="1">动态生成</Select.Option>
+              <Select.Option key="2">指定端口</Select.Option>
+            </Select>
+             
+          </div>
+          <div className="commonData span2">
+            <Button type="primary">保存</Button>
+            <Button type="ghost" style={{marginLeft:'6px'}} onClick={()=> this.remove(k)}>取消</Button>
+          </div>
+          <div style={{ clear: "both" }}></div>
+        </div>
+      );
+    });
+
     const items = []
     ports.forEach((item, index) => {
       const targetPort = findIndex(userPort, i => i[0] == item.name)
@@ -155,7 +253,7 @@ let MyComponent = React.createClass({
           </div>
           <div className="commonData span3">
             { this.state.openPort && this.state.openPort[index] ? 
-               
+              
               <Select defaultValue='动态生成' style={{width:'100px'}} onChange={(e)=> this.setState({inPort: e})}>
                 <Select.Option key="1">动态生成</Select.Option>
                 <Select.Option key="2">指定端口</Select.Option>
@@ -172,7 +270,7 @@ let MyComponent = React.createClass({
           </div>
           <div className="commonData span2">
             { this.state.openPort && this.state.openPort[index] ? 
-               <Dropdown.Button overlay={actionText} type="ghost" style={{width:'100px'}}>
+              <Dropdown.Button overlay={actionText} type="ghost" style={{width:'100px'}}>
                   <Icon type="save" /> 保存
               </Dropdown.Button>
               :
@@ -194,6 +292,10 @@ let MyComponent = React.createClass({
     return (
       <Card className="portList">
         {items}
+        { formItems }
+        <div className="pushRow">
+         <a onClick={()=> this.add()}> <Icon type="plus" /> 添加端口映射</a>
+        </div>
       </Card>
     );
   }
@@ -204,6 +306,7 @@ function mapSateToProp(state) {
     k8sService: state.services.k8sService
   }
 }
+MyComponent = Form.create()(MyComponent);
 
 MyComponent = connect(mapSateToProp, {
   loadK8sService,
