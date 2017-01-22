@@ -44,7 +44,6 @@ let UploadSslModal = React.createClass({
       if (!!error) {
         return
       }
-      console.log('submit',values)
     })
   },
   render() {
