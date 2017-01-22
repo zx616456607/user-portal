@@ -138,11 +138,11 @@ class UserPanel extends Component {
   }
 
   getContent() {
-    const { loginUser, role } = this.props
-    let { balance } = loginUser
+    const { loginUser, role, balance } = this.props
+    /*let { balance } = loginUser
     if (balance !== undefined) {
       balance = parseAmount(balance).amount
-    }
+    }*/
     let menuItems = [
       {
         to: '/account',
@@ -267,14 +267,22 @@ UserPanel.propTypes = {
   loginUser: PropTypes.object.isRequired,
 }
 
-function mapStateToProp(state) {
+function mapStateToProp(state,props) {
   let role = ROLE_USER
   const {entities} = state
+  const { clusterInfo } = state.overviewCluster
+  let balance = 0
+  if (clusterInfo && clusterInfo.result) {
+    if (clusterInfo.result.spaceconsumption) {
+      balance = clusterInfo.result.spaceconsumption.balance
+    }
+  }
   if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
     role = entities.loginUser.info.role
   }
   return {
-    role
+    role,
+    balance: parseAmount(balance).amount
   }
 }
 
