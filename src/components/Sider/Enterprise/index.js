@@ -373,7 +373,7 @@ class Slider extends Component {
                     <Tooltip placement='right' title='基础设施' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                       <Link to='/cluster'>
                         <svg className='setting commonImg'>
-                          {currentKey == 'cluster' ? [<use xlinkHref='#siderinfrastructure' />] : [<use xlinkHref='#siderinfrastructure' />]}
+                          {currentKey == 'cluster' ? [<use xlinkHref='#siderinfrastructureselected' />] : [<use xlinkHref='#siderinfrastructure' />]}
                         </svg>
                       </Link>
                     </Tooltip>

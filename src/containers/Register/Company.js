@@ -557,7 +557,7 @@ let Company = React.createClass({
               {
                 this.state.certTypeCompany ?
                 <span>
-                  企业营销执照注册号
+                  营业执照号
                 </span>:
                 <span>
                   组织机构代码

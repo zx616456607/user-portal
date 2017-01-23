@@ -133,6 +133,12 @@ const rootRoutes = {
         component: require('../components/IntegrationModule').default,
       }
     }, {
+      path: 'cluster',
+      component: require('../containers/Cluster').default,
+      indexRoute: {
+        component: require('../components/ClusterModule').default,
+      }
+    }, {
       path: '*',
       component: require('../containers/ErrorPage').default,
     }],

@@ -1,0 +1,102 @@
+.clusterTabListBox {
+  .ClusterListCard {
+    .operaBox {
+      .addPodBtn {
+        margin-right: 15px;
+      }
+      .terminalBtn {
+        position: relative;
+        margin-right: 15px;
+        padding-left: 35px;
+        &:hover {
+          use {
+            fill: #2db7f5;
+          }
+        }
+        svg {
+          position: absolute;
+          top: 8px;
+          left: 15px;
+          width: 15px;
+          height: 13px;
+          use {
+            fill: #666;
+            -webkit-transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+            transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+          }
+        }
+      }
+      .searchBox {
+        position: relative;
+        .searchInput {
+          width: 183px;
+        }
+        .fa {
+          z-index: 10;
+          position: absolute;
+          top: 0;
+          right: 10px;
+          font-size: 15px;
+          color: #949494;
+          cursor: pointer;
+        }
+      }
+    }
+    .dataBox {
+      .commonTitle {
+        float: left;
+        height: 40px;
+        line-height: 40px;
+      }
+      .checkBox {
+        width: 20px;
+      }
+      .name {
+        width: 10%;
+      }
+      .status {
+        width: 10%;
+      }
+      .role {
+        width: 10%;
+      }
+      .container {
+        width: 7%;
+      }
+      .cpu {
+        width: 7%;
+      }
+      .memory {
+        width:7%;
+      }
+      .disk {
+        width: 7%;
+      }
+      .schedule {
+        width: 10%;
+      }
+      .runningTime {
+        width: 10%;
+      }
+      .startTime {
+        width: 10%;
+      }
+      .opera {
+        width: calc(~"12% - 20px");
+      }
+      .titleBox {
+        margin-top: 20px;
+        padding-top: 10px;
+        border-top: 1px solid #d9d9d9;
+        border-bottom: 1px solid #d9d9d9;
+        &::after {
+          content: '';
+          display: block;
+          clear: both;
+          height: 0;
+          visibility: hidden;
+        }
+      }
+    }
+  }
+}
