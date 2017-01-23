@@ -34,8 +34,12 @@ const menuList_standard = [
     name: '充值/续费'
   },
   {
-    url: '/account/cost',
-    name: '费用中心'
+    url: '/account/costCenter#consumptions',
+    name: '消费记录'
+  },
+  {
+    url: '/account/costCenter#payments',
+    name: '充值记录'
   },
   {
     url: '/account/version',
@@ -57,8 +61,12 @@ const menuList_enterprise_admin = [
     name: '团队管理'
   },
   {
-    url: '/account/cost',
-    name: '费用中心'
+    url: '/account/costCenter#consumptions',
+    name: '消费记录'
+  },
+  {
+    url: '/account/costCenter#payments',
+    name: '充值记录'
   }
 ]
 
@@ -68,15 +76,19 @@ const menuList_enterprise_user = [
     name: '我的帐户'
   },
   {
-    url: '/account/cost',
-    name: '费用中心'
-  }
+    url: '/account/costCenter#consumptions',
+    name: '消费记录'
+  },
+  {
+    url: '/account/costCenter#payments',
+    name: '充值记录'
+  },
 ]
 
 
 class Account extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       containerSiderStyle: 'normal'
     }
