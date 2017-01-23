@@ -147,9 +147,9 @@ class Ordinary extends Component{
   }
 
   componentWillMount() {
-    const {loginUser} = this.props;
-    const {migrated, displayName} = loginUser;
-    let testingKnowFlag = window.localStorage.getItem(`testingKnowFlag${displayName}`);
+    const {loginUser} = this.props
+    const {migrated, displayName} = loginUser
+    let testingKnowFlag = window.localStorage.getItem(`testingKnowFlag${displayName}`)
     if(!Boolean(testingKnowFlag)) {
       if(migrated != 1) {
         this.setState({
@@ -160,8 +160,8 @@ class Ordinary extends Component{
           oldTestingKonwShow: true
         })
       }
-      window.localStorage.setItem(`testingKnowFlag${displayName}`, true);
-      window.localStorage.setItem('userMigratedType', migrated);
+      window.localStorage.setItem(`testingKnowFlag${displayName}`, true)
+      window.localStorage.setItem('userMigratedType', migrated)
     }
   }
   componentDidMount(){
@@ -219,25 +219,25 @@ class Ordinary extends Component{
   }
   handleSize(size){
     if(!size){
-      return 0 + 'MB'
+      return 0 + ' MB'
     }
     let result = 0
     if(size < 1024){
-      return size + 'MB'
+      return size + ' MB'
     }
     if(size < 1024*1024){
       /*result = this.thousandBitSeparator((size/1024).toFixed(2))*/
       result = this.thousandBitSeparator((size/1024).toFixed(0))
-      return result + 'GB'
+      return result + ' GB'
     }
     if(size < 1024*1024*1024){
       /*result = this.thousandBitSeparator((size/(1024*1024)).toFixed(2))*/
       result = this.thousandBitSeparator((size/(1024*1024)).toFixed(0))
-      return result + 'T'
+      return result + ' T'
     }
     /*result = this.thousandBitSeparator((size/(1024*1024*1024)).toFixed(2))*/
     result = this.thousandBitSeparator((size/(1024*1024*1024)).toFixed(0))
-    return result + 'T'
+    return result + ' T'
   }
   closeNavModal() {
     //this function for close test know modal
@@ -501,7 +501,7 @@ class Ordinary extends Component{
         data:[{name:'运行中'}, {name:'异常'},{name:'操作中'}],
         formatter: function (name) {
           if(name === '运行中'){
-            return name + '  ' + conRunning + '个'
+            return name + '  ' + conRunning + ' 个'
           } else if (name === '异常') {
             return name + '     ' + conFailed + ' 个'
           } else if (name === '操作中') {
@@ -628,7 +628,7 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="应用" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
+            <Card title="应用" bordered={false} bodyStyle={{height:200,padding:'0'}}>
               <ReactEcharts
                 notMerge={true}
                 option={appOption}
@@ -637,7 +637,7 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="服务" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
+            <Card title="服务" bordered={false} bodyStyle={{height:200,padding:'0'}}>
               <ReactEcharts
                 notMerge={true}
                 option={serviceOption}
@@ -719,7 +719,7 @@ class Ordinary extends Component{
         </Row>
         <Row className="content" gutter={16} style={{marginTop:16}}>
           <Col span={6}>
-            <Card title="容器" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
+            <Card title="容器" bordered={false} bodyStyle={{height:200,padding:'0'}}>
               <ReactEcharts
                 notMerge={true}
                 option={containerOption}
@@ -728,17 +728,17 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={6} className='storage'>
-            <Card title="存储" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
+            <Card title="存储" bordered={false} bodyStyle={{height:200,padding:'0 10px 0 0'}}>
               <ProgressBox boxPos={boxPos}/>
-              <Col span={12} className='storageInf'>
+              <Col span={14} className='storageInf'>
                 <div className="storageInfList">
                   <Row className='storageInfItem'>
-                    <Col span={16}>已用配额</Col>
-                    <Col span={8} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.usedSize)}</Col>
+                    <Col span={12}>已用配额</Col>
+                    <Col span={12} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.usedSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={16}>可用配额</Col>
-                    <Col span={8} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.freeSize)}</Col>
+                    <Col span={12}>可用配额</Col>
+                    <Col span={12} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.freeSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>
                     <Col span={12}>存储卷</Col>
@@ -753,7 +753,7 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={6} className='dataBase'>
-            <Card title="数据库与缓存" bordered={false} bodyStyle={{height:200}}>
+            <Card title="数据库与缓存" bordered={false} bodyStyle={{height:200,padding:'24px 20px'}}>
               <Row gutter={16}>
                 <Col span={8} onClick={() => this.handleDataBaseClick('tab1')} className={this.state.tab1?'seleted':''}><span className='dataBtn'>MySQL</span></Col>
                 <Col span={8} onClick={() => this.handleDataBaseClick('tab3')} className={this.state.tab3?'seleted':''}><span className='dataBtn'>Redis</span></Col>
@@ -771,7 +771,7 @@ class Ordinary extends Component{
                         运行中
                       </td>
                       <td className="dbNum">
-                        {mySQLRunning}个
+                        {mySQLRunning}&nbsp;个
                       </td>
                     </tr>
                     <tr>
@@ -780,7 +780,7 @@ class Ordinary extends Component{
                         已停止
                       </td>
                       <td className="dbNum">
-                        {mySQLStopped}个
+                        {mySQLStopped}&nbsp;个
                       </td>
                     </tr>
                     <tr>
@@ -789,7 +789,7 @@ class Ordinary extends Component{
                         操作中
                       </td>
                       <td className="dbNum">
-                        {mySQLOthers}个
+                        {mySQLOthers}&nbsp;个
                       </td>
                     </tr>
                     </tbody>
@@ -809,7 +809,7 @@ class Ordinary extends Component{
                         运行中
                       </td>
                       <td className="dbNum">
-                        {mongoRunning}个
+                        {mongoRunning}&nbsp;个
                       </td>
                     </tr>
                     <tr>
@@ -818,7 +818,7 @@ class Ordinary extends Component{
                         已停止
                       </td>
                       <td className="dbNum">
-                        {mongoStopped}个
+                        {mongoStopped}&nbsp;个
                       </td>
                     </tr>
                     <tr>
@@ -827,7 +827,7 @@ class Ordinary extends Component{
                         操作中
                       </td>
                       <td className="dbNum">
-                        {mongoOthers}个
+                        {mongoOthers}&nbsp;个
                       </td>
                     </tr>
                     </tbody>
@@ -847,7 +847,7 @@ class Ordinary extends Component{
                         运行中
                       </td>
                       <td className="dbNum">
-                        {redisRunning}个
+                        {redisRunning}&nbsp;个
                       </td>
                     </tr>
                     <tr>
@@ -856,7 +856,7 @@ class Ordinary extends Component{
                         已停止
                       </td>
                       <td className="dbNum">
-                        {redisStopped}个
+                        {redisStopped}&nbsp;个
                       </td>
                     </tr>
                     <tr>
@@ -865,7 +865,7 @@ class Ordinary extends Component{
                         操作中
                       </td>
                       <td className="dbNum">
-                        {redisOthers}个
+                        {redisOthers}&nbsp;个
                       </td>
                     </tr>
                     </tbody>
@@ -1226,7 +1226,7 @@ function mapStateToProp(state,props) {
 
   const {clusterOperations, clusterSysinfo, clusterStorage,
     clusterAppStatus, clusterDbServices, clusterInfo} = state.overviewCluster
-  if (clusterInfo.result && clusterInfo.result) {
+  if (clusterInfo && clusterInfo.result) {
     if (clusterInfo.result.operations) {
       if (clusterInfo.result.operations.app) {
         let data = clusterInfo.result.operations.app
