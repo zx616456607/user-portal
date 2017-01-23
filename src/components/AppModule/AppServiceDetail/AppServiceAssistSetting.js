@@ -94,7 +94,7 @@ let AppServiceAssistSetting = React.createClass({
     }
     return (
       <RadioGroup value={value}>
-        <Radio disabled={true} key="IfNotPresent" value={2}>优先使用本地镜像</Radio>
+        <Radio disabled={true} key="IfNotPresent" value={1}>优先使用本地镜像</Radio>
         {/*<Radio disabled={true} key="Never" value={1}>始终使用本地镜像</Radio>*/}
         <Radio disabled={true} key="Always" value={0}>始终拉取云端该版本镜像</Radio>
       </RadioGroup>
