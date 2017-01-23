@@ -628,7 +628,7 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="应用" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
+            <Card title="应用" bordered={false} bodyStyle={{height:200,padding:'0'}}>
               <ReactEcharts
                 notMerge={true}
                 option={appOption}
@@ -637,7 +637,7 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="服务" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
+            <Card title="服务" bordered={false} bodyStyle={{height:200,padding:'0'}}>
               <ReactEcharts
                 notMerge={true}
                 option={serviceOption}
@@ -719,7 +719,7 @@ class Ordinary extends Component{
         </Row>
         <Row className="content" gutter={16} style={{marginTop:16}}>
           <Col span={6}>
-            <Card title="容器" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
+            <Card title="容器" bordered={false} bodyStyle={{height:200,padding:'0'}}>
               <ReactEcharts
                 notMerge={true}
                 option={containerOption}
@@ -728,17 +728,17 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={6} className='storage'>
-            <Card title="存储" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
+            <Card title="存储" bordered={false} bodyStyle={{height:200,padding:'0 10px 0 0'}}>
               <ProgressBox boxPos={boxPos}/>
-              <Col span={12} className='storageInf'>
+              <Col span={14} className='storageInf'>
                 <div className="storageInfList">
                   <Row className='storageInfItem'>
-                    <Col span={16}>已用配额</Col>
-                    <Col span={8} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.usedSize)}</Col>
+                    <Col span={12}>已用配额</Col>
+                    <Col span={12} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.usedSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={16}>可用配额</Col>
-                    <Col span={8} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.freeSize)}</Col>
+                    <Col span={12}>可用配额</Col>
+                    <Col span={12} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.freeSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>
                     <Col span={12}>存储卷</Col>
@@ -753,7 +753,7 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={6} className='dataBase'>
-            <Card title="数据库与缓存" bordered={false} bodyStyle={{height:200}}>
+            <Card title="数据库与缓存" bordered={false} bodyStyle={{height:200,padding:'24px 20px'}}>
               <Row gutter={16}>
                 <Col span={8} onClick={() => this.handleDataBaseClick('tab1')} className={this.state.tab1?'seleted':''}><span className='dataBtn'>MySQL</span></Col>
                 <Col span={8} onClick={() => this.handleDataBaseClick('tab3')} className={this.state.tab3?'seleted':''}><span className='dataBtn'>Redis</span></Col>
