@@ -50,7 +50,6 @@ class RechargeRecord extends Component {
     loadChargeRecord(space.namespace)
   }
   handleTeamListVisibleChange(visible) {
-    console.log('visible',visible)
     this.setState({
       teamListVisible: visible
     })
