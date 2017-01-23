@@ -1336,7 +1336,6 @@ function mapStateToProp(state,props) {
       clusterNodeSpaceConsumption.consumption = clusterInfo.result.spaceconsumption.consumption
     }
   }
-  console.log('clusterNodeSpaceConsumption',clusterNodeSpaceConsumption)
   return {
     current,
     loginUser:loginUser.info,
