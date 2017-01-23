@@ -26,10 +26,10 @@ const RadioGroup = Radio.Group
 
 function checkUrlSelectedKey(pathname) {
   //this function for check the pathname and return the selected key of menu
-  let pathList = pathname.split('/');
+  let pathList = pathname.split('/')
   if (pathList.length == 2) {
     if(pathList[1].length == 0) {
-      return ['home', 'home'];
+      return ['home', 'home']
     }
     return [pathList[1], pathList[1] + '_default']
   } else {
@@ -45,10 +45,10 @@ function checkUrlSelectedKey(pathname) {
 
 function checkUrlOpenKeys(pathname) {
   //this function for check the pathname and return the opened key of menu
-  let pathList = pathname.split('/');
+  let pathList = pathname.split('/')
   if (pathList.length == 2) {
     if(pathList[1].length == 0) {
-      return ['home', 'home'];
+      return ['home', 'home']
     }
     return [pathList[1], pathList[1] + '_default']
   } else {
@@ -64,12 +64,12 @@ function checkUrlOpenKeys(pathname) {
 
 class Slider extends Component {
   constructor(props) {
-    super(props);
-    this.selectModel = this.selectModel.bind(this);
-    this.changeSiderStyle = this.changeSiderStyle.bind(this);
-    this.onSelectMenu = this.onSelectMenu.bind(this);
-    this.onOpenBigMenu = this.onOpenBigMenu.bind(this);
-    this.onCloseBigMenu = this.onCloseBigMenu.bind(this);
+    super(props)
+    this.selectModel = this.selectModel.bind(this)
+    this.changeSiderStyle = this.changeSiderStyle.bind(this)
+    this.onSelectMenu = this.onSelectMenu.bind(this)
+    this.onOpenBigMenu = this.onOpenBigMenu.bind(this)
+    this.onCloseBigMenu = this.onCloseBigMenu.bind(this)
     this.state = {
       currentKey: 'home',
       isUnzip: false,
@@ -79,60 +79,65 @@ class Slider extends Component {
   }
 
   componentWillMount() {
-    const { pathname } = this.props;
-    let currentKey = pathname.split('/')[1];
+    const { pathname } = this.props
+    let currentKey = pathname.split('/')[1]
     if(!Boolean(currentKey)) {
-      currentKey = 'home';
+      currentKey = 'home'
     }
-    let currentOpenMenu = checkUrlSelectedKey(pathname);
-    let currentSelectedMenu = checkUrlOpenKeys(pathname);
+    let currentOpenMenu = checkUrlSelectedKey(pathname)
+    let currentSelectedMenu = checkUrlOpenKeys(pathname)
     if (pathname.indexOf('/account/costCenter') > -1) {
-      currentOpenMenu = 'costCenter#consumptions'
-      currentSelectedMenu = 'costCenter#consumptions'
+      currentOpenMenu = ['account','costCenter#consumptions']
+      currentSelectedMenu = ['account','costCenter#consumptions']
+      if (pathname.indexOf('#') > -1) {
+        currentOpenMenu = ['account',`costCenter#${pathname.split('#')[1]}`]
+        currentSelectedMenu = ['account',`costCenter#${pathname.split('#')[1]}`]
+      }
     }
     this.setState({
       currentKey: currentKey,
       currentOpenMenu: currentOpenMenu,
       currentSelectedMenu: currentSelectedMenu
-    });
+    })
   }
 
   componentWillReceiveProps(nextProps) {
-    const { pathname } = nextProps;
-    const oldPathname = this.props.pathname;
+    const { pathname } = nextProps
+    const oldPathname = this.props.pathname
     if(pathname != oldPathname) {
-      let currentKey = pathname.split('/')[1];
+      let currentKey = pathname.split('/')[1]
       if(!Boolean(currentKey)) {
-        currentKey = 'home';
+        currentKey = 'home'
       }
-      let currentOpenMenu = checkUrlSelectedKey(pathname);
-      let currentSelectedMenu = checkUrlOpenKeys(pathname);
-      console.log('currentKey',currentKey)
-      console.log('currentOpenMenu',currentOpenMenu)
-      console.log('currentSelectedMenu',currentSelectedMenu)
+      let currentOpenMenu = checkUrlSelectedKey(pathname)
+      let currentSelectedMenu = checkUrlOpenKeys(pathname)
       if (pathname.indexOf('/account/costCenter') > -1) {
-        currentOpenMenu = 'costCenter#consumptions'
-        currentSelectedMenu = 'costCenter#consumptions'
+        currentOpenMenu = ['account','costCenter#consumptions']
+        currentSelectedMenu = ['account','costCenter#consumptions']
+        if (pathname.indexOf('#') > -1) {
+          currentOpenMenu = ['account',`costCenter#${pathname.split('#')[1]}`]
+          currentSelectedMenu = ['account',`costCenter#${pathname.split('#')[1]}`]
+        }
       }
       this.setState({
         currentKey: currentKey,
         currentOpenMenu: currentOpenMenu,
         currentSelectedMenu: currentSelectedMenu
-      });
+      })
     }
   }
 
   changeSiderStyle() {
     //this function for user change the sider style to 'mini' or 'bigger'
-    const { scope, siderStyle } = this.props;
+    const { scope, siderStyle } = this.props
     if (siderStyle == 'mini') {
       scope.setState({
         siderStyle: 'bigger'
-      });
+      })
     } else {
       scope.setState({
         siderStyle: 'mini'
-      });
+      })
     }
   }
 
@@ -145,7 +150,7 @@ class Slider extends Component {
   selectModel(currentKey, currentIcon, event) {
     this.setState({
       currentKey: currentKey,
-    });
+    })
   }
 
   changeRadioValue(e) {
@@ -156,19 +161,19 @@ class Slider extends Component {
 
   onSelectMenu(e) {
     //this function for user select the menu item and change the current key
-    const { keyPath } = e;
+    const { keyPath } = e
     if (keyPath.length > 1) {
-      let currentKey = keyPath[1];
+      let currentKey = keyPath[1]
       this.setState({
         currentKey: currentKey,
         currentSelectedMenu: keyPath
-      });
+      })
     } else {
-      let currentKey = keyPath[0];
+      let currentKey = keyPath[0]
       this.setState({
         currentKey: currentKey,
         currentSelectedMenu: keyPath
-      });
+      })
     }
   }
 
@@ -247,7 +252,7 @@ class Slider extends Component {
 
   onOpenBigMenu(e) {
     //this function for show only one menu opened
-    let currentOpenMenu = checkUrlOpenKeys(e.key + '/' + e.key);
+    let currentOpenMenu = checkUrlOpenKeys(e.key + '/' + e.key)
     this.setState({
       currentOpenMenu: currentOpenMenu
     })
@@ -676,12 +681,12 @@ class Slider extends Component {
 }
 
 function checkCurrentPath(pathname) {
-  let pathList = pathname.split('/');
-  let currentPath = pathList[0];
+  let pathList = pathname.split('/')
+  let currentPath = pathList[0]
   if (currentPath.length > 0) {
-    return currentPath;
+    return currentPath
   } else {
-    return 'home';
+    return 'home'
   }
 }
 
