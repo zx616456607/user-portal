@@ -35,7 +35,7 @@ const config = {
     api_url: 'https://api.weixin.qq.com',
     qr_url: 'https://mp.weixin.qq.com',
     Login_EventKey: '1008',
-    tenxwechat_url: 'http://tenxwechat-393242712wssy.tenxapp.com'
+    tenxwechat_url: 'http://tenxwechat-393242712wssy.v2.tenxapp.com'
   },
   wechat_user:{
     user: env.WECHAT_SERVER_USER || 'tenxcloud_carrot',
