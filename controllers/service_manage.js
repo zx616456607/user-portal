@@ -417,3 +417,12 @@ exports.getAllService = function*() {
   })
 	this.body = response
 }
+
+exports.updateServicePort = function*() {
+  const cluster = this.params.cluster
+  const serviceName = this.params['service_name']
+  const body = this.request.body
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.updateBy([cluster, 'services', serviceName, 'portinfo'], null, body)
+  this.body = result
+}
