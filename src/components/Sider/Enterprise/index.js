@@ -383,7 +383,7 @@ class Slider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              { role == ROLE_TEAM_ADMIN ? 
+              { /*role == ROLE_TEAM_ADMIN ? 
                 [
                   <li onClick={this.selectModel.bind(this, 'cluster', '#cluster')} className={currentKey == 'cluster' ? 'selectedLi' : ''}>
                     <Tooltip placement='right' title='基础设施' getTooltipContainer={() => document.getElementById('siderTooltip')}>
@@ -394,7 +394,7 @@ class Slider extends Component {
                       </Link>
                     </Tooltip>
                   </li>
-                ] : null
+                ] : null*/
               }
               <div style={{ clear: 'both' }}></div>
             </ul>
@@ -673,7 +673,7 @@ class Slider extends Component {
                   </Menu.Item>*/}
                   <div className='sline'></div>
                 </SubMenu>
-                { role == ROLE_TEAM_ADMIN ?
+                { /*role == ROLE_TEAM_ADMIN ?
                   [<Menu.Item key='cluster'>
                     <Link to='/cluster'>
                       <span>
@@ -684,7 +684,7 @@ class Slider extends Component {
                         <div style={{ clear: 'both' }}></div>
                       </span>
                     </Link>
-                  </Menu.Item>] : null
+                  </Menu.Item>] : null*/
                 }
               </Menu>
             </div>
