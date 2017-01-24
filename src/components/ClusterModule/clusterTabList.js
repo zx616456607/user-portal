@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox } from 'antd'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Switch, Tooltip } from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -46,7 +46,7 @@ let testList = [
     memoryUsed: 0.6,
     diskNum: '1',
     diskUsed: 0.3,
-    scheduleStatus: false,
+    scheduleStatus: true,
     runnigTime: 30,
     startTime: '2017-1-22 18:04:22'
   }, {
@@ -102,38 +102,57 @@ const MyComponent = React.createClass({
             <Checkbox ></Checkbox>
           </div>
           <div className='name commonTitle'>
-            <span>应用名称</span>
+            <Tooltip title={item.name}>
+              <span>{item.name}</span>
+            </Tooltip>
           </div>
           <div className='status commonTitle'>
             <span>状态</span>
           </div>
           <div className='role commonTitle'>
-            <span>节点角色</span>
+            {
+              item.masterPod ? [<span>{item.masterPod}</span>] : null
+            }
+            {
+              item.computePod ? [<span>{item.computePod}</span>] : null
+            }
+            <span></span>
           </div>
           <div className='container commonTitle'>
-            <span>容器数</span>
+            <span>{item.containers}</span>
           </div>
           <div className='cpu commonTitle'>
-            <span>CPU</span>
+            <span>{item.cpuNum}</span>
+            <span>{item.cpuUsed * 100 + '%'}</span>
           </div>
           <div className='memory commonTitle'>
-            <span>内存</span>
+            <span>{item.memoryNum}</span>
+            <span>{item.memoryUsed * 100 + '%'}</span>
           </div>
           <div className='disk commonTitle'>
-            <span>硬盘</span>
+            <span>{item.diskNum}</span>
+            <span>{item.diskUsed * 100 + '%'}</span>
           </div>
           <div className='schedule commonTitle'>
-            <span>调度状态</span>
+            <Switch defaultChecked={item.scheduleStatus} checkedChildren="开" unCheckedChildren="关" />
+            <span>{item.scheduleStatus ? '正常调度' : '闲置下线'}</span>
           </div>
           <div className='runningTime commonTitle'>
-            <span>进行时间</span>
+            <Tooltip title={item.runnigTime + 'Days'}>
+            <span>{item.runnigTime + 'Days'}</span>
+            </Tooltip>
           </div>
           <div className='startTime commonTitle'>
-            <span>启动时间</span>
+            <Tooltip title={item.startTime}>
+              <span>{item.startTime}</span>
+            </Tooltip>
           </div>
           <div className='opera commonTitle'>
-            <Dropdown.Button overlay={dropdown} type='ghost' onClick={()=>browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${registryServer}&imageName=${item.name}`)}>
-              <FormattedMessage {...menusText.deployService} />
+            <Dropdown.Button overlay={dropdown} type='ghost'>
+              <svg>
+                <use xlinkHref='#terminal' />
+              </svg>
+              <span>终端</span>
             </Dropdown.Button>
           </div>
         </div>

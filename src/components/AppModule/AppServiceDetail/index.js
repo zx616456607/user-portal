@@ -21,6 +21,7 @@ import AppUseful from './AppUseful'
 import AppServiceLog from './AppServiceLog'
 import AppServiceEvent from './AppServiceEvent'
 import AppServiceRental from './AppServiceRental'
+import AppSettingsHttps from './AppSettingsHttps'
 import ServiceMonitor from './ServiceMonitor'
 import AppAutoScale from './AppAutoScale'
 import { loadServiceDetail, loadServiceContainerList } from '../../../actions/services'
@@ -352,6 +353,14 @@ class AppServiceDetail extends Component {
                   container={containers[0]}
                   loading={isContainersFetching}
                   serviceDetailmodalShow={serviceDetailmodalShow}
+                  />
+              </TabPane>
+              <TabPane tab='设置 HTTPS' key='#https'>
+                <AppSettingsHttps
+                  serviceName={service.metadata.name}
+                  cluster={service.cluster}
+                  container={containers[0]}
+                  scope = {this}
                   />
               </TabPane>
               <TabPane tab='高可用' key='#livenessprobe'>

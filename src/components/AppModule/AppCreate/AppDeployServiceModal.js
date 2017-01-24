@@ -37,7 +37,7 @@ let AppDeployServiceModal = React.createClass({
     return {
       composeType: DEFAULT_COMPOSE_TYPE,
       runningCode: "1",
-      getImageType: "1",
+      getImageType: "0",
       stateService: false,
       currentDate: false,
       checkInf: null,
@@ -558,7 +558,7 @@ let AppDeployServiceModal = React.createClass({
       return;
     }
     //imagePullPolicy 重新部署
-    if (scope.getImageType === '2') {
+    if (scope.getImageType === '0') {
       deploymentList.setContainerImagePullPolicy(serviceName, 'Always')
     } else {
       deploymentList.setContainerImagePullPolicy(serviceName)
@@ -665,7 +665,7 @@ let AppDeployServiceModal = React.createClass({
     this.setState({
       composeType: DEFAULT_COMPOSE_TYPE,
       runningCode: "1",
-      getImageType: "1",
+      getImageType: "0",
       stateService: false,
       currentDate: false,
       checkInf: null,
@@ -717,7 +717,7 @@ let AppDeployServiceModal = React.createClass({
     this.setState({
       composeType: DEFAULT_COMPOSE_TYPE,
       runningCode: "1",
-      getImageType: "1",
+      getImageType: "0",
       stateService: false,
       currentDate: false,
       checkInf: null,
