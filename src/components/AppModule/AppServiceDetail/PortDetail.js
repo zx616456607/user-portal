@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Card, Spin, Dropdown, Icon, Menu, Button, Select, Input, Form } from 'antd'
+import { Card, Spin, Dropdown, Icon, Menu, Button, Select, Input, Form, Modal } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -110,6 +110,11 @@ let MyComponent = React.createClass({
       }
     })
   },
+  handCancel(i) {
+    // cancel action 
+    const openPort = {[i]: false}
+    this.setState({openPort})
+  },
   checkPort(rule, value, callback){
     if(!value) return callback()
     if(value.trim() == 80) {
@@ -119,8 +124,6 @@ let MyComponent = React.createClass({
       callback(new Error('请填入数字'))
       return
     }
-    console.log(allPort)
-    console.log(value)
     if(allPort.indexOf(parseInt(value.trim())) >= 0) {
       callback(new Error('该端口已被使用'))
       return
@@ -144,7 +147,15 @@ let MyComponent = React.createClass({
     const openPort = {[index]: true}
     this.setState({openPort, inPort: '1'})
   },
-  deletePort(item, i) {
+  showModal(item, i) {
+    this.setState({
+      delModal: true,
+      index: i,
+      item: item
+    })
+  },
+  deletePort() {
+    const i = this.state.index
     const { form } = this.props
     const { getFieldValue, setFieldsValue } = form
     let keys = getFieldValue('keys')
@@ -158,6 +169,11 @@ let MyComponent = React.createClass({
     keys.splice(index, 1)
     setFieldsValue({
       keys
+    })
+    this.setState({
+      delModal: false,
+      item: null,
+      i: -1
     })
     this.save()
   },
@@ -529,10 +545,9 @@ let MyComponent = React.createClass({
                   <Icon type="save" /> 保存
               </Dropdown.Button>
               :
-              <Dropdown.Button overlay={dropdown} type="ghost" onClick={()=> this.deletePort(item, index)} style={{width:'100px'}}>
+              <Dropdown.Button overlay={dropdown} type="ghost" onClick={()=> this.showModal(item, index)} style={{width:'100px'}}>
                 <Icon type="delete" />删除
               </Dropdown.Button >
-
             }
           </div>
           <div style={{ clear: "both" }}></div>
@@ -551,6 +566,11 @@ let MyComponent = React.createClass({
         <div className="pushRow">
          <a onClick={()=> this.add()}> <Icon type="plus" /> 添加端口映射</a>
         </div>
+        <Modal title="删除端口操作" visible={this.state.delModal}
+          onOk={() => this.deletePort()} onCancel={() => this.setState({ delModal: false })}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>您是否确定要删除{this.state.item ? this.state.item.targetPort : ''}端口吗?</div>
+        </Modal>
       </Card>
     );
   }
