@@ -36,9 +36,9 @@ class CostCenter extends Component {
     this.setState({
       activeTabKey
     })
-    if (activeTabKey === DEFAULT_TAB) {
+    /*if (activeTabKey === DEFAULT_TAB) {
       activeTabKey = ''
-    }
+    }*/
     browserHistory.push({
       pathname,
       hash: activeTabKey

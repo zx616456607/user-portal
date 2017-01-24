@@ -16,9 +16,15 @@ const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 
 function currentPathNameCheck(scope, menuList) {
-  //this function for check the pathname and change the current key 
-  let pathname = window.location.pathname;
-  let flag = true;
+  //this function for check the pathname and change the current key
+  let pathname = window.location.pathname
+  let flag = true
+  if (pathname.indexOf('/account/costCenter') > -1) {
+    pathname = window.location.pathname + '#consumptions'
+    if (window.location.hash && window.location.hash !== '') {
+      pathname = window.location.pathname + window.location.hash
+    }
+  }
   //this check the pathname from the image_store
   if (pathname.indexOf('/account/user/') > -1) { // for more membership infomation
     scope.setState({
@@ -27,17 +33,17 @@ function currentPathNameCheck(scope, menuList) {
     return
   }
   menuList.map((item, index) => {
-    if(index != 0) {      
+    if(index != 0) {
       let checkPath = pathname.indexOf(item.url)
       if(checkPath > -1) {
-        flag = false;
+        flag = false
         let temp = 'secondSider' + index
         scope.setState({
           current: temp
         })
       }
     }
-  });
+  })
   if(flag) {
     scope.setState({
       current: 'secondSider0'
@@ -48,20 +54,20 @@ function currentPathNameCheck(scope, menuList) {
 
 export default class SecondSider extends Component {
   constructor(props) {
-    super(props);
-    this.handleClick = this.handleClick.bind(this);
-    this.changeSiderStyle = this.changeSiderStyle.bind(this);
+    super(props)
+    this.handleClick = this.handleClick.bind(this)
+    this.changeSiderStyle = this.changeSiderStyle.bind(this)
     this.state = {
       current: 'secondSider0',
-      currentSiderStyle: 'normal' 
+      currentSiderStyle: 'normal'
     }
   }
-  
+
   componentWillMount(){
     const { menuList } = this.props
-    currentPathNameCheck(this, menuList);
+    currentPathNameCheck(this, menuList)
   }
-  
+
   componentWillReceiveProps(nextProps) {
     const { menuList } = nextProps
     currentPathNameCheck(this, menuList)
@@ -70,27 +76,27 @@ export default class SecondSider extends Component {
   handleClick(e) {
     this.setState({
       current: e.key,
-    });
+    })
   }
-  
+
   changeSiderStyle() {
     //this function for user changet the second sider style to 'normal' or 'hide'
-    const { currentSiderStyle } = this.state;
-    const { scope } = this.props;
+    const { currentSiderStyle } = this.state
+    const { scope } = this.props
     if(currentSiderStyle == 'normal') {
       this.setState({
         currentSiderStyle: 'hide'
-      });
+      })
       scope.setState({
         containerSiderStyle: 'hide'
-      });
+      })
     } else {
       this.setState({
         currentSiderStyle: 'normal'
-      });
+      })
       scope.setState({
         containerSiderStyle: 'normal'
-      });
+      })
     }
   }
 
@@ -98,12 +104,12 @@ export default class SecondSider extends Component {
     const { current } = this.state
     const { menuList } = this.props
     let menuShow = menuList.map((item, index) => {
-      return (       
+      return (
         <Menu.Item key={'secondSider' + index}>
           <Link to={item.url}>{item.name}</Link>
         </Menu.Item>
       )
-    });
+    })
     return (
       <div id="SecondSider">
         <div>

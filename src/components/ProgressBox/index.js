@@ -21,7 +21,7 @@ export default class ProgressBox extends Component{
   render(){
     const { boxPos } = this.props
     return (
-      <Col id='ProgressBox' span={12}>
+      <Col id='ProgressBox' span={10}>
         <div className="boxContainer">
           <div className="wrapper">
             <div className="green">
