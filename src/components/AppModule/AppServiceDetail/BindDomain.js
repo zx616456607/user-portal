@@ -87,6 +87,7 @@ class BindDomain extends Component {
 
     domain.forEach((item, index) => {
       let domain = item
+      if(!domain) return
       domainList.push(
         <InputGroup className="newDomain">
           <Input size="large" value={domain} disabled />

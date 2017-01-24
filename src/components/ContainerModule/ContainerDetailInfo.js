@@ -53,18 +53,22 @@ export default class ContainerDetailInfo extends Component {
     const volumes = container.spec.volumes
     if (container.spec.containers[0].volumeMounts) {
       container.spec.containers[0].volumeMounts.forEach((volume) => {
+        let name = ''
         if (volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount') { return }
         let isShow = volumes.some(item => {
           if (item.name === volume.name) {
-            if (item.rbd) return true
+            if (item.rbd) {
+              name = item.rbd.image.split('.')[2]
+              return true
+            }
             return false
           }
           return false
         })
         if (!isShow) return
         ele.push(
-          <div key={volume.name}>
-            <div className="commonTitle">{volume.name}</div>
+          <div key={name}>
+            <div className="commonTitle">{name}</div>
             <div className="commonTitle">{volume.mountPath}</div>
             <div style={{ clear: "both" }}></div>
           </div>

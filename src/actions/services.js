@@ -645,3 +645,28 @@ export function updateServicesList(deploymentList) {
     type: UPDATE_SERVICE_GET_ALL_LIST
   }
 }
+
+export const UPDATE_SERVICE_PORT_REQUEST = 'UPDATE_SERVICE_PORT_REQUEST'
+export const UPDATE_SERVICE_PORT_SUCCESS = 'UPDATE_SERVICE_PORT_SUCCESS'
+export const UPDATE_SERVICE_PORT_FAILED = 'UPDATE_SERVICE_PORT_FAILURE'
+
+function fetchUpdateServicePort(clusterId, service, portInfo, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_SERVICE_PORT_REQUEST, UPDATE_SERVICE_PORT_SUCCESS, UPDATE_SERVICE_PORT_FAILED],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterId}/services/${service}/portinfo`,
+      options: {
+        method: 'PUT',
+        body: portInfo
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function updateServicePort(clusterId, service, portInfo, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchUpdateServicePort(clusterId, service, portInfo, callback))
+  }
+}

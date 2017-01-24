@@ -411,5 +411,10 @@ export function services(state = { appItmes: {} }, action) {
       SUCCESS: ActionTypes.SERVICE_ROLLING_UPDATE_SUCCESS,
       FAILURE: ActionTypes.SERVICE_ROLLING_UPDATE_FAILURE
     }, state.rollingUpdateService, action, { overwrite: true }),
+    updateServicePort: reducerFactory({
+      REQUEST: ActionTypes.UPDATE_SERVICE_PORT_REQUEST,
+      SUCCESS: ActionTypes.UPDATE_SERVICE_PORT_SUCCESS,
+      FAILURE: ActionTypes.UPDATE_SERVICE_PORT_FAILED
+    }, state.updateServicePort, action)
   }
 }
