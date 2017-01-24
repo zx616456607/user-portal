@@ -233,7 +233,7 @@ const MyComponent = React.createClass({
       <div className="imageList">
         {items}
         <Modal title="删除镜像操作" visible={this.state.delModal}
-          onOk={() => this.btnDeleteImage(item.name)} onCancel={() => this.setState({ delModal: false })}
+          onOk={() => this.btnDeleteImage()} onCancel={() => this.setState({ delModal: false })}
           >
           <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>您确定要删除镜像 {this.state.imageName}?</div>
         </Modal>
