@@ -113,7 +113,7 @@ let MyComponent = React.createClass({
   handCancel(i) {
     // cancel action 
     const openPort = {[i]: false}
-    this.setState({openPort})
+    this.setState({openPort, selectType: 0})
   },
   checkPort(rule, value, callback){
     if(!value) return callback()
@@ -202,7 +202,7 @@ let MyComponent = React.createClass({
       newKeys: keys,
     });
     this.setState({
-      selectType: 0
+      newselectType: 0
     })
   },
   add() {
@@ -216,7 +216,6 @@ let MyComponent = React.createClass({
     form.setFieldsValue({
       newKeys: keys,
     });
-    console.log(ob)
   },
   save() {
     const { form } = this.props
@@ -294,8 +293,6 @@ let MyComponent = React.createClass({
       const protocol = form.getFieldValue(`inputPort${index}`) 
       if(protocol.toLowerCase() == 'http') {
         return
-      } else {
-        ob[index] = form.getFieldValue(`serverPort${index}`) == 2
       }
     }
     if(e && e.toLowerCase() == 'http') {
@@ -328,7 +325,6 @@ let MyComponent = React.createClass({
     }
   },
   newInputPort(index, e) {
-    console.log(ob)
     const { form } = this.props
     if(e && e.toLowerCase() == 'http') {
       ob[index] = false
@@ -336,7 +332,7 @@ let MyComponent = React.createClass({
         [`newinputPort${index}`]: '80'
       })
     } else {
-      const selectType = this.state.selectType
+      const selectType = this.state.newselectType
       form.setFieldsValue({
         [`newinputPort${index}`]: null
       })
@@ -346,7 +342,7 @@ let MyComponent = React.createClass({
   newChangeType(e, index) {
     const protocol = this.props.form.getFieldValue(`newssl${index}`) 
     this.setState({
-      selectType: e
+      newselectType: e
     })
     if(protocol.toLowerCase() == 'http') {
       ob[index] = false
