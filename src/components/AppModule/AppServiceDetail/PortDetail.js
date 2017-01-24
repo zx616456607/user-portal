@@ -124,7 +124,12 @@ let MyComponent = React.createClass({
       callback(new Error('请填入数字'))
       return
     }
-    if(allPort.indexOf(parseInt(value.trim())) >= 0) {
+    const port = parseInt(value.trim())
+    if(port < 0 || port > 65535) {
+      callback(new Error('请填入0~65535'))
+      return
+    }
+    if(allPort.indexOf(port) >= 0) {
       callback(new Error('该端口已被使用'))
       return
     }
@@ -136,7 +141,12 @@ let MyComponent = React.createClass({
       callback(new Error('请填入数字'))
       return
     }
-    if(value.trim() == 80) return callback()
+    const port = parseInt(value.trim())
+    if(port == 80) return callback()
+    if(port < 0 || port > 65535) {
+      callback(new Error('请填入0~65535'))
+      return
+    }
     if(allUsedPort.indexOf(value.trim()) >= 0) {
       callback(new Error('该端口已被占用'))
       return
@@ -191,6 +201,9 @@ let MyComponent = React.createClass({
     form.setFieldsValue({
       newKeys: keys,
     });
+    this.setState({
+      selectType: 0
+    })
   },
   add() {
     uuid++;
@@ -203,6 +216,7 @@ let MyComponent = React.createClass({
     form.setFieldsValue({
       newKeys: keys,
     });
+    console.log(ob)
   },
   save() {
     const { form } = this.props
@@ -314,6 +328,7 @@ let MyComponent = React.createClass({
     }
   },
   newInputPort(index, e) {
+    console.log(ob)
     const { form } = this.props
     if(e && e.toLowerCase() == 'http') {
       ob[index] = false
@@ -449,10 +464,8 @@ let MyComponent = React.createClass({
               <Select.Option key="1">动态生成</Select.Option>
               <Select.Option key="2">指定端口</Select.Option>
             </Select>
-          </div>
-          <div className="commonData span3">
-            <Form.Item key={k}>
-              <Input type='text' style={{display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {rules: [rules, {validator: this.checkInputPort}], initialValue: "80"})} />
+            <Form.Item key={k} style={{width: '100px', float: 'right', marginRight: '70px'}}>
+            <Input type='text' style={{width: '100px', marginLeft: '10px',display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {rules: [rules, {validator: this.checkInputPort}], initialValue: "80"})} />
             </Form.Item>
           </div>
           <div className="commonData span2">
@@ -513,6 +526,7 @@ let MyComponent = React.createClass({
            </Form.Item>
           </div>
           <div className="commonData span3">
+
             { this.state.openPort && this.state.openPort[index] ? 
               
               <Select defaultValue='动态生成' style={{width:'100px'}} onChange={(e)=> this.changeType(e, index + 1)}>
@@ -527,7 +541,7 @@ let MyComponent = React.createClass({
 
             }
             { this.state.openPort && this.state.openPort[index] && this.state.inPort =='2' ?
-              <Form.Item>
+              <Form.Item style={{width: '100px', float: 'right', marginRight: '70px'}}>
                 <Input style={{width:'100px', marginLeft:'10px'}} {...getFieldProps(`changeinputPort${index + 1}`, {
                   rules: [{
                     required: true,
@@ -535,9 +549,10 @@ let MyComponent = React.createClass({
                     message: '输入容器端口',
                   }, {validator: this.checkPort}]
                 })}/>
-              </Form.Item>
+               </Form.Item>
               :null
             }
+
           </div>
           <div className="commonData span2">
             { this.state.openPort && this.state.openPort[index] ? 
