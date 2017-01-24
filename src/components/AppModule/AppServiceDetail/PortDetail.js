@@ -206,6 +206,7 @@ let MyComponent = React.createClass({
     })
   },
   add() {
+    if(this.state.newselectType) return
     uuid++;
     const { form } = this.props;
     // can use data-binding to get
@@ -216,6 +217,9 @@ let MyComponent = React.createClass({
     form.setFieldsValue({
       newKeys: keys,
     });
+    this.setState({
+      newselectType: 1
+    })
   },
   save() {
     const { form } = this.props
@@ -265,6 +269,10 @@ let MyComponent = React.createClass({
                     for(let i=0;i< res.data[serviceName].spec.ports.length; i++) {
                       keys.push(i + 1)
                     }
+                    self.setState({
+                      newselectType: 0,
+                      selectType: 0
+                    })
                     self.props.form.setFieldsValue({
                       keys,
                       newKeys: []
