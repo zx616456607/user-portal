@@ -189,7 +189,7 @@ let NamespaceModal = React.createClass({
     });
   },
   render: function () {
-    const {scope} = this.props;
+    const { scope, defaultNamespace } = this.props;
     let namespaceList = null;
     if (this.state.currentList.length == 0) {
       namespaceList = (
@@ -200,7 +200,7 @@ let NamespaceModal = React.createClass({
     } else {
       namespaceList = this.state.currentList.map((item, index) => {
         return (
-          <div className='namespaceDetail' key={index} onClick={scope.onSelectNamespace.bind(scope, item.spaceName, item.teamID)}>
+          <div className='namespaceDetail' key={index} onClick={scope.onSelectNamespace.bind(scope, item.spaceName, item.teamID, item.namespace)}>
             {item.spaceName}
           </div>
         )
@@ -212,7 +212,7 @@ let NamespaceModal = React.createClass({
           <Input className='commonSearchInput namespaceInput' onChange={this.inputSearch} type='text' size='large' />
         </div>
         <div className='dataList'>
-          <div className='namespaceDetail' key='defaultNamespace' onClick={scope.onSelectNamespace.bind(scope, '我的空间', 'default')}>
+          <div className='namespaceDetail' key='defaultNamespace' onClick={scope.onSelectNamespace.bind(scope, '我的空间', 'default', defaultNamespace)}>
             <span>我的空间</span>
           </div>
           {namespaceList}
@@ -592,8 +592,8 @@ class QueryLog extends Component {
       }
     });
     const { space, cluster } = current;
-    const { spaceName, teamID } = space;
-    this.onSelectNamespace(spaceName, teamID);
+    const { spaceName, teamID, namespace } = space;
+    this.onSelectNamespace(spaceName, teamID, namespace);
     const { clusterName, clusterID } = cluster;
     this.onSelectCluster(clusterName, clusterID);
     const { service, instance } = query;
@@ -610,7 +610,7 @@ class QueryLog extends Component {
     }
   }
 
-  onSelectNamespace(name, teamId) {
+  onSelectNamespace(name, teamId, namespace) {
     //this function for user get search 10-20 of namespace list
     const { getClusterOfQueryLog } = this.props;
     const _this = this;
@@ -626,8 +626,9 @@ class QueryLog extends Component {
         serviceList: [],
         instanceList: [],
         selectedNamespace: false,
+        searchNamespace: namespace
       });
-      getClusterOfQueryLog(teamId, {
+      getClusterOfQueryLog(teamId, namespace, {
         success: {
           func: (res) => {
             _this.setState({
@@ -645,6 +646,8 @@ class QueryLog extends Component {
     //this function for user get search 10-20 of service list
     const { getServiceOfQueryLog } = this.props;
     const _this = this;
+    const namespace = this.state.searchNamespace;
+    console.log(namespace)
     if (name != this.state.currentCluster) {
       this.setState({
         gettingSerivce: true,
@@ -657,7 +660,7 @@ class QueryLog extends Component {
         instanceList: [],
         selectedCluster: false,
       });
-      getServiceOfQueryLog(clusterId, {
+      getServiceOfQueryLog(clusterId, namespace, {
         success: {
           func: (res) => {
             _this.setState({
@@ -883,7 +886,7 @@ class QueryLog extends Component {
   }
 
   render() {
-    const { logs, isFetching, intl } = this.props;
+    const { logs, isFetching, intl, defaultNamespace } = this.props;
     const { formatMessage } = intl;
     const scope = this;
     const { gettingNamespace, start_time, end_time } = this.state;
@@ -901,7 +904,7 @@ class QueryLog extends Component {
             <div className='commonBox'>
               <span className='titleSpan'>{standardFlag ? [<span>团队：</span>] : [<FormattedMessage {...menusText.user} />]}</span>
               <Popover
-                content={<NamespaceModal scope={scope} namespace={this.state.namespaceList} />}
+                content={<NamespaceModal scope={scope} namespace={this.state.namespaceList} defaultNamespace={defaultNamespace} />}
                 trigger='click'
                 placement='bottom'
                 getTooltipContainer={() => document.getElementById('QueryLog')}
@@ -1022,7 +1025,8 @@ class QueryLog extends Component {
 
 function mapStateToProps(state, props) {
   const { current, loginUser } = state.entities
-  const { cluster } = current
+  const { cluster, space } = current
+  const defaultNamespace = space.namespace
   const { teamspaces } = state.user
   const { teamClusters } = state.team
   const defaultLogs = {
@@ -1050,6 +1054,7 @@ function mapStateToProps(state, props) {
     logs,
     current,
     query,
+    defaultNamespace
   }
 }
 
