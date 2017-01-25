@@ -426,5 +426,10 @@ export function services(state = { appItmes: {} }, action) {
       SUCCESS: ActionTypes.SERVICE_DELETE_CERTIFICATIES_SUCCESS,
       FAILURE: ActionTypes.SERVICE_DELETE_CERTIFICATIES_FAILURE
     }, state.deleteCertificates, action, { overwrite: true }),
+    updateServicePort: reducerFactory({
+      REQUEST: ActionTypes.UPDATE_SERVICE_PORT_REQUEST,
+      SUCCESS: ActionTypes.UPDATE_SERVICE_PORT_SUCCESS,
+      FAILURE: ActionTypes.UPDATE_SERVICE_PORT_FAILED
+    }, state.updateServicePort, action)
   }
 }

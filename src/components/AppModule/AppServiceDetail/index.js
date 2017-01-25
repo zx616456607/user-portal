@@ -361,6 +361,7 @@ class AppServiceDetail extends Component {
                   cluster={service.cluster}
                   container={containers[0]}
                   scope = {this}
+                  serviceDetailmodalShow={serviceDetailmodalShow}
                   />
               </TabPane>
               <TabPane tab='高可用' key='#livenessprobe'>
