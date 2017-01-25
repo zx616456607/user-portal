@@ -411,5 +411,20 @@ export function services(state = { appItmes: {} }, action) {
       SUCCESS: ActionTypes.SERVICE_ROLLING_UPDATE_SUCCESS,
       FAILURE: ActionTypes.SERVICE_ROLLING_UPDATE_FAILURE
     }, state.rollingUpdateService, action, { overwrite: true }),
+    certificates: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_GET_CERTIFICATIES_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_GET_CERTIFICATIES_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_GET_CERTIFICATIES_FAILURE
+    }, state.certificates, action, { overwrite: true }),
+    updateCertificates: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_UPDATE_CERTIFICATIES_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_UPDATE_CERTIFICATIES_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_UPDATE_CERTIFICATIES_FAILURE
+    }, state.updateCertificates, action, { overwrite: true }),
+    deleteCertificates: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_DELETE_CERTIFICATIES_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_DELETE_CERTIFICATIES_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_DELETE_CERTIFICATIES_FAILURE
+    }, state.deleteCertificates, action, { overwrite: true }),
   }
 }

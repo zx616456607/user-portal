@@ -645,3 +645,95 @@ export function updateServicesList(deploymentList) {
     type: UPDATE_SERVICE_GET_ALL_LIST
   }
 }
+
+export const SERVICE_GET_CERTIFICATIES_REQUEST = 'SERVICE_GET_CERTIFICATIES_REQUEST'
+export const SERVICE_GET_CERTIFICATIES_SUCCESS = 'SERVICE_GET_CERTIFICATIES_SUCCESS'
+export const SERVICE_GET_CERTIFICATIES_FAILURE = 'SERVICE_GET_CERTIFICATIES_FAILURE'
+
+function fetchCertificates(cluster, service) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_GET_CERTIFICATIES_REQUEST, SERVICE_GET_CERTIFICATIES_SUCCESS, SERVICE_GET_CERTIFICATIES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/certificates`,
+      schema: {}
+    },
+  }
+}
+
+export function loadCertificates(cluster, service) {
+  return (dispath, getState) => {
+    return dispath(fetchCertificates(cluster, service))
+  }
+}
+
+export const SERVICE_UPDATE_CERTIFICATIES_REQUEST = 'SERVICE_UPDATE_CERTIFICATIES_REQUEST'
+export const SERVICE_UPDATE_CERTIFICATIES_SUCCESS = 'SERVICE_UPDATE_CERTIFICATIES_SUCCESS'
+export const SERVICE_UPDATE_CERTIFICATIES_FAILURE = 'SERVICE_UPDATE_CERTIFICATIES_FAILURE'
+
+function fetchUpdateCertificates(cluster, service, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_UPDATE_CERTIFICATIES_REQUEST, SERVICE_UPDATE_CERTIFICATIES_SUCCESS, SERVICE_UPDATE_CERTIFICATIES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/certificates`,
+      options: {
+        method: 'PUT',
+        body
+      },
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export function updateCertificates(cluster, service, body, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchUpdateCertificates(cluster, service, body, callback))
+  }
+}
+
+export const SERVICE_DELETE_CERTIFICATIES_REQUEST = 'SERVICE_DELETE_CERTIFICATIES_REQUEST'
+export const SERVICE_DELETE_CERTIFICATIES_SUCCESS = 'SERVICE_DELETE_CERTIFICATIES_SUCCESS'
+export const SERVICE_DELETE_CERTIFICATIES_FAILURE = 'SERVICE_DELETE_CERTIFICATIES_FAILURE'
+
+function fetchDeleteCertificates(cluster, service, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_DELETE_CERTIFICATIES_REQUEST, SERVICE_DELETE_CERTIFICATIES_SUCCESS, SERVICE_DELETE_CERTIFICATIES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/certificates`,
+      options: {
+        method: 'DELETE',
+      },
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export function deleteCertificates(cluster, service, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchDeleteCertificates(cluster, service, callback))
+  }
+}
+export const SERVICE_TOGGLE_HTTPS_REQUEST = 'SERVICE_TOGGLE_HTTPS_REQUEST'
+export const SERVICE_TOGGLE_HTTPS_SUCCESS = 'SERVICE_TOGGLE_HTTPS_SUCCESS'
+export const SERVICE_TOGGLE_HTTPS_FAILURE = 'SERVICE_TOGGLE_HTTPS_FAILURE'
+
+function fetchToggleHTTPs(cluster, service, status, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_TOGGLE_HTTPS_REQUEST, SERVICE_TOGGLE_HTTPS_SUCCESS, SERVICE_TOGGLE_HTTPS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/https?action=${status}`,
+      options: {
+        method: 'PUT',
+      },
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export function toggleHTTPs(cluster, service, status, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchToggleHTTPs(cluster, service, status, callback))
+  }
+}
