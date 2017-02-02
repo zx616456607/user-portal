@@ -181,7 +181,7 @@ const MyComponent = React.createClass({
     }
     if (imageList.length === 0) {
       return (
-        <div style={{ lineHeight: '100px', height: '200px', paddingLeft: '30px' }}>您还没有镜像，去上传一个吧！</div>
+        <div style={{ lineHeight: '20px', height: '60px', paddingLeft: '30px' }}>您还没有私有镜像，去创建一个吧！</div>
       )
     }
     let items = imageList.map((item, index) => {
