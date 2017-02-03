@@ -40,6 +40,9 @@ const rootRoutes = {
       })
     },
   },{
+    path: '/notfound',
+    component: require('../containers/ErrorPage').default,
+  },{
     path: '/',
     component: require('../containers/App/Enterprise').default,
     indexRoute: {
