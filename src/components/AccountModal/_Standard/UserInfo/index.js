@@ -8,7 +8,7 @@
  * @author Bai Yu
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Spin, message, Tooltip, } from 'antd'
+import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Spin, Tooltip, } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import Authentication from './Authentication'
@@ -276,15 +276,37 @@ class BaseInfo extends Component {
     const account = {
       accountType: 'wechat'
     }
-    bindWechat(account).then(({ response, type }) => {
-      notification.close()
-      notification.success('绑定微信帐户成功')
-      account.accountDetail = response.result
-      this.setUser3rdAccountState([account])
-    }).catch(err => {
-      // Must catch err here, response may be null
-      notification.close()
-      notification.error('绑定微信帐户失败')
+    bindWechat(account, {
+      success: {
+        func: (response) => {
+          notification.close()
+          notification.success('绑定微信帐户成功')
+          account.accountDetail = response
+          this.setUser3rdAccountState([account])
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: (err) => {
+          notification.close()
+          const { statusCode, message } = err
+          if (statusCode === 409) {
+            const { reason } = message
+            if (reason === 'WeChatAlreayBounded') {
+              notification.error('绑定微信帐户失败', '您的微信已绑定其他时速云平台账户')
+              return
+            }
+            if (reason === 'AlreadyExists') {
+              notification.warn('您已绑定过微信账户')
+              const { loadStandardUserInfo } = this.props
+              loadStandardUserInfo()
+              return
+            }
+          }
+          notification.error('绑定微信帐户失败')
+        },
+        isAsync: true,
+      }
     })
   }
   /**
