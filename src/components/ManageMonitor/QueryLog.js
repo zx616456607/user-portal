@@ -595,7 +595,7 @@ class QueryLog extends Component {
     const { spaceName, teamID, namespace } = space;
     this.onSelectNamespace(spaceName, teamID, namespace);
     const { clusterName, clusterID } = cluster;
-    this.onSelectCluster(clusterName, clusterID);
+    this.onSelectCluster(clusterName, clusterID, namespace);
     const { service, instance } = query;
     if (service && instance) {
       this.setState({
@@ -642,12 +642,13 @@ class QueryLog extends Component {
     }
   }
 
-  onSelectCluster(name, clusterId) {
+  onSelectCluster(name, clusterId, namespace) {
     //this function for user get search 10-20 of service list
     const { getServiceOfQueryLog } = this.props;
     const _this = this;
-    const namespace = this.state.searchNamespace;
-    console.log(namespace)
+    if (this.state.searchNamespace != undefined) { 
+      namespace = this.state.searchNamespace;
+    }
     if (name != this.state.currentCluster) {
       this.setState({
         gettingSerivce: true,
