@@ -404,7 +404,7 @@ class UserPay extends Component {
       } = response.result
       if (code === 404) {
         notification.warn('获取订单状态失败，请查看充值记录')
-        browserHistory.push('/account/cost#payments')
+        browserHistory.push('/account/costCenter#payments')
         return
       }
       let upgradeOrRenewalsResult = this.handleUpgradeOrRenewalsResult(response.result)
@@ -424,7 +424,7 @@ class UserPay extends Component {
       })
     }).catch(err => {
       notification.warn('获取订单状态失败，请查看充值记录')
-      browserHistory.push('/account/cost#payments')
+      browserHistory.push('/account/costCenter#payments')
     })
   }
 
@@ -707,7 +707,7 @@ class UserPay extends Component {
               key="payHistory"
               type="primary"
               size="large"
-              onClick={() => browserHistory.push('/account/cost#payments')}>
+              onClick={() => browserHistory.push('/account/costCenter#payments')}>
               充值记录
             </Button>,
             <Button
@@ -782,7 +782,7 @@ class UserPay extends Component {
               key="payHistory"
               type="primary"
               size="large"
-              onClick={() => browserHistory.push('/account/cost')}>
+              onClick={() => browserHistory.push('/account/costCenter#consumptions')}>
               查看消费记录
             </Button>,
             <Button
