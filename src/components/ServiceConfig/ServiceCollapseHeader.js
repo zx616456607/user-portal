@@ -31,12 +31,20 @@ let CreateConfigFileModal = React.createClass({
       callback([new Error('请输入配置文件名称')])
       return
     }
+    if(value.length < 3){
+      callback([new Error('配置文件名称长度需大于 3 个字符')])
+      return
+    }
+    if(value.length > 64) {
+      callback([new Error('配置文件名称长度不超过 63 个字符')])
+      return
+    }
     if(/^[\u4e00-\u9fa5]+$/i.test(value)){
-      callback([new Error('名称由英文字母、数字、点（.）、下划线（_）和连字符（-）组成，请重新输入')])
+      callback([new Error('名称需小写英文开头, 由小写英文、数字、中划线(-)组成, 且以小写英文和数字结尾')])
       return
     }
     if (!validateK8sResource(value)) {
-      callback([new Error('名称由英文字母、数字、点（.）、下划线（_）和连字符（-）组成，长度不超过 253 个字符')])
+      callback([new Error('名称需小写英文开头, 由小写英文、数字、中划线(-)组成, 且以小写英文和数字结尾')])
       return
     }
     callback()
