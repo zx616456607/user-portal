@@ -258,7 +258,7 @@ export function isStorageUsed(volumes) {
   *bindingDomain --- '' , '[]' , '[""]' , null , undefind
 */
 
-export function isDomain (bindingDomainStr) {
+export function isDomain(bindingDomainStr) {
   let bindingDomain = ''
   try {
     bindingDomain = JSON.parse(bindingDomainStr)
