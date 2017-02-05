@@ -150,7 +150,7 @@ class UserPanel extends Component {
         text: '帐户信息',
       },
       {
-        to: '/account/cost',
+        to: '/account/costCenter#consumptions',
         svgHref: '#logcostrecord',
         text: '消费记录',
       },
@@ -168,7 +168,7 @@ class UserPanel extends Component {
       })
     } else {
       menuItems.push({
-        to: '/account/cost#payments',
+        to: '/account/costCenter#payments',
         // TODO: replace it
         svgHref: '#logpayment',
         text: '充值记录',
@@ -182,7 +182,7 @@ class UserPanel extends Component {
           text: '我的帐户',
         },
         {
-          to: '/account/cost',
+          to: '/account/costCenter#consumptions',
           svgHref: '#logcostrecord',
           text: '消费记录',
         },
