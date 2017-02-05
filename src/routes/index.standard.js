@@ -42,6 +42,9 @@ const rootRoutes = {
       })
     },
   },{
+    path: '/notfound',
+    component: require('../containers/ErrorPage').default,
+  },{
     path: '/',
     getComponent: (location, cb) => {
       require.ensure([], (require) => {

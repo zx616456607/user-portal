@@ -40,6 +40,9 @@ const rootRoutes = {
       })
     },
   },{
+    path: '/notfound',
+    component: require('../containers/ErrorPage').default,
+  },{
     path: '/',
     component: require('../containers/App/Enterprise').default,
     indexRoute: {
@@ -131,6 +134,12 @@ const rootRoutes = {
       component: require('../containers/Integration').default,
       indexRoute: {
         component: require('../components/IntegrationModule').default,
+      }
+    }, {
+      path: 'cluster',
+      component: require('../containers/Cluster').default,
+      indexRoute: {
+        component: require('../components/ClusterModule').default,
       }
     }, {
       path: '*',

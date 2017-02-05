@@ -18,6 +18,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Link } from 'react-router'
 import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../../actions/overview_space'
 import homeCICDImg from '../../../../assets/img/homeCICD.png'
+import homeNoWarn from '../../../../assets/img/homeNoWarn.png'
 
 class MySpace extends Component{
   constructor(props){
@@ -423,7 +424,7 @@ class MySpace extends Component{
                   {
                     spaceWarnings.length === 0 ?
                       [<div className="noWarnImg">
-                        <img src="/img/homeNoWarn.png" alt="NoWarn"/>
+                        <img src={homeNoWarn} alt="NoWarn"/>
                         <div>暂时无系统告警</div>
                       </div>] :
                     spaceWarnings.map((item,index) => {

@@ -77,8 +77,23 @@ class TeamDetail extends Component {
   //移除成员
   handleRemoveMember () {
     const { removeTeamusersStd ,teamID } = this.props
-    removeTeamusersStd(teamID, this.state.userName)
-    
+    let notification = new NotificationHandler()
+    notification.spin(`移除成员中...`)
+    removeTeamusersStd(teamID, this.state.userName,{
+      success: {
+        func: (result) => {
+          notification.close()
+          loadTeamUserListStd(teamID, { sort: 'a,userName', size: 100, page: 1 })
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: (err) => {
+          notification.close()
+          notification.error(`移除成员失败`, err.message.message)
+        }
+      }
+    })
   }
   //发送邀请
   inviteOnSubmit(teamID, emails) {
@@ -123,7 +138,7 @@ class TeamDetail extends Component {
         }
       }
     })
-      
+
   }
   //去充值
   //退出团队

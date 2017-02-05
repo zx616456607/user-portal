@@ -8,18 +8,29 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Card, Spin, Dropdown, Icon, Menu, Button, Select, Input, Form } from 'antd'
+import { Card, Spin, Dropdown, Icon, Menu, Button, Select, Input, Form, Modal } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/PortDetail.less"
-import { loadK8sService, clearK8sService } from '../../../actions/services'
+import { loadK8sService, clearK8sService, updateServicePort } from '../../../actions/services'
+import { isDomain } from '../../../common/tools'
+import NotificationHandler from '../../../common/notification_handler.js'
 import findIndex from 'lodash/findIndex'
+import cloneDeep from 'lodash/cloneDeep'
 let uuid=0
+let ob = {}
+let defaultPort = []
+let changeType = {}
+let allPort = []
+let allUsedPort = []
 
 let MyComponent = React.createClass({
   getInitialState() {
-    return {}
+    const { currentCluster } = this.props
+    return {
+      disableHTTP: !isDomain(currentCluster.bindingDomains)
+    }
   },
   propTypes: {
     config: React.PropTypes.array
@@ -32,8 +43,20 @@ let MyComponent = React.createClass({
         func: (res) => {
           let openPort = []
           for(let i=0;i< res.data[serviceName].spec.ports.length; i++) {
+            allPort.push(res.data[serviceName].spec.ports[i])
             openPort.push(false)
           }
+          let cut = openPort.length
+          const { form } = this.props
+          const keys = []
+          let index = 0
+          while(cut-- ) {
+            index++
+            keys.push(index)
+          }
+          form.setFieldsValue({
+            keys
+          })
           _this.setState({
             openPort
           })
@@ -43,6 +66,7 @@ let MyComponent = React.createClass({
   },
   componentWillUnmount() {
     this.props.clearK8sService()
+    ob = {}
   },
   componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow } = nextProps
@@ -50,51 +74,304 @@ let MyComponent = React.createClass({
       return
     }
     if (!serviceDetailmodalShow) {
+      ob = {}
+      this.props.form.setFieldsValue({
+        newKeys: []
+      })
+      this.setState({
+        openPort: [],
+        inPort: '1'
+      })
+      ob = {}
       return this.props.clearK8sService()
     }
-    this.props.loadK8sService(nextProps.cluster, nextProps.serviceName)
+    const { cluster, serviceName } = nextProps
+    const _this = this
+    this.props.loadK8sService(cluster, serviceName, {
+      success: {
+        func: (res) => {
+          let openPort = []
+          for(let i=0;i< res.data[serviceName].spec.ports.length; i++) {
+            openPort.push(false)
+          }
+          let cut = openPort.length
+          const { form } = this.props
+          const keys = []
+          let index = 0
+          while(cut-- ) {
+            index++
+            keys.push(index)
+          }
+          form.setFieldsValue({
+            keys,
+            newKeys: []
+          })
+          _this.setState({
+            openPort
+          })
+        }
+      }
+    })
+  },
+  handCancel(i) {
+    // cancel action
+    const openPort = {[i]: false}
+    this.setState({openPort, selectType: 0})
+  },
+  checkPort(rule, value, callback){
+    if(!value) return callback()
+    if(value.trim() == 80) {
+      return callback()
+    }
+    if(!/^[0-9]+$/.test(value.trim())) {
+      callback(new Error('请填入数字'))
+      return
+    }
+    const port = parseInt(value.trim())
+    if(port < 0 || port > 65535) {
+      callback(new Error('请填入0~65535'))
+      return
+    }
+    if(allPort.indexOf(port) >= 0) {
+      callback(new Error('该端口已被使用'))
+      return
+    }
+    return callback()
+  },
+  checkInputPort(rule, value, callback) {
+   if(!value) return callback()
+    if(!/^[0-9]+$/.test(value.trim())) {
+      callback(new Error('请填入数字'))
+      return
+    }
+    const port = parseInt(value.trim())
+    if(port == 80) return callback()
+    if(port < 0 || port > 65535) {
+      callback(new Error('请填入0~65535'))
+      return
+    }
+    if(allUsedPort.indexOf(value.trim()) >= 0) {
+      callback(new Error('该端口已被占用'))
+      return
+    }
+    return callback()
   },
   editPort(name, index) {
     const openPort = {[index]: true}
-    this.setState({openPort})
+    this.setState({openPort, inPort: '1'})
   },
-  deletePort(name) {
-  
+  showModal(item, i) {
+    this.setState({
+      delModal: true,
+      index: i,
+      item: item
+    })
   },
-  handCancel(i) {
-    // cancel action 
-    const openPort = {[i]: false}
-    this.setState({openPort})
-  },
-  changeSsl(key) {
+  deletePort() {
+    const i = this.state.index
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue } = form
+    let keys = getFieldValue('keys')
+    if(keys.length <= 1) {
+      const notification = new NotificationHandler()
+      notification.warn('端口至少需要保留一个')
+      return
+    }
+    const index = keys.indexOf(i+1)
+    if(index < 0) return
+    keys.splice(index, 1)
+    setFieldsValue({
+      keys
+    })
+    this.setState({
+      delModal: false,
+      item: null,
+      i: -1
+    })
+    this.save()
   },
   remove(k) {
     const { form } = this.props;
     // can use data-binding to get
-    let keys = form.getFieldValue('keys');
+    let keys = form.getFieldValue('newKeys');
     keys = keys.filter((key) => {
       return key !== k;
     });
+    if(ob[k]) {
+      ob[k] = false
+    }
     // can use data-binding to set
     form.setFieldsValue({
-      keys,
+      newKeys: keys,
     });
+    this.setState({
+      newselectType: 0
+    })
   },
   add() {
+    if(this.state.newselectType) return
     uuid++;
     const { form } = this.props;
     // can use data-binding to get
-    let keys = form.getFieldValue('keys');
+    let keys = form.getFieldValue('newKeys');
     keys = keys.concat(uuid);
     // can use data-binding to set
     // important! notify form to detect changes
     form.setFieldsValue({
-      keys,
+      newKeys: keys,
     });
+    this.setState({
+      newselectType: 1
+    })
+  },
+  save() {
+    const { form } = this.props
+    const keys = form.getFieldValue('keys')
+    const body = []
+    const self = this
+    if(keys) {
+      form.validateFieldsAndScroll((errors, values) => {
+        if(errors) {
+          return
+        }
+        const { updateServicePort, loadK8sService } = self.props
+        keys.forEach(key => {
+          let protocol = form.getFieldValue(`selectssl${key}`) ?  form.getFieldValue(`selectssl${key}`) :  form.getFieldValue(`ssl${key}`)
+          let port = form.getFieldValue(`changeinputPort${key}`) ? form.getFieldValue(`changeinputPort${key}`) : form.getFieldValue(`inputPort${key}`)
+          if(port) {
+            port = parseInt(port)
+          }
+          body.push({
+            ['container_port']: parseInt(form.getFieldValue(`port${key}`)),
+            protocol: protocol,
+            ['service_port']: port
+          })
+        })
+        const newKeys = form.getFieldValue('newKeys')
+        newKeys.forEach(key => {
+          body.push({
+            ['container_port']: parseInt(form.getFieldValue(`newport${key}`)),
+            protocol: form.getFieldValue(`newssl${key}`),
+            ['service_port']: parseInt(form.getFieldValue(`newinputPort${key}`))
+          })
+        })
+        const { cluster, serviceName } = self.props
+        const notification = new NotificationHandler()
+        notification.spin('端口更新中')
+        updateServicePort(cluster, serviceName, body, {
+          success: {
+            func: (res) => {
+              loadK8sService(cluster, serviceName, {
+                success: {
+                  func: (res) => {self.setState({
+                    inPort: '1',
+                    openPort: []
+                  })
+                    ob = {}
+                    const keys = []
+                    for(let i=0;i< res.data[serviceName].spec.ports.length; i++) {
+                      keys.push(i + 1)
+                    }
+                    self.setState({
+                      newselectType: 0,
+                      selectType: 0
+                    })
+                    self.props.form.setFieldsValue({
+                      keys,
+                      newKeys: []
+                    })
+                  }
+                }
+              })
+              notification.close()
+              notification.success('端口更新成功')
+            },
+            isAsync: true
+          },
+          failed: {
+            func: (result) => {
+              notification.close()
+              notification.error(result.message.message)
+            }
+          }
+        })
+      })
+    }
+  },
+  inputPort(index, e) {
+    const { form } = this.props
+    if(!e) {
+      const protocol = form.getFieldValue(`inputPort${index}`)
+      if(protocol.toLowerCase() == 'http') {
+        return
+      }
+    }
+    if(e && e.toLowerCase() == 'http') {
+      this.setState({
+        inPort: 1
+      })
+      form.setFieldsValue({
+        [`inputPort${index}`]: 80
+      })
+    } else {
+      const selectType = this.state.selectType
+      form.setFieldsValue({
+        [`inputPort${index}`]: null,
+        [`changeinputPort${index}`]: null
+      })
+      this.setState({
+        inPort: selectType
+      })
+    }
+  },
+  changeType(e, index) {
+    const protocol = this.props.form.getFieldValue(`selectssl${index}`)
+    if(protocol.toLowerCase() == 'http') {
+      this.setState({
+        selectType: e
+      })
+      return
+    } else {
+      this.setState({inPort: e, selectType: e})
+    }
+  },
+  newInputPort(index, e) {
+    const { form } = this.props
+    if(e && e.toLowerCase() == 'http') {
+      ob[index] = false
+      form.setFieldsValue({
+        [`newinputPort${index}`]: '80'
+      })
+    } else {
+      const selectType = this.state.newselectType
+      form.setFieldsValue({
+        [`newinputPort${index}`]: null
+      })
+      ob[index] = selectType == 2
+    }
+  },
+  newChangeType(e, index) {
+    const protocol = this.props.form.getFieldValue(`newssl${index}`)
+    this.setState({
+      newselectType: e
+    })
+    if(protocol.toLowerCase() == 'http') {
+      ob[index] = false
+      return
+    } else {
+      if(e == 2) {
+        ob[index] = true
+        return
+      }
+      this.props.form.setFieldsValue({[`newinputPort${index}`]: null})
+      ob[index] = false
+    }
   },
   render: function () {
-    const {k8sService} = this.props
-    const { getFieldProps, getFieldValue } = this.props.form
+    const { k8sService } = this.props
+    const { disableHTTP } = this.state
+    const { getFieldProps, getFieldValue, resetFields } = this.props.form
+    const self = this
     if (k8sService.isFetching) {
       return (
         <div className='loadingBox'>
@@ -140,70 +417,67 @@ let MyComponent = React.createClass({
         </div>
       )
     }
-    getFieldProps('keys', {
+    getFieldProps('newKeys', {
       initialValue: [],
     });
-
-    const formItems = getFieldValue('keys').map((k) => {
-      return (
+    const formItems = []
+    getFieldValue('newKeys').forEach((k) => {
+      let rules = {}
+      if(ob[k]) {
+        rules = {
+          required: true,
+          whitespace: true,
+          message: '请输入端口'
+        }
+      }
+      formItems.push(
         <div className="portDetail" key={`list${k}`}>
-          <div className="commonData span2">
-            <Form.Item key={k}>
-              <Input {...getFieldProps(`name${k}`, {
-                rules: [{
-                  required: true,
-                  whitespace: true,
-                  message: '端口名称',
-                }],
-              })} style={{ width: '80%', marginRight: 8 }}
-              />
-            </Form.Item>
-          </div>
           <div className="commonData">
             <Form.Item key={k}>
-              <Input {...getFieldProps(`port${k}`, {
+              <Input {...getFieldProps(`newport${k}`, {
                 rules: [{
                   required: true,
                   whitespace: true,
                   message: '输入容器端口',
-                }],
+                }, {validator: this.checkPort}],
               })} style={{ width: '80%', marginRight: 8 }}
               />
             </Form.Item>
           </div>
           <div className="commonData">
           <Form.Item  key={k}>
-              <Select {...getFieldProps(`ssl${k}`, {
+              <Select {...getFieldProps(`newssl${k}`, {
                 rules: [{
                   required: true,
                   whitespace: true,
-                  message: '输入端口名称',
+                  message: '请选择协议类型',
                 }],
-                initialValue: "HTTP"
+                initialValue: (disableHTTP ? 'TCP' : 'HTTP'),
+                onChange: (e) => self.newInputPort(k, e)
               })} style={{width:'80px'}}>
-              <Select.Option key="HTTP">HTTP</Select.Option>
+              <Select.Option disabled={disableHTTP} key='HTTP'>HTTP</Select.Option>
               <Select.Option key="TCP">TCP</Select.Option>
             </Select>
             </Form.Item>
-            
           </div>
           <div className="commonData span3">
-    
-            <Select  {...getFieldProps(`serverPort${k}`, {
+            <Select  {...getFieldProps(`newserverPort${k}`, {
                 rules: [{
                   required: true,
                   whitespace: true,
-                  message: '选择端口协议',
                 }],
+                onChange: (e) => self.newChangeType(e, k),
                 initialValue: '动态生成'
               })} style={{width:'100px'}}>
               <Select.Option key="1">动态生成</Select.Option>
               <Select.Option key="2">指定端口</Select.Option>
             </Select>
-             
+            <Form.Item key={k} style={{width: '100px', float: 'right', marginRight: '70px'}}>
+            <Input type='text' style={{width: '100px', marginLeft: '10px',display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {rules: [rules, {validator: this.checkInputPort}], initialValue: "80"})} />
+            </Form.Item>
           </div>
           <div className="commonData span2">
-            <Button type="primary">保存</Button>
+            <Button type="primary" onClick={this.save}>保存</Button>
             <Button type="ghost" style={{marginLeft:'6px'}} onClick={()=> this.remove(k)}>取消</Button>
           </div>
           <div style={{ clear: "both" }}></div>
@@ -212,9 +486,11 @@ let MyComponent = React.createClass({
     });
 
     const items = []
+    allUsedPort = []
+    allPort = []
     ports.forEach((item, index) => {
       const targetPort = findIndex(userPort, i => i[0] == item.name)
-      if(targetPort < 0) return 
+      if(targetPort < 0) return
       let target = userPort[targetPort]
       if(!target) return
       if(target[1].toLowerCase() == 'tcp' && target.length < 3) return
@@ -223,57 +499,78 @@ let MyComponent = React.createClass({
           <Menu.Item key="1"><Icon type="edit" /> &nbsp;编辑</Menu.Item>
         </Menu>
       )
-    
       const actionText = (
         <Menu style={{width:'100px'}} onClick={()=> this.handCancel(index)}>
           <Menu.Item key="1"><Icon type="minus-circle-o" /> &nbsp;取消</Menu.Item>
         </Menu>
       )
+      allUsedPort.push(target[2])
+      allPort.push(item.targetPort ? item.targetPort : '80')
       items.push (
         <div className="portDetail" key={item.name}>
-          <div className="commonData span2">
-            <span>{item.name}</span>
-          </div>
           <div className="commonData">
+            <Form.Item>
+            <Input  type="hidden" {...getFieldProps(`port${index+1}`, {
+              initialValue: item.targetPort
+            })}/>
             <span>{item.targetPort}</span>
+            </Form.Item>
           </div>
           <div className="commonData">
-            { this.state.openPort && this.state.openPort[index] ? 
-              <Select defaultValue={target[1]} style={{width:'80px'}} onChange={(e)=> this.changeSsl(e)}>
-                <Select.Option key="HTTP">HTTP</Select.Option>
+            <Form.Item>
+            { this.state.openPort && this.state.openPort[index] ?
+              <Select style={{width:'80px'}} {...getFieldProps(`selectssl${index+1}`, {
+                initialValue: target[1],
+                onChange: (e) => self.inputPort(index + 1, e)
+                })} >
+                <Select.Option disabled={disableHTTP} key="HTTP">HTTP</Select.Option>
                 <Select.Option key="TCP">TCP</Select.Option>
               </Select>
               :
-              <span>{target[1]}</span>
+              <span><Input type="hidden" {...getFieldProps(`ssl${index+1}`, {
+                initialValue: target[1]
+              })}/>{target[1]}</span>
             }
+           </Form.Item>
           </div>
           <div className="commonData span3">
-            { this.state.openPort && this.state.openPort[index] ? 
-              
-              <Select defaultValue='动态生成' style={{width:'100px'}} onChange={(e)=> this.setState({inPort: e})}>
+
+            { this.state.openPort && this.state.openPort[index] ?
+
+              <Select defaultValue='动态生成' style={{width:'100px'}} onChange={(e)=> this.changeType(e, index + 1)}>
                 <Select.Option key="1">动态生成</Select.Option>
                 <Select.Option key="2">指定端口</Select.Option>
               </Select>
-              
+
               :
-              <span>{target[1].toLowerCase() == 'http' ? 80 : target[2]}</span>
+              <span><Input type="hidden" {...getFieldProps(`inputPort${index+1}`, {
+                initialValue: target[1].toLowerCase() == 'http' ? 80 : target[2]
+              })}/>{target[1].toLowerCase() == 'http' ? 80 : target[2]}</span>
 
             }
             { this.state.openPort && this.state.openPort[index] && this.state.inPort =='2' ?
-                <Input style={{width:'100px', marginLeft:'10px'}}/>
+              <Form.Item style={{width: '100px', float: 'right', marginRight: '70px'}}>
+                <Input style={{width:'100px', marginLeft:'10px'}} {...getFieldProps(`changeinputPort${index + 1}`, {
+                  rules: [{
+                    required: true,
+                    whitespace: true,
+                    message: '输入容器端口',
+                  }, {validator: this.checkPort}]
+                })}/>
+               </Form.Item>
               :null
             }
+
           </div>
           <div className="commonData span2">
-            { this.state.openPort && this.state.openPort[index] ? 
-              <Dropdown.Button overlay={actionText} type="ghost" style={{width:'100px'}}>
+            { this.state.openPort && this.state.openPort[index] ?
+              <Dropdown.Button overlay={actionText} type="ghost" style={{width:'100px'}} onClick={this.save}>
                   <Icon type="save" /> 保存
               </Dropdown.Button>
               :
-              <Dropdown.Button overlay={dropdown} type="ghost" onClick={()=> this.deletePort(item.name)} style={{width:'100px'}}>
+              <Dropdown.Button overlay={dropdown} type="ghost" onClick={()=> this.showModal(item, index)} style={{width:'100px'}}>
                 <Icon type="delete" />删除
               </Dropdown.Button >
-
             }
           </div>
           <div style={{ clear: "both" }}></div>
@@ -292,6 +589,11 @@ let MyComponent = React.createClass({
         <div className="pushRow">
          <a onClick={()=> this.add()}> <Icon type="plus" /> 添加端口映射</a>
         </div>
+        <Modal title="删除端口操作" visible={this.state.delModal}
+          onOk={() => this.deletePort()} onCancel={() => this.setState({ delModal: false })}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>您是否确定要删除{this.state.item ? this.state.item.targetPort : ''}端口吗?</div>
+        </Modal>
       </Card>
     );
   }
@@ -299,14 +601,15 @@ let MyComponent = React.createClass({
 
 function mapSateToProp(state) {
   return {
-    k8sService: state.services.k8sService
+    k8sService: state.services.k8sService,
   }
 }
 MyComponent = Form.create()(MyComponent);
 
 MyComponent = connect(mapSateToProp, {
   loadK8sService,
-  clearK8sService
+  clearK8sService,
+  updateServicePort
 })(MyComponent)
 
 class PortDetail extends Component {
@@ -315,13 +618,10 @@ class PortDetail extends Component {
   }
 
   render() {
-    const { containerList, loading } = this.props
+    const { containerList, loading, currentCluster } = this.props
     return (
       <div id="PortDetail">
         <div className="titleBox">
-          <div className="commonTitle span2">
-            名称
-          </div>
           <div className="commonTitle">
             容器端口
           </div>
@@ -336,7 +636,13 @@ class PortDetail extends Component {
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
-        <MyComponent config={containerList} loading={loading} cluster={this.props.cluster} serviceName={this.props.serviceName} serviceDetailmodalShow={this.props.serviceDetailmodalShow} />
+        <MyComponent
+          config={containerList}
+          loading={loading}
+          cluster={this.props.cluster}
+          currentCluster={currentCluster}
+          serviceName={this.props.serviceName}
+          serviceDetailmodalShow={this.props.serviceDetailmodalShow} />
       </div>
     )
   }
@@ -344,6 +650,7 @@ class PortDetail extends Component {
 
 PortDetail.propTypes = {
   cluster: PropTypes.string.isRequired,
+  currentCluster: PropTypes.object.isRequired,
   serviceName: PropTypes.string.isRequired,
   loading: PropTypes.bool.isRequired,
 }

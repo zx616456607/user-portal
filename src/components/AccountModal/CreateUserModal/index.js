@@ -88,7 +88,12 @@ let CreateUserModal = React.createClass({
     callback()
   },
   checkPass2(rule, value, callback) {
-    const { getFieldValue } = this.props.form;
+    const { getFieldValue, getFieldError } = this.props.form;
+    const pwdError = getFieldError('passwd');
+    if(Boolean(pwdError)) {
+      callback([new Error(pwdError[0])]);
+      return
+    }
     if (value && value !== getFieldValue('passwd')) {
       callback('两次输入密码不一致！')
       return

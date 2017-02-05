@@ -258,6 +258,7 @@ let Login = React.createClass({
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
+
     // 登录成功显示加载动画
     if (loginSucess) {
       return (
@@ -266,6 +267,7 @@ let Login = React.createClass({
         </div>
       )
     }
+
     return (
       <div id="LoginBgStd">
         <Top/>

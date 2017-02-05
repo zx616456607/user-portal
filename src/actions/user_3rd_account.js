@@ -67,7 +67,7 @@ export const BIND_WECHAT_FAILURE = 'BIND_WECHAT_FAILURE'
 
 // Fetches bind wechat from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchBindWechat(body) {
+function fetchBindWechat(body, callback) {
   return {
     [FETCH_API]: {
       types: [BIND_WECHAT_REQUEST, BIND_WECHAT_SUCCESS, BIND_WECHAT_FAILURE],
@@ -77,15 +77,16 @@ function fetchBindWechat(body) {
         body,
       },
       schema: {}
-    }
+    },
+    callback,
   }
 }
 
 // Fetches unbind wechat from API
 // Relies on Redux Thunk middleware.
-export function bindWechat(body) {
+export function bindWechat(body, callback) {
   return (dispatch) => {
-    return dispatch(fetchBindWechat(body))
+    return dispatch(fetchBindWechat(body, callback))
   }
 }
 

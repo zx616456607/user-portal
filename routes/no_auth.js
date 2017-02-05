@@ -25,6 +25,10 @@ module.exports = function (Router) {
   // Captcha
   router.get('/captcha/gen', authController.generateCaptcha)
   router.get('/captcha/:captcha/verify', authController.checkCaptchaIsCorrect)
+  // Notfound
+  router.get('/notfound', function* () {
+    yield this.render(global.indexHtml, { title: 'Page not found | 时速云', body: '' })
+  })
 
   return router.routes()
 }

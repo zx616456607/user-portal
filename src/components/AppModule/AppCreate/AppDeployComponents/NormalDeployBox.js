@@ -313,11 +313,12 @@ let MyComponent = React.createClass({
       <div className="serviceOpen" key="had">
         <ul>
           <li>{formItems}</li>
-          <li> <div className="volumeAddBtn" onClick={this.add}>
-            <Icon type="plus-circle-o" />
-            <span>添加一个容器目录</span>
+          <li> <div>
+            <span className="volumeAddBtn" onClick={this.add}>
+              <Icon type="plus-circle-o" />
+              <span>添加一个容器目录</span>
+            </span>
           </div></li>
-
         </ul>
       </div>
     )

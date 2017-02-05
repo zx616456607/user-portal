@@ -100,7 +100,7 @@ let Company = React.createClass({
                   dupItems += '邮箱 '
                   break;
                 case 'phone':
-                  dupItems += '手机号 '
+                  dupItems += '手机号码 '
                   break;
                 }
               })
@@ -183,7 +183,7 @@ let Company = React.createClass({
       return
     }
     if(!PHONE_REGEX.test(value)){
-      callback([new Error('请输入正确的号码')])
+      callback([new Error('请输入正确的手机号码')])
       return
     }
     callback()
@@ -410,7 +410,7 @@ let Company = React.createClass({
     //手机号
     const telProps = getFieldProps('tel', {
       rules: [
-        { required: true, message: '请填写手机号' },
+        { required: true, message: '请填写手机号码' },
         { validator: this.checkTel },
       ],
     })
@@ -486,7 +486,7 @@ let Company = React.createClass({
             hasFeedback
             className="formItemName"
           >
-            <div className={this.state.intTelFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'tel')}>手机号</div>
+            <div className={this.state.intTelFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'tel')}>手机号码</div>
             <Input {...telProps} autoComplete="off"
                    onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                    onBlur={this.intOnBlur.bind(this, 'tel')}
@@ -557,7 +557,7 @@ let Company = React.createClass({
               {
                 this.state.certTypeCompany ?
                 <span>
-                  企业营销执照注册号
+                  营业执照号
                 </span>:
                 <span>
                   组织机构代码

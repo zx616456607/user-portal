@@ -174,7 +174,7 @@ class TerminalModal extends Component {
       $('.TerminalLayoutModal').css('height', '550px !important');
       setTimeout(function(){
         $('.TerminalLayoutModal').css('transition', 'all');
-      })
+      }, 100)
     }
   }
   

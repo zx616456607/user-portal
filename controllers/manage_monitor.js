@@ -38,6 +38,10 @@ exports.getSearchLog = function* () {
 exports.getClusterOfQueryLog = function* () {
   const method = 'getClusterOfQueryLog'
   const teamID = this.params.team_id
+  let namespace = this.params.namespace
+  if(namespace === 'default') {
+    namespace = this.session.loginUser.namespace
+  }
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   let clusters
@@ -52,7 +56,7 @@ exports.getClusterOfQueryLog = function* () {
   let tempResult = [];
   try {
     clusters.map((item, index) => {
-      tempResult.push(api.clusters.getBy([item.clusterID, 'instances']))
+      tempResult.push(api.clusters.getBy([item.clusterID, namespace, 'instances']))
     });
     let temp = yield tempResult;
     clusters.map((item, index) => {
@@ -68,9 +72,13 @@ exports.getClusterOfQueryLog = function* () {
 
 exports.getServiceOfQueryLog = function* () {
   const cluster = this.params.cluster_id
+  let namespace = this.params.namespace
+  if(namespace === 'default') {
+    namespace = this.session.loginUser.namespace
+  }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'apps'], { size: 1000 })
+  const result = yield api.getBy([cluster, namespace, 'apps'], { size: 1000 })
   const apps = result.data.apps
   let serviceList = []
   apps.map((app) => {
