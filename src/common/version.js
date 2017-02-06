@@ -3,7 +3,7 @@
  * (C) Copyright 2017 TenxCloud. All Rights Reserved.
  */
 /**
- * Portal version for fontend
+ * Portal version for frontend
  * shell will echo version below
  * eg.
  * ```
