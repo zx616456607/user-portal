@@ -181,7 +181,7 @@ class TenxFlowDetail extends Component {
     //and the state changed will be trigger the children's recivice props
     //and start build flow functon will be trigger in children
     let notification = new NotificationHandler()
-    notification.success('构建中...')
+    notification.success('流程正在构建中')
     this.setState({
       startBuild: true
     })
