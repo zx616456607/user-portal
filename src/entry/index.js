@@ -19,9 +19,6 @@ import configureStore from '../store/configureStore'
 const store = configureStore()
 const history = syncHistoryWithStore(browserHistory, store)
 
-// Set portal version
-window.TENX_PORTAL_VERSION = process.env.TENX_PORTAL_VERSION
-
 render(
   <Root store={store} history={history} />,
   document.getElementById('root')
