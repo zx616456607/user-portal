@@ -144,7 +144,7 @@ class AppSettingsHttps extends Component {
     }
     // *** ----- 如果有绑定了域名和添加了端口，是关闭状态，可以打开，暂未判断  ------
     return (
-      <Tooltip title={`HTTPS已${this.state.statusText}`}><Switch checkedChildren="开" unCheckedChildren="关" checked={false} style={{ marginLeft: '40px' }} /></Tooltip>
+      <Tooltip title={`HTTPS已${this.state.statusText}`}><Switch checkedChildren="开" unCheckedChildren="关" checked={false} style={{ float: 'right' }} /></Tooltip>
     )
   }
   render() {
