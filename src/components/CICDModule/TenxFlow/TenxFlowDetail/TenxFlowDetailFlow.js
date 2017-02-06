@@ -325,15 +325,17 @@ class TenxFlowDetailFlow extends Component {
             if (self.props && self.props.stageInfo) {
               for (var j in self.props.stageInfo) {
                 if (self.props.stageInfo[j].metadata.id === currentId) {
-                  sname = self.props.stageInfo[j].metadata.name
+                  sname = `（self.props.stageInfo[j].metadata.name）`
                 }
               }
             }
             notification.close()
             if (data.results.buildStatus == 1) {
-              notification.error(`构建步骤（${sname}）执行失败`)
+              notification.error(`构建步骤${sname}执行失败`)
+            } else if (data.results.buildStatus == 0) {
+              notification.success(`构建步骤${sname}执行完成`)
             } else {
-              notification.success(`构建步骤（${sname}）执行完成`)
+              break
             }
             if (!notified) {
               notified = {}
