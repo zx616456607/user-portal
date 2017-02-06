@@ -62,7 +62,7 @@ function checkUrlOpenKeys(pathname) {
   }
 }
 
-class Slider extends Component {
+class Sider extends Component {
   constructor(props) {
     super(props)
     this.selectModel = this.selectModel.bind(this)
@@ -383,6 +383,19 @@ class Slider extends Component {
                   </Link>
                 </Tooltip>
               </li>
+              { /*role == ROLE_TEAM_ADMIN ?
+                [
+                  <li onClick={this.selectModel.bind(this, 'cluster', '#cluster')} className={currentKey == 'cluster' ? 'selectedLi' : ''}>
+                    <Tooltip placement='right' title='基础设施' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                      <Link to='/cluster'>
+                        <svg className='setting commonImg'>
+                          {currentKey == 'cluster' ? [<use xlinkHref='#siderinfrastructureselected' />] : [<use xlinkHref='#siderinfrastructure' />]}
+                        </svg>
+                      </Link>
+                    </Tooltip>
+                  </li>
+                ] : null*/
+              }
               <div style={{ clear: 'both' }}></div>
             </ul>
             {/*<ul className='siderBottom'>
@@ -660,6 +673,19 @@ class Slider extends Component {
                   </Menu.Item>*/}
                   <div className='sline'></div>
                 </SubMenu>
+                { /*role == ROLE_TEAM_ADMIN ?
+                  [<Menu.Item key='cluster'>
+                    <Link to='/cluster'>
+                      <span>
+                        <svg className='system commonImg'>
+                          <use xlinkHref='#siderinfrastructure' />
+                        </svg>
+                        <span className='commonSiderSpan'>基础设施</span>
+                        <div style={{ clear: 'both' }}></div>
+                      </span>
+                    </Link>
+                  </Menu.Item>] : null*/
+                }
               </Menu>
             </div>
           </QueueAnim>
@@ -712,4 +738,4 @@ export default connect(mapStateToProp, {
   getVolumeBindInfo,
   changeStorageDetail,
   // loadUserDetail,
-})(Slider)
+})(Sider)

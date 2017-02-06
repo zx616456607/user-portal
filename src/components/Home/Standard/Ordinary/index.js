@@ -621,7 +621,7 @@ class Ordinary extends Component{
                       &nbsp;
                       <Tooltip title="全区域"><Icon type="question-circle-o" /></Tooltip>
                     </span>
-                    <Link to='/account/cost'><Button type='primary'>去查看</Button></Link>
+                    <Link to='/account/costCenter#consumptions'><Button type='primary'>去查看</Button></Link>
                   </div>
                 </div>
               </div>

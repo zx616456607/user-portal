@@ -11,9 +11,14 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import './style/Top.less'
 import { Link } from 'react-router'
+import Intercom from 'react-intercom'
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
 
+var user = {
+  user_id: new Date().getTime(),
+  name: 'Logged-out Visitors'
+}
 export default class Top extends Component {
   constructor (props) {
   	super(props)
@@ -57,6 +62,7 @@ export default class Top extends Component {
               </div>
             </div>
           </div>
+          <Intercom appID='okj9h5pl' { ...user } />
         </div>
       )
     } else {

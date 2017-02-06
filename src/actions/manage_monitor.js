@@ -81,20 +81,20 @@ export const GET_CLUSTER_OF_TEAM_FOR_LOG_REQUEST = 'GET_CLUSTER_OF_TEAM_FOR_LOG_
 export const GET_CLUSTER_OF_TEAM_FOR_LOG_SUCCESS = 'GET_CLUSTER_OF_TEAM_FOR_LOG_SUCCESS'
 export const GET_CLUSTER_OF_TEAM_FOR_LOG_FAILURE = 'GET_CLUSTER_OF_TEAM_FOR_LOG_FAILURE'
 
-function fetchClusterOfQueryLog(teamId, callback) {
+function fetchClusterOfQueryLog(teamId, namespace, callback) {
   return {
     [FETCH_API]: {
       types: [GET_CLUSTER_OF_TEAM_FOR_LOG_REQUEST, GET_CLUSTER_OF_TEAM_FOR_LOG_SUCCESS, GET_CLUSTER_OF_TEAM_FOR_LOG_FAILURE],
-      endpoint: `${API_URL_PREFIX}/manage-monitor/${teamId}/getClusterOfQueryLog`,
+      endpoint: `${API_URL_PREFIX}/manage-monitor/${teamId}/${namespace}/getClusterOfQueryLog`,
       schema: {}
     },
     callback
   }
 }
 
-export function getClusterOfQueryLog(teamId, callback) {
+export function getClusterOfQueryLog(teamId, namespace, callback) {
   return (dispatch) => {
-    return dispatch(fetchClusterOfQueryLog(teamId, callback))
+    return dispatch(fetchClusterOfQueryLog(teamId, namespace, callback))
   }
 }
 
@@ -102,19 +102,19 @@ export const GET_SERVICE_OF_TEAM_FOR_LOG_REQUEST = 'GET_SERVICE_OF_TEAM_FOR_LOG_
 export const GET_SERVICE_OF_TEAM_FOR_LOG_SUCCESS = 'GET_SERVICE_OF_TEAM_FOR_LOG_SUCCESS'
 export const GET_SERVICE_OF_TEAM_FOR_LOG_FAILURE = 'GET_SERVICE_OF_TEAM_FOR_LOG_FAILURE'
 
-function fetchServiceOfQueryLog(clusterId, callback) {
+function fetchServiceOfQueryLog(clusterId, namespace, callback) {
   return {
     [FETCH_API]: {
       types: [GET_SERVICE_OF_TEAM_FOR_LOG_REQUEST, GET_SERVICE_OF_TEAM_FOR_LOG_SUCCESS, GET_SERVICE_OF_TEAM_FOR_LOG_FAILURE],
-      endpoint: `${API_URL_PREFIX}/manage-monitor/${clusterId}/getServiceOfQueryLog`,
+      endpoint: `${API_URL_PREFIX}/manage-monitor/${clusterId}/${namespace}/getServiceOfQueryLog`,
       schema: {}
     },
     callback
   }
 }
 
-export function getServiceOfQueryLog(clusterId, callback) {
+export function getServiceOfQueryLog(clusterId, namespace, callback) {
   return (dispatch) => {
-    return dispatch(fetchServiceOfQueryLog(clusterId, callback))
+    return dispatch(fetchServiceOfQueryLog(clusterId, namespace, callback))
   }
 }

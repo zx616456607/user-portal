@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/PortDetail.less"
 import { loadK8sService, clearK8sService, updateServicePort } from '../../../actions/services'
+import { isDomain } from '../../../common/tools'
 import NotificationHandler from '../../../common/notification_handler.js'
 import findIndex from 'lodash/findIndex'
 import cloneDeep from 'lodash/cloneDeep'
@@ -26,7 +27,9 @@ let allUsedPort = []
 
 let MyComponent = React.createClass({
   getInitialState() {
+    const { currentCluster } = this.props
     return {
+      disableHTTP: !isDomain(currentCluster.bindingDomains)
     }
   },
   propTypes: {
@@ -111,7 +114,7 @@ let MyComponent = React.createClass({
     })
   },
   handCancel(i) {
-    // cancel action 
+    // cancel action
     const openPort = {[i]: false}
     this.setState({openPort, selectType: 0})
   },
@@ -175,7 +178,7 @@ let MyComponent = React.createClass({
       return
     }
     const index = keys.indexOf(i+1)
-    if(index < 0) return 
+    if(index < 0) return
     keys.splice(index, 1)
     setFieldsValue({
       keys
@@ -291,14 +294,14 @@ let MyComponent = React.createClass({
               notification.error(result.message.message)
             }
           }
-        })   
+        })
       })
     }
   },
   inputPort(index, e) {
     const { form } = this.props
     if(!e) {
-      const protocol = form.getFieldValue(`inputPort${index}`) 
+      const protocol = form.getFieldValue(`inputPort${index}`)
       if(protocol.toLowerCase() == 'http') {
         return
       }
@@ -314,7 +317,7 @@ let MyComponent = React.createClass({
       const selectType = this.state.selectType
       form.setFieldsValue({
         [`inputPort${index}`]: null,
-        [`changeinputPort${index}`]: null 
+        [`changeinputPort${index}`]: null
       })
       this.setState({
         inPort: selectType
@@ -322,7 +325,7 @@ let MyComponent = React.createClass({
     }
   },
   changeType(e, index) {
-    const protocol = this.props.form.getFieldValue(`selectssl${index}`) 
+    const protocol = this.props.form.getFieldValue(`selectssl${index}`)
     if(protocol.toLowerCase() == 'http') {
       this.setState({
         selectType: e
@@ -348,7 +351,7 @@ let MyComponent = React.createClass({
     }
   },
   newChangeType(e, index) {
-    const protocol = this.props.form.getFieldValue(`newssl${index}`) 
+    const protocol = this.props.form.getFieldValue(`newssl${index}`)
     this.setState({
       newselectType: e
     })
@@ -365,7 +368,8 @@ let MyComponent = React.createClass({
     }
   },
   render: function () {
-    const {k8sService} = this.props
+    const { k8sService } = this.props
+    const { disableHTTP } = this.state
     const { getFieldProps, getFieldValue, resetFields } = this.props.form
     const self = this
     if (k8sService.isFetching) {
@@ -448,10 +452,10 @@ let MyComponent = React.createClass({
                   whitespace: true,
                   message: '请选择协议类型',
                 }],
-                initialValue: "HTTP",
+                initialValue: (disableHTTP ? 'TCP' : 'HTTP'),
                 onChange: (e) => self.newInputPort(k, e)
               })} style={{width:'80px'}}>
-              <Select.Option key="HTTP">HTTP</Select.Option>
+              <Select.Option disabled={disableHTTP} key='HTTP'>HTTP</Select.Option>
               <Select.Option key="TCP">TCP</Select.Option>
             </Select>
             </Form.Item>
@@ -486,7 +490,7 @@ let MyComponent = React.createClass({
     allPort = []
     ports.forEach((item, index) => {
       const targetPort = findIndex(userPort, i => i[0] == item.name)
-      if(targetPort < 0) return 
+      if(targetPort < 0) return
       let target = userPort[targetPort]
       if(!target) return
       if(target[1].toLowerCase() == 'tcp' && target.length < 3) return
@@ -514,12 +518,12 @@ let MyComponent = React.createClass({
           </div>
           <div className="commonData">
             <Form.Item>
-            { this.state.openPort && this.state.openPort[index] ? 
+            { this.state.openPort && this.state.openPort[index] ?
               <Select style={{width:'80px'}} {...getFieldProps(`selectssl${index+1}`, {
                 initialValue: target[1],
                 onChange: (e) => self.inputPort(index + 1, e)
                 })} >
-                <Select.Option key="HTTP">HTTP</Select.Option>
+                <Select.Option disabled={disableHTTP} key="HTTP">HTTP</Select.Option>
                 <Select.Option key="TCP">TCP</Select.Option>
               </Select>
               :
@@ -531,13 +535,13 @@ let MyComponent = React.createClass({
           </div>
           <div className="commonData span3">
 
-            { this.state.openPort && this.state.openPort[index] ? 
-              
+            { this.state.openPort && this.state.openPort[index] ?
+
               <Select defaultValue='动态生成' style={{width:'100px'}} onChange={(e)=> this.changeType(e, index + 1)}>
                 <Select.Option key="1">动态生成</Select.Option>
                 <Select.Option key="2">指定端口</Select.Option>
               </Select>
-              
+
               :
               <span><Input type="hidden" {...getFieldProps(`inputPort${index+1}`, {
                 initialValue: target[1].toLowerCase() == 'http' ? 80 : target[2]
@@ -559,7 +563,7 @@ let MyComponent = React.createClass({
 
           </div>
           <div className="commonData span2">
-            { this.state.openPort && this.state.openPort[index] ? 
+            { this.state.openPort && this.state.openPort[index] ?
               <Dropdown.Button overlay={actionText} type="ghost" style={{width:'100px'}} onClick={this.save}>
                   <Icon type="save" /> 保存
               </Dropdown.Button>
@@ -614,7 +618,7 @@ class PortDetail extends Component {
   }
 
   render() {
-    const { containerList, loading } = this.props
+    const { containerList, loading, currentCluster } = this.props
     return (
       <div id="PortDetail">
         <div className="titleBox">
@@ -632,7 +636,13 @@ class PortDetail extends Component {
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
-        <MyComponent config={containerList} loading={loading} cluster={this.props.cluster} serviceName={this.props.serviceName} serviceDetailmodalShow={this.props.serviceDetailmodalShow} />
+        <MyComponent
+          config={containerList}
+          loading={loading}
+          cluster={this.props.cluster}
+          currentCluster={currentCluster}
+          serviceName={this.props.serviceName}
+          serviceDetailmodalShow={this.props.serviceDetailmodalShow} />
       </div>
     )
   }
@@ -640,6 +650,7 @@ class PortDetail extends Component {
 
 PortDetail.propTypes = {
   cluster: PropTypes.string.isRequired,
+  currentCluster: PropTypes.object.isRequired,
   serviceName: PropTypes.string.isRequired,
   loading: PropTypes.bool.isRequired,
 }

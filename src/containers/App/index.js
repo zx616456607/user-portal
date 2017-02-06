@@ -251,6 +251,7 @@ class App extends Component {
       children,
       pathname,
       redirectUrl,
+      pathnameWithHash,
       loginUser,
       Sider,
       UpgradeModal,
@@ -290,7 +291,7 @@ class App extends Component {
           </div>
         </div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-sider' : 'tenx-layout-sider-bigger tenx-layout-sider'}>
-          <Sider pathname={redirectUrl} scope={scope} siderStyle={this.state.siderStyle} />
+          <Sider pathname={pathnameWithHash} scope={scope} siderStyle={this.state.siderStyle} />
         </div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-content' : 'tenx-layout-content-bigger tenx-layout-content'}>
           {this.getChildren()}
@@ -361,17 +362,20 @@ function mapStateToProps(state, props) {
   const { location } = props
   const { pathname, search, hash } = location
   let redirectUrl = pathname
+  let pathnameWithHash = pathname
   if (search) {
     redirectUrl += search
   }
   if (hash) {
     redirectUrl += hash
+    pathnameWithHash += hash
   }
   return {
     reduxState: state,
     errorMessage,
     pathname,
     redirectUrl,
+    pathnameWithHash,
     current,
     sockets,
     loginUser: loginUser.info,

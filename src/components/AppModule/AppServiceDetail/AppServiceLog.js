@@ -45,7 +45,10 @@ class AppServiceLog extends Component {
     const { cluster, serviceName } = this.props
     const self = this
     this.props.loadServiceLogs(cluster, serviceName, {
-      size: 50
+      from: 0,
+      size: 50,
+      date_start: this.state.currentDate,
+      date_end: this.state.currentDate,
     }, {
         success: {
           func(result) {

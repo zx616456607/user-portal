@@ -8,6 +8,7 @@
 
 'use strict';
 
+const middlewares = require('../services/middlewares')
 const volumeController = require('../controllers/volume')
 const appController = require('../controllers/app_manage')
 const serviceController = require('../controllers/service_manage')
@@ -34,6 +35,7 @@ module.exports = function (Router) {
   const router = new Router({
     prefix: '/api/v2'
   })
+  router.use(middlewares.auth)
 
   // Storage
   router.get('/storage-pools/:pool/:cluster/volumes', volumeController.getVolumeListByPool)
@@ -203,8 +205,8 @@ module.exports = function (Router) {
 
   // Manage Monitor
   router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
-  router.get('/manage-monitor/:team_id/getClusterOfQueryLog', manageMonitorController.getClusterOfQueryLog)
-  router.get('/manage-monitor/:cluster_id/getServiceOfQueryLog', manageMonitorController.getServiceOfQueryLog)
+  router.get('/manage-monitor/:team_id/:namespace/getClusterOfQueryLog', manageMonitorController.getClusterOfQueryLog)
+  router.get('/manage-monitor/:cluster_id/:namespace/getServiceOfQueryLog', manageMonitorController.getServiceOfQueryLog)
   router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
 
   // DevOps service: CI/CD

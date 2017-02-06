@@ -11,9 +11,11 @@
 
 const indexCtl = require('../controllers')
 const mode = require('../configs/model').mode
+const middlewares = require('../services/middlewares')
 
 module.exports = function (Router) {
   const router = new Router()
+  router.use(middlewares.auth)
 
   // for frontend reload page
   router.get('/', indexCtl.index)
@@ -27,6 +29,7 @@ module.exports = function (Router) {
   router.get(/^(\/integration|\/integration\/[a-zA-Z0-9_-]+|\/integration\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
   if (mode === 'enterprise') {
     router.get(/^(\/setting|\/setting\/[a-zA-Z0-9_-]+|\/setting\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+|\/setting\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
+    router.get(/^(\/cluster|\/cluster\/[a-zA-Z0-9_-]+|\/cluster\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+|\/cluster\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
   }
   return router.routes()
 }
