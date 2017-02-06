@@ -8,6 +8,8 @@
  * @author Zhangpc
  */
 
+import './version'
+
 if (process.env.RUNNING_MODE === 'standard') { // Magic code, do not change
   module.exports = require('./lib.standard')
 } else {
