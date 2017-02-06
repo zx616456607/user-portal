@@ -168,7 +168,7 @@ class TenxFlowDetailFlow extends Component {
     CreateTenxflowBuild(flowId, { stageId: stageId }, {
       success: {
         func: (res) => {
-          notification.success('流程构建成功');
+          notification.success('流程正在构建中');
           let buildingList = _this.state.buildingList;
           buildingList.map((item) => {
             if (item.stageId == stageId) {
@@ -312,6 +312,39 @@ class TenxFlowDetailFlow extends Component {
             isAsync: false
           }
         })
+      } else {
+        for(var i in self.state.buildingList) {
+          if (self.state.buildingList[i].buildId === data.results.stageBuildId) {
+            let notified = self.state.notified
+            let currentId = self.state.buildingList[i].stageId
+            if (notified && notified[currentId] === data.results.stageBuildId) {
+              break
+            }
+            let notification = new NotificationHandler()
+            let sname = ''
+            if (self.props && self.props.stageInfo) {
+              for (var j in self.props.stageInfo) {
+                if (self.props.stageInfo[j].metadata.id === currentId) {
+                  sname = self.props.stageInfo[j].metadata.name
+                }
+              }
+            }
+            notification.close()
+            if (data.results.buildStatus == 1) {
+              notification.error(`构建步骤（${sname}）执行失败`)
+            } else {
+              notification.success(`构建步骤（${sname}）执行完成`)
+            }
+            if (!notified) {
+              notified = {}
+            }
+            notified[currentId] = data.results.stageBuildId
+            self.setState({
+              notified: notified
+            })
+            break
+          }
+        }
       }
       const { changeSingleState } = self.props
       changeSingleState(data.results)
