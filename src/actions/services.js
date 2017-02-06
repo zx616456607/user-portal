@@ -678,7 +678,7 @@ function fetchUpdateCertificates(cluster, service, body, callback) {
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/certificates`,
       options: {
         method: 'PUT',
-        body
+        body,
       },
       schema: {},
     },
@@ -723,7 +723,7 @@ function fetchToggleHTTPs(cluster, service, status, callback) {
   return {
     [FETCH_API]: {
       types: [SERVICE_TOGGLE_HTTPS_REQUEST, SERVICE_TOGGLE_HTTPS_SUCCESS, SERVICE_TOGGLE_HTTPS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/https?action=${status}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/tls?action=${status}`,
       options: {
         method: 'PUT',
       },

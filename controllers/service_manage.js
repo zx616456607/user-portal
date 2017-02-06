@@ -475,17 +475,17 @@ exports.toggleHTTPs = function* () {
   const cluster = this.params.cluster
   const service = this.params.service_name
   const action = this.query.action
-  if (action !== 'on' || action !== 'off') {
+  if (action !== 'on' && action !== 'off') {
     const err = new Error('action invalid')
     err.status = 400
     throw err
   }
   const queryObj = {
-    action: this.query.action,
+    action: action,
 	}
 
   const api = apiFactory.getK8sApi(this.session.loginUser)
-  const response = yield api.putBy([cluster, 'services', service, 'tls'], queryObj)
+  const response = yield api.updateBy([cluster, 'services', service, 'tls'], queryObj)
   this.status = 200
   this.body = {}
 }
