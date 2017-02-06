@@ -99,6 +99,10 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/services/:service_name/k8s-service', serviceController.getK8sService)
   router.get('/clusters/:cluster/services', serviceController.getAllService)
   router.put('/clusters/:cluster/services/:service_name/portinfo', serviceController.updateServicePortInfo)
+  router.get('/clusters/:cluster/services/:service_name/certificates', serviceController.getCertificate)
+  router.put('/clusters/:cluster/services/:service_name/certificates', serviceController.updateCertificate)
+  router.delete('/clusters/:cluster/services/:service_name/certificates', serviceController.deleteCertificate)
+  router.put('/clusters/:cluster/services/:service_name/tls', serviceController.toggleHTTPs)
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)

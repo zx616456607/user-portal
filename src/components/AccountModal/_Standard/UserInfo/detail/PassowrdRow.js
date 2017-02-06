@@ -78,44 +78,40 @@ let PasswordRow = React.createClass({
       }
     }
   },
-  passwordExists(rule, values, callback) {
-    if (!values) {
-      callback([new Error('请输入当前密码')])
+  passwordExists(rule, value, callback) {
+    if (!value) {
+      callback([new Error('请填写密码')])
       return
     }
-    if (values.length < 3) {
-      callback([new Error('帐户密码不少于3个字符')])
+    if (value.length < 6 || value.length > 16) {
+      callback([new Error('长度为6~16个字符')])
       return
     }
-    if (values.length > 63) {
-      callback([new Error('帐户密码字符不超过63个字符')])
+    if (/^[^0-9]+$/.test(value) || /^[^a-zA-Z]+$/.test(value)) {
+      callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
       return
     }
     this.setState({
-      oldPassword: values
+      oldPassword: value
     })
     callback()
     return
   },
-  newPassword(rule, values, callback) {
-    this.getPassStrenth(values, 'pass')
-    if (!Boolean(values)) {
-      callback([new Error('请输入新密码')])
+  newPassword(rule, value, callback) {
+    this.getPassStrenth(value, 'pass')
+    if (!value) {
+      callback([new Error('请填写密码')])
       return
     }
-    if (/^\d+$/.test(values)) {
-        callback(new Error('密码不能为纯数字'))
-        return
-    }
-    if (values.length < 3) {
-      callback([new Error('帐户密码不少于3个字符')])
+    if (value.length < 6 || value.length > 16) {
+      callback([new Error('长度为6~16个字符')])
       return
     }
-    if (values.length > 63) {
-      callback([new Error('帐户密码字符不超过63个字符')])
+    if (/^[^0-9]+$/.test(value) || /^[^a-zA-Z]+$/.test(value)) {
+      callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
       return
     }
-    if(values === this.state.oldPassword) {
+    if(value === this.state.oldPassword) {
       callback([new Error('新密码不能和旧密码相同')])
       return
     }
@@ -125,12 +121,10 @@ let PasswordRow = React.createClass({
   againPasswordExists(rule, values, callback) {
     const form = this.props.form
     this.getPassStrenth(values, 'newPass')
-
     if (!Boolean(values)) {
       callback([new Error('请再次输入新密码')])
       return
     }
-
     if (values && values !== form.getFieldValue('newpassword')) {
       callback('两次输入密码不一致！')
       return
@@ -166,7 +160,7 @@ let PasswordRow = React.createClass({
           func: (result) => {
             notification.close()
             if(result.message.message == 'not authorized'){
-              notification.error('密码输入不正确')
+              notification.error('请输入正确密码')
               return
             }
             notification.error(result.message.message)
