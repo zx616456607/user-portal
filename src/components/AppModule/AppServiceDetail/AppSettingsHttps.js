@@ -500,14 +500,19 @@ function mapStateToProps(state, props) {
     k8sServiceData = k8sService.data[serviceName]
   }
   let certificateExists = false
-  if (certificates && certificates.isFetching === false && certificates.result) {
-    certificateExists = certificates.result
+  let certificate = {}
+  if (certificates && certificates.isFetching === false && certificates.result && certificates.result.statusCode === 200) {
+    certificateExists = true
+    certificate.startTime = 'starttime'
+    certificate.expireTime = 'expireTime'
+    certificate.data = certificates.result.data || 'testdata'
   }
   return {
     resourcePrice: cluster.resourcePrice,
     k8sService: k8sServiceData,
     deployment,
     certificateExists,
+    certificate,
   }
 }
 
