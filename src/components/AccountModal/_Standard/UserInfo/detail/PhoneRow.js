@@ -36,17 +36,17 @@ let PhoneRow = React.createClass({
     callback()
     return
   },
-   phonePasswordExists(rule, values, callback) {
-    if(!Boolean(values)) {
-      callback([new Error('请输入帐户密码')])
+   phonePasswordExists(rule, value, callback) {
+    if (!value) {
+      callback([new Error('请填写密码')])
       return
     }
-    if (values.length < 3) {
-      callback([new Error('帐户密码不少于3个字符')])
+    if (value.length < 6 || value.length > 16) {
+      callback([new Error('长度为6~16个字符')])
       return
     }
-    if (values.length > 63) {
-      callback([new Error('帐户密码字符不超过63个字符')])
+    if (/^[^0-9]+$/.test(value) || /^[^a-zA-Z]+$/.test(value)) {
+      callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
       return
     }
     callback()

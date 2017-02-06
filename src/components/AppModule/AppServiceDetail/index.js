@@ -218,6 +218,7 @@ class AppServiceDetail extends Component {
       bindingIPs,
     } = this.props
     const { activeTabKey, currentContainer } = this.state
+    const httpsTabKey = '#https'
     let nocache = currentContainer.map((item) => {
       return item.metadata.name;
     })
@@ -357,13 +358,14 @@ class AppServiceDetail extends Component {
                   serviceDetailmodalShow={serviceDetailmodalShow}
                   />
               </TabPane>
-              <TabPane tab='设置 HTTPS' key='#https'>
+              <TabPane tab='设置 HTTPS' key={httpsTabKey}>
                 <AppSettingsHttps
                   serviceName={service.metadata.name}
                   cluster={service.cluster}
                   container={containers[0]}
                   scope = {this}
                   serviceDetailmodalShow={serviceDetailmodalShow}
+                  isCurrentTab={activeTabKey===httpsTabKey}
                   />
               </TabPane>
               <TabPane tab='高可用' key='#livenessprobe'>

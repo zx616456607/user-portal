@@ -432,3 +432,60 @@ exports.updateServicePortInfo = function* () {
   this.status = response.code
   this.body = response
 }
+
+exports.updateCertificate = function* () {
+  const cluster = this.params.cluster
+  const service = this.params.service_name
+  const body = this.request.body
+  if (!body) {
+    const err = new Error('body is required.')
+    err.status = 400
+    throw err
+  }
+
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const response = yield api.createBy([cluster, 'services', service, 'certificates'], null, body)
+  this.status = response.code
+  this.body = response
+}
+
+exports.getCertificate = function* () {
+  const cluster = this.params.cluster
+  const service = this.params.service_name
+
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const response = yield api.getBy([cluster, 'services', service, 'certificates'])
+
+  this.status = response.code
+  this.body = response
+}
+
+exports.deleteCertificate = function* () {
+  const cluster = this.params.cluster
+  const service = this.params.service_name
+
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const response = yield api.deleteBy([cluster, 'services', service, 'certificates'])
+  this.status = response.code
+  this.body = response
+}
+
+
+exports.toggleHTTPs = function* () {
+  const cluster = this.params.cluster
+  const service = this.params.service_name
+  const action = this.query.action
+  if (action !== 'on' && action !== 'off') {
+    const err = new Error('action invalid')
+    err.status = 400
+    throw err
+  }
+  const queryObj = {
+    action: action,
+	}
+
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const response = yield api.updateBy([cluster, 'services', service, 'tls'], queryObj)
+  this.status = 200
+  this.body = {}
+}

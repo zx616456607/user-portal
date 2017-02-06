@@ -13,6 +13,65 @@
       background-color: #d9edf6;
       border: 1px dashed #85d7fd !important;
     }
+    .noBind {
+      width: 100%;
+      text-align: center;
+      .noBindCard {
+        margin: 0 auto;
+        padding: 24px;
+        width: 500px;
+        height: 220px;
+        &::after {
+          display: block;
+          clear: both;
+          visibility: hidden;
+          content: '';
+        }
+        .leftBox {
+          float: left;
+          width: 50%;
+          height: 172px;
+          line-height: 172px;
+          border-right: 1px solid #efefef;
+          img {
+            margin-top: 10px;
+            width: 169px;
+            height: 141px;
+          }
+        }
+        .rightBox {
+          padding: 10px 0 0 20px;
+          float: left;
+          width: 50%;
+          height: 100%;
+          font-size: 14px;
+          text-align: left;
+          .msgDetail {
+            position: relative;
+            margin-top: 15px;
+            padding-left: 34px;
+            line-height: 22px;
+            color: #707070;
+          }
+          .square {
+            position: absolute;
+            top: 9px;
+            left: 23px;
+            width: 4px;
+            height: 4px;
+            background-color: #00a1ea;
+          }
+        }
+      }
+      .bindBtn {
+        margin-top: 30px;
+      }
+      .alert {
+        margin-top: 15px;
+        color: #999999;
+        font-size: 14px;
+      }
+    }
     .operaBox {
       padding: 24px;
       position: relative;
@@ -106,6 +165,28 @@
           border-bottom: 0;
         }
       }
+    }
+  }
+}
+.liteBindCenterModal {
+  .inputBox {
+    margin-top: 20px;
+    text-align: center;
+  }
+  .title {
+    display: inline-block;
+    width: 80px;
+    text-align: left;
+  }
+  .input {
+    input {    
+      width: 200px;
+    }
+  } 
+  .errorInput {
+    input {    
+      border-color: #f50 !important;
+      box-shadow: 0 0 0 2px #fed4d5 !important;
     }
   }
 }

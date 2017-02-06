@@ -11,23 +11,30 @@ import React, { Component, PropTypes } from 'react'
 import { Card, Icon, Switch, Button, Tooltip, Form, Modal, Input } from 'antd'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-// import { calcuDate, parseAmount} from '../../../common/tools.js'
+import { loadServiceDetail, loadK8sService, loadCertificates, updateCertificates, deleteCertificates, toggleHTTPs } from '../../../actions/services'
+import NotificationHandler from '../../../common/notification_handler'
 import './style/AppSettingsHttps.less'
+const CERT_REGEX = /^-----BEGIN CERTIFICATE-----\n.+\n-----END CERTIFICATE-----$/
+const PRIVATE_KEY_REGEX = /^-----BEGIN RSA PRIVATE KEY-----\n.+\n-----END RSA PRIVATE KEY-----$/
 
 const FormItem = Form.Item
 const createForm = Form.create
 
 let UploadSslModal = React.createClass({
-  nameExists(rule, values, callback) {
+  // nameExists(rule, values, callback) {
+  //   if (!values) {
+  //     callback([new Error('请输入证书名称')])
+  //     return
+  //   }
+  //   callback()
+  // },
+  certExists(rule, values, callback) {
     if (!values) {
-      callback([new Error('请输入证书名称')])
+      callback([new Error('请输入证书内容')])
       return
     }
-    callback()
-  },
-  usernameExists(rule, values, callback) {
-    if (!values) {
-      callback([new Error('请输入用户名')])
+    if (!CERT_REGEX.test(values)) {
+      callback([new Error('证书格式错误')])
       return
     }
     callback()
@@ -37,13 +44,23 @@ let UploadSslModal = React.createClass({
       callback([new Error('请输入密钥内容')])
       return
     }
+    if (!PRIVATE_KEY_REGEX.test(values)) {
+      callback([new Error('私钥格式错误')])
+      return
+    }
     callback()
   },
   handsubmit() {
     this.props.form.validateFields((error, values)=> {
       if (!!error) {
+        console.log('error', error)
         return
       }
+      this.props.scope.setState({
+        certContent: values.cert,
+        keyContent: values.private,
+        createModal: false,
+      })
     })
   },
   render() {
@@ -58,9 +75,9 @@ let UploadSslModal = React.createClass({
         { validator: this.nameExists },
       ],
     })
-    const usernameProps = getFieldProps('username', {
+    const certContent = getFieldProps('cert', {
       rules: [
-        { validator: this.usernameExists },
+        { validator: this.certExists },
       ],
     })
     const privateContent = getFieldProps('private', {
@@ -74,17 +91,17 @@ let UploadSslModal = React.createClass({
         okText="创建"
         >
         <Form horizontal>
-          <FormItem
+          {/*<FormItem
             {...formItemLayout}
             label="证书名称"
             >
             <Input {...nameProps} type="text" className="SslName" placeholder="请输入名称" />
-          </FormItem>
+          </FormItem>*/}
           <FormItem {...formItemLayout} label="证书类型">
             <span>服务器证书</span>
           </FormItem>
-          <FormItem {...formItemLayout} label="用户名">
-            <Input type="textarea" {...usernameProps}/>
+          <FormItem {...formItemLayout} label="证书内容">
+            <Input type="textarea" {...certContent}/>
             <a>查看样例</a>
           </FormItem>
           <FormItem {...formItemLayout} label="密钥内容">
@@ -105,23 +122,110 @@ class AppSettingsHttps extends Component {
     super(props);
     this.state = {
       tabsActive: 1,
-      status: false,
       statusText: '关闭',
       targeStatus: false,
-      createModal: false
+      createModal: false,
+      hasBindingDomain: false,
+      hasHTTPPort: false,
+      certificateExists: false,
+      firstEntry: true,
+      setting: false,
+      modifying: false,
+      httpsOpened: false,
+      certContent: '',
+      keyContent: '',
     }
   }
-  settingHttps(e) {
-    // settings https true
-    this.setState({ targeStatus: e })
+  componentWillMount() {
+    const { serviceName, cluster, loadK8sService, loadServiceDetail, loadCertificates } = this.props
+    loadK8sService(cluster, serviceName)
+    loadServiceDetail(cluster, serviceName)
+    loadCertificates(cluster, serviceName, {
+      failed: {
+        func: (err) => {
+          if (err.statusCode !== 404) {
+            new NotificationHandler().error('获取证书失败')
+          }
+        },
+        isAsync: true
+      }
+    })
+  }
+  componentWillReceiveProps(nextProps) {
+    const { deployment, k8sService, isCurrentTab } = nextProps
+    // get http port and binding domain info if reentry this tab
+    if (this.props.isCurrentTab === false && nextProps.isCurrentTab === true) {
+      const { serviceName, cluster, loadK8sService, loadServiceDetail } = this.props
+      loadK8sService(cluster, serviceName)
+      loadServiceDetail(cluster, serviceName)
+    }
+    const hasHTTPPort = this.hasHTTPPort(k8sService, deployment)
+    const hasBindingDomain = deployment && deployment.bindingDomains
+    this.setState({ 
+      hasBindingDomain: hasBindingDomain,
+      hasHTTPPort: hasHTTPPort,
+      targeStatus: hasBindingDomain && hasHTTPPort,
+      firstEntry: false,
+    })
+
+  }
+  hasHTTPPort(k8sService, deployment) {
+    if (k8sService && k8sService.metadata && k8sService.metadata.annotations && k8sService.metadata.annotations['tenxcloud.com/schemaPortname'] && deployment.bindingPort) {
+      let userPort = k8sService.metadata.annotations['tenxcloud.com/schemaPortname']
+      let bindingPorts = deployment.bindingPort.split(',')
+      let tmp = []
+      bindingPorts.map(port => {
+        const p = parseInt(port)
+        if (!isNaN(p)) {
+          tmp.push(p)
+        }
+      })
+      bindingPorts = tmp
+
+      userPort = userPort.split(',')
+      for (let item of userPort) {
+        const parts = item.split('/')
+        for (let port of bindingPorts) {
+          for (let portInService of k8sService.spec.ports) {
+            if (portInService.port === port) {
+              if (parts[0] === portInService.name && parts[1].toUpperCase() === "HTTP") {
+                return true
+              }
+            }
+          }
+        }
+      }
+    }
+    return false
+  }
+  modifyHttps() {
+    this.setState({ modifying: true })
   }
   changeSwitch(e) {
-    // target on || off
-    if (e) {
-      this.setState({ statusText: '开启', status: e })
-      return
+    this.setState({ statusText: e ? '开启' : '关闭', setting: e })
+    if (!e) {
+      const {
+        cluster,
+        serviceName,
+      } = this.props
+      this.props.toggleHTTPs(cluster, serviceName, 'off', {
+        success: {
+          func: () => {
+            this.setState({
+              httpsOpened: false,
+            })
+            new NotificationHandler().success('HTTPS关闭成功')
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            new NotificationHandler().error('HTTPS关闭失败，请重试')
+          },
+          isAsync: true
+        }
+      })
     }
-    this.setState({ statusText: '关闭', status: false })
   }
   targetTabs(e) {
     this.setState({
@@ -132,31 +236,190 @@ class AppSettingsHttps extends Component {
     // setting ports || binddomain
     this.props.scope.setState({ activeTabKey: key })
   }
+  setHttpsSwitchState() {
+    const {
+      k8sService,
+    } = this.props
+    let isOpen = false
+    if (k8sService && k8sService.metadata && k8sService.metadata.annotations
+      && k8sService.metadata.annotations['tenxcloud.com/https'] && k8sService.metadata.annotations['tenxcloud.com/https'] == true) {
+      isOpen = true
+      this.setState({
+        httpsOpened: isOpen,
+      })
+    }
+  }
+  modifyCert() {
+    const {
+      certContent,
+      keyContent,
+    } = this.state
+    if (!CERT_REGEX.test(certContent)) {
+      new NotificationHandler().error('操作失败', '证书格式错误，请修改后重试')
+      return
+    }
+    if (!PRIVATE_KEY_REGEX.test(keyContent)) {
+      new NotificationHandler().error('操作失败', '密钥格式错误，请修改后重试')
+      return
+    }
+    const {
+      cluster,
+      serviceName,
+      updateCertificates,
+      loadCertificates,
+    } = this.props
+    const body = {
+      certificate: certContent,
+      private_key: keyContent,
+    }
+    updateCertificates(cluster, serviceName, body, {
+      success: {
+        func: () => {
+          this.setState({
+            modifying: false,
+          })
+          loadCertificates(cluster, serviceName)
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          let msg = ''
+          if (err.statusCode === 400) {
+            msg = '内容错误请重试'
+          }
+          new NotificationHandler().error('操作失败', msg)
+        },
+        isAsync: true
+      }
+    })
+  }
   headActionfunc() {
-    //  初始化开关是关闭状态，不可编辑， 如果有绑定了域名和添加了端口，会有设置按钮 ，如果关闭状态，并且有绑定了域名和添加了端口，可以打开 开关
-    if (this.state.status) {
+    if (this.state.setting) {
       return (
-        <span>
-          <Tooltip title={`HTTPS已${this.state.statusText}`}><Switch checkedChildren="开" unCheckedChildren="关" onChange={(e) => this.changeSwitch(e)} defaultChecked={true} style={{ marginLeft: '40px' }} /></Tooltip>
-          <span className="settingsIcon" onClick={() => this.settingHttps(true)}><svg ><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#settingsIcon"></use></svg></span>
+        <span style={{ marginLeft: '50px' }}>
+          <Button type="primary" onClick={() => {this.saveCertAndOpen()}}>开启并保存</Button>
+          <Button onClick={() => this.setState({ targeStatus: false, setting: false, })} style={{ marginLeft: '10px' }}>取消</Button>
         </span>
       )
     }
-    // *** ----- 如果有绑定了域名和添加了端口，是关闭状态，可以打开，暂未判断  ------
-    return (
-      <Tooltip title={`HTTPS已${this.state.statusText}`}><Switch checkedChildren="开" unCheckedChildren="关" checked={false} style={{ float: 'right' }} /></Tooltip>
-    )
+    else {
+      this.setHttpsSwitchState()
+      return (
+        <span>
+          {/*svg ><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#settingsIcon"></use></svg>*/}
+          {this.state.modifying || <Tooltip title={`HTTPS已${this.state.statusText}`}><Switch checkedChildren="开" unCheckedChildren="关" onChange={(e) => this.changeSwitch(e)} checked={this.state.httpsOpened} style={{ marginLeft: '40px' }} /></Tooltip>}
+          {this.state.httpsOpened && ( this.state.modifying ? 
+          <span style={{ marginLeft: '50px' }}>
+            <Button type="primary" onClick={() => {this.modifyCert()}}>保存</Button>
+            <Button style={{ marginLeft: '10px' }} onClick={() => {this.setState({modifying: false})}}>取消</Button>
+          </span>
+          : <span className="settingsIcon" onClick={() => this.modifyHttps()}><svg ><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#settingsIcon"></use></svg></span>)}
+        </span>
+      )
+    }
+  }
+  deleteCertificates() {
+    const {
+      deleteCertificates,
+      cluster,
+      serviceName,
+    } = this.props
+    deleteCertificates(cluster, serviceName, {
+      success: {
+        func: () => {
+          this.setState({
+            certificateExists: false,
+          })
+          new NotificationHandler().success('删除证书成功')
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          new NotificationHandler().error('删除证书失败，请重试')
+        },
+        isAsync: true
+      }
+    })
+  }
+  saveCertAndOpen() {
+    const {
+      certContent,
+      keyContent,
+    } = this.state
+    if (!CERT_REGEX.test(certContent)) {
+      new NotificationHandler().error('操作失败', '证书格式错误，请修改后重试')
+      return
+    }
+    if (!PRIVATE_KEY_REGEX.test(keyContent)) {
+      new NotificationHandler().error('操作失败', '密钥格式错误，请修改后重试')
+      return
+    }
+    const {
+      cluster,
+      serviceName,
+      updateCertificates,
+      loadCertificates,
+    } = this.props
+    const body = {
+      certificate: certContent,
+      private_key: keyContent,
+    }
+    return new Promise((resolve, reject) => {
+      updateCertificates(cluster, serviceName, body, {
+        success: {
+          func: () => {
+            this.setState({
+              certificateExists: true,
+            })
+            loadCertificates(cluster, serviceName)
+            resolve()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            let msg = ''
+            if (err.statusCode === 400) {
+              msg = '内容错误请重试'
+            }
+            new NotificationHandler().error('操作失败', msg)
+            reject()
+          },
+          isAsync: true
+        }
+      })
+    }).then(() => {
+      return new Promise((resolve, reject) => {
+        this.props.toggleHTTPs(cluster, serviceName, 'on', {
+          success: {
+            func: () => {
+              this.setState({
+                httpsOpened: true,
+                setting: false,
+              })
+              new NotificationHandler().success('操作成功')
+              resolve()
+            },
+            isAsync: true
+          },
+          failed: {
+            func: (err) => {
+              new NotificationHandler().error('操作失败，请重试')
+              reject()
+            },
+            isAsync: true
+          }
+        })
+      })
+    })
   }
   render() {
     return (
       <div id="settingsHttps">
         <div className="topHead">
           设置HTTPS
-          {this.state.targeStatus ?
-            <span style={{ marginLeft: '50px' }}><Button type="primary">开启并保存</Button><Button onClick={() => this.setState({ targeStatus: false })} style={{ marginLeft: '10px' }}>取消</Button></span>
-            :
-            null
-          }
           {this.headActionfunc()}
         </div>
         <Card className="content">
@@ -167,18 +430,17 @@ class AppSettingsHttps extends Component {
                 <Tooltip title="请在绑定域名中添加"><Icon type="question-circle-o" /></Tooltip>
               </div>
               <div className="commonTitle">
-                <span className="links" onClick={() => this.goLinks('#binddomain')}><Icon type="link" style={{ marginRight: '6px' }} />去绑定</span>
-                {/* 去绑定， 或者已绑定 */}
-                {/* <span className="linked"><Icon type="check-circle-o" style={{marginRight:'6px'}}/>已绑定</span> */}
-
+                {this.state.hasBindingDomain ?
+                <span className="linked"><Icon type="check-circle-o" style={{marginRight:'6px'}}/>已绑定</span> : 
+                <span className="links" onClick={() => this.goLinks('#binddomain')}><Icon type="link" style={{ marginRight: '6px' }} />去绑定</span>}
               </div>
               <div className="commonTitle">是否已有http端口&nbsp;&nbsp;
                 <Tooltip title="请在端口中添加"><Icon type="question-circle-o" /></Tooltip>
               </div>
               <div className="commonTitle">
-                <span className="links" onClick={() => this.goLinks('#ports')}><Icon type="plus-circle-o" style={{ marginRight: '6px' }} />去添加</span>
-
-                {/* <span className="linked"><Icon type="check-circle-o" style={{marginRight:'6px'}}/>已添加</span> */}
+                {this.state.hasHTTPPort ?
+                <span className="linked"><Icon type="check-circle-o" style={{marginRight:'6px'}}/>已添加</span> : 
+                <span className="links" onClick={() => this.goLinks('#ports')}><Icon type="plus-circle-o" style={{ marginRight: '6px' }} />去添加</span>}
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
@@ -192,8 +454,8 @@ class AppSettingsHttps extends Component {
               <div className="tabsBody">
                 <div className={this.state.tabsActive == 1 ? "tabs tabs-active" : 'tabs'}>
                   {/* 满足条件则不 提示 */}
-                  <Tooltip title="请先满足上边的设置条件"><Button size="large" disabled={!this.state.targeStatus} onClick={()=> this.setState({createModal: true})}><Icon type="plus" />新建</Button></Tooltip>
-                  {/* <Button size="large" type='primary' >重新上传</Button> */}
+                  <Tooltip title="请先满足上边的设置条件"><Button size="large" disabled={!this.state.setting && !this.state.modifying} onClick={()=> this.setState({createModal: true})}><Icon type="plus" />{this.state.certificateExists ? '重新上传' : '上传'}</Button></Tooltip>
+                  {this.state.certificateExists ? <Button size="large" onClick={()=> this.deleteCertificates()}>删除</Button> : null}
                   <div className="alertTips">Tips：使用自有的 ssl 证书则需要上传您的证书至该服务</div>
                 </div>
 
@@ -220,11 +482,45 @@ AppSettingsHttps.propTypes = {
   serviceName: PropTypes.string.isRequired
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
+  const { serviceName } = props
+  const {
+    serviceDetail,
+    k8sService,
+    certificates,
+  } = state.services
+  let deployment = {}
+  if (serviceDetail && serviceDetail[cluster.clusterID] && serviceDetail[cluster.clusterID][serviceName] && serviceDetail[cluster.clusterID][serviceName].isFetching === false) {
+    deployment = serviceDetail[cluster.clusterID][serviceName].service
+  }
+
+  let k8sServiceData = {}
+  if (k8sService && k8sService.isFetching === false && k8sService.data && k8sService.data[serviceName]) {
+    k8sServiceData = k8sService.data[serviceName]
+  }
+  let certificateExists = false
+  let certificate = {}
+  if (certificates && certificates.isFetching === false && certificates.result && certificates.result.statusCode === 200) {
+    certificateExists = true
+    certificate.startTime = 'starttime'
+    certificate.expireTime = 'expireTime'
+    certificate.data = certificates.result.data || 'testdata'
+  }
   return {
-    resourcePrice: cluster.resourcePrice
+    resourcePrice: cluster.resourcePrice,
+    k8sService: k8sServiceData,
+    deployment,
+    certificateExists,
+    certificate,
   }
 }
 
-export default connect(mapStateToProps)(AppSettingsHttps)
+export default connect(mapStateToProps, {
+  loadServiceDetail,
+  loadK8sService,
+  loadCertificates,
+  updateCertificates,
+  deleteCertificates,
+  toggleHTTPs,
+})(AppSettingsHttps)
