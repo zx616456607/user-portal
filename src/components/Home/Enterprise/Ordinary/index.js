@@ -20,6 +20,7 @@ import { parseAmount } from '../../../../common/tools'
 import homeMySQL from '../../../../assets/img/homeMySQL.png'
 import homeMongoCluster from '../../../../assets/img/homeMongoCluster.png'
 import homeRedis from '../../../../assets/img/homeRedis.png'
+import Footer from '../../Footer'
 
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -1184,6 +1185,7 @@ class Ordinary extends Component{
           </Col>
         </Row>
         <MySpace spaceName={spaceName} />
+        <Footer />
       </div>
     )
   }

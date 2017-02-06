@@ -14,6 +14,7 @@ import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
 import { loadTeamInfo } from '../../../../actions/overview_team'
 import { parseAmount } from '../../../../common/tools'
+import Footer from '../../Footer'
 
 function getOption(cost, rest) {
   return {
@@ -114,18 +115,18 @@ class Admin extends Component{
   constructor(props){
     super(props)
     this.state = {
-      
+
     }
   }
 
   componentWillMount() {
-    
+
   }
   componentDidMount(){
     const { loadTeamInfo } = this.props
     loadTeamInfo()
   }
-  
+
   render(){
     const { spaceName } = this.props
     const teamDetail = this.props.teamDetail
@@ -374,6 +375,7 @@ class Admin extends Component{
             </Card>
           </Col>
         </Row>
+        <Footer />
       </div>
     )
   }
