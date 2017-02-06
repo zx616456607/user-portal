@@ -8,6 +8,7 @@
 
 'use strict';
 
+const middlewares = require('../services/middlewares')
 const volumeController = require('../controllers/volume')
 const appController = require('../controllers/app_manage')
 const serviceController = require('../controllers/service_manage')
@@ -34,6 +35,7 @@ module.exports = function (Router) {
   const router = new Router({
     prefix: '/api/v2'
   })
+  router.use(middlewares.auth)
 
   // Storage
   router.get('/storage-pools/:pool/:cluster/volumes', volumeController.getVolumeListByPool)

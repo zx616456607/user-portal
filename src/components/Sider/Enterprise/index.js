@@ -62,7 +62,7 @@ function checkUrlOpenKeys(pathname) {
   }
 }
 
-class Slider extends Component {
+class Sider extends Component {
   constructor(props) {
     super(props)
     this.selectModel = this.selectModel.bind(this)
@@ -383,7 +383,7 @@ class Slider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              { /*role == ROLE_TEAM_ADMIN ? 
+              { /*role == ROLE_TEAM_ADMIN ?
                 [
                   <li onClick={this.selectModel.bind(this, 'cluster', '#cluster')} className={currentKey == 'cluster' ? 'selectedLi' : ''}>
                     <Tooltip placement='right' title='基础设施' getTooltipContainer={() => document.getElementById('siderTooltip')}>
@@ -738,4 +738,4 @@ export default connect(mapStateToProp, {
   getVolumeBindInfo,
   changeStorageDetail,
   // loadUserDetail,
-})(Slider)
+})(Sider)

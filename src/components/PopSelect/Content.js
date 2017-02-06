@@ -92,7 +92,7 @@ class PopSelect extends Component {
     const { list } = this.state
     let searchList = (
       list.length === 0 ?
-        <div className='loadingBox'>无匹配结果</div>
+        <div className='loadingBox'>结果为空</div>
         :
         list.map((item) => {
           return (
@@ -132,7 +132,7 @@ class PopSelect extends Component {
           </Input.Group>
         </div>
         <div>
-          <ul className="searchList" style={{ paddingLeft: '15px' }}>
+          <ul className="searchList" style={{ paddingLeft: '15px', paddingRight: '15px' }}>
             {searchList}
           </ul>
         </div>

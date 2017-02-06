@@ -60,7 +60,7 @@ export function filtEvents(events) {
         targetEvents.push(event)
         break
       case 'failedscheduling':
-        if (event.message.indexOf('PersisitentVolumeClaim is not bound') > -1) {
+        if (event.message.indexOf('PersistentVolumeClaim is not bound') > -1) {
           event.type == 'Normal'
           event.reason = 'Scheduling'
           event.message = '存储服务调度中...'

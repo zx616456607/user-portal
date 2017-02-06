@@ -213,8 +213,9 @@ class AppServiceDetail extends Component {
       containers,
       isContainersFetching,
       appName,
+      currentCluster,
       bindingDomains,
-      bindingIPs
+      bindingIPs,
     } = this.props
     const { activeTabKey, currentContainer } = this.state
     const httpsTabKey = '#https'
@@ -351,6 +352,7 @@ class AppServiceDetail extends Component {
                 <PortDetail
                   serviceName={service.metadata.name}
                   cluster={service.cluster}
+                  currentCluster={currentCluster}
                   container={containers[0]}
                   loading={isContainersFetching}
                   serviceDetailmodalShow={serviceDetailmodalShow}
@@ -458,6 +460,7 @@ function mapStateToProps(state, props) {
   return {
     cluster,
     statusWatchWs,
+    currentCluster: state.entities.current.cluster,
     bindingDomains: state.entities.current.cluster.bindingDomains,
     bindingIPs: state.entities.current.cluster.bindingIPs,
     serviceName,

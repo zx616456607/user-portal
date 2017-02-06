@@ -60,7 +60,7 @@ function checkUrlOpenKeys(pathname) {
   }
 }
 
-class Slider extends Component {
+class Sider extends Component {
   constructor(props) {
     super(props)
     this.selectModel = this.selectModel.bind(this)
@@ -817,4 +817,4 @@ export default connect(mapStateToProp, {
   changeUploadFileOptions: uploadFileOptions,
   getVolumeBindInfo,
   changeStorageDetail
-})(Slider)
+})(Sider)

@@ -131,13 +131,13 @@ app.use(compress({
 }))
 
 // Serve files from ./static
-const serve = require('koa-static')
+/*const serve = require('koa-static')
 const staticOpts = {}
 // Open cache in production mode
 if (global.CONFIG_PROD) {
   staticOpts.maxage = 1000 * 60 * 60 * 24 * 7 // 静态文件一周的缓存
 }
-app.use(serve(__dirname + '/static', staticOpts))
+app.use(serve(__dirname + '/static', staticOpts))*/
 
 // Website favicon
 const favicon = require('koa-favicon')
@@ -210,6 +210,32 @@ app.use(i18n.middleware)
   yield next
 })*/
 
+// For 404
+app.use(function* pageNotFound(next) {
+  yield next
+  if (404 != this.status) return
+
+  // we need to explicitly set 404 here
+  // so that koa doesn't assign 200 on body=
+  this.status = 404
+  switch (this.accepts('json', 'html')) {
+    case 'html':
+      // this.type = 'html'
+      // this.body = '<h3>Page Not Found</h3>'
+      this.redirect('/notfound')
+      break
+    case 'json':
+      this.body = {
+        statusCode: 404,
+        message: 'Page Not Found'
+      }
+      break
+    default:
+      this.type = 'text'
+      this.body = 'Page Not Found'
+  }
+})
+
 ////////////////////////////////////////////////////////////////////////////////
 //////////////// Only add routes for standard mode /////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -224,8 +250,6 @@ if (config.running_mode === constants.STANDARD_MODE) {
 // ~ No authentication required
 const noAuthRoutes = require('./routes/no_auth')
 app.use(noAuthRoutes(Router))
-// ~ Authentication required
-app.use(middlewares.auth)
 // For set user current config
 app.use(middlewares.setUserCurrentConfig)
 const indexRoutes = require('./routes')
@@ -233,28 +257,19 @@ app.use(indexRoutes(Router))
 const apiRoutes = require('./routes/api')
 app.use(apiRoutes(Router))
 
-// For 404
-app.use(function* pageNotFound(next) {
-  yield next
-  if (404 != this.status) return
-
-  // we need to explicitly set 404 here
-  // so that koa doesn't assign 200 on body=
-  this.status = 404
-  switch (this.accepts('json', 'html')) {
-    case 'html':
-      this.type = 'html'
-      this.body = '<h3>Page Not Found</h3>'
-      break
-    case 'json':
-      this.body = {
-        statusCode: 404,
-        message: 'Page Not Found'
-      }
-      break
-    default:
-      this.type = 'text'
-      this.body = 'Page Not Found'
+// Serve static files
+app.use(function* (next){
+  try {
+    const serveStatic = require('koa-serve-static')
+    const staticOpts = {}
+    // Open cache in production mode
+    if (global.CONFIG_PROD) {
+      staticOpts.maxAge = 1000 * 60 * 60 * 24 * 7 // 静态文件一周的缓存
+    }
+    yield serveStatic(__dirname + '/static', staticOpts)
+  } catch (error) {
+    this.status = 404
+    yield next
   }
 })
 

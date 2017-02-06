@@ -181,7 +181,7 @@ const MyComponent = React.createClass({
     }
     if (imageList.length === 0) {
       return (
-        <div style={{ lineHeight: '100px', height: '200px', paddingLeft: '30px' }}>您还没有镜像，去上传一个吧！</div>
+        <div style={{ lineHeight: '20px', height: '60px', paddingLeft: '30px' }}>您还没有私有镜像，去创建一个吧！</div>
       )
     }
     let items = imageList.map((item, index) => {
@@ -233,7 +233,7 @@ const MyComponent = React.createClass({
       <div className="imageList">
         {items}
         <Modal title="删除镜像操作" visible={this.state.delModal}
-          onOk={() => this.btnDeleteImage(item.name)} onCancel={() => this.setState({ delModal: false })}
+          onOk={() => this.btnDeleteImage()} onCancel={() => this.setState({ delModal: false })}
           >
           <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>您确定要删除镜像 {this.state.imageName}?</div>
         </Modal>
