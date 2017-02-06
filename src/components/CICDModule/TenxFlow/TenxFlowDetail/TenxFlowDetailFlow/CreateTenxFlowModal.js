@@ -881,6 +881,7 @@ let CreateTenxFlowModal = React.createClass({
       rules: [
         { message: '请输入 Dockerfile 地址' },
       ],
+      initialValue: 'Dockerfile',
     });
     const dockerFileNameProps = getFieldProps('dockerFileName', {
       rules: [

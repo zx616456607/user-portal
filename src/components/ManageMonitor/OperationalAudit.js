@@ -823,20 +823,20 @@ let MyComponent = React.createClass({
     let items = logList.map((item, index) => {
       return (
         <div className='logDetail' key={index}>
-          <div className='time commonTitle'>
+          <div className={standardFlag ? 'standardTime commonTitle' : 'time commonTitle'}>
             <span className='commonSpan'>
               <Tooltip placement="topLeft" title={formatDate(item.time)}>
                 <span>{formatDate(item.time)}</span>
               </Tooltip>
             </span>
           </div>
-          <div className='during commonTitle'>
+          <div className={standardFlag ? 'standardDuring commonTitle' : 'during commonTitle'}>
             <span className='commonSpan'>{duringTimeFormat(item.duration, scope)}</span>
           </div>
-          <div className='event commonTitle'>
+          <div className={standardFlag ? 'standardEvent commonTitle' : 'event commonTitle'}>
             <span className='commonSpan'>{operationalFormat(item.operationType, scope)}</span>
           </div>
-          <div className='obj commonTitle'>
+          <div className={standardFlag ? 'standardObj commonTitle' : 'obj commonTitle'}>
             <span className='objSpan' style={{ top: '5px' }}><FormattedMessage {...menusText.objType} />{resourceFormat(item.resourceType, scope)}</span>
             <span className='objSpan' style={{ top: '-2px' }}>
               <Tooltip placement="topLeft" title={formatResourceName(item.resourceName, item.resourceId)}>
@@ -844,20 +844,20 @@ let MyComponent = React.createClass({
               </Tooltip>
             </span>
           </div>
-          <div className='env commonTitle'>
+          {!standardFlag ? [<div className='env commonTitle'>
             <span className='commonSpan'>{item.namespace}</span>
-          </div>
-          <div className='cluster commonTitle'>
+          </div>] : null }
+          {!standardFlag ? [<div className='cluster commonTitle'>
             <span className='commonSpan'>
               <Tooltip placement="topLeft" title={item.clusterName}>
                 <span>{item.clusterName}</span>
               </Tooltip>
             </span>
-          </div>
-          <div className='status commonTitle'>
+          </div>] : null}
+          <div className={standardFlag ? 'standardStatus status commonTitle' : 'status commonTitle'}>
             <span className='commonSpan'>{statusFormat(item.status, scope, item.time)}</span>
           </div>
-          <div className='user commonTitle'>
+          <div className={standardFlag ? 'standardUser commonTitle' : 'user commonTitle'}>
             <i className='fa fa-user-o' />
             <span className='commonSpan'>{item.operator}</span>
             <div style={{ clear: 'both' }}></div>
@@ -1459,28 +1459,28 @@ class OperationalAudit extends Component {
           </div>
           <Card className='dataCard'>
             <div className='titleBox'>
-              <div className='time commonTitle'>
+              <div className={standardFlag ? 'standardTime commonTitle' : 'time commonTitle'}>
                 <FormattedMessage {...menusText.time} />
               </div>
-              <div className='during commonTitle'>
+              <div className={standardFlag ? 'standardDuring commonTitle' : 'during commonTitle'}>
                 <FormattedMessage {...menusText.during} />
               </div>
-              <div className='event commonTitle'>
+              <div className={standardFlag ? 'standardEvent commonTitle' : 'event commonTitle'}>
                 <FormattedMessage {...menusText.event} />
               </div>
-              <div className='obj commonTitle'>
+              <div className={standardFlag ? 'standardObj commonTitle' : 'obj commonTitle'}>
                 <FormattedMessage {...menusText.obj} />
               </div>
-              <div className='env commonTitle'>
+              {!standardFlag ? [<div className='env commonTitle'>
                 <FormattedMessage {...menusText.env} />
-              </div>
-              <div className='cluster commonTitle'>
+              </div>] : null }
+              {!standardFlag ? [<div className='cluster commonTitle'>
                 {standardFlag ? [<FormattedMessage {...menusText.areaTitle} key='areaTitle' />] : [<FormattedMessage {...menusText.clusterTitle} key='clusterTitle' />] }
-              </div>
-              <div className='status commonTitle'>
+              </div>] : null }
+              <div className={standardFlag ? 'standardStatus status commonTitle' : 'status commonTitle'}>
                 <FormattedMessage {...menusText.status} />
               </div>
-              <div className='user commonTitle'>
+              <div className={standardFlag ? 'standardUser commonTitle' : 'user commonTitle'}>
                 <FormattedMessage {...menusText.user} />
               </div>
               <div style={{ clear: 'both' }}></div>
