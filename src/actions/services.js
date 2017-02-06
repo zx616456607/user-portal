@@ -650,19 +650,20 @@ export const SERVICE_GET_CERTIFICATIES_REQUEST = 'SERVICE_GET_CERTIFICATIES_REQU
 export const SERVICE_GET_CERTIFICATIES_SUCCESS = 'SERVICE_GET_CERTIFICATIES_SUCCESS'
 export const SERVICE_GET_CERTIFICATIES_FAILURE = 'SERVICE_GET_CERTIFICATIES_FAILURE'
 
-function fetchCertificates(cluster, service) {
+function fetchCertificates(cluster, service,callback) {
   return {
     [FETCH_API]: {
       types: [SERVICE_GET_CERTIFICATIES_REQUEST, SERVICE_GET_CERTIFICATIES_SUCCESS, SERVICE_GET_CERTIFICATIES_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/certificates`,
       schema: {}
     },
+    callback
   }
 }
 
-export function loadCertificates(cluster, service) {
+export function loadCertificates(cluster, service, callback) {
   return (dispath, getState) => {
-    return dispath(fetchCertificates(cluster, service))
+    return dispath(fetchCertificates(cluster, service, callback))
   }
 }
 

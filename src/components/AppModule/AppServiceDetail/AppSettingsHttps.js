@@ -48,7 +48,8 @@ let UploadSslModal = React.createClass({
         return
       }
       const body = {
-        certificate: values.cert + '\n' + values.private,
+        certificate: values.cert,
+        private_key: values.private,
       }
       const {
         loadCertificates,
@@ -69,7 +70,11 @@ let UploadSslModal = React.createClass({
         },
         failed: {
           func: (err) => {
-            new NotificationHandler().error('上传证书失败，请重试')
+            let msg = ''
+            if (err.statusCode === 400) {
+              msg = '内容错误请重试'
+            }
+            new NotificationHandler().error('上传证书失败', msg)
           },
           isAsync: true
         }
@@ -148,19 +153,34 @@ class AppSettingsHttps extends Component {
     const { serviceName, cluster, loadK8sService, loadServiceDetail, loadCertificates } = this.props
     loadK8sService(cluster, serviceName)
     loadServiceDetail(cluster, serviceName)
-    loadCertificates(cluster, serviceName)
+    loadCertificates(cluster, serviceName, {
+      failed: {
+        func: (err) => {
+          if (err.statusCode !== 404) {
+            new NotificationHandler().error('获取证书失败')
+          }
+        },
+        isAsync: true
+      }
+    })
   }
   componentWillReceiveProps(nextProps) {
-    const { deployment, k8sService, certificateExists } = nextProps
-
+    const { deployment, k8sService, isCurrentTab } = nextProps
+    console.log('isCurrentTabisCurrentTab', this.props.isCurrentTab, isCurrentTab)
+    // get http port and binding domain info if reentry this tab
+    if (this.props.isCurrentTab === false && nextProps.isCurrentTab === true) {
+      const { serviceName, cluster, loadK8sService, loadServiceDetail } = this.props
+      loadK8sService(cluster, serviceName)
+      loadServiceDetail(cluster, serviceName)
+    }
     const hasHTTPPort = this.hasHTTPPort(k8sService, deployment)
     const hasBindingDomain = deployment && deployment.bindingDomains
     this.setState({ 
       hasBindingDomain: hasBindingDomain,
       hasHTTPPort: hasHTTPPort,
       targeStatus: hasBindingDomain && hasHTTPPort,
-      certificateExists: certificateExists,
     })
+
   }
   hasHTTPPort(k8sService, deployment) {
     if (k8sService && k8sService.metadata && k8sService.metadata.annotations && k8sService.metadata.annotations['tenxcloud.com/schemaPortname'] && deployment.bindingPort) {
