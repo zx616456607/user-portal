@@ -313,40 +313,36 @@ class TenxFlowDetailFlow extends Component {
           }
         })
       } else {
-        for(var i in self.state.buildingList) {
-          if (self.state.buildingList[i].buildId === data.results.stageBuildId) {
-            let notified = self.state.notified
-            let currentId = self.state.buildingList[i].stageId
-            if (notified && notified[currentId] === data.results.stageBuildId) {
-              break
-            }
-            let notification = new NotificationHandler()
-            let sname = ''
-            if (self.props && self.props.stageInfo) {
-              for (var j in self.props.stageInfo) {
-                if (self.props.stageInfo[j].metadata.id === currentId) {
-                  sname = `（self.props.stageInfo[j].metadata.name）`
-                }
-              }
-            }
-            notification.close()
-            if (data.results.buildStatus == 1) {
-              notification.error(`构建步骤${sname}执行失败`)
-            } else if (data.results.buildStatus == 0) {
-              notification.success(`构建步骤${sname}执行完成`)
-            } else {
-              break
-            }
-            if (!notified) {
-              notified = {}
-            }
-            notified[currentId] = data.results.stageBuildId
+        let lastBuilds = self.state.buildingList
+        let notified = self.state.notified || {} 
+        let notification = new NotificationHandler()
+        if (notified && notified[data.results.stageId] !== data.results.stageBuildId) {
+          //未提示过
+          if (data.results.buildStatus == 0 && 
+              lastBuilds[lastBuilds.length - 1].stageId === data.results.stageId &&
+              lastBuilds[lastBuilds.length - 1].buildId === data.results.stageBuildId) {
+            //最后一个stage构建完成时
+            notified[data.results.stageId] = data.results.stageBuildId
             self.setState({
               notified: notified
             })
-            break
+            notification.close()
+            notification.success(`构建完成`)
+          } else if (data.results.buildStatus == 1) {
+            //构建未成功时
+            for(var i in lastBuilds) {
+              if (lastBuilds[i].buildId === data.results.stageBuildId) {
+                notification.close()
+                notification.error(`构建失败`)
+                notified[data.results.stageId] = data.results.stageBuildId
+                self.setState({
+                  notified: notified
+                })
+                break
+              }
+            }
           }
-        }
+        } 
       }
       const { changeSingleState } = self.props
       changeSingleState(data.results)
