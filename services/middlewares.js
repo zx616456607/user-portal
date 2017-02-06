@@ -93,6 +93,14 @@ exports.verifyUser = function* (next) {
     }
     data.accountType = body.accountType
     data.accountID = accountID
+    // Login and bind wechat
+    if (body.action === 'bind') {
+      const Wechat = require('../3rd_account/wechat')
+      const wechat = new Wechat()
+      const access_token = yield wechat.initWechat()
+      const userInfo = yield wechat.getUserInfo(access_token, accountID)
+      data.accountDetail = JSON.stringify(userInfo)
+    }
   } else if ((!body.username && !body.email) || !body.password) {
     err = new Error('username(email), password are required.')
     err.status = 400
@@ -129,6 +137,14 @@ exports.verifyUser = function* (next) {
   try {
     result = yield api.users.createBy(['login'], null, data)
   } catch (err) {
+    if (body.accountType === 'wechat' && err.statusCode === 404) {
+      const Wechat = require('../3rd_account/wechat')
+      const wechat = new Wechat()
+      const access_token = yield wechat.initWechat()
+      const userInfo = yield wechat.getUserInfo(access_token, accountID)
+      err.message.accountDetail = userInfo
+      this.session.wechat_account_id = accountID // add back for bind wechat
+    }
     // Better handle error >= 500
     if (err.statusCode >= 500) {
       const returnError = new Error("服务异常，请联系管理员或者稍候重试")

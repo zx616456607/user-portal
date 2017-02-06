@@ -88,7 +88,8 @@ exports.checkWechatAuthStatus = function* () {
         message: 'scan_error'
       }
     }
-    this.session.wechat_account_id = Event.FromUserName
+    const accountID = Event.FromUserName
+    this.session.wechat_account_id = accountID
   } catch (error) {
     if (error.statusCode == 500 && error.message.error == "can't find ticket.") {
       resData = {
