@@ -14,8 +14,8 @@ import { Link } from 'react-router'
 import { loadServiceDetail, loadK8sService, loadCertificates, updateCertificates, deleteCertificates, toggleHTTPs } from '../../../actions/services'
 import NotificationHandler from '../../../common/notification_handler'
 import './style/AppSettingsHttps.less'
-const CERT_REGEX = /^-----BEGIN CERTIFICATE-----\n.+\n-----END CERTIFICATE-----$/
-const PRIVATE_KEY_REGEX = /^-----BEGIN RSA PRIVATE KEY-----\n.+\n-----END RSA PRIVATE KEY-----$/
+const CERT_REGEX = /^-----BEGIN CERTIFICATE-----\n(.+\n)+-----END CERTIFICATE-----$/
+const PRIVATE_KEY_REGEX = /^-----BEGIN RSA PRIVATE KEY-----\n(.+\n)+-----END RSA PRIVATE KEY-----$/
 
 const FormItem = Form.Item
 const createForm = Form.create
@@ -33,6 +33,7 @@ let UploadSslModal = React.createClass({
       callback([new Error('请输入证书内容')])
       return
     }
+    console.log(values)
     if (!CERT_REGEX.test(values)) {
       callback([new Error('证书格式错误')])
       return
@@ -61,6 +62,7 @@ let UploadSslModal = React.createClass({
         keyContent: values.private,
         createModal: false,
       })
+      new NotificationHandler().success('格式验证通过，请保存')
     })
   },
   render() {
@@ -86,9 +88,9 @@ let UploadSslModal = React.createClass({
       ],
     })
     return (
-      <Modal title="新建证书" visible={parentScope.state.createModal} className="createSslModal"
+      <Modal title={this.props.scope.state.certificateExists ? "更新证书" : "新建证书"} visible={parentScope.state.createModal} className="createSslModal"
         onOk={()=> this.handsubmit()} onCancel={()=> parentScope.setState({createModal: false})} 
-        okText="创建"
+        okText={this.props.scope.state.certificateExists ? "更新" : "创建"}
         >
         <Form horizontal>
           {/*<FormItem
@@ -125,7 +127,7 @@ class AppSettingsHttps extends Component {
       statusText: '关闭',
       targeStatus: false,
       createModal: false,
-      hasBindingDomain: false,
+      hasBindingDomainForHttp: false,
       hasHTTPPort: false,
       certificateExists: false,
       firstEntry: true,
@@ -159,44 +161,62 @@ class AppSettingsHttps extends Component {
       loadK8sService(cluster, serviceName)
       loadServiceDetail(cluster, serviceName)
     }
-    const hasHTTPPort = this.hasHTTPPort(k8sService, deployment)
-    const hasBindingDomain = deployment && deployment.bindingDomains
+    const hasHTTPPort = this.hasHTTPPort(k8sService)
+    const hasBindingDomainForHttp = this.hasBindingDomainForHttp(k8sService, deployment)
     this.setState({ 
-      hasBindingDomain: hasBindingDomain,
+      hasBindingDomainForHttp: hasBindingDomainForHttp,
       hasHTTPPort: hasHTTPPort,
-      targeStatus: hasBindingDomain && hasHTTPPort,
+      targeStatus: hasBindingDomainForHttp && hasHTTPPort,
       firstEntry: false,
     })
 
   }
-  hasHTTPPort(k8sService, deployment) {
-    if (k8sService && k8sService.metadata && k8sService.metadata.annotations && k8sService.metadata.annotations['tenxcloud.com/schemaPortname'] && deployment.bindingPort) {
-      let userPort = k8sService.metadata.annotations['tenxcloud.com/schemaPortname']
+  hasBindingDomainForHttp(k8sService, deployment) {
+    if (!this.hasHTTPPort(k8sService)) {
+      return false
+    }
+    const httpPorts = this.getHTTPPorts(k8sService)
+    if (deployment.bindingPort) {
       let bindingPorts = deployment.bindingPort.split(',')
-      let tmp = []
-      bindingPorts.map(port => {
-        const p = parseInt(port)
-        if (!isNaN(p)) {
-          tmp.push(p)
-        }
-      })
-      bindingPorts = tmp
-
-      userPort = userPort.split(',')
-      for (let item of userPort) {
-        const parts = item.split('/')
-        for (let port of bindingPorts) {
-          for (let portInService of k8sService.spec.ports) {
-            if (portInService.port === port) {
-              if (parts[0] === portInService.name && parts[1].toUpperCase() === "HTTP") {
-                return true
-              }
-            }
-          }
+      // check if binding port is a http port
+      for (let bindingPort of bindingPorts) {
+        const found = httpPorts.some((port) => {
+          return (parseInt(port) === parseInt(bindingPort))
+        })
+        if (found) {
+          return true
         }
       }
     }
     return false
+  }
+  getHTTPPorts(k8sService) {
+    let httpPorts = []
+    if (k8sService && k8sService.metadata && k8sService.metadata.annotations && k8sService.metadata.annotations['tenxcloud.com/schemaPortname']) {
+      let userPort = k8sService.metadata.annotations['tenxcloud.com/schemaPortname']
+
+      userPort = userPort.split(',')
+      let httpPortNames = []
+      for (let item of userPort) {
+        const parts = item.split('/')
+        if (parts[1].toUpperCase() === "HTTP") {
+          httpPortNames.push(parts[0])
+        }
+      }
+
+      for (let portName of httpPortNames) {
+        for (let portInfo of k8sService.spec.ports) {
+          if (portName === portInfo.name) {
+            httpPorts.push(portInfo.port)
+          }
+        }
+      }
+    }
+    return httpPorts
+  }
+  hasHTTPPort(k8sService) {
+    const httpPorts = this.getHTTPPorts(k8sService)
+    return httpPorts.length !== 0
   }
   modifyHttps() {
     this.setState({ modifying: true })
@@ -426,14 +446,6 @@ class AppSettingsHttps extends Component {
           <div className="info commonBox">
             <div className="titleSpan">设置条件</div>
             <div className="setting">
-              <div className="commonTitle">是否绑定域名&nbsp;&nbsp;
-                <Tooltip title="请在绑定域名中添加"><Icon type="question-circle-o" /></Tooltip>
-              </div>
-              <div className="commonTitle">
-                {this.state.hasBindingDomain ?
-                <span className="linked"><Icon type="check-circle-o" style={{marginRight:'6px'}}/>已绑定</span> : 
-                <span className="links" onClick={() => this.goLinks('#binddomain')}><Icon type="link" style={{ marginRight: '6px' }} />去绑定</span>}
-              </div>
               <div className="commonTitle">是否已有http端口&nbsp;&nbsp;
                 <Tooltip title="请在端口中添加"><Icon type="question-circle-o" /></Tooltip>
               </div>
@@ -441,6 +453,14 @@ class AppSettingsHttps extends Component {
                 {this.state.hasHTTPPort ?
                 <span className="linked"><Icon type="check-circle-o" style={{marginRight:'6px'}}/>已添加</span> : 
                 <span className="links" onClick={() => this.goLinks('#ports')}><Icon type="plus-circle-o" style={{ marginRight: '6px' }} />去添加</span>}
+              </div>
+              <div className="commonTitle">是否在http端口绑定域名&nbsp;&nbsp;
+                <Tooltip title="请在绑定域名中添加"><Icon type="question-circle-o" /></Tooltip>
+              </div>
+              <div className="commonTitle">
+                {this.state.hasBindingDomainForHttp ?
+                <span className="linked"><Icon type="check-circle-o" style={{marginRight:'6px'}}/>已绑定</span> : 
+                <span className="links" onClick={() => this.goLinks('#binddomain')}><Icon type="link" style={{ marginRight: '6px' }} />去绑定</span>}
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
@@ -454,7 +474,7 @@ class AppSettingsHttps extends Component {
               <div className="tabsBody">
                 <div className={this.state.tabsActive == 1 ? "tabs tabs-active" : 'tabs'}>
                   {/* 满足条件则不 提示 */}
-                  <Tooltip title="请先满足上边的设置条件"><Button size="large" disabled={!this.state.setting && !this.state.modifying} onClick={()=> this.setState({createModal: true})}><Icon type="plus" />{this.state.certificateExists ? '重新上传' : '上传'}</Button></Tooltip>
+                  <Tooltip title="请先满足上边的设置条件"><Button size="large" disabled={!this.state.setting && !this.state.modifying} onClick={()=> this.setState({createModal: true})}><Icon type="plus" />{this.state.certificateExists ? '更新' : '新建'}</Button></Tooltip>
                   {this.state.certificateExists ? <Button size="large" onClick={()=> this.deleteCertificates()}>删除</Button> : null}
                   <div className="alertTips">Tips：使用自有的 ssl 证书则需要上传您的证书至该服务</div>
                 </div>
