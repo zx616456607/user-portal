@@ -156,6 +156,8 @@ class BaseInfo extends Component {
     let containerPrc = parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
     const hourPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ), 4)
     const countPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc) * 24 * 30 , 4)
+    const showHourPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * this.props.currentData.desired +  this.props.currentData.desired * containerPrc), 4)
+    const showCountPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * this.props.currentData.desired +  this.props.currentData.desired * containerPrc) * 24 * 30, 4)
     storagePrc = parseAmount(storagePrc, 4)
     containerPrc = parseAmount(containerPrc, 4)
     let domain = ''
@@ -240,12 +242,10 @@ class BaseInfo extends Component {
             <span className='listLink'>
               {externalUrl}
             </span>
-            <Tooltip title={this.state.copySuccess ? '复制成功' : '点击复制'}>
-              <svg style={{width:'50px', height:'16px',verticalAlign:'middle'}} onClick={()=> this.copyDownloadCode()} onMouseLeave={()=> this.returnDefaultTooltip()}>
-                <use xlinkHref='#appcentercopy' style={{fill: '#2db7f5'}}/>
-              </svg>
+            <Tooltip placement='top' title={this.state.copySuccess ? '复制成功' : '点击复制'}>
+              <Icon type="copy" style={{color:'#2db7f5',cursor:'pointer',marginLeft: '5px'}} onClick={()=> this.copyDownloadCode()} onMouseLeave={()=> this.returnDefaultTooltip()}/>
             </Tooltip>
-            <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {externalPort != ''? databaseInfo.serviceInfo.name + '-' + databaseInfo.serviceInfo.namespace + '.' + domain + ':' + externalPort : '-'}/>
+            <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {externalUrl}/>
           </div>
           <div className='configList'><span className='listKey'>副本数：</span>{this.props.currentData.pending + this.props.currentData.running}/{this.props.currentData.desired}个</div>
           {this.props.database == 'mysql' ?
@@ -280,7 +280,7 @@ class BaseInfo extends Component {
             <p><Icon type="hdd" /> 存储：<span className="unit">{ storagePrc.fullAmount }/（GB*小时）</span> * {databaseInfo.podInfo.desired}个</p>
           </div>
           <div className="countPrice">
-            合计价格：<span className="unit">{hourPrice.unit =='￥' ? '￥': ''}</span><span className="unit blod">{hourPrice.amount}{hourPrice.unit =='￥' ? '': 'T'}/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：{countPrice.fullAmount}/月）</span>
+            合计价格：<span className="unit">{hourPrice.unit =='￥' ? '￥': ''}</span><span className="unit blod">{showHourPrice.amount}{hourPrice.unit =='￥' ? '': 'T'}/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：{showCountPrice.fullAmount}/月）</span>
           </div>
         </div>
 
@@ -419,7 +419,7 @@ class ModalDetail extends Component {
     })
   }
   handSave() {
-    const {putDbClusterDetail, cluster, dbName, loadDbCacheList} = this.props
+    const {putDbClusterDetail, cluster, dbName, loadDbCacheList, loadDbClusterDetail} = this.props
     const parentScope = this.props.scope
     const _this = this
     const notification = new NotificationHandler()
@@ -432,6 +432,16 @@ class ModalDetail extends Component {
           parentScope.setState({ detailModal: false })
           _this.setState({putModaling: false})
           loadDbCacheList(cluster, this.props.database)
+          loadDbClusterDetail(cluster, dbName, {
+            success: {
+              func: (res) => {
+                parentScope.setState({
+                  replicas: res.database.podInfo.desired,
+                  storageValue: parseInt(res.database.volumeInfo.size)
+                })
+              }
+            }
+          });
         },
         isAsync: true
       },
@@ -468,7 +478,7 @@ class ModalDetail extends Component {
     if (databaseInfo) {
       if (databaseInfo.podInfo.pending > 0){
         statusClass = 'stop'
-        statusText = '启动中'
+        statusText = '已停止'
       } else if (databaseInfo.podInfo.failed > 0) {
         statusClass = 'error'
         statusText = '发生错误'
@@ -504,7 +514,7 @@ class ModalDetail extends Component {
               {databaseInfo.serviceInfo.name}
             </p>
             <div className='leftBox TenxStatus'>
-              <div className="desc">{databaseInfo.serviceInfo.name}/{databaseInfo.serviceInfo.namespace}</div>
+              <div className="desc">{databaseInfo.serviceInfo.namespace} / {databaseInfo.serviceInfo.name}</div>
               <div> 状态：
               <span className={statusClass} style={{top:'0'}}> <i className="fa fa-circle"></i> {statusText} </span>
               </div>
