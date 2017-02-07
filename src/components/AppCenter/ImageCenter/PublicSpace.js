@@ -50,7 +50,7 @@ const menusText = defineMessages({
   },
   tooltips: {
     id: 'AppCenter.ImageCenter.PublicSpace.tooltips',
-    defaultMessage: '公共镜像 —— 企业成员可以将在镜像空间内设置的私有镜像，一键开放为企业所有人可见的公共镜像，可以实现跨团队，共享容器镜像服务，实现企业内部高效开发协作的容器镜像PaaS平台。',
+    defaultMessage: '公共镜像 —— 企业成员可以将私有空间内的私有镜像，一键开放为对所有人可见的公共镜像，实现跨团队共享容器镜像服务，建立企业内部高效开发协作的容器镜像PaaS平台。',
   },
   noData: {
     id: 'AppCenter.ImageCenter.OtherSpace.noData',

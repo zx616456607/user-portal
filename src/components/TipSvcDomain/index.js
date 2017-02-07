@@ -65,7 +65,6 @@ class AppTip extends Component {
   }
   startCopyCode(url) {
     //this function for copy code to input
-    const { scope } = this.props;
     let code = document.getElementsByClassName('privateCodeInput');
     for(let index = 0; index < code.length; index++) {
       code[index].value = url.domain;
