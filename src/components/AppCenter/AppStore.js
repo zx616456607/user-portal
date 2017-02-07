@@ -65,7 +65,7 @@ const MyComponent = React.createClass({
               return (
                 <Card className="imageDetail" key={imageDetail.name}>
                   <div className="imgBox" onClick={()=>this.showDetail(imageDetail.id)}>
-                    <img className={imageDetail.name.split(' ')[0]} src={`${imageDetail.imageUrl}?_=${TIMESTRAP}`} />
+                    <img src={`${imageDetail.imageUrl}?_=${TIMESTRAP}`} />
                   </div>
                   <div className="intro">
                     <span className="span7 textoverflow">{imageDetail.name}</span>

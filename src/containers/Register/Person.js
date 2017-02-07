@@ -131,7 +131,7 @@ let Person = React.createClass({
       return
     }
     if (!USERNAME_REG_EXP_NEW.test(value)) {
-      callback([new Error('以[a~z]开头，允许[0~9]、[-]，长度5~40个字符')])
+      callback([new Error('以[a~z]开头，允许[0~9]、[-]，且以小写英文和数字结尾')])
       return
     }
     callback()

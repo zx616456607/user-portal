@@ -105,7 +105,10 @@ let AppAddServiceModal = React.createClass({
   },
   componentWillMount() {
     document.title = '添加应用 | 时速云'
-    const { registry, publicFilterServer, unit} = this.props
+    const { registry, unit} = this.props
+    setTimeout(function() {
+      document.getElementById('soImageName').focus()
+    }, 100);
     if (unit == '￥') {
       this.props.publicImages(registry, 'all')
       return

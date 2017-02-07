@@ -17,7 +17,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import NotificationHandler from '../../../common/notification_handler'
 // import { loadUserDetail } from '../../../actions/user'
-import { ROLE_USER, ROLE_TEAM_ADMIN } from '../../../../constants'
+import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import logoPNG from '../../../assets/img/sider/logo.png'
 
 const SubMenu = Menu.SubMenu
@@ -383,7 +383,7 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              { /*role == ROLE_TEAM_ADMIN ?
+              { /*(role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) ?
                 [
                   <li onClick={this.selectModel.bind(this, 'cluster', '#cluster')} className={currentKey == 'cluster' ? 'selectedLi' : ''}>
                     <Tooltip placement='right' title='基础设施' getTooltipContainer={() => document.getElementById('siderTooltip')}>
@@ -608,14 +608,14 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 我的帐户</span>
                     </Link>
                   </Menu.Item>
-                  { role == ROLE_TEAM_ADMIN ?
+                  { (role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) ?
                   <Menu.Item key='member'>
                     <Link to='/account/member'>
                       <span><div className='sideCircle'></div> 成员管理</span>
                     </Link>
                   </Menu.Item> : <div></div>
                   }
-                  { role == ROLE_TEAM_ADMIN ?
+                  { (role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) ?
                   <Menu.Item key='team'>
                     <Link to='/account/team'>
                       <span><div className='sideCircle'></div> 团队管理</span>
@@ -673,7 +673,7 @@ class Sider extends Component {
                   </Menu.Item>*/}
                   <div className='sline'></div>
                 </SubMenu>
-                { /*role == ROLE_TEAM_ADMIN ?
+                { /*(role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) ?
                   [<Menu.Item key='cluster'>
                     <Link to='/cluster'>
                       <span>
