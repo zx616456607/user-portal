@@ -197,20 +197,20 @@ class AppDetail extends Component {
                     <FormItem hasFeedback style={{ marginBottom: '0px'}}>
                       描述：
                       {this.state.editDesc ? null :
-                        <Button style={{ float: 'right', top: '-8px' }} onClick={() => this.setState({editDesc:true})} disabled={this.state.editDesc}>
-                          <Icon type="edit" />&nbsp;编辑
+                        <Button size="default" type="ghost" style={{ float: 'right', top: '-8px' }} onClick={() => this.setState({editDesc:true})} disabled={this.state.editDesc}>
+                          <Icon type="edit" />编辑
                         </Button>}
                       <br/>
-                      <Input size="large"
+                      <Input
+                        type="textarea"
                         placeholder="请输入应用描述"
-                        autoComplete="off"
                         {...descProps}
                         disabled={!this.state.editDesc}/>
                       {this.state.editDesc ?
                         <div className="editInfo">
                           <div style={{ lineHeight: '50px' }} className="text-center">
-                            <Button size="large" type="ghost" style={{ marginRight: '10px' }} onClick={() => this.cancelEdit()}>取消</Button>
-                            <Button size="large" type="primary" onClick={() => this.modifyDesc()}>确定</Button>
+                            <Button type="ghost" style={{ marginRight: '10px' }} onClick={() => this.cancelEdit()}>取消</Button>
+                            <Button type="primary" onClick={() => this.modifyDesc()}>确定</Button>
                           </div>
                         </div>: null}
                     </FormItem>

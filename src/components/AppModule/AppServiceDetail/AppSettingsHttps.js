@@ -14,8 +14,7 @@ import { Link } from 'react-router'
 import { loadServiceDetail, loadK8sService, loadCertificates, updateCertificates, deleteCertificates, toggleHTTPs } from '../../../actions/services'
 import NotificationHandler from '../../../common/notification_handler'
 import './style/AppSettingsHttps.less'
-const CERT_REGEX = /^-----BEGIN CERTIFICATE-----\n.+\n-----END CERTIFICATE-----$/
-const PRIVATE_KEY_REGEX = /^-----BEGIN RSA PRIVATE KEY-----\n.+\n-----END RSA PRIVATE KEY-----$/
+import { CERT_REGEX, PRIVATE_KEY_REGEX, ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_HTTPS } from '../../../../constants'
 
 const FormItem = Form.Item
 const createForm = Form.create
@@ -60,7 +59,9 @@ let UploadSslModal = React.createClass({
         certContent: values.cert,
         keyContent: values.private,
         createModal: false,
+        modified: true
       })
+      new NotificationHandler().success('格式验证通过，请保存')
     })
   },
   render() {
@@ -86,9 +87,9 @@ let UploadSslModal = React.createClass({
       ],
     })
     return (
-      <Modal title="新建证书" visible={parentScope.state.createModal} className="createSslModal"
+      <Modal title={this.props.scope.state.certificateExists ? "更新证书" : "新建证书"} visible={parentScope.state.createModal} className="createSslModal"
         onOk={()=> this.handsubmit()} onCancel={()=> parentScope.setState({createModal: false})} 
-        okText="创建"
+        okText={this.props.scope.state.certificateExists ? "更新" : "创建"}
         >
         <Form horizontal>
           {/*<FormItem
@@ -125,9 +126,11 @@ class AppSettingsHttps extends Component {
       statusText: '关闭',
       targeStatus: false,
       createModal: false,
-      hasBindingDomain: false,
+      hasBindingDomainForHttp: false,
+      detailModal: false,
       hasHTTPPort: false,
       certificateExists: false,
+      modified: false,
       firstEntry: true,
       setting: false,
       modifying: false,
@@ -140,7 +143,13 @@ class AppSettingsHttps extends Component {
     const { serviceName, cluster, loadK8sService, loadServiceDetail, loadCertificates } = this.props
     loadK8sService(cluster, serviceName)
     loadServiceDetail(cluster, serviceName)
+    const _this = this
     loadCertificates(cluster, serviceName, {
+      success: {
+        func: () => {
+          _this.setState({certificateExists: true})
+        }
+      },
       failed: {
         func: (err) => {
           if (err.statusCode !== 404) {
@@ -152,51 +161,71 @@ class AppSettingsHttps extends Component {
     })
   }
   componentWillReceiveProps(nextProps) {
-    const { deployment, k8sService, isCurrentTab } = nextProps
+    const { deployment, k8sService, isCurrentTab, certificateExists } = nextProps
     // get http port and binding domain info if reentry this tab
     if (this.props.isCurrentTab === false && nextProps.isCurrentTab === true) {
       const { serviceName, cluster, loadK8sService, loadServiceDetail } = this.props
       loadK8sService(cluster, serviceName)
       loadServiceDetail(cluster, serviceName)
     }
-    const hasHTTPPort = this.hasHTTPPort(k8sService, deployment)
-    const hasBindingDomain = deployment && deployment.bindingDomains
+    const hasHTTPPort = this.hasHTTPPort(k8sService)
+    const hasBindingDomainForHttp = this.hasBindingDomainForHttp(k8sService, deployment)
     this.setState({ 
-      hasBindingDomain: hasBindingDomain,
+      hasBindingDomainForHttp: hasBindingDomainForHttp,
       hasHTTPPort: hasHTTPPort,
-      targeStatus: hasBindingDomain && hasHTTPPort,
+      targeStatus: hasBindingDomainForHttp && hasHTTPPort,
       firstEntry: false,
+      certificateExists: certificateExists,
     })
-
+    this.setHttpsSwitchState(k8sService)
+    
   }
-  hasHTTPPort(k8sService, deployment) {
-    if (k8sService && k8sService.metadata && k8sService.metadata.annotations && k8sService.metadata.annotations['tenxcloud.com/schemaPortname'] && deployment.bindingPort) {
-      let userPort = k8sService.metadata.annotations['tenxcloud.com/schemaPortname']
+  hasBindingDomainForHttp(k8sService, deployment) {
+    if (!this.hasHTTPPort(k8sService)) {
+      return false
+    }
+    const httpPorts = this.getHTTPPorts(k8sService)
+    if (deployment.bindingPort) {
       let bindingPorts = deployment.bindingPort.split(',')
-      let tmp = []
-      bindingPorts.map(port => {
-        const p = parseInt(port)
-        if (!isNaN(p)) {
-          tmp.push(p)
-        }
-      })
-      bindingPorts = tmp
-
-      userPort = userPort.split(',')
-      for (let item of userPort) {
-        const parts = item.split('/')
-        for (let port of bindingPorts) {
-          for (let portInService of k8sService.spec.ports) {
-            if (portInService.port === port) {
-              if (parts[0] === portInService.name && parts[1].toUpperCase() === "HTTP") {
-                return true
-              }
-            }
-          }
+      // check if binding port is a http port
+      for (let bindingPort of bindingPorts) {
+        const found = httpPorts.some((port) => {
+          return (parseInt(port) === parseInt(bindingPort))
+        })
+        if (found) {
+          return true
         }
       }
     }
     return false
+  }
+  getHTTPPorts(k8sService) {
+    let httpPorts = []
+    if (k8sService && k8sService.metadata && k8sService.metadata.annotations && k8sService.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]) {
+      let userPort = k8sService.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
+
+      userPort = userPort.split(',')
+      let httpPortNames = []
+      for (let item of userPort) {
+        const parts = item.split('/')
+        if (parts[1].toUpperCase() === "HTTP") {
+          httpPortNames.push(parts[0])
+        }
+      }
+
+      for (let portName of httpPortNames) {
+        for (let portInfo of k8sService.spec.ports) {
+          if (portName === portInfo.name) {
+            httpPorts.push(portInfo.port)
+          }
+        }
+      }
+    }
+    return httpPorts
+  }
+  hasHTTPPort(k8sService) {
+    const httpPorts = this.getHTTPPorts(k8sService)
+    return httpPorts.length !== 0
   }
   modifyHttps() {
     this.setState({ modifying: true })
@@ -236,13 +265,10 @@ class AppSettingsHttps extends Component {
     // setting ports || binddomain
     this.props.scope.setState({ activeTabKey: key })
   }
-  setHttpsSwitchState() {
-    const {
-      k8sService,
-    } = this.props
+  setHttpsSwitchState(k8sService) {
     let isOpen = false
     if (k8sService && k8sService.metadata && k8sService.metadata.annotations
-      && k8sService.metadata.annotations['tenxcloud.com/https'] && k8sService.metadata.annotations['tenxcloud.com/https'] == true) {
+      && k8sService.metadata.annotations[ANNOTATION_HTTPS] && k8sService.metadata.annotations[ANNOTATION_HTTPS] === 'true') {
       isOpen = true
       this.setState({
         httpsOpened: isOpen,
@@ -279,6 +305,7 @@ class AppSettingsHttps extends Component {
             modifying: false,
           })
           loadCertificates(cluster, serviceName)
+          new NotificationHandler().success('证书更新成功')
         },
         isAsync: true
       },
@@ -304,7 +331,6 @@ class AppSettingsHttps extends Component {
       )
     }
     else {
-      this.setHttpsSwitchState()
       return (
         <span>
           {/*svg ><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#settingsIcon"></use></svg>*/}
@@ -324,12 +350,16 @@ class AppSettingsHttps extends Component {
       deleteCertificates,
       cluster,
       serviceName,
+      loadCertificates,
     } = this.props
     deleteCertificates(cluster, serviceName, {
       success: {
         func: () => {
-          this.setState({
-            certificateExists: false,
+          loadCertificates(cluster, serviceName, {
+            failed: {
+              func: (err) => {/* do nothing, just catch the error */},
+              isAsync: true
+            }            
           })
           new NotificationHandler().success('删除证书成功')
         },
@@ -347,14 +377,19 @@ class AppSettingsHttps extends Component {
     const {
       certContent,
       keyContent,
+      certificateExists,
+      modified,
     } = this.state
-    if (!CERT_REGEX.test(certContent)) {
-      new NotificationHandler().error('操作失败', '证书格式错误，请修改后重试')
-      return
-    }
-    if (!PRIVATE_KEY_REGEX.test(keyContent)) {
-      new NotificationHandler().error('操作失败', '密钥格式错误，请修改后重试')
-      return
+    // 证书存在时且没有更新时，前端无法取得密钥内容，所以不进行格式验证
+    if (!certificateExists || modified) {
+      if (!CERT_REGEX.test(certContent)) {
+        new NotificationHandler().error('操作失败', '证书格式错误，请修改后重试')
+        return
+      }
+      if (!PRIVATE_KEY_REGEX.test(keyContent)) {
+        new NotificationHandler().error('操作失败', '密钥格式错误，请修改后重试')
+        return
+      }
     }
     const {
       cluster,
@@ -367,11 +402,17 @@ class AppSettingsHttps extends Component {
       private_key: keyContent,
     }
     return new Promise((resolve, reject) => {
+      // 已存在并且没有修改表示不需要更新证书只需要开启HTTPS
+      if (certificateExists && !modified) {
+        resolve()
+        return
+      }
       updateCertificates(cluster, serviceName, body, {
         success: {
           func: () => {
             this.setState({
               certificateExists: true,
+              modified: false,
             })
             loadCertificates(cluster, serviceName)
             resolve()
@@ -399,7 +440,7 @@ class AppSettingsHttps extends Component {
                 httpsOpened: true,
                 setting: false,
               })
-              new NotificationHandler().success('操作成功')
+              new NotificationHandler().success('HTTPS开启成功')
               resolve()
             },
             isAsync: true
@@ -416,6 +457,23 @@ class AppSettingsHttps extends Component {
     })
   }
   render() {
+    let  tipText = "请先满足上边的设置条件", disableUploadBtn = true
+    if ((this.state.setting || this.state.modifying) && (this.state.hasHTTPPort && this.state.hasBindingDomainForHttp)) {
+      tipText = ''
+    }
+    else if (!this.state.httpsOpened && !this.state.setting) {
+      tipText = '请点击切换开关'
+    }
+    else if (this.state.httpsOpened && !this.state.modifying) {
+      tipText = '请点击齿轮图标'
+    }
+    if (this.state.setting || this.state.modifying) {
+      disableUploadBtn = false
+    }
+    const formItemLayout = {
+      labelCol: { span: 4 },
+      wrapperCol: { span: 20 },
+    };
     return (
       <div id="settingsHttps">
         <div className="topHead">
@@ -426,14 +484,6 @@ class AppSettingsHttps extends Component {
           <div className="info commonBox">
             <div className="titleSpan">设置条件</div>
             <div className="setting">
-              <div className="commonTitle">是否绑定域名&nbsp;&nbsp;
-                <Tooltip title="请在绑定域名中添加"><Icon type="question-circle-o" /></Tooltip>
-              </div>
-              <div className="commonTitle">
-                {this.state.hasBindingDomain ?
-                <span className="linked"><Icon type="check-circle-o" style={{marginRight:'6px'}}/>已绑定</span> : 
-                <span className="links" onClick={() => this.goLinks('#binddomain')}><Icon type="link" style={{ marginRight: '6px' }} />去绑定</span>}
-              </div>
               <div className="commonTitle">是否已有http端口&nbsp;&nbsp;
                 <Tooltip title="请在端口中添加"><Icon type="question-circle-o" /></Tooltip>
               </div>
@@ -441,6 +491,14 @@ class AppSettingsHttps extends Component {
                 {this.state.hasHTTPPort ?
                 <span className="linked"><Icon type="check-circle-o" style={{marginRight:'6px'}}/>已添加</span> : 
                 <span className="links" onClick={() => this.goLinks('#ports')}><Icon type="plus-circle-o" style={{ marginRight: '6px' }} />去添加</span>}
+              </div>
+              <div className="commonTitle">是否在http端口绑定域名&nbsp;&nbsp;
+                <Tooltip title="请在绑定域名中添加"><Icon type="question-circle-o" /></Tooltip>
+              </div>
+              <div className="commonTitle">
+                {this.state.hasBindingDomainForHttp ?
+                <span className="linked"><Icon type="check-circle-o" style={{marginRight:'6px'}}/>已绑定</span> : 
+                <span className="links" onClick={() => this.goLinks('#binddomain')}><Icon type="link" style={{ marginRight: '6px' }} />去绑定</span>}
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
@@ -453,10 +511,32 @@ class AppSettingsHttps extends Component {
               </div>
               <div className="tabsBody">
                 <div className={this.state.tabsActive == 1 ? "tabs tabs-active" : 'tabs'}>
-                  {/* 满足条件则不 提示 */}
-                  <Tooltip title="请先满足上边的设置条件"><Button size="large" disabled={!this.state.setting && !this.state.modifying} onClick={()=> this.setState({createModal: true})}><Icon type="plus" />{this.state.certificateExists ? '重新上传' : '上传'}</Button></Tooltip>
-                  {this.state.certificateExists ? <Button size="large" onClick={()=> this.deleteCertificates()}>删除</Button> : null}
-                  <div className="alertTips">Tips：使用自有的 ssl 证书则需要上传您的证书至该服务</div>
+                  <Tooltip title={ tipText }><Button size="large" disabled={disableUploadBtn} onClick={()=> this.setState({createModal: true})}><Icon type="plus" />{this.state.certificateExists ? '更新' : '新建'}</Button></Tooltip>
+                  {this.state.certificateExists ? 
+                    [<div className="ant-table">
+                      <table className="certificateTable">
+                        <thead>
+                          <tr>
+                            <th>名称</th>
+                            <th>类型</th>
+                            <th>开启时间</th>
+                            <th>过期时间</th>
+                            <th>操作</th>
+                          </tr>
+                        </thead>
+                        <tr>
+                          <td><a onClick={()=> this.setState({detailModal: true})}>{this.props.serviceName}</a></td>
+                          <td>服务器证书</td>
+                          <td>{this.props.certificate.startTime}</td>
+                          <td>{this.props.certificate.expireTime}</td>
+                          <td> <span><Icon onClick={()=> this.deleteCertificates()} type="delete" /></span></td>
+                        </tr>
+                      </table>
+                      <br/>
+                    </div>]
+                  :
+                    <div className="alertTips">Tips：使用自有的 ssl 证书则需要上传您的证书至该服务</div>
+                  }
                 </div>
 
                 <div className={this.state.tabsActive == 2 ? "tabs tabs-active" : 'tabs'}>
@@ -470,7 +550,29 @@ class AppSettingsHttps extends Component {
         </Card>
         {/* 新建证书 */}
         <UploadSslModal scope={this} />
-
+        {/* 证书详情 */}
+        <Modal title="证书详情" visible={this.state.detailModal} className="createSslModal"
+        onCancel={()=> this.setState({detailModal: false})} 
+        footer={<Button type="primary" onClick={()=> this.setState({detailModal: false})} >知道了</Button>}
+        >
+        <Form horizontal>
+          <FormItem {...formItemLayout} label="证书名称">
+            <span>{this.props.serviceName}</span>
+          </FormItem>
+          <FormItem {...formItemLayout} label="证书类型">
+            <span>服务器证书</span>
+          </FormItem>
+          <FormItem {...formItemLayout} label="证书内容">
+            <Input type="textarea" value={this.props.certificate.pem}/>
+          </FormItem>
+          <FormItem {...formItemLayout} label="启用时间">
+            {this.props.certificate.startTime}
+          </FormItem>
+          <FormItem {...formItemLayout} label="过期时间">
+            {this.props.certificate.expireTime}
+          </FormItem>
+        </Form>
+      </Modal>
         <div className="notice">注：HTTPS启动，则停止原有的HTTP服务</div>
       </div>
     )
@@ -501,11 +603,11 @@ function mapStateToProps(state, props) {
   }
   let certificateExists = false
   let certificate = {}
-  if (certificates && certificates.isFetching === false && certificates.result && certificates.result.statusCode === 200) {
+  if (certificates && certificates.isFetching === false && certificates.result && certificates.result.data && certificates.result.statusCode === 200) {
     certificateExists = true
-    certificate.startTime = 'starttime'
-    certificate.expireTime = 'expireTime'
-    certificate.data = certificates.result.data || 'testdata'
+    certificate.startTime = certificates.result.data.certificate.starttime || ''
+    certificate.expireTime = certificates.result.data.certificate.endtime || ''
+    certificate.pem = certificates.result.data.pem || ''
   }
   return {
     resourcePrice: cluster.resourcePrice,

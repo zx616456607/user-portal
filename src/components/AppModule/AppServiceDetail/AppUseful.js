@@ -262,9 +262,11 @@ class AppUseful extends Component {
       <div id="AppUseful">
         <div className="operaBox">
           <span>设置高可用</span>
-          <Switch value={this.state.currentUseful} className="switch" defaultChecked={this.state.currentUseful} onChange={this.changeCheckType} disabled={this.state.switchDisable} />
-          <span className="status">{this.state.currentUseful ? "已开启" : "已关闭"}</span>
-          <span className="tips">{this.state.haveRBDVolume ? "（因挂载存储卷，不能进行滚动更新，服务可能会有短暂不可用时间！）" : ""}</span>
+          <span style={{ float: 'right' }}>
+            <Switch value={this.state.currentUseful} className="switch" defaultChecked={this.state.currentUseful} onChange={this.changeCheckType} disabled={this.state.switchDisable} />
+            <span className="status">{this.state.currentUseful ? "已开启" : "已关闭"}</span>
+            <span className="tips">{this.state.haveRBDVolume ? "（因挂载存储卷，不能进行滚动更新，服务可能会有短暂不可用时间！）" : ""}</span>
+          </span>
         </div>
         <div className="settingBox">
           <span className="titleSpan">配置信息</span>

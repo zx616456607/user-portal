@@ -821,7 +821,7 @@ const advanceBoxTitle = (
   <div className="commonTitle">
     <div className="line"></div>
     <span className="titleSpan">高级设置</span>
-    <span className="titleIntro">在高级设置里，您可以链接其它已创建服务，环境变量配置，以及容器与主机端口的映射</span>
+    <span className="titleIntro">在高级设置里，您可以修改环境变量配置，以及容器与主机端口的映射</span>
     <div style={{ clear: "both" }}></div>
   </div>
 );
