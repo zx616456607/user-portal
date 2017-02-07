@@ -196,9 +196,9 @@ module.exports = function (Router) {
   router.get('/docker-registry/:id/images/:image*/tags', registryController.specGetImageTags)
   router.get('/docker-registry/:id/images/:image*/tags/:tag', registryController.specGetImageTagInfo)
   // spi for tenxcloud hub
-  router.get('/tenx-registries', registryController.getTenxCloudHub)
-  router.post('/tenx-registries', registryController.addTenxCloudHub)
-  router.del('/tenx-registries', registryController.removeTenxCloudHub)
+  router.get('/tenx-hubs', registryController.isTenxCloudHubConfigured)
+  router.post('/tenx-hubs', registryController.addTenxCloudHub)
+  router.del('/tenx-hubs', registryController.removeTenxCloudHub)
   // Tag size is merged to specGetImageTagConfig
   //router.get('/docker-registry/:id/images/:image*/tags/:tag/size', registryController.specGetImageTagSize)
 
