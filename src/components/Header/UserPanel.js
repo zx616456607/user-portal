@@ -22,7 +22,7 @@ import proIconGray from '../../assets/img/version/proIcon-gray.png'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
-import { ROLE_USER, ROLE_TEAM_ADMIN } from '../../../constants'
+import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../constants'
 
 /**
  * User panel in the upper right corner
@@ -160,7 +160,7 @@ class UserPanel extends Component {
         text: '修改密码',
       },
     ]
-    if (role === ROLE_TEAM_ADMIN) {
+    if (role === ROLE_TEAM_ADMIN || role === ROLE_SYS_ADMIN) {
       menuItems.push({
         to: '/account/team',
         svgHref: '#logteam',
