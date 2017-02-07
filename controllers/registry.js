@@ -192,7 +192,43 @@ exports.queryServerStats = function* () {
     data: result
   }
 }
+/*
+Methods below only for tenxcloud hub integration
+*/
+exports.addTenxCloudHub = function* () {
+  const loginUser = this.session.loginUser
+  const name = this.params.name
+  const reqData = this.request.body
+  const spi = apiFactory.getSpi(loginUser)
+  // Encrypt the password before save to database
+  if (reqData.username && reqData.password) {
+    reqData.encrypted_password = securityUtil.encryptContent(reqData.password, loginUser.token, algorithm)
+  }
+  const result = yield spi.tenxregistries.createBy(null, null, reqData)
 
+  this.status = result.code
+  this.body = result
+}
+exports.removeTenxCloudHub = function* () {
+  const loginUser = this.session.loginUser
+  const name = this.params.name
+  const reqData = this.request.body
+  const spi = apiFactory.getSpi(loginUser)
+  const result = yield spi.tenxregistries.delete()
+
+  this.status = result.code
+  this.body = result
+}
+exports.getTenxCloudHub = function* () {
+  const loginUser = this.session.loginUser
+  const name = this.params.name
+  const reqData = this.request.body
+  const spi = apiFactory.getTenxSysSignSpi(loginUser)
+  const result = yield spi.tenxregistries.get()
+
+  this.status = result.code
+  this.body = result
+}
 /*
 Methods below only for thirdparty(custom) docker registry integration
 */
