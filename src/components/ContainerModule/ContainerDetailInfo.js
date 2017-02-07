@@ -155,25 +155,25 @@ export default class ContainerDetailInfo extends Component {
           <span className="titleSpan">资源配置</span>
           <div className="titleBox">
             <div className="commonTitle">
-              带宽
+              CPU
             </div>
             <div className="commonTitle">
               内存
             </div>
             <div className="commonTitle">
-              CPU
+              系统盘
             </div>
             <div style={{ clear: "both" }}></div>
           </div>
           <div className="dataBox">
             <div className="commonTitle">
-              -
-              </div>
+              {cpuFormat(container.spec.containers[0].resources.requests.memory)}
+            </div>
             <div className="commonTitle">
               {container.spec.containers[0].resources.requests.memory.replace('i', '') || '-'}
             </div>
             <div className="commonTitle">
-              {cpuFormat(container.spec.containers[0].resources.requests.memory)}
+              10G
             </div>
             <div style={{ clear: "both" }}></div>
           </div>

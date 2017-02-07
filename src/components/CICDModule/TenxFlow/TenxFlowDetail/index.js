@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { getTenxFlowDetail, getTenxflowBuildLastLogs, getTenxFlowYAML, deploymentLog, getTenxflowBuildLogs, getCdInimage, changeBuildStatus } from '../../../../actions/cicd_flow'
+import { getTenxFlowDetail, getTenxflowBuildLastLogs, getTenxFlowYAML, deploymentLog, getTenxflowBuildLogs, getCdInimage, changeBuildStatus, getTenxFlowStatus } from '../../../../actions/cicd_flow'
 import { checkImage } from '../../../../actions/app_center'
 import './style/TenxFlowDetail.less'
 import TenxFlowDetailAlert from './TenxFlowDetailAlert.js'
@@ -231,12 +231,44 @@ class TenxFlowDetail extends Component {
   handleVisibleChange(visible) {
     this.setState({ showTargeImage: visible });
   }
+  
   refreshStageList() {
     //this function for refrash
+    const { getTenxFlowStatus } = this.props;
+    let { search } = this.props.location;
+    search = search.split('?')[1].split('&')[0]
+    const self = this
+    getTenxFlowStatus(search, {
+      success: {        
+        func: (result) => {
+          let statusName = result.data.results.initType;
+          let status = '';
+          switch (status) {
+            case '0':
+              status = '成功'
+              break;
+            case '1':
+              status = "失败"
+              break;
+            case '2':
+              status = "执行中..."
+              break;
+            default:
+              status = "等待中..."
+          }
+          self.setState({
+            status,
+            statusName
+          })
+        },
+        isAsync: true
+      }
+    })
     this.setState({
       refreshFlag: true
     });
   }
+  
   callback(flowId) {
     const {getTenxflowBuildLastLogs, changeBuildStatus} = this.props
     return ()=> {
@@ -341,9 +373,13 @@ function mapStateToProps(state, props) {
     isFetching: false,
     logs: []
   }
+  const defaultFlowStatus = {
+    initType: 0
+  }
   const { getTenxflowDetail, getTenxflowBuildLastLogs, getCdImage } = state.cicd_flow;
   const { cdImageList } = getCdImage || []
   const { isFetching, flowInfo } = getTenxflowDetail || defaultFlowInfo;
+  const { initType } = getTenxFlowStatus || defaultFlowStatus;
   const buildFetching = getTenxflowBuildLastLogs ? getTenxflowBuildLastLogs.isFetching : deafaultFlowLog.isFetching
   const logs = getTenxflowBuildLastLogs ? getTenxflowBuildLastLogs.logs : deafaultFlowLog.logs;
   return {
@@ -352,6 +388,7 @@ function mapStateToProps(state, props) {
     buildFetching,
     cdImageList,
     logs,
+    buildFetching,
     currentSpace: state.entities.current.space.namespace
   }
 }
@@ -368,7 +405,8 @@ export default connect(mapStateToProps, {
   deploymentLog,
   getCdInimage,
   getTenxflowBuildLogs,
-  changeBuildStatus
+  changeBuildStatus,
+  getTenxFlowStatus
 })(injectIntl(TenxFlowDetail, {
   withRef: true,
 }));

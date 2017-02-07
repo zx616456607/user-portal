@@ -19,7 +19,7 @@ import MyCollection from './ImageCenter/MyCollection.js'
 import PublicSpace from './ImageCenter/PublicSpace.js'
 import OtherSpace from './ImageCenter/OtherSpace.js'
 import './style/ImageCenter.less'
-import { LoadOtherImage, addOtherStore, getImageDetailInfo, deleteOtherImage } from '../../actions/app_center'
+import { LoadOtherImage, addOtherStore, getImageDetailInfo, deleteOtherImage, getAppCenterBindUser } from '../../actions/app_center'
 import findIndex from 'lodash/findIndex'
 import NotificationHandler from '../../common/notification_handler'
 
@@ -367,6 +367,11 @@ class ImageCenter extends Component {
     }
   }
 
+  componentWillMount() {
+    let { getAppCenterBindUser } = this.props;
+    getAppCenterBindUser()
+  }
+  
   componentDidMount() {
     document.title = '镜像仓库 | 时速云'
     this.props.LoadOtherImage({
@@ -404,6 +409,7 @@ class ImageCenter extends Component {
   }
 
   render() {
+    console.log(this.props)
     const { current, otherSpace } = this.state;
     const { formatMessage } = this.props.intl;
     const scope = this;
@@ -459,14 +465,18 @@ function mapStateToProps(state, props) {
     otherImageHead: [],
     server: ''
   }
-  const { privateImages, otherImages, imagesInfo } = state.images
+  const defaultBindInfo = {
+    bindInfo: {}
+  }
+  const { privateImages, otherImages, imagesInfo, getAppCenterBindUser } = state.images
   const { registry, imageList, isFetching } = privateImages || defaultConfig
   const { imageRow, server} = otherImages || defaultConfig
-
+  const { bindInfo } = getAppCenterBindUser || defaultBindInfo
   return {
     otherImageHead: imageRow,
     isFetching,
-    server
+    server,
+    bindInfo
   }
 }
 
@@ -480,10 +490,16 @@ function mapDispatchToProps(dispatch) {
     },
     deleteOtherImage: (obj, callback) => {
       dispatch(deleteOtherImage(obj, callback))
-    }
+    },
+    getAppCenterBindUser
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(ImageCenter, {
+export default connect(mapStateToProps, {
+  addOtherStore,
+  LoadOtherImage,
+  deleteOtherImage,
+  getAppCenterBindUser,
+})(injectIntl(ImageCenter, {
   withRef: true,
 }))

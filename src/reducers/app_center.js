@@ -266,6 +266,26 @@ function deleteOtherImage(state = {}, action) {
   }
 }
 
+function getAppCenterBindUser(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.GET_ENTERPRISE_APP_CENTER_BIND_REQUEST:
+      return merge({}, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_ENTERPRISE_APP_CENTER_BIND_SUCCESS:
+      return merge({}, state, {
+        isFetching: false,
+        bindInfo: action.response.result.data
+      })
+    case ActionTypes.GET_ENTERPRISE_APP_CENTER_BIND_FAILURE:
+      return merge({}, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 export function images(state = { publicImages: {} }, action) {
   return {
     privateImages: privateImages(state.privateImages, action),
@@ -275,6 +295,17 @@ export function images(state = { publicImages: {} }, action) {
     imagesInfo: imagesInfo(state.imagesInfo, action),
     stackCenter: stackList(state.stackCenter, action),
     createStack: createStack(state.createStack, action),
+    getAppCenterBindUser: getAppCenterBindUser(state.getAppCenterBindUser, action),
+    AppCenterBindUser: reducerFactory({
+      REQUEST: ActionTypes.POST_ENTERPRISE_APP_CENTER_BIND_REQUEST,
+      SUCCESS: ActionTypes.POST_ENTERPRISE_APP_CENTER_BIND_SUCCESS,
+      FAILURE: ActionTypes.POST_ENTERPRISE_APP_CENTER_BIND_FAILURE
+    }, state.AppCenterBindUser, action),
+    deleteAppCenterBindUser: reducerFactory({
+      REQUEST: ActionTypes.DEL_ENTERPRISE_APP_CENTER_BIND_REQUEST,
+      SUCCESS: ActionTypes.DEL_ENTERPRISE_APP_CENTER_BIND_SUCCESS,
+      FAILURE: ActionTypes.DEL_ENTERPRISE_APP_CENTER_BIND_FAILURE
+    }, state.deleteAppCenterBindUser, action),
     // deleteStack: deleteStack(state.deleteStack, action)
   }
 }

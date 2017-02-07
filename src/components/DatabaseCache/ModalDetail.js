@@ -268,12 +268,35 @@ class BaseInfo extends Component {
               >
               <Button type="primary" size="large" onClick={() => parentScope.props.scope.putModal()}>更改实例数</Button>
             </Popover>
-
           </div>
           <Collapse accordion>
             {volumeMount}
           </Collapse>
+        </div>
+      </div>
+    )
+  }
+}
 
+class LeasingInfo extends Component {
+  constructor(props) {
+    super(props)
+    this.state ={
+      storageValue: parseInt(this.props.databaseInfo.volumeInfo.size)
+    }
+  }
+  render() {
+    const parentScope = this.props.scope
+    const { databaseInfo } = this.props
+    let storagePrc = parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
+    let containerPrc = parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
+    const hourPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ), 4)
+    const countPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc) * 24 * 30 , 4)
+    storagePrc = parseAmount(storagePrc, 4)
+    containerPrc = parseAmount(containerPrc, 4)
+    return (
+      <div className='modalDetailBox' id="dbClusterDetailInfo">
+        <div className='configContent'>
           <div className='configHead'>租赁信息</div>
           <div className="containerPrc">
             <p><Icon type="pay-circle-o" /> 实例：<span className="unit">{ containerPrc.fullAmount }/（个*小时）</span> * {databaseInfo.podInfo.desired}个</p>
@@ -283,37 +306,6 @@ class BaseInfo extends Component {
             合计价格：<span className="unit">{hourPrice.unit =='￥' ? '￥': ''}</span><span className="unit blod">{hourPrice.amount}{hourPrice.unit =='￥' ? '': 'T'}/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：{countPrice.fullAmount}/月）</span>
           </div>
         </div>
-
-      </div>
-    )
-  }
-}
-
-class leasingInfo extends Component {
-  constructor(props) {
-    super(props)
-    this.state ={
-      storageValue: parseInt(this.props.databaseInfo.volumeInfo.size)
-    }
-  }
-  render() {
-    const parentScope = this.props.scope
-    let storagePrc = parentScope.props.resourcePrice.storage * parentScope.props.resourcePrice.dbRatio
-    let containerPrc = parentScope.props.resourcePrice['2x'] * parentScope.props.resourcePrice.dbRatio
-    const hourPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc ), 4)
-    const countPrice = parseAmount((parentScope.state.storageValue /1024 * storagePrc * parentScope.state.replicas +  parentScope.state.replicas * containerPrc) * 24 * 30 , 4)
-    storagePrc = parseAmount(storagePrc, 4)
-    containerPrc = parseAmount(containerPrc, 4)
-    return (
-      <div className='modalDetailBox' id="dbClusterDetailInfo">
-          <div className='configHead'>租赁信息</div>
-          <div className="containerPrc">
-            <p><Icon type="pay-circle-o" /> 实例：<span className="unit">{ containerPrc.fullAmount }/（个*小时）</span> * {databaseInfo.podInfo.desired}个</p>
-            <p><Icon type="hdd" /> 存储：<span className="unit">{ storagePrc.fullAmount }/（GB*小时）</span> * {databaseInfo.podInfo.desired}个</p>
-          </div>
-          <div className="countPrice">
-            合计价格：<span className="unit">{hourPrice.unit =='￥' ? '￥': ''}</span><span className="unit blod">{hourPrice.amount}{hourPrice.unit =='￥' ? '': 'T'}/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：{countPrice.fullAmount}/月）</span>
-          </div>
       </div>
     )
   }
@@ -548,8 +540,8 @@ class ModalDetail extends Component {
               <TabPane tab='事件' key='#events'>
                 <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} />
               </TabPane>
-              <TabPane tab='租赁信息' key='#events'>X
-                <leasingInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+              <TabPane tab='租赁信息' key='#leading'>
+                <LeasingInfo databaseInfo={databaseInfo} scope= {this} />
               </TabPane>
             </Tabs>
           </div>

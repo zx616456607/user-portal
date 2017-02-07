@@ -319,7 +319,7 @@ class PublicSpace extends Component {
                 <i className="fa fa-search" onClick={()=> this.searchImages()}></i>
                 <div style={{ clear: "both" }}></div>
               </div>
-              <MyComponent scope={scope} getImageDetailInfo={(obj, callback) => this.props.getImageDetailInfo(obj, callback)} loading={isFetching} config={config} />]
+              <MyComponent scope={scope} getImageDetailInfo={(obj, callback) => this.props.getImageDetailInfo(obj, callback)} loading={isFetching} config={config} />
             </Card>]
           }
         </div>

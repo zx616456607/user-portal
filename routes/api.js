@@ -313,7 +313,5 @@ module.exports = function (Router) {
   router.get('/consumptions/notify-rule', consumptionController.getNotifyRule)
   router.put('/consumptions/notify-rule', consumptionController.setNotifyRule)
 
-
-
   return router.routes()
 }
