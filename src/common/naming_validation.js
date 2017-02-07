@@ -70,7 +70,7 @@ export function validateServiceConfigFile(name) {
   if (name.length > 253) {
     return false
   }
-  let regx = new RegExp('^\\.?[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*')
+  let regx = new RegExp('^\\.?[-a-z0-9A-Z_]([-a-z0-9A-Z_]*[-a-z0-9A-Z_])?(\\.[-a-z0-9A-Z_]([-a-z0-9A-Z_]*[a-z0-9A-Z])?)*$')
   if (!regx.test(name)) {
     return false
   }
