@@ -34,7 +34,7 @@ class AppStatus extends Component {
     if (!status) {
       status = getAppStatus(services)
     }
-    status.text = `${formatMessage(messages.AppReplicasMsg, { total: services.length })}`
+    status.text = `${formatMessage(messages.AppReplicasMsg, { total: services.length + '' })}`
     return (
       <TenxStatus
         phase={status.phase}

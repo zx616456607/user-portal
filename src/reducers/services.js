@@ -341,6 +341,27 @@ function k8sService(state = {}, action) {
   }
 }
 
+function certificates(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.SERVICE_GET_CERTIFICATIES_REQUEST:
+      return merge({}, state, {
+        isFetching: true
+      })
+    case ActionTypes.SERVICE_GET_CERTIFICATIES_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        result: action.response.result
+      })
+    case ActionTypes.SERVICE_GET_CERTIFICATIES_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+        result: {}
+      })
+    default:
+      return state
+  }
+}
+
 
 export function services(state = { appItmes: {} }, action) {
   return {
@@ -411,6 +432,17 @@ export function services(state = { appItmes: {} }, action) {
       SUCCESS: ActionTypes.SERVICE_ROLLING_UPDATE_SUCCESS,
       FAILURE: ActionTypes.SERVICE_ROLLING_UPDATE_FAILURE
     }, state.rollingUpdateService, action, { overwrite: true }),
+    certificates: certificates(state.certificates, action),
+    updateCertificates: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_UPDATE_CERTIFICATIES_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_UPDATE_CERTIFICATIES_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_UPDATE_CERTIFICATIES_FAILURE
+    }, state.updateCertificates, action, { overwrite: true }),
+    deleteCertificates: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_DELETE_CERTIFICATIES_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_DELETE_CERTIFICATIES_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_DELETE_CERTIFICATIES_FAILURE
+    }, state.deleteCertificates, action, { overwrite: true }),
     updateServicePort: reducerFactory({
       REQUEST: ActionTypes.UPDATE_SERVICE_PORT_REQUEST,
       SUCCESS: ActionTypes.UPDATE_SERVICE_PORT_SUCCESS,

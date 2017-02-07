@@ -246,7 +246,7 @@ let CreateDatabase = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating ,getFieldValue} = this.props.form;
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, whitespace: true ,message:'请输入数据库集群名称'},
+        { required: true, whitespace: true ,message:'请输入名称'},
         { validator: this.databaseExists },
       ],
     });

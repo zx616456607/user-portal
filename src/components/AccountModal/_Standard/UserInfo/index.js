@@ -46,6 +46,7 @@ class BaseInfo extends Component {
       disabledButton: false,
       currentKey: '11',
       user3rdAccounts: [],
+      unbindModalShow: false
     }
   }
   componentWillMount() {
@@ -341,6 +342,9 @@ class BaseInfo extends Component {
     notification.spin('解除绑定中...')
     const { unbindWechat } = this.props
     const { user3rdAccounts } = this.state
+    this.setState({
+      unbindModalShow: false
+    })
     unbindWechat({accountType}).then(({ response, type }) => {
       notification.close()
       const { status } = response.result
@@ -374,13 +378,14 @@ class BaseInfo extends Component {
       )
     }
     const { nickname } = accountDetail
+//  this.handleUnbind(accountType)
     return(
       <div className="send-tu" key="wechat">
         <div className="backcolor wechat-success">
           <i className="fa fa-wechat"></i>
         </div>
         <div className="name">{nickname}</div>
-        <Button onClick={() => this.handleUnbind(accountType)}>解除绑定</Button>
+        <Button onClick={() => {this.setState({unbindModalShow: true})}}>解除绑定</Button>
       </div>
     )
   }
@@ -564,6 +569,13 @@ class BaseInfo extends Component {
               </div>
             </TabPane>
           </Tabs>
+        </Modal>
+        <Modal title='解除绑定' visible={this.state.unbindModalShow} 
+          onCancel={() => this.setState({unbindModalShow: false})} onOk={() => this.handleUnbind(user3rdAccounts[0].accountType)}
+        >
+          <span style={{ color: '#00a0ea', marginRight: '10px' }}>
+            <Icon type='question-circle-o' /><span>您确定解除绑定微信么？</span>
+          </span>
         </Modal>
       </div>
     )

@@ -14,7 +14,7 @@ import SecondSider from '../../components/SecondSider'
 import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
 import './style/account.less'
-import { ROLE_USER, ROLE_TEAM_ADMIN } from '../../../constants'
+import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../constants'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -99,7 +99,7 @@ class Account extends Component {
     const scope = this
     let menuList = menuList_standard
     if (mode != standard) {
-      if (role == ROLE_TEAM_ADMIN) {
+      if (role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) {
         menuList = menuList_enterprise_admin
       } else {
         menuList = menuList_enterprise_user

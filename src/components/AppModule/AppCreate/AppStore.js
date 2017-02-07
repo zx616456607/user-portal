@@ -144,9 +144,6 @@ class AppStore extends Component {
             <div className="line"></div>
             <span>选择应用</span>
             <Input placeholder="搜索应用" size="large"  onChange={this.onSearchApp} />
-            <Button>
-              <i className="fa fa-search"></i>
-            </Button>
             <div style={{ clear: "both" }}></div>
           </div>
           <div className="dataBox">

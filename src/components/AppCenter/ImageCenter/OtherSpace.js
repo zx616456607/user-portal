@@ -169,6 +169,7 @@ class OtherSpace extends Component {
 
   render() {
     const { formatMessage } = this.props.intl;
+    const { liteFlag } = this.props;
     const rootscope = this.props.scope;
     const scope = this;
     const otherHead = this.props.otherHead

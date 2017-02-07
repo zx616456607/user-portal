@@ -30,9 +30,13 @@ function formatLinkContainer(data, groupname, name) {
       if (data[i].services[j].spec.template.spec.volumes) {
         for (let k = 0; k < data[i].services[j].spec.template.spec.volumes.length; k++) {
           if (data[i].services[j].spec.template.spec.volumes[k].configMap && data[i].services[j].spec.template.spec.volumes[k].configMap.name == groupname) {
+            if (!data[i].services[j].spec.template.spec.volumes[k].configMap.items) {
+              linkContainer.push(data[i].services[j].metadata.name)
+              continue
+            }
             for (let l = 0; l < data[i].services[j].spec.template.spec.volumes[k].configMap.items.length; l++) {
               if (data[i].services[j].spec.template.spec.volumes[k].configMap.items[l].key == name) {
-                linkContainer.push(data[i].name)
+                linkContainer.push(data[i].services[j].metadata.name)
               }
             }
           }
@@ -54,6 +58,10 @@ function formatVolumeMounts(data, groupname, name) {
         for (let k = 0; k < data[i].services[j].spec.template.spec.volumes.length; k++) {
           let cm = data[i].services[j].spec.template.spec.volumes[k]
           if (cm.configMap && cm.configMap.name == groupname) {
+            if (!data[i].services[j].spec.template.spec.volumes[k].configMap.items) {
+              volumesMap[cm.name] = true
+              continue
+            }
             for (let l = 0; l < data[i].services[j].spec.template.spec.volumes[k].configMap.items.length; l++) {
               if (data[i].services[j].spec.template.spec.volumes[k].configMap.items[l].key == name) {
                 volumesMap[cm.name] = true
@@ -343,14 +351,14 @@ class CollapseContainer extends Component {
               onCancel={() => { this.setState({ [this.props.groupname + configFileItem.name]: false }) } }
               >
               <div className="check-config-head">
-                <div className="span4">容器名称</div>
+                <div className="span4">服务名称</div>
                 <div className="span6">挂载路径</div>
               </div>
                 {/*查看更多-关联容器列表-start*/}
                 {mounts && mounts.slice(2).map((list) => {
                   return (
                     <div className="check-config">
-                      <div className="span4"><Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link></div>
+                      <div className="span4"><Link to={`/app_manage/detail/${list.imageName}`}>{list.serviceName}</Link></div>
                       <div className="span6">{list.mountPath}</div>
                     </div>
                   )
