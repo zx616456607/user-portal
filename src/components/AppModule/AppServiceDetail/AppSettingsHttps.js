@@ -14,8 +14,8 @@ import { Link } from 'react-router'
 import { loadServiceDetail, loadK8sService, loadCertificates, updateCertificates, deleteCertificates, toggleHTTPs } from '../../../actions/services'
 import NotificationHandler from '../../../common/notification_handler'
 import './style/AppSettingsHttps.less'
-const CERT_REGEX = /^-----BEGIN CERTIFICATE-----\n(.+\n)+-----END CERTIFICATE-----$/
-const PRIVATE_KEY_REGEX = /^-----BEGIN RSA PRIVATE KEY-----\n(.+\n)+-----END RSA PRIVATE KEY-----$/
+
+import { CERT_REGEX, PRIVATE_KEY_REGEX, ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_HTTPS } from '../../../../constants'
 
 const FormItem = Form.Item
 const createForm = Form.create
@@ -202,8 +202,8 @@ class AppSettingsHttps extends Component {
   }
   getHTTPPorts(k8sService) {
     let httpPorts = []
-    if (k8sService && k8sService.metadata && k8sService.metadata.annotations && k8sService.metadata.annotations['tenxcloud.com/schemaPortname']) {
-      let userPort = k8sService.metadata.annotations['tenxcloud.com/schemaPortname']
+    if (k8sService && k8sService.metadata && k8sService.metadata.annotations && k8sService.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]) {
+      let userPort = k8sService.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORTNAME]
 
       userPort = userPort.split(',')
       let httpPortNames = []
@@ -269,7 +269,7 @@ class AppSettingsHttps extends Component {
   setHttpsSwitchState(k8sService) {
     let isOpen = false
     if (k8sService && k8sService.metadata && k8sService.metadata.annotations
-      && k8sService.metadata.annotations['tenxcloud.com/https'] && k8sService.metadata.annotations['tenxcloud.com/https'] === 'true') {
+      && k8sService.metadata.annotations[ANNOTATION_HTTPS] && k8sService.metadata.annotations[ANNOTATION_HTTPS] === 'true') {
       isOpen = true
       this.setState({
         httpsOpened: isOpen,
