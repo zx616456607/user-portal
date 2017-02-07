@@ -293,7 +293,7 @@ let Login = React.createClass({
                 <div className={this.state.intNameFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'name')}>用户名 / 邮箱</div>
 
                 <Input {...nameProps}
-                  autoComplete="on"
+                  autoComplete="off"
                   onBlur={this.intOnBlur.bind(this, 'name')}
                   onFocus={this.intOnFocus.bind(this, 'name')}
                   ref="intName"

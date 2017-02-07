@@ -14,8 +14,8 @@ import { Link } from 'react-router'
 import { loadServiceDetail, loadK8sService, loadCertificates, updateCertificates, deleteCertificates, toggleHTTPs } from '../../../actions/services'
 import NotificationHandler from '../../../common/notification_handler'
 import './style/AppSettingsHttps.less'
-const CERT_REGEX = /^-----BEGIN CERTIFICATE-----\n.+\n-----END CERTIFICATE-----$/
-const PRIVATE_KEY_REGEX = /^-----BEGIN RSA PRIVATE KEY-----\n.+\n-----END RSA PRIVATE KEY-----$/
+const CERT_REGEX = /.*/
+const PRIVATE_KEY_REGEX = /.*/
 
 const FormItem = Form.Item
 const createForm = Form.create
