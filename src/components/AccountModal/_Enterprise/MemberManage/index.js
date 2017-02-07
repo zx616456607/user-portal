@@ -17,6 +17,7 @@ import { Link } from 'react-router'
 import { parseAmount } from '../../../../common/tools'
 import CreateUserModal from '../../CreateUserModal'
 import NotificationHandler from '../../../../common/notification_handler'
+import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../../constants'
 
 const confirm = Modal.confirm
 
@@ -483,9 +484,9 @@ function mapStateToProp(state) {
       usersData = users.result.users
       usersData.map((item, index) => {
         let role = ""
-        if (item.role === 1){
+        if (item.role === ROLE_TEAM_ADMIN){
           role = "团队管理员"
-        }else if (item.role === 2) {
+        }else if (item.role === ROLE_SYS_ADMIN) {
           role = "系统管理员"
         }else{
           role = "普通成员"
