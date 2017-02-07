@@ -299,6 +299,7 @@ class AppSettingsHttps extends Component {
             modifying: false,
           })
           loadCertificates(cluster, serviceName)
+          new NotificationHandler().success('证书更新成功')
         },
         isAsync: true
       },
@@ -429,7 +430,7 @@ class AppSettingsHttps extends Component {
                 httpsOpened: true,
                 setting: false,
               })
-              new NotificationHandler().success('操作成功')
+              new NotificationHandler().success('HTTPS开启成功')
               resolve()
             },
             isAsync: true
