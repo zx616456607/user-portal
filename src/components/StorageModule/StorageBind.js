@@ -18,7 +18,7 @@ import { getVolumeBindInfo } from '../../actions/storage'
 const messages = defineMessages({
   forIn: {
     id: "Storage.titleRow.forin",
-    defaultMessage: '容器挂载点'
+    defaultMessage: '挂载点'
   },
   volume: {
     id: "StorageBind.bind.volume",
@@ -26,7 +26,7 @@ const messages = defineMessages({
   },
   container: {
     id: "StorageBind.bind.container",
-    defaultMessage: "容器"
+    defaultMessage: "服务"
   },
   app: {
     id: "StorageBind.bind.app",
@@ -42,7 +42,6 @@ class StorageBind extends Component {
     this.props.getVolumeBindInfo(this.props.pool, this.props.cluster, this.props.volumeName)
   }
   render() {
-
     const {formatMessage} = this.props.intl
     let mountInfo = this.props.volumeBindInfo.volumeBindInfo
     let isFetching = this.props.volumeBindInfo.isFetching
@@ -54,7 +53,7 @@ class StorageBind extends Component {
     if(!mountInfo || mountInfo.appName =='') {
       return (
         <div id="StorageBind" style={{paddingLeft:'15px'}}>
-            无绑定容器
+            无绑定服务
         </div>
       )
     }
@@ -64,21 +63,21 @@ class StorageBind extends Component {
           <Col>
             <Timeline>
               <Timeline.Item>
-                <Card title={`${formatMessage(messages.app)} : ${mountInfo.appName} `} style={{ width: 300 }} bordered={false}>
+                <Card title={`${formatMessage(messages.app)}：${mountInfo.appName} `} style={{ width: 300 }} bordered={false}>
                   <div className="container">
                     <div className="container-ico">
                       <i className="fa fa-server"></i>
                     </div>
                     <p>
                       <FormattedMessage {...messages.container} />
-                      : {mountInfo.pods.join(',')}
+                      ： {mountInfo.serviceName}
                     </p>
                   </div>
                 </Card>
                 <div className="point">
                   <span className="point-inf">
                     <FormattedMessage {...messages.forIn} />
-                    : {mountInfo.mountPoint}
+                    ： {mountInfo.mountPoint}
                   </span>
                 </div>
               </Timeline.Item>
@@ -89,7 +88,7 @@ class StorageBind extends Component {
                   </div>
                   <p>
                     <FormattedMessage {...messages.volume} />
-                    : {this.props.volumeName}
+                    ： {this.props.volumeName}
                   </p>
                 </div>
               </Timeline.Item>
