@@ -22,6 +22,7 @@ import ReactEcharts from 'echarts-for-react'
 import { formatDate, parseAmount } from '../../../common/tools'
 import moment from 'moment'
 import {getCostBar} from './getCostBar'
+import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 
 const MonthPicker = DatePicker.MonthPicker
 const Option = Select.Option
@@ -481,7 +482,7 @@ class CostRecord extends Component{
           }
         </Card>
         {
-          standard ? <div></div> : ((loginUser.info.role === 1 && currentNamespace !== '' && currentNamespace !== 'default')?
+          standard ? <div></div> : (((loginUser.info.role === ROLE_TEAM_ADMIN || loginUser.info.role === ROLE_SYS_ADMIN) && currentNamespace !== '' && currentNamespace !== 'default')?
           <TeamCost currentSpaceName = {currentSpaceName} currentTeamName={currentTeamName} currentNamespace={currentNamespace} standard={standard}/>:
           <div></div>)
         }

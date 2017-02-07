@@ -17,6 +17,7 @@ import { loadTeamClustersList } from '../../../actions/team'
 import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
 import TeamCost from './TeamCost'
 import ReactEcharts from 'echarts-for-react'
+import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 
 const MonthPicker = DatePicker.MonthPicker
 
@@ -347,7 +348,7 @@ class CostRecord extends Component{
           </div>
         </Card>
         {
-          (loginUser.info.role === 1 && currentTeamName)?
+          ((loginUser.info.role === ROLE_TEAM_ADMIN || loginUser.info.role === ROLE_SYS_ADMIN) && currentTeamName)?
           <TeamCost currentSpaceName = {currentSpaceName} currentTeamName={currentTeamName}/>:
           <div></div>
         }
