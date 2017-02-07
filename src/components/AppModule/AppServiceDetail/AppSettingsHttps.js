@@ -14,7 +14,6 @@ import { Link } from 'react-router'
 import { loadServiceDetail, loadK8sService, loadCertificates, updateCertificates, deleteCertificates, toggleHTTPs } from '../../../actions/services'
 import NotificationHandler from '../../../common/notification_handler'
 import './style/AppSettingsHttps.less'
-
 import { CERT_REGEX, PRIVATE_KEY_REGEX, ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_HTTPS } from '../../../../constants'
 
 const FormItem = Form.Item
