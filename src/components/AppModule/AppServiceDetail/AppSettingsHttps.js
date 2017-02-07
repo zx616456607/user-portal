@@ -351,12 +351,16 @@ class AppSettingsHttps extends Component {
       deleteCertificates,
       cluster,
       serviceName,
+      loadCertificates,
     } = this.props
     deleteCertificates(cluster, serviceName, {
       success: {
         func: () => {
-          this.setState({
-            certificateExists: false,
+          loadCertificates(cluster, serviceName, {
+            failed: {
+              func: (err) => {/* do nothing, just catch the error */},
+              isAsync: true
+            }            
           })
           new NotificationHandler().success('删除证书成功')
         },
@@ -510,8 +514,7 @@ class AppSettingsHttps extends Component {
                 <div className={this.state.tabsActive == 1 ? "tabs tabs-active" : 'tabs'}>
                   <Tooltip title={ tipText }><Button size="large" disabled={disableUploadBtn} onClick={()=> this.setState({createModal: true})}><Icon type="plus" />{this.state.certificateExists ? '更新' : '新建'}</Button></Tooltip>
                   {this.state.certificateExists ? 
-                    [<Button size="large" disabled={!this.state.setting && !this.state.modifying} onClick={()=> this.deleteCertificates()} style={{marginLeft:'8px'}}>删除</Button>,
-                    <div className="ant-table">
+                    [<div className="ant-table">
                       <table className="certificateTable">
                         <thead>
                           <tr>
@@ -523,11 +526,11 @@ class AppSettingsHttps extends Component {
                           </tr>
                         </thead>
                         <tr>
-                          <td><a onClick={()=> this.setState({detailModal: true})}>test</a></td>
+                          <td><a onClick={()=> this.setState({detailModal: true})}>{this.props.serviceName}</a></td>
                           <td>服务器证书</td>
-                          <td>2017-2-1</td>
-                          <td>2027-3-1</td>
-                          <td> <Icon type="delete" /></td>
+                          <td>{this.props.certificate.startTime}</td>
+                          <td>{this.props.certificate.expireTime}</td>
+                          <td> <span><Icon onClick={()=> this.deleteCertificates()} type="delete" /></span></td>
                         </tr>
                       </table>
                       <br/>
@@ -555,19 +558,19 @@ class AppSettingsHttps extends Component {
         >
         <Form horizontal>
           <FormItem {...formItemLayout} label="证书名称">
-            <span>test</span>
+            <span>{this.props.serviceName}</span>
           </FormItem>
           <FormItem {...formItemLayout} label="证书类型">
             <span>服务器证书</span>
           </FormItem>
           <FormItem {...formItemLayout} label="证书内容">
-            <Input type="textarea"/>
+            <Input type="textarea" value={this.props.certificate.pem}/>
           </FormItem>
           <FormItem {...formItemLayout} label="启用时间">
-            2017-2-3
+            {this.props.certificate.startTime}
           </FormItem>
           <FormItem {...formItemLayout} label="过期时间">
-            2017-2-9
+            {this.props.certificate.expireTime}
           </FormItem>
         </Form>
       </Modal>
@@ -601,11 +604,11 @@ function mapStateToProps(state, props) {
   }
   let certificateExists = false
   let certificate = {}
-  if (certificates && certificates.isFetching === false && certificates.result && certificates.result.statusCode === 200) {
+  if (certificates && certificates.isFetching === false && certificates.result && certificates.result.data && certificates.result.statusCode === 200) {
     certificateExists = true
-    certificate.startTime = certificates.result.certificate ? certificates.result.certificate.starttime : ''
-    certificate.expireTime = certificates.result.certificate ? certificates.result.certificate.endtime : ''
-    certificate.data = certificates.result.data
+    certificate.startTime = certificates.result.data.certificate.starttime || ''
+    certificate.expireTime = certificates.result.data.certificate.endtime || ''
+    certificate.pem = certificates.result.data.pem || ''
   }
   return {
     resourcePrice: cluster.resourcePrice,
