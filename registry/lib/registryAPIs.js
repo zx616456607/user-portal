@@ -19,6 +19,8 @@ var registryConfigLoader = require('../registryConfigLoader')
 
 var TokenCacheMgr = []
 var TokenExpiredTime = 3600 // seconds
+
+var AdminUserName = 'admin'
 /*
  * Docker registry APIs
  */
@@ -929,7 +931,8 @@ DockerRegistryAPIs.prototype.getAuthorizationHeader = function (onbehalfUser) {
   var authHeader = {
     'Authorization': 'Basic ' + Buffer(this.registryConfig.user + ':' + this.registryConfig.password).toString('base64')
   };
-  if (onbehalfUser) {
+  // Only admin user can use onbehalfUser
+  if (this.registryConfig.user == AdminUserName && onbehalfUser) {
     authHeader.onbehalfuser = onbehalfUser;
   }
   return authHeader;
