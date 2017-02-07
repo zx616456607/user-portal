@@ -523,9 +523,9 @@ function mapStateToProps(state, props) {
   let certificate = {}
   if (certificates && certificates.isFetching === false && certificates.result && certificates.result.statusCode === 200) {
     certificateExists = true
-    certificate.startTime = 'starttime'
-    certificate.expireTime = 'expireTime'
-    certificate.data = certificates.result.data || 'testdata'
+    certificate.startTime = certificates.result.certificate.starttime
+    certificate.expireTime = certificates.result.certificate.endtime
+    certificate.data = certificates.result.data
   }
   return {
     resourcePrice: cluster.resourcePrice,
