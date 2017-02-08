@@ -27,13 +27,10 @@ exports.getImages = function* () {
   var q = query.q || ""
   const registryUser = loginUser.teamspace || loginUser.user
   var validConfig = yield _getValidTenxCloudHub(loginUser)
-  if (!validConfig || !validConfig.host) {
-    this.body = {}
-    return
-  }
+
   const result = yield registryService.getImages(registryUser, q)
   this.body = {
-    server: validConfig.v2Server,
+    server: validConfig ? validConfig.v2Server : registryService.getOfficialTenxCloudHub().host,
     data: result
   }
 }

@@ -13,6 +13,16 @@ const markdown     = require('markdown-it')()
 const logger       = require('../utils/logger.js').getLogger("tenx_registry")
 const registryConfigLoader = require('../registry/registryConfigLoader')
 
+const TenxCloudOfficialHub = {
+  "protocol": "https",
+  "host": "rv2-ext.tenxcloud.com",
+  "port": "",
+  "user": "",
+  "password": "",
+  "v2Server": "index.tenxcloud.com",
+  "v2AuthServer": "https://rv2-ext.tenxcloud.com:5001"
+}
+
 var TenxHubConfig = []
 
 exports.getTenxHubConfig = function(){
@@ -29,8 +39,23 @@ exports.getUserTenxHubConfig = function(username) {
   }
 }
 
+exports.getOfficialTenxCloudHub = function() {
+  return TenxCloudOfficialHub
+}
+/*
+Get public images
+
+Default will be official service like hub.tenxcloud.com
+
+*/
 exports.getImages = function (username, search) {
-  const registry = new registryAPIs(this.getUserTenxHubConfig(username))
+  var defaultConfig = this.getUserTenxHubConfig(username)
+  // Use default if not specified
+  if (!defaultConfig || !defaultConfig.host) {
+    logger.info("Using index.tenxcloud.com...")
+    defaultConfig = TenxCloudOfficialHub
+  }
+  const registry = new registryAPIs(defaultConfig)
   if (username) {
     username = username.toLowerCase()
   }

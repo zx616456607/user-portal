@@ -480,7 +480,7 @@ class ImageSpace extends Component {
       success: {
         func: () => {
           notification['success']({
-            message: '注销绑定公有云用户成功'
+            message: '注销成功'
           });
           scope.setState({
             configured: false
@@ -539,7 +539,7 @@ class ImageSpace extends Component {
               </span>
               { !standardFlag ?
                 [
-                <Tooltip title='取消关联时速云·公有云镜像Hub'>
+                <Tooltip title='注销时速云Hub'>
                   <Button className='logoutBtn' size='large' type='ghost' onClick={this.showDeleteBindUser}>
                     <span>注销</span>
                   </Button>
@@ -589,7 +589,7 @@ class ImageSpace extends Component {
             <ImageDetailBox parentScope={rootscope} server={this.props.server} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
           </Modal>
           <Modal title='注销' className='liteBindCenterModal' visible={this.state.deleteBindUserModal} onOk={this.deleteBindUser} onCancel={this.closeDeleteBindUser}>
-            <span style={{ color: '#00a0ea' }}><Icon type='exclamation-circle-o' />&nbsp;&nbsp;&nbsp;确定要取消关联时速云·公有云镜像Hub？</span>
+            <span style={{ color: '#00a0ea' }}><Icon type='exclamation-circle-o' />&nbsp;&nbsp;&nbsp;确定要注销时速云官方Hub？</span>
           </Modal>
         </div>
       </QueueAnim>
