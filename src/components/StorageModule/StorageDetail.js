@@ -53,7 +53,7 @@ const messages = defineMessages({
   },
   bindContainer: {
     id: "StorageBind.bind.bindContainer",
-    defaultMessage: '绑定容器'
+    defaultMessage: '绑定服务'
   },
   operating: {
     id: "StorageDetail.operating",
