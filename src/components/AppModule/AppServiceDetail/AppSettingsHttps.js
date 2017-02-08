@@ -61,7 +61,6 @@ let UploadSslModal = React.createClass({
         createModal: false,
         modified: true
       })
-      new NotificationHandler().success('格式验证通过，请保存')
     })
   },
   render() {
@@ -307,6 +306,7 @@ class AppSettingsHttps extends Component {
         func: () => {
           this.setState({
             modifying: false,
+            modified: false,
             certContent: false,
             keyContent: false
           })
@@ -543,7 +543,8 @@ class AppSettingsHttps extends Component {
               </div>
               <div className="tabsBody">
                 <div className={this.state.tabsActive == 1 ? "tabs tabs-active" : 'tabs'}>
-                  <Tooltip title={ tipText }><Button size="large" disabled={disableUploadBtn} onClick={()=> this.setState({createModal: true})}><Icon type="plus" />{this.state.certificateExists ? '更新' : '新建'}</Button></Tooltip>
+                  <Tooltip title={ tipText }><Button size="large" disabled={disableUploadBtn} onClick={()=> this.setState({createModal: true})}><Icon type="plus" />{this.state.certificateExists || this.state.modified ? '更新' : '新建'}</Button></Tooltip>
+                  {this.state.modified && <span style={{color:'#33b867'}}><Icon type="check-circle-o" style={{marginLeft:'20px',marginRight:'6px'}}/>证书格式正确，请保存</span>}
                   {this.state.certificateExists ? 
                     [<div className="ant-table">
                       <table className="certificateTable">
@@ -590,7 +591,7 @@ class AppSettingsHttps extends Component {
         footer={<Button type="primary" onClick={()=> this.setState({detailModal: false})} >知道了</Button>}
         >
         <Form horizontal>
-          <FormItem {...formItemLayout} label="证书名称">
+          <FormItem {...formItemLayout} label="名&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;称">
             <span>{this.props.serviceName}</span>
           </FormItem>
           <FormItem {...formItemLayout} label="证书类型">
