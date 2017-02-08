@@ -493,9 +493,13 @@ let LogComponent = React.createClass({
       )
     }
     if (!logs || logs.length == 0) {
+      let msg = '暂无日志记录'
+      if (!scope.props.loggingEnabled) {
+        msg = '尚未安装日志服务，无法查询日志'
+      }
       return (
         <div className='loadingBox'>
-          <span className='noDataSpan'>暂无日志记录</span>
+          <span className='noDataSpan'>{msg}</span>
         </div>
       )
     }
@@ -1002,7 +1006,7 @@ class QueryLog extends Component {
             <div className='commonBox'>
               <Checkbox onChange={this.onChangeQueryType} checked={this.state.queryType} style={{ marginLeft: '29px', display: 'none' }}>
                 <FormattedMessage {...menusText.searchType} /></Checkbox>
-              <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch} style={{ marginLeft: '29px' }}>
+              <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch} style={{ marginLeft: '29px' }} disabled={!this.props.loggingEnabled}>
                 <i className='fa fa-wpforms'></i>
                 <FormattedMessage {...menusText.search} />
               </Button>
@@ -1043,6 +1047,10 @@ function mapStateToProps(state, props) {
   const { logs, isFetching } = getQueryLog.logs || defaultLogs
   const containersList = serviceContainers[cluster.clusterID] || defaultContainers
   const { query } = props.location
+  let loggingEnabled = true
+  if (current && current.cluster && current.cluster.disabledPlugins) {
+    loggingEnabled = !current.cluster.disabledPlugins['logging']
+  }
   return {
     loginUser: loginUser.info,
     isTeamspacesFetching: teamspaces.isFetching,
@@ -1055,6 +1063,7 @@ function mapStateToProps(state, props) {
     logs,
     current,
     query,
+    loggingEnabled,
     defaultNamespace
   }
 }
