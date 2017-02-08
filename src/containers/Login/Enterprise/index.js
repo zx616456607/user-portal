@@ -296,7 +296,7 @@ let Login = React.createClass({
                   />
               </FormItem>
 
-        {/*<FormItem
+              {/*<FormItem
                 {...formItemLayout}
                 hasFeedback
                 className="formItemName"
