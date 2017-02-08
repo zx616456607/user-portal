@@ -33,7 +33,7 @@ exports.getImages = function* () {
   }
   const result = yield registryService.getImages(registryUser, q)
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig.v2Server,
     data: result
   }
 }
@@ -50,7 +50,7 @@ exports.getPrivateImages = function* () {
   result = yield registryService.getPrivateRepositories(registryUser, 1)
 
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig.v2Server,
     data: result
   }
 }
@@ -66,7 +66,7 @@ exports.getFavouriteImages = function* () {
   const result = yield registryService.getFavouriteRepositories(registryUser, 1)
 
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig.v2Server,
     data: result
   }
 }
@@ -105,7 +105,7 @@ exports.getImageTags = function* () {
   }
   const result = yield registryService.getImageTags(registryUser, imageFullName)
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig.v2Server,
     name: imageFullName,
     data: result
   }
@@ -124,7 +124,7 @@ exports.getImageConfigs = function* () {
   }
   const result = yield registryService.getImageConfigs(registryUser, imageFullName, tag)
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig.v2Server,
     name: imageFullName,
     tag,
     data: result
@@ -144,7 +144,7 @@ exports.getImageInfo = function* () {
   }
   const result = yield registryService.getImageInfo(registryUser, imageFullName)
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig.v2Server,
     name: imageFullName,
     data: result
   }
@@ -164,7 +164,7 @@ exports.checkImage = function* () {
   }
   const result = yield registryService.getImageInfo(registryUser, imageFullName, true)
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig.v2Server,
     name: imageFullName,
     data: result
   }
@@ -182,7 +182,7 @@ exports.deleteImage = function* () {
   }
   const result = yield registryService.deleteImage(registryUser, image)
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig.v2Server,
     message: result
   }
 }
@@ -198,7 +198,7 @@ exports.queryServerStats = function* () {
   }
   const result = yield registryService.queryRegistryStats(registryUser)
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig.v2Server,
     data: result
   }
 }
@@ -260,7 +260,9 @@ function* _getValidTenxCloudHub(loginUser) {
     const api = apiFactory.getApi(loginUser)
     const result = yield api.tenxhubs.get()
     if (result.data && result.data.host) {
-      logger.info("Getting user registry for " + loginUser.user + ": " + result.data.host)
+      logger.info("Getting user registry for " + loginUser.user + ": " + JSON.stringify(result))
+      let realPassword = securityUtil.decryptContent(result.data.password, loginUser.token, algorithm)
+      result.data.password = realPassword
       registryService.getTenxHubConfig()[loginUser.user] = result.data
       return registryService.getTenxHubConfig()[loginUser.user]
     }
@@ -306,7 +308,6 @@ exports.getPrivateRegistries = function* () {
 
   this.status = result.code
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
     data: result.data
   }
 }
