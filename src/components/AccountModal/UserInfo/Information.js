@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import { updateUser } from '../../../actions/user'
 import { parseAmount } from '../../../common/tools'
 import NotificationHandler from '../../../common/notification_handler'
+import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants' 
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -171,10 +172,10 @@ class Information extends Component {
 
     let roleName
     switch (userDetail.role) {
-      case 1:
+      case ROLE_TEAM_ADMIN:
         roleName = "团队管理员"
         break
-      case 2:
+      case ROLE_SYS_ADMIN:
         roleName = "系统管理员"
         break
       default:

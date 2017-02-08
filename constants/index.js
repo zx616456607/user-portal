@@ -33,6 +33,7 @@ exports.DEFAULT_PAGE_SIZE = 10
 exports.MAX_PAGE_SIZE = 100
 exports.USER_CURRENT_CONFIG = 'tce_user_current_config'
 exports.ANNOTATION_SVC_SCHEMA_PORTNAME = 'tenxcloud.com/schemaPortname'
+exports.ANNOTATION_HTTPS = 'tenxcloud.com/https'
 exports.ROLE_USER = 0
 exports.ROLE_TEAM_ADMIN = 1
 exports.ROLE_SYS_ADMIN = 2
@@ -46,3 +47,5 @@ exports.TENX_LOCAL_TIME_VOLUME = {
   }
 }
 exports.DEFAULT_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss'
+exports.CERT_REGEX = /^-----BEGIN CERTIFICATE-----\n(.+\n)+-----END CERTIFICATE-----$/
+exports.PRIVATE_KEY_REGEX = /^-----BEGIN RSA PRIVATE KEY-----\n(.+\n)+-----END RSA PRIVATE KEY-----$/

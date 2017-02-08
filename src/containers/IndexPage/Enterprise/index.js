@@ -5,6 +5,7 @@ import "./style/IndexPage.less"
 import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
 import Admin from '../../../components/Home/Enterprise/Admin'
 import Ordinary from '../../../components/Home/Enterprise/Ordinary'
+import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 
 class IndexPage extends Component {
   constructor(props) {
@@ -28,7 +29,7 @@ class IndexPage extends Component {
   render() {
     const { loginUser,current } = this.props
     if(current.space.spaceName){
-      if(loginUser.info.role === 1 && current.space.namespace !== 'default'){
+      if((loginUser.info.role === ROLE_TEAM_ADMIN || loginUser.info.role === ROLE_SYS_ADMIN) && current.space.namespace !== 'default'){
         return (
           <div id="IndexPage">
             <Admin spaceName={current.space.spaceName}/>

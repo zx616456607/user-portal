@@ -20,6 +20,7 @@ import { connect } from 'react-redux'
 import MemberTransfer from '../../MemberTransfer'
 import CreateSpaceModal from '../../CreateSpaceModal'
 import NotificationHandler from '../../../../common/notification_handler'
+import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../../constants'
 
 let MemberList = React.createClass({
   getInitialState() {
@@ -709,7 +710,7 @@ function mapStateToProp(state, props) {
             name: item.userName,
             tel: item.phone,
             email: item.email,
-            style: item.role === 0 ? '普通成员' : '团队管理员',
+            style: item.role === ROLE_SYS_ADMIN ? '系统管理员' : (item.role === ROLE_TEAM_ADMIN ? '团队管理员' : '普通成员'),
           }
         )
         teamUserIDList.push(item.userID)
