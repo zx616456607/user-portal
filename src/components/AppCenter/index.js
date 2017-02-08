@@ -415,7 +415,7 @@ class ImageCenter extends Component {
     const scope = this;
     const otherImageHead = this.state.otherImageHead || [];
     let ImageTabList = [];
-    let liteFlag = false;
+    let liteFlag = Boolean(this.props.bindInfo);
     ImageTabList.push(<TabPane tab='私有空间' key='1'><ImageSpace scope={scope} /></TabPane>)
     ImageTabList.push(<TabPane tab='公有空间' key='2'><PublicSpace scope={scope} liteFlag={liteFlag} /></TabPane>)
     ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} liteFlag={liteFlag} /></TabPane>)

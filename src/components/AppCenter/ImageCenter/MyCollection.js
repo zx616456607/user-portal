@@ -271,8 +271,10 @@ class MyCollection extends Component {
     }
   }
   componentWillMount() {
-    const { loadFavouriteList } = this.props
-    loadFavouriteList(DEFAULT_REGISTRY)
+    const { loadFavouriteList, liteFlag } = this.props
+    if(liteFlag) {      
+      loadFavouriteList(DEFAULT_REGISTRY)
+    }
   }
   closeImageDetailModal() {
     //this function for user close the modal of image detail info

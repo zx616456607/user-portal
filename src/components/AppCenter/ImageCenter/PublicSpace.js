@@ -50,7 +50,7 @@ const menusText = defineMessages({
   },
   tooltips: {
     id: 'AppCenter.ImageCenter.PublicSpace.tooltips',
-    defaultMessage: '公共镜像 —— 企业成员可以将在镜像空间内设置的私有镜像，一键开放为企业所有人可见的公共镜像，可以实现跨团队，共享容器镜像服务，实现企业内部高效开发协作的容器镜像PaaS平台。',
+    defaultMessage: '公共镜像 —— 企业成员可以将私有空间内的私有镜像，一键开放为对所有人可见的公共镜像，实现跨团队共享容器镜像服务，建立企业内部高效开发协作的容器镜像PaaS平台。',
   },
   noData: {
     id: 'AppCenter.ImageCenter.OtherSpace.noData',
@@ -292,8 +292,10 @@ class PublicSpace extends Component {
   }
   searchImages() {
     let image = this.state.imageName
-    const { registry, searchPublicImages } = this.props
-    searchPublicImages(registry, image)
+    const { registry, searchPublicImages, liteFlag } = this.props
+    if(liteFlag) {    
+      searchPublicImages(registry, image)
+    }
   }
   render() {
     const { formatMessage } = this.props.intl;
@@ -311,7 +313,7 @@ class PublicSpace extends Component {
         <div id="PublicSpace" key="PublicSpace">
           <Alert message={standardFlag ? [<FormattedMessage {...menusText.tooltips} />] : '镜像仓库用于存放镜像，您可关联时速云·公有云的镜像仓库，使用公有云中私有空间镜像；关联后，该仓库也用于存放通过TenxFlow构建出的镜像'} type="info" />
           { !standardFlag && !liteFlag ? 
-            [<NoBind scope={scope} />] 
+            [<NoBind scope={scope} />]
             :
             [<Card className="PublicSpaceCard">
               <div className="operaBox">

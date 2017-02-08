@@ -125,6 +125,7 @@ class AppSettingsHttps extends Component {
       statusText: '关闭',
       targeStatus: false,
       createModal: false,
+      detailModal: false,
       hasBindingDomain: false,
       hasHTTPPort: false,
       certificateExists: false,
@@ -140,7 +141,13 @@ class AppSettingsHttps extends Component {
     const { serviceName, cluster, loadK8sService, loadServiceDetail, loadCertificates } = this.props
     loadK8sService(cluster, serviceName)
     loadServiceDetail(cluster, serviceName)
+    const _this = this
     loadCertificates(cluster, serviceName, {
+      success: {
+        func: () => {
+          _this.setState({certificateExists: true})
+        }
+      },
       failed: {
         func: (err) => {
           if (err.statusCode !== 404) {
@@ -416,6 +423,19 @@ class AppSettingsHttps extends Component {
     })
   }
   render() {
+    let  tipText = "请先满足上边的设置条件", tipStatus = true
+    if (this.state.hasHTTPPort && this.state.hasBindingDomain) {
+      tipText = ''
+      tipStatus = false
+    }
+    if (!this.state.setting) {
+      tipText = '请点击切换开关'
+      tipStatus = true
+    }
+    const formItemLayout = {
+      labelCol: { span: 4 },
+      wrapperCol: { span: 20 },
+    };
     return (
       <div id="settingsHttps">
         <div className="topHead">
@@ -454,9 +474,33 @@ class AppSettingsHttps extends Component {
               <div className="tabsBody">
                 <div className={this.state.tabsActive == 1 ? "tabs tabs-active" : 'tabs'}>
                   {/* 满足条件则不 提示 */}
-                  <Tooltip title="请先满足上边的设置条件"><Button size="large" disabled={!this.state.setting && !this.state.modifying} onClick={()=> this.setState({createModal: true})}><Icon type="plus" />{this.state.certificateExists ? '重新上传' : '上传'}</Button></Tooltip>
-                  {this.state.certificateExists ? <Button size="large" onClick={()=> this.deleteCertificates()}>删除</Button> : null}
-                  <div className="alertTips">Tips：使用自有的 ssl 证书则需要上传您的证书至该服务</div>
+                  <Tooltip title={ tipText }><Button size="large" disabled={tipStatus} onClick={()=> this.setState({createModal: true})}><Icon type="plus" />{this.state.certificateExists ? '重新新建' : '新建'}</Button></Tooltip>
+                  {this.state.certificateExists ? 
+                    [<Button size="large" onClick={()=> this.deleteCertificates()} style={{marginLeft:'8px'}}>删除</Button>,
+                    <div className="ant-table">
+                      <table className="certificateTable">
+                        <thead>
+                          <tr>
+                            <th>名称</th>
+                            <th>类型</th>
+                            <th>开启时间</th>
+                            <th>过期时间</th>
+                            <th>操作</th>
+                          </tr>
+                        </thead>
+                        <tr>
+                          <td><a onClick={()=> this.setState({detailModal: true})}>test</a></td>
+                          <td>服务器证书</td>
+                          <td>2017-2-1</td>
+                          <td>2027-3-1</td>
+                          <td> <Icon type="delete" /></td>
+                        </tr>
+                      </table>
+                      <br/>
+                    </div>]
+                  :
+                    <div className="alertTips">Tips：使用自有的 ssl 证书则需要上传您的证书至该服务</div>
+                  }
                 </div>
 
                 <div className={this.state.tabsActive == 2 ? "tabs tabs-active" : 'tabs'}>
@@ -470,7 +514,29 @@ class AppSettingsHttps extends Component {
         </Card>
         {/* 新建证书 */}
         <UploadSslModal scope={this} />
-
+        {/* 证书详情 */}
+        <Modal title="证书详情" visible={this.state.detailModal} className="createSslModal"
+        onCancel={()=> this.setState({detailModal: false})} 
+        footer={<Button type="primary" onClick={()=> this.setState({detailModal: false})} >知道了</Button>}
+        >
+        <Form horizontal>
+          <FormItem {...formItemLayout} label="证书名称">
+            <span>test</span>
+          </FormItem>
+          <FormItem {...formItemLayout} label="证书类型">
+            <span>服务器证书</span>
+          </FormItem>
+          <FormItem {...formItemLayout} label="证书内容">
+            <Input type="textarea"/>
+          </FormItem>
+          <FormItem {...formItemLayout} label="启用时间">
+            2017-2-3
+          </FormItem>
+          <FormItem {...formItemLayout} label="过期时间">
+            2017-2-9
+          </FormItem>
+        </Form>
+      </Modal>
         <div className="notice">注：HTTPS启动，则停止原有的HTTP服务</div>
       </div>
     )

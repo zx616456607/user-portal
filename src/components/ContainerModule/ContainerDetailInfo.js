@@ -69,7 +69,7 @@ export default class ContainerDetailInfo extends Component {
         ele.push(
           <div key={name}>
             <div className="commonTitle">{name}</div>
-            <div className="commonTitle">{volume.mountPath}</div>
+            <div className="commonTitle" style={{width: '66%'}}>{volume.mountPath}</div>
             <div style={{ clear: "both" }}></div>
           </div>
         )
@@ -195,7 +195,7 @@ export default class ContainerDetailInfo extends Component {
                 return (
                   <div key={env.name}>
                     <div className="commonTitle">{env.name}</div>
-                    <div className="commonTitle">{env.value}</div>
+                    <div className="commonTitle" style={{width:'66%'}}>{env.value}</div>
                     <div style={{ clear: "both" }}></div>
                   </div>
                 )

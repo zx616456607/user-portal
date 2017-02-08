@@ -88,11 +88,16 @@
           display: block
         }
       }
+      .certificateTable{
+        margin-top: 20px;
+        th,td{font-weight: 400;line-height: 40px;border-bottom: 1px solid @borderColor;padding-left: 6px;}
+      }
     }
   }
   .notice {line-height: 50px;}
 }
 .createSslModal {
+  z-index: 1080;
   .ant-modal-body {
     .ant-form-item{margin-bottom:10px}
   }

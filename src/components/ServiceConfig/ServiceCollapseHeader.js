@@ -16,7 +16,7 @@ import { createConfigFiles, deleteConfigGroup, loadConfigGroup, deleteConfigFile
 import { connect } from 'react-redux'
 import { calcuDate } from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
-// import { validateServiceConfigFile } from '../../common/naming_validation'
+import { validateServiceConfigFile } from '../../common/naming_validation'
 import { USERNAME_REG_EXP_NEW } from '../../constants'
 import { validateK8sResource } from '../../common/naming_validation'
 
@@ -31,20 +31,16 @@ let CreateConfigFileModal = React.createClass({
       callback([new Error('请输入配置文件名称')])
       return
     }
-    if(value.length < 3){
-      callback([new Error('配置文件名称长度需大于 3 个字符')])
-      return
-    }
-    if(value.length > 64) {
-      callback([new Error('配置文件名称长度不超过 63 个字符')])
+    if(value.length > 253) {
+      callback([new Error('配置文件名称长度不超过 252 个字符')])
       return
     }
     if(/^[\u4e00-\u9fa5]+$/i.test(value)){
-      callback([new Error('名称需小写英文开头, 由小写英文、数字、中划线(-)组成, 且以小写英文和数字结尾')])
+      callback([new Error('名称由英文、数字、中划线(-)、下划线(_)、点(.)组成, 且以英文和数字结尾')])
       return
-    }
-    if (!validateK8sResource(value)) {
-      callback([new Error('名称需小写英文开头, 由小写英文、数字、中划线(-)组成, 且以小写英文和数字结尾')])
+    } //^\\.?[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*
+    if (!validateServiceConfigFile(value)) {
+      callback([new Error('名称由英文、数字、中划线(-)、下划线(_)、点(.)组成, 且以英文和数字结尾')])
       return
     }
     callback()
