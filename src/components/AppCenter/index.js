@@ -370,19 +370,17 @@ class ImageCenter extends Component {
 
   componentWillMount() {
     let { getAppCenterBindUser } = this.props;
-    const _this = this;
-    if(!standardFlag) {      
-      getAppCenterBindUser({
-        success: {
-          func: (result) => {
-            _this.setState({
-              configured: result.configured
-            });
-          },
-          isAsync: true
-        }
-      });
-    }
+    const _this = this;    
+    getAppCenterBindUser({
+      success: {
+        func: (result) => {
+          _this.setState({
+            configured: result.configured
+          });
+        },
+        isAsync: true
+      }
+    });
   }
   
   componentDidMount() {
