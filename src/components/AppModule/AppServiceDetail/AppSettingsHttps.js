@@ -102,11 +102,11 @@ let UploadSslModal = React.createClass({
             <span>服务器证书</span>
           </FormItem>
           <FormItem {...formItemLayout} label="证书内容">
-            <Input type="textarea" {...certContent}/>
+            <Input type="textarea" {...certContent} placeholder="PEM编码"/>
             <a>查看样例</a>
           </FormItem>
           <FormItem {...formItemLayout} label="密钥内容">
-            <Input type="textarea" {...privateContent}/>
+            <Input type="textarea" {...privateContent} placeholder="PEM编码"/>
             <a>查看样例</a>
           </FormItem>
 
@@ -307,6 +307,8 @@ class AppSettingsHttps extends Component {
         func: () => {
           this.setState({
             modifying: false,
+            certContent: false,
+            keyContent: false
           })
           loadCertificates(cluster, serviceName)
           new NotificationHandler().success('证书更新成功')
@@ -468,6 +470,24 @@ class AppSettingsHttps extends Component {
       })
     })
   }
+   copyDownloadCode() {
+    //this function for user click the copy btn and copy the download code
+    const scope = this;
+    let code = document.getElementsByClassName("httpsInput");
+    code[0].select();
+    document.execCommand("Copy", false);
+    scope.setState({
+      copySuccess: true
+    });
+  }
+  returnDefaultTooltip() {
+    const scope = this;
+    setTimeout(function () {
+      scope.setState({
+        copySuccess: false
+      });
+    }, 500);
+  }
   render() {
     let  tipText = "请先满足上边的设置条件", disableUploadBtn = true
     if ((this.state.setting || this.state.modifying) && (this.state.hasHTTPPort && this.state.hasBindingDomainForHttp)) {
@@ -576,8 +596,10 @@ class AppSettingsHttps extends Component {
           <FormItem {...formItemLayout} label="证书类型">
             <span>服务器证书</span>
           </FormItem>
-          <FormItem {...formItemLayout} label="证书内容">
-            <Input type="textarea" value={this.props.certificate.pem}/>
+          <FormItem {...formItemLayout} label="证书内容" style={{margin:0}}>
+            <div className="ant-input" style={{height:'200px', overflow:'auto',wordBreak:'break-word'}}>{this.props.certificate.pem}</div>
+            <Tooltip title={this.state.copySuccess ? '复制成功' : '点击复制'}><a  onClick={()=> this.copyDownloadCode()} onMouseLeave={()=> this.returnDefaultTooltip()}><Icon type="copy" /> 复制</a></Tooltip>
+            <input className="httpsInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {this.props.certificate.pem}/>
           </FormItem>
           <FormItem {...formItemLayout} label="启用时间">
             {this.props.certificate.startTime}
