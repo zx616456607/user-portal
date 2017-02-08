@@ -591,7 +591,7 @@ function fetchAppCenterBindUser(callback) {
   return {
     [FETCH_API]: {
       types: [GET_ENTERPRISE_APP_CENTER_BIND_REQUEST, GET_ENTERPRISE_APP_CENTER_BIND_SUCCESS, GET_ENTERPRISE_APP_CENTER_BIND_FAILURE],
-      endpoint: `${API_URL_PREFIX}/tenx-registries`,
+      endpoint: `${API_URL_PREFIX}/tenx-hubs`,
       schema: Schemas.REGISTRYS,
       options: {
         method: 'GET',
@@ -615,7 +615,7 @@ function postAppCenterBindUser(callback) {
   return {
     [FETCH_API]: {
       types: [POST_ENTERPRISE_APP_CENTER_BIND_REQUEST, POST_ENTERPRISE_APP_CENTER_BIND_SUCCESS, POST_ENTERPRISE_APP_CENTER_BIND_FAILURE],
-      endpoint: `${API_URL_PREFIX}/tenx-registries`,
+      endpoint: `${API_URL_PREFIX}/tenx-hubs`,
       schema: Schemas.REGISTRYS,
       options: {
         method: 'POST',
@@ -639,7 +639,7 @@ function delAppCenterBindUser(callback) {
   return {
     [FETCH_API]: {
       types: [DEL_ENTERPRISE_APP_CENTER_BIND_REQUEST, DEL_ENTERPRISE_APP_CENTER_BIND_SUCCESS, DEL_ENTERPRISE_APP_CENTER_BIND_FAILURE],
-      endpoint: `${API_URL_PREFIX}/tenx-registries`,
+      endpoint: `${API_URL_PREFIX}/tenx-hubs`,
       schema: Schemas.REGISTRYS,
       options: {
         method: 'DELETE',
