@@ -46,10 +46,8 @@ class QRCodeContent extends Component {
   componentWillReceiveProps(nextProps) {
     const { wechat_auth_url } = this.state
     const { visible } = nextProps
-    console.log(`this.props.visible is ${this.props.visible}`)
     if (visible !== this.props.visible) {
       if(!visible) {
-        console.log(`nextProps.visible is ${visible}`)
         this.clearAllTimeout()
         return
       }
