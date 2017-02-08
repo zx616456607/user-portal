@@ -274,6 +274,8 @@ const MyComponent = React.createClass({
         return this.showRollingUpdateModal()
       case 'config':
         return this.showConfigModal()
+      case 'https':
+        return this.showHttpsModal()
     }
   },
   showRollingUpdateModal() {
@@ -298,6 +300,13 @@ const MyComponent = React.createClass({
     const { scope } = this.props
     scope.setState({
       selectTab: '#autoScale',
+      modalShow: true,
+    })
+  },
+  showHttpsModal() {
+    const { scope } = this.props
+    scope.setState({
+      selectTab: '#https',
       modalShow: true,
     })
   },
@@ -332,6 +341,9 @@ const MyComponent = React.createClass({
           </Menu.Item>
           <Menu.Item key="config">
             更改配置
+          </Menu.Item>
+          <Menu.Item key="https">
+            设置HTTPS
           </Menu.Item>
         </Menu>
       );

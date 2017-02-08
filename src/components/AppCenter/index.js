@@ -19,7 +19,7 @@ import MyCollection from './ImageCenter/MyCollection.js'
 import PublicSpace from './ImageCenter/PublicSpace.js'
 import OtherSpace from './ImageCenter/OtherSpace.js'
 import './style/ImageCenter.less'
-import { LoadOtherImage, addOtherStore, getImageDetailInfo, deleteOtherImage } from '../../actions/app_center'
+import { LoadOtherImage, addOtherStore, getImageDetailInfo, deleteOtherImage, getAppCenterBindUser } from '../../actions/app_center'
 import findIndex from 'lodash/findIndex'
 import NotificationHandler from '../../common/notification_handler'
 
@@ -363,10 +363,26 @@ class ImageCenter extends Component {
       otherSpaceType: '1',
       imageDetailModalShow: false,
       otherHead: {},
-      otherImageHead: []
+      otherImageHead: [],
+      configured: false
     }
   }
 
+  componentWillMount() {
+    let { getAppCenterBindUser } = this.props;
+    const _this = this;    
+    getAppCenterBindUser({
+      success: {
+        func: (result) => {
+          _this.setState({
+            configured: result.configured
+          });
+        },
+        isAsync: true
+      }
+    });
+  }
+  
   componentDidMount() {
     document.title = '镜像仓库 | 时速云'
     this.props.LoadOtherImage({
@@ -409,10 +425,16 @@ class ImageCenter extends Component {
     const scope = this;
     const otherImageHead = this.state.otherImageHead || [];
     let ImageTabList = [];
-    let liteFlag = false;
-    ImageTabList.push(<TabPane tab='私有空间' key='1'><ImageSpace scope={scope} /></TabPane>)
-    ImageTabList.push(<TabPane tab='公有空间' key='2'><PublicSpace scope={scope} liteFlag={liteFlag} /></TabPane>)
-    ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} liteFlag={liteFlag} /></TabPane>)
+    let { configured } = this.state;
+    if(standardFlag) {      
+      ImageTabList.push(<TabPane tab='私有空间' key='1'><ImageSpace scope={scope} hubConfig={configured} /></TabPane>)
+      ImageTabList.push(<TabPane tab='公有空间' key='2'><PublicSpace scope={scope} /></TabPane>)
+      ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} hubConfig={configured} /></TabPane>)
+    } else {
+      ImageTabList.push(<TabPane tab='公有空间' key='1'><PublicSpace scope={scope} /></TabPane>)
+      ImageTabList.push(<TabPane tab='私有空间' key='2'><ImageSpace scope={scope} hubConfig={configured} /></TabPane>)
+      ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} hubConfig={configured} /></TabPane>)
+    }
     let tempImageList = otherImageHead.map((list, index) => {
       return (
         <TabPane tab={<span><Icon type='shopping-cart' />&nbsp;<span>{list.title}</span></span>} key={index + 4}>
@@ -459,14 +481,18 @@ function mapStateToProps(state, props) {
     otherImageHead: [],
     server: ''
   }
-  const { privateImages, otherImages, imagesInfo } = state.images
+  const defaultBindInfo = {
+    configured: false
+  }
+  const { privateImages, otherImages, imagesInfo, getAppCenterBindUser } = state.images
   const { registry, imageList, isFetching } = privateImages || defaultConfig
   const { imageRow, server} = otherImages || defaultConfig
-
+  const { configured } = getAppCenterBindUser || defaultBindInfo
   return {
     otherImageHead: imageRow,
     isFetching,
-    server
+    server,
+    configured
   }
 }
 
@@ -480,10 +506,16 @@ function mapDispatchToProps(dispatch) {
     },
     deleteOtherImage: (obj, callback) => {
       dispatch(deleteOtherImage(obj, callback))
-    }
+    },
+    getAppCenterBindUser
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(ImageCenter, {
+export default connect(mapStateToProps, {
+  addOtherStore,
+  LoadOtherImage,
+  deleteOtherImage,
+  getAppCenterBindUser,
+})(injectIntl(ImageCenter, {
   withRef: true,
 }))

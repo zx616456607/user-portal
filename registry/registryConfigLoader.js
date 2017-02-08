@@ -10,10 +10,10 @@
  * @author Wang Lei
 */
 'use strict'
-const logger  = require('../utils/logger').getLogger('registry_index');
+const logger  = require('../utils/logger').getLogger('registryConfigLoader');
 const apiFactory = require('../services/api_factory')
 
-var registryLocalStorage = ''
+var registryLocalStorage = 'INIT_STATE'
 
 // Initialize it at server startup, wait for 5 seconds
 setTimeout(function() {
@@ -26,7 +26,7 @@ setTimeout(function() {
 
 // Get registry configuration from api service
 function GetRegistryConfig(callback) {
-  if (registryLocalStorage != '') {
+  if (registryLocalStorage != 'INIT_STATE') {
     return registryLocalStorage
   }
   // No user info needed
@@ -34,12 +34,17 @@ function GetRegistryConfig(callback) {
   spi.tenxregistries.get(null, function(err, result) {
     if (!err) {
       registryLocalStorage = result.data
-      if (!registryLocalStorage.host) {
+      if (!registryLocalStorage || !registryLocalStorage.host) {
         logger.warn("No valid tenxcloud registry configured, should check the configuration in the database.")
       }
       callback && callback(null, result.data)
     } else {
-      logger.error("Failed to get registry config from api service: " + JSON.stringify(err))
+      registryLocalStorage = 'FAIL_TO_LOAD'
+      if (err.statusCode == 404) {
+        logger.warn("No global tenxcloud hub configured.")
+      } else {
+        logger.error("Failed to get registry config from api service: " + JSON.stringify(err))
+      }
       callback && callback(err, result)
     }
   })
