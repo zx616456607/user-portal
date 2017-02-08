@@ -396,6 +396,25 @@ class BaseInfo extends Component {
         return this.renderWechatAccount(account)
     }
   }
+  renderPassword(userDetail) {
+    const { isPasswordSet } = userDetail
+    if (isPasswordSet) {
+      return (
+        <li>
+          <span className="key">密码</span>
+          <span className="value" style={{color: '#5cb85c'}}>已设置</span>
+          <Button type="primary" onClick={() => this.setState({ editPsd: true })}>修改密码</Button>
+        </li>
+      )
+    }
+    return (
+      <li>
+        <span className="key">密码</span>
+        <span className="value" style={{color: '#9190F8'}}>未设置</span>
+        <Button type="primary" onClick={() => this.setState({ editPsd: true })}>设置密码</Button>
+      </li>
+    )
+  }
   render() {
     // const {getFieldProps} = this.props.form
     let { user } = this.props
@@ -496,11 +515,7 @@ class BaseInfo extends Component {
                 <PasswordRow scope={this} />
               </li>
               :
-              <li>
-                <span className="key">密码</span>
-                <span className="value" style={{color:'#5cb85c'}}>已设置</span>
-                <Button type="primary" onClick={() => this.setState({ editPsd: true })}>修改密码</Button>
-              </li>
+              this.renderPassword(userDetail)
             }
             {this.state.editPhone ?
             <li>
@@ -570,7 +585,7 @@ class BaseInfo extends Component {
             </TabPane>
           </Tabs>
         </Modal>
-        <Modal title='解除绑定' visible={this.state.unbindModalShow} 
+        <Modal title='解除绑定' visible={this.state.unbindModalShow}
           onCancel={() => this.setState({unbindModalShow: false})} onOk={() => this.handleUnbind(user3rdAccounts[0].accountType)}
         >
           <span style={{ color: '#00a0ea', marginRight: '10px' }}>
