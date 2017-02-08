@@ -418,17 +418,17 @@ class ImageSpace extends Component {
     }
   }
   componentWillMount() {
-    const { liteFlag } = this.props;
-    if(liteFlag) {    
+    const { hubConfig } = this.props;
+    if(hubConfig) {    
       this.props.loadPrivateImageList(DEFAULT_REGISTRY);
     }
   }
   componentWillReceiveProps(nextProps) {
-    const { space, liteFlag } = nextProps
+    const { space, hubConfig } = nextProps
     if (space.namespace !== this.props.space.namespace) {
       this.props.loadPrivateImageList(DEFAULT_REGISTRY)
     }
-    if(this.props.liteFlag != liteFlag && liteFlag) {
+    if(this.props.hubConfig != hubConfig && hubConfig) {
       this.props.loadPrivateImageList(DEFAULT_REGISTRY)
     }
   }
@@ -509,14 +509,14 @@ class ImageSpace extends Component {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
     const scope = this;
-    const { imageList, server, imageInfo, liteFlag } = this.props
+    const { imageList, server, imageInfo, hubConfig } = this.props
     return (
       <QueueAnim className="ImageSpace"
         type="right"
         >
         <div id="ImageSpace" key="ImageSpace">
           { !standardFlag ? [<Alert message={'镜像仓库用于存放镜像，您可关联时速云·公有云的镜像仓库，使用公有云中私有空间镜像；关联后，该仓库也用于存放通过TenxFlow构建出的镜像'} type="info" />] : null }
-          { !liteFlag ?
+          { !hubConfig ?
             [<NoBind scope={scope} />]
             :
           [<Card className="ImageSpaceCard">
