@@ -8,16 +8,21 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message} from 'antd'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Alert, Icon, Tooltip, notification } from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadPrivateImageList, getImageDetailInfo, deleteImage, checkImage, searchPrivateImages } from '../../../actions/app_center'
+import { loadPrivateImageList, getImageDetailInfo, deleteImage, checkImage, searchPrivateImages, AppCenterBindUser, deleteAppCenterBindUser } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import "./style/ImageSpace.less"
 import ImageDetailBox from './ImageDetail'
 import NotificationHandler from '../../../common/notification_handler'
+import noBindImg from '../../../assets/img/appCenter/noBind.png'
+
+const mode = require('../../../../configs/model').mode
+const standard = require('../../../../configs/constants').STANDARD_MODE
+let standardFlag = (mode == standard ? true : false);
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -242,6 +247,156 @@ const MyComponent = React.createClass({
   }
 });
 
+let NoBind = React.createClass({
+  getInitialState() {
+    return {
+      username: '',
+      password: ''
+    }
+  },
+  onChangeUsername(e) {
+    //this function for change the username of state
+    this.setState({
+      username: e.target.value
+    })
+    if(e.target.value.length > 0) {
+      this.setState({
+        usernameError: false
+      })
+    } else {
+      this.setState({
+        usernameError: true
+      })
+    }
+  },
+  onChangePassword(e) {
+    //this function for change the password of state
+    this.setState({
+      password: e.target.value
+    })
+    if(e.target.value.length > 0) {
+      this.setState({
+        passwordError: false
+      })
+    } else {
+      this.setState({
+        passwordError: true
+      })
+    }
+  },
+  openBindModal() {
+    //this function for open bind modal
+    const { scope } = this.props;
+    scope.setState({
+      bindModalShow: true
+    });
+  },
+  closeBindModal() {
+    //this function for close bind modal
+    const { scope } = this.props;
+    this.setState({
+      usernameError: false,
+      passwordError: false,
+      username: '',
+      password: ''
+    });
+    scope.setState({
+      bindModalShow: false
+    });
+  },
+  submitBind() {
+    //this function for submit bind
+    const { scope } = this.props;
+    const { username, password } = this.state;
+    const { AppCenterBindUser } = scope.props;
+    let errorFlag = false;
+    if(!Boolean(username)) {
+      //wrong username
+      errorFlag = true;
+      this.setState({
+        usernameError: true
+      })
+    }
+    if(!Boolean(password)) {
+      //wrong password
+      errorFlag = true;
+      this.setState({
+        passwordError: true
+      })
+    }
+    if(errorFlag) {
+      return;
+    }
+    let body = {
+      username: username,
+      password: password
+    }
+    AppCenterBindUser(body, {
+      success: {
+        func: () => {
+          scope.props.scope.setState({
+            configured: true
+          })
+        },
+        isAsync: true
+      }
+    });
+    this.setState({
+      username: '',
+      password: ''
+    });
+    scope.setState({
+      bindModalShow: false
+    });
+  },
+  render() {
+    const {scope} = this.props;
+    return (
+    <div className='noBind'>
+      <Card className='noBindCard'>
+        <div className='leftBox'>
+          <img src={noBindImg} />
+        </div>
+        <div className='rightBox'>
+          <div className='msgDetail'>
+            <div className='square'></div>
+            <span>企业版支持关联时速云·公有云的镜像仓库。</span>
+          </div>
+          <div className='msgDetail'>
+            <div className='square'></div>
+            <span>只需填写时速云官网注册的用户名和密码即可快速关联。</span>
+          </div>
+        </div>
+      </Card>
+      <Button className='bindBtn' type='primary' size='large' onClick={this.openBindModal}>
+        <Icon type='plus' />
+        <span>时速云镜像Hub</span>
+      </Button>
+      <p className='alert'>目前您还没有关联时速云·公有云镜像</p>
+      <Modal className='liteBindCenterModal' title='关联时速云镜像Hub' visible={scope.state.bindModalShow}
+        onCancel={this.closeBindModal} onOk={this.submitBind}
+      >
+        <Alert message={[<span><Icon type='exclamation-circle' style={{ marginRight: '7px', color: '#2db7f5' }} /><span>关联时速云·公有云的镜像仓库，请填写时速云官网注册的用户名和密码</span></span>]} type="info" />
+        <div className='inputBox'>
+          <span className='title'>用户名</span>
+          <span className={this.state.usernameError ? 'errorInput input' : 'input'}>
+            <Input size='large' value={this.state.username} onChange={this.onChangeUsername} />
+            <div className='errorMsg'><Icon type='exclamation-circle-o' /><span>用户名不能为空</span></div>
+          </span>
+        </div>
+        <div className='inputBox'>
+          <span className='title'>密码</span>
+          <span className={this.state.passwordError ? 'errorInput input' : 'input'}>
+            <Input size='large' type='password' value={this.state.password} onChange={this.onChangePassword} />
+            <div className='errorMsg'><Icon type='exclamation-circle-o' /><span>密码不能为空</span></div>
+          </span>
+        </div>
+      </Modal>
+    </div>
+    )
+  }
+});
+
 class ImageSpace extends Component {
   constructor(props) {
     super(props);
@@ -249,20 +404,31 @@ class ImageSpace extends Component {
     this.closeUploadModal = this.closeUploadModal.bind(this);
     this.openDownloadModal = this.openDownloadModal.bind(this);
     this.closeDownloadModal = this.closeDownloadModal.bind(this);
-    this.closeImageDetailModal = this.closeImageDetailModal.bind(this)
+    this.closeImageDetailModal = this.closeImageDetailModal.bind(this);
+    this.showDeleteBindUser = this.showDeleteBindUser.bind(this);
+    this.closeDeleteBindUser = this.closeDeleteBindUser.bind(this);
+    this.deleteBindUser = this.deleteBindUser.bind(this);
     this.state = {
       uploadModalVisible: false,
       downloadModalVisible: false,
       currentImage: null,
-      privateDetailModal: false
+      privateDetailModal: false,
+      imageDetailModalShow: false,
+      deleteBindUserModal: false
     }
   }
   componentWillMount() {
-    this.props.loadPrivateImageList(DEFAULT_REGISTRY);
+    const { hubConfig } = this.props;
+    if(hubConfig) {    
+      this.props.loadPrivateImageList(DEFAULT_REGISTRY);
+    }
   }
   componentWillReceiveProps(nextProps) {
-    const { space } = nextProps
+    const { space, hubConfig } = nextProps
     if (space.namespace !== this.props.space.namespace) {
+      this.props.loadPrivateImageList(DEFAULT_REGISTRY)
+    }
+    if(this.props.hubConfig != hubConfig && hubConfig) {
       this.props.loadPrivateImageList(DEFAULT_REGISTRY)
     }
   }
@@ -307,18 +473,53 @@ class ImageSpace extends Component {
     }
     this.props.searchPrivateImages(condition)
   }
-
+  deleteBindUser() {
+    //this function for unbind user from public cloud
+    const { deleteAppCenterBindUser, scope } = this.props;
+    deleteAppCenterBindUser({
+      success: {
+        func: () => {
+          notification['success']({
+            message: '注销成功'
+          });
+          scope.setState({
+            configured: false
+          })
+        },
+        isAsync: true
+      }
+    });
+    this.setState({
+      deleteBindUserModal: false
+    })
+  }
+  showDeleteBindUser() {
+    //this function for show delete modal
+    this.setState({
+      deleteBindUserModal: true
+    });
+  }
+  closeDeleteBindUser() {
+    //this function for close delete modal
+    this.setState({
+      deleteBindUserModal: false
+    });
+  }
   render() {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
     const scope = this;
-    const { imageList, server, imageInfo} = this.props
+    const { imageList, server, imageInfo, hubConfig } = this.props
     return (
       <QueueAnim className="ImageSpace"
         type="right"
         >
         <div id="ImageSpace" key="ImageSpace">
-          <Card className="ImageSpaceCard">
+          { !standardFlag ? [<Alert message={'镜像仓库用于存放镜像，您可关联时速云·公有云的镜像仓库，使用公有云中私有空间镜像；关联后，该仓库也用于存放通过TenxFlow构建出的镜像'} type="info" />] : null }
+          { !hubConfig ?
+            [<NoBind scope={scope} />]
+            :
+          [<Card className="ImageSpaceCard">
             <div className="operaBox">
               <Button className="uploadBtn" size="large" type="primary" onClick={this.openUploadModal}>
                 <svg className='appcenterupload'>
@@ -336,47 +537,60 @@ class ImageSpace extends Component {
                 <Input className="searchInput" size="large" placeholder="搜索" type="text" onChange={(e)=> this.setState({imageName: e.target.value})} onPressEnter={()=> this.searchImage()} />
                 <i className="fa fa-search" onClick={()=> this.searchImage()}></i>
               </span>
+              { !standardFlag ?
+                [
+                <Tooltip title='注销时速云Hub'>
+                  <Button className='logoutBtn' size='large' type='ghost' onClick={this.showDeleteBindUser}>
+                    <span>注销</span>
+                  </Button>
+                </Tooltip>
+                ] : null
+              }
             </div>
             <MyComponent scope={scope} isFetching={this.props.isFetching} imageList={imageList} registryServer={server} imageInfo={imageInfo} getImageDetailInfo={(obj, callback) => this.props.getImageDetailInfo(obj, callback)} />
-            <Modal title={<FormattedMessage {...menusText.uploadImage} />} className="uploadImageModal" visible={this.state.uploadModalVisible}
-              onCancel={this.closeUploadModal} onOk={this.closeUploadModal}
-              >
-              <p>1.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageFirstTips} /></p>
-              <pre className="codeSpan">
-                sudo docker login {this.props.server}
-              </pre>
-              <p>2.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageSecondTips} /></p>
-              <pre className="codeSpan">
-                {`sudo docker tag tenxcloud/ubuntu:latest ${this.props.server}/<username>/<repository>:<tag>`}
-              </pre>
-              <p>3.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageThirdTips} /></p>
-              <pre className="codeSpan">
-                {`sudo docker push ${this.props.server}/<username>/<repository>:<tag>`}
-              </pre>
-            </Modal>
-            <Modal title={<FormattedMessage {...menusText.downloadImage} />} className="uploadImageModal" visible={this.state.downloadModalVisible}
-              onCancel={this.closeDownloadModal} onOk={this.closeDownloadModal}
-              >
-              <p><FormattedMessage {...menusText.downloadImageFirstTips} /></p>
-              <p><i className="fa fa-exclamation-triangle"></i>&nbsp;<FormattedMessage {...menusText.downloadImageSecondTips} /></p>
-              <pre className="codeSpan">
-                {`sudo docker pull ${this.props.server}/<username>/<repository>:<tag>`}
-              </pre>
-              <p><i className="fa fa-exclamation-triangle"></i>&nbsp;<FormattedMessage {...menusText.downloadImageThirdTips} /></p>
-              <pre className="codeSpan">
-                sudo docker tag  {this.props.server}/tenxcloud/hello-world:latst tenxcloud/hello-world:latest
-              </pre>
-            </Modal>
-            <Modal
-              visible={this.state.privateDetailModal}
-              className="AppServiceDetail"
-              transitionName="move-right"
-              onCancel={this.closeImageDetailModal}
-              >
-              {/* right detail box  */}
-              <ImageDetailBox parentScope={rootscope} server={this.props.server} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
-            </Modal>
-          </Card>
+          </Card>]
+          }
+          <Modal title={<FormattedMessage {...menusText.uploadImage} />} className="uploadImageModal" visible={this.state.uploadModalVisible}
+            onCancel={this.closeUploadModal} onOk={this.closeUploadModal}
+            >
+            <p>1.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageFirstTips} /></p>
+            <pre className="codeSpan">
+              sudo docker login {this.props.server}
+            </pre>
+            <p>2.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageSecondTips} /></p>
+            <pre className="codeSpan">
+              {`sudo docker tag tenxcloud/ubuntu:latest ${this.props.server}/<username>/<repository>:<tag>`}
+            </pre>
+            <p>3.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageThirdTips} /></p>
+            <pre className="codeSpan">
+              {`sudo docker push ${this.props.server}/<username>/<repository>:<tag>`}
+            </pre>
+          </Modal>
+          <Modal title={<FormattedMessage {...menusText.downloadImage} />} className="uploadImageModal" visible={this.state.downloadModalVisible}
+            onCancel={this.closeDownloadModal} onOk={this.closeDownloadModal}
+            >
+            <p><FormattedMessage {...menusText.downloadImageFirstTips} /></p>
+            <p><i className="fa fa-exclamation-triangle"></i>&nbsp;<FormattedMessage {...menusText.downloadImageSecondTips} /></p>
+            <pre className="codeSpan">
+              {`sudo docker pull ${this.props.server}/<username>/<repository>:<tag>`}
+            </pre>
+            <p><i className="fa fa-exclamation-triangle"></i>&nbsp;<FormattedMessage {...menusText.downloadImageThirdTips} /></p>
+            <pre className="codeSpan">
+              sudo docker tag  {this.props.server}/tenxcloud/hello-world:latst tenxcloud/hello-world:latest
+            </pre>
+          </Modal>
+          <Modal
+            visible={this.state.privateDetailModal}
+            className="AppServiceDetail"
+            transitionName="move-right"
+            onCancel={this.closeImageDetailModal}
+            >
+            {/* right detail box  */}
+            <ImageDetailBox parentScope={rootscope} server={this.props.server} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
+          </Modal>
+          <Modal title='注销' className='liteBindCenterModal' visible={this.state.deleteBindUserModal} onOk={this.deleteBindUser} onCancel={this.closeDeleteBindUser}>
+            <span style={{ color: '#00a0ea' }}><Icon type='exclamation-circle-o' />&nbsp;&nbsp;&nbsp;确定要注销时速云官方Hub？</span>
+          </Modal>
         </div>
       </QueueAnim>
     )
@@ -430,7 +644,9 @@ export default connect(mapStateToProps, {
   getImageDetailInfo,
   deleteImage,
   checkImage,
-  searchPrivateImages
+  searchPrivateImages,
+  AppCenterBindUser,
+  deleteAppCenterBindUser
 })(injectIntl(ImageSpace, {
   withRef: true,
 }))
