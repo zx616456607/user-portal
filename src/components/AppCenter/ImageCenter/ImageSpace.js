@@ -516,7 +516,7 @@ class ImageSpace extends Component {
         >
         <div id="ImageSpace" key="ImageSpace">
           { !standardFlag ? [<Alert message={'镜像仓库用于存放镜像，您可关联时速云·公有云的镜像仓库，使用公有云中私有空间镜像；关联后，该仓库也用于存放通过TenxFlow构建出的镜像'} type="info" />] : null }
-          { !standardFlag && !liteFlag ?
+          { !liteFlag ?
             [<NoBind scope={scope} />]
             :
           [<Card className="ImageSpaceCard">

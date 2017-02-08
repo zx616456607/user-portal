@@ -362,7 +362,7 @@ class MyCollection extends Component {
         >
         <div id="MyCollection" key="MyCollection">
           <Alert message={standardFlag ? [<FormattedMessage {...menusText.tooltips} />] : '关联时速云·公有云镜像仓库后，您可使用公有云中收藏的镜像，也可以将时速云镜像hub中的任意镜像，一键收藏到我的收藏，便捷的管理常用容器镜像。'} type="info" />
-          { !standardFlag && !liteFlag ? 
+          { !liteFlag ? 
             [<NoBind scope={scope} />] 
             :
             [<Card className="MyCollectionCard">
