@@ -275,7 +275,7 @@ function getAppCenterBindUser(state = {}, action) {
     case ActionTypes.GET_ENTERPRISE_APP_CENTER_BIND_SUCCESS:
       return merge({}, state, {
         isFetching: false,
-        bindInfo: action.response.result.data
+        configured: action.response.result.configured
       })
     case ActionTypes.GET_ENTERPRISE_APP_CENTER_BIND_FAILURE:
       return merge({}, state, {

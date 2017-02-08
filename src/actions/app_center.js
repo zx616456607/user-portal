@@ -611,7 +611,7 @@ export const POST_ENTERPRISE_APP_CENTER_BIND_REQUEST = 'POST_ENTERPRISE_APP_CENT
 export const POST_ENTERPRISE_APP_CENTER_BIND_SUCCESS = 'POST_ENTERPRISE_APP_CENTER_BIND_SUCCESS'
 export const POST_ENTERPRISE_APP_CENTER_BIND_FAILURE = 'POST_ENTERPRISE_APP_CENTER_BIND_FAILURE'
 
-function postAppCenterBindUser(callback) {
+function postAppCenterBindUser(body, callback) {
   return {
     [FETCH_API]: {
       types: [POST_ENTERPRISE_APP_CENTER_BIND_REQUEST, POST_ENTERPRISE_APP_CENTER_BIND_SUCCESS, POST_ENTERPRISE_APP_CENTER_BIND_FAILURE],
@@ -619,15 +619,16 @@ function postAppCenterBindUser(callback) {
       schema: Schemas.REGISTRYS,
       options: {
         method: 'POST',
+        body: body
       }
     },
     callback
   }
 }
 
-export function AppCenterBindUser(callback) {
+export function AppCenterBindUser(body, callback) {
   return (dispatch, getState) => {
-    return dispatch(postAppCenterBindUser(callback))
+    return dispatch(postAppCenterBindUser(body, callback))
   }
 }
 

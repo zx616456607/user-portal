@@ -363,13 +363,26 @@ class ImageCenter extends Component {
       otherSpaceType: '1',
       imageDetailModalShow: false,
       otherHead: {},
-      otherImageHead: []
+      otherImageHead: [],
+      configured: false
     }
   }
 
   componentWillMount() {
     let { getAppCenterBindUser } = this.props;
-    getAppCenterBindUser()
+    const _this = this;
+    if(!standardFlag) {      
+      getAppCenterBindUser({
+        success: {
+          func: (result) => {
+            _this.setState({
+              configured: result.configured
+            });
+          },
+          isAsync: true
+        }
+      });
+    }
   }
   
   componentDidMount() {
@@ -409,16 +422,21 @@ class ImageCenter extends Component {
   }
 
   render() {
-    console.log(this.props)
     const { current, otherSpace } = this.state;
     const { formatMessage } = this.props.intl;
     const scope = this;
     const otherImageHead = this.state.otherImageHead || [];
     let ImageTabList = [];
-    let liteFlag = Boolean(this.props.bindInfo);
-    ImageTabList.push(<TabPane tab='私有空间' key='1'><ImageSpace scope={scope} /></TabPane>)
-    ImageTabList.push(<TabPane tab='公有空间' key='2'><PublicSpace scope={scope} liteFlag={liteFlag} /></TabPane>)
-    ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} liteFlag={liteFlag} /></TabPane>)
+    let { configured } = this.state;
+    if(standardFlag) {      
+      ImageTabList.push(<TabPane tab='私有空间' key='1'><ImageSpace scope={scope} liteFlag={configured} /></TabPane>)
+      ImageTabList.push(<TabPane tab='公有空间' key='2'><PublicSpace scope={scope} /></TabPane>)
+      ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} liteFlag={configured} /></TabPane>)
+    } else {
+      ImageTabList.push(<TabPane tab='公有空间' key='1'><PublicSpace scope={scope} /></TabPane>)
+      ImageTabList.push(<TabPane tab='私有空间' key='2'><ImageSpace scope={scope} liteFlag={configured} /></TabPane>)
+      ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} liteFlag={configured} /></TabPane>)
+    }
     let tempImageList = otherImageHead.map((list, index) => {
       return (
         <TabPane tab={<span><Icon type='shopping-cart' />&nbsp;<span>{list.title}</span></span>} key={index + 4}>
@@ -466,17 +484,17 @@ function mapStateToProps(state, props) {
     server: ''
   }
   const defaultBindInfo = {
-    bindInfo: {}
+    configured: false
   }
   const { privateImages, otherImages, imagesInfo, getAppCenterBindUser } = state.images
   const { registry, imageList, isFetching } = privateImages || defaultConfig
   const { imageRow, server} = otherImages || defaultConfig
-  const { bindInfo } = getAppCenterBindUser || defaultBindInfo
+  const { configured } = getAppCenterBindUser || defaultBindInfo
   return {
     otherImageHead: imageRow,
     isFetching,
     server,
-    bindInfo
+    configured
   }
 }
 
