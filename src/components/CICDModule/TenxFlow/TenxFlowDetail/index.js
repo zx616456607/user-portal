@@ -127,8 +127,14 @@ class TenxFlowDetail extends Component {
     let { search } = this.props.location;
     search = search.split('?')[1].split('&')[0]
     const self = this
-    getTenxFlowDetail(search)
-    getCdInimage(search)
+    getTenxFlowDetail(search, {
+      success: {
+        func: (res) => {
+          getCdInimage(search)
+        },
+        isAsync: true
+      }
+    })
     this.flowState()
   }
 
