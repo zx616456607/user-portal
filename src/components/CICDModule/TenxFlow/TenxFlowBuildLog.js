@@ -181,7 +181,7 @@ let MyComponent = React.createClass({
       if (config[index].status == 2) {
         return
       }
-      if (!this.props.loggingEnabled) {
+      if (!this.props.scope.props.loggingEnabled) {
         let notification = new NotificationHandler()
         notification.warn('尚未安装日志服务，无法查看日志')
         return 
@@ -359,7 +359,7 @@ function mapStateToProps(state, props) {
     loggingEnabled = !current.cluster.disabledPlugins['logging']
   }
   return {
-    loggingEnabled: loggingEnabled
+    loggingEnabled
   }
 }
 
