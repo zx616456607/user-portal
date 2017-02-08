@@ -8,12 +8,12 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Spin, Input, Modal, Icon } from 'antd'
+import { Alert, Menu, Button, Card, Spin, Input, Modal, Icon, Tooltip } from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadFavouriteList, getImageDetailInfo, searchFavoriteImages} from '../../../actions/app_center'
+import { loadFavouriteList, getImageDetailInfo, searchFavoriteImages, AppCenterBindUser, deleteAppCenterBindUser } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import "./style/MyCollection.less"
 import ImageDetailBox from './ImageDetail'
@@ -193,6 +193,7 @@ let NoBind = React.createClass({
     //this function for submit bind
     const { scope } = this.props;
     const { username, password } = this.state;
+    const { AppCenterBindUser } = scope.props;
     let errorFlag = false;
     if(!Boolean(username)) {
       //wrong username
@@ -211,6 +212,24 @@ let NoBind = React.createClass({
     if(errorFlag) {
       return;
     }
+    let body = {
+      username: username,
+      password: password
+    }
+    AppCenterBindUser(body, {
+      success: {
+        func: () => {
+          scope.props.scope.setState({
+            configured: true
+          })
+        },
+        isAsync: true
+      }
+    });
+    this.setState({
+      username: '',
+      password: ''
+    });
     scope.setState({
       bindModalShow: false
     });
@@ -246,13 +265,15 @@ let NoBind = React.createClass({
         <div className='inputBox'>
           <span className='title'>用户名</span>
           <span className={this.state.usernameError ? 'errorInput input' : 'input'}>
-            <Input type='large' value={this.state.username} onChange={this.onChangeUsername} />
+            <Input size='large' value={this.state.username} onChange={this.onChangeUsername} />
+            <div className='errorMsg'><Icon type='exclamation-circle-o' /><span>用户名不能为空</span></div>
           </span>
         </div>
         <div className='inputBox'>
           <span className='title'>密码</span>
           <span className={this.state.passwordError ? 'errorInput input' : 'input'}>
-            <Input type='large' value={this.state.password} onChange={this.onChangePassword} />
+            <Input size='large' type='password' value={this.state.password} onChange={this.onChangePassword} />
+            <div className='errorMsg'><Icon type='exclamation-circle-o' /><span>密码不能为空</span></div>
           </span>
         </div>
       </Modal>
@@ -265,14 +286,26 @@ class MyCollection extends Component {
   constructor(props) {
     super(props);
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this);
+    this.showDeleteBindUser = this.showDeleteBindUser.bind(this);
+    this.deleteBindUser = this.deleteBindUser.bind(this);
+    this.closeDeleteBindUser = this.closeDeleteBindUser.bind(this);
     this.state = {
       currentImage: null,
-      imageDetailModalShow: false
+      imageDetailModalShow: false,
+      deleteBindUserModal: false
     }
   }
   componentWillMount() {
-    const { loadFavouriteList } = this.props
-    loadFavouriteList(DEFAULT_REGISTRY)
+    const { loadFavouriteList, liteFlag } = this.props
+    if(liteFlag) {      
+      loadFavouriteList(DEFAULT_REGISTRY)
+    }
+  }
+  componentWillReceiveProps(nextProps) {
+    const { loadFavouriteList, liteFlag } = nextProps;
+    if(this.props.liteFlag != liteFlag && liteFlag) {
+      loadFavouriteList(DEFAULT_REGISTRY)
+    }
   }
   closeImageDetailModal() {
     //this function for user close the modal of image detail info
@@ -284,6 +317,38 @@ class MyCollection extends Component {
     const { registry, searchFavoriteImages } = this.props
     const condition = {imageName: this.state.imageName, registry }
     searchFavoriteImages(condition)
+  }
+  deleteBindUser() {
+    //this function for unbind user from public cloud
+    const { deleteAppCenterBindUser, scope } = this.props;
+    deleteAppCenterBindUser({
+      success: {
+        func: () => {
+          notification['success']({
+            message: '注销绑定公有云用户成功'
+          });
+          scope.setState({
+            configured: false
+          })
+        },
+        isAsync: true
+      }
+    });
+    this.setState({
+      deleteBindUserModal: false
+    })
+  }
+  showDeleteBindUser() {
+    //this function for show delete modal
+    this.setState({
+      deleteBindUserModal: true
+    });
+  }
+  closeDeleteBindUser() {
+    //this function for close delete modal
+    this.setState({
+      deleteBindUserModal: false
+    });
   }
   render() {
     const { formatMessage } = this.props.intl;
@@ -304,6 +369,15 @@ class MyCollection extends Component {
               <div className="operaBox">
                 <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" onChange={(e)=> this.setState({imageName: e.target.value})} onPressEnter={()=> this.searchImages()} />
                 <i className="fa fa-search"></i>
+                { !standardFlag ?
+                  [
+                  <Tooltip title='取消关联时速云·公有云镜像Hub'>
+                    <Button className='logoutBtn' size='large' type='ghost' onClick={this.showDeleteBindUser}>
+                      <span>注销</span>
+                    </Button>
+                  </Tooltip>
+                  ] : null
+                }
                 <div style={{ clear: "both" }}></div>
               </div>
               <MyComponent scope={scope} isFetching={this.props.isFetching} registryServer={this.props.server} getImageDetailInfo={(obj, callback) => this.props.getImageDetailInfo(obj, callback)} config={imageList} />
@@ -317,6 +391,9 @@ class MyCollection extends Component {
           onCancel={this.closeImageDetailModal}
           >
           <ImageDetailBox parentScope={rootscope} server={this.props.server} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
+        </Modal>
+        <Modal title='注销' className='liteBindCenterModal' visible={this.state.deleteBindUserModal} onOk={this.deleteBindUser} onCancel={this.closeDeleteBindUser}>
+          <span style={{ color: '#00a0ea' }}><Icon type='exclamation-circle-o' />&nbsp;&nbsp;&nbsp;确定要取消关联时速云·公有云镜像Hub？</span>
         </Modal>
       </QueueAnim>
     )
@@ -352,7 +429,9 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   loadFavouriteList,
   getImageDetailInfo,
-  searchFavoriteImages
+  searchFavoriteImages,
+  AppCenterBindUser,
+  deleteAppCenterBindUser
 })(injectIntl(MyCollection, {
   withRef: true,
 }))

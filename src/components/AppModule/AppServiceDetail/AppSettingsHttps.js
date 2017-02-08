@@ -102,11 +102,11 @@ let UploadSslModal = React.createClass({
             <span>服务器证书</span>
           </FormItem>
           <FormItem {...formItemLayout} label="证书内容">
-            <Input type="textarea" {...certContent}/>
+            <Input type="textarea" {...certContent} placeholder="PEM编码"/>
             <a>查看样例</a>
           </FormItem>
           <FormItem {...formItemLayout} label="密钥内容">
-            <Input type="textarea" {...privateContent}/>
+            <Input type="textarea" {...privateContent} placeholder="PEM编码"/>
             <a>查看样例</a>
           </FormItem>
 
@@ -280,6 +280,10 @@ class AppSettingsHttps extends Component {
       certContent,
       keyContent,
     } = this.state
+    if (!certContent || !keyContent) {
+      new NotificationHandler().info('请先点击下方更新或者新建按钮，去填写证书')
+      return
+    }
     if (!CERT_REGEX.test(certContent)) {
       new NotificationHandler().error('操作失败', '证书格式错误，请修改后重试')
       return
@@ -303,6 +307,8 @@ class AppSettingsHttps extends Component {
         func: () => {
           this.setState({
             modifying: false,
+            certContent: false,
+            keyContent: false
           })
           loadCertificates(cluster, serviceName)
           new NotificationHandler().success('证书更新成功')
@@ -352,9 +358,11 @@ class AppSettingsHttps extends Component {
       serviceName,
       loadCertificates,
     } = this.props
+    const _this = this
     deleteCertificates(cluster, serviceName, {
       success: {
         func: () => {
+          _this.setState({deleteModal: false, certificateExists: false})
           loadCertificates(cluster, serviceName, {
             failed: {
               func: (err) => {/* do nothing, just catch the error */},
@@ -382,6 +390,10 @@ class AppSettingsHttps extends Component {
     } = this.state
     // 证书存在时且没有更新时，前端无法取得密钥内容，所以不进行格式验证
     if (!certificateExists || modified) {
+      if (!certContent) {
+        new NotificationHandler().info('请先点击下方新建按钮，去填写证书')
+        return
+      }
       if (!CERT_REGEX.test(certContent)) {
         new NotificationHandler().error('操作失败', '证书格式错误，请修改后重试')
         return
@@ -413,6 +425,8 @@ class AppSettingsHttps extends Component {
             this.setState({
               certificateExists: true,
               modified: false,
+              certContent: false,
+              keyContent: false
             })
             loadCertificates(cluster, serviceName)
             resolve()
@@ -455,6 +469,24 @@ class AppSettingsHttps extends Component {
         })
       })
     })
+  }
+   copyDownloadCode() {
+    //this function for user click the copy btn and copy the download code
+    const scope = this;
+    let code = document.getElementsByClassName("httpsInput");
+    code[0].select();
+    document.execCommand("Copy", false);
+    scope.setState({
+      copySuccess: true
+    });
+  }
+  returnDefaultTooltip() {
+    const scope = this;
+    setTimeout(function () {
+      scope.setState({
+        copySuccess: false
+      });
+    }, 500);
   }
   render() {
     let  tipText = "请先满足上边的设置条件", disableUploadBtn = true
@@ -524,13 +556,15 @@ class AppSettingsHttps extends Component {
                             <th>操作</th>
                           </tr>
                         </thead>
-                        <tr>
-                          <td><a onClick={()=> this.setState({detailModal: true})}>{this.props.serviceName}</a></td>
-                          <td>服务器证书</td>
-                          <td>{this.props.certificate.startTime}</td>
-                          <td>{this.props.certificate.expireTime}</td>
-                          <td> <span><Icon onClick={()=> this.deleteCertificates()} type="delete" /></span></td>
-                        </tr>
+                        <tbody>
+                          <tr>
+                            <td><a onClick={()=> this.setState({detailModal: true})}>{this.props.serviceName}</a></td>
+                            <td>服务器证书</td>
+                            <td>{this.props.certificate.startTime}</td>
+                            <td>{this.props.certificate.expireTime}</td>
+                            <td> <span className="cursor"><Icon onClick={()=> this.setState({deleteModal: true})} type="delete" /></span></td>
+                          </tr>
+                        </tbody>
                       </table>
                       <br/>
                     </div>]
@@ -562,8 +596,10 @@ class AppSettingsHttps extends Component {
           <FormItem {...formItemLayout} label="证书类型">
             <span>服务器证书</span>
           </FormItem>
-          <FormItem {...formItemLayout} label="证书内容">
-            <Input type="textarea" value={this.props.certificate.pem}/>
+          <FormItem {...formItemLayout} label="证书内容" style={{margin:0}}>
+            <div className="ant-input" style={{height:'200px', overflow:'auto',wordBreak:'break-word'}}>{this.props.certificate.pem}</div>
+            <Tooltip title={this.state.copySuccess ? '复制成功' : '点击复制'}><a  onClick={()=> this.copyDownloadCode()} onMouseLeave={()=> this.returnDefaultTooltip()}><Icon type="copy" /> 复制</a></Tooltip>
+            <input className="httpsInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {this.props.certificate.pem}/>
           </FormItem>
           <FormItem {...formItemLayout} label="启用时间">
             {this.props.certificate.startTime}
@@ -572,6 +608,14 @@ class AppSettingsHttps extends Component {
             {this.props.certificate.expireTime}
           </FormItem>
         </Form>
+      </Modal>
+      <Modal title="删除操作" visible={this.state.deleteModal}
+        onCancel={()=> this.setState({deleteModal: false})}
+        onOk={()=> this.deleteCertificates()}
+        >
+        <div id="StateBtnModal">
+          <div className="confirm"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>您是否确定删除证书：{this.props.serviceName}</div>
+        </div>
       </Modal>
         <div className="notice">注：HTTPS启动，则停止原有的HTTP服务</div>
       </div>

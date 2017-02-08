@@ -19,10 +19,6 @@ import "./style/PublicSpace.less"
 import ImageDetailBox from './ImageDetail'
 import noBindImg from '../../../assets/img/appCenter/noBind.png'
 
-const mode = require('../../../../configs/model').mode
-const standard = require('../../../../configs/constants').STANDARD_MODE
-let standardFlag = (mode == standard ? true : false);
-
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const ButtonGroup = Button.Group
@@ -292,13 +288,13 @@ class PublicSpace extends Component {
   }
   searchImages() {
     let image = this.state.imageName
-    const { registry, searchPublicImages } = this.props
+    const { registry, searchPublicImages } = this.props   
     searchPublicImages(registry, image)
   }
   render() {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
-    const { isFetching, liteFlag } = this.props;
+    const { isFetching } = this.props;
     const scope = this;
     const config = {
       "imageList": this.props.publicImageList,
@@ -309,19 +305,15 @@ class PublicSpace extends Component {
         type="right"
         >
         <div id="PublicSpace" key="PublicSpace">
-          <Alert message={standardFlag ? [<FormattedMessage {...menusText.tooltips} />] : '镜像仓库用于存放镜像，您可关联时速云·公有云的镜像仓库，使用公有云中私有空间镜像；关联后，该仓库也用于存放通过TenxFlow构建出的镜像'} type="info" />
-          { !standardFlag && !liteFlag ? 
-            [<NoBind scope={scope} />]
-            :
-            [<Card className="PublicSpaceCard">
+          <Alert message={<FormattedMessage {...menusText.tooltips} />} type="info" />
+            <Card className="PublicSpaceCard">
               <div className="operaBox">
                 <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" onChange={(e)=> this.setState({imageName: e.target.value})} onPressEnter={()=> this.searchImages()} />
                 <i className="fa fa-search" onClick={()=> this.searchImages()}></i>
                 <div style={{ clear: "both" }}></div>
               </div>
               <MyComponent scope={scope} getImageDetailInfo={(obj, callback) => this.props.getImageDetailInfo(obj, callback)} loading={isFetching} config={config} />
-            </Card>]
-          }
+            </Card>
         </div>
         <Modal
           visible={this.state.imageDetailModalShow}
