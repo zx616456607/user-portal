@@ -11,7 +11,7 @@ build_user_portal() {
   # rm -rf dist
   rm -rf ${outputPath}
 
-  node_modules/.bin/webpack -p
+  node_modules/.bin/webpack -p --progress
 
   cp ${outputPath}/zh.*.js ${outputPath}/zh.js
   rm -f ${outputPath}/zh.*.js
@@ -26,7 +26,7 @@ build_user_portal_backend() {
   echo "start build backtend files ..."
   outputPath="dist"
   tmp="user_portal_tmp"
-  node_modules/.bin/webpack --config webpack.config.backend.js
+  node_modules/.bin/webpack --config webpack.config.backend.js --progress
 
   # 如果在执行脚本时传递 '--clean=all' 参数，构建完成后会删除源文件
   if [ "${CLEAN_ALL_FILES_FLAG}" = "true" ]; then
@@ -60,14 +60,14 @@ else
   # build frontend files
   build_user_portal
   # build backend files
-  if [ "$2" = "--clean=all" ]; then
-      CLEAN_ALL_FILES_FLAG="true"
-  fi
   # 只有在私有云，而且在执行脚本时传递 '--build=all' 参数，才会构建后端代码
   if [ "${MODE}" = "enterprise" ] && [ "$1" = "--build=all" ]; then
       echo "***********************************"
       echo "* will build backend              *"
-      echo "* will delete all source files ...*"
+      if [ "$2" = "--clean=all" ]; then
+          echo "* will delete all source files ...*"
+          CLEAN_ALL_FILES_FLAG="true"
+      fi
       echo "***********************************"
       build_user_portal_backend
   fi
