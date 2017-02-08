@@ -281,7 +281,7 @@ class AppSettingsHttps extends Component {
       keyContent,
     } = this.state
     if (!certContent || !keyContent) {
-      new NotificationHandler().info('请先点击下方更新，去填写证书')
+      new NotificationHandler().info('请先点击下方更新或者新建按钮，去填写证书')
       return
     }
     if (!CERT_REGEX.test(certContent)) {
@@ -391,7 +391,7 @@ class AppSettingsHttps extends Component {
     // 证书存在时且没有更新时，前端无法取得密钥内容，所以不进行格式验证
     if (!certificateExists || modified) {
       if (!certContent) {
-        new NotificationHandler().info('请先点击下方新建，去填写证书')
+        new NotificationHandler().info('请先点击下方新建按钮，去填写证书')
         return
       }
       if (!CERT_REGEX.test(certContent)) {
