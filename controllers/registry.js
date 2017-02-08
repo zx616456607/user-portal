@@ -260,7 +260,7 @@ function* _getValidTenxCloudHub(loginUser) {
     const api = apiFactory.getApi(loginUser)
     const result = yield api.tenxhubs.get()
     if (result.data && result.data.host) {
-      logger.info("Getting user registry for " + loginUser.user + ": " + JSON.stringify(result))
+      logger.info("Getting user registry for " + loginUser.user + ": " + result.data.host)
       let realPassword = securityUtil.decryptContent(result.data.password, loginUser.token, algorithm)
       result.data.password = realPassword
       registryService.getTenxHubConfig()[loginUser.user] = result.data
