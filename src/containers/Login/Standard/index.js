@@ -13,7 +13,7 @@ import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row, Spin, } f
 import './style/Login.less'
 import { login } from '../../../actions/entities'
 import { connect } from 'react-redux'
-import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
+import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP, WECHAT_SIGNUP_HASH } from '../../../constants'
 import { browserHistory } from 'react-router'
 import { genRandomString, isEmptyObject } from '../../../common/tools'
 import { Link } from 'react-router'
@@ -209,7 +209,7 @@ let Login = React.createClass({
     ReactDom.findDOMNode(this.refs.intName.refs.input).focus()
   },
 
-  onScanChange(scan) {
+  onScanChange(scan, scanResult) {
     const self = this
     self.setState({
       submitting: true,
@@ -240,7 +240,7 @@ let Login = React.createClass({
           if (statusCode == 404) {
             msg = ''
             self.setState({
-              accountDetail: err.message.accountDetail
+              accountDetail: scanResult.accountDetail
             })
             browserHistory.push(`/login${WECHAT_BOUND_HASH}`)
           }
@@ -447,7 +447,7 @@ let Login = React.createClass({
                   </Button>
                   <Button
                     type="primary"
-                    onClick={() => browserHistory.push('/signup#wechat')}
+                    onClick={() => browserHistory.push(`/signup${WECHAT_SIGNUP_HASH}`)}
                     className="subBtn">
                     注册新账号
                   </Button>

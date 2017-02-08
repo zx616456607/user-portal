@@ -83,7 +83,6 @@ exports.verifyUser = function* (next) {
   const accountID = this.session.wechat_account_id
   const data = {}
   let err
-  delete this.session.wechat_account_id
   // For wechat login
   if (body.accountType === 'wechat') {
     if (!accountID){
@@ -120,6 +119,7 @@ exports.verifyUser = function* (next) {
       throw err
     }
   }*/
+  delete this.session.wechat_account_id
   if (body.password) {
     data.password = body.password
   }
@@ -138,11 +138,11 @@ exports.verifyUser = function* (next) {
     result = yield api.users.createBy(['login'], null, data)
   } catch (err) {
     if (body.accountType === 'wechat' && err.statusCode === 404) {
-      const Wechat = require('../3rd_account/wechat')
+      /*const Wechat = require('../3rd_account/wechat')
       const wechat = new Wechat()
       const access_token = yield wechat.initWechat()
       const userInfo = yield wechat.getUserInfo(access_token, accountID)
-      err.message.accountDetail = userInfo
+      err.message.accountDetail = userInfo*/
       this.session.wechat_account_id = accountID // add back for bind wechat
     }
     // Better handle error >= 500

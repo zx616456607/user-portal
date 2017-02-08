@@ -75,12 +75,18 @@ exports.checkWechatAuthStatus = function* () {
   try {
     result = yield wechat.getEventByTicket(wechat_ticket)
     let Event = result.Event
+    let accountID
     if (Event && Event.Ticket === wechat_ticket) {
       let event = Event.Event
-      if (event === 'SCAN') {
-        resData.message = 'scan'
-      } else if (event === 'subscribe') {
-        resData.message = 'subscribe'
+      if (event === 'SCAN' || event === 'subscribe') {
+        accountID = Event.FromUserName
+        resData.message = event.toLowerCase()
+        const access_token = yield wechat.initWechat()
+        const userInfo = yield wechat.getUserInfo(access_token, accountID)
+        resData.accountDetail = {
+          nickname: userInfo.nickname,
+          headimgurl: userInfo.headimgurl,
+        }
       }
     } else {
       resData = {
@@ -88,7 +94,6 @@ exports.checkWechatAuthStatus = function* () {
         message: 'scan_error'
       }
     }
-    const accountID = Event.FromUserName
     this.session.wechat_account_id = accountID
   } catch (error) {
     if (error.statusCode == 500 && error.message.error == "can't find ticket.") {
