@@ -18,6 +18,7 @@ import { DEFAULT_REGISTRY } from '../../../constants'
 import { getFlowBuildStageLogs } from '../../../actions/cicd_flow'
 import './style/TenxFlowBuildLog.less'
 import TenxFlowStageBuildLog from './TenxFlowStageBuildLog'
+import NotificationHandler from '../../../common/notification_handler'
 
 const Panel = Collapse.Panel;
 
@@ -179,6 +180,11 @@ let MyComponent = React.createClass({
       let index = e[e.length -1].replace('LogDetail','');
       if (config[index].status == 2) {
         return
+      }
+      if (!this.props.loggingEnabled) {
+        let notification = new NotificationHandler()
+        notification.warn('尚未安装日志服务，无法查看日志')
+        return 
       }
       config[index].isFetching = true;
       scope.setState({
@@ -347,9 +353,13 @@ class TenxFlowBuildLog extends Component {
 }
 
 function mapStateToProps(state, props) {
-
+  const { current } = state.entities
+  let loggingEnabled = true
+  if (current && current.cluster && current.cluster.disabledPlugins) {
+    loggingEnabled = !current.cluster.disabledPlugins['logging']
+  }
   return {
-
+    loggingEnabled: loggingEnabled
   }
 }
 
