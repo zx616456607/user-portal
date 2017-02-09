@@ -32,6 +32,7 @@ import overviewCluster from './overview_cluster'
 import overviewSpace from './overview_space'
 import consumption from './consumption'
 import userPreference from './user_preference'
+import license from './license'
 import { LOGIN_EXPIRED_MESSAGE, PAYMENT_REQUIRED_CODE, UPGRADE_EDITION_REQUIRED_CODE, } from '../constants'
 
 
