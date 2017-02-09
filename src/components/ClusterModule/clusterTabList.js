@@ -13,6 +13,7 @@ import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { getAllClusterNodes, changeClusterNodeSchedule, deleteClusterNode } from '../../actions/cluster_node'
 import './style/clusterTabList.less'
 import NotificationHandler from '../../common/notification_handler'
 
@@ -102,12 +103,12 @@ const MyComponent = React.createClass({
             <Checkbox ></Checkbox>
           </div>
           <div className='name commonTitle'>
-            <Tooltip title={item.name}>
-              <span>{item.name}</span>
+            <Tooltip title={item.objectMeta.name}>
+              <span>{item.objectMeta.name}</span>
             </Tooltip>
           </div>
           <div className='status commonTitle'>
-            <span>状态</span>
+            <span>{item.ready == 'True' ? '运行中' : '异常'}</span>
           </div>
           <div className='role commonTitle'>
             {
@@ -173,12 +174,15 @@ class clusterTabList extends Component {
     }
   }
   componentWillMount() {
+    const { getAllClusterNodes, cluster } = this.props;
+    getAllClusterNodes(cluster)    
   }
   componentWillReceiveProps(nextProps) {
   }
   render() {
+    console.log(this.props)
     const { formatMessage } = this.props.intl;
-    const { isFetching, podList } = this.props;
+    const { isFetching, nodes } = this.props;
     const rootscope = this.props.scope;
     const scope = this;
     return (
@@ -209,7 +213,7 @@ class clusterTabList extends Component {
                   <Checkbox ></Checkbox>
                 </div>
                 <div className='name commonTitle'>
-                  <span>应用名称</span>
+                  <span>主机名称</span>
                 </div>
                 <div className='status commonTitle'>
                   <span>状态</span>
@@ -242,7 +246,7 @@ class clusterTabList extends Component {
                   <span>操作</span>
                 </div>
               </div>
-              <MyComponent podList={podList} isFetching={isFetching} />
+              <MyComponent podList={nodes.nodes} isFetching={isFetching} />
             </div>
           </Card>
         </div>
@@ -257,17 +261,23 @@ clusterTabList.propTypes = {
 
 function mapStateToProps(state, props) {
   const pods = {
-    podList: testList,
+    nodes: {},
     isFetching: false
   }
-  const { podList, isFetching } = pods;
+  const cluster = state.entities.current.cluster.clusterID
+  const { getAllClusterNodes } = state.cluster_nodes
+  const { nodes, isFetching } = getAllClusterNodes || pods
   return {
-    podList,
-    isFetching
+    nodes,
+    isFetching,
+    cluster
   }
 }
 
 export default connect(mapStateToProps, {
+  getAllClusterNodes,
+  changeClusterNodeSchedule,
+  deleteClusterNode
 })(injectIntl(clusterTabList, {
   withRef: true,
 }))
