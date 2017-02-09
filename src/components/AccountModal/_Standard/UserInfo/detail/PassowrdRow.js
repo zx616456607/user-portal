@@ -152,7 +152,8 @@ let PasswordRow = React.createClass({
             notification.close()
             notification.success('修改密码成功')
             scope.setState({
-              editPsd: false
+              editPsd: false,
+              isPasswordSet: true
             })
           }
         },
@@ -170,13 +171,19 @@ let PasswordRow = React.createClass({
     })
   },
   render() {
-    const { getFieldProps } = this.props.form
-    const passwordProps = getFieldProps('password', {
+    const { form, isPasswordSet } = this.props
+    const { getFieldProps } = form
+    let passwdPlaceholder = '新密码'
+    let passwordProps = getFieldProps('password', {
       rules: [
         { whitespace: true },
         { validator: this.passwordExists }
       ]
     })
+    if (!isPasswordSet) {
+      passwordProps = getFieldProps('password',{})
+      passwdPlaceholder = '密码'
+    }
     const newPasswordProps = getFieldProps('newpassword', {
       rules: [
         { whitespace: true },
@@ -194,17 +201,21 @@ let PasswordRow = React.createClass({
       <Form horizontal form={this.props.form}>
         <span className="key" style={{float: 'left'}}>密码</span>
         <div className="editList" style={{ width: '400px' }}>
+          {
+            isPasswordSet && (
+              <Row>
+                <Col span="12">
+                  <FormItem>
+                    <Input size="large" type="password" {...passwordProps} placeholder="当前密码" style={{ marginTop: '10px' }} autoComplete="off" />
+                  </FormItem>
+                </Col>
+              </Row>
+            )
+          }
           <Row>
             <Col span="12">
               <FormItem>
-                <Input size="large" type="password" {...passwordProps} placeholder="当前密码" style={{ marginTop: '10px' }} autoComplete="off" />
-              </FormItem>
-            </Col>
-          </Row>
-          <Row>
-            <Col span="12">
-              <FormItem>
-                <Input size="large" type="password" {...newPasswordProps} placeholder="输入新密码" autoComplete="off" />
+                <Input size="large" type="password" {...newPasswordProps} placeholder={`输入${passwdPlaceholder}`} autoComplete="off" />
               </FormItem>
             </Col>
             <Col span="12">
@@ -214,7 +225,7 @@ let PasswordRow = React.createClass({
           <Row>
             <Col span="12">
               <FormItem>
-                <Input size="large" type="password" {...againPassword} placeholder="再输一次新密码" />
+                <Input size="large" type="password" {...againPassword} placeholder={`再输一次${passwdPlaceholder}`} />
               </FormItem>
             </Col>
             <Col span="12">
@@ -231,7 +242,7 @@ let PasswordRow = React.createClass({
 
 PasswordRow = createForm()(PasswordRow)
 function mapStateToProps(state, props) {
-		return props
+	return props
 }
 
 export default connect(mapStateToProps, {

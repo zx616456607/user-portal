@@ -46,7 +46,8 @@ class BaseInfo extends Component {
       disabledButton: false,
       currentKey: '11',
       user3rdAccounts: [],
-      unbindModalShow: false
+      unbindModalShow: false,
+      isPasswordSet: false,
     }
   }
   componentWillMount() {
@@ -65,6 +66,17 @@ class BaseInfo extends Component {
   }
   componentWillReceiveProps(nextProps) {
     const { user } = nextProps
+    const oldUserInfo = this.props.user.userInfo
+    if (user && user.userInfo) {
+      const userDetail = user.userInfo
+      const { isPasswordSet } = userDetail
+      if (oldUserInfo && isPasswordSet === oldUserInfo.isPasswordSet) {
+        return
+      }
+      this.setState({
+        isPasswordSet,
+      })
+    }
     if (!user || !user.user3rdAccounts) {
       return
     }
@@ -378,7 +390,6 @@ class BaseInfo extends Component {
       )
     }
     const { nickname } = accountDetail
-//  this.handleUnbind(accountType)
     return(
       <div className="send-tu" key="wechat">
         <div className="backcolor wechat-success">
@@ -396,8 +407,7 @@ class BaseInfo extends Component {
         return this.renderWechatAccount(account)
     }
   }
-  renderPassword(userDetail) {
-    const { isPasswordSet } = userDetail
+  renderPassword(isPasswordSet) {
     if (isPasswordSet) {
       return (
         <li>
@@ -422,7 +432,7 @@ class BaseInfo extends Component {
       return <div></div>
     }
     const { isFetching } = user
-    const { user3rdAccounts } = this.state
+    const { user3rdAccounts, isPasswordSet } = this.state
     if(isFetching) {
       return (
         <div className="loadingBox">
@@ -512,10 +522,10 @@ class BaseInfo extends Component {
             }
             {this.state.editPsd ?
               <li>
-                <PasswordRow scope={this} />
+                <PasswordRow isPasswordSet={isPasswordSet} scope={this} />
               </li>
               :
-              this.renderPassword(userDetail)
+              this.renderPassword(isPasswordSet)
             }
             {this.state.editPhone ?
             <li>
