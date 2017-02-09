@@ -418,17 +418,17 @@ class ImageSpace extends Component {
     }
   }
   componentWillMount() {
-    const { liteFlag } = this.props;
-    if(liteFlag) {    
+    const { hubConfig } = this.props;
+    if(hubConfig) {    
       this.props.loadPrivateImageList(DEFAULT_REGISTRY);
     }
   }
   componentWillReceiveProps(nextProps) {
-    const { space, liteFlag } = nextProps
+    const { space, hubConfig } = nextProps
     if (space.namespace !== this.props.space.namespace) {
       this.props.loadPrivateImageList(DEFAULT_REGISTRY)
     }
-    if(this.props.liteFlag != liteFlag && liteFlag) {
+    if(this.props.hubConfig != hubConfig && hubConfig) {
       this.props.loadPrivateImageList(DEFAULT_REGISTRY)
     }
   }
@@ -480,7 +480,7 @@ class ImageSpace extends Component {
       success: {
         func: () => {
           notification['success']({
-            message: '注销绑定公有云用户成功'
+            message: '注销成功'
           });
           scope.setState({
             configured: false
@@ -509,14 +509,14 @@ class ImageSpace extends Component {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
     const scope = this;
-    const { imageList, server, imageInfo, liteFlag } = this.props
+    const { imageList, server, imageInfo, hubConfig } = this.props
     return (
       <QueueAnim className="ImageSpace"
         type="right"
         >
         <div id="ImageSpace" key="ImageSpace">
           { !standardFlag ? [<Alert message={'镜像仓库用于存放镜像，您可关联时速云·公有云的镜像仓库，使用公有云中私有空间镜像；关联后，该仓库也用于存放通过TenxFlow构建出的镜像'} type="info" />] : null }
-          { !standardFlag && !liteFlag ?
+          { !hubConfig ?
             [<NoBind scope={scope} />]
             :
           [<Card className="ImageSpaceCard">
@@ -539,7 +539,7 @@ class ImageSpace extends Component {
               </span>
               { !standardFlag ?
                 [
-                <Tooltip title='取消关联时速云·公有云镜像Hub'>
+                <Tooltip title='注销时速云Hub'>
                   <Button className='logoutBtn' size='large' type='ghost' onClick={this.showDeleteBindUser}>
                     <span>注销</span>
                   </Button>
@@ -589,7 +589,7 @@ class ImageSpace extends Component {
             <ImageDetailBox parentScope={rootscope} server={this.props.server} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
           </Modal>
           <Modal title='注销' className='liteBindCenterModal' visible={this.state.deleteBindUserModal} onOk={this.deleteBindUser} onCancel={this.closeDeleteBindUser}>
-            <span style={{ color: '#00a0ea' }}><Icon type='exclamation-circle-o' />&nbsp;&nbsp;&nbsp;确定要取消关联时速云·公有云镜像Hub？</span>
+            <span style={{ color: '#00a0ea' }}><Icon type='exclamation-circle-o' />&nbsp;&nbsp;&nbsp;确定要注销时速云官方Hub？</span>
           </Modal>
         </div>
       </QueueAnim>

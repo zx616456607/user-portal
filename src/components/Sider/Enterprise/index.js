@@ -383,7 +383,7 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              { /*(role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) ?
+              { role == ROLE_SYS_ADMIN ?
                 [
                   <li onClick={this.selectModel.bind(this, 'cluster', '#cluster')} className={currentKey == 'cluster' ? 'selectedLi' : ''}>
                     <Tooltip placement='right' title='基础设施' getTooltipContainer={() => document.getElementById('siderTooltip')}>
@@ -394,7 +394,7 @@ class Sider extends Component {
                       </Link>
                     </Tooltip>
                   </li>
-                ] : null*/
+                ] : null
               }
               <div style={{ clear: 'both' }}></div>
             </ul>
@@ -656,11 +656,13 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 平台版本</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='license'>
-                    <Link to='/setting/license'>
-                      <span><div className='sideCircle'></div> 授权管理</span>
-                    </Link>
-                  </Menu.Item>
+                  { role == ROLE_SYS_ADMIN ?
+                    <Menu.Item key='license'>
+                      <Link to='/setting/license'>
+                        <span><div className='sideCircle'></div> 授权管理</span>
+                      </Link>
+                    </Menu.Item> : <div></div>
+                  }
                   <Menu.Item key='API'>
                     <Link to='/setting/API'>
                       <span><div className='sideCircle'></div> 开放 API</span>
@@ -673,8 +675,8 @@ class Sider extends Component {
                   </Menu.Item>*/}
                   <div className='sline'></div>
                 </SubMenu>
-                { /*(role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) ?
-                  [<Menu.Item key='cluster'>
+                { role == ROLE_SYS_ADMIN ?
+                  <Menu.Item key='cluster'>
                     <Link to='/cluster'>
                       <span>
                         <svg className='system commonImg'>
@@ -684,7 +686,7 @@ class Sider extends Component {
                         <div style={{ clear: 'both' }}></div>
                       </span>
                     </Link>
-                  </Menu.Item>] : null*/
+                  </Menu.Item> : <div></div>
                 }
               </Menu>
             </div>

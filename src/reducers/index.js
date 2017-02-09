@@ -32,6 +32,8 @@ import overviewCluster from './overview_cluster'
 import overviewSpace from './overview_space'
 import consumption from './consumption'
 import userPreference from './user_preference'
+import license from './license'
+import user3rdAccount from './user_3rd_account'
 import { LOGIN_EXPIRED_MESSAGE, PAYMENT_REQUIRED_CODE, UPGRADE_EDITION_REQUIRED_CODE, } from '../constants'
 
 
@@ -113,6 +115,8 @@ const rootReducer = combineReducers({
   overviewSpace,
   consumption,
   userPreference,
+  license,
+  user3rdAccount,
 })
 
 export default rootReducer
