@@ -10,7 +10,6 @@
 
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
-import { toQuerystring } from '../common/tools'
 
 export const LICENSE_LIST_REQUEST = 'LICENSE_LIST_REQUEST'
 export const LICENSE_LIST_SUCCESS = 'LICENSE_LIST_SUCCESS'
