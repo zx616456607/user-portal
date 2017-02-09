@@ -314,6 +314,10 @@ module.exports = function (Router) {
 
   // License
   router.get('/license', licenseController.getLicense)
+  router.get('/licenses/merged', licenseController.checkLicense)
+  router.get('/licenses', licenseController.getLicenses)
+  router.post('/licenses', licenseController.addLicense)
+  router.get('/licenses/platform', licenseController.getPlatformID)
 
   // consumption and charge
   router.get('/consumptions/detail', consumptionController.getDetail)

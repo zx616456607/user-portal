@@ -134,6 +134,17 @@ let MyComponent = React.createClass({
   },
   starFlowBuild(flowId, index) {
     const {CreateTenxflowBuild, getTenxflowBuildDetailLogs} = this.props.scope.props
+    if (this.props.config) {
+      for (let i in this.props.config) {
+        if (this.props.config[i].flowId === flowId 
+              && typeof(this.props.config[i].stagesCount) === 'number' 
+              && this.props.config[i].stagesCount < 1) {
+          let notification = new NotificationHandler()
+          notification.error('请先添加构建子项目')
+          return
+        }
+      }
+    }
     const parentScope = this.props.scope
     CreateTenxflowBuild(flowId, {}, {
       success: {

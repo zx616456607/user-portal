@@ -151,11 +151,28 @@ exports.registerUser = function* () {
   const method = 'registerUser'
   const spi = apiFactory.getSpi()
   const user = this.request.body
-  if (!user || !user.userName || !user.password || !user.email) {
-    const err = new Error('user name, password and email are required.')
-    err.status = 400
-    throw err
+  const accountID = this.session.wechat_account_id
+  if (user.accountType === 'wechat') {
+    if (!user || !user.userName || !user.email) {
+      const err = new Error('user name and email are required.')
+      err.status = 400
+      throw err
+    }
+    user.accountID = accountID
+    const Wechat = require('../../3rd_account/wechat')
+    const wechat = new Wechat()
+    const access_token = yield wechat.initWechat()
+    const userInfo = yield wechat.getUserInfo(access_token, accountID)
+    user.accountDetail = JSON.stringify(userInfo)
+  } else {
+    if (!user || !user.userName || !user.password || !user.email) {
+      const err = new Error('user name, password and email are required.')
+      err.status = 400
+      throw err
+    }
   }
+
+  delete this.session.wechat_account_id
 
   yield checkMobileCaptcha(user)
 
@@ -332,7 +349,7 @@ exports.activateUserByEmail = function* () {
   yield spi.users.createBy(['activations'], null, {email})
 
   this.status = 302
-  this.redirect('/login&from=active')
+  this.redirect('/login?from=active')
   return
 }
 

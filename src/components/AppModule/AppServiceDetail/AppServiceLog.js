@@ -22,6 +22,7 @@ import { mode } from '../../../../configs/model'
 import { STANDARD_MODE } from '../../../../configs/constants'
 import moment from 'moment'
 import merge from 'lodash/merge'
+import NotificationHandler from '../../../common/notification_handler'
 
 const YESTERDAY = new Date(moment(moment().subtract(1, 'day')).format(DATE_PIRCKER_FORMAT))
 const standardFlag = (mode == STANDARD_MODE ? true : false);
@@ -42,8 +43,13 @@ class AppServiceLog extends Component {
     }
   }
   componentWillMount() {
-    const { cluster, serviceName } = this.props
+    const { cluster, serviceName, loggingEnabled } = this.props
     const self = this
+    if (!loggingEnabled) {
+      let notification = new NotificationHandler()
+      notification.warn('尚未安装日志服务，无法查看日志')
+      return 
+    }
     this.props.loadServiceLogs(cluster, serviceName, {
       from: 0,
       size: 50,
@@ -123,6 +129,11 @@ class AppServiceLog extends Component {
     const serviceName = this.props.serviceName
     const self = this
     const scrollBottom = this.infoBox.scrollBottom
+    if (!this.props.loggingEnabled) {
+      let notification = new NotificationHandler()
+      notification.warn('尚未安装日志服务，无法查看日志')
+      return 
+    }
     this.props.loadServiceLogs(cluster, serviceName, {
       from: (this.state.pageIndex - 1) * this.state.pageSize,
       size: this.state.pageSize,
@@ -173,6 +184,11 @@ class AppServiceLog extends Component {
       pageIndex: 2,
     })
     this.props.clearServiceLogs(cluster, serviceName)
+    if (!this.props.loggingEnabled) {
+      let notification = new NotificationHandler()
+      notification.warn('尚未安装日志服务，无法查看日志')
+      return 
+    }
     this.props.loadServiceLogs(cluster, serviceName, {
       from: 0,
       size: this.state.pageSize,
@@ -329,7 +345,7 @@ class AppServiceLog extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { loginUser } = state.entities
+  const { loginUser, current } = state.entities
   const { containerDetailEvents } = state.containers
   const { cluster } = props
   const defaultEvents = {
@@ -365,10 +381,15 @@ function mapStateToProps(state, props) {
       })
     }
   }
+  let loggingEnabled = true
+  if (current && current.cluster && current.cluster.disabledPlugins) {
+    loggingEnabled = !current.cluster.disabledPlugins['logging']
+  }
   return {
     loginUser: loginUser.info,
     serviceLogs: state.services.serviceLogs,
     eventLogs,
+    loggingEnabled: loggingEnabled
   }
 }
 AppServiceLog = connect(mapStateToProps, {

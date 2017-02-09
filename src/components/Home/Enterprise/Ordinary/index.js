@@ -98,6 +98,14 @@ let SvcState = React.createClass({
         </div>
       )
     }
+    if(currentState === 'uninstalled'){
+      item = (
+        <div id='SvcState'>
+          <div className='errorDot' style={{backgroundColor:'#f0986b'}}></div>
+          <span style={{color:'#f0986b'}}>未安装</span>
+        </div>
+      )
+    }
     if(currentState === 'abnormal'){
       item = (
         <div>
