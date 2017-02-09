@@ -113,6 +113,7 @@ const rootReducer = combineReducers({
   overviewSpace,
   consumption,
   userPreference,
+  license,
 })
 
 export default rootReducer
