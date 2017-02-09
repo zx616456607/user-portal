@@ -13,9 +13,9 @@ import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row, Spin, } f
 import './style/Login.less'
 import { login } from '../../../actions/entities'
 import { connect } from 'react-redux'
-import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
+import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP, WECHAT_SIGNUP_HASH } from '../../../constants'
 import { browserHistory } from 'react-router'
-import { genRandomString } from '../../../common/tools'
+import { genRandomString, isEmptyObject } from '../../../common/tools'
 import { Link } from 'react-router'
 import loginMethodWeixinPNG from '../../../assets/img/loginMethodWeixin.png'
 import ReactDom from 'react-dom'
@@ -24,6 +24,8 @@ import WechatQRCodeTicket from '../../../components/WechatQRCodeTicket'
 
 const createForm = Form.create
 const FormItem = Form.Item
+const WECHAT_BOUND_HASH = '#wechat-bound'
+const WECHAT_BOUND_LOGIN_HASH = '#wechat-bound-login'
 
 function noop() {
   return false
@@ -39,12 +41,14 @@ let Login = React.createClass({
       intNameFocus: false,
       intPassFocus: false,
       loginSucess: false,
+      accountDetail: {},
     }
   },
 
   handleSubmit(e) {
     e.preventDefault()
-    const { login, form, redirect } = this.props
+    const { login, form, redirect, hash } = this.props
+    const { accountDetail } = this.state
     const { validateFields, resetFields } = form
     const self = this
     validateFields((errors, values) => {
@@ -67,6 +71,10 @@ let Login = React.createClass({
       } else {
         body.username = values.name
       }
+      if (hash === WECHAT_BOUND_LOGIN_HASH) {
+        body.accountType = 'wechat'
+        body.action = 'bind'
+      }
       login(body, {
         success: {
           func: (result) => {
@@ -75,7 +83,11 @@ let Login = React.createClass({
               loginSucess: true,
               submitProps: {},
             })
-            message.success(`用户 ${values.name} 登录成功`)
+            let messageText = `用户 ${values.name} 登录成功`
+            if (hash === WECHAT_BOUND_LOGIN_HASH) {
+              messageText += `，并已成功绑定微信 ${accountDetail.nickname}`
+            }
+            message.success(messageText)
             browserHistory.push(redirect || '/')
             resetFields()
           },
@@ -197,7 +209,7 @@ let Login = React.createClass({
     ReactDom.findDOMNode(this.refs.intName.refs.input).focus()
   },
 
-  onScanChange(scan) {
+  onScanChange(scan, scanResult) {
     const self = this
     self.setState({
       submitting: true,
@@ -226,7 +238,11 @@ let Login = React.createClass({
           const errMsg = err.message
           let msg = errMsg.message || errMsg
           if (statusCode == 404) {
-            msg = '您的微信还未绑定时速云平台帐户，请使用帐户密码登录后，在“我的帐户”中进行绑定'
+            msg = ''
+            self.setState({
+              accountDetail: scanResult.accountDetail
+            })
+            browserHistory.push(`/login${WECHAT_BOUND_HASH}`)
           }
           self.setState({
             submitting: false,
@@ -241,9 +257,11 @@ let Login = React.createClass({
     })
   },
 
-  render() {
-    const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
-    const { random, submitting, loginResult, submitProps, loginSucess } = this.state
+  renderForm(btnText) {
+    btnText = btnText || '登录'
+    const { form } = this.props
+    const { getFieldProps, getFieldError, isFieldValidating } = form
+    const { random, submitting, submitProps } = this.state
     const nameProps = getFieldProps('name', {
       rules: [
         { validator: this.checkName },
@@ -258,6 +276,100 @@ let Login = React.createClass({
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
+    return (
+      <Form onSubmit={this.handleSubmit}>
+        <FormItem
+          {...formItemLayout}
+          hasFeedback
+          help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
+          className="formItemName"
+          >
+          <div className={this.state.intNameFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'name')}>用户名 / 邮箱</div>
+
+          <Input {...nameProps}
+            autoComplete="on"
+            onBlur={this.intOnBlur.bind(this, 'name')}
+            onFocus={this.intOnFocus.bind(this, 'name')}
+            ref="intName"
+            style={{ height: 35 }}
+            name='name'
+            tabIndex='1'
+          />
+        </FormItem>
+
+        <FormItem
+          {...formItemLayout}
+          hasFeedback
+          className="formItemName"
+          >
+          <div className={this.state.intPassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>密码</div>
+          <Input {...passwdProps}
+            type='password'
+            onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
+            onBlur={this.intOnBlur.bind(this, 'pass')}
+            onFocus={this.intOnFocus.bind(this, 'pass')}
+            ref="intPass"
+            autoComplete="on"
+            style={{ height: 35 }}
+            name='password'
+            tabIndex='2'
+          />
+        </FormItem>
+
+        {/*<FormItem
+          {...formItemLayout}
+          hasFeedback
+          className="formItemName"
+          >
+          <div className={this.state.intCodeFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'code')}>
+            邀请码（若已经输入过，请忽略）
+          </div>
+          <Input {...codeProps} autoComplete="off"
+            onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
+            onBlur={this.intOnBlur.bind(this, 'code')}
+            onFocus={this.intOnFocus.bind(this, 'code')}
+            ref="intCode"
+            style={{ height: 35 }}
+            />
+        </FormItem>*/}
+
+        {/*<FormItem
+          {...formItemLayout}
+          hasFeedback
+          className="formItemName"
+          help={isFieldValidating('captcha') ? '校验中...' : (getFieldError('captcha') || []).join(', ')}
+          >
+          <div className={this.state.intCheckFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'check')}>验证码</div>
+          <Input {...captchaProps} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'check')}
+            onFocus={this.intOnFocus.bind(this, 'check')}
+            ref="intCheck"
+            style={{ height: 35 }} />
+          <Tooltip placement="top" title="点击更换">
+            <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
+          </Tooltip>
+        </FormItem>*/}
+
+        <FormItem wrapperCol={{ span: 24, }}>
+          <Button
+            htmlType="submit"
+            type="primary"
+            onClick={this.handleSubmit}
+            loading={submitting}
+            {...submitProps}
+            className="subBtn">
+            {submitting ? '登录中...' : btnText}
+          </Button>
+        </FormItem>
+      </Form>
+    )
+  },
+
+  render() {
+    const { hash } = this.props
+    const { loginSucess, accountDetail, loginResult } = this.state
+    let { nickname, headimgurl } = accountDetail
+    headimgurl = headimgurl || ''
+    headimgurl = headimgurl.replace('http:', '')
 
     // 登录成功显示加载动画
     if (loginSucess) {
@@ -271,131 +383,98 @@ let Login = React.createClass({
     return (
       <div id="LoginBgStd">
         <Top/>
-        <div className="login">
-          <Row style={{ textAlign: 'center' }}>
-            <span className='logoLink'>
-              <div className='logTitle'>登&nbsp;&nbsp;录</div>
-            </span>
-          </Row>
-          <Card className="loginForm" bordered={false}>
-            <div>
-              {
-                loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
-              }
-            </div>
-            <Form onSubmit={this.handleSubmit}>
-              <FormItem
-                {...formItemLayout}
-                hasFeedback
-                help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
-                className="formItemName"
-                >
-                <div className={this.state.intNameFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'name')}>用户名 / 邮箱</div>
-
-                <Input {...nameProps}
-                  autoComplete="off"
-                  onBlur={this.intOnBlur.bind(this, 'name')}
-                  onFocus={this.intOnFocus.bind(this, 'name')}
-                  ref="intName"
-                  style={{ height: 35 }}
-                  name='name'
-                  tabIndex='1'
-                />
-              </FormItem>
-
-              <FormItem
-                {...formItemLayout}
-                hasFeedback
-                className="formItemName"
-                >
-                <div className={this.state.intPassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>密码</div>
-                <Input {...passwdProps}
-                  type='password'
-                  onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
-                  onBlur={this.intOnBlur.bind(this, 'pass')}
-                  onFocus={this.intOnFocus.bind(this, 'pass')}
-                  ref="intPass"
-                  autoComplete="on"
-                  style={{ height: 35 }}
-                  name='password'
-                  tabIndex='2'
-                />
-              </FormItem>
-
-              {/*<FormItem
-                {...formItemLayout}
-                hasFeedback
-                className="formItemName"
-                >
-                <div className={this.state.intCodeFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'code')}>
-                  邀请码（若已经输入过，请忽略）
+        {
+          !hash && (
+            <div className="login">
+              <Row style={{ textAlign: 'center' }}>
+                <span className='logoLink'>
+                  <div className='logTitle'>登&nbsp;&nbsp;录</div>
+                </span>
+              </Row>
+              <Card className="loginForm" bordered={false}>
+                <div>
+                  {
+                    loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
+                  }
                 </div>
-                <Input {...codeProps} autoComplete="off"
-                  onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
-                  onBlur={this.intOnBlur.bind(this, 'code')}
-                  onFocus={this.intOnFocus.bind(this, 'code')}
-                  ref="intCode"
-                  style={{ height: 35 }}
-                  />
-              </FormItem>*/}
-
-              {/*<FormItem
-                {...formItemLayout}
-                hasFeedback
-                className="formItemName"
-                help={isFieldValidating('captcha') ? '校验中...' : (getFieldError('captcha') || []).join(', ')}
-                >
-                <div className={this.state.intCheckFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'check')}>验证码</div>
-                <Input {...captchaProps} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'check')}
-                  onFocus={this.intOnFocus.bind(this, 'check')}
-                  ref="intCheck"
-                  style={{ height: 35 }} />
-                <Tooltip placement="top" title="点击更换">
-                  <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
-                </Tooltip>
-              </FormItem>*/}
-
-              <FormItem wrapperCol={{ span: 24, }}>
-                <Button
-                  htmlType="submit"
-                  type="primary"
-                  onClick={this.handleSubmit}
-                  loading={submitting}
-                  {...submitProps}
-                  className="subBtn">
-                  {submitting ? '登录中...' : '登录'}
-                </Button>
-              </FormItem>
-            </Form>
-            <div className='logInFooter'>
-                <div className='footerTip'>
-                <div className='toRegister'>
-                  <span>*&nbsp;还没有时速云帐户?</span>
-                  <Link to='/signup'>立即注册</Link>
-                </div>
-                <div className='toReset'>
-                  <Link to='/rpw'>忘记密码</Link>
-                </div>
-              </div>
-              <div className='moreMethod'>
-                <div className='methodTitle'>
-                  <div className='line'></div>
-                  <div className='methodText'>更多登录方式</div>
-                  <div className='line'></div>
-                </div>
-                <div className="methodIcon">
-                  <div className='weixin'>
-                    <WechatQRCodeTicket
-                      message="微信扫一扫立即登录"
-                      triggerElement={<img src={loginMethodWeixinPNG}/>}
-                      getTooltipContainer={() => document.getElementById('LoginBgStd')}
-                      onScanChange={this.onScanChange} />
+                {this.renderForm()}
+                <div className='logInFooter'>
+                    <div className='footerTip'>
+                    <div className='toRegister'>
+                      <span>*&nbsp;还没有时速云帐户?</span>
+                      <Link to='/signup'>立即注册</Link>
+                    </div>
+                    <div className='toReset'>
+                      <Link to='/rpw'>忘记密码</Link>
+                    </div>
+                  </div>
+                  <div className='moreMethod'>
+                    <div className='methodTitle'>
+                      <div className='line'></div>
+                      <div className='methodText'>更多登录方式</div>
+                      <div className='line'></div>
+                    </div>
+                    <div className="methodIcon">
+                      <div className='weixin'>
+                        <WechatQRCodeTicket
+                          message="微信扫一扫立即登录"
+                          triggerElement={<img src={loginMethodWeixinPNG}/>}
+                          getTooltipContainer={() => document.getElementById('LoginBgStd')}
+                          onScanChange={this.onScanChange} />
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Card>
             </div>
-          </Card>
-        </div>
+          )
+        }
+        {
+          hash === WECHAT_BOUND_HASH && (
+            <div className="login">
+              <Row style={{ textAlign: 'center' }}>
+                <span className='logoLink'>
+                  <div className='logTitle'>时速云</div>
+                  <div className='logDesc'>技术领先的容器云技术服务商</div>
+                </span>
+              </Row>
+              <Card className="loginForm" bordered={false}>
+                <div className="wechatBoundBtns">
+                  <Button
+                    onClick={() => browserHistory.push(`/login${WECHAT_BOUND_LOGIN_HASH}`)}
+                    className="boundBtn">
+                    绑定已有账号
+                  </Button>
+                  <Button
+                    type="primary"
+                    onClick={() => browserHistory.push(`/signup${WECHAT_SIGNUP_HASH}`)}
+                    className="subBtn">
+                    注册新账号
+                  </Button>
+                </div>
+              </Card>
+            </div>
+          )
+        }
+        {
+          hash === WECHAT_BOUND_LOGIN_HASH && (
+            <div className="login">
+              <Row style={{ textAlign: 'center' }}>
+                <div className="logAvatar" title={nickname}>
+                  <img alt={nickname} src={(headimgurl || '').replace('http:', '')} />
+                </div>
+              </Row>
+              <Card className="loginForm" bordered={false}>
+                <div>
+                  {
+                    loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
+                  }
+                </div>
+                {this.renderForm('登录并绑定微信')}
+              </Card>
+            </div>
+          )
+        }
         <div className="footer">
           © 2017 时速云 京ICP备14045471号
         </div>
@@ -405,10 +484,12 @@ let Login = React.createClass({
 })
 
 function mapStateToProps(state, props) {
-  const { redirect, from } = props.location.query
+  const { query, hash } = props.location
+  const { redirect, from } = query
   return {
     redirect,
     from,
+    hash,
   }
 }
 

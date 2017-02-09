@@ -61,7 +61,6 @@ let UploadSslModal = React.createClass({
         createModal: false,
         modified: true
       })
-      new NotificationHandler().success('格式验证通过，请保存')
     })
   },
   render() {
@@ -307,6 +306,7 @@ class AppSettingsHttps extends Component {
         func: () => {
           this.setState({
             modifying: false,
+            modified: false,
             certContent: false,
             keyContent: false
           })
@@ -332,21 +332,20 @@ class AppSettingsHttps extends Component {
       return (
         <span style={{ marginLeft: '50px' }}>
           <Button type="primary" onClick={() => {this.saveCertAndOpen()}}>开启并保存</Button>
-          <Button onClick={() => this.setState({ targeStatus: false, setting: false, })} style={{ marginLeft: '10px' }}>取消</Button>
+          <Button onClick={() => this.setState({ setting: false, })} style={{ marginLeft: '10px' }}>取消</Button>
         </span>
       )
     }
     else {
       return (
         <span>
-          {/*svg ><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#settingsIcon"></use></svg>*/}
-          {this.state.modifying || <Tooltip title={`HTTPS已${this.state.statusText}`}><Switch checkedChildren="开" unCheckedChildren="关" onChange={(e) => this.changeSwitch(e)} checked={this.state.httpsOpened} style={{ marginLeft: '40px' }} /></Tooltip>}
+          {this.state.modifying || <Tooltip title={this.state.targeStatus ? `HTTPS已${this.state.statusText}` : '需满足设置条件'}><Switch disabled={!this.state.targeStatus} checkedChildren="开" unCheckedChildren="关" onChange={(e) => this.changeSwitch(e)} checked={this.state.httpsOpened} style={{ marginLeft: '40px' }} /></Tooltip>}
           {this.state.httpsOpened && ( this.state.modifying ? 
           <span style={{ marginLeft: '50px' }}>
             <Button type="primary" onClick={() => {this.modifyCert()}}>保存</Button>
             <Button style={{ marginLeft: '10px' }} onClick={() => {this.setState({modifying: false})}}>取消</Button>
           </span>
-          : <span className="settingsIcon" onClick={() => this.modifyHttps()}><svg ><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#settingsIcon"></use></svg></span>)}
+          : (this.state.targeStatus ? <span className="settingsIcon" onClick={() => this.modifyHttps()}><svg ><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#settingsIcon"></use></svg></span> : null))}
         </span>
       )
     }
@@ -543,7 +542,8 @@ class AppSettingsHttps extends Component {
               </div>
               <div className="tabsBody">
                 <div className={this.state.tabsActive == 1 ? "tabs tabs-active" : 'tabs'}>
-                  <Tooltip title={ tipText }><Button size="large" disabled={disableUploadBtn} onClick={()=> this.setState({createModal: true})}><Icon type="plus" />{this.state.certificateExists ? '更新' : '新建'}</Button></Tooltip>
+                  <Tooltip title={ tipText }><Button size="large" disabled={disableUploadBtn} onClick={()=> this.setState({createModal: true})}><Icon type="plus" />{this.state.certificateExists || this.state.modified ? '更新' : '新建'}</Button></Tooltip>
+                  {this.state.modified && <span style={{color:'#33b867'}}><Icon type="check-circle-o" style={{marginLeft:'20px',marginRight:'6px'}}/>证书格式正确，请保存</span>}
                   {this.state.certificateExists ? 
                     [<div className="ant-table">
                       <table className="certificateTable">
@@ -590,7 +590,7 @@ class AppSettingsHttps extends Component {
         footer={<Button type="primary" onClick={()=> this.setState({detailModal: false})} >知道了</Button>}
         >
         <Form horizontal>
-          <FormItem {...formItemLayout} label="证书名称">
+          <FormItem {...formItemLayout} label="名&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;称">
             <span>{this.props.serviceName}</span>
           </FormItem>
           <FormItem {...formItemLayout} label="证书类型">
@@ -617,7 +617,7 @@ class AppSettingsHttps extends Component {
           <div className="confirm"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>您是否确定删除证书：{this.props.serviceName}</div>
         </div>
       </Modal>
-        <div className="notice">注：HTTPS启动，则停止原有的HTTP服务</div>
+        <div className="notice">HTTPs开启后，原有HTTP服务会自动跳转到HTTPs</div>
       </div>
     )
   }

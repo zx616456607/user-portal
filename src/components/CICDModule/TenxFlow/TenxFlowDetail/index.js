@@ -127,8 +127,14 @@ class TenxFlowDetail extends Component {
     let { search } = this.props.location;
     search = search.split('?')[1].split('&')[0]
     const self = this
-    getTenxFlowDetail(search)
-    getCdInimage(search)
+    getTenxFlowDetail(search, {
+      success: {
+        func: (res) => {
+          getCdInimage(search)
+        },
+        isAsync: true
+      }
+    })
     this.flowState()
   }
 
@@ -181,6 +187,10 @@ class TenxFlowDetail extends Component {
     //and the state changed will be trigger the children's recivice props
     //and start build flow functon will be trigger in children
     let notification = new NotificationHandler()
+    if (this.props.flowInfo && this.props.flowInfo.stageInfo && this.props.flowInfo.stageInfo.length < 1) {
+      notification.error('请先添加构建子项目')
+      return
+    }
     notification.success('流程正在构建中')
     this.setState({
       startBuild: true
