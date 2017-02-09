@@ -7,7 +7,8 @@
  * v0.1 - 2016-09-07
  * @author Zhangpc
  */
-import 'babel-polyfill'
+// Use babel-plugin-transform-runtime instend of babel-polyfill in .babelrc to reduce file size
+// import 'babel-polyfill'
 import '../common/lib'
 import React from 'react'
 import { render } from 'react-dom'
