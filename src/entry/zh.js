@@ -7,7 +7,6 @@
  * v0.1 - 2016-09-07
  * @author Zhangpc
  */
-import 'babel-polyfill'
 import appLocaleData from 'react-intl/locale-data/zh'
 import zhMessages from '../../static/locales/frontend/zh.json'
 

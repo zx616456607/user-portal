@@ -85,7 +85,14 @@ class QRCodeContent extends Component {
   }
 
   setTimeOutGetAuthQrCodeStatus() {
-    const { onVisibleChange, getWechatAuthQrCodeStatus, getStatusDelay, onScanChange, getStatusMaxTimes } = this.props
+    const {
+      onVisibleChange,
+      getWechatAuthQrCodeStatus,
+      getStatusDelay,
+      onScanChange,
+      getStatusMaxTimes,
+      action,
+    } = this.props
     if (this.getStatusTimes >= getStatusMaxTimes) {
       onVisibleChange(false)
       this.setState({
@@ -95,7 +102,7 @@ class QRCodeContent extends Component {
       return
     }
     this.getStatusTimes ++
-    getWechatAuthQrCodeStatus().then(({ response, type }) => {
+    getWechatAuthQrCodeStatus({action}).then(({ response, type }) => {
       const { status, message } = response.result
       if (message === 'scan' || message === 'subscribe') {
         onScanChange(true, response.result)
@@ -136,10 +143,11 @@ class QRCodeContent extends Component {
 QRCodeContent.propTypes = {
   visible: PropTypes.bool.isRequired,
   QRCodeSize: PropTypes.number.isRequired,
-  onVisibleChange: PropTypes.func.isRequired,
+  onVisibleChange: PropTypes.func,
   onScanChange: PropTypes.func.isRequired, // when user scan return ture
   getStatusDelay: PropTypes.number.isRequired,
   getStatusMaxTimes: PropTypes.number.isRequired,
+  action: PropTypes.string.isRequired, // 'login' || 'signup'
   style: PropTypes.object,
   message: PropTypes.string,
 }
@@ -150,7 +158,8 @@ QRCodeContent.defaultProps = {
   getStatusMaxTimes: 60,
   style: {
     height: '160px'
-  }
+  },
+  action: 'login',
 }
 
 function mapStateToProps(state, props) {

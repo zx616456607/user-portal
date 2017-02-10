@@ -443,13 +443,13 @@ let Login = React.createClass({
                   <Button
                     onClick={() => browserHistory.push(`/login${WECHAT_BOUND_LOGIN_HASH}`)}
                     className="boundBtn">
-                    绑定已有账号
+                    绑定已有帐号
                   </Button>
                   <Button
                     type="primary"
                     onClick={() => browserHistory.push(`/signup${WECHAT_SIGNUP_HASH}`)}
                     className="subBtn">
-                    注册新账号
+                    注册新帐号
                   </Button>
                 </div>
               </Card>
