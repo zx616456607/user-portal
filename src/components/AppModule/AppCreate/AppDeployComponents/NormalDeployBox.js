@@ -627,7 +627,7 @@ let NormalDeployBox = React.createClass({
     const cluster = this.props.currentCluster
     const storageTypes = cluster.storageTypes
     let canCreate = true
-    if(!storageTypes) {
+    if(!storageTypes || storageTypes.length <= 0) {
       canCreate = false
     }
     this.setState({
@@ -683,7 +683,7 @@ let NormalDeployBox = React.createClass({
       if(!volumeSwitch) {
 
         let canCreate = true
-        if(!storageTypes) {
+        if(!storageTypes || storageTypes.length <= 0) {
           canCreate = false
         }
         this.setState({
