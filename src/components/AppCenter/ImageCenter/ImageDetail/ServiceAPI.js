@@ -158,12 +158,13 @@ function mapStateToProps(state, props) {
   }
   const { imageTagConfig, otherTagConfig} = state.getImageTagConfig
   const { registry, isFetching, server, configList } = imageTagConfig[DEFAULT_REGISTRY] || defaultImageDetailTagConfig
+
   // const { registry, tag, isFetching, server, configList } = otherTagConfig || defaultImageDetailTagConfig
   const tag = props.imageTag
   return {
     registry: DEFAULT_REGISTRY,
     registryServer: server,
-    configList: configList[tag],
+    configList: configList ? configList[tag]: {},
     isFetching,
     tag
   }
