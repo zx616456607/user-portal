@@ -34,6 +34,8 @@ module.exports = function (Router) {
   // License
   router.get('/licenses/merged', licenseController.checkLicense)
   router.post('/licenses', licenseController.addLicense)
+  router.get('/licenses/adminpass', licenseController.isAdminPasswordSet)
+  router.post('/licenses/adminpass', licenseController.SetAdminPassword)
 
   return router.routes()
 }

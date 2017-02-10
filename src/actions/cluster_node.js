@@ -85,3 +85,24 @@ export function deleteClusterNode(cluster, node, callback) {
     return dispatch(delClusterNode(cluster, node, callback))
   }
 }
+
+export const GET_KUBECTLS_PODS_REQUEST = 'GET_KUBECTLS_PODS_REQUEST'
+export const GET_KUBECTLS_PODS_SUCCESS = 'GET_KUBECTLS_PODS_SUCCESS'
+export const GET_KUBECTLS_PODS_FAILURE = 'GET_KUBECTLS_PODS_FAILURE'
+
+function fetchKubectlsPods(cluster, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_KUBECTLS_PODS_REQUEST, GET_KUBECTLS_PODS_SUCCESS, GET_KUBECTLS_PODS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/kubectls`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getKubectlsPods(cluster, callback) {
+  return (dispatch) => {
+    return dispatch(fetchKubectlsPods(cluster, callback))
+  }
+}

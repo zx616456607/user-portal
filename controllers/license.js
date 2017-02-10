@@ -110,12 +110,40 @@ exports.addLicense = function* () {
 exports.getPlatformID = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  //const result = yield api.license.get("platform")
+  //const result = yield api.licenses.get("platform")
   const result = {
     status: 'Success',
     code: 200,
     data: {
       platformid: "123456789abc"
+    }
+  }
+  this.body = result
+}
+
+// check whether the 'admin' user's password was set
+exports.isAdminPasswordSet = function* () {
+  const api = apiFactory.getApi()
+  //const result = yield api.licenses.get("adminpass")
+  const result = {
+    status: 'Success',
+    code: 200,
+    data: {
+      is_adminpass_set: true
+    }
+  }
+  this.body = result
+}
+
+// set the 'admin' user's password
+exports.SetAdminPassword = function* () {
+  const api = apiFactory.getApi()
+  //const result = yield api.licenses.create("adminpass")
+  const result = {
+    status: 'Success',
+    code: 200,
+    data: {
+
     }
   }
   this.body = result

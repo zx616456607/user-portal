@@ -13,7 +13,7 @@ import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getAllClusterNodes, changeClusterNodeSchedule, deleteClusterNode } from '../../actions/cluster_node'
+import { getAllClusterNodes, changeClusterNodeSchedule, deleteClusterNode, getKubectlsPods } from '../../actions/cluster_node'
 import './style/clusterTabList.less'
 import TerminalModal from '../TerminalModal'
 import NotificationHandler from '../../common/notification_handler'
@@ -25,7 +25,7 @@ const ButtonGroup = Button.Group
 
 function diskFormat(num) {
   if (num < 1024) {
-    return num + 'KB' 
+    return num + 'KB'
   }
   num = parseInt(num / 1024);
   if (num < 1024) {
@@ -44,7 +44,7 @@ function getContainerNum(name, podList) {
   let num;
   podList.map((pod) => {
     if(pod.name == name) {
-      num = pod.count; 
+      num = pod.count;
     }
   });
   return num;
@@ -56,7 +56,7 @@ function cpuUsed(cpuTotal, cpuList, name) {
   let used;
   let length;
   for(let key in cpuList) {
-    if(key != 'statusCode') {    
+    if(key != 'statusCode') {
       if(cpuList[key].name == name) {
         length = cpuList[key].metrics.length
         cpuList[key].metrics.map((item) => {
@@ -77,7 +77,7 @@ function memoryUsed(memoryTotal, memoryList, name) {
   let used;
   let length;
   for(let key in memoryList) {
-    if(key != 'statusCode') {    
+    if(key != 'statusCode') {
       if(memoryList[key].name == name) {
         length = memoryList[key].metrics.length
         memoryList[key].metrics.map((item) => {
@@ -130,7 +130,7 @@ const MyComponent = React.createClass({
     })
   },
   openTerminalModal(item, e) {
-    
+
   },
   render: function () {
     const { isFetching, podList, containerList, cpuList, memoryList } = this.props
@@ -239,10 +239,11 @@ class clusterTabList extends Component {
       TerminalLayoutModal: false
     }
   }
-  
+
   componentWillMount() {
-    const { getAllClusterNodes, cluster } = this.props;
+    const { getAllClusterNodes, cluster, getKubectlsPods } = this.props;
     const _this = this;
+    getKubectlsPods(cluster)
     getAllClusterNodes(cluster, {
       success: {
         func: (result) => {
@@ -278,7 +279,7 @@ class clusterTabList extends Component {
       nodeList: nodeList
     });
   }
-  
+
   deleteClusterNode() {
     //this function for delete cluster node
     const { cluster, deleteClusterNode, getAllClusterNodes } = this.props;
@@ -307,31 +308,47 @@ class clusterTabList extends Component {
       }
     });
   }
-  
+
   closeDeleteModal() {
     //this function for close delete node modal
     this.setState({
       deleteNodeModal: false
     })
   }
-  
+
   closeTerminalLayoutModal() {
     //this function for user close the terminal modal
     this.setState({
       TerminalLayoutModal: false
     });
   }
-  
+
   openTerminalModal() {
+    const { kubectlsPods } = this.props
     let { currentContainer } = this.state;
-    let hadFlag = false;
-    if(currentContainer.length != 0) {      
-      currentContainer.map((container) => {
-        if(container.metadata.name == item.metadata.name) {
-          hadFlag = true;
-        }
-      });
+    if (currentContainer.length > 0) {
+      this.setState({
+        TerminalLayoutModal: true,
+      })
+      return
     }
+    const { namespace, pods } = kubectlsPods
+    if (!pods || pods.length === 0) {
+      let notification = new NotificationHandler()
+      notification.warn('没有可用终端节点，请联系管理员')
+      return
+    }
+    let randomPodNum = Math.ceil(Math.random() * pods.length)
+    if (randomPodNum === 0) randomPodNum = 1
+    this.setState({
+      currentContainer: [{
+        metadata: {
+          namespace,
+          name: pods[randomPodNum - 1]
+        }
+      }],
+      TerminalLayoutModal: true,
+    })
     if(!hadFlag) {
       let body = {
         metadata: {
@@ -346,16 +363,16 @@ class clusterTabList extends Component {
       TerminalLayoutModal: true
     });
   }
-  
+
   render() {
     const { formatMessage } = this.props.intl;
-    const { isFetching, nodes, cluster, memoryList, cpuList } = this.props;
+    const { isFetching, nodes, cluster, memoryList, cpuList, kubectlsPods } = this.props;
     const { nodeList, podCount } = this.state;
     const rootscope = this.props.scope;
     const scope = this;
     let oncache = this.state.currentContainer.map((item) => {
       return item.metadata.name;
-    })   
+    })
     return (
       <QueueAnim className='clusterTabListBox'
         type='right'
@@ -367,7 +384,7 @@ class clusterTabList extends Component {
                 <Icon type='plus' />
                 <span>添加主机节点</span>
               </Button>
-              <Button className='terminalBtn' size='large' type='ghost' onClick={this.openTerminalModal}>
+              <Button disabled={kubectlsPods.namespace ? false : true} className='terminalBtn' size='large' type='ghost' onClick={this.openTerminalModal}>
                 <svg>
                   <use xlinkHref='#terminal' />
                 </svg>
@@ -448,24 +465,26 @@ function mapStateToProps(state, props) {
     isFetching: false
   }
   const cluster = state.entities.current.cluster.clusterID
-  const { getAllClusterNodes } = state.cluster_nodes
+  const { getAllClusterNodes, kubectlsPods } = state.cluster_nodes
   const { isFetching } = getAllClusterNodes || pods
   const data = getAllClusterNodes.nodes || pods
   const { cpuList, memoryList } = data
-  const nodes = data.clusters
+  const nodes = data.clusters ? data.clusters.nodes : []
   return {
     nodes,
     cpuList,
     memoryList,
     isFetching,
-    cluster
+    cluster,
+    kubectlsPods: (kubectlsPods ? kubectlsPods.result : {}) || {},
   }
 }
 
 export default connect(mapStateToProps, {
   getAllClusterNodes,
   changeClusterNodeSchedule,
-  deleteClusterNode
+  deleteClusterNode,
+  getKubectlsPods,
 })(injectIntl(clusterTabList, {
   withRef: true,
 }))

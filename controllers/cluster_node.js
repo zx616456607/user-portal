@@ -20,11 +20,11 @@ const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 exports.getClusterNodes = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
-  
+
   const api = apiFactory.getApi(loginUser)
   const result = yield api.clusters.getBy([cluster, 'nodes']);
   const clusters = result.data || []
-  
+
   let podList = [];
   clusters.nodes.nodes.map((node) => {
     podList.push(node.objectMeta.name);
@@ -39,7 +39,7 @@ exports.getClusterNodes = function* () {
       cpuList[key].name = key;
     }
   }
-  
+
   let memoryBody = {
     type: 'memory/usage',
     source: 'prometheus'
@@ -50,11 +50,11 @@ exports.getClusterNodes = function* () {
       memoryList[key].name = key;
     }
   }
-  
+
   this.status = result.code
   this.body = {
     data: {
-      clusters,  
+      clusters,
       cpuList,
       memoryList
     }
@@ -66,10 +66,10 @@ exports.changeNodeSchedule = function* () {
   const cluster = this.params.cluster
   const node = this.params.node
   const schedulable = this.request.body
-  
+
   const api = apiFactory.getApi(loginUser)
   const result = yield api.clusters.createBy([cluster, 'nodes', node, 'schedule'], null, schedulable);
-  
+
   this.status = result.code
   this.body = {
     data: result.data
@@ -80,13 +80,20 @@ exports.deleteNode = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
   const node = this.params.node
-  
+
   const api = apiFactory.getApi(loginUser)
   const result = yield api.clusters.deleteBy([cluster, 'nodes', node]);
-  
+
   this.status = result.code
   this.body = {
     data: result.data
   }
 }
 
+exports.getKubectls = function* () {
+  const cluster = this.params.cluster
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+  const result = yield spi.clusters.getBy([cluster, 'kubectls'])
+  this.body = result.data
+}
