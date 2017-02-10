@@ -16,55 +16,28 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getAllClusterNodes, changeClusterNodeSchedule, deleteClusterNode } from '../../actions/cluster_node'
 import './style/clusterTabList.less'
 import NotificationHandler from '../../common/notification_handler'
+import { formatDate, calcuDate } from '../../common/tools'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const ButtonGroup = Button.Group
 
-let testList = [
-  {
-    name: 'test-1',
-    masterPod: 'Master',
-    computePod: 'Slave',
-    containers: '12',
-    cpuNum: '8',
-    cpuUsed: 0.2,
-    memoryNum: '5',
-    memoryUsed: 0.6,
-    diskNum: '1',
-    diskUsed: 0.3,
-    scheduleStatus: false,
-    runnigTime: 30,
-    startTime: '2017-1-22 18:04:22'
-  }, {
-    name: 'test-2',
-    masterPod: 'Master',
-    computePod: 'Slave',
-    containers: '12',
-    cpuNum: '8',
-    cpuUsed: 0.2,
-    memoryNum: '5',
-    memoryUsed: 0.6,
-    diskNum: '1',
-    diskUsed: 0.3,
-    scheduleStatus: true,
-    runnigTime: 30,
-    startTime: '2017-1-22 18:04:22'
-  }, {
-    name: 'test-3',
-    masterPod: 'Master',
-    containers: '12',
-    cpuNum: '8',
-    cpuUsed: 0.2,
-    memoryNum: '5',
-    memoryUsed: 0.6,
-    diskNum: '1',
-    diskUsed: 0.3,
-    scheduleStatus: false,
-    runnigTime: 30,
-    startTime: '2017-1-22 18:04:22'
+function diskFormat(num) {
+  if (num < 1024) {
+    return num + 'KB' 
   }
-]
+  num = parseInt(num / 1024);
+  if (num < 1024) {
+    return num + 'MB'
+  }
+  num = parseInt(num / 1024);
+  if (num < 1024) {
+    return num + 'GB'
+  }
+  num = parseInt(num / 1024);
+  return num + 'TB'
+}
+
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -73,8 +46,24 @@ const MyComponent = React.createClass({
   },
   componentWillMount() {
   },
+  changeSchedulable(node, e) {
+    //this function for change node schedulable
+    const { scope } = this.props;
+    const { cluster, changeClusterNodeSchedule } = scope.props;
+    changeClusterNodeSchedule(cluster, node, e, {
+      success: {
+        func: ()=> {
+          notification['success']({
+            message: e ? '关闭调度成功' : '打开调度成功',
+          });
+        },
+        isAsync: true
+      }
+    })
+  },
   render: function () {
-    const { isFetching, podList } = this.props
+    const { isFetching, podList, containerList } = this.props
+    const root = this
     if (isFetching) {
       return (
         <div className='loadingBox'>
@@ -103,49 +92,45 @@ const MyComponent = React.createClass({
             <Checkbox ></Checkbox>
           </div>
           <div className='name commonTitle'>
-            <Tooltip title={item.objectMeta.name}>
+            <Tooltip title={item.isMaster.name}>
               <span>{item.objectMeta.name}</span>
             </Tooltip>
           </div>
           <div className='status commonTitle'>
-            <span>{item.ready == 'True' ? '运行中' : '异常'}</span>
+            <span className={ item.ready == 'True' ? 'runningSpan' : 'errorSpan' }><i className='fa fa-circle' />&nbsp;&nbsp;{item.ready == 'True' ? '运行中' : '异常'}</span>
           </div>
           <div className='role commonTitle'>
-            {
-              item.masterPod ? [<span>{item.masterPod}</span>] : null
-            }
-            {
-              item.computePod ? [<span>{item.computePod}</span>] : null
-            }
-            <span></span>
+            <Tooltip title={item.isMaster ? '主控节点/Master' : '计算节点/Slave'}>
+              <span>{item.isMaster ? '主控节点/Master' : '计算节点/Slave'}</span>
+            </Tooltip>
           </div>
           <div className='container commonTitle'>
-            <span>{item.containers}</span>
+            <span>{}</span>
           </div>
           <div className='cpu commonTitle'>
-            <span>{item.cpuNum}</span>
-            <span>{item.cpuUsed * 100 + '%'}</span>
+            <span className='topSpan'>{item.cpuTotal / 1000}核</span>
+            <span className='bottomSpan'>{item.cpuUsed * 100 + '%'}</span>
           </div>
           <div className='memory commonTitle'>
-            <span>{item.memoryNum}</span>
-            <span>{item.memoryUsed * 100 + '%'}</span>
+            <span className='topSpan'>{diskFormat(item.memoryTotalKB)}</span>
+            <span className='bottomSpan'>{item.memoryUsed * 100 + '%'}</span>
           </div>
           <div className='disk commonTitle'>
-            <span>{item.diskNum}</span>
-            <span>{item.diskUsed * 100 + '%'}</span>
+            <span className='topSpan'>{item.diskNum}</span>
+            <span className='bottomSpan'>{item.diskUsed * 100 + '%'}</span>
           </div>
           <div className='schedule commonTitle'>
-            <Switch defaultChecked={item.scheduleStatus} checkedChildren="开" unCheckedChildren="关" />
-            <span>{item.scheduleStatus ? '正常调度' : '闲置下线'}</span>
+            <Switch className='switchBox' defaultChecked={item.schedulable} checkedChildren='开' unCheckedChildren='关' onChange={this.changeSchedulable.bind(root, item.objectMeta.name)}/>
+            <span className='scheduleSpan'>{item.schedulable ? '正常调度' : '闲置下线'}</span>
           </div>
           <div className='runningTime commonTitle'>
-            <Tooltip title={item.runnigTime + 'Days'}>
-            <span>{item.runnigTime + 'Days'}</span>
+            <Tooltip title={calcuDate(item.startTime)}>
+            <span>{calcuDate(item.startTime)}</span>
             </Tooltip>
           </div>
           <div className='startTime commonTitle'>
-            <Tooltip title={item.startTime}>
-              <span>{item.startTime}</span>
+            <Tooltip title={formatDate(item.startTime)}>
+              <span>{formatDate(item.startTime)}</span>
             </Tooltip>
           </div>
           <div className='opera commonTitle'>
@@ -171,18 +156,28 @@ class clusterTabList extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      nodes: {}
     }
   }
+  
   componentWillMount() {
     const { getAllClusterNodes, cluster } = this.props;
     getAllClusterNodes(cluster)    
   }
+  
   componentWillReceiveProps(nextProps) {
+    const { isFetching, nodes } = nextProps;
+    if(isFetching && this.props.nodes != nodes) {
+      this.setState({
+        nodes: nodes
+      })
+    }
   }
+  
   render() {
-    console.log(this.props)
     const { formatMessage } = this.props.intl;
-    const { isFetching, nodes } = this.props;
+    const { isFetching } = this.props;
+    const { nodes } = this.state;
     const rootscope = this.props.scope;
     const scope = this;
     return (
@@ -246,7 +241,7 @@ class clusterTabList extends Component {
                   <span>操作</span>
                 </div>
               </div>
-              <MyComponent podList={nodes.nodes} isFetching={isFetching} />
+              <MyComponent podList={nodes.nodes} containerList={nodes.podCount} isFetching={isFetching} scope={scope} />
             </div>
           </Card>
         </div>

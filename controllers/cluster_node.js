@@ -35,11 +35,15 @@ exports.changeNodeSchedule = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
   const node = this.params.node
+  const schedulable = this.request.body
   
   const api = apiFactory.getApi(loginUser)
-  const result = yield api.clusters.createBy([cluster, 'nodes', node, 'schedule']);
+  const result = yield api.clusters.createBy([cluster, 'nodes', node, 'schedule'], null, schedulable);
   
   this.status = result.code
+  this.body = {
+    data: result.data
+  }
 }
 
 exports.deleteNode = function* () {
@@ -51,4 +55,7 @@ exports.deleteNode = function* () {
   const result = yield api.clusters.deleteBy([cluster, 'nodes', node]);
   
   this.status = result.code
+  this.body = {
+    data: result.data
+  }
 }

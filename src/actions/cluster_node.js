@@ -39,23 +39,26 @@ export const CHANGE_CLUSTER_NODE_SCHEDULE_REQUEST = 'CHANGE_CLUSTER_NODE_SCHEDUL
 export const CHANGE_CLUSTER_NODE_SCHEDULE_SUCCESS = 'CHANGE_CLUSTER_NODE_SCHEDULE_SUCCESS'
 export const CHANGE_CLUSTER_NODE_SCHEDULE_FAILURE = 'CHANGE_CLUSTER_NODE_SCHEDULE_FAILURE'
 
-function postClusterNodeSchedule(cluster, node, callback) {
+function postClusterNodeSchedule(cluster, node, schedulable, callback) {
   return {
     [FETCH_API]: {
       types: [CHANGE_CLUSTER_NODE_SCHEDULE_REQUEST, CHANGE_CLUSTER_NODE_SCHEDULE_SUCCESS, CHANGE_CLUSTER_NODE_SCHEDULE_FAILURE],
       endpoint: `${API_URL_PREFIX}/cluster-nodes/${cluster}/node/${node}`,
       schema: {},
       options: {
-        method: 'POST'
+        method: 'POST',
+        body: {
+          schedulable: schedulable
+        }
       },
     },
     callback
   }
 }
 
-export function changeClusterNodeSchedule(cluster, node, callback) {
+export function changeClusterNodeSchedule(cluster, node, schedulable, callback) {
   return (dispatch) => {
-    return dispatch(postClusterNodeSchedule(cluster, node, callback))
+    return dispatch(postClusterNodeSchedule(cluster, node, schedulable, callback))
   }
 }
 
