@@ -99,7 +99,8 @@ module.exports = {
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false
-      }
+      },
+      comments: false
     }),
     new webpack.BannerPlugin('Licensed Materials - Property of tenxcloud.com\n(C) Copyright 2017 TenxCloud. All Rights Reserved.\nhttps://www.tenxcloud.com'),
     function() {

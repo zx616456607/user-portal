@@ -71,7 +71,7 @@ class Register extends Component{
       <div key='b' id='RegisterPage'>
         <Top/>
         <div className='register registerFlex'>
-          <Card className="registerForm" bordered={false} style={{width: 440,padding: '0 50px 24px'}}>
+          <Card className="registerForm" bordered={false} style={{width: 440,padding: '0 50px 24px',overflow: 'hidden'}}>
             <div className='backToPage' onClick={this.handlePageChange}>&lt;&lt;&nbsp;&nbsp;&nbsp;重选注册帐户类型</div>
             {
               this.state.person ?

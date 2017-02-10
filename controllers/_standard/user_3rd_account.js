@@ -16,6 +16,7 @@ const Wechat = require('../../3rd_account/wechat')
 const wechat = new Wechat()
 const logger = require('../../utils/logger').getLogger('user_3rd_account')
 const indexConfig = require('../../configs/_standard')
+const indexService = require('../../services')
 // const WECHAT_QR_EXPIRE_SECONDS = 60 * 15 // 二维码15分钟有效期
 const WECHAT_QR_EXPIRE_SECONDS = 15
 
@@ -59,6 +60,7 @@ exports.getWechatAuthUrl = function* () {
 }
 
 exports.checkWechatAuthStatus = function* () {
+  const query = this.query
   const wechat_ticket = this.session.wechat_ticket
   if (!wechat_ticket) {
     this.status = 404
@@ -81,11 +83,24 @@ exports.checkWechatAuthStatus = function* () {
       if (event === 'SCAN' || event === 'subscribe') {
         accountID = Event.FromUserName
         resData.message = event.toLowerCase()
-        const access_token = yield wechat.initWechat()
-        const userInfo = yield wechat.getUserInfo(access_token, accountID)
-        resData.accountDetail = {
-          nickname: userInfo.nickname,
-          headimgurl: userInfo.headimgurl,
+        // Check if wechat account already signup
+        let wechatAccountExist
+        if (query.action === 'signup') {
+          let data = {
+            accountType: 'wechat',
+            accountID,
+          }
+          let checkWechatAccountExist = yield indexService.checkWechatAccountIsExist(data)
+          wechatAccountExist = checkWechatAccountExist.exist
+        }
+        resData.wechatAccountExist = wechatAccountExist
+        if (!wechatAccountExist) {
+          const access_token = yield wechat.initWechat()
+          const userInfo = yield wechat.getUserInfo(access_token, accountID)
+          resData.accountDetail = {
+            nickname: userInfo.nickname,
+            headimgurl: userInfo.headimgurl,
+          }
         }
       }
     } else {
