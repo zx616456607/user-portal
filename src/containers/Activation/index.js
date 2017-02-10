@@ -11,9 +11,11 @@
 import React, { PropTypes } from 'react'
 import { Button, Form, Input, Card, message, Alert, Col, Row } from 'antd'
 import { connect } from 'react-redux'
-// import { browserHistory } from 'react-router'
+import { browserHistory } from 'react-router'
 import Top from '../../components/Top'
 import '../Login/Enterprise/style/Login.less'
+import { addLicense } from '../../actions/license'
+import NotificationHandler from '../../common/notification_handler'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -23,7 +25,6 @@ let Activation = React.createClass({
     return {
       submitting: false,
       loginResult: {},
-      submitProps: {},
       intNameFocus: false,
       intPassFocus: false,
       intCheckFocus: false,
@@ -31,7 +32,29 @@ let Activation = React.createClass({
     }
   },
 
-
+  handleSubmit(e) {
+    e.preventDefault()
+    const _this = this
+    this.props.form.validateFields((error, value) => {
+      if (!!error) {
+        return
+      }
+      _this.props.addLicense({rawlicense: value}, {
+        success: {
+          func: () => {
+            new NotificationHandler().success('激活成功')
+            browserHistory.push('/login')
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (res) => {
+            new NotificationHandler().error('激活失败', res.message.message)
+          }
+        }
+      })
+    })
+  },
   checkName(rule, value, callback) {
     if (!value) {
       callback([new Error('请填写激活码')])
@@ -74,7 +97,7 @@ let Activation = React.createClass({
                 loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
               }
             </div>
-            <Form onSubmit={this.handleSubmit}>
+            <Form onSubmit={(e)=> this.handleSubmit(e)}>
               <FormItem
                 hasFeedback
                 >
@@ -88,9 +111,8 @@ let Activation = React.createClass({
                 <Button
                   htmlType="submit"
                   type="primary"
-                  onClick={this.handleSubmit}
+                  onClick={(e)=> this.handleSubmit(e)}
                   loading={submitting}
-                  {...submitProps}
                   className="subBtn">
                   {submitting ? '激活中...' : '激活'}
                 </Button>
@@ -116,7 +138,7 @@ function mapStateToProps(state, props) {
 Activation = createForm()(Activation)
 
 Activation = connect(mapStateToProps, {
-
+  addLicense
 })(Activation)
 
 export default Activation

@@ -291,10 +291,10 @@ class App extends Component {
   checkTipsText() {
     if (this.props.loginUser.role == ROLE_SYS_ADMIN) {
       return (
-      <Link to="/setting/license" style={{color:'white',textDecoration: 'underline'}}> 输入激活码 </Link>
+      <span><Link to="/setting/license" style={{color:'white',textDecoration: 'underline'}}> 输入激活码 </Link>以使用平台</span>
       )
     }
-    return '联系系统管理员'
+    return '请联系管理员输入激活码以继续使用平台'
   }
   render() {
     let {
@@ -337,7 +337,7 @@ class App extends Component {
         
         {this.state.outdated ?
         [<div id='topError'>
-          {this.state.licenseTips}将于{this.state.licenseDay}天后（即{this.checkDate() }）过期，请{this.checkTipsText()}以使用平台
+          {this.state.licenseTips}将于{this.state.licenseDay}天后（即{this.checkDate() }）过期，{this.checkTipsText()}
         </div>,
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-header toptips' : 'tenx-layout-header-bigger tenx-layout-header toptips'}>
           <div className='tenx-layout-wrapper'>
