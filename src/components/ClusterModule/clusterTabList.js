@@ -25,7 +25,7 @@ const ButtonGroup = Button.Group
 
 function diskFormat(num) {
   if (num < 1024) {
-    return num + 'KB' 
+    return num + 'KB'
   }
   num = parseInt(num / 1024);
   if (num < 1024) {
@@ -44,7 +44,7 @@ function getContainerNum(name, podList) {
   let num;
   podList.map((pod) => {
     if(pod.name == name) {
-      num = pod.count; 
+      num = pod.count;
     }
   });
   return num;
@@ -56,7 +56,7 @@ function cpuUsed(cpuTotal, cpuList, name) {
   let used;
   let length;
   for(let key in cpuList) {
-    if(key != 'statusCode') {    
+    if(key != 'statusCode') {
       if(cpuList[key].name == name) {
         length = cpuList[key].metrics.length
         cpuList[key].metrics.map((item) => {
@@ -77,7 +77,7 @@ function memoryUsed(memoryTotal, memoryList, name) {
   let used;
   let length;
   for(let key in memoryList) {
-    if(key != 'statusCode') {    
+    if(key != 'statusCode') {
       if(memoryList[key].name == name) {
         length = memoryList[key].metrics.length
         memoryList[key].metrics.map((item) => {
@@ -130,7 +130,7 @@ const MyComponent = React.createClass({
     })
   },
   openTerminalModal(item, e) {
-    
+
   },
   render: function () {
     const { isFetching, podList, containerList, cpuList, memoryList } = this.props
@@ -239,7 +239,7 @@ class clusterTabList extends Component {
       TerminalLayoutModal: false
     }
   }
-  
+
   componentWillMount() {
     const { getAllClusterNodes, cluster } = this.props;
     const _this = this;
@@ -278,7 +278,7 @@ class clusterTabList extends Component {
       nodeList: nodeList
     });
   }
-  
+
   deleteClusterNode() {
     //this function for delete cluster node
     const { cluster, deleteClusterNode, getAllClusterNodes } = this.props;
@@ -307,25 +307,25 @@ class clusterTabList extends Component {
       }
     });
   }
-  
+
   closeDeleteModal() {
     //this function for close delete node modal
     this.setState({
       deleteNodeModal: false
     })
   }
-  
+
   closeTerminalLayoutModal() {
     //this function for user close the terminal modal
     this.setState({
       TerminalLayoutModal: false
     });
   }
-  
+
   openTerminalModal() {
     let { currentContainer } = this.state;
     let hadFlag = false;
-    if(currentContainer.length != 0) {      
+    if(currentContainer.length != 0) {
       currentContainer.map((container) => {
         if(container.metadata.name == item.metadata.name) {
           hadFlag = true;
@@ -346,7 +346,7 @@ class clusterTabList extends Component {
       TerminalLayoutModal: true
     });
   }
-  
+
   render() {
     const { formatMessage } = this.props.intl;
     const { isFetching, nodes, cluster, memoryList, cpuList } = this.props;
@@ -355,7 +355,7 @@ class clusterTabList extends Component {
     const scope = this;
     let oncache = this.state.currentContainer.map((item) => {
       return item.metadata.name;
-    })   
+    })
     return (
       <QueueAnim className='clusterTabListBox'
         type='right'
@@ -452,7 +452,7 @@ function mapStateToProps(state, props) {
   const { isFetching } = getAllClusterNodes || pods
   const data = getAllClusterNodes.nodes || pods
   const { cpuList, memoryList } = data
-  const nodes = data.clusters
+  const nodes = data.clusters ? data.clusters.nodes : []
   return {
     nodes,
     cpuList,
