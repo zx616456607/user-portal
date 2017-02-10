@@ -291,7 +291,7 @@ let Login = React.createClass({
                 className="formItemName"
                 >
                 <div className={this.state.intPassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>密码</div>
-                <Input {...passwdProps} autoComplete="off" type={this.state.passWord ? 'password' : 'text'}
+                <Input {...passwdProps} autoComplete="on" type='password'
                   onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                   onBlur={this.intOnBlur.bind(this, 'pass')}
                   onFocus={this.intOnFocus.bind(this, 'pass')}

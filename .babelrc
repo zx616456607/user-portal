@@ -5,7 +5,9 @@
       "presets": ["react-hmre"]
     }
   },
-  "plugins": [ ["antd", {
+  "plugins": [
+    "transform-runtime",
+    ["antd", {
       "style": "css"
     }]
   ]

@@ -8,72 +8,133 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Switch, Tooltip } from 'antd'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Switch, Tooltip, notification } from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { getAllClusterNodes, changeClusterNodeSchedule, deleteClusterNode } from '../../actions/cluster_node'
 import './style/clusterTabList.less'
+import TerminalModal from '../TerminalModal'
 import NotificationHandler from '../../common/notification_handler'
+import { formatDate, calcuDate } from '../../common/tools'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const ButtonGroup = Button.Group
 
-let testList = [
-  {
-    name: 'test-1',
-    masterPod: 'Master',
-    computePod: 'Slave',
-    containers: '12',
-    cpuNum: '8',
-    cpuUsed: 0.2,
-    memoryNum: '5',
-    memoryUsed: 0.6,
-    diskNum: '1',
-    diskUsed: 0.3,
-    scheduleStatus: false,
-    runnigTime: 30,
-    startTime: '2017-1-22 18:04:22'
-  }, {
-    name: 'test-2',
-    masterPod: 'Master',
-    computePod: 'Slave',
-    containers: '12',
-    cpuNum: '8',
-    cpuUsed: 0.2,
-    memoryNum: '5',
-    memoryUsed: 0.6,
-    diskNum: '1',
-    diskUsed: 0.3,
-    scheduleStatus: true,
-    runnigTime: 30,
-    startTime: '2017-1-22 18:04:22'
-  }, {
-    name: 'test-3',
-    masterPod: 'Master',
-    containers: '12',
-    cpuNum: '8',
-    cpuUsed: 0.2,
-    memoryNum: '5',
-    memoryUsed: 0.6,
-    diskNum: '1',
-    diskUsed: 0.3,
-    scheduleStatus: false,
-    runnigTime: 30,
-    startTime: '2017-1-22 18:04:22'
+function diskFormat(num) {
+  if (num < 1024) {
+    return num + 'KB' 
   }
-]
+  num = parseInt(num / 1024);
+  if (num < 1024) {
+    return num + 'MB'
+  }
+  num = parseInt(num / 1024);
+  if (num < 1024) {
+    return num + 'GB'
+  }
+  num = parseInt(num / 1024);
+  return num + 'TB'
+}
+
+function getContainerNum(name, podList) {
+  //this function for return the container num of node
+  let num;
+  podList.map((pod) => {
+    if(pod.name == name) {
+      num = pod.count; 
+    }
+  });
+  return num;
+}
+
+function cpuUsed(cpuTotal, cpuList, name) {
+  //this function for compute cpu used
+  let total = 0;
+  let used;
+  let length;
+  for(let key in cpuList) {
+    if(key != 'statusCode') {    
+      if(cpuList[key].name == name) {
+        length = cpuList[key].metrics.length
+        cpuList[key].metrics.map((item) => {
+          total = total + item.value;
+        });
+      }
+    }
+  }
+  // 1h and to 100%
+  used = total / cpuTotal /length;
+  used = ( used * 100 ).toFixed(2);
+  return used;
+}
+
+function memoryUsed(memoryTotal, memoryList, name) {
+  //this function for compute memory used
+  let total = 0;
+  let used;
+  let length;
+  for(let key in memoryList) {
+    if(key != 'statusCode') {    
+      if(memoryList[key].name == name) {
+        length = memoryList[key].metrics.length
+        memoryList[key].metrics.map((item) => {
+          total = total + (item.value / 1024);
+        });
+      }
+    }
+  }
+  used = total / memoryTotal;
+  // 1h and to 100%
+  used = (used * 100 / length).toFixed(2);
+  return used;
+}
 
 const MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
-  componentWillMount() {
+  changeSchedulable(node, e) {
+    //this function for change node schedulable
+    const { scope } = this.props;
+    const { cluster, changeClusterNodeSchedule } = scope.props;
+    let { nodeList } = scope.state;
+    changeClusterNodeSchedule(cluster, node, e, {
+      success: {
+        func: ()=> {
+          notification['success']({
+            message: e ? '打开调度成功' : '关闭调度成功',
+          });
+          nodeList.map((item) => {
+            if(item.objectMeta.name == node) {
+              item.schedulable = e;
+            }
+          });
+          scope.setState({
+            nodeList: nodeList
+          })
+        },
+        isAsync: true
+      }
+    })
+  },
+  ShowDeleteClusterNodeModal(node) {
+    //this function for delete cluster node
+    const { scope } = this.props;
+    scope.setState({
+      deleteNodeName: node,
+      deleteNodeModal: true
+    })
+  },
+  openTerminalModal(item, e) {
+    
   },
   render: function () {
-    const { isFetching, podList } = this.props
+    const { isFetching, podList, containerList, cpuList, memoryList } = this.props
+    const root = this
     if (isFetching) {
       return (
         <div className='loadingBox'>
@@ -88,7 +149,7 @@ const MyComponent = React.createClass({
     }
     let items = podList.map((item, index) => {
       const dropdown = (
-        <Menu onClick={()=> this.setState({delModal: true, imageName: item.name})}
+        <Menu onClick={this.ShowDeleteClusterNodeModal.bind(this, item.objectMeta.name)}
           style={{ width: '100px' }}
           >
           <Menu.Item key={item.id}>
@@ -97,58 +158,54 @@ const MyComponent = React.createClass({
         </Menu>
       );
       return (
-        <div className='podDetail' key={`${item.name}-${index}`} >
+        <div className='podDetail' key={`${item.objectMeta.name}-${index}`} >
           <div className='checkBox commonTitle'>
             <Checkbox ></Checkbox>
           </div>
           <div className='name commonTitle'>
-            <Tooltip title={item.name}>
-              <span>{item.name}</span>
+            <Tooltip title={item.objectMeta.name}>
+              <span>{item.objectMeta.name}</span>
             </Tooltip>
           </div>
           <div className='status commonTitle'>
-            <span>状态</span>
+            <span className={ item.ready == 'True' ? 'runningSpan' : 'errorSpan' }><i className='fa fa-circle' />&nbsp;&nbsp;{item.ready == 'True' ? '运行中' : '异常'}</span>
           </div>
           <div className='role commonTitle'>
-            {
-              item.masterPod ? [<span>{item.masterPod}</span>] : null
-            }
-            {
-              item.computePod ? [<span>{item.computePod}</span>] : null
-            }
-            <span></span>
+            <Tooltip title={item.isMaster ? '主控节点/Master' : '计算节点/Slave'}>
+              <span>{item.isMaster ? '主控节点/Master' : '计算节点/Slave'}</span>
+            </Tooltip>
           </div>
           <div className='container commonTitle'>
-            <span>{item.containers}</span>
+            <span>{getContainerNum(item.objectMeta.name, containerList)}</span>
           </div>
           <div className='cpu commonTitle'>
-            <span>{item.cpuNum}</span>
-            <span>{item.cpuUsed * 100 + '%'}</span>
+            <span className='topSpan'>{item.cpuTotal / 1000}核</span>
+            <span className='bottomSpan'>{cpuUsed(item.cpuTotal, cpuList, item.objectMeta.name) + '%'}</span>
           </div>
           <div className='memory commonTitle'>
-            <span>{item.memoryNum}</span>
-            <span>{item.memoryUsed * 100 + '%'}</span>
+            <span className='topSpan'>{diskFormat(item.memoryTotalKB)}</span>
+            <span className='bottomSpan'>{memoryUsed(item.memoryTotalKB, memoryList, item.objectMeta.name) + '%'}</span>
           </div>
           <div className='disk commonTitle'>
-            <span>{item.diskNum}</span>
-            <span>{item.diskUsed * 100 + '%'}</span>
+            <span className='topSpan'>{'-'}</span>
+            <span className='bottomSpan'>{'-'}</span>
           </div>
           <div className='schedule commonTitle'>
-            <Switch defaultChecked={item.scheduleStatus} checkedChildren="开" unCheckedChildren="关" />
-            <span>{item.scheduleStatus ? '正常调度' : '闲置下线'}</span>
+            <Switch className='switchBox' defaultChecked={item.schedulable} checkedChildren='开' unCheckedChildren='关' onChange={this.changeSchedulable.bind(root, item.objectMeta.name)}/>
+            <span className='scheduleSpan'>{item.schedulable ? '正常调度' : '闲置下线'}</span>
           </div>
           <div className='runningTime commonTitle'>
-            <Tooltip title={item.runnigTime + 'Days'}>
-            <span>{item.runnigTime + 'Days'}</span>
+            <Tooltip title={calcuDate(item.startTime)}>
+            <span>{calcuDate(item.startTime)}</span>
             </Tooltip>
           </div>
           <div className='startTime commonTitle'>
-            <Tooltip title={item.startTime}>
-              <span>{item.startTime}</span>
+            <Tooltip title={formatDate(item.startTime)}>
+              <span>{formatDate(item.startTime)}</span>
             </Tooltip>
           </div>
           <div className='opera commonTitle'>
-            <Dropdown.Button overlay={dropdown} type='ghost'>
+            <Dropdown.Button overlay={dropdown} type='ghost' onClick={this.openTerminalModal.bind(this, item)}>
               <svg>
                 <use xlinkHref='#terminal' />
               </svg>
@@ -169,18 +226,136 @@ const MyComponent = React.createClass({
 class clusterTabList extends Component {
   constructor(props) {
     super(props);
+    this.searchNodes = this.searchNodes.bind(this);
+    this.deleteClusterNode = this.deleteClusterNode.bind(this);
+    this.closeDeleteModal = this.closeDeleteModal.bind(this);
+    this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this);
+    this.openTerminalModal = this.openTerminalModal.bind(this);
     this.state = {
+      nodeList: [],
+      podCount: [],
+      currentContainer: [],
+      deleteNodeModal: false,
+      TerminalLayoutModal: false
     }
   }
+  
   componentWillMount() {
+    const { getAllClusterNodes, cluster } = this.props;
+    const _this = this;
+    getAllClusterNodes(cluster, {
+      success: {
+        func: (result) => {
+          let nodeList = result.data.clusters.nodes.nodes;
+          let podCount = result.data.clusters.podCount;
+          _this.setState({
+            nodeList: nodeList,
+            podCount: podCount
+          })
+        },
+        isAsync: true
+      }
+    })
   }
-  componentWillReceiveProps(nextProps) {
+
+  searchNodes(e) {
+    //this function for search nodes
+    const { nodes } = this.props;
+    if(e.target.value.length == 0) {
+      this.setState({
+        nodeList: nodes.nodes
+      })
+      return;
+    }
+    let search = e.target.value;
+    let nodeList = [];
+    nodes.nodes.map((node) => {
+      if(node.objectMeta.name.indexOf(search) > -1) {
+        nodeList.push(node);
+      }
+    });
+    this.setState({
+      nodeList: nodeList
+    });
   }
+  
+  deleteClusterNode() {
+    //this function for delete cluster node
+    const { cluster, deleteClusterNode, getAllClusterNodes } = this.props;
+    const { deleteNodeName } = this.state;
+    const _this = this;
+    deleteClusterNode(cluster, deleteNodeName, {
+      success: {
+        func: () => {
+          getAllClusterNodes(cluster, {
+            success: {
+              func: (result) => {
+                let nodeList = result.data.clusters.nodes.nodes;
+                notification['success']({
+                  message: '主机节点删除成功',
+                });
+                _this.setState({
+                  nodeList: nodeList,
+                  deleteNodeModal: false
+                })
+              },
+              isAsync: true
+            }
+          })
+        },
+        isAsync: true
+      }
+    });
+  }
+  
+  closeDeleteModal() {
+    //this function for close delete node modal
+    this.setState({
+      deleteNodeModal: false
+    })
+  }
+  
+  closeTerminalLayoutModal() {
+    //this function for user close the terminal modal
+    this.setState({
+      TerminalLayoutModal: false
+    });
+  }
+  
+  openTerminalModal() {
+    let { currentContainer } = this.state;
+    let hadFlag = false;
+    if(currentContainer.length != 0) {      
+      currentContainer.map((container) => {
+        if(container.metadata.name == item.metadata.name) {
+          hadFlag = true;
+        }
+      });
+    }
+    if(!hadFlag) {
+      let body = {
+        metadata: {
+          namespace: 'kube-system',
+          name: 'temp'
+        }
+      }
+      currentContainer.push(body)
+    }
+    this.setState({
+      currentContainer: currentContainer,
+      TerminalLayoutModal: true
+    });
+  }
+  
   render() {
     const { formatMessage } = this.props.intl;
-    const { isFetching, podList } = this.props;
+    const { isFetching, nodes, cluster, memoryList, cpuList } = this.props;
+    const { nodeList, podCount } = this.state;
     const rootscope = this.props.scope;
     const scope = this;
+    let oncache = this.state.currentContainer.map((item) => {
+      return item.metadata.name;
+    })   
     return (
       <QueueAnim className='clusterTabListBox'
         type='right'
@@ -192,14 +367,14 @@ class clusterTabList extends Component {
                 <Icon type='plus' />
                 <span>添加主机节点</span>
               </Button>
-              <Button className='terminalBtn' size='large' type='ghost'>
+              <Button className='terminalBtn' size='large' type='ghost' onClick={this.openTerminalModal}>
                 <svg>
                   <use xlinkHref='#terminal' />
                 </svg>
                 <span>终端</span>
               </Button>
               <span className='searchBox'>
-                <Input className='searchInput' size='large' placeholder='搜索' type='text' />
+                <Input className='searchInput' size='large' placeholder='搜索' type='text' onChange={this.searchNodes} />
                 <i className='fa fa-search'></i>
               </span>
             </div>
@@ -209,7 +384,7 @@ class clusterTabList extends Component {
                   <Checkbox ></Checkbox>
                 </div>
                 <div className='name commonTitle'>
-                  <span>应用名称</span>
+                  <span>主机名称</span>
                 </div>
                 <div className='status commonTitle'>
                   <span>状态</span>
@@ -242,9 +417,21 @@ class clusterTabList extends Component {
                   <span>操作</span>
                 </div>
               </div>
-              <MyComponent podList={podList} isFetching={isFetching} />
+              <MyComponent podList={nodeList} containerList={podCount} isFetching={isFetching} scope={scope} memoryList={memoryList} cpuList={cpuList} />
             </div>
           </Card>
+          <Modal title='删除主机' className='deleteClusterNodeModal' visible={this.state.deleteNodeModal} onOk={this.deleteClusterNode} onCancel={this.closeDeleteModal}>
+            <span style={{ color: '#00a0ea' }}><Icon type='exclamation-circle-o' />&nbsp;&nbsp;&nbsp;确定要删除&nbsp;{this.state.deleteNodeName}&nbsp;主机节点？</span>
+          </Modal>
+          <Modal
+            visible={this.state.TerminalLayoutModal}
+            className='TerminalLayoutModal'
+            transitionName='move-down'
+            onCancel={this.closeTerminalLayoutModal}
+            maskClosable={false}
+            >
+            <TerminalModal scope={scope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal} oncache={oncache} cluster={cluster}/>
+          </Modal>
         </div>
       </QueueAnim>
     )
@@ -257,17 +444,28 @@ clusterTabList.propTypes = {
 
 function mapStateToProps(state, props) {
   const pods = {
-    podList: testList,
+    nodes: {},
     isFetching: false
   }
-  const { podList, isFetching } = pods;
+  const cluster = state.entities.current.cluster.clusterID
+  const { getAllClusterNodes } = state.cluster_nodes
+  const { isFetching } = getAllClusterNodes || pods
+  const data = getAllClusterNodes.nodes || pods
+  const { cpuList, memoryList } = data
+  const nodes = data.clusters
   return {
-    podList,
-    isFetching
+    nodes,
+    cpuList,
+    memoryList,
+    isFetching,
+    cluster
   }
 }
 
 export default connect(mapStateToProps, {
+  getAllClusterNodes,
+  changeClusterNodeSchedule,
+  deleteClusterNode
 })(injectIntl(clusterTabList, {
   withRef: true,
 }))
