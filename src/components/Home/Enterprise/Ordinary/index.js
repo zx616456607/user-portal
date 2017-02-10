@@ -482,7 +482,7 @@ class Ordinary extends Component{
           if(name === '运行中'){
             return name + '  ' + conRunning + '个'
           } else if (name === '异常') {
-            return name + '  ' + conFailed + ' 个'
+            return  '异   常  '  + conFailed + ' 个'
           } else if (name === '操作中') {
             return name + '  ' + conOthers + ' 个'
           }
@@ -1030,7 +1030,7 @@ class Ordinary extends Component{
                         运行中
                       </td>
                       <td className="dbNum">
-                        {mySQLRunning}个
+                        {mySQLRunning} 个
                       </td>
                     </tr>
                     <tr>
@@ -1039,7 +1039,7 @@ class Ordinary extends Component{
                         已停止
                       </td>
                       <td className="dbNum">
-                        {mySQLStopped}个
+                        {mySQLStopped} 个
                       </td>
                     </tr>
                     <tr>
@@ -1048,7 +1048,7 @@ class Ordinary extends Component{
                         操作中
                       </td>
                       <td className="dbNum">
-                        {mySQLOthers}个
+                        {mySQLOthers} 个
                       </td>
                     </tr>
                     </tbody>
@@ -1068,7 +1068,7 @@ class Ordinary extends Component{
                         运行中
                       </td>
                       <td className="dbNum">
-                        {mongoRunning}个
+                        {mongoRunning} 个
                       </td>
                     </tr>
                     <tr>
@@ -1077,7 +1077,7 @@ class Ordinary extends Component{
                         已停止
                       </td>
                       <td className="dbNum">
-                        {mongoStopped}个
+                        {mongoStopped} 个
                       </td>
                     </tr>
                     <tr>
@@ -1086,7 +1086,7 @@ class Ordinary extends Component{
                         操作中
                       </td>
                       <td className="dbNum">
-                        {mongoOthers}个
+                        {mongoOthers} 个
                       </td>
                     </tr>
                     </tbody>
@@ -1106,7 +1106,7 @@ class Ordinary extends Component{
                         运行中
                       </td>
                       <td className="dbNum">
-                        {redisRunning}个
+                        {redisRunning} 个
                       </td>
                     </tr>
                     <tr>
@@ -1115,7 +1115,7 @@ class Ordinary extends Component{
                         已停止
                       </td>
                       <td className="dbNum">
-                        {redisStopped}个
+                        {redisStopped} 个
                       </td>
                     </tr>
                     <tr>
@@ -1124,7 +1124,7 @@ class Ordinary extends Component{
                         操作中
                       </td>
                       <td className="dbNum">
-                        {redisOthers}个
+                        {redisOthers} 个
                       </td>
                     </tr>
                     </tbody>

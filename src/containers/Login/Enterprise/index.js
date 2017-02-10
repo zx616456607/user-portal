@@ -9,14 +9,13 @@
  * @author Zhangpc
  */
 import React, { PropTypes } from 'react'
-import { Button, Form, Input, Card, message, Alert, Col, Row } from 'antd'
+import { Button, Form, Input, Card, message, Alert, Col, Row, Icon } from 'antd'
 import './style/Login.less'
 import { verifyCaptcha, login } from '../../../actions/entities'
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
 import { browserHistory } from 'react-router'
 import { genRandomString } from '../../../common/tools'
-import ReactDom from 'react-dom'
 import Top from '../../../components/Top'
 
 const createForm = Form.create
@@ -223,7 +222,7 @@ let Login = React.createClass({
   },
 
   componentDidMount() {
-    ReactDom.findDOMNode(this.refs.intName.refs.input).focus()
+    this.refs.intName.refs.input.focus()
   },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
@@ -252,6 +251,11 @@ let Login = React.createClass({
       <div id="LoginBg">
         <Top/>
         <div className="login">
+          {this.props.outdated ?
+            <div className="errorText">激活证书已过期，请重新<span className="goActive" onClick={()=> browserHistory.push("/activation")}> 输入激活码 </span>以使用平台</div>
+          : null
+          }
+          <div className="loginContent">
           <Row style={{ textAlign: 'center' }}>
             <span className='logoLink'>
               <div className='logTitle'>登&nbsp;&nbsp;录</div>
@@ -326,6 +330,7 @@ let Login = React.createClass({
             </Form>
           </Card>
         </div>
+        </div>
         <div className="footer">
           © 2017 北京云思畅想科技有限公司 &nbsp;|&nbsp; 时速云企业版 v2.0
           </div>
@@ -335,9 +340,11 @@ let Login = React.createClass({
 })
 
 function mapStateToProps(state, props) {
+  const outdated = false // 证书是否已过期
   const { redirect } = props.location.query
   return {
-    redirect
+    redirect,
+    outdated
   }
 }
 
