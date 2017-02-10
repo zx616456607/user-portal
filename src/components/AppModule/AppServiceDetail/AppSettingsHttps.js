@@ -142,12 +142,8 @@ class AppSettingsHttps extends Component {
       detailModal: false,
       hasHTTPPort: false,
       certificateExists: false,
-      firstEntry: true,
-      modifying: false,
       httpsOpened: false,
       httpsStatusInited: false,
-      certContent: '',
-      keyContent: '',
     }
   }
   componentWillMount() {
@@ -185,7 +181,6 @@ class AppSettingsHttps extends Component {
     this.setState({ 
       hasBindingDomainForHttp: hasBindingDomainForHttp,
       hasHTTPPort: hasHTTPPort,
-      firstEntry: false,
       certificateExists: certificateExists,
       canOpenHttps: hasBindingDomainForHttp && hasHTTPPort && certificateExists,
     })
