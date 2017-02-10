@@ -55,26 +55,29 @@ exports.getLicenses = function* () {
     code: 200,
     data: {
       merged: {
-        "start": "2016-1-7 8:00:00",
-        "end": "2018-1-7 8:00:00",      
-        "short_key": "abcdeftg212",     
-        "add_time": "2017-1-8 10:00:00", 
-        "add_user": "未登录激活",
+        max_nodes: 6,
+        start: "2016-1-7 8:00:00",
+        end: "2018-1-7 8:00:00",      
+        short_key: "abcdeftg212",     
+        add_time: "2017-1-8 10:00:00", 
+        add_user: "未登录激活",
       },
       licenses: [
         {
-          "start": "2017-1-7 8:00:00",
-          "end": "2018-1-7 8:00:00",      
-          "short_key": "abcdeftg2222",     
-          "add_time": "2017-1-8 10:00:00", 
-          "add_user": "未登录激活",
+          max_nodes: 6,
+          start: "2017-1-7 8:00:00",
+          end: "2018-1-7 8:00:00",      
+          short_key: "abcdeftg2222",     
+          add_time: "2017-1-8 10:00:00", 
+          add_user: "未登录激活",
         },
          {
-          "start": "2016-1-7 8:00:00",
-          "end": "2017-1-7 8:00:00",      
-          "short_key": "abcdeftg1111",     
-          "add_time": "2016-1-8 10:00:00", 
-          "add_user": "未登录激活",
+          max_nodes: 3,
+          start: "2016-1-7 8:00:00",
+          end: "2017-1-7 8:00:00",      
+          short_key: "abcdeftg1111",     
+          add_time: "2016-1-8 10:00:00", 
+          add_user: "未登录激活",
         }
       ]
     }

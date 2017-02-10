@@ -224,11 +224,11 @@ let EnterpriseComponse = React.createClass({
         return
       }
       if (!userFrontId.url) {
-        notification.error('请上传负责人身份证正面扫描照')
+        notification.error('请上传联系人身份证正面扫描照')
         return
       }
       if (!backId.url) {
-        notification.error('请上传负责人身份证反面扫描照')
+        notification.error('请上传联系人身份证反面扫描照')
         return
       }
       let message = '提交审核信息'
@@ -298,13 +298,13 @@ let EnterpriseComponse = React.createClass({
     });
     const ownerNameProps = getFieldProps('ownerName', {
       rules: [
-        { required: true, whitespace: true, message:'请输入负责人姓名'}
+        { required: true, whitespace: true, message:'请输入联系人姓名'}
       ],
       initialValue: data.certUserName
     });
     const ownerNameNumberProps = getFieldProps('ownerNameNumber', {
       rules: [
-        { whitespace: true, message:'请输入负责任人身份证号'},
+        { whitespace: true, message:'请输入联系任人身份证号'},
         { validator: this.idCard }
       ],
       initialValue: data.certUserID
@@ -360,16 +360,16 @@ let EnterpriseComponse = React.createClass({
 
         </div>
         <div className="myInfo" style={{marginTop:'20px'}}>
-          <div className="hand">企业负责人信息</div>
+          <div className="hand">企业联系人信息</div>
           <div className="user-info">
             <div className="list">
-              <span className="key">负责人姓名 <span className="important">*</span></span>
+              <span className="key">联系人姓名 <span className="important">*</span></span>
               <FormItem>
                 <Input {...ownerNameProps} className="input" size="large" disabled={this.props.config && this.state.disabled}/>
               </FormItem>
             </div>
             <div className="list">
-              <span className="key">负责人身份证号码 <span className="important">*</span></span>
+              <span className="key">联系人身份证号码 <span className="important">*</span></span>
               <FormItem>
                 <Input {...ownerNameNumberProps} className="input" size="large" disabled={this.props.config && this.state.disabled} />
               </FormItem>
@@ -381,7 +381,7 @@ let EnterpriseComponse = React.createClass({
               </FormItem>
             </div>
             <div className="list">
-              <span className="key">负责人身份证正面扫描 <span className="important">*</span></span>
+              <span className="key">联系人身份证正面扫描 <span className="important">*</span></span>
               <div className="upload">
 
                 <Upload listType="picture-card" accept="image/*" fileList={frontId} beforeUpload={(file) =>
@@ -394,12 +394,11 @@ let EnterpriseComponse = React.createClass({
               </div>
               <ul className="chk">
                 <li>&nbsp;</li>
-                <li>1.持有者需正面、免冠、未化妆、双手持身份证且露出手臂</li>
-                <li>2.上传照片支持（gif/jpg/jpeg/png/bmp 图片格式，大小不超过3M）</li>
+                <li>上传照片支持（gif/jpg/jpeg/png/bmp 图片格式，大小不超过3M）</li>
               </ul>
             </div>
             <div className="list">
-              <span className="key">负责人身份证反面扫描 <span className="important">*</span></span>
+              <span className="key">联系人身份证反面扫描 <span className="important">*</span></span>
               <div className="upload">
 
                 <Upload listType="picture-card" accept="image/*" fileList={backId} beforeUpload={(file) =>
@@ -411,10 +410,7 @@ let EnterpriseComponse = React.createClass({
 
               </div>
               <ul className="chk">
-                <li>1.身份证信息清晰可辨认</li>
-                <li>2.身份证为本人持有，不得盗用他人身份证且不得遮挡持有者面部，身份证全部信息需清晰可辩认</li>
-                <li>3.照片未经任何软件编辑修改</li>
-                <li>4.上传照片支持（gif/jpg/jpeg/png/bmp 图片格式，大小不超过3M）</li>
+                <li>上传照片支持（gif/jpg/jpeg/png/bmp 图片格式，大小不超过3M）</li>
               </ul>
             </div>
             <div style={{ clear: 'both' }}></div>
