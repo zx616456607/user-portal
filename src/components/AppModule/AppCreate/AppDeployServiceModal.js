@@ -268,7 +268,8 @@ let AppDeployServiceModal = React.createClass({
       volumeMounts: volumeMounts,
       volumes: volumes
     })
-    console.log( this.props.scope.state.checkInf.Deployment)
+    console.log('000000000000000')
+    console.log(volumes)
     if (volumes) {
       let storageType
       let isHaveVolume
@@ -283,7 +284,8 @@ let AppDeployServiceModal = React.createClass({
         }
       })
       form.setFieldsValue({
-        storageType
+        storageType,
+        isHaveVolume
       })
       if (isHaveVolume) {
         form.setFieldsValue({

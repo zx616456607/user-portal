@@ -635,10 +635,21 @@ let NormalDeployBox = React.createClass({
       storageTypes
     })
     const { form } = this.props
-    const { setFieldsValue } = form
-    setFieldsValue({
-      storageType: storageTypes[0]
-    })
+    const { setFieldsValue, getFieldValue } = form
+    let storageType = getFieldValue('storageType')
+    if(storageType) {
+      setFieldsValue({
+        storageType
+      })
+      this.setState({
+        storageType,
+        isHaveVolume: getFieldValue('isHaveVolume')
+      })
+    } else {
+      setFieldsValue({
+        storageType: storageTypes[0]
+      })
+    }
     // For 1st time mount
     setTimeout(() => {
       this.serviceNameInput.refs.input.focus()
@@ -952,6 +963,7 @@ function mapStateToProps(state, props) {
   }
   let {registry, tag, isFetching } = targetImageTag || defaultImageTags
   const { cluster } = state.entities.current
+  cluster.storageTypes = ['rbd', 'hostPath']
   const otherImages = otherImageTag.imageTag
   return {
     cluster: cluster.clusterID,
