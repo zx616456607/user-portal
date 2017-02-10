@@ -49,13 +49,14 @@
         line-height: 40px;
       }
       .checkBox {
-        width: 20px;
+        padding-left: 7px;
+        width: 30px;
       }
       .name {
         width: 10%;
       }
       .status {
-        width: 10%;
+        width: calc(~"10% - 10px");
       }
       .role {
         width: 10%;
@@ -63,17 +64,34 @@
       .container {
         width: 7%;
       }
-      .cpu {
-        width: 7%;
-      }
-      .memory {
-        width: 7%;
-      }
+      .cpu,
+      .memory,
       .disk {
+        position: relative;
         width: 7%;
+        .topSpan {
+          position: absolute;
+          top: 10px;
+          line-height: 14px;
+        }
+        .bottomSpan {
+          position: absolute;
+          bottom: 10px;
+          line-height: 14px;
+        }
       }
       .schedule {
+        position: relative;
         width: 8%;
+        .switchBox {
+          position: absolute;
+          top: 10px;
+        }
+        .scheduleSpan {
+          position: absolute;
+          bottom: 10px;
+          line-height: 14px;
+        }
       }
       .runningTime {
         width: 7%;
@@ -84,6 +102,12 @@
       .opera {
         padding-left: 10px;
         width: calc(~"17% - 20px");
+      }
+      .runningSpan {
+        color: #33b867;
+      }
+      .errorSpan {
+        color: #f23e3f;
       }
       .titleBox {
         margin-top: 20px;
@@ -111,6 +135,9 @@
           clear: both;
           height: 0;
           visibility: hidden;
+        }
+        &:hover {
+          background-color: #F2F2F2;
         }
         .commonTitle {
           height: 60px;

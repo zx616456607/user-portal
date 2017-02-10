@@ -30,6 +30,7 @@ const licenseController = require('../controllers/license')
 const clusterController = require('../controllers/cluster_manage')
 const integrationController = require('../controllers/integration')
 const consumptionController = require('../controllers/consumption')
+const clusternodesController = require('../controllers/cluster_node')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -303,14 +304,19 @@ module.exports = function (Router) {
   router.get('/integrations/getIntegrationConfig/:id', integrationController.getIntegrationConfig)
   router.put('/integrations/updateIntegrationConfig/:id', integrationController.updateIntegrationConfig)
 
+  // Cluster pod
+  router.get('/cluster-nodes/:cluster', clusternodesController.getClusterNodes)
+  router.post('/cluster-nodes/:cluster/node/:node', clusternodesController.changeNodeSchedule)
+  router.delete('/cluster-nodes/:cluster/node/:node', clusternodesController.deleteNode)
+  // Get kubectl pods names
+  router.get('/clusters/:cluster/kubectls', clusternodesController.getKubectls)
+
   // Token info
   router.get('/token', tokenController.getTokenInfo)
 
   // License
   router.get('/license', licenseController.getLicense)
-  router.get('/licenses/merged', licenseController.checkLicense)
   router.get('/licenses', licenseController.getLicenses)
-  router.post('/licenses', licenseController.addLicense)
   router.get('/licenses/platform', licenseController.getPlatformID)
 
   // consumption and charge

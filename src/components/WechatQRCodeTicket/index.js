@@ -57,7 +57,7 @@ class WechatQRCodeTicket extends Component {
 }
 
 WechatQRCodeTicket.propTypes = {
-  QRCodeSize: PropTypes.number.isRequired,
+  QRCodeSize: PropTypes.number,
   triggerElement: PropTypes.element.isRequired,
   onScanChange: PropTypes.func.isRequired, // when user scan return ture
   getStatusDelay: PropTypes.number,

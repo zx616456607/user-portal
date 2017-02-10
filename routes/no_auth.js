@@ -12,6 +12,7 @@
 'use strict'
 
 const authController = require('../controllers/auth')
+const licenseController = require('../controllers/license')
 const middlewares = require('../services/middlewares')
 
 module.exports = function (Router) {
@@ -29,6 +30,10 @@ module.exports = function (Router) {
   router.get('/notfound', function* () {
     yield this.render(global.indexHtml, { title: 'Page not found | 时速云', body: '' })
   })
+
+  // License
+  router.get('/licenses/merged', licenseController.checkLicense)
+  router.post('/licenses', licenseController.addLicense)
 
   return router.routes()
 }

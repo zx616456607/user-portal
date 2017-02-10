@@ -108,6 +108,22 @@ exports.addConfigsForWS = function (user) {
   return user
 }
 
+exports.checkWechatAccountIsExist = function* (body) {
+  const api = apiFactory.getApi()
+  try {
+    let result = yield api.users.createBy(['login'], null, body)
+    return {
+      result,
+      exist: true
+    }
+  } catch (error) {
+    return {
+      error,
+      exist: false
+    }
+  }
+}
+
 function _decrypt(text) {
   const algorithm = 'aes-192-cbc'
   let iv = new Buffer([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])

@@ -1,34 +1,93 @@
+@borderColor: #24a7eb;
 #License {
   font-size: 14px;
-  padding: 50px 0;
-  padding-left: 10%;
-  background-color: #fff;
-  .licenseTitle {
-    height:50px;
-    line-height: 50px;
-    font-size: 18px;
+  .title {
+    height: 18px;
+    margin-bottom: 22px;
+    border-left: 8px solid @borderColor;
+    font-size: 16px;
+    padding-left: 8px;
   }
-  .licenseMessage {
-    width: 400px;
-  }
-  .licenseTable {
-    border-collapse:collapse;
-    tr {
-      height: 50px;
+  .licenseInput {opacity: 0;position: absolute;z-index: -2;}
+  .licenseWrap {
+    background-color: #fff;
+    font-size: 14px;
+    .leftKey {
+      text-align: center;line-height: 35px;
     }
-    td {
-      border: 1px solid #e2e2e2;
-      padding-left: 10px;
-      width: 368px;
+    .list {
+      clear: both;
+      border-bottom: 1px solid #E5E5E5;
+      overflow: hidden;
+      padding: 20px 0;
+      .ant-form-item {margin-bottom: 10px;}
+      .actionsText {
+        line-height: 50px;
+        .success {color: #61BF63;}
+      }
+      .dataKey {
+        padding:6px;
+        border:1px solid @borderColor;
+        color: @borderColor;
+        background: #F5FBFE;
+        border-radius: 2px;
+        margin-left: 20px;
+      }
     }
-    .itemContent {
-      font-size: 20px;
-      font-weight: 700;
-      color: #F66;
-      width: 230px;
+    .list-table thead th {
+      background-color: #fff;
+      font-weight: 400;
+      font-size: 14px;
+      color: #2e2e2e;
     }
-    .tableTitle {
-      width: 170px;
+    .oneTips {
+      padding-left: 20px;
+      line-height: 30px;
+    }
+    .inputGroup {
+      border:1px solid @borderColor;
+      height: 35px;
+      line-height: 35px;
+      display: inline-block;
+      padding-left:5px;
+      border-radius: 3px;
+      // width: 30%;
+      background: #F5FBFE;
+      span{width: 80%;display: inherit;float: left;color: @borderColor;}
+      a {
+        border-left:1px solid @borderColor;width:50px;
+        display: inherit;text-align: center;float: right;
+        height: 33px;
+        background: #DCF2FB;
+      }
+    }
+    .licenseTitle {
+      height:50px;
+      line-height: 50px;
+      font-size: 18px;
+    }
+    .licenseMessage {
+      width: 400px;
+    }
+    .licenseTable {
+      border-collapse:collapse;
+      tr {
+        height: 50px;
+      }
+      td {
+        border: 1px solid #e2e2e2;
+        padding-left: 10px;
+        width: 368px;
+      }
+      .itemContent {
+        font-size: 20px;
+        font-weight: 700;
+        color: #F66;
+        width: 230px;
+      }
+      .tableTitle {
+        width: 170px;
+      }
     }
   }
 }
