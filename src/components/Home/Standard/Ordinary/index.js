@@ -720,7 +720,7 @@ class Ordinary extends Component{
         </Row>
         <Row className="content" gutter={16} style={{marginTop:16}}>
           <Col span={6}>
-            <Card title="容器" bordered={false} bodyStyle={{height:200,padding:'0'}}>
+            <Card title="容器" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
               <ReactEcharts
                 notMerge={true}
                 option={containerOption}
@@ -729,9 +729,9 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={6} className='storage'>
-            <Card title="存储" bordered={false} bodyStyle={{height:200,padding:'0 10px 0 0'}}>
+            <Card title="存储" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
               <ProgressBox boxPos={boxPos}/>
-              <Col span={14} className='storageInf'>
+              <Col span={12} className='storageInf'>
                 <div className="storageInfList">
                   <Row className='storageInfItem'>
                     <Col span={12}>已用配额</Col>
