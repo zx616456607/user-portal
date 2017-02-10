@@ -17,6 +17,7 @@ export default function license(state = {
   licenses: {},
   mergedLicense: {},
   platform: {},
+  isAdminpassSet: {},
 }, action) {
   return {
     licenses: reducerFactory({
@@ -34,5 +35,10 @@ export default function license(state = {
       SUCCESS: ActionTypes.LICENSE_PLATFORM_SUCCESS,
       FAILURE: ActionTypes.LICENSE_PLATFORM_FAILURE
     }, state.platform, action, options),
+    isAdminpassSet: reducerFactory({
+      REQUEST: ActionTypes.LICENSE_ADMINPASS_REQUEST,
+      SUCCESS: ActionTypes.LICENSE_ADMINPASS_SUCCESS,
+      FAILURE: ActionTypes.LICENSE_ADMINPASS_FAILURE
+    }, state.isAdminpassSet, action, options),
   }
 }
