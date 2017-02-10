@@ -50,5 +50,10 @@ export function cluster_nodes(state = { cluster_nodes: {} }, action) {
       SUCCESS: ActionTypes.DELETE_CLUSTER_NODE_SUCCESS,
       FAILURE: ActionTypes.DELETE_CLUSTER_NODE_FAILURE
     }, state.deleteClusterNode, action),
+    kubectlsPods: reducerFactory({
+      REQUEST: ActionTypes.GET_KUBECTLS_PODS_REQUEST,
+      SUCCESS: ActionTypes.GET_KUBECTLS_PODS_SUCCESS,
+      FAILURE: ActionTypes.GET_KUBECTLS_PODS_FAILURE
+    }, state.kubectlsPods, action, {overwrite: true}),
   }
 }
