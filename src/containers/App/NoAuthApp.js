@@ -17,7 +17,7 @@ const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
 const standardFlag = mode === standard
 const user = {
-  user_id: getCookie('intl_locale.sig'),
+  user_id: getCookie('intl_locale.sig'), // When the user refreshes the page, the record is not lost
   name: 'Logged-out Visitors'
 }
 
