@@ -26,20 +26,30 @@ exports.getClusterNodes = function* () {
   const clusters = result.data || []
   
   let podList = [];
-  clusters.nodes.map((node) => {
+  clusters.nodes.nodes.map((node) => {
     podList.push(node.objectMeta.name);
   });
   let cpuBody = {
-    type: 'cpu/uage_rage',
+    type: 'cpu/usage_rate',
     source: 'prometheus'
   }
   const cpuList = yield api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], cpuBody);
+  for(let key in cpuList) {
+    if(key != 'statusCode') {
+      cpuList[key].name = key;
+    }
+  }
   
   let memoryBody = {
     type: 'memory/usage',
     source: 'prometheus'
   }
   const memoryList = yield api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], memoryBody);
+  for(let key in memoryList) {
+    if(key != 'statusCode') {
+      memoryList[key].name = key;
+    }
+  }
   
   this.status = result.code
   this.body = {

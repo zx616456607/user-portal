@@ -40,6 +40,7 @@ function diskFormat(num) {
 }
 
 function getContainerNum(name, podList) {
+  //this function for return the container num of node
   let num;
   podList.map((pod) => {
     if(pod.name == name) {
@@ -47,6 +48,48 @@ function getContainerNum(name, podList) {
     }
   });
   return num;
+}
+
+function cpuUsed(cpuTotal, cpuList, name) {
+  //this function for compute cpu used
+  let total = 0;
+  let used;
+  let length;
+  for(let key in cpuList) {
+    if(key != 'statusCode') {    
+      if(cpuList[key].name == name) {
+        length = cpuList[key].metrics.length
+        cpuList[key].metrics.map((item) => {
+          total = total + item.value;
+        });
+      }
+    }
+  }
+  // 1h and to 100%
+  used = total / cpuTotal /length;
+  used = ( used * 100 ).toFixed(2);
+  return used;
+}
+
+function memoryUsed(memoryTotal, memoryList, name) {
+  //this function for compute memory used
+  let total = 0;
+  let used;
+  let length;
+  for(let key in memoryList) {
+    if(key != 'statusCode') {    
+      if(memoryList[key].name == name) {
+        length = memoryList[key].metrics.length
+        memoryList[key].metrics.map((item) => {
+          total = total + (item.value / 1024);
+        });
+      }
+    }
+  }
+  used = total / memoryTotal;
+  // 1h and to 100%
+  used = (used * 100 / length).toFixed(2);
+  return used;
 }
 
 const MyComponent = React.createClass({
@@ -90,7 +133,7 @@ const MyComponent = React.createClass({
     
   },
   render: function () {
-    const { isFetching, podList, containerList } = this.props
+    const { isFetching, podList, containerList, cpuList, memoryList } = this.props
     const root = this
     if (isFetching) {
       return (
@@ -137,15 +180,15 @@ const MyComponent = React.createClass({
           </div>
           <div className='cpu commonTitle'>
             <span className='topSpan'>{item.cpuTotal / 1000}核</span>
-            <span className='bottomSpan'>{item.cpuUsed * 100 + '%'}</span>
+            <span className='bottomSpan'>{cpuUsed(item.cpuTotal, cpuList, item.objectMeta.name) + '%'}</span>
           </div>
           <div className='memory commonTitle'>
             <span className='topSpan'>{diskFormat(item.memoryTotalKB)}</span>
-            <span className='bottomSpan'>{item.memoryUsed * 100 + '%'}</span>
+            <span className='bottomSpan'>{memoryUsed(item.memoryTotalKB, memoryList, item.objectMeta.name) + '%'}</span>
           </div>
           <div className='disk commonTitle'>
-            <span className='topSpan'>{item.diskNum}</span>
-            <span className='bottomSpan'>{item.diskUsed * 100 + '%'}</span>
+            <span className='topSpan'>{'-'}</span>
+            <span className='bottomSpan'>{'-'}</span>
           </div>
           <div className='schedule commonTitle'>
             <Switch className='switchBox' defaultChecked={item.schedulable} checkedChildren='开' unCheckedChildren='关' onChange={this.changeSchedulable.bind(root, item.objectMeta.name)}/>
@@ -187,6 +230,7 @@ class clusterTabList extends Component {
     this.deleteClusterNode = this.deleteClusterNode.bind(this);
     this.closeDeleteModal = this.closeDeleteModal.bind(this);
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this);
+    this.openTerminalModal = this.openTerminalModal.bind(this);
     this.state = {
       nodeList: [],
       podCount: [],
@@ -202,8 +246,8 @@ class clusterTabList extends Component {
     getAllClusterNodes(cluster, {
       success: {
         func: (result) => {
-          let nodeList = result.data.nodes.nodes;
-          let podCount = result.data.podCount;
+          let nodeList = result.data.clusters.nodes.nodes;
+          let podCount = result.data.clusters.podCount;
           _this.setState({
             nodeList: nodeList,
             podCount: podCount
@@ -246,7 +290,7 @@ class clusterTabList extends Component {
           getAllClusterNodes(cluster, {
             success: {
               func: (result) => {
-                let nodeList = result.data.nodes.nodes;
+                let nodeList = result.data.clusters.nodes.nodes;
                 notification['success']({
                   message: '主机节点删除成功',
                 });
@@ -281,19 +325,21 @@ class clusterTabList extends Component {
   openTerminalModal() {
     let { currentContainer } = this.state;
     let hadFlag = false;
-    currentContainer.map((container) => {
-      if(container.metadata.name == item.metadata.name) {
-        hadFlag = true;
-      }
-    });
+    if(currentContainer.length != 0) {      
+      currentContainer.map((container) => {
+        if(container.metadata.name == item.metadata.name) {
+          hadFlag = true;
+        }
+      });
+    }
     if(!hadFlag) {
       let body = {
         metadata: {
           namespace: 'kube-system',
-          name: ''
+          name: 'temp'
         }
       }
-      currentContainer.push()
+      currentContainer.push(body)
     }
     this.setState({
       currentContainer: currentContainer,
@@ -303,7 +349,7 @@ class clusterTabList extends Component {
   
   render() {
     const { formatMessage } = this.props.intl;
-    const { isFetching, nodes, cluster } = this.props;
+    const { isFetching, nodes, cluster, memoryList, cpuList } = this.props;
     const { nodeList, podCount } = this.state;
     const rootscope = this.props.scope;
     const scope = this;
@@ -321,7 +367,7 @@ class clusterTabList extends Component {
                 <Icon type='plus' />
                 <span>添加主机节点</span>
               </Button>
-              <Button className='terminalBtn' size='large' type='ghost' onClick={this.openTerminalModal.bind(this, item)}>
+              <Button className='terminalBtn' size='large' type='ghost' onClick={this.openTerminalModal}>
                 <svg>
                   <use xlinkHref='#terminal' />
                 </svg>
@@ -371,7 +417,7 @@ class clusterTabList extends Component {
                   <span>操作</span>
                 </div>
               </div>
-              <MyComponent podList={nodeList} containerList={podCount} isFetching={isFetching} scope={scope} />
+              <MyComponent podList={nodeList} containerList={podCount} isFetching={isFetching} scope={scope} memoryList={memoryList} cpuList={cpuList} />
             </div>
           </Card>
           <Modal title='删除主机' className='deleteClusterNodeModal' visible={this.state.deleteNodeModal} onOk={this.deleteClusterNode} onCancel={this.closeDeleteModal}>
@@ -398,13 +444,15 @@ clusterTabList.propTypes = {
 
 function mapStateToProps(state, props) {
   const pods = {
-    data: {},
+    nodes: {},
     isFetching: false
   }
   const cluster = state.entities.current.cluster.clusterID
   const { getAllClusterNodes } = state.cluster_nodes
-  const { data, isFetching } = getAllClusterNodes || pods
-  const { nodes, cpuList, memoryList } = data
+  const { isFetching } = getAllClusterNodes || pods
+  const data = getAllClusterNodes.nodes || pods
+  const { cpuList, memoryList } = data
+  const nodes = data.clusters
   return {
     nodes,
     cpuList,
