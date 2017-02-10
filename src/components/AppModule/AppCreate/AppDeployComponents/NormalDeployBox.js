@@ -963,7 +963,6 @@ function mapStateToProps(state, props) {
   }
   let {registry, tag, isFetching } = targetImageTag || defaultImageTags
   const { cluster } = state.entities.current
-  cluster.storageTypes = ['rbd', 'hostPath']
   const otherImages = otherImageTag.imageTag
   return {
     cluster: cluster.clusterID,

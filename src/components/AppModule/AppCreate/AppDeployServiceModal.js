@@ -268,8 +268,6 @@ let AppDeployServiceModal = React.createClass({
       volumeMounts: volumeMounts,
       volumes: volumes
     })
-    console.log('000000000000000')
-    console.log(volumes)
     if (volumes) {
       let storageType
       let isHaveVolume
@@ -685,7 +683,6 @@ let AppDeployServiceModal = React.createClass({
       onSubmitAddService(serviceConfig)
     }
     this.props.form.resetFields()
-    console.log(this.props.form.getFieldValue('volumeKey'), '00000000000000000000000')
     this.setState({
       composeType: DEFAULT_COMPOSE_TYPE,
       runningCode: "1",
