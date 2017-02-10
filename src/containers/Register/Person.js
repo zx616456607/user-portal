@@ -12,6 +12,7 @@ import { Tabs, Button, Form, Input, Card, Tooltip, message, Alert, Col, Row  } f
 import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP, PHONE_REGEX, WECHAT_SIGNUP_HASH } from '../../constants'
 import { connect } from 'react-redux'
 import { registerUser, sendRegisterPhoneCaptcha } from '../../actions/user'
+import { login } from '../../actions/entities'
 import { browserHistory } from 'react-router'
 import NotificationHandler from '../../common/notification_handler'
 import QRCodeContent from '../../components/WechatQRCodeTicket/QRCodeContent'
@@ -548,13 +549,42 @@ let Person = React.createClass({
       </Form>
     )
   },
+  onScanChange(scan, scanResult) {
+    // Try to login
+    if (!scanResult.wechatAccountExist) {
+      return
+    }
+    const { login } = this.props
+    let notification = new NotificationHandler()
+    notification.info(`您的微信已绑定时速云账户，即将登录...`)
+    login({accountType: 'wechat'}, {
+      success: {
+        func: (result) => {
+          notification.success(`用户 ${result.user.userName} 登录成功`)
+          browserHistory.push('/')
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          const { statusCode } = err
+          const errMsg = err.message
+          let msg = errMsg.message || errMsg
+          notification.error('登录失败', msg)
+        },
+        isAsync: true
+      },
+    })
+  },
   renderWechatSignup() {
-    const { location, accountDetail } = this.props
+    const { location, accountDetail, wechatAccountExist } = this.props
     const { visible } = this.state
     const { hash } = location
     if (!accountDetail || !accountDetail.nickname) {
       return (
         <QRCodeContent
+          onScanChange={this.onScanChange}
+          action="signup"
           QRCodeSize={195}
           visible={visible}
           message="微信扫一扫立即注册"
@@ -571,7 +601,7 @@ let Person = React.createClass({
         </div>
         {
           this.renderForm({
-            password: 'hide',
+            //password: 'hide',
             handleSubmit: this.handleWecahtSignupSubmit
           })
         }
@@ -590,21 +620,25 @@ let Person = React.createClass({
   },
   render() {
     const { activeTabKey } = this.state
+    const bottom = (
+      <div className="formTip">*&nbsp;注册表示您同意遵守&nbsp;
+        <a href="https://www.tenxcloud.com/aboutus.html?serviceList" target="_blank" style={{color:'#4691d2'}}>
+          时速云&nbsp;TenxCloud&nbsp;服务条款
+        </a>
+      </div>
+    )
     return (
       <div id='Person'>
         <Tabs activeKey={activeTabKey} onChange={this.onTabChange}>
           <TabPane tab="邮箱注册" key={EMAIL_SIGNUP_HASH}>
             {this.renderForm({handleSubmit: this.handleEmailSignupSubmit})}
+            {bottom}
           </TabPane>
           <TabPane tab="微信注册" key={WECHAT_SIGNUP_HASH}>
             {this.renderWechatSignup()}
+            {bottom}
           </TabPane>
         </Tabs>
-        <div className="formTip">*&nbsp;注册表示您同意遵守&nbsp;
-          <a href="https://www.tenxcloud.com/aboutus.html?serviceList" target="_blank" style={{color:'#4691d2'}}>
-            时速云&nbsp;TenxCloud&nbsp;服务条款
-          </a>
-        </div>
       </div>
     )
   }
@@ -614,14 +648,17 @@ Person = createForm()(Person)
 
 function mapStateToProps(state, props) {
   const { wechatScanStatus } = state.user3rdAccount
+  const result = wechatScanStatus.result || {}
   return {
-    accountDetail: (wechatScanStatus.result ? wechatScanStatus.result.accountDetail : {}),
+    wechatAccountExist: result.wechatAccountExist,
+    accountDetail: result.accountDetail || {},
   }
 }
 
 Person = connect(mapStateToProps,{
   registerUser,
   sendRegisterPhoneCaptcha,
+  login,
 })(Person)
 
 export default Person
