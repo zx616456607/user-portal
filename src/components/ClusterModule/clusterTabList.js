@@ -8,13 +8,14 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Switch, Tooltip } from 'antd'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Switch, Tooltip, notification } from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getAllClusterNodes, changeClusterNodeSchedule, deleteClusterNode } from '../../actions/cluster_node'
 import './style/clusterTabList.less'
+import TerminalModal from '../TerminalModal'
 import NotificationHandler from '../../common/notification_handler'
 import { formatDate, calcuDate } from '../../common/tools'
 
@@ -38,28 +39,55 @@ function diskFormat(num) {
   return num + 'TB'
 }
 
+function getContainerNum(name, podList) {
+  let num;
+  podList.map((pod) => {
+    if(pod.name == name) {
+      num = pod.count; 
+    }
+  });
+  return num;
+}
 
 const MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
-  componentWillMount() {
-  },
   changeSchedulable(node, e) {
     //this function for change node schedulable
     const { scope } = this.props;
     const { cluster, changeClusterNodeSchedule } = scope.props;
+    let { nodeList } = scope.state;
     changeClusterNodeSchedule(cluster, node, e, {
       success: {
         func: ()=> {
           notification['success']({
-            message: e ? '关闭调度成功' : '打开调度成功',
+            message: e ? '打开调度成功' : '关闭调度成功',
           });
+          nodeList.map((item) => {
+            if(item.objectMeta.name == node) {
+              item.schedulable = e;
+            }
+          });
+          scope.setState({
+            nodeList: nodeList
+          })
         },
         isAsync: true
       }
     })
+  },
+  ShowDeleteClusterNodeModal(node) {
+    //this function for delete cluster node
+    const { scope } = this.props;
+    scope.setState({
+      deleteNodeName: node,
+      deleteNodeModal: true
+    })
+  },
+  openTerminalModal(item, e) {
+    
   },
   render: function () {
     const { isFetching, podList, containerList } = this.props
@@ -78,7 +106,7 @@ const MyComponent = React.createClass({
     }
     let items = podList.map((item, index) => {
       const dropdown = (
-        <Menu onClick={()=> this.setState({delModal: true, imageName: item.name})}
+        <Menu onClick={this.ShowDeleteClusterNodeModal.bind(this, item.objectMeta.name)}
           style={{ width: '100px' }}
           >
           <Menu.Item key={item.id}>
@@ -87,12 +115,12 @@ const MyComponent = React.createClass({
         </Menu>
       );
       return (
-        <div className='podDetail' key={`${item.name}-${index}`} >
+        <div className='podDetail' key={`${item.objectMeta.name}-${index}`} >
           <div className='checkBox commonTitle'>
             <Checkbox ></Checkbox>
           </div>
           <div className='name commonTitle'>
-            <Tooltip title={item.isMaster.name}>
+            <Tooltip title={item.objectMeta.name}>
               <span>{item.objectMeta.name}</span>
             </Tooltip>
           </div>
@@ -105,7 +133,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='container commonTitle'>
-            <span>{}</span>
+            <span>{getContainerNum(item.objectMeta.name, containerList)}</span>
           </div>
           <div className='cpu commonTitle'>
             <span className='topSpan'>{item.cpuTotal / 1000}核</span>
@@ -134,7 +162,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='opera commonTitle'>
-            <Dropdown.Button overlay={dropdown} type='ghost'>
+            <Dropdown.Button overlay={dropdown} type='ghost' onClick={this.openTerminalModal.bind(this, item)}>
               <svg>
                 <use xlinkHref='#terminal' />
               </svg>
@@ -155,31 +183,133 @@ const MyComponent = React.createClass({
 class clusterTabList extends Component {
   constructor(props) {
     super(props);
+    this.searchNodes = this.searchNodes.bind(this);
+    this.deleteClusterNode = this.deleteClusterNode.bind(this);
+    this.closeDeleteModal = this.closeDeleteModal.bind(this);
+    this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this);
     this.state = {
-      nodes: {}
+      nodeList: [],
+      podCount: [],
+      currentContainer: [],
+      deleteNodeModal: false,
+      TerminalLayoutModal: false
     }
   }
   
   componentWillMount() {
     const { getAllClusterNodes, cluster } = this.props;
-    getAllClusterNodes(cluster)    
+    const _this = this;
+    getAllClusterNodes(cluster, {
+      success: {
+        func: (result) => {
+          let nodeList = result.data.nodes.nodes;
+          let podCount = result.data.podCount;
+          _this.setState({
+            nodeList: nodeList,
+            podCount: podCount
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
+
+  searchNodes(e) {
+    //this function for search nodes
+    const { nodes } = this.props;
+    if(e.target.value.length == 0) {
+      this.setState({
+        nodeList: nodes.nodes
+      })
+      return;
+    }
+    let search = e.target.value;
+    let nodeList = [];
+    nodes.nodes.map((node) => {
+      if(node.objectMeta.name.indexOf(search) > -1) {
+        nodeList.push(node);
+      }
+    });
+    this.setState({
+      nodeList: nodeList
+    });
   }
   
-  componentWillReceiveProps(nextProps) {
-    const { isFetching, nodes } = nextProps;
-    if(isFetching && this.props.nodes != nodes) {
-      this.setState({
-        nodes: nodes
-      })
+  deleteClusterNode() {
+    //this function for delete cluster node
+    const { cluster, deleteClusterNode, getAllClusterNodes } = this.props;
+    const { deleteNodeName } = this.state;
+    const _this = this;
+    deleteClusterNode(cluster, deleteNodeName, {
+      success: {
+        func: () => {
+          getAllClusterNodes(cluster, {
+            success: {
+              func: (result) => {
+                let nodeList = result.data.nodes.nodes;
+                notification['success']({
+                  message: '主机节点删除成功',
+                });
+                _this.setState({
+                  nodeList: nodeList,
+                  deleteNodeModal: false
+                })
+              },
+              isAsync: true
+            }
+          })
+        },
+        isAsync: true
+      }
+    });
+  }
+  
+  closeDeleteModal() {
+    //this function for close delete node modal
+    this.setState({
+      deleteNodeModal: false
+    })
+  }
+  
+  closeTerminalLayoutModal() {
+    //this function for user close the terminal modal
+    this.setState({
+      TerminalLayoutModal: false
+    });
+  }
+  
+  openTerminalModal() {
+    let { currentContainer } = this.state;
+    let hadFlag = false;
+    currentContainer.map((container) => {
+      if(container.metadata.name == item.metadata.name) {
+        hadFlag = true;
+      }
+    });
+    if(!hadFlag) {
+      let body = {
+        metadata: {
+          namespace: 'kube-system',
+          name: ''
+        }
+      }
+      currentContainer.push()
     }
+    this.setState({
+      currentContainer: currentContainer,
+      TerminalLayoutModal: true
+    });
   }
   
   render() {
     const { formatMessage } = this.props.intl;
-    const { isFetching } = this.props;
-    const { nodes } = this.state;
+    const { isFetching, nodes, cluster } = this.props;
+    const { nodeList, podCount } = this.state;
     const rootscope = this.props.scope;
     const scope = this;
+    let oncache = this.state.currentContainer.map((item) => {
+      return item.metadata.name;
+    })   
     return (
       <QueueAnim className='clusterTabListBox'
         type='right'
@@ -191,14 +321,14 @@ class clusterTabList extends Component {
                 <Icon type='plus' />
                 <span>添加主机节点</span>
               </Button>
-              <Button className='terminalBtn' size='large' type='ghost'>
+              <Button className='terminalBtn' size='large' type='ghost' onClick={this.openTerminalModal.bind(this, item)}>
                 <svg>
                   <use xlinkHref='#terminal' />
                 </svg>
                 <span>终端</span>
               </Button>
               <span className='searchBox'>
-                <Input className='searchInput' size='large' placeholder='搜索' type='text' />
+                <Input className='searchInput' size='large' placeholder='搜索' type='text' onChange={this.searchNodes} />
                 <i className='fa fa-search'></i>
               </span>
             </div>
@@ -241,9 +371,21 @@ class clusterTabList extends Component {
                   <span>操作</span>
                 </div>
               </div>
-              <MyComponent podList={nodes.nodes} containerList={nodes.podCount} isFetching={isFetching} scope={scope} />
+              <MyComponent podList={nodeList} containerList={podCount} isFetching={isFetching} scope={scope} />
             </div>
           </Card>
+          <Modal title='删除主机' className='deleteClusterNodeModal' visible={this.state.deleteNodeModal} onOk={this.deleteClusterNode} onCancel={this.closeDeleteModal}>
+            <span style={{ color: '#00a0ea' }}><Icon type='exclamation-circle-o' />&nbsp;&nbsp;&nbsp;确定要删除&nbsp;{this.state.deleteNodeName}&nbsp;主机节点？</span>
+          </Modal>
+          <Modal
+            visible={this.state.TerminalLayoutModal}
+            className='TerminalLayoutModal'
+            transitionName='move-down'
+            onCancel={this.closeTerminalLayoutModal}
+            maskClosable={false}
+            >
+            <TerminalModal scope={scope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal} oncache={oncache} cluster={cluster}/>
+          </Modal>
         </div>
       </QueueAnim>
     )
@@ -256,14 +398,17 @@ clusterTabList.propTypes = {
 
 function mapStateToProps(state, props) {
   const pods = {
-    nodes: {},
+    data: {},
     isFetching: false
   }
   const cluster = state.entities.current.cluster.clusterID
   const { getAllClusterNodes } = state.cluster_nodes
-  const { nodes, isFetching } = getAllClusterNodes || pods
+  const { data, isFetching } = getAllClusterNodes || pods
+  const { nodes, cpuList, memoryList } = data
   return {
     nodes,
+    cpuList,
+    memoryList,
     isFetching,
     cluster
   }

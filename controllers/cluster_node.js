@@ -25,9 +25,29 @@ exports.getClusterNodes = function* () {
   const result = yield api.clusters.getBy([cluster, 'nodes']);
   const clusters = result.data || []
   
+  let podList = [];
+  clusters.nodes.map((node) => {
+    podList.push(node.objectMeta.name);
+  });
+  let cpuBody = {
+    type: 'cpu/uage_rage',
+    source: 'prometheus'
+  }
+  const cpuList = yield api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], cpuBody);
+  
+  let memoryBody = {
+    type: 'memory/usage',
+    source: 'prometheus'
+  }
+  const memoryList = yield api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], memoryBody);
+  
   this.status = result.code
   this.body = {
-    data: clusters,
+    data: {
+      clusters,  
+      cpuList,
+      memoryList
+    }
   }
 }
 
@@ -59,3 +79,4 @@ exports.deleteNode = function* () {
     data: result.data
   }
 }
+

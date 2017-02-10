@@ -26,7 +26,7 @@ function getAllClusterNodes(state = {}, action) {
     case ActionTypes.GET_ALL_CLUSTER_NODES_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        nodes: action.response.result.data.nodes || {}
+        nodes: action.response.result.data || {}
       })
     case ActionTypes.GET_ALL_INTEGRATION_LIST_FAILURE:
       return merge({}, defaultState, state, {
