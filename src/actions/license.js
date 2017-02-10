@@ -114,3 +114,57 @@ export function loadLicensePlatform() {
     return dispatch(fetchLicensePlatform())
   }
 }
+
+export const LICENSE_ADMINPASS_REQUEST = 'LICENSE_ADMINPASS_REQUEST'
+export const LICENSE_ADMINPASS_SUCCESS = 'LICENSE_ADMINPASS_SUCCESS'
+export const LICENSE_ADMINPASS_FAILURE = 'LICENSE_ADMINPASS_FAILURE'
+
+// Check whether the 'admin' user's password is set from API
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchIsAdminPasswordSet() {
+  return {
+    [FETCH_API]: {
+      types: [LICENSE_ADMINPASS_REQUEST, LICENSE_ADMINPASS_SUCCESS, LICENSE_ADMINPASS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/licenses/adminpass`,
+      schema: {}
+    }
+  }
+}
+
+// Check whether the 'admin' user's password is set from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function isAdminPasswordSet() {
+  return (dispatch, getState) => {
+    return dispatch(fetchIsAdminPasswordSet())
+  }
+}
+
+export const LICENSE_ADMINPASS_SET_REQUEST = 'LICENSE_ADMINPASS_SET_REQUEST'
+export const LICENSE_ADMINPASS_SET_SUCCESS = 'LICENSE_ADMINPASS_SET_SUCCESS'
+export const LICENSE_ADMINPASS_SET_FAILURE = 'LICENSE_ADMINPASS_SET_FAILURE'
+
+// Set 'admin' user password from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchSetAdminPassword(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/licenses/adminpass`
+  return {
+    [FETCH_API]: {
+      types: [LICENSE_ADMINPASS_SET_REQUEST, LICENSE_ADMINPASS_SET_SUCCESS, LICENSE_ADMINPASS_SET_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Set 'admin' user password from API
+// Relies on Redux Thunk middleware.
+export function setAdminPassword(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSetAdminPassword(body, callback))
+  }
+}
