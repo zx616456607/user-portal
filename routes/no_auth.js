@@ -30,5 +30,9 @@ module.exports = function (Router) {
     yield this.render(global.indexHtml, { title: 'Page not found | 时速云', body: '' })
   })
 
+  // License
+  router.get('/licenses/merged', licenseController.checkLicense)
+  router.post('/licenses', licenseController.addLicense)
+
   return router.routes()
 }
