@@ -12,6 +12,7 @@
 'use strict'
 
 const authController = require('../controllers/auth')
+const licenseController = require('../controllers/license')
 const middlewares = require('../services/middlewares')
 
 module.exports = function (Router) {
