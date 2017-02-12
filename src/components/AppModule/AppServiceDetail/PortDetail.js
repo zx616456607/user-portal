@@ -280,8 +280,10 @@ let MyComponent = React.createClass({
                       keys,
                       newKeys: []
                     })
-                  }
-                }
+                    self.props.loadData()
+                  },
+                  isAsync: true
+                },
               })
               notification.close()
               notification.success('端口更新成功')
@@ -473,7 +475,7 @@ let MyComponent = React.createClass({
               <Select.Option key="2">指定端口</Select.Option>
             </Select>
             <Form.Item key={k} style={{width: '100px', float: 'right', marginRight: '70px'}}>
-            <Input type='text' style={{width: '100px', marginLeft: '10px',display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {rules: [rules, {validator: this.checkInputPort}], initialValue: "80"})} />
+            <Input type='text' style={{width: '100px', marginLeft: '10px', display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {rules: [rules, {validator: this.checkInputPort}], initialValue: "80"})} />
             </Form.Item>
           </div>
           <div className="commonData span2">
@@ -642,6 +644,7 @@ class PortDetail extends Component {
           cluster={this.props.cluster}
           currentCluster={currentCluster}
           serviceName={this.props.serviceName}
+          loadData = {this.props.loadData}
           serviceDetailmodalShow={this.props.serviceDetailmodalShow} />
       </div>
     )

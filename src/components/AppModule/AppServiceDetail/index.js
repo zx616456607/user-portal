@@ -346,6 +346,7 @@ class AppServiceDetail extends Component {
                   serviceName={service.metadata.name}
                   serviceDetailmodalShow={serviceDetailmodalShow}
                   service={serviceDetail}
+                  activeKey={activeTabKey}
                   />
               </TabPane>
               <TabPane tab='端口' key='#ports'>
@@ -356,6 +357,7 @@ class AppServiceDetail extends Component {
                   container={containers[0]}
                   loading={isContainersFetching}
                   serviceDetailmodalShow={serviceDetailmodalShow}
+                  loadData = {()=> this.loadData()}
                   />
               </TabPane>
               <TabPane tab='设置 HTTPS' key={httpsTabKey}>

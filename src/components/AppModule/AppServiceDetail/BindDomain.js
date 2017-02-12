@@ -40,7 +40,7 @@ class BindDomain extends Component {
   }
   componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow, service } = nextProps
-    if (!service.spec) return
+    if (!service) return
     if (!serviceDetailmodalShow) {
       this.setState({
         domainList: [],
@@ -53,23 +53,17 @@ class BindDomain extends Component {
     this.getDomainList(service)
   }
   getDomainList(service) {
-    if (!service.spec) return
-    const containers = service.spec.template.spec.containers
-    if (!containers || containers.length === 0) {
+    if (!service) return
+    const ports = service.portsForExternal
+    if (!ports || ports.length === 0) {
       this.setState({
         containerPorts: []
       })
       return
     }
     let containerPorts = []
-    containers.forEach(container => {
-      let ports = container.ports
-      if (ports && ports.length > 0) {
-        containerPorts = union(containerPorts, ports)
-      }
-    })
-    containerPorts = containerPorts.map(containerPort => {
-      return containerPort.containerPort
+    ports.forEach(port => {
+      containerPorts.push(port.port)
     })
     let domain = service.metadata.annotations
     const domainList = []
@@ -113,7 +107,11 @@ class BindDomain extends Component {
         disabled: true,
         bindPort: '' + port
       })
-    }
+    } else {
+      this.setState({
+        disabled: false,
+      })
+   }
   }
   addDomain() {
     const serviceName = this.props.serviceName
