@@ -510,7 +510,6 @@ let CreateTenxFlowModal = React.createClass({
     const { getTenxFlowStateList } = scope.props;
     const _this = this;
     this.props.form.validateFields((errors, values) => {
-      console.log(errors)
       if (!!errors) {
         e.preventDefault();
         let invalidDockerfile = Boolean(!_this.state.dockerFileTextarea && !_this.state.useDockerfile && this.state.otherFlowType == 3);
@@ -701,7 +700,6 @@ let CreateTenxFlowModal = React.createClass({
         } else {
           tmpDockerFileUrl = values.dockerFileUrl;
         }
-        console.log(imageBuildBody)
         let tempDockerFileList = tmpDockerFileUrl.split('/');
         tmpDockerFileUrl = tempDockerFileList.slice(0, tempDockerFileList.length -1).join('/');
         imageBuildBody.DockerfileName = tempDockerFileList[tempDockerFileList.length -1].length > 0 ? tempDockerFileList[tempDockerFileList.length -1] : 'Dockerfile';
