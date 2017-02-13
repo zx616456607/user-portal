@@ -47,7 +47,7 @@ function fetchMergedLicense(callback) {
   return {
     [FETCH_API]: {
       types: [LICENSE_MERGED_REQUEST, LICENSE_MERGED_SUCCESS, LICENSE_MERGED_FAILURE],
-      endpoint: `/licenses/merged`,
+      endpoint: `${API_URL_PREFIX}/licenses/merged`,
       schema: {}
     },
     callback
@@ -69,7 +69,7 @@ export const LICENSE_ADD_FAILURE = 'LICENSE_ADD_FAILURE'
 // Add license from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchAddLicense(body, callback) {
-  let endpoint = `/licenses`
+  let endpoint = `${API_URL_PREFIX}/licenses`
   return {
     [FETCH_API]: {
       types: [LICENSE_ADD_REQUEST, LICENSE_ADD_SUCCESS, LICENSE_ADD_FAILURE],
