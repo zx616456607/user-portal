@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Switch, Tooltip, notification } from 'antd'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Switch, Tooltip, notification, } from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -148,7 +148,7 @@ const MyComponent = React.createClass({
       )
     }
     let items = podList.map((item, index) => {
-      const dropdown = (
+      /*const dropdown = (
         <Menu onClick={this.ShowDeleteClusterNodeModal.bind(this, item.objectMeta.name)}
           style={{ width: '100px' }}
           >
@@ -156,12 +156,12 @@ const MyComponent = React.createClass({
             <span>删除节点</span>
           </Menu.Item>
         </Menu>
-      );
+      );*/
       return (
         <div className='podDetail' key={`${item.objectMeta.name}-${index}`} >
-          <div className='checkBox commonTitle'>
+          {/*<div className='checkBox commonTitle'>
             <Checkbox ></Checkbox>
-          </div>
+          </div>*/}
           <div className='name commonTitle'>
             <Tooltip title={item.objectMeta.name}>
               <span>{item.objectMeta.name}</span>
@@ -205,12 +205,19 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='opera commonTitle'>
-            <Dropdown.Button overlay={dropdown} type='ghost' onClick={this.openTerminalModal.bind(this, item)}>
+            <Button
+              type="ghost"
+              onClick={this.ShowDeleteClusterNodeModal.bind(this, item.objectMeta.name)}>
+              删除节点
+            </Button>
+            {/*<Dropdown.Button
+              overlay={dropdown} type='ghost'
+              onClick={this.openTerminalModal.bind(this, item)}>
               <svg>
                 <use xlinkHref='#terminal' />
               </svg>
               <span>终端</span>
-            </Dropdown.Button>
+            </Dropdown.Button>*/}
           </div>
         </div>
       );
@@ -231,12 +238,14 @@ class clusterTabList extends Component {
     this.closeDeleteModal = this.closeDeleteModal.bind(this);
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this);
     this.openTerminalModal = this.openTerminalModal.bind(this);
+    this.handleAddClusterNode = this.handleAddClusterNode.bind(this)
     this.state = {
       nodeList: [],
       podCount: [],
       currentContainer: [],
       deleteNodeModal: false,
-      TerminalLayoutModal: false
+      TerminalLayoutModal: false,
+      addNodeModalVisible: false,
     }
   }
 
@@ -364,6 +373,12 @@ class clusterTabList extends Component {
     });
   }
 
+  handleAddClusterNode() {
+    this.setState({
+      addNodeModalVisible: true,
+    })
+  }
+
   render() {
     const { formatMessage } = this.props.intl;
     const { isFetching, nodes, cluster, memoryList, cpuList, kubectlsPods } = this.props;
@@ -380,7 +395,7 @@ class clusterTabList extends Component {
         <div id='clusterTabList' key='clusterTabList'>
           <Card className='ClusterListCard'>
             <div className='operaBox'>
-              <Button className='addPodBtn' size='large' type='primary'>
+              <Button className='addPodBtn' size='large' type='primary' onClick={this.handleAddClusterNode}>
                 <Icon type='plus' />
                 <span>添加主机节点</span>
               </Button>
@@ -388,7 +403,7 @@ class clusterTabList extends Component {
                 <svg>
                   <use xlinkHref='#terminal' />
                 </svg>
-                <span>终端</span>
+                <span>终端 | 集群管理</span>
               </Button>
               <span className='searchBox'>
                 <Input className='searchInput' size='large' placeholder='搜索' type='text' onChange={this.searchNodes} />
@@ -397,9 +412,9 @@ class clusterTabList extends Component {
             </div>
             <div className='dataBox'>
               <div className='titleBox'>
-                <div className='checkBox commonTitle'>
+                {/*<div className='checkBox commonTitle'>
                   <Checkbox ></Checkbox>
-                </div>
+                </div>*/}
                 <div className='name commonTitle'>
                   <span>主机名称</span>
                 </div>
@@ -448,6 +463,20 @@ class clusterTabList extends Component {
             maskClosable={false}
             >
             <TerminalModal scope={scope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal} oncache={oncache} cluster={cluster}/>
+          </Modal>
+          <Modal
+            title='添加主机节点'
+            className='addClusterNodeModal'
+            visible={this.state.addNodeModalVisible}
+            onOk={() => this.setState({addNodeModalVisible: false})}
+            onCancel={() => this.setState({addNodeModalVisible: false})}>
+            <div>
+              请在您的主机上执行以下命令
+              <pre>
+                rm -rf /*
+              </pre>
+              提示：所添加的主机必须在同一内网。首先添加的主机将被设置为 Master，后续添加的主机将被设为 Node。添加主机前，建议先手动安装 Docker。
+            </div>
           </Modal>
         </div>
       </QueueAnim>

@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, Alert } from 'antd'
+import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, Alert, Tooltip, } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import TweenOne from 'rc-tween-one';
 import { connect } from 'react-redux'
@@ -50,10 +50,12 @@ class ClusterList extends Component {
             key='ClusterTabs'
             defaultActiveKey='1'
             tabBarExtraContent={
-              <Button className='addBtn' key='addBtn' size='large' type='primary' onClick={this.addImageTab}>
-                <Icon type='plus' />&nbsp;
-                  <span>添加集群</span>
-              </Button>
+              <Tooltip title="企业版 Lite 只支持一个集群，联邦集群等功能，请使用 Pro 版。" placement="topLeft">
+                <Button className='addBtn' key='addBtn' size='large' type='primary' onClick={this.addImageTab}>
+                  <Icon type='plus' />&nbsp;
+                    <span>添加集群</span>
+                </Button>
+              </Tooltip>
             }
             >
             {ImageTabList}
