@@ -80,7 +80,7 @@ export default class ContainerDetailInfo extends Component {
         ele.push(
           <div key={name}>
             <div className="commonTitle">{name}</div>
-            <div className="commonTitle" >{volumeType} <Tooltip title={title}><Icon type="question-circle-o" style={{marginLeft: '5px'}}/></Tooltip></div>
+            <div className="commonTitle" >{volumeType}</div>
             <div className="commonTitle" >{mountPath}</div>
             <div style={{ clear: "both" }}></div>
           </div>

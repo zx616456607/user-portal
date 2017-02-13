@@ -718,14 +718,8 @@ let NormalDeployBox = React.createClass({
       if(index == 0 ) {
         defaultCheckedValue = type
       }
-      let title = ''
-      if(type == 'rbd'){
-        title = '集群已配置Ceph存储集群'
-      } else {
-        title = '集群已开启hostPath模式'
-      }
       result.push(
-        <Radio value={type} key={type}>{self.translationName(type)} <Tooltip title={title}><Icon type="question-circle-o" /></Tooltip></Radio>
+        <Radio value={type} key={type}>{self.translationName(type)}</Radio>
       )
     })
     return result
