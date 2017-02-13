@@ -76,7 +76,6 @@ let Admin = React.createClass({
       _this.props.setAdminPassword({password: value.password}, {
         success: {
           func: () => {
-            new NotificationHandler().success('设置成功')
             const body = {
               password: value.password,
               username: 'admin'
@@ -84,10 +83,16 @@ let Admin = React.createClass({
             _this.props.login(body, {
               success: {
                 func: () => {
-                  message.success(`用户admin登录成功`)
+                  new NotificationHandler().success('用户admin设置并登录成功')
                   browserHistory.push('/')
                 },
                 isAsync: true
+              },
+              failed: {
+                func: (err) => {
+                  let msg = err.message.message || err.message
+                  new NotificationHandler().error('登录失败', msg)
+                  }
               }
             })
           },
