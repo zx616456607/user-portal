@@ -157,7 +157,7 @@
         }
         .ant-btn-ghost:first-child {
           position: relative;
-          padding-left: 33px;
+          // padding-left: 33px;
           &:hover {
             use {
               fill: #2db7f5;
@@ -178,5 +178,29 @@
         }
       }
     }
+  }
+}
+.addClusterNodeModal {
+  .ant-modal-body {
+    font-size: 14px;
+  }
+  .ant-modal-footer {
+    .ant-btn-ghost {
+      display: none;
+    }
+  }
+  pre {
+    margin: 20px 0;
+    display: block;
+    width: 100%;
+    min-height: 40px;
+    line-height: 40px;
+    padding: 0 20px;
+    word-break: keep-all;
+    color: #3d6cb4;
+    background-color: #F8F8F8;
+    overflow: auto;
+    border: 0;
+    border-radius: 5px;
   }
 }
