@@ -718,8 +718,14 @@ let NormalDeployBox = React.createClass({
       if(index == 0 ) {
         defaultCheckedValue = type
       }
+      let title = ''
+      if(type == 'rbd'){
+        title = '集群已配置Ceph存储集群'
+      } else {
+        title = '集群已开启hostPath模式'
+      }
       result.push(
-        <Radio value={type} key={type}>{self.translationName(type)}</Radio> 
+        <Radio value={type} key={type}>{self.translationName(type)} <Tooltip title={title}><Icon type="question-circle-o" /></Tooltip></Radio>
       )
     })
     return result
@@ -727,9 +733,9 @@ let NormalDeployBox = React.createClass({
   translationName(type) {
     switch(type) {
       case 'rbd':
-        return '分布式文件系统'
+        return '分布式存储'
       case 'hostPath':
-        return '本地文件目录'
+        return '本地存储'
     }
   },
   changeStorageTypeCallback() {
@@ -910,6 +916,7 @@ let NormalDeployBox = React.createClass({
                   onChange: (e)=> this.changeSwitchOption(e)
                 }) }
                 />
+              <Tooltip title="无存储服务可用, 请配置存储服务"><Icon type="question-circle-o" style={{verticalAlign: 'middle', marginLeft: '10px', display: this.state.canCreate ? 'none' : 'inline-block'}}  /></Tooltip>
               <span className="stateSpan">{form.getFieldValue('volumeSwitch') ? "有状态服务" : "无状态服务"}</span>
               <RadioGroup style={{display: this.state.isHaveVolume ? 'inline-block' : 'none', marginLeft: '10px'}} onChange={this.setStorageType} value={this.state.storageType || defaultCheckedValue}>
                   {this.getStorageType()}

@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Card } from 'antd'
+import { Card, Tooltip, Icon } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -54,14 +54,25 @@ export default class ContainerDetailInfo extends Component {
     if (container.spec.containers[0].volumeMounts) {
       container.spec.containers[0].volumeMounts.forEach((volume) => {
         let name = ''
+        let mountPath = ''
+        let volumeType = '分布式存储'
+        let title = 'Ceph存储'
         if (volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount') { return }
         let isShow = volumes.some(item => {
           if (item.name === volume.name) {
-            if (item.rbd) {
-              name = item.rbd.image.split('.')[2]
-              return true
+            if (item.configMap) {
+              return false
             }
-            return false
+            if(item.rbd){
+              name = item.rbd.image.split('.')[2]
+              mountPath = volume.mountPath
+            } else if(item.hostPath) {
+              name = item.name
+              volumeType = '本地存储'
+              mountPath = item.hostPath.path
+              title = '本地hostPath存储'
+            }
+            return true
           }
           return false
         })
@@ -69,7 +80,8 @@ export default class ContainerDetailInfo extends Component {
         ele.push(
           <div key={name}>
             <div className="commonTitle">{name}</div>
-            <div className="commonTitle" style={{width: '66%'}}>{volume.mountPath}</div>
+            <div className="commonTitle" >{volumeType} <Tooltip title={title}><Icon type="question-circle-o" style={{marginLeft: '5px'}}/></Tooltip></div>
+            <div className="commonTitle" >{mountPath}</div>
             <div style={{ clear: "both" }}></div>
           </div>
         )
@@ -210,8 +222,11 @@ export default class ContainerDetailInfo extends Component {
               名称
               </div>
             <div className="commonTitle">
+              存储类型
+            </div>
+            <div className="commonTitle">
               挂载点
-              </div>
+            </div>
             <div style={{ clear: "both" }}></div>
           </div>
           <div className="dataBox">

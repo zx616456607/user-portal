@@ -494,12 +494,19 @@ function mapStateToProps(state, props) {
   const { getTenxflowBuildLastLogs } = state.cicd_flow
   const { logs } = getTenxflowBuildLastLogs || defaultBuildLog
   let buildFetching = getTenxflowBuildLastLogs.isFetching || defaultBuildLog.buildFetching
+  let otherImage = state.images.otherImages
+  if(otherImage) {
+    otherImage = otherImage.imageRow
+  } else {
+    otherImage = []
+  }
   return {
     isFetching,
     flowList,
     buildFetching,
     logs,
-    currentSpace: state.entities.current.space.namespace
+    currentSpace: state.entities.current.space.namespace,
+    otherImage
   }
 }
 
