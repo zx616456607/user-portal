@@ -12,9 +12,11 @@ import React, { PropTypes } from 'react'
 import { Button, Form, Input, Card, message, Alert, Col, Row, Icon } from 'antd'
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../constants'
-import { genRandomString } from '../../common/tools'
 import Top from '../../components/Top'
 import '../Login/Enterprise/style/Login.less'
+import { setAdminPassword } from '../../actions/license'
+import { browserHistory } from 'react-router'
+import NotificationHandler from '../../common/notification_handler'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -22,7 +24,6 @@ const FormItem = Form.Item
 let Admin = React.createClass({
   getInitialState() {
     return {
-      random: genRandomString(),
       submitting: false,
       loginResult: {},
       submitProps: {},
@@ -50,9 +51,32 @@ let Admin = React.createClass({
   componentDidMount() {
     this.refs.intName.refs.input.focus()
   },
+  handleSubmit(e) {
+    e.preventDefault()
+    const _this = this
+    this.props.form.validateFields((error, value) => {
+      if (!!error) {
+        return
+      }
+      _this.props.setAdminPassword(value, {
+        success: {
+          func: () => {
+            new NotificationHandler().success('设置成功')
+            browserHistory.push('/')
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (res) => {
+            new NotificationHandler().error('设置失败', res.message.message)
+          }
+        }
+      })
+    })
+  },
   render() {
     const { getFieldProps } = this.props.form
-    const { random, submitting, loginResult, submitProps } = this.state
+    const { submitting, loginResult, submitProps } = this.state
     const nameProps = getFieldProps('password', {
       rules: [
         { validator: this.checkName },
@@ -117,7 +141,7 @@ function mapStateToProps(state, props) {
 Admin = createForm()(Admin)
 
 Admin = connect(mapStateToProps, {
-
+  setAdminPassword
 })(Admin)
 
 export default Admin
