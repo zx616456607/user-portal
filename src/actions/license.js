@@ -43,21 +43,22 @@ export const LICENSE_MERGED_FAILURE = 'LICENSE_MERGED_FAILURE'
 
 // Fetches merged license from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchMergedLicense() {
+function fetchMergedLicense(callback) {
   return {
     [FETCH_API]: {
       types: [LICENSE_MERGED_REQUEST, LICENSE_MERGED_SUCCESS, LICENSE_MERGED_FAILURE],
       endpoint: `${API_URL_PREFIX}/licenses/merged`,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
 // Fetches merged license from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadMergedLicense() {
+export function loadMergedLicense(callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchMergedLicense())
+    return dispatch(fetchMergedLicense(callback))
   }
 }
 

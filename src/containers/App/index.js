@@ -18,14 +18,17 @@ import Sider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
 import { Link } from 'react-router'
 import { setSockets, loadLoginUserDetail } from '../../actions/entities'
-import { isEmptyObject } from '../../common/tools'
+import { isEmptyObject,formatDate} from '../../common/tools'
 import { updateContainerList, updateAppList } from '../../actions/app_manage'
 import { updateAppServicesList, updateServiceContainersList, updateServicesList } from '../../actions/services'
+import { loadMergedLicense } from '../../actions/license'
 import { handleOnMessage } from './status'
 import { SHOW_ERROR_PAGE_ACTION_TYPES, LOGIN_EXPIRED_MESSAGE, PAYMENT_REQUIRED_CODE, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
+import { ROLE_SYS_ADMIN } from '../../../constants'
 import errorHandler from './error_handler'
 import Intercom from 'react-intercom'
 import NotificationHandler from '../../common/notification_handler'
+
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -44,7 +47,7 @@ class App extends Component {
       loginModalVisible: false,
       loadLoginUserSuccess: true,
       upgradeModalShow: false,
-      upgradeFrom: null,
+      upgradeFrom: null
     }
   }
 
@@ -65,6 +68,39 @@ class App extends Component {
         }
       })
     }
+    this.props.loadMergedLicense({
+      success: {
+        func: (res) => {
+          let outdated = false
+          let loginModalVisible = false
+          let licenseTips = '激活证书'
+          let licenseDay = 14 
+          const { licenseStatus, leftLicenseDays, leftTrialDays } = res.data
+          if (licenseStatus == 'VALID' && leftLicenseDays <= 7) {
+            outdated = true // show warning and allow login
+            licenseDay: leftLicenseDays
+          }
+          if (licenseStatus == 'NO_LICENSE' && leftTrialDays > 0) {
+            outdated = true // show warning and allow login
+            licenseTips = '产品试用'
+            licenseDay: leftTrialDays
+          }
+          if (licenseStatus == 'NO_LICENSE' && leftTrialDays <= 0) {
+            outdated = true //show error and not allow login
+            licenseDay: 0
+            loginModalVisible = true
+          }
+          self.setState({
+            outdated,
+            loginModalVisible,
+            licenseTips,
+            licenseDay,
+            license: res.data
+          })
+        },
+        isAsync: true
+      }
+    })
   }
 
   componentWillReceiveProps(nextProps) {
@@ -245,7 +281,21 @@ class App extends Component {
       upgradeModalShow: false,
     })
   }
-
+  checkDate() {
+   const nowDate = new Date()
+   const nowYear = nowDate.getFullYear()
+   const nowMonth = nowDate.getMonth()
+   const nowTime = nowDate.getDate() + this.state.licenseDay + 1
+   return nowYear +'-'+ nowMonth +'-'+ nowTime + ' 00:00'
+  }
+  checkTipsText() {
+    if (this.props.loginUser.role == ROLE_SYS_ADMIN) {
+      return (
+      <span><Link to="/setting/license" style={{color:'white',textDecoration: 'underline'}}> 输入激活码 </Link>以使用平台</span>
+      )
+    }
+    return '请联系管理员输入激活码以继续使用平台'
+  }
   render() {
     let {
       children,
@@ -282,20 +332,37 @@ class App extends Component {
       teamCount: loginUser.teamCount
     }
     return (
-      <div className='tenx-layout'>
+      <div className='tenx-layout' id='siderTooltip'>
         {this.renderErrorMessage()}
-        <div id='siderTooltip'></div>
-        <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-header' : 'tenx-layout-header-bigger tenx-layout-header'}>
+        
+        {this.state.outdated ?
+        [<div id='topError'>
+          {this.state.licenseTips}将于{this.state.licenseDay}天后（即{this.checkDate() }）过期，{this.checkTipsText()}
+        </div>,
+        <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-header toptips' : 'tenx-layout-header-bigger tenx-layout-header toptips'}>
           <div className='tenx-layout-wrapper'>
             <Header pathname={pathname} />
           </div>
-        </div>
+        </div>,
+        <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-sider toptips' : 'tenx-layout-sider-bigger tenx-layout-sider toptips'}>
+          <Sider pathname={pathnameWithHash} scope={scope} siderStyle={this.state.siderStyle} />
+        </div>,
+        <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-content toptips' : 'tenx-layout-content-bigger tenx-layout-content toptips'}>
+          {this.getChildren()}
+        </div>]
+        :
+        [<div className={this.state.siderStyle == 'mini' ? 'tenx-layout-header' : 'tenx-layout-header-bigger tenx-layout-header '}>
+          <div className='tenx-layout-wrapper'>
+            <Header pathname={pathname} />
+          </div>
+        </div>,
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-sider' : 'tenx-layout-sider-bigger tenx-layout-sider'}>
           <Sider pathname={pathnameWithHash} scope={scope} siderStyle={this.state.siderStyle} />
-        </div>
+        </div>,
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-content' : 'tenx-layout-content-bigger tenx-layout-content'}>
           {this.getChildren()}
-        </div>
+        </div>]
+        }
         <Modal
           visible={loginModalVisible}
           title="登录失效"
@@ -391,6 +458,7 @@ App = connect(mapStateToProps, {
   updateAppServicesList,
   updateServiceContainersList,
   updateServicesList,
+  loadMergedLicense,// check license
 })(App)
 
 export default injectIntl(App, {

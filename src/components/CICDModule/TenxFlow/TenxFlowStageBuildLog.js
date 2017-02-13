@@ -15,9 +15,11 @@ import './style/TenxFlowStageBuildLog.less'
 import WebSocket from '../../Websocket/socketIo'
 import { changeCiFlowStatus } from '../../../actions/cicd_flow'
 import $ from 'jquery'
+const ciLogs = []
+
+
 
 function formatLog(log) {
-  //this function for format log
   let newLog = log.split('\n')
   let showLogs = newLog.map((item, index) => {
     return (
@@ -28,6 +30,7 @@ function formatLog(log) {
   });
   return showLogs;
 }
+
 
 class TenxFlowStageBuildLog extends Component {
   constructor(props) {
@@ -55,24 +58,26 @@ class TenxFlowStageBuildLog extends Component {
     const logInfo = this.props.logInfo
     const callback = this.props.callback
     const self = this
-   
     socket.emit("ciLogs", {flowId: this.props.flowId, stageId: logInfo.stageId, stageBuildId: logInfo.buildId })
     socket.on("ciLogs", function (data) {
-      let oldLogs = self.state.logs
-      self.setState({
-        logs: oldLogs + data.toString()
-      });
+      data = data.toString()
+      if(!data) return
+      let newLog = data.split('\n')
+      newLog.forEach((item) => {
+        $("#tenxFlowLog").append("<div className='stageBuildLogDetail' key={ 'stageBuildLogDetail' + index }>\
+        <span><span>"+item+"</span></span>\
+        </div>")
+      })
       let height = $('#TenxFlowStageBuildLog .infoBox').css('height')
       $('#TenxFlowStageBuildLog').animate({
         scrollTop: height + 'px'
-      },100)
+      }, 100)
     })
     socket.on("ciLogs-ended", function(data) {
       if (callback) {
         callback(data)
       }
       if(self.props.index != 0 && !self.props.index) return
-      console.log(data)
       self.props.changeCiFlowStatus(self.props.index, data.state, self.state.logs)
       if(callback) {
         callback(data)
@@ -103,13 +108,10 @@ class TenxFlowStageBuildLog extends Component {
         </div>
       )
     }
-    if (!logs) {
-      logs = this.state.logs
-    }
     return (
       <div id='TenxFlowStageBuildLog'>
-        <div className='infoBox'>
-          {formatLog(logs)}
+        <div className='infoBox' id="tenxFlowLog">
+          {logs ? formatLog(logs) : ''}
           {this.state.websocket}
           <div style={{ clear: 'both' }}></div>
         </div>

@@ -11,7 +11,24 @@
 */
 
 const rootRoutes = {
-  childRoutes: [{
+  childRoutes: [
+    {
+    path: '/password',
+    getComponent: (location, cb) => {
+      require.ensure([], (require) => {
+        cb(null, require('../containers/Activation/Password').default)
+      })
+    }
+  },
+  {
+    path: '/activation',
+    getComponent: (location, cb) => {
+      require.ensure([], (require) => {
+        cb(null, require('../containers/Activation').default)
+      })
+    }
+  },
+  {
     path: '/login',
     getComponent: (location, cb) => {
       require.ensure([], (require) => {

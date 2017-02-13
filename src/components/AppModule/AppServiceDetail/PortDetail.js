@@ -18,6 +18,7 @@ import { isDomain } from '../../../common/tools'
 import NotificationHandler from '../../../common/notification_handler.js'
 import findIndex from 'lodash/findIndex'
 import cloneDeep from 'lodash/cloneDeep'
+import { ANNOTATION_HTTPS } from '../../../../constants'
 let uuid=0
 let ob = {}
 let defaultPort = []
@@ -70,7 +71,7 @@ let MyComponent = React.createClass({
   },
   componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow } = nextProps
-    if (serviceDetailmodalShow === this.props.serviceDetailmodalShow) {
+    if (!(this.props.isCurrentTab === false && nextProps.isCurrentTab === true)) {
       return
     }
     if (!serviceDetailmodalShow) {
@@ -161,6 +162,19 @@ let MyComponent = React.createClass({
     this.setState({openPort, inPort: '1'})
   },
   showModal(item, i) {
+    const { form, k8sService, serviceName } = this.props
+    const { getFieldValue } = form
+    let keys = getFieldValue('keys')
+    const port = getFieldValue(`port${keys[i]}`)
+    let bindingPort = ''
+    if (k8sService.isFetching === false && k8sService.data && k8sService.data[serviceName] && k8sService.data[serviceName] && k8sService.data[serviceName].metadata.annotations) {
+      bindingPort = k8sService.data[serviceName].metadata.annotations.bindingPort || ''
+    }
+    if (k8sService.data[serviceName].metadata.annotations[ANNOTATION_HTTPS] === 'true' && parseInt(port) === parseInt(bindingPort)) {
+      const notification = new NotificationHandler()
+      notification.error('请先关闭HTTPS后再删除此端口')
+      return
+    }
     this.setState({
       delModal: true,
       index: i,
@@ -224,11 +238,25 @@ let MyComponent = React.createClass({
       newselectType: 1
     })
   },
-  save() {
-    const { form } = this.props
+  save(index) {
+    const { form, k8sService } = this.props
     const keys = form.getFieldValue('keys')
     const body = []
     const self = this
+    if (index !== undefined) {
+      const modifyPort = form.getFieldValue(`port${keys[index]}`)
+      const newProtocol = form.getFieldValue(`selectssl${keys[index]}`) ? form.getFieldValue(`selectssl${keys[index]}`) : form.getFieldValue(`ssl${keys[index]}`)
+      const { k8sService, serviceName } = this.props
+      let bindingPort = ''
+      if (k8sService.isFetching === false && k8sService.data && k8sService.data[serviceName] && k8sService.data[serviceName] && k8sService.data[serviceName].metadata.annotations) {
+        bindingPort = k8sService.data[serviceName].metadata.annotations.bindingPort || ''
+      }
+      if (k8sService.data[serviceName].metadata.annotations[ANNOTATION_HTTPS] === 'true' && parseInt(modifyPort) === parseInt(bindingPort) && newProtocol.toUpperCase() !== 'HTTP') {
+        const notification = new NotificationHandler()
+        notification.error('请先关闭HTTPS后再修改此端口协议')
+        return
+      }
+    }
     if(keys) {
       form.validateFieldsAndScroll((errors, values) => {
         if(errors) {
@@ -280,8 +308,10 @@ let MyComponent = React.createClass({
                       keys,
                       newKeys: []
                     })
-                  }
-                }
+                    self.props.loadData()
+                  },
+                  isAsync: true
+                },
               })
               notification.close()
               notification.success('端口更新成功')
@@ -473,7 +503,7 @@ let MyComponent = React.createClass({
               <Select.Option key="2">指定端口</Select.Option>
             </Select>
             <Form.Item key={k} style={{width: '100px', float: 'right', marginRight: '70px'}}>
-            <Input type='text' style={{width: '100px', marginLeft: '10px',display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {rules: [rules, {validator: this.checkInputPort}], initialValue: "80"})} />
+            <Input type='text' style={{width: '100px', marginLeft: '10px', display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {rules: [rules, {validator: this.checkInputPort}], initialValue: "80"})} />
             </Form.Item>
           </div>
           <div className="commonData span2">
@@ -564,7 +594,7 @@ let MyComponent = React.createClass({
           </div>
           <div className="commonData span2">
             { this.state.openPort && this.state.openPort[index] ?
-              <Dropdown.Button overlay={actionText} type="ghost" style={{width:'100px'}} onClick={this.save}>
+              <Dropdown.Button overlay={actionText} type="ghost" style={{width:'100px'}} onClick={() => {this.save(index)}}>
                   <Icon type="save" /> 保存
               </Dropdown.Button>
               :
@@ -642,7 +672,9 @@ class PortDetail extends Component {
           cluster={this.props.cluster}
           currentCluster={currentCluster}
           serviceName={this.props.serviceName}
-          serviceDetailmodalShow={this.props.serviceDetailmodalShow} />
+          loadData = {this.props.loadData}
+          serviceDetailmodalShow={this.props.serviceDetailmodalShow}
+          isCurrentTab={this.props.isCurrentTab} />
       </div>
     )
   }

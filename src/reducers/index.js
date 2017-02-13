@@ -34,6 +34,7 @@ import overviewSpace from './overview_space'
 import consumption from './consumption'
 import userPreference from './user_preference'
 import license from './license'
+import admin from './admin'
 import user3rdAccount from './user_3rd_account'
 import { LOGIN_EXPIRED_MESSAGE, PAYMENT_REQUIRED_CODE, UPGRADE_EDITION_REQUIRED_CODE, } from '../constants'
 
@@ -118,6 +119,7 @@ const rootReducer = combineReducers({
   consumption,
   userPreference,
   license,
+  admin,
   user3rdAccount,
 })
 

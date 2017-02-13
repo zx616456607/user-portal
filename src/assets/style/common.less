@@ -13,6 +13,21 @@ svg path {
 .tenx-layout {
   height: 100%;
   width: 100%;
+  #topError {
+    z-index: 100;
+    position: fixed;
+    top:0;
+    width: 100%;
+    background: #FF4266;
+    color: white;
+    text-align: center;
+    height: 50px;
+    line-height: 50px;
+    font-size: 16px;
+  }
+  .toptips.tenx-layout-header{top:50px}
+  .toptips.tenx-layout-sider #sider{top:50px;height: calc(~"100% - 50px")}
+  .toptips.tenx-layout-content{padding-top: 105px;}
 }
 //header
 .tenx-layout-header {
