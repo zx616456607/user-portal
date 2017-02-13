@@ -18,7 +18,6 @@ import { browserHistory } from 'react-router'
 import { genRandomString, isEmptyObject } from '../../../common/tools'
 import { Link } from 'react-router'
 import loginMethodWeixinPNG from '../../../assets/img/loginMethodWeixin.png'
-import ReactDom from 'react-dom'
 import Top from '../../../components/Top'
 import WechatQRCodeTicket from '../../../components/WechatQRCodeTicket'
 
@@ -135,9 +134,6 @@ let Login = React.createClass({
         return
       }
     }
-    this.setState({
-      intPassFocus: true
-    })
     callback()
   },
 
@@ -173,6 +169,7 @@ let Login = React.createClass({
   },
 
   intOnFocus(current) {
+    let intPassFocus = false
     if (current === 'name') {
       const { getFieldProps } = this.props.form
       if (getFieldProps('password').value === '') {
@@ -181,8 +178,12 @@ let Login = React.createClass({
         })
       }
       this.refs.intName.refs.input.focus()
+      if (this.refs.intPass.refs.input.value) {
+        intPassFocus = true
+      }
       this.setState({
-        intNameFocus: true
+        intNameFocus: true,
+        intPassFocus
       })
       return
     }
@@ -206,7 +207,17 @@ let Login = React.createClass({
   },
 
   componentDidMount() {
-    ReactDom.findDOMNode(this.refs.intName.refs.input).focus()
+    const _this = this
+    setTimeout(function(){
+      const intName = _this.refs.intName.refs.input
+      intName.focus()
+      if (intName.value) {
+        _this.setState({
+          intNameFocus: true,
+          intPassFocus: true
+        })
+      }
+    },500)
   },
 
   onScanChange(scan, scanResult) {

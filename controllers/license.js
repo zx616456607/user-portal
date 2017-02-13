@@ -30,58 +30,59 @@ exports.getLicense = function* () {
 exports.checkLicense = function* () {
   const api = apiFactory.getApi()
   const license = this.request.body
-  //const license_info = yield api.licenses.get("merged")
-  //const trial_info = yield api.licenses.get("trial")
+  const license_info = yield api.licenses.getBy(["merged"])
+  const trial_info = yield api.licenses.getBy(["trial"])
+
+  if(!license_info || license_info.code != 200) {
+    const err = new Error('failed to get merged license information')
+    err.status = license_info ? license_info.code : 404
+    throw err
+  }
+
+  if (!trial_info || trial_info.code != 200) {
+    const err = new Error('failed to get trial information')
+    err.status = trial_info ? trial_info.code : 404
+    throw err
+  }
+
+  let license_status = 'NO_LICENSE'
+  let left_license_days = 0
+  if (license_info.data && license_info.data.end) {
+    let end = Date.parse(license_info.data.end);
+    let now = new Date();
+    let date = end - now;
+    const days = Math.floor(date/(24*3600*1000));
+    if (days > 0) {
+      license_status = 'VALID'
+      left_license_days = days
+    } else {
+      license_status = 'EXPIRED'
+    }
+  } 
+
+  let left_trial_days = 0
+  if (trial_info.data && trial_info.data.left_trial_days) {
+    left_trial_days = trial_info.data.left_trial_days
+  }
+
   const result = {
     status: 'Success',
     code: 200,
     data: {
-      license_status: 'NO_LICENSE',
-      left_license_days: 0,
-      left_trial_days: 14
+      license_status,
+      left_license_days,
+      left_trial_days
     }
   }
   this.body = result
 }
 
 // get all licenses 
-// license info: key, start_time, end_time, add_time, add_user
+// license info: license_uid, start, duration, end, add_time, add_user
 exports.getLicenses = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  //const result = yield api.licenses.get()
-  const result = {
-    status: 'Success',
-    code: 200,
-    data: {
-      merged: {
-        max_nodes: 6,
-        start: "2016-1-7 8:00:00",
-        end: "2018-1-7 8:00:00",      
-        short_key: "abcdeftg212",     
-        add_time: "2017-1-8 10:00:00", 
-        add_user: "未登录激活",
-      },
-      licenses: [
-        {
-          max_nodes: 6,
-          start: "2017-1-7 8:00:00",
-          end: "2018-1-7 8:00:00",      
-          short_key: "abcdeftg2222",     
-          add_time: "2017-1-8 10:00:00", 
-          add_user: "未登录激活",
-        },
-         {
-          max_nodes: 3,
-          start: "2016-1-7 8:00:00",
-          end: "2017-1-7 8:00:00",      
-          short_key: "abcdeftg1111",     
-          add_time: "2016-1-8 10:00:00", 
-          add_user: "未登录激活",
-        }
-      ]
-    }
-  }
+  const result = yield api.licenses.get()
   this.body = result
 }
 
@@ -95,28 +96,13 @@ exports.addLicense = function* () {
     err.status = 400
     throw err
   }
-  //const result = yield api.licenses.create(license)
-  const result = {
-    status: 'Success',
-    code: 200,
-    data: {
-
-    }
-  }
+  const result = yield api.licenses.create(license)
   this.body = result
 }
 
 // get platform_id
 exports.getPlatformID = function* () {
-  const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
-  //const result = yield api.license.get("platform")
-  const result = {
-    status: 'Success',
-    code: 200,
-    data: {
-      platformid: "123456789abc"
-    }
-  }
+  const api = apiFactory.getApi()
+  const result = yield api.licenses.getBy(["platform"])
   this.body = result
 }

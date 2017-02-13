@@ -13,6 +13,7 @@
 
 const authController = require('../controllers/auth')
 const licenseController = require('../controllers/license')
+const adminController = require('../controllers/admin')
 const middlewares = require('../services/middlewares')
 
 module.exports = function (Router) {
@@ -32,8 +33,12 @@ module.exports = function (Router) {
   })
 
   // License
-  router.get('/licenses/merged', licenseController.checkLicense)
-  router.post('/licenses', licenseController.addLicense)
+  router.get('/api/v2/licenses/merged', licenseController.checkLicense)
+  router.post('/api/v2/licenses', licenseController.addLicense)
+
+  // Admin
+  router.get('/api/v2/admin/ispwset', adminController.isPasswordSet)
+  router.patch('/api/v2/admin/setpw', adminController.SetPassword)
 
   return router.routes()
 }

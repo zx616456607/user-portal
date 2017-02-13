@@ -21,7 +21,7 @@
   -ms-flex-pack: center;
   justify-content: center;
   .login {
-    width: 350px;
+    width: 360px;
     background-color: #fff;
     border-radius: 5px;
     .errorText {
@@ -112,6 +112,11 @@
       }
       .formItemName {
         height: 50px;
+         input:-webkit-autofill,input:-webkit-autofill:focus {
+          background-color: #fff !important;
+          -webkit-box-shadow: 0 0 0px 100px white inset !important;
+          -webkit-text-fill-color: #333;
+        }
         .intName {
           font-size: 12px;
           position: absolute;

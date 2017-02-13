@@ -61,7 +61,7 @@ let LicenseKey = React.createClass ({
           <Button onClick={()=> parentScope.setState({activeClick: false})}>取消</Button>
         </FormItem>
         <FormItem hasFeedback>
-          <Input {...rePasswdProps} />
+          <Input type="textarea" {...rePasswdProps} style={{maxHeight: 200}}/>
         </FormItem>
         </Form>
       </div>

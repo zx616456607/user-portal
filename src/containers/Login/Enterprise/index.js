@@ -14,6 +14,8 @@ import './style/Login.less'
 import { verifyCaptcha, login } from '../../../actions/entities'
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
+import { loadMergedLicense } from '../../../actions/license'
+import { isAdminPasswordSet} from '../../../actions/admin'
 import { browserHistory } from 'react-router'
 import { genRandomString } from '../../../common/tools'
 import Top from '../../../components/Top'
@@ -44,6 +46,10 @@ let Login = React.createClass({
     const { login, form, redirect } = this.props
     const { validateFields, resetFields } = form
     const self = this
+    if (this.state.outdated) {
+      browserHistory.push('activation')
+      return
+    }
     validateFields((errors, values) => {
       if (!!errors) {
         return
@@ -218,11 +224,42 @@ let Login = React.createClass({
   componentWillMount() {
     const { resetFields } = this.props.form
     resetFields()
-    // ReactDom.findDOMNode(this.refs.intName.refs.input).focus
-  },
-
-  componentDidMount() {
-    this.refs.intName.refs.input.focus()
+    const _this = this
+    this.props.isAdminPasswordSet({
+      success: {
+        func: (res) => {
+          if (!res.isAdminPasswordSet) {
+            browserHistory.push('/password')
+            return
+          }
+          // _this.props.loadMergedLicense({
+          //   success: {
+          //     func: (res) => {
+          //       let outdated = false
+          //       const { licenseStatus, leftTrialDays } = res.data
+          //       if (licenseStatus == 'NO_LICENSE' && leftTrialDays <= 0) {
+          //         outdated = true //show error and not allow login
+          //       }
+          //       _this.setState({
+          //         outdated
+          //       })
+          //       setTimeout(function(){
+          //         const intName = _this.refs.intName.refs.input
+          //         intName.focus()
+          //         if (intName.value) {
+                    _this.setState({
+                      intNameFocus: true,
+                      intPassFocus: true
+                    })
+          //         }
+          //       },500)
+          //     }
+          //   }
+          // })
+        },
+        isAsync: true
+      }
+    })
   },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
@@ -251,7 +288,7 @@ let Login = React.createClass({
       <div id="LoginBg">
         <Top/>
         <div className="login">
-          {this.props.outdated ?
+          {this.state.outdated ?
             <div className="errorText">激活证书已过期，请重新<span className="goActive" onClick={()=> browserHistory.push("/activation")}> 输入激活码 </span>以使用平台</div>
           : null
           }
@@ -278,7 +315,7 @@ let Login = React.createClass({
                 <div className={this.state.intNameFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'name')}>用户名 / 邮箱</div>
 
                 <Input {...nameProps}
-                  autoComplete="off"
+                  autoComplete="on"
                   onBlur={this.intOnBlur.bind(this, 'name')}
                   onFocus={this.intOnFocus.bind(this, 'name')}
                   ref="intName"
@@ -317,6 +354,15 @@ let Login = React.createClass({
               </FormItem>*/}
 
               <FormItem wrapperCol={{ span: 24, }}>
+                {this.state.outdated ?
+                  <Button
+                    type="primary"
+                    onClick={()=> browserHistory.push('activation')}
+                    {...submitProps}
+                    className="subBtn">
+                    去激活
+                  </Button>
+                :
                 <Button
                   htmlType="submit"
                   type="primary"
@@ -326,6 +372,7 @@ let Login = React.createClass({
                   className="subBtn">
                   {submitting ? '登录中...' : '登录'}
                 </Button>
+                }
               </FormItem>
             </Form>
           </Card>
@@ -340,11 +387,9 @@ let Login = React.createClass({
 })
 
 function mapStateToProps(state, props) {
-  const outdated = false // 证书是否已过期
   const { redirect } = props.location.query
   return {
-    redirect,
-    outdated
+    redirect
   }
 }
 
@@ -353,6 +398,8 @@ Login = createForm()(Login)
 Login = connect(mapStateToProps, {
   verifyCaptcha,
   login,
+  loadMergedLicense,
+  isAdminPasswordSet, // check whether the 'admin' user's password was set
 })(Login)
 
 export default Login
