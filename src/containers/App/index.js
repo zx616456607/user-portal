@@ -248,20 +248,7 @@ class App extends Component {
       upgradeModalShow: false,
     })
   }
-  checkDate() {
-   const nowDate = new Date()
-   let nowTime = formatDate(nowDate.getTime() + (this.props.License.licenseDay + 1) * 24*60*60*1000 )
-   nowTime = nowTime.substr(0, nowTime.indexOf(' '))
-   return nowTime + ' 00:00'
-  }
-  checkTipsText() {
-    if (this.props.loginUser.role == ROLE_SYS_ADMIN) {
-      return (
-      <span><Link to="/setting/license" style={{color:'white',textDecoration: 'underline'}}> 输入激活码 </Link>以使用平台</span>
-      )
-    }
-    return '请联系管理员输入激活码以继续使用平台'
-  }
+ 
   render() {
     let {
       children,
@@ -299,15 +286,9 @@ class App extends Component {
       teamCount: loginUser.teamCount
     }
     return (
-      <div className={ (this.props.License && this.props.License.outdated) ? 'tenx-layout toptips': 'tenx-layout'} id='siderTooltip'>
+      <div className={ this.props.License ? 'tenx-layout toptips': 'tenx-layout'} id='siderTooltip'>
         {this.renderErrorMessage()}
-        
-        {(this.props.License && this.props.License.outdated) ?
-        <div id='topError'>
-          {this.props.License.licenseTips}将于{this.props.License.licenseDay}天后（即{this.checkDate() }）过期，{this.checkTipsText()}
-        </div>
-        :null
-        }
+        { this.props.tipError }
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-header' : 'tenx-layout-header-bigger tenx-layout-header'}>
           <div className='tenx-layout-wrapper'>
             <Header pathname={pathname} />
@@ -320,7 +301,6 @@ class App extends Component {
           {this.getChildren()}
         </div>
         
-        }
         <Modal
           visible={loginModalVisible}
           title="登录失效"
@@ -374,7 +354,8 @@ App.propTypes = {
   Sider: PropTypes.any.isRequired,
   intl: PropTypes.object.isRequired,
   UpgradeModal: PropTypes.func, // 升级模块
-  License: PropTypes.object
+  License: PropTypes.Boolean,
+  tipError: PropTypes.node
 }
 
 App.defaultProps = {

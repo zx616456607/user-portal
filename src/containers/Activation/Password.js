@@ -14,7 +14,8 @@ import { connect } from 'react-redux'
 import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../constants'
 import Top from '../../components/Top'
 import '../Login/Enterprise/style/Login.less'
-import { setAdminPassword } from '../../actions/license'
+import { setAdminPassword } from '../../actions/admin'
+import { login } from '../../actions/entities'
 import { browserHistory } from 'react-router'
 import NotificationHandler from '../../common/notification_handler'
 
@@ -35,21 +36,35 @@ let Admin = React.createClass({
   },
 
 
-  checkName(rule, value, callback) {
+  checkPass(rule, value, callback) {
     if (!value) {
       callback([new Error('请填写密码')])
       return
     }
     callback()
   },
-
+  checkPass2(rule, value, callback) {
+    const { getFieldValue } = this.props.form;
+    if (!value) {
+      callback([new Error('请再次填写密码')])
+      return
+    }
+    if (value && value !== getFieldValue('password')) {
+      callback('两次填写密码不一致！');
+    } else {
+      callback();
+    }
+  },
   componentWillMount() {
     const { resetFields } = this.props.form
     resetFields()
   },
 
   componentDidMount() {
-    this.refs.intName.refs.input.focus()
+    const _this = this
+    setTimeout(function(){
+      document.getElementById('intName').focus()
+    }, 300)
   },
   handleSubmit(e) {
     e.preventDefault()
@@ -58,11 +73,23 @@ let Admin = React.createClass({
       if (!!error) {
         return
       }
-      _this.props.setAdminPassword(value, {
+      _this.props.setAdminPassword({password: value.password}, {
         success: {
           func: () => {
             new NotificationHandler().success('设置成功')
-            browserHistory.push('/')
+            const body = {
+              password: value.password,
+              username: 'admin'
+            }
+            _this.props.login(body, {
+              success: {
+                func: () => {
+                  message.success(`用户admin登录成功`)
+                  browserHistory.push('/')
+                },
+                isAsync: true
+              }
+            })
           },
           isAsync: true
         },
@@ -79,7 +106,12 @@ let Admin = React.createClass({
     const { submitting, loginResult, submitProps } = this.state
     const nameProps = getFieldProps('password', {
       rules: [
-        { validator: this.checkName },
+        { validator: this.checkPass },
+      ],
+    })
+    const againProps = getFieldProps('rePassword', {
+      rules: [
+        { validator: this.checkPass2 },
       ],
     })
 
@@ -105,10 +137,12 @@ let Admin = React.createClass({
                 <Input value="admin" disabled/>
               </FormItem>
               <FormItem>
-                <Input {...nameProps}
-                  ref="intName" placeholder="首次登录，请设置密码" />
+                <Input {...nameProps} type="password"
+                  id="intName" placeholder="首次登录，请设置密码" />
               </FormItem>
-
+              <FormItem>
+                <Input {...againProps} type="password" placeholder="确认密码" />
+              </FormItem>
               <FormItem wrapperCol={{ span: 24, }}>
                 <Button
                   htmlType="submit"
@@ -117,7 +151,7 @@ let Admin = React.createClass({
                   loading={submitting}
                   {...submitProps}
                   className="subBtn">
-                  {submitting ? '正在执行...' : '登录'}
+                  {submitting ? '正在执行...' : '设置并登录'}
                 </Button>
               </FormItem>
             </Form>
@@ -141,6 +175,7 @@ function mapStateToProps(state, props) {
 Admin = createForm()(Admin)
 
 Admin = connect(mapStateToProps, {
+  login,
   setAdminPassword
 })(Admin)
 

@@ -15,6 +15,7 @@ import { verifyCaptcha, login } from '../../../actions/entities'
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
 import { loadMergedLicense } from '../../../actions/license'
+import { isAdminPasswordSet} from '../../../actions/admin'
 import { browserHistory } from 'react-router'
 import { genRandomString } from '../../../common/tools'
 import Top from '../../../components/Top'
@@ -224,33 +225,41 @@ let Login = React.createClass({
     const { resetFields } = this.props.form
     resetFields()
     const _this = this
-    this.props.loadMergedLicense({
+    this.props.isAdminPasswordSet({
       success: {
         func: (res) => {
-          let outdated = false
-          const { licenseStatus, leftTrialDays } = res.data
-          if (licenseStatus == 'NO_LICENSE' && leftTrialDays <= 0) {
-            outdated = true //show error and not allow login
+          if (!res.isAdminPasswordSet) {
+            browserHistory.push('/password')
+            return
           }
-          _this.setState({
-            outdated
-          })
+          // _this.props.loadMergedLicense({
+          //   success: {
+          //     func: (res) => {
+          //       let outdated = false
+          //       const { licenseStatus, leftTrialDays } = res.data
+          //       if (licenseStatus == 'NO_LICENSE' && leftTrialDays <= 0) {
+          //         outdated = true //show error and not allow login
+          //       }
+          //       _this.setState({
+          //         outdated
+          //       })
+          //       setTimeout(function(){
+          //         const intName = _this.refs.intName.refs.input
+          //         intName.focus()
+          //         if (intName.value) {
+                    _this.setState({
+                      intNameFocus: true,
+                      intPassFocus: true
+                    })
+          //         }
+          //       },500)
+          //     }
+          //   }
+          // })
         },
+        isAsync: true
       }
     })
-  },
-  componentDidMount() {
-    const _this = this
-    setTimeout(function(){
-      const intName = _this.refs.intName.refs.input
-      intName.focus()
-      if (intName.value) {
-        _this.setState({
-          intNameFocus: true,
-          intPassFocus: true
-        })
-      }
-    },500)
   },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
@@ -380,7 +389,7 @@ let Login = React.createClass({
 function mapStateToProps(state, props) {
   const { redirect } = props.location.query
   return {
-    redirect,
+    redirect
   }
 }
 
@@ -389,7 +398,8 @@ Login = createForm()(Login)
 Login = connect(mapStateToProps, {
   verifyCaptcha,
   login,
-  loadMergedLicense
+  loadMergedLicense,
+  isAdminPasswordSet, // check whether the 'admin' user's password was set
 })(Login)
 
 export default Login
