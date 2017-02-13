@@ -42,7 +42,7 @@ class BindDomain extends Component {
   componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow, service } = nextProps
     if (this.props.isCurrentTab === false && nextProps.isCurrentTab === true) {
-      const { serviceName, cluster, loadServiceDetail } = this.props
+      const { serviceName, cluster, loadServiceDetail, loadK8sService } = this.props
       loadServiceDetail(cluster, serviceName)
       loadK8sService(cluster, serviceName)
     }

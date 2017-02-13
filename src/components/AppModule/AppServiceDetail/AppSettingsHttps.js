@@ -271,13 +271,12 @@ class AppSettingsHttps extends Component {
   }
   setHttpsSwitchState(k8sService) {
     let isOpen = false
-    if (k8sService && k8sService.metadata && k8sService.metadata.annotations
-      && k8sService.metadata.annotations[ANNOTATION_HTTPS] && k8sService.metadata.annotations[ANNOTATION_HTTPS] === 'true') {
+    if (k8sService && k8sService.metadata && k8sService.metadata.annotations && k8sService.metadata.annotations[ANNOTATION_HTTPS] === 'true') {
       isOpen = true
-      this.setState({
-        httpsOpened: isOpen,
-      })
     }
+    this.setState({
+      httpsOpened: isOpen,
+    })
   }
   deleteCertificates() {
     const {
