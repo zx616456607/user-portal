@@ -56,7 +56,6 @@ export default class ContainerDetailInfo extends Component {
         let name = ''
         let mountPath = ''
         let volumeType = '分布式存储'
-        let title = 'Ceph存储'
         if (volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount') { return }
         let isShow = volumes.some(item => {
           if (item.name === volume.name) {
@@ -70,7 +69,6 @@ export default class ContainerDetailInfo extends Component {
               name = item.name
               volumeType = '本地存储'
               mountPath = item.hostPath.path
-              title = '本地hostPath存储'
             }
             return true
           }
