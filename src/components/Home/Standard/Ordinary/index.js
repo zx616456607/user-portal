@@ -729,7 +729,7 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={6} className='storage'>
-            <Card title="存储" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
+            <Card title="存储" bordered={false} bodyStyle={{height:200,padding:'0'}}>
               <ProgressBox boxPos={boxPos}/>
               <Col span={12} className='storageInf'>
                 <div className="storageInfList">

@@ -17,21 +17,22 @@ export const ADMIN_IS_PW_SET_FAILURE = 'ADMIN_IS_PW_SET_FAILURE'
 
 // Check whether the 'admin' user's password is set from API
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchIsAdminPasswordSet() {
+function fetchIsAdminPasswordSet(callback) {
   return {
     [FETCH_API]: {
       types: [ADMIN_IS_PW_SET_REQUEST, ADMIN_IS_PW_SET_SUCCESS, ADMIN_IS_PW_SET_FAILURE],
       endpoint: `${API_URL_PREFIX}/admin/ispwset`,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
 // Check whether the 'admin' user's password is set from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function isAdminPasswordSet() {
+export function isAdminPasswordSet(callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchIsAdminPasswordSet())
+    return dispatch(fetchIsAdminPasswordSet(callback))
   }
 }
 
