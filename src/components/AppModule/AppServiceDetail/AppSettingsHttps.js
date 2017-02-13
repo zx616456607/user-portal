@@ -67,6 +67,7 @@ let UploadSslModal = React.createClass({
             })
             loadCertificates(cluster, serviceName)
             loadK8sService(cluster, serviceName)
+            new NotificationHandler().success('操作成功')
           },
           isAsync: true
         },
