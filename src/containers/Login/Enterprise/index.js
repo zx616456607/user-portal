@@ -232,30 +232,30 @@ let Login = React.createClass({
             browserHistory.push('/password')
             return
           }
-          // _this.props.loadMergedLicense({
-          //   success: {
-          //     func: (res) => {
-          //       let outdated = false
-          //       const { licenseStatus, leftTrialDays } = res.data
-          //       if (licenseStatus == 'NO_LICENSE' && leftTrialDays <= 0) {
-          //         outdated = true //show error and not allow login
-          //       }
-          //       _this.setState({
-          //         outdated
-          //       })
-          //       setTimeout(function(){
-          //         const intName = _this.refs.intName.refs.input
-          //         intName.focus()
-          //         if (intName.value) {
+          _this.props.loadMergedLicense({
+            success: {
+              func: (res) => {
+                let outdated = false
+                const { licenseStatus, leftTrialDays } = res.data
+                if (licenseStatus == 'NO_LICENSE' && leftTrialDays <= 0) {
+                  outdated = true //show error and not allow login
+                }
+                _this.setState({
+                  outdated
+                })
+                setTimeout(function(){
+                  const intName = _this.refs.intName.refs.input
+                  intName.focus()
+                  if (intName.value) {
                     _this.setState({
                       intNameFocus: true,
                       intPassFocus: true
                     })
-          //         }
-          //       },500)
-          //     }
-          //   }
-          // })
+                  }
+                },500)
+              }
+            }
+          })
         },
         isAsync: true
       }

@@ -31,7 +31,6 @@ class EnterpriseApp extends Component {
     this.props.loadMergedLicense({
       success: {
         func: (res) => {
-          console.log('res',res)
           let outdated = false
           let loginModalVisible = false
           let licenseTips = '激活证书'
@@ -62,13 +61,7 @@ class EnterpriseApp extends Component {
       }
     })
   }
-  checkDate() {
-    if (!this.props.License) return
-    const nowDate = new Date()
-    let nowTime = formatDate(nowDate.getTime() + (this.props.License.licenseDay + 1) * 24*60*60*1000 )
-    nowTime = nowTime.substr(0, nowTime.indexOf(' '))
-    return nowTime + ' 00:00'
-  }
+
   checkTipsText() {
     if (!this.props.loginUser) return
     if (this.props.loginUser.role == ROLE_SYS_ADMIN) {
@@ -79,10 +72,14 @@ class EnterpriseApp extends Component {
     return '请联系管理员输入激活码以继续使用平台'
   }
   tipError() {
+    if (this.state.licenseDay <= 0) {
+      window.location.href ='/logout'
+      return
+    }
     if( this.state.outdated ) {
       return (
         <div id='topError'>
-          {this.state.licenseTips}将于{this.state.licenseDay}天后（即{this.checkDate() }）过期，{this.checkTipsText()}
+          {this.state.licenseTips}将于{this.state.licenseDay}天后（即{formatDate(this.state.license.end) }）过期，{this.checkTipsText()}
         </div>
      )
    }
