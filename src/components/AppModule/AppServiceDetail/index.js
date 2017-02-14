@@ -24,7 +24,7 @@ import AppServiceRental from './AppServiceRental'
 import AppSettingsHttps from './AppSettingsHttps'
 import ServiceMonitor from './ServiceMonitor'
 import AppAutoScale from './AppAutoScale'
-import { loadServiceDetail, loadServiceContainerList } from '../../../actions/services'
+import { loadServiceDetail, loadServiceContainerList, loadK8sService } from '../../../actions/services'
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
 import TerminalModal from '../../TerminalModal'
@@ -34,6 +34,7 @@ import { TENX_MARK, LOAD_STATUS_TIMEOUT } from '../../../constants'
 import { addPodWatch, removePodWatch } from '../../../containers/App/status'
 import TipSvcDomain from '../../TipSvcDomain'
 import { getServiceStatusByContainers } from '../../../common/status_identify'
+import { ANNOTATION_HTTPS } from '../../../../constants'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -71,11 +72,13 @@ class AppServiceDetail extends Component {
       cluster,
       serviceName,
       loadServiceDetail,
-      loadServiceContainerList
+      loadK8sService,
+      loadServiceContainerList,
     } = nextProps || this.props
     document.title = `${serviceName} 服务详情页 | 时速云`
     const query = {}
     loadServiceDetail(cluster, serviceName)
+    loadK8sService(cluster, serviceName)
     loadServiceContainerList(cluster, serviceName, null, {
       success: {
         func: (result) => {
@@ -216,6 +219,7 @@ class AppServiceDetail extends Component {
       currentCluster,
       bindingDomains,
       bindingIPs,
+      k8sService,
     } = this.props
     const { activeTabKey, currentContainer } = this.state
     const httpsTabKey = '#https'
@@ -245,6 +249,10 @@ class AppServiceDetail extends Component {
         </div>
       )
     })
+    let httpIcon = 'http'
+    if (k8sService && k8sService.metadata && k8sService.metadata.annotations && k8sService.metadata.annotations[ANNOTATION_HTTPS] === 'true') {
+      httpIcon = 'https'
+    }
     return (
       <div id='AppServiceDetail'>
         <div className='titleBox'>
@@ -271,7 +279,7 @@ class AppServiceDetail extends Component {
               <div className='address'>
                 <span>地址：</span>
                 <div className='addressRight'>
-                  <TipSvcDomain svcDomain={svcDomain} parentNode='appSvcDetailDomain' />
+                  <TipSvcDomain svcDomain={svcDomain} parentNode='appSvcDetailDomain' icon={httpIcon}/>
                 </div>
               </div>
               <div>
@@ -446,7 +454,8 @@ function mapStateToProps(state, props) {
   }
   const {
     serviceDetail,
-    serviceContainers
+    serviceContainers,
+    k8sService,
   } = state.services
 
   let targetService
@@ -461,6 +470,11 @@ function mapStateToProps(state, props) {
   }
   targetContainers = targetContainers || defaultServices
 
+  let k8sServiceData = {}
+  if (k8sService && k8sService.isFetching === false && k8sService.data && k8sService.data[serviceName]) {
+    k8sServiceData = k8sService.data[serviceName]
+  }
+
   return {
     cluster,
     statusWatchWs,
@@ -472,10 +486,12 @@ function mapStateToProps(state, props) {
     isServiceDetailFetching: targetService.isFetching,
     containers: targetContainers.containerList,
     isContainersFetching: targetContainers.isFetching,
+    k8sService: k8sServiceData,
   }
 }
 
 export default connect(mapStateToProps, {
   loadServiceDetail,
   loadServiceContainerList,
+  loadK8sService,
 })(AppServiceDetail)

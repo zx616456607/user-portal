@@ -233,7 +233,8 @@ class AppDetail extends Component {
                     location={location}
                     key='AppServiceList'
                     onServicesChange={this.onServicesChange}
-                    appName={appName} />
+                    appName={appName}
+                    k8sServiceList={app.k8sServices || []} />
                 </TabPane>
                 {/*<TabPane tab='应用拓扑' key='#topology' >应用拓扑</TabPane>*/}
                 <TabPane tab='编排文件' key='#stack' >
