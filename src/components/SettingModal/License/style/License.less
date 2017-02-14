@@ -58,12 +58,16 @@
       border-radius: 3px;
       // width: 30%;
       background: #F5FBFE;
-      span{width: 80%;display: inherit;float: left;color: @borderColor;}
+      position: relative;
+      span{width: 90%;display: inherit;float: left;color: @borderColor;overflow: hidden;}
       a {
         border-left:1px solid @borderColor;width:50px;
-        display: inherit;text-align: center;float: right;
+        display: inherit;text-align: center;
         height: 33px;
         background: #DCF2FB;
+        position: absolute;
+        right:0;
+        top:0;
       }
     }
     .licenseTitle {
