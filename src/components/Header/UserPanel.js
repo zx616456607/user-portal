@@ -267,11 +267,12 @@ UserPanel.propTypes = {
   loginUser: PropTypes.object.isRequired,
 }
 
-function mapStateToProp(state,props) {
+function mapStateToProp(state, props) {
   let role = ROLE_USER
-  const {entities} = state
+  const { entities } = state
+  const { loginUser } = props
   const { clusterInfo } = state.overviewCluster
-  let balance = 0
+  let { balance } = loginUser
   if (clusterInfo && clusterInfo.result) {
     if (clusterInfo.result.spaceconsumption) {
       balance = clusterInfo.result.spaceconsumption.balance
