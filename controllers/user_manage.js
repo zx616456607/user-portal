@@ -21,6 +21,7 @@ const ROLE_SYS_ADMIN = 2
 const config = require('../configs')
 const standardMode = require('../configs/constants').STANDARD_MODE
 const serviceIndex = require('../services')
+const registryConfigLoader = require('../registry/registryConfigLoader')
 
 /*
 Only return the detail of one user
@@ -300,6 +301,13 @@ exports.updateUser = function* () {
   const user = this.request.body
 
   const result = yield api.users.patch(userID, user)
+  // If update admin password, refresh the cache of registry
+  if (result && result.statusCode === 200) {
+    if (user.password && registryConfigLoader.GetRegistryConfig() && loginUser.user == registryConfigLoader.GetRegistryConfig().user) {
+      logger.info("Update registry config in cache...")
+      registryConfigLoader.GetRegistryConfig().password = user.password
+    }
+  }
 
   this.body = {
     data: result

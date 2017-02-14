@@ -167,6 +167,18 @@ export default class TipSvcDomain extends Component {
       show: !show
     })
   }
+  getIconHtml() {
+    const { icon } = this.props
+    if (icon === 'http') {
+      return (<svg className='http' ><use xlinkHref='#http' /></svg>)
+    }
+    else if (icon === 'https') {
+      return (<svg className='https' ><use xlinkHref='#https' /></svg>)
+    }
+    else {
+      return null
+    }
+  }
   render() {
     const { appDomain, svcDomain, type, parentNode } = this.props
     const scope = this
@@ -188,9 +200,7 @@ export default class TipSvcDomain extends Component {
         return (
           <div className='TipSvcDomain'>
             <span className='appDomain'>
-              {
-                <a target='_blank' href={linkURL}>{svcDomain[0].domain}</a>
-              }
+              <a target='_blank' href={linkURL}>{this.getIconHtml()}{svcDomain[0].domain}</a>
             </span>
             <Popover placement='right'
               content={<SvcTip svcDomain={svcDomain} />}
@@ -225,7 +235,7 @@ export default class TipSvcDomain extends Component {
           return (
             <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
               <span className='appDomain'>
-               
+                {this.getIconHtml()}
                 <a target='_blank' href={linkURL}>{appDomain[0].data[0].domain}</a>
               </span>
               <Popover placement={type ? 'rightBottom' : 'rightTop'}
@@ -247,9 +257,7 @@ export default class TipSvcDomain extends Component {
         return (
           <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
             <span className='appDomain'>
-              {
-                <a target='_blank' href={linkURL}>{appDomain[0].data[0].domain}</a>
-              }
+              <a target='_blank' href={linkURL}>{this.getIconHtml()}{appDomain[0].data[0].domain}</a>
             </span>
             <Popover placement={type ? 'rightBottom' : 'rightTop'}
               content={<AppTip scope={scope} appDomain={appDomain} />}

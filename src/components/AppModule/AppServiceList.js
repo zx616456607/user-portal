@@ -26,7 +26,7 @@ import {
   quickRestartServices
 } from '../../actions/services'
 import { LOAD_STATUS_TIMEOUT } from '../../constants'
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ANNOTATION_HTTPS } from '../../../constants'
 import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
 import ConfigModal from './AppServiceDetail/ConfigModal'
@@ -304,7 +304,7 @@ const MyComponent = React.createClass({
     })
   },
   render: function () {
-    const { cluster, serviceList, loading, page, size, total, bindingDomains, bindingIPs} = this.props
+    const { cluster, serviceList, loading, page, size, total, bindingDomains, bindingIPs, k8sServiceList} = this.props
     if (loading) {
       return (
         <div className="loadingBox">
@@ -341,6 +341,15 @@ const MyComponent = React.createClass({
         </Menu>
       );
       const svcDomain = parseServiceDomain(item, bindingDomains,bindingIPs)
+      let httpIcon = 'http'
+      for (let k8sService of k8sServiceList) {
+        if (item.metadata.name === k8sService.metadata.name) {
+          if (k8sService.metadata.annotations && k8sService.metadata.annotations[ANNOTATION_HTTPS] === 'true') {
+            httpIcon = 'https'
+          }
+          break
+        }
+      }
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -364,7 +373,7 @@ const MyComponent = React.createClass({
           </div>
           <div className="service commonData appSvcListDomain">
             <Tooltip title={svcDomain.length > 0 ? svcDomain[0] : ""}>
-              <TipSvcDomain svcDomain={svcDomain} parentNode="appSvcListDomain" />
+              <TipSvcDomain svcDomain={svcDomain} parentNode="appSvcListDomain" icon={httpIcon} />
             </Tooltip>
           </div>
           <div className="createTime commonData">
@@ -973,7 +982,7 @@ class AppServiceList extends Component {
     const {
       name, pathname, page,
       size, total, isFetching,
-      cluster, appName, loadServiceList
+      cluster, appName, loadServiceList, k8sServiceList,
     } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
@@ -1106,6 +1115,7 @@ class AppServiceList extends Component {
             name={name}
             scope={parentScope}
             serviceList={serviceList}
+            k8sServiceList={k8sServiceList}
             loading={isFetching}
             bindingDomains={this.props.bindingDomains} />
           <Modal
