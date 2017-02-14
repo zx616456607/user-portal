@@ -195,13 +195,13 @@ const MyComponent = React.createClass({
             <span className='scheduleSpan'>{item.schedulable ? '正常调度' : '闲置下线'}</span>
           </div>
           <div className='runningTime commonTitle'>
-            <Tooltip title={calcuDate(item.startTime)}>
-            <span>{calcuDate(item.startTime)}</span>
+            <Tooltip title={calcuDate(item.objectMeta.creationTimestamp)}>
+            <span>{calcuDate(item.objectMeta.creationTimestamp)}</span>
             </Tooltip>
           </div>
           <div className='startTime commonTitle'>
-            <Tooltip title={formatDate(item.startTime)}>
-              <span>{formatDate(item.startTime)}</span>
+            <Tooltip title={formatDate(item.objectMeta.creationTimestamp)}>
+              <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
             </Tooltip>
           </div>
           <div className='opera commonTitle'>
