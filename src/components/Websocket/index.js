@@ -53,9 +53,14 @@ class Websocket extends Component {
       this.logging(evt.data)
     }
 
+    websocket.onerror = err => {
+      this.logging(`Websocket onerror`)
+      this.logging(err)
+    }
 
     this.shouldReconnect = this.props.reconnect
-    websocket.onclose = () => {
+
+    websocket.onclose = (err) => {
       this.logging('Websocket disconnected')
       this.logging(this.shouldReconnect)
       this.logging(new Date())
