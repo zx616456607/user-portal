@@ -1045,7 +1045,7 @@ class AppServiceList extends Component {
             <Modal title="删除操作" visible={this.state.DeleteServiceModal}
               onOk={this.handleDeleteServiceOk} onCancel={this.handleDeleteServiceCancel}
               >
-              <StateBtnModal serviceList={serviceList} state='Delete' />
+              <StateBtnModal serviceList={serviceList} scope={parentScope} state='Delete' />
             </Modal>
             <Button size="large" onClick={this.batchQuickRestartService} disabled={!restartBtn}>
               <i className="fa fa-bolt"></i>
