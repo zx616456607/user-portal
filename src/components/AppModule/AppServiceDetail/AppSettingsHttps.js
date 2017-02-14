@@ -116,11 +116,11 @@ let UploadSslModal = React.createClass({
           </FormItem>
           <FormItem {...formItemLayout} label="证书内容">
             <Input type="textarea" {...certContent} placeholder="PEM编码"/>
-            <a>查看样例</a>
+            <a target="_blank" href="http://docs.tenxcloud.com/guide/service#https">查看样例</a>
           </FormItem>
           <FormItem {...formItemLayout} label="密钥内容">
             <Input type="textarea" {...privateContent} placeholder="PEM编码"/>
-            <a>查看样例</a>
+            <a target="_blank" href="http://docs.tenxcloud.com/guide/service#https">查看样例</a>
           </FormItem>
 
         </Form>
