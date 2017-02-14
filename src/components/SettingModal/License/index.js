@@ -115,6 +115,25 @@ class License extends Component {
       });
     }, 500);
   }
+  lincenseList(data) {
+    if (data.length ==0) {
+      return (<tr><td>not data</td></tr>)
+    }
+    const listRow = data.map((list, index)=> {
+      return (
+        <tr className="ant-table-row  ant-table-row-level-0" key={'list' + index}>
+          <td style={{width:'20%'}}><span className="ant-table-row-indent indent-level-0" style={{paddingLeft: 0}}>{list.licenseUid}</span></td>
+          <td >{list.maxNodes}</td>
+          <td >{formatDate(list.start)}</td>
+          <td >{formatDate(list.end)}</td>
+          <td >{( new Date(list.end).getTime() - new Date(list.start).getTime() ) /24/60/60/1000} 天</td>
+          <td >{formatDate(list.addTime)}</td>
+          <td ></td>
+        </tr>
+      )
+    })
+    return listRow
+  }
   render() {
     const { isFetching, license, platform} = this.props
     if (isFetching || !license) {
@@ -124,31 +143,7 @@ class License extends Component {
         </div>
       )
     }
-    const columns = [
-    {
-      title: '完整 License',
-      dataIndex: 'shortKey'
-    },
-    {
-      title: '最大节点数',
-      dataIndex: 'maxNodes'
-    },
-    {
-      title: '生效时间',
-      dataIndex: 'start',
-    },{
-      title: '失效时间',
-      dataIndex: 'end',
-    },{
-      title: '有效时长',
-      dataIndex: 'effective',
-    },{
-      title: '添加时间',
-      dataIndex: 'addTime',
-    },{
-      title: '操作人',
-      dataIndex: 'addUser'
-    }];
+
     return (
       <div id='License'>
         <div className="title">授权管理</div>
@@ -182,9 +177,21 @@ class License extends Component {
         </Card>
         <br/>
         <Card  className="licenseWrap">
-          <Table
+          {/*<Table
             columns={columns} 
-            dataSource={license.licenses} pagination={false} className="list-table" loading={isFetching}/>
+            dataSource={license.licenses} pagination={false} className="list-table" loading={isFetching}/>*/}
+            <table className="list-table" >
+              <thead className="ant-table-thead">
+                <tr><th ><span>完整 License</span></th>
+                <th ><span>最大节点数</span></th><th ><span>生效时间</span></th>
+                <th ><span>失效时间</span></th><th ><span>有效时长</span></th>
+                <th ><span>添加时间</span></th><th ><span>操作人</span></th></tr>
+              </thead>
+              <tbody className="ant-table-tbody">
+                {this.lincenseList(license.licenses)}
+               
+              </tbody>
+            </table>
         </Card>
       </div>
     )
