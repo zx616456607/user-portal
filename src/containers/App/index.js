@@ -67,7 +67,7 @@ class App extends Component {
         }
       })
     }
-    
+
   }
 
   componentWillReceiveProps(nextProps) {
@@ -248,7 +248,7 @@ class App extends Component {
       upgradeModalShow: false,
     })
   }
- 
+
   render() {
     let {
       children,
@@ -300,7 +300,7 @@ class App extends Component {
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-content' : 'tenx-layout-content-bigger tenx-layout-content'}>
           {this.getChildren()}
         </div>
-        
+
         <Modal
           visible={loginModalVisible}
           title="登录失效"

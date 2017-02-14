@@ -11,11 +11,12 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
-import { Icon, Button, Popover, Modal } from 'antd'
+import { Icon, Button, Popover, Modal, Spin } from 'antd'
 import PopContent from '../../../PopSelect/Content'
 import { loadLoginUserDetail } from '../../../../actions/entities'
 import { loadUserTeamspaceList } from '../../../../actions/user'
-import { parseAmount } from '../../../../common/tools'
+import { getEdition } from '../../../../actions/user_preference'
+import { parseAmount, formatDate } from '../../../../common/tools'
 import './style/balance.less'
 import proIcon from '../../../../assets/img/version/proIcon.png'
 import proIconGray from '../../../../assets/img/version/proIcon-gray.png'
@@ -59,6 +60,11 @@ class UserBalance extends Component {
     })
   }
 
+  componentDidMount() {
+    const { getEdition } = this.props
+    getEdition()
+  }
+
   handleTeamChange(team) {
     this.setState({
       teamListVisible: false,
@@ -72,8 +78,27 @@ class UserBalance extends Component {
     })
   }
 
+  renderProEdtionEndTime(editionsList, isEditionsFetching) {
+    const edition = editionsList[0]
+    if (!edition) {
+      return
+    }
+    return (
+      <div className='time'>
+        到期时间：
+        <span className='timeEnd'>
+          {
+            isEditionsFetching
+            ? <Spin />
+            : formatDate(edition.endTime, 'YYYY-MM-DD')
+          }
+          </span>
+      </div>
+    )
+  }
+
   render() {
-    let { loginUser, isTeamsFetching, teamspaces, } = this.props
+    let { loginUser, isTeamsFetching, teamspaces, editionsList, isEditionsFetching, } = this.props
     const { currentTeam, teamListVisible } = this.state
     let { balance, envEdition } = loginUser
     let spaceBalance = currentTeam.balance
@@ -182,6 +207,7 @@ class UserBalance extends Component {
               <div className="moneyRow">
                 <span className="unit">￥</span>
                 <span className="money">99</span>/月
+                {this.renderProEdtionEndTime(editionsList, isEditionsFetching)}
               </div>
               <div className="rechargeRow">
                 <Button
@@ -204,19 +230,23 @@ function mapStateToProps(state, props) {
   if (props.location && props.location.query) {
      currentTeamName = props.location.query.team
   }
-  const { entities, user } = state
+  const { entities, user, userPreference } = state
   const { current, loginUser } = entities
   const { teamspaces } = user
+  const { editions } = userPreference
   return {
     current,
     currentTeamName,
     loginUser: loginUser.info,
     isTeamsFetching: teamspaces.isFetching,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
+    editionsList: editions.list,
+    isEditionsFetching: editions.isFetching,
   }
 }
 
 export default connect(mapStateToProps, {
   loadLoginUserDetail,
   loadUserTeamspaceList,
+  getEdition,
 })(UserBalance)

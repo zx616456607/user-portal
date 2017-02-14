@@ -10,7 +10,6 @@
 import React, { Component, PropTypes } from 'react'
 import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, Alert } from 'antd'
 import QueueAnim from 'rc-queue-anim'
-import TweenOne from 'rc-tween-one';
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import ImageDetailBox from './ImageCenter/ImageDetail'
@@ -27,7 +26,6 @@ const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
 let standardFlag = (mode == standard ? true : false);
 
-let TweenOneGroup = TweenOne.TweenOneGroup;
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
@@ -370,7 +368,7 @@ class ImageCenter extends Component {
 
   componentWillMount() {
     let { getAppCenterBindUser } = this.props;
-    const _this = this;    
+    const _this = this;
     getAppCenterBindUser({
       success: {
         func: (result) => {
@@ -382,7 +380,7 @@ class ImageCenter extends Component {
       }
     });
   }
-  
+
   componentDidMount() {
     document.title = '镜像仓库 | 时速云'
     this.props.LoadOtherImage({
@@ -426,7 +424,7 @@ class ImageCenter extends Component {
     const otherImageHead = this.state.otherImageHead || [];
     let ImageTabList = [];
     let { configured } = this.state;
-    if(standardFlag) {      
+    if(standardFlag) {
       ImageTabList.push(<TabPane tab='私有空间' key='1'><ImageSpace scope={scope} hubConfig={configured} /></TabPane>)
       ImageTabList.push(<TabPane tab='公有空间' key='2'><PublicSpace scope={scope} /></TabPane>)
       ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} hubConfig={configured} /></TabPane>)
