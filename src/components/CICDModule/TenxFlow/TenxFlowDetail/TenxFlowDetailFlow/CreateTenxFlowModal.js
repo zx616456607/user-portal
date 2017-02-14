@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, Tooltip } from 'antd'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -223,7 +223,8 @@ let CreateTenxFlowModal = React.createClass({
       ImageEnvModal: false,
       emptyImageEnv: false,
       emptyServiceEnv: [],
-      baseImage: []
+      baseImage: [],
+      showOtherImage: false
     }
   },
   componentWillMount() {
@@ -413,12 +414,23 @@ let CreateTenxFlowModal = React.createClass({
   changeImageStoreType(e) {
     //this function for user change image store type
     if (e.target.value == 3) {
+      if(this.props.otherImage.length <= 0) {
+        this.setState({
+          addOtherImage: true
+        })
+        return
+      }
       this.setState({
-        ImageStoreType: true
+        ImageStoreType: true,
+        showOtherImage: true
       });
     } else {
+      const { form } = this.props
+      const { resetFields } = form
+      resetFields(['otherImage'])
       this.setState({
-        ImageStoreType: false
+        ImageStoreType: false,
+        showOtherImage: false
       });
     }
   },
@@ -673,12 +685,15 @@ let CreateTenxFlowModal = React.createClass({
           'noCache': values.buildCache,
           'image': values.imageRealName
         }
+        if(imageBuildBody.registryType == 3) {
+          imageBuildBody.customRegistry = values.otherImage
+        }
         if (this.state.otherTag) {
           imageBuildBody.customTag = values.otherTag;
         }
-        if (this.state.ImageStoreType) {
-          imageBuildBody.customRegistry = values.otherStoreUrl;
-        }
+        // if (this.state.ImageStoreType) {
+        //   imageBuildBody.customRegistry = values.otherStoreUrl;
+        // }
         let tmpDockerFileUrl = null;
         if (!!!values.dockerFileUrl) {
           tmpDockerFileUrl = '';
@@ -756,6 +771,35 @@ let CreateTenxFlowModal = React.createClass({
       buildingList.push(buildItem)
     })
     scope.onSetup(scope.state.socket, buildingList)
+  },
+  getOtherImage() {
+    return this.props.otherImage.map(item => {
+      return <Option value={item.id}>{item.title}</Option>
+    })
+  },
+  addOtherImage(){
+    this.setState({
+      addOtherImage: false
+    })
+    browserHistory.push('/app_center')
+  },
+  cancelModal() {
+    const { form } = this.props
+    const { setFieldsValue } = form
+    setFieldsValue({
+      imageType: '1'
+    })
+    this.setState({
+      addOtherImage: false
+    })
+  },
+  validOtherImage(rule, value, callback){
+    console.log(value)
+    if(!this.state.showOtherImage) return callback()
+    if(!value) {
+      return callback(new Error('请选择镜像仓库'))
+    }
+    return callback()
   },
   render() {
     const { formatMessage } = this.props.intl;
@@ -889,12 +933,23 @@ let CreateTenxFlowModal = React.createClass({
       ],
       initialValue: '',
     });
-    const otherImageStoreTypeProps = getFieldProps('otherStoreUrl', {
-      rules: [
-        { message: '请输入自定义仓库地址' },
-        { validator: this.otherStoreUrlInput },
-      ],
-    });
+    let validOtherImage
+    if (this.state.showOtherImage) {
+      validOtherImage = getFieldProps('otherImage', {
+        rules: [
+          { message: '请选择镜像仓库' },
+          { validator: this.validOtherImage },
+        ],
+      });
+    } else {
+      validOtherImage = getFieldProps('otherImage', { rules: []})
+    }
+    // const otherImageStoreTypeProps = getFieldProps('otherStoreUrl', {
+    //   rules: [
+    //     { message: '请输入自定义仓库地址' },
+    //     { validator: this.otherStoreUrlInput },
+    //   ],
+    // });
     const otherImageTagProps = getFieldProps('otherTag', {
       rules: [
         { message: '请输入镜像版本' },
@@ -1062,10 +1117,15 @@ let CreateTenxFlowModal = React.createClass({
                       <RadioGroup {...getFieldProps('imageType', { initialValue: '1', onChange: this.changeImageStoreType }) }>
                         <Radio key='imageStore' value={'1'}><FormattedMessage {...menusText.imageStore} /></Radio>
                         <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio>
-                        <Radio key='otherImage' value={'3'} disabled><FormattedMessage {...menusText.otherImage} /></Radio>
+                        <Radio key='otherImage' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
                       </RadioGroup>
                     </FormItem>
-                    {
+                    <FormItem style={{ float: 'left', width:'120px' }}>
+                      <Select {...validOtherImage} style={{display: this.state.showOtherImage ? 'inline-block' : 'none'}}>
+                        {this.getOtherImage()}
+                      </Select>
+                    </FormItem>
+                    {/*
                       this.state.ImageStoreType ? [
                         <QueueAnim key='otherImageStoreTypeAnimate'>
                           <div key='otherImageStoreType'>
@@ -1075,7 +1135,7 @@ let CreateTenxFlowModal = React.createClass({
                           </div>
                         </QueueAnim>
                       ] : null
-                    }
+                    */}
                     <div style={{ clear: 'both' }} />
                   </div>
                   <div style={{ clear: 'both' }} />
@@ -1158,6 +1218,13 @@ let CreateTenxFlowModal = React.createClass({
           onCancel={this.closeCodeStoreModal}
           >
           <CodeStoreListModal scope={scopeThis} config={codeList} hadSelected={this.state.currentCodeStore} />
+        </Modal>
+         <Modal title="添加第三方仓库" visible={this.state.addOtherImage}
+          onOk={()=> this.addOtherImage()} onCancel={()=> this.cancelModal()}
+          >
+          <div className="modalColor" style={{lineHeight:'30px'}}><i className="anticon anticon-question-circle-o" style={{marginRight: '8px',marginLeft:'16px'}}></i>
+            是否跳转添加第三方仓库
+          </div>
         </Modal>
       </div>
     )

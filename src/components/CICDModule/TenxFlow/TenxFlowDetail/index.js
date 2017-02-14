@@ -15,6 +15,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { getTenxFlowDetail, getTenxflowBuildLastLogs, getTenxFlowYAML, deploymentLog, getTenxflowBuildLogs, getCdInimage, changeBuildStatus, getTenxFlowStatus } from '../../../../actions/cicd_flow'
+import { LoadOtherImage } from '../../../../actions/app_center'
 import { checkImage } from '../../../../actions/app_center'
 import './style/TenxFlowDetail.less'
 import TenxFlowDetailAlert from './TenxFlowDetailAlert.js'
@@ -136,6 +137,7 @@ class TenxFlowDetail extends Component {
       }
     })
     this.flowState()
+    this.props.LoadOtherImage()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -354,7 +356,7 @@ class TenxFlowDetail extends Component {
             <div style={{ clear: 'both' }}></div>
           </Card>
           <Tabs defaultActiveKey='1' size="small" onChange={(e) => this.handleChange(e)}>
-            <TabPane tab='TenxFlow流程定义' key='1'><TenxFlowDetailFlow scope={scope} flowId={flowInfo.flowId} stageInfo={flowInfo.stageInfo} supportedDependencies={flowInfo.supportedDependencies} startBuild={this.state.startBuild} refreshFlag={this.state.refreshFlag} /></TabPane>
+            <TabPane tab='TenxFlow流程定义' key='1'><TenxFlowDetailFlow scope={scope} otherImage={this.props.otherImage} flowId={flowInfo.flowId} stageInfo={flowInfo.stageInfo} supportedDependencies={flowInfo.supportedDependencies} startBuild={this.state.startBuild} refreshFlag={this.state.refreshFlag} /></TabPane>
             <TabPane tab='TenxFlow执行记录' key='2'><TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} /></TabPane>
             <TabPane tab='自动部署' key='3'><ImageDeployLogBox scope={scope} flowId={flowInfo.flowId} /></TabPane>
             <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} notify={flowInfo.notificationConfig} flowId={flowInfo.flowId} /></TabPane>
@@ -392,6 +394,12 @@ function mapStateToProps(state, props) {
   const { initType } = getTenxFlowStatus || defaultFlowStatus;
   const buildFetching = getTenxflowBuildLastLogs ? getTenxflowBuildLastLogs.isFetching : deafaultFlowLog.isFetching
   const logs = getTenxflowBuildLastLogs ? getTenxflowBuildLastLogs.logs : deafaultFlowLog.logs;
+  let otherImage = state.images.otherImages
+  if(otherImage){
+    otherImage = otherImage.imageRow
+  } else {
+    otherImage = []
+  }
   return {
     isFetching,
     flowInfo,
@@ -399,7 +407,8 @@ function mapStateToProps(state, props) {
     cdImageList,
     logs,
     buildFetching,
-    currentSpace: state.entities.current.space.namespace
+    currentSpace: state.entities.current.space.namespace,
+    otherImage
   }
 }
 
@@ -416,7 +425,8 @@ export default connect(mapStateToProps, {
   getCdInimage,
   getTenxflowBuildLogs,
   changeBuildStatus,
-  getTenxFlowStatus
+  getTenxFlowStatus,
+  LoadOtherImage
 })(injectIntl(TenxFlowDetail, {
   withRef: true,
 }));
