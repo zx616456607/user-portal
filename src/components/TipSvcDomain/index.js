@@ -188,9 +188,7 @@ export default class TipSvcDomain extends Component {
         return (
           <div className='TipSvcDomain'>
             <span className='appDomain'>
-              {
-                <a target='_blank' href={linkURL}>{svcDomain[0].domain}</a>
-              }
+              <a target='_blank' href={linkURL}><svg className='http' ><use xlinkHref='#http' /></svg>{svcDomain[0].domain}</a>
             </span>
             <Popover placement='right'
               content={<SvcTip svcDomain={svcDomain} />}
@@ -225,7 +223,7 @@ export default class TipSvcDomain extends Component {
           return (
             <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
               <span className='appDomain'>
-               
+                <svg className='http' ><use xlinkHref='#http' /></svg>
                 <a target='_blank' href={linkURL}>{appDomain[0].data[0].domain}</a>
               </span>
               <Popover placement={type ? 'rightBottom' : 'rightTop'}
@@ -247,9 +245,7 @@ export default class TipSvcDomain extends Component {
         return (
           <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
             <span className='appDomain'>
-              {
-                <a target='_blank' href={linkURL}>{appDomain[0].data[0].domain}</a>
-              }
+              <a target='_blank' href={linkURL}><svg className='http' ><use xlinkHref='#http' /></svg>{appDomain[0].data[0].domain}</a>
             </span>
             <Popover placement={type ? 'rightBottom' : 'rightTop'}
               content={<AppTip scope={scope} appDomain={appDomain} />}
