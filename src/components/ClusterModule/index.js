@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, Alert, Tooltip, } from 'antd'
+import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, Alert, Tooltip, Spin, } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -25,25 +25,37 @@ const MenuItemGroup = Menu.ItemGroup;
 
 class ClusterList extends Component {
   constructor(props) {
-    super(props);
+    super(props)
+    this.checkIsAdmin = this.checkIsAdmin.bind(this)
     this.state = {
+      //
     }
   }
 
-  componentWillMount() {
+  checkIsAdmin() {
     const { loginUser } = this.props
     const { role } = loginUser
-    if (role !== ROLE_SYS_ADMIN) {
-      browserHistory.push('/')
-    }
+    return role === ROLE_SYS_ADMIN
   }
 
   componentDidMount() {
     document.title = '基础设施 | 时速云'
+    const { loginUser } = this.props
+    const { role } = loginUser
+    if (!this.checkIsAdmin()) {
+      browserHistory.push('/')
+    }
   }
 
 
   render() {
+    if (!this.checkIsAdmin()) {
+      return (
+        <div className="loadingBox">
+          <Spin size="large" />
+        </div>
+      )
+    }
     const { formatMessage } = this.props.intl;
     const otherImageHead = this.state.otherImageHead || [];
     const scope = this;
