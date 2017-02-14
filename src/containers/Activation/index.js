@@ -9,12 +9,12 @@
  * @author BaiYu
  */
 import React, { PropTypes } from 'react'
-import { Button, Form, Input, Card, message, Alert, Col, Row } from 'antd'
+import { Button, Form, Input, Card, message, Alert, Col, Row, Icon, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import Top from '../../components/Top'
 import '../Login/Enterprise/style/Login.less'
-import { addLicense } from '../../actions/license'
+import { addLicense, loadLicensePlatform } from '../../actions/license'
 import NotificationHandler from '../../common/notification_handler'
 
 const createForm = Form.create
@@ -26,9 +26,7 @@ let Activation = React.createClass({
       submitting: false,
       loginResult: {},
       intNameFocus: false,
-      intPassFocus: false,
-      intCheckFocus: false,
-      passWord: false,
+      copySuccess:false
     }
   },
 
@@ -64,12 +62,29 @@ let Activation = React.createClass({
   },
 
   componentWillMount() {
-    const { resetFields } = this.props.form
-    resetFields()
+    this.props.loadLicensePlatform()
   },
 
   componentDidMount() {
     this.refs.intName.refs.input.focus()
+  },
+  copyDownloadCode() {
+    //this function for user click the copy btn and copy the download code
+    const scope = this;
+    let code = document.getElementsByClassName("CodeInput");
+    code[0].select();
+    document.execCommand("Copy", false);
+    scope.setState({
+      copySuccess: true
+    });
+  },
+  returnDefaultTooltip() {
+    const scope = this;
+    setTimeout(function () {
+      scope.setState({
+        copySuccess: false
+      });
+    }, 500);
   },
   render() {
     const { getFieldProps } = this.props.form
@@ -98,13 +113,17 @@ let Activation = React.createClass({
               }
             </div>
             <Form onSubmit={(e)=> this.handleSubmit(e)}>
+              <div className="platform">平台ID <span className="platformId textoverflow">d41d8cd98f00wwwfsfsdfds9800998ecf8427e</span>
+                <Tooltip title={this.state.copySuccess ? '复制成功': '点击复制'}><span className={this.state.copySuccess ? "actions copyBtn":"copyBtn"} onClick={()=> this.copyDownloadCode()} onMouseLeave={()=> this.returnDefaultTooltip()}><Icon type="copy" /></span></Tooltip>
+              </div>
+              <input className="CodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= "d41d8cd98f00wwwfsfsdfds9800998ecf8427e"/>
               <FormItem
                 hasFeedback
                 >
                 <Input {...nameProps}
                   ref="intName"
                   type="textarea" placeholder="请输入激活码：如XXX-XXX-XXX-XXXX"
-                  style={{ maxHeight: 200 , height:200}} />
+                  style={{ maxHeight: 180 , height:180}} />
               </FormItem>
 
               <FormItem wrapperCol={{ span: 24, }}>
@@ -138,6 +157,7 @@ function mapStateToProps(state, props) {
 Activation = createForm()(Activation)
 
 Activation = connect(mapStateToProps, {
+  loadLicensePlatform,
   addLicense
 })(Activation)
 
