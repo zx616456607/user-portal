@@ -13,6 +13,8 @@ import Sider from '../../../components/Sider/Enterprise'
 import App from '../'
 import { Link } from 'react-router'
 import { loadMergedLicense } from '../../../actions/license'
+import { formatDate } from '../../../common/tools'
+import { ROLE_SYS_ADMIN } from '../../../../constants'
 
 class EnterpriseApp extends Component {
   constructor(props) {
@@ -29,6 +31,7 @@ class EnterpriseApp extends Component {
     this.props.loadMergedLicense({
       success: {
         func: (res) => {
+          console.log('res',res)
           let outdated = false
           let loginModalVisible = false
           let licenseTips = '激活证书'
@@ -36,16 +39,16 @@ class EnterpriseApp extends Component {
           const { licenseStatus, leftLicenseDays, leftTrialDays } = res.data
           if (licenseStatus == 'VALID' && leftLicenseDays <= 7) {
             outdated = true // show warning and allow login
-            licenseDay: leftLicenseDays
+            licenseDay = leftLicenseDays
           }
           if (licenseStatus == 'NO_LICENSE' && leftTrialDays > 0) {
             outdated = true // show warning and allow login
             licenseTips = '产品试用'
-            licenseDay: leftTrialDays
+            licenseDay = leftTrialDays
           }
           if (licenseStatus == 'NO_LICENSE' && leftTrialDays <= 0) {
             outdated = true //show error and not allow login
-            licenseDay: 0
+            licenseDay = 0
             loginModalVisible = true
           }
           self.setState({
@@ -60,12 +63,14 @@ class EnterpriseApp extends Component {
     })
   }
   checkDate() {
-   const nowDate = new Date()
-   let nowTime = formatDate(nowDate.getTime() + (this.props.License.licenseDay + 1) * 24*60*60*1000 )
-   nowTime = nowTime.substr(0, nowTime.indexOf(' '))
-   return nowTime + ' 00:00'
+    if (!this.props.License) return
+    const nowDate = new Date()
+    let nowTime = formatDate(nowDate.getTime() + (this.props.License.licenseDay + 1) * 24*60*60*1000 )
+    nowTime = nowTime.substr(0, nowTime.indexOf(' '))
+    return nowTime + ' 00:00'
   }
   checkTipsText() {
+    if (!this.props.loginUser) return
     if (this.props.loginUser.role == ROLE_SYS_ADMIN) {
       return (
       <span><Link to="/setting/license" style={{color:'white',textDecoration: 'underline'}}> 输入激活码 </Link>以使用平台</span>
