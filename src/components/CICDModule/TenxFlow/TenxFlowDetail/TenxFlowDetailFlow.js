@@ -401,7 +401,9 @@ class TenxFlowDetailFlow extends Component {
                   <QueueAnim key='creattingCardAnimate'>
                     <CreateTenxFlowModal key='CreateTenxFlowModal' stageList={stageList} scope={scope}
                       flowId={flowId} stageInfo={stageInfo} codeList={projectList}
-                      supportedDependencies={supportedDependencies} imageList={imageList} />
+                      supportedDependencies={supportedDependencies} imageList={imageList}
+                      otherImage={this.props.otherImage}
+                       />
                   </QueueAnim>
                 ] : null
               }
@@ -411,7 +413,6 @@ class TenxFlowDetailFlow extends Component {
         </div>
         {this.state.websocket}
       </div>
-
     )
   }
 }

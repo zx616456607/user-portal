@@ -75,7 +75,7 @@ const MyComponent = React.createClass({
         </div>
       )
     }
-    if (config.length == 0) {
+    if (!config || config.length == 0) {
       return (
         <div className='loadingBox'>
           <FormattedMessage {...menusText.noData} />

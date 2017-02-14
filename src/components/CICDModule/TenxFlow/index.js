@@ -499,7 +499,7 @@ function mapStateToProps(state, props) {
     flowList,
     buildFetching,
     logs,
-    currentSpace: state.entities.current.space.namespace
+    currentSpace: state.entities.current.space.namespace,
   }
 }
 

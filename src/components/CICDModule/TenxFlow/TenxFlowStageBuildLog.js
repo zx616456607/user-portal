@@ -64,7 +64,7 @@ class TenxFlowStageBuildLog extends Component {
       if(!data) return
       let newLog = data.split('\n')
       newLog.forEach((item) => {
-        $("#tenxFlowLog").append("<div className='stageBuildLogDetail' key={ 'stageBuildLogDetail' + index }>\
+        $("#tenxFlowLog").append("<div class='stageBuildLogDetail'>\
         <span><span>"+item+"</span></span>\
         </div>")
       })
