@@ -47,10 +47,12 @@ exports.checkLicense = function* () {
 
   let license_status = 'NO_LICENSE'
   let left_license_days = 0
+  let end
   if (license_info.data && license_info.data.end) {
-    let end = Date.parse(license_info.data.end);
+    end = license_info.data.end
+    let end_time = Date.parse(end);
     let now = new Date();
-    let date = end - now;
+    let date = end_time - now;
     const days = Math.floor(date/(24*3600*1000));
     if (days > 0) {
       license_status = 'VALID'
@@ -71,7 +73,8 @@ exports.checkLicense = function* () {
     data: {
       license_status,
       left_license_days,
-      left_trial_days
+      left_trial_days,
+      end
     }
   }
   this.body = result
