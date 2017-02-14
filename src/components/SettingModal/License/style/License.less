@@ -1,6 +1,10 @@
 @borderColor: #24a7eb;
 #License {
   font-size: 14px;
+  .popLicense {
+    width: 200px;
+    word-break: break-all;
+  }
   .title {
     height: 18px;
     margin-bottom: 22px;
@@ -21,15 +25,11 @@
       overflow: hidden;
       padding: 20px 0;
       .ant-form-item {margin-bottom: 10px;}
-      .actionsText {
-        line-height: 50px;
-        .success {color: #61BF63;}
-      }
+      .success {color: #61BF63;}
+      i.anticon {margin-left: 40px;}
       .dataKey {
         padding:6px;
-        border:1px solid @borderColor;
         color: @borderColor;
-        background: #F5FBFE;
         border-radius: 2px;
         margin-left: 20px;
       }
@@ -44,6 +44,7 @@
         font-size: 14px;
         color: #2e2e2e;
       }
+      .svgmore{width: 15px;height: 15px;fill: #666;margin-left:5px;vertical-align: middle;}
     }
     .oneTips {
       padding-left: 20px;
