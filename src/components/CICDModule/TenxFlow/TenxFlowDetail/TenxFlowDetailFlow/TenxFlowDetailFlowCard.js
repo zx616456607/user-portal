@@ -579,7 +579,9 @@ class TenxFlowDetailFlowCard extends Component {
               <QueueAnim key={'EditTenxFlowModalAnimate' + index}>
                 <EditTenxFlowModal key={'EditTenxFlowModal' + index} rootScope={scope} scope={scopeThis}
                   config={config} flowId={flowId} stageId={config.metadata.id} codeList={codeList}
-                  supportedDependencies={supportedDependencies} imageList={imageList}/>
+                  supportedDependencies={supportedDependencies} imageList={imageList}
+                  otherImage={this.props.otherImage}
+                  />
               </QueueAnim>
             ] : null
           }
