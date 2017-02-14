@@ -373,7 +373,9 @@ class TenxFlowDetailFlow extends Component {
         return (
           <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item}
             scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} totalLength={stageList.length}
-            codeList={projectList} supportedDependencies={supportedDependencies} imageList={imageList} />
+            codeList={projectList} supportedDependencies={supportedDependencies} imageList={imageList} 
+            otherImage={this.props.otherImage}
+            />
         )
       });
     }

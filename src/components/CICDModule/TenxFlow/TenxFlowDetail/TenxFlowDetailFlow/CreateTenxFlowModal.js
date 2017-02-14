@@ -794,7 +794,6 @@ let CreateTenxFlowModal = React.createClass({
     })
   },
   validOtherImage(rule, value, callback){
-    console.log(value)
     if(!this.state.showOtherImage) return callback()
     if(!value) {
       return callback(new Error('请选择镜像仓库'))
