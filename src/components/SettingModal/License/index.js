@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Spin, Alert, Card, Tooltip, Icon, Button, Form, Input, Table } from 'antd'
+import { Row, Col, Spin, Alert, Card, Tooltip, Icon, Button, Form, Input } from 'antd'
 import './style/License.less'
 import { loadLicenseList, loadLicensePlatform, addLicense } from '../../../actions/license'
 import { connect } from 'react-redux'
@@ -122,7 +122,7 @@ class License extends Component {
     const listRow = data.map((list, index)=> {
       return (
         <tr className="ant-table-row  ant-table-row-level-0" key={'list' + index}>
-          <td style={{width:'20%'}}><span className="ant-table-row-indent indent-level-0" style={{paddingLeft: 0}}>{list.licenseUid}</span></td>
+          <td style={{width:'20%'}}><span className="ant-table-row-indent indent-level-0" style={{paddingLeft: 0}}>{list.licenseUid.substring(0,15)}</span></td>
           <td >{list.maxNodes}</td>
           <td >{formatDate(list.start)}</td>
           <td >{formatDate(list.end)}</td>
@@ -163,13 +163,19 @@ class License extends Component {
             :
             <div className="ant-col-20">
               <Button type="primary" size="large" onClick={()=> this.setState({activeClick: true})}>立即授权</Button>
-              <div className="actionsText"><Icon type="check-circle" className="success" /> 已激活  <span className="dataKey">有效期：{ formatDate(license.merged.end || '') } </span></div>
+              <div className="actionsText">
+               {
+                 license.licenses.length > 0 ? [ <Icon type="check-circle" className="success" />,'已激活',<span className="dataKey">有效期至：{ formatDate(license.merged.end || '') } </span>]
+                 : 
+                 [<Icon type="check-circle" />,'未激活',<span className="dataKey">试用期至：{ formatDate(license.merged.end || '') } </span>] 
+               }
+               </div>
             </div>
             }
 
           </div>
           <div className="list oneTips">
-            <div>申请授权码Listen</div>
+            <div>申请授权码License</div>
             <div className="ant-col-20 oneTips">
               请发送“<span style={{color:'#24a7eb'}}>平台ID + 姓名 + 电话 + 公司名 </span>”到 <span style={{color:'#24a7eb'}}>support@tenxcloud.com </span>我们将主动与您联系
             </div>
@@ -177,21 +183,18 @@ class License extends Component {
         </Card>
         <br/>
         <Card  className="licenseWrap">
-          {/*<Table
-            columns={columns} 
-            dataSource={license.licenses} pagination={false} className="list-table" loading={isFetching}/>*/}
-            <table className="list-table" >
-              <thead className="ant-table-thead">
-                <tr><th ><span>完整 License</span></th>
-                <th ><span>最大节点数</span></th><th ><span>生效时间</span></th>
-                <th ><span>失效时间</span></th><th ><span>有效时长</span></th>
-                <th ><span>添加时间</span></th><th ><span>操作人</span></th></tr>
-              </thead>
-              <tbody className="ant-table-tbody">
-                {this.lincenseList(license.licenses)}
-               
-              </tbody>
-            </table>
+          <table className="list-table" >
+            <thead className="ant-table-thead">
+              <tr><th ><span>完整 License</span></th>
+              <th ><span>最大节点数</span></th><th ><span>生效时间</span></th>
+              <th ><span>失效时间</span></th><th ><span>有效时长</span></th>
+              <th ><span>添加时间</span></th><th ><span>操作人</span></th></tr>
+            </thead>
+            <tbody className="ant-table-tbody">
+              {this.lincenseList(license.licenses)}
+              
+            </tbody>
+          </table>
         </Card>
       </div>
     )
