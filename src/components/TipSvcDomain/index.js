@@ -170,10 +170,10 @@ export default class TipSvcDomain extends Component {
   getIconHtml() {
     const { icon } = this.props
     if (icon === 'http') {
-      return (<svg className='http' ><use xlinkHref='#http' /></svg>)
+      return (<Tooltip title='非HTTPS模式'><svg className='http' ><use xlinkHref='#http' /></svg></Tooltip>)
     }
     else if (icon === 'https') {
-      return (<svg className='https' ><use xlinkHref='#https' /></svg>)
+      return (<Tooltip title='HTTPS模式'><svg className='https' ><use xlinkHref='#https' /></svg></Tooltip>)
     }
     else {
       return null
