@@ -10,15 +10,15 @@
 import React, { Component, PropTypes } from 'react'
 import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, Alert, Tooltip, } from 'antd'
 import QueueAnim from 'rc-queue-anim'
-import TweenOne from 'rc-tween-one';
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/clusterList.less'
 import ClusterTabList from './clusterTabList.js'
 import findIndex from 'lodash/findIndex'
 import NotificationHandler from '../../common/notification_handler'
+import { browserHistory } from 'react-router'
+import { ROLE_SYS_ADMIN } from '../../../constants'
 
-let TweenOneGroup = TweenOne.TweenOneGroup;
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
@@ -27,6 +27,14 @@ class ClusterList extends Component {
   constructor(props) {
     super(props);
     this.state = {
+    }
+  }
+
+  componentWillMount() {
+    const { loginUser } = this.props
+    const { role } = loginUser
+    if (role !== ROLE_SYS_ADMIN) {
+      browserHistory.push('/')
     }
   }
 
@@ -69,16 +77,18 @@ class ClusterList extends Component {
 ClusterList.propTypes = {
   intl: PropTypes.object.isRequired
 }
+
 function mapStateToProps(state, props) {
+  const { entities } = state
+  const { loginUser } = entities
   return {
+    loginUser: loginUser.info,
   }
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-  }
-}
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(ClusterList, {
+export default connect(mapStateToProps, {
+  //
+})(injectIntl(ClusterList, {
   withRef: true,
 }))
