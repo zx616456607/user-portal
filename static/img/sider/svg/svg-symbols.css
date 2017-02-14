@@ -166,3 +166,14 @@
 #sidernewlogo .st2{fill:#fff}
 
 #siderinfrastructureselected .st0{fill:#2db7f5}
+svg.https {
+    width: 25px;
+    height: 15px;
+    fill: #1ECD40;
+    vertical-align: middle;
+}
+svg.http {
+  width: 25px;
+  height: 15px;
+  vertical-align: middle;
+}
