@@ -926,8 +926,6 @@ let EditTenxFlowModal = React.createClass({
     } else {
       validOtherImage = getFieldProps('otherImage', { rules: [], initialValue: otherImageValue})
     }
-
-    console.log(config)
     getFieldProps('services', {
       initialValue: [0],
     });
