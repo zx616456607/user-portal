@@ -18,6 +18,7 @@ import { appNameCheck } from '../../../../../common/naming_validation'
 import DockerFileEditor from '../../../../Editor/DockerFile'
 import { updateTenxFlowState, getDockerfiles, setDockerfile, getAvailableImage } from '../../../../../actions/cicd_flow'
 import './style/EditTenxFlowModal.less'
+import findIndex from 'lodash/findIndex'
 import EnvComponent from './CreateEnvComponent.js'
 import ImageEnvComponent from './ImageEnvComponent.js'
 import CodeStoreListModal from './CodeStoreListModal.js'
@@ -27,7 +28,7 @@ const RadioGroup = Radio.Group;
 const createForm = Form.create;
 const FormItem = Form.Item;
 const Option = Select.Option;
-
+let index = 0
 const defaultOptions = {
   readOnly: false
 }
@@ -332,6 +333,39 @@ let EditTenxFlowModal = React.createClass({
       });
     }
   },
+  componentWillReceiveProps(nextProps){
+    if(this.state.isOnece) {
+      return
+    }
+    index++
+    if(index >=2) {
+      index = 0
+      return
+    }
+    this.setState({
+      isOnece: true
+    })
+    const config = nextProps.config
+    if(nextProps.otherImage.length <= 0 && config.spec.build.customRegistry) {
+       this.setState({
+         addOtherImage: true,
+         showOtherImage: false
+       })
+    }
+    if(config && config.spec.build) {
+      let otherImageValue = config.spec.build.customRegistry
+      if(otherImageValue) {
+        this.setState({
+          showOtherImage: true
+        })
+      } else {
+        this.setState({
+          showOtherImage: false
+        })
+      }
+
+    }
+  },
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
     const { stageList } = this.props.rootScope.props;
@@ -598,7 +632,8 @@ let EditTenxFlowModal = React.createClass({
     this.setState({
       currentType: 'view',
       emailAlert: false,
-      otherEmail: false
+      otherEmail: false,
+      isOnece: false
     });
     scope.cancelEditCard();
   },
@@ -812,6 +847,9 @@ let EditTenxFlowModal = React.createClass({
         }
         body.spec.build = imageBuildBody;
       }
+      this.setState({
+        isOnece: false
+      })
       let notification = new NotificationHandler()
       updateTenxFlowState(flowId, stageId, body, {
         success: {
@@ -844,8 +882,11 @@ let EditTenxFlowModal = React.createClass({
     });
   },
   getOtherImage() {
+    if(!this.props.otherImage ||  this.props.otherImage.length <= 0){
+      return []
+    }
     return this.props.otherImage.map(item => {
-      return <Option value={item.id}>{item.title}</Option>
+      return <Option key={item.id} value={item.id}>{item.title}</Option>
     })
   },
   addOtherImage(){
@@ -861,7 +902,8 @@ let EditTenxFlowModal = React.createClass({
       imageType: '1'
     })
     this.setState({
-      addOtherImage: false
+      addOtherImage: false,
+      showOtherImage: false
     })
   },
   validOtherImage(rule, value, callback){
@@ -910,10 +952,14 @@ let EditTenxFlowModal = React.createClass({
         <Option key={list.imageName}>{list.imageName}</Option>
       )
     })
-    let validOtherImage 
-    let otherImageValue
+    let validOtherImage
+    let otherImageValue = ''
     if(config && config.spec.build) {
       otherImageValue = config.spec.build.customRegistry
+      const index = findIndex(this.props.otherImage, item => {
+        return item.id == otherImageValue
+      })
+      if(index < 0) otherImageValue = ''
     }
     if (this.state.showOtherImage) {
       validOtherImage = getFieldProps('otherImage', {
