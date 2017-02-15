@@ -72,7 +72,7 @@ class EnterpriseApp extends Component {
     return '请联系管理员输入激活码以继续使用平台'
   }
   tipError() {
-    if (this.state.licenseDay <= 0) {
+    if (this.props.leftLicenseDays <= 0) {
       window.location.href ='/logout'
       return
     }
@@ -94,8 +94,11 @@ class EnterpriseApp extends Component {
 // For transfer redux props to App component
 function mapStateToProps(state, props) {
   const { loginUser } = state.entities
+  const defaultState = {leftLicenseDays: 7}
+  const { leftLicenseDays } = state.license.mergedLicense.result.data || defaultState
   return {
     loginUser: loginUser.info,
+    leftLicenseDays
   }
 }
 
