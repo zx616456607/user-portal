@@ -35,6 +35,7 @@ import { addPodWatch, removePodWatch } from '../../../containers/App/status'
 import TipSvcDomain from '../../TipSvcDomain'
 import { getServiceStatusByContainers } from '../../../common/status_identify'
 import { ANNOTATION_HTTPS } from '../../../../constants'
+import { camelize } from 'humps'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -471,8 +472,9 @@ function mapStateToProps(state, props) {
   targetContainers = targetContainers || defaultServices
 
   let k8sServiceData = {}
-  if (k8sService && k8sService.isFetching === false && k8sService.data && k8sService.data[serviceName]) {
-    k8sServiceData = k8sService.data[serviceName]
+  const camelizedSvcName = camelize(serviceName)
+  if (k8sService && k8sService.isFetching === false && k8sService.data && k8sService.data[camelizedSvcName]) {
+    k8sServiceData = k8sService.data[camelizedSvcName]
   }
 
   return {

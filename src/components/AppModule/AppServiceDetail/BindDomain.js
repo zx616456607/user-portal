@@ -18,6 +18,7 @@ import "./style/BindDomain.less"
 import { loadServiceDomain, serviceBindDomain, clearServiceDomain, deleteServiceDomain, loadServiceDetail, loadK8sService } from '../../../actions/services'
 import NotificationHandler from '../../../common/notification_handler'
 import { ANNOTATION_HTTPS } from '../../../../constants'
+import { camelize } from 'humps'
 
 const InputGroup = Input.Group
 const CName_Default_Message = '提示：添加域名后，CNAME地址会出现在这里'
@@ -336,8 +337,9 @@ function mapStateToProp(state, props) {
     serviceDetail,
     k8sService,
   } = state.services
-  if (k8sService && k8sService.isFetching === false && k8sService.data && k8sService.data[serviceName]) {
-    k8sServiceData = k8sService.data[serviceName]
+  const camelizedSvcName = camelize(serviceName)
+  if (k8sService && k8sService.isFetching === false && k8sService.data && k8sService.data[camelizedSvcName]) {
+    k8sServiceData = k8sService.data[camelizedSvcName]
   }
   let targetService
   if (serviceDetail[cluster] && serviceDetail[cluster][serviceName]) {
