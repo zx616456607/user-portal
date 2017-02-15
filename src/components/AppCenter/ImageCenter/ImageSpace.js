@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Alert, Icon, Tooltip, notification } from 'antd'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, Alert, Icon, Tooltip } from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -251,7 +251,8 @@ let NoBind = React.createClass({
   getInitialState() {
     return {
       username: '',
-      password: ''
+      password: '',
+      bindModalConfirmLoading: false,
     }
   },
   onChangeUsername(e) {
@@ -327,26 +328,43 @@ let NoBind = React.createClass({
     if(errorFlag) {
       return;
     }
+    this.setState({
+      bindModalConfirmLoading: true
+    });
     let body = {
       username: username,
       password: password
     }
+    let notification = new NotificationHandler()
     AppCenterBindUser(body, {
       success: {
         func: () => {
           scope.props.scope.setState({
             configured: true
           })
+          this.setState({
+            username: '',
+            password: '',
+            bindModalConfirmLoading: false,
+          });
+          scope.setState({
+            bindModalShow: false
+          });
+          notification.succes(`绑定账户 ${username} 成功`)
+        },
+        isAsync: true
+      },
+      failed: {
+        func: err => {
+          this.setState({
+            bindModalConfirmLoading: false,
+          });
+          const { message } = err
+          console.log(err)
+          notification.error(`绑定账户 ${username} 失败`, message.message || message)
         },
         isAsync: true
       }
-    });
-    this.setState({
-      username: '',
-      password: ''
-    });
-    scope.setState({
-      bindModalShow: false
     });
   },
   render() {
@@ -373,8 +391,13 @@ let NoBind = React.createClass({
         <span>时速云镜像Hub</span>
       </Button>
       <p className='alert'>目前您还没有关联时速云·公有云镜像</p>
-      <Modal className='liteBindCenterModal' title='关联时速云镜像Hub' visible={scope.state.bindModalShow}
-        onCancel={this.closeBindModal} onOk={this.submitBind}
+      <Modal
+        className='liteBindCenterModal'
+        title='关联时速云镜像Hub'
+        visible={scope.state.bindModalShow}
+        onCancel={this.closeBindModal}
+        onOk={this.submitBind}
+        confirmLoading={this.state.bindModalConfirmLoading}
       >
         <Alert message={[<span><Icon type='exclamation-circle' style={{ marginRight: '7px', color: '#2db7f5' }} /><span>关联时速云·公有云的镜像仓库，请填写时速云官网注册的用户名和密码</span></span>]} type="info" />
         <div className='inputBox'>
