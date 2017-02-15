@@ -234,8 +234,10 @@ exports.isTenxCloudHubConfigured = function* () {
   const tenxhubConfig = yield _getValidTenxCloudHub(loginUser)
   if (tenxhubConfig && tenxhubConfig.host) {
     this.status = 200
+    let globalConfigured = tenxhubConfig.globalConfigured || false
     this.body = {
-      configured: true
+      configured: true,
+      global: globalConfigured
     }
     return
   }
