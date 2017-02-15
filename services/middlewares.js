@@ -165,14 +165,14 @@ exports.verifyUser = function* (next) {
   result.tenxApi = loginUser.tenxApi
   result.cicdApi = loginUser.cicdApi
   // Private cloud need check users license
-  if (configIndex.running_mode === enterpriseMode) {
+  /*if (configIndex.running_mode === enterpriseMode) {
     const licenseObj = yield indexService.getLicense(loginUser)
     if (licenseObj.plain.code === -1) {
       const err = new Error(licenseObj.message)
       err.status = 403
       throw err
     }
-  }
+  }*/
   yield indexService.setUserCurrentConfigCookie.apply(this, [loginUser])
   // Delete sensitive information
   delete result.userID
