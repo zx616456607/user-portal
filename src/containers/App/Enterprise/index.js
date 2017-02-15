@@ -48,7 +48,7 @@ class EnterpriseApp extends Component {
           if (licenseStatus == 'NO_LICENSE' && parseInt(leftTrialDays) < 0) {
             outdated = true //show error and not allow login
             licenseDay = 0
-            loginModalVisible = true
+            window.location.href ='/logout'
           }
           self.setState({
             outdated,
@@ -72,10 +72,6 @@ class EnterpriseApp extends Component {
     return '请联系管理员输入激活码以继续使用平台'
   }
   tipError() {
-    if (this.props.leftLicenseDays <= 0) {
-      window.location.href ='/logout'
-      return
-    }
     if( this.state.outdated ) {
       return (
         <div id='topError'>
