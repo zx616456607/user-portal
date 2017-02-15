@@ -15,6 +15,7 @@ import { loadServiceDetail, loadK8sService, loadCertificates, updateCertificates
 import NotificationHandler from '../../../common/notification_handler'
 import './style/AppSettingsHttps.less'
 import { CERT_REGEX, PRIVATE_KEY_REGEX, ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_HTTPS } from '../../../../constants'
+import { camelize } from 'humps'
 
 const FormItem = Form.Item
 const createForm = Form.create
@@ -235,7 +236,6 @@ class AppSettingsHttps extends Component {
     return httpPorts.length !== 0
   }
   toggleHttps(typ) {
-    console.log('typ', typ)
     const opText = typ ? '开启' : '关闭'
     const status = typ ? 'on' : 'off'
     const {
@@ -461,6 +461,7 @@ AppSettingsHttps.propTypes = {
 function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
   const { serviceName } = props
+  const camelizeSvcName = camelize(props.serviceName)
   const {
     serviceDetail,
     k8sService,
@@ -476,8 +477,8 @@ function mapStateToProps(state, props) {
   if (k8sService && k8sService.isFetching === false) {
     getInitHttpsStatus = true
   }
-  if (k8sService && k8sService.isFetching === false && k8sService.data && k8sService.data[serviceName]) {
-    k8sServiceData = k8sService.data[serviceName]
+  if (k8sService && k8sService.isFetching === false && k8sService.data && k8sService.data[camelizeSvcName]) {
+    k8sServiceData = k8sService.data[camelizeSvcName]
   }
   let certificateExists = false
   let certificate = {}
