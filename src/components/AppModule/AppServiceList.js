@@ -341,15 +341,6 @@ const MyComponent = React.createClass({
         </Menu>
       );
       const svcDomain = parseServiceDomain(item, bindingDomains,bindingIPs)
-      let httpIcon = 'http'
-      for (let k8sService of k8sServiceList) {
-        if (item.metadata.name === k8sService.metadata.name) {
-          if (k8sService.metadata.annotations && k8sService.metadata.annotations[ANNOTATION_HTTPS] === 'true') {
-            httpIcon = 'https'
-          }
-          break
-        }
-      }
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -373,7 +364,7 @@ const MyComponent = React.createClass({
           </div>
           <div className="service commonData appSvcListDomain">
             <Tooltip title={svcDomain.length > 0 ? svcDomain[0] : ""}>
-              <TipSvcDomain svcDomain={svcDomain} parentNode="appSvcListDomain" icon={httpIcon} />
+              <TipSvcDomain svcDomain={svcDomain} parentNode="appSvcListDomain" icon={item.https === true ? 'https' : 'http'} />
             </Tooltip>
           </div>
           <div className="createTime commonData">
