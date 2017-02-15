@@ -95,10 +95,16 @@ class EnterpriseApp extends Component {
 function mapStateToProps(state, props) {
   const { loginUser } = state.entities
   const defaultState = {leftLicenseDays: 7}
-  const { leftLicenseDays } = state.license.mergedLicense.result.data || defaultState
+  let license
+  if(!state.license.mergedLicense.result) {
+    license = ''
+  } else {
+    license = state.license.mergedLicense.result.data
+  }
+  license = license || defaultState
   return {
     loginUser: loginUser.info,
-    leftLicenseDays
+    leftLicenseDays: license
   }
 }
 
