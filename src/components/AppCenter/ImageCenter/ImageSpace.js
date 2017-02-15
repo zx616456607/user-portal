@@ -419,7 +419,7 @@ class ImageSpace extends Component {
   }
   componentWillMount() {
     const { hubConfig } = this.props;
-    if(hubConfig) {    
+    if(hubConfig) {
       this.props.loadPrivateImageList(DEFAULT_REGISTRY);
     }
   }
@@ -509,7 +509,7 @@ class ImageSpace extends Component {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
     const scope = this;
-    const { imageList, server, imageInfo, hubConfig } = this.props
+    const { imageList, server, imageInfo, hubConfig, globalHubConfigured } = this.props
     return (
       <QueueAnim className="ImageSpace"
         type="right"
@@ -537,7 +537,7 @@ class ImageSpace extends Component {
                 <Input className="searchInput" size="large" placeholder="搜索" type="text" onChange={(e)=> this.setState({imageName: e.target.value})} onPressEnter={()=> this.searchImage()} />
                 <i className="fa fa-search" onClick={()=> this.searchImage()}></i>
               </span>
-              { !standardFlag ?
+              { !standardFlag && !globalHubConfigured ?
                 [
                 <Tooltip title='注销时速云Hub'>
                   <Button className='logoutBtn' size='large' type='ghost' onClick={this.showDeleteBindUser}>
@@ -626,18 +626,6 @@ function mapStateToProps(state, props) {
     space,
   }
 }
-
-// function mapDispatchToProps(dispatch) {
-//   return {
-//     loadPrivateImageList: (DEFAULT_REGISTRY) => {
-//       dispatch(loadPrivateImageList(DEFAULT_REGISTRY))
-//     },
-//     getImageDetailInfo :(obj, callback)=> {
-//       dispatch(getImageDetailInfo(obj, callback))
-//     },
-
-//   }
-// }
 
 export default connect(mapStateToProps, {
   loadPrivateImageList,

@@ -362,7 +362,8 @@ class ImageCenter extends Component {
       imageDetailModalShow: false,
       otherHead: {},
       otherImageHead: [],
-      configured: false
+      configured: false,
+      globalConfigured: false,
     }
   }
 
@@ -373,7 +374,8 @@ class ImageCenter extends Component {
       success: {
         func: (result) => {
           _this.setState({
-            configured: result.configured
+            configured: result.configured,
+            globalConfigured: result.global
           });
         },
         isAsync: true
@@ -423,14 +425,14 @@ class ImageCenter extends Component {
     const scope = this;
     const otherImageHead = this.state.otherImageHead || [];
     let ImageTabList = [];
-    let { configured } = this.state;
+    let { configured, globalConfigured } = this.state;
     if(standardFlag) {
-      ImageTabList.push(<TabPane tab='私有空间' key='1'><ImageSpace scope={scope} hubConfig={configured} /></TabPane>)
+      ImageTabList.push(<TabPane tab='私有空间' key='1'><ImageSpace scope={scope} hubConfig={configured} globalHubConfigured={globalConfigured} /></TabPane>)
       ImageTabList.push(<TabPane tab='公有空间' key='2'><PublicSpace scope={scope} /></TabPane>)
       ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} hubConfig={configured} /></TabPane>)
     } else {
       ImageTabList.push(<TabPane tab='公有空间' key='1'><PublicSpace scope={scope} /></TabPane>)
-      ImageTabList.push(<TabPane tab='私有空间' key='2'><ImageSpace scope={scope} hubConfig={configured} /></TabPane>)
+      ImageTabList.push(<TabPane tab='私有空间' key='2'><ImageSpace scope={scope} hubConfig={configured} globalHubConfigured={globalConfigured} /></TabPane>)
       ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} hubConfig={configured} /></TabPane>)
     }
     let tempImageList = otherImageHead.map((list, index) => {
