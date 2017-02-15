@@ -500,12 +500,11 @@ class ImageSpace extends Component {
   deleteBindUser() {
     //this function for unbind user from public cloud
     const { deleteAppCenterBindUser, scope } = this.props;
+    let notification = new NotificationHandler()
     deleteAppCenterBindUser({
       success: {
         func: () => {
-          notification['success']({
-            message: '注销成功'
-          });
+          notification.success('注销成功');
           scope.setState({
             configured: false
           })
