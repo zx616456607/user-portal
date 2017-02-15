@@ -323,7 +323,7 @@ let MyComponent = React.createClass({
                 </span> :
                 <Input {...getFieldProps(`volumePath${k}`, {
                   rules: [{ validator: self.dirExists.bind(self, k) }]
-                }) } className="urlInt" />
+                }) } className="urlInt" placeholder="输入容器目录"/>
             }
             <Select style={{width: '200px', display: self.props.storageType == 'rbd' ? 'inline-block' : 'none'}} className="imageTag" size="large" placeholder="请选择一个存储卷"
               {...getFieldProps(`volumeName${k}`) } >

@@ -37,6 +37,8 @@ function GetRegistryConfig(callback) {
       if (!registryLocalStorage || !registryLocalStorage.host) {
         logger.warn("No valid tenxcloud registry configured, should check the configuration in the database.")
       }
+      // It's a global configuration
+      registryLocalStorage.globalConfigured = true
       callback && callback(null, result.data)
     } else {
       registryLocalStorage = 'FAIL_TO_LOAD'
