@@ -398,6 +398,7 @@ let NoBind = React.createClass({
         onCancel={this.closeBindModal}
         onOk={this.submitBind}
         confirmLoading={this.state.bindModalConfirmLoading}
+        maskClosable={false}
       >
         <Alert message={[<span><Icon type='exclamation-circle' style={{ marginRight: '7px', color: '#2db7f5' }} /><span>关联时速云·公有云的镜像仓库，请填写时速云官网注册的用户名和密码</span></span>]} type="info" />
         <div className='inputBox'>
