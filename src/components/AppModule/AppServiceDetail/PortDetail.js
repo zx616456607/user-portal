@@ -19,6 +19,7 @@ import NotificationHandler from '../../../common/notification_handler.js'
 import findIndex from 'lodash/findIndex'
 import cloneDeep from 'lodash/cloneDeep'
 import { ANNOTATION_HTTPS } from '../../../../constants'
+import { camelize } from 'humps'
 let uuid=0
 let ob = {}
 let defaultPort = []
@@ -43,8 +44,8 @@ let MyComponent = React.createClass({
       success: {
         func: (res) => {
           let openPort = []
-          for(let i=0;i< res.data[serviceName].spec.ports.length; i++) {
-            allPort.push(res.data[serviceName].spec.ports[i])
+          for(let i=0;i< res.data[camelize(serviceName)].spec.ports.length; i++) {
+            allPort.push(res.data[camelize(serviceName)].spec.ports[i])
             openPort.push(false)
           }
           let cut = openPort.length
@@ -92,7 +93,7 @@ let MyComponent = React.createClass({
       success: {
         func: (res) => {
           let openPort = []
-          for(let i=0;i< res.data[serviceName].spec.ports.length; i++) {
+          for(let i=0;i< res.data[camelize(serviceName)].spec.ports.length; i++) {
             openPort.push(false)
           }
           let cut = openPort.length
@@ -167,10 +168,10 @@ let MyComponent = React.createClass({
     let keys = getFieldValue('keys')
     const port = getFieldValue(`port${keys[i]}`)
     let bindingPort = ''
-    if (k8sService.isFetching === false && k8sService.data && k8sService.data[serviceName] && k8sService.data[serviceName] && k8sService.data[serviceName].metadata.annotations) {
-      bindingPort = k8sService.data[serviceName].metadata.annotations.bindingPort || ''
+    if (k8sService.isFetching === false && k8sService.data && k8sService.data[camelize(serviceName)] && k8sService.data[camelize(serviceName)] && k8sService.data[camelize(serviceName)].metadata.annotations) {
+      bindingPort = k8sService.data[camelize(serviceName)].metadata.annotations.bindingPort || ''
     }
-    if (k8sService.data[serviceName].metadata.annotations[ANNOTATION_HTTPS] === 'true' && parseInt(port) === parseInt(bindingPort)) {
+    if (k8sService.data[camelize(serviceName)].metadata.annotations[ANNOTATION_HTTPS] === 'true' && parseInt(port) === parseInt(bindingPort)) {
       const notification = new NotificationHandler()
       notification.error('请先关闭HTTPS后再删除此端口')
       return
@@ -248,10 +249,10 @@ let MyComponent = React.createClass({
       const newProtocol = form.getFieldValue(`selectssl${keys[index]}`) ? form.getFieldValue(`selectssl${keys[index]}`) : form.getFieldValue(`ssl${keys[index]}`)
       const { k8sService, serviceName } = this.props
       let bindingPort = ''
-      if (k8sService.isFetching === false && k8sService.data && k8sService.data[serviceName] && k8sService.data[serviceName] && k8sService.data[serviceName].metadata.annotations) {
-        bindingPort = k8sService.data[serviceName].metadata.annotations.bindingPort || ''
+      if (k8sService.isFetching === false && k8sService.data && k8sService.data[camelize(serviceName)] && k8sService.data[camelize(serviceName)] && k8sService.data[camelize(serviceName)].metadata.annotations) {
+        bindingPort = k8sService.data[camelize(serviceName)].metadata.annotations.bindingPort || ''
       }
-      if (k8sService.data[serviceName].metadata.annotations[ANNOTATION_HTTPS] === 'true' && parseInt(modifyPort) === parseInt(bindingPort) && newProtocol.toUpperCase() !== 'HTTP') {
+      if (k8sService.data[camelize(serviceName)].metadata.annotations[ANNOTATION_HTTPS] === 'true' && parseInt(modifyPort) === parseInt(bindingPort) && newProtocol.toUpperCase() !== 'HTTP') {
         const notification = new NotificationHandler()
         notification.error('请先关闭HTTPS后再修改此端口协议')
         return
@@ -297,7 +298,7 @@ let MyComponent = React.createClass({
                   })
                     ob = {}
                     const keys = []
-                    for(let i=0;i< res.data[serviceName].spec.ports.length; i++) {
+                    for(let i=0;i< res.data[camelize(serviceName)].spec.ports.length; i++) {
                       keys.push(i + 1)
                     }
                     self.setState({

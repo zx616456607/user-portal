@@ -107,7 +107,7 @@ let UploadSslModal = React.createClass({
     })
     return (
       <Modal title={this.props.scope.state.certificateExists ? "更新证书" : "新建证书"} visible={parentScope.state.createModal} className="createSslModal"
-        onOk={()=> this.handsubmit()} onCancel={()=> this.restoreForm()} 
+        onOk={()=> this.handsubmit()} onCancel={()=> this.restoreForm()}
         okText={this.props.scope.state.certificateExists ? "更新" : "创建"}
         >
         <Form horizontal>
@@ -179,7 +179,7 @@ class AppSettingsHttps extends Component {
     }
     const hasHTTPPort = this.hasHTTPPort(k8sService)
     const hasBindingDomainForHttp = this.hasBindingDomainForHttp(k8sService, deployment)
-    this.setState({ 
+    this.setState({
       hasBindingDomainForHttp: hasBindingDomainForHttp,
       hasHTTPPort: hasHTTPPort,
       certificateExists: certificateExists,
@@ -295,7 +295,7 @@ class AppSettingsHttps extends Component {
             failed: {
               func: (err) => {/* do nothing, just catch the error */},
               isAsync: true
-            }            
+            }
           })
           new NotificationHandler().success('删除证书成功')
         },
@@ -346,20 +346,20 @@ class AppSettingsHttps extends Component {
           <div className="info commonBox">
             <div className="titleSpan">设置条件</div>
             <div className="setting">
-              <div className="commonTitle">是否已有http端口&nbsp;&nbsp;
+              <div className="commonTitle">是否已有 HTTP 端口&nbsp;&nbsp;
                 <Tooltip title="请在端口中添加"><Icon type="question-circle-o" /></Tooltip>
               </div>
               <div className="commonTitle">
                 {this.state.hasHTTPPort ?
-                <span className="linked"><Icon type="check-circle-o" style={{marginRight:'6px'}}/>已添加</span> : 
+                <span className="linked"><Icon type="check-circle-o" style={{marginRight:'6px'}}/>已添加</span> :
                 <span className="links" onClick={() => this.goLinks('#ports')}><Icon type="plus-circle-o" style={{ marginRight: '6px' }} />去添加</span>}
               </div>
-              <div className="commonTitle">是否在http端口绑定域名&nbsp;&nbsp;
+              <div className="commonTitle">是否在 HTTP 端口绑定域名&nbsp;&nbsp;
                 <Tooltip title="请在绑定域名中添加"><Icon type="question-circle-o" /></Tooltip>
               </div>
               <div className="commonTitle">
                 {this.state.hasBindingDomainForHttp ?
-                <span className="linked"><Icon type="check-circle-o" style={{marginRight:'6px'}}/>已绑定</span> : 
+                <span className="linked"><Icon type="check-circle-o" style={{marginRight:'6px'}}/>已绑定</span> :
                 <span className="links" onClick={() => this.goLinks('#binddomain')}><Icon type="link" style={{ marginRight: '6px' }} />去绑定</span>}
               </div>
               <div style={{ clear: 'both' }}></div>
@@ -374,7 +374,7 @@ class AppSettingsHttps extends Component {
               <div className="tabsBody">
                 <div className={this.state.tabsActive == 1 ? "tabs tabs-active" : 'tabs'}>
                   <Tooltip title={ (!hasHTTPPort || !hasBindingDomainForHttp) ? '请先满足上边的设置条件' : '' }><Button size="large" disabled={!hasHTTPPort || !hasBindingDomainForHttp} onClick={()=> this.setState({createModal: true})}><Icon type="plus" />{this.state.certificateExists ? '更新' : '新建'}</Button></Tooltip>
-                  {this.state.certificateExists ? 
+                  {this.state.certificateExists ?
                     [<div className="ant-table">
                       <table className="certificateTable">
                         <thead>
@@ -416,7 +416,7 @@ class AppSettingsHttps extends Component {
         <UploadSslModal scope={this} />
         {/* 证书详情 */}
         <Modal title="证书详情" visible={this.state.detailModal} className="createSslModal"
-        onCancel={()=> this.setState({detailModal: false})} 
+        onCancel={()=> this.setState({detailModal: false})}
         footer={<Button type="primary" onClick={()=> this.setState({detailModal: false})} >知道了</Button>}
         >
         <Form horizontal>
