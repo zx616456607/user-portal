@@ -27,18 +27,17 @@ let Admin = React.createClass({
     return {
       submitting: false,
       loginResult: {},
-      submitProps: {},
       intNameFocus: false,
       intPassFocus: false,
       intCheckFocus: false,
-      passWord: false,
     }
   },
 
 
   checkPass(rule, value, callback) {
+    const { validateFields } = this.props.form;
     if (!value) {
-      callback([new Error('请填写密码')])
+      callback()
       return
     }
     if (value.length < 6 || value.length > 16) {
@@ -49,14 +48,13 @@ let Admin = React.createClass({
       callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
       return
     }
+    if (value) {
+      validateFields(['rePassword'], { force: true });
+    }
     callback()
   },
   checkPass2(rule, value, callback) {
     const { getFieldValue } = this.props.form;
-    if (!value) {
-      callback([new Error('请再次填写密码')])
-      return
-    }
     if (value && value !== getFieldValue('password')) {
       callback('两次填写密码不一致！');
     } else {
@@ -71,7 +69,7 @@ let Admin = React.createClass({
   componentDidMount() {
     const _this = this
     setTimeout(function(){
-      document.getElementById('intName').focus()
+      document.getElementById('password').focus()
     }, 300)
   },
   handleSubmit(e) {
@@ -81,6 +79,7 @@ let Admin = React.createClass({
       if (!!error) {
         return
       }
+      _this.setState({submitting: true})
       _this.props.setAdminPassword({password: value.password}, {
         success: {
           func: () => {
@@ -108,6 +107,12 @@ let Admin = React.createClass({
         },
         failed: {
           func: (res) => {
+            _this.setState({
+              submitting: false,
+              loginResult: {
+                error: res.message || res.message.message
+              }
+            })
             new NotificationHandler().error('设置失败', res.message.message)
           }
         }
@@ -116,14 +121,16 @@ let Admin = React.createClass({
   },
   render() {
     const { getFieldProps } = this.props.form
-    const { submitting, loginResult, submitProps } = this.state
+    const { submitting, loginResult } = this.state
     const nameProps = getFieldProps('password', {
       rules: [
+        { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
       ],
     })
     const againProps = getFieldProps('rePassword', {
       rules: [
+        {required: true, whitespace: true, message: '请再次填写密码'},
         { validator: this.checkPass2 },
       ],
     })
@@ -131,7 +138,7 @@ let Admin = React.createClass({
     return (
       <div id="LoginBg">
         <Top/>
-        <div className="login" style={{width:350}}>
+        <div className="login">
           <div className="loginContent">
           <Row style={{ textAlign: 'center' }}>
             <span className='logoLink'>
@@ -151,7 +158,7 @@ let Admin = React.createClass({
               </FormItem>
               <FormItem>
                 <Input {...nameProps} type="password"
-                  id="intName" placeholder="首次登录，请设置密码" />
+                  placeholder="首次登录，请设置密码" />
               </FormItem>
               <FormItem>
                 <Input {...againProps} type="password" placeholder="确认密码" />
@@ -162,7 +169,6 @@ let Admin = React.createClass({
                   type="primary"
                   onClick={this.handleSubmit}
                   loading={submitting}
-                  {...submitProps}
                   className="subBtn">
                   {submitting ? '正在执行...' : '设置并登录'}
                 </Button>
