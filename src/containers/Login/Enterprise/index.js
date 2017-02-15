@@ -237,7 +237,10 @@ let Login = React.createClass({
               func: (res) => {
                 let outdated = false
                 const { licenseStatus, leftTrialDays } = res.data
-                if (licenseStatus == 'NO_LICENSE' && leftTrialDays <= 0) {
+                if (!res.data) {
+                  outdated = true //show error and not allow login
+                }
+                if (licenseStatus == 'NO_LICENSE' && parseInt(leftTrialDays) < 0) {
                   outdated = true //show error and not allow login
                 }
                 _this.setState({
