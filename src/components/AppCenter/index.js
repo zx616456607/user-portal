@@ -9,6 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, Alert } from 'antd'
+import TweenOne from 'rc-tween-one';
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -25,7 +26,6 @@ import NotificationHandler from '../../common/notification_handler'
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
 let standardFlag = (mode == standard ? true : false);
-
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
