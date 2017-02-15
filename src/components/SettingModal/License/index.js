@@ -26,7 +26,7 @@ let LicenseKey = React.createClass ({
       if (errors) {
         return
       }
-      parentScope.props.addLicense({rawlicense: values}, {
+      parentScope.props.addLicense({rawlicense: values.rePasswd}, {
         success:{
           func: () => {
             new NotificationHandler().success('添加激活成功')
@@ -97,10 +97,10 @@ class License extends Component {
         return 'warning'
     }
   }
-  copyLicenseCode() {
+  copyLicenseCode(index) {
     const scope = this;
     let code = document.getElementsByClassName("licenseMoreInput");
-    code[0].select();
+    code[index].select();
     document.execCommand("Copy", false);
     scope.setState({
       copySuccess: true
@@ -131,11 +131,11 @@ class License extends Component {
     const listRow = data.map((list, index)=> {
       return (
         <tr className="ant-table-row  ant-table-row-level-0" key={'list' + index}>
-          <td><Popover getTooltipContainer={()=> document.getElementById('License')} 
-            content={<div className="popLicense">{list.licenseUid}<Tooltip title={this.state.copySuccess ? '复制成功': '点击复制'}><a onClick={()=> this.copyLicenseCode()} onMouseLeave={()=> this.returnDefaultTooltip()}>&nbsp;<Icon type="copy" /></a></Tooltip></div>} title={null}>
-            <span>{list.licenseUid.substring(0,15)}
+          <td>
+            {list.licenseUid.substring(0,15)}
+            <Popover getTooltipContainer={()=> document.getElementById('License')} trigger="click"
+            content={<div className="popLicense">{list.licenseUid}<Tooltip title={this.state.copySuccess ? '复制成功': '点击复制'}><a onClick={()=> this.copyLicenseCode(index)} onMouseLeave={()=> this.returnDefaultTooltip()}>&nbsp;<Icon type="copy" /></a></Tooltip></div>} title={null}>
             <svg className='svgmore' onClick={this.showPop}><use xlinkHref='#more' /></svg>
-            </span>
             </Popover>
             <input style={{position: 'absolute',opacity:'0'}} className="licenseMoreInput" defaultValue={list.licenseUid} />
           </td>
@@ -178,7 +178,7 @@ class License extends Component {
               <LicenseKey scope={this} />
             :
             <div className="ant-col-20">
-              <Button type="primary" size="large" onClick={()=> this.setState({activeClick: true})}>立即授权</Button>
+              <Button type="primary" size="large" onClick={()=> this.setState({activeClick: true})} style={{marginRight:'40px'}}>立即授权</Button>
                {
                  license.licenses.length > 0 ? [ <Icon type="check-circle" className="success" />,' 已激活',<span className="dataKey">有效期至：{ formatDate(license.merged.end || '') } </span>]
                  : 
@@ -191,13 +191,13 @@ class License extends Component {
           <div className="list oneTips">
             <div>您可通过以下几种方式联系我们获取『激活码License』：</div>
             <div className="ant-col-20 oneTips">
-              ① 发送“ <span style={{color:'#24a7eb'}}>平台ID + 姓名 + 电话 + 公司名 </span>” 到 <span style={{color:'#24a7eb'}}>support@tenxcloud.com </span>我们将主动与您联系
+              ① 发送“ <span style={{color:'#24a7eb'}}>平台ID + 姓名 + 电话 + 公司名 </span>” 到 <span style={{color:'#24a7eb'}}>cloud-dream@tenxcloud.com </span>我们将主动与您联系
             </div>
             <div className="ant-col-20 oneTips">
               ② 如果平台可访问公网，右下角会出现工单小图标，可直接点击与我们取得联系，获取License
             </div>
             <div className="ant-col-20 oneTips">
-              ③ 访问时速云的公有云控制台：portal.tenxcloud.com（即将上线在线购买激活码 License功能
+              ③ 访问时速云的公有云控制台：portal.tenxcloud.com（即将上线在线购买激活码 License功能）
             </div>             
           </div>
         </Card>
