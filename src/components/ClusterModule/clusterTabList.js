@@ -186,13 +186,26 @@ const MyComponent = React.createClass({
             <span className='topSpan'>{diskFormat(item.memoryTotalKB)}</span>
             <span className='bottomSpan'>{memoryUsed(item.memoryTotalKB, memoryList, item.objectMeta.name) + '%'}</span>
           </div>
-          <div className='disk commonTitle'>
+          {/*<div className='disk commonTitle'>
             <span className='topSpan'>{'-'}</span>
             <span className='bottomSpan'>{'-'}</span>
-          </div>
+          </div>*/}
           <div className='schedule commonTitle'>
             <Switch className='switchBox' defaultChecked={item.schedulable} checkedChildren='开' unCheckedChildren='关' onChange={this.changeSchedulable.bind(root, item.objectMeta.name)}/>
-            <span className='scheduleSpan'>{item.schedulable ? '正常调度' : '闲置下线'}</span>
+            <span className='scheduleSpan'>
+              {
+                item.schedulable
+                ? '允许分配新容器'
+                : (
+                  <span>
+                    不允许分配新容器&nbsp;
+                    <Tooltip title={`正常运行的不受影响`}>
+                      <Icon type="question-circle-o" />
+                    </Tooltip>
+                  </span>
+                )
+              }
+            </span>
           </div>
           <div className='runningTime commonTitle'>
             <Tooltip title={calcuDate(item.objectMeta.creationTimestamp)}>
@@ -422,10 +435,17 @@ class clusterTabList extends Component {
                   <span>状态</span>
                 </div>
                 <div className='role commonTitle'>
-                  <span>节点角色</span>
+                  <span>节点角色</span>&nbsp;
+                  <Tooltip title={`主控节点是用来做系统调度管理集群的，同时也会作为计算节点提供资源；
+计算节点集群内承担计算资源提供的能力，未配置分布式存储的集群也会承担存储能力`}>
+                    <Icon type="question-circle-o" />
+                  </Tooltip>
                 </div>
                 <div className='container commonTitle'>
-                  <span>容器数</span>
+                  <span>容器数</span>&nbsp;
+                  <Tooltip title={`运行在当前主机节点上的容器数量（包括系统所需容器）`}>
+                    <Icon type="question-circle-o" />
+                  </Tooltip>
                 </div>
                 <div className='cpu commonTitle'>
                   <span>CPU</span>
@@ -433,11 +453,14 @@ class clusterTabList extends Component {
                 <div className='memory commonTitle'>
                   <span>内存</span>
                 </div>
-                <div className='disk commonTitle'>
+                {/*<div className='disk commonTitle'>
                   <span>硬盘</span>
-                </div>
+                </div>*/}
                 <div className='schedule commonTitle'>
-                  <span>调度状态</span>
+                  <span>调度状态</span>&nbsp;
+                  <Tooltip title={`调度状态开启的主机节点，将允许被分配新建的应用容器，未开启调度的已运行的之外不再允许新增调度容器`}>
+                    <Icon type="question-circle-o" />
+                  </Tooltip>
                 </div>
                 <div className='runningTime commonTitle'>
                   <span>进行时间</span>
@@ -453,7 +476,11 @@ class clusterTabList extends Component {
             </div>
           </Card>
           <Modal title='删除主机' className='deleteClusterNodeModal' visible={this.state.deleteNodeModal} onOk={this.deleteClusterNode} onCancel={this.closeDeleteModal}>
-            <span style={{ color: '#00a0ea' }}><Icon type='exclamation-circle-o' />&nbsp;&nbsp;&nbsp;确定要删除&nbsp;{this.state.deleteNodeName}&nbsp;主机节点？</span>
+            <div style={{ color: '#00a0ea', height: "50px" }}>
+              <Icon type='exclamation-circle-o' />
+              &nbsp;&nbsp;&nbsp;确定要删除&nbsp;{this.state.deleteNodeName}&nbsp;主机节点？
+            </div>
+            <div>注意：请保证其他开启调度状态的主机节点，剩余的配置足够运行所有应用的容器</div>
           </Modal>
           <Modal
             visible={this.state.TerminalLayoutModal}
