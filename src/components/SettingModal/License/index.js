@@ -125,8 +125,8 @@ class License extends Component {
     }, 500);
   }
   lincenseList(data) {
-    if (data.length ==0) {
-      return (<tr><td>not data</td></tr>)
+    if (!data || data.length == 0) {
+      return (<tr><td colSpan="7" className="text-center"><Icon type="frown" />&nbsp;暂无数据</td></tr>)
     }
     const listRow = data.map((list, index)=> {
       return (
