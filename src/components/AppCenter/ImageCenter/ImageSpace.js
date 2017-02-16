@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Alert, Icon, Tooltip, notification } from 'antd'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, Alert, Icon, Tooltip } from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -186,7 +186,7 @@ const MyComponent = React.createClass({
     }
     if (imageList.length === 0) {
       return (
-        <div style={{ lineHeight: '20px', height: '60px', paddingLeft: '30px' }}>您还没有私有镜像，去创建一个吧！</div>
+        <div style={{ lineHeight: '20px', height: '60px', paddingLeft: '30px' }}>您还没有私有镜像，去上传一个吧！</div>
       )
     }
     let items = imageList.map((item, index) => {
@@ -251,7 +251,8 @@ let NoBind = React.createClass({
   getInitialState() {
     return {
       username: '',
-      password: ''
+      password: '',
+      bindModalConfirmLoading: false,
     }
   },
   onChangeUsername(e) {
@@ -327,26 +328,43 @@ let NoBind = React.createClass({
     if(errorFlag) {
       return;
     }
+    this.setState({
+      bindModalConfirmLoading: true
+    });
     let body = {
       username: username,
       password: password
     }
+    let notification = new NotificationHandler()
     AppCenterBindUser(body, {
       success: {
         func: () => {
           scope.props.scope.setState({
             configured: true
           })
+          this.setState({
+            username: '',
+            password: '',
+            bindModalConfirmLoading: false,
+          });
+          scope.setState({
+            bindModalShow: false
+          });
+          notification.succes(`绑定账户 ${username} 成功`)
+        },
+        isAsync: true
+      },
+      failed: {
+        func: err => {
+          this.setState({
+            bindModalConfirmLoading: false,
+          });
+          const { message } = err
+          console.log(err)
+          notification.error(`绑定账户 ${username} 失败`, message.message || message)
         },
         isAsync: true
       }
-    });
-    this.setState({
-      username: '',
-      password: ''
-    });
-    scope.setState({
-      bindModalShow: false
     });
   },
   render() {
@@ -373,8 +391,14 @@ let NoBind = React.createClass({
         <span>时速云镜像Hub</span>
       </Button>
       <p className='alert'>目前您还没有关联时速云·公有云镜像</p>
-      <Modal className='liteBindCenterModal' title='关联时速云镜像Hub' visible={scope.state.bindModalShow}
-        onCancel={this.closeBindModal} onOk={this.submitBind}
+      <Modal
+        className='liteBindCenterModal'
+        title='关联时速云镜像Hub'
+        visible={scope.state.bindModalShow}
+        onCancel={this.closeBindModal}
+        onOk={this.submitBind}
+        confirmLoading={this.state.bindModalConfirmLoading}
+        maskClosable={false}
       >
         <Alert message={[<span><Icon type='exclamation-circle' style={{ marginRight: '7px', color: '#2db7f5' }} /><span>关联时速云·公有云的镜像仓库，请填写时速云官网注册的用户名和密码</span></span>]} type="info" />
         <div className='inputBox'>
@@ -419,7 +443,7 @@ class ImageSpace extends Component {
   }
   componentWillMount() {
     const { hubConfig } = this.props;
-    if(hubConfig) {    
+    if(hubConfig) {
       this.props.loadPrivateImageList(DEFAULT_REGISTRY);
     }
   }
@@ -476,12 +500,11 @@ class ImageSpace extends Component {
   deleteBindUser() {
     //this function for unbind user from public cloud
     const { deleteAppCenterBindUser, scope } = this.props;
+    let notification = new NotificationHandler()
     deleteAppCenterBindUser({
       success: {
         func: () => {
-          notification['success']({
-            message: '注销成功'
-          });
+          notification.success('注销成功');
           scope.setState({
             configured: false
           })
@@ -509,7 +532,7 @@ class ImageSpace extends Component {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
     const scope = this;
-    const { imageList, server, imageInfo, hubConfig } = this.props
+    const { imageList, server, imageInfo, hubConfig, globalHubConfigured } = this.props
     return (
       <QueueAnim className="ImageSpace"
         type="right"
@@ -537,7 +560,7 @@ class ImageSpace extends Component {
                 <Input className="searchInput" size="large" placeholder="搜索" type="text" onChange={(e)=> this.setState({imageName: e.target.value})} onPressEnter={()=> this.searchImage()} />
                 <i className="fa fa-search" onClick={()=> this.searchImage()}></i>
               </span>
-              { !standardFlag ?
+              { !standardFlag && !globalHubConfigured ?
                 [
                 <Tooltip title='注销时速云Hub'>
                   <Button className='logoutBtn' size='large' type='ghost' onClick={this.showDeleteBindUser}>
@@ -626,18 +649,6 @@ function mapStateToProps(state, props) {
     space,
   }
 }
-
-// function mapDispatchToProps(dispatch) {
-//   return {
-//     loadPrivateImageList: (DEFAULT_REGISTRY) => {
-//       dispatch(loadPrivateImageList(DEFAULT_REGISTRY))
-//     },
-//     getImageDetailInfo :(obj, callback)=> {
-//       dispatch(getImageDetailInfo(obj, callback))
-//     },
-
-//   }
-// }
 
 export default connect(mapStateToProps, {
   loadPrivateImageList,

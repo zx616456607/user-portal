@@ -96,7 +96,7 @@ const sessionOpts = {
   key: config.session_key,
   rolling: true,
   cookie: {
-    maxAge: 1000 * 60 * 720 // 720 minuts(half a day)
+    maxAge: 1000 * 60 * (process.env.SESSION_MAX_AGE || 720) // 720 minutes(half a day)
   }
 }
 

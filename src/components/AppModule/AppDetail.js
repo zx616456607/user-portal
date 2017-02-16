@@ -233,8 +233,7 @@ class AppDetail extends Component {
                     location={location}
                     key='AppServiceList'
                     onServicesChange={this.onServicesChange}
-                    appName={appName}
-                    k8sServiceList={app.k8sServices || []} />
+                    appName={appName} />
                 </TabPane>
                 {/*<TabPane tab='应用拓扑' key='#topology' >应用拓扑</TabPane>*/}
                 <TabPane tab='编排文件' key='#stack' >
@@ -285,7 +284,6 @@ function mapStateToProps(state, props) {
   const {
     appDetail
   } = state.apps
-  let targetServices
   const { app, isFetching } = appDetail || defaultApp
   return {
     cluster: cluster.clusterID,

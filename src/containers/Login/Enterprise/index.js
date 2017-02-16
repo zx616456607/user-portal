@@ -84,12 +84,17 @@ let Login = React.createClass({
         },
         failed: {
           func: (err) => {
-            var msg = err.message.message || err.message
+            let msg = err.message.message || err.message
+            let outdated = false
             if (err.statusCode == 401) {
               msg = "用户名或者密码错误"
             }
+            if (err.statusCode == 451) {
+               outdated = true //show error and not allow login
+            }
             self.setState({
               submitting: false,
+              outdated,
               loginResult: {
                 error: msg
               },
@@ -236,23 +241,20 @@ let Login = React.createClass({
             success: {
               func: (res) => {
                 let outdated = false
-                const { licenseStatus, leftTrialDays } = res.data
-                if (licenseStatus == 'NO_LICENSE' && leftTrialDays <= 0) {
+                if (!res.data) {
                   outdated = true //show error and not allow login
+                } else {
+                  const { licenseStatus, leftTrialDays } = res.data
+                  if (licenseStatus == 'NO_LICENSE' && parseInt(leftTrialDays) < 0) {
+                    outdated = true //show error and not allow login
+                  }
+                  if (licenseStatus == 'VALID' && parseInt(res.data.leftLicenseDays) < 0) {
+                    outdated = true //show error and not allow login
+                  }
                 }
                 _this.setState({
                   outdated
                 })
-                setTimeout(function(){
-                  const intName = _this.refs.intName.refs.input
-                  intName.focus()
-                  if (intName.value) {
-                    _this.setState({
-                      intNameFocus: true,
-                      intPassFocus: true
-                    })
-                  }
-                },500)
               }
             }
           })
@@ -260,6 +262,16 @@ let Login = React.createClass({
         isAsync: true
       }
     })
+    setTimeout(function(){
+      const intName = _this.refs.intName.refs.input
+      intName.focus()
+      if (intName.value) {
+        _this.setState({
+          intNameFocus: true,
+          intPassFocus: true
+        })
+      }
+    },500)
   },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form

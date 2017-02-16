@@ -35,6 +35,7 @@ import { addPodWatch, removePodWatch } from '../../../containers/App/status'
 import TipSvcDomain from '../../TipSvcDomain'
 import { getServiceStatusByContainers } from '../../../common/status_identify'
 import { ANNOTATION_HTTPS } from '../../../../constants'
+import { camelize } from 'humps'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -59,10 +60,13 @@ class AppServiceDetail extends Component {
     this.stopService = this.stopService.bind(this)
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
     this.openTerminalModal = this.openTerminalModal.bind(this)
+    this.onHttpsComponentSwitchChange = this.onHttpsComponentSwitchChange.bind(this)
+
     this.state = {
       activeTabKey: props.selectTab || DEFAULT_TAB,
       TerminalLayoutModal: false,
-      currentContainer: []
+      currentContainer: [],
+      httpIcon: 'http',
     }
   }
 
@@ -78,7 +82,22 @@ class AppServiceDetail extends Component {
     document.title = `${serviceName} 服务详情页 | 时速云`
     const query = {}
     loadServiceDetail(cluster, serviceName)
-    loadK8sService(cluster, serviceName)
+    loadK8sService(cluster, serviceName, {
+      success: {
+        func: (result) => {
+          const camelizedSvcName = camelize(serviceName)
+          let httpIcon = 'http'
+          if (result.data && result.data[camelizedSvcName] && result.data[camelizedSvcName].metadata
+            && result.data[camelizedSvcName].metadata.annotations && result.data[camelizedSvcName].metadata.annotations[ANNOTATION_HTTPS] === 'true') {
+            httpIcon = 'https'
+          }
+          this.setState({
+            httpIcon,
+          })
+        },
+        isAsync: true
+      }
+    })
     loadServiceContainerList(cluster, serviceName, null, {
       success: {
         func: (result) => {
@@ -205,7 +224,11 @@ class AppServiceDetail extends Component {
     }
     return false
   }
-
+  onHttpsComponentSwitchChange(status) {
+    this.setState({
+      httpIcon: status ? 'https' : 'http'
+    })
+  }
   render() {
     const parentScope = this
     const {
@@ -249,10 +272,6 @@ class AppServiceDetail extends Component {
         </div>
       )
     })
-    let httpIcon = 'http'
-    if (k8sService && k8sService.metadata && k8sService.metadata.annotations && k8sService.metadata.annotations[ANNOTATION_HTTPS] === 'true') {
-      httpIcon = 'https'
-    }
     return (
       <div id='AppServiceDetail'>
         <div className='titleBox'>
@@ -279,7 +298,7 @@ class AppServiceDetail extends Component {
               <div className='address'>
                 <span>地址：</span>
                 <div className='addressRight'>
-                  <TipSvcDomain svcDomain={svcDomain} parentNode='appSvcDetailDomain' icon={httpIcon}/>
+                  <TipSvcDomain svcDomain={svcDomain} parentNode='appSvcDetailDomain' icon={this.state.httpIcon}/>
                 </div>
               </div>
               <div>
@@ -378,6 +397,7 @@ class AppServiceDetail extends Component {
                   scope = {this}
                   serviceDetailmodalShow={serviceDetailmodalShow}
                   isCurrentTab={activeTabKey===httpsTabKey}
+                  onSwitchChange={this.onHttpsComponentSwitchChange}
                   />
               </TabPane>
               <TabPane tab='高可用' key='#livenessprobe'>
@@ -471,8 +491,9 @@ function mapStateToProps(state, props) {
   targetContainers = targetContainers || defaultServices
 
   let k8sServiceData = {}
-  if (k8sService && k8sService.isFetching === false && k8sService.data && k8sService.data[serviceName]) {
-    k8sServiceData = k8sService.data[serviceName]
+  const camelizedSvcName = camelize(serviceName)
+  if (k8sService && k8sService.isFetching === false && k8sService.data && k8sService.data[camelizedSvcName]) {
+    k8sServiceData = k8sService.data[camelizedSvcName]
   }
 
   return {

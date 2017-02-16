@@ -26,7 +26,6 @@
       padding: 20px 0;
       .ant-form-item {margin-bottom: 10px;}
       .success {color: #61BF63;}
-      i.anticon {margin-left: 40px;}
       .dataKey {
         padding:6px;
         color: @borderColor;
@@ -44,7 +43,12 @@
         font-size: 14px;
         color: #2e2e2e;
       }
-      .svgmore{width: 15px;height: 15px;fill: #666;margin-left:5px;vertical-align: middle;}
+      .svgmore{width: 15px;height: 15px;fill: #E5E5E5;margin-left:5px;vertical-align: middle;cursor: pointer;}
+      .svgmore.ant-popover-open {fill: #49b1e2}
+      .ant-table-row:hover {
+        .svgmore {fill: #c7c7c7;}
+        .svgmore.ant-popover-open {fill: #49b1e2}
+      }
     }
     .oneTips {
       padding-left: 20px;
