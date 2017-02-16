@@ -255,7 +255,6 @@ let Login = React.createClass({
                 _this.setState({
                   outdated
                 })
-                
               }
             }
           })

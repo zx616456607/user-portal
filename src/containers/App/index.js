@@ -22,7 +22,13 @@ import { isEmptyObject,formatDate} from '../../common/tools'
 import { updateContainerList, updateAppList } from '../../actions/app_manage'
 import { updateAppServicesList, updateServiceContainersList, updateServicesList } from '../../actions/services'
 import { handleOnMessage } from './status'
-import { SHOW_ERROR_PAGE_ACTION_TYPES, LOGIN_EXPIRED_MESSAGE, PAYMENT_REQUIRED_CODE, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
+import {
+  SHOW_ERROR_PAGE_ACTION_TYPES,
+  LOGIN_EXPIRED_MESSAGE,
+  PAYMENT_REQUIRED_CODE,
+  UPGRADE_EDITION_REQUIRED_CODE,
+  LICENSE_EXPRIED_CODE,
+} from '../../constants'
 import { ROLE_SYS_ADMIN } from '../../../constants'
 import errorHandler from './error_handler'
 import Intercom from 'react-intercom'
@@ -120,6 +126,12 @@ class App extends Component {
       })
       return
     }
+    // license 过期
+    if (statusCode === LICENSE_EXPRIED_CODE) {
+      notification.error('激活证书已过期，请在登录界面激活')
+      window.location.href = '/logout'
+      return
+    }
     if (pathname !== this.props.pathname) {
       resetErrorMessage()
     }
@@ -172,6 +184,12 @@ class App extends Component {
 
     // 升级版本
     if (statusCode === UPGRADE_EDITION_REQUIRED_CODE) {
+      resetErrorMessage()
+      return
+    }
+
+    // license 过期
+    if (statusCode === LICENSE_EXPRIED_CODE) {
       resetErrorMessage()
       return
     }
