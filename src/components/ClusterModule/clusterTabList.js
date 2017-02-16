@@ -463,7 +463,7 @@ class clusterTabList extends Component {
                   </Tooltip>
                 </div>
                 <div className='runningTime commonTitle'>
-                  <span>进行时间</span>
+                  <span>运行时间</span>
                 </div>
                 <div className='startTime commonTitle'>
                   <span>启动时间</span>
