@@ -481,40 +481,39 @@ class UserPay extends Component {
           </div>
           <div className="row">
             <span className="keys">充值方式</span>
-            ① 在线支付
-          </div>
-          <div className="againMore">
-            <div className="pay-row">
-              <div
-                className={payType == 'alipay' ? 'wrap-img selected' : 'wrap-img'}
-                onClick={() => this.changePayType('alipay')}>
-                <img src={alipay} />
-                <Icon type="check" />
-                <div className="triangle"></div> {/*no remove */}
-              </div>
-              <div
-                className={payType == 'wechat_pay' ? 'wrap-img selected' : 'wrap-img'}
-                onClick={() => this.changePayType('wechat_pay')}>
-                <img src={weixin} alt="" />
-                <Icon type="check" />
-                <div className="triangle"></div> {/*no remove */}
-              </div>
-              <Tooltip placement="right" title={`余额：¥ ${userBalance}`}>
+            <div className="againMore chargeMethod">
+              <div className="pay-row">
                 <div
-                  className={payType == 'user_balance' ? 'wrap-img selected' : 'wrap-img'}
-                  onClick={() => this.changePayType('user_balance')}>
-                  <img className='userBalanceImg' src={userBalancePNG} />
+                  className={payType == 'alipay' ? 'wrap-img selected' : 'wrap-img'}
+                  onClick={() => this.changePayType('alipay')}>
+                  <img src={alipay} />
                   <Icon type="check" />
                   <div className="triangle"></div> {/*no remove */}
                 </div>
-              </Tooltip>
+                <div
+                  className={payType == 'wechat_pay' ? 'wrap-img selected' : 'wrap-img'}
+                  onClick={() => this.changePayType('wechat_pay')}>
+                  <img src={weixin} alt="" />
+                  <Icon type="check" />
+                  <div className="triangle"></div> {/*no remove */}
+                </div>
+                <Tooltip placement="right" title={`余额：¥ ${userBalance}`}>
+                  <div
+                    className={payType == 'user_balance' ? 'wrap-img selected' : 'wrap-img'}
+                    onClick={() => this.changePayType('user_balance')}>
+                    <img className='userBalanceImg' src={userBalancePNG} />
+                    <Icon type="check" />
+                    <div className="triangle"></div> {/*no remove */}
+                  </div>
+                </Tooltip>
+              </div>
             </div>
           </div>
           <div className="row">
             <span className="keys">合计</span>
             <span className="amount"><span style={{ fontSize: '18px' }}>¥</span> {amount}</span>
           </div>
-          <div className="againMore">
+          <div className="againMore" style={{paddingLeft: '100px'}}>
             <div className="pay-row">
             </div>
             <div className="pay-row" style={{ marginTop: '20px' }}>
@@ -587,7 +586,7 @@ class UserPay extends Component {
             <span className="keys">充值方式</span>
             ① 在线支付
           </div>
-          <div className="againMore">
+          <div className="againMore paddingLeft">
             <div className="pay-row">
               <div
                 className={payType == 'alipay' ? 'wrap-img selected' : 'wrap-img'}
