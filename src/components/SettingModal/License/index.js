@@ -178,7 +178,7 @@ class License extends Component {
         </div>
       )
     }
-
+    
     return (
       <div id='License'>
         <div className="title">授权管理</div>
@@ -245,7 +245,8 @@ function mapStateToProps(state, props) {
     isFetching: false,
     result: { 'platformid':'test' }
   }
-  const { data } = state.license.licenses.result || {}
+  const defaultData = {data: {'licenses':[]}}
+  const { data } = state.license.licenses.result || defaultData
   const { isFetching, result} = state.license.platform || defaultState
   return {
     isFetching,
