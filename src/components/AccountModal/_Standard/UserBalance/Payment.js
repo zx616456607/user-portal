@@ -12,7 +12,7 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import { Icon, Input, Button, Modal, Row, Col, Spin, InputNumber, Tooltip, } from 'antd'
-import { MIN_PAY_AMOUNT, PAY_AMOUNT_STEP } from '../../../../constants'
+import { MIN_PAY_AMOUNT, MAX_PAY_AMOUNT, PAY_AMOUNT_STEP } from '../../../../constants'
 import { loadLoginUserDetail } from '../../../../actions/entities'
 import { loadUserTeamspaceList } from '../../../../actions/user'
 import { getWechatPayQrCode, getWechatPayOrder, getPayOrderStatus } from '../../../../actions/payments'
@@ -430,6 +430,7 @@ class UserPay extends Component {
 
   renderPayments() {
     const { hash, loginUser } = this.props
+    let notification = new NotificationHandler()
     let {
       payType,
       qrCode,
@@ -530,8 +531,7 @@ class UserPay extends Component {
           <li>温馨提示：</li>
           <li>1. 充值金额会在当天到帐。如遇问题，请点击右下角工单咨询。</li>
           <li>2. 您可以通过三种方式充值：微信充值、支付宝、银行转帐（线下汇款充值）。采用线下汇款方式到帐会有延迟，建议采用支付宝，微信支付。 </li>
-          <li>3. 累计充值金额满 ￥200 后可通过点击右下角工单申请发票，发票金额大于等于500元，免邮寄费用；低于500元需自付邮寄费，建议您根据发票金额合理申请发票。
-</li>
+          <li>3. 累计充值金额满 ￥200 后可通过点击右下角工单申请发票，发票金额大于等于500元，免邮寄费用；低于500元需自付邮寄费，建议您根据发票金额合理申请发票。</li>
         </ul>
         <div className="payDetail">
           <div className="row">
@@ -571,7 +571,11 @@ class UserPay extends Component {
                   defaultValue=''
                   step={PAY_AMOUNT_STEP}
                   min={MIN_PAY_AMOUNT}
+                  max={MAX_PAY_AMOUNT}
                   onChange={(value) => {
+                    if (value == MAX_PAY_AMOUNT) {
+                      notification.info(`充值最大限额为${MAX_PAY_AMOUNT / 10000}万元，更大金额建议您通过银行转账的方式进行充值`)
+                    }
                     this.setState({
                       amount: value
                     })

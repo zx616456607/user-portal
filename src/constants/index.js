@@ -42,6 +42,7 @@ export const MY_SPACE = {
 }
 export const MAX_LOGS_NUMBER = 500
 export const MIN_PAY_AMOUNT = (NODE_ENV === NODE_ENV_PROD ? 5 : 0.01)
+export const MAX_PAY_AMOUNT = 50000
 export const PAY_AMOUNT_STEP = (NODE_ENV === NODE_ENV_PROD ? 1 : 0.01)
 export const EMAIL_HASH = {
   'qq.com': 'http://mail.qq.com',
