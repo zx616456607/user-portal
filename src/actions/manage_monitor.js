@@ -77,6 +77,37 @@ export function getQueryLogList(cluster, instances, body, callback) {
   }
 }
 
+export const GET_SERVICE_QUERY_LOG_REQUEST = 'GET_SERVICE_QUERY_LOG_REQUEST'
+export const GET_SERVICE_QUERY_LOG_SUCCESS = 'GET_SERVICE_QUERY_LOG_SUCCESS'
+export const GET_SERVICE_QUERY_LOG_FAILURE = 'GET_SERVICE_QUERY_LOG_FAILURE'
+function fetchServiceQueryLogList(cluster, service, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_SERVICE_QUERY_LOG_REQUEST, GET_SERVICE_QUERY_LOG_SUCCESS, GET_SERVICE_QUERY_LOG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/getSearchLog`,
+      options: {
+        method: 'POST',
+        body: {
+          kind: 'service',
+          from: body.from,
+          size: body.size,
+          keyword: body.keyword,
+          date_start: body.date_start,
+          date_end: body.date_end,
+        }
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getServiceQueryLogList(cluster, instances, body, callback) {
+  return (dispatch) => {
+    return dispatch(fetchServiceQueryLogList(cluster, instances, body, callback))
+  }
+}
+
 export const GET_CLUSTER_OF_TEAM_FOR_LOG_REQUEST = 'GET_CLUSTER_OF_TEAM_FOR_LOG_REQUEST'
 export const GET_CLUSTER_OF_TEAM_FOR_LOG_SUCCESS = 'GET_CLUSTER_OF_TEAM_FOR_LOG_SUCCESS'
 export const GET_CLUSTER_OF_TEAM_FOR_LOG_FAILURE = 'GET_CLUSTER_OF_TEAM_FOR_LOG_FAILURE'
