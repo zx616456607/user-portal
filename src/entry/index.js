@@ -9,6 +9,7 @@
  */
 // Use babel-plugin-transform-runtime instend of babel-polyfill in .babelrc to reduce file size
 // import 'babel-polyfill'
+// import es6-promise for IE
 import { polyfill } from 'es6-promise'
 polyfill()
 
