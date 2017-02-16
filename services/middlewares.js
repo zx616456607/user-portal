@@ -46,6 +46,7 @@ exports.auth = function* (next) {
     let redirectUrl = '/login'
     let requestUrl = this.request.url
     if (requestUrl.indexOf(redirectUrl) < 0 && requestUrl !== '/') {
+      // @Todo remove redirect url hash
       redirectUrl += `?redirect=${requestUrl}`
     }
     switch (this.accepts('json', 'html', 'text')) {

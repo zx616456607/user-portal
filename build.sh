@@ -26,6 +26,20 @@ build_user_portal_backend() {
   echo "start build backtend files ..."
   outputPath="dist"
   tmp="user_portal_tmp"
+
+  # 如果在私有云，在构建之前删除只有在 standard 模式下用到的代码（支付宝、微信配置等）
+  if [ "${MODE}" = "enterprise" ] && [ "${CLEAN_ALL_FILES_FLAG}" = "true" ]; then
+      echo "***********************************"
+      echo "* will delete standard files      *"
+      echo "***********************************"
+      rm -rf 3rd_account/wechat
+      rm -rf configs/_standard
+      rm -rf controllers/_standard
+      rm -rf pay
+      rm -rf routes/_standard
+      rm -f store/qiniu_api.js
+  fi
+
   node_modules/.bin/webpack --config webpack.config.backend.js --progress
 
   # 如果在执行脚本时传递 '--clean=all' 参数，构建完成后会删除源文件
