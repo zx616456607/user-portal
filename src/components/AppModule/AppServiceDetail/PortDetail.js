@@ -295,7 +295,7 @@ let MyComponent = React.createClass({
                   func: (res) => {self.setState({
                     inPort: '1',
                     openPort: []
-                  })
+                    })
                     ob = {}
                     const keys = []
                     for(let i=0;i< res.data[camelize(serviceName)].spec.ports.length; i++) {
@@ -309,7 +309,7 @@ let MyComponent = React.createClass({
                       keys,
                       newKeys: []
                     })
-                    self.props.loadData()
+                    //self.props.loadData()
                   },
                   isAsync: true
                 },
@@ -486,23 +486,24 @@ let MyComponent = React.createClass({
                 initialValue: (disableHTTP ? 'TCP' : 'HTTP'),
                 onChange: (e) => self.newInputPort(k, e)
               })} style={{width:'80px'}}>
-              <Select.Option disabled={disableHTTP} key='HTTP'>HTTP</Select.Option>
               <Select.Option key="TCP">TCP</Select.Option>
+              <Select.Option disabled={disableHTTP} key='HTTP'>HTTP</Select.Option>
             </Select>
             </Form.Item>
           </div>
           <div className="commonData span3">
-            <Select  {...getFieldProps(`newserverPort${k}`, {
+            <Select style={{ width:'100px', display: getFieldProps(`newssl${k}`).value == 'HTTP' ? 'none' : 'inline-block'}}  {...getFieldProps(`newserverPort${k}`, {
                 rules: [{
                   required: true,
                   whitespace: true,
                 }],
                 onChange: (e) => self.newChangeType(e, k),
                 initialValue: '动态生成'
-              })} style={{width:'100px'}}>
+              })} >
               <Select.Option key="1">动态生成</Select.Option>
               <Select.Option key="2">指定端口</Select.Option>
             </Select>
+            <span style={{display: getFieldProps(`newssl${k}`).value == 'HTTP' ? 'inline-block' : 'none'}}>80</span>
             <Form.Item key={k} style={{width: '100px', float: 'right', marginRight: '70px'}}>
             <Input type='text' style={{width: '100px', marginLeft: '10px', display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {rules: [rules, {validator: this.checkInputPort}], initialValue: "80"})} />
             </Form.Item>
@@ -554,8 +555,8 @@ let MyComponent = React.createClass({
                 initialValue: target[1],
                 onChange: (e) => self.inputPort(index + 1, e)
                 })} >
-                <Select.Option disabled={disableHTTP} key="HTTP">HTTP</Select.Option>
                 <Select.Option key="TCP">TCP</Select.Option>
+                <Select.Option disabled={disableHTTP} key="HTTP">HTTP</Select.Option>
               </Select>
               :
               <span><Input type="hidden" {...getFieldProps(`ssl${index+1}`, {
@@ -568,16 +569,16 @@ let MyComponent = React.createClass({
 
             { this.state.openPort && this.state.openPort[index] ?
 
+              getFieldProps(`selectssl${index+1}`).value == 'HTTP' ? <span>80</span> :
               <Select defaultValue='动态生成' style={{width:'100px'}} onChange={(e)=> this.changeType(e, index + 1)}>
                 <Select.Option key="1">动态生成</Select.Option>
                 <Select.Option key="2">指定端口</Select.Option>
               </Select>
-
+              
               :
               <span><Input type="hidden" {...getFieldProps(`inputPort${index+1}`, {
                 initialValue: target[1].toLowerCase() == 'http' ? 80 : target[2]
               })}/>{target[1].toLowerCase() == 'http' ? 80 : target[2]}</span>
-
             }
             { this.state.openPort && this.state.openPort[index] && this.state.inPort =='2' ?
               <Form.Item style={{width: '100px', float: 'right', marginRight: '70px'}}>

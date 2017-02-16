@@ -248,6 +248,7 @@ class AppSettingsHttps extends Component {
           this.setState({
             httpsOpened: typ,
           })
+          this.props.onSwitchChange(typ)
           new NotificationHandler().success(`HTTPS${opText}成功`)
           this.setState({ statusText: opText })
         },

@@ -48,6 +48,9 @@ exports.addPort =  function (deployment, serviceList) {
         if (serviceList[i].metadata.annotations) {
           deployment.binding_domains = serviceList[i].metadata.annotations.binding_domains
           deployment.binding_port = serviceList[i].metadata.annotations.binding_port
+          if (serviceList[i].metadata.annotations[constants.ANNOTATION_HTTPS] === 'true') {
+            deployment.https = true
+          }
         }
       }
       serviceList[i].spec.ports.map((svcPort) => deployment.portForInternal.push(svcPort.port))
