@@ -144,7 +144,7 @@ class License extends Component {
           <td >{formatDate(list.end)}</td>
           <td >{( new Date(list.end).getTime() - new Date(list.start).getTime() ) /24/60/60/1000} 天</td>
           <td >{formatDate(list.addTime)}</td>
-          <td ></td>
+          <td >{list.addUser ? list.addUser :'未知'}</td>
         </tr>
       )
     })
@@ -191,7 +191,7 @@ class License extends Component {
           <div className="list oneTips">
             <div>您可通过以下几种方式联系我们获取『激活码License』：</div>
             <div className="ant-col-20 oneTips">
-              ① 发送“ <span style={{color:'#24a7eb'}}>平台ID + 姓名 + 电话 + 公司名 </span>” 到 <span style={{color:'#24a7eb'}}>cloud-dream@tenxcloud.com </span>我们将主动与您联系
+              ① 发送“ <span style={{color:'#24a7eb'}}>平台ID + 姓名 + 电话 + 公司名 </span>” 到 <span style={{color:'#24a7eb'}}>support@tenxcloud.com </span>我们将主动与您联系
             </div>
             <div className="ant-col-20 oneTips">
               ② 如果平台可访问公网，右下角会出现工单小图标，可直接点击与我们取得联系，获取License
