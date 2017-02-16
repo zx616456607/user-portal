@@ -30,7 +30,7 @@ exports.getImages = function* () {
 
   const result = yield registryService.getImages(registryUser, q)
   this.body = {
-    server: validConfig ? validConfig.v2Server : registryService.getOfficialTenxCloudHub().host,
+    server: validConfig ? validConfig.v2Server : registryService.getOfficialTenxCloudHub().v2Server,
     data: result
   }
 }
