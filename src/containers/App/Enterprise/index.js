@@ -61,7 +61,12 @@ class EnterpriseApp extends Component {
       }
     })
   }
-
+  trialday() {
+    let days = new Date(this.state.license.end).getTime() + (this.state.licenseDay +1) *24*60*60*1000
+    let times = formatDate(new Date(days))
+    times = times.substr(0,times.indexOf(' '))
+    return times + ' 00:00'
+  }
   checkTipsText() {
     if (!this.props.loginUser) return
     if (this.props.loginUser.role == ROLE_SYS_ADMIN) {
@@ -75,7 +80,7 @@ class EnterpriseApp extends Component {
     if( this.state.outdated ) {
       return (
         <div id='topError'>
-          {this.state.licenseTips}将于{this.state.licenseDay}天后（即{formatDate(this.state.license.end) }）过期，{this.checkTipsText()}
+          {this.state.licenseTips}将于{this.state.licenseDay}天后（即{ this.trialday()}）过期，{this.checkTipsText()}
         </div>
      )
    }

@@ -83,20 +83,28 @@ class License extends Component {
 
   componentWillMount() {
     document.title = '授权管理 | 时速云'
-    this.props.loadLicensePlatform()
-    this.props.loadLicenseList()
     const _this = this
-    setTimeout(function(){
-      _this.props.loadMergedLicense({
-        success: {
-          func: (res) => {
-            if (res.data) {
-              _this.setState({leftTrialDays: res.data.leftTrialDays})
-            }
+    this.props.loadLicensePlatform()
+    this.props.loadLicenseList({
+      success: {
+        func: (res)=> {
+          if (!res.data || res.data.licenses.length == 0) {
+            _this.props.loadMergedLicense({
+              success: {
+                func: (res) => {
+                  if (res.data) {
+                    _this.setState({leftTrialDays: res.data.leftTrialDays})
+                  }
+                }
+              }
+            })
+
           }
-        }
-      })
-    },500)
+        },
+        isAsync: true
+      }
+    })
+
   }
 
   getAlertType(code) {
@@ -178,7 +186,7 @@ class License extends Component {
         </div>
       )
     }
-    
+
     return (
       <div id='License'>
         <div className="title">授权管理</div>
@@ -245,8 +253,7 @@ function mapStateToProps(state, props) {
     isFetching: false,
     result: { 'platformid':'test' }
   }
-  const defaultData = {data: {'licenses':[]}}
-  const { data } = state.license.licenses.result || defaultData
+  const { data } = state.license.licenses.result || {}
   const { isFetching, result} = state.license.platform || defaultState
   return {
     isFetching,
