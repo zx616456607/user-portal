@@ -63,8 +63,10 @@ exports.checkLicense = function* () {
   } 
 
   let left_trial_days = 0
+  let trial_end_time = new Date()
   if (trial_info.data && trial_info.data.left_trial_days) {
     left_trial_days = trial_info.data.left_trial_days
+    trial_end_time = trial_info.data.trial_end_time
   }
 
   const result = {
@@ -74,6 +76,7 @@ exports.checkLicense = function* () {
       license_status,
       left_license_days,
       left_trial_days,
+      trial_end_time,
       end
     }
   }
