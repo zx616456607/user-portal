@@ -32,9 +32,8 @@ build_user_portal_backend() {
       echo "***********************************"
       echo "* will delete standard files      *"
       echo "***********************************"
-      rm -rf configs/_standard
       rm -rf 3rd_account/wechat
-      rm -rf controllers/_standard
+      rm -rf configs/_standard
       rm -rf controllers/_standard
       rm -rf pay
       rm -rf routes/_standard
