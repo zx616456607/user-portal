@@ -866,7 +866,7 @@ class QueryLog extends Component {
     let key_word = this.state.key_word;
     if (this.state.queryType) {
       if (key_word && key_word.length > 0) {
-        key_word = '*' + this.state.key_word.trim() + '*';
+        key_word = this.state.key_word.trim();
       }
     }
     let body = {
