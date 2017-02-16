@@ -258,20 +258,21 @@ let Login = React.createClass({
               }
             }
           })
+          setTimeout(function(){
+            const intName = _this.refs.intName.refs.input
+            intName.focus()
+            if (intName.value) {
+              _this.setState({
+                intNameFocus: true,
+                intPassFocus: true
+              })
+            }
+          },500)
         },
         isAsync: true
       }
     })
-    setTimeout(function(){
-      const intName = _this.refs.intName.refs.input
-      intName.focus()
-      if (intName.value) {
-        _this.setState({
-          intNameFocus: true,
-          intPassFocus: true
-        })
-      }
-    },500)
+    
   },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form

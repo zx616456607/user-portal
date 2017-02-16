@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import { Row, Col, Spin, Alert, Card, Tooltip, Popover, Icon, Button, Form, Input } from 'antd'
 import './style/License.less'
-import { loadLicenseList, loadLicensePlatform, addLicense } from '../../../actions/license'
+import { loadLicenseList, loadLicensePlatform, addLicense, loadMergedLicense} from '../../../actions/license'
 import { connect } from 'react-redux'
 import { formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../common/notification_handler'
@@ -76,14 +76,35 @@ class License extends Component {
     super(props)
     this.state = {
       copySuccess: false,
-      activeClick: false
+      activeClick: false,
+      leftTrialDays: 14
     }
   }
 
   componentWillMount() {
     document.title = '授权管理 | 时速云'
+    const _this = this
     this.props.loadLicensePlatform()
-    this.props.loadLicenseList()
+    this.props.loadLicenseList({
+      success: {
+        func: (res)=> {
+          if (!res.data || res.data.licenses.length == 0) {
+            _this.props.loadMergedLicense({
+              success: {
+                func: (res) => {
+                  if (res.data) {
+                    _this.setState({leftTrialDays: res.data.leftTrialDays})
+                  }
+                }
+              }
+            })
+
+          }
+        },
+        isAsync: true
+      }
+    })
+
   }
 
   getAlertType(code) {
@@ -150,6 +171,12 @@ class License extends Component {
     })
     return listRow
   }
+  triaDays() {
+    const nowDate = new Date()
+    let nowTime = formatDate(nowDate.getTime() + (parseInt(this.state.leftTrialDays) + 1) * 24*60*60*1000 )
+    nowTime = nowTime.substr(0, nowTime.indexOf(' '))
+    return nowTime + ' 00:00'
+  }
   render() {
     const { isFetching, license, platform} = this.props
     if (isFetching || !license) {
@@ -182,7 +209,7 @@ class License extends Component {
                {
                  license.licenses.length > 0 ? [ <Icon type="check-circle" className="success" />,' 已激活',<span className="dataKey">有效期至：{ formatDate(license.merged.end || '') } </span>]
                  : 
-                 [<Icon type="check-circle" />,' 未激活',<span className="dataKey">试用期至：{ formatDate(license.merged.end || '') } </span>] 
+                 [<Icon type="check-circle" className="success"/>,' 未激活',<span className="dataKey">试用期至：{ this.triaDays() } </span>] 
                }
             </div>
             }
@@ -238,5 +265,6 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   addLicense,
   loadLicenseList,
-  loadLicensePlatform
+  loadLicensePlatform,
+  loadMergedLicense
 })(License)
