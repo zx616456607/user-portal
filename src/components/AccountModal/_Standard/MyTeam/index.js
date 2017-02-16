@@ -28,6 +28,7 @@ import InviteNewMemberModal from '../../InviteNewMemberModal'
 import { parseAmount } from '../../../../common/tools'
 import moment from 'moment'
 import cloneDeep from 'lodash/cloneDeep'
+import { loadUserTeamspaceList } from '../../../../actions/user'
 
 //团队列表组件
 let TeamTable = React.createClass({
@@ -479,7 +480,7 @@ class MyTeam extends Component {
   }
   //创建团队
   teamOnSubmit(team) {
-    const { createTeamAndSpace, loadUserTeamList } = this.props
+    const { createTeamAndSpace, loadUserTeamList, loadUserTeamspaceList } = this.props
     const { pageSize, sort, filter } = this.state
     let notification = new NotificationHandler()
     notification.spin(`创建团队 ${team.teamName} 中...`)
@@ -500,6 +501,7 @@ class MyTeam extends Component {
             sort,
             filter,
           })
+          loadUserTeamspaceList('default', { size: 100 })
         },
         isAsync: true,
       },
@@ -626,4 +628,5 @@ export default connect(mapStateToProp, {
   quitTeam,
   dissolveTeam,
   getTeamDissoveable,
+  loadUserTeamspaceList,
 })(MyTeam)

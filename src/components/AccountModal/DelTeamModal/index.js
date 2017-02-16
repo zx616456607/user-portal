@@ -14,6 +14,10 @@ import { connect } from 'react-redux'
 import { getTeamDissoveable } from '../../../actions/team'
 import NotificationHandler from '../../../common/notification_handler'
 import { browserHistory } from 'react-router'
+import { MY_SPACE } from '../../../constants'
+import { loadUserTeamspaceList } from '../../../actions/user'
+import { loadTeamClustersList } from '../../../actions/team'
+import { setCurrent } from '../../../actions/entities'
 
 let balanceMessage = (
   <Row className="tip">
@@ -39,7 +43,7 @@ class DelTeamModal extends Component{
     }
   }
   handleOk() {
-    const { closeDelTeamModal, teamID, dissolveTeam, loadUserTeamList } = this.props
+    const { closeDelTeamModal, teamID, dissolveTeam, loadUserTeamList, current, setCurrent, loadUserTeamspaceList, loadTeamClustersList } = this.props
     let notification = new NotificationHandler()
     notification.spin(`解散团队中...`)
     dissolveTeam(teamID, {
@@ -47,8 +51,74 @@ class DelTeamModal extends Component{
         func: () => {
           notification.close()
           notification.spin(`解散团队成功...`)
-          browserHistory.push('/account/teams')
-          loadUserTeamList()
+
+          let namespace = "default"
+          let clusterID = ""
+          let team = { teamID: "default" }
+          let space = MY_SPACE
+          if (current && current.cluster && current.cluster.clusterID) {
+            clusterID = current.cluster.clusterID
+          }
+          if (teamID != current.space.teamID) { 
+            // other team was dissolved
+            if (current) {
+              if (current.space) {
+                space = current.space
+                if (current.space.namespace) {
+                  namespace = current.space.namespace
+                }
+              }
+              if (current.team) {
+                team = current.team
+              }
+            }
+          }
+
+          setCurrent({team,space}, {
+            success: {
+              func: () => {
+                loadUserTeamList('default')
+                browserHistory.push('/account/teams')
+                loadUserTeamspaceList('default', { size: 100 }, {
+                  success: {
+                    func: (resultT) => {
+                      let defaultSpace = MY_SPACE
+                      if (namespace != 'default') {
+                        defaultSpace = resultT.teamspaces[0] || {}
+                        resultT.teamspaces.map(space => {
+                          if (space.namespace === namespace) {
+                            defaultSpace = space
+                          }
+                        })
+                        setCurrent({
+                          space: defaultSpace
+                        })
+                      }
+                      loadTeamClustersList(defaultSpace.teamID, { size: 100 }, {
+                        success: {
+                          func: (resultC) => {
+                            if (!resultC.data) {
+                              resultC.data = []
+                            }
+                            let defaultCluster = resultC.data[0] || {}
+                            resultC.data.map(cluster => {
+                              if (cluster.clusterID === clusterID) {
+                                defaultCluster = cluster
+                              }
+                            })
+                            setCurrent({ cluster: defaultCluster })
+                          },
+                          isAsync: true
+                        }
+                      })
+                    },
+                    isAsync: true
+                  }
+                })
+              },
+              isAsync: true
+            }
+          })
         },
         isAsync: true,
       },
@@ -157,6 +227,7 @@ class DelTeamModal extends Component{
 function mapStateToProp(state, props) {
   const { teamDissoveable } = state.team
   let userName = state.entities.loginUser.info.userName
+  let current = state.entities.current
   let balance = true
   if(teamDissoveable.reslut) {
     if (teamDissoveable.reslut.data) {
@@ -165,10 +236,14 @@ function mapStateToProp(state, props) {
   }
   return {
     balance,
-    userName
+    userName,
+    current
   }
 }
 
 export default connect(mapStateToProp, {
   getTeamDissoveable,
+  loadUserTeamspaceList,
+  loadTeamClustersList,
+  setCurrent,
 })(DelTeamModal)
