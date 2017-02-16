@@ -77,7 +77,8 @@ class License extends Component {
     this.state = {
       copySuccess: false,
       activeClick: false,
-      leftTrialDays: 14
+      leftTrialDays: 14,
+      trialEndTime: false
     }
   }
 
@@ -93,7 +94,7 @@ class License extends Component {
               success: {
                 func: (res) => {
                   if (res.data) {
-                    _this.setState({leftTrialDays: res.data.leftTrialDays})
+                    _this.setState({leftTrialDays: res.data.leftTrialDays,trialEndTime: res.data.trialEndTime})
                   }
                 }
               }
@@ -171,12 +172,12 @@ class License extends Component {
     })
     return listRow
   }
-  triaDays() {
-    const nowDate = new Date()
-    let nowTime = formatDate(nowDate.getTime() + (parseInt(this.state.leftTrialDays) + 1) * 24*60*60*1000 )
-    nowTime = nowTime.substr(0, nowTime.indexOf(' '))
-    return nowTime + ' 00:00'
-  }
+  // triaDays() {
+  //   const nowDate = new Date()
+  //   let nowTime = formatDate(nowDate.getTime() + (parseInt(this.state.leftTrialDays) + 1) * 24*60*60*1000 )
+  //   nowTime = nowTime.substr(0, nowTime.indexOf(' '))
+  //   return nowTime + ' 00:00'
+  // }
   render() {
     const { isFetching, license, platform} = this.props
     if (isFetching || !license) {
@@ -209,7 +210,7 @@ class License extends Component {
                {
                  license.licenses.length > 0 ? [ <Icon type="check-circle" className="success" />,' 已激活',<span className="dataKey">有效期至：{ formatDate(license.merged.end || '') } </span>]
                  : 
-                 [<Icon type="check-circle" className="success"/>,' 未激活',<span className="dataKey">试用期至：{ this.triaDays() } </span>] 
+                 [<Icon type="check-circle" className="success"/>,' 未激活',<span className="dataKey">试用期至：{ formatDate(this.state.trialEndTime) } </span>] 
                }
             </div>
             }
