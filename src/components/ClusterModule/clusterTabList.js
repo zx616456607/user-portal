@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Switch, Tooltip, notification, } from 'antd'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Switch, Tooltip, } from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -108,7 +108,7 @@ const MyComponent = React.createClass({
       success: {
         func: ()=> {
           notification['success']({
-            message: e ? '打开调度成功' : '关闭调度成功',
+            message: e ? '打开调度成功' : '暂停调度成功',
           });
           nodeList.map((item) => {
             if(item.objectMeta.name == node) {
@@ -207,7 +207,7 @@ const MyComponent = React.createClass({
                 )
                 : (
                   <span>
-                    闲置下线&nbsp;
+                    暂停调度&nbsp;
                     <Tooltip title={`不允许分配新容器，正常运行的不受影响`}>
                       <Icon type="question-circle-o" />
                     </Tooltip>
@@ -461,8 +461,8 @@ class clusterTabList extends Component {
                 </div>
                 <div className='role commonTitle'>
                   <span>节点角色</span>&nbsp;
-                  <Tooltip title={`主控节点是用来做系统调度管理集群的，同时也会作为计算节点提供资源；
-计算节点集群内承担计算资源提供的能力，未配置分布式存储的集群也会承担存储能力`}>
+                  <Tooltip title={`主控节点：用来做系统调度管理集群，同时也会作为计算节点提供资源；
+计算节点：集群内承担计算资源提供的能力，未配置分布式存储的集群也会承担存储能力`}>
                     <Icon type="question-circle-o" />
                   </Tooltip>
                 </div>
@@ -483,7 +483,7 @@ class clusterTabList extends Component {
                 </div>*/}
                 <div className='schedule commonTitle'>
                   <span>调度状态</span>&nbsp;
-                  <Tooltip title={`调度状态开启的主机节点，将允许被分配新建的应用容器，未开启调度的已运行的之外不再允许新增调度容器`}>
+                  <Tooltip title={`调度状态开启的主机节点，将允许被分配新建的应用容器，未开启调度的节点，除已运行的容器之外不再允许新增调度容器`}>
                     <Icon type="question-circle-o" />
                   </Tooltip>
                 </div>
@@ -505,7 +505,7 @@ class clusterTabList extends Component {
               <Icon type='exclamation-circle-o' />
               &nbsp;&nbsp;&nbsp;确定要删除&nbsp;{deleteNode ? deleteNode.objectMeta.name : ''}&nbsp;主机节点？
             </div>
-            <div>注意：请保证其他开启调度状态的主机节点，剩余的配置足够运行所有应用的容器</div>
+            <div className="note">注意：请保证其他开启调度状态的主机节点，剩余的配置足够运行所有应用的容器</div>
           </Modal>
           <Modal
             visible={this.state.TerminalLayoutModal}
