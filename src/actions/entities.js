@@ -15,7 +15,7 @@ import { USER_CURRENT_CONFIG } from '../../constants'
 
 export const SET_CURRENT = 'SET_CURRENT'
 // Resets the currently visible error message.
-export function setCurrent(current) {
+export function setCurrent(current, callback) {
   const config = getCookie(USER_CURRENT_CONFIG)
   let [teamID, namespace, clusterID] = config.split(',')
   if (current.team) {
@@ -30,7 +30,8 @@ export function setCurrent(current) {
   setCookie(USER_CURRENT_CONFIG, `${teamID},${namespace},${clusterID}`)
   return {
     current,
-    type: SET_CURRENT
+    type: SET_CURRENT,
+    callback
   }
 }
 
