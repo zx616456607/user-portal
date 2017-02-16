@@ -208,11 +208,13 @@ let Login = React.createClass({
 
   componentDidMount() {
     const _this = this
-    setTimeout(function(){
-      const intName = _this.refs.intName.refs.input
+    const intName = this.refs.intName
+    setTimeout(() => {
+      if (!intName) return
+      const intName = intName.refs.input
       intName.focus()
       if (intName.value) {
-        _this.setState({
+        this.setState({
           intNameFocus: true,
           intPassFocus: true
         })
