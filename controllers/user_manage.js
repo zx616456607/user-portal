@@ -37,7 +37,7 @@ exports.getUserDetail = function* () {
     // For get loginUser info when user refresh page
     user.watchToken = loginUser.watchToken
     // Get config from config file and update session
-    serviceIndex.addConfigsForWS(user)
+    serviceIndex.addConfigsForFrontend(user)
     loginUser.tenxApi = user.tenxApi
     loginUser.cicdApi = user.cicdApi
     // Delete sensitive information
@@ -130,7 +130,7 @@ exports.getUserTeams = function* () {
     let result = yield api.users.getBy([loginUser.id])
 
     //Only team admin can get team related information
-    if (!result || !result.data || (result.data.role != ROLE_TEAM_ADMIN 
+    if (!result || !result.data || (result.data.role != ROLE_TEAM_ADMIN
         && result.data.role != ROLE_SYS_ADMIN)) {
         this.body = {
           teams: [],

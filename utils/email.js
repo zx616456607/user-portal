@@ -44,6 +44,10 @@ function sendEmail(transport, mailOptions) {
     mailOptions = transport
     transport = config.mail_server
   }
+  // Workaround for SMTP not configed(lite)
+  if (!transport.auth.pass) {
+    return Promise.resolve({skip: true})
+  }
   // Force to use this 'from' user if using sendEmail method
   mailOptions.from = config.mail_server.auth.user
   const smtpTransport = nodemailer.createTransport(transport)
