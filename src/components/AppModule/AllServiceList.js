@@ -1185,6 +1185,7 @@ class ServiceList extends Component {
               serviceList={serviceList}
               loading={isFetching}
               bindingDomains={this.props.bindingDomains}
+              bindingIPs={this.props.bindingIPs}
               k8sServiceList={this.state.k8sServiceList} />
           </Card>
           </div>
