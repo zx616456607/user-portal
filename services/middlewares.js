@@ -162,7 +162,7 @@ exports.verifyUser = function* (next) {
     balance: result.balance,
   }
   // Add config into user for frontend websocket
-  indexService.addConfigsForWS(loginUser)
+  indexService.addConfigsForFrontend(loginUser)
   result.tenxApi = loginUser.tenxApi
   result.cicdApi = loginUser.cicdApi
   // Private cloud need check users license
