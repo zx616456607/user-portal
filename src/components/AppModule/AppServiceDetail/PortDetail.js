@@ -20,6 +20,7 @@ import findIndex from 'lodash/findIndex'
 import cloneDeep from 'lodash/cloneDeep'
 import { ANNOTATION_HTTPS, PROXY_TYPE, SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 import { camelize } from 'humps'
+
 let uuid=0
 let ob = {}
 let defaultPort = []
@@ -46,7 +47,8 @@ let MyComponent = React.createClass({
   getInitialState() {
     const { currentCluster } = this.props
     return {
-      disableHTTP: isDomain(currentCluster.bindingDomains)
+      // kube-nodeport doesn't support HTTP for now
+      disableHTTP: !isDomain(currentCluster.bindingDomains) || (PROXY_TYPE == SERVICE_KUBE_NODE_PORT)
     }
   },
   propTypes: {
