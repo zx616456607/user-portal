@@ -429,13 +429,7 @@ class Storage extends Component {
   componentWillMount() {
     document.title = '存储 | 时速云'
     this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
-    const currentCluster = this.props.currentCluster
-    const storage_type = currentCluster.storageTypes
-    let canCreate = true
-    if(!storage_type || storage_type.indexOf('rbd') < 0) canCreate = false
-    this.setState({
-      canCreate
-    })
+
   }
   componentWillReceiveProps(nextProps) {
     let { currentCluster, loadStorageList, currentImagePool, cluster } = nextProps
@@ -659,6 +653,14 @@ class Storage extends Component {
   }
   render() {
     const { formatMessage } = this.props.intl
+    const currentCluster = this.props.currentCluster
+    const storage_type = currentCluster.storageTypes
+    let canCreate = true
+    let title = ''
+    if (!storage_type || storage_type.indexOf('rbd') < 0) canCreate = false
+    if (!canCreate) {
+      title = '尚未部署分布式存储，暂不能创建（如需帮助，请查看文档或通过右下角工单联系我们）'
+    }
     if (!this.props.currentCluster.resourcePrice) return <div></div>
     if (!this.props.storageList[this.props.currentImagePool]) return <div></div>
     const storagePrice = this.props.currentCluster.resourcePrice.storage /10000
@@ -677,9 +679,9 @@ class Storage extends Component {
         <div id="StorageList" key="StorageList">
           <div className="operationBox">
             <div className="leftBox">
-              <Button type="primary" size="large" disabled={!this.state.canCreate} onClick={this.showModal}>
+              <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>
                 <i className="fa fa-plus" /><FormattedMessage {...messages.createTitle} />
-              </Button>
+              </Button></Tooltip>
               <Button type="ghost" className="stopBtn" size="large" onClick={() => { this.setState({delModal: true}) } }
                 disabled={!this.state.volumeArray || this.state.volumeArray.length < 1}>
                 <i className="fa fa-trash-o" /><FormattedMessage {...messages.delete} />
@@ -780,7 +782,7 @@ class Storage extends Component {
               />
           </Card>
           :
-          <div className='text-center'><img src={noStorageImg} /><div>您还没有存储卷，创建一个吧！ <Button type="primary" size="large" disabled={!this.state.canCreate} onClick={this.showModal}>创建</Button></div></div>
+          <div className='text-center'><img src={noStorageImg} /><div>您还没有存储卷，创建一个吧！ <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>创建</Button></Tooltip></div></div>
           } 
         </div>
       </QueueAnim>
