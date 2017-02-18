@@ -429,11 +429,11 @@ class ImageCenter extends Component {
     if(standardFlag) {
       ImageTabList.push(<TabPane tab='私有空间' key='1'><ImageSpace scope={scope} hubConfig={configured} globalHubConfigured={globalConfigured} /></TabPane>)
       ImageTabList.push(<TabPane tab='公有空间' key='2'><PublicSpace scope={scope} /></TabPane>)
-      ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} hubConfig={configured} /></TabPane>)
+      ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} hubConfig={configured} globalHubConfigured={globalConfigured} /></TabPane>)
     } else {
       ImageTabList.push(<TabPane tab='公有空间' key='1'><PublicSpace scope={scope} /></TabPane>)
       ImageTabList.push(<TabPane tab='私有空间' key='2'><ImageSpace scope={scope} hubConfig={configured} globalHubConfigured={globalConfigured} /></TabPane>)
-      ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} hubConfig={configured} /></TabPane>)
+      ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} hubConfig={configured} globalHubConfigured={globalConfigured} /></TabPane>)
     }
     let tempImageList = otherImageHead.map((list, index) => {
       return (
