@@ -14,6 +14,7 @@ import moment from 'moment'
 import { AMOUNT_CONVERSION, AMOUNT_DEFAULT_PRECISION, DEFAULT_TIME_FORMAT } from '../../constants'
 import { STANDARD_MODE } from '../../configs/constants'
 import { mode } from '../../configs/model'
+import { PROXY_TYPE , SERVICE_KUBE_NODE_PORT } from '../../constants'
 
 const locale = window.appLocale.locale
 // Set moment internationalize
@@ -256,20 +257,24 @@ export function isStorageUsed(volumes) {
 /*
   *判断是否有域名
   *bindingDomain --- '' , '[]' , '[""]' , null , undefind
+  * is PROXY_TYPE
 */
 
 export function isDomain(bindingDomainStr) {
   let bindingDomain = ''
+  if (PROXY_TYPE == SERVICE_KUBE_NODE_PORT) {
+    return true
+  }
   try {
     bindingDomain = JSON.parse(bindingDomainStr)
   }
   catch (e) {
-    return false
+    return true
   }
   if (bindingDomain.length === 0 || bindingDomain[0] === '') {
-    return false
+    return true
   }
-  return true
+  return false
 }
 
 /**
