@@ -49,6 +49,7 @@ build_user_portal_backend() {
       cp ${outputPath}/app.js ${tmp}/app.js
       cp -rf static ${tmp}/
       cp index.html ${tmp}/index.html
+      cp package.json ${tmp}/package.json
       # rm all source files
       ls | grep -v ${tmp} | grep -v node_modules | xargs rm -rf
       mv ${tmp}/* ./
