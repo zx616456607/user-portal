@@ -477,11 +477,13 @@ let AppDeployServiceModal = React.createClass({
         let portType = getFieldProps(`portType${k}`).value;
         let newIndex = index + 1;
         // Fill in the service port info
+        let portNumber = getFieldProps(`portUrl${k}`).value;
         serviceList.addPort(
           serviceName + '-' + newIndex,
           getFieldProps(`portType${k}`).value.toUpperCase(),
           parseInt(getFieldProps(`targetPortUrl${k}`).value),
-          parseInt(getFieldProps(`targetPortUrl${k}`).value) // Use the same port as container port by default
+          parseInt(getFieldProps(`targetPortUrl${k}`).value), // Use the same port as container port by default
+          portNumber
         )
         if(portType == 'HTTP') {
           // Add port annotation in advance
@@ -493,8 +495,7 @@ let AppDeployServiceModal = React.createClass({
             serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType)
           } else if(tcpType == 'special') {
             // Add the port annotation
-            let portUrl = getFieldProps(`portUrl${k}`).value;
-            serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType, portUrl)
+            serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType, portNumber)
           } else {
             // undefined
             serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType)
@@ -697,7 +698,6 @@ let AppDeployServiceModal = React.createClass({
   handleSubBtn(e) {
     const parentScope = this.props.scope
     const { form } = this.props
-    const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     e.preventDefault()
     form.validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
