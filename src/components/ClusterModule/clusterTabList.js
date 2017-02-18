@@ -168,12 +168,17 @@ const MyComponent = React.createClass({
       );*/
       return (
         <div className='podDetail' key={`${item.objectMeta.name}-${index}`} >
-          {/*<div className='checkBox commonTitle'>
-            <Checkbox ></Checkbox>
-          </div>*/}
+          <div className='checkBox commonTitle'>
+            {/*<Checkbox ></Checkbox>*/}
+          </div>
           <div className='name commonTitle'>
             <Tooltip title={item.objectMeta.name}>
               <span>{item.objectMeta.name}</span>
+            </Tooltip>
+          </div>
+          <div className='address commonTitle'>
+            <Tooltip title={item.address}>
+              <span>{item.address}</span>
             </Tooltip>
           </div>
           <div className='status commonTitle'>
@@ -473,11 +478,14 @@ class clusterTabList extends Component {
             </div>
             <div className='dataBox'>
               <div className='titleBox'>
-                {/*<div className='checkBox commonTitle'>
-                  <Checkbox ></Checkbox>
-                </div>*/}
+                <div className='checkBox commonTitle'>
+                  {/*<Checkbox ></Checkbox>*/}
+                </div>
                 <div className='name commonTitle'>
                   <span>主机名称</span>
+                </div>
+                <div className='address commonTitle'>
+                  <span>IP 地址</span>
                 </div>
                 <div className='status commonTitle'>
                   <span>状态</span>
@@ -546,19 +554,25 @@ class clusterTabList extends Component {
             onOk={() => this.setState({addNodeModalVisible: false})}
             onCancel={() => this.setState({addNodeModalVisible: false})}>
             <div>
-              请在您的主机上执行以下命令
-              <pre>
-                {addNodeCMD ? addNodeCMD[camelize('default_command')] : <Spin />}&nbsp;&nbsp;
-                <Tooltip title={copyAddNodeSuccess ? '复制成功' : '点击复制'}>
-                  <a className={copyAddNodeSuccess ? "actions copyBtn" : "copyBtn"}
-                    onClick={this.copyAddNodeCMD}
-                    onMouseLeave={() => setTimeout(() => this.setState({copyAddNodeSuccess: false}), 500) }>
-                    <Icon type="copy" />
-                  </a>
-                </Tooltip>
-                <input id="addNodeCMDInput" style={{ position: "absolute", opacity: "0", top:'0'}} value={addNodeCMD && addNodeCMD[camelize('default_command')]} />
-              </pre>
-              提示：所添加的主机必须在同一内网。首先添加的主机将被设置为 Master，后续添加的主机将被设为 Node。添加主机前，建议先手动安装 Docker。
+              <div style={{paddingBottom: '15px'}}>
+                1. 先根据您的操作系统安装最新版本 Docker
+                （<a target="_blank" href="https://docs.docker.com/engine/installation/linux/">如何在Linux安装Docker</a>）
+              </div>
+              <div>
+                2. 请在安装好 Docker 的主机上执行以下命令：
+                <pre>
+                  {addNodeCMD ? addNodeCMD[camelize('default_command')] : <Spin />}&nbsp;&nbsp;
+                  <Tooltip title={copyAddNodeSuccess ? '复制成功' : '点击复制'}>
+                    <a className={copyAddNodeSuccess ? "actions copyBtn" : "copyBtn"}
+                      onClick={this.copyAddNodeCMD}
+                      onMouseLeave={() => setTimeout(() => this.setState({copyAddNodeSuccess: false}), 500) }>
+                      <Icon type="copy" />
+                    </a>
+                  </Tooltip>
+                  <input id="addNodeCMDInput" style={{ position: "absolute", opacity: "0", top:'0'}} value={addNodeCMD && addNodeCMD[camelize('default_command')]} />
+                </pre>
+                注意：新添加的主机需要与Master节点同一内网，可互通
+              </div>
             </div>
           </Modal>
         </div>
