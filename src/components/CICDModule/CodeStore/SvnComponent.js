@@ -111,9 +111,9 @@ let SvnComponent = React.createClass({
         "name": values.name,
         "repo_type": parentScope.repokey,
         "address": values.address,
-        "is_private": values.type ? 0 : 1
+        "is_private": self.state.privateType ? 0 : 1
       }
-      if (!values.type) {
+      if (!self.state.privateType) {
         config.username = values.username
         config.password = values.password
       }
@@ -190,7 +190,7 @@ let SvnComponent = React.createClass({
               </FormItem>
 
               <FormItem {...formItemLayout} label="类型 ：">
-                <Switch defaultChecked={true} {...forType } onChange={(e) => { this.setState({ privateType: e }) } } checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
+                <Switch checked={this.state.privateType}  onChange={(e) => { this.setState({ privateType: e }) } } checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
               </FormItem>
 
               {!this.state.privateType ?

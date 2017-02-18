@@ -228,16 +228,16 @@ class Ordinary extends Component{
     }
     if(size < 1024*1024){
       /*result = this.thousandBitSeparator((size/1024).toFixed(2))*/
-      result = this.thousandBitSeparator((size/1024).toFixed(0))
+      result = this.thousandBitSeparator(Math.floor(size/1024 *100) /100)
       return result + ' GB'
     }
     if(size < 1024*1024*1024){
       /*result = this.thousandBitSeparator((size/(1024*1024)).toFixed(2))*/
-      result = this.thousandBitSeparator((size/(1024*1024)).toFixed(0))
+      result = this.thousandBitSeparator(Math.floor(size/(1024*1024)*100) /100)
       return result + ' T'
     }
     /*result = this.thousandBitSeparator((size/(1024*1024*1024)).toFixed(2))*/
-    result = this.thousandBitSeparator((size/(1024*1024*1024)).toFixed(0))
+    result = this.thousandBitSeparator(Math.floor(size/(1024*1024*1024)*100) /100)
     return result + ' T'
   }
   closeNavModal() {

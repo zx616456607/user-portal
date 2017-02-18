@@ -49,3 +49,10 @@ exports.TENX_LOCAL_TIME_VOLUME = {
 exports.DEFAULT_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 exports.CERT_REGEX = /^-----BEGIN CERTIFICATE-----\n(.+\n)+-----END CERTIFICATE-----$/
 exports.PRIVATE_KEY_REGEX = /^-----BEGIN RSA PRIVATE KEY-----\n(.+\n)+-----END RSA PRIVATE KEY-----$/
+
+// Service proxy type
+exports.SERVICE_TENX_PROXY = 'tenx-proxy'
+exports.SERVICE_KUBE_NODE_PORT = 'kube-nodeport'
+exports.SERVICE_KUBE_EXTERNAL_IPS = 'kube-externalips'
+
+exports.PROXY_TYPE = process.env.PROXY_TYPE || 'tenx-proxy'

@@ -8,7 +8,8 @@
  * @author Zhangpc
  */
 'use strict'
-const constants = require('./constants');
+const constants = require('./constants')
+const globalConstants = require('../constants')
 
 const env = process.env
 
@@ -28,6 +29,7 @@ const config = {
     protocol: env.TENX_API_PROTOCOL || 'http',
     host: env.TENX_API_HOST || '192.168.1.103:48000'
   },
+  proxy_type: env.PROXY_TYPE || globalConstants.SERVICE_TENX_PROXY,
   mail_server: {
     host: "smtp.qq.com",
     port: 465,
