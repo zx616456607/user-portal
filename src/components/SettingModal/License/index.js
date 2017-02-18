@@ -180,6 +180,7 @@ class License extends Component {
   // }
   render() {
     const { isFetching, license, platform} = this.props
+    console.log('lissens', license)
     if (isFetching || !license) {
       return (
         <div className='loadingBox'>

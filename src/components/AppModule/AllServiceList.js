@@ -41,6 +41,7 @@ import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT } from '../../constants'
 import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
+import { PROXY_TYPE , SERVICE_KUBE_NODE_PORT } from '../../../constants'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -342,7 +343,7 @@ const MyComponent = React.createClass({
           <Menu.Item key="config">
             更改配置
           </Menu.Item>
-          <Menu.Item key="https">
+          <Menu.Item key="https" disabled={PROXY_TYPE == SERVICE_KUBE_NODE_PORT}>
             设置HTTPS
           </Menu.Item>
         </Menu>
