@@ -9,6 +9,13 @@
  */
 'use strict'
 
+// Set root dir to global
+global.__root__dirname = __dirname
+// Repalce native Promise by bluebird
+global.Promise = require('bluebird')
+// Disabled reject unauthorized
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 const fs = require('fs')
 const path = require('path')
 const koa = require('koa')
@@ -22,11 +29,6 @@ const logger = require('./utils/logger').getLogger('app')
 const app = koa()
 const terminal = require('./controllers/web_terminal')
 
-global.Promise = require('bluebird')
-// Disabled reject unauthorized
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-// Set root dir to global
-global.__root__dirname = __dirname
 /*
  * Koa middlewares
  */
