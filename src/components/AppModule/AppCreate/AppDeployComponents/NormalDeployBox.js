@@ -19,6 +19,8 @@ import { loadFreeVolume, createStorage } from '../../../../actions/storage'
 import "./style/NormalDeployBox.less"
 import NotificationHandler from '../../../../common/notification_handler'
 import { volNameCheck } from '../../../../common/naming_validation'
+import { ENTERPRISE_MODE } from '../../../../../configs/constants'
+import { mode } from '../../../../../configs/model'
 
 const Option = Select.Option;
 const OptGroup = Select.OptGroup;
@@ -544,6 +546,7 @@ let NormalDeployBox = React.createClass({
   },
   selectComposeType(type) {
     const parentScope = this.props.scope
+    if (type == parentScope.state.composeType) return
     parentScope.setState({
       composeType: type
     })
@@ -851,6 +854,8 @@ let NormalDeployBox = React.createClass({
                     <div className="bottomBox">
                       <span>512M&nbsp;内存</span><br />
                       <span>1CPU&nbsp;(共享)</span>
+                      <div className="triangle"></div>
+                      <Icon type="check" />
                     </div>
                   </Button>
                 </li>
@@ -862,6 +867,8 @@ let NormalDeployBox = React.createClass({
                     <div className="bottomBox">
                       <span>1GB&nbsp;内存</span><br />
                       <span>1CPU&nbsp;</span>
+                      <div className="triangle"></div>
+                      <Icon type="check" />
                     </div>
                   </Button>
                 </li>
@@ -873,6 +880,8 @@ let NormalDeployBox = React.createClass({
                     <div className="bottomBox">
                       <span>2GB&nbsp;内存</span><br />
                       <span>1CPU&nbsp;</span>
+                      <div className="triangle"></div>
+                      <Icon type="check" />
                     </div>
                   </Button>
                 </li>
@@ -884,6 +893,8 @@ let NormalDeployBox = React.createClass({
                     <div className="bottomBox">
                       <span>4GB&nbsp;内存</span><br />
                       <span>1CPU</span>
+                      <div className="triangle"></div>
+                      <Icon type="check" />
                     </div>
                   </Button>
                 </li>
@@ -895,10 +906,28 @@ let NormalDeployBox = React.createClass({
                     <div className="bottomBox">
                       <span>8GB&nbsp;内存</span><br />
                       <span>2CPU</span>
+                      <div className="triangle"></div>
+                      <Icon type="check" />
                     </div>
                   </Button>
                 </li>
-                <div style={{ clear: "both" }}></div>
+                {/* enterprise */}
+                {ENTERPRISE_MODE == mode ?
+                  <li className="composeDetail use">
+                    <div className={composeType == "use" ? "btn ant-btn-primary" : "btn ant-btn-ghost"} onClick={this.selectComposeType.bind(this, "use")}>
+                      <div className="topBox">
+                        自定义
+                    </div>
+                      <div className="bottomBox">
+                        <div className="useKey"><InputNumber step={100} min={100} max={65536}/>MB&nbsp;内存</div>
+                        <div className="useKey"><InputNumber step={1} min={1} max={16}/>CPU</div>
+                        <div className="triangle"></div>
+                        <Icon type="check" />
+                      </div>
+                    </div>
+                  </li>
+                  :null
+                }
               </ul>
               <div style={{ clear: "both" }}></div>
             </div>

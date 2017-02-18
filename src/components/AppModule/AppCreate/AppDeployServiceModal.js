@@ -698,7 +698,6 @@ let AppDeployServiceModal = React.createClass({
   handleSubBtn(e) {
     const parentScope = this.props.scope
     const { form } = this.props
-    const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     e.preventDefault()
     form.validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
