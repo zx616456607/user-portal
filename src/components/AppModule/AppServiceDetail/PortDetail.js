@@ -46,7 +46,7 @@ let MyComponent = React.createClass({
   getInitialState() {
     const { currentCluster } = this.props
     return {
-      disableHTTP: !isDomain(currentCluster.bindingDomains)
+      disableHTTP: isDomain(currentCluster.bindingDomains)
     }
   },
   propTypes: {

@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon, Modal, Popover } from 'antd'
+import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon, Modal, Popover, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import ContainerList from './AppContainerList'
@@ -36,6 +36,7 @@ import TipSvcDomain from '../../TipSvcDomain'
 import { getServiceStatusByContainers } from '../../../common/status_identify'
 import { ANNOTATION_HTTPS } from '../../../../constants'
 import { camelize } from 'humps'
+import { PROXY_TYPE , SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -185,6 +186,11 @@ class AppServiceDetail extends Component {
     if (activeTabKey === this.state.activeTabKey) {
       return
     }
+    if ( PROXY_TYPE == SERVICE_KUBE_NODE_PORT) {
+      if(activeTabKey == '#binddomain' || activeTabKey == '#https') {
+        return
+      }
+    }
     this.setState({
       activeTabKey
     })
@@ -246,6 +252,8 @@ class AppServiceDetail extends Component {
     } = this.props
     const { activeTabKey, currentContainer } = this.state
     const httpsTabKey = '#https'
+    const isKubeNode = (SERVICE_KUBE_NODE_PORT == PROXY_TYPE)
+   
     let nocache = currentContainer.map((item) => {
       return item.metadata.name;
     })
@@ -367,7 +375,7 @@ class AppServiceDetail extends Component {
                   cluster={service.cluster}
                   />
               </TabPane>
-              <TabPane tab='绑定域名' key='#binddomain'>
+              <TabPane tab={<Tooltip placement="right" title={isKubeNode ? '当前代理不支持绑定域名':''}><span>绑定域名</span></Tooltip>} disabled={isKubeNode} key='#binddomain'>
                 <BindDomain
                   cluster={service.cluster}
                   serviceName={service.metadata.name}
@@ -389,7 +397,7 @@ class AppServiceDetail extends Component {
                   isCurrentTab={activeTabKey==='#ports'}
                   />
               </TabPane>
-              <TabPane tab='设置 HTTPS' key={httpsTabKey}>
+              <TabPane tab={<Tooltip placement="right" title={isKubeNode ? '当前代理不支持设置 HTTPS': ''}><span>设置 HTTPS</span></Tooltip>} disabled={isKubeNode} key={httpsTabKey}>
                 <AppSettingsHttps
                   serviceName={service.metadata.name}
                   cluster={service.cluster}
