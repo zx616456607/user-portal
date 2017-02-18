@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import './style/ConfigModal.less'
 import { DEFAULT_CONTAINER_RESOURCES, DEFAULT_CONTAINER_RESOURCES_MEMORY } from '../../../../constants'
 import { changeQuotaService } from '../../../actions/services'
-import { getResourcesByMemory } from '../../../../kubernetes/utils'
+import { getResources } from '../../../../kubernetes/utils'
 import NotificationHandler from '../../../common/notification_handler'
 import { isStorageUsed } from '../../../common/tools'
 import { ENTERPRISE_MODE } from '../../../../configs/constants'
@@ -66,7 +66,7 @@ class ConfigModal extends Component {
     } = this.props
     const { composeType } = this.state
     const serviceName = service.metadata.name
-    const resources = getResourcesByMemory(composeType)
+    const resources = getResources(composeType)
     const { requests, limits } = resources
     let notification = new NotificationHandler()
     notification.spin(`服务 ${serviceName} 配置更改中...`)

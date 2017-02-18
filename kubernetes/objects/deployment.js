@@ -210,12 +210,12 @@ class Deployment {
     this.spec.template.spec.containers.push(container)
   }
 
-  setContainerResources(containerName, memory) {
+  setContainerResources(containerName, memory, cpu) {
     this.spec.template.spec.containers.map((container) => {
       if (container.name !== containerName) {
         return
       }
-      container.resources = utils.getResourcesByMemory(memory)
+      container.resources = utils.getResources(memory, cpu)
     })
   }
 

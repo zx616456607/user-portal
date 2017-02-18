@@ -18,7 +18,17 @@ import EnviroDeployBox from './AppDeployComponents/EnviroDeployBox'
 import "./style/AppDeployServiceModal.less"
 import { connect } from 'react-redux'
 import { parseAmount } from '../../../common/tools.js'
-import { CREATE_APP_ANNOTATIONS, DEFAULT_REGISTRY } from '../../../constants'
+import {
+  CREATE_APP_ANNOTATIONS,
+  DEFAULT_REGISTRY,
+  RESOURCES_MEMORY_MIN,
+  RESOURCES_CPU_MIN,
+  RESOURCES_DIY,
+} from '../../../constants'
+import { ENTERPRISE_MODE } from '../../../../configs/constants'
+import { mode } from '../../../../configs/model'
+
+const enterpriseFlag = ENTERPRISE_MODE == mode
 const DEFAULT_COMPOSE_TYPE = '2'
 const Deployment = require('../../../../kubernetes/objects/deployment')
 const Service = require('../../../../kubernetes/objects/service')
@@ -36,6 +46,8 @@ let AppDeployServiceModal = React.createClass({
   getInitialState: function () {
     return {
       composeType: DEFAULT_COMPOSE_TYPE,
+      DIYMemory: RESOURCES_MEMORY_MIN,
+      DIYCPU: RESOURCES_CPU_MIN,
       runningCode: "1",
       getImageType: "0",
       stateService: false,
@@ -61,6 +73,9 @@ let AppDeployServiceModal = React.createClass({
       case '8192Mi':
         return '32'
       default:
+        if (enterpriseFlag) {
+          return RESOURCES_DIY
+        }
         return '1'
     }
   },
@@ -306,9 +321,17 @@ let AppDeployServiceModal = React.createClass({
     }
     this.setEnv(env, form)
     this.setPorts(ports, ServicePorts, form, annotations)
-    this.setState({
+    const newState = {
       composeType: this.limits(),
-    })
+      DIYMemory: RESOURCES_MEMORY_MIN,
+      DIYCPU: RESOURCES_MEMORY_MIN,
+    }
+    if (newState.composeType === RESOURCES_DIY) {
+      const { memory, cpu } = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].resources.requests
+      newState.DIYMemory = memory
+      newState.DIYCPU = parseInt(parseInt(cpu) / 1000)
+    }
+    this.setState(newState)
   },
   componentWillMount() {
     noPortFlag = false;
@@ -333,6 +356,7 @@ let AppDeployServiceModal = React.createClass({
   submitNewService() {
     const parentScope = this.props.scope
     const scope = this.state;
+    const { DIYCPU, DIYMemory } = this.state
     const {getFieldValue, getFieldProps} = this.props.form
     let composeType = scope.composeType;
     let portKey = getFieldValue('portKey')
@@ -452,6 +476,20 @@ let AppDeployServiceModal = React.createClass({
             cal: '2C/8G'
           }
           return
+        case RESOURCES_DIY:
+          ImageConfig = {
+            resources: {
+              limits: {
+                memory: DIYMemory + 'Mi'
+              },
+              requests: {
+                memory: DIYMemory + 'Mi',
+                cpu: DIYCPU * 1000 + 'm'
+              }
+            },
+            cal: `${DIYCPU}C${(DIYMemory/1024).toFixed(1)}G`
+          }
+          return
         default:
           ImageConfig = {
             resources: {
@@ -470,7 +508,7 @@ let AppDeployServiceModal = React.createClass({
     /*Deployment*/
     deploymentList.setReplicas(instanceNum)
     deploymentList.addContainer(serviceName, image)
-    deploymentList.setContainerResources(serviceName, ImageConfig.resources.limits.memory)
+    deploymentList.setContainerResources(serviceName, ImageConfig.resources.requests.memory, ImageConfig.resources.requests.cpu)
     //ports
     if (Boolean(portKey) && portKey.length > 0) {
       getFieldValue('portKey').map((k, index) => {
