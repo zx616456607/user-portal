@@ -290,7 +290,7 @@ function fetchServiceDetailEvents(cluster, serviceName) {
     serviceName,
     [FETCH_API]: {
       types: [SERVICE_DETAIL_EVENTS_REQUEST, SERVICE_DETAIL_EVENTS_SUCCESS, SERVICE_DETAIL_EVENTS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/replicaset/${serviceName}/events`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/events`,
       schema: {}
     }
   }
