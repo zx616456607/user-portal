@@ -10,8 +10,35 @@
 
 import * as ActionTypes from '../actions/license'
 import reducerFactory from './factory'
+import merge from 'lodash/merge'
 
 const options = { overwrite: true }
+
+function licenseList(state ={}, action) {
+  const defaultState = {
+    isFetching: false
+  }
+  switch (action.type) {
+    case ActionTypes.LICENSE_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.LICENSE_LIST_SUCCESS: {
+      let list = action.response.result
+      list.data.licenses.reverse()
+      return Object.assign({}, state, {
+        isFetching: false,
+        result: list
+      })
+    }
+    case ActionTypes.LICENSE_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
 
 export default function license(state = {
   licenses: {},
@@ -19,11 +46,7 @@ export default function license(state = {
   platform: {}
 }, action) {
   return {
-    licenses: reducerFactory({
-      REQUEST: ActionTypes.LICENSE_LIST_REQUEST,
-      SUCCESS: ActionTypes.LICENSE_LIST_SUCCESS,
-      FAILURE: ActionTypes.LICENSE_LIST_FAILURE
-    }, state.licenses, action, options),
+    licenses: licenseList(state.licenses, action),
     mergedLicense: reducerFactory({
       REQUEST: ActionTypes.LICENSE_MERGED_REQUEST,
       SUCCESS: ActionTypes.LICENSE_MERGED_SUCCESS,

@@ -439,7 +439,7 @@ class MemberManage extends Component {
     const { visible, memberList } = this.state
     const searchIntOption = {
       addBefore: [
-        { key: 'name', value: '用户名' },
+        { key: 'name', value: '成员名' },
         { key: 'tel', value: '手机号' },
         { key: 'email', value: '邮箱' },
       ],

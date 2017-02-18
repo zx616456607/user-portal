@@ -16,6 +16,7 @@ import $ from 'jquery'
 import "./style/EnviroDeployBox.less"
 import { appEnvCheck } from '../../../../common/naming_validation'
 import { isDomain } from '../../../../common/tools'
+import { PROXY_TYPE, SERVICE_KUBE_NODE_PORT } from '../../../../../constants'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -44,6 +45,21 @@ function currentShowTcpInputType(form, index) {
     return true;
   } else {
     return false;
+  }
+}
+
+function validatePortNumber(portNumber) {
+  let minimumPort = 10000
+  let maximumPort = 65535
+  if (PROXY_TYPE == SERVICE_KUBE_NODE_PORT) {
+    // TODO: Make it configurealbe
+    minimumPort = 30000
+    maximumPort = 32766
+  }
+  if( portNumber < minimumPort || portNumber > maximumPort ) {
+    return '指定端口号范围' +  minimumPort + ' ~ ' + maximumPort
+  } else {
+    return
   }
 }
 
@@ -207,7 +223,8 @@ let MyComponentPort = React.createClass({
         })
         return
       } else {
-        if(value <= 0 || value > 65535) {
+        // Container port
+        if (value <= 0 || value > 65535) {
           callback([new Error('指定端口号范围0 ~ 65535')])
           return;
         }
@@ -246,8 +263,9 @@ let MyComponentPort = React.createClass({
       return;
     } else {
       let tempPort  = parseInt(value);
-      if( tempPort < 10000 || tempPort > 65535 ) {
-        callback([new Error('指定端口号范围10000 ~ 65535')])
+      let msg = validatePortNumber(tempPort)
+      if (msg) {
+        callback([new Error(msg)])
         return;
       } else {
         callback();

@@ -41,6 +41,7 @@ import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/
 import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
+import { PROXY_TYPE , SERVICE_KUBE_NODE_PORT } from '../../../constants'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -335,7 +336,7 @@ const MyComponent = React.createClass({
           <Menu.Item key="config">
             更改配置
           </Menu.Item>
-          <Menu.Item key="https">
+          <Menu.Item key="https" disabled={ PROXY_TYPE == SERVICE_KUBE_NODE_PORT }>
             设置HTTPS
           </Menu.Item>
         </Menu>
@@ -1183,7 +1184,7 @@ AppServiceList.propTypes = {
   pathname: PropTypes.string.isRequired,
   page: PropTypes.number.isRequired,
   size: PropTypes.number.isRequired,
-  total: PropTypes.number.isRequired,
+  // total: PropTypes.number.isRequired,
   onServicesChange: PropTypes.func.isRequired, // For change app status when service list change
 }
 

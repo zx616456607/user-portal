@@ -9,6 +9,13 @@
  */
 'use strict'
 
+// Set root dir to global
+global.__root__dirname = __dirname
+// Repalce native Promise by bluebird
+global.Promise = require('bluebird')
+// Disabled reject unauthorized
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 const fs = require('fs')
 const path = require('path')
 const koa = require('koa')
@@ -16,16 +23,12 @@ const Router = require('koa-router')
 const c2k = require('koa-connect')
 const config = require('./configs')
 const constants = require('./configs/constants')
+const globalConstants = require('./constants')
 const middlewares = require('./services/middlewares')
 const logger = require('./utils/logger').getLogger('app')
 const app = koa()
 const terminal = require('./controllers/web_terminal')
 
-global.Promise = require('bluebird')
-// Disabled reject unauthorized
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-// Set root dir to global
-global.__root__dirname = __dirname
 /*
  * Koa middlewares
  */
@@ -279,6 +282,7 @@ app.use(function* (next){
 
 logger.info(`Node env in '${config.node_env}'`)
 logger.info(`Server started in '${config.running_mode}' running mode`)
+logger.info(`Using proxy ${globalConstants.PROXY_TYPE}`)
 // Create server
 let server
 if (config.protocol !== 'https') {
