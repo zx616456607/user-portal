@@ -16,6 +16,7 @@ const Router = require('koa-router')
 const c2k = require('koa-connect')
 const config = require('./configs')
 const constants = require('./configs/constants')
+const globalConstants = require('./constants')
 const middlewares = require('./services/middlewares')
 const logger = require('./utils/logger').getLogger('app')
 const app = koa()
@@ -275,6 +276,7 @@ app.use(function* (next){
 
 logger.info(`Node env in '${config.node_env}'`)
 logger.info(`Server started in '${config.running_mode}' running mode`)
+logger.info(`Using proxy ${globalConstants.PROXY_TYPE}`)
 // Create server
 let server
 if (config.protocol !== 'https') {

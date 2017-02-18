@@ -24,6 +24,7 @@ class Service {
       }
     }
     this.spec = {
+      type: '',
       ports: [],
       selector: {
         name
@@ -68,6 +69,11 @@ class Service {
       }
       if (k8sService.spec.externalIPs) {
         this.spec.externalIPs = k8sService.spec.externalIPs
+      }
+      if (constants.PROXY_TYPE == constants.SERVICE_KUBE_NODE_PORT) {
+        if (k8sService.spec.type) {
+          this.spec.type = k8sService.spec.type
+        }
       }
     }
   }
