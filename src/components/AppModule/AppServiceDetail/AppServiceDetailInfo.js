@@ -12,9 +12,22 @@ import { Card, Spin } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppServiceDetailInfo.less'
 import { formatDate } from '../../../common/tools'
+import { ENTERPRISE_MODE } from '../../../../configs/constants'
+import { mode } from '../../../../configs/model'
 
-function cpuFormat(memory) {
+const enterpriseFlag = ENTERPRISE_MODE == mode
+
+function cpuFormat(memory, resources) {
   //this function for format cpu
+  let cpu = resources.requests.cpu
+  if (enterpriseFlag && cpu) {
+    if (cpu.indexOf('m') < 0) {
+      cpu *= 1000
+    } else {
+      cpu = parseInt(cpu)
+    }
+    return `${Math.ceil((cpu / 1024) * 10) / 10}CPU`
+  }
   if(Boolean(memory)) {
     let newMemory = parseInt(memory.replace('Mi','').replace('Gi'))
     switch(newMemory) {
@@ -121,7 +134,7 @@ export default class AppServiceDetailInfo extends Component {
           </div>
           <div className="dataBox">
             <div className="commonTitle">
-              { cpuFormat(serviceDetail.spec.template.spec.containers[0].resources.requests.memory) || '-'}
+              { cpuFormat(serviceDetail.spec.template.spec.containers[0].resources.requests.memory, serviceDetail.spec.template.spec.containers[0].resources) || '-'}
             </div>
             <div className="commonTitle">
               {serviceDetail.spec.template.spec.containers[0].resources.requests.memory.replace('i', '') || '-'}

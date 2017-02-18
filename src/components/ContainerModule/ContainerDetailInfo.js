@@ -13,11 +13,22 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/ContainerDetailInfo.less"
+
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
+const enterpriseFlag = standard != mode
 
-function cpuFormat(memory) {
+function cpuFormat(memory, resources) {
   //this function for format cpu
+  let cpu = resources.requests.cpu
+  if (enterpriseFlag && cpu) {
+    if (cpu.indexOf('m') < 0) {
+      cpu *= 1000
+    } else {
+      cpu = parseInt(cpu)
+    }
+    return `${Math.ceil((cpu / 1024) * 10) / 10}CPU`
+  }
   if(Boolean(memory)) {
     let newMemory = parseInt(memory.replace('Mi','').replace('Gi'))
     switch(newMemory) {
@@ -177,7 +188,7 @@ export default class ContainerDetailInfo extends Component {
           </div>
           <div className="dataBox">
             <div className="commonTitle">
-              {cpuFormat(container.spec.containers[0].resources.requests.memory)}
+              {cpuFormat(container.spec.containers[0].resources.requests.memory, container.spec.containers[0].resources) || '-'}
             </div>
             <div className="commonTitle">
               {container.spec.containers[0].resources.requests.memory.replace('i', '') || '-'}
