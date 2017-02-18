@@ -13,11 +13,18 @@ import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getAllClusterNodes, changeClusterNodeSchedule, deleteClusterNode, getKubectlsPods } from '../../actions/cluster_node'
+import {
+  getAllClusterNodes,
+  changeClusterNodeSchedule,
+  deleteClusterNode,
+  getKubectlsPods,
+  getAddNodeCMD,
+} from '../../actions/cluster_node'
 import './style/clusterTabList.less'
 import TerminalModal from '../TerminalModal'
 import NotificationHandler from '../../common/notification_handler'
 import { formatDate, calcuDate } from '../../common/tools'
+import { camelize } from 'humps'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -263,6 +270,7 @@ class clusterTabList extends Component {
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this);
     this.openTerminalModal = this.openTerminalModal.bind(this);
     this.handleAddClusterNode = this.handleAddClusterNode.bind(this)
+    this.copyAddNodeCMD = this.copyAddNodeCMD.bind(this)
     this.state = {
       nodeList: [],
       podCount: [],
@@ -271,6 +279,7 @@ class clusterTabList extends Component {
       TerminalLayoutModal: false,
       addNodeModalVisible: false,
       deleteNode: null,
+      copyAddNodeSuccess: false
     }
   }
 
@@ -292,10 +301,24 @@ class clusterTabList extends Component {
   }
 
   componentWillMount() {
-    const { getAllClusterNodes, cluster, getKubectlsPods } = this.props;
-    const _this = this;
+    const { getAllClusterNodes, cluster, getKubectlsPods } = this.props
     getKubectlsPods(cluster)
     this.loadData()
+  }
+
+  componentDidMount() {
+    const { cluster, getAddNodeCMD } = this.props
+    getAddNodeCMD(cluster)
+  }
+
+  copyAddNodeCMD() {
+    //this function for user click the copy btn and copy the download code
+    const code = document.getElementById('addNodeCMDInput')
+    code.select()
+    document.execCommand('Copy', false)
+    this.setState({
+      copyAddNodeSuccess: true
+    })
   }
 
   searchNodes(e) {
@@ -415,9 +438,9 @@ class clusterTabList extends Component {
   }
 
   render() {
-    const { intl, isFetching, nodes, cluster, memoryList, cpuList, kubectlsPods } = this.props;
+    const { intl, isFetching, nodes, cluster, memoryList, cpuList, kubectlsPods, addNodeCMD } = this.props;
     const { formatMessage } = intl;
-    const { nodeList, podCount, deleteNode } = this.state;
+    const { nodeList, podCount, deleteNode, copyAddNodeSuccess } = this.state;
     const rootscope = this.props.scope;
     const scope = this;
     let oncache = this.state.currentContainer.map((item) => {
@@ -525,7 +548,15 @@ class clusterTabList extends Component {
             <div>
               请在您的主机上执行以下命令
               <pre>
-                rm -rf /*
+                {addNodeCMD ? addNodeCMD[camelize('default_command')] : <Spin />}&nbsp;&nbsp;
+                <Tooltip title={copyAddNodeSuccess ? '复制成功' : '点击复制'}>
+                  <a className={copyAddNodeSuccess ? "actions copyBtn" : "copyBtn"}
+                    onClick={this.copyAddNodeCMD}
+                    onMouseLeave={() => setTimeout(() => this.setState({copyAddNodeSuccess: false}), 500) }>
+                    <Icon type="copy" />
+                  </a>
+                </Tooltip>
+                <input id="addNodeCMDInput" style={{ position: "absolute", opacity: "0", top:'0'}} value={addNodeCMD && addNodeCMD[camelize('default_command')]} />
               </pre>
               提示：所添加的主机必须在同一内网。首先添加的主机将被设置为 Master，后续添加的主机将被设为 Node。添加主机前，建议先手动安装 Docker。
             </div>
@@ -546,7 +577,7 @@ function mapStateToProps(state, props) {
     isFetching: false
   }
   const cluster = state.entities.current.cluster.clusterID
-  const { getAllClusterNodes, kubectlsPods } = state.cluster_nodes
+  const { getAllClusterNodes, kubectlsPods, addNodeCMD } = state.cluster_nodes
   const { isFetching } = getAllClusterNodes || pods
   const data = getAllClusterNodes.nodes || pods
   const { cpuList, memoryList } = data
@@ -558,6 +589,7 @@ function mapStateToProps(state, props) {
     isFetching,
     cluster,
     kubectlsPods: (kubectlsPods ? kubectlsPods.result : {}) || {},
+    addNodeCMD: (addNodeCMD ? addNodeCMD.result : {}) || {},
   }
 }
 
@@ -566,6 +598,7 @@ export default connect(mapStateToProps, {
   changeClusterNodeSchedule,
   deleteClusterNode,
   getKubectlsPods,
+  getAddNodeCMD,
 })(injectIntl(clusterTabList, {
   withRef: true,
 }))

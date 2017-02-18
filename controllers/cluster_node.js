@@ -97,3 +97,11 @@ exports.getKubectls = function* () {
   const result = yield spi.clusters.getBy([cluster, 'kubectls'])
   this.body = result.data
 }
+
+exports.getAddNodeCMD = function* () {
+  const cluster = this.params.cluster
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getApi(loginUser)
+  const result = yield spi.clusters.getBy([cluster, 'add'])
+  this.body = result.data
+}

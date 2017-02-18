@@ -55,5 +55,10 @@ export function cluster_nodes(state = { cluster_nodes: {} }, action) {
       SUCCESS: ActionTypes.GET_KUBECTLS_PODS_SUCCESS,
       FAILURE: ActionTypes.GET_KUBECTLS_PODS_FAILURE
     }, state.kubectlsPods, action, {overwrite: true}),
+    addNodeCMD: reducerFactory({
+      REQUEST: ActionTypes.GET_ADD_NODE_CMD_REQUEST,
+      SUCCESS: ActionTypes.GET_ADD_NODE_CMD_SUCCESS,
+      FAILURE: ActionTypes.GET_ADD_NODE_CMD_FAILURE
+    }, state.addNodeCMD, action, {overwrite: true}),
   }
 }
