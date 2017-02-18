@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Row, Col, Button, Modal } from 'antd'
+import { Row, Col, Button, Modal, InputNumber, Icon } from 'antd'
 import { connect } from 'react-redux'
 import './style/ConfigModal.less'
 import { DEFAULT_CONTAINER_RESOURCES, DEFAULT_CONTAINER_RESOURCES_MEMORY } from '../../../../constants'
@@ -17,6 +17,8 @@ import { changeQuotaService } from '../../../actions/services'
 import { getResourcesByMemory } from '../../../../kubernetes/utils'
 import NotificationHandler from '../../../common/notification_handler'
 import { isStorageUsed } from '../../../common/tools'
+import { ENTERPRISE_MODE } from '../../../../configs/constants'
+import { mode } from '../../../../configs/model'
 
 class ConfigModal extends Component {
   constructor(props) {
@@ -161,6 +163,8 @@ class ConfigModal extends Component {
                         <div className="bottomBox">
                           <span>512M&nbsp;内存</span><br />
                           <span>1CPU&nbsp;(共享)</span>
+                          <div className="triangle"></div>
+                          <Icon type="check" />
                         </div>
                       </Button>
                     </li>
@@ -173,6 +177,8 @@ class ConfigModal extends Component {
                         <div className="bottomBox">
                           <span>1GB&nbsp;内存</span><br />
                           <span>1CPU&nbsp;(共享)</span>
+                          <div className="triangle"></div>
+                          <Icon type="check" />
                         </div>
                       </Button>
                     </li>
@@ -185,6 +191,8 @@ class ConfigModal extends Component {
                         <div className="bottomBox">
                           <span>2GB&nbsp;内存</span><br />
                           <span>1CPU&nbsp;(共享)</span>
+                          <div className="triangle"></div>
+                          <Icon type="check" />
                         </div>
                       </Button>
                     </li>
@@ -197,6 +205,8 @@ class ConfigModal extends Component {
                         <div className="bottomBox">
                           <span>4GB&nbsp;内存</span><br />
                           <span>1CPU</span>
+                          <div className="triangle"></div>
+                          <Icon type="check" />
                         </div>
                       </Button>
                     </li>
@@ -209,10 +219,27 @@ class ConfigModal extends Component {
                         <div className="bottomBox">
                           <span>8GB&nbsp;内存</span><br />
                           <span>2CPU</span>
+                          <div className="triangle"></div>
+                          <Icon type="check" />
                         </div>
                       </Button>
                     </li>
-                    <div style={{ clear: "both" }}></div>
+                    {ENTERPRISE_MODE == mode ?
+                    <li className="composeDetail use">
+                      <div className={composeType == "use" ? "btn ant-btn-primary" : "btn ant-btn-ghost"} onClick={()=> this.selectComposeType("use")}>
+                        <div className="topBox">
+                          自定义
+                      </div>
+                        <div className="bottomBox">
+                          <div className="useKey"><InputNumber step={100} min={100} max={65536}/>MB&nbsp;内存</div>
+                          <div className="useKey"><InputNumber step={1} min={1} max={16}/>CPU</div>
+                          <div className="triangle"></div>
+                          <Icon type="check" />
+                        </div>
+                      </div>
+                    </li>
+                    :null
+                  }
                   </ul>
                   <div style={{ clear: "both" }}></div>
                 </div>
