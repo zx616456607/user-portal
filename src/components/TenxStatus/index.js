@@ -103,6 +103,10 @@ const messages = defineMessages({
     id: 'TenxStatus.Abnormal',
     defaultMessage: '异常',
   },
+  Failed: {
+    id: 'TenxStatus.Failed',
+    defaultMessage: '启动失败',
+  },
   RunningMsg: {
     id: 'TenxStatus.RunningMsg',
     defaultMessage: '已运行',
