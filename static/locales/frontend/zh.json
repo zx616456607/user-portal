@@ -71,6 +71,7 @@
   "TenxStatus.Stopped": "已停止",
   "TenxStatus.Running": "运行中",
   "TenxStatus.Abnormal": "异常",
+  "TenxStatus.Failed": "启动失败",
   "TenxStatus.RunningMsg": "已运行",
   "TenxStatus.SectionRunningMsg": "部分运行",
   "TenxStatus.AllRunningMsg": "全部运行",
