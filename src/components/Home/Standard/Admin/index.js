@@ -14,7 +14,6 @@ import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
 import { loadTeamInfo } from '../../../../actions/overview_team'
 import { parseAmount } from '../../../../common/tools'
-import Footer from '../../Footer'
 
 function getOption(cost, rest) {
   return {
@@ -375,7 +374,6 @@ class Admin extends Component{
             </Card>
           </Col>
         </Row>
-        <Footer />
       </div>
     )
   }
