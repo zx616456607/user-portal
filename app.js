@@ -257,6 +257,10 @@ app.use(indexRoutes(Router))
 const apiRoutes = require('./routes/api')
 app.use(apiRoutes(Router))
 
+//3rd_account vsettan
+const vsettan = require('./routes/3rd_account/vsettan/no_auth')
+app.use(vsettan(Router))
+
 // Serve static files
 app.use(function* (next){
   try {
