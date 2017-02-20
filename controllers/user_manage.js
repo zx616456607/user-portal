@@ -22,6 +22,7 @@ const config = require('../configs')
 const standardMode = require('../configs/constants').STANDARD_MODE
 const serviceIndex = require('../services')
 const registryConfigLoader = require('../registry/registryConfigLoader')
+const _ = require('lodash')
 
 /*
 Only return the detail of one user
@@ -40,6 +41,7 @@ exports.getUserDetail = function* () {
     serviceIndex.addConfigsForFrontend(user)
     loginUser.tenxApi = user.tenxApi
     loginUser.cicdApi = user.cicdApi
+    _.merge(loginUser, user)
     // Delete sensitive information
     delete user.userID
     delete user.statusCode
