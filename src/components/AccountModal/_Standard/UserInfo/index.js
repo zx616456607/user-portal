@@ -82,9 +82,7 @@ class BaseInfo extends Component {
     }
     this.setUser3rdAccountState(user.user3rdAccounts)
   }
-  componentWillUnmount(){
-    //
-  }
+
   closeEdit(editType) {
     this.setState({
       [editType]: false
