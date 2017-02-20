@@ -42,7 +42,7 @@ exports.vsettanLogin = function* (next) {
   const spi = apiFactory.getTenxSysSignSpi({})
   // spi.user.get
   user.userName = user.username
-  user.password = 'vsettan' + (new Date() - 0)
+  user.password = 'vsettan-' + (new Date() - 0)
   user.is_3rd_account = 1
   //get project
   let project = yield urllib.request(`${vsettanConfig.base_url}/tenxcloud`, {
