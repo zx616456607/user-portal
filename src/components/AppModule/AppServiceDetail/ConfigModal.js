@@ -17,8 +17,20 @@ import { changeQuotaService } from '../../../actions/services'
 import { getResources } from '../../../../kubernetes/utils'
 import NotificationHandler from '../../../common/notification_handler'
 import { isStorageUsed } from '../../../common/tools'
+import {
+  RESOURCES_MEMORY_MAX,
+  RESOURCES_MEMORY_MIN,
+  RESOURCES_MEMORY_STEP,
+  RESOURCES_CPU_MAX,
+  RESOURCES_CPU_STEP,
+  RESOURCES_CPU_MIN,
+  RESOURCES_DIY,
+} from '../../../constants'
 import { ENTERPRISE_MODE } from '../../../../configs/constants'
 import { mode } from '../../../../configs/model'
+
+const enterpriseFlag = ENTERPRISE_MODE == mode
+const PRESET_MEMORY_ARRAY = [512, 1024, 2048, 4096, 8192]
 
 class ConfigModal extends Component {
   constructor(props) {
@@ -29,6 +41,8 @@ class ConfigModal extends Component {
     this.state = {
       composeType: parseInt(DEFAULT_CONTAINER_RESOURCES_MEMORY),
       haveRBDVolume: false,
+      DIYMemory: RESOURCES_MEMORY_MIN,
+      DIYCPU: RESOURCES_CPU_MIN,
     }
   }
 
@@ -43,9 +57,19 @@ class ConfigModal extends Component {
     let resources = service.spec.template.spec.containers[0].resources || DEFAULT_CONTAINER_RESOURCES
     let limits = resources.limits || DEFAULT_CONTAINER_RESOURCES.limits
     let memory = limits.memory || DEFAULT_CONTAINER_RESOURCES.limits.memory
+    let cpu = limits.cpu || DEFAULT_CONTAINER_RESOURCES.limits.cpu
+    if (cpu.indexOf('m') > -1) {
+      cpu /= 1000
+    }
+    let composeType = memory.indexOf('Gi') > -1 ? parseInt(memory) * 1024 : parseInt(memory)
+    if (PRESET_MEMORY_ARRAY.indexOf(composeType) < 0) {
+      composeType = RESOURCES_DIY
+    }
     this.setState({
-      composeType: memory.indexOf('Gi') > -1 ? parseInt(memory) * 1024 : parseInt(memory),
+      composeType,
       haveRBDVolume: isStorageUsed(service.spec.template.spec.volumes),
+      DIYMemory: memory,
+      DIYCPU: cpu,
     })
   }
 
@@ -64,9 +88,13 @@ class ConfigModal extends Component {
       loadServiceList,
       changeQuotaService
     } = this.props
+    const { DIYMemory, DIYCPU } = this.state
     const { composeType } = this.state
     const serviceName = service.metadata.name
-    const resources = getResources(composeType)
+    let resources = getResources(composeType)
+    if (composeType === RESOURCES_DIY) {
+      resources = getResources(DIYMemory + 'Mi', DIYCPU * 1000 + 'm')
+    }
     const { requests, limits } = resources
     let notification = new NotificationHandler()
     notification.spin(`服务 ${serviceName} 配置更改中...`)
@@ -105,6 +133,7 @@ class ConfigModal extends Component {
 
   render() {
     const { service, visible } = this.props
+    const { DIYMemory, DIYCPU } = this.state
     if (!visible) {
       return null
     }
@@ -224,22 +253,46 @@ class ConfigModal extends Component {
                         </div>
                       </Button>
                     </li>
-                    {ENTERPRISE_MODE == mode ?
-                    <li className="composeDetail use">
-                      <div className={composeType == "use" ? "btn ant-btn-primary" : "btn ant-btn-ghost"} onClick={()=> this.selectComposeType("use")}>
-                        <div className="topBox">
-                          自定义
-                      </div>
-                        <div className="bottomBox">
-                          <div className="useKey"><InputNumber step={100} min={100} max={65536}/>MB&nbsp;内存</div>
-                          <div className="useKey"><InputNumber step={1} min={1} max={16}/>CPU</div>
-                          <div className="triangle"></div>
-                          <Icon type="check" />
+                    {
+                      enterpriseFlag &&
+                      <li className="composeDetail DIY">
+                        <div
+                          className={
+                            composeType == RESOURCES_DIY
+                            ? "btn ant-btn-primary"
+                            : "btn ant-btn-ghost"
+                          }
+                          onClick={()=> this.selectComposeType(RESOURCES_DIY)}>
+                          <div className="topBox">
+                            自定义
                         </div>
-                      </div>
-                    </li>
-                    :null
-                  }
+                          <div className="bottomBox">
+                            <div className="DIYKey">
+                              <InputNumber
+                                onChange={(value) => this.setState({DIYMemory: value})}
+                                value={parseInt(DIYMemory)}
+                                defaultValue={RESOURCES_MEMORY_MIN}
+                                step={RESOURCES_MEMORY_STEP}
+                                min={RESOURCES_MEMORY_MIN}
+                                max={RESOURCES_MEMORY_MAX} />
+                              MB&nbsp;内存
+                            </div>
+                            <div className="DIYKey">
+                              <InputNumber
+                                onChange={(value) => this.setState({DIYCPU: value})}
+                                value={parseInt(DIYCPU)}
+                                defaultValue={RESOURCES_CPU_MIN}
+                                step={RESOURCES_CPU_STEP}
+                                min={RESOURCES_CPU_MIN}
+                                max={RESOURCES_CPU_MAX}/>
+                              CPU
+                            </div>
+                            <div className="triangle"></div>
+                            <Icon type="check" />
+                          </div>
+                        </div>
+                      </li>
+                    }
                   </ul>
                   <div style={{ clear: "both" }}></div>
                 </div>
