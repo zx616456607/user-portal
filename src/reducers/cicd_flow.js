@@ -250,7 +250,7 @@ function getProject(state = {}, action) {
 function getUserInfo(state = {}, action) {
   const defaultState = {
     isFetching: false,
-    repoUser: { username: '', depot: '' }
+    repoUser: { username: '', depot: '', url:''}
   }
   switch (action.type) {
     case ActionTypes.GET_REPO_USER_INFO_REQUEST:
