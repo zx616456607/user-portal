@@ -9,7 +9,6 @@
  */
 const vsettanConfig = require('../../configs/3rd_account/vsettan.js')
 const urllib = require('urllib')
-const uuid = require('node-uuid')
 const apiFactory = require('../../services/api_factory.js')
 const logger = require('../../utils/logger').getLogger('vsettan')
 
@@ -20,14 +19,14 @@ exports.vsettanLogin = function* (next) {
     this.redirect(redirect_url)
     return
   }
-  const exchange_token = uuid.v4().replace('-', '')
   const self = this
   //verify token and get user
   let user = yield urllib.request(`${vsettanConfig.base_url}/o/token`, {
     method: 'GET',
     data: {
       access_token,
-      exchange_token
+      client_id: vsettanConfig.client_id,
+      client_secret: vsettanConfig.client_secret,
     },
     dataType: 'json'
   }).then(result => {
@@ -49,7 +48,9 @@ exports.vsettanLogin = function* (next) {
   let project = yield urllib.request(`${vsettanConfig.base_url}/tenxcloud`, {
     method: 'GET',
     data: {
-      access_token
+      access_token,
+      client_id: vsettanConfig.client_id,
+      client_secret: vsettanConfig.client_secret,
     },
     dataType: 'json'
   }).then(result => {

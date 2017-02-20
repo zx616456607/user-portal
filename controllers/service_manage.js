@@ -346,7 +346,7 @@ exports.getServiceDetailEvents = function* () {
   const serviceName = this.params.service_name
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'services', serviceName, 'events'])
+  const result = yield api.getBy([cluster, 'replicaset', serviceName, 'events'])
   const events = result.data || []
   //eventList.events = []
   //if (eventList.data) {
