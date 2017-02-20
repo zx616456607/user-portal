@@ -12,10 +12,12 @@
 
 import moment from 'moment'
 import { AMOUNT_CONVERSION, AMOUNT_DEFAULT_PRECISION, DEFAULT_TIME_FORMAT } from '../../constants'
-import { STANDARD_MODE } from '../../configs/constants'
+import { STANDARD_MODE, ENTERPRISE_MODE } from '../../configs/constants'
 import { mode } from '../../configs/model'
 
+const enterpriseFlag = ENTERPRISE_MODE == mode
 const locale = window.appLocale.locale
+
 // Set moment internationalize
 if (locale === 'zh') {
   moment.locale('zh-cn')
@@ -310,4 +312,45 @@ export function getValue(obj, key) {
     return JSON.stringify(value)
   }
   return value
+}
+
+/**
+ * Format cpu
+ *
+ * @param {any} memory
+ * @param {any} resources
+ * @returns
+ */
+export function cpuFormat(memory, resources) {
+  let cpu = resources.limits.cpu
+  if (enterpriseFlag && cpu) {
+    if (cpu.indexOf('m') < 0) {
+      cpu *= 1000
+    } else {
+      cpu = parseInt(cpu)
+    }
+    return `${Math.ceil((cpu / 1024) * 10) / 10}CPU`
+  }
+  if(!Boolean(memory)) {
+    return '-'
+  }
+  let newMemory = parseInt(memory.replace('Mi','').replace('Gi'))
+  switch(newMemory) {
+    case 1:
+      return '1CPU（共享）';
+    case 2:
+      return '1CPU（共享）';
+    case 4:
+      return '1CPU';
+    case 8:
+      return '2CPU';
+    case 16:
+      return '2CPU';
+    case 32:
+      return '2CPU';
+    case 256:
+      return '1CPU（共享）';
+    case 512:
+      return '1CPU（共享）';
+  }
 }
