@@ -243,6 +243,27 @@ class TenxFlowDetail extends Component {
   handleVisibleChange(visible) {
     this.setState({ showTargeImage: visible });
   }
+
+  setStatus(scope, status) {
+    let statusName = status
+    switch (statusName) {
+      case 0:
+        status = '成功'
+        break;
+      case 1:
+        status = "失败"
+        break;
+      case 2:
+        status = "执行中..."
+        break;
+      default:
+        status = "等待中..."
+    }
+    scope.setState({
+      status,
+      statusName
+    })
+  }
   
   refreshStageList() {
     //this function for refrash
@@ -253,16 +274,16 @@ class TenxFlowDetail extends Component {
     getTenxFlowStatus(search, {
       success: {        
         func: (result) => {
-          let statusName = result.data.results.initType;
-          let status = '';
-          switch (status) {
-            case '0':
+          let statusName = result.data.results.status;
+          let status
+          switch (statusName) {
+            case 0:
               status = '成功'
               break;
-            case '1':
+            case 1:
               status = "失败"
               break;
-            case '2':
+            case 2:
               status = "执行中..."
               break;
             default:
@@ -356,7 +377,7 @@ class TenxFlowDetail extends Component {
             <div style={{ clear: 'both' }}></div>
           </Card>
           <Tabs defaultActiveKey='1' size="small" onChange={(e) => this.handleChange(e)}>
-            <TabPane tab='TenxFlow流程定义' key='1'><TenxFlowDetailFlow scope={scope} otherImage={this.props.otherImage} flowId={flowInfo.flowId} stageInfo={flowInfo.stageInfo} supportedDependencies={flowInfo.supportedDependencies} startBuild={this.state.startBuild} refreshFlag={this.state.refreshFlag} /></TabPane>
+            <TabPane tab='TenxFlow流程定义' key='1'><TenxFlowDetailFlow scope={scope} setStatus={this.setStatus} otherImage={this.props.otherImage} flowId={flowInfo.flowId} stageInfo={flowInfo.stageInfo} supportedDependencies={flowInfo.supportedDependencies} startBuild={this.state.startBuild} refreshFlag={this.state.refreshFlag} /></TabPane>
             <TabPane tab='TenxFlow执行记录' key='2'><TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} /></TabPane>
             <TabPane tab='自动部署' key='3'><ImageDeployLogBox scope={scope} flowId={flowInfo.flowId} /></TabPane>
             <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} notify={flowInfo.notificationConfig} flowId={flowInfo.flowId} /></TabPane>
