@@ -340,7 +340,7 @@ exports.deleteServiceDomain = function* () {
   this.body = result
 }
 
-exports.getServiceDetailEvents = function* () {
+exports.getReplicasetDetailEvents = function* () {
   //this function for user get the events of detail service
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
