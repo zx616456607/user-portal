@@ -18,6 +18,7 @@ const logger = require('../utils/logger').getLogger('middlewares')
 const constants = require('../constants')
 const USER_CURRENT_CONFIG = constants.USER_CURRENT_CONFIG
 const indexService = require('./')
+const _ = require('lodash')
 
 /**
  * Set user current config: teamspace, cluster
@@ -163,8 +164,7 @@ exports.verifyUser = function* (next) {
   }
   // Add config into user for frontend websocket
   indexService.addConfigsForFrontend(loginUser)
-  result.tenxApi = loginUser.tenxApi
-  result.cicdApi = loginUser.cicdApi
+  _.merge(result, loginUser)
   // Private cloud need check users license
   /*if (configIndex.running_mode === enterpriseMode) {
     const licenseObj = yield indexService.getLicense(loginUser)
