@@ -12,10 +12,10 @@
 const env = process.env
 
 const config = {
-  client_id: env.CLIENT_ID || 'XKpYBeSM87r11oC2ECUGy1W409j5YQqSqKgOTsvs',
-  client_secret: env.CLIENT_SECRET || 'wZv7IO9D4uQeYP0p',
-  redirect_url: env.REDIRECT_URL || 'https://www.baidu.com',
-  base_url: env.BASE_URL || 'http://172.16.142.235:8001'
+  client_id: env.CLIENT_ID,
+  client_secret: env.CLIENT_SECRET,
+  redirect_url: env.REDIRECT_URL,
+  base_url: env.BASE_URL
 }
 
 module.exports = config
