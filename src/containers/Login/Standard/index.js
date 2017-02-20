@@ -171,12 +171,6 @@ let Login = React.createClass({
   intOnFocus(current) {
     let intPassFocus = false
     if (current === 'name') {
-      const { getFieldProps } = this.props.form
-      if (getFieldProps('password').value === '') {
-        this.setState({
-          intPassFocus: true
-        })
-      }
       this.refs.intName.refs.input.focus()
       if (this.refs.intPass.refs.input.value) {
         intPassFocus = true
@@ -208,18 +202,17 @@ let Login = React.createClass({
 
   componentDidMount() {
     const _this = this
-    const intName = this.refs.intName
     setTimeout(() => {
-      if (!intName) return
-      const intName = intName.refs.input
+      const intName = this.refs.intName.refs.input
       intName.focus()
       if (intName.value) {
-        this.setState({
+        _this.setState({
           intNameFocus: true,
           intPassFocus: true
         })
       }
-    },500)
+    },1000)
+
   },
 
   onScanChange(scan, scanResult) {
@@ -279,6 +272,7 @@ let Login = React.createClass({
       rules: [
         { validator: this.checkName },
       ],
+      onChange: () => this.intOnFocus('name')
     })
     const passwdProps = getFieldProps('password', {
       rules: [
