@@ -261,6 +261,9 @@ let MyComponent = React.createClass({
     }
   },
   changeDilation(size) {
+    if (size > 20480) {
+      size = 20480
+    }
     this.setState({
       size: size
     })
@@ -355,7 +358,7 @@ let MyComponent = React.createClass({
             <Row style={{ height: '40px' }}>
               <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{formatMessage(messages.size)}</Col>
               <Col span="12">
-                <Slider min={this.state.modalSize} max={20480} step={512} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
+                <Slider min={(this.state.modalSize <20480 )? this.state.modalSize: 512} disabled={this.state.modalSize ==20480} max={20480} step={512} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
               <Col span="8">
                 <InputNumber min={this.state.modalSize} max={20480} step={512} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
                 <span style={{ paddingLeft: 10 }} >MB</span>

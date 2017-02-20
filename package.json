@@ -55,6 +55,7 @@
     "i18next-node-fs-backend": "^0.1.2",
     "js-yaml": "^3.6.1",
     "keygrip": "^1.0.1",
+    "regenerator-runtime": "*",
     "koa": "^1.2.2",
     "koa-body": "^1.5.0",
     "koa-compress": "^1.0.9",

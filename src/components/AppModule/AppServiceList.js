@@ -341,7 +341,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const svcDomain = parseServiceDomain(item, bindingDomains,bindingIPs)
+      const svcDomain = parseServiceDomain(item, bindingDomains, bindingIPs)
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}

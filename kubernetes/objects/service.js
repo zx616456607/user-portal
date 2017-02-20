@@ -24,7 +24,6 @@ class Service {
       }
     }
     this.spec = {
-      type: '',
       ports: [],
       selector: {
         name
