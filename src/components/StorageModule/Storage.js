@@ -278,7 +278,6 @@ let MyComponent = React.createClass({
     const { formatMessage } = this.props.intl
     let list = this.props.storage;
     let items = list.storageList.map((item) => {
-    console.log('item', item)
       const menu = (<Menu onClick={(e) => { this.showAction(e, 'format', item.name, item.format) } } style={{ width: '80px' }}>
         <Menu.Item key="1" disabled={item.isUsed}><FormattedMessage {...messages.formatting} /></Menu.Item>
       </Menu>
