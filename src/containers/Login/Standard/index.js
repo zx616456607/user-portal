@@ -205,7 +205,7 @@ let Login = React.createClass({
     const intName = this.refs.intName
     setTimeout(() => {
       if (!intName) return
-      const intName = this.refs.intName.refs.input
+      const intName = intName.refs.input
       intName.focus()
       if (intName.value) {
         _this.setState({
