@@ -354,6 +354,7 @@ let AppDeployServiceModal = React.createClass({
     }
   },
   submitNewService() {
+    const { loginUser } = this.props
     const parentScope = this.props.scope
     const scope = this.state;
     const { DIYCPU, DIYMemory } = this.state
@@ -517,6 +518,7 @@ let AppDeployServiceModal = React.createClass({
         // Fill in the service port info
         let portNumber = getFieldProps(`portUrl${k}`).value;
         serviceList.addPort(
+          loginUser.proxyType,
           serviceName + '-' + newIndex,
           getFieldProps(`portType${k}`).value.toUpperCase(),
           parseInt(getFieldProps(`targetPortUrl${k}`).value),

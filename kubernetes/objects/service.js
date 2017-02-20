@@ -34,7 +34,7 @@ class Service {
       this.spec.externalIPs = JSON.parse(cluster.publicIPs)
     }
   }
-
+  // Call from server side only
   importFromK8SService(k8sService) {
     if (k8sService.metadata) {
       if (k8sService.metadata.name) {
@@ -76,8 +76,8 @@ class Service {
       }
     }
   }
-
-  addPort(name, protocol, targetPort, port, nodePort) {
+  // Call from client side
+  addPort(proxyType, name, protocol, targetPort, port, nodePort) {
     // K8s only support TCP and UDP protocol
     const k8sProtocol = (protocol === 'UDP' ? protocol : 'TCP')
     const portObj = {
@@ -89,7 +89,7 @@ class Service {
       portObj.port = port
     }
     // Check service type, add nodeport if service type is 'kube-nodeport' and user defined port
-    if (constants.PROXY_TYPE == constants.SERVICE_KUBE_NODE_PORT) {
+    if (proxyType == constants.SERVICE_KUBE_NODE_PORT) {
       this.spec.type = 'NodePort'
       if (nodePort) {
         // Use user specified one
