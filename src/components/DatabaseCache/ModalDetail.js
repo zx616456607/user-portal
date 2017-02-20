@@ -125,11 +125,11 @@ class BaseInfo extends Component {
     }
     this.setState({winWidth: '120px'})
   }
-  copyDownloadCode() {
+  copyDownloadCode(index) {
     //this function for user click the copy btn and copy the download code
     const scope = this;
     let code = document.getElementsByClassName("databaseCodeInput");
-    code[0].select();
+    code[index].select();
     document.execCommand("Copy", false);
     scope.setState({
       copySuccess: true
@@ -234,6 +234,10 @@ class BaseInfo extends Component {
             <span className='listLink'>
               {databaseInfo.serviceInfo.name + ':' + databaseInfo.serviceInfo.ports[0].port}
             </span>
+            <Tooltip placement='top' title={this.state.copySuccess ? '复制成功' : '点击复制'}>
+              <Icon type="copy" style={{color:'#2db7f5',cursor:'pointer',marginLeft: '5px'}} onClick={()=> this.copyDownloadCode(0)} onMouseLeave={()=> this.returnDefaultTooltip()}/>
+            </Tooltip>
+            <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {databaseInfo.serviceInfo.name + ':' + databaseInfo.serviceInfo.ports[0].port}/>
           </div>
           <div className='configList'>
             <span className='listKey'>
@@ -243,7 +247,7 @@ class BaseInfo extends Component {
               {externalUrl}
             </span>
             <Tooltip placement='top' title={this.state.copySuccess ? '复制成功' : '点击复制'}>
-              <Icon type="copy" style={{color:'#2db7f5',cursor:'pointer',marginLeft: '5px'}} onClick={()=> this.copyDownloadCode()} onMouseLeave={()=> this.returnDefaultTooltip()}/>
+              <Icon type="copy" style={{color:'#2db7f5',cursor:'pointer',marginLeft: '5px'}} onClick={()=> this.copyDownloadCode(1)} onMouseLeave={()=> this.returnDefaultTooltip()}/>
             </Tooltip>
             <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {externalUrl}/>
           </div>
