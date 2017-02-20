@@ -41,7 +41,7 @@ import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT } from '../../constants'
 import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
-import { PROXY_TYPE , SERVICE_KUBE_NODE_PORT } from '../../../constants'
+import { SERVICE_KUBE_NODE_PORT } from '../../../constants'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -312,7 +312,7 @@ const MyComponent = React.createClass({
     })
   },
   render: function () {
-    const { cluster, serviceList, loading, page, size, total,bindingDomains, bindingIPs } = this.props
+    const { cluster, serviceList, loading, page, size, total,bindingDomains, bindingIPs, loginUser } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -343,7 +343,7 @@ const MyComponent = React.createClass({
           <Menu.Item key="config">
             更改配置
           </Menu.Item>
-          <Menu.Item key="https" disabled={PROXY_TYPE == SERVICE_KUBE_NODE_PORT}>
+          <Menu.Item key="https" disabled={loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT}>
             设置HTTPS
           </Menu.Item>
         </Menu>
@@ -1031,7 +1031,7 @@ class ServiceList extends Component {
     } = this.state
     const {
       pathname, page, size, total, isFetching, cluster,
-      loadAllServices
+      loadAllServices, loginUser
     } = this.props
     let selectTab = this.state.selectTab
     let appName = ''
@@ -1181,6 +1181,7 @@ class ServiceList extends Component {
 
             <MyComponent
               cluster={cluster}
+              loginUser={loginUser}
               name={name}
               scope={parentScope}
               serviceList={serviceList}
@@ -1255,10 +1256,12 @@ function mapStateToProps(state, props) {
   if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
+  const { loginUser } = state.entities
   const { cluster } = state.entities.current
   const { statusWatchWs } = state.entities.sockets
   const { services, isFetching, total } = state.services.serviceList
   return {
+    loginUser: loginUser,
     cluster: cluster.clusterID,
     statusWatchWs,
     bindingDomains: state.entities.current.cluster.bindingDomains,

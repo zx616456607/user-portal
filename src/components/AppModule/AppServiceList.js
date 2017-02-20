@@ -41,7 +41,7 @@ import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/
 import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
-import { PROXY_TYPE , SERVICE_KUBE_NODE_PORT } from '../../../constants'
+import { SERVICE_KUBE_NODE_PORT } from '../../../constants'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -305,7 +305,7 @@ const MyComponent = React.createClass({
     })
   },
   render: function () {
-    const { cluster, serviceList, loading, page, size, total, bindingDomains, bindingIPs, k8sServiceList} = this.props
+    const { cluster, serviceList, loading, page, size, total, bindingDomains, bindingIPs, k8sServiceList, loginUser } = this.props
     if (loading) {
       return (
         <div className="loadingBox">
@@ -336,7 +336,7 @@ const MyComponent = React.createClass({
           <Menu.Item key="config">
             更改配置
           </Menu.Item>
-          <Menu.Item key="https" disabled={ PROXY_TYPE == SERVICE_KUBE_NODE_PORT }>
+          <Menu.Item key="https" disabled={ loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT }>
             设置HTTPS
           </Menu.Item>
         </Menu>
@@ -974,7 +974,7 @@ class AppServiceList extends Component {
     const {
       name, pathname, page,
       size, total, isFetching,
-      cluster, appName, loadServiceList, k8sServiceList,
+      loginUser, cluster, appName, loadServiceList, k8sServiceList,
     } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
@@ -1103,6 +1103,7 @@ class AppServiceList extends Component {
             <div style={{ clear: "both" }}></div>
           </div>
           <MyComponent
+            loginUser={loginUser}
             cluster={cluster}
             name={name}
             scope={parentScope}
@@ -1200,6 +1201,7 @@ function mapStateToProps(state, props) {
     size = DEFAULT_PAGE_SIZE
   }
   const { appName } = props
+  const { loginUser } = state.entities
   const { cluster } = state.entities.current
   const { statusWatchWs } = state.entities.sockets
   const defaultServices = {
@@ -1218,6 +1220,7 @@ function mapStateToProps(state, props) {
   }
   const { serviceList, isFetching, total } = targetServices || defaultServices
   return {
+    loginUser: loginUser,
     cluster: cluster.clusterID,
     statusWatchWs,
     bindingDomains: state.entities.current.cluster.bindingDomains,

@@ -790,7 +790,7 @@ let AppDeployServiceModal = React.createClass({
     const scope = this
     const parentScope = this.props.scope
     const {currentSelectedImage, registryServer, isCreate, other} = parentScope.state
-    const { form, serviceOpen } = this.props
+    const { form, serviceOpen, loginUser } = this.props
     const { composeType, disable } = this.state
     const unitPrice = parseAmount(price[this.state.composeType+'x'], 4)
     const hourPrice = parseAmount(price[this.state.composeType+'x'] * instanceNum, 4)
@@ -822,7 +822,7 @@ let AppDeployServiceModal = React.createClass({
               <ComposeDeployBox scope={scope} form={form} cluster={this.props.cluster} serviceOpen={this.props.serviceOpen} />
             </Panel>
             <Panel header={advanceBoxTitle} key="4">
-              <EnviroDeployBox scope={scope} form={form} />
+              <EnviroDeployBox scope={scope} loginUser={loginUser} form={form} />
             </Panel>
           </Collapse>
           <div className="btnBox">
@@ -886,6 +886,7 @@ const advanceBoxTitle = (
 );
 
 function mapStateToProps(state, props) {
+  const { loginUser } = state.entities
   const { cluster } = state.entities.current
   const parentScope = props.scope
   const {other} = parentScope.state
@@ -893,11 +894,13 @@ function mapStateToProps(state, props) {
     return {
       tagConfig: state.getImageTagConfig.otherTagConfig,
       cluster,
+      loginUser: loginUser.info
     }
   }
   return {
     tagConfig: state.getImageTagConfig.imageTagConfig,
-    cluster
+    cluster,
+    loginUser: loginUser.info
   }
 }
 
