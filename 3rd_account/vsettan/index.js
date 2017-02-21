@@ -7,6 +7,7 @@
  * v0.1 - 2017-02-17
  * @author yangyubiao
  */
+'use strict'
 const vsettanConfig = require('../../configs/3rd_account/vsettan.js')
 const urllib = require('urllib')
 const apiFactory = require('../../services/api_factory.js')
