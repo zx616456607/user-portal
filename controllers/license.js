@@ -95,7 +95,8 @@ exports.getLicenses = function* () {
 // input: license key
 // output: success, invalid_license
 exports.addLicense = function* () {
-  const api = apiFactory.getApi()
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
   const license = this.request.body
   if (!license || !license.rawlicense) {
     const err = new Error('rawlicense field is required.')

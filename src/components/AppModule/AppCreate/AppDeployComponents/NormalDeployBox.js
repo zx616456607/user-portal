@@ -349,12 +349,13 @@ let MyComponent = React.createClass({
               }],
             })} />
             </FormItem>
-            <Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`, {
+            {self.props.storageType == 'rbd' ? <span><Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`, {
             }) } checked={getFieldValue(`volumeChecked${k}`)}>
               只读
           </Checkbox>
             <i className="fa fa-refresh" onClick={() => this.refresh()} />
-            <i className="fa fa-trash" onClick={() => this.remove(k)} />
+            <i className="fa fa-trash" onClick={() => this.remove(k)} /> </span>: ''}
+
           </FormItem>
         )
       });
@@ -945,8 +946,8 @@ let NormalDeployBox = React.createClass({
                         <div className="DIYKey">
                           <InputNumber
                             onChange={(value) => parentScope.setState({DIYCPU: value})}
-                            value={parseInt(DIYCPU)}
                             defaultValue={RESOURCES_CPU_MIN}
+                            value={parseInt(DIYCPU)}
                             step={RESOURCES_CPU_STEP}
                             min={RESOURCES_CPU_MIN}
                             max={RESOURCES_CPU_MAX}/>
