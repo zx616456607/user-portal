@@ -12,7 +12,7 @@ import React, { Component } from 'react'
 import { Row, Col, Button, Modal, InputNumber, Icon } from 'antd'
 import { connect } from 'react-redux'
 import './style/ConfigModal.less'
-import { DEFAULT_CONTAINER_RESOURCES, DEFAULT_CONTAINER_RESOURCES_MEMORY } from '../../../../constants'
+import { DEFAULT_CONTAINER_RESOURCES, DEFAULT_CONTAINER_RESOURCES_MEMORY, DEFAULT_CONTAINER_RESOURCES_CPU } from '../../../../constants'
 import { changeQuotaService } from '../../../actions/services'
 import { getResources } from '../../../../kubernetes/utils'
 import NotificationHandler from '../../../common/notification_handler'
@@ -57,7 +57,7 @@ class ConfigModal extends Component {
     let resources = service.spec.template.spec.containers[0].resources || DEFAULT_CONTAINER_RESOURCES
     let limits = resources.limits || DEFAULT_CONTAINER_RESOURCES.limits
     let memory = limits.memory || DEFAULT_CONTAINER_RESOURCES.limits.memory
-    let cpu = limits.cpu || DEFAULT_CONTAINER_RESOURCES.limits.cpu
+    let cpu = limits.cpu || DEFAULT_CONTAINER_RESOURCES_CPU
     if (cpu.indexOf('m') > -1) {
       cpu /= 1000
     }
