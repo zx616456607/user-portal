@@ -32,6 +32,7 @@ import { volNameCheck } from '../../../../common/naming_validation'
 import { ENTERPRISE_MODE } from '../../../../../configs/constants'
 import { mode } from '../../../../../configs/model'
 
+const enterpriseFlag = ENTERPRISE_MODE == mode
 const Option = Select.Option;
 const OptGroup = Select.OptGroup;
 const FormItem = Form.Item;
@@ -925,7 +926,7 @@ let NormalDeployBox = React.createClass({
                 </li>
                 {/* enterprise */}
                 {
-                  ENTERPRISE_MODE == mode &&
+                  enterpriseFlag &&
                   <li className="composeDetail DIY">
                     <div className={composeType == RESOURCES_DIY ? "btn ant-btn-primary" : "btn ant-btn-ghost"} onClick={this.selectComposeType.bind(this, RESOURCES_DIY)}>
                       <div className="topBox">
@@ -940,8 +941,8 @@ let NormalDeployBox = React.createClass({
                             step={RESOURCES_MEMORY_STEP}
                             min={RESOURCES_MEMORY_MIN}
                             max={RESOURCES_MEMORY_MAX} />
-                            MB&nbsp;内存
-                          </div>
+                          MB&nbsp;内存
+                        </div>
                         <div className="DIYKey">
                           <InputNumber
                             onChange={(value) => parentScope.setState({DIYCPU: value})}
@@ -950,8 +951,8 @@ let NormalDeployBox = React.createClass({
                             step={RESOURCES_CPU_STEP}
                             min={RESOURCES_CPU_MIN}
                             max={RESOURCES_CPU_MAX}/>
-                            CPU
-                          </div>
+                          CPU
+                        </div>
                         <div className="triangle"></div>
                         <Icon type="check" />
                       </div>

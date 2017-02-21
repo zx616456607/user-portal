@@ -9,6 +9,8 @@
  */
 'use strict'
 
+// For webpack build backend files runtime
+require('babel-polyfill')
 // Set root dir to global
 global.__root__dirname = __dirname
 // Repalce native Promise by bluebird

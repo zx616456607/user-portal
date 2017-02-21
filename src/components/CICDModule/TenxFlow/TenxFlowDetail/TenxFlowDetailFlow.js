@@ -168,6 +168,7 @@ class TenxFlowDetailFlow extends Component {
     CreateTenxflowBuild(flowId, { stageId: stageId }, {
       success: {
         func: (res) => {
+          _this.props.setStatus(_this.props.scope, 2)
           notification.success('流程正在构建中');
           let buildingList = _this.state.buildingList;
           buildingList.map((item) => {
@@ -326,12 +327,14 @@ class TenxFlowDetailFlow extends Component {
             self.setState({
               notified: notified
             })
+            self.props.setStatus(self.props.scope, 0)
             notification.close()
             notification.success(`构建完成`)
           } else if (data.results.buildStatus == 1) {
             //构建未成功时
             for(var i in lastBuilds) {
               if (lastBuilds[i].buildId === data.results.stageBuildId) {
+                self.props.setStatus(self.props.scope, 1)
                 notification.close()
                 notification.error(`构建失败`)
                 notified[data.results.stageId] = data.results.stageBuildId

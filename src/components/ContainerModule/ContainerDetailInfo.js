@@ -12,47 +12,12 @@ import { Card, Tooltip, Icon } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
+import { cpuFormat } from '../../common/tools'
 import "./style/ContainerDetailInfo.less"
 
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
 const enterpriseFlag = standard != mode
-
-function cpuFormat(memory, resources) {
-  //this function for format cpu
-  let cpu = resources.requests.cpu
-  if (enterpriseFlag && cpu) {
-    if (cpu.indexOf('m') < 0) {
-      cpu *= 1000
-    } else {
-      cpu = parseInt(cpu)
-    }
-    return `${Math.ceil((cpu / 1024) * 10) / 10}CPU`
-  }
-  if(Boolean(memory)) {
-    let newMemory = parseInt(memory.replace('Mi','').replace('Gi'))
-    switch(newMemory) {
-      case 1:
-        return '1CPU（共享）';
-      case 2:
-        return '1CPU（共享）';
-      case 4:
-        return '1CPU';
-      case 8:
-        return '2CPU';
-      case 16:
-        return '2CPU';
-      case 32:
-        return '3CPU';
-      case 256:
-        return '1CPU（共享）';
-      case 512:
-        return '1CPU（共享）';
-    }
-  } else {
-    return '-';
-  }
-}
 
 export default class ContainerDetailInfo extends Component {
   constructor(props) {

@@ -108,6 +108,7 @@ exports.addConfigsForFrontend = function (user) {
   // Add if email configed
   const emailConfig = config.mail_server
   user.emailConfiged = !!emailConfig.auth.pass
+  user.proxy_type = constants.PROXY_TYPE
   return user
 }
 
