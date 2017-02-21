@@ -12,7 +12,7 @@ import { Card, Tooltip, Icon } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { cpuFormat } from '../../common/tools'
+import { cpuFormat, memoryFormat } from '../../common/tools'
 import "./style/ContainerDetailInfo.less"
 
 const mode = require('../../../configs/model').mode
@@ -156,7 +156,7 @@ export default class ContainerDetailInfo extends Component {
               {cpuFormat(container.spec.containers[0].resources.requests.memory, container.spec.containers[0].resources) || '-'}
             </div>
             <div className="commonTitle">
-              {container.spec.containers[0].resources.requests.memory.replace('i', '') || '-'}
+              {memoryFormat(container.spec.containers[0].resources)}
             </div>
             <div className="commonTitle">
               10G

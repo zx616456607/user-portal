@@ -349,11 +349,11 @@ class ServiceList extends Component {
     let cpuNumber = 0, memory = 0
     for(let i = 0; i < priceArr.length; i++) {
       cpuNumber += priceArr[i].cpu;
-      memory += priceArr[i].memory;
+      memory += priceArr[i].memory / 1024;
     }
     return unit = {
       cpu: cpuNumber,
-      memory
+      memory: Number.isInteger(memory) ? memory : (memory).toFixed(1)
     }
   }
   render() {
@@ -413,7 +413,7 @@ class ServiceList extends Component {
           </div>
           <div className="modal-price">
             <div className="price-left">
-              <span className="keys">计算资源：<span className="unit">{configData.cpu}C/{configData.memory /1024 }G </span></span>
+              <span className="keys">计算资源：<span className="unit">{configData.cpu}C/{configData.memory }G </span></span>
             </div>
             <div className="price-unit">合计：<span className="unit">{ countPrice.unit =='￥'? '￥':'' }</span>
               <span className="unit blod">{ hourPrice.amount }{ countPrice.unit =='￥'? '':'T' }/小时</span>
