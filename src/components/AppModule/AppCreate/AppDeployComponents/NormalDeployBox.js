@@ -11,7 +11,17 @@ import React, { Component, PropTypes } from 'react'
 import { Form, Select, Input, InputNumber, Modal, Tooltip, Checkbox, Button, Card, Menu, Switch, Icon, Spin, Radio} from 'antd'
 import { connect } from 'react-redux'
 import filter from 'lodash/filter'
-import { DEFAULT_REGISTRY, ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
+import {
+  DEFAULT_REGISTRY,
+  ASYNC_VALIDATOR_TIMEOUT,
+  RESOURCES_MEMORY_MAX,
+  RESOURCES_MEMORY_MIN,
+  RESOURCES_MEMORY_STEP,
+  RESOURCES_CPU_MAX,
+  RESOURCES_CPU_STEP,
+  RESOURCES_CPU_MIN,
+  RESOURCES_DIY,
+} from '../../../../constants'
 import { appNameCheck, validateK8sResourceForServiceName } from '../../../../common/naming_validation'
 import { loadImageDetailTag, loadImageDetailTagConfig, getOtherImageTag, loadOtherDetailTagConfig } from '../../../../actions/app_center'
 import { checkServiceName } from '../../../../actions/app_manage'
@@ -19,7 +29,10 @@ import { loadFreeVolume, createStorage } from '../../../../actions/storage'
 import "./style/NormalDeployBox.less"
 import NotificationHandler from '../../../../common/notification_handler'
 import { volNameCheck } from '../../../../common/naming_validation'
+import { ENTERPRISE_MODE } from '../../../../../configs/constants'
+import { mode } from '../../../../../configs/model'
 
+const enterpriseFlag = ENTERPRISE_MODE == mode
 const Option = Select.Option;
 const OptGroup = Select.OptGroup;
 const FormItem = Form.Item;
@@ -334,14 +347,15 @@ let MyComponent = React.createClass({
               rules: [{
                 validator: self.checkHostPath
               }],
-            })} /> 
+            })} />
             </FormItem>
-            <Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`, {
+            {self.props.storageType == 'rbd' ? <span><Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`, {
             }) } checked={getFieldValue(`volumeChecked${k}`)}>
               只读
           </Checkbox>
             <i className="fa fa-refresh" onClick={() => this.refresh()} />
-            <i className="fa fa-trash" onClick={() => this.remove(k)} />
+            <i className="fa fa-trash" onClick={() => this.remove(k)} /> </span>: ''}
+
           </FormItem>
         )
       });
@@ -474,7 +488,7 @@ function setCMD(container, form) {
     })
     index++
   })
-  
+
   form.setFieldsValue({
     entryInput: entrypoint[0]
   })
@@ -544,8 +558,9 @@ let NormalDeployBox = React.createClass({
   },
   selectComposeType(type) {
     const parentScope = this.props.scope
+    if (type == parentScope.state.composeType) return
     parentScope.setState({
-      composeType: type
+      composeType: type,
     })
   },
   onSelectTagChange(tag) {
@@ -690,7 +705,7 @@ let NormalDeployBox = React.createClass({
           canCreate,
           storageTypes,
           isHaveVolume: 0
-        }) 
+        })
       }
     }
   },
@@ -751,8 +766,9 @@ let NormalDeployBox = React.createClass({
     })
   },
   render: function () {
-    const parentScope = this.props.scope;
-    const { imageTagsIsFetching, form, composeType, cluster} = this.props
+    const parentScope = this.props.scope
+    const { imageTagsIsFetching, form, composeType, cluster } = this.props
+    const { DIYMemory, DIYCPU } = parentScope.state
     const imageTags = this.props.otherImages ? this.props.otherImages : this.props.imageTags
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form
     const nameProps = getFieldProps('name', {
@@ -851,6 +867,8 @@ let NormalDeployBox = React.createClass({
                     <div className="bottomBox">
                       <span>512M&nbsp;内存</span><br />
                       <span>1CPU&nbsp;(共享)</span>
+                      <div className="triangle"></div>
+                      <Icon type="check" />
                     </div>
                   </Button>
                 </li>
@@ -862,6 +880,8 @@ let NormalDeployBox = React.createClass({
                     <div className="bottomBox">
                       <span>1GB&nbsp;内存</span><br />
                       <span>1CPU&nbsp;</span>
+                      <div className="triangle"></div>
+                      <Icon type="check" />
                     </div>
                   </Button>
                 </li>
@@ -873,6 +893,8 @@ let NormalDeployBox = React.createClass({
                     <div className="bottomBox">
                       <span>2GB&nbsp;内存</span><br />
                       <span>1CPU&nbsp;</span>
+                      <div className="triangle"></div>
+                      <Icon type="check" />
                     </div>
                   </Button>
                 </li>
@@ -884,6 +906,8 @@ let NormalDeployBox = React.createClass({
                     <div className="bottomBox">
                       <span>4GB&nbsp;内存</span><br />
                       <span>1CPU</span>
+                      <div className="triangle"></div>
+                      <Icon type="check" />
                     </div>
                   </Button>
                 </li>
@@ -895,10 +919,46 @@ let NormalDeployBox = React.createClass({
                     <div className="bottomBox">
                       <span>8GB&nbsp;内存</span><br />
                       <span>2CPU</span>
+                      <div className="triangle"></div>
+                      <Icon type="check" />
                     </div>
                   </Button>
                 </li>
-                <div style={{ clear: "both" }}></div>
+                {/* enterprise */}
+                {
+                  enterpriseFlag &&
+                  <li className="composeDetail DIY">
+                    <div className={composeType == RESOURCES_DIY ? "btn ant-btn-primary" : "btn ant-btn-ghost"} onClick={this.selectComposeType.bind(this, RESOURCES_DIY)}>
+                      <div className="topBox">
+                        自定义
+                      </div>
+                      <div className="bottomBox">
+                        <div className="DIYKey">
+                          <InputNumber
+                            onChange={(value) => parentScope.setState({DIYMemory: value})}
+                            defaultValue={RESOURCES_MEMORY_MIN}
+                            value={parseInt(DIYMemory)}
+                            step={RESOURCES_MEMORY_STEP}
+                            min={RESOURCES_MEMORY_MIN}
+                            max={RESOURCES_MEMORY_MAX} />
+                          MB&nbsp;内存
+                        </div>
+                        <div className="DIYKey">
+                          <InputNumber
+                            onChange={(value) => parentScope.setState({DIYCPU: value})}
+                            defaultValue={RESOURCES_CPU_MIN}
+                            value={parseInt(DIYCPU)}
+                            step={RESOURCES_CPU_STEP}
+                            min={RESOURCES_CPU_MIN}
+                            max={RESOURCES_CPU_MAX}/>
+                          CPU
+                        </div>
+                        <div className="triangle"></div>
+                        <Icon type="check" />
+                      </div>
+                    </div>
+                  </li>
+                }
               </ul>
               <div style={{ clear: "both" }}></div>
             </div>
@@ -915,7 +975,7 @@ let NormalDeployBox = React.createClass({
               <RadioGroup style={{display: this.state.isHaveVolume ? 'inline-block' : 'none', marginLeft: '10px'}} onChange={this.setStorageType} value={this.state.storageType || defaultCheckedValue}>
                   {this.getStorageType()}
               </RadioGroup>
-              
+
               {form.getFieldValue('volumeSwitch') ? [
                 <MyComponent
                   parentScope={parentScope}

@@ -82,16 +82,16 @@ exports.getLicense = function* (loginUser) {
 }
 
 /**
- * Add config into user for frontend websocket
+ * Add config into user for frontend
  *
  * @param {Object} user
  * @returns {Object}
  */
-exports.addConfigsForWS = function (user) {
+exports.addConfigsForFrontend = function (user) {
   const NODE_ENV = config.node_env
   const NODE_ENV_PROD = constantsConfig.NODE_ENV_PROD
-  const tenxApi = config.tenx_api
   // Add api config
+  const tenxApi = config.tenx_api
   user.tenxApi = {
     protocol: (NODE_ENV === NODE_ENV_PROD ? tenxApi.external_protocol : tenxApi.protocol),
     host: (NODE_ENV === NODE_ENV_PROD ? tenxApi.external_host : tenxApi.host),
@@ -105,6 +105,10 @@ exports.addConfigsForWS = function (user) {
   delete cicdConfig.external_protocol
   delete cicdConfig.external_host
   user.cicdApi = cicdConfig
+  // Add if email configed
+  const emailConfig = config.mail_server
+  user.emailConfiged = !!emailConfig.auth.pass
+  user.proxy_type = constants.PROXY_TYPE
   return user
 }
 

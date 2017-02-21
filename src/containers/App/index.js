@@ -278,6 +278,9 @@ class App extends Component {
       UpgradeModal,
       License
     } = this.props
+    const hashTag = '#'
+    const hashTagReg = new RegExp(hashTag, 'g')
+    redirectUrl = redirectUrl.replace(hashTagReg, encodeURIComponent(hashTag))
     const {
       loginModalVisible,
       loadLoginUserSuccess,

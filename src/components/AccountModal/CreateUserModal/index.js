@@ -11,6 +11,7 @@
  */
 
 import React from 'react'
+import { connect } from 'react-redux'
 import { Input, Modal, Form, Checkbox, Tooltip, Icon, Button, } from 'antd'
 import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 
@@ -137,7 +138,7 @@ let CreateUserModal = React.createClass({
     })
   },
   render() {
-    const { form, visible } = this.props
+    const { form, visible, loginUser } = this.props
     const { disabled } = this.state
     const { getFieldProps, getFieldError, isFieldValidating } = form
     const text = <span>前台只能添加普通成员</span>
@@ -270,14 +271,18 @@ let CreateUserModal = React.createClass({
             <Input {...emailProps} type="email" placeholder="新成员邮箱帐号" />
           </FormItem>
 
-          <FormItem
-            {...formItemLayout}
-            label=""
-            >
-            <Checkbox className="ant-checkbox-vertical" {...checkProps}>
-              创建完成后, 密码帐户名发送至该邮箱
-            </Checkbox>
-          </FormItem>
+          {
+            loginUser.emailConfiged && (
+              <FormItem
+                {...formItemLayout}
+                label=""
+                >
+                <Checkbox className="ant-checkbox-vertical" {...checkProps}>
+                  创建完成后, 密码帐户名发送至该邮箱
+                </Checkbox>
+              </FormItem>
+            )
+          }
         </Form>
       </Modal>
     )
@@ -286,4 +291,11 @@ let CreateUserModal = React.createClass({
 
 CreateUserModal = createForm()(CreateUserModal)
 
-export default CreateUserModal
+function mapStateToProps(state, props) {
+  return {
+    loginUser: state.entities.loginUser.info,
+  }
+}
+export default connect(mapStateToProps, {
+  //
+})(CreateUserModal)

@@ -39,16 +39,17 @@ class EnterpriseApp extends Component {
           if (licenseStatus == 'VALID' && parseInt(leftLicenseDays) <= 7) {
             outdated = true // show warning and allow login
             licenseDay = parseInt(leftLicenseDays)
+            if (licenseDay <= 0) {
+              window.location.href ='/logout'
+            }
           }
-          if (licenseStatus == 'NO_LICENSE' && parseInt(leftTrialDays) > 0) {
+          if (licenseStatus == 'NO_LICENSE' && parseInt(leftTrialDays) <= 7) {
             outdated = true // show warning and allow login
             licenseTips = '产品试用'
             licenseDay = parseInt(leftTrialDays)
-          }
-          if (licenseStatus == 'NO_LICENSE' && parseInt(leftTrialDays) < 0) {
-            outdated = true //show error and not allow login
-            licenseDay = 0
-            window.location.href ='/logout'
+            if (licenseDay <= 0) {
+              window.location.href ='/logout'
+            }
           }
           self.setState({
             outdated,
@@ -75,7 +76,7 @@ class EnterpriseApp extends Component {
     if( this.state.outdated ) {
       return (
         <div id='topError'>
-          {this.state.licenseTips}将于{this.state.licenseDay}天后（即{formatDate(this.state.license.end) }）过期，{this.checkTipsText()}
+          {this.state.licenseTips}将于{this.state.licenseDay}天后（即{ formatDate(this.state.license.trialEndTime)}）过期，{this.checkTipsText()}
         </div>
      )
    }

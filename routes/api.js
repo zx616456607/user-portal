@@ -95,7 +95,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/quota', serviceController.changeServiceQuota)
   router.put('/clusters/:cluster/services/:service_name/ha', serviceController.changeServiceHa)
   router.put('/clusters/:cluster/services/:service_name/rollingupdate', serviceController.rollingUpdateService)
-  router.get('/clusters/:cluster/services/:service_name/events', serviceController.getServiceDetailEvents)
+  router.get('/clusters/:cluster/replicaset/:service_name/events', serviceController.getReplicasetDetailEvents)
   router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
   router.get('/clusters/:cluster/services/:service_name/k8s-service', serviceController.getK8sService)
   router.get('/clusters/:cluster/services', serviceController.getAllService)
@@ -217,6 +217,7 @@ module.exports = function (Router) {
   router.get('/manage-monitor/:team_id/:namespace/getClusterOfQueryLog', manageMonitorController.getClusterOfQueryLog)
   router.get('/manage-monitor/:cluster_id/:namespace/getServiceOfQueryLog', manageMonitorController.getServiceOfQueryLog)
   router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
+  router.post('/clusters/:cluster/services/:services/getSearchLog', manageMonitorController.getServiceSearchLog)
 
   // DevOps service: CI/CD
   router.get('/devops/stats', devopsController.getStats)
@@ -308,8 +309,9 @@ module.exports = function (Router) {
   router.get('/cluster-nodes/:cluster', clusternodesController.getClusterNodes)
   router.post('/cluster-nodes/:cluster/node/:node', clusternodesController.changeNodeSchedule)
   router.delete('/cluster-nodes/:cluster/node/:node', clusternodesController.deleteNode)
+  router.get('/cluster-nodes/:cluster/add-node-cmd', clusternodesController.getAddNodeCMD)
   // Get kubectl pods names
-  router.get('/clusters/:cluster/kubectls', clusternodesController.getKubectls)
+  router.get('/cluster-nodes/:cluster/kubectls', clusternodesController.getKubectls)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)

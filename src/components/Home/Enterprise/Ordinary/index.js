@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Radio, Icon, Spin } from 'antd'
+import { Row, Col, Card, Radio, Icon, Spin, Tooltip} from 'antd'
 import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
@@ -20,7 +20,6 @@ import { parseAmount } from '../../../../common/tools'
 import homeMySQL from '../../../../assets/img/homeMySQL.png'
 import homeMongoCluster from '../../../../assets/img/homeMongoCluster.png'
 import homeRedis from '../../../../assets/img/homeRedis.png'
-import Footer from '../../Footer'
 
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -175,8 +174,7 @@ class Ordinary extends Component{
     }
   }
   thousandBitSeparator(num) {
-    return num && (num
-        .toString().indexOf('.') != -1 ? num.toString().replace(/(\d)(?=(\d{3})+\.)/g, function($0, $1) {
+    return num && (num.toString().indexOf('.') != -1 ? num.toString().replace(/(\d)(?=(\d{3})+\.)/g, function($0, $1) {
         return $1 + ",";
       }) : num.toString().replace(/(\d)(?=(\d{3}))/g, function($0, $1) {
         return $1 + ",";
@@ -191,20 +189,19 @@ class Ordinary extends Component{
       return size + 'MB'
     }
     if(size < 1024*1024){
-      result = this.thousandBitSeparator((size/1024).toFixed(2))
+      result = this.thousandBitSeparator(Math.floor(size/1024 *100) /100)
       return result + 'GB'
     }
     if(size < 1024*1024*1024){
-      result = this.thousandBitSeparator((size/(1024*1024)).toFixed(2))
+      result = this.thousandBitSeparator(Math.floor(size/(1024*1024) *100) /100)
       return result + 'T'
     }
-    result = this.thousandBitSeparator((size/(1024*1024*1024)).toFixed(2))
+    result = this.thousandBitSeparator(Math.floor(size/(1024*1024*1024) *100) /100)
     return result + 'T'
   }
   render(){
     const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
       clusterNodeSummary,clusterDbServices,spaceName,clusterName,clusterNodeSpaceConsumption,isFetching} = this.props
-    console.log('isFetching:::',isFetching);
 
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
@@ -990,11 +987,11 @@ class Ordinary extends Component{
               <Col span={12} className='storageInf'>
                 <div className="storageInfList">
                   <Row className='storageInfItem'>
-                    <Col span={12}>已用配额</Col>
+                    <Col span={12}>已用 <Tooltip title="当前已用配额"><Icon type="question-circle-o" /></Tooltip></Col>
                     <Col span={12} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.usedSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={12}>可用配额</Col>
+                    <Col span={12}>可用 <Tooltip title="当前可用配额"><Icon type="question-circle-o" /></Tooltip></Col>
                     <Col span={12} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.freeSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>
@@ -1193,7 +1190,6 @@ class Ordinary extends Component{
           </Col>
         </Row>
         <MySpace spaceName={spaceName} />
-        <Footer />
       </div>
     )
   }

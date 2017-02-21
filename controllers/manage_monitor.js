@@ -35,6 +35,17 @@ exports.getSearchLog = function* () {
   }
 }
 
+exports.getServiceSearchLog = function* () {
+  const cluster = this.params.cluster
+  const services = this.params.services
+  const reqBody = this.request.body
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, 'services', services, 'logs'], null, reqBody);
+  this.body = {
+    logs: result.data
+  }
+}
 exports.getClusterOfQueryLog = function* () {
   const method = 'getClusterOfQueryLog'
   const teamID = this.params.team_id

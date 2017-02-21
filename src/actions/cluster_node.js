@@ -94,7 +94,7 @@ function fetchKubectlsPods(cluster, callback) {
   return {
     [FETCH_API]: {
       types: [GET_KUBECTLS_PODS_REQUEST, GET_KUBECTLS_PODS_SUCCESS, GET_KUBECTLS_PODS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/kubectls`,
+      endpoint: `${API_URL_PREFIX}/cluster-nodes/${cluster}/kubectls`,
       schema: {},
     },
     callback
@@ -104,5 +104,26 @@ function fetchKubectlsPods(cluster, callback) {
 export function getKubectlsPods(cluster, callback) {
   return (dispatch) => {
     return dispatch(fetchKubectlsPods(cluster, callback))
+  }
+}
+
+export const GET_ADD_NODE_CMD_REQUEST = 'GET_ADD_NODE_CMD_REQUEST'
+export const GET_ADD_NODE_CMD_SUCCESS = 'GET_ADD_NODE_CMD_SUCCESS'
+export const GET_ADD_NODE_CMD_FAILURE = 'GET_ADD_NODE_CMD_FAILURE'
+
+function fetchAddNodeCMD(cluster, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_ADD_NODE_CMD_REQUEST, GET_ADD_NODE_CMD_SUCCESS, GET_ADD_NODE_CMD_FAILURE],
+      endpoint: `${API_URL_PREFIX}/cluster-nodes/${cluster}/add-node-cmd`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getAddNodeCMD(cluster, callback) {
+  return (dispatch) => {
+    return dispatch(fetchAddNodeCMD(cluster, callback))
   }
 }

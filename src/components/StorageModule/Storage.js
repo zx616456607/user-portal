@@ -261,6 +261,9 @@ let MyComponent = React.createClass({
     }
   },
   changeDilation(size) {
+    if (size > 20480) {
+      size = 20480
+    }
     this.setState({
       size: size
     })
@@ -274,7 +277,6 @@ let MyComponent = React.createClass({
   render() {
     const { formatMessage } = this.props.intl
     let list = this.props.storage;
-
     let items = list.storageList.map((item) => {
       const menu = (<Menu onClick={(e) => { this.showAction(e, 'format', item.name, item.format) } } style={{ width: '80px' }}>
         <Menu.Item key="1" disabled={item.isUsed}><FormattedMessage {...messages.formatting} /></Menu.Item>
@@ -312,20 +314,19 @@ let MyComponent = React.createClass({
               </Button>
             </Dropdown>*/}
             {!item.isUsed ?
-              <Dropdown.Button 
+              <Dropdown.Button
                 overlay={menu} 
                 type='ghost'
                 onClick={(e) => { this.showAction(e, 'resize', item.name, item.totalSize) } }
                  disabled={item.isUsed}>
-                <span className="divider"><FormattedMessage {...messages.dilation} /> </span>
+                <FormattedMessage {...messages.dilation} />
               </Dropdown.Button>
             :
               <Dropdown.Button 
                 overlay={menu}
                 type='ghost'
-                visible={false}
-                disabled={item.isUsed}>
-                  <span className="divider"><FormattedMessage {...messages.dilation} /> </span>
+                className="ant-disabled">
+                  <FormattedMessage {...messages.dilation} />
               </Dropdown.Button>
             }
           </div>
@@ -355,7 +356,7 @@ let MyComponent = React.createClass({
             <Row style={{ height: '40px' }}>
               <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{formatMessage(messages.size)}</Col>
               <Col span="12">
-                <Slider min={this.state.modalSize} max={20480} step={512} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
+                <Slider min={(this.state.modalSize <20480 )? this.state.modalSize: 512} disabled={this.state.modalSize ==20480} max={20480} step={512} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
               <Col span="8">
                 <InputNumber min={this.state.modalSize} max={20480} step={512} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
                 <span style={{ paddingLeft: 10 }} >MB</span>
@@ -429,13 +430,7 @@ class Storage extends Component {
   componentWillMount() {
     document.title = '存储 | 时速云'
     this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
-    const currentCluster = this.props.currentCluster
-    const storage_type = currentCluster.storageTypes
-    let canCreate = true
-    if(!storage_type || storage_type.indexOf('rbd') < 0) canCreate = false
-    this.setState({
-      canCreate
-    })
+
   }
   componentWillReceiveProps(nextProps) {
     let { currentCluster, loadStorageList, currentImagePool, cluster } = nextProps
@@ -659,6 +654,14 @@ class Storage extends Component {
   }
   render() {
     const { formatMessage } = this.props.intl
+    const currentCluster = this.props.currentCluster
+    const storage_type = currentCluster.storageTypes
+    let canCreate = true
+    let title = ''
+    if (!storage_type || storage_type.indexOf('rbd') < 0) canCreate = false
+    if (!canCreate) {
+      title = '尚未部署分布式存储，暂不能创建（如需帮助，请查看文档或通过右下角工单联系我们）'
+    }
     if (!this.props.currentCluster.resourcePrice) return <div></div>
     if (!this.props.storageList[this.props.currentImagePool]) return <div></div>
     const storagePrice = this.props.currentCluster.resourcePrice.storage /10000
@@ -677,9 +680,9 @@ class Storage extends Component {
         <div id="StorageList" key="StorageList">
           <div className="operationBox">
             <div className="leftBox">
-              <Button type="primary" size="large" disabled={!this.state.canCreate} onClick={this.showModal}>
+              <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>
                 <i className="fa fa-plus" /><FormattedMessage {...messages.createTitle} />
-              </Button>
+              </Button></Tooltip>
               <Button type="ghost" className="stopBtn" size="large" onClick={() => { this.setState({delModal: true}) } }
                 disabled={!this.state.volumeArray || this.state.volumeArray.length < 1}>
                 <i className="fa fa-trash-o" /><FormattedMessage {...messages.delete} />
@@ -780,7 +783,7 @@ class Storage extends Component {
               />
           </Card>
           :
-          <div className='text-center'><img src={noStorageImg} /><div>您还没有存储卷，创建一个吧！ <Button type="primary" size="large" disabled={!this.state.canCreate} onClick={this.showModal}>创建</Button></div></div>
+          <div className='text-center'><img src={noStorageImg} /><div>您还没有存储卷，创建一个吧！ <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>创建</Button></Tooltip></div></div>
           } 
         </div>
       </QueueAnim>

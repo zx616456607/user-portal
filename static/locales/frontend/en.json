@@ -71,6 +71,7 @@
   "TenxStatus.Stopped": "Stopped",
   "TenxStatus.Running": "Running",
   "TenxStatus.Abnormal": "Abnormal",
+  "TenxStatus.Failed": "Failed",
   "TenxStatus.RunningMsg": "Running for",
   "TenxStatus.SectionRunningMsg": "Section running",
   "TenxStatus.AllRunningMsg": "All running",

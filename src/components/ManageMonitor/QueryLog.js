@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Card, Select, Button, DatePicker, Input, Spin, Popover, Icon, Checkbox } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getQueryLogList } from '../../actions/manage_monitor'
+import { getQueryLogList, getServiceQueryLogList } from '../../actions/manage_monitor'
 import { loadServiceContainerList } from '../../actions/services'
 import { loadUserTeamspaceList } from '../../actions/user'
 import { throwError } from '../../actions'
@@ -853,20 +853,20 @@ class QueryLog extends Component {
       });
       checkFlag = false;
     }
-    if (this.state.currentInstance.length == 0) {
-      this.setState({
-        selectedInstance: true
-      });
-      checkFlag = false;
-    }
+    // if (this.state.currentInstance.length == 0) {
+    //   this.setState({
+    //     selectedInstance: true
+    //   });
+    //   checkFlag = false;
+    // }
     if (!checkFlag) {
       return;
     }
-    const { getQueryLogList } = this.props;
+    const { getQueryLogList, getServiceQueryLogList } = this.props;
     let key_word = this.state.key_word;
     if (this.state.queryType) {
       if (key_word && key_word.length > 0) {
-        key_word = '*' + this.state.key_word.trim() + '*';
+        key_word = this.state.key_word.trim();
       }
     }
     let body = {
@@ -880,7 +880,11 @@ class QueryLog extends Component {
       searchKeyword: this.state.key_word
     });
     let instances = this.state.currentInstance.join(',');
-    getQueryLogList(this.state.currentClusterId, instances, body);
+    let services = this.state.currentService
+    if(instances) {
+      return getQueryLogList(this.state.currentClusterId, instances, body);
+    }
+    getServiceQueryLogList(this.state.currentClusterId, services, body)
   }
 
   onChangeBigLog() {
@@ -970,7 +974,7 @@ class QueryLog extends Component {
                 onVisibleChange={this.hideInstancePopup}
                 visible={this.state.instancePopup}
                 >
-                <div className={checkClass(this.state.instancePopup, this.state.selectedInstance)} >
+                <div className={checkClass(this.state.instancePopup, this.state.selectedInstance).replace('cloneSelectError', '')} >
                   <span className='selectedSpan'>{this.state.currentInstance.length != 0 ? this.state.currentInstance.join(',') : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectInstance} /></span>]}</span>
                   <Icon type='down' />
                   <span className='wrongSpan'><FormattedMessage {...menusText.noInstance} /></span>
@@ -1079,6 +1083,7 @@ QueryLog = injectIntl(QueryLog, {
 
 export default connect(mapStateToProps, {
   getQueryLogList,
+  getServiceQueryLogList,
   loadServiceContainerList,
   loadUserTeamspaceList,
   getClusterOfQueryLog,

@@ -6,6 +6,7 @@ import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
 import Admin from '../../../components/Home/Enterprise/Admin'
 import Ordinary from '../../../components/Home/Enterprise/Ordinary'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
+import Footer from '../../../components/Home/Footer'
 
 class IndexPage extends Component {
   constructor(props) {
@@ -34,6 +35,7 @@ class IndexPage extends Component {
           <div id="IndexPage">
             <Admin spaceName={current.space.spaceName}/>
             <Ordinary spaceName={current.space.spaceName} clusterName={current.cluster.clusterName}/>
+            <Footer />
           </div>
         )
       }
@@ -41,6 +43,7 @@ class IndexPage extends Component {
     return (
       <div id="IndexPage">
         <Ordinary spaceName={current.space.spaceName} clusterName={current.cluster.clusterName}/>
+        <Footer />
       </div>
     )
   }

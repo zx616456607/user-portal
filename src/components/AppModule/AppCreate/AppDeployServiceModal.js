@@ -18,7 +18,17 @@ import EnviroDeployBox from './AppDeployComponents/EnviroDeployBox'
 import "./style/AppDeployServiceModal.less"
 import { connect } from 'react-redux'
 import { parseAmount } from '../../../common/tools.js'
-import { CREATE_APP_ANNOTATIONS, DEFAULT_REGISTRY } from '../../../constants'
+import {
+  CREATE_APP_ANNOTATIONS,
+  DEFAULT_REGISTRY,
+  RESOURCES_MEMORY_MIN,
+  RESOURCES_CPU_MIN,
+  RESOURCES_DIY,
+} from '../../../constants'
+import { ENTERPRISE_MODE } from '../../../../configs/constants'
+import { mode } from '../../../../configs/model'
+
+const enterpriseFlag = ENTERPRISE_MODE == mode
 const DEFAULT_COMPOSE_TYPE = '2'
 const Deployment = require('../../../../kubernetes/objects/deployment')
 const Service = require('../../../../kubernetes/objects/service')
@@ -36,6 +46,8 @@ let AppDeployServiceModal = React.createClass({
   getInitialState: function () {
     return {
       composeType: DEFAULT_COMPOSE_TYPE,
+      DIYMemory: RESOURCES_MEMORY_MIN,
+      DIYCPU: RESOURCES_CPU_MIN,
       runningCode: "1",
       getImageType: "0",
       stateService: false,
@@ -61,6 +73,9 @@ let AppDeployServiceModal = React.createClass({
       case '8192Mi':
         return '32'
       default:
+        if (enterpriseFlag) {
+          return RESOURCES_DIY
+        }
         return '1'
     }
   },
@@ -306,9 +321,17 @@ let AppDeployServiceModal = React.createClass({
     }
     this.setEnv(env, form)
     this.setPorts(ports, ServicePorts, form, annotations)
-    this.setState({
+    const newState = {
       composeType: this.limits(),
-    })
+      DIYMemory: RESOURCES_MEMORY_MIN,
+      DIYCPU: RESOURCES_CPU_MIN,
+    }
+    if (newState.composeType === RESOURCES_DIY) {
+      const { memory, cpu } = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].resources.requests
+      newState.DIYMemory = memory
+      newState.DIYCPU = parseInt(parseInt(cpu) / 1000)
+    }
+    this.setState(newState)
   },
   componentWillMount() {
     noPortFlag = false;
@@ -331,8 +354,10 @@ let AppDeployServiceModal = React.createClass({
     }
   },
   submitNewService() {
+    const { loginUser } = this.props
     const parentScope = this.props.scope
     const scope = this.state;
+    const { DIYCPU, DIYMemory } = this.state
     const {getFieldValue, getFieldProps} = this.props.form
     let composeType = scope.composeType;
     let portKey = getFieldValue('portKey')
@@ -452,6 +477,20 @@ let AppDeployServiceModal = React.createClass({
             cal: '2C/8G'
           }
           return
+        case RESOURCES_DIY:
+          ImageConfig = {
+            resources: {
+              limits: {
+                memory: DIYMemory + 'Mi'
+              },
+              requests: {
+                memory: DIYMemory + 'Mi',
+                cpu: DIYCPU * 1000 + 'm'
+              }
+            },
+            cal: `${DIYCPU}C${(DIYMemory/1024).toFixed(1)}G`
+          }
+          return
         default:
           ImageConfig = {
             resources: {
@@ -470,18 +509,21 @@ let AppDeployServiceModal = React.createClass({
     /*Deployment*/
     deploymentList.setReplicas(instanceNum)
     deploymentList.addContainer(serviceName, image)
-    deploymentList.setContainerResources(serviceName, ImageConfig.resources.limits.memory)
+    deploymentList.setContainerResources(serviceName, ImageConfig.resources.requests.memory, ImageConfig.resources.requests.cpu)
     //ports
     if (Boolean(portKey) && portKey.length > 0) {
       getFieldValue('portKey').map((k, index) => {
         let portType = getFieldProps(`portType${k}`).value;
         let newIndex = index + 1;
         // Fill in the service port info
+        let portNumber = getFieldProps(`portUrl${k}`).value;
         serviceList.addPort(
+          loginUser.proxyType,
           serviceName + '-' + newIndex,
           getFieldProps(`portType${k}`).value.toUpperCase(),
           parseInt(getFieldProps(`targetPortUrl${k}`).value),
-          parseInt(getFieldProps(`targetPortUrl${k}`).value) // Use the same port as container port by default
+          parseInt(getFieldProps(`targetPortUrl${k}`).value), // Use the same port as container port by default
+          portNumber
         )
         if(portType == 'HTTP') {
           // Add port annotation in advance
@@ -493,8 +535,7 @@ let AppDeployServiceModal = React.createClass({
             serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType)
           } else if(tcpType == 'special') {
             // Add the port annotation
-            let portUrl = getFieldProps(`portUrl${k}`).value;
-            serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType, portUrl)
+            serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType, portNumber)
           } else {
             // undefined
             serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType)
@@ -697,7 +738,6 @@ let AppDeployServiceModal = React.createClass({
   handleSubBtn(e) {
     const parentScope = this.props.scope
     const { form } = this.props
-    const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     e.preventDefault()
     form.validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
@@ -752,7 +792,7 @@ let AppDeployServiceModal = React.createClass({
     const scope = this
     const parentScope = this.props.scope
     const {currentSelectedImage, registryServer, isCreate, other} = parentScope.state
-    const { form, serviceOpen } = this.props
+    const { form, serviceOpen, loginUser } = this.props
     const { composeType, disable } = this.state
     const unitPrice = parseAmount(price[this.state.composeType+'x'], 4)
     const hourPrice = parseAmount(price[this.state.composeType+'x'] * instanceNum, 4)
@@ -784,7 +824,7 @@ let AppDeployServiceModal = React.createClass({
               <ComposeDeployBox scope={scope} form={form} cluster={this.props.cluster} serviceOpen={this.props.serviceOpen} />
             </Panel>
             <Panel header={advanceBoxTitle} key="4">
-              <EnviroDeployBox scope={scope} form={form} />
+              <EnviroDeployBox scope={scope} loginUser={loginUser} form={form} />
             </Panel>
           </Collapse>
           <div className="btnBox">
@@ -848,6 +888,7 @@ const advanceBoxTitle = (
 );
 
 function mapStateToProps(state, props) {
+  const { loginUser } = state.entities
   const { cluster } = state.entities.current
   const parentScope = props.scope
   const {other} = parentScope.state
@@ -855,11 +896,13 @@ function mapStateToProps(state, props) {
     return {
       tagConfig: state.getImageTagConfig.otherTagConfig,
       cluster,
+      loginUser: loginUser.info
     }
   }
   return {
     tagConfig: state.getImageTagConfig.imageTagConfig,
-    cluster
+    cluster,
+    loginUser: loginUser.info
   }
 }
 

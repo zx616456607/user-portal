@@ -12,7 +12,7 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import { Icon, Input, Button, Modal, Row, Col, Spin, InputNumber, Tooltip, } from 'antd'
-import { MIN_PAY_AMOUNT, PAY_AMOUNT_STEP } from '../../../../constants'
+import { MIN_PAY_AMOUNT, MAX_PAY_AMOUNT, PAY_AMOUNT_STEP } from '../../../../constants'
 import { loadLoginUserDetail } from '../../../../actions/entities'
 import { loadUserTeamspaceList } from '../../../../actions/user'
 import { getWechatPayQrCode, getWechatPayOrder, getPayOrderStatus } from '../../../../actions/payments'
@@ -430,6 +430,7 @@ class UserPay extends Component {
 
   renderPayments() {
     const { hash, loginUser } = this.props
+    let notification = new NotificationHandler()
     let {
       payType,
       qrCode,
@@ -480,40 +481,39 @@ class UserPay extends Component {
           </div>
           <div className="row">
             <span className="keys">充值方式</span>
-            ① 在线支付
-          </div>
-          <div className="againMore">
-            <div className="pay-row">
-              <div
-                className={payType == 'alipay' ? 'wrap-img selected' : 'wrap-img'}
-                onClick={() => this.changePayType('alipay')}>
-                <img src={alipay} />
-                <Icon type="check" />
-                <div className="triangle"></div> {/*no remove */}
-              </div>
-              <div
-                className={payType == 'wechat_pay' ? 'wrap-img selected' : 'wrap-img'}
-                onClick={() => this.changePayType('wechat_pay')}>
-                <img src={weixin} alt="" />
-                <Icon type="check" />
-                <div className="triangle"></div> {/*no remove */}
-              </div>
-              <Tooltip placement="right" title={`余额：¥ ${userBalance}`}>
+            <div className="againMore chargeMethod">
+              <div className="pay-row">
                 <div
-                  className={payType == 'user_balance' ? 'wrap-img selected' : 'wrap-img'}
-                  onClick={() => this.changePayType('user_balance')}>
-                  <img className='userBalanceImg' src={userBalancePNG} />
+                  className={payType == 'alipay' ? 'wrap-img selected' : 'wrap-img'}
+                  onClick={() => this.changePayType('alipay')}>
+                  <img src={alipay} />
                   <Icon type="check" />
                   <div className="triangle"></div> {/*no remove */}
                 </div>
-              </Tooltip>
+                <div
+                  className={payType == 'wechat_pay' ? 'wrap-img selected' : 'wrap-img'}
+                  onClick={() => this.changePayType('wechat_pay')}>
+                  <img src={weixin} alt="" />
+                  <Icon type="check" />
+                  <div className="triangle"></div> {/*no remove */}
+                </div>
+                <Tooltip placement="right" title={`余额：¥ ${userBalance}`}>
+                  <div
+                    className={payType == 'user_balance' ? 'wrap-img selected' : 'wrap-img'}
+                    onClick={() => this.changePayType('user_balance')}>
+                    <img className='userBalanceImg' src={userBalancePNG} />
+                    <Icon type="check" />
+                    <div className="triangle"></div> {/*no remove */}
+                  </div>
+                </Tooltip>
+              </div>
             </div>
           </div>
           <div className="row">
             <span className="keys">合计</span>
             <span className="amount"><span style={{ fontSize: '18px' }}>¥</span> {amount}</span>
           </div>
-          <div className="againMore">
+          <div className="againMore" style={{paddingLeft: '100px'}}>
             <div className="pay-row">
             </div>
             <div className="pay-row" style={{ marginTop: '20px' }}>
@@ -530,8 +530,7 @@ class UserPay extends Component {
           <li>温馨提示：</li>
           <li>1. 充值金额会在当天到帐。如遇问题，请点击右下角工单咨询。</li>
           <li>2. 您可以通过三种方式充值：微信充值、支付宝、银行转帐（线下汇款充值）。采用线下汇款方式到帐会有延迟，建议采用支付宝，微信支付。 </li>
-          <li>3. 累计充值金额满 ￥200 后可通过点击右下角工单申请发票，发票金额大于等于500元，免邮寄费用；低于500元需自付邮寄费，建议您根据发票金额合理申请发票。
-</li>
+          <li>3. 累计充值金额满 ￥200 后可通过点击右下角工单申请发票，发票金额大于等于500元，免邮寄费用；低于500元需自付邮寄费，建议您根据发票金额合理申请发票。</li>
         </ul>
         <div className="payDetail">
           <div className="row">
@@ -571,7 +570,11 @@ class UserPay extends Component {
                   defaultValue=''
                   step={PAY_AMOUNT_STEP}
                   min={MIN_PAY_AMOUNT}
+                  max={MAX_PAY_AMOUNT}
                   onChange={(value) => {
+                    if (value == MAX_PAY_AMOUNT) {
+                      notification.info(`充值最大限额为${MAX_PAY_AMOUNT / 10000}万元，更大金额建议您通过银行转账的方式进行充值`)
+                    }
                     this.setState({
                       amount: value
                     })
@@ -583,7 +586,7 @@ class UserPay extends Component {
             <span className="keys">充值方式</span>
             ① 在线支付
           </div>
-          <div className="againMore">
+          <div className="againMore paddingLeft">
             <div className="pay-row">
               <div
                 className={payType == 'alipay' ? 'wrap-img selected' : 'wrap-img'}

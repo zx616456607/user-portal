@@ -22,6 +22,7 @@ const config = require('../configs')
 const standardMode = require('../configs/constants').STANDARD_MODE
 const serviceIndex = require('../services')
 const registryConfigLoader = require('../registry/registryConfigLoader')
+const _ = require('lodash')
 
 /*
 Only return the detail of one user
@@ -37,9 +38,10 @@ exports.getUserDetail = function* () {
     // For get loginUser info when user refresh page
     user.watchToken = loginUser.watchToken
     // Get config from config file and update session
-    serviceIndex.addConfigsForWS(user)
+    serviceIndex.addConfigsForFrontend(user)
     loginUser.tenxApi = user.tenxApi
     loginUser.cicdApi = user.cicdApi
+    _.merge(loginUser, user)
     // Delete sensitive information
     delete user.userID
     delete user.statusCode
@@ -130,7 +132,7 @@ exports.getUserTeams = function* () {
     let result = yield api.users.getBy([loginUser.id])
 
     //Only team admin can get team related information
-    if (!result || !result.data || (result.data.role != ROLE_TEAM_ADMIN 
+    if (!result || !result.data || (result.data.role != ROLE_TEAM_ADMIN
         && result.data.role != ROLE_SYS_ADMIN)) {
         this.body = {
           teams: [],

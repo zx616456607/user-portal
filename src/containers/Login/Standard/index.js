@@ -37,8 +37,8 @@ let Login = React.createClass({
       submitting: false,
       loginResult: {},
       submitProps: {},
-      intNameFocus: false,
-      intPassFocus: false,
+      intNameFocus: true,
+      intPassFocus: true,
       loginSucess: false,
       accountDetail: {},
     }
@@ -124,10 +124,6 @@ let Login = React.createClass({
 
   checkName(rule, value, callback) {
     const { getFieldProps } = this.props.form
-    if (!value) {
-      callback([new Error('请填写用户名')])
-      return
-    }
     if (value.indexOf('@') > -1) {
       if (!EMAIL_REG_EXP.test(value)) {
         callback([new Error('邮箱地址填写错误')])
@@ -139,7 +135,10 @@ let Login = React.createClass({
 
   checkPass(rule, value, callback) {
     if (!value) {
-      callback([new Error('请填写密码')])
+     return callback()
+    }
+    if (value.length < 6 || value.length >16) {
+      callback(new Error('长度为6~16个字符'))
       return
     }
     callback()
@@ -149,11 +148,19 @@ let Login = React.createClass({
     const { getFieldProps } = this.props.form
     if (current === 'name') {
       let name = getFieldProps('name').value
+      let password = getFieldProps('password').value
+      let intPassFocus= true
+      let intNameFocus= true
       if (name === '' || !name) {
-        this.setState({
-          intNameFocus: false
-        })
+        intNameFocus = false
       }
+      if (password === '' || !password) {
+        intPassFocus = false
+      }
+      this.setState({
+        intNameFocus,
+        intPassFocus
+      })
       return
     }
     if (current === 'pass') {
@@ -169,26 +176,13 @@ let Login = React.createClass({
   },
 
   intOnFocus(current) {
-    let intPassFocus = false
     if (current === 'name') {
-      const { getFieldProps } = this.props.form
-      if (getFieldProps('password').value === '') {
-        this.setState({
-          intPassFocus: true
-        })
-      }
-      this.refs.intName.refs.input.focus()
-      if (this.refs.intPass.refs.input.value) {
-        intPassFocus = true
-      }
       this.setState({
         intNameFocus: true,
-        intPassFocus
       })
       return
     }
     if (current === 'pass') {
-      this.refs.intPass.refs.input.focus()
       this.setState({
         intPassFocus: true,
       })
@@ -207,17 +201,21 @@ let Login = React.createClass({
   },
 
   componentDidMount() {
-    const _this = this
-    setTimeout(function(){
-      const intName = _this.refs.intName.refs.input
-      intName.focus()
-      if (intName.value) {
-        _this.setState({
-          intNameFocus: true,
-          intPassFocus: true
-        })
-      }
-    },500)
+    // const _this = this
+    // const intName = this.refs.intName
+    setTimeout(() => {
+      document.getElementById('name').focus()
+      // if (!intName) return
+      // const intName = intName.refs.input
+      // intName.focus()
+      // if (intName.value) {
+      //   _this.setState({
+      //     intNameFocus: true,
+      //     intPassFocus: true
+      //   })
+      // }
+    },1000)
+
   },
 
   onScanChange(scan, scanResult) {
@@ -275,14 +273,16 @@ let Login = React.createClass({
     const { random, submitting, submitProps } = this.state
     const nameProps = getFieldProps('name', {
       rules: [
+        { required: true, message: '请填写用户名' },
         { validator: this.checkName },
-      ],
+      ]
     })
     const passwdProps = getFieldProps('password', {
       rules: [
+        { required: true, message: '请填写密码' },
         { validator: this.checkPass },
       ],
-      getValueProps: () => {}, // Avoid show password in html element
+      // getValueProps: () => {}, // Avoid show password in html element
     })
     const formItemLayout = {
       wrapperCol: { span: 24 },

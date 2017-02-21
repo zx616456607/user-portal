@@ -41,6 +41,7 @@ import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/
 import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
+import { SERVICE_KUBE_NODE_PORT } from '../../../constants'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -304,7 +305,7 @@ const MyComponent = React.createClass({
     })
   },
   render: function () {
-    const { cluster, serviceList, loading, page, size, total, bindingDomains, bindingIPs, k8sServiceList} = this.props
+    const { cluster, serviceList, loading, page, size, total, bindingDomains, bindingIPs, k8sServiceList, loginUser } = this.props
     if (loading) {
       return (
         <div className="loadingBox">
@@ -335,12 +336,12 @@ const MyComponent = React.createClass({
           <Menu.Item key="config">
             更改配置
           </Menu.Item>
-          <Menu.Item key="https">
+          <Menu.Item key="https" disabled={ loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT }>
             设置HTTPS
           </Menu.Item>
         </Menu>
       );
-      const svcDomain = parseServiceDomain(item, bindingDomains,bindingIPs)
+      const svcDomain = parseServiceDomain(item, bindingDomains, bindingIPs)
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -973,7 +974,7 @@ class AppServiceList extends Component {
     const {
       name, pathname, page,
       size, total, isFetching,
-      cluster, appName, loadServiceList, k8sServiceList,
+      loginUser, cluster, appName, loadServiceList, k8sServiceList,
     } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
@@ -1102,6 +1103,7 @@ class AppServiceList extends Component {
             <div style={{ clear: "both" }}></div>
           </div>
           <MyComponent
+            loginUser={loginUser}
             cluster={cluster}
             name={name}
             scope={parentScope}
@@ -1183,7 +1185,7 @@ AppServiceList.propTypes = {
   pathname: PropTypes.string.isRequired,
   page: PropTypes.number.isRequired,
   size: PropTypes.number.isRequired,
-  total: PropTypes.number.isRequired,
+  // total: PropTypes.number.isRequired,
   onServicesChange: PropTypes.func.isRequired, // For change app status when service list change
 }
 
@@ -1199,6 +1201,7 @@ function mapStateToProps(state, props) {
     size = DEFAULT_PAGE_SIZE
   }
   const { appName } = props
+  const { loginUser } = state.entities
   const { cluster } = state.entities.current
   const { statusWatchWs } = state.entities.sockets
   const defaultServices = {
@@ -1217,6 +1220,7 @@ function mapStateToProps(state, props) {
   }
   const { serviceList, isFetching, total } = targetServices || defaultServices
   return {
+    loginUser: loginUser,
     cluster: cluster.clusterID,
     statusWatchWs,
     bindingDomains: state.entities.current.cluster.bindingDomains,

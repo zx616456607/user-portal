@@ -18,8 +18,9 @@ import { isDomain } from '../../../common/tools'
 import NotificationHandler from '../../../common/notification_handler.js'
 import findIndex from 'lodash/findIndex'
 import cloneDeep from 'lodash/cloneDeep'
-import { ANNOTATION_HTTPS } from '../../../../constants'
+import { ANNOTATION_HTTPS, SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 import { camelize } from 'humps'
+
 let uuid=0
 let ob = {}
 let defaultPort = []
@@ -27,11 +28,27 @@ let changeType = {}
 let allPort = []
 let allUsedPort = []
 
+function validatePortNumber(proxyType, portNumber) {
+  let minimumPort = 10000
+  let maximumPort = 65535
+  if (proxyType == SERVICE_KUBE_NODE_PORT) {
+    // TODO: Make it configurealbe
+    minimumPort = 30000
+    maximumPort = 32766
+  }
+  if( portNumber < minimumPort || portNumber > maximumPort ) {
+    return '指定端口号范围' +  minimumPort + ' ~ ' + maximumPort
+  } else {
+    return
+  }
+}
+
 let MyComponent = React.createClass({
   getInitialState() {
-    const { currentCluster } = this.props
+    const { currentCluster, loginUser } = this.props
     return {
-      disableHTTP: !isDomain(currentCluster.bindingDomains)
+      // kube-nodeport doesn't support HTTP for now
+      disableHTTP: !isDomain(currentCluster.bindingDomains) || (loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT)
     }
   },
   propTypes: {
@@ -130,7 +147,7 @@ let MyComponent = React.createClass({
       return
     }
     const port = parseInt(value.trim())
-    if(port < 0 || port > 65535) {
+    if(port < 1 || port > 65535) {
       callback(new Error('请填入0~65535'))
       return
     }
@@ -148,8 +165,10 @@ let MyComponent = React.createClass({
     }
     const port = parseInt(value.trim())
     if(port == 80) return callback()
-    if(port < 0 || port > 65535) {
-      callback(new Error('请填入0~65535'))
+    const { loginUser } = this.props
+    let msg = validatePortNumber(loginUser.info.proxyType, port)
+    if (msg) {
+      callback(new Error(msg))
       return
     }
     if(allUsedPort.indexOf(value.trim()) >= 0) {
@@ -504,8 +523,8 @@ let MyComponent = React.createClass({
               <Select.Option key="2">指定端口</Select.Option>
             </Select>
             <span style={{display: getFieldProps(`newssl${k}`).value == 'HTTP' ? 'inline-block' : 'none'}}>80</span>
-            <Form.Item key={k} style={{width: '100px', float: 'right', marginRight: '70px'}}>
-            <Input type='text' style={{width: '100px', marginLeft: '10px', display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {rules: [rules, {validator: this.checkInputPort}], initialValue: "80"})} />
+            <Form.Item key={k} style={{width: '50px', float: 'right', marginRight: '70px'}}>
+            <Input type='text' style={{width: '50px', marginLeft: '0px', display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {rules: [rules, {validator: this.checkInputPort}], initialValue: "80"})} />
             </Form.Item>
           </div>
           <div className="commonData span2">
@@ -568,21 +587,19 @@ let MyComponent = React.createClass({
           <div className="commonData span3">
 
             { this.state.openPort && this.state.openPort[index] ?
-
               getFieldProps(`selectssl${index+1}`).value == 'HTTP' ? <span>80</span> :
               <Select defaultValue='动态生成' style={{width:'100px'}} onChange={(e)=> this.changeType(e, index + 1)}>
                 <Select.Option key="1">动态生成</Select.Option>
                 <Select.Option key="2">指定端口</Select.Option>
               </Select>
-              
               :
               <span><Input type="hidden" {...getFieldProps(`inputPort${index+1}`, {
                 initialValue: target[1].toLowerCase() == 'http' ? 80 : target[2]
               })}/>{target[1].toLowerCase() == 'http' ? 80 : target[2]}</span>
             }
             { this.state.openPort && this.state.openPort[index] && this.state.inPort =='2' ?
-              <Form.Item style={{width: '100px', float: 'right', marginRight: '70px'}}>
-                <Input style={{width:'100px', marginLeft:'10px'}} {...getFieldProps(`changeinputPort${index + 1}`, {
+              <Form.Item style={{width: '50px', float: 'right', marginRight: '70px'}}>
+                <Input style={{width:'50px', marginLeft:'0px'}} {...getFieldProps(`changeinputPort${index + 1}`, {
                   rules: [{
                     required: true,
                     whitespace: true,
@@ -632,7 +649,9 @@ let MyComponent = React.createClass({
 });
 
 function mapSateToProp(state) {
+  const { loginUser } = state.entities
   return {
+    loginUser: loginUser,
     k8sService: state.services.k8sService,
   }
 }

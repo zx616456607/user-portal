@@ -112,10 +112,15 @@ let Activation = React.createClass({
                 loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
               }
             </div>
+            <div className="platform">平台ID <span className="platformId textoverflow">{this.props.platform.platformid}</span>
+              <Tooltip title={this.state.copySuccess ? '复制成功': '点击复制'}>
+                <a className={this.state.copySuccess ? "actions copyBtn":"copyBtn"} onClick={()=> this.copyDownloadCode()} onMouseLeave={()=> this.returnDefaultTooltip()}>
+                  <Icon type="copy" />
+                </a>
+              </Tooltip>
+              <input className="CodeInput" style={{ position: "absolute", opacity: "0", top:'0'}} defaultValue={this.props.platform.platformid} />
+            </div>
             <Form onSubmit={(e)=> this.handleSubmit(e)}>
-              <div className="platform">平台ID <span className="platformId textoverflow">{this.props.platform.platformid}</span>
-                <Tooltip title={this.state.copySuccess ? '复制成功': '点击复制'}><span className={this.state.copySuccess ? "actions copyBtn":"copyBtn"} onClick={()=> this.copyDownloadCode()} onMouseLeave={()=> this.returnDefaultTooltip()}><Icon type="copy" /></span></Tooltip>
-              </div>
               <FormItem
                 hasFeedback
                 >
@@ -137,7 +142,6 @@ let Activation = React.createClass({
               </FormItem>
             </Form>
           </Card>
-          <input className="CodeInput" style={{ position: "absolute", opacity: "0", top:'0'}} defaultValue={this.props.platform.platformid} />
         </div>
         </div>
         <div className="footer">

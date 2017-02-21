@@ -37,7 +37,12 @@ let MyComponent = React.createClass({
     })
   },
   render: function () {
+    const canCreate = this.props.canCreate
     const { config, isFetching } = this.props;
+    let title = ''
+    if (!canCreate) {
+      title = '尚未部署分布式存储，暂不能创建（如需帮助，请查看文档或通过右下角工单联系我们）'
+    }
     if (isFetching) {
       return (
         <div className='loadingBox'>
@@ -49,7 +54,7 @@ let MyComponent = React.createClass({
       return (
         <div className="text-center">
           <img src={noDbImgs} />
-          <div>还没有MySQL集群，创建一个！ <Button type="primary" size="large" onClick={()=> this.props.scope.createDatabaseShow()}>创建集群</Button></div>
+          <div>还没有MySQL集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={()=> this.props.scope.createDatabaseShow()} disabled={!canCreate}>创建集群</Button></Tooltip></div>
         </div>
       )
     }
@@ -125,6 +130,7 @@ class MysqlCluster extends Component {
       notification.error('请选择集群','invalid cluster ID')
       return
     }
+
     loadDbCacheList(cluster, 'mysql')
   }
   componentDidMount() {
@@ -179,19 +185,28 @@ class MysqlCluster extends Component {
   render() {
     const _this = this;
     const { isFetching, databaseList } = this.props;
+    let title = ''
+    const currentCluster = this.props.current.cluster
+    const storage_type = currentCluster.storageTypes
+    let canCreate = true
+    if (!storage_type || storage_type.indexOf('rbd') < 0) canCreate = false
+    if(!canCreate) {
+      title = '尚未部署分布式存储，暂不能创建（如需帮助，请查看文档或通过右下角工单联系我们）'
+    }
     return (
       <QueueAnim id='mysqlDatabase' type='right'>
         <div className='databaseCol' key='mysqlDatabase'>
           <div className='databaseHead'>
-            <Button type='primary' size='large' onClick={this.createDatabaseShow}>
+            <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
               <i className='fa fa-plus' />&nbsp;MySQL集群
           </Button>
+          </Tooltip>
             <span className='rightSearch'>
               <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight:'28px'}} ref="mysqlRef" onPressEnter={(e)=> this.handSearch(e)} />
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()}/>
             </span>
           </div>
-          <MyComponent scope={_this} isFetching={isFetching} config={databaseList} />
+          <MyComponent scope={_this} isFetching={isFetching} config={databaseList} canCreate={canCreate}/>
         </div>
         <Modal visible={this.state.detailModal}
           className='AppServiceDetail' transitionName='move-right'

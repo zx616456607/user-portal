@@ -77,7 +77,7 @@ let MyComponent = React.createClass({
     // 2: create service, 3: delete service, 8: stop service, 9: start service, 10: restart service
     if (item.operationCode === 2 || item.operationCode === 3
       || item.operationCode === 8 || item.operationCode === 9 || item.operationCode === 10) {
-      msg = `(${item.detail})`
+      msg = ` - ${item.detail}`
     }
     return msg
   },
@@ -99,7 +99,7 @@ let MyComponent = React.createClass({
               {formatOperation(item.operation)}{formatResult(item.result)}
             </div>
             <div className="message">
-              { this.getDetailMsg(item)}
+              &nbsp;{ this.getDetailMsg(item)}
             </div>
             <div className="createTime">
               {item.time}

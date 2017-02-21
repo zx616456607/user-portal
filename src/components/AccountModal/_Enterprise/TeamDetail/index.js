@@ -582,10 +582,9 @@ class TeamDetail extends Component {
             <span className="backjia"></span>
             <span className="btn-back">返回</span>
           </Link>
+          <span className="title">{teamName}</span>
         </Row>
-        <Row className="title">
-          {teamName}
-        </Row>
+      
         <Row className="content">
           <Alert message="这里展示了该团队在用的集群列表,资源配置是超级管理员在企业版后台,分配到该团队所用的计算等资源,以下集群对该团队的团队空间有效." />
           <Row className="clusterList" gutter={30}>

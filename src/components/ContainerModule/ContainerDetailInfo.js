@@ -12,36 +12,12 @@ import { Card, Tooltip, Icon } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
+import { cpuFormat, memoryFormat } from '../../common/tools'
 import "./style/ContainerDetailInfo.less"
+
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
-
-function cpuFormat(memory) {
-  //this function for format cpu
-  if(Boolean(memory)) {
-    let newMemory = parseInt(memory.replace('Mi','').replace('Gi'))
-    switch(newMemory) {
-      case 1:
-        return '1CPU（共享）';
-      case 2:
-        return '1CPU（共享）';
-      case 4:
-        return '1CPU';
-      case 8:
-        return '2CPU';
-      case 16:
-        return '2CPU';
-      case 32:
-        return '3CPU';
-      case 256:
-        return '1CPU（共享）';
-      case 512:
-        return '1CPU（共享）';
-    }
-  } else {
-    return '-';
-  }
-}
+const enterpriseFlag = standard != mode
 
 export default class ContainerDetailInfo extends Component {
   constructor(props) {
@@ -177,10 +153,10 @@ export default class ContainerDetailInfo extends Component {
           </div>
           <div className="dataBox">
             <div className="commonTitle">
-              {cpuFormat(container.spec.containers[0].resources.requests.memory)}
+              {cpuFormat(container.spec.containers[0].resources.requests.memory, container.spec.containers[0].resources) || '-'}
             </div>
             <div className="commonTitle">
-              {container.spec.containers[0].resources.requests.memory.replace('i', '') || '-'}
+              {memoryFormat(container.spec.containers[0].resources)}
             </div>
             <div className="commonTitle">
               10G

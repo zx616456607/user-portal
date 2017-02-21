@@ -10,12 +10,12 @@
 import React, { Component, PropTypes } from 'react'
 import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Radio, Icon, notification } from 'antd'
 import { Link } from 'react-router'
-import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import $ from 'jquery'
 import "./style/EnviroDeployBox.less"
 import { appEnvCheck } from '../../../../common/naming_validation'
 import { isDomain } from '../../../../common/tools'
+import { SERVICE_KUBE_NODE_PORT } from '../../../../../constants'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -44,6 +44,21 @@ function currentShowTcpInputType(form, index) {
     return true;
   } else {
     return false;
+  }
+}
+
+function validatePortNumber(proxyType, portNumber) {
+  let minimumPort = 10000
+  let maximumPort = 65535
+  if (proxyType == SERVICE_KUBE_NODE_PORT) {
+    // TODO: Make it configurealbe
+    minimumPort = 30000
+    maximumPort = 32766
+  }
+  if( portNumber < minimumPort || portNumber > maximumPort ) {
+    return '指定端口号范围' +  minimumPort + ' ~ ' + maximumPort
+  } else {
+    return
   }
 }
 
@@ -207,7 +222,8 @@ let MyComponentPort = React.createClass({
         })
         return
       } else {
-        if(value <= 0 || value > 65535) {
+        // Container port
+        if (value < 1 || value > 65535) {
           callback([new Error('指定端口号范围0 ~ 65535')])
           return;
         }
@@ -246,8 +262,9 @@ let MyComponentPort = React.createClass({
       return;
     } else {
       let tempPort  = parseInt(value);
-      if( tempPort < 10000 || tempPort > 65535 ) {
-        callback([new Error('指定端口号范围10000 ~ 65535')])
+      let msg = validatePortNumber(this.props.loginUser.proxyType, tempPort)
+      if (msg) {
+        callback([new Error(msg)])
         return;
       } else {
         callback();
@@ -266,7 +283,7 @@ let MyComponentPort = React.createClass({
   },
   render: function () {
     const scopeThis = this;
-    const { form, parentScope } = this.props
+    const { form, parentScope, loginUser } = this.props
     const { intDis ,addDis} = this.state
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     const { bindingDomains } = parentScope.props.cluster
@@ -352,7 +369,7 @@ let MyComponentPort = React.createClass({
 
 let EnviroDeployBox = React.createClass({
   render: function () {
-    const { form,disAdd } = this.props
+    const { form,disAdd, loginUser } = this.props
     const parentScope = this.props.scope;
     return (
       <div id="advanceBox">
@@ -393,7 +410,7 @@ let EnviroDeployBox = React.createClass({
                 </div>
                 <div style={{ clear: "both" }}></div>
               </div>
-              <MyComponentPort parentScope={parentScope} form={form}/>
+              <MyComponentPort parentScope={parentScope} loginUser={loginUser} form={form}/>
             </div>
           </div>
         </div>

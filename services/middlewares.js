@@ -18,6 +18,7 @@ const logger = require('../utils/logger').getLogger('middlewares')
 const constants = require('../constants')
 const USER_CURRENT_CONFIG = constants.USER_CURRENT_CONFIG
 const indexService = require('./')
+const _ = require('lodash')
 
 /**
  * Set user current config: teamspace, cluster
@@ -46,6 +47,7 @@ exports.auth = function* (next) {
     let redirectUrl = '/login'
     let requestUrl = this.request.url
     if (requestUrl.indexOf(redirectUrl) < 0 && requestUrl !== '/') {
+      // @Todo remove redirect url hash
       redirectUrl += `?redirect=${requestUrl}`
     }
     switch (this.accepts('json', 'html', 'text')) {
@@ -161,9 +163,8 @@ exports.verifyUser = function* (next) {
     balance: result.balance,
   }
   // Add config into user for frontend websocket
-  indexService.addConfigsForWS(loginUser)
-  result.tenxApi = loginUser.tenxApi
-  result.cicdApi = loginUser.cicdApi
+  indexService.addConfigsForFrontend(loginUser)
+  _.merge(result, loginUser)
   // Private cloud need check users license
   /*if (configIndex.running_mode === enterpriseMode) {
     const licenseObj = yield indexService.getLicense(loginUser)
