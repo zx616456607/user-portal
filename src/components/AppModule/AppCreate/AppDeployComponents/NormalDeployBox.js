@@ -349,12 +349,13 @@ let MyComponent = React.createClass({
               }],
             })} />
             </FormItem>
-            <Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`, {
+            {self.props.storageType == 'rbd' ? <span><Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`, {
             }) } checked={getFieldValue(`volumeChecked${k}`)}>
               只读
           </Checkbox>
             <i className="fa fa-refresh" onClick={() => this.refresh()} />
-            <i className="fa fa-trash" onClick={() => this.remove(k)} />
+            <i className="fa fa-trash" onClick={() => this.remove(k)} /> </span>: ''}
+
           </FormItem>
         )
       });
