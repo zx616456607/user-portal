@@ -369,3 +369,20 @@ export function cpuFormat(memory, resources) {
       return '1 CPU（共享）'
   }
 }
+
+export function memoryFormat(resources) {
+  let memoryLimits = resources.limits.memory
+  let memoryRequests = resources.requests.memory
+  if (!memoryLimits) {
+    return '-'
+  }
+  memoryLimits = memoryLimits.replace('i', '')
+  if (enterpriseFlag && memoryLimits && memoryRequests) {
+    memoryRequests = memoryRequests.replace('i', '')
+    if (memoryLimits === memoryRequests) {
+      return memoryLimits
+    }
+    return `${memoryRequests}~${memoryLimits}`
+  }
+  return memoryLimits
+}
