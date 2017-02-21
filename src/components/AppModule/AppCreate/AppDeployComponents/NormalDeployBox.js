@@ -936,8 +936,8 @@ let NormalDeployBox = React.createClass({
                         <div className="DIYKey">
                           <InputNumber
                             onChange={(value) => parentScope.setState({DIYMemory: value})}
-                            value={parseInt(DIYMemory)}
                             defaultValue={RESOURCES_MEMORY_MIN}
+                            value={parseInt(DIYMemory)}
                             step={RESOURCES_MEMORY_STEP}
                             min={RESOURCES_MEMORY_MIN}
                             max={RESOURCES_MEMORY_MAX} />
