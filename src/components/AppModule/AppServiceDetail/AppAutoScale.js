@@ -212,10 +212,9 @@ class AppAutoScale extends Component {
       <div id="AppAutoScale">
         <div className="title">
           自动弹性伸缩
-          <div className="titleBtn">
             {!edit
               ? (
-                <div>
+                <span style={{marginLeft:'50px'}}>
                   <Tooltip
                     arrowPointAtCenter
                     title={this.state.isAvailable ? (isAutoScaleOpen ? '弹性伸缩已开启' : '弹性伸缩已关闭') : '不允许弹性伸缩'} >
@@ -234,14 +233,13 @@ class AppAutoScale extends Component {
                         onClick={this.handleEdit} />
                     </Tooltip>
                   )}
-                </div>)
+                </span>)
               : (
-                <div>
+                <span>
                   <Button type="primary" size="large" onClick={this.handleSave}>{saveText}</Button>
                   <Button size="large" onClick={this.handleCancel}>取消</Button>
-                </div>)
+                </span>)
             }
-          </div>
         </div>
         {this.state.isAvailable ?
           <Alert message="注: 系统将根据设定的CPU阈值来自动的『扩展,或减少』该服务所『缺少,或冗余』的实例数量" type="info" /> :
