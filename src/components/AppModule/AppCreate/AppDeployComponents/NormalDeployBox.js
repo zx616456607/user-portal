@@ -946,8 +946,8 @@ let NormalDeployBox = React.createClass({
                         <div className="DIYKey">
                           <InputNumber
                             onChange={(value) => parentScope.setState({DIYCPU: value})}
-                            value={parseInt(DIYCPU)}
                             defaultValue={RESOURCES_CPU_MIN}
+                            value={parseInt(DIYCPU)}
                             step={RESOURCES_CPU_STEP}
                             min={RESOURCES_CPU_MIN}
                             max={RESOURCES_CPU_MAX}/>
