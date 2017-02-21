@@ -315,6 +315,25 @@ export function getValue(obj, key) {
 }
 
 /**
+ * Parse cpu with unit to number
+ *
+ * @export
+ * @param {any} cpu
+ * @returns
+ */
+export function parseCpuToNumber(cpu) {
+  if (!cpu) {
+    return
+  }
+  if (cpu.indexOf('m') < 0) {
+    cpu *= 1000
+  } else {
+    cpu = parseInt(cpu)
+  }
+  return Math.ceil((cpu / 1000) * 10) / 10
+}
+
+/**
  * Format cpu
  *
  * @param {any} memory
@@ -322,14 +341,10 @@ export function getValue(obj, key) {
  * @returns
  */
 export function cpuFormat(memory, resources) {
-  let cpu = resources.limits.cpu
-  if (enterpriseFlag && cpu) {
-    if (cpu.indexOf('m') < 0) {
-      cpu *= 1000
-    } else {
-      cpu = parseInt(cpu)
-    }
-    return `${Math.ceil((cpu / 1024) * 10) / 10}CPU`
+  let cpuLimits = parseCpuToNumber(resources.limits.cpu)
+  let cpuRequests = parseCpuToNumber(resources.requests.cpu)
+  if (enterpriseFlag && cpuLimits && cpuRequests) {
+    return `${cpuRequests}~${cpuLimits} CPU`
   }
   if(!Boolean(memory)) {
     return '-'
@@ -337,20 +352,20 @@ export function cpuFormat(memory, resources) {
   let newMemory = parseInt(memory.replace('Mi','').replace('Gi'))
   switch(newMemory) {
     case 1:
-      return '1CPU（共享）';
+      return '1 CPU（共享）'
     case 2:
-      return '1CPU（共享）';
+      return '1 CPU（共享）'
     case 4:
-      return '1CPU';
+      return '1 CPU'
     case 8:
-      return '2CPU';
+      return '2 CPU'
     case 16:
-      return '2CPU';
+      return '2 CPU'
     case 32:
-      return '2CPU';
+      return '2 CPU'
     case 256:
-      return '1CPU（共享）';
+      return '1 CPU（共享）'
     case 512:
-      return '1CPU（共享）';
+      return '1 CPU（共享）'
   }
 }
