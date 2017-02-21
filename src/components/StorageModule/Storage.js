@@ -277,7 +277,6 @@ let MyComponent = React.createClass({
   render() {
     const { formatMessage } = this.props.intl
     let list = this.props.storage;
-
     let items = list.storageList.map((item) => {
       const menu = (<Menu onClick={(e) => { this.showAction(e, 'format', item.name, item.format) } } style={{ width: '80px' }}>
         <Menu.Item key="1" disabled={item.isUsed}><FormattedMessage {...messages.formatting} /></Menu.Item>
@@ -315,20 +314,19 @@ let MyComponent = React.createClass({
               </Button>
             </Dropdown>*/}
             {!item.isUsed ?
-              <Dropdown.Button 
+              <Dropdown.Button
                 overlay={menu} 
                 type='ghost'
                 onClick={(e) => { this.showAction(e, 'resize', item.name, item.totalSize) } }
                  disabled={item.isUsed}>
-                <span className="divider"><FormattedMessage {...messages.dilation} /> </span>
+                <FormattedMessage {...messages.dilation} />
               </Dropdown.Button>
             :
               <Dropdown.Button 
                 overlay={menu}
                 type='ghost'
-                visible={false}
-                disabled={item.isUsed}>
-                  <span className="divider"><FormattedMessage {...messages.dilation} /> </span>
+                className="ant-disabled">
+                  <FormattedMessage {...messages.dilation} />
               </Dropdown.Button>
             }
           </div>

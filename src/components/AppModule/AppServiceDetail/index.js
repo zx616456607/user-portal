@@ -36,7 +36,7 @@ import TipSvcDomain from '../../TipSvcDomain'
 import { getServiceStatusByContainers } from '../../../common/status_identify'
 import { ANNOTATION_HTTPS } from '../../../../constants'
 import { camelize } from 'humps'
-import { PROXY_TYPE , SERVICE_KUBE_NODE_PORT } from '../../../../constants'
+import { SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -183,10 +183,11 @@ class AppServiceDetail extends Component {
   }
 
   onTabClick(activeTabKey) {
+    const {loginUser} = this.props
     if (activeTabKey === this.state.activeTabKey) {
       return
     }
-    if ( PROXY_TYPE == SERVICE_KUBE_NODE_PORT) {
+    if ( loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT) {
       if(activeTabKey == '#binddomain' || activeTabKey == '#https') {
         return
       }
@@ -237,6 +238,7 @@ class AppServiceDetail extends Component {
   }
   render() {
     const parentScope = this
+    const { loginUser } = this.props
     const {
       scope,
       serviceDetailmodalShow,
@@ -252,7 +254,7 @@ class AppServiceDetail extends Component {
     } = this.props
     const { activeTabKey, currentContainer } = this.state
     const httpsTabKey = '#https'
-    const isKubeNode = (SERVICE_KUBE_NODE_PORT == PROXY_TYPE)
+    const isKubeNode = (SERVICE_KUBE_NODE_PORT == loginUser.info.proxyType)
    
     let nocache = currentContainer.map((item) => {
       return item.metadata.name;
@@ -464,6 +466,7 @@ AppServiceDetail.propTypes = {
 
 function mapStateToProps(state, props) {
   const {scope} = props
+  const {loginUser} = state.entities
   const {statusWatchWs} = state.entities.sockets
   const currentShowInstance = scope.state.currentShowInstance
   const {cluster, metadata } = currentShowInstance
@@ -505,6 +508,7 @@ function mapStateToProps(state, props) {
   }
 
   return {
+    loginUser: loginUser,
     cluster,
     statusWatchWs,
     currentCluster: state.entities.current.cluster,

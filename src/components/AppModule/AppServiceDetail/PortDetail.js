@@ -18,7 +18,7 @@ import { isDomain } from '../../../common/tools'
 import NotificationHandler from '../../../common/notification_handler.js'
 import findIndex from 'lodash/findIndex'
 import cloneDeep from 'lodash/cloneDeep'
-import { ANNOTATION_HTTPS, PROXY_TYPE, SERVICE_KUBE_NODE_PORT } from '../../../../constants'
+import { ANNOTATION_HTTPS, SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 import { camelize } from 'humps'
 
 let uuid=0
@@ -28,10 +28,10 @@ let changeType = {}
 let allPort = []
 let allUsedPort = []
 
-function validatePortNumber(portNumber) {
+function validatePortNumber(proxyType, portNumber) {
   let minimumPort = 10000
   let maximumPort = 65535
-  if (PROXY_TYPE == SERVICE_KUBE_NODE_PORT) {
+  if (proxyType == SERVICE_KUBE_NODE_PORT) {
     // TODO: Make it configurealbe
     minimumPort = 30000
     maximumPort = 32766
@@ -45,10 +45,10 @@ function validatePortNumber(portNumber) {
 
 let MyComponent = React.createClass({
   getInitialState() {
-    const { currentCluster } = this.props
+    const { currentCluster, loginUser } = this.props
     return {
       // kube-nodeport doesn't support HTTP for now
-      disableHTTP: !isDomain(currentCluster.bindingDomains) || (PROXY_TYPE == SERVICE_KUBE_NODE_PORT)
+      disableHTTP: !isDomain(currentCluster.bindingDomains) || (loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT)
     }
   },
   propTypes: {
@@ -165,7 +165,8 @@ let MyComponent = React.createClass({
     }
     const port = parseInt(value.trim())
     if(port == 80) return callback()
-    let msg = validatePortNumber(port)
+    const { loginUser } = this.props
+    let msg = validatePortNumber(loginUser.info.proxyType, port)
     if (msg) {
       callback(new Error(msg))
       return
@@ -648,7 +649,9 @@ let MyComponent = React.createClass({
 });
 
 function mapSateToProp(state) {
+  const { loginUser } = state.entities
   return {
+    loginUser: loginUser,
     k8sService: state.services.k8sService,
   }
 }

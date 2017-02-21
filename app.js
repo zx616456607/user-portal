@@ -9,6 +9,8 @@
  */
 'use strict'
 
+// For webpack build backend files runtime
+require('babel-polyfill')
 // Set root dir to global
 global.__root__dirname = __dirname
 // Repalce native Promise by bluebird
@@ -259,6 +261,10 @@ const indexRoutes = require('./routes')
 app.use(indexRoutes(Router))
 const apiRoutes = require('./routes/api')
 app.use(apiRoutes(Router))
+
+//3rd_account vsettan
+const vsettan = require('./routes/3rd_account/vsettan/no_auth')
+app.use(vsettan(Router))
 
 // Serve static files
 app.use(function* (next){
