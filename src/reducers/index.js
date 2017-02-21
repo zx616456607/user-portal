@@ -8,6 +8,7 @@
  * @author Zhangpc
  */
 import * as ActionTypes from '../actions'
+import * as EntitiesActionTypes from '../actions/entities'
 import merge from 'lodash/merge'
 import union from 'lodash/union'
 import { routerReducer as routing } from 'react-router-redux'
@@ -19,6 +20,7 @@ import * as servicesReducers from './services'
 import * as databaseCacheReducers from './database_cache'
 import * as manageMonitorReducers from './manage_monitor'
 import * as integrationReducers from './integration'
+import * as clusterNodeReducers from './cluster_node'
 import configReducers from './configs'
 import storage from './storage'
 import metrics from './metrics'
@@ -32,6 +34,9 @@ import overviewCluster from './overview_cluster'
 import overviewSpace from './overview_space'
 import consumption from './consumption'
 import userPreference from './user_preference'
+import license from './license'
+import admin from './admin'
+import user3rdAccount from './user_3rd_account'
 import { LOGIN_EXPIRED_MESSAGE, PAYMENT_REQUIRED_CODE, UPGRADE_EDITION_REQUIRED_CODE, } from '../constants'
 
 
@@ -60,10 +65,10 @@ function actionCallback(state = null, action) {
   }
   if (!action.callback) return state
   let callback = action.callback
-  if (action.type.indexOf('_SUCCESS') >= 0) {
+  if (action.type.indexOf('_SUCCESS') >= 0 || action.type == EntitiesActionTypes.SET_CURRENT ) {
     if (!callback.success) return state
     if (callback.success.isAsync) {
-      setTimeout(callback.success.func.bind(this, action.response.result))
+      setTimeout(callback.success.func.bind(this, action.response ? action.response.result : null))
       return state
     }
     callback.success.func(action.response.result)
@@ -100,6 +105,7 @@ const rootReducer = combineReducers({
   ...databaseCacheReducers,
   ...manageMonitorReducers,
   ...integrationReducers,
+  ...clusterNodeReducers,
   configReducers,
   metrics,
   user,
@@ -113,6 +119,9 @@ const rootReducer = combineReducers({
   overviewSpace,
   consumption,
   userPreference,
+  license,
+  admin,
+  user3rdAccount,
 })
 
 export default rootReducer

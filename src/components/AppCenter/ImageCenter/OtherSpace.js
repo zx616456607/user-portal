@@ -75,7 +75,7 @@ const MyComponent = React.createClass({
         </div>
       )
     }
-    if (config.length == 0) {
+    if (!config || config.length == 0) {
       return (
         <div className='loadingBox'>
           <FormattedMessage {...menusText.noData} />
@@ -169,6 +169,7 @@ class OtherSpace extends Component {
 
   render() {
     const { formatMessage } = this.props.intl;
+    const { liteFlag } = this.props;
     const rootscope = this.props.scope;
     const scope = this;
     const otherHead = this.props.otherHead

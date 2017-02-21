@@ -21,9 +21,10 @@ import AppUseful from './AppUseful'
 import AppServiceLog from './AppServiceLog'
 import AppServiceEvent from './AppServiceEvent'
 import AppServiceRental from './AppServiceRental'
+import AppSettingsHttps from './AppSettingsHttps'
 import ServiceMonitor from './ServiceMonitor'
 import AppAutoScale from './AppAutoScale'
-import { loadServiceDetail, loadServiceContainerList } from '../../../actions/services'
+import { loadServiceDetail, loadServiceContainerList, loadK8sService } from '../../../actions/services'
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
 import TerminalModal from '../../TerminalModal'
@@ -33,6 +34,8 @@ import { TENX_MARK, LOAD_STATUS_TIMEOUT } from '../../../constants'
 import { addPodWatch, removePodWatch } from '../../../containers/App/status'
 import TipSvcDomain from '../../TipSvcDomain'
 import { getServiceStatusByContainers } from '../../../common/status_identify'
+import { ANNOTATION_HTTPS } from '../../../../constants'
+import { camelize } from 'humps'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -57,10 +60,13 @@ class AppServiceDetail extends Component {
     this.stopService = this.stopService.bind(this)
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
     this.openTerminalModal = this.openTerminalModal.bind(this)
+    this.onHttpsComponentSwitchChange = this.onHttpsComponentSwitchChange.bind(this)
+
     this.state = {
       activeTabKey: props.selectTab || DEFAULT_TAB,
       TerminalLayoutModal: false,
-      currentContainer: []
+      currentContainer: [],
+      httpIcon: 'http',
     }
   }
 
@@ -70,11 +76,28 @@ class AppServiceDetail extends Component {
       cluster,
       serviceName,
       loadServiceDetail,
-      loadServiceContainerList
+      loadK8sService,
+      loadServiceContainerList,
     } = nextProps || this.props
     document.title = `${serviceName} 服务详情页 | 时速云`
     const query = {}
     loadServiceDetail(cluster, serviceName)
+    loadK8sService(cluster, serviceName, {
+      success: {
+        func: (result) => {
+          const camelizedSvcName = camelize(serviceName)
+          let httpIcon = 'http'
+          if (result.data && result.data[camelizedSvcName] && result.data[camelizedSvcName].metadata
+            && result.data[camelizedSvcName].metadata.annotations && result.data[camelizedSvcName].metadata.annotations[ANNOTATION_HTTPS] === 'true') {
+            httpIcon = 'https'
+          }
+          this.setState({
+            httpIcon,
+          })
+        },
+        isAsync: true
+      }
+    })
     loadServiceContainerList(cluster, serviceName, null, {
       success: {
         func: (result) => {
@@ -201,7 +224,11 @@ class AppServiceDetail extends Component {
     }
     return false
   }
-
+  onHttpsComponentSwitchChange(status) {
+    this.setState({
+      httpIcon: status ? 'https' : 'http'
+    })
+  }
   render() {
     const parentScope = this
     const {
@@ -212,10 +239,13 @@ class AppServiceDetail extends Component {
       containers,
       isContainersFetching,
       appName,
+      currentCluster,
       bindingDomains,
-      bindingIPs
+      bindingIPs,
+      k8sService,
     } = this.props
     const { activeTabKey, currentContainer } = this.state
+    const httpsTabKey = '#https'
     let nocache = currentContainer.map((item) => {
       return item.metadata.name;
     })
@@ -268,7 +298,7 @@ class AppServiceDetail extends Component {
               <div className='address'>
                 <span>地址：</span>
                 <div className='addressRight'>
-                  <TipSvcDomain svcDomain={svcDomain} parentNode='appSvcDetailDomain' />
+                  <TipSvcDomain svcDomain={svcDomain} parentNode='appSvcDetailDomain' icon={this.state.httpIcon}/>
                 </div>
               </div>
               <div>
@@ -343,15 +373,31 @@ class AppServiceDetail extends Component {
                   serviceName={service.metadata.name}
                   serviceDetailmodalShow={serviceDetailmodalShow}
                   service={serviceDetail}
+                  activeKey={activeTabKey}
+                  isCurrentTab={activeTabKey==='#binddomain'}
                   />
               </TabPane>
               <TabPane tab='端口' key='#ports'>
                 <PortDetail
                   serviceName={service.metadata.name}
                   cluster={service.cluster}
+                  currentCluster={currentCluster}
                   container={containers[0]}
                   loading={isContainersFetching}
                   serviceDetailmodalShow={serviceDetailmodalShow}
+                  loadData = {()=> this.loadData()}
+                  isCurrentTab={activeTabKey==='#ports'}
+                  />
+              </TabPane>
+              <TabPane tab='设置 HTTPS' key={httpsTabKey}>
+                <AppSettingsHttps
+                  serviceName={service.metadata.name}
+                  cluster={service.cluster}
+                  container={containers[0]}
+                  scope = {this}
+                  serviceDetailmodalShow={serviceDetailmodalShow}
+                  isCurrentTab={activeTabKey===httpsTabKey}
+                  onSwitchChange={this.onHttpsComponentSwitchChange}
                   />
               </TabPane>
               <TabPane tab='高可用' key='#livenessprobe'>
@@ -428,7 +474,8 @@ function mapStateToProps(state, props) {
   }
   const {
     serviceDetail,
-    serviceContainers
+    serviceContainers,
+    k8sService,
   } = state.services
 
   let targetService
@@ -443,9 +490,16 @@ function mapStateToProps(state, props) {
   }
   targetContainers = targetContainers || defaultServices
 
+  let k8sServiceData = {}
+  const camelizedSvcName = camelize(serviceName)
+  if (k8sService && k8sService.isFetching === false && k8sService.data && k8sService.data[camelizedSvcName]) {
+    k8sServiceData = k8sService.data[camelizedSvcName]
+  }
+
   return {
     cluster,
     statusWatchWs,
+    currentCluster: state.entities.current.cluster,
     bindingDomains: state.entities.current.cluster.bindingDomains,
     bindingIPs: state.entities.current.cluster.bindingIPs,
     serviceName,
@@ -453,10 +507,12 @@ function mapStateToProps(state, props) {
     isServiceDetailFetching: targetService.isFetching,
     containers: targetContainers.containerList,
     isContainersFetching: targetContainers.isFetching,
+    k8sService: k8sServiceData,
   }
 }
 
 export default connect(mapStateToProps, {
   loadServiceDetail,
   loadServiceContainerList,
+  loadK8sService,
 })(AppServiceDetail)

@@ -11,9 +11,51 @@
 const registryAPIs = require('../registry/lib/registryAPIs')
 const markdown     = require('markdown-it')()
 const logger       = require('../utils/logger.js').getLogger("tenx_registry")
+const registryConfigLoader = require('../registry/registryConfigLoader')
 
+const TenxCloudOfficialHub = {
+  "protocol": "https",
+  "host": "rv2-ext.tenxcloud.com",
+  "port": "",
+  "user": "",
+  "password": "",
+  "v2Server": "index.tenxcloud.com",
+  "v2AuthServer": "https://rv2-ext.tenxcloud.com:5001"
+}
+
+var TenxHubConfig = []
+
+exports.getTenxHubConfig = function(){
+  return TenxHubConfig
+}
+
+exports.getUserTenxHubConfig = function(username) {
+  if (registryConfigLoader.GetRegistryConfig() && registryConfigLoader.GetRegistryConfig().host) {
+    // Return system level config from tenx_configs
+    return registryConfigLoader.GetRegistryConfig()
+  } else {
+    // Return the user defined one
+    return TenxHubConfig[username]
+  }
+}
+
+exports.getOfficialTenxCloudHub = function() {
+  return TenxCloudOfficialHub
+}
+/*
+Get public images
+
+Default will be official service like hub.tenxcloud.com
+
+*/
 exports.getImages = function (username, search) {
-  const registry = new registryAPIs()
+  var defaultConfig = this.getUserTenxHubConfig(username)
+  // Use default if not specified
+  if (!defaultConfig || !defaultConfig.host) {
+    logger.info("Using index.tenxcloud.com...")
+    defaultConfig = TenxCloudOfficialHub
+  }
+  const registry = new registryAPIs(defaultConfig)
   if (username) {
     username = username.toLowerCase()
   }
@@ -36,7 +78,7 @@ exports.getImages = function (username, search) {
 }
 
 exports.getImageTags = function (username, imageFullName) {
-  const registry = new registryAPIs()
+  const registry = new registryAPIs(this.getUserTenxHubConfig(username))
   if (username) {
     username = username.toLowerCase()
   }
@@ -59,7 +101,7 @@ exports.getImageTags = function (username, imageFullName) {
 }
 
 exports.getImageConfigs = function (username, imageFullName, tag) {
-  const registry = new registryAPIs()
+  const registry = new registryAPIs(this.getUserTenxHubConfig(username))
   if (username) {
     username = username.toLowerCase()
   }
@@ -92,7 +134,7 @@ exports.getImageConfigs = function (username, imageFullName, tag) {
 }
 
 exports.getImageInfo = function(username, imageFullName, isCheckOnly) {
-  const registry = new registryAPIs()
+  const registry = new registryAPIs(this.getUserTenxHubConfig(username))
   if (username) {
     username = username.toLowerCase()
   }
@@ -132,7 +174,7 @@ exports.getImageInfo = function(username, imageFullName, isCheckOnly) {
 }
 
 exports.deleteImage = function(username, imageName, callback) {
-  const registry = new registryAPIs()
+  const registry = new registryAPIs(this.getUserTenxHubConfig(username))
   if (username) {
     username = username.toLowerCase()
   }
@@ -162,7 +204,7 @@ exports.deleteImage = function(username, imageName, callback) {
 Service to get the repostories for specified user including private repositories
 */
 exports.getPrivateRepositories = function(username, showDetail) {
-  var registry = new registryAPIs()
+  var registry = new registryAPIs(this.getUserTenxHubConfig(username))
   if (username) {
     username = username.toLowerCase()
   }
@@ -187,7 +229,7 @@ exports.getPrivateRepositories = function(username, showDetail) {
 Service to get the repostories for specified user including private repositories
 */
 exports.getFavouriteRepositories = function(username, showDetail) {
-  var registry = new registryAPIs()
+  var registry = new registryAPIs(this.getUserTenxHubConfig(username))
   if (username) {
     username = username.toLowerCase()
   }
@@ -213,7 +255,7 @@ Service to update image info, for example:
 1) Mark as favourite: myfavourite = 1
 */
 exports.updateImageInfo = function(username, imageObj) {
-  var registry = new registryAPIs()
+  var registry = new registryAPIs(this.getUserTenxHubConfig(username))
   if (username) {
     username = username.toLowerCase()
   }
@@ -237,7 +279,7 @@ exports.updateImageInfo = function(username, imageObj) {
 Only for admin user to use, and only get the number of all images
 */
 exports.queryRegistryStats = function(username) {
-  var registry = new registryAPIs()
+  var registry = new registryAPIs(this.getUserTenxHubConfig(username))
   return new Promise(function (resolve, reject) {
     registry.getRepositoryStats(username, function(statusCode, result, err) {
       if (err) {

@@ -14,7 +14,8 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { getTenxFlowDetail, getTenxflowBuildLastLogs, getTenxFlowYAML, deploymentLog, getTenxflowBuildLogs, getCdInimage, changeBuildStatus } from '../../../../actions/cicd_flow'
+import { getTenxFlowDetail, getTenxflowBuildLastLogs, getTenxFlowYAML, deploymentLog, getTenxflowBuildLogs, getCdInimage, changeBuildStatus, getTenxFlowStatus } from '../../../../actions/cicd_flow'
+import { LoadOtherImage } from '../../../../actions/app_center'
 import { checkImage } from '../../../../actions/app_center'
 import './style/TenxFlowDetail.less'
 import TenxFlowDetailAlert from './TenxFlowDetailAlert.js'
@@ -127,9 +128,16 @@ class TenxFlowDetail extends Component {
     let { search } = this.props.location;
     search = search.split('?')[1].split('&')[0]
     const self = this
-    getTenxFlowDetail(search)
-    getCdInimage(search)
+    getTenxFlowDetail(search, {
+      success: {
+        func: (res) => {
+          getCdInimage(search)
+        },
+        isAsync: true
+      }
+    })
     this.flowState()
+    this.props.LoadOtherImage()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -181,7 +189,11 @@ class TenxFlowDetail extends Component {
     //and the state changed will be trigger the children's recivice props
     //and start build flow functon will be trigger in children
     let notification = new NotificationHandler()
-    notification.success('构建中...')
+    if (this.props.flowInfo && this.props.flowInfo.stageInfo && this.props.flowInfo.stageInfo.length < 1) {
+      notification.error('请先添加构建子项目')
+      return
+    }
+    notification.success('流程正在构建中')
     this.setState({
       startBuild: true
     })
@@ -231,12 +243,44 @@ class TenxFlowDetail extends Component {
   handleVisibleChange(visible) {
     this.setState({ showTargeImage: visible });
   }
+  
   refreshStageList() {
     //this function for refrash
+    const { getTenxFlowStatus } = this.props;
+    let { search } = this.props.location;
+    search = search.split('?')[1].split('&')[0]
+    const self = this
+    getTenxFlowStatus(search, {
+      success: {        
+        func: (result) => {
+          let statusName = result.data.results.initType;
+          let status = '';
+          switch (status) {
+            case '0':
+              status = '成功'
+              break;
+            case '1':
+              status = "失败"
+              break;
+            case '2':
+              status = "执行中..."
+              break;
+            default:
+              status = "等待中..."
+          }
+          self.setState({
+            status,
+            statusName
+          })
+        },
+        isAsync: true
+      }
+    })
     this.setState({
       refreshFlag: true
     });
   }
+  
   callback(flowId) {
     const {getTenxflowBuildLastLogs, changeBuildStatus} = this.props
     return ()=> {
@@ -312,7 +356,7 @@ class TenxFlowDetail extends Component {
             <div style={{ clear: 'both' }}></div>
           </Card>
           <Tabs defaultActiveKey='1' size="small" onChange={(e) => this.handleChange(e)}>
-            <TabPane tab='TenxFlow流程定义' key='1'><TenxFlowDetailFlow scope={scope} flowId={flowInfo.flowId} stageInfo={flowInfo.stageInfo} supportedDependencies={flowInfo.supportedDependencies} startBuild={this.state.startBuild} refreshFlag={this.state.refreshFlag} /></TabPane>
+            <TabPane tab='TenxFlow流程定义' key='1'><TenxFlowDetailFlow scope={scope} otherImage={this.props.otherImage} flowId={flowInfo.flowId} stageInfo={flowInfo.stageInfo} supportedDependencies={flowInfo.supportedDependencies} startBuild={this.state.startBuild} refreshFlag={this.state.refreshFlag} /></TabPane>
             <TabPane tab='TenxFlow执行记录' key='2'><TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} /></TabPane>
             <TabPane tab='自动部署' key='3'><ImageDeployLogBox scope={scope} flowId={flowInfo.flowId} /></TabPane>
             <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} notify={flowInfo.notificationConfig} flowId={flowInfo.flowId} /></TabPane>
@@ -341,18 +385,30 @@ function mapStateToProps(state, props) {
     isFetching: false,
     logs: []
   }
+  const defaultFlowStatus = {
+    initType: 0
+  }
   const { getTenxflowDetail, getTenxflowBuildLastLogs, getCdImage } = state.cicd_flow;
   const { cdImageList } = getCdImage || []
   const { isFetching, flowInfo } = getTenxflowDetail || defaultFlowInfo;
+  const { initType } = getTenxFlowStatus || defaultFlowStatus;
   const buildFetching = getTenxflowBuildLastLogs ? getTenxflowBuildLastLogs.isFetching : deafaultFlowLog.isFetching
   const logs = getTenxflowBuildLastLogs ? getTenxflowBuildLastLogs.logs : deafaultFlowLog.logs;
+  let otherImage = state.images.otherImages
+  if(otherImage){
+    otherImage = otherImage.imageRow
+  } else {
+    otherImage = []
+  }
   return {
     isFetching,
     flowInfo,
     buildFetching,
     cdImageList,
     logs,
-    currentSpace: state.entities.current.space.namespace
+    buildFetching,
+    currentSpace: state.entities.current.space.namespace,
+    otherImage
   }
 }
 
@@ -368,7 +424,9 @@ export default connect(mapStateToProps, {
   deploymentLog,
   getCdInimage,
   getTenxflowBuildLogs,
-  changeBuildStatus
+  changeBuildStatus,
+  getTenxFlowStatus,
+  LoadOtherImage
 })(injectIntl(TenxFlowDetail, {
   withRef: true,
 }));

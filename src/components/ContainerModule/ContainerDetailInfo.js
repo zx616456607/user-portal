@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Card } from 'antd'
+import { Card, Tooltip, Icon } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -53,19 +53,33 @@ export default class ContainerDetailInfo extends Component {
     const volumes = container.spec.volumes
     if (container.spec.containers[0].volumeMounts) {
       container.spec.containers[0].volumeMounts.forEach((volume) => {
+        let name = ''
+        let mountPath = ''
+        let volumeType = '分布式存储'
         if (volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount') { return }
         let isShow = volumes.some(item => {
           if (item.name === volume.name) {
-            if (item.rbd) return true
-            return false
+            if (item.configMap) {
+              return false
+            }
+            if(item.rbd){
+              name = item.rbd.image.split('.')[2]
+              mountPath = volume.mountPath
+            } else if(item.hostPath) {
+              name = item.name
+              volumeType = '本地存储'
+              mountPath = item.hostPath.path
+            }
+            return true
           }
           return false
         })
         if (!isShow) return
         ele.push(
-          <div key={volume.name}>
-            <div className="commonTitle">{volume.name}</div>
-            <div className="commonTitle">{volume.mountPath}</div>
+          <div key={name}>
+            <div className="commonTitle">{name}</div>
+            <div className="commonTitle" >{volumeType}</div>
+            <div className="commonTitle" >{mountPath}</div>
             <div style={{ clear: "both" }}></div>
           </div>
         )
@@ -151,25 +165,25 @@ export default class ContainerDetailInfo extends Component {
           <span className="titleSpan">资源配置</span>
           <div className="titleBox">
             <div className="commonTitle">
-              带宽
+              CPU
             </div>
             <div className="commonTitle">
               内存
             </div>
             <div className="commonTitle">
-              CPU
+              系统盘
             </div>
             <div style={{ clear: "both" }}></div>
           </div>
           <div className="dataBox">
             <div className="commonTitle">
-              -
-              </div>
+              {cpuFormat(container.spec.containers[0].resources.requests.memory)}
+            </div>
             <div className="commonTitle">
               {container.spec.containers[0].resources.requests.memory.replace('i', '') || '-'}
             </div>
             <div className="commonTitle">
-              {cpuFormat(container.spec.containers[0].resources.requests.memory)}
+              10G
             </div>
             <div style={{ clear: "both" }}></div>
           </div>
@@ -191,7 +205,7 @@ export default class ContainerDetailInfo extends Component {
                 return (
                   <div key={env.name}>
                     <div className="commonTitle">{env.name}</div>
-                    <div className="commonTitle">{env.value}</div>
+                    <div className="commonTitle" style={{width:'66%'}}>{env.value}</div>
                     <div style={{ clear: "both" }}></div>
                   </div>
                 )
@@ -206,8 +220,11 @@ export default class ContainerDetailInfo extends Component {
               名称
               </div>
             <div className="commonTitle">
+              存储类型
+            </div>
+            <div className="commonTitle">
               挂载点
-              </div>
+            </div>
             <div style={{ clear: "both" }}></div>
           </div>
           <div className="dataBox">

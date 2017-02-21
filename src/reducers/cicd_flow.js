@@ -458,6 +458,31 @@ function getTenxflowDetail(state = {}, action) {
   }
 }
 
+function getTenxflowStatus(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    flowInfo: {}
+  }
+  switch (action.type) {
+    case ActionTypes.GET_SINGLE_TENX_FLOW_STATUS_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_SINGLE_TENX_FLOW_STATUS_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        flowInfo: action.response.result.data.results
+      }
+      )
+    case ActionTypes.GET_SINGLE_TENX_FLOW_STATUS_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 function getTenxflowYAML(state = {}, action) {
   const defaultState = {
     isFetching: false,
@@ -804,6 +829,7 @@ export default function cicd_flow(state = {}, action) {
     managed: getProject(state.managed, action),
     getTenxflowList: getTenxflowList(state.getTenxflowList, action),
     getTenxflowDetail: getTenxflowDetail(state.getTenxflowDetail, action),
+    getTenxflowStatus: getTenxflowStatus(state.getTenxflowStatus, action),
     getTenxflowYAML: getTenxflowYAML(state.getTenxflowYAML, action),
     userInfo: getUserInfo(state.userInfo, action),
     dockerfileLists: getDockerfileList(state.dockerfileLists, action),

@@ -19,9 +19,10 @@ import CreateTenxFlow from './CreateTenxFlow.js'
 import TenxFlowBuildLog from './TenxFlowBuildLog'
 import moment from 'moment'
 import './style/TenxFlowList.less'
-import cloneDeep from 'lodash/cloneDeep' 
+import cloneDeep from 'lodash/cloneDeep'
 import findIndex from 'lodash/findIndex'
 import NotificationHandler from '../../../common/notification_handler'
+import Socket from '../../Websocket/socketIo'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -93,7 +94,7 @@ let MyComponent = React.createClass({
   },
   operaMenuClick: function (item) {
     //this function for user click the dropdown menu
-    this.setState({delFlowModal: true, item})
+    this.setState({ delFlowModal: true, item })
     return
   },
   delFlowAction() {
@@ -134,6 +135,17 @@ let MyComponent = React.createClass({
   },
   starFlowBuild(flowId, index) {
     const {CreateTenxflowBuild, getTenxflowBuildDetailLogs} = this.props.scope.props
+    if (this.props.config) {
+      for (let i in this.props.config) {
+        if (this.props.config[i].flowId === flowId
+          && typeof (this.props.config[i].stagesCount) === 'number'
+          && this.props.config[i].stagesCount < 1) {
+          let notification = new NotificationHandler()
+          notification.error('请先添加构建子项目')
+          return
+        }
+      }
+    }
     const parentScope = this.props.scope
     CreateTenxflowBuild(flowId, {}, {
       success: {
@@ -231,10 +243,10 @@ let MyComponent = React.createClass({
       <div className='tenxflowList'>
         {items}
         <Modal title="删除TenxFlow操作" visible={this.state.delFlowModal}
-          onOk={()=> this.delFlowAction()} onCancel={()=> this.setState({delFlowModal: false})}
-          >
-          <Alert message="请注意，删除TenxFlow，将清除项目的所有历史数据以及相关的镜像，且该操作不能被恢复" type="warning" showIcon/>
-          <div className="modalColor" style={{lineHeight:'30px'}}><i className="anticon anticon-question-circle-o" style={{marginRight: '8px',marginLeft:'16px'}}></i>
+          onOk={() => this.delFlowAction()} onCancel={() => this.setState({ delFlowModal: false })}
+        >
+          <Alert message="请注意，删除TenxFlow，将清除项目的所有历史数据以及相关的镜像，且该操作不能被恢复" type="warning" showIcon />
+          <div className="modalColor" style={{ lineHeight: '30px' }}><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px', marginLeft: '16px' }}></i>
             您确定要删除?
           </div>
         </Modal>
@@ -262,7 +274,7 @@ class TenxFlowList extends Component {
     }
   }
 
-  loadData() {
+  loadData(callback) {
     const { getTenxFlowList } = this.props;
     const self = this
     getTenxFlowList({
@@ -275,6 +287,9 @@ class TenxFlowList extends Component {
           self.setState({
             flowListState
           })
+          if (callback) {
+            callback()
+          }
         }
       }
     });
@@ -285,8 +300,16 @@ class TenxFlowList extends Component {
     const { getTenxFlowList } = this.props;
     const self = this
     this.loadData()
-  }
 
+  }
+  componentDidMount() {
+    const { status, buildId, stageId } = this.props.loginUser
+    const { flowId, loginUser } = this.props
+    const cicdApi = loginUser.info.cicdApi
+    this.setState({
+      websocket: <Socket url={cicdApi.host} protocol={cicdApi.protocol} path={cicdApi.statusPath} onSetup={(socket) => this.onSetup(socket)} />
+    })
+  }
   componentWillReceiveProps(nextProps) {
     const { isFetching, flowList, currentSpace } = nextProps;
     if (currentSpace && this.props.currentSpace && currentSpace != this.props.currentSpace) {
@@ -305,9 +328,9 @@ class TenxFlowList extends Component {
     this.setState({
       createTenxFlowModal: true
     });
-    setTimeout(function() {
+    setTimeout(function () {
       document.getElementById('flowName').focus()
-    },500)
+    }, 500)
   }
 
   closeCreateTenxFlowModal() {
@@ -353,6 +376,49 @@ class TenxFlowList extends Component {
       searchingFlag: searchingFlag
     })
   }
+  onSetup(socket) {
+    if (!socket) {
+      socket = this.state.socket
+    }
+    socket.off('flowBuildStatus')
+    const { flowList, changeFlowStatus } = this.props
+    const flowId = []
+    const flowBuildId = []
+    flowList.forEach(item => {
+      flowId.push(item.flowId)
+      flowBuildId.push(item.lastBuildId)
+    })
+    this.setState({
+      flowId,
+      flowBuildId,
+      socket
+    })
+    const self = this
+    socket.on('flowBuildStatus', function (data) {
+      let index = findIndex(flowId, (item) => {
+        return item == data.flowId
+      })
+      if (flowBuildId[index] != data.flowBuildId) {
+        socket.off('flowBuildStatus')
+        self.loadData(() => self.onSetUp(socket))
+        return
+      }
+      if (data.status != 200) {
+        return
+      }
+      const result = data.results
+      const stateIndex = findIndex(self.props.flowList, flow => {
+        return flow.flowId == result.flowId
+      })
+      let flowListState = cloneDeep(self.state.flowListState)
+      flowListState[stateIndex] = {status: result.buildStatus}
+      self.setState({
+        flowListState
+      })
+      changeFlowStatus(result.flowId, result.buildStatus)
+    })
+    socket.emit('flowBuildStatus', { flows: flowId })
+  }
   callback(flowId) {
     const count = this.props.config ? this.props.config.length : 0
     const self = this
@@ -366,7 +432,7 @@ class TenxFlowList extends Component {
             const index = findIndex(flowList, flow => {
               return flow.flowId == flowId
             })
-            if(index < 0 ) return
+            if (index < 0) return
             const status = result.data.results.results.status
             flowListState[index].status = status
             self.setState({
@@ -377,7 +443,7 @@ class TenxFlowList extends Component {
           isAsync: true
         },
         failed: {
-          func:() => {
+          func: () => {
             const flowListState = cloneDeep(this.state.flowListState)
             const index = findIndex(flowListState, flow => {
               return flow.flowId == flowId
@@ -397,7 +463,8 @@ class TenxFlowList extends Component {
     const { formatMessage } = this.props.intl;
     const scope = this;
     const { isFetching, buildFetching, logs, cicdApi } = this.props;
-    const { flowList, searchingFlag } = this.state;
+    const { searchingFlag } = this.state;
+    const { flowList } = this.props
     let message = '';
     if (isFetching || !flowList) {
       return (
@@ -415,7 +482,7 @@ class TenxFlowList extends Component {
     return (
       <QueueAnim className='TenxFlowList'
         type='right'
-        >
+      >
         <div id='TenxFlowList' key='TenxFlowList'>
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
           <div className='operaBox'>
@@ -454,16 +521,17 @@ class TenxFlowList extends Component {
           className='AppServiceDetail'
           transitionName='move-right'
           onCancel={this.closeCreateTenxFlowModal}
-          >
+        >
           <CreateTenxFlow scope={scope} isFetching={isFetching} flowList={flowList} />
         </Modal>
         <Modal
           visible={this.state.TenxFlowDeployLogModal}
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
-          >
-          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} callback={this.callback(this.state.currentFlowId)}/>
+        >
+          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} callback={this.callback(this.state.currentFlowId)} />
         </Modal>
+        {this.state.websocket}
       </QueueAnim>
     )
   }
@@ -488,7 +556,8 @@ function mapStateToProps(state, props) {
     flowList,
     buildFetching,
     logs,
-    currentSpace: state.entities.current.space.namespace
+    currentSpace: state.entities.current.space.namespace,
+    loginUser: state.entities.loginUser
   }
 }
 

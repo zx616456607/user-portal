@@ -11,7 +11,24 @@
 */
 
 const rootRoutes = {
-  childRoutes: [{
+  childRoutes: [
+    {
+    path: '/password',
+    getComponent: (location, cb) => {
+      require.ensure([], (require) => {
+        cb(null, require('../containers/Activation/Password').default)
+      })
+    }
+  },
+  {
+    path: '/activation',
+    getComponent: (location, cb) => {
+      require.ensure([], (require) => {
+        cb(null, require('../containers/Activation').default)
+      })
+    }
+  },
+  {
     path: '/login',
     getComponent: (location, cb) => {
       require.ensure([], (require) => {
@@ -39,6 +56,9 @@ const rootRoutes = {
         cb(null, require('../containers/Invite').default)
       })
     },
+  },{
+    path: '/notfound',
+    component: require('../containers/ErrorPage').default,
   },{
     path: '/',
     component: require('../containers/App/Enterprise').default,
@@ -131,6 +151,12 @@ const rootRoutes = {
       component: require('../containers/Integration').default,
       indexRoute: {
         component: require('../components/IntegrationModule').default,
+      }
+    }, {
+      path: 'cluster',
+      component: require('../containers/Cluster').default,
+      indexRoute: {
+        component: require('../components/ClusterModule').default,
       }
     }, {
       path: '*',

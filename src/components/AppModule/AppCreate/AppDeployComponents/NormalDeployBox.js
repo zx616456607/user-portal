@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form, Select, Input, InputNumber, Modal, Tooltip, Checkbox, Button, Card, Menu, Switch, Icon, Spin } from 'antd'
+import { Form, Select, Input, InputNumber, Modal, Tooltip, Checkbox, Button, Card, Menu, Switch, Icon, Spin, Radio} from 'antd'
 import { connect } from 'react-redux'
 import filter from 'lodash/filter'
 import { DEFAULT_REGISTRY, ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
@@ -23,6 +23,9 @@ import { volNameCheck } from '../../../../common/naming_validation'
 const Option = Select.Option;
 const OptGroup = Select.OptGroup;
 const FormItem = Form.Item;
+const RadioGroup = Radio.Group
+let defaultCheckedValue = ''
+let shouldUpdate = true
 let uuid = 1;
 let MyComponent = React.createClass({
   getInitialState() {
@@ -37,10 +40,17 @@ let MyComponent = React.createClass({
   },
   componentWillReceiveProps(nextProps) {
     const form = nextProps.form
-    const { resetFields } = form
+    const { resetFields, setFieldsValue } = form
     if(!nextProps.serviceOpen) {
-      resetFields(['volumeKey', 'volumePath', 'volumeMounts', 'volumeChecked', 'volumeChecked', 'volumeName'])
+      resetFields(['volumeKey', 'volumePath', 'volumeMounts', 'volumeChecked', 'volumeChecked', 'volumeName', 'inputVolumeName'])
     }
+  },
+  shouldComponentUpdate(nextProps) {
+    if(shouldUpdate) {
+      return true
+    }
+    shouldUpdate = true
+    return false
   },
   getFormValue() {
     const { form } = this.props
@@ -54,13 +64,23 @@ let MyComponent = React.createClass({
       if (volume.configMap) return
       const mount = filter(volumeMounts, ['name', volume.name])
       getFieldProps(`volumePath${index + 1}`, { initialValue: mount[0].mountPath })
-      getFieldProps(`volumeName${index + 1}`, { initialValue: `${volume.rbd.image}/${volume.rbd.fsType}` })
+      if(volume.rbd) {
+        getFieldProps(`volumeName${index + 1}`, { initialValue: `${volume.rbd.image}/${volume.rbd.fsType}` })
+      } else {
+        getFieldProps(`inputVolumeName${index + 1}`, { initialValue: volume.hostPath.path})
+      }
       getFieldProps(`volumeChecked${index + 1}`, { initialValue: mount[0].readOnly })
       index++
       volumeKey.push(index)
     })
-    getFieldProps(`volumeKey`, {
-      initialValue: volumeKey
+    if(volumes[0].rbd) {
+      this.props.changeStorageType('rbd')
+    } else {
+      this.props.changeStorageType('hostPath')
+    }
+    shouldUpdate = false
+    setFieldsValue({
+      volumeKey
     })
   },
   remove(k) {
@@ -218,6 +238,16 @@ let MyComponent = React.createClass({
     }
     callback()
   },
+  checkHostPath(rule, value, callback) {
+    if(this.props.storageType !== 'hostPath') {
+      return callback()
+    }
+    if(!value || !value.trim()) {
+      callback([new Error('请输入本地目录')])
+      return
+    }
+    return callback()
+  },
   render: function () {
     const { getFieldProps, getFieldValue } = this.props.form
     const registry = this.props.registry
@@ -235,7 +265,7 @@ let MyComponent = React.createClass({
       return <div className='loadingBox'>
         <Spin size='large' />
       </div>
-      }
+    }
     isFetching = this.props.createState.isFetching
     if (isFetching) {
       return <div className='loadingBox'>
@@ -244,7 +274,7 @@ let MyComponent = React.createClass({
     }
     const volume = this.props.avaliableVolume.data.volumes
     let formItems = ''
-    if (volume.length <= 0) {
+    if (volume.length <= 0 && this.props.storageType == 'rbd') {
       getFieldProps('volumeKey', {
         initialValue: [1],
       });
@@ -282,7 +312,7 @@ let MyComponent = React.createClass({
           <FormItem key={`volume${k}`}>
             {
               (mountPath && mountPath[k - 1]) ?
-                <span type='text' className="url">
+                <span type='text' className="url" style={{verticalAlign: 'top'}}>
                   <Input className="hide" value={(function () {
                     if (!getFieldProps(`volumePath${k}`).value) {
                       getFieldProps(`volumePath${k}`, { initialValue: mountPath[k - 1]})
@@ -293,14 +323,21 @@ let MyComponent = React.createClass({
                 </span> :
                 <Input {...getFieldProps(`volumePath${k}`, {
                   rules: [{ validator: self.dirExists.bind(self, k) }]
-                }) } className="urlInt" />
+                }) } className="urlInt" placeholder="输入容器目录"/>
             }
-            <Select className="imageTag" size="large" placeholder="请选择一个存储卷"
-              style={{ width: 200 }}
+            <Select style={{width: '200px', display: self.props.storageType == 'rbd' ? 'inline-block' : 'none'}} className="imageTag" size="large" placeholder="请选择一个存储卷"
               {...getFieldProps(`volumeName${k}`) } >
               {this.volumeList()}
             </Select>
-            <Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`) } checked={getFieldValue(`volumeChecked${k}`)}>
+            <FormItem style={{display: 'inline-block', marginLeft: '10px'}}>
+            <Input placeholder="请填入本地目录" style={{width: '200px', display: self.props.storageType == 'rbd' ? 'none' : 'inline-block'}} {...getFieldProps(`inputVolumeName${k}`, {
+              rules: [{
+                validator: self.checkHostPath
+              }],
+            })} /> 
+            </FormItem>
+            <Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`, {
+            }) } checked={getFieldValue(`volumeChecked${k}`)}>
               只读
           </Checkbox>
             <i className="fa fa-refresh" onClick={() => this.refresh()} />
@@ -313,11 +350,12 @@ let MyComponent = React.createClass({
       <div className="serviceOpen" key="had">
         <ul>
           <li>{formItems}</li>
-          <li> <div className="volumeAddBtn" onClick={this.add}>
-            <Icon type="plus-circle-o" />
-            <span>添加一个容器目录</span>
+          <li> <div>
+            <span className="volumeAddBtn" onClick={this.add}>
+              <Icon type="plus-circle-o" />
+              <span>添加一个容器目录</span>
+            </span>
           </div></li>
-
         </ul>
       </div>
     )
@@ -586,6 +624,32 @@ let NormalDeployBox = React.createClass({
   },
   componentWillMount() {
     loadImageTags(this.props)
+    const cluster = this.props.currentCluster
+    const storageTypes = cluster.storageTypes
+    let canCreate = true
+    if(!storageTypes || storageTypes.length <= 0) {
+      canCreate = false
+    }
+    this.setState({
+      canCreate,
+      storageTypes
+    })
+    const { form } = this.props
+    const { setFieldsValue, getFieldValue } = form
+    let storageType = getFieldValue('storageType')
+    if(storageType) {
+      setFieldsValue({
+        storageType
+      })
+      this.setState({
+        storageType,
+        isHaveVolume: getFieldValue('isHaveVolume')
+      })
+    } else {
+      setFieldsValue({
+        storageType: storageTypes[0]
+      })
+    }
     // For 1st time mount
     setTimeout(() => {
       this.serviceNameInput.refs.input.focus()
@@ -601,6 +665,33 @@ let NormalDeployBox = React.createClass({
     })
     if (serviceOpen) {
       loadImageTags(nextProps)
+      const { form } = this.props
+      const { getFieldValue } = form
+      let storageType = getFieldValue('storageType')
+      const cluster = this.props.currentCluster
+      const storageTypes = cluster.storageTypes
+      if(!storageType) {
+        storageType = storageTypes[0]
+      }
+      this.setState({
+        storageType: storageType
+      })
+      form.setFieldsValue({
+        storageType: storageType
+      })
+      const volumeSwitch = getFieldValue('volumeSwitch')
+      if(!volumeSwitch) {
+
+        let canCreate = true
+        if(!storageTypes || storageTypes.length <= 0) {
+          canCreate = false
+        }
+        this.setState({
+          canCreate,
+          storageTypes,
+          isHaveVolume: 0
+        }) 
+      }
     }
   },
   changeSwitchOption(e) {
@@ -611,6 +702,53 @@ let NormalDeployBox = React.createClass({
         instanceNum: '1'
       });
     }
+    this.setState({
+      isHaveVolume: e
+    })
+  },
+  getStorageType() {
+    const result = []
+    const storageTypes = this.state.storageTypes
+    if(!storageTypes) {
+      return result
+    }
+
+    const self = this
+    self.state.storageTypes.forEach((type, index) => {
+      if(index == 0 ) {
+        defaultCheckedValue = type
+      }
+      result.push(
+        <Radio value={type} key={type}>{self.translationName(type)}</Radio>
+      )
+    })
+    return result
+  },
+  translationName(type) {
+    switch(type) {
+      case 'rbd':
+        return '分布式存储'
+      case 'hostPath':
+        return '本地存储'
+    }
+  },
+  changeStorageTypeCallback() {
+    const self = this
+    return function(type) {
+      self.setState({
+        storageType: type
+      })
+    }
+  },
+  setStorageType(e) {
+    const form = this.props.form
+    const { setFieldsValue } = form
+    this.setState({
+      storageType: e.target.value
+    })
+    setFieldsValue({
+      storageType: e.target.value
+    })
   },
   render: function () {
     const parentScope = this.props.scope;
@@ -766,13 +904,18 @@ let NormalDeployBox = React.createClass({
             </div>
             <div className="stateService">
               <span className="commonSpan">服务类型 <a href="http://docs.tenxcloud.com/faq#you-zhuang-tai-fu-wu-yu-wu-zhuang-tai-fu-wu-de-qu-bie" target="_blank"><Tooltip title="若需数据持久化，请使用有状态服务"><Icon type="question-circle-o" /></Tooltip></a></span>
-              <Switch className="changeBtn"
+              <Switch disabled={!this.state.canCreate} className="changeBtn"
                 {...getFieldProps('volumeSwitch', {
                   valuePropName: 'checked',
                   onChange: (e)=> this.changeSwitchOption(e)
                 }) }
                 />
+              <Tooltip title="无存储服务可用, 请配置存储服务"><Icon type="question-circle-o" style={{verticalAlign: 'middle', marginLeft: '10px', display: this.state.canCreate ? 'none' : 'inline-block'}}  /></Tooltip>
               <span className="stateSpan">{form.getFieldValue('volumeSwitch') ? "有状态服务" : "无状态服务"}</span>
+              <RadioGroup style={{display: this.state.isHaveVolume ? 'inline-block' : 'none', marginLeft: '10px'}} onChange={this.setStorageType} value={this.state.storageType || defaultCheckedValue}>
+                  {this.getStorageType()}
+              </RadioGroup>
+              
               {form.getFieldValue('volumeSwitch') ? [
                 <MyComponent
                   parentScope={parentScope}
@@ -781,6 +924,9 @@ let NormalDeployBox = React.createClass({
                   imageVersion={imageVersion}
                   registry={this.props.registry}
                   other={this.props.other}
+                  storageTypes = {this.state.storageTypes}
+                  storageType = {this.state.storageType || defaultCheckedValue}
+                  changeStorageType = {this.changeStorageTypeCallback}
                   serviceOpen={this.props.serviceOpen} />
               ] : null}
               <div style={{ clear: "both" }}></div>
@@ -827,7 +973,8 @@ function mapStateToProps(state, props) {
     currentSelectedImage,
     checkServiceName: state.apps.checkServiceName,
     tagConfig: state.getImageTagConfig.imageTagConfig,
-    otherImages
+    otherImages,
+    currentCluster: state.entities.current.cluster
   }
 }
 

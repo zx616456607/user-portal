@@ -26,7 +26,7 @@ import {
   quickRestartServices
 } from '../../actions/services'
 import { LOAD_STATUS_TIMEOUT } from '../../constants'
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ANNOTATION_HTTPS } from '../../../constants'
 import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
 import ConfigModal from './AppServiceDetail/ConfigModal'
@@ -267,6 +267,8 @@ const MyComponent = React.createClass({
         return this.showRollingUpdateModal()
       case 'config':
         return this.showConfigModal()
+      case 'https':
+        return this.showHttpsModal()
     }
   },
   showRollingUpdateModal() {
@@ -294,8 +296,15 @@ const MyComponent = React.createClass({
       modalShow: true,
     })
   },
+  showHttpsModal() {
+    const { scope } = this.props
+    scope.setState({
+      selectTab: '#https',
+      modalShow: true,
+    })
+  },
   render: function () {
-    const { cluster, serviceList, loading, page, size, total, bindingDomains, bindingIPs} = this.props
+    const { cluster, serviceList, loading, page, size, total, bindingDomains, bindingIPs, k8sServiceList} = this.props
     if (loading) {
       return (
         <div className="loadingBox">
@@ -326,6 +335,9 @@ const MyComponent = React.createClass({
           <Menu.Item key="config">
             更改配置
           </Menu.Item>
+          <Menu.Item key="https">
+            设置HTTPS
+          </Menu.Item>
         </Menu>
       );
       const svcDomain = parseServiceDomain(item, bindingDomains,bindingIPs)
@@ -352,7 +364,7 @@ const MyComponent = React.createClass({
           </div>
           <div className="service commonData appSvcListDomain">
             <Tooltip title={svcDomain.length > 0 ? svcDomain[0] : ""}>
-              <TipSvcDomain svcDomain={svcDomain} parentNode="appSvcListDomain" />
+              <TipSvcDomain svcDomain={svcDomain} parentNode="appSvcListDomain" icon={item.https === true ? 'https' : 'http'} />
             </Tooltip>
           </div>
           <div className="createTime commonData">
@@ -961,7 +973,7 @@ class AppServiceList extends Component {
     const {
       name, pathname, page,
       size, total, isFetching,
-      cluster, appName, loadServiceList
+      cluster, appName, loadServiceList, k8sServiceList,
     } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
@@ -1033,7 +1045,7 @@ class AppServiceList extends Component {
             <Modal title="删除操作" visible={this.state.DeleteServiceModal}
               onOk={this.handleDeleteServiceOk} onCancel={this.handleDeleteServiceCancel}
               >
-              <StateBtnModal serviceList={serviceList} state='Delete' />
+              <StateBtnModal serviceList={serviceList} scope={parentScope} state='Delete' />
             </Modal>
             <Button size="large" onClick={this.batchQuickRestartService} disabled={!restartBtn}>
               <i className="fa fa-bolt"></i>
@@ -1094,6 +1106,7 @@ class AppServiceList extends Component {
             name={name}
             scope={parentScope}
             serviceList={serviceList}
+            k8sServiceList={k8sServiceList}
             loading={isFetching}
             bindingDomains={this.props.bindingDomains} />
           <Modal

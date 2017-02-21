@@ -189,7 +189,7 @@ let NamespaceModal = React.createClass({
     });
   },
   render: function () {
-    const {scope} = this.props;
+    const { scope, defaultNamespace } = this.props;
     let namespaceList = null;
     if (this.state.currentList.length == 0) {
       namespaceList = (
@@ -200,7 +200,7 @@ let NamespaceModal = React.createClass({
     } else {
       namespaceList = this.state.currentList.map((item, index) => {
         return (
-          <div className='namespaceDetail' key={index} onClick={scope.onSelectNamespace.bind(scope, item.spaceName, item.teamID)}>
+          <div className='namespaceDetail' key={index} onClick={scope.onSelectNamespace.bind(scope, item.spaceName, item.teamID, item.namespace)}>
             {item.spaceName}
           </div>
         )
@@ -212,7 +212,7 @@ let NamespaceModal = React.createClass({
           <Input className='commonSearchInput namespaceInput' onChange={this.inputSearch} type='text' size='large' />
         </div>
         <div className='dataList'>
-          <div className='namespaceDetail' key='defaultNamespace' onClick={scope.onSelectNamespace.bind(scope, '我的空间', 'default')}>
+          <div className='namespaceDetail' key='defaultNamespace' onClick={scope.onSelectNamespace.bind(scope, '我的空间', 'default', defaultNamespace)}>
             <span>我的空间</span>
           </div>
           {namespaceList}
@@ -493,9 +493,13 @@ let LogComponent = React.createClass({
       )
     }
     if (!logs || logs.length == 0) {
+      let msg = '暂无日志记录'
+      if (!scope.props.loggingEnabled) {
+        msg = '尚未安装日志服务，无法查询日志'
+      }
       return (
         <div className='loadingBox'>
-          <span className='noDataSpan'>暂无日志记录</span>
+          <span className='noDataSpan'>{msg}</span>
         </div>
       )
     }
@@ -592,10 +596,10 @@ class QueryLog extends Component {
       }
     });
     const { space, cluster } = current;
-    const { spaceName, teamID } = space;
-    this.onSelectNamespace(spaceName, teamID);
+    const { spaceName, teamID, namespace } = space;
+    this.onSelectNamespace(spaceName, teamID, namespace);
     const { clusterName, clusterID } = cluster;
-    this.onSelectCluster(clusterName, clusterID);
+    this.onSelectCluster(clusterName, clusterID, namespace);
     const { service, instance } = query;
     if (service && instance) {
       this.setState({
@@ -610,7 +614,7 @@ class QueryLog extends Component {
     }
   }
 
-  onSelectNamespace(name, teamId) {
+  onSelectNamespace(name, teamId, namespace) {
     //this function for user get search 10-20 of namespace list
     const { getClusterOfQueryLog } = this.props;
     const _this = this;
@@ -626,8 +630,9 @@ class QueryLog extends Component {
         serviceList: [],
         instanceList: [],
         selectedNamespace: false,
+        searchNamespace: namespace
       });
-      getClusterOfQueryLog(teamId, {
+      getClusterOfQueryLog(teamId, namespace, {
         success: {
           func: (res) => {
             _this.setState({
@@ -641,10 +646,13 @@ class QueryLog extends Component {
     }
   }
 
-  onSelectCluster(name, clusterId) {
+  onSelectCluster(name, clusterId, namespace) {
     //this function for user get search 10-20 of service list
     const { getServiceOfQueryLog } = this.props;
     const _this = this;
+    if (this.state.searchNamespace != undefined) { 
+      namespace = this.state.searchNamespace;
+    }
     if (name != this.state.currentCluster) {
       this.setState({
         gettingSerivce: true,
@@ -657,7 +665,7 @@ class QueryLog extends Component {
         instanceList: [],
         selectedCluster: false,
       });
-      getServiceOfQueryLog(clusterId, {
+      getServiceOfQueryLog(clusterId, namespace, {
         success: {
           func: (res) => {
             _this.setState({
@@ -883,7 +891,7 @@ class QueryLog extends Component {
   }
 
   render() {
-    const { logs, isFetching, intl } = this.props;
+    const { logs, isFetching, intl, defaultNamespace } = this.props;
     const { formatMessage } = intl;
     const scope = this;
     const { gettingNamespace, start_time, end_time } = this.state;
@@ -901,7 +909,7 @@ class QueryLog extends Component {
             <div className='commonBox'>
               <span className='titleSpan'>{standardFlag ? [<span>团队：</span>] : [<FormattedMessage {...menusText.user} />]}</span>
               <Popover
-                content={<NamespaceModal scope={scope} namespace={this.state.namespaceList} />}
+                content={<NamespaceModal scope={scope} namespace={this.state.namespaceList} defaultNamespace={defaultNamespace} />}
                 trigger='click'
                 placement='bottom'
                 getTooltipContainer={() => document.getElementById('QueryLog')}
@@ -998,7 +1006,7 @@ class QueryLog extends Component {
             <div className='commonBox'>
               <Checkbox onChange={this.onChangeQueryType} checked={this.state.queryType} style={{ marginLeft: '29px', display: 'none' }}>
                 <FormattedMessage {...menusText.searchType} /></Checkbox>
-              <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch} style={{ marginLeft: '29px' }}>
+              <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch} style={{ marginLeft: '29px' }} disabled={!this.props.loggingEnabled}>
                 <i className='fa fa-wpforms'></i>
                 <FormattedMessage {...menusText.search} />
               </Button>
@@ -1022,7 +1030,8 @@ class QueryLog extends Component {
 
 function mapStateToProps(state, props) {
   const { current, loginUser } = state.entities
-  const { cluster } = current
+  const { cluster, space } = current
+  const defaultNamespace = space.namespace
   const { teamspaces } = state.user
   const { teamClusters } = state.team
   const defaultLogs = {
@@ -1038,6 +1047,10 @@ function mapStateToProps(state, props) {
   const { logs, isFetching } = getQueryLog.logs || defaultLogs
   const containersList = serviceContainers[cluster.clusterID] || defaultContainers
   const { query } = props.location
+  let loggingEnabled = true
+  if (current && current.cluster && current.cluster.disabledPlugins) {
+    loggingEnabled = !current.cluster.disabledPlugins['logging']
+  }
   return {
     loginUser: loginUser.info,
     isTeamspacesFetching: teamspaces.isFetching,
@@ -1050,6 +1063,8 @@ function mapStateToProps(state, props) {
     logs,
     current,
     query,
+    loggingEnabled,
+    defaultNamespace
   }
 }
 

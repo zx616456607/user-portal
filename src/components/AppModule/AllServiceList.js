@@ -25,7 +25,7 @@ import {
   quickRestartServices,
   loadAllServices
 } from '../../actions/services'
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ANNOTATION_HTTPS } from '../../../constants'
 import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
 import ConfigModal from './AppServiceDetail/ConfigModal'
@@ -274,6 +274,8 @@ const MyComponent = React.createClass({
         return this.showRollingUpdateModal()
       case 'config':
         return this.showConfigModal()
+      case 'https':
+        return this.showHttpsModal()
     }
   },
   showRollingUpdateModal() {
@@ -298,6 +300,13 @@ const MyComponent = React.createClass({
     const { scope } = this.props
     scope.setState({
       selectTab: '#autoScale',
+      modalShow: true,
+    })
+  },
+  showHttpsModal() {
+    const { scope } = this.props
+    scope.setState({
+      selectTab: '#https',
       modalShow: true,
     })
   },
@@ -333,6 +342,9 @@ const MyComponent = React.createClass({
           <Menu.Item key="config">
             更改配置
           </Menu.Item>
+          <Menu.Item key="https">
+            设置HTTPS
+          </Menu.Item>
         </Menu>
       );
       const svcDomain = parseServiceDomain(item, bindingDomains,bindingIPs)
@@ -340,6 +352,15 @@ const MyComponent = React.createClass({
         return container.image
       })
       const appName = item.metadata.labels[LABEL_APPNAME]
+      let httpIcon = 'http'
+      for (let k8sService of this.props.k8sServiceList) {
+        if (item.metadata.name === k8sService.metadata.name) {
+          if (k8sService.metadata.annotations && k8sService.metadata.annotations[ANNOTATION_HTTPS] === 'true') {
+            httpIcon = 'https'
+          }
+          break
+        }
+      }
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -369,7 +390,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="service commonData allSvcListDomain">
-            <TipSvcDomain svcDomain={svcDomain} parentNode='allSvcListDomain' />
+            <TipSvcDomain svcDomain={svcDomain} parentNode='allSvcListDomain' icon={httpIcon} />
           </div>
           <div className="createTime commonData">
             <span>{calcuDate(item.metadata.creationTimestamp || '')}</span>
@@ -460,6 +481,7 @@ class ServiceList extends Component {
       QuickRestarServiceModal: false,
       DeleteServiceModal: false,
       detail: false,
+      k8sServiceList: [],
     }
   }
 
@@ -477,6 +499,10 @@ class ServiceList extends Component {
           // Add deploment status watch, props must include statusWatchWs!!!
           let { services } = result.data
           let deployments = services.map(service => service.deployment)
+          let k8sServiceList = services.map(service => service.service)
+          this.setState({
+            k8sServiceList,
+          })
           addDeploymentWatch(cluster, self.props, deployments)
           // For fix issue #CRYSTAL-1604(load list again for update status)
           clearTimeout(self.loadStatusTimeout)
@@ -1158,7 +1184,8 @@ class ServiceList extends Component {
               scope={parentScope}
               serviceList={serviceList}
               loading={isFetching}
-              bindingDomains={this.props.bindingDomains} />
+              bindingDomains={this.props.bindingDomains}
+              k8sServiceList={this.state.k8sServiceList} />
           </Card>
           </div>
           <Modal

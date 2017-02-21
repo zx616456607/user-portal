@@ -63,7 +63,7 @@ function matchYamlError(e, index, scope, height) {
   }
   if(markExist) {
     errorBody.column = e.mark.column;
-    errorBody.line = e.mark.line;
+    errorBody.line = e.mark.line + 1;
   }
   return errorBody;
 }
@@ -96,16 +96,16 @@ class YamlEditor extends Component {
     if(e.indexOf('---') > -1) {
       //multi codes
       let codeList = e.split('---');
-      codeList.map((item, index) => {
+      codeList.map((item, index) => {      
+        let height = 0;
+        for(let item of e) {
+          if(item == '\n') {
+            height++;
+          }
+        }
         try {
           yaml.safeLoad(item)
         } catch(error) {
-          let height = 0;
-          for(let item of e) {
-            if(item == '\n') {
-              height++;
-            }
-          }
           newErrorList.push(matchYamlError(error, index, _this, height))
         }
       })

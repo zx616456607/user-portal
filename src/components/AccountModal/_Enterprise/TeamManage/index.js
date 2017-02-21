@@ -441,8 +441,8 @@ class TeamManage extends Component {
     }
     return (
       <div id="TeamManage">
-        <Alert message={`团队, 由若干个成员组成的一个集体, 可等效于公司的部门、项目组、或子公司，
-          包含『团队空间』这一逻辑隔离层， 以实现对应您企业内部各个不同项目， 或者不同逻辑组在云平台上操作对象的隔离， 团队管理员可见对应团队的所有空间的应用等对象。`}
+        <Alert message={`团队，由若干个成员组成的一个集体，可等效于公司的部门、项目组、或子公司，
+          包含『团队空间』这一逻辑隔离层，以实现对应您企业内部各个不同项目，或者不同逻辑组在云平台上操作对象的隔离，团队管理员可见对应团队的所有空间的应用等对象。`}
           type="info" />
         <Row className="teamOption">
           <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">

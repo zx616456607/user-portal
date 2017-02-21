@@ -17,7 +17,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import NotificationHandler from '../../../common/notification_handler'
 // import { loadUserDetail } from '../../../actions/user'
-import { ROLE_USER, ROLE_TEAM_ADMIN } from '../../../../constants'
+import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import logoPNG from '../../../assets/img/sider/logo.png'
 
 const SubMenu = Menu.SubMenu
@@ -26,10 +26,10 @@ const RadioGroup = Radio.Group
 
 function checkUrlSelectedKey(pathname) {
   //this function for check the pathname and return the selected key of menu
-  let pathList = pathname.split('/');
+  let pathList = pathname.split('/')
   if (pathList.length == 2) {
     if(pathList[1].length == 0) {
-      return ['home', 'home'];
+      return ['home', 'home']
     }
     return [pathList[1], pathList[1] + '_default']
   } else {
@@ -45,10 +45,10 @@ function checkUrlSelectedKey(pathname) {
 
 function checkUrlOpenKeys(pathname) {
   //this function for check the pathname and return the opened key of menu
-  let pathList = pathname.split('/');
+  let pathList = pathname.split('/')
   if (pathList.length == 2) {
     if(pathList[1].length == 0) {
-      return ['home', 'home'];
+      return ['home', 'home']
     }
     return [pathList[1], pathList[1] + '_default']
   } else {
@@ -62,14 +62,14 @@ function checkUrlOpenKeys(pathname) {
   }
 }
 
-class Slider extends Component {
+class Sider extends Component {
   constructor(props) {
-    super(props);
-    this.selectModel = this.selectModel.bind(this);
-    this.changeSiderStyle = this.changeSiderStyle.bind(this);
-    this.onSelectMenu = this.onSelectMenu.bind(this);
-    this.onOpenBigMenu = this.onOpenBigMenu.bind(this);
-    this.onCloseBigMenu = this.onCloseBigMenu.bind(this);
+    super(props)
+    this.selectModel = this.selectModel.bind(this)
+    this.changeSiderStyle = this.changeSiderStyle.bind(this)
+    this.onSelectMenu = this.onSelectMenu.bind(this)
+    this.onOpenBigMenu = this.onOpenBigMenu.bind(this)
+    this.onCloseBigMenu = this.onCloseBigMenu.bind(this)
     this.state = {
       currentKey: 'home',
       isUnzip: false,
@@ -79,49 +79,65 @@ class Slider extends Component {
   }
 
   componentWillMount() {
-    const { pathname } = this.props;
-    let currentKey = pathname.split('/')[1];
+    const { pathname } = this.props
+    let currentKey = pathname.split('/')[1]
     if(!Boolean(currentKey)) {
-      currentKey = 'home';
+      currentKey = 'home'
     }
-    let currentOpenMenu = checkUrlSelectedKey(pathname);
-    let currentSelectedMenu = checkUrlOpenKeys(pathname);
+    let currentOpenMenu = checkUrlSelectedKey(pathname)
+    let currentSelectedMenu = checkUrlOpenKeys(pathname)
+    if (pathname.indexOf('/account/costCenter') > -1) {
+      currentOpenMenu = ['account','costCenter#consumptions']
+      currentSelectedMenu = ['account','costCenter#consumptions']
+      if (pathname.indexOf('#') > -1) {
+        currentOpenMenu = ['account',`costCenter#${pathname.split('#')[1]}`]
+        currentSelectedMenu = ['account',`costCenter#${pathname.split('#')[1]}`]
+      }
+    }
     this.setState({
       currentKey: currentKey,
       currentOpenMenu: currentOpenMenu,
       currentSelectedMenu: currentSelectedMenu
-    });
+    })
   }
 
   componentWillReceiveProps(nextProps) {
-    const { pathname } = nextProps;
-    const oldPathname = this.props.pathname;
+    const { pathname } = nextProps
+    const oldPathname = this.props.pathname
     if(pathname != oldPathname) {
-      let currentKey = pathname.split('/')[1];
+      let currentKey = pathname.split('/')[1]
       if(!Boolean(currentKey)) {
-        currentKey = 'home';
+        currentKey = 'home'
       }
-      let currentOpenMenu = checkUrlSelectedKey(pathname);
-      let currentSelectedMenu = checkUrlOpenKeys(pathname);
+      let currentOpenMenu = checkUrlSelectedKey(pathname)
+      let currentSelectedMenu = checkUrlOpenKeys(pathname)
+      if (pathname.indexOf('/account/costCenter') > -1) {
+        currentOpenMenu = ['account','costCenter#consumptions']
+        currentSelectedMenu = ['account','costCenter#consumptions']
+        if (pathname.indexOf('#') > -1) {
+          currentOpenMenu = ['account',`costCenter#${pathname.split('#')[1]}`]
+          currentSelectedMenu = ['account',`costCenter#${pathname.split('#')[1]}`]
+        }
+      }
       this.setState({
         currentKey: currentKey,
         currentOpenMenu: currentOpenMenu,
         currentSelectedMenu: currentSelectedMenu
-      });
+      })
     }
   }
 
   changeSiderStyle() {
     //this function for user change the sider style to 'mini' or 'bigger'
-    const { scope, siderStyle } = this.props;
+    const { scope, siderStyle } = this.props
     if (siderStyle == 'mini') {
       scope.setState({
         siderStyle: 'bigger'
-      });
+      })
     } else {
       scope.setState({
         siderStyle: 'mini'
-      });
+      })
     }
   }
 
@@ -134,7 +150,7 @@ class Slider extends Component {
   selectModel(currentKey, currentIcon, event) {
     this.setState({
       currentKey: currentKey,
-    });
+    })
   }
 
   changeRadioValue(e) {
@@ -145,19 +161,19 @@ class Slider extends Component {
 
   onSelectMenu(e) {
     //this function for user select the menu item and change the current key
-    const { keyPath } = e;
+    const { keyPath } = e
     if (keyPath.length > 1) {
-      let currentKey = keyPath[1];
+      let currentKey = keyPath[1]
       this.setState({
         currentKey: currentKey,
         currentSelectedMenu: keyPath
-      });
+      })
     } else {
-      let currentKey = keyPath[0];
+      let currentKey = keyPath[0]
       this.setState({
         currentKey: currentKey,
         currentSelectedMenu: keyPath
-      });
+      })
     }
   }
 
@@ -236,7 +252,7 @@ class Slider extends Component {
 
   onOpenBigMenu(e) {
     //this function for show only one menu opened
-    let currentOpenMenu = checkUrlOpenKeys(e.key + '/' + e.key);
+    let currentOpenMenu = checkUrlOpenKeys(e.key + '/' + e.key)
     this.setState({
       currentOpenMenu: currentOpenMenu
     })
@@ -367,6 +383,19 @@ class Slider extends Component {
                   </Link>
                 </Tooltip>
               </li>
+              { role == ROLE_SYS_ADMIN ?
+                [
+                  <li onClick={this.selectModel.bind(this, 'cluster', '#cluster')} className={currentKey == 'cluster' ? 'selectedLi' : ''}>
+                    <Tooltip placement='right' title='基础设施' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                      <Link to='/cluster'>
+                        <svg className='setting commonImg'>
+                          {currentKey == 'cluster' ? [<use xlinkHref='#siderinfrastructureselected' />] : [<use xlinkHref='#siderinfrastructure' />]}
+                        </svg>
+                      </Link>
+                    </Tooltip>
+                  </li>
+                ] : null
+              }
               <div style={{ clear: 'both' }}></div>
             </ul>
             {/*<ul className='siderBottom'>
@@ -579,23 +608,33 @@ class Slider extends Component {
                       <span><div className='sideCircle'></div> 我的帐户</span>
                     </Link>
                   </Menu.Item>
-                  { role == ROLE_TEAM_ADMIN ?
+                  { (role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) ?
                   <Menu.Item key='member'>
                     <Link to='/account/member'>
                       <span><div className='sideCircle'></div> 成员管理</span>
                     </Link>
                   </Menu.Item> : <div></div>
                   }
-                  { role == ROLE_TEAM_ADMIN ?
+                  { (role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) ?
                   <Menu.Item key='team'>
                     <Link to='/account/team'>
                       <span><div className='sideCircle'></div> 团队管理</span>
                     </Link>
                   </Menu.Item> : <div></div>
                   }
-                  <Menu.Item key='cost'>
+                  {/*<Menu.Item key='cost'>
                     <Link to='/account/cost'>
                       <span><div className='sideCircle'></div> 费用中心</span>
+                    </Link>
+                  </Menu.Item>*/}
+                  <Menu.Item key='costCenter#consumptions'>
+                    <Link to='/account/costCenter#consumptions'>
+                      <span><div className='sideCircle'></div> 消费记录</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='costCenter#payments'>
+                    <Link to='/account/costCenter#payments'>
+                      <span><div className='sideCircle'></div> 充值记录</span>
                     </Link>
                   </Menu.Item>
                   <div className='sline'></div>
@@ -617,11 +656,13 @@ class Slider extends Component {
                       <span><div className='sideCircle'></div> 平台版本</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='license'>
-                    <Link to='/setting/license'>
-                      <span><div className='sideCircle'></div> 授权管理</span>
-                    </Link>
-                  </Menu.Item>
+                  { role == ROLE_SYS_ADMIN ?
+                    <Menu.Item key='license'>
+                      <Link to='/setting/license'>
+                        <span><div className='sideCircle'></div> 授权管理</span>
+                      </Link>
+                    </Menu.Item> : <div></div>
+                  }
                   <Menu.Item key='API'>
                     <Link to='/setting/API'>
                       <span><div className='sideCircle'></div> 开放 API</span>
@@ -634,6 +675,19 @@ class Slider extends Component {
                   </Menu.Item>*/}
                   <div className='sline'></div>
                 </SubMenu>
+                { role == ROLE_SYS_ADMIN ?
+                  <Menu.Item key='cluster'>
+                    <Link to='/cluster'>
+                      <span>
+                        <svg className='system commonImg'>
+                          <use xlinkHref='#siderinfrastructure' />
+                        </svg>
+                        <span className='commonSiderSpan'>基础设施</span>
+                        <div style={{ clear: 'both' }}></div>
+                      </span>
+                    </Link>
+                  </Menu.Item> : <div></div>
+                }
               </Menu>
             </div>
           </QueueAnim>
@@ -655,12 +709,12 @@ class Slider extends Component {
 }
 
 function checkCurrentPath(pathname) {
-  let pathList = pathname.split('/');
-  let currentPath = pathList[0];
+  let pathList = pathname.split('/')
+  let currentPath = pathList[0]
   if (currentPath.length > 0) {
-    return currentPath;
+    return currentPath
   } else {
-    return 'home';
+    return 'home'
   }
 }
 
@@ -686,4 +740,4 @@ export default connect(mapStateToProp, {
   getVolumeBindInfo,
   changeStorageDetail,
   // loadUserDetail,
-})(Slider)
+})(Sider)

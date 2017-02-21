@@ -39,6 +39,25 @@
     .logTitle {
       font-size: 24px;
     }
+    .logDesc {
+      font-size: 12px;
+      color: #979797;
+    }
+    .logAvatar {
+      width: 60px;
+      height: 60px;
+      line-height: 60px;
+      border-radius: 50%;
+      color: #fff;
+      background-color: #d2edfe;
+      text-align: center;
+      font-size: 38px;
+      overflow: hidden;
+      margin: 0 auto;
+      img {
+        height: 60px;
+      }
+    }
     .logtext {
       line-height: 40px;
       height: 40px;
@@ -99,14 +118,9 @@
       }
       .formItemName {
         height: 50px;
-        input:-webkit-autofill {
+        input:-webkit-autofill,input:-webkit-autofill:focus {
           background-color: #fff !important;
-          -webkit-box-shadow: 0 0 0px 1000px white inset;
-          -webkit-text-fill-color: #333;
-        }
-        input:-webkit-autofill:focus {
-          background-color: #fff !important;
-          -webkit-box-shadow: 0 0 0px 1000px white inset;
+          -webkit-box-shadow: 0 0 0px 100px white inset !important;
           -webkit-text-fill-color: #333;
         }
         .intName {
@@ -143,6 +157,21 @@
         }
       }
     }
+    .wechatBoundBtns {
+      button {
+        margin: 10px 0;
+      }
+      .boundBtn {
+        font-size: 16px;
+        width: 100%;
+        height: 44px;
+        padding: 0;
+        background-color: #fff;
+        &:hover {
+          background-color: #fff;
+        }
+      }
+    }
     .logInFooter {
       .footerTip {
         display: -webkit-box;
@@ -172,7 +201,7 @@
         }
       }
       .moreMethod {
-        margin-top: 40px;
+        margin-top: 20px;
         .methodTitle {
           display: -webkit-box;
           display: -webkit-flex;
@@ -195,7 +224,7 @@
         }
         .methodIcon {
           text-align: center;
-          margin-top: 24px;
+          margin-top: 18px;
           .weixin {
             cursor: pointer;
             display: inline-block;

@@ -8,7 +8,7 @@
  * @author Bai Yu
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Spin, message, Tooltip, } from 'antd'
+import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Spin, Tooltip, } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import Authentication from './Authentication'
@@ -46,6 +46,8 @@ class BaseInfo extends Component {
       disabledButton: false,
       currentKey: '11',
       user3rdAccounts: [],
+      unbindModalShow: false,
+      isPasswordSet: false,
     }
   }
   componentWillMount() {
@@ -64,6 +66,17 @@ class BaseInfo extends Component {
   }
   componentWillReceiveProps(nextProps) {
     const { user } = nextProps
+    const oldUserInfo = this.props.user.userInfo
+    if (user && user.userInfo) {
+      const userDetail = user.userInfo
+      const { isPasswordSet } = userDetail
+      if (oldUserInfo && isPasswordSet === oldUserInfo.isPasswordSet) {
+        return
+      }
+      this.setState({
+        isPasswordSet,
+      })
+    }
     if (!user || !user.user3rdAccounts) {
       return
     }
@@ -276,15 +289,37 @@ class BaseInfo extends Component {
     const account = {
       accountType: 'wechat'
     }
-    bindWechat(account).then(({ response, type }) => {
-      notification.close()
-      notification.success('绑定微信帐户成功')
-      account.accountDetail = response.result
-      this.setUser3rdAccountState([account])
-    }).catch(err => {
-      // Must catch err here, response may be null
-      notification.close()
-      notification.error('绑定微信帐户失败')
+    bindWechat(account, {
+      success: {
+        func: (response) => {
+          notification.close()
+          notification.success('绑定微信帐户成功')
+          account.accountDetail = response
+          this.setUser3rdAccountState([account])
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: (err) => {
+          notification.close()
+          const { statusCode, message } = err
+          if (statusCode === 409) {
+            const { reason } = message
+            if (reason === 'WeChatAlreayBounded') {
+              notification.error('绑定微信帐户失败', '您的微信已绑定其他时速云平台账户')
+              return
+            }
+            if (reason === 'AlreadyExists') {
+              notification.warn('您已绑定过微信账户')
+              const { loadStandardUserInfo } = this.props
+              loadStandardUserInfo()
+              return
+            }
+          }
+          notification.error('绑定微信帐户失败')
+        },
+        isAsync: true,
+      }
     })
   }
   /**
@@ -319,6 +354,9 @@ class BaseInfo extends Component {
     notification.spin('解除绑定中...')
     const { unbindWechat } = this.props
     const { user3rdAccounts } = this.state
+    this.setState({
+      unbindModalShow: false
+    })
     unbindWechat({accountType}).then(({ response, type }) => {
       notification.close()
       const { status } = response.result
@@ -358,7 +396,7 @@ class BaseInfo extends Component {
           <i className="fa fa-wechat"></i>
         </div>
         <div className="name">{nickname}</div>
-        <Button onClick={() => this.handleUnbind(accountType)}>解除绑定</Button>
+        <Button onClick={() => {this.setState({unbindModalShow: true})}}>解除绑定</Button>
       </div>
     )
   }
@@ -369,6 +407,24 @@ class BaseInfo extends Component {
         return this.renderWechatAccount(account)
     }
   }
+  renderPassword(isPasswordSet) {
+    if (isPasswordSet) {
+      return (
+        <li>
+          <span className="key">密码</span>
+          <span className="value" style={{color: '#5cb85c'}}>已设置</span>
+          <Button type="primary" onClick={() => this.setState({ editPsd: true })}>修改密码</Button>
+        </li>
+      )
+    }
+    return (
+      <li>
+        <span className="key">密码</span>
+        <span className="value" style={{color: '#9190F8'}}>未设置</span>
+        <Button type="primary" onClick={() => this.setState({ editPsd: true })}>设置密码</Button>
+      </li>
+    )
+  }
   render() {
     // const {getFieldProps} = this.props.form
     let { user } = this.props
@@ -376,7 +432,7 @@ class BaseInfo extends Component {
       return <div></div>
     }
     const { isFetching } = user
-    const { user3rdAccounts } = this.state
+    const { user3rdAccounts, isPasswordSet } = this.state
     if(isFetching) {
       return (
         <div className="loadingBox">
@@ -466,14 +522,10 @@ class BaseInfo extends Component {
             }
             {this.state.editPsd ?
               <li>
-                <PasswordRow scope={this} />
+                <PasswordRow isPasswordSet={isPasswordSet} scope={this} />
               </li>
               :
-              <li>
-                <span className="key">密码</span>
-                <span className="value" style={{color:'#5cb85c'}}>已设置</span>
-                <Button type="primary" onClick={() => this.setState({ editPsd: true })}>修改密码</Button>
-              </li>
+              this.renderPassword(isPasswordSet)
             }
             {this.state.editPhone ?
             <li>
@@ -542,6 +594,13 @@ class BaseInfo extends Component {
               </div>
             </TabPane>
           </Tabs>
+        </Modal>
+        <Modal title='解除绑定' visible={this.state.unbindModalShow}
+          onCancel={() => this.setState({unbindModalShow: false})} onOk={() => this.handleUnbind(user3rdAccounts[0].accountType)}
+        >
+          <span style={{ color: '#00a0ea', marginRight: '10px' }}>
+            <Icon type='question-circle-o' /><span>您确定解除绑定微信么？</span>
+          </span>
         </Modal>
       </div>
     )

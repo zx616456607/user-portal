@@ -21,10 +21,23 @@
   -ms-flex-pack: center;
   justify-content: center;
   .login {
-    width: 350px;
+    width: 360px;
     background-color: #fff;
     border-radius: 5px;
-    padding: 30px 50px 20px 50px;
+    .errorText {
+      line-height: 45px;background: #FF4266;
+      color: white;
+      text-align: center;
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+      .goActive {
+        border-bottom: 1px solid white;
+        cursor: pointer;
+      }
+    }
+    .loginContent {
+      padding: 30px 50px 20px 50px;
+    }
     .logoLink {
       display: inline-block;
       width: 100%;
@@ -45,6 +58,19 @@
       text-align: center;
     }
     .loginForm {
+      .platform {
+        border:1px solid #d9d9d9;
+        border-radius: 6px;
+        line-height: 35px;
+        margin-bottom: 10px;
+        padding:0 10px;
+        .platformId{
+          width:180px;display: inline-block;overflow: hidden;vertical-align: middle;border-left: 1px solid #d9d9d9;
+          height: 22px;line-height: 22px;
+        }
+        .copyBtn {font-size: 16px;cursor: pointer;vertical-align: middle;}
+        .actions{color: #2db7f5}
+      }
       .ant-card-body {
         padding: 24px 0;
         .ant-alert {
@@ -99,6 +125,11 @@
       }
       .formItemName {
         height: 50px;
+         input:-webkit-autofill,input:-webkit-autofill:focus {
+          background-color: #fff !important;
+          -webkit-box-shadow: 0 0 0px 100px white inset !important;
+          -webkit-text-fill-color: #333;
+        }
         .intName {
           font-size: 12px;
           position: absolute;

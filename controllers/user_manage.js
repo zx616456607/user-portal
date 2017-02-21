@@ -17,9 +17,11 @@ const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 const ROLE_TEAM_ADMIN = 1
+const ROLE_SYS_ADMIN = 2
 const config = require('../configs')
 const standardMode = require('../configs/constants').STANDARD_MODE
 const serviceIndex = require('../services')
+const registryConfigLoader = require('../registry/registryConfigLoader')
 
 /*
 Only return the detail of one user
@@ -128,7 +130,8 @@ exports.getUserTeams = function* () {
     let result = yield api.users.getBy([loginUser.id])
 
     //Only team admin can get team related information
-    if (!result || !result.data || result.data.role != ROLE_TEAM_ADMIN) {
+    if (!result || !result.data || (result.data.role != ROLE_TEAM_ADMIN 
+        && result.data.role != ROLE_SYS_ADMIN)) {
         this.body = {
           teams: [],
           total: 0
@@ -298,6 +301,13 @@ exports.updateUser = function* () {
   const user = this.request.body
 
   const result = yield api.users.patch(userID, user)
+  // If update admin password, refresh the cache of registry
+  if (result && result.statusCode === 200) {
+    if (user.password && registryConfigLoader.GetRegistryConfig() && loginUser.user == registryConfigLoader.GetRegistryConfig().user) {
+      logger.info("Update registry config in cache...")
+      registryConfigLoader.GetRegistryConfig().password = user.password
+    }
+  }
 
   this.body = {
     data: result

@@ -404,7 +404,7 @@ class UserPay extends Component {
       } = response.result
       if (code === 404) {
         notification.warn('获取订单状态失败，请查看充值记录')
-        browserHistory.push('/account/cost#payments')
+        browserHistory.push('/account/costCenter#payments')
         return
       }
       let upgradeOrRenewalsResult = this.handleUpgradeOrRenewalsResult(response.result)
@@ -424,7 +424,7 @@ class UserPay extends Component {
       })
     }).catch(err => {
       notification.warn('获取订单状态失败，请查看充值记录')
-      browserHistory.push('/account/cost#payments')
+      browserHistory.push('/account/costCenter#payments')
     })
   }
 
@@ -530,7 +530,7 @@ class UserPay extends Component {
           <li>温馨提示：</li>
           <li>1. 充值金额会在当天到帐。如遇问题，请点击右下角工单咨询。</li>
           <li>2. 您可以通过三种方式充值：微信充值、支付宝、银行转帐（线下汇款充值）。采用线下汇款方式到帐会有延迟，建议采用支付宝，微信支付。 </li>
-          <li>3. 累计充值金额满 ￥300 后可通过点击右下角工单申请发票，发票金额大于等于1000元，免邮寄费用，低于1000元需自付邮寄费，建议您根据发票金额合理申请发票。
+          <li>3. 累计充值金额满 ￥200 后可通过点击右下角工单申请发票，发票金额大于等于500元，免邮寄费用；低于500元需自付邮寄费，建议您根据发票金额合理申请发票。
 </li>
         </ul>
         <div className="payDetail">
@@ -707,7 +707,7 @@ class UserPay extends Component {
               key="payHistory"
               type="primary"
               size="large"
-              onClick={() => browserHistory.push('/account/cost#payments')}>
+              onClick={() => browserHistory.push('/account/costCenter#payments')}>
               充值记录
             </Button>,
             <Button
@@ -782,7 +782,7 @@ class UserPay extends Component {
               key="payHistory"
               type="primary"
               size="large"
-              onClick={() => browserHistory.push('/account/cost')}>
+              onClick={() => browserHistory.push('/account/costCenter#consumptions')}>
               查看消费记录
             </Button>,
             <Button

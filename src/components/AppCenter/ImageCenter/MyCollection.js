@@ -8,16 +8,20 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Spin, Input, Modal } from 'antd'
+import { Alert, Menu, Button, Card, Spin, Input, Modal, Icon, Tooltip } from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadFavouriteList, getImageDetailInfo, searchFavoriteImages} from '../../../actions/app_center'
+import { loadFavouriteList, getImageDetailInfo, searchFavoriteImages, AppCenterBindUser, deleteAppCenterBindUser } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
-
 import "./style/MyCollection.less"
 import ImageDetailBox from './ImageDetail'
+import noBindImg from '../../../assets/img/appCenter/noBind.png'
+
+const mode = require('../../../../configs/model').mode
+const standard = require('../../../../configs/constants').STANDARD_MODE
+let standardFlag = (mode == standard ? true : false);
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -128,18 +132,180 @@ let MyComponent = React.createClass({
   }
 });
 
+let NoBind = React.createClass({
+  getInitialState() {
+    return {
+      username: '',
+      password: ''
+    }
+  },
+  onChangeUsername(e) {
+    //this function for change the username of state
+    this.setState({
+      username: e.target.value
+    })
+    if(e.target.value.length > 0) {
+      this.setState({
+        usernameError: false
+      })
+    } else {
+      this.setState({
+        usernameError: true
+      })
+    }
+  },
+  onChangePassword(e) {
+    //this function for change the password of state
+    this.setState({
+      password: e.target.value
+    })
+    if(e.target.value.length > 0) {
+      this.setState({
+        passwordError: false
+      })
+    } else {
+      this.setState({
+        passwordError: true
+      })
+    }
+  },
+  openBindModal() {
+    //this function for open bind modal
+    const { scope } = this.props;
+    scope.setState({
+      bindModalShow: true
+    });
+  },
+  closeBindModal() {
+    //this function for close bind modal
+    const { scope } = this.props;
+    this.setState({
+      usernameError: false,
+      passwordError: false,
+      username: '',
+      password: ''
+    });
+    scope.setState({
+      bindModalShow: false
+    });
+  },
+  submitBind() {
+    //this function for submit bind
+    const { scope } = this.props;
+    const { username, password } = this.state;
+    const { AppCenterBindUser } = scope.props;
+    let errorFlag = false;
+    if(!Boolean(username)) {
+      //wrong username
+      errorFlag = true;
+      this.setState({
+        usernameError: true
+      })
+    }
+    if(!Boolean(password)) {
+      //wrong password
+      errorFlag = true;
+      this.setState({
+        passwordError: true
+      })
+    }
+    if(errorFlag) {
+      return;
+    }
+    let body = {
+      username: username,
+      password: password
+    }
+    AppCenterBindUser(body, {
+      success: {
+        func: () => {
+          scope.props.scope.setState({
+            configured: true
+          })
+        },
+        isAsync: true
+      }
+    });
+    this.setState({
+      username: '',
+      password: ''
+    });
+    scope.setState({
+      bindModalShow: false
+    });
+  },
+  render() {
+    const {scope} = this.props;
+    return (
+    <div className='noBind'>
+      <Card className='noBindCard'>
+        <div className='leftBox'>
+          <img src={noBindImg} />
+        </div>
+        <div className='rightBox'>
+          <div className='msgDetail'>
+            <div className='square'></div>
+            <span>企业版支持关联时速云·公有云的镜像仓库。</span>
+          </div>
+          <div className='msgDetail'>
+            <div className='square'></div>
+            <span>只需填写时速云官网注册的用户名和密码即可快速关联。</span>
+          </div>
+        </div>
+      </Card>
+      <Button className='bindBtn' type='primary' size='large' onClick={this.openBindModal}>
+        <Icon type='plus' />
+        <span>时速云镜像Hub</span>
+      </Button>
+      <p className='alert'>目前您还没有关联时速云·公有云镜像</p>
+      <Modal className='liteBindCenterModal' title='关联时速云镜像Hub' visible={scope.state.bindModalShow}
+        onCancel={this.closeBindModal} onOk={this.submitBind}
+      >
+        <Alert message={[<span><Icon type='exclamation-circle' style={{ marginRight: '7px', color: '#2db7f5' }} /><span>关联时速云·公有云的镜像仓库，请填写时速云官网注册的用户名和密码</span></span>]} type="info" />
+        <div className='inputBox'>
+          <span className='title'>用户名</span>
+          <span className={this.state.usernameError ? 'errorInput input' : 'input'}>
+            <Input size='large' value={this.state.username} onChange={this.onChangeUsername} />
+            <div className='errorMsg'><Icon type='exclamation-circle-o' /><span>用户名不能为空</span></div>
+          </span>
+        </div>
+        <div className='inputBox'>
+          <span className='title'>密码</span>
+          <span className={this.state.passwordError ? 'errorInput input' : 'input'}>
+            <Input size='large' type='password' value={this.state.password} onChange={this.onChangePassword} />
+            <div className='errorMsg'><Icon type='exclamation-circle-o' /><span>密码不能为空</span></div>
+          </span>
+        </div>
+      </Modal>
+    </div>
+    )
+  }
+});
+
 class MyCollection extends Component {
   constructor(props) {
     super(props);
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this);
+    this.showDeleteBindUser = this.showDeleteBindUser.bind(this);
+    this.deleteBindUser = this.deleteBindUser.bind(this);
+    this.closeDeleteBindUser = this.closeDeleteBindUser.bind(this);
     this.state = {
       currentImage: null,
-      imageDetailModalShow: false
+      imageDetailModalShow: false,
+      deleteBindUserModal: false
     }
   }
   componentWillMount() {
-    const { loadFavouriteList } = this.props
-    loadFavouriteList(DEFAULT_REGISTRY)
+    const { loadFavouriteList, hubConfig } = this.props
+    if(hubConfig) {      
+      loadFavouriteList(DEFAULT_REGISTRY)
+    }
+  }
+  componentWillReceiveProps(nextProps) {
+    const { loadFavouriteList, hubConfig } = nextProps;
+    if(this.props.hubConfig != hubConfig && hubConfig) {
+      loadFavouriteList(DEFAULT_REGISTRY)
+    }
   }
   closeImageDetailModal() {
     //this function for user close the modal of image detail info
@@ -152,9 +318,42 @@ class MyCollection extends Component {
     const condition = {imageName: this.state.imageName, registry }
     searchFavoriteImages(condition)
   }
+  deleteBindUser() {
+    //this function for unbind user from public cloud
+    const { deleteAppCenterBindUser, scope } = this.props;
+    deleteAppCenterBindUser({
+      success: {
+        func: () => {
+          notification['success']({
+            message: '注销成功'
+          });
+          scope.setState({
+            configured: false
+          })
+        },
+        isAsync: true
+      }
+    });
+    this.setState({
+      deleteBindUserModal: false
+    })
+  }
+  showDeleteBindUser() {
+    //this function for show delete modal
+    this.setState({
+      deleteBindUserModal: true
+    });
+  }
+  closeDeleteBindUser() {
+    //this function for close delete modal
+    this.setState({
+      deleteBindUserModal: false
+    });
+  }
   render() {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
+    const { hubConfig } = this.props;
     const scope = this;
     const imageList = this.props.fockImageList
     return (
@@ -162,15 +361,28 @@ class MyCollection extends Component {
         type="right"
         >
         <div id="MyCollection" key="MyCollection">
-          <Alert message={<FormattedMessage {...menusText.tooltips} />} type="info" />
-          <Card className="MyCollectionCard">
-            <div className="operaBox">
-              <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" onChange={(e)=> this.setState({imageName: e.target.value})} onPressEnter={()=> this.searchImages()} />
-              <i className="fa fa-search"></i>
-              <div style={{ clear: "both" }}></div>
-            </div>
-            <MyComponent scope={scope} isFetching={this.props.isFetching} registryServer={this.props.server} getImageDetailInfo={(obj, callback) => this.props.getImageDetailInfo(obj, callback)} config={imageList} />
-          </Card>
+          <Alert message={standardFlag ? [<FormattedMessage {...menusText.tooltips} />] : '关联时速云·公有云镜像仓库后，您可使用公有云中收藏的镜像，也可以将时速云镜像hub中的任意镜像，一键收藏到我的收藏，便捷的管理常用容器镜像。'} type="info" />
+          { !hubConfig ? 
+            [<NoBind scope={scope} />] 
+            :
+            [<Card className="MyCollectionCard">
+              <div className="operaBox">
+                <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" onChange={(e)=> this.setState({imageName: e.target.value})} onPressEnter={()=> this.searchImages()} />
+                <i className="fa fa-search"></i>
+                { !standardFlag ?
+                  [
+                  <Tooltip title='注销时速云Hub'>
+                    <Button className='logoutBtn' size='large' type='ghost' onClick={this.showDeleteBindUser}>
+                      <span>注销</span>
+                    </Button>
+                  </Tooltip>
+                  ] : null
+                }
+                <div style={{ clear: "both" }}></div>
+              </div>
+              <MyComponent scope={scope} isFetching={this.props.isFetching} registryServer={this.props.server} getImageDetailInfo={(obj, callback) => this.props.getImageDetailInfo(obj, callback)} config={imageList} />
+            </Card>]
+          }
         </div>
         <Modal
           visible={this.state.imageDetailModalShow}
@@ -179,6 +391,9 @@ class MyCollection extends Component {
           onCancel={this.closeImageDetailModal}
           >
           <ImageDetailBox parentScope={rootscope} server={this.props.server} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
+        </Modal>
+        <Modal title='注销' className='liteBindCenterModal' visible={this.state.deleteBindUserModal} onOk={this.deleteBindUser} onCancel={this.closeDeleteBindUser}>
+          <span style={{ color: '#00a0ea' }}><Icon type='exclamation-circle-o' />&nbsp;&nbsp;&nbsp;确定要注销时速云官方Hub？</span>
         </Modal>
       </QueueAnim>
     )
@@ -214,7 +429,9 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   loadFavouriteList,
   getImageDetailInfo,
-  searchFavoriteImages
+  searchFavoriteImages,
+  AppCenterBindUser,
+  deleteAppCenterBindUser
 })(injectIntl(MyCollection, {
   withRef: true,
 }))

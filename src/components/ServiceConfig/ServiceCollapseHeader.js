@@ -17,9 +17,130 @@ import { connect } from 'react-redux'
 import { calcuDate } from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
 import { validateServiceConfigFile } from '../../common/naming_validation'
+import { USERNAME_REG_EXP_NEW } from '../../constants'
+import { validateK8sResource } from '../../common/naming_validation'
 
 const ButtonGroup = Button.Group
 const FormItem = Form.Item
+const createForm = Form.create
+
+let CreateConfigFileModal = React.createClass({
+  configNameExists(rule, value, callback) {
+    const form = this.props.form;
+    if (!value) {
+      callback([new Error('请输入配置文件名称')])
+      return
+    }
+    if(value.length > 253) {
+      callback([new Error('配置文件名称长度不超过 252 个字符')])
+      return
+    }
+    if(/^[\u4e00-\u9fa5]+$/i.test(value)){
+      callback([new Error('名称由英文、数字、中划线(-)、下划线(_)、点(.)组成, 且以英文和数字结尾')])
+      return
+    } //^\\.?[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*
+    if (!validateServiceConfigFile(value)) {
+      callback([new Error('名称由英文、数字、中划线(-)、下划线(_)、点(.)组成, 且以英文和数字结尾')])
+      return
+    }
+    callback()
+  },
+  configDescExists(rule, value, callback) {
+    const form = this.props.form;
+    if (!value) {
+      callback([new Error('内容不能为空，请重新输入内容')])
+      return
+    }
+    callback()
+  },
+  createConfigFile(group) {
+    const parentScope = this.props.scope
+    this.props.form.validateFields((errors, values) => {
+      if (!!errors) {
+        return
+      }
+
+      let configfile = {
+        group,
+        cluster: parentScope.props.cluster.clusterID,
+        name: values.configName,
+        desc: values.configDesc
+      }
+      let self = this
+      // const {parentScope} = this.props
+      let notification = new NotificationHandler()
+      parentScope.props.createConfigFiles(configfile, {
+        success: {
+          func: () => {
+            notification.success('创建配置文件成功')
+            self.props.form.resetFields()
+            parentScope.props.addConfigFile(configfile)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (res) => {
+            let errorText
+            switch (res.message.code) {
+              case 403: errorText = '添加配置文件过多'; break
+              case 409: errorText = '配置已存在'; break
+              case 500: errorText = '网络异常'; break
+              default: errorText = '缺少参数或格式错误'
+            }
+            notification.error('添加配置文件失败', errorText)
+          }
+        }
+      })
+      parentScope.setState({
+        modalConfigFile: false,
+      })
+    })
+    
+  },
+  render() {
+    const { getFieldProps } = this.props.form
+    const parentScope = this.props.scope
+    const formItemLayout = { labelCol: { span: 2 }, wrapperCol: { span: 21 } }
+    const nameProps = getFieldProps('configName', {
+      rules: [
+        { validator: this.configNameExists },
+      ],
+    });
+    const descProps = getFieldProps('configDesc', {
+      rules: [
+        { validator: this.configDescExists },
+      ],
+    });
+    return(
+      <Modal
+        title="添加配置文件"
+        wrapClassName="configFile-create-modal"
+        visible={parentScope.state.modalConfigFile}
+        onOk={() => this.createConfigFile(this.props.groupName)}
+        onCancel={(e) => parentScope.createConfigModal(e, false)}
+        width="600px"
+        >
+        <div className="configFile-inf" style={{ padding: '0 10px' }}>
+          <div className="configFile-tip" style={{ color: "#16a3ea", height: '35px', textIndent: '10px' }}>
+            &nbsp;&nbsp;&nbsp;<Icon type="info-circle-o" style={{ marginRight: "10px" }} />
+            即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
+          </div>
+          <Form horizontal>
+            <FormItem  {...formItemLayout} label="名称">
+              <Input type="text" {...nameProps} className="nameInput" />
+            </FormItem>
+            <FormItem {...formItemLayout} label="内容">
+              <Input type="textarea" style={{ minHeight: '300px' }} {...descProps}  />
+            </FormItem>
+          </Form>
+        </div>
+      </Modal>
+    )
+  }
+})
+
+CreateConfigFileModal = createForm()(CreateConfigFileModal)
+
 
 class CollapseHeader extends Component {
   constructor(props) {
@@ -27,8 +148,6 @@ class CollapseHeader extends Component {
     this.state = {
       modalConfigFile: false,
       configArray: [],
-      configName: '',
-      configDesc: '',
       sizeNumber: this.props.sizeNumber,
       configNameList: this.props.configNameList
     }
@@ -43,81 +162,15 @@ class CollapseHeader extends Component {
   createConfigModal(e, modal) {
     e.stopPropagation()
     this.setState({ modalConfigFile: modal })
-    setTimeout(() => {
-      this.nameInput.refs.input.focus()
-    })
+    if (modal) {
+      setTimeout(function(){
+        document.getElementsByClassName('nameInput')[0].focus()
+      },500)
+    }
   }
-  createConfigFile(group) {
-    let notification = new NotificationHandler()
-    if (!this.state.configName) {
-      notification.error('请输入配置组名称')
-      return
-    }
-    if (escape(this.state.configName).indexOf("%u") > 0) {
-      notification.error('名称格式输入有误，请重新输入')
-      return
-    }
-    if (this.state.configDesc == '') {
-      notification.error('内容不能为空，请重新输入内容')
-      return
-    }
-    if (!validateServiceConfigFile(this.state.configName)) {
-      notification.error('名称由英文字母、数字、点（.）、下划线（_）和连字符（-）组成，长度不超过 253 个字符')
-      return
-    }
-    let configfile = {
-      group,
-      cluster: this.props.cluster.clusterID,
-      name: this.state.configName,
-      desc: this.state.configDesc
-    }
-    let self = this
-    const {parentScope} = this.props
-    self.props.createConfigFiles(configfile, {
-      success: {
-        func: () => {
-          notification.success('创建配置文件成功')
-          self.setState({
-            modalConfigFile: false,
-            configName: '',
-            configDesc: ''
-          })
-          self.props.addConfigFile(configfile)
-        },
-        isAsync: true
-      },
-      failed: {
-        func: (res) => {
-          let errorText
-          switch (res.message.code) {
-            case 403: errorText = '添加配置文件过多'; break
-            case 409: errorText = '配置已存在'; break
-            case 500: errorText = '网络异常'; break
-            default: errorText = '缺少参数或格式错误'
-          }
-          notification.error('添加配置文件失败', errorText);
-          self.setState({
-            modalConfigFile: false,
-            configName: '',
-            configDesc: ''
-          })
-        }
-      }
-    })
-  }
+
   handleDropdown(e) {
     e.stopPropagation()
-  }
-  addConfigFile(e, key) {
-    if (key == 'name') {
-      this.setState({
-        configName: e.target.value
-      })
-    } else {
-      this.setState({
-        configDesc: e.target.value
-      })
-    }
   }
   handChage(e, Id) {
     this.props.handChageProp(e, Id)
@@ -131,7 +184,6 @@ class CollapseHeader extends Component {
       "groups": configArray
     }
     let notification = new NotificationHandler()
-    this.setState({delModal: false})
     self.props.deleteConfigGroup(configData, {
       success: {
         func: (res) => {
@@ -156,19 +208,16 @@ class CollapseHeader extends Component {
           } else {
             notification.success('删除成功')
           }
-          self.setState({
-            configArray: [],
-          })
         },
         isAsync: true
       }
     })
+    this.setState({delModal: false, configArray: []})
 
   }
   render() {
     const {collapseHeader } = this.props
     const {sizeNumber} = this.state
-    const formItemLayout = { labelCol: { span: 2 }, wrapperCol: { span: 21 } }
     const menu = (
       <Menu onClick={() => this.setState({delModal: true, groupName: collapseHeader.name})} mode="vertical">
         <Menu.Item key="1"><Icon type="delete" /> 删除配置组</Menu.Item>
@@ -196,30 +245,11 @@ class CollapseHeader extends Component {
             </Dropdown.Button>
           </ButtonGroup>
           {/*添加配置文件-弹出层-start*/}
-          <Modal
-            title="添加配置文件"
-            wrapClassName="configFile-create-modal"
-            visible={this.state.modalConfigFile}
-            onOk={(e) => this.createConfigFile(collapseHeader.name)}
-            onCancel={(e) => this.createConfigModal(e, false)}
-            width = "600px"
-            >
-            <div className="configFile-inf" style={{ padding: '0 10px' }}>
-              <p className="configFile-tip" style={{ color: "#16a3ea", height: '35px', textIndent: '10px' }}>
-                &nbsp;&nbsp;&nbsp;<Icon type="info-circle-o" style={{ marginRight: "10px" }} />
-                即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
-              </p>
-              <Form horizontal>
-                <FormItem  {...formItemLayout} label="名称">
-                  <Input type="text" ref={(ref) => { this.nameInput = ref; }} value={this.state.configName} onChange={(e) => this.addConfigFile(e, 'name')} className="configName" />
-                </FormItem>
-                <FormItem {...formItemLayout} label="内容">
-                  <Input type="textarea" style={{ minHeight: '300px' }} value={this.state.configDesc} onChange={(e) => this.addConfigFile(e, 'desc')} />
-                </FormItem>
-              </Form>
-            </div>
-          </Modal>
+          <CreateConfigFileModal scope={this} groupName={collapseHeader.name}/>
           {/*添加配置文件-弹出层-end*/}
+
+          {/*删除配置文件-弹出层 */}
+
           <Modal title="删除配置操作" visible={this.state.delModal}
           onOk={()=> this.btnDeleteGroup()} onCancel={()=> this.setState({delModal: false})}
           >

@@ -65,7 +65,6 @@ class AppTip extends Component {
   }
   startCopyCode(url) {
     //this function for copy code to input
-    const { scope } = this.props;
     let code = document.getElementsByClassName('privateCodeInput');
     for(let index = 0; index < code.length; index++) {
       code[index].value = url.domain;
@@ -168,6 +167,15 @@ export default class TipSvcDomain extends Component {
       show: !show
     })
   }
+  getIconHtml() {
+    const { icon } = this.props
+    if (icon === 'https') {
+      return (<Tooltip title='HTTPS模式'><svg className='https' ><use xlinkHref='#https' /></svg></Tooltip>)
+    }
+    else {
+      return null
+    }
+  }
   render() {
     const { appDomain, svcDomain, type, parentNode } = this.props
     const scope = this
@@ -189,9 +197,7 @@ export default class TipSvcDomain extends Component {
         return (
           <div className='TipSvcDomain'>
             <span className='appDomain'>
-              {
-                <a target='_blank' href={linkURL}>{svcDomain[0].domain}</a>
-              }
+              <a target='_blank' href={linkURL}>{this.getIconHtml()}{svcDomain[0].domain}</a>
             </span>
             <Popover placement='right'
               content={<SvcTip svcDomain={svcDomain} />}
@@ -226,9 +232,8 @@ export default class TipSvcDomain extends Component {
           return (
             <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
               <span className='appDomain'>
-                {
-                  <a target='_blank' href={linkURL}>{appDomain[0].data[0].domain}</a>
-                }
+                {this.getIconHtml()}
+                <a target='_blank' href={linkURL}>{appDomain[0].data[0].domain}</a>
               </span>
               <Popover placement={type ? 'rightBottom' : 'rightTop'}
                 content={<AppTip scope={scope} appDomain={appDomain} />}
@@ -249,9 +254,7 @@ export default class TipSvcDomain extends Component {
         return (
           <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
             <span className='appDomain'>
-              {
-                <a target='_blank' href={linkURL}>{appDomain[0].data[0].domain}</a>
-              }
+              <a target='_blank' href={linkURL}>{this.getIconHtml()}{appDomain[0].data[0].domain}</a>
             </span>
             <Popover placement={type ? 'rightBottom' : 'rightTop'}
               content={<AppTip scope={scope} appDomain={appDomain} />}

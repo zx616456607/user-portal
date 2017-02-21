@@ -15,8 +15,10 @@ import QueueAnim from 'rc-queue-anim'
 import union from 'lodash/union'
 import filter from 'lodash/filter'
 import "./style/BindDomain.less"
-import { loadServiceDomain, serviceBindDomain, clearServiceDomain, deleteServiceDomain } from '../../../actions/services'
+import { loadServiceDomain, serviceBindDomain, clearServiceDomain, deleteServiceDomain, loadServiceDetail, loadK8sService } from '../../../actions/services'
 import NotificationHandler from '../../../common/notification_handler'
+import { ANNOTATION_HTTPS } from '../../../../constants'
+import { camelize } from 'humps'
 
 const InputGroup = Input.Group
 const CName_Default_Message = '提示：添加域名后，CNAME地址会出现在这里'
@@ -40,7 +42,12 @@ class BindDomain extends Component {
   }
   componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow, service } = nextProps
-    if (!service.spec) return
+    if (this.props.isCurrentTab === false && nextProps.isCurrentTab === true) {
+      const { serviceName, cluster, loadServiceDetail, loadK8sService } = this.props
+      loadServiceDetail(cluster, serviceName)
+      loadK8sService(cluster, serviceName)
+    }
+    if (!service) return
     if (!serviceDetailmodalShow) {
       this.setState({
         domainList: [],
@@ -53,23 +60,17 @@ class BindDomain extends Component {
     this.getDomainList(service)
   }
   getDomainList(service) {
-    if (!service.spec) return
-    const containers = service.spec.template.spec.containers
-    if (!containers || containers.length === 0) {
+    if (!service) return
+    const ports = service.portsForExternal
+    if (!ports || ports.length === 0) {
       this.setState({
         containerPorts: []
       })
       return
     }
     let containerPorts = []
-    containers.forEach(container => {
-      let ports = container.ports
-      if (ports && ports.length > 0) {
-        containerPorts = union(containerPorts, ports)
-      }
-    })
-    containerPorts = containerPorts.map(containerPort => {
-      return containerPort.containerPort
+    ports.forEach(port => {
+      containerPorts.push(port.port)
     })
     let domain = service.metadata.annotations
     const domainList = []
@@ -87,6 +88,7 @@ class BindDomain extends Component {
 
     domain.forEach((item, index) => {
       let domain = item
+      if(!domain) return
       domainList.push(
         <InputGroup className="newDomain">
           <Input size="large" value={domain} disabled />
@@ -112,7 +114,11 @@ class BindDomain extends Component {
         disabled: true,
         bindPort: '' + port
       })
-    }
+    } else {
+      this.setState({
+        disabled: false,
+      })
+   }
   }
   addDomain() {
     const serviceName = this.props.serviceName
@@ -207,6 +213,16 @@ class BindDomain extends Component {
   deleteDomain(domainName, port, index) {
     //this function for user delete domain name
     let newList = this.state.domainList;
+
+    // reserve at least one port if https opened
+    const { k8sService } = this.props
+    if (k8sService && k8sService.metadata && k8sService.metadata.annotations && k8sService.metadata.annotations[ANNOTATION_HTTPS] === 'true') {
+      if (newList.length <= 1) {
+        let notification = new NotificationHandler()
+        notification.error('请先关闭HTTPS后再删除绑定的域名')
+        return
+      }
+    }
     const self = this
     let notification = new NotificationHandler()
     notification.spin('删除绑定域名中...')
@@ -308,19 +324,44 @@ class BindDomain extends Component {
 BindDomain.propTypes = {
   //
 }
-function mapStateToProp(state) {
+function mapStateToProp(state, props) {
+  const { cluster, serviceName } = props
+  const defaultService = {
+    isFetching: false,
+    cluster,
+    serviceName,
+    service: {}
+  }
+  let k8sServiceData = undefined
+  const {
+    serviceDetail,
+    k8sService,
+  } = state.services
+  const camelizedSvcName = camelize(serviceName)
+  if (k8sService && k8sService.isFetching === false && k8sService.data && k8sService.data[camelizedSvcName]) {
+    k8sServiceData = k8sService.data[camelizedSvcName]
+  }
+  let targetService
+  if (serviceDetail[cluster] && serviceDetail[cluster][serviceName]) {
+    targetService = serviceDetail[cluster][serviceName]
+  }
+  targetService = targetService || defaultService
   return {
     serviceDomainInfo: state.services.serviceDomainInformation,
     serviceBindDomain: state.services.serviceBindDomain,
     deleteDomainState: state.services.deleteDomain,
-    bindingDomains: state.entities.current.cluster.bindingDomains
+    bindingDomains: state.entities.current.cluster.bindingDomains,
+    service: targetService.service,
+    k8sService: k8sServiceData,
   }
 }
 BindDomain = connect(mapStateToProp, {
   loadServiceDomainInfo: loadServiceDomain,
   bindDomain: serviceBindDomain,
   clearServiceDomain: clearServiceDomain,
-  deleteServiceDomain: deleteServiceDomain
+  deleteServiceDomain: deleteServiceDomain,
+  loadServiceDetail: loadServiceDetail,
+  loadK8sService: loadK8sService,
 })(BindDomain)
 
 export default BindDomain

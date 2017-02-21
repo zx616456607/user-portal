@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import { updateUser } from '../../../actions/user'
 import { parseAmount } from '../../../common/tools'
 import NotificationHandler from '../../../common/notification_handler'
+import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants' 
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -66,13 +67,16 @@ let ResetPassWord = React.createClass({
     });
   },
   checkPass(rule, value, callback) {
-    const { validateFields } = this.props.form;
-    if(!value || value.length < 6 || value.length > 16) {
-      callback('密码长度应为6~16位')
+    if (!value) {
+      callback([new Error('请填写密码')])
       return
     }
-    if(/^[0-9]*$/.test(value) || /^[a-zA-z]*$/.test(value)) {
-      callback('密码不能为纯数字或字母');
+    if (value.length < 6 || value.length > 16) {
+      callback([new Error('长度为6~16个字符')])
+      return
+    }
+    if (/^[^0-9]+$/.test(value) || /^[^a-zA-Z]+$/.test(value)) {
+      callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
       return
     }
     return callback()
@@ -168,10 +172,10 @@ class Information extends Component {
 
     let roleName
     switch (userDetail.role) {
-      case 1:
+      case ROLE_TEAM_ADMIN:
         roleName = "团队管理员"
         break
-      case 2:
+      case ROLE_SYS_ADMIN:
         roleName = "系统管理员"
         break
       default:

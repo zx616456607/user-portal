@@ -71,6 +71,30 @@
       .time {
         padding-left: 30px;
       }
+      .standardStatus,
+      .standardDuring,
+      .standardTime,
+      .standardUser,
+      .standardObj {
+        width: calc(~"20% - 30px") !important;
+      }
+      .standardEvent {
+        width: 150px;
+      }
+      .standardTime {
+        padding-left: 30px;
+      }
+      .standardUser {
+        .fa {
+          float: left;
+          line-height: 60px;
+        }
+        .commonSpan {
+          float: left;
+          margin-left: 7px;
+          width: calc(~"100% - 30px") !important;
+        }
+      }
       .titleBox {
         width: 100%;
         height: 50px;
@@ -122,7 +146,6 @@
             }
           }
         }
-        .obj {}
         .user {
           .fa {
             float: left;
@@ -140,6 +163,6 @@
 }
 .resourceSelectPopup {
   .ant-cascader-menu {
-      height: auto !important;
-    }
+    height: auto !important;
+  }
 }

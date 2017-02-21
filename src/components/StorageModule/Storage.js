@@ -10,7 +10,7 @@
 
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import { Checkbox, Card, Menu, Button, Dropdown, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, Tooltip ,Spin} from 'antd'
+import { Checkbox, Card, Menu, Button, Dropdown, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, Tooltip, Spin} from 'antd'
 import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
@@ -429,6 +429,13 @@ class Storage extends Component {
   componentWillMount() {
     document.title = '存储 | 时速云'
     this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
+    const currentCluster = this.props.currentCluster
+    const storage_type = currentCluster.storageTypes
+    let canCreate = true
+    if(!storage_type || storage_type.indexOf('rbd') < 0) canCreate = false
+    this.setState({
+      canCreate
+    })
   }
   componentWillReceiveProps(nextProps) {
     let { currentCluster, loadStorageList, currentImagePool, cluster } = nextProps
@@ -670,7 +677,7 @@ class Storage extends Component {
         <div id="StorageList" key="StorageList">
           <div className="operationBox">
             <div className="leftBox">
-              <Button type="primary" size="large" onClick={this.showModal}>
+              <Button type="primary" size="large" disabled={!this.state.canCreate} onClick={this.showModal}>
                 <i className="fa fa-plus" /><FormattedMessage {...messages.createTitle} />
               </Button>
               <Button type="ghost" className="stopBtn" size="large" onClick={() => { this.setState({delModal: true}) } }
@@ -773,7 +780,7 @@ class Storage extends Component {
               />
           </Card>
           :
-          <div className='text-center'><img src={noStorageImg} /><div>您还没有存储卷，创建一个吧！ <Button type="primary" size="large" onClick={this.showModal}>创建</Button></div></div>
+          <div className='text-center'><img src={noStorageImg} /><div>您还没有存储卷，创建一个吧！ <Button type="primary" size="large" disabled={!this.state.canCreate} onClick={this.showModal}>创建</Button></div></div>
           } 
         </div>
       </QueueAnim>

@@ -269,8 +269,21 @@ let AppDeployServiceModal = React.createClass({
       volumes: volumes
     })
     if (volumes) {
-      let isHaveVolume = volumes.some(volume => {
-        if (!volume.configMap) return true
+      let storageType
+      let isHaveVolume
+      volumes.forEach(volume => {
+        if (!volume.configMap) {
+          if(volume.rbd) {
+            storageType = 'rbd'
+          } else {
+            storageType = 'hostPath'
+          }
+          isHaveVolume = true
+        }
+      })
+      form.setFieldsValue({
+        storageType,
+        isHaveVolume
       })
       if (isHaveVolume) {
         form.setFieldsValue({
@@ -339,7 +352,6 @@ let AppDeployServiceModal = React.createClass({
     let tcpLiveInitialDelaySeconds = getFieldProps('tcpLiveInitialDelaySeconds').value //首次延时
     let tcpLiveTimeoutSeconds = getFieldProps('tcpLiveTimeoutSeconds').value //检查超时
     let tcpLivePeriodSeconds = getFieldProps('tcpLivePeriodSeconds').value //检查间隔
-
     let command = getFieldProps('entryInput').value // 入口命令
     let args = getFieldProps('args').value //启动命令参数
     //let config = getFileProps('config').value
@@ -347,6 +359,7 @@ let AppDeployServiceModal = React.createClass({
     let image = registryServer + '/' + currentSelectedImage + ':' + imageVersion //镜像名称
     let deploymentList = new Deployment(serviceName)
     let serviceList = new Service(serviceName, this.props.cluster)
+    let storageType = getFieldProps('storageType').value
 
     var ImageConfig = {
       resources: {
@@ -570,35 +583,43 @@ let AppDeployServiceModal = React.createClass({
     //volumes
     if (getFieldValue('volumeSwitch')) {
       const cluster = this.props.cluster
+      const storageType = getFieldValue('storageType')
       getFieldValue('volumeKey').map((k) => {
         let volumeChecked = getFieldProps(`volumeChecked${k}`).value   //服务只读
         let volumeInfo = getFieldProps(`volumeName${k}`).value
-        if (!volumeInfo) {
+        let inputVolume = getFieldValue(`inputVolumeName${k}`)
+        if (!volumeInfo && !inputVolume) {
           return
         }
         if(!getFieldProps(`volumePath${k}`).value){
           return
         }
-        volumeInfo = volumeInfo.split('/')
-        if (volumeChecked) {
-          deploymentList.addContainerVolume(serviceName, {
-           // name: volumeInfo[0] + '-' + k,
-            name: 'volume-' + k,
-            image: volumeInfo[0],
-            fsType: volumeInfo[1]
-          }, {
-              mountPath: getFieldProps(`volumePath${k}`).value,
-              readOnly: true
-            })
-        } else {
-          deploymentList.addContainerVolume(serviceName, {
-            name: 'volume-' + k,
-            image: volumeInfo[0],
-            fsType: volumeInfo[1]
-          }, {
-              mountPath: getFieldProps(`volumePath${k}`).value,
-            })
+        if(volumeInfo) {
+          volumeInfo = volumeInfo.split('/')
         }
+        let vol
+        let volumeMount= {
+          mountPath: getFieldProps(`volumePath${k}`).value,
+        }
+        if(storageType == 'rbd') {
+          vol =  {
+            // name: volumeInfo[0] + '-' + k,
+            name: 'volume-' + k,
+            image: volumeInfo[0],
+            fsType: volumeInfo[1],
+          }
+        } else if(storageType == 'hostPath') {
+          vol = {
+            name: 'volume-' + k,
+            hostPath: {
+              path: inputVolume
+            }
+          }
+        }
+        if (volumeChecked) {
+           volumeMount.readOnly = true
+        }
+        deploymentList.addContainerVolume(serviceName, vol, volumeMount)
       })
     }
     //配置文件
@@ -821,7 +842,7 @@ const advanceBoxTitle = (
   <div className="commonTitle">
     <div className="line"></div>
     <span className="titleSpan">高级设置</span>
-    <span className="titleIntro">在高级设置里，您可以链接其它已创建服务，环境变量配置，以及容器与主机端口的映射</span>
+    <span className="titleIntro">在高级设置里，您可以修改环境变量配置，以及容器与主机端口的映射</span>
     <div style={{ clear: "both" }}></div>
   </div>
 );

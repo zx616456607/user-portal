@@ -9,14 +9,15 @@
  * @author Zhangpc
  */
 import React, { PropTypes } from 'react'
-import { Button, Form, Input, Card, message, Alert, Col, Row } from 'antd'
+import { Button, Form, Input, Card, message, Alert, Col, Row, Icon } from 'antd'
 import './style/Login.less'
 import { verifyCaptcha, login } from '../../../actions/entities'
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
+import { loadMergedLicense } from '../../../actions/license'
+import { isAdminPasswordSet} from '../../../actions/admin'
 import { browserHistory } from 'react-router'
 import { genRandomString } from '../../../common/tools'
-import ReactDom from 'react-dom'
 import Top from '../../../components/Top'
 
 const createForm = Form.create
@@ -45,6 +46,10 @@ let Login = React.createClass({
     const { login, form, redirect } = this.props
     const { validateFields, resetFields } = form
     const self = this
+    if (this.state.outdated) {
+      browserHistory.push('activation')
+      return
+    }
     validateFields((errors, values) => {
       if (!!errors) {
         return
@@ -79,12 +84,17 @@ let Login = React.createClass({
         },
         failed: {
           func: (err) => {
-            var msg = err.message.message || err.message
+            let msg = err.message.message || err.message
+            let outdated = false
             if (err.statusCode == 401) {
               msg = "用户名或者密码错误"
             }
+            if (err.statusCode == 451) {
+               outdated = true //show error and not allow login
+            }
             self.setState({
               submitting: false,
+              outdated,
               loginResult: {
                 error: msg
               },
@@ -219,11 +229,49 @@ let Login = React.createClass({
   componentWillMount() {
     const { resetFields } = this.props.form
     resetFields()
-    // ReactDom.findDOMNode(this.refs.intName.refs.input).focus
-  },
-
-  componentDidMount() {
-    ReactDom.findDOMNode(this.refs.intName.refs.input).focus()
+    const _this = this
+    this.props.isAdminPasswordSet({
+      success: {
+        func: (res) => {
+          if (!res.isAdminPasswordSet) {
+            browserHistory.push('/password')
+            return
+          }
+          _this.props.loadMergedLicense({
+            success: {
+              func: (res) => {
+                let outdated = false
+                if (!res.data) {
+                  outdated = true //show error and not allow login
+                } else {
+                  const { licenseStatus, leftTrialDays } = res.data
+                  if (licenseStatus == 'NO_LICENSE' && parseInt(leftTrialDays) < 0) {
+                    outdated = true //show error and not allow login
+                  }
+                  if (licenseStatus == 'VALID' && parseInt(res.data.leftLicenseDays) < 0) {
+                    outdated = true //show error and not allow login
+                  }
+                }
+                _this.setState({
+                  outdated
+                })
+              }
+            }
+          })
+        },
+        isAsync: true
+      }
+    })
+    setTimeout(function(){
+      const intName = _this.refs.intName.refs.input
+      intName.focus()
+      if (intName.value) {
+        _this.setState({
+          intNameFocus: true,
+          intPassFocus: true
+        })
+      }
+    },500)
   },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
@@ -252,6 +300,11 @@ let Login = React.createClass({
       <div id="LoginBg">
         <Top/>
         <div className="login">
+          {this.state.outdated ?
+            <div className="errorText">激活证书已过期，请重新<span className="goActive" onClick={()=> browserHistory.push("/activation")}> 输入激活码 </span>以使用平台</div>
+          : null
+          }
+          <div className="loginContent">
           <Row style={{ textAlign: 'center' }}>
             <span className='logoLink'>
               <div className='logTitle'>登&nbsp;&nbsp;录</div>
@@ -274,7 +327,7 @@ let Login = React.createClass({
                 <div className={this.state.intNameFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'name')}>用户名 / 邮箱</div>
 
                 <Input {...nameProps}
-                  autoComplete="off"
+                  autoComplete="on"
                   onBlur={this.intOnBlur.bind(this, 'name')}
                   onFocus={this.intOnFocus.bind(this, 'name')}
                   ref="intName"
@@ -287,7 +340,7 @@ let Login = React.createClass({
                 className="formItemName"
                 >
                 <div className={this.state.intPassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>密码</div>
-                <Input {...passwdProps} autoComplete="off" type={this.state.passWord ? 'password' : 'text'}
+                <Input {...passwdProps} autoComplete="on" type='password'
                   onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                   onBlur={this.intOnBlur.bind(this, 'pass')}
                   onFocus={this.intOnFocus.bind(this, 'pass')}
@@ -296,7 +349,7 @@ let Login = React.createClass({
                   />
               </FormItem>
 
-        {/*<FormItem
+              {/*<FormItem
                 {...formItemLayout}
                 hasFeedback
                 className="formItemName"
@@ -313,6 +366,15 @@ let Login = React.createClass({
               </FormItem>*/}
 
               <FormItem wrapperCol={{ span: 24, }}>
+                {this.state.outdated ?
+                  <Button
+                    type="primary"
+                    onClick={()=> browserHistory.push('activation')}
+                    {...submitProps}
+                    className="subBtn">
+                    去激活
+                  </Button>
+                :
                 <Button
                   htmlType="submit"
                   type="primary"
@@ -322,9 +384,11 @@ let Login = React.createClass({
                   className="subBtn">
                   {submitting ? '登录中...' : '登录'}
                 </Button>
+                }
               </FormItem>
             </Form>
           </Card>
+        </div>
         </div>
         <div className="footer">
           © 2017 北京云思畅想科技有限公司 &nbsp;|&nbsp; 时速云企业版 v2.0
@@ -346,6 +410,8 @@ Login = createForm()(Login)
 Login = connect(mapStateToProps, {
   verifyCaptcha,
   login,
+  loadMergedLicense,
+  isAdminPasswordSet, // check whether the 'admin' user's password was set
 })(Login)
 
 export default Login

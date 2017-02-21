@@ -14,7 +14,7 @@ import SecondSider from '../../components/SecondSider'
 import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
 import './style/account.less'
-import { ROLE_USER, ROLE_TEAM_ADMIN } from '../../../constants'
+import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../constants'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -34,8 +34,12 @@ const menuList_standard = [
     name: '充值/续费'
   },
   {
-    url: '/account/cost',
-    name: '费用中心'
+    url: '/account/costCenter#consumptions',
+    name: '消费记录'
+  },
+  {
+    url: '/account/costCenter#payments',
+    name: '充值记录'
   },
   {
     url: '/account/version',
@@ -57,8 +61,12 @@ const menuList_enterprise_admin = [
     name: '团队管理'
   },
   {
-    url: '/account/cost',
-    name: '费用中心'
+    url: '/account/costCenter#consumptions',
+    name: '消费记录'
+  },
+  {
+    url: '/account/costCenter#payments',
+    name: '充值记录'
   }
 ]
 
@@ -68,15 +76,19 @@ const menuList_enterprise_user = [
     name: '我的帐户'
   },
   {
-    url: '/account/cost',
-    name: '费用中心'
-  }
+    url: '/account/costCenter#consumptions',
+    name: '消费记录'
+  },
+  {
+    url: '/account/costCenter#payments',
+    name: '充值记录'
+  },
 ]
 
 
 class Account extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       containerSiderStyle: 'normal'
     }
@@ -87,7 +99,7 @@ class Account extends Component {
     const scope = this
     let menuList = menuList_standard
     if (mode != standard) {
-      if (role == ROLE_TEAM_ADMIN) {
+      if (role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) {
         menuList = menuList_enterprise_admin
       } else {
         menuList = menuList_enterprise_user

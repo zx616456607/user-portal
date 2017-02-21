@@ -59,30 +59,29 @@ export default class Top extends Component {
           </div>
         </div>
       )
-    } else {
-      return (
-        <div id='Top'>
-          <div className='topWrap'>
-            <div className='topLogo'>
-              <a href='/'>
-                <svg>
-                  <use xlinkHref='#toplogo' />
-                </svg>
-              </a>
-            </div>
-            <div className='topNav'>
-              <div className='log'>
-                <div className='navItem' style={{marginLeft: 0}}>
-                  <a href='https://www.tenxcloud.com' target='_blank'>官网首页</a>
-                </div>
-                <div className='navItem' style={{marginLeft: 0}}>
-                  <a href='http://docs.tenxcloud.com' target='_blank'>文档中心</a>
-                </div>
+    }
+    return (
+      <div id='Top'>
+        <div className='topWrap'>
+          <div className='topLogo'>
+            <a href='/'>
+              <svg>
+                <use xlinkHref='#toplogo' />
+              </svg>
+            </a>
+          </div>
+          <div className='topNav'>
+            <div className='log'>
+              <div className='navItem' style={{marginLeft: 0}}>
+                <a href='https://www.tenxcloud.com' target='_blank'>官网首页</a>
+              </div>
+              <div className='navItem' style={{marginLeft: 0}}>
+                <a href='http://docs.tenxcloud.com' target='_blank'>文档中心</a>
               </div>
             </div>
           </div>
         </div>
-      )
-    }
+      </div>
+    )
   }
 }

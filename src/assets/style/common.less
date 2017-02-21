@@ -13,7 +13,22 @@ svg path {
 .tenx-layout {
   height: 100%;
   width: 100%;
+  #topError {
+    z-index: 100;
+    position: fixed;
+    top:0;
+    width: 100%;
+    background: #FF4266;
+    color: white;
+    text-align: center;
+    height: 50px;
+    line-height: 50px;
+    font-size: 14px;
+  }
 }
+.toptips.tenx-layout .tenx-layout-header{top:50px}
+.toptips.tenx-layout .tenx-layout-sider #sider{top:50px;height: calc(~"100% - 50px")}
+.toptips.tenx-layout .tenx-layout-content{padding-top: 105px;}
 //header
 .tenx-layout-header {
   -webkit-transition: all 0.3s;
@@ -43,6 +58,7 @@ svg path {
   position: fixed;
   top: 0;
   width: 60px;
+  left: 0;
   min-height: 100%;
 }
 .tenx-layout-sider-bigger {
@@ -135,7 +151,7 @@ svg path {
   overflow-x: hidden !important;
 }
 .ant-modal-title {
-  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "宋体";
+  // font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "宋体";
   font-weight: normal !important;
 }
 //   modal 垂直居中
@@ -386,8 +402,8 @@ pre{
 }
 ::-webkit-scrollbar{width:10px;height:10px;}
 ::-webkit-scrollbar-button:vertical{display:none;}
-::-webkit-scrollbar-track:vertical{background-color:black;}
-::-webkit-scrollbar-track-piece{background-color:#F5F5F5;}
+::-webkit-scrollbar-track:vertical{background-color:rgba(0,0,0,0);}
+::-webkit-scrollbar-track-piece{background-color:rgba(0,0,0,0);}
 ::-webkit-scrollbar-thumb:vertical{margin-right:10px; background-color:#A6A6A6;}
 ::-webkit-scrollbar-thumb:vertical:hover{background-color:#aaa;}
 ::-webkit-scrollbar-corner:vertical{background-color:#535353;}

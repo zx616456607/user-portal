@@ -8,6 +8,7 @@
 
 'use strict';
 
+const middlewares = require('../services/middlewares')
 const volumeController = require('../controllers/volume')
 const appController = require('../controllers/app_manage')
 const serviceController = require('../controllers/service_manage')
@@ -29,11 +30,13 @@ const licenseController = require('../controllers/license')
 const clusterController = require('../controllers/cluster_manage')
 const integrationController = require('../controllers/integration')
 const consumptionController = require('../controllers/consumption')
+const clusternodesController = require('../controllers/cluster_node')
 
 module.exports = function (Router) {
   const router = new Router({
     prefix: '/api/v2'
   })
+  router.use(middlewares.auth)
 
   // Storage
   router.get('/storage-pools/:pool/:cluster/volumes', volumeController.getVolumeListByPool)
@@ -96,6 +99,11 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
   router.get('/clusters/:cluster/services/:service_name/k8s-service', serviceController.getK8sService)
   router.get('/clusters/:cluster/services', serviceController.getAllService)
+  router.put('/clusters/:cluster/services/:service_name/portinfo', serviceController.updateServicePortInfo)
+  router.get('/clusters/:cluster/services/:service_name/certificates', serviceController.getCertificate)
+  router.put('/clusters/:cluster/services/:service_name/certificates', serviceController.updateCertificate)
+  router.delete('/clusters/:cluster/services/:service_name/certificates', serviceController.deleteCertificate)
+  router.put('/clusters/:cluster/services/:service_name/tls', serviceController.toggleHTTPs)
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
@@ -188,6 +196,10 @@ module.exports = function (Router) {
   router.get('/docker-registry/:id/images', registryController.specListRepositories)
   router.get('/docker-registry/:id/images/:image*/tags', registryController.specGetImageTags)
   router.get('/docker-registry/:id/images/:image*/tags/:tag', registryController.specGetImageTagInfo)
+  // spi for tenxcloud hub
+  router.get('/tenx-hubs', registryController.isTenxCloudHubConfigured)
+  router.post('/tenx-hubs', registryController.addTenxCloudHub)
+  router.delete('/tenx-hubs', registryController.removeTenxCloudHub)
   // Tag size is merged to specGetImageTagConfig
   //router.get('/docker-registry/:id/images/:image*/tags/:tag/size', registryController.specGetImageTagSize)
 
@@ -202,8 +214,8 @@ module.exports = function (Router) {
 
   // Manage Monitor
   router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
-  router.get('/manage-monitor/:team_id/getClusterOfQueryLog', manageMonitorController.getClusterOfQueryLog)
-  router.get('/manage-monitor/:cluster_id/getServiceOfQueryLog', manageMonitorController.getServiceOfQueryLog)
+  router.get('/manage-monitor/:team_id/:namespace/getClusterOfQueryLog', manageMonitorController.getClusterOfQueryLog)
+  router.get('/manage-monitor/:cluster_id/:namespace/getServiceOfQueryLog', manageMonitorController.getServiceOfQueryLog)
   router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
 
   // DevOps service: CI/CD
@@ -292,11 +304,19 @@ module.exports = function (Router) {
   router.get('/integrations/getIntegrationConfig/:id', integrationController.getIntegrationConfig)
   router.put('/integrations/updateIntegrationConfig/:id', integrationController.updateIntegrationConfig)
 
+  // Cluster pod
+  router.get('/cluster-nodes/:cluster', clusternodesController.getClusterNodes)
+  router.post('/cluster-nodes/:cluster/node/:node', clusternodesController.changeNodeSchedule)
+  router.delete('/cluster-nodes/:cluster/node/:node', clusternodesController.deleteNode)
+  // Get kubectl pods names
+  router.get('/clusters/:cluster/kubectls', clusternodesController.getKubectls)
+
   // Token info
   router.get('/token', tokenController.getTokenInfo)
 
   // License
   router.get('/license', licenseController.getLicense)
+  router.get('/licenses', licenseController.getLicenses)
 
   // consumption and charge
   router.get('/consumptions/detail', consumptionController.getDetail)
@@ -305,8 +325,6 @@ module.exports = function (Router) {
   router.get('/consumptions/charge-history', consumptionController.getChargeRecord)
   router.get('/consumptions/notify-rule', consumptionController.getNotifyRule)
   router.put('/consumptions/notify-rule', consumptionController.setNotifyRule)
-
-
 
   return router.routes()
 }

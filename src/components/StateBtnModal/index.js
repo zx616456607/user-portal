@@ -15,7 +15,7 @@ export default class StateBtnModal extends Component{
   constructor(props){
     super(props)
     this.state = {
-      
+      //
     }
   }
   render(){

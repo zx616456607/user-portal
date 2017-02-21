@@ -1,12 +1,11 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
-
- * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ * (C) Copyright 2017 TenxCloud. All Rights Reserved.
  *
- * User manage controller
+ * Redux actions for licenses
  *
- * v0.1 - 2016-11-09
- * @author meng yuan
+ * v0.1 - 2017-02-09
+ * @author shouhong.zhang
  */
 
 'use strict'
@@ -16,5 +15,98 @@ const indexService = require('../services')
 exports.getLicense = function* () {
   const loginUser = this.session.loginUser
   const result = yield indexService.getLicense(loginUser)
+  this.body = result
+}
+
+// license_status: VALID, NO_LICENSE, EXPIRED
+// left_license_days: xxxx
+// left_trial_days: xxx
+// UI behaviors baased on above information:
+// scenario-1: license_status is VALID and left_license_days > 7, allow login
+// scenario-2: license_status is VALID and left_license_days <= 7, show warning and allow login
+// scenario-3: license_status is NO_LICENSE and left_trial_days > 0, show warning and allow login
+// scenario-4: license_status is NO_LICENSE and left_trial_days <= 0, show error and not allow login
+// scenario-5: license_status is EXPIRED, show error and not allow login
+exports.checkLicense = function* () {
+  const api = apiFactory.getApi()
+  const license = this.request.body
+  const license_info = yield api.licenses.getBy(["merged"])
+  const trial_info = yield api.licenses.getBy(["trial"])
+
+  if(!license_info || license_info.code != 200) {
+    const err = new Error('failed to get merged license information')
+    err.status = license_info ? license_info.code : 404
+    throw err
+  }
+
+  if (!trial_info || trial_info.code != 200) {
+    const err = new Error('failed to get trial information')
+    err.status = trial_info ? trial_info.code : 404
+    throw err
+  }
+
+  let license_status = 'NO_LICENSE'
+  let left_license_days = 0
+  let end
+  if (license_info.data && license_info.data.end) {
+    end = license_info.data.end
+    let end_time = Date.parse(end);
+    let now = new Date();
+    let date = end_time - now;
+    const days = Math.floor(date/(24*3600*1000));
+    if (days > 0) {
+      license_status = 'VALID'
+      left_license_days = days
+    } else {
+      license_status = 'EXPIRED'
+    }
+  } 
+
+  let left_trial_days = 0
+  if (trial_info.data && trial_info.data.left_trial_days) {
+    left_trial_days = trial_info.data.left_trial_days
+  }
+
+  const result = {
+    status: 'Success',
+    code: 200,
+    data: {
+      license_status,
+      left_license_days,
+      left_trial_days,
+      end
+    }
+  }
+  this.body = result
+}
+
+// get all licenses 
+// license info: license_uid, start, duration, end, add_time, add_user
+exports.getLicenses = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.licenses.get()
+  this.body = result
+}
+
+// input: license key
+// output: success, invalid_license
+exports.addLicense = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const license = this.request.body
+  if (!license || !license.rawlicense) {
+    const err = new Error('rawlicense field is required.')
+    err.status = 400
+    throw err
+  }
+  const result = yield api.licenses.create(license)
+  this.body = result
+}
+
+// get platform_id
+exports.getPlatformID = function* () {
+  const api = apiFactory.getApi()
+  const result = yield api.licenses.getBy(["platform"])
   this.body = result
 }

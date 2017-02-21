@@ -24,10 +24,10 @@ const RadioGroup = Radio.Group
 
 function checkUrlSelectedKey(pathname) {
   //this function for check the pathname and return the selected key of menu
-  let pathList = pathname.split('/');
+  let pathList = pathname.split('/')
   if (pathList.length == 2) {
     if(pathList[1].length == 0) {
-      return ['home', 'home'];
+      return ['home', 'home']
     }
     return [pathList[1], pathList[1] + '_default']
   } else {
@@ -43,10 +43,10 @@ function checkUrlSelectedKey(pathname) {
 
 function checkUrlOpenKeys(pathname) {
   //this function for check the pathname and return the opened key of menu
-  let pathList = pathname.split('/');
+  let pathList = pathname.split('/')
   if (pathList.length == 2) {
     if(pathList[1].length == 0) {
-      return ['home', 'home'];
+      return ['home', 'home']
     }
     return [pathList[1], pathList[1] + '_default']
   } else {
@@ -60,16 +60,16 @@ function checkUrlOpenKeys(pathname) {
   }
 }
 
-class Slider extends Component {
+class Sider extends Component {
   constructor(props) {
-    super(props);
-    this.selectModel = this.selectModel.bind(this);
-    this.changeSiderStyle = this.changeSiderStyle.bind(this);
-    this.onSelectMenu = this.onSelectMenu.bind(this);
-    this.onOpenBigMenu = this.onOpenBigMenu.bind(this);
-    this.onCloseBigMenu = this.onCloseBigMenu.bind(this);
-    this.openNavModal = this.openNavModal.bind(this);
-    this.closeNavModal = this.closeNavModal.bind(this);
+    super(props)
+    this.selectModel = this.selectModel.bind(this)
+    this.changeSiderStyle = this.changeSiderStyle.bind(this)
+    this.onSelectMenu = this.onSelectMenu.bind(this)
+    this.onOpenBigMenu = this.onOpenBigMenu.bind(this)
+    this.onCloseBigMenu = this.onCloseBigMenu.bind(this)
+    this.openNavModal = this.openNavModal.bind(this)
+    this.closeNavModal = this.closeNavModal.bind(this)
     this.state = {
       currentKey: 'home',
       isUnzip: false,
@@ -81,30 +81,34 @@ class Slider extends Component {
   }
 
   componentWillMount() {
-    const { pathname } = this.props;
-    let currentKey = pathname.split('/')[1];
+    const { pathname } = this.props
+    let currentKey = pathname.split('/')[1]
     if(!Boolean(currentKey)) {
-      currentKey = 'home';
+      currentKey = 'home'
     }
-    let currentOpenMenu = checkUrlSelectedKey(pathname);
-    let currentSelectedMenu = checkUrlOpenKeys(pathname);
+    let currentOpenMenu = checkUrlSelectedKey(pathname)
+    let currentSelectedMenu = checkUrlOpenKeys(pathname)
+    if (pathname.indexOf('/account/costCenter') > -1) {
+      currentOpenMenu = 'costCenter#consumptions'
+      currentSelectedMenu = 'costCenter#consumptions'
+    }
     this.setState({
       currentKey: currentKey,
       currentOpenMenu: currentOpenMenu,
       currentSelectedMenu: currentSelectedMenu
-    });
+    })
   }
 
   componentWillReceiveProps(nextProps) {
-    const { pathname } = nextProps;
-    const oldPathname = this.props.pathname;
+    const { pathname } = nextProps
+    const oldPathname = this.props.pathname
     if(pathname != oldPathname) {
-      let currentKey = pathname.split('/')[1];
+      let currentKey = pathname.split('/')[1]
       if(!Boolean(currentKey)) {
-        currentKey = 'home';
+        currentKey = 'home'
       }
-      let currentOpenMenu = checkUrlSelectedKey(pathname);
-      let currentSelectedMenu = checkUrlOpenKeys(pathname);
+      let currentOpenMenu = checkUrlSelectedKey(pathname)
+      let currentSelectedMenu = checkUrlOpenKeys(pathname)
       if(currentKey == '') {
         currentKey = 'home'
       }
@@ -112,21 +116,21 @@ class Slider extends Component {
         currentOpenMenu: currentOpenMenu,
         currentSelectedMenu: currentSelectedMenu,
         currentKey: currentKey
-      });
+      })
     }
   }
 
   changeSiderStyle() {
     //this function for user change the sider style to 'mini' or 'bigger'
-    const { scope, siderStyle } = this.props;
+    const { scope, siderStyle } = this.props
     if (siderStyle == 'mini') {
       scope.setState({
         siderStyle: 'bigger'
-      });
+      })
     } else {
       scope.setState({
         siderStyle: 'mini'
-      });
+      })
     }
   }
 
@@ -139,7 +143,7 @@ class Slider extends Component {
   selectModel(currentKey, currentIcon, event) {
     this.setState({
       currentKey: currentKey,
-    });
+    })
   }
 
   changeRadioValue(e) {
@@ -150,19 +154,19 @@ class Slider extends Component {
 
   onSelectMenu(e) {
     //this function for user select the menu item and change the current key
-    const { keyPath } = e;
+    const { keyPath } = e
     if (keyPath.length > 1) {
-      let currentKey = keyPath[1];
+      let currentKey = keyPath[1]
       this.setState({
         currentKey: currentKey,
         currentSelectedMenu: keyPath
-      });
+      })
     } else {
-      let currentKey = keyPath[0];
+      let currentKey = keyPath[0]
       this.setState({
         currentKey: currentKey,
         currentSelectedMenu: keyPath
-      });
+      })
     }
   }
 
@@ -241,7 +245,7 @@ class Slider extends Component {
 
   onOpenBigMenu(e) {
     //this function for show only one menu opened
-    let currentOpenMenu = checkUrlOpenKeys(e.key + '/' + e.key);
+    let currentOpenMenu = checkUrlOpenKeys(e.key + '/' + e.key)
     this.setState({
       currentOpenMenu: currentOpenMenu
     })
@@ -256,7 +260,7 @@ class Slider extends Component {
 
   openNavModal() {
     //this function for open the nav modal
-    let userMigratedType = window.localStorage.getItem('userMigratedType');
+    let userMigratedType = window.localStorage.getItem('userMigratedType')
     if(userMigratedType != 1) {
       this.setState({
         newTestingKonwShow: true
@@ -267,7 +271,7 @@ class Slider extends Component {
       })
     }
   }
-  
+
   closeNavModal() {
     //this function for close the nav modal
     this.setState({
@@ -597,7 +601,7 @@ class Slider extends Component {
                       <span><div className='sideCircle'></div> 我的帐户</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='team'>
+                  <Menu.Item key='teams'>
                     <Link to='/account/teams'>
                       <span><div className='sideCircle'></div> 我的团队</span>
                     </Link>
@@ -607,9 +611,19 @@ class Slider extends Component {
                       <span><div className='sideCircle'></div> 充值/续费</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='cost'>
+                  {/*<Menu.Item key='cost'>
                     <Link to='/account/cost'>
                       <span><div className='sideCircle'></div> 费用中心</span>
+                    </Link>
+                  </Menu.Item>*/}
+                  <Menu.Item key='costCenter#consumptions'>
+                    <Link to='/account/costCenter#consumptions'>
+                      <span><div className='sideCircle'></div> 消费记录</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='costCenter#payments'>
+                    <Link to='/account/costCenter#payments'>
+                      <span><div className='sideCircle'></div> 充值记录</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='version'>
@@ -667,15 +681,15 @@ class Slider extends Component {
               <span className='info'><span style={{ color: '#00A1EA', fontSize: '12px' }}>▶</span>&nbsp;关于余额：</span>
             </div>
             <div className='infoDetail'>
-              <div className='numBox' style={{ marginLeft: '12px' }}>1</div>              
+              <div className='numBox' style={{ marginLeft: '12px' }}>1</div>
               <span className='info' style={{ paddingLeft: '5px' }}>在迁移完成之前，新版本与旧版本暂时独立的帐户余额&消费；</span>
             </div>
             <div className='infoDetail'>
-              <div className='numBox' style={{ marginLeft: '12px' }}>2</div>       
+              <div className='numBox' style={{ marginLeft: '12px' }}>2</div>
               <span className='info' style={{ paddingLeft: '5px' }}>官方迁移完成后，将合并新老版本的帐户余额及消费相关信息；</span>
             </div>
             <div className='infoDetail'>
-              <div className='numBox' style={{ marginLeft: '12px' }}>3</div>           
+              <div className='numBox' style={{ marginLeft: '12px' }}>3</div>
               <span className='info' style={{ paddingLeft: '5px' }}>用户自行迁移的，可提前通过工单申请合并新老版本费用部分；</span>
             </div>
             <div className='infoDetail'>
@@ -779,12 +793,12 @@ class Slider extends Component {
 }
 
 function checkCurrentPath(pathname) {
-  let pathList = pathname.split('/');
-  let currentPath = pathList[0];
+  let pathList = pathname.split('/')
+  let currentPath = pathList[0]
   if (currentPath.length > 0) {
-    return currentPath;
+    return currentPath
   } else {
-    return 'home';
+    return 'home'
   }
 }
 
@@ -803,4 +817,4 @@ export default connect(mapStateToProp, {
   changeUploadFileOptions: uploadFileOptions,
   getVolumeBindInfo,
   changeStorageDetail
-})(Slider)
+})(Sider)

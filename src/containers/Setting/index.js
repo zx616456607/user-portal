@@ -12,8 +12,21 @@ import { Breadcrumb } from 'antd'
 import SecondSider from '../../components/SecondSider'
 import QueueAnim from 'rc-queue-anim'
 import './style/setting.less'
+import { ROLE_USER, ROLE_SYS_ADMIN } from '../../../constants'
+import { connect } from 'react-redux'
 
-const menuList = [
+const menuList_normal = [
+  {
+    url: '/setting/version',
+    name: '平台版本'
+  },
+  {
+    url: '/setting/API',
+    name: '开放 API'
+  },
+]
+
+const menuList_sysAdmin = [
   {
     url: '/setting/version',
     name: '平台版本'
@@ -28,7 +41,7 @@ const menuList = [
   },
 ]
 
-export default class Setting extends Component {
+class Setting extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -37,8 +50,9 @@ export default class Setting extends Component {
   }
 
   render() {
-    const { children } = this.props
+    const { children, role } = this.props
     const scope = this
+    const menuList = (role == ROLE_SYS_ADMIN ? menuList_sysAdmin : menuList_normal)
     return (
       <div id="Setting">
         <QueueAnim
@@ -62,3 +76,17 @@ Setting.propTypes = {
   // Injected by React Router
   children: PropTypes.node
 }
+
+function mapStateToProp(state) {
+  let role = ROLE_USER
+  const {entities} = state
+  if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
+    role = entities.loginUser.info.role
+  }
+  return {
+    role
+  }
+}
+
+export default connect(mapStateToProp, {
+})(Setting)

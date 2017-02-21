@@ -8,7 +8,6 @@
  * @author Zhangpc
  */
 import React, { Component, PropTypes } from 'react'
-import { Link } from 'react-router'
 import './style/ErrorPage.less'
 import error404PNG from '../../assets/img/error404.png'
 
@@ -54,11 +53,11 @@ class ErrorPage extends Component {
         <p className='codeTitle'>{code}</p>
         <img className='errorImg' src={error404PNG} />
         <p>{message}</p>
-        <p>
-          <Link to='/'>
+        <div>
+          <a href='/'>
             <div className='backBtn'>返回首页</div>
-          </Link>
-        </p>
+          </a>
+        </div>
       </div>
     )
   }

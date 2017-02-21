@@ -168,7 +168,7 @@ class TenxFlowDetailFlow extends Component {
     CreateTenxflowBuild(flowId, { stageId: stageId }, {
       success: {
         func: (res) => {
-          notification.success('流程构建成功');
+          notification.success('流程正在构建中');
           let buildingList = _this.state.buildingList;
           buildingList.map((item) => {
             if (item.stageId == stageId) {
@@ -312,6 +312,37 @@ class TenxFlowDetailFlow extends Component {
             isAsync: false
           }
         })
+      } else {
+        let lastBuilds = self.state.buildingList
+        let notified = self.state.notified || {} 
+        let notification = new NotificationHandler()
+        if (notified && notified[data.results.stageId] !== data.results.stageBuildId) {
+          //未提示过
+          if (data.results.buildStatus == 0 && 
+              lastBuilds[lastBuilds.length - 1].stageId === data.results.stageId &&
+              lastBuilds[lastBuilds.length - 1].buildId === data.results.stageBuildId) {
+            //最后一个stage构建完成时
+            notified[data.results.stageId] = data.results.stageBuildId
+            self.setState({
+              notified: notified
+            })
+            notification.close()
+            notification.success(`构建完成`)
+          } else if (data.results.buildStatus == 1) {
+            //构建未成功时
+            for(var i in lastBuilds) {
+              if (lastBuilds[i].buildId === data.results.stageBuildId) {
+                notification.close()
+                notification.error(`构建失败`)
+                notified[data.results.stageId] = data.results.stageBuildId
+                self.setState({
+                  notified: notified
+                })
+                break
+              }
+            }
+          }
+        } 
       }
       const { changeSingleState } = self.props
       changeSingleState(data.results)
@@ -342,7 +373,9 @@ class TenxFlowDetailFlow extends Component {
         return (
           <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item}
             scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} totalLength={stageList.length}
-            codeList={projectList} supportedDependencies={supportedDependencies} imageList={imageList} />
+            codeList={projectList} supportedDependencies={supportedDependencies} imageList={imageList} 
+            otherImage={this.props.otherImage}
+            />
         )
       });
     }
@@ -370,7 +403,9 @@ class TenxFlowDetailFlow extends Component {
                   <QueueAnim key='creattingCardAnimate'>
                     <CreateTenxFlowModal key='CreateTenxFlowModal' stageList={stageList} scope={scope}
                       flowId={flowId} stageInfo={stageInfo} codeList={projectList}
-                      supportedDependencies={supportedDependencies} imageList={imageList} />
+                      supportedDependencies={supportedDependencies} imageList={imageList}
+                      otherImage={this.props.otherImage}
+                       />
                   </QueueAnim>
                 ] : null
               }
@@ -380,7 +415,6 @@ class TenxFlowDetailFlow extends Component {
         </div>
         {this.state.websocket}
       </div>
-
     )
   }
 }

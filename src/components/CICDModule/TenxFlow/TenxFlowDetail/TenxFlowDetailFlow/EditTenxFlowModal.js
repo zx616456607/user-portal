@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, Tooltip } from 'antd'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -18,6 +18,7 @@ import { appNameCheck } from '../../../../../common/naming_validation'
 import DockerFileEditor from '../../../../Editor/DockerFile'
 import { updateTenxFlowState, getDockerfiles, setDockerfile, getAvailableImage } from '../../../../../actions/cicd_flow'
 import './style/EditTenxFlowModal.less'
+import findIndex from 'lodash/findIndex'
 import EnvComponent from './CreateEnvComponent.js'
 import ImageEnvComponent from './ImageEnvComponent.js'
 import CodeStoreListModal from './CodeStoreListModal.js'
@@ -27,7 +28,7 @@ const RadioGroup = Radio.Group;
 const createForm = Form.create;
 const FormItem = Form.Item;
 const Option = Select.Option;
-
+let index = 0
 const defaultOptions = {
   readOnly: false
 }
@@ -332,6 +333,39 @@ let EditTenxFlowModal = React.createClass({
       });
     }
   },
+  componentWillReceiveProps(nextProps){
+    if(this.state.isOnece) {
+      return
+    }
+    index++
+    if(index >=2) {
+      index = 0
+      return
+    }
+    this.setState({
+      isOnece: true
+    })
+    const config = nextProps.config
+    if(nextProps.otherImage.length <= 0 && config.spec.build.customRegistry) {
+       this.setState({
+         addOtherImage: true,
+         showOtherImage: false
+       })
+    }
+    if(config && config.spec.build) {
+      let otherImageValue = config.spec.build.customRegistry
+      if(otherImageValue) {
+        this.setState({
+          showOtherImage: true
+        })
+      } else {
+        this.setState({
+          showOtherImage: false
+        })
+      }
+
+    }
+  },
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
     const { stageList } = this.props.rootScope.props;
@@ -513,12 +547,23 @@ let EditTenxFlowModal = React.createClass({
   changeImageStoreType(e) {
     //this function for user change image store type
     if (e.target.value == 3) {
+      if(this.props.otherImage.length <= 0) {
+        this.setState({
+          addOtherImage: true
+        })
+        return
+      }
       this.setState({
-        ImageStoreType: true
+        ImageStoreType: true,
+        showOtherImage: true
       });
     } else {
+      const { form } = this.props
+      const { resetFields } = form
+      resetFields(['otherImage'])
       this.setState({
-        ImageStoreType: false
+        ImageStoreType: false,
+        showOtherImage: false
       });
     }
   },
@@ -587,7 +632,8 @@ let EditTenxFlowModal = React.createClass({
     this.setState({
       currentType: 'view',
       emailAlert: false,
-      otherEmail: false
+      otherEmail: false,
+      isOnece: false
     });
     scope.cancelEditCard();
   },
@@ -776,9 +822,12 @@ let EditTenxFlowModal = React.createClass({
         if (this.state.otherTag) {
           imageBuildBody.customTag = values.otherTag;
         }
-        if (this.state.ImageStoreType) {
-          imageBuildBody.customRegistry = values.otherStoreUrl;
+        if(imageBuildBody.registryType == 3) {
+          imageBuildBody.customRegistry = values.otherImage
         }
+        // if (this.state.ImageStoreType) {
+        //   imageBuildBody.customRegistry = values.otherStoreUrl;
+        // }
         let tmpDockerFileUrl = null;
         if (!!!values.dockerFileUrl) {
           tmpDockerFileUrl = '';
@@ -798,6 +847,9 @@ let EditTenxFlowModal = React.createClass({
         }
         body.spec.build = imageBuildBody;
       }
+      this.setState({
+        isOnece: false
+      })
       let notification = new NotificationHandler()
       updateTenxFlowState(flowId, stageId, body, {
         success: {
@@ -828,6 +880,38 @@ let EditTenxFlowModal = React.createClass({
         }
       })
     });
+  },
+  getOtherImage() {
+    if(!this.props.otherImage ||  this.props.otherImage.length <= 0){
+      return []
+    }
+    return this.props.otherImage.map(item => {
+      return <Option key={item.id} value={item.id}>{item.title}</Option>
+    })
+  },
+  addOtherImage(){
+    this.setState({
+      addOtherImage: false
+    })
+    browserHistory.push('/app_center')
+  },
+  cancelModal() {
+    const { form } = this.props
+    const { setFieldsValue } = form
+    setFieldsValue({
+      imageType: '1'
+    })
+    this.setState({
+      addOtherImage: false,
+      showOtherImage: false
+    })
+  },
+  validOtherImage(rule, value, callback){
+    if(!this.state.showOtherImage) return callback()
+    if(!value) {
+      return callback(new Error('请选择镜像仓库'))
+    }
+    return callback()
   },
   render() {
     const { formatMessage } = this.props.intl;
@@ -868,6 +952,26 @@ let EditTenxFlowModal = React.createClass({
         <Option key={list.imageName}>{list.imageName}</Option>
       )
     })
+    let validOtherImage
+    let otherImageValue = ''
+    if(config && config.spec.build) {
+      otherImageValue = config.spec.build.customRegistry
+      const index = findIndex(this.props.otherImage, item => {
+        return item.id == otherImageValue
+      })
+      if(index < 0) otherImageValue = ''
+    }
+    if (this.state.showOtherImage) {
+      validOtherImage = getFieldProps('otherImage', {
+        rules: [
+          { message: '请选择镜像仓库' },
+          { validator: this.validOtherImage },
+        ],
+        initialValue: otherImageValue
+      });
+    } else {
+      validOtherImage = getFieldProps('otherImage', { rules: [], initialValue: otherImageValue})
+    }
     getFieldProps('services', {
       initialValue: [0],
     });
@@ -979,13 +1083,6 @@ let EditTenxFlowModal = React.createClass({
         { message: '请输入 Dockerfile 名称' },
       ],
       initialValue: fetchDockerFileName(config.spec),
-    });
-    const otherImageStoreTypeProps = getFieldProps('otherStoreUrl', {
-      rules: [
-        { message: '请输入自定义仓库地址' },
-        { validator: this.otherStoreUrlInput },
-      ],
-      initialValue: (!!config.spec.build ? config.spec.build.customRegistry : null)
     });
     const otherImageTagProps = getFieldProps('otherTag', {
       rules: [
@@ -1163,20 +1260,14 @@ let EditTenxFlowModal = React.createClass({
                       <RadioGroup {...getFieldProps('imageType', { initialValue: (!!config.spec.build ? (config.spec.build.registryType + '') : '1'), onChange: this.changeImageStoreType }) }>
                         <Radio key='imageStore' value={'1'}><FormattedMessage {...menusText.imageStore} /></Radio>
                         <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio>
-                        <Radio key='otherImage' value={'3'} disabled><FormattedMessage {...menusText.otherImage} /></Radio>
+                        <Radio key='otherImage' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
                       </RadioGroup>
                     </FormItem>
-                    {
-                      this.state.ImageStoreType ? [
-                        <QueueAnim key='otherImageStoreTypeAnimate'>
-                          <div key='otherImageStoreType'>
-                            <FormItem style={{ width: '220px', float: 'left' }}>
-                              <Input {...otherImageStoreTypeProps} type='text' size='large' />
-                            </FormItem>
-                          </div>
-                        </QueueAnim>
-                      ] : null
-                    }
+                    <FormItem style={{ float: 'left', width:'120px' }}>
+                      <Select {...validOtherImage} style={{display: getFieldProps('imageType').value == '3' ? 'inline-block' : 'none'}}>
+                        {this.getOtherImage()}
+                      </Select>
+                    </FormItem>
                     <div style={{ clear: 'both' }} />
                   </div>
                   <div style={{ clear: 'both' }} />
@@ -1259,6 +1350,13 @@ let EditTenxFlowModal = React.createClass({
           onCancel={this.closeCodeStoreModal}
           >
           <CodeStoreListModal scope={scopeThis} config={codeList} hadSelected={this.state.currentCodeStore} />
+        </Modal>
+         <Modal title="添加第三方仓库" visible={this.state.addOtherImage}
+          onOk={()=> this.addOtherImage()} onCancel={()=> this.cancelModal()}
+          >
+          <div className="modalColor" style={{lineHeight:'30px'}}><i className="anticon anticon-question-circle-o" style={{marginRight: '8px',marginLeft:'16px'}}></i>
+            是否跳转添加第三方仓库
+          </div>
         </Modal>
       </div>
     )

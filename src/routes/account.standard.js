@@ -20,7 +20,7 @@ const accountRoutes = [
     component: require('../components/AccountModal/_Standard/TeamDetail').default,
   },
   {
-    path: 'cost',
+    path: 'costCenter',
     component: require('../components/AccountModal/CostCenter').default,
   },
   {

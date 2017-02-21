@@ -83,7 +83,6 @@ exports.verifyUser = function* (next) {
   const accountID = this.session.wechat_account_id
   const data = {}
   let err
-  delete this.session.wechat_account_id
   // For wechat login
   if (body.accountType === 'wechat') {
     if (!accountID){
@@ -93,6 +92,14 @@ exports.verifyUser = function* (next) {
     }
     data.accountType = body.accountType
     data.accountID = accountID
+    // Login and bind wechat
+    if (body.action === 'bind') {
+      const Wechat = require('../3rd_account/wechat')
+      const wechat = new Wechat()
+      const access_token = yield wechat.initWechat()
+      const userInfo = yield wechat.getUserInfo(access_token, accountID)
+      data.accountDetail = JSON.stringify(userInfo)
+    }
   } else if ((!body.username && !body.email) || !body.password) {
     err = new Error('username(email), password are required.')
     err.status = 400
@@ -112,6 +119,7 @@ exports.verifyUser = function* (next) {
       throw err
     }
   }*/
+  delete this.session.wechat_account_id
   if (body.password) {
     data.password = body.password
   }
@@ -129,6 +137,9 @@ exports.verifyUser = function* (next) {
   try {
     result = yield api.users.createBy(['login'], null, data)
   } catch (err) {
+    if (body.accountType === 'wechat' && err.statusCode === 404) {
+      this.session.wechat_account_id = accountID // add back for bind wechat
+    }
     // Better handle error >= 500
     if (err.statusCode >= 500) {
       const returnError = new Error("服务异常，请联系管理员或者稍候重试")
@@ -154,14 +165,14 @@ exports.verifyUser = function* (next) {
   result.tenxApi = loginUser.tenxApi
   result.cicdApi = loginUser.cicdApi
   // Private cloud need check users license
-  if (configIndex.running_mode === enterpriseMode) {
+  /*if (configIndex.running_mode === enterpriseMode) {
     const licenseObj = yield indexService.getLicense(loginUser)
     if (licenseObj.plain.code === -1) {
       const err = new Error(licenseObj.message)
       err.status = 403
       throw err
     }
-  }
+  }*/
   yield indexService.setUserCurrentConfigCookie.apply(this, [loginUser])
   // Delete sensitive information
   delete result.userID

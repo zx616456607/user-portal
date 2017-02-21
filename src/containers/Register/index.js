@@ -17,17 +17,23 @@ import AccountType from './AccountType'
 import SuccessRegister from './SuccessRegister'
 import { sendActivationEmail } from '../../actions/user'
 import Top from '../../components/Top'
-
+import { WECHAT_SIGNUP_HASH } from '../../constants'
 
 class Register extends Component{
   constructor(props){
     super(props)
     this.handlePageChange = this.handlePageChange.bind(this)
     this.renderRegisterPage = this.renderRegisterPage.bind(this)
-
+    let registerPageShow = true
+    let registerShow = false
+    const { hash } = props
+    if (hash === WECHAT_SIGNUP_HASH) {
+      registerPageShow = false
+      registerShow = true
+    }
     this.state = {
-      registerPageShow: true,
-      registerShow: false,
+      registerPageShow,
+      registerShow,
       person: true,
     }
   }
@@ -65,11 +71,11 @@ class Register extends Component{
       <div key='b' id='RegisterPage'>
         <Top/>
         <div className='register registerFlex'>
-          <Card className="registerForm" bordered={false} style={{width: 440, height: `${this.state.person?'570px':'650px'}`,padding: '0 50px 24px'}}>
+          <Card className="registerForm" bordered={false} style={{width: 440,padding: '0 50px 24px',overflow: 'hidden'}}>
             <div className='backToPage' onClick={this.handlePageChange}>&lt;&lt;&nbsp;&nbsp;&nbsp;重选注册帐户类型</div>
             {
               this.state.person ?
-              <Person />:
+              <Person location={this.props.location} />:
               <Company />
             }
           </Card>
@@ -96,12 +102,14 @@ class Register extends Component{
     )
   }
 }
-function mapStateToProps (state,props) {
-  let { email, code, msg } = props.location.query
+function mapStateToProps (state, props) {
+  const { query, hash } = props.location
+  let { email, code, msg } = query
   return {
     code,
     email,
     msg,
+    hash,
   }
 }
 Register = connect(mapStateToProps, {

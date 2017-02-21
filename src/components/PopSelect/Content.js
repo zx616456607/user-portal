@@ -17,7 +17,6 @@ const standard = require('../../../configs/constants').STANDARD_MODE
 class PopSelect extends Component {
   constructor(props) {
     super(props)
-    this.handleSearch = this.handleSearch.bind(this)
   }
 
   componentWillMount() {
@@ -40,51 +39,26 @@ class PopSelect extends Component {
       return
     }
     return (
-      <div>
-        <div>
+      <div className="searchInt">
+        <div style={{lineHeight:'30px'}}>
           用户
         </div>
         <ul className="searchList">
           <li
             onClick={() => onChange(MY_SPACE)}
-            className="searchItem">
+            className="myItem">
             {
               popTeamSelect
-              ? MY_SPACE.teamName
-              : MY_SPACE.name
+                ? MY_SPACE.teamName
+                : MY_SPACE.name
             }
           </li>
         </ul>
-        <div>
+        <div style={{lineHeight:'25px'}}>
           团队
         </div>
       </div>
     )
-  }
-
-  handleSearch(e) {
-    const { list, popTeamSelect } = this.props
-    let value = e.target.value
-    let cpList = popTeamSelect?
-      list.filter(item => {
-        item.index = item.teamName.indexOf(value)
-        if (item.index > -1) {
-          return item
-        }
-      }):
-      list.filter(item => {
-        item.index = item.name.indexOf(value)
-        if (item.index > -1) {
-          return item
-        }
-      })
-    const sortList = function (a, b) {
-      return a.index - b.index
-    }
-    cpList.sort(sortList)
-    this.setState({
-      list: cpList
-    })
   }
 
   render() {
@@ -92,7 +66,7 @@ class PopSelect extends Component {
     const { list } = this.state
     let searchList = (
       list.length === 0 ?
-        <div className='loadingBox'>无匹配结果</div>
+        <div className='loadingBox'>结果为空</div>
         :
         list.map((item) => {
           return (
@@ -101,9 +75,9 @@ class PopSelect extends Component {
               className="searchItem"
               onClick={() => onChange(item)}>
               {
-                popTeamSelect?
-                item.teamName:
-                item.name
+                popTeamSelect ?
+                  item.teamName :
+                  item.name
               }
             </li>
           )
@@ -120,22 +94,10 @@ class PopSelect extends Component {
 
     return (
       <div className="PopSelectContent">
-        <div className="ant-search-input-wrapper searchInt">
-          {this.getSpecial()}
-          <Input.Group className='ant-search-input'>
-            <Input placeholder='查询' onChange={this.handleSearch} />
-            <div className="ant-input-group-wrap">
-              <Button className='ant-search-btn'>
-                <Icon type="search" />
-              </Button>
-            </div>
-          </Input.Group>
-        </div>
-        <div>
-          <ul className="searchList" style={{ paddingLeft: '15px' }}>
-            {searchList}
-          </ul>
-        </div>
+        {this.getSpecial()}
+        <ul className="searchList">
+          {searchList}
+        </ul>
       </div>
     )
   }

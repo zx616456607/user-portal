@@ -30,9 +30,13 @@ function formatLinkContainer(data, groupname, name) {
       if (data[i].services[j].spec.template.spec.volumes) {
         for (let k = 0; k < data[i].services[j].spec.template.spec.volumes.length; k++) {
           if (data[i].services[j].spec.template.spec.volumes[k].configMap && data[i].services[j].spec.template.spec.volumes[k].configMap.name == groupname) {
+            if (!data[i].services[j].spec.template.spec.volumes[k].configMap.items) {
+              linkContainer.push(data[i].services[j].metadata.name)
+              continue
+            }
             for (let l = 0; l < data[i].services[j].spec.template.spec.volumes[k].configMap.items.length; l++) {
               if (data[i].services[j].spec.template.spec.volumes[k].configMap.items[l].key == name) {
-                linkContainer.push(data[i].name)
+                linkContainer.push(data[i].services[j].metadata.name)
               }
             }
           }
@@ -54,6 +58,10 @@ function formatVolumeMounts(data, groupname, name) {
         for (let k = 0; k < data[i].services[j].spec.template.spec.volumes.length; k++) {
           let cm = data[i].services[j].spec.template.spec.volumes[k]
           if (cm.configMap && cm.configMap.name == groupname) {
+            if (!data[i].services[j].spec.template.spec.volumes[k].configMap.items) {
+              volumesMap[cm.name] = true
+              continue
+            }
             for (let l = 0; l < data[i].services[j].spec.template.spec.volumes[k].configMap.items.length; l++) {
               if (data[i].services[j].spec.template.spec.volumes[k].configMap.items[l].key == name) {
                 volumesMap[cm.name] = true
@@ -81,12 +89,96 @@ function formatVolumeMounts(data, groupname, name) {
   return volumeMounts
 }
 
+const createForm = Form.create
+
+let CreateConfigFileModal = React.createClass({
+
+  editConfigFile(group) {
+    const parentScope = this.props.scope
+    const _this = this
+    this.props.form.validateFields((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      let notification = new NotificationHandler()
+      const groups = {
+        group, name: parentScope.state.configName,
+        cluster: parentScope.props.cluster,
+        desc: values.configDesc
+      }
+      parentScope.props.updateConfigName(groups, {
+        success: {
+          func: () => {
+            parentScope.setState({
+              modalConfigFile: false,
+            })
+            _this.props.form.resetFields()
+            notification.success('修改配置文件成功')
+          },
+          isAsync: true
+        }
+      })
+    })
+    
+  },
+  configDescExists(rule, value, callback) {
+    const form = this.props.form;
+    if (!value) {
+      callback([new Error('内容不能为空，请重新输入内容')])
+      return
+    }
+    callback()
+  },
+  closeModal() {
+    const parentScope = this.props.scope
+    this.props.form.resetFields()
+    parentScope.setState({modalConfigFile:false})
+  },
+  render() {
+    const { getFieldProps } = this.props.form
+    const parentScope = this.props.scope
+    const formItemLayout = { labelCol: { span: 2 }, wrapperCol: { span: 21 } }
+    const descProps = getFieldProps('configDesc', {
+      rules: [
+        { validator: this.configDescExists },
+      ],
+      initialValue: parentScope.state.configtextarea
+    })
+    return(
+      <Modal
+        title="修改配置文件"
+        wrapClassName="configFile-create-modal"
+        visible={parentScope.state.modalConfigFile}
+        onOk={() => this.editConfigFile(parentScope.props.groupname)}
+        onCancel={() => this.closeModal() }
+        width="600px"
+        >
+        <div className="configFile-inf" style={{ padding: '0 10px' }}>
+          <div className="configFile-tip" style={{ color: "#16a3ea", height: '35px', textIndent: '10px' }}>
+            &nbsp;&nbsp;&nbsp;<Icon type="info-circle-o" style={{ marginRight: "10px" }} />
+            即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
+          </div>
+          <Form horizontal>
+            <FormItem  {...formItemLayout} label="名称">
+              <Input type="text" disabled  value={parentScope.state.configName}/>
+            </FormItem>
+            <FormItem {...formItemLayout} label="内容">
+              <Input type="textarea" style={{ minHeight: '300px' }} {...descProps}  />
+            </FormItem>
+          </Form>
+        </div>
+      </Modal>
+    )
+  }
+})
+
+CreateConfigFileModal = createForm()(CreateConfigFileModal)
+
 class CollapseContainer extends Component {
   constructor(props) {
     super(props)
     this.state = {
       modalConfigFile: false,
-      configName: '',
       configtextarea: '',
       checkConfigFile: false
       // collapseContainer: this.props.collapseContainer
@@ -120,31 +212,7 @@ class CollapseContainer extends Component {
     })
 
   }
-  editConfigFile(group) {
-    let notification = new NotificationHandler()
-    const configtextarea = this.state.configtextarea
-    if (configtextarea == '') {
-      notification.error('内容不能为空，请重新输入内容')
-      return
-    }
-    const groups = {
-      group, name: this.state.configName,
-      cluster: this.props.cluster,
-      desc: configtextarea
-    }
-    const {parentScope} = this.props
-    this.props.updateConfigName(groups, {
-      success: {
-        func: () => {
-          this.setState({
-            modalConfigFile: false,
-          })
-          notification.success('修改配置文件成功')
-        },
-        isAsync: true
-      }
-    })
-  }
+  
   setInputValue(e) {
     this.setState({ configtextarea: e.target.value })
   }
@@ -283,14 +351,14 @@ class CollapseContainer extends Component {
               onCancel={() => { this.setState({ [this.props.groupname + configFileItem.name]: false }) } }
               >
               <div className="check-config-head">
-                <div className="span4">容器名称</div>
+                <div className="span4">服务名称</div>
                 <div className="span6">挂载路径</div>
               </div>
                 {/*查看更多-关联容器列表-start*/}
                 {mounts && mounts.slice(2).map((list) => {
                   return (
                     <div className="check-config">
-                      <div className="span4"><Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link></div>
+                      <div className="span4"><Link to={`/app_manage/detail/${list.imageName}`}>{list.serviceName}</Link></div>
                       <div className="span6">{list.mountPath}</div>
                     </div>
                   )
@@ -308,7 +376,9 @@ class CollapseContainer extends Component {
           {configFileList}
         </Timeline>
         {/*                     修改配置文件-弹出层-start     */}
-        <Modal
+        <CreateConfigFileModal scope={this} />
+
+        {/* <Modal
           title='修改配置文件'
           wrapClassName='configFile-create-modal'
           visible={this.state.modalConfigFile}
@@ -330,7 +400,7 @@ class CollapseContainer extends Component {
               </FormItem>
             </Form>
           </div>
-        </Modal>
+        </Modal>*/}
         <Modal title="删除配置文件操作" visible={this.state.delModal}
           onOk={()=> this.deleteConfigFile()} onCancel={()=> this.setState({delModal: false})}
         >

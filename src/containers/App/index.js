@@ -18,14 +18,22 @@ import Sider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
 import { Link } from 'react-router'
 import { setSockets, loadLoginUserDetail } from '../../actions/entities'
-import { isEmptyObject } from '../../common/tools'
+import { isEmptyObject,formatDate} from '../../common/tools'
 import { updateContainerList, updateAppList } from '../../actions/app_manage'
 import { updateAppServicesList, updateServiceContainersList, updateServicesList } from '../../actions/services'
 import { handleOnMessage } from './status'
-import { SHOW_ERROR_PAGE_ACTION_TYPES, LOGIN_EXPIRED_MESSAGE, PAYMENT_REQUIRED_CODE, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
+import {
+  SHOW_ERROR_PAGE_ACTION_TYPES,
+  LOGIN_EXPIRED_MESSAGE,
+  PAYMENT_REQUIRED_CODE,
+  UPGRADE_EDITION_REQUIRED_CODE,
+  LICENSE_EXPRIED_CODE,
+} from '../../constants'
+import { ROLE_SYS_ADMIN } from '../../../constants'
 import errorHandler from './error_handler'
 import Intercom from 'react-intercom'
 import NotificationHandler from '../../common/notification_handler'
+
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -44,7 +52,7 @@ class App extends Component {
       loginModalVisible: false,
       loadLoginUserSuccess: true,
       upgradeModalShow: false,
-      upgradeFrom: null,
+      upgradeFrom: null
     }
   }
 
@@ -65,6 +73,7 @@ class App extends Component {
         }
       })
     }
+
   }
 
   componentWillReceiveProps(nextProps) {
@@ -115,6 +124,12 @@ class App extends Component {
         upgradeModalShow: true,
         upgradeFrom: kind
       })
+      return
+    }
+    // license 过期
+    if (statusCode === LICENSE_EXPRIED_CODE) {
+      notification.error('激活证书已过期，请在登录界面激活')
+      window.location.href = '/logout'
       return
     }
     if (pathname !== this.props.pathname) {
@@ -169,6 +184,12 @@ class App extends Component {
 
     // 升级版本
     if (statusCode === UPGRADE_EDITION_REQUIRED_CODE) {
+      resetErrorMessage()
+      return
+    }
+
+    // license 过期
+    if (statusCode === LICENSE_EXPRIED_CODE) {
       resetErrorMessage()
       return
     }
@@ -251,9 +272,11 @@ class App extends Component {
       children,
       pathname,
       redirectUrl,
+      pathnameWithHash,
       loginUser,
       Sider,
       UpgradeModal,
+      License
     } = this.props
     const {
       loginModalVisible,
@@ -281,20 +304,21 @@ class App extends Component {
       teamCount: loginUser.teamCount
     }
     return (
-      <div className='tenx-layout'>
+      <div className={ this.props.License ? 'tenx-layout toptips': 'tenx-layout'} id='siderTooltip'>
         {this.renderErrorMessage()}
-        <div id='siderTooltip'></div>
+        { this.props.tipError }
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-header' : 'tenx-layout-header-bigger tenx-layout-header'}>
           <div className='tenx-layout-wrapper'>
             <Header pathname={pathname} />
           </div>
         </div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-sider' : 'tenx-layout-sider-bigger tenx-layout-sider'}>
-          <Sider pathname={pathname} scope={scope} siderStyle={this.state.siderStyle} />
+          <Sider pathname={pathnameWithHash} scope={scope} siderStyle={this.state.siderStyle} />
         </div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-content' : 'tenx-layout-content-bigger tenx-layout-content'}>
           {this.getChildren()}
         </div>
+
         <Modal
           visible={loginModalVisible}
           title="登录失效"
@@ -347,7 +371,9 @@ App.propTypes = {
   siderStyle: PropTypes.oneOf(['mini', 'bigger']),
   Sider: PropTypes.any.isRequired,
   intl: PropTypes.object.isRequired,
-  UpgradeModal: PropTypes.object, // 升级模块
+  UpgradeModal: PropTypes.func, // 升级模块
+  License: PropTypes.Boolean,
+  tipError: PropTypes.node
 }
 
 App.defaultProps = {
@@ -361,17 +387,20 @@ function mapStateToProps(state, props) {
   const { location } = props
   const { pathname, search, hash } = location
   let redirectUrl = pathname
+  let pathnameWithHash = pathname
   if (search) {
     redirectUrl += search
   }
   if (hash) {
     redirectUrl += hash
+    pathnameWithHash += hash
   }
   return {
     reduxState: state,
     errorMessage,
     pathname,
     redirectUrl,
+    pathnameWithHash,
     current,
     sockets,
     loginUser: loginUser.info,

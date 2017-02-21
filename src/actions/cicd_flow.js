@@ -779,6 +779,27 @@ export function getTenxFlowDetail(flowId, callback) {
   }
 }
 
+export const GET_SINGLE_TENX_FLOW_STATUS_REQUEST = 'GET_SINGLE_TENX_FLOW_STATUS_REQUEST'
+export const GET_SINGLE_TENX_FLOW_STATUS_SUCCESS = 'GET_SINGLE_TENX_FLOW_STATUS_SUCCESS'
+export const GET_SINGLE_TENX_FLOW_STATUS_FAILURE = 'GET_SINGLE_TENX_FLOW_STATUS_FAILURE'
+
+function fethcTenxFlowStatus(flowId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_SINGLE_TENX_FLOW_STATUS_REQUEST, GET_SINGLE_TENX_FLOW_STATUS_SUCCESS, GET_SINGLE_TENX_FLOW_STATUS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}`,
+      schema: {},
+    },
+    callback: callback
+  }
+}
+
+export function getTenxFlowStatus(flowId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fethcTenxFlowStatus(flowId, callback))
+  }
+}
+
 export const UPDATE_TENX_FLOW_ALERT_REQUEST = 'UPDATE_TENX_FLOW_ALERT_REQUEST'
 export const UPDATE_TENX_FLOW_ALERT_SUCCESS = 'UPDATE_TENX_FLOW_ALERT_SUCCESS'
 export const UPDATE_TENX_FLOW_ALERT_FAILURE = 'UPDATE_TENX_FLOW_ALERT_FAILURE'

@@ -22,7 +22,7 @@ import proIconGray from '../../assets/img/version/proIcon-gray.png'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
-import { ROLE_USER, ROLE_TEAM_ADMIN } from '../../../constants'
+import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../constants'
 
 /**
  * User panel in the upper right corner
@@ -138,11 +138,11 @@ class UserPanel extends Component {
   }
 
   getContent() {
-    const { loginUser, role } = this.props
-    let { balance } = loginUser
+    const { loginUser, role, balance } = this.props
+    /*let { balance } = loginUser
     if (balance !== undefined) {
       balance = parseAmount(balance).amount
-    }
+    }*/
     let menuItems = [
       {
         to: '/account',
@@ -150,7 +150,7 @@ class UserPanel extends Component {
         text: '帐户信息',
       },
       {
-        to: '/account/cost',
+        to: '/account/costCenter#consumptions',
         svgHref: '#logcostrecord',
         text: '消费记录',
       },
@@ -160,7 +160,7 @@ class UserPanel extends Component {
         text: '修改密码',
       },
     ]
-    if (role === ROLE_TEAM_ADMIN) {
+    if (role === ROLE_TEAM_ADMIN || role === ROLE_SYS_ADMIN) {
       menuItems.push({
         to: '/account/team',
         svgHref: '#logteam',
@@ -168,7 +168,7 @@ class UserPanel extends Component {
       })
     } else {
       menuItems.push({
-        to: '/account/cost#payments',
+        to: '/account/costCenter#payments',
         // TODO: replace it
         svgHref: '#logpayment',
         text: '充值记录',
@@ -182,7 +182,7 @@ class UserPanel extends Component {
           text: '我的帐户',
         },
         {
-          to: '/account/cost',
+          to: '/account/costCenter#consumptions',
           svgHref: '#logcostrecord',
           text: '消费记录',
         },
@@ -250,7 +250,7 @@ class UserPanel extends Component {
         overlayClassName='UserPanel'
         placement="bottomRight"
         arrowPointAtCenter={true}
-        trigger='hover'
+        trigger="click"
         visible={this.state.visible}
         onVisibleChange={this.handleVisibleChange}
         >
@@ -267,14 +267,23 @@ UserPanel.propTypes = {
   loginUser: PropTypes.object.isRequired,
 }
 
-function mapStateToProp(state) {
+function mapStateToProp(state, props) {
   let role = ROLE_USER
-  const {entities} = state
+  const { entities } = state
+  const { loginUser } = props
+  const { clusterInfo } = state.overviewCluster
+  let { balance } = loginUser
+  if (clusterInfo && clusterInfo.result) {
+    if (clusterInfo.result.spaceconsumption) {
+      balance = clusterInfo.result.spaceconsumption.balance
+    }
+  }
   if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
     role = entities.loginUser.info.role
   }
   return {
-    role
+    role,
+    balance: parseAmount(balance).amount
   }
 }
 

@@ -74,11 +74,11 @@ const menusText = defineMessages({
   },
   editService: {
     id: 'AppCenter.ComposeCenter.Stack.editService',
-    defaultMessage: '编辑服务',
+    defaultMessage: '编辑编排',
   },
   deleteService: {
     id: 'AppCenter.ComposeCenter.Stack.deleteService',
-    defaultMessage: '删除服务',
+    defaultMessage: '删除编排',
   },
   createCompose: {
     id: 'AppCenter.ComposeCenter.Stack.createCompose',

@@ -26,13 +26,11 @@ exports.getImages = function* () {
   const query = this.query || {}
   var q = query.q || ""
   const registryUser = loginUser.teamspace || loginUser.user
-  if (!_isValidRegistryConfig()) {
-    this.body = {}
-    return
-  }
+  var validConfig = yield _getValidTenxCloudHub(loginUser)
+
   const result = yield registryService.getImages(registryUser, q)
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig ? validConfig.v2Server : registryService.getOfficialTenxCloudHub().host,
     data: result
   }
 }
@@ -41,14 +39,15 @@ exports.getPrivateImages = function* () {
   const loginUser = this.session.loginUser
   let result
   const registryUser = loginUser.teamspace || loginUser.user
-  if (!_isValidRegistryConfig()) {
+  var validConfig = yield _getValidTenxCloudHub(loginUser)
+  if (!validConfig || !validConfig.host) {
     this.body = {}
     return
   }
   result = yield registryService.getPrivateRepositories(registryUser, 1)
 
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig.v2Server,
     data: result
   }
 }
@@ -56,14 +55,15 @@ exports.getPrivateImages = function* () {
 exports.getFavouriteImages = function* () {
   const loginUser = this.session.loginUser
   const registryUser = loginUser.teamspace || loginUser.user
-  if (!_isValidRegistryConfig()) {
+  var validConfig = yield _getValidTenxCloudHub(loginUser)
+  if (!validConfig || !validConfig.host) {
     this.body = {}
     return
   }
   const result = yield registryService.getFavouriteRepositories(registryUser, 1)
 
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig.v2Server,
     data: result
   }
 }
@@ -78,7 +78,8 @@ exports.updateImageInfo = function* () {
     imageObj[key] = properties[key]
   })
   const registryUser = loginUser.teamspace || loginUser.user
-  if (!_isValidRegistryConfig()) {
+  var validConfig = yield _getValidTenxCloudHub(loginUser)
+  if (!validConfig || !validConfig.host) {
     this.body = {}
     return
   }
@@ -94,13 +95,14 @@ exports.getImageTags = function* () {
   const registry = this.params.registry
   const imageFullName = this.params.user + '/' + this.params.name
   const registryUser = loginUser.teamspace || loginUser.user
-  if (!_isValidRegistryConfig()) {
+  var validConfig = yield _getValidTenxCloudHub(loginUser)
+  if (!validConfig || !validConfig.host) {
     this.body = {}
     return
   }
   const result = yield registryService.getImageTags(registryUser, imageFullName)
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig.v2Server,
     name: imageFullName,
     data: result
   }
@@ -112,13 +114,14 @@ exports.getImageConfigs = function* () {
   const imageFullName = this.params.user + '/' + this.params.name
   const tag = this.params.tag
   const registryUser = loginUser.teamspace || loginUser.user
-  if (!_isValidRegistryConfig()) {
+  var validConfig = yield _getValidTenxCloudHub(loginUser)
+  if (!validConfig || !validConfig.host) {
     this.body = {}
     return
   }
   const result = yield registryService.getImageConfigs(registryUser, imageFullName, tag)
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig.v2Server,
     name: imageFullName,
     tag,
     data: result
@@ -131,13 +134,14 @@ exports.getImageInfo = function* () {
   const imageFullName = this.params.user + '/' + this.params.name
   const tag = this.params.tag
   const registryUser = loginUser.teamspace || loginUser.user
-  if (!_isValidRegistryConfig()) {
+  var validConfig = yield _getValidTenxCloudHub(loginUser)
+  if (!validConfig || !validConfig.host) {
     this.body = {}
     return
   }
   const result = yield registryService.getImageInfo(registryUser, imageFullName)
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig.v2Server,
     name: imageFullName,
     data: result
   }
@@ -150,13 +154,14 @@ exports.checkImage = function* () {
   const loginUser = this.session.loginUser
   let owner = loginUser.user
   const registryUser = loginUser.teamspace || loginUser.user
-  if (!_isValidRegistryConfig()) {
+  var validConfig = yield _getValidTenxCloudHub(loginUser)
+  if (!validConfig || !validConfig.host) {
     this.body = {}
     return
   }
   const result = yield registryService.getImageInfo(registryUser, imageFullName, true)
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig.v2Server,
     name: imageFullName,
     data: result
   }
@@ -167,13 +172,14 @@ exports.deleteImage = function* () {
   const registry = this.params.registry
   const image = this.params.image
   const registryUser = loginUser.teamspace || loginUser.user
-  if (!_isValidRegistryConfig()) {
+  var validConfig = yield _getValidTenxCloudHub(loginUser)
+  if (!validConfig || !validConfig.host) {
     this.body = {}
     return
   }
   const result = yield registryService.deleteImage(registryUser, image)
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig.v2Server,
     message: result
   }
 }
@@ -182,17 +188,86 @@ exports.queryServerStats = function* () {
   const loginUser = this.session.loginUser
   const registry = this.params.registry
   const registryUser = loginUser.teamspace || loginUser.user
-  if (!_isValidRegistryConfig()) {
+  var validConfig = yield _getValidTenxCloudHub(loginUser)
+  if (!validConfig || !validConfig.host) {
     this.body = {}
     return
   }
   const result = yield registryService.queryRegistryStats(registryUser)
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
+    server: validConfig.v2Server,
     data: result
   }
 }
+/*
+Methods below only for tenxcloud hub integration
+*/
+exports.addTenxCloudHub = function* () {
+  const loginUser = this.session.loginUser
+  const name = this.params.name
+  const reqData = this.request.body
+  const api = apiFactory.getApi(loginUser)
+  // Encrypt the password before save to database
+  if (reqData.username && reqData.password) {
+    reqData.encrypted_password = securityUtil.encryptContent(reqData.password, loginUser.token, algorithm)
+  }
+  const result = yield api.tenxhubs.createBy(null, null, reqData)
 
+  this.status = result.code
+  this.body = result
+}
+exports.removeTenxCloudHub = function* () {
+  const loginUser = this.session.loginUser
+  const name = this.params.name
+  const reqData = this.request.body
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.tenxhubs.delete()
+  // Clear the cache
+  registryService.getTenxHubConfig()[loginUser.user] = null
+
+  this.status = result.code
+  this.body = result
+}
+
+exports.isTenxCloudHubConfigured = function* () {
+  const loginUser = this.session.loginUser
+  const tenxhubConfig = yield _getValidTenxCloudHub(loginUser)
+  if (tenxhubConfig && tenxhubConfig.host) {
+    this.status = 200
+    let globalConfigured = tenxhubConfig.globalConfigured || false
+    this.body = {
+      configured: true,
+      global: globalConfigured
+    }
+    return
+  }
+  this.status = 200
+  this.body = {
+    configured: false
+  }
+}
+
+function* _getValidTenxCloudHub(loginUser) {
+  // Global check
+  if (registryConfigLoader.GetRegistryConfig() && registryConfigLoader.GetRegistryConfig().host) {
+    return registryConfigLoader.GetRegistryConfig()
+  } else {
+    // User preference check
+    if (registryService.getTenxHubConfig()[loginUser.user] && registryService.getTenxHubConfig()[loginUser.user].host) {
+      return registryService.getTenxHubConfig()[loginUser.user]
+    }
+    const api = apiFactory.getApi(loginUser)
+    const result = yield api.tenxhubs.get()
+    if (result.data && result.data.host) {
+      logger.info("Getting user registry for " + loginUser.user + ": " + result.data.host)
+      let realPassword = securityUtil.decryptContent(result.data.password, loginUser.token, algorithm)
+      result.data.password = realPassword
+      registryService.getTenxHubConfig()[loginUser.user] = result.data
+      return registryService.getTenxHubConfig()[loginUser.user]
+    }
+  }
+  return null
+}
 /*
 Methods below only for thirdparty(custom) docker registry integration
 */
@@ -232,7 +307,6 @@ exports.getPrivateRegistries = function* () {
 
   this.status = result.code
   this.body = {
-    server: registryConfigLoader.GetRegistryConfig().v2Server,
     data: result.data
   }
 }
@@ -386,12 +460,4 @@ function* _getRegistryServerInfo(session, user, id){
     }
   }
   return serverInfo
-}
-
-function _isValidRegistryConfig() {
-  if (!registryConfigLoader.GetRegistryConfig().host) {
-    logger.warn("No valid tenxcloud registry configured, should check the configuration in the database.")
-    return false
-  }
-  return true
 }

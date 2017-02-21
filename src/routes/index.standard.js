@@ -14,34 +14,45 @@ const standard = require('../../configs/constants').STANDARD_MODE
 const mode = require('../../configs/model').mode
 const rootRoutes = {
   childRoutes: [{
-    path: '/login',
     getComponent: (location, cb) => {
       require.ensure([], (require) => {
-        cb(null, require('../containers/Login/Standard').default)
+        cb(null, require('../containers/App/NoAuthApp').default)
       })
     },
-  },{
-    path: '/signup',
-    getComponent: (location, cb) => {
-      require.ensure([], (require) => {
-        cb(null, require('../containers/Register').default)
-      })
-    },
-  },{
-    path: '/rpw',
-    getComponent: (location, cb) => {
-      require.ensure([], (require) => {
-        cb(null, require('../containers/ResetPassWord').default)
-      })
-    },
-  },{
-    path: '/teams/invite',
-    getComponent: (location, cb) => {
-      require.ensure([], (require) => {
-        cb(null, require('../containers/Invite').default)
-      })
-    },
-  },{
+    childRoutes: [{
+      path: '/login',
+      getComponent: (location, cb) => {
+        require.ensure([], (require) => {
+          cb(null, require('../containers/Login/Standard').default)
+        })
+      },
+    },{
+      path: '/signup',
+      getComponent: (location, cb) => {
+        require.ensure([], (require) => {
+          cb(null, require('../containers/Register').default)
+        })
+      },
+    },{
+      path: '/rpw',
+      getComponent: (location, cb) => {
+        require.ensure([], (require) => {
+          cb(null, require('../containers/ResetPassWord').default)
+        })
+      },
+    },{
+      path: '/teams/invite',
+      getComponent: (location, cb) => {
+        require.ensure([], (require) => {
+          cb(null, require('../containers/Invite').default)
+        })
+      },
+    },{
+      path: '/notfound',
+      component: require('../containers/ErrorPage').default,
+    }
+  ]},
+  {
     path: '/',
     getComponent: (location, cb) => {
       require.ensure([], (require) => {

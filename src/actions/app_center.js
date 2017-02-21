@@ -582,3 +582,76 @@ export function loadAppStore(registry, callback) {
     return dispatch(fetchAppStore(registry, callback))
   }
 }
+
+export const GET_ENTERPRISE_APP_CENTER_BIND_REQUEST = 'GET_ENTERPRISE_APP_CENTER_BIND_REQUEST'
+export const GET_ENTERPRISE_APP_CENTER_BIND_SUCCESS = 'GET_ENTERPRISE_APP_CENTER_BIND_SUCCESS'
+export const GET_ENTERPRISE_APP_CENTER_BIND_FAILURE = 'GET_ENTERPRISE_APP_CENTER_BIND_FAILURE'
+
+function fetchAppCenterBindUser(callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_ENTERPRISE_APP_CENTER_BIND_REQUEST, GET_ENTERPRISE_APP_CENTER_BIND_SUCCESS, GET_ENTERPRISE_APP_CENTER_BIND_FAILURE],
+      endpoint: `${API_URL_PREFIX}/tenx-hubs`,
+      schema: Schemas.REGISTRYS,
+      options: {
+        method: 'GET',
+      }
+    },
+    callback
+  }
+}
+
+export function getAppCenterBindUser(callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchAppCenterBindUser(callback))
+  }
+}
+
+export const POST_ENTERPRISE_APP_CENTER_BIND_REQUEST = 'POST_ENTERPRISE_APP_CENTER_BIND_REQUEST'
+export const POST_ENTERPRISE_APP_CENTER_BIND_SUCCESS = 'POST_ENTERPRISE_APP_CENTER_BIND_SUCCESS'
+export const POST_ENTERPRISE_APP_CENTER_BIND_FAILURE = 'POST_ENTERPRISE_APP_CENTER_BIND_FAILURE'
+
+function postAppCenterBindUser(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [POST_ENTERPRISE_APP_CENTER_BIND_REQUEST, POST_ENTERPRISE_APP_CENTER_BIND_SUCCESS, POST_ENTERPRISE_APP_CENTER_BIND_FAILURE],
+      endpoint: `${API_URL_PREFIX}/tenx-hubs`,
+      schema: Schemas.REGISTRYS,
+      options: {
+        method: 'POST',
+        body: body
+      }
+    },
+    callback
+  }
+}
+
+export function AppCenterBindUser(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(postAppCenterBindUser(body, callback))
+  }
+}
+
+export const DEL_ENTERPRISE_APP_CENTER_BIND_REQUEST = 'DEL_ENTERPRISE_APP_CENTER_BIND_REQUEST'
+export const DEL_ENTERPRISE_APP_CENTER_BIND_SUCCESS = 'DEL_ENTERPRISE_APP_CENTER_BIND_SUCCESS'
+export const DEL_ENTERPRISE_APP_CENTER_BIND_FAILURE = 'DEL_ENTERPRISE_APP_CENTER_BIND_FAILURE'
+
+function delAppCenterBindUser(callback) {
+  return {
+    [FETCH_API]: {
+      types: [DEL_ENTERPRISE_APP_CENTER_BIND_REQUEST, DEL_ENTERPRISE_APP_CENTER_BIND_SUCCESS, DEL_ENTERPRISE_APP_CENTER_BIND_FAILURE],
+      endpoint: `${API_URL_PREFIX}/tenx-hubs`,
+      schema: Schemas.REGISTRYS,
+      options: {
+        method: 'DELETE',
+      }
+    },
+    callback
+  }
+}
+
+export function deleteAppCenterBindUser(callback) {
+  return (dispatch, getState) => {
+    return dispatch(delAppCenterBindUser(callback))
+  }
+}

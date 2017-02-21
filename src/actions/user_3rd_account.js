@@ -12,6 +12,7 @@
 
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
+import { toQuerystring } from '../common/tools'
 
 export const WECHAT_AUTH_QR_CODE_REQUEST = 'WECHAT_AUTH_QR_CODE_REQUEST'
 export const WECHAT_AUTH_QR_CODE_SUCCESS = 'WECHAT_AUTH_QR_CODE_SUCCESS'
@@ -43,11 +44,15 @@ export const WECHAT_AUTH_QR_CODE_STATUS_FAILURE = 'WECHAT_AUTH_QR_CODE_STATUS_FA
 
 // Fetches wechat auth qr code status from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchWechatAuthQrCodeStatus() {
+function fetchWechatAuthQrCodeStatus(query) {
+  let endpoint = `${API_URL_PREFIX}/3rd_account/wechat/auth/status`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
   return {
     [FETCH_API]: {
       types: [WECHAT_AUTH_QR_CODE_STATUS_REQUEST, WECHAT_AUTH_QR_CODE_STATUS_SUCCESS, WECHAT_AUTH_QR_CODE_STATUS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/3rd_account/wechat/auth/status`,
+      endpoint,
       schema: {}
     }
   }
@@ -55,9 +60,9 @@ function fetchWechatAuthQrCodeStatus() {
 
 // Fetches wechat auth qr code status from API
 // Relies on Redux Thunk middleware.
-export function getWechatAuthQrCodeStatus() {
+export function getWechatAuthQrCodeStatus(query) {
   return (dispatch) => {
-    return dispatch(fetchWechatAuthQrCodeStatus())
+    return dispatch(fetchWechatAuthQrCodeStatus(query))
   }
 }
 
@@ -67,7 +72,7 @@ export const BIND_WECHAT_FAILURE = 'BIND_WECHAT_FAILURE'
 
 // Fetches bind wechat from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchBindWechat(body) {
+function fetchBindWechat(body, callback) {
   return {
     [FETCH_API]: {
       types: [BIND_WECHAT_REQUEST, BIND_WECHAT_SUCCESS, BIND_WECHAT_FAILURE],
@@ -77,15 +82,16 @@ function fetchBindWechat(body) {
         body,
       },
       schema: {}
-    }
+    },
+    callback,
   }
 }
 
 // Fetches unbind wechat from API
 // Relies on Redux Thunk middleware.
-export function bindWechat(body) {
+export function bindWechat(body, callback) {
   return (dispatch) => {
-    return dispatch(fetchBindWechat(body))
+    return dispatch(fetchBindWechat(body, callback))
   }
 }
 

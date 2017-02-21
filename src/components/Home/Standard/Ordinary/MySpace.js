@@ -17,7 +17,6 @@ import { calcuDate } from "../../../../common/tools"
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Link } from 'react-router'
 import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../../actions/overview_space'
-import knowntag from '../../../../assets/img/version/knowntag.png'
 import homeCICD from '../../../../assets/img/homeCICD.png'
 import homeNoWarn from '../../../../assets/img/homeNoWarn.png'
 
@@ -193,7 +192,7 @@ class MySpace extends Component{
     return (
       <div id='MySpaceStd'>
         <Row className="title" style={{marginTop: 20}}>{spaceName}</Row>
-        <Row className="content" gutter={16} style={{marginBottom: 30}}>
+        <Row className="content" gutter={16}>
           <Col span={6}>
             <Card title="镜像仓库" bordered={false} bodyStyle={{height:175,padding:'0',position:'relative'}}>
               <ReactEcharts

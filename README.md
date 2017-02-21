@@ -32,6 +32,7 @@ USERPORTAL_IHUYI_ACCOUNT | `undefined` | 互亿无线短信服务账号 | *只�
 USERPORTAL_IHUYI_APIKEY | `undefined` | 互亿无线短信服务 API key | *只适用于公有云*
 WECHAT_SERVER_USER | `undefined` | 微信 server basic 认证 username | *只适用于公有云*
 WECHAT_SERVER_PASS | `undefined` | 微信 server basic 认证 password | *只适用于公有云*
+SESSION_MAX_AGE | `undefined` | 登录状态超时时间 | 单位：分
 **注：外网协议及端口用于 user-portal 浏览器直连 API**
 
 ### 全局变量说明
@@ -104,51 +105,27 @@ git commit -m "merge from dev-branch"
 git push -u origin dev-branch
 ```
 ### 运行开发环境-development
-#### Linux
 ```bash
 # development(enterprise mode)
 npm run dev
 # development(standard mode)
 npm run dev-std
 ```
-#### Windows
-```bash
-# development(enterprise mode)
-npm run win
-# development(standard mode)
-npm run win-std
-```
 ### 构建生产环境-production
-#### Linux
 ```bash
 # build files(enterprise mode)
 npm run build
 # build files(standard mode)
 npm run build-std
 ```
-#### Windows
-```bash
-# build files(enterprise mode)
-npm run win-build
-# build files(standard mode)
-npm run win-build-std
-```
 ### 运行生产环境-production
 > 注意：运行生产环境前需要先构建生产环境，参考 **构建生产环境-production**
 
-#### Linux
 ```bash
 # production(enterprise mode)
 npm run pro
 # production(standard mode)
 npm run pro-std
-```
-#### Windows
-```bash
-# production(enterprise mode)
-npm run win-pro
-# production(standard mode)
-npm run win-pro-std
 ```
 
 > 注意：如果在开发环境出现 404 错误，请修改 node_modules/webpack-dev-middleware/middleware.js 文件(大约219行)，修改如下：

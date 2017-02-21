@@ -20,6 +20,7 @@ import { parseAmount } from '../../../../common/tools'
 import homeMySQL from '../../../../assets/img/homeMySQL.png'
 import homeMongoCluster from '../../../../assets/img/homeMongoCluster.png'
 import homeRedis from '../../../../assets/img/homeRedis.png'
+import Footer from '../../Footer'
 
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -94,6 +95,14 @@ let SvcState = React.createClass({
         <div id='SvcState'>
           <div className='errorDot' style={{backgroundColor:'#f0986b'}}></div>
           <span style={{color:'#f0986b'}}>警告</span>
+        </div>
+      )
+    }
+    if(currentState === 'uninstalled'){
+      item = (
+        <div id='SvcState'>
+          <div className='errorDot' style={{backgroundColor:'#f0986b'}}></div>
+          <span style={{color:'#f0986b'}}>未安装</span>
         </div>
       )
     }
@@ -473,7 +482,7 @@ class Ordinary extends Component{
           if(name === '运行中'){
             return name + '  ' + conRunning + '个'
           } else if (name === '异常') {
-            return name + '  ' + conFailed + ' 个'
+            return  '异   常  '  + conFailed + ' 个'
           } else if (name === '操作中') {
             return name + '  ' + conOthers + ' 个'
           }
@@ -981,11 +990,11 @@ class Ordinary extends Component{
               <Col span={12} className='storageInf'>
                 <div className="storageInfList">
                   <Row className='storageInfItem'>
-                    <Col span={12}>已使用</Col>
+                    <Col span={12}>已用配额</Col>
                     <Col span={12} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.usedSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={12}>空闲</Col>
+                    <Col span={12}>可用配额</Col>
                     <Col span={12} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.freeSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>
@@ -1021,7 +1030,7 @@ class Ordinary extends Component{
                         运行中
                       </td>
                       <td className="dbNum">
-                        {mySQLRunning}个
+                        {mySQLRunning} 个
                       </td>
                     </tr>
                     <tr>
@@ -1030,7 +1039,7 @@ class Ordinary extends Component{
                         已停止
                       </td>
                       <td className="dbNum">
-                        {mySQLStopped}个
+                        {mySQLStopped} 个
                       </td>
                     </tr>
                     <tr>
@@ -1039,7 +1048,7 @@ class Ordinary extends Component{
                         操作中
                       </td>
                       <td className="dbNum">
-                        {mySQLOthers}个
+                        {mySQLOthers} 个
                       </td>
                     </tr>
                     </tbody>
@@ -1059,7 +1068,7 @@ class Ordinary extends Component{
                         运行中
                       </td>
                       <td className="dbNum">
-                        {mongoRunning}个
+                        {mongoRunning} 个
                       </td>
                     </tr>
                     <tr>
@@ -1068,7 +1077,7 @@ class Ordinary extends Component{
                         已停止
                       </td>
                       <td className="dbNum">
-                        {mongoStopped}个
+                        {mongoStopped} 个
                       </td>
                     </tr>
                     <tr>
@@ -1077,7 +1086,7 @@ class Ordinary extends Component{
                         操作中
                       </td>
                       <td className="dbNum">
-                        {mongoOthers}个
+                        {mongoOthers} 个
                       </td>
                     </tr>
                     </tbody>
@@ -1097,7 +1106,7 @@ class Ordinary extends Component{
                         运行中
                       </td>
                       <td className="dbNum">
-                        {redisRunning}个
+                        {redisRunning} 个
                       </td>
                     </tr>
                     <tr>
@@ -1106,7 +1115,7 @@ class Ordinary extends Component{
                         已停止
                       </td>
                       <td className="dbNum">
-                        {redisStopped}个
+                        {redisStopped} 个
                       </td>
                     </tr>
                     <tr>
@@ -1115,7 +1124,7 @@ class Ordinary extends Component{
                         操作中
                       </td>
                       <td className="dbNum">
-                        {redisOthers}个
+                        {redisOthers} 个
                       </td>
                     </tr>
                     </tbody>
@@ -1184,6 +1193,7 @@ class Ordinary extends Component{
           </Col>
         </Row>
         <MySpace spaceName={spaceName} />
+        <Footer />
       </div>
     )
   }
