@@ -223,7 +223,7 @@ let MyComponentPort = React.createClass({
         return
       } else {
         // Container port
-        if (value <= 0 || value > 65535) {
+        if (value < 1 || value > 65535) {
           callback([new Error('指定端口号范围0 ~ 65535')])
           return;
         }

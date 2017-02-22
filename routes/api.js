@@ -96,6 +96,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/ha', serviceController.changeServiceHa)
   router.put('/clusters/:cluster/services/:service_name/rollingupdate', serviceController.rollingUpdateService)
   router.get('/clusters/:cluster/replicaset/:service_name/events', serviceController.getReplicasetDetailEvents)
+  router.get('/clusters/:cluster/dbservice/:service_name/events', serviceController.getDbServiceDetailEvents)
   router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
   router.get('/clusters/:cluster/services/:service_name/k8s-service', serviceController.getK8sService)
   router.get('/clusters/:cluster/services', serviceController.getAllService)

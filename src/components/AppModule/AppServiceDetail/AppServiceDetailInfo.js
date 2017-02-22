@@ -11,7 +11,7 @@ import { Card, Spin } from 'antd'
 //import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppServiceDetailInfo.less'
-import { formatDate, cpuFormat } from '../../../common/tools'
+import { formatDate, cpuFormat, memoryFormat } from '../../../common/tools'
 import { ENTERPRISE_MODE } from '../../../../configs/constants'
 import { mode } from '../../../../configs/model'
 
@@ -101,7 +101,7 @@ export default class AppServiceDetailInfo extends Component {
               { cpuFormat(serviceDetail.spec.template.spec.containers[0].resources.requests.memory, serviceDetail.spec.template.spec.containers[0].resources) || '-'}
             </div>
             <div className="commonTitle">
-              {serviceDetail.spec.template.spec.containers[0].resources.requests.memory.replace('i', '') || '-'}
+              { memoryFormat(serviceDetail.spec.template.spec.containers[0].resources)}
             </div>
             <div className="commonTitle">
               10G

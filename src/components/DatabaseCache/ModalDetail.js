@@ -552,7 +552,7 @@ class ModalDetail extends Component {
                 <BaseInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
               </TabPane>
               <TabPane tab='事件' key='#events'>
-                <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} />
+                <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
               </TabPane>
               <TabPane tab='租赁信息' key='#leading'>
                 <LeasingInfo databaseInfo={databaseInfo} scope= {this} />

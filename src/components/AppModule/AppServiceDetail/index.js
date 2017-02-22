@@ -441,7 +441,7 @@ class AppServiceDetail extends Component {
                   serviceDetailmodalShow={serviceDetailmodalShow} />
               </TabPane>
               <TabPane tab='事件' key='#events'>
-                <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} />
+                <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} type={'replicaset'}/>
               </TabPane>
               <TabPane tab='租赁信息' key='#rentalInfo'>
                 <AppServiceRental serviceName={service.metadata.name} serviceDetail={[serviceDetail]} />

@@ -8,7 +8,7 @@
  * @author Baiyu
  */
 import React, { Component, PropTypes } from 'react'
-import { Card, Icon } from 'antd'
+import { Card, Icon, Spin } from 'antd'
 import { connect } from 'react-redux'
 import { calcuDate, parseAmount} from '../../../common/tools.js'
 import './style/AppServiceDetailInfo.less'
@@ -66,7 +66,14 @@ class AppServiceRental extends Component {
     return price
   }
   render() {
-    const { serviceDetail } = this.props
+    const { serviceDetail, resourcePrice } = this.props
+    if (!resourcePrice) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     if (!serviceDetail[0] || !serviceDetail[0].spec){
       return(
         <div className='loadingBox' style={{clear:'both',background:'white'}}>
