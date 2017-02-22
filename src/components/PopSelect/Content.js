@@ -55,7 +55,7 @@ class PopSelect extends Component {
           </li>
         </ul>
         <div style={{lineHeight:'25px'}}>
-          团队
+          团队空间
         </div>
       </div>
     )
