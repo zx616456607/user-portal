@@ -137,18 +137,22 @@ let MyComponent = React.createClass({
     const openPort = {[i]: false}
     this.setState({openPort, selectType: 0})
   },
-  checkPort(rule, value, callback){
+  checkPort(rule, value, callback, index){
     if(!value) return callback()
-    if(value.trim() == 80) {
-      return callback()
+    const { form } = this.props
+    const { getFieldValue } = form
+    if(index != undefined) {
+      if(getFieldValue(`ssl{index}`) == 'HTTP') {
+        return callback()
+      }
     }
     if(!/^[0-9]+$/.test(value.trim())) {
       callback(new Error('请填入数字'))
       return
     }
     const port = parseInt(value.trim())
-    if(port < 1 || port > 65535) {
-      callback(new Error('请填入0~65535'))
+    if(port < 10000 || port > 65535) {
+      callback(new Error('请填入10000~65535'))
       return
     }
     if(allPort.indexOf(port) >= 0) {
@@ -157,21 +161,46 @@ let MyComponent = React.createClass({
     }
     return callback()
   },
-  checkInputPort(rule, value, callback) {
-   if(!value) return callback()
-    if(!/^[0-9]+$/.test(value.trim())) {
+  checkContainerPort(rule, value, callback) {
+    if (!value) return callback()
+    if (!/^[0-9]+$/.test(value.trim())) {
       callback(new Error('请填入数字'))
       return
     }
     const port = parseInt(value.trim())
-    if(port == 80) return callback()
+    if (port < 0 || port > 65535) {
+      callback(new Error('请填入0~65535'))
+      return
+    }
+    if (allPort.indexOf(port) >= 0) {
+      callback(new Error('该端口已被占用'))
+      return
+    }
+    return callback()
+  },
+  checkInputPort(rule, value, callback) {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const keys = getFieldValue('newKeys')
+    const lastOne = keys[keys.length - 1]
+    if (getFieldValue(`newssl${lastOne}`) == 'HTTP') return callback()
+    if (!value) return callback()
+    if (!/^[0-9]+$/.test(value.trim())) {
+      callback(new Error('请填入数字'))
+      return
+    }
+    const port = parseInt(value.trim())
+    if (port < 10000 || port > 65535) {
+      callback(new Error('请填入10000~65535'))
+      return
+    }
     const { loginUser } = this.props
     let msg = validatePortNumber(loginUser.info.proxyType, port)
     if (msg) {
       callback(new Error(msg))
       return
     }
-    if(allUsedPort.indexOf(value.trim()) >= 0) {
+    if (allUsedPort.indexOf(value.trim()) >= 0) {
       callback(new Error('该端口已被占用'))
       return
     }
@@ -489,7 +518,7 @@ let MyComponent = React.createClass({
                   required: true,
                   whitespace: true,
                   message: '输入容器端口',
-                }, {validator: this.checkPort}],
+                }, {validator: this.checkContainerPort}],
               })} style={{ width: '80%', marginRight: 8 }}
               />
             </Form.Item>
@@ -604,7 +633,7 @@ let MyComponent = React.createClass({
                     required: true,
                     whitespace: true,
                     message: '输入容器端口',
-                  }, {validator: this.checkPort}]
+                  }, {validator: (rule, value, callback) => this.checkPort(rule, value, callback, index+1)}]
                 })}/>
                </Form.Item>
               :null
