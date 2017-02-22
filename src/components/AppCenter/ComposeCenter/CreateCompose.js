@@ -193,12 +193,12 @@ class CreateCompose extends Component {
       currentYaml: e
     })
   }
-  
+
   composeFileNameCheck(rule, value, callback) {
     let errorMsg = appNameCheck(value, '编排名称');
     if(errorMsg == 'success') {
       callback()
-    } else {      
+    } else {
       callback([new Error(errorMsg)])
     }
   }
@@ -260,7 +260,7 @@ class CreateCompose extends Component {
             </div>
             <div className='rightBox' style={{ width: '100px', paddingTop: '8px' }}>
               <FormItem hasFeedback>
-                <Switch {...switchProps} defaultChecked={parentState.stackItem.isPublic == 1 ? true : false} checkedChildren={'公开'} unCheckedChildren={'私有'} onChange={this.onChangeAttr} />
+                <Switch {...switchProps} disabled={this.props.readOnly} defaultChecked={parentState.stackItem.isPublic == 1 ? true : false} checkedChildren={'公开'} unCheckedChildren={'私有'} onChange={this.onChangeAttr} />
               </FormItem>
             </div>
             <div style={{ clear: 'both' }}></div>
@@ -271,7 +271,7 @@ class CreateCompose extends Component {
             </div>
             <div className='rightBox'>
               <FormItem hasFeedback>
-                <Input type='textarea' {...descProps} autosize={{ minRows: 2, maxRows: 3 }} />
+                <Input type='textarea' {...descProps} disabled={this.props.readOnly} autosize={{ minRows: 2, maxRows: 3 }} />
               </FormItem>
             </div>
             <div style={{ clear: 'both' }}></div>
@@ -291,7 +291,7 @@ class CreateCompose extends Component {
             取消
         </Button>
           {
-           this.bottomBtnAction() 
+           this.bottomBtnAction()
           }
         </div>
       </div>
