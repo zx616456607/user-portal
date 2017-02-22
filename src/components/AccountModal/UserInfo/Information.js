@@ -11,6 +11,7 @@ import React, { Component } from 'react'
 import { Row, Col, Card, Button, Input, Icon, Form } from 'antd'
 import './style/Information.less'
 import { connect } from 'react-redux'
+import { browserHistory } from 'react-router'
 import { updateUser } from '../../../actions/user'
 import { parseAmount } from '../../../common/tools'
 import NotificationHandler from '../../../common/notification_handler'
@@ -161,10 +162,31 @@ class Information extends Component {
     })
   }
   componentWillMount(){
-    const { editPass } = this.props
+    const { editPass, location } = this.props
+    if(location.hash == '#edit_pass') {
+      this.setState({
+        revisePass: true
+      })
+      return
+    }
     this.setState({
       revisePass: editPass
     })
+  }
+  componentWillReceiveProps(nextProps) {
+    const hash = nextProps.location.hash
+    if(this.props.location.hash != hash) {
+      if(hash == '#edit_pass') {
+        this.setState({
+          revisePass: true
+        })
+      } 
+      if(!hash) {
+        this.setState({
+          revisePass: false
+        })
+      }
+    }
   }
   render() {
     const { revisePass } = this.state
@@ -221,9 +243,7 @@ class Information extends Component {
 }
 
 function mapStateToProp(state, props) {
-
   return {
-
   }
 }
 

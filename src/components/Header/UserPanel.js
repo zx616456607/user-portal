@@ -155,7 +155,7 @@ class UserPanel extends Component {
         text: '消费记录',
       },
       {
-        to: '/account/user/editPass',
+        to: '/account#edit_pass',
         svgHref: '#logchangepass',
         text: '修改密码',
       },
