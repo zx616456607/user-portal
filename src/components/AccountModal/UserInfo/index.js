@@ -55,7 +55,7 @@ class UserInfo extends Component {
         </Row>
         <Row className="content">
           <Card>
-            <Information userID={userID} userDetail={userDetail} editPass={editPass} />
+            <Information userID={userID} userDetail={userDetail} editPass={editPass} location={this.props.location}/>
           </Card>
         </Row>
         <Row className="title">

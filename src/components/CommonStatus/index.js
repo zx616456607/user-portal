@@ -32,7 +32,7 @@ function statusClass(status){
     case 'Waiting':
       return 'Waiting';
       break;
-    case 'Pending': 
+    case 'Pending':
       return 'Pending';
       break;
     case 'Stopped':
@@ -78,7 +78,7 @@ function statusSpan(status, content){
           return formatMessage(menusText.normal);
         }
         break;
-      case 'Pending': 
+      case 'Pending':
         if(!!content){
           return content;
         }else{
@@ -125,14 +125,14 @@ function statusSpan(status, content){
           return content;
         }else{
           return formatMessage(menusText.normal);
-        }     
+        }
         break;
       case "Warning" :
         if(!!content){
           return content;
         }else{
           return formatMessage(menusText.warning);
-        } 
+        }
         break;
       default :
         break;
@@ -141,8 +141,8 @@ function statusSpan(status, content){
 
 class CommonStatus extends Component {
   super(props) {
-  }  
-   
+  }
+
   render() {
     let { status, circle, content } = this.props;
     return (
