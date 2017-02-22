@@ -54,12 +54,6 @@ class BaseInfo extends Component {
     document.title = '我的帐户 | 时速云'
     const self = this
     const { loadStandardUserInfo } = this.props
-    const hash = this.props.hash
-    if(hash == '#edit_pass') {
-      this.setState({
-
-      })
-    }
     loadStandardUserInfo({
       success: {
         func: (result) => {
