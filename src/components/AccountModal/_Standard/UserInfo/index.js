@@ -54,6 +54,12 @@ class BaseInfo extends Component {
     document.title = '我的帐户 | 时速云'
     const self = this
     const { loadStandardUserInfo } = this.props
+    const hash = this.props.hash
+    if(hash == '#edit_pass') {
+      this.setState({
+
+      })
+    }
     loadStandardUserInfo({
       success: {
         func: (result) => {
@@ -67,6 +73,19 @@ class BaseInfo extends Component {
   componentWillReceiveProps(nextProps) {
     const { user } = nextProps
     const oldUserInfo = this.props.user.userInfo
+    if(this.props.hash !== nextProps.hash) {
+      if(nextProps.hash == '#edit_pass') {
+        this.setState({
+          editPsd: true
+        })
+        return
+      }
+      if(!nextProps.hash) {
+        this.setState({
+          editPsd: false
+        })
+      }
+    }
     if (user && user.userInfo) {
       const userDetail = user.userInfo
       const { isPasswordSet } = userDetail
