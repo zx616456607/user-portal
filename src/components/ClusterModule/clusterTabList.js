@@ -571,7 +571,7 @@ class clusterTabList extends Component {
                   </Tooltip>
                   <input id="addNodeCMDInput" style={{ position: "absolute", opacity: "0", top:'0'}} value={addNodeCMD && addNodeCMD[camelize('default_command')]} />
                 </pre>
-                注意：新添加的主机需要与Master节点同一内网，可互通
+                注意：新添加的主机需要与 Master 节点同一内网，可互通
               </div>
             </div>
           </Modal>
