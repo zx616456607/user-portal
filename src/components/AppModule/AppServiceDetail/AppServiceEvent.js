@@ -18,8 +18,8 @@ import CommonStatus from '../../CommonStatus'
 import './style/AppServiceEvent.less'
 
 function loadData(props) {
-  const { cluster, serviceName } = props;
-  props.loadServiceDetailEvents(cluster, serviceName);
+  const { cluster, serviceName, type } = props;
+  props.loadServiceDetailEvents(cluster, serviceName, type);
 }
 
 var MyComponent = React.createClass({
