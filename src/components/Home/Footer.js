@@ -11,6 +11,7 @@
  */
 
 import React, { Component } from 'react'
+import { TENX_PORTAL_VERSION_KEY } from '../../constants'
 
 class Footer extends Component {
   constructor(props) {
@@ -18,10 +19,9 @@ class Footer extends Component {
   }
 
   render() {
-    const { TENX_PORTAL_VERSION } = window
     return (
       <div style={{textAlign: 'center', color: "#979797", height: '30px', lineHeight: '30px'}}>
-        {TENX_PORTAL_VERSION}
+        {window[TENX_PORTAL_VERSION_KEY]}
       </div>
     )
   }
