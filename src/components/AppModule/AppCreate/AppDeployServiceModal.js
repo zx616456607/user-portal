@@ -47,7 +47,7 @@ let AppDeployServiceModal = React.createClass({
     return {
       composeType: DEFAULT_COMPOSE_TYPE,
       DIYMemory: RESOURCES_MEMORY_MIN,
-      DIYCPU: RESOURCES_CPU_MIN,
+      DIYCPU: 1,
       runningCode: "1",
       getImageType: "0",
       stateService: false,
@@ -329,7 +329,7 @@ let AppDeployServiceModal = React.createClass({
     if (newState.composeType === RESOURCES_DIY) {
       const { memory, cpu } = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].resources.requests
       newState.DIYMemory = memory
-      newState.DIYCPU = parseInt(parseInt(cpu) / 1000)
+      newState.DIYCPU = parseInt(cpu) / 1000
     }
     this.setState(newState)
   },
