@@ -31,6 +31,7 @@ const clusterController = require('../controllers/cluster_manage')
 const integrationController = require('../controllers/integration')
 const consumptionController = require('../controllers/consumption')
 const clusternodesController = require('../controllers/cluster_node')
+const versionsController = require('../controllers/versions')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -328,6 +329,9 @@ module.exports = function (Router) {
   router.get('/consumptions/charge-history', consumptionController.getChargeRecord)
   router.get('/consumptions/notify-rule', consumptionController.getNotifyRule)
   router.put('/consumptions/notify-rule', consumptionController.setNotifyRule)
+
+  // Versions
+  router.get('/versions/check', versionsController.checkVersion)
 
   return router.routes()
 }

@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Menu, Dropdown, Select, Input, Form, Icon } from 'antd'
+import { Menu, Dropdown, Select, Input, Form, Icon, Badge, Modal } from 'antd'
 import { FormattedMessage, defineMessages } from 'react-intl'
 import "./style/header.less"
 import querystring from 'querystring'
@@ -17,9 +17,15 @@ import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../actions/user'
 import { loadTeamClustersList } from '../../actions/team'
 import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
-import { getCookie } from '../../common/tools'
+import { checkVersion } from '../../actions/version'
+import { getCookie, isEmptyObject } from '../../common/tools'
 import { USER_CURRENT_CONFIG } from '../../../constants'
-import { MY_SPACE } from '../../constants'
+import {
+  MY_SPACE,
+  TENX_PORTAL_VERSION_KEY,
+  TENX_PORTAL_VERSION_MAJOR_KEY,
+  VERSION_REG_EXP,
+} from '../../constants'
 import { browserHistory } from 'react-router'
 import NotificationHandler from '../../common/notification_handler'
 import UserPanel from './UserPanel'
@@ -27,10 +33,13 @@ import backOldBtn from '../../assets/img/headerBackOldArrow.png'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
+const standardFlag = standard === mode
 const team = mode === standard ? '团队' : '空间'
 const zone = mode === standard ? '区域' : '集群'
 const selectTeam = mode === standard ? '选择团队' : '选择空间'
 const selectZone = mode === standard ? '选择区域' : '选择集群'
+const LITE = 'lite'
+
 // The following routes RegExp will show select space or select cluster
 const SPACE_CLUSTER_PATHNAME_MAP = {
   space: [
@@ -82,21 +91,68 @@ const menusText = defineMessages({
     defaultMessage: '第三个',
   }
 })
+
 function loadSpaces(props, callback) {
   const { loadUserTeamspaceList } = props
   loadUserTeamspaceList('default', { size: 100 }, callback)
 }
 
+function getVersion() {
+  let version = window[TENX_PORTAL_VERSION_KEY]
+  if (!version) {
+    return
+  }
+  let versionMatch = version.match(VERSION_REG_EXP)
+  if (!versionMatch) {
+    return
+  }
+  version = versionMatch[0]
+  version = version.replace('v', '')
+  return version
+}
+
+function getPortalMode() {
+  let major = window[TENX_PORTAL_VERSION_MAJOR_KEY]
+  if (!major) {
+    return mode
+  }
+  return major
+}
+
 class Header extends Component {
   constructor(props) {
     super(props)
+    this._checkLiteVersion = this._checkLiteVersion.bind(this)
     this.handleSpaceChange = this.handleSpaceChange.bind(this)
     this.handleClusterChange = this.handleClusterChange.bind(this)
+    this.showUpgradeVersionModal = this.showUpgradeVersionModal.bind(this)
+    this.renderCheckVersionContent = this.renderCheckVersionContent.bind(this)
     this.state = {
       spacesVisible: false,
       clustersVisible: false,
       focus: false,
+      version: getVersion(),
+      type: getPortalMode(),
+      checkVersionErr: null,
+      upgradeVersionModalVisible: false,
     }
+  }
+
+  _checkLiteVersion() {
+    const { checkVersion } = this.props
+    const { version, type } = this.state
+    if (type !== LITE) {
+      return
+    }
+    checkVersion({version, type}, {
+      failed: {
+        func: (err) => {
+          this.setState({
+            checkVersionErr: err,
+          })
+        }
+      }
+    })
   }
 
   handleSpaceChange(space) {
@@ -128,7 +184,7 @@ class Header extends Component {
         },
         isAsync: true
       },
-      faied: {
+      failed: {
         func: (error) => {
           notification.error(`加载${team} [${space.spaceName}] 的${zone}列表失败，请重新选择${team}`)
           _this.setState({
@@ -223,6 +279,58 @@ class Header extends Component {
     })
   }
 
+  componentDidMount() {
+    this._checkLiteVersion()
+  }
+
+  showUpgradeVersionModal() {
+    this.setState(({
+      upgradeVersionModalVisible: true,
+    }))
+    this._checkLiteVersion()
+  }
+
+  renderCheckVersionContent() {
+    const { checkVersionContent, isCheckVersion } = this.props
+    const { checkVersionErr } = this.state
+    if (isCheckVersion) {
+      return (
+        <div>
+          <Icon type="loading" /> 努力检查新版本中...
+        </div>
+      )
+    }
+    if (!isEmptyObject(checkVersionContent)) {
+      const { isLatest, latestVerion, link } = checkVersionContent
+      if (isLatest) {
+        return <div><Icon type="smile" /> 当前已是最新版本</div>
+      }
+      return (
+        <div>
+          <Icon type="meh" /> 发现新版本 {latestVerion}，点击&nbsp;
+          <a href={link} target="_blank">{link}</a> 查看详情
+        </div>
+      )
+    }
+    if (!checkVersionErr) {
+      return
+    }
+    const { message, statusCode } = checkVersionErr
+    if (statusCode >= 500) {
+      return (
+        <div>
+          <Icon type="frown" /> 网络不可用，请稍后重试
+        </div>
+      )
+    }
+    return (
+      <div>
+        <Icon type="frown" /> 获取版本信息失败，请&nbsp;
+        <a onClick={this._checkLiteVersion}>点击重试</a>
+      </div>
+    )
+  }
+
   render() {
     const {
       current,
@@ -234,10 +342,13 @@ class Header extends Component {
       migrated,
       showSpace,
       showCluster,
+      checkVersionContent,
     } = this.props
     const {
       spacesVisible,
       clustersVisible,
+      upgradeVersionModalVisible,
+      type,
     } = this.state
     teamspaces.map((space) => {
       mode === standard
@@ -298,7 +409,7 @@ class Header extends Component {
         }
         <div className="rightBox">
         {
-          migrated === 1 ?
+          standardFlag && migrated === 1 &&
           <a href='https://console.tenxcloud.com' target='_blank'>
             <div className='backVersion'>
               <div className='imgBox'>
@@ -306,8 +417,18 @@ class Header extends Component {
               </div>
               <span className='backText'>返回旧版</span>
             </div>
-          </a> :
-          <div></div>
+          </a>
+        }
+        {
+          type === LITE &&
+          <div className='upgradeVersion' onClick={this.showUpgradeVersionModal}>
+            <div className='imgBox'>
+              <img src={backOldBtn} />
+            </div>
+            <span className='backText'>
+              <Badge dot={!checkVersionContent.isLatest}>升级版本</Badge>
+            </span>
+          </div>
         }
           <div className="docBtn">
             <a href="http://docs.tenxcloud.com" target="_blank">
@@ -320,6 +441,15 @@ class Header extends Component {
             </a>
           </div>
           <UserPanel loginUser={loginUser}/>
+          <Modal title="升级版本" />
+          <Modal
+            title='升级版本'
+            className='upgradeVersionModal'
+            visible={upgradeVersionModalVisible}
+            onOk={() => this.setState({upgradeVersionModalVisible: false})}
+            onCancel={() => this.setState({upgradeVersionModalVisible: false})}>
+            {this.renderCheckVersionContent()}
+          </Modal>
         </div>
       </div>
     )
@@ -331,6 +461,7 @@ function mapStateToProps(state, props) {
   const { current, loginUser } = state.entities
   const { teamspaces } = state.user
   const { teamClusters } = state.team
+  const { checkVersion } = state.version
   let showSpace = false
   let showCluster = false
   SPACE_CLUSTER_PATHNAME_MAP.space.every(path => {
@@ -357,6 +488,8 @@ function mapStateToProps(state, props) {
     teamClusters: (teamClusters.result ? teamClusters.result.data : []),
     showSpace,
     showCluster,
+    checkVersionContent: checkVersion.data,
+    isCheckVersion: checkVersion.isFetching,
   }
 }
 
@@ -365,4 +498,5 @@ export default connect(mapStateToProps, {
   loadTeamClustersList,
   setCurrent,
   loadLoginUserDetail,
+  checkVersion,
 })(Header)

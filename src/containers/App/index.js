@@ -200,7 +200,7 @@ class App extends Component {
 
     errorHandler(error, intl)
 
-    setTimeout(resetErrorMessage)
+    resetErrorMessage()
   }
 
   onStatusWebsocketSetup(ws) {

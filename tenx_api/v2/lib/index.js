@@ -80,8 +80,11 @@ module.exports = function (config) {
   // ~ tenxcloud docker registries - spi for internal usage
   this.tenxregistries = collections.create('tenx-registries')
 
-    // ~ tenxcloud docker registries - api
+  // ~ tenxcloud docker registries - api
   this.tenxhubs = collections.create('tenx-hubs')
+
+  // ~ vsersions
+  this.versions = collections.create('versions')
 
   ////////////////////////////////////////////////////////////////////////////////////
   ///////////////  Standard mode (Public Clould Only) ////////////////////////////////
