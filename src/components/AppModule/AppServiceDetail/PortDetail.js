@@ -278,6 +278,9 @@ let MyComponent = React.createClass({
     // can use data-binding to get
     let keys = form.getFieldValue('newKeys');
     keys = keys.concat(uuid);
+    setTimeout(() => {
+      this.newPortOb.refs.input.focus()
+    })
     // can use data-binding to set
     // important! notify form to detect changes
     form.setFieldsValue({
@@ -440,6 +443,9 @@ let MyComponent = React.createClass({
     } else {
       if(e == 2) {
         ob[index] = true
+        setTimeout(() => {
+          this.newInputPortOb.refs.input.focus()
+        })
         return
       }
       this.props.form.setFieldsValue({[`newinputPort${index}`]: null})
@@ -513,13 +519,14 @@ let MyComponent = React.createClass({
         <div className="portDetail" key={`list${k}`}>
           <div className="commonData">
             <Form.Item key={k}>
-              <Input {...getFieldProps(`newport${k}`, {
+              <Input  {...getFieldProps(`newport${k}`, {
+                ref : (instance) => this.newPortOb = instance,
                 rules: [{
                   required: true,
                   whitespace: true,
                   message: '输入容器端口',
                 }, {validator: this.checkContainerPort}],
-              })} style={{ width: '80%', marginRight: 8 }}
+              })}  style={{ width: '80%', marginRight: 8 }}
               />
             </Form.Item>
           </div>
@@ -553,7 +560,7 @@ let MyComponent = React.createClass({
             </Select>
             <span style={{display: getFieldProps(`newssl${k}`).value == 'HTTP' ? 'inline-block' : 'none'}}>80</span>
             <Form.Item key={k} style={{width: '50px', float: 'right', marginRight: '70px'}}>
-            <Input type='text' style={{width: '50px', marginLeft: '0px', display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {rules: [rules, {validator: this.checkInputPort}], initialValue: "80"})} />
+            <Input  type='text' style={{width: '50px', marginLeft: '0px', display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {ref: instance => this.newInputPortOb = instance,rules: [rules, {validator: this.checkInputPort}], initialValue: this.state.disableHTTP ? '': "80"})} />
             </Form.Item>
           </div>
           <div className="commonData span2">
