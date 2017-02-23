@@ -318,8 +318,7 @@ module.exports = function (Router) {
   // Token info
   router.get('/token', tokenController.getTokenInfo)
 
-  // License
-  router.get('/license', licenseController.getLicense)
+  // Licenses
   router.get('/licenses', licenseController.getLicenses)
 
   // consumption and charge
