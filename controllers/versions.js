@@ -18,7 +18,7 @@ exports.checkVersion = function* () {
   const query = this.query || {}
   const specifyConfig = {
     protocol: 'https',
-    host: 'apiv2.tenxcloud.com',
+    host: 'api.tenxcloud.com',
   }
   const spi = apiFactory.getSpi(loginUser, specifyConfig)
   try {
