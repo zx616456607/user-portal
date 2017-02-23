@@ -343,8 +343,13 @@ export function parseCpuToNumber(cpu) {
 export function cpuFormat(memory, resources) {
   let cpuLimits = parseCpuToNumber(resources.limits.cpu)
   let cpuRequests = parseCpuToNumber(resources.requests.cpu)
-  if (enterpriseFlag && cpuLimits && cpuRequests) {
-    return `${cpuRequests}~${cpuLimits} CPU`
+  if (enterpriseFlag) {
+    if (cpuLimits && cpuRequests) {
+      return `${cpuRequests}~${cpuLimits} CPU`
+    }
+    if (cpuRequests) {
+      return `${cpuRequests} CPU`
+    }
   }
   if(!Boolean(memory)) {
     return '-'
