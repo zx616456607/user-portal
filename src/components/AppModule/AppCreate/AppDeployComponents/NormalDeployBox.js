@@ -1014,9 +1014,19 @@ let NormalDeployBox = React.createClass({
               <Tooltip title="无存储服务可用, 请配置存储服务"><Icon type="question-circle-o" style={{verticalAlign: 'middle', marginLeft: '10px', display: this.state.canCreate ? 'none' : 'inline-block'}}  /></Tooltip>
               <span className="stateSpan">{form.getFieldValue('volumeSwitch') ? "有状态服务" : "无状态服务"}</span>
               <RadioGroup style={{display: this.state.isHaveVolume ? 'inline-block' : 'none', marginLeft: '10px'}} onChange={this.setStorageType} value={this.state.storageType || defaultCheckedValue}>
-                  {this.getStorageType()}
+                {this.getStorageType()}
               </RadioGroup>
-
+              {
+                form.getFieldValue('volumeSwitch') &&
+                <span id="localStorageTip">
+                  注：选择『本地存储』时，为保证有状态有效，推荐使用『绑定节点』功能&nbsp;
+                  <Tooltip title="以保证容器及其Volume存储不被系统调度迁移"
+                    placement="topLeft"
+                    getTooltipContainer={() => document.getElementById('localStorageTip')}>
+                    <Icon type="question-circle-o" />
+                  </Tooltip>
+                </span>
+              }
               {form.getFieldValue('volumeSwitch') ? [
                 <MyComponent
                   parentScope={parentScope}
