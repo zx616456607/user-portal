@@ -205,7 +205,7 @@ let TeamTable = React.createClass({
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     const pagination = {
-      simple: true,
+      simple: {true},
       total: this.props.scope.props.total,
       sort,
       filter,
