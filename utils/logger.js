@@ -13,19 +13,20 @@ const log4js = require('log4js')
 let level = "INFO"
 const LOGPATH = './logs'
 const fs = require('fs')
+const log4jsConfig = require('../configs/log4js.json')
 let logger
 
 fs.stat(LOGPATH, function (err, stats) {
   if (err) {
     fs.mkdir(LOGPATH, "0744", function () {
       // refresh configuration file every three minutes
-      log4js.configure(require.resolve('../configs/log4js.json'), {
+      log4js.configure(log4jsConfig, {
         reloadSecs: 180
       })
     })
   } else {
     // refresh configuration file every three minutes
-    log4js.configure(require.resolve('../configs/log4js.json'), {
+    log4js.configure(log4jsConfig, {
       reloadSecs: 180
     })
   }
