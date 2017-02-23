@@ -74,8 +74,7 @@ let TeamTable = React.createClass({
       failed: {
         func: (err) => {
           notification.close()
-          console.log(err)
-          if(err.message.message == 'before deleting a team, all its team spaces have to be deleted first') {
+          if (err.message.code == 403) {
             notification.error(`删除${teamName}失败：请先删除该团队下的团队空间后, 再删除团队`)
             return
           }
