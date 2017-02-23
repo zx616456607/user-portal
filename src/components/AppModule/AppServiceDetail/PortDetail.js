@@ -414,7 +414,12 @@ let MyComponent = React.createClass({
       })
       return
     } else {
-      this.setState({inPort: e, selectType: e})
+      this.setState({ inPort: e, selectType: e })
+      if (e == 2) {
+        setTimeout(() => {
+          document.getElementById(`changeinputPort${index}`).focus()
+        })
+      }
     }
   },
   newInputPort(index, e) {
