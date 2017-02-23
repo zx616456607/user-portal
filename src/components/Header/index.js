@@ -20,7 +20,12 @@ import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
 import { checkVersion } from '../../actions/version'
 import { getCookie, isEmptyObject } from '../../common/tools'
 import { USER_CURRENT_CONFIG } from '../../../constants'
-import { MY_SPACE, TENX_PORTAL_VERSION_KEY, VERSION_REG_EXP } from '../../constants'
+import {
+  MY_SPACE,
+  TENX_PORTAL_VERSION_KEY,
+  TENX_PORTAL_VERSION_MAJOR_KEY,
+  VERSION_REG_EXP,
+} from '../../constants'
 import { browserHistory } from 'react-router'
 import NotificationHandler from '../../common/notification_handler'
 import UserPanel from './UserPanel'
@@ -33,6 +38,8 @@ const team = mode === standard ? '团队' : '空间'
 const zone = mode === standard ? '区域' : '集群'
 const selectTeam = mode === standard ? '选择团队' : '选择空间'
 const selectZone = mode === standard ? '选择区域' : '选择集群'
+const LITE = 'lite'
+
 // The following routes RegExp will show select space or select cluster
 const SPACE_CLUSTER_PATHNAME_MAP = {
   space: [
@@ -103,9 +110,19 @@ function getVersion() {
   version = version.replace('v', '')
   return version
 }
+
+function getPortalMode() {
+  let major = window[TENX_PORTAL_VERSION_MAJOR_KEY]
+  if (!major) {
+    return mode
+  }
+  return major
+}
+
 class Header extends Component {
   constructor(props) {
     super(props)
+    this._checkLiteVersion = this._checkLiteVersion.bind(this)
     this.handleSpaceChange = this.handleSpaceChange.bind(this)
     this.handleClusterChange = this.handleClusterChange.bind(this)
     this.showUpgradeVersionModal = this.showUpgradeVersionModal.bind(this)
@@ -115,11 +132,27 @@ class Header extends Component {
       clustersVisible: false,
       focus: false,
       version: getVersion(),
-      type: 'lite', // For lite only right now
-      isVersionLatest: true,
+      type: getPortalMode(),
       checkVersionErr: null,
       upgradeVersionModalVisible: false,
     }
+  }
+
+  _checkLiteVersion() {
+    const { checkVersion } = this.props
+    const { version, type } = this.state
+    if (type !== LITE) {
+      return
+    }
+    checkVersion({version, type}, {
+      failed: {
+        func: (err) => {
+          this.setState({
+            checkVersionErr: err,
+          })
+        }
+      }
+    })
   }
 
   handleSpaceChange(space) {
@@ -247,36 +280,14 @@ class Header extends Component {
   }
 
   componentDidMount() {
-    const { checkVersion } = this.props
-    const { version, type } = this.state
-    if (!standardFlag) {
-      checkVersion({version, type}, {
-        failed: {
-          func: (err) => {
-            this.setState({
-              checkVersionErr: err,
-            })
-          }
-        }
-      })
-    }
+    this._checkLiteVersion()
   }
 
   showUpgradeVersionModal() {
-    const { version, type } = this.state
-    const { checkVersion } = this.props
     this.setState(({
       upgradeVersionModalVisible: true,
     }))
-    checkVersion({version, type}, {
-      failed: {
-        func: (err) => {
-          this.setState({
-            checkVersionErr: err,
-          })
-        }
-      }
-    })
+    this._checkLiteVersion()
   }
 
   renderCheckVersionContent() {
@@ -290,17 +301,34 @@ class Header extends Component {
       )
     }
     if (!isEmptyObject(checkVersionContent)) {
-      return (
-        <h1></h1>
-      )
-    }
-    if (checkVersionErr) {
+      const { isLatest, latestVerion, link } = checkVersionContent
+      if (isLatest) {
+        return <div><Icon type="smile" /> 当前已是最新版本</div>
+      }
       return (
         <div>
-          <Icon type="info-circle" /> {checkVersionErr.message.message}
+          <Icon type="meh" /> 发现新版本 {latestVerion}，点击&nbsp;
+          <a href={link} target="_blank">{link}</a> 查看详情
         </div>
       )
     }
+    if (!checkVersionErr) {
+      return
+    }
+    const { message, statusCode } = checkVersionErr
+    if (statusCode >= 500) {
+      return (
+        <div>
+          <Icon type="frown" /> 网络不可用，请稍后重试
+        </div>
+      )
+    }
+    return (
+      <div>
+        <Icon type="frown" /> 获取版本信息失败，请&nbsp;
+        <a onClick={this._checkLiteVersion}>点击重试</a>
+      </div>
+    )
   }
 
   render() {
@@ -314,12 +342,13 @@ class Header extends Component {
       migrated,
       showSpace,
       showCluster,
+      checkVersionContent,
     } = this.props
     const {
       spacesVisible,
       clustersVisible,
-      isVersionLatest,
       upgradeVersionModalVisible,
+      type,
     } = this.state
     teamspaces.map((space) => {
       mode === standard
@@ -391,13 +420,13 @@ class Header extends Component {
           </a>
         }
         {
-          !standardFlag &&
+          type === LITE &&
           <div className='upgradeVersion' onClick={this.showUpgradeVersionModal}>
             <div className='imgBox'>
               <img src={backOldBtn} />
             </div>
             <span className='backText'>
-              <Badge dot={isVersionLatest}>升级版本</Badge>
+              <Badge dot={!checkVersionContent.isLatest}>升级版本</Badge>
             </span>
           </div>
         }
