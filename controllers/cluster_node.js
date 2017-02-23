@@ -61,6 +61,18 @@ exports.getClusterNodes = function* () {
   }
 }
 
+// For bind node when create service(lite only)
+exports.getNodes = function* (){
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const spi = apiFactory.getSpi(loginUser)
+  const result = yield spi.clusters.getBy([cluster, 'nodes']);
+  this.body = {
+    cluster,
+    data: result.data,
+  }
+}
+
 exports.changeNodeSchedule = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster

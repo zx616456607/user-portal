@@ -26,6 +26,7 @@ import { appNameCheck, validateK8sResourceForServiceName } from '../../../../com
 import { loadImageDetailTag, loadImageDetailTagConfig, getOtherImageTag, loadOtherDetailTagConfig } from '../../../../actions/app_center'
 import { checkServiceName } from '../../../../actions/app_manage'
 import { loadFreeVolume, createStorage } from '../../../../actions/storage'
+import { getNodes } from '../../../../actions/cluster_node'
 import "./style/NormalDeployBox.less"
 import NotificationHandler from '../../../../common/notification_handler'
 import { volNameCheck } from '../../../../common/naming_validation'
@@ -444,6 +445,11 @@ function loadImageTags(props) {
   })
 }
 
+function loadClusterNodes(props) {
+  const { cluster, getNodes } = props
+  getNodes(cluster)
+}
+
 function setPorts(containerPorts, form) {
   const portsArr = []
   if (containerPorts) {
@@ -639,6 +645,7 @@ let NormalDeployBox = React.createClass({
   },
   componentWillMount() {
     loadImageTags(this.props)
+    loadClusterNodes(this.props)
     const cluster = this.props.currentCluster
     const storageTypes = cluster.storageTypes
     let canCreate = true
@@ -680,6 +687,7 @@ let NormalDeployBox = React.createClass({
     })
     if (serviceOpen) {
       loadImageTags(nextProps)
+      loadClusterNodes(nextProps)
       const { form } = this.props
       const { getFieldValue } = form
       let storageType = getFieldValue('storageType')
@@ -767,7 +775,7 @@ let NormalDeployBox = React.createClass({
   },
   render: function () {
     const parentScope = this.props.scope
-    const { imageTagsIsFetching, form, composeType, cluster } = this.props
+    const { imageTagsIsFetching, form, composeType, cluster, clusterNodes } = this.props
     const { DIYMemory, DIYCPU } = parentScope.state
     const imageTags = this.props.otherImages ? this.props.otherImages : this.props.imageTags
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form
@@ -784,6 +792,12 @@ let NormalDeployBox = React.createClass({
       ],
       initialValue: imageTags[0]
     })
+    const bindNodeProps = getFieldProps('bindNode', {
+      rules: [
+        { required: true },
+      ],
+      initialValue: 'default',
+    })
     let imageVersion = getFieldValue('imageVersion');
     let switchDisable = false
     let mountPath = []
@@ -793,9 +807,11 @@ let NormalDeployBox = React.createClass({
     }
     let imageVersionShow = (
       <FormItem className="imageTagForm" key='imageTagForm'>
-        <Select
+        <Select showSearch
           {...selectProps}
-          className="imageTag" size="large" tyle={{ width: 200 }}
+          className="imageTag"
+          size="large"
+          optionFilterProp="children"
           placeholder="请选择镜像版本"
           notFoundContent="镜像版本为空"
           onSelect={this.onSelectTagChange}
@@ -846,7 +862,7 @@ let NormalDeployBox = React.createClass({
           </div>
           <div className="operaBox">
             <div className="selectCompose">
-              <span className="commonSpan">容器配置 <Tooltip title="专业版及企业认证用户可申请扩大容器配置"><Icon type="question-circle-o" /></Tooltip></span>
+              <span className="commonSpan">容器配置 <Tooltip title="专业版及企业认证用户可申请扩大容器配置"><a><Icon type="question-circle-o" /></a></Tooltip></span>
               <ul className="composeList">
                 {/*<li className="composeDetail">
                   <Button type={composeType == "1" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "1")}>
@@ -962,6 +978,31 @@ let NormalDeployBox = React.createClass({
               </ul>
               <div style={{ clear: "both" }}></div>
             </div>
+            <div className="bindNode">
+              <span className="commonSpan">绑定节点</span>
+              <FormItem>
+                <Select showSearch
+                  {...bindNodeProps}
+                  style={{ width: 300 }}
+                  placeholder="请选择绑定节点"
+                  optionFilterProp="children"
+                  notFoundContent="无法找到"
+                >
+                  <Option value="default">使用系统默认调度</Option>
+                  {
+                    clusterNodes.map(node => {
+                      const { name, ip, podCount } = node
+                      return (
+                        <Option value={name}>
+                          {name} | {ip} (容器：{podCount}个)
+                        </Option>
+                      )
+                    })
+                  }
+                </Select>
+              </FormItem>
+              <div style={{ clear: "both" }}></div>
+            </div>
             <div className="stateService">
               <span className="commonSpan">服务类型 <a href="http://docs.tenxcloud.com/faq#you-zhuang-tai-fu-wu-yu-wu-zhuang-tai-fu-wu-de-qu-bie" target="_blank"><Tooltip title="若需数据持久化，请使用有状态服务"><Icon type="question-circle-o" /></Tooltip></a></span>
               <Switch disabled={!this.state.canCreate} className="changeBtn"
@@ -1025,6 +1066,7 @@ function mapStateToProps(state, props) {
   let {registry, tag, isFetching } = targetImageTag || defaultImageTags
   const { cluster } = state.entities.current
   const otherImages = otherImageTag.imageTag
+  const { clusterNodes } = state.cluster_nodes
   return {
     cluster: cluster.clusterID,
     registry,
@@ -1034,7 +1076,8 @@ function mapStateToProps(state, props) {
     checkServiceName: state.apps.checkServiceName,
     tagConfig: state.getImageTagConfig.imageTagConfig,
     otherImages,
-    currentCluster: state.entities.current.cluster
+    currentCluster: state.entities.current.cluster,
+    clusterNodes: clusterNodes[cluster.clusterID] || []
   }
 }
 
@@ -1043,7 +1086,8 @@ NormalDeployBox = connect(mapStateToProps, {
   loadImageDetailTagConfig,
   checkServiceName,
   getOtherImageTag,
-  loadOtherDetailTagConfig
+  loadOtherDetailTagConfig,
+  getNodes,
 })(NormalDeployBox)
 
 export default NormalDeployBox

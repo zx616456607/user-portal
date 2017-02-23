@@ -26,6 +26,7 @@ import {
   RESOURCES_DIY,
 } from '../../../constants'
 import { ENTERPRISE_MODE } from '../../../../configs/constants'
+import { K8S_NODE_SELECTOR_KEY } from '../../../../constants'
 import { mode } from '../../../../configs/model'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
@@ -265,7 +266,8 @@ let AppDeployServiceModal = React.createClass({
   setForm() {
     const { scope } = this.props
     const { form } = this.props
-    const { annotations } = this.props.scope.state.checkInf.Service.metadata;
+    const { annotations } = this.props.scope.state.checkInf.Service.metadata
+    const bindNode = this.props.scope.state.checkInf.Deployment.spec.template.spec.nodeSelector[K8S_NODE_SELECTOR_KEY]
     const volumeMounts = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].volumeMounts
     const livenessProbe = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].livenessProbe
     const env = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].env
@@ -277,6 +279,7 @@ let AppDeployServiceModal = React.createClass({
     form.setFieldsValue({
       name: scope.state.checkInf.Service.metadata.name,
       imageVersion: imageVersion,
+      bindNode,
       instanceNum: scope.state.checkInf.Deployment.spec.replicas,
       volumeSwitch: this.volumeSwitch(volumeMounts, form),
       getUsefulType: this.getUsefulType(livenessProbe, form),
@@ -382,6 +385,7 @@ let AppDeployServiceModal = React.createClass({
     //let config = getFileProps('config').value
     const { registryServer, currentSelectedImage } = parentScope.state
     let image = registryServer + '/' + currentSelectedImage + ':' + imageVersion //镜像名称
+    const bindNode = getFieldProps('bindNode').value //绑定节点的名称
     let deploymentList = new Deployment(serviceName)
     let serviceList = new Service(serviceName, this.props.cluster)
     let storageType = getFieldProps('storageType').value
@@ -506,6 +510,7 @@ let AppDeployServiceModal = React.createClass({
           return
       }
     })(composeType)
+    deploymentList.setNodeSelector(bindNode)
     /*Deployment*/
     deploymentList.setReplicas(instanceNum)
     deploymentList.addContainer(serviceName, image)

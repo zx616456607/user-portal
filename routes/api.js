@@ -314,6 +314,8 @@ module.exports = function (Router) {
   router.get('/cluster-nodes/:cluster/add-node-cmd', clusternodesController.getAddNodeCMD)
   // Get kubectl pods names
   router.get('/cluster-nodes/:cluster/kubectls', clusternodesController.getKubectls)
+  // For bind node when create service(lite only)
+  router.get('/clusters/:cluster/nodes', clusternodesController.getNodes)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)
