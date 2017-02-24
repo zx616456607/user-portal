@@ -61,11 +61,9 @@ exports.vsettanLogin = function* (next) {
       return result.data
     })
     if (user.username == 'admin') {
-      if (!project) {
         project = {
           phone: '11111111111'
         }
-      }
     }
     if (!project) return
     user.phone = project.phone
