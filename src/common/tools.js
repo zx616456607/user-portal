@@ -391,3 +391,7 @@ export function memoryFormat(resources) {
   }
   return memoryLimits
 }
+
+export function isStandardMode() {
+  return !enterpriseFlag
+}
