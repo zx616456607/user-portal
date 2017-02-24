@@ -16,6 +16,7 @@ import NotificationHandler from '../../../common/notification_handler'
 import './style/AppSettingsHttps.less'
 import { CERT_REGEX, PRIVATE_KEY_REGEX, ANNOTATION_SVC_SCHEMA_PORTNAME, ANNOTATION_HTTPS } from '../../../../constants'
 import { camelize } from 'humps'
+import { isStandardMode } from '../../../common/tools.js'
 
 const FormItem = Form.Item
 const createForm = Form.create
@@ -370,7 +371,7 @@ class AppSettingsHttps extends Component {
             <div className="certificate">
               <div className="headTab">
                 <span className={this.state.tabsActive == 1 ? "tabKey tabs-active" : 'tabKey'} onClick={() => this.targetTabs(1)}>使用自有证书</span>
-                <span className={this.state.tabsActive == 2 ? "tabKey tabs-active" : 'tabKey'} onClick={() => this.targetTabs(2)}>使用Tenxcloud提供的信任证书</span>
+                {isStandardMode() ? <span className={this.state.tabsActive == 2 ? "tabKey tabs-active" : 'tabKey'} onClick={() => this.targetTabs(2)}>使用Tenxcloud提供的信任证书</span> : null}
               </div>
               <div className="tabsBody">
                 <div className={this.state.tabsActive == 1 ? "tabs tabs-active" : 'tabs'}>
