@@ -315,14 +315,14 @@ let MyComponent = React.createClass({
             </Dropdown>*/}
             {!item.isUsed ?
               <Dropdown.Button
-                overlay={menu} 
+                overlay={menu}
                 type='ghost'
                 onClick={(e) => { this.showAction(e, 'resize', item.name, item.totalSize) } }
                  disabled={item.isUsed}>
                 <FormattedMessage {...messages.dilation} />
               </Dropdown.Button>
             :
-              <Dropdown.Button 
+              <Dropdown.Button
                 overlay={menu}
                 type='ghost'
                 className="ant-disabled">
@@ -364,10 +364,10 @@ let MyComponent = React.createClass({
             </Row>
             <div className="modal-price">
               <div className="price-left">
-                存储：{hourPrice.unit == '￥'? '￥': ''}{ resourcePrice.storage /10000 } {hourPrice.unit == '￥'? '': 'T'}/(GB*小时)
+                存储：{hourPrice.unit == '￥'? '￥': ''}{ resourcePrice.storage /10000 } {hourPrice.unit == '￥'? '': ' T'}/(GB*小时)
               </div>
               <div className="price-unit">
-                <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod"> { hourPrice.amount }{hourPrice.unit == '￥'? '': 'T'}/小时</span></p>
+                <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod"> { hourPrice.amount }{hourPrice.unit == '￥'? '': ' T'}/小时</span></p>
                 <p><span className="unit">（约：</span><span className="unit"> { countPrice.fullAmount }/小时）</span></p>
               </div>
             </div>
@@ -671,9 +671,9 @@ class Storage extends Component {
     if (this.props.storageList[this.props.currentImagePool].isFetching) {
       return (
         <div className="loadingBox">
-          <Spin size="large"></Spin> 
+          <Spin size="large"></Spin>
         </div>
-      ) 
+      )
     }
     return (
       <QueueAnim className="StorageList" type="right">
@@ -737,10 +737,10 @@ class Storage extends Component {
                 </Row>
                 <div className="modal-price">
                   <div className="price-left">
-                    存储：{hourPrice.unit == '￥' ? '￥' : ''}{ storagePrice } {hourPrice.unit == '￥' ? '' : 'T'}/(GB*小时)
+                    存储：{hourPrice.unit == '￥' ? '￥' : ''}{ storagePrice } {hourPrice.unit == '￥' ? '' : ' T'}/(GB*小时)
                   </div>
                   <div className="price-unit">
-                    <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod">{ hourPrice.amount }{hourPrice.unit == '￥'? '': 'T'}/小时</span></p>
+                    <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod">{ hourPrice.amount }{hourPrice.unit == '￥'? '': ' T'}/小时</span></p>
                     <p><span className="unit">（约：</span><span className="unit">{ countPrice.fullAmount }/月）</span></p>
                   </div>
                 </div>
@@ -757,7 +757,7 @@ class Storage extends Component {
             <div className="clearDiv"></div>
           </div>
           {dataStorage.length >0 ?
-    
+
           <Card className="storageBox appBox">
             <div className="appTitle">
               <div className="selectIconTitle commonTitle">
@@ -784,7 +784,7 @@ class Storage extends Component {
           </Card>
           :
           <div className='text-center'><img src={noStorageImg} /><div>您还没有存储卷，创建一个吧！ <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>创建</Button></Tooltip></div></div>
-          } 
+          }
         </div>
       </QueueAnim>
     )

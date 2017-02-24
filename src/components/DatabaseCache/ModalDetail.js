@@ -202,7 +202,7 @@ class BaseInfo extends Component {
           <div className="price-unit">
             <p>合计：
             <span className="unit">{countPrice.unit=='￥' ? ' ￥' : ''}</span>
-            <span className="unit blod">{ hourPrice.amount }{containerPrc.unit=='￥'? '' : 'T'}/小时</span>
+            <span className="unit blod">{ hourPrice.amount }{containerPrc.unit=='￥'? '' : ' T'}/小时</span>
             </p>
             <p>
             <span className="unit">（约：{ countPrice.fullAmount } /月）</span>
@@ -307,7 +307,7 @@ class LeasingInfo extends Component {
             <p><Icon type="hdd" /> 存储：<span className="unit">{ storagePrc.fullAmount }/（GB*小时）</span> * {databaseInfo.podInfo.desired}个</p>
           </div>
           <div className="countPrice">
-            合计价格：<span className="unit">{hourPrice.unit =='￥' ? '￥': ''}</span><span className="unit blod">{hourPrice.amount}{hourPrice.unit =='￥' ? '': 'T'}/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：{countPrice.fullAmount}/月）</span>
+            合计价格：<span className="unit">{hourPrice.unit =='￥' ? '￥': ''}</span><span className="unit blod">{hourPrice.amount}{hourPrice.unit =='￥' ? '': ' T'}/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：{countPrice.fullAmount}/月）</span>
           </div>
         </div>
       </div>

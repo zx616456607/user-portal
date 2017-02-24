@@ -461,7 +461,8 @@ class CostRecord extends Component{
                   <span>{currentTeamName === ''?'我的团队':currentTeamName} <Icon type='down' style={{ fontSize: '8px' }}/></span>
                 </Popover>
               </div>
-            </div>:
+            </div>
+            :
             <div>
               <svg className='headerteamspace'>
                 <use xlinkHref='#headerteamspace' />
@@ -476,6 +477,7 @@ class CostRecord extends Component{
                   loading={false}
                   onChange={this.handleSpaceChange}
                   selectValue={ currentSpaceName }
+                  getTooltipContainer={() => document.getElementById('CostRecord')}
                 />
               </div>
             </div>
