@@ -98,7 +98,7 @@ exports.vsettanLogin = function* (next) {
     const createUser = yield spi.users.createBy(["vsettan"], null, user)
     //use userinfo login
     let api = apiFactory.getApi()
-    api = yield api.users.createBy(['login'], null, { accountType: 'vsettan', accountID: user.accountID }).then(result => {
+    api = yield api.users.createBy(['login'], null, { accountType: user.accountType, accountID: user.accountID }).then(result => {
       if (!userHaveProject) return
       api = apiFactory.getApi({
         user: result.userName,
