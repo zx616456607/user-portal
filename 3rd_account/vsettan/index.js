@@ -94,6 +94,7 @@ exports.vsettanLogin = function* (next) {
       return
     }
     //create user
+    user.accountDetail = JSON.stringify(user)
     const createUser = yield spi.users.createBy(["vsettan"], null, user)
     //use userinfo login
     let api = apiFactory.getApi()
