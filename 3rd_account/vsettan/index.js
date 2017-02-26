@@ -12,6 +12,7 @@ const vsettanConfig = require('../../configs/3rd_account/vsettan.js')
 const urllib = require('urllib')
 const apiFactory = require('../../services/api_factory.js')
 const logger = require('../../utils/logger').getLogger('vsettan')
+const uuid = require('uuid')
 
 exports.vsettanLogin = function* (next) {
   const access_token = this.query.access_token
@@ -42,8 +43,10 @@ exports.vsettanLogin = function* (next) {
     if (!user) return
     const spi = apiFactory.getTenxSysSignSpi({})
     // spi.user.get
+    console.log(user)
+    user.username = user.username.replace(/_/g, '-')
     user.userName = user.username
-    user.password = 'vsettan-' + (new Date() - 0)
+    user.password = uuid.v4()
     user.is_3rd_account = 1
     //get project
     let project = yield urllib.request(`${vsettanConfig.project_url}/container/`, {
@@ -67,6 +70,8 @@ exports.vsettanLogin = function* (next) {
     }
     if (!project) return
     user.phone = project.phone
+    user.accountType = 'vsettan'
+    user.accountID = user.id
     if (!user || !user.username || !user.email || !user.phone) {
       logger.error('username, email, phone is require')
       self.redirect(redirect_url)
@@ -77,7 +82,10 @@ exports.vsettanLogin = function* (next) {
       userHaveProject = false
       logger.info('user have no project ', user)
     }
-    this.request.body = user
+    this.request.body = {
+      accountType: user.accountType,
+      accountID: user.id
+    }
     //verify is create or login
     const userInfo = yield spi.users.getBy([user.username, 'existence'])
     if (userInfo.data) {
@@ -86,10 +94,11 @@ exports.vsettanLogin = function* (next) {
       return
     }
     //create user
-    const createUser = yield spi.users.create(user)
+    user.accountDetail = JSON.stringify(user)
+    const createUser = yield spi.users.createBy(["vsettan"], null, user)
     //use userinfo login
     let api = apiFactory.getApi()
-    api = yield api.users.createBy(['login'], null, { username: user.userName, password: user.password }).then(result => {
+    api = yield api.users.createBy(['login'], null, { accountType: user.accountType, accountID: user.accountID }).then(result => {
       if (!userHaveProject) return
       api = apiFactory.getApi({
         user: result.userName,
