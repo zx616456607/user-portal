@@ -9,7 +9,7 @@
  */
 
 /**
- * Polyfill for Array.prototype.includes()
+ * Polyfill for `Array.prototype.includes()`
  */
 // https://tc39.github.io/ecma262/#sec-array.prototype.includes
 if (!Array.prototype.includes) {
