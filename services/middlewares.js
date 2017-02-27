@@ -102,6 +102,9 @@ exports.verifyUser = function* (next) {
       const userInfo = yield wechat.getUserInfo(access_token, accountID)
       data.accountDetail = JSON.stringify(userInfo)
     }
+  } else if(body.accountType == 'vsettan') {
+    data.accountType = body.accountType
+    data.accountID = body.accountID
   } else if ((!body.username && !body.email) || !body.password) {
     err = new Error('username(email), password are required.')
     err.status = 400
