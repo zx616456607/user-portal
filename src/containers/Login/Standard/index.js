@@ -385,7 +385,7 @@ let Login = React.createClass({
     let { nickname, headimgurl } = accountDetail
     headimgurl = headimgurl || ''
     headimgurl = headimgurl.replace('http:', '')
-    if (hash === WECHAT_BOUND_HASH) {
+    if (hash === WECHAT_BOUND_HASH && !isEmptyObject(accountDetail)) {
       return (
         <div className="login">
           <Row style={{ textAlign: 'center' }}>
@@ -412,7 +412,7 @@ let Login = React.createClass({
         </div>
       )
     }
-    if (hash === WECHAT_BOUND_LOGIN_HASH) {
+    if (hash === WECHAT_BOUND_LOGIN_HASH && !isEmptyObject(accountDetail)) {
       return (
         <div className="login">
           <Row style={{ textAlign: 'center' }}>
