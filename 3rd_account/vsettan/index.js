@@ -24,7 +24,7 @@ exports.vsettanLogin = function* (next) {
   const self = this
   try {
     //verify token and get user
-    let user = yield urllib.request(`${vsettanConfig.usr_url}/o/token/`, {
+    let user = yield urllib.request(`${vsettanConfig.user_url}/o/token/`, {
       method: 'GET',
       data: {
         access_token,
@@ -57,18 +57,29 @@ exports.vsettanLogin = function* (next) {
       dataType: 'json'
     }).then(result => {
       if (result.res.statusCode >= 300) {
-        logger.error('get user project faile ', user, result)
+        logger.error('get user project faile ', user, JSON.stringify(result))
         self.redirect(redirect_url)
         return
       }
       return result.data
     })
     if (user.username == 'admin') {
-        project = {
-          phone: '11111111111'
+        if(!project) {
+          project = {
+            phone: '11111111111',
+            amount: 0
+          }
+        } else {
+          if(!project.phone) {
+            project.phone = '11111111111'
+          }
+          project.amount = project.amount || 0
         }
-    }
+    } 
     if (!project) return
+    if(project.amount != undefined) {
+      user.defaultUserBalance = project.amount * 10000
+    }
     user.phone = project.phone
     user.accountType = 'vsettan'
     user.accountID = user.id
@@ -121,7 +132,7 @@ exports.vsettanLogin = function* (next) {
     yield next
     self.redirect('/')
   } catch (error) {
-    logger.error('vsettan login ', error)
+    logger.error('vsettan login ', JSON.stringify(error))
     self.redirect('/')
   }
 }
