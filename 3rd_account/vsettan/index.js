@@ -46,6 +46,7 @@ exports.vsettanLogin = function* (next) {
     user.username = user.username.replace(/_/g, '-')
     user.userName = user.username
     user.password = uuid.v4()
+    user.id = user.id.toString()
     user.is_3rd_account = 1
     //get project
     let project = yield urllib.request(`${vsettanConfig.project_url}/container/`, {
