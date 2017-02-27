@@ -111,12 +111,11 @@ const MyComponent = React.createClass({
     const { scope } = this.props;
     const { cluster, changeClusterNodeSchedule } = scope.props;
     let { nodeList } = scope.state;
+    let notification = new NotificationHandler()
     changeClusterNodeSchedule(cluster, node, e, {
       success: {
         func: ()=> {
-          notification['success']({
-            message: e ? '打开调度成功' : '暂停调度成功',
-          });
+          notification.success( e ? '打开调度成功' : '暂停调度成功');
           nodeList.map((item) => {
             if(item.objectMeta.name == node) {
               item.schedulable = e;
@@ -364,9 +363,7 @@ class clusterTabList extends Component {
             success: {
               func: (result) => {
                 let nodeList = result.data.clusters.nodes.nodes;
-                notification['success']({
-                  message: '主机节点删除成功',
-                });
+                notification.success('主机节点删除成功');
                 _this.setState({
                   nodeList: nodeList,
                   deleteNodeModal: false
@@ -398,6 +395,7 @@ class clusterTabList extends Component {
   openTerminalModal() {
     const { kubectlsPods } = this.props
     let { currentContainer } = this.state;
+    let notification = new NotificationHandler()
     if (currentContainer.length > 0) {
       this.setState({
         TerminalLayoutModal: true,
@@ -406,7 +404,6 @@ class clusterTabList extends Component {
     }
     const { namespace, pods } = kubectlsPods
     if (!pods || pods.length === 0) {
-      let notification = new NotificationHandler()
       notification.warn('没有可用终端节点，请联系管理员')
       return
     }
