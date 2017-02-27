@@ -12,7 +12,7 @@ const vsettanConfig = require('../../configs/3rd_account/vsettan.js')
 const urllib = require('urllib')
 const apiFactory = require('../../services/api_factory.js')
 const logger = require('../../utils/logger').getLogger('vsettan')
-const uuid = require('uuid')
+const uuid = require('node-uuid')
 
 exports.vsettanLogin = function* (next) {
   const access_token = this.query.access_token
@@ -43,7 +43,6 @@ exports.vsettanLogin = function* (next) {
     if (!user) return
     const spi = apiFactory.getTenxSysSignSpi({})
     // spi.user.get
-    console.log(user)
     user.username = user.username.replace(/_/g, '-')
     user.userName = user.username
     user.password = uuid.v4()
