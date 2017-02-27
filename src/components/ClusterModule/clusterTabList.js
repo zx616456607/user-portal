@@ -115,7 +115,7 @@ const MyComponent = React.createClass({
     changeClusterNodeSchedule(cluster, node, e, {
       success: {
         func: ()=> {
-          notification.success( e ? '打开调度成功' : '暂停调度成功');
+          notification.success(e ? '打开调度成功' : '暂停调度成功');
           nodeList.map((item) => {
             if(item.objectMeta.name == node) {
               item.schedulable = e;
