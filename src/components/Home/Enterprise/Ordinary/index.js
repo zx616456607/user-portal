@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  Storage list
+ *  node server list
  *
  * v0.1 - 2016/11/16
  * @author ZhaoXueYu
@@ -202,7 +202,6 @@ class Ordinary extends Component{
   render(){
     const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
       clusterNodeSummary,clusterDbServices,spaceName,clusterName,clusterNodeSpaceConsumption,isFetching} = this.props
-
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
       boxPos = (clusterStorage.usedSize/(clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(4)
@@ -240,7 +239,7 @@ class Ordinary extends Component{
     if(clusterNodeSummary.cpu.length !== 0){
       clusterNodeSummary.cpu.map((item,index) => {
         let name = item.name.replace(/192.168./,'')
-        CPUNameArr.push(name.length > 5 ? name.substring(name.length - 5) : name)
+        CPUNameArr.push(name)
         CPUUsedArr.push(item.used)
       })
     } else {
@@ -252,7 +251,7 @@ class Ordinary extends Component{
     if(clusterNodeSummary.memory.length !== 0){
       clusterNodeSummary.memory.map((item,index) => {
         let name = item.name.replace(/192.168./,'')
-        memoryNameArr.push(name.length > 5 ? name.substring(name.length - 5) : name)
+        memoryNameArr.push(name)
         memoryUsedArr.push(item.used)
       })
     } else {
@@ -264,7 +263,7 @@ class Ordinary extends Component{
     if(clusterNodeSummary.storage.length !== 0){
       clusterNodeSummary.storage.map((item,index) => {
         let name = item.name.replace(/192.168./,'')
-        diskNameArr.push(name.length > 5 ? name.substring(name.length - 5) : name)
+        diskNameArr.push(name)
         // diskNameArr.push(item.name)
         diskUsedArr.push((item.used))
       })
@@ -755,13 +754,7 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={10} className='sysState'>
-            <Spin spinning={
-              clusterSysinfo.k8s.status === '' ||
-              clusterSysinfo.dns.status === '' ||
-              clusterSysinfo.apiserver.status === '' ||
-              clusterSysinfo.monitor.status === '' ||
-              clusterSysinfo.logging.status === ''
-            }>
+            <Spin spinning={ isFetching }>
               <Card title="系统状态和版本" bordered={false} bodyStyle={{height:220}}>
                 <table>
                   <tbody>
@@ -1256,7 +1249,6 @@ function getDbServiceStatus(data) {
 
 function mapStateToProp(state,props) {
   const { current } = state.entities
-  let isFetching = true
   let clusterOperationsData = {
     appCreate: 0,
     appModify: 0,
@@ -1323,8 +1315,8 @@ function mapStateToProp(state,props) {
 
   const {clusterOperations, clusterSysinfo, clusterStorage,
     clusterAppStatus, clusterDbServices, clusterNodeSummary, clusterInfo} = state.overviewCluster
+  const isFetching = clusterInfo.isFetching
   if (clusterInfo.result && clusterInfo.result) {
-    isFetching = clusterInfo.isFetching
     if (clusterInfo.result.operations) {
       if (clusterInfo.result.operations.app) {
         let data = clusterInfo.result.operations.app
