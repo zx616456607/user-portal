@@ -14,7 +14,7 @@ const config = {
   client_id: env.CLIENT_ID,
   client_secret: env.CLIENT_SECRET,
   redirect_url: env.REDIRECT_URL,
-  usr_url: env.USER_URL,
+  user_url: env.USER_URL,
   project_url: env.PROJECT_URL
 }
 
