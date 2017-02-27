@@ -70,5 +70,10 @@ export default function team(state = {
       SUCCESS: ActionTypes.GET_TEAM_DETAIL_SUCCESS,
       FAILURE: ActionTypes.GET_TEAM_DETAIL_FAILURE
     }, state.teamDetail, action, options),
+    requestTeamCluster: reducerFactory({
+      REQUEST: ActionTypes.TEAM_REQUEST_CLUSTER_REQUEST,
+      SUCCESS: ActionTypes.TEAM_REQUEST_CLUSTER_SUCCESS,
+      FAILURE: ActionTypes.TEAM_REQUEST_CLUSTER_FAILURE
+    }, state.requestTeamCluster, action, options),
   }
 }

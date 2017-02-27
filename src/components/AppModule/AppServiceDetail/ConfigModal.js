@@ -63,7 +63,12 @@ class ConfigModal extends Component {
       cpu = parseInt(cpu)
       cpu /= 1000
     }
-    let composeType = memory.indexOf('Gi') > -1 ? parseInt(memory) * 1024 : parseInt(memory)
+    if (memory.indexOf('Gi') > -1) {
+      memory = parseInt(memory) * 1024
+    } else {
+      memory = parseInt(memory)
+    }
+    let composeType = memory
     if (PRESET_MEMORY_ARRAY.indexOf(composeType) < 0) {
       composeType = RESOURCES_DIY
     }
