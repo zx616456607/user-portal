@@ -21,6 +21,7 @@ import {
   RESOURCES_CPU_STEP,
   RESOURCES_CPU_MIN,
   RESOURCES_DIY,
+  SYSTEM_DEFAULT_SCHEDULE,
 } from '../../../../constants'
 import { appNameCheck, validateK8sResourceForServiceName } from '../../../../common/naming_validation'
 import { loadImageDetailTag, loadImageDetailTagConfig, getOtherImageTag, loadOtherDetailTagConfig } from '../../../../actions/app_center'
@@ -796,7 +797,7 @@ let NormalDeployBox = React.createClass({
       rules: [
         { required: true },
       ],
-      initialValue: 'default',
+      initialValue: SYSTEM_DEFAULT_SCHEDULE,
     })
     let imageVersion = getFieldValue('imageVersion');
     let switchDisable = false
@@ -989,7 +990,7 @@ let NormalDeployBox = React.createClass({
                   optionFilterProp="children"
                   notFoundContent="无法找到"
                 >
-                  <Option value="default">使用系统默认调度</Option>
+                  <Option value={SYSTEM_DEFAULT_SCHEDULE}>使用系统默认调度</Option>
                   {
                     clusterNodes.map(node => {
                       const { name, ip, podCount } = node

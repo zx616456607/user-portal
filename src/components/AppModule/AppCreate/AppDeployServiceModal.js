@@ -24,6 +24,7 @@ import {
   RESOURCES_MEMORY_MIN,
   RESOURCES_CPU_MIN,
   RESOURCES_DIY,
+  SYSTEM_DEFAULT_SCHEDULE,
 } from '../../../constants'
 import { ENTERPRISE_MODE } from '../../../../configs/constants'
 import { K8S_NODE_SELECTOR_KEY } from '../../../../constants'
@@ -510,7 +511,9 @@ let AppDeployServiceModal = React.createClass({
           return
       }
     })(composeType)
-    deploymentList.setNodeSelector(bindNode)
+    if (bindNode !== SYSTEM_DEFAULT_SCHEDULE) {
+      deploymentList.setNodeSelector(bindNode)
+    }
     /*Deployment*/
     deploymentList.setReplicas(instanceNum)
     deploymentList.addContainer(serviceName, image)
