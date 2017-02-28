@@ -75,7 +75,10 @@ function cpuUsed(cpuTotal, cpuList, name) {
     }
   }
   // 1h and to 100%
-  used = total / cpuTotal /length;
+  if (!length) {
+    length = 1
+  }
+  used = total / cpuTotal / length;
   used = ( used * 100 ).toFixed(2);
   return used;
 }
@@ -97,6 +100,9 @@ function memoryUsed(memoryTotal, memoryList, name) {
   }
   used = total / memoryTotal;
   // 1h and to 100%
+  if (!length) {
+    length = 1
+  }
   used = (used * 100 / length).toFixed(2);
   return used;
 }
