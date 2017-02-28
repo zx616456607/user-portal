@@ -17,7 +17,7 @@ import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
 import { loadMergedLicense } from '../../../actions/license'
 import { isAdminPasswordSet} from '../../../actions/admin'
 import { browserHistory } from 'react-router'
-import { genRandomString } from '../../../common/tools'
+import { genRandomString, clearSessionStorage } from '../../../common/tools'
 import Top from '../../../components/Top'
 
 const createForm = Form.create
@@ -227,6 +227,8 @@ let Login = React.createClass({
   },
 
   componentWillMount() {
+    // Clear sessionStorage when login
+    clearSessionStorage()
     const { resetFields } = this.props.form
     resetFields()
     const _this = this
