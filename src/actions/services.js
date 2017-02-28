@@ -316,7 +316,7 @@ function fetchContainersAllEvents(cluster, serviceName) {
     serviceName,
     [FETCH_API]: {
       types: [CONTAINERS_ALL_EVENTS_REQUEST, CONTAINERS_ALL_EVENTS_SUCCESS, CONTAINERS_ALL_EVENTS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/service/${serviceName}/containers/events`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/service/${serviceName}/pods/events`,
       schema: {}
     }
   }

@@ -99,7 +99,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/rollingupdate', serviceController.rollingUpdateService)
   router.get('/clusters/:cluster/replicaset/:service_name/events', serviceController.getReplicasetDetailEvents)
   router.get('/clusters/:cluster/dbservice/:service_name/events', serviceController.getDbServiceDetailEvents)
-  router.get('/clusters/:cluster/service/:service_name/containers/events', serviceController.getPodsEventByDeploymentName)
+  router.get('/clusters/:cluster/service/:service_name/pods/events', serviceController.getPodsEventByServicementName)
   router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
   router.get('/clusters/:cluster/services/:service_name/k8s-service', serviceController.getK8sService)
   router.get('/clusters/:cluster/services', serviceController.getAllService)

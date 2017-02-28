@@ -362,14 +362,14 @@ exports.getReplicasetDetailEvents = function* () {
 }
 
 //get deployment all pods event
-exports.getPodsEventByDeploymentName = function* () {
-  const deploymentName = this.params.service_name
+exports.getPodsEventByServicementName = function* () {
+  const serviceName = this.params.service_name
   const cluster = this.params.cluster
   const api = apiFactory.getK8sApi(this.session.loginUser)
-  const result = yield api.getBy([cluster, 'pods', deploymentName, 'events'])
+  const result = yield api.getBy([cluster, 'services', serviceName, 'pods' ,'events'])
   this.body = {
     cluster,
-    deploymentName,
+    serviceName,
     data: result.data || []
   }
 }
