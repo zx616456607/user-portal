@@ -167,7 +167,7 @@ class ServiceList extends Component {
 
   componentWillMount() {
     let forCacheServiceList = localStorage.getItem('forCacheServiceList');
-    if(!forCacheServiceList) {      
+    if(!forCacheServiceList) {
       localStorage.removeItem('servicesList')
       localStorage.removeItem('selectedList')
       localStorage.setItem('forCacheServiceList', false)
@@ -416,7 +416,7 @@ class ServiceList extends Component {
               <span className="keys">计算资源：<span className="unit">{configData.cpu}C/{configData.memory }G </span></span>
             </div>
             <div className="price-unit">合计：<span className="unit">{ countPrice.unit =='￥'? '￥':'' }</span>
-              <span className="unit blod">{ hourPrice.amount }{ countPrice.unit =='￥'? '':'T' }/小时</span>
+              <span className="unit blod">{ hourPrice.amount }{ countPrice.unit =='￥'? '':' T' }/小时</span>
               <span className="unit monthUnit">（约：{ countPrice.fullAmount }/月）</span>
             </div>
           </div>

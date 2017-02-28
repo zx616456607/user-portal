@@ -28,19 +28,19 @@ let TeamList = React.createClass ({
             <svg className="infSvg" style={{marginRight:8}}>
               <use xlinkHref="#settingname" />
             </svg>
-            <span className="infSvgTxt">名称</span>
+            <span className="infSvgTxt">团队名称</span>
           </Col>
           <Col span={4}>
             <svg className="infSvg" style={{marginRight:8}}>
               <use xlinkHref="#settingperspace" />
             </svg>
-            <span className="infSvgTxt">空间</span>
+            <span className="infSvgTxt">空间数</span>
           </Col>
           <Col span={4}>
             <svg className="infSvg" style={{marginRight:8}}>
               <use xlinkHref="#settingcluster" />
             </svg>
-            <span className="infSvgTxt">集群</span>
+            <span className="infSvgTxt">集群数</span>
           </Col>
         </Row>
         {

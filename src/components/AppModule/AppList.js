@@ -301,6 +301,7 @@ let MyComponent = React.createClass({
           <div className='appName commonData'>
             <Tooltip title={item.name}>
               <Link to={`/app_manage/detail/${item.name}`} >
+                {/*<span className="indexOf">{item.name.substr(0,1)}</span>*/}
                 {item.name}
               </Link>
             </Tooltip>

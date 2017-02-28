@@ -72,7 +72,7 @@ class UserInfo extends Component {
         </Row>
         { (userDetail.role == ROLE_TEAM_ADMIN || userDetail.role == ROLE_SYS_ADMIN) ?  
         <Row className="title">
-          <Col>团队</Col>
+          <Col>所属团队</Col>
         </Row> : <div></div>
         }
         { (userDetail.role == ROLE_TEAM_ADMIN || userDetail.role == ROLE_SYS_ADMIN) ?

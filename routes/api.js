@@ -32,6 +32,7 @@ const integrationController = require('../controllers/integration')
 const consumptionController = require('../controllers/consumption')
 const clusternodesController = require('../controllers/cluster_node')
 const versionsController = require('../controllers/versions')
+const chargeController = require('../controllers/charge')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -320,8 +321,7 @@ module.exports = function (Router) {
   // Token info
   router.get('/token', tokenController.getTokenInfo)
 
-  // License
-  router.get('/license', licenseController.getLicense)
+  // Licenses
   router.get('/licenses', licenseController.getLicenses)
 
   // consumption and charge
@@ -334,6 +334,10 @@ module.exports = function (Router) {
 
   // Versions
   router.get('/versions/check', versionsController.checkVersion)
+
+  // Charge
+  router.post('/charge/user', chargeController.chargeUser)
+  router.post('/charge/teamspace', chargeController.chargeTeamspace)
 
   return router.routes()
 }
