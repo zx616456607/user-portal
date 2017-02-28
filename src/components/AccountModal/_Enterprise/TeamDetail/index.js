@@ -631,7 +631,7 @@ class TeamDetail extends Component {
                 成员数({teamUsersTotal})
               </Col>
               <Col span={6}>
-                <Button type="primary" size="large" icon="plus" className="addBtn"
+                <Button type="primary" size="large" icon="plus"
                   onClick={this.addNewMember}>
                   添加新成员
                 </Button>
@@ -664,7 +664,7 @@ class TeamDetail extends Component {
                 团队空间 ({teamSpacesTotal})
               </Col>
               <Col span={6}>
-                <Button type="primary" size="large" icon="plus" className="addBtn"
+                <Button type="primary" size="large" icon="plus"
                   onClick={this.addNewSpace}>
                   创建新空间
                 </Button>
