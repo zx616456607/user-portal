@@ -15,8 +15,8 @@ exports.chargeUser = function* () {
   const loginUser = this.session.loginUser
   const spi = apiFactory.getSpi(loginUser)
   const chargeInfo = this.request.body
-  if (!chargeInfo || !chargeInfo.ids || !chargeInfo.amount) {
-    const err = new Error('ids and amount are required.')
+  if (!chargeInfo || !chargeInfo.namespaces || !chargeInfo.amount) {
+    const err = new Error('namespaces and amount are required.')
     err.status = 400
     throw err
   }
@@ -28,8 +28,8 @@ exports.chargeTeamspace = function* () {
   const loginUser = this.session.loginUser
   const spi = apiFactory.getSpi(loginUser)
   const chargeInfo = this.request.body
-  if (!chargeInfo || !chargeInfo.ids || !chargeInfo.amount) {
-    const err = new Error('ids and amount are required.')
+  if (!chargeInfo || !chargeInfo.namespaces || !chargeInfo.amount) {
+    const err = new Error('namespaces and amount are required.')
     err.status = 400
     throw err
   }

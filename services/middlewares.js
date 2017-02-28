@@ -124,7 +124,6 @@ exports.verifyUser = function* (next) {
       throw err
     }
   }*/
-  delete this.session.wechat_account_id
   if (body.password) {
     data.password = body.password
   }
@@ -141,6 +140,7 @@ exports.verifyUser = function* (next) {
   let result = {}
   try {
     result = yield api.users.createBy(['login'], null, data)
+    delete this.session.wechat_account_id
   } catch (err) {
     if (body.accountType === 'wechat' && err.statusCode === 404) {
       this.session.wechat_account_id = accountID // add back for bind wechat

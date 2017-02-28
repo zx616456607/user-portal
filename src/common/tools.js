@@ -395,3 +395,7 @@ export function memoryFormat(resources) {
 export function isStandardMode() {
   return !enterpriseFlag
 }
+
+export function clearSessionStorage() {
+  sessionStorage && sessionStorage.clear()
+}

@@ -25,6 +25,7 @@ import {
   TENX_PORTAL_VERSION_KEY,
   TENX_PORTAL_VERSION_MAJOR_KEY,
   VERSION_REG_EXP,
+  SESSION_STORAGE_TENX_HIDE_DOT_KEY,
 } from '../../constants'
 import { browserHistory } from 'react-router'
 import NotificationHandler from '../../common/notification_handler'
@@ -119,6 +120,23 @@ function getPortalMode() {
   return major
 }
 
+function getHideDot() {
+  if (!sessionStorage) {
+    return false
+  }
+  if (!sessionStorage[SESSION_STORAGE_TENX_HIDE_DOT_KEY]) {
+    return false
+  }
+  return true
+}
+
+function setHideDot() {
+  if (!sessionStorage) {
+    return false
+  }
+  sessionStorage.setItem(SESSION_STORAGE_TENX_HIDE_DOT_KEY, Date.now())
+}
+
 class Header extends Component {
   constructor(props) {
     super(props)
@@ -134,6 +152,7 @@ class Header extends Component {
       version: getVersion(),
       type: getPortalMode(),
       checkVersionErr: null,
+      hideDot: getHideDot(),
       upgradeVersionModalVisible: false,
     }
   }
@@ -286,8 +305,10 @@ class Header extends Component {
   showUpgradeVersionModal() {
     this.setState(({
       upgradeVersionModalVisible: true,
+      hideDot: true,
     }))
     this._checkLiteVersion()
+    setHideDot()
   }
 
   renderCheckVersionContent() {
@@ -349,6 +370,7 @@ class Header extends Component {
       clustersVisible,
       upgradeVersionModalVisible,
       type,
+      hideDot,
     } = this.state
     teamspaces.map((space) => {
       mode === standard
@@ -426,7 +448,7 @@ class Header extends Component {
               <img src={backOldBtn} />
             </div>
             <span className='backText'>
-              <Badge dot={!checkVersionContent.isLatest}>升级版本</Badge>
+              <Badge dot={!hideDot && !checkVersionContent.isLatest}>升级版本</Badge>
             </span>
           </div>
         }
