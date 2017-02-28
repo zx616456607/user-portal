@@ -12,7 +12,7 @@ import { Checkbox, Dropdown, Button, Card, Menu, Icon, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { loadServiceDetailEvents } from '../../../actions/services'
+import { loadServiceDetailEvents, loadContainersAllEvents } from '../../../actions/services'
 import { calcuDate } from '../../../common/tools.js'
 import CommonStatus from '../../CommonStatus'
 import './style/AppServiceEvent.less'
@@ -20,6 +20,7 @@ import './style/AppServiceEvent.less'
 function loadData(props) {
   const { cluster, serviceName, type } = props;
   props.loadServiceDetailEvents(cluster, serviceName, type);
+  props.loadContainersAllEvents(cluster, serviceName)
 }
 
 var MyComponent = React.createClass({
@@ -27,9 +28,42 @@ var MyComponent = React.createClass({
     config: React.PropTypes.array,
     isFetching: React.PropTypes.bool,
   },
+  getContainerEvent(message) {
+    let podname = message.replace('Created pod: ', '')
+    const { containersAllEvent } = this.props
+    const result = []
+    if (containersAllEvent.result) {
+        containersAllEvent.result.data.events.forEach(event => {
+        const name = event.objectMeta.name.split('.')[0]
+        if (name == podname) {
+          result.push(<div className='containerDetail' key={event.id}>
+            <div className='infoBox'>
+              <div className='status'>
+                <div className={event.type == 'Normal' ? 'icon fa fa-check-circle success' : 'icon fa fa-times-circle fail'}>
+                </div>
+                <span className='commonSpan'>
+                  <CommonStatus status={event.type} content={event.reason} />
+                </span>
+              </div>
+              <div className='message'>
+                消息&nbsp;:&nbsp;{event.message}
+              </div>
+              <div className='createTime'>
+                <span className='commonSpan'>
+                  {calcuDate(event.lastSeen)}
+                </span>
+              </div>
+            </div>
+            <div style={{ clear: 'both' }}></div>
+          </div>)
+        }
+      })
+    }
+    return result
+  },
   render: function () {
     const { isFetching, config } = this.props;
-    if (isFetching) {
+    if (isFetching || this.props.containersAllEvent.isFetching) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -43,9 +77,8 @@ var MyComponent = React.createClass({
         </div>
       )
     }
-    var items = config.map((item) => {
-      return (
-        <div className='eventDetail' key={item.id}>
+    var items = config.reverse().map((item, index) => {
+        return <div className='eventDetail' key={item.id}>
           <div className='iconBox'>
             <div className='line'></div>
             <div className={item.type == 'Normal' ? 'icon fa fa-check-circle success' : 'icon fa fa-times-circle fail'}>
@@ -65,11 +98,11 @@ var MyComponent = React.createClass({
                 {calcuDate(item.lastSeen)}
               </span>
             </div>
+            {item.reason == 'SuccessfulCreate' ? this.getContainerEvent(item.message) : ''}
           </div>
           <div style={{ clear: 'both' }}></div>
         </div>
-      );
-    });
+      })
     return (
       <div className='logBox'>
         {items}
@@ -86,12 +119,19 @@ class AppServiceEvent extends Component {
   componentWillMount() {
     loadData(this.props);
   }
+  componentWillReceiveProps(nextProps) {
+    const { serviceDetailmodalShow, service } = nextProps
+    if (serviceDetailmodalShow && serviceDetailmodalShow != this.props.serviceDetailmodalShow) {
+      loadData(nextProps)
+      return
+    }
+  }
 
   render() {
-    const { isFetching, eventList } = this.props;
+    const { isFetching, eventList, containersAllEvent } = this.props;
     return (
       <Card id='AppServiceEvent'>
-        <MyComponent isFetching={isFetching} config={eventList} />
+        <MyComponent isFetching={isFetching} config={eventList} containersAllEvent={containersAllEvent}/>
       </Card>
     )
   }
@@ -108,9 +148,10 @@ function mapStateToProps(state, props) {
   const defaultEvents = {
     isFetching: false,
     cluster: props.cluster,
-    eventList: []
+    eventList: [],
+    containerEvent: []
   }
-  const { serviceDetailEvents } = state.services
+  const { serviceDetailEvents, containersAllEvent } = state.services
   let targetServices
   if (serviceDetailEvents[props.cluster] && serviceDetailEvents[props.cluster][props.serviceName]) {
     targetServices = serviceDetailEvents[props.cluster][props.serviceName]
@@ -119,10 +160,12 @@ function mapStateToProps(state, props) {
 
   return {
     eventList,
-    isFetching
+    isFetching,
+    containersAllEvent: containersAllEvent || {}
   }
 }
 
 export default connect(mapStateToProps, {
-  loadServiceDetailEvents
+  loadServiceDetailEvents,
+  loadContainersAllEvents
 })(AppServiceEvent)

@@ -361,6 +361,19 @@ exports.getReplicasetDetailEvents = function* () {
   }
 }
 
+//get deployment all pods event
+exports.getPodsEventByDeploymentName = function* () {
+  const deploymentName = this.params.service_name
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.getBy([cluster, 'pods', deploymentName, 'events'])
+  this.body = {
+    cluster,
+    deploymentName,
+    data: result.data || []
+  }
+}
+
 // Use services for petset events
 exports.getDbServiceDetailEvents = function* () {
   //this function for user get the events of detail service

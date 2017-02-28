@@ -304,6 +304,32 @@ export function loadServiceDetailEvents(cluster, serviceName, type) {
   }
 }
 
+export const CONTAINERS_ALL_EVENTS_REQUEST = 'CONTAINERS_ALL_EVENTS_REQUEST'
+export const CONTAINERS_ALL_EVENTS_SUCCESS = 'CONTAINERS_ALL_EVENTS_SUCCESS'
+export const CONTAINERS_ALL_EVENTS_FAILURE = 'CONTAINERS_ALL_EVENTS_FAILURE'
+
+// Fetches service list from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchContainersAllEvents(cluster, serviceName) {
+  return {
+    cluster,
+    serviceName,
+    [FETCH_API]: {
+      types: [CONTAINERS_ALL_EVENTS_REQUEST, CONTAINERS_ALL_EVENTS_SUCCESS, CONTAINERS_ALL_EVENTS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/service/${serviceName}/containers/events`,
+      schema: {}
+    }
+  }
+}
+
+// Fetches services list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadContainersAllEvents(cluster, serviceName, type) {
+  return (dispatch, getState) => {
+    return dispatch(fetchContainersAllEvents(cluster, serviceName, type))
+  }
+}
+
 
 export const SERVICE_LOGS_REQUEST = 'SERVICE_LOGS_REQUEST'
 export const SERVICE_LOGS_SUCCESS = 'SERVICE_LOGS_SUCCESS'
