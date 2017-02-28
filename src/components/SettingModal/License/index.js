@@ -19,6 +19,10 @@ const createForm = Form.create;
 const FormItem = Form.Item;
 
 let LicenseKey = React.createClass ({
+  changeValue(e) {
+    // fix in ie input change value issue
+    this.props.form.setFieldsValue({'rePasswd': e.target.value})
+  },
   activeLicense() {
     const parentScope = this.props.scope
     const { validateFields } = this.props.form
@@ -61,7 +65,7 @@ let LicenseKey = React.createClass ({
           <Button onClick={()=> parentScope.setState({activeClick: false})}>取消</Button>
         </FormItem>
         <FormItem hasFeedback>
-          <Input type="textarea" {...rePasswdProps} style={{maxHeight: 200}}/>
+          <Input type="textarea" onInput={(e)=> this.changeValue(e)} {...rePasswdProps} style={{maxHeight: 200}}/>
         </FormItem>
         </Form>
       </div>
@@ -146,6 +150,12 @@ class License extends Component {
       });
     }, 500);
   }
+  onCharge() {
+    this.setState({activeClick: true})
+    setTimeout(function(){
+      document.getElementById('rePasswd').focus()
+    }, 300)
+  }
   lincenseList(data) {
     if (!data || data.length == 0) {
       return (<tr><td colSpan="7" className="text-center"><Icon type="frown" />&nbsp;暂无数据</td></tr>)
@@ -206,7 +216,7 @@ class License extends Component {
               <LicenseKey scope={this} />
             :
             <div className="ant-col-20">
-              <Button type="primary" size="large" onClick={()=> this.setState({activeClick: true})} style={{marginRight:'40px'}}>立即授权</Button>
+              <Button type="primary" size="large" onClick={()=> this.onCharge()} style={{marginRight:'40px'}}>立即授权</Button>
                {
                  license.licenses.length > 0 ? [ <Icon type="check-circle" className="success" />,' 已激活',<span className="dataKey">有效期至：{ formatDate(license.merged.end || '') } </span>]
                  :
@@ -233,7 +243,7 @@ class License extends Component {
         <Card  className="licenseWrap">
           <table className="list-table" >
             <thead className="ant-table-thead">
-              <tr><th ><span>完整 License</span></th>
+              <tr><th ><span>License ID</span></th>
               <th ><span>最大节点数</span></th><th ><span>生效时间</span></th>
               <th ><span>失效时间</span></th><th ><span>有效时长</span></th>
               <th ><span>添加时间</span></th><th ><span>操作人</span></th></tr>

@@ -128,7 +128,7 @@ let CreateSpaceModal = React.createClass({
             {...formItemLayout}
             label="名称"
             hasFeedback
-            help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
+            help={isFieldValidating('spacename') ? '校验中...' : (getFieldError('spacename') || []).join(', ')}
             >
             <Input {...nameProps} placeholder="新空间名称" />
           </FormItem>
