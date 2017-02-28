@@ -22,6 +22,7 @@ import AppAddStackModal from './AppAddStackModal'
 import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../common/notification_handler'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
+import { SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -71,7 +72,7 @@ class ComposeFile extends Component {
   }
   componentWillMount() {
     const { templateid } = this.props.location.query
-    const { externalIPs } = this.props
+    const { externalIPs, loginUser } = this.props
     const self = this
     if (templateid) {
       this.props.loadStackDetail(templateid, {
@@ -89,6 +90,10 @@ class ComposeFile extends Component {
                     // Update external IP to current cluster one
                     if ((!yamlObj.spec.externalIPs ||  yamlObj.spec.externalIPs == "") && externalIPs) {
                       yamlObj.spec.externalIPs = eval(externalIPs)
+                    }
+                    // Update proxy type to NodePort if proxy is kube-nodeport
+                    if (loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT) {
+                      yamlObj.spec.type = 'NodePort'
                     }
                   }
                   convertedContent += yaml.dump(yamlObj)
@@ -373,8 +378,10 @@ ComposeFile.propTypes = {
   intl: PropTypes.object.isRequired,
 }
 function mapStateToProps(state) {
+  const { loginUser } = state.entities
   const { cluster } = state.entities.current
   return {
+    loginUser: loginUser,
     cluster: cluster.clusterID,
     externalIPs: cluster.publicIPs,
     createApp: state.apps.createApp,
