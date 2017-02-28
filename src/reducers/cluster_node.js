@@ -28,7 +28,7 @@ function getAllClusterNodes(state = {}, action) {
         isFetching: false,
         nodes: action.response.result.data || {}
       })
-    case ActionTypes.GET_ALL_INTEGRATION_LIST_FAILURE:
+    case ActionTypes.GET_ALL_CLUSTER_NODES_FAILURE:
       return merge({}, defaultState, state, {
         isFetching: false
       })
