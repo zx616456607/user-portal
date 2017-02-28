@@ -424,19 +424,6 @@ class clusterTabList extends Component {
       }],
       TerminalLayoutModal: true,
     })
-    if(!hadFlag) {
-      let body = {
-        metadata: {
-          namespace: 'kube-system',
-          name: 'temp'
-        }
-      }
-      currentContainer.push(body)
-    }
-    this.setState({
-      currentContainer: currentContainer,
-      TerminalLayoutModal: true
-    });
   }
 
   handleAddClusterNode() {
