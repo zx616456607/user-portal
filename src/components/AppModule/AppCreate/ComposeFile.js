@@ -22,6 +22,7 @@ import AppAddStackModal from './AppAddStackModal'
 import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../common/notification_handler'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
+import { SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -71,7 +72,7 @@ class ComposeFile extends Component {
   }
   componentWillMount() {
     const { templateid } = this.props.location.query
-    const { externalIPs } = this.props
+    const { externalIPs, loginUser } = this.props
     const self = this
     if (templateid) {
       this.props.loadStackDetail(templateid, {
@@ -89,6 +90,10 @@ class ComposeFile extends Component {
                     // Update external IP to current cluster one
                     if ((!yamlObj.spec.externalIPs ||  yamlObj.spec.externalIPs == "") && externalIPs) {
                       yamlObj.spec.externalIPs = eval(externalIPs)
+                    }
+                    // Update proxy type to NodePort if proxy is kube-nodeport
+                    if (loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT) {
+                      yamlObj.spec.type = 'NodePort'
                     }
                   }
                   convertedContent += yaml.dump(yamlObj)
@@ -120,7 +125,7 @@ class ComposeFile extends Component {
     })
   }
   subApp() {
-    const {appName, appDescYaml, remark} = this.state
+    const { appName, appDescYaml, remark } = this.state
     const { cluster } = this.props
     let notification = new NotificationHandler()
     this.props.form.validateFields((errors, values) => {
@@ -138,6 +143,9 @@ class ComposeFile extends Component {
         notification.error('请选择编排文件')
         return
       }
+      this.setState({
+        createDisabled: true,
+      })
       this.props.createApp(appConfig, {
         success: {
           func: () => {
@@ -149,6 +157,16 @@ class ComposeFile extends Component {
             localStorage.removeItem('selectedList')
             localStorage.removeItem('transientAppName')
             browserHistory.push('/app_manage')
+          },
+          isAsync: true
+        },
+        failed: {
+          func: err => {
+            this.setState({
+              createDisabled: false,
+            })
+            const { message } = err
+            notification.error('创建应用失败', message.message)
           },
           isAsync: true
         },
@@ -373,8 +391,10 @@ ComposeFile.propTypes = {
   intl: PropTypes.object.isRequired,
 }
 function mapStateToProps(state) {
+  const { loginUser } = state.entities
   const { cluster } = state.entities.current
   return {
+    loginUser: loginUser,
     cluster: cluster.clusterID,
     externalIPs: cluster.publicIPs,
     createApp: state.apps.createApp,

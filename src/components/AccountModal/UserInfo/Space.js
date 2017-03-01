@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Button, Popover, Spin, } from 'antd'
+import { Row, Col, Button, Popover, Spin, Modal } from 'antd'
 import './style/Space.less'
 import { browserHistory } from 'react-router'
 import { setCurrent } from '../../../actions/entities'
@@ -17,6 +17,9 @@ import { connect } from 'react-redux'
 import PopContent from '../../PopSelect/Content'
 import NotificationHandler from '../../../common/notification_handler'
 import { parseAmount } from '../../../common/tools'
+import SpaceRecharge from '../_Enterprise/Recharge/SpaceRecharge'
+import { ROLE_SYS_ADMIN } from '../../../../constants'
+
 
 let PersonalSpace = React.createClass({
   getInitialState() {
@@ -92,13 +95,14 @@ let TeamSpace = React.createClass({
   render: function () {
     let firstRow = true
     let className = ""
+    const { userDetail } = this.props
     const {
       teamspaces,
       isTeamClustersFetching,
       teamClusters,
       teamID,
     } = this.props
-    let items = teamspaces.map((teamspace) => {
+    let items = teamspaces.map((teamspace, index) => {
       if (firstRow) {
         className = "contentList firstItem"
         firstRow = false
@@ -113,12 +117,12 @@ let TeamSpace = React.createClass({
       return (
         <Row className={className} key={teamspace.spaceName}>
           <Col span={4}>{teamspace.spaceName}</Col>
-          <Col span={7}>{teamspace.teamName}</Col>
+          <Col span={5}>{teamspace.teamName}</Col>
           <Col span={2}>{teamspace.appCount}</Col>
           <Col span={2}>{teamspace.serviceCount}</Col>
           <Col span={2}>{teamspace.containerCount}</Col>
           <Col span={3}>{parseAmount(teamspace.balance).fullAmount}</Col>
-          <Col span={4}>
+          <Col span={6}>
             <Popover
               placement="right"
               title={text}
@@ -133,6 +137,10 @@ let TeamSpace = React.createClass({
               onVisibleChange={this.handleVisibleChange.bind(this, teamspace)}>
               <Button type="primary">进入空间</Button>
             </Popover>
+            {(userDetail.role == ROLE_SYS_ADMIN) ?
+              <Button type="primary" style={{marginLeft:'20px'}} onClick={()=>　this.props.scope.btnRecharge(index)}>充值</Button>
+              :null
+            }
           </Col>
         </Row>
       )
@@ -144,13 +152,13 @@ let TeamSpace = React.createClass({
             <svg className="infSvg" style={{ marginRight: 8 }}>
               <use xlinkHref="#settingname" />
             </svg>
-            <span className="infSvgTxt">名称</span>
+            <span className="infSvgTxt">空间名称</span>
           </Col>
-          <Col span={7}>
+          <Col span={5}>
             <svg className="infSvg" style={{ marginRight: 8 }}>
               <use xlinkHref="#settingownteam" />
             </svg>
-            <span className="infSvgTxt">所属团队</span>
+            <span className="infSvgTxt">空间所属团队</span>
           </Col>
           <Col span={2}>
             <svg className="infSvg" style={{ marginRight: 8 }}>
@@ -176,7 +184,7 @@ let TeamSpace = React.createClass({
             </svg>
             <span className="infSvgTxt">余额</span>
           </Col>
-          <Col span={4}>
+          <Col span={6}>
             <svg className="infSvg" style={{ marginRight: 8 }}>
               <use xlinkHref="#settingopt" />
             </svg>
@@ -192,7 +200,9 @@ let TeamSpace = React.createClass({
 function mapStateToProps(state, props) {
   const { current } = state.entities
   const { teamClusters } = state.team
+  const userDetail = state.entities.loginUser.info
   return {
+    userDetail,
     current,
     isTeamClustersFetching: teamClusters.isFetching,
     teamClusters: (teamClusters.result ? teamClusters.result.data : []),
@@ -210,8 +220,12 @@ export default class Space extends Component {
   constructor(props) {
     super(props)
     this.state = {
-
+      spaceVisible: false,
+      selected: []
     }
+  }
+  btnRecharge(index) {
+    this.setState({selected: [index], spaceVisible: true})
   }
   render() {
     const {userDetail, appCount, serviceCount, containerCount, teamspaces} = this.props
@@ -242,9 +256,16 @@ export default class Space extends Component {
             </span>
           </div>
           <div className="spaceContent">
-            <TeamSpace teamspaces={teamspaces} />
+            <TeamSpace teamspaces={teamspaces} scope={this} />
           </div>
         </Row>
+        {/* 空间充值 */}
+        <Modal title="团队空间充值" visible={this.state.spaceVisible}
+          width={600}
+          footer={null}
+        >
+          <SpaceRecharge parentScope={this} selected={this.state.selected} teamSpacesList={this.props.teamspaces} teamList={'default'}/>
+        </Modal>
       </div>
     )
   }

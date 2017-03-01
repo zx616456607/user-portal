@@ -127,3 +127,26 @@ export function getAddNodeCMD(cluster, callback) {
     return dispatch(fetchAddNodeCMD(cluster, callback))
   }
 }
+
+// For bind node when create service(lite only)
+export const GET_NODES_REQUEST = 'GET_NODES_REQUEST'
+export const GET_NODES_SUCCESS = 'GET_NODES_SUCCESS'
+export const GET_NODES_FAILURE = 'GET_NODES_FAILURE'
+
+function fetchNodes(cluster, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [GET_NODES_REQUEST, GET_NODES_SUCCESS, GET_NODES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/nodes`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getNodes(cluster, callback) {
+  return (dispatch) => {
+    return dispatch(fetchNodes(cluster, callback))
+  }
+}

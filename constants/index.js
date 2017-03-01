@@ -56,3 +56,5 @@ exports.SERVICE_KUBE_NODE_PORT = 'kube-nodeport'
 exports.SERVICE_KUBE_EXTERNAL_IPS = 'kube-externalips'
 
 exports.PROXY_TYPE = process.env.PROXY_TYPE || 'tenx-proxy'
+
+exports.K8S_NODE_SELECTOR_KEY = 'kubernetes.io/hostname'
