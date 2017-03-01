@@ -16,6 +16,9 @@ const constants = require('../constants')
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
+const DEFAULT_LICENSE = {
+  max_nodes: 1
+}
 
 exports.getClusterNodes = function* () {
   const loginUser = this.session.loginUser
@@ -27,7 +30,7 @@ exports.getClusterNodes = function* () {
   reqArray.push(api.licenses.getBy(["merged"]))
   const reqArrayResult = yield reqArray
   const clusters = reqArrayResult[0].data || []
-  const license = reqArrayResult[1].data
+  const license = reqArrayResult[1].data || DEFAULT_LICENSE
   let cpuList
   let memoryList
   try {
