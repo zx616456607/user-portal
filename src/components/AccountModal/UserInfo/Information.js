@@ -281,7 +281,7 @@ class Information extends Component {
           <Col span={4}>余额</Col>
           <Col span={2}>{balance}T</Col>
           {/*  system user  */}
-          {(ROLE_SYS_ADMIN == this.props.userDetail.role) ?
+          {(ROLE_SYS_ADMIN == this.props.loginUser.role) ?
             <Col span={16}><Button type="primary" onClick={()=>　this.memberRecharge(userDetail,roleName)}>充值</Button></Col>
             :null
           }
@@ -300,10 +300,10 @@ class Information extends Component {
 }
 
 function mapStateToProp(state, props) {
-  const userDetail = state.entities.loginUser.info
+  const loginUser = state.entities.loginUser.info
 
   return {
-    userDetail
+    loginUser
   }
 }
 

@@ -261,6 +261,7 @@ export default class Space extends Component {
         </Row>
         {/* 空间充值 */}
         <Modal title="团队空间充值" visible={this.state.spaceVisible}
+          onCancel={()=> this.setState({spaceVisible: false})}
           width={600}
           footer={null}
         >
