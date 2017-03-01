@@ -361,6 +361,23 @@ exports.getReplicasetDetailEvents = function* () {
   }
 }
 
+// Use services for petset events
+exports.getDbServiceDetailEvents = function* () {
+  //this function for user get the events of detail service
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'services', serviceName, 'events'])
+  const events = result.data || []
+
+  this.body = {
+    cluster,
+    serviceName,
+    data: events
+  }
+}
+
 exports.getServiceLogs = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name

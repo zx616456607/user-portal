@@ -80,7 +80,8 @@
     height: 55px;
     line-height: 55px;
     margin-right: 20px;
-    .backVersion {
+    .backVersion,
+    .upgradeVersion {
       position: relative;
       float: left;
       margin: 0 5px;
@@ -92,16 +93,19 @@
       border-radius: 6px;
       position: relative;
       border: 1px solid #27a3e9;
-      overflow: hidden;
+      // overflow: hidden;
       -webkit-transform: translateY(-50%);
       transform: translateY(-50%);
       cursor: pointer;
       .imgBox {
         position: relative;
         display: inline-block;
+        float: left;
         width: 28px;
-        height: 28px;
+        height: 26px;
         text-align: center;
+        border-bottom-left-radius: 6px;
+        border-top-left-radius: 6px;
         background-color: #27a3e9;
         img {
           position: absolute;
@@ -115,16 +119,26 @@
       }
       .backText {
         position: absolute;
+        float: left;
         top: 0;
-        right: 0;
-        width: 80px;
-        height: 28px;
-        line-height: 28px;
+        // right: 0;
+        width: 78px;
+        padding-left: 5px;
+        height: 26px;
+        line-height: 26px;
         color: #27a3e9;
         text-align: center;
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
         background-color: #FFFFFF;
         -webkit-transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
         transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+        .ant-scroll-number {
+          top: -12px;
+          left: 60px;
+          width: 10px;
+          height: 10px;
+        }
       }
       &:hover {
         .backText {
@@ -168,5 +182,15 @@
   .placeholder {
     color: #30a7e9;
     padding-left: 10px;
+  }
+}
+.upgradeVersionModal {
+  .ant-modal-body {
+    font-size: 14px;
+  }
+  .ant-modal-footer {
+    .ant-btn-ghost {
+      display: none;
+    }
   }
 }

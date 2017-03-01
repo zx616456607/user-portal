@@ -216,19 +216,16 @@ class GithubComponent extends Component {
     const repoItem = scope.state.repokey
     this.setState({removeModal: false})
     scope.props.deleteRepo(repoItem)
-     
+
   }
   handSyncCode() {
     const { registryGithub } = this.props
     const parentScope = this.props.scope
     const typeList = parentScope.state.typeList
-    if (!typeList.includes('github')) {
+    if (!typeList || !typeList.includes('github')) {
       parentScope.setState({typeVisible: true})
       return
     }
-    this.setState({
-      typeVisible: true
-    })
     let notification = new NotificationHandler()
     notification.spin(`正在执行中...`)
     this.setState({loading: true})

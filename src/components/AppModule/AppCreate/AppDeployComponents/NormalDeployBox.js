@@ -793,10 +793,11 @@ let NormalDeployBox = React.createClass({
     }
     let imageVersionShow = (
       <FormItem className="imageTagForm" key='imageTagForm'>
-        <Select
+        <Select showSearch
           {...selectProps}
           className="imageTag" size="large" tyle={{ width: 200 }}
           placeholder="请选择镜像版本"
+          optionFilterProp="children"
           notFoundContent="镜像版本为空"
           onSelect={this.onSelectTagChange}
           >
@@ -946,12 +947,12 @@ let NormalDeployBox = React.createClass({
                         <div className="DIYKey">
                           <InputNumber
                             onChange={(value) => parentScope.setState({DIYCPU: value})}
-                            defaultValue={RESOURCES_CPU_MIN}
-                            value={parseInt(DIYCPU)}
+                            defaultValue={DIYCPU}
+                            value={DIYCPU}
                             step={RESOURCES_CPU_STEP}
                             min={RESOURCES_CPU_MIN}
                             max={RESOURCES_CPU_MAX}/>
-                          CPU
+                          核 CPU
                         </div>
                         <div className="triangle"></div>
                         <Icon type="check" />

@@ -89,7 +89,7 @@ let MemberList = React.createClass({
         }
       }
     })
-     
+
   },
   onShowSizeChange(current, pageSize) {
     let { sortUser, filter } = this.state
@@ -231,7 +231,7 @@ let MemberList = React.createClass({
         >
           <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要移除成员 {this.state.userName ? this.state.userName : ''} ?</div>
         </Modal>
-       
+
       </div>
     )
   }
@@ -315,7 +315,7 @@ let TeamList = React.createClass({
         isAsync: true
       }
     })
-      
+
   },
   render: function () {
     const { teamSpacesList, teamSpacesTotal, current } = this.props
@@ -403,8 +403,14 @@ let ClusterState = React.createClass({
   },
   applyClusterState() {
     const {requestTeamCluster, clusterID, teamID, loadAllClustersList} = this.props
-    requestTeamCluster(teamID, clusterID)
-    loadAllClustersList(teamID)
+    requestTeamCluster(teamID, clusterID, {
+      success: {
+        func: () => {
+          loadAllClustersList(teamID)
+        },
+        isAsync: true
+      }
+    })
   },
   componentWillMount() {
     const {requestTeamCluster, clusterID, teamID, loadAllClustersList} = this.props
@@ -584,7 +590,7 @@ class TeamDetail extends Component {
           </Link>
           <span className="title">{teamName}</span>
         </Row>
-      
+
         <Row className="content">
           <Alert message="这里展示了该团队在用的集群列表,资源配置是超级管理员在企业版后台,分配到该团队所用的计算等资源,以下集群对该团队的团队空间有效." />
           <Row className="clusterList" gutter={30}>
@@ -625,7 +631,7 @@ class TeamDetail extends Component {
                 成员数({teamUsersTotal})
               </Col>
               <Col span={6}>
-                <Button type="primary" size="large" icon="plus" className="addBtn"
+                <Button type="primary" size="large" icon="plus"
                   onClick={this.addNewMember}>
                   添加新成员
                 </Button>
@@ -658,7 +664,7 @@ class TeamDetail extends Component {
                 团队空间 ({teamSpacesTotal})
               </Col>
               <Col span={6}>
-                <Button type="primary" size="large" icon="plus" className="addBtn"
+                <Button type="primary" size="large" icon="plus"
                   onClick={this.addNewSpace}>
                   创建新空间
                 </Button>

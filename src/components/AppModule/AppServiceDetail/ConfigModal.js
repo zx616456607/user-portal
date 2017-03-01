@@ -42,7 +42,7 @@ class ConfigModal extends Component {
       composeType: parseInt(DEFAULT_CONTAINER_RESOURCES_MEMORY),
       haveRBDVolume: false,
       DIYMemory: RESOURCES_MEMORY_MIN,
-      DIYCPU: RESOURCES_CPU_MIN,
+      DIYCPU: 1,
     }
   }
 
@@ -63,7 +63,12 @@ class ConfigModal extends Component {
       cpu = parseInt(cpu)
       cpu /= 1000
     }
-    let composeType = memory.indexOf('Gi') > -1 ? parseInt(memory) * 1024 : parseInt(memory)
+    if (memory.indexOf('Gi') > -1) {
+      memory = parseInt(memory) * 1024
+    } else {
+      memory = parseInt(memory)
+    }
+    let composeType = memory
     if (PRESET_MEMORY_ARRAY.indexOf(composeType) < 0) {
       composeType = RESOURCES_DIY
     }
@@ -282,12 +287,12 @@ class ConfigModal extends Component {
                             <div className="DIYKey">
                               <InputNumber
                                 onChange={(value) => this.setState({DIYCPU: value})}
-                                value={parseInt(DIYCPU)}
-                                defaultValue={RESOURCES_CPU_MIN}
+                                value={DIYCPU}
+                                defaultValue={DIYCPU}
                                 step={RESOURCES_CPU_STEP}
                                 min={RESOURCES_CPU_MIN}
                                 max={RESOURCES_CPU_MAX}/>
-                              CPU
+                              核 CPU
                             </div>
                             <div className="triangle"></div>
                             <Icon type="check" />

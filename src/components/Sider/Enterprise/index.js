@@ -613,14 +613,14 @@ class Sider extends Component {
                     <Link to='/account/member'>
                       <span><div className='sideCircle'></div> 成员管理</span>
                     </Link>
-                  </Menu.Item> : <div></div>
+                  </Menu.Item> : <Menu.Item style={{display: 'none'}}></Menu.Item>
                   }
                   { (role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) ?
                   <Menu.Item key='team'>
                     <Link to='/account/team'>
                       <span><div className='sideCircle'></div> 团队管理</span>
                     </Link>
-                  </Menu.Item> : <div></div>
+                  </Menu.Item> : <Menu.Item style={{display: 'none'}}></Menu.Item>
                   }
                   {/*<Menu.Item key='cost'>
                     <Link to='/account/cost'>
@@ -661,7 +661,7 @@ class Sider extends Component {
                       <Link to='/setting/license'>
                         <span><div className='sideCircle'></div> 授权管理</span>
                       </Link>
-                    </Menu.Item> : <div></div>
+                    </Menu.Item> : <Menu.Item style={{display: 'none'}}></Menu.Item>
                   }
                   <Menu.Item key='API'>
                     <Link to='/setting/API'>
@@ -686,7 +686,7 @@ class Sider extends Component {
                         <div style={{ clear: 'both' }}></div>
                       </span>
                     </Link>
-                  </Menu.Item> : <div></div>
+                  </Menu.Item> : <Menu.Item style={{display: 'none'}}></Menu.Item>
                 }
               </Menu>
             </div>

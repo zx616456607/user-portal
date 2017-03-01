@@ -75,7 +75,10 @@ function cpuUsed(cpuTotal, cpuList, name) {
     }
   }
   // 1h and to 100%
-  used = total / cpuTotal /length;
+  if (!length) {
+    length = 1
+  }
+  used = total / cpuTotal / length;
   used = ( used * 100 ).toFixed(2);
   return used;
 }
@@ -97,6 +100,9 @@ function memoryUsed(memoryTotal, memoryList, name) {
   }
   used = total / memoryTotal;
   // 1h and to 100%
+  if (!length) {
+    length = 1
+  }
   used = (used * 100 / length).toFixed(2);
   return used;
 }
@@ -111,12 +117,11 @@ const MyComponent = React.createClass({
     const { scope } = this.props;
     const { cluster, changeClusterNodeSchedule } = scope.props;
     let { nodeList } = scope.state;
+    let notification = new NotificationHandler()
     changeClusterNodeSchedule(cluster, node, e, {
       success: {
         func: ()=> {
-          notification['success']({
-            message: e ? '打开调度成功' : '暂停调度成功',
-          });
+          notification.success(e ? '打开调度成功' : '暂停调度成功');
           nodeList.map((item) => {
             if(item.objectMeta.name == node) {
               item.schedulable = e;
@@ -364,9 +369,7 @@ class clusterTabList extends Component {
             success: {
               func: (result) => {
                 let nodeList = result.data.clusters.nodes.nodes;
-                notification['success']({
-                  message: '主机节点删除成功',
-                });
+                notification.success('主机节点删除成功');
                 _this.setState({
                   nodeList: nodeList,
                   deleteNodeModal: false
@@ -398,6 +401,7 @@ class clusterTabList extends Component {
   openTerminalModal() {
     const { kubectlsPods } = this.props
     let { currentContainer } = this.state;
+    let notification = new NotificationHandler()
     if (currentContainer.length > 0) {
       this.setState({
         TerminalLayoutModal: true,
@@ -406,7 +410,6 @@ class clusterTabList extends Component {
     }
     const { namespace, pods } = kubectlsPods
     if (!pods || pods.length === 0) {
-      let notification = new NotificationHandler()
       notification.warn('没有可用终端节点，请联系管理员')
       return
     }
@@ -531,7 +534,7 @@ class clusterTabList extends Component {
               <MyComponent podList={nodeList} containerList={podCount} isFetching={isFetching} scope={scope} memoryList={memoryList} cpuList={cpuList} />
             </div>
           </Card>
-          <Modal title='删除主机' className='deleteClusterNodeModal' visible={this.state.deleteNodeModal} onOk={this.deleteClusterNode} onCancel={this.closeDeleteModal}>
+          <Modal title='删除主机节点' className='deleteClusterNodeModal' visible={this.state.deleteNodeModal} onOk={this.deleteClusterNode} onCancel={this.closeDeleteModal}>
             <div style={{ color: '#00a0ea', height: "50px" }}>
               <Icon type='exclamation-circle-o' />
               &nbsp;&nbsp;&nbsp;确定要删除&nbsp;{deleteNode ? deleteNode.objectMeta.name : ''}&nbsp;主机节点？
@@ -571,7 +574,7 @@ class clusterTabList extends Component {
                   </Tooltip>
                   <input id="addNodeCMDInput" style={{ position: "absolute", opacity: "0", top:'0'}} value={addNodeCMD && addNodeCMD[camelize('default_command')]} />
                 </pre>
-                注意：新添加的主机需要与Master节点同一内网，可互通
+                注意：新添加的主机需要与 Master 节点同一内网，可互通
               </div>
             </div>
           </Modal>

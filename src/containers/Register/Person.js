@@ -158,6 +158,7 @@ let Person = React.createClass({
       })
       const body = {
         accountType: 'wechat',
+        password: values.password,
         captcha: values.captcha,
         userName: values.userName,
         phone: values.tel,
