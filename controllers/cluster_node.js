@@ -22,38 +22,45 @@ exports.getClusterNodes = function* () {
   const cluster = this.params.cluster
 
   const api = apiFactory.getApi(loginUser)
-  const result = yield api.clusters.getBy([cluster, 'nodes']);
-  const clusters = result.data || []
-
-  let podList = [];
-  clusters.nodes.nodes.map((node) => {
-    podList.push(node.objectMeta.name);
-  });
-  let cpuBody = {
-    type: 'cpu/usage_rate',
-    source: 'prometheus'
-  }
-  let memoryBody = {
-    type: 'memory/usage',
-    source: 'prometheus'
-  }
   const reqArray = []
-  reqArray.push(api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], cpuBody))
-  reqArray.push(api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], memoryBody))
+  reqArray.push(api.clusters.getBy([cluster, 'nodes']))
   reqArray.push(api.licenses.getBy(["merged"]))
   const reqArrayResult = yield reqArray
-  const cpuList = reqArrayResult[0]
-  const memoryList = reqArrayResult[1]
-  const license = reqArrayResult[2].data
-  for(let key in cpuList) {
-    if(key != 'statusCode') {
-      cpuList[key].name = key;
+  const clusters = reqArrayResult[0].data || []
+  const license = reqArrayResult[1].data
+  let cpuList
+  let memoryList
+  try {
+    let podList = [];
+    clusters.nodes.nodes.map((node) => {
+      podList.push(node.objectMeta.name);
+    });
+    let cpuBody = {
+      type: 'cpu/usage_rate',
+      source: 'prometheus'
     }
-  }
-  for(let key in memoryList) {
-    if(key != 'statusCode') {
-      memoryList[key].name = key;
+    let memoryBody = {
+      type: 'memory/usage',
+      source: 'prometheus'
     }
+    const metricsReqArray = []
+    metricsReqArray.push(api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], cpuBody))
+    metricsReqArray.push(api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], memoryBody))
+    const metricsReqArrayResult = yield metricsReqArray
+    cpuList = metricsReqArrayResult[0]
+    memoryList = metricsReqArrayResult[1]
+    for(let key in cpuList) {
+      if(key != 'statusCode') {
+        cpuList[key].name = key;
+      }
+    }
+    for(let key in memoryList) {
+      if(key != 'statusCode') {
+        memoryList[key].name = key;
+      }
+    }
+  } catch (error) {
+    // Catch error for show node list
   }
 
   this.body = {

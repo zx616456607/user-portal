@@ -61,6 +61,9 @@ function getContainerNum(name, podList) {
 
 function cpuUsed(cpuTotal, cpuList, name) {
   //this function for compute cpu used
+  if (!cpuList) {
+    return `N/A`
+  }
   let total = 0;
   let used;
   let length;
@@ -80,11 +83,14 @@ function cpuUsed(cpuTotal, cpuList, name) {
   }
   used = total / cpuTotal / length;
   used = ( used * 100 ).toFixed(2);
-  return used;
+  return `${used}%`;
 }
 
 function memoryUsed(memoryTotal, memoryList, name) {
   //this function for compute memory used
+  if (!memoryList) {
+    return `N/A`
+  }
   let total = 0;
   let used;
   let length;
@@ -104,7 +110,7 @@ function memoryUsed(memoryTotal, memoryList, name) {
     length = 1
   }
   used = (used * 100 / length).toFixed(2);
-  return used;
+  return `${used}%`;
 }
 
 const MyComponent = React.createClass({
@@ -121,7 +127,7 @@ const MyComponent = React.createClass({
     changeClusterNodeSchedule(cluster, node, e, {
       success: {
         func: ()=> {
-          notification.success(e ? '开启调度中，该操作 1 分钟内生效' : '关闭调度中，该操作 1 分钟内生效');
+          notification.info(e ? '开启调度中，该操作 1 分钟内生效' : '关闭调度中，该操作 1 分钟内生效');
           nodeList.map((item) => {
             if(item.objectMeta.name == node) {
               item.schedulable = e;
@@ -200,11 +206,11 @@ const MyComponent = React.createClass({
           </div>
           <div className='cpu commonTitle'>
             <span className='topSpan'>{item.cpuTotal / 1000}核</span>
-            <span className='bottomSpan'>{cpuUsed(item.cpuTotal, cpuList, item.objectMeta.name) + '%'}</span>
+            <span className='bottomSpan'>{cpuUsed(item.cpuTotal, cpuList, item.objectMeta.name)}</span>
           </div>
           <div className='memory commonTitle'>
             <span className='topSpan'>{diskFormat(item.memoryTotalKB)}</span>
-            <span className='bottomSpan'>{memoryUsed(item.memoryTotalKB, memoryList, item.objectMeta.name) + '%'}</span>
+            <span className='bottomSpan'>{memoryUsed(item.memoryTotalKB, memoryList, item.objectMeta.name)}</span>
           </div>
           {/*<div className='disk commonTitle'>
             <span className='topSpan'>{'-'}</span>
