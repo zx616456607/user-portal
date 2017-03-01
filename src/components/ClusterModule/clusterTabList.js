@@ -121,7 +121,7 @@ const MyComponent = React.createClass({
     changeClusterNodeSchedule(cluster, node, e, {
       success: {
         func: ()=> {
-          notification.success(e ? '打开调度成功' : '暂停调度成功');
+          notification.success(e ? '开启调度中，该操作 1 分钟内生效' : '关闭调度中，该操作 1 分钟内生效');
           nodeList.map((item) => {
             if(item.objectMeta.name == node) {
               item.schedulable = e;
@@ -147,7 +147,7 @@ const MyComponent = React.createClass({
 
   },
   render: function () {
-    const { isFetching, podList, containerList, cpuList, memoryList } = this.props
+    const { isFetching, podList, containerList, cpuList, memoryList, license } = this.props
     const root = this
     if (isFetching) {
       return (
@@ -161,6 +161,7 @@ const MyComponent = React.createClass({
         <div style={{ lineHeight: '100px', height: '200px', paddingLeft: '30px' }}>您还没有主机，去创建一个吧！</div>
       )
     }
+    const maxNodes = license[camelize('max_nodes')]
     let items = podList.map((item, index) => {
       /*const dropdown = (
         <Menu onClick={this.ShowDeleteClusterNodeModal.bind(this, item.objectMeta.name)}
@@ -210,7 +211,13 @@ const MyComponent = React.createClass({
             <span className='bottomSpan'>{'-'}</span>
           </div>*/}
           <div className='schedule commonTitle'>
-            <Switch className='switchBox' defaultChecked={item.schedulable} checkedChildren='开' unCheckedChildren='关' onChange={this.changeSchedulable.bind(root, item.objectMeta.name)}/>
+            <Switch
+              className='switchBox'
+              defaultChecked={item.schedulable}
+              checkedChildren='开'
+              unCheckedChildren='关'
+              disabled={index >= maxNodes}
+              onChange={this.changeSchedulable.bind(root, item.objectMeta.name)}/>
             <span className='scheduleSpan'>
               {
                 item.schedulable
@@ -424,19 +431,6 @@ class clusterTabList extends Component {
       }],
       TerminalLayoutModal: true,
     })
-    if(!hadFlag) {
-      let body = {
-        metadata: {
-          namespace: 'kube-system',
-          name: 'temp'
-        }
-      }
-      currentContainer.push(body)
-    }
-    this.setState({
-      currentContainer: currentContainer,
-      TerminalLayoutModal: true
-    });
   }
 
   handleAddClusterNode() {
@@ -446,7 +440,7 @@ class clusterTabList extends Component {
   }
 
   render() {
-    const { intl, isFetching, nodes, cluster, memoryList, cpuList, kubectlsPods, addNodeCMD } = this.props;
+    const { intl, isFetching, nodes, cluster, memoryList, cpuList, license, kubectlsPods, addNodeCMD } = this.props;
     const { formatMessage } = intl;
     const { nodeList, podCount, deleteNode, copyAddNodeSuccess } = this.state;
     const rootscope = this.props.scope;
@@ -531,7 +525,7 @@ class clusterTabList extends Component {
                   <span>操作</span>
                 </div>
               </div>
-              <MyComponent podList={nodeList} containerList={podCount} isFetching={isFetching} scope={scope} memoryList={memoryList} cpuList={cpuList} />
+              <MyComponent podList={nodeList} containerList={podCount} isFetching={isFetching} scope={scope} memoryList={memoryList} cpuList={cpuList} license={license} />
             </div>
           </Card>
           <Modal title='删除主机节点' className='deleteClusterNodeModal' visible={this.state.deleteNodeModal} onOk={this.deleteClusterNode} onCancel={this.closeDeleteModal}>
@@ -597,12 +591,13 @@ function mapStateToProps(state, props) {
   const { getAllClusterNodes, kubectlsPods, addNodeCMD } = state.cluster_nodes
   const { isFetching } = getAllClusterNodes || pods
   const data = getAllClusterNodes.nodes || pods
-  const { cpuList, memoryList } = data
+  const { cpuList, memoryList, license } = data
   const nodes = data.clusters ? data.clusters.nodes : []
   return {
     nodes,
     cpuList,
     memoryList,
+    license,
     isFetching,
     cluster,
     kubectlsPods: (kubectlsPods ? kubectlsPods.result : {}) || {},

@@ -33,30 +33,35 @@ exports.getClusterNodes = function* () {
     type: 'cpu/usage_rate',
     source: 'prometheus'
   }
-  const cpuList = yield api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], cpuBody);
+  let memoryBody = {
+    type: 'memory/usage',
+    source: 'prometheus'
+  }
+  const reqArray = []
+  reqArray.push(api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], cpuBody))
+  reqArray.push(api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], memoryBody))
+  reqArray.push(api.licenses.getBy(["merged"]))
+  const reqArrayResult = yield reqArray
+  const cpuList = reqArrayResult[0]
+  const memoryList = reqArrayResult[1]
+  const license = reqArrayResult[2].data
   for(let key in cpuList) {
     if(key != 'statusCode') {
       cpuList[key].name = key;
     }
   }
-
-  let memoryBody = {
-    type: 'memory/usage',
-    source: 'prometheus'
-  }
-  const memoryList = yield api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], memoryBody);
   for(let key in memoryList) {
     if(key != 'statusCode') {
       memoryList[key].name = key;
     }
   }
 
-  this.status = result.code
   this.body = {
     data: {
       clusters,
       cpuList,
-      memoryList
+      memoryList,
+      license
     }
   }
 }
