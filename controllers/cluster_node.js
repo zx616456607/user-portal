@@ -17,7 +17,7 @@ const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 const DEFAULT_LICENSE = {
-  max_nodes: 1
+  max_nodes: 5
 }
 
 exports.getClusterNodes = function* () {
@@ -31,8 +31,8 @@ exports.getClusterNodes = function* () {
   const reqArrayResult = yield reqArray
   const clusters = reqArrayResult[0].data || []
   const license = reqArrayResult[1].data || DEFAULT_LICENSE
-  if (!license.max_nodes || license.max_nodes < 1) {
-    license.max_nodes = 1
+  if (!license.max_nodes || license.max_nodes < DEFAULT_LICENSE.max_nodes) {
+    license.max_nodes = DEFAULT_LICENSE.max_nodes
   }
   let cpuList
   let memoryList
