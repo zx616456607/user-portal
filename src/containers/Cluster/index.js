@@ -8,9 +8,9 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import SecondSider from '../../components/SecondSider'
-import IntlExp from '../../components/IntlExp'
-import QueueAnim from 'rc-queue-anim'
+// import SecondSider from '../../components/SecondSider'
+// import IntlExp from '../../components/IntlExp'
+// import QueueAnim from 'rc-queue-anim'
 import './style/cluster.less'
 
 export default class Cluster extends Component {
@@ -20,7 +20,7 @@ export default class Cluster extends Component {
       clusterSiderStyle: 'normal'
     }
   }
-  
+
   render() {
     const { children } = this.props
     const scope = this
