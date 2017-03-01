@@ -318,7 +318,7 @@ let Login = React.createClass({
         <Top/>
         <div className="login">
           {this.state.outdated ?
-            <div className="errorText">激活证书已过期，请重新<span className="goActive" onClick={()=> browserHistory.push("/activation")}> 输入激活码 </span>以使用平台</div>
+            <div className="errorText">许可证已过期，请重新<span className="goActive" onClick={()=> browserHistory.push("/activation")}> 输入许可证 </span>以使用平台</div>
           : null
           }
           <div className="loginContent">
