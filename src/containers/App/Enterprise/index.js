@@ -76,7 +76,7 @@ class EnterpriseApp extends Component {
     if( this.state.outdated ) {
       return (
         <div id='topError'>
-          {this.state.licenseTips}将于{this.state.licenseDay}天后（即{ formatDate(this.state.license.end)}）过期，{this.checkTipsText()}
+          {this.state.licenseTips}将于{Math.floor(this.state.licenseDay) }天后（即{ formatDate(this.state.license.end)}）过期，{this.checkTipsText()}
         </div>
      )
    }
