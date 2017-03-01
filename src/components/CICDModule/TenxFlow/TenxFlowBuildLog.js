@@ -348,7 +348,7 @@ class TenxFlowBuildLog extends Component {
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='paddingBox'>
-          <MyComponent config={logs} scope={scope} flowId={flowId} callback={this.props.callback} showModal={this.props.showModal}/>
+          <MyComponent config={logs} scope={scope} flowId={flowId} callback={this.props.callback} />
           <div style={{ clear: 'both' }}></div>
         </div>
       </div>
