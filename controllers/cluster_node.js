@@ -31,6 +31,9 @@ exports.getClusterNodes = function* () {
   const reqArrayResult = yield reqArray
   const clusters = reqArrayResult[0].data || []
   const license = reqArrayResult[1].data || DEFAULT_LICENSE
+  if (!license.max_nodes || license.max_nodes < 1) {
+    license.max_nodes = 1
+  }
   let cpuList
   let memoryList
   try {
