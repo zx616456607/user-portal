@@ -38,7 +38,7 @@ class EnterpriseApp extends Component {
           const { licenseStatus, leftLicenseDays, leftTrialDays } = res.data
           if (licenseStatus == 'VALID' && parseInt(leftLicenseDays) <= 7) {
             outdated = true // show warning and allow login
-            licenseDay = parseInt(leftLicenseDays)
+            licenseDay = Math.floor(leftLicenseDays *10) /10
             if (licenseDay <= 0) {
               window.location.href ='/logout'
             }
@@ -46,7 +46,7 @@ class EnterpriseApp extends Component {
           if (licenseStatus == 'NO_LICENSE' && parseInt(leftTrialDays) <= 7) {
             outdated = true // show warning and allow login
             licenseTips = '产品试用'
-            licenseDay = parseInt(leftTrialDays)
+            licenseDay = Math.floor(leftTrialDays *10) /10
             if (licenseDay <= 0) {
               window.location.href ='/logout'
             }
@@ -76,7 +76,7 @@ class EnterpriseApp extends Component {
     if( this.state.outdated ) {
       return (
         <div id='topError'>
-          {this.state.licenseTips}将于{Math.floor(this.state.licenseDay) }天后（即{ formatDate(this.state.license.end)}）过期，{this.checkTipsText()}
+          {this.state.licenseTips}将于 {Math.floor(this.state.licenseDay) } 天后（即{ formatDate(this.state.license.end)}）过期，{this.checkTipsText()}
         </div>
      )
    }
