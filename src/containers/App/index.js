@@ -300,6 +300,13 @@ class App extends Component {
     }
   }
 
+  componentDidMount() {
+    const { loadLicensePlatform } = this.props
+    if (realMode === LITE) {
+      loadLicensePlatform()
+    }
+  }
+
   render() {
     let {
       children,

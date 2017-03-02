@@ -270,11 +270,7 @@ class Header extends Component {
   }
 
   componentDidMount() {
-    const { loadLicensePlatform } = this.props
     this._checkLiteVersion()
-    if (getPortalRealMode === LITE) {
-      loadLicensePlatform()
-    }
   }
 
   showUpgradeVersionModal() {
