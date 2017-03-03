@@ -20,6 +20,7 @@ import CreateUserModal from '../../CreateUserModal'
 import NotificationHandler from '../../../../common/notification_handler'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../../constants'
 import MemberRecharge from '../Recharge'
+import { MAX_CHARGE }  from '../../../../constants'
 
 const confirm = Modal.confirm
 
@@ -460,9 +461,9 @@ class MemberManage extends Component {
     const { loadUserList, chargeUser} = this.props
     const oldBalance = parseInt(this.state.record.balance)
 
-    if (oldBalance + body.amount >= 200000 ) {
+    if (oldBalance + body.amount >= MAX_CHARGE ) {
       // balance (T) + charge memory not 200000
-      let isnewBalance = Math.floor((200000 - oldBalance ) *100) /100
+      let isnewBalance = Math.floor((MAX_CHARGE - oldBalance ) *100) /100
       let newBalance = isnewBalance > 0 ? isnewBalance : 0
       notification.info(`充值金额大于可充值金额，最多还可充值 ${newBalance}`)
       return

@@ -11,6 +11,7 @@
 import React, { Component } from 'react'
 import { InputNumber, Form } from 'antd'
 import './style/MemberAccount.less'
+import { MAX_CHARGE }  from '../../../../constants'
 
 let MemberRecharge = React.createClass({
   componentWillReceiveProps(nextProps) {
@@ -25,8 +26,8 @@ let MemberRecharge = React.createClass({
     const { parentScope } = this.props
     parentScope.setState({number: value})
     let itemBalance =  Number(parentScope.state.record.balance.replace('T',' '))
-    if ((itemBalance + value) >= 200000 ){
-      let isvisble = Math.floor((200000 - itemBalance) * 10)/10
+    if ((itemBalance + value) >= MAX_CHARGE ){
+      let isvisble = Math.floor((MAX_CHARGE - itemBalance) * 10)/10
       let visible = isvisble > 0 ? isvisble : 0
       callback([new Error(`成员名${parentScope.state.record.namespace}，最大可充值 ${visible}`)])
       return
@@ -57,7 +58,7 @@ let MemberRecharge = React.createClass({
           <div className={parentScope.state.number ==50 ? "pushMoney selected" : 'pushMoney'} onClick={()=> parentScope.activeMenu(50)}><span>50T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
           <div className={parentScope.state.number ==100 ? "pushMoney selected" : 'pushMoney'} onClick={()=> parentScope.activeMenu(100)}><span>100T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
           <Form.Item style={{float:'left', width:'100px'}}>
-            <InputNumber {...autoNumberProps} size="large"  onClick={(e)=> parentScope.setState({number: e.target.value})} min={0} step={50} max={200000}/> T
+            <InputNumber {...autoNumberProps} size="large"  onClick={(e)=> parentScope.setState({number: e.target.value})} min={0} step={50} max={MAX_CHARGE}/> T
           </Form.Item>
         </div>
         </Form>

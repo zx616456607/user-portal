@@ -20,6 +20,7 @@ import MemberRecharge from '../_Enterprise/Recharge'
 import { chargeUser } from '../../../actions/charge'
 import { loadLoginUserDetail } from '../../../actions/entities'
 import { loadUserDetail } from '../../../actions/user'
+import { MAX_CHARGE }  from '../../../constants'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -220,23 +221,23 @@ class Information extends Component {
       notification.info('请选择充值金额, 且不能为负数')
       return
     }
-    const oldBalance = this.props.userDetail.balance / 10000
-    if (oldBalance + amount >= 200000 ) {
+    const oldBalance = parseAmount(this.props.userDetail.balance, 4).amount
+    if (oldBalance + amount >= MAX_CHARGE ) {
       // balance (T) + charge memory not 200000
-      let isnewBalance = Math.floor((200000 - oldBalance ) *100) /100
+      let isnewBalance = Math.floor((MAX_CHARGE - oldBalance ) *100) /100
       let newBalance = isnewBalance > 0 ? isnewBalance : 0
       notification.info(`充值金额大于可充值金额，最多还可充值 ${newBalance}`)
       return
     }
     const { loadLoginUserDetail, loadUserDetail, chargeUser} = this.props
     const _this = this
-    const { userID, userDetail } = this.props
+    const { userID, userDetail, loginUser} = this.props
     chargeUser(body, {
       success: {
         func: (ret) => {
           _this.setState({visibleMember: false})
           notification.success('充值成功')
-          if (userDetail.namespace== 'admin') {
+          if (userDetail.namespace== loginUser.namespace) {
             loadLoginUserDetail()
             return
           }

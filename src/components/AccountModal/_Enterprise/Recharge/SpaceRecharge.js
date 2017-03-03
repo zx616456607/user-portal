@@ -17,7 +17,7 @@ import { loadTeamspaceList } from '../../../../actions/team'
 import { loadUserTeamspaceDetailList } from '../../../../actions/user'
 import './style/MemberAccount.less'
 import NotificationHandler from '../../../../common/notification_handler'
-
+import { MAX_CHARGE }  from '../../../../constants'
 
 let SpaceRecharge = React.createClass({
   getInitialState() {
@@ -96,9 +96,9 @@ let SpaceRecharge = React.createClass({
     const { selected } = this.props
     if (selected.length > 0 ) {
       selected.map((list)=> {
-        let itemBalance =  _this.props.teamSpacesList[list].balance /10000
-        if ((itemBalance + value) >= 200000 ){
-          let visible = (200000 - itemBalance) > 0 ? 200000 - itemBalance : 0
+        let itemBalance =  parseAmount(_this.props.teamSpacesList[list].balance, 4).amount
+        if ((itemBalance + value) >= MAX_CHARGE ){
+          let visible = (MAX_CHARGE - itemBalance) > 0 ? MAX_CHARGE - itemBalance : 0
           callback([new Error(`团队空间${_this.props.teamSpacesList[list].namespace}，最大可充值 ${visible}`)])
           return
         }
@@ -162,7 +162,7 @@ let SpaceRecharge = React.createClass({
           <div className={this.state.number ==50 ? "pushMoney selected" : 'pushMoney'} onClick={()=> this.activeMenu(50)}><span>50T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
           <div className={this.state.number ==100 ? "pushMoney selected" : 'pushMoney'} onClick={()=> this.activeMenu(100)}><span>100T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
           <Form.Item style={{float:'left', width:'100px'}}>
-            <InputNumber size="large" {...autoNumberProps} min={0} step={50} max={200000} onClick={(e)=> this.setState({number: e.target.value})}/> T
+            <InputNumber size="large" {...autoNumberProps} min={0} step={50} max={MAX_CHARGE} onClick={(e)=> this.setState({number: e.target.value})}/> T
           </Form.Item>
         </div>
         </Form>
