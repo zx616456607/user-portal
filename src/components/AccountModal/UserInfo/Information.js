@@ -19,6 +19,7 @@ import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import MemberRecharge from '../_Enterprise/Recharge'
 import { chargeUser } from '../../../actions/charge'
 import { loadLoginUserDetail } from '../../../actions/entities'
+import { loadUserDetail } from '../../../actions/user'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -210,7 +211,7 @@ class Information extends Component {
   }
   changeUser() {
     let notification = new NotificationHandler()
-    const amount = this.state.number
+    const amount = parseInt(this.state.number)
     const body = {
       namespaces: [this.state.record.namespace],
       amount
@@ -219,14 +220,27 @@ class Information extends Component {
       notification.info('请选择充值金额, 且不能为负数')
       return
     }
-    const { loadLoginUserDetail, chargeUser} = this.props
+    const oldBalance = this.props.userDetail.balance / 10000
+    if (oldBalance + amount >= 200000 ) {
+      // balance (T) + charge memory not 200000
+      let isnewBalance = Math.floor((200000 - oldBalance ) *100) /100
+      let newBalance = isnewBalance > 0 ? isnewBalance : 0
+      notification.info(`充值金额大于可充值金额，最多还可充值 ${newBalance}`)
+      return
+    }
+    const { loadLoginUserDetail, loadUserDetail, chargeUser} = this.props
     const _this = this
+    const { userID, userDetail } = this.props
     chargeUser(body, {
       success: {
         func: (ret) => {
           _this.setState({visibleMember: false})
           notification.success('充值成功')
-          loadLoginUserDetail()
+          if (userDetail.namespace== 'admin') {
+            loadLoginUserDetail()
+            return
+          }
+          loadUserDetail(userID)
         },
         isAsync: true
       }
@@ -235,7 +249,6 @@ class Information extends Component {
   render() {
     const { revisePass } = this.state
     const { userID, userDetail, updateUser } = this.props
-
     let roleName
     switch (userDetail.role) {
       case ROLE_TEAM_ADMIN:
@@ -288,11 +301,11 @@ class Information extends Component {
         </Row>
          {/* 充值modal */}
         <Modal title="成员充值" visible={this.state.visibleMember}
-         onCancel={()=> this.setState({visibleMember: false})}
+         onCancel={()=> this.setState({visibleMember: false,number: 10})}
          onOk={()=> this.changeUser()}
          width={600}
         >
-          <MemberRecharge parentScope={this} />
+          <MemberRecharge parentScope={this} visible={this.state.visibleMember}/>
         </Modal>
       </div>
     )
@@ -301,14 +314,19 @@ class Information extends Component {
 
 function mapStateToProp(state, props) {
   const loginUser = state.entities.loginUser.info
-
+  let userDetail = props.userDetail
+  if (props.userDetail.namespace == loginUser.namespace) {
+    userDetail = loginUser
+  }
   return {
+    userDetail,
     loginUser
   }
 }
 
 export default connect(mapStateToProp, {
   updateUser,
-  loadLoginUserDetail,
+  loadLoginUserDetail, // 登录用户信息
+  loadUserDetail,// 用户或者成员信息
   chargeUser
 })(Information)

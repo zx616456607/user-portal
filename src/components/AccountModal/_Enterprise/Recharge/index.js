@@ -9,33 +9,63 @@
  */
 
 import React, { Component } from 'react'
-import { InputNumber } from 'antd'
+import { InputNumber, Form } from 'antd'
 import './style/MemberAccount.less'
 
-class MemberRecharge extends Component {
-  constructor(props){
-    super(props)
-  }
-
+let MemberRecharge = React.createClass({
+  componentWillReceiveProps(nextProps) {
+    if (!this.props.parentScope.state.visibleMember) {
+      // reset form value
+      this.props.form.resetFields()
+    }
+  },
+  checkCharge(rule, value, callback) {
+    const form = this.props.form
+    const _this = this
+    const { parentScope } = this.props
+    parentScope.setState({number: value})
+    let itemBalance =  Number(parentScope.state.record.balance.replace('T',' '))
+    if ((itemBalance + value) >= 200000 ){
+      let isvisble = Math.floor((200000 - itemBalance) * 10)/10
+      let visible = isvisble > 0 ? isvisble : 0
+      callback([new Error(`成员名${parentScope.state.record.namespace}，最大可充值 ${visible}`)])
+      return
+    }
+    callback()
+  },
   render () {
     const { parentScope } = this.props
     const { record } = parentScope.state
+    const { getFieldProps } = this.props.form
+    const autoNumberProps = getFieldProps('autonNumber',{
+      rules: [
+        { validator: this.checkCharge },
+      ],
+      trigger: 'onBlur',
+      initialValue: 0
+    })
     return(
       <div className="memberItem">
         <div className="list"><span className="itemKey">成员名</span>{record.name}</div>
         <div className="list"><span className="itemKey">成员类型</span>{record.style}</div>
         <div className="list"><span className="itemKey">余额</span>{record.balance}</div>
+        <Form>
         <div className="list">
           <span className="itemKey">充值金额</span>
           <div className={parentScope.state.number ==10 ? "pushMoney selected" : 'pushMoney'} onClick={()=> parentScope.activeMenu(10)}><span>10T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
           <div className={parentScope.state.number ==20 ? "pushMoney selected" : 'pushMoney'} onClick={()=> parentScope.activeMenu(20)}><span>20T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
           <div className={parentScope.state.number ==50 ? "pushMoney selected" : 'pushMoney'} onClick={()=> parentScope.activeMenu(50)}><span>50T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
           <div className={parentScope.state.number ==100 ? "pushMoney selected" : 'pushMoney'} onClick={()=> parentScope.activeMenu(100)}><span>100T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
-          <div className=""><InputNumber size="large"  onClick={(e)=> parentScope.setState({number: e.target.value})} min={0} step={50} max={99999} onChange={(value)=>parentScope.activeMenu(value) }/> T</div>
+          <Form.Item style={{float:'left', width:'100px'}}>
+            <InputNumber {...autoNumberProps} size="large"  onClick={(e)=> parentScope.setState({number: e.target.value})} min={0} step={50} max={200000}/> T
+          </Form.Item>
         </div>
+        </Form>
       </div>
     )
   }
-}
+})
+
+MemberRecharge = Form.create()(MemberRecharge)
 
 export default MemberRecharge
