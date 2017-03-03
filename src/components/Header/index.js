@@ -343,6 +343,7 @@ class Header extends Component {
       type,
       hideDot,
     } = this.state
+    const { isLatest } = checkVersionContent
     teamspaces.map((space) => {
       mode === standard
       ? space.name = space.teamName
@@ -419,7 +420,7 @@ class Header extends Component {
               <img src={backOldBtn} />
             </div>
             <span className='backText'>
-              <Badge dot={!hideDot && !checkVersionContent.isLatest}>升级版本</Badge>
+              <Badge dot={!hideDot && isLatest === false}>升级版本</Badge>
             </span>
           </div>
         }
