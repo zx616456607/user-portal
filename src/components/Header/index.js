@@ -18,15 +18,9 @@ import { loadUserTeamspaceList } from '../../actions/user'
 import { loadTeamClustersList } from '../../actions/team'
 import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
 import { checkVersion } from '../../actions/version'
-import { getCookie, isEmptyObject } from '../../common/tools'
+import { getCookie, isEmptyObject, getVersion, getPortalRealMode } from '../../common/tools'
 import { USER_CURRENT_CONFIG } from '../../../constants'
-import {
-  MY_SPACE,
-  TENX_PORTAL_VERSION_KEY,
-  TENX_PORTAL_VERSION_MAJOR_KEY,
-  VERSION_REG_EXP,
-  SESSION_STORAGE_TENX_HIDE_DOT_KEY,
-} from '../../constants'
+import { MY_SPACE, SESSION_STORAGE_TENX_HIDE_DOT_KEY, LITE } from '../../constants'
 import { browserHistory } from 'react-router'
 import NotificationHandler from '../../common/notification_handler'
 import UserPanel from './UserPanel'
@@ -39,7 +33,6 @@ const team = mode === standard ? '团队' : '空间'
 const zone = mode === standard ? '区域' : '集群'
 const selectTeam = mode === standard ? '选择团队' : '选择空间'
 const selectZone = mode === standard ? '选择区域' : '选择集群'
-const LITE = 'lite'
 
 // The following routes RegExp will show select space or select cluster
 const SPACE_CLUSTER_PATHNAME_MAP = {
@@ -98,28 +91,6 @@ function loadSpaces(props, callback) {
   loadUserTeamspaceList('default', { size: 100 }, callback)
 }
 
-function getVersion() {
-  let version = window[TENX_PORTAL_VERSION_KEY]
-  if (!version) {
-    return
-  }
-  let versionMatch = version.match(VERSION_REG_EXP)
-  if (!versionMatch) {
-    return
-  }
-  version = versionMatch[0]
-  version = version.replace('v', '')
-  return version
-}
-
-function getPortalMode() {
-  let major = window[TENX_PORTAL_VERSION_MAJOR_KEY]
-  if (!major) {
-    return mode
-  }
-  return major
-}
-
 function getHideDot() {
   if (!sessionStorage) {
     return false
@@ -150,7 +121,7 @@ class Header extends Component {
       clustersVisible: false,
       focus: false,
       version: getVersion(),
-      type: getPortalMode(),
+      type: getPortalRealMode(),
       checkVersionErr: null,
       hideDot: getHideDot(),
       upgradeVersionModalVisible: false,
