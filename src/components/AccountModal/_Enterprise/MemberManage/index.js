@@ -135,6 +135,24 @@ let MemberTable = React.createClass({
     })
 
   },
+  filtertypes(filters) {
+    // member select filter type (0=>普通成员，1=>团队管理员，3=> 系统管理员)
+    // return number
+    let filter =''
+    if (filters.style.length === 1) {
+      return filter = `role__eq,${filters.style[0]}`
+    }
+    let protoDate = [0,1,2]
+    if (filters.style.length == 2) {
+      for (let i=0;i < protoDate.length; i++) {
+        if(filters.style.indexOf(i) < 0){
+          filter = `role__neq,${protoDate[i]}`
+        }
+        return filter
+      }
+    }
+    return protoDate
+  },
   onTableChange(pagination, filters, sorter) {
     // 点击分页、筛选、排序时触发
     if (!filters.style) {
@@ -152,11 +170,9 @@ let MemberTable = React.createClass({
       size: pageSize,
       sort,
     }
-    let filter
-    if (filters.style.length === 1) {
-      filter = `role,${filters.style[0]}`
-      query.filter = filter
-    }
+
+    let filter = this.filtertypes(filters)
+    query.filter = filter
     scope.setState({
       filter
     })
@@ -206,6 +222,15 @@ let MemberTable = React.createClass({
           current: current,
         })
       },
+    }
+    const { userDetail } = this.props.scope.props
+    let filterKey = [ { text: '普通成员', value: 0 },{ text: '团队管理员', value: 1 }]
+    if ( userDetail.role === ROLE_SYS_ADMIN ) {
+      filterKey = [
+        { text: '普通成员', value: 0 },
+        { text: '团队管理员', value: 1 },
+        { text: '系统管理员', value: 2 }
+      ]
     }
     const columns = [
       {
@@ -282,11 +307,7 @@ let MemberTable = React.createClass({
        ),*/
         dataIndex: 'style',
         key: 'style',
-        filters: [
-          { text: '普通成员', value: 0 },
-          { text: '团队管理员', value: 1 },
-          { text: 'admin', value: 2 },
-        ],
+        filters: filterKey,
         width: '10%',
       },
       {
