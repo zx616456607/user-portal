@@ -142,14 +142,16 @@ let MemberTable = React.createClass({
     if (filters.style.length === 1) {
       return filter = `role__eq,${filters.style[0]}`
     }
-    let protoDate = [0,1,2]
+    let protoDate = ['0','1','2']
     if (filters.style.length == 2) {
       for (let i=0;i < protoDate.length; i++) {
-        if(filters.style.indexOf(i) < 0){
-          filter = `role__neq,${protoDate[i]}`
+        let item = protoDate[i]
+        if(filters.style.indexOf(item) < 0){
+          filter = `role__neq,${item}`
+          break
         }
-        return filter
       }
+      return filter
     }
     return protoDate
   },
