@@ -94,3 +94,4 @@ export const TENX_PORTAL_VERSION_MAJOR_KEY = 'TENX_PORTAL_VERSION_MAJOR'
 export const SESSION_STORAGE_TENX_HIDE_DOT_KEY = 'tenx_hide_dot'
 export const SYSTEM_DEFAULT_SCHEDULE = 'tenx_system_default_schedule'
 export const LITE = 'lite'
+export const MAX_CHARGE = 200000
