@@ -15,6 +15,8 @@ const indexConfig = require('../../configs/_standard')
 const oauth = require('../../tenx_api/v2/lib/oauth')
 const request = require('../request')('wechat')
 const DEFAULT_LANG = 'zh_CN'
+const DEFAULT_COLOR = '#2db7f5'
+const DEFAULT_URL = 'https://www.tenxcloud.com'
 
 class Wechat {
   constructor(config) {
@@ -112,6 +114,39 @@ class Wechat {
         access_token,
         openid,
         lang,
+      }
+    })
+  }
+
+  /**
+   *
+   *
+   * @param {String} access_token
+   * @param {String} openid 用户的openid
+   * @param {String} template_id 模板ID
+   * @param {Objec} data 渲染模板的数据
+   * @param {String} topcolor 顶部颜色
+   * @param {url} url URL置空，则在发送后，点击模板消息会进入一个空白页面（ios），或无法点击（android）
+   * @returns
+   *
+   * @memberOf Wechat
+   */
+  sendTemplate(access_token, openid, template_id, data, topcolor, url) {
+    if (!topcolor) {
+      topcolor = DEFAULT_COLOR
+    }
+    if (!url) {
+      url = DEFAULT_URL
+    }
+    const requrl = `${this.config.api_url}/cgi-bin/message/template/send?access_token=${access_token}`
+    return request(requrl, {
+      method: 'POST',
+      data: {
+        touser: openid,
+        template_id,
+        url,
+        topcolor,
+        data
       }
     })
   }
