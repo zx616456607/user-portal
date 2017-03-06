@@ -7,6 +7,7 @@
  * v0.1 - 2017-03-04
  * @author Zhangpc
  */
+'use strict'
 
 const moment = require('moment')
 const apiFactory = require('./api_factory')
