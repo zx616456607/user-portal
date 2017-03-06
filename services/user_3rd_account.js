@@ -10,12 +10,12 @@
 
 const moment = require('moment')
 const apiFactory = require('./api_factory')
-const wechatApi = require('../3rd_account/wechat')
 const constants = require('../constants')
 const logger = require('../utils/logger').getLogger('services/user_3rd_account')
-const wechat = new wechatApi()
 
 exports.sendTemplateToWechatLoginUser = function (user) {
+  const wechatApi = require('../3rd_account/wechat')
+  const wechat = new wechatApi()
   const method = 'sendTemplateToWechatLoginUser'
   const TEMPLATE_ID = 'IgjIeRv2j-ApC5CN9dPGxoh5toMToPhHhXkwvQeqesg'
   const color = '#586C95'
