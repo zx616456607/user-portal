@@ -6,6 +6,7 @@ import { loadUserTeamspaceList } from '../../../actions/user'
 import { loadTeamClustersList } from '../../../actions/team'
 import { parseAmount } from '../../../common/tools'
 import { AMOUNT_CONVERSION } from '../../../../constants'
+import { MAX_PAY_AMOUNT, MIN_NOTIFY_AMOUNT } from '../../../constants'
 import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
 import { loadChargeRecord, loadNotifyRule, setNotifyRule } from '../../../actions/consumption'
 import PopSelect from '../../PopSelect'
@@ -99,7 +100,7 @@ class RechargeRecord extends Component {
     let notifyByMail = !!(notifyRule.notifyWay & 1)
     let notifyByNofityCenter = !!(notifyRule.notifyWay & 2)
     this.setState({
-      threshold: notifyRule.threshold,
+      threshold: notifyRule.threshold || MIN_NOTIFY_AMOUNT,
       notifyCenterCheckBox: notifyByNofityCenter,
       notifyMailCheckBox: notifyByMail,
     })
@@ -354,7 +355,9 @@ class RechargeRecord extends Component {
                       threshold: value
                     })
                   } }
-                  min={0}
+                  min={MIN_NOTIFY_AMOUNT}
+                  max={MAX_PAY_AMOUNT}
+                  step={1}
                   />
                   {
                     standard?
