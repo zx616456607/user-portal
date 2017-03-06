@@ -24,7 +24,7 @@ exports.sendTemplateToWechatLoginUser = function (user) {
   const reqArray = []
   // Get user 3rd accounts
   reqArray.push(api.users.getBy([userID, 'bindings']))
-  // Get Wechat access_token
+  // Get wechat access_token
   reqArray.push(wechat.initWechat())
   Promise.all(reqArray).then(results => {
     const user3rdAccounts = results[0]
