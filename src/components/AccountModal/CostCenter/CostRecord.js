@@ -467,6 +467,7 @@ class CostRecord extends Component{
               <svg className='headerteamspace'>
                 <use xlinkHref='#headerteamspace' />
               </svg>
+              项目空间：
               <div className='popSelect'>
                 <PopSelect
                   title="选择项目空间"

@@ -19,6 +19,7 @@ const constants = require('../constants')
 const USER_CURRENT_CONFIG = constants.USER_CURRENT_CONFIG
 const indexService = require('./')
 const _ = require('lodash')
+const user3rdAccount = require('./user_3rd_account')
 
 /**
  * Set user current config: teamspace, cluster
@@ -177,6 +178,12 @@ exports.verifyUser = function* (next) {
       throw err
     }
   }*/
+  // Send template to user wechat
+  if (body.accountType === 'wechat') {
+    setTimeout(() => {
+      user3rdAccount.sendTemplateToWechatLoginUser(loginUser)
+    })
+  }
   yield indexService.setUserCurrentConfigCookie.apply(this, [loginUser])
   // Delete sensitive information
   delete result.userID

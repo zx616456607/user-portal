@@ -11,7 +11,16 @@
 'use strict'
 
 import moment from 'moment'
-import { AMOUNT_CONVERSION, AMOUNT_DEFAULT_PRECISION, DEFAULT_TIME_FORMAT } from '../../constants'
+import {
+  AMOUNT_CONVERSION,
+  AMOUNT_DEFAULT_PRECISION,
+  DEFAULT_TIME_FORMAT,
+} from '../../constants'
+import {
+  TENX_PORTAL_VERSION_MAJOR_KEY,
+  TENX_PORTAL_VERSION_KEY,
+  VERSION_REG_EXP,
+} from '../constants'
 import { STANDARD_MODE, ENTERPRISE_MODE } from '../../configs/constants'
 import { mode } from '../../configs/model'
 
@@ -398,4 +407,32 @@ export function isStandardMode() {
 
 export function clearSessionStorage() {
   sessionStorage && sessionStorage.clear()
+}
+
+export function getVersion() {
+  let version = window[TENX_PORTAL_VERSION_KEY]
+  if (!version) {
+    return
+  }
+  let versionMatch = version.match(VERSION_REG_EXP)
+  if (!versionMatch) {
+    return
+  }
+  version = versionMatch[0]
+  version = version.replace('v', '')
+  return version
+}
+
+/**
+ * Get portal real mode
+ *
+ * @export
+ * @returns lite | enterprise | standard
+ */
+export function getPortalRealMode() {
+  let major = window[TENX_PORTAL_VERSION_MAJOR_KEY]
+  if (!major) {
+    return mode
+  }
+  return major
 }

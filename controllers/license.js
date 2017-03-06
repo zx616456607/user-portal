@@ -47,7 +47,7 @@ exports.checkLicense = function* () {
     let end_time = Date.parse(end);
     let now = new Date();
     let date = end_time - now;
-    const days = Math.floor(date/(24*3600*1000));
+    const days = date/(24*3600*1000);
     if (days > 0) {
       license_status = 'VALID'
       left_license_days = days
@@ -103,7 +103,13 @@ exports.addLicense = function* () {
 
 // get platform_id
 exports.getPlatformID = function* () {
+  const platform = this.session.platform
+  if (platform) {
+    this.body = platform
+    return
+  }
   const api = apiFactory.getApi()
   const result = yield api.licenses.getBy(["platform"])
+  this.session.platform = result
   this.body = result
 }
