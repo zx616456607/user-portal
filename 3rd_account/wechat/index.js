@@ -119,7 +119,7 @@ class Wechat {
   }
 
   /**
-   *
+   * Send template to wechat user
    *
    * @param {String} access_token
    * @param {String} openid 用户的openid
