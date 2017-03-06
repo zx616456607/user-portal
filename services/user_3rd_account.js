@@ -8,6 +8,7 @@
  * @author Zhangpc
  */
 'use strict'
+
 const moment = require('moment')
 const apiFactory = require('./api_factory')
 const constants = require('../constants')

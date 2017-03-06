@@ -14,7 +14,7 @@ import { sendRegisterPhoneCaptcha, changeUserInfo } from '../../../../../actions
 import NotificationHandler from '../../../../../common/notification_handler.js'
 const createForm = Form.create
 const FormItem = Form.Item
-import { PHONE_REGEX } from '../../../../../constants'
+import { PHONE_REGEX } from '../../../../../../constants'
 let isAction = false
 
 let PhoneRow = React.createClass({
