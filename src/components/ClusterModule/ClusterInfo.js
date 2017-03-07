@@ -52,13 +52,14 @@ let ClusterInfo = React.createClass ({
         <div className="h3">集群信息
           { !editCluster ?
           <a onClick={()=> this.setState({editCluster: true})} className="btnEdit">编辑集群</a>
-          : null
+          :
+          <div style={{float:'right'}}><Button size="small" onClick={()=> this.setState({editCluster: false})}>取消</Button><Button type="primary" size="small" style={{marginLeft:'8px'}}>保存</Button></div>
           }
         </div>
-        <div className="imgBox">
+        <div className="imgBox" style={{padding:'50px 24px'}}>
           <svg><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#app"></use></svg>
         </div>
-        <Form className="clusterTable">
+        <Form className="clusterTable" style={{padding:'45px 0'}}>
           <div className="formItem">
             <Form.Item >
               <div className="h4">集群名称</div>
