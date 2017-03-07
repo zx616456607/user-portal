@@ -128,7 +128,7 @@ class App extends Component {
     }
     // license 过期
     if (statusCode === LICENSE_EXPRIED_CODE) {
-      notification.error('激活证书已过期，请在登录界面激活')
+      notification.error('许可证已过期，请在登录界面激活')
       window.location.href = '/logout'
       return
     }

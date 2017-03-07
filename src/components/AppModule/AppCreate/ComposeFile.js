@@ -125,7 +125,7 @@ class ComposeFile extends Component {
     })
   }
   subApp() {
-    const {appName, appDescYaml, remark} = this.state
+    const { appName, appDescYaml, remark } = this.state
     const { cluster } = this.props
     let notification = new NotificationHandler()
     this.props.form.validateFields((errors, values) => {
@@ -143,6 +143,9 @@ class ComposeFile extends Component {
         notification.error('请选择编排文件')
         return
       }
+      this.setState({
+        createDisabled: true,
+      })
       this.props.createApp(appConfig, {
         success: {
           func: () => {
@@ -154,6 +157,16 @@ class ComposeFile extends Component {
             localStorage.removeItem('selectedList')
             localStorage.removeItem('transientAppName')
             browserHistory.push('/app_manage')
+          },
+          isAsync: true
+        },
+        failed: {
+          func: err => {
+            this.setState({
+              createDisabled: false,
+            })
+            const { message } = err
+            notification.error('创建应用失败', message.message)
           },
           isAsync: true
         },

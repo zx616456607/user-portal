@@ -33,12 +33,12 @@ class EnterpriseApp extends Component {
         func: (res) => {
           let outdated = false
           let loginModalVisible = false
-          let licenseTips = '激活证书'
-          let licenseDay = 14 
+          let licenseTips = '许可证'
+          let licenseDay = 14
           const { licenseStatus, leftLicenseDays, leftTrialDays } = res.data
           if (licenseStatus == 'VALID' && parseInt(leftLicenseDays) <= 7) {
             outdated = true // show warning and allow login
-            licenseDay = parseInt(leftLicenseDays)
+            licenseDay = Math.floor(leftLicenseDays *10) /10
             if (licenseDay <= 0) {
               window.location.href ='/logout'
             }
@@ -46,7 +46,7 @@ class EnterpriseApp extends Component {
           if (licenseStatus == 'NO_LICENSE' && parseInt(leftTrialDays) <= 7) {
             outdated = true // show warning and allow login
             licenseTips = '产品试用'
-            licenseDay = parseInt(leftTrialDays)
+            licenseDay = Math.floor(leftTrialDays *10) /10
             if (licenseDay <= 0) {
               window.location.href ='/logout'
             }
@@ -67,16 +67,16 @@ class EnterpriseApp extends Component {
     if (!this.props.loginUser) return
     if (this.props.loginUser.role == ROLE_SYS_ADMIN) {
       return (
-      <span><Link to="/setting/license" style={{color:'white',textDecoration: 'underline'}}> 输入激活码 </Link>以使用平台</span>
+      <span><Link to="/setting/license" style={{color:'white',textDecoration: 'underline'}}> 输入许可证 </Link>以使用平台</span>
       )
     }
-    return '请联系管理员输入激活码以继续使用平台'
+    return '请联系管理员输入许可证以继续使用平台'
   }
   tipError() {
     if( this.state.outdated ) {
       return (
         <div id='topError'>
-          {this.state.licenseTips}将于{this.state.licenseDay}天后（即{ formatDate(this.state.license.trialEndTime)}）过期，{this.checkTipsText()}
+          {this.state.licenseTips}将于 {Math.floor(this.state.licenseDay) } 天后（即{ formatDate(this.state.license.end)}）过期，{this.checkTipsText()}
         </div>
      )
    }

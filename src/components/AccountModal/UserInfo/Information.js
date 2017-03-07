@@ -2,20 +2,23 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  Storage list
+ *  my Information
  *
  * v0.1 - 2016/11/1
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Button, Input, Icon, Form } from 'antd'
+import { Row, Col, Card, Button, Input, Icon, Form, Modal } from 'antd'
 import './style/Information.less'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import { updateUser } from '../../../actions/user'
 import { parseAmount } from '../../../common/tools'
 import NotificationHandler from '../../../common/notification_handler'
-import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants' 
+import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
+import MemberRecharge from '../_Enterprise/Recharge'
+import { chargeUser } from '../../../actions/charge'
+import { loadLoginUserDetail } from '../../../actions/entities'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -119,7 +122,7 @@ let ResetPassWord = React.createClass({
               <FormItem hasFeedback>
                 <Input type={password} className="passInt" {...passwdProps} placeholder="输入新密码" autoComplete="off" ref='intPass' />
                 <Icon type="eye"
-                  onClick={this.handleChange} 
+                  onClick={this.handleChange}
                   className={password === 'text' ? 'passIcon' : ''} />
               </FormItem>
             </Col>
@@ -149,6 +152,8 @@ class Information extends Component {
     this.resetPsw = this.resetPsw.bind(this)
     this.state = {
       revisePass: false,
+      number: 10,
+      visibleMember: false,// member account
     }
   }
   handleRevise() {
@@ -180,13 +185,52 @@ class Information extends Component {
         this.setState({
           revisePass: true
         })
-      } 
+      }
       if(!hash) {
         this.setState({
           revisePass: false
         })
       }
     }
+  }
+  activeMenu(number) {
+    this.setState({number})
+  }
+  memberRecharge(userDetail, roleName) {
+    const record = {
+      name: userDetail.displayName,
+      namespace:userDetail.namespace,
+      style: roleName,
+      balance: parseAmount(userDetail.balance || 0).fullAmount
+    }
+    this.setState({
+      visibleMember: true,
+      record
+    })
+  }
+  changeUser() {
+    let notification = new NotificationHandler()
+    const amount = this.state.number
+    const body = {
+      namespaces: [this.state.record.namespace],
+      amount
+    }
+    if (!amount || amount <=0 ) {
+      notification.info('请选择充值金额, 且不能为负数')
+      return
+    }
+    const { loadLoginUserDetail, chargeUser} = this.props
+    const _this = this
+    chargeUser(body, {
+      success: {
+        func: (ret) => {
+          _this.setState({visibleMember: false})
+          notification.success('充值成功')
+          loadLoginUserDetail()
+        },
+        isAsync: true
+      }
+    })
   }
   render() {
     const { revisePass } = this.state
@@ -235,18 +279,36 @@ class Information extends Component {
         </Row>
         <Row className="Item" style={{ border: 'none' }}>
           <Col span={4}>余额</Col>
-          <Col span={20}>{balance}T</Col>
+          <Col span={2}>{balance}T</Col>
+          {/*  system user  */}
+          {(ROLE_SYS_ADMIN == this.props.loginUser.role) ?
+            <Col span={16}><Button type="primary" onClick={()=>　this.memberRecharge(userDetail,roleName)}>充值</Button></Col>
+            :null
+          }
         </Row>
+         {/* 充值modal */}
+        <Modal title="成员充值" visible={this.state.visibleMember}
+         onCancel={()=> this.setState({visibleMember: false})}
+         onOk={()=> this.changeUser()}
+         width={600}
+        >
+          <MemberRecharge parentScope={this} />
+        </Modal>
       </div>
     )
   }
 }
 
 function mapStateToProp(state, props) {
+  const loginUser = state.entities.loginUser.info
+
   return {
+    loginUser
   }
 }
 
 export default connect(mapStateToProp, {
   updateUser,
+  loadLoginUserDetail,
+  chargeUser
 })(Information)
