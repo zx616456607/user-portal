@@ -454,6 +454,7 @@ class clusterTabList extends Component {
     let oncache = this.state.currentContainer.map((item) => {
       return item.metadata.name;
     })
+    const maxNodes = license && license[camelize('max_nodes')]
     return (
       <QueueAnim className='clusterTabListBox'
         type='right'
@@ -461,7 +462,12 @@ class clusterTabList extends Component {
         <div id='clusterTabList' key='clusterTabList'>
           <Card className='ClusterListCard'>
             <div className='operaBox'>
-              <Button className='addPodBtn' size='large' type='primary' onClick={this.handleAddClusterNode}>
+              <Button
+                className='addPodBtn'
+                size='large'
+                type='primary'
+                onClick={this.handleAddClusterNode}
+                disabled={nodeList.length >= maxNodes}>
                 <Icon type='plus' />
                 <span>添加主机节点</span>
               </Button>
