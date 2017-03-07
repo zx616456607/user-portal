@@ -157,7 +157,12 @@ const rootRoutes = {
       component: require('../containers/Cluster').default,
       indexRoute: {
         component: require('../components/ClusterModule').default,
-      }
+      },
+      getChildRoutes: (location, cb) => {
+        require.ensure([], function (require) {
+          cb(null, require('./cluster').default)
+        })
+      },
     }, {
       path: '*',
       component: require('../containers/ErrorPage').default,
