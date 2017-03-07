@@ -135,3 +135,38 @@ exports.getAddNodeCMD = function* () {
   const result = yield spi.clusters.getBy([cluster, 'add'])
   this.body = result.data
 }
+// cluster node detail pod list
+exports.getPodlist = function* () {
+  const cluster = this.params.cluster
+  const node = this.params.node
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.clusters.getBy([cluster, 'nodes', node, 'podlist'])
+  this.body = result.data
+}
+// host info
+exports.getClustersInfo = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const node = this.params.node
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster,'nodes',node])
+  this.body = result ? result.data : {}
+}
+//  host metrics
+exports.getClustersMetrics = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const node = this.params.node
+  const type = this.params.type
+  const api = apiFactory.getK8sApi(loginUser)
+  let querys = {
+    source: 'prometheus',
+    type: 'cpu/usage_rate'
+  }
+  if (type == 'memory') {
+    querys.type = 'memory/usage'
+  }
+  const result = yield api.getBy([cluster,'nodes',node,'metrics'],querys)
+  this.body = result
+}
