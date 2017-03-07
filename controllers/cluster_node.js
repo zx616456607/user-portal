@@ -170,3 +170,10 @@ exports.getClustersMetrics = function* () {
   const result = yield api.getBy([cluster,'nodes',node,'metrics'],querys)
   this.body = result
 }
+
+exports.getAddClusterCMD = function* () {
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getApi(loginUser)
+  const result = yield spi.clusters.getBy(['add'])
+  this.body = result.data
+}

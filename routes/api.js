@@ -315,6 +315,7 @@ module.exports = function (Router) {
   router.get('/cluster-nodes/:cluster', clusternodesController.getClusterNodes)
   router.post('/cluster-nodes/:cluster/node/:node', clusternodesController.changeNodeSchedule)
   router.delete('/cluster-nodes/:cluster/node/:node', clusternodesController.deleteNode)
+  router.get('/cluster-nodes/add-cluster-cmd', clusternodesController.getAddClusterCMD)
   router.get('/cluster-nodes/:cluster/add-node-cmd', clusternodesController.getAddNodeCMD)
   // Get kubectl pods names
   router.get('/cluster-nodes/:cluster/kubectls', clusternodesController.getKubectls)

@@ -27,6 +27,7 @@ import NotificationHandler from '../../common/notification_handler'
 import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
 import ReactEcharts from 'echarts-for-react'
+import AddClusterOrNodeModal from './AddClusterOrNodeModal'
 
 import cpuImg from '../../assets/img/integration/cpu.png'
 import clusterImg from '../../assets/img/integration/cluster.png'
@@ -297,6 +298,7 @@ class ClusterTabList extends Component {
     this.closeDeleteModal = this.closeDeleteModal.bind(this);
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this);
     this.openTerminalModal = this.openTerminalModal.bind(this);
+    this.handleAddCluster = this.handleAddCluster.bind(this)
     this.handleAddClusterNode = this.handleAddClusterNode.bind(this)
     this.copyAddNodeCMD = this.copyAddNodeCMD.bind(this)
     this.state = {
@@ -305,7 +307,7 @@ class ClusterTabList extends Component {
       currentContainer: [],
       deleteNodeModal: false,
       TerminalLayoutModal: false,
-      addNodeModalVisible: false,
+      addClusterOrNodeModalVisible: false,
       deleteNode: null,
       copyAddNodeSuccess: false
     }
@@ -341,7 +343,7 @@ class ClusterTabList extends Component {
 
   copyAddNodeCMD() {
     //this function for user click the copy btn and copy the download code
-    const code = document.getElementById('addNodeCMDInput')
+    const code = document.getElementById('addClusterOrNodeCMDInput')
     code.select()
     document.execCommand('Copy', false)
     this.setState({
@@ -446,7 +448,15 @@ class ClusterTabList extends Component {
 
   handleAddClusterNode() {
     this.setState({
-      addNodeModalVisible: true,
+      addClusterOrNodeModalVisible: true,
+      addCmdType: 'node',
+    })
+  }
+
+  handleAddCluster() {
+    this.setState({
+      addClusterOrNodeModalVisible: true,
+      addCmdType: 'cluster',
     })
   }
 
@@ -694,34 +704,12 @@ class ClusterTabList extends Component {
             >
             <TerminalModal scope={scope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal} oncache={oncache} cluster={cluster}/>
           </Modal>
-          <Modal
-            title='添加主机节点'
-            className='addClusterNodeModal'
-            visible={this.state.addNodeModalVisible}
-            onOk={() => this.setState({addNodeModalVisible: false})}
-            onCancel={() => this.setState({addNodeModalVisible: false})}>
-            <div>
-              <div style={{paddingBottom: '15px'}}>
-                1. 先根据您的操作系统安装最新版本 Docker
-                （<a target="_blank" href="https://docs.docker.com/engine/installation/linux/">如何在Linux安装Docker</a>）
-              </div>
-              <div>
-                2. 请在安装好 Docker 的主机上执行以下命令：
-                <pre>
-                  {addNodeCMD ? addNodeCMD[camelize('default_command')] : <Spin />}&nbsp;&nbsp;
-                  <Tooltip title={copyAddNodeSuccess ? '复制成功' : '点击复制'}>
-                    <a className={copyAddNodeSuccess ? "actions copyBtn" : "copyBtn"}
-                      onClick={this.copyAddNodeCMD}
-                      onMouseLeave={() => setTimeout(() => this.setState({copyAddNodeSuccess: false}), 500) }>
-                      <Icon type="copy" />
-                    </a>
-                  </Tooltip>
-                  <input id="addNodeCMDInput" style={{ position: "absolute", opacity: "0", top:'0'}} value={addNodeCMD && addNodeCMD[camelize('default_command')]} />
-                </pre>
-                注意：新添加的主机需要与 Master 节点同一内网，可互通
-              </div>
-            </div>
-          </Modal>
+          <AddClusterOrNodeModal
+            title="添加主机节点"
+            visible={this.state.addClusterOrNodeModalVisible}
+            closeModal={() => this.setState({addClusterOrNodeModalVisible: false})}
+            CMD={addNodeCMD && addNodeCMD[camelize('default_command')]}
+            bottomContent={<p>注意：新添加的主机需要与 Master 节点同一内网，可互通</p>} />
         </div>
       </QueueAnim>
     )
