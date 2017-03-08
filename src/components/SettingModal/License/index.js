@@ -98,7 +98,7 @@ class License extends Component {
               success: {
                 func: (res) => {
                   if (res.data) {
-                    _this.setState({leftTrialDays: res.data.leftTrialDays,trialEndTime: res.data.trialEndTime})
+                    _this.setState({leftTrialDays: res.data.leftTrialDays,trialEndTime: res.data.end})
                   }
                 }
               }
@@ -197,7 +197,6 @@ class License extends Component {
         </div>
       )
     }
-
     return (
       <div id='License'>
         <div className="title">授权管理</div>

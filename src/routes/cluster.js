@@ -11,8 +11,9 @@
 */
 
 const clusterRoutes = [{
-  path: 'cluster',
-  component: require('../components/ClusterModule').default,
-}]
+  path: ':cluster_name',
+  component: require('../components/ClusterModule/ClusterDetail').default,
+},
+]
 
 export default clusterRoutes
