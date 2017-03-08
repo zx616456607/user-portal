@@ -957,7 +957,7 @@ class AppServiceList extends Component {
             }
           }
           if(err.statusCode == 403) {
-            errMsg = "集群资源不足"
+            errMsg = '集群资源不足'
           }
           notification.error(`服务 ${Service.metadata.name} 添加失败` + (errMsg ? ' => ' + errMsg : ''))
         },

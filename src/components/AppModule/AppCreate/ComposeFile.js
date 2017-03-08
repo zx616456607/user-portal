@@ -166,7 +166,7 @@ class ComposeFile extends Component {
               createDisabled: false,
             })
             if(err.statusCode == 403) {
-              notification.error('创建应用失败', "集群资源不足")
+              notification.error('创建应用失败', '集群资源不足')
               return
             }
             const { message } = err
