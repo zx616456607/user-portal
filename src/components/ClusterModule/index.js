@@ -17,7 +17,9 @@ import ClusterTabList from './ClusterTabList'
 import NotificationHandler from '../../common/notification_handler'
 import { browserHistory } from 'react-router'
 import { ROLE_SYS_ADMIN } from '../../../constants'
-import { loadClusterList } from '../../actions/cluster'
+import { loadClusterList, getAddClusterCMD } from '../../actions/cluster'
+import AddClusterOrNodeModalContent from './AddClusterOrNodeModal/Content'
+import { camelize } from 'humps'
 
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;
@@ -48,7 +50,8 @@ let CreateClusterModal = React.createClass({
     form.resetFields()
   },
   render () {
-    const { getFieldProps ,getFieldValue} = this.props.form;
+    const { addClusterCMD, form } = this.props
+    const { getFieldProps, getFieldValue } = form
     const { parentScope } = this.props
     const clusterName = getFieldProps('clusterName', {
       rules: [
@@ -87,33 +90,40 @@ let CreateClusterModal = React.createClass({
         onCancel={() => this.btncancel()}
         onOk={()=>this.handleSubmit()}
       >
-      <Form horizontal onSubmit={(e)=> this.handleSubmit(e)}>
-        <br/>
-        <Form.Item>
-          <span className="itemKey">集群名称</span>
-          <Input {...clusterName} size="large" />
-        </Form.Item>
-        <Form.Item>
-          <span className="itemKey">API Server</span>
-          <Input {...apiServer} />
-        </Form.Item>
-        <Form.Item>
-           <span className="itemKey">API Tocken</span>
-          <Input {...apiTocken} type="textarea"/>
-        </Form.Item>
-        <Form.Item>
-          <span className="itemKey">服务出口列表</span>
-          <Input {...serverExport} type="textarea"/>
-        </Form.Item>
-        <Form.Item>
-          <span className="itemKey">域名列表</span>
-          <Input {...orgList} type="textarea"/>
-        </Form.Item>
-        <Form.Item>
-          <span className="itemKey">描述</span>
-          <Input {...descProps} type="textarea"/>
-        </Form.Item>
-      </Form>
+      <Tabs defaultActiveKey="1">
+        <TabPane tab="新建集群" key="1">
+          <AddClusterOrNodeModalContent CMD={addClusterCMD && addClusterCMD[camelize('default_command')]} />
+        </TabPane>
+        <TabPane tab="添加已有集群" key="2">
+          <Form horizontal onSubmit={(e)=> this.handleSubmit(e)}>
+            <br/>
+            <Form.Item>
+              <span className="itemKey">集群名称</span>
+              <Input {...clusterName} size="large" />
+            </Form.Item>
+            <Form.Item>
+              <span className="itemKey">API Server</span>
+              <Input {...apiServer} />
+            </Form.Item>
+            <Form.Item>
+              <span className="itemKey">API Tocken</span>
+              <Input {...apiTocken} type="textarea"/>
+            </Form.Item>
+            <Form.Item>
+              <span className="itemKey">服务出口列表</span>
+              <Input {...serverExport} type="textarea"/>
+            </Form.Item>
+            <Form.Item>
+              <span className="itemKey">域名列表</span>
+              <Input {...orgList} type="textarea"/>
+            </Form.Item>
+            <Form.Item>
+              <span className="itemKey">描述</span>
+              <Input {...descProps} type="textarea"/>
+            </Form.Item>
+          </Form>
+        </TabPane>
+      </Tabs>
     </Modal>
 
     )
@@ -144,15 +154,16 @@ class ClusterList extends Component {
 
   componentDidMount() {
     document.title = '基础设施 | 时速云'
-    const { loginUser } = this.props
+    const { loginUser, getAddClusterCMD } = this.props
     const { role } = loginUser
     if (!this.checkIsAdmin()) {
       browserHistory.push('/')
     }
+    getAddClusterCMD()
   }
 
   render() {
-    const { intl, clustersIsFetching, clusters, } = this.props
+    const { intl, clustersIsFetching, clusters, currentClusterID, addClusterCMD } = this.props
     if (!this.checkIsAdmin() || clustersIsFetching) {
       return (
         <div className="loadingBox">
@@ -160,12 +171,12 @@ class ClusterList extends Component {
         </div>
       )
     }
-    if (clusters.length < 1) {
+    /*if (clusters.length < 1) {
       return (
         <div className="loadingBox">
           暂无可用集群，请添加
         </div>)
-    }
+    }*/
     const { formatMessage } = intl
     const otherImageHead = this.state.otherImageHead || []
     const scope = this
@@ -183,7 +194,7 @@ class ClusterList extends Component {
 
           <Tabs
             key='ClusterTabs'
-            defaultActiveKey={clusters[0].clusterID}
+            defaultActiveKey={currentClusterID}
             tabBarExtraContent={
               <Tooltip title="企业版 Lite 只支持一个集群，联邦集群等功能，请使用 Pro 版。" placement="topLeft">
                 <Button className='addBtn' key='addBtn' size='large' type='primary' onClick={() => this.setState({ createModal: true })}>
@@ -195,7 +206,13 @@ class ClusterList extends Component {
           >
             {ImageTabList}
           </Tabs>
-         <CreateClusterModal parentScope={scope}/>
+          {
+            clusters.length < 1 && (
+            <div key="loadingBox" className="loadingBox">
+              暂无可用集群，请添加
+            </div>)
+          }
+         <CreateClusterModal parentScope={scope} addClusterCMD={addClusterCMD}/>
         </div>
       </QueueAnim>
     )
@@ -208,18 +225,21 @@ ClusterList.propTypes = {
 
 function mapStateToProps(state, props) {
   const { entities, cluster } = state
-  const { loginUser } = entities
-  const { clusters } = cluster
+  const { loginUser, current } = entities
+  const { clusters, addClusterCMD } = cluster
   return {
     loginUser: loginUser.info,
     clustersIsFetching: clusters.isFetching,
-    clusters: clusters.result ? clusters.result.data : []
+    clusters: clusters.result ? clusters.result.data : [],
+    currentClusterID: current.cluster.clusterID,
+    addClusterCMD: (addClusterCMD ? addClusterCMD.result : {}) || {},
   }
 }
 
 
 export default connect(mapStateToProps, {
   loadClusterList,
+  getAddClusterCMD,
 })(injectIntl(ClusterList, {
   withRef: true,
 }))

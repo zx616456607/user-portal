@@ -183,3 +183,53 @@ export function loadHostMetrics(body, query) {
     return dispatch(fetchHostMetrics(body, query))
   }
 }
+
+export const UPDATE_CLUSTER_REQUEST = 'UPDATE_CLUSTER_REQUEST'
+export const UPDATE_CLUSTER_SUCCESS = 'UPDATE_CLUSTER_SUCCESS'
+export const UPDATE_CLUSTER_FAILURE = 'UPDATE_CLUSTER_FAILURE'
+
+// Fetches cluster list from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateCluster(cluster, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_CLUSTER_REQUEST, UPDATE_CLUSTER_SUCCESS, UPDATE_CLUSTER_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}`,
+      options: {
+        method: 'PUT',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Fetches update cluster from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function updateCluster(cluster, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateCluster(cluster, body, callback))
+  }
+}
+
+export const GET_ADD_CLUSTER_CMD_REQUEST = 'GET_ADD_CLUSTER_CMD_REQUEST'
+export const GET_ADD_CLUSTER_CMD_SUCCESS = 'GET_ADD_CLUSTER_CMD_SUCCESS'
+export const GET_ADD_CLUSTER_CMD_FAILURE = 'GET_ADD_CLUSTER_CMD_FAILURE'
+
+function fetchAddClusterCMD(callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_ADD_CLUSTER_CMD_REQUEST, GET_ADD_CLUSTER_CMD_SUCCESS, GET_ADD_CLUSTER_CMD_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/add-cluster-cmd`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getAddClusterCMD(callback) {
+  return (dispatch) => {
+    return dispatch(fetchAddClusterCMD(callback))
+  }
+}

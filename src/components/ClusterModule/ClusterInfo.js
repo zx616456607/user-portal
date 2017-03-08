@@ -9,11 +9,16 @@
  */
 import React from 'react'
 import { Icon, Button, Card, Form, Input, Tooltip, Spin, } from 'antd'
+import { updateCluster } from '../../actions/cluster'
+import { connect } from 'react-redux'
+
+let saveBtnDisabled = true
 
 let ClusterInfo = React.createClass ({
   getInitialState() {
     return {
       editCluster: false, // edit btn
+      saveBtnLoading: false,
     }
   },
   checkValue(rule, value, callback) {
@@ -33,7 +38,7 @@ let ClusterInfo = React.createClass ({
   },
   updateCluster(e) {
     e.preventDefault()
-    const { form } = this.props
+    const { form, updateCluster, cluster } = this.props
     const { validateFields, resetFields } = form
     validateFields((errors, values) => {
       if (!!errors) {
@@ -41,16 +46,35 @@ let ClusterInfo = React.createClass ({
       }
       console.log(`values=================`)
       console.log(values)
+      this.setState({
+        saveBtnLoading: true,
+      })
+      updateCluster(cluster.clusterID, values, {
+        success: {
+          func: result => {
+            console.log(`result------------`)
+            console.log(result)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: err => {
+            console.log(`err------------`)
+            console.log(err)
+          },
+          isAsync: true
+        }
+      })
     })
   },
   render () {
     const { cluster, form } = this.props
-    const { editCluster } = this.state
+    const { editCluster, saveBtnLoading } = this.state
     const { getFieldProps } = form
     let {
       clusterName, apiHost, apiProtocol,
       apiVersion, bindingIPs, bindingDomains,
-      description,
+      description, apiToken
     } = cluster
     const apiUrl = `${apiProtocol}://${apiHost}`
     bindingIPs = parseArray(bindingIPs).join(', ')
@@ -62,21 +86,21 @@ let ClusterInfo = React.createClass ({
       ],
       initialValue: clusterName
     });
-    const bindingIPsProps = getFieldProps('serverExport',{
+    const bindingIPsProps = getFieldProps('bindingIPs',{
       rules: [
         { required: true, message: '输入服务出口列表' },
         // { validator: this.checkValue },
       ],
       initialValue: bindingIPs
     });
-    const bindingDomainsProps = getFieldProps('orgList',{
+    const bindingDomainsProps = getFieldProps('binding_domain',{
       rules: [
         { required: true, message: '输入域名列表' },
         // { validator: this.checkValue },
       ],
       initialValue: bindingDomains
     });
-    const descProps = getFieldProps('desc',{
+    const descProps = getFieldProps('description',{
       rules: [
         { required: false },
       ],
@@ -90,10 +114,15 @@ let ClusterInfo = React.createClass ({
           :
           <div style={{float:'right'}}>
             <Button size="small"
-              onClick={()=> this.setState({editCluster: false})}>
+              onClick={()=> {
+                this.setState({editCluster: false})
+                saveBtnDisabled = true
+              }}>
               取消
             </Button>
             <Button
+              loading={saveBtnLoading}
+              disabled={saveBtnDisabled}
               type="primary" size="small" style={{marginLeft:'8px'}}
               onClick={this.updateCluster}>
               保存
@@ -115,10 +144,12 @@ let ClusterInfo = React.createClass ({
               }
             </Form.Item>
             <Form.Item>
-              <div className="h4">API Server：</div>{apiUrl}
+              <div className="h4">API Server：</div>
+              <span>{apiUrl}</span>
             </Form.Item>
             <Form.Item>
-              <div className="h4">API Tocken：</div>XXXXXXXXXXX
+              <div className="h4">API Tocken：</div>
+              <span>{apiToken}</span>
             </Form.Item>
 
           </div>
@@ -165,6 +196,20 @@ function parseArray(array) {
   return array
 }
 
-ClusterInfo = Form.create()(ClusterInfo)
+function formChange(porps, fileds) {
+  console.log(`arguments----------------`)
+  console.log(arguments)
+  saveBtnDisabled = false
+}
 
-export default ClusterInfo
+ClusterInfo = Form.create({
+  onFieldsChange: formChange
+})(ClusterInfo)
+
+function mapStateToProps(state, props) {
+  return {}
+}
+
+export default connect(mapStateToProps, {
+  updateCluster,
+})(ClusterInfo)

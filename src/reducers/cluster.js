@@ -32,6 +32,11 @@ export default function cluster(state = {
       SUCCESS: ActionTypes.CLUSTER_LIST_SUCCESS,
       FAILURE: ActionTypes.CLUSTER_LIST_FAILURE,
     }, state.clusters, action, option),
+    addClusterCMD: reducerFactory({
+      REQUEST: ActionTypes.GET_ADD_CLUSTER_CMD_REQUEST,
+      SUCCESS: ActionTypes.GET_ADD_CLUSTER_CMD_SUCCESS,
+      FAILURE: ActionTypes.GET_ADD_CLUSTER_CMD_FAILURE,
+    }, state.addClusterCMD, action, option),
     hostInfo: reducerFactory({
       REQUEST: ActionTypes.GET_HOST_INFO_REQUEST,
       SUCCESS: ActionTypes.GET_HOST_INFO_SUCCESS,

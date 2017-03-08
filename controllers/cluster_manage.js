@@ -50,13 +50,21 @@ exports.getClusters = function* () {
   }
 }
 
-// api 集群实时summaryAPI
-exports.clusterDynamicInfo = function* () {
+exports.updateCluster = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster,'summary','dynamic'])
-  this.body = result ? result.data : {}
+  const body = this.request.body
+  const result = yield api.update(cluster, body)
+  this.body = result
+}
+
+// api 集群实时summaryAPI
+exports.clusterDynamicInfo = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.clusters.getBy(['add'])
+  this.body = result.data
 }
 
 // 集群Summary API( 主机数，CPU,mem,容器数等静态值）
