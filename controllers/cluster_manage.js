@@ -67,3 +67,22 @@ exports.clusterStaticsInfo = function* () {
   const result = yield api.getBy([cluster,'summary','static'])
   this.body = result ? result.data : {}
 }
+
+// For bind node when create service(lite only)
+exports.getNodes = function* (){
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const spi = apiFactory.getSpi(loginUser)
+  const result = yield spi.clusters.getBy([cluster, 'nodes']);
+  this.body = {
+    cluster,
+    data: result.data,
+  }
+}
+
+exports.getAddClusterCMD = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.clusters.getBy(['add'])
+  this.body = result.data
+}

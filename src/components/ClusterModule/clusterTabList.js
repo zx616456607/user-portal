@@ -128,10 +128,10 @@ const MyComponent = React.createClass({
   changeSchedulable(node, e) {
     //this function for change node schedulable
     const { scope } = this.props;
-    const { cluster, changeClusterNodeSchedule } = scope.props;
+    const { clusterID, changeClusterNodeSchedule } = scope.props;
     let { nodeList } = scope.state;
     let notification = new NotificationHandler()
-    changeClusterNodeSchedule(cluster, node, e, {
+    changeClusterNodeSchedule(clusterID, node, e, {
       success: {
         func: ()=> {
           notification.info(e ? '开启调度中，该操作 1 分钟内生效' : '关闭调度中，该操作 1 分钟内生效');
@@ -298,7 +298,6 @@ class ClusterTabList extends Component {
     this.closeDeleteModal = this.closeDeleteModal.bind(this);
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this);
     this.openTerminalModal = this.openTerminalModal.bind(this);
-    this.handleAddCluster = this.handleAddCluster.bind(this)
     this.handleAddClusterNode = this.handleAddClusterNode.bind(this)
     this.copyAddNodeCMD = this.copyAddNodeCMD.bind(this)
     this.state = {
@@ -313,9 +312,9 @@ class ClusterTabList extends Component {
     }
   }
 
-  loadData() {
-    const { getAllClusterNodes, cluster } = this.props;
-    getAllClusterNodes(cluster, {
+  loadData(props) {
+    const { getAllClusterNodes, clusterID, getKubectlsPods } = props || this.props
+    getAllClusterNodes(clusterID, {
       success: {
         func: (result) => {
           let nodeList = result.data.clusters.nodes.nodes;
@@ -328,17 +327,24 @@ class ClusterTabList extends Component {
         isAsync: true
       }
     })
+    getKubectlsPods(clusterID)
   }
 
   componentWillMount() {
-    const { getAllClusterNodes, cluster, getKubectlsPods } = this.props
-    getKubectlsPods(cluster)
     this.loadData()
   }
 
+  // componentWillReceiveProps(nextProps) {
+  //   const { clusterID } = nextProps
+  //   if (clusterID === this.props.clusterID) {
+  //     return
+  //   }
+  //   this.loadData(nextProps)
+  // }
+
   componentDidMount() {
-    const { cluster, getAddNodeCMD } = this.props
-    getAddNodeCMD(cluster)
+    const { clusterID, getAddNodeCMD } = this.props
+    getAddNodeCMD(clusterID)
   }
 
   copyAddNodeCMD() {
@@ -375,17 +381,17 @@ class ClusterTabList extends Component {
   deleteClusterNode() {
     //this function for delete cluster node
     let notification = new NotificationHandler()
-    const { cluster, deleteClusterNode, getAllClusterNodes } = this.props;
+    const { clusterID, deleteClusterNode, getAllClusterNodes } = this.props;
     const { deleteNode } = this.state;
     const _this = this;
     if (deleteNode.isMaster) {
       notification.warn(`不能删除${MASTER}`)
       return
     }
-    deleteClusterNode(cluster, deleteNode.objectMeta.name, {
+    deleteClusterNode(clusterID, deleteNode.objectMeta.name, {
       success: {
         func: () => {
-          getAllClusterNodes(cluster, {
+          getAllClusterNodes(clusterID, {
             success: {
               func: (result) => {
                 let nodeList = result.data.clusters.nodes.nodes;
@@ -449,19 +455,16 @@ class ClusterTabList extends Component {
   handleAddClusterNode() {
     this.setState({
       addClusterOrNodeModalVisible: true,
-      addCmdType: 'node',
-    })
-  }
-
-  handleAddCluster() {
-    this.setState({
-      addClusterOrNodeModalVisible: true,
-      addCmdType: 'cluster',
     })
   }
 
   render() {
-    const { intl, isFetching, nodes, cluster, memoryList, cpuList, license, kubectlsPods, addNodeCMD } = this.props;
+    const {
+      intl, isFetching, nodes,
+      clusterID, memoryList, cpuList,
+      license, kubectlsPods, addNodeCMD,
+      cluster,
+    } = this.props;
     const { formatMessage } = intl;
     const { nodeList, podCount, deleteNode, copyAddNodeSuccess } = this.state;
     const rootscope = this.props.scope;
@@ -607,7 +610,7 @@ class ClusterTabList extends Component {
               </Card>
             </Col>
           </Row>
-          <ClusterInfo />
+          <ClusterInfo cluster={cluster} />
           <Card className='ClusterListCard'>
             <div className='operaBox'>
               <Button
@@ -702,7 +705,7 @@ class ClusterTabList extends Component {
             onCancel={this.closeTerminalLayoutModal}
             maskClosable={false}
             >
-            <TerminalModal scope={scope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal} oncache={oncache} cluster={cluster}/>
+            <TerminalModal scope={scope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal} oncache={oncache} cluster={clusterID}/>
           </Modal>
           <AddClusterOrNodeModal
             title="添加主机节点"
@@ -725,7 +728,7 @@ function mapStateToProps(state, props) {
     nodes: {},
     isFetching: false
   }
-  const cluster = state.entities.current.cluster.clusterID
+  const clusterID = props.cluster.clusterID
   const { getAllClusterNodes, kubectlsPods, addNodeCMD } = state.cluster_nodes
   const { isFetching } = getAllClusterNodes || pods
   const data = getAllClusterNodes.nodes || pods
@@ -737,7 +740,7 @@ function mapStateToProps(state, props) {
     memoryList,
     license,
     isFetching,
-    cluster,
+    clusterID,
     kubectlsPods: (kubectlsPods ? kubectlsPods.result : {}) || {},
     addNodeCMD: (addNodeCMD ? addNodeCMD.result : {}) || {},
   }

@@ -13,10 +13,11 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/clusterList.less'
-import ClusterTabList from './ClusterTabList.js'
+import ClusterTabList from './ClusterTabList'
 import NotificationHandler from '../../common/notification_handler'
 import { browserHistory } from 'react-router'
 import { ROLE_SYS_ADMIN } from '../../../constants'
+import { loadClusterList } from '../../actions/cluster'
 
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;
@@ -24,7 +25,7 @@ const MenuItemGroup = Menu.ItemGroup;
 
 let CreateClusterModal = React.createClass({
   handleSubmit(e) {
-    e ? e.preventDefault() : null
+    e && e.preventDefault()
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         console.log('Errors in form!!!');
@@ -136,6 +137,11 @@ class ClusterList extends Component {
     return role === ROLE_SYS_ADMIN
   }
 
+  componentWillMount() {
+    const { loadClusterList } = this.props
+    loadClusterList()
+  }
+
   componentDidMount() {
     document.title = '基础设施 | 时速云'
     const { loginUser } = this.props
@@ -146,18 +152,28 @@ class ClusterList extends Component {
   }
 
   render() {
-    if (!this.checkIsAdmin()) {
+    const { intl, clustersIsFetching, clusters, } = this.props
+    if (!this.checkIsAdmin() || clustersIsFetching) {
       return (
         <div className="loadingBox">
           <Spin size="large" />
         </div>
       )
     }
-    const { formatMessage } = this.props.intl;
-    const otherImageHead = this.state.otherImageHead || [];
-    const scope = this;
-    let ImageTabList = [];
-    ImageTabList.push(<TabPane tab='默认集群' key='1'><ClusterTabList /></TabPane>)
+    if (clusters.length < 1) {
+      return (
+        <div className="loadingBox">
+          暂无可用集群，请添加
+        </div>)
+    }
+    const { formatMessage } = intl
+    const otherImageHead = this.state.otherImageHead || []
+    const scope = this
+    let ImageTabList = clusters.map(cluster => (
+      <TabPane tab={cluster.clusterName} key={cluster.clusterID}>
+        <ClusterTabList cluster={cluster} />
+      </TabPane>
+    ))
     return (
       <QueueAnim className='ClusterBox'
         type='right'
@@ -167,7 +183,7 @@ class ClusterList extends Component {
 
           <Tabs
             key='ClusterTabs'
-            defaultActiveKey='1'
+            defaultActiveKey={clusters[0].clusterID}
             tabBarExtraContent={
               <Tooltip title="企业版 Lite 只支持一个集群，联邦集群等功能，请使用 Pro 版。" placement="topLeft">
                 <Button className='addBtn' key='addBtn' size='large' type='primary' onClick={() => this.setState({ createModal: true })}>
@@ -179,7 +195,7 @@ class ClusterList extends Component {
           >
             {ImageTabList}
           </Tabs>
-         <CreateClusterModal parentScope={this}/>
+         <CreateClusterModal parentScope={scope}/>
         </div>
       </QueueAnim>
     )
@@ -191,16 +207,19 @@ ClusterList.propTypes = {
 }
 
 function mapStateToProps(state, props) {
-  const { entities } = state
+  const { entities, cluster } = state
   const { loginUser } = entities
+  const { clusters } = cluster
   return {
     loginUser: loginUser.info,
+    clustersIsFetching: clusters.isFetching,
+    clusters: clusters.result ? clusters.result.data : []
   }
 }
 
 
 export default connect(mapStateToProps, {
-  //
+  loadClusterList,
 })(injectIntl(ClusterList, {
   withRef: true,
 }))

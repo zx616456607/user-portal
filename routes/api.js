@@ -58,6 +58,10 @@ module.exports = function (Router) {
   router.get('/clusters', clusterController.getClusters)
   router.get('/clusters/:cluster/dynamicInfo', clusterController.clusterDynamicInfo)
   router.get('/clusters/:cluster/staticInfo', clusterController.clusterStaticsInfo)
+  // For bind node when create service(lite only)
+  router.get('/clusters/:cluster/nodes', clusterController.getNodes)
+  router.get('/clusters/add-cluster-cmd', clusterController.getAddClusterCMD)
+
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
   router.put('/clusters/:cluster/apps/:app_name/desc', appController.updateAppDesc)
@@ -315,12 +319,9 @@ module.exports = function (Router) {
   router.get('/cluster-nodes/:cluster', clusternodesController.getClusterNodes)
   router.post('/cluster-nodes/:cluster/node/:node', clusternodesController.changeNodeSchedule)
   router.delete('/cluster-nodes/:cluster/node/:node', clusternodesController.deleteNode)
-  router.get('/cluster-nodes/add-cluster-cmd', clusternodesController.getAddClusterCMD)
   router.get('/cluster-nodes/:cluster/add-node-cmd', clusternodesController.getAddNodeCMD)
   // Get kubectl pods names
   router.get('/cluster-nodes/:cluster/kubectls', clusternodesController.getKubectls)
-  // For bind node when create service(lite only)
-  router.get('/clusters/:cluster/nodes', clusternodesController.getNodes)
   router.get('/cluster-nodes/:cluster/:node/podlist', clusternodesController.getPodlist)
   // get host detail info
   router.get('/cluster-nodes/:cluster/:node/info', clusternodesController.getClustersInfo)

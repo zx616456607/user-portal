@@ -19,7 +19,7 @@ const option = {
 }
 
 export default function cluster(state = {
-  clusters: [],
+  clusters: {},
   podeList: {},
   hostCpuMetrics: {},
   hostMemoryMetrics: {},
