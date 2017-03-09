@@ -1,12 +1,12 @@
 /**
-	* Licensed Materials - Property of tenxcloud.com
-	* (C) Copyright 2017 TenxCloud. All Rights Reserved.
-	*
-	*  Setting GlobalConfig
-	*
-	* v0.1 - 2017/3/7
-	* @author ZhangChengZheng
-	*/
+* Licensed Materials - Property of tenxcloud.com
+* (C) Copyright 2017 TenxCloud. All Rights Reserved.
+*
+*  Setting GlobalConfig
+*
+* v0.1 - 2017/3/7
+* @author ZhangChengZheng
+*/
 import React, { Component } from 'react'
 import { Row, Col, Icon, Form, Button, Input } from 'antd'
 import './style/GlobalConfig.less'
@@ -293,7 +293,7 @@ let MirrorService = React.createClass({
       <div className="mirrorservice">
         <div className="title">
           镜像服务
-						<span className="tips">Tips：时速云官方不支持企业版Lite配置私有的镜像仓库，如有需要请联系时速云购买企业版Pro</span>
+          <span className="tips">Tips：时速云官方不支持企业版Lite配置私有的镜像仓库，如有需要请联系时速云购买企业版Pro</span>
         </div>
         <div className="content">
           <div className="contentMain">
@@ -395,7 +395,7 @@ let StorageService = React.createClass({
       <div className="storageservice">
         <div className="title">
           存储服务
-						<span className="tips">Tips：时速云官方不支持企业版Lite配置存储服务，如有需要请联系时速云购买企业版Pro</span>
+					<span className="tips">Tips：时速云官方不支持企业版Lite配置存储服务，如有需要请联系时速云购买企业版Pro</span>
         </div>
         <div className="content">
           <div className="contentHeader">
