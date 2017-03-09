@@ -12,6 +12,7 @@ import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, 
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import merge from 'lodash/merge'
+import cloneDeep from 'lodash/cloneDeep'
 import findIndex from 'lodash/findIndex'
 import filter from 'lodash/filter'
 import QueueAnim from 'rc-queue-anim'
@@ -42,7 +43,27 @@ let MyComponent = React.createClass({
     const { form } = this.props
     const { getFieldValue, setFieldsValue, getFieldProps } = form
     const volumes = getFieldValue('volumes')
-    const volumeMounts = getFieldValue('volumeMounts')
+    let volumeMounts = cloneDeep(getFieldValue('volumeMounts'))
+    let newVolumeMounts = []
+    if(volumeMounts && volumeMounts.length > 0){
+      newVolumeMounts = volumeMounts.map(vol => {
+        vol.mountPath = vol.mountPath.replace('/' + vol.subPath, '')
+        return vol
+      })
+      let helpOb = {}
+      newVolumeMounts.forEach(vol => {
+        helpOb[vol.mountPath] = 1
+      })
+      volumeMounts = []
+      let pro = Object.getOwnPropertyNames(helpOb)
+      pro.forEach(item => {
+        if(helpOb[item]) {
+          volumeMounts.push(filter(newVolumeMounts, vol => {
+            return vol.mountPath == item
+          })[0])
+        }
+      })
+    }
     if (!serviceOpen) {
       setFieldsValue({
         volKey: []
@@ -67,6 +88,19 @@ let MyComponent = React.createClass({
           volIndex++
         })
       }
+    }
+    const cluster = nextProps.cluster
+    const self = this
+    if(!nextProps.configGroup[cluster]) {
+        this.props.loadConfigGroup(cluster, {
+          success:{
+            func: () => {
+              self.getList(self.props, serviceOpen)
+            },
+            isAsync: true
+          }
+        })
+        return
     }
     if (volumes && volumes.length > 0) {
       const checkedList = []
@@ -97,7 +131,7 @@ let MyComponent = React.createClass({
       setFieldsValue({
         volKey
       })
-      const cluster = nextProps.cluster
+
       const configGroup = nextProps.configGroup[cluster].configGroup
       checkedList.forEach((item, index) => {
         setFieldsValue({
@@ -169,11 +203,11 @@ let MyComponent = React.createClass({
     return configGroup.map((item, index) => {
       plainOptions[index] = {}
       plainOptions[index].name = item.name
-      plainOptions[index].rawName = []
+      plainOptions[index].path = []
       plainOptions[index].key = []
       item.configs.forEach(config => {
-        plainOptions[index].rawName.push(config.rawName)
-        plainOptions[index].key.push(config.name)
+        plainOptions[index].key.push(config.rawName)
+        plainOptions[index].path.push(config.name)
       })
       if (!item.configs || item.configs.length < 1) {
         item.disabled = true
@@ -206,9 +240,9 @@ let MyComponent = React.createClass({
     })
     const pl = plainOptions[plIndex]
     const nameArray = []
-    const rawNames = pl.rawName
+    const paths = pl.path
     const checkAll = this.state.checkAll
-    if (checkedList.length === rawNames.length) {
+    if (checkedList.length === paths.length) {
       checkAll[index] = true
       this.setState({
         checkAll
@@ -220,8 +254,8 @@ let MyComponent = React.createClass({
       })
     }
     checkedList.forEach(item => {
-      let index = findIndex(rawNames, rawName => {
-        return rawName === item
+      let index = findIndex(paths, key => {
+        return key === item
       })
       nameArray.push(pl.key[index])
     })
@@ -271,8 +305,8 @@ let MyComponent = React.createClass({
       name: config.name,
       items: config.configs.map(item => {
         return {
-          key: item.name,
-          path: item.rawName
+          path: item.name,
+          key: item.rawName
         }
       })
     }
@@ -308,7 +342,7 @@ let MyComponent = React.createClass({
     let plIndex = findIndex(this.state.plainOptions, pl => {
       return pl.name === configName
     })
-    return this.state.plainOptions[plIndex].rawName
+    return this.state.plainOptions[plIndex].path
   },
   getInitValue(k) {
     const { form } = this.props
