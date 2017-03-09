@@ -154,25 +154,21 @@ export function getNodesPodeList(body, callback) {
   }
 }
 
-export const LOAD_HOST_CPU_REQUEST = 'LOAD_HOST_CPU_REQUEST'
-export const LOAD_HOST_CPU_SUCCESS = 'LOAD_HOST_CPU_SUCCESS'
-export const LOAD_HOST_CPU_FAILURE = 'LOAD_HOST_CPU_FAILURE'
-
-export const LOAD_HOST_MEMORY_REQUEST = 'LOAD_HOST_MEMORY_REQUEST'
-export const LOAD_HOST_MEMORY_SUCCESS = 'LOAD_HOST_MEMORY_SUCCESS'
-export const LOAD_HOST_MEMORY_FAILURE = 'LOAD_HOST_MEMORY_FAILURE'
+export const LOAD_HOST_METRICS_REQUEST = 'LOAD_HOST_METRICS_REQUEST'
+export const LOAD_HOST_METRICS_SUCCESS = 'LOAD_HOST_METRICS_SUCCESS'
+export const LOAD_HOST_METRICS_FAILURE = 'LOAD_HOST_METRICS_FAILURE'
 
 
 // query => cpu || memory, body=> clusterID, nodeName
 function fetchHostMetrics(body, query) {
-  let types = [LOAD_HOST_CPU_REQUEST, LOAD_HOST_CPU_SUCCESS, LOAD_HOST_CPU_FAILURE]
-  if (query == 'memory') {
-    types = [LOAD_HOST_MEMORY_REQUEST, LOAD_HOST_MEMORY_SUCCESS, LOAD_HOST_MEMORY_FAILURE]
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/metrics`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
   }
   return {
     [FETCH_API]: {
-      types: types,
-      endpoint:`${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/metrics/${query}`,
+      types: [LOAD_HOST_METRICS_REQUEST, LOAD_HOST_METRICS_SUCCESS, LOAD_HOST_METRICS_FAILURE],
+      endpoint: endpoint,
       schema: {}
     }
   }

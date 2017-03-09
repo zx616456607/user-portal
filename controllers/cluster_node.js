@@ -160,13 +160,37 @@ exports.getClustersMetrics = function* () {
   const node = this.params.node
   const type = this.params.type
   const api = apiFactory.getK8sApi(loginUser)
-  let querys = {
+  let cpuq = {
     source: 'prometheus',
     type: 'cpu/usage_rate'
   }
-  if (type == 'memory') {
-    querys.type = 'memory/usage'
+  let memoryq = {
+    source: 'prometheus',
+    type: 'memory/usage'
   }
-  const result = yield api.getBy([cluster,'nodes',node,'metrics'],querys)
-  this.body = result
+  let re_rateq = {
+    source: 'prometheus',
+    type: 'network/rx_rate'
+  }
+  let te_rateq = {
+    source: 'prometheus',
+    type: 'network/tx_rate'
+  }
+  const reqArray = []
+  // metrics cpu use
+  reqArray.push(api.getBy([cluster,'nodes',node,'metrics'], cpuq))
+  // metrics memory
+  reqArray.push(api.getBy([cluster,'nodes',node,'metrics'],memoryq))
+ // metrics network/rx_rate
+  reqArray.push(api.getBy([cluster,'nodes',node,'metrics'],re_rateq))
+  // metrics network/tx_rate
+  reqArray.push(api.getBy([cluster,'nodes',node,'metrics'],te_rateq))
+
+  const results = yield reqArray
+  this.body = {
+    cpus: results[0][node],
+    memory: results[1][node],
+    rxRate: results[2][node],
+    txRate: results[3][node]
+  }
 }

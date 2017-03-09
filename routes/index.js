@@ -29,7 +29,7 @@ module.exports = function (Router) {
   router.get(/^(\/integration|\/integration\/[a-zA-Z0-9_-]+|\/integration\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
   if (mode === 'enterprise') {
     router.get(/^(\/setting|\/setting\/[a-zA-Z0-9_-]+|\/setting\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+|\/setting\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
-    router.get(/^(\/cluster|\/cluster\/[a-zA-Z0-9_-]+|\/cluster\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+|\/cluster\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
+    router.get(/^(\/cluster|\/cluster\/[a-zA-Z0-9\._-]+|\/cluster\/[a-zA-Z0-9\._-]+\/[a-zA-Z0-9_-]+|\/cluster\/[a-zA-Z0-9\._-]+\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
   }
   return router.routes()
 }
