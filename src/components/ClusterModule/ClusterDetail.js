@@ -218,9 +218,7 @@ class ClusterDetail extends Component {
     super(props)
     this.handleTimeChange = this.handleTimeChange.bind(this)
     this.changeTime = this.changeTime.bind(this)
-    this.setIntervalFunc = this.setIntervalFunc.bind(this)
     this.state = {
-      intervalStatus: false,
       schedulable: false
     }
   }
@@ -285,25 +283,7 @@ class ClusterDetail extends Component {
     })
     loadData(this.props, { start })
   }
-  setIntervalFunc() {
-    //this function for setInterval
-    let query = this.state.currentStart;
-    const { intervalStatus } = this.state;
-    if (intervalStatus) {
-      clearInterval(metricsInterval)
-      this.setState({
-        intervalStatus: false
-      })
-    } else {
-      const { cluster, appName, loadAppAllOfMetrics } = this.props
-      this.setState({
-        intervalStatus: true
-      })
-      metricsInterval = setInterval(() => {
-        loadAppAllOfMetrics(cluster, appName, query)
-      }, 60000);
-    }
-  }
+
   formetCpumetrics(cpuData) {
     if (!cpuData.data) return
     let formetDate = { data: [] }
@@ -355,7 +335,6 @@ class ClusterDetail extends Component {
     const showMemory = this.formetMemorymetrics(this.props.memory)
     const showNetworkRec = this.formetNetworkmetrics(this.props.networkReceived, hostInfo.address)
     const showNetworkTrans = this.formetNetworkmetrics(this.props.networkTransmitted, hostInfo.address)
-    const { intervalStatus } = this.state
     return (
       <div id="clusterDetail">
         <div className="topRow" style={{ marginBottom: '20px', height: '50px', paddingTop: '20px' }}>
@@ -392,7 +371,7 @@ class ClusterDetail extends Component {
           <Tabs defaultActiveKey="1">
             <TabPane tab="详情" key="1"><HostInfo podeList={this.props.results} metricsData={{cpuData:this.props.hostcpu,memoryData:this.props.memory}} hostInfo={hostInfo} scope={this} /></TabPane>
             <TabPane tab="监控" key="2">
-              <TimeControl onChange={this.handleTimeChange} setInterval={this.setIntervalFunc} intervalStatus={this.state.intervalStatus} />
+              <TimeControl onChange={this.handleTimeChange} />
               <Metrics
                 cpu={showCpu}
                 memory={showMemory}
