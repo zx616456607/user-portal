@@ -551,8 +551,8 @@ let MyComponent = React.createClass({
             </Select>
             </Form.Item>
           </div>
-          <div className="commonData span3">
-            <Select style={{ width:'100px', display: getFieldProps(`newssl${k}`).value == 'HTTP' ? 'none' : 'inline-block'}}  {...getFieldProps(`newserverPort${k}`, {
+          <div className="commonData span2">
+            <Select style={{ width:'90px', display: getFieldProps(`newssl${k}`).value == 'HTTP' ? 'none' : 'inline-block'}}  {...getFieldProps(`newserverPort${k}`, {
                 rules: [{
                   required: true,
                   whitespace: true,
@@ -564,11 +564,13 @@ let MyComponent = React.createClass({
               <Select.Option key="2">指定端口</Select.Option>
             </Select>
             <span style={{display: getFieldProps(`newssl${k}`).value == 'HTTP' ? 'inline-block' : 'none'}}>80</span>
-            <Form.Item key={k} style={{width: '50px', float: 'right', marginRight: '70px'}}>
-            <Input  type='text' style={{width: '50px', marginLeft: '0px', display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {ref: instance => this.newInputPortOb = instance,rules: [rules, {validator: this.checkInputPort}], initialValue: this.state.disableHTTP ? '': "80"})} />
-            </Form.Item>
           </div>
           <div className="commonData span2">
+            <Form.Item key={k} style={{position: 'relative'}}>
+            <Input  type='text' style={{width: '80px', marginLeft: '0px', display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {ref: instance => this.newInputPortOb = instance,rules: [rules, {validator: this.checkInputPort}], initialValue: this.state.disableHTTP ? '': "80"})} />
+            </Form.Item>
+          </div>
+          <div className="commonData span3">
             <Button type="primary" onClick={this.save}>保存</Button>
             <Button type="ghost" style={{marginLeft:'6px'}} onClick={()=> this.remove(k)}>取消</Button>
           </div>
@@ -625,11 +627,11 @@ let MyComponent = React.createClass({
             }
            </Form.Item>
           </div>
-          <div className="commonData span3">
+          <div className="commonData span2">
 
             { this.state.openPort && this.state.openPort[index] ?
               getFieldProps(`selectssl${index+1}`).value == 'HTTP' ? <span>80</span> :
-              <Select defaultValue='动态生成' style={{width:'100px'}} onChange={(e)=> this.changeType(e, index + 1)}>
+              <Select defaultValue='动态生成' style={{width:'90px'}} onChange={(e)=> this.changeType(e, index + 1)}>
                 <Select.Option key="1">动态生成</Select.Option>
                 <Select.Option key="2">指定端口</Select.Option>
               </Select>
@@ -638,9 +640,12 @@ let MyComponent = React.createClass({
                 initialValue: target[1].toLowerCase() == 'http' ? 80 : target[2]
               })}/>{target[1].toLowerCase() == 'http' ? 80 : target[2]}</span>
             }
+
+          </div>
+          <div className="commonData span2">
             { this.state.openPort && this.state.openPort[index] && this.state.inPort =='2' ?
-              <Form.Item style={{width: '50px', float: 'right', marginRight: '70px'}}>
-                <Input style={{width:'50px', marginLeft:'0px'}} {...getFieldProps(`changeinputPort${index + 1}`, {
+              <Form.Item style={{width: '90px', float: 'left', }}>
+                <Input {...getFieldProps(`changeinputPort${index + 1}`, {
                   rules: [{
                     required: true,
                     whitespace: true,
@@ -648,11 +653,10 @@ let MyComponent = React.createClass({
                   }, {validator: (rule, value, callback) => this.checkPort(rule, value, callback, index+1)}]
                 })}/>
                </Form.Item>
-              :null
+              :<span>&nbsp;</span>
             }
-
           </div>
-          <div className="commonData span2">
+          <div className="commonData span3">
             { this.state.openPort && this.state.openPort[index] ?
               <Dropdown.Button overlay={actionText} type="ghost" style={{width:'100px'}} onClick={() => {this.save(index)}}>
                   <Icon type="save" /> 保存
@@ -720,7 +724,7 @@ class PortDetail extends Component {
           <div className="commonTitle">
             协议
           </div>
-          <div className="commonTitle span3">
+          <div className="commonTitle span4">
             服务端口
           </div>
           <div className="commonTitle span2">

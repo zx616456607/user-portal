@@ -250,7 +250,7 @@ class ImageDetailBox extends Component {
                 <use xlinkHref='#appcentercopy' />
               </svg>
             </Tooltip>
-            <input className="privateCodeInput" defaultValue={pullCode} style={{ position: "absolute", opacity: "0" }} />
+            <input className="privateCodeInput" value={pullCode} style={{ position: "absolute", opacity: "0" }} />
           </div>
           <div className="times">
             <svg className='appcenterdownload' >
