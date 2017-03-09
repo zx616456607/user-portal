@@ -21,6 +21,8 @@ import {
   getKubectlsPods,
   getAddNodeCMD,
 } from '../../actions/cluster_node'
+import { getClusterSummary } from '../../actions/cluster'
+import { NOT_AVAILABLE } from '../../constants'
 import './style/clusterTabList.less'
 import TerminalModal from '../TerminalModal'
 import NotificationHandler from '../../common/notification_handler'
@@ -69,7 +71,7 @@ function getContainerNum(name, podList) {
 function cpuUsed(cpuTotal, cpuList, name) {
   //this function for compute cpu used
   if (!cpuList) {
-    return `N/A`
+    return NOT_AVAILABLE
   }
   let total = 0;
   let used;
@@ -96,7 +98,7 @@ function cpuUsed(cpuTotal, cpuList, name) {
 function memoryUsed(memoryTotal, memoryList, name) {
   //this function for compute memory used
   if (!memoryList) {
-    return `N/A`
+    return NOT_AVAILABLE
   }
   let total = 0;
   let used;
@@ -343,8 +345,9 @@ class ClusterTabList extends Component {
   // }
 
   componentDidMount() {
-    const { clusterID, getAddNodeCMD } = this.props
+    const { clusterID, getAddNodeCMD, getClusterSummary } = this.props
     getAddNodeCMD(clusterID)
+    getClusterSummary(clusterID)
   }
 
   copyAddNodeCMD() {
@@ -463,8 +466,10 @@ class ClusterTabList extends Component {
       intl, isFetching, nodes,
       clusterID, memoryList, cpuList,
       license, kubectlsPods, addNodeCMD,
-      cluster,
-    } = this.props;
+      cluster, clusterSummary,
+    } = this.props
+    const { node, pod, resource } = clusterSummary.static || {}
+    const { useRate } = clusterSummary.dynamic || {}
     const { formatMessage } = intl;
     const { nodeList, podCount, deleteNode, copyAddNodeSuccess } = this.state;
     const rootscope = this.props.scope;
@@ -473,9 +478,13 @@ class ClusterTabList extends Component {
       return item.metadata.name;
     })
     const maxNodes = license && license[camelize('max_nodes')]
-    let conRunning =  0
-    let conFailed =  0
-    let conOthers = 0
+    if (pod) {
+      pod.sum = pod[camelize('Failed')] + pod[camelize('Pending')] + pod[camelize('Running')] + pod[camelize('Unknown')]
+      pod.unNormal = pod[camelize('Failed')] + pod[camelize('Unknown')]
+    }
+    let podPending = pod ? pod[camelize('Pending')] : NOT_AVAILABLE
+    let podRunning = pod ? pod[camelize('Running')] : NOT_AVAILABLE
+    let podUnNormal = pod ? pod.unNormal : NOT_AVAILABLE
     let containerOption = {
       tooltip : {
         trigger: 'item',
@@ -485,14 +494,14 @@ class ClusterTabList extends Component {
         orient : 'vertical',
         left : '50%',
         top : 'middle',
-        data:[{name:'运行中'}, {name:'异常'},{name:'操作中'}],
+        data:[{name: '运行中'}, {name: '操作中'}, {name: '异常'}],
         formatter: function (name) {
-          if(name === '运行中'){
-            return name + '  ' + conRunning + '个'
+          if(name === '操作中'){
+            return name + '  ' + podPending + ' 个'
+          } else if (name === '运行中') {
+            return  '运行中  '  + podRunning + ' 个'
           } else if (name === '异常') {
-            return  '异   常  '  + conFailed + ' 个'
-          } else if (name === '操作中') {
-            return name + '  ' + conOthers + ' 个'
+            return name + '  ' + podUnNormal + ' 个'
           }
         },
         textStyle: {
@@ -503,7 +512,7 @@ class ClusterTabList extends Component {
         itemWidth: 10,
         itemHeight: 10,
       },
-      color: ['#46b3f8','#f6575e','#2abe84'],
+      color: ['#46b3f8','#2abe84','#f6575e'],
       series: {
         type:'pie',
         selectedMode: 'single',
@@ -513,9 +522,9 @@ class ClusterTabList extends Component {
         radius: ['32', '45'],
         center: ['25%', '50%'],
         data:[
-          {value:conRunning, name:'运行中'},
-          {value:conFailed, name:'异常'},
-          {value:conOthers, name:'操作中',selected:true},
+          {value:podRunning, name:'运行中'},
+          {value:podPending, name:'操作中'},
+          {value:podUnNormal, name:'异常',selected:true},
         ],
         label: {
           normal: {
@@ -561,11 +570,17 @@ class ClusterTabList extends Component {
                 <div className="title">主机</div>
                 <img src={clusterImg} className="listImg"/>
                 <ul className="listText">
-                  <li><span>总数</span>
+                  <li>
+                    <span>总数</span>
+                    <span>{node ? `${node.nodeSum} 个` : NOT_AVAILABLE}</span>
                   </li>
-                  <li><span>正常运行</span>
+                  <li>
+                    <span>正常运行</span>
+                    <span>{node ? `${node.nodeRunning} 个` : NOT_AVAILABLE}</span>
                   </li>
-                  <li><span>可调度数</span>
+                  <li>
+                    <span>可调度数</span>
+                    <span>{node ? `${node.schedulable} 个` : NOT_AVAILABLE}</span>
                   </li>
                 </ul>
               </Card>
@@ -575,11 +590,17 @@ class ClusterTabList extends Component {
                 <div className="title">CPU</div>
                 <img src={cpuImg} className="listImg"/>
                 <ul className="listText">
-                  <li><span>总数</span>
+                  <li>
+                    <span>总数</span>
+                    <span>{resource ? `${resource.cupSum} 核` : NOT_AVAILABLE}</span>
                   </li>
-                  <li><span>正常运行</span>
+                  <li>
+                    <span>已分配数</span>
+                    <span>{resource ? `${resource.allocatedCPU} 核` : NOT_AVAILABLE}</span>
                   </li>
-                  <li><span>可调度数</span>
+                  <li>
+                    <span>实际使用</span>
+                    <span>{useRate ? `${Math.ceil(useRate.cpu * 10000) / 100}%` : NOT_AVAILABLE}</span>
                   </li>
                 </ul>
               </Card>
@@ -589,11 +610,17 @@ class ClusterTabList extends Component {
                 <div className="title">内存</div>
                 <img src={memoryImg} className="listImg"/>
                 <ul className="listText">
-                  <li><span className="total">总数</span>
+                  <li>
+                    <span className="total">总量</span>
+                    <span>{resource ? `${Math.ceil(resource.memSumByKB / 1024 / 1024 * 100) / 100} G` : NOT_AVAILABLE}</span>
                   </li>
-                  <li><span className="normal">正常运行</span>
+                  <li>
+                    <span className="normal">已分配量</span>
+                    <span>{resource ? `${Math.ceil(resource.allocatedMemByKB / 1024 / 1024 * 100) / 100} G` : NOT_AVAILABLE}</span>
                   </li>
-                  <li><span className="">可调度数</span>
+                  <li>
+                    <span className="">实际使用</span>
+                    <span>{useRate ? `${Math.ceil(useRate.mem * 100) / 100}G` : NOT_AVAILABLE}</span>
                   </li>
                 </ul>
               </Card>
@@ -602,10 +629,10 @@ class ClusterTabList extends Component {
               <Card>
                <div className="title">容器</div>
                <ReactEcharts
-                notMerge={true}
-                option={containerOption}
-                style={{height:'150px'}}
-                showLoading={false}
+                 notMerge={true}
+                 option={containerOption}
+                 style={{height:'150px'}}
+                 showLoading={false}
                 />
               </Card>
             </Col>
@@ -730,6 +757,7 @@ function mapStateToProps(state, props) {
   }
   const clusterID = props.cluster.clusterID
   const { getAllClusterNodes, kubectlsPods, addNodeCMD } = state.cluster_nodes
+  const { clusterSummary } = state.cluster
   const { isFetching } = getAllClusterNodes || pods
   const data = getAllClusterNodes.nodes || pods
   const { cpuList, memoryList, license } = data
@@ -743,6 +771,7 @@ function mapStateToProps(state, props) {
     clusterID,
     kubectlsPods: (kubectlsPods ? kubectlsPods.result : {}) || {},
     addNodeCMD: (addNodeCMD ? addNodeCMD.result : {}) || {},
+    clusterSummary: (clusterSummary && clusterSummary[clusterID] ? clusterSummary[clusterID].summary : {}) || {},
   }
 }
 
@@ -752,6 +781,7 @@ export default connect(mapStateToProps, {
   deleteClusterNode,
   getKubectlsPods,
   getAddNodeCMD,
+  getClusterSummary,
 })(injectIntl(ClusterTabList, {
   withRef: true,
 }))

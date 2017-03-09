@@ -8,8 +8,9 @@
  * @author BaiYu
  */
 import React from 'react'
-import { Icon, Button, Card, Form, Input, Tooltip, Spin, } from 'antd'
-import { updateCluster } from '../../actions/cluster'
+import { Icon, Button, Card, Form, Input, Tooltip, Spin, Modal } from 'antd'
+import { updateCluster, loadClusterList, deleteCluster } from '../../actions/cluster'
+import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
 
 let saveBtnDisabled = true
@@ -19,6 +20,8 @@ let ClusterInfo = React.createClass ({
     return {
       editCluster: false, // edit btn
       saveBtnLoading: false,
+      deleteClusterModal: false,
+      deleteClusterBtnLoading: false,
     }
   },
   checkValue(rule, value, callback) {
@@ -38,33 +41,82 @@ let ClusterInfo = React.createClass ({
   },
   updateCluster(e) {
     e.preventDefault()
-    const { form, updateCluster, cluster } = this.props
+    const { form, updateCluster, cluster, loadClusterList } = this.props
     const { validateFields, resetFields } = form
+    const notification = new NotificationHandler()
     validateFields((errors, values) => {
       if (!!errors) {
         return
       }
-      console.log(`values=================`)
-      console.log(values)
       this.setState({
         saveBtnLoading: true,
       })
       updateCluster(cluster.clusterID, values, {
         success: {
           func: result => {
-            console.log(`result------------`)
-            console.log(result)
+            notification.success(`更新集群信息成功`)
+            loadClusterList(null, {
+              finally: {
+                func: () => {
+                  this.setState({
+                    saveBtnLoading: false,
+                    editCluster: false,
+                  })
+                }
+              }
+            })
           },
           isAsync: true
         },
         failed: {
           func: err => {
-            console.log(`err------------`)
-            console.log(err)
+            notification.error(`更新集群信息失败`)
+            this.setState({
+              saveBtnLoading: false,
+            })
           },
           isAsync: true
         }
       })
+    })
+  },
+  deleteCluster() {
+    this.setState({
+      deleteClusterModal: true,
+    })
+  },
+  confirmDeleteCluster() {
+    const { deleteCluster, cluster, loadClusterList } = this.props
+    const notification = new NotificationHandler()
+    this.setState({
+      deleteClusterBtnLoading: true,
+    })
+    deleteCluster(cluster.clusterID, {
+      success: {
+          func: result => {
+            notification.success(`删除集群“${cluster.clusterName}”成功`)
+            loadClusterList(null, {
+              finally: {
+                func: () => {
+                  this.setState({
+                    deleteClusterModal: false,
+                    deleteClusterBtnLoading: false,
+                  })
+                }
+              }
+            })
+          },
+          isAsync: true
+        },
+        failed: {
+          func: err => {
+            notification.error(`删除集群“${cluster.clusterName}”失败`)
+            this.setState({
+              deleteClusterBtnLoading: false,
+            })
+          },
+          isAsync: true
+        }
     })
   },
   render () {
@@ -93,7 +145,7 @@ let ClusterInfo = React.createClass ({
       ],
       initialValue: bindingIPs
     });
-    const bindingDomainsProps = getFieldProps('binding_domain',{
+    const bindingDomainsProps = getFieldProps('bindingDomains',{
       rules: [
         { required: true, message: '输入域名列表' },
         // { validator: this.checkValue },
@@ -110,12 +162,15 @@ let ClusterInfo = React.createClass ({
       <Card className="ClusterInfo">
         <div className="h3">集群信息
           { !editCluster ?
-          <a onClick={()=> this.setState({editCluster: true})} className="btnEdit">编辑集群</a>
+          [
+            <a onClick={()=> this.setState({editCluster: true})} className="btnEdit">编辑集群</a>,
+            <a onClick={this.deleteCluster} className="btnDel">删除集群</a>,
+          ]
           :
           <div style={{float:'right'}}>
             <Button size="small"
               onClick={()=> {
-                this.setState({editCluster: false})
+                this.setState({editCluster: false, saveBtnLoading: false})
                 saveBtnDisabled = true
               }}>
               取消
@@ -148,7 +203,7 @@ let ClusterInfo = React.createClass ({
               <span>{apiUrl}</span>
             </Form.Item>
             <Form.Item>
-              <div className="h4">API Tocken：</div>
+              <div className="h4">API Token：</div>
               <span>{apiToken}</span>
             </Form.Item>
 
@@ -182,6 +237,19 @@ let ClusterInfo = React.createClass ({
           </Form.Item>
           </div>
         </Form>
+        <Modal title={`删除集群`}
+          confirmLoading={this.state.deleteClusterBtnLoading}
+          className='deleteClusterModal'
+          visible={this.state.deleteClusterModal}
+          onOk={this.confirmDeleteCluster}
+          onCancel={() => this.setState({deleteClusterModal: false})}>
+          <div style={{ color: '#00a0ea', height: "50px" }}>
+            <Icon type='exclamation-circle-o' />
+            &nbsp;&nbsp;&nbsp;确定要删除“{clusterName}”？
+          </div>
+          <div className="note">注意：请确认执行删除集群操作！
+该操作会导致将选中的集群与当前控制台Portal解绑，完全脱离当前控制台的管理，但不影响该集群的容器应用等的运行状态。</div>
+        </Modal>
       </Card>
     )
   }
@@ -197,8 +265,6 @@ function parseArray(array) {
 }
 
 function formChange(porps, fileds) {
-  console.log(`arguments----------------`)
-  console.log(arguments)
   saveBtnDisabled = false
 }
 
@@ -212,4 +278,6 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   updateCluster,
+  loadClusterList,
+  deleteCluster,
 })(ClusterInfo)

@@ -38,6 +38,7 @@ exports.ROLE_USER = 0
 exports.ROLE_TEAM_ADMIN = 1
 exports.ROLE_SYS_ADMIN = 2
 exports.PHONE_REGEX = /^1[0-9]{10}$/
+exports.URL_REGEX = /^(http[s]?):\/\/[^\/\.]+?\..+\w$/
 exports.AMOUNT_CONVERSION = 10000 // 10000 = 1 元
 exports.AMOUNT_DEFAULT_PRECISION = 2 // 小数点后两位
 exports.TENX_LOCAL_TIME_VOLUME = {

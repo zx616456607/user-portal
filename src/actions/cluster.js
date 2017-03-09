@@ -91,45 +91,25 @@ export function getHostInfo(body, callback) {
   }
 }
 
-export const GET_CLUSTER_DYNAMIC_REQUEST = 'GET_CLUSTER_DYNAMIC_REQUEST'
-export const GET_CLUSTER_DYNAMIC_SUCCESS = 'GET_CLUSTER_DYNAMIC_SUCCESS'
-export const GET_CLUSTER_DYNAMIC_FAILURE = 'GET_CLUSTER_DYNAMIC_FAILURE'
-// 实时信息
-function fetchClusterInfo(body,callback) {
+export const GET_CLUSTER_SUMMARY_REQUEST = 'GET_CLUSTER_SUMMARY_REQUEST'
+export const GET_CLUSTER_SUMMARY_SUCCESS = 'GET_CLUSTER_SUMMARY_SUCCESS'
+export const GET_CLUSTER_SUMMARY_FAILURE = 'GET_CLUSTER_SUMMARY_FAILURE'
+
+function fetchClusterSummary(cluster, callback) {
   return {
+    cluster,
     [FETCH_API]: {
-      types: [GET_CLUSTER_DYNAMIC_REQUEST, GET_CLUSTER_DYNAMIC_SUCCESS, GET_CLUSTER_DYNAMIC_FAILURE],
-      endpoint:`${API_URL_PREFIX}/clusters/${body.clusterID}/dynamicInfo`,
+      types: [GET_CLUSTER_SUMMARY_REQUEST, GET_CLUSTER_SUMMARY_SUCCESS, GET_CLUSTER_SUMMARY_FAILURE],
+      endpoint:`${API_URL_PREFIX}/clusters/${cluster}/summary`,
       schema: {}
     },
     callback
   }
 }
 
-export function getClusterInfo(body, callback) {
+export function getClusterSummary(cluster, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchClusterInfo(body, callback))
-  }
-}
-
-export const GET_CLUSTER_STATIC_REQUEST = 'GET_CLUSTER_STATIC_REQUEST'
-export const GET_CLUSTER_STATIC_SUCCESS = 'GET_CLUSTER_STATIC_SUCCESS'
-export const GET_CLUSTER_STATIC_FAILURE = 'GET_CLUSTER_STATIC_FAILURE'
-// 静态信息
-function fetchClusterStaticInfo(body,callback) {
-  return {
-    [FETCH_API]: {
-      types: [GET_CLUSTER_STATIC_REQUEST, GET_CLUSTER_STATIC_SUCCESS, GET_CLUSTER_STATIC_FAILURE],
-      endpoint:`${API_URL_PREFIX}/clusters/${body.clusterID}/staticInfo`,
-      schema: {}
-    },
-    callback
-  }
-}
-
-export function getClusterStaticInfo(body, callback) {
-  return (dispatch, getState) => {
-    return dispatch(fetchClusterStaticInfo(body, callback))
+    return dispatch(fetchClusterSummary(cluster, callback))
   }
 }
 
@@ -227,5 +207,62 @@ function fetchAddClusterCMD(callback) {
 export function getAddClusterCMD(callback) {
   return (dispatch) => {
     return dispatch(fetchAddClusterCMD(callback))
+  }
+}
+
+export const CREATE_CLUSTER_REQUEST = 'CREATE_CLUSTER_REQUEST'
+export const CREATE_CLUSTER_SUCCESS = 'CREATE_CLUSTER_SUCCESS'
+export const CREATE_CLUSTER_FAILURE = 'CREATE_CLUSTER_FAILURE'
+
+// Fetches cluster list from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchCreateCluster(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [CREATE_CLUSTER_REQUEST, CREATE_CLUSTER_SUCCESS, CREATE_CLUSTER_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters`,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Fetches create cluster from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function createCluster(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateCluster(body, callback))
+  }
+}
+
+export const DELETE_CLUSTER_REQUEST = 'DELETE_CLUSTER_REQUEST'
+export const DELETE_CLUSTER_SUCCESS = 'DELETE_CLUSTER_SUCCESS'
+export const DELETE_CLUSTER_FAILURE = 'DELETE_CLUSTER_FAILURE'
+
+// Fetches cluster list from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDeleteCluster(cluster, callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_CLUSTER_REQUEST, DELETE_CLUSTER_SUCCESS, DELETE_CLUSTER_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}`,
+      options: {
+        method: 'DELETE',
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Fetches create cluster from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function deleteCluster(cluster, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteCluster(cluster, callback))
   }
 }

@@ -56,9 +56,10 @@ module.exports = function (Router) {
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
+  router.post('/clusters', clusterController.createCluster)
   router.put('/clusters/:cluster', clusterController.updateCluster)
-  router.get('/clusters/:cluster/dynamicInfo', clusterController.clusterDynamicInfo)
-  router.get('/clusters/:cluster/staticInfo', clusterController.clusterStaticsInfo)
+  router.del('/clusters/:cluster', clusterController.deleteCluster)
+  router.get('/clusters/:cluster/summary', clusterController.getClusterSummary)
   // For bind node when create service(lite only)
   router.get('/clusters/:cluster/nodes', clusterController.getNodes)
   router.get('/clusters/add-cluster-cmd', clusterController.getAddClusterCMD)
