@@ -391,7 +391,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="service commonData allSvcListDomain">
-            <TipSvcDomain svcDomain={svcDomain} parentNode='allSvcListDomain' icon={httpIcon} />
+            <TipSvcDomain svcDomain={svcDomain} parentNode='appBox' icon={httpIcon} />
           </div>
           <div className="createTime commonData">
             <span>{calcuDate(item.metadata.creationTimestamp || '')}</span>
