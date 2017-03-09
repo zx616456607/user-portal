@@ -269,18 +269,21 @@ class Sider extends Component {
     const { siderStyle, role } = this.props
     const { currentKey } = this.state
     const scope = this
-    return (
+	  return (
       <div id='sider'>
-        <Modal title='上传文件' wrapClassName='vertical-center-modal' footer='' visible={this.props.uploadFileOptions.visible} onCancel={() => this.handleCancel()}>
+        <Modal title='上传文件' wrapClassName='vertical-center-modal' footer=''
+               visible={this.props.uploadFileOptions.visible} onCancel={() => this.handleCancel()}>
           <div className='uploadModal'>
-            <RadioGroup onChange={(e) => { this.changeRadioValue(e) } } value={this.state.isUnzip}>
+            <RadioGroup onChange={(e) => {
+						  this.changeRadioValue(e)
+					  } } value={this.state.isUnzip}>
               <Radio key='a' value={false}>直接上传</Radio>
               <Radio key='b' value={true}>上传并解压</Radio>
             </RadioGroup>
             <p>
               <Upload {...this.getUploadData() }>
                 <Button type='primary'>
-                  <Icon type='upload' /> 选择文件
+                  <Icon type='upload'/> 选择文件
                 </Button>
               </Upload>
             </p>
@@ -289,139 +292,163 @@ class Sider extends Component {
           <ul className='uploadhint'>
             <li>1、支持任何格式文件，大小不超过600M</li>
             <li>2、仅支持 zip 格式文件解压，导入时会覆盖存储卷内[同文件名]</li>
-            <li style={{ color: 'red' }}>* 请先停止挂载该存储卷的服务再进行文件导入</li>
+            <li style={{color: 'red'}}>* 请先停止挂载该存储卷的服务再进行文件导入</li>
           </ul>
         </Modal>
-        {siderStyle == 'mini' ? [
+			  {siderStyle == 'mini' ? [
           <div key='miniSider' className='miniSider'>
             <ul className='siderTop'>
               <li className='logoItem'>
                 <Link to='/'>
                   <svg className='logo'>
-                    <use xlinkHref='#sidernewlogo' />
+                    <use xlinkHref='#sidernewlogo'/>
                   </svg>
                 </Link>
               </li>
-              <li onClick={this.selectModel.bind(this, 'home', '#home')} className={currentKey == 'home' ? 'selectedLi' : ''} >
-                <Tooltip placement='right' title='总览' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+              <li onClick={this.selectModel.bind(this, 'home', '#home')}
+                  className={currentKey == 'home' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='总览'
+                         getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/'>
                     <svg className='home commonImg'>
-                      {currentKey == 'home' ? [<use xlinkHref='#homeselected' />] : [<use xlinkHref='#home' />]}
+										  {currentKey == 'home' ? [<use xlinkHref='#homeselected'/>] : [<use xlinkHref='#home'/>]}
                     </svg>
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, 'app_manage', '#app')} className={currentKey == 'app_manage' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='应用管理' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+              <li onClick={this.selectModel.bind(this, 'app_manage', '#app')}
+                  className={currentKey == 'app_manage' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='应用管理'
+                         getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_manage'>
                     <svg className='app commonImg'>
-                      {currentKey == 'app_manage' ? [<use xlinkHref='#appselected' />] : [<use xlinkHref='#app' />]}
+										  {currentKey == 'app_manage' ? [<use xlinkHref='#appselected'/>] : [<use xlinkHref='#app'/>]}
                     </svg>
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, 'app_center', '#appCenter')} className={currentKey == 'app_center' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='交付中心' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+              <li onClick={this.selectModel.bind(this, 'app_center', '#appCenter')}
+                  className={currentKey == 'app_center' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='交付中心'
+                         getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_center'>
                     <svg className='center commonImg'>
-                      {currentKey == 'app_center' ? [<use xlinkHref='#centerselected' />] : [<use xlinkHref='#center' />]}
+										  {currentKey == 'app_center' ? [<use xlinkHref='#centerselected'/>] : [<use xlinkHref='#center'/>]}
                     </svg>
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, 'ci_cd', '#system')} className={currentKey == 'ci_cd' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='CI/CD' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+              <li onClick={this.selectModel.bind(this, 'ci_cd', '#system')}
+                  className={currentKey == 'ci_cd' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='CI/CD'
+                         getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/ci_cd'>
                     <svg className='cicd commonImg'>
-                      {currentKey == 'ci_cd' ? [<use xlinkHref='#cicdselected' />] : [<use xlinkHref='#cicd' />]}
+										  {currentKey == 'ci_cd' ? [<use xlinkHref='#cicdselected'/>] : [<use xlinkHref='#cicd'/>]}
                     </svg>
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, 'database_cache', '#database')} className={currentKey == 'database_cache' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='数据库与缓存' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+              <li onClick={this.selectModel.bind(this, 'database_cache', '#database')}
+                  className={currentKey == 'database_cache' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='数据库与缓存'
+                         getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/database_cache'>
                     <svg className='database commonImg'>
-                      {currentKey == 'database_cache' ? [<use xlinkHref='#database-selected' />] : [<use xlinkHref='#database' />]}
+										  {currentKey == 'database_cache' ? [<use xlinkHref='#database-selected'/>] : [<use
+                        xlinkHref='#database'/>]}
                     </svg>
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, 'integration', '#system')} className={currentKey == 'integration' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='集成中心' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+              <li onClick={this.selectModel.bind(this, 'integration', '#system')}
+                  className={currentKey == 'integration' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='集成中心'
+                         getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/integration'>
                     <svg className='system commonImg'>
-                      {currentKey == 'integration' ? [<use xlinkHref='#systemselected' />] : [<use xlinkHref='#system' />]}
+										  {currentKey == 'integration' ? [<use xlinkHref='#systemselected'/>] : [<use
+                        xlinkHref='#system'/>]}
                     </svg>
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, 'manange_monitor', '#manage')} className={currentKey == 'manange_monitor' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='管理与日志' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+              <li onClick={this.selectModel.bind(this, 'manange_monitor', '#manage')}
+                  className={currentKey == 'manange_monitor' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='管理与日志'
+                         getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/manange_monitor'>
                     <svg className='manageMoniter commonImg'>
-                      {currentKey == 'manange_monitor' ? [<use xlinkHref='#managemoniterselected' />] : [<use xlinkHref='#managemoniter' />]}
+										  {currentKey == 'manange_monitor' ? [<use xlinkHref='#managemoniterselected'/>] : [<use
+                        xlinkHref='#managemoniter'/>]}
                     </svg>
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, 'account', '#account')} className={currentKey == 'account' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='帐户中心' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+              <li onClick={this.selectModel.bind(this, 'account', '#account')}
+                  className={currentKey == 'account' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='帐户中心'
+                         getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/account'>
                     <svg className='account commonImg'>
-                      {currentKey == 'account' ? [<use xlinkHref='#messageselected' />] : [<use xlinkHref='#message' />]}
+										  {currentKey == 'account' ? [<use xlinkHref='#messageselected'/>] : [<use xlinkHref='#message'/>]}
                     </svg>
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, 'setting', '#setting')} className={currentKey == 'setting' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='系统设置' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+              <li onClick={this.selectModel.bind(this, 'setting', '#setting')}
+                  className={currentKey == 'setting' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='系统设置'
+                         getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/setting'>
                     <svg className='setting commonImg'>
-                      {currentKey == 'setting' ? [<use xlinkHref='#settingselected' />] : [<use xlinkHref='#setting' />]}
+										  {currentKey == 'setting' ? [<use xlinkHref='#settingselected'/>] : [<use xlinkHref='#setting'/>]}
                     </svg>
                   </Link>
                 </Tooltip>
               </li>
-              { role == ROLE_SYS_ADMIN ?
-                [
-                  <li onClick={this.selectModel.bind(this, 'cluster', '#cluster')} className={currentKey == 'cluster' ? 'selectedLi' : ''}>
-                    <Tooltip placement='right' title='基础设施' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+						  { role == ROLE_SYS_ADMIN ?
+							  [
+                  <li onClick={this.selectModel.bind(this, 'cluster', '#cluster')}
+                      className={currentKey == 'cluster' ? 'selectedLi' : ''}>
+                    <Tooltip placement='right' title='基础设施'
+                             getTooltipContainer={() => document.getElementById('siderTooltip')}>
                       <Link to='/cluster'>
                         <svg className='setting commonImg'>
-                          {currentKey == 'cluster' ? [<use xlinkHref='#siderinfrastructureselected' />] : [<use xlinkHref='#siderinfrastructure' />]}
+												  {currentKey == 'cluster' ? [<use xlinkHref='#siderinfrastructureselected'/>] : [<use
+                            xlinkHref='#siderinfrastructure'/>]}
                         </svg>
                       </Link>
                     </Tooltip>
                   </li>
-                ] : null
-              }
-              <div style={{ clear: 'both' }}></div>
+							  ] : null
+						  }
+              <div style={{clear: 'both'}}></div>
             </ul>
-            {/*<ul className='siderBottom'>
-              <li style={{ display: 'none' }} onClick={this.selectModel.bind(this, 'app_manage/app_create', '#addNewApp')} className={currentKey == 'app_manage/app_create' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='创建应用' getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                  <Link to='/app_manage/app_create'>
-                    <svg className='add commonImg'>
-                      { currentKey == 'app_manage/app_create' ? [<use xlinkHref='#addselected' />] : [<use xlinkHref='#add' />] }
-                    </svg>
-                  </Link>
-                </Tooltip>
-              </li>
-              <div style={{ clear: 'both' }}></div>
-            </ul>*/}
+					  {/*<ul className='siderBottom'>
+             <li style={{ display: 'none' }} onClick={this.selectModel.bind(this, 'app_manage/app_create', '#addNewApp')} className={currentKey == 'app_manage/app_create' ? 'selectedLi' : ''}>
+             <Tooltip placement='right' title='创建应用' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+             <Link to='/app_manage/app_create'>
+             <svg className='add commonImg'>
+             { currentKey == 'app_manage/app_create' ? [<use xlinkHref='#addselected' />] : [<use xlinkHref='#add' />] }
+             </svg>
+             </Link>
+             </Tooltip>
+             </li>
+             <div style={{ clear: 'both' }}></div>
+             </ul>*/}
           </div>
-        ] : null}
-        {siderStyle == 'bigger' ? [
+			  ] : null}
+			  {siderStyle == 'bigger' ? [
           <QueueAnim type='left' className='siderBiggerBox'>
             <div key='siderBigger' className='siderBigger'>
               <div className='logBox'>
                 <Link to='/'>
-                  <img className='logo' src={logoPNG} />
+                  <img className='logo' src={logoPNG}/>
                 </Link>
               </div>
               <Menu
-                style={{ width: '100%', backgroundColor: '#2b333d', color: '#c4c4c4' }}
+                style={{width: '100%', backgroundColor: '#2b333d', color: '#c4c4c4'}}
                 mode='inline'
                 theme='dark'
                 selectedKeys={this.state.currentSelectedMenu}
@@ -429,26 +456,26 @@ class Sider extends Component {
                 onClick={this.onSelectMenu}
                 onOpen={this.onOpenBigMenu}
                 onClose={this.onCloseBigMenu}
-                >
+              >
                 <Menu.Item key='home'>
                   <Link to='/'>
                     <svg className='home commonImg'>
-                      <use xlinkHref='#home' />
+                      <use xlinkHref='#home'/>
                     </svg>
                     <span>总览</span>
                   </Link>
                 </Menu.Item>
                 <SubMenu key='app_manage'
-                  title={
-                    <span>
+                         title={
+                           <span>
                       <svg className='app commonImg'>
-                        <use xlinkHref='#app' />
+                        <use xlinkHref='#app'/>
                       </svg>
                       <span className='commonSiderSpan'>应用管理</span>
-                      <div style={{ clear: 'both' }}></div>
+                      <div style={{clear: 'both'}}></div>
                     </span>
-                  }
-                  >
+							           }
+                >
                   <Menu.Item key='app_manage_default'>
                     <Link to='/app_manage'>
                       <span><div className='sideCircle'></div> 应用</span>
@@ -477,16 +504,16 @@ class Sider extends Component {
                   <div className='sline'></div>
                 </SubMenu>
                 <SubMenu key='app_center'
-                  title={
-                    <span>
+                         title={
+                           <span>
                       <svg className='center commonImg'>
-                        <use xlinkHref='#center' />
+                        <use xlinkHref='#center'/>
                       </svg>
                       <span className='commonSiderSpan'>交付中心</span>
-                      <div style={{ clear: 'both' }}></div>
+                      <div style={{clear: 'both'}}></div>
                     </span>
-                  }
-                  >
+							           }
+                >
                   <Menu.Item key='app_center_default'>
                     <Link to='/app_center'>
                       <span><div className='sideCircle'></div> 镜像仓库</span>
@@ -505,16 +532,16 @@ class Sider extends Component {
                   <div className='sline'></div>
                 </SubMenu>
                 <SubMenu key='ci_cd'
-                  title={
-                    <span>
+                         title={
+                           <span>
                       <svg className='center commonImg'>
-                        <use xlinkHref='#cicd' />
+                        <use xlinkHref='#cicd'/>
                       </svg>
                       <span className='commonSiderSpan'>CI/CD</span>
-                      <div style={{ clear: 'both' }}></div>
+                      <div style={{clear: 'both'}}></div>
                     </span>
-                  }
-                  >
+							           }
+                >
                   <Menu.Item key='ci_cd_default'>
                     <Link to='/ci_cd'>
                       <span><div className='sideCircle'></div> 代码仓库</span>
@@ -533,16 +560,16 @@ class Sider extends Component {
                   <div className='sline'></div>
                 </SubMenu>
                 <SubMenu key='database_cache'
-                  title={
-                    <span>
+                         title={
+                           <span>
                       <svg className='database commonImg'>
-                        <use xlinkHref='#database' />
+                        <use xlinkHref='#database'/>
                       </svg>
                       <span className='commonSiderSpan'>数据库与缓存</span>
-                      <div style={{ clear: 'both' }}></div>
+                      <div style={{clear: 'both'}}></div>
                     </span>
-                  }
-                  >
+							           }
+                >
                   <Menu.Item key='database_cache_default'>
                     <Link to='/database_cache'>
                       <span><div className='sideCircle'></div> 关系型数据库</span>
@@ -561,24 +588,24 @@ class Sider extends Component {
                   <Link to='/integration'>
                     <span>
                       <svg className='system commonImg'>
-                        <use xlinkHref='#system' />
+                        <use xlinkHref='#system'/>
                       </svg>
                       <span className='commonSiderSpan'>集成中心</span>
-                      <div style={{ clear: 'both' }}></div>
+                      <div style={{clear: 'both'}}></div>
                     </span>
                   </Link>
                 </Menu.Item>
                 <SubMenu key='manange_monitor'
-                  title={
-                    <span>
+                         title={
+                           <span>
                       <svg className='manageMoniter commonImg'>
-                        <use xlinkHref='#managemoniter' />
+                        <use xlinkHref='#managemoniter'/>
                       </svg>
                       <span className='commonSiderSpan'>管理与日志</span>
-                      <div style={{ clear: 'both' }}></div>
+                      <div style={{clear: 'both'}}></div>
                     </span>
-                  }
-                  >
+							           }
+                >
                   <Menu.Item key='manange_monitor_default'>
                     <Link to='/manange_monitor'>
                       <span><div className='sideCircle'></div> 操作审计</span>
@@ -593,40 +620,40 @@ class Sider extends Component {
                 </SubMenu>
 
                 <SubMenu key='account'
-                  title={
-                    <span>
+                         title={
+                           <span>
                       <svg className='account commonImg'>
-                        <use xlinkHref='#message' />
+                        <use xlinkHref='#message'/>
                       </svg>
                       <span className='commonSiderSpan'>帐户中心</span>
-                      <div style={{ clear: 'both' }}></div>
+                      <div style={{clear: 'both'}}></div>
                     </span>
-                  }
-                  >
+							           }
+                >
                   <Menu.Item key='account_default'>
                     <Link to='/account'>
                       <span><div className='sideCircle'></div> 我的帐户</span>
                     </Link>
                   </Menu.Item>
-                  { (role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) ?
-                  <Menu.Item key='member'>
-                    <Link to='/account/member'>
-                      <span><div className='sideCircle'></div> 成员管理</span>
-                    </Link>
-                  </Menu.Item> : <Menu.Item style={{display: 'none'}}></Menu.Item>
-                  }
-                  { (role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) ?
-                  <Menu.Item key='team'>
-                    <Link to='/account/team'>
-                      <span><div className='sideCircle'></div> 团队管理</span>
-                    </Link>
-                  </Menu.Item> : <Menu.Item style={{display: 'none'}}></Menu.Item>
-                  }
-                  {/*<Menu.Item key='cost'>
-                    <Link to='/account/cost'>
-                      <span><div className='sideCircle'></div> 费用中心</span>
-                    </Link>
-                  </Menu.Item>*/}
+								  { (role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) ?
+                    <Menu.Item key='member'>
+                      <Link to='/account/member'>
+                        <span><div className='sideCircle'></div> 成员管理</span>
+                      </Link>
+                    </Menu.Item> : <Menu.Item style={{display: 'none'}}></Menu.Item>
+								  }
+								  { (role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) ?
+                    <Menu.Item key='team'>
+                      <Link to='/account/team'>
+                        <span><div className='sideCircle'></div> 团队管理</span>
+                      </Link>
+                    </Menu.Item> : <Menu.Item style={{display: 'none'}}></Menu.Item>
+								  }
+								  {/*<Menu.Item key='cost'>
+                   <Link to='/account/cost'>
+                   <span><div className='sideCircle'></div> 费用中心</span>
+                   </Link>
+                   </Menu.Item>*/}
                   <Menu.Item key='costCenter#consumptions'>
                     <Link to='/account/costCenter#consumptions'>
                       <span><div className='sideCircle'></div> 消费记录</span>
@@ -641,70 +668,81 @@ class Sider extends Component {
                 </SubMenu>
 
                 <SubMenu key='setting'
-                  title={
-                    <span>
+                         title={
+                           <span>
                       <svg className='setting commonImg'>
-                        <use xlinkHref='#setting' />
+                        <use xlinkHref='#setting'/>
                       </svg>
                       <span className='commonSiderSpan'>系统设置</span>
-                      <div style={{ clear: 'both' }}></div>
+                      <div style={{clear: 'both'}}></div>
                     </span>
-                  }
-                  >
+							           }
+                >
                   <Menu.Item key='version'>
                     <Link to='/setting/version'>
                       <span><div className='sideCircle'></div> 平台版本</span>
                     </Link>
                   </Menu.Item>
-                  { role == ROLE_SYS_ADMIN ?
+								  { role == ROLE_SYS_ADMIN ?
                     <Menu.Item key='license'>
                       <Link to='/setting/license'>
                         <span><div className='sideCircle'></div> 授权管理</span>
                       </Link>
                     </Menu.Item> : <Menu.Item style={{display: 'none'}}></Menu.Item>
-                  }
+								  }
                   <Menu.Item key='API'>
                     <Link to='/setting/API'>
                       <span><div className='sideCircle'></div> 开放 API</span>
                     </Link>
                   </Menu.Item>
-                  {/*<Menu.Item key='personalized'>
-                    <Link to='/setting/personalized'>
-                      <span><div className='sideCircle'></div> 个性化设置</span>
-                    </Link>
-                  </Menu.Item>*/}
+								  { role == ROLE_SYS_ADMIN ?
+                    <Menu.Item key='globalConfig'>
+                      <Link to='/setting/globalConfig'>
+                        <span><div className='sideCircle'></div>全局配置</span>
+                      </Link>
+                    </Menu.Item>
+									  :
+                    <Menu.Item style={{display: 'none'}}></Menu.Item>
+                  }
+								  {/*<Menu.Item key='personalized'>
+                   <Link to='/setting/personalized'>
+                   <span><div className='sideCircle'></div> 个性化设置</span>
+                   </Link>
+                   </Menu.Item>*/}
                   <div className='sline'></div>
                 </SubMenu>
-                { role == ROLE_SYS_ADMIN ?
+							  { role == ROLE_SYS_ADMIN ?
                   <Menu.Item key='cluster'>
                     <Link to='/cluster'>
                       <span>
                         <svg className='system commonImg'>
-                          <use xlinkHref='#siderinfrastructure' />
+                          <use xlinkHref='#siderinfrastructure'/>
                         </svg>
                         <span className='commonSiderSpan'>基础设施</span>
-                        <div style={{ clear: 'both' }}></div>
+                        <div style={{clear: 'both'}}></div>
                       </span>
                     </Link>
                   </Menu.Item> : <Menu.Item style={{display: 'none'}}></Menu.Item>
-                }
+							  }
               </Menu>
             </div>
           </QueueAnim>
-        ] : null
-        }
+			  ] : null
+			  }
         <ul className='changeSiderUl'>
-          <Tooltip placement='right' title={siderStyle == 'mini' ? '展开导航栏' : null} getTooltipContainer={() => document.getElementById('siderTooltip')}>
+          <Tooltip placement='right' title={siderStyle == 'mini' ? '展开导航栏' : null}
+                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
             <li className='changeStyleBox' onClick={this.changeSiderStyle}>
               <span>
-                {siderStyle == 'mini' ? [<i key='fa-indent' className='fa fa-indent'></i>] : [<i key='fa-outdent' className='fa fa-outdent'></i>]}
+                {siderStyle == 'mini' ? [<i key='fa-indent' className='fa fa-indent'></i>] : [<i key='fa-outdent'
+                                                                                                 className='fa fa-outdent'></i>]}
               </span>
-              {siderStyle == 'bigger' ? [<span>收起</span>] : null}
+						  {siderStyle == 'bigger' ? [<span>收起</span>] : null}
             </li>
           </Tooltip>
         </ul>
       </div>
-    )
+	  );
   }
 }
 

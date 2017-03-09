@@ -39,6 +39,10 @@ const menuList_sysAdmin = [
     url: '/setting/API',
     name: '开放 API'
   },
+	{
+		url: '/setting/globalConfig',
+		name: '全局配置'
+	}
 ]
 
 class Setting extends Component {
