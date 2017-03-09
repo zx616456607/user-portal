@@ -56,6 +56,8 @@ module.exports = function (Router) {
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
+  router.get('/clusters/:cluster/dynamicInfo', clusterController.clusterDynamicInfo)
+  router.get('/clusters/:cluster/staticInfo', clusterController.clusterStaticsInfo)
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
   router.put('/clusters/:cluster/apps/:app_name/desc', appController.updateAppDesc)
@@ -318,6 +320,10 @@ module.exports = function (Router) {
   router.get('/cluster-nodes/:cluster/kubectls', clusternodesController.getKubectls)
   // For bind node when create service(lite only)
   router.get('/clusters/:cluster/nodes', clusternodesController.getNodes)
+  router.get('/cluster-nodes/:cluster/:node/podlist', clusternodesController.getPodlist)
+  // get host detail info
+  router.get('/cluster-nodes/:cluster/:node/info', clusternodesController.getClustersInfo)
+  router.get('/cluster-nodes/:cluster/:node/metrics', clusternodesController.getClustersMetrics)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)

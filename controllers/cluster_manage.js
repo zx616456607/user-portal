@@ -49,3 +49,21 @@ exports.getClusters = function* () {
     count: result.listMeta.size
   }
 }
+
+// api 集群实时summaryAPI
+exports.clusterDynamicInfo = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster,'summary','dynamic'])
+  this.body = result ? result.data : {}
+}
+
+// 集群Summary API( 主机数，CPU,mem,容器数等静态值）
+exports.clusterStaticsInfo = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster,'summary','static'])
+  this.body = result ? result.data : {}
+}

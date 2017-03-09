@@ -8,10 +8,11 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Switch, Tooltip, } from 'antd'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Switch, Tooltip,  Row, Col} from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
+import ClusterInfo from './ClusterInfo'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import {
   getAllClusterNodes,
@@ -25,6 +26,11 @@ import TerminalModal from '../TerminalModal'
 import NotificationHandler from '../../common/notification_handler'
 import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
+import ReactEcharts from 'echarts-for-react'
+
+import cpuImg from '../../assets/img/integration/cpu.png'
+import clusterImg from '../../assets/img/integration/cluster.png'
+import memoryImg from '../../assets/img/integration/memory.png'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -154,6 +160,7 @@ const MyComponent = React.createClass({
   },
   render: function () {
     const { isFetching, podList, containerList, cpuList, memoryList, license } = this.props
+    console.log('podList--', podList)
     const root = this
     if (isFetching) {
       return (
@@ -184,9 +191,7 @@ const MyComponent = React.createClass({
             {/*<Checkbox ></Checkbox>*/}
           </div>
           <div className='name commonTitle'>
-            <Tooltip title={item.objectMeta.name}>
-              <span>{item.objectMeta.name}</span>
-            </Tooltip>
+            <Link to={`/cluster/${item.objectMeta.name}`}>{item.objectMeta.name}</Link>
           </div>
           <div className='address commonTitle'>
             <Tooltip title={item.address}>
@@ -283,7 +288,7 @@ const MyComponent = React.createClass({
   }
 });
 
-class clusterTabList extends Component {
+class ClusterTabList extends Component {
   constructor(props) {
     super(props);
     this.loadData = this.loadData.bind(this);
@@ -454,11 +459,144 @@ class clusterTabList extends Component {
     let oncache = this.state.currentContainer.map((item) => {
       return item.metadata.name;
     })
+      let conRunning =  0
+    let conFailed =  0
+    let conOthers = 0
+    let containerOption = {
+      tooltip : {
+        trigger: 'item',
+        formatter: "{b} : {c}({d}%)"
+      },
+      legend: {
+        orient : 'vertical',
+        left : '50%',
+        top : 'middle',
+        data:[{name:'运行中'}, {name:'异常'},{name:'操作中'}],
+        formatter: function (name) {
+          if(name === '运行中'){
+            return name + '  ' + conRunning + '个'
+          } else if (name === '异常') {
+            return  '异   常  '  + conFailed + ' 个'
+          } else if (name === '操作中') {
+            return name + '  ' + conOthers + ' 个'
+          }
+        },
+        textStyle: {
+          fontSize: 13,
+          color: '#666'
+        },
+        itemGap: 15,
+        itemWidth: 10,
+        itemHeight: 10,
+      },
+      color: ['#46b3f8','#f6575e','#2abe84'],
+      series: {
+        type:'pie',
+        selectedMode: 'single',
+        avoidLabelOverlap: false,
+        hoverAnimation: false,
+        selectedOffset: 0,
+        radius: ['32', '45'],
+        center: ['25%', '50%'],
+        data:[
+          {value:conRunning, name:'运行中'},
+          {value:conFailed, name:'异常'},
+          {value:conOthers, name:'操作中',selected:true},
+        ],
+        label: {
+          normal: {
+            position: 'center',
+            show: false,
+          },
+          emphasis: {
+            // formatter: '{b}:{c}<br/>({d}%)',
+            show: true,
+            position: 'center',
+            formatter: function (param) {
+              return param.percent.toFixed(0) + '%';
+            },
+            textStyle: {
+              fontSize: '13',
+              color: '#666',
+              fontWeight: 'normal'
+            }
+          }
+        },
+        itemStyle: {
+          normal: {
+            borderWidth: 2,
+            borderColor: '#ffffff',
+          },
+          emphasis: {
+            borderWidth: 0,
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        },
+      },
+    }
     return (
       <QueueAnim className='clusterTabListBox'
         type='right'
         >
         <div id='clusterTabList' key='clusterTabList'>
+          <Row className="nodeList">
+            <Col span={6} style={{padding:'0 8px'}}>
+              <Card>
+                <div className="title">主机</div>
+                <img src={clusterImg} className="listImg"/>
+                <ul className="listText">
+                  <li><span>总数</span>
+                  </li>
+                  <li><span>正常运行</span>
+                  </li>
+                  <li><span>可调度数</span>
+                  </li>
+                </ul>
+              </Card>
+            </Col>
+            <Col span={6} style={{padding:'0 8px'}}>
+              <Card>
+                <div className="title">CPU</div>
+                <img src={cpuImg} className="listImg"/>
+                <ul className="listText">
+                  <li><span>总数</span>
+                  </li>
+                  <li><span>正常运行</span>
+                  </li>
+                  <li><span>可调度数</span>
+                  </li>
+                </ul>
+              </Card>
+            </Col>
+            <Col span={6} style={{padding:'0 8px'}}>
+              <Card>
+                <div className="title">内存</div>
+                <img src={memoryImg} className="listImg"/>
+                <ul className="listText">
+                  <li><span className="total">总数</span>
+                  </li>
+                  <li><span className="normal">正常运行</span>
+                  </li>
+                  <li><span className="">可调度数</span>
+                  </li>
+                </ul>
+              </Card>
+            </Col>
+            <Col span={6} style={{padding:'0 8px'}}>
+              <Card>
+               <div className="title">容器</div>
+               <ReactEcharts
+                notMerge={true}
+                option={containerOption}
+                style={{height:'150px'}}
+                showLoading={false}
+                />
+              </Card>
+            </Col>
+          </Row>
+          <ClusterInfo />
           <Card className='ClusterListCard'>
             <div className='operaBox'>
               <Button className='addPodBtn' size='large' type='primary' onClick={this.handleAddClusterNode}>
@@ -584,7 +722,7 @@ class clusterTabList extends Component {
   }
 }
 
-clusterTabList.propTypes = {
+ClusterTabList.propTypes = {
   intl: PropTypes.object.isRequired
 }
 
@@ -617,6 +755,6 @@ export default connect(mapStateToProps, {
   deleteClusterNode,
   getKubectlsPods,
   getAddNodeCMD,
-})(injectIntl(clusterTabList, {
+})(injectIntl(ClusterTabList, {
   withRef: true,
 }))
