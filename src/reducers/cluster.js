@@ -21,10 +21,8 @@ const option = {
 export default function cluster(state = {
   clusters: {},
   podeList: {},
-  hostCpuMetrics: {},
-  hostMemoryMetrics: {},
-  networkReceived: {},
-  networkTransmitted: {},
+  hostMetrics: {},
+  hostInfo: {}
 }, action) {
   return {
     clusters: reducerFactory({
@@ -57,15 +55,10 @@ export default function cluster(state = {
       SUCCESS: ActionTypes.GET_CLUSTER_DYNAMIC_SUCCESS,
       FAILURE: ActionTypes.GET_CLUSTER_DYNAMIC_FAILURE,
     }, state.dynamicInfo, action, option),
-    hostCpuMetrics: reducerFactory({
-      REQUEST: ActionTypes.LOAD_HOST_CPU_REQUEST,
-      SUCCESS: ActionTypes.LOAD_HOST_CPU_SUCCESS,
-      FAILURE: ActionTypes.LOAD_HOST_CPU_FAILURE,
-    }, state.hostCpuMetrics, action, option),
-    hostMemoryMetrics: reducerFactory({
-      REQUEST: ActionTypes.LOAD_HOST_MEMORY_REQUEST,
-      SUCCESS: ActionTypes.LOAD_HOST_MEMORY_SUCCESS,
-      FAILURE: ActionTypes.LOAD_HOST_MEMORY_FAILURE,
-    }, state.hostMemoryMetrics, action, option),
+    hostMetrics: reducerFactory({
+      REQUEST: ActionTypes.LOAD_HOST_METRICS_REQUEST,
+      SUCCESS: ActionTypes.LOAD_HOST_METRICS_SUCCESS,
+      FAILURE: ActionTypes.LOAD_HOST_METRICS_FAILURE,
+    }, state.hostMetrics, action, option),
   }
 }
