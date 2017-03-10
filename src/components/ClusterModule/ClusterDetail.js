@@ -12,10 +12,11 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { Icon, Button, Card, Tabs, Table, Input, Spin, Row, Col, Progress, Switch } from 'antd'
-import { getNodesPodeList, loadHostMetrics } from '../../actions/cluster'
+import { getNodesPodeList, loadHostMetrics, searchPodeList } from '../../actions/cluster'
 import './style/ClusterDetail.less'
-import clusterImg from '../../assets/img/integration/cluster.png'
+import hostImg from '../../assets/img/integration/host.png'
 import { formatDate, calcuDate } from '../../common/tools'
+import { LABEL_APPNAME } from '../../constants'
 import NotificationHandler from '../../common/notification_handler'
 import { getHostInfo, fetchHostMetrics } from '../../actions/cluster'
 import { changeClusterNodeSchedule } from '../../actions/cluster_node'
@@ -27,26 +28,26 @@ import { NOT_AVAILABLE } from '../../constants'
 const TabPane = Tabs.TabPane
 const MASTER = '主控节点/Master'
 const SLAVE = '计算节点/Slave'
+let foreverPodNumber = 0 // pod %
 
 function cpuUsed(cpuTotal, cpuList) {
   //this function for compute cpu used
-  if (!cpuList.data) {
+  if (!cpuTotal|| !cpuList.data) {
     return NOT_AVAILABLE
   }
   let total = 0;
   let used;
-  let length;
+  let length=0;
+  if (cpuList.data.metrics) {
+    length = cpuList.data.metrics.length
+    cpuList.data.metrics.map((item) => {
+      total = total + item.value;
+    });
 
-  length = cpuList.data.metrics.length
-  cpuList.data.metrics.map((item) => {
-    total = total + item.value;
-  });
-  // 1h and to 100%
-  if (!length) {
-    length = 1
   }
+
   used = total / cpuTotal / length;
-  used = (used * 100).toFixed(2);
+  used = used *100
   return {
     unit:`${used}%`,
     amount: used
@@ -54,22 +55,21 @@ function cpuUsed(cpuTotal, cpuList) {
 }
 function memoryUsed(memoryTotal, memoryList) {
   //this function for compute memory used
-  if (!memoryList.data) {
+  if (!memoryTotal || !memoryList.data) {
     return NOT_AVAILABLE
   }
   let total = 0;
   let used;
-  let length;
-  length = memoryList.data.metrics.length
-  memoryList.data.metrics.map((item) => {
-    total = total + (item.value / 1024);
-  });
-  used = total / memoryTotal;
-  // 1h and to 100%
-  if (!length) {
-    length = 1
+  let length=0
+  if (memoryList.data.metrics) {
+    length = memoryList.data.metrics.length
+    memoryList.data.metrics.map((item) => {
+      total = total + (item.value / 1024);
+    });
+
   }
-  used = (used * 100 / length).toFixed(2);
+  used = total / memoryTotal;
+  used = used * 100 / length
   return {
     unit:`${used}%`,
     amount: used
@@ -104,55 +104,69 @@ let HostInfo = React.createClass({
       }
     }
   },
-
+  setSearchState(podname) {
+    this.setState({podname})
+    const _this = this
+    if (podname =='') {
+      setTimeout(function() {
+        _this.handSearch()
+      }, 500);
+    }
+  },
+  handSearch() {
+    let podname = this.state.podname
+    const { scope } = this.props
+    scope.props.searchPodeList(podname)
+  },
   render() {
     const columns = [{
-      title: '容器名称',
-      dataIndex: 'objectMeta.name',
-      key: 'name',
-    }, {
-      title: '状态',
-      dataIndex: 'podPhase',
-      width:'15%',
-      key: 'success',
-      render: (text) => this.checkedState(text)
-    }, {
-      title: '项目空间',
-      dataIndex: 'objectMeta.namespace',
-      key: 'address',
-    }, {
-      title: '所属应用',
-      dataIndex: 'objectMeta.labels.tenxcloud.com/appName',
-      key: 'apply',
-      render: (text) => {
-        if (text) {
-          return (<div>{text}</div>)
+        title: '容器名称',
+        dataIndex: 'objectMeta.name',
+        key: 'name',
+      }, {
+        title: '状态',
+        dataIndex: 'podPhase',
+        width:'15%',
+        key: 'success',
+        render: (text) => this.checkedState(text)
+      }, {
+        title: '项目空间',
+        dataIndex: 'objectMeta.namespace',
+        key: 'address',
+      }, {
+        title: '所属应用',
+        dataIndex: `objectMeta.labels`,
+        key: 'apply',
+        render: (text) => {
+          if (text && text[LABEL_APPNAME]) {
+            return (<div>{text[LABEL_APPNAME]}</div>)
+          }
+          return '--'
         }
-        return '--'
+      },
+      {
+        title: '镜像',
+        dataIndex: 'podSpec.containers',
+        width:'25%',
+        key: 'container',
+        render: (data) => data[0].image
+      },
+      {
+        title: '访问地址',
+        dataIndex: 'podIP',
+        key: 'url',
+      },
+      {
+        title: '创建时间',
+        dataIndex: 'objectMeta.creationTimestamp',
+        render: (text) => calcuDate(text)
       }
-    },
-    {
-      title: '镜像',
-      dataIndex: 'podSpec.containers',
-      width:'25%',
-      key: 'container',
-      render: (data) => data[0].image
-    },
-    {
-      title: '访问地址',
-      dataIndex: 'podIP',
-      key: 'url',
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'objectMeta.creationTimestamp',
-      render: (text) => calcuDate(text)
-    }
     ];
 
     const { hostInfo, metricsData, podeList } = this.props
+    foreverPodNumber = (foreverPodNumber > 0) ? foreverPodNumber
+    : Math.round(podeList.length / hostInfo.podCap *100) // pod %
 
-    const podPre = Math.round(podeList.length / hostInfo.podCap *100) // pod %
     return (
       <div className="hostInfo">
         <div className="topTitle" style={{margin:'0'}}>主机信息</div>
@@ -161,20 +175,20 @@ let HostInfo = React.createClass({
             <div className="titles">资源配额</div>
             <br />
             <Row className="items">
-              <Col span={8}><span className="keys">CPU：</span><span className="valus">{hostInfo.cpuTotal / 1000} 核</span></Col>
+              <Col span={8}><span className="keys">CPU：</span><span className="valus">{isNaN(hostInfo.cpuTotal / 1000)? '': hostInfo.cpuTotal / 1000} 核</span></Col>
               <Col span={10}><Progress percent={ cpuUsed(hostInfo.cpuTotal,metricsData.cpuData).amount } showInfo={false} strokeWidth={8} status="active" /></Col>
               <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 {cpuUsed(hostInfo.cpuTotal, metricsData.cpuData).unit }</Col>
             </Row>
             <Row className="items">
-              <Col span={8}><span className="keys">内存：</span><span className="valus">{Math.round(hostInfo.memoryTotalKB / 1024 / 1024)} G</span></Col>
+              <Col span={8}><span className="keys">内存：</span><span className="valus">{isNaN(hostInfo.memoryTotalKB /1024) ? '' : Math.round(hostInfo.memoryTotalKB / 1024 / 1024)} G</span></Col>
               <Col span={10}><Progress percent={memoryUsed(hostInfo.memoryTotalKB, metricsData.memoryData).amount } strokeWidth={8} showInfo={false} status="active" /></Col>
               <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 {memoryUsed(hostInfo.memoryTotalKB, metricsData.memoryData).unit }</Col>
 
             </Row>
             <Row className="items">
               <Col span={8}><span className="keys">容器配额：</span><span className="valus">{hostInfo.podCap}</span></Col>
-              <Col span={10}><Progress percent={ podPre } strokeWidth={8} showInfo={false} status="active" /></Col>
-              <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 { podPre }%</Col>
+              <Col span={10}><Progress percent={ foreverPodNumber } strokeWidth={8} showInfo={false} status="active" /></Col>
+              <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 { isNaN(foreverPodNumber) ? '': foreverPodNumber }%</Col>
 
             </Row>
           </div>
@@ -195,10 +209,10 @@ let HostInfo = React.createClass({
         </div>
         <div className="topTitle">容器详情</div>
         <div className="containers">
-          <Button icon="reload" onClick={() => this.reloadList()} type="primary" size="large">刷新</Button>
+          <Button onClick={() => this.reloadList()} type="primary" size="large"><i className="fa fa-refresh"/> 刷新</Button>
           <span className="inputGroup">
-            <Input placeholder="搜索" size="large" />
-            <Icon type="search" />
+            <Input placeholder="搜索" size="large" onChange={(e)=> this.setSearchState(e.target.value)} onPressEnter={()=> this.handSearch()}/>
+            <Icon type="search" onClick={()=> this.handSearch()} />
           </span>
           <Table className="dataTable" pagination={{ pageSize: 10, showSizeChanger: true, total: podeList.lenght }} loading={this.props.hostInfo.isFetching} columns={columns} dataSource={podeList} />
         </div>
@@ -288,37 +302,49 @@ class ClusterDetail extends Component {
   formetCpumetrics(cpuData) {
     if (!cpuData.data) return
     let formetDate = { data: [] }
-    const metrics = cpuData.data.metrics.map((list) => {
-      return {
-        timestamp: moment(list.timestamp).format('MM-DD HH:mm'),
-        value: list.value
-      }
-    })
+    let metrics = {}
+    if (cpuData.data.metrics) {
+      metrics = cpuData.data.metrics.map((list) => {
+        return {
+          timestamp: moment(list.timestamp).format('MM-DD HH:mm'),
+          value: list.value
+        }
+      })
+
+    }
     formetDate.data.push({ metrics })
     return formetDate
   }
   formetMemorymetrics(memoryData) {
     if (!memoryData.data) return
     let formetDate = { data: [] }
-    const metrics = memoryData.data.metrics.map((list) => {
-      return {
-        timestamp: moment(list.timestamp).format('MM-DD HH:mm'),
-        value: Math.ceil(list.value / 1024 / 1024)
-      }
-    })
+    let metrics = {}
+    if (memoryData.data.metrics) {
+      metrics = memoryData.data.metrics.map((list) => {
+        return {
+          timestamp: moment(list.timestamp).format('MM-DD HH:mm'),
+          value: Math.ceil(list.value / 1024 / 1024)
+        }
+      })
+
+    }
     formetDate.data.push({ metrics })
     return formetDate
   }
   formetNetworkmetrics(memoryData, nodeName) {
     if (!memoryData.data) return
     let formetDate = { data: [] }
+    let metrics = {}
     memoryData.data.containerName= nodeName
-    const metrics = memoryData.data.metrics.map((list) => {
-      return {
-        timestamp: moment(list.timestamp).format('MM-DD HH:mm'),
-        value: list.value,
-      }
-    })
+    if (memoryData.data.metrics) {
+      metrics = memoryData.data.metrics.map((list) => {
+        return {
+          timestamp: moment(list.timestamp).format('MM-DD HH:mm'),
+          value: list.value,
+        }
+      })
+
+    }
     formetDate.data.push({ metrics,containerName: nodeName})
     return formetDate
   }
@@ -344,9 +370,9 @@ class ClusterDetail extends Component {
         </div>
         <Card className="ClusterInfo" bordered={false}>
           <div className="imgBox" style={{ padding: '30px 24px' }}>
-            <img src={clusterImg} className="clusterImg" />
+            <img src={hostImg} className="clusterImg" />
           </div>
-          <div className="clusterTable" style={{ padding: '40px 0' }}>
+          <div className="clusterTable" style={{ paddingTop: '30px' }}>
             <div className="formItem">
               <div className="h2">{ hostInfo.address ? hostInfo.address:'' }</div>
               <div className="list">运行状态：<span className={hostInfo.ready == 'True' ? 'runningSpan' : 'errorSpan'}><i className='fa fa-circle' />&nbsp;&nbsp;{hostInfo.ready == 'True' ? '运行中' : '异常'}</span></div>
@@ -438,5 +464,6 @@ export default connect(mapStateToProps, {
   getNodesPodeList,
   getHostInfo,
   loadHostMetrics,
+  searchPodeList,
   changeClusterNodeSchedule
 })(ClusterDetail)
