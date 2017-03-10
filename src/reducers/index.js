@@ -21,6 +21,7 @@ import * as databaseCacheReducers from './database_cache'
 import * as manageMonitorReducers from './manage_monitor'
 import * as integrationReducers from './integration'
 import * as clusterNodeReducers from './cluster_node'
+import * as globalConfig from './global_config'
 import configReducers from './configs'
 import storage from './storage'
 import metrics from './metrics'
@@ -109,6 +110,7 @@ const rootReducer = combineReducers({
   ...manageMonitorReducers,
   ...integrationReducers,
   ...clusterNodeReducers,
+  ...globalConfig,
   configReducers,
   metrics,
   user,
@@ -125,7 +127,7 @@ const rootReducer = combineReducers({
   license,
   admin,
   user3rdAccount,
-  version,
+  version
 })
 
 export default rootReducer
