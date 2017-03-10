@@ -55,6 +55,38 @@
         float: left;
         padding-top: 30px;
         li {line-height: 30px;}
+        .itemKey {width: 100px;display: inline-block;position: relative;text-indent: 15px;}
+        .itemKey.primary::after {
+          content: '';
+          display: block;
+          position: absolute;
+          top:9px;
+          left: 0;
+          background: #46B3F8;
+          width: 11px;height: 11px;
+          border-radius: 2px;
+        }
+        .itemKey.success::after{
+          content: '';
+          display: block;
+          position: absolute;
+          top:9px;
+          left: 0;
+          background: #2ABE84;
+          width: 11px;height: 11px;
+          border-radius: 2px;
+        }
+        .itemKey.ready::after {
+          content: '';
+          display: block;
+          position: absolute;
+          top:9px;
+          left: 0;
+          background:  #A2D7FA;
+          width: 11px;height: 11px;
+          border-radius: 2px;
+
+        }
       }
     }
   }
@@ -85,7 +117,7 @@
     .ant-card-body{padding:0;}
     .imgBox {
       float: left;
-      width: 180px;
+      width: 20%;
       position: relative;
       text-align: center;
       svg {width: 100px;height: 100px;}
@@ -105,12 +137,14 @@
     .clusterTable {
       float: left;
       width: 80%;
-      height: 180px;
+      height: 160px;
       .formItem{
         width: 33%;float: left;height: 100%;
         .ant-form-item{margin-bottom: 10px;}
         .h4{width:100px;float: left;}
+        .blod{font-size: 18px;}
         .ant-input{width:200px;}
+        .ant-form-explain{margin-left: 100px;}
       }
     }
   }

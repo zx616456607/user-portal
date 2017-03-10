@@ -134,6 +134,15 @@ export function getNodesPodeList(body, callback) {
   }
 }
 
+export const SEARCH_NODE_PODLIST = 'SEARCH_NODE_PODLIST'
+// pod name search
+export function searchPodeList(podName) {
+  return {
+    podName,
+    type: SEARCH_NODE_PODLIST
+  }
+}
+
 export const LOAD_HOST_METRICS_REQUEST = 'LOAD_HOST_METRICS_REQUEST'
 export const LOAD_HOST_METRICS_SUCCESS = 'LOAD_HOST_METRICS_SUCCESS'
 export const LOAD_HOST_METRICS_FAILURE = 'LOAD_HOST_METRICS_FAILURE'
