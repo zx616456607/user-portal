@@ -40,69 +40,74 @@ let Emaill = React.createClass({
     this.props.emailChange()
   },
   saveStorage() {
-    if (!this.state.canClick) {
-      return
-    }
-    this.setState({
-      aleardySave: true
-    })
-    const notification = new NotificationHandler()
-    notification.spin('保存中')
-    this.setState({
-      canClick: false
-    })
-    const { form, saveGlobalConfig, updateGlobalConfig, cluster } = this.props
-    const { getFieldValue } = form
-    const service = getFieldValue('service')
-    const email = getFieldValue('email')
-    const password = getFieldValue('password')
-    const emailID = getFieldValue('emailID')
-    const self = this
-    saveGlobalConfig(cluster.clusterID, 'mail', {
-      configID: emailID,
-      detail: {
-        senderMail: email,
-        senderPassword: password,
-        mailServer: service
+    this.props.form.validateFields((errors, values) => {
+      if (errors) {
+        return;
       }
-    }, {
-        success: {
-          func: () => {
-            notification.close()
-            notification.success('邮件报警配置保存成功')
-            const { form } = self.props
-            const { getFieldProps, getFieldValue } = form
-            self.handleCeph()
-            this.setState({
-              canClick: true
-            })
-          }
-        },
-        failed: {
-          func: (err) => {
-            notification.close()
-            let msg
-            if (err.message) {
-              msg = err.message
-            } else {
-              msg = err.message.message
-            }
-            notification.error('邮件报警配置保存失败 => ' + msg)
-            this.setState({
-              canClick: true
-            })
-          }
-        }
+      if (!this.state.canClick) {
+        return
+      }
+      this.setState({
+        aleardySave: true
       })
+      const notification = new NotificationHandler()
+      notification.spin('保存中')
+      this.setState({
+        canClick: false
+      })
+      const { form, saveGlobalConfig, updateGlobalConfig, cluster } = this.props
+      const { getFieldValue } = form
+      const service = getFieldValue('service')
+      const email = getFieldValue('email')
+      const password = getFieldValue('password')
+      const emailID = getFieldValue('emailID')
+      const self = this
+      saveGlobalConfig(cluster.clusterID, 'mail', {
+        configID: emailID,
+        detail: {
+          senderMail: email,
+          senderPassword: password,
+          mailServer: service
+        }
+      }, {
+          success: {
+            func: () => {
+              notification.close()
+              notification.success('邮件报警配置保存成功')
+              const { form } = self.props
+              const { getFieldProps, getFieldValue } = form
+              self.handleCeph()
+              this.setState({
+                canClick: true
+              })
+            }
+          },
+          failed: {
+            func: (err) => {
+              notification.close()
+              let msg
+              if (err.message) {
+                msg = err.message
+              } else {
+                msg = err.message.message
+              }
+              notification.error('邮件报警配置保存失败 => ' + msg)
+              this.setState({
+                canClick: true
+              })
+            }
+          }
+        })
+    })
   },
   checkService(rule, value, callback) {
     const { validateFields } = this.props.form
     if (!value) {
-      callback([new Error('请填写服务器地址')])
+      callback([new Error('请填写邮件服务器服务器地址')])
       return
     }
-    if (value.length < 6 || value.length > 16) {
-      callback([new Error('长度为6~16个字符')])
+    if (!/^[a-zA-Z0-9-]+.[a-zA-Z0-9-]+.[a-zA-Z0-9-]+(.[a-zA-z0-9-]+)*(:[0-9]+){0,1}$/.test(value)) {
+      callback([new Error('请填入合法的服务器地址')])
       return
     }
     callback()
@@ -113,15 +118,10 @@ let Emaill = React.createClass({
       callback([new Error('请填写密码')])
       return
     }
-    if (value.length < 6 || value.length > 16) {
-      callback([new Error('长度为6~16个字符')])
-      return
-    }
-    if (/^[^0-9]+$/.test(value) || /^[^a-zA-Z]+$/.test(value)) {
-      callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
-      return
-    }
     callback()
+  },
+  checkEmail(){
+    
   },
   render() {
     const { emailDisable, emailChange, config } = this.props
@@ -147,11 +147,13 @@ let Emaill = React.createClass({
       validate: [{
         rules: [
           { required: true, message: '请输入邮箱地址' },
+          { validator: this.checkEmail }
         ],
         trigger: 'onBlur',
       }, {
         rules: [
           { type: 'email', message: '请输入正确的邮箱地址' },
+           { validator: this.checkEmail }
         ],
         trigger: ['onBlur', 'onChange'],
       }],
@@ -226,58 +228,63 @@ let ConInter = React.createClass({
     this.props.cicdeditChange()
   },
   saveStorage() {
-    if (!this.state.canClick) {
-      return
-    }
-    this.setState({
-      aleardySave: true
-    })
-    const notification = new NotificationHandler()
-    notification.spin('保存中')
-    this.setState({
-      canClick: false
-    })
-    const { form, saveGlobalConfig, updateGlobalConfig, cluster } = this.props
-    const { getFieldValue } = form
-    const cicd = getFieldValue('cicd')
-    const cicdID = getFieldValue('cicdID')
-    const self = this
-    const arr = cicd.split('://')
-    saveGlobalConfig(cluster.clusterID, 'cicd', {
-      configID: cicdID,
-      detail: {
-        protocol: arr[0],
-        url: arr[1]
+    this.props.form.validateFields((errors, values) => {
+      if (errors) {
+        return;
       }
-    }, {
-        success: {
-          func: () => {
-            notification.close()
-            notification.success('持续集成配置保存成功')
-            const { form } = self.props
-            const { getFieldProps, getFieldValue } = form
-            self.handleCeph()
-            this.setState({
-              canClick: true
-            })
-          }
-        },
-        failed: {
-          func: (err) => {
-            notification.close()
-            let msg
-            if (err.message) {
-              msg = err.message
-            } else {
-              msg = err.message.message
-            }
-            notification.error('持续集成配置保存失败 => ' + msg)
-            this.setState({
-              canClick: true
-            })
-          }
-        }
+      if (!this.state.canClick) {
+        return
+      }
+      this.setState({
+        aleardySave: true
       })
+      const notification = new NotificationHandler()
+      notification.spin('保存中')
+      this.setState({
+        canClick: false
+      })
+      const { form, saveGlobalConfig, updateGlobalConfig, cluster } = this.props
+      const { getFieldValue } = form
+      const cicd = getFieldValue('cicd')
+      const cicdID = getFieldValue('cicdID')
+      const self = this
+      const arr = cicd.split('://')
+      saveGlobalConfig(cluster.clusterID, 'cicd', {
+        configID: cicdID,
+        detail: {
+          protocol: arr[0],
+          url: arr[1]
+        }
+      }, {
+          success: {
+            func: () => {
+              notification.close()
+              notification.success('持续集成配置保存成功')
+              const { form } = self.props
+              const { getFieldProps, getFieldValue } = form
+              self.handleCeph()
+              this.setState({
+                canClick: true
+              })
+            }
+          },
+          failed: {
+            func: (err) => {
+              notification.close()
+              let msg
+              if (err.message) {
+                msg = err.message
+              } else {
+                msg = err.message.message
+              }
+              notification.error('持续集成配置保存失败 => ' + msg)
+              this.setState({
+                canClick: true
+              })
+            }
+          }
+        })
+    })
   },
   checkCicd(rule, value, callback) {
     const { validateFields } = this.props.form
@@ -359,73 +366,78 @@ let MirrorService = React.createClass({
     this.props.mirrorChange()
   },
   saveStorage() {
-    if (!this.state.canClick) {
-      return
-    }
-    this.setState({
-      aleardySave: true
-    })
-    const notification = new NotificationHandler()
-    notification.spin('保存中')
-    this.setState({
-      canClick: false
-    })
-    const { form, saveGlobalConfig, updateGlobalConfig, cluster } = this.props
-    const { getFieldValue } = form
-
-
-    const mirror = getFieldProps('mirror')
-    const approve = getFieldValue('approve')
-    const extend = getFieldValue('extend')
-    const registryID = getFieldValue('registryID')
-    const self = this
-    const arr = mirror.split('://')
-    const protocol = arr[0]
-    let host = arr[1]
-    let port = ''
-    if(host.indexOf(':') >=0 ) {
-      let arr = host.split(':')
-      host = arr[0]
-      port = arr[1]
-    } 
-    saveGlobalConfig(cluster.clusterID, 'registry', {
-      configID: registryID,
-      detail: {
-        host,
-        port,
-        protocol,
-        v2AuthServer: approve,
-        v2Server: extend
+    this.props.form.validateFields((errors, values) => {
+      if (errors) {
+        return;
       }
-    }, {
-        success: {
-          func: () => {
-            notification.close()
-            notification.success('镜像服务配置保存成功')
-            const { form } = self.props
-            const { getFieldProps, getFieldValue } = form
-            self.handleCeph()
-            this.setState({
-              canClick: true
-            })
-          }
-        },
-        failed: {
-          func: (err) => {
-            notification.close()
-            let msg
-            if (err.message) {
-              msg = err.message
-            } else {
-              msg = err.message.message
-            }
-            notification.error('镜像服务配置保存失败 => ' + msg)
-            this.setState({
-              canClick: true
-            })
-          }
-        }
+      if (!this.state.canClick) {
+        return
+      }
+      this.setState({
+        aleardySave: true
       })
+      const notification = new NotificationHandler()
+      notification.spin('保存中')
+      this.setState({
+        canClick: false
+      })
+      const { form, saveGlobalConfig, updateGlobalConfig, cluster } = this.props
+      const { getFieldValue } = form
+
+
+      const mirror = getFieldProps('mirror')
+      const approve = getFieldValue('approve')
+      const extend = getFieldValue('extend')
+      const registryID = getFieldValue('registryID')
+      const self = this
+      const arr = mirror.split('://')
+      const protocol = arr[0]
+      let host = arr[1]
+      let port = ''
+      if (host.indexOf(':') >= 0) {
+        let arr = host.split(':')
+        host = arr[0]
+        port = arr[1]
+      }
+      saveGlobalConfig(cluster.clusterID, 'registry', {
+        configID: registryID,
+        detail: {
+          host,
+          port,
+          protocol,
+          v2AuthServer: approve,
+          v2Server: extend
+        }
+      }, {
+          success: {
+            func: () => {
+              notification.close()
+              notification.success('镜像服务配置保存成功')
+              const { form } = self.props
+              const { getFieldProps, getFieldValue } = form
+              self.handleCeph()
+              this.setState({
+                canClick: true
+              })
+            }
+          },
+          failed: {
+            func: (err) => {
+              notification.close()
+              let msg
+              if (err.message) {
+                msg = err.message
+              } else {
+                msg = err.message.message
+              }
+              notification.error('镜像服务配置保存失败 => ' + msg)
+              this.setState({
+                canClick: true
+              })
+            }
+          }
+        })
+    })
   },
   // 镜像服务地址校验规则
   checkMirror(rule, value, callback) {
@@ -581,60 +593,65 @@ let StorageService = React.createClass({
     this.props.cephChange()
   },
   saveStorage() {
-    if (!this.state.canClick) {
-      return
-    }
-    this.setState({
-      aleardySave: true
-    })
-    const notification = new NotificationHandler()
-    notification.spin('保存中')
-    this.setState({
-      canClick: false
-    })
-    const { form, saveGlobalConfig, updateGlobalConfig, cluster } = this.props
-    const { getFieldValue } = form
-    const node = getFieldValue('node')
-    const url = getFieldValue('url')
-    const storageID = getFieldValue('storageID')
-    const self = this
-    saveGlobalConfig(cluster.clusterID, 'rbd', {
-      configID: storageID,
-      detail: {
-        url: url,
-        config: {
-          monitors: [node]
-        }
+    this.props.form.validateFields((errors, values) => {
+      if (errors) {
+        return;
       }
-    }, {
-        success: {
-          func: () => {
-            notification.close()
-            notification.success('ceph配置保存成功')
-            const { form } = self.props
-            const { getFieldProps, getFieldValue } = form
-            self.handleCeph()
-            this.setState({
-              canClick: true
-            })
-          }
-        },
-        failed: {
-          func: (err) => {
-            notification.close()
-            let msg
-            if (err.message.message) {
-              msg = err.message.message
-            } else {
-              msg = err.message
-            }
-            notification.error('ceph配置保存失败 => ' + msg)
-            this.setState({
-              canClick: true
-            })
+      if (!this.state.canClick) {
+        return
+      }
+      this.setState({
+        aleardySave: true
+      })
+      const notification = new NotificationHandler()
+      notification.spin('保存中')
+      this.setState({
+        canClick: false
+      })
+      const { form, saveGlobalConfig, updateGlobalConfig, cluster } = this.props
+      const { getFieldValue } = form
+      const node = getFieldValue('node')
+      const url = getFieldValue('url')
+      const storageID = getFieldValue('storageID')
+      const self = this
+      saveGlobalConfig(cluster.clusterID, 'rbd', {
+        configID: storageID,
+        detail: {
+          url: url,
+          config: {
+            monitors: [node]
           }
         }
-      })
+      }, {
+          success: {
+            func: () => {
+              notification.close()
+              notification.success('ceph配置保存成功')
+              const { form } = self.props
+              const { getFieldProps, getFieldValue } = form
+              self.handleCeph()
+              this.setState({
+                canClick: true
+              })
+            }
+          },
+          failed: {
+            func: (err) => {
+              notification.close()
+              let msg
+              if (err.message.message) {
+                msg = err.message.message
+              } else {
+                msg = err.message
+              }
+              notification.error('ceph配置保存失败 => ' + msg)
+              this.setState({
+                canClick: true
+              })
+            }
+          }
+        })
+    })
   },
   // 存储节点校验规则
   checkNode(rule, value, callback) {
