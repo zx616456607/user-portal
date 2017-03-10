@@ -224,7 +224,7 @@ class Information extends Component {
     const oldBalance = parseAmount(this.props.userDetail.balance, 4).amount
     if (oldBalance + amount >= MAX_CHARGE ) {
       // balance (T) + charge memory not 200000
-      let isnewBalance = Math.floor((MAX_CHARGE - oldBalance ) *100) /100
+      let isnewBalance = Math.floor(MAX_CHARGE - oldBalance )
       let newBalance = isnewBalance > 0 ? isnewBalance : 0
       notification.info(`充值金额大于可充值金额，最多还可充值 ${newBalance}`)
       return

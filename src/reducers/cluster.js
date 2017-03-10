@@ -13,6 +13,7 @@
 import * as ActionTypes from '../actions/cluster'
 import reducerFactory from './factory'
 import merge from 'lodash/merge'
+import cloneDeep from 'lodash/cloneDeep'
 
 const option = {
   overwrite: true
@@ -79,9 +80,53 @@ function clusterSummary(state = {}, action) {
   }
 }
 
+function podeList(state={}, action) {
+  const defaultState = {
+    result:{ pods:[] }
+  }
+  switch(action.type) {
+    case ActionTypes.GET_CLUSTER_DETAIL_REQUEST:{
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    }
+    case ActionTypes.GET_CLUSTER_DETAIL_SUCCESS: {
+      const bakList = cloneDeep(action.response.result)
+      return Object.assign({}, state, {
+        isFetching: false,
+        result: action.response.result,
+        bakList
+      })
+    }
+    case ActionTypes.GET_CLUSTER_DETAIL_FAILURE: {
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    }
+    case ActionTypes.SEARCH_NODE_PODLIST: {// search pods list
+      const podName = action.podName
+      const newState = cloneDeep(state)
+      if (podName == '') {
+        newState.result = state.bakList
+        return newState
+      }
+      const temp = state.bakList.pods.filter(list => {
+        const search = new RegExp(podName)
+        if (search.test(list.objectMeta.name)) {
+          return true
+        }
+        return false
+      })
+      newState.result.pods = temp
+      return newState
+    }
+    default:
+      return state
+  }
+}
+
 export default function cluster(state = {
   clusters: {},
-  podeList: {},
   hostMetrics: {},
   hostInfo: {}
 }, action) {
@@ -108,11 +153,7 @@ export default function cluster(state = {
       SUCCESS: ActionTypes.GET_HOST_INFO_SUCCESS,
       FAILURE: ActionTypes.GET_HOST_INFO_FAILURE,
     }, state.hostInfo, action, option),
-    podeList: reducerFactory({
-      REQUEST: ActionTypes.GET_CLUSTER_DETAIL_REQUEST,
-      SUCCESS: ActionTypes.GET_CLUSTER_DETAIL_SUCCESS,
-      FAILURE: ActionTypes.GET_CLUSTER_DETAIL_FAILURE,
-    }, state.podeList, action, option),
+    podeList: podeList(state.podeList, action),
     staticInfo: reducerFactory({
       REQUEST: ActionTypes.GET_CLUSTER_STATIC_REQUEST,
       SUCCESS: ActionTypes.GET_CLUSTER_STATIC_SUCCESS,
