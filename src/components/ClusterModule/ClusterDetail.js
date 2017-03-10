@@ -47,7 +47,7 @@ function cpuUsed(cpuTotal, cpuList) {
   }
 
   used = total / cpuTotal / length;
-  used = used *100
+  used = (used * 100).toFixed(2);
   return {
     unit:`${used}%`,
     amount: used
@@ -69,7 +69,7 @@ function memoryUsed(memoryTotal, memoryList) {
 
   }
   used = total / memoryTotal;
-  used = used * 100 / length
+  used = (used * 100 / length).toFixed(2)
   return {
     unit:`${used}%`,
     amount: used
