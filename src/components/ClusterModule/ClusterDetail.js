@@ -12,7 +12,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { Icon, Button, Card, Tabs, Table, Input, Spin, Row, Col, Progress, Switch } from 'antd'
-import { getNodesPodeList, getClusterInfo, loadHostMetrics } from '../../actions/cluster'
+import { getNodesPodeList, loadHostMetrics } from '../../actions/cluster'
 import './style/ClusterDetail.less'
 import clusterImg from '../../assets/img/integration/cluster.png'
 import { formatDate, calcuDate } from '../../common/tools'
@@ -22,6 +22,7 @@ import { changeClusterNodeSchedule } from '../../actions/cluster_node'
 import TimeControl from '../Metrics/TimeControl'
 import Metrics from '../Metrics'
 import moment from 'moment'
+import { NOT_AVAILABLE } from '../../constants'
 
 const TabPane = Tabs.TabPane
 const MASTER = '主控节点/Master'
@@ -30,7 +31,7 @@ const SLAVE = '计算节点/Slave'
 function cpuUsed(cpuTotal, cpuList) {
   //this function for compute cpu used
   if (!cpuList.data) {
-    return `N/A`
+    return NOT_AVAILABLE
   }
   let total = 0;
   let used;
@@ -54,7 +55,7 @@ function cpuUsed(cpuTotal, cpuList) {
 function memoryUsed(memoryTotal, memoryList) {
   //this function for compute memory used
   if (!memoryList.data) {
-    return `N/A`
+    return NOT_AVAILABLE
   }
   let total = 0;
   let used;
@@ -436,7 +437,6 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   getNodesPodeList,
   getHostInfo,
-  getClusterInfo,
   loadHostMetrics,
   changeClusterNodeSchedule
 })(ClusterDetail)

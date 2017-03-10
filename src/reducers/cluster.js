@@ -12,24 +12,97 @@
 
 import * as ActionTypes from '../actions/cluster'
 import reducerFactory from './factory'
-import remove from 'lodash/remove'
+import merge from 'lodash/merge'
 
 const option = {
   overwrite: true
 }
 
+function clusters(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    clusterList: []
+  }
+  switch (action.type) {
+    case ActionTypes.CLUSTER_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: (
+          state && state.clusterList
+          ? false
+          : true
+        )
+      })
+    case ActionTypes.CLUSTER_LIST_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        clusterList: action.response.result.data || [],
+      })
+    case ActionTypes.CLUSTER_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+function clusterSummary(state = {}, action) {
+  const { cluster } = action
+  const defaultState = {
+    [cluster]: {
+      isFetching: false,
+      summary: {}
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.GET_CLUSTER_SUMMARY_REQUEST:
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          isFetching: true,
+        }
+      })
+    case ActionTypes.GET_CLUSTER_SUMMARY_SUCCESS:
+      return Object.assign({}, state, {
+        [cluster]: {
+          isFetching: false,
+          summary: action.response.result
+        }
+      })
+    case ActionTypes.GET_CLUSTER_SUMMARY_FAILURE:
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          isFetching: false,
+        }
+      })
+    default:
+      return state
+  }
+}
+
 export default function cluster(state = {
-  clusters: [],
+  clusters: {},
   podeList: {},
   hostMetrics: {},
   hostInfo: {}
 }, action) {
   return {
-    clusters: reducerFactory({
-      REQUEST: ActionTypes.CLUSTER_LIST_REQUEST,
-      SUCCESS: ActionTypes.CLUSTER_LIST_SUCCESS,
-      FAILURE: ActionTypes.CLUSTER_LIST_FAILURE,
-    }, state.clusters, action, option),
+    clusters: clusters(state.clusters, action),
+    createCluster: reducerFactory({
+      REQUEST: ActionTypes.CREATE_CLUSTER_REQUEST,
+      SUCCESS: ActionTypes.CREATE_CLUSTER_SUCCESS,
+      FAILURE: ActionTypes.CREATE_CLUSTER_FAILURE,
+    }, state.createCluster, action, option),
+    deleteCluster: reducerFactory({
+      REQUEST: ActionTypes.DELETE_CLUSTER_REQUEST,
+      SUCCESS: ActionTypes.DELETE_CLUSTER_SUCCESS,
+      FAILURE: ActionTypes.DELETE_CLUSTER_FAILURE,
+    }, state.deleteCluster, action, option),
+    addClusterCMD: reducerFactory({
+      REQUEST: ActionTypes.GET_ADD_CLUSTER_CMD_REQUEST,
+      SUCCESS: ActionTypes.GET_ADD_CLUSTER_CMD_SUCCESS,
+      FAILURE: ActionTypes.GET_ADD_CLUSTER_CMD_FAILURE,
+    }, state.addClusterCMD, action, option),
+    clusterSummary: clusterSummary(state.clusterSummary, action),
     hostInfo: reducerFactory({
       REQUEST: ActionTypes.GET_HOST_INFO_REQUEST,
       SUCCESS: ActionTypes.GET_HOST_INFO_SUCCESS,

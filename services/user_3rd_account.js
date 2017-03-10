@@ -59,9 +59,10 @@ exports.sendTemplateToWechatLoginUser = function (user) {
       },
       keyword2: {
         value: moment().format('YYYY-MM-DD hh:mm:ss'),
+        color
       },
       remark: {
-        value: `账号余额：${balance}元\n\n[客服电话：400-626-1876 | 控制台右下角工单]`
+        value: `账号余额：${balance}元`
       },
     }
     wechat.sendTemplate(access_token, openid, TEMPLATE_ID, data)
