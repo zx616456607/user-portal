@@ -208,6 +208,7 @@ class ClusterList extends Component {
     const {
       intl, clustersIsFetching, clusters,
       currentClusterID, addClusterCMD, createCluster,
+      license,
     } = this.props
     if (!this.checkIsAdmin() || clustersIsFetching) {
       return (
@@ -230,6 +231,13 @@ class ClusterList extends Component {
         <ClusterTabList cluster={cluster} />
       </TabPane>
     ))
+    const clusterSum = clusters.length
+    let createClusterBtnDisabled = true
+    // const { maxClusters } = license
+    let maxClusters = 5
+    if (clusterSum < maxClusters) {
+      createClusterBtnDisabled = false
+    }
     return (
       <QueueAnim className='ClusterBox'
         type='right'
@@ -241,8 +249,13 @@ class ClusterList extends Component {
             key='ClusterTabs'
             defaultActiveKey={currentClusterID}
             tabBarExtraContent={
-              <Tooltip title="企业版 Lite 只支持一个集群，联邦集群等功能，请使用 Pro 版。" placement="topLeft">
-                <Button className='addBtn' key='addBtn' size='large' type='primary' onClick={() => this.setState({ createModal: true })}>
+              <Tooltip title={`当前版本支持 ${maxClusters || '-'} 个 集群（目前已添加 ${clusterSum} 个）`} placement="topLeft">
+                <Button
+                  disabled={createClusterBtnDisabled}
+                  className='addBtn'
+                  key='addBtn' size='large'
+                  type='primary'
+                  onClick={() => this.setState({ createModal: true })}>
                   <Icon type='plus' />&nbsp;
                     <span>添加集群</span>
                 </Button>
@@ -252,7 +265,7 @@ class ClusterList extends Component {
             {ImageTabList}
           </Tabs>
           {
-            clusters.length < 1 && (
+            clusterSum < 1 && (
             <div key="loadingBox" className="loadingBox">
               暂无可用集群，请添加
             </div>)
@@ -269,15 +282,17 @@ ClusterList.propTypes = {
 }
 
 function mapStateToProps(state, props) {
-  const { entities, cluster } = state
+  const { entities, cluster, cluster_nodes } = state
   const { loginUser, current } = entities
   const { clusters, addClusterCMD } = cluster
+  const { getAllClusterNodes } = cluster_nodes
   return {
     loginUser: loginUser.info,
     clustersIsFetching: clusters.isFetching,
     clusters: clusters.clusterList ? clusters.clusterList : [],
     currentClusterID: current.cluster.clusterID,
     addClusterCMD: (addClusterCMD ? addClusterCMD.result : {}) || {},
+    license: (getAllClusterNodes.nodes ? getAllClusterNodes.nodes.license : {}) || {},
   }
 }
 
