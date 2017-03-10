@@ -17,7 +17,8 @@ const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 const DEFAULT_LICENSE = {
-  max_nodes: 5
+  max_nodes: 5,
+  max_clusters: 1,
 }
 
 exports.getClusterNodes = function* () {
@@ -33,6 +34,9 @@ exports.getClusterNodes = function* () {
   const license = reqArrayResult[1].data || DEFAULT_LICENSE
   if (!license.max_nodes || license.max_nodes < DEFAULT_LICENSE.max_nodes) {
     license.max_nodes = DEFAULT_LICENSE.max_nodes
+  }
+  if (!license.max_clusters || license.max_clusters < DEFAULT_LICENSE.max_clusters) {
+    license.max_clusters = DEFAULT_LICENSE.max_clusters
   }
   let cpuList
   let memoryList
@@ -76,18 +80,6 @@ exports.getClusterNodes = function* () {
       memoryList,
       license
     }
-  }
-}
-
-// For bind node when create service(lite only)
-exports.getNodes = function* (){
-  const loginUser = this.session.loginUser
-  const cluster = this.params.cluster
-  const spi = apiFactory.getSpi(loginUser)
-  const result = yield spi.clusters.getBy([cluster, 'nodes']);
-  this.body = {
-    cluster,
-    data: result.data,
   }
 }
 

@@ -8,52 +8,181 @@
  * @author BaiYu
  */
 import React from 'react'
-import { Icon, Button, Card, Form, Input, Tooltip, Spin, } from 'antd'
+import { Icon, Button, Card, Form, Input, Tooltip, Spin, Modal } from 'antd'
+import { updateCluster, loadClusterList, deleteCluster } from '../../actions/cluster'
+import NotificationHandler from '../../common/notification_handler'
+import { connect } from 'react-redux'
+
+let saveBtnDisabled = true
 
 let ClusterInfo = React.createClass ({
   getInitialState() {
     return {
       editCluster: false, // edit btn
+      saveBtnLoading: false,
+      deleteClusterModal: false,
+      deleteClusterBtnLoading: false,
     }
   },
-  checkClusterName(rule, value, callback) {
+  checkValue(rule, value, callback) {
+    if (!value) {
+      callback([new Error('请填写用户名')])
+      return
+    }
+    if (value.indexOf('@') > -1) {
+      if (!EMAIL_REG_EXP.test(value)) {
+        callback([new Error('邮箱地址填写错误')])
+        return
+      }
+      callback()
+      return
+    }
     callback()
   },
+  updateCluster(e) {
+    e.preventDefault()
+    const { form, updateCluster, cluster, loadClusterList } = this.props
+    const { validateFields, resetFields } = form
+    const notification = new NotificationHandler()
+    validateFields((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      this.setState({
+        saveBtnLoading: true,
+      })
+      updateCluster(cluster.clusterID, values, {
+        success: {
+          func: result => {
+            notification.success(`更新集群信息成功`)
+            loadClusterList(null, {
+              finally: {
+                func: () => {
+                  this.setState({
+                    saveBtnLoading: false,
+                    editCluster: false,
+                  })
+                }
+              }
+            })
+          },
+          isAsync: true
+        },
+        failed: {
+          func: err => {
+            notification.error(`更新集群信息失败`)
+            this.setState({
+              saveBtnLoading: false,
+            })
+          },
+          isAsync: true
+        }
+      })
+    })
+  },
+  deleteCluster() {
+    this.setState({
+      deleteClusterModal: true,
+    })
+  },
+  confirmDeleteCluster() {
+    const { deleteCluster, cluster, loadClusterList } = this.props
+    const notification = new NotificationHandler()
+    this.setState({
+      deleteClusterBtnLoading: true,
+    })
+    deleteCluster(cluster.clusterID, {
+      success: {
+          func: result => {
+            notification.success(`删除集群“${cluster.clusterName}”成功`)
+            loadClusterList(null, {
+              finally: {
+                func: () => {
+                  this.setState({
+                    deleteClusterModal: false,
+                    deleteClusterBtnLoading: false,
+                  })
+                }
+              }
+            })
+          },
+          isAsync: true
+        },
+        failed: {
+          func: err => {
+            notification.error(`删除集群“${cluster.clusterName}”失败`)
+            this.setState({
+              deleteClusterBtnLoading: false,
+            })
+          },
+          isAsync: true
+        }
+    })
+  },
   render () {
-    const { editCluster } = this.state
-    const { getFieldProps } = this.props.form;
+    const { cluster, form } = this.props
+    const { editCluster, saveBtnLoading } = this.state
+    const { getFieldProps } = form
+    let {
+      clusterName, apiHost, apiProtocol,
+      apiVersion, bindingIPs, bindingDomains,
+      description, apiToken
+    } = cluster
+    const apiUrl = `${apiProtocol}://${apiHost}`
+    bindingIPs = parseArray(bindingIPs).join(', ')
+    bindingDomains = parseArray(bindingDomains).join(', ')
     const nameProps = getFieldProps('clusterName',{
       rules: [
         { required: true, message: '输入集群名称' },
-        { validator: this.checkClusterName },
+        // { validator: this.checkValue },
       ],
+      initialValue: clusterName
     });
-    const serverExportProps = getFieldProps('serverExport',{
+    const bindingIPsProps = getFieldProps('bindingIPs',{
       rules: [
-        { required: true, message: '输入集群名称' },
-        { validator: this.checkClusterName },
+        { required: true, message: '输入服务出口列表' },
+        // { validator: this.checkValue },
       ],
-      initialValue:''
+      initialValue: bindingIPs
     });
-    const orglistProps = getFieldProps('orgList',{
+    const bindingDomainsProps = getFieldProps('bindingDomains',{
       rules: [
-        { required: true, message: '输入集群名称' },
-        { validator: this.checkClusterName },
+        { required: true, message: '输入域名列表' },
+        // { validator: this.checkValue },
       ],
-      initialValue:''
+      initialValue: bindingDomains
     });
-    const descProps = getFieldProps('desc',{
+    const descProps = getFieldProps('description',{
       rules: [
         { required: false },
       ],
+      initialValue: description
     });
     return (
       <Card className="ClusterInfo">
         <div className="h3">集群信息
           { !editCluster ?
-          <a onClick={()=> this.setState({editCluster: true})} className="btnEdit">编辑集群</a>
+          [
+            <a onClick={()=> this.setState({editCluster: true})} className="btnEdit">编辑集群</a>,
+            <a onClick={this.deleteCluster} className="btnDel">删除集群</a>,
+          ]
           :
-          <div style={{float:'right'}}><Button size="small" onClick={()=> this.setState({editCluster: false})}>取消</Button><Button type="primary" size="small" style={{marginLeft:'8px'}}>保存</Button></div>
+          <div style={{float:'right'}}>
+            <Button size="small"
+              onClick={()=> {
+                this.setState({editCluster: false, saveBtnLoading: false})
+                saveBtnDisabled = true
+              }}>
+              取消
+            </Button>
+            <Button
+              loading={saveBtnLoading}
+              disabled={saveBtnDisabled}
+              type="primary" size="small" style={{marginLeft:'8px'}}
+              onClick={this.updateCluster}>
+              保存
+            </Button>
+          </div>
           }
         </div>
         <div className="imgBox" style={{padding:'50px 24px'}}>
@@ -66,14 +195,16 @@ let ClusterInfo = React.createClass ({
               { editCluster ?
                 <Input {...nameProps} placeholder="输入集群名称" />
                 :
-                <span>默认集群</span>
+                <span>{clusterName}</span>
               }
             </Form.Item>
             <Form.Item>
-              <div className="h4">API Server：</div>192.168.1.1
+              <div className="h4">API Server：</div>
+              <span>{apiUrl}</span>
             </Form.Item>
             <Form.Item>
-              <div className="h4">API Tocken：</div>https://192.168.1.1
+              <div className="h4">API Token：</div>
+              <span>{apiToken}</span>
             </Form.Item>
 
           </div>
@@ -81,17 +212,17 @@ let ClusterInfo = React.createClass ({
             <Form.Item>
               <div className="h4">服务出口列表：</div>
               { editCluster ?
-              <Input {...serverExportProps } placeholder="输入服务出口列表"/>
+              <Input {...bindingIPsProps } placeholder="输入服务出口列表，多个出口英文逗号分开" type="textarea" />
               :
-              <span></span>
+              <span>{bindingIPs}</span>
               }
             </Form.Item>
             <Form.Item>
               <div className="h4">域名列表：</div>
               { editCluster ?
-              <Input {...orglistProps} placeholder="输入域名列表" />
+              <Input {...bindingDomainsProps} placeholder="输入域名列表，多个域名英文逗号分开" type="textarea" />
               :
-              <span></span>
+              <span>{bindingDomains}</span>
               }
             </Form.Item>
           </div>
@@ -99,18 +230,54 @@ let ClusterInfo = React.createClass ({
           <Form.Item>
             <div className="h4">描述：</div>
             { editCluster ?
-            <Input {...descProps} type="textarea" placeholder="添加描述" />
+            <Input {...descProps} type="textarea" placeholder="添加描述" defaultValue={description} />
             :
-            <span></span>
+            <span>{description}</span>
             }
           </Form.Item>
           </div>
         </Form>
+        <Modal title={`删除集群`}
+          confirmLoading={this.state.deleteClusterBtnLoading}
+          className='deleteClusterModal'
+          visible={this.state.deleteClusterModal}
+          onOk={this.confirmDeleteCluster}
+          onCancel={() => this.setState({deleteClusterModal: false})}>
+          <div style={{ color: '#00a0ea', height: "50px" }}>
+            <Icon type='exclamation-circle-o' />
+            &nbsp;&nbsp;&nbsp;确定要删除“{clusterName}”？
+          </div>
+          <div className="note">注意：请确认执行删除集群操作！
+该操作会导致将选中的集群与当前控制台Portal解绑，完全脱离当前控制台的管理，但不影响该集群的容器应用等的运行状态。</div>
+        </Modal>
       </Card>
     )
   }
 })
 
-ClusterInfo = Form.create()(ClusterInfo)
+function parseArray(array) {
+  try {
+    array = JSON.parse(array)
+  } catch (error) {
+    array = []
+  }
+  return array
+}
 
-export default ClusterInfo
+function formChange(porps, fileds) {
+  saveBtnDisabled = false
+}
+
+ClusterInfo = Form.create({
+  onFieldsChange: formChange
+})(ClusterInfo)
+
+function mapStateToProps(state, props) {
+  return {}
+}
+
+export default connect(mapStateToProps, {
+  updateCluster,
+  loadClusterList,
+  deleteCluster,
+})(ClusterInfo)

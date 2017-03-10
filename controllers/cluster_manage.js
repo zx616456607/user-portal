@@ -50,20 +50,67 @@ exports.getClusters = function* () {
   }
 }
 
-// api 集群实时summaryAPI
-exports.clusterDynamicInfo = function* () {
+exports.updateCluster = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster,'summary','dynamic'])
-  this.body = result ? result.data : {}
+  const body = this.request.body
+  const result = yield api.update(cluster, body)
+  this.body = result
 }
 
-// 集群Summary API( 主机数，CPU,mem,容器数等静态值）
-exports.clusterStaticsInfo = function* () {
+exports.deleteCluster = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster,'summary','static'])
-  this.body = result ? result.data : {}
+  const result = yield api.delete(cluster)
+  this.body = result
+}
+
+exports.createCluster = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const body = this.request.body
+  const result = yield api.createBy(['add'], null, body)
+  this.body = result
+}
+
+exports.getClusterSummary = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(loginUser)
+  const reqArray = []
+  const resData = {
+    static: {},
+    dynamic: {}
+  }
+  reqArray.push(api.getBy([cluster, 'summary', 'static']))
+  reqArray.push(api.getBy([cluster, 'summary', 'dynamic']))
+  try {
+    const results = yield reqArray
+    resData.static = results[0].data
+    resData.dynamic = results[1].data
+  } catch (error) {
+    // Catch error here
+  }
+  this.body = resData
+}
+
+// For bind node when create service(lite only)
+exports.getNodes = function* (){
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const spi = apiFactory.getSpi(loginUser)
+  const result = yield spi.clusters.getBy([cluster, 'nodes']);
+  this.body = {
+    cluster,
+    data: result.data,
+  }
+}
+
+exports.getAddClusterCMD = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.clusters.getBy(['add'])
+  this.body = result.data
 }
