@@ -134,21 +134,18 @@ let ClusterInfo = React.createClass ({
     const nameProps = getFieldProps('clusterName',{
       rules: [
         { required: true, message: '输入集群名称' },
-        // { validator: this.checkValue },
       ],
       initialValue: clusterName
     });
     const bindingIPsProps = getFieldProps('bindingIPs',{
       rules: [
         { required: true, message: '输入服务出口列表' },
-        // { validator: this.checkValue },
       ],
       initialValue: bindingIPs
     });
     const bindingDomainsProps = getFieldProps('bindingDomains',{
       rules: [
-        { required: true, message: '输入域名列表' },
-        // { validator: this.checkValue },
+        { message: '输入域名列表' },
       ],
       initialValue: bindingDomains
     });
