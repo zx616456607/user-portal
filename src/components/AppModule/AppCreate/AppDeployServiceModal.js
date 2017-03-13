@@ -682,7 +682,6 @@ let AppDeployServiceModal = React.createClass({
         if(!volPath) return
         if (vol.length <= 0) return
         let mountPath = []
-        console.log(vol)
         vol.items.forEach((v, index) => {
           let path = (volPath.indexOf('/') == 0 ? volPath : '/'+ volPath) + '/' + v.path
           mountPath.push({

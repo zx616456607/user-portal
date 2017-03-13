@@ -25,7 +25,8 @@ const FormItem = Form.Item
 let Emaill = React.createClass({
   getInitialState() {
     return {
-      isEve: false
+      isEve: false,
+      canClick: true
     }
   },
   handleReset(e) {
@@ -39,21 +40,20 @@ let Emaill = React.createClass({
   handleEmail() {
     this.props.emailChange()
   },
-  saveStorage() {
+  saveEmail() {
     this.props.form.validateFields((errors, values) => {
       if (errors) {
+        console.log(errors)
         return;
       }
       if (!this.state.canClick) {
         return
       }
-      this.setState({
-        aleardySave: true
-      })
       const notification = new NotificationHandler()
       notification.spin('保存中')
       this.setState({
-        canClick: false
+        canClick: false,
+        aleardySave: true
       })
       const { form, saveGlobalConfig, updateGlobalConfig, cluster } = this.props
       const { getFieldValue } = form
@@ -76,7 +76,7 @@ let Emaill = React.createClass({
               notification.success('邮件报警配置保存成功')
               const { form } = self.props
               const { getFieldProps, getFieldValue } = form
-              self.handleCeph()
+              self.handleEmail()
               this.setState({
                 canClick: true
               })
@@ -106,7 +106,7 @@ let Emaill = React.createClass({
       callback([new Error('请填写邮件服务器服务器地址')])
       return
     }
-    if (!/^[a-zA-Z0-9-]+.[a-zA-Z0-9-]+.[a-zA-Z0-9-]+(.[a-zA-z0-9-]+)*(:[0-9]+){0,1}$/.test(value)) {
+    if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
       callback([new Error('请填入合法的服务器地址')])
       return
     }
@@ -120,8 +120,14 @@ let Emaill = React.createClass({
     }
     callback()
   },
-  checkEmail(){
-    
+  checkEmail(rule, value, callback) {
+    if (!value) {
+      return callback('请填写邮箱地址')
+    }
+    if (!/\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/.test(value)) {
+      return callback('请填入合法的邮箱地址')
+    }
+    return callback()
   },
   render() {
     const { emailDisable, emailChange, config } = this.props
@@ -144,22 +150,11 @@ let Emaill = React.createClass({
 
     //邮箱
     const emailProps = getFieldProps('email', {
-      validate: [{
-        rules: [
-          { required: true, message: '请输入邮箱地址' },
-          { validator: this.checkEmail }
-        ],
-        trigger: 'onBlur',
-      }, {
-        rules: [
-          { type: 'email', message: '请输入正确的邮箱地址' },
-           { validator: this.checkEmail }
-        ],
-        trigger: ['onBlur', 'onChange'],
+      rules: [{
+        validator: this.checkEmail
       }],
       initialValue: emailDetail.senderMail
     });
-
     //密码
     const passwordProps = getFieldProps('password', {
       rules: [
@@ -204,7 +199,7 @@ let Emaill = React.createClass({
                     emailDisable
                       ? <Button type='primary' className="itemInputLeft" onClick={this.handleEmail}>编辑</Button>
                       : ([
-                        <Button type='primary' className="itemInputLeft" onClick={this.handleEmail}>保存</Button>,
+                        <Button type='primary' className="itemInputLeft" onClick={this.saveEmail}>保存</Button>,
                         <Button onClick={this.handleReset} disabled={emailDisable}>取消</Button>
                       ])
                   }
@@ -221,13 +216,18 @@ let Emaill = React.createClass({
 
 //持续集成
 let ConInter = React.createClass({
+  getInitialState() {
+    return {
+      canClick: true
+    }
+  },
   handleCicd() {
     this.props.cicdeditChange()
   },
   handleReset() {
     this.props.cicdeditChange()
   },
-  saveStorage() {
+  saveCICD() {
     this.props.form.validateFields((errors, values) => {
       if (errors) {
         return;
@@ -262,7 +262,7 @@ let ConInter = React.createClass({
               notification.success('持续集成配置保存成功')
               const { form } = self.props
               const { getFieldProps, getFieldValue } = form
-              self.handleCeph()
+              self.handleCicd()
               this.setState({
                 canClick: true
               })
@@ -289,16 +289,11 @@ let ConInter = React.createClass({
   checkCicd(rule, value, callback) {
     const { validateFields } = this.props.form
     if (!value) {
-      callback([new Error('请填写密码')])
+      callback([new Error('请填写主机地址')])
       return
     }
-    if (value.length < 6 || value.length > 16) {
-      callback([new Error('长度为6~16个字符')])
-      return
-    }
-    if (/^[^0-9]+$/.test(value) || /^[^a-zA-Z]+$/.test(value)) {
-      callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
-      return
+    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+      return callback('请填入合法的主机地址')
     }
     callback()
   },
@@ -342,7 +337,7 @@ let ConInter = React.createClass({
                     cicdeditDisable
                       ? <Button type='primary' className="itemInputLeft" onClick={this.handleCicd}>编辑</Button>
                       : ([
-                        <Button type='primary' className="itemInputLeft" onClick={this.handleCicd}>保存</Button>,
+                        <Button type='primary' className="itemInputLeft" onClick={this.saveCICD}>保存</Button>,
                         <Button onClick={this.handleReset}>取消</Button>
                       ])
                   }
@@ -359,13 +354,18 @@ let ConInter = React.createClass({
 
 //镜像服务
 let MirrorService = React.createClass({
+  getInitialState() {
+    return {
+      canClick: true
+    }
+  },
   handleMirror() {
     this.props.mirrorChange()
   },
   handleReset() {
     this.props.mirrorChange()
   },
-  saveStorage() {
+  saveMirror() {
     this.props.form.validateFields((errors, values) => {
       if (errors) {
         return;
@@ -385,7 +385,7 @@ let MirrorService = React.createClass({
       const { getFieldValue } = form
 
 
-      const mirror = getFieldProps('mirror')
+      const mirror = getFieldValue('mirror')
       const approve = getFieldValue('approve')
       const extend = getFieldValue('extend')
       const registryID = getFieldValue('registryID')
@@ -415,7 +415,7 @@ let MirrorService = React.createClass({
               notification.success('镜像服务配置保存成功')
               const { form } = self.props
               const { getFieldProps, getFieldValue } = form
-              self.handleCeph()
+              self.handleMirror()
               this.setState({
                 canClick: true
               })
@@ -443,16 +443,11 @@ let MirrorService = React.createClass({
   checkMirror(rule, value, callback) {
     const { validateFields } = this.props.form
     if (!value) {
-      callback([new Error('请填写密码')])
+      callback([new Error('请填写镜像服务地址')])
       return
     }
-    if (value.length < 6 || value.length > 16) {
-      callback([new Error('长度为6~16个字符')])
-      return
-    }
-    if (/^[^0-9]+$/.test(value) || /^[^a-zA-Z]+$/.test(value)) {
-      callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
-      return
+    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+      return callback('请填入合法的镜像服务地址')
     }
     callback()
   },
@@ -461,16 +456,11 @@ let MirrorService = React.createClass({
   checkApprove(rule, value, callback) {
     const { validateFields } = this.props.form
     if (!value) {
-      callback([new Error('请填写密码')])
+      callback([new Error('请填写镜像服务地址')])
       return
     }
-    if (value.length < 6 || value.length > 16) {
-      callback([new Error('长度为6~16个字符')])
-      return
-    }
-    if (/^[^0-9]+$/.test(value) || /^[^a-zA-Z]+$/.test(value)) {
-      callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
-      return
+    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+      return callback('请填入合法的认证服务地址')
     }
     callback()
   },
@@ -479,16 +469,11 @@ let MirrorService = React.createClass({
   checkExtend(rule, value, callback) {
     const { validateFields } = this.props.form
     if (!value) {
-      callback([new Error('请填写密码')])
+      callback([new Error('请填写扩展服务地址')])
       return
     }
-    if (value.length < 6 || value.length > 16) {
-      callback([new Error('长度为6~16个字符')])
-      return
-    }
-    if (/^[^0-9]+$/.test(value) || /^[^a-zA-Z]+$/.test(value)) {
-      callback([new Error('密码必须包含数字和字母,长度为6~16个字符')])
-      return
+    if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+      return callback('请填入合法的扩展服务地址')
     }
     callback()
   },
@@ -558,7 +543,7 @@ let MirrorService = React.createClass({
                     mirrorDisable
                       ? <Button type='primary' className="itemInputLeft" onClick={this.handleMirror}>编辑</Button>
                       : ([
-                        <Button type='primary' className="itemInputLeft" onClick={this.handleMirror}>保存</Button>,
+                        <Button type='primary' className="itemInputLeft" onClick={this.saveMirror}>保存</Button>,
                         <Button onClick={this.handleReset}>取消</Button>
                       ])
                   }
@@ -659,8 +644,8 @@ let StorageService = React.createClass({
     if (!value) {
       return callback('请填写存储节点')
     }
-    if (!/^[a-za-z-]+\.[a-za-z-]+\.[a-za-z-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
-      return callback('请填写正确的url')
+    if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+      return callback('请填入合法的存储节点')
     }
     callback()
   },
@@ -670,8 +655,8 @@ let StorageService = React.createClass({
     if (!value) {
       return callback('请填写Ceph URL')
     }
-    if (!/^(http|https):\/\/[a-za-z-]+\.[a-za-z-]+\.[a-za-z-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
-      return callback('请填写正确的url')
+    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+      return callback('请填入合法的Ceph URL')
     }
     callback()
   },
