@@ -43,7 +43,6 @@ let Emaill = React.createClass({
   saveEmail() {
     this.props.form.validateFields((errors, values) => {
       if (errors) {
-        console.log(errors)
         return;
       }
       if (!this.state.canClick) {
@@ -788,7 +787,6 @@ class GlobalConfig extends Component {
     const { emailDisable, emailChange, cicdeditDisable, cicdeditChange, mirrorDisable, mirrorChange, cephDisable, cephChange, globalConfig } = this.state
     const { updateGlobalConfig, saveGlobalConfig, cluster} = this.props
     const propGlobalConfig = this.props.globalConfig
-    console.log(propGlobalConfig)
     if (!propGlobalConfig || propGlobalConfig.isFetching) {
       return (
         <div className="loadingBox">
