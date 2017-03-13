@@ -26,12 +26,16 @@ let Emaill = React.createClass({
   getInitialState() {
     return {
       isEve: false,
-      canClick: true
+      canClick: true,
+      aleardySave: false
     }
   },
   handleReset(e) {
     e.preventDefault();
-    this.props.form.resetFields();
+    if (!this.state.aleardySave) {
+      const { resetFields } = this.props.form
+      resetFields(['service', 'email', 'password', 'emailID'])
+    }
     this.props.emailChange();
   },
   handEve() {
@@ -70,14 +74,20 @@ let Emaill = React.createClass({
         }
       }, {
           success: {
-            func: () => {
+            func: (result) => {
               notification.close()
               notification.success('邮件报警配置保存成功')
               const { form } = self.props
-              const { getFieldProps, getFieldValue } = form
+              const { getFieldProps, getFieldValue, setFieldsValue } = form
               self.handleEmail()
+              if (result.data.toLowerCase() != 'success') {
+                setFieldsValue({
+                  emailID: result.data
+                })
+              }
               this.setState({
-                canClick: true
+                canClick: true,
+                aleardySave: true
               })
             }
           },
@@ -217,13 +227,18 @@ let Emaill = React.createClass({
 let ConInter = React.createClass({
   getInitialState() {
     return {
-      canClick: true
+      canClick: true,
+      aleardySave: false
     }
   },
   handleCicd() {
     this.props.cicdeditChange()
   },
   handleReset() {
+    if (!this.state.aleardySave) {
+      const { resetFields } = this.props.form
+      resetFields(['cicd', 'cicdID'])
+    }
     this.props.cicdeditChange()
   },
   saveCICD() {
@@ -234,9 +249,6 @@ let ConInter = React.createClass({
       if (!this.state.canClick) {
         return
       }
-      this.setState({
-        aleardySave: true
-      })
       const notification = new NotificationHandler()
       notification.spin('保存中')
       this.setState({
@@ -256,14 +268,20 @@ let ConInter = React.createClass({
         }
       }, {
           success: {
-            func: () => {
+            func: (result) => {
               notification.close()
               notification.success('持续集成配置保存成功')
               const { form } = self.props
-              const { getFieldProps, getFieldValue } = form
+              const { setFieldsValue } = form
               self.handleCicd()
+              if (result.data.toLowerCase() != 'success') {
+                setFieldsValue({
+                  cicdID: result.data
+                })
+              }
               this.setState({
-                canClick: true
+                canClick: true,
+                aleardySave: true
               })
             }
           },
@@ -355,13 +373,18 @@ let ConInter = React.createClass({
 let MirrorService = React.createClass({
   getInitialState() {
     return {
-      canClick: true
+      canClick: true,
+      aleardySave: false
     }
   },
   handleMirror() {
     this.props.mirrorChange()
   },
   handleReset() {
+    if (!this.state.aleardySave) {
+      const { resetFields } = this.props.form
+      resetFields(['mirror', 'approve', 'extend', 'registryID'])
+    }
     this.props.mirrorChange()
   },
   saveMirror() {
@@ -372,9 +395,6 @@ let MirrorService = React.createClass({
       if (!this.state.canClick) {
         return
       }
-      this.setState({
-        aleardySave: true
-      })
       const notification = new NotificationHandler()
       notification.spin('保存中')
       this.setState({
@@ -409,15 +429,21 @@ let MirrorService = React.createClass({
         }
       }, {
           success: {
-            func: () => {
+            func: (result) => {
               notification.close()
               notification.success('镜像服务配置保存成功')
               const { form } = self.props
-              const { getFieldProps, getFieldValue } = form
+              const { setFieldsValue } = form
               self.handleMirror()
               this.setState({
-                canClick: true
+                canClick: true,
+                aleardySave: true
               })
+              if (result.data.toLowerCase() != 'success') {
+                setFieldsValue({
+                  registryID: result.data
+                })
+              }
             }
           },
           failed: {
@@ -471,7 +497,7 @@ let MirrorService = React.createClass({
       callback([new Error('请填写扩展服务地址')])
       return
     }
-    if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
       return callback('请填入合法的扩展服务地址')
     }
     callback()
@@ -529,7 +555,7 @@ let MirrorService = React.createClass({
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem hasFeedback>
-                  <Input {...mirrorProps} placeholder="如：192.168.1.113" disabled={mirrorDisable} />
+                  <Input {...mirrorProps} placeholder="如：http://192.168.1.113:80" disabled={mirrorDisable} />
                 </FormItem>
                 <FormItem hasFeedback>
                   <Input {...approveProps} placeholder="如：https://192.168.1.113:5001" disabled={mirrorDisable} />
@@ -571,8 +597,8 @@ let StorageService = React.createClass({
   handleReset() {
     const { form } = this.props
     if (!this.state.aleardySave) {
-      const { resetFields, getFieldProps } = form
-      form.resetFields(['node', 'url'])
+      const { resetFields } = form
+      resetFields(['node', 'url'])
     }
     this.props.cephChange()
   },
@@ -584,15 +610,20 @@ let StorageService = React.createClass({
       if (!this.state.canClick) {
         return
       }
-      this.setState({
-        aleardySave: true
-      })
       const notification = new NotificationHandler()
       notification.spin('保存中')
       this.setState({
         canClick: false
       })
       const { form, saveGlobalConfig, updateGlobalConfig, cluster } = this.props
+      if (cluster.isUserDefine) {
+        notification.close()
+        notification.error('没有配置集群')
+        this.setState({
+          canClick: true
+        })
+        return
+      }
       const { getFieldValue } = form
       const node = getFieldValue('node')
       const url = getFieldValue('url')
@@ -608,15 +639,21 @@ let StorageService = React.createClass({
         }
       }, {
           success: {
-            func: () => {
+            func: (result) => {
               notification.close()
               notification.success('ceph配置保存成功')
               const { form } = self.props
-              const { getFieldProps, getFieldValue } = form
-              self.handleCeph()
+              const { setFieldsValue } = form
               this.setState({
-                canClick: true
+                canClick: true,
+                aleardySave: true
               })
+              if (result.data.toLowerCase() != 'success') {
+                setFieldsValue({
+                  cicdID: result.data
+                })
+              }
+              self.handleCeph()
             }
           },
           failed: {
@@ -785,7 +822,14 @@ class GlobalConfig extends Component {
 
   render() {
     const { emailDisable, emailChange, cicdeditDisable, cicdeditChange, mirrorDisable, mirrorChange, cephDisable, cephChange, globalConfig } = this.state
-    const { updateGlobalConfig, saveGlobalConfig, cluster} = this.props
+    const { updateGlobalConfig, saveGlobalConfig} = this.props
+    let { cluster } = this.props
+    if (!cluster) {
+      cluster = {
+        clusterID: 1,
+        isUserDefine: true
+      }
+    }
     const propGlobalConfig = this.props.globalConfig
     if (!propGlobalConfig || propGlobalConfig.isFetching) {
       return (
