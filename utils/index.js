@@ -11,7 +11,7 @@
 
 const moment = require('moment')
 const constants = require('../constants')
-const ADMIN_NAMESPACE = constants.ADMIN_NAMESPACE
+const ADMIN_ROLE = constants.ADMIN_ROLE
 
 exports.formatDate = function(timestamp) {
   if ( !timestamp || timestamp === '' ) {
@@ -138,7 +138,7 @@ exports.isAdmin = function(user) {
   if (!user) {
     return false
   }
-  if (user.namespace === ADMIN_NAMESPACE) {
+  if (user.role === ADMIN_ROLE) {
     return true
   }
   return true

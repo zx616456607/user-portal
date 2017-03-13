@@ -59,6 +59,6 @@ exports.SERVICE_KUBE_EXTERNAL_IPS = 'kube-externalips'
 exports.PROXY_TYPE = process.env.PROXY_TYPE || 'tenx-proxy'
 
 exports.K8S_NODE_SELECTOR_KEY = 'kubernetes.io/hostname'
-exports.ADMIN_NAMESPACE = 'admin'
+exports.ADMIN_ROLE = 2
 exports.NO_CLUSTER_FLAG = 'no_cluster_flag'
 exports.CLUSTER_PAGE = '/cluster'
