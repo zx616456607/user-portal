@@ -32,7 +32,7 @@ import ReactEcharts from 'echarts-for-react'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
 
 import cpuImg from '../../assets/img/integration/cpu.png'
-import clusterImg from '../../assets/img/integration/cluster.png'
+import hostImg from '../../assets/img/integration/host.png'
 import memoryImg from '../../assets/img/integration/memory.png'
 
 const SubMenu = Menu.SubMenu
@@ -78,7 +78,7 @@ function cpuUsed(cpuTotal, cpuList, name) {
   let length;
   for(let key in cpuList) {
     if(key != 'statusCode') {
-      if(cpuList[key].name == name) {
+      if(cpuList[key].name == name && cpuList[key].metrics) {
         length = cpuList[key].metrics.length
         cpuList[key].metrics.map((item) => {
           total = total + item.value;
@@ -105,7 +105,7 @@ function memoryUsed(memoryTotal, memoryList, name) {
   let length;
   for(let key in memoryList) {
     if(key != 'statusCode') {
-      if(memoryList[key].name == name) {
+      if(memoryList[key].name == name && memoryList[key].metrics) {
         length = memoryList[key].metrics.length
         memoryList[key].metrics.map((item) => {
           total = total + (item.value / 1024);
@@ -163,7 +163,6 @@ const MyComponent = React.createClass({
   },
   render: function () {
     const { isFetching, podList, containerList, cpuList, memoryList, license } = this.props
-    console.log('podList--', podList)
     const root = this
     if (isFetching) {
       return (
@@ -494,13 +493,13 @@ class ClusterTabList extends Component {
         orient : 'vertical',
         left : '50%',
         top : 'middle',
-        data:[{name: '运行中'}, {name: '操作中'}, {name: '异常'}],
+        data:[{name: '运行中'}, {name: '操作中'}, {name: '异    常'}],
         formatter: function (name) {
           if(name === '操作中'){
             return name + '  ' + podPending + ' 个'
           } else if (name === '运行中') {
             return  '运行中  '  + podRunning + ' 个'
-          } else if (name === '异常') {
+          } else if (name === '异    常') {
             return name + '  ' + podUnNormal + ' 个'
           }
         },
@@ -524,7 +523,7 @@ class ClusterTabList extends Component {
         data:[
           {value:podRunning, name:'运行中'},
           {value:podPending, name:'操作中'},
-          {value:podUnNormal, name:'异常',selected:true},
+          {value:podUnNormal, name:'异    常',selected:true},
         ],
         label: {
           normal: {
@@ -564,68 +563,69 @@ class ClusterTabList extends Component {
         type='right'
         >
         <div id='clusterTabList' key='clusterTabList'>
+          <ClusterInfo cluster={cluster} />
           <Row className="nodeList">
-            <Col span={6} style={{padding:'0 8px'}}>
+            <Col span={6} style={{padding:'0 8px',minWidth:'350px'}}>
               <Card>
                 <div className="title">主机</div>
-                <img src={clusterImg} className="listImg"/>
+                <img src={hostImg} className="listImg"/>
                 <ul className="listText">
                   <li>
-                    <span>总数</span>
+                    <span className="itemKey primary">总数</span>
                     <span>{node ? `${node.nodeSum} 个` : NOT_AVAILABLE}</span>
                   </li>
                   <li>
-                    <span>正常运行</span>
+                    <span className="itemKey success">正常运行</span>
                     <span>{node ? `${node.nodeRunning} 个` : NOT_AVAILABLE}</span>
                   </li>
                   <li>
-                    <span>可调度数</span>
+                    <span className="itemKey ready">可调度数</span>
                     <span>{node ? `${node.schedulable} 个` : NOT_AVAILABLE}</span>
                   </li>
                 </ul>
               </Card>
             </Col>
-            <Col span={6} style={{padding:'0 8px'}}>
+            <Col span={6} style={{padding:'0 8px',minWidth:'350px'}}>
               <Card>
                 <div className="title">CPU</div>
                 <img src={cpuImg} className="listImg"/>
                 <ul className="listText">
                   <li>
-                    <span>总数</span>
+                    <span className="itemKey primary">总数</span>
                     <span>{resource ? `${resource.cupSum} 核` : NOT_AVAILABLE}</span>
                   </li>
                   <li>
-                    <span>已分配数</span>
+                    <span className="itemKey ready">已分配数</span>
                     <span>{resource ? `${resource.allocatedCPU} 核` : NOT_AVAILABLE}</span>
                   </li>
                   <li>
-                    <span>实际使用</span>
+                    <span className="itemKey success">实际使用</span>
                     <span>{useRate ? `${Math.ceil(useRate.cpu * 10000) / 100}%` : NOT_AVAILABLE}</span>
                   </li>
                 </ul>
               </Card>
             </Col>
-            <Col span={6} style={{padding:'0 8px'}}>
+            <Col span={6} style={{padding:'0 8px',minWidth:'350px'}}>
               <Card>
                 <div className="title">内存</div>
                 <img src={memoryImg} className="listImg"/>
                 <ul className="listText">
                   <li>
-                    <span className="total">总量</span>
+                    <span className="itemKey primary">总量</span>
                     <span>{resource ? `${Math.ceil(resource.memSumByKB / 1024 / 1024 * 100) / 100} G` : NOT_AVAILABLE}</span>
                   </li>
                   <li>
-                    <span className="normal">已分配量</span>
+                    <span className="itemKey ready">已分配量</span>
                     <span>{resource ? `${Math.ceil(resource.allocatedMemByKB / 1024 / 1024 * 100) / 100} G` : NOT_AVAILABLE}</span>
                   </li>
                   <li>
-                    <span className="">实际使用</span>
+                    <span className="itemKey success">实际使用</span>
                     <span>{useRate ? `${Math.ceil(useRate.mem * 100) / 100}G` : NOT_AVAILABLE}</span>
                   </li>
                 </ul>
               </Card>
             </Col>
-            <Col span={6} style={{padding:'0 8px'}}>
+            <Col span={6} style={{padding:'0 8px',minWidth:'350px'}}>
               <Card>
                <div className="title">容器</div>
                <ReactEcharts
@@ -637,7 +637,7 @@ class ClusterTabList extends Component {
               </Card>
             </Col>
           </Row>
-          <ClusterInfo cluster={cluster} />
+
           <Card className='ClusterListCard'>
             <div className='operaBox'>
               <Button

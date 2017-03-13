@@ -12,7 +12,7 @@ import { Icon, Button, Card, Form, Input, Tooltip, Spin, Modal } from 'antd'
 import { updateCluster, loadClusterList, deleteCluster } from '../../actions/cluster'
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
-
+import clusterImg from '../../assets/img/integration/cluster.png'
 let saveBtnDisabled = true
 
 let ClusterInfo = React.createClass ({
@@ -168,7 +168,7 @@ let ClusterInfo = React.createClass ({
           ]
           :
           <div style={{float:'right'}}>
-            <Button size="small"
+            <Button
               onClick={()=> {
                 this.setState({editCluster: false, saveBtnLoading: false})
                 saveBtnDisabled = true
@@ -178,24 +178,24 @@ let ClusterInfo = React.createClass ({
             <Button
               loading={saveBtnLoading}
               disabled={saveBtnDisabled}
-              type="primary" size="small" style={{marginLeft:'8px'}}
+              type="primary" style={{marginLeft:'8px'}}
               onClick={this.updateCluster}>
               保存
             </Button>
           </div>
           }
         </div>
-        <div className="imgBox" style={{padding:'50px 24px'}}>
-          <svg><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#app"></use></svg>
+        <div className="imgBox">
+          <img src={clusterImg}/>
         </div>
-        <Form className="clusterTable" style={{padding:'45px 0'}}>
+        <Form className="clusterTable" style={{padding:'35px 0'}}>
           <div className="formItem">
             <Form.Item >
-              <div className="h4">集群名称</div>
+              <div className="h4 blod">集群名称：</div>
               { editCluster ?
                 <Input {...nameProps} placeholder="输入集群名称" />
                 :
-                <span>{clusterName}</span>
+                <span className="blod">{clusterName}</span>
               }
             </Form.Item>
             <Form.Item>
@@ -228,7 +228,7 @@ let ClusterInfo = React.createClass ({
           </div>
           <div className="formItem">
           <Form.Item>
-            <div className="h4">描述：</div>
+            <span className="h5" style={{verticalAlign:'top',lineHeight:'30px'}}>描述：&nbsp;&nbsp;</span>
             { editCluster ?
             <Input {...descProps} type="textarea" placeholder="添加描述" defaultValue={description} />
             :

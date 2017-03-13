@@ -352,6 +352,10 @@ class Header extends Component {
     teamClusters.map((cluster) => {
       cluster.name = cluster.clusterName
     })
+    var host = window.location.hostname
+    var protocol = window.location.protocol
+    var docUrl = protocol + '//' + host + ":9004"
+    var faqUrl = docUrl + '/faq'
     let selectValue = mode === standard ? current.space.teamName : current.space.spaceName
     return (
       <div id="header">
@@ -424,16 +428,38 @@ class Header extends Component {
             </span>
           </div>
         }
+        {
+          standardFlag &&
           <div className="docBtn">
             <a href="http://docs.tenxcloud.com" target="_blank">
               <FormattedMessage {...menusText.doc}/>
             </a>
           </div>
+        }
+        {
+          standardFlag &&
           <div className="docBtn">
             <a href="http://docs.tenxcloud.com/faq" target="_blank">
               FAQ
             </a>
           </div>
+        }
+        {
+          type !== LITE && !standardFlag &&
+          <div className="docBtn">
+            <a href={docUrl} target="_blank">
+              <FormattedMessage {...menusText.doc}/>
+            </a>
+          </div>
+        }
+        {
+          type !== LITE && !standardFlag &&
+          <div className="docBtn">
+            <a href={faqUrl} target="_blank">
+              FAQ
+            </a>
+          </div>
+        }
           <UserPanel loginUser={loginUser}/>
           <Modal title="升级版本" />
           <Modal
