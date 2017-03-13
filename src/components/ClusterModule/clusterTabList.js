@@ -178,15 +178,16 @@ const MyComponent = React.createClass({
     }
     const maxNodes = license[camelize('max_nodes')]
     let items = podList.map((item, index) => {
-      /*const dropdown = (
-        <Menu onClick={this.ShowDeleteClusterNodeModal.bind(this, item.objectMeta.name)}
-          style={{ width: '100px' }}
+      const dropdown = (
+        <Menu disabled={item.isMaster ? true : false}
+            onClick={this.ShowDeleteClusterNodeModal.bind(this, item)}
+            style={{ width: '100px' }}
           >
           <Menu.Item key={item.id}>
             <span>删除节点</span>
           </Menu.Item>
         </Menu>
-      );*/
+      );
       return (
         <div className='podDetail' key={`${item.objectMeta.name}-${index}`} >
           <div className='checkBox commonTitle'>
@@ -264,20 +265,16 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='opera commonTitle'>
-            <Button
+            <Dropdown.Button type="ghost" overlay={dropdown}  onClick={()=> browserHistory.push(`/cluster/${item.objectMeta.name}`)}>
+              主机详情
+            </Dropdown.Button>
+            {/*<Button
               type="ghost"
               disabled={item.isMaster ? true : false}
               onClick={this.ShowDeleteClusterNodeModal.bind(this, item)}>
               删除节点
-            </Button>
-            {/*<Dropdown.Button
-              overlay={dropdown} type='ghost'
-              onClick={this.openTerminalModal.bind(this, item)}>
-              <svg>
-                <use xlinkHref='#terminal' />
-              </svg>
-              <span>终端</span>
-            </Dropdown.Button>*/}
+            </Button>*/}
+
           </div>
         </div>
       );

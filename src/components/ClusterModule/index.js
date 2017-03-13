@@ -243,7 +243,7 @@ class ClusterList extends Component {
         type='right'
       >
         <div id='ClusterContent' key='ClusterContent'>
-          <div className="alertRow">企业集成应用中心，这里有时速云企业版提供了业内顶尖的企业管理和开发工具集合，您可以在这里一键安装，并且在当前控制台完成所有应用的安装、卸载以及对应功能的管理。</div>
+          <div className="alertRow">基础设施，在这里您可以完成容器云平台的计算资源池管理：集群的添加、删除，以及集群内主机的添加、删除，并管理主机内的容器实例、查看主机维度的监控等。</div>
 
           <Tabs
             key='ClusterTabs'
