@@ -78,7 +78,7 @@ function cpuUsed(cpuTotal, cpuList, name) {
   let length;
   for(let key in cpuList) {
     if(key != 'statusCode') {
-      if(cpuList[key].name == name) {
+      if(cpuList[key].name == name && cpuList[key].metrics) {
         length = cpuList[key].metrics.length
         cpuList[key].metrics.map((item) => {
           total = total + item.value;
@@ -105,7 +105,7 @@ function memoryUsed(memoryTotal, memoryList, name) {
   let length;
   for(let key in memoryList) {
     if(key != 'statusCode') {
-      if(memoryList[key].name == name) {
+      if(memoryList[key].name == name && memoryList[key].metrics) {
         length = memoryList[key].metrics.length
         memoryList[key].metrics.map((item) => {
           total = total + (item.value / 1024);
