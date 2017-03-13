@@ -198,10 +198,10 @@ let HostInfo = React.createClass({
             <br />
             <Row className="items">
               <Col span={12}><span className="keys">内核版本：</span>{hostInfo.versions ? hostInfo.versions.kernel : ''}</Col>
-              <Col span={12}><span className="keys">kubelet版本：</span>{hostInfo.versions ? hostInfo.versions.kubelet : ''}</Col>
+              <Col span={12}><span className="keys">kubelet 版本：</span>{hostInfo.versions ? hostInfo.versions.kubelet : ''}</Col>
             </Row>
             <Row className="items">
-              <Col span={12}><span className="keys">Docker版本：</span>{hostInfo.versions ? hostInfo.versions.docker : ''}</Col>
+              <Col span={12}><span className="keys">Docker 版本：</span>{hostInfo.versions ? hostInfo.versions.docker : ''}</Col>
               <Col span={12}><span className="keys">kube-proxy：</span>{hostInfo.versions ? hostInfo.versions.kubeProxy : ''}</Col>
             </Row>
           </div>
@@ -366,7 +366,7 @@ class ClusterDetail extends Component {
       <div id="clusterDetail">
         <div className="topRow" style={{ marginBottom: '20px', height: '50px', paddingTop: '20px' }}>
           <Link className="back" to="/cluster"><span className="backjia"></span><span className="btn-back">返回</span></Link>
-          <span className="title">{this.props.clusterName}</span>
+          <span className="title">主机详情 （{this.props.clusterName}）</span>
         </div>
         <Card className="ClusterInfo" bordered={false}>
           <div className="imgBox" style={{ padding: '30px 24px' }}>
