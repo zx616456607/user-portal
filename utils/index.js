@@ -10,6 +10,8 @@
 'use strict'
 
 const moment = require('moment')
+const constants = require('../constants')
+const ADMIN_NAMESPACE = constants.ADMIN_NAMESPACE
 
 exports.formatDate = function(timestamp) {
   if ( !timestamp || timestamp === '' ) {
@@ -94,7 +96,6 @@ exports.promisify = function(fn, receiver) {
     })
   }
 }
-
 exports.handleExecError = function(method, err) {
   if (!err || Object.keys(err).length < 1) {
     return {}
@@ -110,18 +111,35 @@ exports.handleExecError = function(method, err) {
   logger.error(method, JSON.stringify(err))
   return err
 }
+
 // Generate random string with specified length
 exports.genRandomString = function(mytoken, len){
-    var token="0123456789qwertyuioplkjhgfdsazxcvbnm"
-    if (!len) {
-      len = mytoken
-      mytoken =null
-    } else if(mytoken) {
-      token = mytoken;
-    }
-    var result="";
-    for(var   i=0;i< len;i++)   {
-        result += token.charAt(Math.ceil(Math.random()*100000000)%token.length);
-    }
-    return result;
+  var token="0123456789qwertyuioplkjhgfdsazxcvbnm"
+  if (!len) {
+    len = mytoken
+    mytoken =null
+  } else if(mytoken) {
+    token = mytoken;
+  }
+  var result="";
+  for(var   i=0;i< len;i++)   {
+      result += token.charAt(Math.ceil(Math.random()*100000000)%token.length);
+  }
+  return result;
+}
+
+/**
+ * To determine whether the admin user
+ *
+ * @param {Object} user
+ * @returns {Bool}
+ */
+exports.isAdmin = function(user) {
+  if (!user) {
+    return false
+  }
+  if (user.namespace === ADMIN_NAMESPACE) {
+    return true
+  }
+  return true
 }
