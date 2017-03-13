@@ -141,5 +141,5 @@ exports.isAdmin = function(user) {
   if (user.role === ADMIN_ROLE) {
     return true
   }
-  return true
+  return false
 }
