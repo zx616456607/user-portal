@@ -95,10 +95,10 @@ let Emaill = React.createClass({
             func: (err) => {
               notification.close()
               let msg
-              if (err.message) {
-                msg = err.message
-              } else {
+              if (err.message.message) {
                 msg = err.message.message
+              } else {
+                msg = err.message
               }
               notification.error('邮件报警配置保存失败 => ' + msg)
               this.setState({
@@ -173,7 +173,7 @@ let Emaill = React.createClass({
     });
 
     const emailID = getFieldProps('emailID', {
-      initialValue: config ? config.configID : ''.configID
+      initialValue: config ? config.configID : ''
     });
 
     return (
@@ -257,14 +257,20 @@ let ConInter = React.createClass({
       const { form, saveGlobalConfig, updateGlobalConfig, cluster } = this.props
       const { getFieldValue } = form
       const cicd = getFieldValue('cicd')
+      const api = getFieldValue('apiServer')
       const cicdID = getFieldValue('cicdID')
+      const apiServerID = getFieldValue('apiServerID')
       const self = this
       const arr = cicd.split('://')
       saveGlobalConfig(cluster.clusterID, 'cicd', {
-        configID: cicdID,
-        detail: {
+        cicdID: cicdID,
+        apiServerID: apiServerID,
+        cicdDetail: {
           protocol: arr[0],
           url: arr[1]
+        },
+        apiServerDetail: {
+          url: api
         }
       }, {
           success: {
@@ -274,9 +280,14 @@ let ConInter = React.createClass({
               const { form } = self.props
               const { setFieldsValue } = form
               self.handleCicd()
-              if (result.data.toLowerCase() != 'success') {
+              if (result.cicd.data.toLowerCase() != 'success') {
                 setFieldsValue({
-                  cicdID: result.data
+                  cicdID: result.cicd.data
+                })
+              }
+              if (result.apiServer.data.toLowerCase() != 'success') {
+                setFieldsValue({
+                  apiServerID: result.apiServer.data
                 })
               }
               this.setState({
@@ -289,10 +300,10 @@ let ConInter = React.createClass({
             func: (err) => {
               notification.close()
               let msg
-              if (err.message) {
-                msg = err.message
-              } else {
+              if (err.message.message) {
                 msg = err.message.message
+              } else {
+                msg = err.message
               }
               notification.error('持续集成配置保存失败 => ' + msg)
               this.setState({
@@ -306,48 +317,79 @@ let ConInter = React.createClass({
   checkCicd(rule, value, callback) {
     const { validateFields } = this.props.form
     if (!value) {
-      callback([new Error('请填写主机地址')])
+      callback([new Error('请填写持续集成地址')])
       return
     }
     if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
-      return callback('请填入合法的主机地址')
+      return callback('请填入合法的持续集成主机地址')
+    }
+    callback()
+  },
+  checkApiServer(rule, value, callback) {
+    const { validateFields } = this.props.form
+    if (!value) {
+      callback([new Error('请填写API服务地址')])
+      return
+    }
+    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+      return callback('请填入合法的API服务地址')
     }
     callback()
   },
   render() {
-    const { cicdeditDisable, cicdeditChange, config } = this.props
+    const { cicdeditDisable, cicdeditChange, cicdConfig, apiServer } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
-    let emailDetail = {
+    let cicdDetail = {
       protocol: '',
-      url: '',
+      url: ''
     }
-    if (config) {
-      emailDetail = JSON.parse(config.configDetail)
+    let apiServerDetail = {
+      url: ''
+    }
+    if (cicdConfig) {
+      cicdDetail = JSON.parse(cicdConfig.configDetail)
+    }
+    if (apiServer) {
+      apiServerDetail = JSON.parse(apiServer.configDetail)
     }
     const cicdProps = getFieldProps('cicd', {
       rules: [
         { validator: this.checkCicd }
       ],
-      initialValue: emailDetail.protocol ? emailDetail.protocol + '://' + emailDetail.url : ''
+      initialValue: cicdDetail.protocol ? cicdDetail.protocol + '://' + cicdDetail.url : ''
+    });
+    const apiServerProps = getFieldProps('apiServer', {
+      rules: [
+        { validator: this.checkApiServer }
+      ],
+      initialValue: apiServerDetail.url
     });
     const cicdID = getFieldProps('cicdID', {
-      initialValue: config ? config.configID : '' ? config.configID : ''
+      initialValue: cicdConfig ? cicdConfig.configID : ''
     });
+    const apiServerID = getFieldProps('apiServerID', {
+      initialValue: apiServer ? apiServer.configID : ''
+    });
+
     return (
       <div className="conInter">
-        <div className="title">持续集成</div>
+        <div className="title">API服务地址</div>
         <div className="content">
           <div className="contentMain">
             <div className="contentImg">
               <img src={conInter} alt="持续集成" />
             </div>
             <div className="contentkeys">
-              <div className="key">主机地址</div>
+              <div className="key">API服务地址</div>
+              <div className="key">持续集成地址</div>
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem hasFeedback>
-                  <Input {...cicdProps} placeholder="http://192.168.1.103:38090" disabled={cicdeditDisable} />
+                  <Input {...apiServerProps} placeholder="如：http://192.168.1.103:38090" disabled={cicdeditDisable} />
+                </FormItem>
+                <FormItem hasFeedback>
+                  <Input {...cicdProps} placeholder="如：http://192.168.1.103:38090" disabled={cicdeditDisable} />
                 </FormItem>
                 <FormItem>
                   {
@@ -360,6 +402,7 @@ let ConInter = React.createClass({
                   }
                 </FormItem>
                 <input type="hidden" {...cicdID} />
+                <input type="hidden" {...apiServerID} />
               </Form>
             </div>
           </div>
@@ -412,7 +455,7 @@ let MirrorService = React.createClass({
       const arr = mirror.split('://')
       const protocol = arr[0]
       let host = arr[1]
-      let port = ''
+      let port = 80
       if (host.indexOf(':') >= 0) {
         let arr = host.split(':')
         host = arr[0]
@@ -450,10 +493,10 @@ let MirrorService = React.createClass({
             func: (err) => {
               notification.close()
               let msg
-              if (err.message) {
-                msg = err.message
-              } else {
+              if (err.message.message) {
                 msg = err.message.message
+              } else {
+                msg = err.message
               }
               notification.error('镜像服务配置保存失败 => ' + msg)
               this.setState({
@@ -720,7 +763,7 @@ let StorageService = React.createClass({
       initialValue: storageDetail.url
     })
     const storageID = getFieldProps('storageID', {
-      initialValue: config ? config.configID : ''.configID
+      initialValue: config ? config.configID : ''
     })
     return (
       <div className="storageservice">
@@ -844,7 +887,7 @@ class GlobalConfig extends Component {
           全局配置---对这整个系统的邮件报警、持续集成、镜像服务、分布式存储的配置；只有做了这些配置才能完整的使用这几项功能，分别是：邮件报警对应的是系统中涉及的邮件提醒、持续集成对应的是CI/CD中整个Tenxflow功能的使用、镜像服务对应的是镜像仓库的使用、分布式存储对应的是容器有状态服务存储的使用
 					</div>
         <Emaill emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
-        <ConInter cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.cicd} />
+        <ConInter cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
         <MirrorService mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.registry} />
         <StorageService cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd} />
       </div>
