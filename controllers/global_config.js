@@ -19,74 +19,89 @@ exports.changeGlobalConfig = function* () {
   const type = this.params.type
   const entity = this.request.body
   entity.configDetail = JSON.stringify(entity.detail)
+  if (type == 'cicd') {
+    this.body = yield cicdConfig.bind(this, entity)
+    return
+  }
+  if (type == 'registry') {
+    this.body = yield registryConfig.bind(this, entity)
+    return
+  }
+  if (type == 'mail') {
+    this.body = yield mailConfig.bind(this, entity)
+    return
+  }
+  if (type == 'rbd') {
+    this.body = yield storageConfig.bind(this, entity)
+    return
+  }
+}
+
+function* cicdConfig(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
+  let body = {}
+  let cicdEntity = {
+    configID: entity.cicdID,
+    configDetail: JSON.stringify(entity.cicdDetail)
+  }
+  let apiServerEntity = {
+    configID: entity.apiServerID,
+    configDetail: JSON.stringify(entity.apiServerDetail)
+  }
+  if (entity.cicdID) {
+    body.cicd = yield api.config.updateBy(['type', 'cicd'], null, cicdEntity)
+  } else {
+    body.cicd = yield api.config.createBy(['type', 'cicd'], null, cicdEntity)
+  }
+  if (entity.apiServerID) {
+    body.apiServer = yield api.config.updateBy(['type', 'apiServer'], null, apiServerEntity)
+  } else {
+    body.apiServer = yield api.config.createBy(['type', 'apiServer'], null, apiServerEntity)
+  }
+  return body
+}
+
+
+function* registryConfig(entity) {
+  const api = apiFactory.getApi(this.session.loginUser)
+  const type = 'registry'
   if (entity.configID) {
     const response = yield api.config.updateBy(['type', type], null, entity)
-    this.status = response.code
-    this.body = response
+    return response
   } else {
-    if (type == 'cicd') {
-      let body = {}
-      let cicdEntity = {
-        configID: entity.cicdID,
-        configDetail: JSON.stringify(entity.cicdDetail)
-      }
-      let apiServerEntity = {
-        configID: entity.apiServerID,
-        configDetail: JSON.stringify(entity.apiServerDetail)
-      }
-      if (entity.cicdID) {
-        body.cicd = yield api.config.updateBy(['type', type], null, cicdEntity)
-      } else {
-        body.cicd = yield api.config.createBy(['cluster', cluster, 'type', 'cicd'], null, cicdEntity)
-      }
-      if (entity.apiServerID) {
-        body.apiServer = yield api.config.updateBy(['type', type], null, apiServerEntity)
-      } else {
-        body.apiServer = yield api.config.createBy(['cluster', cluster, 'type', 'apiServer'], null, apiServerEntity)
-      }
-      this.body = body
-      return
-    }
-    const response = yield api.config.createBy(['cluster', cluster, 'type', type], null, entity)
-    this.status = response.code
-    this.body = response
+    const response = yield api.config.createBy(['type', type], null, entity)
+    return response
   }
-  // if (type == 'mail') {
-  //   let port = 80
-  //   let host = entity.detail.mailServer
-  //   if (host.indexOf(':') >= 0) {
-  //     let arr = host.split(':')
-  //     host = arr[0]
-  //     port = arr[1]
-  //   }
-  //   config.mail_server = Object.assign(config.mail_server, {
-  //     host,
-  //     port,
-  //     auth: {
-  //       user: entity.detail.senderMail,
-  //       pass: entity.detail.senderPassword
-  //     }
-  //   })
-  // }
-  // if (type == 'cicd') {
+}
 
-  // }
+function* mailConfig(entity) {
+  const api = apiFactory.getApi(this.session.loginUser)
+  const type = 'mail'
+  if (entity.configID) {
+    const response = yield api.config.updateBy(['type', type], null, entity)
+    return response
+  } else {
+    const response = yield api.config.createBy(['type', type], null, entity)
+    return response
+  }
+}
 
-  // const config = {
-  //   "protocol": env.DEVOPS_PROTOCOL || "http",
-  //   "host": env.DEVOPS_HOST || "192.168.1.103:38090",
-  //   "external_protocol": env.DEVOPS_EXTERNAL_PROTOCOL || "https",
-  //   "external_host": env.DEVOPS_EXTERNAL_HOST || "cicdv2.tenxcloud.com",
-  //   "statusPath": "/stagebuild/status",
-  //   "logPath": "/stagebuild/log"
-  // }
+function* storageConfig(entity) {
+  const api = apiFactory.getApi(this.session.loginUser)
+  const type = 'rbd'
+  if (entity.configID) {
+    const response = yield api.config.updateBy(['type', type], null, entity)
+    return response
+  } else {
+    const response = yield api.config.createBy(['type', type], null, entity)
+    return response
+  }
 }
 
 exports.getGlobalConfig = function* () {
   const cluster = this.params.cluster
-  const api = apiFactory.getApi(this.session.loginUser)
-  const response = yield api.config.getBy(['cluster', cluster])
+  const spi = apiFactory.getTenxSysSignSpi()
+  const response = yield spi.config.get()
   this.status = response.code
   this.body = response
 }
