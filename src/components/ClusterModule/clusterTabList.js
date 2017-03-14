@@ -652,7 +652,7 @@ class ClusterTabList extends Component {
                 </svg>
                 <span>终端 | 集群管理</span>
               </Button>
-              <Button type='ghost' size='large' className="refreshBtn" onClick={this.loadData}>
+              <Button type='ghost' size='large' className="refreshBtn" onClick={()=> this.loadData()}>
                 <i className='fa fa-refresh' /> 刷新
               </Button>
               <span className='searchBox'>

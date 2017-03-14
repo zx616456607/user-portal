@@ -14,11 +14,13 @@ import './style/Login.less'
 import { verifyCaptcha, login } from '../../../actions/entities'
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
+import { NO_CLUSTER_FLAG, CLUSTER_PAGE } from '../../../../constants'
 import { loadMergedLicense } from '../../../actions/license'
 import { isAdminPasswordSet} from '../../../actions/admin'
 import { browserHistory } from 'react-router'
 import { genRandomString, clearSessionStorage } from '../../../common/tools'
 import Top from '../../../components/Top'
+import { camelize } from 'humps'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -76,6 +78,12 @@ let Login = React.createClass({
               submitting: false,
               submitProps: {},
             })
+            // If no cluster found, redirect to CLUSTER_PAGE
+            if (result.user[camelize(NO_CLUSTER_FLAG)] === true) {
+              message.warning(`请先添加集群`, 10)
+              browserHistory.push(CLUSTER_PAGE)
+              return
+            }
             message.success(`用户 ${values.name} 登录成功`)
             browserHistory.push(redirect || '/')
             resetFields()
@@ -285,7 +293,6 @@ let Login = React.createClass({
               })
             }
           },500)
-
         }
       }
     })
