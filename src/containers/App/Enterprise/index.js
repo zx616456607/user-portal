@@ -23,7 +23,8 @@ class EnterpriseApp extends Component {
       outdated: false,
       licenseTips:'',
       licenseDay:0,
-      license: {}
+      license: {},
+      siderStyle: 'bigger'
     }
   }
   componentWillMount() {
@@ -61,6 +62,10 @@ class EnterpriseApp extends Component {
         },
       }
     })
+    const winWidth = document.body.clientWidth
+    if (winWidth < 1280) {
+      self.setState({siderStyle:'mini'})
+    }
   }
 
   checkTipsText() {
@@ -83,7 +88,7 @@ class EnterpriseApp extends Component {
   }
   render() {
     return (
-      <App siderStyle='bigger' License={this.state.outdated} tipError={this.tipError()} Sider={Sider} {...this.props} />
+      <App siderStyle={this.state.siderStyle} License={this.state.outdated} tipError={this.tipError()} Sider={Sider} {...this.props} />
     )
   }
 }

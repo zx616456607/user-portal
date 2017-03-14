@@ -562,10 +562,12 @@ class ClusterTabList extends Component {
         <div id='clusterTabList' key='clusterTabList'>
           <ClusterInfo cluster={cluster} />
           <Row className="nodeList">
-            <Col span={6} style={{padding:'0 8px',minWidth:'350px'}}>
+            <Col span={6} style={{padding:'0 8px'}}>
               <Card>
                 <div className="title">主机</div>
-                <img src={hostImg} className="listImg"/>
+                <div className="listImg">
+                  <img src={hostImg}/>
+                </div>
                 <ul className="listText">
                   <li>
                     <span className="itemKey primary">总数</span>
@@ -582,10 +584,12 @@ class ClusterTabList extends Component {
                 </ul>
               </Card>
             </Col>
-            <Col span={6} style={{padding:'0 8px',minWidth:'350px'}}>
+            <Col span={6} style={{padding:'0 8px'}}>
               <Card>
                 <div className="title">CPU</div>
-                <img src={cpuImg} className="listImg"/>
+                <div className="listImg">
+                  <img src={cpuImg}/>
+                </div>
                 <ul className="listText">
                   <li>
                     <span className="itemKey primary">总数</span>
@@ -602,10 +606,12 @@ class ClusterTabList extends Component {
                 </ul>
               </Card>
             </Col>
-            <Col span={6} style={{padding:'0 8px',minWidth:'350px'}}>
+            <Col span={6} style={{padding:'0 8px'}}>
               <Card>
                 <div className="title">内存</div>
-                <img src={memoryImg} className="listImg"/>
+                <div className="listImg">
+                  <img src={memoryImg}/>
+                </div>
                 <ul className="listText">
                   <li>
                     <span className="itemKey primary">总量</span>
@@ -622,7 +628,7 @@ class ClusterTabList extends Component {
                 </ul>
               </Card>
             </Col>
-            <Col span={6} style={{padding:'0 8px',minWidth:'350px'}}>
+            <Col span={6} style={{padding:'0 8px'}}>
               <Card>
                <div className="title">容器</div>
                <ReactEcharts
