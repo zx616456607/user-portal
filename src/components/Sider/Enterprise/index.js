@@ -66,7 +66,6 @@ class Sider extends Component {
   constructor(props) {
     super(props)
     this.selectModel = this.selectModel.bind(this)
-    this.changeSiderStyle = this.changeSiderStyle.bind(this)
     this.onSelectMenu = this.onSelectMenu.bind(this)
     this.onOpenBigMenu = this.onOpenBigMenu.bind(this)
     this.onCloseBigMenu = this.onCloseBigMenu.bind(this)
@@ -127,19 +126,6 @@ class Sider extends Component {
     }
   }
 
-  changeSiderStyle() {
-    //this function for user change the sider style to 'mini' or 'bigger'
-    const { scope, siderStyle } = this.props
-    if (siderStyle == 'mini') {
-      scope.setState({
-        siderStyle: 'bigger'
-      })
-    } else {
-      scope.setState({
-        siderStyle: 'mini'
-      })
-    }
-  }
 
   handleCancel() {
     const currentOptions = cloneDeep(this.props.uploadFileOptions)
@@ -732,7 +718,7 @@ class Sider extends Component {
         <ul className='changeSiderUl'>
           <Tooltip placement='right' title={siderStyle == 'mini' ? '展开导航栏' : null}
             getTooltipContainer={() => document.getElementById('siderTooltip')}>
-            <li className='changeStyleBox' onClick={this.changeSiderStyle}>
+            <li className='changeStyleBox' onClick={ this.props.changeSiderStyle }>
               <span>
                 {siderStyle == 'mini' ? [<i key='fa-indent' className='fa fa-indent'></i>] : [<i key='fa-outdent'
                   className='fa fa-outdent'></i>]}
