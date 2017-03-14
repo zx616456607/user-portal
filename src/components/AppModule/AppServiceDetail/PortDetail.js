@@ -168,8 +168,8 @@ let MyComponent = React.createClass({
       return
     }
     const port = parseInt(value.trim())
-    if (port < 0 || port > 65535) {
-      callback(new Error('请填入0~65535'))
+    if (port < 1 || port > 65535) {
+      callback(new Error('请填入1~65535'))
       return
     }
     if (allPort.indexOf(port) >= 0) {
