@@ -110,7 +110,11 @@ let ClusterInfo = React.createClass ({
         },
         failed: {
           func: err => {
-            notification.error(`删除集群“${cluster.clusterName}”失败`)
+            let { message } = err
+            if (typeof message !== 'string') {
+              message = ''
+            }
+            notification.error(`删除集群“${cluster.clusterName}”失败`, message)
             this.setState({
               deleteClusterBtnLoading: false,
             })
