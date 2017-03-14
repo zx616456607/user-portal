@@ -9,6 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
+import Sider from '../../../components/Sider/Enterprise'
 import App from '../'
 import { Link } from 'react-router'
 import { loadMergedLicense } from '../../../actions/license'
@@ -114,7 +115,7 @@ class EnterpriseApp extends Component {
   }
   render() {
     return (
-      <App siderStyle={this.state.siderStyle} changeSiderStyle={this.changeSiderStyle} License={this.state.outdated} tipError={this.tipError()} {...this.props} />
+      <App siderStyle={this.state.siderStyle} changeSiderStyle={this.changeSiderStyle} Sider={Sider} License={this.state.outdated} tipError={this.tipError()} {...this.props} />
     )
   }
 }

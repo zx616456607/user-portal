@@ -13,7 +13,7 @@ import { injectIntl } from 'react-intl'
 import { Icon, Menu, Modal, Button, Spin, } from 'antd'
 import ErrorPage from '../ErrorPage'
 import Header from '../../components/Header'
-import Sider from '../../components/Sider/Enterprise'
+import DefaultSider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
 import { Link } from 'react-router'
 import { isEmptyObject, getPortalRealMode } from '../../common/tools'
@@ -316,6 +316,7 @@ class App extends Component {
       redirectUrl,
       pathnameWithHash,
       loginUser,
+      Sider,
       siderStyle,
       UpgradeModal,
       License
@@ -409,6 +410,7 @@ App.propTypes = {
 
 App.defaultProps = {
   siderStyle: 'mini',
+  Sider: DefaultSider,
 }
 
 function mapStateToProps(state, props) {
