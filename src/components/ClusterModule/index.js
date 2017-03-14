@@ -336,7 +336,11 @@ class ClusterList extends Component {
                 key='ClusterTabs'
                 defaultActiveKey={currentClusterID}
                 tabBarExtraContent={
-                  <Tooltip title={`当前版本支持 ${maxClusters || '-'} 个 集群（目前已添加 ${clusterSum} 个）`} placement="topLeft">
+                  <Tooltip
+                    title={`当前版本支持 ${maxClusters || '-'} 个 集群（目前已添加 ${clusterSum} 个）`}
+                    placement="topLeft"
+                    getTooltipContainer={() => document.getElementById('ClusterContent')}
+                  >
                     <Button
                       disabled={createClusterBtnDisabled}
                       className='addBtn'
@@ -377,7 +381,6 @@ function mapStateToProps(state, props) {
   return {
     loginUser: loginUser.info,
     noCluster: loginUser.info[camelize(NO_CLUSTER_FLAG)],
-    // noCluster: true,
     clustersIsFetching: clusters.isFetching,
     clusters: clusters.clusterList ? clusters.clusterList : [],
     currentClusterID: current.cluster.clusterID,
