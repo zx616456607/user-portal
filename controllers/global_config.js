@@ -18,7 +18,7 @@ exports.changeGlobalConfig = function* () {
   const cluster = this.params.cluster
   const type = this.params.type
   const entity = this.request.body
-  entity.configDetail = JSON.stringify(entity.detail)
+  // entity.configDetail = JSON.stringify(entity.detail)
   if (type == 'cicd') {
     this.body = yield cicdConfig.bind(this, entity)
     return
@@ -49,14 +49,14 @@ function* cicdConfig(entity) {
     configDetail: JSON.stringify(entity.apiServerDetail)
   }
   if (entity.cicdID) {
-    body.cicd = yield api.config.updateBy(['type', 'cicd'], null, cicdEntity)
+    body.cicd = yield api.configs.updateBy(['cicd'], null, cicdEntity)
   } else {
-    body.cicd = yield api.config.createBy(['type', 'cicd'], null, cicdEntity)
+    body.cicd = yield api.configs.createBy(['cicd'], null, cicdEntity)
   }
   if (entity.apiServerID) {
-    body.apiServer = yield api.config.updateBy(['type', 'apiServer'], null, apiServerEntity)
+    body.apiServer = yield api.configs.updateBy(['apiServer'], null, apiServerEntity)
   } else {
-    body.apiServer = yield api.config.createBy(['type', 'apiServer'], null, apiServerEntity)
+    body.apiServer = yield api.configs.createBy(['apiServer'], null, apiServerEntity)
   }
   return body
 }
@@ -66,10 +66,10 @@ function* registryConfig(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'registry'
   if (entity.configID) {
-    const response = yield api.config.updateBy(['type', type], null, entity)
+    const response = yield api.configs.updateBy([type], null, entity)
     return response
   } else {
-    const response = yield api.config.createBy(['type', type], null, entity)
+    const response = yield api.configs.createBy([type], null, entity)
     return response
   }
 }
@@ -77,11 +77,18 @@ function* registryConfig(entity) {
 function* mailConfig(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'mail'
+  entity.configDetail = JSON.stringify({
+    secure: true,
+    senderMail: entity.detail.senderMail,
+    senderPassword: entity.detail.senderPassword,
+    mailServer: entity.detail.mailServer,
+    service_mail: entity.detail.mailServer,
+  })
   if (entity.configID) {
-    const response = yield api.config.updateBy(['type', type], null, entity)
+    const response = yield api.configs.updateBy([type], null, entity)
     return response
   } else {
-    const response = yield api.config.createBy(['type', type], null, entity)
+    const response = yield api.configs.createBy([type], null, entity)
     return response
   }
 }
@@ -90,10 +97,10 @@ function* storageConfig(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'rbd'
   if (entity.configID) {
-    const response = yield api.config.updateBy(['type', type], null, entity)
+    const response = yield api.configs.updateBy([type], null, entity)
     return response
   } else {
-    const response = yield api.config.createBy(['type', type], null, entity)
+    const response = yield api.configs.createBy([type], null, entity)
     return response
   }
 }
@@ -101,7 +108,7 @@ function* storageConfig(entity) {
 exports.getGlobalConfig = function* () {
   const cluster = this.params.cluster
   const spi = apiFactory.getTenxSysSignSpi()
-  const response = yield spi.config.get()
+  const response = yield spi.configs.get()
   this.status = response.code
   this.body = response
 }

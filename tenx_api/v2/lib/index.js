@@ -87,7 +87,7 @@ module.exports = function (config) {
   this.versions = collections.create('versions')
 
   // ~ config
-  this.config = collections.create('config')
+  this.configs = collections.create('configs')
 
   ////////////////////////////////////////////////////////////////////////////////////
   ///////////////  Standard mode (Public Clould Only) ////////////////////////////////
