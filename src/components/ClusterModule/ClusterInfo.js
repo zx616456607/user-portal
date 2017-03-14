@@ -8,7 +8,7 @@
  * @author BaiYu
  */
 import React from 'react'
-import { Icon, Button, Card, Form, Input, Tooltip, Spin, Modal } from 'antd'
+import { Icon, Button, Card, Form, Input, Tooltip, Spin, Modal, Dropdown, Menu } from 'antd'
 import { updateCluster, loadClusterList, deleteCluster } from '../../actions/cluster'
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
@@ -158,14 +158,21 @@ let ClusterInfo = React.createClass ({
       ],
       initialValue: description
     });
+    const dropdown = (
+      <Menu onClick={this.deleteCluster} style={{ width: "100px" }} >
+        <Menu.Item>
+          删除集群
+        </Menu.Item>
+      </Menu>
+    );
     return (
       <Card className="ClusterInfo">
         <div className="h3">集群信息
           { !editCluster ?
-          [
-            <a onClick={()=> this.setState({editCluster: true})} className="btnEdit">编辑集群</a>,
-            <a onClick={this.deleteCluster} className="btnDel">删除集群</a>,
-          ]
+          <Dropdown.Button overlay={dropdown} type="ghost" style={{float:'right',marginTop:'6px'}} onClick={()=> this.setState({editCluster: true})}>
+            编辑集群
+          </Dropdown.Button>
+
           :
           <div style={{float:'right'}}>
             <Button
