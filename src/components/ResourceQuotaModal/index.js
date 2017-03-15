@@ -60,17 +60,17 @@ export default class ResourceQuotaModal extends Component {
       </div>
       <Row className="row">
         <Col span={6}>cpu</Col>
-        <Col span={12} className="Progress">
+        <Col span={11} className="Progress">
           <Progress percent={75} status="active" showInfo={false} />
         </Col>
-        <Col span={6}>12/16核（75%）</Col>
+        <Col span={7}>12/16核（75%）</Col>
       </Row>
       <Row className="row">
         <Col span={6}>内存</Col>
-        <Col span={12} className="Progress">
+        <Col span={11} className="Progress">
           <Progress percent={98} status="active" showInfo={false} />
         </Col>
-        <Col span={6}>980/1000GB（98%）</Col>
+        <Col span={7}>980/1000GB（98%）</Col>
       </Row>
       <Row className="textRow">
         <Col span={6}>当前已选配置</Col>
