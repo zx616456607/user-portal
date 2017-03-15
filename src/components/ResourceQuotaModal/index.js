@@ -88,44 +88,43 @@ export default class ResourceQuotaModal extends Component {
         wrapClassName="wrapResourceQuotaModal"
         className="ResourceQuotaModal"
         onCancel={closeModal}
-        maskClosable={false}
-      >
-      <div className="tips">
-        <Icon type="exclamation-circle-o" className="exclamationIcon" />
-        注意：当前集群内资源不足
-      </div>
-      <Row className="row">
-        <Col span={6}>cpu</Col>
-        <Col span={11} className="Progress">
-          <Progress percent={usedCpuPercent} status="active" showInfo={false} />
-        </Col>
-        <Col span={7}>
-          {usedCpu}/{totalCpu}核
-          ({usedCpuPercent}%)
-        </Col>
-      </Row>
-      <Row className="row">
-        <Col span={6}>内存</Col>
-        <Col span={11} className="Progress">
-          <Progress percent={usedMemoryPercent} status="active" showInfo={false} />
-        </Col>
-        <Col span={7}>
-          {usedMemory}/{totalMemory}GB
-          ({usedMemoryPercent}%)
-        </Col>
-      </Row>
-      <Row className="textRow">
-        <Col span={6}>当前已选配置</Col>
-        <Col span={18}>
-          {selectResource.cpu}核 | {selectResource.memory}GB
-        </Col>
-      </Row>
-      <Row className="textRow">
-        <Col span={6}>剩余最大可选配置</Col>
-        <Col span={18} className="restResources">
-          {restCpu}核 | {restMemory}GB
-        </Col>
-      </Row>
+        maskClosable={false}>
+        <div className="tips">
+          <Icon type="exclamation-circle-o" className="exclamationIcon" />
+          注意：当前集群内资源不足
+        </div>
+        <Row className="row">
+          <Col span={6}>cpu</Col>
+          <Col span={11} className="Progress">
+            <Progress percent={usedCpuPercent} status="active" showInfo={false} />
+          </Col>
+          <Col span={7}>
+            {usedCpu}/{totalCpu}核
+            ({usedCpuPercent}%)
+          </Col>
+        </Row>
+        <Row className="row">
+          <Col span={6}>内存</Col>
+          <Col span={11} className="Progress">
+            <Progress percent={usedMemoryPercent} status="active" showInfo={false} />
+          </Col>
+          <Col span={7}>
+            {usedMemory}/{totalMemory}GB
+            ({usedMemoryPercent}%)
+          </Col>
+        </Row>
+        <Row className="textRow">
+          <Col span={6}>当前已选配置</Col>
+          <Col span={18}>
+            {selectResource.cpu}核 | {selectResource.memory}GB
+          </Col>
+        </Row>
+        <Row className="textRow">
+          <Col span={6}>剩余最大可选配置</Col>
+          <Col span={18} className="restResources">
+            {restCpu}核 | {restMemory}GB
+          </Col>
+        </Row>
       </Modal>
     )
   }
