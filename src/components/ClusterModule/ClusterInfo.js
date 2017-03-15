@@ -231,7 +231,7 @@ let ClusterInfo = React.createClass ({
               { editCluster ?
               <Input {...bindingDomainsProps} placeholder="输入域名列表，多个域名英文逗号分开" type="textarea" />
               :
-              <span>{bindingDomains}</span>
+              <span>{bindingDomains || '-'}</span>
               }
             </Form.Item>
           </div>
@@ -241,7 +241,7 @@ let ClusterInfo = React.createClass ({
               { editCluster ?
               <Input {...descProps} type="textarea" placeholder="添加描述" defaultValue={description} />
               :
-              <span>{description}</span>
+              <span>{description || '-'}</span>
               }
             </Form.Item>
             <Form.Item>
