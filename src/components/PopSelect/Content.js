@@ -11,6 +11,8 @@ import React, { Component, PropTypes } from 'react'
 import { Input, Button, Spin, Icon, } from 'antd'
 import './style/Content.less'
 import { MY_SPACE } from '../../constants'
+import classNames from 'classnames'
+
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
 
@@ -69,11 +71,23 @@ class PopSelect extends Component {
         <div className='loadingBox'>结果为空</div>
         :
         list.map((item) => {
+          let { name, disabled, isOk } = item
+          // Only for clusters
+          if (disabled === undefined && isOk !== undefined) {
+            disabled= !isOk
+          }
+          let liProps = {
+            key: name,
+            className: classNames({
+              searchItem: true,
+              itemDisabled: disabled
+            })
+          }
+          if (!disabled) {
+            liProps.onClick = () => onChange(item)
+          }
           return (
-            <li
-              key={item.name}
-              className="searchItem"
-              onClick={() => onChange(item)}>
+            <li {...liProps}>
               {
                 popTeamSelect ?
                   item.teamName
