@@ -219,7 +219,10 @@ let ClusterInfo = React.createClass ({
           </div>
           <div className="formItem">
             <Form.Item>
-              <div className="h4">服务出口列表：</div>
+              <div className="h4 blod">&nbsp;</div>
+            </Form.Item>
+            <Form.Item>
+              <div className="h4" style={{width:'90px'}}>服务出口列表：</div>
               { editCluster ?
               <Input {...bindingIPsProps } placeholder="输入服务出口列表，多个出口英文逗号分开" type="textarea" />
               :
@@ -227,7 +230,7 @@ let ClusterInfo = React.createClass ({
               }
             </Form.Item>
             <Form.Item>
-              <div className="h4">域名列表：</div>
+              <div className="h4" style={{width:'90px'}}>域名列表：</div>
               { editCluster ?
               <Input {...bindingDomainsProps} placeholder="输入域名列表，多个域名英文逗号分开" type="textarea" />
               :
@@ -236,6 +239,9 @@ let ClusterInfo = React.createClass ({
             </Form.Item>
           </div>
           <div className="formItem">
+            <Form.Item>
+              <div className="h4 blod">&nbsp;</div>
+            </Form.Item>
             <Form.Item>
               <span className="h5" style={{verticalAlign:'top',lineHeight:'30px'}}>描述：&nbsp;&nbsp;</span>
               { editCluster ?
