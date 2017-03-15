@@ -16,12 +16,30 @@ import UpgradeModal from '../../../components/AccountModal/Version/UpgradeModal'
 class StandardApp extends Component {
   constructor(props) {
     super(props)
+    this.changeSiderStyle = this.changeSiderStyle.bind(this)
+    this.state = {
+      siderStyle: 'mini'
+    }
+  }
+  changeSiderStyle() {
+    //this function for user change the sider style to 'mini' or 'bigger'
+    const { siderStyle } = this.state
+    if (siderStyle == 'mini') {
+      this.setState({
+        siderStyle: 'bigger'
+      })
+    } else {
+      this.setState({
+        siderStyle: 'mini'
+      })
+    }
   }
   render() {
     return (
       <App
-       siderStyle='mini'
+       siderStyle={this.state.siderStyle}
        Sider={Sider}
+       changeSiderStyle={this.changeSiderStyle}
        UpgradeModal={UpgradeModal}
        {...this.props} />
     )
