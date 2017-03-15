@@ -64,7 +64,6 @@ class Sider extends Component {
   constructor(props) {
     super(props)
     this.selectModel = this.selectModel.bind(this)
-    this.changeSiderStyle = this.changeSiderStyle.bind(this)
     this.onSelectMenu = this.onSelectMenu.bind(this)
     this.onOpenBigMenu = this.onOpenBigMenu.bind(this)
     this.onCloseBigMenu = this.onCloseBigMenu.bind(this)
@@ -116,20 +115,6 @@ class Sider extends Component {
         currentOpenMenu: currentOpenMenu,
         currentSelectedMenu: currentSelectedMenu,
         currentKey: currentKey
-      })
-    }
-  }
-
-  changeSiderStyle() {
-    //this function for user change the sider style to 'mini' or 'bigger'
-    const { scope, siderStyle } = this.props
-    if (siderStyle == 'mini') {
-      scope.setState({
-        siderStyle: 'bigger'
-      })
-    } else {
-      scope.setState({
-        siderStyle: 'mini'
       })
     }
   }
@@ -626,6 +611,11 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 充值记录</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item key='openApi'>
+                    <Link to='/account/API'>
+                      <span><div className='sideCircle'></div> 开放 API</span>
+                    </Link>
+                  </Menu.Item>
                   <Menu.Item key='version'>
                     <Link to='/account/version'>
                       <span><div className='sideCircle'></div> 版本</span>
@@ -660,7 +650,7 @@ class Sider extends Component {
             }
           </li>
           <Tooltip placement='right' title={siderStyle == 'mini' ? '展开导航栏' : null} getTooltipContainer={() => document.getElementById('siderTooltip')}>
-            <li className='changeStyleBox' onClick={this.changeSiderStyle}>
+            <li className='changeStyleBox' onClick={this.props.changeSiderStyle}>
               <span>
                 {siderStyle == 'mini' ? [<i key='fa-indent' className='fa fa-indent'></i>] : [<i key='fa-outdent' className='fa fa-outdent'></i>]}
               </span>
@@ -668,7 +658,7 @@ class Sider extends Component {
             </li>
           </Tooltip>
         </ul>
-        <Modal visible={this.state.oldTestingKonwShow} className='testingKnowModal' width='600'>
+        <Modal visible={this.state.oldTestingKonwShow} className='testingKnowModal' width='600' footer={null}>
           <div className='titleBox'>
             <p>欢迎使用时速云</p>
             <Icon className='closeBtn' type='cross' onClick={this.closeNavModal} />
@@ -725,7 +715,7 @@ class Sider extends Component {
             </div>
           </div>
         </Modal>
-        <Modal visible={this.state.newTestingKonwShow} className='testingKnowModal' width='600'>
+        <Modal visible={this.state.newTestingKonwShow} className='testingKnowModal' width='600' footer={null}>
           <div className='titleBox'>
             <p>欢迎使用时速云</p>
             <Icon className='closeBtn' type='cross' onClick={this.closeNavModal} />
