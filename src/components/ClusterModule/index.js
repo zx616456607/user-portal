@@ -308,9 +308,7 @@ class ClusterList extends Component {
     ))
     const clusterSum = clusters.length
     let createClusterBtnDisabled = true
-    // const { maxClusters } = license
-    // For test
-    let maxClusters = 5
+    const { maxClusters } = license
     if (clusterSum < maxClusters) {
       createClusterBtnDisabled = false
     }
