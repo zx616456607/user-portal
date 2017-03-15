@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Spin, Select } from 'antd'
+import { Button, Spin, Select, Icon } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -45,11 +45,9 @@ const menusText = defineMessages({
 function showBranchList(list) {
   if(list.length == 0) {
     return (
-      <Option key='loading' value='loading'>
-        <div className='loadingBox'>
-          <Spin />
-        </div>
-      </Option>
+      <div key='loading' className="text-center">
+        <Spin />
+      </div>
     )
   }
   let optionList = list.map((item) => {
@@ -178,19 +176,19 @@ let CodeStoreListModal = React.createClass({
             <span className="address">{item.address}</span>
           </div>
           <div className='commonTitle'>
-          {item.repoType !='svn' ? 
-            <div onClick={()=> this.selectedCodeStore(item)} style={{ width: '120px',float:'left', marginRight: '15px'}}>
-              <Select className={this.state.errorSelect == item.id ? 'noSelectCodeStore' : null} style={{ width: '120px'}} size='large'
+          {item.repoType !='svn' ?
+            <div onClick={()=> this.selectedCodeStore(item)} className="forkDropdown">
+              <Select className={this.state.errorSelect == item.id ? 'noSelectCodeStore' : ''} style={{ width: '120px'}} size='large'
                 onChange={this.onChangeBranch.bind(this, item.id)} getPopupContainer={() => document.getElementById('codeDetailAnimate')}>
                 { showBranchList(item.branchList) }
               </Select>
             </div>
           :
-            <Select value="不支持的类型" disabled={true} style={{ width: '120px', float:'left', marginTop: '11.5px', marginRight: '15px'}} size='large'
+            <Select value="不支持的类型" disabled={true} className="forkDropdown" style={{ marginTop: '11.5px' }} size='large'
               onChange={this.onChangeBranch.bind(this, item.id)}>
             </Select>
           }
-            <Button size='large' type='primary' style={{ float: 'left', marginTop: '11.5px' }} 
+            <Button size='large' type='primary' style={{ float: 'left', marginTop: '11.5px' }}
               onClick={this.onSubmitCodeStore.bind(this, item.id, item.name)}>
               <FormattedMessage {...menusText.deploy} />
             </Button>

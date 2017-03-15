@@ -201,7 +201,7 @@ let HostInfo = React.createClass({
               <Col span={12}><span className="keys">kubelet 版本：</span>{hostInfo.versions ? hostInfo.versions.kubelet : ''}</Col>
             </Row>
             <Row className="items">
-              <Col span={12}><span className="keys">Docker 版本：</span>{hostInfo.versions ? hostInfo.versions.docker : ''}</Col>
+              <Col span={12}><span className="keys">Docker 版本：</span>{hostInfo.versions ? hostInfo.versions.docker.replace('docker://','') : ''}</Col>
               <Col span={12}><span className="keys">kube-proxy：</span>{hostInfo.versions ? hostInfo.versions.kubeProxy : ''}</Col>
             </Row>
           </div>
