@@ -17,6 +17,7 @@ export default class ResourceQuotaModal extends Component {
   static propTypes = {
     visible: PropTypes.bool.isRequired,
     closeModal: PropTypes.func.isRequired,
+    useRestResource: PropTypes.func.isRequired,
     selectResource: PropTypes.object.isRequired,
     usedResource: PropTypes.object.isRequired,
     totalResource: PropTypes.object.isRequired,
@@ -40,17 +41,7 @@ export default class ResourceQuotaModal extends Component {
 
   constructor(props) {
     super(props)
-    this.state = {
-      //
-    }
-  }
-
-  componentDidMount() {
-    //
-  }
-
-  componentWillUnmount() {
-    //
+    this.useRestResource = this.useRestResource.bind(this)
   }
 
   getPercentage(used, total) {
@@ -61,10 +52,16 @@ export default class ResourceQuotaModal extends Component {
     return percent
   }
 
+  useRestResource(cpu, memory) {
+    const { closeModal, useRestResource } = this.props
+    closeModal()
+    useRestResource({cpu, memory})
+  }
+
   render() {
     const {
-      visible, closeModal, selectResource,
-      usedResource, totalResource
+      visible, closeModal, useRestResource,
+      selectResource, usedResource, totalResource
     } = this.props
     const usedCpu = usedResource.cpu
     const usedMemory = usedResource.memory
@@ -72,13 +69,19 @@ export default class ResourceQuotaModal extends Component {
     const totalMemory = totalResource.memory
     const usedCpuPercent = this.getPercentage(usedCpu, totalCpu)
     const usedMemoryPercent = this.getPercentage(usedMemory, totalMemory)
+    const restCpu = totalCpu - usedCpu
+    const restMemory = totalMemory - usedMemory
     return (
       <Modal
         title="资源提醒"
         visible={visible}
         footer={[
-          <Button key="back" type="ghost" size="large">重新选择</Button>,
-          <Button key="submit" type="primary" size="large">
+          <Button key="back" type="ghost" size="large" onClick={closeModal}>
+            重新选择
+          </Button>,
+          <Button key="submit" type="primary" size="large"
+            onClick={() => this.useRestResource(restCpu, restMemory)}
+          >
             选择剩余最大配置
           </Button>
         ]}
@@ -120,7 +123,7 @@ export default class ResourceQuotaModal extends Component {
       <Row className="textRow">
         <Col span={6}>剩余最大可选配置</Col>
         <Col span={18} className="restResources">
-          {totalCpu - usedCpu}核 | {totalMemory - usedMemory}GB
+          {restCpu}核 | {restMemory}GB
         </Col>
       </Row>
       </Modal>
