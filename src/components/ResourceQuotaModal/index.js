@@ -11,6 +11,7 @@
 
 import React, { Component, PropTypes } from 'react'
 import { Modal, Button, Icon, Row, Col, Progress } from 'antd'
+import classNames from 'classnames'
 import './style/index.less'
 
 export default class ResourceQuotaModal extends Component {
@@ -19,8 +20,9 @@ export default class ResourceQuotaModal extends Component {
     closeModal: PropTypes.func.isRequired,
     useRestResource: PropTypes.func.isRequired,
     selectResource: PropTypes.object.isRequired,
-    usedResource: PropTypes.object.isRequired,
+    // usedResource: PropTypes.object.isRequired,
     totalResource: PropTypes.object.isRequired,
+    closable: PropTypes.bool,
   }
 
   static defaultProps = {
@@ -37,31 +39,33 @@ export default class ResourceQuotaModal extends Component {
       cpu: 0,
       memory: 0,
     },
+    closable: true,
   }
 
   constructor(props) {
     super(props)
-    this.useRestResource = this.useRestResource.bind(this)
+    // this.useRestResource = this.useRestResource.bind(this)
   }
 
   getPercentage(used, total) {
-    const percent = Math.ceil(used / total * 10000) / 100
+    const percent = Math.ceil(used / total * 100)
     if (isNaN(percent)) {
       return 0
     }
     return percent
   }
 
-  useRestResource(cpu, memory) {
+  /*useRestResource(cpu, memory) {
     const { closeModal, useRestResource } = this.props
     closeModal()
     useRestResource({cpu, memory})
-  }
+  }*/
 
   render() {
     const {
       visible, closeModal, useRestResource,
-      selectResource, usedResource, totalResource
+      selectResource, usedResource, totalResource,
+      closable
     } = this.props
     const usedCpu = usedResource.cpu
     const usedMemory = usedResource.memory
@@ -69,20 +73,16 @@ export default class ResourceQuotaModal extends Component {
     const totalMemory = totalResource.memory
     const usedCpuPercent = this.getPercentage(usedCpu, totalCpu)
     const usedMemoryPercent = this.getPercentage(usedMemory, totalMemory)
-    const restCpu = totalCpu - usedCpu
-    const restMemory = totalMemory - usedMemory
+    const restCpu = Math.ceil((totalCpu - usedCpu) * 10) / 10
+    const restMemory = Math.ceil((totalMemory - usedMemory) * 10) / 10
     return (
       <Modal
-        title="资源提醒"
+        title="资源不足提醒"
         visible={visible}
+        closable={closable}
         footer={[
-          <Button key="back" type="ghost" size="large" onClick={closeModal}>
-            重新选择
-          </Button>,
-          <Button key="submit" type="primary" size="large"
-            onClick={() => this.useRestResource(restCpu, restMemory)}
-          >
-            选择剩余最大配置
+          <Button key="back" type="primary" size="large" onClick={closeModal}>
+            确定
           </Button>
         ]}
         wrapClassName="wrapResourceQuotaModal"
@@ -116,7 +116,13 @@ export default class ResourceQuotaModal extends Component {
         <Row className="textRow">
           <Col span={6}>当前已选配置</Col>
           <Col span={18}>
-            {selectResource.cpu}核 | {selectResource.memory}GB
+            <span className={classNames({red: selectResource.cpu > restCpu})}>
+              {selectResource.cpu}核
+            </span>
+            &nbsp;|&nbsp;
+            <span className={classNames({red: selectResource.memory > restMemory})}>
+              {selectResource.memory}GB
+            </span>
           </Col>
         </Row>
         <Row className="textRow">
