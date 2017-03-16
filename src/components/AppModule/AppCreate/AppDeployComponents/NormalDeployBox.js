@@ -1002,9 +1002,9 @@ let NormalDeployBox = React.createClass({
                       <Option value={SYSTEM_DEFAULT_SCHEDULE}>使用系统默认调度</Option>
                       {
                         clusterNodes.map(node => {
-                          const { name, ip, podCount } = node
+                          const { name, ip, podCount, schedulable } = node
                           return (
-                            <Option value={name}>
+                            <Option value={name} disabled={!schedulable}>
                               {name} | {ip} (容器：{podCount}个)
                             </Option>
                           )
