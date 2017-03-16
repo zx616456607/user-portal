@@ -58,12 +58,12 @@ function* cicdConfig(entity) {
   let protocol = urlObject.protocol.replace(':', '')
   let apiServerEntity = {
     configID: entity.apiServerID,
-    configDetail: JSON.stringify({
+    configDetail: {
       protocol: config.tenx_api.protocol,
       host: config.tenx_api.host,
       external_protocol: protocol,
       external_host: apiHost
-    })
+    }
   }
   if (entity.cicdID) {
     const config = global.globalConfig.cicdConfig
@@ -78,8 +78,13 @@ function* cicdConfig(entity) {
     body.cicd = yield api.configs.createBy(['cicd'], null, cicdEntity)
   }
   if (entity.apiServerID) {
+    const config = global.globalConfig.tenx_api
+    apiServerEntity.configDetail.protocol = config.protocol
+    apiServerEntity.configDetail.host = config.host
+    apiServerEntity.configDetail = JSON.stringify(apiServerEntity.configDetail)
     body.apiServer = yield api.configs.updateBy(['apiServer'], null, apiServerEntity)
   } else {
+    apiServerEntity.configDetail = JSON.stringify(apiServerEntity.configDetail)
     body.apiServer = yield api.configs.createBy(['apiServer'], null, apiServerEntity)
   }
   return body
