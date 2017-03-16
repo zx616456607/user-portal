@@ -58,6 +58,7 @@ const config = {
     value: env.SYSTEM_CALL_SIGNATURE || '8e059c94-f760-4f85-8910-f94c27cf0ff5'
   },
   storageConfig: {
+    name: '',
     agent: {
       user: env.STORAGE_AGENT_USER || 'system', 
       password: env.STORAGE_AGENT_PASSWORD || '31e120b3-512a-4e3b-910c-85c747fb1ec2'
@@ -66,6 +67,10 @@ const config = {
     user: env.STORAGE_USER || 'admin',
     keyring: env.STORAGE_KEYRING || '/etc/ceph/ceph.client.admin.keyring',
     fsType: env.STORAGE_FSTYPE || ''
+  },
+  registryConfig: {
+    user: env.REGISTRY_USER || 'admin',
+    password: env.REGISTRY_PASSWORD || 'e3442e6a-779b-4c34-911f-855b42ea80af'
   }
 }
 const node_env = config.node_env

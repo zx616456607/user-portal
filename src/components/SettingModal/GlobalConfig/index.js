@@ -657,7 +657,14 @@ let StorageService = React.createClass({
         return
       }
       const { getFieldValue } = form
-      const node = getFieldValue('node')
+      let node = getFieldValue('node')
+      node = node.split(',')
+      let monitors = []
+      node = node.map(item => {
+        if(item) {
+          monitors.push(item.trim())
+        }
+      })
       const url = getFieldValue('url')
       const storageID = getFieldValue('storageID')
       const self = this
@@ -666,7 +673,7 @@ let StorageService = React.createClass({
         detail: {
           url: url,
           config: {
-            monitors: [node]
+            monitors
           }
         }
       }, {
@@ -712,7 +719,7 @@ let StorageService = React.createClass({
     if (!value) {
       return callback('请填写存储节点')
     }
-    if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+    if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5}){0,1}?(,([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5}){0,1})*$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(,[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?)*$/.test(value)) {
       return callback('请填入合法的存储节点')
     }
     callback()
@@ -775,7 +782,7 @@ let StorageService = React.createClass({
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem hasfeedback>
-                  <Input {...nodeProps} placeholder="如：192.168.1.113:4081" disabled={cephDisable} />
+                  <Input {...nodeProps} placeholder="如：192.168.1.113:4081，如有多个存储节点，请使用英文逗号隔开" disabled={cephDisable} />
                 </FormItem>
                 <FormItem hasfeedback>
                   <Input {...urlProps} placeholder="如：https://192.168.88.6789" disabled={cephDisable} />

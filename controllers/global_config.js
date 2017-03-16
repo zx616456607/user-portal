@@ -43,18 +43,18 @@ function* cicdConfig(entity) {
   let body = {}
   let cicdEntity = {
     configID: entity.cicdID,
-    configDetail: JSON.stringify({
+    configDetail: {
       external_protocol: entity.cicdDetail.protocol,
       external_host: entity.cicdDetail.url,
       statusPath: devOps.statusPath,
       logPath: devOps.logPath,
       host: devOps.host,
       protocol: devOps.protocol
-    })
+    }
   }
   let apiHost = entity.apiServerDetail.url
   let urlObject = url.parse(apiHost)
-  apiHost = urlObject.host
+  apiHost = urlObject.hostname
   let protocol = urlObject.protocol.replace(':', '')
   let apiServerEntity = {
     configID: entity.apiServerID,
@@ -66,8 +66,15 @@ function* cicdConfig(entity) {
     })
   }
   if (entity.cicdID) {
+    const config = global.globalConfig.cicdConfig
+    cicdEntity.configDetail.statusPath = config.statusPath
+    cicdEntity.configDetail.logPath = config.logPath
+    cicdEntity.configDetail.host = config.host
+    cicdEntity.configDetail.protocol = config.protocol
+    cicdEntity.configDetail = JSON.stringify(cicdEntity.configDetail)
     body.cicd = yield api.configs.updateBy(['cicd'], null, cicdEntity)
   } else {
+    cicdEntity.configDetail = JSON.stringify(cicdEntity.configDetail)
     body.cicd = yield api.configs.createBy(['cicd'], null, cicdEntity)
   }
   if (entity.apiServerID) {
@@ -83,17 +90,24 @@ function* registryConfig(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'registry'
   const urlObject = url.parse(entity.detail.host)
-  entity.configDetail = JSON.stringify({
+  entity.configDetail = {
     protocol: urlObject.protocol.replace(':', ''),
-    host: urlObject.host,
+    host: urlObject.hostname,
     port: urlObject.port,
     v2AuthServer: entity.detail.v2AuthServer,
-    v2Server: entity.detail.v2Server
-  })
+    v2Server: entity.detail.v2Server,
+    user: config.registryConfig.user,
+    password: config.registryConfig.password
+  }
   let response
   if (entity.configID) {
+    const config = global.globalConfig.registryConfig
+    entity.configDetail.user = config.user
+    entity.configDetail.password = config.password
+    entity.configDetail = JSON.stringify(entity.configDetail)
     response = yield api.configs.updateBy([type], null, entity)
   } else {
+    entity.configDetail = JSON.stringify(entity.configDetail)
     response = yield api.configs.createBy([type], null, entity)
   }
   return response
@@ -102,17 +116,21 @@ function* registryConfig(entity) {
 function* mailConfig(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'mail'
-  entity.configDetail = JSON.stringify({
+  entity.configDetail = {
     secure: true,
     senderMail: entity.detail.senderMail,
     senderPassword: entity.detail.senderPassword,
     mailServer: entity.detail.mailServer,
     service_mail: entity.detail.mailServer,
-  })
+  }
   let response
   if (entity.configID) {
+    const config = global.globalConfig.mail_server
+    entity.configDetail.secure = config.secure
+    entity.configDetail = JSON.stringify(entity.configDetail)
     response = yield api.configs.updateBy([type], null, entity)
   } else {
+    entity.configDetail = JSON.stringify(entity.configDetail)
     response = yield api.configs.createBy([type], null, entity)
   }
   return response
@@ -121,8 +139,8 @@ function* mailConfig(entity) {
 function* storageConfig(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'rbd'
-  entity.configDetail = JSON.stringify({
-    name:'',
+  entity.configDetail = {
+    name: config.storageConfig.name,
     url: entity.detail.url,
     config: {
       monitors: entity.detail.config.monitors,
@@ -132,11 +150,18 @@ function* storageConfig(entity) {
       fsType: config.storageConfig.fsType
     },
     agent:config.storageConfig.agent
-  })
+  }
   let response
   if (entity.configID) {
+    const config = global.globalConfig.storageConfig
+    entity.configDetail.name = config.name
+    entity.configDetail.config = config.config
+    entity.configDetail.config.monitors = entity.detail.config.monitors
+    entity.configDetail.agent = config.agent
+    entity.configDetail = JSON.stringify(entity.configDetail)
     response = yield api.configs.updateBy([type], null, entity)
   } else {
+    entity.configDetail = JSON.stringify(entity.configDetail)
     response = yield api.configs.createBy([type], null, entity)
   }
   return response

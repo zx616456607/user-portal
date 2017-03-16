@@ -26,6 +26,17 @@ global.globalConfig = {
   tenx_api: {
     protocol: config.tenx_api.protocol,
     host: config.tenx_api.host
+  },
+  storageConfig: 　{
+    name: config.storageConfig.name,
+    config: {
+      monitors: [],
+      pool: config.storageConfig.pool,
+      user: config.storageConfig.user,
+      keyring: config.storageConfig.keyring,
+      fsType: config.storageConfig.fsType
+    },
+    agent: config.storageConfig.agent
   }
 }
 
@@ -67,14 +78,17 @@ exports.initGlobalConfig = function* () {
       globalConfig.cicdConfig.host = configDetail.host
       globalConfig.cicdConfig.external_protocol = configDetail.external_protocol
       globalConfig.cicdConfig.external_host = configDetail.external_host,
-      globalConfig.cicdConfig.statusPath =  configDetail.statusPath,
-      globalConfig.cicdConfig.logPath =  configDetail.logPath
+      globalConfig.cicdConfig.statusPath = configDetail.statusPath,
+      globalConfig.cicdConfig.logPath = configDetail.logPath
     }
     if (configType == 'apiServer') {
       globalConfig.tenx_api.protocol = configDetail.protocol
       globalConfig.tenx_api.host = configDetail.host
       globalConfig.tenx_api.external_host = configDetail.external_host
       globalConfig.tenx_api.external_protocol = configDetail.external_protocol
+    }
+    if (configType === 'rbd') {
+      globalConfig.storageConfig = configDetail
     }
   })
 }
