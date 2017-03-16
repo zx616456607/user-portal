@@ -113,7 +113,7 @@ const sessionOpts = {
   key: config.session_key,
   rolling: true,
   cookie: {
-    maxAge: null//1000 * 60 * (process.env.SESSION_MAX_AGE || 720) // 720 minutes(half a day)
+    maxAge: 1000 * 60 * (process.env.SESSION_MAX_AGE || 720) // 720 minutes(half a day)
   },
   ttl: 1000 * 60 * (process.env.SESSION_MAX_AGE || 720) // 720 minutes(half a day)
 }
@@ -137,9 +137,6 @@ if (config.session_store === 'true' && redisHost) {
   sessionOpts.store = sessionStore
 }
 app.use(session(sessionOpts))
-
-const refreshVsettanMap = require('./3rd_account/vsettan')
-app.use(refreshVsettanMap.refreshMap)
 
 // Compress static files
 const compress = require('koa-compress')
