@@ -56,7 +56,7 @@ function GetRegistryConfig(callback) {
         logger.warn("No valid tenxcloud registry configured, should check the configuration in the database.")
    }
    if(callback) {
-     callback(global.globalConfig.registryConfig)
+     callback(registryLocalStorage)
    }
 }
 exports.GetRegistryConfig = GetRegistryConfig
