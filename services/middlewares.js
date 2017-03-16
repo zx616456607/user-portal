@@ -11,7 +11,6 @@
 'use strict'
 
 const apiFactory = require('./api_factory')
-const configIndex = require('../configs')
 const enterpriseMode = require('../configs/constants').ENTERPRISE_MODE
 const logger = require('../utils/logger').getLogger('middlewares')
 const constants = require('../constants')
@@ -22,6 +21,7 @@ const indexService = require('./')
 const _ = require('lodash')
 const user3rdAccount = require('./user_3rd_account')
 const utils = require('../utils')
+
 
 
 /**

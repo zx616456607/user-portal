@@ -16,6 +16,7 @@ const nodemailer = require('nodemailer')
 const moment = require('moment')
 const logger = require('./logger').getLogger('email')
 const config = require('../configs')
+config.mail_server = global.globalConfig.mail_server
 const constants = require('../configs/constants')
 const fs = require('fs')
 const EMAIL_TEMPLATES_DIR = `${__root__dirname}/templates/email`

@@ -10,7 +10,8 @@
 'use strict'
 const tenxApi = require('../tenx_api/v2')
 const config = require('../configs')
-const devopsConfig = require('../configs/devops')
+config.tenx_api = global.globalConfig.tenx_api 
+const devopsConfig = global.globalConfig.cicdConfig
 
 exports.getApi = function (loginUser) {
   const apiConfig = {
@@ -92,8 +93,10 @@ exports.getSpi = function (loginUser, specifyConfig) {
 exports.getTenxSysSignSpi = function (loginUser) {
   if (!loginUser) loginUser = {}
   const config = require('../configs')
+  config.tenx_api = global.globalConfig.tenx_api
   const tenxSysSign = config.tenxSysSign
   loginUser[tenxSysSign.key] = tenxSysSign.value
+  console.log(loginUser)
   const spiConfig = {
     protocol: config.tenx_api.protocol,
     host: config.tenx_api.host,

@@ -30,25 +30,33 @@ function GetRegistryConfig(callback) {
     return registryLocalStorage
   }
   // No user info needed
-  const spi = apiFactory.getTenxSysSignSpi({})
-  spi.tenxregistries.get(null, function(err, result) {
-    if (!err) {
-      registryLocalStorage = result.data
-      if (!registryLocalStorage || !registryLocalStorage.host) {
+  // const spi = apiFactory.getTenxSysSignSpi({})
+  // spi.tenxregistries.get(null, function(err, result) {
+  //   if (!err) {
+  //     registryLocalStorage = result.data
+  //     if (!registryLocalStorage || !registryLocalStorage.host) {
+  //       logger.warn("No valid tenxcloud registry configured, should check the configuration in the database.")
+  //     }
+  //     // It's a global configuration
+  //     registryLocalStorage.globalConfigured = true
+  //     callback && callback(null, result.data)
+  //   } else {
+  //     registryLocalStorage = 'FAIL_TO_LOAD'
+  //     if (err.statusCode == 404) {
+  //       logger.warn("No global tenxcloud hub configured.")
+  //     } else {
+  //       logger.error("Failed to get registry config from api service: " + JSON.stringify(err))
+  //     }
+  //     callback && callback(err, result)
+  //   }
+  // })
+   registryLocalStorage = global.globalConfig.registryConfig
+   registryLocalStorage.globalConfigured = true
+   if (!registryLocalStorage || !registryLocalStorage.host) {
         logger.warn("No valid tenxcloud registry configured, should check the configuration in the database.")
-      }
-      // It's a global configuration
-      registryLocalStorage.globalConfigured = true
-      callback && callback(null, result.data)
-    } else {
-      registryLocalStorage = 'FAIL_TO_LOAD'
-      if (err.statusCode == 404) {
-        logger.warn("No global tenxcloud hub configured.")
-      } else {
-        logger.error("Failed to get registry config from api service: " + JSON.stringify(err))
-      }
-      callback && callback(err, result)
-    }
-  })
+   }
+   if(callback) {
+     callback(global.globalConfig.registryConfig)
+   }
 }
 exports.GetRegistryConfig = GetRegistryConfig

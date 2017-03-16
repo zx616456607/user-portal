@@ -340,12 +340,14 @@ let ConInter = React.createClass({
     const { cicdeditDisable, cicdeditChange, cicdConfig, apiServer } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     let cicdDetail = {
-      protocol: '',
-      url: ''
+      external_protocol: '',
+      external_host: ''
     }
     let apiServerDetail = {
-      url: ''
+      external_protocol: '',
+      external_host: ''
     }
+
     if (cicdConfig) {
       cicdDetail = JSON.parse(cicdConfig.configDetail)
     }
@@ -356,13 +358,13 @@ let ConInter = React.createClass({
       rules: [
         { validator: this.checkCicd }
       ],
-      initialValue: cicdDetail.protocol ? cicdDetail.protocol + '://' + cicdDetail.url : ''
+      initialValue: cicdDetail.external_protocol ? cicdDetail.external_protocol + '://' + cicdDetail.external_host : ''
     });
     const apiServerProps = getFieldProps('apiServer', {
       rules: [
         { validator: this.checkApiServer }
       ],
-      initialValue: apiServerDetail.url
+      initialValue: apiServerDetail.external_protocol ? apiServerDetail.external_protocol + '://' + apiServerDetail.external_host : ''
     });
     const cicdID = getFieldProps('cicdID', {
       initialValue: cicdConfig ? cicdConfig.configID : ''
@@ -445,28 +447,15 @@ let MirrorService = React.createClass({
       })
       const { form, saveGlobalConfig, updateGlobalConfig, cluster } = this.props
       const { getFieldValue } = form
-
-
       const mirror = getFieldValue('mirror')
       const approve = getFieldValue('approve')
       const extend = getFieldValue('extend')
       const registryID = getFieldValue('registryID')
       const self = this
-      const arr = mirror.split('://')
-      const protocol = arr[0]
-      let host = arr[1]
-      let port = 80
-      if (host.indexOf(':') >= 0) {
-        let arr = host.split(':')
-        host = arr[0]
-        port = arr[1]
-      }
       saveGlobalConfig(cluster.clusterID, 'registry', {
         configID: registryID,
         detail: {
-          host,
-          port,
-          protocol,
+          host: mirror,
           v2AuthServer: approve,
           v2Server: extend
         }
@@ -562,7 +551,7 @@ let MirrorService = React.createClass({
       rules: [
         { validator: this.checkMirror }
       ],
-      initialValue: mirroDetail.protocol ? mirroDetail.protocol + '://' + mirroDetail.host + (mirroDetail.prot ? ':' + mirroDetail.prot : '') : ''
+      initialValue: mirroDetail.protocol ? mirroDetail.protocol + '://' + mirroDetail.host + (mirroDetail.port ? ':' + mirroDetail.port : '') : ''
     })
     const approveProps = getFieldProps('approve', {
       rules: [

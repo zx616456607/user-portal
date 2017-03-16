@@ -11,6 +11,7 @@
 'use strict'
 
 const apiFactory = require('../services/api_factory.js')
+const url = require('url')
 const config = require('../configs')
 const devOps = require('../configs/devops')
 
@@ -42,11 +43,27 @@ function* cicdConfig(entity) {
   let body = {}
   let cicdEntity = {
     configID: entity.cicdID,
-    configDetail: JSON.stringify(entity.cicdDetail)
+    configDetail: JSON.stringify({
+      external_protocol: entity.cicdDetail.protocol,
+      external_host: entity.cicdDetail.url,
+      statusPath: devOps.statusPath,
+      logPath: devOps.logPath,
+      host: devOps.host,
+      protocol: devOps.protocol
+    })
   }
+  let apiHost = entity.apiServerDetail.url
+  let urlObject = url.parse(apiHost)
+  apiHost = urlObject.host
+  let protocol = urlObject.protocol.replace(':', '')
   let apiServerEntity = {
     configID: entity.apiServerID,
-    configDetail: JSON.stringify(entity.apiServerDetail)
+    configDetail: JSON.stringify({
+      protocol: config.tenx_api.protocol,
+      host: config.tenx_api.host,
+      external_protocol: protocol,
+      external_host: apiHost
+    })
   }
   if (entity.cicdID) {
     body.cicd = yield api.configs.updateBy(['cicd'], null, cicdEntity)
@@ -65,13 +82,21 @@ function* cicdConfig(entity) {
 function* registryConfig(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'registry'
+  const urlObject = url.parse(entity.detail.host)
+  entity.configDetail = JSON.stringify({
+    protocol: urlObject.protocol.replace(':', ''),
+    host: urlObject.host,
+    port: urlObject.port,
+    v2AuthServer: entity.detail.v2AuthServer,
+    v2Server: entity.detail.v2Server
+  })
+  let response
   if (entity.configID) {
-    const response = yield api.configs.updateBy([type], null, entity)
-    return response
+    response = yield api.configs.updateBy([type], null, entity)
   } else {
-    const response = yield api.configs.createBy([type], null, entity)
-    return response
+    response = yield api.configs.createBy([type], null, entity)
   }
+  return response
 }
 
 function* mailConfig(entity) {
@@ -84,25 +109,26 @@ function* mailConfig(entity) {
     mailServer: entity.detail.mailServer,
     service_mail: entity.detail.mailServer,
   })
+  let response
   if (entity.configID) {
-    const response = yield api.configs.updateBy([type], null, entity)
-    return response
+    response = yield api.configs.updateBy([type], null, entity)
   } else {
-    const response = yield api.configs.createBy([type], null, entity)
-    return response
+    response = yield api.configs.createBy([type], null, entity)
   }
+  return response
 }
 
 function* storageConfig(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'rbd'
+  entity.configDetail = JSON.stringify(entity.detail)
+  let response
   if (entity.configID) {
-    const response = yield api.configs.updateBy([type], null, entity)
-    return response
+    response = yield api.configs.updateBy([type], null, entity)
   } else {
-    const response = yield api.configs.createBy([type], null, entity)
-    return response
+    response = yield api.configs.createBy([type], null, entity)
   }
+  return response
 }
 
 exports.getGlobalConfig = function* () {
