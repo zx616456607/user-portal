@@ -86,7 +86,6 @@ let Login = React.createClass({
             }
             message.success(`用户 ${values.name} 登录成功`)
             browserHistory.push(redirect || '/')
-            resetFields()
           },
           isAsync: true
         },
@@ -98,7 +97,8 @@ let Login = React.createClass({
               msg = "用户名或者密码错误"
             }
             if (err.statusCode == 451) {
-               outdated = true //show error and not allow login
+              msg = null,
+              outdated = true //show error and not allow login
             }
             self.setState({
               submitting: false,
@@ -255,6 +255,9 @@ let Login = React.createClass({
                   outdated = true //show error and not allow login
                 } else {
                   const { licenseStatus, leftTrialDays } = res.data
+                  if (licenseStatus == 'EXPIRED') {
+                    outdated = true
+                  }
                   if (licenseStatus == 'NO_LICENSE' && Math.floor(leftTrialDays *10) /10 <= 0) {
                     outdated = true //show error and not allow login
                   }

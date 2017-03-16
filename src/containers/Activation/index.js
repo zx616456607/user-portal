@@ -118,7 +118,7 @@ let Activation = React.createClass({
                   <Icon type="copy" />
                 </a>
               </Tooltip>
-              <input className="CodeInput" style={{ position: "absolute", opacity: "0", top:'0'}} defaultValue={this.props.platform.platformid} />
+              <input className="CodeInput" style={{ position: "absolute", opacity: "0", top:'0'}} value={this.props.platform.platformid} />
             </div>
             <Form onSubmit={(e)=> this.handleSubmit(e)}>
               <FormItem
