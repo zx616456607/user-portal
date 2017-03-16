@@ -12,6 +12,7 @@ import { connect } from 'react-redux'
 import Sider from '../../../components/Sider/Enterprise'
 import App from '../'
 import { Link } from 'react-router'
+import { message } from 'antd'
 import { loadMergedLicense } from '../../../actions/license'
 import { formatDate } from '../../../common/tools'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
@@ -38,6 +39,11 @@ class EnterpriseApp extends Component {
           let licenseTips = '许可证'
           let licenseDay = 14
           const { licenseStatus, leftLicenseDays, leftTrialDays } = res.data
+          if (licenseStatus == 'EXPIRED') {
+            licenseDay = 0
+            message.error('许可证已过期', 30)
+            window.location.href ='/logout'
+          }
           if (licenseStatus == 'VALID' && parseInt(leftLicenseDays) <= 7) {
             outdated = true // show warning and allow login
             licenseDay = Math.floor(leftLicenseDays *10) /10
