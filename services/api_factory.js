@@ -96,7 +96,6 @@ exports.getTenxSysSignSpi = function (loginUser) {
   config.tenx_api = global.globalConfig.tenx_api
   const tenxSysSign = config.tenxSysSign
   loginUser[tenxSysSign.key] = tenxSysSign.value
-  console.log(loginUser)
   const spiConfig = {
     protocol: config.tenx_api.protocol,
     host: config.tenx_api.host,
