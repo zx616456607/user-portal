@@ -1125,7 +1125,7 @@ class Ordinary extends Component{
           </Col>
           <Col span={18} className="hostState">
             <Card title={
-              <span>计算资源使用率<div style={{width:30,display:'inline-block'}}></div><span style={{fontSize: '12px',color:'#666'}}>注: 显示使用率前三的节点</span></span>
+              <span>计算资源使用率<div style={{width:30,display:'inline-block'}}></div><span style={{fontSize: '12px',color:'#666'}}>Tips: 显示使用率前三的节点</span></span>
             } bordered={false} bodyStyle={{height:200,padding:'0px 20px'}}>
               <Row gutter={16} style={{height:200}}>
                 <Col span={8}>

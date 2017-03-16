@@ -13,6 +13,7 @@ import { updateCluster, loadClusterList, deleteCluster } from '../../actions/clu
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
 import clusterImg from '../../assets/img/integration/cluster.png'
+
 let saveBtnDisabled = true
 
 let ClusterInfo = React.createClass ({
@@ -110,7 +111,11 @@ let ClusterInfo = React.createClass ({
         },
         failed: {
           func: err => {
-            notification.error(`删除集群“${cluster.clusterName}”失败`)
+            let { message } = err
+            if (typeof message !== 'string') {
+              message = ''
+            }
+            notification.error(`删除集群“${cluster.clusterName}”失败`, message)
             this.setState({
               deleteClusterBtnLoading: false,
             })
@@ -126,7 +131,7 @@ let ClusterInfo = React.createClass ({
     let {
       clusterName, apiHost, apiProtocol,
       apiVersion, bindingIPs, bindingDomains,
-      description, apiToken
+      description, apiToken, isOk,
     } = cluster
     const apiUrl = `${apiProtocol}://${apiHost}`
     bindingIPs = parseArray(bindingIPs).join(', ')
@@ -134,21 +139,18 @@ let ClusterInfo = React.createClass ({
     const nameProps = getFieldProps('clusterName',{
       rules: [
         { required: true, message: '输入集群名称' },
-        // { validator: this.checkValue },
       ],
       initialValue: clusterName
     });
     const bindingIPsProps = getFieldProps('bindingIPs',{
       rules: [
         { required: true, message: '输入服务出口列表' },
-        // { validator: this.checkValue },
       ],
       initialValue: bindingIPs
     });
     const bindingDomainsProps = getFieldProps('bindingDomains',{
       rules: [
-        { required: true, message: '输入域名列表' },
-        // { validator: this.checkValue },
+        { message: '输入域名列表' },
       ],
       initialValue: bindingDomains
     });
@@ -217,7 +219,10 @@ let ClusterInfo = React.createClass ({
           </div>
           <div className="formItem">
             <Form.Item>
-              <div className="h4">服务出口列表：</div>
+              <div className="h4 blod">&nbsp;</div>
+            </Form.Item>
+            <Form.Item>
+              <div className="h4" style={{width:'90px'}}>服务出口列表：</div>
               { editCluster ?
               <Input {...bindingIPsProps } placeholder="输入服务出口列表，多个出口英文逗号分开" type="textarea" />
               :
@@ -225,7 +230,7 @@ let ClusterInfo = React.createClass ({
               }
             </Form.Item>
             <Form.Item>
-              <div className="h4">域名列表：</div>
+              <div className="h4" style={{width:'90px'}}>域名列表：</div>
               { editCluster ?
               <Input {...bindingDomainsProps} placeholder="输入域名列表，多个域名英文逗号分开" type="textarea" />
               :
@@ -234,14 +239,25 @@ let ClusterInfo = React.createClass ({
             </Form.Item>
           </div>
           <div className="formItem">
-          <Form.Item>
-            <span className="h5" style={{verticalAlign:'top',lineHeight:'30px'}}>描述：&nbsp;&nbsp;</span>
-            { editCluster ?
-            <Input {...descProps} type="textarea" placeholder="添加描述" defaultValue={description} />
-            :
-            <span>{description}</span>
-            }
-          </Form.Item>
+            <Form.Item>
+              <div className="h4 blod">&nbsp;</div>
+            </Form.Item>
+            <Form.Item>
+              <span className="h5" style={{verticalAlign:'top',lineHeight:'30px'}}>描述：&nbsp;&nbsp;</span>
+              { editCluster ?
+              <Input {...descProps} type="textarea" placeholder="添加描述" defaultValue={description} />
+              :
+              <span>{description}</span>
+              }
+            </Form.Item>
+            <Form.Item>
+              <span className="h5" style={{verticalAlign:'top',lineHeight:'30px'}}>状态：&nbsp;&nbsp;</span>
+              {
+                isOk
+                ? <span style={{ color: '#33b867' }}><i className="fa fa-circle"></i> 正常</span>
+                : <span style={{ color: '#f23e3f' }}><i className="fa fa-circle"></i> 异常</span>
+              }
+            </Form.Item>
           </div>
         </Form>
         <Modal title={`删除集群`}
