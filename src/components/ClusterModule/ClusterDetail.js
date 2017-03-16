@@ -23,6 +23,7 @@ import { changeClusterNodeSchedule } from '../../actions/cluster_node'
 import TimeControl from '../Metrics/TimeControl'
 import Metrics from '../Metrics'
 import moment from 'moment'
+import { camelize } from 'humps'
 import { NOT_AVAILABLE } from '../../constants'
 
 const TabPane = Tabs.TabPane
@@ -155,6 +156,12 @@ let HostInfo = React.createClass({
         title: '访问地址',
         dataIndex: 'podIP',
         key: 'url',
+        render: (text) => {
+          if (text) {
+            return text
+          }
+          return '--'
+        }
       },
       {
         title: '创建时间',
@@ -180,9 +187,9 @@ let HostInfo = React.createClass({
               <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 {cpuUsed(hostInfo.cpuTotal, metricsData.cpuData).unit }</Col>
             </Row>
             <Row className="items">
-              <Col span={8}><span className="keys">内存：</span><span className="valus">{isNaN(hostInfo.memoryTotalKB /1024) ? '' : Math.round(hostInfo.memoryTotalKB / 1024 / 1024)} G</span></Col>
-              <Col span={10}><Progress percent={memoryUsed(hostInfo.memoryTotalKB, metricsData.memoryData).amount } strokeWidth={8} showInfo={false} status="active" /></Col>
-              <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 {memoryUsed(hostInfo.memoryTotalKB, metricsData.memoryData).unit }</Col>
+              <Col span={8}><span className="keys">内存：</span><span className="valus">{isNaN(hostInfo[camelize('memory_total_kb')] /1024) ? '' : Math.round(hostInfo[camelize('memory_total_kb')] / 1024 / 1024)} G</span></Col>
+              <Col span={10}><Progress percent={memoryUsed(hostInfo[camelize('memory_total_kb')], metricsData.memoryData).amount } strokeWidth={8} showInfo={false} status="active" /></Col>
+              <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 {memoryUsed(hostInfo[camelize('memory_total_kb')], metricsData.memoryData).unit }</Col>
 
             </Row>
             <Row className="items">
@@ -209,7 +216,7 @@ let HostInfo = React.createClass({
         </div>
         <div className="topTitle">容器详情</div>
         <div className="containers">
-          <Button onClick={() => this.reloadList()} type="primary" size="large"><i className="fa fa-refresh"/> 刷新</Button>
+          <Button onClick={() => this.reloadList()} type="primary" icon="reload" size="large">刷新</Button>
           <span className="inputGroup">
             <Input placeholder="搜索" size="large" onChange={(e)=> this.setSearchState(e.target.value)} onPressEnter={()=> this.handSearch()}/>
             <Icon type="search" onClick={()=> this.handSearch()} />
@@ -387,7 +394,7 @@ class ClusterDetail extends Component {
               <div className="h2"></div>
               <div className="list">调度状态：
                 <span className="role"><Switch checked={ this.state.schedulable }
-                  onChange={this.changeSchedulable.bind(this, hostInfo.address)} checkedChildren="开" unCheckedChildren="关" /></span>
+                  onChange={this.changeSchedulable.bind(this, this.props.clusterName)} checkedChildren="开" unCheckedChildren="关" /></span>
               </div>
 
             </div>
