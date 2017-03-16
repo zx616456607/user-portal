@@ -121,7 +121,18 @@ function* mailConfig(entity) {
 function* storageConfig(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'rbd'
-  entity.configDetail = JSON.stringify(entity.detail)
+  entity.configDetail = JSON.stringify({
+    name:'',
+    url: entity.detail.url,
+    config: {
+      monitors: entity.detail.config.monitors,
+      pool: config.storageConfig.pool,
+      user: config.storageConfig.user,
+      keyring: config.storageConfig.keyring,
+      fsType: config.storageConfig.fsType
+    },
+    agent:config.storageConfig.agent
+  })
   let response
   if (entity.configID) {
     response = yield api.configs.updateBy([type], null, entity)

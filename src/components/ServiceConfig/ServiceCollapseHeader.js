@@ -36,11 +36,11 @@ let CreateConfigFileModal = React.createClass({
       return
     }
     if(/^[\u4e00-\u9fa5]+$/i.test(value)){
-      callback([new Error('名称由英文、数字、中划线(-)、下划线(_)、点(.)组成, 且以英文和数字结尾')])
+      callback([new Error('名称由英文、数字、点(.)组成, 且后缀以英文或数字结尾')])
       return
     } //^\\.?[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*
     if (!validateServiceConfigFile(value)) {
-      callback([new Error('名称由英文、数字、中划线(-)、下划线(_)、点(.)组成, 且以英文和数字结尾')])
+      callback([new Error('名称由英文、数字、点(.)组成, 且后缀以英文或数字结尾')])
       return
     }
     callback()
