@@ -201,7 +201,7 @@ class Ordinary extends Component {
   }
   render() {
     const { clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
-      clusterNodeSummary, clusterDbServices, spaceName, clusterName, clusterNodeSpaceConsumption, isFetching } = this.props
+      clusterNodeSummary, clusterDbServices, spaceName, clusterName, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching } = this.props
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
       boxPos = (clusterStorage.usedSize / (clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(4)
@@ -313,6 +313,27 @@ class Ordinary extends Component {
       redisStopped = failedCount + unknownCount
       redisOthers = pendingCount
     }
+    //集群mem、cpu和存储概况
+    let clusterSummaryCapacity = clusterSummary.capacity
+    let clusterSummaryUsed = clusterSummary.used
+    let cpuUsed = Math.ceil(clusterSummaryUsed.cpu / clusterSummaryCapacity.cpu * 100)
+    let memoryUsed = Math.ceil(clusterSummaryUsed.memory / clusterSummaryCapacity.memory * 100)
+    let volumeCapacity = volumeSummary.total
+    let volumeAllocated = parseInt(volumeSummary.allocated)
+    if (volumeCapacity.toLowerCase().indexOf('g')) {
+      volumeCapacity = parseInt(volumeCapacity) * 1024
+    }
+    let volumeUsed = Math.ceil(volumeAllocated / volumeCapacity * 100)
+    let capacityContainerNumber = Math.ceil(volumeCapacity / 512)
+    let allocatedContainerNumber = Math.ceil(volumeAllocated / 521)
+    let canCreateContainer = Math.floor((clusterSummaryCapacity.memory - clusterSummaryUsed.memory) / 512 / 1024)
+
+
+    let allocatedPod = clusterStaticSummary.pod
+    let allocatedPodNumber = 0  
+    allocatedPodNumber += allocatedPod['running']
+    allocatedPodNumber += allocatedPod['pending']
+    let capacityCreateContainer =  canCreateContainer + allocatedPodNumber
     //Options
     let appOption = {
       tooltip: {
@@ -771,8 +792,8 @@ class Ordinary extends Component {
         radius: ['22', '33'],
         center: ['17%', '50%'],
         data: [
-          { value: 80, name: '已使用', selected: true },
-          { value: 20, name: '可使用' }
+          { value: cpuUsed, name: '已使用', selected: true },
+          { value: 100 - cpuUsed, name: '可使用' }
         ],
         label: {
           normal: {
@@ -814,8 +835,8 @@ class Ordinary extends Component {
         radius: ['22', '33'],
         center: ['50%', '50%'],
         data: [
-          { value: 80, name: '已使用', selected: true },
-          { value: 20, name: '可使用' }
+          { value: memoryUsed, name: '已使用', selected: true },
+          { value: 100 - memoryUsed, name: '可使用' }
         ],
         label: {
           normal: {
@@ -857,8 +878,8 @@ class Ordinary extends Component {
         radius: ['22', '33'],
         center: ['83%', '50%'],
         data: [
-          { value: 80, name: '已使用', selected: true },
-          { value: 20, name: '可使用' }
+          { value: volumeUsed, name: '已使用', selected: true },
+          { value: 100 - volumeUsed, name: '可使用' }
         ],
         label: {
           normal: {
@@ -923,9 +944,9 @@ class Ordinary extends Component {
                 <table cellPadding={0} cellSpacing={0} style={{ width: '100%', textAlign: 'center', fontSize: '14px', marginBottom: '5px' }} >
                   <tbody>
                     <tr>
-                      <td>(80/100)</td>
-                      <td>(20/100)</td>
-                      <td>(20/100)</td>
+                      <td>({cpuUsed}/100)</td>
+                      <td>({memoryUsed}/100)</td>
+                      <td>({volumeUsed}/100)</td>
                     </tr>
                     <tr>
                       <td>cpu</td>
@@ -937,8 +958,9 @@ class Ordinary extends Component {
               </div>
               <div className='statusBottom'>
                 <span className='statusBottomItem'>容器</span>
-                <Icon type="question-circle-o" style={{ margin: '0 7px' }} />
-                <Progress percent={30} strokeWidth={11} style={{ width: '82%', top: '-2px' }} />
+                <Tooltip title={`本集群若以最小容器配置可创建${capacityCreateContainer}个容器，目前已创建${allocatedPodNumber}个容器，还可创建最小配置容器${canCreateContainer}个`}><Icon type="question-circle-o" style={{ margin: '0 7px' }} /></Tooltip>
+                <Progress percent={memoryUsed} strokeWidth={11} style={{ width: '82%', top: '-2px' }} showInfo={false}/>
+                <span>{`本集群若以最小容器配置可创建${capacityCreateContainer}个容器，目前已创建${allocatedPodNumber}个容器，还可创建最小配置容器${canCreateContainer}个`}</span>
               </div>
             </Card>
           </Col>
@@ -1314,9 +1336,9 @@ class Ordinary extends Component {
           </Col>
           <Col span={18} className="hostState">
             <Card title={
-              <span>计算资源使用率<div style={{width:30,display:'inline-block'}}></div><span style={{fontSize: '12px',color:'#666'}}>Tips: 显示使用率前三的节点</span></span>
-            } bordered={false} bodyStyle={{height:200,padding:'0px 20px'}}>
-              <Row gutter={16} style={{height:200}}>
+              <span>计算资源使用率<div style={{ width: 30, display: 'inline-block' }}></div><span style={{ fontSize: '12px', color: '#666' }}>Tips: 显示使用率前三的节点</span></span>
+            } bordered={false} bodyStyle={{ height: 200, padding: '0px 20px' }}>
+              <Row gutter={16} style={{ height: 200 }}>
                 <Col span={8}>
                   <ReactEcharts
                     notMerge={true}
@@ -1501,7 +1523,42 @@ function mapStateToProp(state, props) {
     balance: 0,
     consumption: 0,
   }
-
+  let clusterSummary = {
+    capacity: {
+      cpu: 1,
+      memory: 1
+    },
+    used: {
+      cpu: 0,
+      memory: 0
+    }
+  }
+  let clusterStaticSummary = {
+    node: {
+      nodeRunning: 0,
+      nodeSum: 0,
+      schedulable: 0
+    },
+    pod: {
+      Failed: 0,
+      Pending: 0,
+      Running: 0,
+      Succeeded: 0,
+      Unknown: 0
+    },
+    resource: {
+      allocatedCPU: 0,
+      allocatedMemByKB: 0,
+      cupSum: 0,
+      memSumByKB: 0
+    }
+  }
+  let volumeSummary = {
+    used: '0',
+    available: '0',
+    total: '1',
+    allocated: '0'
+  }
   const { clusterOperations, clusterSysinfo, clusterStorage,
     clusterAppStatus, clusterDbServices, clusterNodeSummary, clusterInfo } = state.overviewCluster
   const isFetching = clusterInfo.isFetching
@@ -1617,6 +1674,16 @@ function mapStateToProp(state, props) {
       clusterNodeSpaceConsumption.balance = clusterInfo.result.spaceconsumption.balance
       clusterNodeSpaceConsumption.consumption = clusterInfo.result.spaceconsumption.consumption
     }
+
+    if (clusterInfo.result.clusterSummary) {
+      clusterSummary = clusterInfo.result.clusterSummary
+    }
+    if (clusterInfo.result.volumeSummary) {
+      volumeSummary = clusterInfo.result.volumeSummary
+    }
+    if(clusterInfo.result.clusterStaticSummary){
+      clusterStaticSummary = clusterInfo.result.clusterStaticSummary
+    }
   }
   return {
     current,
@@ -1627,6 +1694,9 @@ function mapStateToProp(state, props) {
     clusterDbServices: clusterDbServicesData,
     clusterNodeSummary: clusterNodeSummaryData,
     clusterNodeSpaceConsumption: clusterNodeSpaceConsumption,
+    volumeSummary,
+    clusterSummary,
+    clusterStaticSummary,
     isFetching,
   }
 }

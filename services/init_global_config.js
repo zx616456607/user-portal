@@ -8,6 +8,9 @@
  * v0.1 - 2017-03-13
  * @author Yangyubiao
  */
+
+'use strict'
+
 const url = require('url')
 const config = require('../configs')
 const devops = require('../configs/devops')
@@ -52,7 +55,6 @@ exports.initGlobalConfig = function* () {
     const configType = config.ConfigType
     let configDetail = JSON.parse(config.ConfigDetail)
     if (configType == 'mail') {
-      //mail	{"senderMail":"email_tester@tenxcloud.com","senderPassword":"Passw0rd","mailServer":"smtp.exmail.qq.com:25"}
       let arr = configDetail.mailServer.split(':')
       let port = arr[1]
       let host = arr[0]
