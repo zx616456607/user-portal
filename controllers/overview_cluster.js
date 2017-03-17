@@ -100,11 +100,11 @@ exports.getStdClusterOverview = function* () {
   const k8sapi = apiFactory.getK8sApi(loginUser)
   const result =
     yield [api.overview.getBy(["space-operations"], queryObj),
-    api.overview.getBy(["clusters", cluster, "system-info"]),
-    api.overview.getBy(["clusters", cluster, "storagestatus"]),
-    api.overview.getBy(["clusters", cluster, "appstatus"]),
-    k8sapi.getBy([cluster, "dbservices"]),
-    api.overview.getBy(["space-consumption"]),]
+      api.overview.getBy(["clusters", cluster, "system-info"]),
+      api.overview.getBy(["clusters", cluster, "storagestatus"]),
+      api.overview.getBy(["clusters", cluster, "appstatus"]),
+      k8sapi.getBy([cluster, "dbservices"]),
+      api.overview.getBy(["space-consumption"]),]
   let operations = {}
   if (result && result[0] && result[0].data) {
     operations = result[0].data
