@@ -681,12 +681,18 @@ let AppDeployServiceModal = React.createClass({
         if (!vol) return
         if(!volPath) return
         if (vol.length <= 0) return
+        let mountPath = []
+        vol.items.forEach((v, index) => {
+          let path = (volPath.indexOf('/') == 0 ? volPath : '/'+ volPath) + '/' + v.path
+          mountPath.push({
+            mountPath: path,
+            subPath: v.path
+          })
+        })
         deploymentList.addContainerVolume(serviceName, {
           name: `configmap-volume-${item}`,
           configMap: vol,
-        }, {
-            mountPath: volPath
-          })
+        }, mountPath, true)
       })
     }
     //livenessProbe 高可用

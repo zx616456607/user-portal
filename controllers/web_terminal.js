@@ -4,6 +4,7 @@ const https = require('https')
 const os = require('os')
 const urllib = require('urllib')
 const config = require('../configs')
+config.tenx_api = global.globalConfig.tenx_api
 const queryString = require('querystring')
 
 //var wsUrl = "wss://kubelet:kubelet@" + data['host'] + ":" + data['port'] + "/api/v1/namespaces/" + data['namespace'] + "/pods/" + data['pod'] + "/exec?stdout=1&stdin=1&stderr=1&tty=1&command=%2Fbin%2Fsh&command=-i";

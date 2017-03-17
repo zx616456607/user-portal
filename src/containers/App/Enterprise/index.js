@@ -12,6 +12,7 @@ import { connect } from 'react-redux'
 import Sider from '../../../components/Sider/Enterprise'
 import App from '../'
 import { Link } from 'react-router'
+import { message } from 'antd'
 import { loadMergedLicense } from '../../../actions/license'
 import { formatDate } from '../../../common/tools'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
@@ -19,11 +20,13 @@ import { ROLE_SYS_ADMIN } from '../../../../constants'
 class EnterpriseApp extends Component {
   constructor(props) {
     super(props)
+    this.changeSiderStyle = this.changeSiderStyle.bind(this)
     this.state = {
       outdated: false,
       licenseTips:'',
       licenseDay:0,
-      license: {}
+      license: {},
+      siderStyle: 'bigger'
     }
   }
   componentWillMount() {
@@ -36,6 +39,11 @@ class EnterpriseApp extends Component {
           let licenseTips = '许可证'
           let licenseDay = 14
           const { licenseStatus, leftLicenseDays, leftTrialDays } = res.data
+          if (licenseStatus == 'EXPIRED') {
+            licenseDay = 0
+            message.error('许可证已过期', 30)
+            window.location.href ='/logout'
+          }
           if (licenseStatus == 'VALID' && parseInt(leftLicenseDays) <= 7) {
             outdated = true // show warning and allow login
             licenseDay = Math.floor(leftLicenseDays *10) /10
@@ -62,7 +70,37 @@ class EnterpriseApp extends Component {
       }
     })
   }
-
+  componentDidMount() {
+    // mac 13.3  clientWidth 1280
+    // small clien side shrink || resize clientWidth
+    const self = this
+    let clientWidth = document.body.clientWidth
+    if (clientWidth < 1280) {
+      self.setState({siderStyle:'mini'})
+    }
+    window.onresize = function () {
+      const winWidth = document.body.clientWidth
+      if (self.state.siderStyle == 'mini') {
+        return
+      }
+      if (winWidth < 1280) {
+        self.setState({siderStyle:'mini'})
+      }
+    }
+  }
+  changeSiderStyle() {
+    //this function for user change the sider style to 'mini' or 'bigger'
+    const { siderStyle } = this.state
+    if (siderStyle == 'mini') {
+      this.setState({
+        siderStyle: 'bigger'
+      })
+    } else {
+      this.setState({
+        siderStyle: 'mini'
+      })
+    }
+  }
   checkTipsText() {
     if (!this.props.loginUser) return
     if (this.props.loginUser.role == ROLE_SYS_ADMIN) {
@@ -83,7 +121,7 @@ class EnterpriseApp extends Component {
   }
   render() {
     return (
-      <App siderStyle='bigger' License={this.state.outdated} tipError={this.tipError()} Sider={Sider} {...this.props} />
+      <App siderStyle={this.state.siderStyle} changeSiderStyle={this.changeSiderStyle} Sider={Sider} License={this.state.outdated} tipError={this.tipError()} {...this.props} />
     )
   }
 }

@@ -17,7 +17,8 @@ const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 const DEFAULT_LICENSE = {
-  max_nodes: 5
+  max_nodes: 5,
+  max_clusters: 1,
 }
 
 exports.getClusterNodes = function* () {
@@ -33,6 +34,9 @@ exports.getClusterNodes = function* () {
   const license = reqArrayResult[1].data || DEFAULT_LICENSE
   if (!license.max_nodes || license.max_nodes < DEFAULT_LICENSE.max_nodes) {
     license.max_nodes = DEFAULT_LICENSE.max_nodes
+  }
+  if (!license.max_clusters || license.max_clusters < DEFAULT_LICENSE.max_clusters) {
+    license.max_clusters = DEFAULT_LICENSE.max_clusters
   }
   let cpuList
   let memoryList
@@ -79,18 +83,6 @@ exports.getClusterNodes = function* () {
   }
 }
 
-// For bind node when create service(lite only)
-exports.getNodes = function* (){
-  const loginUser = this.session.loginUser
-  const cluster = this.params.cluster
-  const spi = apiFactory.getSpi(loginUser)
-  const result = yield spi.clusters.getBy([cluster, 'nodes']);
-  this.body = {
-    cluster,
-    data: result.data,
-  }
-}
-
 exports.changeNodeSchedule = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
@@ -134,4 +126,68 @@ exports.getAddNodeCMD = function* () {
   const spi = apiFactory.getApi(loginUser)
   const result = yield spi.clusters.getBy([cluster, 'add'])
   this.body = result.data
+}
+// cluster node detail pod list
+exports.getPodlist = function* () {
+  const cluster = this.params.cluster
+  const node = this.params.node
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.clusters.getBy([cluster, 'nodes', node, 'podlist'])
+  this.body = result.data
+}
+// host info
+exports.getClustersInfo = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const node = this.params.node
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster,'nodes',node])
+  this.body = result ? result.data : {}
+}
+//  host metrics
+exports.getClustersMetrics = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const node = this.params.node
+  const type = this.params.type
+  const query = this.query
+  const api = apiFactory.getK8sApi(loginUser)
+  let cpuq = {
+    source: 'prometheus',
+    type: 'cpu/usage_rate',
+    start: query.start
+  }
+  let memoryq = {
+    source: 'prometheus',
+    type: 'memory/usage',
+    start: query.start
+  }
+  let re_rateq = {
+    source: 'prometheus',
+    type: 'network/rx_rate',
+    start:query.start
+  }
+  let te_rateq = {
+    source: 'prometheus',
+    type: 'network/tx_rate',
+    start: query.start
+  }
+  const reqArray = []
+  // metrics cpu use
+  reqArray.push(api.getBy([cluster,'nodes',node,'metrics'], cpuq))
+  // metrics memory
+  reqArray.push(api.getBy([cluster,'nodes',node,'metrics'],memoryq))
+ // metrics network/rx_rate
+  reqArray.push(api.getBy([cluster,'nodes',node,'metrics'],re_rateq))
+  // metrics network/tx_rate
+  reqArray.push(api.getBy([cluster,'nodes',node,'metrics'],te_rateq))
+
+  const results = yield reqArray
+  this.body = {
+    cpus: results[0][node],
+    memory: results[1][node],
+    rxRate: results[2][node],
+    txRate: results[3][node]
+  }
 }

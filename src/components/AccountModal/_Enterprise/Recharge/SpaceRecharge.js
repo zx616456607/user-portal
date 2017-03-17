@@ -151,7 +151,7 @@ let SpaceRecharge = React.createClass({
     })
     return(
       <div className="spaceItem">
-        <div className="alertRow" style={{margin: 0}}>注：可为团队中的各团队空间充值，全选可批量充值</div>
+        <div className="alertRow" style={{margin: 0}}>Tips：可为团队中的各团队空间充值，全选可批量充值</div>
         <Table rowSelection={rowSelection} columns={columns}
           dataSource={teamSpacesList} pagination={false} className="wrapTable"/>
         <Form>

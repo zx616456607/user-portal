@@ -365,7 +365,7 @@ const MyComponent = React.createClass({
           </div>
           <div className="service commonData appSvcListDomain">
             <Tooltip title={svcDomain.length > 0 ? svcDomain[0] : ""}>
-              <TipSvcDomain svcDomain={svcDomain} parentNode="appSvcListDomain" icon={item.https === true ? 'https' : 'http'} />
+              <TipSvcDomain svcDomain={svcDomain} parentNode="AppInfo" icon={item.https === true ? 'https' : 'http'} />
             </Tooltip>
           </div>
           <div className="createTime commonData">
@@ -955,6 +955,9 @@ class AppServiceList extends Component {
             if (err.message.message.indexOf('ip_port') > 0) {
               errMsg = '端口冲突，请检查服务端口'
             }
+          }
+          if(err.statusCode == 403) {
+            errMsg = '集群资源不足'
           }
           notification.error(`服务 ${Service.metadata.name} 添加失败` + (errMsg ? ' => ' + errMsg : ''))
         },

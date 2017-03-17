@@ -38,6 +38,7 @@ exports.ROLE_USER = 0
 exports.ROLE_TEAM_ADMIN = 1
 exports.ROLE_SYS_ADMIN = 2
 exports.PHONE_REGEX = /^1[0-9]{10}$/
+exports.URL_REGEX = /^(http[s]?):\/\/([\da-zA-Z\-][\.]?)+(:\d)?[\da-zA-Z\.\-\/]*$/
 exports.AMOUNT_CONVERSION = 10000 // 10000 = 1 元
 exports.AMOUNT_DEFAULT_PRECISION = 2 // 小数点后两位
 exports.TENX_LOCAL_TIME_VOLUME = {
@@ -58,3 +59,7 @@ exports.SERVICE_KUBE_EXTERNAL_IPS = 'kube-externalips'
 exports.PROXY_TYPE = process.env.PROXY_TYPE || 'tenx-proxy'
 
 exports.K8S_NODE_SELECTOR_KEY = 'kubernetes.io/hostname'
+exports.ADMIN_ROLE = 2
+exports.NO_CLUSTER_FLAG = 'no_cluster_flag'
+exports.CLUSTER_PAGE = '/cluster'
+exports.DEFAULT_CLUSTER_MARK = 1

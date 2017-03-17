@@ -255,7 +255,8 @@ function _getContainerMetrics(user, cluster, instance, query) {
         case METRICS_NETWORK_RECEIVED:
         case METRICSS_NETWORK_TRANSMITTED:
       }
-      metric.value = metric.value.toFixed(2)
+      // metric.value = metric.value.toFixed(2)
+      metric.value = Math.ceil(metric.value * 100) / 100
       metric.timestamp = moment(metric.timestamp).format('MM-DD HH:mm')
     })
     return {

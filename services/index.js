@@ -17,8 +17,11 @@ const apiFactory = require('./api_factory')
 const logger = require('../utils/logger').getLogger('services/index')
 const constants = require('../constants')
 const config = require('../configs')
-const devOps = require('../configs/devops')
+config.tenx_api = globalConfig.tenx_api
+config.mail_server = globalConfig.mail_server
+const devOps = global.globalConfig.cicdConfig
 const constantsConfig = require('../configs/constants')
+const useragent = require('useragent')
 const USER_CURRENT_CONFIG = constants.USER_CURRENT_CONFIG
 
 exports.setUserCurrentConfigCookie = function* (loginUser) {
@@ -26,12 +29,55 @@ exports.setUserCurrentConfigCookie = function* (loginUser) {
   // Get default clusters
   const spi = apiFactory.getSpi(loginUser)
   const result = yield spi.clusters.getBy(['default'])
-  const clusters = result.clusters || [{}]
+  const clusters = result.clusters || []
+  if (clusters.length < 1) {
+    clusters.push({
+      clusterID: 'default'
+    })
+  }
   const config = `default,default,${clusters[0].clusterID}`
   logger.info(method, `set current config cookie to: ${config}`)
   this.cookies.set(USER_CURRENT_CONFIG, config, {
     httpOnly: false
   })
+}
+
+/**
+ * Return acceptable type
+ *
+ * @returns {String}
+ */
+exports.accepts = function () {
+  const _JSON = 'json'
+  const HTML = 'html'
+  const TEXT = 'text'
+  switch (this.accepts(_JSON, HTML, TEXT)) {
+    case HTML:
+      return HTML
+    default:
+      const agent = useragent.parse(this.headers['user-agent'])
+      // Compatible with IE9-
+      if (agent.family === 'IE' && agent.major < 9) {
+        return HTML
+      }
+      return _JSON
+  }
+}
+
+/**
+ * Check clusters for admin
+ *
+ * @returns {Bool}
+ */
+exports.isNoCluster = function* () {
+  const loginUser = this.session.loginUser
+  const k8sApi = apiFactory.getK8sApi(loginUser)
+  let clusterList = yield k8sApi.get()
+  let clusters = clusterList.clusters || []
+  if (clusters.length < 1) {
+    return true
+  }
+  return false
 }
 
 /**

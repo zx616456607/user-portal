@@ -21,6 +21,7 @@ import * as databaseCacheReducers from './database_cache'
 import * as manageMonitorReducers from './manage_monitor'
 import * as integrationReducers from './integration'
 import * as clusterNodeReducers from './cluster_node'
+import * as globalConfig from './global_config'
 import configReducers from './configs'
 import storage from './storage'
 import metrics from './metrics'
@@ -68,6 +69,13 @@ function actionCallback(state = null, action) {
   }
   if (!action.callback) return state
   let callback = action.callback
+  if (callback && callback.finally) {
+    if (callback.finally.isAsync) {
+      setTimeout(callback.finally.func.bind(this, action.error || action.response.result))
+    } else {
+      callback.finally.func(action.error || action.response.result)
+    }
+  }
   if (actionType === 'SUCCESS' || action.type == EntitiesActionTypes.SET_CURRENT ) {
     if (!callback.success) return state
     if (callback.success.isAsync) {
@@ -109,6 +117,7 @@ const rootReducer = combineReducers({
   ...manageMonitorReducers,
   ...integrationReducers,
   ...clusterNodeReducers,
+  ...globalConfig,
   configReducers,
   metrics,
   user,
@@ -125,7 +134,7 @@ const rootReducer = combineReducers({
   license,
   admin,
   user3rdAccount,
-  version,
+  version
 })
 
 export default rootReducer

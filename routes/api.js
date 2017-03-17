@@ -33,6 +33,7 @@ const consumptionController = require('../controllers/consumption')
 const clusternodesController = require('../controllers/cluster_node')
 const versionsController = require('../controllers/versions')
 const chargeController = require('../controllers/charge')
+const globalConfigController = require('../controllers/global_config')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -53,9 +54,18 @@ module.exports = function (Router) {
   router.get('/storage-pools/:pool/:cluster/volumes/:name/bindinfo', volumeController.getBindInfo)
   // router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
   router.get('/storage-pools/:cluster/volumes/available', volumeController.getAvailableVolume)
+  router.get('/storage-pools/:cluster/volumes/pool-status', volumeController.getPoolStatus)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
+  router.post('/clusters', clusterController.createCluster)
+  router.put('/clusters/:cluster', clusterController.updateCluster)
+  router.del('/clusters/:cluster', clusterController.deleteCluster)
+  router.get('/clusters/:cluster/summary', clusterController.getClusterSummary)
+  // For bind node when create service(lite only)
+  router.get('/clusters/:cluster/nodes', clusterController.getNodes)
+  router.get('/clusters/add-cluster-cmd', clusterController.getAddClusterCMD)
+
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
   router.put('/clusters/:cluster/apps/:app_name/desc', appController.updateAppDesc)
@@ -316,8 +326,10 @@ module.exports = function (Router) {
   router.get('/cluster-nodes/:cluster/add-node-cmd', clusternodesController.getAddNodeCMD)
   // Get kubectl pods names
   router.get('/cluster-nodes/:cluster/kubectls', clusternodesController.getKubectls)
-  // For bind node when create service(lite only)
-  router.get('/clusters/:cluster/nodes', clusternodesController.getNodes)
+  router.get('/cluster-nodes/:cluster/:node/podlist', clusternodesController.getPodlist)
+  // get host detail info
+  router.get('/cluster-nodes/:cluster/:node/info', clusternodesController.getClustersInfo)
+  router.get('/cluster-nodes/:cluster/:node/metrics', clusternodesController.getClustersMetrics)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)
@@ -339,6 +351,11 @@ module.exports = function (Router) {
   // Charge
   router.post('/charge/user', chargeController.chargeUser)
   router.post('/charge/teamspace', chargeController.chargeTeamspace)
+
+  //setting
+  router.post('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
+  router.put('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
+  router.get('/cluster/:cluster/config', globalConfigController.getGlobalConfig)
 
   return router.routes()
 }
