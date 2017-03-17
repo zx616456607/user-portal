@@ -14,6 +14,7 @@
 const url = require('url')
 const config = require('../configs')
 const devops = require('../configs/devops')
+const logger = require('../utils/logger').getLogger('initGlobalConfig')
 
 global.globalConfig = {
   mail_server: {
@@ -39,7 +40,10 @@ exports.initGlobalConfig = function* () {
   const spi = apiFactory.getTenxSysSignSpi()
   const result = yield spi.configs.get()
   const configs = result.data
-
+  if(!configs) {
+    logger.error('未找到可用配置信息')
+    return
+  }
   let globalConfig = global.globalConfig
   configs.forEach(config => {
     const configType = config.ConfigType
