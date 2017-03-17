@@ -17,9 +17,12 @@ import CephImg from '../../../assets/img/setting/globalconfigceph.png'
 import { connect } from 'react-redux'
 import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig } from '../../../actions/global_config'
 import NotificationHandler from '../../../common/notification_handler'
-
+import { getPortalRealMode } from '../../../common/tools'
+import { LITE } from '../../../constants'
 
 const FormItem = Form.Item
+const mode = getPortalRealMode
+const liteFlag = mode === LITE
 
 //邮件报警
 let Emaill = React.createClass({
@@ -572,7 +575,10 @@ let MirrorService = React.createClass({
       <div className="mirrorservice">
         <div className="title">
           镜像服务
-          <span className="tips">Tips：时速云官方不支持企业版Lite配置私有的镜像仓库，如有需要请联系时速云购买企业版Pro</span>
+          {
+            liteFlag &&
+            <span className="tips">Tips：时速云官方不支持企业版 Lite 配置私有的镜像仓库，如有需要请联系时速云购买企业版 Pro</span>
+          }
         </div>
         <div className="content">
           <div className="contentMain">
@@ -765,7 +771,10 @@ let StorageService = React.createClass({
       <div className="storageservice">
         <div className="title">
           存储服务
-					<span className="tips">Tips：时速云官方不支持企业版Lite配置存储服务，如有需要请联系时速云购买企业版Pro</span>
+          {
+            liteFlag &&
+            <span className="tips">Tips：时速云官方不支持企业版 Lite 配置存储服务，如有需要请联系时速云购买企业版 Pro</span>
+          }
         </div>
         <div className="content">
           <div className="contentHeader">
