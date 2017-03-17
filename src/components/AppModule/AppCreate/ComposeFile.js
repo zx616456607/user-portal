@@ -23,6 +23,7 @@ import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../common/notification_handler'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import { SERVICE_KUBE_NODE_PORT } from '../../../../constants'
+import ResourceQuotaModal from '../../ResourceQuotaModal'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -68,6 +69,8 @@ class ComposeFile extends Component {
       modalShow: false,
       stackType: true,
       createDisabled: false,
+      resourceQuotaModal: false,
+      resourceQuota: null,
     }
   }
   componentWillMount() {
@@ -166,6 +169,32 @@ class ComposeFile extends Component {
               createDisabled: false,
             })
             if(err.statusCode == 403) {
+              const { data } = err.message
+              const { require, capacity, used } = data
+              let resourceQuota = {
+                selectResource: {
+                  cpu: formatCpuFromMToC(require.cpu),
+                  memory: formatMemoryFromKbToG(require.memory),
+                },
+                usedResource: {
+                  cpu: formatCpuFromMToC(used.cpu),
+                  memory: formatMemoryFromKbToG(used.memory),
+                },
+                totalResource: {
+                  cpu: formatCpuFromMToC(capacity.cpu),
+                  memory: formatMemoryFromKbToG(capacity.memory),
+                },
+              }
+              this.setState({
+                resourceQuotaModal: true,
+                resourceQuota,
+              })
+              function formatCpuFromMToC(cpu) {
+                return Math.ceil(cpu / 1000 * 10) / 10
+              }
+              function formatMemoryFromKbToG(memory) {
+                return Math.ceil(memory / 1024 / 1024 * 10) / 10
+              }
               notification.error('创建应用失败', '集群资源不足')
               return
             }
@@ -386,6 +415,11 @@ class ComposeFile extends Component {
           >
           <AppAddStackModal scope={this} />
         </Modal>
+        <ResourceQuotaModal
+          visible={this.state.resourceQuotaModal}
+          closeModal={() => this.setState({resourceQuotaModal: false})}
+          {...this.state.resourceQuota}
+          useRestResource={(obj) => console.log(obj)} />
       </QueueAnim>
     )
   }

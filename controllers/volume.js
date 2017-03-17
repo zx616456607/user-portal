@@ -177,7 +177,13 @@ exports.getAvailableVolume = function*() {
   this.body = response
 }
  
-
+exports.getPoolStatus = function*() {
+  const cluster = this.params.cluster
+  const volumeApi = apiFactory.getK8sApi(this.session.loginUser)
+  const response = yield volumeApi.getBy([cluster, 'volumes', 'pool-status'], null)
+  this.status = response.code
+  this.body = response
+}
 
 // exports.exportFile = function* () {
 //   const pool = this.params.pool
