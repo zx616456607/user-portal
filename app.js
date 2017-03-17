@@ -23,13 +23,25 @@ const path = require('path')
 const koa = require('koa')
 const Router = require('koa-router')
 const c2k = require('koa-connect')
+const co = require('co')
 const config = require('./configs')
 const constants = require('./configs/constants')
 const globalConstants = require('./constants')
+const initGlobalConfig = require('./services/init_global_config')
 const middlewares = require('./services/middlewares')
 const logger = require('./utils/logger').getLogger('app')
 const app = koa()
 const terminal = require('./controllers/web_terminal')
+
+//get global config
+co(function*(){
+  try{
+    yield initGlobalConfig.initGlobalConfig()
+  } catch(err) {
+    console.error('Init global config failed, error:', JSON.stringify(err))
+  }
+})
+
 
 /*
  * Koa middlewares
@@ -102,7 +114,8 @@ const sessionOpts = {
   rolling: true,
   cookie: {
     maxAge: 1000 * 60 * (process.env.SESSION_MAX_AGE || 720) // 720 minutes(half a day)
-  }
+  },
+  ttl: 1000 * 60 * (process.env.SESSION_MAX_AGE || 720) // 720 minutes(half a day)
 }
 
 let sessionStore;

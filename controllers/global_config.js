@@ -11,6 +11,7 @@
 'use strict'
 
 const apiFactory = require('../services/api_factory.js')
+const url = require('url')
 const config = require('../configs')
 const devOps = require('../configs/devops')
 
@@ -42,20 +43,48 @@ function* cicdConfig(entity) {
   let body = {}
   let cicdEntity = {
     configID: entity.cicdID,
-    configDetail: JSON.stringify(entity.cicdDetail)
+    configDetail: {
+      external_protocol: entity.cicdDetail.protocol,
+      external_host: entity.cicdDetail.url,
+      statusPath: devOps.statusPath,
+      logPath: devOps.logPath,
+      host: devOps.host,
+      protocol: devOps.protocol
+    }
   }
+  let apiHost = entity.apiServerDetail.url
+  let urlObject = url.parse(apiHost)
+  apiHost = urlObject.hostname
+  let protocol = urlObject.protocol.replace(':', '')
   let apiServerEntity = {
     configID: entity.apiServerID,
-    configDetail: JSON.stringify(entity.apiServerDetail)
+    configDetail: {
+      protocol: config.tenx_api.protocol,
+      host: config.tenx_api.host,
+      external_protocol: protocol,
+      external_host: apiHost
+    }
   }
   if (entity.cicdID) {
+    const config = global.globalConfig.cicdConfig
+    cicdEntity.configDetail.statusPath = config.statusPath
+    cicdEntity.configDetail.logPath = config.logPath
+    cicdEntity.configDetail.host = config.host
+    cicdEntity.configDetail.protocol = config.protocol
+    cicdEntity.configDetail = JSON.stringify(cicdEntity.configDetail)
     body.cicd = yield api.configs.updateBy(['cicd'], null, cicdEntity)
   } else {
+    cicdEntity.configDetail = JSON.stringify(cicdEntity.configDetail)
     body.cicd = yield api.configs.createBy(['cicd'], null, cicdEntity)
   }
   if (entity.apiServerID) {
+    const config = global.globalConfig.tenx_api
+    apiServerEntity.configDetail.protocol = config.protocol
+    apiServerEntity.configDetail.host = config.host
+    apiServerEntity.configDetail = JSON.stringify(apiServerEntity.configDetail)
     body.apiServer = yield api.configs.updateBy(['apiServer'], null, apiServerEntity)
   } else {
+    apiServerEntity.configDetail = JSON.stringify(apiServerEntity.configDetail)
     body.apiServer = yield api.configs.createBy(['apiServer'], null, apiServerEntity)
   }
   return body
@@ -65,44 +94,82 @@ function* cicdConfig(entity) {
 function* registryConfig(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'registry'
-  if (entity.configID) {
-    const response = yield api.configs.updateBy([type], null, entity)
-    return response
-  } else {
-    const response = yield api.configs.createBy([type], null, entity)
-    return response
+  const urlObject = url.parse(entity.detail.host)
+  entity.configDetail = {
+    protocol: urlObject.protocol.replace(':', ''),
+    host: urlObject.hostname,
+    port: urlObject.port,
+    v2AuthServer: entity.detail.v2AuthServer,
+    v2Server: entity.detail.v2Server,
+    user: config.registryConfig.user,
+    password: config.registryConfig.password
   }
+  let response
+  if (entity.configID) {
+    const config = global.globalConfig.registryConfig
+    entity.configDetail.user = config.user
+    entity.configDetail.password = config.password
+    entity.configDetail = JSON.stringify(entity.configDetail)
+    response = yield api.configs.updateBy([type], null, entity)
+  } else {
+    entity.configDetail = JSON.stringify(entity.configDetail)
+    response = yield api.configs.createBy([type], null, entity)
+  }
+  return response
 }
 
 function* mailConfig(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'mail'
-  entity.configDetail = JSON.stringify({
+  entity.configDetail = {
     secure: true,
     senderMail: entity.detail.senderMail,
     senderPassword: entity.detail.senderPassword,
     mailServer: entity.detail.mailServer,
     service_mail: entity.detail.mailServer,
-  })
-  if (entity.configID) {
-    const response = yield api.configs.updateBy([type], null, entity)
-    return response
-  } else {
-    const response = yield api.configs.createBy([type], null, entity)
-    return response
   }
+  let response
+  if (entity.configID) {
+    const config = global.globalConfig.mail_server
+    entity.configDetail.secure = config.secure
+    entity.configDetail = JSON.stringify(entity.configDetail)
+    response = yield api.configs.updateBy([type], null, entity)
+  } else {
+    entity.configDetail = JSON.stringify(entity.configDetail)
+    response = yield api.configs.createBy([type], null, entity)
+  }
+  return response
 }
 
 function* storageConfig(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'rbd'
-  if (entity.configID) {
-    const response = yield api.configs.updateBy([type], null, entity)
-    return response
-  } else {
-    const response = yield api.configs.createBy([type], null, entity)
-    return response
+  entity.configDetail = {
+    name: config.storageConfig.name,
+    url: entity.detail.url,
+    config: {
+      monitors: entity.detail.config.monitors,
+      pool: config.storageConfig.pool,
+      user: config.storageConfig.user,
+      keyring: config.storageConfig.keyring,
+      fsType: config.storageConfig.fsType
+    },
+    agent:config.storageConfig.agent
   }
+  let response
+  if (entity.configID) {
+    const config = global.globalConfig.storageConfig
+    entity.configDetail.name = config.name
+    entity.configDetail.config = config.config
+    entity.configDetail.config.monitors = entity.detail.config.monitors
+    entity.configDetail.agent = config.agent
+    entity.configDetail = JSON.stringify(entity.configDetail)
+    response = yield api.configs.updateBy([type], null, entity)
+  } else {
+    entity.configDetail = JSON.stringify(entity.configDetail)
+    response = yield api.configs.createBy([type], null, entity)
+  }
+  return response
 }
 
 exports.getGlobalConfig = function* () {

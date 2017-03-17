@@ -14,7 +14,6 @@ const fs = require('fs')
 const formStream = require('formstream')
 const mime = require('mime')
 const http = require('http')
-const config = require('../configs')
 const apiFactory = require('../services/api_factory')
 
 exports.getVolumeListByPool = function* () {

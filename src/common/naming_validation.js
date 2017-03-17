@@ -70,9 +70,15 @@ export function validateServiceConfigFile(name) {
   if (name.length > 253) {
     return false
   }
-  let regx = new RegExp('^\\.?[-a-z0-9A-Z_]([-a-z0-9A-Z_]*[-a-z0-9A-Z_])?(\\.[-a-z0-9A-Z_]([-a-z0-9A-Z_]*[a-z0-9A-Z])?)*$')
-  if (!regx.test(name)) {
-    return false
+  if (name.indexOf('.') >= 0) {
+    let regx = new RegExp('^(\\.?[a-z0-9A-Z])+$')
+    if (!regx.test(name) && !/^[a-z0-9A-Z]+$/.test(name)) {
+      return false
+    }
+  } else {
+    if (!/^[a-z0-9A-Z]+$/.test(name)) {
+      return false
+    }
   }
   return true
 }
@@ -105,40 +111,40 @@ export function appNameCheck(name, itemName, existNameFlag) {
   //name for check, itemName for show, existNameFlag for show existed
   let errorMsg = '';
   //null check
-  if(!name || name.length == 0) {
+  if (!name || name.length == 0) {
     errorMsg = '请输入' + itemName;
     return errorMsg;
   }
   //a-zA-Z start check
   let startCheck = new RegExp('^[A-Za-z]{1}');
-  if(!startCheck.test(name)) {
+  if (!startCheck.test(name)) {
     errorMsg = '请以字母开头';
     return errorMsg;
   }
   //a-zA-Z0-9_- body check
   let bodyCheck = new RegExp('^[A-Za-z]{1}[A-Za-z0-9_-]*$');
-  if(!bodyCheck.test(name)) {
+  if (!bodyCheck.test(name)) {
     errorMsg = '由字母、数字、中划线-、下划线_组成';
     return errorMsg;
   }
   //min length check
-  if(name.length < 3) {
+  if (name.length < 3) {
     errorMsg = '请输入3个以上字符';
     return errorMsg;
   }
   //existName check
-  if(!!existNameFlag) {
+  if (!!existNameFlag) {
     errorMsg = itemName + '已经存在';
     return errorMsg;
   }
   //max length check
-  if(name.length > 63) {
+  if (name.length > 63) {
     errorMsg = '不能超过63个字符';
     return errorMsg;
   }
-   //a-zA-Z0-9 end check
+  //a-zA-Z0-9 end check
   let endCheck = new RegExp('^[A-Za-z]{1}[A-Za-z0-9_\-]{1,61}[A-Za-z0-9]$');
-  if(!endCheck.test(name)) {
+  if (!endCheck.test(name)) {
     errorMsg = '由字母或数字结尾';
     return errorMsg;
   }
@@ -158,40 +164,40 @@ export function serviceNameCheck(name, itemName, existNameFlag) {
   //name for check, itemName for show, existNameFlag for show existed
   let errorMsg = '';
   //null check
-  if(name.length == 0 || !name) {
+  if (name.length == 0 || !name) {
     errorMsg = '请输入' + itemName;
     return errorMsg;
   }
   //a-zA-Z start check
   let startCheck = new RegExp('^[a-z]{1}');
-  if(!startCheck.test(name)) {
+  if (!startCheck.test(name)) {
     errorMsg = '请以小写字母开头';
     return errorMsg;
   }
   //a-zA-Z0-9_- body check
   let bodyCheck = new RegExp('^[a-z]{1}[a-z0-9_-]*$');
-  if(!bodyCheck.test(name)) {
+  if (!bodyCheck.test(name)) {
     errorMsg = '由小写字母、数字、中划线-、下划线_组成';
     return errorMsg;
   }
   //min length check
-  if(name.length < 3) {
+  if (name.length < 3) {
     errorMsg = '请输入3个以上字符';
     return errorMsg;
   }
   //existName check
-  if(!!existNameFlag) {
+  if (!!existNameFlag) {
     errorMsg = itemName + '已经存在';
     return errorMsg;
   }
   //max length check
-  if(name.length > 63) {
+  if (name.length > 63) {
     errorMsg = '不能超过63个字符';
     return errorMsg;
   }
-   //a-z0-9 end check
+  //a-z0-9 end check
   let endCheck = new RegExp('^[a-z]{1}[a-z0-9_\-]{1,61}[a-z0-9]$');
-  if(!endCheck.test(name)) {
+  if (!endCheck.test(name)) {
     errorMsg = '由小写字母或数字结尾';
     return errorMsg;
   }
@@ -205,56 +211,56 @@ export function appEnvCheck(name, itemName, existNameFlag) {
   //name for check, itemName for show, existNameFlag for show existed
   let errorMsg = '';
   //null check
-  if(!name || name.length == 0) {
+  if (!name || name.length == 0) {
     errorMsg = '请输入' + itemName;
     return errorMsg;
   }
   //a-zA-Z start check
   let startCheck = new RegExp('^[A-Za-z_]{1}');
-  if(!startCheck.test(name)) {
+  if (!startCheck.test(name)) {
     errorMsg = '请以字母或下划线开头';
     return errorMsg;
   }
   //a-zA-Z0-9_- body check
   let bodyCheck = new RegExp('^[A-Za-z_]{1}[A-Za-z0-9_]*$');
-  if(!bodyCheck.test(name)) {
+  if (!bodyCheck.test(name)) {
     errorMsg = '由字母、数字、下划线_组成';
     return errorMsg;
   }
   //min length check
-  if(name.length < 2) {
+  if (name.length < 2) {
     errorMsg = '请输入2个以上字符';
     return errorMsg;
   }
   //existName check
-  if(!!existNameFlag) {
+  if (!!existNameFlag) {
     errorMsg = itemName + '已经存在';
     return errorMsg;
   }
   //max length check
-  if(name.length > 63) {
+  if (name.length > 63) {
     errorMsg = '不能超过63个字符';
     return errorMsg;
   }
   return 'success';
 }
 export function IDValide(ID) {
-  if(!/^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}$/.test(ID) && !/^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(ID) ) {
+  if (!/^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}$/.test(ID) && !/^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(ID)) {
     return '请输入正确的身份证号码'
   }
-  if(ID.length == 15) {
+  if (ID.length == 15) {
     return ''
   }
   const v = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2]
   const remainder = [1, 0, 'x', 9, 8, 7, 6, 5, 4, 3, 2]
   let valide = 0
-  for(var index = 0; index < 18; index ++){
-    if(index == 17) {
+  for (var index = 0; index < 18; index++) {
+    if (index == 17) {
       continue
     }
     valide += (ID[index].charCodeAt(0) - 48) * v[index]
   }
-  if(remainder[valide % 11] == ID[17]) {
+  if (remainder[valide % 11] == ID[17]) {
     return ''
   }
   return '请输入正确的身份证号码'

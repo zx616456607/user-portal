@@ -340,12 +340,14 @@ let ConInter = React.createClass({
     const { cicdeditDisable, cicdeditChange, cicdConfig, apiServer } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     let cicdDetail = {
-      protocol: '',
-      url: ''
+      external_protocol: '',
+      external_host: ''
     }
     let apiServerDetail = {
-      url: ''
+      external_protocol: '',
+      external_host: ''
     }
+
     if (cicdConfig) {
       cicdDetail = JSON.parse(cicdConfig.configDetail)
     }
@@ -356,13 +358,13 @@ let ConInter = React.createClass({
       rules: [
         { validator: this.checkCicd }
       ],
-      initialValue: cicdDetail.protocol ? cicdDetail.protocol + '://' + cicdDetail.url : ''
+      initialValue: cicdDetail.external_protocol ? cicdDetail.external_protocol + '://' + cicdDetail.external_host : ''
     });
     const apiServerProps = getFieldProps('apiServer', {
       rules: [
         { validator: this.checkApiServer }
       ],
-      initialValue: apiServerDetail.url
+      initialValue: apiServerDetail.external_protocol ? apiServerDetail.external_protocol + '://' + apiServerDetail.external_host : ''
     });
     const cicdID = getFieldProps('cicdID', {
       initialValue: cicdConfig ? cicdConfig.configID : ''
@@ -445,28 +447,15 @@ let MirrorService = React.createClass({
       })
       const { form, saveGlobalConfig, updateGlobalConfig, cluster } = this.props
       const { getFieldValue } = form
-
-
       const mirror = getFieldValue('mirror')
       const approve = getFieldValue('approve')
       const extend = getFieldValue('extend')
       const registryID = getFieldValue('registryID')
       const self = this
-      const arr = mirror.split('://')
-      const protocol = arr[0]
-      let host = arr[1]
-      let port = 80
-      if (host.indexOf(':') >= 0) {
-        let arr = host.split(':')
-        host = arr[0]
-        port = arr[1]
-      }
       saveGlobalConfig(cluster.clusterID, 'registry', {
         configID: registryID,
         detail: {
-          host,
-          port,
-          protocol,
+          host: mirror,
           v2AuthServer: approve,
           v2Server: extend
         }
@@ -562,7 +551,7 @@ let MirrorService = React.createClass({
       rules: [
         { validator: this.checkMirror }
       ],
-      initialValue: mirroDetail.protocol ? mirroDetail.protocol + '://' + mirroDetail.host + (mirroDetail.prot ? ':' + mirroDetail.prot : '') : ''
+      initialValue: mirroDetail.protocol ? mirroDetail.protocol + '://' + mirroDetail.host + (mirroDetail.port ? ':' + mirroDetail.port : '') : ''
     })
     const approveProps = getFieldProps('approve', {
       rules: [
@@ -668,7 +657,14 @@ let StorageService = React.createClass({
         return
       }
       const { getFieldValue } = form
-      const node = getFieldValue('node')
+      let node = getFieldValue('node')
+      node = node.split(',')
+      let monitors = []
+      node = node.map(item => {
+        if(item) {
+          monitors.push(item.trim())
+        }
+      })
       const url = getFieldValue('url')
       const storageID = getFieldValue('storageID')
       const self = this
@@ -677,7 +673,7 @@ let StorageService = React.createClass({
         detail: {
           url: url,
           config: {
-            monitors: [node]
+            monitors
           }
         }
       }, {
@@ -723,7 +719,7 @@ let StorageService = React.createClass({
     if (!value) {
       return callback('请填写存储节点')
     }
-    if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+    if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5}){0,1}?(,([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5}){0,1})*$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(,[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?)*$/.test(value)) {
       return callback('请填入合法的存储节点')
     }
     callback()
@@ -754,7 +750,7 @@ let StorageService = React.createClass({
       rules: [
         { validator: this.checkNode }
       ],
-      initialValue: storageDetail.config.monitors[0]
+      initialValue: storageDetail.config.monitors.join(',')
     })
     const urlProps = getFieldProps('url', {
       rules: [
@@ -786,7 +782,7 @@ let StorageService = React.createClass({
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem hasfeedback>
-                  <Input {...nodeProps} placeholder="如：192.168.1.113:4081" disabled={cephDisable} />
+                  <Input {...nodeProps} placeholder="如：192.168.1.113:4081，如有多个存储节点，请使用英文逗号隔开" disabled={cephDisable} />
                 </FormItem>
                 <FormItem hasfeedback>
                   <Input {...urlProps} placeholder="如：https://192.168.88.6789" disabled={cephDisable} />
