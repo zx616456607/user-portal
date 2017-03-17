@@ -761,8 +761,9 @@ function mapStateToProps(state, props) {
   const clusterID = props.cluster.clusterID
   const { getAllClusterNodes, kubectlsPods, addNodeCMD } = state.cluster_nodes
   const { clusterSummary } = state.cluster
-  const { isFetching } = getAllClusterNodes || pods
-  const data = getAllClusterNodes.nodes || pods
+  const targetAllClusterNodes = getAllClusterNodes[clusterID]
+  const { isFetching } = targetAllClusterNodes || pods
+  const data = (targetAllClusterNodes && targetAllClusterNodes.nodes) || pods
   const { cpuList, memoryList, license } = data
   const nodes = data.clusters ? data.clusters.nodes : []
   return {

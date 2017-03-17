@@ -418,8 +418,7 @@ class ComposeFile extends Component {
         <ResourceQuotaModal
           visible={this.state.resourceQuotaModal}
           closeModal={() => this.setState({resourceQuotaModal: false})}
-          {...this.state.resourceQuota}
-          useRestResource={(obj) => console.log(obj)} />
+          {...this.state.resourceQuota} />
       </QueueAnim>
     )
   }
