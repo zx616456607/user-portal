@@ -42,7 +42,7 @@ function cpuUsed(cpuTotal, cpuList) {
   if (cpuList.data.metrics) {
     length = cpuList.data.metrics.length
     cpuList.data.metrics.map((item) => {
-      total = total + item.value;
+      total = total + (item.floatValue || item.value);
     });
 
   }
@@ -65,7 +65,7 @@ function memoryUsed(memoryTotal, memoryList) {
   if (memoryList.data.metrics) {
     length = memoryList.data.metrics.length
     memoryList.data.metrics.map((item) => {
-      total = total + (item.value / 1024);
+      total = total + (item.floatValue || item.value / 1024);
     });
 
   }
@@ -314,7 +314,7 @@ class ClusterDetail extends Component {
       metrics = cpuData.data.metrics.map((list) => {
         return {
           timestamp: moment(list.timestamp).format('MM-DD HH:mm'),
-          value: list.value
+          value: list.floatValue || list.value
         }
       })
 
@@ -330,7 +330,7 @@ class ClusterDetail extends Component {
       metrics = memoryData.data.metrics.map((list) => {
         return {
           timestamp: moment(list.timestamp).format('MM-DD HH:mm'),
-          value: Math.ceil(list.value / 1024 / 1024)
+          value: Math.ceil(list.floatValue || list.value / 1024 / 1024)
         }
       })
 
@@ -347,7 +347,7 @@ class ClusterDetail extends Component {
       metrics = memoryData.data.metrics.map((list) => {
         return {
           timestamp: moment(list.timestamp).format('MM-DD HH:mm'),
-          value: list.value,
+          value: list.floatValue || list.value,
         }
       })
 
