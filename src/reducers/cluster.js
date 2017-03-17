@@ -87,7 +87,7 @@ function podeList(state={}, action) {
   switch(action.type) {
     case ActionTypes.GET_CLUSTER_DETAIL_REQUEST:{
       return merge({}, defaultState, state, {
-        isFetching: false
+        isFetching: true
       })
     }
     case ActionTypes.GET_CLUSTER_DETAIL_SUCCESS: {

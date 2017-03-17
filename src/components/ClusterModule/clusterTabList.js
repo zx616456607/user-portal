@@ -213,12 +213,12 @@ const MyComponent = React.createClass({
             <span>{getContainerNum(item.objectMeta.name, containerList)}</span>
           </div>
           <div className='cpu commonTitle'>
-            <span className='topSpan'>{item.cpuTotal / 1000}核</span>
-            <span className='bottomSpan'>{cpuUsed(item.cpuTotal, cpuList, item.objectMeta.name)}</span>
+            <span className='topSpan'>{item[camelize('cpu_total')] / 1000}核</span>
+            <span className='bottomSpan'>{cpuUsed(item[camelize('cpu_total')], cpuList, item.objectMeta.name)}</span>
           </div>
           <div className='memory commonTitle'>
-            <span className='topSpan'>{diskFormat(item.memoryTotalKB)}</span>
-            <span className='bottomSpan'>{memoryUsed(item.memoryTotalKB, memoryList, item.objectMeta.name)}</span>
+            <span className='topSpan'>{diskFormat(item[camelize('memory_total_kb')])}</span>
+            <span className='bottomSpan'>{memoryUsed(item[camelize('memory_total_kb')], memoryList, item.objectMeta.name)}</span>
           </div>
           {/*<div className='disk commonTitle'>
             <span className='topSpan'>{'-'}</span>

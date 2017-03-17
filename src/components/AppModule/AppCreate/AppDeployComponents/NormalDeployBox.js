@@ -1002,9 +1002,9 @@ let NormalDeployBox = React.createClass({
                       <Option value={SYSTEM_DEFAULT_SCHEDULE}>使用系统默认调度</Option>
                       {
                         clusterNodes.map(node => {
-                          const { name, ip, podCount } = node
+                          const { name, ip, podCount, schedulable } = node
                           return (
-                            <Option value={name}>
+                            <Option value={name} disabled={!schedulable}>
                               {name} | {ip} (容器：{podCount}个)
                             </Option>
                           )
@@ -1032,7 +1032,7 @@ let NormalDeployBox = React.createClass({
               {
                 form.getFieldValue('volumeSwitch') &&
                 <span id="localStorageTip">
-                  注：选择『本地存储』时，为保证有状态有效，推荐使用『绑定节点』功能&nbsp;
+                  Tips：选择『本地存储』时，为保证有状态有效，推荐使用『绑定节点』功能&nbsp;
                   <Tooltip title="以保证容器及其Volume存储不被系统调度迁移"
                     placement="topLeft"
                     getTooltipContainer={() => document.getElementById('localStorageTip')}>

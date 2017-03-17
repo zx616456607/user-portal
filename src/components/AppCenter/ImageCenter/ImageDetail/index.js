@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Button, Card, Switch, Menu, Tooltip, Icon } from 'antd'
+import { Tabs, Button, Card, Switch, Menu, Tooltip, Icon, Input } from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -82,7 +82,8 @@ class ImageDetailBox extends Component {
     this.isSwitch = this.isSwitch.bind(this)
     this.state = {
       imageDetail: null,
-      copySuccess: false
+      copySuccess: false,
+      editInfo: false
     }
   }
 
@@ -184,7 +185,62 @@ class ImageDetailBox extends Component {
       }
     })
   }
+  handChangeInfo() {
+    const image = this.props.imageInfo.name
+    let notification = new NotificationHandler()
+    const desc = document.getElementById('editInfo').value
+    if (desc == '') {
+      notification.info('请输入描述内容')
+      return
+    }
+    const config = {
+      image,
+      fullName: image,
+      registry: this.props.registry,
+      body: { description: desc }
+    }
+    const { getImageDetailInfo } = this.props
+    const _this = this
+    this.props.updateImageinfo(config, {
+      success: {
+        func: ()=> {
+          notification.success('更新成功！')
+          getImageDetailInfo(config)
+          _this.setState({editInfo: false})
+        },
+        isAsync: true
+      }
+    })
+  }
+  imageDescription(imageInfo) {
+    if (this.state.editInfo) {
+      return (
+        <div>
+          <Input type="textarea" id="editInfo" className="imagedescription"/>
+          <FormattedMessage {...menusText.type} />
+          <Switch checked={(imageInfo.isPrivate == 0) ? true : false} disabled={!imageInfo.isOwner} defaultChecked="true" checkedChildren={<FormattedMessage {...menusText.pubilicType} />} unCheckedChildren={<FormattedMessage {...menusText.privateType} /> } />
+          <span style={{float:'right'}}>
+            <Button  onClick={()=> this.setState({editInfo: false})}>取消</Button>
+            <Button  onClick={()=> this.handChangeInfo()} type="primary">保存</Button>
+          </span>
+        </div>
+      )
+    }
+    return (
+      <div>
+        <Input type="textarea" disabled={true} className="imagedescription" value={imageInfo.description} />
+        <div>
+          <FormattedMessage {...menusText.type} />
+          <Switch onChange={this.isSwitch} checked={(imageInfo.isPrivate == 0) ? true : false} disabled={!imageInfo.isOwner} checkedChildren={<FormattedMessage {...menusText.pubilicType } />} unCheckedChildren={<FormattedMessage {...menusText.privateType} />} />
+          {imageInfo.isOwner ?
+          <Button icon="edit" style={{float:'right'}} onClick={()=> this.setState({editInfo: true})}>编辑</Button>
+          :null
+          }
+        </div>
+      </div>
+    )
 
+  }
   render() {
     const { formatMessage } = this.props.intl;
     const imageInfo = this.props.imageInfo
@@ -207,15 +263,17 @@ class ImageDetailBox extends Component {
           <div className="infoBox">
             <p className="imageName">{imageDetail.name ? imageDetail.name : imageDetail.imageName}</p>
             <div className="leftBox">
-              <p className="imageUrl">{imageDetail.description ? imageDetail.description : imageDetail.imageName}</p>
-              <span className="type">
+
+              {this.imageDescription(imageInfo) }
+
+              {/*<span className="type">
                 <FormattedMessage {...menusText.type} />
                 {(imageInfo.isOwner) ?
                   <Switch onChange={this.isSwitch} checked={(imageInfo.isPrivate == 0) ? true : false} checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
                   :
                   <Switch checked={(imageInfo.isPrivate == 0) ? true : false} disabled={true} defaultChecked="true" checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
                 }
-              </span>
+              </span>*/}
             </div>
             <div className="rightBox">
               <Icon type='cross' className='cursor' style={{ fontSize: '18px', position: 'absolute', top: '0px', right: '0px' }} onClick={this.props.scope.closeImageDetailModal} />
@@ -288,6 +346,7 @@ function mapStateToProps(state, props) {
 
   return {
     imageInfo,
+    registry: DEFAULT_REGISTRY
   }
 }
 
