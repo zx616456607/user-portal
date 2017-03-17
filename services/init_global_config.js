@@ -8,9 +8,13 @@
  * v0.1 - 2017-03-13
  * @author Yangyubiao
  */
+
+'use strict'
+
 const url = require('url')
 const config = require('../configs')
 const devops = require('../configs/devops')
+const logger = require('../utils/logger').getLogger('initGlobalConfig')
 
 global.globalConfig = {
   mail_server: {
@@ -27,17 +31,7 @@ global.globalConfig = {
     protocol: config.tenx_api.protocol,
     host: config.tenx_api.host
   },
-  storageConfig: 　{
-    name: config.storageConfig.name,
-    config: {
-      monitors: [],
-      pool: config.storageConfig.pool,
-      user: config.storageConfig.user,
-      keyring: config.storageConfig.keyring,
-      fsType: config.storageConfig.fsType
-    },
-    agent: config.storageConfig.agent
-  }
+  storageConfig: []
 }
 
 const apiFactory = require('./api_factory.js')
@@ -46,13 +40,15 @@ exports.initGlobalConfig = function* () {
   const spi = apiFactory.getTenxSysSignSpi()
   const result = yield spi.configs.get()
   const configs = result.data
-
+  if(!configs) {
+    logger.error('未找到可用配置信息')
+    return
+  }
   let globalConfig = global.globalConfig
   configs.forEach(config => {
     const configType = config.ConfigType
     let configDetail = JSON.parse(config.ConfigDetail)
     if (configType == 'mail') {
-      //mail	{"senderMail":"email_tester@tenxcloud.com","senderPassword":"Passw0rd","mailServer":"smtp.exmail.qq.com:25"}
       let arr = configDetail.mailServer.split(':')
       let port = arr[1]
       let host = arr[0]
@@ -88,7 +84,8 @@ exports.initGlobalConfig = function* () {
       globalConfig.tenx_api.external_protocol = configDetail.external_protocol
     }
     if (configType === 'rbd') {
-      globalConfig.storageConfig = configDetail
+      config.configDetail = JSON.parse(config.ConfigDetail)
+      globalConfig.storageConfig.push(config)
     }
   })
 }
