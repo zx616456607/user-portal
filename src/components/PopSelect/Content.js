@@ -76,9 +76,9 @@ class PopSelect extends Component {
               onClick={() => onChange(item)}>
               {
                 popTeamSelect ?
-                  [item.teamName,<span>（团队：{item.spaceName}）</span>]
+                  item.teamName
                   :
-                  [item.name,<span>（团队：{item.spaceName}）</span>]
+                  item.name
               }
             </li>
           )

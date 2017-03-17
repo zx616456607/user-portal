@@ -53,7 +53,7 @@ class TenxFlowStageBuildLog extends Component {
     this.setState({
       status: status
     })
-  }  
+  }
   onSetup(socket) {
     const logInfo = this.props.logInfo
     const callback = this.props.callback
@@ -87,6 +87,9 @@ class TenxFlowStageBuildLog extends Component {
   render() {
     const scope = this;
     let { logs, isFetching } = this.props;
+    if(this.props.visible === false) {
+      return <div></div>
+    }
     if(isFetching) {
       return (
         <div className='loadingBox'>

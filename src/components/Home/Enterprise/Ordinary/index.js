@@ -237,7 +237,7 @@ class Ordinary extends Component{
     let CPUNameArr = []
     let CPUUsedArr = []
     if(clusterNodeSummary.cpu.length !== 0){
-      clusterNodeSummary.cpu.map((item,index) => {
+      clusterNodeSummary.cpu.slice(0,3).map((item,index) => {
         let name = item.name.replace(/192.168./,'')
         CPUNameArr.push(name)
         CPUUsedArr.push(item.used)
@@ -249,7 +249,7 @@ class Ordinary extends Component{
     let memoryNameArr = []
     let memoryUsedArr = []
     if(clusterNodeSummary.memory.length !== 0){
-      clusterNodeSummary.memory.map((item,index) => {
+      clusterNodeSummary.memory.slice(0,3).map((item,index) => {
         let name = item.name.replace(/192.168./,'')
         memoryNameArr.push(name)
         memoryUsedArr.push(item.used)
@@ -261,7 +261,7 @@ class Ordinary extends Component{
     let diskNameArr = []
     let diskUsedArr = []
     if(clusterNodeSummary.storage.length !== 0){
-      clusterNodeSummary.storage.map((item,index) => {
+      clusterNodeSummary.storage.slice(0,3).map((item,index) => {
         let name = item.name.replace(/192.168./,'')
         diskNameArr.push(name)
         // diskNameArr.push(item.name)

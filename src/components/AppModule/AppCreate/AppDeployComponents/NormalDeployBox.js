@@ -54,7 +54,7 @@ let MyComponent = React.createClass({
     this.props.loadFreeVolume(this.props.cluster)
   },
   componentWillReceiveProps(nextProps) {
-    const form = nextProps.form
+    const { form } = nextProps
     const { resetFields, setFieldsValue } = form
     if(!nextProps.serviceOpen) {
       resetFields(['volumeKey', 'volumePath', 'volumeMounts', 'volumeChecked', 'volumeChecked', 'volumeName', 'inputVolumeName'])
@@ -448,7 +448,14 @@ function loadImageTags(props) {
 
 function loadClusterNodes(props) {
   const { cluster, getNodes } = props
-  getNodes(cluster)
+  getNodes(cluster, {
+    failed: {
+      func: {
+        //
+      },
+      isAsync: true
+    }
+  })
 }
 
 function setPorts(containerPorts, form) {
@@ -785,7 +792,7 @@ let NormalDeployBox = React.createClass({
         { validator: this.serviceNameExists },
       ],
     });
-    const {registryServer, currentSelectedImage, tagConfig, registry} = this.props
+    const { registryServer, currentSelectedImage, tagConfig, registry, currentCluster } = this.props
     const imageUrlProps = registryServer + '/' + currentSelectedImage
     const selectProps = getFieldProps('imageVersion', {
       rules: [
@@ -980,31 +987,35 @@ let NormalDeployBox = React.createClass({
               </ul>
               <div style={{ clear: "both" }}></div>
             </div>
-            <div className="bindNode">
-              <span className="commonSpan">绑定节点</span>
-              <FormItem>
-                <Select showSearch
-                  {...bindNodeProps}
-                  style={{ width: 300 }}
-                  placeholder="请选择绑定节点"
-                  optionFilterProp="children"
-                  notFoundContent="无法找到"
-                >
-                  <Option value={SYSTEM_DEFAULT_SCHEDULE}>使用系统默认调度</Option>
-                  {
-                    clusterNodes.map(node => {
-                      const { name, ip, podCount } = node
-                      return (
-                        <Option value={name}>
-                          {name} | {ip} (容器：{podCount}个)
-                        </Option>
-                      )
-                    })
-                  }
-                </Select>
-              </FormItem>
-              <div style={{ clear: "both" }}></div>
-            </div>
+            {
+              currentCluster.canListNode && (
+                <div className="bindNode">
+                  <span className="commonSpan">绑定节点</span>
+                  <FormItem>
+                    <Select showSearch
+                      {...bindNodeProps}
+                      style={{ width: 300 }}
+                      placeholder="请选择绑定节点"
+                      optionFilterProp="children"
+                      notFoundContent="无法找到"
+                    >
+                      <Option value={SYSTEM_DEFAULT_SCHEDULE}>使用系统默认调度</Option>
+                      {
+                        clusterNodes.map(node => {
+                          const { name, ip, podCount } = node
+                          return (
+                            <Option value={name}>
+                              {name} | {ip} (容器：{podCount}个)
+                            </Option>
+                          )
+                        })
+                      }
+                    </Select>
+                  </FormItem>
+                  <div style={{ clear: "both" }}></div>
+                </div>
+              )
+            }
             <div className="stateService">
               <span className="commonSpan">服务类型 <a href="http://docs.tenxcloud.com/faq#you-zhuang-tai-fu-wu-yu-wu-zhuang-tai-fu-wu-de-qu-bie" target="_blank"><Tooltip title="若需数据持久化，请使用有状态服务"><Icon type="question-circle-o" /></Tooltip></a></span>
               <Switch disabled={!this.state.canCreate} className="changeBtn"
@@ -1088,7 +1099,7 @@ function mapStateToProps(state, props) {
     checkServiceName: state.apps.checkServiceName,
     tagConfig: state.getImageTagConfig.imageTagConfig,
     otherImages,
-    currentCluster: state.entities.current.cluster,
+    currentCluster: cluster,
     clusterNodes: clusterNodes[cluster.clusterID] || []
   }
 }
