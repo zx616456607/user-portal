@@ -24,6 +24,7 @@ import { calcuDate, parseAmount } from '../../common/tools'
 import { volNameCheck } from '../../common/naming_validation'
 import NotificationHandler from '../../common/notification_handler'
 import noStorageImg from '../../assets/img/no_data/no_storage.png'
+import ResourceQuotaModal from '../ResourceQuotaModal/Storage'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -424,7 +425,9 @@ class Storage extends Component {
       inputName: '',
       size: 512,
       nameError: false,
-      nameErrorMsg: ''
+      nameErrorMsg: '',
+      resourceQuotaModal: false,
+      resourceQuota: null,
     }
   }
   componentWillMount() {
@@ -510,11 +513,23 @@ class Storage extends Component {
         func: (err) => {
           isActing = false
           notification.close()
-          if (err.statusCode == 409) {
-            notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
-          } else {
-            notification.error('创建存储卷失败')
+          const { statusCode } = err
+          if (statusCode === 403) {
+            let data = err.data
+            data.select = Math.ceil(data.select / 1024 * 10) / 10
+            data.allocated = Math.ceil(data.allocated / 1024 * 10) / 10
+            data.unallocated = Math.ceil(data.unallocated / 1024 * 10) / 10
+            this.setState({
+              resourceQuotaModal: true,
+              resourceQuota: err.data
+            })
+            return
           }
+          if (statusCode === 409) {
+            notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
+            return
+          }
+          notification.error('创建存储卷失败')
         }
       }
     })
@@ -785,6 +800,10 @@ class Storage extends Component {
           :
           <div className='text-center'><img src={noStorageImg} /><div>您还没有存储卷，创建一个吧！ <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>创建</Button></Tooltip></div></div>
           }
+          <ResourceQuotaModal
+            visible={this.state.resourceQuotaModal}
+            closeModal={() => this.setState({resourceQuotaModal: false})}
+            storageResource={this.state.resourceQuota} />
         </div>
       </QueueAnim>
     )

@@ -30,7 +30,7 @@ export function getContainerStatus(container) {
       if (containerRestartCount > restartCount) {
         restartCount = containerRestartCount
         if (!containerStatus.state || !containerStatus.state.running) {
-          //state不存在或state不为running
+          // state 不存在或 state 不为 running
           phase = 'Abnormal'
         }
       }

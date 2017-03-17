@@ -15,6 +15,9 @@ const formStream = require('formstream')
 const mime = require('mime')
 const http = require('http')
 const apiFactory = require('../services/api_factory')
+const config = require('../configs')
+const constants = require('../configs/constants')
+const standardFlag = config.running_mode === constants.STANDARD_MODE
 
 exports.getVolumeListByPool = function* () {
   const pool = this.params.pool
@@ -56,11 +59,30 @@ exports.createVolume = function* () {
   const cluster = this.params.cluster
   const reqData = this.request.body
   const volumeApi = apiFactory.getK8sApi(this.session.loginUser)
+  if (!standardFlag) {
+    const statusRes = yield volumeApi.getBy([cluster, 'volumes', 'pool-status'])
+    const poolStatus = statusRes.data
+    poolStatus.used = parseInt(poolStatus.used)
+    poolStatus.available = parseInt(poolStatus.available)
+    poolStatus.total = parseInt(poolStatus.total)
+    poolStatus.allocated = parseInt(poolStatus.allocated)
+    poolStatus.unallocated = poolStatus.total * 1024 - poolStatus.allocated
+    let selectSize = reqData.driverConfig.size
+    if (selectSize > poolStatus.unallocated) {
+      poolStatus.select = selectSize
+      this.status = 403
+      this.body = {
+        statusCode: 403,
+        message: 'The cluster storage resource is not enough',
+        data: poolStatus
+      }
+      return
+    }
+  }
   let response = yield volumeApi.createBy([cluster, 'volumes'], null, reqData)
   this.status = response.code
   this.body = response
 }
-
 
 exports.formateVolume = function* () {
   const pool = this.params.pool
@@ -176,7 +198,7 @@ exports.getAvailableVolume = function*() {
   this.status = response.code
   this.body = response
 }
- 
+
 exports.getPoolStatus = function*() {
   const cluster = this.params.cluster
   const volumeApi = apiFactory.getK8sApi(this.session.loginUser)
