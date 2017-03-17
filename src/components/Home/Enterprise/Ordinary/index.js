@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Radio, Icon, Spin, Tooltip} from 'antd'
+import { Row, Col, Card, Radio, Icon, Spin, Tooltip, Progress} from 'antd'
 import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
@@ -738,12 +738,167 @@ class Ordinary extends Component{
         }
       ]
     }
+    let statusOption = {
+      // title:{
+      //   text: '计算与存储',
+      //   left:'center',
+      //   top: 12,
+      //   textAlign: 'center',
+      //   textStyle: {
+      //     fontWeight:'normal',
+      //     fontSize:13,
+      //     color: '#666'
+      //   }
+      // },
+      tooltip: {
+        trigger: 'item',
+        formatter: '{b} : ({d}%)'
+      },
+      legend: {
+        left: '50%',
+        top: '50%',
+        x: 'left',
+        itemWidth: '48px',
+        itemHeight: '31px',
+        data:[{name:'cpu'},{name:'内存'},{name:'存储'}]
+      },
+      series: [{
+        type: 'pie',
+        selectedMode: 'single',
+        avoidLabelOverlap: false,
+        hoverAnimation: false,
+        selectedOffset: 0,
+        radius: ['22', '33'],
+        center: ['17%', '50%'],
+        data:[          
+          {value: 80, name:'已使用',selected:true},
+          {value: 20, name:'可使用'}
+        ],
+        label: {
+          normal: {
+            position: 'center',
+            show: false
+          },
+          emphasis: {
+            show: true,
+            position: 'center',
+            formatter: function(param) {
+              return param.percent.toFixed(0) + '%'
+            },
+            textStyle: {
+              fontSize: '13',
+              color: '#666',
+              fontWeight: 'normal'
+            }
+          }
+        },
+        itemStyle: {
+          normal: {
+            color: '#00a0ec',
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          },
+          emphasis: {
+            borderWidth: 0,
+            shadowBlur: 7,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        }
+      },{
+        type: 'pie',
+        selectedMode: 'single',
+        avoidLabelOverlap: false,
+        hoverAnimation: false,
+        selectedOffset: 0,
+        radius: ['22', '33'],
+        center: ['50%', '50%'],
+        data:[          
+          {value: 80, name:'已使用',selected:true},
+          {value: 20, name:'可使用'}
+        ],
+        label: {
+          normal: {
+            position: 'center',
+            show: false
+          },
+          emphasis: {
+            show: true,
+            position: 'center',
+            formatter: function(param) {
+              return param.percent.toFixed(0) + '%'
+            },
+            textStyle: {
+              fontSize: '13',
+              color: '#666',
+              fontWeight: 'normal'
+            }
+          }
+        },
+        itemStyle: {
+          normal: {
+            color: '#00a0ec',
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          },
+          emphasis: {
+            borderWidth: 0,
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        }
+      }, {
+        type: 'pie',
+        selectedMode: 'single',
+        avoidLabelOverlap: false,
+        hoverAnimation: false,
+        selectedOffset: 0,
+        radius: ['22', '33'],
+        center: ['83%', '50%'],
+        data:[          
+          {value: 80, name:'已使用',selected:true},
+          {value: 20, name:'可使用'}
+        ],
+        label: {
+          normal: {
+            position: 'center',
+            show: false
+          },
+          emphasis: {
+            show: true,
+            position: 'center',
+            formatter: function(param) {
+              return param.percent.toFixed(0) + '%'
+            },
+            textStyle: {
+              fontSize: '13',
+              color: '#666',
+              fontWeight: 'normal'
+            }
+          }
+        },
+        itemStyle: {
+          normal: {
+            color: '#00a0ec',
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          },
+          emphasis: {
+            borderWidth: 0,
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        }
+      }]
+    }
 
     return (
       <div id='Ordinary'>
         <Row className="title">{spaceName} - {clusterName}集群</Row>
         <Row className="content" gutter={16}>
-          <Col span={8} className='clusterCost'>
+          <Col span={6} className='clusterCost'>
             <Card title="本日该集群消费" bordered={false} bodyStyle={{height:220,padding:'0 24px'}}>
               <ReactEcharts
                 notMerge={true}
@@ -753,7 +908,41 @@ class Ordinary extends Component{
               />
             </Card>
           </Col>
-          <Col span={10} className='sysState'>
+           <Col span={6} className='clusterStatus'>
+            <Card title="本集群资源与状况" bordered={false} bodyStyle={{height:220,padding:'0 24px'}}>
+              <div className='clusterStatusTitle'>
+                计算与存储
+              </div>
+              <ReactEcharts
+                notMerge={true}
+                option={statusOption}
+                style={{height:'80px'}}
+                showLoading={isFetching}
+              />
+              <div className='clusterStatusDetail'>
+                <table cellPadding={0} cellSpacing={0} style={{width:'100%',textAlign:'center',fontSize:'14px',marginBottom:'5px'}} >
+                  <tbody>
+                    <tr>
+                      <td>(80/100)</td>
+                      <td>(20/100)</td>
+                      <td>(20/100)</td>                      
+                    </tr>
+                    <tr>
+                      <td>cpu</td>
+                      <td>内存</td>
+                      <td>存储</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className='statusBottom'>
+                <span className='statusBottomItem'>容器</span>
+                <Icon type="question-circle-o" style={{margin:'0 7px'}}/>
+                <Progress percent={30} strokeWidth={11} style={{width:'82%',top:'-2px'}}/>
+              </div>
+            </Card>
+          </Col>
+          <Col span={6} className='sysState'>
             <Spin spinning={ isFetching }>
               <Card title="系统状态和版本" bordered={false} bodyStyle={{height:220}}>
                 <table>

@@ -1,0 +1,330 @@
+#mirrorsafety{
+  background: #ffffff;
+  border: 1px solid #e8e6e7;
+  border-radius: 1px;
+  overflow: hidden;
+  padding: 10px 30px;
+  .safetyselect{
+    height: 76px;
+    position: relative;
+    .safetyselectson{
+      width:300px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin:-13px 0 0 -150px;
+    }
+  }
+
+  .safetytabcontainer{
+    overflow: hidden;
+    .safetytab{
+      width: 480px;
+      margin: 0 auto;
+      overflow: hidden;
+      .safetytabpane{
+        float: left;
+        display: block;
+        height: 40px;
+        font-size: 16px;
+        line-height: 40px;
+        width: 120px;
+        border: 1px solid #c7c7c7;
+        border-left: none;
+        cursor: pointer;
+        .safetytabIcon{
+          margin:0 8px 0 14px;
+        }
+      }
+      // 左右两侧圆角
+      .safetytabpaneradius1{
+        border-left:1px solid #c7c7c7;
+        border-radius:3px 0 0 3px;
+      }
+      .safetytabpaneradius2{
+        border-radius:0 3px 3px 0;
+      }
+      .safetytabpaneselected{
+        background: #2db7f5;
+        color:#ffffff;
+        border: 1px solid #2db7f5;
+      }                       
+    }
+  }
+  .mirror{
+    display: none;
+  }
+  .safetybugdis{
+    display: none;
+  }
+  .softwarebugdis{
+    display: none;
+  }
+  .basicscandis{
+    display: none;
+  }
+  // 镜像分层
+  .safetycontent{
+    .safetycontentmian{
+      padding-left: 104px;
+      .safetycontentmianitem{
+        padding: 11px 0 21px 0;
+      }
+      .safetytabitem{
+        .ant-steps-title{
+          margin: 0;
+        }
+        .safetytabitemtitle{
+          float: left;
+          display: block;
+          text-align: right;
+          padding-right: 5px;
+          width:70px;
+          height:20px;
+          background: black;
+          color: white;
+          border-radius:3px;
+          border-right: 4px solid #2db7f5;
+        }
+        .safetytabitemdescription{
+          float: left;
+          margin-left: 12px;
+          line-height: 20px;
+          width: 800px;
+          color:black;
+          border-bottom:1px solid #e2e2e2;
+          word-break: break-all;
+        }
+      } 
+    }    
+  }
+  // 漏洞扫描
+  .safetybug{
+    // 镜像漏洞
+    .safetybugmirror{
+      overflow: hidden;
+      border-top: 1px solid #e9e8ed;
+      .safetybugmirrortitle{
+        height: 68px;
+        padding:18px 3px 0 3px;
+        .safetybugmirrortitleleft{
+          float:left;
+          height: 18px;
+          line-height: 18px;
+          font-size: 18px;
+          text-indent: 13px;
+          border-left: 5px solid #2bb5f4;
+        }
+        .safetybugmirrortitleright{
+          float: right;
+          width:357px;
+        }
+      }
+      //  table
+      .safetybugtable{
+        clear: both;
+        min-width: 900px;
+        .column-CEV{
+          font-size:14px;
+        }
+        .column-indent{
+          text-indent: 9px;
+          font-size:12px;
+        }
+        .column-fontSize{
+          font-size:12px;
+        }
+        .safetybugtablepoint{
+          color: #ffffff;
+          background: black;
+          padding:5px 13px 5px 17px;
+          border-radius: 4px;
+          border-right:4px solid #4fb94b;
+          margin-right: 8px;
+        }
+        .safetybugtableitem{
+          width:100px;
+          display: inline-block;
+          vertical-align: bottom;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        //.safetybugtablebg{
+        //  background: url("../../../../assets/img/appCenter/safettbugbg.JPG") no-repeat left top;
+        //}
+        .tablesub{
+          background: white;
+          .tablesubtitle{
+            height:22px;
+            line-height:22px;
+            font-size: 14px;
+            margin-bottom: 13px;
+          }
+          .tablesubbody{
+            max-width: 710px;
+            min-width: 710px;
+            .column-visite{
+              font-size: 12px;
+            }
+          }
+          .tablesubtitlefooter{
+            height: 24px;
+            line-height: 24px;
+            font-size: 14px;
+            margin:6px 0 3px 0;
+          }
+          .tablesubtitlefooter{
+            line-height:18px;
+            -ms-word-break: break-all;
+            word-break: break-all;
+          }
+        }
+      }
+    }
+  }
+
+  // 软件包
+  .softwarePackage {
+    width: 100%;
+    overflow: hidden;
+    .softwarePackageEcharts {
+      height: 250px;
+      min-width: 892px;
+      max-width: 892px;
+      margin: 0 auto;
+      position: relative;
+      // 组件样式
+      .softwarePackageLegend{
+        position: absolute;
+        width: 342px;
+        height:249px;
+        top:0;
+        left:330px;
+        padding: 20px 0 40px 40px;
+        .softwarePackageLegendheader{
+          height:43px;
+          line-height: 18px;
+          padding-top: 0;
+          font-size: 18px;
+        }
+        .softwarePackageLegendmain1{
+          width:25px;
+          height: 24px;
+        }
+        .softwarePackageLegendmain2{
+          width: 70px;
+          text-align:right;
+          padding-right: 18px;
+        }
+      }
+    }
+    // 表格
+    .softwarePackageTable {
+      border-top: 1px solid #e5eaf0;
+      .softwarePackageTableTitle {
+        height: 70px;
+        padding-top: 20px;
+        .softwarePackageTableTitleleft {
+          float: left;
+          height: 16px;
+          margin-top: 7px;
+          text-indent: 8px;
+          border-left: 5px solid #2db7f6;
+        }
+        .softwarePackageTableTitleright {
+          float: right;
+        }
+      }
+      .softwarePackageTableContent {
+        clear: both;
+        min-width: 892px;
+        .softwarenamestyle {
+          min-width: 120px;
+          padding-left: 14px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .softwareversionsstyle {
+          min-width: 150px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .softwarebugstyle {
+          min-width: 120px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .softwareremainstyle {
+          min-width: 142px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .softwareimpactstyle {
+          min-width: 105px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .softwarepicturel{
+          display: inline-block;
+          width:60px;
+          text-align: center;
+          height:20px;
+          line-height: 20px;
+          background: black;
+          color: white;
+          border-right:4px solid #5ab95b;
+          border-radius: 3px;
+          margin:0 8px 0 3px;
+          font-size: 10px;
+          margin-left: 1px;
+        }
+        .softwarepicturestylem {
+          vertical-align: middle;
+          width:120px;
+          display: inline-block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+
+  // 基础扫描
+  .basicscan{
+    overflow: hidden;
+    .basicscantitle{
+      margin-top:40px;
+      line-height: 24px;
+    }
+    .basicscanmain{
+      overflow: hidden;
+      .basicscanmaintitle{
+        heihgt:57px;
+        line-height: 57px;
+        .basicscanmaintitleitem{
+          font-size: 16px;
+          border-left: 5px solid #2db7f6;
+          padding-left: 8px;
+        }
+      }
+      .basicscanmaintable{
+        .basicscanColumns{
+          font-size: 16px;
+        }
+        //.basicscanColumns{
+        //  color:red;
+        //}
+        //.ant-table-row-collapsed{
+        //  color: red;
+        //}
+      }
+    }
+  }
+}
