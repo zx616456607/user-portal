@@ -30,17 +30,7 @@ global.globalConfig = {
     protocol: config.tenx_api.protocol,
     host: config.tenx_api.host
   },
-  storageConfig: 　{
-    name: config.storageConfig.name,
-    config: {
-      monitors: [],
-      pool: config.storageConfig.pool,
-      user: config.storageConfig.user,
-      keyring: config.storageConfig.keyring,
-      fsType: config.storageConfig.fsType
-    },
-    agent: config.storageConfig.agent
-  }
+  storageConfig: []
 }
 
 const apiFactory = require('./api_factory.js')
@@ -90,7 +80,8 @@ exports.initGlobalConfig = function* () {
       globalConfig.tenx_api.external_protocol = configDetail.external_protocol
     }
     if (configType === 'rbd') {
-      globalConfig.storageConfig = configDetail
+      config.configDetail = JSON.parse(config.ConfigDetail)
+      globalConfig.storageConfig.push(config)
     }
   })
 }

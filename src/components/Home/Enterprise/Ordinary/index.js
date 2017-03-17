@@ -1678,7 +1678,7 @@ function mapStateToProp(state, props) {
     if (clusterInfo.result.clusterSummary) {
       clusterSummary = clusterInfo.result.clusterSummary
     }
-    if (clusterInfo.result.volumeSummary) {
+    if (clusterInfo.result.volumeSummary && clusterInfo.result.volumeSummary.total) {
       volumeSummary = clusterInfo.result.volumeSummary
     }
     if(clusterInfo.result.clusterStaticSummary){
