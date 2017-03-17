@@ -750,7 +750,7 @@ let StorageService = React.createClass({
       rules: [
         { validator: this.checkNode }
       ],
-      initialValue: storageDetail.config.monitors[0]
+      initialValue: storageDetail.config.monitors.join(',')
     })
     const urlProps = getFieldProps('url', {
       rules: [
