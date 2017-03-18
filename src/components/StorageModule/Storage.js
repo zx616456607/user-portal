@@ -276,6 +276,13 @@ let MyComponent = React.createClass({
   },
 
   render() {
+    if(this.props.isFetching) {
+      return (
+        <div className="loadingBox">
+          <Spin size="large"></Spin>
+        </div>
+      )
+    }
     const { formatMessage } = this.props.intl
     let list = this.props.storage;
     let items = list.storageList.map((item) => {
@@ -323,12 +330,16 @@ let MyComponent = React.createClass({
                 <FormattedMessage {...messages.dilation} />
               </Dropdown.Button>
             :
-              <Dropdown.Button
-                overlay={menu}
-                type='ghost'
-                className="ant-disabled">
-                  <FormattedMessage {...messages.dilation} />
-              </Dropdown.Button>
+	            <Tooltip
+		            title="停止绑定的服务后可扩容"
+	            >
+		            <Dropdown.Button
+			            overlay={menu}
+			            type='ghost'
+			            className="ant-disabled">
+			            <FormattedMessage {...messages.dilation} />
+		            </Dropdown.Button>
+	            </Tooltip>
             }
           </div>
         </div>
@@ -683,13 +694,6 @@ class Storage extends Component {
     const hourPrice = parseAmount(this.state.size / 1024 * this.props.currentCluster.resourcePrice.storage, 4)
     const countPrice = parseAmount(this.state.size / 1024 * this.props.currentCluster.resourcePrice.storage * 24 *30, 4)
     const dataStorage = this.props.storageList[this.props.currentImagePool].storageList
-    if (this.props.storageList[this.props.currentImagePool].isFetching) {
-      return (
-        <div className="loadingBox">
-          <Spin size="large"></Spin>
-        </div>
-      )
-    }
     return (
       <QueueAnim className="StorageList" type="right">
         <div id="StorageList" key="StorageList">
@@ -795,6 +799,7 @@ class Storage extends Component {
               imagePool={this.props.currentImagePool}
               loadStorageList={() => { this.props.loadStorageList(this.props.currentImagePool, this.props.cluster) } }
               scope ={ this }
+              isFetching={this.props.storageList[this.props.currentImagePool].isFetching}
               />
           </Card>
           :
