@@ -88,16 +88,16 @@ exports.initGlobalConfig = function* () {
       }
       globalConfig.cicdConfig.protocol = protocol //configDetail.protocol
       globalConfig.cicdConfig.host = host //configDetail.host
-      globalConfig.cicdConfig.external_protocol = configDetail.external_protocol
-      globalConfig.cicdConfig.external_host = configDetail.external_host,
+      globalConfig.cicdConfig.external_protocol = devops.external_protocol
+      globalConfig.cicdConfig.external_host = devops.external_host,
       globalConfig.cicdConfig.statusPath = devops.statusPath //configDetail.statusPath,
       globalConfig.cicdConfig.logPath = devops.logPath //configDetail.logPath
     }
     if (configType == 'apiServer') {
       globalConfig.tenx_api.protocol = config.tenx_api.protocol //config.configDetail.protocol
       globalConfig.tenx_api.host = config.tenx_api.host //config.configDetail.host
-      globalConfig.tenx_api.external_host = configDetail.external_host
-      globalConfig.tenx_api.external_protocol = configDetail.external_protocol
+      globalConfig.tenx_api.external_host = config.tenx_api.external_host
+      globalConfig.tenx_api.external_protocol = config.tenx_api.external_protocol
     }
     if (configType === 'rbd') {
       item.ConfigDetail = configDetail
