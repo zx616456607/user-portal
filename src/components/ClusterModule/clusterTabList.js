@@ -81,7 +81,7 @@ function cpuUsed(cpuTotal, cpuList, name) {
       if(cpuList[key].name == name && cpuList[key].metrics) {
         length = cpuList[key].metrics.length
         cpuList[key].metrics.map((item) => {
-          total = total + item.value;
+          total = total + (item.floatValue || item.value);
         });
       }
     }
@@ -108,7 +108,7 @@ function memoryUsed(memoryTotal, memoryList, name) {
       if(memoryList[key].name == name && memoryList[key].metrics) {
         length = memoryList[key].metrics.length
         memoryList[key].metrics.map((item) => {
-          total = total + (item.value / 1024);
+          total = total + (item.floatValue || item.value / 1024);
         });
       }
     }
@@ -601,7 +601,7 @@ class ClusterTabList extends Component {
                   </li>
                   <li>
                     <span className="itemKey success">实际使用</span>
-                    <span>{useRate ? `${Math.ceil(useRate.cpu * 10000) / 100}%` : NOT_AVAILABLE}</span>
+                    <span>{useRate ? `${Math.ceil(useRate.cpu * 10000) / 100} %` : NOT_AVAILABLE}</span>
                   </li>
                 </ul>
               </Card>
@@ -623,7 +623,7 @@ class ClusterTabList extends Component {
                   </li>
                   <li>
                     <span className="itemKey success">实际使用</span>
-                    <span>{useRate ? `${Math.ceil(useRate.mem * 100) / 100}G` : NOT_AVAILABLE}</span>
+                    <span>{useRate ? `${Math.ceil(useRate.mem * 100) / 100} G` : NOT_AVAILABLE}</span>
                   </li>
                 </ul>
               </Card>
@@ -761,8 +761,9 @@ function mapStateToProps(state, props) {
   const clusterID = props.cluster.clusterID
   const { getAllClusterNodes, kubectlsPods, addNodeCMD } = state.cluster_nodes
   const { clusterSummary } = state.cluster
-  const { isFetching } = getAllClusterNodes || pods
-  const data = getAllClusterNodes.nodes || pods
+  const targetAllClusterNodes = getAllClusterNodes[clusterID]
+  const { isFetching } = targetAllClusterNodes || pods
+  const data = (targetAllClusterNodes && targetAllClusterNodes.nodes) || pods
   const { cpuList, memoryList, license } = data
   const nodes = data.clusters ? data.clusters.nodes : []
   return {

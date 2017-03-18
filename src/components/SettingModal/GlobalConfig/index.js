@@ -17,9 +17,12 @@ import CephImg from '../../../assets/img/setting/globalconfigceph.png'
 import { connect } from 'react-redux'
 import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig } from '../../../actions/global_config'
 import NotificationHandler from '../../../common/notification_handler'
-
+import { getPortalRealMode } from '../../../common/tools'
+import { LITE } from '../../../constants'
 
 const FormItem = Form.Item
+const mode = getPortalRealMode
+const liteFlag = mode === LITE
 
 //邮件报警
 let Emaill = React.createClass({
@@ -191,13 +194,13 @@ let Emaill = React.createClass({
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
-                <FormItem hasFeedback>
+                <FormItem >
                   <Input {...serviceProps} placeholder="如：smtp.exmail.qq.com:25" disabled={emailDisable} />
                 </FormItem>
-                <FormItem hasFeedback>
+                <FormItem >
                   <Input className="temInput1" {...emailProps} type="email" placeholder="邮箱地址" disabled={emailDisable} />
                 </FormItem>
-                <FormItem hasFeedback>
+                <FormItem >
                   <i className={this.state.isEve ? 'fa fa-eye activeEve' : 'fa fa-eye-slash activeEve'}
                     onClick={() => this.handEve()}></i>
                   <Input {...passwordProps} type={this.state.isEve ? "text" : "password"} placeholder="请输入密码"
@@ -387,13 +390,13 @@ let ConInter = React.createClass({
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
-                <FormItem hasFeedback>
+                <FormItem >
                   <Input {...apiServerProps} placeholder="如：http://192.168.1.103:38090" disabled={cicdeditDisable} />
                 </FormItem>
-                <FormItem hasFeedback>
+                <FormItem >
                   <Input {...cicdProps} placeholder="如：http://192.168.1.103:38090" disabled={cicdeditDisable} />
                 </FormItem>
-                <FormItem>
+                {/*<FormItem>
                   {
                     cicdeditDisable
                       ? <Button type='primary' className="itemInputLeft" onClick={this.handleCicd}>编辑</Button>
@@ -403,8 +406,10 @@ let ConInter = React.createClass({
                       ])
                   }
                 </FormItem>
+                
                 <input type="hidden" {...cicdID} />
                 <input type="hidden" {...apiServerID} />
+                */}
               </Form>
             </div>
           </div>
@@ -572,7 +577,10 @@ let MirrorService = React.createClass({
       <div className="mirrorservice">
         <div className="title">
           镜像服务
-          <span className="tips">Tips：时速云官方不支持企业版Lite配置私有的镜像仓库，如有需要请联系时速云购买企业版Pro</span>
+          {
+            liteFlag &&
+            <span className="tips">Tips：时速云官方不支持企业版 Lite 配置私有的镜像仓库，如有需要请联系时速云购买企业版 Pro</span>
+          }
         </div>
         <div className="content">
           <div className="contentMain">
@@ -586,13 +594,13 @@ let MirrorService = React.createClass({
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
-                <FormItem hasFeedback>
+                <FormItem >
                   <Input {...mirrorProps} placeholder="如：http://192.168.1.113:80" disabled={mirrorDisable} />
                 </FormItem>
-                <FormItem hasFeedback>
+                <FormItem >
                   <Input {...approveProps} placeholder="如：https://192.168.1.113:5001" disabled={mirrorDisable} />
                 </FormItem>
-                <FormItem hasFeedback>
+                <FormItem >
                   <Input {...extendProps} placeholder="如：https://192.168.1.113:4081" disabled={mirrorDisable} />
                 </FormItem>
                 <FormItem>
@@ -765,7 +773,10 @@ let StorageService = React.createClass({
       <div className="storageservice">
         <div className="title">
           存储服务
-					<span className="tips">Tips：时速云官方不支持企业版Lite配置存储服务，如有需要请联系时速云购买企业版Pro</span>
+          {
+            liteFlag &&
+            <span className="tips">Tips：时速云官方不支持企业版 Lite 配置存储服务，如有需要请联系时速云购买企业版 Pro</span>
+          }
         </div>
         <div className="content">
           <div className="contentHeader">
@@ -781,10 +792,10 @@ let StorageService = React.createClass({
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
-                <FormItem hasfeedback>
+                <FormItem >
                   <Input {...nodeProps} placeholder="如：192.168.1.113:4081，如有多个存储节点，请使用英文逗号隔开" disabled={cephDisable} />
                 </FormItem>
-                <FormItem hasfeedback>
+                <FormItem >
                   <Input {...urlProps} placeholder="如：https://192.168.88.6789" disabled={cephDisable} />
                 </FormItem>
                 <FormItem>

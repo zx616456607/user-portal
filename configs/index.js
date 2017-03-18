@@ -24,8 +24,8 @@ const config = {
   session_key: 'tce',
   session_secret: ['tenxcloud_dashboard', 'secret_dream008'],
   tenx_api: {
-    // external_protocol: env.TENX_API_EXTERNAL_PROTOCOL || 'https',
-    // external_host: env.TENX_API_EXTERNAL_HOST || 'apiv2.tenxcloud.com',
+    external_protocol: env.TENX_API_EXTERNAL_PROTOCOL || 'https',
+    external_host: env.TENX_API_EXTERNAL_HOST || 'apiv2.tenxcloud.com',
     protocol: env.TENX_API_PROTOCOL || 'http',
     host: env.TENX_API_HOST || '192.168.1.103:48000'
   },

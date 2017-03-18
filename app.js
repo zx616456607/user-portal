@@ -38,10 +38,11 @@ co(function*(){
   try{
     yield initGlobalConfig.initGlobalConfig()
   } catch(err) {
-    console.error('Init global config failed, error:', JSON.stringify(err))
+    logger.error('Unexpected error:', JSON.stringify(err))
+    logger.error('Failed to connect to API server ' + config.tenx_api.host + ', existing ...')
+    process.exit()
   }
 })
-
 
 /*
  * Koa middlewares

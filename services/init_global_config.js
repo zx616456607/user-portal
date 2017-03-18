@@ -8,9 +8,13 @@
  * v0.1 - 2017-03-13
  * @author Yangyubiao
  */
+
+'use strict'
+
 const url = require('url')
 const config = require('../configs')
 const devops = require('../configs/devops')
+const logger = require('../utils/logger').getLogger('initGlobalConfig')
 
 global.globalConfig = {
   mail_server: {
@@ -25,19 +29,11 @@ global.globalConfig = {
   },
   tenx_api: {
     protocol: config.tenx_api.protocol,
-    host: config.tenx_api.host
+    host: config.tenx_api.host,
+    external_host: config.tenx_api.external_host,
+    external_protocol: config.tenx_api.external_protocol
   },
-  storageConfig: 　{
-    name: config.storageConfig.name,
-    config: {
-      monitors: [],
-      pool: config.storageConfig.pool,
-      user: config.storageConfig.user,
-      keyring: config.storageConfig.keyring,
-      fsType: config.storageConfig.fsType
-    },
-    agent: config.storageConfig.agent
-  }
+  storageConfig: []
 }
 
 const apiFactory = require('./api_factory.js')
@@ -46,13 +42,16 @@ exports.initGlobalConfig = function* () {
   const spi = apiFactory.getTenxSysSignSpi()
   const result = yield spi.configs.get()
   const configs = result.data
-
+  if (!configs) {
+    logger.error('未找到可用配置信息')
+    return
+  }
   let globalConfig = global.globalConfig
-  configs.forEach(config => {
-    const configType = config.ConfigType
-    let configDetail = JSON.parse(config.ConfigDetail)
+  globalConfig.storageConfig = []
+  configs.forEach(item => {
+    const configType = item.ConfigType
+    let configDetail = JSON.parse(item.ConfigDetail)
     if (configType == 'mail') {
-      //mail	{"senderMail":"email_tester@tenxcloud.com","senderPassword":"Passw0rd","mailServer":"smtp.exmail.qq.com:25"}
       let arr = configDetail.mailServer.split(':')
       let port = arr[1]
       let host = arr[0]
@@ -74,21 +73,31 @@ exports.initGlobalConfig = function* () {
       globalConfig.registryConfig.password = configDetail.password
     }
     if (configType == 'cicd') {
-      globalConfig.cicdConfig.protocol = configDetail.protocol
-      globalConfig.cicdConfig.host = configDetail.host
-      globalConfig.cicdConfig.external_protocol = configDetail.external_protocol
-      globalConfig.cicdConfig.external_host = configDetail.external_host,
-      globalConfig.cicdConfig.statusPath = configDetail.statusPath,
-      globalConfig.cicdConfig.logPath = configDetail.logPath
-    }
-    if (configType == 'apiServer') {
-      globalConfig.tenx_api.protocol = configDetail.protocol
-      globalConfig.tenx_api.host = configDetail.host
-      globalConfig.tenx_api.external_host = configDetail.external_host
-      globalConfig.tenx_api.external_protocol = configDetail.external_protocol
+      let host
+      let protocol
+      if (devops.host) {
+        host = devops.host
+        protocol = devops.protocol
+      }
+      else if (configDetail.url) {
+        host = configDetail.url
+        const arr = host.split('://')
+        protocol = arr[0]
+        host = arr[1]
+      } else if (configDetail.host) {
+        host = configDetail.host
+        protocol = configDetail.protocol
+      }
+      globalConfig.cicdConfig.protocol = protocol //configDetail.protocol
+      globalConfig.cicdConfig.host = host //configDetail.host
+      globalConfig.cicdConfig.external_protocol = devops.external_protocol
+      globalConfig.cicdConfig.external_host = devops.external_host,
+      globalConfig.cicdConfig.statusPath = devops.statusPath //configDetail.statusPath,
+      globalConfig.cicdConfig.logPath = devops.logPath //configDetail.logPath
     }
     if (configType === 'rbd') {
-      globalConfig.storageConfig = configDetail
+      item.ConfigDetail = configDetail
+      globalConfig.storageConfig.push(item)
     }
   })
 }
