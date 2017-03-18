@@ -328,6 +328,7 @@ const MyComponent = React.createClass({
       )
     }
     const items = serviceList.map((item) => {
+      item.cluster = cluster
       let isHaveVolume = false
       if(item.spec.template.spec.volumes) {
         isHaveVolume = item.spec.template.spec.volumes.some(volume => {
