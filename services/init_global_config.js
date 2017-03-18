@@ -40,7 +40,11 @@ exports.initGlobalConfig = function* () {
   const spi = apiFactory.getTenxSysSignSpi()
   const result = yield spi.configs.get()
   const configs = result.data
-  if(!configs) {
+  globalConfig.tenx_api.protocol = config.tenx_api.protocol //config.configDetail.protocol
+  globalConfig.tenx_api.host = config.tenx_api.host //config.configDetail.host
+  globalConfig.tenx_api.external_host = config.tenx_api.external_host
+  globalConfig.tenx_api.external_protocol = config.tenx_api.external_protocol
+  if (!configs) {
     logger.error('未找到可用配置信息')
     return
   }
@@ -73,16 +77,16 @@ exports.initGlobalConfig = function* () {
     if (configType == 'cicd') {
       let host
       let protocol
-      if(devops.host) {
+      if (devops.host) {
         host = devops.host
         protocol = devops.protocol
       }
-      else if(configDetail.url) {
+      else if (configDetail.url) {
         host = configDetail.url
         const arr = host.split('://')
         protocol = arr[0]
         host = arr[1]
-      } else if(configDetail.host) {
+      } else if (configDetail.host) {
         host = configDetail.host
         protocol = configDetail.protocol
       }
@@ -90,14 +94,8 @@ exports.initGlobalConfig = function* () {
       globalConfig.cicdConfig.host = host //configDetail.host
       globalConfig.cicdConfig.external_protocol = devops.external_protocol
       globalConfig.cicdConfig.external_host = devops.external_host,
-      globalConfig.cicdConfig.statusPath = devops.statusPath //configDetail.statusPath,
+        globalConfig.cicdConfig.statusPath = devops.statusPath //configDetail.statusPath,
       globalConfig.cicdConfig.logPath = devops.logPath //configDetail.logPath
-    }
-    if (configType == 'apiServer') {
-      globalConfig.tenx_api.protocol = config.tenx_api.protocol //config.configDetail.protocol
-      globalConfig.tenx_api.host = config.tenx_api.host //config.configDetail.host
-      globalConfig.tenx_api.external_host = config.tenx_api.external_host
-      globalConfig.tenx_api.external_protocol = config.tenx_api.external_protocol
     }
     if (configType === 'rbd') {
       item.ConfigDetail = configDetail
