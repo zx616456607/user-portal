@@ -104,7 +104,7 @@ exports.addConfigsForFrontend = function (user) {
   delete cicdConfig.external_protocol
   delete cicdConfig.external_host
   user.cicdApi = cicdConfig
-  // Add if email configed
+  // Add if email configured
   const emailConfig = config.mail_server
   user.emailConfiged = !!emailConfig.auth.pass
   user.proxy_type = constants.PROXY_TYPE
