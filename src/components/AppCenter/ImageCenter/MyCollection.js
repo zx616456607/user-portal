@@ -324,9 +324,8 @@ class MyCollection extends Component {
     deleteAppCenterBindUser({
       success: {
         func: () => {
-          notification['success']({
-            message: '注销成功'
-          });
+          let notification = new NotificationHandler()
+          notification.success('注销成功');
           scope.setState({
             configured: false
           })

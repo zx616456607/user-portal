@@ -37,7 +37,7 @@ function validatePortNumber(proxyType, portNumber) {
     maximumPort = 32766
   }
   if( portNumber < minimumPort || portNumber > maximumPort ) {
-    return '指定端口号范围' +  minimumPort + ' ~ ' + maximumPort
+    return '端口范围' +  minimumPort + ' ~ ' + maximumPort
   } else {
     return
   }
@@ -139,7 +139,7 @@ let MyComponent = React.createClass({
   },
   checkPort(rule, value, callback, index){
     if(!value) return callback()
-    const { form } = this.props
+    const { form, loginUser } = this.props
     const { getFieldValue } = form
     if(index != undefined) {
       if(getFieldValue(`ssl{index}`) == 'HTTP') {
@@ -151,8 +151,9 @@ let MyComponent = React.createClass({
       return
     }
     const port = parseInt(value.trim())
-    if(port < 10000 || port > 65535) {
-      callback(new Error('请填入10000~65535'))
+    let msg = validatePortNumber(loginUser.info.proxyType, port)
+    if (msg) {
+      callback(new Error(msg))
       return
     }
     if(allPort.indexOf(port) >= 0) {
@@ -190,10 +191,6 @@ let MyComponent = React.createClass({
       return
     }
     const port = parseInt(value.trim())
-    if (port < 10000 || port > 65535) {
-      callback(new Error('请填入10000~65535'))
-      return
-    }
     const { loginUser } = this.props
     let msg = validatePortNumber(loginUser.info.proxyType, port)
     if (msg) {
