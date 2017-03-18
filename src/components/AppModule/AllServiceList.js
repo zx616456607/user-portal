@@ -328,7 +328,13 @@ const MyComponent = React.createClass({
       )
     }
     const items = serviceList.map((item) => {
-      item.cluster = cluster
+      let isHaveVolume = false
+      if(item.spec.template.spec.volumes) {
+        isHaveVolume = item.spec.template.spec.volumes.some(volume => {
+          if(!volume) return false
+          return volume.rbd
+        })
+      }
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)}>
           <Menu.Item key="manualScale">
@@ -337,7 +343,7 @@ const MyComponent = React.createClass({
           <Menu.Item key="autoScale">
             自动伸缩
           </Menu.Item>
-          <Menu.Item key="rollingUpdate">
+          <Menu.Item key="rollingUpdate" disabled={isHaveVolume}>
             灰度升级
           </Menu.Item>
           <Menu.Item key="config">
@@ -891,14 +897,14 @@ class ServiceList extends Component {
     deleteServices(cluster, serviceNames, {
       success: {
         func: () => {
-          self.loadAllServices(self.props)
+          self.loadServices(self.props)
         },
         isAsync: true
       },
       failed: {
         func: (err) => {
           errorHandler(err, intl)
-          self.loadAllServices(self.props)
+          self.loadServices(self.props)
         },
         isAsync: true
       }
