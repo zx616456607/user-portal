@@ -45,9 +45,10 @@ exports.initGlobalConfig = function* () {
     return
   }
   let globalConfig = global.globalConfig
-  configs.forEach(config => {
-    const configType = config.ConfigType
-    let configDetail = JSON.parse(config.ConfigDetail)
+  globalConfig.storageConfig = []
+  configs.forEach(item => {
+    const configType = item.ConfigType
+    let configDetail = JSON.parse(item.ConfigDetail)
     if (configType == 'mail') {
       let arr = configDetail.mailServer.split(':')
       let port = arr[1]
@@ -70,22 +71,37 @@ exports.initGlobalConfig = function* () {
       globalConfig.registryConfig.password = configDetail.password
     }
     if (configType == 'cicd') {
-      globalConfig.cicdConfig.protocol = configDetail.protocol
-      globalConfig.cicdConfig.host = configDetail.host
-      globalConfig.cicdConfig.external_protocol = configDetail.external_protocol
-      globalConfig.cicdConfig.external_host = configDetail.external_host,
-      globalConfig.cicdConfig.statusPath = configDetail.statusPath,
-      globalConfig.cicdConfig.logPath = configDetail.logPath
+      let host
+      let protocol
+      if(devops.host) {
+        host = devops.host
+        protocol = devops.protocol
+      }
+      else if(configDetail.url) {
+        host = configDetail.url
+        const arr = host.split('://')
+        protocol = arr[0]
+        host = arr[1]
+      } else if(configDetail.host) {
+        host = configDetail.host
+        protocol = configDetail.protocol
+      }
+      globalConfig.cicdConfig.protocol = protocol //configDetail.protocol
+      globalConfig.cicdConfig.host = host //configDetail.host
+      globalConfig.cicdConfig.external_protocol = devops.external_protocol
+      globalConfig.cicdConfig.external_host = devops.external_host,
+      globalConfig.cicdConfig.statusPath = devops.statusPath //configDetail.statusPath,
+      globalConfig.cicdConfig.logPath = devops.logPath //configDetail.logPath
     }
     if (configType == 'apiServer') {
-      globalConfig.tenx_api.protocol = configDetail.protocol
-      globalConfig.tenx_api.host = configDetail.host
-      globalConfig.tenx_api.external_host = configDetail.external_host
-      globalConfig.tenx_api.external_protocol = configDetail.external_protocol
+      globalConfig.tenx_api.protocol = config.tenx_api.protocol //config.configDetail.protocol
+      globalConfig.tenx_api.host = config.tenx_api.host //config.configDetail.host
+      globalConfig.tenx_api.external_host = config.tenx_api.external_host
+      globalConfig.tenx_api.external_protocol = config.tenx_api.external_protocol
     }
     if (configType === 'rbd') {
-      config.configDetail = JSON.parse(config.ConfigDetail)
-      globalConfig.storageConfig.push(config)
+      item.ConfigDetail = configDetail
+      globalConfig.storageConfig.push(item)
     }
   })
 }
