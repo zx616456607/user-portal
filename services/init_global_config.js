@@ -29,7 +29,9 @@ global.globalConfig = {
   },
   tenx_api: {
     protocol: config.tenx_api.protocol,
-    host: config.tenx_api.host
+    host: config.tenx_api.host,
+    external_host: config.tenx_api.external_host,
+    external_protocol: config.tenx_api.external_protocol
   },
   storageConfig: []
 }
@@ -40,10 +42,6 @@ exports.initGlobalConfig = function* () {
   const spi = apiFactory.getTenxSysSignSpi()
   const result = yield spi.configs.get()
   const configs = result.data
-  globalConfig.tenx_api.protocol = config.tenx_api.protocol //config.configDetail.protocol
-  globalConfig.tenx_api.host = config.tenx_api.host //config.configDetail.host
-  globalConfig.tenx_api.external_host = config.tenx_api.external_host
-  globalConfig.tenx_api.external_protocol = config.tenx_api.external_protocol
   if (!configs) {
     logger.error('未找到可用配置信息')
     return
