@@ -92,7 +92,7 @@ exports.initGlobalConfig = function* () {
       globalConfig.cicdConfig.host = host //configDetail.host
       globalConfig.cicdConfig.external_protocol = devops.external_protocol
       globalConfig.cicdConfig.external_host = devops.external_host,
-        globalConfig.cicdConfig.statusPath = devops.statusPath //configDetail.statusPath,
+      globalConfig.cicdConfig.statusPath = devops.statusPath //configDetail.statusPath,
       globalConfig.cicdConfig.logPath = devops.logPath //configDetail.logPath
     }
     if (configType === 'rbd') {
