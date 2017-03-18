@@ -322,12 +322,16 @@ let MyComponent = React.createClass({
                 <FormattedMessage {...messages.dilation} />
               </Dropdown.Button>
             :
-              <Dropdown.Button
-                overlay={menu}
-                type='ghost'
-                className="ant-disabled">
-                  <FormattedMessage {...messages.dilation} />
-              </Dropdown.Button>
+	            <Tooltip
+		            title="停止绑定的服务后可扩容"
+	            >
+		            <Dropdown.Button
+			            overlay={menu}
+			            type='ghost'
+			            className="ant-disabled">
+			            <FormattedMessage {...messages.dilation} />
+		            </Dropdown.Button>
+	            </Tooltip>
             }
           </div>
         </div>
