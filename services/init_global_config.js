@@ -104,5 +104,4 @@ exports.initGlobalConfig = function* () {
       globalConfig.storageConfig.push(item)
     }
   })
-  console.log(globalConfig)
 }
