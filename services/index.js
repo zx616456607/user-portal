@@ -17,8 +17,8 @@ const apiFactory = require('./api_factory')
 const logger = require('../utils/logger').getLogger('services/index')
 const constants = require('../constants')
 const config = require('../configs')
-config.tenx_api = globalConfig.tenx_api
-config.mail_server = globalConfig.mail_server
+config.tenx_api = global.globalConfig.tenx_api
+config.mail_server = global.globalConfig.mail_server
 const devOps = global.globalConfig.cicdConfig
 const constantsConfig = require('../configs/constants')
 const useragent = require('useragent')
@@ -104,7 +104,7 @@ exports.addConfigsForFrontend = function (user) {
   delete cicdConfig.external_protocol
   delete cicdConfig.external_host
   user.cicdApi = cicdConfig
-  // Add if email configed
+  // Add if email configured
   const emailConfig = config.mail_server
   user.emailConfiged = !!emailConfig.auth.pass
   user.proxy_type = constants.PROXY_TYPE
