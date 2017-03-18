@@ -14,7 +14,7 @@
 // get namespace and token from session
 exports.getTokenInfo = function* () {
   this.body = {
-    namespace: this.session.loginUser.namespace,
+    username: this.session.loginUser.user,
     token: this.session.loginUser.token,
   }
 }
