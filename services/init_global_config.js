@@ -45,9 +45,10 @@ exports.initGlobalConfig = function* () {
     return
   }
   let globalConfig = global.globalConfig
-  configs.forEach(config => {
-    const configType = config.ConfigType
-    let configDetail = JSON.parse(config.ConfigDetail)
+  globalConfig.storageConfig = []
+  configs.forEach(item => {
+    const configType = item.ConfigType
+    let configDetail = JSON.parse(item.ConfigDetail)
     if (configType == 'mail') {
       let arr = configDetail.mailServer.split(':')
       let port = arr[1]
@@ -83,7 +84,7 @@ exports.initGlobalConfig = function* () {
         host = arr[1]
       } else if(configDetail.host) {
         host = configDetail.host
-        protocol = config.protocol
+        protocol = configDetail.protocol
       }
       globalConfig.cicdConfig.protocol = protocol //configDetail.protocol
       globalConfig.cicdConfig.host = host //configDetail.host
@@ -99,8 +100,9 @@ exports.initGlobalConfig = function* () {
       globalConfig.tenx_api.external_protocol = configDetail.external_protocol
     }
     if (configType === 'rbd') {
-      config.configDetail = JSON.parse(config.ConfigDetail)
-      globalConfig.storageConfig.push(config)
+      item.ConfigDetail = configDetail
+      globalConfig.storageConfig.push(item)
     }
   })
+  console.log(globalConfig)
 }
