@@ -188,7 +188,7 @@ let MyComponent = React.createClass({
     } else if (type === 'resize') {
       if (this.state.size <= this.state.modalSize) {
         notification.close()
-        notification.error('不能比以前小')
+        notification.info('存储卷大小没有变化')
         isActing = false
         return
       }
