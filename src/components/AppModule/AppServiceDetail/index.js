@@ -24,6 +24,7 @@ import AppServiceRental from './AppServiceRental'
 import AppSettingsHttps from './AppSettingsHttps'
 import ServiceMonitor from './ServiceMonitor'
 import AppAutoScale from './AppAutoScale'
+import AlarmStrategy from './AlarmStrategy'
 import { loadServiceDetail, loadServiceContainerList, loadK8sService } from '../../../actions/services'
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
@@ -255,7 +256,7 @@ class AppServiceDetail extends Component {
     const { activeTabKey, currentContainer } = this.state
     const httpsTabKey = '#https'
     const isKubeNode = (SERVICE_KUBE_NODE_PORT == loginUser.info.proxyType)
-   
+
     let nocache = currentContainer.map((item) => {
       return item.metadata.name;
     })
@@ -425,6 +426,9 @@ class AppServiceDetail extends Component {
                     serviceName={service.metadata.name}
                     cluster={service.cluster} />
                 </div>
+              </TabPane>
+              <TabPane tab='告警策略' key='#strategy'>
+                <AlarmStrategy />
               </TabPane>
               <TabPane tab='自动伸缩' key='#autoScale'>
                 <AppAutoScale
