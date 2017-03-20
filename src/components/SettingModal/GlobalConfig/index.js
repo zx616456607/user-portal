@@ -211,8 +211,8 @@ let Emaill = React.createClass({
                     emailDisable
                       ? <Button type='primary' className="itemInputLeft" onClick={this.handleEmail}>编辑</Button>
                       : ([
-                        <Button type='primary' className="itemInputLeft" onClick={this.saveEmail}>保存</Button>,
-                        <Button onClick={this.handleReset} disabled={emailDisable}>取消</Button>
+                        <Button onClick={this.handleReset} className="itemInputLeft" disabled={emailDisable}>取消</Button>,
+                        <Button type='primary' onClick={this.saveEmail}>保存</Button>
                       ])
                   }
                 </FormItem>
@@ -378,14 +378,14 @@ let ConInter = React.createClass({
 
     return (
       <div className="conInter">
-        <div className="title">API服务地址</div>
+        <div className="title">API 服务地址</div>
         <div className="content">
           <div className="contentMain">
             <div className="contentImg">
               <img src={conInter} alt="持续集成" />
             </div>
             <div className="contentkeys">
-              <div className="key">API服务地址</div>
+              <div className="key">API 服务地址</div>
               <div className="key">持续集成地址</div>
             </div>
             <div className="contentForm">
@@ -401,12 +401,12 @@ let ConInter = React.createClass({
                     cicdeditDisable
                       ? <Button type='primary' className="itemInputLeft" onClick={this.handleCicd}>编辑</Button>
                       : ([
-                        <Button type='primary' className="itemInputLeft" onClick={this.saveCICD}>保存</Button>,
-                        <Button onClick={this.handleReset}>取消</Button>
+                        <Button onClick={this.handleReset} className="itemInputLeft">取消</Button>,
+                        <Button type='primary'  onClick={this.saveCICD}>保存</Button>
                       ])
                   }
                 </FormItem>
-                
+
                 <input type="hidden" {...cicdID} />
                 <input type="hidden" {...apiServerID} />
                 */}
@@ -608,8 +608,8 @@ let MirrorService = React.createClass({
                     mirrorDisable
                       ? <Button type='primary' className="itemInputLeft" onClick={this.handleMirror}>编辑</Button>
                       : ([
-                        <Button type='primary' className="itemInputLeft" onClick={this.saveMirror}>保存</Button>,
-                        <Button onClick={this.handleReset}>取消</Button>
+                        <Button onClick={this.handleReset}  className="itemInputLeft">取消</Button>,
+                        <Button type='primary' onClick={this.saveMirror}>保存</Button>
                       ])
                   }
                 </FormItem>
@@ -780,7 +780,7 @@ let StorageService = React.createClass({
         </div>
         <div className="content">
           <div className="contentHeader">
-            Ceph分布式存储
+            Ceph 分布式存储
 						</div>
           <div className="contentMain">
             <div className="contentImg">
@@ -803,8 +803,8 @@ let StorageService = React.createClass({
                     cephDisable
                       ? <Button type='primary' className="itemInputLeft" onClick={this.handleCeph}>编辑</Button>
                       : ([
-                        <Button type='primary' className="itemInputLeft" onClick={this.saveStorage}>保存</Button>,
-                        <Button className="itemInputLeft" onClick={this.handleReset}>取消</Button>
+                        <Button className="itemInputLeft" onClick={this.handleReset}>取消</Button>,
+                        <Button type='primary' onClick={this.saveStorage}>保存</Button>
                       ])
                   }
                 </FormItem>
