@@ -48,7 +48,7 @@ function cpuUsed(cpuTotal, cpuList) {
   }
 
   used = total / cpuTotal / length;
-  used = (used * 100).toFixed(2);
+  used = Math.min((used * 100).toFixed(2), 100)
   return {
     unit:`${used}%`,
     amount: used
@@ -70,7 +70,7 @@ function memoryUsed(memoryTotal, memoryList) {
 
   }
   used = total / memoryTotal;
-  used = (used * 100 / length).toFixed(2)
+  used = Math.min((used * 100 / length).toFixed(2),100)
   return {
     unit:`${used}%`,
     amount: used
@@ -425,7 +425,7 @@ class ClusterDetail extends Component {
 
 function mapStateToProps(state, props) {
   const clusterName = props.params.cluster_name
-  const clusterID = state.entities.current.cluster.clusterID
+  const { clusterID }  = props.params
   const { podeList, hostInfo, hostMetrics } = state.cluster || {}
   const defaultState = {
     isFetching: false,

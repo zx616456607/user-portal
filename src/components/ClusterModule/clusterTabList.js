@@ -163,6 +163,7 @@ const MyComponent = React.createClass({
   },
   render: function () {
     const { isFetching, podList, containerList, cpuList, memoryList, license } = this.props
+    const clusterID = this.props.scope.props.clusterID
     const root = this
     if (isFetching) {
       return (
@@ -194,7 +195,7 @@ const MyComponent = React.createClass({
             {/*<Checkbox ></Checkbox>*/}
           </div>
           <div className='name commonTitle'>
-            <Link to={`/cluster/${item.objectMeta.name}`}>{item.objectMeta.name}</Link>
+            <Link to={`/cluster/${clusterID}/${item.objectMeta.name}`}>{item.objectMeta.name}</Link>
           </div>
           <div className='address commonTitle'>
             <Tooltip title={item.address}>
@@ -265,7 +266,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='opera commonTitle'>
-            <Dropdown.Button type="ghost" overlay={dropdown}  onClick={()=> browserHistory.push(`/cluster/${item.objectMeta.name}`)}>
+            <Dropdown.Button type="ghost" overlay={dropdown}  onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`)}>
               主机详情
             </Dropdown.Button>
             {/*<Button
