@@ -243,19 +243,19 @@ let ClusterInfo = React.createClass ({
               <div className="h4 blod">&nbsp;</div>
             </Form.Item>
             <Form.Item>
-              <span className="h5" style={{verticalAlign:'top',lineHeight:'30px'}}>描述：&nbsp;&nbsp;</span>
-              { editCluster ?
-              <Input {...descProps} type="textarea" placeholder="添加描述" defaultValue={description} />
-              :
-              <span>{description || '-'}</span>
-              }
-            </Form.Item>
-            <Form.Item>
               <span className="h5" style={{verticalAlign:'top',lineHeight:'30px'}}>状态：&nbsp;&nbsp;</span>
               {
                 isOk
                 ? <span style={{ color: '#33b867' }}><i className="fa fa-circle"></i> 正常</span>
                 : <span style={{ color: '#f23e3f' }}><i className="fa fa-circle"></i> 异常</span>
+              }
+            </Form.Item>
+            <Form.Item>
+              <span className="h5" style={{verticalAlign:'top',lineHeight:'30px'}}>描述：&nbsp;&nbsp;</span>
+              { editCluster ?
+              <Input {...descProps} type="textarea" placeholder="添加描述" defaultValue={description} />
+              :
+              <Input value={description || '-'} type="textarea" disabled={true}  style={{width:'70%'}}/>
               }
             </Form.Item>
           </div>

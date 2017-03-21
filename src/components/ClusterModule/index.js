@@ -301,11 +301,22 @@ class ClusterList extends Component {
     const { formatMessage } = intl
     const otherImageHead = this.state.otherImageHead || []
     const scope = this
-    let ImageTabList = clusters.map(cluster => (
+
+    let ImageTabList = []
+    clusters.forEach(cluster => {
+      if (cluster.clusterID) {
+        ImageTabList.push(
+          <TabPane tab={cluster.clusterName} key={cluster.clusterID}>
+            <ClusterTabList cluster={cluster} />
+          </TabPane>
+        )
+      }
+    })
+     /*clusters.map(cluster => (
       <TabPane tab={cluster.clusterName} key={cluster.clusterID}>
         <ClusterTabList cluster={cluster} />
       </TabPane>
-    ))
+    ))*/
     const clusterSum = clusters.length
     let createClusterBtnDisabled = true
     const { maxClusters } = license
