@@ -760,17 +760,6 @@ class Ordinary extends Component {
       ]
     }
     let statusOption = {
-      // title:{
-      //   text: '计算与存储',
-      //   left:'center',
-      //   top: 12,
-      //   textAlign: 'center',
-      //   textStyle: {
-      //     fontWeight:'normal',
-      //     fontSize:13,
-      //     color: '#666'
-      //   }
-      // },
       tooltip: {
         trigger: 'item',
         formatter: '{b} : ({d}%)'
@@ -789,7 +778,7 @@ class Ordinary extends Component {
         avoidLabelOverlap: false,
         hoverAnimation: false,
         selectedOffset: 0,
-        radius: ['22', '33'],
+        radius: ['19', '28'],
         center: ['17%', '50%'],
         data: [
           { value: cpuUsed, name: '已使用', selected: true },
@@ -815,7 +804,14 @@ class Ordinary extends Component {
         },
         itemStyle: {
           normal: {
-            color: '#00a0ec',
+			      color: function(params) {
+				      var colorList = [
+					      '#44b3fa','#2abe84','#FCCE10','#E87C25','#27727B',
+					      '#FE8463','#9BCA63','#FAD860','#F3A43B','#60C0DD',
+					      '#D7504B','#C6E579','#F4E001','#F0805A','#26C0C0'
+				      ];
+				      return colorList[params.dataIndex]
+			      },
             borderWidth: 2,
             borderColor: '#ffffff'
           },
@@ -832,7 +828,7 @@ class Ordinary extends Component {
         avoidLabelOverlap: false,
         hoverAnimation: false,
         selectedOffset: 0,
-        radius: ['22', '33'],
+        radius: ['19', '28'],
         center: ['50%', '50%'],
         data: [
           { value: memoryUsed, name: '已使用', selected: true },
@@ -858,7 +854,14 @@ class Ordinary extends Component {
         },
         itemStyle: {
           normal: {
-            color: '#00a0ec',
+	          color: function(params) {
+		          var colorList = [
+			          '#44b3fa','#2abe84','#FCCE10','#E87C25','#27727B',
+			          '#FE8463','#9BCA63','#FAD860','#F3A43B','#60C0DD',
+			          '#D7504B','#C6E579','#F4E001','#F0805A','#26C0C0'
+		          ];
+		          return colorList[params.dataIndex]
+	          },
             borderWidth: 2,
             borderColor: '#ffffff'
           },
@@ -875,7 +878,7 @@ class Ordinary extends Component {
         avoidLabelOverlap: false,
         hoverAnimation: false,
         selectedOffset: 0,
-        radius: ['22', '33'],
+        radius: ['19', '28'],
         center: ['83%', '50%'],
         data: [
           { value: volumeUsed, name: '已使用', selected: true },
@@ -901,7 +904,14 @@ class Ordinary extends Component {
         },
         itemStyle: {
           normal: {
-            color: '#00a0ec',
+	          color: function(params) {
+		          var colorList = [
+			          '#44b3fa','#2abe84','#FCCE10','#E87C25','#27727B',
+			          '#FE8463','#9BCA63','#FAD860','#F3A43B','#60C0DD',
+			          '#D7504B','#C6E579','#F4E001','#F0805A','#26C0C0'
+		          ];
+		          return colorList[params.dataIndex]
+	          },
             borderWidth: 2,
             borderColor: '#ffffff'
           },
@@ -956,12 +966,16 @@ class Ordinary extends Component {
                   </tbody>
                 </table>
               </div>
-              <div className='statusBottom'>
-                <span className='statusBottomItem'>容器</span>
-                <Tooltip title={`本集群若以最小容器配置可创建${capacityCreateContainer}个容器，目前已创建${allocatedPodNumber}个容器，还可创建最小配置容器${canCreateContainer}个`}><Icon type="question-circle-o" style={{ margin: '0 7px' }} /></Tooltip>
-                <Progress percent={memoryUsed} strokeWidth={11} style={{ width: '82%', top: '-2px' }} showInfo={false}/>
-                <span>{`本集群若以最小容器配置可创建${capacityCreateContainer}个容器，目前已创建${allocatedPodNumber}个容器，还可创建最小配置容器${canCreateContainer}个`}</span>
-              </div>
+	            <div className='statusBottomcontent'>
+		            <div className='statusBottomleft'>
+			            <span className='statusBottomItem'>容器</span>
+			            <Tooltip title={`本集群若以最小容器配置可创建${capacityCreateContainer}个容器，目前已创建${allocatedPodNumber}个容器，还可创建最小配置容器${canCreateContainer}个`}><Icon type="question-circle-o" style={{ margin: '0 7px' }} /></Tooltip>
+		            </div>
+		            <div className='statusBottomright'>
+			            <Progress percent={memoryUsed} strokeWidth={11} className='statusBottomrightitem' showInfo={false}/>
+		            </div>
+		            <div className='statusBottomthird' title={`已创建${allocatedPodNumber}个容器，还可创建最小配置容器${canCreateContainer}个`}>{`已创建${allocatedPodNumber}个容器，还可创建最小配置容器${canCreateContainer}个`}</div>
+	            </div>              
             </Card>
           </Col>
           <Col span={6} className='sysState'>
