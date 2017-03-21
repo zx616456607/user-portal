@@ -8,8 +8,8 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Button, Card, Switch, Menu, Tooltip, Icon, Input } from 'antd'
-import { Link ,browserHistory} from 'react-router'
+import { Tabs, Button, Card, Switch, Menu, Tooltip, Icon, Input, Modal, Select } from 'antd'
+import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { imageStore, imageSwitch, loadPublicImageList, loadFavouriteList, loadPrivateImageList, updateImageinfo, getImageDetailInfo } from '../../../../actions/app_center'
@@ -18,10 +18,12 @@ import ImageVersion from './ImageVersion.js'
 import DetailInfo from './DetailInfo'
 import DockerFile from './Dockerfile'
 import Attribute from './Attribute'
+import MirrorSafety from './Mirrorsafety'
 import './style/ImageDetailBox.less'
 import NotificationHandler from '../../../../common/notification_handler'
 
 const TabPane = Tabs.TabPane;
+const Option = Select.Option;
 
 const menusText = defineMessages({
   type: {
@@ -79,11 +81,15 @@ class ImageDetailBox extends Component {
     super(props);
     this.copyDownloadCode = this.copyDownloadCode.bind(this);
     this.returnDefaultTooltip = this.returnDefaultTooltip.bind(this);
-    this.isSwitch = this.isSwitch.bind(this)
+    this.isSwitch = this.isSwitch.bind(this);
+    this.safetyscanShow = this.safetyscanShow.bind(this);
+    this.safetyscanhandleOk = this.safetyscanhandleOk.bind(this);
+    this.safetyscanhandleCancel = this.safetyscanhandleCancel.bind(this);
     this.state = {
       imageDetail: null,
       copySuccess: false,
-      editInfo: false
+      editInfo: false,
+      safetyscanVisible: false
     }
   }
 
@@ -203,10 +209,10 @@ class ImageDetailBox extends Component {
     const _this = this
     this.props.updateImageinfo(config, {
       success: {
-        func: ()=> {
+        func: () => {
           notification.success('更新成功！')
           getImageDetailInfo(config)
-          _this.setState({editInfo: false})
+          _this.setState({ editInfo: false })
         },
         isAsync: true
       }
@@ -216,12 +222,12 @@ class ImageDetailBox extends Component {
     if (this.state.editInfo) {
       return (
         <div>
-          <Input type="textarea" id="editInfo" className="imagedescription"/>
+          <Input type="textarea" id="editInfo" className="imagedescription" />
           <FormattedMessage {...menusText.type} />
-          <Switch checked={(imageInfo.isPrivate == 0) ? true : false} disabled={!imageInfo.isOwner} defaultChecked="true" checkedChildren={<FormattedMessage {...menusText.pubilicType} />} unCheckedChildren={<FormattedMessage {...menusText.privateType} /> } />
-          <span style={{float:'right'}}>
-            <Button  onClick={()=> this.setState({editInfo: false})}>取消</Button>
-            <Button  onClick={()=> this.handChangeInfo()} type="primary">保存</Button>
+          <Switch checked={(imageInfo.isPrivate == 0) ? true : false} disabled={!imageInfo.isOwner} defaultChecked="true" checkedChildren={<FormattedMessage {...menusText.pubilicType} />} unCheckedChildren={<FormattedMessage {...menusText.privateType} />} />
+          <span style={{ float: 'right' }}>
+            <Button onClick={() => this.setState({ editInfo: false })}>取消</Button>
+            <Button onClick={() => this.handChangeInfo()} type="primary">保存</Button>
           </span>
         </div>
       )
@@ -233,14 +239,33 @@ class ImageDetailBox extends Component {
           <FormattedMessage {...menusText.type} />
           <Switch onChange={this.isSwitch} checked={(imageInfo.isPrivate == 0) ? true : false} disabled={!imageInfo.isOwner} checkedChildren={<FormattedMessage {...menusText.pubilicType } />} unCheckedChildren={<FormattedMessage {...menusText.privateType} />} />
           {imageInfo.isOwner ?
-          <Button icon="edit" style={{float:'right'}} onClick={()=> this.setState({editInfo: true})}>编辑</Button>
-          :null
+            <Button icon="edit" style={{ float: 'right' }} onClick={() => this.setState({ editInfo: true })}>编辑</Button>
+            : null
           }
         </div>
       </div>
     )
 
   }
+
+  safetyscanShow() {
+    this.setState({
+      safetyscanVisible: true
+    })
+  }
+
+  safetyscanhandleOk() {
+    this.setState({
+      safetyscanVisible: false
+    })
+  }
+
+  safetyscanhandleCancel() {
+    this.setState({
+      safetyscanVisible: false
+    })
+  }
+
   render() {
     const { formatMessage } = this.props.intl;
     const imageInfo = this.props.imageInfo
@@ -261,10 +286,17 @@ class ImageDetailBox extends Component {
             </svg>
           </div>
           <div className="infoBox">
-            <p className="imageName">{imageDetail.name ? imageDetail.name : imageDetail.imageName}</p>
+            <p className="imageName">
+              {imageDetail.name ? imageDetail.name : imageDetail.imageName}
+              <i className="fa fa-star-o" aria-hidden="true" style={{ marginLeft: '10px' }}></i>
+
+              {/*点击收藏后的样式，可以直接用下边的样式*/}
+              {/*<i className="fa fa-star" aria-hidden="true"></i>*/}
+
+            </p>
             <div className="leftBox">
 
-              {this.imageDescription(imageInfo) }
+              {this.imageDescription(imageInfo)}
 
               {/*<span className="type">
                 <FormattedMessage {...menusText.type} />
@@ -277,20 +309,43 @@ class ImageDetailBox extends Component {
             </div>
             <div className="rightBox">
               <Icon type='cross' className='cursor' style={{ fontSize: '18px', position: 'absolute', top: '0px', right: '0px' }} onClick={this.props.scope.closeImageDetailModal} />
-              <Button size="large" type="primary" onClick={()=>browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${ipAddress}&imageName=${imageName}`)}>
+              <div className='rightBoxleft'>
+                <Button size="large" type="primary" onClick={() => browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${ipAddress}&imageName=${imageName}`)}>
                   <FormattedMessage {...menusText.deployImage} />
-              </Button>
-              {(imageInfo.isFavourite == 1) ?
-                <Button size="large" type="ghost" onClick={() => this.setimageStore(imageInfo.name, '0')}>
-                  <Icon type="star" />
-                  <FormattedMessage {...menusText.closeImage} />
                 </Button>
-                :
-                <Button size="large" type="ghost" onClick={() => this.setimageStore(imageInfo.name, '1')}>
-                  <Icon type="star-o" />
-                  <FormattedMessage {...menusText.colletctImage} />
-                </Button>
-              }
+              </div>
+              {/*{(imageInfo.isFavourite == 1) ?*/}
+              {/*<Button size="large" type="ghost" onClick={() => this.setimageStore(imageInfo.name, '0')}>*/}
+              {/*<Icon type="star" />*/}
+              {/*<FormattedMessage {...menusText.closeImage} />*/}
+              {/*</Button>*/}
+              {/*:*/}
+              {/*<Button size="large" type="ghost" onClick={() => this.setimageStore(imageInfo.name, '1')}>*/}
+              {/*<Icon type="star-o" />*/}
+              {/*<FormattedMessage {...menusText.colletctImage} />*/}
+              {/*</Button>*/}
+              {/*}*/}
+              {/* 安全扫描 */}
+              <div className='rightBoxright'>
+                <Button type="ghost" size="large" onClick={this.safetyscanShow}>安全扫描</Button>
+                <Modal title="安全扫描" visible={this.state.safetyscanVisible} onOk={this.safetyscanhandleOk} onCancel={this.safetyscanhandleCancel}
+                >
+                  <div>
+                    <span style={{ marginRight: '30px' }}>镜像版本</span>
+                    <Select
+                      showSearch
+                      style={{ width: '322px' }}
+                      notFoundContent="镜像未找到"
+                      placeholder='请选择镜像版本，查看安全报告'
+                    >
+                      <Option value="mirror1">镜像版本1</Option>
+                      <Option value="mirror2">镜像版本2</Option>
+                      <Option value="mirror3">镜像版本3</Option>
+                      <Option value="mirror4">镜像版本4</Option>
+                    </Select>
+                  </div>
+                </Modal>
+              </div>
 
             </div>
           </div>
@@ -324,6 +379,7 @@ class ImageDetailBox extends Component {
             <TabPane tab="Dockerfile" key="2"><DockerFile isFetching={this.props.isFetching} scope={this} registry={DEFAULT_REGISTRY} detailInfo={imageInfo} isOwner={imageInfo.isOwner} /></TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
             <TabPane tab={formatMessage(menusText.attribute)} key="4"><Attribute detailInfo={imageInfo} /></TabPane>
+            <TabPane tab="镜像安全" key="5"><MirrorSafety /></TabPane>
           </Tabs>
         </div>
       </div>

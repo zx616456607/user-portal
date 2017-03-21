@@ -3,12 +3,12 @@
   border: 1px solid #e8e6e7;
   border-radius: 1px;
   overflow: hidden;
-  padding: 10px 30px;
+  padding: 10px 30px 70px 30px;
   .safetyselect{
     height: 76px;
     position: relative;
     .safetyselectson{
-      width:300px;
+      min-width:300px;
       position: absolute;
       top: 50%;
       left: 50%;
@@ -65,14 +65,59 @@
   }
   // 镜像分层
   .safetycontent{
+    overflow: hidden;
+    width: 100%;
+    height:100%;
+    padding-top: 40px;
+    position: relative;
+    .safetycontentitem{
+      line-height: 20px;
+      vertical-align: top;
+    }
+    // steps
     .safetycontentmian{
+      width:100%;
+      overflow: hidden;
+      position: relative;
       padding-left: 104px;
+      .ant-steps-tail{
+        height:126%;
+        i:after{
+          height:150%;
+        }
+      }
       .safetycontentmianitem{
-        padding: 11px 0 21px 0;
+        padding-top: 20px;
+      }
+      .ant-steps-title{
+        margin: 0;
+        width:auto;
+      }
+      .ant-steps-main{
+        overflow: initial;
+        padding-bottom: 0;
+        margin-top: 0;
+        .ant-steps-description{
+          padding-bottom: 0;
+        }
       }
       .safetytabitem{
-        .ant-steps-title{
-          margin: 0;
+        position: relative;
+        margin-left: 42px;
+        border-bottom: 1px solid #e2e2e2;
+        padding:3px 2px 20px 0;
+        .safetytabitemleft{
+          width: 104px;
+          height:30px;
+          position: absolute;
+          top:0;
+          left: -148px;
+          font-size: 12px;
+          padding-right: 5px;
+          line-height: 27px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
         .safetytabitemtitle{
           float: left;
@@ -80,26 +125,73 @@
           text-align: right;
           padding-right: 5px;
           width:70px;
-          height:20px;
+          height:100%;
+          line-height: 20px;
           background: black;
           color: white;
           border-radius:3px;
           border-right: 4px solid #2db7f5;
         }
         .safetytabitemdescription{
-          float: left;
-          margin-left: 12px;
-          line-height: 20px;
-          width: 800px;
+          font-size: 15px;
+          margin:-3px 0 0 75px;
+          line-height: 26px;
           color:black;
-          border-bottom:1px solid #e2e2e2;
           word-break: break-all;
         }
-      } 
+      }
     }    
   }
+
   // 漏洞扫描
   .safetybug{
+    // Echarts
+    .safetybugEcharts{
+      width:100%;
+      height:220px;
+      position: relative;
+      .safetybugEchartslegend{
+        position: absolute;
+        top:13px;
+        left:41%;
+        color: #606060;
+        .safetybugEchartslegendtitle{
+          height:70px;
+          line-height: 70px;
+          font-size: 18px;
+        }
+        .safetybugEchartslegendcontent{
+          height:24px;
+          line-height: 24px;
+          font-size: 14px;
+          .safetybugEchartslegendcontentleft{
+            width:165px;
+          }
+          .safetybugEchartslegendcontentright{
+            width:55px;
+            text-align: right;
+          }
+          .rightmargin{
+            margin-left: 3px;
+          }
+          .iconmargin{
+            margin:0 8px 0 4px;
+          }
+          .highcolor{
+            color:#fa4f55;
+          }
+          .middlecolor{
+            color: #f7a45e;
+          }
+          .lowcolor{
+            color: #fbc82f;
+          }
+          .ignorecolor{
+            color:#c7eafe;
+          }
+        }
+      }
+    }
     // 镜像漏洞
     .safetybugmirror{
       overflow: hidden;
@@ -123,38 +215,37 @@
       //  table
       .safetybugtable{
         clear: both;
-        min-width: 900px;
-        .column-CEV{
-          font-size:14px;
+        .ant-table-expanded-row{
+          background: white;
         }
-        .column-indent{
-          text-indent: 9px;
-          font-size:12px;
-        }
-        .column-fontSize{
-          font-size:12px;
+        .softwarepicturelright{
+          color:#2cb8f5;
+          margin-left: 6px;
         }
         .safetybugtablepoint{
+          display:inline-block ;
           color: #ffffff;
           background: black;
-          padding:5px 13px 5px 17px;
+          width:60px;
+          height:20px;
+          text-align: center;
+          line-height:20px;
           border-radius: 4px;
           border-right:4px solid #4fb94b;
           margin-right: 8px;
         }
         .safetybugtableitem{
-          width:100px;
           display: inline-block;
           vertical-align: bottom;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
         }
-        //.safetybugtablebg{
-        //  background: url("../../../../assets/img/appCenter/safettbugbg.JPG") no-repeat left top;
-        //}
         .tablesub{
-          background: white;
+          width:75%;
+          .ant-table-thead{
+            border:none;
+          }
           .tablesubtitle{
             height:22px;
             line-height:22px;
@@ -162,8 +253,6 @@
             margin-bottom: 13px;
           }
           .tablesubbody{
-            max-width: 710px;
-            min-width: 710px;
             .column-visite{
               font-size: 12px;
             }
@@ -174,11 +263,11 @@
             font-size: 14px;
             margin:6px 0 3px 0;
           }
-          .tablesubtitlefooter{
-            line-height:18px;
-            -ms-word-break: break-all;
-            word-break: break-all;
-          }
+          //.tablesubtitlefooteritem{
+          //  overflow: hidden;
+          //  text-overflow: ellipsis;
+          //  white-space: nowrap;
+          //}
         }
       }
     }
@@ -189,19 +278,17 @@
     width: 100%;
     overflow: hidden;
     .softwarePackageEcharts {
-      height: 250px;
-      min-width: 892px;
-      max-width: 892px;
+      height: 220px;
+      width:100%;
       margin: 0 auto;
       position: relative;
       // 组件样式
       .softwarePackageLegend{
         position: absolute;
-        width: 342px;
-        height:249px;
+        height:220px;
         top:0;
-        left:330px;
-        padding: 20px 0 40px 40px;
+        left:41%;
+        padding: 20px 0 0 40px;
         .softwarePackageLegendheader{
           height:43px;
           line-height: 18px;
@@ -237,40 +324,18 @@
         }
       }
       .softwarePackageTableContent {
+        width:100%;
         clear: both;
-        min-width: 892px;
-        .softwarenamestyle {
-          min-width: 120px;
-          padding-left: 14px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
+        table{
+          table-layout: fixed;
+          word-break: break-all;
+          td{
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
         }
-        .softwareversionsstyle {
-          min-width: 150px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-        .softwarebugstyle {
-          min-width: 120px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-        .softwareremainstyle {
-          min-width: 142px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-        .softwareimpactstyle {
-          min-width: 105px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-        .softwarepicturel{
+        .softwarepicturelleft{
           display: inline-block;
           width:60px;
           text-align: center;
@@ -281,16 +346,11 @@
           border-right:4px solid #5ab95b;
           border-radius: 3px;
           margin:0 8px 0 3px;
-          font-size: 10px;
           margin-left: 1px;
         }
-        .softwarepicturestylem {
-          vertical-align: middle;
-          width:120px;
-          display: inline-block;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
+        .softwarepicturelright{
+          color:#2cb8f5;
+          margin-left: 3px;
         }
       }
     }
@@ -315,15 +375,32 @@
         }
       }
       .basicscanmaintable{
+        width:100%;
+        table{
+          table-layout:fixed;
+          tr{
+            padding:0;
+            background: #eef2f5;
+            td{
+              padding-top: 0;
+              padding-bottom: 0;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+            .ant-table-row-expand-icon-cell{
+              width:26px;
+            }
+          }
+        }
+        .ant-table-expanded-row{
+          background: #ffffff;
+        }
         .basicscanColumns{
           font-size: 16px;
+          height:22px;
+          line-height: 22px;
         }
-        //.basicscanColumns{
-        //  color:red;
-        //}
-        //.ant-table-row-collapsed{
-        //  color: red;
-        //}
       }
     }
   }

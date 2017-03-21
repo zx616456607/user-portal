@@ -567,6 +567,16 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 日志查询</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item key='alarm_setting'>
+                    <Link to='/manange_monitor/alarm_setting'>
+                      <span><div className='sideCircle'></div> 告警设置</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='alarm_record'>
+                    <Link to='/manange_monitor/alarm_record'>
+                      <span><div className='sideCircle'></div> 告警记录</span>
+                    </Link>
+                  </Menu.Item>
                   <div className='sline'></div>
                 </SubMenu>
 
