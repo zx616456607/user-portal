@@ -103,7 +103,7 @@ class EchartsOption {
     }
     if (name) {
       seriesItem.name = name
-      seriesItem.itemStyle.normal.color = colorHash.hex(name)
+      seriesItem.itemStyle.normal.color = colorHash.hex(name.substr(name.lastIndexOf('-') + 1))
       this.legend.data.push(name)
     }
     if (itemStyle) {
@@ -114,7 +114,7 @@ class EchartsOption {
     }
     this.series.push(seriesItem)
   }
-  
+
   setGirdForDataNetWork(count) {
     //for network grid format
     let clientWidth = document.body.clientWidth;
@@ -136,7 +136,7 @@ class EchartsOption {
       right: 70,
     }]
   }
-  
+
   setGirdForDataCommon(count) {
     //for memory and cpu grid format
     let clientWidth = document.body.clientWidth;
