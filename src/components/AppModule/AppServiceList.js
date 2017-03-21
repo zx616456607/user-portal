@@ -467,7 +467,11 @@ class AppServiceList extends Component {
       DeleteServiceModal: false,
     }
   }
-
+  getInitialState() {
+    return {
+      disableScale: false
+    }
+  }
   loadServices(nextProps) {
     const self = this
     const {
