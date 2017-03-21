@@ -21,19 +21,19 @@ exports.changeGlobalConfig = function* () {
   const entity = this.request.body
   // entity.configDetail = JSON.stringify(entity.detail)
   if (type == 'cicd') {
-    this.body = yield cicdConfig.bind(this, entity)
+    this.body = yield cicdConfig.apply(this, [entity])
     return
   }
   if (type == 'registry') {
-    this.body = yield registryConfig.bind(this, entity)
+    this.body = yield registryConfig.apply(this, [entity])
     return
   }
   if (type == 'mail') {
-    this.body = yield mailConfig.bind(this, entity)
+    this.body = yield mailConfig.apply(this, [entity])
     return
   }
   if (type == 'rbd') {
-    this.body = yield storageConfig.bind(this, entity)
+    this.body = yield storageConfig.apply(this, [entity])
     return
   }
 }
@@ -158,12 +158,21 @@ function* storageConfig(entity) {
   }
   let response
   if (entity.configID) {
-    const config = global.globalConfig.storageConfig
+    let config = {}
+    global.globalConfig.storageConfig.some(item => {
+      if (item.ConfigID == entity.configID) {
+        config = item
+        return true
+      }
+    })
+    config = config.ConfigDetail
     entity.configDetail.name = config.name
     entity.configDetail.config = config.config
     entity.configDetail.config.monitors = entity.detail.config.monitors
     entity.configDetail.agent = config.agent
     entity.configDetail = JSON.stringify(entity.configDetail)
+    config.url =  entity.detail.url
+    config.config.monitors = entity.detail.config.monitors
     response = yield api.configs.updateBy([type], null, entity)
   } else {
     entity.configDetail = JSON.stringify(entity.configDetail)
