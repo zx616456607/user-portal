@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * Alarm Setting component
+ * Alarm Detail component
  *
  * v0.1 - 2017-3-20
  * @author Baiyu
@@ -11,6 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import { Row, Col, Card ,Radio, Button, Table } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
+import { formatDate } from '../../common/tools'
 import './style/AlarmDetail.less'
 const RadioGroup = Radio.Group
 
@@ -18,10 +19,13 @@ class AlarmDetail extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      sendEmail: 2 // no send eamil
+      sendEmail: 2, // no send eamil
+      delBtn: true
     }
   }
-
+  handDelete() {
+    console.log('click delBtn')
+  }
   render() {
     const columns = [
       {
@@ -92,20 +96,36 @@ class AlarmDetail extends Component {
         assign:'k8s'
       }
     ];
+    const _this = this
     const rowSelection = {
-      // checkbox select callback
-    }
+      onChange(selectedRowKeys, selectedRows) {
+        let btnDisabled = true
+        if (selectedRowKeys.length > 0) {
+          btnDisabled = false
+        }
+        _this.setState({
+          delBtn: btnDisabled,
+          selectedRows
+        })
+      },
+      // onSelect(record, selected, selectedRows) {
+      //   console.log(record, selected, selectedRows);
+      // },
+      // onSelectAll(selected, selectedRows, changeRows) {
+      //   console.log(selected, selectedRows, changeRows);
+      // },
+    };
     return (
       <div id="AlarmDetail">
         <QueueAnim type="right" className="AlarmDetail">
           <Row gutter={16} className="details">
             <Col span="6">
-              <Card style={{paddingBottom:'30px'}}>
+              <Card style={{paddingBottom:'20px'}}>
                 <div className="title">基本属性</div>
                 <div className="baseAttr"><span className="keys">策略名称：</span>celue1</div>
                 <div className="baseAttr"><span className="keys">类型：</span>服务</div>
                 <div className="baseAttr"><span className="keys">告警对象</span>服务名称</div>
-                <div className="baseAttr"><span className="keys">状态：</span>启用</div>
+                <div className="baseAttr"><span className="keys">状态：</span><span style={{color: '#33b867'}}><i className="fa fa-circle" /> 启用</span></div>
                 <div className="baseAttr"><span className="keys">监控周期：</span>5分钟</div>
                 <div className="baseAttr">
                   <span className="keys">是否发送：</span>
@@ -115,11 +135,11 @@ class AlarmDetail extends Component {
                   </RadioGroup>
                 </div>
                 <div className="baseAttr"><span className="keys">最后修改人：</span>admin</div>
-                <div className="baseAttr"><span className="keys">创建时间：</span></div>
+                <div className="baseAttr"><span className="keys">创建时间：</span>{formatDate()}</div>
               </Card>
               <Card style={{marginTop:'15px',paddingBottom:'50px'}}>
                 <div className="title">收费标准</div>
-                <div className="baseAttr">本服务暂不收费</div>
+                <div className="baseAttr" style={{color: '#2DB7F5'}}>本服务暂不收费</div>
               </Card>
             </Col>
             <Col span="18">
@@ -130,7 +150,7 @@ class AlarmDetail extends Component {
                 </div>
                 <div style={{margin: '20px 30px'}}>
                   <Button icon="reload" type="primary" size="large">刷新</Button>
-                  <Button icon="delete" size="large" style={{marginLeft: 8}}>删除</Button>
+                  <Button icon="delete" size="large" style={{marginLeft: 8}} disabled={this.state.delBtn} onClick={()=> this.handDelete()} type="ghost">删除</Button>
                 </div>
                 <Table className="strategyTable" rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false} />
               </Card>
