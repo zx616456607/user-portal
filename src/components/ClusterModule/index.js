@@ -389,6 +389,7 @@ function mapStateToProps(state, props) {
   const { loginUser, current } = entities
   const { clusters, addClusterCMD } = cluster
   const { getAllClusterNodes } = cluster_nodes
+  const getAllClusterNodesKeys = Object.keys(getAllClusterNodes)
   return {
     loginUser: loginUser.info,
     noCluster: loginUser.info[camelize(NO_CLUSTER_FLAG)],
@@ -396,7 +397,7 @@ function mapStateToProps(state, props) {
     clusters: clusters.clusterList ? clusters.clusterList : [],
     currentClusterID: current.cluster.clusterID,
     addClusterCMD: (addClusterCMD ? addClusterCMD.result : {}) || {},
-    license: (getAllClusterNodes.nodes ? getAllClusterNodes.nodes.license : {}) || {},
+    license: (getAllClusterNodesKeys[0] ? getAllClusterNodes[getAllClusterNodesKeys[0]].nodes.license : {}) || {},
   }
 }
 

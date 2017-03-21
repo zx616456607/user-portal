@@ -30,7 +30,7 @@ class Network extends Component {
     const option = new EchartsOption('网络')
     const { networkReceived, networkTransmitted } = this.props
     option.addYAxis('value', {
-      formatter: '{value} KB'
+      formatter: '{value} KB/s'
     })
     networkReceived.data.map((item) => {
       let timeData = []

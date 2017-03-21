@@ -614,6 +614,6 @@
   "App.error.409": "请求{resource}发生冲突",
   "App.error.500": "请求{resource}发生服务器错误",
   "App.error.502": "请求{resource}无响应",
-  "App.error.503": "服务暂时不可用，请稍后重试",
+  "App.error.503": "网络或服务暂时不可用，请稍后重试",
   "App.error.504": "请求{resource}超时"
 }
