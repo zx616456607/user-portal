@@ -10,7 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Icon, Modal, Spin, Input, Pagination, Alert } from 'antd'
+import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Icon, Modal, Spin, Input, Pagination } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
@@ -26,9 +26,7 @@ import { addAppWatch, removeAppWatch } from '../../containers/App/status'
 import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
-
-const confirm = Modal.confirm
-const ButtonGroup = Button.Group
+import CreateAlarm from './AlarmModal'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -259,7 +257,7 @@ let MyComponent = React.createClass({
     browserHistory.push(`/app_manage/detail/${appName}#stack`)
   },
   render: function () {
-    const { config, loading, bindingDomains, bindingIPs } = this.props
+    const { config, loading, bindingDomains, bindingIPs, parentScope } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -310,7 +308,12 @@ let MyComponent = React.createClass({
             <AppStatus app={item} />
           </div>
           <div className='containerNum commonData'>
-            {item.instanceCount + '' || '-'}
+            {item.instanceCount || '-'}
+          </div>
+          <div className="alarm commonData normal">
+            <Tooltip title="告警设置" onClick={()=> parentScope.setState({alarmModal: true})}>
+            <Icon type="notification" />
+            </Tooltip>
           </div>
           <div className='visitIp commonData appListDomain'>
             <TipSvcDomain appDomain={appDomain} parentNode='AppList' />
@@ -961,6 +964,9 @@ class AppList extends Component {
                   </span>
                 </div>
               </div>
+              <div className="alarm commonTitle">
+                监控告警
+              </div>
               <div className='visitIp commonTitle'>
                 访问地址
               </div>
@@ -989,6 +995,11 @@ class AppList extends Component {
               bindingIPs={this.props.bindingIPs}
             />
           </Card>
+          <Modal title="创建告警策略" visible={this.state.alarmModal}
+            onOk={this.handleOk} onCancel={()=> this.setState({alarmModal: false})}
+          >
+            <CreateAlarm />
+          </Modal>
         </div>
       </QueueAnim>
     )

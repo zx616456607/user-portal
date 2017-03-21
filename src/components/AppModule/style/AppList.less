@@ -62,15 +62,36 @@
       text-align: center;
     }
     .appStatus,
-    .serviceNum,
-    .containerNum {
-      width: 12.5%;
+    .serviceNum {
+      width: 12%;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .containerNum{width: 8%;}
+    .alarm {
+      width: 8%;
+      i {
+        font-size: 16px;
+        cursor: pointer;
+        line-height: 2;
+        transition: all 0.2s ease-in-out;
+        &:hover {
+          color: #10B5FF;
+          transform: rotate(40deg);
+          -webkit-transform: rotate(40deg);
+          -moz-transform: rotate(40deg);
+          -o-transform: rotate(40deg);
+          -ms-transform: rotate(40deg);
+        }
+      }
+    }
+    .normal {
+      color: #5cb85c;
+    }
+
     .appName {
-      width: 16.5%;
+      width: 15%;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -87,7 +108,7 @@
       }
     }
     .actionBox {
-      width: 17%;
+      width: 16%;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -110,6 +131,7 @@
       height: 40px;
       line-height: 40px;
       border-bottom: 1px solid #d9d9d9;
+      overflow: hidden;
       .commonTitle {
         float: left;
         padding-left: 10px;
@@ -171,12 +193,6 @@
         .appStatus {
           i {
             margin-right: 5px;
-          }
-          .normal {
-            color: #5cb85c;
-          }
-          .error {
-            color: #f85a5a;
           }
         }
         .actionBox {

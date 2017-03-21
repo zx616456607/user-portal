@@ -27,6 +27,7 @@ import { getAppStatus } from '../../common/status_identify'
 import NotificationHandler from '../../common/notification_handler'
 import errorHandler from '../../containers/App/error_handler'
 import AppServiceRental from './AppServiceDetail/AppServiceRental'
+import AlarmStrategy from './AppServiceDetail/AlarmStrategy'
 
 const DEFAULT_TAB = '#service'
 
@@ -250,6 +251,9 @@ class AppDetail extends Component {
                 </TabPane>
                 <TabPane tab="租赁信息" key="#rentalInfo">
                   <AppServiceRental serviceName={appName} serviceDetail={app.services} />
+                </TabPane>
+                <TabPane tab="告警策略" key="#strategy">
+                  <AlarmStrategy />
                 </TabPane>
               </Tabs>
             </Card>
