@@ -969,12 +969,12 @@ class Ordinary extends Component {
 	            <div className='statusBottomcontent'>
 		            <div className='statusBottomleft'>
 			            <span className='statusBottomItem'>容器</span>
-			            <Tooltip title={`本集群若以最小容器配置可创建${capacityCreateContainer}个容器，目前已创建${allocatedPodNumber}个容器，还可创建最小配置容器${canCreateContainer}个`}><Icon type="question-circle-o" style={{ margin: '0 7px' }} /></Tooltip>
+			            <Tooltip title={`本集群若以最小容器配置可创建 ${capacityCreateContainer} 个容器，目前已创建 ${ isNaN(allocatedPodNumber) ? '-' :allocatedPodNumber } 个容器，还可创建最小配置容器 ${ isNaN(allocatedPodNumber) ? '-' : canCreateContainer } 个`}><Icon type="question-circle-o" style={{ margin: '0 7px' }} /></Tooltip>
 		            </div>
 		            <div className='statusBottomright'>
 			            <Progress percent={memoryUsed} strokeWidth={11} className='statusBottomrightitem' showInfo={false}/>
 		            </div>
-		            <div className='statusBottomthird' title={`已创建${allocatedPodNumber}个容器，还可创建最小配置容器${canCreateContainer}个`}>{`已创建${allocatedPodNumber}个容器，还可创建最小配置容器${canCreateContainer}个`}</div>
+		            <div className='statusBottomthird' title={`已创建 ${ isNaN(allocatedPodNumber) ? '-' :allocatedPodNumber } 个容器，还可创建最小配置容器 ${ isNaN(allocatedPodNumber) ? '-' : canCreateContainer } 个`}>{`已创建 ${ isNaN(allocatedPodNumber) ? '-' :allocatedPodNumber } 个容器，还可创建最小配置容器 ${ isNaN(allocatedPodNumber) ? '-' : canCreateContainer } 个`}</div>
 	            </div>              
             </Card>
           </Col>
@@ -1548,23 +1548,8 @@ function mapStateToProp(state, props) {
     }
   }
   let clusterStaticSummary = {
-    node: {
-      nodeRunning: 0,
-      nodeSum: 0,
-      schedulable: 0
-    },
     pod: {
-      Failed: 0,
-      Pending: 0,
-      Running: 0,
-      Succeeded: 0,
-      Unknown: 0
-    },
-    resource: {
-      allocatedCPU: 0,
-      allocatedMemByKB: 0,
-      cupSum: 0,
-      memSumByKB: 0
+
     }
   }
   let volumeSummary = {
