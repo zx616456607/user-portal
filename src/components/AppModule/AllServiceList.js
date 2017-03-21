@@ -23,7 +23,8 @@ import {
   stopServices,
   deleteServices,
   quickRestartServices,
-  loadAllServices
+  loadAllServices,
+  loadAutoScale
 } from '../../actions/services'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ANNOTATION_HTTPS } from '../../../constants'
 import { browserHistory } from 'react-router'
@@ -43,6 +44,7 @@ import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
 import { SERVICE_KUBE_NODE_PORT } from '../../../constants'
 
+
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const confirm = Modal.confirm
@@ -50,6 +52,7 @@ const MyComponent = React.createClass({
   propTypes: {
     serviceList: React.PropTypes.array
   },
+  
   onchange: function (e) {
     const { value, checked } = e.target
     const { scope } = this.props
@@ -268,7 +271,7 @@ const MyComponent = React.createClass({
     })
     switch (e.key) {
       case 'manualScale':
-        return this.showManualScaleModal()
+        return this.showManualScaleModal(item)
       case 'autoScale':
         return this.showAutoScaleModal()
       case 'rollingUpdate':
@@ -291,8 +294,25 @@ const MyComponent = React.createClass({
       configModal: true
     })
   },
-  showManualScaleModal() {
-    const { scope } = this.props
+  showManualScaleModal(item) {
+    const { scope, cluster } = this.props
+    scope.props.loadAutoScale(cluster, item.metadata.name, {
+      success:{
+        func: (result) => {
+          if(result.data) {
+             if(Object.getOwnPropertyNames(result.data).length > 0) {
+               scope.setState({
+                 disableScale: true
+               })
+               return
+             }
+          }
+          scope.setState({
+            disableScale: false
+          })
+        }
+      }
+    })
     scope.setState({
       manualScaleModalShow: true
     })
@@ -492,7 +512,11 @@ class ServiceList extends Component {
       k8sServiceList: [],
     }
   }
-
+  getInitialState() {
+    return {
+      disableScale: false
+    }
+  }
   loadServices(nextProps) {
     const self = this
     const { cluster, loadAllServices, page, size, name } = nextProps || this.props
@@ -1195,7 +1219,8 @@ class ServiceList extends Component {
               loading={isFetching}
               bindingDomains={this.props.bindingDomains}
               bindingIPs={this.props.bindingIPs}
-              k8sServiceList={this.state.k8sServiceList} />
+              k8sServiceList={this.state.k8sServiceList}
+               />
           </Card>
           </div>
           <Modal
@@ -1233,6 +1258,7 @@ class ServiceList extends Component {
             appName={appName}
             visible={manualScaleModalShow}
             service={currentShowInstance}
+            disableScale={this.state.disableScale}
             loadServiceList={() => this.loadServices(this.props)} />
           <Modal
             visible={deployServiceModalShow}
@@ -1290,7 +1316,8 @@ ServiceList = connect(mapStateToProps, {
   stopServices,
   deleteServices,
   quickRestartServices,
-  loadAllServices
+  loadAllServices,
+  loadAutoScale
 })(ServiceList)
 
 export default injectIntl(ServiceList, {
