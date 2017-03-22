@@ -49,11 +49,11 @@ exports.getResources = function (memory, cpu) {
       resources.requests.memory = '16384Mi'
       break
     default:
-      if (enterpriseFlag) {
-        resources.limits.memory = memory
-        resources.requests.memory = memory
-        resources.requests.cpu = cpu
-      }
+      resources.limits.memory = memory
+      resources.requests.memory = memory
+  }
+  if (enterpriseFlag && cpu) {
+    resources.requests.cpu = cpu
   }
   return resources
 }
