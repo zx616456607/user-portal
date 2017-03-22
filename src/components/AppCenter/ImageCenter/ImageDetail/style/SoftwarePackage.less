@@ -1,0 +1,81 @@
+#SoftwarePackage {
+  width: 100%;
+  overflow: hidden;
+  .softwarePackageEcharts {
+    height: 220px;
+    width:100%;
+    margin: 0 auto;
+    position: relative;
+    // 组件样式
+    .softwarePackageLegend{
+      position: absolute;
+      height:220px;
+      top:0;
+      left:41%;
+      padding: 20px 0 0 40px;
+      .softwarePackageLegendheader{
+        height:43px;
+        line-height: 18px;
+        padding-top: 0;
+        font-size: 18px;
+      }
+      .softwarePackageLegendmain1{
+        width:25px;
+        height: 24px;
+      }
+      .softwarePackageLegendmain2{
+        width: 70px;
+        text-align:right;
+        padding-right: 18px;
+      }
+    }
+  }
+  // 表格
+  .softwarePackageTable {
+    border-top: 1px solid #e5eaf0;
+    .softwarePackageTableTitle {
+      height: 70px;
+      padding-top: 20px;
+      .softwarePackageTableTitleleft {
+        float: left;
+        height: 16px;
+        margin-top: 7px;
+        text-indent: 8px;
+        border-left: 5px solid #2db7f6;
+      }
+      .softwarePackageTableTitleright {
+        float: right;
+      }
+    }
+    .softwarePackageTableContent {
+      width:100%;
+      clear: both;
+      table{
+        table-layout: fixed;
+        word-break: break-all;
+        td{
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+      }
+      .softwarepicturelleft{
+        display: inline-block;
+        width:60px;
+        text-align: center;
+        height:20px;
+        line-height: 20px;
+        background: black;
+        color: white;
+        border-right:4px solid #5ab95b;
+        border-radius: 3px;
+        margin:0 8px 0 3px;
+        margin-left: 1px;
+      }
+      .softwarepicturelright{
+        color:#2cb8f5;
+        margin-left: 3px;
+      }
+    }
+  }
+}
