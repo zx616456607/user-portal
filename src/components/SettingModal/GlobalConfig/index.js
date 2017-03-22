@@ -894,9 +894,9 @@ class GlobalConfig extends Component {
           全局配置---对这整个系统的邮件报警、持续集成、镜像服务、分布式存储的配置；只有做了这些配置才能完整的使用这几项功能，分别是：邮件报警对应的是系统中涉及的邮件提醒、持续集成对应的是CI/CD中整个Tenxflow功能的使用、镜像服务对应的是镜像仓库的使用、分布式存储对应的是容器有状态服务存储的使用
 					</div>
         <Emaill emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
-        <ConInter cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
         <MirrorService mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.registry} />
         <StorageService cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd} />
+	      <ConInter cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
       </div>
     )
   }
