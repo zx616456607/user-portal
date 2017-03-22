@@ -608,7 +608,7 @@ let MirrorService = React.createClass({
                     mirrorDisable
                       ? <Button type='primary' className="itemInputLeft" onClick={this.handleMirror}>编辑</Button>
                       : ([
-                        <Button onClick={this.handleReset}  className="itemInputLeft">取消</Button>,
+                        <Button onClick={this.handleReset} className="itemInputLeft">取消</Button>,
                         <Button type='primary' onClick={this.saveMirror}>保存</Button>
                       ])
                   }
@@ -669,7 +669,7 @@ let StorageService = React.createClass({
       node = node.split(',')
       let monitors = []
       node = node.map(item => {
-        if(item) {
+        if (item) {
           monitors.push(item.trim())
         }
       })
@@ -872,7 +872,7 @@ class GlobalConfig extends Component {
 
   render() {
     const { emailDisable, emailChange, cicdeditDisable, cicdeditChange, mirrorDisable, mirrorChange, cephDisable, cephChange, globalConfig } = this.state
-    const { updateGlobalConfig, saveGlobalConfig} = this.props
+    const { updateGlobalConfig, saveGlobalConfig } = this.props
     let { cluster } = this.props
     if (!cluster) {
       cluster = {
@@ -896,7 +896,7 @@ class GlobalConfig extends Component {
         <Emaill emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
         <MirrorService mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.registry} />
         <StorageService cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd} />
-	      <ConInter cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
+        <ConInter cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
       </div>
     )
   }
