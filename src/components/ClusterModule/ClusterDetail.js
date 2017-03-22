@@ -46,9 +46,9 @@ function cpuUsed(cpuTotal, cpuList) {
     });
 
   }
-
-  used = total / cpuTotal / length;
-  used = Math.min((used * 100).toFixed(2), 100)
+  // 8G = 8000 /1000
+  used = total / (cpuTotal/1000) / length;
+  used = Math.min((used).toFixed(2), 100)
   return {
     unit:`${used}%`,
     amount: used
@@ -65,11 +65,11 @@ function memoryUsed(memoryTotal, memoryList) {
   if (memoryList.data.metrics) {
     length = memoryList.data.metrics.length
     memoryList.data.metrics.map((item) => {
-      total = total + (item.floatValue || item.value / 1024);
+      total = total + (item.floatValue || item.value);
     });
 
   }
-  used = total / memoryTotal;
+  used = total /1024 / memoryTotal;
   used = Math.min((used * 100 / length).toFixed(2),100)
   return {
     unit:`${used}%`,
@@ -306,15 +306,16 @@ class ClusterDetail extends Component {
     loadData(this.props, { start })
   }
 
-  formetCpumetrics(cpuData) {
+  formetCpumetrics(cpuData, cpuTotal) {
     if (!cpuData.data) return
     let formetDate = { data: [] }
     let metrics = {}
     if (cpuData.data.metrics) {
       metrics = cpuData.data.metrics.map((list) => {
+        let floatValue = list.floatValue || list.value
         return {
           timestamp: moment(list.timestamp).format('MM-DD HH:mm'),
-          value: list.floatValue || list.value
+          value: floatValue / cpuTotal
         }
       })
 
@@ -322,7 +323,7 @@ class ClusterDetail extends Component {
     formetDate.data.push({ metrics })
     return formetDate
   }
-  formetMemorymetrics(memoryData) {
+  formetMemorymetrics(memoryData, nodeName) {
     if (!memoryData.data) return
     let formetDate = { data: [] }
     let metrics = {}
@@ -330,12 +331,12 @@ class ClusterDetail extends Component {
       metrics = memoryData.data.metrics.map((list) => {
         return {
           timestamp: moment(list.timestamp).format('MM-DD HH:mm'),
-          value: Math.ceil(list.floatValue || list.value / 1024 / 1024)
+          value: list.floatValue || list.value
         }
       })
 
     }
-    formetDate.data.push({ metrics })
+    formetDate.data.push({ metrics, containerName: nodeName})
     return formetDate
   }
   formetNetworkmetrics(memoryData, nodeName) {
@@ -365,10 +366,10 @@ class ClusterDetail extends Component {
     }
     const hostInfo = this.props.hostInfo.result ? this.props.hostInfo.result : {objectMeta:{creationTimestamp:''}, address:' '}
     hostInfo.isFetching = this.props.isFetching
-    const showCpu = this.formetCpumetrics(this.props.hostcpu)
+    const showCpu = this.formetCpumetrics(this.props.hostcpu,hostInfo.cpuTotal/1000)
     const showMemory = this.formetMemorymetrics(this.props.memory)
-    const showNetworkRec = this.formetNetworkmetrics(this.props.networkReceived, hostInfo.address)
-    const showNetworkTrans = this.formetNetworkmetrics(this.props.networkTransmitted, hostInfo.address)
+    const showNetworkRec = this.formetNetworkmetrics(this.props.networkReceived, this.props.clusterName)
+    const showNetworkTrans = this.formetNetworkmetrics(this.props.networkTransmitted, this.props.clusterName)
     return (
       <div id="clusterDetail">
         <div className="topRow" style={{ marginBottom: '20px', height: '50px', paddingTop: '20px' }}>
