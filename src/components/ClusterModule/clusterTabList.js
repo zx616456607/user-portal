@@ -108,12 +108,12 @@ function memoryUsed(memoryTotal, memoryList, name) {
       if(memoryList[key].name == name && memoryList[key].metrics) {
         length = memoryList[key].metrics.length
         memoryList[key].metrics.map((item) => {
-          total = total + (item.floatValue || item.value / 1024);
+          total = total + (item.floatValue || item.value);
         });
       }
     }
   }
-  used = total / memoryTotal;
+  used = total / 1024 / memoryTotal;
   // 1h and to 100%
   if (!length) {
     length = 1
@@ -602,7 +602,7 @@ class ClusterTabList extends Component {
                   </li>
                   <li>
                     <span className="itemKey success">实际使用</span>
-                    <span>{useRate ? `${Math.ceil(useRate.cpu * 10000) / 100} %` : NOT_AVAILABLE}</span>
+                    <span>{useRate ? `${(useRate.cpu / resource.cupSum *100).toFixed(2)} %` : NOT_AVAILABLE}</span>
                   </li>
                 </ul>
               </Card>
