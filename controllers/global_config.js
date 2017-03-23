@@ -193,7 +193,6 @@ exports.isValidConfig = function* () {
   const type = this.params.type
   const entity = this.request.body
   let response = {}
-  console.log('111111111111111111111111111111')
   if(type == 'rbd') {
     response = yield isValidStorageConfig.apply(this, [entity])
   }
