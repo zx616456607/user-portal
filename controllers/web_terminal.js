@@ -3,7 +3,6 @@
 const https = require('https')
 const os = require('os')
 const urllib = require('urllib')
-const iconv = require('iconv-lite')
 const config = require('../configs')
 config.tenx_api = global.globalConfig.tenx_api
 const queryString = require('querystring')
