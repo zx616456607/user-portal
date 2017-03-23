@@ -162,6 +162,7 @@ module.exports = function (Router) {
   router.get('/overview/clusters/:cluster_id/appstatus', overviewClusterController.getClusterAppStatus)
   router.get('/overview/clusters/:cluster_id/dbservices', overviewClusterController.getClusterDbServices)
   router.get('/overview/clusters/:cluster_id/nodesummary', overviewClusterController.getClusterNodeSummary)
+  router.get('/overview/clusters/:cluster_id/summary', overviewClusterController.getClusterSummary)
 
   //Overview Space
   router.get('/overview/spaceinfo', overviewSpaceController.getSpaceOverview)
@@ -356,6 +357,6 @@ module.exports = function (Router) {
   router.post('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
   router.put('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
   router.get('/cluster/:cluster/config', globalConfigController.getGlobalConfig)
-
+  router.post('/type/:type/isvalidconfig', globalConfigController.isValidConfig)
   return router.routes()
 }

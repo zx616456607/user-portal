@@ -42,7 +42,6 @@ function formatLinkContainer(data, groupname, name) {
           }
         }
       }
-
     }
   }
   return linkContainer
@@ -59,12 +58,12 @@ function formatVolumeMounts(data, groupname, name) {
           let cm = data[i].services[j].spec.template.spec.volumes[k]
           if (cm.configMap && cm.configMap.name == groupname) {
             if (!data[i].services[j].spec.template.spec.volumes[k].configMap.items) {
-              volumesMap[cm.name] = true
+              volumesMap[cm.name] = cm
               continue
             }
             for (let l = 0; l < data[i].services[j].spec.template.spec.volumes[k].configMap.items.length; l++) {
               if (data[i].services[j].spec.template.spec.volumes[k].configMap.items[l].key == name) {
-                volumesMap[cm.name] = true
+                volumesMap[cm.name] = cm
               }
             }
           }
@@ -75,11 +74,18 @@ function formatVolumeMounts(data, groupname, name) {
         if (containers[k].volumeMounts) {
           for (var l in containers[k].volumeMounts) {
             if (volumesMap[containers[k].volumeMounts[l].name]) {
-              volumeMounts = unionWith(volumeMounts, [{
-                imageName: data[i].name,
-                serviceName: data[i].services[j].metadata.name,
-                mountPath: containers[k].volumeMounts[l].mountPath
-              }], isEqual)
+              const volumeMount = containers[k].volumeMounts[l]
+              const configMap = volumesMap[containers[k].volumeMounts[l].name]
+              configMap.configMap.items.forEach(item => {
+                const arr = volumeMount.mountPath.split('/')
+                if (arr[arr.length - 1] == name) {
+                  volumeMounts = unionWith(volumeMounts, [{
+                    imageName: data[i].name,
+                    serviceName: data[i].services[j].metadata.name,
+                    mountPath: volumeMount.mountPath
+                  }], isEqual)
+                }
+              })
             }
           }
         }
@@ -299,7 +305,6 @@ class CollapseContainer extends Component {
                 <div className="li">应用：<Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link>，服务名称：{list.serviceName}</div>
                 <div className='lis'>{list.mountPath}</div>
               </td>
-
             )
           })
         }
