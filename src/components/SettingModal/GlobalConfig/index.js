@@ -461,44 +461,67 @@ let MirrorService = React.createClass({
         host: mirror,
         v2AuthServer: approve,
         v2Server: extend
-      })
-      saveGlobalConfig(cluster.clusterID, 'registry', {
-        configID: registryID,
-        detail: {
-          host: mirror,
-          v2AuthServer: approve,
-          v2Server: extend
-        }
       }, {
           success: {
             func: (result) => {
-              notification.close()
-              notification.success('镜像服务配置保存成功')
-              const { form } = self.props
-              const { setFieldsValue } = form
-              self.handleMirror()
-              this.setState({
-                canClick: true,
-                aleardySave: true
-              })
-              if (result.data.toLowerCase() != 'success') {
-                setFieldsValue({
-                  registryID: result.data
+              if (result.data && result.data == 'success') {
+                saveGlobalConfig(cluster.clusterID, 'registry', {
+                  configID: registryID,
+                  detail: {
+                    host: mirror,
+                    v2AuthServer: approve,
+                    v2Server: extend
+                  }
+                }, {
+                    success: {
+                      func: (result) => {
+                        notification.close()
+                        notification.success('镜像服务配置保存成功')
+                        const { form } = self.props
+                        const { setFieldsValue } = form
+                        self.handleMirror()
+                        this.setState({
+                          canClick: true,
+                          aleardySave: true
+                        })
+                        if (result.data.toLowerCase() != 'success') {
+                          setFieldsValue({
+                            registryID: result.data
+                          })
+                        }
+                      }
+                    },
+                    failed: {
+                      func: (err) => {
+                        notification.close()
+                        let msg
+                        if (err.message.message) {
+                          msg = err.message.message
+                        } else {
+                          msg = err.message
+                        }
+                        notification.error('镜像服务配置保存失败 => ' + msg)
+                        self.setState({
+                          canClick: true
+                        })
+                      }
+                    }
+                  })
+              } else {
+                notification.close()
+                notification.error('镜像服务地址不可用')
+                self.setState({
+                  canClick: true
                 })
               }
-            }
+            },
+            isAsync: true
           },
           failed: {
-            func: (err) => {
+            func: () => {
               notification.close()
-              let msg
-              if (err.message.message) {
-                msg = err.message.message
-              } else {
-                msg = err.message
-              }
-              notification.error('镜像服务配置保存失败 => ' + msg)
-              this.setState({
+              notification.error('镜像服务地址不可用')
+              self.setState({
                 canClick: true
               })
             }
@@ -701,7 +724,6 @@ let StorageService = React.createClass({
                 }, {
                     success: {
                       func: (result) => {
-                        console.log(result)
                         notification.close()
                         notification.success('ceph配置保存成功')
                         const { form } = self.props
@@ -929,9 +951,9 @@ class GlobalConfig extends Component {
           全局配置---对这整个系统的邮件报警、持续集成、镜像服务、分布式存储的配置；只有做了这些配置才能完整的使用这几项功能，分别是：邮件报警对应的是系统中涉及的邮件提醒、持续集成对应的是CI/CD中整个Tenxflow功能的使用、镜像服务对应的是镜像仓库的使用、分布式存储对应的是容器有状态服务存储的使用
 					</div>
         <Emaill emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
+        <MirrorService mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.registry} isValidConfig={this.props.isValidConfig}/>
+        <StorageService cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />
         <ConInter cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
-        <MirrorService mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.registry} isValidConfig={this.props.isValidConfig} />
-        <StorageService cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd} isValidConfig={this.props.isValidConfig} />
       </div>
     )
   }

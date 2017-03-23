@@ -21,24 +21,24 @@ exports.changeGlobalConfig = function* () {
   const entity = this.request.body
   // entity.configDetail = JSON.stringify(entity.detail)
   if (type == 'cicd') {
-    this.body = yield cicdConfig.apply(this, [entity])
+    this.body = yield cicdConfigFunc.apply(this, [entity])
     return
   }
   if (type == 'registry') {
-    this.body = yield registryConfig.apply(this, [entity])
+    this.body = yield registryConfigFunc.apply(this, [entity])
     return
   }
   if (type == 'mail') {
-    this.body = yield mailConfig.apply(this, [entity])
+    this.body = yield mailConfigFunc.apply(this, [entity])
     return
   }
   if (type == 'rbd') {
-    this.body = yield storageConfig.apply(this, [entity])
+    this.body = yield storageConfigFunc.apply(this, [entity])
     return
   }
 }
 
-function* cicdConfig(entity) {
+function* cicdConfigFunc(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   let body = {}
   let cicdEntity = {
@@ -91,7 +91,7 @@ function* cicdConfig(entity) {
 }
 
 
-function* registryConfig(entity) {
+function* registryConfigFunc(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'registry'
   const urlObject = url.parse(entity.detail.host)
@@ -118,7 +118,7 @@ function* registryConfig(entity) {
   return response
 }
 
-function* mailConfig(entity) {
+function* mailConfigFunc(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'mail'
   entity.configDetail = {
@@ -141,7 +141,7 @@ function* mailConfig(entity) {
   return response
 }
 
-function* storageConfig(entity) {
+function* storageConfigFunc(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'rbd'
   entity.configDetail = {
@@ -187,4 +187,55 @@ exports.getGlobalConfig = function* () {
   const response = yield spi.configs.get()
   this.status = response.code
   this.body = response
+}
+
+exports.isValidConfig = function* () {
+  const type = this.params.type
+  const entity = this.request.body
+  let response = {}
+  console.log('111111111111111111111111111111')
+  if(type == 'rbd') {
+    response = yield isValidStorageConfig.apply(this, [entity])
+  }
+  else if(type == 'registry') {
+    response = yield isValidResistryConfig.apply(this, [entity])
+  }
+  this.body = response
+  return
+}
+
+function* isValidStorageConfig (entity) {
+  const storageConfig = {
+    name: config.storageConfig.name,
+    url: entity.url,
+    config: {
+      monitors: entity.config.monitors,
+      pool: config.storageConfig.pool,
+      user: config.storageConfig.user,
+      keyring: config.storageConfig.keyring,
+      fsType: config.storageConfig.fsType
+    },
+    agent:config.storageConfig.agent
+  }
+  const api = apiFactory.getApi(this.session.loginUser)
+  const response = yield api.configs.createBy(['rbd', 'isvalidconfig'], null, storageConfig)
+  return response
+}
+
+function* isValidResistryConfig(entity) {
+  const api = apiFactory.getApi(this.session.loginUser)
+  const type = 'registry'
+  const urlObject = url.parse(entity.host)
+  const globalRegistryConfig = global.globalConfig.registryConfig
+  const registryConfig = {
+    protocol: urlObject.protocol.replace(':', ''),
+    host: urlObject.hostname,
+    port: urlObject.port,
+    v2AuthServer: entity.v2AuthServer,
+    v2Server: entity.v2Server,
+    user: globalRegistryConfig.user || config.registryConfig.user,
+    password: globalRegistryConfig.password || config.registryConfig.password
+  }
+  const response = yield api.configs.createBy(['registry', 'isvalidconfig'], null, registryConfig)
+  return response
 }

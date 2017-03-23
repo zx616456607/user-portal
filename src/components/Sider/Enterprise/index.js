@@ -694,7 +694,7 @@ class Sider extends Component {
                   {role == ROLE_SYS_ADMIN ?
                     <Menu.Item key='globalConfig'>
                       <Link to='/setting/globalConfig'>
-                        <span><div className='sideCircle'></div>全局配置</span>
+                        <span><div className='sideCircle' style={{marginRight:'18px'}}></div>全局配置</span>
                       </Link>
                     </Menu.Item>
                     :

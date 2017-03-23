@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Radio, Icon, Spin, Tooltip, Progress } from 'antd'
+import { Row, Col, Card, Radio, Icon, Spin, Tooltip, Progress, Button } from 'antd'
 import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
@@ -21,6 +21,7 @@ import { parseAmount } from '../../../../common/tools'
 import homeMySQL from '../../../../assets/img/homeMySQL.png'
 import homeMongoCluster from '../../../../assets/img/homeMongoCluster.png'
 import homeRedis from '../../../../assets/img/homeRedis.png'
+import { Link } from 'react-router'
 
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -767,14 +768,14 @@ class Ordinary extends Component {
         trigger: 'item',
         formatter: '{b} : ({d}%)'
       },
-      legend: {
-        left: '50%',
-        top: '50%',
-        x: 'left',
-        itemWidth: '48px',
-        itemHeight: '31px',
-        data: [{ name: 'cpu' }, { name: '内存' }, { name: '存储' }]
-      },
+      // legend: {
+      //   left: '50%',
+      //   top: '50%',
+      //   x: 'left',
+      //   itemWidth: '48px',
+      //   itemHeight: '31px',
+      //   data: [{ name: 'cpu' }, { name: '内存' }, { name: '存储' }]
+      // },
       series: [{
         type: 'pie',
         selectedMode: 'single',
@@ -933,17 +934,62 @@ class Ordinary extends Component {
         <Row className="title">{spaceName} - {clusterName}集群</Row>
         <Row className="content" gutter={16}>
           <Col span={6} className='clusterCost'>
-            <Card title="本日该集群消费" bordered={false} bodyStyle={{ height: 220, padding: '0 24px' }}>
-              <ReactEcharts
-                notMerge={true}
-                option={getClusterCostOption(parseAmount(clusterNodeSpaceConsumption.consumption), parseAmount(clusterNodeSpaceConsumption.balance))}
-                style={{ height: '200px' }}
-                showLoading={isFetching}
-              />
-            </Card>
+            <Card title="帐户余额" bordered={false} bodyStyle={{ height: 220, padding: '36px 24px' }}>
+              <div className='costInfo'>
+                <div className='loginUser'>
+                  <div className='logAvatar'>
+                    <Link to='/account'>
+                      <img />
+                    </Link>
+                  </div>
+                  <div className="loginText">
+                    <div className="text">
+                      <Link to='/account'>
+                        <p className="userName">
+                          用户名
+							          </p>
+                      </Link>
+                      <Tooltip title='93417777@qq.com'>
+                        <p className="email">93417777@qq.com</p>
+                      </Tooltip>
+                    </div>
+                  </div>
+                  <div className='loginTag'>个人</div>
+                  <div style={{ clear: 'both' }}></div>
+                </div>
+                <div>
+                  <div className='userCost'>
+                    <div>
+                      <i style={{ backgroundColor: '#46b2fa' }}></i>
+                      {this.state.isTeam ? '团队余额' : '我的余额'}：
+					          </div>
+					          <span className='costNum'>
+                      <Tooltip title={'¥ ' + parseAmount(clusterNodeSpaceConsumption.balance).amount}>
+                        <span>¥ {parseAmount(clusterNodeSpaceConsumption.balance).amount}</span>
+                      </Tooltip>
+                    </span>
+					          <Link to='/account/balance/payment'><Button type='primary'>去充值</Button></Link>
+				          </div>
+				          <div className='userCost'>
+					          <div>
+						          <i style={{backgroundColor: '#28bd83'}}></i>
+						          今日消费：
+					          </div>
+					          <span className='costNum'>
+                      <Tooltip title={'¥ ' + parseAmount(clusterNodeSpaceConsumption.consumption).amount}>
+                        <span>¥ {parseAmount(clusterNodeSpaceConsumption.consumption).amount}</span>
+                      </Tooltip>
+						          &nbsp;
+						          <Tooltip title="全区域"><Icon type="question-circle-o" /></Tooltip>
+                    </span>
+					          <Link to='/account/costCenter#consumptions'><Button type='primary'>去查看</Button></Link>
+				          </div>
+			          </div>
+		          </div>
+	          </Card>
           </Col>
           <Col span={6} className='clusterStatus'>
-            <Card title="本集群资源与状况" bordered={false} bodyStyle={{ height: 220, padding: '0 24px' }}>
+            <Card title="本集群资源分配状况" bordered={false} bodyStyle={{ height: 220, padding: '0 24px' }}>
               <div className='clusterStatusTitle'>
                 计算与存储
               </div>
@@ -962,28 +1008,34 @@ class Ordinary extends Component {
                       <td>({volumeUsed}/100)</td>
                     </tr>
                     <tr>
-                      <td>cpu</td>
+                      <td>CPU</td>
                       <td>内存</td>
                       <td>存储</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
-              <div className='statusBottomcontent'>
-                <div className='statusBottomleft'>
-                  <span className='statusBottomItem'>容器</span>
-                  <Tooltip title={`本集群若以最小容器配置可创建 ${capacityCreateContainer} 个容器，目前已创建 ${isNaN(allocatedPodNumber) ? '-' : allocatedPodNumber} 个容器，还可创建最小配置容器 ${isNaN(allocatedPodNumber) ? '-' : canCreateContainer} 个`}><Icon type="question-circle-o" style={{ margin: '0 7px' }} /></Tooltip>
-                </div>
-                <div className='statusBottomright'>
-                  <Progress percent={memoryUsed} strokeWidth={11} className='statusBottomrightitem' showInfo={false} />
-                </div>
-                <div className='statusBottomthird' title={`已创建 ${isNaN(allocatedPodNumber) ? '-' : allocatedPodNumber} 个容器，还可创建最小配置容器 ${isNaN(allocatedPodNumber) ? '-' : canCreateContainer} 个`}>{`已创建 ${isNaN(allocatedPodNumber) ? '-' : allocatedPodNumber} 个容器，还可创建最小配置容器 ${isNaN(allocatedPodNumber) ? '-' : canCreateContainer} 个`}</div>
-              </div>
+	            <div className='statusBottomcontent'>
+		            <div className='statusBottomleft'>
+			            <span className='statusBottomItem'>容器</span>
+			            <Tooltip title='容器可用配额是按照最小容器配置（512M内存）计算；本集群容器可用配额（个）=本集群可用内存（M）/512M；'>
+				            <Icon type="question-circle-o" style={{ margin: '0 7px' }} />
+			            </Tooltip>
+		            </div>
+		            <div className='statusBottomright'>
+			            <Progress percent={memoryUsed} strokeWidth={11} className='statusBottomrightitem' showInfo={false}/>
+		            </div>
+		            <Tooltip title={`已创建容器 ${ isNaN(allocatedPodNumber) ? '-' :allocatedPodNumber } 个，可用配额 ${ isNaN(allocatedPodNumber) ? '-' : canCreateContainer } 个`}>
+			            <div className='statusBottomthird' >
+				            {`已创建容器 ${ isNaN(allocatedPodNumber) ? '-' :allocatedPodNumber } 个，可用配额 ${ isNaN(allocatedPodNumber) ? '-' : canCreateContainer } 个`}
+			            </div>
+		            </Tooltip>
+	            </div>
             </Card>
           </Col>
           <Col span={6} className='sysState'>
             <Spin spinning={isFetching}>
-              <Card title="系统状态和版本" bordered={false} bodyStyle={{ height: 220 }}>
+              <Card title="系统状态" bordered={false} bodyStyle={{ height: 220 }}>
                 <table>
                   <tbody>
                     <tr>
@@ -996,9 +1048,9 @@ class Ordinary extends Component {
                       <td>
                         <SvcState currentState={clusterSysinfo.k8s.status} />
                       </td>
-                      <td style={{ textAlign: 'right', paddingRight: 10 }}>
+                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
                         {clusterSysinfo.k8s.version}
-                      </td>
+                      </td>*/}
                     </tr>
                     <tr>
                       <td>
@@ -1010,9 +1062,9 @@ class Ordinary extends Component {
                       <td>
                         <SvcState currentState={clusterSysinfo.dns.status} />
                       </td>
-                      <td style={{ textAlign: 'right', paddingRight: 10 }}>
+                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
                         {clusterSysinfo.dns.version}
-                      </td>
+                      </td>*/}
                     </tr>
                     <tr>
                       <td>
@@ -1024,9 +1076,9 @@ class Ordinary extends Component {
                       <td>
                         <SvcState currentState={clusterSysinfo.apiserver.status} />
                       </td>
-                      <td style={{ textAlign: 'right', paddingRight: 10 }}>
+                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
                         {clusterSysinfo.apiserver.version}
-                      </td>
+                      </td>*/}
                     </tr>
                     <tr>
                       <td>
@@ -1038,9 +1090,9 @@ class Ordinary extends Component {
                       <td>
                         <SvcState currentState={clusterSysinfo.monitor.status} />
                       </td>
-                      <td style={{ textAlign: 'right', paddingRight: 10 }}>
+                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
                         {clusterSysinfo.monitor.version}
-                      </td>
+                      </td>*/}
                     </tr>
                     <tr>
                       <td>
@@ -1052,9 +1104,9 @@ class Ordinary extends Component {
                       <td>
                         <SvcState currentState={clusterSysinfo.logging.status} />
                       </td>
-                      <td style={{ textAlign: 'right', paddingRight: 10 }}>
+                      {/*<td style={{ textAlign: 'right', paddingRight: 10 }}>
                         {clusterSysinfo.logging.version}
-                      </td>
+                      </td>*/}
                     </tr>
                   </tbody>
                 </table>
