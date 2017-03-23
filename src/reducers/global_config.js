@@ -28,6 +28,11 @@ export function globalConfig(state = {}, action) {
       REQUEST: ActionTypes.GET_GLOBAL_CONFIG_REQUEST,
       SUCCESS: ActionTypes.GET_GLOBAL_CONFIG_SUCCESS,
       FAILURE: ActionTypes.GET_GLOBAL_CONFIG_FAILURE
-    }, state.globalConfig, action)
+    }, state.globalConfig, action),
+    isValidConfig: reducerFactory({
+      REQUEST: ActionTypes.IS_VALID_CONFIG_REQUEST,
+      SUCCESS: ActionTypes.IS_VALID_CONFIG_SUCCESS,
+      FAILURE: ActionTypes.IS_VALID_CONFIG_FAILURE
+    }, state.isValidConfig, action)
   }
-}
+ }

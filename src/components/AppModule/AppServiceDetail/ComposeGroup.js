@@ -127,7 +127,7 @@ let MyComponent = React.createClass({
       return (
         <div className="composeDetail" key={item.id.toString() }>
           <div className="commonData">
-            <span>{item.mountPod}</span>
+            <span>{item.mountPod.substring(0, item.mountPod.lastIndexOf('/'))}</span>
           </div>
           <div className="commonData">
             <span>{item.group}</span>
