@@ -941,7 +941,7 @@ class Ordinary extends Component {
       }]
     }
 
-	  const img = userName.substr(0,1).toUpperCase()
+    const img = userName.substr(0, 1).toUpperCase()
 
     return (
 
@@ -954,7 +954,7 @@ class Ordinary extends Component {
                 <div className='loginUser'>
                   <div className='logAvatar'>
                     <Link to='/account'>
-	                    <span style={{color:'white'}}>{img}</span>
+                      <span style={{ color: 'white' }}>{img}</span>
                       {/*<img alt={userName} src={`${AVATAR_HOST}${avatar}`} />*/}
                     </Link>
                   </div>
