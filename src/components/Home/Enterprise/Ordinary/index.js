@@ -21,6 +21,7 @@ import homeMySQL from '../../../../assets/img/homeMySQL.png'
 import homeMongoCluster from '../../../../assets/img/homeMongoCluster.png'
 import homeRedis from '../../../../assets/img/homeRedis.png'
 import { Link } from 'react-router'
+import { AVATAR_HOST } from '../../../../constants'
 
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -132,13 +133,21 @@ class Ordinary extends Component {
       tab1: true,
       tab2: false,
       tab3: false,
+      isTeam: false,
     }
   }
-  componentDidMount() {
+  componentWillMount() {
+    const { loginUser } = this.props
+    const { migrated, displayName } = loginUser
     const { loadClusterInfo, current } = this.props
     const { clusterID } = current.cluster
     loadClusterInfo(clusterID)
   }
+  // componentDidMount() {
+  //   const { loadClusterInfo, current } = this.props
+  //   const { clusterID } = current.cluster
+  //   loadClusterInfo(clusterID)
+  // }
   componentWillReceiveProps(nextProps) {
     const { loadClusterInfo } = this.props
     const { current } = nextProps
@@ -146,6 +155,11 @@ class Ordinary extends Component {
     if (clusterID !== this.props.current.cluster.clusterID) {
       loadClusterInfo(clusterID)
       return
+    }
+    if (current.team.teamID !== 'default') {
+      this.setState({
+        isTeam: true
+      })
     }
   }
   handleDataBaseClick(current) {
@@ -202,7 +216,8 @@ class Ordinary extends Component {
   }
   render() {
     const { clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
-      clusterNodeSummary, clusterDbServices, spaceName, clusterName, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching } = this.props
+      clusterNodeSummary, clusterDbServices, spaceName, clusterName, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching, loginUser } = this.props
+    const { userName, email, avatar, certInfos } = loginUser
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
       boxPos = (clusterStorage.usedSize / (clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(4)
@@ -926,7 +941,10 @@ class Ordinary extends Component {
       }]
     }
 
+	  const img = userName.substr(0,1).toUpperCase()
+
     return (
+
       <div id='Ordinary'>
         <Row className="title">{spaceName} - {clusterName}集群</Row>
         <Row className="content" gutter={16}>
@@ -936,22 +954,23 @@ class Ordinary extends Component {
                 <div className='loginUser'>
                   <div className='logAvatar'>
                     <Link to='/account'>
-                      <img />
+	                    <span style={{color:'white'}}>{img}</span>
+                      {/*<img alt={userName} src={`${AVATAR_HOST}${avatar}`} />*/}
                     </Link>
                   </div>
                   <div className="loginText">
                     <div className="text">
                       <Link to='/account'>
                         <p className="userName">
-                          用户名
-							          </p>
+                          {userName}
+                        </p>
                       </Link>
-                      <Tooltip title='93417777@qq.com'>
-                        <p className="email">93417777@qq.com</p>
+                      <Tooltip title={email}>
+                        <p className="email">{email || '...'}</p>
                       </Tooltip>
                     </div>
                   </div>
-                  <div className='loginTag'>个人</div>
+                  {/*<div className='loginTag'>个人</div>*/}
                   <div style={{ clear: 'both' }}></div>
                 </div>
                 <div>
@@ -961,11 +980,11 @@ class Ordinary extends Component {
                       {this.state.isTeam ? '团队余额' : '我的余额'}：
 					          </div>
 					          <span className='costNum'>
-                      <Tooltip title={'¥ ' + parseAmount(clusterNodeSpaceConsumption.balance).amount}>
-                        <span>¥ {parseAmount(clusterNodeSpaceConsumption.balance).amount}</span>
+                      <Tooltip title={parseAmount(clusterNodeSpaceConsumption.balance).amount + 'T'}>
+                        <span>{parseAmount(clusterNodeSpaceConsumption.balance).amount} T</span>
                       </Tooltip>
                     </span>
-					          <Link to='/account/balance/payment'><Button type='primary'>去充值</Button></Link>
+					          <Link to='/account'><Button type='primary'>去充值</Button></Link>
 				          </div>
 				          <div className='userCost'>
 					          <div>
@@ -973,8 +992,8 @@ class Ordinary extends Component {
 						          今日消费：
 					          </div>
 					          <span className='costNum'>
-                      <Tooltip title={'¥ ' + parseAmount(clusterNodeSpaceConsumption.consumption).amount}>
-                        <span>¥ {parseAmount(clusterNodeSpaceConsumption.consumption).amount}</span>
+                      <Tooltip title={parseAmount(clusterNodeSpaceConsumption.consumption).amount + 'T'}>
+                        <span>{parseAmount(clusterNodeSpaceConsumption.consumption).amount} T</span>
                       </Tooltip>
 						          &nbsp;
 						          <Tooltip title="全区域"><Icon type="question-circle-o" /></Tooltip>
@@ -1525,7 +1544,7 @@ function getDbServiceStatus(data) {
 }
 
 function mapStateToProp(state, props) {
-  const { current } = state.entities
+  const { current, loginUser } = state.entities
   let clusterOperationsData = {
     appCreate: 0,
     appModify: 0,
@@ -1738,6 +1757,7 @@ function mapStateToProp(state, props) {
   }
   return {
     current,
+	  loginUser:loginUser.info,
     clusterOperations: clusterOperationsData,
     clusterSysinfo: clusterSysinfoData,
     clusterStorage: clusterStorageData,
