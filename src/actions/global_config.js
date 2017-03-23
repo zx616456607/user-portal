@@ -74,3 +74,23 @@ export function updateGlobalConfig(cluster, configID, type, entity, callback) {
     callback
   }
 }
+
+export const IS_VALID_CONFIG_REQUEST = 'IS_VALID_CONFIG_REQUEST'
+export const IS_VALID_CONFIG_SUCCESS = 'IS_VALID_CONFIG_SUCCESS'
+export const IS_VALID_CONFIG_FAILURE = 'IS_VALID_CONFIG_FAILURE'
+
+export function isValidConfig(type, body, callback) {
+return {
+    [FETCH_API]: {
+      endpoint: `${API_URL_PREFIX}/type/${type}/isvalidconfig`,
+      types: [IS_VALID_CONFIG_REQUEST, IS_VALID_CONFIG_SUCCESS, IS_VALID_CONFIG_FAILURE],
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+

@@ -28,7 +28,7 @@ export default class ContainerDetailInfo extends Component {
     let ele = []
     const volumes = container.spec.volumes
     if (container.spec.containers[0].volumeMounts) {
-      container.spec.containers[0].volumeMounts.forEach((volume) => {
+      container.spec.containers[0].volumeMounts.forEach((volume, index) => {
         let name = ''
         let mountPath = ''
         let volumeType = '分布式存储'
@@ -65,36 +65,41 @@ export default class ContainerDetailInfo extends Component {
   }
   getConfigMap(container) {
     let ele = []
-    const volumes = container.spec.volumes
+    let volumes = container.spec.volumes
+    let configMaps = []
     if (container.spec.containers[0].volumeMounts) {
       container.spec.containers[0].volumeMounts.forEach((volume) => {
         if (volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount') { return }
-        let configMap
-        let isShow = volumes.some(item => {
+        volumes.forEach(item => {
+          if(!item) return false
           if (item.name === volume.name) {
             if (item.configMap) {
-              configMap = item.configMap
-              return true
+              item.configMap.items.forEach(configMap => {
+                let arr = volume.mountPath.split('/')
+                if(arr[arr.length - 1] == configMap.path) {
+                  configMap.mountPath = volume.mountPath
+                  configMap.configMapName = item.configMap.name
+                  configMaps.push(configMap)
+                }
+              })
             }
-            return false
           }
-          return false
         })
-        if (!isShow) return
-        configMap.items.forEach(item => {
+      })
+      console.log(configMaps)
+      configMaps.forEach((item, index) => {
           ele.push(
-            <div key={configMap.name + item.key}>
-              <div className="commonTitle">{configMap.name}</div>
+            <div key={item.name + item.key + '-' + index}>
+              <div className="commonTitle">{item.configMapName}</div>
               <div className="commonTitle">{item.key}</div>
-              <div className="commonTitle">{volume.mountPath}</div>
+              <div className="commonTitle">{item.mountPath}</div>
               <div style={{ clear: "both" }}></div>
             </div>
           )
-        })
       })
+      return ele
     }
-    return ele
-
+    return []
   }
   render() {
     const parentScope = this

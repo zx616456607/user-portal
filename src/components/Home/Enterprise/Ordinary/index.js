@@ -15,6 +15,7 @@ import MySpace from './MySpace'
 import { getAppStatus, getServiceStatus, getContainerStatus } from '../../../../common/status_identify'
 import { connect } from 'react-redux'
 import { loadClusterInfo } from '../../../../actions/overview_cluster'
+import { loadClusterSummary } from '../../../../actions/overview_cluster'
 import ProgressBox from '../../../ProgressBox'
 import { parseAmount } from '../../../../common/tools'
 import homeMySQL from '../../../../assets/img/homeMySQL.png'
@@ -135,9 +136,10 @@ class Ordinary extends Component {
     }
   }
   componentDidMount() {
-    const { loadClusterInfo, current } = this.props
+    const { loadClusterInfo, current, loadClusterSummary } = this.props
     const { clusterID } = current.cluster
     loadClusterInfo(clusterID)
+    loadClusterSummary(clusterID)
   }
   componentWillReceiveProps(nextProps) {
     const { loadClusterInfo } = this.props
@@ -145,6 +147,7 @@ class Ordinary extends Component {
     const { clusterID } = current.cluster
     if (clusterID !== this.props.current.cluster.clusterID) {
       loadClusterInfo(clusterID)
+      loadClusterSummary(clusterID)
       return
     }
   }
@@ -1589,7 +1592,7 @@ function mapStateToProp(state, props) {
     balance: 0,
     consumption: 0,
   }
-  let clusterSummary = {
+  let clusterSummaryInit = {
     capacity: {
       cpu: 1,
       memory: 1
@@ -1611,8 +1614,14 @@ function mapStateToProp(state, props) {
     allocated: '0'
   }
   const { clusterOperations, clusterSysinfo, clusterStorage,
-    clusterAppStatus, clusterDbServices, clusterNodeSummary, clusterInfo } = state.overviewCluster
+    clusterAppStatus, clusterDbServices, clusterNodeSummary, clusterInfo, clusterSummary } = state.overviewCluster
   const isFetching = clusterInfo.isFetching
+  if (clusterSummary.result && clusterSummary.result.clusterSummary) {
+    clusterSummaryInit = clusterSummary.result.clusterSummary
+  }
+  if (clusterSummary.result && clusterSummary.result.volumeSummary && clusterSummary.result.volumeSummary.total) {
+    volumeSummary = clusterSummary.result.volumeSummary
+  }
   if (clusterInfo.result && clusterInfo.result) {
     if (clusterInfo.result.operations) {
       if (clusterInfo.result.operations.app) {
@@ -1725,17 +1734,11 @@ function mapStateToProp(state, props) {
       clusterNodeSpaceConsumption.balance = clusterInfo.result.spaceconsumption.balance
       clusterNodeSpaceConsumption.consumption = clusterInfo.result.spaceconsumption.consumption
     }
-
-    if (clusterInfo.result.clusterSummary) {
-      clusterSummary = clusterInfo.result.clusterSummary
-    }
-    if (clusterInfo.result.volumeSummary && clusterInfo.result.volumeSummary.total) {
-      volumeSummary = clusterInfo.result.volumeSummary
-    }
-    if(clusterInfo.result.clusterStaticSummary){
+    if (clusterInfo.result.clusterStaticSummary) {
       clusterStaticSummary = clusterInfo.result.clusterStaticSummary
     }
   }
+
   return {
     current,
     clusterOperations: clusterOperationsData,
@@ -1746,7 +1749,7 @@ function mapStateToProp(state, props) {
     clusterNodeSummary: clusterNodeSummaryData,
     clusterNodeSpaceConsumption: clusterNodeSpaceConsumption,
     volumeSummary,
-    clusterSummary,
+    clusterSummary: clusterSummaryInit,
     clusterStaticSummary,
     isFetching,
   }
@@ -1754,4 +1757,5 @@ function mapStateToProp(state, props) {
 
 export default connect(mapStateToProp, {
   loadClusterInfo,
+  loadClusterSummary
 })(Ordinary)
