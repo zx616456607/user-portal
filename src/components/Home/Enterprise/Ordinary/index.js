@@ -949,60 +949,60 @@ class Ordinary extends Component {
         <Row className="title">{spaceName} - {clusterName}集群</Row>
         <Row className="content" gutter={16}>
           <Col span={6} className='clusterCost'>
-            <Card title="帐户余额" bordered={false} bodyStyle={{ height: 220, padding: '36px 24px' }}>
-              <div className='costInfo'>
-                <div className='loginUser'>
-                  <div className='logAvatar'>
-                    <Link to='/account'>
-                      <span style={{ color: 'white' }}>{img}</span>
-                      {/*<img alt={userName} src={`${AVATAR_HOST}${avatar}`} />*/}
-                    </Link>
-                  </div>
-	                <div className="loginText">
-		                <div className="text">
-			                <Link to='/account'>
-				                <p className="userName">
-					                {userName}
-				                </p>
-			                </Link>
-			                <Tooltip title={email}>
-				                <p className="email">{email || '...'}</p>
-			                </Tooltip>
-		                </div>
-	                </div>
-	                {/*<div className='loginTag'>个人</div>*/}
-	                <div style={{clear: 'both'}}></div>
-                </div>
-	              <div>
-		              <div className='userCost'>
-			              <div>
-				              <i style={{backgroundColor: '#46b2fa'}}></i>
-				              {this.state.isTeam ? '团队余额' : '我的余额'}：
-			              </div>
-			              <span className='costNum'>
+	          <Card title="帐户余额" bordered={false} bodyStyle={{height: 220, padding: '36px 24px'}}>
+		          <div className='costInfo'>
+			          <div className='loginUser'>
+				          <div className='logAvatar'>
+					          <Link to='/account'>
+						          <span style={{color: 'white'}}>{img}</span>
+						          {/*<img alt={userName} src={`${AVATAR_HOST}${avatar}`} />*/}
+					          </Link>
+				          </div>
+				          <div className="loginText">
+					          <div className="text">
+						          <Link to='/account'>
+							          <p className="userName">
+								          {userName}
+							          </p>
+						          </Link>
+						          <Tooltip title={email}>
+							          <p className="email">{email || '...'}</p>
+						          </Tooltip>
+					          </div>
+				          </div>
+				          {/*<div className='loginTag'>个人</div>*/}
+				          <div style={{clear: 'both'}}></div>
+			          </div>
+			          <div>
+				          <div className='userCost'>
+					          <div>
+						          <i style={{backgroundColor: '#46b2fa'}}></i>
+						          {this.state.isTeam ? '团队余额' : '我的余额'}：
+					          </div>
+					          <span className='costNum'>
                       <Tooltip title={parseAmount(clusterNodeSpaceConsumption.balance).amount + 'T'}>
                         <span>{parseAmount(clusterNodeSpaceConsumption.balance).amount} T</span>
                       </Tooltip>
                     </span>
-			              <Link to='/account'><Button type='primary'>去充值</Button></Link>
-		              </div>
-		              <div className='userCost'>
-			              <div>
-				              <i style={{backgroundColor: '#28bd83'}}></i>
-				              今日消费：
-			              </div>
-			              <span className='costNum'>
+					          <Link to='/account'><Button type='primary'>去充值</Button></Link>
+				          </div>
+				          <div className='userCost'>
+					          <div>
+						          <i style={{backgroundColor: '#28bd83'}}></i>
+						          今日消费：
+					          </div>
+					          <span className='costNum'>
                       <Tooltip title={parseAmount(clusterNodeSpaceConsumption.consumption).amount + 'T'}>
                         <span>{parseAmount(clusterNodeSpaceConsumption.consumption).amount} T</span>
                       </Tooltip>
-				              &nbsp;
-				              <Tooltip title="全区域"><Icon type="question-circle-o"/></Tooltip>
+						          &nbsp;
+						          <Tooltip title="全区域"><Icon type="question-circle-o"/></Tooltip>
                     </span>
-			              <Link to='/account/costCenter#consumptions'><Button type='primary'>去查看</Button></Link>
-		              </div>
-	              </div>
-              </div>
-            </Card>
+					          <Link to='/account/costCenter#consumptions'><Button type='primary'>去查看</Button></Link>
+				          </div>
+			          </div>
+		          </div>
+	          </Card>
           </Col>
           <Col span={6} className='clusterStatus'>
             <Card title="本集群资源分配状况" bordered={false} bodyStyle={{ height: 220, padding: '0 24px' }}>
