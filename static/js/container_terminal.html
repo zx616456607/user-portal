@@ -3,16 +3,17 @@
 <head>
   <title>Tenxcloud Container Terminal</title>
   <meta charset="UTF-8" />
-  <link rel="stylesheet" href="../style/container_terminal.css">
-  <script src="term.js"></script>
+  <link rel="stylesheet" href="/js/lib/xterm/xterm.css">
+  <script src="/js/lib/xterm/xterm.js"></script>
+  <script src="/js/lib/xterm/addons/attach/attach.js"></script>
   <script>
     "use strict";
     const health_timeout = 120000 // 2 minutes for real timeout
     var ws
     var term
     var connected = false;
-    function utf8_to_b64( str ) {
-        return window.btoa(window.unescape(encodeURIComponent( str )));
+    function utf8_to_b64(str) {
+        return window.btoa(window.unescape(encodeURIComponent(str)));
     }
     // Initialize everything when the window finishes loading
     window.addEventListener("load", function(event) {
@@ -54,11 +55,6 @@
       var protocol = window.location.protocol == 'http:' ? 'ws:' : 'wss:'
       var wsUrl = protocol + '//' + host + '/api/v1/cluster/'+ data['cluster'] +'/namespaces/' + data['namespace'] + '/pods/' + data['pod'] + '/exec'
 
-
-      function b64_to_utf8( str ) {
-        return decodeURIComponent(window.escape(window.atob( str )));
-      }
-
       window.parent.webTerminalCallBack(data['pod'], 'connect')
       setTimeout(function(){
         if(!connected) {
@@ -70,13 +66,14 @@
       function terminalConnect() {
         var rowsNum = parseInt(window.innerHeight / 12) - 2;
         var colsNum = parseInt((window.innerWidth - 40) / 12) - 2;
+        term = new Terminal({
+          cols: colsNum,
+          rows: rowsNum,
+          cursorBlink: true
+        });
         ws = new WebSocket(wsUrl, "base64.channel.k8s.io");
         ws.addEventListener("open", function(event) {
-          term = new Terminal({
-            cols: colsNum,
-            rows: rowsNum,
-            screenKeys: true
-          });
+          term.attach(ws);
           window.parent.webTerminalCallBack(data['pod'], 'success')
           connected = true;
           term.open(document.body.terminal);
@@ -88,62 +85,22 @@
           term.write("||     |_|\\___|_| |_/_/\\_\\___|_|\\___/ \\__,_|\\__,_|   ||\r\n");
           term.write("||                                                   ||\r\n");
           term.write("************************** TenxCloud Container Terminal\r\n\r\n");
-
-
-          //term.write('\x1b[31mWelcome to Tenxcloud Web Terminal!\x1b[m\r\n\r\n');
-
-          term.cursorHidden = false;
-          term.showCursor();
           term.refresh(term.x, term.y);
           term.element.focus();
-
           term.on('data', function(data) {
-              if (ws && ws.readyState === 1)
+              if (ws && ws.readyState === 1){
                   ws.send("0" + utf8_to_b64(data));
+              }
           });
         });
-
-        // Display messages received from the server
-        ws.addEventListener("message", function(event) {
-          var data = event.data.slice(1);
-          term.write(b64_to_utf8(data));
-        });
-
-        // Display any errors that occur
-        ws.addEventListener("error", function(event) {
-          window.parent.webTerminalCallBack(data['pod'], 'error')
-          try {
-            term.write(b64_to_utf8("Error: " + JSON.stringify(event)));
-          }catch(err) {
-          }finally {
-           closeWebSocket(ws, term)
-         }
-        });
-        // Current health time
-        var last_health = (new Date()).getTime()
-        ws.onopen = function(){
-          // Send heart beat every 30 seconds
-          setInterval(function(){
-            var time = (new Date()).getTime()
-            if (time - last_health > health_timeout){
-              closeWebSocket(ws, term)
-            } else {
-              // Wait for not busy time
-              if (ws.bufferedAmount == 0) {
-                ws.send('~echo~');
-                // Refresh the last health time
-                last_health = time;
-              }
-            }
-          }, 30000);
-        }
       }
     }
 
     function closeWebSocket(ws, term) {
       if (ws) {
+         term.detach(ws);
          if(ws.readyState == 1) {
-           //exit sh process
+           // exit sh process
            ws.send("0" + utf8_to_b64('e'));
            ws.send("0" + utf8_to_b64('x'));
            ws.send("0" + utf8_to_b64('i'));
