@@ -15,7 +15,7 @@ import conInter from '../../../assets/img/setting/globalconfigCICD.png'
 import MirrorImg from '../../../assets/img/setting/globalconfigmirror.png'
 import CephImg from '../../../assets/img/setting/globalconfigceph.png'
 import { connect } from 'react-redux'
-import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig } from '../../../actions/global_config'
+import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig } from '../../../actions/global_config'
 import NotificationHandler from '../../../common/notification_handler'
 import { getPortalRealMode } from '../../../common/tools'
 import { LITE } from '../../../constants'
@@ -450,50 +450,78 @@ let MirrorService = React.createClass({
       this.setState({
         canClick: false
       })
-      const { form, saveGlobalConfig, updateGlobalConfig, cluster } = this.props
+      const { form, saveGlobalConfig, updateGlobalConfig, cluster, isValidConfig } = this.props
       const { getFieldValue } = form
       const mirror = getFieldValue('mirror')
       const approve = getFieldValue('approve')
       const extend = getFieldValue('extend')
       const registryID = getFieldValue('registryID')
       const self = this
-      saveGlobalConfig(cluster.clusterID, 'registry', {
-        configID: registryID,
-        detail: {
-          host: mirror,
-          v2AuthServer: approve,
-          v2Server: extend
-        }
+      isValidConfig('registry', {
+        host: mirror,
+        v2AuthServer: approve,
+        v2Server: extend
       }, {
           success: {
             func: (result) => {
-              notification.close()
-              notification.success('镜像服务配置保存成功')
-              const { form } = self.props
-              const { setFieldsValue } = form
-              self.handleMirror()
-              this.setState({
-                canClick: true,
-                aleardySave: true
-              })
-              if (result.data.toLowerCase() != 'success') {
-                setFieldsValue({
-                  registryID: result.data
+              if (result.data && result.data == 'success') {
+                saveGlobalConfig(cluster.clusterID, 'registry', {
+                  configID: registryID,
+                  detail: {
+                    host: mirror,
+                    v2AuthServer: approve,
+                    v2Server: extend
+                  }
+                }, {
+                    success: {
+                      func: (result) => {
+                        notification.close()
+                        notification.success('镜像服务配置保存成功')
+                        const { form } = self.props
+                        const { setFieldsValue } = form
+                        self.handleMirror()
+                        this.setState({
+                          canClick: true,
+                          aleardySave: true
+                        })
+                        if (result.data.toLowerCase() != 'success') {
+                          setFieldsValue({
+                            registryID: result.data
+                          })
+                        }
+                      }
+                    },
+                    failed: {
+                      func: (err) => {
+                        notification.close()
+                        let msg
+                        if (err.message.message) {
+                          msg = err.message.message
+                        } else {
+                          msg = err.message
+                        }
+                        notification.error('镜像服务配置保存失败 => ' + msg)
+                        self.setState({
+                          canClick: true
+                        })
+                      }
+                    }
+                  })
+              } else {
+                notification.close()
+                notification.error('镜像服务地址不可用')
+                self.setState({
+                  canClick: true
                 })
               }
-            }
+            },
+            isAsync: true
           },
           failed: {
-            func: (err) => {
+            func: () => {
               notification.close()
-              let msg
-              if (err.message.message) {
-                msg = err.message.message
-              } else {
-                msg = err.message
-              }
-              notification.error('镜像服务配置保存失败 => ' + msg)
-              this.setState({
+              notification.error('镜像服务地址不可用')
+              self.setState({
                 canClick: true
               })
             }
@@ -606,7 +634,7 @@ let MirrorService = React.createClass({
                 <FormItem>
                   {
                     mirrorDisable
-                      ? <Button type='primary' className="itemInputLeft" onClick={this.handleMirror}>编辑</Button>
+                      ? <Button type='primary' className="itemInputLeft" onClick={this.handleMirror} disabled={liteFlag}>编辑</Button>
                       : ([
                         <Button onClick={this.handleReset} className="itemInputLeft">取消</Button>,
                         <Button type='primary' onClick={this.saveMirror}>保存</Button>
@@ -655,7 +683,7 @@ let StorageService = React.createClass({
       this.setState({
         canClick: false
       })
-      const { form, saveGlobalConfig, updateGlobalConfig, cluster } = this.props
+      const { form, saveGlobalConfig, updateGlobalConfig, cluster, isValidConfig } = this.props
       if (cluster.isUserDefine) {
         notification.close()
         notification.error('没有配置集群')
@@ -676,46 +704,75 @@ let StorageService = React.createClass({
       const url = getFieldValue('url')
       const storageID = getFieldValue('storageID')
       const self = this
-      saveGlobalConfig(cluster.clusterID, 'rbd', {
-        configID: storageID,
-        detail: {
-          url: url,
-          config: {
-            monitors
-          }
+      isValidConfig('rbd', {
+        url: url,
+        config: {
+          monitors
         }
       }, {
           success: {
             func: (result) => {
-              notification.close()
-              notification.success('ceph配置保存成功')
-              const { form } = self.props
-              const { setFieldsValue } = form
-              this.setState({
-                canClick: true,
-                aleardySave: true
-              })
-              if (result.data.toLowerCase() != 'success') {
-                setFieldsValue({
-                  cicdID: result.data
+              if (result.data && result.data == 'success') {
+                saveGlobalConfig(cluster.clusterID, 'rbd', {
+                  configID: storageID,
+                  detail: {
+                    url: url,
+                    config: {
+                      monitors
+                    }
+                  }
+                }, {
+                    success: {
+                      func: (result) => {
+                        notification.close()
+                        notification.success('ceph配置保存成功')
+                        const { form } = self.props
+                        const { setFieldsValue } = form
+                        this.setState({
+                          canClick: true,
+                          aleardySave: true
+                        })
+                        if (result.data.toLowerCase() != 'success') {
+                          setFieldsValue({
+                            cicdID: result.data
+                          })
+                        }
+                        self.handleCeph()
+                      }
+                    },
+                    failed: {
+                      func: (err) => {
+                        notification.close()
+                        let msg
+                        if (err.message.message) {
+                          msg = err.message.message
+                        } else {
+                          msg = err.message
+                        }
+                        notification.error('ceph配置保存失败 => ' + msg)
+                        self.setState({
+                          canClick: true
+                        })
+                      }
+                    }
+                  })
+              } else {
+                notification.close()
+                self.setState({
+                  canClick: true
                 })
+                notification.error('存储地址不可用')
               }
-              self.handleCeph()
-            }
+            },
+            isAsync: true
           },
           failed: {
-            func: (err) => {
+            func: () => {
               notification.close()
-              let msg
-              if (err.message.message) {
-                msg = err.message.message
-              } else {
-                msg = err.message
-              }
-              notification.error('ceph配置保存失败 => ' + msg)
-              this.setState({
+              self.setState({
                 canClick: true
               })
+              notification.error('存储地址不可用')
             }
           }
         })
@@ -801,7 +858,7 @@ let StorageService = React.createClass({
                 <FormItem>
                   {
                     cephDisable
-                      ? <Button type='primary' className="itemInputLeft" onClick={this.handleCeph}>编辑</Button>
+                      ? <Button type='primary' className="itemInputLeft" onClick={this.handleCeph} disabled={liteFlag}>编辑</Button>
                       : ([
                         <Button className="itemInputLeft" onClick={this.handleReset}>取消</Button>,
                         <Button type='primary' onClick={this.saveStorage}>保存</Button>
@@ -894,8 +951,8 @@ class GlobalConfig extends Component {
           全局配置---对这整个系统的邮件报警、持续集成、镜像服务、分布式存储的配置；只有做了这些配置才能完整的使用这几项功能，分别是：邮件报警对应的是系统中涉及的邮件提醒、持续集成对应的是CI/CD中整个Tenxflow功能的使用、镜像服务对应的是镜像仓库的使用、分布式存储对应的是容器有状态服务存储的使用
 					</div>
         <Emaill emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
-        <MirrorService mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.registry} />
-        <StorageService cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd} />
+        <MirrorService mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.registry} isValidConfig={this.props.isValidConfig}/>
+        <StorageService cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />
         <ConInter cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
       </div>
     )
@@ -912,5 +969,6 @@ function mapPropsToState(state) {
 export default connect(mapPropsToState, {
   saveGlobalConfig,
   updateGlobalConfig,
-  loadGlobalConfig
+  loadGlobalConfig,
+  isValidConfig
 })(GlobalConfig)

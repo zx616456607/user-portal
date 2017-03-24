@@ -367,6 +367,8 @@ class AppList extends Component {
     this.handleRestarAppsCancel = this.handleRestarAppsCancel.bind(this)
     this.handleDeleteAppsOk = this.handleDeleteAppsOk.bind(this)
     this.handleDeleteAppsCancel = this.handleDeleteAppsCancel.bind(this)
+    this.cancelModal = this.cancelModal.bind(this)
+    this.nextStep = this.nextStep.bind(this)
 
     this.state = {
       appList: props.appList,
@@ -379,6 +381,7 @@ class AppList extends Component {
       stopAppsModal: false,
       restarAppsModal: false,
       deleteAppsModal: false,
+      step: 1, // first step create AlarmModal
     }
   }
 
@@ -816,6 +819,18 @@ class AppList extends Component {
       deleteAppsModal: false,
     })
   }
+  cancelModal() {
+    // cancel create Alarm modal
+    this.setState({
+      alarmModal: false,
+      step:1
+    })
+  }
+  nextStep(step) {
+    this.setState({
+      step: step
+    })
+  }
   render() {
     const scope = this
     const { name, pathname, page, size, sortOrder, sortBy, total, cluster, isFetching, startApps, stopApps } = this.props
@@ -835,7 +850,11 @@ class AppList extends Component {
       batchRestartApps: this.batchRestartApps,
       batchDeleteApps: this.batchDeleteApps,
     }
-
+    const modalFunc=  {
+      scope : this,
+      cancelModal: this.cancelModal,
+      nextStep: this.nextStep
+    }
     // kind: asc:升序（向上的箭头） desc:降序（向下的箭头）
     // type: create_time：创建时间 instance_count：容器数量
     function spliceSortClassName(kind, type, sortOrder, sortBy) {
@@ -995,10 +1014,13 @@ class AppList extends Component {
               bindingIPs={this.props.bindingIPs}
             />
           </Card>
-          <Modal title="创建告警策略" visible={this.state.alarmModal}
-            onOk={this.handleOk} onCancel={()=> this.setState({alarmModal: false})}
+          <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
+            className="alarmModal"
+            closable={false}
+            maskClosable={false}
+            footer={null}
           >
-            <CreateAlarm />
+            <CreateAlarm funcs={modalFunc}/>
           </Modal>
         </div>
       </QueueAnim>
