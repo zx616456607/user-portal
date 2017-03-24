@@ -20,9 +20,18 @@ export function getContainerStatus(container) {
   if (deletionTimestamp) {
     status.phase = 'Terminating'
   }
-  const { containerStatuses } = status
+  const { conditions, containerStatuses } = status
   let restartCount = 0
   let phase = status.phase
+  if (conditions) {
+    conditions.every(condition => {
+      if (condition.type !== 'Ready' && condition.status !== 'True') {
+        phase = 'Pending'
+        return false
+      }
+      return true
+    })
+  }
   if (containerStatuses) {
     containerStatuses.map(containerStatus => {
       // const { ready } = containerStatus

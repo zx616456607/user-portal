@@ -80,6 +80,7 @@ export const LICENSE_EXPRIED_CODE = 451
 export const DATE_PIRCKER_FORMAT = 'YYYY-MM-DD'
 export const ASYNC_VALIDATOR_TIMEOUT = 800
 export const LOAD_STATUS_TIMEOUT = 2000
+export const UPDATE_INTERVAL = 1000 * 30
 export const USER_3RD_ACCOUNT_TYPES = ['wechat']
 export const WECHAT_SIGNUP_HASH = '#wechat'
 export const RESOURCES_DIY = 'DIY'

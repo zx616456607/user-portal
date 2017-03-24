@@ -26,7 +26,7 @@ import {
   quickRestartServices,
   loadAutoScale
 } from '../../actions/services'
-import { LOAD_STATUS_TIMEOUT } from '../../constants'
+import { LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ANNOTATION_HTTPS } from '../../../constants'
 import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
@@ -472,12 +472,13 @@ class AppServiceList extends Component {
       disableScale: false
     }
   }
-  loadServices(nextProps) {
+  loadServices(nextProps, options) {
     const self = this
     const {
       cluster, appName, loadServiceList, page, size, name
     } = nextProps || this.props
     const query = { page, size, name }
+    query.customizeOpts = options
     loadServiceList(cluster, appName, query, {
       success: {
         func: (result) => {
@@ -540,12 +541,21 @@ class AppServiceList extends Component {
     this.loadServices(nextProps)
   }
 
+  componentDidMount() {
+    // Reload list each UPDATE_INTERVAL
+    this.upStatusInterval = setInterval(() => {
+      this.loadServices(null, { keepChecked: true })
+    }, UPDATE_INTERVAL)
+  }
+
   componentWillUnmount() {
     const {
       cluster,
       statusWatchWs,
     } = this.props
     removeDeploymentWatch(cluster, statusWatchWs)
+    clearTimeout(this.loadStatusTimeout)
+    clearInterval(this.upStatusInterval)
   }
 
   batchStartService() {
@@ -1179,7 +1189,7 @@ class AppServiceList extends Component {
             appName={appName}
             visible={manualScaleModalShow}
             service={currentShowInstance}
-            loadServiceList={loadServiceList} 
+            loadServiceList={loadServiceList}
             disableScale={this.state.disableScale}
             />
           <Modal title="添加服务"

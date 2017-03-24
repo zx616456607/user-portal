@@ -118,12 +118,14 @@
          }
     }
 
+    // For parent use
     function focusTerminal() {
       term.showCursor();
       term.refresh(term.x, term.y);
       term.element.focus();
     }
 
+    // For parent use
     function closeTerminal() {
       closeWebSocket(ws, term);
     }
