@@ -34,6 +34,7 @@ const clusternodesController = require('../controllers/cluster_node')
 const versionsController = require('../controllers/versions')
 const chargeController = require('../controllers/charge')
 const globalConfigController = require('../controllers/global_config')
+const alertController = require('../controllers/alert')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -356,6 +357,11 @@ module.exports = function (Router) {
   router.post('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
   router.put('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
   router.get('/cluster/:cluster/config', globalConfigController.getGlobalConfig)
+
+  // alert
+  router.get('/alerts/record-filters', alertController.getRecordFilters)
+  router.get('/alerts/records', alertController.getRecords)
+  router.delete('/alerts/records', alertController.deleteRecords)
 
   return router.routes()
 }

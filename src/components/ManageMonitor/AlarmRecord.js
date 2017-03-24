@@ -7,119 +7,225 @@
  * v0.1 - 2017-3-16
  * @author Baiyu
  */
+'use strict'
 import React, { Component, PropTypes } from 'react'
 import { Card, Icon, Spin, Table, Select, DatePicker, Menu, Button } from 'antd'
 import QueueAnim from 'rc-queue-anim'
-// import { connect } from 'react-redux'
+import { connect } from 'react-redux'
 // import { calcuDate } from '../../../common/tools.js'
+import moment from 'moment'
 import './style/AlarmRecord.less'
+import { loadRecords, loadRecordsFilters, deleteRecords } from '../../actions/alert'
+const Option = Select.Option
 
 class AlarmRecord extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      strategyFilter: '',
+      targetTypeFilter: '',
+      targetFilter: '',
+      beginTimeFilter: '',
+      endTimeFilter: '',
+    }
+  }
+  componentWillMount() {
+    const { loadRecordsFilters } = this.props
+    loadRecordsFilters('CID-fe23111d77cb')
+  }
+  getFilters() {
+    const {
+      recordFilters
+    } = this.props
+
+    let strategies = [<Option value="">全部</Option>]
+    for (let strategy of recordFilters.strategies) {
+      strategies.push(<Option value={strategy.name}>{strategy.name}</Option>)
+    }
+
+    let targets = [<Option value="">全部</Option>]
+    for (let target of recordFilters.targets) {
+      targets.push(<Option value={target.name}>{target.name}</Option>)
+    }
+
+    return {
+      strategies,
+      targets,
+    }
+  }
+  getRecords() {
+    const {
+      strategyFilter,
+      targetTypeFilter,
+      targetFilter,
+      beginTimeFilter,
+      endTimeFilter,
+    } = this.state
+    const query = {
+      strategyName: strategyFilter,
+      targetType: targetTypeFilter,
+      targetName: targetFilter,
+      beginTime: beginTimeFilter,
+      endTime: endTimeFilter,
+      cluster: 'CID-fe23111d77cb', // TODO
+    }
+    this.props.loadRecords(query)
+  }
+  deleteRecords() {
+    this.props.deleteRecords()
+  }
+  onBeginTimeFilterChange(time) {
+    // covert to utc to avoid '+'
+    const t = moment(moment(time).format('YYYY-MM-DD 00:00:00')).utc().format()
+    this.setState({
+      beginTimeFilter: t,
+    })
+  }
+  onEndTimeFilterChange(time) {
+    // covert to utc to avoid '+'
+    const t = moment(moment(time).format('YYYY-MM-DD 00:00:00')).utc().add(1, 'day').format()
+    this.setState({
+      endTimeFilter: t,
+    })
+  }
+  getRecordData() {
+    let records = []
+    if (this.props.records.records) {
+      this.props.records.records.map(function(r) {
+        records.push({
+          createTime: r.createTime,
+          strategyName: r.strategyName,
+          targetType: r.targetType,
+          targetName: r.targetName,
+          triggerValue: r.triggerValue,
+          triggerRule: r.triggerRule,
+          status: r.status,
+        })
+      })
+    }
+    return records
   }
   render () {
     const columns = [
       {
-      title: '告警时间',
-      dataIndex: 'time',
-      render: text => <a href="#">{text}</a>,
-      }, {
-        title: '策略名称',
-        dataIndex: 'name',
-      }, {
-        title: '持续时间',
-        dataIndex: 'largeTime',
-      },
-      {
-        title: '监控项目',
-        dataIndex: 'item',
+        title: '告警时间',
+        dataIndex: 'createTime',
         render: (text)=> {
-          if (text == 1) {
-            return <div style={{color:'#33b867'}}><i className="fa fa-circle" /> &nbsp;cpu 50%</div>
-          }
-          return <div style={{color:'#f23e3f'}}><i className="fa fa-circle" /> &nbsp;cpu 90%</div>
+          return <div>{moment(text).format('YYYY-MM-DD HH:mm:ss')}</div>
         }
       },
       {
-        title: '触发规则',
-        dataIndex: 'target',
+        title: '策略名称',
+        dataIndex: 'strategyName',
       },
       {
-        title: '状态',
+        title: '类型',
+        dataIndex: 'targetType',
+        render: (text)=> {
+          switch (text) {
+            case 0:
+              return <div>服务</div>
+              break
+            case 1:
+              return <div>节点</div>
+              break
+            default:
+              return <div>未知</div>
+          }
+        }
+      },
+      {
+        title: '告警对象',
+        dataIndex: 'targetName',
+      },
+      {
+        title: '告警当前值',
+        dataIndex: 'triggerValue',
+      },
+      {
+        title: '告警规则',
+        dataIndex: 'triggerRule',
+        
+      },
+      {
+        title: '是否发送邮件',
         dataIndex: 'status',
         render: (text)=> {
-          if (text == 1) {
-            return <div style={{color:'#33b867'}}><i className="fa fa-circle" /> &nbsp;已查看</div>
+          switch (text) {
+            case 0:
+              return <div>未发送</div>
+              break
+            case 1:
+              return <div>已发送</div>
+              break
+            default:
+              return <div>未知</div>
           }
-          if (text == 2) {
-            return <div style={{color:'#f23e3f'}}><i className="fa fa-circle" /> &nbsp;已停用</div>
-          }
-          if (text == 3) {
-            return <div style={{color:'orange'}}><i className="fa fa-circle" /> &nbsp;已忽略</div>
-          }
-          return <div style={{color:'#f23e3f'}}><i className="fa fa-circle" /> &nbsp;未操作</div>
         }
       }
     ];
 
-    const data = [
-      {
-        app: 'func',
-        name: '大事业部',
-        status: 1,
-        target:1,
-        time:'5分钟',
-        largeTime: '2017-03-06 15:35:21',
-      }, {
-        app: 'wrap',
-        name: 'test It',
-        status: 1,
-        target:2,
-        time:'15分钟',
-        largeTime: '2017-03-03 10:35:21',
-      }, {
-        app: 'fun2',
-        name: '统计',
-        time:'2分钟',
-        largeTime: '2017-03-02 13:35:21',
-        status:2,
-        target:1,
-      }
-    ];
+
+    const filters = this.getFilters()
+    const data = this.getRecordData()
     return (
       <QueueAnim className="AlarmRecord" type="right">
         <div id="AlarmRecord">
           <div className="topRow">
-            <Select style={{ width: 120 }} size="large" placeholder="选择告警策略">
-              <Option value="jack">Jack</Option>
-              <Option value="lucy">Lucy</Option>
+            <Select style={{ width: 120 }} size="large" placeholder="选择告警策略" onChange={(value) => this.setState({strategyFilter: value})}>
+              {filters.strategies}
             </Select>
-            <Select style={{ width: 120 }} size="large" placeholder="选择类型">
-              <Option value="jack">Jack</Option>
-              <Option value="lucy">Lucy</Option>
+            <Select style={{ width: 120 }} size="large" placeholder="选择类型" onChange={(value) => this.setState({targetTypeFilter: value})}>
+              <Option value="">全部</Option>
+              <Option value="0">服务</Option>
+              <Option value="1">节点</Option>
             </Select>
-            <Select style={{ width: 120 }} size="large" placeholder="选择告警对象">
-              <Option value="jack">Jack</Option>
-              <Option value="lucy">Lucy</Option>
+            <Select style={{ width: 120 }} size="large" placeholder="选择告警对象" onChange={(value) => this.setState({targetFilter: value})}>
+              {filters.targets}
             </Select>
-            <Select style={{ width: 120 }} size="large" placeholder="选择告警状态">
-              <Option value="jack">Jack</Option>
-              <Option value="lucy">Lucy</Option>
-            </Select>
-            <DatePicker placeholder="选择起始日期" size="large"/>
-            <DatePicker placeholder="选择结束日期" size="large"/>
-            <Button icon="exception" size="large" type="primary">立即查询</Button>
-            <Button icon="delete" size="large" >清除记录</Button>
+            <DatePicker placeholder="选择起始日期" size="large" onChange={(value) => this.onBeginTimeFilterChange(value)}/>
+            <DatePicker placeholder="选择结束日期" size="large" onChange={(value) => this.onEndTimeFilterChange(value)}/>
+            <Button icon="exception" size="large" type="primary" onClick={() => this.getRecords()}>立即查询</Button>
+            <Button icon="delete" size="large"  onClick={this.deleteRecords}>清空所有记录</Button>
           </div>
           <Card>
             <Table className="strategyTable" onRowClick={(record, index)=>console.log('click', record, index)} columns={columns} dataSource={data} pagination={false} />
           </Card>
-
         </div>
       </QueueAnim>
-    )
-  }
+    )}
 
 }
-export default AlarmRecord
+
+function mapStateToProps(state, props) {
+  const {
+    recordFilters,
+    records,
+  } = state.alert
+
+  let recordFiltersData = {
+    strategies: [],
+    targets: [],
+  }
+  if (recordFilters && recordFilters.isFetching === false && recordFilters.result && recordFilters.result.result && recordFilters.result.result.code === 200) {
+    recordFiltersData = recordFilters.result.result.data
+  }
+
+  let recordsData = {
+    total: 0,
+    records: [],
+  }
+  if (records && records.isFetching === false && records.result && records.result.result && records.result.result.code === 200) {
+    recordsData = records.result.result.data
+  }
+  return {
+    recordFilters: recordFiltersData,
+    records: recordsData,
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadRecords,
+  loadRecordsFilters,
+  deleteRecords,
+})(AlarmRecord)
