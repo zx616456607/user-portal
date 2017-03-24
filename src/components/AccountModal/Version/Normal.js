@@ -138,7 +138,7 @@ class VersionNoraml extends Component {
                   <div className='commonBox'>
                     <div className='commonTitleBox'>
                       <span className='commonIcon'></span>
-                      <span className='commonTitle'>管理与日志</span>
+                      <span className='commonTitle'>管理与监控</span>
                     </div>
                     <div className='commonInfo'>
                       <span className='commonSpan'>审计日志</span>
@@ -236,7 +236,7 @@ class VersionNoraml extends Component {
                   <div className='commonBox'>
                     <div className='commonTitleBox'>
                       <span className='commonIcon'></span>
-                      <span className='commonTitle'>管理与日志</span>
+                      <span className='commonTitle'>管理与监控</span>
                     </div>
                     <div className='commonInfo'>
                       <span className='commonSpan'>审计日志</span>
@@ -340,7 +340,7 @@ class VersionNoraml extends Component {
                     <img className='commonImg' src={proIcon} />
                     <div className='commonTitleBox'>
                       <span className='commonIcon'></span>
-                      <span className='commonTitle'>管理与日志</span>
+                      <span className='commonTitle'>管理与监控</span>
                     </div>
                     <div className='commonInfo'>
                       <span className='commonSpan'>审计日志</span>
