@@ -45,8 +45,8 @@ class ComposeFile extends Component {
     this.editYamlSetState = this.editYamlSetState.bind(this)
     this.handleVisibleChange = this.handleVisibleChange.bind(this)
 
-    let serviceList = JSON.parse(localStorage.getItem('servicesList'))
-    let selectedList = JSON.parse(localStorage.getItem('selectedList'))
+    let serviceList = JSON.parse(sessionStorage.getItem('servicesList'))
+    let selectedList = JSON.parse(sessionStorage.getItem('selectedList'))
     let serviceDesc = {}
     let deploymentDesc = {}
     let desc = []
@@ -61,7 +61,7 @@ class ComposeFile extends Component {
       })
     }
     this.state = {
-      appName: localStorage.getItem("transientAppName"),
+      appName: sessionStorage.getItem("transientAppName"),
       appDescYaml: desc.join('---\n'),
       remark: '',
       visible: false,
@@ -156,9 +156,9 @@ class ComposeFile extends Component {
               appName: '',
               remark: '',
             })
-            localStorage.removeItem('servicesList')
-            localStorage.removeItem('selectedList')
-            localStorage.removeItem('transientAppName')
+            sessionStorage.removeItem('servicesList')
+            sessionStorage.removeItem('selectedList')
+            sessionStorage.removeItem('transientAppName')
             browserHistory.push('/app_manage')
           },
           isAsync: true
@@ -312,9 +312,9 @@ class ComposeFile extends Component {
     },100)
   }
   cacheAppName() {
-    localStorage.setItem("transientAppName", this.state.appName || '')
-    // console.info("cached app name:", localStorage.getItem("transientAppName"));
-    localStorage.setItem("forCacheServiceList", true);
+    sessionStorage.setItem("transientAppName", this.state.appName || '')
+    // console.info("cached app name:", sessionStorage.getItem("transientAppName"));
+    sessionStorage.setItem("forCacheServiceList", true);
     browserHistory.goBack()
   }
   closeModal() {

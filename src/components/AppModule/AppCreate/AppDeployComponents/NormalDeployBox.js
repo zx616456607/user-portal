@@ -147,7 +147,7 @@ let MyComponent = React.createClass({
       if (!name) return
       usedVolume.push(name.split('/')[0])
     })
-    const servicesList = this.props.parentScope.props.scope.state.servicesList || localStorage.getItem('servicesList')
+    const servicesList = this.props.parentScope.props.scope.state.servicesList || sessionStorage.getItem('servicesList')
     servicesList.forEach(service => {
       if (service.inf.Deployment.spec.template.spec.volumes) {
         service.inf.Deployment.spec.template.spec.volumes.forEach(volume => {
