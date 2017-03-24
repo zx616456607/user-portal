@@ -22,6 +22,7 @@ import homeMySQL from '../../../../assets/img/homeMySQL.png'
 import homeMongoCluster from '../../../../assets/img/homeMongoCluster.png'
 import homeRedis from '../../../../assets/img/homeRedis.png'
 import { Link } from 'react-router'
+import { AVATAR_HOST } from '../../../../constants'
 
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -133,11 +134,13 @@ class Ordinary extends Component {
       tab1: true,
       tab2: false,
       tab3: false,
+      isTeam: false,
     }
   }
+
   componentDidMount() {
-    const { loadClusterInfo, current, loadClusterSummary } = this.props
-    const { clusterID } = current.cluster
+    const {loadClusterInfo, current} = this.props
+    const {clusterID} = current.cluster
     loadClusterInfo(clusterID)
     loadClusterSummary(clusterID)
   }
@@ -149,6 +152,11 @@ class Ordinary extends Component {
       loadClusterInfo(clusterID)
       loadClusterSummary(clusterID)
       return
+    }
+    if (current.team.teamID !== 'default') {
+      this.setState({
+        isTeam: true
+      })
     }
   }
   handleDataBaseClick(current) {
@@ -205,7 +213,8 @@ class Ordinary extends Component {
   }
   render() {
     const { clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
-      clusterNodeSummary, clusterDbServices, spaceName, clusterName, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching } = this.props
+      clusterNodeSummary, clusterDbServices, spaceName, clusterName, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching, loginUser } = this.props
+    const { userName, email, avatar, certInfos } = loginUser
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
       boxPos = (clusterStorage.usedSize / (clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(4)
@@ -929,64 +938,68 @@ class Ordinary extends Component {
       }]
     }
 
+    const img = userName.substr(0, 1).toUpperCase()
+
     return (
+
       <div id='Ordinary'>
         <Row className="title">{spaceName} - {clusterName}集群</Row>
         <Row className="content" gutter={16}>
           <Col span={6} className='clusterCost'>
-            <Card title="帐户余额" bordered={false} bodyStyle={{ height: 220, padding: '36px 24px' }}>
+            <Card title="帐户余额" bordered={false} bodyStyle={{height: 220, padding: '36px 24px'}}>
               <div className='costInfo'>
                 <div className='loginUser'>
                   <div className='logAvatar'>
                     <Link to='/account'>
-                      <img />
+                      <span style={{color: 'white'}}>{img}</span>
+                      {/*<img alt={userName} src={`${AVATAR_HOST}${avatar}`} />*/}
                     </Link>
                   </div>
                   <div className="loginText">
                     <div className="text">
                       <Link to='/account'>
                         <p className="userName">
-                          用户名
-							          </p>
+                          {userName}
+                        </p>
                       </Link>
-                      <Tooltip title='93417777@qq.com'>
-                        <p className="email">93417777@qq.com</p>
+                      <Tooltip title={email}>
+                        <p className="email">{email || '...'}</p>
                       </Tooltip>
                     </div>
                   </div>
-                  <div className='loginTag'>个人</div>
-                  <div style={{ clear: 'both' }}></div>
+                  {/*<div className='loginTag'>个人</div>*/}
+                  <div style={{clear: 'both'}}></div>
                 </div>
                 <div>
                   <div className='userCost'>
                     <div>
-                      <i style={{ backgroundColor: '#46b2fa' }}></i>
+                      <i style={{backgroundColor: '#46b2fa'}}></i>
                       {this.state.isTeam ? '团队余额' : '我的余额'}：
-					          </div>
-					          <span className='costNum'>
-                      <Tooltip title={'¥ ' + parseAmount(clusterNodeSpaceConsumption.balance).amount}>
-                        <span>¥ {parseAmount(clusterNodeSpaceConsumption.balance).amount}</span>
+                    </div>
+                    <span className='costNum'>
+                      <Tooltip title={parseAmount(clusterNodeSpaceConsumption.balance).amount + 'T'}>
+                        <span>{parseAmount(clusterNodeSpaceConsumption.balance).amount} T</span>
                       </Tooltip>
                     </span>
-					          <Link to='/account/balance/payment'><Button type='primary'>去充值</Button></Link>
-				          </div>
-				          <div className='userCost'>
-					          <div>
-						          <i style={{backgroundColor: '#28bd83'}}></i>
-						          今日消费：
-					          </div>
-					          <span className='costNum'>
-                      <Tooltip title={'¥ ' + parseAmount(clusterNodeSpaceConsumption.consumption).amount}>
-                        <span>¥ {parseAmount(clusterNodeSpaceConsumption.consumption).amount}</span>
+                    {/*<Link to='/account'><Button type='primary'>去充值</Button></Link>*/}
+                  </div>
+                  <div className='userCost'>
+                    <div>
+                      <i style={{backgroundColor: '#28bd83'}}></i>
+                      今日消费：
+                    </div>
+                    <span className='costNum'>
+                      <Tooltip title={parseAmount(clusterNodeSpaceConsumption.consumption).amount + 'T'}>
+                        <span>{parseAmount(clusterNodeSpaceConsumption.consumption).amount} T</span>
                       </Tooltip>
-						          &nbsp;
-						          <Tooltip title="全区域"><Icon type="question-circle-o" /></Tooltip>
+                      &nbsp;
+                      <Tooltip title="全区域"><Icon type="question-circle-o"/></Tooltip>
                     </span>
-					          <Link to='/account/costCenter#consumptions'><Button type='primary'>去查看</Button></Link>
-				          </div>
-			          </div>
-		          </div>
-	          </Card>
+                    <Link to='/account/costCenter#consumptions'><Button type='primary'>去查看</Button></Link>
+                  </div>
+                </div>
+              </div>
+            </Card>
           </Col>
           <Col span={6} className='clusterStatus'>
             <Card title="本集群资源分配状况" bordered={false} bodyStyle={{ height: 220, padding: '0 24px' }}>
@@ -1015,22 +1028,22 @@ class Ordinary extends Component {
                   </tbody>
                 </table>
               </div>
-	            <div className='statusBottomcontent'>
-		            <div className='statusBottomleft'>
-			            <span className='statusBottomItem'>容器</span>
-			            <Tooltip title='容器可用配额是按照最小容器配置（512M内存）计算；本集群容器可用配额（个）=本集群可用内存（M）/512M；'>
-				            <Icon type="question-circle-o" style={{ margin: '0 7px' }} />
-			            </Tooltip>
-		            </div>
-		            <div className='statusBottomright'>
-			            <Progress percent={memoryUsed} strokeWidth={11} className='statusBottomrightitem' showInfo={false}/>
-		            </div>
-		            <Tooltip title={`已创建容器 ${ isNaN(allocatedPodNumber) ? '-' :allocatedPodNumber } 个，可用配额 ${ isNaN(allocatedPodNumber) ? '-' : canCreateContainer } 个`}>
-			            <div className='statusBottomthird' >
-				            {`已创建容器 ${ isNaN(allocatedPodNumber) ? '-' :allocatedPodNumber } 个，可用配额 ${ isNaN(allocatedPodNumber) ? '-' : canCreateContainer } 个`}
-			            </div>
-		            </Tooltip>
-	            </div>
+              <div className='statusBottomcontent'>
+                <div className='statusBottomleft'>
+                  <span className='statusBottomItem'>容器</span>
+                  <Tooltip title='容器可用配额是按照最小容器配置（512M内存）计算；本集群容器可用配额（个）=本集群可用内存（M）/512M；'>
+                    <Icon type="question-circle-o" style={{ margin: '0 7px' }} />
+                  </Tooltip>
+                </div>
+                <div className='statusBottomright'>
+                  <Progress percent={memoryUsed} strokeWidth={11} className='statusBottomrightitem' showInfo={false}/>
+                </div>
+                <Tooltip title={`已创建容器 ${ isNaN(allocatedPodNumber) ? '-' :allocatedPodNumber } 个，还可创建${ isNaN(allocatedPodNumber) ? '-' : canCreateContainer } 个`}>
+                  <div className='statusBottomthird' >
+                    {`已创建容器 ${ isNaN(allocatedPodNumber) ? '-' :allocatedPodNumber } 个，还可创建 ${ isNaN(allocatedPodNumber) ? '-' : canCreateContainer } 个`}
+                  </div>
+                </Tooltip>
+              </div>
             </Card>
           </Col>
           <Col span={6} className='sysState'>
@@ -1528,7 +1541,7 @@ function getDbServiceStatus(data) {
 }
 
 function mapStateToProp(state, props) {
-  const { current } = state.entities
+  const { current, loginUser } = state.entities
   let clusterOperationsData = {
     appCreate: 0,
     appModify: 0,
@@ -1741,6 +1754,7 @@ function mapStateToProp(state, props) {
 
   return {
     current,
+    loginUser:loginUser.info,
     clusterOperations: clusterOperationsData,
     clusterSysinfo: clusterSysinfoData,
     clusterStorage: clusterStorageData,
