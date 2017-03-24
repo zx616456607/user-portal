@@ -24,7 +24,7 @@ function fetchRecordsFilters(clusterID) {
       types: [ALERT_GET_RECORDS_FILTERS_REQUEST, ALERT_GET_RECORDS_FILTERS_SUCCESS, ALERT_GET_RECORDS_FILTERS_FAILURE],
       endpoint: `${API_URL_PREFIX}/alerts/record-filters?cluster=${clusterID}`,
       schema: {}
-    }
+    },
   }
 }
 
@@ -59,7 +59,7 @@ export const ALERT_DELETE_RECORDS_REQUEST = 'ALERT_DELETE_RECORDS_REQUEST'
 export const ALERT_DELETE_RECORDS_SUCCESS = 'ALERT_DELETE_RECORDS_SUCCESS'
 export const ALERT_DELETE_RECORDS_FAILURE = 'ALERT_DELETE_RECORDS_FAILURE'
 
-function fetchDeleteRecords(strategyID) {
+function fetchDeleteRecords(strategyID, callback) {
   let endpoint = `${API_URL_PREFIX}/alerts/records`
   if (strategyID) {
     endpoint += `?strategyID={strategyID}`
@@ -72,12 +72,13 @@ function fetchDeleteRecords(strategyID) {
       options: {
         method: 'DELETE',
       },
-    }
+    },
+    callback,
   }
 }
 
-export function deleteRecords(strategyID) {
+export function deleteRecords(strategyID, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchDeleteRecords(strategyID))
+    return dispatch(fetchDeleteRecords(strategyID, callback))
   }
 }

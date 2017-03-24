@@ -16,6 +16,7 @@ import { connect } from 'react-redux'
 import moment from 'moment'
 import './style/AlarmRecord.less'
 import { loadRecords, loadRecordsFilters, deleteRecords } from '../../actions/alert'
+import NotificationHandler from '../../common/notification_handler'
 const Option = Select.Option
 
 class AlarmRecord extends Component {
@@ -72,7 +73,28 @@ class AlarmRecord extends Component {
     this.props.loadRecords(query)
   }
   deleteRecords() {
-    this.props.deleteRecords()
+    const {
+      deleteRecords,
+      loadRecords,
+     } = this.props
+    const _this = this
+    deleteRecords('', {
+      success: {
+        func: () => {
+          loadRecords()
+          let notification = new NotificationHandler()
+          notification.success('清空记录成功')
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          let notification = new NotificationHandler()
+          notification.error('清空记录失败')
+        },
+        isAsync: true
+      }
+    })
   }
   onBeginTimeFilterChange(time) {
     // covert to utc to avoid '+'
