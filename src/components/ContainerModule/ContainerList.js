@@ -494,9 +494,9 @@ class ContainerList extends Component {
               <Icon type="question-circle-o" style={{ marginRight: '8px' }} />
               您是否确定要重新分配
               {
-                this.state.checkedContainerList.length > 1
-                ? `这${this.state.checkedContainerList.length}个容器？`
-                : `容器 ${this.state.checkedContainerList[0].metadata.name} ？`
+                this.state.checkedContainerList.length === 1
+                ? `容器 ${this.state.checkedContainerList[0].metadata.name} ？`
+                : `这${this.state.checkedContainerList.length}个容器？`
               }
            </div>
           </Modal>
