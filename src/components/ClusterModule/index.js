@@ -181,7 +181,7 @@ let CreateClusterModal = React.createClass({
       }
       <Tabs defaultActiveKey="newCluster">
         <TabPane tab="新建集群" key="newCluster">
-          <AddClusterOrNodeModalContent CMD={addClusterCMD && addClusterCMD[camelize('default_command')]} />
+          <AddClusterOrNodeModalContent CMD={addClusterCMD && addClusterCMD[camelize('default_command')].replace('ADMIN_SERVER_URL', window.location.origin)} />
           <div style={{paddingBottom: 10}}>
             注：新建的首个集群，将设置对平台全部个人帐号开放
           </div>
