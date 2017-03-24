@@ -11,6 +11,8 @@
 import React, { Component } from 'react'
 import { Radio, Input, InputNumber, Form, Select, Icon, Button, Modal } from 'antd'
 import './style/AlarmModal.less'
+import { validateK8sResourceForServiceName } from '../../../common/naming_validation'
+
 const Option = Select.Option
 const RadioGroup = Radio.Group
 
@@ -564,7 +566,7 @@ let TwoStop = React.createClass({
     });
 
     return (
-      <Form className="alarmRule" inline={true}>
+      <Form className="alarmRule" inline={true} form={this.props.form}>
         {/* ------------- cpu Item --------------*/}
         <div className="ruleItem">
           <Form.Item>
@@ -660,37 +662,69 @@ let AlarmGroup = React.createClass({
     form.setFieldsValue({
       keys,
     });
-    // this.setState({isAddEmail: 1})
+    this.setState({isAddEmail: 1})
   },
   addEmail() {
-    // if (!this.state.isAddEmail) return
+    console.log(this.state)
+    if (!this.state.isAddEmail) return
     const { form } = this.props
-    form.validateFields((error, values) => {
-      if (!!error) {
-        return
-      }
-      console.log('vaelue', values)
-      mid++;
-      // can use data-binding to get
-      let keys = form.getFieldValue('keys');
-      keys = keys.concat(mid);
-      // can use data-binding to set
-      // important! notify form to detect changes
-      form.setFieldsValue({
-        keys,
-      });
+    // form.validateFields((error, values) => {
+    //   if (!!error) {
+    //     return
+    //   }
+    //   console.log('vaelue', values)
 
-    })
-    // this.setState({isAddEmail: false})
+    // })
+    mid++;
+    // can use data-binding to get
+    let keys = form.getFieldValue('keys');
+    keys = keys.concat(mid);
+    // can use data-binding to set
+    // important! notify form to detect changes
+    form.setFieldsValue({
+      keys,
+    });
+    this.setState({isAddEmail: false})
   },
   addRuleEmail(rule, value, callback) {
     if(!Boolean(value)) {
       callback(new Error('请输入邮箱地址'))
+      return
     }
     callback()
   },
   ruleEmail() {
     // send rule email
+  },
+  emailName(rule, value, callback) {
+    // top email rule name
+    if (!Boolean(value)) {
+      callback(new Error('请输入名称'))
+      return
+    }
+    if (value.length < 3 || value.length > 21) {
+      callback(new Error('请输入3~21个字符'))
+      return
+    }
+    callback()
+  },
+  submitAddEmail() {
+    // submit add email modal
+    // console.log('getFielsv',this.props.form.getFieldsValue());
+    const { form } = this.props
+    form.validateFields((error, values) => {
+      if (!!error) {
+        console.log('error is')
+        return
+      }
+      console.log('submitVaelue', values)
+
+    })
+  },
+  handCancel() {
+    const {funcs,form } = this.props
+     funcs.scope.setState({ createGroup: false, alarmModal: true})
+     form.resetFields()
   },
   render() {
     const formItemLayout = {
@@ -698,6 +732,7 @@ let AlarmGroup = React.createClass({
       wrapperCol: { span: 21 },
     };
     const { getFieldProps, getFieldValue } = this.props.form;
+    const { funcs } = this.props
     getFieldProps('keys', {
       initialValue: [],
     });
@@ -721,25 +756,40 @@ let AlarmGroup = React.createClass({
       );
     });
     return (
-      <Form className="alarmAction">
-        <Form.Item label="名称" {...formItemLayout}>
-          <Input />
-        </Form.Item>
-        <Form.Item label="描述" {...formItemLayout}>
-          <Input type="textarea" />
-        </Form.Item>
-        <div className="lables">
-          <div className="keys">
-            邮箱
-          </div>
-          <div className="emaillItem" >
+      <Modal title="创建新列表" visible={funcs.scope.state.createGroup}
+          width={580}
+          maskClosable={false}
+          wrapClassName="AlarmModal"
+          className="alarmContent"
+          onCancel={() =>this.handCancel()}
+          onOk={()=> this.submitAddEmail()}
+        >
+        <Form className="alarmAction" form={this.props.form}>
+          <Form.Item label="名称" {...formItemLayout} >
+            <Input {...getFieldProps(`emailName`, {
+            rules: [{ whitespace: true },
+              { validator: this.emailName}
+            ]}) }
+          />
+          </Form.Item>
+          <Form.Item label="描述" {...formItemLayout} >
+            <Input type="textarea" {...getFieldProps(`emailDesc`, {
+            rules: [{ whitespace: true },
+            ]}) }/>
+          </Form.Item>
+          <div className="lables">
+            <div className="keys">
+              邮箱
+            </div>
+            <div className="emaillItem" >
 
-            {formItems}
-            <div  style={{clear:'both'}}><a onClick={() => this.addEmail()}><Icon type="plus-circle-o" /> 添加邮箱</a></div>
+              {formItems}
+              <div style={{clear:'both'}}><a onClick={() => this.addEmail()}><Icon type="plus-circle-o" /> 添加邮箱</a></div>
+            </div>
           </div>
-        </div>
 
-      </Form>
+        </Form>
+      </Modal>
     )
   }
 })
@@ -758,6 +808,7 @@ class AlarmModal extends Component {
   submitRule() {
     console.log('submit in---------')
   }
+
   render() {
     const formItemLayout = {
       labelCol: { span: 4 },
@@ -795,7 +846,7 @@ class AlarmModal extends Component {
 
                 </Select>
                 <div style={{ marginTop: 10 }}>
-                  <Button icon="plus" onClick={() => this.setState({ createGroup: true })} size="large" type="primary">新建组</Button>
+                  <Button icon="plus" onClick={() => funcs.scope.setState({ createGroup: true, alarmModal: false })} size="large" type="primary">新建组</Button>
                 </div>
               </Form.Item>
             </Form>
@@ -805,15 +856,9 @@ class AlarmModal extends Component {
             </div>
           </div>
         </div>
-        <Modal title="创建新列表" visible={this.state.createGroup}
-          width={580}
-          maskClosable={false}
-          wrapClassName="AlarmModal"
-          className="alarmContent"
-          onCancel={() => this.setState({ createGroup: false })}
-        >
-          <AlarmGroup />
-        </Modal>
+
+        <AlarmGroup funcs={funcs} />
+
       </div>
     )
   }
