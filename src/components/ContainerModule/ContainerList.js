@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ContainerList.less'
 import { loadContainerList, deleteContainers, updateContainerList } from '../../actions/app_manage'
-import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT } from '../../constants'
+import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { calcuDate } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
@@ -225,13 +225,14 @@ class ContainerList extends Component {
     }
   }
 
-  loadData(nextProps) {
+  loadData(nextProps, options) {
     const selt = this
     const {
       loadContainerList, cluster, page,
       size, name, sortOrder,
     } = nextProps || this.props
     const query = { page, size, name, sortOrder }
+    query.customizeOpts = options
     loadContainerList(cluster, query, {
       success: {
         func: (result) => {
@@ -265,12 +266,21 @@ class ContainerList extends Component {
     this.loadData()
   }
 
+  componentDidMount() {
+    // Reload list each UPDATE_INTERVAL
+    this.upStatusInterval = setInterval(() => {
+      this.loadData(null, { keepChecked: true })
+    }, UPDATE_INTERVAL)
+  }
+
   componentWillUnmount() {
     const {
       cluster,
       statusWatchWs,
     } = this.props
     removePodWatch(cluster, statusWatchWs)
+    clearTimeout(this.loadStatusTimeout)
+    clearInterval(this.upStatusInterval)
   }
 
   componentWillReceiveProps(nextProps) {
