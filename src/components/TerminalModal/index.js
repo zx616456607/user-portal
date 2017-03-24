@@ -10,13 +10,14 @@
 import React, { Component, PropTypes } from 'react'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import { Icon, Tabs, Modal } from 'antd'
+import { Icon, Tabs, Modal, Button } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../constants'
 import $ from 'jquery'
 import './style/TerminalModal.less'
 
 const TabPane = Tabs.TabPane;
+const TERM_TIPS_DISABLED = 'term_tips_disabled'
 
 class TerminalModal extends Component {
   constructor(props) {
@@ -25,11 +26,15 @@ class TerminalModal extends Component {
     this.closeWindow = this.closeWindow.bind(this);
     this.onChangeTabs = this.onChangeTabs.bind(this);
     this.closeTerminal = this.closeTerminal.bind(this);
+    this.getTermTipsStatus = this.getTermTipsStatus.bind(this);
+    this.disabledTermTips = this.disabledTermTips.bind(this);
+    this.closeTip = this.closeTip.bind(this);
     this.state = {
       currentShow: null,
       currentTab: null,
       terminalList: [],
-      terminalType: 'normal'
+      terminalType: 'normal',
+      tipsVisible: true,
     }
   }
 
@@ -131,7 +136,8 @@ class TerminalModal extends Component {
     })
     _this.setState({
       closeModal:false,
-      terminalList: []
+      terminalList: [],
+      tipsVisible: true,
     })
     scope.setState({
       TerminalLayoutModal: false,
@@ -140,9 +146,10 @@ class TerminalModal extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { config } = nextProps;
+    const { config, scope } = nextProps;
     const { terminalList } = this.state;
     let newList = []
+    let existSum = 0
     config.map((item) => {
       let existFlag = false;
       terminalList.map((oldItem) => {
@@ -150,6 +157,7 @@ class TerminalModal extends Component {
           item.terminalStatus = oldItem.terminalStatus;
           newList.push(item);
           existFlag = true;
+          existSum ++;
         }
       });
       if(!existFlag) {
@@ -157,6 +165,9 @@ class TerminalModal extends Component {
         newList.push(item);
       }
     })
+    if (existSum === config.length) {
+      return
+    }
     this.setState({
       terminalList: newList
     })
@@ -208,7 +219,7 @@ class TerminalModal extends Component {
     });
     _this.setState({
       terminalList: newList,
-      onlyModal: false
+      onlyModal: false,
     })
     let frameKey = config.metadata.name + this.state.terminalIndex;
     if(config.terminalStatus == 'success') {
@@ -223,7 +234,42 @@ class TerminalModal extends Component {
         TerminalLayoutModal: false
       });
     }
+  }
 
+  getTermTipsStatus() {
+    if (!window.localStorage) {
+      return false
+    }
+    const { loginUser } = this.props
+    const disabledTermTipsNames = window.localStorage.getItem(TERM_TIPS_DISABLED)
+    if (disabledTermTipsNames.indexOf(loginUser.userName)) {
+      return true
+    }
+    return false
+  }
+
+  disabledTermTips() {
+    this.setState({
+      tipsVisible: false,
+    })
+    if (!window.localStorage) {
+      return false
+    }
+    const { loginUser } = this.props
+    let disabledTermTipsNames = window.localStorage.getItem(TERM_TIPS_DISABLED)
+    if (disabledTermTipsNames) {
+      disabledTermTipsNames = disabledTermTipsNames.split(',')
+    } else {
+      disabledTermTipsNames = []
+    }
+    disabledTermTipsNames.push(loginUser.userName)
+    window.localStorage.setItem(TERM_TIPS_DISABLED, disabledTermTipsNames.join(','))
+  }
+
+  closeTip() {
+    this.setState({
+      tipsVisible: false
+    })
   }
 
   render() {
@@ -255,6 +301,19 @@ class TerminalModal extends Component {
             return (
               <TabPane tab={titleTab} key={item.metadata.name + index}>
                 <div>
+                  {
+                    (item.terminalStatus === 'success' && this.state.tipsVisible) &&
+                    <div className="tips">
+                      <Icon type="info-circle-o" /> 由于容器本身无状态且不可变的特性，以防容器销毁后，对容器内部做的改动无法保留，
+                      <span className="important">建议不要直接修改容器中内容（有状态容器中存储映射出来的目录除外）</span>
+                      <div className="btns">
+                        <Button key="back" type="primary" onClick={this.closeTip}>知道了</Button>
+                        <Button key="submit" onClick={this.disabledTermTips}>
+                          不再提醒
+                        </Button>
+                      </div>
+                    </div>
+                  }
                   {
                     item.terminalStatus == 'connect' ? [
                       <div className='webLoadingBox' key={'webLoadingBox' + index}>
@@ -304,9 +363,11 @@ class TerminalModal extends Component {
 }
 
 function mapStateToProps(state, props) {
+  const { current, loginUser } = state.entities
 
   return {
-    cluster: state.entities.current.cluster.clusterID
+    cluster: current.cluster.clusterID,
+    loginUser: loginUser.info,
   }
 }
 
