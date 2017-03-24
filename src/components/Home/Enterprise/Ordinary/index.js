@@ -133,17 +133,17 @@ class Ordinary extends Component {
     this.state = {
       tab1: true,
       tab2: false,
-					 tab3: false,
-					 isTeam: false,
-				}
-		}
+      tab3: false,
+      isTeam: false,
+    }
+  }
 
-	 componentDidMount() {
-		  const {loadClusterInfo, current} = this.props
-		  const {clusterID} = current.cluster
-		  loadClusterInfo(clusterID)
-		  loadClusterSummary(clusterID)
-	 }
+  componentDidMount() {
+    const {loadClusterInfo, current} = this.props
+    const {clusterID} = current.cluster
+    loadClusterInfo(clusterID)
+    loadClusterSummary(clusterID)
+  }
   componentWillReceiveProps(nextProps) {
     const { loadClusterInfo } = this.props
     const { current } = nextProps
