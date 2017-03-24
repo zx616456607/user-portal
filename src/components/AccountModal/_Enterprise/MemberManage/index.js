@@ -484,7 +484,7 @@ class MemberManage extends Component {
     const { loadUserList, chargeUser} = this.props
     const oldBalance = parseFloat(this.state.record.balance)
 
-    if (oldBalance + body.amount >= MAX_CHARGE ) {
+    if (oldBalance + body.amount > MAX_CHARGE ) {
       // balance (T) + charge memory not 200000
       let isnewBalance = Math.floor(MAX_CHARGE - oldBalance)
       let newBalance = isnewBalance > 0 ? isnewBalance : 0

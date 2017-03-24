@@ -357,7 +357,7 @@ class ClusterTabList extends Component {
     })
   }
 
-  searchNodes(e) {
+  searchNodes() {
     //this function for search nodes
     const { nodes } = this.props;
     if(this.state.nodeName.length == 0) {

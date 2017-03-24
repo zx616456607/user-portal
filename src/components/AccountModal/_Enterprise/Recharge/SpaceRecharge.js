@@ -111,7 +111,7 @@ let SpaceRecharge = React.createClass({
     if (selected.length > 0 ) {
       selected.map((list)=> {
         let itemBalance =  parseAmount(_this.props.teamSpacesList[list].balance, 4).amount
-        if ((itemBalance + value) >= MAX_CHARGE ){
+        if ((itemBalance + value) > MAX_CHARGE ){
           let visible = (MAX_CHARGE - itemBalance) > 0 ? parseInt(MAX_CHARGE - itemBalance) : 0
           callback(new Error(`团队空间${_this.props.teamSpacesList[list].namespace}，最大可充值 ${visible}`))
           return

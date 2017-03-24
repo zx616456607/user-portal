@@ -31,7 +31,7 @@ let MemberRecharge = React.createClass({
     value = parseFloat(value)
     parentScope.setState({number: value})
     let itemBalance =  Number(parentScope.state.record.balance.replace('T',' '))
-    if ((itemBalance + value) >= MAX_CHARGE ){
+    if ((itemBalance + value) > MAX_CHARGE ){
       let isvisble = Math.floor((MAX_CHARGE - itemBalance))
       let visible = isvisble > 0 ? isvisble : 0
       callback([new Error(`成员名${parentScope.state.record.namespace}，最大可充值 ${visible}`)])
