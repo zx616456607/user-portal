@@ -952,14 +952,14 @@ class Ordinary extends Component {
                   <div className='logAvatar'>
                     <Link to='/account'>
                       <span style={{color: 'white'}}>{img}</span>
-											{/*<img alt={userName} src={`${AVATAR_HOST}${avatar}`} />*/}
+                      {/*<img alt={userName} src={`${AVATAR_HOST}${avatar}`} />*/}
                     </Link>
                   </div>
                   <div className="loginText">
                     <div className="text">
                       <Link to='/account'>
                         <p className="userName">
-													{userName}
+                          {userName}
                         </p>
                       </Link>
                       <Tooltip title={email}>
@@ -967,21 +967,21 @@ class Ordinary extends Component {
                       </Tooltip>
                     </div>
                   </div>
-									{/*<div className='loginTag'>个人</div>*/}
+                  {/*<div className='loginTag'>个人</div>*/}
                   <div style={{clear: 'both'}}></div>
                 </div>
                 <div>
                   <div className='userCost'>
                     <div>
                       <i style={{backgroundColor: '#46b2fa'}}></i>
-											{this.state.isTeam ? '团队余额' : '我的余额'}：
+                      {this.state.isTeam ? '团队余额' : '我的余额'}：
                     </div>
                     <span className='costNum'>
                       <Tooltip title={parseAmount(clusterNodeSpaceConsumption.balance).amount + 'T'}>
                         <span>{parseAmount(clusterNodeSpaceConsumption.balance).amount} T</span>
                       </Tooltip>
                     </span>
-										{/*<Link to='/account'><Button type='primary'>去充值</Button></Link>*/}
+                    {/*<Link to='/account'><Button type='primary'>去充值</Button></Link>*/}
                   </div>
                   <div className='userCost'>
                     <div>
