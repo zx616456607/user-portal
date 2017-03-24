@@ -358,7 +358,6 @@ module.exports = function (Router) {
   router.post('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
   router.put('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
   router.get('/cluster/:cluster/config', globalConfigController.getGlobalConfig)
-
   router.post('/type/:type/isvalidconfig', globalConfigController.isValidConfig)
 
   // alert
