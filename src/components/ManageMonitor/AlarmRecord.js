@@ -32,7 +32,7 @@ class AlarmRecord extends Component {
   }
   componentWillMount() {
     const { loadRecordsFilters } = this.props
-    loadRecordsFilters('CID-fe23111d77cb')
+    loadRecordsFilters('CID-fe23111d77cb') // TODO
   }
   getFilters() {
     const {
