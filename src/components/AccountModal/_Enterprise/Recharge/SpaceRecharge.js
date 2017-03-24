@@ -55,7 +55,7 @@ let SpaceRecharge = React.createClass({
     //  has teamList props load loadUserTeamspaceDetailList
     const body = {
       namespaces: data,
-      amount: _this.state.number
+      amount: parseFloat(_this.state.number)
     }
     if (data.length ==0) {
       notification.info('请选择要充值的空间名')
@@ -72,13 +72,22 @@ let SpaceRecharge = React.createClass({
             notification.success('空间充值成功')
             if (teamID) {
               loadTeamspaceList(teamID)
+              _this.setState({number: 10})
+              _this.props.form.resetFields()
               return
             }
             if (teamList) {
+              _this.setState({number: 10})
+              _this.props.form.resetFields()
               loadUserTeamspaceDetailList(teamList)
             }
           },
           isAsync: true
+        },
+        failed: {
+          func: ()=> {
+            _this.setState({number: 10})
+          }
         }
       })
 
@@ -93,13 +102,18 @@ let SpaceRecharge = React.createClass({
   checkCharge(rule, value, callback) {
     const form = this.props.form
     const _this = this
+    if (typeof value == 'undefined') {
+      callback(new Error('请输入数字    '))
+      return
+    }
+    value = parseFloat(value)
     const { selected } = this.props
     if (selected.length > 0 ) {
       selected.map((list)=> {
         let itemBalance =  parseAmount(_this.props.teamSpacesList[list].balance, 4).amount
         if ((itemBalance + value) >= MAX_CHARGE ){
-          let visible = (MAX_CHARGE - itemBalance) > 0 ? MAX_CHARGE - itemBalance : 0
-          callback([new Error(`团队空间${_this.props.teamSpacesList[list].namespace}，最大可充值 ${visible}`)])
+          let visible = (MAX_CHARGE - itemBalance) > 0 ? parseInt(MAX_CHARGE - itemBalance) : 0
+          callback(new Error(`团队空间${_this.props.teamSpacesList[list].namespace}，最大可充值 ${visible}`))
           return
         }
       })
@@ -147,7 +161,7 @@ let SpaceRecharge = React.createClass({
         { validator: this.checkCharge },
       ],
       trigger: 'onBlur',
-      initialValue: 0
+      initialValue: parseFloat(this.state.number)
     })
     return(
       <div className="spaceItem">
