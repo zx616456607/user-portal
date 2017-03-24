@@ -357,10 +357,10 @@ class ClusterTabList extends Component {
     })
   }
 
-  searchNodes(e) {
+  searchNodes() {
     //this function for search nodes
     const { nodes } = this.props;
-    if(e.target.value.length == 0) {
+    if(this.state.nodeName.length == 0) {
       this.setState({
         nodeList: nodes.nodes
       })
@@ -663,8 +663,8 @@ class ClusterTabList extends Component {
                 <i className='fa fa-refresh' /> 刷新
               </Button>
               <span className='searchBox'>
-                <Input className='searchInput' size='large' placeholder='搜索' type='text' onChange={this.searchNodes} />
-                <i className='fa fa-search'></i>
+                <Input className='searchInput' onChange={(e)=> this.setState({nodeName: e.target.value})} size='large' placeholder='搜索' type='text' onPressEnter={this.searchNodes} />
+                <Icon type="search" className="fa"  onClick={this.searchNodes}/>
               </span>
             </div>
             <div className='dataBox'>

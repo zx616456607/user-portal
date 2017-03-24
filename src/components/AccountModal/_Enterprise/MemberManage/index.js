@@ -482,11 +482,11 @@ class MemberManage extends Component {
     const { page, pageSize, sort, filter } = this.state
 
     const { loadUserList, chargeUser} = this.props
-    const oldBalance = parseInt(this.state.record.balance)
+    const oldBalance = parseFloat(this.state.record.balance)
 
-    if (oldBalance + body.amount >= MAX_CHARGE ) {
+    if (oldBalance + body.amount > MAX_CHARGE ) {
       // balance (T) + charge memory not 200000
-      let isnewBalance = Math.floor((MAX_CHARGE - oldBalance ) *100) /100
+      let isnewBalance = Math.floor(MAX_CHARGE - oldBalance)
       let newBalance = isnewBalance > 0 ? isnewBalance : 0
       notification.info(`充值金额大于可充值金额，最多还可充值 ${newBalance}`)
       return
