@@ -34,6 +34,10 @@ const accountRoutes = [
     }]
   },
   {
+    path: 'alarm_group',
+    component: require('../components/AccountModal/AlarmGroup').default,
+  },
+  {
     path: 'API',
     component: require('../components/SettingModal/API').default,
   },
