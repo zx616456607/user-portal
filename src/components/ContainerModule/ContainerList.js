@@ -222,6 +222,7 @@ class ContainerList extends Component {
       searchInputDisabled: false,
       TerminalLayoutModal: false,
       currentContainer: [],
+      checkedContainerList: []
     }
   }
 
@@ -491,7 +492,12 @@ class ContainerList extends Component {
             onOk={()=> this.handleOk()} onCancel={()=> this.setState({Relocating: false})} >
             <div className="confirm" style={{color: '#00a0ea'}}>
               <Icon type="question-circle-o" style={{ marginRight: '8px' }} />
-              您是否确定要重新分配这{checkedContainerList.length}个容器 ?
+              您是否确定要重新分配
+              {
+                this.state.checkedContainerList.length > 1
+                ? `这${this.state.checkedContainerList.length}个容器？`
+                : `容器 ${this.state.checkedContainerList[0].metadata.name} ？`
+              }
            </div>
           </Modal>
           <Card className='containerBox'>
