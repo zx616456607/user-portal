@@ -139,13 +139,13 @@ class Ordinary extends Component {
   }
 
   componentDidMount() {
-    const {loadClusterInfo, current} = this.props
+    const {loadClusterInfo, current, loadClusterSummary} = this.props
     const {clusterID} = current.cluster
     loadClusterInfo(clusterID)
     loadClusterSummary(clusterID)
   }
   componentWillReceiveProps(nextProps) {
-    const { loadClusterInfo } = this.props
+    const { loadClusterInfo, loadClusterSummary } = this.props
     const { current } = nextProps
     const { clusterID } = current.cluster
     if (clusterID !== this.props.current.cluster.clusterID) {
