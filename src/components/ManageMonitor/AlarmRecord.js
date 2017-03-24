@@ -186,7 +186,7 @@ class AlarmRecord extends Component {
             <DatePicker placeholder="选择起始日期" size="large" onChange={(value) => this.onBeginTimeFilterChange(value)}/>
             <DatePicker placeholder="选择结束日期" size="large" onChange={(value) => this.onEndTimeFilterChange(value)}/>
             <Button icon="exception" size="large" type="primary" onClick={() => this.getRecords()}>立即查询</Button>
-            <Button icon="delete" size="large"  onClick={this.deleteRecords}>清空所有记录</Button>
+            <Button icon="delete" size="large"  onClick={() => this.deleteRecords()}>清空所有记录</Button>
           </div>
           <Card>
             <Table className="strategyTable" onRowClick={(record, index)=>console.log('click', record, index)} columns={columns} dataSource={data} pagination={false} />

@@ -7,7 +7,7 @@
  * v0.1 - 2017-03-23
  * @author mengyuan
  */
-
+'use strict'
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
 import { toQuerystring } from '../common/tools'

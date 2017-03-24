@@ -5,6 +5,7 @@
  * v0.1 - 2017-03-23
  * @author mengyuan
  */
+'use strict'
 
 import * as ActionTypes from '../actions/alert'
 import reducerFactory from './factory'
