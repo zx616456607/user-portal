@@ -348,7 +348,7 @@ class ClusterList extends Component {
                 defaultActiveKey={currentClusterID}
                 tabBarExtraContent={
                   <Tooltip
-                    title={`当前版本支持 ${maxClusters || '-'} 个 集群（目前已添加 ${clusterSum} 个）`}
+                    title={`当前许可证最多支持 ${maxClusters || '-'} 个 集群（目前已添加 ${clusterSum} 个）`}
                     placement="topLeft"
                     getTooltipContainer={() => document.getElementById('ClusterContent')}
                   >
