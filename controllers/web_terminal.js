@@ -38,13 +38,13 @@ module.exports = function (server, redis) {
       headers.port = port
       const apiVersion = clusterInfo.apiVersion
       headers.path = `/api/${apiVersion}/namespaces/${namespace}/pods/${podName}/exec?stdout=1&stdin=1&stderr=1&tty=1&command=%2Fbin%2Fsh&command=-c&command=${queryString.escape('if [ -x "/bin/bash" ]; then /bin/bash;else /bin/sh;fi')}`
-      const proxy = https.request(headers, res=> {
+      const proxy = https.request(headers, res => {
         let data = ''
         res.on('data', d=> {
-          data+=d.toString()
+          data += d.toString()
         })
         res.on('end', ()=> {
-          console.error(data.toString())
+          console.error(data)
         })
       })
       proxy.on('upgrade', (res, socket, head) => {
