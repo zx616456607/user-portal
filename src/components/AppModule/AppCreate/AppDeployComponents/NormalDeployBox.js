@@ -653,12 +653,14 @@ let NormalDeployBox = React.createClass({
   },
   componentWillMount() {
     loadImageTags(this.props)
-    loadClusterNodes(this.props)
     const cluster = this.props.currentCluster
     const storageTypes = cluster.storageTypes
     let canCreate = true
     if(!storageTypes || storageTypes.length <= 0) {
       canCreate = false
+    }
+    if (cluster.canListNode) {
+      loadClusterNodes(this.props)
     }
     this.setState({
       canCreate,
@@ -695,7 +697,6 @@ let NormalDeployBox = React.createClass({
     })
     if (serviceOpen) {
       loadImageTags(nextProps)
-      loadClusterNodes(nextProps)
       const { form } = this.props
       const { getFieldValue } = form
       let storageType = getFieldValue('storageType')
@@ -710,6 +711,9 @@ let NormalDeployBox = React.createClass({
       form.setFieldsValue({
         storageType: storageType
       })
+      if (cluster.canListNode) {
+        loadClusterNodes(this.props)
+      }
       const volumeSwitch = getFieldValue('volumeSwitch')
       if(!volumeSwitch) {
 
