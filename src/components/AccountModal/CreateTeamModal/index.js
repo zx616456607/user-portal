@@ -37,7 +37,7 @@ let CreateTeamModal = React.createClass({
       callback(new Error('以[a~z]开头，允许[0~9]、[-]，长度大于4，且以小写英文和数字结尾'))
       return
     }
-    
+
     clearTimeout(this.teamExistsTimeout)
     this.teamExistsTimeout = setTimeout(() => {
       checkTeamName(value, {
@@ -101,15 +101,15 @@ let CreateTeamModal = React.createClass({
       ],
     })
     const formItemLayout = {
-      labelCol: { span: 3 },
-      wrapperCol: { span: 18 },
+      labelCol: { span: 2 },
+      wrapperCol: { span: 21 },
     }
     return (
       <Modal title="创建团队" visible={visible}
         onOk={this.handleOk} onCancel={this.handleCancel}
         wrapClassName="NewTeamForm"
         key="NewTeamForm"
-        width="463px"
+        width={500}
         footer={[
           <Button
             key="back"
