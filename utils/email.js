@@ -103,7 +103,7 @@ function sendEmailBySendcloud(mailOptions) {
     // 批量邮件
     apiUser = sendcloudConfig.apiUserBatch
     sendcloud = new SendCloud(sendcloudConfig.apiUser,
-                              sendcloudConfig.apiKey,
+                              sendcloudConfig.apiKeyBatch,
                               sendcloudConfig.from,
                               sendcloudConfig.fromname,
                               apiUser)
@@ -112,7 +112,7 @@ function sendEmailBySendcloud(mailOptions) {
     // 触发邮件
     apiUser = sendcloudConfig.apiUser
     sendcloud = new SendCloud(sendcloudConfig.apiUser,
-                              sendcloudConfig.apiKey,
+                              sendcloudConfig.apiKeyTrigger,
                               sendcloudConfig.from,
                               sendcloudConfig.fromname,
                               apiUser)
@@ -529,4 +529,68 @@ function switchPayTypeToText(type) {
     default:
       return '其他方式'
   }
+}
+
+exports.sendNotifyGroupInvitationEmail = function(to, invitorName, invitorEmail, code) {
+  const subject = `[时速云]告警通知组|邮箱验证`
+  const systemEmail = config.mail_server.service_mail
+  const date = moment(new Date()).format("YYYY-MM-DD")
+  const inviteURL = `${config.url}/alerts/invitations/join?code=${code}`
+  const mailOptions = {
+    to,
+    subject,
+    templateName: 'alarm_group',
+    sub: {
+      '%subject%': [subject],
+      '%invitorName%': [invitorName],
+      '%invitorEmail%': [invitorEmail],
+      '%systemEmail%': [systemEmail],
+      '%receiverEmail%': [to],
+      '%inviteURL%': [inviteURL],
+      '%date%': [date],
+    }
+  }
+  return sendEnsureEmail(mailOptions, 'alarm_group.html')
+}
+
+exports.sendAlertNotifyEmail = function(info) {
+  const subject = `[时速云]告警提醒`
+  const systemEmail = config.mail_server.service_mail
+  const date = moment(new Date()).format("YYYY-MM-DD")
+  const targetType = info.targetType === 0 ? '服务' : '节点'
+  let tableContent = ``
+  let escapeHTML = function(str) {
+    return str.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace(' ', '&nbsp;')
+  }
+  info.rules.map(function(rule) {
+    tableContent += `<tr style="text-align: center">
+                      <td style="background:#ffffff;padding: 5px;padding: 5px;">${escapeHTML(info.targetName)}</td>
+                      <td style="background:#ffffff;padding: 5px;padding: 5px;">${escapeHTML(rule.triggerRule)}</td>
+                      <td style="background:#ffffff;padding: 5px;">${escapeHTML(rule.triggerValue)}</td>
+                     </tr>`
+  })
+  const mailOptions = {
+    to: info.receivers.email,
+    subject,
+    templateName: 'alarm_warning',
+    sub: {
+      '%subject%': [],
+      '%strageName%': [],
+      '%targetName%': [],
+      '%targetType%': [],
+      '%tableContent%': [],
+      '%date%': [],
+      '%systemEmail%': [],
+    }
+  }
+  mailOptions.to.map(function() {
+    mailOptions.sub['%subject%'].push(subject)
+    mailOptions.sub['%strageName%'].push(info.strategyName)
+    mailOptions.sub['%targetName%'].push(info.targetName)
+    mailOptions.sub['%targetType%'].push(targetType)
+    mailOptions.sub['%tableContent%'].push(tableContent)
+    mailOptions.sub['%date%'].push(date)
+    mailOptions.sub['%systemEmail%'].push(systemEmail)
+  })
+  return sendEnsureEmail(mailOptions, 'alarm_warning.html')
 }

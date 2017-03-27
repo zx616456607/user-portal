@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <title>alarm_waring</title>
+  <title>%subject%</title>
 </head>
 
 <body>
@@ -40,7 +39,7 @@
                       </tr>
                       <tr>
                         <td style="height: 24px;line-height: 25px">
-                          根据您在【管理与日志】-&nbsp;[告警设置]设置的%XX%策略，您的<b>XX服务（或XX节点）</b>已达到告警要求，具体如下：
+                          根据您在【管理与日志】-&nbsp;[告警设置]设置的%strageName%策略，您的<b>%targetName% %targetType%</b>已达到告警要求，具体如下：
                         </td>
                       </tr>
                       <tr>
@@ -49,19 +48,12 @@
                             <tbody>
                               <tr style="text-align: center">
                                 <td style="background:#ffffff;color: black"><b>监控对象</b></td>
-                                <td style="background:#ffffff;color: black"><b>出发规则</b></td>
+                                <td style="background:#ffffff;color: black"><b>触发规则</b></td>
                                 <td style="background:#ffffff;padding: 5px;color: black"><b>最近数据</b></td>
                               </tr>
-                              <tr style="text-align: center">
-                                <td style="background:#ffffff;padding: 5px;padding: 5px;">服务1</td>
-                                <td style="background:#ffffff;padding: 5px;padding: 5px;">CPU&gt;80%</td>
-                                <td style="background:#ffffff;padding: 5px;">CPU&nbsp;91%</td>
-                              </tr>
-                              <tr style="text-align: center">
-                                <td style="background:#ffffff;padding: 5px;padding: 5px;">服务1</td>
-                                <td style="background:#ffffff;padding: 5px;padding: 5px;">内存&gt;70%</td>
-                                <td style="background:#ffffff;padding: 5px;">内存&nbsp;83%</td>
-                              </tr>
+                              <tr><td>
+                              %tableContent%
+                              </td></tr>
                             </tbody>
                           </table>
                         </td>
@@ -91,8 +83,7 @@
                   <img src="https://dn-tenxcloud-static.qbox.me/logoBig.png" alt="TenxCloud">
                 </td>
                 <td>
-                  如有任何疑问,欢迎联系团队管理员%invitorName%(<span><a href="mailto:%invitorEmail%" style="color: #2bbbfa;">%invitorEmail%</a></span>)
-                  或时速云(
+                  如有任何疑问，欢迎联系时速云(
                   <span>
                     <a href="mailto:%systemEmail%" target="_blank" style="color: #2bbbfa;">%systemEmail%</a>
                   </span>)

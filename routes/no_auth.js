@@ -15,6 +15,7 @@ const authController = require('../controllers/auth')
 const licenseController = require('../controllers/license')
 const adminController = require('../controllers/admin')
 const middlewares = require('../services/middlewares')
+const alertController = require('../controllers/alert')
 
 module.exports = function (Router) {
   const router = new Router({})
@@ -40,6 +41,10 @@ module.exports = function (Router) {
   // Admin
   router.get('/api/v2/admin/ispwset', adminController.isPasswordSet)
   router.patch('/api/v2/admin/setpw', adminController.SetPassword)
+
+  // alert
+  router.get('/alerts/invitations/join', alertController.acceptInvitation)
+  router.post('/api/v2/alerts/notifications/intervals/:interval', alertController.sendNotifications)
 
   return router.routes()
 }
