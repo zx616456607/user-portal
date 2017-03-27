@@ -5,6 +5,8 @@
  * v0.1 - 2017-03-23
  * @author YangYuBiao
  */
+
+'use strict'
 const apiFactory = require('../services/api_factory')
 const imageScanConfig = require('../configs/image_scan')
 const registrieApi = require('../registry/index')
