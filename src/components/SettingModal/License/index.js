@@ -181,7 +181,7 @@ class License extends Component {
                        title={this.state.copySuccess ? '复制成功' : '点击复制'}><a onClick={() => this.copyLicenseCode (index)}
                                                                            onMouseLeave={() => this.returnDefaultTooltip ()}>&nbsp;
                        <Icon type="copy"/></a></Tooltip></div>} title={null}>
-              <svg className='svgmore' onClick={this.showPop}>
+              <svg className='svgmore'>
                 <use xlinkHref='#more'/>
               </svg>
             </Popover>
