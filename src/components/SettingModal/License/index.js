@@ -7,44 +7,44 @@
  * v0.1 - 2016/11/10
  * @author ZhaoXueYu
  */
-import React, {Component} from 'react'
-import {Row, Col, Spin, Alert, Card, Tooltip, Popover, Icon, Button, Form, Input} from 'antd'
+import React, { Component } from 'react'
+import { Row, Col, Spin, Alert, Card, Tooltip, Popover, Icon, Button, Form, Input } from 'antd'
 import './style/License.less'
-import {loadLicenseList, loadLicensePlatform, addLicense, loadMergedLicense} from '../../../actions/license'
-import {connect} from 'react-redux'
-import {formatDate} from '../../../common/tools'
+import { loadLicenseList, loadLicensePlatform, addLicense, loadMergedLicense } from '../../../actions/license'
+import { connect } from 'react-redux'
+import { formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../common/notification_handler'
-import {getPortalRealMode} from '../../../common/tools'
-import {LITE} from '../../../constants'
+import { getPortalRealMode } from '../../../common/tools'
+import { LITE } from '../../../constants'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
 const mode = getPortalRealMode
 const liteFlag = mode === LITE
 
-let LicenseKey = React.createClass ({
+let LicenseKey = React.createClass({
   changeValue(e) {
     // fix in ie input change value issue
-    this.props.form.setFieldsValue ({'rePasswd': e.target.value})
+    this.props.form.setFieldsValue({'rePasswd': e.target.value})
   },
   activeLicense() {
     const parentScope = this.props.scope
     const {validateFields} = this.props.form
-    validateFields ((errors, values) => {
-      if (errors) {
+    validateFields((errors, values) =>{
+      if(errors){
         return
       }
-      parentScope.props.addLicense ({rawlicense: values.rePasswd}, {
+      parentScope.props.addLicense({rawlicense: values.rePasswd}, {
         success: {
-          func: () => {
-            new NotificationHandler ().success ('添加许可证成功')
-            parentScope.props.loadLicenseList ()
-            parentScope.setState ({activeClick: false})
+          func: () =>{
+            new NotificationHandler().success('添加许可证成功')
+            parentScope.props.loadLicenseList()
+            parentScope.setState({activeClick: false})
           },
           isAsync: true
         },
         failed: {
-          func:(res) => {
+          func: (res) =>{
             new NotificationHandler().error('添加许可证失败', 'License 错误或不可重复添加！')
           }
         }
@@ -55,7 +55,7 @@ let LicenseKey = React.createClass ({
 
   render() {
     const {getFieldProps} = this.props.form;
-    const rePasswdProps = getFieldProps ('rePasswd', {
+    const rePasswdProps = getFieldProps('rePasswd', {
       rules: [{
         required: true, whitespace: true, message: '请输入许可证'
       }]
@@ -65,11 +65,11 @@ let LicenseKey = React.createClass ({
       <div className="ant-col-10">
         <Form>
           <FormItem hasFeedback>
-            <Button type="primary" onClick={() => this.activeLicense ()}>添加许可证</Button>&nbsp;&nbsp;&nbsp;
-            <Button onClick={() => parentScope.setState ({activeClick: false})}>取消</Button>
+            <Button type="primary" onClick={() => this.activeLicense()}>添加许可证</Button>&nbsp;&nbsp;&nbsp;
+            <Button onClick={() => parentScope.setState({activeClick: false})}>取消</Button>
           </FormItem>
           <FormItem hasFeedback>
-            <Input type="textarea" onInput={(e) => this.changeValue (e)} {...rePasswdProps} style={{maxHeight: 200}}/>
+            <Input type="textarea" onInput={(e) => this.changeValue(e)} {...rePasswdProps} style={{maxHeight: 200}}/>
           </FormItem>
         </Form>
       </div>
@@ -77,11 +77,11 @@ let LicenseKey = React.createClass ({
   }
 })
 
-LicenseKey = createForm () (LicenseKey)
+LicenseKey = createForm()(LicenseKey)
 
 class License extends Component {
-  constructor (props) {
-    super (props)
+  constructor(props){
+    super(props)
     this.state = {
       copySuccess: false,
       activeClick: false,
@@ -90,19 +90,19 @@ class License extends Component {
     }
   }
 
-  componentWillMount () {
+  componentWillMount(){
     document.title = '授权管理 | 时速云'
     const _this = this
-    this.props.loadLicensePlatform ()
-    this.props.loadLicenseList ({
+    this.props.loadLicensePlatform()
+    this.props.loadLicenseList({
       success: {
-        func: (res) => {
-          if (!res.data || res.data.licenses.length == 0) {
-            _this.props.loadMergedLicense ({
+        func: (res) =>{
+          if(!res.data || res.data.licenses.length == 0){
+            _this.props.loadMergedLicense({
               success: {
-                func: (res) => {
-                  if (res.data) {
-                    _this.setState ({leftTrialDays: res.data.leftTrialDays, trialEndTime: res.data.end})
+                func: (res) =>{
+                  if(res.data){
+                    _this.setState({leftTrialDays: res.data.leftTrialDays, trialEndTime: res.data.end})
                   }
                 }
               }
@@ -116,8 +116,8 @@ class License extends Component {
 
   }
 
-  getAlertType (code) {
-    switch (code) {
+  getAlertType(code){
+    switch(code){
       case 0:
         return 'success'
       case -1:
@@ -128,66 +128,71 @@ class License extends Component {
     }
   }
 
-  copyLicenseCode (index) {
+  copyLicenseCode(index){
     const scope = this;
-    let code = document.getElementsByClassName ("licenseMoreInput");
-    code[index].select ();
-    document.execCommand ("Copy", false);
-    scope.setState ({
+    let code = document.getElementsByClassName("licenseMoreInput");
+    code[index].select();
+    document.execCommand("Copy", false);
+    scope.setState({
       copySuccess: true
     });
   }
 
-  copyDownloadCode () {
+  copyDownloadCode(){
     //this function for user click the copy btn and copy the download code
     const scope = this;
-    let code = document.getElementsByClassName ("licenseInput");
-    code[0].select ();
-    document.execCommand ("Copy", false);
-    scope.setState ({
+    let code = document.getElementsByClassName("licenseInput");
+    code[0].select();
+    document.execCommand("Copy", false);
+    scope.setState({
       copySuccess: true
     });
   }
 
-  returnDefaultTooltip () {
+  returnDefaultTooltip(){
     const scope = this;
-    setTimeout (function () {
-      scope.setState ({
+    setTimeout(function(){
+      scope.setState({
         copySuccess: false
       });
     }, 500);
   }
 
-  onCharge () {
-    this.setState ({activeClick: true})
-    setTimeout (function () {
-      document.getElementById ('rePasswd').focus ()
+  onCharge(){
+    this.setState({activeClick: true})
+    setTimeout(function(){
+      document.getElementById('rePasswd').focus()
     }, 300)
   }
 
-  lincenseList (data) {
-    if (!data || data.length == 0) {
+  lincenseList(data){
+    if(!data || data.length == 0){
       return (<tr>
         <td colSpan="7" className="text-center"><Icon type="frown"/>&nbsp;暂无数据</td>
       </tr>)
     }
-    const listRow = data.map ((list, index) => {
+    const listRow = data.map((list, index) =>{
       return (
         <tr className="ant-table-row  ant-table-row-level-0" key={'list' + index}>
           <td>
-            {list.licenseUid.substring(0,15)}
-            <Popover getTooltipContainer={()=> document.getElementById('License')} trigger="click"
-            content={<div className="popLicense">{list.licenseUid}<Tooltip title={this.state.copySuccess ? '复制成功': '点击复制'}><a onClick={()=> this.copyLicenseCode(index)} onMouseLeave={()=> this.returnDefaultTooltip()}>&nbsp;<Icon type="copy" /></a></Tooltip></div>} title={null}>
-            <svg className='svgmore'><use xlinkHref='#more' /></svg>
+            {list.licenseUid.substring(0, 15)}
+            <Popover getTooltipContainer={() => document.getElementById('License')} trigger="click"
+                     content={<div className="popLicense">{list.licenseUid}<Tooltip
+                       title={this.state.copySuccess ? '复制成功' : '点击复制'}><a onClick={() => this.copyLicenseCode(index)}
+                                                                           onMouseLeave={() => this.returnDefaultTooltip()}>&nbsp;
+                       <Icon type="copy"/></a></Tooltip></div>} title={null}>
+              <svg className='svgmore'>
+                <use xlinkHref='#more'/>
+              </svg>
             </Popover>
             <input style={{position: 'absolute', opacity: '0'}} className="licenseMoreInput"
                    defaultValue={list.licenseUid}/>
           </td>
           <td >{list.maxNodes} {(list.maxNodes > 0 && index == 0) ? '（当前生效）' : ''}</td>
-          <td >{formatDate (list.start)}</td>
-          <td >{formatDate (list.end)}</td>
-          <td >{(new Date (list.end).getTime () - new Date (list.start).getTime ()) / 24 / 60 / 60 / 1000} 天</td>
-          <td >{formatDate (list.addTime)}</td>
+          <td >{formatDate(list.start)}</td>
+          <td >{formatDate(list.end)}</td>
+          <td >{(new Date(list.end).getTime() - new Date(list.start).getTime()) / 24 / 60 / 60 / 1000} 天</td>
+          <td >{formatDate(list.addTime)}</td>
           <td >{list.addUser ? list.addUser : '未知'}</td>
         </tr>
       )
@@ -201,9 +206,9 @@ class License extends Component {
   //   nowTime = nowTime.substr(0, nowTime.indexOf(' '))
   //   return nowTime + ' 00:00'
   // }
-  render () {
+  render(){
     const {isFetching, license, platform} = this.props
-    if (isFetching || !license) {
+    if(isFetching || !license){
       return (
         <div className='loadingBox'>
           <Spin size='large'/>
@@ -218,8 +223,8 @@ class License extends Component {
             <span className="leftKey ant-col-2">平台ID</span>
             <span className="inputGroup ant-col-10">
               <span>{platform.data.platformid}</span>
-              <Tooltip title={this.state.copySuccess ? '复制成功' : '点击复制'}><a onClick={() => this.copyDownloadCode ()}
-                                                                           onMouseLeave={() => this.returnDefaultTooltip ()}><Icon
+              <Tooltip title={this.state.copySuccess ? '复制成功' : '点击复制'}><a onClick={() => this.copyDownloadCode()}
+                                                                           onMouseLeave={() => this.returnDefaultTooltip()}><Icon
                 type="copy"/></a></Tooltip>
               <input className="licenseInput" defaultValue={platform.data.platformid}/>
             </span>
@@ -230,14 +235,14 @@ class License extends Component {
               <LicenseKey scope={this}/>
               :
               <div className="ant-col-20">
-                <Button type="primary" size="large" onClick={() => this.onCharge ()}
+                <Button type="primary" size="large" onClick={() => this.onCharge()}
                         style={{marginRight: '40px'}}>立即授权</Button>
                 {
                   license.licenses.length > 0 ? [<Icon type="check-circle" className="success"/>, ' 已激活',
-                    <span className="dataKey">有效期至：{formatDate (license.merged.end || '')} </span>]
+                    <span className="dataKey">有效期至：{formatDate(license.merged.end || '')} </span>]
                     :
                     [<Icon type="check-circle" className="success"/>, ' 未激活',
-                      <span className="dataKey">试用期至：{formatDate (this.state.trialEndTime)} </span>]
+                      <span className="dataKey">试用期至：{formatDate(this.state.trialEndTime)} </span>]
                 }
               </div>
             }
@@ -276,7 +281,7 @@ class License extends Component {
             </tr>
             </thead>
             <tbody className="ant-table-tbody">
-            {this.lincenseList (license.licenses)}
+            {this.lincenseList(license.licenses)}
 
             </tbody>
           </table>
@@ -286,7 +291,7 @@ class License extends Component {
   }
 }
 
-function mapStateToProps (state, props) {
+function mapStateToProps(state, props){
   const defaultState = {
     isFetching: false,
     result: {'platformid': 'test'}
@@ -300,9 +305,9 @@ function mapStateToProps (state, props) {
   }
 }
 
-export default connect (mapStateToProps, {
+export default connect(mapStateToProps, {
   addLicense,
   loadLicenseList,
   loadLicensePlatform,
   loadMergedLicense
-}) (License)
+})(License)
