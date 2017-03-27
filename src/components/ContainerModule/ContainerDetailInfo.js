@@ -86,7 +86,6 @@ export default class ContainerDetailInfo extends Component {
           }
         })
       })
-      console.log(configMaps)
       configMaps.forEach((item, index) => {
           ele.push(
             <div key={item.name + item.key + '-' + index}>

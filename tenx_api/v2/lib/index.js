@@ -89,6 +89,9 @@ module.exports = function (config) {
   // ~ config
   this.configs = collections.create('configs')
 
+  //  ~images
+  this.images = collections.create('images')
+  
   // ~ alerts
   this.alerts = collections.create('alerts')
 
