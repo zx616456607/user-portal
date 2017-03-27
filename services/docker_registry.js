@@ -90,7 +90,7 @@ SpecRegistryAPIs.prototype.getImageTags = function (imageName) {
 Get 1st layer of specified image & tag as the config
 /v2/<name>/manifests/<reference> API
 */
-SpecRegistryAPIs.prototype.getImageTagInfo = function (imageName, tag) {
+SpecRegistryAPIs.prototype.getImageTagInfo = function (imageName, tag, isGetManifest) {
   var method = "getImageTagInfo"
   // TODO: Refresh token everytime for now, do cache later
   var self = this
@@ -104,6 +104,10 @@ SpecRegistryAPIs.prototype.getImageTagInfo = function (imageName, tag) {
           logger.debug(method, 'Tag config body: ' + JSON.stringify(result))
           if (statusCode === 200) {
             var configInfo = {}
+            if(isGetManifest) {
+              resolve({"code": statusCode, "result": result})
+              return
+            }
             if (result && result.history) {
               configInfo = result.history[0].v1Compatibility
             }
