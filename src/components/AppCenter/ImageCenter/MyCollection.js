@@ -324,9 +324,8 @@ class MyCollection extends Component {
     deleteAppCenterBindUser({
       success: {
         func: () => {
-          notification['success']({
-            message: '注销成功'
-          });
+          let notification = new NotificationHandler()
+          notification.success('注销成功');
           scope.setState({
             configured: false
           })
@@ -353,9 +352,10 @@ class MyCollection extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
-    const { hubConfig } = this.props;
+    const { hubConfig, globalHubConfigured } = this.props;
     const scope = this;
     const imageList = this.props.fockImageList
+
     return (
       <QueueAnim className="MyCollection"
         type="right"
@@ -369,7 +369,7 @@ class MyCollection extends Component {
               <div className="operaBox">
                 <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" onChange={(e)=> this.setState({imageName: e.target.value})} onPressEnter={()=> this.searchImages()} />
                 <i className="fa fa-search"></i>
-                { !standardFlag ?
+                { !standardFlag && !globalHubConfigured ?
                   [
                   <Tooltip title='注销时速云Hub'>
                     <Button className='logoutBtn' size='large' type='ghost' onClick={this.showDeleteBindUser}>

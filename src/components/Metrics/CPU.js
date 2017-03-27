@@ -38,7 +38,8 @@ class CPU extends Component {
       let values = []
       item.metrics.map((metric) => {
         timeData.push(metric.timestamp)
-        values.push((metric.floatValue).toFixed(1))
+        // metric.value || floatValue  only one
+        values.push(Math.floor((metric.floatValue || metric.value) * 10) /10)
       })
       option.setXAxisData(timeData)
       option.addSeries(values, item.containerName)

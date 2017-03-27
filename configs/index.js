@@ -8,7 +8,8 @@
  * @author Zhangpc
  */
 'use strict'
-const constants = require('./constants');
+const constants = require('./constants')
+const globalConstants = require('../constants')
 
 const env = process.env
 
@@ -26,25 +27,18 @@ const config = {
     external_protocol: env.TENX_API_EXTERNAL_PROTOCOL || 'https',
     external_host: env.TENX_API_EXTERNAL_HOST || 'apiv2.tenxcloud.com',
     protocol: env.TENX_API_PROTOCOL || 'http',
-//  protocol: env.TENX_API_PROTOCOL || 'https',
     host: env.TENX_API_HOST || '192.168.1.103:48000'
-//  host: env.TENX_API_HOST || 'apiv2.tenxcloud.com'
-    // host: "localhost:8000" || env.TENX_API_HOST
-//     host: "192.168.0.2:8000" || env.TENX_API_HOST
-    // host: "192.168.0.8:8000" || env.TENX_API_HOST
-//     host: "192.168.0.104:8000" || env.TENX_API_HOST
-    // host: "192.168.3.3:48000" || env.TENX_API_HOST
   },
-  mail_server: {
-    host: "smtp.qq.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: "noreply@tenxcloud.com",
-      pass: env.NOREPLY_EMAIL_PWD,
-    },
-    service_mail: "service@tenxcloud.com"
-  },
+  // mail_server: {
+  //   host: "smtp.qq.com",
+  //   port: 465,
+  //   secure: true,
+  //   auth: {
+  //     user: "noreply@tenxcloud.com",
+  //     pass: env.NOREPLY_EMAIL_PWD,
+  //   },
+  //   service_mail: "service@tenxcloud.com"
+  // },
   // sendcloud 邮箱配置
   sendcloud: {
     apiUser: env.SENDCLOUD_API_USER,
@@ -61,7 +55,22 @@ const config = {
   },
   tenxSysSign: {
     key: 'SYSTEM_CALL_SIGNATURE',
-    value: env.SYSTEM_CALL_SIGNATURE|| '8e059c94-f760-4f85-8910-f94c27cf0ff5'
+    value: env.SYSTEM_CALL_SIGNATURE || '8e059c94-f760-4f85-8910-f94c27cf0ff5'
+  },
+  storageConfig: {
+    name: '',
+    agent: {
+      user: env.STORAGE_AGENT_USER || 'system', 
+      password: env.STORAGE_AGENT_PASSWORD || '31e120b3-512a-4e3b-910c-85c747fb1ec2'
+    },
+    pool: env.STORAGE_POOL || 'tenx-pool',
+    user: env.STORAGE_USER || 'admin',
+    keyring: env.STORAGE_KEYRING || '/etc/ceph/ceph.client.admin.keyring',
+    fsType: env.STORAGE_FSTYPE || ''
+  },
+  registryConfig: {
+    user: env.REGISTRY_USER || 'admin',
+    password: env.REGISTRY_PASSWORD || 'e3442e6a-779b-4c34-911f-855b42ea80af'
   }
 }
 const node_env = config.node_env

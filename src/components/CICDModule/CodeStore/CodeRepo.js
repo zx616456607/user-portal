@@ -278,7 +278,7 @@ const MyComponent = React.createClass({
         </div>
       )
     }
-
+    
     if (!config) {
       return (
         <div style={{ lineHeight: '100px', paddingLeft: '140px', paddingBottom: '16px' }}>
@@ -330,6 +330,9 @@ const MyComponent = React.createClass({
           </Tooltip>
           <Tooltip placement="top" title={formatMessage(menusText.syncCode)}>
             <Icon type="reload" onClick={this.syncRepoList} />
+          </Tooltip>
+          <Tooltip title={this.props.repoUser ? this.props.repoUser.url : ''}>
+            <Icon type="link" style={{ margin: '0 20px' }} />
           </Tooltip>
           <div className="right-search">
             <Input className='searchBox' size="large" onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} style={{ width: '180px', paddingRight:'28px'}} placeholder={formatMessage(menusText.search)} type='text' />
@@ -484,7 +487,8 @@ function mapStateToProps(state, props) {
   const { codeRepo, userInfo} = state.cicd_flow
   const defaultUser = {
     username: '',
-    depot: ''
+    depot: '',
+    url:''
   }
   const { repoList, isFetching } = codeRepo || defaultValue
   const { repoUser } = userInfo || defaultUser

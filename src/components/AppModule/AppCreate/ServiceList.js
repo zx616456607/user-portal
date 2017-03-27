@@ -73,8 +73,8 @@ class MyComponent extends Component {
       servicesList: newList,
       selectedList: newSeleList
     })
-    localStorage.setItem('servicesList', JSON.stringify(newList))
-    localStorage.setItem('selectedList', JSON.stringify(newSeleList))
+    sessionStorage.setItem('servicesList', JSON.stringify(newList))
+    sessionStorage.setItem('selectedList', JSON.stringify(newSeleList))
 
   }
   checkService(name, inf, imageName) {
@@ -166,19 +166,19 @@ class ServiceList extends Component {
   }
 
   componentWillMount() {
-    let forCacheServiceList = localStorage.getItem('forCacheServiceList');
-    if(!forCacheServiceList) {      
-      localStorage.removeItem('servicesList')
-      localStorage.removeItem('selectedList')
-      localStorage.setItem('forCacheServiceList', false)
+    let forCacheServiceList = sessionStorage.getItem('forCacheServiceList');
+    if(!forCacheServiceList) {
+      sessionStorage.removeItem('servicesList')
+      sessionStorage.removeItem('selectedList')
+      sessionStorage.setItem('forCacheServiceList', false)
     }
-    const serviceList = JSON.parse(localStorage.getItem('servicesList'))
+    const serviceList = JSON.parse(sessionStorage.getItem('servicesList'))
     if (serviceList) {
       this.setState({
         servicesList: serviceList
       })
     }
-    const selectedList = JSON.parse(localStorage.getItem('selectedList'))
+    const selectedList = JSON.parse(sessionStorage.getItem('selectedList'))
     if (selectedList) {
       this.setState({
         selectedList: selectedList
@@ -257,11 +257,11 @@ class ServiceList extends Component {
     }
     if (this.state.servicesList.length > 0) {
      // 直接执行下一步
-      localStorage.setItem('servicesList', JSON.stringify(this.state.servicesList))
+      sessionStorage.setItem('servicesList', JSON.stringify(this.state.servicesList))
       let tempList = this.state.servicesList.map((service) => {
         return service.id;
       })
-      localStorage.setItem('selectedList', JSON.stringify(tempList))
+      sessionStorage.setItem('selectedList', JSON.stringify(tempList))
       browserHistory.push(`/app_manage/app_create/compose_file?query=fast_create`)
     } else {
       this.setState({ visible });  // 进行确认
@@ -269,8 +269,8 @@ class ServiceList extends Component {
   }
 
   delServicesList() {
-    localStorage.removeItem('servicesList');
-    localStorage.removeItem('selectedList');
+    sessionStorage.removeItem('servicesList');
+    sessionStorage.removeItem('selectedList');
   }
   delAllSelected() {
     let selectedList = this.state.selectedList
@@ -349,11 +349,11 @@ class ServiceList extends Component {
     let cpuNumber = 0, memory = 0
     for(let i = 0; i < priceArr.length; i++) {
       cpuNumber += priceArr[i].cpu;
-      memory += priceArr[i].memory;
+      memory += priceArr[i].memory / 1024;
     }
     return unit = {
       cpu: cpuNumber,
-      memory
+      memory: Number.isInteger(memory) ? memory : (memory).toFixed(1)
     }
   }
   render() {
@@ -413,10 +413,10 @@ class ServiceList extends Component {
           </div>
           <div className="modal-price">
             <div className="price-left">
-              <span className="keys">计算资源：<span className="unit">{configData.cpu}C/{configData.memory /1024 }G </span></span>
+              <span className="keys">计算资源：<span className="unit">{configData.cpu}C/{configData.memory }G </span></span>
             </div>
             <div className="price-unit">合计：<span className="unit">{ countPrice.unit =='￥'? '￥':'' }</span>
-              <span className="unit blod">{ hourPrice.amount }{ countPrice.unit =='￥'? '':'T' }/小时</span>
+              <span className="unit blod">{ hourPrice.amount }{ countPrice.unit =='￥'? '':' T' }/小时</span>
               <span className="unit monthUnit">（约：{ countPrice.fullAmount }/月）</span>
             </div>
           </div>

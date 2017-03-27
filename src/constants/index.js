@@ -21,7 +21,7 @@ export const USERNAME_REG_EXP_OLD = /^[a-z][-a-z0-9_]{1,40}[a-z0-9]$/
 export const USERNAME_REG_EXP_NEW = /^[a-z][-a-z0-9]{3,38}[a-z0-9]$/
 export const STORAGENAME_REG_EXP = /^[a-z][-a-z0-9_]{2,14}$/
 export const EMAIL_REG_EXP = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/
-export const PHONE_REGEX = /(^(13\d|14[57]|15[^4,\D]|17[678]|18\d)\d{8}|170[059]\d{7})$/
+export const VERSION_REG_EXP = /\bv\d\.\d\.\d/
 export const HOST = 'localhost:8003'
 export const AVATAR_HOST = 'https://dn-tenx-avatars.qbox.me/'
 
@@ -42,7 +42,9 @@ export const MY_SPACE = {
 }
 export const MAX_LOGS_NUMBER = 500
 export const MIN_PAY_AMOUNT = (NODE_ENV === NODE_ENV_PROD ? 5 : 0.01)
+export const MAX_PAY_AMOUNT = 50000
 export const PAY_AMOUNT_STEP = (NODE_ENV === NODE_ENV_PROD ? 1 : 0.01)
+export const MIN_NOTIFY_AMOUNT = 1
 export const EMAIL_HASH = {
   'qq.com': 'http://mail.qq.com',
   'gmail.com': 'http://mail.google.com',
@@ -74,8 +76,24 @@ export const EMAIL_HASH = {
 export const TIMESTRAP = 1483084989915
 export const PAYMENT_REQUIRED_CODE = 402
 export const UPGRADE_EDITION_REQUIRED_CODE = 412
+export const LICENSE_EXPRIED_CODE = 451
 export const DATE_PIRCKER_FORMAT = 'YYYY-MM-DD'
 export const ASYNC_VALIDATOR_TIMEOUT = 800
 export const LOAD_STATUS_TIMEOUT = 2000
+export const UPDATE_INTERVAL = 1000 * 30
 export const USER_3RD_ACCOUNT_TYPES = ['wechat']
 export const WECHAT_SIGNUP_HASH = '#wechat'
+export const RESOURCES_DIY = 'DIY'
+export const RESOURCES_MEMORY_MIN = 100
+export const RESOURCES_MEMORY_STEP = 100
+export const RESOURCES_MEMORY_MAX = 262144 // 256G
+export const RESOURCES_CPU_MIN = 0.1
+export const RESOURCES_CPU_STEP = 0.1
+export const RESOURCES_CPU_MAX = 128 // 128 CPU
+export const TENX_PORTAL_VERSION_KEY = 'TENX_PORTAL_VERSION'
+export const TENX_PORTAL_VERSION_MAJOR_KEY = 'TENX_PORTAL_VERSION_MAJOR'
+export const SESSION_STORAGE_TENX_HIDE_DOT_KEY = 'tenx_hide_dot'
+export const SYSTEM_DEFAULT_SCHEDULE = 'tenx_system_default_schedule'
+export const LITE = 'lite'
+export const MAX_CHARGE = 200000
+export const NOT_AVAILABLE = 'N/A'

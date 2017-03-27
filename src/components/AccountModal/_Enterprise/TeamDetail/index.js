@@ -21,6 +21,8 @@ import MemberTransfer from '../../MemberTransfer'
 import CreateSpaceModal from '../../CreateSpaceModal'
 import NotificationHandler from '../../../../common/notification_handler'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../../constants'
+import { parseAmount } from '../../../../common/tools'
+import SpaceRecharge  from '../Recharge/SpaceRecharge'
 
 let MemberList = React.createClass({
   getInitialState() {
@@ -89,7 +91,7 @@ let MemberList = React.createClass({
         }
       }
     })
-     
+
   },
   onShowSizeChange(current, pageSize) {
     let { sortUser, filter } = this.state
@@ -231,7 +233,7 @@ let MemberList = React.createClass({
         >
           <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要移除成员 {this.state.userName ? this.state.userName : ''} ?</div>
         </Modal>
-       
+
       </div>
     )
   }
@@ -315,10 +317,10 @@ let TeamList = React.createClass({
         isAsync: true
       }
     })
-      
+
   },
   render: function () {
-    const { teamSpacesList, teamSpacesTotal, current } = this.props
+    const { teamSpacesList, teamSpacesTotal, current, scope } = this.props
     const {sortSpaceOrder} = this.state
     const pagination = {
       total: teamSpacesTotal,
@@ -350,11 +352,6 @@ let TeamList = React.createClass({
         className: 'tablePadding',
       },
       {
-        title: '备注',
-        dataIndex: 'description',
-        key: 'description',
-      },
-      {
         title: '应用',
         /*(
           <div onClick={this.sortSpaceApp}>
@@ -373,13 +370,25 @@ let TeamList = React.createClass({
         key: 'appCount',
       },
       {
+        title: '余额',
+        dataIndex: 'balance',
+        key: 'balance',
+        render: (text) => parseAmount(text, 4).fullAmount
+      },
+      {
         title: '操作',
         dataIndex: 'opt',
         key: 'opt',
         render: (text, record, index) => (
-          <Button icon="delete" className="delBtn" onClick={()=> this.setState({TeamModal: true, spaceID: record.key, teamName: record.spaceName})}>
+          <div><Button icon="delete" className="delBtn" onClick={()=> this.setState({TeamModal: true, spaceID: record.key, teamName: record.spaceName})}>
             删除
           </Button>
+          {(this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN) ?
+            <Button className="addBtn" onClick={()=> scope.btnRecharge(index)}>充值
+            </Button>
+          :null
+          }
+          </div>
         )
       },
     ]
@@ -403,13 +412,19 @@ let ClusterState = React.createClass({
   },
   applyClusterState() {
     const {requestTeamCluster, clusterID, teamID, loadAllClustersList} = this.props
-    requestTeamCluster(teamID, clusterID)
-    loadAllClustersList(teamID)
+    requestTeamCluster(teamID, clusterID, {
+      success: {
+        func: () => {
+          loadAllClustersList(teamID)
+        },
+        isAsync: true
+      }
+    })
   },
-  componentWillMount() {
-    const {requestTeamCluster, clusterID, teamID, loadAllClustersList} = this.props
-    loadAllClustersList(teamID)
-  },
+  // componentWillMount() {
+  //   const {requestTeamCluster, clusterID, teamID, loadAllClustersList} = this.props
+  //   loadAllClustersList(teamID)
+  // },
   render: function () {
     const {state} = this.props
     if (state === 'authorized') {
@@ -459,6 +474,7 @@ class TeamDetail extends Component {
       spaceCurrent: 1,
       spacePageSize: 5,
       spacePage: 1,
+      spaceVisible:false, // space Recharge modal
     }
   }
   addNewMember() {
@@ -497,6 +513,9 @@ class TeamDetail extends Component {
     this.setState({ targetKeys })
   }
   addNewSpace() {
+    setTimeout(function(){
+      document.getElementById('spacename').focus()
+    },500)
     this.setState({
       createSpaceModalVisible: true,
     })
@@ -561,7 +580,10 @@ class TeamDetail extends Component {
     loadTeamUserList(teamID, { sort: 'a,userName', size: 5, page: 1 })
     loadTeamspaceList(teamID, { sort: 'a,spaceName', size: 5, page: 1 })
   }
-
+  btnRecharge(index) {
+    // button rechange
+    this.setState({spaceVisible: true,selected: [index] })
+  }
   render() {
     const scope = this
     const {
@@ -582,10 +604,9 @@ class TeamDetail extends Component {
             <span className="backjia"></span>
             <span className="btn-back">返回</span>
           </Link>
+          <span className="title">{teamName}</span>
         </Row>
-        <Row className="title">
-          {teamName}
-        </Row>
+
         <Row className="content">
           <Alert message="这里展示了该团队在用的集群列表,资源配置是超级管理员在企业版后台,分配到该团队所用的计算等资源,以下集群对该团队的团队空间有效." />
           <Row className="clusterList" gutter={30}>
@@ -626,7 +647,7 @@ class TeamDetail extends Component {
                 成员数({teamUsersTotal})
               </Col>
               <Col span={6}>
-                <Button type="primary" size="large" icon="plus" className="addBtn"
+                <Button type="primary" size="large" icon="plus"
                   onClick={this.addNewMember}>
                   添加新成员
                 </Button>
@@ -659,7 +680,7 @@ class TeamDetail extends Component {
                 团队空间 ({teamSpacesTotal})
               </Col>
               <Col span={6}>
-                <Button type="primary" size="large" icon="plus" className="addBtn"
+                <Button type="primary" size="large" icon="plus"
                   onClick={this.addNewSpace}>
                   创建新空间
                 </Button>
@@ -681,10 +702,19 @@ class TeamDetail extends Component {
                 spacePage={spacePage}
                 teamSpacesTotal={teamSpacesTotal}
                 deleteTeamspace={deleteTeamspace}
+                scope = {this}
                 onChange={this.handleSpaceChange} />
             </Row>
           </Col>
         </Row>
+        {/* 团队空间充值  */}
+        <Modal title="团队空间充值" visible={this.state.spaceVisible}
+          onCancel={()=> this.setState({spaceVisible: false})}
+          width={600}
+          footer={null}
+        >
+          <SpaceRecharge parentScope={this} selected={this.state.selected} teamID={teamID} teamSpacesList={teamSpacesList}/>
+        </Modal>
       </div>
     )
   }
@@ -742,20 +772,12 @@ function mapStateToProp(state, props) {
     const teamSpaces = team.teamspaces
     if (teamSpaces.result) {
       teamSpacesTotal = teamSpaces.result.total
-      if (teamSpaces.result.data) {
-        teamSpaces.result.data.map((item, index) => {
-          teamSpacesList.push(
-            {
-              key: item.spaceID,
-              spaceName: item.spaceName,
-              description: item.description,
-              appCount: item.appCount,
-            }
-          )
-        })
+      if (teamSpaces.result) {
+        teamSpacesList = teamSpaces.result.data
       }
     }
   }
+  const userDetail = state.entities.loginUser.info
   return {
     teamID: team_id,
     teamName: team_name,
@@ -765,6 +787,7 @@ function mapStateToProp(state, props) {
     teamUserIDList: teamUserIDList,
     teamUsersTotal: teamUsersTotal,
     teamSpacesTotal: teamSpacesTotal,
+    userDetail
   }
 }
 export default connect(mapStateToProp, {

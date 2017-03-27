@@ -75,28 +75,11 @@ let AppServiceAssistSetting = React.createClass({
 
   renderImagePullPolicy(container) {
     const { imagePullPolicy } = container
-    let value = 0
-    switch (imagePullPolicy) {
-      case 'Always':
-        value = 0
-        break
-
-      case 'Never':
-        value = 1
-        break
-
-      case 'IfNotPresent':
-        value = 2
-        break
-
-      default:
-        break
-    }
     return (
-      <RadioGroup value={value}>
-        <Radio disabled={true} key="IfNotPresent" value={1}>优先使用本地镜像</Radio>
-        {/*<Radio disabled={true} key="Never" value={1}>始终使用本地镜像</Radio>*/}
-        <Radio disabled={true} key="Always" value={0}>始终拉取云端该版本镜像</Radio>
+      <RadioGroup value={imagePullPolicy}>
+        <Radio disabled={true} key="IfNotPresent" value="IfNotPresent">优先使用本地镜像</Radio>
+        {/*<Radio disabled={true} key="Never" value="Never">始终使用本地镜像</Radio>*/}
+        <Radio disabled={true} key="Always" value="Always">始终拉取云端该版本镜像</Radio>
       </RadioGroup>
     )
   },

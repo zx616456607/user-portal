@@ -32,7 +32,7 @@ class TerminalModal extends Component {
       terminalType: 'normal'
     }
   }
-  
+
   componentWillMount() {
     //set first tab
     let { config } = this.props;
@@ -57,7 +57,7 @@ class TerminalModal extends Component {
       });
     }
   }
-  
+
   componentDidMount() {
     //bind change modal height event
     let doc = $(document);
@@ -94,11 +94,11 @@ class TerminalModal extends Component {
     $('.TerminalLayoutModal').parent().css('right','initial');
     $('.TerminalLayoutModal').parent().css('height','auto');
   }
-  
+
   minWindow(){
     //this function for minx the modal
     const { terminalType } = this.state;
-    if(terminalType == 'normal') {      
+    if(terminalType == 'normal') {
       $('.TerminalLayoutModal').css('cssText','height:35px !important;transition:all 0.3s !important;');
       this.setState({
         terminalType: 'min'
@@ -110,7 +110,7 @@ class TerminalModal extends Component {
       })
     }
   }
-  
+
   closeWindow(e){
     //this function for close the modal
     e.stopPropagation();
@@ -121,8 +121,8 @@ class TerminalModal extends Component {
     const { scope, config } = _this.props;
     config.map((item, index) => {
       let frameKey = item.metadata.name + index;
-      if(item.terminalStatus == 'success') {     
-        if(!!window.frames[frameKey].contentWindow) {          
+      if(item.terminalStatus == 'success') {
+        if(!!window.frames[frameKey].contentWindow) {
           window.frames[frameKey].contentWindow.closeTerminal();
         } else {
           window.frames[frameKey].closeTerminal()
@@ -138,7 +138,7 @@ class TerminalModal extends Component {
       currentContainer: []
     });
   }
-  
+
   componentWillReceiveProps(nextProps) {
     const { config } = nextProps;
     const { terminalList } = this.state;
@@ -160,7 +160,7 @@ class TerminalModal extends Component {
     this.setState({
       terminalList: newList
     })
-    if(config.length > 0) { 
+    if(config.length > 0) {
       let currentTab = config[config.length -1].metadata.name + (config.length - 1);
       this.setState({
         currentTab: currentTab
@@ -177,19 +177,19 @@ class TerminalModal extends Component {
       }, 100)
     }
   }
-  
+
   onChangeTabs(e) {
     //this function for user change the tab and the iframe focus will be change
     this.setState({
       currentTab: e
     });
-    if(!!window.frames[e].contentWindow) {          
+    if(!!window.frames[e].contentWindow) {
       window.frames[e].contentWindow.focusTerminal();
     } else {
       window.frames[e].focusTerminal()
-    }    
+    }
   }
-  
+
   closeTerminal() {
     //this function for user close the current terminal
     //and we will ask user make sure to close the terminal or not
@@ -211,8 +211,8 @@ class TerminalModal extends Component {
       onlyModal: false
     })
     let frameKey = config.metadata.name + this.state.terminalIndex;
-    if(config.terminalStatus == 'success') {          
-      if(!!window.frames[frameKey].contentWindow) {          
+    if(config.terminalStatus == 'success') {
+      if(!!window.frames[frameKey].contentWindow) {
         window.frames[frameKey].contentWindow.closeTerminal();
       } else {
         window.frames[frameKey].closeTerminal()
@@ -223,9 +223,9 @@ class TerminalModal extends Component {
         TerminalLayoutModal: false
       });
     }
-     
+
   }
-  
+
   render() {
     const { scope } = this.props;
     let config = this.state.terminalList;
@@ -243,7 +243,7 @@ class TerminalModal extends Component {
         tabBarExtraContent={operaBox}
         onChange={this.onChangeTabs}
         activeKey={this.state.currentTab}
-        size='small'>     
+        size='small'>
         {
           config.map((item, index) => {
             const titleTab = (
@@ -266,7 +266,7 @@ class TerminalModal extends Component {
                     ] : null
                   }
                   <iframe id={item.metadata.name + index} key={'iframe' + index}
-                    src={`/js/container_terminal.html?namespace=${item.metadata.namespace}&pod=${item.metadata.name}&cluster=${this.props.cluster}`} />
+                    src={`/js/container_terminal.html?namespace=${item.metadata.namespace}&pod=${item.metadata.name}&cluster=${this.props.cluster}&_=20170324`} />
                   {
                     item.terminalStatus == 'timeout' ? [
                       <div className='webLoadingBox' key={'webLoadingBox' + index}>
@@ -304,7 +304,7 @@ class TerminalModal extends Component {
 }
 
 function mapStateToProps(state, props) {
-  
+
   return {
     cluster: state.entities.current.cluster.clusterID
   }
@@ -315,7 +315,7 @@ TerminalModal.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  
+
 })(injectIntl(TerminalModal, {
   withRef: true,
 }));

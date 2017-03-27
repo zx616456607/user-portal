@@ -14,11 +14,14 @@ const constants = require('../constants')
 const clone = require('lodash/cloneDeep')
 const DEFAULT_CONTAINER_RESOURCES = constants.DEFAULT_CONTAINER_RESOURCES
 const DEFAULT_CONTAINER_RESOURCES_MEMORY = constants.DEFAULT_CONTAINER_RESOURCES_MEMORY
+const ENTERPRISE_MODE = require('../configs/constants').ENTERPRISE_MODE
+const mode = require('../configs/model').mode
+const enterpriseFlag = ENTERPRISE_MODE == mode
 
-exports.getResourcesByMemory = function (memory) {
+exports.getResources = function (memory, cpu) {
   let resources = clone(DEFAULT_CONTAINER_RESOURCES)
-  memory = parseInt(memory || DEFAULT_CONTAINER_RESOURCES_MEMORY)
-  switch (memory) {
+  const intMemory = parseInt(memory || DEFAULT_CONTAINER_RESOURCES_MEMORY)
+  switch (intMemory) {
     case 256:
       return resources
     case 512:
@@ -45,6 +48,16 @@ exports.getResourcesByMemory = function (memory) {
       resources.limits.memory = '16384Mi'
       resources.requests.memory = '16384Mi'
       break
+    default:
+      resources.limits.memory = memory
+      resources.requests.memory = memory
+  }
+  if (enterpriseFlag && cpu) {
+    resources.requests.cpu = cpu
   }
   return resources
 }
+// only enterprise
+// add cpu back
+// cpu add requests only
+// cpu显示问题

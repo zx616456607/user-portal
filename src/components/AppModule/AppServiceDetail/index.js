@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon, Modal, Popover } from 'antd'
+import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon, Modal, Popover, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import ContainerList from './AppContainerList'
@@ -24,18 +24,20 @@ import AppServiceRental from './AppServiceRental'
 import AppSettingsHttps from './AppSettingsHttps'
 import ServiceMonitor from './ServiceMonitor'
 import AppAutoScale from './AppAutoScale'
+import AlarmStrategy from './AlarmStrategy'
 import { loadServiceDetail, loadServiceContainerList, loadK8sService } from '../../../actions/services'
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
 import TerminalModal from '../../TerminalModal'
 import { parseServiceDomain } from '../../parseDomain'
 import ServiceStatus from '../../TenxStatus/ServiceStatus'
-import { TENX_MARK, LOAD_STATUS_TIMEOUT } from '../../../constants'
+import { TENX_MARK, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../../constants'
 import { addPodWatch, removePodWatch } from '../../../containers/App/status'
 import TipSvcDomain from '../../TipSvcDomain'
 import { getServiceStatusByContainers } from '../../../common/status_identify'
 import { ANNOTATION_HTTPS } from '../../../../constants'
 import { camelize } from 'humps'
+import { SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -105,12 +107,17 @@ class AppServiceDetail extends Component {
           addPodWatch(cluster, self.props, result.data)
           // For fix issue #CRYSTAL-2079(load list again for update status)
           clearTimeout(self.loadStatusTimeout)
+          clearInterval(this.upStatusInterval)
           query.customizeOpts = {
             keepChecked: true,
           }
           self.loadStatusTimeout = setTimeout(() => {
             loadServiceContainerList(cluster, serviceName, query)
           }, LOAD_STATUS_TIMEOUT)
+          // Reload list each UPDATE_INTERVAL
+          self.upStatusInterval = setInterval(() => {
+            loadServiceContainerList(cluster, serviceName, query)
+          }, UPDATE_INTERVAL)
         },
         isAsync: true
       }
@@ -170,6 +177,9 @@ class AppServiceDetail extends Component {
       this.setState({
         activeTabKey: selectTab || DEFAULT_TAB
       })
+    } else {
+      clearTimeout(this.loadStatusTimeout)
+      clearInterval(this.upStatusInterval)
     }
   }
 
@@ -179,11 +189,19 @@ class AppServiceDetail extends Component {
       statusWatchWs,
     } = this.props
     removePodWatch(cluster, statusWatchWs)
+    clearTimeout(this.loadStatusTimeout)
+    clearInterval(this.upStatusInterval)
   }
 
   onTabClick(activeTabKey) {
+    const {loginUser} = this.props
     if (activeTabKey === this.state.activeTabKey) {
       return
+    }
+    if ( loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT) {
+      if(activeTabKey == '#binddomain' || activeTabKey == '#https') {
+        return
+      }
     }
     this.setState({
       activeTabKey
@@ -231,6 +249,7 @@ class AppServiceDetail extends Component {
   }
   render() {
     const parentScope = this
+    const { loginUser } = this.props
     const {
       scope,
       serviceDetailmodalShow,
@@ -246,6 +265,8 @@ class AppServiceDetail extends Component {
     } = this.props
     const { activeTabKey, currentContainer } = this.state
     const httpsTabKey = '#https'
+    const isKubeNode = (SERVICE_KUBE_NODE_PORT == loginUser.info.proxyType)
+
     let nocache = currentContainer.map((item) => {
       return item.metadata.name;
     })
@@ -367,7 +388,7 @@ class AppServiceDetail extends Component {
                   cluster={service.cluster}
                   />
               </TabPane>
-              <TabPane tab='绑定域名' key='#binddomain'>
+              <TabPane tab={<Tooltip placement="right" title={isKubeNode ? '当前代理不支持绑定域名':''}><span>绑定域名</span></Tooltip>} disabled={isKubeNode} key='#binddomain'>
                 <BindDomain
                   cluster={service.cluster}
                   serviceName={service.metadata.name}
@@ -389,7 +410,7 @@ class AppServiceDetail extends Component {
                   isCurrentTab={activeTabKey==='#ports'}
                   />
               </TabPane>
-              <TabPane tab='设置 HTTPS' key={httpsTabKey}>
+              <TabPane tab={<Tooltip placement="right" title={isKubeNode ? '当前代理不支持设置 HTTPS': ''}><span>设置 HTTPS</span></Tooltip>} disabled={isKubeNode} key={httpsTabKey}>
                 <AppSettingsHttps
                   serviceName={service.metadata.name}
                   cluster={service.cluster}
@@ -416,6 +437,9 @@ class AppServiceDetail extends Component {
                     cluster={service.cluster} />
                 </div>
               </TabPane>
+              <TabPane tab='告警策略' key='#strategy'>
+                <AlarmStrategy />
+              </TabPane>
               <TabPane tab='自动伸缩' key='#autoScale'>
                 <AppAutoScale
                   replicas={service.spec.replicas}
@@ -431,7 +455,7 @@ class AppServiceDetail extends Component {
                   serviceDetailmodalShow={serviceDetailmodalShow} />
               </TabPane>
               <TabPane tab='事件' key='#events'>
-                <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} />
+                <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} type={'replicaset'} serviceDetailmodalShow={serviceDetailmodalShow}/>
               </TabPane>
               <TabPane tab='租赁信息' key='#rentalInfo'>
                 <AppServiceRental serviceName={service.metadata.name} serviceDetail={[serviceDetail]} />
@@ -456,6 +480,7 @@ AppServiceDetail.propTypes = {
 
 function mapStateToProps(state, props) {
   const {scope} = props
+  const {loginUser} = state.entities
   const {statusWatchWs} = state.entities.sockets
   const currentShowInstance = scope.state.currentShowInstance
   const {cluster, metadata } = currentShowInstance
@@ -497,6 +522,7 @@ function mapStateToProps(state, props) {
   }
 
   return {
+    loginUser: loginUser,
     cluster,
     statusWatchWs,
     currentCluster: state.entities.current.cluster,

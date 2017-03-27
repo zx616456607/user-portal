@@ -12,12 +12,6 @@
 const apiFactory = require('../services/api_factory')
 const indexService = require('../services')
 
-exports.getLicense = function* () {
-  const loginUser = this.session.loginUser
-  const result = yield indexService.getLicense(loginUser)
-  this.body = result
-}
-
 // license_status: VALID, NO_LICENSE, EXPIRED
 // left_license_days: xxxx
 // left_trial_days: xxx
@@ -53,18 +47,20 @@ exports.checkLicense = function* () {
     let end_time = Date.parse(end);
     let now = new Date();
     let date = end_time - now;
-    const days = Math.floor(date/(24*3600*1000));
+    const days = date/(24*3600*1000);
     if (days > 0) {
       license_status = 'VALID'
       left_license_days = days
     } else {
       license_status = 'EXPIRED'
     }
-  } 
+  }
 
   let left_trial_days = 0
+  let trial_end_time = new Date()
   if (trial_info.data && trial_info.data.left_trial_days) {
     left_trial_days = trial_info.data.left_trial_days
+    trial_end_time = trial_info.data.trial_end_time
   }
 
   const result = {
@@ -74,13 +70,14 @@ exports.checkLicense = function* () {
       license_status,
       left_license_days,
       left_trial_days,
+      trial_end_time,
       end
     }
   }
   this.body = result
 }
 
-// get all licenses 
+// get all licenses
 // license info: license_uid, start, duration, end, add_time, add_user
 exports.getLicenses = function* () {
   const loginUser = this.session.loginUser
@@ -92,7 +89,8 @@ exports.getLicenses = function* () {
 // input: license key
 // output: success, invalid_license
 exports.addLicense = function* () {
-  const api = apiFactory.getApi()
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
   const license = this.request.body
   if (!license || !license.rawlicense) {
     const err = new Error('rawlicense field is required.')
@@ -105,7 +103,13 @@ exports.addLicense = function* () {
 
 // get platform_id
 exports.getPlatformID = function* () {
+  const platform = this.session.platform
+  if (platform) {
+    this.body = platform
+    return
+  }
   const api = apiFactory.getApi()
   const result = yield api.licenses.getBy(["platform"])
+  this.session.platform = result
   this.body = result
 }

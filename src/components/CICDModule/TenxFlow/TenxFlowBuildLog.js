@@ -171,6 +171,10 @@ let MyComponent = React.createClass({
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
+  componentWillMount(){
+    const { config, scope, flowId } = this.props;
+    this.collapseAction(config, ['LogDetail0'])
+  },
   collapseAction: function (config, e) {
     //this function for user open or close collapse panel action
     //and then the line collapse will be current change
@@ -205,6 +209,7 @@ let MyComponent = React.createClass({
     }
   },
   render: function () {
+
     const { config, scope, flowId } = this.props;
     let items = config.map((item, index) => {
       const header = (
@@ -244,14 +249,14 @@ let MyComponent = React.createClass({
             <div className='line'></div>
           </div>
           <div className='rightInfo'>
-            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} logInfo={item} flowId={flowId} callback={this.props.callback} index={index}/>
+            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} logInfo={item} flowId={flowId} callback={this.props.callback} index={index} visible={this.props.visible}/>
           </div>
         </Panel>
       );
     });
     return (
       <div className='rightBox'>
-        <Collapse className='logBox' onChange={this.collapseAction.bind(this, config)}>
+        <Collapse className='logBox' onChange={this.collapseAction.bind(this, config)} defaultActiveKey="LogDetail0">
           {items}
         </Collapse>
       </div>
@@ -344,7 +349,7 @@ class TenxFlowBuildLog extends Component {
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='paddingBox'>
-          <MyComponent config={logs} scope={scope} flowId={flowId} callback={this.props.callback}/>
+          <MyComponent config={logs} scope={scope} flowId={flowId} callback={this.props.callback} visible={this.props.visible}/>
           <div style={{ clear: 'both' }}></div>
         </div>
       </div>

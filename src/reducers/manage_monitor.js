@@ -64,6 +64,21 @@ function getQueryLog(state = {}, action) {
       return Object.assign({}, defaultState, state, {
         logs: { isFetching: false }
       })
+    case ActionTypes.GET_SERVICE_QUERY_LOG_REQUEST:
+      return Object.assign({}, defaultState, state, {
+        logs: { isFetching: true }
+      })
+    case ActionTypes.GET_SERVICE_QUERY_LOG_SUCCESS:
+      return Object.assign({}, state, {
+        logs: {
+          isFetching: false,
+          logs: action.response.result.logs || []
+        }
+      })
+    case ActionTypes.GET_SERVICE_QUERY_LOG_FAILURE:
+      return Object.assign({}, defaultState, state, {
+        logs: { isFetching: false }
+      })
     default:
       return state
   }

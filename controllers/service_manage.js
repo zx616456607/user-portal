@@ -340,13 +340,13 @@ exports.deleteServiceDomain = function* () {
   this.body = result
 }
 
-exports.getServiceDetailEvents = function* () {
+exports.getReplicasetDetailEvents = function* () {
   //this function for user get the events of detail service
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'services', serviceName, 'events'])
+  const result = yield api.getBy([cluster, 'replicaset', serviceName, 'events'])
   const events = result.data || []
   //eventList.events = []
   //if (eventList.data) {
@@ -354,6 +354,36 @@ exports.getServiceDetailEvents = function* () {
   //    eventList.events.push(eventDetail)
   //  })
   //}
+  this.body = {
+    cluster,
+    serviceName,
+    data: events
+  }
+}
+
+//get deployment all pods event
+exports.getPodsEventByServicementName = function* () {
+  const serviceName = this.params.service_name
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.getBy([cluster, 'services', serviceName, 'pods' ,'events'])
+  this.body = {
+    cluster,
+    serviceName,
+    data: result.data || []
+  }
+}
+
+// Use services for petset events
+exports.getDbServiceDetailEvents = function* () {
+  //this function for user get the events of detail service
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'services', serviceName, 'events'])
+  const events = result.data || []
+
   this.body = {
     cluster,
     serviceName,

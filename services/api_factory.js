@@ -10,7 +10,10 @@
 'use strict'
 const tenxApi = require('../tenx_api/v2')
 const config = require('../configs')
-const devopsConfig = require('../configs/devops')
+config.tenx_api = global.globalConfig.tenx_api 
+const devopsConfig = global.globalConfig.cicdConfig
+const imageScanConfig = require('../configs/image_scan')
+const registriyApi = require('../registry')
 
 exports.getApi = function (loginUser) {
   const apiConfig = {
@@ -76,10 +79,11 @@ exports.getRegistryApi = function (registryConfig) {
   return api.registries
 }
 
-exports.getSpi = function (loginUser) {
+exports.getSpi = function (loginUser, specifyConfig) {
+  let _config = specifyConfig || config.tenx_api
   const spiConfig = {
-    protocol: config.tenx_api.protocol,
-    host: config.tenx_api.host,
+    protocol: _config.protocol,
+    host: _config.host,
     api_prefix: 'spi',
     auth: loginUser
   }
@@ -91,6 +95,7 @@ exports.getSpi = function (loginUser) {
 exports.getTenxSysSignSpi = function (loginUser) {
   if (!loginUser) loginUser = {}
   const config = require('../configs')
+  config.tenx_api = global.globalConfig.tenx_api
   const tenxSysSign = config.tenxSysSign
   loginUser[tenxSysSign.key] = tenxSysSign.value
   const spiConfig = {
@@ -102,3 +107,24 @@ exports.getTenxSysSignSpi = function (loginUser) {
   const spi = new tenxApi(spiConfig)
   return spi
 }
+
+exports.getImageScanApi = function(loginUser) {
+  const apiConfig = {
+    protocol: imageScanConfig.protocol,
+    host: imageScanConfig.host,
+    port: imageScanConfig.port,
+    auth: loginUser
+  }
+  const api = new tenxApi(apiConfig)
+  return api.images
+}
+
+exports.getRegistryApi = function() {
+  const api = new registriyApi()
+  return api
+}
+
+
+
+
+

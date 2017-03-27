@@ -15,7 +15,7 @@ import { USER_CURRENT_CONFIG } from '../../constants'
 
 export const SET_CURRENT = 'SET_CURRENT'
 // Resets the currently visible error message.
-export function setCurrent(current) {
+export function setCurrent(current, callback) {
   const config = getCookie(USER_CURRENT_CONFIG)
   let [teamID, namespace, clusterID] = config.split(',')
   if (current.team) {
@@ -30,7 +30,8 @@ export function setCurrent(current) {
   setCookie(USER_CURRENT_CONFIG, `${teamID},${namespace},${clusterID}`)
   return {
     current,
-    type: SET_CURRENT
+    type: SET_CURRENT,
+    callback
   }
 }
 
@@ -99,27 +100,6 @@ function fetchLoginUserDetail(callback) {
 export function loadLoginUserDetail(callback) {
   return (dispatch) => {
     return dispatch(fetchLoginUserDetail(callback))
-  }
-}
-
-export const LICENSE_REQUEST = 'LICENSE_REQUEST'
-export const LICENSE_SUCCESS = 'LICENSE_SUCCESS'
-export const LICENSE_FAILURE = 'LICENSE_FAILURE'
-
-function fetchLicense(callback) {
-  return {
-    [FETCH_API]: {
-      types: [LICENSE_REQUEST, LICENSE_SUCCESS, LICENSE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/license`,
-      schema: {},
-    },
-    callback
-  }
-}
-
-export function loadLicense(callback) {
-  return (dispatch) => {
-    return dispatch(fetchLicense(callback))
   }
 }
 

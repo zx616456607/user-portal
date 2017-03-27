@@ -18,8 +18,9 @@ import { isDomain } from '../../../common/tools'
 import NotificationHandler from '../../../common/notification_handler.js'
 import findIndex from 'lodash/findIndex'
 import cloneDeep from 'lodash/cloneDeep'
-import { ANNOTATION_HTTPS } from '../../../../constants'
+import { ANNOTATION_HTTPS, SERVICE_KUBE_NODE_PORT } from '../../../../constants'
 import { camelize } from 'humps'
+
 let uuid=0
 let ob = {}
 let defaultPort = []
@@ -27,11 +28,27 @@ let changeType = {}
 let allPort = []
 let allUsedPort = []
 
+function validatePortNumber(proxyType, portNumber) {
+  let minimumPort = 10000
+  let maximumPort = 65535
+  if (proxyType == SERVICE_KUBE_NODE_PORT) {
+    // TODO: Make it configurealbe
+    minimumPort = 30000
+    maximumPort = 32766
+  }
+  if( portNumber < minimumPort || portNumber > maximumPort ) {
+    return '端口范围' +  minimumPort + ' ~ ' + maximumPort
+  } else {
+    return
+  }
+}
+
 let MyComponent = React.createClass({
   getInitialState() {
-    const { currentCluster } = this.props
+    const { currentCluster, loginUser } = this.props
     return {
-      disableHTTP: !isDomain(currentCluster.bindingDomains)
+      // kube-nodeport doesn't support HTTP for now
+      disableHTTP: !isDomain(currentCluster.bindingDomains) || (loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT)
     }
   },
   propTypes: {
@@ -120,18 +137,23 @@ let MyComponent = React.createClass({
     const openPort = {[i]: false}
     this.setState({openPort, selectType: 0})
   },
-  checkPort(rule, value, callback){
+  checkPort(rule, value, callback, index){
     if(!value) return callback()
-    if(value.trim() == 80) {
-      return callback()
+    const { form, loginUser } = this.props
+    const { getFieldValue } = form
+    if(index != undefined) {
+      if(getFieldValue(`ssl{index}`) == 'HTTP') {
+        return callback()
+      }
     }
     if(!/^[0-9]+$/.test(value.trim())) {
       callback(new Error('请填入数字'))
       return
     }
     const port = parseInt(value.trim())
-    if(port < 0 || port > 65535) {
-      callback(new Error('请填入0~65535'))
+    let msg = validatePortNumber(loginUser.info.proxyType, port)
+    if (msg) {
+      callback(new Error(msg))
       return
     }
     if(allPort.indexOf(port) >= 0) {
@@ -140,19 +162,42 @@ let MyComponent = React.createClass({
     }
     return callback()
   },
-  checkInputPort(rule, value, callback) {
-   if(!value) return callback()
-    if(!/^[0-9]+$/.test(value.trim())) {
+  checkContainerPort(rule, value, callback) {
+    if (!value) return callback()
+    if (!/^[0-9]+$/.test(value.trim())) {
       callback(new Error('请填入数字'))
       return
     }
     const port = parseInt(value.trim())
-    if(port == 80) return callback()
-    if(port < 0 || port > 65535) {
-      callback(new Error('请填入0~65535'))
+    if (port < 1 || port > 65535) {
+      callback(new Error('请填入1~65535'))
       return
     }
-    if(allUsedPort.indexOf(value.trim()) >= 0) {
+    if (allPort.indexOf(port) >= 0) {
+      callback(new Error('该端口已被占用'))
+      return
+    }
+    return callback()
+  },
+  checkInputPort(rule, value, callback) {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const keys = getFieldValue('newKeys')
+    const lastOne = keys[keys.length - 1]
+    if (getFieldValue(`newssl${lastOne}`) == 'HTTP') return callback()
+    if (!value) return callback()
+    if (!/^[0-9]+$/.test(value.trim())) {
+      callback(new Error('请填入数字'))
+      return
+    }
+    const port = parseInt(value.trim())
+    const { loginUser } = this.props
+    let msg = validatePortNumber(loginUser.info.proxyType, port)
+    if (msg) {
+      callback(new Error(msg))
+      return
+    }
+    if (allUsedPort.indexOf(value.trim()) >= 0) {
       callback(new Error('该端口已被占用'))
       return
     }
@@ -230,6 +275,9 @@ let MyComponent = React.createClass({
     // can use data-binding to get
     let keys = form.getFieldValue('newKeys');
     keys = keys.concat(uuid);
+    setTimeout(() => {
+      this.newPortOb.refs.input.focus()
+    })
     // can use data-binding to set
     // important! notify form to detect changes
     form.setFieldsValue({
@@ -363,7 +411,12 @@ let MyComponent = React.createClass({
       })
       return
     } else {
-      this.setState({inPort: e, selectType: e})
+      this.setState({ inPort: e, selectType: e })
+      if (e == 2) {
+        setTimeout(() => {
+          document.getElementById(`changeinputPort${index}`).focus()
+        })
+      }
     }
   },
   newInputPort(index, e) {
@@ -392,6 +445,9 @@ let MyComponent = React.createClass({
     } else {
       if(e == 2) {
         ob[index] = true
+        setTimeout(() => {
+          this.newInputPortOb.refs.input.focus()
+        })
         return
       }
       this.props.form.setFieldsValue({[`newinputPort${index}`]: null})
@@ -465,13 +521,14 @@ let MyComponent = React.createClass({
         <div className="portDetail" key={`list${k}`}>
           <div className="commonData">
             <Form.Item key={k}>
-              <Input {...getFieldProps(`newport${k}`, {
+              <Input  {...getFieldProps(`newport${k}`, {
+                ref : (instance) => this.newPortOb = instance,
                 rules: [{
                   required: true,
                   whitespace: true,
                   message: '输入容器端口',
-                }, {validator: this.checkPort}],
-              })} style={{ width: '80%', marginRight: 8 }}
+                }, {validator: this.checkContainerPort}],
+              })}  style={{ width: '80%', marginRight: 8 }}
               />
             </Form.Item>
           </div>
@@ -491,8 +548,8 @@ let MyComponent = React.createClass({
             </Select>
             </Form.Item>
           </div>
-          <div className="commonData span3">
-            <Select style={{ width:'100px', display: getFieldProps(`newssl${k}`).value == 'HTTP' ? 'none' : 'inline-block'}}  {...getFieldProps(`newserverPort${k}`, {
+          <div className="commonData span2">
+            <Select style={{ width:'90px', display: getFieldProps(`newssl${k}`).value == 'HTTP' ? 'none' : 'inline-block'}}  {...getFieldProps(`newserverPort${k}`, {
                 rules: [{
                   required: true,
                   whitespace: true,
@@ -504,11 +561,13 @@ let MyComponent = React.createClass({
               <Select.Option key="2">指定端口</Select.Option>
             </Select>
             <span style={{display: getFieldProps(`newssl${k}`).value == 'HTTP' ? 'inline-block' : 'none'}}>80</span>
-            <Form.Item key={k} style={{width: '100px', float: 'right', marginRight: '70px'}}>
-            <Input type='text' style={{width: '100px', marginLeft: '10px', display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {rules: [rules, {validator: this.checkInputPort}], initialValue: "80"})} />
-            </Form.Item>
           </div>
           <div className="commonData span2">
+            <Form.Item key={k} style={{position: 'relative'}}>
+            <Input  type='text' style={{width: '80px', marginLeft: '0px', display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {ref: instance => this.newInputPortOb = instance,rules: [rules, {validator: this.checkInputPort}], initialValue: this.state.disableHTTP ? '': "80"})} />
+            </Form.Item>
+          </div>
+          <div className="commonData span3">
             <Button type="primary" onClick={this.save}>保存</Button>
             <Button type="ghost" style={{marginLeft:'6px'}} onClick={()=> this.remove(k)}>取消</Button>
           </div>
@@ -565,36 +624,36 @@ let MyComponent = React.createClass({
             }
            </Form.Item>
           </div>
-          <div className="commonData span3">
+          <div className="commonData span2">
 
             { this.state.openPort && this.state.openPort[index] ?
-
               getFieldProps(`selectssl${index+1}`).value == 'HTTP' ? <span>80</span> :
-              <Select defaultValue='动态生成' style={{width:'100px'}} onChange={(e)=> this.changeType(e, index + 1)}>
+              <Select defaultValue='动态生成' style={{width:'90px'}} onChange={(e)=> this.changeType(e, index + 1)}>
                 <Select.Option key="1">动态生成</Select.Option>
                 <Select.Option key="2">指定端口</Select.Option>
               </Select>
-              
               :
               <span><Input type="hidden" {...getFieldProps(`inputPort${index+1}`, {
                 initialValue: target[1].toLowerCase() == 'http' ? 80 : target[2]
               })}/>{target[1].toLowerCase() == 'http' ? 80 : target[2]}</span>
             }
+
+          </div>
+          <div className="commonData span2">
             { this.state.openPort && this.state.openPort[index] && this.state.inPort =='2' ?
-              <Form.Item style={{width: '100px', float: 'right', marginRight: '70px'}}>
-                <Input style={{width:'100px', marginLeft:'10px'}} {...getFieldProps(`changeinputPort${index + 1}`, {
+              <Form.Item style={{width: '90px', float: 'left', }}>
+                <Input {...getFieldProps(`changeinputPort${index + 1}`, {
                   rules: [{
                     required: true,
                     whitespace: true,
                     message: '输入容器端口',
-                  }, {validator: this.checkPort}]
+                  }, {validator: (rule, value, callback) => this.checkPort(rule, value, callback, index+1)}]
                 })}/>
                </Form.Item>
-              :null
+              :<span>&nbsp;</span>
             }
-
           </div>
-          <div className="commonData span2">
+          <div className="commonData span3">
             { this.state.openPort && this.state.openPort[index] ?
               <Dropdown.Button overlay={actionText} type="ghost" style={{width:'100px'}} onClick={() => {this.save(index)}}>
                   <Icon type="save" /> 保存
@@ -632,7 +691,9 @@ let MyComponent = React.createClass({
 });
 
 function mapSateToProp(state) {
+  const { loginUser } = state.entities
   return {
+    loginUser: loginUser,
     k8sService: state.services.k8sService,
   }
 }
@@ -660,7 +721,7 @@ class PortDetail extends Component {
           <div className="commonTitle">
             协议
           </div>
-          <div className="commonTitle span3">
+          <div className="commonTitle span4">
             服务端口
           </div>
           <div className="commonTitle span2">

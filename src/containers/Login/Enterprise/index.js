@@ -14,11 +14,13 @@ import './style/Login.less'
 import { verifyCaptcha, login } from '../../../actions/entities'
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
+import { NO_CLUSTER_FLAG, CLUSTER_PAGE } from '../../../../constants'
 import { loadMergedLicense } from '../../../actions/license'
 import { isAdminPasswordSet} from '../../../actions/admin'
 import { browserHistory } from 'react-router'
-import { genRandomString } from '../../../common/tools'
+import { genRandomString, clearSessionStorage } from '../../../common/tools'
 import Top from '../../../components/Top'
+import { camelize } from 'humps'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -76,20 +78,31 @@ let Login = React.createClass({
               submitting: false,
               submitProps: {},
             })
+            // If no cluster found, redirect to CLUSTER_PAGE
+            if (result.user[camelize(NO_CLUSTER_FLAG)] === true) {
+              message.warning(`请先添加集群`, 10)
+              browserHistory.push(CLUSTER_PAGE)
+              return
+            }
             message.success(`用户 ${values.name} 登录成功`)
             browserHistory.push(redirect || '/')
-            resetFields()
           },
           isAsync: true
         },
         failed: {
           func: (err) => {
-            var msg = err.message.message || err.message
+            let msg = err.message.message || err.message
+            let outdated = false
             if (err.statusCode == 401) {
               msg = "用户名或者密码错误"
             }
+            if (err.statusCode == 451) {
+              msg = null,
+              outdated = true //show error and not allow login
+            }
             self.setState({
               submitting: false,
+              outdated,
               loginResult: {
                 error: msg
               },
@@ -222,6 +235,8 @@ let Login = React.createClass({
   },
 
   componentWillMount() {
+    // Clear sessionStorage when login
+    clearSessionStorage()
     const { resetFields } = this.props.form
     resetFields()
     const _this = this
@@ -240,31 +255,48 @@ let Login = React.createClass({
                   outdated = true //show error and not allow login
                 } else {
                   const { licenseStatus, leftTrialDays } = res.data
-                  if (licenseStatus == 'NO_LICENSE' && parseInt(leftTrialDays) < 0) {
+                  if (licenseStatus == 'EXPIRED') {
+                    outdated = true
+                  }
+                  if (licenseStatus == 'NO_LICENSE' && Math.floor(leftTrialDays *10) /10 <= 0) {
                     outdated = true //show error and not allow login
                   }
-                  if (licenseStatus == 'VALID' && parseInt(res.data.leftLicenseDays) < 0) {
+                  if (licenseStatus == 'VALID' && Math.floor(res.data.leftLicenseDays *10) /10 <= 0) {
                     outdated = true //show error and not allow login
                   }
                 }
                 _this.setState({
                   outdated
                 })
-                setTimeout(function(){
-                  const intName = _this.refs.intName.refs.input
-                  intName.focus()
-                  if (intName.value) {
-                    _this.setState({
-                      intNameFocus: true,
-                      intPassFocus: true
-                    })
-                  }
-                },500)
               }
             }
           })
+          setTimeout(function(){
+            const intName = _this.refs.intName.refs.input
+            intName.focus()
+            if (intName.value) {
+              _this.setState({
+                intNameFocus: true,
+                intPassFocus: true
+              })
+            }
+          },500)
         },
         isAsync: true
+      },
+      failed: {
+        func: ()=> {
+          setTimeout(function(){
+            const intName = _this.refs.intName.refs.input
+            intName.focus()
+            if (intName.value) {
+              _this.setState({
+                intNameFocus: true,
+                intPassFocus: true
+              })
+            }
+          },500)
+        }
       }
     })
   },
@@ -296,7 +328,7 @@ let Login = React.createClass({
         <Top/>
         <div className="login">
           {this.state.outdated ?
-            <div className="errorText">激活证书已过期，请重新<span className="goActive" onClick={()=> browserHistory.push("/activation")}> 输入激活码 </span>以使用平台</div>
+            <div className="errorText">许可证已过期，请重新<span className="goActive" onClick={()=> browserHistory.push("/activation")}> 输入许可证 </span>以使用平台</div>
           : null
           }
           <div className="loginContent">

@@ -23,9 +23,14 @@ const settingRoutes = [
   {
     path: 'API',
     component: require('../components/SettingModal/API').default,
-  },{
+  },
+  /*{
     path: 'personalized',
     component: require('../components/SettingModal/Personalized').default,
+  },*/
+  {
+    path: 'globalConfig',
+    component: require('../components/SettingModal/GlobalConfig').default,
   }
 ]
 

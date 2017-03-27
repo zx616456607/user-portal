@@ -11,6 +11,7 @@
 
 const constants = require('../../constants')
 const TENX_LOCAL_TIME_VOLUME = constants.TENX_LOCAL_TIME_VOLUME
+const K8S_NODE_SELECTOR_KEY = constants.K8S_NODE_SELECTOR_KEY
 const DEFAULT_DISKTYPE = 'rbd'
 const Container = require('./container')
 const TENXCLOUD_PREFIX = 'tenxcloud.com/'
@@ -210,12 +211,12 @@ class Deployment {
     this.spec.template.spec.containers.push(container)
   }
 
-  setContainerResources(containerName, memory) {
+  setContainerResources(containerName, memory, cpu) {
     this.spec.template.spec.containers.map((container) => {
       if (container.name !== containerName) {
         return
       }
-      container.resources = utils.getResourcesByMemory(memory)
+      container.resources = utils.getResources(memory, cpu)
     })
   }
 
@@ -250,8 +251,8 @@ class Deployment {
       if (container.name !== containerName) {
         return
       }
-      if(!args) return
-      if(args.length == 1 && !args[0]) return
+      if (!args) return
+      if (args.length == 1 && !args[0]) return
       if (!container.args) {
         container.args = []
       }
@@ -259,7 +260,7 @@ class Deployment {
         container.args = container.args.concat(args)
       } else {
         let argArray = args.split(' ')
-        argArray.forEach(function(arg) {
+        argArray.forEach(function (arg) {
           if (arg != "") {
             container.args.push(arg)
           }
@@ -280,7 +281,7 @@ class Deployment {
         container.command = container.command.concat(command)
       } else {
         let cmdArray = command.split(' ')
-        cmdArray.forEach(function(cmd) {
+        cmdArray.forEach(function (cmd) {
           if (cmd != "") {
             container.command.push(cmd)
           }
@@ -300,7 +301,7 @@ class Deployment {
   }
 
   // ~ volume={name, diskType, fsType, image} volumeMounts={mountPath, readOnly}
-  addContainerVolume(containerName, volume, volumeMounts) {
+  addContainerVolume(containerName, volume, volumeMounts, isConfigMap) {
     this.spec.template.spec.containers.map((container) => {
       if (container.name !== containerName) {
         return
@@ -311,11 +312,22 @@ class Deployment {
       if (!this.spec.template.spec.volumes) {
         this.spec.template.spec.volumes = []
       }
-      container.volumeMounts.push({
-        name: volume.name,
-        mountPath: volumeMounts.mountPath,
-        readOnly: volumeMounts.readOnly || false
-      })
+      if (isConfigMap) {
+        volumeMounts.forEach(item => {
+          container.volumeMounts.push({
+            name: volume.name,
+            mountPath: item.mountPath,
+            subPath: item.subPath,
+            readOnly: item.readOnly || false
+          })
+        })
+      } else {
+        container.volumeMounts.push({
+          name: volume.name,
+          mountPath: volumeMounts.mountPath,
+          readOnly: volumeMounts.readOnly || false
+        })
+      }
       if (volume.hostPath) {
         this.spec.template.spec.volumes.push({
           name: volume.name,
@@ -386,6 +398,12 @@ class Deployment {
       livenessProbe.periodSeconds = probe.periodSeconds
       container.livenessProbe = livenessProbe
     })
+  }
+
+  setNodeSelector(hostname) {
+    this.spec.template.spec.nodeSelector = {
+      [K8S_NODE_SELECTOR_KEY]: hostname
+    }
   }
 }
 

@@ -10,14 +10,19 @@
  */
 'use strict'
 
-const useragent = require('useragent')
 const apiFactory = require('./api_factory')
-const configIndex = require('../configs')
 const enterpriseMode = require('../configs/constants').ENTERPRISE_MODE
 const logger = require('../utils/logger').getLogger('middlewares')
 const constants = require('../constants')
 const USER_CURRENT_CONFIG = constants.USER_CURRENT_CONFIG
+const NO_CLUSTER_FLAG = constants.NO_CLUSTER_FLAG
+const CLUSTER_PAGE = constants.CLUSTER_PAGE
 const indexService = require('./')
+const _ = require('lodash')
+const user3rdAccount = require('./user_3rd_account')
+const utils = require('../utils')
+
+
 
 /**
  * Set user current config: teamspace, cluster
@@ -42,31 +47,39 @@ exports.setUserCurrentConfig = function* (next) {
  */
 exports.auth = function* (next) {
   const loginUser = this.session.loginUser
+  const accept = indexService.accepts.apply(this)
   if (!loginUser) {
     let redirectUrl = '/login'
     let requestUrl = this.request.url
     if (requestUrl.indexOf(redirectUrl) < 0 && requestUrl !== '/') {
+      // @Todo remove redirect url hash
       redirectUrl += `?redirect=${requestUrl}`
     }
-    switch (this.accepts('json', 'html', 'text')) {
-      case 'html':
-        this.status = 302
-        this.redirect(redirectUrl)
-        return
-      default:
-        const agent = useragent.parse(this.headers['user-agent'])
-        // Compatible with IE9-
-        if (agent.family === 'IE' && agent.major < 9) {
+    if (accept === 'html') {
+      this.status = 302
+      this.redirect(redirectUrl)
+      return
+    }
+    this.status = 401
+    this.headers['content-type'] = 'application/json'
+    this.body = {
+      message: 'LOGIN_EXPIRED'
+    }
+    return
+  }
+  // If no clusters, redirect to CLUSTER_PAGE to add cluster
+  if (utils.isAdmin(loginUser) && loginUser[NO_CLUSTER_FLAG] === true) {
+    if (accept === 'html') {
+      const isNoCluster = yield indexService.isNoCluster.apply(this)
+      if (isNoCluster) {
+        if (this.request.path !== CLUSTER_PAGE) {
           this.status = 302
-          this.redirect(redirectUrl)
+          this.redirect(CLUSTER_PAGE)
           return
         }
-        this.status = 401
-        this.headers['content-type'] = 'application/json'
-        this.body = {
-          message: 'LOGIN_EXPIRED'
-        }
-        return
+      } else {
+        delete this.session.loginUser[NO_CLUSTER_FLAG]
+      }
     }
   }
   let teamspace = this.headers.teamspace
@@ -100,6 +113,9 @@ exports.verifyUser = function* (next) {
       const userInfo = yield wechat.getUserInfo(access_token, accountID)
       data.accountDetail = JSON.stringify(userInfo)
     }
+  } else if(body.accountType == 'vsettan') {
+    data.accountType = body.accountType
+    data.accountID = body.accountID
   } else if ((!body.username && !body.email) || !body.password) {
     err = new Error('username(email), password are required.')
     err.status = 400
@@ -119,7 +135,6 @@ exports.verifyUser = function* (next) {
       throw err
     }
   }*/
-  delete this.session.wechat_account_id
   if (body.password) {
     data.password = body.password
   }
@@ -136,6 +151,7 @@ exports.verifyUser = function* (next) {
   let result = {}
   try {
     result = yield api.users.createBy(['login'], null, data)
+    delete this.session.wechat_account_id
   } catch (err) {
     if (body.accountType === 'wechat' && err.statusCode === 404) {
       this.session.wechat_account_id = accountID // add back for bind wechat
@@ -161,9 +177,8 @@ exports.verifyUser = function* (next) {
     balance: result.balance,
   }
   // Add config into user for frontend websocket
-  indexService.addConfigsForWS(loginUser)
-  result.tenxApi = loginUser.tenxApi
-  result.cicdApi = loginUser.cicdApi
+  indexService.addConfigsForFrontend(loginUser)
+  _.merge(result, loginUser)
   // Private cloud need check users license
   /*if (configIndex.running_mode === enterpriseMode) {
     const licenseObj = yield indexService.getLicense(loginUser)
@@ -173,6 +188,12 @@ exports.verifyUser = function* (next) {
       throw err
     }
   }*/
+  // Send template to user wechat
+  if (body.accountType === 'wechat') {
+    setTimeout(() => {
+      user3rdAccount.sendTemplateToWechatLoginUser(loginUser)
+    })
+  }
   yield indexService.setUserCurrentConfigCookie.apply(this, [loginUser])
   // Delete sensitive information
   delete result.userID
@@ -187,6 +208,17 @@ exports.verifyUser = function* (next) {
   } catch (err) {
     logger.error(`Get user MD5 encrypted watch token failed.`)
     logger.error(err.stack)
+  }
+  // If admin login, get all clusters
+  if (utils.isAdmin(loginUser)) {
+    let k8sApi = apiFactory.getK8sApi(loginUser)
+    let clusterList = yield k8sApi.get()
+    let clusters = clusterList.clusters || []
+    if (clusters.length < 1) {
+      result[NO_CLUSTER_FLAG] = true
+      // Save to session for redirect when user refresh page
+      loginUser[NO_CLUSTER_FLAG] = true
+    }
   }
 
   this.session.loginUser = loginUser

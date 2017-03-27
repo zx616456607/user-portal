@@ -10,19 +10,27 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
-import { resetErrorMessage } from '../../actions'
 import { Icon, Menu, Modal, Button, Spin, } from 'antd'
 import ErrorPage from '../ErrorPage'
 import Header from '../../components/Header'
-import Sider from '../../components/Sider/Enterprise'
+import DefaultSider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
 import { Link } from 'react-router'
+import { isEmptyObject, getPortalRealMode } from '../../common/tools'
+import { resetErrorMessage } from '../../actions'
 import { setSockets, loadLoginUserDetail } from '../../actions/entities'
-import { isEmptyObject,formatDate} from '../../common/tools'
 import { updateContainerList, updateAppList } from '../../actions/app_manage'
+import { loadLicensePlatform } from '../../actions/license'
 import { updateAppServicesList, updateServiceContainersList, updateServicesList } from '../../actions/services'
 import { handleOnMessage } from './status'
-import { SHOW_ERROR_PAGE_ACTION_TYPES, LOGIN_EXPIRED_MESSAGE, PAYMENT_REQUIRED_CODE, UPGRADE_EDITION_REQUIRED_CODE } from '../../constants'
+import {
+  SHOW_ERROR_PAGE_ACTION_TYPES,
+  LOGIN_EXPIRED_MESSAGE,
+  PAYMENT_REQUIRED_CODE,
+  UPGRADE_EDITION_REQUIRED_CODE,
+  LICENSE_EXPRIED_CODE,
+  LITE,
+} from '../../constants'
 import { ROLE_SYS_ADMIN } from '../../../constants'
 import errorHandler from './error_handler'
 import Intercom from 'react-intercom'
@@ -32,6 +40,7 @@ import NotificationHandler from '../../common/notification_handler'
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
 const standardFlag = mode === standard
+const realMode = getPortalRealMode()
 
 class App extends Component {
   constructor(props) {
@@ -67,17 +76,17 @@ class App extends Component {
         }
       })
     }
-
   }
 
   componentWillReceiveProps(nextProps) {
-    const { errorMessage, current, pathname, resetErrorMessage, redirectUrl } = nextProps
+    const { errorMessage, current, pathname, resetErrorMessage, redirectUrl, siderStyle } = nextProps
     const { statusWatchWs } = this.props.sockets
     const { space, cluster } = current
     let notification = new NotificationHandler()
     if (space.namespace !== this.props.current.space.namespace || cluster.clusterID !== this.props.current.cluster.clusterID) {
       statusWatchWs && statusWatchWs.close()
     }
+    this.setState({siderStyle})
     // Set previous location
     if (redirectUrl !== this.props.redirectUrl) {
       window.previousLocation = this.props.redirectUrl
@@ -118,6 +127,12 @@ class App extends Component {
         upgradeModalShow: true,
         upgradeFrom: kind
       })
+      return
+    }
+    // license 过期
+    if (statusCode === LICENSE_EXPRIED_CODE) {
+      notification.error('许可证已过期，请在登录界面激活')
+      window.location.href = '/logout'
       return
     }
     if (pathname !== this.props.pathname) {
@@ -176,13 +191,19 @@ class App extends Component {
       return
     }
 
+    // license 过期
+    if (statusCode === LICENSE_EXPRIED_CODE) {
+      resetErrorMessage()
+      return
+    }
+
     if (this.showErrorPage(errorMessage)) {
       return
     }
 
     errorHandler(error, intl)
 
-    setTimeout(resetErrorMessage)
+    resetErrorMessage()
   }
 
   onStatusWebsocketSetup(ws) {
@@ -249,6 +270,45 @@ class App extends Component {
     })
   }
 
+  renderIntercom() {
+    const {
+      loginUser,
+      platform,
+    } = this.props
+    const user = {
+      name: loginUser.userName,
+      email: loginUser.email,
+      phone: loginUser.phone,
+      creationTime: loginUser.creationTime,
+      role: loginUser.role,
+      balance: loginUser.balance,
+      teamCount: loginUser.teamCount
+    }
+    if (standardFlag) {
+      return (
+        <Intercom appID='okj9h5pl' { ...user } />
+      )
+    }
+    const { platformid } = platform
+    if (realMode === LITE && platformid) {
+      delete user.email
+      user.platformid = platformid
+      user.name = `${LITE}-${platformid.substring(0,6)}-${user.name}`
+      user.user_id = `${LITE}-${platformid}-${user.name}`
+      return (
+        <Intercom appID='okj9h5pl' { ...user } />
+      )
+    }
+  }
+
+  componentDidMount() {
+    const { loadLicensePlatform } = this.props
+    if (realMode === LITE) {
+      loadLicensePlatform()
+    }
+  }
+
+
   render() {
     let {
       children,
@@ -257,14 +317,17 @@ class App extends Component {
       pathnameWithHash,
       loginUser,
       Sider,
+      siderStyle,
       UpgradeModal,
       License
     } = this.props
+    const hashTag = '#'
+    const hashTagReg = new RegExp(hashTag, 'g')
+    redirectUrl = redirectUrl.replace(hashTagReg, encodeURIComponent(hashTag))
     const {
       loginModalVisible,
       loadLoginUserSuccess,
       loginErr,
-      siderStyle,
       upgradeModalShow,
       upgradeFrom,
     } = this.state
@@ -276,15 +339,6 @@ class App extends Component {
         </div>
       )
     }
-    const user = {
-      name: loginUser.userName,
-      email: loginUser.email,
-      phone: loginUser.phone,
-      creationTime: loginUser.creationTime,
-      role: loginUser.role,
-      balance: loginUser.balance,
-      teamCount: loginUser.teamCount
-    }
     return (
       <div className={ this.props.License ? 'tenx-layout toptips': 'tenx-layout'} id='siderTooltip'>
         {this.renderErrorMessage()}
@@ -295,7 +349,7 @@ class App extends Component {
           </div>
         </div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-sider' : 'tenx-layout-sider-bigger tenx-layout-sider'}>
-          <Sider pathname={pathnameWithHash} scope={scope} siderStyle={this.state.siderStyle} />
+          <Sider pathname={pathnameWithHash} changeSiderStyle={this.props.changeSiderStyle} siderStyle={this.state.siderStyle} />
         </div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-content' : 'tenx-layout-content-bigger tenx-layout-content'}>
           {this.getChildren()}
@@ -327,10 +381,7 @@ class App extends Component {
           </div>
         </Modal>
         {this.getStatusWatchWs()}
-        {
-          standardFlag &&
-          <Intercom appID='okj9h5pl' { ...user } />
-        }
+        {this.renderIntercom()}
         {
           UpgradeModal &&
           <UpgradeModal
@@ -351,7 +402,6 @@ App.propTypes = {
   children: PropTypes.node,
   pathname: PropTypes.string,
   siderStyle: PropTypes.oneOf(['mini', 'bigger']),
-  Sider: PropTypes.any.isRequired,
   intl: PropTypes.object.isRequired,
   UpgradeModal: PropTypes.func, // 升级模块
   License: PropTypes.Boolean,
@@ -360,11 +410,12 @@ App.propTypes = {
 
 App.defaultProps = {
   siderStyle: 'mini',
-  Sider,
+  Sider: DefaultSider,
 }
 
 function mapStateToProps(state, props) {
-  const { errorMessage, entities } = state
+  const { errorMessage, entities, license } = state
+  const { platform } = license
   const { current, sockets, loginUser } = entities
   const { location } = props
   const { pathname, search, hash } = location
@@ -386,6 +437,7 @@ function mapStateToProps(state, props) {
     current,
     sockets,
     loginUser: loginUser.info,
+    platform: (platform.result ? platform.result.data : {})
   }
 }
 
@@ -398,6 +450,7 @@ App = connect(mapStateToProps, {
   updateAppServicesList,
   updateServiceContainersList,
   updateServicesList,
+  loadLicensePlatform,
 })(App)
 
 export default injectIntl(App, {

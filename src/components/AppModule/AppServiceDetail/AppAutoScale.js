@@ -18,7 +18,7 @@ import { loadAutoScale, deleteAutoScale, updateAutoScale } from '../../../action
 import { INSTANCE_AUTO_SCALE_MAX_CPU, INSTANCE_MAX_NUM } from '../../../../constants'
 import './style/AppAutoScale.less'
 import NotificationHandler from '../../../common/notification_handler'
-import { isStorageUsed } from '../../../common/tools'
+import { isStorageUsed, isEmptyObject } from '../../../common/tools'
 
 function loadData(props) {
   const { cluster, serviceName, loadAutoScale } = props
@@ -52,20 +52,22 @@ class AppAutoScale extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { cluster, serviceName, autoScale, replicas, isAutoScaleOpen, volumes } = nextProps
-    this.setState({
+    let newState = {
       isAutoScaleOpen: isAutoScaleOpen,
       edit: false,
       isAvailable: !isStorageUsed(volumes)
-    })
+    }
+    if (!isEmptyObject(autoScale)) {
+      Object.assign(newState, {
+        minReplicas: autoScale.minReplicas || replicas,
+        maxReplicas: autoScale.maxReplicas || replicas,
+        targetCPUUtilizationPercentage: autoScale.targetCPUUtilizationPercentage || 30
+      })
+    }
+    this.setState(newState)
     if (serviceName === this.props.serviceName) {
       return
     }
-
-    this.setState({
-      minReplicas: autoScale.minReplicas || replicas,
-      maxReplicas: autoScale.maxReplicas || replicas,
-      targetCPUUtilizationPercentage: autoScale.targetCPUUtilizationPercentage || 30
-    })
     loadData(nextProps)
   }
 
@@ -212,10 +214,9 @@ class AppAutoScale extends Component {
       <div id="AppAutoScale">
         <div className="title">
           自动弹性伸缩
-          <div className="titleBtn">
             {!edit
               ? (
-                <div>
+                <span style={{marginLeft:'50px'}}>
                   <Tooltip
                     arrowPointAtCenter
                     title={this.state.isAvailable ? (isAutoScaleOpen ? '弹性伸缩已开启' : '弹性伸缩已关闭') : '不允许弹性伸缩'} >
@@ -234,18 +235,17 @@ class AppAutoScale extends Component {
                         onClick={this.handleEdit} />
                     </Tooltip>
                   )}
-                </div>)
+                </span>)
               : (
-                <div>
+                <span>
                   <Button type="primary" size="large" onClick={this.handleSave}>{saveText}</Button>
                   <Button size="large" onClick={this.handleCancel}>取消</Button>
-                </div>)
+                </span>)
             }
-          </div>
         </div>
         {this.state.isAvailable ?
-          <Alert message="注: 系统将根据设定的CPU阈值来自动的『扩展,或减少』该服务所『缺少,或冗余』的实例数量" type="info" /> :
-          <Alert message="注: 已挂载存储卷的服务为有状态服务，有状态服务不允许设置弹性伸缩" type="info" />}
+          <Alert message="Tips: 系统将根据设定的CPU阈值来自动的『扩展,或减少』该服务所『缺少,或冗余』的实例数量" type="info" /> :
+          <Alert message="Tips: 已挂载存储卷的服务为有状态服务，有状态服务不允许设置弹性伸缩" type="info" />}
         <Card>
           <Row className="cardItem">
             <Col className="itemTitle" span={4} style={{ textAlign: 'right' }}>服务名称</Col>

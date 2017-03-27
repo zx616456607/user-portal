@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  Storage list
+ *  Member Manage
  *
  * v0.1 - 2016/11/1
  * @author ZhaoXueYu
@@ -13,11 +13,14 @@ import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, To
 import SearchInput from '../../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserList, createUser, deleteUser, checkUserName } from '../../../../actions/user'
+import { chargeUser } from '../../../../actions/charge'
 import { Link } from 'react-router'
 import { parseAmount } from '../../../../common/tools'
 import CreateUserModal from '../../CreateUserModal'
 import NotificationHandler from '../../../../common/notification_handler'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../../constants'
+import MemberRecharge from '../Recharge'
+import { MAX_CHARGE }  from '../../../../constants'
 
 const confirm = Modal.confirm
 
@@ -48,7 +51,6 @@ let MemberTable = React.createClass({
     const { sortName } = this.state
     const { page, pageSize, filter } = this.props.scope.state
     let sort = this.getSort(!sortName, 'userName')
-    console.log('handle---sort',sort, "page and size: ", page, pageSize)
     loadUserList({
       page: page,
       size: pageSize,
@@ -65,7 +67,6 @@ let MemberTable = React.createClass({
     const { sortTeam } = this.state
     const {page, pageSize, filter} = this.props.scope.state
     let sort = this.getSort(!sortTeam, 'teamCount')
-    console.log('handle---sortTeamCount',sort, "page and pageSize: ", page, pageSize)
     loadUserList({
       sort,
       page: page,
@@ -82,7 +83,6 @@ let MemberTable = React.createClass({
     const { sortBalance } = this.state
     const {page, pageSize, filter} = this.props.scope.state
     let sort = this.getSort(!sortBalance, 'balance')
-    console.log('handle---sortBalance',sort, "page and pageSize: ", page, pageSize)
     loadUserList({
       sort,
       page: page,
@@ -133,7 +133,27 @@ let MemberTable = React.createClass({
         }
       }
     })
-  
+
+  },
+  filtertypes(filters) {
+    // member select filter type (0=>普通成员，1=>团队管理员，3=> 系统管理员)
+    // return number
+    let filter =''
+    if (filters.style.length === 1) {
+      return filter = `role__eq,${filters.style[0]}`
+    }
+    let protoDate = ['0','1','2']
+    if (filters.style.length == 2) {
+      for (let i=0;i < protoDate.length; i++) {
+        let item = protoDate[i]
+        if(filters.style.indexOf(item) < 0){
+          filter = `role__neq,${item}`
+          break
+        }
+      }
+      return filter
+    }
+    return protoDate
   },
   onTableChange(pagination, filters, sorter) {
     // 点击分页、筛选、排序时触发
@@ -152,11 +172,9 @@ let MemberTable = React.createClass({
       size: pageSize,
       sort,
     }
-    let filter
-    if (filters.style.length === 1) {
-      filter = `role,${filters.style[0]}`
-      query.filter = filter
-    }
+
+    let filter = this.filtertypes(filters)
+    query.filter = filter
     scope.setState({
       filter
     })
@@ -206,6 +224,15 @@ let MemberTable = React.createClass({
           current: current,
         })
       },
+    }
+    const { userDetail } = this.props.scope.props
+    let filterKey = [ { text: '普通成员', value: 0 },{ text: '团队管理员', value: 1 }]
+    if ( userDetail.role === ROLE_SYS_ADMIN ) {
+      filterKey = [
+        { text: '普通成员', value: 0 },
+        { text: '团队管理员', value: 1 },
+        { text: '系统管理员', value: 2 }
+      ]
     }
     const columns = [
       {
@@ -282,10 +309,7 @@ let MemberTable = React.createClass({
        ),*/
         dataIndex: 'style',
         key: 'style',
-        filters: [
-          { text: '普通成员', value: 0 },
-          { text: '团队管理员', value: 1 },
-        ],
+        filters: filterKey,
         width: '10%',
       },
       {
@@ -331,14 +355,13 @@ let MemberTable = React.createClass({
         width: 180,
         render: (text, record, index) => (
           <div>
-            <Link to={`/account/user/${record.key}`}>
-              <Button icon="setting" className="setBtn">
-                管理
-            </Button>
-            </Link>
-            <Button icon="delete" className="delBtn" onClick={() => this.setState({delModal: true,userManage: record})}>
+            <Button icon="delete" className="delBtn setBtn" onClick={() => this.setState({delModal: true,userManage: record})}>
               删除
             </Button>
+            { record.role == ROLE_SYS_ADMIN ?
+              <Button className="setBtn" onClick={()=> scope.memberRecharge(record)}>充值</Button>
+              :null
+            }
           </div>
         ),
       },
@@ -377,12 +400,14 @@ class MemberManage extends Component {
       searchResult: [],
       notFound: false,
       visible: false,
+      visibleMember: false,// member account modal
       memberList: [],
       pageSize: 10,
       page: 1,
       sort: "a,userName",
       filter: "",
       current: 1,
+      number: 10
     }
   }
   showModal() {
@@ -433,13 +458,63 @@ class MemberManage extends Component {
       }
     })
   }
+  memberRecharge(record) {
+    this.setState({
+      visibleMember: true,
+      record
+    })
+  }
+  activeMenu(number) {
+    this.setState({number})
+  }
+  btnCharge() {
+    // user charge
+    const body = {
+      namespaces: [this.state.record.namespace],
+      amount: parseInt(this.state.number)
+    }
+    let notification = new NotificationHandler()
+    if (!body.amount || body.amount <= 0) {
+      notification.info('请选择充值金额，且不能为负数')
+      return
+    }
+    const _this = this
+    const { page, pageSize, sort, filter } = this.state
+
+    const { loadUserList, chargeUser} = this.props
+    const oldBalance = parseFloat(this.state.record.balance)
+
+    if (oldBalance + body.amount > MAX_CHARGE ) {
+      // balance (T) + charge memory not 200000
+      let isnewBalance = Math.floor(MAX_CHARGE - oldBalance)
+      let newBalance = isnewBalance > 0 ? isnewBalance : 0
+      notification.info(`充值金额大于可充值金额，最多还可充值 ${newBalance}`)
+      return
+    }
+
+    chargeUser(body, {
+      success: {
+        func: (ret)=> {
+          notification.success('成员充值成功')
+          _this.setState({visibleMember: false,number:10})
+          loadUserList({
+            page,
+            size: pageSize,
+            sort,
+            filter,
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
   render() {
     const { users, checkUserName } = this.props
     const scope = this
     const { visible, memberList } = this.state
     const searchIntOption = {
       addBefore: [
-        { key: 'name', value: '用户名' },
+        { key: 'name', value: '成员名' },
         { key: 'tel', value: '手机号' },
         { key: 'email', value: '邮箱' },
       ],
@@ -469,6 +544,14 @@ class MemberManage extends Component {
             <MemberTable scope={scope} data={users} />
           </Card>
         </Row>
+        {/* 充值modal */}
+        <Modal title="成员充值" visible={this.state.visibleMember}
+         onCancel={()=> this.setState({visibleMember: false, number: 10})}
+         onOk={()=> this.btnCharge()}
+         width={600}
+        >
+          <MemberRecharge parentScope={this} />
+        </Modal>
       </div>
     )
   }
@@ -479,6 +562,8 @@ function mapStateToProp(state) {
   let total = 0
   let data = []
   const users = state.user.users
+  const userDetail = state.entities.loginUser.info
+
   if (users.result) {
     if (users.result.users) {
       usersData = users.result.users
@@ -495,9 +580,11 @@ function mapStateToProp(state) {
           {
             key: item.userID,
             name: item.displayName,
+            namespace: item.namespace,
             tel: item.phone,
             email: item.email,
             style: role,
+            role: userDetail.role,// user info into team list
             team: item.teamCount,
             balance: parseAmount(item.balance).fullAmount,
           }
@@ -508,10 +595,10 @@ function mapStateToProp(state) {
       total = users.result.total
     }
   }
-
   return {
     users: data,
-    total
+    total,
+    userDetail
   }
 }
 
@@ -520,4 +607,5 @@ export default connect(mapStateToProp, {
   createUser,
   deleteUser,
   checkUserName,
+  chargeUser
 })(MemberManage)

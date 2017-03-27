@@ -10,15 +10,23 @@
 import React, { Component } from 'react'
 import { Row, Col, Spin, Alert, Card, Tooltip, Popover, Icon, Button, Form, Input } from 'antd'
 import './style/License.less'
-import { loadLicenseList, loadLicensePlatform, addLicense } from '../../../actions/license'
+import { loadLicenseList, loadLicensePlatform, addLicense, loadMergedLicense} from '../../../actions/license'
 import { connect } from 'react-redux'
 import { formatDate } from '../../../common/tools'
 import NotificationHandler from '../../../common/notification_handler'
+import { getPortalRealMode } from '../../../common/tools'
+import { LITE } from '../../../constants'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
+const mode = getPortalRealMode
+const liteFlag = mode === LITE
 
 let LicenseKey = React.createClass ({
+  changeValue(e) {
+    // fix in ie input change value issue
+    this.props.form.setFieldsValue({'rePasswd': e.target.value})
+  },
   activeLicense() {
     const parentScope = this.props.scope
     const { validateFields } = this.props.form
@@ -29,7 +37,7 @@ let LicenseKey = React.createClass ({
       parentScope.props.addLicense({rawlicense: values.rePasswd}, {
         success:{
           func: () => {
-            new NotificationHandler().success('添加激活成功')
+            new NotificationHandler().success('添加许可证成功')
             parentScope.props.loadLicenseList()
             parentScope.setState({activeClick: false})
           },
@@ -37,19 +45,19 @@ let LicenseKey = React.createClass ({
         },
         failed: {
           func:(res) => {
-            new NotificationHandler().error('添加激活失败', res.message.message)
+            new NotificationHandler().error('添加许可证失败', 'License 错误或不可重复添加！')
           }
         }
       })
 
     })
   },
-  
+
   render() {
     const { getFieldProps } = this.props.form;
     const rePasswdProps = getFieldProps('rePasswd', {
       rules: [{
-        required: true, whitespace: true, message: '请输入激活码'
+        required: true, whitespace: true, message: '请输入许可证'
       }]
     });
     const parentScope = this.props.scope
@@ -57,11 +65,11 @@ let LicenseKey = React.createClass ({
       <div className="ant-col-10">
         <Form>
         <FormItem hasFeedback>
-          <Button type="primary" onClick={()=> this.activeLicense()}>激活</Button>&nbsp;&nbsp;&nbsp;
+          <Button type="primary" onClick={()=> this.activeLicense()}>添加许可证</Button>&nbsp;&nbsp;&nbsp;
           <Button onClick={()=> parentScope.setState({activeClick: false})}>取消</Button>
         </FormItem>
         <FormItem hasFeedback>
-          <Input type="textarea" {...rePasswdProps} style={{maxHeight: 200}}/>
+          <Input type="textarea" onInput={(e)=> this.changeValue(e)} {...rePasswdProps} style={{maxHeight: 200}}/>
         </FormItem>
         </Form>
       </div>
@@ -76,14 +84,36 @@ class License extends Component {
     super(props)
     this.state = {
       copySuccess: false,
-      activeClick: false
+      activeClick: false,
+      leftTrialDays: 14,
+      trialEndTime: false
     }
   }
 
   componentWillMount() {
     document.title = '授权管理 | 时速云'
+    const _this = this
     this.props.loadLicensePlatform()
-    this.props.loadLicenseList()
+    this.props.loadLicenseList({
+      success: {
+        func: (res)=> {
+          if (!res.data || res.data.licenses.length == 0) {
+            _this.props.loadMergedLicense({
+              success: {
+                func: (res) => {
+                  if (res.data) {
+                    _this.setState({leftTrialDays: res.data.leftTrialDays,trialEndTime: res.data.end})
+                  }
+                }
+              }
+            })
+
+          }
+        },
+        isAsync: true
+      }
+    })
+
   }
 
   getAlertType(code) {
@@ -124,9 +154,15 @@ class License extends Component {
       });
     }, 500);
   }
+  onCharge() {
+    this.setState({activeClick: true})
+    setTimeout(function(){
+      document.getElementById('rePasswd').focus()
+    }, 300)
+  }
   lincenseList(data) {
-    if (data.length ==0) {
-      return (<tr><td>not data</td></tr>)
+    if (!data || data.length == 0) {
+      return (<tr><td colSpan="7" className="text-center"><Icon type="frown" />&nbsp;暂无数据</td></tr>)
     }
     const listRow = data.map((list, index)=> {
       return (
@@ -135,21 +171,27 @@ class License extends Component {
             {list.licenseUid.substring(0,15)}
             <Popover getTooltipContainer={()=> document.getElementById('License')} trigger="click"
             content={<div className="popLicense">{list.licenseUid}<Tooltip title={this.state.copySuccess ? '复制成功': '点击复制'}><a onClick={()=> this.copyLicenseCode(index)} onMouseLeave={()=> this.returnDefaultTooltip()}>&nbsp;<Icon type="copy" /></a></Tooltip></div>} title={null}>
-            <svg className='svgmore' onClick={this.showPop}><use xlinkHref='#more' /></svg>
+            <svg className='svgmore'><use xlinkHref='#more' /></svg>
             </Popover>
             <input style={{position: 'absolute',opacity:'0'}} className="licenseMoreInput" defaultValue={list.licenseUid} />
           </td>
-          <td >{list.maxNodes}</td>
+          <td >{list.maxNodes} {(list.maxNodes > 0 && index == 0) ? '（当前生效）':''}</td>
           <td >{formatDate(list.start)}</td>
           <td >{formatDate(list.end)}</td>
           <td >{( new Date(list.end).getTime() - new Date(list.start).getTime() ) /24/60/60/1000} 天</td>
           <td >{formatDate(list.addTime)}</td>
-          <td ></td>
+          <td >{list.addUser ? list.addUser :'未知'}</td>
         </tr>
       )
     })
     return listRow
   }
+  // triaDays() {
+  //   const nowDate = new Date()
+  //   let nowTime = formatDate(nowDate.getTime() + (parseInt(this.state.leftTrialDays) + 1) * 24*60*60*1000 )
+  //   nowTime = nowTime.substr(0, nowTime.indexOf(' '))
+  //   return nowTime + ' 00:00'
+  // }
   render() {
     const { isFetching, license, platform} = this.props
     if (isFetching || !license) {
@@ -159,12 +201,11 @@ class License extends Component {
         </div>
       )
     }
-
     return (
       <div id='License'>
         <div className="title">授权管理</div>
         <Card className="licenseWrap">
-          <div className="list">
+          <div className="list list-first">
             <span className="leftKey ant-col-2">平台ID</span>
             <span className="inputGroup ant-col-10">
               <span>{ platform.data.platformid }</span>
@@ -178,41 +219,44 @@ class License extends Component {
               <LicenseKey scope={this} />
             :
             <div className="ant-col-20">
-              <Button type="primary" size="large" onClick={()=> this.setState({activeClick: true})} style={{marginRight:'40px'}}>立即授权</Button>
+              <Button type="primary" size="large" onClick={()=> this.onCharge()} style={{marginRight:'40px'}}>立即授权</Button>
                {
                  license.licenses.length > 0 ? [ <Icon type="check-circle" className="success" />,' 已激活',<span className="dataKey">有效期至：{ formatDate(license.merged.end || '') } </span>]
-                 : 
-                 [<Icon type="check-circle" />,' 未激活',<span className="dataKey">试用期至：{ formatDate(license.merged.end || '') } </span>] 
+                 :
+                 [<Icon type="check-circle" className="success"/>,' 未激活',<span className="dataKey">试用期至：{ formatDate(this.state.trialEndTime) } </span>]
                }
             </div>
             }
 
           </div>
-          <div className="list oneTips">
-            <div>您可通过以下几种方式联系我们获取『激活码License』：</div>
-            <div className="ant-col-20 oneTips">
-              ① 发送“ <span style={{color:'#24a7eb'}}>平台ID + 姓名 + 电话 + 公司名 </span>” 到 <span style={{color:'#24a7eb'}}>cloud-dream@tenxcloud.com </span>我们将主动与您联系
+          {
+            liteFlag &&
+            <div className="list oneTips">
+              <div>您可通过以下几种方式联系我们获取『许可证License』：</div>
+              <div className="ant-col-20 oneTips">
+                ① 发送“ <span style={{color:'#24a7eb'}}>平台ID + 姓名 + 电话 + 公司名 </span>” 到 <a href="mailto:support@tenxcloud.com" style={{color:'#24a7eb'}}>support@tenxcloud.com </a>我们将主动与您联系
+              </div>
+              <div className="ant-col-20 oneTips">
+                ② 如果平台可访问公网，右下角会出现工单小图标，可直接点击与我们取得联系，获取License
+              </div>
+              <div className="ant-col-20 oneTips">
+                ③ 访问时速云的公有云控制台：<a href="https://portal.tenxcloud.com" target="_blank">portal.tenxcloud.com</a>（即将上线在线购买许可证 License功能）
+              </div>
             </div>
-            <div className="ant-col-20 oneTips">
-              ② 如果平台可访问公网，右下角会出现工单小图标，可直接点击与我们取得联系，获取License
-            </div>
-            <div className="ant-col-20 oneTips">
-              ③ 访问时速云的公有云控制台：portal.tenxcloud.com（即将上线在线购买激活码 License功能）
-            </div>             
-          </div>
+          }
         </Card>
         <br/>
         <Card  className="licenseWrap">
           <table className="list-table" >
             <thead className="ant-table-thead">
-              <tr><th ><span>完整 License</span></th>
+              <tr><th ><span>许可证 ID</span></th>
               <th ><span>最大节点数</span></th><th ><span>生效时间</span></th>
               <th ><span>失效时间</span></th><th ><span>有效时长</span></th>
               <th ><span>添加时间</span></th><th ><span>操作人</span></th></tr>
             </thead>
             <tbody className="ant-table-tbody">
               {this.lincenseList(license.licenses)}
-              
+
             </tbody>
           </table>
         </Card>
@@ -238,5 +282,6 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   addLicense,
   loadLicenseList,
-  loadLicensePlatform
+  loadLicensePlatform,
+  loadMergedLicense
 })(License)

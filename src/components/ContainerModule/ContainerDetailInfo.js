@@ -12,36 +12,12 @@ import { Card, Tooltip, Icon } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
+import { cpuFormat, memoryFormat } from '../../common/tools'
 import "./style/ContainerDetailInfo.less"
+
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
-
-function cpuFormat(memory) {
-  //this function for format cpu
-  if(Boolean(memory)) {
-    let newMemory = parseInt(memory.replace('Mi','').replace('Gi'))
-    switch(newMemory) {
-      case 1:
-        return '1CPU（共享）';
-      case 2:
-        return '1CPU（共享）';
-      case 4:
-        return '1CPU';
-      case 8:
-        return '2CPU';
-      case 16:
-        return '2CPU';
-      case 32:
-        return '3CPU';
-      case 256:
-        return '1CPU（共享）';
-      case 512:
-        return '1CPU（共享）';
-    }
-  } else {
-    return '-';
-  }
-}
+const enterpriseFlag = standard != mode
 
 export default class ContainerDetailInfo extends Component {
   constructor(props) {
@@ -52,7 +28,7 @@ export default class ContainerDetailInfo extends Component {
     let ele = []
     const volumes = container.spec.volumes
     if (container.spec.containers[0].volumeMounts) {
-      container.spec.containers[0].volumeMounts.forEach((volume) => {
+      container.spec.containers[0].volumeMounts.forEach((volume, index) => {
         let name = ''
         let mountPath = ''
         let volumeType = '分布式存储'
@@ -89,36 +65,40 @@ export default class ContainerDetailInfo extends Component {
   }
   getConfigMap(container) {
     let ele = []
-    const volumes = container.spec.volumes
+    let volumes = container.spec.volumes
+    let configMaps = []
     if (container.spec.containers[0].volumeMounts) {
       container.spec.containers[0].volumeMounts.forEach((volume) => {
         if (volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount') { return }
-        let configMap
-        let isShow = volumes.some(item => {
+        volumes.forEach(item => {
+          if(!item) return false
           if (item.name === volume.name) {
             if (item.configMap) {
-              configMap = item.configMap
-              return true
+              item.configMap.items.forEach(configMap => {
+                let arr = volume.mountPath.split('/')
+                if(arr[arr.length - 1] == configMap.path) {
+                  configMap.mountPath = volume.mountPath
+                  configMap.configMapName = item.configMap.name
+                  configMaps.push(configMap)
+                }
+              })
             }
-            return false
           }
-          return false
         })
-        if (!isShow) return
-        configMap.items.forEach(item => {
+      })
+      configMaps.forEach((item, index) => {
           ele.push(
-            <div key={configMap.name + item.key}>
-              <div className="commonTitle">{configMap.name}</div>
+            <div key={item.name + item.key + '-' + index}>
+              <div className="commonTitle">{item.configMapName}</div>
               <div className="commonTitle">{item.key}</div>
-              <div className="commonTitle">{volume.mountPath}</div>
+              <div className="commonTitle">{item.mountPath}</div>
               <div style={{ clear: "both" }}></div>
             </div>
           )
-        })
       })
+      return ele
     }
-    return ele
-
+    return []
   }
   render() {
     const parentScope = this
@@ -177,10 +157,10 @@ export default class ContainerDetailInfo extends Component {
           </div>
           <div className="dataBox">
             <div className="commonTitle">
-              {cpuFormat(container.spec.containers[0].resources.requests.memory)}
+              {cpuFormat(container.spec.containers[0].resources.requests.memory, container.spec.containers[0].resources) || '-'}
             </div>
             <div className="commonTitle">
-              {container.spec.containers[0].resources.requests.memory.replace('i', '') || '-'}
+              {memoryFormat(container.spec.containers[0].resources)}
             </div>
             <div className="commonTitle">
               10G

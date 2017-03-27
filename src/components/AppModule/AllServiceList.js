@@ -23,7 +23,8 @@ import {
   stopServices,
   deleteServices,
   quickRestartServices,
-  loadAllServices
+  loadAllServices,
+  loadAutoScale
 } from '../../actions/services'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ANNOTATION_HTTPS } from '../../../constants'
 import { browserHistory } from 'react-router'
@@ -37,10 +38,12 @@ import AppDeployServiceModal from './AppCreate/AppDeployServiceModal'
 import TipSvcDomain from '../TipSvcDomain'
 import yaml from 'js-yaml'
 import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
-import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT } from '../../constants'
+import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
 import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
+import { SERVICE_KUBE_NODE_PORT } from '../../../constants'
+
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -49,6 +52,7 @@ const MyComponent = React.createClass({
   propTypes: {
     serviceList: React.PropTypes.array
   },
+
   onchange: function (e) {
     const { value, checked } = e.target
     const { scope } = this.props
@@ -267,7 +271,7 @@ const MyComponent = React.createClass({
     })
     switch (e.key) {
       case 'manualScale':
-        return this.showManualScaleModal()
+        return this.showManualScaleModal(item)
       case 'autoScale':
         return this.showAutoScaleModal()
       case 'rollingUpdate':
@@ -290,8 +294,25 @@ const MyComponent = React.createClass({
       configModal: true
     })
   },
-  showManualScaleModal() {
-    const { scope } = this.props
+  showManualScaleModal(item) {
+    const { scope, cluster } = this.props
+    scope.props.loadAutoScale(cluster, item.metadata.name, {
+      success:{
+        func: (result) => {
+          if(result.data) {
+             if(Object.getOwnPropertyNames(result.data).length > 0) {
+               scope.setState({
+                 disableScale: true
+               })
+               return
+             }
+          }
+          scope.setState({
+            disableScale: false
+          })
+        }
+      }
+    })
     scope.setState({
       manualScaleModalShow: true
     })
@@ -311,7 +332,7 @@ const MyComponent = React.createClass({
     })
   },
   render: function () {
-    const { cluster, serviceList, loading, page, size, total,bindingDomains, bindingIPs } = this.props
+    const { cluster, serviceList, loading, page, size, total,bindingDomains, bindingIPs, loginUser } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -328,6 +349,13 @@ const MyComponent = React.createClass({
     }
     const items = serviceList.map((item) => {
       item.cluster = cluster
+      let isHaveVolume = false
+      if(item.spec.template.spec.volumes) {
+        isHaveVolume = item.spec.template.spec.volumes.some(volume => {
+          if(!volume) return false
+          return volume.rbd
+        })
+      }
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)}>
           <Menu.Item key="manualScale">
@@ -336,13 +364,13 @@ const MyComponent = React.createClass({
           <Menu.Item key="autoScale">
             自动伸缩
           </Menu.Item>
-          <Menu.Item key="rollingUpdate">
+          <Menu.Item key="rollingUpdate" disabled={isHaveVolume}>
             灰度升级
           </Menu.Item>
           <Menu.Item key="config">
             更改配置
           </Menu.Item>
-          <Menu.Item key="https">
+          <Menu.Item key="https" disabled={loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT}>
             设置HTTPS
           </Menu.Item>
         </Menu>
@@ -390,7 +418,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="service commonData allSvcListDomain">
-            <TipSvcDomain svcDomain={svcDomain} parentNode='allSvcListDomain' icon={httpIcon} />
+            <TipSvcDomain svcDomain={svcDomain} parentNode='appBox' icon={httpIcon} />
           </div>
           <div className="createTime commonData">
             <span>{calcuDate(item.metadata.creationTimestamp || '')}</span>
@@ -484,8 +512,12 @@ class ServiceList extends Component {
       k8sServiceList: [],
     }
   }
-
-  loadServices(nextProps) {
+  getInitialState() {
+    return {
+      disableScale: false
+    }
+  }
+  loadServices(nextProps, options) {
     const self = this
     const { cluster, loadAllServices, page, size, name } = nextProps || this.props
     const query = {
@@ -493,6 +525,7 @@ class ServiceList extends Component {
       pageSize: size,
       name
     }
+    query.customizeOpts = options
     loadAllServices(cluster, query, {
       success: {
         func: (result) => {
@@ -539,11 +572,19 @@ class ServiceList extends Component {
       })
     }
   }
+
   componentWillMount() {
     const { appName } = this.props
     document.title = '服务列表 | 时速云'
     this.loadServices()
     return
+  }
+
+  componentDidMount() {
+    // Reload list each UPDATE_INTERVAL
+    this.upStatusInterval = setInterval(() => {
+      this.loadServices(null, { keepChecked: true })
+    }, UPDATE_INTERVAL)
   }
 
   componentWillUnmount() {
@@ -552,6 +593,8 @@ class ServiceList extends Component {
       statusWatchWs,
     } = this.props
     removeDeploymentWatch(cluster, statusWatchWs)
+    clearTimeout(this.loadStatusTimeout)
+    clearInterval(this.upStatusInterval)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -890,14 +933,14 @@ class ServiceList extends Component {
     deleteServices(cluster, serviceNames, {
       success: {
         func: () => {
-          self.loadAllServices(self.props)
+          self.loadServices(self.props)
         },
         isAsync: true
       },
       failed: {
         func: (err) => {
           errorHandler(err, intl)
-          self.loadAllServices(self.props)
+          self.loadServices(self.props)
         },
         isAsync: true
       }
@@ -1030,7 +1073,7 @@ class ServiceList extends Component {
     } = this.state
     const {
       pathname, page, size, total, isFetching, cluster,
-      loadAllServices
+      loadAllServices, loginUser
     } = this.props
     let selectTab = this.state.selectTab
     let appName = ''
@@ -1180,12 +1223,15 @@ class ServiceList extends Component {
 
             <MyComponent
               cluster={cluster}
+              loginUser={loginUser}
               name={name}
               scope={parentScope}
               serviceList={serviceList}
               loading={isFetching}
               bindingDomains={this.props.bindingDomains}
-              k8sServiceList={this.state.k8sServiceList} />
+              bindingIPs={this.props.bindingIPs}
+              k8sServiceList={this.state.k8sServiceList}
+               />
           </Card>
           </div>
           <Modal
@@ -1223,6 +1269,7 @@ class ServiceList extends Component {
             appName={appName}
             visible={manualScaleModalShow}
             service={currentShowInstance}
+            disableScale={this.state.disableScale}
             loadServiceList={() => this.loadServices(this.props)} />
           <Modal
             visible={deployServiceModalShow}
@@ -1253,10 +1300,12 @@ function mapStateToProps(state, props) {
   if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
+  const { loginUser } = state.entities
   const { cluster } = state.entities.current
   const { statusWatchWs } = state.entities.sockets
   const { services, isFetching, total } = state.services.serviceList
   return {
+    loginUser: loginUser,
     cluster: cluster.clusterID,
     statusWatchWs,
     bindingDomains: state.entities.current.cluster.bindingDomains,
@@ -1278,7 +1327,8 @@ ServiceList = connect(mapStateToProps, {
   stopServices,
   deleteServices,
   quickRestartServices,
-  loadAllServices
+  loadAllServices,
+  loadAutoScale
 })(ServiceList)
 
 export default injectIntl(ServiceList, {

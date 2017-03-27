@@ -11,15 +11,30 @@ import React, { Component, PropTypes } from 'react'
 import { Form, Select, Input, InputNumber, Modal, Tooltip, Checkbox, Button, Card, Menu, Switch, Icon, Spin, Radio} from 'antd'
 import { connect } from 'react-redux'
 import filter from 'lodash/filter'
-import { DEFAULT_REGISTRY, ASYNC_VALIDATOR_TIMEOUT } from '../../../../constants'
+import {
+  DEFAULT_REGISTRY,
+  ASYNC_VALIDATOR_TIMEOUT,
+  RESOURCES_MEMORY_MAX,
+  RESOURCES_MEMORY_MIN,
+  RESOURCES_MEMORY_STEP,
+  RESOURCES_CPU_MAX,
+  RESOURCES_CPU_STEP,
+  RESOURCES_CPU_MIN,
+  RESOURCES_DIY,
+  SYSTEM_DEFAULT_SCHEDULE,
+} from '../../../../constants'
 import { appNameCheck, validateK8sResourceForServiceName } from '../../../../common/naming_validation'
 import { loadImageDetailTag, loadImageDetailTagConfig, getOtherImageTag, loadOtherDetailTagConfig } from '../../../../actions/app_center'
 import { checkServiceName } from '../../../../actions/app_manage'
 import { loadFreeVolume, createStorage } from '../../../../actions/storage'
+import { getNodes } from '../../../../actions/cluster_node'
 import "./style/NormalDeployBox.less"
 import NotificationHandler from '../../../../common/notification_handler'
 import { volNameCheck } from '../../../../common/naming_validation'
+import { ENTERPRISE_MODE } from '../../../../../configs/constants'
+import { mode } from '../../../../../configs/model'
 
+const enterpriseFlag = ENTERPRISE_MODE == mode
 const Option = Select.Option;
 const OptGroup = Select.OptGroup;
 const FormItem = Form.Item;
@@ -39,7 +54,7 @@ let MyComponent = React.createClass({
     this.props.loadFreeVolume(this.props.cluster)
   },
   componentWillReceiveProps(nextProps) {
-    const form = nextProps.form
+    const { form } = nextProps
     const { resetFields, setFieldsValue } = form
     if(!nextProps.serviceOpen) {
       resetFields(['volumeKey', 'volumePath', 'volumeMounts', 'volumeChecked', 'volumeChecked', 'volumeName', 'inputVolumeName'])
@@ -132,7 +147,7 @@ let MyComponent = React.createClass({
       if (!name) return
       usedVolume.push(name.split('/')[0])
     })
-    const servicesList = this.props.parentScope.props.scope.state.servicesList || localStorage.getItem('servicesList')
+    const servicesList = this.props.parentScope.props.scope.state.servicesList || sessionStorage.getItem('servicesList')
     servicesList.forEach(service => {
       if (service.inf.Deployment.spec.template.spec.volumes) {
         service.inf.Deployment.spec.template.spec.volumes.forEach(volume => {
@@ -334,14 +349,15 @@ let MyComponent = React.createClass({
               rules: [{
                 validator: self.checkHostPath
               }],
-            })} /> 
+            })} />
             </FormItem>
-            <Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`, {
+            {self.props.storageType == 'rbd' ? <span><Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`, {
             }) } checked={getFieldValue(`volumeChecked${k}`)}>
               只读
           </Checkbox>
             <i className="fa fa-refresh" onClick={() => this.refresh()} />
-            <i className="fa fa-trash" onClick={() => this.remove(k)} />
+            <i className="fa fa-trash" onClick={() => this.remove(k)} /> </span>: ''}
+
           </FormItem>
         )
       });
@@ -430,6 +446,18 @@ function loadImageTags(props) {
   })
 }
 
+function loadClusterNodes(props) {
+  const { cluster, getNodes } = props
+  getNodes(cluster, {
+    failed: {
+      func: {
+        //
+      },
+      isAsync: true
+    }
+  })
+}
+
 function setPorts(containerPorts, form) {
   const portsArr = []
   if (containerPorts) {
@@ -474,7 +502,7 @@ function setCMD(container, form) {
     })
     index++
   })
-  
+
   form.setFieldsValue({
     entryInput: entrypoint[0]
   })
@@ -544,8 +572,9 @@ let NormalDeployBox = React.createClass({
   },
   selectComposeType(type) {
     const parentScope = this.props.scope
+    if (type == parentScope.state.composeType) return
     parentScope.setState({
-      composeType: type
+      composeType: type,
     })
   },
   onSelectTagChange(tag) {
@@ -630,6 +659,9 @@ let NormalDeployBox = React.createClass({
     if(!storageTypes || storageTypes.length <= 0) {
       canCreate = false
     }
+    if (cluster.canListNode) {
+      loadClusterNodes(this.props)
+    }
     this.setState({
       canCreate,
       storageTypes
@@ -679,6 +711,9 @@ let NormalDeployBox = React.createClass({
       form.setFieldsValue({
         storageType: storageType
       })
+      if (cluster.canListNode) {
+        loadClusterNodes(this.props)
+      }
       const volumeSwitch = getFieldValue('volumeSwitch')
       if(!volumeSwitch) {
 
@@ -690,7 +725,7 @@ let NormalDeployBox = React.createClass({
           canCreate,
           storageTypes,
           isHaveVolume: 0
-        }) 
+        })
       }
     }
   },
@@ -751,8 +786,9 @@ let NormalDeployBox = React.createClass({
     })
   },
   render: function () {
-    const parentScope = this.props.scope;
-    const { imageTagsIsFetching, form, composeType, cluster} = this.props
+    const parentScope = this.props.scope
+    const { imageTagsIsFetching, form, composeType, cluster, clusterNodes } = this.props
+    const { DIYMemory, DIYCPU } = parentScope.state
     const imageTags = this.props.otherImages ? this.props.otherImages : this.props.imageTags
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form
     const nameProps = getFieldProps('name', {
@@ -760,13 +796,19 @@ let NormalDeployBox = React.createClass({
         { validator: this.serviceNameExists },
       ],
     });
-    const {registryServer, currentSelectedImage, tagConfig, registry} = this.props
+    const { registryServer, currentSelectedImage, tagConfig, registry, currentCluster } = this.props
     const imageUrlProps = registryServer + '/' + currentSelectedImage
     const selectProps = getFieldProps('imageVersion', {
       rules: [
         { required: true, message: '请选择镜像版本' },
       ],
       initialValue: imageTags[0]
+    })
+    const bindNodeProps = getFieldProps('bindNode', {
+      rules: [
+        { required: true },
+      ],
+      initialValue: SYSTEM_DEFAULT_SCHEDULE,
     })
     let imageVersion = getFieldValue('imageVersion');
     let switchDisable = false
@@ -777,10 +819,13 @@ let NormalDeployBox = React.createClass({
     }
     let imageVersionShow = (
       <FormItem className="imageTagForm" key='imageTagForm'>
-        <Select
+        <Select showSearch
           {...selectProps}
-          className="imageTag" size="large" tyle={{ width: 200 }}
+          className="imageTag"
+          size="large"
+          optionFilterProp="children"
           placeholder="请选择镜像版本"
+          optionFilterProp="children"
           notFoundContent="镜像版本为空"
           onSelect={this.onSelectTagChange}
           >
@@ -830,7 +875,7 @@ let NormalDeployBox = React.createClass({
           </div>
           <div className="operaBox">
             <div className="selectCompose">
-              <span className="commonSpan">容器配置 <Tooltip title="专业版及企业认证用户可申请扩大容器配置"><Icon type="question-circle-o" /></Tooltip></span>
+              <span className="commonSpan">容器配置 <Tooltip title="专业版及企业认证用户可申请扩大容器配置"><a><Icon type="question-circle-o" /></a></Tooltip></span>
               <ul className="composeList">
                 {/*<li className="composeDetail">
                   <Button type={composeType == "1" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "1")}>
@@ -851,6 +896,8 @@ let NormalDeployBox = React.createClass({
                     <div className="bottomBox">
                       <span>512M&nbsp;内存</span><br />
                       <span>1CPU&nbsp;(共享)</span>
+                      <div className="triangle"></div>
+                      <Icon type="check" />
                     </div>
                   </Button>
                 </li>
@@ -862,6 +909,8 @@ let NormalDeployBox = React.createClass({
                     <div className="bottomBox">
                       <span>1GB&nbsp;内存</span><br />
                       <span>1CPU&nbsp;</span>
+                      <div className="triangle"></div>
+                      <Icon type="check" />
                     </div>
                   </Button>
                 </li>
@@ -873,6 +922,8 @@ let NormalDeployBox = React.createClass({
                     <div className="bottomBox">
                       <span>2GB&nbsp;内存</span><br />
                       <span>1CPU&nbsp;</span>
+                      <div className="triangle"></div>
+                      <Icon type="check" />
                     </div>
                   </Button>
                 </li>
@@ -884,6 +935,8 @@ let NormalDeployBox = React.createClass({
                     <div className="bottomBox">
                       <span>4GB&nbsp;内存</span><br />
                       <span>1CPU</span>
+                      <div className="triangle"></div>
+                      <Icon type="check" />
                     </div>
                   </Button>
                 </li>
@@ -895,13 +948,78 @@ let NormalDeployBox = React.createClass({
                     <div className="bottomBox">
                       <span>8GB&nbsp;内存</span><br />
                       <span>2CPU</span>
+                      <div className="triangle"></div>
+                      <Icon type="check" />
                     </div>
                   </Button>
                 </li>
-                <div style={{ clear: "both" }}></div>
+                {/* enterprise */}
+                {
+                  enterpriseFlag &&
+                  <li className="composeDetail DIY">
+                    <div className={composeType == RESOURCES_DIY ? "btn ant-btn-primary" : "btn ant-btn-ghost"} onClick={this.selectComposeType.bind(this, RESOURCES_DIY)}>
+                      <div className="topBox">
+                        自定义
+                      </div>
+                      <div className="bottomBox">
+                        <div className="DIYKey">
+                          <InputNumber
+                            onChange={(value) => parentScope.setState({DIYMemory: value})}
+                            defaultValue={RESOURCES_MEMORY_MIN}
+                            value={parseInt(DIYMemory)}
+                            step={RESOURCES_MEMORY_STEP}
+                            min={RESOURCES_MEMORY_MIN}
+                            max={RESOURCES_MEMORY_MAX} />
+                          MB&nbsp;内存
+                        </div>
+                        <div className="DIYKey">
+                          <InputNumber
+                            onChange={(value) => parentScope.setState({DIYCPU: value})}
+                            defaultValue={DIYCPU}
+                            value={DIYCPU}
+                            step={RESOURCES_CPU_STEP}
+                            min={RESOURCES_CPU_MIN}
+                            max={RESOURCES_CPU_MAX}/>
+                          核 CPU
+                        </div>
+                        <div className="triangle"></div>
+                        <Icon type="check" />
+                      </div>
+                    </div>
+                  </li>
+                }
               </ul>
               <div style={{ clear: "both" }}></div>
             </div>
+            {
+              currentCluster.canListNode && (
+                <div className="bindNode">
+                  <span className="commonSpan">绑定节点</span>
+                  <FormItem>
+                    <Select showSearch
+                      {...bindNodeProps}
+                      style={{ width: 300 }}
+                      placeholder="请选择绑定节点"
+                      optionFilterProp="children"
+                      notFoundContent="无法找到"
+                    >
+                      <Option value={SYSTEM_DEFAULT_SCHEDULE}>使用系统默认调度</Option>
+                      {
+                        clusterNodes.map(node => {
+                          const { name, ip, podCount, schedulable } = node
+                          return (
+                            <Option value={name} disabled={!schedulable}>
+                              {name} | {ip} (容器：{podCount}个)
+                            </Option>
+                          )
+                        })
+                      }
+                    </Select>
+                  </FormItem>
+                  <div style={{ clear: "both" }}></div>
+                </div>
+              )
+            }
             <div className="stateService">
               <span className="commonSpan">服务类型 <a href="http://docs.tenxcloud.com/faq#you-zhuang-tai-fu-wu-yu-wu-zhuang-tai-fu-wu-de-qu-bie" target="_blank"><Tooltip title="若需数据持久化，请使用有状态服务"><Icon type="question-circle-o" /></Tooltip></a></span>
               <Switch disabled={!this.state.canCreate} className="changeBtn"
@@ -913,9 +1031,19 @@ let NormalDeployBox = React.createClass({
               <Tooltip title="无存储服务可用, 请配置存储服务"><Icon type="question-circle-o" style={{verticalAlign: 'middle', marginLeft: '10px', display: this.state.canCreate ? 'none' : 'inline-block'}}  /></Tooltip>
               <span className="stateSpan">{form.getFieldValue('volumeSwitch') ? "有状态服务" : "无状态服务"}</span>
               <RadioGroup style={{display: this.state.isHaveVolume ? 'inline-block' : 'none', marginLeft: '10px'}} onChange={this.setStorageType} value={this.state.storageType || defaultCheckedValue}>
-                  {this.getStorageType()}
+                {this.getStorageType()}
               </RadioGroup>
-              
+              {
+                form.getFieldValue('volumeSwitch') &&
+                <span id="localStorageTip">
+                  Tips：选择『本地存储』时，为保证有状态有效，推荐使用『绑定节点』功能&nbsp;
+                  <Tooltip title="以保证容器及其Volume存储不被系统调度迁移"
+                    placement="topLeft"
+                    getTooltipContainer={() => document.getElementById('localStorageTip')}>
+                    <Icon type="question-circle-o" />
+                  </Tooltip>
+                </span>
+              }
               {form.getFieldValue('volumeSwitch') ? [
                 <MyComponent
                   parentScope={parentScope}
@@ -965,6 +1093,7 @@ function mapStateToProps(state, props) {
   let {registry, tag, isFetching } = targetImageTag || defaultImageTags
   const { cluster } = state.entities.current
   const otherImages = otherImageTag.imageTag
+  const { clusterNodes } = state.cluster_nodes
   return {
     cluster: cluster.clusterID,
     registry,
@@ -974,7 +1103,8 @@ function mapStateToProps(state, props) {
     checkServiceName: state.apps.checkServiceName,
     tagConfig: state.getImageTagConfig.imageTagConfig,
     otherImages,
-    currentCluster: state.entities.current.cluster
+    currentCluster: cluster,
+    clusterNodes: clusterNodes[cluster.clusterID] || []
   }
 }
 
@@ -983,7 +1113,8 @@ NormalDeployBox = connect(mapStateToProps, {
   loadImageDetailTagConfig,
   checkServiceName,
   getOtherImageTag,
-  loadOtherDetailTagConfig
+  loadOtherDetailTagConfig,
+  getNodes,
 })(NormalDeployBox)
 
 export default NormalDeployBox

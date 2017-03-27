@@ -177,7 +177,7 @@ const MyComponent = React.createClass({
               <i className='fa fa-eye' />&nbsp;
               WebHook
             </Menu.Item>
-            {item.isPrivate == 1 ?
+            {item.isPrivate == 1 && item.repoType != 'svn' ?
               <Menu.Item key={`2@${item.name}`}>
                 <span><i className='fa fa-pencil-square-o' />&nbsp;
                 <FormattedMessage {...menusText.show} />
@@ -190,11 +190,14 @@ const MyComponent = React.createClass({
           <Menu onClick={this.operaMenuClick.bind(this, item)}
             style={{ width: '113px' }}
             >
+            {item.isPrivate == 1 && item.repoType != 'svn' ?
             <Menu.Item key={`2@${item.name}`}>
               <span><i className='fa fa-pencil-square-o' />&nbsp;
               <FormattedMessage {...menusText.show} />
               </span>
             </Menu.Item>
+            : null
+            }
           </Menu>
       );
       return (
@@ -208,7 +211,10 @@ const MyComponent = React.createClass({
                 <use xlinkHref='#cicdprivate' />
               </svg>
               <span className="margin">private</span>
+              {item.repoType != 'svn' ? 
               <Button type="ghost" style={{ marginLeft: '10px' }} onClick={() => this.showItemKeyModal(item)}><i className="fa fa-eye"></i> 查看公钥</Button>
+              : null
+              }      
             </div>
             :
             <div className='type public'>

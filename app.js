@@ -9,23 +9,41 @@
  */
 'use strict'
 
+// For webpack build backend files runtime
+require('babel-polyfill')
+// Set root dir to global
+global.__root__dirname = __dirname
+// Repalce native Promise by bluebird
+global.Promise = require('bluebird')
+// Disabled reject unauthorized
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 const fs = require('fs')
 const path = require('path')
 const koa = require('koa')
 const Router = require('koa-router')
 const c2k = require('koa-connect')
+const co = require('co')
 const config = require('./configs')
 const constants = require('./configs/constants')
+const globalConstants = require('./constants')
+const initGlobalConfig = require('./services/init_global_config')
 const middlewares = require('./services/middlewares')
 const logger = require('./utils/logger').getLogger('app')
 const app = koa()
 const terminal = require('./controllers/web_terminal')
 
-global.Promise = require('bluebird')
-// Disabled reject unauthorized
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-// Set root dir to global
-global.__root__dirname = __dirname
+//get global config
+co(function*(){
+  try{
+    yield initGlobalConfig.initGlobalConfig()
+  } catch(err) {
+    logger.error('Unexpected error:', JSON.stringify(err))
+    logger.error('Failed to connect to API server ' + config.tenx_api.host + ', existing ...')
+    process.exit()
+  }
+})
+
 /*
  * Koa middlewares
  */
@@ -97,7 +115,8 @@ const sessionOpts = {
   rolling: true,
   cookie: {
     maxAge: 1000 * 60 * (process.env.SESSION_MAX_AGE || 720) // 720 minutes(half a day)
-  }
+  },
+  ttl: 1000 * 60 * (process.env.SESSION_MAX_AGE || 720) // 720 minutes(half a day)
 }
 
 let sessionStore;
@@ -172,7 +191,9 @@ if (config.running_mode === constants.STANDARD_MODE) {
     yield next
   })
 }
-const koaBody = require('koa-body')()
+const koaBody = require('koa-body')({
+  formLimit: 　524288000
+})
 app.use(koaBody)
 
 // For views
@@ -257,6 +278,10 @@ app.use(indexRoutes(Router))
 const apiRoutes = require('./routes/api')
 app.use(apiRoutes(Router))
 
+//3rd_account vsettan
+const vsettan = require('./routes/3rd_account/vsettan/no_auth')
+app.use(vsettan(Router))
+
 // Serve static files
 app.use(function* (next){
   try {
@@ -275,6 +300,7 @@ app.use(function* (next){
 
 logger.info(`Node env in '${config.node_env}'`)
 logger.info(`Server started in '${config.running_mode}' running mode`)
+logger.info(`Using proxy ${globalConstants.PROXY_TYPE}`)
 // Create server
 let server
 if (config.protocol !== 'https') {

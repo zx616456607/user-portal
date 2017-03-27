@@ -50,6 +50,7 @@ export default class PopSelect extends Component {
       <div className="PopSelect">
         <Popover
           placement="bottomLeft"
+          overlayClassName="PopSelect"
           title={text}
           content={
             <Content
@@ -63,7 +64,7 @@ export default class PopSelect extends Component {
           trigger="click"
           visible={this.state.visible}
           onVisibleChange={this.handleVisibleChange}
-          getTooltipContainer={() => document.getElementsByClassName('PopSelect')[0]}>
+          getTooltipContainer={() => document.getElementById('root')}>
           {
             btnStyle ?
               <Button className='popBtn'>

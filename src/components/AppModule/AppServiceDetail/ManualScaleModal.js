@@ -96,9 +96,14 @@ class ManualScaleModal extends Component {
   }
 
   render() {
-    const { service, visible } = this.props
+    const { service, visible, autoScale } = this.props
     if (!visible) {
       return null
+    }
+    if(autoScale.isFetching) {
+      return <div className="loadingBox">
+          <Spin size="large"></Spin>
+        </div>
     }
     const { realNum } = this.state
     const modalFooter = [
@@ -110,7 +115,7 @@ class ManualScaleModal extends Component {
       <Button
         key="submit" type="primary"
         size="large" loading={this.state.loading}
-        disabled={!this.state.scalable}
+        disabled={!this.state.scalable || this.props.disableScale}
         onClick={this.handleModalOK} >
         保 存
       </Button>
@@ -119,8 +124,6 @@ class ManualScaleModal extends Component {
       <Modal
         visible={visible}
         title="手动水平扩展"
-        onOk={this.handleModalOK}
-        onCancel={this.handleModalCancel}
         footer={modalFooter} >
         <div id="ManualScaleModal">
           <Row className="cardItem">
@@ -155,7 +158,7 @@ class ManualScaleModal extends Component {
           </Row>
           <Row>
             <Col style={{ color: '#a0a0a0', textAlign: 'left', marginTop: '20px' }}>
-              注: {this.state.scalable ? '实例数量调整 , 保存后系统将调整实例数量至设置预期. (若自动伸缩开启, 则无法手动扩展)' :
+              Tips: {this.state.scalable ? '实例数量调整 , 保存后系统将调整实例数量至设置预期. (若自动伸缩开启, 则无法手动扩展)' :
                      '已挂载存储卷的服务不允许进行水平扩展'}
             </Col>
           </Row>
@@ -176,10 +179,17 @@ ManualScaleModal.propTypes = {
 
 function mapStateToProps(state, props) {
   const {
-    manualScaleService,
-  } = state.services
-  return {
     manualScaleService
+  } = state.services
+  let autoScale = state.services.autoScale
+  if(!autoScale) {
+    autoScale = {
+      isFetching: true
+    }
+  }
+  return {
+    manualScaleService,
+    autoScale
   }
 }
 

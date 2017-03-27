@@ -31,6 +31,11 @@ const clusterController = require('../controllers/cluster_manage')
 const integrationController = require('../controllers/integration')
 const consumptionController = require('../controllers/consumption')
 const clusternodesController = require('../controllers/cluster_node')
+const versionsController = require('../controllers/versions')
+const chargeController = require('../controllers/charge')
+const globalConfigController = require('../controllers/global_config')
+const imageScanController = require('../controllers/image_scan')
+const alertController = require('../controllers/alert')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -51,9 +56,18 @@ module.exports = function (Router) {
   router.get('/storage-pools/:pool/:cluster/volumes/:name/bindinfo', volumeController.getBindInfo)
   // router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
   router.get('/storage-pools/:cluster/volumes/available', volumeController.getAvailableVolume)
+  router.get('/storage-pools/:cluster/volumes/pool-status', volumeController.getPoolStatus)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
+  router.post('/clusters', clusterController.createCluster)
+  router.put('/clusters/:cluster', clusterController.updateCluster)
+  router.del('/clusters/:cluster', clusterController.deleteCluster)
+  router.get('/clusters/:cluster/summary', clusterController.getClusterSummary)
+  // For bind node when create service(lite only)
+  router.get('/clusters/:cluster/nodes', clusterController.getNodes)
+  router.get('/clusters/add-cluster-cmd', clusterController.getAddClusterCMD)
+
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
   router.put('/clusters/:cluster/apps/:app_name/desc', appController.updateAppDesc)
@@ -95,7 +109,9 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/quota', serviceController.changeServiceQuota)
   router.put('/clusters/:cluster/services/:service_name/ha', serviceController.changeServiceHa)
   router.put('/clusters/:cluster/services/:service_name/rollingupdate', serviceController.rollingUpdateService)
-  router.get('/clusters/:cluster/services/:service_name/events', serviceController.getServiceDetailEvents)
+  router.get('/clusters/:cluster/replicaset/:service_name/events', serviceController.getReplicasetDetailEvents)
+  router.get('/clusters/:cluster/dbservice/:service_name/events', serviceController.getDbServiceDetailEvents)
+  router.get('/clusters/:cluster/service/:service_name/pods/events', serviceController.getPodsEventByServicementName)
   router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
   router.get('/clusters/:cluster/services/:service_name/k8s-service', serviceController.getK8sService)
   router.get('/clusters/:cluster/services', serviceController.getAllService)
@@ -148,6 +164,7 @@ module.exports = function (Router) {
   router.get('/overview/clusters/:cluster_id/appstatus', overviewClusterController.getClusterAppStatus)
   router.get('/overview/clusters/:cluster_id/dbservices', overviewClusterController.getClusterDbServices)
   router.get('/overview/clusters/:cluster_id/nodesummary', overviewClusterController.getClusterNodeSummary)
+  router.get('/overview/clusters/:cluster_id/summary', overviewClusterController.getClusterSummary)
 
   //Overview Space
   router.get('/overview/spaceinfo', overviewSpaceController.getSpaceOverview)
@@ -217,6 +234,7 @@ module.exports = function (Router) {
   router.get('/manage-monitor/:team_id/:namespace/getClusterOfQueryLog', manageMonitorController.getClusterOfQueryLog)
   router.get('/manage-monitor/:cluster_id/:namespace/getServiceOfQueryLog', manageMonitorController.getServiceOfQueryLog)
   router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
+  router.post('/clusters/:cluster/services/:services/getSearchLog', manageMonitorController.getServiceSearchLog)
 
   // DevOps service: CI/CD
   router.get('/devops/stats', devopsController.getStats)
@@ -308,14 +326,18 @@ module.exports = function (Router) {
   router.get('/cluster-nodes/:cluster', clusternodesController.getClusterNodes)
   router.post('/cluster-nodes/:cluster/node/:node', clusternodesController.changeNodeSchedule)
   router.delete('/cluster-nodes/:cluster/node/:node', clusternodesController.deleteNode)
+  router.get('/cluster-nodes/:cluster/add-node-cmd', clusternodesController.getAddNodeCMD)
   // Get kubectl pods names
-  router.get('/clusters/:cluster/kubectls', clusternodesController.getKubectls)
+  router.get('/cluster-nodes/:cluster/kubectls', clusternodesController.getKubectls)
+  router.get('/cluster-nodes/:cluster/:node/podlist', clusternodesController.getPodlist)
+  // get host detail info
+  router.get('/cluster-nodes/:cluster/:node/info', clusternodesController.getClustersInfo)
+  router.get('/cluster-nodes/:cluster/:node/metrics', clusternodesController.getClustersMetrics)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)
 
-  // License
-  router.get('/license', licenseController.getLicense)
+  // Licenses
   router.get('/licenses', licenseController.getLicenses)
 
   // consumption and charge
@@ -325,6 +347,32 @@ module.exports = function (Router) {
   router.get('/consumptions/charge-history', consumptionController.getChargeRecord)
   router.get('/consumptions/notify-rule', consumptionController.getNotifyRule)
   router.put('/consumptions/notify-rule', consumptionController.setNotifyRule)
+
+  // Versions
+  router.get('/versions/check', versionsController.checkVersion)
+
+  // Charge
+  router.post('/charge/user', chargeController.chargeUser)
+  router.post('/charge/teamspace', chargeController.chargeTeamspace)
+
+  //setting
+  router.post('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
+  router.put('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
+  router.get('/cluster/:cluster/config', globalConfigController.getGlobalConfig)
+  router.post('/type/:type/isvalidconfig', globalConfigController.isValidConfig)
+
+  //image scan
+  router.get('/images/scan-status', imageScanController.getScanStatus)
+  router.get('/images/layer-info', imageScanController.getLayerInfo)
+  router.get('/images/lyins-info', imageScanController.getLyins)
+  router.get('/images/clair-info', imageScanController.getClair)
+  router.post('/images/scan', imageScanController.scan)
+  router.post('/images/scan-rule', imageScanController.uploadFile)
+
+  // alert
+  router.get('/alerts/record-filters', alertController.getRecordFilters)
+  router.get('/alerts/records', alertController.getRecords)
+  router.delete('/alerts/records', alertController.deleteRecords)
 
   return router.routes()
 }

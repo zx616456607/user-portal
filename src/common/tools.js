@@ -11,11 +11,22 @@
 'use strict'
 
 import moment from 'moment'
-import { AMOUNT_CONVERSION, AMOUNT_DEFAULT_PRECISION, DEFAULT_TIME_FORMAT } from '../../constants'
-import { STANDARD_MODE } from '../../configs/constants'
+import {
+  AMOUNT_CONVERSION,
+  AMOUNT_DEFAULT_PRECISION,
+  DEFAULT_TIME_FORMAT,
+} from '../../constants'
+import {
+  TENX_PORTAL_VERSION_MAJOR_KEY,
+  TENX_PORTAL_VERSION_KEY,
+  VERSION_REG_EXP,
+} from '../constants'
+import { STANDARD_MODE, ENTERPRISE_MODE } from '../../configs/constants'
 import { mode } from '../../configs/model'
 
+const enterpriseFlag = ENTERPRISE_MODE == mode
 const locale = window.appLocale.locale
+
 // Set moment internationalize
 if (locale === 'zh') {
   moment.locale('zh-cn')
@@ -310,4 +321,118 @@ export function getValue(obj, key) {
     return JSON.stringify(value)
   }
   return value
+}
+
+/**
+ * Parse cpu with unit to number
+ *
+ * @export
+ * @param {any} cpu
+ * @returns
+ */
+export function parseCpuToNumber(cpu) {
+  if (!cpu) {
+    return
+  }
+  if (cpu.indexOf('m') < 0) {
+    cpu *= 1000
+  } else {
+    cpu = parseInt(cpu)
+  }
+  return Math.ceil((cpu / 1000) * 10) / 10
+}
+
+/**
+ * Format cpu
+ *
+ * @param {any} memory
+ * @param {any} resources
+ * @returns
+ */
+export function cpuFormat(memory, resources) {
+  let cpuLimits = parseCpuToNumber(resources.limits.cpu)
+  let cpuRequests = parseCpuToNumber(resources.requests.cpu)
+  if (enterpriseFlag) {
+    if (cpuLimits && cpuRequests) {
+      return `${cpuRequests}~${cpuLimits} CPU`
+    }
+    if (cpuRequests) {
+      return `${cpuRequests} CPU`
+    }
+  }
+  if(!Boolean(memory)) {
+    return '-'
+  }
+  let newMemory = parseInt(memory.replace('Mi','').replace('Gi'))
+  switch(newMemory) {
+    case 1:
+      return '1 CPU（共享）'
+    case 2:
+      return '1 CPU（共享）'
+    case 4:
+      return '1 CPU'
+    case 8:
+      return '2 CPU'
+    case 16:
+      return '2 CPU'
+    case 32:
+      return '2 CPU'
+    case 256:
+      return '1 CPU（共享）'
+    case 512:
+      return '1 CPU（共享）'
+  }
+}
+
+export function memoryFormat(resources) {
+  let memoryLimits = resources.limits.memory
+  let memoryRequests = resources.requests.memory
+  if (!memoryLimits) {
+    return '-'
+  }
+  memoryLimits = memoryLimits.replace('i', '')
+  if (enterpriseFlag && memoryLimits && memoryRequests) {
+    memoryRequests = memoryRequests.replace('i', '')
+    if (memoryLimits === memoryRequests) {
+      return memoryLimits
+    }
+    return `${memoryRequests}~${memoryLimits}`
+  }
+  return memoryLimits
+}
+
+export function isStandardMode() {
+  return !enterpriseFlag
+}
+
+export function clearSessionStorage() {
+  sessionStorage && sessionStorage.clear()
+}
+
+export function getVersion() {
+  let version = window[TENX_PORTAL_VERSION_KEY]
+  if (!version) {
+    return
+  }
+  let versionMatch = version.match(VERSION_REG_EXP)
+  if (!versionMatch) {
+    return
+  }
+  version = versionMatch[0]
+  version = version.replace('v', '')
+  return version
+}
+
+/**
+ * Get portal real mode
+ *
+ * @export
+ * @returns lite | enterprise | standard
+ */
+export function getPortalRealMode() {
+  let major = window[TENX_PORTAL_VERSION_MAJOR_KEY]
+  if (!major) {
+    return mode
+  }
+  return major
 }

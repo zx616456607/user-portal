@@ -93,7 +93,7 @@ module.exports = {
     new webpack.optimize.MinChunkSizePlugin({minChunkSize: 200000}),
     // new webpack.optimize.CommonsChunkPlugin('vendor', 'common.js'),
     new webpack.optimize.CommonsChunkPlugin('common', 'common.[chunkhash:8].js'),
-    new webpack.optimize.OccurenceOrderPlugin(),
+    new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.NoErrorsPlugin(),
     new ExtractTextPlugin('index.[chunkhash:8].css', { allChunks: true }),
     new webpack.optimize.UglifyJsPlugin({

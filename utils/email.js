@@ -16,6 +16,7 @@ const nodemailer = require('nodemailer')
 const moment = require('moment')
 const logger = require('./logger').getLogger('email')
 const config = require('../configs')
+config.mail_server = global.globalConfig.mail_server
 const constants = require('../configs/constants')
 const fs = require('fs')
 const EMAIL_TEMPLATES_DIR = `${__root__dirname}/templates/email`
@@ -43,6 +44,10 @@ function sendEmail(transport, mailOptions) {
   if (!mailOptions) {
     mailOptions = transport
     transport = config.mail_server
+  }
+  // Workaround for SMTP not configed(lite)
+  if (!transport.auth.pass) {
+    return Promise.resolve({skip: true})
   }
   // Force to use this 'from' user if using sendEmail method
   mailOptions.from = config.mail_server.auth.user
@@ -122,6 +127,7 @@ function sendEmailBySendcloud(mailOptions) {
       logger.error(result.errors)
       throw new Error(result.errors || result.message)
     }
+    return result
   })
 }
 exports.sendEmailBySendcloud = sendEmailBySendcloud

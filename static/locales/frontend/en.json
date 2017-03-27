@@ -71,6 +71,7 @@
   "TenxStatus.Stopped": "Stopped",
   "TenxStatus.Running": "Running",
   "TenxStatus.Abnormal": "Abnormal",
+  "TenxStatus.Failed": "Failed",
   "TenxStatus.RunningMsg": "Running for",
   "TenxStatus.SectionRunningMsg": "Section running",
   "TenxStatus.AllRunningMsg": "All running",
@@ -601,6 +602,6 @@
   "App.error.409": "Request {resource} conflict",
   "App.error.500": "Internal server error for request {resource}",
   "App.error.502": "Request {resource} bad gateway",
-  "App.error.503": "Service unavailable. Please try again later",
+  "App.error.503": "Network or service is unavailable. Please try again later",
   "App.error.504": "Request {resource} gateway timeout"
 }

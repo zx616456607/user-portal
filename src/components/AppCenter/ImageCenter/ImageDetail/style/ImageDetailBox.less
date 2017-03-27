@@ -34,9 +34,11 @@
       }
       .leftBox {
         float: left;
-        .imageUrl {
-          margin-bottom: 30px;
-          font-size: 14px;
+        width: 60%;
+        word-wrap: break-word;
+        button {margin-left: 8px;}
+        #editInfo,.imagedescription{
+          margin-bottom: 8px;
         }
         .type {
           float: left;
@@ -59,12 +61,24 @@
       .rightBox {
         float: right;
         margin-top: 15px;
-        button {
-          margin-right: 20px;
-          height: 38px;
-          font-size: 14px;
-          line-height: 24px;
+        width:190px;
+        .rightBoxleft{
+          float: left;
         }
+        .rightBoxright{
+          float: right;
+          button{
+            color: #2db7f5;
+            border-color:#2db7f5;
+          }
+        }
+        //button {
+        //  margin-right: 20px;
+        //  // height: 38px;
+        //  font-size: 14px;
+        //  line-height: 24px;
+        //}
+
       }
     }
   }

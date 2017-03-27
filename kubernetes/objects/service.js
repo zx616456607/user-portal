@@ -8,6 +8,8 @@
  * @author Zhangpc
  */
 'use strict'
+const constants = require('../../constants')
+
 const TENXCLOUD_PREFIX = 'tenxcloud.com/'
 const TENX_SCHEMA_PORTNAME = 'tenxcloud.com/schemaPortname'
 
@@ -32,7 +34,7 @@ class Service {
       this.spec.externalIPs = JSON.parse(cluster.publicIPs)
     }
   }
-
+  // Call from server side only
   importFromK8SService(k8sService) {
     if (k8sService.metadata) {
       if (k8sService.metadata.name) {
@@ -67,10 +69,15 @@ class Service {
       if (k8sService.spec.externalIPs) {
         this.spec.externalIPs = k8sService.spec.externalIPs
       }
+      if (constants.PROXY_TYPE == constants.SERVICE_KUBE_NODE_PORT) {
+        if (k8sService.spec.type) {
+          this.spec.type = k8sService.spec.type
+        }
+      }
     }
   }
-
-  addPort(name, protocol, targetPort, port) {
+  // Call from client side
+  addPort(proxyType, name, protocol, targetPort, port, nodePort) {
     // K8s only support TCP and UDP protocol
     const k8sProtocol = (protocol === 'UDP' ? protocol : 'TCP')
     const portObj = {
@@ -80,6 +87,14 @@ class Service {
     }
     if (port) {
       portObj.port = port
+    }
+    // Check service type, add nodeport if service type is 'kube-nodeport' and user defined port
+    if (proxyType == constants.SERVICE_KUBE_NODE_PORT) {
+      this.spec.type = 'NodePort'
+      if (nodePort) {
+        // Use user specified one
+        portObj.nodePort = parseInt(nodePort)
+      }
     }
     this.spec.ports.push(portObj)
   }

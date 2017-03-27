@@ -9,7 +9,8 @@
  */
 import React, { Component } from 'react'
 import { Tabs, Button, Form, Input, Card, Tooltip, message, Alert, Col, Row  } from 'antd'
-import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP, PHONE_REGEX, WECHAT_SIGNUP_HASH } from '../../constants'
+import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP, WECHAT_SIGNUP_HASH } from '../../constants'
+import { PHONE_REGEX } from '../../../constants'
 import { connect } from 'react-redux'
 import { registerUser, sendRegisterPhoneCaptcha } from '../../actions/user'
 import { login } from '../../actions/entities'
@@ -158,6 +159,7 @@ let Person = React.createClass({
       })
       const body = {
         accountType: 'wechat',
+        password: values.password,
         captcha: values.captcha,
         userName: values.userName,
         phone: values.tel,
@@ -182,7 +184,7 @@ let Person = React.createClass({
       return
     }
     if (!USERNAME_REG_EXP_NEW.test(value)) {
-      callback([new Error('以[a~z]开头，允许[0~9]、[-]，且以小写英文和数字结尾')])
+      callback([new Error('以[a~z]开头，允许[0~9]、[-]，长度大于4，且以小写英文和数字结尾')])
       return
     }
     callback()

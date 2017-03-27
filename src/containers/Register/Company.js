@@ -12,7 +12,8 @@ import { Tabs, Button, Form, Input, Card, Tooltip, message, Alert, Col, Row, Rad
 import { connect } from 'react-redux'
 import { registerUser, sendRegisterPhoneCaptcha } from '../../actions/user'
 import { browserHistory } from 'react-router'
-import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP, PHONE_REGEX } from '../../constants'
+import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../constants'
+import { PHONE_REGEX } from '../../../constants'
 import NotificationHandler from '../../common/notification_handler'
 
 const createForm = Form.create
@@ -136,7 +137,7 @@ let Company = React.createClass({
       return
     }
     if (!USERNAME_REG_EXP_NEW.test(value)) {
-      callback([new Error('以[a~z]开头，允许[0~9]、[-]，且以小写英文和数字结尾')])
+      callback([new Error('以[a~z]开头，允许[0~9]、[-]，长度大于4，且以小写英文和数字结尾')])
       return
     }
     callback()

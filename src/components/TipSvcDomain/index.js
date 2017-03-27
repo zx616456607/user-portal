@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  Storage list
+ *  server and app some port in card
  *
  * v0.1 - 2016/11/14
  * @author ZhaoXueYu
@@ -11,12 +11,39 @@ import React, { Component } from 'react'
 import { Tooltip, Badge, Timeline, Icon, Row, Col, Popover } from 'antd'
 import './style/TipSvcDomain.less'
 
+// server tips port card
 class SvcTip extends Component {
   constructor(props) {
     super(props)
+    this.state = {
+      copyStatus: false
+    }
+  }
+  servercopyCode() {
+    let code = document.getElementById('serverCodeInput');
+    code.select()
+    document.execCommand('Copy', false)
+    this.setState({
+      copyStatus: true
+    });
+  }
+  returnDefaultTooltip() {
+     //this function for return default tooltip message
+    const _this = this
+    setTimeout(function () {
+      _this.setState({
+        copyStatus: false
+      });
+    }, 500);
+  }
+  startCopyCode(url) {
+    //this function for copy code to input
+    let code = document.getElementById('serverCodeInput');
+    code.value = url
   }
   render() {
     const { svcDomain } = this.props
+    const scope = this
     let item = svcDomain.map((element, index) => {
       let linkURL = 'http://' + element.domain
       return (
@@ -24,6 +51,9 @@ class SvcTip extends Component {
           <a href="javascript:void(0)" > 容器端口:{element.interPort}</a>
           &nbsp;&nbsp;
           <a href={linkURL} target='_blank'>{element.isInternal ? '内网' : '外网'}:{element.domain}</a>
+          <Tooltip placement='top' title={scope.state.copyStatus ? '复制成功' : '点击复制'}>
+            <svg className='tipCopySvg' onClick={this.servercopyCode.bind(this)} onMouseLeave={ this.returnDefaultTooltip.bind(this) } onMouseEnter={this.startCopyCode.bind(this,element.domain)}><use xlinkHref='#appcentercopy' /></svg>
+          </Tooltip>
         </li>
       )
     })
@@ -32,11 +62,13 @@ class SvcTip extends Component {
         <ul>
           {item}
         </ul>
+        <input id='serverCodeInput' style={{ position: 'absolute', opacity: '0' }} />
       </div>
     )
   }
 }
 
+// app card port content
 class AppTip extends Component {
   constructor(props) {
     super(props)
@@ -204,6 +236,7 @@ export default class TipSvcDomain extends Component {
               trigger='click'
               onVisibleChange={this.showPop}
               getTooltipContainer={() => document.getElementsByClassName(parentNode)[0]}
+              arrowPointAtCenter={true}
               >
               <svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
                 <use xlinkHref='#more' />

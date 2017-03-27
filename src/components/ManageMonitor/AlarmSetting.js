@@ -1,0 +1,316 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ *
+ * Alarm Setting component
+ *
+ * v0.1 - 2017-3-16
+ * @author Baiyu
+ */
+import React, { Component, PropTypes } from 'react'
+import { Link } from 'react-router'
+import { Card, Input, Modal, InputNumber, Checkbox, Progress, Icon, Spin, Table, Select, Dropdown, DatePicker, Menu, Button } from 'antd'
+import QueueAnim from 'rc-queue-anim'
+// import { connect } from 'react-redux'
+// import { calcuDate } from '../../../common/tools.js'
+import './style/AlarmRecord.less'
+import cloneDeep from 'lodash/cloneDeep'
+const MyComponent = React.createClass({
+  getInitialState() {
+    return {
+      data: this.props.data || [],
+      lookModel: false
+    }
+  },
+  hnadDelete(record) {
+    // Dropdown delete action
+    console.log('index  in...', record)
+  },
+  dropdowns (record){
+    // Dropdown delete btn
+    return(
+      <Menu onClick={()=> this.hnadDelete(record)}
+          style={{ width: '80px' }}
+      >
+      <Menu.Item >
+        <span>删除</span>
+      </Menu.Item>
+    </Menu>
+
+    )
+  },
+  handOverlook() {
+    lookModel: true
+  },
+  sorterData(sorter) {
+    const newData = this.state.data.sort((a, b) => {
+      if (sorter == 'up') {
+        return Date.parse(b.createTime) - Date.parse(a.createTime)
+      }
+      return Date.parse(a.createTime) - Date.parse(b.createTime)
+    })
+    this.setState({
+      data: newData,
+      sorter,
+    })
+  },
+  tableListMore(list) {
+    const oldData = cloneDeep(this.state.data)
+    const newData = oldData.map((item, index)=> {
+      if (index == list) {
+        item.active = !item.active
+        return item
+      }
+      item.active = false
+      return item
+    })
+    this.setState({
+      data: newData
+    })
+  },
+  childerList() {
+    return (
+      <div className="wrapChild">
+        <div className="leftName">
+          节点名称（5分钟内数据）
+        </div>
+        <div className="rightList">
+          <div className="lists">
+            <span className="keys">内存</span>
+            <Progress percent={30} strokeWidth={8} format={ percent => percent + '%'} className="progress"/>
+          </div>
+          <div className="lists">
+            <span className="keys">CPU</span>
+            <Progress percent={60} status="exception" strokeWidth={8} format={ percent => percent + '%'}  className="progress" />
+          </div>
+          <div className="lists">
+            <span className="keys">流量</span>
+            <span className="keys">
+              <Icon type="arrow-up" />
+                1280M
+            </span>
+            <span className="keys">
+              <Icon type="arrow-down" />
+              50M
+            </span>
+          </div>
+        </div>
+      </div>
+    )
+  },
+  render() {
+    const { data } = this.state
+    const lists = data.map((list, index)=> {
+      if (list.active) {
+        return (
+            [<tr key={`list${index}`}>
+              <td style={{width:'5%'}}><Checkbox /></td>
+              <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${list.key}`}>{list.name}</Link></td>
+              <td onClick={()=> this.tableListMore(index)}>{list.type}</td>
+              <td onClick={()=> this.tableListMore(index)}>{list.bindObject}</td>
+              <td onClick={()=> this.tableListMore(index)}>{list.status}</td>
+              <td onClick={()=> this.tableListMore(index)}>{list.time}</td>
+              <td onClick={()=> this.tableListMore(index)}>{list.createTime}</td>
+              <td onClick={()=> this.tableListMore(index)}>{list.editUser}</td>
+              <td><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={()=> this.setState({lookModel: true})}>忽略</Dropdown.Button></td>
+            </tr>,
+            <tr key={`list-${index}`} className="ant-table-expanded">
+              <td style={{width:'5%'}}></td>
+              <td colSpan="9">
+                {this.childerList(list)}
+              </td>
+            </tr>]
+        )
+
+      }
+      return (
+        <tr key={`list${index}`}>
+            <td><Checkbox /></td>
+            <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${list.key}`}>{list.name}</Link></td>
+            <td onClick={()=> this.tableListMore(index)}>{list.type}</td>
+            <td onClick={()=> this.tableListMore(index)}>{list.bindObject}</td>
+            <td onClick={()=> this.tableListMore(index)}>{list.status}</td>
+            <td onClick={()=> this.tableListMore(index)}>{list.time}</td>
+            <td onClick={()=> this.tableListMore(index)}>{list.createTime}</td>
+            <td onClick={()=> this.tableListMore(index)}>{list.editUser}</td>
+            <td><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={()=> this.setState({lookModel: true})}>忽略</Dropdown.Button></td>
+          </tr>
+      )
+    })
+    return (
+      <Card className="ant-table">
+        <table className="ant-table-table strategyTable">
+          <thead className="ant-table-thead">
+            <tr>
+              <th><Checkbox /></th>
+              <th>名称</th>
+              <th>类型</th>
+              <th>绑定对象</th>
+              <th>状态</th>
+              <th>监控周期</th>
+              <th>创建时间
+                <div className="ant-table-column-sorter">
+                <span className={this.state.sorter =='up' ? "ant-table-column-sorter-up on": 'ant-table-column-sorter-up off'} title="↑" onClick={()=> this.sorterData('up')}><i className="anticon anticon-caret-up"></i></span>
+                <span className={this.state.sorter =='down' ? "ant-table-column-sorter-down on" : 'ant-table-column-sorter-down off'} title="↓" onClick={()=> this.sorterData('down')}><i className="anticon anticon-caret-down"></i></span>
+                </div>
+              </th>
+              <th>最后修改人</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody className="ant-table-tbody">
+          { lists }
+          </tbody>
+        </table>
+        <Modal title="忽略" visible={this.state.lookModel}
+          onOk={()=> this.handOverlook()} onCancel={()=> this.setState({lookModel: false})}
+          okText="提交"
+        >
+          <div className="alertRow">注意：在忽略时间内我们将不会发送告警邮件通知！</div>
+          <div className="modalParams">
+            <span className="keys">忽略时长</span>
+            <InputNumber size="large" min={1} style={{margin:'0 10px'}}/>
+            <Select style={{width: 80}} size="large" defaultValue={'minute'}>
+              <Option value="hour">小时</Option>
+              <Option value="minute">分钟</Option>
+              <Option value="second">秒</Option>
+            </Select>
+          </div>
+        </Modal>
+      </Card>
+    )
+  }
+})
+
+class AlarmSetting extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  handSearch() {
+    // search data
+    const search = document.getElementById('alarmSearch').value
+    console.log('submit value is', search)
+
+  }
+  description(rule) {
+    // Dropdown more info
+    console.log(rule)
+    return (
+      <div>cpu is</div>
+    )
+  }
+  render() {
+
+    const columns = [
+      {
+      title: '名称',
+      dataIndex: 'name',
+      key:'name',
+      render: text => <a href="#">{text}</a>,
+      }, {
+        title: '类型',
+        dataIndex: 'type',
+        key:'type'
+      }, {
+        title: '绑定对象',
+        dataIndex: 'bindObject',
+        key:'bindObject',
+      },
+      {
+        title: '状态',
+        dataIndex: 'status',
+        key:'status',
+      },
+      {
+        title: '监控周期',
+        dataIndex: 'time'
+      },
+      {
+        title: '创建时间',
+        dataIndex: 'createTime',
+        key:'createTime',
+        sorter: (a, b) => Date.parse(a.createTime) - Date.parse(b.createTime),
+      },
+      {
+        title: '最后修改人',
+        dataIndex: 'editUser',
+        key:'edit',
+      },
+      {
+        title: '操作',
+        dataIndex: 'name',
+        key:'action',
+        render: (text, record) => {
+          return <Dropdown.Button type="ghost" overlay={ this.dropdowns(record) }>忽略</Dropdown.Button>
+        }
+      }
+    ];
+
+    const data = [
+      {
+        key:1,
+        name: '大事业部',
+        type:'1',
+        bindObject:3,
+        status: 1,
+        time:'5分钟',
+        createTime: '2017-03-06 15:35:21',
+        editUser:'baiyu',
+      }, {
+        key:2,
+        name: 'test It',
+        type:'2',
+        bindObject:2,
+        status: 1,
+        time:'15分钟',
+        createTime: '2017-03-03 10:35:21',
+        editUser:'admin',
+      }, {
+        key:3,
+        name: '统计',
+        type:'2',
+        bindObject:1,
+        status: 0,
+        time:'2分钟',
+        createTime: '2017-03-02 13:35:21',
+        editUser:'baiyu',
+      }
+    ];
+    const rowSelection = {
+      // checkbox select callback
+    }
+    const _this = this
+    return (
+      <QueueAnim type="right" className="alarmSetting">
+        <div id="AlarmRecord">
+          <div className="topRow">
+            <Button icon="plus" size="large" type="primary">创建</Button>
+            <Button icon="reload" size="large">刷新</Button>
+            <Button icon="caret-right" size="large">启用</Button>
+            <Button size="large" ><i className="fa fa-stop" /> &nbsp;停用</Button>
+            <Button icon="delete" size="large">删除</Button>
+            <Button icon="edit" size="large" >修改</Button>
+            <div className="inputGrop">
+              <Input size="large" id="alarmSearch" onPressEnter={()=> this.handSearch()}/>
+              <i className="fa fa-search" onClick={()=> this.handSearch()}/>
+            </div>
+          </div>
+          <MyComponent data={data}/>
+          {/*<Card>
+            <Table className="strategyTable"
+              onRowClick={(record, index)=>console.log('click', record, index)}
+              rowSelection={rowSelection}
+              columns={columns}
+              dataSource={data}
+              pagination={false}
+              expandedRowRender={ record =>_this.description(record) }
+            />
+          </Card>*/}
+        </div>
+      </QueueAnim>
+    )
+  }
+}
+
+export default AlarmSetting

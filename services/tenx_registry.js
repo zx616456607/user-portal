@@ -78,7 +78,13 @@ exports.getImages = function (username, search) {
 }
 
 exports.getImageTags = function (username, imageFullName) {
-  const registry = new registryAPIs(this.getUserTenxHubConfig(username))
+  var defaultConfig = this.getUserTenxHubConfig(username)
+  // Use default if not specified
+  if (!defaultConfig || !defaultConfig.host) {
+    logger.info("Using index.tenxcloud.com...")
+    defaultConfig = TenxCloudOfficialHub
+  }
+  const registry = new registryAPIs(defaultConfig)
   if (username) {
     username = username.toLowerCase()
   }
@@ -101,7 +107,13 @@ exports.getImageTags = function (username, imageFullName) {
 }
 
 exports.getImageConfigs = function (username, imageFullName, tag) {
-  const registry = new registryAPIs(this.getUserTenxHubConfig(username))
+  var defaultConfig = this.getUserTenxHubConfig(username)
+  // Use default if not specified
+  if (!defaultConfig || !defaultConfig.host) {
+    logger.info("Using index.tenxcloud.com...")
+    defaultConfig = TenxCloudOfficialHub
+  }
+  const registry = new registryAPIs(defaultConfig)
   if (username) {
     username = username.toLowerCase()
   }
@@ -134,7 +146,13 @@ exports.getImageConfigs = function (username, imageFullName, tag) {
 }
 
 exports.getImageInfo = function(username, imageFullName, isCheckOnly) {
-  const registry = new registryAPIs(this.getUserTenxHubConfig(username))
+  var defaultConfig = this.getUserTenxHubConfig(username)
+  // Use default if not specified
+  if (!defaultConfig || !defaultConfig.host) {
+    logger.info("Using index.tenxcloud.com...")
+    defaultConfig = TenxCloudOfficialHub
+  }
+  const registry = new registryAPIs(defaultConfig)
   if (username) {
     username = username.toLowerCase()
   }

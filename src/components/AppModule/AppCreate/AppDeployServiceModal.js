@@ -18,7 +18,19 @@ import EnviroDeployBox from './AppDeployComponents/EnviroDeployBox'
 import "./style/AppDeployServiceModal.less"
 import { connect } from 'react-redux'
 import { parseAmount } from '../../../common/tools.js'
-import { CREATE_APP_ANNOTATIONS, DEFAULT_REGISTRY } from '../../../constants'
+import {
+  CREATE_APP_ANNOTATIONS,
+  DEFAULT_REGISTRY,
+  RESOURCES_MEMORY_MIN,
+  RESOURCES_CPU_MIN,
+  RESOURCES_DIY,
+  SYSTEM_DEFAULT_SCHEDULE,
+} from '../../../constants'
+import { ENTERPRISE_MODE } from '../../../../configs/constants'
+import { K8S_NODE_SELECTOR_KEY } from '../../../../constants'
+import { mode } from '../../../../configs/model'
+
+const enterpriseFlag = ENTERPRISE_MODE == mode
 const DEFAULT_COMPOSE_TYPE = '2'
 const Deployment = require('../../../../kubernetes/objects/deployment')
 const Service = require('../../../../kubernetes/objects/service')
@@ -36,6 +48,8 @@ let AppDeployServiceModal = React.createClass({
   getInitialState: function () {
     return {
       composeType: DEFAULT_COMPOSE_TYPE,
+      DIYMemory: RESOURCES_MEMORY_MIN,
+      DIYCPU: 1,
       runningCode: "1",
       getImageType: "0",
       stateService: false,
@@ -61,6 +75,9 @@ let AppDeployServiceModal = React.createClass({
       case '8192Mi':
         return '32'
       default:
+        if (enterpriseFlag) {
+          return RESOURCES_DIY
+        }
         return '1'
     }
   },
@@ -248,21 +265,24 @@ let AppDeployServiceModal = React.createClass({
 
   },
   setForm() {
-    const { scope } = this.props
-    const { form } = this.props
-    const { annotations } = this.props.scope.state.checkInf.Service.metadata;
-    const volumeMounts = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].volumeMounts
-    const livenessProbe = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].livenessProbe
-    const env = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].env
-    const ports = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].ports
-    const ServicePorts = this.props.scope.state.checkInf.Service.spec.ports
-    const volumes = this.props.scope.state.checkInf.Deployment.spec.template.spec.volumes
-    let imageVersion = scope.state.checkInf.Deployment.spec.template.spec.containers[0].image.split(':')[1]
-    const entryInput = scope.state.checkInf.Deployment.spec.template.spec.containers[0].command
+    const { scope, form } = this.props
+    const { Service, Deployment } = scope.state.checkInf
+    const { annotations } = Service.metadata
+    const nodeSelector = Deployment.spec.template.spec.nodeSelector
+    const bindNode = nodeSelector ? nodeSelector[K8S_NODE_SELECTOR_KEY] : SYSTEM_DEFAULT_SCHEDULE
+    const volumeMounts = Deployment.spec.template.spec.containers[0].volumeMounts
+    const livenessProbe = Deployment.spec.template.spec.containers[0].livenessProbe
+    const env = Deployment.spec.template.spec.containers[0].env
+    const ports = Deployment.spec.template.spec.containers[0].ports
+    const ServicePorts = Service.spec.ports
+    const volumes = Deployment.spec.template.spec.volumes
+    let imageVersion = Deployment.spec.template.spec.containers[0].image.split(':')[1]
+    const entryInput = Deployment.spec.template.spec.containers[0].command
     form.setFieldsValue({
-      name: scope.state.checkInf.Service.metadata.name,
+      name: Service.metadata.name,
       imageVersion: imageVersion,
-      instanceNum: scope.state.checkInf.Deployment.spec.replicas,
+      bindNode,
+      instanceNum: Deployment.spec.replicas,
       volumeSwitch: this.volumeSwitch(volumeMounts, form),
       getUsefulType: this.getUsefulType(livenessProbe, form),
       volumeMounts: volumeMounts,
@@ -306,9 +326,17 @@ let AppDeployServiceModal = React.createClass({
     }
     this.setEnv(env, form)
     this.setPorts(ports, ServicePorts, form, annotations)
-    this.setState({
+    const newState = {
       composeType: this.limits(),
-    })
+      DIYMemory: RESOURCES_MEMORY_MIN,
+      DIYCPU: RESOURCES_CPU_MIN,
+    }
+    if (newState.composeType === RESOURCES_DIY) {
+      const { memory, cpu } = Deployment.spec.template.spec.containers[0].resources.requests
+      newState.DIYMemory = memory
+      newState.DIYCPU = parseInt(cpu) / 1000
+    }
+    this.setState(newState)
   },
   componentWillMount() {
     noPortFlag = false;
@@ -331,8 +359,10 @@ let AppDeployServiceModal = React.createClass({
     }
   },
   submitNewService() {
+    const { loginUser } = this.props
     const parentScope = this.props.scope
     const scope = this.state;
+    const { DIYCPU, DIYMemory } = this.state
     const {getFieldValue, getFieldProps} = this.props.form
     let composeType = scope.composeType;
     let portKey = getFieldValue('portKey')
@@ -357,6 +387,7 @@ let AppDeployServiceModal = React.createClass({
     //let config = getFileProps('config').value
     const { registryServer, currentSelectedImage } = parentScope.state
     let image = registryServer + '/' + currentSelectedImage + ':' + imageVersion //镜像名称
+    const bindNode = getFieldProps('bindNode').value //绑定节点的名称
     let deploymentList = new Deployment(serviceName)
     let serviceList = new Service(serviceName, this.props.cluster)
     let storageType = getFieldProps('storageType').value
@@ -452,6 +483,20 @@ let AppDeployServiceModal = React.createClass({
             cal: '2C/8G'
           }
           return
+        case RESOURCES_DIY:
+          ImageConfig = {
+            resources: {
+              limits: {
+                memory: DIYMemory + 'Mi'
+              },
+              requests: {
+                memory: DIYMemory + 'Mi',
+                cpu: DIYCPU * 1000 + 'm'
+              }
+            },
+            cal: `${DIYCPU}C${(DIYMemory/1024).toFixed(1)}G`
+          }
+          return
         default:
           ImageConfig = {
             resources: {
@@ -467,21 +512,27 @@ let AppDeployServiceModal = React.createClass({
           return
       }
     })(composeType)
+    if (bindNode !== SYSTEM_DEFAULT_SCHEDULE) {
+      deploymentList.setNodeSelector(bindNode)
+    }
     /*Deployment*/
     deploymentList.setReplicas(instanceNum)
     deploymentList.addContainer(serviceName, image)
-    deploymentList.setContainerResources(serviceName, ImageConfig.resources.limits.memory)
+    deploymentList.setContainerResources(serviceName, ImageConfig.resources.requests.memory, ImageConfig.resources.requests.cpu)
     //ports
     if (Boolean(portKey) && portKey.length > 0) {
       getFieldValue('portKey').map((k, index) => {
         let portType = getFieldProps(`portType${k}`).value;
         let newIndex = index + 1;
         // Fill in the service port info
+        let portNumber = getFieldProps(`portUrl${k}`).value;
         serviceList.addPort(
+          loginUser.proxyType,
           serviceName + '-' + newIndex,
           getFieldProps(`portType${k}`).value.toUpperCase(),
           parseInt(getFieldProps(`targetPortUrl${k}`).value),
-          parseInt(getFieldProps(`targetPortUrl${k}`).value) // Use the same port as container port by default
+          parseInt(getFieldProps(`targetPortUrl${k}`).value), // Use the same port as container port by default
+          portNumber
         )
         if(portType == 'HTTP') {
           // Add port annotation in advance
@@ -493,8 +544,7 @@ let AppDeployServiceModal = React.createClass({
             serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType)
           } else if(tcpType == 'special') {
             // Add the port annotation
-            let portUrl = getFieldProps(`portUrl${k}`).value;
-            serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType, portUrl)
+            serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType, portNumber)
           } else {
             // undefined
             serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType)
@@ -631,12 +681,18 @@ let AppDeployServiceModal = React.createClass({
         if (!vol) return
         if(!volPath) return
         if (vol.length <= 0) return
+        let mountPath = []
+        vol.items.forEach((v, index) => {
+          let path = (volPath.indexOf('/') == 0 ? volPath : '/'+ volPath) + '/' + v.path
+          mountPath.push({
+            mountPath: path,
+            subPath: v.path
+          })
+        })
         deploymentList.addContainerVolume(serviceName, {
           name: `configmap-volume-${item}`,
           configMap: vol,
-        }, {
-            mountPath: volPath
-          })
+        }, mountPath, true)
       })
     }
     //livenessProbe 高可用
@@ -697,7 +753,6 @@ let AppDeployServiceModal = React.createClass({
   handleSubBtn(e) {
     const parentScope = this.props.scope
     const { form } = this.props
-    const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     e.preventDefault()
     form.validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
@@ -752,7 +807,7 @@ let AppDeployServiceModal = React.createClass({
     const scope = this
     const parentScope = this.props.scope
     const {currentSelectedImage, registryServer, isCreate, other} = parentScope.state
-    const { form, serviceOpen } = this.props
+    const { form, serviceOpen, loginUser } = this.props
     const { composeType, disable } = this.state
     const unitPrice = parseAmount(price[this.state.composeType+'x'], 4)
     const hourPrice = parseAmount(price[this.state.composeType+'x'] * instanceNum, 4)
@@ -784,7 +839,7 @@ let AppDeployServiceModal = React.createClass({
               <ComposeDeployBox scope={scope} form={form} cluster={this.props.cluster} serviceOpen={this.props.serviceOpen} />
             </Panel>
             <Panel header={advanceBoxTitle} key="4">
-              <EnviroDeployBox scope={scope} form={form} />
+              <EnviroDeployBox scope={scope} loginUser={loginUser} form={form} />
             </Panel>
           </Collapse>
           <div className="btnBox">
@@ -793,7 +848,7 @@ let AppDeployServiceModal = React.createClass({
                 <span className="keys">实例：<span className="unit">{ unitPrice.fullAmount}</span>/小时</span>
               </div>
               <div className="price-unit">合计：<span className="unit">{ countPrice.unit =='￥'? '￥':'' }</span>
-                <span className="unit blod">{ hourPrice.amount }{ countPrice.unit =='￥'? '':'T' }/小时</span> &nbsp;
+                <span className="unit blod">{ hourPrice.amount }{ countPrice.unit =='￥'? '':' T' }/小时</span> &nbsp;
                 <span className="unit">（约：{ countPrice.fullAmount }/月）</span>
               </div>
             </div>
@@ -848,6 +903,7 @@ const advanceBoxTitle = (
 );
 
 function mapStateToProps(state, props) {
+  const { loginUser } = state.entities
   const { cluster } = state.entities.current
   const parentScope = props.scope
   const {other} = parentScope.state
@@ -855,11 +911,13 @@ function mapStateToProps(state, props) {
     return {
       tagConfig: state.getImageTagConfig.otherTagConfig,
       cluster,
+      loginUser: loginUser.info
     }
   }
   return {
     tagConfig: state.getImageTagConfig.imageTagConfig,
-    cluster
+    cluster,
+    loginUser: loginUser.info
   }
 }
 

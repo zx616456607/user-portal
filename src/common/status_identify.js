@@ -20,9 +20,18 @@ export function getContainerStatus(container) {
   if (deletionTimestamp) {
     status.phase = 'Terminating'
   }
-  const { containerStatuses } = status
+  const { conditions, containerStatuses } = status
   let restartCount = 0
   let phase = status.phase
+  if (conditions) {
+    conditions.every(condition => {
+      if (condition.type !== 'Ready' && condition.status !== 'True') {
+        phase = 'Pending'
+        return false
+      }
+      return true
+    })
+  }
   if (containerStatuses) {
     containerStatuses.map(containerStatus => {
       // const { ready } = containerStatus
@@ -30,7 +39,7 @@ export function getContainerStatus(container) {
       if (containerRestartCount > restartCount) {
         restartCount = containerRestartCount
         if (!containerStatus.state || !containerStatus.state.running) {
-          //state不存在或state不为running
+          // state 不存在或 state 不为 running
           phase = 'Abnormal'
         }
       }

@@ -22,6 +22,8 @@ import AppAddStackModal from './AppAddStackModal'
 import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../common/notification_handler'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
+import { SERVICE_KUBE_NODE_PORT } from '../../../../constants'
+import ResourceQuotaModal from '../../ResourceQuotaModal'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -43,8 +45,8 @@ class ComposeFile extends Component {
     this.editYamlSetState = this.editYamlSetState.bind(this)
     this.handleVisibleChange = this.handleVisibleChange.bind(this)
 
-    let serviceList = JSON.parse(localStorage.getItem('servicesList'))
-    let selectedList = JSON.parse(localStorage.getItem('selectedList'))
+    let serviceList = JSON.parse(sessionStorage.getItem('servicesList'))
+    let selectedList = JSON.parse(sessionStorage.getItem('selectedList'))
     let serviceDesc = {}
     let deploymentDesc = {}
     let desc = []
@@ -59,7 +61,7 @@ class ComposeFile extends Component {
       })
     }
     this.state = {
-      appName: localStorage.getItem("transientAppName"),
+      appName: sessionStorage.getItem("transientAppName"),
       appDescYaml: desc.join('---\n'),
       remark: '',
       visible: false,
@@ -67,11 +69,13 @@ class ComposeFile extends Component {
       modalShow: false,
       stackType: true,
       createDisabled: false,
+      resourceQuotaModal: false,
+      resourceQuota: null,
     }
   }
   componentWillMount() {
     const { templateid } = this.props.location.query
-    const { externalIPs } = this.props
+    const { externalIPs, loginUser } = this.props
     const self = this
     if (templateid) {
       this.props.loadStackDetail(templateid, {
@@ -89,6 +93,10 @@ class ComposeFile extends Component {
                     // Update external IP to current cluster one
                     if ((!yamlObj.spec.externalIPs ||  yamlObj.spec.externalIPs == "") && externalIPs) {
                       yamlObj.spec.externalIPs = eval(externalIPs)
+                    }
+                    // Update proxy type to NodePort if proxy is kube-nodeport
+                    if (loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT) {
+                      yamlObj.spec.type = 'NodePort'
                     }
                   }
                   convertedContent += yaml.dump(yamlObj)
@@ -120,7 +128,7 @@ class ComposeFile extends Component {
     })
   }
   subApp() {
-    const {appName, appDescYaml, remark} = this.state
+    const { appName, appDescYaml, remark } = this.state
     const { cluster } = this.props
     let notification = new NotificationHandler()
     this.props.form.validateFields((errors, values) => {
@@ -138,6 +146,9 @@ class ComposeFile extends Component {
         notification.error('请选择编排文件')
         return
       }
+      this.setState({
+        createDisabled: true,
+      })
       this.props.createApp(appConfig, {
         success: {
           func: () => {
@@ -145,10 +156,50 @@ class ComposeFile extends Component {
               appName: '',
               remark: '',
             })
-            localStorage.removeItem('servicesList')
-            localStorage.removeItem('selectedList')
-            localStorage.removeItem('transientAppName')
+            sessionStorage.removeItem('servicesList')
+            sessionStorage.removeItem('selectedList')
+            sessionStorage.removeItem('transientAppName')
             browserHistory.push('/app_manage')
+          },
+          isAsync: true
+        },
+        failed: {
+          func: err => {
+            this.setState({
+              createDisabled: false,
+            })
+            if(err.statusCode == 403) {
+              const { data } = err.message
+              const { require, capacity, used } = data
+              let resourceQuota = {
+                selectResource: {
+                  cpu: formatCpuFromMToC(require.cpu),
+                  memory: formatMemoryFromKbToG(require.memory),
+                },
+                usedResource: {
+                  cpu: formatCpuFromMToC(used.cpu),
+                  memory: formatMemoryFromKbToG(used.memory),
+                },
+                totalResource: {
+                  cpu: formatCpuFromMToC(capacity.cpu),
+                  memory: formatMemoryFromKbToG(capacity.memory),
+                },
+              }
+              this.setState({
+                resourceQuotaModal: true,
+                resourceQuota,
+              })
+              function formatCpuFromMToC(cpu) {
+                return Math.ceil(cpu / 1000 * 10) / 10
+              }
+              function formatMemoryFromKbToG(memory) {
+                return Math.ceil(memory / 1024 / 1024 * 10) / 10
+              }
+              notification.error('创建应用失败', '集群资源不足')
+              return
+            }
+            const { message } = err
+            notification.error('创建应用失败', message.message)
           },
           isAsync: true
         },
@@ -261,9 +312,9 @@ class ComposeFile extends Component {
     },100)
   }
   cacheAppName() {
-    localStorage.setItem("transientAppName", this.state.appName || '')
-    // console.info("cached app name:", localStorage.getItem("transientAppName"));
-    localStorage.setItem("forCacheServiceList", true);
+    sessionStorage.setItem("transientAppName", this.state.appName || '')
+    // console.info("cached app name:", sessionStorage.getItem("transientAppName"));
+    sessionStorage.setItem("forCacheServiceList", true);
     browserHistory.goBack()
   }
   closeModal() {
@@ -364,6 +415,10 @@ class ComposeFile extends Component {
           >
           <AppAddStackModal scope={this} />
         </Modal>
+        <ResourceQuotaModal
+          visible={this.state.resourceQuotaModal}
+          closeModal={() => this.setState({resourceQuotaModal: false})}
+          {...this.state.resourceQuota} />
       </QueueAnim>
     )
   }
@@ -373,8 +428,10 @@ ComposeFile.propTypes = {
   intl: PropTypes.object.isRequired,
 }
 function mapStateToProps(state) {
+  const { loginUser } = state.entities
   const { cluster } = state.entities.current
   return {
+    loginUser: loginUser,
     cluster: cluster.clusterID,
     externalIPs: cluster.publicIPs,
     createApp: state.apps.createApp,

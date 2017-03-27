@@ -125,11 +125,11 @@ class BaseInfo extends Component {
     }
     this.setState({winWidth: '120px'})
   }
-  copyDownloadCode() {
+  copyDownloadCode(index) {
     //this function for user click the copy btn and copy the download code
     const scope = this;
     let code = document.getElementsByClassName("databaseCodeInput");
-    code[0].select();
+    code[index].select();
     document.execCommand("Copy", false);
     scope.setState({
       copySuccess: true
@@ -202,7 +202,7 @@ class BaseInfo extends Component {
           <div className="price-unit">
             <p>合计：
             <span className="unit">{countPrice.unit=='￥' ? ' ￥' : ''}</span>
-            <span className="unit blod">{ hourPrice.amount }{containerPrc.unit=='￥'? '' : 'T'}/小时</span>
+            <span className="unit blod">{ hourPrice.amount }{containerPrc.unit=='￥'? '' : ' T'}/小时</span>
             </p>
             <p>
             <span className="unit">（约：{ countPrice.fullAmount } /月）</span>
@@ -234,6 +234,10 @@ class BaseInfo extends Component {
             <span className='listLink'>
               {databaseInfo.serviceInfo.name + ':' + databaseInfo.serviceInfo.ports[0].port}
             </span>
+            <Tooltip placement='top' title={this.state.copySuccess ? '复制成功' : '点击复制'}>
+              <Icon type="copy" style={{color:'#2db7f5',cursor:'pointer',marginLeft: '5px'}} onClick={()=> this.copyDownloadCode(0)} onMouseLeave={()=> this.returnDefaultTooltip()}/>
+            </Tooltip>
+            <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {databaseInfo.serviceInfo.name + ':' + databaseInfo.serviceInfo.ports[0].port}/>
           </div>
           <div className='configList'>
             <span className='listKey'>
@@ -243,7 +247,7 @@ class BaseInfo extends Component {
               {externalUrl}
             </span>
             <Tooltip placement='top' title={this.state.copySuccess ? '复制成功' : '点击复制'}>
-              <Icon type="copy" style={{color:'#2db7f5',cursor:'pointer',marginLeft: '5px'}} onClick={()=> this.copyDownloadCode()} onMouseLeave={()=> this.returnDefaultTooltip()}/>
+              <Icon type="copy" style={{color:'#2db7f5',cursor:'pointer',marginLeft: '5px'}} onClick={()=> this.copyDownloadCode(1)} onMouseLeave={()=> this.returnDefaultTooltip()}/>
             </Tooltip>
             <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {externalUrl}/>
           </div>
@@ -303,7 +307,7 @@ class LeasingInfo extends Component {
             <p><Icon type="hdd" /> 存储：<span className="unit">{ storagePrc.fullAmount }/（GB*小时）</span> * {databaseInfo.podInfo.desired}个</p>
           </div>
           <div className="countPrice">
-            合计价格：<span className="unit">{hourPrice.unit =='￥' ? '￥': ''}</span><span className="unit blod">{hourPrice.amount}{hourPrice.unit =='￥' ? '': 'T'}/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：{countPrice.fullAmount}/月）</span>
+            合计价格：<span className="unit">{hourPrice.unit =='￥' ? '￥': ''}</span><span className="unit blod">{hourPrice.amount}{hourPrice.unit =='￥' ? '': ' T'}/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：{countPrice.fullAmount}/月）</span>
           </div>
         </div>
       </div>
@@ -548,7 +552,7 @@ class ModalDetail extends Component {
                 <BaseInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
               </TabPane>
               <TabPane tab='事件' key='#events'>
-                <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} />
+                <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
               </TabPane>
               <TabPane tab='租赁信息' key='#leading'>
                 <LeasingInfo databaseInfo={databaseInfo} scope= {this} />

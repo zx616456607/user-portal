@@ -19,6 +19,7 @@ import './style/ContainerLogs.less'
 import { loadContainerDetailEvents } from '../../actions/app_manage'
 import Websocket from '../Websocket'
 import { MAX_LOGS_NUMBER } from '../../constants'
+
 class ContainerLogs extends Component {
   constructor(props) {
     super(props)
@@ -123,7 +124,8 @@ class ContainerLogs extends Component {
     const _this = this
     let { logs } = this.state
     const initState = {
-      logsLoading: true
+      logsLoading: true,
+      logs: [], // Clear logs when WebSocket connect
     }
     this.setState(initState)
     const { cluster, containerName, loginUser, current, loadContainerDetailEvents } = this.props

@@ -11,7 +11,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Progress, Icon } from 'antd'
+import { Progress, Icon, Tooltip } from 'antd'
 import moment from 'moment'
 import './style/TenxStatus.less'
 import { FormattedMessage, defineMessages } from 'react-intl'
@@ -102,6 +102,10 @@ const messages = defineMessages({
   Abnormal: {
     id: 'TenxStatus.Abnormal',
     defaultMessage: '异常',
+  },
+  Failed: {
+    id: 'TenxStatus.Failed',
+    defaultMessage: '启动失败',
   },
   RunningMsg: {
     id: 'TenxStatus.RunningMsg',
@@ -254,6 +258,13 @@ class TenxStatus extends Component {
       return (
         <div>
           {status.abnormalText}{exclamationIcon}
+        </div>
+      )
+    }
+    if (phase === 'Failed') {
+      return (
+        <div>
+          {status.reason}<Tooltip title={status.message}>{exclamationIcon}</Tooltip>
         </div>
       )
     }

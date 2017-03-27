@@ -30,7 +30,7 @@ exports.getImages = function* () {
 
   const result = yield registryService.getImages(registryUser, q)
   this.body = {
-    server: validConfig ? validConfig.v2Server : registryService.getOfficialTenxCloudHub().host,
+    server: validConfig ? validConfig.v2Server : registryService.getOfficialTenxCloudHub().v2Server,
     data: result
   }
 }
@@ -96,13 +96,10 @@ exports.getImageTags = function* () {
   const imageFullName = this.params.user + '/' + this.params.name
   const registryUser = loginUser.teamspace || loginUser.user
   var validConfig = yield _getValidTenxCloudHub(loginUser)
-  if (!validConfig || !validConfig.host) {
-    this.body = {}
-    return
-  }
+
   const result = yield registryService.getImageTags(registryUser, imageFullName)
   this.body = {
-    server: validConfig.v2Server,
+    server: validConfig ? validConfig.v2Server : registryService.getOfficialTenxCloudHub().v2Server,
     name: imageFullName,
     data: result
   }
@@ -115,13 +112,10 @@ exports.getImageConfigs = function* () {
   const tag = this.params.tag
   const registryUser = loginUser.teamspace || loginUser.user
   var validConfig = yield _getValidTenxCloudHub(loginUser)
-  if (!validConfig || !validConfig.host) {
-    this.body = {}
-    return
-  }
+
   const result = yield registryService.getImageConfigs(registryUser, imageFullName, tag)
   this.body = {
-    server: validConfig.v2Server,
+    server: validConfig ? validConfig.v2Server : registryService.getOfficialTenxCloudHub().v2Server,
     name: imageFullName,
     tag,
     data: result
@@ -135,13 +129,10 @@ exports.getImageInfo = function* () {
   const tag = this.params.tag
   const registryUser = loginUser.teamspace || loginUser.user
   var validConfig = yield _getValidTenxCloudHub(loginUser)
-  if (!validConfig || !validConfig.host) {
-    this.body = {}
-    return
-  }
+
   const result = yield registryService.getImageInfo(registryUser, imageFullName)
   this.body = {
-    server: validConfig.v2Server,
+    server: validConfig ? validConfig.v2Server : registryService.getOfficialTenxCloudHub().v2Server,
     name: imageFullName,
     data: result
   }
@@ -155,10 +146,7 @@ exports.checkImage = function* () {
   let owner = loginUser.user
   const registryUser = loginUser.teamspace || loginUser.user
   var validConfig = yield _getValidTenxCloudHub(loginUser)
-  if (!validConfig || !validConfig.host) {
-    this.body = {}
-    return
-  }
+
   const result = yield registryService.getImageInfo(registryUser, imageFullName, true)
   this.body = {
     server: validConfig.v2Server,
@@ -216,6 +204,7 @@ exports.addTenxCloudHub = function* () {
   this.status = result.code
   this.body = result
 }
+
 exports.removeTenxCloudHub = function* () {
   const loginUser = this.session.loginUser
   const name = this.params.name
