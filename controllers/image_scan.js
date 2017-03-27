@@ -12,7 +12,9 @@ const imageScanConfig = require('../configs/image_scan')
 const registrieApi = require('../registry/index')
 const SpecRegistryService = require('../services/docker_registry')
 const securityUtil = require('../utils/security')
+const logger     = require('../utils/logger.js').getLogger("imageScan")
 const algorithm = 'aes-256-ctr'
+
 
 exports.getScanStatus = function* () {
   const body = this.query
