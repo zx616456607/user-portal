@@ -89,7 +89,6 @@ module.exports = function (request) {
 
     createBy(paths, querys, data, callback) {
       let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
-      console.log(endpoint)
       return request({
         endpoint,
         data,
