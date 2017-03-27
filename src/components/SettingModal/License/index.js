@@ -44,8 +44,8 @@ let LicenseKey = React.createClass ({
           isAsync: true
         },
         failed: {
-          func: (res) => {
-            new NotificationHandler ().error ('添加许可证失败', res.message.message)
+          func:(res) => {
+            new NotificationHandler().error('添加许可证失败', 'License 错误或不可重复添加！')
           }
         }
       })
@@ -175,15 +175,10 @@ class License extends Component {
       return (
         <tr className="ant-table-row  ant-table-row-level-0" key={'list' + index}>
           <td>
-            {list.licenseUid.substring (0, 15)}
-            <Popover getTooltipContainer={() => document.getElementById ('License')} trigger="click"
-                     content={<div className="popLicense">{list.licenseUid}<Tooltip
-                       title={this.state.copySuccess ? '复制成功' : '点击复制'}><a onClick={() => this.copyLicenseCode (index)}
-                                                                           onMouseLeave={() => this.returnDefaultTooltip ()}>&nbsp;
-                       <Icon type="copy"/></a></Tooltip></div>} title={null}>
-              <svg className='svgmore'>
-                <use xlinkHref='#more'/>
-              </svg>
+            {list.licenseUid.substring(0,15)}
+            <Popover getTooltipContainer={()=> document.getElementById('License')} trigger="click"
+            content={<div className="popLicense">{list.licenseUid}<Tooltip title={this.state.copySuccess ? '复制成功': '点击复制'}><a onClick={()=> this.copyLicenseCode(index)} onMouseLeave={()=> this.returnDefaultTooltip()}>&nbsp;<Icon type="copy" /></a></Tooltip></div>} title={null}>
+            <svg className='svgmore'><use xlinkHref='#more' /></svg>
             </Popover>
             <input style={{position: 'absolute', opacity: '0'}} className="licenseMoreInput"
                    defaultValue={list.licenseUid}/>

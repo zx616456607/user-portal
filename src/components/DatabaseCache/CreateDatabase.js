@@ -339,14 +339,14 @@ let CreateDatabase = React.createClass({
               <div className='title'>
                 <span>副本数</span>
               </div>
-              <div className='inputBox'>
+              <div className='inputBox replicas'>
                 <FormItem style={{ width: '80px', float: 'left' }}>
-                  <InputNumber {...replicasProps} size='large' defaultValue={1} min={1} max={5} disabled={isFetching} />
+                  <InputNumber {...replicasProps} size='large' min={1} max={5} disabled={isFetching} />
                 </FormItem>
                 <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>个</span>
               </div>
               <div style={{ clear: 'both' }}></div>
-            </div>            
+            </div>
             <div className='commonBox'>
               <div className='title'>
                 <span>存储大小</span>
@@ -360,7 +360,7 @@ let CreateDatabase = React.createClass({
               <div style={{ clear: 'both' }}></div>
             </div>
             {this.state.currentType == 'mysql' ?
-            
+
             <div className='commonBox'>
               <div className='title'>
                 <span>密码</span>
