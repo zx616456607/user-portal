@@ -15,10 +15,8 @@ const securityUtil = require('../utils/security')
 const logger = require('../utils/logger.js').getLogger("imageScan")
 const algorithm = 'aes-256-ctr'
 const parse = require('co-busboy')
-const fs = require('fs')
 const formStream = require('formstream')
 const mime = require('mime')
-const http = require('http')
 
 exports.getScanStatus = function* () {
   const body = this.query
