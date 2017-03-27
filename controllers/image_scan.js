@@ -12,9 +12,13 @@ const imageScanConfig = require('../configs/image_scan')
 const registrieApi = require('../registry/index')
 const SpecRegistryService = require('../services/docker_registry')
 const securityUtil = require('../utils/security')
-const logger     = require('../utils/logger.js').getLogger("imageScan")
+const logger = require('../utils/logger.js').getLogger("imageScan")
 const algorithm = 'aes-256-ctr'
-
+const parse = require('co-busboy')
+const fs = require('fs')
+const formStream = require('formstream')
+const mime = require('mime')
+const http = require('http')
 
 exports.getScanStatus = function* () {
   const body = this.query
@@ -219,6 +223,37 @@ exports.scan = function* () {
       Authorization: `Bearer ${token}`
     }
   })
+  this.body = response
+}
+
+exports.uploadFile = function* () {
+  const parts = parse(this, {
+    autoFields: true
+  })
+  if (!parts) {
+    const err = new Error('The file is require')
+    err.status = 400
+    throw err
+  }
+  const api = apiFactory.getImageScanApi(this.session.loginUser)
+  const cluster = this.params.cluster
+  const fileStream = yield parts
+  const stream = formStream()
+  if (!fileStream || !fileStream.filename) {
+    const err = new Error('The file is require')
+    err.status = 400
+    throw err
+  }
+  const fileName = fileStream.filename
+  const extendName = fileName.substring(fileName.lastIndexOf('.') + 1)
+  if (extendName != 'tar') {
+    const err = new Error('The file must be *.tar')
+    err.status = 400
+    throw err
+  }
+  const mimeType = mime.lookup(fileStream.filename)
+  stream.stream(fileStream.filename, fileStream, fileName, mimeType)
+  let response = yield api.uploadFile(['scan-rules'], null, stream, stream.headers())
   this.body = response
 }
 
