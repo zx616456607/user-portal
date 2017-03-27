@@ -361,7 +361,7 @@ class Sider extends Component {
               </li>
               <li onClick={this.selectModel.bind(this, 'manange_monitor', '#manage')}
                 className={currentKey == 'manange_monitor' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='管理与日志'
+                <Tooltip placement='right' title='管理与监控'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/manange_monitor'>
                     <svg className='manageMoniter commonImg'>
@@ -587,7 +587,7 @@ class Sider extends Component {
                       <svg className='manageMoniter commonImg'>
                         <use xlinkHref='#managemoniter' />
                       </svg>
-                      <span className='commonSiderSpan'>管理与日志</span>
+                      <span className='commonSiderSpan'>管理与监控</span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
                   }
@@ -650,6 +650,11 @@ class Sider extends Component {
                    <span><div className='sideCircle'></div> 费用中心</span>
                    </Link>
                    </Menu.Item>*/}
+                   <Menu.Item key='alarm_group'>
+                    <Link to='/account/alarm_group'>
+                      <div className='sideCircle'></div> 告警通知组
+                    </Link>
+                  </Menu.Item>
                   <Menu.Item key='costCenter#consumptions'>
                     <Link to='/account/costCenter#consumptions'>
                       <span><div className='sideCircle'></div> 消费记录</span>

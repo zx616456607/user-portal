@@ -24,9 +24,14 @@ let MemberRecharge = React.createClass({
     const form = this.props.form
     const _this = this
     const { parentScope } = this.props
+    if (typeof value == 'undefined') {
+      callback(new Error('请输入数字    '))
+      return
+    }
+    value = parseFloat(value)
     parentScope.setState({number: value})
     let itemBalance =  Number(parentScope.state.record.balance.replace('T',' '))
-    if ((itemBalance + value) >= MAX_CHARGE ){
+    if ((itemBalance + value) > MAX_CHARGE ){
       let isvisble = Math.floor((MAX_CHARGE - itemBalance))
       let visible = isvisble > 0 ? isvisble : 0
       callback([new Error(`成员名${parentScope.state.record.namespace}，最大可充值 ${visible}`)])
@@ -43,7 +48,7 @@ let MemberRecharge = React.createClass({
         { validator: this.checkCharge },
       ],
       trigger: 'onBlur',
-      initialValue: 0
+      initialValue: parseFloat(parentScope.state.number)
     })
     return(
       <div className="memberItem">

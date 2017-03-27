@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ContainerList.less'
 import { loadContainerList, deleteContainers, updateContainerList } from '../../actions/app_manage'
-import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT } from '../../constants'
+import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { calcuDate } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
@@ -222,16 +222,18 @@ class ContainerList extends Component {
       searchInputDisabled: false,
       TerminalLayoutModal: false,
       currentContainer: [],
+      checkedContainerList: []
     }
   }
 
-  loadData(nextProps) {
+  loadData(nextProps, options) {
     const selt = this
     const {
       loadContainerList, cluster, page,
       size, name, sortOrder,
     } = nextProps || this.props
     const query = { page, size, name, sortOrder }
+    query.customizeOpts = options
     loadContainerList(cluster, query, {
       success: {
         func: (result) => {
@@ -265,12 +267,21 @@ class ContainerList extends Component {
     this.loadData()
   }
 
+  componentDidMount() {
+    // Reload list each UPDATE_INTERVAL
+    this.upStatusInterval = setInterval(() => {
+      this.loadData(null, { keepChecked: true })
+    }, UPDATE_INTERVAL)
+  }
+
   componentWillUnmount() {
     const {
       cluster,
       statusWatchWs,
     } = this.props
     removePodWatch(cluster, statusWatchWs)
+    clearTimeout(this.loadStatusTimeout)
+    clearInterval(this.upStatusInterval)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -481,7 +492,12 @@ class ContainerList extends Component {
             onOk={()=> this.handleOk()} onCancel={()=> this.setState({Relocating: false})} >
             <div className="confirm" style={{color: '#00a0ea'}}>
               <Icon type="question-circle-o" style={{ marginRight: '8px' }} />
-              您是否确定要重新分配这{checkedContainerList.length}个容器 ?
+              您是否确定要重新分配
+              {
+                this.state.checkedContainerList.length === 1
+                ? `容器 ${this.state.checkedContainerList[0].metadata.name} ？`
+                : `这${this.state.checkedContainerList.length}个容器？`
+              }
            </div>
           </Modal>
           <Card className='containerBox'>

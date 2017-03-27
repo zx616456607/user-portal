@@ -181,7 +181,7 @@ let CreateClusterModal = React.createClass({
       }
       <Tabs defaultActiveKey="newCluster">
         <TabPane tab="新建集群" key="newCluster">
-          <AddClusterOrNodeModalContent CMD={addClusterCMD && addClusterCMD[camelize('default_command')]} />
+          <AddClusterOrNodeModalContent CMD={addClusterCMD && addClusterCMD[camelize('default_command')].replace('ADMIN_SERVER_URL', window.location.origin)} />
           <div style={{paddingBottom: 10}}>
             注：新建的首个集群，将设置对平台全部个人帐号开放
           </div>
@@ -348,7 +348,7 @@ class ClusterList extends Component {
                 defaultActiveKey={currentClusterID}
                 tabBarExtraContent={
                   <Tooltip
-                    title={`当前版本支持 ${maxClusters || '-'} 个 集群（目前已添加 ${clusterSum} 个）`}
+                    title={`当前许可证最多支持 ${maxClusters || '-'} 个 集群（目前已添加 ${clusterSum} 个）`}
                     placement="topLeft"
                     getTooltipContainer={() => document.getElementById('ClusterContent')}
                   >

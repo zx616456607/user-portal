@@ -38,7 +38,7 @@ import AppDeployServiceModal from './AppCreate/AppDeployServiceModal'
 import TipSvcDomain from '../TipSvcDomain'
 import yaml from 'js-yaml'
 import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
-import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT } from '../../constants'
+import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
 import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
@@ -52,7 +52,7 @@ const MyComponent = React.createClass({
   propTypes: {
     serviceList: React.PropTypes.array
   },
-  
+
   onchange: function (e) {
     const { value, checked } = e.target
     const { scope } = this.props
@@ -517,7 +517,7 @@ class ServiceList extends Component {
       disableScale: false
     }
   }
-  loadServices(nextProps) {
+  loadServices(nextProps, options) {
     const self = this
     const { cluster, loadAllServices, page, size, name } = nextProps || this.props
     const query = {
@@ -525,6 +525,7 @@ class ServiceList extends Component {
       pageSize: size,
       name
     }
+    query.customizeOpts = options
     loadAllServices(cluster, query, {
       success: {
         func: (result) => {
@@ -571,11 +572,19 @@ class ServiceList extends Component {
       })
     }
   }
+
   componentWillMount() {
     const { appName } = this.props
     document.title = '服务列表 | 时速云'
     this.loadServices()
     return
+  }
+
+  componentDidMount() {
+    // Reload list each UPDATE_INTERVAL
+    this.upStatusInterval = setInterval(() => {
+      this.loadServices(null, { keepChecked: true })
+    }, UPDATE_INTERVAL)
   }
 
   componentWillUnmount() {
@@ -584,6 +593,8 @@ class ServiceList extends Component {
       statusWatchWs,
     } = this.props
     removeDeploymentWatch(cluster, statusWatchWs)
+    clearTimeout(this.loadStatusTimeout)
+    clearInterval(this.upStatusInterval)
   }
 
   componentWillReceiveProps(nextProps) {

@@ -31,7 +31,7 @@ import './style/AppServiceDetail.less'
 import TerminalModal from '../../TerminalModal'
 import { parseServiceDomain } from '../../parseDomain'
 import ServiceStatus from '../../TenxStatus/ServiceStatus'
-import { TENX_MARK, LOAD_STATUS_TIMEOUT } from '../../../constants'
+import { TENX_MARK, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../../constants'
 import { addPodWatch, removePodWatch } from '../../../containers/App/status'
 import TipSvcDomain from '../../TipSvcDomain'
 import { getServiceStatusByContainers } from '../../../common/status_identify'
@@ -107,12 +107,17 @@ class AppServiceDetail extends Component {
           addPodWatch(cluster, self.props, result.data)
           // For fix issue #CRYSTAL-2079(load list again for update status)
           clearTimeout(self.loadStatusTimeout)
+          clearInterval(this.upStatusInterval)
           query.customizeOpts = {
             keepChecked: true,
           }
           self.loadStatusTimeout = setTimeout(() => {
             loadServiceContainerList(cluster, serviceName, query)
           }, LOAD_STATUS_TIMEOUT)
+          // Reload list each UPDATE_INTERVAL
+          self.upStatusInterval = setInterval(() => {
+            loadServiceContainerList(cluster, serviceName, query)
+          }, UPDATE_INTERVAL)
         },
         isAsync: true
       }
@@ -172,6 +177,9 @@ class AppServiceDetail extends Component {
       this.setState({
         activeTabKey: selectTab || DEFAULT_TAB
       })
+    } else {
+      clearTimeout(this.loadStatusTimeout)
+      clearInterval(this.upStatusInterval)
     }
   }
 
@@ -181,6 +189,8 @@ class AppServiceDetail extends Component {
       statusWatchWs,
     } = this.props
     removePodWatch(cluster, statusWatchWs)
+    clearTimeout(this.loadStatusTimeout)
+    clearInterval(this.upStatusInterval)
   }
 
   onTabClick(activeTabKey) {
