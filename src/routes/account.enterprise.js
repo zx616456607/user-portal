@@ -32,6 +32,10 @@ const accountRoutes = [
     component: require('../components/AccountModal/_Enterprise/TeamDetail').default,
   },
   {
+    path: 'alarm_group',
+    component: require('../components/AccountModal/AlarmGroup').default,
+  },
+  {
     path: 'costCenter',
     component: require('../components/AccountModal/CostCenter').default,
   }
