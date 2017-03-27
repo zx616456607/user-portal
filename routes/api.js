@@ -34,6 +34,7 @@ const clusternodesController = require('../controllers/cluster_node')
 const versionsController = require('../controllers/versions')
 const chargeController = require('../controllers/charge')
 const globalConfigController = require('../controllers/global_config')
+const imageScanController = require('../controllers/image_scan')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -358,5 +359,12 @@ module.exports = function (Router) {
   router.put('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
   router.get('/cluster/:cluster/config', globalConfigController.getGlobalConfig)
   router.post('/type/:type/isvalidconfig', globalConfigController.isValidConfig)
+
+  //image scan
+  router.get('/images/scan-status', imageScanController.getScanStatus)
+  router.get('/images/layer-info', imageScanController.getLayerInfo)
+  router.get('/images/lyins-info', imageScanController.getLyins)
+  router.get('/images/clair-info', imageScanController.getClair)
+  router.post('/images/scan', imageScanController.scan)
   return router.routes()
 }
