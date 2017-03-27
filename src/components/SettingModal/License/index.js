@@ -45,7 +45,7 @@ let LicenseKey = React.createClass ({
         },
         failed: {
           func:(res) => {
-            new NotificationHandler().error('添加许可证失败', res.message.message)
+            new NotificationHandler().error('添加许可证失败', 'License 错误或不可重复添加！')
           }
         }
       })
@@ -171,7 +171,7 @@ class License extends Component {
             {list.licenseUid.substring(0,15)}
             <Popover getTooltipContainer={()=> document.getElementById('License')} trigger="click"
             content={<div className="popLicense">{list.licenseUid}<Tooltip title={this.state.copySuccess ? '复制成功': '点击复制'}><a onClick={()=> this.copyLicenseCode(index)} onMouseLeave={()=> this.returnDefaultTooltip()}>&nbsp;<Icon type="copy" /></a></Tooltip></div>} title={null}>
-            <svg className='svgmore' onClick={this.showPop}><use xlinkHref='#more' /></svg>
+            <svg className='svgmore'><use xlinkHref='#more' /></svg>
             </Popover>
             <input style={{position: 'absolute',opacity:'0'}} className="licenseMoreInput" defaultValue={list.licenseUid} />
           </td>
