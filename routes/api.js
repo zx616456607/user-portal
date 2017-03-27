@@ -367,6 +367,7 @@ module.exports = function (Router) {
   router.get('/images/lyins-info', imageScanController.getLyins)
   router.get('/images/clair-info', imageScanController.getClair)
   router.post('/images/scan', imageScanController.scan)
+  router.post('/images/scan-rule', imageScanController.uploadFile)
 
   // alert
   router.get('/alerts/record-filters', alertController.getRecordFilters)
