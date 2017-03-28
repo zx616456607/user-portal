@@ -103,7 +103,7 @@ function sendEmailBySendcloud(mailOptions) {
     // 批量邮件
     apiUser = sendcloudConfig.apiUserBatch
     sendcloud = new SendCloud(sendcloudConfig.apiUser,
-                              sendcloudConfig.apiKey,
+                              sendcloudConfig.apiKeyBatch,
                               sendcloudConfig.from,
                               sendcloudConfig.fromname,
                               apiUser)
@@ -112,7 +112,7 @@ function sendEmailBySendcloud(mailOptions) {
     // 触发邮件
     apiUser = sendcloudConfig.apiUser
     sendcloud = new SendCloud(sendcloudConfig.apiUser,
-                              sendcloudConfig.apiKey,
+                              sendcloudConfig.apiKeyTrigger,
                               sendcloudConfig.from,
                               sendcloudConfig.fromname,
                               apiUser)
@@ -529,4 +529,26 @@ function switchPayTypeToText(type) {
     default:
       return '其他方式'
   }
+}
+
+exports.sendNotifyGroupInvitationEmail = function(to, invitorName, invitorEmail, code) {
+  const subject = `[时速云]告警通知组|邮箱验证`
+  const systemEmail = config.mail_server.service_mail
+  const date = moment(new Date()).format("YYYY-MM-DD")
+  const inviteURL = `${config.url}/alerts/invitations/join?code=${code}`
+  const mailOptions = {
+    to,
+    subject,
+    templateName: 'alarm_group',
+    sub: {
+      '%subject%': [subject],
+      '%invitorName%': [invitorName],
+      '%invitorEmail%': [invitorEmail],
+      '%systemEmail%': [systemEmail],
+      '%receiverEmail%': [to],
+      '%inviteURL%': [inviteURL],
+      '%date%': [date],
+    }
+  }
+  return sendEnsureEmail(mailOptions, 'alarm_group.html')
 }

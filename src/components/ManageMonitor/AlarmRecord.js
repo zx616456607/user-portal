@@ -9,7 +9,7 @@
  */
 'use strict'
 import React, { Component, PropTypes } from 'react'
-import { Card, Icon, Spin, Table, Select, DatePicker, Menu, Button } from 'antd'
+import { Card, Icon, Spin, Table, Select, DatePicker, Menu, Button, Pagination } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 // import { calcuDate } from '../../../common/tools.js'
@@ -17,6 +17,7 @@ import moment from 'moment'
 import './style/AlarmRecord.less'
 import { loadRecords, loadRecordsFilters, deleteRecords } from '../../actions/alert'
 import NotificationHandler from '../../common/notification_handler'
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 const Option = Select.Option
 
 class AlarmRecord extends Component {
@@ -28,11 +29,39 @@ class AlarmRecord extends Component {
       targetFilter: '',
       beginTimeFilter: '',
       endTimeFilter: '',
+      page: DEFAULT_PAGE,
+      size: DEFAULT_PAGE_SIZE
     }
   }
+
+  loadData(props) {
+    const {
+      strategyFilter,
+      targetTypeFilter,
+      targetFilter,
+      beginTimeFilter,
+      endTimeFilter,
+    } = this.state
+    const query = {
+      strategyName: strategyFilter,
+      targetType: targetTypeFilter,
+      targetName: targetFilter,
+      beginTime: beginTimeFilter,
+      endTime: endTimeFilter,
+      cluster: props.clusterID,
+    }
+    this.props.loadRecords(query)
+  }
   componentWillMount() {
-    const { loadRecordsFilters } = this.props
-    loadRecordsFilters('CID-fe23111d77cb') // TODO
+    const { loadRecordsFilters, clusterID } = this.props
+    loadRecordsFilters(clusterID)
+    this.loadData(this.props)
+  }
+  componentWillReceiveProps(nextProps) {
+    const { clusterID } = this.props
+    if (clusterID !== nextProps.clusterID) {
+      this.loadData(nextProps)
+    }
   }
   getFilters() {
     const {
@@ -55,22 +84,7 @@ class AlarmRecord extends Component {
     }
   }
   getRecords() {
-    const {
-      strategyFilter,
-      targetTypeFilter,
-      targetFilter,
-      beginTimeFilter,
-      endTimeFilter,
-    } = this.state
-    const query = {
-      strategyName: strategyFilter,
-      targetType: targetTypeFilter,
-      targetName: targetFilter,
-      beginTime: beginTimeFilter,
-      endTime: endTimeFilter,
-      cluster: 'CID-fe23111d77cb', // TODO
-    }
-    this.props.loadRecords(query)
+    this.loadData(this.props)
   }
   deleteRecords() {
     const {
@@ -127,6 +141,28 @@ class AlarmRecord extends Component {
     }
     return records
   }
+  onPageChange(current) {
+    this.setState({page: current})
+    const {
+      strategyFilter,
+      targetTypeFilter,
+      targetFilter,
+      beginTimeFilter,
+      endTimeFilter,
+    } = this.state
+    const {size,sortOrder, sortBy, clusterID } = this.props
+    const query = {
+      from: (current -1) * DEFAULT_PAGE_SIZE,
+      size: DEFAULT_PAGE_SIZE,
+      strategyName: strategyFilter,
+      targetType: targetTypeFilter,
+      targetName: targetFilter,
+      beginTime: beginTimeFilter,
+      endTime: endTimeFilter,
+      cluster: clusterID
+    }
+    this.props.loadRecords(query)
+  }
   render () {
     const columns = [
       {
@@ -167,7 +203,7 @@ class AlarmRecord extends Component {
       {
         title: '告警规则',
         dataIndex: 'triggerRule',
-        
+
       },
       {
         title: '是否发送邮件',
@@ -178,7 +214,7 @@ class AlarmRecord extends Component {
               return <div>未发送</div>
               break
             case 1:
-              return <div>已发送</div>
+              return <div style={{color:'#33b867'}}>已发送</div>
               break
             default:
               return <div>未知</div>
@@ -187,9 +223,10 @@ class AlarmRecord extends Component {
       }
     ];
 
-
     const filters = this.getFilters()
     const data = this.getRecordData()
+    const { total } = this.props.records
+    const { page, size } = this.state
     return (
       <QueueAnim className="AlarmRecord" type="right">
         <div id="AlarmRecord">
@@ -210,8 +247,20 @@ class AlarmRecord extends Component {
             <Button icon="exception" size="large" type="primary" onClick={() => this.getRecords()}>立即查询</Button>
             <Button icon="delete" size="large"  onClick={() => this.deleteRecords()}>清空所有记录</Button>
           </div>
+          <div className='pageBox'>
+            <span className='totalPage'>共 {total} 条</span>
+            <div className='paginationBox'>
+              <Pagination
+                simple
+                className='inlineBlock'
+                onChange={(page)=> this.onPageChange(page)}
+                current={page}
+                pageSize={size}
+                total={total} />
+            </div>
+          </div>
           <Card>
-            <Table className="strategyTable" onRowClick={(record, index)=>console.log('click', record, index)} columns={columns} dataSource={data} pagination={false} />
+            <Table className="strategyTable" columns={columns} dataSource={data} pagination={false}  loading={this.props.isFetching}/>
           </Card>
         </div>
       </QueueAnim>
@@ -229,20 +278,24 @@ function mapStateToProps(state, props) {
     strategies: [],
     targets: [],
   }
-  if (recordFilters && recordFilters.isFetching === false && recordFilters.result && recordFilters.result.result && recordFilters.result.result.code === 200) {
-    recordFiltersData = recordFilters.result.result.data
+  const { current } = state.entities
+  const { clusterID } = current.cluster
+  if (recordFilters && recordFilters.isFetching === false && recordFilters.result && recordFilters.result.code === 200) {
+    recordFiltersData = recordFilters.result.data
   }
 
   let recordsData = {
     total: 0,
     records: [],
   }
-  if (records && records.isFetching === false && records.result && records.result.result && records.result.result.code === 200) {
-    recordsData = records.result.result.data
+  if (records && records.isFetching === false && records.result && records.result && records.result.code === 200) {
+    recordsData = records.result.data
   }
   return {
     recordFilters: recordFiltersData,
     records: recordsData,
+    isFetching: records.isFetching,
+    clusterID
   }
 }
 

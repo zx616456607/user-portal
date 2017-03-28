@@ -373,6 +373,12 @@ module.exports = function (Router) {
   router.get('/alerts/record-filters', alertController.getRecordFilters)
   router.get('/alerts/records', alertController.getRecords)
   router.delete('/alerts/records', alertController.deleteRecords)
+  router.post('/alerts/groups', alertController.createNotifyGroup)
+  router.put('/alerts/groups/:groupid', alertController.modifyNotifyGroup)
+  router.get('/alerts/groups', alertController.listNotifyGroups)
+  router.post('/alerts/groups/batch-delete', alertController.batchDeleteNotifyGroups)
+  router.post('/alerts/invitations', alertController.sendInvitation)
+  router.get('/alerts/invitations/status', alertController.checkEmailAcceptInvitation)
 
   return router.routes()
 }
