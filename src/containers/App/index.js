@@ -35,7 +35,7 @@ import { ROLE_SYS_ADMIN } from '../../../constants'
 import errorHandler from './error_handler'
 import Intercom from 'react-intercom'
 import NotificationHandler from '../../common/notification_handler'
-
+import Xterm from '../../components/TerminalModal/Xterm'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -389,6 +389,7 @@ class App extends Component {
             currentType={upgradeFrom}
             visible={upgradeModalShow} />
         }
+        <Xterm />
       </div>
     )
   }

@@ -194,8 +194,8 @@ class AlarmGroup extends Component {
     }
 
     return (
-      <QueueAnim type="right" className="alarmGroup">
-        <div id="AlarmGroup">
+      <QueueAnim  className="alarmGroup">
+        <div id="AlarmGroup" key="demo">
           <div className='alarmGroupHeader'>
             <Button size="large" type="primary" icon="plus" onClick={()=> this.setState({alarmModal:true})}>创建</Button>
             <Button size="large" icon="reload" type="ghost">刷新</Button>
