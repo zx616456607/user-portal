@@ -1,29 +1,45 @@
 #AlarmGroup{
   width: 100%;
   overflow: hidden;
+  .pageBox {
+    height: 35px;
+    float: right;
+    .totalPage {
+      line-height: 35px;
+      display: inline-block;
+      vertical-align: bottom;
+      padding: 0 10px;
+    }
+    .paginationBox {
+      // float: left;
+      display: inline-block;
+      margin-top: 0;
+      padding-top: 5px;
+    }
+  }
   .alarmGroupHeader{
     padding:6px 0 20px 0;
-    .alarmGroupHeaderButton{
-      heigth:36px;
-      width:79px;
-      font-size: 14px;
-      margin-right: 12px;
-      .icon{
-        margin-right: 6px;
+    .ant-btn-ghost{margin-left: 8px;background: white;}
+    .Search{
+      width:170px;
+      margin-left: 8px;
+      display: inline-block;
+      position: relative;
+      i {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        font-size: 14px;
+        color: #999;
+        cursor: pointer;
       }
-    }
-    .alarmGroupHeaderInput{
-      float: right;
-      width:180px;
     }
   }
   .alarmGroupContent{
     background: white;
     overflow: hidden;
     border-radius: 4px;
-    .fontstyle{
-      font-size: 14px;
-    }
+    .ant-card-body{padding:10px 0 50px 0;}
     .more {
       display: inline-block;
       margin-left: 5px;
@@ -34,7 +50,7 @@
       fill: #c7cbce;
     }
     .more.ant-popover-open {
-        fill: #49b1e2 ;
+      fill: #49b1e2;
     }
   }
 }
