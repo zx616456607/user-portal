@@ -149,18 +149,3 @@ exports.checkEmailAcceptInvitation = function* () {
 
   this.body = result
 }
-
-exports.sendNotifications = function* () {
-  const loginUser = this.session.loginUser
-  const spi = apiFactory.getSpi(loginUser)
-  const result = yield spi.alerts.createBy(["notifications", 'intervals', this.params.interval], null, this.request.body)
-
-  // send emails
-  if (result.data.sendNotify === true) {
-    email.sendAlertNotifyEmail(result.data)
-  }
-
-  this.body = {
-    data: ''
-  }
-}

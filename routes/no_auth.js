@@ -44,7 +44,6 @@ module.exports = function (Router) {
 
   // alert
   router.get('/alerts/invitations/join', alertController.acceptInvitation)
-  router.post('/api/v2/alerts/notifications/intervals/:interval', alertController.sendNotifications)
 
   return router.routes()
 }
