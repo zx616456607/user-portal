@@ -61,13 +61,24 @@ let CreateConfigModal = React.createClass({
       callback([new Error('请输入配置组名称')])
       return
     }
-    if (!validateK8sResource(groupName)) {
-      notification.error('名称须以小写字母开头，由小写字母、数字和连字符（-）组成，且以小写字母或数字结尾，长度为 3-63 个字符')
+    if(value.length < 3 || value.length > 63) {
+      callback('名称长度为 3-63 个字符')
+      return
+    }
+    if(!/^[a-z]/.test(value)){
+      callback('名称须以小写字母开头')
+      return
+    }
+    if (!/[a-z0-9]$/.test(value)) {
+      callback('名称须以小写字母或数字结尾')
+      return
+    }
+    if (!validateK8sResource(value)) {
+      callback('由小写字母、数字和连字符（-）组成')
       return
     }
     callback()
   },
-  
   render() {
     const { getFieldProps } = this.props.form
     const parentScope = this.props.scope
