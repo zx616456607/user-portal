@@ -280,16 +280,16 @@ function mapStateToProps(state, props) {
   }
   const { current } = state.entities
   const { clusterID } = current.cluster
-  if (recordFilters && recordFilters.isFetching === false && recordFilters.result && recordFilters.result.result && recordFilters.result.result.code === 200) {
-    recordFiltersData = recordFilters.result.result.data
+  if (recordFilters && recordFilters.isFetching === false && recordFilters.result && recordFilters.result.code === 200) {
+    recordFiltersData = recordFilters.result.data
   }
 
   let recordsData = {
     total: 0,
     records: [],
   }
-  if (records && records.isFetching === false && records.result && records.result.result && records.result.result.code === 200) {
-    recordsData = records.result.result.data
+  if (records && records.isFetching === false && records.result && records.result && records.result.code === 200) {
+    recordsData = records.result.data
   }
   return {
     recordFilters: recordFiltersData,
