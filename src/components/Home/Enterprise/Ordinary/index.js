@@ -338,7 +338,7 @@ class Ordinary extends Component {
     }
     let volumeUsed = Math.ceil(volumeAllocated / volumeCapacity * 100)
     let capacityContainerNumber = Math.ceil(volumeCapacity / 512)
-    let allocatedContainerNumber = Math.ceil(volumeAllocated / 521)
+    let allocatedContainerNumber = Math.ceil(volumeAllocated / 512)
     let canCreateContainer = Math.floor((clusterSummaryCapacity.memory - clusterSummaryUsed.memory) / 512 / 1024)
 
 
