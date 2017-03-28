@@ -149,70 +149,6 @@ class TerminalModal extends Component {
     });
   }
 
-  /*componentWillReceiveProps(nextProps) {
-    const { config, scope } = nextProps;
-    const { terminalList } = this.state;
-    let newList = []
-    let existSum = 0
-    console.log('config.length=========================================')
-    console.log(config.length)
-    console.log(this.props.config.length)
-    console.log(JSON.stringify(nextProps.config))
-    console.log(JSON.stringify(this.props.config))
-    config.map((item) => {
-      this.props.config.map((oldItem) => {
-        if(item.metadata.name == oldItem.metadata.name) {
-          existSum ++
-        }
-      })
-    })
-    if (existSum === config.length) {
-      console.log('existSum=========================================')
-      console.log(existSum)
-      console.log(this.props.config.length)
-      return
-    }
-    config.map((item) => {
-      let existFlag = false;
-      terminalList.map((oldItem) => {
-        if(item.metadata.name == oldItem.metadata.name) {
-          item.terminalStatus = oldItem.terminalStatus;
-          newList.push(item);
-          existFlag = true;
-        }
-      });
-      if(!existFlag) {
-        item.terminalStatus = 'connect';
-        newList.push(item);
-      }
-    })
-    console.log('newList====================')
-    console.log(newList)
-    console.log(config)
-    if(config.length > 0) {
-      let currentTab = config[config.length -1].metadata.name
-      this.setState({
-        currentTab: currentTab,
-        terminalType: 'normal'
-      });
-    }
-    this.setState({
-      terminalList: newList
-    })
-    //when the modal is min(35px height), user open an new one the modal will be error
-    //so we change the modal height to show the terminal
-    let terminal = document.getElementsByClassName('TerminalLayoutModal')[0];
-    if(terminal.offsetHeight == 35) {
-      console.log(`3555555555555555555555555555555555555555555555555555`)
-      terminal.style.height = '550px'
-      // $('.TerminalLayoutModal').css('transition', 'all 0.3s');
-      // $('.TerminalLayoutModal').css('height', '550px !important');
-      // setTimeout(function(){
-      //   $('.TerminalLayoutModal').css('transition', 'all');
-      // }, 100)
-    }
-  }*/
-
   componentWillReceiveProps(nextProps) {
     const { config } = nextProps;
     const { terminalList } = this.state;
@@ -249,14 +185,6 @@ class TerminalModal extends Component {
         terminalType: 'normal'
       })
     }
-    // let terminal = $('.TerminalLayoutModal').css('height');
-    // if(terminal == '35px') {
-    //   $('.TerminalLayoutModal').css('transition', 'all 0.3s');
-    //   $('.TerminalLayoutModal').css('height', '550px !important');
-    //   setTimeout(function(){
-    //     $('.TerminalLayoutModal').css('transition', 'all');
-    //   }, 100)
-    // }
   }
 
   onChangeTabs(e) {
