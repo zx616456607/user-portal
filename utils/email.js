@@ -558,7 +558,13 @@ exports.sendAlertNotifyEmail = function(info) {
   const systemEmail = config.mail_server.service_mail
   const date = moment(new Date()).format("YYYY-MM-DD")
   const targetType = info.targetType === 0 ? '服务' : '节点'
-  let tableContent = ``
+  let tableContent = `<table cellpadding="0" cellspacing="1" style="width:100%;background: grey;" border="0">
+                        <tbody>
+                          <tr style="text-align: center">
+                            <td style="background:#ffffff;color: black"><b>监控对象</b></td>
+                            <td style="background:#ffffff;color: black"><b>触发规则</b></td>
+                            <td style="background:#ffffff;padding: 5px;color: black"><b>最近数据</b></td>
+                          </tr>`
   let escapeHTML = function(str) {
     return str.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace(' ', '&nbsp;')
   }
@@ -569,6 +575,7 @@ exports.sendAlertNotifyEmail = function(info) {
                       <td style="background:#ffffff;padding: 5px;">${escapeHTML(rule.triggerValue)}</td>
                      </tr>`
   })
+  tableContent += `</tbody></table>`
   const mailOptions = {
     to: info.receivers.email,
     subject,
