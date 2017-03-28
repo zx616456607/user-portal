@@ -61,26 +61,26 @@ class AlarmGroup extends Component {
 
   tableSvgEmail(){
     return (
-      <div>
-        <div style={{padding:'7px 0 8px 0',fontSize:'12px',color:'#00a1ea'}}>123456789@qq.com<span style={{marginLeft:'8px'}}>(备注:xiaowenzi)</span></div>
-        <div style={{padding:'7px 0 8px 0',fontSize:'12px',color:'#00a1ea'}}>123456789@qq.com<span style={{marginLeft:'8px'}}>(备注:xiaowenzi)</span></div>
-        <div style={{padding:'7px 0 8px 0',fontSize:'12px',color:'#00a1ea'}}>123456789@qq.com<span style={{marginLeft:'8px'}}>(备注:xiaowenzi)</span></div>
-        <div style={{padding:'7px 0 8px 0',fontSize:'12px',color:'#00a1ea'}}>123456789@qq.com<span style={{marginLeft:'8px'}}>(备注:xiaowenzi)</span></div>
-        <div style={{padding:'7px 0 8px 0',fontSize:'12px',color:'#00a1ea'}}>123456789@qq.com<span style={{marginLeft:'8px'}}>(备注:xiaowenzi)</span></div>
-        <div style={{padding:'7px 0 8px 0',fontSize:'12px',color:'#00a1ea'}}>123456789@qq.com<span style={{marginLeft:'8px'}}>(备注:xiaowenzi)</span></div>
+      <div className='alarmGroupContentEmailPopOver'>
+        <div className='alarmGroupContentEmailPopOveritem'>123456789@qq.com<span className='alarmGroupContentEmailPopOverspan'>(备注:xiaowenzi)</span></div>
+        <div className='alarmGroupContentEmailPopOveritem'>123456789@qq.com<span className='alarmGroupContentEmailPopOverspan'>(备注:xiaowenzi)</span></div>
+        <div className='alarmGroupContentEmailPopOveritem'>123456789@qq.com<span className='alarmGroupContentEmailPopOverspan'>(备注:xiaowenzi)</span></div>
+        <div className='alarmGroupContentEmailPopOveritem'>123456789@qq.com<span className='alarmGroupContentEmailPopOverspan'>(备注:xiaowenzi)</span></div>
+        <div className='alarmGroupContentEmailPopOveritem'>123456789@qq.com<span className='alarmGroupContentEmailPopOverspan'>(备注:xiaowenzidadasdasdadadada)</span></div>
       </div>
     )
   }
 
   tableSvgRelation(){
     return (
-      <div>
-        <div style={{padding:'7px 0 8px 0',fontSize:'12px',color:'#00a1ea'}}>123456789@qq.com<span style={{marginLeft:'8px'}}>(备注:xiaowenzi)</span></div>
-        <div style={{padding:'7px 0 8px 0',fontSize:'12px',color:'#00a1ea'}}>123456789@qq.com<span style={{marginLeft:'8px'}}>(备注:xiaowenzi)</span></div>
-        <div style={{padding:'7px 0 8px 0',fontSize:'12px',color:'#00a1ea'}}>123456789@qq.com<span style={{marginLeft:'8px'}}>(备注:xiaowenzi)</span></div>
-        <div style={{padding:'7px 0 8px 0',fontSize:'12px',color:'#00a1ea'}}>123456789@qq.com<span style={{marginLeft:'8px'}}>(备注:xiaowenzi)</span></div>
-        <div style={{padding:'7px 0 8px 0',fontSize:'12px',color:'#00a1ea'}}>123456789@qq.com<span style={{marginLeft:'8px'}}>(备注:xiaowenzi)</span></div>
-        <div style={{padding:'7px 0 8px 0',fontSize:'12px',color:'#00a1ea'}}>123456789@qq.com<span style={{marginLeft:'8px'}}>(备注:xiaowenzi)</span></div>
+      <div className='alarmGroupContentRealtionPopOver'>
+        <div className='alarmGroupContentRealtionPopOveritem'>123456789@qq.com<span className='alarmGroupContentRealtionPopOverspan'>(备注:xiaowenzi)</span></div>
+        <div className='alarmGroupContentRealtionPopOveritem'>123456789@qq.com<span className='alarmGroupContentRealtionPopOverspan'>(备注:xiaowenzi)</span></div>
+        <div className='alarmGroupContentRealtionPopOveritem'>123456789@qq.com<span className='alarmGroupContentRealtionPopOverspan'>(备注:xiaowenzi)</span></div>
+        <div className='alarmGroupContentRealtionPopOveritem'>123456789@qq.com<span className='alarmGroupContentRealtionPopOverspan'>(备注:xiaowenzi)</span></div>
+        <div className='alarmGroupContentRealtionPopOveritem'>123456789@qq.com<span className='alarmGroupContentRealtionPopOverspan'>(备注:xiaowenzi)</span></div>
+        <div className='alarmGroupContentRealtionPopOveritem'>123456789@qq.com<span className='alarmGroupContentRealtionPopOverspan'>(备注:xiaowenzi)</span></div>
+        <div className='alarmGroupContentRealtionPopOveritem'>123456789@qq.com<span className='alarmGroupContentRealtionPopOverspan'>(备注:xiaowenzi111111)</span></div>
       </div>
     )
   }
