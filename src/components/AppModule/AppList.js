@@ -310,7 +310,9 @@ let MyComponent = React.createClass({
           <div className='containerNum commonData'>
             {item.instanceCount || '-'}
           </div>
-          <div className="alarm commonData normal">
+          {/* normal => 设置过 */}
+          <div className="alarm commonData">
+            <svg className="managemoniter" onClick={()=> browserHistory.push(`app_manage/detail/${item.name}#monitor`)}><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use></svg>
             <Tooltip title="告警设置" onClick={()=> parentScope.setState({alarmModal: true})}>
             <Icon type="notification" />
             </Tooltip>

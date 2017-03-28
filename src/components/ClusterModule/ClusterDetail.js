@@ -25,6 +25,7 @@ import Metrics from '../Metrics'
 import moment from 'moment'
 import { camelize } from 'humps'
 import { NOT_AVAILABLE } from '../../constants'
+import QueueAnim from 'rc-queue-anim'
 
 const TabPane = Tabs.TabPane
 const MASTER = '主控节点/Master'
@@ -166,20 +167,20 @@ let HostInfo = React.createClass({
       {
         title: '创建时间',
         dataIndex: 'objectMeta.creationTimestamp',
-        render: (text) => calcuDate(text)
+        render: (text) => formatDate(text)
       }
     ];
 
     const { hostInfo, metricsData, podeList } = this.props
-    foreverPodNumber = (foreverPodNumber > 0) ? foreverPodNumber
-    : Math.round(podeList.length / hostInfo.podCap *100) // pod %
+    foreverPodNumber = (foreverPodNumber > 0) ? foreverPodNumber : podeList.length // pod
 
     return (
-      <div className="hostInfo">
-        <div className="topTitle" style={{margin:'0'}}>主机信息</div>
+      <QueueAnim className="ClusterDetail">
+      <div className="hostInfo" key="ClusterDetail">
+        <div className="topTitle" style={{marginTop:'20px',marginBottom: 10}}>主机信息</div>
         <div className="wrapRow">
           <div className="host-list">
-            <div className="titles">资源配额</div>
+            <div className="titles"><svg className="svg-icon"><use xlinkHref="#resource"></use></svg> 资源配额</div>
             <br />
             <Row className="items">
               <Col span={8}><span className="keys">CPU：</span><span className="valus">{isNaN(hostInfo.cpuTotal / 1000)? '': hostInfo.cpuTotal / 1000} 核</span></Col>
@@ -193,15 +194,15 @@ let HostInfo = React.createClass({
 
             </Row>
             <Row className="items">
-              <Col span={8}><span className="keys">容器配额：</span><span className="valus">{hostInfo.podCap}</span></Col>
-              <Col span={10}><Progress percent={ foreverPodNumber } strokeWidth={8} showInfo={false} status="active" /></Col>
-              <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 { isNaN(foreverPodNumber) ? '': foreverPodNumber }%</Col>
+              <Col span={8}><span className="keys">容器配额：</span><span className="valus">{hostInfo.podCap} 个</span></Col>
+              <Col span={10}><Progress percent={ Math.round(foreverPodNumber / hostInfo.podCap *100) } strokeWidth={8} showInfo={false} status="active" /></Col>
+              <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 { foreverPodNumber } 个</Col>
 
             </Row>
           </div>
 
           <div className="host-list">
-            <div className="titles">版本信息</div>
+            <div className="titles"><svg className="svg-icon"><use xlinkHref="#tag"></use></svg> 版本信息</div>
             <br />
             <Row className="items">
               <Col span={12}><span className="keys">内核版本：</span>{hostInfo.versions ? hostInfo.versions.kernel : ''}</Col>
@@ -216,7 +217,7 @@ let HostInfo = React.createClass({
         </div>
         <div className="topTitle">容器详情</div>
         <div className="containers">
-          <Button onClick={() => this.reloadList()} type="primary" icon="reload" size="large">刷新</Button>
+          <Button onClick={() => this.reloadList()} type="primary" size="large"><i className="fa fa-refresh"></i> 刷新</Button>
           <span className="inputGroup">
             <Input placeholder="搜索" size="large" onChange={(e)=> this.setSearchState(e.target.value)} onPressEnter={()=> this.handSearch()}/>
             <Icon type="search" onClick={()=> this.handSearch()} />
@@ -224,6 +225,7 @@ let HostInfo = React.createClass({
           <Table className="dataTable" pagination={{ pageSize: 10, showSizeChanger: true, total: podeList.lenght }} loading={this.props.hostInfo.isFetching} columns={columns} dataSource={podeList} />
         </div>
       </div>
+      </QueueAnim>
     )
   }
 })
