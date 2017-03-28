@@ -191,7 +191,9 @@ if (config.running_mode === constants.STANDARD_MODE) {
     yield next
   })
 }
-const koaBody = require('koa-body')()
+const koaBody = require('koa-body')({
+  formLimit: 　524288000
+})
 app.use(koaBody)
 
 // For views
