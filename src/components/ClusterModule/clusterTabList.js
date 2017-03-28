@@ -22,9 +22,9 @@ import {
   getAddNodeCMD,
 } from '../../actions/cluster_node'
 import { getClusterSummary } from '../../actions/cluster'
+import { addTerminal } from '../../actions/terminal'
 import { NOT_AVAILABLE } from '../../constants'
 import './style/clusterTabList.less'
-import TerminalModal from '../TerminalModal'
 import NotificationHandler from '../../common/notification_handler'
 import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
@@ -295,7 +295,6 @@ class ClusterTabList extends Component {
     this.searchNodes = this.searchNodes.bind(this);
     this.deleteClusterNode = this.deleteClusterNode.bind(this);
     this.closeDeleteModal = this.closeDeleteModal.bind(this);
-    this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this);
     this.openTerminalModal = this.openTerminalModal.bind(this);
     this.handleAddClusterNode = this.handleAddClusterNode.bind(this)
     this.copyAddNodeCMD = this.copyAddNodeCMD.bind(this)
@@ -304,7 +303,6 @@ class ClusterTabList extends Component {
       podCount: [],
       currentContainer: [],
       deleteNodeModal: false,
-      TerminalLayoutModal: false,
       addClusterOrNodeModalVisible: false,
       deleteNode: null,
       copyAddNodeSuccess: false
@@ -417,21 +415,12 @@ class ClusterTabList extends Component {
     })
   }
 
-  closeTerminalLayoutModal() {
-    //this function for user close the terminal modal
-    this.setState({
-      TerminalLayoutModal: false
-    });
-  }
-
   openTerminalModal() {
-    const { kubectlsPods } = this.props
+    const { kubectlsPods, addTerminal, clusterID } = this.props
     let { currentContainer } = this.state;
     let notification = new NotificationHandler()
     if (currentContainer.length > 0) {
-      this.setState({
-        TerminalLayoutModal: true,
-      })
+      addTerminal(clusterID, currentContainer[0])
       return
     }
     const { namespace, pods } = kubectlsPods
@@ -441,14 +430,15 @@ class ClusterTabList extends Component {
     }
     let randomPodNum = Math.ceil(Math.random() * pods.length)
     if (randomPodNum === 0) randomPodNum = 1
+    currentContainer = [{
+      metadata: {
+        namespace,
+        name: pods[randomPodNum - 1]
+      }
+    }]
+    addTerminal(clusterID, currentContainer[0])
     this.setState({
-      currentContainer: [{
-        metadata: {
-          namespace,
-          name: pods[randomPodNum - 1]
-        }
-      }],
-      TerminalLayoutModal: true,
+      currentContainer,
     })
   }
 
@@ -729,15 +719,6 @@ class ClusterTabList extends Component {
             </div>
             <div className="note">注意：请保证其他开启调度状态的主机节点，剩余的配置足够运行所有应用的容器</div>
           </Modal>
-          <Modal
-            visible={this.state.TerminalLayoutModal}
-            className='TerminalLayoutModal'
-            transitionName='move-down'
-            onCancel={this.closeTerminalLayoutModal}
-            maskClosable={false}
-            >
-            <TerminalModal scope={scope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal} oncache={oncache} cluster={clusterID}/>
-          </Modal>
           <AddClusterOrNodeModal
             title="添加主机节点"
             visible={this.state.addClusterOrNodeModalVisible}
@@ -787,6 +768,7 @@ export default connect(mapStateToProps, {
   getKubectlsPods,
   getAddNodeCMD,
   getClusterSummary,
+  addTerminal
 })(injectIntl(ClusterTabList, {
   withRef: true,
 }))
