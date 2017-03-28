@@ -322,7 +322,7 @@ class AlarmSetting extends Component {
     }
     return (
       <QueueAnim type="right" className="alarmSetting">
-        <div id="AlarmRecord">
+        <div id="AlarmRecord" key="AlarmRecord">
           <div className="topRow" style={{marginBottom: '20px'}}>
             <Button icon="plus" size="large" type="primary" onClick={()=> this.setState({alarmModal: true})}>创建</Button>
             <Button icon="reload" size="large" type="ghost">刷新</Button>

@@ -229,7 +229,7 @@ class AlarmRecord extends Component {
     const { page, size } = this.state
     return (
       <QueueAnim className="AlarmRecord" type="right">
-        <div id="AlarmRecord">
+        <div id="AlarmRecord" key="AlarmRecord">
           <div className="topRow">
             <Select style={{ width: 120 }} size="large" placeholder="选择告警策略" onChange={(value) => this.setState({strategyFilter: value})}>
               {filters.strategies}

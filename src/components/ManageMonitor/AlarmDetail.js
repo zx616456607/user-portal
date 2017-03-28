@@ -119,7 +119,7 @@ class AlarmDetail extends Component {
     return (
       <div id="AlarmDetail">
         <QueueAnim type="right" className="AlarmDetail">
-          <div className="ant-row" style={{marginBottom: 10, height: 50, paddingTop: 10}}>
+          <div className="ant-row" key="AlarmDetail" style={{marginBottom: 10, height: 50, paddingTop: 10}}>
             <Link className="back" to="/manange_monitor/alarm_setting"><span className="backjia"></span><span className="btn-back">返回</span></Link>
             <span className="titleName">大事业部</span>
           </div>

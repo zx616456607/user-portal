@@ -68,25 +68,25 @@
         text-align: center;
       }
       .name {
-        width: 13.6%;
+        width: 12%;
       }
       .createTime {
         width: 10%;
       }
       .service {
-        width: 19.1%;
+        width: 18%;
       }
-      .appname {
-        width: 9%
+      .appname, .alarm{
+        width: 8%
       }
       .status {
         width: 11%;
       }
       .image {
-        width: 15.5%;
+        width: 14%;
       }
       .actionBox {
-        width: 14.6%;
+        width: 14%;
       }
     }
     .dataBox {
@@ -107,7 +107,7 @@
         text-align: center;
       }
       .name {
-        width: 13.6%;
+        width: 12%;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -119,7 +119,7 @@
         text-overflow: ellipsis;
       }
       .service {
-        width: 19.1%;
+        width: 18%;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -128,20 +128,45 @@
         width: 11%;
       }
       .appname {
-        width: 9%;
+        width: 8%;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
+      .alarm {
+        width: 8%;
+        i {
+          font-size: 16px;
+          cursor: pointer;
+          line-height: 2;
+          transition: all 0.2s ease-in-out;
+          color: #C7CBCE;
+          &:hover {
+            color: #10B5FF;
+            transform: rotate(40deg);
+            -webkit-transform: rotate(40deg);
+            -moz-transform: rotate(40deg);
+            -o-transform: rotate(40deg);
+            -ms-transform: rotate(40deg);
+          }
+        }
+        .managemoniter {
+          width: 18px;height: 18px;
+          fill: #C7CBCE;
+          margin:0 5px;
+          cursor: pointer;
+        }
+
+      }
       .image {
-        width: 15.5%;
+        width: 14%;
         padding-right: 10px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
       .actionBox {
-        width: 14.6%;
+        width: 14%;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
