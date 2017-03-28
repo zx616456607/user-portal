@@ -72,7 +72,7 @@ let UsefulDeployBox = React.createClass({
   },
   checkPath(rule, value, callback) {
     if (!value) {
-      return callback('请填写Path路径')
+      return callback('请填写检查路径')
     }
     return callback()
   },
