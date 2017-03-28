@@ -30,7 +30,6 @@ import QueueAnim from 'rc-queue-anim'
 const TabPane = Tabs.TabPane
 const MASTER = '主控节点/Master'
 const SLAVE = '计算节点/Slave'
-let foreverPodNumber = 0 // pod %
 
 function cpuUsed(cpuTotal, cpuList) {
   //this function for compute cpu used
@@ -84,8 +83,9 @@ let HostInfo = React.createClass({
     const { clusterID, clusterName } = scope.props
     scope.props.getNodesPodeList({ clusterID, clusterName }, {
       success: {
-        func: () => {
+        func: (ret) => {
           new NotificationHandler().success('刷新成功')
+          scope.setState({ foreverPodNumber: ret.pods.length})
         }
       }
     })
@@ -171,9 +171,7 @@ let HostInfo = React.createClass({
       }
     ];
 
-    const { hostInfo, metricsData, podeList } = this.props
-    foreverPodNumber = (foreverPodNumber > 0) ? foreverPodNumber : podeList.length // pod
-
+    const { hostInfo, metricsData, podeList, foreverPodNumber } = this.props
     return (
       <QueueAnim className="ClusterDetail">
       <div className="hostInfo" key="ClusterDetail">
@@ -196,7 +194,7 @@ let HostInfo = React.createClass({
             <Row className="items">
               <Col span={8}><span className="keys">容器配额：</span><span className="valus">{hostInfo.podCap} 个</span></Col>
               <Col span={10}><Progress percent={ Math.round(foreverPodNumber / hostInfo.podCap *100) } strokeWidth={8} showInfo={false} status="active" /></Col>
-              <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 { foreverPodNumber } 个</Col>
+              <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 { foreverPodNumber} 个</Col>
 
             </Row>
           </div>
@@ -243,7 +241,8 @@ class ClusterDetail extends Component {
     this.handleTimeChange = this.handleTimeChange.bind(this)
     this.changeTime = this.changeTime.bind(this)
     this.state = {
-      schedulable: false
+      schedulable: false,
+      foreverPodNumber: 0
     }
   }
   componentWillMount() {
@@ -264,7 +263,13 @@ class ClusterDetail extends Component {
 
     loadHostMetrics(body, { start: this.changeTime(1) })
 
-    this.props.getNodesPodeList({ clusterID, clusterName })
+    this.props.getNodesPodeList({ clusterID, clusterName }, {
+      success: {
+        func:(ret) => {
+          _this.setState({foreverPodNumber: ret.pods.length})
+        }
+      }
+    })
 
   }
   changeSchedulable(node, e) {
@@ -406,7 +411,7 @@ class ClusterDetail extends Component {
         <Card className="infoTabs" bordered={false}>
           <div className="h3"></div>
           <Tabs defaultActiveKey="1">
-            <TabPane tab="详情" key="1"><HostInfo podeList={this.props.results} metricsData={{cpuData:this.props.hostcpu,memoryData:this.props.memory}} hostInfo={hostInfo} scope={this} /></TabPane>
+            <TabPane tab="详情" key="1"><HostInfo foreverPodNumber={this.state.foreverPodNumber} podeList={this.props.results} metricsData={{cpuData:this.props.hostcpu,memoryData:this.props.memory}} hostInfo={hostInfo} scope={this} /></TabPane>
             <TabPane tab="监控" key="2">
               <TimeControl onChange={this.handleTimeChange} />
               <Metrics
