@@ -19,8 +19,6 @@ import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../const
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { calcuDate } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
-import TerminalModal from '../TerminalModal'
-import Xterm from '../TerminalModal/Xterm'
 import ContainerStatus from '../TenxStatus/ContainerStatus'
 import { addPodWatch, removePodWatch } from '../../containers/App/status'
 
@@ -79,21 +77,6 @@ const MyComponent = React.createClass({
     const { funcs } = this.props
     e.stopPropagation();
     funcs.openTerminal(item);
-    /*const { parentScope } = this.props;
-    let { currentContainer } = parentScope.state;
-    let hadFlag = false;
-    currentContainer.map((container) => {
-      if(container.metadata.name == item.metadata.name) {
-        hadFlag = true;
-      }
-    });
-    if(!hadFlag) {
-      currentContainer.push(item)
-    }
-    parentScope.setState({
-      currentContainer: currentContainer,
-      TerminalLayoutModal: true
-    });*/
   },
   deleteContainer: function (name) {
     const { config, funcs } = this.props
@@ -214,7 +197,6 @@ class ContainerList extends Component {
     this.loadData = this.loadData.bind(this)
     this.onAllChange = this.onAllChange.bind(this)
     this.searchContainers = this.searchContainers.bind(this)
-    this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
     this.batchDeleteContainers = this.batchDeleteContainers.bind(this)
     this.confirmDeleteContainer = this.confirmDeleteContainer.bind(this)
     this.onPageChange = this.onPageChange.bind(this)
@@ -362,13 +344,6 @@ class ContainerList extends Component {
       pathname,
       query
     })
-  }
-
-  closeTerminalLayoutModal() {
-    //this function for user close the terminal modal
-    this.setState({
-      TerminalLayoutModal: false
-    });
   }
 
   onPageChange(page) {
@@ -560,18 +535,6 @@ class ContainerList extends Component {
               parentScope={parentScope} />
           </Card>
         </div>
-        {/*<Modal
-          visible={this.state.TerminalLayoutModal}
-          className='TerminalLayoutModal'
-          transitionName='move-down'
-          onCancel={this.closeTerminalLayoutModal}
-          maskClosable={false}
-          >
-          <TerminalModal scope={parentScope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal} oncache={oncache}/>
-        </Modal>*/}
-        <Xterm
-          visible={this.state.TerminalLayoutModal}
-          closeTerminalModal={() => this.setState({TerminalLayoutModal: false})} />
       </QueueAnim>
     )
   }

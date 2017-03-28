@@ -57,3 +57,15 @@ export function removeAllTerminal(cluster, callback) {
     callback
   }
 }
+
+export const CHANGE_ACTIVE_TERMINAL_ITEM = 'CHANGE_ACTIVE_TERMINAL_ITEM'
+
+// Remove terminal item from terminal list
+export function changeActiveTerminal(cluster, key, callback) {
+  return {
+    cluster,
+    key,
+    type: CHANGE_ACTIVE_TERMINAL_ITEM,
+    callback
+  }
+}

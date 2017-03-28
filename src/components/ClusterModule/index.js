@@ -127,6 +127,7 @@ let CreateClusterModal = React.createClass({
     const { addClusterCMD, form, noCluster, parentScope } = this.props
     const { getFieldProps, getFieldValue } = form
     const { submitBtnLoading, checkBtnLoading } = this.state
+    let cmd = addClusterCMD && addClusterCMD[camelize('default_command')] || ''
     const clusterNamePorps = getFieldProps('clusterName', {
       rules: [
         { required: true, message: '请填写集群名称' },
@@ -181,7 +182,7 @@ let CreateClusterModal = React.createClass({
       }
       <Tabs defaultActiveKey="newCluster">
         <TabPane tab="新建集群" key="newCluster">
-          <AddClusterOrNodeModalContent CMD={addClusterCMD && addClusterCMD[camelize('default_command')].replace('ADMIN_SERVER_URL', window.location.origin)} />
+          <AddClusterOrNodeModalContent CMD={cmd.replace('ADMIN_SERVER_URL', window.location.origin)} />
           <div style={{paddingBottom: 10}}>
             注：新建的首个集群，将设置对平台全部个人帐号开放
           </div>

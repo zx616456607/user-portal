@@ -37,20 +37,57 @@ function list(state, action) {
       return Object.assign({}, state, {
         [cluster]: oldList
       })
+    case ActionTypes.REMOVE_ALL_TERMINAL_ITEM:
+      return Object.assign({}, state, {
+        [cluster]: []
+      })
+    case ActionTypes.REMOVE_TERMINAL_ITEM:
+      return Object.assign({}, state, {
+        [cluster]: oldList.filter(oldItem => {
+          if (oldItem.metadata.name !== item.metadata.name) {
+            return oldItem
+          }
+        })
+      })
     default:
       return state
   }
 }
 
 function active(state, action) {
-  const { cluster, item } = action
+  const { cluster, item, key } = action
+  const activeState = state.active
   switch (action.type) {
     case ActionTypes.ADD_TERMINAL_ITEM:
-      return Object.assign({}, state, {
-        [cluster]: item.metadata.name
+      return Object.assign({}, activeState, {
+        [cluster]: item.metadata.name,
+      })
+    case ActionTypes.CHANGE_ACTIVE_TERMINAL_ITEM:
+      return Object.assign({}, activeState, {
+        [cluster]: key,
+      })
+    case ActionTypes.REMOVE_TERMINAL_ITEM:
+      if (item.metadata.name !== activeState[cluster]) {
+        return activeState
+      }
+      let _active = null
+      state.list[cluster].every(oldItem => {
+        let { name } = oldItem.metadata
+        if (name !== activeState[cluster]) {
+          _active = name
+          return false
+        }
+        return true
+      })
+      return Object.assign({}, activeState, {
+        [cluster]: _active,
+      })
+    case ActionTypes.REMOVE_ALL_TERMINAL_ITEM:
+      return Object.assign({}, activeState, {
+        [cluster]: null,
       })
     default:
-      return state
+      return activeState
   }
 }
 
@@ -60,6 +97,6 @@ export default function terminal(state = {
 }, action) {
   return {
     list: list(state.list, action),
-    active: active(state.active, action),
+    active: active(state, action),
   }
 }

@@ -10,28 +10,40 @@
 import React, { Component, PropTypes } from 'react'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import { Icon, Tabs, Modal, Button } from 'antd'
+import { Icon, Tabs, Button } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../constants'
-import { updateTerminal } from '../../actions/terminal'
-import $ from 'jquery'
+import {
+  updateTerminal, removeAllTerminal, changeActiveTerminal,
+  removeTerminal,
+} from '../../actions/terminal'
 import cloneDeep from 'lodash/cloneDeep'
+import Dock from 'react-dock'
 import './style/Xterm.less'
 
 const TabPane = Tabs.TabPane
 const TERM_TIPS_DISABLED = 'term_tips_disabled'
+const DEFAULT_SIZE = 0.6
 
 class TerminalModal extends Component {
   constructor(props) {
     super(props)
+    this.updateMinSize = this.updateMinSize.bind(this)
+    this.renderTermStatus = this.renderTermStatus.bind(this)
     this.renderTabs = this.renderTabs.bind(this)
-    this.getTermTipsStatus = this.getTermTipsStatus.bind(this)
+    this.getDisableTips = this.getDisableTips.bind(this)
     this.disabledTermTips = this.disabledTermTips.bind(this)
     this.closeTip = this.closeTip.bind(this)
     this.onTabChange = this.onTabChange.bind(this)
-    this.closeTerminal = this.closeTerminal.bind(this)
+    this.closeTerminalItem = this.closeTerminalItem.bind(this)
+    this.closeXterm = this.closeXterm.bind(this)
+    this.resizeXterm = this.resizeXterm.bind(this)
+    this.onDockSizeChange = this.onDockSizeChange.bind(this)
     this.state = {
-      tipsVisible: true,
+      disableTips: this.getDisableTips(),
+      resize: 'min',
+      size: DEFAULT_SIZE,
+      minSize: this.getMinHeight(),
     }
   }
 
@@ -51,117 +63,163 @@ class TerminalModal extends Component {
   }
 
   componentDidMount() {
-    //bind change modal height event
-    let doc = $(document)
-    let box = $('#TerminalModal .titleBox')
-    let bodyHeight = $(document.body)[0].clientHeight
-    let scope = this
-    box.mousedown(function(ee){
-      if(ee.currentTarget.className != 'titleBox') {
-        return
-      }
-      $('#TerminalModal .cover').css('display','block')
-      $(document).mousemove(function(e){
-        let newHeight = bodyHeight - e.clientY
-        if(newHeight >= bodyHeight) {
-          newHeight = bodyHeight
-        }
-        if(newHeight <= 35) {
-          newHeight = 35
-          this.setState({
-            terminalType: 'min'
-          })
-        }
-        $('.TerminalLayoutModal').css('cssText','height:' + newHeight + 'px !importanttransition:all !important')
+    window.addEventListener('resize', this.updateMinSize)
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { active } = nextProps
+    const list = nextProps.list || []
+    const _list = this.props.list || []
+    if (list.length > _list.length || active !== this.props.active) {
+      this.setState({
+        size: DEFAULT_SIZE,
+        resize: 'normal',
       })
-    })
-    doc.mouseup(function(){
-      $('#TerminalModal .cover').css('display','none')
-      doc.unbind('mousemove')
-    })
-    //change css
-    $('.TerminalLayoutModal').parent().parent().find('.ant-modal-mask').css('display', 'none')
-    $('.TerminalLayoutModal').parent().css('box-shadow', ' 0 -1px 4px rgba(0,0,0,0.2)')
-    $('.TerminalLayoutModal').parent().css('top','auto')
-    $('.TerminalLayoutModal').parent().css('right','initial')
-    $('.TerminalLayoutModal').parent().css('height','auto')
-  }
-
-  onChangeTabs(e) {
-    //this function for user change the tab and the iframe focus will be change
-    this.setState({
-      currentTab: e
-    })
-    let frame = window.frames[e]
-    if (!frame) {
-      return
     }
-    if(!!frame.contentWindow) {
-      frame.contentWindow.focusTerminal()
-    } else {
-      frame.focusTerminal()
+    if (list.length < _list.length && list.length === 0) {
+      this.setState({
+        resize: 'min',
+      })
     }
   }
 
-  getTermTipsStatus() {
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateMinSize)
+  }
+
+  updateMinSize() {
+    const state = {
+      minSize: this.getMinHeight()
+    }
+    if (this.state.resize = 'min') {
+      state.size = state.minSize
+    }
+    this.setState(state)
+  }
+
+  getDisableTips() {
     if (!window.localStorage) {
-      return false
+      return []
     }
     const { loginUser } = this.props
-    const disabledTermTipsNames = window.localStorage.getItem(TERM_TIPS_DISABLED)
-    if (disabledTermTipsNames.indexOf(loginUser.userName)) {
-      return true
-    }
-    return false
-  }
-
-  disabledTermTips() {
-    this.setState({
-      tipsVisible: false,
-    })
-    if (!window.localStorage) {
-      return false
-    }
-    const { loginUser } = this.props
+    const { userName } = loginUser
     let disabledTermTipsNames = window.localStorage.getItem(TERM_TIPS_DISABLED)
     if (disabledTermTipsNames) {
-      disabledTermTipsNames = disabledTermTipsNames.split(',')
+      disabledTermTipsNames = JSON.parse(disabledTermTipsNames)
     } else {
-      disabledTermTipsNames = []
+      disabledTermTipsNames = {}
     }
-    disabledTermTipsNames.push(loginUser.userName)
-    window.localStorage.setItem(TERM_TIPS_DISABLED, disabledTermTipsNames.join(','))
+    if (!disabledTermTipsNames[userName]) {
+      return []
+    }
+    return disabledTermTipsNames[userName]
   }
 
-  closeTip() {
+  disabledTermTips(name) {
+    const { disableTips } = this.state
+    disableTips.push(name)
     this.setState({
-      tipsVisible: false
+      disableTips,
+    })
+    if (!window.localStorage) {
+      return false
+    }
+    const { loginUser } = this.props
+    const { userName } = loginUser
+    let disabledTermTipsNames = window.localStorage.getItem(TERM_TIPS_DISABLED)
+    if (disabledTermTipsNames) {
+      disabledTermTipsNames = JSON.parse(disabledTermTipsNames)
+    } else {
+      disabledTermTipsNames = {}
+    }
+    if (!disabledTermTipsNames[userName]) {
+      disabledTermTipsNames[userName] = []
+    }
+    disabledTermTipsNames[userName].push(name)
+    window.localStorage.setItem(TERM_TIPS_DISABLED, JSON.stringify(disabledTermTipsNames))
+  }
+
+  closeTip(name) {
+    const { disableTips } = this.state
+    disableTips.push(name)
+    this.setState({
+      disableTips,
     })
   }
 
-  onTabChange() {
-    //
+  resizeXterm() {
+    const { resize, minSize } = this.state
+    this.setState({
+      size: (resize === 'normal' ? minSize : DEFAULT_SIZE),
+      resize: (resize === 'normal' ? 'min' : 'normal'),
+    })
   }
 
-  closeTerminal() {
-    //
+  getMinHeight() {
+    const bodyHeigh = window.document.body.offsetHeight
+    return 30 / bodyHeigh
+  }
+
+  onTabChange(key) {
+    const { clusterID, changeActiveTerminal } = this.props
+    changeActiveTerminal(clusterID, key)
+  }
+
+  closeTerminalItem(item, e) {
+    e.stopPropagation()
+    const { clusterID, removeTerminal } = this.props
+    removeTerminal(clusterID, item)
+  }
+
+  renderTermStatus(terminalStatus, item) {
+    const { disableTips } = this.state
+    const { name } = item.metadata
+    if (terminalStatus === 'success') {
+      if (!(disableTips.indexOf(name) > -1)) {
+        return (
+          <div className="tips">
+            <Icon type="info-circle-o" /> 由于容器本身无状态且不可变的特性，以防容器销毁后，对容器内部做的改动无法保留，
+            <span className="important">建议不要直接修改容器中内容（有状态容器中存储映射出来的目录除外）</span>
+            <div className="btns">
+              <Button key="back" type="primary" onClick={() => this.closeTip(name)}>知道了</Button>
+              <Button key="submit" onClick={() => this.disabledTermTips(name)}>
+                不再提醒
+              </Button>
+            </div>
+          </div>
+        )
+      }
+      return
+    }
+    if (terminalStatus == 'timeout') {
+      return (
+        <div className='webLoadingBox' key={`webLoadingBox-${name}`}>
+          <span>连接超时了</span>
+        </div>
+      )
+    }
+    return (
+      <div className='webLoadingBox' key={`webLoadingBox-${name}`}>
+        <span className='terIcon'></span>
+        <span className='terIcon'></span>
+        <span className='terIcon'></span>
+        <span>终端链接中...</span>
+      </div>
+    )
   }
 
   renderTabs() {
-    const { clusterID, active, list, closeTerminalModal } = this.props
-    const { tipsVisible } = this.state
+    const { clusterID, active, list } = this.props
+    const { disableTips, size, minSize, resize } = this.state
     if (!list || list.length < 1) {
       return
     }
-    console.log(list)
-    console.log(list)
-    console.log(list)
     const operaBox = (
       <div className='operaBox'>
-        <svg onClick={this.minWindow} >
-          <use xlinkHref={this.state.terminalType == 'normal' ? '#minwindow' : '#maxwindow'} />
+        <svg onClick={this.resizeXterm} >
+          <use xlinkHref={resize === 'normal' ? '#minwindow' : '#maxwindow'} />
         </svg>
-        <Icon type='cross' onClick={closeTerminalModal} />
+        <Icon type='cross' onClick={this.closeXterm} />
       </div>
     )
     return (
@@ -177,46 +235,17 @@ class TerminalModal extends Component {
             const titleTab = (
               <div>
                 <span>{name}</span>
-                <Icon type='cross' onClick={() => this.closeTerminal(item)}/>
+                <Icon type='cross' onClick={this.closeTerminalItem.bind(this, item)}/>
               </div>
             )
             return (
               <TabPane tab={titleTab} key={name}>
                 <div>
-                  {
-                    (terminalStatus === 'success' && tipsVisible) &&
-                    <div className="tips">
-                      <Icon type="info-circle-o" /> 由于容器本身无状态且不可变的特性，以防容器销毁后，对容器内部做的改动无法保留，
-                      <span className="important">建议不要直接修改容器中内容（有状态容器中存储映射出来的目录除外）</span>
-                      <div className="btns">
-                        <Button key="back" type="primary" onClick={this.closeTip}>知道了</Button>
-                        <Button key="submit" onClick={this.disabledTermTips}>
-                          不再提醒
-                        </Button>
-                      </div>
-                    </div>
-                  }
-                  {
-                    terminalStatus == 'connect' ? [
-                      <div className='webLoadingBox' key={'webLoadingBox' + index}>
-                        <span className='terIcon'></span>
-                        <span className='terIcon'></span>
-                        <span className='terIcon'></span>
-                        <span>终端链接中...</span>
-                      </div>
-                    ] : null
-                  }
+                  {this.renderTermStatus(terminalStatus, item)}
                   <iframe
                     id={name}
                     key={'iframe' + index}
                     src={`/js/container_terminal.html?namespace=${namespace}&pod=${name}&cluster=${clusterID}&_=20170327`} />
-                  {
-                    terminalStatus == 'timeout' ? [
-                      <div className='webLoadingBox' key={'webLoadingBox' + index}>
-                        <span>连接超时了</span>
-                      </div>
-                    ] : null
-                  }
                 </div>
               </TabPane>
             )
@@ -226,22 +255,41 @@ class TerminalModal extends Component {
     )
   }
 
+  closeXterm() {
+    const { clusterID, removeAllTerminal } = this.props
+    removeAllTerminal(clusterID)
+  }
+
+  onDockSizeChange(size) {
+    const { minSize } = this.state
+    const state = {
+      size,
+      resize: 'normal',
+    }
+    if (size <= minSize) {
+      state.size = minSize
+      state.resize = 'min'
+    } else if (size >= 1) {
+      state.size = 1
+    }
+    this.setState(state)
+  }
+
   render() {
-    const { visible, closeTerminalModal } = this.props
+    const { list } = this.props
+    const { size } = this.state
+    const visible = (list && list.length > 0)
     return (
-      <Modal
-        visible={visible}
-        className='TerminalLayoutModal'
-        transitionName='move-down'
-        onCancel={closeTerminalModal}
-        maskClosable={false}
-        >
+      <Dock position='bottom'
+        isVisible={visible}
+        dimMode="none"
+        fluid={true}
+        size={size}
+        onSizeChange={ this.onDockSizeChange }>
         <div id='TerminalModal'>
-          <div className='titleBox'></div>
-          <div className='cover'></div>
           {this.renderTabs()}
         </div>
-      </Modal>
+      </Dock>
     )
   }
 }
@@ -260,12 +308,14 @@ function mapStateToProps(state, props) {
 }
 
 TerminalModal.propTypes = {
-  visible: PropTypes.bool.isRequired,
-  closeTerminalModal: PropTypes.func.isRequired,
+  //
 }
 
 export default connect(mapStateToProps, {
   updateTerminal,
+  removeAllTerminal,
+  changeActiveTerminal,
+  removeTerminal,
 })(injectIntl(TerminalModal, {
   withRef: true,
 }))
