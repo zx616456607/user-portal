@@ -19,6 +19,7 @@ import { browserHistory } from 'react-router'
 import { ROLE_SYS_ADMIN, URL_REGEX, CLUSTER_PAGE, NO_CLUSTER_FLAG, DEFAULT_CLUSTER_MARK } from '../../../constants'
 import { loadClusterList, getAddClusterCMD, createCluster } from '../../actions/cluster'
 import { loadLoginUserDetail } from '../../actions/entities'
+import { changeActiveCluster } from '../../actions/terminal'
 import AddClusterOrNodeModalContent from './AddClusterOrNodeModal/Content'
 import { camelize } from 'humps'
 
@@ -261,6 +262,7 @@ class ClusterList extends Component {
   constructor(props) {
     super(props)
     this.checkIsAdmin = this.checkIsAdmin.bind(this)
+    this.onTabChange = this.onTabChange.bind(this)
     this.state = {
       createModal: false, // create cluster modal
     }
@@ -285,6 +287,11 @@ class ClusterList extends Component {
       browserHistory.push('/')
     }
     getAddClusterCMD()
+  }
+
+  onTabChange(key) {
+    const { changeActiveCluster } = this.props
+    changeActiveCluster(key)
   }
 
   render() {
@@ -348,6 +355,7 @@ class ClusterList extends Component {
             )
             : (
               <Tabs
+                onChange={this.onTabChange}
                 key='ClusterTabs'
                 defaultActiveKey={currentClusterID}
                 tabBarExtraContent={
@@ -410,6 +418,7 @@ export default connect(mapStateToProps, {
   getAddClusterCMD,
   createCluster,
   loadLoginUserDetail,
+  changeActiveCluster,
 })(injectIntl(ClusterList, {
   withRef: true,
 }))
