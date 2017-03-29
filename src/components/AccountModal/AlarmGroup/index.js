@@ -18,6 +18,9 @@ const InputGroup = Input.Group
 class AlarmGroup extends Component {
   constructor(props) {
     super(props)
+    this.state = {
+      createGroup: false
+    }
   }
   dropdowns (record){
     // Dropdown delete btn
@@ -211,6 +214,7 @@ class AlarmGroup extends Component {
           <Modal title="创建新通知组" visible={this.state.createGroup}
             width={560}
             maskClosable={false}
+            closable={false}
             wrapClassName="AlarmModal"
             className="alarmContent"
             footer={null}
