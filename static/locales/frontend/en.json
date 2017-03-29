@@ -144,6 +144,7 @@
   "AppCenter.ImageCenter.ImageDetail.info": "Info",
   "AppCenter.ImageCenter.ImageDetail.tag": "Tags & APIs",
   "AppCenter.ImageCenter.ImageDetail.attribute": "Attribute",
+  "AppCenter.ImageCenter.ImageDetail.mirrorSafety": "Mirror Safety",
   "AppCenter.ImageCenter.ImageDetail.copyBtn": "Click Copy",
   "AppCenter.ImageCenter.ImageDetail.copySuccess": "Copy Success",
   "AppCenter.ImageCenter.ImageDetail.size": "Size",
