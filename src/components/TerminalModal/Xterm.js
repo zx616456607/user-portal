@@ -297,8 +297,11 @@ class TerminalModal extends Component {
 function mapStateToProps(state, props) {
   const { entities, terminal } = state
   const { current, loginUser } = entities
-  const clusterID = current.cluster.clusterID
+  let clusterID = current.cluster.clusterID
   const { list, active } = terminal
+  if (active.cluster) {
+    clusterID = active.cluster
+  }
   return {
     clusterID,
     loginUser: loginUser.info,
