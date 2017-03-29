@@ -844,16 +844,16 @@ let StorageService = React.createClass({
               <img src={CephImg} alt="镜像服务" />
             </div>
             <div className="contentkeys">
-              <div className="key">存储节点</div>
               <div className="key">Ceph URL</div>
+              <div className="key">存储节点</div>
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem >
-                  <Input {...nodeProps} placeholder="如：192.168.1.113:4081，如有多个存储节点，请使用英文逗号隔开" disabled={cephDisable} />
+                  <Input {...urlProps} placeholder="如：https://192.168.88.6789" disabled={cephDisable} />
                 </FormItem>
                 <FormItem >
-                  <Input {...urlProps} placeholder="如：https://192.168.88.6789" disabled={cephDisable} />
+                  <Input {...nodeProps} placeholder="如：192.168.1.113:4081，如有多个存储节点，请使用英文逗号隔开" disabled={cephDisable} />
                 </FormItem>
                 <FormItem>
                   {
