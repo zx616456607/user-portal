@@ -756,7 +756,7 @@ function mapStateToProps(state, props) {
     isFetching,
     clusterID,
     kubectlsPods: (kubectlsPods ? kubectlsPods.result : {}) || {},
-    addNodeCMD: (addNodeCMD ? addNodeCMD.result : {}) || {},
+    addNodeCMD: addNodeCMD[clusterID] || {},
     clusterSummary: (clusterSummary && clusterSummary[clusterID] ? clusterSummary[clusterID].summary : {}) || {},
   }
 }
