@@ -844,8 +844,8 @@ let StorageService = React.createClass({
               <img src={CephImg} alt="镜像服务" />
             </div>
             <div className="contentkeys">
+              <div className="key">Ceph URL</div>
               <div className="key">存储节点</div>
-              <div className="key">Agent 地址</div>
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
