@@ -7,6 +7,8 @@
  * v0.1 - 2017/03/24
  * @author Zhangchengzheng
  */
+
+'use strict'
 import React, { Component } from 'react'
 import { Button, Input, Table, Dropdown, Menu, Icon, Popover, Modal, Form, Card, Pagination } from 'antd'
 import './style/AlarmGroup.less'
@@ -14,6 +16,9 @@ import QueueAnim from 'rc-queue-anim'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../constants'
 import CreateAlarm from '../../AppModule/AlarmModal'
 const InputGroup = Input.Group
+import { loadNotifyGroups } from '../../../actions/alert'
+import { connect } from 'react-redux'
+import moment from 'moment'
 
 class AlarmGroup extends Component {
   constructor(props) {
@@ -24,6 +29,10 @@ class AlarmGroup extends Component {
       value:'',
       step: 1, // first step create AlarmModal
     }
+  }
+  componentWillMount() {
+    const { loadNotifyGroups } = this.props
+    loadNotifyGroups()
   }
   dropdowns (record){
     // Dropdown delete btn
@@ -43,34 +52,60 @@ class AlarmGroup extends Component {
     )
   }
 
-  tableSvgEmail(){
+  getGroupEmails(emails){
+    if (!emails) {
+      return null
+    }
+    let popover = null
+    if (emails.length > 1) {
+      const content = emails.map(function(item) {
+        return <div className='alarmGroupContentEmailPopOveritem'>{item.addr}<span className='alarmGroupContentEmailPopOverspan'>(备注:{item.desc})</span></div>
+      })
+      popover =  (
+        <Popover placement="rightTop" content={content} trigger="click">
+          <svg className='more' >
+            <use xlinkHref='#more'/>
+          </svg>
+        </Popover>
+      )
+    }
+    
     return (
-      <div className='alarmGroupContentEmailPopOver'>
-        <div className='alarmGroupContentEmailPopOveritem'>123456789@qq.com<span className='alarmGroupContentEmailPopOverspan'>(备注:xiaowenzi)</span></div>
-        <div className='alarmGroupContentEmailPopOveritem'>123456789@qq.com<span className='alarmGroupContentEmailPopOverspan'>(备注:xiaowenzi)</span></div>
-        <div className='alarmGroupContentEmailPopOveritem'>123456789@qq.com<span className='alarmGroupContentEmailPopOverspan'>(备注:xiaowenzi)</span></div>
-        <div className='alarmGroupContentEmailPopOveritem'>123456789@qq.com<span className='alarmGroupContentEmailPopOverspan'>(备注:xiaowenzi)</span></div>
-        <div className='alarmGroupContentEmailPopOveritem'>123456789@qq.com<span className='alarmGroupContentEmailPopOverspan'>(备注:xiaowenzidadasdasdadadada)</span></div>
+      <div>
+        {emails.length > 0 && `${emails[0].addr}(${emails[0].desc})`}
+        {popover}
       </div>
     )
   }
 
-  tableSvgRelation(){
+  getStragegies(strategies) {
+    if (!strategies) {
+      return null
+    }
+    let popover = null
+    if (strategies.length > 1) {
+      const content = strategies.map(function(item) {
+        return <div className='alarmGroupContentRealtionPopOveritem'>{item.name}</div>
+      })
+      popover = (
+        <Popover placement="rightTop" content={content} trigger="click">
+          <svg className='more' >
+            <use xlinkHref='#more' />
+          </svg>
+        </Popover>
+      )
+    }
     return (
-      <div className='alarmGroupContentRealtionPopOver'>
-        <div className='alarmGroupContentRealtionPopOveritem'>123456789@qq.com<span className='alarmGroupContentRealtionPopOverspan'>(备注:xiaowenzi)</span></div>
-        <div className='alarmGroupContentRealtionPopOveritem'>123456789@qq.com<span className='alarmGroupContentRealtionPopOverspan'>(备注:xiaowenzi)</span></div>
-        <div className='alarmGroupContentRealtionPopOveritem'>123456789@qq.com<span className='alarmGroupContentRealtionPopOverspan'>(备注:xiaowenzi)</span></div>
-        <div className='alarmGroupContentRealtionPopOveritem'>123456789@qq.com<span className='alarmGroupContentRealtionPopOverspan'>(备注:xiaowenzi)</span></div>
-        <div className='alarmGroupContentRealtionPopOveritem'>123456789@qq.com<span className='alarmGroupContentRealtionPopOverspan'>(备注:xiaowenzi)</span></div>
-        <div className='alarmGroupContentRealtionPopOveritem'>123456789@qq.com<span className='alarmGroupContentRealtionPopOverspan'>(备注:xiaowenzi)</span></div>
-        <div className='alarmGroupContentRealtionPopOveritem'>123456789@qq.com<span className='alarmGroupContentRealtionPopOverspan'>(备注:xiaowenzi111111)</span></div>
+      <div>
+        {strategies.length > 0 ? `${strategies[0].name}` : null}
+        {popover}
       </div>
     )
   }
   handSearch() {
-    let search = document.getElementById('AlarmGroupInput').value
-    console.log('search', search)
+    let search = document.getElementById('AlarmGroupInput').value.trim()
+    const { loadNotifyGroups } = this.props
+    loadNotifyGroups(search)
   }
   cancelModal() {
     // cancel create Alarm modal
@@ -96,40 +131,22 @@ class AlarmGroup extends Component {
       width:'10%',
     },{
       title:'描述',
-      dataIndex:'description',
+      dataIndex:'desc',
       width:'16%',
     },{
       title:'邮箱',
       dataIndex:'email',
       width:'30%',
-      render:text => (
-          <div>
-            {text}
-            <Popover placement="rightTop" content={this.tableSvgEmail()} trigger="click">
-              <svg className='more' >
-                <use xlinkHref='#more'/>
-              </svg>
-            </Popover>
-          </div>
-      )
+      render:emails => this.getGroupEmails(emails)
     },{
       title:'创建时间',
-      dataIndex:'bulidtime',
+      dataIndex:'createTime',
       width:'20%',
     },{
       title:'关联策略',
-      dataIndex:'relation',
+      dataIndex:'strategies',
       width:'15%',
-      render:text => (
-        <div>
-          {text}
-          <Popover placement="rightTop" content={this.tableSvgRelation()} trigger="click">
-            <svg className='more' >
-              <use xlinkHref='#more' />
-            </svg>
-          </Popover>
-        </div>
-      )
+      render:strategies => this.getStragegies(strategies)
     },{
       title:'操作',
       dataIndex:'handle',
@@ -137,55 +154,18 @@ class AlarmGroup extends Component {
       render:text => <Dropdown.Button type="ghost" overlay={ this.dropdowns(text) } onClick={()=> this.setState({lookModel: true})}>删除</Dropdown.Button>
     }]
 
-    const tableData = [{
-      key:'1',
-      name:'tongzhi1',
-      description:'woshixiaomingshu',
-      email:'123456789@qq.com',
-      bulidtime:'2016-07-18 16:50:10',
-      relation:'niub1qun',
-      handle:'shanchu'
-    },{
-      key:'2',
-      name:'tongzhi2',
-      description:'fuwutongzhi',
-      email:'123456789@qq.com(备注:xiaowenzi)',
-      bulidtime:'',
-      relation:'描述',
-      handle:'shanchu'
-    },{
-      key:'3',
-      name:'tongzhi3',
-      description:'woshixiaomingshu',
-      email:'123456789@qq.com',
-      bulidtime:'2016-07-18 16:50:10',
-      relation:'描述',
-      handle:'shanchu'
-    },{
-      key:'4',
-      name:'tongzhi4',
-      description:'woshixiaomingshu',
-      email:'123456789@qq.com',
-      bulidtime:'2016-07-18 16:50:10',
-      relation:'描述',
-      handle:'shanchu'
-    },{
-      key:'5',
-      name:'tongzhi5',
-      description:'woshixiaomingshu',
-      email:'123456789@qq.com',
-      bulidtime:'2016-07-18 16:50:10',
-      relation:'描述',
-      handle:'shanchu'
-    },{
-      key:'6',
-      name:'tongzhi6',
-      description:'woshixiaomingshu',
-      email:'123456789@qq.com',
-      bulidtime:'2016-07-18 16:50:10',
-      relation:'描述',
-      handle:'shanchu'
-    }]
+    let tableData = []
+    this.props.groups.map(function(item, i) {
+      tableData.push({
+        key: i,
+        name: item.name,
+        desc: item.desc,
+        email: item.receivers.email,
+        // createTime: moment(item.createTime).format(),
+        createTime: moment(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
+        strategies: item.strategies,
+      })
+    })
 
     const rowSelection = {
       // getCheckboxProps: record => ({
@@ -198,7 +178,7 @@ class AlarmGroup extends Component {
         <div id="AlarmGroup" key="demo">
           <div className='alarmGroupHeader'>
             <Button size="large" type="primary" icon="plus" onClick={()=> this.setState({alarmModal:true})}>创建</Button>
-            <Button size="large" icon="reload" type="ghost">刷新</Button>
+            <Button size="large" icon="reload" type="ghost" onClick={() => this.props.loadNotifyGroups()}>刷新</Button>
             <Button size="large" icon="delete" type="ghost">删除</Button>
             <Button size="large" icon="edit" type="ghost">修改</Button>
             <div className="Search">
@@ -243,4 +223,16 @@ class AlarmGroup extends Component {
 }
 
 
-export default AlarmGroup
+function mapStateToProps(state, props) {
+  let groupsData = []
+  if (state.alert.groups.isFetching === false && state.alert.groups.result.code === 200 && state.alert.groups.result.data) {
+    groupsData = state.alert.groups.result.data
+  }
+  return {
+    groups: groupsData,
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadNotifyGroups,
+})(AlarmGroup)

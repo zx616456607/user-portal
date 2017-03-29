@@ -62,7 +62,7 @@ export const ALERT_DELETE_RECORDS_FAILURE = 'ALERT_DELETE_RECORDS_FAILURE'
 function fetchDeleteRecords(strategyID, callback) {
   let endpoint = `${API_URL_PREFIX}/alerts/records`
   if (strategyID) {
-    endpoint += `?strategyID={strategyID}`
+    endpoint += `?strategyID=${strategyID}`
   }
   return {
     [FETCH_API]: {
@@ -80,5 +80,30 @@ function fetchDeleteRecords(strategyID, callback) {
 export function deleteRecords(strategyID, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchDeleteRecords(strategyID, callback))
+  }
+}
+
+export const ALERT_GET_NOTIFY_GROUPS_REQUEST = 'ALERT_GET_NOTIFY_GROUPS_REQUEST'
+export const ALERT_GET_NOTIFY_GROUPS_SUCCESS = 'ALERT_GET_NOTIFY_GROUPS_SUCCESS'
+export const ALERT_GET_NOTIFY_GROUPS_FAILURE = 'ALERT_GET_NOTIFY_GROUPS_FAILURE'
+
+function fetchNotifyGroups(name, callback) {
+  let endpoint = `${API_URL_PREFIX}/alerts/groups`
+  if (name) {
+    endpoint += `?name=${name}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [ALERT_GET_NOTIFY_GROUPS_REQUEST, ALERT_GET_NOTIFY_GROUPS_SUCCESS, ALERT_GET_NOTIFY_GROUPS_FAILURE],
+      endpoint: endpoint,
+      schema: {},
+    },
+    callback,
+  }
+}
+
+export function loadNotifyGroups(name, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchNotifyGroups(name, callback))
   }
 }
