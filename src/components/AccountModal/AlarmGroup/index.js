@@ -14,7 +14,7 @@ import { Button, Input, Table, Dropdown, Menu, Icon, Popover, Modal, Form, Card,
 import './style/AlarmGroup.less'
 import QueueAnim from 'rc-queue-anim'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../constants'
-import CreateAlarm from '../../AppModule/AlarmModal'
+import CreateAlarm from '../../AppModule/AlarmModal/CreateGroup'
 const InputGroup = Input.Group
 import { loadNotifyGroups } from '../../../actions/alert'
 import { connect } from 'react-redux'
@@ -23,12 +23,9 @@ import moment from 'moment'
 class AlarmGroup extends Component {
   constructor(props) {
     super(props)
-    this.nextStep = this.nextStep.bind(this)
-    this.cancelModal = this.cancelModal.bind(this)
-    this.state = {
-      value:'',
-      step: 1, // first step create AlarmModal
-    }
+     this.state = {
+       createGroup: false,
+     }
   }
   componentWillMount() {
     const { loadNotifyGroups } = this.props
@@ -107,23 +104,9 @@ class AlarmGroup extends Component {
     const { loadNotifyGroups } = this.props
     loadNotifyGroups(search)
   }
-  cancelModal() {
-    // cancel create Alarm modal
-    this.setState({
-      alarmModal: false,
-      step:1
-    })
-  }
-  nextStep(step) {
-    this.setState({
-      step: step
-    })
-  }
   render() {
     const modalFunc=  {
       scope : this,
-      cancelModal: this.cancelModal,
-      nextStep: this.nextStep
     }
     const tableColumns = [{
       title:'名称',
@@ -177,7 +160,7 @@ class AlarmGroup extends Component {
       <QueueAnim  className="alarmGroup">
         <div id="AlarmGroup" key="demo">
           <div className='alarmGroupHeader'>
-            <Button size="large" type="primary" icon="plus" onClick={()=> this.setState({alarmModal:true})}>创建</Button>
+            <Button size="large" type="primary" icon="plus" onClick={()=> this.setState({createGroup:true})}>创建</Button>
             <Button size="large" icon="reload" type="ghost" onClick={() => this.props.loadNotifyGroups()}>刷新</Button>
             <Button size="large" icon="delete" type="ghost">删除</Button>
             <Button size="large" icon="edit" type="ghost">修改</Button>
@@ -208,14 +191,16 @@ class AlarmGroup extends Component {
             >
             </Table>
           </Card>
-          <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
-            className="alarmModal"
-            closable={false}
+          <Modal title="创建新通知组" visible={this.state.createGroup}
+            width={560}
             maskClosable={false}
+            wrapClassName="AlarmModal"
+            className="alarmContent"
             footer={null}
           >
             <CreateAlarm funcs={modalFunc}/>
           </Modal>
+
         </div>
       </QueueAnim>
     )

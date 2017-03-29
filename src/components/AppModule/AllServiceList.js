@@ -44,6 +44,7 @@ import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
 import { SERVICE_KUBE_NODE_PORT } from '../../../constants'
 import CreateAlarm from './AlarmModal'
+import CreateGroup from './AlarmModal/CreateGroup'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -1237,11 +1238,21 @@ class ServiceList extends Component {
           </div>
           <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
             className="alarmModal"
-            closable={false}
+            onCancel={()=> this.setState({alarmModal:false})}
             maskClosable={false}
             footer={null}
           >
             <CreateAlarm funcs={modalFunc}/>
+          </Modal>
+           {/* 通知组 */}
+          <Modal title="创建新通知组" visible={this.state.createGroup}
+            width={560}
+            maskClosable={false}
+            wrapClassName="AlarmModal"
+            className="alarmContent"
+            footer={null}
+          >
+            <CreateGroup funcs={modalFunc}/>
           </Modal>
           <Modal
             title='垂直居中的对话框'
