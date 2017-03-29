@@ -52,6 +52,7 @@ let ClusterInfo = React.createClass ({
       this.setState({
         saveBtnLoading: true,
       })
+      values.isDefault = cluster.isDefault
       updateCluster(cluster.clusterID, values, {
         success: {
           func: result => {
