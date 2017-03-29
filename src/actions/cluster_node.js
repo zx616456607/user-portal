@@ -114,6 +114,7 @@ export const GET_ADD_NODE_CMD_FAILURE = 'GET_ADD_NODE_CMD_FAILURE'
 
 function fetchAddNodeCMD(cluster, callback) {
   return {
+    cluster,
     [FETCH_API]: {
       types: [GET_ADD_NODE_CMD_REQUEST, GET_ADD_NODE_CMD_SUCCESS, GET_ADD_NODE_CMD_FAILURE],
       endpoint: `${API_URL_PREFIX}/cluster-nodes/${cluster}/add-node-cmd`,
