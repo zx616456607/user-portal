@@ -14,6 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import CreateAlarm from '../AppModule/AlarmModal'
+import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 // import { calcuDate } from '../../../common/tools.js'
 import './style/AlarmRecord.less'
 import cloneDeep from 'lodash/cloneDeep'
@@ -205,6 +206,7 @@ class AlarmSetting extends Component {
     this.nextStep = this.nextStep.bind(this)
     this.cancelModal = this.cancelModal.bind(this)
     this.state = {
+      createGroup: false,
       step: 1, // first step create AlarmModal
     }
   }
@@ -350,11 +352,21 @@ class AlarmSetting extends Component {
           <MyComponent data={data}/>
           <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
             className="alarmModal"
-            closable={false}
+            onCancel={()=> this.setState({alarmModal:false})}
             maskClosable={false}
             footer={null}
           >
             <CreateAlarm funcs={modalFunc}/>
+          </Modal>
+          {/* 通知组 */}
+          <Modal title="创建新通知组" visible={this.state.createGroup}
+            width={560}
+            maskClosable={false}
+            wrapClassName="AlarmModal"
+            className="alarmContent"
+            footer={null}
+          >
+            <CreateGroup funcs={modalFunc}/>
           </Modal>
           {/*<Card>
             <Table className="strategyTable"

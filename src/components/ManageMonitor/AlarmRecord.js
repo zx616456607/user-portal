@@ -280,7 +280,7 @@ function mapStateToProps(state, props) {
   }
   const { current } = state.entities
   const { clusterID } = current.cluster
-  if (recordFilters && recordFilters.isFetching === false && recordFilters.result && recordFilters.result.code === 200) {
+  if (recordFilters && recordFilters.result) {
     recordFiltersData = recordFilters.result.data
   }
 
@@ -288,7 +288,7 @@ function mapStateToProps(state, props) {
     total: 0,
     records: [],
   }
-  if (records && records.isFetching === false && records.result && records.result && records.result.code === 200) {
+  if (records && records.result) {
     recordsData = records.result.data
   }
   return {
