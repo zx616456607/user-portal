@@ -16,7 +16,7 @@ import QueueAnim from 'rc-queue-anim'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../constants'
 import CreateAlarm from '../../AppModule/AlarmModal/CreateGroup'
 const InputGroup = Input.Group
-import { loadNotifyGroups } from '../../../actions/alert'
+import { loadNotifyGroups, deleteNotifyGroups } from '../../../actions/alert'
 import { connect } from 'react-redux'
 import moment from 'moment'
 
@@ -33,25 +33,52 @@ class AlarmGroup extends Component {
     const { loadNotifyGroups } = this.props
     loadNotifyGroups()
   }
-  hnadDelete(e, record) {
-    console.log('key is', e,record)
-  }
-  dropdowns (record){
+  dropdowns (record, group){
     // Dropdown delete btn
     return(
-      <Menu onClick={(key)=> this.hnadDelete(key, record)}
+      <Menu onClick={(record)=> this.handleDropdownClick(record, group)}
           style={{ width: '80px' }}
       >
-      <Menu.Item key="delete">
+      <Menu.Item key="delete"> 
         <span>删除</span>
       </Menu.Item>
       <Menu.Item key="edit">
         <span>修改</span>
       </Menu.Item>
-
     </Menu>
-
     )
+  }
+
+  // group must be an array. e.g. ['ID1'] or ['ID1', 'ID2']
+  deleteGroup(group) {
+    const {
+      deleteNotifyGroups,
+      loadNotifyGroups,
+    } = this.props
+
+    let notification = new NotificationHandler()
+    deleteNotifyGroups(group, {
+        success: {
+          func: (result) => {
+              notification.success(`删除成功`)
+              loadNotifyGroups()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+              notification.error(`删除失败`)
+          },
+          isAsync: true
+        }
+      })
+  }
+  handleDropdownClick(record, group) {
+    if (record.key == 'delete') {
+
+    } else if (record.key == 'edit') {
+
+    }
   }
 
   getGroupEmails(emails){
@@ -139,7 +166,7 @@ class AlarmGroup extends Component {
       title:'操作',
       dataIndex:'handle',
       width:'10%',
-      render:text => <Dropdown.Button type="ghost" overlay={ this.dropdowns(text) } onClick={()=> this.setState({lookModel: true})}>删除</Dropdown.Button>
+      render:(text, group) => <Dropdown.Button type="ghost" overlay={ this.dropdowns(text, group) } onClick={()=> this.setState({lookModel: true})}>删除</Dropdown.Button>
     }]
 
     let tableData = []
@@ -151,6 +178,7 @@ class AlarmGroup extends Component {
         email: item.receivers.email,
         createTime: moment(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
         strategies: item.strategies,
+        groupID: item.groupID,
       })
     })
 
@@ -172,18 +200,6 @@ class AlarmGroup extends Component {
               <Input size="large" id="AlarmGroupInput" onPressEnter={()=> this.handSearch()} />
               <i className="fa fa-search" onClick={()=> this.handSearch()} />
             </div>
-            <div className="rightPage pageBox">
-              <span className='totalPage'>共 {tableData.length} 条</span>
-              <div className='paginationBox'>
-                <Pagination
-                  simple
-                  className='inlineBlock'
-                  onChange={(page)=> this.onPageChange(page)}
-                  current={DEFAULT_PAGE}
-                  pageSize={DEFAULT_PAGE_SIZE}
-                  total={ tableData.length } />
-              </div>
-            </div>
           </div>
           <Card className='alarmGroupContent'>
             <Table
@@ -203,7 +219,9 @@ class AlarmGroup extends Component {
             className="alarmContent"
             footer={null}
           >
-            <CreateAlarm funcs={modalFunc}/>
+            <CreateAlarm funcs={modalFunc}
+            afterCreateFunc={() => this.props.loadNotifyGroups()}
+            />
           </Modal>
           <Modal title="删除通知组" visible={this.state.deleteModal}
             onCancel={()=> this.setState({deleteModal: false})}
@@ -217,7 +235,6 @@ class AlarmGroup extends Component {
   }
 }
 
-
 function mapStateToProps(state, props) {
   let groupsData = []
   if (state.alert.groups.isFetching === false && state.alert.groups.result.code === 200 && state.alert.groups.result.data) {
@@ -230,4 +247,5 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   loadNotifyGroups,
+  deleteNotifyGroups,
 })(AlarmGroup)
