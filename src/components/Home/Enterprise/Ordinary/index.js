@@ -341,9 +341,7 @@ class Ordinary extends Component {
     }
     let volumeUsed = Math.ceil(volumeAllocated / volumeCapacity * 100)
     let canCreateContainer = Math.floor((clusterSummaryCapacity.memory - clusterSummaryUsed.memory) / 512 / 1024)
-    
 
-    console.log(volumeUsed)
 
     let allocatedPod = clusterStaticSummary.pod
     let allocatedPodNumber = 0
