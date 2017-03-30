@@ -10,6 +10,13 @@
 
 import React from 'react'
 import { Input, Form, Icon, Button, Modal } from 'antd'
+import { sendAlertNotifyInvitation, getAlertNotifyInvitationStatus, createNotifyGroup } from '../../../actions/alert'
+import { connect } from 'react-redux'
+import NotificationHandler from '../../../common/notification_handler'
+
+const EMAIL_STATUS_WAIT_SEND = 0
+const EMAIL_STATUS_WAIT_ACCEPT = 1
+const EMAIL_STATUS_ACCEPTED = 2
 
 // create alarm group from
 let mid = 0
@@ -60,11 +67,60 @@ let CreateAlarmGroup = React.createClass({
       callback(new Error('请输入邮箱地址'))
       isAddEmail = false
     }
+    if (!/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(value)) {
+      callback(new Error('请输入正确的邮箱地址'))
+      isAddEmail = false
+    }
     callback()
     this.setState({isAddEmail})
   },
-  ruleEmail() {
+  ruleEmail(k) {
     // send rule email
+    const _this = this
+    const { getFieldValue } = this.props.form
+    const {
+      sendAlertNotifyInvitation,
+      getAlertNotifyInvitationStatus,
+    } = this.props
+    let email = getFieldValue(`email${k}`)
+    if (email) {
+      // check if email already accept invitation
+      getAlertNotifyInvitationStatus(email, {
+        success: {
+          func: (result) => {
+            if (email in result.data && result.data[email] === 1) {
+              _this.setState({[`emailStatus${k}`]: EMAIL_STATUS_ACCEPTED})
+            } else {
+              sendNotify(email)
+            }
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            notification.error(`向 ${email} 发送邮件邀请失败`)
+          },
+          isAsync: true
+        }
+      })
+      let sendNotify = function(email) {
+        let notification = new NotificationHandler()
+        sendAlertNotifyInvitation([email], {
+          success: {
+            func: (result) => {
+              _this.setState({[`emailStatus${k}`]: EMAIL_STATUS_WAIT_ACCEPT})
+            },
+            isAsync: true
+          },
+          failed: {
+            func: (err) => {
+              notification.error(`向 ${email} 发送邮件邀请失败`)
+            },
+            isAsync: true
+          }
+        })
+      }
+    }
   },
   emailName(rule, value, callback) {
     // top email rule name
@@ -98,14 +154,60 @@ let CreateAlarmGroup = React.createClass({
     this.setState({isAddEmail: true})
   },
   okModal() {
-    const { form } = this.props
+    const { form, createNotifyGroup, funcs, afterCreateFunc } = this.props
     form.validateFields((error, values) => {
       if (!!error) {
         return
       }
-      console.log('vaelue----', values)
-
+      let body = {
+        name: values.emailName,
+        desc: values.emailDesc,
+        receivers: {
+          email: []
+        },
+      }
+      values.keys.map(function(k) {
+        if (values[`email${k}`]) {
+          body.receivers.email.push({
+            addr: values[`email${k}`],
+            desc: values[`remark${k}`] || '',
+          })
+        }
+      })
+      createNotifyGroup(body, {
+        success: {
+          func: (result) => {
+            funcs.scope.setState({ createGroup: false, alarmModal: true})
+            form.resetFields()
+            this.setState({isAddEmail: true})
+            if (afterCreateFunc) {
+              afterCreateFunc()
+            }
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            console.log('error', err)
+            let notification = new NotificationHandler()
+            notification.error(`向 ${email} 发送邮件邀请失败`)
+          },
+          isAsync: true
+        }
+      })
     })
+  },
+  getEmailStatusText(k) {
+    let text = '验证邮箱'
+    switch (this.state[`emailStatus${k}`]) {
+      case EMAIL_STATUS_WAIT_ACCEPT:
+        text = '已发送验证邮件'
+        break;
+      case EMAIL_STATUS_ACCEPTED:
+        text = '已接收邀请'
+        break;
+    }
+    return text
   },
   render() {
     const formItemLayout = {
@@ -117,6 +219,7 @@ let CreateAlarmGroup = React.createClass({
     getFieldProps('keys', {
       initialValue: [],
     });
+
     const formItems = getFieldValue('keys').map((k) => {
       return (
         <div key={k} style={{clear:'both'}}>
@@ -130,8 +233,10 @@ let CreateAlarmGroup = React.createClass({
           }) } style={{ width: '150px', marginRight: 8 }}
           />
         </Form.Item>
-          <Input placeholder="备注"size="large" style={{ width: 100,  marginRight: 8 }} />
-          <Button type="primary" size="large" onClick={()=> this.ruleEmail()}>验证邮箱</Button>
+          <Form.Item style={{float:'left'}}>
+            <Input placeholder="备注"size="large" style={{ width: 100,  marginRight: 8 }} {...getFieldProps(`remark${k}`)}/>
+          </Form.Item>
+          <Button type="primary" disabled={this.state[`emailStatus${k}`] == EMAIL_STATUS_WAIT_ACCEPT || this.state[`emailStatus${k}`] == EMAIL_STATUS_ACCEPTED} size="large" onClick={()=> this.ruleEmail(k)}>{this.getEmailStatusText(k)}</Button>
           <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removeEmail(k)}>取消</Button>
         </div>
       );
@@ -170,6 +275,12 @@ let CreateAlarmGroup = React.createClass({
 })
 
 CreateAlarmGroup = Form.create()(CreateAlarmGroup)
+function mapStateToProps(state, props) {
+  return {}
+}
 
-
-export default CreateAlarmGroup
+export default connect(mapStateToProps, {
+  sendAlertNotifyInvitation,
+  getAlertNotifyInvitationStatus,
+  createNotifyGroup,
+})(CreateAlarmGroup)
