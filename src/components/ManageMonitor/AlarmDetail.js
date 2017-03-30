@@ -24,6 +24,9 @@ class AlarmDetail extends Component {
       delBtn: true
     }
   }
+  componentWillMount() {
+    document.title = '告警设置 | 时速云 '
+  }
   handDelete() {
     console.log('click delBtn')
   }
@@ -54,11 +57,6 @@ class AlarmDetail extends Component {
         dataIndex: 'target',
         key:'target',
       },
-      {
-        title: '通知列表',
-        dataIndex: 'assign',
-        key:'assign',
-      }
     ];
 
     const data = [
@@ -129,7 +127,7 @@ class AlarmDetail extends Component {
                 <div className="title">基本属性</div>
                 <div className="baseAttr"><span className="keys">策略名称：</span>celue1</div>
                 <div className="baseAttr"><span className="keys">类型：</span>服务</div>
-                <div className="baseAttr"><span className="keys">告警对象</span>服务名称</div>
+                <div className="baseAttr"><span className="keys">告警对象：</span>服务名称</div>
                 <div className="baseAttr"><span className="keys">状态：</span><span style={{color: '#33b867'}}><i className="fa fa-circle" /> 启用</span></div>
                 <div className="baseAttr"><span className="keys">监控周期：</span>5分钟</div>
                 <div className="baseAttr">
@@ -140,11 +138,12 @@ class AlarmDetail extends Component {
                   </RadioGroup>
                 </div>
                 <div className="baseAttr"><span className="keys">最后修改人：</span>admin</div>
+                <div className="baseAttr"><span className="keys">通知列表：</span>admin</div>
                 <div className="baseAttr"><span className="keys">创建时间：</span>{formatDate()}</div>
               </Card>
               <Card style={{marginTop:'15px',paddingBottom:'50px'}}>
                 <div className="title">租赁信息</div>
-                <div className="baseAttr" style={{color: '#2DB7F5'}}>本服务暂不收费</div>
+                <div className="baseAttr" style={{color: '#2DB7F5'}}>本服务暂不收费！</div>
               </Card>
             </Col>
             <Col span="18">

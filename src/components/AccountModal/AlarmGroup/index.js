@@ -30,6 +30,7 @@ class AlarmGroup extends Component {
      }
   }
   componentWillMount() {
+    document.title = '告警通知组 | 时速云'
     const { loadNotifyGroups } = this.props
     loadNotifyGroups()
   }
@@ -39,7 +40,7 @@ class AlarmGroup extends Component {
       <Menu onClick={(record)=> this.handleDropdownClick(record, group)}
           style={{ width: '80px' }}
       >
-      <Menu.Item key="delete"> 
+      <Menu.Item key="delete">
         <span>删除</span>
       </Menu.Item>
       <Menu.Item key="edit">
@@ -166,7 +167,7 @@ class AlarmGroup extends Component {
       title:'操作',
       dataIndex:'handle',
       width:'10%',
-      render:(text, group) => <Dropdown.Button type="ghost" overlay={ this.dropdowns(text, group) } onClick={()=> this.setState({lookModel: true})}>删除</Dropdown.Button>
+      render:(text, group) => <Dropdown.Button type="ghost" overlay={ this.dropdowns(text, group) } onClick={()=> this.setState({deleteModal: true})}>删除</Dropdown.Button>
     }]
 
     let tableData = []
@@ -182,10 +183,16 @@ class AlarmGroup extends Component {
       })
     })
 
+    const _this = this
     const rowSelection = {
-      // getCheckboxProps: record => ({
-      //   disabled: record.name === '胡彦祖',    // 配置无法勾选的列
-      // }),
+      onChange(selectedRowKeys, selectedRows) {
+        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+        let btnAll = true
+        if (selectedRows.length >0) {
+          btnAll = false
+        }
+        _this.setState({btnAll, selectedRows})
+      }
     }
 
     return (
