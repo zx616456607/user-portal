@@ -52,15 +52,12 @@
         height: 40px;
         line-height: 40px;
       }
-      .checkBox {
-        padding-left: 7px;
-        width: 30px;
-      }
       .name {
         width: 10%;
+        padding-left: 10px;
       }
       .address {
-        width: 7%;
+        width: 8%;
       }
       .status {
         width: calc(~"10% - 10px");
@@ -69,13 +66,13 @@
         width: 10%;
       }
       .container {
-        width: 7%;
+        width: 6%;
       }
       .cpu,
       .memory,
       .disk {
         position: relative;
-        width: 7%;
+        width: 6%;
         .topSpan {
           position: absolute;
           top: 10px;
@@ -101,14 +98,40 @@
         }
       }
       .runningTime {
-        width: 7%;
+        width: 6%;
       }
       .startTime {
         width: 10%;
       }
       .opera {
         padding-left: 10px;
-        width: calc(~"17% - 20px");
+        width: 14%
+      }
+      .alarm {
+        width: 6%;
+        .managemoniter {
+          width: 18px;height: 18px;
+          fill: #C7CBCE;
+          margin:0 5px;
+          cursor: pointer;
+          vertical-align: middle;
+        }
+        i {
+          font-size: 16px;
+          cursor: pointer;
+          color: #C7CBCE;
+          line-height: 2;
+          transition: all 0.2s ease-in-out;
+          vertical-align: middle;
+          &:hover {
+            color: #10B5FF;
+            transform: rotate(40deg);
+            -webkit-transform: rotate(40deg);
+            -moz-transform: rotate(40deg);
+            -o-transform: rotate(40deg);
+            -ms-transform: rotate(40deg);
+          }
+        }
       }
       .runningSpan {
         color: #33b867;
@@ -158,10 +181,6 @@
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
-        }
-        .ant-switch-checked {
-          border-color: rgb(40, 189, 131) !important;
-          background-color: rgb(40, 189, 131) !important;
         }
         .ant-btn-ghost:first-child {
           position: relative;

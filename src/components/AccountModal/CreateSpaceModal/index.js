@@ -98,14 +98,14 @@ let CreateSpaceModal = React.createClass({
     })
     const descriptionProps = getFieldProps('description')
     const formItemLayout = {
-      labelCol: { span: 4 },
-      wrapperCol: { span: 18 },
+      labelCol: { span: 2 },
+      wrapperCol: { span: 21 },
     }
     return (
       <Modal title="创建新空间" visible={visible}
         onOk={this.handleOk} onCancel={this.handleCancel}
         wrapClassName="addSpaceModal"
-        width="463px"
+        width="500px"
         footer={[
           <Button
             key="back"

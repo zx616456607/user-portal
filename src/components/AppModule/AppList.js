@@ -27,6 +27,7 @@ import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
 import CreateAlarm from './AlarmModal'
+import CreateGroup from './AlarmModal/CreateGroup'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -1028,11 +1029,21 @@ class AppList extends Component {
           </Card>
           <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
             className="alarmModal"
-            closable={false}
+            onCancel={()=> this.setState({alarmModal:false})}
             maskClosable={false}
             footer={null}
           >
             <CreateAlarm funcs={modalFunc}/>
+          </Modal>
+          {/* 通知组 */}
+          <Modal title="创建新通知组" visible={this.state.createGroup}
+            width={560}
+            maskClosable={false}
+            wrapClassName="AlarmModal"
+            className="alarmContent"
+            footer={null}
+          >
+            <CreateGroup funcs={modalFunc}/>
           </Modal>
         </div>
       </QueueAnim>

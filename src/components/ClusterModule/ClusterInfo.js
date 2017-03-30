@@ -52,6 +52,7 @@ let ClusterInfo = React.createClass ({
       this.setState({
         saveBtnLoading: true,
       })
+      values.isDefault = cluster.isDefault
       updateCluster(cluster.clusterID, values, {
         success: {
           func: result => {
@@ -204,16 +205,16 @@ let ClusterInfo = React.createClass ({
               { editCluster ?
                 <Input {...nameProps} placeholder="输入集群名称" />
                 :
-                <span className="blod">{clusterName}</span>
+                <div className="blod cluserName textoverflow">{clusterName}</div>
               }
             </Form.Item>
             <Form.Item>
               <div className="h4">API Server：</div>
-              <span>{apiUrl}</span>
+              <div className="textoverflow">{apiUrl}</div>
             </Form.Item>
             <Form.Item>
               <div className="h4">API Token：</div>
-              <span>{apiToken}</span>
+              <div className="textoverflow">{apiToken}</div>
             </Form.Item>
 
           </div>
@@ -234,7 +235,7 @@ let ClusterInfo = React.createClass ({
               { editCluster ?
               <Input {...bindingDomainsProps} placeholder="输入域名列表，多个域名英文逗号分开" type="textarea" />
               :
-              <span>{bindingDomains || '-'}</span>
+              <span className="cluserName textoverflow">{bindingDomains || '-'}</span>
               }
             </Form.Item>
           </div>
@@ -251,11 +252,11 @@ let ClusterInfo = React.createClass ({
               }
             </Form.Item>
             <Form.Item>
-              <span className="h5" style={{verticalAlign:'top',lineHeight:'30px'}}>描述：&nbsp;&nbsp;</span>
+              <span className="h5" style={{display: 'inline-block',verticalAlign:'top',lineHeight:'30px'}}>描述：&nbsp;&nbsp;</span>
               { editCluster ?
               <Input {...descProps} type="textarea" placeholder="添加描述" defaultValue={description} />
               :
-              <Input value={description || '-'} type="textarea" disabled={true}  style={{width:'70%'}}/>
+              <Input value={description || '-'} autosize={{minRows: 2, maxRows: 4}} type="textarea" disabled={true}  style={{width:'70%'}}/>
               }
             </Form.Item>
           </div>

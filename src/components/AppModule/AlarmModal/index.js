@@ -11,7 +11,8 @@
 import React, { Component } from 'react'
 import { Radio, Input, InputNumber, Form, Select, Icon, Button, Modal } from 'antd'
 import './style/AlarmModal.less'
-import { validateK8sResourceForServiceName } from '../../../common/naming_validation'
+import CreateAlarmGroup from './CreateGroup'
+import NotificationHandler from '../../../common/notification_handler'
 
 const Option = Select.Option
 const RadioGroup = Radio.Group
@@ -452,14 +453,18 @@ TwoStepNetwork = Form.create()(TwoStepNetwork)
 let TwoStop = React.createClass({
   getInitialState() {
     return {
-      newselectCpu: 1
+      // newselectCpu: 1,
+      typeProps_0: ['%']
     }
   },
   removeRule(k) {
     const { form } = this.props;
-    if (!k) return
-    // can use data-binding to get
     let cpu = form.getFieldValue('cpu');
+    if (cpu.length == 1) {
+      new NotificationHandler().info('至少得有一项规则')
+      return
+    }
+    // can use data-binding to get
     cpu = cpu.filter((key) => {
       return key !== k;
     });
@@ -472,6 +477,7 @@ let TwoStop = React.createClass({
     // })
   },
   addRule() {
+    const _this = this
     const { form } = this.props;
     form.validateFields((error, values) => {
       if (!!error) {
@@ -481,6 +487,8 @@ let TwoStop = React.createClass({
       uuid++;
       // can use data-binding to get
       let cpu = form.getFieldValue('cpu');
+      let typeProps = `typeProps_${uuid}`
+      _this.setState({[typeProps]: '%'})
       cpu = cpu.concat(uuid);
       // can use data-binding to set
       // important! notify form to detect changes
@@ -503,24 +511,37 @@ let TwoStop = React.createClass({
     console.log('network', form.getFieldValue('network'))
     funcs.nextStep(3)
   },
+  changeType(key, type) {
+    let typeProps = `typeProps_${key}`
+    if (type == 'download' || type == 'upload') {
+      this.setState({[typeProps]: 'KB/s'})
+      return
+    }
+    this.setState({[typeProps]: '%'})
+  },
   render() {
     const { getFieldProps, getFieldValue } = this.props.form;
     const { funcs } = this.props
     getFieldProps('cpu', {
-      initialValue: [],
+      initialValue: [0],
     });
     const cpuItems = getFieldValue('cpu').map((key) => {
       return (
         <div className="ruleItem" key={key}>
           <Form.Item>
-            <Select placeholder="CPU利用率" {...getFieldProps(`used_name@${key}`, {
+            <Select {...getFieldProps(`used_name@${key}`, {
               rules: [{
                 required: true,
                 whitespace: true,
                 message: '请选择类型',
               }],
+              initialValue: 'CPU',
+              onChange: (type)=> this.changeType(key, type)
             }) } style={{ width: 135 }} >
-              <Option value="5min">50分钟</Option>
+              <Option value="CPU">CPU利用率</Option>
+              <Option value="memory">内存利用率</Option>
+              <Option value="upload">上载流量</Option>
+              <Option value="download">下载流量</Option>
 
             </Select>
           </Form.Item>
@@ -531,6 +552,7 @@ let TwoStop = React.createClass({
                 whitespace: true,
                 message: '请选择类型',
               }],
+              initialValue: '>'
             }) } style={{ width: 80 }} >
               <Option value=">">></Option>
               <Option value="=">=</Option>
@@ -544,18 +566,22 @@ let TwoStop = React.createClass({
                 whitespace: true,
                 message: '请输入数值',
               }],
+              initialValue: '0'
             }) } style={{ width: 80 }} />
           </Form.Item>
           <Form.Item>
-            <Select {...getFieldProps(`used_symbol@${key}`, {
+            {/*<Select {...getFieldProps(`used_symbol@${key}`, {
               rules: [{
                 required: true,
                 whitespace: true,
                 message: '请选择单位',
               }],
+              initialValue: '%'
             }) } style={{ width: 80 }} >
               <Option value="%">%</Option>
-            </Select>
+              <Option value="KB/s">KB/s</Option>
+            </Select>*/}
+            <Input style={{ width: 80 }} {...getFieldProps(`used_symbol@${key}`) } value={this.state[`typeProps_${key}`]} />
           </Form.Item>
           <span className="rightBtns">
             <Button type="primary" onClick={this.addRule} size="large" icon="plus"></Button>
@@ -568,68 +594,18 @@ let TwoStop = React.createClass({
     return (
       <Form className="alarmRule" inline={true} form={this.props.form}>
         {/* ------------- cpu Item --------------*/}
-        <div className="ruleItem">
-          <Form.Item>
-            <Select placeholder="CPU利用率" {...getFieldProps(`used_name`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请选择类型',
-              }],
-            }) } style={{ width: 135, }} >
-              <Option value="5min">50分钟</Option>
 
-            </Select>
-          </Form.Item>
-          <Form.Item>
-            <Select {...getFieldProps(`used_rule`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请选择类型',
-              }],
-            }) } style={{ width: 80 }} >
-              <Option value=">">></Option>
-              <Option value="=">=</Option>
-
-            </Select>
-          </Form.Item>
-          <Form.Item>
-            <input type="number" className="ant-input-number-input inputBorder" min="1" max="100" {...getFieldProps(`used_data`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请输入数值',
-              }],
-            }) } style={{ width: 80 }} />
-          </Form.Item>
-          <Form.Item>
-            <Select {...getFieldProps(`used_symbol`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请选择单位',
-              }],
-            }) } style={{ width: 80 }} >
-              <Option value="%">%</Option>
-            </Select>
-          </Form.Item>
-          <span className="rightBtns">
-            <Button type="primary" onClick={this.addRule} size="large" icon="plus"></Button>
-            {/*<Button type="ghost" onClick={() => this.removeRule()} size="large" icon="cross"></Button>*/}
-          </span>
-          <div className="notes"><Icon type="exclamation-circle-o" /> CPU利用率= 所有pod占用CPU之和/CPU资源总量</div>
-        </div>
         {cpuItems}
 
         {/*----------- memory Item ---------------*/}
-        <TwoStepMemory />
+        {/*<TwoStepMemory />*/}
 
         {/*------------ network item ------------- */}
-        <TwoStepNetwork />
+        {/*<TwoStepNetwork />*/}
         <div className="alertRule">
-          <Icon type="exclamation-circle-o" />
-          公有云标准版用户可以创建两条策略，每条策略两条规则，公有云专业版和私有云用户没有限制
+          <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有pod占用CPU之和/CPU资源总量
+          <a style={{marginLeft: 20}}>内存使用率</a>= 所有pod占用内存之和/内存资源总量
+
         </div>
         {/*  footer btn */}
         <div className="wrapFooter">
@@ -642,159 +618,6 @@ let TwoStop = React.createClass({
 })
 
 TwoStop = Form.create()(TwoStop)
-
-// create alarm group from
-let mid = 0
-let AlarmGroup = React.createClass({
-  getInitialState() {
-    return {
-      isAddEmail: 1
-    }
-  },
-  removeEmail(k) {
-    const { form } = this.props;
-    // can use data-binding to get
-    let keys = form.getFieldValue('keys');
-    keys = keys.filter((key) => {
-      return key !== k;
-    });
-    // can use data-binding to set
-    form.setFieldsValue({
-      keys,
-    });
-    this.setState({isAddEmail: 1})
-  },
-  addEmail() {
-    console.log(this.state)
-    if (!this.state.isAddEmail) return
-    const { form } = this.props
-    // form.validateFields((error, values) => {
-    //   if (!!error) {
-    //     return
-    //   }
-    //   console.log('vaelue', values)
-
-    // })
-    mid++;
-    // can use data-binding to get
-    let keys = form.getFieldValue('keys');
-    keys = keys.concat(mid);
-    // can use data-binding to set
-    // important! notify form to detect changes
-    form.setFieldsValue({
-      keys,
-    });
-    this.setState({isAddEmail: false})
-  },
-  addRuleEmail(rule, value, callback) {
-    if(!Boolean(value)) {
-      callback(new Error('请输入邮箱地址'))
-      return
-    }
-    callback()
-  },
-  ruleEmail() {
-    // send rule email
-  },
-  emailName(rule, value, callback) {
-    // top email rule name
-    if (!Boolean(value)) {
-      callback(new Error('请输入名称'))
-      return
-    }
-    if (value.length < 3 || value.length > 21) {
-      callback(new Error('请输入3~21个字符'))
-      return
-    }
-    callback()
-  },
-  submitAddEmail() {
-    // submit add email modal
-    // console.log('getFielsv',this.props.form.getFieldsValue());
-    const { form } = this.props
-    form.validateFields((error, values) => {
-      if (!!error) {
-        console.log('error is')
-        return
-      }
-      console.log('submitVaelue', values)
-
-    })
-  },
-  handCancel() {
-    const {funcs,form } = this.props
-     funcs.scope.setState({ createGroup: false, alarmModal: true})
-     form.resetFields()
-  },
-  render() {
-    const formItemLayout = {
-      labelCol: { span: 3 },
-      wrapperCol: { span: 21 },
-    };
-    const { getFieldProps, getFieldValue } = this.props.form;
-    const { funcs } = this.props
-    getFieldProps('keys', {
-      initialValue: [],
-    });
-    const formItems = getFieldValue('keys').map((k) => {
-      return (
-        <div key={k} style={{clear:'both'}}>
-        <Form.Item style={{float:'left'}}>
-          <Input {...getFieldProps(`email${k}`, {
-            rules: [{
-              whitespace: true,
-            },
-            {validator: this.addRuleEmail}
-            ],
-          }) } style={{ width: '150px', marginRight: 8 }}
-          />
-        </Form.Item>
-          <Input placeholder="备注"size="large" style={{ width: 100,  marginRight: 8 }} />
-          <Button type="primary" size="large" onClick={()=> this.ruleEmail()}>验证邮箱</Button>
-          <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removeEmail(k)}>取消</Button>
-        </div>
-      );
-    });
-    return (
-      <Modal title="创建新列表" visible={funcs.scope.state.createGroup}
-          width={580}
-          maskClosable={false}
-          wrapClassName="AlarmModal"
-          className="alarmContent"
-          onCancel={() =>this.handCancel()}
-          onOk={()=> this.submitAddEmail()}
-        >
-        <Form className="alarmAction" form={this.props.form}>
-          <Form.Item label="名称" {...formItemLayout} >
-            <Input {...getFieldProps(`emailName`, {
-            rules: [{ whitespace: true },
-              { validator: this.emailName}
-            ]}) }
-          />
-          </Form.Item>
-          <Form.Item label="描述" {...formItemLayout} >
-            <Input type="textarea" {...getFieldProps(`emailDesc`, {
-            rules: [{ whitespace: true },
-            ]}) }/>
-          </Form.Item>
-          <div className="lables">
-            <div className="keys">
-              邮箱
-            </div>
-            <div className="emaillItem" >
-
-              {formItems}
-              <div style={{clear:'both'}}><a onClick={() => this.addEmail()}><Icon type="plus-circle-o" /> 添加邮箱</a></div>
-            </div>
-          </div>
-
-        </Form>
-      </Modal>
-    )
-  }
-})
-
-AlarmGroup = Form.create()(AlarmGroup)
 
 class AlarmModal extends Component {
   constructor(props) {
@@ -815,7 +638,7 @@ class AlarmModal extends Component {
       wrapperCol: { span: 17 },
     };
     const { funcs } = this.props
-    console.log('step is:', funcs.scope.state.step)
+    console.log('step is:', funcs.scope.state)
     return (
       <div className="AlarmModal">
         <div className="topStep">
@@ -846,7 +669,7 @@ class AlarmModal extends Component {
 
                 </Select>
                 <div style={{ marginTop: 10 }}>
-                  <Button icon="plus" onClick={() => funcs.scope.setState({ createGroup: true, alarmModal: false })} size="large" type="primary">新建组</Button>
+                  <Button icon="plus" onClick={()=> funcs.scope.setState({ alarmModal: false,createGroup: true })} size="large" type="primary">新建组</Button>
                 </div>
               </Form.Item>
             </Form>
@@ -856,8 +679,15 @@ class AlarmModal extends Component {
             </div>
           </div>
         </div>
-
-        <AlarmGroup funcs={funcs} />
+        <Modal title="创建新通知组" visible={this.state.createGroup}
+          width={560}
+          maskClosable={false}
+          wrapClassName="AlarmModal"
+          className="alarmContent"
+          footer={null}
+        >
+          <CreateAlarmGroup funcs={funcs} />
+        </Modal>
 
       </div>
     )

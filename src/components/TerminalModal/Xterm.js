@@ -83,6 +83,14 @@ class TerminalModal extends Component {
     }
   }
 
+  closeIframeTerm(key) {
+    const frame = window.frames[key]
+    if (!frame || !frame.contentWindow) {
+      return
+    }
+    frame.contentWindow.closeTerminal()
+  }
+
   componentWillUnmount() {
     window.removeEventListener('resize', this.updateMinSize)
   }
@@ -168,6 +176,14 @@ class TerminalModal extends Component {
   closeTerminalItem(item, e) {
     e.stopPropagation()
     const { clusterID, removeTerminal } = this.props
+    const { resize } = this.state
+    if (resize === 'min') {
+      this.setState({
+        resize: 'normal',
+        size: DEFAULT_SIZE,
+      })
+    }
+    this.closeIframeTerm(item.metadata.key)
     removeTerminal(clusterID, item)
   }
 
@@ -244,8 +260,7 @@ class TerminalModal extends Component {
                   {this.renderTermStatus(terminalStatus, item)}
                   <iframe
                     id={name}
-                    key={'iframe' + index}
-                    src={`/js/container_terminal.html?namespace=${namespace}&pod=${name}&cluster=${clusterID}&_=20170327`} />
+                    src={`/js/container_terminal.html?namespace=${namespace}&pod=${name}&cluster=${clusterID}&_=20170330`} />
                 </div>
               </TabPane>
             )
@@ -256,7 +271,8 @@ class TerminalModal extends Component {
   }
 
   closeXterm() {
-    const { clusterID, removeAllTerminal } = this.props
+    const { clusterID, removeAllTerminal, list } = this.props
+    list.map(item => this.closeIframeTerm(item.metadata.key))
     removeAllTerminal(clusterID)
   }
 
@@ -297,8 +313,11 @@ class TerminalModal extends Component {
 function mapStateToProps(state, props) {
   const { entities, terminal } = state
   const { current, loginUser } = entities
-  const clusterID = current.cluster.clusterID
+  let clusterID = current.cluster.clusterID
   const { list, active } = terminal
+  if (active.cluster) {
+    clusterID = active.cluster
+  }
   return {
     clusterID,
     loginUser: loginUser.info,

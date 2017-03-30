@@ -8,41 +8,41 @@
  * @author ZhangChengZheng
  */
 import React, { Component } from 'react'
-import { Card, Spin, Icon, Select, Tabs, Button, Steps, Checkbox, Input, Table } from 'antd'
+import { Card, Spin, Icon, Select, Tabs, Button, Steps, Checkbox, Input, Table, Tooltip } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import ReactEcharts from 'echarts-for-react'
 import './style/MirrorLayered.less'
 
-const TabPane = Tabs.TabPane
 const Step = Steps.Step
-const Option = Select.Option
 
 class MirrorLayered extends Component {
-
-  testContent() {
-    return (
-      <div className='safetytabitem'>
-        <div className='safetytabitemleft'>1111111111111111111</div>
-        <span className='safetytabitemtitle'>CMD</span>
-        <div className='safetytabitemdescription'>
-          dsadadadadddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-				</div>
-      </div>
-    )
+  constructor(props){
+    super(props)
+    this.testContent = this.testContent.bind(this)
   }
 
-  render() {
+  testContent(){
+    const {mirrorLayeredinfo} = this.props
+    const mirrorLayeredStep = mirrorLayeredinfo.map((item, index) =>{
+      return (
+        <Step title={null} description={ <div className='safetytabitem'>
+          <Tooltip title={item.iD}>
+            <div className='safetytabitemleft'>{item.iD}</div>
+          </Tooltip>
+          <span className='safetytabitemtitle'>{item.command.action}</span>
+          <div className='safetytabitemdescription'>
+            {item.command.parameters}
+          </div>
+        </div> } className='safetycontentmianitem' key={index}/>
+      )
+    })
+    return mirrorLayeredStep
+  }
+
+  render(){
     return (
       <div id='MirrorLayered'>
         <Steps direction="vertical" current={2} className='safetycontentmian'>
-          <Step title={null} description={this.testContent()} className='safetycontentmianitem' />
-          <Step title={null} description={this.testContent()} className='safetycontentmianitem' />
-          <Step title={null} description={this.testContent()} className='safetycontentmianitem' />
-          <Step title={null} description={this.testContent()} className='safetycontentmianitem' />
-          <Step title={null} description={this.testContent()} className='safetycontentmianitem' />
-          <Step title={null} description={this.testContent()} className='safetycontentmianitem' />
-          <Step title={null} description={this.testContent()} className='safetycontentmianitem' />
-          <Step title={null} description={this.testContent()} className='safetycontentmianitem' />
+          {this.testContent()}
         </Steps>
       </div>
     )
