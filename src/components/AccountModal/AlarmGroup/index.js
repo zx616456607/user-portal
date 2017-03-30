@@ -24,7 +24,9 @@ class AlarmGroup extends Component {
   constructor(props) {
     super(props)
      this.state = {
-       createGroup: false,
+        createGroup: false,
+        deleteModal: false,
+        btnAll: true
      }
   }
   componentWillMount() {
@@ -96,7 +98,7 @@ class AlarmGroup extends Component {
         </Popover>
       )
     }
-    
+
     return (
       <div>
         {emails.length > 0 && `${emails[0].addr}(${emails[0].desc})`}
@@ -192,7 +194,7 @@ class AlarmGroup extends Component {
           <div className='alarmGroupHeader'>
             <Button size="large" type="primary" icon="plus" onClick={()=> this.setState({createGroup:true})}>创建</Button>
             <Button size="large" icon="reload" type="ghost" onClick={() => this.props.loadNotifyGroups()}>刷新</Button>
-            <Button size="large" icon="delete" type="ghost">删除</Button>
+            <Button size="large" disabled={this.state.btnAll} icon="delete" onClick={()=> this.setState({deleteModal: true})} type="ghost">删除</Button>
             <Button size="large" icon="edit" type="ghost">修改</Button>
             <div className="Search">
               <Input size="large" id="AlarmGroupInput" onPressEnter={()=> this.handSearch()} />
@@ -221,7 +223,12 @@ class AlarmGroup extends Component {
             afterCreateFunc={() => this.props.loadNotifyGroups()}
             />
           </Modal>
-
+          <Modal title="删除通知组" visible={this.state.deleteModal}
+            onCancel={()=> this.setState({deleteModal: false})}
+            onOk={()=> console.log(this.state.selectedRowKeys)}
+          >
+            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>告警通知组删除后，与之关联的策略将无法发送邮件告警，是否确定删除？</div>
+          </Modal>
         </div>
       </QueueAnim>
     )
