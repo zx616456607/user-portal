@@ -332,15 +332,18 @@ class Ordinary extends Component {
     let cpuUsed = Math.ceil(clusterSummaryUsed.cpu / clusterSummaryCapacity.cpu * 100)
     let memoryUsed = Math.ceil(clusterSummaryUsed.memory / clusterSummaryCapacity.memory * 100)
     let volumeCapacity = volumeSummary.total
+
     let volumeAllocated = parseInt(volumeSummary.allocated)
-    if (volumeCapacity.toLowerCase().indexOf('g')) {
+    if (volumeCapacity.toLowerCase().indexOf('g') > 0) {
       volumeCapacity = parseInt(volumeCapacity) * 1024
+    } else {
+      volumeCapacity = parseInt(volumeCapacity)
     }
     let volumeUsed = Math.ceil(volumeAllocated / volumeCapacity * 100)
-    let capacityContainerNumber = Math.ceil(volumeCapacity / 512)
-    let allocatedContainerNumber = Math.ceil(volumeAllocated / 512)
     let canCreateContainer = Math.floor((clusterSummaryCapacity.memory - clusterSummaryUsed.memory) / 512 / 1024)
+    
 
+    console.log(volumeUsed)
 
     let allocatedPod = clusterStaticSummary.pod
     let allocatedPodNumber = 0
