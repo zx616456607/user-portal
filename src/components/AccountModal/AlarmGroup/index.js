@@ -81,8 +81,8 @@ class AlarmGroup extends Component {
     }
     let popover = null
     if (strategies.length > 1) {
-      const content = strategies.map(function(item) {
-        return <div className='alarmGroupContentRealtionPopOveritem'>{item.name}</div>
+      const content = strategies.map(function(item, i) {
+        return <div className='alarmGroupContentRealtionPopOveritem'>关联策略 {`${i + 1}：${item.name}`}</div>
       })
       popover = (
         <Popover placement="rightTop" content={content} trigger="click">
@@ -144,7 +144,6 @@ class AlarmGroup extends Component {
         name: item.name,
         desc: item.desc,
         email: item.receivers.email,
-        // createTime: moment(item.createTime).format(),
         createTime: moment(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
         strategies: item.strategies,
       })
