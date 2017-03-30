@@ -210,11 +210,11 @@ let ClusterInfo = React.createClass ({
             </Form.Item>
             <Form.Item>
               <div className="h4">API Server：</div>
-              <div className="cluserName textoverflow">{apiUrl}</div>
+              <div className="textoverflow">{apiUrl}</div>
             </Form.Item>
             <Form.Item>
               <div className="h4">API Token：</div>
-              <div className="cluserName textoverflow">{apiToken}</div>
+              <div className="textoverflow">{apiToken}</div>
             </Form.Item>
 
           </div>
@@ -252,7 +252,7 @@ let ClusterInfo = React.createClass ({
               }
             </Form.Item>
             <Form.Item>
-              <span className="h5" style={{verticalAlign:'top',lineHeight:'30px'}}>描述：&nbsp;&nbsp;</span>
+              <span className="h5" style={{display: 'inline-block',verticalAlign:'top',lineHeight:'30px'}}>描述：&nbsp;&nbsp;</span>
               { editCluster ?
               <Input {...descProps} type="textarea" placeholder="添加描述" defaultValue={description} />
               :

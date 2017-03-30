@@ -11,7 +11,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import { Icon, Button, Card, Tabs, Table, Input, Spin, Row, Col, Progress, Switch } from 'antd'
+import { Icon, Button, Card, Tabs, Table, Input, Spin, Row, Col, Dropdown, Menu, Modal, Progress, Switch } from 'antd'
 import { getNodesPodeList, loadHostMetrics, searchPodeList } from '../../actions/cluster'
 import './style/ClusterDetail.less'
 import hostImg from '../../assets/img/integration/host.png'
@@ -174,55 +174,55 @@ let HostInfo = React.createClass({
     const { hostInfo, metricsData, podeList, foreverPodNumber } = this.props
     return (
       <QueueAnim className="ClusterDetail">
-      <div className="hostInfo" key="ClusterDetail">
-        <div className="topTitle" style={{marginTop:'20px',marginBottom: 10}}>主机信息</div>
-        <div className="wrapRow">
-          <div className="host-list">
-            <div className="titles"><svg className="svg-icon"><use xlinkHref="#resource"></use></svg> 资源配额</div>
-            <br />
-            <Row className="items">
-              <Col span={8}><span className="keys">CPU：</span><span className="valus">{isNaN(hostInfo.cpuTotal / 1000)? '': hostInfo.cpuTotal / 1000} 核</span></Col>
-              <Col span={10}><Progress percent={ cpuUsed(hostInfo.cpuTotal,metricsData.cpuData).amount } showInfo={false} strokeWidth={8} status="active" /></Col>
-              <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 {cpuUsed(hostInfo.cpuTotal, metricsData.cpuData).unit }</Col>
-            </Row>
-            <Row className="items">
-              <Col span={8}><span className="keys">内存：</span><span className="valus">{isNaN(hostInfo[camelize('memory_total_kb')] /1024) ? '' : Math.round(hostInfo[camelize('memory_total_kb')] / 1024 / 1024)} G</span></Col>
-              <Col span={10}><Progress percent={memoryUsed(hostInfo[camelize('memory_total_kb')], metricsData.memoryData).amount } strokeWidth={8} showInfo={false} status="active" /></Col>
-              <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 {memoryUsed(hostInfo[camelize('memory_total_kb')], metricsData.memoryData).unit }</Col>
+        <div className="hostInfo" key="ClusterDetail">
+          <div className="topTitle" style={{marginTop:'20px',marginBottom: 10}}>主机信息</div>
+          <div className="wrapRow">
+            <div className="host-list">
+              <div className="titles"><svg className="svg-icon"><use xlinkHref="#resource"></use></svg> 资源配额</div>
+              <br />
+              <Row className="items">
+                <Col span={8}><span className="keys">CPU：</span><span className="valus">{isNaN(hostInfo.cpuTotal / 1000)? '': hostInfo.cpuTotal / 1000} 核</span></Col>
+                <Col span={10}><Progress percent={ cpuUsed(hostInfo.cpuTotal,metricsData.cpuData).amount } showInfo={false} strokeWidth={8} status="active" /></Col>
+                <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 {cpuUsed(hostInfo.cpuTotal, metricsData.cpuData).unit }</Col>
+              </Row>
+              <Row className="items">
+                <Col span={8}><span className="keys">内存：</span><span className="valus">{isNaN(hostInfo[camelize('memory_total_kb')] /1024) ? '' : Math.round(hostInfo[camelize('memory_total_kb')] / 1024 / 1024)} G</span></Col>
+                <Col span={10}><Progress percent={memoryUsed(hostInfo[camelize('memory_total_kb')], metricsData.memoryData).amount } strokeWidth={8} showInfo={false} status="active" /></Col>
+                <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 {memoryUsed(hostInfo[camelize('memory_total_kb')], metricsData.memoryData).unit }</Col>
 
-            </Row>
-            <Row className="items">
-              <Col span={8}><span className="keys">容器配额：</span><span className="valus">{hostInfo.podCap} 个</span></Col>
-              <Col span={10}><Progress percent={ Math.round(foreverPodNumber / hostInfo.podCap *100) } strokeWidth={8} showInfo={false} status="active" /></Col>
-              <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 { foreverPodNumber} 个</Col>
+              </Row>
+              <Row className="items">
+                <Col span={8}><span className="keys">容器配额：</span><span className="valus">{hostInfo.podCap} 个</span></Col>
+                <Col span={10}><Progress percent={ Math.round(foreverPodNumber / hostInfo.podCap *100) } strokeWidth={8} showInfo={false} status="active" /></Col>
+                <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 { foreverPodNumber} 个</Col>
 
-            </Row>
+              </Row>
+            </div>
+
+            <div className="host-list">
+              <div className="titles"><svg className="svg-icon"><use xlinkHref="#tag"></use></svg> 版本信息</div>
+              <br />
+              <Row className="items">
+                <Col span={12}><span className="keys">内核版本：</span>{hostInfo.versions ? hostInfo.versions.kernel : ''}</Col>
+                <Col span={12}><span className="keys">kubelet 版本：</span>{hostInfo.versions ? hostInfo.versions.kubelet : ''}</Col>
+              </Row>
+              <Row className="items">
+                <Col span={12}><span className="keys">Docker 版本：</span>{hostInfo.versions ? hostInfo.versions.docker.replace('docker://','') : ''}</Col>
+                <Col span={12}><span className="keys">kube-proxy：</span>{hostInfo.versions ? hostInfo.versions.kubeProxy : ''}</Col>
+              </Row>
+            </div>
+
           </div>
-
-          <div className="host-list">
-            <div className="titles"><svg className="svg-icon"><use xlinkHref="#tag"></use></svg> 版本信息</div>
-            <br />
-            <Row className="items">
-              <Col span={12}><span className="keys">内核版本：</span>{hostInfo.versions ? hostInfo.versions.kernel : ''}</Col>
-              <Col span={12}><span className="keys">kubelet 版本：</span>{hostInfo.versions ? hostInfo.versions.kubelet : ''}</Col>
-            </Row>
-            <Row className="items">
-              <Col span={12}><span className="keys">Docker 版本：</span>{hostInfo.versions ? hostInfo.versions.docker.replace('docker://','') : ''}</Col>
-              <Col span={12}><span className="keys">kube-proxy：</span>{hostInfo.versions ? hostInfo.versions.kubeProxy : ''}</Col>
-            </Row>
+          <div className="topTitle">容器详情</div>
+          <div className="containers">
+            <Button onClick={() => this.reloadList()} type="primary" size="large"><i className="fa fa-refresh"></i> 刷新</Button>
+            <span className="inputGroup">
+              <Input placeholder="搜索" size="large" onChange={(e)=> this.setSearchState(e.target.value)} onPressEnter={()=> this.handSearch()}/>
+              <Icon type="search" onClick={()=> this.handSearch()} />
+            </span>
+            <Table className="dataTable" pagination={{ pageSize: 10, showSizeChanger: true, total: podeList.lenght }} loading={this.props.hostInfo.isFetching} columns={columns} dataSource={podeList} />
           </div>
-
         </div>
-        <div className="topTitle">容器详情</div>
-        <div className="containers">
-          <Button onClick={() => this.reloadList()} type="primary" size="large"><i className="fa fa-refresh"></i> 刷新</Button>
-          <span className="inputGroup">
-            <Input placeholder="搜索" size="large" onChange={(e)=> this.setSearchState(e.target.value)} onPressEnter={()=> this.handSearch()}/>
-            <Icon type="search" onClick={()=> this.handSearch()} />
-          </span>
-          <Table className="dataTable" pagination={{ pageSize: 10, showSizeChanger: true, total: podeList.lenght }} loading={this.props.hostInfo.isFetching} columns={columns} dataSource={podeList} />
-        </div>
-      </div>
       </QueueAnim>
     )
   }
@@ -242,7 +242,10 @@ class ClusterDetail extends Component {
     this.changeTime = this.changeTime.bind(this)
     this.state = {
       schedulable: false,
-      foreverPodNumber: 0
+      foreverPodNumber: 0,
+      btnAll: true,
+      deleteModal: false,
+      activeTabKey:'info'
     }
   }
   componentWillMount() {
@@ -270,6 +273,10 @@ class ClusterDetail extends Component {
         }
       }
     })
+    let query = location.search
+    if (query.length >0) {
+      this.setState({activeTabKey: query.split('?')[1]})
+    }
 
   }
   changeSchedulable(node, e) {
@@ -363,6 +370,32 @@ class ClusterDetail extends Component {
     formetDate.data.push({ metrics,containerName: nodeName})
     return formetDate
   }
+  hnadDelete(e, record) {
+    console.log('key is',e.key, record)
+  }
+  dropdowns (record){
+    // Dropdown delete btn
+    return(
+      <Menu onClick={(key)=> this.hnadDelete(key, record)}
+          style={{ width: '80px' }}
+      >
+      <Menu.Item key="delete">
+        <span>删除</span>
+      </Menu.Item>
+      <Menu.Item key="edit">
+        <span>修改</span>
+      </Menu.Item>
+      <Menu.Item key="stop">
+        <span>停用</span>
+      </Menu.Item>
+      <Menu.Item key="start">
+        <span>启用</span>
+      </Menu.Item>
+
+    </Menu>
+
+    )
+  }
   render() {
     if (this.props.hostInfo.isFetching) {
       return (
@@ -377,6 +410,87 @@ class ClusterDetail extends Component {
     const showMemory = this.formetMemorymetrics(this.props.memory)
     const showNetworkRec = this.formetNetworkmetrics(this.props.networkReceived, this.props.clusterName)
     const showNetworkTrans = this.formetNetworkmetrics(this.props.networkTransmitted, this.props.clusterName)
+    const columns = [
+      {
+      title: '名称',
+      dataIndex: 'name',
+      key:'name',
+      render: text => <a href="#">{text}</a>,
+      },
+      {
+        title: '状态',
+        dataIndex: 'status',
+        key:'status',
+        render: text => {
+           if (text == 1) {
+            return <div style={{color:'#33b867'}}><i className="fa fa-circle" /> &nbsp;启用</div>
+          }
+          if (text ==2) {
+            return <div style={{color:'#f23e3f'}}><i className="fa fa-circle" /> &nbsp;停用</div>
+          }
+          return <div style={{color:'#FAB35B'}}><i className="fa fa-circle" /> &nbsp;告警</div>
+        }
+      },
+      {
+        title: '监控周期',
+        dataIndex: 'time'
+      },
+      {
+        title: '创建时间',
+        dataIndex: 'createTime',
+        key:'createTime',
+        sorter: (a, b) => Date.parse(a.createTime) - Date.parse(b.createTime),
+      },
+      {
+        title: '最后修改人',
+        dataIndex: 'editUser',
+        key:'edit',
+      },
+      {
+        title: '操作',
+        dataIndex: 'name',
+        key:'action',
+        render: (text, record) => {
+          return <Dropdown.Button type="ghost" overlay={ this.dropdowns(record) }>忽略</Dropdown.Button>
+        }
+      }
+    ];
+
+    const data = [
+      {
+        key:1,
+        name: '大事业部',
+        status: 1,
+        time:'5分钟',
+        createTime: '2017-03-06 15:35:21',
+        editUser:'admin',
+      }, {
+        key:2,
+        name: 'test It',
+        status: 1,
+        time:'15分钟',
+        createTime: '2017-03-03 10:35:21',
+        editUser:'admin',
+      }, {
+        key:3,
+        name: '统计',
+        status: 0,
+        time:'2分钟',
+        createTime: '2017-03-02 13:35:21',
+        editUser:'baiyu',
+      }
+    ];
+    const _this = this
+    const rowSelection = {
+      onChange(selectedRowKeys, selectedRows) {
+        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+        let btnAll = true
+        if (selectedRows.length >0) {
+          btnAll = false
+        }
+        _this.setState({btnAll, selectedRows})
+      }
+    }
     return (
       <div id="clusterDetail">
         <div className="topRow" style={{ marginBottom: '20px', height: '50px', paddingTop: '20px' }}>
@@ -410,9 +524,9 @@ class ClusterDetail extends Component {
         </Card>
         <Card className="infoTabs" bordered={false}>
           <div className="h3"></div>
-          <Tabs defaultActiveKey="1">
-            <TabPane tab="详情" key="1"><HostInfo foreverPodNumber={this.state.foreverPodNumber} podeList={this.props.results} metricsData={{cpuData:this.props.hostcpu,memoryData:this.props.memory}} hostInfo={hostInfo} scope={this} /></TabPane>
-            <TabPane tab="监控" key="2">
+          <Tabs defaultActiveKey="info" activeKey={this.state.activeTabKey}>
+            <TabPane tab="详情" key="info"><HostInfo foreverPodNumber={this.state.foreverPodNumber} podeList={this.props.results} metricsData={{cpuData:this.props.hostcpu,memoryData:this.props.memory}} hostInfo={hostInfo} scope={this} /></TabPane>
+            <TabPane tab="监控" key="monitoring">
               <TimeControl onChange={this.handleTimeChange} />
               <Metrics
                 cpu={showCpu}
@@ -421,10 +535,24 @@ class ClusterDetail extends Component {
                 networkTransmitted={showNetworkTrans}
               />
             </TabPane>
+            <TabPane tab="告警策略" key="alarm">
+              <div className="alarmTest">
+                <div className="topRow">
+                  <Button size="large" type="primary"><i className="fa fa-refresh"/> 刷新</Button>
+                  <Button icon="delete" size="large" type="ghost" onClick={()=> this.setState({deleteModal: true})} disabled={this.state.btnAll}>删除</Button>
+                </div>
+                <Table className="strategyTable" rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false}  loading={this.props.isFetching}/>
+              </div>
+            </TabPane>
           </Tabs>
 
         </Card>
-
+        <Modal title="删除策略" visible={this.state.deleteModal}
+          onCancel={()=> this.setState({deleteModal: false})}
+          onOk={()=> console.log(this.state.selectedRowKeys)}
+        >
+          <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>策略删除后将不再发送邮件告警，是否确定删除？</div>
+        </Modal>
       </div>
     )
   }
