@@ -82,3 +82,6 @@ export function deleteRecords(strategyID, callback) {
     return dispatch(fetchDeleteRecords(strategyID, callback))
   }
 }
+
+
+/*-------------------- alert setting ---------------------*/
