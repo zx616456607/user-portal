@@ -13,9 +13,11 @@ import './style/License.less'
 import { loadLicenseList, loadLicensePlatform, addLicense, loadMergedLicense } from '../../../actions/license'
 import { connect } from 'react-redux'
 import { formatDate } from '../../../common/tools'
+import { DEFAULT_LICENSE } from '../../../../constants'
 import NotificationHandler from '../../../common/notification_handler'
 import { getPortalRealMode } from '../../../common/tools'
 import { LITE } from '../../../constants'
+import { camelize } from 'humps'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -188,7 +190,8 @@ class License extends Component {
             <input style={{position: 'absolute', opacity: '0'}} className="licenseMoreInput"
                    defaultValue={list.licenseUid}/>
           </td>
-          <td >{list.maxNodes} {(list.maxNodes > 0 && index == 0) ? '（当前生效）' : ''}</td>
+          <td >{list[camelize('max_clusters')] || DEFAULT_LICENSE.max_clusters}</td>
+          <td >{list[camelize('max_nodes')]} {/*(list[camelize('max_nodes')] > 0 && index == 0) ? '（当前生效）' : ''*/}</td>
           <td >{formatDate(list.start)}</td>
           <td >{formatDate(list.end)}</td>
           <td >{(new Date(list.end).getTime() - new Date(list.start).getTime()) / 24 / 60 / 60 / 1000} 天</td>
@@ -215,6 +218,7 @@ class License extends Component {
         </div>
       )
     }
+    const { licenses, merged } = license
     return (
       <div id='License'>
         <div className="title">授权管理</div>
@@ -268,23 +272,47 @@ class License extends Component {
         </Card>
         <br />
         <Card className="licenseWrap">
-          <table className="list-table">
-            <thead className="ant-table-thead">
-            <tr>
-              <th ><span>许可证 ID</span></th>
-              <th ><span>最大节点数</span></th>
-              <th ><span>生效时间</span></th>
-              <th ><span>失效时间</span></th>
-              <th ><span>有效时长</span></th>
-              <th ><span>添加时间</span></th>
-              <th ><span>操作人</span></th>
-            </tr>
-            </thead>
-            <tbody className="ant-table-tbody">
-            {this.lincenseList(license.licenses)}
-
-            </tbody>
-          </table>
+          <div className="merged">
+            <span className="secTitle">当前生效：（集群、节点是授权后立即生效，许可证时长为累加）</span>
+            <div className="content">
+              <table className="list-table">
+                <thead className="ant-table-thead">
+                <tr>
+                  <th ><span>最大集群数</span></th>
+                  <th ><span>最大节点数</span></th>
+                  <th ><span>失效时间</span></th>
+                </tr>
+                </thead>
+                <tbody className="ant-table-tbody">
+                  <tr>
+                    <td>{merged[camelize('max_clusters')]}</td>
+                    <td>{merged[camelize('max_nodes')]}</td>
+                    <td>{formatDate(merged.end)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div className="licenses">
+            <span className="secTitle">授权历史：</span>
+            <table className="list-table">
+              <thead className="ant-table-thead">
+              <tr>
+                <th ><span>许可证 ID</span></th>
+                <th ><span>最大集群数</span></th>
+                <th ><span>最大节点数</span></th>
+                <th ><span>生效时间</span></th>
+                <th ><span>失效时间</span></th>
+                <th ><span>有效时长</span></th>
+                <th ><span>添加时间</span></th>
+                <th ><span>操作人</span></th>
+              </tr>
+              </thead>
+              <tbody className="ant-table-tbody">
+                {this.lincenseList(licenses)}
+              </tbody>
+            </table>
+          </div>
         </Card>
       </div>
     )
