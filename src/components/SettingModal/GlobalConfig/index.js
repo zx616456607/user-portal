@@ -115,7 +115,7 @@ let Emaill = React.createClass({
   checkService(rule, value, callback) {
     const { validateFields } = this.props.form
     if (!value) {
-      callback([new Error('请填写邮件服务器服务器地址')])
+      callback([new Error('请填写邮件服务地址')])
       return
     }
     if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
@@ -546,7 +546,7 @@ let MirrorService = React.createClass({
   checkApprove(rule, value, callback) {
     const { validateFields } = this.props.form
     if (!value) {
-      callback([new Error('请填写镜像服务地址')])
+      callback([new Error('请填写认证服务地址')])
       return
     }
     if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
@@ -844,8 +844,8 @@ let StorageService = React.createClass({
               <img src={CephImg} alt="镜像服务" />
             </div>
             <div className="contentkeys">
-              <div className="key">存储节点</div>
               <div className="key">Agent 地址</div>
+              <div className="key">存储节点</div>
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">

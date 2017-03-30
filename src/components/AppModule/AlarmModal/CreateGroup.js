@@ -93,8 +93,9 @@ let CreateAlarmGroup = React.createClass({
   },
   handCancel() {
     const {funcs,form } = this.props
-     funcs.scope.setState({ createGroup: false, alarmModal: true})
-     form.resetFields()
+    funcs.scope.setState({ createGroup: false, alarmModal: true})
+    form.resetFields()
+    this.setState({isAddEmail: true})
   },
   okModal() {
     const { form } = this.props

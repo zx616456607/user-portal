@@ -193,6 +193,7 @@ class AlarmGroup extends Component {
           <Modal title="创建新通知组" visible={this.state.createGroup}
             width={560}
             maskClosable={false}
+            closable={false}
             wrapClassName="AlarmModal"
             className="alarmContent"
             footer={null}
