@@ -41,13 +41,10 @@ let CreateAlarmGroup = React.createClass({
   },
   addEmail() {
     const { form } = this.props
-    console.log(this.state)
     form.validateFields((error, values) => {
       if (!!error) {
         return
       }
-      console.log('vaelue', values)
-
     })
     if (!this.state.isAddEmail) return
     mid++;
@@ -140,11 +137,8 @@ let CreateAlarmGroup = React.createClass({
     const { form } = this.props
     form.validateFields((error, values) => {
       if (!!error) {
-        console.log('error is')
         return
       }
-      console.log('submitVaelue', values)
-
     })
   },
   handCancel() {
@@ -188,7 +182,6 @@ let CreateAlarmGroup = React.createClass({
         },
         failed: {
           func: (err) => {
-            console.log('error', err)
             let notification = new NotificationHandler()
             notification.error(`向 ${email} 发送邮件邀请失败`)
           },
