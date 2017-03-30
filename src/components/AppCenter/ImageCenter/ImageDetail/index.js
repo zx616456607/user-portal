@@ -292,10 +292,15 @@ class ImageDetailBox extends Component {
           <div className="infoBox">
             <p className="imageName">
               {imageDetail.name ? imageDetail.name : imageDetail.imageName}
-              <i className="fa fa-star-o" aria-hidden="true" style={{ marginLeft: '10px' }}></i>
+              {(imageInfo.isFavourite == 1) ?
+                <i className="fa fa-star" aria-hidden="true" style={{ marginLeft: '10px' }} onClick={() => this.setimageStore(imageInfo.name, '0')}></i>
+                :
+                <i className="fa fa-star-o" aria-hidden="true" style={{ marginLeft: '10px' }} onClick={() => this.setimageStore(imageInfo.name, '1')}></i>
+              }
+              {/*<i className="fa fa-star-o" aria-hidden="true" style={{ marginLeft: '10px' }}></i>*/}
 
               {/*点击收藏后的样式，可以直接用下边的样式*/}
-              {/*<i className="fa fa-star" aria-hidden="true"></i>*/}
+              {/*<i className="fa fa-star" aria-hidden="true" style={{ marginLeft: '10px' }}></i>*/}
 
             </p>
             <div className="leftBox">
