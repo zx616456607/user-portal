@@ -526,10 +526,12 @@ class Storage extends Component {
           notification.close()
           const { statusCode } = err
           if (statusCode === 403) {
+            console.log(err)
             let data = err.data
             data.select = Math.ceil(data.select / 1024 * 10) / 10
             data.allocated = Math.ceil(data.allocated / 1024 * 10) / 10
             data.unallocated = Math.ceil(data.unallocated / 1024 * 10) / 10
+            data.total = Math.ceil(data.total / 1024 * 10) / 10
             this.setState({
               resourceQuotaModal: true,
               resourceQuota: err.data
