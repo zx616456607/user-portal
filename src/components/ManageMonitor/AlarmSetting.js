@@ -210,7 +210,9 @@ class AlarmSetting extends Component {
       step: 1, // first step create AlarmModal
     }
   }
-
+  componentWillMount() {
+    document.title = '告警设置 | 时速云 '
+  }
   handSearch() {
     // search data
     const search = document.getElementById('alarmSearch').value
