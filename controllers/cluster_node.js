@@ -16,10 +16,7 @@ const constants = require('../constants')
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
-const DEFAULT_LICENSE = {
-  max_nodes: 5,
-  max_clusters: 1,
-}
+const DEFAULT_LICENSE = constants.DEFAULT_LICENSE
 
 exports.getClusterNodes = function* () {
   const loginUser = this.session.loginUser

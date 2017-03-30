@@ -63,3 +63,7 @@ exports.ADMIN_ROLE = 2
 exports.NO_CLUSTER_FLAG = 'no_cluster_flag'
 exports.CLUSTER_PAGE = '/cluster'
 exports.DEFAULT_CLUSTER_MARK = 1
+exports.DEFAULT_LICENSE = {
+  max_nodes: 5,
+  max_clusters: 1,
+}
