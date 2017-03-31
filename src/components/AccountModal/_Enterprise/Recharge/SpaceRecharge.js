@@ -36,7 +36,13 @@ let SpaceRecharge = React.createClass({
     // set selected recharge memory (unit T)
     this.setState({number})
   },
-
+  otherNumber(e) {
+    let number = parseFloat(e.target.value)
+    if (!/^\d+$/.test(number)) {
+      number = 10
+    }
+    this.setState({number})
+  },
   btnCancel() {
     this.setState({number:10})
     this.props.parentScope.setState({selected:[],spaceVisible: false})
@@ -160,7 +166,7 @@ let SpaceRecharge = React.createClass({
       rules: [
         { validator: this.checkCharge },
       ],
-      trigger: 'onBlur',
+      trigger: ['onChange'],
       initialValue: parseFloat(this.state.number)
     })
     return(
@@ -176,7 +182,7 @@ let SpaceRecharge = React.createClass({
           <div className={this.state.number ==50 ? "pushMoney selected" : 'pushMoney'} onClick={()=> this.activeMenu(50)}><span>50T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
           <div className={this.state.number ==100 ? "pushMoney selected" : 'pushMoney'} onClick={()=> this.activeMenu(100)}><span>100T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
           <Form.Item style={{float:'left', width:'100px'}}>
-            <InputNumber size="large" {...autoNumberProps} min={0} step={50} max={MAX_CHARGE} onClick={(e)=> this.setState({number: e.target.value})}/> T
+            <InputNumber size="large" {...autoNumberProps} min={0} step={50} max={MAX_CHARGE} onClick={(e)=> this.otherNumber(e) }/> T
           </Form.Item>
         </div>
         </Form>
