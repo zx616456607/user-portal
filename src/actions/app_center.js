@@ -655,3 +655,112 @@ export function deleteAppCenterBindUser(callback) {
     return dispatch(delAppCenterBindUser(callback))
   }
 }
+
+export const GET_IMAGE_MIRRORSAFETY_SCANSTATUS_REQUEST = 'GET_IMAGE_MIRRORSAFETY_SCANSTATUS_REQUEST'
+export const GET_IMAGE_MIRRORSAFETY_SCANSTATUS_SUCCESS = 'GET_IMAGE_MIRRORSAFETY_SCANSTATUS_SUCCESS'
+export const GET_IMAGE_MIRRORSAFETY_SCANSTATUS_FAILURE = 'GET_IMAGE_MIRRORSAFETY_SCANSTATUS_FAILURE'
+
+function fetchMirrorSafetyScanStatus(body, callback){
+  return {
+    [FETCH_API]: {
+      types: [GET_IMAGE_MIRRORSAFETY_SCANSTATUS_REQUEST, GET_IMAGE_MIRRORSAFETY_SCANSTATUS_SUCCESS, GET_IMAGE_MIRRORSAFETY_SCANSTATUS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/images/scan-status?imageName=${body.imageName}&tag=${body.tag}`,
+      schema: Schemas.REGISTRYS,
+    },
+    callback
+  }
+}
+
+export function loadMirrorSafetyScanStatus(body, callback){
+  return (dispatch, getState) =>{
+    return dispatch(fetchMirrorSafetyScanStatus(body, callback))
+  }
+}
+
+export const GET_IMAGE_MIRRORSAFETY_SCAN_REQUEST = 'GET_IMAGE_MIRRORSAFETY_SCAN_REQUEST'
+export const GET_IMAGE_MIRRORSAFETY_SCAN_SUCCESS = 'GET_IMAGE_MIRRORSAFETY_SCAN_SUCCESS'
+export const GET_IMAGE_MIRRORSAFETY_SCAN_FAILURE = 'GET_IMAGE_MIRRORSAFETY_SCAN_FAILURE'
+
+function fetchMirrorSafetyScan(body, callback){
+  return {
+    [FETCH_API]: {
+      types: [GET_IMAGE_MIRRORSAFETY_SCAN_REQUEST, GET_IMAGE_MIRRORSAFETY_SCAN_SUCCESS, GET_IMAGE_MIRRORSAFETY_SCAN_FAILURE],
+      endpoint: `${API_URL_PREFIX}/images/scan`,
+      schema: Schemas.REGISTRYS,
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function loadMirrorSafetyScan(body, callback){
+  return (dispatch, getState) =>{
+    return dispatch(fetchMirrorSafetyScan(body, callback))
+  }
+}
+
+export const GET_IMAGE_MIRRORSAFETY_LAYERINFO_REQUEST = 'GET_IMAGE_MIRRORSAFETY_LAYERINFO_REQUEST'
+export const GET_IMAGE_MIRRORSAFETY_LAYERINFO_SUCCESS = 'GET_IMAGE_MIRRORSAFETY_LAYERINFO_SUCCESS'
+export const GET_IMAGE_MIRRORSAFETY_LAYERINFO_FAILURE = 'GET_IMAGE_MIRRORSAFETY_LAYERINFO_FAILURE'
+
+function fetchMirrorSafetyLayerinfo(body, callback){
+  return {
+    [FETCH_API]: {
+      types: [GET_IMAGE_MIRRORSAFETY_LAYERINFO_REQUEST, GET_IMAGE_MIRRORSAFETY_LAYERINFO_SUCCESS, GET_IMAGE_MIRRORSAFETY_LAYERINFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/images/layer-info?imageName=${body.imageName}&tag=${body.tag}`,
+      schema: Schemas.REGISTRYS,
+    },
+    callback
+  }
+}
+
+export function loadMirrorSafetyLayerinfo(body, callback){
+  return (dispatch, getState) =>{
+    return dispatch(fetchMirrorSafetyLayerinfo(body, callback))
+  }
+}
+
+export const GET_IMAGE_MIRRORSAFETY_LYINSINFO_REQUEST = 'GET_IMAGE_MIRRORSAFETY_LYINSINFO_REQUEST'
+export const GET_IMAGE_MIRRORSAFETY_LYINSINFO_SUCCESS = 'GET_IMAGE_MIRRORSAFETY_LYINSINFO_SUCCESS'
+export const GET_IMAGE_MIRRORSAFETY_LYINSINFO_FAILURE = 'GET_IMAGE_MIRRORSAFETY_LYINSINFO_FAILURE'
+
+function fetchMirrorSafetyLyinsinfo(body, callback){
+  return {
+    [FETCH_API]: {
+      types: [GET_IMAGE_MIRRORSAFETY_LYINSINFO_REQUEST, GET_IMAGE_MIRRORSAFETY_LYINSINFO_SUCCESS, GET_IMAGE_MIRRORSAFETY_LYINSINFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/images/lyins-info?blob_sum=${body.blob_sum}`,
+      schema: Schemas.REGISTRYS,
+    },
+    callback
+  }
+}
+
+export function loadMirrorSafetyLyinsinfo(body, callback){
+  return (dispatch, getState) =>{
+    return dispatch(fetchMirrorSafetyLyinsinfo(body, callback))
+  }
+}
+
+export const GET_IMAGE_MIRRORSAFETY_CLAIRINFO_REQUEST = 'GET_IMAGE_MIRRORSAFETY_CLAIRINFO_REQUEST'
+export const GET_IMAGE_MIRRORSAFETY_CLAIRINFO_SUCCESS = 'GET_IMAGE_MIRRORSAFETY_CLAIRINFO_SUCCESS'
+export const GET_IMAGE_MIRRORSAFETY_CLAIRINFO_FAILURE = 'GET_IMAGE_MIRRORSAFETY_CLAIRINFO_FAILURE'
+
+function fetchMirrorSafetyChairinfo(body, callback){
+  return {
+    [FETCH_API]: {
+      types: [GET_IMAGE_MIRRORSAFETY_CLAIRINFO_REQUEST, GET_IMAGE_MIRRORSAFETY_CLAIRINFO_SUCCESS, GET_IMAGE_MIRRORSAFETY_CLAIRINFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/images/clair-info?blob_sum=${body.blob_sum}`,
+      schema: Schemas.REGISTRYS,
+    },
+    callback
+  }
+}
+
+export function loadMirrorSafetyChairinfo(body, callback){
+  return (dispatch, getState) =>{
+    return dispatch(fetchMirrorSafetyChairinfo(body, callback))
+  }
+}

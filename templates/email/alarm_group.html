@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <title>alarm_group</title>
+  <title>>%subject%</title>
 </head>
 
 <body>
@@ -35,12 +34,12 @@
                     <tbody>
                       <tr>
                         <td style="color: #565656;height: 33px;">
-                          <b>邮箱名称</b>
+                          <b>%receiverEmail%</b>
                         </td>
                       </tr>
                       <tr>
                         <td style="height: 24px;">
-                          您好！您的邮箱被时速云<b>XXX</b>用户选为告警接收邮箱，如您同意请点击以下按钮通过验证：
+                          您好！您的邮箱被时速云<b>%invitorName%</b>用户选为告警接收邮箱，如您同意请点击以下按钮通过验证：
                         </td>
                       </tr>
               </tr>
@@ -61,7 +60,7 @@
               <tr>
                 <td style="height: 33px">
                   <a href="%inviteURL%" style="color: #2bbbfa">
-										%testURL%
+										%inviteURL%
 									</a>
                 </td>
               </tr>
@@ -90,7 +89,7 @@
               <img src="https://dn-tenxcloud-static.qbox.me/logoBig.png" alt="TenxCloud">
             </td>
             <td>
-              如有任何疑问,欢迎联系团队管理员%invitorName%(<span><a href="mailto:%invitorEmail%" style="color: #2bbbfa;">%invitorEmail%</a></span>)
+              如有任何疑问，请联系邀请者%invitorName%(<span><a href="mailto:%invitorEmail%" style="color: #2bbbfa;">%invitorEmail%</a></span>)
               或时速云(
               <span>
                     <a href="mailto:%systemEmail%" target="_blank" style="color: #2bbbfa;">%systemEmail%</a>

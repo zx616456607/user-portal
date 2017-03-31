@@ -1,5 +1,46 @@
 .AlarmDetail {
   padding: 20px;
+  .ant-row {
+    .back {
+      display: inline-block;
+      float: left;
+      height: 30px;
+      .backjia {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        border-bottom: 15px solid transparent;
+        border-top: 15px solid transparent;
+        border-right: 15px solid #00A0E9;
+        font-size: 0;
+        line-height: 0;
+      }
+      .btn-back {
+        display: inline-block;
+        background: #00A0E9;
+        color: white;
+        height: 30px;
+        line-height: 30px;
+        vertical-align: top;
+        width: 43px;
+        padding-left: 5px;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+    }
+    .titleName {
+      height: 18px;
+      line-height: 18px;
+      border-left: 8px solid #24a7eb;
+      font-size: 16px;
+      padding-left: 8px;
+      margin-top: 6px;
+      margin-left: 20px;
+      float: left;
+    }
+  }
   .details {
     .ant-card-body {padding:0}
     .title {
@@ -9,12 +50,5 @@
     .baseAttr {padding: 0 20px;line-height: 50px;height: 35px;}
     .keys {display: inline-block;width: 80px;}
   }
-  .strategyTable {
-    padding: 0 20px;
-    .ant-table-thead > tr > th {
-        background: white;
-        font-weight: 500;
-        border-bottom: 1px solid #d9d9d9;
-      }
-  }
+
 }

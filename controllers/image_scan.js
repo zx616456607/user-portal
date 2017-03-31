@@ -53,7 +53,7 @@ exports.getScanStatus = function* () {
     }
   } else {
     const registryApi = apiFactory.getRegistryApi()
-    const result = yield thunkToPromise(registryApi.getImageJsonInfoV2.bind(registryApi))(this.session.loginUser.user, body.imageName, body.tag)
+    const result = yield thunkToPromise(registryApi.getImageJsonInfoV2, registryApi)(this.session.loginUser.user, body.imageName, body.tag)
     if (!result.length) {
       throw result
     }
@@ -106,7 +106,7 @@ exports.getLayerInfo = function* () {
     }
   } else {
     const registryApi = apiFactory.getRegistryApi()
-    const result = yield thunkToPromise(registryApi.getImageJsonInfoV2.bind(registryApi))(this.session.loginUser.user, body.imageName, body.tag)
+    const result = yield thunkToPromise(registryApi.getImageJsonInfoV2, registryApi)(this.session.loginUser.user, body.imageName, body.tag)
     if (!result.length) {
       throw result
     }
@@ -177,7 +177,7 @@ exports.scan = function* () {
       var self = this
       var result = yield specRegistryService.getImageTagInfo(body.imageName, body.tag, true)
       manifest = result.result
-      const tokenResult = yield thunkToPromise(specRegistryService.refreshToken.bind(specRegistryService))('repository')
+      const tokenResult = yield thunkToPromise(specRegistryService.refreshToken, specRegistryService)('repository')
       if (tokenResult[0] != 200) {
         const err = new Error('get registry token failed')
         err.status = tokenResult[0]
@@ -191,7 +191,7 @@ exports.scan = function* () {
     }
   } else {
     const registryApi = apiFactory.getRegistryApi()
-    const result = yield thunkToPromise(registryApi.refreshToken.bind(registryApi))(this.session.loginUser.user, body.imageName)
+    const result = yield thunkToPromise(registryApi.refreshToken, registryApi)(this.session.loginUser.user, body.imageName)
     if (!result.length || result[0]) {
       throw result
     }
@@ -202,7 +202,7 @@ exports.scan = function* () {
       return
     }
     token = result[2]
-    const tokenResult = yield thunkToPromise(registryApi.getImageJsonInfoV2.bind(registryApi))(this.session.loginUser.user, body.imageName, body.tag)
+    const tokenResult = yield thunkToPromise(registryApi.getImageJsonInfoV2, registryApi)(this.session.loginUser.user, body.imageName, body.tag)
     if (!tokenResult.length) {
       throw result
     }
@@ -255,7 +255,7 @@ exports.uploadFile = function* () {
   this.body = response
 }
 
-function thunkToPromise(fn) {
+function thunkToPromise(fn, self) {
   let isCalled = false
   return function () {
     const arg = Array.prototype.slice.apply(arguments)
@@ -267,7 +267,7 @@ function thunkToPromise(fn) {
         resolve(arguments)
       })
       arg.push(true)
-      fn(...arg)
+      fn.apply(self, arg)
     }).catch(err => {
       return err
     })

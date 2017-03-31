@@ -66,6 +66,10 @@ const menusText = defineMessages({
     id: 'AppCenter.ImageCenter.ImageDetail.attribute',
     defaultMessage: '属性',
   },
+  mirrorSafety: {
+    id: 'AppCenter.ImageCenter.ImageDetail.mirrorSafety',
+    defaultMessage: '镜像安全',
+  },
   copyBtn: {
     id: 'AppCenter.ImageCenter.ImageDetail.copyBtn',
     defaultMessage: '点击复制',
@@ -379,7 +383,7 @@ class ImageDetailBox extends Component {
             <TabPane tab="Dockerfile" key="2"><DockerFile isFetching={this.props.isFetching} scope={this} registry={DEFAULT_REGISTRY} detailInfo={imageInfo} isOwner={imageInfo.isOwner} /></TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
             <TabPane tab={formatMessage(menusText.attribute)} key="4"><Attribute detailInfo={imageInfo} /></TabPane>
-            <TabPane tab="镜像安全" key="5"><MirrorSafety /></TabPane>
+            <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} registry={DEFAULT_REGISTRY}/></TabPane>
           </Tabs>
         </div>
       </div>
@@ -403,6 +407,7 @@ function mapStateToProps(state, props) {
   return {
     imageInfo,
     registry: DEFAULT_REGISTRY
+
   }
 }
 

@@ -14,11 +14,11 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ContainerList.less'
 import { loadContainerList, deleteContainers, updateContainerList } from '../../actions/app_manage'
+import { addTerminal } from '../../actions/terminal'
 import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { calcuDate } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
-import TerminalModal from '../TerminalModal'
 import ContainerStatus from '../TenxStatus/ContainerStatus'
 import { addPodWatch, removePodWatch } from '../../containers/App/status'
 
@@ -74,22 +74,9 @@ const MyComponent = React.createClass({
   },
   openTerminalModal: function (item, e) {
     //this function for user open the terminal modal
+    const { funcs } = this.props
     e.stopPropagation();
-    const { parentScope } = this.props;
-    let { currentContainer } = parentScope.state;
-    let hadFlag = false;
-    currentContainer.map((container) => {
-      if(container.metadata.name == item.metadata.name) {
-        hadFlag = true;
-      }
-    });
-    if(!hadFlag) {
-      currentContainer.push(item)
-    }
-    parentScope.setState({
-      currentContainer: currentContainer,
-      TerminalLayoutModal: true
-    });
+    funcs.openTerminal(item);
   },
   deleteContainer: function (name) {
     const { config, funcs } = this.props
@@ -210,12 +197,12 @@ class ContainerList extends Component {
     this.loadData = this.loadData.bind(this)
     this.onAllChange = this.onAllChange.bind(this)
     this.searchContainers = this.searchContainers.bind(this)
-    this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
     this.batchDeleteContainers = this.batchDeleteContainers.bind(this)
     this.confirmDeleteContainer = this.confirmDeleteContainer.bind(this)
     this.onPageChange = this.onPageChange.bind(this)
     this.onShowSizeChange = this.onShowSizeChange.bind(this)
     this.sortCreateTime = this.sortCreateTime.bind(this)
+    this.openTerminal = this.openTerminal.bind(this)
     this.state = {
       containerList: props.containerList,
       searchInputValue: props.name,
@@ -359,13 +346,6 @@ class ContainerList extends Component {
     })
   }
 
-  closeTerminalLayoutModal() {
-    //this function for user close the terminal modal
-    this.setState({
-      TerminalLayoutModal: false
-    });
-  }
-
   onPageChange(page) {
     const {size, sortOrder } = this.props
     this.updateBrowserHistory(page, size, sortOrder)
@@ -412,6 +392,14 @@ class ContainerList extends Component {
     this.updateBrowserHistory(page, size, sortOrder)
   }
 
+  openTerminal(item) {
+    const { addTerminal, cluster } = this.props
+    addTerminal(cluster, item)
+    this.setState({
+      TerminalLayoutModal: true,
+    })
+  }
+
   render() {
     const parentScope = this
     const {
@@ -428,6 +416,7 @@ class ContainerList extends Component {
     }
     const funcs = {
       confirmDeleteContainer: this.confirmDeleteContainer,
+      openTerminal: this.openTerminal,
     }
     let oncache = this.state.currentContainer.map((item) => {
       return item.metadata.name;
@@ -546,15 +535,6 @@ class ContainerList extends Component {
               parentScope={parentScope} />
           </Card>
         </div>
-        <Modal
-          visible={this.state.TerminalLayoutModal}
-          className='TerminalLayoutModal'
-          transitionName='move-down'
-          onCancel={this.closeTerminalLayoutModal}
-          maskClosable={false}
-          >
-          <TerminalModal scope={parentScope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal} oncache={oncache}/>
-        </Modal>
       </QueueAnim>
     )
   }
@@ -620,4 +600,5 @@ export default connect(mapStateToProps, {
   loadContainerList,
   deleteContainers,
   updateContainerList,
+  addTerminal,
 })(ContainerList)

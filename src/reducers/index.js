@@ -40,6 +40,7 @@ import admin from './admin'
 import user3rdAccount from './user_3rd_account'
 import version from './version'
 import alert from './alert'
+import terminal from './terminal'
 import { LOGIN_EXPIRED_MESSAGE, PAYMENT_REQUIRED_CODE, UPGRADE_EDITION_REQUIRED_CODE, } from '../constants'
 
 
@@ -137,6 +138,7 @@ const rootReducer = combineReducers({
   user3rdAccount,
   version,
   alert,
+  terminal,
 })
 
 export default rootReducer

@@ -9,9 +9,12 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Link } from 'react-router'
-import { Card, Input, Modal, InputNumber, Checkbox, Progress, Icon, Spin, Table, Select, Dropdown, DatePicker, Menu, Button } from 'antd'
+import { Card, Input, Modal, InputNumber, Checkbox, Progress, Icon, Spin, Table, Select, Dropdown, DatePicker, Menu, Button, Pagination } from 'antd'
 import QueueAnim from 'rc-queue-anim'
-// import { connect } from 'react-redux'
+import { connect } from 'react-redux'
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
+import CreateAlarm from '../AppModule/AlarmModal'
+import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 // import { calcuDate } from '../../../common/tools.js'
 import './style/AlarmRecord.less'
 import cloneDeep from 'lodash/cloneDeep'
@@ -32,8 +35,23 @@ const MyComponent = React.createClass({
       <Menu onClick={()=> this.hnadDelete(record)}
           style={{ width: '80px' }}
       >
-      <Menu.Item >
+      <Menu.Item key="delete">
         <span>删除</span>
+      </Menu.Item>
+      <Menu.Item key="edit">
+        <span>修改</span>
+      </Menu.Item>
+      <Menu.Item key="stop">
+        <span>停用</span>
+      </Menu.Item>
+      <Menu.Item key="start">
+        <span>启用</span>
+      </Menu.Item>
+      <Menu.Item key="list">
+        <span>查看记录</span>
+      </Menu.Item>
+      <Menu.Item key="clear">
+        <span>清除记录</span>
       </Menu.Item>
     </Menu>
 
@@ -138,7 +156,7 @@ const MyComponent = React.createClass({
       )
     })
     return (
-      <Card className="ant-table">
+      <Card className="ant-table" style={{clear: 'both'}}>
         <table className="ant-table-table strategyTable">
           <thead className="ant-table-thead">
             <tr>
@@ -185,8 +203,16 @@ const MyComponent = React.createClass({
 class AlarmSetting extends Component {
   constructor(props) {
     super(props);
+    this.nextStep = this.nextStep.bind(this)
+    this.cancelModal = this.cancelModal.bind(this)
+    this.state = {
+      createGroup: false,
+      step: 1, // first step create AlarmModal
+    }
   }
-
+  componentWillMount() {
+    document.title = '告警设置 | 时速云 '
+  }
   handSearch() {
     // search data
     const search = document.getElementById('alarmSearch').value
@@ -199,6 +225,18 @@ class AlarmSetting extends Component {
     return (
       <div>cpu is</div>
     )
+  }
+  cancelModal() {
+    // cancel create Alarm modal
+    this.setState({
+      alarmModal: false,
+      step:1
+    })
+  }
+  nextStep(step) {
+    this.setState({
+      step: step
+    })
   }
   render() {
 
@@ -281,22 +319,57 @@ class AlarmSetting extends Component {
       // checkbox select callback
     }
     const _this = this
+    const modalFunc=  {
+      scope : this,
+      cancelModal: this.cancelModal,
+      nextStep: this.nextStep
+    }
     return (
       <QueueAnim type="right" className="alarmSetting">
-        <div id="AlarmRecord">
-          <div className="topRow">
-            <Button icon="plus" size="large" type="primary">创建</Button>
-            <Button icon="reload" size="large">刷新</Button>
-            <Button icon="caret-right" size="large">启用</Button>
-            <Button size="large" ><i className="fa fa-stop" /> &nbsp;停用</Button>
-            <Button icon="delete" size="large">删除</Button>
-            <Button icon="edit" size="large" >修改</Button>
+        <div id="AlarmRecord" key="AlarmRecord">
+          <div className="topRow" style={{marginBottom: '20px'}}>
+            <Button icon="plus" size="large" type="primary" onClick={()=> this.setState({alarmModal: true})}>创建</Button>
+            <Button icon="reload" size="large" type="ghost">刷新</Button>
+            <Button icon="caret-right" size="large" type="ghost">启用</Button>
+            <Button size="large" type="ghost"><i className="fa fa-stop" /> &nbsp;停用</Button>
+            <Button icon="delete" type="ghost" size="large">删除</Button>
+            <Button icon="edit" type="ghost" size="large" >修改</Button>
             <div className="inputGrop">
-              <Input size="large" id="alarmSearch" onPressEnter={()=> this.handSearch()}/>
+              <Input size="large" id="alarmSearch" placeholder="搜索" onPressEnter={()=> this.handSearch()}/>
               <i className="fa fa-search" onClick={()=> this.handSearch()}/>
+            </div>
+            <div className="rightPage pageBox">
+              <span className='totalPage'>共 {data.length} 条</span>
+              <div className='paginationBox'>
+                <Pagination
+                  simple
+                  className='inlineBlock'
+                  onChange={(page)=> this.onPageChange(page)}
+                  current={DEFAULT_PAGE}
+                  pageSize={DEFAULT_PAGE_SIZE}
+                  total={ data.length } />
+              </div>
             </div>
           </div>
           <MyComponent data={data}/>
+          <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
+            className="alarmModal"
+            onCancel={()=> this.setState({alarmModal:false})}
+            maskClosable={false}
+            footer={null}
+          >
+            <CreateAlarm funcs={modalFunc}/>
+          </Modal>
+          {/* 通知组 */}
+          <Modal title="创建新通知组" visible={this.state.createGroup}
+            width={560}
+            maskClosable={false}
+            wrapClassName="AlarmModal"
+            className="alarmContent"
+            footer={null}
+          >
+            <CreateGroup funcs={modalFunc}/>
+          </Modal>
           {/*<Card>
             <Table className="strategyTable"
               onRowClick={(record, index)=>console.log('click', record, index)}
@@ -313,4 +386,14 @@ class AlarmSetting extends Component {
   }
 }
 
-export default AlarmSetting
+function mapStateToProps(state, props) {
+  let recordsData = {
+    total: 0,
+    records: [],
+  }
+  return {
+    recordsData
+  }
+}
+
+export default connect(mapStateToProps)(AlarmSetting)

@@ -10,6 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { Row, Col, Card ,Radio, Button, Table } from 'antd'
 import { connect } from 'react-redux'
+import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { formatDate } from '../../common/tools'
 import './style/AlarmDetail.less'
@@ -22,6 +23,9 @@ class AlarmDetail extends Component {
       sendEmail: 2, // no send eamil
       delBtn: true
     }
+  }
+  componentWillMount() {
+    document.title = '告警设置 | 时速云 '
   }
   handDelete() {
     console.log('click delBtn')
@@ -53,11 +57,6 @@ class AlarmDetail extends Component {
         dataIndex: 'target',
         key:'target',
       },
-      {
-        title: '通知列表',
-        dataIndex: 'assign',
-        key:'assign',
-      }
     ];
 
     const data = [
@@ -118,13 +117,17 @@ class AlarmDetail extends Component {
     return (
       <div id="AlarmDetail">
         <QueueAnim type="right" className="AlarmDetail">
+          <div className="ant-row" key="AlarmDetail" style={{marginBottom: 10, height: 50, paddingTop: 10}}>
+            <Link className="back" to="/manange_monitor/alarm_setting"><span className="backjia"></span><span className="btn-back">返回</span></Link>
+            <span className="titleName">大事业部</span>
+          </div>
           <Row gutter={16} className="details">
             <Col span="6">
               <Card style={{paddingBottom:'20px'}}>
                 <div className="title">基本属性</div>
                 <div className="baseAttr"><span className="keys">策略名称：</span>celue1</div>
                 <div className="baseAttr"><span className="keys">类型：</span>服务</div>
-                <div className="baseAttr"><span className="keys">告警对象</span>服务名称</div>
+                <div className="baseAttr"><span className="keys">告警对象：</span>服务名称</div>
                 <div className="baseAttr"><span className="keys">状态：</span><span style={{color: '#33b867'}}><i className="fa fa-circle" /> 启用</span></div>
                 <div className="baseAttr"><span className="keys">监控周期：</span>5分钟</div>
                 <div className="baseAttr">
@@ -135,11 +138,12 @@ class AlarmDetail extends Component {
                   </RadioGroup>
                 </div>
                 <div className="baseAttr"><span className="keys">最后修改人：</span>admin</div>
+                <div className="baseAttr"><span className="keys">通知列表：</span>admin</div>
                 <div className="baseAttr"><span className="keys">创建时间：</span>{formatDate()}</div>
               </Card>
               <Card style={{marginTop:'15px',paddingBottom:'50px'}}>
-                <div className="title">收费标准</div>
-                <div className="baseAttr" style={{color: '#2DB7F5'}}>本服务暂不收费</div>
+                <div className="title">租赁信息</div>
+                <div className="baseAttr" style={{color: '#2DB7F5'}}>本服务暂不收费！</div>
               </Card>
             </Col>
             <Col span="18">

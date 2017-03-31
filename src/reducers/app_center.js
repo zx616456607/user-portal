@@ -43,7 +43,7 @@ function privateImages(state = {}, action) {
         [registry]: { isFetching: false }
       })
     case ActionTypes.IMAGE_SEARCH_PRIVATE: {
-      const {imageName, registry} = action.condition
+      const { imageName, registry } = action.condition
       const list = cloneDeep(state)
       let imageList = list[registry].imageList
       let imageListBak = list[registry].imageListBak
@@ -120,7 +120,7 @@ function publicImages(state = {}, action) {
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
-  // server type default tenxcloud
+    // server type default tenxcloud
     case ActionTypes.IMAGE_PUBLIC_TYPE: {
       const typeState = cloneDeep(state)
       const bakList = typeState[action.registry].bakList
@@ -295,6 +295,11 @@ export function images(state = { publicImages: {} }, action) {
     imagesInfo: imagesInfo(state.imagesInfo, action),
     stackCenter: stackList(state.stackCenter, action),
     createStack: createStack(state.createStack, action),
+    mirrorSafetyLayerinfo: mirrorSafetyLayerinfo(state.mirrorSafetyLayerinfo, action),
+    mirrorSafetyScan: mirrorSafetyScan(state.mirrorSafetyScan, action),
+    mirrorSafetyLyinsinfo: mirrorSafetyLyinsinfo(state.mirrorSafetyLyinsinfo, action),
+    mirrorSafetyClairinfo: mirrorSafetyClairinfo(state.mirrorSafetyClairinfo, action),
+    mirrorSafetyScanStatus: mirrorSafetyScanStatus(state.mirrorSafetyScanStatus, action),
     getAppCenterBindUser: getAppCenterBindUser(state.getAppCenterBindUser, action),
     AppCenterBindUser: reducerFactory({
       REQUEST: ActionTypes.POST_ENTERPRISE_APP_CENTER_BIND_REQUEST,
@@ -394,7 +399,7 @@ function imageTagConfig(state = {}, action) {
           server: action.response.result.server,
           configList: {
             tag: action.response.result.tag || [],
-            [action.tag]:action.response.result.data || []
+            [action.tag]: action.response.result.data || []
           },
         }
       })
@@ -403,7 +408,7 @@ function imageTagConfig(state = {}, action) {
         [registry]: {
           isFetching: false,
           configList: {
-            [action.tag]:null
+            [action.tag]: null
           }
         }
       })
@@ -562,7 +567,7 @@ function fockImagesList(state = {}, action) {
         [registry]: { isFetching: false }
       })
     case ActionTypes.IMAGE_SEARCH_FAVORITE: {
-      const {imageName, registry} = action.condition
+      const { imageName, registry } = action.condition
       const list = cloneDeep(state)
       let imageList = list[registry].imageList
       let imageListBak = list[registry].imageListBak
@@ -623,7 +628,7 @@ function stackList(state = {}, action) {
       })
 
     case ActionTypes.GET_PUBLIC_STACK_REQUEST:
-      return merge({}, defaultState, state ,{
+      return merge({}, defaultState, state, {
         [registry]: { isFetching: true }
       })
     case ActionTypes.GET_PUBLIC_STACK_SUCCESS:
@@ -647,7 +652,7 @@ function stackList(state = {}, action) {
         publicState[registry].stackList = publicState[registry].pukbak
         return publicState
       }
-      const template =  publicState[registry].pukbak.filter(list => {
+      const template = publicState[registry].pukbak.filter(list => {
         const search = new RegExp(action.imageName)
         if (search.test(list.name)) {
           return true
@@ -663,7 +668,7 @@ function stackList(state = {}, action) {
         privateState[registry].myStackList = privateState[registry].prvbak
         return privateState
       }
-      const template =  privateState[registry].prvbak.filter(list => {
+      const template = privateState[registry].prvbak.filter(list => {
         const search = new RegExp(action.imageName)
         if (search.test(list.name)) {
           return true
@@ -711,17 +716,17 @@ function stackList(state = {}, action) {
       })
     case ActionTypes.GET_APP_STORE_LIST_REQUEST: {
       return merge({}, state, {
-        [registry]: {isFetching: false  }
+        [registry]: { isFetching: false }
       })
     }
     case ActionTypes.GET_APP_STORE_LIST_SUCCESS: {
       const result = action.response.result.data.data || []
       const imageList = []
       const temp = {}
-      for(let a in result) {
+      for (let a in result) {
         let key = result[a].category
         if (!temp[key]) {
-          temp[key] = {imageList:[], title: key}
+          temp[key] = { imageList: [], title: key }
           temp[key].imageList.push(result[a])
         } else {
           temp[key].imageList.push(result[a])
@@ -763,6 +768,111 @@ function createStack(state = {}, action) {
     case ActionTypes.CREATE_STACK_FAILURE:
       return merge({}, state, {
         isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+function mirrorSafetyLayerinfo(state = {}, action){
+  switch(action.type){
+    case ActionTypes.GET_IMAGE_MIRRORSAFETY_LAYERINFO_REQUEST:
+      return merge({}, state, {
+        isFetching: true,
+        mirrorLayerinfo: {}
+      })
+    case ActionTypes.GET_IMAGE_MIRRORSAFETY_LAYERINFO_SUCCESS:
+      return merge({}, state, {
+        isFetching: false,
+        mirrorLayerinfo: action.response.result.info.layers
+      })
+    case ActionTypes.GET_IMAGE_MIRRORSAFETY_LAYERINFO_FAILURE:
+      return merge({}, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+function mirrorSafetyScanStatus(state = {}, action){
+  switch(action.type){
+    case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCANSTATUS_REQUEST:
+      return merge({}, state, {
+        isFetching: true,
+        mirrorScanstatusinfo: {}
+      })
+    case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCANSTATUS_SUCCESS:
+      return merge({}, state, {
+        isFetching: false,
+        mirrorScanstatusinfo: action.response.result
+      })
+    case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCANSTATUS_FAILURE:
+      return merge({}, state, {
+        isFetching: false,
+      })
+    default:
+      return state
+  }
+}
+
+function mirrorSafetyScan(state = {}, action){
+  switch(action.type){
+    case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCAN_REQUEST:
+      return merge({}, state, {
+        isFetching: true,
+        mirrorScaninfo: {}
+      })
+    case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCAN_SUCCESS:
+      return merge({}, state, {
+        isFetching: false,
+        mirrorScaninfo: action.response
+      })
+    case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCAN_FAILURE:
+      return merge({}, state, {
+        isFetching: false,
+      })
+    default:
+      return state
+  }
+}
+
+function mirrorSafetyLyinsinfo(state = {}, action){
+  switch(action.type){
+    case ActionTypes.GET_IMAGE_MIRRORSAFETY_LYINSINFO_REQUEST:
+      return merge({}, state, {
+        isFetching: true,
+        mirrorLyinsinfo: {}
+      })
+    case ActionTypes.GET_IMAGE_MIRRORSAFETY_LYINSINFO_SUCCESS:
+      return merge({}, state, {
+        isFetching: false,
+        mirrorLyinsinfo: action.response
+      })
+    case ActionTypes.GET_IMAGE_MIRRORSAFETY_LYINSINFO_FAILURE:
+      return merge({}, state, {
+        isFetching: false,
+      })
+    default:
+      return state
+  }
+}
+
+function mirrorSafetyClairinfo(state = {}, action){
+  switch(action.type){
+    case ActionTypes.GET_IMAGE_MIRRORSAFETY_CLAIRINFO_REQUEST:
+      return merge({}, state, {
+        isFetching: true,
+        mirrorchairinfo: {}
+      })
+    case ActionTypes.GET_IMAGE_MIRRORSAFETY_CLAIRINFO_SUCCESS:
+      return merge({}, state, {
+        isFetching: false,
+        mirrorchairinfo: action.response
+      })
+    case ActionTypes.GET_IMAGE_MIRRORSAFETY_CLAIRINFO_FAILURE:
+      return merge({}, state, {
+        isFetching: false,
       })
     default:
       return state

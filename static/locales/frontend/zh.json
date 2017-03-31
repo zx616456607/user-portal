@@ -145,6 +145,7 @@
   "AppCenter.ImageCenter.ImageDetail.tag": "版本及接口",
   "AppCenter.ImageCenter.ImageDetail.size": "大小",
   "AppCenter.ImageCenter.ImageDetail.attribute": "属性",
+  "AppCenter.ImageCenter.ImageDetail.mirrorSafety": "镜像安全",
   "AppCenter.ImageCenter.ImageDetail.copyBtn": "点击复制",
   "AppCenter.ImageCenter.ImageDetail.copySuccess": "复制成功",
   "AppCenter.ImageCenter.ImageDetail.contributor": "贡献者",

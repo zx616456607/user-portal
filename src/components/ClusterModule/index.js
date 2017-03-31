@@ -19,6 +19,7 @@ import { browserHistory } from 'react-router'
 import { ROLE_SYS_ADMIN, URL_REGEX, CLUSTER_PAGE, NO_CLUSTER_FLAG, DEFAULT_CLUSTER_MARK } from '../../../constants'
 import { loadClusterList, getAddClusterCMD, createCluster } from '../../actions/cluster'
 import { loadLoginUserDetail } from '../../actions/entities'
+import { changeActiveCluster } from '../../actions/terminal'
 import AddClusterOrNodeModalContent from './AddClusterOrNodeModal/Content'
 import { camelize } from 'humps'
 
@@ -124,9 +125,12 @@ let CreateClusterModal = React.createClass({
     })
   },
   render () {
-    const { addClusterCMD, form, noCluster, parentScope } = this.props
+    const { addClusterCMD, form, noCluster, parentScope, loginUser } = this.props
     const { getFieldProps, getFieldValue } = form
     const { submitBtnLoading, checkBtnLoading } = this.state
+    const { tenxApi } = loginUser
+    let cmd = addClusterCMD && addClusterCMD[camelize('default_command')] || ''
+    cmd = cmd.replace('ADMIN_SERVER_URL', `${tenxApi.protocol}://${tenxApi.host}`)
     const clusterNamePorps = getFieldProps('clusterName', {
       rules: [
         { required: true, message: '请填写集群名称' },
@@ -181,7 +185,7 @@ let CreateClusterModal = React.createClass({
       }
       <Tabs defaultActiveKey="newCluster">
         <TabPane tab="新建集群" key="newCluster">
-          <AddClusterOrNodeModalContent CMD={addClusterCMD && addClusterCMD[camelize('default_command')].replace('ADMIN_SERVER_URL', window.location.origin)} />
+          <AddClusterOrNodeModalContent CMD={cmd} />
           <div style={{paddingBottom: 10}}>
             注：新建的首个集群，将设置对平台全部个人帐号开放
           </div>
@@ -258,6 +262,7 @@ class ClusterList extends Component {
   constructor(props) {
     super(props)
     this.checkIsAdmin = this.checkIsAdmin.bind(this)
+    this.onTabChange = this.onTabChange.bind(this)
     this.state = {
       createModal: false, // create cluster modal
     }
@@ -284,12 +289,17 @@ class ClusterList extends Component {
     getAddClusterCMD()
   }
 
+  onTabChange(key) {
+    const { changeActiveCluster } = this.props
+    changeActiveCluster(key)
+  }
+
   render() {
     const {
       intl, clustersIsFetching, clusters,
       currentClusterID, addClusterCMD, createCluster,
       license, noCluster, loadClusterList,
-      loadLoginUserDetail,
+      loadLoginUserDetail, loginUser,
     } = this.props
     if (!this.checkIsAdmin()) {
       return (
@@ -330,6 +340,7 @@ class ClusterList extends Component {
         <div id='ClusterContent' key='ClusterContent'>
           <div className="alertRow">基础设施，在这里您可以完成容器云平台的计算资源池管理：集群的添加、删除，以及集群内主机的添加、删除，并管理主机内的容器实例、查看主机维度的监控等。</div>
           <CreateClusterModal
+            loginUser={loginUser}
             noCluster={noCluster}
             parentScope={scope}
             addClusterCMD={addClusterCMD}
@@ -344,6 +355,7 @@ class ClusterList extends Component {
             )
             : (
               <Tabs
+                onChange={this.onTabChange}
                 key='ClusterTabs'
                 defaultActiveKey={currentClusterID}
                 tabBarExtraContent={
@@ -406,6 +418,7 @@ export default connect(mapStateToProps, {
   getAddClusterCMD,
   createCluster,
   loadLoginUserDetail,
+  changeActiveCluster,
 })(injectIntl(ClusterList, {
   withRef: true,
 }))

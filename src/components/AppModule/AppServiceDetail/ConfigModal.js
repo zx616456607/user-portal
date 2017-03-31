@@ -56,8 +56,9 @@ class ConfigModal extends Component {
     }
     let resources = service.spec.template.spec.containers[0].resources || DEFAULT_CONTAINER_RESOURCES
     let limits = resources.limits || DEFAULT_CONTAINER_RESOURCES.limits
+    let requests = resources.requests || DEFAULT_CONTAINER_RESOURCES.requests
     let memory = limits.memory || DEFAULT_CONTAINER_RESOURCES.limits.memory
-    let cpu = limits.cpu || RESOURCES_CPU_MIN
+    let cpu = requests.cpu || RESOURCES_CPU_MIN
     cpu += ''
     if (cpu.indexOf('m') > -1) {
       cpu = parseInt(cpu)

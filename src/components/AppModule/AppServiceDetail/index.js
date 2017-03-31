@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon, Modal, Popover, Tooltip } from 'antd'
+import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon, Popover, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import ContainerList from './AppContainerList'
@@ -26,9 +26,9 @@ import ServiceMonitor from './ServiceMonitor'
 import AppAutoScale from './AppAutoScale'
 import AlarmStrategy from './AlarmStrategy'
 import { loadServiceDetail, loadServiceContainerList, loadK8sService } from '../../../actions/services'
+import { addTerminal } from '../../../actions/terminal'
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
-import TerminalModal from '../../TerminalModal'
 import { parseServiceDomain } from '../../parseDomain'
 import ServiceStatus from '../../TenxStatus/ServiceStatus'
 import { TENX_MARK, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../../constants'
@@ -60,13 +60,11 @@ class AppServiceDetail extends Component {
     this.onTabClick = this.onTabClick.bind(this)
     this.restartService = this.restartService.bind(this)
     this.stopService = this.stopService.bind(this)
-    this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
     this.openTerminalModal = this.openTerminalModal.bind(this)
     this.onHttpsComponentSwitchChange = this.onHttpsComponentSwitchChange.bind(this)
 
     this.state = {
       activeTabKey: props.selectTab || DEFAULT_TAB,
-      TerminalLayoutModal: false,
       currentContainer: [],
       httpIcon: 'http',
     }
@@ -131,33 +129,9 @@ class AppServiceDetail extends Component {
     });
   }
 
-  closeTerminalLayoutModal() {
-    //this function for user close the terminal modal
-    this.setState({
-      TerminalLayoutModal: false
-    });
-  }
-
   openTerminalModal(item) {
-    //this function for user open the terminal modal
-    let { currentContainer } = this.state;
-    let existFlag = false;
-    currentContainer.map((container) => {
-      if (container.metadata.name == item.metadata.name) {
-        existFlag = true;
-      }
-    })
-    if (!existFlag) {
-      currentContainer.push(item)
-    }
-    this.setState({
-      currentContainer: currentContainer
-    });
-    setTimeout(() => {
-      this.setState({
-        TerminalLayoutModal: true
-      });
-    })
+    const { cluster, addTerminal } = this.props
+    addTerminal(cluster, item)
   }
 
   componentWillMount() {
@@ -166,10 +140,15 @@ class AppServiceDetail extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow, serviceName, selectTab } = nextProps
+    const { scope } = this.props
+    
     if (serviceDetailmodalShow === this.props.serviceDetailmodalShow) {
       return
     }
     if (serviceDetailmodalShow) {
+      scope.setState({
+        donotUserCurrentShowInstance: false
+      })
       this.loadData(nextProps)
       if (serviceName === this.props.serviceName && (!selectTab)) {
         return
@@ -178,6 +157,9 @@ class AppServiceDetail extends Component {
         activeTabKey: selectTab || DEFAULT_TAB
       })
     } else {
+      scope.setState({
+        donotUserCurrentShowInstance: true
+      })
       clearTimeout(this.loadStatusTimeout)
       clearInterval(this.upStatusInterval)
     }
@@ -347,14 +329,6 @@ class AppServiceDetail extends Component {
           </div>
           <div style={{ clear: 'both' }}></div>
         </div>
-        <Modal
-          visible={this.state.TerminalLayoutModal}
-          className='TerminalLayoutModal'
-          transitionName='move-down'
-          onCancel={this.closeTerminalLayoutModal}
-          >
-          <TerminalModal scope={parentScope} config={currentContainer} show={this.state.TerminalLayoutModal} nocache={nocache} />
-        </Modal>
         <div className='bottomBox'>
           <div className='siderBox'>
             <Tabs
@@ -541,4 +515,5 @@ export default connect(mapStateToProps, {
   loadServiceDetail,
   loadServiceContainerList,
   loadK8sService,
+  addTerminal,
 })(AppServiceDetail)

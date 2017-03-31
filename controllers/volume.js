@@ -64,9 +64,14 @@ exports.createVolume = function* () {
     const poolStatus = statusRes.data
     poolStatus.used = parseInt(poolStatus.used)
     poolStatus.available = parseInt(poolStatus.available)
-    poolStatus.total = parseInt(poolStatus.total)
+    let total = parseInt(poolStatus.total)
     poolStatus.allocated = parseInt(poolStatus.allocated)
-    poolStatus.unallocated = poolStatus.total * 1024 - poolStatus.allocated
+    if(poolStatus.total.toLowerCase().indexOf('g') > 0){
+      poolStatus.total = total * 1024
+    } else {
+      poolStatus.total = total 
+    }
+    poolStatus.unallocated = poolStatus.total - poolStatus.allocated
     let selectSize = reqData.driverConfig.size
     if (selectSize > poolStatus.unallocated) {
       poolStatus.select = selectSize

@@ -27,6 +27,7 @@ import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
 import CreateAlarm from './AlarmModal'
+import CreateGroup from './AlarmModal/CreateGroup'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -310,7 +311,9 @@ let MyComponent = React.createClass({
           <div className='containerNum commonData'>
             {item.instanceCount || '-'}
           </div>
-          <div className="alarm commonData normal">
+          {/* normal => 设置过 */}
+          <div className="alarm commonData">
+            <svg className="managemoniter" onClick={()=> browserHistory.push(`app_manage/detail/${item.name}#monitor`)}><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use></svg>
             <Tooltip title="告警设置" onClick={()=> parentScope.setState({alarmModal: true})}>
             <Icon type="notification" />
             </Tooltip>
@@ -1026,11 +1029,21 @@ class AppList extends Component {
           </Card>
           <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
             className="alarmModal"
-            closable={false}
+            onCancel={()=> this.setState({alarmModal:false})}
             maskClosable={false}
             footer={null}
           >
             <CreateAlarm funcs={modalFunc}/>
+          </Modal>
+          {/* 通知组 */}
+          <Modal title="创建新通知组" visible={this.state.createGroup}
+            width={560}
+            maskClosable={false}
+            wrapClassName="AlarmModal"
+            className="alarmContent"
+            footer={null}
+          >
+            <CreateGroup funcs={modalFunc}/>
           </Modal>
         </div>
       </QueueAnim>

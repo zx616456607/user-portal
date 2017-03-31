@@ -1,0 +1,79 @@
+#AlarmGroup{
+  width: 100%;
+  overflow: hidden;
+  .pageBox {
+    height: 35px;
+    float: right;
+    .totalPage {
+      line-height: 35px;
+      display: inline-block;
+      vertical-align: bottom;
+      padding: 0 10px;
+    }
+    .paginationBox {
+      // float: left;
+      display: inline-block;
+      margin-top: 0;
+      padding-top: 5px;
+    }
+  }
+  .alarmGroupHeader{
+    padding:6px 0 20px 0;
+    .ant-btn-ghost{margin-left: 8px;background: white;}
+    .Search{
+      width:170px;
+      margin-left: 8px;
+      display: inline-block;
+      position: relative;
+      i {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        font-size: 14px;
+        color: #999;
+        cursor: pointer;
+      }
+    }
+  }
+  .alarmGroupContent{
+    background: white;
+    overflow: hidden;
+    border-radius: 4px;
+    .ant-card-body{padding:10px 0 50px 0;}
+    .more {
+      display: inline-block;
+      margin-left: 5px;
+      width: 15px;
+      height: 16px;
+      cursor: pointer;
+      vertical-align: middle;
+      fill: #c7cbce;
+    }
+    .more.ant-popover-open {
+      fill: #49b1e2;
+    }
+  }
+}
+
+.ant-popover-content{
+  .alarmGroupContentRealtionPopOver{
+    .alarmGroupContentRealtionPopOveritem{
+      padding:7px 0 8px 0;
+      font-size: 12px;
+      color: #00a1ea;
+      .alarmGroupContentRealtionPopOverspan{
+        margin-left:8px;
+      }
+    }
+  }
+  .alarmGroupContentEmailPopOver{
+    .alarmGroupContentEmailPopOveritem{
+      padding:7px 0 8px 0;
+      font-size: 12px;
+      color: #00a1ea;
+      .alarmGroupContentEmailPopOverspan{
+        margin-left:8px;
+      }
+    }
+  }
+}
