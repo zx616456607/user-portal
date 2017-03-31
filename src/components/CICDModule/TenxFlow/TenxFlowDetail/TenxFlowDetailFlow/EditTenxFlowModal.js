@@ -961,6 +961,7 @@ let EditTenxFlowModal = React.createClass({
       })
       if(index < 0) otherImageValue = ''
     }
+    const configBaseConfig = config.spec.container.image
     if (this.state.showOtherImage) {
       validOtherImage = getFieldProps('otherImage', {
         rules: [
@@ -1059,11 +1060,12 @@ let EditTenxFlowModal = React.createClass({
       ],
       initialValue: (!!config.spec.build ? config.spec.build.image : null)
     });
+  
     const imageNameProps = getFieldProps('imageName', {
       rules: [
         { required: true, message: '请选择基础镜像' }
       ],
-      initialValue: buildImages[intFlowTypeIndex].imageList[0].imageName
+      initialValue: configBaseConfig || buildImages[intFlowTypeIndex].imageList[0].imageName
     });
     const flowNameProps = getFieldProps('flowName', {
       rules: [
