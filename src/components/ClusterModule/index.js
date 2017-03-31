@@ -16,7 +16,7 @@ import './style/clusterList.less'
 import ClusterTabList from './clusterTabList'
 import NotificationHandler from '../../common/notification_handler'
 import { browserHistory } from 'react-router'
-import { ROLE_SYS_ADMIN, URL_REGEX, CLUSTER_PAGE, NO_CLUSTER_FLAG, DEFAULT_CLUSTER_MARK } from '../../../constants'
+import { ROLE_SYS_ADMIN, URL_REGEX, CLUSTER_PAGE, NO_CLUSTER_FLAG, DEFAULT_CLUSTER_MARK, IP_REGEX } from '../../../constants'
 import { loadClusterList, getAddClusterCMD, createCluster } from '../../actions/cluster'
 import { loadLoginUserDetail } from '../../actions/entities'
 import { changeActiveCluster } from '../../actions/terminal'
@@ -134,6 +134,14 @@ let CreateClusterModal = React.createClass({
     const clusterNamePorps = getFieldProps('clusterName', {
       rules: [
         { required: true, message: '请填写集群名称' },
+        {
+          validator: (rule, value, callback) => {
+            if (value && value.length > 30) {
+              return callback([new Error('集群名称不能超过30个字符')])
+            }
+            callback()
+          }
+        }
       ]
     })
     const apiHostPorps = getFieldProps('apiHost', {
@@ -149,7 +157,15 @@ let CreateClusterModal = React.createClass({
     })
     const bindingIPsPorps = getFieldProps('bindingIPs', {
       rules: [
-        { required: true, whitespace: true, message: '请填写服务出口列表，多个出口英文逗号分开' },
+        { required: true, message: '请填写服务出口' },
+        {
+          validator: (rule, value, callback) => {
+            if (value && !IP_REGEX.test(value)) {
+              return callback([new Error('请填写正确的服务出口 IP')])
+            }
+            callback()
+          }
+        }
       ]
     })
     const bindingDomainPorps = getFieldProps('bindingDomains', {
@@ -217,11 +233,10 @@ let CreateClusterModal = React.createClass({
               <Input {...apiTokenPorps} />
             </Form.Item>
             <Form.Item>
-              <span className="itemKey">服务出口列表</span>
+              <span className="itemKey">服务出口</span>
               <Input
                 {...bindingIPsPorps}
-                placeholder="输入服务出口列表，多个出口英文逗号分开"
-                type="textarea"/>
+                placeholder="输入服务出口 IP" />
             </Form.Item>
             <Form.Item>
               <span className="itemKey">域名列表</span>
