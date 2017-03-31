@@ -266,6 +266,7 @@ let EditTenxFlowModal = React.createClass({
         branch: ''
       }
     }
+    console.log(config)
     let otherFlowType = config.metadata.type + '';
     let codeStoreName = fetchCodeStoreName(config.spec.project, codeList)
     if (config.spec.build && config.spec.build.dockerfileFrom == 2) {
@@ -346,7 +347,7 @@ let EditTenxFlowModal = React.createClass({
       isOnece: true
     })
     const config = nextProps.config
-    if(nextProps.otherImage.length <= 0 && config.spec.build.customRegistry) {
+    if(nextProps.otherImage.length <= 0 && config.spec.build && config.spec.build.customRegistry) {
        this.setState({
          addOtherImage: true,
          showOtherImage: false
