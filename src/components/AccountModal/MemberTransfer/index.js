@@ -26,7 +26,7 @@ class MemberTransfer extends Component{
     return option.title.indexOf(inputValue) > -1;
   }
   componentWillMount(){
-    this.props.loadUserList({size: 100})
+    this.props.loadUserList({size: 0})
   }
   renderItem(item){
     let customLabel = (
