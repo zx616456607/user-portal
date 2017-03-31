@@ -30,6 +30,8 @@ import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
 import ReactEcharts from 'echarts-for-react'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
+import CreateAlarm from '../AppModule/AlarmModal'
+import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 
 import cpuImg from '../../assets/img/integration/cpu.png'
 import hostImg from '../../assets/img/integration/host.png'
@@ -191,9 +193,6 @@ const MyComponent = React.createClass({
       );
       return (
         <div className='podDetail' key={`${item.objectMeta.name}-${index}`} >
-          <div className='checkBox commonTitle'>
-            {/*<Checkbox ></Checkbox>*/}
-          </div>
           <div className='name commonTitle'>
             <Link to={`/cluster/${clusterID}/${item.objectMeta.name}`}>{item.objectMeta.name}</Link>
           </div>
@@ -208,6 +207,12 @@ const MyComponent = React.createClass({
           <div className='role commonTitle'>
             <Tooltip title={item.isMaster ? MASTER : SLAVE}>
               <span>{item.isMaster ? MASTER : SLAVE}</span>
+            </Tooltip>
+          </div>
+          <div className="alarm commonTitle">
+            <Link to={`/cluster/${clusterID}/${item.objectMeta.name}?monitoring`}><svg className="managemoniter"><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use></svg></Link>
+            <Tooltip title="告警设置" onClick={()=> this.props.scope.setState({alarmModal: true})}>
+            <Icon type="notification" />
             </Tooltip>
           </div>
           <div className='container commonTitle'>
@@ -298,6 +303,8 @@ class ClusterTabList extends Component {
     this.openTerminalModal = this.openTerminalModal.bind(this);
     this.handleAddClusterNode = this.handleAddClusterNode.bind(this)
     this.copyAddNodeCMD = this.copyAddNodeCMD.bind(this)
+    this.cancelModal = this.cancelModal.bind(this)
+    this.nextStep = this.nextStep.bind(this)
     this.state = {
       nodeList: [],
       podCount: [],
@@ -305,7 +312,8 @@ class ClusterTabList extends Component {
       deleteNodeModal: false,
       addClusterOrNodeModalVisible: false,
       deleteNode: null,
-      copyAddNodeSuccess: false
+      copyAddNodeSuccess: false,
+      step:1 // create alarm modal step
     }
   }
 
@@ -357,14 +365,14 @@ class ClusterTabList extends Component {
 
   searchNodes() {
     //this function for search nodes
+    let search = this.state.nodeName
     const { nodes } = this.props;
-    if(this.state.nodeName.length == 0) {
+    if(search.length == 0) {
       this.setState({
         nodeList: nodes.nodes
       })
       return;
     }
-    let search = e.target.value;
     let nodeList = [];
     nodes.nodes.map((node) => {
       if(node.objectMeta.name.indexOf(search) > -1) {
@@ -375,7 +383,18 @@ class ClusterTabList extends Component {
       nodeList: nodeList
     });
   }
-
+  cancelModal() {
+    // cancel create Alarm modal
+    this.setState({
+      alarmModal: false,
+      step:1
+    })
+  }
+  nextStep(step) {
+    this.setState({
+      step: step
+    })
+  }
   deleteClusterNode() {
     //this function for delete cluster node
     let notification = new NotificationHandler()
@@ -546,6 +565,11 @@ class ClusterTabList extends Component {
         },
       },
     }
+    const modalFunc=  {
+      scope : this,
+      cancelModal: this.cancelModal,
+      nextStep: this.nextStep
+    }
     return (
       <QueueAnim className='clusterTabListBox'
         type='right'
@@ -592,7 +616,7 @@ class ClusterTabList extends Component {
                   </li>
                   <li>
                     <span className="itemKey success">实际使用</span>
-                    <span>{useRate ? `${(useRate.cpu / resource.cupSum *100).toFixed(2)} %` : NOT_AVAILABLE}</span>
+                    <span>{useRate ? `${(useRate.cpu).toFixed(2)} %` : NOT_AVAILABLE}</span>
                   </li>
                 </ul>
               </Card>
@@ -659,9 +683,6 @@ class ClusterTabList extends Component {
             </div>
             <div className='dataBox'>
               <div className='titleBox'>
-                <div className='checkBox commonTitle'>
-                  {/*<Checkbox ></Checkbox>*/}
-                </div>
                 <div className='name commonTitle'>
                   <span>主机名称</span>
                 </div>
@@ -678,6 +699,7 @@ class ClusterTabList extends Component {
                     <Icon type="question-circle-o" />
                   </Tooltip>
                 </div>
+                <div className="alarm commonTitle">监控告警</div>
                 <div className='container commonTitle'>
                   <span>容器数</span>&nbsp;
                   <Tooltip title={`运行在当前主机节点上的容器数量（包括系统所需容器）`}>
@@ -725,6 +747,25 @@ class ClusterTabList extends Component {
             closeModal={() => this.setState({addClusterOrNodeModalVisible: false})}
             CMD={addNodeCMD && addNodeCMD[camelize('default_command')]}
             bottomContent={<p>注意：新添加的主机需要与 Master 节点同一内网，可互通</p>} />
+
+          <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
+            className="alarmModal"
+            onCancel={()=> this.setState({alarmModal:false})}
+            maskClosable={false}
+            footer={null}
+          >
+            <CreateAlarm funcs={modalFunc}/>
+          </Modal>
+          {/* 通知组 */}
+          <Modal title="创建新通知组" visible={this.state.createGroup}
+            width={560}
+            maskClosable={false}
+            wrapClassName="AlarmModal"
+            className="alarmContent"
+            footer={null}
+          >
+            <CreateGroup funcs={modalFunc}/>
+          </Modal>
         </div>
       </QueueAnim>
     )

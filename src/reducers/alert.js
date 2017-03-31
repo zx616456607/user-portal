@@ -17,6 +17,7 @@ const option = {
 export default function alert(state = {
   recordFilters: {},
   records: {},
+  groups: {},
 }, action) {
   return {
     recordFilters: reducerFactory({
@@ -29,5 +30,10 @@ export default function alert(state = {
       SUCCESS: ActionTypes.ALERT_GET_RECORDS_SUCCESS,
       FAILURE: ActionTypes.ALERT_GET_RECORDS_FAILURE,
     }, state.records, action, option),
+    groups: reducerFactory({
+      REQUEST: ActionTypes.ALERT_GET_NOTIFY_GROUPS_REQUEST,
+      SUCCESS: ActionTypes.ALERT_GET_NOTIFY_GROUPS_SUCCESS,
+      FAILURE: ActionTypes.ALERT_GET_NOTIFY_GROUPS_FAILURE,
+    }, state.groups, action, option),
   }
 }

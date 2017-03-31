@@ -58,12 +58,15 @@ const MyComponent = React.createClass({
     const { value, checked } = e.target
     const { scope } = this.props
     const { serviceList } = scope.state
+    
     const checkedList = serviceList.filter((service) => service.checked)
+    
     serviceList.map((service) => {
       if (service.metadata.name === value) {
         service.checked = checked
       }
     })
+    
     if (checkedList.length === 0) {
       scope.setState({
         runBtn: false,
@@ -147,6 +150,9 @@ const MyComponent = React.createClass({
     let stopPro = e._dispatchInstances;
     if (stopPro.length != 2) {
       const { scope } = this.props
+      scope.setState({
+        donotUserCurrentShowInstance: true
+      })
       const { serviceList } = scope.state
       serviceList.map((service) => {
         if (service.metadata.name === item.metadata.name) {
@@ -268,7 +274,8 @@ const MyComponent = React.createClass({
   serviceOperaClick(item, e) {
     const { scope } = this.props
     scope.setState({
-      currentShowInstance: item
+      currentShowInstance: item,
+      donotUserCurrentShowInstance: false
     })
     switch (e.key) {
       case 'manualScale':
@@ -403,7 +410,7 @@ const MyComponent = React.createClass({
           key={item.metadata.name}
           onClick={(e) => this.selectServiceByLine(e, item)} >
           <div className="selectIconTitle commonData">
-            <Checkbox value={item.metadata.name} checked={item.checked} onChange={this.onchange} />
+            <Checkbox value={item.metadata.name} checked={item.checked} />
           </div>
           <div className="name commonData">
             <span className="viewBtn" onClick={() => this.modalShow(item)}>
@@ -575,7 +582,8 @@ class ServiceList extends Component {
     const { serviceList } = this.state
     serviceList.map((service) => service.checked = checked)
     this.setState({
-      serviceList
+      serviceList,
+      donotUserCurrentShowInstance: true
     })
     if (checked) {
       this.setState({
@@ -716,7 +724,7 @@ class ServiceList extends Component {
     const { cluster, stopServices, serviceList, intl } = this.props
     let checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
-    if (this.state.currentShowInstance) {
+    if (this.state.currentShowInstance && !this.state.donotUserCurrentShowInstance) {
       checkedServiceList = [this.state.currentShowInstance]
     }
     checkedServiceList.map((service, index) => {
@@ -783,7 +791,7 @@ class ServiceList extends Component {
 
     let checkedServiceList = servicesList.filter((service) => service.checked)
     let runningServices = []
-    if (this.state.currentShowInstance) {
+    if (this.state.currentShowInstance && !this.state.donotUserCurrentShowInstance) {
       checkedServiceList = [this.state.currentShowInstance]
     }
     checkedServiceList.map((service, index) => {

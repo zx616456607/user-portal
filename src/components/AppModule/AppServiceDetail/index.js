@@ -140,10 +140,15 @@ class AppServiceDetail extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow, serviceName, selectTab } = nextProps
+    const { scope } = this.props
+    
     if (serviceDetailmodalShow === this.props.serviceDetailmodalShow) {
       return
     }
     if (serviceDetailmodalShow) {
+      scope.setState({
+        donotUserCurrentShowInstance: false
+      })
       this.loadData(nextProps)
       if (serviceName === this.props.serviceName && (!selectTab)) {
         return
@@ -152,6 +157,9 @@ class AppServiceDetail extends Component {
         activeTabKey: selectTab || DEFAULT_TAB
       })
     } else {
+      scope.setState({
+        donotUserCurrentShowInstance: true
+      })
       clearTimeout(this.loadStatusTimeout)
       clearInterval(this.upStatusInterval)
     }
