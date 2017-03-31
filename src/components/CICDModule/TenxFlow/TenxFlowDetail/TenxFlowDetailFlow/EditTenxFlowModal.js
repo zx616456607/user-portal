@@ -266,7 +266,6 @@ let EditTenxFlowModal = React.createClass({
         branch: ''
       }
     }
-    console.log(config)
     let otherFlowType = config.metadata.type + '';
     let codeStoreName = fetchCodeStoreName(config.spec.project, codeList)
     if (config.spec.build && config.spec.build.dockerfileFrom == 2) {
