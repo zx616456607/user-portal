@@ -52,6 +52,10 @@ class ConfigModal extends Component {
       return
     }
     if (!visible) {
+      this.setState({
+        memory: 0,
+        cpu: 0
+      })
       return
     }
     let resources = service.spec.template.spec.containers[0].resources || DEFAULT_CONTAINER_RESOURCES
@@ -59,6 +63,12 @@ class ConfigModal extends Component {
     let requests = resources.requests || DEFAULT_CONTAINER_RESOURCES.requests
     let memory = limits.memory || DEFAULT_CONTAINER_RESOURCES.limits.memory
     let cpu = requests.cpu || RESOURCES_CPU_MIN
+    if(this.state.memory) {
+      memory = this.state.memory
+    }
+    if(this.state.cpu) {
+      cpu = this.state.cpu
+    }
     cpu += ''
     if (cpu.indexOf('m') > -1) {
       cpu = parseInt(cpu)
