@@ -48,7 +48,6 @@ class MemberTransfer extends Component{
         return !teamUserIDList.includes(userItem.key)
       }):
       userList
-      console.log('filterUserList:::',filterUserList)
     return (
       <div id='MemberTransfer'>
         <Row className="listTitle">

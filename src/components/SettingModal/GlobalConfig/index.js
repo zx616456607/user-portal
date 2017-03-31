@@ -616,9 +616,9 @@ let MirrorService = React.createClass({
               <img src={MirrorImg} alt="镜像服务" />
             </div>
             <div className="contentkeys">
-              <div className="key">镜像服务地址</div>
-              <div className="key">认证服务地址</div>
               <div className="key">扩展服务地址</div>
+              <div className="key">认证服务地址</div>
+              <div className="key">镜像服务地址</div>
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">

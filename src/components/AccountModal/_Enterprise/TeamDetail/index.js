@@ -507,6 +507,7 @@ class TeamDetail extends Component {
   handleNewMemberCancel(e) {
     this.setState({
       addMember: false,
+      targetKeys: [],
     })
   }
   handleChange(targetKeys) {

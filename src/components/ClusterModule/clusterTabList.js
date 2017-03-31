@@ -47,15 +47,15 @@ function diskFormat(num) {
   if (num < 1024) {
     return num + 'KB'
   }
-  num = parseInt(num / 1024);
+  num = Math.floor(num / 1024 *100) /100;
   if (num < 1024) {
     return num + 'MB'
   }
-  num = parseInt(num / 1024);
+  num =  Math.floor(num / 1024 *100) /100;
   if (num < 1024) {
     return num + 'GB'
   }
-  num = parseInt(num / 1024);
+  num =  Math.floor(num / 1024 *100) /100;
   return num + 'TB'
 }
 

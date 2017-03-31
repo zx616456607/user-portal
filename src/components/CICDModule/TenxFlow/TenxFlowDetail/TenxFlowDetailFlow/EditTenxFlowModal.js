@@ -346,7 +346,7 @@ let EditTenxFlowModal = React.createClass({
       isOnece: true
     })
     const config = nextProps.config
-    if(nextProps.otherImage.length <= 0 && config.spec.build.customRegistry) {
+    if(nextProps.otherImage.length <= 0 && config.spec.build && config.spec.build.customRegistry) {
        this.setState({
          addOtherImage: true,
          showOtherImage: false
@@ -1059,11 +1059,12 @@ let EditTenxFlowModal = React.createClass({
       ],
       initialValue: (!!config.spec.build ? config.spec.build.image : null)
     });
+    const configBaseConfig = config.spec.container.image
     const imageNameProps = getFieldProps('imageName', {
       rules: [
         { required: true, message: '请选择基础镜像' }
       ],
-      initialValue: buildImages[intFlowTypeIndex].imageList[0].imageName
+      initialValue: configBaseConfig || buildImages[intFlowTypeIndex].imageList[0].imageName
     });
     const flowNameProps = getFieldProps('flowName', {
       rules: [
