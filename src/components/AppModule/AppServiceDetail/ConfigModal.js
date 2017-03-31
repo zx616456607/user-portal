@@ -31,7 +31,7 @@ import { mode } from '../../../../configs/model'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const PRESET_MEMORY_ARRAY = [512, 1024, 2048, 4096, 8192]
-const PETSET_CPU_ARRAY = [0.1, 0.2]
+const PRESET_CPU_ARRAY = [0.1, 0.2]
 
 class ConfigModal extends Component {
   constructor(props) {
@@ -75,7 +75,7 @@ class ConfigModal extends Component {
     }
     let composeType = memory
     let composeCpu = cpu
-    if (PRESET_MEMORY_ARRAY.indexOf(composeType) < 0 || PETSET_CPU_ARRAY.indexOf(composeCpu) < 0) {
+    if (PRESET_MEMORY_ARRAY.indexOf(composeType) < 0 || PRESET_CPU_ARRAY.indexOf(composeCpu) < 0) {
       composeType = RESOURCES_DIY
     }
     this.setState({
