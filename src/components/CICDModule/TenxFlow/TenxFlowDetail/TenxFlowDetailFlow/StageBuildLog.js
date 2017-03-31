@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Icon, Collapse, Alert, Button } from 'antd'
+import { Spin, Icon, Collapse, Alert, Button, Modal } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -171,6 +171,11 @@ let MyComponent = React.createClass({
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
+  getInitialState() {
+    return {
+      showModal: false
+    }
+  },
   collapseAction: function (config, e) {
     //this function for user open or close collapse panel action
     //and then the line collapse will be current change
@@ -208,6 +213,13 @@ let MyComponent = React.createClass({
       })
     }
   },
+  showModal(item) {
+    const { scope } = this.props
+    this.setState({
+      showModal: true,
+      currentItem: item
+    })
+  },
   callback(flowId) {
     return () => {
       const {getTenxflowBuildLastLogs} = this.props
@@ -243,7 +255,7 @@ let MyComponent = React.createClass({
                 {(item.status != 2 && item.status != 3) ? [<FormattedMessage {...menusText.cost} />] : null}
                 {(item.status == 2 || item.status == 3) ? '' : dateSizeFormat(item.creationTime, item.endTime, scope)}
                 {(item.status == 2 || item.status == 3) ? [
-                  <Button type='primary' onClick={scope.stopStageBuild.bind(scope, item)}>
+                  <Button type='primary' onClick={() => this.showModal(item)}>
                     <span>停止</span>
                   </Button>
                 ] : null}
@@ -270,6 +282,10 @@ let MyComponent = React.createClass({
         <Collapse className='logBox' onChange={this.collapseAction.bind(this, config)}>
           {items}
         </Collapse>
+        <Modal title="确认停止" visible={this.state.showModal}
+          onOk={() => scope.stopStageBuild.call(scope, this.state.currentItem)} onCancel={() => this.setState({ showModal: false })} >
+          是否确认停止此次构建
+        </Modal>
       </div>
     );
   }
@@ -319,7 +335,9 @@ class StageBuildLog extends Component {
   }
 
   stopStageBuild(item, e) {
-    e.stopPropagation();
+    if(e){
+      e.stopPropagation();
+    }
     const { StopTenxflowBuild, flowId, scope } = this.props;
     const { getStageBuildLogList } = scope.props;
     let notification = new NotificationHandler()
