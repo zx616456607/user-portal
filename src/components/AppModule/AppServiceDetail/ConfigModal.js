@@ -53,12 +53,9 @@ class ConfigModal extends Component {
       return
     }
     if (!visible) {
-      this.setState({
-        memory: 0,
-        cpu: 0
-      })
       return
     }
+    if(nextProps.visible == this.props.visible) return
     let resources = service.spec.template.spec.containers[0].resources || DEFAULT_CONTAINER_RESOURCES
     let limits = resources.limits || DEFAULT_CONTAINER_RESOURCES.limits
     let requests = resources.requests || DEFAULT_CONTAINER_RESOURCES.requests
@@ -75,12 +72,6 @@ class ConfigModal extends Component {
       memory = parseInt(memory) * 1024
     } else {
       memory = parseInt(memory)
-    }
-    if (this.state.memory) {
-      memory = this.state.memory
-    }
-    if (this.state.cpu) {
-      cpu = this.state.cpu
     }
     let composeType = memory
     let composeCpu = cpu
