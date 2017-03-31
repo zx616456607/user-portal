@@ -91,6 +91,10 @@ let CreateUserModal = React.createClass({
   checkPass2(rule, value, callback) {
     const { getFieldValue, getFieldError } = this.props.form;
     const pwdError = getFieldError('passwd');
+    if (!Boolean(value)) {
+      callback('请再次输入密码！')
+      return
+    }
     if(Boolean(pwdError)) {
       callback([new Error(pwdError[0])]);
       return
@@ -150,7 +154,7 @@ let CreateUserModal = React.createClass({
     const telProps = getFieldProps('tel', {
       validate: [{
         rules: [
-          { required: true, message: '请输入手机号' },
+          { whitespace: true },
         ],
         trigger: 'onBlur',
       }, {
@@ -179,11 +183,8 @@ let CreateUserModal = React.createClass({
       ],
     })
     const rePasswdProps = getFieldProps('rePasswd', {
-      rules: [{
-        required: true,
-        whitespace: true,
-        message: '请再次输入密码',
-      }, {
+      rules: [{ whitespace: true },
+      {
         validator: this.checkPass2,
       }],
     })
@@ -221,6 +222,10 @@ let CreateUserModal = React.createClass({
             hasFeedback
             help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
             >
+            {/*   not browser autoComplete    */}
+            <Input type="text" id="autoname" style={{visibility: 'hidden', opacity:0,position:'absolute'}} />
+            <Input type="password" id="autopassword" style={{visibility: 'hidden', opacity:0,position:'absolute'}} />
+
             <Input {...nameProps} placeholder="新成员名称" id="newUser"/>
           </FormItem>
 

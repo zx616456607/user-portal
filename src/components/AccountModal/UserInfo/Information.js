@@ -103,7 +103,7 @@ let ResetPassWord = React.createClass({
     const { getFieldProps } = this.props.form;
     const passwdProps = getFieldProps('passwd', {
       rules: [
-        { required: true, whitespace: true, message: '请填写密码' },
+        { whitespace: true },
         { validator: this.checkPass },
       ],
     });
