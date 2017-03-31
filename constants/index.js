@@ -39,6 +39,7 @@ exports.ROLE_TEAM_ADMIN = 1
 exports.ROLE_SYS_ADMIN = 2
 exports.PHONE_REGEX = /^1[0-9]{10}$/
 exports.URL_REGEX = /^(http[s]?):\/\/([\da-zA-Z\-][\.]?)+(:\d)?[\da-zA-Z\.\-\/]*$/
+exports.HOST_REGEX = /^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/
 exports.IP_REGEX = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/
 exports.AMOUNT_CONVERSION = 10000 // 10000 = 1 元
 exports.AMOUNT_DEFAULT_PRECISION = 2 // 小数点后两位

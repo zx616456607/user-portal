@@ -16,7 +16,7 @@ import './style/clusterList.less'
 import ClusterTabList from './clusterTabList'
 import NotificationHandler from '../../common/notification_handler'
 import { browserHistory } from 'react-router'
-import { ROLE_SYS_ADMIN, URL_REGEX, CLUSTER_PAGE, NO_CLUSTER_FLAG, DEFAULT_CLUSTER_MARK, IP_REGEX } from '../../../constants'
+import { ROLE_SYS_ADMIN, URL_REGEX, CLUSTER_PAGE, NO_CLUSTER_FLAG, DEFAULT_CLUSTER_MARK, IP_REGEX, HOST_REGEX } from '../../../constants'
 import { loadClusterList, getAddClusterCMD, createCluster } from '../../actions/cluster'
 import { loadLoginUserDetail } from '../../actions/entities'
 import { changeActiveCluster } from '../../actions/terminal'
@@ -157,7 +157,7 @@ let CreateClusterModal = React.createClass({
     })
     const bindingIPsPorps = getFieldProps('bindingIPs', {
       rules: [
-        { required: true, message: '请填写服务出口' },
+        { required: true, message: '请填写服务出口 IP' },
         {
           validator: (rule, value, callback) => {
             if (value && !IP_REGEX.test(value)) {
@@ -170,7 +170,15 @@ let CreateClusterModal = React.createClass({
     })
     const bindingDomainPorps = getFieldProps('bindingDomains', {
       rules: [
-        { whitespace: true, message: '请填写域名列表，多个域名英文逗号分开' },
+        {message: '请填写服务域名' },
+        {
+          validator: (rule, value, callback) => {
+            if (value && !HOST_REGEX.test(value)) {
+              return callback([new Error('请填写正确的服务域名')])
+            }
+            callback()
+          }
+        }
       ]
     })
     const descProps = getFieldProps('description', {
@@ -233,17 +241,16 @@ let CreateClusterModal = React.createClass({
               <Input {...apiTokenPorps} />
             </Form.Item>
             <Form.Item>
-              <span className="itemKey">服务出口</span>
+              <span className="itemKey">服务出口 IP</span>
               <Input
                 {...bindingIPsPorps}
                 placeholder="输入服务出口 IP" />
             </Form.Item>
             <Form.Item>
-              <span className="itemKey">域名列表</span>
+              <span className="itemKey">服务域名</span>
               <Input
                 {...bindingDomainPorps}
-                placeholder="输入域名列表，多个域名英文逗号分开"
-                type="textarea" />
+                placeholder="输入服务域名" />
             </Form.Item>
             <Form.Item>
               <span className="itemKey">描述</span>

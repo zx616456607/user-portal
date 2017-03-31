@@ -13,7 +13,7 @@ import { updateCluster, loadClusterList, deleteCluster } from '../../actions/clu
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
 import clusterImg from '../../assets/img/integration/cluster.png'
-import { IP_REGEX } from '../../../constants'
+import { IP_REGEX, HOST_REGEX } from '../../../constants'
 
 let saveBtnDisabled = true
 
@@ -171,7 +171,15 @@ let ClusterInfo = React.createClass ({
     });
     const bindingDomainsProps = getFieldProps('bindingDomains',{
       rules: [
-        { message: '输入域名列表' },
+        { message: '输入服务域名' },
+        {
+          validator: (rule, value, callback) => {
+            if (value && !HOST_REGEX.test(value)) {
+              return callback([new Error('请填写正确的服务域名')])
+            }
+            callback()
+          }
+        }
       ],
       initialValue: bindingDomains
     });
@@ -243,7 +251,7 @@ let ClusterInfo = React.createClass ({
               <div className="h4 blod">&nbsp;</div>
             </Form.Item>
             <Form.Item>
-              <div className="h4" style={{width:'90px'}}>服务出口列表：</div>
+              <div className="h4" style={{width:'90px'}}>服务出口 IP：</div>
               { editCluster ?
               <Input {...bindingIPsProps } placeholder="输入服务出口 IP" />
               :
@@ -251,9 +259,9 @@ let ClusterInfo = React.createClass ({
               }
             </Form.Item>
             <Form.Item>
-              <div className="h4" style={{width:'90px'}}>域名列表：</div>
+              <div className="h4" style={{width:'90px'}}>服务域名：</div>
               { editCluster ?
-              <Input {...bindingDomainsProps} placeholder="输入域名列表，多个域名英文逗号分开" type="textarea" />
+              <Input {...bindingDomainsProps} placeholder="输入服务域名" />
               :
               <span className="cluserName textoverflow">{bindingDomains || '-'}</span>
               }
