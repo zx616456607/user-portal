@@ -273,7 +273,7 @@ class License extends Component {
         <br />
         <Card className="licenseWrap">
           <div className="merged">
-            <span className="secTitle">当前生效：（集群、节点是授权后立即生效，许可证时长为累加）</span>
+            <span className="secTitle">当前生效（集群、节点是授权后立即生效，许可证时长为累加）</span>
             <div className="content">
               <table className="list-table">
                 <thead className="ant-table-thead">
@@ -294,7 +294,7 @@ class License extends Component {
             </div>
           </div>
           <div className="licenses">
-            <span className="secTitle">授权历史：</span>
+            <span className="secTitle">授权历史</span>
             <table className="list-table">
               <thead className="ant-table-thead">
               <tr>

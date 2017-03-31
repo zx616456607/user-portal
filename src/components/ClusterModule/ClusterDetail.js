@@ -524,7 +524,7 @@ class ClusterDetail extends Component {
         </Card>
         <Card className="infoTabs" bordered={false}>
           <div className="h3"></div>
-          <Tabs defaultActiveKey="info" activeKey={this.state.activeTabKey}>
+          <Tabs defaultActiveKey={this.state.activeTabKey}>
             <TabPane tab="详情" key="info"><HostInfo foreverPodNumber={this.state.foreverPodNumber} podeList={this.props.results} metricsData={{cpuData:this.props.hostcpu,memoryData:this.props.memory}} hostInfo={hostInfo} scope={this} /></TabPane>
             <TabPane tab="监控" key="monitoring">
               <TimeControl onChange={this.handleTimeChange} />

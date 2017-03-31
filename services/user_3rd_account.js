@@ -48,7 +48,7 @@ exports.sendTemplateToWechatLoginUser = function (user) {
       logger.warn(method, `get wechat user openid failed`)
       return
     }
-    const balance = (user.balance / constants.AMOUNT_CONVERSION) * 100 / 100
+    const balance = Math.floor((user.balance / constants.AMOUNT_CONVERSION) * 100) / 100
     const data = {
       first: {
         value: `您好，您已在「时速云 | 公有云」成功登录\n`,
@@ -58,7 +58,7 @@ exports.sendTemplateToWechatLoginUser = function (user) {
         color
       },
       keyword2: {
-        value: moment().format('YYYY-MM-DD hh:mm:ss'),
+        value: moment().format('YYYY-MM-DD HH:mm:ss'),
         color
       },
       remark: {
