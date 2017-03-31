@@ -39,6 +39,14 @@ let MemberRecharge = React.createClass({
     }
     callback()
   },
+  otherNumber(e) {
+    const { parentScope } = this.props
+    let number = parseFloat(e.target.value)
+    if (!/^\d+$/.test(number)) {
+      number = 10
+    }
+    parentScope.setState({number})
+  },
   render () {
     const { parentScope } = this.props
     const { record } = parentScope.state
@@ -47,7 +55,7 @@ let MemberRecharge = React.createClass({
       rules: [
         { validator: this.checkCharge },
       ],
-      trigger: 'onBlur',
+      trigger: ['onChange'],
       initialValue: parseFloat(parentScope.state.number)
     })
     return(
@@ -63,7 +71,7 @@ let MemberRecharge = React.createClass({
           <div className={parentScope.state.number ==50 ? "pushMoney selected" : 'pushMoney'} onClick={()=> parentScope.activeMenu(50)}><span>50T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
           <div className={parentScope.state.number ==100 ? "pushMoney selected" : 'pushMoney'} onClick={()=> parentScope.activeMenu(100)}><span>100T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
           <Form.Item style={{float:'left', width:'100px'}}>
-            <InputNumber {...autoNumberProps} size="large"  onClick={(e)=> parentScope.setState({number: e.target.value})} min={0} step={50} max={MAX_CHARGE}/> T
+            <InputNumber {...autoNumberProps} size="large"  onClick={(e)=> this.otherNumber(e)} min={0} step={50} max={MAX_CHARGE}/> T
           </Form.Item>
         </div>
         </Form>
