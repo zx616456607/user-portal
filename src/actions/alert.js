@@ -213,3 +213,29 @@ export function createNotifyGroup(body, callback) {
     return dispatch(fetchCreateNotifyGroup(body, callback))
   }
 }
+
+export const ALERT_MODIFY_NOTIFY_GROUP_REQUEST = 'ALERT_MODIFY_NOTIFY_GROUP_REQUEST'
+export const ALERT_MODIFY_NOTIFY_GROUP_SUCCESS = 'ALERT_MODIFY_NOTIFY_GROUP_SUCCESS'
+export const ALERT_MODIFY_NOTIFY_GROUP_FAILURE = 'ALERT_MODIFY_NOTIFY_GROUP_FAILURE'
+
+function fetchModifyNotifyGroup(groupID, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/alerts/groups/${groupID}`
+  return {
+    [FETCH_API]: {
+      types: [ALERT_MODIFY_NOTIFY_GROUP_REQUEST, ALERT_MODIFY_NOTIFY_GROUP_SUCCESS, ALERT_MODIFY_NOTIFY_GROUP_FAILURE],
+      endpoint: endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body: body,
+      },
+    },
+    callback,
+  }
+}
+
+export function modifyNotifyGroup(groupID, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchModifyNotifyGroup(groupID, body, callback))
+  }
+}

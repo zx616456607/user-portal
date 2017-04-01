@@ -28,8 +28,11 @@ class AlarmGroup extends Component {
         createGroup: false,
         deleteModal: false,
         deletingGroupIDs: [],
-        createOrModifyModalTitle: '创建新通知组',
+        createModalTitle: '创建新通知组',
         selectedRowKeys: [],
+        selectedRows: [],
+        modifyGroup: false,
+        modifyingGroupInfo: {},
      }
   }
   componentWillMount() {
@@ -91,7 +94,7 @@ class AlarmGroup extends Component {
     if (record.key == 'delete') {
       this.openDeleteModal([group.groupID])
     } else if (record.key == 'edit') {
-
+      this.openModifyModal(group)
     }
   }
   openDeleteModal(groupIDs) {
@@ -108,8 +111,10 @@ class AlarmGroup extends Component {
   }
   openModifyModal(group) {
     this.setState({
-      deleteModal: true,
-      deletingGroupIDs: groupIDs,
+      createGroup: false,
+      modifyGroup: true,
+      createModalTitle: '修改通知组',
+      modifyingGroupInfo: group,
     })
   }
   getGroupEmails(emails){
@@ -174,6 +179,14 @@ class AlarmGroup extends Component {
     })
     return groupIDs
   }
+  getModifyingGroup() {
+    if (this.state.selectedRows.length !== 1) {
+      const notification = new NotificationHandler()
+      notification.error('请先选择一个组')
+      return
+    }
+    return this.state.selectedRows[0]
+  }
   render() {
     const modalFunc=  {
       scope : this,
@@ -235,10 +248,10 @@ class AlarmGroup extends Component {
       <QueueAnim  className="alarmGroup">
         <div id="AlarmGroup" key="demo">
           <div className='alarmGroupHeader'>
-            <Button size="large" type="primary" icon="plus" onClick={()=> this.setState({createGroup:true})}>创建</Button>
+            <Button size="large" type="primary" icon="plus" onClick={()=> this.setState({createGroup:true, createModalTitle: '创建新通知组'})}>创建</Button>
             <Button size="large" icon="reload" type="ghost" onClick={() => this.props.loadNotifyGroups()}>刷新</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length === 0} icon="delete" onClick={()=> this.openDeleteModal(this.getSelectedGroups())} type="ghost">删除</Button>
-            <Button size="large" disabled={this.state.selectedRowKeys.length !== 1} icon="edit" type="ghost">修改</Button>
+            <Button size="large" disabled={this.state.selectedRowKeys.length !== 1} icon="edit" onClick={() => this.openModifyModal(this.getModifyingGroup())} type="ghost">修改</Button>
             <div className="Search">
               <Input size="large" id="AlarmGroupInput" onPressEnter={()=> this.handSearch()} />
               <i className="fa fa-search" onClick={()=> this.handSearch()} />
@@ -254,7 +267,7 @@ class AlarmGroup extends Component {
             >
             </Table>
           </Card>
-          <Modal title={this.state.createOrModifyModalTitle} visible={this.state.createGroup}
+          <Modal title={this.state.createModalTitle} visible={this.state.createGroup || this.state.modifyGroup}
             width={560}
             maskClosable={false}
             closable={false}
@@ -264,6 +277,9 @@ class AlarmGroup extends Component {
           >
             <CreateAlarm funcs={modalFunc}
             afterCreateFunc={() => this.props.loadNotifyGroups()}
+            afterModifyFunc={() => this.props.loadNotifyGroups()}
+            isModify={!!this.state.modifyGroup}
+            data={this.state.modifyingGroupInfo}
             />
           </Modal>
           <Modal title="删除通知组" visible={this.state.deleteModal}
