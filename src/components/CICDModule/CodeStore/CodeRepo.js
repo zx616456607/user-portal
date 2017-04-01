@@ -278,7 +278,7 @@ const MyComponent = React.createClass({
         </div>
       )
     }
-    
+
     if (!config) {
       return (
         <div style={{ lineHeight: '100px', paddingLeft: '140px', paddingBottom: '16px' }}>
@@ -411,6 +411,8 @@ class CodeRepo extends Component {
         return 'GitHub'
       case 'gitlab':
         return 'GitLab'
+      case 'gogs':
+        return 'Gogs'
       default:
         return 'SVN'
     }
@@ -444,6 +446,12 @@ class CodeRepo extends Component {
         bibucket
       </span>
     )
+    const gogsBud = (
+      <span className="section">
+        <i className="icon gogs"></i>
+        Gogs
+      </span>
+    )
     return (
       <QueueAnim id='codeRepo'
         type='right'
@@ -459,8 +467,9 @@ class CodeRepo extends Component {
           <div className="card-container">
             <p style={{ paddingLeft: '36px', lineHeight: '40px' }}>选择代码源</p>
             <Tabs type="card" onChange={(e) => this.setState({ repokey: e }) } activeKey={this.state.repokey}>
-              <TabPane tab={githubBud} key="github"><GithubComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
+              <TabPane tab={githubBud} key="github"><GithubComponent typeName="github" formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
               <TabPane tab={gitlabBud} key="gitlab"><MyComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser} config={this.props.repoList} /></TabPane>
+              <TabPane tab={gogsBud} key="gogs"><GithubComponent typeName="gogs" formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
               <TabPane tab={svnBud} key="svn"><SvnComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
 
             </Tabs>
