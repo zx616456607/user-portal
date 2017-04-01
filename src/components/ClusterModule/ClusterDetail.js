@@ -287,7 +287,8 @@ class ClusterDetail extends Component {
     changeClusterNodeSchedule(clusterID, node, e, {
       success: {
         func: ()=> {
-          notification.info(e ? '开启调度中，该操作 1 分钟内生效' : '关闭调度中，该操作 1 分钟内生效');
+          // notification.info(e ? '开启调度中，该操作 1 分钟内生效' : '关闭调度中，该操作 1 分钟内生效');
+          notification.success(e ? '开启调度成功' : '关闭调度成功');
           _this.setState({
             schedulable: e
           })
