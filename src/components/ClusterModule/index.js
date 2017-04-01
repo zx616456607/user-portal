@@ -43,6 +43,9 @@ let CreateClusterModal = React.createClass({
       if (!!errors) {
         return;
       }
+      this.setState({
+        submitBtnLoading: true,
+      })
       if (values.isDefault === true) {
         values.isDefault = DEFAULT_CLUSTER_MARK
       } else {
@@ -53,12 +56,15 @@ let CreateClusterModal = React.createClass({
         success: {
           func: result => {
             loadLoginUserDetail()
-            loadClusterList(null, {
+            loadClusterList({size: 100}, {
               finally: {
                 func: () => {
                   notification.success(`添加集群 ${values.clusterName} 成功`)
                   parentScope.setState({
-                    createModal: false
+                    createModal: false,
+                  })
+                  this.setState({
+                    submitBtnLoading: false
                   })
                   resetFields()
                 }
@@ -70,6 +76,9 @@ let CreateClusterModal = React.createClass({
         failed: {
           func: err => {
             notification.error(`添加集群 ${values.clusterName} 失败`)
+            this.setState({
+              submitBtnLoading: false
+            })
           },
           isAsync: true
         }
@@ -99,7 +108,7 @@ let CreateClusterModal = React.createClass({
     this.setState({
       checkBtnLoading: true,
     })
-    loadClusterList(null, {
+    loadClusterList({size: 100}, {
       success: {
         func: result => {
           let clusters = result.data || []
@@ -303,7 +312,7 @@ class ClusterList extends Component {
 
   componentWillMount() {
     const { loadClusterList } = this.props
-    loadClusterList()
+    loadClusterList({size: 100})
   }
 
   componentDidMount() {
