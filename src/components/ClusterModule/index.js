@@ -53,18 +53,23 @@ let CreateClusterModal = React.createClass({
         success: {
           func: result => {
             loadLoginUserDetail()
-            loadClusterList()
-            notification.success(`添加集群 ${values.clusterName} 成功`)
-            parentScope.setState({
-              createModal: false
+            loadClusterList(null, {
+              finally: {
+                func: () => {
+                  notification.success(`添加集群 ${values.clusterName} 成功`)
+                  parentScope.setState({
+                    createModal: false
+                  })
+                  resetFields()
+                }
+              }
             })
-            resetFields()
           },
           isAsync: true
         },
         failed: {
           func: err => {
-            notification.failed(`添加集群 ${values.clusterName} 失败`)
+            notification.error(`添加集群 ${values.clusterName} 失败`)
           },
           isAsync: true
         }
