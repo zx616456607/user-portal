@@ -180,14 +180,15 @@ class GithubComponent extends Component {
     this.loadData = this.loadData.bind(this)
     this.searchClick = this.searchClick.bind(this)
     this.state = {
-      repokey: 'github',
+      repokey: props.typeName,
       currentSearch: ''
     }
   }
 
   loadData() {
     const self = this
-    this.props.getGithubList('github', {
+    const { typeName } = this.props
+    this.props.getGithubList(typeName, {
       success: {
         func: (res) => {
           if (res.data.hasOwnProperty('results')) {
@@ -219,17 +220,17 @@ class GithubComponent extends Component {
 
   }
   handSyncCode() {
-    const { registryGithub } = this.props
+    const { registryGithub, typeName} = this.props
     const parentScope = this.props.scope
     const typeList = parentScope.state.typeList
-    if (!typeList || !typeList.includes('github')) {
+    if (!typeList || !typeList.includes(typeName)) {
       parentScope.setState({typeVisible: true})
       return
     }
     let notification = new NotificationHandler()
     notification.spin(`正在执行中...`)
     this.setState({loading: true})
-    registryGithub('github', {
+    registryGithub(typeName, {
       success: {
         func: (res) => {
           // notification.close()
@@ -277,16 +278,17 @@ class GithubComponent extends Component {
     })
   }
   render() {
-    const { githubList, formatMessage, isFetching} = this.props
+    const { githubList, formatMessage, isFetching, typeName} = this.props
     const scope = this
+    let typeNames = typeName == 'github' ? 'GitHub': 'Gogs'
     let codeList = []
     if (!githubList) {
       return (
         <div style={{ lineHeight: '100px', paddingLeft: '130px', paddingBottom: '16px' }}>
         {this.state.loading ?
-          <Button type="primary" size="large" loading={true}>授权、同步 GitHub 代码源</Button>
+          <Button type="primary" size="large" loading={true}>{`授权、同步 ${typeNames} 代码源`}</Button>
         :
-          <Button type="primary" size="large" onClick={() => this.handSyncCode()}>授权、同步 GitHub 代码源</Button>
+          <Button type="primary" size="large" onClick={() => this.handSyncCode()}>{`授权、同步 ${typeNames} 代码源`}</Button>
         }
         </div>
       )
