@@ -248,7 +248,8 @@ let EditTenxFlowModal = React.createClass({
       ImageEnvModal: false,
       emptyImageEnv: false,
       emptyServiceEnv: [],
-      baseImage: []
+      baseImage: [],
+      updateDfBtnLoading: false,
     }
   },
   componentWillMount() {
@@ -854,7 +855,7 @@ let EditTenxFlowModal = React.createClass({
       updateTenxFlowState(flowId, stageId, body, {
         success: {
           func: () => {
-            if (!_this.state.useDockerfile && this.state.otherFlowType == 3) {
+            /*if (!_this.state.useDockerfile && this.state.otherFlowType == 3) {
               let dockerfilebody = {
                 content: _this.state.dockerFileTextarea,
                 flowId: flowId,
@@ -870,7 +871,8 @@ let EditTenxFlowModal = React.createClass({
               })
             } else {
               getTenxFlowStateList(flowId)
-            }
+            }*/
+            getTenxFlowStateList(flowId)
             rootScope.setState({
               currentFlowEdit: null
             });
@@ -880,6 +882,40 @@ let EditTenxFlowModal = React.createClass({
         }
       })
     });
+  },
+  handleUpdateDockerfile() {
+    const notification = new NotificationHandler()
+    const { flowId, stageId, setDockerfile } = this.props
+    const dockerfilebody = {
+      content: this.state.dockerFileTextarea,
+      flowId,
+      stageId,
+    }
+    this.setState({
+      updateDfBtnLoading: true,
+    })
+    setDockerfile(dockerfilebody, {
+      success: {
+        func: () => {
+          notification.success('云端 Dockerfile 保存成功')
+          this.setState({
+            dockerFileModalShow: false,
+          })
+        },
+      },
+      failed: {
+        func: () => {
+          notification.error('云端 Dockerfile 保存失败')
+        },
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            updateDfBtnLoading: false,
+          })
+        },
+      },
+    })
   },
   getOtherImage() {
     if(!this.props.otherImage ||  this.props.otherImage.length <= 0){
@@ -1218,7 +1254,7 @@ let EditTenxFlowModal = React.createClass({
                           </Tooltip>
                         </Radio>
                         <Radio key='create' value={false}>使用云端创建 Dockerfile</Radio>
-                      </RadioGroup>                      
+                      </RadioGroup>
                     </div>
                     {
                       !this.state.useDockerfile ? [
@@ -1322,7 +1358,7 @@ let EditTenxFlowModal = React.createClass({
             >
             <DockerFileEditor value={this.state.dockerFileTextarea} callback={this.onChangeDockerFileTextarea} options={defaultOptions} />
             <div className='btnBox'>
-              <Button size='large' type='primary' onClick={this.closeDockerFileModal}>
+              <Button size='large' type='primary' loading={this.state.updateDfBtnLoading} onClick={this.handleUpdateDockerfile}>
                 <span>保存并使用</span>
               </Button>
             </div>
