@@ -35,37 +35,29 @@ exports.getClusterNodes = function* () {
   if (!license.max_clusters || license.max_clusters < DEFAULT_LICENSE.max_clusters) {
     license.max_clusters = DEFAULT_LICENSE.max_clusters
   }
-  let cpuList
-  let memoryList
+  let cpuMetric
+  let memoryMetric
   try {
     let podList = [];
     clusters.nodes.nodes.map((node) => {
       podList.push(node.objectMeta.name);
     });
     let cpuBody = {
+      targetType: 'node',
       type: 'cpu/usage_rate',
       source: 'prometheus'
     }
     let memoryBody = {
+      targetType: 'node',
       type: 'memory/usage',
       source: 'prometheus'
     }
     const metricsReqArray = []
-    metricsReqArray.push(api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], cpuBody))
-    metricsReqArray.push(api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], memoryBody))
+    metricsReqArray.push(api.clusters.getBy([cluster, podList, 'metric', 'instant'], cpuBody))
+    metricsReqArray.push(api.clusters.getBy([cluster, podList, 'metric', 'instant'], memoryBody))
     const metricsReqArrayResult = yield metricsReqArray
-    cpuList = metricsReqArrayResult[0]
-    memoryList = metricsReqArrayResult[1]
-    for(let key in cpuList) {
-      if(key != 'statusCode') {
-        cpuList[key].name = key;
-      }
-    }
-    for(let key in memoryList) {
-      if(key != 'statusCode') {
-        memoryList[key].name = key;
-      }
-    }
+    cpuMetric = metricsReqArrayResult[0].data
+    memoryMetric = metricsReqArrayResult[1].data
   } catch (error) {
     // Catch error for show node list
   }
@@ -73,8 +65,8 @@ exports.getClusterNodes = function* () {
   this.body = {
     data: {
       clusters,
-      cpuList,
-      memoryList,
+      cpuMetric,
+      memoryMetric,
       license
     }
   }
