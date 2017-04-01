@@ -36,6 +36,7 @@ function clusters(state = {}, action) {
     case ActionTypes.CLUSTER_LIST_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
+        license: action.response.result.license || {},
         clusterList: action.response.result.data || [],
       })
     case ActionTypes.CLUSTER_LIST_FAILURE:

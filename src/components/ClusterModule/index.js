@@ -43,6 +43,9 @@ let CreateClusterModal = React.createClass({
       if (!!errors) {
         return;
       }
+      this.setState({
+        submitBtnLoading: true,
+      })
       if (values.isDefault === true) {
         values.isDefault = DEFAULT_CLUSTER_MARK
       } else {
@@ -53,18 +56,29 @@ let CreateClusterModal = React.createClass({
         success: {
           func: result => {
             loadLoginUserDetail()
-            loadClusterList()
-            notification.success(`添加集群 ${values.clusterName} 成功`)
-            parentScope.setState({
-              createModal: false
+            loadClusterList({size: 100}, {
+              finally: {
+                func: () => {
+                  notification.success(`添加集群 ${values.clusterName} 成功`)
+                  parentScope.setState({
+                    createModal: false,
+                  })
+                  this.setState({
+                    submitBtnLoading: false
+                  })
+                  resetFields()
+                }
+              }
             })
-            resetFields()
           },
           isAsync: true
         },
         failed: {
           func: err => {
-            notification.failed(`添加集群 ${values.clusterName} 失败`)
+            notification.error(`添加集群 ${values.clusterName} 失败`)
+            this.setState({
+              submitBtnLoading: false
+            })
           },
           isAsync: true
         }
@@ -94,7 +108,7 @@ let CreateClusterModal = React.createClass({
     this.setState({
       checkBtnLoading: true,
     })
-    loadClusterList(null, {
+    loadClusterList({size: 100}, {
       success: {
         func: result => {
           let clusters = result.data || []
@@ -298,7 +312,7 @@ class ClusterList extends Component {
 
   componentWillMount() {
     const { loadClusterList } = this.props
-    loadClusterList()
+    loadClusterList({size: 100})
   }
 
   componentDidMount() {
@@ -351,7 +365,7 @@ class ClusterList extends Component {
     ))*/
     const clusterSum = clusters.length
     let createClusterBtnDisabled = true
-    const { maxClusters } = license
+    const maxClusters = license[camelize('max_clusters')]
     if (clusterSum < maxClusters) {
       createClusterBtnDisabled = false
     }
@@ -431,7 +445,7 @@ function mapStateToProps(state, props) {
     clusters: clusters.clusterList ? clusters.clusterList : [],
     currentClusterID: current.cluster.clusterID,
     addClusterCMD: (addClusterCMD ? addClusterCMD.result : {}) || {},
-    license: (getAllClusterNodesKeys[0] ? getAllClusterNodes[getAllClusterNodesKeys[0]].nodes.license : {}) || {},
+    license: clusters.license || {}
   }
 }
 

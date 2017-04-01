@@ -18,6 +18,7 @@ const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 const NO_CLUSTER_FLAG = constants.NO_CLUSTER_FLAG
 const DEFAULT_CLUSTER_MARK = constants.DEFAULT_CLUSTER_MARK
+const DEFAULT_LICENSE = constants.DEFAULT_LICENSE
 
 exports.getClusters = function* () {
   const loginUser = this.session.loginUser
@@ -43,16 +44,28 @@ exports.getClusters = function* () {
   if (filter) {
     queryObj.filter = filter
   }
-  const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.get(queryObj)
-  const clusters = result.clusters || []
+  const reqArray = []
+  const k8sApi = apiFactory.getK8sApi(loginUser)
+  const api = apiFactory.getApi(loginUser)
+  reqArray.push(k8sApi.get(queryObj))
+  reqArray.push(api.licenses.getBy(["merged"]))
+  const results = yield reqArray
+  const clusters = results[0].clusters || []
   if (clusters.length > 0) {
     delete this.session.loginUser[NO_CLUSTER_FLAG]
   }
+  const license = results[1].data || DEFAULT_LICENSE
+  if (!license.max_nodes || license.max_nodes < DEFAULT_LICENSE.max_nodes) {
+    license.max_nodes = DEFAULT_LICENSE.max_nodes
+  }
+  if (!license.max_clusters || license.max_clusters < DEFAULT_LICENSE.max_clusters) {
+    license.max_clusters = DEFAULT_LICENSE.max_clusters
+  }
   this.body = {
+    license,
     data: clusters,
-    total: result.listMeta.total,
-    count: result.listMeta.size
+    total: results[0].listMeta.total,
+    count: results[0].listMeta.size
   }
 }
 
