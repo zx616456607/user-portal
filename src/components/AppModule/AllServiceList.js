@@ -58,15 +58,15 @@ const MyComponent = React.createClass({
     const { value, checked } = e.target
     const { scope } = this.props
     const { serviceList } = scope.state
-    
+
     const checkedList = serviceList.filter((service) => service.checked)
-    
+
     serviceList.map((service) => {
       if (service.metadata.name === value) {
         service.checked = checked
       }
     })
-    
+
     if (checkedList.length === 0) {
       scope.setState({
         runBtn: false,
@@ -339,11 +339,13 @@ const MyComponent = React.createClass({
       modalShow: true,
     })
   },
-  showMonitoring(){
+  showMonitoring(item){
     const { scope } = this.props
     scope.setState({
       selectTab: '#monitor',
       modalShow: true,
+      currentShowInstance: item,
+      donotUserCurrentShowInstance: false
     })
   },
   render: function () {
@@ -428,7 +430,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="alarm commonData">
-            <svg className="managemoniter" onClick={()=> this.showMonitoring()}>
+            <svg className="managemoniter" onClick={()=> this.showMonitoring(item)}>
               <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use>
             </svg>
             <Tooltip title="告警设置" onClick={()=> scope.setState({alarmModal: true})}>
@@ -1214,7 +1216,7 @@ class ServiceList extends Component {
                 所属应用
               </div>
               <div className='alarm commonTitle'>
-                告警设置
+                监控告警
               </div>
               <div className='image commonTitle'>
                 镜像

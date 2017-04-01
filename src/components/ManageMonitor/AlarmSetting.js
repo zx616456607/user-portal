@@ -161,9 +161,9 @@ const MyComponent = React.createClass({
           <thead className="ant-table-thead">
             <tr>
               <th><Checkbox /></th>
-              <th>名称</th>
+              <th>策略名称</th>
               <th>类型</th>
-              <th>绑定对象</th>
+              <th>告警对象</th>
               <th>状态</th>
               <th>监控周期</th>
               <th>创建时间

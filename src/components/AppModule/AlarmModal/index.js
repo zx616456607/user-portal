@@ -130,325 +130,8 @@ let FistStop = React.createClass({
 
 FistStop = Form.create()(FistStop)
 
-// two step in memory add rule
-let memoryId = 0
-let TwoStepMemory = React.createClass({
-  addMemory() {
-    const { form } = this.props;
-
-    // console.log(form.validateFields)
-    form.validateFields((error, values) => {
-      if (!!error) {
-        return
-      }
-      console.log('vaelue', values)
-      memoryId++;
-      // can use data-binding to get
-      let memory = form.getFieldValue('memory');
-      memory = memory.concat(memoryId);
-      // can use data-binding to set
-      // important! notify form to detect changes
-      form.setFieldsValue({
-        memory,
-      });
-
-    })
-
-  },
-  removeMemory(k) {
-    const { form } = this.props;
-    if (!k) return
-    // can use data-binding to get
-    let memory = form.getFieldValue('memory');
-    memory = memory.filter((key) => {
-      return key !== k;
-    });
-    // can use data-binding to set
-    form.setFieldsValue({
-      memory,
-    });
-  },
-  render() {
-    const { getFieldProps, getFieldValue } = this.props.form;
-    getFieldProps('memory', {
-      initialValue: [],
-    });
-    const memoryItems = getFieldValue('memory').map((key) => {
-      return (
-        <div className="ruleItem" key={key}>
-          <Form.Item>
-            <Select placeholder="内存使用率" {...getFieldProps(`memory_name@${key}`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请选择类型',
-              }],
-            }) } style={{ width: 135 }} >
-              <Option value="5min">50分钟</Option>
-
-            </Select>
-          </Form.Item>
-          <Form.Item>
-            <Select {...getFieldProps(`memory_rule@${key}`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请选择类型',
-              }],
-            }) } style={{ width: 80 }} >
-              <Option value=">">></Option>
-              <Option value="=">=</Option>
-
-            </Select>
-          </Form.Item>
-          <Form.Item>
-            <input type="number" className="ant-input-number-input inputBorder" min="1" max="100"  {...getFieldProps(`memory_data@${key}`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请输入数值',
-              }],
-            }) } style={{ width: 80 }} />
-          </Form.Item>
-          <Form.Item>
-            <Select {...getFieldProps(`memory_symbol@${key}`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请选择单位',
-              }],
-            }) } style={{ width: 80 }} >
-              <Option value="%">%</Option>
-            </Select>
-          </Form.Item>
-          <span className="rightBtns">
-            <Button type="primary" onClick={() => this.addMemory()} size="large" icon="plus"></Button>
-            <Button type="ghost" onClick={() => this.removeMemory(key)} size="large" icon="cross"></Button>
-          </span>
-        </div>
-      );
-    });
-    return (
-      <div className="wrapForm">
-        <div className="ruleItem">
-          <Form.Item>
-            <Select placeholder="内存使用率"  {...getFieldProps(`memory_name`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请选择类型',
-              }],
-            }) } style={{ width: 135 }} >
-              <Option value="5min">50分钟</Option>
-
-            </Select>
-          </Form.Item>
-          <Form.Item>
-            <Select  {...getFieldProps(`memory_rule`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请选择规则',
-              }],
-            }) } style={{ width: 80 }} >
-              <Option value=">">></Option>
-              <Option value="=">=</Option>
-            </Select>
-          </Form.Item>
-          <Form.Item>
-            <input type="number" className="ant-input-number-input inputBorder" min="1" max="100"  {...getFieldProps(`memory_size`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请输入数值',
-              }],
-            }) } style={{ width: 80 }} />
-          </Form.Item>
-          <Form.Item>
-            <Select  {...getFieldProps(`used_symbol`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请选择规则',
-              }],
-            }) } style={{ width: 80 }} >
-              <Option value="%">%</Option>
-              <Option value="MB">MB</Option>
-              <Option value="GB">GB</Option>
-            </Select>
-          </Form.Item>
-          <span className="rightBtns">
-            <Button type="primary" onClick={this.addMemory} size="large" icon="plus"></Button>
-            {/*<Button type="ghost" onClick={() => this.removeRule()} size="large" icon="cross"></Button>*/}
-          </span>
-          <div className="notes"><Icon type="exclamation-circle-o" /> 内存使用率= 所有pod使用内存之和/内存资源总量</div>
-
-        </div>
-        {memoryItems}
-      </div>
-    )
-  }
-})
-
-TwoStepMemory = Form.create()(TwoStepMemory)
-
 // two step in cpu add rule
 let uuid = 0;
-// two step in network add rule
-let networkId = 0
-let TwoStepNetwork = React.createClass({
-  addNetwork() {
-    const { form } = this.props;
-    // console.log(form.validateFields)
-    form.validateFields((error, values) => {
-      if (!!error) {
-        return
-      }
-      console.log('vaelue', values)
-      networkId++;
-      // can use data-binding to get
-      let network = form.getFieldValue('network');
-      network = network.concat(networkId);
-      // can use data-binding to set
-      // important! notify form to detect changes
-      form.setFieldsValue({
-        network,
-      });
-
-    })
-  },
-  removeNetwok(k) {
-    const { form } = this.props;
-    if (!k) return
-    // can use data-binding to get
-    let network = form.getFieldValue('network');
-    network = network.filter((key) => {
-      return key !== k;
-    });
-    // can use data-binding to set
-    form.setFieldsValue({
-      network,
-    });
-  },
-  render() {
-    const { getFieldProps, getFieldValue } = this.props.form;
-    getFieldProps('network', {
-      initialValue: [],
-    });
-    const networkItems = getFieldValue('network').map((key) => {
-      return (
-        <div className="ruleItem" key={key}>
-          <Form.Item>
-            <Select placeholder="下载流量" {...getFieldProps(`network_name@${key}`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请选择类型',
-              }],
-            }) } style={{ width: 135 }} >
-              <Option value="5min">50分钟</Option>
-
-            </Select>
-          </Form.Item>
-          <Form.Item>
-            <Select {...getFieldProps(`network_rule@${key}`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请选择类型',
-              }],
-            }) } style={{ width: 80 }} >
-              <Option value=">">></Option>
-              <Option value="=">=</Option>
-
-            </Select>
-          </Form.Item>
-          <Form.Item>
-            <input type="number" className="ant-input-number-input inputBorder" min="1" max="100"  {...getFieldProps(`network_data@${key}`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请输入数值',
-              }],
-            }) } style={{ width: 80 }} />
-          </Form.Item>
-          <Form.Item>
-            <Select {...getFieldProps(`network_symbol@${key}`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请选择单位',
-              }],
-            }) } style={{ width: 80 }} >
-              <Option value="GB">GB</Option>
-              <Option value="MB">MB</Option>
-              <Option value="Kbps">Kbps</Option>
-            </Select>
-          </Form.Item>
-          <span className="rightBtns">
-            <Button type="primary" onClick={() => this.addNetwork()} size="large" icon="plus"></Button>
-            <Button type="ghost" onClick={() => this.removeNetwok(key)} size="large" icon="cross"></Button>
-          </span>
-        </div>
-      );
-    });
-    return (
-      <div className="wrapForm">
-        <div className="ruleItem">
-          <Form.Item>
-            <Select placeholder="下载流量" {...getFieldProps(`network_name`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请选择类型',
-              }],
-            }) } style={{ width: 135 }} >
-              <Option value="5min">50分钟</Option>
-            </Select>
-          </Form.Item>
-          <Form.Item>
-            <Select {...getFieldProps(`network_rule`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请选择规则',
-              }],
-            }) } style={{ width: 80 }} >
-              <Option value=">">></Option>
-            </Select>
-          </Form.Item>
-          <Form.Item>
-            <input type="number" className="ant-input-number-input inputBorder" min="1" max="100"  {...getFieldProps(`network_data`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请输入数值',
-              }],
-            }) } style={{ width: 80 }} />
-          </Form.Item>
-          <Form.Item>
-            <Select {...getFieldProps(`network_symbol`, {
-              rules: [{
-                required: true,
-                whitespace: true,
-                message: '请选择单位',
-              }],
-            }) } style={{ width: 80 }} >
-              <Option value="%">%</Option>
-            </Select>
-          </Form.Item>
-          <span className="rightBtns">
-            <Button type="primary" onClick={() => this.addNetwork()} size="large" icon="plus"></Button>
-            {/*<Button type="ghost" size="large" icon="cross"></Button>*/}
-          </span>
-
-        </div>
-        {networkItems}
-      </div>
-    )
-  }
-})
-TwoStepNetwork = Form.create()(TwoStepNetwork)
 
 let TwoStop = React.createClass({
   getInitialState() {
@@ -507,9 +190,13 @@ let TwoStop = React.createClass({
     // nextStep
     const { form, funcs } = this.props;
     // form.getFieldValue('cpu');
-    console.log(form.getFieldValue('memory'))
-    console.log('network', form.getFieldValue('network'))
-    funcs.nextStep(3)
+    form.validateFields((error, values) => {
+      if (!!error) {
+        return
+      }
+      console.log('value', values)
+      funcs.nextStep(3)
+    })
   },
   changeType(key, type) {
     let typeProps = `typeProps_${key}`
@@ -540,7 +227,7 @@ let TwoStop = React.createClass({
             }) } style={{ width: 135 }} >
               <Option value="CPU">CPU利用率</Option>
               <Option value="memory">内存利用率</Option>
-              <Option value="upload">上载流量</Option>
+              <Option value="upload">上传流量</Option>
               <Option value="download">下载流量</Option>
 
             </Select>
@@ -554,8 +241,8 @@ let TwoStop = React.createClass({
               }],
               initialValue: '>'
             }) } style={{ width: 80 }} >
-              <Option value=">">></Option>
-              <Option value="=">=</Option>
+              <Option value=">"><i className="fa fa-angle-right" style={{fontSize:16,marginLeft:5}}/></Option>
+              <Option value="<"><i className="fa fa-angle-left" style={{fontSize:16,marginLeft:5}}/></Option>
 
             </Select>
           </Form.Item>
@@ -581,7 +268,7 @@ let TwoStop = React.createClass({
               <Option value="%">%</Option>
               <Option value="KB/s">KB/s</Option>
             </Select>*/}
-            <Input style={{ width: 80 }} {...getFieldProps(`used_symbol@${key}`) } value={this.state[`typeProps_${key}`]} />
+            <Input style={{ width: 80 }} disabled={true} {...getFieldProps(`used_symbol@${key}`, {initialValue: this.state[`typeProps_${key}`]}) }  />
           </Form.Item>
           <span className="rightBtns">
             <Button type="primary" onClick={this.addRule} size="large" icon="plus"></Button>
@@ -597,11 +284,6 @@ let TwoStop = React.createClass({
 
         {cpuItems}
 
-        {/*----------- memory Item ---------------*/}
-        {/*<TwoStepMemory />*/}
-
-        {/*------------ network item ------------- */}
-        {/*<TwoStepNetwork />*/}
         <div className="alertRule">
           <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有pod占用CPU之和/CPU资源总量
           <a style={{marginLeft: 20}}>内存使用率</a>= 所有pod占用内存之和/内存资源总量
