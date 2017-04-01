@@ -124,7 +124,7 @@ class AlarmGroup extends Component {
     let popover = null
     if (emails.length > 1) {
       const content = emails.map(function(item) {
-        return <div className='alarmGroupContentEmailPopOveritem'>{item.addr}<span className='alarmGroupContentEmailPopOverspan'>(备注:{item.desc})</span></div>
+        return <div className='alarmGroupContentEmailPopOveritem'>{item.addr}<span className='alarmGroupContentEmailPopOverspan'>{!!item.desc ? `(备注:${item.desc})` : ''}</span></div>
       })
       popover =  (
         <Popover placement="rightTop" content={content} trigger="click">
@@ -134,10 +134,10 @@ class AlarmGroup extends Component {
         </Popover>
       )
     }
-
+    const remark = !!emails[0].desc ? `(备注:${emails[0].desc})` : ''
     return (
       <div>
-        {emails.length > 0 && `${emails[0].addr}(${emails[0].desc})`}
+        {emails.length > 0 && `${emails[0].addr}${remark}`}
         {popover}
       </div>
     )
