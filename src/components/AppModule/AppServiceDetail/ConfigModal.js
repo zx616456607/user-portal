@@ -31,7 +31,24 @@ import { mode } from '../../../../configs/model'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const PRESET_MEMORY_ARRAY = [512, 1024, 2048, 4096, 8192]
+const PRESET_CPU_ARRAY = [0.1, 0.2, 0.4, 1, 2]
 
+function getCPUByMemory(memory) {
+  switch (memory.toString()) {
+    case '512':
+      return '0.1'
+    case '1024':
+      return '0.2'
+    case '2048':
+      return '0.4'
+    case '4096':
+      return '1'
+    case '8192':
+      return '2'
+    default: 
+      return '0.1'
+  }
+}
 class ConfigModal extends Component {
   constructor(props) {
     super(props)
@@ -54,23 +71,33 @@ class ConfigModal extends Component {
     if (!visible) {
       return
     }
+    if(nextProps.visible == this.props.visible) return
     let resources = service.spec.template.spec.containers[0].resources || DEFAULT_CONTAINER_RESOURCES
     let limits = resources.limits || DEFAULT_CONTAINER_RESOURCES.limits
     let requests = resources.requests || DEFAULT_CONTAINER_RESOURCES.requests
     let memory = limits.memory || DEFAULT_CONTAINER_RESOURCES.limits.memory
-    let cpu = requests.cpu || RESOURCES_CPU_MIN
-    cpu += ''
-    if (cpu.indexOf('m') > -1) {
-      cpu = parseInt(cpu)
-      cpu /= 1000
-    }
+    let cpu = requests.cpu
     if (memory.indexOf('Gi') > -1) {
       memory = parseInt(memory) * 1024
     } else {
       memory = parseInt(memory)
     }
+    if (!cpu) {
+      cpu = getCPUByMemory(memory)
+    } else {
+      cpu = cpu.toString()
+    }
+    if (cpu.indexOf('m') > -1) {
+      cpu = parseInt(cpu)
+      cpu /= 1000
+    } else {
+      cpu = parseFloat(cpu)
+    } 
+
     let composeType = memory
-    if (PRESET_MEMORY_ARRAY.indexOf(composeType) < 0) {
+    let composeCpu = cpu
+    const memoryIndex = PRESET_MEMORY_ARRAY.indexOf(composeType)
+    if ( memoryIndex < 0 || PRESET_CPU_ARRAY[memoryIndex] != cpu) {
       composeType = RESOURCES_DIY
     }
     this.setState({
