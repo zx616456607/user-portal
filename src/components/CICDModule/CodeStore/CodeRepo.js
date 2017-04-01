@@ -16,6 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/CodeRepo.less'
 import { getRepoType, getRepoList, addCodeRepo, notActiveProject, deleteRepo, registryRepo, syncRepoList, searchCodeRepo, getUserInfo } from '../../../actions/cicd_flow'
 import GithubComponent from './GithubComponent'
+import GogsComponent from './GogsComponent'
 import SvnComponent from './SvnComponent'
 import NotificationHandler from '../../../common/notification_handler'
 
@@ -100,6 +101,11 @@ const MyComponent = React.createClass({
     getRepoList('gitlab', {
       success: {
         func: (res) => {
+          if(!res.data.total) {
+            const notification = new NotificationHandler()
+            notification.error(res.data.message)
+            return
+          }
           if (res.data.total > 0) {
             let loadingList = {}
             self.props.getUserInfo('gitlab')
@@ -469,7 +475,7 @@ class CodeRepo extends Component {
             <Tabs type="card" onChange={(e) => this.setState({ repokey: e }) } activeKey={this.state.repokey}>
               <TabPane tab={githubBud} key="github"><GithubComponent typeName="github" formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
               <TabPane tab={gitlabBud} key="gitlab"><MyComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser} config={this.props.repoList} /></TabPane>
-              <TabPane tab={gogsBud} key="gogs"><GithubComponent typeName="gogs" formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
+              <TabPane tab={gogsBud} key="gogs"><GogsComponent typeName="gogs" formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
               <TabPane tab={svnBud} key="svn"><SvnComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
 
             </Tabs>
@@ -490,7 +496,9 @@ class CodeRepo extends Component {
 
 function mapStateToProps(state, props) {
   const defaultValue = {
-    repoList: [],
+    gitlab: {
+      repoList: []
+    },
     isFetching: false
   }
   const { codeRepo, userInfo} = state.cicd_flow
@@ -499,7 +507,7 @@ function mapStateToProps(state, props) {
     depot: '',
     url:''
   }
-  const { repoList, isFetching } = codeRepo || defaultValue
+  const { repoList, isFetching } = codeRepo.gitlab || defaultValue
   const { repoUser } = userInfo || defaultUser
   return {
     repoList,
@@ -527,6 +535,6 @@ export default connect(mapStateToProps, {
   getUserInfo,
   notActiveProject
 })(injectIntl(CodeRepo, {
-  withRef: true,
+  withRef: true
 }));
 

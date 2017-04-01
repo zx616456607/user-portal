@@ -32,12 +32,15 @@ export const GET_REPOS_LIST_SUCCESS = 'GET_REPOS_LIST_SUCCESS'
 export const GET_REPOS_LIST_FAILURE = 'GET_REPOS_LIST_FAILURE'
 
 
-function fetchCodeStormList(types, callback) {
+function fetchCodeStoreList(types, callback) {
   return {
     [FETCH_API]: {
       types: [GET_REPOS_LIST_REQUEST, GET_REPOS_LIST_SUCCESS, GET_REPOS_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/devops/repos/${types}`,
       schema: {}
+    },
+    extraData: {
+      type: types
     },
     callback
   }
@@ -45,7 +48,7 @@ function fetchCodeStormList(types, callback) {
 
 export function getRepoList(types, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchCodeStormList(types, callback))
+    return dispatch(fetchCodeStoreList(types, callback))
   }
 }
 

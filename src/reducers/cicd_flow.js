@@ -20,71 +20,78 @@ function codeRepo(state = {}, action) {
     isFetching: false,
     repoList: []
   }
+  const repoType = action.extraData.type
   switch (action.type) {
-    case ActionTypes.GET_REPOS_LIST_REQUEST:
-      return merge({}, defaultState, { isFetching: true })
-    case ActionTypes.GET_REPOS_LIST_SUCCESS:
-      return Object.assign({}, state, {
-        isFetching: false,
+  case ActionTypes.GET_REPOS_LIST_REQUEST:
+    return merge({}, defaultState, { isFetching: true })
+  case ActionTypes.GET_REPOS_LIST_SUCCESS:
+    return Object.assign({}, state, {
+      isFetching: false,
+      [repoType]: {
         repoList: action.response.result.data.results,
         bak: action.response.result.data.results
-      })
-    case ActionTypes.GET_REPOS_LIST_FAILURE:
-      return merge({}, state, {
-        isFetching: false,
+      }
+    })
+  case ActionTypes.GET_REPOS_LIST_FAILURE:
+    return merge({}, state, {
+      isFetching: false,
+      [repoType]: {
         repoList: null
-      })
+      }
+    })
     // delete
-    case ActionTypes.DELETE_GITLAB_REPO_SUCCESS:
-      return ({
-        isFetching: false,
+  case ActionTypes.DELETE_GITLAB_REPO_SUCCESS:
+    return Object.assign({}, state, {
+      isFetching: false,
+      [repoType]: {
         repoList: null,
         bak: null
-      })
-    case ActionTypes.DELETE_GITLAB_REPO_FAILURE:
-      return merge({}, state, { isFetching: false })
+      }
+    })
+  case ActionTypes.DELETE_GITLAB_REPO_FAILURE:
+    return merge({}, state, { isFetching: false })
 
     // search
-    case ActionTypes.SEARCH_CODE_REPO_LIST:
-      const newState = cloneDeep(state)
-      if (action.codeName == '') {
-        newState.repoList = newState.bak
+  case ActionTypes.SEARCH_CODE_REPO_LIST:
+    const newState = cloneDeep(state)
+    if (action.codeName == '') {
+      newState.repoList = newState.bak
+    }
+    const temp = newState[repoType].repoList.filter(list => {
+      const search = new RegExp(action.codeName)
+      if (search.test(list.name)) {
+        return true
       }
-      const temp = newState.repoList.filter(list => {
-        const search = new RegExp(action.codeName)
-        if (search.test(list.name)) {
-          return true
-        }
-        return false
-      })
-      newState.repoList = temp
-      return {
-        ...newState
-      }
+      return false
+    })
+    newState[repoType].repoList = temp
+    return {
+      ...newState
+    }
     // add active
-    case ActionTypes.ADD_CODE_STORE_SUCCESS:
-      const addState = cloneDeep(state)
-      const indexs = findIndex(addState.repoList, (item) => {
-        return item.name == action.names
-      })
-      addState.repoList[indexs].managedProject = {
-        active: 1,
-        id: action.response.result.data.projectId
-      }
-      return addState
+  case ActionTypes.ADD_CODE_STORE_SUCCESS:
+    const addState = cloneDeep(state)
+    const indexs = findIndex(addState[repoType].repoList, (item) => {
+      return item.name == action.names
+    })
+    addState[repoType].repoList[indexs].managedProject = {
+      active: 1,
+      id: action.response.result.data.projectId
+    }
+    return addState
     // remove action
-    case ActionTypes.NOT_ACTIVE_PROJECT_SUCCESS:
-      const reState = cloneDeep(state)
-      const Keys = findIndex(reState.repoList, (item) => {
-        if (item.managedProject && item.managedProject.id == action.id) {
-          return true
-        }
-        return false
-      })
-      reState.repoList[Keys].managedProject = { active: 0 }
-      return reState
-    default:
-      return state
+  case ActionTypes.NOT_ACTIVE_PROJECT_SUCCESS:
+    const reState = cloneDeep(state)
+    const Keys = findIndex(reState[repoType].repoList, (item) => {
+      if (item.managedProject && item.managedProject.id == action.id) {
+        return true
+      }
+      return false
+    })
+    reState[repoType].repoList[Keys].managedProject = { active: 0 }
+    return reState
+  default:
+    return state
   }
 }
 
