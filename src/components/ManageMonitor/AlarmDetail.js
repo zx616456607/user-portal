@@ -156,7 +156,7 @@ class AlarmDetail extends Component {
                   <Button icon="reload" type="primary" size="large">刷新</Button>
                   <Button icon="delete" size="large" style={{marginLeft: 8}} disabled={this.state.delBtn} onClick={()=> this.handDelete()} type="ghost">删除</Button>
                 </div>
-                <Table className="strategyTable" rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false} />
+                <Table className="strategyTable" rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false} style={{padding:'0 30px'}}/>
               </Card>
             </Col>
           </Row>

@@ -181,15 +181,15 @@ let SvnComponent = React.createClass({
           >
           <div style={{ paddingTop: "20px" }}>
             <Form horizontal onSubmit={(e)=> this.handleSubmit(e)}>
-              <FormItem  {...formItemLayout} hasFeedback label="名称 ：">
+              <FormItem  {...formItemLayout} label="名称">
                 <Input placeholder="输入名称" id="name" size="large" {...forName} />
               </FormItem>
 
-              <FormItem {...formItemLayout} hasFeedback label="地址 ：" >
+              <FormItem {...formItemLayout} label="地址" >
                 <Input placeholder="http://*** | https://***" size="large" {...forUrl} />
               </FormItem>
 
-              <FormItem {...formItemLayout} label="类型 ：">
+              <FormItem {...formItemLayout} label="类型">
                 <Switch checked={this.state.privateType}  onChange={(e) => { this.setState({ privateType: e }) } } checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
               </FormItem>
 
@@ -211,7 +211,7 @@ let SvnComponent = React.createClass({
           </div>
 
         </Modal>
-        
+
         <Modal title="添加成功操作" visible={this.state.actionModal}
           onOk={()=> browserHistory.push('/ci_cd')} onCancel={()=> this.setState({actionModal: false})}
           >

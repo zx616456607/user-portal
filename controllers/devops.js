@@ -27,24 +27,24 @@ exports.registerRepo = function* () {
 
   const api = apiFactory.getDevOpsApi(loginUser)
   switch (repoType) {
-    case "gitlab":
+    case "gitlab": case "gogs":
       if (!repoInfo.url || !repoInfo.private_token) {
-        const err = new Error("Missing url or private_token for gitlab repository")
+        const err = new Error(`Missing url or private_token for ${repoType} repository`)
         err.status = 400
         throw err
       }
       var RegExp = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
       if (!RegExp.test(repoInfo.url)) {
-        const err = new Error("Invalid gitlab url")
+        const err = new Error(`Invalid ${repoType} url`)
         err.status = 400
         throw err
       }
       break;
     case "svn":
       break;
-  
+
     default:
-      const err = new Error('Only support gitlab for now')
+      const err = new Error(`Only support ${repoType} for now`)
       err.status = 400
       throw err
   }
@@ -68,8 +68,8 @@ exports.getSupportedRepository = function* () {
 exports.listRepository = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
-  if (repoType != "gitlab" && repoType != 'github') {
-    const err = new Error('Only support gitlab/github for now')
+  if (repoType != "gitlab" && repoType != 'github' && repoType != 'gogs') {
+    const err = new Error('Only support gitlab/github/gogs for now')
     err.status = 400
     throw err
   }
@@ -85,8 +85,8 @@ exports.listRepository = function* () {
 exports.syncRepository = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
-  if (repoType != "gitlab" && repoType != 'github')  {
-    const err = new Error('Only support gitlab/github for now')
+  if (repoType != "gitlab" && repoType != 'github' && repoType != 'gogs')  {
+    const err = new Error('Only support gitlab/github/gogs for now')
     err.status = 400
     throw err
   }
@@ -102,8 +102,8 @@ exports.syncRepository = function* () {
 exports.removeRepository = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
-  if (repoType != "gitlab" && repoType != "github") {
-    const err = new Error('Only support gitlab/github for now')
+  if (repoType != "gitlab" && repoType != "github" && repoType != 'gogs') {
+    const err = new Error('Only support gitlab/github/gogs for now')
     err.status = 400
     throw err
   }
@@ -124,8 +124,8 @@ exports.listBranches = function* () {
   const repoType = this.params.type
   const repoName = this.query.reponame
   const project_id = this.query.project_id
-  if (repoType != "gitlab" && repoType != "github") {
-    const err = new Error('Only support gitlab/github for now')
+  if (repoType != "gitlab" && repoType != "github" && repoType != 'gogs') {
+    const err = new Error('Only support gitlab/github/gogs for now')
     err.status = 400
     throw err
   }
@@ -181,7 +181,7 @@ exports.getAuthRedirectUrl = function* () {
     this.session.authRepoInSpace = this.session.loginUser.teamspace
   }
   const result = yield api.getBy(["repos", repoType, "auth"], null)
-  
+
   this.body = {
     data: result
   }
@@ -203,7 +203,7 @@ exports.doUserAuthorization = function* () {
 
   var resData = {
     authInfo: loginUser.ciAuthInfo || {},
-    type: type 
+    type: type
   }
   var state = this.query.state
   if (state && loginUser.github_state && state !== loginUser.github_state) {
@@ -336,13 +336,13 @@ exports.createCIFlows = function* (){
 
   const api = apiFactory.getDevOpsApi(loginUser)
 
-  let result 
+  let result
   if (body.init_type == '2') {
     result = yield api.createBy(["ci-flows"], {o: 'yaml'}, body.yaml)
   } else {
     result = yield api.createBy(["ci-flows"], null, body)
   }
-  
+
 
   this.body = {
     data: result
@@ -542,7 +542,7 @@ exports.updateStageLink = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
   const stage_id = this.params.stage_id
-  const target_id = this.params.target_id 
+  const target_id = this.params.target_id
   const body = this.request.body
 
   const api = apiFactory.getDevOpsApi(loginUser)
@@ -608,15 +608,15 @@ exports.updateCDRule = function* () {
 }
 
 /*
-CI rules 
+CI rules
 */
 exports.getCIRule = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
-  
+
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["ci-flows", flow_id, "ci-rules"])
-  
+
   this.body = {
     data: result
   }
@@ -626,7 +626,7 @@ exports.updateCIRule = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
   const body = this.request.body
-  
+
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.updateBy(["ci-flows", flow_id, "ci-rules"], null, body)
 
@@ -737,10 +737,10 @@ exports.listDeploymentLogsOfFlow = function* () {
 exports.getBuildLog = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
-  
+
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["ci-flows", flow_id, "builds"], null)
-  
+
   this.body = {
     data: result
   }
@@ -749,10 +749,10 @@ exports.getBuildLog = function* () {
 exports.getLastBuildLog = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
-  
+
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["ci-flows", flow_id, "lastbuild"], null)
-  
+
   this.body = {
     data: result
   }
@@ -763,10 +763,10 @@ exports.getFlowStageBuildLog = function* () {
   const flow_id = this.params.flow_id
   const stage_id = this.params.stage_id
   const stage_build_id = this.params.stage_build_id
-  
+
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["ci-flows", flow_id, "stages", stage_id, "builds", stage_build_id, "log"], null)
-  
+
   this.body = {
     data: result
   }
@@ -793,7 +793,7 @@ exports.getStageBuildLogList = function* () {
 
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["ci-flows", flow_id, "stages", stage_id, "builds"], null)
-  
+
   this.body = {
     data: result
   }
