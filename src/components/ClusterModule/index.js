@@ -365,7 +365,7 @@ class ClusterList extends Component {
     ))*/
     const clusterSum = clusters.length
     let createClusterBtnDisabled = true
-    const { maxClusters } = license
+    const maxClusters = license[camelize('max_clusters')]
     if (clusterSum < maxClusters) {
       createClusterBtnDisabled = false
     }
@@ -445,7 +445,7 @@ function mapStateToProps(state, props) {
     clusters: clusters.clusterList ? clusters.clusterList : [],
     currentClusterID: current.cluster.clusterID,
     addClusterCMD: (addClusterCMD ? addClusterCMD.result : {}) || {},
-    license: (getAllClusterNodesKeys[0] ? getAllClusterNodes[getAllClusterNodesKeys[0]].nodes.license : {}) || {},
+    license: clusters.license || {}
   }
 }
 
