@@ -70,58 +70,27 @@ function getContainerNum(name, podList) {
   return num;
 }
 
-function cpuUsed(cpuTotal, cpuList, name) {
-  //this function for compute cpu used
-  if (!cpuList) {
-    return NOT_AVAILABLE
+function cpuUsed(cpuTotal, cpuMetric, name) {
+  name = camelize(name)
+  let metric = cpuMetric[name]
+  if (metric) {
+    metric = `${metric.toFixed(2)}%`
+  } else {
+    metric = NOT_AVAILABLE
   }
-  let total = 0;
-  let used;
-  let length;
-  for(let key in cpuList) {
-    if(key != 'statusCode') {
-      if(cpuList[key].name == name && cpuList[key].metrics) {
-        length = cpuList[key].metrics.length
-        cpuList[key].metrics.map((item) => {
-          total = total + (item.floatValue || item.value);
-        });
-      }
-    }
-  }
-  // 1h and to 100%
-  if (!length) {
-    length = 1
-  }
-  used = total / cpuTotal / length;
-  used = ( used * 100 ).toFixed(2);
-  return `${used}%`;
+  return metric
 }
 
-function memoryUsed(memoryTotal, memoryList, name) {
-  //this function for compute memory used
-  if (!memoryList) {
-    return NOT_AVAILABLE
+function memoryUsed(memoryTotal, memoryMetric, name) {
+  name = camelize(name)
+  let metric = memoryMetric[name]
+  if (metric) {
+    metric = metric / 1024 / memoryTotal * 100
+    metric = `${metric.toFixed(2)}%`
+  } else {
+    metric = NOT_AVAILABLE
   }
-  let total = 0;
-  let used;
-  let length;
-  for(let key in memoryList) {
-    if(key != 'statusCode') {
-      if(memoryList[key].name == name && memoryList[key].metrics) {
-        length = memoryList[key].metrics.length
-        memoryList[key].metrics.map((item) => {
-          total = total + (item.floatValue || item.value);
-        });
-      }
-    }
-  }
-  used = total / 1024 / memoryTotal;
-  // 1h and to 100%
-  if (!length) {
-    length = 1
-  }
-  used = (used * 100 / length).toFixed(2);
-  return `${used}%`;
+  return metric
 }
 
 const MyComponent = React.createClass({
@@ -165,7 +134,7 @@ const MyComponent = React.createClass({
 
   },
   render: function () {
-    const { isFetching, podList, containerList, cpuList, memoryList, license } = this.props
+    const { isFetching, podList, containerList, cpuMetric, memoryMetric, license } = this.props
     const clusterID = this.props.scope.props.clusterID
     const root = this
     if (isFetching) {
@@ -221,11 +190,11 @@ const MyComponent = React.createClass({
           </div>
           <div className='cpu commonTitle'>
             <span className='topSpan'>{item[camelize('cpu_total')] / 1000}核</span>
-            <span className='bottomSpan'>{cpuUsed(item[camelize('cpu_total')], cpuList, item.objectMeta.name)}</span>
+            <span className='bottomSpan'>{cpuUsed(item[camelize('cpu_total')], cpuMetric, item.objectMeta.name)}</span>
           </div>
           <div className='memory commonTitle'>
             <span className='topSpan'>{diskFormat(item[camelize('memory_total_kb')])}</span>
-            <span className='bottomSpan'>{memoryUsed(item[camelize('memory_total_kb')], memoryList, item.objectMeta.name)}</span>
+            <span className='bottomSpan'>{memoryUsed(item[camelize('memory_total_kb')], memoryMetric, item.objectMeta.name)}</span>
           </div>
           {/*<div className='disk commonTitle'>
             <span className='topSpan'>{'-'}</span>
@@ -471,7 +440,7 @@ class ClusterTabList extends Component {
   render() {
     const {
       intl, isFetching, nodes,
-      clusterID, memoryList, cpuList,
+      clusterID, memoryMetric, cpuMetric,
       license, kubectlsPods, addNodeCMD,
       cluster, clusterSummary,
     } = this.props
@@ -732,7 +701,7 @@ class ClusterTabList extends Component {
                   <span>操作</span>
                 </div>
               </div>
-              <MyComponent podList={nodeList} containerList={podCount} isFetching={isFetching} scope={scope} memoryList={memoryList} cpuList={cpuList} license={license} />
+              <MyComponent podList={nodeList} containerList={podCount} isFetching={isFetching} scope={scope} memoryMetric={memoryMetric} cpuMetric={cpuMetric} license={license} />
             </div>
           </Card>
           <Modal title='删除主机节点' className='deleteClusterNodeModal' visible={this.state.deleteNodeModal} onOk={this.deleteClusterNode} onCancel={this.closeDeleteModal}>
@@ -788,12 +757,12 @@ function mapStateToProps(state, props) {
   const targetAllClusterNodes = getAllClusterNodes[clusterID]
   const { isFetching } = targetAllClusterNodes || pods
   const data = (targetAllClusterNodes && targetAllClusterNodes.nodes) || pods
-  const { cpuList, memoryList, license } = data
+  const { cpuMetric, memoryMetric, license } = data
   const nodes = data.clusters ? data.clusters.nodes : []
   return {
     nodes,
-    cpuList,
-    memoryList,
+    cpuMetric,
+    memoryMetric,
     license,
     isFetching,
     clusterID,
