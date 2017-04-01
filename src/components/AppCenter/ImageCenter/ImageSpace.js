@@ -360,8 +360,7 @@ let NoBind = React.createClass({
             bindModalConfirmLoading: false,
           });
           const { message } = err
-          console.log(err)
-          notification.error(`绑定账户 ${username} 失败`, message.message || message)
+          notification.error(`绑定账户 ${username} 失败`,'请检查用户名或密码是否匹配')
         },
         isAsync: true
       }

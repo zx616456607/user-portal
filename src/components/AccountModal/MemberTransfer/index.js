@@ -26,7 +26,7 @@ class MemberTransfer extends Component{
     return option.title.indexOf(inputValue) > -1;
   }
   componentWillMount(){
-    this.props.loadUserList({size: 100})
+    this.props.loadUserList({size: 0})
   }
   renderItem(item){
     let customLabel = (
@@ -48,16 +48,15 @@ class MemberTransfer extends Component{
         return !teamUserIDList.includes(userItem.key)
       }):
       userList
-      console.log('filterUserList:::',filterUserList)
     return (
       <div id='MemberTransfer'>
         <Row className="listTitle">
-          <Col span={10}>成员名</Col>
-          <Col span={14}>邮箱</Col>
+          <Col span={14}>成员名</Col>
+          <Col span={10}>邮箱</Col>
         </Row>
-        <Row className="listTitle" style={{left:393}}>
-          <Col span={10}>成员名</Col>
-          <Col span={14}>邮箱</Col>
+        <Row className="listTitle" style={{left:375}}>
+          <Col span={14}>成员名</Col>
+          <Col span={10}>邮箱</Col>
         </Row>
         <Transfer
           dataSource={filterUserList}

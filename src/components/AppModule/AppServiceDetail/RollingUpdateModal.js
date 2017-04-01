@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import './style/RollingUpdateModal.less'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import { Button, Card, Menu, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Switch, Modal, Input } from 'antd'
+import { Button, Card, Menu, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Modal, Input } from 'antd'
 import { loadImageDetailTag } from '../../../actions/app_center'
 import { rollingUpdateService } from '../../../actions/services'
 import { connect } from 'react-redux'
@@ -127,7 +127,7 @@ class RollingUpdateModal extends Component {
     }
     const hide = notification.spin('正在保存中...', 0)
 
-    
+
     notification.spin(`服务 ${serviceName} 灰度升级中...`)
     rollingUpdateService(cluster, serviceName, { targets, interval: parseInt(intervalTime) }, {
       success: {
@@ -218,14 +218,11 @@ class RollingUpdateModal extends Component {
             )
           }
           <Row className="serviceName">
-            <Col className="itemTitle" span={4} style={{ textAlign: "right" }}>服务名称</Col>
+            <Col className="itemTitle" span={4} style={{ textAlign: "right" }}>服务名称：</Col>
             <Col className="itemBody" span={10}>
               {service.metadata.name}
             </Col>
             <Col span={3} className="itemBody"></Col>
-            <Col className="itemTitle" span={7} style={{ textAlign: "center", position: "relative", paddingBottom: "15px"}}><Switch disabled="true" onChange={(c)=> this.switchType(c)}></Switch>
-            <div style={{ textAlign: "right", position: "absolute", left: "37px", top: "38px", lineHeight: "0px", zoom: 1}}>统一间隔时间<Tooltip style={{marginTop: "1px"}} title="暂不支持独立间隔时间"><Icon style={{marginLeft: "5px"}} type="question-circle-o"/></Tooltip></div>
-            </Col>
           </Row>
           {containers.map((item, index) => {
             let start = item.image.lastIndexOf(":")
@@ -238,16 +235,14 @@ class RollingUpdateModal extends Component {
               tag = "latest"
             }
             let show = image
-            if(image.length > 20) show = image.substring(0, 20) + "..."
+            if(image.length > 40) show = image.substring(0, 40) + "..."
             return (
               <div key={item.name}>
               <Row style={{marginBottom: "10px"}}>
-                <Col className="itemTitle" span={4} style={{ textAlign: "right" }}>
-                  {isOnly ? `容器` : `容器${index + 1}`}
-                </Col>
-                <Col span={3} className="rollingUpdateUpdateItem">{item.name}</Col>
-                <Col span={4} style={{ textAlign: "right" }}>镜像版本</Col>
-                <Tooltip title={item.image}><Col className="rollingUpdateUpdateItem" span={11}>{`${show}：${tag}`}</Col></Tooltip>
+                <Col span={4} style={{ textAlign: "right" }}>镜像版本：</Col>
+                <Tooltip title={item.image}>
+                  <Col className="rollingUpdateUpdateItem" span={15}>{`${show}：${tag}`}</Col>
+                </Tooltip>
               </Row>
               <Row style={{marginBottom: "10px"}} >
                 <Col span={4}></Col>

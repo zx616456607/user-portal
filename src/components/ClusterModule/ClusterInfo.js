@@ -13,6 +13,7 @@ import { updateCluster, loadClusterList, deleteCluster } from '../../actions/clu
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
 import clusterImg from '../../assets/img/integration/cluster.png'
+import { IP_REGEX, HOST_REGEX } from '../../../constants'
 
 let saveBtnDisabled = true
 
@@ -139,19 +140,46 @@ let ClusterInfo = React.createClass ({
     bindingDomains = parseArray(bindingDomains).join(', ')
     const nameProps = getFieldProps('clusterName',{
       rules: [
-        { required: true, message: '输入集群名称' },
+        {
+          required: true,
+          message: '输入集群名称',
+        },
+        {
+          validator: (rule, value, callback) => {
+            if (value && value.length > 30) {
+              return callback([new Error('集群名称不能超过30个字符')])
+            }
+            callback()
+          }
+        }
       ],
       initialValue: clusterName
     });
     const bindingIPsProps = getFieldProps('bindingIPs',{
       rules: [
-        { required: true, message: '输入服务出口列表' },
+        { required: true, message: '输入服务出口 IP' },
+        {
+          validator: (rule, value, callback) => {
+            if (value && !IP_REGEX.test(value)) {
+              return callback([new Error('请填写正确的服务出口 IP')])
+            }
+            callback()
+          }
+        }
       ],
       initialValue: bindingIPs
     });
     const bindingDomainsProps = getFieldProps('bindingDomains',{
       rules: [
-        { message: '输入域名列表' },
+        { message: '输入服务域名' },
+        {
+          validator: (rule, value, callback) => {
+            if (value && !HOST_REGEX.test(value)) {
+              return callback([new Error('请填写正确的服务域名')])
+            }
+            callback()
+          }
+        }
       ],
       initialValue: bindingDomains
     });
@@ -223,17 +251,17 @@ let ClusterInfo = React.createClass ({
               <div className="h4 blod">&nbsp;</div>
             </Form.Item>
             <Form.Item>
-              <div className="h4" style={{width:'90px'}}>服务出口列表：</div>
+              <div className="h4" style={{width:'90px'}}>服务出口 IP：</div>
               { editCluster ?
-              <Input {...bindingIPsProps } placeholder="输入服务出口列表，多个出口英文逗号分开" type="textarea" />
+              <Input {...bindingIPsProps } placeholder="输入服务出口 IP" />
               :
               <span>{bindingIPs}</span>
               }
             </Form.Item>
             <Form.Item>
-              <div className="h4" style={{width:'90px'}}>域名列表：</div>
+              <div className="h4" style={{width:'90px'}}>服务域名：</div>
               { editCluster ?
-              <Input {...bindingDomainsProps} placeholder="输入域名列表，多个域名英文逗号分开" type="textarea" />
+              <Input {...bindingDomainsProps} placeholder="输入服务域名" />
               :
               <span className="cluserName textoverflow">{bindingDomains || '-'}</span>
               }
