@@ -13,6 +13,7 @@ import { Card, Input, Modal, InputNumber, Checkbox, Progress, Icon, Spin, Table,
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
+import { getAlarmtSetting,  addAlarmStting } from '../../actions/alert'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 // import { calcuDate } from '../../../common/tools.js'
@@ -212,16 +213,14 @@ class AlarmSetting extends Component {
   }
   componentWillMount() {
     document.title = '告警设置 | 时速云 '
+    const { getAlarmtSetting } = this.props
   }
   handSearch() {
     // search data
     const search = document.getElementById('alarmSearch').value
-    console.log('submit value is', search)
-
   }
   description(rule) {
     // Dropdown more info
-    console.log(rule)
     return (
       <div>cpu is</div>
     )
@@ -391,9 +390,15 @@ function mapStateToProps(state, props) {
     total: 0,
     records: [],
   }
+  const { entities } = state
+  const cluster = entities.current.cluster
   return {
-    recordsData
+    recordsData,
+    clusterID: cluster.clusterID
   }
 }
 
-export default connect(mapStateToProps)(AlarmSetting)
+export default connect(mapStateToProps, {
+  getAlarmtSetting,
+  addAlarmStting
+})(AlarmSetting)

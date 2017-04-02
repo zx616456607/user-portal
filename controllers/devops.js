@@ -44,7 +44,7 @@ exports.registerRepo = function* () {
       break;
 
     default:
-      const err = new Error(`Only support ${repoType} for now`)
+      const err = new Error(`Not support ${repoType} for now`)
       err.status = 400
       throw err
   }
@@ -146,8 +146,8 @@ exports.listBranches = function* () {
 exports.getUserInfo = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
-  if (repoType != "gitlab" && repoType != "github")  {
-    const err = new Error('Only support gitlab for now')
+  if (repoType != "gitlab" && repoType != "github" && repoType != 'gogs')  {
+    const err = new Error(`Not support ${repo_type} for now`)
     err.status = 400
     throw err
   }
@@ -253,7 +253,7 @@ exports.addManagedProject = function* () {
   const body = this.request.body
 
   if (!body.name || !body.repo_type || !body.address) {
-    const err = new Error('name, repo_type address are required in the query to get the branches information')
+    const err = new Error('name, repo_type, address are required in the query to get the branches information')
     err.status = 400
     throw err
   }
@@ -262,6 +262,13 @@ exports.addManagedProject = function* () {
     case "gitlab":
       if (!body.source_full_name || !body.gitlab_project_id) {
         const err = new Error("source_full_name and gitlab_project_id for gitlab are required")
+        err.status = 400
+        throw err
+      }
+      break;
+    case "gogs":
+      if (!body.projectId) {
+        const err = new Error("projectId for gogs are required")
         err.status = 400
         throw err
       }
@@ -283,7 +290,7 @@ exports.addManagedProject = function* () {
       }
       break;
     default:
-      const err = new Error('Only support gitlab/github/svn for now')
+      const err = new Error('Only support gitlab/github/svn/gogs for now')
       err.status = 400
       throw err
   }

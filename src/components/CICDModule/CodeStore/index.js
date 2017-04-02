@@ -81,6 +81,8 @@ const MyComponent = React.createClass({
   operaMenuClick: function (item, e) {
     //this function for user click the dropdown menu
     const key = e.key.split('@')[0]
+    console.log(key)
+    console.log(e)
     switch (key) {
       case '1':
         this.setState({
