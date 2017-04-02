@@ -9,7 +9,8 @@
 
 const apiFactory = require('../services/api_factory')
 const email = require('../utils/email')
-const logger     = require('../utils/logger.js').getLogger('alert')
+const logger = require('../utils/logger.js').getLogger('alert')
+const co = require('co')
 
 exports.getRecordFilters = function* () {
   if (!this.query || this.query.cluster == undefined) {
@@ -99,21 +100,24 @@ exports.sendInvitation = function* () {
   const loginUser = this.session.loginUser
   const spi = apiFactory.getSpi(loginUser)
   const result = yield spi.alerts.createBy(['invitations'], null, this.request.body)
-
   // get email addr and code, then send out the code
-  try {
+  var self = this
+  var index = 0
+  yield new Promise(function(resolve, reject) {
     result.data.emails.map(function(item) {
-      email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code)
+      co(function *(){
+        yield email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code)
+        index++
+        if (index == result.data.emails.length) {
+          resolve()
+        }
+      }).catch(function (err) {
+        logger.error(method, "Failed to send email: " + JSON.stringify(err))
+        reject(err)
+      })
     })
-  } catch (e) {
-    logger.error(method, "send invite into notify group email failed.", e)
-    const err = new Error('send email failed')
-    err.status = 500
-    throw err
-  }
-  this.body = {
-    data: ''
-  }
+  })
+  this.body = {}
 }
 
 exports.acceptInvitation = function* () {

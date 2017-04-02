@@ -63,6 +63,10 @@ const menusText = defineMessages({
     id: 'CICD.TenxStorm.errorSrc',
     defaultMessage: '地址输入有误',
   },
+  syncCode: {
+    id: 'CICD.TenxStorm.syncCode',
+    defaultMessage: '同步代码',
+  },
 })
 
 
@@ -226,7 +230,6 @@ class GithubComponent extends Component {
     const repoItem = scope.state.repokey
     this.setState({removeModal: false})
     scope.props.deleteRepo(repoItem)
-
   }
   handSyncCode() {
     const { registryGithub, typeName} = this.props
@@ -278,8 +281,19 @@ class GithubComponent extends Component {
     this.props.searchGithubList(users, image)
   }
   syncRepoList() {
-    const types = this.state.repokey
-    this.props.syncRepoList(types)
+    const { syncRepoList } = this.props
+    const types = this.props.scope.state.repokey
+    let notification = new NotificationHandler()
+    notification.spin(`正在执行中...`)
+    syncRepoList(types, {
+      success: {
+        func: () => {
+          notification.close()
+          notification.success(`代码同步成功`)
+        },
+        isAsync: true
+      }
+    })
   }
   changeList(e) {
     this.setState({
@@ -407,33 +421,15 @@ class GithubComponent extends Component {
       }
 
     }
-    {/* let items = githubList.map((item, index) => {
-      return (
-        <div className='CodeTable' key={item.name} >
-          <div className="name textoverflow">{item.name}</div>
-          <div className="type">{item.private ? "private" : 'public'}</div>
-          <div className="action">
-            {(item.managedProject && item.managedProject.active == 1) ?
-              <span><Button type="ghost" disabled>已激活</Button>
-                <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>解除</a></span>
-              :
-              <Tooltip placement="right" title="可构建项目">
-                <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >激活</Button>
-              </Tooltip>
-            }
-          </div>
-
-        </div>
-      );
-    });
-    */}
     return (
       <div key="github-Component" type="right" className='codelink'>
         <div className="tableHead">
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={() => this.setState({removeModal: true})} style={{ margin: '0 20px' }} />
           </Tooltip>
-          <Icon type="reload" onClick={() => this.syncRepoList()} />
+          <Tooltip placement="top" title={formatMessage(menusText.syncCode)}>
+            <Icon type="reload" onClick={() => this.syncRepoList()}  />
+          </Tooltip>
           <div className="right-search">
             <Input className='searchBox' size="large" style={{ width: '180px', paddingRight:'28px'}} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
             <i className='fa fa-search' onClick={this.searchClick}></i>

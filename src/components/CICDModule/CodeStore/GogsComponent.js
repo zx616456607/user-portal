@@ -64,6 +64,10 @@ const menusText = defineMessages({
     id: 'CICD.TenxStorm.errorSrc',
     defaultMessage: '地址输入有误',
   },
+  syncCode: {
+    id: 'CICD.TenxStorm.syncCode',
+    defaultMessage: '同步代码',
+  },
 })
 
 
@@ -194,7 +198,8 @@ class GogsComponent extends Component {
     this.state = {
       repokey: props.typeName,
       authorizeModal: false,
-      currentSearch: ''
+      currentSearch: '',
+      loggedOut: false
     }
   }
 
@@ -229,8 +234,8 @@ class GogsComponent extends Component {
     const scope = this.props.scope
     const repoItem = scope.state.repokey
     this.setState({ removeModal: false })
+    this.setState({ loggedOut: true })
     scope.props.deleteRepo(repoItem)
-
   }
   handSyncCode() {
     const { registryGithub, typeName} = this.props
@@ -282,8 +287,18 @@ class GogsComponent extends Component {
     this.props.searchGithubList(users, image, this.props.typeName)
   }
   syncRepoList() {
-    const types = this.state.repokey
-    this.props.syncRepoList(types)
+    const types = this.props.scope.state.repokey
+    let notification = new NotificationHandler()
+    notification.spin(`正在执行中...`)
+    this.props.scope.props.syncRepoList(types, {
+      success: {
+        func: () => {
+          notification.close()
+          notification.success(`代码同步成功`)
+        },
+        isAsync: true
+      }
+    })
   }
   changeList(e) {
     this.setState({
@@ -324,6 +339,7 @@ class GogsComponent extends Component {
           notification.success(`代码仓库添加成功`)
           self.setState({
             authorizeModal: false,
+            loggedOut: false,
             regUrl: '',
             regToken: ''
           })
@@ -373,7 +389,7 @@ class GogsComponent extends Component {
     const { gogsList, formatMessage, isFetching, typeName} = this.props
     const scope = this
     let codeList = []
-    if (!gogsList) {
+    if (!gogsList || this.state.loggedOut) {
       return (
         <div style={{ lineHeight: '100px', paddingLeft: '140px', paddingBottom: '16px' }}>
           <Button type="primary" size="large" onClick={() => this.showGogsModal()}>添加 Gogs 代码仓库</Button>
@@ -405,39 +421,20 @@ class GogsComponent extends Component {
         )
       }
     }
-    {/* let items = githubList.map((item, index) => {
-      return (
-        <div className='CodeTable' key={item.name} >
-          <div className="name textoverflow">{item.name}</div>
-          <div className="type">{item.private ? "private" : 'public'}</div>
-          <div className="action">
-            {(item.managedProject && item.managedProject.active == 1) ?
-              <span><Button type="ghost" disabled>已激活</Button>
-                <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>解除</a></span>
-              :
-              <Tooltip placement="right" title="可构建项目">ß
-                <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >激活</Button>
-              </Tooltip>
-            }
-          </div>
-
-        </div>
-      );
-    });
-    */}
     return (
       <div key="github-Component" type="right" className='codelink'>
         <div className="tableHead">
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={() => this.setState({ removeModal: true })} style={{ margin: '0 20px' }} />
           </Tooltip>
-          <Icon type="reload" onClick={() => this.syncRepoList()} />
+          <Tooltip placement="top" title={formatMessage(menusText.syncCode)}>
+            <Icon type="reload" onClick={() => this.syncRepoList()}  />
+          </Tooltip>
           <div className="right-search">
             <Input className='searchBox' size="large" style={{ width: '180px', paddingRight: '28px' }} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
             <i className='fa fa-search' onClick={this.searchClick}></i>
           </div>
         </div>
-
         <Tabs onChange={(e) => this.changeList(e)}>
           {codeList}
         </Tabs>
