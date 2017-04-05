@@ -440,8 +440,7 @@ export function registryRepo(obj, callback) {
   }
 }
 
-
-function fetchSyncRepo(type) {
+function fetchSyncRepo(type, callback) {
   let actionType = [GET_REPOS_LIST_REQUEST, GET_REPOS_LIST_SUCCESS, GET_REPOS_LIST_FAILURE]
   if (type === 'github') {
     actionType = [GET_GITHUB_LIST_REQUEST, GET_GITHUB_LIST_SUCCESS, GET_GITHUB_LIST_FAILURE]
@@ -454,13 +453,14 @@ function fetchSyncRepo(type) {
       options: {
         method: 'PUT'
       }
-    }
+    },
+    callback: callback
   }
 }
 // sync code 
-export function syncRepoList(type) {
+export function syncRepoList(type, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchSyncRepo(type))
+    return dispatch(fetchSyncRepo(type, callback))
   }
 }
 

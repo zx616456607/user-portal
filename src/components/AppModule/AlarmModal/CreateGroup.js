@@ -132,8 +132,7 @@ let CreateAlarmGroup = React.createClass({
         failed: {
           func: (err) => {
             notification.error(`向 ${email} 发送邮件邀请失败`)
-          },
-          isAsync: true
+          }
         }
       })
       let sendNotify = function(email) {
@@ -149,8 +148,7 @@ let CreateAlarmGroup = React.createClass({
           failed: {
             func: (err) => {
               notification.error(`向 ${email} 发送邮件邀请失败`)
-            },
-            isAsync: true
+            }
           }
         })
       }

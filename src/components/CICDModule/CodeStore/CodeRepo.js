@@ -101,12 +101,7 @@ const MyComponent = React.createClass({
     getRepoList('gitlab', {
       success: {
         func: (res) => {
-          if(!res.data.total) {
-            const notification = new NotificationHandler()
-            notification.error(res.data.message)
-            return
-          }
-          if (res.data.total > 0) {
+          if (res.data.total && res.data.total > 0) {
             let loadingList = {}
             self.props.getUserInfo('gitlab')
             for (let i = 0; i < res.data.results.length; i++) {
@@ -218,7 +213,17 @@ const MyComponent = React.createClass({
   },
   syncRepoList() {
     const types = this.props.scope.state.repokey
-    this.props.scope.props.syncRepoList(types)
+    let notification = new NotificationHandler()
+    notification.spin(`正在执行中...`)
+    this.props.scope.props.syncRepoList(types, {
+      success: {
+        func: () => {
+          notification.close()
+          notification.success(`代码同步成功`)
+        },
+        isAsync: true
+      }
+    })
   },
   handleSearch(e) {
     const parentScope = this.props.scope
@@ -335,7 +340,7 @@ const MyComponent = React.createClass({
             <Icon type="logout" onClick={() => this.setState({removeModal: true})} style={{ margin: '0 20px' }} />
           </Tooltip>
           <Tooltip placement="top" title={formatMessage(menusText.syncCode)}>
-            <Icon type="reload" onClick={this.syncRepoList} />
+            <Icon type="reload" onClick={() => this.syncRepoList()}  />
           </Tooltip>
           <Tooltip title={this.props.repoUser ? this.props.repoUser.url : ''}>
             <Icon type="link" style={{ margin: '0 20px' }} />
