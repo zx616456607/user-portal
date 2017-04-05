@@ -18,6 +18,28 @@
     }
     .basicscanmaintable{
       width:100%;
+      .basicscantableSub{
+        background: white;
+        padding:10px 0;
+        .basicscantableSubOne{
+          line-height: 26px;
+          font-size: 16px;
+          width:100%;
+          overflow: hidden;
+          white-space: nowrap;
+          -ms-text-overflow: ellipsis;
+          text-overflow: ellipsis;
+          .spancheck{
+            color: #4ec79a;
+          }
+          .spanmargin{
+            margin:0 4px;
+          }
+          .noneInfo{
+            color:red;
+          }
+        }
+      }
       table{
         table-layout:fixed;
         tr{
@@ -42,6 +64,23 @@
         font-size: 16px;
         height:22px;
         line-height: 22px;
+      }
+      .BaseScanRunning{
+        text-align: center;
+        //background: red;
+        .top{
+          margin-bottom: 10px;
+          font-size: 14px;
+        }
+        .bottom{
+          margin: 10px;;
+        }
+      }
+      .BaseScanFailed{
+        text-align: center;
+        .top{
+          margin-bottom: 10px;
+        }
       }
     }
   }
