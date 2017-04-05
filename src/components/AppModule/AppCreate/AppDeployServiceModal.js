@@ -23,6 +23,7 @@ import {
   DEFAULT_REGISTRY,
   RESOURCES_MEMORY_MIN,
   RESOURCES_CPU_MIN,
+  RESOURCES_CPU_DEFAULT,
   RESOURCES_DIY,
   SYSTEM_DEFAULT_SCHEDULE,
 } from '../../../constants'
@@ -49,7 +50,7 @@ let AppDeployServiceModal = React.createClass({
     return {
       composeType: DEFAULT_COMPOSE_TYPE,
       DIYMemory: RESOURCES_MEMORY_MIN,
-      DIYCPU: 1,
+      DIYCPU: RESOURCES_CPU_DEFAULT,
       runningCode: "1",
       getImageType: "0",
       stateService: false,

@@ -24,6 +24,7 @@ import {
   RESOURCES_CPU_MAX,
   RESOURCES_CPU_STEP,
   RESOURCES_CPU_MIN,
+  RESOURCES_CPU_DEFAULT,
   RESOURCES_DIY,
 } from '../../../constants'
 import { ENTERPRISE_MODE } from '../../../../configs/constants'
@@ -45,8 +46,8 @@ function getCPUByMemory(memory) {
       return '1'
     case '8192':
       return '2'
-    default: 
-      return '0.1'
+    default:
+      return RESOURCES_CPU_DEFAULT
   }
 }
 class ConfigModal extends Component {
@@ -59,7 +60,7 @@ class ConfigModal extends Component {
       composeType: parseInt(DEFAULT_CONTAINER_RESOURCES_MEMORY),
       haveRBDVolume: false,
       DIYMemory: RESOURCES_MEMORY_MIN,
-      DIYCPU: 1,
+      DIYCPU: RESOURCES_CPU_DEFAULT,
     }
   }
 
@@ -92,7 +93,7 @@ class ConfigModal extends Component {
       cpu /= 1000
     } else {
       cpu = parseFloat(cpu)
-    } 
+    }
 
     let composeType = memory
     let composeCpu = cpu

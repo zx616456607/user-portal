@@ -463,7 +463,6 @@ class Header extends Component {
           </div>
         }
           <UserPanel loginUser={loginUser}/>
-          <Modal title="升级版本" />
           <Modal
             title='升级版本'
             className='upgradeVersionModal'
