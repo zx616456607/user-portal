@@ -9,7 +9,7 @@
  */
 'use strict'
 import React, { Component, PropTypes } from 'react'
-import { Card, Icon, Spin, Table, Select, DatePicker, Menu, Button, Pagination } from 'antd'
+import { Card, Icon, Spin, Table, Select, DatePicker, Menu, Button, Pagination, Modal } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 // import { calcuDate } from '../../../common/tools.js'
@@ -30,7 +30,8 @@ class AlarmRecord extends Component {
       beginTimeFilter: '',
       endTimeFilter: '',
       page: DEFAULT_PAGE,
-      size: DEFAULT_PAGE_SIZE
+      size: DEFAULT_PAGE_SIZE,
+      deleteModal: false
     }
   }
 
@@ -92,6 +93,7 @@ class AlarmRecord extends Component {
       loadRecords,
      } = this.props
     const _this = this
+    this.setState({deleteModal: false})
     deleteRecords('', {
       success: {
         func: () => {
@@ -105,8 +107,7 @@ class AlarmRecord extends Component {
         func: (err) => {
           let notification = new NotificationHandler()
           notification.error('清空记录失败')
-        },
-        isAsync: true
+        }
       }
     })
   }
@@ -245,7 +246,7 @@ class AlarmRecord extends Component {
             <DatePicker placeholder="选择起始日期" size="large" onChange={(value) => this.onBeginTimeFilterChange(value)}/>
             <DatePicker placeholder="选择结束日期" size="large" onChange={(value) => this.onEndTimeFilterChange(value)}/>
             <Button icon="exception" size="large" type="primary" onClick={() => this.getRecords()}>立即查询</Button>
-            <Button icon="delete" size="large"  onClick={() => this.deleteRecords()}>清空所有记录</Button>
+            <Button icon="delete" size="large"  onClick={() => this.setState({deleteModal: true})}>清空所有记录</Button>
           </div>
           <div className='pageBox'>
             <span className='totalPage'>共 {total} 条</span>
@@ -263,6 +264,12 @@ class AlarmRecord extends Component {
             <Table className="strategyTable" columns={columns} dataSource={data} pagination={false}  loading={this.props.isFetching}/>
           </Card>
         </div>
+        <Modal title="清除所有告警记录" visible={this.state.deleteModal}
+          onCancel={()=> this.setState({deleteModal: false})}
+          onOk={()=> this.deleteRecords()}
+        >
+        <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>您的操作将会清空所有告警记录，并且无法恢复，是否清空？</div>
+        </Modal>
       </QueueAnim>
     )}
 
