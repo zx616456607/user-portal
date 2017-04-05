@@ -213,3 +213,51 @@ export function createNotifyGroup(body, callback) {
     return dispatch(fetchCreateNotifyGroup(body, callback))
   }
 }
+
+
+
+/*----------------alert setting-------------------*/
+
+export const ALERT_SETTING_REQUEST = 'ALERT_SETTING_REQUEST'
+export const ALERT_SETTING_SUCCESS = 'ALERT_SETTING_SUCCESS'
+export const ALERT_SETTING_FAILED =  'ALERT_SETTING_FAILED'
+
+
+function fetchAlertSetting(cluster, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ALERT_SETTING_REQUEST, ALERT_SETTING_SUCCESS, ALERT_SETTING_FAILED],
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting`
+    },
+    callback
+  }
+}
+
+export function getAlertSettings(cluster, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchAlertSetting(cluster, callback))
+  }
+}
+export const ALERT_SETTING_ADD_REQUEST = 'ALERT_SETTING_ADD_REQUEST'
+export const ALERT_SETTING_ADD_SUCCESS = 'ALERT_SETTING_ADD_SUCCESS'
+export const ALERT_SETTING_ADD_FAILED = 'ALERT_SETTING_ADD_FAILED'
+
+
+function fetchAddAlertSetting(cluster, body, callback){
+  return {
+    [FETCH_API]: {
+      types: [ALERT_SETTING_ADD_REQUEST, ALERT_SETTING_ADD_SUCCESS, ALERT_SETTING_ADD_FAILED],
+      endpoints: `${API_URL_PREFIX}/cluster/${cluster}/setting`
+    },
+    options: {
+      body: body,
+      method: 'POST'
+    }
+  }
+}
+
+function addAlertSetting(cluster, body, callback) {
+  return (dispath, callback) => {
+    return dispath(fetchAddAlertSetting(cluster, body, callback))
+  }
+}
