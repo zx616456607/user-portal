@@ -12,7 +12,8 @@ import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, Dropdown, Modal,
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
-import { getRepoType, getRepoList, addCodeRepo, notActiveProject, deleteRepo, registryRepo, syncRepoList, searchCodeRepo, getUserInfo } from '../../../actions/cicd_flow'
+import { getGithubList, searchGithubList, addGithubRepo, notGithubProject, registryGithub, syncRepoList } from '../../../actions/cicd_flow'
+
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import NotificationHandler from '../../../common/notification_handler'
 
@@ -94,7 +95,7 @@ class CodeList extends Component {
     })
     let notification = new NotificationHandler()
     item.repoUser = repoUser
-    this.props.scope.props.addCodeRepo(item, {
+    this.props.scope.props.addGithubRepo(this.props.typeName, item, {
       success: {
         func: () => {
           notification.success('激活成功')
@@ -106,7 +107,11 @@ class CodeList extends Component {
       },
       failed: {
         func: (res) => {
-          notification.error('激活失败', res.message)
+          let message = '激活失败'
+          if(res.message.message) {
+            message = res.message.message
+          }
+          notification.error(message)
           loadingList[index] = false
           self.setState({
             loadingList
@@ -124,7 +129,7 @@ class CodeList extends Component {
       loadingList
     })
     let notification = new NotificationHandler()
-    parentScope.props.notCodeR(users, id, {
+    parentScope.props.notGithubProject(users, id, this.props.typeName, {
       success: {
         func: () => {
           notification.success('解除激活成功')
@@ -181,7 +186,6 @@ class CodeList extends Component {
     )
   }
 }
-
 class GogsComponent extends Component {
   constructor(props) {
     super(props);
@@ -197,7 +201,7 @@ class GogsComponent extends Component {
   loadData() {
     const self = this
     const { typeName } = this.props
-    this.props.getRepoList(typeName, {
+    this.props.getGithubList(typeName, {
       success: {
         func: (res) => {
           if (res.data.hasOwnProperty('results')) {
@@ -224,22 +228,22 @@ class GogsComponent extends Component {
   removeRepo() {
     const scope = this.props.scope
     const repoItem = scope.state.repokey
-    this.setState({removeModal: false})
+    this.setState({ removeModal: false })
     scope.props.deleteRepo(repoItem)
 
   }
   handSyncCode() {
-    const { registryRepo, typeName} = this.props
+    const { registryGithub, typeName} = this.props
     const parentScope = this.props.scope
     const typeList = parentScope.state.typeList
     if (!typeList || !typeList.includes(typeName)) {
-      parentScope.setState({typeVisible: true})
+      parentScope.setState({ typeVisible: true })
       return
     }
     let notification = new NotificationHandler()
     notification.spin(`正在执行中...`)
-    this.setState({loading: true})
-    registryRepo(typeName, {
+    this.setState({ loading: true })
+    registryGithub(typeName, {
       success: {
         func: (res) => {
           // notification.close()
@@ -260,7 +264,7 @@ class GogsComponent extends Component {
     this.setState({
       currentSearch: image
     })
-    this.props.searchCodeRepo(users, image)
+    this.props.searchGithubList(users, image, this.props.typeName)
   }
   changeSearch(e) {
     const image = e.target.value
@@ -269,13 +273,13 @@ class GogsComponent extends Component {
       currentSearch: image
     })
     if (image == '') {
-      this.props.searchCodeRepo(users, image)
+      this.props.searchGithubList(users, image, this.props.typeName)
     }
   }
   searchClick() {
     const image = this.state.currentSearch
     const users = this.state.users
-    this.props.searchCodeRepo(users, image)
+    this.props.searchGithubList(users, image, this.props.typeName)
   }
   syncRepoList() {
     const types = this.state.repokey
@@ -286,7 +290,7 @@ class GogsComponent extends Component {
       users: e
     })
   }
-  registryRepo() {
+  registryGogs() {
     const url = this.state.regUrl
     const token = this.state.regToken
     const { formatMessage } = this.props
@@ -306,7 +310,7 @@ class GogsComponent extends Component {
     const config = {
       url,
       token,
-      type: this.props.scope.state.repokey
+      type: this.props.typeName
     }
     this.setState({
       loading: true
@@ -323,8 +327,16 @@ class GogsComponent extends Component {
             regUrl: '',
             regToken: ''
           })
-          self.props.scope.props.getRepoList(config.type)
-          self.props.scope.props.getUserInfo(config.type)
+          this.props.getGithubList(config.type, {
+            success: {
+              func: (res) => {
+                if (res.data.hasOwnProperty('results')) {
+                  const users = res.data.results[Object.keys(res.data.results)[0]].user
+                  self.setState({ users })
+                }
+              }
+            }
+          })
         },
         isAsync: true
       },
@@ -347,9 +359,9 @@ class GogsComponent extends Component {
   }
   showGogsModal() {
     this.setState({ authorizeModal: true })
-    setTimeout(function(){
+    setTimeout(function () {
       document.getElementById('codeSrc').focus()
-    },0)
+    }, 0)
   }
   changeUrl(e) {
     this.setState({ regUrl: e.target.value })
@@ -358,42 +370,40 @@ class GogsComponent extends Component {
     this.setState({ regToken: e.target.value })
   }
   render() {
-    const { repoList, formatMessage, isFetching, typeName} = this.props
+    const { gogsList, formatMessage, isFetching, typeName} = this.props
     const scope = this
     let codeList = []
-
-    if (!repoList) {
+    if (!gogsList) {
       return (
         <div style={{ lineHeight: '100px', paddingLeft: '140px', paddingBottom: '16px' }}>
-          <Button type="primary" size="large" onClick={() => this.showGogsModal() }>添加 Gogs 代码仓库</Button>
+          <Button type="primary" size="large" onClick={() => this.showGogsModal()}>添加 Gogs 代码仓库</Button>
           <Modal title="添加 Gogs 代码仓库" visible={this.state.authorizeModal} maskClosable={false}
             onCancel={this.closeAddGitlabModal}
             footer={[
               <Button key="back" type="ghost" size="large" onClick={() => { this.setState({ authorizeModal: false }) } }>取消</Button>,
-              <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={() => this.registryRepo()}>确定</Button>,
+              <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={() => this.registryGogs()}>确定</Button>,
             ]}
             >
             <div>
               <p style={{ lineHeight: '30px' }}>仓库地址：
-                <Input placeholder="http://*** | https://***" id="codeSrc" onChange={(e)=> this.changeUrl(e)} value={this.state.regUrl} size="large" />
+                <Input placeholder="http://*** | https://***" id="codeSrc" onChange={(e) => this.changeUrl(e)} value={this.state.regUrl} size="large" />
               </p>
               <p style={{ lineHeight: '30px' }}>Private Token：
-                <Input placeholder="Private Token: " size="large" onChange={(e)=> this.changeToken(e)} value={this.state.regToken} />
+                <Input placeholder="Private Token: " size="large" onChange={(e) => this.changeToken(e)} value={this.state.regToken} />
               </p>
             </div>
           </Modal>
         </div>
       )
     }
-    if (Object.keys(repoList).length > 0) {
-      for (let i in repoList) {
+    if (Object.keys(gogsList).length > 0) {
+      for (let i in gogsList) {
         codeList.push(
           <TabPane tab={<span><Icon type="user" />{i}</span>} key={i}>
-            <CodeList scope={scope} isFetching={isFetching} repoUser={i} data={repoList[i]} />
+            <CodeList scope={scope} isFetching={isFetching} repoUser={i} data={gogsList[i]} typeName={this.props.typeName} />
           </TabPane>
         )
       }
-
     }
     {/* let items = githubList.map((item, index) => {
       return (
@@ -405,7 +415,7 @@ class GogsComponent extends Component {
               <span><Button type="ghost" disabled>已激活</Button>
                 <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>解除</a></span>
               :
-              <Tooltip placement="right" title="可构建项目">
+              <Tooltip placement="right" title="可构建项目">ß
                 <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >激活</Button>
               </Tooltip>
             }
@@ -419,11 +429,11 @@ class GogsComponent extends Component {
       <div key="github-Component" type="right" className='codelink'>
         <div className="tableHead">
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
-            <Icon type="logout" onClick={() => this.setState({removeModal: true})} style={{ margin: '0 20px' }} />
+            <Icon type="logout" onClick={() => this.setState({ removeModal: true })} style={{ margin: '0 20px' }} />
           </Tooltip>
           <Icon type="reload" onClick={() => this.syncRepoList()} />
           <div className="right-search">
-            <Input className='searchBox' size="large" style={{ width: '180px', paddingRight:'28px'}} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
+            <Input className='searchBox' size="large" style={{ width: '180px', paddingRight: '28px' }} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
             <i className='fa fa-search' onClick={this.searchClick}></i>
           </div>
         </div>
@@ -432,9 +442,9 @@ class GogsComponent extends Component {
           {codeList}
         </Tabs>
         <Modal title="注销代码源操作" visible={this.state.removeModal}
-          onOk={()=> this.removeRepo()} onCancel={()=> this.setState({removeModal: false})}
+          onOk={() => this.removeRepo()} onCancel={() => this.setState({ removeModal: false })}
           >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i> {formatMessage(menusText.sureCancellationCode)}?</div>
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i> {formatMessage(menusText.sureCancellationCode)}?</div>
         </Modal>
       </div>
     );
@@ -443,23 +453,15 @@ class GogsComponent extends Component {
 
 function mapStateToProps(state, props) {
   const defaultValue = {
-    gogs: {
-      repoList: []
-    },
-    isFetching: false
+    gogsList: []
   }
-  const { codeRepo, userInfo} = state.cicd_flow
-  const defaultUser = {
-    username: '',
-    depot: '',
-    url:''
-  }
-  const { repoList, isFetching } = codeRepo.gogs || defaultValue
-  const { repoUser } = userInfo || defaultUser
+  const { githubRepo } = state.cicd_flow
+  const { isFetching } = githubRepo
+  const { gogsList, users} = githubRepo['gogs'] || defaultValue
   return {
-    repoList,
+    gogsList,
     isFetching,
-    repoUser,
+    users,
     currentSpace: state.entities.current.space.namespace
   }
 }
@@ -469,15 +471,12 @@ GogsComponent.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  getRepoType,
-  getRepoList,
-  addCodeRepo,
-  deleteRepo,
-  registryRepo,
+  getGithubList,
+  addGithubRepo,
+  registryGithub,
   syncRepoList,
-  searchCodeRepo,
-  getUserInfo,
-  notActiveProject
+  searchGithubList,
+  notGithubProject
 })(injectIntl(GogsComponent, {
   withRef: true
 }))

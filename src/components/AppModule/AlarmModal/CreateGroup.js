@@ -10,13 +10,13 @@
 
 import React from 'react'
 import { Input, Form, Icon, Button, Modal } from 'antd'
-import { sendAlertNotifyInvitation, getAlertNotifyInvitationStatus, createNotifyGroup } from '../../../actions/alert'
+import { sendAlertNotifyInvitation, getAlertNotifyInvitationStatus, createNotifyGroup, modifyNotifyGroup } from '../../../actions/alert'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../common/notification_handler'
 
-const EMAIL_STATUS_WAIT_SEND = 0
-const EMAIL_STATUS_WAIT_ACCEPT = 1
-const EMAIL_STATUS_ACCEPTED = 2
+const EMAIL_STATUS_WAIT_ACCEPT = 0
+const EMAIL_STATUS_ACCEPTED = 1
+const EMAIL_STATUS_WAIT_SEND = 2
 
 // create alarm group from
 let mid = 0
@@ -24,6 +24,42 @@ let CreateAlarmGroup = React.createClass({
   getInitialState() {
     return {
       isAddEmail: 1
+    }
+  },
+  componentWillMount() {
+    this.fillEmails(this.props)
+  },
+  componentWillReceiveProps(nextProps) {
+    this.fillEmails(nextProps, this.props)
+  },
+  fillEmails(newProps, oldProps) {
+    const {
+      isModify,
+      data,
+      form,
+    } = newProps
+    if (form.getFieldValue('keys') && form.getFieldValue('keys').length > 0) {
+      return
+    }
+    if (isModify) {
+      if (oldProps && oldProps.isModify === true) {
+        return
+      }
+      let keys = []
+      for (let email of data.email) {
+        mid++
+        keys.push(mid)
+        form.setFieldsValue({
+          [`email${mid}`]: email.addr,
+          [`remark${mid}`]: email.desc,
+        })
+        this.setState({
+          [`emailStatus${mid}`]: email.status,
+        })
+      }
+      form.setFieldsValue({
+        keys
+      })
     }
   },
   removeEmail(k) {
@@ -106,6 +142,7 @@ let CreateAlarmGroup = React.createClass({
           success: {
             func: (result) => {
               _this.setState({[`emailStatus${k}`]: EMAIL_STATUS_WAIT_ACCEPT})
+              notification.success(`向 ${email} 发送邮件邀请成功`)
             },
             isAsync: true
           },
@@ -119,7 +156,7 @@ let CreateAlarmGroup = React.createClass({
       }
     }
   },
-  emailName(rule, value, callback) {
+  groupName(rule, value, callback) {
     // top email rule name
     if (!Boolean(value)) {
       callback(new Error('请输入名称'))
@@ -143,19 +180,26 @@ let CreateAlarmGroup = React.createClass({
   },
   handCancel() {
     const {funcs,form } = this.props
-    funcs.scope.setState({ createGroup: false, alarmModal: true})
+    funcs.scope.setState({ createGroup: false, alarmModal: true, modifyGroup: false})
     form.resetFields()
     this.setState({isAddEmail: true})
   },
   okModal() {
-    const { form, createNotifyGroup, funcs, afterCreateFunc } = this.props
+    const { form, createNotifyGroup, modifyNotifyGroup, funcs, afterCreateFunc, afterModifyFunc, data } = this.props
     form.validateFields((error, values) => {
       if (!!error) {
         return
       }
+      
+      // have one email at least
+      if (values.keys.length === 0) {
+        let notification = new NotificationHandler()
+        notification.error('请至少添加一个邮箱')
+        return
+      }
       let body = {
-        name: values.emailName,
-        desc: values.emailDesc,
+        name: values.groupName,
+        desc: values.groupDesc,
         receivers: {
           email: []
         },
@@ -168,33 +212,60 @@ let CreateAlarmGroup = React.createClass({
           })
         }
       })
-      createNotifyGroup(body, {
-        success: {
-          func: (result) => {
-            funcs.scope.setState({ createGroup: false, alarmModal: true})
-            form.resetFields()
-            this.setState({isAddEmail: true})
-            if (afterCreateFunc) {
-              afterCreateFunc()
-            }
+      if (!this.props.isModify) {
+        createNotifyGroup(body, {
+          success: {
+            func: (result) => {
+              funcs.scope.setState({ createGroup: false, alarmModal: true})
+              form.resetFields()
+              this.setState({isAddEmail: true})
+              if (afterCreateFunc) {
+                afterCreateFunc()
+              }
+            },
+            isAsync: true
           },
-          isAsync: true
-        },
-        failed: {
-          func: (err) => {
-            let notification = new NotificationHandler()
-            notification.error(`向 ${email} 发送邮件邀请失败`)
+          failed: {
+            func: (err) => {
+              let notification = new NotificationHandler()
+              if (err.message.code === 409) {
+                notification.error('创建通知组失败', `通知组名字已存在，请修改后重试`)
+              } else {
+                notification.error(`创建通知组失败`, err.message.message)
+              }
+            },
+            isAsync: true
+          }
+        })
+      } else {
+        modifyNotifyGroup(data.groupID, body, {
+          success: {
+            func: (result) => {
+              funcs.scope.setState({ modifyGroup: false, alarmModal: true})
+              form.resetFields()
+              this.setState({isAddEmail: true})
+              if (afterModifyFunc) {
+                afterModifyFunc()
+              }
+            },
+            isAsync: true
           },
-          isAsync: true
-        }
-      })
+          failed: {
+            func: (err) => {
+              let notification = new NotificationHandler()
+              notification.error(`修改通知组失败`, err.message.message)
+            },
+            isAsync: true
+          }
+        })
+      }
     })
   },
   getEmailStatusText(k) {
-    let text = '验证邮箱'
+    let text = '发送验证邮件'
     switch (this.state[`emailStatus${k}`]) {
       case EMAIL_STATUS_WAIT_ACCEPT:
-        text = '已发送验证邮件'
+        text = '再次发送验证邮件'
         break;
       case EMAIL_STATUS_ACCEPTED:
         text = '已接收邀请'
@@ -229,7 +300,7 @@ let CreateAlarmGroup = React.createClass({
           <Form.Item style={{float:'left'}}>
             <Input placeholder="备注"size="large" style={{ width: 100,  marginRight: 8 }} {...getFieldProps(`remark${k}`)}/>
           </Form.Item>
-          <Button type="primary" disabled={this.state[`emailStatus${k}`] == EMAIL_STATUS_WAIT_ACCEPT || this.state[`emailStatus${k}`] == EMAIL_STATUS_ACCEPTED} size="large" onClick={()=> this.ruleEmail(k)}>{this.getEmailStatusText(k)}</Button>
+          <Button type="primary" disabled={this.state[`emailStatus${k}`] == EMAIL_STATUS_ACCEPTED} size="large" onClick={()=> this.ruleEmail(k)}>{this.getEmailStatusText(k)}</Button>
           <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removeEmail(k)}>取消</Button>
         </div>
       );
@@ -237,16 +308,19 @@ let CreateAlarmGroup = React.createClass({
     return (
       <Form className="alarmAction" form={this.props.form}>
         <Form.Item label="名称" {...formItemLayout} >
-          <Input {...getFieldProps(`emailName`, {
+          <Input {...getFieldProps(`groupName`, {
           rules: [{ whitespace: true },
-            { validator: this.emailName}
-          ]}) }
-        />
+            { validator: this.groupName}
+          ],
+          initialValue: this.props.isModify ? this.props.data.name : '',}) }
+          disabled={!!this.props.isModify}/>
         </Form.Item>
         <Form.Item label="描述" {...formItemLayout} >
-          <Input type="textarea" {...getFieldProps(`emailDesc`, {
+          <Input type="textarea" {...getFieldProps(`groupDesc`, {
           rules: [{ whitespace: true },
-          ]}) }/>
+          ],
+          initialValue: this.props.isModify ? this.props.data.desc : '',
+          }) }/>
         </Form.Item>
         <div className="lables">
           <div className="keys">
@@ -276,4 +350,5 @@ export default connect(mapStateToProps, {
   sendAlertNotifyInvitation,
   getAlertNotifyInvitationStatus,
   createNotifyGroup,
+  modifyNotifyGroup,
 })(CreateAlarmGroup)

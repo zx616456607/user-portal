@@ -460,7 +460,7 @@ function mapStateToProps(state, props) {
     isFetching: false
   }
   const { githubRepo} = state.cicd_flow
-  const { githubList, isFetching, users} = githubRepo || defaultValue
+  const { githubList, isFetching, users} = githubRepo['github'] || defaultValue
   return {
     githubList,
     isFetching,

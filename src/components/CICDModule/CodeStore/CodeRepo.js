@@ -177,7 +177,7 @@ const MyComponent = React.createClass({
     const config = {
       url,
       token,
-      type: this.props.scope.state.repokey
+      type: this.props.typeName
     }
     this.setState({
       loading: true
@@ -223,13 +223,13 @@ const MyComponent = React.createClass({
   handleSearch(e) {
     const parentScope = this.props.scope
     const codeName = e.target.value
-    parentScope.props.searchCodeRepo(codeName)
+    parentScope.props.searchCodeRepo(codeName, this.props.typeName)
   },
   changeSearch(e) {
     const codeName = e.target.value
     if (codeName == '') {
       const parentScope = this.props.scope
-      parentScope.props.searchCodeRepo(codeName)
+      parentScope.props.searchCodeRepo(codeName, this.props.typeName)
     }
   },
   notActive(id, index) {
@@ -241,7 +241,7 @@ const MyComponent = React.createClass({
       loadingList
     })
     let notification = new NotificationHandler()
-    parentScope.props.notActiveProject(id, {
+    parentScope.props.notActiveProject(id, this.props.typeName, {
       success: {
         func: () => {
           notification.success(formatMessage(menusText.UndoSuccessful))
@@ -474,10 +474,9 @@ class CodeRepo extends Component {
             <p style={{ paddingLeft: '36px', lineHeight: '40px' }}>选择代码源</p>
             <Tabs type="card" onChange={(e) => this.setState({ repokey: e }) } activeKey={this.state.repokey}>
               <TabPane tab={githubBud} key="github"><GithubComponent typeName="github" formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
-              <TabPane tab={gitlabBud} key="gitlab"><MyComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser} config={this.props.repoList} /></TabPane>
+              <TabPane tab={gitlabBud} key="gitlab"><MyComponent typeName='gitlab' formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser.gitlab} config={this.props.repoList} /></TabPane>
               <TabPane tab={gogsBud} key="gogs"><GogsComponent typeName="gogs" formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
               <TabPane tab={svnBud} key="svn"><SvnComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
-
             </Tabs>
           </div>
           <Modal title={'选择代码源'} visible={this.state.typeVisible}
@@ -503,12 +502,14 @@ function mapStateToProps(state, props) {
   }
   const { codeRepo, userInfo} = state.cicd_flow
   const defaultUser = {
-    username: '',
-    depot: '',
-    url:''
+    repoUser: {
+      username: '',
+      depot: '',
+      url: ''
+    }
   }
   const { repoList, isFetching } = codeRepo.gitlab || defaultValue
-  const { repoUser } = userInfo || defaultUser
+  const { repoUser } = userInfo.gitlab || defaultUser
   return {
     repoList,
     isFetching,
