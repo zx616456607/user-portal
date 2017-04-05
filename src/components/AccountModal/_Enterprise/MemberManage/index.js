@@ -129,7 +129,7 @@ let MemberTable = React.createClass({
       },
       failed: {
         func: () => {
-        notification.error('删除失败')
+          notification.error('删除失败')
         }
       }
     })

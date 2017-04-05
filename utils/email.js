@@ -45,7 +45,7 @@ function sendEmail(transport, mailOptions) {
     mailOptions = transport
     transport = config.mail_server
   }
-  // Workaround for SMTP not configed(lite)
+  // Workaround for SMTP not configured(lite)
   if (!transport.auth.pass) {
     return Promise.resolve({skip: true})
   }
@@ -141,6 +141,7 @@ exports.sendEmailBySendcloud = sendEmailBySendcloud
  */
 function sendEnsureEmail(mailOptions, htmlName) {
   return sendEmailBySendcloud(mailOptions).catch(err => {
+    logger.error("Failed to send using sendcloud: " + JSON.stringify(err))
     let html = fs.readFileSync(`${EMAIL_TEMPLATES_DIR}/${htmlName}`, 'utf8')
     const sub = mailOptions.sub
     for(let key in sub) {
@@ -531,7 +532,7 @@ function switchPayTypeToText(type) {
   }
 }
 
-exports.sendNotifyGroupInvitationEmail = function(to, invitorName, invitorEmail, code) {
+exports.sendNotifyGroupInvitationEmail = function* (to, invitorName, invitorEmail, code) {
   const subject = `[时速云]告警通知组|邮箱验证`
   const systemEmail = config.mail_server.service_mail
   const date = moment(new Date()).format("YYYY-MM-DD")

@@ -16,6 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/CodeRepo.less'
 import { getRepoType, getRepoList, addCodeRepo, notActiveProject, deleteRepo, registryRepo, syncRepoList, searchCodeRepo, getUserInfo } from '../../../actions/cicd_flow'
 import GithubComponent from './GithubComponent'
+import GogsComponent from './GogsComponent'
 import SvnComponent from './SvnComponent'
 import NotificationHandler from '../../../common/notification_handler'
 
@@ -100,7 +101,7 @@ const MyComponent = React.createClass({
     getRepoList('gitlab', {
       success: {
         func: (res) => {
-          if (res.data.total > 0) {
+          if (res.data.total && res.data.total > 0) {
             let loadingList = {}
             self.props.getUserInfo('gitlab')
             for (let i = 0; i < res.data.results.length; i++) {
@@ -171,7 +172,7 @@ const MyComponent = React.createClass({
     const config = {
       url,
       token,
-      type: this.props.scope.state.repokey
+      type: this.props.typeName
     }
     this.setState({
       loading: true
@@ -212,18 +213,28 @@ const MyComponent = React.createClass({
   },
   syncRepoList() {
     const types = this.props.scope.state.repokey
-    this.props.scope.props.syncRepoList(types)
+    let notification = new NotificationHandler()
+    notification.spin(`正在执行中...`)
+    this.props.scope.props.syncRepoList(types, {
+      success: {
+        func: () => {
+          notification.close()
+          notification.success(`代码同步成功`)
+        },
+        isAsync: true
+      }
+    })
   },
   handleSearch(e) {
     const parentScope = this.props.scope
     const codeName = e.target.value
-    parentScope.props.searchCodeRepo(codeName)
+    parentScope.props.searchCodeRepo(codeName, this.props.typeName)
   },
   changeSearch(e) {
     const codeName = e.target.value
     if (codeName == '') {
       const parentScope = this.props.scope
-      parentScope.props.searchCodeRepo(codeName)
+      parentScope.props.searchCodeRepo(codeName, this.props.typeName)
     }
   },
   notActive(id, index) {
@@ -235,7 +246,7 @@ const MyComponent = React.createClass({
       loadingList
     })
     let notification = new NotificationHandler()
-    parentScope.props.notActiveProject(id, {
+    parentScope.props.notActiveProject(id, this.props.typeName, {
       success: {
         func: () => {
           notification.success(formatMessage(menusText.UndoSuccessful))
@@ -329,7 +340,7 @@ const MyComponent = React.createClass({
             <Icon type="logout" onClick={() => this.setState({removeModal: true})} style={{ margin: '0 20px' }} />
           </Tooltip>
           <Tooltip placement="top" title={formatMessage(menusText.syncCode)}>
-            <Icon type="reload" onClick={this.syncRepoList} />
+            <Icon type="reload" onClick={() => this.syncRepoList()}  />
           </Tooltip>
           <Tooltip title={this.props.repoUser ? this.props.repoUser.url : ''}>
             <Icon type="link" style={{ margin: '0 20px' }} />
@@ -468,10 +479,9 @@ class CodeRepo extends Component {
             <p style={{ paddingLeft: '36px', lineHeight: '40px' }}>选择代码源</p>
             <Tabs type="card" onChange={(e) => this.setState({ repokey: e }) } activeKey={this.state.repokey}>
               <TabPane tab={githubBud} key="github"><GithubComponent typeName="github" formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
-              <TabPane tab={gitlabBud} key="gitlab"><MyComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser} config={this.props.repoList} /></TabPane>
-              <TabPane tab={gogsBud} key="gogs"><GithubComponent typeName="gogs" formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
+              <TabPane tab={gitlabBud} key="gitlab"><MyComponent typeName='gitlab' formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser.gitlab} config={this.props.repoList} /></TabPane>
+              <TabPane tab={gogsBud} key="gogs"><GogsComponent typeName="gogs" formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
               <TabPane tab={svnBud} key="svn"><SvnComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
-
             </Tabs>
           </div>
           <Modal title={'选择代码源'} visible={this.state.typeVisible}
@@ -490,17 +500,21 @@ class CodeRepo extends Component {
 
 function mapStateToProps(state, props) {
   const defaultValue = {
-    repoList: [],
+    gitlab: {
+      repoList: []
+    },
     isFetching: false
   }
   const { codeRepo, userInfo} = state.cicd_flow
   const defaultUser = {
-    username: '',
-    depot: '',
-    url:''
+    repoUser: {
+      username: '',
+      depot: '',
+      url: ''
+    }
   }
-  const { repoList, isFetching } = codeRepo || defaultValue
-  const { repoUser } = userInfo || defaultUser
+  const { repoList, isFetching } = codeRepo.gitlab || defaultValue
+  const { repoUser } = userInfo.gitlab || defaultUser
   return {
     repoList,
     isFetching,
@@ -527,6 +541,6 @@ export default connect(mapStateToProps, {
   getUserInfo,
   notActiveProject
 })(injectIntl(CodeRepo, {
-  withRef: true,
+  withRef: true
 }));
 
