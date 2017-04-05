@@ -79,6 +79,11 @@ class MirrorSafety extends Component {
 
   ScanstatusSwitch() {
     const { mirrorScanstatus } = this.props
+    if (mirrorScanstatus.statusCode && mirrorScanstatus.statusCode == 500) {
+      return (<div>
+        {mirrorScanstatus.message}
+      </div>)
+    }
     if (mirrorScanstatus.statusCode && mirrorScanstatus.statusCode == 200) {
       switch (mirrorScanstatus.status) {
         case "noresult":
@@ -129,10 +134,6 @@ class MirrorSafety extends Component {
             </div>
           </div>)
       }
-    } else if (mirrorScanstatus.statusCode && mirrorScanstatus.statusCode == 500) {
-      return (<div>
-        {mirrorScanstatus.message}
-      </div>)
     }
   }
 
@@ -209,6 +210,13 @@ class MirrorSafety extends Component {
     }
     const statusCode = mirrorsafetyClair.mirrorchairinfo.result.statusCode
     const status = mirrorsafetyClair.mirrorchairinfo.result.status
+    if (statusCode && statusCode == 500) {
+      return (
+        <div>
+          <span>{mirrorsafetyClair.mirrorchairinfo.result.message}</span>
+        </div>
+      )
+    }
     if (statusCode && statusCode == 200) {
       if (status) {
         switch (status) {
@@ -225,12 +233,6 @@ class MirrorSafety extends Component {
             )
         }
       }
-    } else if (statusCode && statusCode == 500) {
-      return (
-        <div>
-          <span>{mirrorsafetyClair.mirrorchairinfo.result.message}</span>
-        </div>
-      )
     }
   }
 

@@ -269,9 +269,11 @@ class MirrorSafetyBug extends Component {
         const value = accessVectorArr[data.accessVector]
         if( value == '网络' && value == text){
           return 'red'
-        }else if(value == '相邻网络' && value == text){
+        }
+        if(value == '相邻网络' && value == text){
           return 'orange'
-        }else if(value == '本地' && value == text){
+        }
+        if(value == '本地' && value == text){
           return 'green'
         }else{
           return 'grey'
@@ -285,9 +287,11 @@ class MirrorSafetyBug extends Component {
         const value = accessComplexityArr[data.accessComplexity]
         if( value == '低' && value == text){
           return 'red'
-        }else if(value == '中' && value == text){
+        }
+        if(value == '中' && value == text){
           return 'orange'
-        }else if(value == '高' && value == text){
+        }
+        if(value == '高' && value == text){
           return 'green'
         }else{
           return 'grey'
@@ -301,9 +305,11 @@ class MirrorSafetyBug extends Component {
         const value = authenticationArr[data.authentication]
         if( value == '没有' && value == text){
           return 'red'
-        }else if(value == '单' && value == text){
+        }
+        if(value == '单' && value == text){
           return 'orange'
-        }else if(value == '多' && value == text){
+        }
+        if(value == '多' && value == text){
           return 'green'
         }else{
           return 'grey'
@@ -317,9 +323,11 @@ class MirrorSafetyBug extends Component {
         const value = confidentialityImpactArr[data.confidentialityImpact]
         if( value == '完成' && value == text){
           return 'red'
-        }else if(value == '局部' && value == text){
+        }
+        if(value == '局部' && value == text){
           return 'orange'
-        }else if(value == '没有' && value == text){
+        }
+        if(value == '没有' && value == text){
           return 'green'
         }else{
           return 'grey'
@@ -333,9 +341,11 @@ class MirrorSafetyBug extends Component {
         const value = integrityImpactArr[data.integrityImpact]
         if( value == '完成' && value == text){
           return 'red'
-        }else if(value == '局部' && value == text){
+        }
+        if(value == '局部' && value == text){
           return 'orange'
-        }else if(value == '没有' && value == text){
+        }
+        if(value == '没有' && value == text){
           return 'green'
         }else{
           return 'grey'
