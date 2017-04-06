@@ -122,7 +122,7 @@ function* mailConfigFunc(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'mail'
   entity.configDetail = {
-    secure: true,
+    secure: entity.detail.secure,
     senderMail: entity.detail.senderMail,
     senderPassword: entity.detail.senderPassword,
     mailServer: entity.detail.mailServer,
@@ -130,8 +130,8 @@ function* mailConfigFunc(entity) {
   }
   let response
   if (entity.configID) {
-    const config = global.globalConfig.mail_server
-    entity.configDetail.secure = config.secure
+    // const config = global.globalConfig.mail_server
+    // entity.configDetail.secure = config.secure
     entity.configDetail = JSON.stringify(entity.configDetail)
     response = yield api.configs.updateBy([type], null, entity)
   } else {
