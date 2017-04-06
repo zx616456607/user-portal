@@ -178,6 +178,13 @@ class MirrorSafety extends Component {
     }
     const statusCode = mirrorsafetyClair.mirrorchairinfo.result.statusCode
     const status = mirrorsafetyClair.mirrorchairinfo.result.status
+    if (statusCode && statusCode == 500) {
+      return (
+        <div>
+          <span>{mirrorsafetyClair.mirrorchairinfo.result.message}</span>
+        </div>
+      )
+    }
     if (statusCode && statusCode == 200) {
       if (status) {
         switch (status) {
@@ -194,12 +201,6 @@ class MirrorSafety extends Component {
             )
         }
       }
-    } else if (statusCode && statusCode == 500) {
-      return (
-        <div>
-          <span>{mirrorsafetyClair.mirrorchairinfo.result.message}</span>
-        </div>
-      )
     }
   }
 
