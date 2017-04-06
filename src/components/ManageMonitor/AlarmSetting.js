@@ -19,6 +19,8 @@ import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 // import { calcuDate } from '../../../common/tools.js'
 import './style/AlarmRecord.less'
 import cloneDeep from 'lodash/cloneDeep'
+const Option = Select.Option
+
 const MyComponent = React.createClass({
   getInitialState() {
     return {
@@ -58,6 +60,18 @@ const MyComponent = React.createClass({
 
     )
   },
+  formatStatus(text){
+    if (text ==1) {
+      return <span className="running"><i className="fa fa-circle" /> 启用</span>
+    }
+    if (text ==2) {
+      return <span className="stop"><i className="fa fa-circle" /> 停用</span>
+    }
+    if (text ==3) {
+      return <span className="stop"><i className="fa fa-circle" /> 忽略</span>
+    }
+    return <span className="unknown"><i className="fa fa-circle" /> 告警</span>
+  },
   handOverlook() {
     lookModel: true
   },
@@ -71,6 +85,30 @@ const MyComponent = React.createClass({
     this.setState({
       data: newData,
       sorter,
+    })
+  },
+  changeAll(e) {
+    const oldData = cloneDeep(this.state.data)
+    const newData = oldData.map((item, index)=> {
+      item.checked = e.target.checked
+      return item
+    })
+    this.setState({
+      data: newData
+    })
+  },
+  changeChecked(e, ins) {
+    const oldData = cloneDeep(this.state.data)
+    const newData = oldData.map((item, index)=> {
+      if (index == ins) {
+        item.checked = !item.checked
+        return item
+      }
+      item.checked = false
+      return item
+    })
+    this.setState({
+      data: newData
     })
   },
   tableListMore(list) {
@@ -123,11 +161,11 @@ const MyComponent = React.createClass({
       if (list.active) {
         return (
             [<tr key={`list${index}`}>
-              <td style={{width:'5%'}}><Checkbox /></td>
+              <td style={{width:'5%'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
               <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${list.key}`}>{list.name}</Link></td>
               <td onClick={()=> this.tableListMore(index)}>{list.type}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.bindObject}</td>
-              <td onClick={()=> this.tableListMore(index)}>{list.status}</td>
+              <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.status)}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.time}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.createTime}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.editUser}</td>
@@ -144,11 +182,11 @@ const MyComponent = React.createClass({
       }
       return (
         <tr key={`list${index}`}>
-            <td><Checkbox /></td>
+            <td><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
             <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${list.key}`}>{list.name}</Link></td>
             <td onClick={()=> this.tableListMore(index)}>{list.type}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.bindObject}</td>
-            <td onClick={()=> this.tableListMore(index)}>{list.status}</td>
+            <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.status)}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.time}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.createTime}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.editUser}</td>
@@ -161,7 +199,7 @@ const MyComponent = React.createClass({
         <table className="ant-table-table strategyTable">
           <thead className="ant-table-thead">
             <tr>
-              <th><Checkbox /></th>
+              <th><Checkbox onChange={(e)=> this.changeAll(e)} /></th>
               <th>策略名称</th>
               <th>类型</th>
               <th>告警对象</th>
@@ -209,6 +247,8 @@ class AlarmSetting extends Component {
     this.state = {
       createGroup: false,
       step: 1, // first step create AlarmModal
+      deleteModal: false, // delete alarm modal
+      isDelete: true, // disabled delte btn
     }
   }
   componentWillMount() {
@@ -236,6 +276,9 @@ class AlarmSetting extends Component {
     this.setState({
       step: step
     })
+  }
+  deleteRecords() {
+    console.log('delete in ^^&^^')
   }
   render() {
 
@@ -314,9 +357,9 @@ class AlarmSetting extends Component {
         editUser:'baiyu',
       }
     ];
-    const rowSelection = {
-      // checkbox select callback
-    }
+    // const rowSelection = {
+    //   // checkbox select callback
+    // }
     const _this = this
     const modalFunc=  {
       scope : this,
@@ -331,7 +374,7 @@ class AlarmSetting extends Component {
             <Button icon="reload" size="large" type="ghost">刷新</Button>
             <Button icon="caret-right" size="large" type="ghost">启用</Button>
             <Button size="large" type="ghost"><i className="fa fa-stop" /> &nbsp;停用</Button>
-            <Button icon="delete" type="ghost" size="large">删除</Button>
+            <Button icon="delete" type="ghost" disabled={this.state.isDelete} onClick={()=> this.setState({deleteModal: true})} size="large">删除</Button>
             <Button icon="edit" type="ghost" size="large" >修改</Button>
             <div className="inputGrop">
               <Input size="large" id="alarmSearch" placeholder="搜索" onPressEnter={()=> this.handSearch()}/>
@@ -368,6 +411,12 @@ class AlarmSetting extends Component {
             footer={null}
           >
             <CreateGroup funcs={modalFunc}/>
+          </Modal>
+          <Modal title="清除所有告警记录" visible={this.state.deleteModal}
+            onCancel={()=> this.setState({deleteModal: false})}
+            onOk={()=> this.deleteRecords()}
+          >
+            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>策略删除后将不再发送邮件告警，是否确定删除？</div>
           </Modal>
           {/*<Card>
             <Table className="strategyTable"
