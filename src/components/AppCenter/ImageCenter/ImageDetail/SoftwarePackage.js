@@ -43,30 +43,29 @@ class SoftwarePackage extends Component {
     const fixedIn = result.report.fixedIn
     let tableDataSource = []
     let index = 1
-    let command = {}
-    let arrBug = []
-    let bugcell = [
-      { sortNum: 0, High: 0 },
-      { sortNum: 0, Medium: 0 },
-      { sortNum: 0, Low: 0 },
-      { sortNum: 0, Unknown: 0 },
-      { sortNum: 0, Negligible: 0 },
-      { sortNum: 0, Other: 0 }
-    ]
-    let bugcellObj = []
-    let bugcellSlice = []
-    let bugcellValue = {
-      nameOne: '',
-      valueOne: '',
-      nameTwo: '',
-      valueTwo: ''
-    }
-    let nameStr = ''
-    let namevnlner = ''
-    let availableRepair = []
-    let unavailableRepair = []
-    let impact = 0
-
+    //let command = {}
+    //let arrBug = []
+    //let bugcell = [
+    //  { sortNum: 0, High: 0 },
+    //  { sortNum: 0, Medium: 0 },
+    //  { sortNum: 0, Low: 0 },
+    //  { sortNum: 0, Unknown: 0 },
+    //  { sortNum: 0, Negligible: 0 },
+    //  { sortNum: 0, Other: 0 }
+    //]
+    //let bugcellObj = []
+    //let bugcellSlice = []
+    //let bugcellValue = {
+    //  nameOne: '',
+    //  valueOne: '',
+    //  nameTwo: '',
+    //  valueTwo: ''
+    //}
+    //let nameStr = ''
+    //let namevnlner = ''
+    //let availableRepair = []
+    //let unavailableRepair = []
+    //let impact = 0
     // Echarts 数据
     let EchartsUnknownNum = 0
     let EchartsNegligibleNum = 0
@@ -76,6 +75,30 @@ class SoftwarePackage extends Component {
     let EchartsNoneNum = 0
 
     for (let key in features) {
+      let command = {}
+      let arrBug = []
+      let bugcell = [
+        { sortNum: 0, High: 0 },
+        { sortNum: 0, Medium: 0 },
+        { sortNum: 0, Low: 0 },
+        { sortNum: 0, Unknown: 0 },
+        { sortNum: 0, Negligible: 0 },
+        { sortNum: 0, Other: 0 }
+      ]
+      let bugcellObj = []
+      let bugcellSlice = []
+      let bugcellValue = {
+        nameOne: '',
+        valueOne: '',
+        nameTwo: '',
+        valueTwo: ''
+      }
+      let nameStr = ''
+      let namevnlner = ''
+      let availableRepair = []
+      let unavailableRepair = []
+      let impact = 0
+
       // 漏洞数据获取
       // 找到当前包的漏洞信息，并将其存入一个数组
       if (features[key].vulnerabilities.length !== 0) {
@@ -203,28 +226,28 @@ class SoftwarePackage extends Component {
       tableDataSource.push(data)
 
       index++
-      command = {}
-      arrBug = []
-      bugcell = [
-        { sortNum: 0, High: 0 },
-        { sortNum: 0, Medium: 0 },
-        { sortNum: 0, Low: 0 },
-        { sortNum: 0, Unknown: 0 },
-        { sortNum: 0, Negligible: 0 },
-        { sortNum: 0, Other: 0 }
-      ]
-      bugcellSlice = []
-      bugcellObj = []
-      bugcellValue = {
-        nameOne: '',
-        valueOne: '',
-        nameTwo: '',
-        valueTwo: ''
-      }
-      nameStr = ''
-      namevnlner = ''
-      availableRepair = []
-      unavailableRepair = []
+      //command = {}
+      //arrBug = []
+      //bugcell = [
+      //  { sortNum: 0, High: 0 },
+      //  { sortNum: 0, Medium: 0 },
+      //  { sortNum: 0, Low: 0 },
+      //  { sortNum: 0, Unknown: 0 },
+      //  { sortNum: 0, Negligible: 0 },
+      //  { sortNum: 0, Other: 0 }
+      //]
+      //bugcellSlice = []
+      //bugcellObj = []
+      //bugcellValue = {
+      //  nameOne: '',
+      //  valueOne: '',
+      //  nameTwo: '',
+      //  valueTwo: ''
+      //}
+      //nameStr = ''
+      //namevnlner = ''
+      //availableRepair = []
+      //unavailableRepair = []
     }
     return {
       tableDataSource,

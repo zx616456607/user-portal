@@ -21,7 +21,7 @@ class MirrorSafetyBug extends Component {
   constructor(props){
     super(props)
     this.tableDatasource = this.tableDatasource.bind(this)
-    //this.EchartsGapTemplate = this.EchartsGapTemplate.bind(this)
+    this.tableSeverityColor = this.tableSeverityColor.bind(this)
     this.state = {
       Unknown: 0,
       Negligible: 0,
@@ -43,13 +43,13 @@ class MirrorSafetyBug extends Component {
     const clairFixedIn = mirrorsafetyClair.mirrorchairinfo.result.report.fixedIn
     let tabledatasource = []
     let index = 1
-    let CVEobj = {}
-    let software = ''
-    let CVersion = ''
-    let RVersion = ''
-    let data = {}
-    let softwareID = ''
-    let Command = {}
+    //let CVEobj = {}
+    //let software = ''
+    //let CVersion = ''
+    //let RVersion = ''
+    //let data = {}
+    //let softwareID = ''
+    //let Command = {}
     // Echarts 数据
     let EchartsUnknownNum = 0
     let EchartsNegligibleNum = 0
@@ -63,6 +63,13 @@ class MirrorSafetyBug extends Component {
       return tabledatasource = []
     }else{
       for(let keyVulner in clairVulnerabilities){
+        let CVEobj = {}
+        let CVersion = ''
+        let RVersion = ''
+        let softwareID = ''
+        let software = ''
+        let Command = {}
+        let data = {}
         software = clairVulnerabilities[keyVulner].features
         if(software.length > 1){
           // CVE
@@ -215,11 +222,11 @@ class MirrorSafetyBug extends Component {
           }
           tabledatasource.push(data)
           index++
-          CVEobj = {}
-          CVersion = ''
-          RVersion = ''
-          softwareID = ''
-          data = {}
+          //CVEobj = {}
+          //CVersion = ''
+          //RVersion = ''
+          //softwareID = ''
+          //data = {}
         }
       }
       return {
@@ -249,6 +256,26 @@ class MirrorSafetyBug extends Component {
     })
     //console.log(this.state)
   }
+
+  tableSeverityColor(severity){
+    if(!severity){
+      return
+    }
+    switch(severity){
+      case 'High':
+        return 'severityHigh'
+      case 'Medium':
+        return 'severityMedium'
+      case 'Low':
+        return 'severityLow'
+      case 'Negligible':
+        return 'severityNegligible'
+      case 'Unknown':
+      default:
+        return 'severityUnknown'
+    }
+  }
+
 
   // 漏洞扫描table 子级
   tableSubNo(str){
@@ -428,19 +455,6 @@ class MirrorSafetyBug extends Component {
     )
   }
 
-  EchartsGapTemplate(num){
-    str = num.toString()
-    switch(str.length){
-      case 1 :
-      default:
-        return '   '+ '    ' + num +'  封装' + '      '
-      case 2 :
-        return '   '+ '  ' + num + '  封装' + '      '
-      case 3 :
-        return '   '+ num + '  封装' + '      '
-    }
-  }
-
   render(){
     const { Unknown, Negligible, Low, Medium, High }=this.state
     function EchartsGapTemplate(num){
@@ -559,7 +573,7 @@ class MirrorSafetyBug extends Component {
       width: '13%',
       dataIndex: 'severity',
       key: 'severity',
-      render: text => (<span className='severity'><i className="fa fa-exclamation-triangle severityi" aria-hidden="true"></i>{text}</span>),
+      render: text => (<span className={this.tableSeverityColor(text)}><i className="fa fa-exclamation-triangle severityi" aria-hidden="true"></i><span>{text}</span></span>),
       sorter: (a, b) => a.age - b.age,
     }, {
       title: '软件包',
@@ -576,7 +590,7 @@ class MirrorSafetyBug extends Component {
       width: '15%',
       dataIndex: 'reversion',
       key: 'reversion',
-      render: text => (<span style={{color: text == '暂无修正版' ? 'red' : '#5bcea3' }}><i className="fa fa-arrow-circle-right" aria-hidden="true" style={{marginRight: '2px'}}></i>{text}</span>),
+      render: text => (<span className='reversion' style={{color: text == '暂无修正版' ? 'red' : '#5bcea3' }}><i className="fa fa-arrow-circle-right reversioni" aria-hidden="true"></i>{text}</span>),
     }, {
       title: '位于镜像层',
       width: '27%',
