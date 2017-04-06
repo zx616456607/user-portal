@@ -180,3 +180,31 @@ exports.getClustersMetrics = function* () {
     txRate: results[3][node]
   }
 }
+
+// host cpu and memory used
+exports.getClustersInstant = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const node = this.params.node
+  const type = this.params.type
+  const api = apiFactory.getK8sApi(loginUser)
+  const reqArray = []
+   let cpu = {
+    targetType: 'node',
+    type: 'cpu/usage_rate',
+    source: 'prometheus'
+  }
+  let mem = {
+    targetType: 'node',
+    type: 'memory/usage',
+    source: 'prometheus'
+  }
+  // metrics cpu use
+  reqArray.push(api.getBy([cluster,node,'metric/instant'], cpu))
+  reqArray.push(api.getBy([cluster,node,'metric/instant'], mem))
+  const results = yield reqArray
+  this.body = {
+    cpus: results[0].data[node],
+    memory:results[1].data[node],
+  }
+}
