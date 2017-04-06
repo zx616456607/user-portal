@@ -13,7 +13,7 @@ import React, { Component } from 'react'
 import { Button, Input, Table, Dropdown, Menu, Icon, Popover, Modal, Form, Card, Pagination } from 'antd'
 import './style/AlarmGroup.less'
 import QueueAnim from 'rc-queue-anim'
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../constants'
+// import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../constants'
 import CreateAlarm from '../../AppModule/AlarmModal/CreateGroup'
 const InputGroup = Input.Group
 import { loadNotifyGroups, deleteNotifyGroups } from '../../../actions/alert'
@@ -198,7 +198,7 @@ class AlarmGroup extends Component {
     },{
       title:'描述',
       dataIndex:'desc',
-      width:'16%',
+      width:'10%',
     },{
       title:'邮箱',
       dataIndex:'email',
@@ -243,7 +243,6 @@ class AlarmGroup extends Component {
       },
       selectedRowKeys: this.state.selectedRowKeys,
     }
-
     return (
       <QueueAnim  className="alarmGroup">
         <div id="AlarmGroup" key="demo">
@@ -256,16 +255,29 @@ class AlarmGroup extends Component {
               <Input size="large" id="AlarmGroupInput" onPressEnter={()=> this.handSearch()} />
               <i className="fa fa-search" onClick={()=> this.handSearch()} />
             </div>
+            {/*<div className="rightPage pageBox">
+              <span className='totalPage'>共计 {tableData.length} 条</span>
+              <div className='paginationBox'>
+                <Pagination
+                  simple
+                  className='inlineBlock'
+                  onChange={(page)=> this.onPageChange(page)}
+                  current={DEFAULT_PAGE}
+                  pageSize={5}
+                  total={ tableData.length } />
+              </div>
+            </div>*/}
           </div>
           <Card className='alarmGroupContent'>
             <Table
               className="strategyTable"
               columns={tableColumns}
               dataSource={tableData}
-              pagination={false}
+              pagination={{simple: true}}
               rowSelection={rowSelection}
             >
             </Table>
+            <span className="pageCount">共计 {tableData.length} 条</span>
           </Card>
           <Modal title={this.state.createModalTitle} visible={this.state.createGroup || this.state.modifyGroup}
             width={560}

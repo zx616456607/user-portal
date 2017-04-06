@@ -54,6 +54,7 @@ class AlarmRecord extends Component {
     this.props.loadRecords(query)
   }
   componentWillMount() {
+    document.title = '告警记录 | 时速云'
     const { loadRecordsFilters, clusterID } = this.props
     loadRecordsFilters(clusterID)
     this.loadData(this.props)
@@ -247,10 +248,8 @@ class AlarmRecord extends Component {
             <DatePicker placeholder="选择结束日期" size="large" onChange={(value) => this.onEndTimeFilterChange(value)}/>
             <Button icon="exception" size="large" type="primary" onClick={() => this.getRecords()}>立即查询</Button>
             <Button icon="delete" size="large"  onClick={() => this.setState({deleteModal: true})}>清空所有记录</Button>
-          </div>
-          <div className='pageBox'>
-            <span className='totalPage'>共 {total} 条</span>
-            <div className='paginationBox'>
+            <div className='pageBox'>
+              <span className='totalPage'>共计 {total} 条</span>
               <Pagination
                 simple
                 className='inlineBlock'
@@ -259,8 +258,9 @@ class AlarmRecord extends Component {
                 pageSize={size}
                 total={total} />
             </div>
+            <div style={{clear:'both'}}></div>
           </div>
-          <Card>
+          <Card style={{marginTop: 20}}>
             <Table className="strategyTable" columns={columns} dataSource={data} pagination={false}  loading={this.props.isFetching}/>
           </Card>
         </div>
