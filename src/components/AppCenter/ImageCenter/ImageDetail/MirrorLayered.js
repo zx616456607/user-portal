@@ -19,8 +19,8 @@ class MirrorLayered extends Component {
   constructor(props){
     super(props)
     this.testContent = this.testContent.bind(this)
+    this.handleStepsCurrentNumber = this.handleStepsCurrentNumber.bind(this)
   }
-
   testContent(){
     const {mirrorLayeredinfo} = this.props
     if(!mirrorLayeredinfo){
@@ -45,10 +45,22 @@ class MirrorLayered extends Component {
     return mirrorLayeredStep
   }
 
+  handleStepsCurrentNumber(){
+    const { mirrorLayeredinfo, LayerCommandParameters } = this.props
+    if(!LayerCommandParameters){
+      return 0
+    }
+    for(let i=0;i<mirrorLayeredinfo.length;i++){
+      if(mirrorLayeredinfo[i].command.parameters == LayerCommandParameters){
+        return i
+      }
+    }
+  }
+
   render(){
     return (
       <div id='MirrorLayered'>
-        <Steps direction="vertical" className='safetycontentmian'>
+        <Steps direction="vertical" className='safetycontentmian' current={this.handleStepsCurrentNumber()}>
           {this.testContent()}
         </Steps>
       </div>

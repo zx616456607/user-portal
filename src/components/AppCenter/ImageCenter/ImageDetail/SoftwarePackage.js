@@ -275,6 +275,15 @@ class SoftwarePackage extends Component {
     })
   }
 
+  handleGetBackLayer(text){
+    const { callBack } = this.props
+    let getBackInfo = {
+      ActiveKey:2,
+      LayerCommandParameters:text
+    }
+    callBack(getBackInfo)
+  }
+
   render() {
     const { Unknown, Negligible, Low, Medium, High, None } = this.state
     function EchartsGapTemplate(num) {
@@ -434,7 +443,7 @@ class SoftwarePackage extends Component {
         key: 'softwarepicture',
         width: '30%',
         render: (text) => (
-          <div className='softwarepicture'><span className='softwarepicturelleft'>{text.action}</span><Tooltip title={text.parameters}><span className="textoverflow softwarepicturespan">{text.parameters}</span></Tooltip><i className="fa fa-database softwarepicturelright" aria-hidden="true"></i></div>)
+          <div className='softwarepicture'><span className='softwarepicturelleft'>{text.action}</span><Tooltip title={text.parameters}><span className="textoverflow softwarepicturespan">{text.parameters}</span></Tooltip><i className="fa fa-database softwarepicturelright" aria-hidden="true" onClick={this.handleGetBackLayer.bind(this,text.parameters)}></i></div>)
       }
     ]
 

@@ -31,12 +31,16 @@ class MirrorSafety extends Component {
     this.handleClair = this.handleClair.bind(this)
     this.APIScanStatusThenClair = this.APIScanStatusThenClair.bind(this)
     this.MirrorSafetyClairSwitchSoft = this.MirrorSafetyClairSwitchSoft.bind(this)
+    this.handleSoftwarepackageToLayer = this.handleSoftwarepackageToLayer.bind(this)
+    this.handleTabsSwitch = this.handleTabsSwitch.bind(this)
     this.state = {
       tag: '',
       ScanDisabled: false,
       TabsDisabled: true,
       imgTag: "",
-      imageName: this.props.imageName
+      imageName: this.props.imageName,
+      ActiveKey:'1',
+      LayerCommandParameters:''
     }
   }
 
@@ -193,7 +197,7 @@ class MirrorSafety extends Component {
               <div onClick={this.APIScanStatusThenClair}>正在扫描尚未结束</div>
             )
           case 'finished':
-            return < MirrorSafetyBug mirrorsafetyClair={mirrorsafetyClair} mirrorLayeredinfo={mirrorLayeredinfo} />
+            return <MirrorSafetyBug mirrorsafetyClair={mirrorsafetyClair} mirrorLayeredinfo={mirrorLayeredinfo} callBack={this.handleSoftwarepackageToLayer}/>
           case 'nojob':
           default:
             return (
@@ -226,7 +230,7 @@ class MirrorSafety extends Component {
               <div onClick={this.APIScanStatusThenClair}>正在扫描尚未结束</div>
             )
           case 'finished':
-            return <SoftwarePackage mirrorsafetyClair={mirrorsafetyClair} mirrorLayeredinfo={mirrorLayeredinfo} />
+            return <SoftwarePackage mirrorsafetyClair={mirrorsafetyClair} mirrorLayeredinfo={mirrorLayeredinfo} callBack={this.handleSoftwarepackageToLayer}/>
           case 'nojob':
           default:
             return (
@@ -237,9 +241,26 @@ class MirrorSafety extends Component {
     }
   }
 
+  handleSoftwarepackageToLayer(object){
+    if(!object){
+      return
+    }
+    this.setState({
+      ActiveKey:object.ActiveKey.toString(),
+      LayerCommandParameters:object.LayerCommandParameters
+    })
+  }
+
+  handleTabsSwitch(key){
+    this.setState({
+      ActiveKey:key
+    })
+  }
+
   render() {
     const { mirrorScanstatus, mirrorLayeredinfo, mirrorsafetyClair, imgTag, mirrorsafetyLyins, imageName, registry } = this.props
     const mirrorchairinfo = mirrorsafetyClair.mirrorchairinfo
+    const { TabsDisabled, LayerCommandParameters } = this.state
     return (
       <div id='mirrorsafety'>
         <div className='safetyselect'>
@@ -258,12 +279,12 @@ class MirrorSafety extends Component {
         <div>
           <div className='safetytabcontainer'>
             <div className="safetytabbox">
-              <Tabs>
-                <TabPane tab={<span><i className="fa fa-bug safetytabIcon" aria-hidden="true"></i>漏洞扫描</span>} key="1" disabled={this.state.TabsDisabled}>
+              <Tabs onChange={this.handleTabsSwitch} activeKey={ TabsDisabled ? {null} : this.state.ActiveKey}>
+                <TabPane tab={<span><i className="fa fa-bug safetytabIcon" aria-hidden="true"></i>漏洞扫描</span>} key="1" disabled={this.state.TabsDisabled} >
                   {(mirrorchairinfo && mirrorchairinfo.result) ? this.handleClair() : this.ScanstatusSwitch()}
                 </TabPane>
                 <TabPane tab={<span><i className="fa fa-database safetytabIcon" aria-hidden="true"></i>镜像分层</span>} key="2" disabled={this.state.TabsDisabled}>
-                  <MirrorLayered mirrorLayeredinfo={mirrorLayeredinfo} />
+                  <MirrorLayered mirrorLayeredinfo={mirrorLayeredinfo} LayerCommandParameters={LayerCommandParameters}/>
                 </TabPane>
                 <TabPane tab={<span><i className="fa fa-android safetytabIcon" aria-hidden="true"></i><span className='softspan'>软件包</span></span>} key="3" disabled={this.state.TabsDisabled}>
                   {(mirrorchairinfo && mirrorchairinfo.result) ? this.MirrorSafetyClairSwitchSoft() : this.ScanstatusSwitch()}
