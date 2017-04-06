@@ -76,7 +76,9 @@ let CreateClusterModal = React.createClass({
         },
         failed: {
           func: err => {
-            notification.error(`添加集群 ${values.clusterName} 失败`)
+            let _message
+            _message = err.message.message || ''
+            notification.error(`添加集群 "${values.clusterName}" 失败`, _message)
             this.setState({
               submitBtnLoading: false
             })
