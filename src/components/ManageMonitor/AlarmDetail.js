@@ -8,7 +8,7 @@
  * @author Baiyu
  */
 import React, { Component, PropTypes } from 'react'
-import { Row, Col, Card ,Radio, Button, Table } from 'antd'
+import { Row, Col, Card ,Radio, Button, Table, Modal } from 'antd'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
@@ -28,9 +28,6 @@ class AlarmDetail extends Component {
   componentWillMount() {
     document.title = '告警设置 | 时速云 '
   }
-  handDelete() {
-    console.log('click delBtn')
-  }
   formatStatus(text){
     if (text ==1) {
       return <span className="running"><i className="fa fa-circle" /> 启用</span>
@@ -44,7 +41,6 @@ class AlarmDetail extends Component {
     return <span className="unknown"><i className="fa fa-circle" /> 告警</span>
   }
   rowClick(ins) {
-    console.log('ins', ins)
     let selectCheckbox = this.state.selectCheckbox
     if (selectCheckbox.indexOf(ins+1) > -1) {
       selectCheckbox.splice(selectCheckbox.indexOf(ins+1), 1)
@@ -52,11 +48,14 @@ class AlarmDetail extends Component {
       selectCheckbox.push(ins+1)
     }
     selectCheckbox.sort()
-    console.log('selectCheckbox',selectCheckbox)
-    // let newArray = []
-    // newArray.push(ins+1)
-    // selectCheckbox = selectCheckbox.concat(newArray)
-    this.setState({selectCheckbox})
+    let delBtn = true
+    if (selectCheckbox.length > 0) {
+      delBtn = false
+    }
+    this.setState({selectCheckbox,delBtn})
+  }
+  deleteRecords() {
+    console.log('delete in ^^&^^')
   }
   render() {
     const columns = [
@@ -127,19 +126,16 @@ class AlarmDetail extends Component {
     const rowSelection = {
       selectedRowKeys: this.state.selectCheckbox,
       onChange(selectedRowKeys, selectedRows) {
-        console.log('selectedRows', selectedRowKeys, selectedRows)
         let btnDisabled = true
         if (selectedRowKeys.length > 0) {
           btnDisabled = false
         }
         _this.setState({
           delBtn: btnDisabled,
-          selectedRows
+          selectedRows,
+          selectCheckbox: selectedRowKeys
         })
       },
-      // onSelect(record, selected, selectedRows) {
-      //   console.log(record, selected, selectedRows);
-      // },
       // onSelectAll(selected, selectedRows, changeRows) {
       //   console.log(selected, selectedRows, changeRows);
       // },
@@ -184,7 +180,7 @@ class AlarmDetail extends Component {
                 </div>
                 <div style={{margin: '20px 30px'}}>
                   <Button icon="reload" type="primary" size="large">刷新</Button>
-                  <Button icon="delete" size="large" style={{marginLeft: 8}} disabled={this.state.delBtn} onClick={()=> this.handDelete()} type="ghost">删除</Button>
+                  <Button icon="delete" size="large" style={{marginLeft: 8}} disabled={this.state.delBtn} onClick={()=> this.setState({deleteModal: true})} type="ghost">删除</Button>
                 </div>
                 <Table className="strategyTable" rowSelection={rowSelection} columns={columns}
                 onRowClick={(record, index)=> this.rowClick(index)}
@@ -192,6 +188,12 @@ class AlarmDetail extends Component {
               </Card>
             </Col>
           </Row>
+          <Modal title="删除策略" visible={this.state.deleteModal}
+            onCancel={()=> this.setState({deleteModal: false})}
+            onOk={()=> this.deleteRecords()}
+          >
+            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>策略删除后将不再发送邮件告警，是否确定删除？</div>
+          </Modal>
         </QueueAnim>
       </div>
     )
