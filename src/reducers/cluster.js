@@ -170,5 +170,10 @@ export default function cluster(state = {
       SUCCESS: ActionTypes.LOAD_HOST_METRICS_SUCCESS,
       FAILURE: ActionTypes.LOAD_HOST_METRICS_FAILURE,
     }, state.hostMetrics, action, option),
+    hostInstant: reducerFactory({
+      REQUEST: ActionTypes.LOAD_HOST_INSTANT_REQUEST,
+      SUCCESS: ActionTypes.LOAD_HOST_INSTANT_SUCCESS,
+      FAILURE: ActionTypes.LOAD_HOST_INSTANT_FAILURE,
+    }, state.hostInstant, action, option),
   }
 }
