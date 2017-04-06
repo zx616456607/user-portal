@@ -18,7 +18,7 @@ const BaseScanDescription = React.createClass({
   render: function () {
     const dataObj = this.props.description;
     let dataStr = ''
-    console.log(dataObj)
+    //console.log(dataObj)
     if (Object.keys(dataObj).length == 0) {
       dataStr = ' <div class="basicscantableSubOne"><i class="fa fa-minus" aria-hidden="true" style="margin-right: 8px"></i><span class="noneInfo">暂无信息</span></div>'
       return (
@@ -38,7 +38,7 @@ const BaseScanDescription = React.createClass({
 const TableTemplate = React.createClass({
   TableDataSource() {
     const { mirrorsafetyLyins } = this.props
-    console.log('mirrorsafetyLyins', mirrorsafetyLyins)
+    //console.log('mirrorsafetyLyins', mirrorsafetyLyins)
     if (!mirrorsafetyLyins || !mirrorsafetyLyins.mirrorLyinsinfo.result) {
       return
     }
@@ -104,7 +104,7 @@ class BaseScan extends Component {
     const scanStatus = mirrorScanstatus.status
     const blob_sum = mirrorScanstatus.blobSum || ''
     //const cluster_id = 'CID-fe23111d77cb'
-    console.log('mirrorScanstatus=',mirrorScanstatus)
+    //console.log('mirrorScanstatus=',mirrorScanstatus)
     const tag = 'latest'
     const registry = mirrorScanUrl
     const config = {
@@ -181,7 +181,7 @@ class BaseScan extends Component {
     const { mirrorsafetyLyins } = this.props
     const result = mirrorsafetyLyins.mirrorLyinsinfo.result
     const report = result.report
-    console.log(report)
+    //console.log(report)
     const JsonFile = JSON.parse(report)
     const dataSource = []
     let index = 0

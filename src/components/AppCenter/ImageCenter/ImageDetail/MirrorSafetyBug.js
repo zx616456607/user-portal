@@ -257,6 +257,19 @@ class MirrorSafetyBug extends Component {
     //console.log(this.state)
   }
 
+  componentWillReceiveProps(){
+
+  }
+
+  handleGetBackLayer(text){
+    const { callBack } = this.props
+    let getBackInfo = {
+      ActiveKey:2,
+      LayerCommandParameters:text
+    }
+    callBack(getBackInfo)
+  }
+
   tableSeverityColor(severity){
     if(!severity){
       return
@@ -280,7 +293,7 @@ class MirrorSafetyBug extends Component {
   // 漏洞扫描table 子级
   tableSubNo(str){
     return(
-      <div>
+      <div className='tableSUBnNo'>
         {str}
       </div>
     )
@@ -596,7 +609,7 @@ class MirrorSafetyBug extends Component {
       width: '27%',
       dataIndex: 'layerInfo',
       key: 'layerInfo',
-      render: text => (<div className='layerInfo'><span className='safetybugtablepoint'>{text.action}</span><Tooltip title={text.parameters}><span className='textoverflow layerInfospan'>{text.parameters}</span></Tooltip><i className="fa fa-database softwarepicturelright" aria-hidden="true"></i></div>),
+      render: text => (<div className='layerInfo'><span className='safetybugtablepoint'>{text.action}</span><Tooltip title={text.parameters}><span className='textoverflow layerInfospan'>{text.parameters}</span></Tooltip><i className="fa fa-database softwarepicturelright" aria-hidden="true" onClick={this.handleGetBackLayer.bind(this,text.parameters)}></i></div>),
     }]
 
     const softwarePagination = {
