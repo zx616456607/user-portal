@@ -8,7 +8,7 @@
 * @author ZhangChengZheng
 */
 import React, { Component } from 'react'
-import { Row, Col, Icon, Form, Button, Input, Spin } from 'antd'
+import { Row, Col, Icon, Form, Button, Input, Spin, Checkbox, } from 'antd'
 import './style/GlobalConfig.less'
 import EmailImg from '../../../assets/img/setting/globalconfigEmail.png'
 import conInter from '../../../assets/img/setting/globalconfigCICD.png'
@@ -67,13 +67,15 @@ let Emaill = React.createClass({
       const email = getFieldValue('email')
       const password = getFieldValue('password')
       const emailID = getFieldValue('emailID')
+      const secure = getFieldValue('secure')
       const self = this
       saveGlobalConfig(cluster.clusterID, 'mail', {
         configID: emailID,
         detail: {
           senderMail: email,
           senderPassword: password,
-          mailServer: service
+          mailServer: service,
+          secure,
         }
       }, {
           success: {
@@ -143,7 +145,7 @@ let Emaill = React.createClass({
   },
   render() {
     const { emailDisable, emailChange, config } = this.props
-    const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
+    const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form
     let emailDetail = {
       senderMail: '',
       mailServer: '',
@@ -174,6 +176,11 @@ let Emaill = React.createClass({
       ],
       initialValue: emailDetail.senderPassword
     });
+    // 是否安全
+    const secureProps = getFieldProps('secure', {
+      valuePropName: 'checked',
+      initialValue: emailDetail.secure
+    });
 
     const emailID = getFieldProps('emailID', {
       initialValue: config ? config.configID : ''
@@ -191,6 +198,7 @@ let Emaill = React.createClass({
               <div className="key">邮件服务器</div>
               <div className="key">邮箱</div>
               <div className="key">密码</div>
+              <div className="key">是否安全</div>
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
@@ -205,6 +213,15 @@ let Emaill = React.createClass({
                     onClick={() => this.handEve()}></i>
                   <Input {...passwordProps} type={this.state.isEve ? "text" : "password"} placeholder="请输入密码"
                     disabled={emailDisable} />
+                </FormItem>
+                <FormItem style={{marginTop: '-8px'}}>
+                  <Checkbox {...secureProps} disabled={emailDisable}>
+                    {
+                      getFieldValue('secure')
+                      ? '安全'
+                      : '非安全'
+                    }
+                  </Checkbox>
                 </FormItem>
                 <FormItem>
                   {
