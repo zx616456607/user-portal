@@ -11,6 +11,7 @@ import React, { Component } from 'react'
 import { Card, Spin, Icon, Select, Tabs, Button, Steps, Checkbox, Input, Table, Tooltip } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/MirrorLayered.less'
+import { loadMirrorSafetyLayerinfo } from '../../../../actions/app_center'
 
 const Step = Steps.Step
 
@@ -22,6 +23,12 @@ class MirrorLayered extends Component {
 
   testContent(){
     const {mirrorLayeredinfo} = this.props
+    if(!mirrorLayeredinfo){
+      return <div>
+        <span>暂无数据</span>
+        <Button>点击获取数据</Button>
+      </div>
+    }
     const mirrorLayeredStep = mirrorLayeredinfo.map((item, index) =>{
       return (
         <Step title={null} description={ <div className='safetytabitem'>
@@ -41,7 +48,7 @@ class MirrorLayered extends Component {
   render(){
     return (
       <div id='MirrorLayered'>
-        <Steps direction="vertical" current={2} className='safetycontentmian'>
+        <Steps direction="vertical" className='safetycontentmian'>
           {this.testContent()}
         </Steps>
       </div>

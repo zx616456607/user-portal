@@ -623,13 +623,13 @@ let MirrorService = React.createClass({
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem >
-                  <Input {...mirrorProps} placeholder="如：http://192.168.1.113:80" disabled={mirrorDisable} />
+                  <Input {...extendProps} placeholder="如：http://192.168.1.113:80" disabled={mirrorDisable} />
                 </FormItem>
                 <FormItem >
                   <Input {...approveProps} placeholder="如：https://192.168.1.113:5001" disabled={mirrorDisable} />
                 </FormItem>
                 <FormItem >
-                  <Input {...extendProps} placeholder="如：https://192.168.1.113:4081" disabled={mirrorDisable} />
+                  <Input {...mirrorProps} placeholder="如：https://192.168.1.113:4081" disabled={mirrorDisable} />
                 </FormItem>
                 <FormItem>
                   {

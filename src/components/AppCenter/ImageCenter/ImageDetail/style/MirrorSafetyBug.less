@@ -69,6 +69,15 @@
     //  table
     .safetybugtable{
       clear: both;
+      table{
+        table-layout: fixed;
+        word-break: break-all;
+        td{
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+      }
       .ant-table-expanded-row{
         background: white;
       }
@@ -95,6 +104,56 @@
         text-overflow: ellipsis;
         white-space: nowrap;
       }
+      .CVE{
+        .CVEspan{
+          margin-right: 6px;
+        }
+        .CVEi{
+          color:#9dd8f8;
+        }
+      }
+      .severityUnknown{
+        color: #2abd83;
+        .severityi{
+          margin-right: 8px;
+        }
+      }
+      .severityNegligible{
+        color: #c7eafe;
+        .severityi{
+          margin-right: 8px;
+        }
+      }
+      .severityLow{
+        color: #fbc82f;
+        .severityi{
+          margin-right: 8px;
+        }
+      }
+      .severityMedium{
+        color: #f7a45e;
+        .severityi{
+          margin-right: 8px;
+        }
+      }
+      .severityHigh{
+        color: #fa4f55;
+        .severityi{
+          margin-right: 8px;
+        }
+      }
+      .reversion{
+        .reversioni{
+          margin-right: 2px;
+        }
+      }
+      .layerInfo{
+        .layerInfospan{
+          display: inline-block;
+          width: calc(~"100% - 100px");
+          vertical-align: middle;
+        }
+      }
       .tablesub{
         width:75%;
         .ant-table-thead{
@@ -109,6 +168,18 @@
         .tablesubbody{
           .column-visite{
             font-size: 12px;
+          }
+          .red{
+            color: red;
+          }
+          .yellow{
+            color:yellow;
+          }
+          .green{
+            color: green;
+          }
+          .grey{
+            color: #dbdbdb;
           }
         }
         .tablesubtitlefooter{

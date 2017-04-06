@@ -169,6 +169,28 @@ export function loadHostMetrics(body, query) {
   }
 }
 
+export const LOAD_HOST_INSTANT_REQUEST = 'LOAD_HOST_INSTANT_REQUEST'
+export const LOAD_HOST_INSTANT_SUCCESS = 'LOAD_HOST_INSTANT_SUCCESS'
+export const LOAD_HOST_INSTANT_FAILURE = 'LOAD_HOST_INSTANT_FAILURE'
+
+function fetchHostInstant(body) {
+  let endpoint = `${API_URL_PREFIX}/cluster-nodes/${body.clusterID}/${body.clusterName}/instant`
+
+  return {
+    [FETCH_API]: {
+      types: [LOAD_HOST_INSTANT_REQUEST, LOAD_HOST_INSTANT_SUCCESS, LOAD_HOST_INSTANT_FAILURE],
+      endpoint: endpoint,
+      schema: {}
+    }
+  }
+}
+
+export function loadHostInstant(body) {
+  return (dispatch, getState) => {
+    return dispatch(fetchHostInstant(body))
+  }
+}
+
 export const UPDATE_CLUSTER_REQUEST = 'UPDATE_CLUSTER_REQUEST'
 export const UPDATE_CLUSTER_SUCCESS = 'UPDATE_CLUSTER_SUCCESS'
 export const UPDATE_CLUSTER_FAILURE = 'UPDATE_CLUSTER_FAILURE'

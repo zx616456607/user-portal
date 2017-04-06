@@ -21,7 +21,8 @@ class AlarmDetail extends Component {
     super(props)
     this.state = {
       sendEmail: 2, // no send eamil
-      delBtn: true
+      delBtn: true,
+      selectCheckbox: [] // default table selected item
     }
   }
   componentWillMount() {
@@ -29,6 +30,33 @@ class AlarmDetail extends Component {
   }
   handDelete() {
     console.log('click delBtn')
+  }
+  formatStatus(text){
+    if (text ==1) {
+      return <span className="running"><i className="fa fa-circle" /> 启用</span>
+    }
+    if (text ==2) {
+      return <span className="stop"><i className="fa fa-circle" /> 停用</span>
+    }
+    if (text ==3) {
+      return <span className="stop"><i className="fa fa-circle" /> 忽略</span>
+    }
+    return <span className="unknown"><i className="fa fa-circle" /> 告警</span>
+  }
+  rowClick(ins) {
+    console.log('ins', ins)
+    let selectCheckbox = this.state.selectCheckbox
+    if (selectCheckbox.indexOf(ins+1) > -1) {
+      selectCheckbox.splice(selectCheckbox.indexOf(ins+1), 1)
+    } else {
+      selectCheckbox.push(ins+1)
+    }
+    selectCheckbox.sort()
+    console.log('selectCheckbox',selectCheckbox)
+    // let newArray = []
+    // newArray.push(ins+1)
+    // selectCheckbox = selectCheckbox.concat(newArray)
+    this.setState({selectCheckbox})
   }
   render() {
     const columns = [
@@ -81,7 +109,7 @@ class AlarmDetail extends Component {
         type:'上传流量',
         bindObject: '>',
         value: '500KB',
-        createTime: '2017-03-10 15:35:21',
+        createTime: '2017-01-10 15:35:21',
         target:'5',
         assign:'k8s'
       },
@@ -90,14 +118,16 @@ class AlarmDetail extends Component {
         type:'下载流量',
         bindObject: '>',
         value: '800KB',
-        createTime: '2017-03-10 15:35:21',
+        createTime: '2017-06-10 15:35:21',
         target:'5',
         assign:'k8s'
       }
     ];
     const _this = this
     const rowSelection = {
+      selectedRowKeys: this.state.selectCheckbox,
       onChange(selectedRowKeys, selectedRows) {
+        console.log('selectedRows', selectedRowKeys, selectedRows)
         let btnDisabled = true
         if (selectedRowKeys.length > 0) {
           btnDisabled = false
@@ -128,7 +158,7 @@ class AlarmDetail extends Component {
                 <div className="baseAttr"><span className="keys">策略名称：</span>celue1</div>
                 <div className="baseAttr"><span className="keys">类型：</span>服务</div>
                 <div className="baseAttr"><span className="keys">告警对象：</span>服务名称</div>
-                <div className="baseAttr"><span className="keys">状态：</span><span style={{color: '#33b867'}}><i className="fa fa-circle" /> 启用</span></div>
+                <div className="baseAttr"><span className="keys">状态：</span>{this.formatStatus(1)}</div>
                 <div className="baseAttr"><span className="keys">监控周期：</span>5分钟</div>
                 <div className="baseAttr">
                   <span className="keys">是否发送：</span>
@@ -156,7 +186,9 @@ class AlarmDetail extends Component {
                   <Button icon="reload" type="primary" size="large">刷新</Button>
                   <Button icon="delete" size="large" style={{marginLeft: 8}} disabled={this.state.delBtn} onClick={()=> this.handDelete()} type="ghost">删除</Button>
                 </div>
-                <Table className="strategyTable" rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false} style={{padding:'0 30px'}}/>
+                <Table className="strategyTable" rowSelection={rowSelection} columns={columns}
+                onRowClick={(record, index)=> this.rowClick(index)}
+                dataSource={data} pagination={false} style={{padding:'0 30px'}}/>
               </Card>
             </Col>
           </Row>
