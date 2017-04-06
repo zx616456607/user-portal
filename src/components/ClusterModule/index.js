@@ -20,6 +20,7 @@ import { ROLE_SYS_ADMIN, URL_REGEX, CLUSTER_PAGE, NO_CLUSTER_FLAG, DEFAULT_CLUST
 import { loadClusterList, getAddClusterCMD, createCluster } from '../../actions/cluster'
 import { loadLoginUserDetail } from '../../actions/entities'
 import { changeActiveCluster } from '../../actions/terminal'
+import { loadTeamClustersList } from '../../actions/team'
 import AddClusterOrNodeModalContent from './AddClusterOrNodeModal/Content'
 import { camelize } from 'humps'
 
@@ -325,6 +326,12 @@ class ClusterList extends Component {
     getAddClusterCMD()
   }
 
+  componentWillUnmount() {
+    const { current, loadTeamClustersList } = this.props
+    const { space } = current
+    loadTeamClustersList(space.teamID, { size: 100 })
+  }
+
   onTabChange(key) {
     const { changeActiveCluster } = this.props
     changeActiveCluster(key)
@@ -439,6 +446,7 @@ function mapStateToProps(state, props) {
   const { getAllClusterNodes } = cluster_nodes
   const getAllClusterNodesKeys = Object.keys(getAllClusterNodes)
   return {
+    current,
     loginUser: loginUser.info,
     noCluster: loginUser.info[camelize(NO_CLUSTER_FLAG)],
     clustersIsFetching: clusters.isFetching,
@@ -455,6 +463,7 @@ export default connect(mapStateToProps, {
   createCluster,
   loadLoginUserDetail,
   changeActiveCluster,
+  loadTeamClustersList,
 })(injectIntl(ClusterList, {
   withRef: true,
 }))
