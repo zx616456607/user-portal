@@ -137,12 +137,12 @@ let HostInfo = React.createClass({
               <br />
               <Row className="items">
                 <Col span={8}><span className="keys">CPU：</span><span className="valus">{isNaN(hostInfo.cpuTotal / 1000)? '': hostInfo.cpuTotal / 1000} 核</span></Col>
-                <Col span={10}><Progress percent={ parseFloat(Math.min(instant.cpus, 100)) } showInfo={false} strokeWidth={8} status="active" /></Col>
+                <Col span={10}><Progress percent={ Math.min(instant.cpus, 100) } showInfo={false} strokeWidth={8} status="active" /></Col>
                 <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 { (instant.cpus || 0).toFixed(2) } %</Col>
               </Row>
               <Row className="items">
                 <Col span={8}><span className="keys">内存：</span><span className="valus">{ memTotal } GB</span></Col>
-                <Col span={10}><Progress percent={ parseFloat(useMem) } strokeWidth={8} showInfo={false} status="active" /></Col>
+                <Col span={10}><Progress percent={ Math.min(useMem, 100) } strokeWidth={8} showInfo={false} status="active" /></Col>
                 <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 { useMem } %</Col>
 
               </Row>
