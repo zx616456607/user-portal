@@ -31,16 +31,16 @@ let CreateConfigFileModal = React.createClass({
       callback([new Error('请输入配置文件名称')])
       return
     }
-    if(value.length > 253) {
-      callback([new Error('配置文件名称长度不超过 252 个字符')])
+    if(value.length < 3 || value.length > 63) {
+      callback([new Error('配置文件名称长度为 3-63 个字符')])
       return
     }
     if(/^[\u4e00-\u9fa5]+$/i.test(value)){
-      callback([new Error('名称由英文、数字、点(.)、下划线(_)、中划线(-)组成, 且名称和后缀以英文或数字开头和结尾')])
+      callback([new Error('名称由英文、数字、点、下\中划线组成, 且名称和后缀以英文或数字开头和结尾')])
       return
     }
     if (!validateServiceConfigFile(value)) {
-      callback([new Error('名称由英文、数字、点(.)、下划线(_)、中划线(-)组成, 且名称和后缀以英文或数字开头和结尾')])
+      callback([new Error('名称由英文、数字、点、下\中划线组成, 且名称和后缀以英文或数字开头和结尾')])
       return
     }
     callback()
@@ -95,7 +95,7 @@ let CreateConfigFileModal = React.createClass({
         modalConfigFile: false,
       })
     })
-    
+
   },
   render() {
     const { getFieldProps } = this.props.form
