@@ -399,13 +399,25 @@ class SoftwarePackage extends Component {
 
     }
 
+    function softwarenameSort(a,b){
+      if(a.length > b.length){
+        return -1
+      }
+      if(a.length == b.length){
+        return a.localeCompare(b)
+      }
+      if(a.length < b.length){
+        return 1
+      }
+    }
     //软件包 表格数据格式
     const softwareColumns = [
       {
         title: '包名称',
         dataIndex: 'softwarename',
         key: 'softwarename',
-        width: '13%'
+        width: '13%',
+        sorter: (a,b) => softwarenameSort(a.softwarename,b.softwarename)
       },
       {
         title: '包版本',
@@ -427,7 +439,8 @@ class SoftwarePackage extends Component {
         key: 'softwareremain',
         //width:'16%',
         width: '12%',
-        render: text => (<div className='softwareremain'><i className="fa fa-arrow-circle-right softwareremainspan" aria-hidden="true"></i>{text}</div>)
+        render: text => (<div className='softwareremain'><i className="fa fa-arrow-circle-right softwareremainspan" aria-hidden="true"></i>{text}</div>),
+        sorter:  (a,b) => a.softwareremain - b.softwareremain
       },
       //{
       //  title: '升级的影响',

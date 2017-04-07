@@ -12,6 +12,7 @@ import { Card, Spin, Icon, Select, Tabs, Button, Steps, Checkbox, Input, Table, 
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/MirrorLayered.less'
 import { loadMirrorSafetyLayerinfo } from '../../../../actions/app_center'
+import { connect } from 'react-redux'
 
 const Step = Steps.Step
 
@@ -21,13 +22,22 @@ class MirrorLayered extends Component {
     this.testContent = this.testContent.bind(this)
     this.handleStepsCurrentNumber = this.handleStepsCurrentNumber.bind(this)
   }
+
+  componentWillMount(){
+    //const { layerInfo, loadMirrorSafetyLayerinfo, tag, imageName } = this.props
+    //if(!layerInfo){
+    //  loadMirrorSafetyLayerinfo({imageName, tag})
+    //}
+  }
+
+
   testContent(){
     const {mirrorLayeredinfo} = this.props
-    if(!mirrorLayeredinfo){
-      return <div>
+    if(Object.keys(mirrorLayeredinfo).length == 0){
+      return (<div>
         <span>暂无数据</span>
         <Button>点击获取数据</Button>
-      </div>
+      </div>)
     }
     const mirrorLayeredStep = mirrorLayeredinfo.map((item, index) =>{
       return (
@@ -42,7 +52,9 @@ class MirrorLayered extends Component {
         </div> } className='safetycontentmianitem' key={index}/>
       )
     })
-    return mirrorLayeredStep
+    return (<Steps direction="vertical" className='safetycontentmian' current={this.handleStepsCurrentNumber()}>
+      {mirrorLayeredStep}
+    </Steps>)
   }
 
   handleStepsCurrentNumber(){
@@ -60,14 +72,21 @@ class MirrorLayered extends Component {
   render(){
     return (
       <div id='MirrorLayered'>
-        <Steps direction="vertical" className='safetycontentmian' current={this.handleStepsCurrentNumber()}>
-          {this.testContent()}
-        </Steps>
+        {this.testContent()}
       </div>
     )
   }
 }
 
-export default (injectIntl(MirrorLayered, {
+function mapStateToProps(state,props){
+  const { images } = state
+  let layerInfo = images.mirrorSafetyLayerinfo.mirrorLayerinfo || ''
+  return {
+    layerInfo
+  }
+}
+export default connect(mapStateToProps,{
+  loadMirrorSafetyLayerinfo
+})(injectIntl(MirrorLayered, {
   withRef: true,
 }));

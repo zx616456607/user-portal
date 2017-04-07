@@ -47,7 +47,7 @@ let Activation = React.createClass({
         },
         failed: {
           func: (res) => {
-            new NotificationHandler().error('激活失败', res.message.message)
+            new NotificationHandler().error('激活失败', 'License 错误或不可重复添加！')
           }
         }
       })

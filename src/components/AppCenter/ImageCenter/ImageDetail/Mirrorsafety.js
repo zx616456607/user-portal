@@ -40,18 +40,32 @@ class MirrorSafety extends Component {
       imgTag: "",
       imageName: this.props.imageName,
       ActiveKey:'1',
-      LayerCommandParameters:''
+      LayerCommandParameters:'',
+      tagVersion:this.props.tagVersion
     }
   }
 
   componentWillMount() {
-    const { registry, imageName, loadImageDetailTag } = this.props
+    const { registry, imageName, loadImageDetailTag, tagVersion } = this.props
     loadImageDetailTag(registry, imageName)
+    if(tagVersion !== ''){
+      this.setState({
+        tag:tagVersion,
+        TabsDisabled:false
+      })
+    }
   }
 
   componentWillReceiveProps(nextPorps) {
     const { registry, loadImageDetailTag } = this.props
     const imageName = nextPorps.imageName
+    const tagVersion = nextPorps.tagVersion
+    if(this.state.tagVersion !== tagVersion){
+      this.setState({
+        tag:tagVersion,
+        TabsDisabled:false
+      })
+    }
     if (this.state.imageName !== imageName) {
       loadImageDetailTag(registry, imageName)
       this.setState({ TabsDisabled: true, imageName, tag: null })
@@ -267,7 +281,7 @@ class MirrorSafety extends Component {
           <Select showSearch
             className='safetyselectson'
             placeholder='选择镜像版本，查看安全报告'
-            value={this.state.tag}
+            value={this.state.tag ? this.state.tag : '选择镜像版本，查看安全报告'}
             onChange={this.handleSelectVesion}
             VersionOption={imgTag}
             optionFilterProp="children"
@@ -284,13 +298,13 @@ class MirrorSafety extends Component {
                   {(mirrorchairinfo && mirrorchairinfo.result) ? this.handleClair() : this.ScanstatusSwitch()}
                 </TabPane>
                 <TabPane tab={<span><i className="fa fa-database safetytabIcon" aria-hidden="true"></i>镜像分层</span>} key="2" disabled={this.state.TabsDisabled}>
-                  <MirrorLayered mirrorLayeredinfo={mirrorLayeredinfo} LayerCommandParameters={LayerCommandParameters}/>
+                  <MirrorLayered mirrorLayeredinfo={mirrorLayeredinfo} LayerCommandParameters={LayerCommandParameters} imageName={imageName} tag={this.state.tag}/>
                 </TabPane>
                 <TabPane tab={<span><i className="fa fa-android safetytabIcon" aria-hidden="true"></i><span className='softspan'>软件包</span></span>} key="3" disabled={this.state.TabsDisabled}>
                   {(mirrorchairinfo && mirrorchairinfo.result) ? this.MirrorSafetyClairSwitchSoft() : this.ScanstatusSwitch()}
                 </TabPane>
                 <TabPane tab={<span><i className="fa fa-crosshairs safetytabIcon" aria-hidden="true"></i>基础扫描</span>} key="4" disabled={this.state.TabsDisabled}>
-                  <BaseScan mirrorScanstatus={mirrorScanstatus} registry={registry} imageName={imageName}/>
+                  <BaseScan mirrorScanstatus={mirrorScanstatus} registry={registry} imageName={imageName} tag={this.state.tag}/>
                 </TabPane>
               </Tabs>
             </div>

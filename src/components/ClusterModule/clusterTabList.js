@@ -72,24 +72,20 @@ function getContainerNum(name, podList) {
 
 function cpuUsed(cpuTotal, cpuMetric, name) {
   name = camelize(name)
-  let metric = cpuMetric[name]
-  if (metric) {
-    metric = `${metric.toFixed(2)}%`
-  } else {
-    metric = NOT_AVAILABLE
+  if (!cpuMetric || !cpuMetric[name]) {
+    return NOT_AVAILABLE
   }
-  return metric
+  return `${cpuMetric[name].toFixed(2)}%`
 }
 
 function memoryUsed(memoryTotal, memoryMetric, name) {
   name = camelize(name)
-  let metric = memoryMetric[name]
-  if (metric) {
-    metric = metric / 1024 / memoryTotal * 100
-    metric = `${metric.toFixed(2)}%`
-  } else {
-    metric = NOT_AVAILABLE
+  if (!memoryMetric || !memoryMetric[name]) {
+    return NOT_AVAILABLE
   }
+  let metric = memoryMetric[name]
+  metric = metric / 1024 / memoryTotal * 100
+  metric = `${metric.toFixed(2)}%`
   return metric
 }
 
