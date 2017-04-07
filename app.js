@@ -40,7 +40,7 @@ co(function*(){
   } catch(err) {
     logger.error('Unexpected error:', JSON.stringify(err))
     logger.error('Failed to connect to API server ' + config.tenx_api.host + ', existing ...')
-    process.exit()
+    process.exit(-1)
   }
 })
 
