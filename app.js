@@ -39,8 +39,8 @@ co(function*(){
     yield initGlobalConfig.initGlobalConfig()
   } catch(err) {
     logger.error('Unexpected error:', JSON.stringify(err))
-    logger.error('Failed to connect to API server ' + config.tenx_api.host + ', existing ...')
-    process.exit(-1)
+    logger.error('Failed to connect to API server ' + config.tenx_api.host + ', fix the issue and restart this server.')
+    // process.exit(-1)
   }
 })
 
