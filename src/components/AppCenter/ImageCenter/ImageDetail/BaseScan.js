@@ -97,15 +97,15 @@ class BaseScan extends Component {
     }
   }
   //直接调取lyins的结果
-  componentWillMount() {
+  componentDidMount() {
     const { loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo } = this.props
-    const { mirrorScanstatus, imageName, mirrorScanUrl, cluster_id } = this.props
+    const { mirrorScanstatus, imageName, mirrorScanUrl, cluster_id, tag } = this.props
     const scanstatusCode = mirrorScanstatus.statusCode
     const scanStatus = mirrorScanstatus.status
     const blob_sum = mirrorScanstatus.blobSum || ''
     //const cluster_id = 'CID-fe23111d77cb'
     //console.log('mirrorScanstatus=',mirrorScanstatus)
-    const tag = 'latest'
+    //const tag = 'latest'
     const registry = mirrorScanUrl
     const config = {
       cluster_id,

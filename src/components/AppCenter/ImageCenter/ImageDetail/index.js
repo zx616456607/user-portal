@@ -12,7 +12,7 @@ import { Tabs, Button, Card, Switch, Menu, Tooltip, Icon, Input, Modal, Select }
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { imageStore, imageSwitch, loadPublicImageList, loadFavouriteList, loadPrivateImageList, updateImageinfo, getImageDetailInfo } from '../../../../actions/app_center'
+import { imageStore, imageSwitch, loadPublicImageList, loadFavouriteList, loadPrivateImageList, updateImageinfo, getImageDetailInfo, loadImageDetailTag, loadMirrorSafetyScanStatus, loadMirrorSafetyLayerinfo } from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import ImageVersion from './ImageVersion.js'
 import DetailInfo from './DetailInfo'
@@ -89,17 +89,30 @@ class ImageDetailBox extends Component {
     this.safetyscanShow = this.safetyscanShow.bind(this);
     this.safetyscanhandleOk = this.safetyscanhandleOk.bind(this);
     this.safetyscanhandleCancel = this.safetyscanhandleCancel.bind(this);
+    this.TemplateSafetyScan = this.TemplateSafetyScan.bind(this)
+    this.handleTabsSwitch = this.handleTabsSwitch.bind(this)
+    this.handelSelectedOption = this.handelSelectedOption.bind(this)
     this.state = {
       imageDetail: null,
       copySuccess: false,
       editInfo: false,
-      safetyscanVisible: false
+      safetyscanVisible: false,
+      activeKey:'1',
+      disable:true,
+      tagVersion: '',
+      tag:''
     }
   }
 
   componentWillMount() {
     const imageDetail = this.props.config;
     const imageInfo = this.props.imageInfo
+    const { registry, loadImageDetailTag } = this.props
+    const imageName = imageDetail.name
+    //console.log('imageDetail=',imageDetail)
+    //console.log('registry=',registry)
+    //console.log('imageName=',imageName)
+    loadImageDetailTag(registry,imageName)
     this.setState({
       imageDetail: imageDetail,
       imageInfo: imageInfo
@@ -125,6 +138,19 @@ class ImageDetailBox extends Component {
     scope.setState({
       copySuccess: true
     });
+  }
+
+  TemplateSafetyScan(){
+    const { imgTag } = this.props
+    if(!imgTag){
+      return
+    }
+    const tags = imgTag.map((item, index) => {
+      return (
+        <Option value={item} key={index}>{item}</Option>
+      )
+    })
+    return tags
   }
 
   returnDefaultTooltip() {
@@ -259,11 +285,31 @@ class ImageDetailBox extends Component {
   }
 
   safetyscanhandleOk() {
+    const{ loadMirrorSafetyScanStatus, loadMirrorSafetyLayerinfo } = this.props
+    const imageDetail = this.props.config
+    const imageName = imageDetail.name
+    loadMirrorSafetyScanStatus({imageName, tag})
+    loadMirrorSafetyLayerinfo({imageName, tag})
     this.setState({
-      safetyscanVisible: false
+      safetyscanVisible: false,
+      activeKey:'5',
+      disable:false,
+      tag:this.state.tagVersion
     })
   }
 
+  handleTabsSwitch(key){
+    this.setState({
+      activeKey:key.toString()
+    })
+  }
+
+  handelSelectedOption(tag){
+    this.setState({
+      disable:false,
+      tagVersion:tag
+    })
+  }
   safetyscanhandleCancel() {
     this.setState({
       safetyscanVisible: false
@@ -332,8 +378,23 @@ class ImageDetailBox extends Component {
               {/* 安全扫描 */}
               <div className='rightBoxright'>
                 <Button type="ghost" size="large" onClick={this.safetyscanShow}>安全扫描</Button>
-                <Modal title="安全扫描" visible={this.state.safetyscanVisible} onOk={this.safetyscanhandleOk} onCancel={this.safetyscanhandleCancel}
-                >
+                <Modal title="安全扫描" visible={this.state.safetyscanVisible} onOk={this.safetyscanhandleOk} onCancel={this.safetyscanhandleCancel} footer={[
+                  <Button
+                    key="back"
+                    type="ghost"
+                    size="large"
+                    onClick={this.safetyscanhandleCancel}>
+                    取 消
+                  </Button>,
+                  <Button
+                    key="submit"
+                    type="primary"
+                    size="large"
+                    disabled={this.state.disable}
+                    onClick={this.safetyscanhandleOk}>
+                    确 定
+                  </Button>,
+                ]}>
                   <div>
                     <span style={{ marginRight: '30px' }}>镜像版本</span>
                     <Select
@@ -341,11 +402,12 @@ class ImageDetailBox extends Component {
                       style={{ width: '322px' }}
                       notFoundContent="镜像未找到"
                       placeholder='请选择镜像版本，查看安全报告'
+                      value={this.state.tagVersion ? this.state.tagVersion : '请选择镜像版本，查看安全报告'}
+                      allowClear={true}
+                      confirmLoading={true}
+                      onChange={this.handelSelectedOption}
                     >
-                      <Option value="mirror1">镜像版本1</Option>
-                      <Option value="mirror2">镜像版本2</Option>
-                      <Option value="mirror3">镜像版本3</Option>
-                      <Option value="mirror4">镜像版本4</Option>
+                      {this.TemplateSafetyScan()}
                     </Select>
                   </div>
                 </Modal>
@@ -378,12 +440,12 @@ class ImageDetailBox extends Component {
           <div style={{ clear: "both" }}></div>
         </div>
         <div className="tabBox">
-          <Tabs className="itemList" defaultActiveKey="1">
+          <Tabs className="itemList" activeKey={this.state.activeKey} onChange={this.handleTabsSwitch}>
             <TabPane tab={formatMessage(menusText.info)} key="1"><DetailInfo scope={this} registry={DEFAULT_REGISTRY} detailInfo={imageInfo} isOwner={imageInfo.isOwner} /></TabPane>
             <TabPane tab="Dockerfile" key="2"><DockerFile isFetching={this.props.isFetching} scope={this} registry={DEFAULT_REGISTRY} detailInfo={imageInfo} isOwner={imageInfo.isOwner} /></TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
             <TabPane tab={formatMessage(menusText.attribute)} key="4"><Attribute detailInfo={imageInfo} /></TabPane>
-            <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} registry={DEFAULT_REGISTRY}/></TabPane>
+            <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} registry={DEFAULT_REGISTRY} tagVersion={this.state.tag}/></TabPane>
           </Tabs>
         </div>
       </div>
@@ -403,11 +465,18 @@ function mapStateToProps(state, props) {
   }
   const { imagesInfo } = state.images
   const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
-
+  const imageName = imageInfo.name
+  const { getImageTag } = state
+  const { imageTag } = getImageTag
+  let imgTag = []
+  if (imageTag[DEFAULT_REGISTRY] && imageTag[DEFAULT_REGISTRY][imageName]) {
+    imgTag = imageTag[DEFAULT_REGISTRY][imageName].tag || []
+  }
   return {
     imageInfo,
-    registry: DEFAULT_REGISTRY
-
+    registry: DEFAULT_REGISTRY,
+    imageName,
+    imgTag
   }
 }
 
@@ -438,7 +507,10 @@ export default connect(mapStateToProps, {
   loadPublicImageList,
   loadFavouriteList,
   updateImageinfo,
-  getImageDetailInfo
+  getImageDetailInfo,
+  loadImageDetailTag,
+  loadMirrorSafetyScanStatus,
+  loadMirrorSafetyLayerinfo
 })(injectIntl(ImageDetailBox, {
   withRef: true,
 }));
