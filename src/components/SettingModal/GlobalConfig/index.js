@@ -799,10 +799,10 @@ let StorageService = React.createClass({
   checkNode(rule, value, callback) {
     const { validateFields } = this.props.form
     if (!value) {
-      return callback('请填写存储节点')
+      return callback('请填写存储集群信息')
     }
     if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5}){0,1}?(,([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5}){0,1})*$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(,[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?)*$/.test(value)) {
-      return callback('请填入合法的存储节点')
+      return callback('请填入合法的存储集群信息')
     }
     callback()
   },
@@ -862,7 +862,7 @@ let StorageService = React.createClass({
             </div>
             <div className="contentkeys">
               <div className="key">Agent 地址</div>
-              <div className="key">存储节点</div>
+              <div className="key">集群配置</div>
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
@@ -870,7 +870,7 @@ let StorageService = React.createClass({
                   <Input {...urlProps} placeholder="如：https://192.168.88.6789" disabled={cephDisable} />
                 </FormItem>
                 <FormItem >
-                  <Input {...nodeProps} placeholder="如：192.168.1.113:4081，如有多个存储节点，请使用英文逗号隔开" disabled={cephDisable} />
+                  <Input {...nodeProps} placeholder="如：192.168.1.113:4081，如有多个 monitor 节点，请使用英文逗号隔开" disabled={cephDisable} />
                 </FormItem>
                 <FormItem>
                   {
