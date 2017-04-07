@@ -127,6 +127,9 @@ class Integration extends Component {
     this.setState({
       createIntegrationModal: true
     })
+    setTimeout(()=> {
+      document.getElementById('name').focus()
+    },500)
   }
 
   closeCreateIntegration() {
