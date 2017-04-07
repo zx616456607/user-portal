@@ -279,7 +279,6 @@ function setCpuAllocate(pods, max) {
       cpuList.push(item.usedCpu);
     }
   })
-  console.log('sortList',nameList)
   CPUOption.xAxis[0].data = nameList;
   CPUOption.series[0].data = cpuList;
   CPUOption.yAxis[0].max = maxCpu;
