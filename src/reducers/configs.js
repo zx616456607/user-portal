@@ -25,7 +25,7 @@ function configGroupList(state = {}, action) {
   }
   switch (action.type) {
     case ActionTypes.CONFIG_LIST_REQUEST:
-      return merge({}, defaultState, state, {
+      return merge({}, defaultState, {
         [cluster]: { isFetching: true }
       })
     case ActionTypes.CONFIG_LIST_SUCCESS:
@@ -33,7 +33,7 @@ function configGroupList(state = {}, action) {
         [cluster]: {
           isFetching: false,
           cluster: action.response.result.cluster,
-          configGroup: state.configGroupList = action.response.result.data
+          configGroup: action.response.result.data
         }
       })
       return groupList

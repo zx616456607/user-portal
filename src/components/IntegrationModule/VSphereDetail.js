@@ -84,9 +84,9 @@ let CPUOption = {
     {
       name:'',
       type:'bar',
-      barWidth: '60%',
+      barWidth: 60,
       data:[10, 52, 100],
-      
+
     }
   ]
 }
@@ -151,9 +151,9 @@ let memoryOption = {
     {
       name:'',
       type:'bar',
-      barWidth: '60%',
+      barWidth: 60,
       data:[10, 52, 100],
-      
+
     }
   ]
 }
@@ -219,14 +219,14 @@ function diskFormat(num) {
 
 function diskFormatNoUnit(num) {
   if(num < 1024) {
-    return num 
+    return num
   }
   num = parseInt(num / 1024);
   if(num < 1024) {
-    return num 
+    return num
   }
   num = parseInt(num / 1024);
-  return num 
+  return num
 }
 
 function checkHealthPods(config) {
@@ -274,11 +274,12 @@ function setCpuAllocate(pods, max) {
   let nameList = [];
   let cpuList = [];
   sortList.map((item, index) => {
-    if(index < 3) {     
+    if(index < 3) {
       nameList.push(item.name);
       cpuList.push(item.usedCpu);
     }
   })
+  console.log('sortList',nameList)
   CPUOption.xAxis[0].data = nameList;
   CPUOption.series[0].data = cpuList;
   CPUOption.yAxis[0].max = maxCpu;
@@ -300,7 +301,7 @@ function setMemoryAllocate(pods, max) {
   let nameList = [];
   let memoryUsedMbList = [];
   sortList.map((item, index) => {
-    if(index < 3) {     
+    if(index < 3) {
       nameList.push(item.name);
       memoryUsedMbList.push(item.memoryUsedMb);
     }
@@ -319,20 +320,20 @@ class VSphereDetail extends Component {
     this.state = {
     }
   }
-  
+
   componentDidMount() {
     const { getIntegrationPodDetail, dataCenters, integrationId, currentDataCenter } = this.props;
     let datacenter = !!currentDataCenter ? currentDataCenter : dataCenters[0];
     getIntegrationPodDetail(integrationId, currentDataCenter);
   }
-  
+
   componentWillReceiveProps(nextProps) {
     const { getIntegrationPodDetail, integrationId, currentDataCenter } = nextProps;
     if(nextProps.currentDataCenter != this.props.currentDataCenter) {
       getIntegrationPodDetail(integrationId, currentDataCenter)
     }
   }
-  
+
   onChangeDataCenter(e) {
     //this function for user change the current data center
     const { scope, getIntegrationPodDetail, integrationId } = this.props;
@@ -341,7 +342,7 @@ class VSphereDetail extends Component {
     });
     getIntegrationPodDetail(integrationId, e)
   }
-  
+
   render() {
     const { formatMessage } = this.props.intl;
     const {isFetching, pods, dataCenters, currentDataCenter} = this.props;
@@ -518,7 +519,7 @@ class VSphereDetail extends Component {
                 <div className='memory commonBox'>
                   <img src={memoryImg} />
                   <p>内存共 {diskFormat(memoryTotal)}</p>
-                  <p>可用{diskFormat(memoryTotal - memoryUsedTotal)}</p>                 
+                  <p>可用{diskFormat(memoryTotal - memoryUsedTotal)}</p>
                 </div>
                 <div className='network commonBox'>
                   <div className='leftCommon'>

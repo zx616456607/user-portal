@@ -9,7 +9,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Row, Icon, Input, Form, Modal, Timeline, Spin, Button } from 'antd'
+import { Row, Icon, Input, Form, Modal, Timeline, Spin, Button, Tooltip } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 // import ConfigFile from './ServiceConfigFile'
 import { loadConfigName, updateConfigName, configGroupName, deleteConfigName, changeConfigFile } from '../../actions/configs'
@@ -125,7 +125,7 @@ let CreateConfigFileModal = React.createClass({
         }
       })
     })
-    
+
   },
   configDescExists(rule, value, callback) {
     const form = this.props.form;
@@ -218,7 +218,7 @@ class CollapseContainer extends Component {
     })
 
   }
-  
+
   setInputValue(e) {
     this.setState({ configtextarea: e.target.value })
   }
@@ -266,7 +266,7 @@ class CollapseContainer extends Component {
       }
     })
 
-     
+
   }
   render() {
     const { collapseContainer, groupname } = this.props
@@ -323,7 +323,11 @@ class CollapseContainer extends Component {
               <tbody>
                 <tr>
                   <td style={{ padding: '15px' }}>
-                    <div style={{ width: '160px' }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px' }} />{configFileItem.name}</div>
+                    <div style={{ width: '160px' }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px',float:'left' }} />
+                      <Tooltip title={configFileItem.name} placement="topLeft">
+                        <div style={{float:'left',width:'130px'}} className="textoverflow">{configFileItem.name}</div>
+                      </Tooltip>
+                    </div>
                   </td>
                   <td style={{ padding: '15px 20px' }}>
                     <Button type='primary' style={{ height: '30px', padding: '0 9px' }}
