@@ -450,7 +450,7 @@ class MirrorSafetyBug extends Component {
 
     return (
       <div className='tablesub'>
-        <div className='tablesubtitle'>矢量</div>
+        <div className='tablesubtitle'>矢量<span style={{marginLeft:'8px',fontSize:'12px'}}>当前分数{data.score}</span></div>
         <div className='tablesubbody'>
           <Table
             columns={columns1}
@@ -573,6 +573,32 @@ class MirrorSafetyBug extends Component {
         }
       }]
     }
+    const severityLevel = {
+      "High": 100,
+      "Medium": 99,
+      "Low": 98,
+      "Negligible":97,
+      "Unknown":96
+    }
+
+    function severitySort(s){
+      if (!(s in severityLevel)) {
+        return -100
+      }
+      return severityLevel[s]
+    }
+
+    function softwareSort(a,b){
+      if(a.length > b.length){
+        return -1
+      }
+      if(a.length == b.length){
+        return a.localeCompare(b)
+      }
+      if(a.length < b.length){
+        return 1
+      }
+    }
 
     const columns = [{
       title: 'CVE',
@@ -587,12 +613,13 @@ class MirrorSafetyBug extends Component {
       dataIndex: 'severity',
       key: 'severity',
       render: text => (<span className={this.tableSeverityColor(text)}><i className="fa fa-exclamation-triangle severityi" aria-hidden="true"></i><span>{text}</span></span>),
-      sorter: (a, b) => a.age - b.age,
+      sorter: (a, b) => severitySort(a.severity) - severitySort(b.severity),
     }, {
       title: '软件包',
       width: '11%',
       dataIndex: 'software',
       key: 'software',
+      sorter:(a, b) => softwareSort(a.software, b.software)
     }, {
       title: '当前版本',
       width: '15%',
@@ -609,7 +636,7 @@ class MirrorSafetyBug extends Component {
       width: '27%',
       dataIndex: 'layerInfo',
       key: 'layerInfo',
-      render: text => (<div className='layerInfo'><span className='safetybugtablepoint'>{text.action}</span><Tooltip title={text.parameters}><span className='textoverflow layerInfospan'>{text.parameters}</span></Tooltip><i className="fa fa-database softwarepicturelright" aria-hidden="true" onClick={this.handleGetBackLayer.bind(this,text.parameters)}></i></div>),
+      render: text => (<div className='layerInfo'><span className='safetybugtablepoint'>{text.action}</span><Tooltip title={text.parameters} overlay={null}><span className='textoverflow layerInfospan'>{text.parameters}</span></Tooltip><i className="fa fa-database softwarepicturelright" aria-hidden="true" onClick={this.handleGetBackLayer.bind(this,text.parameters)}></i></div>),
     }]
 
     const softwarePagination = {
