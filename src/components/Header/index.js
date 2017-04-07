@@ -44,12 +44,14 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/app_center\/stack_center/,
     /\/ci_cd/,
     /\/manange_monitor\/alarm_record/,
+    /\/manange_monitor\/alarm_setting/,
   ],
   cluster: [
     /^\/$/,
     /\/app_manage/,
     /\/database_cache/,
     /\/manange_monitor\/alarm_record/,
+    /\/manange_monitor\/alarm_setting/,
   ],
 }
 

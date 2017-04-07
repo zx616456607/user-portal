@@ -433,7 +433,7 @@ const MyComponent = React.createClass({
             <svg className="managemoniter" onClick={()=> this.showMonitoring(item)}>
               <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use>
             </svg>
-            <Tooltip title="告警设置" onClick={()=> scope.setState({alarmModal: true})}>
+            <Tooltip title="告警设置" onClick={()=> scope.setState({alarmModal: true, alertCurrentService: item})}>
             <Icon type="notification" />
             </Tooltip>
           </div>
@@ -1252,7 +1252,7 @@ class ServiceList extends Component {
             maskClosable={false}
             footer={null}
           >
-            <CreateAlarm funcs={modalFunc}/>
+          <CreateAlarm funcs={modalFunc} currentService={this.state.alertCurrentService}/>
           </Modal>
            {/* 通知组 */}
           <Modal title="创建新通知组" visible={this.state.createGroup}
@@ -1262,7 +1262,7 @@ class ServiceList extends Component {
             className="alarmContent"
             footer={null}
           >
-            <CreateGroup funcs={modalFunc}/>
+          <CreateGroup funcs={modalFunc} shouldLoadGroup={true}/>
           </Modal>
           <Modal
             title='垂直居中的对话框'

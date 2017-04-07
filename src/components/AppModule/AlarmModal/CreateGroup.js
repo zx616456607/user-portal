@@ -10,7 +10,7 @@
 
 import React from 'react'
 import { Input, Form, Icon, Button, Modal } from 'antd'
-import { sendAlertNotifyInvitation, getAlertNotifyInvitationStatus, createNotifyGroup, modifyNotifyGroup } from '../../../actions/alert'
+import { sendAlertNotifyInvitation, getAlertNotifyInvitationStatus, createNotifyGroup, modifyNotifyGroup, loadNotifyGroups } from '../../../actions/alert'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../common/notification_handler'
 
@@ -116,6 +116,23 @@ let CreateAlarmGroup = React.createClass({
       getAlertNotifyInvitationStatus,
     } = this.props
     let email = getFieldValue(`email${k}`)
+    let notification = new NotificationHandler()
+    let sendNotify = function(email) {
+      sendAlertNotifyInvitation([email], {
+        success: {
+          func: (result) => {
+            _this.setState({[`emailStatus${k}`]: EMAIL_STATUS_WAIT_ACCEPT})
+            notification.success(`向 ${email} 发送邮件邀请成功`)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            notification.error(`向 ${email} 发送邮件邀请失败`)
+          }
+        }
+      })
+    }
     if (email) {
       // check if email already accept invitation
       getAlertNotifyInvitationStatus(email, {
@@ -135,23 +152,6 @@ let CreateAlarmGroup = React.createClass({
           }
         }
       })
-      let sendNotify = function(email) {
-        let notification = new NotificationHandler()
-        sendAlertNotifyInvitation([email], {
-          success: {
-            func: (result) => {
-              _this.setState({[`emailStatus${k}`]: EMAIL_STATUS_WAIT_ACCEPT})
-              notification.success(`向 ${email} 发送邮件邀请成功`)
-            },
-            isAsync: true
-          },
-          failed: {
-            func: (err) => {
-              notification.error(`向 ${email} 发送邮件邀请失败`)
-            }
-          }
-        })
-      }
     }
   },
   groupName(rule, value, callback) {
@@ -183,12 +183,11 @@ let CreateAlarmGroup = React.createClass({
     this.setState({isAddEmail: true})
   },
   okModal() {
-    const { form, createNotifyGroup, modifyNotifyGroup, funcs, afterCreateFunc, afterModifyFunc, data } = this.props
+    const { form, createNotifyGroup, modifyNotifyGroup, funcs, afterCreateFunc, afterModifyFunc, data, shouldLoadGroup } = this.props
     form.validateFields((error, values) => {
       if (!!error) {
         return
       }
-      
       // have one email at least
       if (values.keys.length === 0) {
         let notification = new NotificationHandler()
@@ -220,6 +219,9 @@ let CreateAlarmGroup = React.createClass({
               if (afterCreateFunc) {
                 afterCreateFunc()
               }
+              if(shouldLoadGroup) {
+                setTimeout(this.props.loadNotifyGroups(), 0)
+              }
             },
             isAsync: true
           },
@@ -233,8 +235,7 @@ let CreateAlarmGroup = React.createClass({
               }
             },
             isAsync: true
-          }
-        })
+          }})
       } else {
         modifyNotifyGroup(data.groupID, body, {
           success: {
@@ -349,4 +350,5 @@ export default connect(mapStateToProps, {
   getAlertNotifyInvitationStatus,
   createNotifyGroup,
   modifyNotifyGroup,
+  loadNotifyGroups
 })(CreateAlarmGroup)

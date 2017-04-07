@@ -153,3 +153,46 @@ exports.checkEmailAcceptInvitation = function* () {
 
   this.body = result
 }
+
+
+
+/*--------------alert setting--------------------*/
+
+exports.getAlertSetting = function* () {
+  const cluster = this.params.cluster
+  const user = this.session.loginUser
+  let owner = user.user
+  const teamspace = user.teamspace
+  const api = apiFactory.getApi(user)
+  const spi = apiFactory.getSpi(user)
+  if(teamspace){
+    const teamID = this.query.teamID
+    if(!teamID) {
+      const err = new Error("teamID is require")
+      err.status = 400
+      throw err
+    }
+    const teamCreator = yield api.teams.getBy([teamID, 'creator'])
+    owner = teamCreator.data.userName
+  }
+  const response = yield spi.alerts.getBy(['strategy'], {
+    clusterID: cluster,
+    namespace: teamspace || user.namespace,
+    owner: owner
+  })
+  this.body = response
+}
+
+exports.addAlertSetting = function*() {
+  const cluster = this.params.cluster
+  const body = this.request.body
+  const user = this.session.loginUser
+  body.user = user.user
+  body.namespace = user.namespace
+  body.clusterID = cluster
+  const spi = apiFactory.getSpi(user)
+  console.log(body)
+  const response = yield spi.alerts.createBy(['strategy'], null, body)
+  console.log(response)
+  this.body = response
+}

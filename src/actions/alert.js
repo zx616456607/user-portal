@@ -250,19 +250,20 @@ export const ALERT_SETTING_SUCCESS = 'ALERT_SETTING_SUCCESS'
 export const ALERT_SETTING_FAILED =  'ALERT_SETTING_FAILED'
 
 
-function fetchAlertSetting(cluster, callback) {
+function fetchAlertSetting(cluster, teamID, callback) {
   return {
     [FETCH_API]: {
       types: [ALERT_SETTING_REQUEST, ALERT_SETTING_SUCCESS, ALERT_SETTING_FAILED],
-      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting`
+      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting?teamID=${teamID}`,
+      schema: {}
     },
     callback
   }
 }
 
-export function getAlertSettings(cluster, callback) {
+export function getAlertSetting(cluster, teamID, callback) {
   return (dispath, getState) => {
-    return dispath(fetchAlertSetting(cluster, callback))
+    return dispath(fetchAlertSetting(cluster, teamID, callback))
   }
 }
 export const ALERT_SETTING_ADD_REQUEST = 'ALERT_SETTING_ADD_REQUEST'
@@ -274,17 +275,19 @@ function fetchAddAlertSetting(cluster, body, callback){
   return {
     [FETCH_API]: {
       types: [ALERT_SETTING_ADD_REQUEST, ALERT_SETTING_ADD_SUCCESS, ALERT_SETTING_ADD_FAILED],
-      endpoints: `${API_URL_PREFIX}/cluster/${cluster}/setting`
+      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting`,
+      schema: {},
+      options: {
+        body: body,
+        method: 'POST'
+      },
     },
-    options: {
-      body: body,
-      method: 'POST'
-    }
+    callback
   }
 }
 
-function addAlertSetting(cluster, body, callback) {
-  return (dispath, callback) => {
+export function addAlertSetting(cluster, body, callback) {
+  return (dispath, getState) => {
     return dispath(fetchAddAlertSetting(cluster, body, callback))
   }
 }

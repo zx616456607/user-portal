@@ -35,5 +35,15 @@ export default function alert(state = {
       SUCCESS: ActionTypes.ALERT_GET_NOTIFY_GROUPS_SUCCESS,
       FAILURE: ActionTypes.ALERT_GET_NOTIFY_GROUPS_FAILURE,
     }, state.groups, action, option),
+    getSetting: reducerFactory({
+      REQUEST: ActionTypes.ALERT_SETTING_REQUEST,
+      SUCCESS: ActionTypes.ALERT_SETTING_SUCCESS,
+      FAILURE: ActionTypes.ALERT_SETTING_FAILURE
+    }, state.getSetting, action, option),
+    addSetting: reducerFactory({
+      REQUEST: ActionTypes.ALERT_SETTING_ADD_REQUEST,
+      SUCCESS: ActionTypes.ALERT_SETTING_ADD_REQUEST,
+      FAILURE: ActionTypes.ALERT_SETTING_ADD_REQUEST
+    }, state.addSetting, action, option)
   }
 }

@@ -380,5 +380,7 @@ module.exports = function (Router) {
   router.post('/alerts/invitations', alertController.sendInvitation)
   router.get('/alerts/invitations/status', alertController.checkEmailAcceptInvitation)
 
+  router.get('/alerts/cluster/:cluster/setting', alertController.getAlertSetting)
+  router.post('/alerts/cluster/:cluster/setting', alertController.addAlertSetting)
   return router.routes()
 }

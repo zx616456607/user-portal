@@ -13,7 +13,7 @@ import { Card, Input, Modal, InputNumber, Checkbox, Progress, Icon, Spin, Table,
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { getAlarmtSetting,  addAlarmStting } from '../../actions/alert'
+import { getAlertSetting,  addAlertStting } from '../../actions/alert'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 // import { calcuDate } from '../../../common/tools.js'
@@ -22,13 +22,19 @@ import cloneDeep from 'lodash/cloneDeep'
 const MyComponent = React.createClass({
   getInitialState() {
     return {
-      data: this.props.data || [],
       lookModel: false
     }
   },
   hnadDelete(record) {
     // Dropdown delete action
     console.log('index  in...', record)
+  },
+  switchType(type) {
+    switch(type) {
+      case 'service': return '服务'
+      case 'node': return '节点'
+      default: return '节点'
+    }
   },
   dropdowns (record){
     // Dropdown delete btn
@@ -118,13 +124,19 @@ const MyComponent = React.createClass({
     )
   },
   render() {
-    const { data } = this.state
-    const lists = data.map((list, index)=> {
+    const { data } = this.props
+    console.log(data)
+    if(!data && !data.data)return <div></div>
+    const keyArr = Object.getOwnPropertyNames(data.data)
+    const lists = keyArr.map((key, index)=> {
+      const list = data.data[key][0]
+      console.log(list)
+      console.log(key)
       if (list.active) {
         return (
             [<tr key={`list${index}`}>
               <td style={{width:'5%'}}><Checkbox /></td>
-              <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${list.key}`}>{list.name}</Link></td>
+              <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${key}`}>{key}</Link></td>
               <td onClick={()=> this.tableListMore(index)}>{list.type}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.bindObject}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.status}</td>
@@ -140,14 +152,14 @@ const MyComponent = React.createClass({
               </td>
             </tr>]
         )
-
       }
+      const listLabel = list.labels
       return (
         <tr key={`list${index}`}>
             <td><Checkbox /></td>
-            <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${list.key}`}>{list.name}</Link></td>
-            <td onClick={()=> this.tableListMore(index)}>{list.type}</td>
-            <td onClick={()=> this.tableListMore(index)}>{list.bindObject}</td>
+            <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${key}`}>{key}</Link></td>
+            <td onClick={()=> this.tableListMore(index)}>{this.switchType(listLabel.tenxTargetType)}</td>
+          <td onClick={()=> this.tableListMore(index)}>{listLabel.tenxTargetName}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.status}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.time}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.createTime}</td>
@@ -213,7 +225,8 @@ class AlarmSetting extends Component {
   }
   componentWillMount() {
     document.title = '告警设置 | 时速云 '
-    const { getAlarmtSetting } = this.props
+    const { getAlertSetting, clusterID, teamID } = this.props
+    getAlertSetting(clusterID, teamID)
   }
   handSearch() {
     // search data
@@ -350,14 +363,14 @@ class AlarmSetting extends Component {
               </div>
             </div>
           </div>
-          <MyComponent data={data}/>
+          <MyComponent data={this.props.setting}/>
           <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
             className="alarmModal"
             onCancel={()=> this.setState({alarmModal:false})}
             maskClosable={false}
             footer={null}
           >
-            <CreateAlarm funcs={modalFunc}/>
+        <CreateAlarm funcs={modalFunc} getAlertSetting={() => this.props.getAlertSetting(this.props.clusterID,this.props.teamID)}/>
           </Modal>
           {/* 通知组 */}
           <Modal title="创建新通知组" visible={this.state.createGroup}
@@ -367,7 +380,7 @@ class AlarmSetting extends Component {
             className="alarmContent"
             footer={null}
           >
-            <CreateGroup funcs={modalFunc}/>
+          <CreateGroup funcs={modalFunc} shouldLoadGroup={true}/>
           </Modal>
           {/*<Card>
             <Table className="strategyTable"
@@ -388,17 +401,22 @@ class AlarmSetting extends Component {
 function mapStateToProps(state, props) {
   let recordsData = {
     total: 0,
-    records: [],
+    records: []
   }
   const { entities } = state
   const cluster = entities.current.cluster
+  const team = entities.current.team
+  let setting = state.alert.getSetting || {}
+  setting = setting.result
   return {
     recordsData,
-    clusterID: cluster.clusterID
+    clusterID: cluster.clusterID,
+    teamID: team.teamID,
+    setting
   }
 }
 
 export default connect(mapStateToProps, {
-  getAlarmtSetting,
-  addAlarmStting
+  getAlertSetting,
+  addAlertStting
 })(AlarmSetting)

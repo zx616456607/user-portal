@@ -314,7 +314,7 @@ let MyComponent = React.createClass({
           {/* normal => 设置过 */}
           <div className="alarm commonData">
             <svg className="managemoniter" onClick={()=> browserHistory.push(`app_manage/detail/${item.name}#monitor`)}><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use></svg>
-            <Tooltip title="告警设置" onClick={()=> parentScope.setState({alarmModal: true})}>
+          <Tooltip title="告警设置" onClick={()=> parentScope.setState({alarmModal: true, alertCurrentApp:item })}>
             <Icon type="notification" />
             </Tooltip>
           </div>
@@ -886,7 +886,7 @@ class AppList extends Component {
 
       return prefix + toggle
     }
-
+    console.log(this.state.alertCurrentApp)
     return (
       <QueueAnim
         className='AppList'
@@ -1033,7 +1033,7 @@ class AppList extends Component {
             maskClosable={false}
             footer={null}
           >
-            <CreateAlarm funcs={modalFunc}/>
+            <CreateAlarm funcs={modalFunc} currentApp={this.state.alertCurrentApp}/>
           </Modal>
           {/* 通知组 */}
           <Modal title="创建新通知组" visible={this.state.createGroup}
@@ -1043,7 +1043,7 @@ class AppList extends Component {
             className="alarmContent"
             footer={null}
           >
-            <CreateGroup funcs={modalFunc}/>
+        <CreateGroup funcs={modalFunc} shouldLoadGroup={true} currentApp={this.state.alertCurrentApp}/>
           </Modal>
         </div>
       </QueueAnim>
