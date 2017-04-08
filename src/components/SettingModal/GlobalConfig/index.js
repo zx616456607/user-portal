@@ -476,9 +476,9 @@ let MirrorService = React.createClass({
       const registryID = getFieldValue('registryID')
       const self = this
       isValidConfig('registry', {
-        host: mirror,
+        host: extend ,
         v2AuthServer: approve,
-        v2Server: extend
+        v2Server: mirror
       }, {
           success: {
             func: (result) => {

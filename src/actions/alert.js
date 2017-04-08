@@ -214,6 +214,7 @@ export function createNotifyGroup(body, callback) {
   }
 }
 
+
 export const ALERT_MODIFY_NOTIFY_GROUP_REQUEST = 'ALERT_MODIFY_NOTIFY_GROUP_REQUEST'
 export const ALERT_MODIFY_NOTIFY_GROUP_SUCCESS = 'ALERT_MODIFY_NOTIFY_GROUP_SUCCESS'
 export const ALERT_MODIFY_NOTIFY_GROUP_FAILURE = 'ALERT_MODIFY_NOTIFY_GROUP_FAILURE'
@@ -237,5 +238,56 @@ function fetchModifyNotifyGroup(groupID, body, callback) {
 export function modifyNotifyGroup(groupID, body, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchModifyNotifyGroup(groupID, body, callback))
+  }
+}
+
+
+
+/*----------------alert setting-------------------*/
+
+export const ALERT_SETTING_REQUEST = 'ALERT_SETTING_REQUEST'
+export const ALERT_SETTING_SUCCESS = 'ALERT_SETTING_SUCCESS'
+export const ALERT_SETTING_FAILED =  'ALERT_SETTING_FAILED'
+
+
+function fetchAlertSetting(cluster, teamID, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ALERT_SETTING_REQUEST, ALERT_SETTING_SUCCESS, ALERT_SETTING_FAILED],
+      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting?teamID=${teamID}`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getAlertSetting(cluster, teamID, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchAlertSetting(cluster, teamID, callback))
+  }
+}
+export const ALERT_SETTING_ADD_REQUEST = 'ALERT_SETTING_ADD_REQUEST'
+export const ALERT_SETTING_ADD_SUCCESS = 'ALERT_SETTING_ADD_SUCCESS'
+export const ALERT_SETTING_ADD_FAILED = 'ALERT_SETTING_ADD_FAILED'
+
+
+function fetchAddAlertSetting(cluster, body, callback){
+  return {
+    [FETCH_API]: {
+      types: [ALERT_SETTING_ADD_REQUEST, ALERT_SETTING_ADD_SUCCESS, ALERT_SETTING_ADD_FAILED],
+      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting`,
+      schema: {},
+      options: {
+        body: body,
+        method: 'POST'
+      },
+    },
+    callback
+  }
+}
+
+export function addAlertSetting(cluster, body, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchAddAlertSetting(cluster, body, callback))
   }
 }
