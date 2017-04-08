@@ -48,6 +48,7 @@ exports.initGlobalConfig = function* () {
   }
   let globalConfig = global.globalConfig
   globalConfig.storageConfig = []
+  logge.info('globalConfig', JSON.stringify(configs))
   configs.forEach(item => {
     const configType = item.ConfigType
     let configDetail = JSON.parse(item.ConfigDetail)
