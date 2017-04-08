@@ -165,20 +165,20 @@ exports.getAlertSetting = function* () {
   const teamspace = user.teamspace
   const api = apiFactory.getApi(user)
   const spi = apiFactory.getSpi(user)
-  if(teamspace){
-    const teamID = this.query.teamID
-    if(!teamID) {
-      const err = new Error("teamID is require")
-      err.status = 400
-      throw err
-    }
-    const teamCreator = yield api.teams.getBy([teamID, 'creator'])
-    owner = teamCreator.data.userName
-  }
+  // if(teamspace){
+  //   const teamID = this.query.teamID
+  //   if(!teamID) {
+  //     const err = new Error("teamID is require")
+  //     err.status = 400
+  //     throw err
+  //   }
+  //   const teamCreator = yield api.teams.getBy([teamID, 'creator'])
+  //   owner = teamCreator.data.userName
+  // }
   const response = yield spi.alerts.getBy(['strategy'], {
     clusterID: cluster,
-    namespace: teamspace || user.namespace,
-    owner: owner
+    namespace: teamspace || user.namespace
+    //owner: owner
   })
   this.body = response
 }
@@ -191,8 +191,6 @@ exports.addAlertSetting = function*() {
   body.namespace = user.namespace
   body.clusterID = cluster
   const spi = apiFactory.getSpi(user)
-  console.log(body)
   const response = yield spi.alerts.createBy(['strategy'], null, body)
-  console.log(response)
   this.body = response
 }

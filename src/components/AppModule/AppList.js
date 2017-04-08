@@ -886,7 +886,6 @@ class AppList extends Component {
 
       return prefix + toggle
     }
-    console.log(this.state.alertCurrentApp)
     return (
       <QueueAnim
         className='AppList'
