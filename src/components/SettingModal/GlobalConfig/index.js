@@ -198,7 +198,7 @@ let Emaill = React.createClass({
               <div className="key">邮件服务器</div>
               <div className="key">邮箱</div>
               <div className="key">密码</div>
-              <div className="key">是否安全</div>
+              <div className="key">{/*是否安全*/}</div>
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
@@ -217,10 +217,11 @@ let Emaill = React.createClass({
                 <FormItem style={{marginTop: '-8px'}}>
                   <Checkbox {...secureProps} disabled={emailDisable}>
                     {
-                      getFieldValue('secure')
+                      /*getFieldValue('secure')
                       ? '安全'
-                      : '非安全'
+                      : '非安全'*/
                     }
+                    是否安全
                   </Checkbox>
                 </FormItem>
                 <FormItem>
