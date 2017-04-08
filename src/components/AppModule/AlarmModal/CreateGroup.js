@@ -261,10 +261,10 @@ let CreateAlarmGroup = React.createClass({
     })
   },
   getEmailStatusText(k) {
-    let text = '发送验证邮件'
+    let text = '验证邮件'
     switch (this.state[`emailStatus${k}`]) {
       case EMAIL_STATUS_WAIT_ACCEPT:
-        text = '再次发送验证邮件'
+        text = '再次验证邮件'
         break;
       case EMAIL_STATUS_ACCEPTED:
         text = '已接收邀请'
@@ -297,7 +297,7 @@ let CreateAlarmGroup = React.createClass({
           />
         </Form.Item>
           <Form.Item style={{float:'left'}}>
-            <Input placeholder="备注"size="large" style={{ width: 100,  marginRight: 8 }} {...getFieldProps(`remark${k}`)}/>
+            <Input placeholder="备注"size="large" style={{ width: 80,  marginRight: 8 }} {...getFieldProps(`remark${k}`)}/>
           </Form.Item>
           <Button type="primary" disabled={this.state[`emailStatus${k}`] == EMAIL_STATUS_ACCEPTED} size="large" onClick={()=> this.ruleEmail(k)}>{this.getEmailStatusText(k)}</Button>
           <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removeEmail(k)}>取消</Button>

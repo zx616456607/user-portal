@@ -17,7 +17,7 @@ let CreateConfigModal = React.createClass({
       }
       const groupName = values.newConfigName
       if (!validateK8sResource(groupName)) {
-        notification.error('名称须以小写字母开头，由小写字母、数字和连字符（-）组成，且以小写字母或数字结尾，长度为 3-63 个字符')
+        notification.error('由小写字母、数字和连字符（-）组成')
         return
       }
       const { cluster } = parentScope.props
@@ -79,6 +79,10 @@ let CreateConfigModal = React.createClass({
     }
     callback()
   },
+  handCancel(parentScope) {
+     parentScope.configModal(false)
+     this.props.form.resetFields()
+  },
   render() {
     const { getFieldProps } = this.props.form
     const parentScope = this.props.scope
@@ -90,7 +94,7 @@ let CreateConfigModal = React.createClass({
 
     const formItemLayout = {
       labelCol: { span: 3 },
-      wrapperCol: { span: 18 },
+      wrapperCol: { span: 21 },
     };
     return (
       <Modal
@@ -99,7 +103,7 @@ let CreateConfigModal = React.createClass({
         maskClosable={false}
         visible={ parentScope.state.createModal }
         onOk={() => this.btnCreateConfigGroup()}
-        onCancel={() => parentScope.configModal(false)}
+        onCancel={() => this.handCancel(parentScope)}
         >
         <Form horizontal>
           <Row style={{ paddingTop: '10px' }}>

@@ -380,7 +380,7 @@ let TeamList = React.createClass({
         dataIndex: 'opt',
         key: 'opt',
         render: (text, record, index) => (
-          <div><Button icon="delete" className="delBtn" onClick={()=> this.setState({TeamModal: true, spaceID: record.key, teamName: record.spaceName})}>
+          <div><Button icon="delete" className="delBtn" onClick={()=> this.setState({TeamModal: true, spaceID: record.spaceID, teamName: record.spaceName})}>
             删除
           </Button>
           {(this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN) ?

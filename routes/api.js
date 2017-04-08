@@ -333,6 +333,7 @@ module.exports = function (Router) {
   // get host detail info
   router.get('/cluster-nodes/:cluster/:node/info', clusternodesController.getClustersInfo)
   router.get('/cluster-nodes/:cluster/:node/metrics', clusternodesController.getClustersMetrics)
+  router.get('/cluster-nodes/:cluster/:node/instant', clusternodesController.getClustersInstant)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)

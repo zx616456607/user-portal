@@ -69,12 +69,22 @@
     //  table
     .safetybugtable{
       clear: both;
+      table{
+        table-layout: fixed;
+        word-break: break-all;
+        td{
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+      }
       .ant-table-expanded-row{
         background: white;
       }
       .softwarepicturelright{
         color:#2cb8f5;
         margin-left: 6px;
+        cursor: pointer;
       }
       .safetybugtablepoint{
         display:inline-block ;
@@ -95,6 +105,61 @@
         text-overflow: ellipsis;
         white-space: nowrap;
       }
+      .tableSUBnNo{
+        word-break: keep-all;
+        word-wrap: break-word;
+        white-space: normal;
+      }
+      .CVE{
+        .CVEspan{
+          margin-right: 6px;
+        }
+        .CVEi{
+          color:#9dd8f8;
+        }
+      }
+      .severityUnknown{
+        color: #2abd83;
+        .severityi{
+          margin-right: 8px;
+        }
+      }
+      .severityNegligible{
+        color: #c7eafe;
+        .severityi{
+          margin-right: 8px;
+        }
+      }
+      .severityLow{
+        color: #fbc82f;
+        .severityi{
+          margin-right: 8px;
+        }
+      }
+      .severityMedium{
+        color: #f7a45e;
+        .severityi{
+          margin-right: 8px;
+        }
+      }
+      .severityHigh{
+        color: #fa4f55;
+        .severityi{
+          margin-right: 8px;
+        }
+      }
+      .reversion{
+        .reversioni{
+          margin-right: 2px;
+        }
+      }
+      .layerInfo{
+        .layerInfospan{
+          display: inline-block;
+          width: calc(~"100% - 100px");
+          vertical-align: middle;
+        }
+      }
       .tablesub{
         width:75%;
         .ant-table-thead{
@@ -110,6 +175,18 @@
           .column-visite{
             font-size: 12px;
           }
+          .red{
+            color: red;
+          }
+          .yellow{
+            color:yellow;
+          }
+          .green{
+            color: green;
+          }
+          .grey{
+            color: #dbdbdb;
+          }
         }
         .tablesubtitlefooter{
           height: 24px;
@@ -117,11 +194,14 @@
           font-size: 14px;
           margin:6px 0 3px 0;
         }
-        //.tablesubtitlefooteritem{
-        //  overflow: hidden;
-        //  text-overflow: ellipsis;
-        //  white-space: nowrap;
-        //}
+        .tablesubtitlefooteritem{
+          white-space: normal;
+          word-wrap: break-all;
+          word-break: keep-all;
+          //overflow: hidden;
+          //text-overflow: ellipsis;
+          //white-space: nowrap;
+        }
       }
     }
   }

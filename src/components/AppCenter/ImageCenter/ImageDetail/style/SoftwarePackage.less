@@ -50,6 +50,7 @@
     .softwarePackageTableContent {
       width:100%;
       clear: both;
+      text-align: center;
       table{
         table-layout: fixed;
         word-break: break-all;
@@ -57,6 +58,29 @@
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
+        }
+      }
+      .softwarebug{
+        .softwarebugspan{
+          margin:0 8px 0 2px;
+          color: #f6565e;
+        }
+        span{
+          margin-right: 2px;
+        }
+      }
+      .softwareremain{
+        padding-left: 8px;
+        .softwareremainspan{
+          margin:0 8px 0 1px;
+          color:#ffb56e;
+        }
+      }
+      .softwarepicture{
+        .softwarepicturespan{
+          display: inline-block;
+          width: calc(~"100% - 100px");
+          vertical-align: middle;
         }
       }
       .softwarepicturelleft{
@@ -75,7 +99,12 @@
       .softwarepicturelright{
         color:#2cb8f5;
         margin-left: 3px;
+        cursor: pointer;
       }
     }
+  }
+
+  .switchStyle{
+    text-align: center;
   }
 }

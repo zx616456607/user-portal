@@ -729,7 +729,7 @@ class Storage extends Component {
                   <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>
                     <FormattedMessage {...messages.name} />
                   </Col>
-                  <Col span="21">
+                  <Col span="12">
                     <Input className={ this.state.nameError ? 'nameErrorInput nameInput' : 'nameInput' } ref={(input) => this.focusInput = input} value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) } } />
                     { this.state.nameError ? [<span className='nameErrorSpan'>{this.state.nameErrorMsg}</span>] : null }
                   </Col>

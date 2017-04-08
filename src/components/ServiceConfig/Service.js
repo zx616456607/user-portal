@@ -57,7 +57,7 @@ class CollapseList extends Component {
   render() {
     const {groupData, isFetching} = this.props
     const scope = this
-    if (isFetching) {
+    if (!groupData.length || isFetching) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -104,7 +104,7 @@ class CollapseList extends Component {
 }
 
 CollapseList.propTypes = {
-  groupData: PropTypes.array.isRequired
+  // groupData: PropTypes.array.isRequired
 }
 
 class Service extends Component {
@@ -209,9 +209,9 @@ class Service extends Component {
             <i className="fa fa-trash-o" /> 删除
           </Button>
           {/*创建配置组-弹出层-start*/}
-          
+
           <CreateConfigModal scope={this} />
-         
+
           {/*创建配置组-弹出层-end*/}
 
           {/* 删除配置组-弹出层-*/}
@@ -241,7 +241,7 @@ class Service extends Component {
 Service.propTypes = {
   // intl: PropTypes.object.isRequired,
   cluster: PropTypes.string.isRequired,
-  configGroup: PropTypes.array.isRequired,
+  // configGroup: PropTypes.array.isRequired,
   isFetching: PropTypes.bool.isRequired,
   loadConfigGroup: PropTypes.func.isRequired,
   createConfigGroup: PropTypes.func.isRequired,
@@ -257,7 +257,7 @@ function mapStateToProps(state, props) {
   const defaultConfigList = {
     isFetching: false,
     cluster: cluster.clusterID,
-    configGroup: [],
+    configGroup: {},
   }
   const {
     configGroupList

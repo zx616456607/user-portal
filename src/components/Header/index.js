@@ -410,7 +410,7 @@ class Header extends Component {
           )
         }
         <div className="rightBox">
-        {
+        {/*
           standardFlag && migrated === 1 &&
           <a href='https://console.tenxcloud.com' target='_blank'>
             <div className='backVersion'>
@@ -420,7 +420,7 @@ class Header extends Component {
               <span className='backText'>返回旧版</span>
             </div>
           </a>
-        }
+        */}
         {
           type === LITE &&
           <div className='upgradeVersion' onClick={this.showUpgradeVersionModal}>
@@ -465,7 +465,6 @@ class Header extends Component {
           </div>
         }
           <UserPanel loginUser={loginUser}/>
-          <Modal title="升级版本" />
           <Modal
             title='升级版本'
             className='upgradeVersionModal'
