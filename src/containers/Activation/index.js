@@ -121,9 +121,7 @@ let Activation = React.createClass({
               <input className="CodeInput" style={{ position: "absolute", opacity: "0", top:'0'}} value={this.props.platform.platformid} />
             </div>
             <Form onSubmit={(e)=> this.handleSubmit(e)}>
-              <FormItem
-                hasFeedback
-                >
+              <FormItem>
                 <Input {...nameProps}
                   ref="intName"
                   type="textarea" placeholder="请输入许可证（发送“ 平台ID + 姓名 + 电话 + 公司名 ” 到 support@tenxcloud.com 我们将主动与您联系）"
