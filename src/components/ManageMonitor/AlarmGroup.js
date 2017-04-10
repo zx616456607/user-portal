@@ -14,10 +14,10 @@ import { Button, Input, Table, Dropdown, Menu, Icon, Popover, Modal, Form, Card,
 import './style/AlarmGroup.less'
 import QueueAnim from 'rc-queue-anim'
 // import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../constants'
-import CreateAlarm from '../../AppModule/AlarmModal/CreateGroup'
+import CreateAlarm from '../AppModule/AlarmModal/CreateGroup'
 const InputGroup = Input.Group
-import { loadNotifyGroups, deleteNotifyGroups } from '../../../actions/alert'
-import NotificationHandler from '../../../common/notification_handler'
+import { loadNotifyGroups, deleteNotifyGroups } from '../../actions/alert'
+import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
 import moment from 'moment'
 
@@ -278,6 +278,10 @@ class AlarmGroup extends Component {
             >
             </Table>
             <span className="pageCount">共计 {tableData.length} 条</span>
+            { tableData.length ==0 ?
+            <ul className="ant-pagination ant-pagination-simple inlineBlock" style={{top:-55,width: 140}}><li title="上一页" className="ant-pagination-disabled ant-pagination-prev"><a></a></li><div style={{float:'left',margin:'0 8px'}} title="1/0" class="ant-pagination-simple-pager"><input type="text" value="1" style={{width: 30,textAlign:'center',borderRadius:6,height:24,border: '1px solid #d9d9d9'}}/><span className="ant-pagination-slash">／</span>0</div><li title="下一页" className="ant-pagination-disabled ant-pagination-next"><a></a></li></ul>
+            :null
+            }
           </Card>
           <Modal title={this.state.createModalTitle} visible={this.state.createGroup || this.state.modifyGroup}
             width={560}
