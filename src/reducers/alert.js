@@ -45,7 +45,7 @@ export default function alert(state = {
       SUCCESS: ActionTypes.ALERT_SETTING_ADD_REQUEST,
       FAILURE: ActionTypes.ALERT_SETTING_ADD_REQUEST
     }, state.addSetting, action, option),
-    getSettingList: reducerFactory({
+    settingList: reducerFactory({
       REQUEST: ActionTypes.ALERT_SETTING_LIST_QUERY_REQUEST,
       SUCCESS: ActionTypes.ALERT_SETTING_LIST_QUERY_SUCCESS,
       FAILURE: ActionTypes.ALERT_SETTING_LIST_QUERY_FAILED

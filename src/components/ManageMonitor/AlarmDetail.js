@@ -8,12 +8,13 @@
  * @author Baiyu
  */
 import React, { Component, PropTypes } from 'react'
-import { Row, Col, Card ,Radio, Button, Table, Modal } from 'antd'
+import { Row, Col, Card ,Radio, Button, Table, Modal, Spin } from 'antd'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { formatDate } from '../../common/tools'
 import './style/AlarmDetail.less'
+import { getAlertSetting } from '../../actions/alert'
 const RadioGroup = Radio.Group
 
 class AlarmDetail extends Component {
@@ -26,7 +27,13 @@ class AlarmDetail extends Component {
     }
   }
   componentWillMount() {
+    console.log('sdfas')
     document.title = '告警设置 | 时速云 '
+    const id = this.props.params.id
+    const { getAlertSetting, cluster } = this.props
+    getAlertSetting(cluster.clusterID, {
+      strategy: id
+    })
   }
   formatStatus(text){
     if (text ==1) {
@@ -58,6 +65,19 @@ class AlarmDetail extends Component {
     console.log('delete in ^^&^^')
   }
   render() {
+    const { isFetching } = this.props.setting
+    
+    console.log(this.props.setting)
+    if(isFetching) {
+      return <div className="loadingBox"><Spin large="size"></Spin></div>
+    }
+    let settingData = this.props.setting.result.data
+    const key = Object.getOwnPropertyNames(settingData)
+    if(!key || key.length <= 0) {
+      return <div>无详情</div>
+    }
+    settingData = settingData[key[0]]
+    console.log(settingData)
     const columns = [
       {
         title: '监控项',
@@ -201,7 +221,19 @@ class AlarmDetail extends Component {
 }
 
 function mapStateToProps(state, props) {
+  const { cluster } = state.entities.current
+  const defaultSetting = {isFetching: true}
+  let { getSetting } = state.alert
+  if(!getSetting) {
+    getSetting = defaultSetting
+  }
+  return {
+    cluster,
+    setting: getSetting
+  }
   return props
 }
 
-export default connect(mapStateToProps, {})(AlarmDetail)
+export default connect(mapStateToProps, {
+  getAlertSetting
+})(AlarmDetail)

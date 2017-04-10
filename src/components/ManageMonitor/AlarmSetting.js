@@ -17,7 +17,7 @@ import { getAlertSetting, deleteRecords, getSettingList } from '../../actions/al
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 import no_alarm from '../../assets/img/no_data/no_alarm.png'
-// import { calcuDate } from '../../../common/tools.js'
+import { formatDate } from '../../common/tools.js'
 import './style/AlarmRecord.less'
 import cloneDeep from 'lodash/cloneDeep'
 const Option = Select.Option
@@ -25,9 +25,14 @@ const Option = Select.Option
 const MyComponent = React.createClass({
   getInitialState() {
     return {
-      lookModel: false,
-      data: this.props.data
+      lookModel: false
+      //data: this.props.data
     }
+  },
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      data: nextProps.data
+    })
   },
   hnadDelete(key,record) {
     // Dropdown delete action
@@ -204,24 +209,31 @@ const MyComponent = React.createClass({
       </div>
     )
   },
+  calcuTime(time) {
+    let sym = '分钟'
+    time = time / 60
+    if(time / 60 > 1) {
+      sym = '小时'
+      time = time / 60
+    }
+    return time + sym
+  },
   render() {
     const { data } = this.state
-    if(!data || !data.data) return (<div className="text-center"><img src={no_alarm} />
+    if(!data || data.length <= 0) return (<div className="text-center"><img src={no_alarm} />
         <div>您还没有告警设置，创建一个吧！<Button onClick={()=> this.props.scope.setState({alarmModal: true})} type="primary" size="large">创建</Button></div>
         </div>)
-    const keyArr = Object.getOwnPropertyNames(data.data)
-    const lists = keyArr.map((key, index)=> {
-      const list = data.data[key][0]
+    const lists = data.map((list, index)=> {
       if (list.active) {
         return (
             [<tr key={`list${index}`}>
               <td style={{width:'5%'}}><Checkbox /></td>
-              <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${key}`}>{key}</Link></td>
-              <td onClick={()=> this.tableListMore(index)}>{list.type}</td>
-              <td onClick={()=> this.tableListMore(index)}>{list.bindObject}</td>
-              <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.status)}</td>
-              <td onClick={()=> this.tableListMore(index)}>{list.time}</td>
-              <td onClick={()=> this.tableListMore(index)}>{list.createTime}</td>
+              <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${list.strategyName}`}>{list.strategyName}</Link></td>
+              <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
+              <td onClick={()=> this.tableListMore(index)}>{list.targetName}</td>
+              <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.enable)}</td>
+              <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
+              <td onClick={()=> this.tableListMore(index)}>{formatDate(list.createTime)}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.editUser}</td>
               <td><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={()=> this.setState({lookModel: true})}>忽略</Dropdown.Button></td>
             </tr>,
@@ -237,13 +249,13 @@ const MyComponent = React.createClass({
       return (
         <tr key={`list${index}`}>
             <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-            <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${key}`}>{key}</Link></td>
-            <td onClick={()=> this.tableListMore(index)}>{this.switchType(listLabel.tenxTargetType)}</td>
-            <td onClick={()=> this.tableListMore(index)}>{listLabel.tenxTargetName}</td>
-            <td onClick={()=> this.tableListMore(index)}>{list.status}</td>
-            <td onClick={()=> this.tableListMore(index)}>{list.time}</td>
-            <td onClick={()=> this.tableListMore(index)}>{list.createTime}</td>
-            <td onClick={()=> this.tableListMore(index)}>{list.editUser}</td>
+            <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${list.strategyName}`}>{list.strategyName}</Link></td>
+            <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
+            <td onClick={()=> this.tableListMore(index)}>{list.targetName}</td>
+            <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.enable)}</td>
+            <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
+            <td onClick={()=> this.tableListMore(index)}>{formatDate(list.createTime)}</td>
+            <td onClick={()=> this.tableListMore(index)}>{list.updater}</td>
             <td><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={()=> this.setState({lookModel: true})}>忽略</Dropdown.Button></td>
           </tr>
       )
@@ -309,12 +321,16 @@ class AlarmSetting extends Component {
       step: 1, // first step create AlarmModal
       deleteModal: false, // delete alarm modal
       isDelete: true, // disabled delte btn
+      currentPage: DEFAULT_PAGE
     }
   }
   componentWillMount() {
     document.title = '告警设置 | 时速云 '
     const { getSettingList, clusterID, teamID } = this.props
-    getSettingList(clusterID)
+    getSettingList(clusterID, {
+      from: DEFAULT_PAGE - 1,
+      size: DEFAULT_PAGE_SIZE
+    })
   }
   handSearch() {
     // search data
@@ -338,11 +354,21 @@ class AlarmSetting extends Component {
       step: step
     })
   }
+  onPageChange(page) {
+    if(page == this.state.currentPage) return
+    this.setState({
+      currentPage: page
+    })
+    const { getSettingList, cluster } = this.props
+    getSettingList(cluster, {
+      from: page,
+      size: DEFAULT_PAGE_SIZE
+    })
+  }
   deleteRecords() {
     console.log('delete in ^^&^^')
   }
   render() {
-
     const columns = [
       {
       title: '名称',
@@ -418,9 +444,9 @@ class AlarmSetting extends Component {
                 simple
                 className='inlineBlock'
                 onChange={(page)=> this.onPageChange(page)}
-                current={DEFAULT_PAGE}
+                current={this.state.currentPage}
                 pageSize={DEFAULT_PAGE_SIZE}
-                total={ data.length } />
+                total={ this.props.setting.length } />
             </div>
             :null
           }
@@ -472,11 +498,19 @@ function mapStateToProps(state, props) {
     total: 0,
     records: []
   }
+  const defaultSettingList = {
+    result: {
+      data: []
+    }
+  }
   const { entities } = state
   const cluster = entities.current.cluster
   const team = entities.current.team
-  let setting = state.alert.getSetting || {}
-  setting = setting.result
+  let setting = state.alert.settingList || defaultSettingList
+  if(!setting.result) {
+    setting = defaultSettingList
+  }
+  setting = setting.result.data
   return {
     recordsData,
     clusterID: cluster.clusterID,

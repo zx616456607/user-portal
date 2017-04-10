@@ -250,20 +250,24 @@ export const ALERT_SETTING_SUCCESS = 'ALERT_SETTING_SUCCESS'
 export const ALERT_SETTING_FAILED =  'ALERT_SETTING_FAILED'
 
 
-function fetchAlertSetting(cluster, teamID, callback) {
+function fetchAlertSetting(cluster, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting`
+  if(body) {
+    endpoint += `?${toQuerystring(body)}`
+  }
   return {
     [FETCH_API]: {
       types: [ALERT_SETTING_REQUEST, ALERT_SETTING_SUCCESS, ALERT_SETTING_FAILED],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting?teamID=${teamID}`,
-      schema: {}
+      schema: {},
+      endpoint
     },
     callback
   }
 }
 
-export function getAlertSetting(cluster, teamID, callback) {
+export function getAlertSetting(cluster, body, callback) {
   return (dispath, getState) => {
-    return dispath(fetchAlertSetting(cluster, teamID, callback))
+    return dispath(fetchAlertSetting(cluster, body, callback))
   }
 }
 export const ALERT_SETTING_ADD_REQUEST = 'ALERT_SETTING_ADD_REQUEST'

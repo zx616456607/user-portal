@@ -162,9 +162,15 @@ exports.getAlertSetting = function* () {
   const cluster = this.params.cluster
   const user = this.session.loginUser
   let owner = user.user
+  const body = this.query
+  body.clusterID = cluster
   const teamspace = user.teamspace
-  const api = apiFactory.getApi(user)
+  //const api = apiFactory.getApi(user)
   const spi = apiFactory.getSpi(user)
+  body.namespace = user.namespace
+  if(teamspace) {
+    body.namespace = teamspace
+  }
   // if(teamspace){
   //   const teamID = this.query.teamID
   //   if(!teamID) {
@@ -175,11 +181,7 @@ exports.getAlertSetting = function* () {
   //   const teamCreator = yield api.teams.getBy([teamID, 'creator'])
   //   owner = teamCreator.data.userName
   // }
-  const response = yield spi.alerts.getBy(['strategy'], {
-    clusterID: cluster,
-    namespace: teamspace || user.namespace
-    //owner: owner
-  })
+  const response = yield spi.alerts.getBy(['strategy'], body)
   this.body = response
 }
 
@@ -189,8 +191,25 @@ exports.addAlertSetting = function*() {
   const user = this.session.loginUser
   body.user = user.user
   body.namespace = user.namespace
+  if(user.teamspace) {
+    body.namespace = user.teamspace
+  }
   body.clusterID = cluster
   const spi = apiFactory.getSpi(user)
   const response = yield spi.alerts.createBy(['strategy'], null, body)
+  this.body = response
+}
+
+exports.getSettingList = function*() {
+  const cluster = this.params.cluster
+  const queryBody = this.query || {}
+  queryBody.clusterID = cluster
+  const user = this.session.loginUser
+  queryBody.namespace = user.namespace
+  if(user.teamspace) {
+    queryBody.namespace = user.teamspace
+  }
+  const spi = apiFactory.getSpi(this.session.loginUser)
+  const response = yield spi.alerts.getBy(['strategy', 'list'], queryBody)
   this.body = response
 }
