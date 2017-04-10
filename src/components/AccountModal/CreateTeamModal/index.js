@@ -101,7 +101,7 @@ let CreateTeamModal = React.createClass({
       ],
     })
     const formItemLayout = {
-      labelCol: { span: 2 },
+      labelCol: { span: 3 },
       wrapperCol: { span: 21 },
     }
     return (
