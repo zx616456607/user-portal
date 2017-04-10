@@ -99,7 +99,7 @@ class BaseScan extends Component {
   //直接调取lyins的结果
   componentDidMount() {
     const { loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo } = this.props
-    const { mirrorScanstatus, imageName, mirrorScanUrl, cluster_id, tag } = this.props
+    const { mirrorScanstatus, imageName, mirrorScanUrl, cluster_id, tag, mirrorSafetyScan } = this.props
     const scanstatusCode = mirrorScanstatus.statusCode
     const scanStatus = mirrorScanstatus.status
     const blob_sum = mirrorScanstatus.blobSum || ''
@@ -122,15 +122,19 @@ class BaseScan extends Component {
           return loadMirrorSafetyLyinsinfo({blob_sum})
         case 'noresult':
         case 'different':
-        default:
+        default: {
+          if(mirrorSafetyScan.mirrorScaninfo.result){
+            return loadMirrorSafetyLyinsinfo({blob_sum})
+          }
           return loadMirrorSafetyScan({...config}, {
             success: {
               func: () =>{
                 loadMirrorSafetyLyinsinfo({blob_sum})
               },
-              isAsync: true
+              isAsync : true
             }
           })
+        }
       }
     }
   }
@@ -170,7 +174,10 @@ class BaseScan extends Component {
           </div>
         case 'nojob':
         default:
-          return <div>没被触发过扫描</div>
+          return <div>
+            <div className="top">镜像没有别扫描过</div>
+            <Button>点击扫描</Button>
+          </div>
       }
     } else {
       return <div>{message}</div>
