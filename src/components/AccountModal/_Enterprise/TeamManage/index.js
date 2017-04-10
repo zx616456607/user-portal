@@ -196,6 +196,7 @@ let TeamTable = React.createClass({
   handleNewMemberCancel(e) {
     this.setState({
       addMember: false,
+      targetKeys: [],
     })
   },
   handleChange(targetKeys) {
