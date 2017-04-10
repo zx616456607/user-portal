@@ -442,14 +442,19 @@ class SoftwarePackage extends Component {
         render: text => (<div className='softwareremain'><i className="fa fa-arrow-circle-right softwareremainspan" aria-hidden="true"></i>{text}</div>),
         sorter:  (a,b) => a.softwareremain - b.softwareremain
       },
-      //{
-      //  title: '升级的影响',
-      //  dataIndex: 'softwareimpact',
-      //  key: 'softwareimpact',
-      //  width: '12%',
-      //  render: text => (
-      //    <div><i className="fa fa-signal" aria-hidden="true" style={{ color: '#53b552', marginLeft: '1px' }}></i></div>),
-      //},
+      {
+        title: '升级的影响',
+        dataIndex: 'softwareimpact',
+        key: 'softwareimpact',
+        width: '9%',
+        //render: text => (
+        //  <div><i className="fa fa-signal" aria-hidden="true" style={{ color: '#53b552', marginLeft: '10px' }}></i></div>),
+        render: (text) => (
+          <div className='softwareimpact'>
+            <span className='softwareimpactspan'></span>
+          </div>
+        )
+      },
       {
         title: '介绍了在图像',
         dataIndex: 'softwarepicture',
