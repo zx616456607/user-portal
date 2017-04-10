@@ -366,7 +366,7 @@ class Ordinary extends Component{
         itemWidth: 10,
         itemHeight: 10,
       },
-      color: ['#46b3f8','#b5e0ff','#2abe84'],
+      color: ['#46b3f8','#f6575e','#2abe84'],
       series: {
         type:'pie',
         selectedMode: 'single',
@@ -441,7 +441,7 @@ class Ordinary extends Component{
         itemWidth: 10,
         itemHeight: 10,
       },
-      color: ['#46b3f8','#b5e0ff','#2abe84','#f6575e'],
+      color: ['#46b3f8','#f6575e','#2abe84'],
       series: {
         type:'pie',
         selectedMode: 'single',
@@ -776,7 +776,7 @@ class Ordinary extends Component{
                     </tr>
                     <tr>
                       <td>
-                        <div className="stateDot" style={{backgroundColor:'#a2d7ff'}}></div>
+                        <div className="stateDot" style={{backgroundColor:'#f6575e'}}></div>
                         已停止
                       </td>
                       <td className="dbNum">
@@ -814,7 +814,7 @@ class Ordinary extends Component{
                     </tr>
                     <tr>
                       <td>
-                        <div className="stateDot" style={{backgroundColor:'#a2d7ff'}}></div>
+                        <div className="stateDot" style={{backgroundColor:'#f6575e'}}></div>
                         已停止
                       </td>
                       <td className="dbNum">
@@ -852,7 +852,7 @@ class Ordinary extends Component{
                     </tr>
                     <tr>
                       <td>
-                        <div className="stateDot" style={{backgroundColor:'#a2d7ff'}}></div>
+                        <div className="stateDot" style={{backgroundColor:'#f6575e'}}></div>
                         已停止
                       </td>
                       <td className="dbNum">
