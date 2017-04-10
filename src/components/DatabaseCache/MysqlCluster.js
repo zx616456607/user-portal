@@ -185,6 +185,8 @@ class MysqlCluster extends Component {
   render() {
     const _this = this;
     const { isFetching, databaseList } = this.props;
+    const standard = require('../../../configs/constants').STANDARD_MODE
+    const mode = require('../../../configs/model').mode
     let title = ''
     const currentCluster = this.props.current.cluster
     const storage_type = currentCluster.storageTypes
@@ -197,6 +199,7 @@ class MysqlCluster extends Component {
       <QueueAnim id='mysqlDatabase' type='right'>
         <div className='databaseCol' key='mysqlDatabase'>
           <div className='databaseHead'>
+            { mode === standard ? <div className='alertRow'>您的 MySql 集群 创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充正，继续使用。如无充正，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div>}
             <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
               <i className='fa fa-plus' />&nbsp;MySQL集群
           </Button>
