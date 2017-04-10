@@ -105,8 +105,8 @@ class MirrorSafety extends Component {
     if (mirrorScanstatus.statusCode && mirrorScanstatus.statusCode == 200) {
       switch (mirrorScanstatus.status) {
         case "noresult":
-          return (<div style={{textAlign:'center',paddingTop:'30px'}}>
-            <span data-result="noresult">没有扫描过,请点击扫描</span>
+          return (<div className='textAlignStyle'>
+            <span data-status="noresult">没有扫描过,请点击扫描</span>
             <div style={{paddingTop:'10px'}}>
               <Button onClick={this.APIScanStatusThenScanClair}>点击扫描</Button>
             </div>
@@ -116,38 +116,38 @@ class MirrorSafety extends Component {
             <Spin />
           </div>)
         case "lynis":
-          return (<div style={{textAlign:'center',paddingTop:'30px'}}>
+          return (<div className='textAlignStyle'>
             <span data-status="lynis">没有扫描过,请点击扫描</span>
-            <div style={{paddingTop:'10px'}}>
+            <div className='textAlignStyleDiv'>
               <Button onClick={this.APIScanStatusThenScanClair}>点击扫描</Button>
             </div>
             </div>)
         case "clair":
-          return (<div style={{textAlign:'center',paddingTop:'30px'}}>
+          return (<div className='textAlignStyle'>
             <span data-status="clair">没有扫描过,请点击扫描</span>
-            <div style={{paddingTop:'10px'}}>
+            <div className='textAlignStyleDiv'>
               <Button onClick={this.APIScanStatusThenClair}>点击扫描</Button>
             </div>
           </div>)
         case "both":
-          return (<div style={{textAlign:'center',paddingTop:'30px'}}>
+          return (<div className='textAlignStyle'>
             <span data-status="both">没有扫描过,请点击扫描</span>
-            <div style={{paddingTop:'10px'}}>
+            <div className='textAlignStyleDiv'>
               <Button onClick={this.APIScanStatusThenClair}>点击扫描</Button>
             </div>
           </div>)
         case "different":
-          return (<div style={{textAlign:'center',paddingTop:'30px'}}>
+          return (<div className='textAlignStyle'>
             <span data-status="different">没有扫描过,请点击扫描</span>
-            <div style={{paddingTop:'10px'}}>
+            <div className='textAlignStyleDiv'>
               <Button onClick={this.APIScanStatusThenScanClair}>点击扫描</Button>
             </div>
           </div>)
         case "failed":
         default:
-          return (<div style={{textAlign:'center',paddingTop:'30px'}}>
+          return (<div className='textAlignStyle'>
             <span data-status="failed">扫描失败，请点击扫描</span>
-            <div style={{paddingTop:'10px'}}>
+            <div className='textAlignStyleDiv'>
               <Button onClick={this.APIScanStatusThenScanClair}>重新扫描</Button>
             </div>
           </div>)
@@ -208,14 +208,25 @@ class MirrorSafety extends Component {
         switch (status) {
           case 'running':
             return (
-              <div onClick={this.APIScanStatusThenClair}>正在扫描尚未结束</div>
+              <div className='textAlignStyle'>
+                <div>正在扫描尚未结束</div>
+                <Spin/>
+                <div className='textAlignStyleDiv'>
+                  <Button onClick={this.APIScanStatusThenClair}>点击重新扫描</Button>
+                </div>
+              </div>
             )
           case 'finished':
             return <MirrorSafetyBug mirrorsafetyClair={mirrorsafetyClair} mirrorLayeredinfo={mirrorLayeredinfo} callBack={this.handleSoftwarepackageToLayer}/>
           case 'nojob':
           default:
             return (
-              <div onClick={this.APIScanStatusThenScanClair}>没有被触发过</div>
+              <div className='textAlignStyle'>
+                <div>镜像没有被扫描过</div>
+                <div className='textAlignStyleDiv'>
+                  <Button onClick={this.APIScanStatusThenScanClair}>点击扫描</Button>
+                </div>
+              </div>
             )
         }
       }
@@ -241,14 +252,25 @@ class MirrorSafety extends Component {
         switch (status) {
           case 'running':
             return (
-              <div onClick={this.APIScanStatusThenClair}>正在扫描尚未结束</div>
+              <div className='textAlignStyle'>
+                <div>正在扫描尚未结束</div>
+                <Spin/>
+                <div className='textAlignStyleDiv'>
+                  <Button onClick={this.APIScanStatusThenClair}>点击重新扫描</Button>
+                </div>
+              </div>
             )
           case 'finished':
             return <SoftwarePackage mirrorsafetyClair={mirrorsafetyClair} mirrorLayeredinfo={mirrorLayeredinfo} callBack={this.handleSoftwarepackageToLayer}/>
           case 'nojob':
           default:
             return (
-              <div onClick={this.APIScanStatusThenScanClair}>没有被触发过</div>
+              <div className='textAlignStyle'>
+                <span>镜像没有扫描过</span>
+                <div className='textAlignStyleDiv'>
+                  <Button onClick={this.APIScanStatusThenScanClair}>点击扫描</Button>
+                </div>
+              </div>
             )
         }
       }
@@ -272,7 +294,7 @@ class MirrorSafety extends Component {
   }
 
   render() {
-    const { mirrorScanstatus, mirrorLayeredinfo, mirrorsafetyClair, imgTag, mirrorsafetyLyins, imageName, registry } = this.props
+    const { mirrorScanstatus, mirrorLayeredinfo, mirrorsafetyClair, imgTag, mirrorsafetyLyins, imageName, registry, mirrorSafetyScan } = this.props
     const mirrorchairinfo = mirrorsafetyClair.mirrorchairinfo
     const { TabsDisabled, LayerCommandParameters } = this.state
     return (
@@ -304,7 +326,7 @@ class MirrorSafety extends Component {
                   {(mirrorchairinfo && mirrorchairinfo.result) ? this.MirrorSafetyClairSwitchSoft() : this.ScanstatusSwitch()}
                 </TabPane>
                 <TabPane tab={<span><i className="fa fa-crosshairs safetytabIcon" aria-hidden="true"></i>基础扫描</span>} key="4" disabled={this.state.TabsDisabled}>
-                  <BaseScan mirrorScanstatus={mirrorScanstatus} registry={registry} imageName={imageName} tag={this.state.tag}/>
+                  <BaseScan mirrorScanstatus={mirrorScanstatus} registry={registry} imageName={imageName} tag={this.state.tag} mirrorSafetyScan={mirrorSafetyScan} />
                 </TabPane>
               </Tabs>
             </div>
@@ -326,7 +348,7 @@ function mapStateToProps(state, props) {
   }
   let mirrorScanUrl = ''
   if (images.publicImages[registry] && images.publicImages[registry].server) {
-    mirrorScanUrl = images.publicImages[registry].server
+    mirrorScanUrl = 'http://'+images.publicImages[registry].server
   }
   let mirrorSafetyScan = images.mirrorSafetyScan || ''
   let cluster_id = entities.current.cluster.clusterID || ''
