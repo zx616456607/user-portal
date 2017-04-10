@@ -13,7 +13,7 @@ import { Card, Input, Modal, InputNumber, Checkbox, Progress, Icon, Spin, Table,
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { getAlertSetting, deleteRecords } from '../../actions/alert'
+import { getAlertSetting, deleteRecords, getSettingList } from '../../actions/alert'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 import no_alarm from '../../assets/img/no_data/no_alarm.png'
@@ -313,8 +313,8 @@ class AlarmSetting extends Component {
   }
   componentWillMount() {
     document.title = '告警设置 | 时速云 '
-    const { getAlertSetting, clusterID, teamID } = this.props
-    getAlertSetting(clusterID, teamID)
+    const { getSettingList, clusterID, teamID } = this.props
+    getSettingList(clusterID)
   }
   handSearch() {
     // search data
@@ -514,5 +514,6 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   getAlertSetting,
-  deleteRecords
+  deleteRecords,
+  getSettingList
 })(AlarmSetting)

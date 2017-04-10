@@ -291,3 +291,34 @@ export function addAlertSetting(cluster, body, callback) {
     return dispath(fetchAddAlertSetting(cluster, body, callback))
   }
 }
+
+export const ALERT_SETTING_LIST_QUERY_REQUEST = 'ALERT_SETTING_LIST_QUERY_REQUEST'
+export const ALERT_SETTING_LIST_QUERY_SUCCESS= 'ALERT_SETTING_LIST_QUERY_SUCCESS'
+export const ALERT_SETTING_LIST_QUERY_FAILED = 'ALERT_SETTING_LIST_QUERY_FAILED'
+
+
+function fetchGetAlertList(cluster, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/list`
+  if(typeof body == 'function') {
+    callback = body
+    body = null
+  }
+  if(body) {
+    endpoint += `?${toQuerystring(body)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [ALERT_SETTING_LIST_QUERY_REQUEST, ALERT_SETTING_LIST_QUERY_SUCCESS, ALERT_SETTING_LIST_QUERY_FAILED],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getSettingList(cluster, body, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchGetAlertList(cluster, body, callback))
+  }
+}
+
