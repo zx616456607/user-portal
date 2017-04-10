@@ -14,6 +14,7 @@ const apiFactory = require('../services/api_factory.js')
 const url = require('url')
 const config = require('../configs')
 const devOps = require('../configs/devops')
+const initGlobalConfig = require('../services/init_global_config')
 
 exports.changeGlobalConfig = function* () {
   const cluster = this.params.cluster
@@ -22,20 +23,17 @@ exports.changeGlobalConfig = function* () {
   // entity.configDetail = JSON.stringify(entity.detail)
   if (type == 'cicd') {
     this.body = yield cicdConfigFunc.apply(this, [entity])
-    return
   }
   if (type == 'registry') {
     this.body = yield registryConfigFunc.apply(this, [entity])
-    return
   }
   if (type == 'mail') {
     this.body = yield mailConfigFunc.apply(this, [entity])
-    return
   }
   if (type == 'rbd') {
     this.body = yield storageConfigFunc.apply(this, [entity])
-    return
   }
+  yield initGlobalConfig.initGlobalConfig()
 }
 
 function* cicdConfigFunc(entity) {

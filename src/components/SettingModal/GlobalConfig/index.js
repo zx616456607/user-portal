@@ -9,6 +9,7 @@
 */
 import React, { Component } from 'react'
 import { Row, Col, Icon, Form, Button, Input, Spin, Checkbox, } from 'antd'
+import cloneDeep from 'lodash/cloneDeep'
 import './style/GlobalConfig.less'
 import EmailImg from '../../../assets/img/setting/globalconfigEmail.png'
 import conInter from '../../../assets/img/setting/globalconfigCICD.png'
@@ -35,11 +36,26 @@ let Emaill = React.createClass({
   },
   handleReset(e) {
     e.preventDefault();
-    if (!this.state.aleardySave) {
-      const { resetFields } = this.props.form
-      resetFields(['service', 'email', 'password', 'emailID'])
+    const { setFieldsValue } = this.props.form
+    const { emailChange, config } = this.props
+    let emailDetail = {
+      senderMail: '',
+      mailServer: '',
+      senderPassword: ''
     }
-    this.props.emailChange();
+    if (config) {
+      emailDetail = JSON.parse(config.configDetail)
+    }
+    const body = 
+    setFieldsValue({
+      service: emailDetail.mailServer,
+      email: emailDetail.senderMail,
+      password: emailDetail.senderPassword,
+      secure: emailDetail.secure,
+      emailID: config ? config.configID : ''
+    })
+    // resetFields(['service', 'email', 'password', 'emailID'])
+    emailChange();
   },
   handEve() {
     this.setState({ isEve: !this.state.isEve })
@@ -61,7 +77,7 @@ let Emaill = React.createClass({
         canClick: false,
         aleardySave: true
       })
-      const { form, saveGlobalConfig, updateGlobalConfig, cluster } = this.props
+      const { form, saveGlobalConfig, updateGlobalConfig, cluster, setGlobalConfig } = this.props
       const { getFieldValue } = form
       const service = getFieldValue('service')
       const email = getFieldValue('email')
@@ -69,7 +85,7 @@ let Emaill = React.createClass({
       const emailID = getFieldValue('emailID')
       const secure = getFieldValue('secure')
       const self = this
-      saveGlobalConfig(cluster.clusterID, 'mail', {
+      const body = {
         configID: emailID,
         detail: {
           senderMail: email,
@@ -77,7 +93,8 @@ let Emaill = React.createClass({
           mailServer: service,
           secure,
         }
-      }, {
+      }
+      saveGlobalConfig(cluster.clusterID, 'mail', body , {
           success: {
             func: (result) => {
               notification.close()
@@ -89,11 +106,14 @@ let Emaill = React.createClass({
                 setFieldsValue({
                   emailID: result.data
                 })
+                body.configID = result.data
               }
               this.setState({
                 canClick: true,
                 aleardySave: true
               })
+              body.configDetail = JSON.stringify(body.detail)
+              setGlobalConfig('mail', body)
             }
           },
           failed: {
@@ -256,11 +276,30 @@ let ConInter = React.createClass({
     this.props.cicdeditChange()
   },
   handleReset() {
-    if (!this.state.aleardySave) {
-      const { resetFields } = this.props.form
-      resetFields(['cicd', 'cicdID'])
+    const { setFieldsValue } = this.props.form
+    const { cicdeditChange, cicdConfig, apiServer } = this.props
+    let cicdDetail = {
+      external_protocol: '',
+      external_host: ''
     }
-    this.props.cicdeditChange()
+    let apiServerDetail = {
+      external_protocol: '',
+      external_host: ''
+    }
+    if (cicdConfig) {
+      cicdDetail = JSON.parse(cicdConfig.configDetail)
+    }
+    if (apiServer) {
+      apiServerDetail = JSON.parse(apiServer.configDetail)
+    }
+    setFieldsValue({
+      cicd: cicdDetail.external_protocol ? cicdDetail.external_protocol + '://' + cicdDetail.external_host : '',
+      cicdID: cicdConfig ? cicdConfig.configID : '',
+      apiServerID: apiServer ? apiServer.configID : '',
+      apiServer: apiServerDetail.external_protocol ? apiServerDetail.external_protocol + '://' + apiServerDetail.external_host : ''
+    })
+    //resetFields(['cicd', 'cicdID'])
+    cicdeditChange()
   },
   saveCICD() {
     this.props.form.validateFields((errors, values) => {
@@ -275,7 +314,7 @@ let ConInter = React.createClass({
       this.setState({
         canClick: false
       })
-      const { form, saveGlobalConfig, updateGlobalConfig, cluster } = this.props
+      const { form, saveGlobalConfig, updateGlobalConfig, cluster, setGlobalConfig } = this.props
       const { getFieldValue } = form
       const cicd = getFieldValue('cicd')
       const api = getFieldValue('apiServer')
@@ -283,7 +322,7 @@ let ConInter = React.createClass({
       const apiServerID = getFieldValue('apiServerID')
       const self = this
       const arr = cicd.split('://')
-      saveGlobalConfig(cluster.clusterID, 'cicd', {
+      const body = {
         cicdID: cicdID,
         apiServerID: apiServerID,
         cicdDetail: {
@@ -293,7 +332,8 @@ let ConInter = React.createClass({
         apiServerDetail: {
           url: api
         }
-      }, {
+      }
+      saveGlobalConfig(cluster.clusterID, 'cicd', body, {
           success: {
             func: (result) => {
               notification.close()
@@ -305,16 +345,20 @@ let ConInter = React.createClass({
                 setFieldsValue({
                   cicdID: result.cicd.data
                 })
+                body.cicdID = result.apiServer.data
               }
               if (result.apiServer.data.toLowerCase() != 'success') {
                 setFieldsValue({
                   apiServerID: result.apiServer.data
                 })
+                body.apiServerID = result.apiServer.data
               }
               this.setState({
                 canClick: true,
                 aleardySave: true
               })
+              body.configDetail = JSON.stringify(body.detail)
+              setGlobalConfig('cicd', body)
             }
           },
           failed: {
@@ -449,11 +493,25 @@ let MirrorService = React.createClass({
     this.props.mirrorChange()
   },
   handleReset() {
-    if (!this.state.aleardySave) {
-      const { resetFields } = this.props.form
-      resetFields(['mirror', 'approve', 'extend', 'registryID'])
+    const { mirrorChange, config } = this.props
+    const { setFieldsValue } = this.props.form
+    let mirroDetail = {
+      protocol: "",
+      host: "",
+      port: "",
+      v2Server: "",
+      v2AuthServer: ""
     }
-    this.props.mirrorChange()
+    if (config) {
+      mirroDetail = JSON.parse(config.configDetail)
+    }
+    setFieldsValue({
+      mirror: mirroDetail.v2Server,
+      approve: mirroDetail.v2AuthServer,
+      extend: mirroDetail.protocol ? mirroDetail.protocol + '://' + mirroDetail.host + (mirroDetail.port ? ':' + mirroDetail.port : '') : '',
+      registryID: config ? config.configID : ''
+    })
+    mirrorChange()
   },
   saveMirror() {
     this.props.form.validateFields((errors, values) => {
@@ -468,13 +526,21 @@ let MirrorService = React.createClass({
       this.setState({
         canClick: false
       })
-      const { form, saveGlobalConfig, updateGlobalConfig, cluster, isValidConfig } = this.props
+      const { form, saveGlobalConfig, updateGlobalConfig, cluster, isValidConfig, setGlobalConfig } = this.props
       const { getFieldValue } = form
       const mirror = getFieldValue('mirror')
       const approve = getFieldValue('approve')
       const extend = getFieldValue('extend')
       const registryID = getFieldValue('registryID')
       const self = this
+      const body = {
+        configID: registryID,
+        detail: {
+          host: extend,
+          v2AuthServer: approve,
+          v2Server: mirror
+        }
+      }
       isValidConfig('registry', {
         host: extend ,
         v2AuthServer: approve,
@@ -483,14 +549,7 @@ let MirrorService = React.createClass({
           success: {
             func: (result) => {
               if (result.data && result.data == 'success') {
-                saveGlobalConfig(cluster.clusterID, 'registry', {
-                  configID: registryID,
-                  detail: {
-                    host: mirror,
-                    v2AuthServer: approve,
-                    v2Server: extend
-                  }
-                }, {
+                saveGlobalConfig(cluster.clusterID, 'registry', body, {
                     success: {
                       func: (result) => {
                         notification.close()
@@ -506,7 +565,15 @@ let MirrorService = React.createClass({
                           setFieldsValue({
                             registryID: result.data
                           })
+                          body.configID = result.data
                         }
+                        let arr = body.detail.host.split('://')
+                        body.detail.protocol = arr[0]
+                        arr = arr[1].split(':')
+                        body.detail.port = arr[1]
+                        body.detail.host = arr[0]
+                        body.configDetail = JSON.stringify(body.detail)
+                        setGlobalConfig('registry', body)
                       }
                     },
                     failed: {
@@ -527,7 +594,7 @@ let MirrorService = React.createClass({
                   })
               } else {
                 notification.close()
-                notification.error('镜像服务地址不可用')
+                notification.error('扩展服务地址不可用')
                 self.setState({
                   canClick: true
                 })
@@ -549,12 +616,11 @@ let MirrorService = React.createClass({
   },
   // 镜像服务地址校验规则
   checkMirror(rule, value, callback) {
-    const { validateFields } = this.props.form
     if (!value) {
       callback([new Error('请填写镜像服务地址')])
       return
     }
-    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+    if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
       return callback('请填入合法的镜像服务地址')
     }
     callback()
@@ -562,7 +628,6 @@ let MirrorService = React.createClass({
 
   // 认证服务地址校验规则
   checkApprove(rule, value, callback) {
-    const { validateFields } = this.props.form
     if (!value) {
       callback([new Error('请填写认证服务地址')])
       return
@@ -575,12 +640,11 @@ let MirrorService = React.createClass({
 
   // 扩展服务地址校验规则
   checkExtend(rule, value, callback) {
-    const { validateFields } = this.props.form
     if (!value) {
       callback([new Error('请填写扩展服务地址')])
       return
     }
-    if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
       return callback('请填入合法的扩展服务地址')
     }
     callback()
@@ -602,7 +666,7 @@ let MirrorService = React.createClass({
       rules: [
         { validator: this.checkMirror }
       ],
-      initialValue: mirroDetail.protocol ? mirroDetail.protocol + '://' + mirroDetail.host + (mirroDetail.port ? ':' + mirroDetail.port : '') : ''
+      initialValue: mirroDetail.v2Server 
     })
     const approveProps = getFieldProps('approve', {
       rules: [
@@ -614,7 +678,7 @@ let MirrorService = React.createClass({
       rules: [
         { validator: this.checkExtend }
       ],
-      initialValue: mirroDetail.v2Server
+      initialValue: mirroDetail.protocol ? mirroDetail.protocol + '://' + mirroDetail.host + (mirroDetail.port ? ':' + mirroDetail.port : '') : ''
     })
     const registryID = getFieldProps('registryID', {
       initialValue: config ? config.configID : ''
@@ -681,12 +745,22 @@ let StorageService = React.createClass({
     this.props.cephChange()
   },
   handleReset() {
-    const { form } = this.props
-    if (!this.state.aleardySave) {
-      const { resetFields } = form
-      resetFields(['node', 'url'])
+    const { setFieldsValue } = this.props.form
+    const { cephChange, config } = this.props
+    let storageDetail = {
+      url: "", config: {
+        monitors: []
+      }
     }
-    this.props.cephChange()
+    if (config) {
+      storageDetail = JSON.parse(config.configDetail)
+    }
+    setFieldsValue({
+      node:  storageDetail.config.monitors.join(','),
+      url: storageDetail.url,
+      storageID: config ? config.configID : ''
+    })
+    cephChange()
   },
   saveStorage() {
     this.props.form.validateFields((errors, values) => {
@@ -701,7 +775,7 @@ let StorageService = React.createClass({
       this.setState({
         canClick: false
       })
-      const { form, saveGlobalConfig, updateGlobalConfig, cluster, isValidConfig } = this.props
+      const { form, saveGlobalConfig, updateGlobalConfig, cluster, isValidConfig, setGlobalConfig } = this.props
       if (cluster.isUserDefine) {
         notification.close()
         notification.error('没有配置集群')
@@ -722,6 +796,15 @@ let StorageService = React.createClass({
       const url = getFieldValue('url')
       const storageID = getFieldValue('storageID')
       const self = this
+      const body = {
+        configID: storageID,
+        detail: {
+          url: url,
+          config: {
+            monitors
+          }
+        }
+      }
       isValidConfig('rbd', {
         url: url,
         config: {
@@ -731,15 +814,7 @@ let StorageService = React.createClass({
           success: {
             func: (result) => {
               if (result.data && result.data == 'success') {
-                saveGlobalConfig(cluster.clusterID, 'rbd', {
-                  configID: storageID,
-                  detail: {
-                    url: url,
-                    config: {
-                      monitors
-                    }
-                  }
-                }, {
+                saveGlobalConfig(cluster.clusterID, 'rbd', body, {
                     success: {
                       func: (result) => {
                         notification.close()
@@ -752,10 +827,13 @@ let StorageService = React.createClass({
                         })
                         if (result.data.toLowerCase() != 'success') {
                           setFieldsValue({
-                            cicdID: result.data
+                            storageID: result.data
                           })
+                          body.configID = result.data
                         }
                         self.handleCeph()
+                        body.configDetail = JSON.stringify(body.detail)
+                        setGlobalConfig('rbd', body)
                       }
                     },
                     failed: {
@@ -821,7 +899,8 @@ let StorageService = React.createClass({
   render() {
     const { cephDisable, cephChange, config } = this.props
     let storageDetail = {
-      url: "", config: {
+      url: "", 
+      config: {
         monitors: []
       }
     }
@@ -944,6 +1023,13 @@ class GlobalConfig extends Component {
   cephChange() {
     this.setState({ cephDisable: !this.state.cephDisable })
   }
+  setGlobalConfig(type, value) {
+    let globalConfig = cloneDeep(this.state.globalConfig)
+    globalConfig[type] = value
+    this.setState({
+      globalConfig: globalConfig
+    })
+  }
 
   render() {
     const { emailDisable, emailChange, cicdeditDisable, cicdeditChange, mirrorDisable, mirrorChange, cephDisable, cephChange, globalConfig } = this.state
@@ -968,10 +1054,10 @@ class GlobalConfig extends Component {
         <div className="alertRow" style={{ margin: 0 }}>
           全局配置---对这整个系统的邮件报警、持续集成、镜像服务、分布式存储的配置；只有做了这些配置才能完整的使用这几项功能，分别是：邮件报警对应的是系统中涉及的邮件提醒、持续集成对应的是CI/CD中整个Tenxflow功能的使用、镜像服务对应的是镜像仓库的使用、分布式存储对应的是容器有状态服务存储的使用
 					</div>
-        <Emaill emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
-        <MirrorService mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.registry} isValidConfig={this.props.isValidConfig}/>
-        <StorageService cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />
-        <ConInter cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
+        <Emaill setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
+        <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.registry} isValidConfig={this.props.isValidConfig}/>
+        <StorageService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />
+        <ConInter setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
       </div>
     )
   }

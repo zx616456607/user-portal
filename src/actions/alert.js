@@ -250,20 +250,24 @@ export const ALERT_SETTING_SUCCESS = 'ALERT_SETTING_SUCCESS'
 export const ALERT_SETTING_FAILED =  'ALERT_SETTING_FAILED'
 
 
-function fetchAlertSetting(cluster, teamID, callback) {
+function fetchAlertSetting(cluster, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting`
+  if(body) {
+    endpoint += `?${toQuerystring(body)}`
+  }
   return {
     [FETCH_API]: {
       types: [ALERT_SETTING_REQUEST, ALERT_SETTING_SUCCESS, ALERT_SETTING_FAILED],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting?teamID=${teamID}`,
-      schema: {}
+      schema: {},
+      endpoint
     },
     callback
   }
 }
 
-export function getAlertSetting(cluster, teamID, callback) {
+export function getAlertSetting(cluster, body, callback) {
   return (dispath, getState) => {
-    return dispath(fetchAlertSetting(cluster, teamID, callback))
+    return dispath(fetchAlertSetting(cluster, body, callback))
   }
 }
 export const ALERT_SETTING_ADD_REQUEST = 'ALERT_SETTING_ADD_REQUEST'
@@ -291,3 +295,34 @@ export function addAlertSetting(cluster, body, callback) {
     return dispath(fetchAddAlertSetting(cluster, body, callback))
   }
 }
+
+export const ALERT_SETTING_LIST_QUERY_REQUEST = 'ALERT_SETTING_LIST_QUERY_REQUEST'
+export const ALERT_SETTING_LIST_QUERY_SUCCESS= 'ALERT_SETTING_LIST_QUERY_SUCCESS'
+export const ALERT_SETTING_LIST_QUERY_FAILED = 'ALERT_SETTING_LIST_QUERY_FAILED'
+
+
+function fetchGetAlertList(cluster, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/list`
+  if(typeof body == 'function') {
+    callback = body
+    body = null
+  }
+  if(body) {
+    endpoint += `?${toQuerystring(body)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [ALERT_SETTING_LIST_QUERY_REQUEST, ALERT_SETTING_LIST_QUERY_SUCCESS, ALERT_SETTING_LIST_QUERY_FAILED],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getSettingList(cluster, body, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchGetAlertList(cluster, body, callback))
+  }
+}
+

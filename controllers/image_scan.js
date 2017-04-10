@@ -86,7 +86,7 @@ exports.getLayerInfo = function* () {
       throw err
     }
     const loginUser = this.session.loginUser
-    let serverInfo = yield _getRegistryServerInfo(this.session, loginUser, registryId)
+    let serverInfo = yield _getRegistryServerInfo(this.session, loginUser, body.registryId)
 
     // If find the valid registry info
     if (serverInfo.server) {
@@ -165,7 +165,7 @@ exports.scan = function* () {
       throw err
     }
     const loginUser = this.session.loginUser
-    let serverInfo = yield _getRegistryServerInfo(this.session, loginUser, registryId)
+    let serverInfo = yield _getRegistryServerInfo(this.session, loginUser, body.registryId)
     // If find the valid registry info
     if (serverInfo.server) {
       logger.info("Found the matched registry config ...")

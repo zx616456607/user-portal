@@ -318,7 +318,7 @@ class GogsComponent extends Component {
       notification.info('Private Token不能为空')
       return
     }
-    if (!(/^http:|^https:/).test(url)) {
+    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(url) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(url)) {
       notification.info(formatMessage(menusText.errorSrc))
       return
     }

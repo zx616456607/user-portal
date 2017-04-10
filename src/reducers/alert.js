@@ -44,6 +44,11 @@ export default function alert(state = {
       REQUEST: ActionTypes.ALERT_SETTING_ADD_REQUEST,
       SUCCESS: ActionTypes.ALERT_SETTING_ADD_REQUEST,
       FAILURE: ActionTypes.ALERT_SETTING_ADD_REQUEST
-    }, state.addSetting, action, option)
+    }, state.addSetting, action, option),
+    settingList: reducerFactory({
+      REQUEST: ActionTypes.ALERT_SETTING_LIST_QUERY_REQUEST,
+      SUCCESS: ActionTypes.ALERT_SETTING_LIST_QUERY_SUCCESS,
+      FAILURE: ActionTypes.ALERT_SETTING_LIST_QUERY_FAILED
+    }, state.settingList, action, option)
   }
 }
