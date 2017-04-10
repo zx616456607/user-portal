@@ -11,6 +11,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Tooltip, Icon, Spin } from 'antd'
+import { genRandomString } from '../../../common/tools'
 import './style/Content.less'
 
 class AddClusterOrNodeModalContent extends Component {
@@ -19,12 +20,13 @@ class AddClusterOrNodeModalContent extends Component {
     this.copyCMD = this.copyCMD.bind(this)
     this.state = {
       copyCMDSuccess: false,
+      inputId: `addClusterOrNodeCMDInput${genRandomString('0123456789', 4)}`
     }
   }
 
   copyCMD() {
     //this function for user click the copy btn and copy the download code
-    const code = document.getElementById('addClusterOrNodeCMDInput')
+    const code = document.getElementById(this.state.inputId)
     code.select()
     document.execCommand('Copy', false)
     this.setState({
@@ -54,7 +56,7 @@ class AddClusterOrNodeModalContent extends Component {
                   <Icon type="copy" />
                 </a>
               </Tooltip>,
-              <input id="addClusterOrNodeCMDInput" style={{ position: "absolute", opacity: "0", top:'0'}} value={CMD} />]
+              <input id={this.state.inputId} style={{ position: "absolute", opacity: "0", top:'0'}} value={CMD} />]
             }
           </pre>
         </div>
