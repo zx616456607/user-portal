@@ -636,7 +636,7 @@ class MirrorSafetyBug extends Component {
       width: '27%',
       dataIndex: 'layerInfo',
       key: 'layerInfo',
-      render: text => (<div className='layerInfo'><span className='safetybugtablepoint'>{text.action}</span><Tooltip title={text.parameters} overlay={null}><span className='textoverflow layerInfospan'>{text.parameters}</span></Tooltip><i className="fa fa-database softwarepicturelright" aria-hidden="true" onClick={this.handleGetBackLayer.bind(this,text.parameters)}></i></div>),
+      render: text => (<div className='layerInfo'><span className='safetybugtablepoint'>{text.action}</span><Tooltip title={text.parameters}><span className='textoverflow layerInfospan'>{text.parameters}</span></Tooltip><i className="fa fa-database softwarepicturelright" aria-hidden="true" onClick={this.handleGetBackLayer.bind(this,text.parameters)}></i></div>),
     }]
 
     const softwarePagination = {
@@ -646,7 +646,7 @@ class MirrorSafetyBug extends Component {
     return (
       <div id="MirrorSafetyBug">
         <div className='safetybugEcharts'>
-          <div style={{width: '100%'}}>
+          <div style={{width: '99.9%'}}>
             <ReactEcharts
               option={safetybugOption}
               style={{height: '220px'}}
