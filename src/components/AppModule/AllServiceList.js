@@ -430,9 +430,11 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="alarm commonData">
+            <Tooltip title="查看监控">
             <svg className="managemoniter" onClick={()=> this.showMonitoring(item)}>
               <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use>
             </svg>
+            </Tooltip>
             <Tooltip title="告警设置" onClick={()=> scope.setState({alarmModal: true, alertCurrentService: item})}>
             <Icon type="notification" />
             </Tooltip>
