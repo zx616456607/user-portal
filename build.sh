@@ -51,7 +51,7 @@ build_user_portal_backend() {
       cp index.html ${tmp}/index.html
       cp package.json ${tmp}/package.json
       # rm all source files
-      ls | grep -v ${tmp} | grep -v node_modules | xargs rm -rf
+      ls | grep -v ${tmp} | grep -v node_modules | grep -v templates | xargs rm -rf
       mv ${tmp}/* ./
       rm -rf ${tmp}
   else
