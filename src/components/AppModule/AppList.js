@@ -313,8 +313,10 @@ let MyComponent = React.createClass({
           </div>
           {/* normal => 设置过 */}
           <div className="alarm commonData">
+            <Tooltip title="查看监控">
             <svg className="managemoniter" onClick={()=> browserHistory.push(`app_manage/detail/${item.name}#monitor`)}><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use></svg>
-          <Tooltip title="告警设置" onClick={()=> parentScope.setState({alarmModal: true, alertCurrentApp:item })}>
+            </Tooltip>
+            <Tooltip title="告警设置" onClick={()=> parentScope.setState({alarmModal: true, alertCurrentApp:item })}>
             <Icon type="notification" />
             </Tooltip>
           </div>

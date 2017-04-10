@@ -176,7 +176,9 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="alarm commonTitle">
+            <Tooltip title="查看监控">
             <Link to={`/cluster/${clusterID}/${item.objectMeta.name}?monitoring`}><svg className="managemoniter"><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use></svg></Link>
+            </Tooltip>
             <Tooltip title="告警设置" onClick={()=> this.props.scope.setState({alarmModal: true})}>
             <Icon type="notification" />
             </Tooltip>
