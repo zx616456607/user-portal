@@ -13,7 +13,7 @@ import { Card, Input, Modal, InputNumber, Checkbox, Progress, Icon, Spin, Table,
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { deleteRecords } from '../../actions/alert'
+import { getAlertSetting, deleteRecords } from '../../actions/alert'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 import no_alarm from '../../assets/img/no_data/no_alarm.png'
@@ -25,8 +25,8 @@ const Option = Select.Option
 const MyComponent = React.createClass({
   getInitialState() {
     return {
-      data: this.props.data || [],
-      lookModel: false
+      lookModel: false,
+      data: this.props.data
     }
   },
   hnadDelete(key,record) {
@@ -63,6 +63,13 @@ const MyComponent = React.createClass({
     const {funcs} = this.props
     // funcs.deleteRecords()
     // func is delete record list
+  },
+  switchType(type) {
+    switch(type) {
+      case 'service': return '服务'
+      case 'node': return '节点'
+      default: return '节点'
+    }
   },
   dropdowns (record){
     // Dropdown delete btn
@@ -199,18 +206,17 @@ const MyComponent = React.createClass({
   },
   render() {
     const { data } = this.state
-    // let data = []
-    if (!data || data.length ==0) {
-      return (<div className="text-center"><img src={no_alarm} />
+    if(!data || !data.data) return (<div className="text-center"><img src={no_alarm} />
         <div>您还没有告警设置，创建一个吧！<Button onClick={()=> this.props.scope.setState({alarmModal: true})} type="primary" size="large">创建</Button></div>
-      </div>)
-    }
-    const lists = data.map((list, index)=> {
+        </div>)
+    const keyArr = Object.getOwnPropertyNames(data.data)
+    const lists = keyArr.map((key, index)=> {
+      const list = data.data[key][0]
       if (list.active) {
         return (
             [<tr key={`list${index}`}>
-              <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-              <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${list.key}`}>{list.name}</Link></td>
+              <td style={{width:'5%'}}><Checkbox /></td>
+              <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${key}`}>{key}</Link></td>
               <td onClick={()=> this.tableListMore(index)}>{list.type}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.bindObject}</td>
               <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.status)}</td>
@@ -226,15 +232,15 @@ const MyComponent = React.createClass({
               </td>
             </tr>]
         )
-
       }
+      const listLabel = list.labels
       return (
         <tr key={`list${index}`}>
             <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-            <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${list.key}`}>{list.name}</Link></td>
-            <td onClick={()=> this.tableListMore(index)}>{list.type}</td>
-            <td onClick={()=> this.tableListMore(index)}>{list.bindObject}</td>
-            <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.status)}</td>
+            <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${key}`}>{key}</Link></td>
+            <td onClick={()=> this.tableListMore(index)}>{this.switchType(listLabel.tenxTargetType)}</td>
+            <td onClick={()=> this.tableListMore(index)}>{listLabel.tenxTargetName}</td>
+            <td onClick={()=> this.tableListMore(index)}>{list.status}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.time}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.createTime}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.editUser}</td>
@@ -307,6 +313,8 @@ class AlarmSetting extends Component {
   }
   componentWillMount() {
     document.title = '告警设置 | 时速云 '
+    const { getAlertSetting, clusterID, teamID } = this.props
+    getAlertSetting(clusterID, teamID)
   }
   handSearch() {
     // search data
@@ -444,14 +452,14 @@ class AlarmSetting extends Component {
                 total={ data.length } />
             </div>
           </div>
-          <MyComponent data={data} scope={this} funcs= {{deleteRecords: this.props.deleteRecords}}/>
+          <MyComponent data={this.props.setting} scope={this} funcs= {{deleteRecords: this.props.deleteRecords}}/>
           <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
             className="alarmModal"
             onCancel={()=> this.setState({alarmModal:false})}
             maskClosable={false}
             footer={null}
           >
-            <CreateAlarm funcs={modalFunc}/>
+        <CreateAlarm funcs={modalFunc} getAlertSetting={() => this.props.getAlertSetting(this.props.clusterID,this.props.teamID)}/>
           </Modal>
           {/* 通知组 */}
           <Modal title="创建新通知组" visible={this.state.createGroup}
@@ -461,7 +469,7 @@ class AlarmSetting extends Component {
             className="alarmContent"
             footer={null}
           >
-            <CreateGroup funcs={modalFunc}/>
+          <CreateGroup funcs={modalFunc} shouldLoadGroup={true}/>
           </Modal>
           <Modal title="删除策略" visible={this.state.deleteModal}
             onCancel={()=> this.setState({deleteModal: false})}
@@ -487,13 +495,24 @@ class AlarmSetting extends Component {
 }
 
 function mapStateToProps(state, props) {
+  let recordsData = {
+    total: 0,
+    records: []
+  }
   const { entities } = state
   const cluster = entities.current.cluster
+  const team = entities.current.team
+  let setting = state.alert.getSetting || {}
+  setting = setting.result
   return {
-    clusterID: cluster.clusterID
+    recordsData,
+    clusterID: cluster.clusterID,
+    teamID: team.teamID,
+    setting
   }
 }
 
 export default connect(mapStateToProps, {
+  getAlertSetting,
   deleteRecords
 })(AlarmSetting)

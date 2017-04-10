@@ -30,6 +30,7 @@ function serviceItems(state = {}, action) {
   }
   switch (action.type) {
     case ActionTypes.SERVICE_LIST_REQUEST:
+    if(!appName) return merge({}, defaultState, state, {})
       return merge({}, defaultState, state, {
         [cluster]: {
           [appName]: {
@@ -48,7 +49,7 @@ function serviceItems(state = {}, action) {
         return service
       })
       serviceList = mergeStateByOpts(state[cluster][appName]['serviceList'], serviceList, 'metadata.name', customizeOpts)
-      return Object.assign({}, state, {
+      return merge({}, state, {
         [cluster]: {
           [appName]: {
             isFetching: false,

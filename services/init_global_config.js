@@ -71,6 +71,7 @@ exports.initGlobalConfig = function* () {
       globalConfig.registryConfig.v2AuthServer = configDetail.v2AuthServer
       globalConfig.registryConfig.user = configDetail.user
       globalConfig.registryConfig.password = configDetail.password
+      logger.info('registry config: ', configDetail.protocol + '://' + configDetail.host + ':' + configDetail.port)
     }
     if (configType == 'cicd') {
       let host
@@ -91,9 +92,16 @@ exports.initGlobalConfig = function* () {
       globalConfig.cicdConfig.protocol = protocol //configDetail.protocol
       globalConfig.cicdConfig.host = host //configDetail.host
       globalConfig.cicdConfig.external_protocol = devops.external_protocol
-      globalConfig.cicdConfig.external_host = devops.external_host,
+      if (!devops.external_protocol) {
+        globalConfig.cicdConfig.external_protocol = protocol
+      }
+      globalConfig.cicdConfig.external_host = devops.external_host
+      if (!devops.external_host) {
+        globalConfig.cicdConfig.external_host = host
+      }
       globalConfig.cicdConfig.statusPath = devops.statusPath //configDetail.statusPath,
       globalConfig.cicdConfig.logPath = devops.logPath //configDetail.logPath
+      logger.info('devops config: ', protocol + '://' + host)
     }
     if (configType === 'rbd') {
       item.ConfigDetail = configDetail
