@@ -577,6 +577,11 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 告警记录</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item key='alarm_group'>
+                    <Link to='/manange_monitor/alarm_group'>
+                      <div className='sideCircle'></div> 告警通知组
+                    </Link>
+                  </Menu.Item>
                   <div className='sline'></div>
                 </SubMenu>
 
@@ -611,11 +616,6 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 费用中心</span>
                     </Link>
                   </Menu.Item>*/}
-                  <Menu.Item key='alarm_group'>
-                    <Link to='/account/alarm_group'>
-                      <div className='sideCircle'></div> 告警通知组
-                    </Link>
-                  </Menu.Item>
                   <Menu.Item key='costCenter#consumptions'>
                     <Link to='/account/costCenter#consumptions'>
                       <span><div className='sideCircle'></div> 消费记录</span>
