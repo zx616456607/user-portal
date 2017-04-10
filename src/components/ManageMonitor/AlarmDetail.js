@@ -27,7 +27,6 @@ class AlarmDetail extends Component {
     }
   }
   componentWillMount() {
-    console.log('sdfas')
     document.title = '告警设置 | 时速云 '
     const id = this.props.params.id
     const { getAlertSetting, cluster } = this.props
@@ -62,12 +61,10 @@ class AlarmDetail extends Component {
     this.setState({selectCheckbox,delBtn})
   }
   deleteRecords() {
-    console.log('delete in ^^&^^')
   }
   render() {
     const { isFetching } = this.props.setting
     
-    console.log(this.props.setting)
     if(isFetching) {
       return <div className="loadingBox"><Spin large="size"></Spin></div>
     }
@@ -77,7 +74,6 @@ class AlarmDetail extends Component {
       return <div>无详情</div>
     }
     settingData = settingData[key[0]]
-    console.log(settingData)
     const columns = [
       {
         title: '监控项',
