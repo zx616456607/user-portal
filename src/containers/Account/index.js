@@ -69,10 +69,6 @@ const menuList_enterprise_admin = [
     name: '团队管理'
   },
   {
-    url: '/account/alarm_group',
-    name: '告警通知组'
-  },
-  {
     url: '/account/costCenter#consumptions',
     name: '消费记录'
   },
@@ -86,10 +82,6 @@ const menuList_enterprise_user = [
   {
     url: '/account',
     name: '我的帐户'
-  },
-  {
-    url: '/account/alarm_group',
-    name: '告警通知组'
   },
   {
     url: '/account/costCenter#consumptions',

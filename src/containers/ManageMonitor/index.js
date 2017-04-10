@@ -30,7 +30,11 @@ const menuList = [
   {
     url: '/manange_monitor/alarm_record',
     name: '告警记录'
-  }
+  },
+   {
+    url: '/manange_monitor/alarm_group',
+    name: '告警通知组'
+  },
 ]
 
 export default class ManageMonitor extends Component {

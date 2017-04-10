@@ -388,36 +388,6 @@ class AlarmSetting extends Component {
       }
     ];
 
-    const data = [
-      {
-        key:1,
-        name: '大事业部',
-        type:'1',
-        bindObject:3,
-        status: 1,
-        time:'5分钟',
-        createTime: '2017-03-06 15:35:21',
-        editUser:'baiyu',
-      }, {
-        key:2,
-        name: 'test It',
-        type:'2',
-        bindObject:2,
-        status: 1,
-        time:'15分钟',
-        createTime: '2017-03-03 10:35:21',
-        editUser:'admin',
-      }, {
-        key:3,
-        name: '统计',
-        type:'2',
-        bindObject:1,
-        status: 0,
-        time:'2分钟',
-        createTime: '2017-03-02 13:35:21',
-        editUser:'baiyu',
-      }
-    ];
     // const rowSelection = {
     //   // checkbox select callback
     // }
@@ -441,8 +411,9 @@ class AlarmSetting extends Component {
               <Input size="large" id="alarmSearch" placeholder="搜索" onPressEnter={()=> this.handSearch()}/>
               <i className="fa fa-search" onClick={()=> this.handSearch()}/>
             </div>
+            {this.props.setting.length > 0 ?
             <div className="rightPage pageBox">
-              <span className='totalPage'>共计 {data.length} 条</span>
+              <span className='totalPage'>共计 {this.props.setting.length} 条</span>
               <Pagination
                 simple
                 className='inlineBlock'
@@ -451,6 +422,8 @@ class AlarmSetting extends Component {
                 pageSize={DEFAULT_PAGE_SIZE}
                 total={ data.length } />
             </div>
+            :null
+          }
           </div>
           <MyComponent data={this.props.setting} scope={this} funcs= {{deleteRecords: this.props.deleteRecords}}/>
           <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}

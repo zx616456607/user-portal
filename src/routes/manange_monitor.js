@@ -26,7 +26,11 @@ const manangeMonitorRoutes = [
   {
     path: 'alarm_record',
     component: require('../components/ManageMonitor/AlarmRecord').default,
-  }
+  },
+   {
+    path: 'alarm_group',
+    component: require('../components/ManageMonitor/AlarmGroup').default,
+  },
 ]
 
 export default manangeMonitorRoutes
