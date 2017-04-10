@@ -380,7 +380,7 @@ let MyComponent = React.createClass({
               </div>
               <div className="price-unit">
                 <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod"> { hourPrice.amount }{hourPrice.unit == '￥'? '': ' T'}/小时</span></p>
-                <p><span className="unit">（约：</span><span className="unit"> { countPrice.fullAmount }/小时）</span></p>
+                <p><span className="unit">（约：</span><span className="unit"> { countPrice.fullAmount }/月）</span></p>
               </div>
             </div>
 
