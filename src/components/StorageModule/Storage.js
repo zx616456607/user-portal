@@ -380,7 +380,7 @@ let MyComponent = React.createClass({
               </div>
               <div className="price-unit">
                 <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod"> { hourPrice.amount }{hourPrice.unit == '￥'? '': ' T'}/小时</span></p>
-                <p><span className="unit">（约：</span><span className="unit"> { countPrice.fullAmount }/小时）</span></p>
+                <p><span className="unit">（约：</span><span className="unit"> { countPrice.fullAmount }/月）</span></p>
               </div>
             </div>
 
@@ -683,6 +683,8 @@ class Storage extends Component {
     const { formatMessage } = this.props.intl
     const currentCluster = this.props.currentCluster
     const storage_type = currentCluster.storageTypes
+    const standard = require('../../../configs/constants').STANDARD_MODE
+    const mode = require('../../../configs/model').mode
     let canCreate = true
     let title = ''
     if (!storage_type || storage_type.indexOf('rbd') < 0) canCreate = false
@@ -698,6 +700,7 @@ class Storage extends Component {
     return (
       <QueueAnim className="StorageList" type="right">
         <div id="StorageList" key="StorageList">
+          { mode === standard ? <div className='alertRow'>您的存储创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充正，继续使用。如无充正，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div> }
           <div className="operationBox">
             <div className="leftBox">
               <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>

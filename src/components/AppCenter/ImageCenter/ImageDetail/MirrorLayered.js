@@ -20,7 +20,11 @@ class MirrorLayered extends Component {
   constructor(props){
     super(props)
     this.testContent = this.testContent.bind(this)
+    this.handleStepScroll = this.handleStepScroll.bind(this)
     this.handleStepsCurrentNumber = this.handleStepsCurrentNumber.bind(this)
+    this.state = {
+      currentNumber:0
+    }
   }
 
   componentWillMount(){
@@ -30,6 +34,9 @@ class MirrorLayered extends Component {
     //}
   }
 
+  handleStepScroll(){
+    //console.log(this)
+  }
 
   testContent(){
     const {mirrorLayeredinfo} = this.props
@@ -64,6 +71,9 @@ class MirrorLayered extends Component {
     }
     for(let i=0;i<mirrorLayeredinfo.length;i++){
       if(mirrorLayeredinfo[i].command.parameters == LayerCommandParameters){
+        this.setState({
+          currentNumber:i
+        })
         return i
       }
     }

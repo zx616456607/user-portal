@@ -30,10 +30,6 @@ const menuList_standard = [
     name: '我的团队'
   },
   {
-    url: '/account/alarm_group',
-    name: '告警通知组'
-  },
-  {
     url: '/account/balance',
     name: '充值/续费'
   },
