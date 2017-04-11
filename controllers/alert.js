@@ -165,7 +165,7 @@ exports.getAlertSetting = function* () {
   const body = this.query
   body.clusterID = cluster
   const teamspace = user.teamspace
-  //const api = apiFactory.getApi(user)
+  const api = apiFactory.getApi(user)
   const spi = apiFactory.getSpi(user)
   body.namespace = user.namespace
   if(teamspace) {
@@ -182,7 +182,48 @@ exports.getAlertSetting = function* () {
   //   owner = teamCreator.data.userName
   // }
   const response = yield spi.alerts.getBy(['strategy'], body)
-  this.body = response
+  const setting = response.data
+  const keyArr = Object.getOwnPropertyNames(setting)
+  if (keyArr.length == 0) {
+    this.body = {
+      data: {}
+    }
+    return
+  }
+  const rules = setting[keyArr[0]]
+  const specs = []
+  let strategyID
+  let result = []
+  rules.forEach(rule => {
+    let condition = rule.annotation.condition
+    condition = condition.split(rule.condition.operation)
+    let item = {
+      type: condition[0],
+      operation: rule.condition.operation,
+      threshold: condition[condition.length - 1],
+      createTime: rule.annotation.createTime,
+      recordCount: 0,
+      name: rule.name
+    }
+    switchType(item)
+    result.push(item)
+    strategyID = rule.labels.tenxStrategyID
+    specs.push({
+      triggerRule: rule.annotation.condition,
+      ruleName: rule.name
+    })
+  })
+  let recordCount = yield api.alerts.createBy(['record', 'count'], null, {
+    strategyID: strategyID,
+    specs
+  })
+  recordCount = recordCount.data
+  result.forEach(item => {
+    item.recordCount = recordCount[item.name] || 0
+  })
+  this.body = {
+    data: result
+  }
 }
 
 exports.addAlertSetting = function*() {
@@ -212,4 +253,42 @@ exports.getSettingList = function*() {
   const spi = apiFactory.getSpi(this.session.loginUser)
   const response = yield spi.alerts.getBy(['strategy', 'list'], queryBody)
   this.body = response
+}
+
+exports.deleteSetting = function* () {
+  const cluster = this.params.cluster
+  const strategyID = this.query.strategyID
+  if(!strategyID) {
+    const err = new Error('StrategyID is require')
+    err.status = 400
+    throw err
+  }
+  const user = this.session.loginUser
+  const spi = apiFactory.getSpi(user)
+  const response = yield spi.alerts.deleteBy(['strategy'], {
+    clusterID: cluster,
+    strategyIDs: strategyID,
+    namespace: user.teamspace || user.namespace
+  })
+  this.body = response
+}
+
+
+function switchType(item) {
+  switch (item.type) {
+    case 'cpu/usage_rate':
+      item.type = 'CPU'
+      return
+    case 'memory/usage':
+      item.type = '内存'
+      return
+    case 'network/tx_rate':
+      item.type = '上传流量'
+      return
+    case 'network/rx_rate':
+      item.type = '下载流量'
+      return
+    default:
+      return
+  }
 }

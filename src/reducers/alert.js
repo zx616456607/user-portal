@@ -49,6 +49,11 @@ export default function alert(state = {
       REQUEST: ActionTypes.ALERT_SETTING_LIST_QUERY_REQUEST,
       SUCCESS: ActionTypes.ALERT_SETTING_LIST_QUERY_SUCCESS,
       FAILURE: ActionTypes.ALERT_SETTING_LIST_QUERY_FAILED
-    }, state.settingList, action, option)
+    }, state.settingList, action, option),
+    deleteSetting: reducerFactory({
+      REQUEST: ActionTypes.ALERT_DELETE_SETTING_REQUEST,
+      SUCCESS: ActionTypes.ALERT_DELETE_SETTING_SUCCESS,
+      FAILURE: ActionTypes.ALERT_DELETE_SETTING_FAILUR
+    }, state.deleteSetting, action, option)
   }
 }
