@@ -64,16 +64,13 @@ class AlarmDetail extends Component {
   }
   render() {
     const { isFetching } = this.props.setting
-    
     if(isFetching) {
-      return <div className="loadingBox"><Spin large="size"></Spin></div>
+      return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
-    let settingData = this.props.setting.result.data
-    const key = Object.getOwnPropertyNames(settingData)
-    if(!key || key.length <= 0) {
+    let settingData = this.props.setting
+    if(!settingData || settingData.length <= 0) {
       return <div>无详情</div>
     }
-    settingData = settingData[key[0]]
     const columns = [
       {
         title: '监控项',
@@ -81,13 +78,13 @@ class AlarmDetail extends Component {
         key:'type'
       }, {
         title: '条件',
-        dataIndex: 'bindObject',
-        key:'bindObject',
+        dataIndex: 'operation',
+        key:'operation',
       },
       {
         title: '阈值',
-        dataIndex: 'value',
-        key:'value',
+        dataIndex: 'threshold',
+        key:'threshold',
       },
       {
         title: '启用时间',
@@ -97,47 +94,11 @@ class AlarmDetail extends Component {
       },
       {
         title: '触发次数',
-        dataIndex: 'target',
-        key:'target',
+        dataIndex: 'recordCount',
+        key:'recordCount',
       },
     ];
 
-    const data = [
-      {
-        key:1,
-        type:'内存',
-        bindObject: '>',
-        value: '80%',
-        createTime: '2017-03-00 15:35:21',
-        target:'5',
-        assign:'harper'
-      }, {
-        key:2,
-        type:'CPU',
-        bindObject: '>',
-        value: '90%',
-        createTime: '2017-05-00 15:35:21',
-        target:'5',
-        assign: 'messon'
-      }, {
-        key:3,
-        type:'上传流量',
-        bindObject: '>',
-        value: '500KB',
-        createTime: '2017-01-10 15:35:21',
-        target:'5',
-        assign:'k8s'
-      },
-      {
-        key: 4,
-        type:'下载流量',
-        bindObject: '>',
-        value: '800KB',
-        createTime: '2017-06-10 15:35:21',
-        target:'5',
-        assign:'k8s'
-      }
-    ];
     const _this = this
     const rowSelection = {
       selectedRowKeys: this.state.selectCheckbox,
@@ -200,7 +161,7 @@ class AlarmDetail extends Component {
                 </div>
                 <Table className="strategyTable" rowSelection={rowSelection} columns={columns}
                 onRowClick={(record, index)=> this.rowClick(index)}
-                dataSource={data} pagination={false} style={{padding:'0 30px'}}/>
+                dataSource={settingData} pagination={false} style={{padding:'0 30px'}}/>
               </Card>
             </Col>
           </Row>
@@ -218,14 +179,27 @@ class AlarmDetail extends Component {
 
 function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
-  const defaultSetting = {isFetching: true}
+  const defaultSetting = {
+    isFetching: false,
+    result: {
+      data:[]
+    }
+  }
+  let isFetching = false
   let { getSetting } = state.alert
-  if(!getSetting) {
+  if(!getSetting || !getSetting.result) {
     getSetting = defaultSetting
+  }
+  isFetching = getSetting.isFetching
+  if(getSetting.result && getSetting.result.data.length > 0){
+    getSetting.result.data.forEach(item => {
+      item.createTime = formatDate(item.createTime)
+    })
   }
   return {
     cluster,
-    setting: getSetting
+    setting: getSetting.result.data,
+    isFetching
   }
   return props
 }
