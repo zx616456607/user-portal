@@ -14,6 +14,18 @@ import ReactEcharts from 'echarts-for-react'
 import './style/SoftwarePackage.less'
 import { loadMirrorSafetyScan, loadMirrorSafetyChairinfo, loadMirrorSafetyLayerinfo } from '../../../../actions/app_center'
 import { connect } from 'react-redux'
+import SignalFourRed from '../../../../assets/img/appCenter/mirrorSafety/signal4red.svg'
+import SignalFouryellow from '../../../../assets/img/appCenter/mirrorSafety/signal4yellow.svg'
+import SignalFourgreen from '../../../../assets/img/appCenter/mirrorSafety/signal4green.svg'
+import SignalThreeRed from '../../../../assets/img/appCenter/mirrorSafety/signal3red.svg'
+import SignalThreeyellow from '../../../../assets/img/appCenter/mirrorSafety/signal3yellow.svg'
+import SignalThreegreen from '../../../../assets/img/appCenter/mirrorSafety/signal3green.svg'
+import SignalTwoRed from '../../../../assets/img/appCenter/mirrorSafety/signal2red.svg'
+import SignalTwoyellow from '../../../../assets/img/appCenter/mirrorSafety/signal2yellow.svg'
+import SignalTwogreen from '../../../../assets/img/appCenter/mirrorSafety/signal2green.svg'
+import SignalOneRed from '../../../../assets/img/appCenter/mirrorSafety/signal1red.svg'
+import SignalOneyellow from '../../../../assets/img/appCenter/mirrorSafety/signal1yellow.svg'
+import SignalOnegreen from '../../../../assets/img/appCenter/mirrorSafety/signal1green.svg'
 
 const Option = Select.Option
 
@@ -21,6 +33,10 @@ class SoftwarePackage extends Component {
   constructor(props) {
     super(props)
     this.TableData = this.TableData.bind(this)
+    this.TempalteUpgradeImpact = this.TempalteUpgradeImpact.bind(this)
+    this.handleImpactSignal = this.handleImpactSignal.bind(this)
+    this.handleImpactColor = this.handleImpactColor.bind(this)
+    this.handleImpactSorter = this.handleImpactSorter.bind(this)
     this.state = {
       Unknown: 0,
       Negligible: 0,
@@ -43,29 +59,6 @@ class SoftwarePackage extends Component {
     const fixedIn = result.report.fixedIn
     let tableDataSource = []
     let index = 1
-    //let command = {}
-    //let arrBug = []
-    //let bugcell = [
-    //  { sortNum: 0, High: 0 },
-    //  { sortNum: 0, Medium: 0 },
-    //  { sortNum: 0, Low: 0 },
-    //  { sortNum: 0, Unknown: 0 },
-    //  { sortNum: 0, Negligible: 0 },
-    //  { sortNum: 0, Other: 0 }
-    //]
-    //let bugcellObj = []
-    //let bugcellSlice = []
-    //let bugcellValue = {
-    //  nameOne: '',
-    //  valueOne: '',
-    //  nameTwo: '',
-    //  valueTwo: ''
-    //}
-    //let nameStr = ''
-    //let namevnlner = ''
-    //let availableRepair = []
-    //let unavailableRepair = []
-    //let impact = 0
     // Echarts 数据
     let EchartsUnknownNum = 0
     let EchartsNegligibleNum = 0
@@ -95,9 +88,11 @@ class SoftwarePackage extends Component {
       }
       let nameStr = ''
       let namevnlner = ''
+      let nameIndex = ''
       let availableRepair = []
       let unavailableRepair = []
-      let impact = 0
+      let upgradeRemain = 0
+      let upgradeImapct = {}
 
       // 漏洞数据获取
       // 找到当前包的漏洞信息，并将其存入一个数组
@@ -106,28 +101,96 @@ class SoftwarePackage extends Component {
         nameStr = key.replace(/-/g, '')
         nameStr = nameStr.substring(0, 1).toUpperCase() + nameStr.substring(1, nameStr.length)
         for (let j = 0; j < features[key].vulnerabilities.length; j++) {
+          let flag = false
           // 升级后的影响
           namevnlner = (features[key].vulnerabilities[j]).replace(/-/g, '')
           namevnlner = namevnlner.substring(0, 1).toLowerCase() + namevnlner.substring(1, namevnlner.length)
+          nameIndex = namevnlner + nameStr
           // 遍历 fixedIn ， 判断当前漏洞是否可修复
           for (let fixed in fixedIn) {
-            if (namevnlner == fixed) {
+            if (nameIndex == fixed) {
               availableRepair.push(fixedIn[fixed])
-            } else {
-              unavailableRepair.push(features[key].vulnerabilities[j])
+              flag = true
+              break
             }
+          }
+          if(flag == false){
+            unavailableRepair.push(features[key].vulnerabilities[j])
           }
           for (let k in vulnerabilities) {
             if (vulnerabilities[k].name == features[key].vulnerabilities[j]) {
               arrBug.push(vulnerabilities[k])
+              break
             }
           }
         }
-        impact = features[key].vulnerabilities.length - availableRepair.length
+        upgradeRemain = unavailableRepair.length
       } else {
         EchartsNoneNum++
+        upgradeRemain = 0
+      }
+      //升级的影响
+      let impactArr = []
+      let impactSeverityNum = [0,0,0,0,0,0]
+      if(unavailableRepair.length == 0){
+        impactArr = []
+      }else{
+        for(let i=0;i<unavailableRepair.length;i++){
+          for(let j in vulnerabilities){
+            if(unavailableRepair[i] == vulnerabilities[j].name){
+              impactArr.push(vulnerabilities[j].severity)
+              break
+            }
+          }
+        }
+      }
+      if(impactArr.length == 0 ){
+        impactSeverityNum = [0,0,0,0,0,0]
+      }else{
+        for(let i=0;i<impactArr.length;i++){
+          switch(impactArr){
+            case 'High' :
+              impactSeverityNum[0]++
+            case 'Medium' :
+              impactSeverityNum[1]++
+            case 'Low':
+              impactSeverityNum[2]++
+            case 'Negligible':
+              impactSeverityNum[3]++
+            case 'Other':
+              impactSeverityNum[4]++
+            case 'Unknown':
+            default:
+              impactSeverityNum[5]++
+          }
+        }
       }
 
+      let severityMax = 0
+      let severityMaxi = 0
+      let severityCount = 0
+      for (let i=0;i<impactSeverityNum.length;i++){
+        if(impactSeverityNum[i] > severityMax){
+          severityMax = impactSeverityNum[i]
+          severityMaxi = i
+          severityCount = severityCount + impactSeverityNum[i]
+        }
+      }
+
+      if(severityCount == 0){
+        upgradeImapct = {
+          impactColor:5,
+          impactSignal:0,
+          impactSorterNum:this.handleImpactSorter(0,5)
+        }
+      }else{
+        upgradeImapct = {
+          impactColor:severityMaxi,
+          impactSignal:severityMax/severityCount,
+          impactSorterNum:this.handleImpactSorter(severityMax/severityCount,severityMaxi)
+        }
+      }
+     
       // 遍历漏洞信息中的 安全等级，将安全等级信息存入一个数组中
       if (arrBug.length > 0) {
         for (var arr = 0; arr < arrBug.length; arr++) {
@@ -219,35 +282,13 @@ class SoftwarePackage extends Component {
         softwarename: features[key].name,
         softwareversions: features[key].version,
         softwarebug: bugcellValue,
-        softwareremain: impact,
-        softwareimpact: 'dssafsdfasfsafs',
+        softwareremain: upgradeRemain,
+        softwareimpact: upgradeImapct,
         softwarepicture: command
       }
       tableDataSource.push(data)
 
       index++
-      //command = {}
-      //arrBug = []
-      //bugcell = [
-      //  { sortNum: 0, High: 0 },
-      //  { sortNum: 0, Medium: 0 },
-      //  { sortNum: 0, Low: 0 },
-      //  { sortNum: 0, Unknown: 0 },
-      //  { sortNum: 0, Negligible: 0 },
-      //  { sortNum: 0, Other: 0 }
-      //]
-      //bugcellSlice = []
-      //bugcellObj = []
-      //bugcellValue = {
-      //  nameOne: '',
-      //  valueOne: '',
-      //  nameTwo: '',
-      //  valueTwo: ''
-      //}
-      //nameStr = ''
-      //namevnlner = ''
-      //availableRepair = []
-      //unavailableRepair = []
     }
     return {
       tableDataSource,
@@ -260,6 +301,47 @@ class SoftwarePackage extends Component {
         EchartsNoneNum
       }
     }
+  }
+
+  handleImpactSignal(singnal) {
+    if (0 <= singnal && singnal < 0.25) {
+      return 0
+    }
+    if (0.25 <= singnal && singnal < 0.5) {
+      return 1
+    }
+    if (0.5 <= singnal && singnal < 0.75) {
+      return 2
+    }if (0.75 <= singnal && singnal <= 1) {
+      return 3
+    }
+    return 0
+  }
+  
+  handleImpactColor(color){
+    switch(color){
+      case 1:
+        return 0
+      case 2:
+        return 1
+      case 3:
+      case 4:
+      case 5:
+      default:
+        return 2
+    }
+  }
+
+  handleImpactSorter(arrx,arry){
+    let arr = [
+      [64,63,62,61],
+      [74,73,72,71],
+      [84,83,82,81],
+      [94,93,92,91]
+    ]
+    let arrX = this.handleImpactSignal(arrx)
+    let arrY = this.handleImpactColor(arry)
+    return arr[arrX][arrY]
   }
 
   componentDidMount() {
@@ -282,6 +364,23 @@ class SoftwarePackage extends Component {
       LayerCommandParameters:text
     }
     callBack(getBackInfo)
+  }
+
+  TempalteUpgradeImpact(object){
+
+    let arr = [
+      [SignalOneRed, SignalOneyellow, SignalOnegreen],
+      [SignalTwoRed, SignalTwoyellow, SignalTwogreen],
+      [SignalThreeRed, SignalThreeyellow, SignalThreegreen],
+      [SignalFourRed, SignalFouryellow, SignalFourgreen]
+    ]
+    let arrX = this.handleImpactSignal(object.impactSignal)
+    let arrY = this.handleImpactColor(object.impactColor)
+    return (<div>
+        <span className='softwareimpactspan'>{object.impactSorterNum}</span>
+        <img src={arr[arrX][arrY]} className='softwareimpactimg'/>
+      </div>)
+
   }
 
   render() {
@@ -437,7 +536,6 @@ class SoftwarePackage extends Component {
         title: '升级后的剩余',
         dataIndex: 'softwareremain',
         key: 'softwareremain',
-        //width:'16%',
         width: '12%',
         render: text => (<div className='softwareremain'><i className="fa fa-arrow-circle-right softwareremainspan" aria-hidden="true"></i>{text}</div>),
         sorter:  (a,b) => a.softwareremain - b.softwareremain
@@ -447,13 +545,12 @@ class SoftwarePackage extends Component {
         dataIndex: 'softwareimpact',
         key: 'softwareimpact',
         width: '9%',
-        //render: text => (
-        //  <div><i className="fa fa-signal" aria-hidden="true" style={{ color: '#53b552', marginLeft: '10px' }}></i></div>),
         render: (text) => (
           <div className='softwareimpact'>
-            <span className='softwareimpactspan'></span>
+            {this.TempalteUpgradeImpact(text)}
           </div>
-        )
+        ),
+        sorter:(a,b) => a.softwareimpact.impactSorterNum - b.softwareimpact.impactSorterNum
       },
       {
         title: '介绍了在图像',
