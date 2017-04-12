@@ -385,5 +385,6 @@ module.exports = function (Router) {
   router.post('/alerts/cluster/:cluster/setting', alertController.addAlertSetting)
   router.get('/alerts/cluster/:cluster/setting/list', alertController.getSettingList)
   router.delete('/alerts/cluster/:cluster/setting', alertController.deleteSetting)
+  router.put('/alerts/cluster/:cluster/setting', alertController.updateEnable)
   return router.routes()
 }

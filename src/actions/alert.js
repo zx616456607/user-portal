@@ -247,7 +247,7 @@ export function modifyNotifyGroup(groupID, body, callback) {
 
 export const ALERT_SETTING_REQUEST = 'ALERT_SETTING_REQUEST'
 export const ALERT_SETTING_SUCCESS = 'ALERT_SETTING_SUCCESS'
-export const ALERT_SETTING_FAILED =  'ALERT_SETTING_FAILED'
+export const ALERT_SETTING_FAILURE =  'ALERT_SETTING_FAILURE'
 
 
 function fetchAlertSetting(cluster, body, callback) {
@@ -257,7 +257,7 @@ function fetchAlertSetting(cluster, body, callback) {
   }
   return {
     [FETCH_API]: {
-      types: [ALERT_SETTING_REQUEST, ALERT_SETTING_SUCCESS, ALERT_SETTING_FAILED],
+      types: [ALERT_SETTING_REQUEST, ALERT_SETTING_SUCCESS, ALERT_SETTING_FAILURE],
       schema: {},
       endpoint
     },
@@ -272,13 +272,13 @@ export function getAlertSetting(cluster, body, callback) {
 }
 export const ALERT_SETTING_ADD_REQUEST = 'ALERT_SETTING_ADD_REQUEST'
 export const ALERT_SETTING_ADD_SUCCESS = 'ALERT_SETTING_ADD_SUCCESS'
-export const ALERT_SETTING_ADD_FAILED = 'ALERT_SETTING_ADD_FAILED'
+export const ALERT_SETTING_ADD_FAILURE = 'ALERT_SETTING_ADD_FAILURE'
 
 
 function fetchAddAlertSetting(cluster, body, callback){
   return {
     [FETCH_API]: {
-      types: [ALERT_SETTING_ADD_REQUEST, ALERT_SETTING_ADD_SUCCESS, ALERT_SETTING_ADD_FAILED],
+      types: [ALERT_SETTING_ADD_REQUEST, ALERT_SETTING_ADD_SUCCESS, ALERT_SETTING_ADD_FAILURE],
       endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting`,
       schema: {},
       options: {
@@ -298,7 +298,7 @@ export function addAlertSetting(cluster, body, callback) {
 
 export const ALERT_SETTING_LIST_QUERY_REQUEST = 'ALERT_SETTING_LIST_QUERY_REQUEST'
 export const ALERT_SETTING_LIST_QUERY_SUCCESS= 'ALERT_SETTING_LIST_QUERY_SUCCESS'
-export const ALERT_SETTING_LIST_QUERY_FAILED = 'ALERT_SETTING_LIST_QUERY_FAILED'
+export const ALERT_SETTING_LIST_QUERY_FAILURE = 'ALERT_SETTING_LIST_QUERY_FAILURE'
 
 
 function fetchGetAlertList(cluster, body, callback) {
@@ -312,7 +312,7 @@ function fetchGetAlertList(cluster, body, callback) {
   }
   return {
     [FETCH_API]: {
-      types: [ALERT_SETTING_LIST_QUERY_REQUEST, ALERT_SETTING_LIST_QUERY_SUCCESS, ALERT_SETTING_LIST_QUERY_FAILED],
+      types: [ALERT_SETTING_LIST_QUERY_REQUEST, ALERT_SETTING_LIST_QUERY_SUCCESS, ALERT_SETTING_LIST_QUERY_FAILURE],
       endpoint,
       schema: {}
     },
@@ -329,13 +329,13 @@ export function getSettingList(cluster, body, callback) {
 
 export const ALERT_DELETE_SETTING_REQUEST = 'ALERT_DELETE_SETTING_REQUEST'
 export const ALERT_DELETE_SETTING_SUCCESS = 'ALERT_DELETE_SETTING_SUCCESS'
-export const ALERT_DELETE_SETTING_FAILED = 'ALERT_DELETE_SETTING_FAILED'
+export const ALERT_DELETE_SETTING_FAILURE = 'ALERT_DELETE_SETTING_FAILURE'
 
 
 function fetchDeleteSetting(cluster, id, callback) {
   return {
     [FETCH_API]: {
-      types: [ALERT_DELETE_SETTING_REQUEST, ALERT_DELETE_SETTING_SUCCESS, ALERT_DELETE_SETTING_FAILED],
+      types: [ALERT_DELETE_SETTING_REQUEST, ALERT_DELETE_SETTING_SUCCESS, ALERT_DELETE_SETTING_FAILURE],
       endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting?strategyID=${id.join(',')}`,
       schema: {},
       options: {
@@ -349,6 +349,62 @@ function fetchDeleteSetting(cluster, id, callback) {
 export function deleteSetting(cluster, id, callback) {
   return (dispath, getState) => {
     return dispath(fetchDeleteSetting(cluster, id, callback))
+  }
+}
+
+
+export const ALERT_UPDATE_SETTING_ENABLE_REQUEST = 'ALERT_UPDATE_SETTING_ENABLE_REQUEST'
+export const ALERT_UPDATE_SETTING_ENABLE_SUCCESS = 'ALERT_UPDATE_SETTING_ENABLE_SUCCESS'
+export const ALERT_UPDATE_SETTING_ENABLE_FAILURE = 'ALERT_UPDATE_SETTING_ENABLE_FAILURE'
+
+
+function fetchUpdateEnable(cluster, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ALERT_UPDATE_SETTING_ENABLE_REQUEST, ALERT_UPDATE_SETTING_ENABLE_SUCCESS, ALERT_UPDATE_SETTING_ENABLE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function updateEnable(cluster, body, callback) {
+  return (dispath, getState)  => {
+    dispath(fetchUpdateEnable(cluster, body, callback))
+  }
+}
+
+
+
+export const ALERT_IGNORE_SETTING_REQUEST = 'ALERT_IGNORE_SETTING_REQUEST'
+export const ALERT_IGNORE_SETTING_SUCCESS = 'ALERT_IGNORE_SETTING_SUCCESS'
+export const ALERT_IGNORE_SETTING_FAILURE = 'ALERT_IGNORE_SETTING_FAILURE'
+
+
+function fetchIngoreSetting(cluster, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ALERT_IGNORE_SETTING_REQUEST, ALERT_IGNORE_SETTING_SUCCESS, ALERT_IGNORE_SETTING_FAILURE],
+      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/ignore`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+
+export function ignoreSetting(cluster, body, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchIngoreSetting(cluster, body, callback))
   }
 }
 
