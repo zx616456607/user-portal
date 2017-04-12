@@ -239,7 +239,6 @@ function mapStateToProps(state, props) {
       leftSetting = settingList.result.data.strategys[0] || {}
     }
   }
-  console.log(leftSetting)
   return {
     cluster,
     setting: getSetting.result.data,
