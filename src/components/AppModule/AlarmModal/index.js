@@ -379,6 +379,10 @@ let TwoStop = React.createClass({
       this.setState({[typeProps]: 'KB/s'})
       return
     }
+    if(type == 'memory/usage') {
+      this.setState({[typeProps]: 'MB'})
+      return
+    }
     this.setState({[typeProps]: '%'})
   },
   usedRule(rule, value, callback, key) {
@@ -487,7 +491,7 @@ let TwoStop = React.createClass({
               onChange: (type)=> this.changeType(key, type)
             }) } style={{ width: 135 }} >
               <Option value="cpu/usage_rate">CPU利用率</Option>
-              <Option value="memory/usage">内存利用率</Option>
+              <Option value="memory/usage">内存使用</Option>
               <Option value="network/tx_rate">上传流量</Option>
               <Option value="network/rx_rate">下载流量</Option>
 
@@ -563,7 +567,7 @@ class AlarmModal extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      isSendMeil: 1,
+      isSendMail: 1,
       createGroup: false, // create alarm group modal
     }
   }
@@ -591,6 +595,8 @@ class AlarmModal extends Component {
         }
         if (obj.metricType == 'network/rx_rate' || obj.metricType == 'network/tx_rate') {
           obj.value = obj.value * 1024
+        } else if(obj.metricType == 'memory/usage'){
+          obj.value = obj.value * 1024 * 1024
         } else {
           obj.value = obj.value * 100
         }
@@ -683,6 +689,11 @@ class AlarmModal extends Component {
     }
     return callback()
   }
+  sendMail(e) {
+    this.setState({
+      isSendMail: e.target.value
+    })
+  }
   render() {
     const formItemLayout = {
       labelCol: { span: 4 },
@@ -713,7 +724,7 @@ class AlarmModal extends Component {
           <div className={funcs.scope.state.step == 3 ? 'steps' : 'hidden'}>
             <Form className="alarmAction">
               <Form.Item label="发送通知" {...formItemLayout} style={{ margin: 0 }}>
-                <RadioGroup defaultValue={this.state.isSendMeil} >
+        <RadioGroup defaultValue={this.state.isSendMail} value={this.state.isSendMail} onChange={(e) => this.sendMail(e)}>
                   <Radio key="a" value={1}>是</Radio>
                   <Radio key="b" value={2}>否</Radio>
                 </RadioGroup>

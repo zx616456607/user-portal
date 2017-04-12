@@ -326,3 +326,30 @@ export function getSettingList(cluster, body, callback) {
   }
 }
 
+
+export const ALERT_DELETE_SETTING_REQUEST = 'ALERT_DELETE_SETTING_REQUEST'
+export const ALERT_DELETE_SETTING_SUCCESS = 'ALERT_DELETE_SETTING_SUCCESS'
+export const ALERT_DELETE_SETTING_FAILED = 'ALERT_DELETE_SETTING_FAILED'
+
+
+function fetchDeleteSetting(cluster, id, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ALERT_DELETE_SETTING_REQUEST, ALERT_DELETE_SETTING_SUCCESS, ALERT_DELETE_SETTING_FAILED],
+      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting?strategyID=${id.join(',')}`,
+      schema: {},
+      options: {
+        method: 'DELETE'
+      }
+    },
+    callback
+  }
+}
+
+export function deleteSetting(cluster, id, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchDeleteSetting(cluster, id, callback))
+  }
+}
+
+

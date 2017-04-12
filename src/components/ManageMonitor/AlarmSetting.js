@@ -13,7 +13,7 @@ import { Card, Input, Modal, InputNumber, Checkbox, Progress, Icon, Spin, Table,
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { getAlertSetting, deleteRecords, getSettingList } from '../../actions/alert'
+import { getAlertSetting, deleteRecords, getSettingList, deleteSetting } from '../../actions/alert'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 import no_alarm from '../../assets/img/no_data/no_alarm.png'
@@ -25,19 +25,31 @@ const Option = Select.Option
 const MyComponent = React.createClass({
   getInitialState() {
     return {
-      lookModel: false
-      //data: this.props.data
+      lookModel: false,
+      isFirstData: true,
+      data: this.props.data
     }
   },
   componentWillReceiveProps(nextProps) {
+    const nextData = nextProps.data
+    if(this.state.data) {
+      this.state.data.forEach(item => {
+        nextData.some(data => {
+          if(data.strategyID == item.strategyID) {
+            data.checked = item.checked
+            return true
+          }
+          return false
+        })
+      })
+    }
     this.setState({
-      data: nextProps.data
+      data: nextData
     })
   },
   hnadDelete(key,record) {
     // Dropdown delete action
     const { scope } = this.props
-    console.log('index  in...',key, record)
     this.setState({record})
     switch(key) {
       case 'delete': {
@@ -64,7 +76,6 @@ const MyComponent = React.createClass({
     }
   },
   clearRecords() {
-    console.log(this.state.record)
     const {funcs} = this.props
     // funcs.deleteRecords()
     // func is delete record list
@@ -108,7 +119,7 @@ const MyComponent = React.createClass({
     if (text ==1) {
       return <span className="running"><i className="fa fa-circle" /> 启用</span>
     }
-    if (text ==2) {
+    if (text == 0) {
       return <span className="stop"><i className="fa fa-circle" /> 停用</span>
     }
     if (text ==3) {
@@ -138,9 +149,10 @@ const MyComponent = React.createClass({
       return item
     })
     const { scope } = this.props
-    scope.setState({isDelete: !e.target.checked})
+    setTimeout(() => scope.setState({isDelete: !e.target.checked, data: newData}), 0)
     this.setState({
-      data: newData
+      data: newData,
+      checkAll: e.target.checked
     })
   },
   changeChecked(e, ins) {
@@ -151,16 +163,30 @@ const MyComponent = React.createClass({
         item.checked = !item.checked
         return item
       }
-      // item.checked = false
       return item
     })
+    if(!e.target.checked) {
+      this.setState({
+        checkAll: false
+      })
+    } else {
+      const isAllCheck = newData.every(item => {
+        return item.checked
+      })
+      this.setState({
+        checkAll: isAllCheck
+      })
+    }
     newData.forEach((list)=> {
       if (list.checked) {
         isDelete= false;
       }
     })
     const { scope } = this.props
-    scope.setState({isDelete})
+    setTimeout(() => scope.setState({
+      isDelete,
+      data: newData
+    }), 0)
     this.setState({
       data: newData
     })
@@ -227,7 +253,7 @@ const MyComponent = React.createClass({
       if (list.active) {
         return (
             [<tr key={`list${index}`}>
-              <td style={{width:'5%'}}><Checkbox /></td>
+             <td style={{width:'5%'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
               <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${list.strategyName}`}>{list.strategyName}</Link></td>
               <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.targetName}</td>
@@ -265,7 +291,7 @@ const MyComponent = React.createClass({
         <table className="ant-table-table strategyTable">
           <thead className="ant-table-thead">
             <tr>
-              <th style={{width:'5%',textAlign:'center'}}><Checkbox onChange={(e)=> this.changeAll(e)} /></th>
+              <th style={{width:'5%',textAlign:'center'}}><Checkbox onChange={(e)=> this.changeAll(e)} checked={this.state.checkAll}/></th>
               <th>策略名称</th>
               <th>类型</th>
               <th>告警对象</th>
@@ -321,7 +347,8 @@ class AlarmSetting extends Component {
       step: 1, // first step create AlarmModal
       deleteModal: false, // delete alarm modal
       isDelete: true, // disabled delte btn
-      currentPage: DEFAULT_PAGE
+      currentPage: DEFAULT_PAGE,
+      data: []
     }
   }
   componentWillMount() {
@@ -366,7 +393,47 @@ class AlarmSetting extends Component {
     })
   }
   deleteRecords() {
-    console.log('delete in ^^&^^')
+    const data = this.state.data
+    const strategyID = []
+    data.forEach(item => {
+      if(item.checked) {
+        strategyID.push(item.strategyID)
+      }
+    })
+    const { clusterID, deleteSetting, getSettingList } = this.props
+    deleteSetting(clusterID, strategyID, {
+      success: {
+        func: () => {
+          this.setState({
+            deleteModal: false
+          })
+          getSettingList(clusterID, {
+            from: this.state.currentPage - 1,
+            size: DEFAULT_PAGE_SIZE
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func:(res) => {
+          console.log(res)
+        }
+      }
+    })
+  }
+  refreshPage() {
+    const { clusterID, getSettingList } = this.props
+    getSettingList(clusterID, {
+      from: this.state.currentPage - 1,
+      size: DEFAULT_PAGE_SIZE
+    })
+  }
+  getCheckecSettingName() {
+    const checkedName = []
+    this.state.data.forEach(item => {
+      checkedName.push(item.strategyName)
+    })
+    return checkedName.join(',')
   }
   render() {
     const columns = [
@@ -428,7 +495,7 @@ class AlarmSetting extends Component {
         <div id="AlarmRecord" key="AlarmRecord">
           <div className="topRow" style={{marginBottom: '20px'}}>
             <Button icon="plus" size="large" type="primary" onClick={()=> this.setState({alarmModal: true})}>创建</Button>
-            <Button icon="reload" size="large" type="ghost">刷新</Button>
+            <Button icon="reload" size="large" type="ghost" onClick={() => this.refreshPage()}>刷新</Button>
             <Button icon="caret-right" size="large" type="ghost">启用</Button>
             <Button size="large" type="ghost"><i className="fa fa-stop" /> &nbsp;停用</Button>
             <Button icon="delete" type="ghost" disabled={this.state.isDelete} onClick={()=> this.setState({deleteModal: true})} size="large">删除</Button>
@@ -458,7 +525,8 @@ class AlarmSetting extends Component {
             maskClosable={false}
             footer={null}
           >
-        <CreateAlarm funcs={modalFunc} getAlertSetting={() => this.props.getAlertSetting(this.props.clusterID,this.props.teamID)}/>
+        <CreateAlarm funcs={modalFunc}
+      getAlertSetting={() => this.props.getSettingList(this.props.clusterID, {from:this.state.currentPage - 1, size: DEFAULT_PAGE_SIZE})}/>
           </Modal>
           {/* 通知组 */}
           <Modal title="创建新通知组" visible={this.state.createGroup}
@@ -474,7 +542,7 @@ class AlarmSetting extends Component {
             onCancel={()=> this.setState({deleteModal: false})}
             onOk={()=> this.deleteRecords()}
           >
-            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>策略删除后将不再发送邮件告警，是否确定删除？</div>
+            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>策略删除后将不再发送邮件告警，确认删除 {this.getCheckecSettingName()} 策略？</div>
           </Modal>
 
           {/*<Card>
@@ -500,17 +568,19 @@ function mapStateToProps(state, props) {
   }
   const defaultSettingList = {
     result: {
-      data: []
+      data: {
+        strategys: []
+      }
     }
   }
   const { entities } = state
   const cluster = entities.current.cluster
   const team = entities.current.team
   let setting = state.alert.settingList || defaultSettingList
-  if(!setting.result) {
+  if(!setting.result || !setting.result.data) {
     setting = defaultSettingList
   }
-  setting = setting.result.data
+  setting = setting.result.data.strategys
   return {
     recordsData,
     clusterID: cluster.clusterID,
@@ -522,5 +592,6 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   getAlertSetting,
   deleteRecords,
-  getSettingList
+  getSettingList,
+  deleteSetting
 })(AlarmSetting)
