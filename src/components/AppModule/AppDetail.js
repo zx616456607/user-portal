@@ -27,7 +27,7 @@ import { getAppStatus } from '../../common/status_identify'
 import NotificationHandler from '../../common/notification_handler'
 import errorHandler from '../../containers/App/error_handler'
 import AppServiceRental from './AppServiceDetail/AppServiceRental'
-import AlarmStrategy from './AppServiceDetail/AlarmStrategy'
+import AlarmStrategy from '../ManageMonitor/AlarmStrategy'
 
 const DEFAULT_TAB = '#service'
 
@@ -72,7 +72,8 @@ class AppDetail extends Component {
     if (activeTabKey === this.state.activeTabKey) {
       return
     }
-    const { pathname } = this.props
+    // const { pathname } = this.props
+    const pathname = location.pathname
     this.setState({
       activeTabKey
     })
@@ -238,22 +239,22 @@ class AppDetail extends Component {
                 </TabPane>
                 {/*<TabPane tab='应用拓扑' key='#topology' >应用拓扑</TabPane>*/}
                 <TabPane tab='编排文件' key='#stack' >
-                  <AppGraph key='AppGraph' cluster={this.props.cluster} appName={this.props.appName} /></TabPane>
+                  <AppGraph key='AppGraph' cluster={this.props.cluster} appName={appName} /></TabPane>
                 <TabPane tab='审计日志' key='#logs' >
                   <AppLog key='AppLog'
                     cluster={this.props.cluster}
-                    appName={this.props.appName} />
+                    appName={appName} />
                 </TabPane>
                 <TabPane tab='监控' key='#monitor' >
                   <AppMonitior
                     cluster={this.props.cluster}
-                    appName={this.props.appName} />
+                    appName={appName} />
                 </TabPane>
                 <TabPane tab="租赁信息" key="#rentalInfo">
                   <AppServiceRental serviceName={appName} serviceDetail={app.services} />
                 </TabPane>
                 <TabPane tab="告警策略" key="#strategy">
-                  <AlarmStrategy />
+                  <AlarmStrategy appName={appName} cluster={this.props.cluster} />
                 </TabPane>
               </Tabs>
             </Card>

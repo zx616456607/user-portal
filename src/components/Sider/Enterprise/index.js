@@ -25,26 +25,7 @@ const MenuItemGroup = Menu.ItemGroup
 const RadioGroup = Radio.Group
 
 function checkUrlSelectedKey(pathname) {
-  //this function for check the pathname and return the selected key of menu
-  let pathList = pathname.split('/')
-  if (pathList.length == 2) {
-    if (pathList[1].length == 0) {
-      return ['home', 'home']
-    }
-    return [pathList[1], pathList[1] + '_default']
-  } else {
-    if (pathList[1] == 'app_manage' && pathList[2] == 'detail') {
-      return [pathList[1], pathList[1] + '_default']
-    }
-    if (pathList[1] == 'account' && pathList[2] == 'user') {
-      return [pathList[1], 'member']
-    }
-    return [pathList[1], pathList[2]]
-  }
-}
-
-function checkUrlOpenKeys(pathname) {
-  //this function for check the pathname and return the opened key of menu
+  //this function for check the pathname and return the selected key of menu and return the opened key of menu
   let pathList = pathname.split('/')
   if (pathList.length == 2) {
     if (pathList[1].length == 0) {
@@ -84,7 +65,7 @@ class Sider extends Component {
       currentKey = 'home'
     }
     let currentOpenMenu = checkUrlSelectedKey(pathname)
-    let currentSelectedMenu = checkUrlOpenKeys(pathname)
+    let currentSelectedMenu = currentOpenMenu
     if (pathname.indexOf('/account/costCenter') > -1) {
       currentOpenMenu = ['account', 'costCenter#consumptions']
       currentSelectedMenu = ['account', 'costCenter#consumptions']
@@ -109,7 +90,7 @@ class Sider extends Component {
         currentKey = 'home'
       }
       let currentOpenMenu = checkUrlSelectedKey(pathname)
-      let currentSelectedMenu = checkUrlOpenKeys(pathname)
+      let currentSelectedMenu = currentOpenMenu
       if (pathname.indexOf('/account/costCenter') > -1) {
         currentOpenMenu = ['account', 'costCenter#consumptions']
         currentSelectedMenu = ['account', 'costCenter#consumptions']
@@ -117,6 +98,10 @@ class Sider extends Component {
           currentOpenMenu = ['account', `costCenter#${pathname.split('#')[1]}`]
           currentSelectedMenu = ['account', `costCenter#${pathname.split('#')[1]}`]
         }
+      }
+      if (pathname.indexOf('app_manage/detail/') > -1) {
+        currentOpenMenu = ['app_manage','app_manage_default']
+        currentSelectedMenu = currentOpenMenu
       }
       this.setState({
         currentKey: currentKey,
