@@ -14,7 +14,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { formatDate } from '../../common/tools'
 import './style/AlarmDetail.less'
-import { getAlertSetting } from '../../actions/alert'
+import { getAlertSetting, getSettingList } from '../../actions/alert'
 const RadioGroup = Radio.Group
 
 class AlarmDetail extends Component {
@@ -29,9 +29,12 @@ class AlarmDetail extends Component {
   componentWillMount() {
     document.title = '告警设置 | 时速云 '
     const id = this.props.params.id
-    const { getAlertSetting, cluster } = this.props
+    const { getAlertSetting, cluster, getSettingList } = this.props
     getAlertSetting(cluster.clusterID, {
       strategy: id
+    })
+    getSettingList(cluster.clusterID, {
+      strategyName: id
     })
   }
   formatStatus(text){
@@ -60,6 +63,15 @@ class AlarmDetail extends Component {
     }
     this.setState({selectCheckbox,delBtn})
   }
+  calcuTime(time) {
+    let sym = '分钟'
+    time = time / 60
+    if(time / 60 > 1) {
+      sym = '小时'
+      time = time / 60
+    }
+    return time + sym
+  }
   deleteRecords() {
   }
   render() {
@@ -68,8 +80,9 @@ class AlarmDetail extends Component {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
     let settingData = this.props.setting
-    if(!settingData || settingData.length <= 0) {
-      return <div>无详情</div>
+    let { leftSetting } = this.props
+    if(leftSetting.isEmptyObject) {
+      return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
     const columns = [
       {
@@ -98,6 +111,7 @@ class AlarmDetail extends Component {
         key:'recordCount',
       },
     ];
+    const strategyName = this.props.params.id
 
     const _this = this
     const rowSelection = {
@@ -122,27 +136,27 @@ class AlarmDetail extends Component {
         <QueueAnim type="right" className="AlarmDetail">
           <div className="ant-row" key="AlarmDetail" style={{marginBottom: 10, height: 50, paddingTop: 10}}>
             <Link className="back" to="/manange_monitor/alarm_setting"><span className="backjia"></span><span className="btn-back">返回</span></Link>
-            <span className="titleName">大事业部</span>
+            <span className="titleName">{strategyName}</span>
           </div>
           <Row gutter={16} className="details">
             <Col span="6">
               <Card style={{paddingBottom:'20px'}}>
                 <div className="title">基本属性</div>
-                <div className="baseAttr"><span className="keys">策略名称：</span>celue1</div>
-                <div className="baseAttr"><span className="keys">类型：</span>服务</div>
-                <div className="baseAttr"><span className="keys">告警对象：</span>服务名称</div>
-                <div className="baseAttr"><span className="keys">状态：</span>{this.formatStatus(1)}</div>
-                <div className="baseAttr"><span className="keys">监控周期：</span>5分钟</div>
+                <div className="baseAttr"><span className="keys">策略名称：</span>{leftSetting.strategyName}</div>
+                <div className="baseAttr"><span className="keys">类型：</span>{leftSetting.targetType == '1' ? '节点' : '服务'}</div>
+                <div className="baseAttr"><span className="keys">告警对象：</span>{leftSetting.targetName}</div>
+                <div className="baseAttr"><span className="keys">状态：</span>{this.formatStatus(leftSetting.enable)}</div>
+               <div className="baseAttr"><span className="keys">监控周期：</span>{this.calcuTime(leftSetting.repeatInterval)}</div>
                 <div className="baseAttr">
                   <span className="keys">是否发送：</span>
-                  <RadioGroup onChange={(e)=> this.setState({sendEmail: e.target.value}) } value={this.state.sendEmail}>
+                  <RadioGroup defaultValue={leftSetting.enable} onChange={(e)=> this.setState({sendEmail: e.target.value}) }>
                     <Radio key="a" value={1}>是</Radio>
                     <Radio key="b" value={2}>否</Radio>
                   </RadioGroup>
                 </div>
-                <div className="baseAttr"><span className="keys">最后修改人：</span>admin</div>
-                <div className="baseAttr"><span className="keys">通知列表：</span>admin</div>
-                <div className="baseAttr"><span className="keys">创建时间：</span>{formatDate()}</div>
+                <div className="baseAttr"><span className="keys">最后修改人：</span>{leftSetting.updater}</div>
+        <div className="baseAttr"><span className="keys">通知列表：</span>{"等待更改"}</div>
+                <div className="baseAttr"><span className="keys">创建时间：</span>{formatDate(leftSetting.createTime)}</div>
               </Card>
               <Card style={{marginTop:'15px',paddingBottom:'50px'}}>
                 <div className="title">租赁信息</div>
@@ -179,16 +193,16 @@ class AlarmDetail extends Component {
 
 function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
-  const defaultSetting = {
+  const defaultSettingDetail = {
     isFetching: false,
     result: {
       data:[]
     }
   }
   let isFetching = false
-  let { getSetting } = state.alert
+  let { getSetting, settingList } = state.alert
   if(!getSetting || !getSetting.result) {
-    getSetting = defaultSetting
+    getSetting = defaultSettingDetail
   }
   isFetching = getSetting.isFetching
   if(getSetting.result && getSetting.result.data.length > 0){
@@ -196,14 +210,44 @@ function mapStateToProps(state, props) {
       item.createTime = formatDate(item.createTime)
     })
   }
+  const defaultSetting = {
+    isFetching: false,
+    result: {
+      data: {
+        strategys: []
+      },
+      total: 0
+    }
+  }
+  let leftSetting = {
+    isEmptyObject: true
+  }
+  if(!settingList) {
+     settingList = defaultSetting
+  }
+  if(settingList.isFetching) {
+    isFetching = settingList.isFetching
+  } else {
+    if(settingList.result && settingList.result.data.total > 1) {
+      settingList.result.data.strategys.some(item => {
+        if(item.strategyName == props.params.id) {
+          leftSetting = item
+          return true
+        }
+      })
+    } else {
+      leftSetting = settingList.result.data.strategys[0] || {}
+    }
+  }
   return {
     cluster,
     setting: getSetting.result.data,
-    isFetching
+    isFetching,
+    leftSetting
   }
-  return props
 }
 
 export default connect(mapStateToProps, {
-  getAlertSetting
+  getAlertSetting,
+  getSettingList
 })(AlarmDetail)

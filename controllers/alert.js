@@ -194,6 +194,12 @@ exports.getAlertSetting = function* () {
   const specs = []
   let strategyID
   let result = []
+  if(!rules) {
+    this.body = {
+      data: {}
+    }
+    return
+  }
   rules.forEach(rule => {
     let condition = rule.annotation.condition
     condition = condition.split(rule.condition.operation)
@@ -270,6 +276,21 @@ exports.deleteSetting = function* () {
     strategyIDs: strategyID,
     namespace: user.teamspace || user.namespace
   })
+  this.body = response
+}
+
+
+exports.updateEnable = function* () {
+  const body = this.request.body
+  if(!body.strategies) {
+    const err = new Error('Strategies is require')
+    err.status = 400
+    throw err
+  }
+  const user = this.session.loginUser
+  body.user = user.namespace
+  const spi = apiFactory.getSpi(user)
+  const response = yield spi.alerts.createBy(['strategy', 'toggle_enable'], null, body)
   this.body = response
 }
 

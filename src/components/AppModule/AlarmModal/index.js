@@ -627,7 +627,7 @@ class AlarmModal extends Component {
         strategyName,
         repeatInterval,
         appName,
-        enable: this.state.isSendMeil,
+        enable: this.state.isSendMail,
         disableNotifyEndTime: '0s'
       }, {
         success: {
