@@ -436,3 +436,17 @@ export function getPortalRealMode() {
   }
   return major
 }
+/**
+ * formet time
+ * @time s
+ * @export string
+ */
+export function calcuTime(time) {
+  let sym = '分钟'
+  time = time / 60
+  if(time / 60 > 1) {
+    sym = '小时'
+    time = time / 60
+  }
+  return time + sym
+}

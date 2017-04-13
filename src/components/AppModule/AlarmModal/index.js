@@ -180,7 +180,7 @@ let FistStop = React.createClass({
       onChange: this.resetService,
       initialValue: initAppName
     })
-    const isNode = getFieldValue('type') == 'node' 
+    const isNode = getFieldValue('type') == 'node'
     const serverProps = getFieldProps('server', {
       rules: [
         { whitespace: true },
@@ -197,7 +197,7 @@ let FistStop = React.createClass({
       initialValue: '300'
     })
     return (
-      <Form className="paramsSetting"> 
+      <Form className="paramsSetting">
         <Form.Item label="名称" {...formItemLayout}>
           <Input {...nameProps} />
         </Form.Item>
@@ -208,16 +208,16 @@ let FistStop = React.createClass({
           </Select>
         </Form.Item>
         <Form.Item label="监控对象" {...formItemLayout}>
-        <Select placeholder={ isNode ? '请选择节点' : '请选择应用'} {...applyProps} style={{ width: 170 }} >
-            {this.getAppOrNodeList()}
-      </Select>
-        </Form.Item>
-        <Form.Item>
-        <Select placeholder="请选择服务" {...serverProps} style={{ width: 170, marginLeft: 25, display: isNode ? 'none' : 'inline-block' }} >
-              {this.getServiceList()}
+          <Select placeholder={ isNode ? '请选择节点' : '请选择应用'} {...applyProps} style={{ width: 170 }} >
+              {this.getAppOrNodeList()}
           </Select>
         </Form.Item>
-        <Form.Item label="监控周期" {...formItemLayout}>
+        <Form.Item style={{position: 'absolute', top: 240, right: 95}}>
+          <Select placeholder="请选择服务" {...serverProps} style={{ width: 170, marginLeft: 25, display: isNode ? 'none' : 'inline-block' }} >
+            {this.getServiceList()}
+          </Select>
+        </Form.Item>
+        <Form.Item label="监控周期" {...formItemLayout} style={{clear:'both'}}>
         <Select {...repeatInterval}>
             <Option value="300">5分钟</Option>
             <Option value="1800">30分钟</Option>
@@ -333,7 +333,7 @@ let TwoStop = React.createClass({
       });
 
     })
-    // 
+    //
     // if (this.state.newselectCpu) return
     // this.setState({
     //   newselectCpu: 1
@@ -510,13 +510,13 @@ let TwoStop = React.createClass({
             </Select>
           </Form.Item>
           <Form.Item>
-            <input type="number" className="ant-input-number-input inputBorder" min="1" max="100"  {...getFieldProps(`used_data@${key}`, {
+            <InputNumber step={10} {...getFieldProps(`used_data@${key}`, {
               rules: [{
                 whitespace: true,
                 validator: (rule, value, callback) => this.usedData(rule, value, callback, key)
               }],
               initialValue: '0'
-            }) } style={{ width: 80 }} />
+            }) } style={{ width: 80 }}/>
           </Form.Item>
           <Form.Item>
             {/*<Select {...getFieldProps(`used_symbol@${key}`, {
@@ -627,7 +627,7 @@ class AlarmModal extends Component {
         strategyName,
         repeatInterval,
         appName,
-        enable: this.state.isSendMeil,
+        enable: this.state.isSendMail,
         disableNotifyEndTime: '0s'
       }, {
         success: {

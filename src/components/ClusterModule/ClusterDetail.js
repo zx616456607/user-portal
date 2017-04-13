@@ -25,6 +25,7 @@ import Metrics from '../Metrics'
 import moment from 'moment'
 import { camelize } from 'humps'
 import QueueAnim from 'rc-queue-anim'
+import AlarmStrategy from '../ManageMonitor/AlarmStrategy'
 
 const TabPane = Tabs.TabPane
 const MASTER = '主控节点/Master'
@@ -198,14 +199,12 @@ class ClusterDetail extends Component {
     this.state = {
       schedulable: false,
       foreverPodNumber: 0,
-      btnAll: true,
-      deleteModal: false,
       activeTabKey:'info'
     }
   }
   componentWillMount() {
     const { clusterID, clusterName, loadHostInstant, loadHostMetrics } = this.props
-
+    document.title = '基础设施 | 时速云'
     const body = {
       clusterID,
       clusterName
@@ -330,32 +329,7 @@ class ClusterDetail extends Component {
     formetDate.data.push({ metrics,containerName: nodeName})
     return formetDate
   }
-  hnadDelete(e, record) {
-    console.log('key is',e.key, record)
-  }
-  dropdowns (record){
-    // Dropdown delete btn
-    return(
-      <Menu onClick={(key)=> this.hnadDelete(key, record)}
-          style={{ width: '80px' }}
-      >
-      <Menu.Item key="delete">
-        <span>删除</span>
-      </Menu.Item>
-      <Menu.Item key="edit">
-        <span>修改</span>
-      </Menu.Item>
-      <Menu.Item key="stop">
-        <span>停用</span>
-      </Menu.Item>
-      <Menu.Item key="start">
-        <span>启用</span>
-      </Menu.Item>
 
-    </Menu>
-
-    )
-  }
   render() {
     if (this.props.hostInfo.isFetching) {
       return (
@@ -370,87 +344,7 @@ class ClusterDetail extends Component {
     const showMemory = this.formetMemorymetrics(this.props.memory)
     const showNetworkRec = this.formetNetworkmetrics(this.props.networkReceived, this.props.clusterName)
     const showNetworkTrans = this.formetNetworkmetrics(this.props.networkTransmitted, this.props.clusterName)
-    const columns = [
-      {
-      title: '名称',
-      dataIndex: 'name',
-      key:'name',
-      render: text => <a href="#">{text}</a>,
-      },
-      {
-        title: '状态',
-        dataIndex: 'status',
-        key:'status',
-        render: text => {
-           if (text == 1) {
-            return <div style={{color:'#33b867'}}><i className="fa fa-circle" /> &nbsp;启用</div>
-          }
-          if (text ==2) {
-            return <div style={{color:'#f23e3f'}}><i className="fa fa-circle" /> &nbsp;停用</div>
-          }
-          return <div style={{color:'#FAB35B'}}><i className="fa fa-circle" /> &nbsp;告警</div>
-        }
-      },
-      {
-        title: '监控周期',
-        dataIndex: 'time'
-      },
-      {
-        title: '创建时间',
-        dataIndex: 'createTime',
-        key:'createTime',
-        sorter: (a, b) => Date.parse(a.createTime) - Date.parse(b.createTime),
-      },
-      {
-        title: '最后修改人',
-        dataIndex: 'editUser',
-        key:'edit',
-      },
-      {
-        title: '操作',
-        dataIndex: 'name',
-        key:'action',
-        render: (text, record) => {
-          return <Dropdown.Button type="ghost" overlay={ this.dropdowns(record) }>忽略</Dropdown.Button>
-        }
-      }
-    ];
 
-    const data = [
-      {
-        key:1,
-        name: '大事业部',
-        status: 1,
-        time:'5分钟',
-        createTime: '2017-03-06 15:35:21',
-        editUser:'admin',
-      }, {
-        key:2,
-        name: 'test It',
-        status: 1,
-        time:'15分钟',
-        createTime: '2017-03-03 10:35:21',
-        editUser:'admin',
-      }, {
-        key:3,
-        name: '统计',
-        status: 0,
-        time:'2分钟',
-        createTime: '2017-03-02 13:35:21',
-        editUser:'baiyu',
-      }
-    ];
-    const _this = this
-    const rowSelection = {
-      onChange(selectedRowKeys, selectedRows) {
-        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-        let btnAll = true
-        if (selectedRows.length >0) {
-          btnAll = false
-        }
-        _this.setState({btnAll, selectedRows})
-      }
-    }
     return (
       <div id="clusterDetail">
         <div className="topRow" style={{ marginBottom: '20px', height: '50px', paddingTop: '20px' }}>
@@ -498,23 +392,12 @@ class ClusterDetail extends Component {
               />
             </TabPane>
             <TabPane tab="告警策略" key="alarm">
-              <div className="alarmTest">
-                <div className="topRow">
-                  <Button size="large" type="primary"><i className="fa fa-refresh"/> 刷新</Button>
-                  <Button icon="delete" size="large" type="ghost" onClick={()=> this.setState({deleteModal: true})} disabled={this.state.btnAll}>删除</Button>
-                </div>
-                <Table className="strategyTable" rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false}  loading={this.props.isFetching}/>
-              </div>
+              <AlarmStrategy nodeName={this.props.clusterName} cluster={this.props.clusterID}/>
             </TabPane>
           </Tabs>
 
         </Card>
-        <Modal title="删除策略" visible={this.state.deleteModal}
-          onCancel={()=> this.setState({deleteModal: false})}
-          onOk={()=> console.log(this.state.selectedRowKeys)}
-        >
-          <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>策略删除后将不再发送邮件告警，是否确定删除？</div>
-        </Modal>
+
       </div>
     )
   }

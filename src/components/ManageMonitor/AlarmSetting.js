@@ -12,8 +12,9 @@ import { Link } from 'react-router'
 import { Card, Input, Modal, InputNumber, Checkbox, Progress, Icon, Spin, Table, Select, Dropdown, DatePicker, Menu, Button, Pagination } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
+import NotificationHandler from '../../common/notification_handler'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { getAlertSetting, deleteRecords, getSettingList, deleteSetting } from '../../actions/alert'
+import { getAlertSetting, deleteRecords, getSettingList, deleteSetting, updateEnable, ignoreSetting } from '../../actions/alert'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 import no_alarm from '../../assets/img/no_data/no_alarm.png'
@@ -32,7 +33,7 @@ const MyComponent = React.createClass({
   },
   componentWillReceiveProps(nextProps) {
     const nextData = nextProps.data
-    if(this.state.data) {
+    if(this.state.data && !nextProps.needUpdate) {
       this.state.data.forEach(item => {
         nextData.some(data => {
           if(data.strategyID == item.strategyID) {
@@ -43,13 +44,19 @@ const MyComponent = React.createClass({
         })
       })
     }
+    if(nextProps.needUpdate) {
+      this.setState({
+        checkAll: false
+      })
+    }
     this.setState({
       data: nextData
     })
   },
-  hnadDelete(key,record) {
+  handDelete(key,record) {
     // Dropdown delete action
     const { scope } = this.props
+    console.log(key, record)
     this.setState({record})
     switch(key) {
       case 'delete': {
@@ -59,7 +66,7 @@ const MyComponent = React.createClass({
       case 'edit': {
         console.log('edit--')
         return
-      }
+      } 
       case 'start': {
         console.log('start--')
         return
@@ -90,7 +97,7 @@ const MyComponent = React.createClass({
   dropdowns (record){
     // Dropdown delete btn
     return(
-      <Menu onClick={(e)=> this.hnadDelete(e.key, record)}
+      <Menu onClick={(e)=> this.handDelete(e.key, record)}
           style={{ width: '80px' }}
       >
       <Menu.Item key="delete">
@@ -148,8 +155,21 @@ const MyComponent = React.createClass({
       item.checked = e.target.checked
       return item
     })
+    let canStart = false
+    let canStop = false
+    const checkedData = newData.filter(item => {
+      return item.checked
+    })
+    if(checkedData.length > 0) {
+      canStop = newData.every(item => {
+        return item.enable
+      })
+      canStart = newData.every(item => {
+        return !item.enable
+      })
+    }
     const { scope } = this.props
-    setTimeout(() => scope.setState({isDelete: !e.target.checked, data: newData}), 0)
+    setTimeout(() => scope.setState({isDelete: !e.target.checked, data: newData, canStart, canStop}), 0)
     this.setState({
       data: newData,
       checkAll: e.target.checked
@@ -165,6 +185,19 @@ const MyComponent = React.createClass({
       }
       return item
     })
+    let canStart = false
+    let canStop = false
+    const checkedData = newData.filter(item => {
+      return item.checked
+    })
+    if(checkedData.length > 0) {
+      canStart = checkedData.every(item => {
+        return !item.enable
+      })
+      canStop = checkedData.every(item => {
+        return item.enable
+      })
+    }
     if(!e.target.checked) {
       this.setState({
         checkAll: false
@@ -185,7 +218,9 @@ const MyComponent = React.createClass({
     const { scope } = this.props
     setTimeout(() => scope.setState({
       isDelete,
-      data: newData
+      data: newData,
+      canStop,
+      canStart
     }), 0)
     this.setState({
       data: newData
@@ -348,7 +383,10 @@ class AlarmSetting extends Component {
       deleteModal: false, // delete alarm modal
       isDelete: true, // disabled delte btn
       currentPage: DEFAULT_PAGE,
-      data: []
+      data: [],
+      canStart: false,
+      canStop: false,
+      needUpdate: false
     }
   }
   componentWillMount() {
@@ -358,6 +396,15 @@ class AlarmSetting extends Component {
       from: DEFAULT_PAGE - 1,
       size: DEFAULT_PAGE_SIZE
     })
+  }
+  componentWillReceiveProps() {
+    if(this.state.needUpdate) {
+      setTimeout(() => {
+        this.setState({
+          needUpdate: false
+        })
+      })
+    }
   }
   handSearch() {
     // search data
@@ -400,23 +447,65 @@ class AlarmSetting extends Component {
         strategyID.push(item.strategyID)
       }
     })
+    const notify = new NotificationHandler()
     const { clusterID, deleteSetting, getSettingList } = this.props
+    notify.spin('删除中')
     deleteSetting(clusterID, strategyID, {
       success: {
         func: () => {
           this.setState({
-            deleteModal: false
+            deleteModal: false,
+            canStart: false,
+            canStop: false
+          })
+          notify.close()
+          notify.success('策略删除成功')
+          this.setState({
+            needUpdate: true
           })
           getSettingList(clusterID, {
             from: this.state.currentPage - 1,
             size: DEFAULT_PAGE_SIZE
           })
+          this.disableButton()
         },
         isAsync: true
       },
       failed: {
         func:(res) => {
-          console.log(res)
+          notify.close()
+          let message = '策略删除失败'
+          if(res.message) {
+            message = res.message
+          }
+          if(res.message.message) {
+            message = res.message
+          }
+          notify.error(message)
+        }
+      }
+    })
+  }
+  ignoreSetting(special, time) {
+    const strategy = []
+    const notifi = new NotificationHandler()
+      strategy.push({
+        strategyID: special.strategyID,
+        intervale: time
+      })
+    if(strategy.length == 0 ) {
+      notifi.error('请选择要设置忽略时间的策略')
+      return
+    }
+    notifi.spin('设置中')
+    const { clusterID, ignoreSetting } = this.props
+    ignoreSetting(clusterID, {
+      strategies: strategy
+    }, {
+      success: {
+        func: () => {
+          notifi.close()
+          notifi.success('设置策略忽略时间成功')
         }
       }
     })
@@ -427,14 +516,169 @@ class AlarmSetting extends Component {
       from: this.state.currentPage - 1,
       size: DEFAULT_PAGE_SIZE
     })
+    this.disableButton()
   }
   getCheckecSettingName() {
     const checkedName = []
     this.state.data.forEach(item => {
-      checkedName.push(item.strategyName)
+      if(item.checked) {
+        checkedName.push(item.strategyName)
+      }
     })
     return checkedName.join(',')
   }
+  showStart() {
+    const data = this.state.data
+    const strategy = []
+    const notifi = new NotificationHandler()
+    data.forEach(item => {
+      if(item.checked) {
+        strategy.push({
+          strategyID: item.strategyID,
+          enable: 0
+        })
+      }
+    })
+    if(strategy.length == 0 ) {
+      notifi.error('请选择要启动的策略')
+      return
+    }
+    this.setState({
+      showStart: true
+    })
+  }
+  showStop() {
+    const data = this.state.data
+    const selectStrategy = this.state.selectStrategy
+    const strategy = []
+    const notifi = new NotificationHandler()
+    if(selectStrategy) {
+      strategy.push({
+        strategyID: selectStrategy.strategyID,
+        enable: 0
+      })
+    } else {
+      data.forEach(item => {
+        if(item.checked) {
+          strategy.push({
+            strategyID: item.strategyID,
+            enable: 0
+          })
+        }
+      })
+    }
+    if(strategy.length == 0 ) {
+      notifi.error('请选择要停止的策略')
+      return
+    }
+    this.setState({
+      showStop: true
+    })
+  }
+
+  startSetting() {
+    const data = this.state.data
+    const selectStrategy = this.state.selectStrategy
+    const strategy = []
+    const notifi = new NotificationHandler()
+    if(selectStrategy) {
+      strategy.push({
+        strategyID: selectStrategy.strategyID,
+        enable: 1
+      })
+    } else {
+      data.forEach(item => {
+        if(item.checked) {
+          strategy.push({
+            strategyID: item.strategyID,
+            enable: 1
+          })
+        }
+      })
+    }
+    if(strategy.length == 0 ) {
+      notifi.error('请选择要启动的策略')
+      return
+    }
+    notifi.spin('启动中')
+    const { clusterID, updateEnable, getSettingList } = this.props
+    updateEnable(clusterID, {
+      strategies: strategy
+    }, {
+      success: {
+        func: () => {
+          notifi.close()
+          notifi.success('策略启动成功')
+          getSettingList(clusterID)
+          this.setState({
+            showStart: false,
+            needUpdate: true,
+            selectStrategy: null
+          })
+          this.disableButton()
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          notifi.close()
+          notifi.error('策略启动失败，请重试')
+        }
+      }
+    })
+  }
+
+  stopSetting() {
+    const data = this.state.data
+    const strategy = []
+    const notifi = new NotificationHandler()
+    data.forEach(item => {
+      if(item.checked) {
+        strategy.push({
+          strategyID: item.strategyID,
+          enable: 0
+        })
+      }
+    })
+    if(strategy.length == 0 ) {
+      notifi.error('请选择要停止的策略')
+      return
+    }
+    notifi.spin('停止中')
+    const { clusterID, updateEnable, getSettingList } = this.props
+    updateEnable(clusterID, {
+      strategies: strategy
+    }, {
+      success: {
+        func: () => {
+          notifi.close()
+          notifi.success('策略停止成功')
+          getSettingList(clusterID)
+          this.setState({
+            showStop: false,
+            needUpdate: true
+          })
+          this.disableButton()
+        },
+        isAsync: true
+      },
+
+      failed: {
+        func: () => {
+          notifi.close()
+          notifi.error('策略停止失败，请重试')
+        }
+      }
+    })
+  }
+  disableButton() {
+    this.setState({
+      canStart: false,
+      canStop: false,
+      isDelete: true
+    })
+  }
+
   render() {
     const columns = [
       {
@@ -496,8 +740,8 @@ class AlarmSetting extends Component {
           <div className="topRow" style={{marginBottom: '20px'}}>
             <Button icon="plus" size="large" type="primary" onClick={()=> this.setState({alarmModal: true})}>创建</Button>
             <Button icon="reload" size="large" type="ghost" onClick={() => this.refreshPage()}>刷新</Button>
-            <Button icon="caret-right" size="large" type="ghost">启用</Button>
-            <Button size="large" type="ghost"><i className="fa fa-stop" /> &nbsp;停用</Button>
+            <Button icon="caret-right" size="large" type="ghost" disabled={!this.state.canStart} onClick={() => this.showStart()}>启用</Button>
+            <Button size="large" type="ghost" disabled={!this.state.canStop} onClick={() => this.showStop()}><i className="fa fa-stop" /> &nbsp;停用</Button>
             <Button icon="delete" type="ghost" disabled={this.state.isDelete} onClick={()=> this.setState({deleteModal: true})} size="large">删除</Button>
             <Button icon="edit" type="ghost" disabled={this.state.isDelete} size="large" >修改</Button>
             <div className="inputGrop">
@@ -518,7 +762,7 @@ class AlarmSetting extends Component {
             :null
           }
           </div>
-          <MyComponent data={this.props.setting} scope={this} funcs= {{deleteRecords: this.props.deleteRecords}}/>
+          <MyComponent data={this.props.setting} scope={this} funcs= {{deleteRecords: this.props.deleteRecords}} needUpdate={this.state.needUpdate}/>
           <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
             className="alarmModal"
             onCancel={()=> this.setState({alarmModal:false})}
@@ -544,6 +788,20 @@ class AlarmSetting extends Component {
           >
             <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>策略删除后将不再发送邮件告警，确认删除 {this.getCheckecSettingName()} 策略？</div>
           </Modal>
+        <Modal title="停止策略" visible={this.state.showStop}
+      onCancel={()=> this.setState({showStop: false})}
+      onOk={()=> this.stopSetting()}
+        >
+        <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>确认停止 {this.getCheckecSettingName()} 策略？</div>
+        </Modal>
+
+       <Modal title="启动策略" visible={this.state.showStart}
+            onCancel={()=> this.setState({showStart: false})}
+            onOk={()=> this.startSetting()}
+          >
+            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>确认启动 {this.getCheckecSettingName()} 策略？</div>
+          </Modal>
+
 
           {/*<Card>
             <Table className="strategyTable"
@@ -593,5 +851,7 @@ export default connect(mapStateToProps, {
   getAlertSetting,
   deleteRecords,
   getSettingList,
-  deleteSetting
+  deleteSetting,
+  updateEnable,
+  ignoreSetting
 })(AlarmSetting)

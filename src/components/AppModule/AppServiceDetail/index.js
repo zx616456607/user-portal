@@ -24,7 +24,7 @@ import AppServiceRental from './AppServiceRental'
 import AppSettingsHttps from './AppSettingsHttps'
 import ServiceMonitor from './ServiceMonitor'
 import AppAutoScale from './AppAutoScale'
-import AlarmStrategy from './AlarmStrategy'
+import AlarmStrategy from '../../ManageMonitor/AlarmStrategy'
 import { loadServiceDetail, loadServiceContainerList, loadK8sService } from '../../../actions/services'
 import { addTerminal } from '../../../actions/terminal'
 import CommmonStatus from '../../CommonStatus'
@@ -141,7 +141,7 @@ class AppServiceDetail extends Component {
   componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow, serviceName, selectTab } = nextProps
     const { scope } = this.props
-    
+
     if (serviceDetailmodalShow === this.props.serviceDetailmodalShow) {
       return
     }
@@ -412,7 +412,7 @@ class AppServiceDetail extends Component {
                 </div>
               </TabPane>
               <TabPane tab='告警策略' key='#strategy'>
-                <AlarmStrategy />
+                <AlarmStrategy serviceName={service.metadata.name} cluster={service.cluster}/>
               </TabPane>
               <TabPane tab='自动伸缩' key='#autoScale'>
                 <AppAutoScale

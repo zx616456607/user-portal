@@ -132,8 +132,14 @@ exports.getLyins = function* () {
     err.status = 400
     throw err
   }
+  const fullName = this.query.full_name
+  if (!fullName) {
+    const err = new Error('full_name is require')
+    err.status = 400
+    throw err
+  }
   const api = apiFactory.getImageScanApi(this.session.loginUser)
-  const response = yield api.getBy(['level1-result'], { blob_sum: blobSum })
+  const response = yield api.getBy(['level1-result'], { blob_sum: blobSum, full_name: fullName })
   this.body = response
 }
 
@@ -144,8 +150,14 @@ exports.getClair = function* () {
     err.status = 400
     throw err
   }
+  const fullName = this.query.full_name
+  if (!fullName) {
+    const err = new Error('full_name is require')
+    err.status = 400
+    throw err
+  }
   const api = apiFactory.getImageScanApi(this.session.loginUser)
-  const response = yield api.getBy(['level2-result'], { blob_sum: blobSum })
+  const response = yield api.getBy(['level2-result'], { blob_sum: blobSum, full_name: fullName })
   this.body = response
 }
 
