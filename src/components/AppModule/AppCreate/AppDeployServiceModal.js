@@ -679,16 +679,20 @@ let AppDeployServiceModal = React.createClass({
       totalNumber.forEach(item => {
         const vol = getFieldValue(`vol${item}`)
         const volPath = getFieldValue(`volPath${item}`)
+        const volCover = getFieldValue(`volCover${item}`)
         if (!vol) return
         if(!volPath) return
         if (vol.length <= 0) return
         let mountPath = []
         vol.items.forEach((v, index) => {
           let path = (volPath.indexOf('/') == 0 ? volPath : '/'+ volPath) + '/' + v.path
-          mountPath.push({
+          const pathObj = {
             mountPath: path,
-            subPath: v.path
-          })
+          }
+          if (volCover !== 'cover') {
+            pathObj.subPath = v.path
+          }
+          mountPath.push(pathObj)
         })
         deploymentList.addContainerVolume(serviceName, {
           name: `configmap-volume-${item}`,
