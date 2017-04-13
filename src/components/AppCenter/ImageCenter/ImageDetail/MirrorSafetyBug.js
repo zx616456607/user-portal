@@ -12,16 +12,21 @@ import { Card, Spin, Icon, Select, Tabs, Button, Steps, Checkbox, Input, Table, 
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import ReactEcharts from 'echarts-for-react'
 import './style/MirrorSafetyBug.less'
+import { loadMirrorSafetyScan, loadMirrorSafetyChairinfo } from '../../../../actions/app_center'
+import { DEFAULT_REGISTRY } from '../../../../constants'
+import { connect } from 'react-redux'
 
 const TabPane = Tabs.TabPane
 const Step = Steps.Step
 const Option = Select.Option
 
-class MirrorSafetyBug extends Component {
+class TableTemplate extends Component{
   constructor(props){
     super(props)
     this.tableDatasource = this.tableDatasource.bind(this)
     this.tableSeverityColor = this.tableSeverityColor.bind(this)
+    this.tableSubNo = this.tableSubNo.bind(this)
+    this.tableSubNo = this.tableSubNo.bind(this)
     this.state = {
       Unknown: 0,
       Negligible: 0,
@@ -33,23 +38,121 @@ class MirrorSafetyBug extends Component {
     }
   }
 
-  tableDatasource(){
-    const { mirrorsafetyClair, mirrorLayeredinfo } = this.props
-    if(!mirrorsafetyClair.mirrorchairinfo || !mirrorsafetyClair.mirrorchairinfo.result){
-      return
+  componentDidMount() {
+    const EchartsDate = this.tableDatasource().EchartsDate
+    if(EchartsDate){
+      this.setState({
+        Unknown: EchartsDate.EchartsUnknownNum ,
+        Negligible: EchartsDate.EchartsNegligibleNum,
+        Low: EchartsDate.EchartsLowNum,
+        Medium: EchartsDate.EchartsMediumNum,
+        High: EchartsDate.EchartsHighNum,
+        Total : (EchartsDate.EchartsUnknownNum + EchartsDate.EchartsNegligibleNum + EchartsDate.EchartsLowNum + EchartsDate.EchartsMediumNum + EchartsDate.EchartsHighNum),
+        PatchTotal:　EchartsDate.EchartsFixedIn
+      })
     }
-    const clairVulnerabilities = mirrorsafetyClair.mirrorchairinfo.result.report.vulnerabilities
-    const clairFeatures = mirrorsafetyClair.mirrorchairinfo.result.report.features
-    const clairFixedIn = mirrorsafetyClair.mirrorchairinfo.result.report.fixedIn
+  }
+
+  componentWillReceiveProps(nextProps){
+    const mirrorsafetyClair = nextProps.mirrorsafetyClair
+    const imageName = nextProps.imageName
+    if(imageName !== this.props.imageName || mirrorsafetyClair !== this.props.mirrorsafetyClair){
+      if(Object.keys(mirrorsafetyClair[imageName].result.report).length == 0){
+        return
+      }
+      const clairVulnerabilities = mirrorsafetyClair[imageName].result.report.vulnerabilities
+      const clairFeatures = mirrorsafetyClair[imageName].result.report.features
+      const clairFixedIn = mirrorsafetyClair[imageName].result.report.fixedIn
+      // Echarts 数据
+      let EchartsUnknownNum = 0
+      let EchartsNegligibleNum = 0
+      let EchartsLowNum = 0
+      let EchartsMediumNum = 0
+      let EchartsHighNum = 0
+      let EchartsNoneNum = 0
+      let EchartsFixedIn = 0
+      if(Object.keys(clairVulnerabilities).length == 0 ){
+        return
+      }
+      for(let keyVulner in clairVulnerabilities){
+        let software = clairVulnerabilities[keyVulner].features
+        if(software.length > 1){
+          for(let keyFix in clairFixedIn){
+            let RVersionStr = keyVulner + software[0].substring(0,1).toUpperCase()+software[0].replace(/-/g, '').substring(1,software[0].length)
+            if(RVersionStr == keyFix){
+              EchartsFixedIn++
+              break
+            }
+          }
+          switch(clairVulnerabilities[keyVulner].severity){
+            case "High" :
+              EchartsHighNum++;
+              break;
+            case "Medium" :
+              EchartsMediumNum++;
+              break;
+            case "Low" :
+              EchartsLowNum++;
+              break;
+            case "Negligible" :
+              EchartsNegligibleNum++;
+              break;
+            case "Unknown" :
+            default :
+              EchartsUnknownNum++;
+              break;
+          }
+        }else{
+          for(let keyFix in clairFixedIn){
+            let RVersionStr = keyVulner + software[0].substring(0,1).toUpperCase()+software[0].replace(/-/g, '').substring(1,software[0].length)
+            if(RVersionStr == keyFix){
+              EchartsFixedIn++
+              break
+            }
+          }
+
+          switch(clairVulnerabilities[keyVulner].severity){
+            case "High" :
+              EchartsHighNum++;
+              break;
+            case "Medium" :
+              EchartsMediumNum++;
+              break;
+            case "Low" :
+              EchartsLowNum++;
+              break;
+            case "Negligible" :
+              EchartsNegligibleNum++;
+              break;
+            case "Unknown" :
+            default :
+              EchartsUnknownNum++;
+              break;
+          }
+        }
+      }
+
+      this.setState({
+        Unknown: EchartsUnknownNum ,
+        Negligible: EchartsNegligibleNum,
+        Low: EchartsLowNum,
+        Medium: EchartsMediumNum,
+        High: EchartsHighNum,
+        Total : (EchartsUnknownNum + EchartsNegligibleNum + EchartsLowNum + EchartsMediumNum + EchartsHighNum),
+        PatchTotal: EchartsFixedIn})
+    }
+  }
+
+  tableDatasource(){
+    const { mirrorsafetyClair, mirrorLayeredinfo, imageName } = this.props
     let tabledatasource = []
+    if(Object.keys(mirrorsafetyClair[imageName].result.report).length == 0){
+      return tabledatasource = []
+    }
+    const clairVulnerabilities = mirrorsafetyClair[imageName].result.report.vulnerabilities
+    const clairFeatures = mirrorsafetyClair[imageName].result.report.features
+    const clairFixedIn = mirrorsafetyClair[imageName].result.report.fixedIn
     let index = 1
-    //let CVEobj = {}
-    //let software = ''
-    //let CVersion = ''
-    //let RVersion = ''
-    //let data = {}
-    //let softwareID = ''
-    //let Command = {}
     // Echarts 数据
     let EchartsUnknownNum = 0
     let EchartsNegligibleNum = 0
@@ -107,7 +210,7 @@ class MirrorSafetyBug extends Component {
             }
           }
 
-          // 漏洞数量统计
+           //漏洞数量统计
           switch(clairVulnerabilities[keyVulner].severity){
             case "High" :
               EchartsHighNum++;
@@ -222,16 +325,11 @@ class MirrorSafetyBug extends Component {
           }
           tabledatasource.push(data)
           index++
-          //CVEobj = {}
-          //CVersion = ''
-          //RVersion = ''
-          //softwareID = ''
-          //data = {}
         }
       }
       return {
         tabledatasource,
-        EchartsDate:{
+        EchartsDate: {
           EchartsUnknownNum,
           EchartsNegligibleNum,
           EchartsLowNum,
@@ -241,33 +339,6 @@ class MirrorSafetyBug extends Component {
         }
       }
     }
-  }
-
-  componentDidMount() {
-    const EchartsDate = this.tableDatasource().EchartsDate
-    this.setState({
-      Unknown: EchartsDate.EchartsUnknownNum,
-      Negligible: EchartsDate.EchartsNegligibleNum,
-      Low: EchartsDate.EchartsLowNum,
-      Medium: EchartsDate.EchartsMediumNum,
-      High: EchartsDate.EchartsHighNum,
-      Total : (EchartsDate.EchartsUnknownNum + EchartsDate.EchartsNegligibleNum + EchartsDate.EchartsLowNum + EchartsDate.EchartsMediumNum + EchartsDate.EchartsHighNum),
-      PatchTotal:　EchartsDate.EchartsFixedIn
-    })
-    //console.log(this.state)
-  }
-
-  componentWillReceiveProps(){
-
-  }
-
-  handleGetBackLayer(text){
-    const { callBack } = this.props
-    let getBackInfo = {
-      ActiveKey:2,
-      LayerCommandParameters:text
-    }
-    callBack(getBackInfo)
   }
 
   tableSeverityColor(severity){
@@ -289,15 +360,12 @@ class MirrorSafetyBug extends Component {
     }
   }
 
-
-  // 漏洞扫描table 子级
   tableSubNo(str){
     return(
       <div className='tableSUBnNo'>
         {str}
       </div>
     )
-
   }
 
   tableSub(object){
@@ -470,6 +538,7 @@ class MirrorSafetyBug extends Component {
 
   render(){
     const { Unknown, Negligible, Low, Medium, High }=this.state
+    const { mirrorsafetyClair, imageName} = this.props
     function EchartsGapTemplate(num){
       let str = num.toString()
       switch(str.length){
@@ -482,6 +551,7 @@ class MirrorSafetyBug extends Component {
           return '   '+ num + '  封装' + '      '
       }
     }
+
     let safetybugOption = {
       title: {
         text: '镜像安全扫描检测到 ' + this.state.Total + ' 个漏洞，补丁为 '+this.state.PatchTotal+' 个漏洞',
@@ -573,6 +643,7 @@ class MirrorSafetyBug extends Component {
         }
       }]
     }
+
     const severityLevel = {
       "High": 100,
       "Medium": 99,
@@ -636,15 +707,20 @@ class MirrorSafetyBug extends Component {
       width: '27%',
       dataIndex: 'layerInfo',
       key: 'layerInfo',
-      render: text => (<div className='layerInfo'><span className='safetybugtablepoint'>{text.action}</span><Tooltip title={text.parameters}><span className='textoverflow layerInfospan'>{text.parameters}</span></Tooltip><i className="fa fa-database softwarepicturelright" aria-hidden="true" onClick={this.handleGetBackLayer.bind(this,text.parameters)}></i></div>),
+      render: text => (<div className='layerInfo'><span className='safetybugtablepoint'>{text.action}</span><Tooltip title={text.parameters}><span className='textoverflow layerInfospan'>{text.parameters}</span></Tooltip><i className="fa fa-database softwarepicturelright" aria-hidden="true"></i></div>),
     }]
 
     const softwarePagination = {
       total: this.tableDatasource().length,
       showSizeChanger: true,
     }
+
+    if(Object.keys(mirrorsafetyClair[imageName].result.report).length == 0){
+      return <div className='message'>暂未扫描出任何漏洞</div>
+    }
+
     return (
-      <div id="MirrorSafetyBug">
+      <div>
         <div className='safetybugEcharts'>
           <div style={{width: '99.9%'}}>
             <ReactEcharts
@@ -655,31 +731,7 @@ class MirrorSafetyBug extends Component {
         </div>
         <div className='safetybugmirror'>
           <div className='safetybugmirrortitle'>
-            <div className='safetybugmirrortitleleft'>
-              镜像漏洞
-            </div>
-            {/*<div className="safetybugmirrortitleright">*/}
-              {/*<Checkbox style={{float: 'left', width: '120px', marginTop: '6px'}}>只显示可修复</Checkbox>*/}
-              {/*<Input.Group style={{float: 'left', width: '200px'}}>*/}
-                {/*<Select*/}
-                  {/*combobox*/}
-                  {/*notFoundContent=""*/}
-                  {/*filterOption={false}*/}
-                  {/*placeholder='Filter Vulnerabilities'*/}
-                  {/*style={{width: '180px', height: '30px', borderRadius: '3px 0 0 3px'}}*/}
-                {/*>*/}
-                  {/*<Option value="0">请选择1</Option>*/}
-                  {/*<Option value="1">请选择1</Option>*/}
-                  {/*<Option value="2">请选择2</Option>*/}
-                {/*</Select>*/}
-                {/*<div className="ant-input-group-wrap"*/}
-                     {/*style={{display: 'inline-block', verticalAlign: 'top', marginLeft: '5px'}}>*/}
-                  {/*<Button>*/}
-                    {/*<Icon type="search"/>*/}
-                  {/*</Button>*/}
-                {/*</div>*/}
-              {/*</Input.Group>*/}
-            {/*</div>*/}
+            <div className='safetybugmirrortitleleft'>镜像漏洞</div>
           </div>
           <div className="safetybugtable">
             <Table
@@ -696,6 +748,310 @@ class MirrorSafetyBug extends Component {
   }
 }
 
-export default (injectIntl(MirrorSafetyBug, {
-  withRef: true,
-}));
+class MirrorSafetyBug extends Component {
+  constructor(props){
+    super(props)
+    this.NodataTemplateSafetyBug = this.NodataTemplateSafetyBug.bind(this)
+    this.handleclairStatus = this.handleclairStatus.bind(this)
+    this.APIGetclairInfo = this.APIGetclairInfo.bind(this)
+    this.APIFailedThenScan = this.APIFailedThenScan.bind(this)
+    this.state = {
+      Unknown: 0,
+      Negligible: 0,
+      Low: 0,
+      Medium: 0,
+      High: 0,
+      Total: 0,
+      PatchTotal: 0
+    }
+  }
+
+  componentWillMount(){
+    const { mirrorScanstatus, imageName, mirrorScanUrl, cluster_id, tag, loadMirrorSafetyScan, loadMirrorSafetyChairinfo, mirrorSafetyScan } = this.props
+    const scanstatusCode = mirrorScanstatus[imageName].statusCode
+    const scanStatus = mirrorScanstatus[imageName].status
+    const blob_sum = mirrorScanstatus[imageName].blobSum || ''
+    const full_name = mirrorScanstatus[imageName].fullName
+    const registry = mirrorScanUrl
+    const config = {
+      cluster_id,
+      imageName,
+      tag,
+      registry,
+      full_name
+    }
+    if(scanstatusCode && scanstatusCode == 200){
+      switch(scanStatus){
+        case 'lynis':
+        case 'clair':
+        case 'running':
+        case 'both':
+          return loadMirrorSafetyChairinfo({imageName, blob_sum,full_name})
+        case 'noresult':
+        case 'failed':
+          return
+        case 'different':{
+          if(mirrorSafetyScan[imageName]){
+            return loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+          }
+          return loadMirrorSafetyScan({...config}, {
+            success: {
+              func: () =>{
+                loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+              },
+              isAsync : true
+            }
+          })
+        }
+
+        default: return
+      }
+    }
+  }
+
+  componentWillReceiveProps(nextProps){
+    const { loadMirrorSafetyScan, loadMirrorSafetyChairinfo, ActiveKey } = this.props
+    const imageName = nextProps.imageName
+    const mirrorScanUrl = nextProps.mirrorScanUrl
+    const cluster_id = nextProps.cluster_id
+    const mirrorSafetyScan = nextProps.mirrorSafetyScan
+    const mirrorScanstatus = nextProps.mirrorScanstatus
+    if(nextProps.imageName !== this.props.imageName || nextProps.tag !== this.props.tag) {
+      if(!mirrorScanstatus[imageName]){
+        return
+      }
+      const scanstatusCode = mirrorScanstatus[imageName].statusCode || ''
+      const scanStatus = mirrorScanstatus[imageName].status
+      const blob_sum = mirrorScanstatus[imageName].blobSum
+      const full_name = mirrorScanstatus[imageName].fullName
+      const tag = nextProps.tag
+      const registry = mirrorScanUrl
+      const config = {
+        cluster_id,
+        imageName,
+        tag,
+        registry,
+        full_name
+      }
+      if(scanstatusCode && scanstatusCode == 500){
+        return
+      }
+      if(scanstatusCode && scanstatusCode == 200){
+        switch(scanStatus){
+          case 'lynis':
+          case 'clair':
+          case 'running':
+          case 'both':
+            return loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+          case 'noresult':
+          case 'different':{
+            if(mirrorSafetyScan[imageName]){
+              return loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+            }
+            return loadMirrorSafetyScan({...config}, {
+              success: {
+                func: () =>{
+                  loadMirrorSafetyChairinfo({imageName, blob_sum, full_name })
+                },
+                isAsync : true
+              }
+            })
+          }
+          case 'failed':
+          default:return
+        }
+      }
+    }
+  }
+
+  handleGetBackLayer(text){
+    const { callBack } = this.props
+    let getBackInfo = {
+      ActiveKey:2,
+      LayerCommandParameters:text
+    }
+    callBack(getBackInfo)
+  }
+
+  NodataTemplateSafetyBug(){
+    const { mirrorScanstatus, imageName } = this.props
+    return (
+      <div className='message'>{mirrorScanstatus[imageName].message}</div>
+    )
+  }
+
+  APIGetclairInfo(){
+    const { loadMirrorSafetyChairinfo, mirrorScanstatus, imageName } = this.props
+    const blob_sum = mirrorScanstatus[imageName].blobSum || ''
+    const full_name = mirrorScanstatus[imageName].fullName
+    loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+  }
+
+  APIFailedThenScan(){
+    const { loadMirrorSafetyScan, loadMirrorSafetyChairinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus } = this.props
+    const registry = mirrorScanUrl
+    const full_name = mirrorScanstatus[imageName].fullName
+    const config = {
+      cluster_id,
+      imageName,
+      tag,
+      registry,
+      full_name
+    }
+    if(mirrorSafetyScan[imageName]){
+      return loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+    }
+    return loadMirrorSafetyScan({...config}, {
+      success: {
+        func: () =>{
+          loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+        },
+        isAsync : true
+      }
+    })
+  }
+  handleclairStatus(){
+    const { mirrorsafetyClair, imageName, mirrorLayeredinfo } = this.props
+    if(!mirrorsafetyClair || !mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName].result){
+      return
+    }
+    const result = mirrorsafetyClair[imageName].result
+    const statusCode = result.statusCode
+    const status = result.status
+    const message = result.message
+    if (statusCode && statusCode == 200) {
+      switch (status) {
+        case 'running':
+          return <div className='BaseScanRunning'>
+            <div className="top">正在扫描尚未结束</div>
+            <Spin/>
+            <div className='bottom'><Button onClick={this.APIGetclairInfo}>点击重新获取</Button></div>
+          </div>
+        case 'finished':
+          return <TableTemplate mirrorsafetyClair={mirrorsafetyClair} imageName={imageName} mirrorLayeredinfo={mirrorLayeredinfo}/>
+        case 'failed':
+          return <div className="BaseScanFailed">
+            <div className='top'>扫描失败，请重新扫描</div>
+            <Button onClick={this.APIFailedThenScan}>点击重新获取</Button>
+          </div>
+        case 'nojob':
+        default:
+          return <div>
+            <div className="top">镜像没有别扫描过</div>
+            <Button>点击扫描</Button>
+          </div>
+      }
+    } else {
+      return <div>{message}</div>
+    }
+  }
+
+  render(){
+    const { mirrorsafetyClair, imageName, mirrorScanstatus } = this.props
+    let statusCode = 200
+    if(!mirrorScanstatus[imageName]){
+      return <div></div>
+    }
+    if(mirrorScanstatus[imageName].statusCode == 500){
+      statusCode == 500
+    }
+    if(mirrorScanstatus[imageName].status == 'failed'){
+      return (
+        <div className='BaseScanFailed'>
+          <div className='top'>mirrorScanstatus.failed扫描失败,请点击重新扫描</div>
+          <Button onClick={this.APIFailedThenScan}>重新扫描</Button>
+        </div>
+      )
+    }
+    return (
+      <div id="MirrorSafetyBug">
+        {
+          statusCode == 500 ?
+          this.NodataTemplateSafetyBug()
+          :
+          this.handleclairStatus()
+        }
+      </div>
+    )
+  }
+}
+function mapStateToProps(state,props){
+  const { images, entities } = state
+  let mirrorScanUrl = ''
+  if (images.publicImages[DEFAULT_REGISTRY] && images.publicImages[DEFAULT_REGISTRY].server) {
+    mirrorScanUrl = 'http://' + images.publicImages[DEFAULT_REGISTRY].server
+  }
+  let mirrorsafetyClair = images.mirrorSafetyClairinfo
+  let mirrorSafetyScan = images.mirrorSafetyScan
+  let cluster_id = entities.current.cluster.clusterID
+  return {
+    cluster_id,
+    mirrorsafetyClair,
+    mirrorSafetyScan,
+    mirrorScanUrl
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadMirrorSafetyScan,
+  loadMirrorSafetyChairinfo
+})(MirrorSafetyBug)
+
+//{/*<div className='safetybugEcharts'>*/}
+//{/*<div style={{width: '99.9%'}}>*/}
+//{/*/!*<ReactEcharts*!/*/}
+//{/*/!*option={safetybugOption}*!/*/}
+//{/*/!*style={{height: '220px'}}*!/*/}
+//{/*/!*/>*!/*/}
+// {/*</div>*/}
+//{/*</div>*/}
+//{/*<div className='safetybugmirror'>*/}
+//  {/*<div className='safetybugmirrortitle'>*/}
+//    {/*<div className='safetybugmirrortitleleft'>*/}
+//      {/*镜像漏洞*/}
+//    {/*</div>*/}
+//    {/*/!*<div className="safetybugmirrortitleright">*!/*/}
+//    {/*/!*<Checkbox style={{float: 'left', width: '120px', marginTop: '6px'}}>只显示可修复</Checkbox>*!/*/}
+//    {/*/!*<Input.Group style={{float: 'left', width: '200px'}}>*!/*/}
+//    {/*/!*<Select*!/*/}
+//    {/*/!*combobox*!/*/}
+//    {/*/!*notFoundContent=""*!/*/}
+//    {/*/!*filterOption={false}*!/*/}
+//    {/*/!*placeholder='Filter Vulnerabilities'*!/*/}
+//    {/*/!*style={{width: '180px', height: '30px', borderRadius: '3px 0 0 3px'}}*!/*/}
+//    {/*/!*>*!/*/}
+//    {/*/!*<Option value="0">请选择1</Option>*!/*/}
+//    {/*/!*<Option value="1">请选择1</Option>*!/*/}
+//    {/*/!*<Option value="2">请选择2</Option>*!/*/}
+//    {/*/!*</Select>*!/*/}
+//    {/*/!*<div className="ant-input-group-wrap"*!/*/}
+//    {/*/!*style={{display: 'inline-block', verticalAlign: 'top', marginLeft: '5px'}}>*!/*/}
+//    {/*/!*<Button>*!/*/}
+//    {/*/!*<Icon type="search"/>*!/*/}
+//    {/*/!*</Button>*!/*/}
+//    {/*/!*</div>*!/*/}
+//    {/*/!*</Input.Group>*!/*/}
+//    {/*/!*</div>*!/*/}
+//  {/*</div>*/}
+//  {/*<div className="safetybugtable" style={{height:'100%'}}>*/}
+//    {/*{*/}
+//      {/*statusCode == 500 ?*/}
+//        {/*this.NodataTemplateSafetyBug()*/}
+//        {/*:*/}
+//        {/*this.handleclairStatus()*/}
+//    {/*}*/}
+//  {/*</div>*/}
+//{/*</div>*/}
+
+
+//{/*<div className='safetybugmirror'>*/}
+
+//  {/*<div className="safetybugtable" style={{height:'100%'}}>*/}
+//    {/*{*/}
+//      {/*statusCode == 500 ?*/}
+//        {/*this.NodataTemplateSafetyBug()*/}
+//        {/*:*/}
+//        {/*this.handleclairStatus()*/}
+//    {/*}*/}
+//  {/*</div>*/}
+//{/*</div>*/}

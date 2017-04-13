@@ -39,19 +39,19 @@ class MirrorSafety extends Component {
       TabsDisabled: true,
       imgTag: "",
       imageName: this.props.imageName,
-      ActiveKey:'1',
-      LayerCommandParameters:'',
-      tagVersion:this.props.tagVersion
+      ActiveKey: '1',
+      LayerCommandParameters: '',
+      tagVersion: this.props.tagVersion
     }
   }
 
   componentWillMount() {
     const { registry, imageName, loadImageDetailTag, tagVersion } = this.props
     loadImageDetailTag(registry, imageName)
-    if(tagVersion !== ''){
+    if (tagVersion !== '') {
       this.setState({
-        tag:tagVersion,
-        TabsDisabled:false
+        tag: tagVersion,
+        TabsDisabled: false
       })
     }
   }
@@ -60,21 +60,30 @@ class MirrorSafety extends Component {
     const { registry, loadImageDetailTag } = this.props
     const imageName = nextPorps.imageName
     const tagVersion = nextPorps.tagVersion
-    if(this.state.tagVersion !== tagVersion){
+    let ActiveKeyNext = '1'
+    if (this.state.tagVersion !== tagVersion) {
       this.setState({
-        tag:tagVersion,
-        TabsDisabled:false
+        tag: tagVersion,
+        TabsDisabled: false
       })
+    }
+    if(this.state.imageName == imageName){
+      ActiveKeyNext = this.state.ActiveKey
     }
     if (this.state.imageName !== imageName) {
       loadImageDetailTag(registry, imageName)
-      this.setState({ TabsDisabled: true, imageName, tag: null })
+      this.setState({
+        TabsDisabled: true,
+        imageName,
+        tag: null,
+        ActiveKey:ActiveKeyNext
+      })
     }
   }
 
   TemplateSelectOption() {
     const { imgTag } = this.props
-    if(!imgTag){
+    if (!imgTag) {
       return
     }
     const tags = imgTag.map((item, index) => {
@@ -87,27 +96,105 @@ class MirrorSafety extends Component {
 
   handleSelectVesion(tag) {
     const { imageName, loadMirrorSafetyLayerinfo, loadMirrorSafetyScanStatus } = this.props
-    loadMirrorSafetyScanStatus({ imageName, tag })
-    loadMirrorSafetyLayerinfo({ imageName, tag })
-    this.setState({
-      tag: tag,
-      TabsDisabled: false,
+    const { mirrorScanstatus } = this.props
+    loadMirrorSafetyScanStatus({ imageName, tag },{
+      success: {
+        func: (mirrorScanstatus) => {
+          this.setState({
+            tag: tag,
+            TabsDisabled: false,
+          })
+          //if(mirrorScanstatus && mirrorScanstatus.blobSum && mirrorScanstatus.status == 'both'){
+          //  let blob_sum = mirrorScanstatus.blobSum
+          //  loadMirrorSafetyChairinfo({ imageName, blob_sum })
+          //}
+        },
+        isAsync: true
+      }
     })
+    loadMirrorSafetyLayerinfo({ imageName, tag })
   }
 
-  ScanstatusSwitch() {
-    const { mirrorScanstatus } = this.props
+  //ScanstatusSwitch() {
+  //  const { mirrorScanstatus } = this.props
+  //  const { loadMirrorSafetyChairinfo } = this.props
+  //  if (mirrorScanstatus.statusCode && mirrorScanstatus.statusCode == 500) {
+  //    return (<div>
+  //      {mirrorScanstatus.message}
+  //    </div>)
+  //  }
+  //  if (mirrorScanstatus.statusCode && mirrorScanstatus.statusCode == 200) {
+  //    const blob_sum = mirrorScanstatus.blobSum
+  //    switch (mirrorScanstatus.status) {
+  //      case "noresult":
+  //        return (<div className='textAlignStyle'>
+  //          <span data-status="noresult">没有扫描过,请点击扫描</span>
+  //          <div style={{ paddingTop: '10px' }}>
+  //            <Button onClick={this.APIScanStatusThenScanClair}>点击扫描</Button>
+  //          </div>
+  //        </div>)
+  //      case "running":
+  //        return (<div>
+  //          <Spin />
+  //        </div>)
+  //      case "lynis":
+  //        return (<div className='textAlignStyle'>
+  //          <span data-status="lynis">没有扫描过,请点击扫描</span>
+  //          <div className='textAlignStyleDiv'>
+  //            <Button onClick={this.APIScanStatusThenScanClair}>点击扫描</Button>
+  //          </div>
+  //        </div>)
+  //      case "clair":
+  //        //return loadMirrorSafetyChairinfo({ blob_sum })
+  //        return (<div className='textAlignStyle'>
+  //          <span data-status="clair">没有扫描过,请点击扫描</span>
+  //          <div className='textAlignStyleDiv'>
+  //            <Button onClick={this.APIScanStatusThenClair}>点击扫描</Button>
+  //          </div>
+  //        </div>)
+  //      case "both":
+  //        //return loadMirrorSafetyChairinfo({ blob_sum })
+  //        return (<div className='textAlignStyle'>
+  //          <span data-status="both">没有扫描过,请点击扫描</span>
+  //          <div className='textAlignStyleDiv'>
+  //            <Button onClick={this.APIScanStatusThenClair}>点击扫描</Button>
+  //          </div>
+  //        </div>)
+  //      case "different":
+  //        return (<div className='textAlignStyle'>
+  //          <span data-status="different">没有扫描过,请点击扫描</span>
+  //          <div className='textAlignStyleDiv'>
+  //            <Button onClick={this.APIScanStatusThenScanClair}>点击扫描</Button>
+  //          </div>
+  //        </div>)
+  //      case "failed":
+  //      default:
+  //        return (<div className='textAlignStyle'>
+  //          <span data-status="failed">扫描失败，请点击扫描</span>
+  //          <div className='textAlignStyleDiv'>
+  //            <Button onClick={this.APIScanStatusThenScanClair}>重新扫描</Button>
+  //          </div>
+  //        </div>)
+  //    }
+  //  }
+  //}
+  ScanstatusSwitch(obj) {
+    if( !obj){
+      return
+    }
+    const mirrorScanstatus = obj
     if (mirrorScanstatus.statusCode && mirrorScanstatus.statusCode == 500) {
       return (<div>
         {mirrorScanstatus.message}
       </div>)
     }
     if (mirrorScanstatus.statusCode && mirrorScanstatus.statusCode == 200) {
+      const blob_sum = mirrorScanstatus.blobSum
       switch (mirrorScanstatus.status) {
         case "noresult":
           return (<div className='textAlignStyle'>
             <span data-status="noresult">没有扫描过,请点击扫描</span>
-            <div style={{paddingTop:'10px'}}>
+            <div style={{ paddingTop: '10px' }}>
               <Button onClick={this.APIScanStatusThenScanClair}>点击扫描</Button>
             </div>
           </div>)
@@ -121,8 +208,9 @@ class MirrorSafety extends Component {
             <div className='textAlignStyleDiv'>
               <Button onClick={this.APIScanStatusThenScanClair}>点击扫描</Button>
             </div>
-            </div>)
+          </div>)
         case "clair":
+          //return loadMirrorSafetyChairinfo({ blob_sum })
           return (<div className='textAlignStyle'>
             <span data-status="clair">没有扫描过,请点击扫描</span>
             <div className='textAlignStyleDiv'>
@@ -130,6 +218,7 @@ class MirrorSafety extends Component {
             </div>
           </div>)
         case "both":
+          //return loadMirrorSafetyChairinfo({ blob_sum })
           return (<div className='textAlignStyle'>
             <span data-status="both">没有扫描过,请点击扫描</span>
             <div className='textAlignStyleDiv'>
@@ -154,12 +243,11 @@ class MirrorSafety extends Component {
       }
     }
   }
-
   APIScanStatusThenClair() {
     const { loadMirrorSafetyChairinfo, mirrorScanstatus, imageName, mirrorLayeredinfo } = this.props
     const { tag } = this.state
     const blob_sum = mirrorScanstatus.blobSum
-    loadMirrorSafetyChairinfo({ blob_sum })
+    loadMirrorSafetyChairinfo({ imageName, blob_sum })
     if (!mirrorLayeredinfo) {
       loadMirrorSafetyLayerinfo({ imageName, tag })
     }
@@ -167,7 +255,7 @@ class MirrorSafety extends Component {
 
   APIScanStatusThenScanClair() {
     const { loadMirrorSafetyScan, loadMirrorSafetyChairinfo, mirrorLayeredinfo } = this.props
-    const { imageName, mirrorScanUrl, mirrorScanstatus, cluster_id } = this.props
+    const { imageName, mirrorScanUrl, mirrorScanstatus, cluster_id, mirrorSafetyScan } = this.props
     const { tag } = this.state
     const blob_sum = mirrorScanstatus.blobSum
     const config = {
@@ -176,30 +264,35 @@ class MirrorSafety extends Component {
       tag,
       registry: mirrorScanUrl
     }
-    loadMirrorSafetyScan(config, {
-      success: {
-        func: () => {
-          loadMirrorSafetyChairinfo({ blob_sum })
-          if (!mirrorLayeredinfo) {
-            loadMirrorSafetyLayerinfo({ imageName, tag })
-          }
-        },
-        isAsync: true
-      }
-    })
+    if(mirrorSafetyScan[imageName] && mirrorSafetyScan[imageName].result && mirrorSafetyScan[imageName].result.blobSum){
+      loadMirrorSafetyLayerinfo({ imageName, tag })
+    }else{
+      loadMirrorSafetyScan(config, {
+        success: {
+          func: () => {
+            loadMirrorSafetyChairinfo({ imageName, blob_sum })
+            if (!mirrorLayeredinfo) {
+              loadMirrorSafetyLayerinfo({ imageName, tag })
+            }
+          },
+          isAsync: true
+        }
+      })
+    }
   }
 
   handleClair() {
-    const { mirrorsafetyClair, mirrorLayeredinfo } = this.props
-    if(!mirrorsafetyClair.mirrorchairinfo.result){
+    const { mirrorsafetyClair, mirrorLayeredinfo, imageName } = this.props
+    console.log(mirrorsafetyClair[imageName])
+    if (!mirrorsafetyClair[imageName]) {
       return []
     }
-    const statusCode = mirrorsafetyClair.mirrorchairinfo.result.statusCode
-    const status = mirrorsafetyClair.mirrorchairinfo.result.status
+    const statusCode = mirrorsafetyClair[imageName].result.statusCode
+    const status = mirrorsafetyClair[imageName].result.status
     if (statusCode && statusCode == 500) {
       return (
         <div>
-          <span>{mirrorsafetyClair.mirrorchairinfo.result.message}</span>
+          <span>{mirrorsafetyClair[imageName].result.message}</span>
         </div>
       )
     }
@@ -210,14 +303,14 @@ class MirrorSafety extends Component {
             return (
               <div className='textAlignStyle'>
                 <div>正在扫描尚未结束</div>
-                <Spin/>
+                <Spin />
                 <div className='textAlignStyleDiv'>
                   <Button onClick={this.APIScanStatusThenClair}>点击重新扫描</Button>
                 </div>
               </div>
             )
           case 'finished':
-            return <MirrorSafetyBug mirrorsafetyClair={mirrorsafetyClair} mirrorLayeredinfo={mirrorLayeredinfo} callBack={this.handleSoftwarepackageToLayer}/>
+            return <MirrorSafetyBug mirrorsafetyClair={mirrorsafetyClair} mirrorLayeredinfo={mirrorLayeredinfo} callBack={this.handleSoftwarepackageToLayer} imageName={imageName}/>
           case 'nojob':
           default:
             return (
@@ -234,16 +327,16 @@ class MirrorSafety extends Component {
   }
 
   MirrorSafetyClairSwitchSoft() {
-    const { mirrorsafetyClair, mirrorLayeredinfo } = this.props
-    if(!mirrorsafetyClair.mirrorchairinfo.result){
+    const { mirrorsafetyClair, mirrorLayeredinfo, imageName } = this.props
+    if (!mirrorsafetyClair[imageName]) {
       return
     }
-    const statusCode = mirrorsafetyClair.mirrorchairinfo.result.statusCode
-    const status = mirrorsafetyClair.mirrorchairinfo.result.status
+    const statusCode = mirrorsafetyClair[imageName].result.statusCode
+    const status = mirrorsafetyClair[imageName].result.status
     if (statusCode && statusCode == 500) {
       return (
         <div>
-          <span>{mirrorsafetyClair.mirrorchairinfo.result.message}</span>
+          <span>{mirrorsafetyClair[imageName].result.message}</span>
         </div>
       )
     }
@@ -254,14 +347,14 @@ class MirrorSafety extends Component {
             return (
               <div className='textAlignStyle'>
                 <div>正在扫描尚未结束</div>
-                <Spin/>
+                <Spin />
                 <div className='textAlignStyleDiv'>
                   <Button onClick={this.APIScanStatusThenClair}>点击重新扫描</Button>
                 </div>
               </div>
             )
           case 'finished':
-            return <SoftwarePackage mirrorsafetyClair={mirrorsafetyClair} mirrorLayeredinfo={mirrorLayeredinfo} callBack={this.handleSoftwarepackageToLayer}/>
+            return <SoftwarePackage mirrorsafetyClair={mirrorsafetyClair} mirrorLayeredinfo={mirrorLayeredinfo} callBack={this.handleSoftwarepackageToLayer} imageName={imageName}/>
           case 'nojob':
           default:
             return (
@@ -277,25 +370,25 @@ class MirrorSafety extends Component {
     }
   }
 
-  handleSoftwarepackageToLayer(object){
-    if(!object){
+  handleSoftwarepackageToLayer(object) {
+    if (!object) {
       return
     }
     this.setState({
-      ActiveKey:object.ActiveKey.toString(),
-      LayerCommandParameters:object.LayerCommandParameters
+      ActiveKey: object.ActiveKey.toString(),
+      LayerCommandParameters: object.LayerCommandParameters
     })
   }
 
-  handleTabsSwitch(key){
+  handleTabsSwitch(key) {
     this.setState({
-      ActiveKey:key
+      ActiveKey: key
     })
   }
 
   render() {
     const { mirrorScanstatus, mirrorLayeredinfo, mirrorsafetyClair, imgTag, mirrorsafetyLyins, imageName, registry, mirrorSafetyScan } = this.props
-    const mirrorchairinfo = mirrorsafetyClair.mirrorchairinfo
+    const mirrorchairinfo = mirrorsafetyClair[imageName]
     const { TabsDisabled, LayerCommandParameters } = this.state
     return (
       <div id='mirrorsafety'>
@@ -315,15 +408,15 @@ class MirrorSafety extends Component {
         <div>
           <div className='safetytabcontainer'>
             <div className="safetytabbox">
-              <Tabs onChange={this.handleTabsSwitch} activeKey={ TabsDisabled ? {null} : this.state.ActiveKey}>
+              <Tabs onChange={this.handleTabsSwitch} activeKey={ TabsDisabled ? null : this.state.ActiveKey}>
                 <TabPane tab={<span><i className="fa fa-bug safetytabIcon" aria-hidden="true"></i>漏洞扫描</span>} key="1" disabled={this.state.TabsDisabled} >
-                  {(mirrorchairinfo && mirrorchairinfo.result) ? this.handleClair() : this.ScanstatusSwitch()}
+                  <MirrorSafetyBug ActiveKey={this.state.ActiveKey} imageName={imageName} mirrorScanstatus={mirrorScanstatus} tag={this.state.tag} mirrorSafetyScan={mirrorSafetyScan} mirrorLayeredinfo={mirrorLayeredinfo}/>
                 </TabPane>
                 <TabPane tab={<span><i className="fa fa-database safetytabIcon" aria-hidden="true"></i>镜像分层</span>} key="2" disabled={this.state.TabsDisabled}>
-                  <MirrorLayered mirrorLayeredinfo={mirrorLayeredinfo} LayerCommandParameters={LayerCommandParameters} imageName={imageName} tag={this.state.tag}/>
+                  <MirrorLayered mirrorLayeredinfo={mirrorLayeredinfo} LayerCommandParameters={LayerCommandParameters} imageName={imageName} tag={this.state.tag} />
                 </TabPane>
                 <TabPane tab={<span><i className="fa fa-android safetytabIcon" aria-hidden="true"></i><span className='softspan'>软件包</span></span>} key="3" disabled={this.state.TabsDisabled}>
-                  {(mirrorchairinfo && mirrorchairinfo.result) ? this.MirrorSafetyClairSwitchSoft() : this.ScanstatusSwitch()}
+                  <SoftwarePackage imageName={imageName} mirrorScanstatus={mirrorScanstatus} tag={this.state.tag} mirrorSafetyScan={mirrorSafetyScan} mirrorLayeredinfo={mirrorLayeredinfo}/>
                 </TabPane>
                 <TabPane tab={<span><i className="fa fa-crosshairs safetytabIcon" aria-hidden="true"></i>基础扫描</span>} key="4" disabled={this.state.TabsDisabled}>
                   <BaseScan mirrorScanstatus={mirrorScanstatus} registry={registry} imageName={imageName} tag={this.state.tag} mirrorSafetyScan={mirrorSafetyScan} />
@@ -348,11 +441,12 @@ function mapStateToProps(state, props) {
   }
   let mirrorScanUrl = ''
   if (images.publicImages[registry] && images.publicImages[registry].server) {
-    mirrorScanUrl = 'http://'+images.publicImages[registry].server
+    mirrorScanUrl = 'http://' + images.publicImages[registry].server
   }
   let mirrorSafetyScan = images.mirrorSafetyScan || ''
   let cluster_id = entities.current.cluster.clusterID || ''
-  let mirrorScanstatus = images.mirrorSafetyScanStatus.mirrorScanstatusinfo || {}
+  //let mirrorScanstatus = images.mirrorSafetyScanStatus.mirrorScanstatusinfo || {}
+  let mirrorScanstatus = images.mirrorSafetyScanStatus
   let mirrorLayeredinfo = images.mirrorSafetyLayerinfo.mirrorLayerinfo || []
   let mirrorsafetyClair = images.mirrorSafetyClairinfo
   let mirrorsafetyLyins = images.mirrorSafetyLyinsinfo

@@ -774,8 +774,8 @@ function createStack(state = {}, action) {
   }
 }
 
-function mirrorSafetyLayerinfo(state = {}, action){
-  switch(action.type){
+function mirrorSafetyLayerinfo(state = {}, action) {
+  switch (action.type) {
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_LAYERINFO_REQUEST:
       return merge({}, state, {
         isFetching: true,
@@ -795,17 +795,16 @@ function mirrorSafetyLayerinfo(state = {}, action){
   }
 }
 
-function mirrorSafetyScanStatus(state = {}, action){
-  switch(action.type){
+function mirrorSafetyScanStatus(state = {}, action) {
+  switch (action.type) {
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCANSTATUS_REQUEST:
       return merge({}, state, {
         isFetching: true,
-        mirrorScanstatusinfo: {}
       })
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCANSTATUS_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         isFetching: false,
-        mirrorScanstatusinfo: action.response.result
+        [action.imageName]: action.response.result
       })
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCANSTATUS_FAILURE:
       return merge({}, state, {
@@ -816,17 +815,17 @@ function mirrorSafetyScanStatus(state = {}, action){
   }
 }
 
-function mirrorSafetyScan(state = {}, action){
-  switch(action.type){
+function mirrorSafetyScan(state = {}, action) {
+  switch (action.type) {
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCAN_REQUEST:
       return merge({}, state, {
         isFetching: true,
         mirrorScaninfo: {}
       })
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCAN_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         isFetching: false,
-        mirrorScaninfo: action.response
+        [action.imageName]: action.response
       })
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCAN_FAILURE:
       return merge({}, state, {
@@ -837,17 +836,16 @@ function mirrorSafetyScan(state = {}, action){
   }
 }
 
-function mirrorSafetyLyinsinfo(state = {}, action){
-  switch(action.type){
+function mirrorSafetyLyinsinfo(state = {}, action) {
+  switch (action.type) {
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_LYINSINFO_REQUEST:
       return merge({}, state, {
         isFetching: true,
-        mirrorLyinsinfo: {}
       })
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_LYINSINFO_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         isFetching: false,
-        mirrorLyinsinfo: action.response
+        [action.imageName]: action.response
       })
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_LYINSINFO_FAILURE:
       return merge({}, state, {
@@ -858,17 +856,16 @@ function mirrorSafetyLyinsinfo(state = {}, action){
   }
 }
 
-function mirrorSafetyClairinfo(state = {}, action){
-  switch(action.type){
+function mirrorSafetyClairinfo(state = {}, action) {
+  switch (action.type) {
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_CLAIRINFO_REQUEST:
       return merge({}, state, {
         isFetching: true,
-        mirrorchairinfo: {}
       })
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_CLAIRINFO_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         isFetching: false,
-        mirrorchairinfo: action.response
+        [action.imageName]: action.response
       })
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_CLAIRINFO_FAILURE:
       return merge({}, state, {
