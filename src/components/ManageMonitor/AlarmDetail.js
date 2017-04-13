@@ -12,9 +12,11 @@ import { Row, Col, Card ,Radio, Button, Table, Modal, Spin } from 'antd'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
+import cloneDeep from 'lodash/cloneDeep'
 import { formatDate } from '../../common/tools'
+import NotificationHandler from '../../common/notification_handler'
 import './style/AlarmDetail.less'
-import { getAlertSetting, getSettingList } from '../../actions/alert'
+import { getAlertSetting, getSettingList, updateEnable } from '../../actions/alert'
 const RadioGroup = Radio.Group
 
 class AlarmDetail extends Component {
@@ -23,7 +25,8 @@ class AlarmDetail extends Component {
     this.state = {
       sendEmail: 2, // no send eamil
       delBtn: true,
-      selectCheckbox: [] // default table selected item
+      selectCheckbox: [], // default table selected item
+      ruleName: {}
     }
   }
   componentWillMount() {
@@ -35,13 +38,13 @@ class AlarmDetail extends Component {
     })
     getSettingList(cluster.clusterID, {
       strategyName: id
-    })
+    }, true)
   }
   formatStatus(text){
     if (text ==1) {
       return <span className="running"><i className="fa fa-circle" /> 启用</span>
     }
-    if (text ==2) {
+    if (text == 0) {
       return <span className="stop"><i className="fa fa-circle" /> 停用</span>
     }
     if (text ==3) {
@@ -72,7 +75,50 @@ class AlarmDetail extends Component {
     }
     return time + sym
   }
+  refreshPage() {
+    const id = this.props.params.id
+    const { getAlertSetting, cluster } = this.props
+    getAlertSetting(cluster.clusterID, {
+      strategy: id
+    })
+  }
   deleteRecords() {
+  }
+  changeEmail(e) {
+    this.setState({sendEmail: e}) 
+    const id = this.props.params.id
+    const { leftSetting, getSettingList, cluster, updateEnable} = this.props
+    if(leftSetting) {
+      const noti = new NotificationHandler()
+      if(leftSetting.enable == e) {
+        noti.error(`策略已处于${e == 0 ? '停用状态' : '启用状态'}`)
+        return
+      }
+      noti.spin('更新中')
+      updateEnable(cluster.clusterID, {
+        strategies:[{
+          strategyID: leftSetting.strategyID,
+          enable: e
+        }]
+      }, {
+        success: {
+          func: () => {
+            noti.close()
+            noti.success('策略更新成功')
+            getSettingList(cluster.clusterID, {
+              strategyName: id
+            }, false)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (res) => {
+            noti.close()
+            noti.error('策略更新失败')
+          }
+        }
+      })
+    }
   }
   render() {
     const { isFetching } = this.props.setting
@@ -116,7 +162,7 @@ class AlarmDetail extends Component {
     const _this = this
     const rowSelection = {
       selectedRowKeys: this.state.selectCheckbox,
-      onChange(selectedRowKeys, selectedRows) {
+      onChange(selectedRowKeys, select, selectedRows) {
         let btnDisabled = true
         if (selectedRowKeys.length > 0) {
           btnDisabled = false
@@ -127,9 +173,13 @@ class AlarmDetail extends Component {
           selectCheckbox: selectedRowKeys
         })
       },
-      // onSelectAll(selected, selectedRows, changeRows) {
-      //   console.log(selected, selectedRows, changeRows);
-      // },
+      onSelect(key, select, rows) {
+        console.log(select)
+        let newRuleName = cloneDeep(_this.state.ruleName)
+      },
+      onSelectAll(selected, selectedRows, changeRows) {
+        console.log(selected, selectedRows, changeRows);
+      },
     };
     return (
       <div id="AlarmDetail">
@@ -145,17 +195,17 @@ class AlarmDetail extends Component {
                 <div className="baseAttr"><span className="keys">策略名称：</span>{leftSetting.strategyName}</div>
                 <div className="baseAttr"><span className="keys">类型：</span>{leftSetting.targetType == '1' ? '节点' : '服务'}</div>
                 <div className="baseAttr"><span className="keys">告警对象：</span>{leftSetting.targetName}</div>
-                <div className="baseAttr"><span className="keys">状态：</span>{this.formatStatus(leftSetting.enable)}</div>
+                <div className="baseAttr"><span className="keys">状态：</span>{this.formatStatus(leftSetting.statusCode)}</div>
                <div className="baseAttr"><span className="keys">监控周期：</span>{this.calcuTime(leftSetting.repeatInterval)}</div>
                 <div className="baseAttr">
                   <span className="keys">是否发送：</span>
-                  <RadioGroup defaultValue={leftSetting.enable} onChange={(e)=> this.setState({sendEmail: e.target.value}) }>
+        <RadioGroup value={leftSetting.enable} onChange={(e)=> this.changeEmail(e.target.value)}>
                     <Radio key="a" value={1}>是</Radio>
-                    <Radio key="b" value={2}>否</Radio>
+                    <Radio key="b" value={0}>否</Radio>
                   </RadioGroup>
                 </div>
                 <div className="baseAttr"><span className="keys">最后修改人：</span>{leftSetting.updater}</div>
-        <div className="baseAttr"><span className="keys">通知列表：</span>{"等待更改"}</div>
+        <div className="baseAttr"><span className="keys">通知列表：</span>{leftSetting.receivers}</div>
                 <div className="baseAttr"><span className="keys">创建时间：</span>{formatDate(leftSetting.createTime)}</div>
               </Card>
               <Card style={{marginTop:'15px',paddingBottom:'50px'}}>
@@ -170,7 +220,7 @@ class AlarmDetail extends Component {
                   <div className="alertRow">提示：当任意规则满足条件时，该策略属于触发状态！</div>
                 </div>
                 <div style={{margin: '20px 30px'}}>
-                  <Button icon="reload" type="primary" size="large">刷新</Button>
+                <Button icon="reload" type="primary" size="large" onClick={() => this.refreshPage()}>刷新</Button>
                   <Button icon="delete" size="large" style={{marginLeft: 8}} disabled={this.state.delBtn} onClick={()=> this.setState({deleteModal: true})} type="ghost">删除</Button>
                 </div>
                 <Table className="strategyTable" rowSelection={rowSelection} columns={columns}
@@ -234,9 +284,12 @@ function mapStateToProps(state, props) {
           leftSetting = item
           return true
         }
+        return false
       })
     } else {
-      leftSetting = settingList.result.data.strategys[0] || {}
+      if(settingList.result && settingList.result.data) {
+        leftSetting = settingList.result.data.strategys[0]
+      }
     }
   }
   return {
@@ -249,5 +302,6 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   getAlertSetting,
-  getSettingList
+  getSettingList,
+  updateEnable
 })(AlarmDetail)
