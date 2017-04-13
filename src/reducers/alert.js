@@ -64,18 +64,14 @@ export default function alert(state = {
     }, state.getSetting, action, option),
     addSetting: reducerFactory({
       REQUEST: ActionTypes.ALERT_SETTING_ADD_REQUEST,
-      SUCCESS: ActionTypes.ALERT_SETTING_ADD_REQUEST,
-      FAILURE: ActionTypes.ALERT_SETTING_ADD_REQUEST
+      SUCCESS: ActionTypes.ALERT_SETTING_ADD_SUCCESS,
+      FAILURE: ActionTypes.ALERT_SETTING_ADD_FAILURE
     }, state.addSetting, action, option),
-    settingList: getSettingList(state.settingList, action), // reducerFactory({
-//      REQUEST: ActionTypes.ALERT_SETTING_LIST_QUERY_REQUEST,
-//      SUCCESS: ActionTypes.ALERT_SETTING_LIST_QUERY_SUCCESS,
-//      FAILURE: ActionTypes.ALERT_SETTING_LIST_QUERY_FAILED
-//    }, state.settingList, action, option),
+    settingList: getSettingList(state.settingList, action),
     deleteSetting: reducerFactory({
       REQUEST: ActionTypes.ALERT_DELETE_SETTING_REQUEST,
       SUCCESS: ActionTypes.ALERT_DELETE_SETTING_SUCCESS,
-      FAILURE: ActionTypes.ALERT_DELETE_SETTING_FAILUR
+      FAILURE: ActionTypes.ALERT_DELETE_SETTING_FAILURE
     }, state.deleteSetting, action, option),
     ingoreSetting: reducerFactory({
       REQUEST: ActionTypes.ALERT_INGORE_SETTING_REQUEST,
