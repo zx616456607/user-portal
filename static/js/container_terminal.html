@@ -91,7 +91,17 @@
           term.write("************************** TenxCloud Container Terminal\r\n\r\n");
           term.refresh(term.x, term.y);
           term.focus();
+          var inputCmd = ''
           term.on('data', function (data) {
+            inputCmd += data
+            if (data == '\r' || data == '\n') {
+              if (inputCmd.trim() == 'exit') {
+                term.destroy()
+                term = null
+                // TODO: invoke REMOVE_TERMINAL_ITEM event???
+              }
+              inputCmd = ''
+            }
             if (ws && ws.readyState === 1) {
               ws.send("0" + utf8_to_b64(data));
             }
