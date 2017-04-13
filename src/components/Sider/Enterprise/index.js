@@ -223,7 +223,7 @@ class Sider extends Component {
 
   onOpenBigMenu(e) {
     //this function for show only one menu opened
-    let currentOpenMenu = checkUrlOpenKeys(e.key + '/' + e.key)
+    let currentOpenMenu = checkUrlSelectedKey(e.key + '/' + e.key)
     this.setState({
       currentOpenMenu: currentOpenMenu
     })
