@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { getSettingList, deleteSetting } from '../../actions/alert'
+import { getSettingList, deleteSetting, updateEnable } from '../../actions/alert'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { calcuTime, formatDate } from '../../common/tools'
@@ -24,7 +24,9 @@ function loadStrategy(scope) {
   const { getSettingList, nodeName, cluster, appName, serviceName } = scope.props
   let body = {
     targetType: 0,
-    targetName: serviceName
+    targetName: serviceName,
+    from: (scope.state.currentPage -1) * DEFAULT_PAGE_SIZE,
+    size: DEFAULT_PAGE_SIZE
   }
   if (appName) {
     body = {
@@ -32,10 +34,8 @@ function loadStrategy(scope) {
     }
   }
   if (nodeName) {
-    body = {
-      targetType: 1,
-      targetName: nodeName
-    }
+    body.targetType = 1
+    body.targetName= nodeName
   }
   getSettingList(cluster,body, {
     failed: {
@@ -66,14 +66,25 @@ class AlarmStrategy extends Component {
     })
     const { getSettingList, cluster } = this.props
     getSettingList(cluster, {
-      from: page,
+      from: (page-1) * DEFAULT_PAGE_SIZE,
       size: DEFAULT_PAGE_SIZE
     })
   }
   hnadDelete(e, record) {
     console.log('key is', e.key, record)
     switch(e.key) {
-      case 'delete': return this.setState({deleteModal: true, strategyID: [record.strategyID]})
+      case 'delete': {
+        this.setState({deleteModal: true, strategyID: [record.strategyID]})
+        return
+      }
+      case 'stop':{
+        this.setState({enable: 'stop',strategyID: [record.strategyID]})
+        return
+      }
+      case 'start':{
+        this.setState({enable: 'start',strategyID: [record.strategyID]})
+        return
+      }
       default: return false
     }
   }
@@ -89,10 +100,10 @@ class AlarmStrategy extends Component {
         <Menu.Item key="edit">
           <span>修改</span>
         </Menu.Item>
-        <Menu.Item key="stop">
+        <Menu.Item disabled={(record.enable ==0)} key="stop">
           <span>停用</span>
         </Menu.Item>
-        <Menu.Item key="start">
+        <Menu.Item disabled={(record.enable ==1)} key="start">
           <span>启用</span>
         </Menu.Item>
 
@@ -114,6 +125,40 @@ class AlarmStrategy extends Component {
       }
     })
   }
+  handEnable() {
+    const { strategyID, enable } = this.state
+    const _this = this
+    let enables = enable == 'start' ? 1: 0
+    const noticeText = enable== 'start' ? '策略启动中...':'策略停止中...'
+    const body = {
+      strategies:[{
+        enable: enables,
+        strategyID: strategyID.toString()
+      }]
+    }
+    const notifcation = new NotificationHandler()
+    notifcation.spin(noticeText)
+    this.props.updateEnable(this.props.cluster, body, {
+      success: {
+        func: ()=> {
+          notifcation.close()
+          loadStrategy(_this)
+        },
+        isAsync: true
+      },
+      failed: {
+        func: ()=> {
+          notifcation.close()
+          notifcation.error('策略修改失败！')
+        }
+      }
+    })
+    _this.setState({enable: false})
+  }
+  handClickRow(e) {
+    console.log('eee',e,this.props.strategys)
+
+  }
   render() {
     const columns = [
       {
@@ -124,13 +169,13 @@ class AlarmStrategy extends Component {
       },
       {
         title: '状态',
-        dataIndex: 'targetType',
-        key: 'targetType',
+        dataIndex: 'enable',
+        key: 'enable',
         render: text => {
           if (text == 1) {
             return <div style={{ color: '#33b867' }}><i className="fa fa-circle" /> &nbsp;启用</div>
           }
-          if (text == 2) {
+          if (text == 0) {
             return <div style={{ color: '#f23e3f' }}><i className="fa fa-circle" /> &nbsp;停用</div>
           }
           return <div style={{ color: '#FAB35B' }}><i className="fa fa-circle" /> &nbsp;告警</div>
@@ -165,8 +210,9 @@ class AlarmStrategy extends Component {
 
     const _this = this
     const rowSelection = {
+      selectedRowKeys: this.state.selectedRowKeys,
       onChange(selectedRowKeys, selectedRows) {
-        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+        console.log(`selectedRowKeys:`, selectedRowKeys, 'selectedRows: ', selectedRows);
         let btnAll = true
 
         if (selectedRows.length > 0) {
@@ -175,7 +221,7 @@ class AlarmStrategy extends Component {
         const strategyID = selectedRows.map((list)=> {
           return list.strategyID
         })
-        _this.setState({ btnAll, strategyID })
+        _this.setState({ btnAll, strategyID, selectedRowKeys})
       }
     }
     const { total } = this.props.data || 0
@@ -196,7 +242,7 @@ class AlarmStrategy extends Component {
             pageSize={size}
             total={total} />
         </div>
-        <Table className="strategyTable" rowSelection={rowSelection} columns={columns} dataSource={this.props.strategys} pagination={false} loading={this.props.isFetching} />
+        <Table className="strategyTable" onRowClick={(e)=> this.handClickRow(e)} rowSelection={rowSelection} columns={columns} dataSource={this.props.strategys} pagination={false} loading={this.props.isFetching} />
         <Modal title="删除策略" visible={this.state.deleteModal}
           onCancel={() => this.setState({ deleteModal: false })}
           onOk={() => this.handDelete()}
@@ -217,6 +263,13 @@ class AlarmStrategy extends Component {
               <Option value="second">秒</Option>
             </Select>
           </div>
+        </Modal>
+        {/* start or stop modal  */}
+        <Modal title={this.state.enable =='start' ? '启用策略': '停止策略'} visible={this.state.enable ? true : false}
+        onCancel={()=> this.setState({enable: false})}
+        onOk={()=> this.handEnable()}
+        >
+          <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>您是否确定要{this.state.enable =='start' ? '启用':'停止'}此策略 ?</div>
         </Modal>
       </div>
     )
@@ -246,5 +299,6 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   getSettingList,
-  deleteSetting
+  deleteSetting,
+  updateEnable, // start or stop
 })(AlarmStrategy)
