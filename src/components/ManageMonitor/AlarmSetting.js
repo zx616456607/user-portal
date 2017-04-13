@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../common/notification_handler'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { getAlertSetting, deleteRecords, getSettingList, deleteSetting, updateEnable, ignoreSetting } from '../../actions/alert'
+import { getAlertSetting, deleteRecords, getSettingList, deleteSetting, updateEnable, ignoreSetting, getSettingInstant } from '../../actions/alert'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 import no_alarm from '../../assets/img/no_data/no_alarm.png'
@@ -23,12 +23,14 @@ import './style/AlarmRecord.less'
 import cloneDeep from 'lodash/cloneDeep'
 const Option = Select.Option
 
-const MyComponent = React.createClass({
+let MyComponent = React.createClass({
   getInitialState() {
     return {
       lookModel: false,
       isFirstData: true,
-      data: this.props.data
+      data: this.props.data,
+      ignoreTime: 1,
+      ignoreSymbol: 'm'
     }
   },
   componentWillReceiveProps(nextProps) {
@@ -38,6 +40,7 @@ const MyComponent = React.createClass({
         nextData.some(data => {
           if(data.strategyID == item.strategyID) {
             data.checked = item.checked
+            data.active = item.active
             return true
           }
           return false
@@ -60,7 +63,7 @@ const MyComponent = React.createClass({
     this.setState({record})
     switch(key) {
       case 'delete': {
-        scope.setState({deleteModal: true})
+        scope.setState({deleteModal: true, selectStrategy: record})
         return
       }
       case 'edit': {
@@ -68,8 +71,17 @@ const MyComponent = React.createClass({
         return
       } 
       case 'start': {
-        console.log('start--')
+        scope.setState({
+          selectStrategy: record,
+          showStart: true
+        })
         return
+      }
+      case 'stop': {
+        scope.setState({
+          selectStrategy: record,
+          showStop: true
+        })
       }
       case 'list': {
         console.log('list---')
@@ -135,7 +147,13 @@ const MyComponent = React.createClass({
     return <span className="unknown"><i className="fa fa-circle" /> 告警</span>
   },
   handOverlook() {
-    lookModel: true
+    const { currentStrategy, ignoreTime, ignoreSymbol } = this.state
+    const { scope } = this.props
+    scope.ignoreSetting.call(scope, currentStrategy, ignoreTime + ignoreSymbol)
+    this.setState({
+      lookModel: false,
+      currentStrategy: null
+    })
   },
   sorterData(sorter) {
     const newData = this.state.data.sort((a, b) => {
@@ -162,10 +180,10 @@ const MyComponent = React.createClass({
     })
     if(checkedData.length > 0) {
       canStop = newData.every(item => {
-        return item.enable
+        return item.statusCode != 0 
       })
       canStart = newData.every(item => {
-        return !item.enable
+        return item.statusCode == 0
       })
     }
     const { scope } = this.props
@@ -192,10 +210,10 @@ const MyComponent = React.createClass({
     })
     if(checkedData.length > 0) {
       canStart = checkedData.every(item => {
-        return !item.enable
+        return item.statusCode == 0
       })
       canStop = checkedData.every(item => {
-        return item.enable
+        return item.statusCode != 0
       })
     }
     if(!e.target.checked) {
@@ -228,8 +246,10 @@ const MyComponent = React.createClass({
   },
   tableListMore(list) {
     const oldData = cloneDeep(this.state.data)
+    let data
     const newData = oldData.map((item, index)=> {
       if (index == list) {
+        data = item
         item.active = !item.active
         return item
       }
@@ -239,8 +259,25 @@ const MyComponent = React.createClass({
     this.setState({
       data: newData
     })
+    if(data && data.isActive) {
+      const { scope, getSettingInstant, settingInstant } = this.props
+      if(settingInstant.result && settingInstant.result[data.strategyName]) return
+      let type = 'node'
+      if(data.targetType == 0) {
+        type = 'pod'
+      }
+      setTimeout(() => getSettingInstant(scope.props.clusterID, type, data.strategyName, {
+        name: data.targetName
+      }), 0)
+    }
   },
-  childerList() {
+  childerList(list) {
+    console.log('sdfsdfsdfsdf')
+    const { settingInstant } = this.props
+    console.log(settingInstant)
+    if(settingInstant.isFetching) {
+      return <div className="loadingBox"><Spin size="large"></Spin></div>
+    }
     return (
       <div className="wrapChild">
         <div className="leftName">
@@ -279,6 +316,21 @@ const MyComponent = React.createClass({
     }
     return time + sym
   },
+  getIgnoreTime(e) {
+    const notify = new NotificationHandler()
+    if(e <= 0) {
+      notify.error('请填入大于0的数字')
+      return
+    }
+    this.setState({
+      ignoreTime: e
+    })
+  },
+  setIgnore(list) {
+    return () => {
+      this.setState({lookModel: true, currentStrategy: list})
+    }
+  },
   render() {
     const { data } = this.state
     if(!data || data.length <= 0) return (<div className="text-center"><img src={no_alarm} />
@@ -292,11 +344,11 @@ const MyComponent = React.createClass({
               <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${list.strategyName}`}>{list.strategyName}</Link></td>
               <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.targetName}</td>
-              <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.enable)}</td>
+              <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
               <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
               <td onClick={()=> this.tableListMore(index)}>{formatDate(list.createTime)}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.editUser}</td>
-              <td><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={()=> this.setState({lookModel: true})}>忽略</Dropdown.Button></td>
+             <td><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={ this.setIgnore(list) }>忽略</Dropdown.Button></td>
             </tr>,
             <tr key={`list-${index}`} className="ant-table-expanded">
               <td style={{width:'5%',textAlign:'center'}}></td>
@@ -313,11 +365,11 @@ const MyComponent = React.createClass({
             <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${list.strategyName}`}>{list.strategyName}</Link></td>
             <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.targetName}</td>
-            <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.enable)}</td>
+            <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
             <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
             <td onClick={()=> this.tableListMore(index)}>{formatDate(list.createTime)}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.updater}</td>
-            <td><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={()=> this.setState({lookModel: true})}>忽略</Dropdown.Button></td>
+          <td><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={ this.setIgnore(list)}>忽略</Dropdown.Button></td>
           </tr>
       )
     })
@@ -347,17 +399,17 @@ const MyComponent = React.createClass({
           </tbody>
         </table>
         <Modal title="忽略" visible={this.state.lookModel}
-          onOk={()=> this.handOverlook()} onCancel={()=> this.setState({lookModel: false})}
+         onOk={()=> this.handOverlook()} onCancel={()=> this.setState({lookModel: false, currentStrategy: null})}
           okText="提交"
         >
           <div className="alertRow">注意：在忽略时间内我们将不会发送告警邮件通知！</div>
           <div className="modalParams">
             <span className="keys">忽略时长</span>
-            <InputNumber size="large" min={1} style={{margin:'0 10px'}}/>
-            <Select style={{width: 80}} size="large" defaultValue={'minute'}>
-              <Option value="hour">小时</Option>
-              <Option value="minute">分钟</Option>
-              <Option value="second">秒</Option>
+        <InputNumber size="large" min={1} style={{margin:'0 10px'}} defaultValue={100} value={this.state.ignoreTime} onChange={(e) => this.getIgnoreTime(e)}/>
+            <Select style={{width: 80}} size="large" defaultValue={'m'} onChange={(e) => this.setState({ignoreSymbol: e})}>
+              <Option value="h">小时</Option>
+              <Option value="m">分钟</Option>
+              <Option value="s">秒</Option>
             </Select>
           </div>
         </Modal>
@@ -371,6 +423,25 @@ const MyComponent = React.createClass({
     )
   }
 })
+
+function myComponentMapStateToProp(state) {
+  const defaultInstant = {
+    isFetching: false
+  }
+  let { settingInstant }  = state
+  if(!settingInstant) {
+    settingInstant = defaultInstant
+  }
+  return{
+    settingInstant
+  }
+}
+
+MyComponent = connect(myComponentMapStateToProp, {
+  getSettingInstant
+})(MyComponent)
+
+
 
 class AlarmSetting extends Component {
   constructor(props) {
@@ -397,8 +468,11 @@ class AlarmSetting extends Component {
       size: DEFAULT_PAGE_SIZE
     })
   }
-  componentWillReceiveProps() {
+  componentWillReceiveProps(nextProps) {
     if(this.state.needUpdate) {
+      this.setState({
+        data: nextProps.setting
+      })
       setTimeout(() => {
         this.setState({
           needUpdate: false
@@ -442,11 +516,16 @@ class AlarmSetting extends Component {
   deleteRecords() {
     const data = this.state.data
     const strategyID = []
-    data.forEach(item => {
-      if(item.checked) {
-        strategyID.push(item.strategyID)
-      }
-    })
+    const selectStrategy = this.state.selectStrategy
+    if(selectStrategy) {
+      strategyID.push(selectStrategy.strategyID)
+    } else {
+      data.forEach(item => {
+        if(item.checked) {
+          strategyID.push(item.strategyID)
+        }
+      })
+    }
     const notify = new NotificationHandler()
     const { clusterID, deleteSetting, getSettingList } = this.props
     notify.spin('删除中')
@@ -456,13 +535,12 @@ class AlarmSetting extends Component {
           this.setState({
             deleteModal: false,
             canStart: false,
-            canStop: false
+            canStop: false,
+            needUpdate: true,
+            selectStrategy: null
           })
           notify.close()
           notify.success('策略删除成功')
-          this.setState({
-            needUpdate: true
-          })
           getSettingList(clusterID, {
             from: this.state.currentPage - 1,
             size: DEFAULT_PAGE_SIZE
@@ -482,6 +560,10 @@ class AlarmSetting extends Component {
             message = res.message
           }
           notify.error(message)
+          this.setState({
+            deleteModal: false,
+            selectStrategy: null
+          })
         }
       }
     })
@@ -489,16 +571,17 @@ class AlarmSetting extends Component {
   ignoreSetting(special, time) {
     const strategy = []
     const notifi = new NotificationHandler()
-      strategy.push({
-        strategyID: special.strategyID,
-        intervale: time
-      })
+    strategy.push({
+      strategyID: special.strategyID,
+      interval: time
+    })
     if(strategy.length == 0 ) {
       notifi.error('请选择要设置忽略时间的策略')
       return
     }
     notifi.spin('设置中')
-    const { clusterID, ignoreSetting } = this.props
+    console.log(strategy)
+    const { clusterID, ignoreSetting, getSettingList } = this.props
     ignoreSetting(clusterID, {
       strategies: strategy
     }, {
@@ -506,6 +589,21 @@ class AlarmSetting extends Component {
         func: () => {
           notifi.close()
           notifi.success('设置策略忽略时间成功')
+          getSettingList(clusterID, {
+            from: this.state.currentPage - 1,
+            size: DEFAULT_PAGE_SIZE
+          })
+          this.setState({
+            needUpdate: true
+          })
+          this.disableButton()
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          notifi.close()
+          notifi.error('设置策略忽略时间失败')
         }
       }
     })
@@ -520,6 +618,9 @@ class AlarmSetting extends Component {
   }
   getCheckecSettingName() {
     const checkedName = []
+    if(this.state.selectStrategy) {
+      return this.state.selectStrategy.strategyName
+    }
     this.state.data.forEach(item => {
       if(item.checked) {
         checkedName.push(item.strategyName)
@@ -582,6 +683,10 @@ class AlarmSetting extends Component {
     const strategy = []
     const notifi = new NotificationHandler()
     if(selectStrategy) {
+      if(selectStrategy.enable == 1) {
+        notifi.error('该策略已启用')
+        return
+      }
       strategy.push({
         strategyID: selectStrategy.strategyID,
         enable: 1
@@ -621,6 +726,10 @@ class AlarmSetting extends Component {
       },
       failed: {
         func: () => {
+          this.setState({
+            showStart: false,
+            selectStrategy: null
+          })
           notifi.close()
           notifi.error('策略启动失败，请重试')
         }
@@ -632,14 +741,27 @@ class AlarmSetting extends Component {
     const data = this.state.data
     const strategy = []
     const notifi = new NotificationHandler()
-    data.forEach(item => {
-      if(item.checked) {
-        strategy.push({
-          strategyID: item.strategyID,
-          enable: 0
-        })
+    const selectStrategy = this.state.selectStrategy
+    if(selectStrategy) {
+      if(selectStrategy.enable == 0) {
+        notifi.error('该策略已停用')
+        return
       }
-    })
+      strategy.push({
+        strategyID: selectStrategy.strategyID,
+        enable: 0
+      })
+    } else {
+      data.forEach(item => {
+        if(item.checked) {
+          strategy.push({
+            strategyID: item.strategyID,
+            enable: 0
+          })
+        }
+      })
+    }
+
     if(strategy.length == 0 ) {
       notifi.error('请选择要停止的策略')
       return
@@ -656,7 +778,8 @@ class AlarmSetting extends Component {
           getSettingList(clusterID)
           this.setState({
             showStop: false,
-            needUpdate: true
+            needUpdate: true,
+            selectStrategy: null
           })
           this.disableButton()
         },
@@ -665,6 +788,10 @@ class AlarmSetting extends Component {
 
       failed: {
         func: () => {
+          this.setState({
+            showStop: false,
+            selectStrategy: null
+          })
           notifi.close()
           notifi.error('策略停止失败，请重试')
         }
@@ -678,7 +805,6 @@ class AlarmSetting extends Component {
       isDelete: true
     })
   }
-
   render() {
     const columns = [
       {
@@ -783,20 +909,20 @@ class AlarmSetting extends Component {
           <CreateGroup funcs={modalFunc} shouldLoadGroup={true}/>
           </Modal>
           <Modal title="删除策略" visible={this.state.deleteModal}
-            onCancel={()=> this.setState({deleteModal: false})}
+            onCancel={()=> this.setState({deleteModal: false, selectStrategy: null})}
             onOk={()=> this.deleteRecords()}
           >
             <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>策略删除后将不再发送邮件告警，确认删除 {this.getCheckecSettingName()} 策略？</div>
           </Modal>
         <Modal title="停止策略" visible={this.state.showStop}
-      onCancel={()=> this.setState({showStop: false})}
+      onCancel={()=> this.setState({showStop: false, selectStrategy: null})}
       onOk={()=> this.stopSetting()}
         >
         <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>确认停止 {this.getCheckecSettingName()} 策略？</div>
         </Modal>
 
        <Modal title="启动策略" visible={this.state.showStart}
-            onCancel={()=> this.setState({showStart: false})}
+            onCancel={()=> this.setState({showStart: false, selectStrategy: null})}
             onOk={()=> this.startSetting()}
           >
             <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>确认启动 {this.getCheckecSettingName()} 策略？</div>
