@@ -12,14 +12,13 @@
 import React, { Component, PropTypes } from 'react'
 import { Row, Col, Modal, Button, Form, Icon, Checkbox, Menu, Dropdown, Input } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { createConfigFiles, deleteConfigGroup, loadConfigGroup, deleteConfigFiles, addConfigFile } from '../../actions/configs'
+import { createConfigFiles, deleteConfigGroup, deleteConfigFiles, addConfigFile } from '../../actions/configs'
 import { connect } from 'react-redux'
 import { calcuDate } from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
 import { validateServiceConfigFile } from '../../common/naming_validation'
 import { USERNAME_REG_EXP_NEW } from '../../constants'
 import { validateK8sResource } from '../../common/naming_validation'
-
 const ButtonGroup = Button.Group
 const FormItem = Form.Item
 const createForm = Form.create
@@ -147,7 +146,6 @@ class CollapseHeader extends Component {
     super(props)
     this.state = {
       modalConfigFile: false,
-      configArray: [],
       sizeNumber: this.props.sizeNumber,
       configNameList: this.props.configNameList
     }
@@ -173,7 +171,7 @@ class CollapseHeader extends Component {
     e.stopPropagation()
   }
   handChage(e, Id) {
-    this.props.handChageProp(e, Id)
+    this.props.handChageProp(e,Id)
   }
   btnDeleteGroup() {
     const self = this
@@ -212,7 +210,7 @@ class CollapseHeader extends Component {
         isAsync: true
       }
     })
-    this.setState({delModal: false, configArray: []})
+    this.setState({delModal: false})
 
   }
   render() {
@@ -226,7 +224,7 @@ class CollapseHeader extends Component {
     return (
       <Row>
         <Col className="group-name textoverflow" span="6">
-          <Checkbox onChange={(e) => this.handChage(e, collapseHeader.name)} onClick={(e) => this.handleDropdown(e)}></Checkbox>
+          <Checkbox checked={(this.props.configArray.indexOf(collapseHeader.name) >-1)} onChange={(e) => this.handChage(e, collapseHeader.name)} onClick={(e) => this.handleDropdown(e)}></Checkbox>
           <Icon type="folder-open" />
           <Icon type="folder" />
           <span>{collapseHeader.name}</span>
@@ -265,7 +263,6 @@ CollapseHeader.propTypes = {
   collapseHeader: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired,
   createConfigFiles: PropTypes.func.isRequired,
-  loadConfigGroup: PropTypes.func.isRequired,
   deleteConfigGroup: PropTypes.func.isRequired
 }
 function mapStateToProps(state, props) {
@@ -292,7 +289,6 @@ function mapDispatchToProps(dispatch) {
   return {
     createConfigFiles: (obj, callback) => { dispatch(createConfigFiles(obj, callback)) },
     deleteConfigGroup: (obj, callback) => { dispatch(deleteConfigGroup(obj, callback)) },
-    loadConfigGroup: (obj) => { dispatch(loadConfigGroup(obj)) },
     addConfigFile: (configFile) => dispatch(addConfigFile(configFile))
   }
 }
