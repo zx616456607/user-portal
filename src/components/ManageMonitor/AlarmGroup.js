@@ -20,7 +20,7 @@ import { loadNotifyGroups, deleteNotifyGroups } from '../../actions/alert'
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
 import { formatDate } from '../../common/tools'
-import cloneDeep from 'lodash/cloneDeep'
+import { cloneDeep } from 'lodash'
 
 class AlarmGroup extends Component {
   constructor(props) {
