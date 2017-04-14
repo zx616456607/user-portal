@@ -27,6 +27,7 @@ import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
 class CollapseList extends Component {
   constructor(props) {
     super(props)
+    this.loadNumber = 0
   }
   loadData(props) {
     const { loadConfigGroup, cluster} = props
@@ -57,7 +58,9 @@ class CollapseList extends Component {
   render() {
     const {groupData, isFetching} = this.props
     const scope = this
-    if (!groupData.length || isFetching) {
+    // TODO: Fix loadNumber here, not sure why 'groupData.length' will be undefined -> 0 -> actual length
+    if (isFetching || this.loadNumber < 2) {
+      this.loadNumber++
       return (
         <div className='loadingBox'>
           <Spin size='large' />

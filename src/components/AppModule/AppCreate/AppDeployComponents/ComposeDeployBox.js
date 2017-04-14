@@ -531,6 +531,7 @@ let ComposeDeployBox = React.createClass({
       <div id="ComposeDeployBox">
         <div className="composeBox">
           <span className="title">配置目录</span>
+          <br/>
           <div className="composeList">
             <div className="composeTitle">
               <div className="composeCommonTitle">
@@ -538,11 +539,11 @@ let ComposeDeployBox = React.createClass({
               </div>
               <div className="composeCommonTitle">
                 <span>覆盖方式&nbsp;</span>
-                <Tooltip title={(
+                <Tooltip width="200px" title={(
                   <p>
-                    ①覆盖目录：覆盖整个目录，并且支持修改后不重启更新（5 min左右）;
+                    ① 覆盖目录：覆盖整个目录，并且支持修改后『不用重启』服务即可更新（1 min左右），包括文件的增加/删除
                     <br />
-                    ②不覆盖目录：不覆盖整个目录，且修改后『需重启』容器或服务来更新。
+                    ② 不覆盖目录：支持替换目录下的指定文件，修改后『需重启』容器或服务来更新。
                   </p>
                 )}>
                   <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
