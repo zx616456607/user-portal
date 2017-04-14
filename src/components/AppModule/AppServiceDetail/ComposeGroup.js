@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Card, Spin, Modal ,Input , Button, Popover } from 'antd'
+import { Card, Spin, Modal ,Input , Button, Popover, Icon } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -124,9 +124,13 @@ let MyComponent = React.createClass({
       )
     }
     let items = config.map((item) => {
-      let group = item.file.map(list =>{
-              return  <div title="点击查看配置文件" style={{wordBreak: 'break-all',color:'#2db7f5', cursor:'pointer'}} onClick={() => this.loadConfigData(item.group, list.path) }>{list.path} </div>
-          })
+      if (!item.file) {
+        // return 'no file'
+        item.file = []
+      }
+      let group = item.file.map(list => {
+        return <div title="点击查看配置文件" style={{wordBreak: 'break-all',color:'#2db7f5', cursor:'pointer'}} onClick={() => this.loadConfigData(item.group, list.path) }>{list.path} </div>
+      })
       return (
         <div className="composeDetail" key={item.id.toString() }>
           <div className="commonData">
@@ -136,7 +140,11 @@ let MyComponent = React.createClass({
             <span>{item.group}</span>
           </div>
           <div className="composefile commonData">
-            <span title="点击查看配置文件" onClick={() => this.loadConfigData(item.group, item.file[0].path) }>{item.file[0].path}</span>
+            {
+              item.file.length > 0
+              ? <span title="点击查看配置文件" onClick={() => this.loadConfigData(item.group, item.file[0].path) }>{item.file[0].path}</span>
+              : <span>已挂载整个配置组<Link to="/app_manage/configs"> <Icon type="export" /></Link></span>
+            }
             {item.file.length > 1 ?
             <Popover content={group} getTooltipContainer={()=> document.getElementById('ComposeGroup')}>
               <svg className="more"><use xlinkHref="#more"></use></svg>
