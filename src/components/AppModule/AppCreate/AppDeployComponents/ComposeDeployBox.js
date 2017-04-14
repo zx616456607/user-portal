@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Radio, Icon, Spin } from 'antd'
+import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Radio, Icon, Spin, Tooltip, } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import merge from 'lodash/merge'
@@ -36,8 +36,10 @@ let MyComponent = React.createClass({
   },
   componentWillReceiveProps(nextProps) {
     const serviceOpen = nextProps.serviceOpen
-    if (serviceOpen === this.props.serviceOpen) return
-     this.getList(nextProps, serviceOpen)
+    if (serviceOpen === this.props.serviceOpen) {
+      return
+    }
+    this.getList(nextProps, serviceOpen)
   },
   getList(nextProps, serviceOpen) {
     const { form } = this.props
@@ -46,8 +48,12 @@ let MyComponent = React.createClass({
     let volumeMounts = cloneDeep(getFieldValue('volumeMounts'))
     let newVolumeMounts = []
     if(volumeMounts && volumeMounts.length > 0){
-      newVolumeMounts = volumeMounts.map(vol => {
-        vol.mountPath = vol.mountPath.replace('/' + vol.subPath, '')
+      let configMaps = []
+      volumes.map(volume => {
+        configMaps = configMaps.concat(volume.configMap.items)
+      })
+      newVolumeMounts = volumeMounts.map((vol, index) => {
+        vol.mountPath = vol.mountPath.replace(`/${vol.subPath || configMaps[index].key}`, '')
         return vol
       })
       let helpOb = {}
@@ -117,8 +123,14 @@ let MyComponent = React.createClass({
           items: volume.configMap.items
         })
         selectValue.push(volume.configMap.name)
-        getFieldProps(`volPath${volIndex + 1}`, { initialValue: filter(volumeMounts, ['name', volume.name])[0].mountPath })
-        getFieldProps(`volName${volIndex + 1}`, { initialValue: volume.name })
+        const mountPath = filter(volumeMounts, ['name', volume.name])[0].mountPath
+        getFieldProps(`volPath${volIndex + 1}`, { initialValue: mountPath})
+        getFieldProps(`volName${volIndex + 1}`, { initialValue: volume.configMap.name })
+        let volCoverValue = 'cover'
+        if (volumeMounts[0].subPath) {
+          volCoverValue = 'unCover'
+        }
+        getFieldProps(`volCover${volIndex + 1}`, { initialValue: volCoverValue })
         volIndex++
       })
       let index = 0
@@ -301,6 +313,9 @@ let MyComponent = React.createClass({
       return c.name === configName.value
     })
     const config = configList[index]
+    if (!config) {
+      return
+    }
     let newConfig = {
       name: config.name,
       items: config.configs.map(item => {
@@ -320,29 +335,50 @@ let MyComponent = React.createClass({
   },
   selectChange(name, index) {
     const { form } = this.props
-    const { setFieldsValue } = form
+    const { setFieldsValue, getFieldValue } = form
     setFieldsValue({
       [`volName${index + 1}`]: name
     })
-    const checkAll = this.state.checkAll
-    checkAll[index] = false
+    const { checkAll, checkedList } = this.state
+    const isCover = getFieldValue(`volCover${index + 1}`)
+    checkedList[index] = {
+      name: name,
+      items: []
+    }
+    if (isCover === 'cover') {
+      checkAll[index] = true
+      this.onCheckAllChange({ target: { checked: true } }, index + 1)
+    } else {
+      checkAll[index] = false
+    }
     const selectValue = this.state.selectValue
     selectValue[index] = name
     this.setState({
       selectValue,
-      checkAll
+      checkAll,
+      checkedList,
     })
-    this.state.checkedList[index] = {
-      name: name,
-      items: []
-    }
   },
   getPlainOptions(index) {
-    const configName = this.state.checkedList[index].name
-    let plIndex = findIndex(this.state.plainOptions, pl => {
+    const { form } = this.props
+    const { getFieldValue} = form
+    const { checkedList, plainOptions } = this.state
+    const configName = checkedList[index].name
+    let plIndex = findIndex(plainOptions, pl => {
       return pl.name === configName
     })
-    return this.state.plainOptions[plIndex].path
+    let opts = plainOptions[plIndex].path
+    const isCover = getFieldValue(`volCover${index + 1}`)
+    if (isCover === 'cover') {
+      opts = opts.map(opt => {
+        return {
+          label: opt,
+          value: opt,
+          disabled: true,
+        }
+      })
+    }
+    return opts
   },
   getInitValue(k) {
     const { form } = this.props
@@ -368,6 +404,12 @@ let MyComponent = React.createClass({
     const { getFieldProps, getFieldValue, setFieldsValue} = form
     setFieldsValue({[`volPath${index}`]: e.target.value})
   },
+  onCoverChange(index, e) {
+    const { form } = this.props
+    const { setFieldsValue} = form
+    setFieldsValue({[`volCover${index}`]: e.target.value})
+    this.onCheckAllChange({ target: { checked: true } }, index)
+  },
   render() {
     const cluster = this.props.cluster
     if (!this.props.configGroup[cluster]) return <div></div>
@@ -387,12 +429,31 @@ let MyComponent = React.createClass({
     }
     const formItems = getFieldValue('volKey').map((k) => {
       const inputValue = getFieldProps(`volPath${k}`).value
+      let coverValue = getFieldProps(`volCover${k}`).value
+      if (!coverValue) {
+        getFieldProps(`volCover${k}`, {
+          initialValue: 'cover',
+        });
+      }
+      if (!coverValue) {
+        coverValue = 'cover'
+      }
       return (
-        <div key={`vol${k}`}>
+        <div key={`vol${k}`} id={`vol${k}`}>
           <FormItem >
             <li className="composeDetail">
               <div className="input">
                 <Input className="portUrl" size="large" placeholder="挂载目录，例如：/App" type="text" value={inputValue} onChange={(e) => this.inputChange(e, k)}/>
+              </div>
+              <div className="input">
+                <RadioGroup onChange={this.onCoverChange.bind(this, k)} value={coverValue}>
+                  <Radio key="cover" value="cover">
+                    覆盖目录
+                  </Radio>
+                  <Radio key="unCover" value="unCover">
+                    不覆盖目录
+                  </Radio>
+                </RadioGroup>
               </div>
               <div className="protocol select">
                 <div className="portGroupForm">
@@ -405,8 +466,27 @@ let MyComponent = React.createClass({
                 </div>
               </div>
               <div className="check">
-                {getFieldProps(`volName${k}`).value ? <span><Checkbox checked={this.state.checkAll[k - 1]} onChange={(e) => this.onCheckAllChange(e, k)} />全选<br />
-                  <CheckboxGroup options={this.getPlainOptions(k - 1)} onChange={(list) => this.onChange(list, k - 1)} value={this.getCheckboxValue(k - 1)} /></span> : <span>请先选择配置组</span>}
+                {
+                  getFieldProps(`volName${k}`).value
+                  ? (
+                    <span>
+                      <Checkbox
+                        disabled={coverValue === 'cover'}
+                        checked={this.state.checkAll[k - 1]}
+                        onChange={(e) => this.onCheckAllChange(e, k)}
+                      >
+                        全选
+                      </Checkbox>
+                      <br />
+                      <CheckboxGroup
+                        options={this.getPlainOptions(k - 1)}
+                        onChange={(list) => this.onChange(list, k - 1)}
+                        value={this.getCheckboxValue(k - 1)}
+                      />
+                    </span>
+                   )
+                  : <span>请先选择配置组</span>
+                }
               </div>
               <div className="opera">
                 <i className="fa fa-trash-o" onClick={() => this.remove(k)} />
@@ -455,6 +535,18 @@ let ComposeDeployBox = React.createClass({
             <div className="composeTitle">
               <div className="composeCommonTitle">
                 <span>挂载目录</span>
+              </div>
+              <div className="composeCommonTitle">
+                <span>覆盖方式&nbsp;</span>
+                <Tooltip title={(
+                  <p>
+                    ①覆盖目录：覆盖整个目录，并且支持修改后不重启更新（5 min左右）;
+                    <br />
+                    ②不覆盖目录：不覆盖整个目录，且修改后『需重启』容器或服务来更新。
+                  </p>
+                )}>
+                  <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
+                </Tooltip>
               </div>
               <div className="composeCommonTitle">
                 <span>配置组</span>

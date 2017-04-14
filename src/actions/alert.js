@@ -301,7 +301,7 @@ export const ALERT_SETTING_LIST_QUERY_SUCCESS= 'ALERT_SETTING_LIST_QUERY_SUCCESS
 export const ALERT_SETTING_LIST_QUERY_FAILURE = 'ALERT_SETTING_LIST_QUERY_FAILURE'
 
 
-function fetchGetAlertList(cluster, body, callback) {
+function fetchGetAlertList(cluster, body, needFetching, callback) {
   let endpoint = `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/list`
   if(typeof body == 'function') {
     callback = body
@@ -316,13 +316,18 @@ function fetchGetAlertList(cluster, body, callback) {
       endpoint,
       schema: {}
     },
-    callback
+    callback,
+    needFetching
   }
 }
 
-export function getSettingList(cluster, body, callback) {
+export function getSettingList(cluster, body, needFetching, callback) {
+  if(typeof needFetching == 'function') {
+    callback = needFetching
+    needFetching = true
+  }
   return (dispath, getState) => {
-    return dispath(fetchGetAlertList(cluster, body, callback))
+    return dispath(fetchGetAlertList(cluster, body, needFetching, callback))
   }
 }
 
@@ -362,7 +367,7 @@ function fetchUpdateEnable(cluster, body, callback) {
   return {
     [FETCH_API]: {
       types: [ALERT_UPDATE_SETTING_ENABLE_REQUEST, ALERT_UPDATE_SETTING_ENABLE_SUCCESS, ALERT_UPDATE_SETTING_ENABLE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting`,
+      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/enable`,
       schema: {},
       options: {
         method: 'PUT',
@@ -403,9 +408,39 @@ function fetchIngoreSetting(cluster, body, callback) {
 
 
 export function ignoreSetting(cluster, body, callback) {
-  return (dispath, getState) => {
+  return (dispath, getState) =>{
     return dispath(fetchIngoreSetting(cluster, body, callback))
   }
 }
+
+
+export const ALERT_SETTING_INSTANT_REQUEST = 'ALERT_SETTING_INSTANT_REQUEST'
+export const ALERT_SETTING_INSTANT_SUCCESS= 'ALERT_SETTING_INSTANT_SUCCESS'
+export const ALERT_SETTING_INSTANT_FAILURE = 'ALERT_SETTING_INSTANTFAILURET'
+
+
+
+function fetchSettingInstant(cluster, type, name, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/alerts/cluster/${cluster}/type/${type}/setting/${name}/instant`
+  if(body) {
+    endpoint += `?${toQuerystring(body)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [ALERT_SETTING_INSTANT_REQUEST, ALERT_SETTING_INSTANT_SUCCESS, ALERT_SETTING_INSTANT_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+
+export function getSettingInstant(cluster, type, body, name, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchSettingInstant(cluster, type, body, name, callback))
+  }
+}
+
 
 

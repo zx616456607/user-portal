@@ -383,8 +383,11 @@ module.exports = function (Router) {
 
   router.get('/alerts/cluster/:cluster/setting', alertController.getAlertSetting)
   router.post('/alerts/cluster/:cluster/setting', alertController.addAlertSetting)
+  router.put('/alerts/cluster/:cluster/setting', alertController.addAlertSetting)
   router.get('/alerts/cluster/:cluster/setting/list', alertController.getSettingList)
   router.delete('/alerts/cluster/:cluster/setting', alertController.deleteSetting)
-  router.put('/alerts/cluster/:cluster/setting', alertController.updateEnable)
+  router.put('/alerts/cluster/:cluster/setting/enable', alertController.updateEnable)
+  router.put('/alerts/cluster/:cluster/setting/ignore', alertController.setIgnore)
+  router.get('/alerts/cluster/:cluster/type/:type/setting/:name/instant', alertController.getTargetInstant)
   return router.routes()
 }

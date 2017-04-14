@@ -209,7 +209,8 @@ exports.getAlertSetting = function* () {
       threshold: condition[condition.length - 1],
       createTime: rule.annotation.createTime,
       recordCount: 0,
-      name: rule.name
+      name: rule.name,
+      key: rule.name
     }
     switchType(item)
     result.push(item)
@@ -265,7 +266,7 @@ exports.deleteSetting = function* () {
   const cluster = this.params.cluster
   const strategyID = this.query.strategyID
   if(!strategyID) {
-    const err = new Error('StrategyID is require')
+    const err = new Error('strategyID is require')
     err.status = 400
     throw err
   }
@@ -283,15 +284,86 @@ exports.deleteSetting = function* () {
 exports.updateEnable = function* () {
   const body = this.request.body
   if(!body.strategies) {
-    const err = new Error('Strategies is require')
+    const err = new Error('strategies is require')
     err.status = 400
     throw err
   }
   const user = this.session.loginUser
   body.user = user.namespace
+  if(user.teamspace) {
+    body.user = user.teamspace
+  }
   const spi = apiFactory.getSpi(user)
   const response = yield spi.alerts.createBy(['strategy', 'toggle_enable'], null, body)
   this.body = response
+}
+
+exports.setIgnore = function* () {
+  const body = this.request.body
+  if(!body.strategies) {
+    const err = new Error('strategies is require')
+    err.status = 200
+    throw err
+  }
+  const user = this.session.loginUser
+  body.user = user.namespace
+  if(user.teamspace) {
+    body.user = user.teamspace
+  }
+  const spi = apiFactory.getSpi(user)
+  const response = yield spi.alerts.createBy(['strategy', 'ingore'], null, body)
+  this.body = response
+}
+
+
+// host cpu and memory used
+exports.getTargetInstant = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  //node or pod
+  const type = this.params.type
+  const name = this.query.name
+  const strategyName = this.params.name
+  if(!name) {
+    const err = new Error('name is require')
+    err.status = 400
+    throw err
+  }
+  const api = apiFactory.getK8sApi(loginUser)
+  const reqArray = []
+  let cpu = {
+    targetType: type,
+    type: 'cpu/usage_rate',
+    source: 'prometheus'
+  }
+  let mem = {
+    targetType: type,
+    type: 'memory/usage',
+    source: 'prometheus'
+  }
+  let tx_rage = {
+    targetType: type,
+    type: 'network/tx_rate',
+    source: 'prometheus'
+  }
+  let rx_rate = {
+    targetType: type,
+    type: 'network/rx_rate',
+    source: 'prometheus'
+  }
+  reqArray.push(api.getBy([cluster, name, 'metric/instant'], cpu))
+  reqArray.push(api.getBy([cluster, name, 'metric/instant'], mem))
+  reqArray.push(api.getBy([cluster, name, 'metric/instant'], tx_rage))
+  reqArray.push(api.getBy([cluster, name, 'metric/instant'], rx_rate))
+  const results = yield reqArray
+  this.body = {
+    [strategyName]: {
+      cpus: results[0].data[name],
+      memory:results[1].data[name],
+      tx_rate: results[2].data[name],
+      rx_rate: results[3].data[name]
+    }
+  }
 }
 
 
