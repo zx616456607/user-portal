@@ -17,6 +17,7 @@ import { Icon, Button, Input, InputNumber, Select, Table, Dropdown, Modal, Menu,
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import './style/AlarmStrategy.less'
 import NotificationHandler from '../../common/notification_handler'
+import cloneDeep from 'lodash/cloneDeep'
 const Option = Select.Option
 
 function loadStrategy(scope) {
@@ -198,8 +199,8 @@ class AlarmStrategy extends Component {
     // this func is click table row then checkbox checked or false
     const { strategys } = this.props
     const { selectedRowKeys, strategyID } = this.state
-    let selectedRows = selectedRowKeys
-    let strategie = strategyID
+    let selectedRows = cloneDeep(selectedRowKeys)
+    let strategie = cloneDeep(strategyID)
     strategys.map((list, index) => {
       if (list.strategyID == e.strategyID) {
         if (selectedRowKeys.indexOf(index) > -1) {
