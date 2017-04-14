@@ -146,6 +146,9 @@ class Deployment {
               if (ct.args) {
                 container.args = ct.args
               }
+              if (ct.volumeMounts) {
+                container.volumeMounts = ct.volumeMounts
+              }
               if (ct.resources) {
                 let resources = {}
                 if (ct.resources.limits) {
@@ -301,7 +304,7 @@ class Deployment {
   }
 
   // ~ volume={name, diskType, fsType, image} volumeMounts={mountPath, readOnly}
-  addContainerVolume(containerName, volume, volumeMounts, isConfigMap) {
+  addContainerVolume(containerName, volume, volumeMounts, isWholeDir) {
     this.spec.template.spec.containers.map((container) => {
       if (container.name !== containerName) {
         return
@@ -312,22 +315,22 @@ class Deployment {
       if (!this.spec.template.spec.volumes) {
         this.spec.template.spec.volumes = []
       }
-      if (isConfigMap) {
-        volumeMounts.forEach(item => {
+      volumeMounts.forEach(item => {
+        if (!isWholeDir) {
           container.volumeMounts.push({
             name: volume.name,
             mountPath: item.mountPath,
             subPath: item.subPath,
             readOnly: item.readOnly || false
           })
-        })
-      } else {
-        container.volumeMounts.push({
-          name: volume.name,
-          mountPath: volumeMounts.mountPath,
-          readOnly: volumeMounts.readOnly || false
-        })
-      }
+        } else {
+          container.volumeMounts.push({
+            name: volume.name,
+            mountPath: item.mountPath,
+            readOnly: item.readOnly || false
+          })
+        }
+      })
       if (volume.hostPath) {
         this.spec.template.spec.volumes.push({
           name: volume.name,
@@ -338,9 +341,13 @@ class Deployment {
         return
       }
       if (volume.configMap) {
-        this.spec.template.spec.volumes.push({
-          name: volume.name,
-          configMap: {
+        let configMap = {}
+        if (isWholeDir) {
+          configMap = {
+            name: volume.configMap.name
+          }
+        } else {
+          configMap = {
             name: volume.configMap.name,
             items: volume.configMap.items.map((item) => {
               return {
@@ -349,6 +356,10 @@ class Deployment {
               }
             })
           }
+        }
+        this.spec.template.spec.volumes.push({
+          name: volume.name,
+          configMap
         })
         return
       }

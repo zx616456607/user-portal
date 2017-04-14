@@ -80,11 +80,13 @@ function actionCallback(state = null, action) {
   }
   if (actionType === 'SUCCESS' || action.type == EntitiesActionTypes.SET_CURRENT ) {
     if (!callback.success) return state
-    if (callback.success.isAsync) {
-      setTimeout(callback.success.func.bind(this, action.response ? action.response.result : null))
-      return state
+    if (callback.success.func) {
+      if (callback.success.isAsync) {
+        setTimeout(callback.success.func.bind(this, action.response ? action.response.result : null))
+        return state
+      }
+      callback.success.func(action.response.result)
     }
-    callback.success.func(action.response.result)
     return state
   }
   if (actionType === 'FAILURE') {
@@ -95,11 +97,13 @@ function actionCallback(state = null, action) {
        && action.error.message !== LOGIN_EXPIRED_MESSAGE) {
       action.error.handledByCallback = true
     }
-    if (callback.failed.isAsync) {
-      setTimeout(callback.failed.func.bind(this, action.error))
-      return state
+    if (callback.failed.func) {
+      if (callback.failed.isAsync) {
+        setTimeout(callback.failed.func.bind(this, action.error))
+        return state
+      }
+      callback.failed.func(action.error)
     }
-    callback.failed.func(action.error)
     return state
   }
   return state

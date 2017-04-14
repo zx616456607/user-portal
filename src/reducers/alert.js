@@ -39,7 +39,6 @@ function getSettingList(state = {}, action) {
 export default function alert(state = {
   recordFilters: {},
   records: {},
-  groups: {},
 }, action) {
   return {
     recordFilters: reducerFactory({

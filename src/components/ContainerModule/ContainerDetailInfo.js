@@ -67,7 +67,8 @@ export default class ContainerDetailInfo extends Component {
     let ele = []
     let volumes = container.spec.volumes
     let configMaps = []
-    if (container.spec.containers[0].volumeMounts) {
+    // TODO: Fix this!!!
+    /*if (container.spec.containers[0].volumeMounts) {
       container.spec.containers[0].volumeMounts.forEach((volume) => {
         if (volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount') { return }
         volumes.forEach(item => {
@@ -97,7 +98,7 @@ export default class ContainerDetailInfo extends Component {
           )
       })
       return ele
-    }
+    }*/
     return []
   }
   render() {

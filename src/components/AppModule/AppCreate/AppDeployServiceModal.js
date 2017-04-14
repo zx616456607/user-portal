@@ -679,21 +679,29 @@ let AppDeployServiceModal = React.createClass({
       totalNumber.forEach(item => {
         const vol = getFieldValue(`vol${item}`)
         const volPath = getFieldValue(`volPath${item}`)
+        const volCover = getFieldValue(`volCover${item}`)
         if (!vol) return
         if(!volPath) return
         if (vol.length <= 0) return
         let mountPath = []
-        vol.items.forEach((v, index) => {
-          let path = (volPath.indexOf('/') == 0 ? volPath : '/'+ volPath) + '/' + v.path
+        if (volCover === 'cover') {
           mountPath.push({
-            mountPath: path,
-            subPath: v.path
+            mountPath: volPath
           })
-        })
+        } else {
+          vol.items.forEach((v, index) => {
+            let path = (volPath.indexOf('/') == 0 ? volPath : '/'+ volPath) + '/' + v.path
+            const pathObj = {
+              mountPath: path,
+              subPath: v.path
+            }
+            mountPath.push(pathObj)
+          })
+        }
         deploymentList.addContainerVolume(serviceName, {
           name: `configmap-volume-${item}`,
           configMap: vol,
-        }, mountPath, true)
+        }, mountPath, volCover === 'cover')
       })
     }
     //livenessProbe 高可用
