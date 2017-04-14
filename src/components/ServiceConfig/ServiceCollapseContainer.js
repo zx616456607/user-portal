@@ -87,6 +87,12 @@ function formatVolumeMounts(data, groupname, name) {
                     }], isEqual)
                   }
                 })
+              } else {
+                volumeMounts = unionWith(volumeMounts, [{
+                  imageName: data[i].name,
+                  serviceName: data[i].services[j].metadata.name,
+                  mountPath: volumeMount.mountPath
+                }], isEqual)
               }
             }
           }
