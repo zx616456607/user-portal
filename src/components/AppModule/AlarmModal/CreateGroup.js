@@ -46,7 +46,7 @@ let CreateAlarmGroup = React.createClass({
         return
       }
       let keys = []
-      for (let email of data.email) {
+      for (let email of data.receivers.email) {
         mid++
         keys.push(mid)
         form.setFieldsValue({
