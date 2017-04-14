@@ -10,7 +10,7 @@
 
 'use strict'
 import React, { Component } from 'react'
-import { Button, Input, Table, Dropdown, Menu, Icon, Popover, Modal, Form, Card, Pagination } from 'antd'
+import { Button, Input, Table, Spin, Dropdown, Menu, Icon, Popover, Modal, Form, Card, Pagination } from 'antd'
 import './style/AlarmGroup.less'
 import QueueAnim from 'rc-queue-anim'
 // import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../constants'
@@ -19,7 +19,8 @@ const InputGroup = Input.Group
 import { loadNotifyGroups, deleteNotifyGroups } from '../../actions/alert'
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
-import moment from 'moment'
+import { formatDate } from '../../common/tools'
+import { cloneDeep } from 'lodash'
 
 class AlarmGroup extends Component {
   constructor(props) {
@@ -58,8 +59,8 @@ class AlarmGroup extends Component {
 
   // group must be an array. e.g. ['ID1'] or ['ID1', 'ID2']
   deleteGroup(rowSelection) {
+    let notification = new NotificationHandler()
     if (!this.state.deletingGroupIDs) {
-      let notification = new NotificationHandler()
       notification.error('请选择要删除的通知组')
     }
     const {
@@ -71,7 +72,6 @@ class AlarmGroup extends Component {
     this.setState({
       selectedRowKeys: [],
     })
-    let notification = new NotificationHandler()
     deleteNotifyGroups(this.state.deletingGroupIDs, {
       success: {
         func: (result) => {
@@ -187,7 +187,35 @@ class AlarmGroup extends Component {
     }
     return this.state.selectedRows[0]
   }
+  handClickRow(e) {
+    // this func is click table row then checkbox checked or false
+    const { groups } = this.props
+    const { selectedRowKeys, deletingGroupIDs, selectedRows } = this.state
+    let keys = cloneDeep(selectedRowKeys)
+    let selectGrops= cloneDeep(deletingGroupIDs)
+    groups.map((list, index) => {
+      if (list.groupID == e.groupID) {
+        if (selectedRowKeys.indexOf(index) > -1) {
+          keys.splice(selectedRowKeys.indexOf(index))
+          selectGrops.splice(selectedRows[index])
+          return
+        }
+        selectGrops.push(e)
+        return keys.push(index)
+      }
+    })
+    this.setState({selectedRowKeys: keys,selectedRows: selectGrops})
+  }
   render() {
+    if (!this.props.groups) {
+      return (
+        <div className="loadingBox">
+            <Spin size="large" />
+        </div>
+      )
+    }
+    const tableData = this.props.groups
+
     const modalFunc=  {
       scope : this,
     }
@@ -201,13 +229,14 @@ class AlarmGroup extends Component {
       width:'10%',
     },{
       title:'邮箱',
-      dataIndex:'email',
+      dataIndex:'receivers',
       width:'30%',
-      render:emails => this.getGroupEmails(emails)
+      render:receivers => this.getGroupEmails(receivers.email)
     },{
       title:'创建时间',
       dataIndex:'createTime',
       width:'20%',
+      render:(text)=> formatDate(text.createTime),
     },{
       title:'关联策略',
       dataIndex:'strategies',
@@ -220,18 +249,17 @@ class AlarmGroup extends Component {
       render:(text, group) => <Dropdown.Button type="ghost" overlay={ this.dropdowns(text, group) } onClick={()=> this.openDeleteModal([group.groupID])}>删除</Dropdown.Button>
     }]
 
-    let tableData = []
-    this.props.groups.map(function(item, i) {
-      tableData.push({
-        key: i,
-        name: item.name,
-        desc: item.desc,
-        email: item.receivers.email,
-        createTime: moment(item.createTime).format('YYYY-MM-DD HH:mm:ss'),
-        strategies: item.strategies,
-        groupID: item.groupID,
-      })
-    })
+    // this.props.groups.map(function(item, i) {
+    //   tableData.push({
+    //     key: i,
+    //     name: item.name,
+    //     desc: item.desc,
+    //     email: item.receivers.email,
+    //     createTime: formatDate(item.createTime),
+    //     strategies: item.strategies,
+    //     groupID: item.groupID,
+    //   })
+    // })
 
     const _this = this
     const rowSelection = {
@@ -248,7 +276,7 @@ class AlarmGroup extends Component {
         <div id="AlarmGroup" key="demo">
           <div className='alarmGroupHeader'>
             <Button size="large" type="primary" icon="plus" onClick={()=> this.setState({createGroup:true, createModalTitle: '创建新通知组'})}>创建</Button>
-            <Button size="large" icon="reload" type="ghost" onClick={() => this.props.loadNotifyGroups()}>刷新</Button>
+            <Button size="large" type="ghost" onClick={() => this.props.loadNotifyGroups()}><i className="fa fa-refresh" /> 刷新</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length === 0} icon="delete" onClick={()=> this.openDeleteModal(this.getSelectedGroups())} type="ghost">删除</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length !== 1} icon="edit" onClick={() => this.openModifyModal(this.getModifyingGroup())} type="ghost">修改</Button>
             <div className="Search">
@@ -275,11 +303,13 @@ class AlarmGroup extends Component {
               dataSource={tableData}
               pagination={{simple: true}}
               rowSelection={rowSelection}
+              loading={this.props.isFetching}
+              onRowClick={(e)=> this.handClickRow(e)}
             >
             </Table>
             <span className="pageCount">共计 {tableData.length} 条</span>
             { tableData.length ==0 ?
-            <ul className="ant-pagination ant-pagination-simple inlineBlock" style={{top:-55,width: 140}}><li title="上一页" className="ant-pagination-disabled ant-pagination-prev"><a></a></li><div style={{float:'left',margin:'0 8px'}} title="1/0" class="ant-pagination-simple-pager"><input type="text" value="1" style={{width: 30,textAlign:'center',borderRadius:6,height:24,border: '1px solid #d9d9d9'}}/><span className="ant-pagination-slash">／</span>0</div><li title="下一页" className="ant-pagination-disabled ant-pagination-next"><a></a></li></ul>
+            <ul className="ant-pagination ant-pagination-simple ant-table-pagination" style={{top:-70,right:-10,width: 152}}><li title="上一页" className="ant-pagination-disabled ant-pagination-prev"><a></a></li><div  title="1/0" className="ant-pagination-simple-pager"><input type="text" value="1" style={{width: 30,textAlign:'center',borderRadius:6,height:24,border: '1px solid #d9d9d9'}}/><span className="ant-pagination-slash">／</span>0</div><li title="下一页" className="ant-pagination-disabled ant-pagination-next"><a></a></li></ul>
             :null
             }
           </Card>
@@ -311,12 +341,21 @@ class AlarmGroup extends Component {
 }
 
 function mapStateToProps(state, props) {
-  let groupsData = []
-  if (state.alert.groups.isFetching === false && state.alert.groups.result.code === 200 && state.alert.groups.result.data) {
-    groupsData = state.alert.groups.result.data
+  const { groups } = state.alert
+  if (!groups) {
+    return props
   }
+  let defaultData = {
+      isFetching: false,
+      result:{data:[]}
+  }
+
+  const { isFetching } = groups || defaultData
+  const { result } = groups || defaultData
+  let groupsData = result ? result.data : []
   return {
-    groups: groupsData,
+    isFetching,
+    groups: groupsData
   }
 }
 
