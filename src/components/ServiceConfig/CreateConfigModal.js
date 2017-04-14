@@ -31,7 +31,7 @@ let CreateConfigModal = React.createClass({
           func: () => {
             notification.success('创建成功')
             self.props.form.resetFields()
-            parentScope.props.loadConfigGroup(cluster)
+            parentScope.loadData()
           },
           isAsync: true
         },

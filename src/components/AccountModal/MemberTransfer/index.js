@@ -19,8 +19,6 @@ class MemberTransfer extends Component{
     super(props)
     this.filterOption = this.filterOption.bind(this)
     this.renderItem = this.renderItem.bind(this)
-    this.state = {
-    }
   }
   filterOption(inputValue, option) {
     return option.title.indexOf(inputValue) > -1;
