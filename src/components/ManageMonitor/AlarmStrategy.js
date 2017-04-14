@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { getSettingList, deleteSetting, updateEnable } from '../../actions/alert'
+import { getSettingList, deleteSetting, updateEnable, ignoreSetting } from '../../actions/alert'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { calcuTime, formatDate } from '../../common/tools'
@@ -17,10 +17,11 @@ import { Icon, Button, Input, InputNumber, Select, Table, Dropdown, Modal, Menu,
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import './style/AlarmStrategy.less'
 import NotificationHandler from '../../common/notification_handler'
+const Option = Select.Option
 
 function loadStrategy(scope) {
   // this func is load strategy data
-  scope.setState({ deleteModal: false, btnAll: true, strategyID:[] })
+  scope.setState({ deleteModal: false, btnAll: true, strategyID:[],selectedRowKeys:[] })
   const { getSettingList, nodeName, cluster, appName, serviceName } = scope.props
   let body = {
     targetType: 0,
@@ -50,10 +51,12 @@ class AlarmStrategy extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      btnAll: true,
       deleteModal: false,
       currentPage: DEFAULT_PAGE,
       size:DEFAULT_PAGE_SIZE,
+      selectedRowKeys: [],
+      ignoreUnit:'m',
+      time: 1,// ignore time
     }
   }
   componentWillMount() {
@@ -70,8 +73,7 @@ class AlarmStrategy extends Component {
       size: DEFAULT_PAGE_SIZE
     })
   }
-  hnadDelete(e, record) {
-    console.log('key is', e.key, record)
+  moreDropdown(e, record) {
     switch(e.key) {
       case 'delete': {
         this.setState({deleteModal: true, strategyID: [record.strategyID]})
@@ -91,7 +93,7 @@ class AlarmStrategy extends Component {
   dropdowns(record) {
     // Dropdown delete btn
     return (
-      <Menu onClick={(key) => this.hnadDelete(key, record)}
+      <Menu onClick={(key) => this.moreDropdown(key, record)}
         style={{ width: '80px' }}
       >
         <Menu.Item key="delete">
@@ -113,15 +115,24 @@ class AlarmStrategy extends Component {
   }
   handDelete() {
     const { strategyID } = this.state
-    const _this = this
     const notifcation = new NotificationHandler()
+    if (strategyID.length == 0) {
+      notifcation.info('请选择要删除的策略')
+      return
+    }
+    const _this = this
     this.props.deleteSetting(this.props.cluster, strategyID, {
       success: {
         func:()=> {
           notifcation.success('删除策略成功')
-         loadStrategy(_this)
+          loadStrategy(_this)
         },
         isAsync: true
+      },
+      failed:{
+        func: ()=>　{
+          notifcation.success('删除策略失败')
+        }
       }
     })
   }
@@ -155,9 +166,52 @@ class AlarmStrategy extends Component {
     })
     _this.setState({enable: false})
   }
+  handignoreSetting() {
+    const strategy = []
+    const { record, time ,ignoreUnit } = this.state
+    const times = time + ignoreUnit
+    const notifi = new NotificationHandler()
+      strategy.push({
+        strategyID: record.strategyID,
+        interval: times
+      })
+    if(strategy.length == 0 ) {
+      notifi.error('请选择要设置忽略时间的策略')
+      return
+    }
+    notifi.spin('设置中')
+    setTimeout(()=>{
+      this.setState({lookModel: false})
+    },100)
+    this.props.ignoreSetting(record.clusterID, {
+      strategies: strategy
+    }, {
+      success: {
+        func: () => {
+          notifi.close()
+          notifi.success('设置策略忽略时间成功')
+        }
+      }
+    })
+  }
   handClickRow(e) {
-    console.log('eee',e,this.props.strategys)
-
+    // this func is click table row then checkbox checked or false
+    const { strategys } = this.props
+    const { selectedRowKeys, strategyID } = this.state
+    let selectedRows = selectedRowKeys
+    let strategie = strategyID
+    strategys.map((list, index) => {
+      if (list.strategyID == e.strategyID) {
+        if (selectedRowKeys.indexOf(index) > -1) {
+          selectedRows.splice(selectedRowKeys.indexOf(index),1)
+          strategie.splice(strategyID.indexOf(e.strategyID), 1)
+          return
+        }
+        strategie.push(e.strategyID)
+        return selectedRows.push(index)
+      }
+    })
+    this.setState({selectedRowKeys: selectedRows})
   }
   render() {
     const columns = [
@@ -165,12 +219,12 @@ class AlarmStrategy extends Component {
         title: '名称',
         dataIndex: 'strategyName',
         key: 'strategyName',
-        render: text => <a href="#">{text}</a>,
+        render: text => <Link to={`/manange_monitor/alarm_setting/${text}`}>{text}</Link>,
       },
       {
         title: '状态',
-        dataIndex: 'enable',
-        key: 'enable',
+        dataIndex: 'statusCode',
+        key: 'statusCode',
         render: text => {
           if (text == 1) {
             return <div style={{ color: '#33b867' }}><i className="fa fa-circle" /> &nbsp;启用</div>
@@ -178,7 +232,10 @@ class AlarmStrategy extends Component {
           if (text == 0) {
             return <div style={{ color: '#f23e3f' }}><i className="fa fa-circle" /> &nbsp;停用</div>
           }
-          return <div style={{ color: '#FAB35B' }}><i className="fa fa-circle" /> &nbsp;告警</div>
+          if (text == 2) {
+            return <div style={{ color: '#FAB35B' }}><i className="fa fa-circle" /> &nbsp;告警</div>
+          }
+          return <div style={{ color: '#f23e3f' }}><i className="fa fa-circle" /> &nbsp;忽略</div>
         }
       },
       {
@@ -203,25 +260,19 @@ class AlarmStrategy extends Component {
         dataIndex: 'name',
         key: 'action',
         render: (text, record) => {
-          return <Dropdown.Button type="ghost" onClick={()=> this.setState({lookModel: true})} overlay={this.dropdowns(record)}>忽略</Dropdown.Button>
+          return <Dropdown.Button type="ghost" onClick={()=> this.setState({lookModel: true, record})} overlay={this.dropdowns(record)}>忽略</Dropdown.Button>
         }
       }
     ];
 
     const _this = this
     const rowSelection = {
-      selectedRowKeys: this.state.selectedRowKeys,
+      selectedRowKeys: this.state.selectedRowKeys, // 控制checkbox是否选中
       onChange(selectedRowKeys, selectedRows) {
-        console.log(`selectedRowKeys:`, selectedRowKeys, 'selectedRows: ', selectedRows);
-        let btnAll = true
-
-        if (selectedRows.length > 0) {
-          btnAll = false
-        }
         const strategyID = selectedRows.map((list)=> {
           return list.strategyID
         })
-        _this.setState({ btnAll, strategyID, selectedRowKeys})
+        _this.setState({strategyID, selectedRowKeys})
       }
     }
     const { total } = this.props.data || 0
@@ -230,7 +281,7 @@ class AlarmStrategy extends Component {
       <div className="alarmStrategy">
         <div className="topRow">
           <Button size="large" type="primary" onClick={()=>　loadStrategy(this)}><i className="fa fa-refresh" /> 刷新</Button>
-          <Button icon="delete" size="large" type="ghost" onClick={() => this.setState({ deleteModal: true })} disabled={this.state.btnAll}>删除</Button>
+          <Button icon="delete" size="large" type="ghost" onClick={() => this.setState({ deleteModal: true })} disabled={(this.state.selectedRowKeys.length == 0)}>删除</Button>
         </div>
         <div className='pageBox'>
           <span className='totalPage'>共计 {total} 条</span>
@@ -250,17 +301,17 @@ class AlarmStrategy extends Component {
           <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>策略删除后将不再发送邮件告警，是否确定删除？</div>
         </Modal>
         <Modal title="忽略" visible={this.state.lookModel}
-          onOk={()=> this.handOverlook()} onCancel={()=> this.setState({lookModel: false})}
+          onOk={()=> this.handignoreSetting()} onCancel={()=> this.setState({lookModel: false})}
           okText="提交"
         >
           <div className="alertRow">注意：在忽略时间内我们将不会发送告警邮件通知！</div>
           <div className="modalParams">
             <span className="keys">忽略时长</span>
-            <InputNumber size="large" min={1} style={{margin:'0 10px'}}/>
-            <Select style={{width: 80}} size="large" defaultValue={'minute'}>
-              <Option value="hour">小时</Option>
-              <Option value="minute">分钟</Option>
-              <Option value="second">秒</Option>
+            <InputNumber size="large" value={this.state.time} min={1} style={{margin:'0 10px'}} onChange={(e)=> this.setState({time: e})}/>
+            <Select style={{width: 80}} size="large" value={this.state.ignoreUnit} onChange={(e)=> this.setState({ignoreUnit: e})}>
+              <Option value="h">小时</Option>
+              <Option value="m">分钟</Option>
+              <Option value="s">秒</Option>
             </Select>
           </div>
         </Modal>
@@ -289,10 +340,9 @@ function mapStateToProps(state, props) {
   }
   const { data } = settingList.result || defaultData
   const { strategys } = data
-
   return {
     data,
-    isFetching:　settingList.isFetching,
+    isFetching: settingList.isFetching || false,
     strategys
   }
 }
@@ -301,4 +351,5 @@ export default connect(mapStateToProps, {
   getSettingList,
   deleteSetting,
   updateEnable, // start or stop
+  ignoreSetting
 })(AlarmStrategy)
