@@ -76,16 +76,18 @@ function formatVolumeMounts(data, groupname, name) {
             if (volumesMap[containers[k].volumeMounts[l].name]) {
               const volumeMount = containers[k].volumeMounts[l]
               const configMap = volumesMap[containers[k].volumeMounts[l].name]
-              configMap.configMap.items.forEach(item => {
-                const arr = volumeMount.mountPath.split('/')
-                if (arr[arr.length - 1] == name) {
-                  volumeMounts = unionWith(volumeMounts, [{
-                    imageName: data[i].name,
-                    serviceName: data[i].services[j].metadata.name,
-                    mountPath: volumeMount.mountPath
-                  }], isEqual)
-                }
-              })
+              if (configMap.configMap.items) {
+                configMap.configMap.items.forEach(item => {
+                  const arr = volumeMount.mountPath.split('/')
+                  if (arr[arr.length - 1] == name) {
+                    volumeMounts = unionWith(volumeMounts, [{
+                      imageName: data[i].name,
+                      serviceName: data[i].services[j].metadata.name,
+                      mountPath: volumeMount.mountPath
+                    }], isEqual)
+                  }
+                })
+              }
             }
           }
         }

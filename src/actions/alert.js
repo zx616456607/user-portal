@@ -322,7 +322,7 @@ function fetchGetAlertList(cluster, body, needFetching, callback) {
 }
 
 export function getSettingList(cluster, body, needFetching, callback) {
-  if(typeof needFetching == 'function') {
+  if(typeof needFetching == 'object') {
     callback = needFetching
     needFetching = true
   }

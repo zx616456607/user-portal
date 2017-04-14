@@ -684,20 +684,24 @@ let AppDeployServiceModal = React.createClass({
         if(!volPath) return
         if (vol.length <= 0) return
         let mountPath = []
-        vol.items.forEach((v, index) => {
-          let path = (volPath.indexOf('/') == 0 ? volPath : '/'+ volPath) + '/' + v.path
-          const pathObj = {
-            mountPath: path,
-          }
-          if (volCover !== 'cover') {
-            pathObj.subPath = v.path
-          }
-          mountPath.push(pathObj)
-        })
+        if (volCover === 'cover') {
+          mountPath.push({
+            mountPath: volPath
+          })
+        } else {
+          vol.items.forEach((v, index) => {
+            let path = (volPath.indexOf('/') == 0 ? volPath : '/'+ volPath) + '/' + v.path
+            const pathObj = {
+              mountPath: path,
+              subPath: v.path
+            }
+            mountPath.push(pathObj)
+          })
+        }
         deploymentList.addContainerVolume(serviceName, {
           name: `configmap-volume-${item}`,
           configMap: vol,
-        }, mountPath, true)
+        }, mountPath, volCover === 'cover')
       })
     }
     //livenessProbe 高可用
