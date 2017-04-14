@@ -686,7 +686,7 @@ let AppDeployServiceModal = React.createClass({
         let mountPath = []
         if (volCover === 'cover') {
           mountPath.push({
-            mountPath: volPath
+            mountPath: (volPath.indexOf('/') == 0 ? volPath : '/'+ volPath)
           })
         } else {
           vol.items.forEach((v, index) => {

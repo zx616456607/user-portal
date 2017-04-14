@@ -53,7 +53,11 @@ let MyComponent = React.createClass({
         configMaps = configMaps.concat(volume.configMap.items)
       })
       newVolumeMounts = volumeMounts.map((vol, index) => {
-        vol.mountPath = vol.mountPath.replace(`/${vol.subPath || configMaps[index].key}`, '')
+        let _configMap = configMaps[index]
+        if (_configMap) {
+          _configMap = _configMap.key
+        }
+        vol.mountPath = vol.mountPath.replace(`/${vol.subPath || _configMap}`, '')
         return vol
       })
       let helpOb = {}
@@ -97,7 +101,8 @@ let MyComponent = React.createClass({
     }
     const cluster = nextProps.cluster
     const self = this
-    if(!nextProps.configGroup[cluster]) {
+    const nextConfigGroup = nextProps.configGroup[cluster]
+    if(!nextConfigGroup) {
         this.props.loadConfigGroup(cluster, {
           success:{
             func: () => {
@@ -118,16 +123,29 @@ let MyComponent = React.createClass({
         if (!volume.configMap) {
           return
         }
-        checkedList.push({
+        let checkedConfig = {
           name: volume.configMap.name,
           items: volume.configMap.items
-        })
+        }
+        if (!checkedConfig.items) {
+          nextConfigGroup.configGroup.map(config => {
+            if (checkedConfig.name == config.name) {
+              checkedConfig.items = config.configs.map(item => {
+                return {
+                  key: item.name,
+                  path: item.name,
+                }
+              })
+            }
+          })
+        }
+        checkedList.push(checkedConfig)
         selectValue.push(volume.configMap.name)
         const mountPath = filter(volumeMounts, ['name', volume.name])[0].mountPath
         getFieldProps(`volPath${volIndex + 1}`, { initialValue: mountPath})
         getFieldProps(`volName${volIndex + 1}`, { initialValue: volume.configMap.name })
         let volCoverValue = 'cover'
-        if (volumeMounts[0].subPath) {
+        if (volumeMounts[volIndex].subPath) {
           volCoverValue = 'unCover'
         }
         getFieldProps(`volCover${volIndex + 1}`, { initialValue: volCoverValue })
@@ -150,7 +168,7 @@ let MyComponent = React.createClass({
           [`vol${index + 1}`]: item
         })
         let itemConfig = filter(configGroup, ['name', item.name])[0]
-        if (itemConfig.configs.length === item.items.length) {
+        if (!item.items || itemConfig.configs.length === item.items.length) {
           checkAll[index] = true
         } else {
           checkAll[index] = false
@@ -395,6 +413,9 @@ let MyComponent = React.createClass({
   },
   getCheckboxValue(index) {
     const checkList = this.state.checkedList[index]
+    if (!checkList.items) {
+      return
+    }
     return checkList.items.map(item => {
       return item.path
     })
@@ -407,8 +428,11 @@ let MyComponent = React.createClass({
   onCoverChange(index, e) {
     const { form } = this.props
     const { setFieldsValue} = form
-    setFieldsValue({[`volCover${index}`]: e.target.value})
-    this.onCheckAllChange({ target: { checked: true } }, index)
+    const value = e.target.value
+    setFieldsValue({[`volCover${index}`]: value})
+    if (value === 'cover') {
+      this.onCheckAllChange({ target: { checked: true } }, index)
+    }
   },
   render() {
     const cluster = this.props.cluster
@@ -445,13 +469,19 @@ let MyComponent = React.createClass({
               <div className="input">
                 <Input className="portUrl" size="large" placeholder="挂载目录，例如：/App" type="text" value={inputValue} onChange={(e) => this.inputChange(e, k)}/>
               </div>
-              <div className="input">
+              <div className="inputCover">
                 <RadioGroup onChange={this.onCoverChange.bind(this, k)} value={coverValue}>
                   <Radio key="cover" value="cover">
-                    覆盖目录
+                    挂载整个配置组&nbsp;
+                    <Tooltip width="200px" title="镜像内该目录『所有文件』会被覆盖，支持『不重启容器』5 min 左右生效（含增、删、改配置文件）。">
+                      <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
+                    </Tooltip>
                   </Radio>
                   <Radio key="unCover" value="unCover">
-                    不覆盖目录
+                    挂载若干配置文件&nbsp;
+                    <Tooltip width="200px" title="镜像内该目录『同名文件』会给覆盖，修改配置文件需『重启容器』来生效">
+                      <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
+                    </Tooltip>
                   </Radio>
                 </RadioGroup>
               </div>
@@ -538,16 +568,7 @@ let ComposeDeployBox = React.createClass({
                 <span>挂载目录</span>
               </div>
               <div className="composeCommonTitle">
-                <span>覆盖方式&nbsp;</span>
-                <Tooltip width="200px" title={(
-                  <p>
-                    ① 覆盖目录：覆盖整个目录，并且支持修改后『不用重启』服务即可更新（1 min左右），包括文件的增加/删除
-                    <br />
-                    ② 不覆盖目录：支持替换目录下的指定文件，修改后『需重启』容器或服务来更新。
-                  </p>
-                )}>
-                  <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
-                </Tooltip>
+                <span>覆盖方式</span>
               </div>
               <div className="composeCommonTitle">
                 <span>配置组</span>
