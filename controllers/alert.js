@@ -356,14 +356,70 @@ exports.getTargetInstant = function* () {
   reqArray.push(api.getBy([cluster, name, 'metric/instant'], tx_rage))
   reqArray.push(api.getBy([cluster, name, 'metric/instant'], rx_rate))
   const results = yield reqArray
+  let totalMemoryByte = 0
+  if(type == 'node') {
+    const clusterSummary = yield api.getBy([cluster,'nodes',name])
+    if(clusterSummary.data.objectMeta) {
+     totalMemoryByte  = clusterSummary.data.memory_total_kb * 1024
+    } else {
+      const err = new Error('the node is not exist')
+      err.status = 400
+      throw err
+    }
+  } 
+  if(type == 'pod') {
+    const podSummary = yield api.getBy([cluster,'services',name])
+    if(podSummary.data[name]) {
+      const deployment = podSummary.data[name].deployment
+      const replicas = deployment.spec.replicas
+      const containers = deployment.spec.template.spec.containers
+      containers.forEach(container => {
+        let memory = container.resources.requests.memory
+        memory = memory.toLowerCase()
+        if(memory.indexOf('gi') > 0) {
+          memory = parseInt(memory) * 1024 * 1024 *1024
+        } else if (memory.indexOf('mi') > 0) {
+          memory = parseInt(memory) * 1024 * 1024
+        } else if (memory.indexOf('ki') > 0) {
+          memory = parseInt(memory) * 1024
+        }
+        totalMemoryByte += memory
+      })
+      totalMemoryByte = replicas * totalMemoryByte
+    } else {
+      const err = new Error('the pod is not exist')
+      err.status = 400
+      throw err
+    }
+  }
   this.body = {
     [strategyName]: {
       cpus: results[0].data[name],
-      memory:results[1].data[name],
+      memory: parseFloat(results[1].data[name] / totalMemoryByte).toFixed(4),
       tx_rate: results[2].data[name],
       rx_rate: results[3].data[name]
     }
   }
+}
+
+exports.deleteRule = function *() {
+  const cluster = this.params.cluster
+  const queryBody = this.query
+  if(!queryBody.ruleNames || !queryBody.strategyID) {
+    const err = new Error('ruleNames, strategyID is require')
+    err.status = 400
+    throw err
+  }
+  queryBody.clusterID = cluster
+  const user = this.session.loginUser
+  queryBody.namespace = user.namespace
+  if(user.teamspace) {
+    queryBody.namespace = user.teamspace
+  }
+  queryBody.updater = user.user
+  const spi = apiFactory.getSpi(user)
+  const response = yield spi.alerts.deleteBy(['rule'], queryBody)
+  this.body = response
 }
 
 

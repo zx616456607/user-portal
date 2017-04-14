@@ -13,10 +13,10 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import cloneDeep from 'lodash/cloneDeep'
-import { formatDate } from '../../common/tools'
+import { formatDate, isEmptyObject } from '../../common/tools'
 import NotificationHandler from '../../common/notification_handler'
 import './style/AlarmDetail.less'
-import { getAlertSetting, getSettingList, updateEnable } from '../../actions/alert'
+import { getAlertSetting, getSettingList, updateEnable, deleteRule } from '../../actions/alert'
 const RadioGroup = Radio.Group
 
 class AlarmDetail extends Component {
@@ -52,19 +52,15 @@ class AlarmDetail extends Component {
     }
     return <span className="unknown"><i className="fa fa-circle" /> 告警</span>
   }
-  rowClick(ins) {
-    let selectCheckbox = this.state.selectCheckbox
-    if (selectCheckbox.indexOf(ins+1) > -1) {
-      selectCheckbox.splice(selectCheckbox.indexOf(ins+1), 1)
+  rowClick(record, ins) {
+    let selectCheckbox = cloneDeep(this.state.selectCheckbox)
+    if (selectCheckbox.indexOf(record.key) > -1) {
+      selectCheckbox.splice(selectCheckbox.indexOf(record.key), 1)
     } else {
-      selectCheckbox.push(ins+1)
+      selectCheckbox.push(record.key)
     }
     selectCheckbox.sort()
-    let delBtn = true
-    if (selectCheckbox.length > 0) {
-      delBtn = false
-    }
-    this.setState({selectCheckbox,delBtn})
+    this.setState({selectCheckbox})
   }
   calcuTime(time) {
     let sym = '分钟'
@@ -83,6 +79,42 @@ class AlarmDetail extends Component {
     })
   }
   deleteRecords() {
+    const noti = new NotificationHandler()
+    const selectCheckbox = this.state.selectCheckbox
+    if(!selectCheckbox || selectCheckbox.length == 0) {
+      noti.error('请选择要删除的规则')
+      return
+    }
+    noti.spin('规则删除中')
+    const { deleteRule, cluster, leftSetting } = this.props
+    deleteRule(cluster.clusterID, {
+      strategyID: leftSetting.strategyID,
+      ruleNames: selectCheckbox.join(',')
+    }, {
+      success: {
+        func: () => {
+          noti.close()
+          noti.success('规则删除成功')
+          this.refreshPage()
+          this.setState({
+            deleteModal: false,
+            selectCheckbox: [],
+            delBtn: true
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        fun: () => {
+          noti.close()
+          noti.error('规则删除失败')
+          this.setState({
+            deleteModal: false
+          })
+        }
+      }
+    })
+
   }
   changeEmail(e) {
     this.setState({sendEmail: e}) 
@@ -162,23 +194,13 @@ class AlarmDetail extends Component {
     const _this = this
     const rowSelection = {
       selectedRowKeys: this.state.selectCheckbox,
-      onChange(selectedRowKeys, select, selectedRows) {
-        let btnDisabled = true
-        if (selectedRowKeys.length > 0) {
-          btnDisabled = false
-        }
+      onChange(selectedRowKeys, selectedRows) {
+        const change = selectedRows.map(row => {
+          return row.key
+        })
         _this.setState({
-          delBtn: btnDisabled,
-          selectedRows,
           selectCheckbox: selectedRowKeys
         })
-      },
-      onSelect(key, select, rows) {
-        console.log(select)
-        let newRuleName = cloneDeep(_this.state.ruleName)
-      },
-      onSelectAll(selected, selectedRows, changeRows) {
-        console.log(selected, selectedRows, changeRows);
       },
     };
     return (
@@ -221,10 +243,10 @@ class AlarmDetail extends Component {
                 </div>
                 <div style={{margin: '20px 30px'}}>
                 <Button icon="reload" type="primary" size="large" onClick={() => this.refreshPage()}>刷新</Button>
-                  <Button icon="delete" size="large" style={{marginLeft: 8}} disabled={this.state.delBtn} onClick={()=> this.setState({deleteModal: true})} type="ghost">删除</Button>
+                  <Button icon="delete" size="large" style={{marginLeft: 8}} disabled={this.state.selectCheckbox.length <= 0} onClick={()=> this.setState({deleteModal: true})} type="ghost">删除</Button>
                 </div>
                 <Table className="strategyTable" rowSelection={rowSelection} columns={columns}
-                onRowClick={(record, index)=> this.rowClick(index)}
+                onRowClick={(record, index)=> this.rowClick(record, index)}
                 dataSource={settingData} pagination={false} style={{padding:'0 30px'}}/>
               </Card>
             </Col>
@@ -292,16 +314,19 @@ function mapStateToProps(state, props) {
       }
     }
   }
+  let setting = getSetting.result.data
+  if(!Array.isArray(setting)) setting = []
   return {
     cluster,
-    setting: getSetting.result.data,
     isFetching,
-    leftSetting
+    leftSetting,
+    setting
   }
 }
 
 export default connect(mapStateToProps, {
   getAlertSetting,
   getSettingList,
-  updateEnable
+  updateEnable,
+  deleteRule
 })(AlarmDetail)

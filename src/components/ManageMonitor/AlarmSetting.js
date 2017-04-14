@@ -8,7 +8,7 @@
  * @author Baiyu
  */
 import React, { Component, PropTypes } from 'react'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import { Card, Input, Modal, InputNumber, Checkbox, Progress, Icon, Spin, Table, Select, Dropdown, DatePicker, Menu, Button, Pagination } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -30,7 +30,8 @@ let MyComponent = React.createClass({
       isFirstData: true,
       data: this.props.data,
       ignoreTime: 1,
-      ignoreSymbol: 'm'
+      ignoreSymbol: 'm',
+      clearStraregy: {}
     }
   },
   componentWillReceiveProps(nextProps) {
@@ -58,8 +59,7 @@ let MyComponent = React.createClass({
   },
   handDelete(key,record) {
     // Dropdown delete action
-    const { scope } = this.props
-    console.log(key, record)
+    const { scope, history } = this.props
     this.setState({record})
     switch(key) {
       case 'delete': {
@@ -69,7 +69,7 @@ let MyComponent = React.createClass({
       case 'edit': {
         console.log('edit--')
         return
-      } 
+      }
       case 'start': {
         scope.setState({
           selectStrategy: record,
@@ -84,20 +84,52 @@ let MyComponent = React.createClass({
         })
       }
       case 'list': {
-        console.log('list---')
+        browserHistory.push({
+          pathname: '/manange_monitor/alarm_record',
+          query: {
+            strategyName: record.strategyName,
+            targetType: record.targetType,
+            targetName: record.targetName
+          }
+        })
         return
       }
       case 'clear': {
-        this.setState({clearModal: true})
+        this.setState({clearModal: true, clearStraregy: record})
         return
       }
-      default: return console.log('default')
+      default: return
     }
   },
   clearRecords() {
-    const {funcs} = this.props
-    // funcs.deleteRecords()
-    // func is delete record list
+    const { deleteRecords } = this.props
+    const notify = new NotificationHandler()
+    if(!this.state.clearStraregy.strategyID) {
+      return notify.error('请选择要清除记录的策略')
+    }
+    notify.spin('策略告警记录清除中')
+    deleteRecords(this.state.clearStraregy.strategyID, {
+      success: {
+        func: () => {
+          notify.close()
+          notify.success('策略告警记录清除成功')
+          this.setState({
+            clearStraregy: {},
+            clearModal: false
+          })
+        }
+      },
+      failed: {
+        func: () => {
+          notify.close()
+          notify.error('策略告警记录删除失败')
+          this.setState({
+            clearStraregy: {},
+            clearModal: false
+          })
+        }
+      }
+    })
   },
   switchType(type) {
     switch(type) {
@@ -259,7 +291,7 @@ let MyComponent = React.createClass({
     this.setState({
       data: newData
     })
-    if(data && data.isActive) {
+    if(data && data.active) {
       const { scope, getSettingInstant, settingInstant } = this.props
       if(settingInstant.result && settingInstant.result[data.strategyName]) return
       let type = 'node'
@@ -272,35 +304,38 @@ let MyComponent = React.createClass({
     }
   },
   childerList(list) {
-    console.log('sdfsdfsdfsdf')
     const { settingInstant } = this.props
-    console.log(settingInstant)
-    if(settingInstant.isFetching) {
+    if(!settingInstant.result) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
+    const data = settingInstant.result[list.strategyName]
+    if(settingInstant.isFetching && !data) {
+      return <div className="loadingBox"><Spin size="large"></Spin></div>
+    }
+    if(!data) { return <div>无数据</div>}
     return (
       <div className="wrapChild">
         <div className="leftName">
-          节点名称（5分钟内数据）
+          { list.targetName }
         </div>
         <div className="rightList">
           <div className="lists">
             <span className="keys">内存</span>
-            <Progress percent={30} strokeWidth={8} format={ percent => percent + '%'} className="progress"/>
+        <Progress percent={ data.memory * 100 } strokeWidth={8} format={ percent => percent + '%'} status={ data.memory * 100 > 80 ? 'exception' : ''} className="progress"/>
           </div>
           <div className="lists">
             <span className="keys">CPU</span>
-            <Progress percent={60} status="exception" strokeWidth={8} format={ percent => percent + '%'}  className="progress" />
+        <Progress percent={parseFloat(data.cpus).toFixed(2)} status="exception" strokeWidth={8} format={ percent => percent + '%'} status={data.cpu > 80 ? 'exception' : ''}  className="progress" />
           </div>
           <div className="lists">
             <span className="keys">流量</span>
             <span className="keys">
               <Icon type="arrow-up" />
-                1280M
+              { (data.txRate / 1024).toFixed(2) + 'Kb/s' }
             </span>
             <span className="keys">
               <Icon type="arrow-down" />
-              50M
+              { (data.rxRate / 1024).toFixed(2) + 'Kb/s' }
             </span>
           </div>
         </div>
@@ -347,7 +382,7 @@ let MyComponent = React.createClass({
               <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
               <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
               <td onClick={()=> this.tableListMore(index)}>{formatDate(list.createTime)}</td>
-              <td onClick={()=> this.tableListMore(index)}>{list.editUser}</td>
+              <td onClick={()=> this.tableListMore(index)}>{list.updater}</td>
              <td><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={ this.setIgnore(list) }>忽略</Dropdown.Button></td>
             </tr>,
             <tr key={`list-${index}`} className="ant-table-expanded">
@@ -414,10 +449,10 @@ let MyComponent = React.createClass({
           </div>
         </Modal>
         <Modal title="清除策略告警记录" visible={this.state.clearModal}
-          onCancel={()=> this.setState({clearModal: false})}
+          onCancel={()=> this.setState({clearModal: false, clearStrategy: {}})}
           onOk={()=> this.clearRecords()}
         >
-        <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>您的操作将会清空该策略所有告警记录，并且重置告警次数，是否清空？</div>
+        <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>您的操作将会清空 {this.state.clearStraregy.name} 策略所有告警记录，并且重置告警次数，是否清空？</div>
         </Modal>
       </Card>
     )
@@ -428,7 +463,7 @@ function myComponentMapStateToProp(state) {
   const defaultInstant = {
     isFetching: false
   }
-  let { settingInstant }  = state
+  let { settingInstant }  = state.alert
   if(!settingInstant) {
     settingInstant = defaultInstant
   }
@@ -438,7 +473,8 @@ function myComponentMapStateToProp(state) {
 }
 
 MyComponent = connect(myComponentMapStateToProp, {
-  getSettingInstant
+  getSettingInstant,
+  deleteRecords
 })(MyComponent)
 
 
@@ -509,7 +545,7 @@ class AlarmSetting extends Component {
     })
     const { getSettingList, cluster } = this.props
     getSettingList(cluster, {
-      from: page,
+      from: (page - 1) * DEFAULT_PAGE_SIZE,
       size: DEFAULT_PAGE_SIZE
     })
   }
@@ -557,7 +593,7 @@ class AlarmSetting extends Component {
             message = res.message
           }
           if(res.message.message) {
-            message = res.message
+            message = res.message.message
           }
           notify.error(message)
           this.setState({
@@ -580,7 +616,6 @@ class AlarmSetting extends Component {
       return
     }
     notifi.spin('设置中')
-    console.log(strategy)
     const { clusterID, ignoreSetting, getSettingList } = this.props
     ignoreSetting(clusterID, {
       strategies: strategy
@@ -805,6 +840,12 @@ class AlarmSetting extends Component {
       isDelete: true
     })
   }
+  editSetting() {
+    this.state.setState({
+      alarmModal: true,
+      isEdit: true
+    })
+  }
   render() {
     const columns = [
       {
@@ -860,43 +901,53 @@ class AlarmSetting extends Component {
       cancelModal: this.cancelModal,
       nextStep: this.nextStep
     }
+    let canEdit = true
+    let checkedNum = 0
+    this.state.data.forEach(item => {
+      if(item.checked) {
+        checkedNum++
+      }
+    })
+    if(checkedNum != 1) {
+      canEdit = false
+    }
     return (
       <QueueAnim type="right" className="alarmSetting">
         <div id="AlarmRecord" key="AlarmRecord">
           <div className="topRow" style={{marginBottom: '20px'}}>
-            <Button icon="plus" size="large" type="primary" onClick={()=> this.setState({alarmModal: true})}>创建</Button>
+            <Button icon="plus" size="large" type="primary" onClick={()=> this.setState({alarmModal: true, isEdit: false})}>创建</Button>
             <Button icon="reload" size="large" type="ghost" onClick={() => this.refreshPage()}>刷新</Button>
             <Button icon="caret-right" size="large" type="ghost" disabled={!this.state.canStart} onClick={() => this.showStart()}>启用</Button>
             <Button size="large" type="ghost" disabled={!this.state.canStop} onClick={() => this.showStop()}><i className="fa fa-stop" /> &nbsp;停用</Button>
             <Button icon="delete" type="ghost" disabled={this.state.isDelete} onClick={()=> this.setState({deleteModal: true})} size="large">删除</Button>
-            <Button icon="edit" type="ghost" disabled={this.state.isDelete} size="large" >修改</Button>
+            <Button icon="edit" type="ghost" disabled={!canEdit} size="large" onClick={() => this.editSetting()} >修改</Button>
             <div className="inputGrop">
               <Input size="large" id="alarmSearch" placeholder="搜索" onPressEnter={()=> this.handSearch()}/>
               <i className="fa fa-search" onClick={()=> this.handSearch()}/>
             </div>
             {this.props.setting.length > 0 ?
             <div className="rightPage pageBox">
-              <span className='totalPage'>共计 {this.props.setting.length} 条</span>
+              <span className='totalPage'>共计 {this.props.total} 条</span>
               <Pagination
                 simple
                 className='inlineBlock'
                 onChange={(page)=> this.onPageChange(page)}
                 current={this.state.currentPage}
                 pageSize={DEFAULT_PAGE_SIZE}
-                total={ this.props.setting.length } />
+                total={ this.props.total } />
             </div>
             :null
           }
           </div>
-          <MyComponent data={this.props.setting} scope={this} funcs= {{deleteRecords: this.props.deleteRecords}} needUpdate={this.state.needUpdate}/>
+          <MyComponent data={this.props.setting} scope={this} funcs={{ deleteRecords: this.props.deleteRecords }} needUpdate={this.state.needUpdate} />
           <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
             className="alarmModal"
-            onCancel={()=> this.setState({alarmModal:false})}
+            onCancel={() => this.setState({ alarmModal: false })}
             maskClosable={false}
             footer={null}
           >
-        <CreateAlarm funcs={modalFunc}
-      getAlertSetting={() => this.props.getSettingList(this.props.clusterID, {from:this.state.currentPage - 1, size: DEFAULT_PAGE_SIZE})}/>
+            <CreateAlarm funcs={modalFunc}
+              getAlertSetting={() => this.props.getSettingList(this.props.clusterID, { from: this.state.currentPage - 1, size: DEFAULT_PAGE_SIZE })} />
           </Modal>
           {/* 通知组 */}
           <Modal title="创建新通知组" visible={this.state.createGroup}
@@ -906,26 +957,26 @@ class AlarmSetting extends Component {
             className="alarmContent"
             footer={null}
           >
-          <CreateGroup funcs={modalFunc} shouldLoadGroup={true}/>
+            <CreateGroup funcs={modalFunc} shouldLoadGroup={true} />
           </Modal>
           <Modal title="删除策略" visible={this.state.deleteModal}
-            onCancel={()=> this.setState({deleteModal: false, selectStrategy: null})}
-            onOk={()=> this.deleteRecords()}
+            onCancel={() => this.setState({ deleteModal: false, selectStrategy: null })}
+            onOk={() => this.deleteRecords()}
           >
-            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>策略删除后将不再发送邮件告警，确认删除 {this.getCheckecSettingName()} 策略？</div>
+            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>策略删除后将不再发送邮件告警，确认删除 {this.getCheckecSettingName()} 策略？</div>
           </Modal>
-        <Modal title="停止策略" visible={this.state.showStop}
-      onCancel={()=> this.setState({showStop: false, selectStrategy: null})}
-      onOk={()=> this.stopSetting()}
-        >
-        <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>确认停止 {this.getCheckecSettingName()} 策略？</div>
-        </Modal>
-
-       <Modal title="启动策略" visible={this.state.showStart}
-            onCancel={()=> this.setState({showStart: false, selectStrategy: null})}
-            onOk={()=> this.startSetting()}
+          <Modal title="停止策略" visible={this.state.showStop}
+            onCancel={() => this.setState({ showStop: false, selectStrategy: null })}
+            onOk={() => this.stopSetting()}
           >
-            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>确认启动 {this.getCheckecSettingName()} 策略？</div>
+            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>确认停止 {this.getCheckecSettingName()} 策略？</div>
+          </Modal>
+
+          <Modal title="启动策略" visible={this.state.showStart}
+            onCancel={() => this.setState({ showStart: false, selectStrategy: null })}
+            onOk={() => this.startSetting()}
+          >
+            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>确认启动 {this.getCheckecSettingName()} 策略？</div>
           </Modal>
 
 
@@ -964,12 +1015,15 @@ function mapStateToProps(state, props) {
   if(!setting.result || !setting.result.data) {
     setting = defaultSettingList
   }
-  setting = setting.result.data.strategys
+
+  let total = setting.result.data.total || 0
+  setting = setting.result.data.strategys || []
   return {
     recordsData,
     clusterID: cluster.clusterID,
     teamID: team.teamID,
-    setting
+    setting,
+    total
   }
 }
 
