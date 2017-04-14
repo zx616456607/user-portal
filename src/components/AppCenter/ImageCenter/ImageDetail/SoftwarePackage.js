@@ -528,9 +528,9 @@ class TableTemplate extends Component{
       }
 
       // 介绍了图像
-      for (let i = 0; i < mirrorLayeredinfo.length; i++) {
-        if (mirrorLayeredinfo[i].iD == features[key].layerID) {
-          command = mirrorLayeredinfo[i].command
+      for (let i = 0; i < mirrorLayeredinfo[imageName].length; i++) {
+        if (mirrorLayeredinfo[imageName][i].iD == features[key].layerID) {
+          command = mirrorLayeredinfo[imageName][i].command
         }
       }
       let data = {
@@ -835,11 +835,12 @@ class SoftwarePackage extends Component {
     super(props)
     this.handleclairStatus = this.handleclairStatus.bind(this)
     this.NodataTemplateSafetyBug = this.NodataTemplateSafetyBug.bind(this)
+    this.APIFailedThenScan = this.APIFailedThenScan.bind(this)
   }
 
   handleclairStatus(){
     const { mirrorsafetyClair, imageName, mirrorLayeredinfo } = this.props
-    if(!mirrorsafetyClair || !mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName].result){
+    if(!mirrorsafetyClair || !mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName].result){
       return
     }
     const result = mirrorsafetyClair[imageName].result
@@ -859,7 +860,7 @@ class SoftwarePackage extends Component {
         case 'failed':
           return <div className="BaseScanFailed">
             <div className='top'>扫描失败，请重新扫描</div>
-            <Button onClick={this.severLyins}>点击重新获取</Button>
+            <Button onClick={this.APIFailedThenScan}>点击重新获取</Button>
           </div>
         case 'nojob':
         default:
@@ -874,9 +875,9 @@ class SoftwarePackage extends Component {
   }
 
   NodataTemplateSafetyBug(){
-    const { mirrorScanstatus, imageName } = this.props
+    const { mirrorScanstatus, imageName, tag } = this.props
     return (
-      <div className='nodata'>{mirrorScanstatus[imageName].message}</div>
+      <div className='nodata'>{mirrorScanstatus[imageName][tag].message}</div>
     )
   }
 
@@ -889,16 +890,48 @@ class SoftwarePackage extends Component {
   //  callBack(getBackInfo)
   //}
   //
+  APIFailedThenScan(){
+    const { loadMirrorSafetyScan, loadMirrorSafetyChairinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus } = this.props
+    const registry = mirrorScanUrl
+    const blob_sum = mirrorScanstatus[imageName][tag].blobSum
+    const full_name = mirrorScanstatus[imageName][tag].fullName
+    const config = {
+      cluster_id,
+      imageName,
+      tag,
+      registry,
+      full_name
+    }
+    if(mirrorSafetyScan[imageName]){
+      return loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+    }
+    return loadMirrorSafetyScan({...config}, {
+      success: {
+        func: () =>{
+          loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+        },
+        isAsync : true
+      }
+    })
+  }
+
   render() {
-    const { imageName, mirrorScanstatus } = this.props
+    const { imageName, tag, mirrorScanstatus } = this.props
     let statusCode = 200
-    if(!mirrorScanstatus[imageName]){
-      return <div></div>
+    if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result || Object.keys(mirrorScanstatus[imageName][tag]).length == 0){
+      return <Spin />
     }
     if(mirrorScanstatus[imageName].statusCode == 500){
       statusCode == 500
     }
-
+    if(mirrorScanstatus[imageName].status == 'failed'){
+      return (
+        <div className='BaseScanFailed' data-status="scanstatus">
+          <div className='top'>扫描失败,请重新扫描</div>
+          <Button onClick={this.APIFailedThenScan}>重新扫描</Button>
+        </div>
+      )
+    }
     return (
       <div id="SoftwarePackage">
         {
@@ -921,11 +954,15 @@ function mapStateToProps(state,props){
   let mirrorsafetyClair = images.mirrorSafetyClairinfo
   let mirrorSafetyScan = images.mirrorSafetyScan
   let cluster_id = entities.current.cluster.clusterID
+  let mirrorLayeredinfo = images.mirrorSafetyLayerinfo
+  let mirrorScanstatus = images.mirrorSafetyScanStatus
   return {
     cluster_id,
     mirrorsafetyClair,
     mirrorSafetyScan,
-    mirrorScanUrl
+    mirrorScanUrl,
+    mirrorLayeredinfo,
+    mirrorScanstatus
   }
 }
 
@@ -934,17 +971,6 @@ export default connect(mapStateToProps, {
   loadMirrorSafetyChairinfo
 })(SoftwarePackage)
 
-//<div className='softwarePackageEcharts' style={{ width: '100%' }}>
-//<ReactEcharts
-//option={softwareOption}
-//style={{ height: '220px' }}
-///>
-//</div>
-//<div className='softwarePackageTable'>
-//  <div className='softwarePackageTableTitle'>
-//  <div className='softwarePackageTableTitleleft'>
-//  镜像所含软件包
-//  </div>
 //  {/*<div className='softwarePackageTableTitleright'>*/}
 //{/*<Input.Group style={{ width: '200px', marginRight: '35px' }}>*/}
 //{/*<Select*/}
@@ -967,21 +993,6 @@ export default connect(mapStateToProps, {
 //{/*</Input.Group>*/}
 //{/*</div>*/}
 //</div>
-//<div className='softwarePackageTableContent'>
-//  {
-//    Nodate ?
-//      this.NodataTemplateSafetyBug()
-//      :
-//      <Table
-//        columns={softwareColumns}
-//        dataSource={this.TableData().tableDataSource}
-//        pagination={softwarePagination}
-//      >
-//      </Table>
-//  }
-//</div>
-//</div>
 
-//
 //render: (text) => (
 //  <div className='softwarepicture'><span className='softwarepicturelleft'>{text.action}</span><Tooltip title={text.parameters}><span className="textoverflow softwarepicturespan">{text.parameters}</span></Tooltip><i className="fa fa-database softwarepicturelright" aria-hidden="true" onClick={this.handleGetBackLayer.bind(this,text.parameters)}></i></div>)

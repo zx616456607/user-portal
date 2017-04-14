@@ -784,7 +784,7 @@ function mirrorSafetyLayerinfo(state = {}, action) {
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_LAYERINFO_SUCCESS:
       return merge({}, state, {
         isFetching: false,
-        mirrorLayerinfo: action.response.result.info.layers
+        [action.imageName]: action.response.result.info.layers
       })
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_LAYERINFO_FAILURE:
       return merge({}, state, {
@@ -800,11 +800,21 @@ function mirrorSafetyScanStatus(state = {}, action) {
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCANSTATUS_REQUEST:
       return merge({}, state, {
         isFetching: true,
+        [action.imageName]: {
+          [action.tag]:{
+            isFetching: true
+          }
+        }
       })
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCANSTATUS_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        [action.imageName]: action.response.result
+        [action.imageName]: {
+          [action.tag]:{
+            isFetching: false,
+            result:action.response.result
+          }
+        }
       })
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCANSTATUS_FAILURE:
       return merge({}, state, {

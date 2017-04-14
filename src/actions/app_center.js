@@ -668,6 +668,7 @@ function fetchMirrorSafetyScanStatus(body, callback) {
       schema: Schemas.REGISTRYS,
     },
     imageName:body.imageName,
+    tag:body.tag,
     callback
   }
 }
@@ -715,6 +716,7 @@ function fetchMirrorSafetyLayerinfo(body, callback) {
       endpoint: `${API_URL_PREFIX}/images/layer-info?imageName=${body.imageName}&tag=${body.tag}`,
       schema: Schemas.REGISTRYS,
     },
+    imageName:body.imageName,
     callback
   }
 }
