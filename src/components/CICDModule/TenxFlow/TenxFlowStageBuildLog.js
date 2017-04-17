@@ -71,7 +71,7 @@ class TenxFlowStageBuildLog extends Component {
       let height = $('#TenxFlowStageBuildLog .infoBox').css('height')
       $('#TenxFlowStageBuildLog').animate({
         scrollTop: height + 'px'
-      }, 100)
+      }, 0)
     })
     socket.on("ciLogs-ended", function(data) {
       if (callback) {

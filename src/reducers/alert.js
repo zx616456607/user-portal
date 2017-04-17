@@ -91,8 +91,13 @@ export default function alert(state = {
     }, state.updteEnable, action, option),
     deleteRule: reducerFactory({
       REQUEST: ActionTypes.ALERT_DELETE_RULE_REQUEST,
-      SUCCESS: ActionTypes.ALERT_DELETE_SUCCESS,
+      SUCCESS: ActionTypes.ALERT_DELETE_RULE_SUCCESS,
       FAILURE: ActionTypes.ALERT_DELETE_RULE_FAILURE
+    }, state.deleteRule, action),
+    searchSetting: reducerFactory({
+      REQUEST: ActionTypes.ALERT_SEARCH_SETTING_REQUEST,
+      SUCCESS: ActionTypes.ALERT_SEARCH_SETTING_SUCCESS,
+      FAILURE: ActionTypes.ALERT_SEARCH_SETTING_FAILURE
     }, state.deleteRule, action)
   }
 }

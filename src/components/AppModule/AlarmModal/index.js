@@ -16,7 +16,8 @@ import CreateAlarmGroup from './CreateGroup'
 import { loadAppList } from '../../../actions/app_manage'
 import { loadServiceList } from '../../../actions/services'
 import { getAllClusterNodes } from '../../../actions/cluster_node'
-import { loadNotifyGroups, addAlertSetting } from '../../../actions/alert'
+import { loadNotifyGroups, addAlertSetting, getAlertSetting } from '../../../actions/alert'
+import { ADMIN_ROLE } from '../../../../constants'
 import NotificationHandler from '../../../common/notification_handler'
 
 const Option = Select.Option
@@ -24,11 +25,12 @@ const RadioGroup = Radio.Group
 
 let FistStop = React.createClass({
   componentWillMount() {
-    const { loadAppList, appList, cluster, isFetchingApp, clusterNode, getAllClusterNodes, setParentState } = this.props
-    if(!appList || appList.length == 0) {
+    const { loadAppList, appList, cluster, isFetchingApp, clusterNode, getAllClusterNodes, setParentState, loginUser } = this.props
+    if (!appList || appList.length == 0) {
       loadAppList(cluster.clusterID)
     }
-    if(!clusterNode || clusterNode.length == 0) {
+    console.log(loginUser)
+    if ((!clusterNode || clusterNode.length == 0) && loginUser.info.role == ADMIN_ROLE) {
       getAllClusterNodes(cluster.clusterID)
     }
     setParentState({
@@ -52,7 +54,7 @@ let FistStop = React.createClass({
   fistStopApply(rule, value, callback) {
     if (!Boolean(value)) {
       const { getFieldValue } = this.props.form
-      if(getFieldValue('type') == 'node') {
+      if (getFieldValue('type') == 'node') {
         return callback(new Error('请选择节点'));
       }
       return callback(new Error('请选择应用'))
@@ -87,18 +89,18 @@ let FistStop = React.createClass({
     const { isFetchingApp, isFetchingClusterNode, clusterNode, appList, form } = this.props
     const { getFieldValue, resetFields } = form
     const isNode = getFieldValue('type') == 'node'
-    if(isNode) {
-      if(isFetchingClusterNode) {
+    if (isNode) {
+      if (isFetchingClusterNode) {
         return (<div key="loading" className='loadingBox'><Spin size='large'></Spin></div>)
       }
-      if(!clusterNode || !clusterNode.nodes || !clusterNode.nodes.clusters || clusterNode.nodes.clusters.nodes.nodes.length == 0) {
+      if (!clusterNode || !clusterNode.nodes || !clusterNode.nodes.clusters || clusterNode.nodes.clusters.nodes.nodes.length == 0) {
         return <div key="null"></div>
       }
       return clusterNode.nodes.clusters.nodes.nodes.map(item => {
         return <Option key={item.objectMeta.name} value={item.objectMeta.name}>{`${item.objectMeta.name} | ${item.address}`}</Option>
       })
     } else {
-      if(isFetchingApp) {
+      if (isFetchingApp) {
         return (<div key="loading" className='loadingBox'><Spin size='large'></Spin></div>)
       }
       return appList.map(item => {
@@ -107,20 +109,20 @@ let FistStop = React.createClass({
     }
   },
   getServiceList() {
-    const { serviceList, loadServiceList, cluster, form} = this.props
+    const { serviceList, loadServiceList, cluster, form } = this.props
     const { getFieldValue } = form
-    if(getFieldValue('type') == 'node') return <div key="null"></div>
+    if (getFieldValue('type') == 'node') return <div key="null"></div>
     const appName = getFieldValue('apply')
-    if(!appName) return (<Option key="null"></Option>)
-    if(!serviceList[appName]) {
+    if (!appName) return (<Option key="null"></Option>)
+    if (!serviceList[appName]) {
       setTimeout(() => loadServiceList(cluster.clusterID, appName), 0)
       return (<div key="loading" className='loadingBox'><Spin size='large'></Spin></div>)
     }
-    if(serviceList[appName].isFetcing) {
+    if (serviceList[appName].isFetcing) {
       return (<div key='loading' className='loadingBox'><Spin size='large'></Spin></div>)
     }
     const list = serviceList[appName].serviceList
-    if(!list || list.legnth == 0) return [<Option key="null"></Option>]
+    if (!list || list.legnth == 0) return [<Option key="null"></Option>]
     return list.map(service => {
       return <Option key={service.metadata.name} value={service.metadata.name}>{service.metadata.name}</Option>
     })
@@ -137,65 +139,123 @@ let FistStop = React.createClass({
       apply: '',
       server: ''
     })
- },
+  },
+  getTargetType() {
+    const { loginUser } = this.props
+    if (loginUser.info.role == ADMIN_ROLE) {
+      return [<Option value="node">节点</Option>,
+      <Option value="service">服务</Option>]
+    }
+    return <Option value="service">服务</Option>
+  },
   render: function () {
     const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form;
-    const { funcs, currentApp, currentService } = this.props
+    const { funcs, currentApp, currentService, data, isEdit, loginUser } = this.props
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 17 }
     };
-    const nameProps = getFieldProps('name', {
-      rules: [
-        { whitespace: true },
-        { validator: this.fistStopName }
-      ]
-    });
-    let initiaValue = 'node'
-    if(currentService || currentApp) {
-      initiaValue = 'service'
+    let nameProps
+    let typeProps
+    let applyProps
+    let serverProps
+    let repeatInterval
+    let isNode
+    if (isEdit) {
+      nameProps = getFieldProps('name', {
+        rules: [
+          { whitespace: true },
+          { validator: this.fistStopName }
+        ],
+        initialValue: data.strategyName
+      });
+      typeProps = getFieldProps('type', {
+        rules: [
+          { whitespace: true },
+          { validator: this.fistStopType }
+        ],
+        onChange: this.resetType,
+        initialValue: data.targetType == 1 && loginUser.info.role == ADMIN_ROLE ? '节点' : '服务'
+      });
+      isNode = data.targetType
+      applyProps = getFieldProps('apply', {
+        rules: [
+          { whitespace: true },
+          { validator: this.fistStopApply }
+        ],
+        onChange: this.resetService,
+        initialValue: isNode ? data.targetName : data.appName
+      })
+      serverProps = getFieldProps('server', {
+        rules: [
+          { whitespace: true },
+          { validator: isNode ? '' : this.fistStopServer }
+        ],
+        initialValue: data.targetName
+      });
+      repeatInterval = getFieldProps('interval', {
+        rules: [
+          { require: true },
+          { whitespace: true },
+          { message: '请选择监控周期' }
+        ],
+        initialValue: data.repeatInterval.toString()
+      })
+    } else {
+      nameProps = getFieldProps('name', {
+        rules: [
+          { whitespace: true },
+          { validator: this.fistStopName }
+        ],
+        initialValue: ''
+      });
+      let initiaValue = 'node'
+      if (currentService || currentApp) {
+        initiaValue = 'service'
+      }
+      typeProps = getFieldProps('type', {
+        rules: [
+          { whitespace: true },
+          { validator: this.fistStopType }
+        ],
+        onChange: this.resetType,
+        initialValue: loginUser.info.role == ADMIN_ROLE ? initiaValue : 'service'
+      });
+      let initAppName = ''
+      if (currentApp) {
+        initAppName = currentApp.name
+      }
+      let initService = ''
+      if (currentService) {
+        initService = currentService.metadata.name
+        initAppName = currentService.metadata.labels['tenxcloud.com/appName']
+      }
+      applyProps = getFieldProps('apply', {
+        rules: [
+          { whitespace: true },
+          { validator: this.fistStopApply }
+        ],
+        onChange: this.resetService,
+        initialValue: initAppName
+      })
+      isNode = getFieldValue('type') == 'node'
+      serverProps = getFieldProps('server', {
+        rules: [
+          { whitespace: true },
+          { validator: isNode ? '' : this.fistStopServer }
+        ],
+        initialValue: initService
+      });
+      repeatInterval = getFieldProps('interval', {
+        rules: [
+          { require: true },
+          { whitespace: true },
+          { message: '请选择监控周期' }
+        ],
+        initialValue: '300'
+      })
     }
-    const typeProps = getFieldProps('type', {
-      rules: [
-        { whitespace: true },
-        { validator: this.fistStopType }
-      ],
-      onChange: this.resetType,
-      initialValue: initiaValue
-    });
-    let initAppName = ''
-    if(currentApp) {
-      initAppName = currentApp.name
-    }
-    let initService = ''
-    if(currentService) {
-      initService = currentService.metadata.name
-      initAppName = currentService.metadata.labels['tenxcloud.com/appName']
-    }
-    const applyProps = getFieldProps('apply', {
-      rules: [
-        { whitespace: true },
-        { validator: this.fistStopApply }
-      ],
-      onChange: this.resetService,
-      initialValue: initAppName
-    })
-    const isNode = getFieldValue('type') == 'node'
-    const serverProps = getFieldProps('server', {
-      rules: [
-        { whitespace: true },
-        { validator: isNode ? '' : this.fistStopServer }
-      ],
-      initialValue: initService
-    });
-    const repeatInterval = getFieldProps('interval' , {
-      rules: [
-        { require: true},
-        { whitespace: true },
-        { message: '请选择监控周期'}
-      ],
-      initialValue: '300'
-    })
+
     return (
       <Form className="paramsSetting">
         <Form.Item label="名称" {...formItemLayout}>
@@ -203,22 +263,22 @@ let FistStop = React.createClass({
         </Form.Item>
         <Form.Item label="类型" {...formItemLayout}>
           <Select placeholder="请选择类型" {...typeProps} >
-            <Option value="node">节点</Option>
-            <Option value="service">服务</Option>
+            { this.getTargetType()}
+
           </Select>
         </Form.Item>
         <Form.Item label="监控对象" {...formItemLayout}>
-          <Select placeholder={ isNode ? '请选择节点' : '请选择应用'} {...applyProps} style={{ width: 170 }} >
-              {this.getAppOrNodeList()}
+          <Select placeholder={isNode ? '请选择节点' : '请选择应用'} {...applyProps} style={{ width: 170 }} >
+            {this.getAppOrNodeList()}
           </Select>
         </Form.Item>
-        <Form.Item style={{position: 'absolute', top: 240, right: 95}}>
+        <Form.Item style={{ position: 'absolute', top: 240, right: 95 }}>
           <Select placeholder="请选择服务" {...serverProps} style={{ width: 170, marginLeft: 25, display: isNode ? 'none' : 'inline-block' }} >
             {this.getServiceList()}
           </Select>
         </Form.Item>
-        <Form.Item label="监控周期" {...formItemLayout} style={{clear:'both'}}>
-        <Select {...repeatInterval}>
+        <Form.Item label="监控周期" {...formItemLayout} style={{ clear: 'both' }}>
+          <Select {...repeatInterval}>
             <Option value="300">5分钟</Option>
             <Option value="1800">30分钟</Option>
             <Option value="3600">一小时</Option>
@@ -236,37 +296,39 @@ let FistStop = React.createClass({
 function mapStateToProp(state, prop) {
   const defaultAppList = []
   const defaultServiceList = {}
-  const defaultClusterNode=[]
+  const defaultClusterNode = []
   const { cluster } = state.entities.current
   let appList = state.apps.appItems
   let serviceList = state.services.serviceItems
   let clusterNode = state.cluster_nodes.getAllClusterNodes
   let isFetchingClusterNode = false
   let isFetchingApp = false
-  if(!appList || !appList[cluster.clusterID]) {
+  if (!appList || !appList[cluster.clusterID]) {
     appList = defaultAppList
   } else {
     isFetchingApp = appList[cluster.clusterID].isFetching
     appList = appList[cluster.clusterID].appList
   }
-  if(!serviceList || !serviceList[cluster.clusterID]) {
+  if (!serviceList || !serviceList[cluster.clusterID]) {
     serviceList = defaultServiceList
   } else {
     serviceList = serviceList[cluster.clusterID]
   }
-  if(!clusterNode || !clusterNode[cluster.clusterID]) {
+  if (!clusterNode || !clusterNode[cluster.clusterID]) {
     clusterNode = defaultClusterNode
   } else {
     isFetchingClusterNode = clusterNode.isFetching
     clusterNode = clusterNode[cluster.clusterID]
   }
+  const { loginUser } = state.entities
   return {
     isFetchingApp,
     isFetchingClusterNode,
     appList,
     serviceList,
     clusterNode,
-    cluster
+    cluster,
+    loginUser
   }
 }
 
@@ -288,10 +350,15 @@ let TwoStop = React.createClass({
     }
   },
   componentWillMount() {
-    const { setParentState } = this.props
+    const { setParentState, data } = this.props
     setParentState({
       secondForm: this.props.form
     })
+    data.forEach((item, index) => {
+      this.setState({ [`typeProps_${index}`]: this.switchSymbol(item.type) })
+    })
+  },
+  componentWillReceiveProps(nextProps) {
   },
   removeRule(k) {
     const { form } = this.props;
@@ -324,14 +391,14 @@ let TwoStop = React.createClass({
       // can use data-binding to get
       let cpu = form.getFieldValue('cpu');
       let typeProps = `typeProps_${uuid}`
-      _this.setState({[typeProps]: '%'})
+      _this.setState({ [typeProps]: '%' })
       cpu = cpu.concat(uuid);
+      console.log(cpu)
       // can use data-binding to set
       // important! notify form to detect changes
       form.setFieldsValue({
         cpu,
       });
-
     })
     //
     // if (this.state.newselectCpu) return
@@ -342,7 +409,7 @@ let TwoStop = React.createClass({
   hnadRule() {
     // nextStep
     const { form, funcs, setParentState } = this.props;
-    if(this.state.haveRepeat) return
+    if (this.state.haveRepeat) return
     form.validateFields((error, values) => {
       if (!!error) {
         return
@@ -376,18 +443,18 @@ let TwoStop = React.createClass({
   changeType(key, type) {
     let typeProps = `typeProps_${key}`
     if (type == 'network/rx_rate' || type == 'network/tx_rate') {
-      this.setState({[typeProps]: 'KB/s'})
+      this.setState({ [typeProps]: 'KB/s' })
       return
     }
-    if(type == 'memory/usage') {
-      this.setState({[typeProps]: 'MB'})
+    if (type == 'memory/usage') {
+      this.setState({ [typeProps]: 'MB' })
       return
     }
-    this.setState({[typeProps]: '%'})
+    this.setState({ [typeProps]: '%' })
   },
   usedRule(rule, value, callback, key) {
-    if(!value) return callback('请选择运算符')
-    if(this.validateIsRepeat(key, value, `used_rule@${key}`)) {
+    if (!value) return callback('请选择运算符')
+    if (this.validateIsRepeat(key, value, `used_rule@${key}`)) {
       return callback('告警设置填写重复')
     } else {
       setTimeout(() => this.clearError(key), 0)
@@ -396,8 +463,8 @@ let TwoStop = React.createClass({
     return callback()
   },
   usedName(rule, value, callback, key) {
-    if(!value) return callback('请选择类型')
-    if(this.validateIsRepeat(key, value, `used_name@${key}`)) {
+    if (!value) return callback('请选择类型')
+    if (this.validateIsRepeat(key, value, `used_name@${key}`)) {
       return callback('告警设置填写重复')
     } else {
       setTimeout(() => this.clearError(key), 0)
@@ -405,10 +472,10 @@ let TwoStop = React.createClass({
     }
     return callback()
   },
-  usedData(rule, value, callback ,key) {
-    if(!value) return callback('请填写数值')
-    if(parseInt(value) <= 0) return callback('此数值需大于1')
-    if(this.validateIsRepeat(key, value, `used_data@${key}`)) {
+  usedData(rule, value, callback, key) {
+    if (!value) return callback('请填写数值')
+    if (parseInt(value) <= 0) return callback('此数值需大于1')
+    if (this.validateIsRepeat(key, value, `used_data@${key}`)) {
       return callback('告警设置填写重复')
     } else {
       setTimeout(() => this.clearError(key), 0)
@@ -418,7 +485,7 @@ let TwoStop = React.createClass({
   },
   clearError(key) {
     const { form } = this.props
-    if(!this.state.needClearError) return
+    if (!this.state.needClearError) return
     const { setFields, getFieldValue } = form
     setFields({
       [`used_data@${key}`]: {
@@ -429,7 +496,7 @@ let TwoStop = React.createClass({
         errors: null,
         value: getFieldValue(`used_rule@${key}`)
       },
-      [`used_name@${key}`]:{
+      [`used_name@${key}`]: {
         errors: null,
         value: getFieldValue(`used_name@${key}`)
       }
@@ -442,16 +509,16 @@ let TwoStop = React.createClass({
     let newValue = getFieldsValue([`used_data@${key}`, `used_rule@${key}`, `used_name@${key}`].filter(item => item != field))
     newValue = this.getObjValueArr(newValue)
     newValue.push(value)
-    if(keyCount && keyCount.length > 0) {
-       const result = keyCount.some(item => {
-        if(item == key) return false
+    if (keyCount && keyCount.length > 0) {
+      const result = keyCount.some(item => {
+        if (item == key) return false
         let existValue = getFieldsValue([`used_data@${item}`, `used_rule@${item}`, `used_name@${item}`])
         existValue = this.getObjValueArr(existValue)
         return existValue.every(value => {
           return newValue.indexOf(value) >= 0
         })
-       })
-      if(result == this.state.haveRepeat) {
+      })
+      if (result == this.state.haveRepeat) {
         this.setState({
           needClearError: false
         })
@@ -472,54 +539,116 @@ let TwoStop = React.createClass({
       return obj[key]
     })
   },
+  switchType(type) {
+    type = type.trim()
+    switch (type) {
+      case 'CPU利用率':
+        return 'cpu/usage_rate'
+      case '内存使用率':
+        return 'memory/usage'
+      case '上传流量':
+        return 'network/tx_rate'
+      case '下载流量':
+        return 'network/rx_rate'
+      default:
+        return 'cpu/usage_rate'
+    }
+  },
+  switchSymbol(type) {
+    type = type.trim()
+    switch (type) {
+      case 'CPU利用率':
+        return '%'
+      case '内存使用率':
+        return 'MB'
+      case '上传流量':
+        return 'kb/s'
+      case '下载流量':
+        return 'kb/s'
+      default:
+        return '%'
+    }
+  },
+  calculateValue(type, threshold) {
+    threshold = threshold.toLowerCase()
+    type = type.trim()
+    switch (type) {
+      case 'CPU利用率':
+        return parseInt(threshold)
+      case '内存使用率':
+        if (threshold.indexOf('gb') > 0) {
+          return (parseFloat(threshold) * 1024).toFixed(0)
+        }
+        if (threshold.indexOf('kb') > 0) {
+          return (parseFloat(threshold) / 1024).toFixed(0)
+        }
+       if (threshold.indexOf('mb') > 0) {
+          return (parseFloat(threshold)).toFixed(0)
+        }
+        return threshold
+      case '上传流量': case '下载流量':
+        if (threshold.indexOf('gb') > 0) {
+          return (parseFloat(threshold) * 1024 * 1024).toFixed(0)
+        }
+        if (threshold.indexOf('mb') > 0) {
+          return (parseFloat(threshold) * 1024).toFixed(0)
+        }
+        return parseInt(threshold)
+      default:
+        return 0
+    }
+  },
   render() {
     const { getFieldProps, getFieldValue } = this.props.form;
-    const { funcs } = this.props
-    getFieldProps('cpu', {
-      initialValue: [0],
-    });
-    const cpuItems = getFieldValue('cpu').map((key) => {
-      return (
-        <div className="ruleItem" key={key}>
-          <Form.Item>
-            <Select {...getFieldProps(`used_name@${key}`, {
-              rules: [{
-                whitespace: true,
-                validator: (rule, value, callback) => this.usedName(rule, value, callback, key)
-              }],
-              initialValue: 'cpu/usage_rate',
-              onChange: (type)=> this.changeType(key, type)
-            }) } style={{ width: 135 }} >
-              <Option value="cpu/usage_rate">CPU利用率</Option>
-              <Option value="memory/usage">内存使用</Option>
-              <Option value="network/tx_rate">上传流量</Option>
-              <Option value="network/rx_rate">下载流量</Option>
+    const { funcs, data, isEdit } = this.props
+    let cpuItems
+    if (isEdit) {
+      getFieldProps('cpu', {
+        initialValue: data.map((item, index) => index),
+      })
+      cpuItems = getFieldValue('cpu').map((key) => {
+        let value = data[key] || { type: '', threshold: '' }
 
-            </Select>
-          </Form.Item>
-          <Form.Item>
-            <Select {...getFieldProps(`used_rule@${key}`, {
-              rules: [{
-                whitespace: true,
-                validator: (rule, value, callback) => this.usedRule(rule, value, callback, key)
-              }],
-              initialValue: '>'
-            }) } style={{ width: 80 }} >
-              <Option value=">"><i className="fa fa-angle-right" style={{fontSize:16,marginLeft:5}}/></Option>
-              <Option value="<"><i className="fa fa-angle-left" style={{fontSize:16,marginLeft:5}}/></Option>
-            </Select>
-          </Form.Item>
-          <Form.Item>
-            <InputNumber step={10} {...getFieldProps(`used_data@${key}`, {
-              rules: [{
-                whitespace: true,
-                validator: (rule, value, callback) => this.usedData(rule, value, callback, key)
-              }],
-              initialValue: '0'
-            }) } style={{ width: 80 }}/>
-          </Form.Item>
-          <Form.Item>
-            {/*<Select {...getFieldProps(`used_symbol@${key}`, {
+        return (
+          <div className="ruleItem" key={key}>
+            <Form.Item>
+              <Select {...getFieldProps(`used_name@${key}`, {
+                rules: [{
+                  whitespace: true,
+                  validator: (rule, value, callback) => this.usedName(rule, value, callback, key)
+                }],
+                initialValue: this.switchType(value.type),
+                onChange: (type) => this.changeType(key, type)
+              }) } style={{ width: 135 }} >
+                <Option value="cpu/usage_rate">CPU利用率</Option>
+                <Option value="memory/usage">内存使用</Option>
+                <Option value="network/tx_rate">上传流量</Option>
+                <Option value="network/rx_rate">下载流量</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item>
+              <Select {...getFieldProps(`used_rule@${key}`, {
+                rules: [{
+                  whitespace: true,
+                  validator: (rule, value, callback) => this.usedRule(rule, value, callback, key)
+                }],
+                initialValue: value.operation
+              }) } style={{ width: 80 }} >
+                <Option value=">"><i className="fa fa-angle-right" style={{ fontSize: 16, marginLeft: 5 }} /></Option>
+                <Option value="<"><i className="fa fa-angle-left" style={{ fontSize: 16, marginLeft: 5 }} /></Option>
+              </Select>
+            </Form.Item>
+            <Form.Item>
+              <InputNumber step={10} {...getFieldProps(`used_data@${key}`, {
+                rules: [{
+                  whitespace: true,
+                  validator: (rule, value, callback) => this.usedData(rule, value, callback, key)
+                }],
+                initialValue: this.calculateValue(value.type, value.threshold)
+              }) } style={{ width: 80 }} />
+            </Form.Item>
+            <Form.Item>
+              {/*<Select {...getFieldProps(`used_symbol@${key}`, {
               rules: [{
                 required: true,
                 whitespace: true,
@@ -530,15 +659,82 @@ let TwoStop = React.createClass({
               <Option value="%">%</Option>
               <Option value="KB/s">KB/s</Option>
             </Select>*/}
-          <Input style={{ width: 80 }} disabled={true}  value= {this.state[`typeProps_${key}`]} />
-          </Form.Item>
-          <span className="rightBtns">
-            <Button type="primary" onClick={this.addRule} size="large" icon="plus"></Button>
-            <Button type="ghost" onClick={() => this.removeRule(key)} size="large" icon="cross"></Button>
-          </span>
-        </div>
-      );
-    });
+              <Input style={{ width: 80 }} disabled={true} value={this.state[`typeProps_${key}`]} />
+            </Form.Item>
+            <span className="rightBtns">
+              <Button type="primary" onClick={this.addRule} size="large" icon="plus"></Button>
+              <Button type="ghost" onClick={() => this.removeRule(key)} size="large" icon="cross"></Button>
+            </span>
+          </div>
+        );
+      });
+    }
+    else {
+      getFieldProps('cpu', {
+        initialValue: [0],
+      });
+      cpuItems = getFieldValue('cpu').map((key) => {
+        return (
+          <div className="ruleItem" key={key}>
+            <Form.Item>
+              <Select {...getFieldProps(`used_name@${key}`, {
+                rules: [{
+                  whitespace: true,
+                  validator: (rule, value, callback) => this.usedName(rule, value, callback, key)
+                }],
+                initialValue: 'cpu/usage_rate',
+                onChange: (type) => this.changeType(key, type)
+              }) } style={{ width: 135 }} >
+                <Option value="cpu/usage_rate">CPU利用率</Option>
+                <Option value="memory/usage">内存使用</Option>
+                <Option value="network/tx_rate">上传流量</Option>
+                <Option value="network/rx_rate">下载流量</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item>
+              <Select {...getFieldProps(`used_rule@${key}`, {
+                rules: [{
+                  whitespace: true,
+                  validator: (rule, value, callback) => this.usedRule(rule, value, callback, key)
+                }],
+                initialValue: '>'
+              }) } style={{ width: 80 }} >
+                <Option value=">"><i className="fa fa-angle-right" style={{ fontSize: 16, marginLeft: 5 }} /></Option>
+                <Option value="<"><i className="fa fa-angle-left" style={{ fontSize: 16, marginLeft: 5 }} /></Option>
+              </Select>
+            </Form.Item>
+            <Form.Item>
+              <InputNumber step={10} {...getFieldProps(`used_data@${key}`, {
+                rules: [{
+                  whitespace: true,
+                  validator: (rule, value, callback) => this.usedData(rule, value, callback, key)
+                }],
+                initialValue: '0'
+              }) } style={{ width: 80 }} />
+            </Form.Item>
+            <Form.Item>
+              {/*<Select {...getFieldProps(`used_symbol@${key}`, {
+              rules: [{
+                required: true,
+                whitespace: true,
+                message: '请选择单位',
+              }],
+              initialValue: '%'
+            }) } style={{ width: 80 }} >
+              <Option value="%">%</Option>
+              <Option value="KB/s">KB/s</Option>
+            </Select>*/}
+              <Input style={{ width: 80 }} disabled={true} value={this.state[`typeProps_${key}`]} />
+            </Form.Item>
+            <span className="rightBtns">
+              <Button type="primary" onClick={this.addRule} size="large" icon="plus"></Button>
+              <Button type="ghost" onClick={() => this.removeRule(key)} size="large" icon="cross"></Button>
+            </span>
+          </div>
+        );
+      });
+    }
+
 
     return (
       <Form className="alarmRule" inline={true} form={this.props.form}>
@@ -548,7 +744,7 @@ let TwoStop = React.createClass({
 
         <div className="alertRule">
           <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有pod占用CPU之和/CPU资源总量
-          <a style={{marginLeft: 20}}>内存使用率</a>= 所有pod占用内存之和/内存资源总量
+          <a style={{ marginLeft: 20 }}>内存使用率</a>= 所有pod占用内存之和/内存资源总量
 
         </div>
         {/*  footer btn */}
@@ -573,14 +769,47 @@ class AlarmModal extends Component {
   }
 
   componentDidMount() {
-    const { notifyGroup, loadNotifyGroups } = this.props
-    if(!notifyGroup.result) {
+    const { notifyGroup, loadNotifyGroups, isEdit, strategy, getAlertSetting, cluster } = this.props
+    if (!notifyGroup.result) {
       loadNotifyGroups()
+    }
+    if (isEdit) {
+      getAlertSetting(cluster.clusterID, {
+        strategy: strategy.strategyName
+      }, {
+        success: {
+          func: (res) => {
+            uuid = res.data.length
+          }
+        }
+      })
+      this.setState({
+        isSendMail: strategy.enable
+      })
+    }
+  }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.isShow && nextProps.isShow != this.props.isShow) {
+      const { isEdit, strategy, getAlertSetting, cluster } = nextProps
+      if (isEdit) {
+        getAlertSetting(cluster.clusterID, {
+          strategy: strategy.strategyName
+        }, {
+          success: {
+            func: (res) => {
+              uuid = res.data.length
+            }
+          }
+        })
+        this.setState({
+          isSendMail: strategy.enable
+        })
+      }
     }
   }
 
   submitRule() {
-    const { form, getAlertSetting } = this.props;
+    const { form, getSettingList } = this.props;
     form.validateFields((error, values) => {
       if (!!error) {
         return
@@ -595,7 +824,7 @@ class AlarmModal extends Component {
         }
         if (obj.metricType == 'network/rx_rate' || obj.metricType == 'network/tx_rate') {
           obj.value = obj.value * 1024
-        } else if(obj.metricType == 'memory/usage'){
+        } else if (obj.metricType == 'memory/usage') {
           obj.value = obj.value * 1024 * 1024
         } else {
           obj.value = obj.value * 100
@@ -606,7 +835,7 @@ class AlarmModal extends Component {
       let targetType = this.state.type
       let targetName = this.state.server
       let appName = this.state.apply
-      if(targetType == 'service') {
+      if (targetType == 'service') {
         targetType = 0
       } else {
         targetType = 1
@@ -618,8 +847,8 @@ class AlarmModal extends Component {
       const repeatInterval = parseInt(this.state.interval)
       const cluster = this.props.cluster
       const notification = new NotificationHandler()
-      notification.spin('告警策略创建中')
-      this.props.addAlertSetting(cluster.clusterID, {
+      const { isEdit, strategy } = this.props
+      const requestBody = {
         targetType,
         targetName,
         specs,
@@ -629,19 +858,30 @@ class AlarmModal extends Component {
         appName,
         enable: this.state.isSendMail,
         disableNotifyEndTime: '0s'
-      }, {
+      }
+      if (isEdit) {
+        requestBody.strategyID = strategy.strategyID
+        notification.spin('告警策略更新中')
+      } else {
+        notification.spin('告警策略创建中')
+      }
+      this.props.addAlertSetting(cluster.clusterID, requestBody, {
         success: {
           func: () => {
             notification.close()
-            notification.success('告警策略创建成功')
+            if (isEdit) {
+              notification.success('告警策略更新成功')
+            } else {
+              notification.success('告警策略创建成功')
+            }
             const { funcs } = this.props
             funcs.cancelModal()
             form.resetFields()
             this.state.firstForm.resetFields()
             this.state.secondForm.resetFields()
             funcs.nextStep(1)
-            if(getAlertSetting) {
-              getAlertSetting()
+            if (getSettingList) {
+              getSettingList()
             }
           },
           isAsync: true
@@ -650,9 +890,12 @@ class AlarmModal extends Component {
           func: (result) => {
             notification.close()
             let message = '告警策略创建失败'
-            if(result.message.message) {
+            if (isEdit) {
+              message = '告警策略更新失败'
+            }
+            if (result.message.message) {
               message = result.message.message
-            } else if(result.message ) {
+            } else if (result.message) {
               message = result.message
             }
             notification.error(message)
@@ -669,10 +912,10 @@ class AlarmModal extends Component {
   }
   getNotifyGroup() {
     const { notifyGroup } = this.props
-    if(notifyGroup.isFetching) {
-      return (<div className="loadingBox"><Spin size="large"></Spin></div>)
+    if (notifyGroup.isFetching) {
+      return (<div className="loadingBox" key="loadingBox"><Spin size="large"></Spin></div>)
     }
-    if(!notifyGroup.result || notifyGroup.result.data.length == 0) {
+    if (!notifyGroup.result || notifyGroup.result.data.length == 0) {
       return null
     }
     return notifyGroup.result.data.map(item => {
@@ -684,7 +927,7 @@ class AlarmModal extends Component {
     loadNotifyGroups()
   }
   notifyGroup(rule, value, callback) {
-    if(!value) {
+    if (!value) {
       return callback('请选择告警通知组')
     }
     return callback()
@@ -695,16 +938,25 @@ class AlarmModal extends Component {
     })
   }
   render() {
+    if (this.props.isFetching) {
+      return <div className="loadingBox"><Spin size="large"></Spin></div>
+    }
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 17 }
-    };
+    }
     const { getFieldProps } = this.props.form
+    const { strategy, isEdit } = this.props
+    let initreceiver = ''
+    if (strategy && isEdit) {
+      initreceiver = strategy.receiversGroup
+    }
     const notify = getFieldProps('notify', {
       rules: [
         { whitespace: true },
         { validator: this.notifyGroup }
-      ]
+      ],
+      initialValue: initreceiver
     })
     const { funcs } = this.props
     return (
@@ -716,26 +968,26 @@ class AlarmModal extends Component {
         </div>
         <div className="alarmContent">
           <div className={funcs.scope.state.step == 1 ? 'steps' : 'hidden'}>
-        <FistStop funcs={funcs} setParentState={this.setParentState()} currentApp={this.props.currentApp} currentService={this.props.currentService}/>
+            <FistStop funcs={funcs} setParentState={this.setParentState()} currentApp={this.props.currentApp} currentService={this.props.currentService} isEdit={isEdit} data={this.props.strategy} />
           </div>
           <div className={funcs.scope.state.step == 2 ? 'steps' : 'hidden'}>
-            <TwoStop funcs={funcs} setParentState={this.setParentState()}/>
+            <TwoStop funcs={funcs} setParentState={this.setParentState()} isEdit={isEdit} data={this.props.setting} isShow={this.props.isShow} />
           </div>
           <div className={funcs.scope.state.step == 3 ? 'steps' : 'hidden'}>
             <Form className="alarmAction">
               <Form.Item label="发送通知" {...formItemLayout} style={{ margin: 0 }}>
-        <RadioGroup defaultValue={this.state.isSendMail} value={this.state.isSendMail} onChange={(e) => this.sendMail(e)}>
+                <RadioGroup defaultValue={this.state.isSendMail} value={this.state.isSendMail} onChange={(e) => this.sendMail(e)}>
                   <Radio key="a" value={1}>是</Radio>
-                  <Radio key="b" value={2}>否</Radio>
+                  <Radio key="b" value={0}>否</Radio>
                 </RadioGroup>
               </Form.Item>
               <div className="tips" style={{ marginBottom: 20 }}><Icon type="exclamation-circle-o" /> 选择“是”，我们会向您发送监控信息和告警信息，选择“否”，我们将不会向你发送告警信息</div>
               <Form.Item label="告警通知组" {...formItemLayout}>
                 <Select placeholder="请选择告警通知组" style={{ width: 170 }} {...notify}>
-                   {this.getNotifyGroup()}
+                  {this.getNotifyGroup()}
                 </Select>
                 <div style={{ marginTop: 10 }}>
-                  <Button icon="plus" onClick={()=> funcs.scope.setState({ alarmModal: false,createGroup: true })} size="large" type="primary">新建组</Button>
+                  <Button icon="plus" onClick={() => funcs.scope.setState({ alarmModal: false, createGroup: true })} size="large" type="primary">新建组</Button>
                 </div>
               </Form.Item>
             </Form>
@@ -754,17 +1006,35 @@ function alarmModalMapStateToProp(state, porp) {
   const defaultGroup = {}
   let { groups } = state.alert
   const { cluster } = state.entities.current
-  if(!groups) {
+  if (!groups) {
     groups = defaultGroup
   }
+
+  const defaultSettingDetail = {
+    isFetching: false,
+    result: {
+      data: []
+    }
+  }
+  let isFetching = false
+  let { getSetting, settingList } = state.alert
+  if (!getSetting || !getSetting.result) {
+    getSetting = defaultSettingDetail
+  }
+  isFetching = getSetting.isFetching
+  let setting = getSetting.result.data
+  if (!Array.isArray(setting)) setting = []
   return {
     notifyGroup: groups,
-    cluster
+    cluster,
+    setting,
+    isFetching
   }
 }
 AlarmModal = connect(alarmModalMapStateToProp, {
   loadNotifyGroups,
-  addAlertSetting
+  addAlertSetting,
+  getAlertSetting
 })(Form.create()(AlarmModal))
 
 

@@ -67,7 +67,11 @@ let MyComponent = React.createClass({
         return
       }
       case 'edit': {
-        console.log('edit--')
+        scope.setState({
+          editModal: record,
+          alarmModal: true,
+          isEdit: true
+        })
         return
       }
       case 'start': {
@@ -498,7 +502,7 @@ class AlarmSetting extends Component {
   }
   componentWillMount() {
     document.title = '告警设置 | 时速云 '
-    const { getSettingList, clusterID, teamID } = this.props
+    const { getSettingList, clusterID } = this.props
     getSettingList(clusterID, {
       from: DEFAULT_PAGE - 1,
       size: DEFAULT_PAGE_SIZE
@@ -519,6 +523,23 @@ class AlarmSetting extends Component {
   handSearch() {
     // search data
     const search = document.getElementById('alarmSearch').value
+    const { getSettingList, clusterID, teamID } = this.props
+    this.setState({
+      currentPage: 1
+    })
+    if(search) {
+      getSettingList(clusterID, {
+        from: 0,
+        size: DEFAULT_PAGE_SIZE,
+        search: true,
+        strategyName: search
+      })
+    } else {
+      getSettingList(clusterID, {
+        from: 0,
+        size: DEFAULT_PAGE_SIZE
+      })
+    }
   }
   description(rule) {
     // Dropdown more info
@@ -539,15 +560,25 @@ class AlarmSetting extends Component {
     })
   }
   onPageChange(page) {
-    if(page == this.state.currentPage) return
+    if (page == this.state.currentPage) return
     this.setState({
       currentPage: page
     })
-    const { getSettingList, cluster } = this.props
-    getSettingList(cluster, {
-      from: (page - 1) * DEFAULT_PAGE_SIZE,
-      size: DEFAULT_PAGE_SIZE
-    })
+    const { getSettingList, clusterID } = this.props
+    const search = document.getElementById('alarmSearch').value
+    if (search) {
+      getSettingList(clusterID, {
+        from: 0,
+        size: DEFAULT_PAGE_SIZE,
+        search: true,
+        strategyName: search
+      })
+    } else {
+      getSettingList(clusterID, {
+        from: (page - 1) * DEFAULT_PAGE_SIZE,
+        size: DEFAULT_PAGE_SIZE
+      })
+    }
   }
   deleteRecords() {
     const data = this.state.data
@@ -578,7 +609,7 @@ class AlarmSetting extends Component {
           notify.close()
           notify.success('策略删除成功')
           getSettingList(clusterID, {
-            from: this.state.currentPage - 1,
+            from: (this.state.currentPage - 1) * DEFAULT_PAGE_SIZE,
             size: DEFAULT_PAGE_SIZE
           })
           this.disableButton()
@@ -625,7 +656,7 @@ class AlarmSetting extends Component {
           notifi.close()
           notifi.success('设置策略忽略时间成功')
           getSettingList(clusterID, {
-            from: this.state.currentPage - 1,
+            from: (this.state.currentPage - 1) * DEFAULT_PAGE_SIZE,
             size: DEFAULT_PAGE_SIZE
           })
           this.setState({
@@ -646,8 +677,11 @@ class AlarmSetting extends Component {
   refreshPage() {
     const { clusterID, getSettingList } = this.props
     getSettingList(clusterID, {
-      from: this.state.currentPage - 1,
+      from: (this.state.currentPage - 1) * DEFAULT_PAGE_SIZE,
       size: DEFAULT_PAGE_SIZE
+    })
+    this.setState({
+      needUpdate: true
     })
     this.disableButton()
   }
@@ -841,10 +875,13 @@ class AlarmSetting extends Component {
     })
   }
   editSetting() {
-    this.state.setState({
+    this.setState({
       alarmModal: true,
       isEdit: true
     })
+  }
+  createStrategy(){
+    this.setState({alarmModal: true, isEdit: false})
   }
   render() {
     const columns = [
@@ -902,25 +939,30 @@ class AlarmSetting extends Component {
       nextStep: this.nextStep
     }
     let canEdit = true
+    let editStrategy = {}
     let checkedNum = 0
     this.state.data.forEach(item => {
       if(item.checked) {
+        editStrategy = item
         checkedNum++
       }
     })
-    if(checkedNum != 1) {
+    if(this.state.editModal){
+      editStrategy = this.state.editModal
+    }
+    if(checkedNum != 1){
       canEdit = false
     }
     return (
       <QueueAnim type="right" className="alarmSetting">
         <div id="AlarmRecord" key="AlarmRecord">
           <div className="topRow" style={{marginBottom: '20px'}}>
-            <Button icon="plus" size="large" type="primary" onClick={()=> this.setState({alarmModal: true, isEdit: false})}>创建</Button>
-            <Button icon="reload" size="large" type="ghost" onClick={() => this.refreshPage()}>刷新</Button>
+            <Button icon="plus" size="large" type="primary" onClick={()=> this.createStrategy()}>创建</Button>
+            <Button size="large" type="ghost" onClick={() => this.refreshPage()}><i className="fa fa-refresh" /> 刷新</Button>
             <Button icon="caret-right" size="large" type="ghost" disabled={!this.state.canStart} onClick={() => this.showStart()}>启用</Button>
             <Button size="large" type="ghost" disabled={!this.state.canStop} onClick={() => this.showStop()}><i className="fa fa-stop" /> &nbsp;停用</Button>
             <Button icon="delete" type="ghost" disabled={this.state.isDelete} onClick={()=> this.setState({deleteModal: true})} size="large">删除</Button>
-            <Button icon="edit" type="ghost" disabled={!canEdit} size="large" onClick={() => this.editSetting()} >修改</Button>
+            {/*<Button icon="edit" type="ghost" disabled={!canEdit} size="large" onClick={() => this.editSetting()} >修改</Button>*/}
             <div className="inputGrop">
               <Input size="large" id="alarmSearch" placeholder="搜索" onPressEnter={()=> this.handSearch()}/>
               <i className="fa fa-search" onClick={()=> this.handSearch()}/>
@@ -942,12 +984,12 @@ class AlarmSetting extends Component {
           <MyComponent data={this.props.setting} scope={this} funcs={{ deleteRecords: this.props.deleteRecords }} needUpdate={this.state.needUpdate} />
           <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
             className="alarmModal"
-            onCancel={() => this.setState({ alarmModal: false })}
+            onCancel={() => this.setState({ alarmModal: false, step: 1 })}
             maskClosable={false}
             footer={null}
           >
-            <CreateAlarm funcs={modalFunc}
-              getAlertSetting={() => this.props.getSettingList(this.props.clusterID, { from: this.state.currentPage - 1, size: DEFAULT_PAGE_SIZE })} />
+            <CreateAlarm funcs={modalFunc} strategy={editStrategy} isEdit={this.state.isEdit} isShow={this.state.alarmModal}
+              getSettingList={() => this.refreshPage()} />  {/*this.props.getSettingList(this.props.clusterID, { from: (this.state.currentPage - 1) * DEFAULT_PAGE_SIZE, size: DEFAULT_PAGE_SIZE })} />*/}
           </Modal>
           {/* 通知组 */}
           <Modal title="创建新通知组" visible={this.state.createGroup}
@@ -1033,5 +1075,5 @@ export default connect(mapStateToProps, {
   getSettingList,
   deleteSetting,
   updateEnable,
-  ignoreSetting
+  ignoreSetting,
 })(AlarmSetting)
