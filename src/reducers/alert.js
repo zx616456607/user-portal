@@ -88,6 +88,16 @@ export default function alert(state = {
       REQUEST: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_REQUEST,
       SUCCESS: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_SUCCESS,
       FAILURE: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_FAILURE
-    }, state.updteEnable, action, option)
+    }, state.updteEnable, action, option),
+    deleteRule: reducerFactory({
+      REQUEST: ActionTypes.ALERT_DELETE_RULE_REQUEST,
+      SUCCESS: ActionTypes.ALERT_DELETE_RULE_SUCCESS,
+      FAILURE: ActionTypes.ALERT_DELETE_RULE_FAILURE
+    }, state.deleteRule, action),
+    searchSetting: reducerFactory({
+      REQUEST: ActionTypes.ALERT_SEARCH_SETTING_REQUEST,
+      SUCCESS: ActionTypes.ALERT_SEARCH_SETTING_SUCCESS,
+      FAILURE: ActionTypes.ALERT_SEARCH_SETTING_FAILURE
+    }, state.deleteRule, action)
   }
 }

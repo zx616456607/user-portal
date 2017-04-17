@@ -947,7 +947,7 @@ let StorageService = React.createClass({
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem >
-                  <Input {...urlProps} placeholder="如：https://192.168.88.6789" disabled={cephDisable} />
+                  <Input {...urlProps} placeholder="如：http://192.168.88.6789" disabled={cephDisable} />
                 </FormItem>
                 <FormItem >
                   <Input {...nodeProps} placeholder="如：192.168.1.113:4081，如有多个 monitor 节点，请使用英文逗号隔开" disabled={cephDisable} />

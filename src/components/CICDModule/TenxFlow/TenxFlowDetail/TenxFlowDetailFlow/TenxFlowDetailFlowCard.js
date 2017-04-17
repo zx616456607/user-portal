@@ -166,7 +166,7 @@ function currentFlowType(type, customTypeText, imageList) {
       return (imageList[i].imageList[0].categoryName)
     }
   }
-  return 
+  return
   // switch (type) {
   //   case 1:
   //     return (
@@ -476,7 +476,7 @@ class TenxFlowDetailFlowCard extends Component {
       TenxFlowDeployLogModal: false
     });
   }
-  
+
   openSettingStageFile() {
     //this function for open the setting stage file modal
     this.setState({
@@ -485,7 +485,13 @@ class TenxFlowDetailFlowCard extends Component {
   }
 
   render() {
-    let { config, index, scope, currentFlowEdit, flowId, codeList, isFetching, ciRules, buildFetching, logs, supportedDependencies, totalLength, imageList } = this.props;
+    let {
+      config, index, scope,
+      currentFlowEdit, flowId, codeList,
+      isFetching, ciRules, buildFetching,
+      logs, supportedDependencies, totalLength,
+      imageList, toggleCustomizeBaseImageModal
+    } = this.props;
     const scopeThis = this;
     const dropdown = (
       <Menu onClick={this.operaMenuClick.bind(this, config.metadata.id)} style={{ width: '110px' }}>
@@ -580,7 +586,7 @@ class TenxFlowDetailFlowCard extends Component {
                 <EditTenxFlowModal key={'EditTenxFlowModal' + index} rootScope={scope} scope={scopeThis}
                   config={config} flowId={flowId} stageId={config.metadata.id} codeList={codeList}
                   supportedDependencies={supportedDependencies} imageList={imageList}
-                  otherImage={this.props.otherImage}
+                  otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={toggleCustomizeBaseImageModal}
                   />
               </QueueAnim>
             ] : null

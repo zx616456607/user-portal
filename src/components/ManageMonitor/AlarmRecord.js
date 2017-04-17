@@ -35,29 +35,41 @@ class AlarmRecord extends Component {
     }
   }
 
-  loadData(props) {
+  loadData(props, condition) {
     const {
       strategyFilter,
       targetTypeFilter,
       targetFilter,
       beginTimeFilter,
-      endTimeFilter,
+      endTimeFilter
     } = this.state
-    const query = {
-      strategyName: strategyFilter,
-      targetType: targetTypeFilter,
-      targetName: targetFilter,
+    let query = {
       beginTime: beginTimeFilter,
       endTime: endTimeFilter,
-      cluster: props.clusterID,
+      cluster: props.clusterID
+    }
+    if(condition) {
+       query.strategyName = condition.strategyName
+       query.targetType = condition.targetType
+       query.targetNamy = condition.targetName
+    } else {
+        query.strategyName = strategyFilter
+        query.targetType = targetTypeFilter
+        query.targetName = targetFilter
     }
     this.props.loadRecords(query)
   }
   componentWillMount() {
     document.title = '告警记录 | 时速云'
-    const { loadRecordsFilters, clusterID } = this.props
+    const { loadRecordsFilters, clusterID, location } = this.props
+    const { targetType, targetName, strategyName } = location.query
+    this.setState({
+      strategyFilter: strategyName,
+      targetTypeFilter: targetType,
+      targetFilter: targetName
+    })
     loadRecordsFilters(clusterID)
-    this.loadData(this.props)
+    this.loadData(this.props, location.query)
   }
   componentWillReceiveProps(nextProps) {
     const { clusterID } = this.props
@@ -233,15 +245,15 @@ class AlarmRecord extends Component {
       <QueueAnim className="AlarmRecord" type="right">
         <div id="AlarmRecord" key="AlarmRecord">
           <div className="topRow">
-            <Select style={{ width: 120 }} size="large" placeholder="选择告警策略" onChange={(value) => this.setState({strategyFilter: value})}>
+        <Select style={{ width: 120 }} size="large" defaultValue={this.state.strategyFilter} placeholder="选择告警策略" onChange={(value) => this.setState({strategyFilter: value})}>
               {filters.strategies}
             </Select>
-            <Select style={{ width: 120 }} size="large" placeholder="选择类型" onChange={(value) => this.setState({targetTypeFilter: value})}>
+        <Select style={{ width: 120 }} size="large" placeholder="选择类型" defaultValue={this.state.targetTypeFilter} onChange={(value) => this.setState({targetTypeFilter: value})}>
               <Option value="">全部</Option>
               <Option value="0">服务</Option>
               <Option value="1">节点</Option>
             </Select>
-            <Select style={{ width: 120 }} size="large" placeholder="选择告警对象" onChange={(value) => this.setState({targetFilter: value})}>
+        <Select style={{ width: 120 }} size="large" placeholder="选择告警对象" defaultValue={this.state.targetFilter} onChange={(value) => this.setState({targetFilter: value})}>
               {filters.targets}
             </Select>
             <DatePicker placeholder="选择起始日期" size="large" onChange={(value) => this.onBeginTimeFilterChange(value)}/>

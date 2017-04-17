@@ -22,7 +22,6 @@ import { getHostInfo } from '../../actions/cluster'
 import { changeClusterNodeSchedule } from '../../actions/cluster_node'
 import TimeControl from '../Metrics/TimeControl'
 import Metrics from '../Metrics'
-import moment from 'moment'
 import { camelize } from 'humps'
 import QueueAnim from 'rc-queue-anim'
 import AlarmStrategy from '../ManageMonitor/AlarmStrategy'
@@ -279,16 +278,16 @@ class ClusterDetail extends Component {
     loadData(this.props, { start })
   }
 
-  formetCpumetrics(cpuData, cpuTotal) {
-    if (!cpuData.data) return
+  formetCpumetrics(cpuData) {
+    if (!cpuData.data) return {}
     let formetDate = { data: [] }
     let metrics = {}
     if (cpuData.data.metrics) {
       metrics = cpuData.data.metrics.map((list) => {
         let floatValue = list.floatValue || list.value
         return {
-          timestamp: moment(list.timestamp).format('MM-DD HH:mm'),
-          value: floatValue / cpuTotal
+          timestamp: formatDate(list.timestamp),
+          value: floatValue
         }
       })
 
@@ -297,13 +296,13 @@ class ClusterDetail extends Component {
     return formetDate
   }
   formetMemorymetrics(memoryData, nodeName) {
-    if (!memoryData.data) return
+    if (!memoryData.data) return {}
     let formetDate = { data: [] }
     let metrics = {}
     if (memoryData.data.metrics) {
       metrics = memoryData.data.metrics.map((list) => {
         return {
-          timestamp: moment(list.timestamp).format('MM-DD HH:mm'),
+          timestamp: formatDate(list.timestamp),
           value: list.floatValue || list.value
         }
       })
@@ -313,14 +312,14 @@ class ClusterDetail extends Component {
     return formetDate
   }
   formetNetworkmetrics(memoryData, nodeName) {
-    if (!memoryData.data) return
+    if (!memoryData.data) return {}
     let formetDate = { data: [] }
     let metrics = {}
     memoryData.data.containerName= nodeName
     if (memoryData.data.metrics) {
       metrics = memoryData.data.metrics.map((list) => {
         return {
-          timestamp: moment(list.timestamp).format('MM-DD HH:mm'),
+          timestamp: formatDate(list.timestamp),
           value: list.floatValue || list.value,
         }
       })
@@ -340,7 +339,7 @@ class ClusterDetail extends Component {
     }
     const hostInfo = this.props.hostInfo.result ? this.props.hostInfo.result : {objectMeta:{creationTimestamp:''}, address:' '}
     hostInfo.isFetching = this.props.isFetching
-    const showCpu = this.formetCpumetrics(this.props.hostcpu,hostInfo.cpuTotal/1000)
+    const showCpu = this.formetCpumetrics(this.props.hostcpu)
     const showMemory = this.formetMemorymetrics(this.props.memory)
     const showNetworkRec = this.formetNetworkmetrics(this.props.networkReceived, this.props.clusterName)
     const showNetworkTrans = this.formetNetworkmetrics(this.props.networkTransmitted, this.props.clusterName)

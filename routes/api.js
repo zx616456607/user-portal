@@ -389,5 +389,6 @@ module.exports = function (Router) {
   router.put('/alerts/cluster/:cluster/setting/enable', alertController.updateEnable)
   router.put('/alerts/cluster/:cluster/setting/ignore', alertController.setIgnore)
   router.get('/alerts/cluster/:cluster/type/:type/setting/:name/instant', alertController.getTargetInstant)
+  router.delete('/alerts/cluster/:cluster/rule', alertController.deleteRule)
   return router.routes()
 }
