@@ -103,20 +103,23 @@ exports.sendInvitation = function* () {
   // get email addr and code, then send out the code
   var self = this
   var index = 0
-  yield new Promise(function (resolve, reject) {
-    result.data.emails.map(function (item) {
-      co(function* () {
-        yield email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code)
-        index++
-        if (index == result.data.emails.length) {
-          resolve()
-        }
-      }).catch(function (err) {
-        logger.error(method, "Failed to send email: " + JSON.stringify(err))
-        reject(err)
-      })
-    })
+  yield result.data.emails.map(function (item) {
+    return email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code)
   })
+  // yield new Promise(function (resolve, reject) {
+  //   result.data.emails.map(function (item) {
+  //     co(function* () {
+  //       yield email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code)
+  //       index++
+  //       if (index == result.data.emails.length) {
+  //         resolve()
+  //       }
+  //     }).catch(function (err) {
+  //       logger.error(method, "Failed to send email: " + JSON.stringify(err))
+  //       reject(err)
+  //     })
+  //   })
+  // })
   this.body = {}
 }
 
