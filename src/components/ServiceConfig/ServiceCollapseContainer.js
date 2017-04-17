@@ -87,6 +87,12 @@ function formatVolumeMounts(data, groupname, name) {
                     }], isEqual)
                   }
                 })
+              } else {
+                volumeMounts = unionWith(volumeMounts, [{
+                  imageName: data[i].name,
+                  serviceName: data[i].services[j].metadata.name,
+                  mountPath: volumeMount.mountPath
+                }], isEqual)
               }
             }
           }
@@ -305,7 +311,7 @@ class CollapseContainer extends Component {
             return (
               <td key={`key@${index}`}>
                 <div className="li">应用：<Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link>，服务名称：{list.serviceName}</div>
-                <div className='lis'>{list.mountPath}</div>
+                <div className='lis textoverflow'>{list.mountPath}</div>
               </td>
             )
           })
