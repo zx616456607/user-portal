@@ -9,6 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Link, browserHistory } from 'react-router'
+import { camelize } from 'humps'
 import { Card, Input, Modal, InputNumber, Checkbox, Progress, Icon, Spin, Table, Select, Dropdown, DatePicker, Menu, Button, Pagination } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -137,8 +138,8 @@ let MyComponent = React.createClass({
   },
   switchType(type) {
     switch(type) {
-      case 'service': return '服务'
-      case 'node': return '节点'
+      case 0: return '服务'
+      case 1: return '节点'
       default: return '节点'
     }
   },
@@ -312,7 +313,7 @@ let MyComponent = React.createClass({
     if(!settingInstant.result) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
-    const data = settingInstant.result[list.strategyName]
+    const data = settingInstant.result[camelize(list.strategyName)]
     if(settingInstant.isFetching && !data) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
