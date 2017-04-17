@@ -63,7 +63,6 @@ class AlarmRecord extends Component {
     document.title = '告警记录 | 时速云'
     const { loadRecordsFilters, clusterID, location } = this.props
     const { targetType, targetName, strategyName } = location.query
-    console.log(location.query)
     this.setState({
       strategyFilter: strategyName,
       targetTypeFilter: targetType,

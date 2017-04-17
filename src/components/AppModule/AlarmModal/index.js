@@ -29,7 +29,6 @@ let FistStop = React.createClass({
     if (!appList || appList.length == 0) {
       loadAppList(cluster.clusterID)
     }
-    console.log(loginUser)
     if ((!clusterNode || clusterNode.length == 0) && loginUser.info.role == ADMIN_ROLE) {
       getAllClusterNodes(cluster.clusterID)
     }
@@ -393,7 +392,6 @@ let TwoStop = React.createClass({
       let typeProps = `typeProps_${uuid}`
       _this.setState({ [typeProps]: '%' })
       cpu = cpu.concat(uuid);
-      console.log(cpu)
       // can use data-binding to set
       // important! notify form to detect changes
       form.setFieldsValue({
