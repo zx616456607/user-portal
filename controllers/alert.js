@@ -406,10 +406,11 @@ exports.getTargetInstant = function* () {
       throw err
     }
   }
+  const memory = parseFloat(results[1].data[name] / totalMemoryByte).toFixed(4)
   this.body = {
     [strategyName]: {
       cpus: results[0].data[name],
-      memory: parseFloat(results[1].data[name] / totalMemoryByte).toFixed(4),
+      memory: isNaN(memory) ? 0 : memory,
       tx_rate: results[2].data[name],
       rx_rate: results[3].data[name]
     }

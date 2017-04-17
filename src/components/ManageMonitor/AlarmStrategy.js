@@ -13,6 +13,8 @@ import { getSettingList, deleteSetting, updateEnable, ignoreSetting } from '../.
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { calcuTime, formatDate } from '../../common/tools'
+import CreateAlarm from '../AppModule/AlarmModal'
+import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 import { Icon, Button, Input, InputNumber, Select, Table, Dropdown, Modal, Menu, Pagination } from 'antd'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import './style/AlarmStrategy.less'
@@ -53,11 +55,13 @@ class AlarmStrategy extends Component {
     super(props)
     this.state = {
       deleteModal: false,
+      createGroup: false,
       currentPage: DEFAULT_PAGE,
       size:DEFAULT_PAGE_SIZE,
       selectedRowKeys: [],
       ignoreUnit:'m',
       time: 1,// ignore time
+      step: 1
     }
   }
   componentWillMount() {
@@ -68,7 +72,7 @@ class AlarmStrategy extends Component {
     this.setState({
       currentPage: page
     })
-    const { getSettingList, cluster } = this.props
+    
     getSettingList(cluster, {
       from: (page-1) * DEFAULT_PAGE_SIZE,
       size: DEFAULT_PAGE_SIZE
@@ -87,6 +91,13 @@ class AlarmStrategy extends Component {
       case 'start':{
         this.setState({enable: 'start',strategyID: [record.strategyID]})
         return
+      }
+      case 'edit': {
+        this.setState({
+          editStrategy: record,
+          isEdit: true,
+          alarmModal: true
+        })
       }
       default: return false
     }
@@ -214,6 +225,18 @@ class AlarmStrategy extends Component {
     })
     this.setState({selectedRowKeys: selectedRows})
   }
+  cancelModal() {
+    // cancel create Alarm modal
+    this.setState({
+      alarmModal: false,
+      step: 1
+    })
+  }
+  nextStep(step) {
+    this.setState({
+      step: step
+    })
+  }
   render() {
     const columns = [
       {
@@ -265,7 +288,11 @@ class AlarmStrategy extends Component {
         }
       }
     ];
-
+    const modalFunc=  {
+      scope : this,
+      cancelModal: this.cancelModal.bind(this),
+      nextStep: this.nextStep.bind(this)
+    }
     const _this = this
     const rowSelection = {
       selectedRowKeys: this.state.selectedRowKeys, // 控制checkbox是否选中
@@ -322,6 +349,24 @@ class AlarmStrategy extends Component {
         onOk={()=> this.handEnable()}
         >
           <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>您是否确定要{this.state.enable =='start' ? '启用':'停止'}此策略 ?</div>
+        </Modal>
+        <Modal title="更新" visible={this.state.alarmModal} width={580}
+          className="alarmModal"
+          onCancel={() => this.setState({ alarmModal: false, step: 1 })}
+          maskClosable={false}
+          footer={null}
+        >
+          <CreateAlarm funcs={modalFunc} strategy={this.state.editStrategy} isEdit={this.state.isEdit} isShow={this.state.alarmModal}
+            getSettingList={() => loadStrategy(this)} />  {/*this.props.getSettingList(this.props.clusterID, { from: (this.state.currentPage - 1) * DEFAULT_PAGE_SIZE, size: DEFAULT_PAGE_SIZE })} />*/}
+        </Modal>
+        <Modal title="创建新通知组" visible={this.state.createGroup}
+          width={560}
+          maskClosable={false}
+          wrapClassName="AlarmModal"
+          className="alarmContent"
+          footer={null}
+        >
+          <CreateGroup funcs={modalFunc} shouldLoadGroup={true} />
         </Modal>
       </div>
     )

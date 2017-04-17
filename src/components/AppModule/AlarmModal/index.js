@@ -174,7 +174,7 @@ let FistStop = React.createClass({
           { validator: this.fistStopType }
         ],
         onChange: this.resetType,
-        initialValue: data.targetType == 1 && loginUser.info.role == ADMIN_ROLE ? '节点' : '服务'
+        initialValue: data.targetType == 1 && loginUser.info.role == ADMIN_ROLE ? 'node' : 'service'
       });
       isNode = data.targetType
       applyProps = getFieldProps('apply', {
