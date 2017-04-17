@@ -14,9 +14,15 @@ const apiFactory = require('../services/api_factory.js')
 const url = require('url')
 const config = require('../configs')
 const devOps = require('../configs/devops')
+const constant = require('./constants')
 const initGlobalConfig = require('../services/init_global_config')
 
 exports.changeGlobalConfig = function* () {
+  if(this.session.loginUser.role != constant.ADMIN_ROLE) {
+    const err = new Error('Not admin user')
+    err.status = 400
+    throw err
+  }
   const cluster = this.params.cluster
   const type = this.params.type
   const entity = this.request.body
@@ -180,6 +186,11 @@ function* storageConfigFunc(entity) {
 }
 
 exports.getGlobalConfig = function* () {
+  if (this.session.loginUser.role != constant.ADMIN_ROLE) {
+    const err = new Error('Not admin user')
+    err.status = 400
+    throw err
+  }
   const cluster = this.params.cluster
   const spi = apiFactory.getTenxSysSignSpi()
   const response = yield spi.configs.get()
@@ -188,6 +199,11 @@ exports.getGlobalConfig = function* () {
 }
 
 exports.isValidConfig = function* () {
+  if (this.session.loginUser.role != constant.ADMIN_ROLE) {
+    const err = new Error('Not admin user')
+    err.status = 400
+    throw err
+  }
   const type = this.params.type
   const entity = this.request.body
   let response = {}

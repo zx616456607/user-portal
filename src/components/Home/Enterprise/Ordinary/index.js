@@ -329,19 +329,30 @@ class Ordinary extends Component {
     //集群mem、cpu和存储概况
     let clusterSummaryCapacity = clusterSummary.capacity
     let clusterSummaryUsed = clusterSummary.used
-    let cpuUsed = Math.ceil(clusterSummaryUsed.cpu / clusterSummaryCapacity.cpu * 100)
-    let memoryUsed = Math.ceil(clusterSummaryUsed.memory / clusterSummaryCapacity.memory * 100)
+    //let cpuUsed = Math.ceil(clusterSummaryUsed.cpu / clusterSummaryCapacity.cpu * 100)
+    let cpuUsed = clusterSummaryUsed.cpu
+    let memoryUsed = clusterSummaryUsed.memory
     let volumeCapacity = volumeSummary.total
-
-    let volumeAllocated = parseInt(volumeSummary.allocated)
+    let memoryUsedPrecent = Math.ceil(clusterSummaryUsed.memory / clusterSummaryCapacity.memory * 100)
+    let cpuUsedPrecent = Math.ceil(clusterSummaryUsed.cpu / clusterSummaryCapacity.cpu * 100)
+    // let volumeAllocated =  parseInt(volumeSummary.allocated)
+    // if (volumeCapacity.toLowerCase().indexOf('g') > 0) {
+    //   volumeCapacity = parseInt(volumeCapacity) * 1024
+    // } else {
+    //   volumeCapacity = parseInt(volumeCapacity)
+    // }
+    // let volumeUsed = Math.ceil(volumeAllocated / volumeCapacity * 100)
+    let volumeAllocated = parseFloat(volumeSummary.allocated)
     if (volumeCapacity.toLowerCase().indexOf('g') > 0) {
-      volumeCapacity = parseInt(volumeCapacity) * 1024
+      volumeCapacity = parseFloat(volumeCapacity)
+    } else if (volumeCapacity.toLowerCase().indexOf('t') > 0) {
+      volumeCapacity = parseFloat(volumeCapacity) * 1024
     } else {
-      volumeCapacity = parseInt(volumeCapacity)
+      volumeCapacity = parseFloat(volumeCapacity)
     }
-    let volumeUsed = Math.ceil(volumeAllocated / volumeCapacity * 100)
+    let volumeUsedPrecent = Math.ceil(volumeAllocated / (volumeCapacity * 1024) * 100)
+    let volumeUsed = (volumeAllocated / 1024).toFixed(2)
     let canCreateContainer = Math.floor((clusterSummaryCapacity.memory - clusterSummaryUsed.memory) / 512 / 1024)
-
 
     let allocatedPod = clusterStaticSummary.pod
     let allocatedPodNumber = 0
@@ -795,8 +806,8 @@ class Ordinary extends Component {
         radius: ['19', '28'],
         center: ['17%', '50%'],
         data: [
-          { value: cpuUsed, name: '已使用', selected: true },
-          { value: 100 - cpuUsed, name: '可使用' }
+          { value: cpuUsedPrecent, name: '已使用', selected: true },
+          { value: 100 - cpuUsedPrecent, name: '可使用' }
         ],
         label: {
           normal: {
@@ -845,8 +856,8 @@ class Ordinary extends Component {
         radius: ['19', '28'],
         center: ['50%', '50%'],
         data: [
-          { value: memoryUsed, name: '已使用', selected: true },
-          { value: 100 - memoryUsed, name: '可使用' }
+          { value: memoryUsedPrecent, name: '已使用', selected: true },
+          { value: 100 - memoryUsedPrecent, name: '可使用' }
         ],
         label: {
           normal: {
@@ -895,8 +906,8 @@ class Ordinary extends Component {
         radius: ['19', '28'],
         center: ['83%', '50%'],
         data: [
-          { value: volumeUsed, name: '已使用', selected: true },
-          { value: 100 - volumeUsed, name: '可使用' }
+          { value: volumeUsedPrecent, name: '已使用', selected: true },
+          { value: 100 - volumeUsedPrecent, name: '可使用' }
         ],
         label: {
           normal: {
@@ -1017,9 +1028,9 @@ class Ordinary extends Component {
                 <table cellPadding={0} cellSpacing={0} style={{ width: '100%', textAlign: 'center', fontSize: '14px', marginBottom: '5px' }} >
                   <tbody>
                     <tr>
-                      <td>({cpuUsed}/100)</td>
-                      <td>({memoryUsed}/100)</td>
-                      <td>({volumeUsed}/100)</td>
+                      <td>({(cpuUsed / 1000).toFixed(2) + '核'}/{(clusterSummaryCapacity.cpu / 1000).toFixed(2) + '核'})</td>
+                      <td>({(memoryUsed / 1024 / 1204).toFixed(2) + 'GB'}/{(clusterSummaryCapacity.memory/ 1024 / 1024).toFixed(2) + 'GB'})</td>
+                      <td>({volumeUsed + 'GB'}/{volumeCapacity.toFixed(2) + 'GB'})</td>
                     </tr>
                     <tr>
                       <td>CPU</td>
@@ -1037,7 +1048,7 @@ class Ordinary extends Component {
                   </Tooltip>
                 </div>
                 <div className='statusBottomright'>
-                  <Progress percent={memoryUsed} strokeWidth={11} className='statusBottomrightitem' showInfo={false}/>
+                  <Progress percent={memoryUsedPrecent} strokeWidth={11} className='statusBottomrightitem' showInfo={false}/>
                 </div>
                 <Tooltip title={`已创建容器 ${ isNaN(allocatedPodNumber) ? '-' :allocatedPodNumber } 个，还可创建${ isNaN(allocatedPodNumber) ? '-' : canCreateContainer } 个`}>
                   <div className='statusBottomthird' >
