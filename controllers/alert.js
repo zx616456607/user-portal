@@ -103,20 +103,23 @@ exports.sendInvitation = function* () {
   // get email addr and code, then send out the code
   var self = this
   var index = 0
-  yield new Promise(function(resolve, reject) {
-    result.data.emails.map(function(item) {
-      co(function *(){
-        yield email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code)
-        index++
-        if (index == result.data.emails.length) {
-          resolve()
-        }
-      }).catch(function (err) {
-        logger.error(method, "Failed to send email: " + JSON.stringify(err))
-        reject(err)
-      })
-    })
+  yield result.data.emails.map(function (item) {
+    return email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code)
   })
+  // yield new Promise(function (resolve, reject) {
+  //   result.data.emails.map(function (item) {
+  //     co(function* () {
+  //       yield email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code)
+  //       index++
+  //       if (index == result.data.emails.length) {
+  //         resolve()
+  //       }
+  //     }).catch(function (err) {
+  //       logger.error(method, "Failed to send email: " + JSON.stringify(err))
+  //       reject(err)
+  //     })
+  //   })
+  // })
   this.body = {}
 }
 
@@ -168,7 +171,7 @@ exports.getAlertSetting = function* () {
   const api = apiFactory.getApi(user)
   const spi = apiFactory.getSpi(user)
   body.namespace = user.namespace
-  if(teamspace) {
+  if (teamspace) {
     body.namespace = teamspace
   }
   // if(teamspace){
@@ -194,7 +197,7 @@ exports.getAlertSetting = function* () {
   const specs = []
   let strategyID
   let result = []
-  if(!rules) {
+  if (!rules) {
     this.body = {
       data: {}
     }
@@ -233,13 +236,13 @@ exports.getAlertSetting = function* () {
   }
 }
 
-exports.addAlertSetting = function*() {
+exports.addAlertSetting = function* () {
   const cluster = this.params.cluster
   const body = this.request.body
   const user = this.session.loginUser
   body.user = user.user
   body.namespace = user.namespace
-  if(user.teamspace) {
+  if (user.teamspace) {
     body.namespace = user.teamspace
   }
   body.clusterID = cluster
@@ -248,16 +251,27 @@ exports.addAlertSetting = function*() {
   this.body = response
 }
 
-exports.getSettingList = function*() {
+exports.getSettingList = function* () {
   const cluster = this.params.cluster
   const queryBody = this.query || {}
   queryBody.clusterID = cluster
   const user = this.session.loginUser
   queryBody.namespace = user.namespace
-  if(user.teamspace) {
+  if (user.teamspace) {
     queryBody.namespace = user.teamspace
   }
   const spi = apiFactory.getSpi(this.session.loginUser)
+  if (queryBody.search) {
+    const cluster = this.params.cluster
+    if (!queryBody.strategyName) {
+      const err = new Error('strategyName is require')
+      err.status = 400
+      throw err
+    }
+    const response = yield spi.alerts.getBy(['strategy', 'search'], queryBody)
+    this.body = response
+    return
+  }
   const response = yield spi.alerts.getBy(['strategy', 'list'], queryBody)
   this.body = response
 }
@@ -265,7 +279,7 @@ exports.getSettingList = function*() {
 exports.deleteSetting = function* () {
   const cluster = this.params.cluster
   const strategyID = this.query.strategyID
-  if(!strategyID) {
+  if (!strategyID) {
     const err = new Error('strategyID is require')
     err.status = 400
     throw err
@@ -283,14 +297,14 @@ exports.deleteSetting = function* () {
 
 exports.updateEnable = function* () {
   const body = this.request.body
-  if(!body.strategies) {
+  if (!body.strategies) {
     const err = new Error('strategies is require')
     err.status = 400
     throw err
   }
   const user = this.session.loginUser
   body.user = user.namespace
-  if(user.teamspace) {
+  if (user.teamspace) {
     body.user = user.teamspace
   }
   const spi = apiFactory.getSpi(user)
@@ -300,14 +314,14 @@ exports.updateEnable = function* () {
 
 exports.setIgnore = function* () {
   const body = this.request.body
-  if(!body.strategies) {
+  if (!body.strategies) {
     const err = new Error('strategies is require')
     err.status = 200
     throw err
   }
   const user = this.session.loginUser
   body.user = user.namespace
-  if(user.teamspace) {
+  if (user.teamspace) {
     body.user = user.teamspace
   }
   const spi = apiFactory.getSpi(user)
@@ -324,7 +338,7 @@ exports.getTargetInstant = function* () {
   const type = this.params.type
   const name = this.query.name
   const strategyName = this.params.name
-  if(!name) {
+  if (!name) {
     const err = new Error('name is require')
     err.status = 400
     throw err
@@ -356,14 +370,89 @@ exports.getTargetInstant = function* () {
   reqArray.push(api.getBy([cluster, name, 'metric/instant'], tx_rage))
   reqArray.push(api.getBy([cluster, name, 'metric/instant'], rx_rate))
   const results = yield reqArray
+  let totalMemoryByte = 0
+  if (type == 'node') {
+    const clusterSummary = yield api.getBy([cluster, 'nodes', name])
+    if (clusterSummary.data.objectMeta) {
+      totalMemoryByte = clusterSummary.data.memory_total_kb * 1024
+    } else {
+      const err = new Error('the node is not exist')
+      err.status = 400
+      throw err
+    }
+  }
+  if (type == 'pod') {
+    const podSummary = yield api.getBy([cluster, 'services', name])
+    if (podSummary.data[name]) {
+      const deployment = podSummary.data[name].deployment
+      const replicas = deployment.spec.replicas
+      const containers = deployment.spec.template.spec.containers
+      containers.forEach(container => {
+        let memory = container.resources.requests.memory
+        memory = memory.toLowerCase()
+        if (memory.indexOf('gi') > 0) {
+          memory = parseInt(memory) * 1024 * 1024 * 1024
+        } else if (memory.indexOf('mi') > 0) {
+          memory = parseInt(memory) * 1024 * 1024
+        } else if (memory.indexOf('ki') > 0) {
+          memory = parseInt(memory) * 1024
+        }
+        totalMemoryByte += memory
+      })
+      totalMemoryByte = replicas * totalMemoryByte
+    } else {
+      const err = new Error('the pod is not exist')
+      err.status = 400
+      throw err
+    }
+  }
   this.body = {
     [strategyName]: {
       cpus: results[0].data[name],
-      memory:results[1].data[name],
+      memory: parseFloat(results[1].data[name] / totalMemoryByte).toFixed(4),
       tx_rate: results[2].data[name],
       rx_rate: results[3].data[name]
     }
   }
+}
+
+exports.deleteRule = function* () {
+  const cluster = this.params.cluster
+  const queryBody = this.query
+  if (!queryBody.ruleNames || !queryBody.strategyID) {
+    const err = new Error('ruleNames, strategyID is require')
+    err.status = 400
+    throw err
+  }
+  queryBody.clusterID = cluster
+  const user = this.session.loginUser
+  queryBody.namespace = user.namespace
+  if (user.teamspace) {
+    queryBody.namespace = user.teamspace
+  }
+  queryBody.updater = user.user
+  const spi = apiFactory.getSpi(user)
+  const response = yield spi.alerts.deleteBy(['rule'], queryBody)
+  this.body = response
+}
+
+exports.searchSetting = function* () {
+  const cluster = this.params.cluster
+  const queryBody = this.query
+  if (!queryBody.strategyName) {
+    const err = new Error('strategyName is require')
+    err.status = 400
+    throw err
+  }
+  queryBody.clusterID = cluster
+  const user = this.session.loginUser
+  queryBody.namespace = user.namespace
+  if (user.teamspace) {
+    queryBody.namespace = user.teamspace
+  }
+  const spi = apiFactory.getSpi(user)
+  const response = yield spi.alerts.deleteBy(['strategy', 'search'], queryBody)
+  this.body = response
 }
 
 
