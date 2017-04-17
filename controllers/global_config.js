@@ -18,7 +18,7 @@ const constant = require('./constants')
 const initGlobalConfig = require('../services/init_global_config')
 
 exports.changeGlobalConfig = function* () {
-  if(this.session.loginUser.role == constant.ADMIN_ROLE) {
+  if(this.session.loginUser.role != constant.ADMIN_ROLE) {
     const err = new Error('Not admin user')
     err.status = 400
     throw err
@@ -186,7 +186,7 @@ function* storageConfigFunc(entity) {
 }
 
 exports.getGlobalConfig = function* () {
-  if (this.session.loginUser.role == constant.ADMIN_ROLE) {
+  if (this.session.loginUser.role != constant.ADMIN_ROLE) {
     const err = new Error('Not admin user')
     err.status = 400
     throw err
@@ -199,7 +199,7 @@ exports.getGlobalConfig = function* () {
 }
 
 exports.isValidConfig = function* () {
-  if (this.session.loginUser.role == constant.ADMIN_ROLE) {
+  if (this.session.loginUser.role != constant.ADMIN_ROLE) {
     const err = new Error('Not admin user')
     err.status = 400
     throw err
