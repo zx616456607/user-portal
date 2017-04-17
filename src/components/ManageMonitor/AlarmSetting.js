@@ -87,6 +87,7 @@ let MyComponent = React.createClass({
           selectStrategy: record,
           showStop: true
         })
+        return
       }
       case 'list': {
         browserHistory.push({
