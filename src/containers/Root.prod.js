@@ -19,6 +19,11 @@ const appLocale = window.appLocale
 addLocaleData(appLocale.data)
 
 class Root extends Component {
+  componentDidMount() {
+    // disabled react dev tools in the console
+    window.$r = null
+  }
+
   render() {
     const { store, history } = this.props
     return (

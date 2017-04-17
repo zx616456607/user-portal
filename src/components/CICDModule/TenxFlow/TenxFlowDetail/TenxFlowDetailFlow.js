@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Icon, Card, Alert, Modal, Button } from 'antd'
+import { Spin, Icon, Card, Alert, Modal, Button, } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -46,6 +46,7 @@ class TenxFlowDetailFlow extends Component {
     this.closeCreateNewFlow = this.closeCreateNewFlow.bind(this);
     this.buildFlow = this.buildFlow.bind(this);
     this.refreshStageList = this.refreshStageList.bind(this);
+    this.toggleCustomizeBaseImageModal = this.toggleCustomizeBaseImageModal.bind(this);
     this.state = {
       editTenxFlowModal: false,
       currentModalShowFlow: null,
@@ -54,8 +55,15 @@ class TenxFlowDetailFlow extends Component {
       buildingList: [],
       refreshing: false,
       websocket: '',
-      forCacheShow: false
+      forCacheShow: false,
+      customizeBaseImageModalVisible: false,
     }
+  }
+
+  toggleCustomizeBaseImageModal(visible) {
+    this.setState({
+      customizeBaseImageModalVisible: visible,
+    })
   }
 
   componentWillMount() {
@@ -118,7 +126,11 @@ class TenxFlowDetailFlow extends Component {
       scope.setState({
         startBuild: false
       })
-      CreateTenxflowBuild(flowId, {}, {
+      // For test
+      const options = {
+        branch: 'master'
+      }
+      CreateTenxflowBuild(flowId, { options }, {
         success: {
           func: (res) => {
             getTenxflowBuildLogs(flowId)
@@ -315,11 +327,11 @@ class TenxFlowDetailFlow extends Component {
         })
       } else {
         let lastBuilds = self.state.buildingList
-        let notified = self.state.notified || {} 
+        let notified = self.state.notified || {}
         let notification = new NotificationHandler()
         if (notified && notified[data.results.stageId] !== data.results.stageBuildId) {
           //未提示过
-          if (data.results.buildStatus == 0 && 
+          if (data.results.buildStatus == 0 &&
               lastBuilds[lastBuilds.length - 1].stageId === data.results.stageId &&
               lastBuilds[lastBuilds.length - 1].buildId === data.results.stageBuildId) {
             //最后一个stage构建完成时
@@ -345,7 +357,7 @@ class TenxFlowDetailFlow extends Component {
               }
             }
           }
-        } 
+        }
       }
       const { changeSingleState } = self.props
       changeSingleState(data.results)
@@ -376,8 +388,8 @@ class TenxFlowDetailFlow extends Component {
         return (
           <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item}
             scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} totalLength={stageList.length}
-            codeList={projectList} supportedDependencies={supportedDependencies} imageList={imageList} 
-            otherImage={this.props.otherImage}
+            codeList={projectList} supportedDependencies={supportedDependencies} imageList={imageList}
+            otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
             />
         )
       });
@@ -407,7 +419,7 @@ class TenxFlowDetailFlow extends Component {
                     <CreateTenxFlowModal key='CreateTenxFlowModal' stageList={stageList} scope={scope}
                       flowId={flowId} stageInfo={stageInfo} codeList={projectList}
                       supportedDependencies={supportedDependencies} imageList={imageList}
-                      otherImage={this.props.otherImage}
+                      otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
                        />
                   </QueueAnim>
                 ] : null
@@ -417,6 +429,12 @@ class TenxFlowDetailFlow extends Component {
           <div style={{ clear: 'both' }}></div>
         </div>
         {this.state.websocket}
+        <Modal
+          onCancel={() => this.setState({customizeBaseImageModalVisible: false})}
+          title="自定义基础镜像"
+          visible={this.state.customizeBaseImageModalVisible}>
+          自定义基础镜像
+        </Modal>
       </div>
     )
   }

@@ -951,7 +951,11 @@ let EditTenxFlowModal = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { config, form, codeList, supportedDependencies, imageList} = this.props;
+    const {
+      config, form, codeList,
+      supportedDependencies, imageList,
+      toggleCustomizeBaseImageModal
+    } = this.props;
     const shellList = config.spec.container.args ? config.spec.container.args : [];
     const servicesList = config.spec.container.dependencies ? config.spec.container.dependencies : [];
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
@@ -1075,13 +1079,13 @@ let EditTenxFlowModal = React.createClass({
     if (this.state.otherFlowType == 3 && shellCodeItems.length > 1) {
       shellCodeItems.pop()
     }
-    const flowTypeProps = getFieldProps('flowType', {
+    /*const flowTypeProps = getFieldProps('flowType', {
       rules: [
         { required: true, message: '请选择项目类型' },
       ],
       onChange: this.flowTypeChange,
       initialValue: imageList[config.metadata.type - 1].title,
-    });
+    });*/
     const otherFlowTypeProps = getFieldProps('otherFlowType', {
       rules: [
         { message: '输入自定义项目类型' },
@@ -1137,6 +1141,21 @@ let EditTenxFlowModal = React.createClass({
         <Form horizontal>
           <div className='commonBox'>
             <div className='title'>
+              <span><FormattedMessage {...menusText.flowName} /></span>
+            </div>
+            <div className='input'>
+              <FormItem
+                hasFeedback
+                help={isFieldValidating('flowName') ? '校验中...' : (getFieldError('flowName') || []).join(', ')}
+                style={{ width: '220px' }}
+                >
+                <Input {...flowNameProps} />
+              </FormItem>
+            </div>
+            <div style={{ clear: 'both' }} />
+          </div>
+          {/*<div className='commonBox'>
+            <div className='title'>
               <span><FormattedMessage {...menusText.flowType} /></span>
             </div>
             <div className='input flowType'>
@@ -1158,7 +1177,7 @@ let EditTenxFlowModal = React.createClass({
               }
             </div>
             <div style={{ clear: 'both' }} />
-          </div>
+          </div>*/}
           <div className='commonBox'>
             <div className='title'>
               <span><FormattedMessage {...menusText.flowCode} /></span>
@@ -1182,21 +1201,6 @@ let EditTenxFlowModal = React.createClass({
             </div>
             <div style={{ clear: 'both' }} />
           </div>
-          <div className='commonBox'>
-            <div className='title'>
-              <span><FormattedMessage {...menusText.flowName} /></span>
-            </div>
-            <div className='input'>
-              <FormItem
-                hasFeedback
-                help={isFieldValidating('flowName') ? '校验中...' : (getFieldError('flowName') || []).join(', ')}
-                style={{ width: '220px' }}
-                >
-                <Input {...flowNameProps} />
-              </FormItem>
-            </div>
-            <div style={{ clear: 'both' }} />
-          </div>
           <div className='line'></div>
           <div className='commonBox'>
             <div className='title'>
@@ -1210,6 +1214,10 @@ let EditTenxFlowModal = React.createClass({
               </FormItem>
               <span className={this.state.emptyImageEnv ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'} onClick={this.openImageEnvModal}><FormattedMessage {...menusText.defineEnv} /></span>
               {this.state.emptyImageEnv ? [<span className='emptyImageEnvError'><FormattedMessage {...menusText.emptyImageEnv} /></span>] : null}
+              <div className="customizeBaseImage">
+                基础镜像是用来提供执行当前任务的环境的，有默认的预置镜像（联系管理员），您也可以
+                <span className="link" onClick={() => toggleCustomizeBaseImageModal(true)}>自定义上传</span>
+              </div>
               <div style={{ clear: 'both' }} />
             </div>
             <div style={{ clear: 'both' }} />
@@ -1224,6 +1232,9 @@ let EditTenxFlowModal = React.createClass({
                 <Icon type='plus-circle-o' />
                 <FormattedMessage {...menusText.addServices} />
               </div>*/}
+              <div className="relyOnService">
+                依赖服务是用来提供执行当前任务时所依赖的服务，因为是容器化，您可以自定义服务的环境变量
+              </div>
             </div>
             <div style={{ clear: 'both' }} />
           </div>
