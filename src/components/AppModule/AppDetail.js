@@ -28,6 +28,7 @@ import NotificationHandler from '../../common/notification_handler'
 import errorHandler from '../../containers/App/error_handler'
 import AppServiceRental from './AppServiceDetail/AppServiceRental'
 import AlarmStrategy from '../ManageMonitor/AlarmStrategy'
+import Topology from './AppServiceDetail/Topology'
 
 const DEFAULT_TAB = '#service'
 
@@ -255,6 +256,9 @@ class AppDetail extends Component {
                 </TabPane>
                 <TabPane tab="告警策略" key="#strategy">
                   <AlarmStrategy appName={appName} cluster={this.props.cluster} />
+                </TabPane>
+                <TabPane tab="拓扑图" key="#topology">
+                  <Topology appName={appName} cluster={this.props.cluster} />
                 </TabPane>
               </Tabs>
             </Card>
