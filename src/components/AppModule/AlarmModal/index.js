@@ -229,7 +229,7 @@ let FistStop = React.createClass({
         initAppName = currentApp.name
       }
       let initService = ''
-      if (currentService && !this.props.isAppList) {
+      if (currentService) {
         initService = currentService.metadata.name
         initAppName = currentService.metadata.labels['tenxcloud.com/appName']
       }
@@ -985,7 +985,7 @@ class AlarmModal extends Component {
         </div>
         <div className="alarmContent">
           <div className={funcs.scope.state.step == 1 ? 'steps' : 'hidden'}>
-            <FistStop funcs={funcs} setParentState={this.setParentState()} currentApp={this.props.currentApp} currentService={this.props.currentService} isEdit={isEdit} data={this.props.strategy} isAppList={this.props.isAppList} resetFields={()=> this.resetFields()}/>
+            <FistStop funcs={funcs} setParentState={this.setParentState()} currentApp={this.props.currentApp} currentService={this.props.currentService} isEdit={isEdit} data={this.props.strategy} resetFields={()=> this.resetFields()}/>
           </div>
           <div className={funcs.scope.state.step == 2 ? 'steps' : 'hidden'}>
             <TwoStop funcs={funcs} setParentState={this.setParentState()} isEdit={isEdit} data={this.props.setting} isShow={this.props.isShow} resetFields={()=> this.resetFields()}/>
