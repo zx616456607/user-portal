@@ -256,7 +256,7 @@ let MyComponent = React.createClass({
     // confirmDeleteApps([app])
     batchDeleteApps([app])
   },
-  goStack(appName, e) {
+  goTologoly(appName, e) {
     e.stopPropagation()
     browserHistory.push(`/app_manage/detail/${appName}#topology`)
   },
@@ -337,7 +337,7 @@ let MyComponent = React.createClass({
           <div className='actionBox commonData'>
             <Dropdown.Button
               overlay={dropdown} type='ghost'
-              onClick={this.goStack.bind(this, item.name)}>
+              onClick={this.goTologoly.bind(this, item.name)}>
               查看拓扑图
             </Dropdown.Button>
           </div>
