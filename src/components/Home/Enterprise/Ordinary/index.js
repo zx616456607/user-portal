@@ -333,8 +333,16 @@ class Ordinary extends Component {
     let cpuUsed = clusterSummaryUsed.cpu
     let memoryUsed = clusterSummaryUsed.memory
     let volumeCapacity = volumeSummary.total
+
+    //memory
+    const usedMemory = (clusterSummaryUsed.memory / 1024 / 1024).toFixed(2)
+    const capacityMemory = (clusterSummaryCapacity.memory / 1024 / 1024).toFixed(2)
     let memoryUsedPrecent = Math.ceil(clusterSummaryUsed.memory / clusterSummaryCapacity.memory * 100)
+
+    //cpu
     let cpuUsedPrecent = Math.ceil(clusterSummaryUsed.cpu / clusterSummaryCapacity.cpu * 100)
+    const capacityCPU = (clusterSummaryCapacity.cpu / 1000).toFixed(2)
+    const usedCPU = (clusterSummaryUsed.cpu / 1000).toFixed(2)
     // let volumeAllocated =  parseInt(volumeSummary.allocated)
     // if (volumeCapacity.toLowerCase().indexOf('g') > 0) {
     //   volumeCapacity = parseInt(volumeCapacity) * 1024
@@ -342,18 +350,21 @@ class Ordinary extends Component {
     //   volumeCapacity = parseInt(volumeCapacity)
     // }
     // let volumeUsed = Math.ceil(volumeAllocated / volumeCapacity * 100)
+
+    //volume
     let volumeAllocated = parseFloat(volumeSummary.allocated)
     if (volumeCapacity.toLowerCase().indexOf('g') > 0) {
-      volumeCapacity = parseFloat(volumeCapacity)
+      volumeCapacity = parseFloat(volumeCapacity).toFixed(2)
     } else if (volumeCapacity.toLowerCase().indexOf('t') > 0) {
-      volumeCapacity = parseFloat(volumeCapacity) * 1024
+      volumeCapacity = (parseFloat(volumeCapacity) * 1024).toFixed(2)
     } else {
-      volumeCapacity = parseFloat(volumeCapacity)
+      volumeCapacity = parseFloat(volumeCapacity).toFixed(2)
     }
     let volumeUsedPrecent = Math.ceil(volumeAllocated / (volumeCapacity * 1024) * 100)
     let volumeUsed = (volumeAllocated / 1024).toFixed(2)
-    let canCreateContainer = Math.floor((clusterSummaryCapacity.memory - clusterSummaryUsed.memory) / 512 / 1024)
 
+    // pod number
+    let canCreateContainer = Math.floor((clusterSummaryCapacity.memory - clusterSummaryUsed.memory) / 512 / 1024)
     let allocatedPod = clusterStaticSummary.pod
     let allocatedPodNumber = 0
     allocatedPodNumber += allocatedPod['running']
@@ -787,7 +798,29 @@ class Ordinary extends Component {
     let statusOption = {
       tooltip: {
         trigger: 'item',
-        formatter: '{b} : ({d}%)'
+        formatter: function (obj) {
+          if(obj.data.cpu)  {
+            if (obj.name == '已使用') {
+              return　`已使用${usedCPU}核`
+            } else {
+              return `可使用${((capacityCPU * 100 - usedCPU * 100)/100).toFixed(2)}核`
+            }
+          }
+          if(obj.data.memory){
+            if (obj.name == '已使用') {
+              return  `已使用${usedMemory}GB`
+            } else { 
+              return  `可使用${((capacityMemory * 100 - usedMemory * 100) / 100).toFixed(2)}GB`
+            }
+          }
+          if(obj.data.volume) {
+            if (obj.name == '已使用') {
+              return `已使用${volumeUsed}GB`
+            } else {
+              return `可使用${((volumeCapacity * 100 - volumeUsed * 100 ) / 100).toFixed(2)}GB`
+            }
+          }
+        }
       },
       // legend: {
       //   left: '50%',
@@ -806,25 +839,30 @@ class Ordinary extends Component {
         radius: ['19', '28'],
         center: ['17%', '50%'],
         data: [
-          { value: cpuUsedPrecent, name: '已使用', selected: true },
-          { value: 100 - cpuUsedPrecent, name: '可使用' }
+          { value: cpuUsedPrecent, name: '已使用', selected: true, cpu:true },
+          { value: 100 - cpuUsedPrecent, name: '可使用', cpu: true },
         ],
         label: {
           normal: {
             position: 'center',
-            show: false
+            show: false,
+
           },
           emphasis: {
             show: true,
             position: 'center',
-            formatter: function (param) {
-              return param.percent.toFixed(0) + '%'
-            },
             textStyle: {
               fontSize: '13',
               color: '#666',
               fontWeight: 'normal'
-            }
+            },
+            formatter: function (param) {
+              if (param.name == '已使用') {
+                return 　`${usedCPU}核`
+              } else {
+                return `${((capacityCPU * 100 - usedCPU * 100)/100).toFixed(2)}核`
+              }
+            },
           }
         },
         itemStyle: {
@@ -844,7 +882,7 @@ class Ordinary extends Component {
             borderWidth: 0,
             shadowBlur: 7,
             shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
+            shadowColor: 'rgba(0, 0, 0, 0.5)',
           }
         }
       }, {
@@ -856,8 +894,8 @@ class Ordinary extends Component {
         radius: ['19', '28'],
         center: ['50%', '50%'],
         data: [
-          { value: memoryUsedPrecent, name: '已使用', selected: true },
-          { value: 100 - memoryUsedPrecent, name: '可使用' }
+          { value: memoryUsedPrecent, name: '已使用', selected: true, memory: true },
+          { value: 100 - memoryUsedPrecent, name: '可使用', memory: true }
         ],
         label: {
           normal: {
@@ -868,7 +906,11 @@ class Ordinary extends Component {
             show: true,
             position: 'center',
             formatter: function (param) {
-              return param.percent.toFixed(0) + '%'
+              if (param.name == '已使用') {
+                return `${usedMemory}GB`
+              } else {
+                return `${((capacityMemory * 100 - usedMemory * 100) / 100).toFixed(2)}GB`
+              }
             },
             textStyle: {
               fontSize: '13',
@@ -894,7 +936,7 @@ class Ordinary extends Component {
             borderWidth: 0,
             shadowBlur: 10,
             shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
+            shadowColor: 'rgba(0, 0, 0, 0.5)',
           }
         }
       }, {
@@ -906,8 +948,8 @@ class Ordinary extends Component {
         radius: ['19', '28'],
         center: ['83%', '50%'],
         data: [
-          { value: volumeUsedPrecent, name: '已使用', selected: true },
-          { value: 100 - volumeUsedPrecent, name: '可使用' }
+          { value: volumeUsedPrecent, name: '已使用', selected: true, volume: true },
+          { value: 100 - volumeUsedPrecent, name: '可使用', volume: true },
         ],
         label: {
           normal: {
@@ -918,7 +960,11 @@ class Ordinary extends Component {
             show: true,
             position: 'center',
             formatter: function (param) {
-              return param.percent.toFixed(0) + '%'
+              if (param.name == '已使用') {
+                return `${volumeUsed}GB`
+              } else {
+                return `${((volumeCapacity * 100 - volumeUsed * 100 ) / 100).toFixed(2)}GB`
+              }
             },
             textStyle: {
               fontSize: '13',
@@ -944,7 +990,7 @@ class Ordinary extends Component {
             borderWidth: 0,
             shadowBlur: 10,
             shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
+            shadowColor: 'rgba(0, 0, 0, 0.5)',
           }
         }
       }]
@@ -1028,9 +1074,9 @@ class Ordinary extends Component {
                 <table cellPadding={0} cellSpacing={0} style={{ width: '100%', textAlign: 'center', fontSize: '14px', marginBottom: '5px' }} >
                   <tbody>
                     <tr>
-                      <td>({(cpuUsed / 1000).toFixed(2) + '核'}/{(clusterSummaryCapacity.cpu / 1000).toFixed(2) + '核'})</td>
-                      <td>({(memoryUsed / 1024 / 1204).toFixed(2) + 'GB'}/{(clusterSummaryCapacity.memory/ 1024 / 1024).toFixed(2) + 'GB'})</td>
-                      <td>({volumeUsed + 'GB'}/{volumeCapacity.toFixed(2) + 'GB'})</td>
+                      <td>({cpuUsedPrecent}/100)</td>
+                      <td>({memoryUsedPrecent}/100)</td>
+                      <td>({volumeUsedPrecent}/100)</td>
                     </tr>
                     <tr>
                       <td>CPU</td>

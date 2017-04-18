@@ -840,6 +840,7 @@ class AppList extends Component {
       alarmModal: false,
       step:1
     })
+    this.state.resetFields()
   }
   nextStep(step) {
     this.setState({
@@ -1030,11 +1031,11 @@ class AppList extends Component {
           </Card>
           <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
             className="alarmModal"
-            onCancel={()=> this.setState({alarmModal:false})}
+            onCancel={()=> this.cancelModal()}
             maskClosable={false}
             footer={null}
           >
-            <CreateAlarm funcs={modalFunc} currentApp={this.state.alertCurrentApp}/>
+            <CreateAlarm funcs={modalFunc} currentApp={this.state.alertCurrentApp} isAppList={true}/>
           </Modal>
           {/* 通知组 */}
           <Modal title="创建新通知组" visible={this.state.createGroup}

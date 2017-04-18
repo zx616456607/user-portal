@@ -25,7 +25,10 @@ const RadioGroup = Radio.Group
 
 let FistStop = React.createClass({
   componentWillMount() {
-    const { loadAppList, appList, cluster, isFetchingApp, clusterNode, getAllClusterNodes, setParentState, loginUser } = this.props
+    const { loadAppList, appList, cluster, isFetchingApp, clusterNode, getAllClusterNodes, setParentState, loginUser, funcs } = this.props
+    funcs.scope.setState({
+      appListSetField: () => this.appListSetField()
+    })
     if (!appList || appList.length == 0) {
       loadAppList(cluster.clusterID)
     }
@@ -35,6 +38,10 @@ let FistStop = React.createClass({
     setParentState({
       firstForm: this.props.form
     })
+  },
+  componentDidMount() {
+    const { resetFields } = this.props
+    setTimeout(resetFields, 0)
   },
   fistStopName(rule, value, callback) {
     if (!Boolean(value)) {
@@ -147,6 +154,13 @@ let FistStop = React.createClass({
     }
     return <Option value="service">服务</Option>
   },
+  appListSetField() {
+    const { form } = this.props
+    // form.setFieldsValue({
+    //   server: ''
+    // })
+    form.resetFields()
+  },
   render: function () {
     const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form;
     const { funcs, currentApp, currentService, data, isEdit, loginUser } = this.props
@@ -225,7 +239,7 @@ let FistStop = React.createClass({
         initAppName = currentApp.name
       }
       let initService = ''
-      if (currentService) {
+      if (currentService && !this.props.isAppList) {
         initService = currentService.metadata.name
         initAppName = currentService.metadata.labels['tenxcloud.com/appName']
       }
@@ -356,6 +370,10 @@ let TwoStop = React.createClass({
     data.forEach((item, index) => {
       this.setState({ [`typeProps_${index}`]: this.switchSymbol(item.type) })
     })
+  },
+  componentDidMount() {
+    const { resetFields } = this.props
+    setTimeout(resetFields,0)
   },
   componentWillReceiveProps(nextProps) {
   },
@@ -935,6 +953,17 @@ class AlarmModal extends Component {
       isSendMail: e.target.value
     })
   }
+  resetFields() {
+    const { funcs, form } = this.props
+    const { firstForm, secondForm } = this.state
+    funcs.scope.setState({
+      resetFields: () => {
+        form.resetFields()
+        secondForm.resetFields()
+        firstForm.resetFields()
+      }
+    })
+  }
   render() {
     if (this.props.isFetching) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
@@ -966,10 +995,10 @@ class AlarmModal extends Component {
         </div>
         <div className="alarmContent">
           <div className={funcs.scope.state.step == 1 ? 'steps' : 'hidden'}>
-            <FistStop funcs={funcs} setParentState={this.setParentState()} currentApp={this.props.currentApp} currentService={this.props.currentService} isEdit={isEdit} data={this.props.strategy} />
+            <FistStop funcs={funcs} setParentState={this.setParentState()} currentApp={this.props.currentApp} currentService={this.props.currentService} isEdit={isEdit} data={this.props.strategy} isAppList={this.props.isAppList} resetFields={()=> this.resetFields()}/>
           </div>
           <div className={funcs.scope.state.step == 2 ? 'steps' : 'hidden'}>
-            <TwoStop funcs={funcs} setParentState={this.setParentState()} isEdit={isEdit} data={this.props.setting} isShow={this.props.isShow} />
+            <TwoStop funcs={funcs} setParentState={this.setParentState()} isEdit={isEdit} data={this.props.setting} isShow={this.props.isShow} resetFields={()=> this.resetFields()}/>
           </div>
           <div className={funcs.scope.state.step == 3 ? 'steps' : 'hidden'}>
             <Form className="alarmAction">
