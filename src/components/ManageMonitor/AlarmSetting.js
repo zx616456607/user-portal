@@ -156,10 +156,10 @@ let MyComponent = React.createClass({
       <Menu.Item key="edit">
         <span>修改</span>
       </Menu.Item>
-      <Menu.Item key="stop">
+      <Menu.Item key="stop" disabled={(record.enable==0)}>
         <span>停用</span>
       </Menu.Item>
-      <Menu.Item key="start">
+      <Menu.Item key="start" disabled={(record.enable==1)}>
         <span>启用</span>
       </Menu.Item>
       <Menu.Item key="list">
@@ -218,7 +218,7 @@ let MyComponent = React.createClass({
     })
     if(checkedData.length > 0) {
       canStop = newData.every(item => {
-        return item.statusCode != 0 
+        return item.statusCode != 0
       })
       canStart = newData.every(item => {
         return item.statusCode == 0
@@ -327,11 +327,11 @@ let MyComponent = React.createClass({
         <div className="rightList">
           <div className="lists">
             <span className="keys">内存</span>
-        <Progress percent={ data.memory * 100 } strokeWidth={8} format={ percent => percent + '%'} status={ data.memory * 100 > 80 ? 'exception' : ''} className="progress"/>
+            <Progress percent={ data.memory * 100 } strokeWidth={8} format={ percent => percent.toFixed(2) + '%'} status={ data.memory * 100 > 80 ? 'exception' : ''} className="progress"/>
           </div>
           <div className="lists">
             <span className="keys">CPU</span>
-        <Progress percent={parseFloat(data.cpus).toFixed(2)} status="exception" strokeWidth={8} format={ percent => percent + '%'} status={data.cpu > 80 ? 'exception' : ''}  className="progress" />
+            <Progress percent={parseFloat(data.cpus).toFixed(2)} status="exception" strokeWidth={8} format={ percent => percent + '%'} status={data.cpu > 80 ? 'exception' : ''}  className="progress" />
           </div>
           <div className="lists">
             <span className="keys">流量</span>
@@ -777,6 +777,9 @@ class AlarmSetting extends Component {
       return
     }
     notifi.spin('启动中')
+     this.setState({
+      showStart: false,
+    })
     const { clusterID, updateEnable, getSettingList } = this.props
     updateEnable(clusterID, {
       strategies: strategy
@@ -786,21 +789,13 @@ class AlarmSetting extends Component {
           notifi.close()
           notifi.success('策略启动成功')
           getSettingList(clusterID)
-          this.setState({
-            showStart: false,
-            needUpdate: true,
-            selectStrategy: null
-          })
+
           this.disableButton()
         },
         isAsync: true
       },
       failed: {
         func: () => {
-          this.setState({
-            showStart: false,
-            selectStrategy: null
-          })
           notifi.close()
           notifi.error('策略启动失败，请重试')
         }
@@ -838,6 +833,9 @@ class AlarmSetting extends Component {
       return
     }
     notifi.spin('停止中')
+    this.setState({
+      showStop: false,
+    })
     const { clusterID, updateEnable, getSettingList } = this.props
     updateEnable(clusterID, {
       strategies: strategy
@@ -847,11 +845,6 @@ class AlarmSetting extends Component {
           notifi.close()
           notifi.success('策略停止成功')
           getSettingList(clusterID)
-          this.setState({
-            showStop: false,
-            needUpdate: true,
-            selectStrategy: null
-          })
           this.disableButton()
         },
         isAsync: true
@@ -859,10 +852,6 @@ class AlarmSetting extends Component {
 
       failed: {
         func: () => {
-          this.setState({
-            showStop: false,
-            selectStrategy: null
-          })
           notifi.close()
           notifi.error('策略停止失败，请重试')
         }
@@ -873,7 +862,9 @@ class AlarmSetting extends Component {
     this.setState({
       canStart: false,
       canStop: false,
-      isDelete: true
+      isDelete: true,
+      needUpdate: true,
+      selectStrategy: null
     })
   }
   editSetting() {
@@ -885,52 +876,22 @@ class AlarmSetting extends Component {
   createStrategy(){
     this.setState({alarmModal: true, isEdit: false})
   }
+  handCelcan() {
+    this.setState({
+      showStop:false,
+      showStart:false,
+    })
+    setTimeout(()=> {
+      this.setState({selectStrategy:null})
+    },500)
+  }
+  handAction() {
+    if (this.state.showStop) {
+      return this.stopSetting()
+    }
+    return this.startSetting()
+  }
   render() {
-    const columns = [
-      {
-      title: '名称',
-      dataIndex: 'name',
-      key:'name',
-      render: text => <a href="#">{text}</a>,
-      }, {
-        title: '类型',
-        dataIndex: 'type',
-        key:'type'
-      }, {
-        title: '绑定对象',
-        dataIndex: 'bindObject',
-        key:'bindObject',
-      },
-      {
-        title: '状态',
-        dataIndex: 'status',
-        key:'status',
-      },
-      {
-        title: '监控周期',
-        dataIndex: 'time'
-      },
-      {
-        title: '创建时间',
-        dataIndex: 'createTime',
-        key:'createTime',
-        sorter: (a, b) => Date.parse(a.createTime) - Date.parse(b.createTime),
-      },
-      {
-        title: '最后修改人',
-        dataIndex: 'editUser',
-        key:'edit',
-      },
-      {
-        title: '操作',
-        dataIndex: 'name',
-        key:'action',
-        render: (text, record) => {
-          return <Dropdown.Button type="ghost" overlay={ this.dropdowns(record) }>忽略</Dropdown.Button>
-        }
-      }
-    ];
-
     // const rowSelection = {
     //   // checkbox select callback
     // }
@@ -1009,18 +970,11 @@ class AlarmSetting extends Component {
           >
             <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>策略删除后将不再发送邮件告警，确认删除 {this.getCheckecSettingName()} 策略？</div>
           </Modal>
-          <Modal title="停止策略" visible={this.state.showStop}
-            onCancel={() => this.setState({ showStop: false, selectStrategy: null })}
-            onOk={() => this.stopSetting()}
+          <Modal title={this.state.showStop ? '停止策略':'启动策略'} visible={this.state.showStop || this.state.showStart}
+            onCancel={()=> this.handCelcan()}
+            onOk={() => this.handAction()}
           >
-            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>确认停止 {this.getCheckecSettingName()} 策略？</div>
-          </Modal>
-
-          <Modal title="启动策略" visible={this.state.showStart}
-            onCancel={() => this.setState({ showStart: false, selectStrategy: null })}
-            onOk={() => this.startSetting()}
-          >
-            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>确认启动 {this.getCheckecSettingName()} 策略？</div>
+            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>确定{this.state.showStop ? '停止':'启动'} {this.getCheckecSettingName()} 策略？</div>
           </Modal>
 
 

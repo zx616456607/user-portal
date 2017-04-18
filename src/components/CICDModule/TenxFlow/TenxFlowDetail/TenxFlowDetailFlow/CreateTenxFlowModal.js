@@ -802,7 +802,11 @@ let CreateTenxFlowModal = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { form, codeList, stageList, supportedDependencies, imageList} = this.props;
+    const {
+      form, codeList, stageList,
+      supportedDependencies, imageList,
+      toggleCustomizeBaseImageModal
+    } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
     if (imageList === undefined || imageList.length === 0) {
@@ -894,13 +898,13 @@ let CreateTenxFlowModal = React.createClass({
       )
     });
 
-    const flowTypeProps = getFieldProps('flowType', {
+    /*const flowTypeProps = getFieldProps('flowType', {
       rules: [
         { required: true, message: '请选择项目类型' },
       ],
       onChange: this.flowTypeChange,
       initialValue: buildImages[intFlowTypeIndex].title,
-    });
+    });*/
 
     const imageRealNameProps = getFieldProps('imageRealName', {
       rules: [
@@ -962,7 +966,22 @@ let CreateTenxFlowModal = React.createClass({
           <Icon type='cross' onClick={this.cancelChange} />
         </div>
         <Form horizontal>
-          <div className='commonBox' key='bigForm'>
+          <div className='commonBox'>
+            <div className='title'>
+              <span><FormattedMessage {...menusText.flowName} /></span>
+            </div>
+            <div className='input'>
+              <FormItem
+                hasFeedback
+                help={isFieldValidating('flowName') ? '校验中...' : (getFieldError('flowName') || []).join(', ')}
+                style={{ width: '220px' }}
+                >
+                <Input {...flowNameProps} type='text' size='large' />
+              </FormItem>
+            </div>
+            <div style={{ clear: 'both' }} />
+          </div>
+          {/*<div className='commonBox' key='bigForm'>
             <div className='title'>
               <span><FormattedMessage {...menusText.flowType} /></span>
             </div>
@@ -974,7 +993,7 @@ let CreateTenxFlowModal = React.createClass({
               </FormItem>
             </div>
             <div style={{ clear: 'both' }} />
-          </div>
+          </div>*/}
           <div className='commonBox'>
             <div className='title'>
               <span><FormattedMessage {...menusText.flowCode} /></span>
@@ -999,21 +1018,6 @@ let CreateTenxFlowModal = React.createClass({
             </div>
             <div style={{ clear: 'both' }} />
           </div>
-          <div className='commonBox'>
-            <div className='title'>
-              <span><FormattedMessage {...menusText.flowName} /></span>
-            </div>
-            <div className='input'>
-              <FormItem
-                hasFeedback
-                help={isFieldValidating('flowName') ? '校验中...' : (getFieldError('flowName') || []).join(', ')}
-                style={{ width: '220px' }}
-                >
-                <Input {...flowNameProps} type='text' size='large' />
-              </FormItem>
-            </div>
-            <div style={{ clear: 'both' }} />
-          </div>
           <div className='line'></div>
           <div className='commonBox'>
             <div className='title'>
@@ -1027,6 +1031,10 @@ let CreateTenxFlowModal = React.createClass({
               </FormItem>
               <span className={this.state.emptyImageEnv ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'} onClick={this.openImageEnvModal}><FormattedMessage {...menusText.defineEnv} /></span>
               {this.state.emptyImageEnv ? [<span className='emptyImageEnvError'><FormattedMessage {...menusText.emptyImageEnv} /></span>] : null}
+              <div className="customizeBaseImage">
+                基础镜像是用来提供执行当前任务的环境的，有默认的预置镜像（联系管理员），您也可以
+                <span className="link" onClick={() => toggleCustomizeBaseImageModal(true)}>自定义上传</span>
+              </div>
               <div style={{ clear: 'both' }} />
             </div>
             <div style={{ clear: 'both' }} />
@@ -1041,6 +1049,9 @@ let CreateTenxFlowModal = React.createClass({
                 <Icon type='plus-circle-o' />
                 <FormattedMessage {...menusText.addServices} />
               </div>*/}
+              <div className="relyOnService">
+                依赖服务是用来提供执行当前任务时所依赖的服务，因为是容器化，您可以自定义服务的环境变量
+              </div>
             </div>
             <div style={{ clear: 'both' }} />
           </div>
@@ -1072,7 +1083,7 @@ let CreateTenxFlowModal = React.createClass({
                         </Radio>
                         <Radio key='create' value={false}>使用云端创建 Dockerfile</Radio>
                       </RadioGroup>
-                    </div>                   
+                    </div>
                     {
                       !this.state.useDockerfile ? [
                         <QueueAnim key='useDockerFileAnimate' style={{ float: 'left' }}>
