@@ -26,9 +26,6 @@ const RadioGroup = Radio.Group
 let FistStop = React.createClass({
   componentWillMount() {
     const { loadAppList, appList, cluster, isFetchingApp, clusterNode, getAllClusterNodes, setParentState, loginUser, funcs } = this.props
-    funcs.scope.setState({
-      appListSetField: () => this.appListSetField()
-    })
     if (!appList || appList.length == 0) {
       loadAppList(cluster.clusterID)
     }
@@ -153,13 +150,6 @@ let FistStop = React.createClass({
       <Option value="service">服务</Option>]
     }
     return <Option value="service">服务</Option>
-  },
-  appListSetField() {
-    const { form } = this.props
-    // form.setFieldsValue({
-    //   server: ''
-    // })
-    form.resetFields()
   },
   render: function () {
     const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form;
