@@ -14,7 +14,7 @@ const apiFactory = require('../services/api_factory.js')
 const url = require('url')
 const config = require('../configs')
 const devOps = require('../configs/devops')
-const constant = require('./constants')
+const constant = require('../constants')
 const initGlobalConfig = require('../services/init_global_config')
 
 exports.changeGlobalConfig = function* () {
