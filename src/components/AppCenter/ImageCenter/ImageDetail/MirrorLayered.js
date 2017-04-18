@@ -27,11 +27,18 @@ class MirrorLayered extends Component {
     }
   }
 
-  componentWillMount(){
-    //const { layerInfo, loadMirrorSafetyLayerinfo, tag, imageName } = this.props
-    //if(!layerInfo){
-    //  loadMirrorSafetyLayerinfo({imageName, tag})
-    //}
+  componentWillReceiveProps(nextProps){
+    console.log('this.props=',this.props)
+    console.log('nextProps=',nextProps)
+    const imageName = nextProps.imageName
+    const tag = nextProps.tag
+    const mirrorLayeredinfo = nextProps.mirrorLayeredinfo[imageName]
+    if(imageName !== this.props.imageName || tag !== this.props.tag){
+      //if(mirrorLayeredinfo[imageName] && mirrorLayeredinfo[imageName] == this.props.mirrorLayeredinfo[imageName]){
+      //  return
+      //}
+      loadMirrorSafetyLayerinfo({ imageName, tag })
+    }
   }
 
   handleStepScroll(){
@@ -39,14 +46,18 @@ class MirrorLayered extends Component {
   }
 
   testContent(){
-    const {mirrorLayeredinfo} = this.props
-    if(Object.keys(mirrorLayeredinfo).length == 0){
+    const {mirrorLayeredinfo, imageName} = this.props
+    console.log('mirrorLayeredinfo=',mirrorLayeredinfo)
+    if(!mirrorLayeredinfo[imageName]){
+      return <div></div>
+    }
+    if(mirrorLayeredinfo[imageName] && Object.keys(mirrorLayeredinfo[imageName]).length == 0){
       return (<div>
         <span>暂无数据</span>
         <Button>点击获取数据</Button>
       </div>)
     }
-    const mirrorLayeredStep = mirrorLayeredinfo.map((item, index) =>{
+    const mirrorLayeredStep = mirrorLayeredinfo[imageName].map((item, index) =>{
       return (
         <Step title={null} description={ <div className='safetytabitem'>
           <Tooltip title={item.iD}>

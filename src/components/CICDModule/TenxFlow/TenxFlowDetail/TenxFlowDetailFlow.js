@@ -21,6 +21,7 @@ import CreateTenxFlowModal from './TenxFlowDetailFlow/CreateTenxFlowModal.js'
 import TenxFlowDetailFlowCard from './TenxFlowDetailFlow/TenxFlowDetailFlowCard.js'
 import Socket from '../../../Websocket/socketIo'
 import NotificationHandler from '../../../../common/notification_handler'
+import ContinueIntegration from '../../../SettingModal/GlobalConfig/ContinueIntegration'
 
 const confirm = Modal.confirm;
 
@@ -432,8 +433,10 @@ class TenxFlowDetailFlow extends Component {
         <Modal
           onCancel={() => this.setState({customizeBaseImageModalVisible: false})}
           title="自定义基础镜像"
-          visible={this.state.customizeBaseImageModalVisible}>
-          自定义基础镜像
+          className='TenxFlowDetailFlowContinueIntegrationModal'
+          visible={this.state.customizeBaseImageModalVisible}
+        >
+          <ContinueIntegration />
         </Modal>
       </div>
     )

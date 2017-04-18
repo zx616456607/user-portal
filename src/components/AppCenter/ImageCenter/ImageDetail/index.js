@@ -97,10 +97,10 @@ class ImageDetailBox extends Component {
       copySuccess: false,
       editInfo: false,
       safetyscanVisible: false,
-      activeKey:'1',
-      disable:true,
+      activeKey: '1',
+      disable: true,
       tagVersion: '',
-      tag:''
+      tag: ''
     }
   }
 
@@ -112,20 +112,27 @@ class ImageDetailBox extends Component {
     //console.log('imageDetail=',imageDetail)
     //console.log('registry=',registry)
     //console.log('imageName=',imageName)
-    loadImageDetailTag(registry,imageName)
+    loadImageDetailTag(registry, imageName)
     this.setState({
       imageDetail: imageDetail,
       imageInfo: imageInfo
     });
   }
 
-  componentWillReceiveProps(nextPorps) {
+  componentWillReceiveProps(nextProps) {
     //this function for user select different image
     //the nextProps is mean new props, and the this.props didn't change
     //so that we should use the nextProps
+    const imageName = this.props.imageName
+    const imageNameNext = nextProps.imageName
+    let activekeyNext = '1'
+    if (imageName == imageNameNext) {
+      activekeyNext = this.state.activeKey
+    }
     this.setState({
-      nextPorps: nextPorps.imageInfo,
-      imageDetail: nextPorps.config
+      nextPorps: nextProps.imageInfo,
+      imageDetail: nextProps.config,
+      activeKey:activekeyNext
     });
   }
 
@@ -140,9 +147,9 @@ class ImageDetailBox extends Component {
     });
   }
 
-  TemplateSafetyScan(){
+  TemplateSafetyScan() {
     const { imgTag } = this.props
-    if(!imgTag){
+    if (!imgTag) {
       return
     }
     const tags = imgTag.map((item, index) => {
@@ -285,29 +292,29 @@ class ImageDetailBox extends Component {
   }
 
   safetyscanhandleOk() {
-    const{ loadMirrorSafetyScanStatus, loadMirrorSafetyLayerinfo } = this.props
+    const { loadMirrorSafetyScanStatus, loadMirrorSafetyLayerinfo } = this.props
     const imageDetail = this.props.config
     const imageName = imageDetail.name
-    loadMirrorSafetyScanStatus({imageName, tag})
-    loadMirrorSafetyLayerinfo({imageName, tag})
+    loadMirrorSafetyScanStatus({ imageName, tag })
+    loadMirrorSafetyLayerinfo({ imageName, tag })
     this.setState({
       safetyscanVisible: false,
-      activeKey:'5',
-      disable:false,
-      tag:this.state.tagVersion
+      activeKey: '5',
+      disable: false,
+      tag: this.state.tagVersion
     })
   }
 
-  handleTabsSwitch(key){
+  handleTabsSwitch(key) {
     this.setState({
-      activeKey:key.toString()
+      activeKey: key.toString()
     })
   }
 
-  handelSelectedOption(tag){
+  handelSelectedOption(tag) {
     this.setState({
-      disable:false,
-      tagVersion:tag
+      disable: false,
+      tagVersion: tag
     })
   }
   safetyscanhandleCancel() {
@@ -318,7 +325,8 @@ class ImageDetailBox extends Component {
 
   render() {
     const { formatMessage } = this.props.intl;
-    const imageInfo = this.props.imageInfo
+    const imageDetailModalShow = this.props.imageDetailModalShow
+    const imageInfo = this.props.imageInfo;
     if (!imageInfo) {
       return ('')
     }
@@ -341,7 +349,7 @@ class ImageDetailBox extends Component {
               {(imageInfo.isFavourite == 1) ?
                 <i className="fa fa-star" aria-hidden="true" style={{ marginLeft: '10px' }} onClick={() => this.setimageStore(imageInfo.name, '0')}></i>
                 :
-                <i className="fa fa-star-o" aria-hidden="true" style={{ marginLeft: '10px',color:'#2db7f5' }} onClick={() => this.setimageStore(imageInfo.name, '1')}></i>
+                <i className="fa fa-star-o" aria-hidden="true" style={{ marginLeft: '10px', color: '#2db7f5' }} onClick={() => this.setimageStore(imageInfo.name, '1')}></i>
               }
             </p>
             <div className="leftBox">
@@ -445,7 +453,7 @@ class ImageDetailBox extends Component {
             <TabPane tab="Dockerfile" key="2"><DockerFile isFetching={this.props.isFetching} scope={this} registry={DEFAULT_REGISTRY} detailInfo={imageInfo} isOwner={imageInfo.isOwner} /></TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
             <TabPane tab={formatMessage(menusText.attribute)} key="4"><Attribute detailInfo={imageInfo} /></TabPane>
-            <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} registry={DEFAULT_REGISTRY} tagVersion={this.state.tag}/></TabPane>
+            <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} registry={DEFAULT_REGISTRY} tagVersion={this.state.tag} /></TabPane>
           </Tabs>
         </div>
       </div>

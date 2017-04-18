@@ -12,13 +12,13 @@ import { Card, Spin, Icon, Select, Tabs, Button, Steps, Checkbox, Input, Table }
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/BaseScan.less'
 import { connect } from 'react-redux'
-import { loadMirrorSafetyScanStatus, loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo } from '../../../../actions/app_center'
+import { loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo } from '../../../../actions/app_center'
+import { DEFAULT_REGISTRY } from '../../../../constants'
 
 const BaseScanDescription = React.createClass({
   render: function () {
     const dataObj = this.props.description;
     let dataStr = ''
-    //console.log(dataObj)
     if (Object.keys(dataObj).length == 0) {
       dataStr = ' <div class="basicscantableSubOne"><i class="fa fa-minus" aria-hidden="true" style="margin-right: 8px"></i><span class="noneInfo">暂无信息</span></div>'
       return (
@@ -37,12 +37,11 @@ const BaseScanDescription = React.createClass({
 
 const TableTemplate = React.createClass({
   TableDataSource() {
-    const { mirrorsafetyLyins } = this.props
-    //console.log('mirrorsafetyLyins', mirrorsafetyLyins)
-    if (!mirrorsafetyLyins || !mirrorsafetyLyins.mirrorLyinsinfo.result) {
+    const { mirrorsafetyLyins,imageName } = this.props
+    if (!mirrorsafetyLyins[imageName] || !mirrorsafetyLyins[imageName].result) {
       return
     }
-    const result = mirrorsafetyLyins.mirrorLyinsinfo.result
+    const result = mirrorsafetyLyins[imageName].result
     const report = result.report
     const JsonFile = JSON.parse(report)
     const dataSource = []
@@ -92,71 +91,59 @@ class BaseScan extends Component {
     this.tableTemplate = this.tableTemplate.bind(this)
     this.TableDataSource = this.TableDataSource.bind(this)
     this.severLyins = this.severLyins.bind(this)
+    this.severScanLyins = this.severScanLyins.bind(this)
     this.state = {
 
     }
   }
-  //直接调取lyins的结果
-  componentDidMount() {
-    const { loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo } = this.props
-    const { mirrorScanstatus, imageName, mirrorScanUrl, cluster_id, tag, mirrorSafetyScan } = this.props
-    const scanstatusCode = mirrorScanstatus.statusCode
-    const scanStatus = mirrorScanstatus.status
-    const blob_sum = mirrorScanstatus.blobSum || ''
-    //const cluster_id = 'CID-fe23111d77cb'
-    //console.log('mirrorScanstatus=',mirrorScanstatus)
-    //const tag = 'latest'
+
+  severLyins() {
+    const { loadMirrorSafetyLyinsinfo, mirrorScanstatus, imageName } = this.props
+    if(!mirrorScanstatus){
+      return
+    }
+    const blob_sum = mirrorScanstatus[imageName].blobSum
+    const full_name = mirrorScanstatus[imageName].fullName
+    loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name})
+  }
+
+  severScanLyins(){
+    const { loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus } = this.props
     const registry = mirrorScanUrl
+    const full_name = mirrorScanstatus[imageName].fullName
+    const blob_sum = mirrorScanstatus[imageName].blobSum
     const config = {
       cluster_id,
       imageName,
       tag,
-      registry
+      registry,
+      full_name
     }
-    if (scanstatusCode && scanstatusCode == 200) {
-      switch(scanStatus){
-        case 'lynis':
-        case 'clair':
-        case 'running':
-        case 'both':
-          return loadMirrorSafetyLyinsinfo({blob_sum})
-        case 'noresult':
-        case 'different':
-        default: {
-          if(mirrorSafetyScan.mirrorScaninfo.result){
-            return loadMirrorSafetyLyinsinfo({blob_sum})
-          }
-          return loadMirrorSafetyScan({...config}, {
-            success: {
-              func: () =>{
-                loadMirrorSafetyLyinsinfo({blob_sum})
-              },
-              isAsync : true
-            }
-          })
-        }
+    if(mirrorSafetyScan[imageName]){
+      return loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name})
+    }
+    return loadMirrorSafetyScan({...config}, {
+      success: {
+        func: () =>{
+          loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name})
+        },
+        isAsync : true
       }
-    }
-  }
-
-  severLyins() {
-    const { loadMirrorSafetyLyinsinfo, mirrorScanstatus } = this.props
-    if(!mirrorScanstatus){
-      return
-    }
-    const blob_sum = mirrorScanstatus.blobSum || ''
-    loadMirrorSafetyLyinsinfo({ blob_sum })
+    })
   }
 
   TableSwitch() {
-    const { mirrorsafetyLyins } = this.props
-    if (!mirrorsafetyLyins || !mirrorsafetyLyins.mirrorLyinsinfo || !mirrorsafetyLyins.mirrorLyinsinfo.result) {
+    const { mirrorsafetyLyins,imageName } = this.props
+    if (!mirrorsafetyLyins || !mirrorsafetyLyins[imageName] || !mirrorsafetyLyins[imageName].result) {
       return
     }
-    const result = mirrorsafetyLyins.mirrorLyinsinfo.result
+    const result = mirrorsafetyLyins[imageName].result
     const statusCode = result.statusCode
     const status = result.status
     const message = result.message
+    if(statusCode && statusCode == 500){
+      return <div>{message}</div>
+    }
     if (statusCode && statusCode == 200) {
       switch (status) {
         case 'running':
@@ -166,7 +153,7 @@ class BaseScan extends Component {
             <div className='bottom'><Button onClick={this.severLyins}>点击重新获取</Button></div>
           </div>
         case 'finished':
-          return <TableTemplate mirrorsafetyLyins={mirrorsafetyLyins} />
+          return <TableTemplate mirrorsafetyLyins={mirrorsafetyLyins} imageName={imageName}/>
         case 'failed':
           return <div className="BaseScanFailed">
             <div className='top'>扫描失败，请重新扫描</div>
@@ -174,21 +161,18 @@ class BaseScan extends Component {
           </div>
         case 'nojob':
         default:
-          return <div>
-            <div className="top">镜像没有别扫描过</div>
-            <Button>点击扫描</Button>
+          return <div className="BaseScanFailed">
+            <div className="top">镜像没有被扫描过</div>
+            <Button onClick={this.severScanLyins}>点击扫描</Button>
           </div>
       }
-    } else {
-      return <div>{message}</div>
     }
   }
 
   TableDataSource() {
-    const { mirrorsafetyLyins } = this.props
-    const result = mirrorsafetyLyins.mirrorLyinsinfo.result
+    const { mirrorsafetyLyins,imageName } = this.props
+    const result = mirrorsafetyLyins[imageName].result
     const report = result.report
-    //console.log(report)
     const JsonFile = JSON.parse(report)
     const dataSource = []
     let index = 0
@@ -223,11 +207,6 @@ class BaseScan extends Component {
   }
 
   render() {
-    const { mirrorsafetyLyins } = this.props
-    let status = ''
-    if (mirrorsafetyLyins.mirrorLyinsinfo && mirrorsafetyLyins.mirrorLyinsinfo.result) {
-      status = mirrorsafetyLyins.mirrorLyinsinfo.result.status
-    }
     return (
       <div id="BaseScan">
         <div className='basicscantitle alertRow'>
@@ -246,26 +225,24 @@ class BaseScan extends Component {
   }
 }
 
-
 function mapStateToProps(state, props) {
   const { entities, images } = state
-  const { registry } = props
   let mirrorScanUrl = ''
-  if (images.publicImages[registry] && images.publicImages[registry].server) {
-    mirrorScanUrl = images.publicImages[registry].server || ''
+  if (images.publicImages[DEFAULT_REGISTRY] && images.publicImages[DEFAULT_REGISTRY].server) {
+    mirrorScanUrl = images.publicImages[DEFAULT_REGISTRY].server || ''
   }
   let cluster_id = entities.current.cluster.clusterID || ''
   let mirrorsafetyLyins = images.mirrorSafetyLyinsinfo
+  let mirrorScanstatus = images.mirrorSafetyScanStatus
   return {
     cluster_id,
-    registry,
     mirrorScanUrl,
-    mirrorsafetyLyins
+    mirrorsafetyLyins,
+    mirrorScanstatus
   }
 }
 
 export default connect(mapStateToProps, {
-  loadMirrorSafetyScanStatus,
   loadMirrorSafetyScan,
   loadMirrorSafetyLyinsinfo
 })(BaseScan)

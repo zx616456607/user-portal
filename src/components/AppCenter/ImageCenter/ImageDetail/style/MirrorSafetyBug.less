@@ -1,4 +1,28 @@
 #MirrorSafetyBug{
+  text-align: center;
+  .message{
+    height:30px;
+    line-height: 30px;
+    font-size: 14px;
+    margin-top: 50px;
+  }
+  .BaseScanRunning{
+    margin-top: 20px;
+    .top{
+      margin: 10px auto;
+    }
+    .bottom{
+      margin:10px auto 0 auto;
+    }
+  }
+  .BaseScanFailed{
+    margin-top: 50px;
+    .top{
+      height: 40px;
+      line-height: 30px;
+      font-size: 14px;
+    }
+  }
   // Echarts
   .safetybugEcharts{
     width:100%;
@@ -77,6 +101,10 @@
           white-space: nowrap;
           text-overflow: ellipsis;
         }
+      }
+      .nodata{
+        margin: 0 auto;
+        text-align: center;
       }
       .ant-table-expanded-row{
         background: white;
