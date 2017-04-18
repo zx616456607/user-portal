@@ -1,6 +1,23 @@
 #SoftwarePackage {
   width: 100%;
   overflow: hidden;
+  .message{
+    height:30px;
+    line-height: 30px;
+    font-size: 14px;
+    margin-top: 50px;
+    text-align: center;
+  }
+  .BaseScanRunning{
+    text-align: center;
+    margin-top: 20px;
+    .top{
+      margin: 10px auto;
+    }
+    .bottom{
+      margin:10px auto 0 auto;
+    }
+  }
   .softwarePackageEcharts {
     height: 220px;
     width:100%;
@@ -38,7 +55,9 @@
       padding-top: 20px;
       .softwarePackageTableTitleleft {
         float: left;
-        height: 16px;
+        height: 18px;
+        font-size: 18px;
+        line-height: 18px;
         margin-top: 7px;
         text-indent: 8px;
         border-left: 5px solid #2db7f6;
@@ -60,6 +79,10 @@
           text-overflow: ellipsis;
         }
       }
+      .nodata{
+        margin: 0 auto;
+        text-align: center;
+      }
       .softwarebug{
         .softwarebugspan{
           margin:0 8px 0 2px;
@@ -79,11 +102,15 @@
       .softwareimpact{
         .softwareimpactspan{
           margin-right: 10px;
-          background: red;
           height: 18px;
-          width: 20px;
+          width:0;
           display: inline-block;
           vertical-align: middle;
+          font-size: 0;
+        }
+        .softwareimpactimg{
+          height: 18px;
+          width: 20px;
         }
         .singalLevelTop{
 
