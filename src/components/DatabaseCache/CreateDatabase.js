@@ -191,12 +191,13 @@ let CreateDatabase = React.createClass({
           externalIP = ips[0]
         }
       }
+      const replicas = this.state.currentType == 'zookeeper' ? values.zkReplicas : values.replicas
       const body = {
         cluster: values.clusterSelect,
         externalIP: externalIP,
         serviceName: values.name,
         password: values.password,
-        replicas: values.replicas,
+        replicas: replicas,
         volumeSize: values.storageSelect,
         teamspace: newSpace.namespace,
         maxParticipant: values.maxParticipant,
@@ -254,7 +255,7 @@ let CreateDatabase = React.createClass({
     const replicasProps = getFieldProps('replicas', {
       initialValue: 1
     });
-    const zkReplicasProps = getFieldProps('replicas', {
+    const zkReplicasProps = getFieldProps('zkReplicas', {
       initialValue: 3
     });
     const selectStorageProps = getFieldProps('storageSelect', {
