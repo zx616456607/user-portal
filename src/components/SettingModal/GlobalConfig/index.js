@@ -8,7 +8,7 @@
 * @author ZhangChengZheng
 */
 import React, { Component } from 'react'
-import { Row, Col, Icon, Form, Button, Input, Spin, Checkbox, } from 'antd'
+import { Row, Col, Icon, Form, Button, Input, Spin, Checkbox, Table } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import './style/GlobalConfig.less'
 import EmailImg from '../../../assets/img/setting/globalconfigEmail.png'
@@ -20,6 +20,7 @@ import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig }
 import NotificationHandler from '../../../common/notification_handler'
 import { getPortalRealMode } from '../../../common/tools'
 import { LITE } from '../../../constants'
+import ConIntergration from './ContinueIntegration'
 
 const FormItem = Form.Item
 const mode = getPortalRealMode
@@ -264,7 +265,7 @@ let Emaill = React.createClass({
   }
 })
 
-//持续集成
+//开放API地址
 let ConInter = React.createClass({
   getInitialState() {
     return {
@@ -972,6 +973,39 @@ let StorageService = React.createClass({
   }
 })
 
+//持续集成
+let Continue = React.createClass({
+  getInitialState() {
+    return {
+
+    }
+  },
+  render() {
+    return (
+      <div className="continue">
+        <div className='title'>持续集成</div>
+        <div className='content'>
+          <div className="contentMain" style={{overflow:'hidden'}}>
+            <div className="contentImg">
+              <img src={conInter} alt="持续集成" />
+            </div>
+            <div className='contenttable'>
+              <div className='contenttableheader'>
+                <span className='forward'>TenxFlow 基础镜像</span>
+                基础镜像是用于 TenxFlow 任务中，提供任务执行基础环境的容器镜像
+              </div>
+              <div className='contenttablemain'>
+                <ConIntergration />
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    )
+  }
+});
+
 Emaill = Form.create()(Emaill)
 ConInter = Form.create()(ConInter)
 MirrorService = Form.create()(MirrorService)
@@ -1058,6 +1092,7 @@ class GlobalConfig extends Component {
         <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.registry} isValidConfig={this.props.isValidConfig}/>
         <StorageService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />
         <ConInter setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
+        <Continue />
       </div>
     )
   }
