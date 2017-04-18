@@ -1063,6 +1063,7 @@ class ServiceList extends Component {
       alarmModal: false,
       step:1
     })
+    this.state.resetFields()
   }
   nextStep(step) {
     this.setState({
