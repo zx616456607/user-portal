@@ -220,6 +220,35 @@ export function updateCluster(cluster, body, callback) {
   }
 }
 
+export const UPDATE_CONFIGS_REQUEST = 'UPDATE_CONFIGS_REQUEST'
+export const UPDATE_CONFIGS_SUCCESS = 'UPDATE_CONFIGS_SUCCESS'
+export const UPDATE_CONFIGS_FAILURE = 'UPDATE_CONFIGS_FAILURE'
+
+// Update cluster configs from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateCluster(cluster, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_CONFIGS_REQUEST, UPDATE_CONFIGS_SUCCESS, UPDATE_CONFIGS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/configs`,
+      options: {
+        method: 'PUT',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Fetches update cluster configs from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function updateCluster(cluster, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateCluster(cluster, body, callback))
+  }
+}
+
 export const GET_ADD_CLUSTER_CMD_REQUEST = 'GET_ADD_CLUSTER_CMD_REQUEST'
 export const GET_ADD_CLUSTER_CMD_SUCCESS = 'GET_ADD_CLUSTER_CMD_SUCCESS'
 export const GET_ADD_CLUSTER_CMD_FAILURE = 'GET_ADD_CLUSTER_CMD_FAILURE'
