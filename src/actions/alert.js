@@ -415,7 +415,7 @@ export function ignoreSetting(cluster, body, callback) {
 
 
 export const ALERT_SETTING_INSTANT_REQUEST = 'ALERT_SETTING_INSTANT_REQUEST'
-export const ALERT_SETTING_INSTANT_SUCCESS= 'ALERT_SETTING_INSTANT_SUCCESS'
+export const ALERT_SETTING_INSTANT_SUCCESS = 'ALERT_SETTING_INSTANT_SUCCESS'
 export const ALERT_SETTING_INSTANT_FAILURE = 'ALERT_SETTING_INSTANT_FAILURET'
 
 
@@ -445,12 +445,12 @@ export function getSettingInstant(cluster, type, body, name, callback) {
 
 export const ALERT_DELETE_RULE_REQUEST = 'ALERT_DELETE_RULE_REQUEST'
 export const ALERT_DELETE_RULE_SUCCESS = 'ALERT_DELETE_RULE_SUCCESS'
-export const ALERT_DELETE_RULE_FAILURD = 'ALERT_DELETE_RULE_FAILURD'
+export const ALERT_DELETE_RULE_FAILURE = 'ALERT_DELETE_RULE_FAILURE'
 
 function fetchDeleteRule(cluster, body, callback) {
   return {
     [FETCH_API]: {
-      types: [ALERT_DELETE_RULE_REQUEST, ALERT_DELETE_RULE_SUCCESS, ALERT_DELETE_RULE_FAILURD],
+      types: [ALERT_DELETE_RULE_REQUEST, ALERT_DELETE_RULE_SUCCESS, ALERT_DELETE_RULE_FAILURE],
       schema: {},
       endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/rule?${toQuerystring(body)}`,
       options: {
@@ -471,12 +471,12 @@ export function deleteRule(cluster, body, callback) {
 
 export const ALERT_SEARCH_SETTING_REQUEST = 'ALERT_SEARCH_SETTING_REQUEST'
 export const ALERT_SEARCH_SETTING_SUCCESS = 'ALERT_SEARCH_SETTING_SUCCESS'
-export const ALERT_SEARCH_SETTING_FAILURD = 'ALERT_SEARCH_SETTING_FAILURD'
+export const ALERT_SEARCH_SETTING_FAILURE = 'ALERT_SEARCH_SETTING_FAILURE'
 
 function fetchSearchSetting(cluster, body, callback) {
   return {
     [FETCH_API]: {
-      types: [ALERT_SEARCH_SETTING_REQUEST, ALERT_SEARCH_SETTING_SUCCESS, ALERT_SEARCH_SETTING_FAILURD],
+      types: [ALERT_SEARCH_SETTING_REQUEST, ALERT_SEARCH_SETTING_SUCCESS, ALERT_SEARCH_SETTING_FAILURE],
       schema: {},
       endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/search?${toQuerystring(body)}`,
     },
@@ -491,4 +491,24 @@ export function searchSetting(cluster, body, callback) {
   }
 }
 
+export const SEND_INVITATIONS_REQUEST = 'SEND_INVITATIONS_REQUEST'
+export const SEND_INVITATIONS_SUCCESS = 'SEND_INVITATIONS_SUCCESS'
+export const SEND_INVITATIONS_FAILURE = 'SEND_INVITATIONS_FAILURE'
+
+function fetchInvitations(body, callback) {
+   return {
+    [FETCH_API]: {
+      types: [SEND_INVITATIONS_REQUEST, SEND_INVITATIONS_SUCCESS, SEND_INVITATIONS_FAILURE],
+      schema: {},
+      endpoint: `/alerts/invitations/join-code?${body}`,
+    },
+    callback
+  }
+}
+
+export function invitations(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchInvitations(body, callback))
+  }
+}
 

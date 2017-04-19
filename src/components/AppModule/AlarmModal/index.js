@@ -247,7 +247,6 @@ let FistStop = React.createClass({
           { whitespace: true },
           { validator: isNode ? '' : this.fistStopServer }
         ],
-        initialValue: initService
       });
       repeatInterval = getFieldProps('interval', {
         rules: [
@@ -262,7 +261,7 @@ let FistStop = React.createClass({
     return (
       <Form className="paramsSetting">
         <Form.Item label="名称" {...formItemLayout}>
-          <Input {...nameProps} />
+          <Input {...nameProps} placeholder="请输入名称"/>
         </Form.Item>
         <Form.Item label="类型" {...formItemLayout}>
           <Select placeholder="请选择类型" {...typeProps} >
@@ -276,7 +275,7 @@ let FistStop = React.createClass({
           </Select>
         </Form.Item>
         <Form.Item style={{ position: 'absolute', top: 240, right: 95 }}>
-          <Select placeholder="请选择服务" {...serverProps} style={{ width: 170, marginLeft: 25, display: isNode ? 'none' : 'inline-block' }} >
+          <Select placeholder="请选择服务" {...serverProps} style={{ width: 170, display: isNode ? 'none' : 'inline-block' }} >
             {this.getServiceList()}
           </Select>
         </Form.Item>

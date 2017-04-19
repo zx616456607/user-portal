@@ -60,6 +60,9 @@ const rootRoutes = {
     path: '/notfound',
     component: require('../containers/ErrorPage').default,
   },{
+      path:'/alerts/invitations/join',
+      component: require('../containers/Template').default
+  },{
     path: '/',
     component: require('../containers/App/Enterprise').default,
     indexRoute: {
