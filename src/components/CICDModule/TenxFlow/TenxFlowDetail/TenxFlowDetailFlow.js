@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Icon, Card, Alert, Modal, Button, Form } from 'antd'
+import { Spin, Icon, Card, Alert, Modal, Button, } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -64,7 +64,6 @@ class TenxFlowDetailFlow extends Component {
   toggleCustomizeBaseImageModal(visible) {
     this.setState({
       customizeBaseImageModalVisible: visible,
-      shouldNotUpdateCreateTenxFlowModal: visible
     })
   }
 
@@ -124,7 +123,6 @@ class TenxFlowDetailFlow extends Component {
     const { startBuild, getTenxFlowStateList, flowId, CreateTenxflowBuild, scope, refreshFlag, getTenxflowBuildLogs } = nextProps;
     let oldFlowId = this.props.flowId;
     let notification = new NotificationHandler()
-    return
     if (startBuild) {
       scope.setState({
         startBuild: false
@@ -423,7 +421,6 @@ class TenxFlowDetailFlow extends Component {
                       flowId={flowId} stageInfo={stageInfo} codeList={projectList}
                       supportedDependencies={supportedDependencies} imageList={imageList}
                       otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
-                      form={this.props.form}
                        />
                   </QueueAnim>
                 ] : null
@@ -440,7 +437,7 @@ class TenxFlowDetailFlow extends Component {
           visible={this.state.customizeBaseImageModalVisible}
           footer={null}
         >
-          <ContinueIntegration key='ContinueIntegration' ref="ContinueIntegration"/>
+          <ContinueIntegration />
         </Modal>
       </div>
     )
@@ -473,7 +470,7 @@ TenxFlowDetailFlow.propTypes = {
   intl: PropTypes.object.isRequired,
 }
 
-export default Form.create()(connect(mapStateToProps, {
+export default connect(mapStateToProps, {
   getTenxFlowStateList,
   getProjectList,
   searchProject,
@@ -485,4 +482,5 @@ export default Form.create()(connect(mapStateToProps, {
   getTenxflowBuildLogs
 })(injectIntl(TenxFlowDetailFlow, {
   withRef: true,
-})))
+}));
+

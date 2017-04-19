@@ -232,11 +232,6 @@ let CreateTenxFlowModal = React.createClass({
     // const {getAvailableImage} = this.props
     // getAvailableImage()
   },
-  shouldComponentUpdate(nextProps, nextState) {
-   const { scope } = nextProps
-   if(scope.state.shouldNotUpdateCreateTenxFlowModal) return false
-   return true
-  },
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
     const { stageList } = this.props;
@@ -1257,9 +1252,10 @@ CreateTenxFlowModal.propTypes = {
   intl: PropTypes.object.isRequired,
 }
 
-export default connect(mapStateToProps, {
+export default  createForm()(connect(mapStateToProps, {
   createTenxFlowState,
   createDockerfile
 })(injectIntl(CreateTenxFlowModal, {
   withRef: true,
-}))
+})));
+
