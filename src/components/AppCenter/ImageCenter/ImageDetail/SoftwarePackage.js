@@ -867,6 +867,7 @@ class SoftwarePackage extends Component {
     this.NodataTemplateSafetyBug = this.NodataTemplateSafetyBug.bind(this)
     this.APIFailedThenScan = this.APIFailedThenScan.bind(this)
     this.APIGetclairInfo = this.APIGetclairInfo.bind(this)
+    this.handlemirrorScanstatusSatus = this.handlemirrorScanstatusSatus.bind(this)
   }
 
   handleclairStatus(){
@@ -955,65 +956,51 @@ class SoftwarePackage extends Component {
     })
   }
 
+  handlemirrorScanstatusSatus(status){
+    switch(status){
+      case 'noresult':
+        return <span>镜像没有被扫描过，请点击扫描</span>
+      case 'different':
+        return <span>镜像扫描结果与上次扫描结果不同</span>
+      case 'failed':
+        return <span>扫描失败,请重新扫描</span>
+      default:
+        return <span></span>
+    }
+  }
+
   render() {
     const { imageName, tag, mirrorScanstatus, mirrorsafetyClair } = this.props
     let statusCode = 200
+    let status = ''
     if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result || Object.keys(mirrorScanstatus[imageName][tag]).length == 0){
       return <div style={{textAlign:'center',paddingTop:'50px'}}><Spin /></div>
     }
-    if(mirrorScanstatus[imageName].statusCode == 500){
+    if(mirrorScanstatus[imageName][tag].result.status){
+      status = mirrorScanstatus[imageName][tag].result.status
+    }
+    if(mirrorScanstatus[imageName][tag].result.statusCode == 500){
       statusCode == 500
     }
-    if(mirrorScanstatus[imageName][tag].result.status == 'noresult'){
+    if(status == 'noresult' ||　status == 'different' || status == "failed"){
       if(!mirrorsafetyClair[imageName]){
         return (
           <div className='BaseScanFailed' data-status="scanstatus">
-            <div className='top'>镜像没有被扫描过，请点击扫描</div>
-            <Button onClick={this.APIFailedThenScan}>开始扫描</Button>
+            <div className='top'>{this.handlemirrorScanstatusSatus(status)}</div>
+            <Button onClick={this.APIFailedThenScan}>点击扫描</Button>
           </div>
         )
       }else{
         return (
           <div id="SoftwarePackage">
-            {
-              statusCode == 500 ?
-                this.NodataTemplateSafetyBug()
-                :
-                this.handleclairStatus()
-            }
-          </div>
-        )
-      }
-    }
-    if(mirrorScanstatus[imageName][tag].result.status == 'failed'){
-      if(!mirrorsafetyClair[imageName]){
-        return (
-          <div className='BaseScanFailed' data-status="scanstatus">
-            <div className='top'>扫描失败,请重新扫描</div>
-            <Button onClick={this.APIFailedThenScan}>重新扫描</Button>
-          </div>
-        )
-      }else{
-        return (
-          <div id="SoftwarePackage">
-            {
-              statusCode == 500 ?
-                this.NodataTemplateSafetyBug()
-                :
-                this.handleclairStatus()
-            }
+            {statusCode == 500 ? this.NodataTemplateSafetyBug() : this.handleclairStatus()}
           </div>
         )
       }
     }
     return (
       <div id="SoftwarePackage">
-        {
-          statusCode == 500 ?
-            this.NodataTemplateSafetyBug()
-            :
-            this.handleclairStatus()
-        }
+        {statusCode == 500 ? this.NodataTemplateSafetyBug() : this.handleclairStatus()}
       </div>
     )
   }

@@ -92,6 +92,9 @@ class BaseScan extends Component {
     this.TableDataSource = this.TableDataSource.bind(this)
     this.severLyins = this.severLyins.bind(this)
     this.severScanLyins = this.severScanLyins.bind(this)
+    this.handlemirrorScanstatus = this.handlemirrorScanstatus.bind(this)
+    this.handlemirrorScanstatusFialed = this.handlemirrorScanstatusFialed.bind(this)
+    this.handlemirrorScanstatusSatus = this.handlemirrorScanstatusSatus.bind(this)
     this.state = {
       loadingRunning:false
     }
@@ -117,7 +120,6 @@ class BaseScan extends Component {
 
   severScanLyins(){
     const { loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus } = this.props
-
     const registry = mirrorScanUrl
     const scanstatus = mirrorScanstatus[imageName][tag]
     const blob_sum = scanstatus.result.blobSum || ''
@@ -216,90 +218,57 @@ class BaseScan extends Component {
 
   }
 
+  handlemirrorScanstatusSatus(status){
+    switch(status){
+      case 'noresult':
+        return <span>镜像没有被扫描过，请点击扫描</span>
+      case 'different':
+        return <span>镜像扫描结果与上次扫描结果不同</span>
+      case 'failed':
+        return <span>扫描失败,请重新扫描</span>
+      default:
+        return <span></span>
+    }
+  }
+
+  handlemirrorScanstatus(){
+    const { imageName, tag, mirrorScanstatus, mirrorsafetyLyins } = this.props
+    let status = ''
+    if(mirrorScanstatus[imageName][tag].result.status){
+      status = mirrorScanstatus[imageName][tag].result.status
+    }
+    if(status == 'noresult' || status == 'failed' || status == 'different'){
+      if(!mirrorsafetyLyins[imageName]){
+        return (
+          <div className='BaseScanFailed' data-status="scanstatusnosult">
+            <div className='top'>{this.handlemirrorScanstatusSatus(status)}</div>
+            <Button onClick={this.severScanLyins}>点击扫描</Button>
+          </div>
+        )
+      }else{
+        return <div>{this.TableSwitch()}</div>
+      }
+    }
+    return <div>{this.TableSwitch()}</div>
+  }
+
+  handlemirrorScanstatusFialed(){
+    const { imageName, tag, mirrorScanstatus } = this.props
+    return <div>{mirrorScanstatus[imageName][tag].result.message}</div>
+  }
+
   render() {
     const { imageName, tag, mirrorScanstatus, mirrorsafetyLyins } = this.props
     let statusCode = 200
+    let status = ''
     if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result || Object.keys(mirrorScanstatus[imageName][tag]).length == 0){
       return <div style={{textAlign:'center',paddingTop:'50px'}}><Spin /></div>
     }
-    if(mirrorScanstatus[imageName].statusCode == 500){
+    if(mirrorScanstatus[imageName][tag].result.status){
+      status = mirrorScanstatus[imageName][tag].result.status
+    }
+    if(mirrorScanstatus[imageName][tag].result.statusCode == 500){
       statusCode == 500
-    }
-    if(mirrorScanstatus[imageName][tag].result.status == 'noresult'){
-      if(!mirrorsafetyLyins[imageName]){
-        return (
-          <div id="BaseScan">
-            <div className='basicscantitle alertRow'>
-              镜像的安全扫描，这里提供的是一个静态的扫描，能检测出镜像的诸多安全问题，例如：端口暴露异常、是否提供了SSH Daemon等等安全相关。（注：请注意每个镜像的不同版本，安全报告可能会不同）
-            </div>
-            <div className="basicscanmain">
-              <div className='basicscanmaintitle'>
-                <span className='basicscanmaintitleitem'>基础扫描结果</span>
-              </div>
-              <div className='basicscanmaintable'>
-                <div className='BaseScanFailed' data-status="scanstatus">
-                  <div className='top'>扫描失败,请重新扫描</div>
-                  <Button onClick={this.severScanLyins}>重新扫描</Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      }else{
-        return (
-          <div id="BaseScan">
-            <div className='basicscantitle alertRow'>
-              镜像的安全扫描，这里提供的是一个静态的扫描，能检测出镜像的诸多安全问题，例如：端口暴露异常、是否提供了SSH Daemon等等安全相关。（注：请注意每个镜像的不同版本，安全报告可能会不同）
-            </div>
-            <div className="basicscanmain">
-              <div className='basicscanmaintitle'>
-                <span className='basicscanmaintitleitem'>基础扫描结果</span>
-              </div>
-              <div className='basicscanmaintable'>
-                {this.TableSwitch()}
-              </div>
-            </div>
-          </div>
-        )
-      }
-    }
-    if(mirrorScanstatus[imageName][tag].result.status == 'failed'){
-      if(!mirrorsafetyLyins[imageName]){
-       return (
-         <div id="BaseScan">
-           <div className='basicscantitle alertRow'>
-             镜像的安全扫描，这里提供的是一个静态的扫描，能检测出镜像的诸多安全问题，例如：端口暴露异常、是否提供了SSH Daemon等等安全相关。（注：请注意每个镜像的不同版本，安全报告可能会不同）
-           </div>
-           <div className="basicscanmain">
-             <div className='basicscanmaintitle'>
-               <span className='basicscanmaintitleitem'>基础扫描结果</span>
-             </div>
-             <div className='basicscanmaintable'>
-               <div className='BaseScanFailed' data-status="scanstatus">
-                 <div className='top'>扫描失败,请重新扫描</div>
-                 <Button onClick={this.severScanLyins}>重新扫描</Button>
-               </div>
-             </div>
-           </div>
-         </div>
-       )
-      }else{
-       return (
-         <div id="BaseScan">
-           <div className='basicscantitle alertRow'>
-             镜像的安全扫描，这里提供的是一个静态的扫描，能检测出镜像的诸多安全问题，例如：端口暴露异常、是否提供了SSH Daemon等等安全相关。（注：请注意每个镜像的不同版本，安全报告可能会不同）
-           </div>
-           <div className="basicscanmain">
-             <div className='basicscanmaintitle'>
-               <span className='basicscanmaintitleitem'>基础扫描结果</span>
-             </div>
-             <div className='basicscanmaintable'>
-               {this.TableSwitch()}
-             </div>
-           </div>
-         </div>
-       )
-      }
     }
     return (
       <div id="BaseScan">
@@ -311,7 +280,7 @@ class BaseScan extends Component {
             <span className='basicscanmaintitleitem'>基础扫描结果</span>
           </div>
           <div className='basicscanmaintable'>
-            {this.TableSwitch()}
+            {statusCode == 200 ? this.handlemirrorScanstatus() : this.handlemirrorScanstatusFialed()}
           </div>
         </div>
       </div>

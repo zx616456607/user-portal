@@ -193,15 +193,19 @@ class TableTemplate extends Component{
           }
 
           // 修正版
-          for(let keyFix in clairFixedIn){
-            let RVersionStr = keyVulner + software[0].substring(0,1).toUpperCase()+software[0].replace(/-/g, '').substring(1,software[0].length)
-            if(RVersionStr == keyFix){
-              RVersion = clairFixedIn[keyFix]
-              EchartsFixedIn++
-              break
-            }
-            if(RVersion == '' ){
-              RVersion = '暂无修正版'
+          if(!clairFixedIn){
+            RVersion = '暂无修正版'
+          }else{
+            for(let keyFix in clairFixedIn){
+              let RVersionStr = keyVulner + software[0].substring(0,1).toUpperCase()+software[0].replace(/-/g, '').substring(1,software[0].length)
+              if(RVersionStr == keyFix){
+                RVersion = clairFixedIn[keyFix]
+                EchartsFixedIn++
+                break
+              }
+              if(RVersion == '' ){
+                RVersion = '暂无修正版'
+              }
             }
           }
 
@@ -263,17 +267,22 @@ class TableTemplate extends Component{
           }
 
           // 修正版
-          for(let keyFix in clairFixedIn){
-            let RVersionStr = keyVulner + software[0].substring(0,1).toUpperCase()+software[0].replace(/-/g, '').substring(1,software[0].length)
-            if(RVersionStr == keyFix){
-              RVersion = clairFixedIn[keyFix]
-              EchartsFixedIn++
-              break
-            }
-            if(RVersion == '' ){
-              RVersion = '暂无修正版'
+          if(!clairFixedIn){
+            RVersion = '暂无修正版'
+          }else{
+            for(let keyFix in clairFixedIn){
+              let RVersionStr = keyVulner + software[0].substring(0,1).toUpperCase()+software[0].replace(/-/g, '').substring(1,software[0].length)
+              if(RVersionStr == keyFix){
+                RVersion = clairFixedIn[keyFix]
+                EchartsFixedIn++
+                break
+              }
+              if(RVersion == '' ){
+                RVersion = '暂无修正版'
+              }
             }
           }
+
           // 位于镜像
           for(let i = 0; i < layerInfo.length; i++){
             if(softwareID == layerInfo[i].iD){
@@ -776,6 +785,7 @@ class MirrorSafetyBug extends Component {
     this.APIGetclairInfo = this.APIGetclairInfo.bind(this)
     this.APIFailedThenScan = this.APIFailedThenScan.bind(this)
     this.sendObjectToTop = this.sendObjectToTop.bind(this)
+    this.handlemirrorScanstatusSatus = this.handlemirrorScanstatusSatus.bind(this)
     this.state = {
       Unknown: 0,
       Negligible: 0,
@@ -877,52 +887,51 @@ class MirrorSafetyBug extends Component {
     }
   }
 
+  handlemirrorScanstatusSatus(status){
+    switch(status){
+      case 'noresult':
+        return <span>镜像没有被扫描过，请点击扫描</span>
+      case 'different':
+        return <span>镜像扫描结果与上次扫描结果不同</span>
+      case 'failed':
+        return <span>扫描失败,请重新扫描</span>
+      default:
+        return <span></span>
+    }
+  }
+
   render(){
     const { imageName, tag, mirrorScanstatus, mirrorsafetyClair} = this.props
     let statusCode = 200
+    let status = ''
     if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result || Object.keys(mirrorScanstatus[imageName][tag]).length == 0){
       return <div style={{textAlign:'center',paddingTop:'50px'}}><Spin /></div>
+    }
+    if(mirrorScanstatus[imageName][tag].result.status){
+      status = mirrorScanstatus[imageName][tag].result.status
     }
     if(mirrorScanstatus[imageName][tag].result.statusCode == 500){
       statusCode == 500
     }
-    if(mirrorScanstatus[imageName][tag].result.status == 'noresult'){
-      return (
-        <div className='BaseScanFailed' data-status="scanstatus">
-          <div className='top'>镜像没有被扫描过，请点击扫描</div>
-          <Button onClick={this.APIFailedThenScan}>开始扫描</Button>
-        </div>
-      )
-    }
-    if(mirrorScanstatus[imageName][tag].result.status == 'failed'){
+    if(status == 'noresult' || status == 'different' || status == 'failed'){
       if(!mirrorsafetyClair[imageName]){
         return (
           <div className='BaseScanFailed' data-status="scanstatus">
-            <div className='top'>扫描失败,请重新扫描</div>
+            <div className='top'>{this.handlemirrorScanstatusSatus(status)}</div>
             <Button onClick={this.APIFailedThenScan}>重新扫描</Button>
           </div>
         )
       }else{
         return (
           <div id="MirrorSafetyBug">
-            {
-              statusCode == 500 ?
-                this.NodataTemplateSafetyBug()
-                :
-                this.handleclairStatus()
-            }
+            {statusCode == 500 ? this.NodataTemplateSafetyBug() : this.handleclairStatus()}
           </div>
         )
       }
     }
     return (
       <div id="MirrorSafetyBug">
-        {
-          statusCode == 500 ?
-            this.NodataTemplateSafetyBug()
-            :
-            this.handleclairStatus()
-        }
+        {statusCode == 500 ? this.NodataTemplateSafetyBug() : this.handleclairStatus()}
       </div>
     )
   }
