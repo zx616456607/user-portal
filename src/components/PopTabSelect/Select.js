@@ -26,18 +26,25 @@ export default class PopTabSelect extends Component {
     value: PropTypes.string,
     placeholder: PropTypes.string,
     options: PropTypes.node,
+    onChange: PropTypes.func,
+    notFoundContent: PropTypes.string,
   }
 
   static defaultProps = {
-    //
+    notFoundContent: '无记录',
   }
 
   constructor(props) {
     super()
     this.state = {
       visible: false,
+      inputValue: '',
+      selectValue: '',
     }
     this.handleVisibleChange = this.handleVisibleChange.bind(this)
+    this.handleSearch = this.handleSearch.bind(this)
+    this.filterOption = this.filterOption.bind(this)
+    this.handleSelect = this.handleSelect.bind(this)
     this.renderOptions = this.renderOptions.bind(this)
     this.renderOptionsFromChildren = this.renderOptionsFromChildren.bind(this)
   }
@@ -46,12 +53,40 @@ export default class PopTabSelect extends Component {
     this.setState({ visible })
   }
 
-  handleSearch() {
-    //
+  handleSearch(e) {
+    this.setState({
+      inputValue: e.target.value,
+    })
+  }
+
+  filterOption(value) {
+    return value.indexOf(this.state.inputValue) > -1
+  }
+
+  getLableFromChild(child) {
+    const props = child.props
+    if (typeof props.children === 'string') {
+      return props.children
+    }
+    return props.label
+  }
+
+  handleSelect(obj, tabKey) {
+    const { onChange } = this.props
+    const { key, item } = obj
+    let label = this.getLableFromChild(item)
+    if (!label) {
+      label = key
+    }
+    onChange && onChange(obj, tabKey)
+    this.setState({
+      selectValue: label,
+      visible: false,
+    })
   }
 
   renderOptions() {
-    return this.renderOptionsFromChildren(this.props.children)
+    return this.renderOptionsFromChildren(this.props.children, true)
   }
 
   renderOptionsFromChildren(children, showNotFound) {
@@ -62,25 +97,23 @@ export default class PopTabSelect extends Component {
     React.Children.forEach(children, (child) => {
       if (child.type.isTab) {
         this.isTab = true
-        const innerMenus = this.renderOptionsFromChildren(child.props.children, false)
-        if (innerMenus.length) {
-          let title = child.props.title
-          let key = child.key
-          if (!key && typeof title === 'string') {
-            key = title
-          } else if (!title && key) {
-            title = key
-          }
-          _options.push(
-            <TabPane key={key} tab={title}>
-              <Menu>{innerMenus}</Menu>
-            </TabPane>
-          )
+        const innerMenus = this.renderOptionsFromChildren(child.props.children, true)
+        let title = child.props.title
+        let key = child.key
+        if (!key && typeof title === 'string') {
+          key = title
+        } else if (!title && key) {
+          title = key
         }
+        _options.push(
+          <TabPane key={key} tab={title}>
+            <Menu onClick={(obj) => this.handleSelect(obj, key)}>{innerMenus}</Menu>
+          </TabPane>
+        )
         return
       }
       if (child.type.isSelectOptionGroup) {
-        const innerItems = this.renderOptionsFromChildren(child.props.children, false)
+        const innerItems = this.renderOptionsFromChildren(child.props.children, true)
         if (innerItems.length) {
           let label = child.props.label
           let key = child.key
@@ -89,19 +122,35 @@ export default class PopTabSelect extends Component {
           } else if (!label && key) {
             label = key
           }
-          _options.push(<MenuGroup key={key} title={label}>
-            {innerItems}
-          </MenuGroup>)
+          _options.push(
+            <MenuGroup key={key} title={label}>
+              {innerItems}
+            </MenuGroup>
+          )
         }
         return
       }
-      const childValue = child.props.value
-      _options.push(
-        <MenuItem key={childValue} {...child.props}>
-          {childValue}
+      let childValue = child.props.value
+      let childLabel = child.props.label
+      if (typeof child.props.children === 'string') {
+        childLabel = child.props.children
+      }
+
+      if (this.filterOption(childValue)) {
+        _options.push(
+          <MenuItem key={childValue || childLabel} {...child.props}>
+            {childLabel || childValue}
+          </MenuItem>
+        )
+      }
+    })
+    if (!_options.length && showNotFound) {
+      return (
+        <MenuItem key="NOT_FOUND" value="NOT_FOUND" disabled={true}>
+          {this.props.notFoundContent}
         </MenuItem>
       )
-    })
+    }
     return _options
   }
 
@@ -113,6 +162,7 @@ export default class PopTabSelect extends Component {
     } = this.props
     const {
       visible,
+      selectValue,
     } = this.state
     const classArrow = classNames({
       'ant-cascader-picker-arrow': true,
@@ -125,7 +175,7 @@ export default class PopTabSelect extends Component {
       <div>
         <div className="search">
           <InputGroup className="ant-search-input">
-            <Input onPressEnter={this.handleSearch} />
+            <Input onPressEnter={this.handleSearch} onChange={this.handleSearch} />
             <div className="ant-input-group-wrap">
               <Button icon="search" className="ant-search-btn" />
             </div>
@@ -134,7 +184,7 @@ export default class PopTabSelect extends Component {
         {
           this.isTab
           ? <Tabs>{_options}</Tabs>
-          : <Menu>{_options}</Menu>
+          : <Menu onClick={this.handleSelect}>{_options}</Menu>
         }
       </div>
     )
@@ -152,10 +202,10 @@ export default class PopTabSelect extends Component {
           <span className="ant-cascader-picker">
             <span className="ant-input-wrapper">
               <input type="text" className="ant-input ant-cascader-input"
-                value={value} readonly placeholder={placeholder}
+                readonly placeholder={placeholder}
               />
             </span>
-            <span className="ant-cascader-picker-label"></span>
+            <span className="ant-cascader-picker-label">{value || selectValue}</span>
             <i className={classArrow}></i>
           </span>
         </Popover>
