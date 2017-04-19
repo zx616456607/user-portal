@@ -22,22 +22,9 @@ class MirrorLayered extends Component {
     this.testContent = this.testContent.bind(this)
     this.handleStepScroll = this.handleStepScroll.bind(this)
     this.handleStepsCurrentNumber = this.handleStepsCurrentNumber.bind(this)
+    this.APIGetLayerInfo = this.APIGetLayerInfo.bind(this)
     this.state = {
       currentNumber:0
-    }
-  }
-
-  componentWillReceiveProps(nextProps){
-    console.log('this.props=',this.props)
-    console.log('nextProps=',nextProps)
-    const imageName = nextProps.imageName
-    const tag = nextProps.tag
-    const mirrorLayeredinfo = nextProps.mirrorLayeredinfo[imageName]
-    if(imageName !== this.props.imageName || tag !== this.props.tag){
-      //if(mirrorLayeredinfo[imageName] && mirrorLayeredinfo[imageName] == this.props.mirrorLayeredinfo[imageName]){
-      //  return
-      //}
-      loadMirrorSafetyLayerinfo({ imageName, tag })
     }
   }
 
@@ -45,19 +32,23 @@ class MirrorLayered extends Component {
     //console.log(this)
   }
 
+  APIGetLayerInfo(){
+    const { loadMirrorSafetyLayerinfo, mirrorScanstatus, imageName, tag } = this.props
+    loadMirrorSafetyLayerinfo({ imageName, tag })
+  }
+
   testContent(){
-    const {mirrorLayeredinfo, imageName} = this.props
-    console.log('mirrorLayeredinfo=',mirrorLayeredinfo)
-    if(!mirrorLayeredinfo[imageName]){
+    const {mirrorLayeredinfo, imageName, tag } = this.props
+    if(!mirrorLayeredinfo[imageName] || !mirrorLayeredinfo[imageName][tag] || !mirrorLayeredinfo[imageName][tag].result){
       return <div></div>
     }
-    if(mirrorLayeredinfo[imageName] && Object.keys(mirrorLayeredinfo[imageName]).length == 0){
+    if(mirrorLayeredinfo[imageName][tag].result && Object.keys(mirrorLayeredinfo[imageName][tag].result).length == 0){
       return (<div>
         <span>暂无数据</span>
-        <Button>点击获取数据</Button>
+        <Button onClick={null}>点击获取数据</Button>
       </div>)
     }
-    const mirrorLayeredStep = mirrorLayeredinfo[imageName].map((item, index) =>{
+    const mirrorLayeredStep = mirrorLayeredinfo[imageName][tag].result.map((item, index) =>{
       return (
         <Step title={null} description={ <div className='safetytabitem'>
           <Tooltip title={item.iD}>
@@ -101,9 +92,11 @@ class MirrorLayered extends Component {
 
 function mapStateToProps(state,props){
   const { images } = state
-  let layerInfo = images.mirrorSafetyLayerinfo.mirrorLayerinfo || ''
+  let mirrorLayeredinfo = images.mirrorSafetyLayerinfo
+  let mirrorScanstatus = images.mirrorSafetyScanStatus
   return {
-    layerInfo
+    mirrorLayeredinfo,
+    mirrorScanstatus
   }
 }
 export default connect(mapStateToProps,{

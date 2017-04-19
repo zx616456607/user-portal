@@ -294,7 +294,7 @@ class PublicSpace extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
-    const { isFetching } = this.props;
+    const { isFetching, key } = this.props;
     const scope = this;
     const config = {
       "imageList": this.props.publicImageList,
@@ -322,7 +322,7 @@ class PublicSpace extends Component {
           onCancel={this.closeImageDetailModal}
           >
           {/* right detail box  */}
-          <ImageDetailBox scope={scope} server={this.props.registryServer} parentScope={rootscope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
+          <ImageDetailBox scope={scope} server={this.props.registryServer} parentScope={rootscope} imageInfo={this.state.imageInfo} config={this.state.currentImage} imageDetailModalShow={this.state.imageDetailModalShow} imageType={'publicImages'}/>
         </Modal>
       </QueueAnim>
     )

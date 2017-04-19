@@ -93,25 +93,35 @@ class BaseScan extends Component {
     this.severLyins = this.severLyins.bind(this)
     this.severScanLyins = this.severScanLyins.bind(this)
     this.state = {
-
+      loadingRunning:false
     }
   }
 
   severLyins() {
-    const { loadMirrorSafetyLyinsinfo, mirrorScanstatus, imageName } = this.props
+    const { loadMirrorSafetyLyinsinfo, mirrorScanstatus, imageName, tag } = this.props
+    this.setState({loadingRunning:true})
     if(!mirrorScanstatus){
       return
     }
-    const blob_sum = mirrorScanstatus[imageName].blobSum
-    const full_name = mirrorScanstatus[imageName].fullName
-    loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name})
+    const scanstatus = mirrorScanstatus[imageName][tag].result
+    const blob_sum = scanstatus.blobSum
+    const full_name = scanstatus.fullName
+    loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name},{
+      success:{
+        func: () => {
+          this.setState({loadingRunning:false})
+        }
+      }
+    })
   }
 
   severScanLyins(){
     const { loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus } = this.props
+
     const registry = mirrorScanUrl
-    const full_name = mirrorScanstatus[imageName].fullName
-    const blob_sum = mirrorScanstatus[imageName].blobSum
+    const scanstatus = mirrorScanstatus[imageName][tag]
+    const blob_sum = scanstatus.result.blobSum || ''
+    const full_name = scanstatus.result.fullName
     const config = {
       cluster_id,
       imageName,
@@ -135,7 +145,7 @@ class BaseScan extends Component {
   TableSwitch() {
     const { mirrorsafetyLyins,imageName } = this.props
     if (!mirrorsafetyLyins || !mirrorsafetyLyins[imageName] || !mirrorsafetyLyins[imageName].result) {
-      return
+      return <div></div>
     }
     const result = mirrorsafetyLyins[imageName].result
     const statusCode = result.statusCode
@@ -150,7 +160,7 @@ class BaseScan extends Component {
           return <div className='BaseScanRunning'>
             <div className="top">正在扫描尚未结束</div>
             <Spin/>
-            <div className='bottom'><Button onClick={this.severLyins}>点击重新获取</Button></div>
+            <div className='bottom'><Button onClick={this.severLyins} loading={this.state.loadingRunning}>点击重新获取</Button></div>
           </div>
         case 'finished':
           return <TableTemplate mirrorsafetyLyins={mirrorsafetyLyins} imageName={imageName}/>
@@ -207,11 +217,95 @@ class BaseScan extends Component {
   }
 
   render() {
+    const { imageName, tag, mirrorScanstatus, mirrorsafetyLyins } = this.props
+    let statusCode = 200
+    if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result || Object.keys(mirrorScanstatus[imageName][tag]).length == 0){
+      return <div style={{textAlign:'center',paddingTop:'50px'}}><Spin /></div>
+    }
+    if(mirrorScanstatus[imageName].statusCode == 500){
+      statusCode == 500
+    }
+    if(mirrorScanstatus[imageName][tag].result.status == 'noresult'){
+      if(!mirrorsafetyLyins[imageName]){
+        return (
+          <div id="BaseScan">
+            <div className='basicscantitle alertRow'>
+              镜像的安全扫描，这里提供的是一个静态的扫描，能检测出镜像的诸多安全问题，例如：端口暴露异常、是否提供了SSH Daemon等等安全相关。（注：请注意每个镜像的不同版本，安全报告可能会不同）
+            </div>
+            <div className="basicscanmain">
+              <div className='basicscanmaintitle'>
+                <span className='basicscanmaintitleitem'>基础扫描结果</span>
+              </div>
+              <div className='basicscanmaintable'>
+                <div className='BaseScanFailed' data-status="scanstatus">
+                  <div className='top'>扫描失败,请重新扫描</div>
+                  <Button onClick={this.severScanLyins}>重新扫描</Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }else{
+        return (
+          <div id="BaseScan">
+            <div className='basicscantitle alertRow'>
+              镜像的安全扫描，这里提供的是一个静态的扫描，能检测出镜像的诸多安全问题，例如：端口暴露异常、是否提供了SSH Daemon等等安全相关。（注：请注意每个镜像的不同版本，安全报告可能会不同）
+            </div>
+            <div className="basicscanmain">
+              <div className='basicscanmaintitle'>
+                <span className='basicscanmaintitleitem'>基础扫描结果</span>
+              </div>
+              <div className='basicscanmaintable'>
+                {this.TableSwitch()}
+              </div>
+            </div>
+          </div>
+        )
+      }
+    }
+    if(mirrorScanstatus[imageName][tag].result.status == 'failed'){
+      if(!mirrorsafetyLyins[imageName]){
+       return (
+         <div id="BaseScan">
+           <div className='basicscantitle alertRow'>
+             镜像的安全扫描，这里提供的是一个静态的扫描，能检测出镜像的诸多安全问题，例如：端口暴露异常、是否提供了SSH Daemon等等安全相关。（注：请注意每个镜像的不同版本，安全报告可能会不同）
+           </div>
+           <div className="basicscanmain">
+             <div className='basicscanmaintitle'>
+               <span className='basicscanmaintitleitem'>基础扫描结果</span>
+             </div>
+             <div className='basicscanmaintable'>
+               <div className='BaseScanFailed' data-status="scanstatus">
+                 <div className='top'>扫描失败,请重新扫描</div>
+                 <Button onClick={this.severScanLyins}>重新扫描</Button>
+               </div>
+             </div>
+           </div>
+         </div>
+       )
+      }else{
+       return (
+         <div id="BaseScan">
+           <div className='basicscantitle alertRow'>
+             镜像的安全扫描，这里提供的是一个静态的扫描，能检测出镜像的诸多安全问题，例如：端口暴露异常、是否提供了SSH Daemon等等安全相关。（注：请注意每个镜像的不同版本，安全报告可能会不同）
+           </div>
+           <div className="basicscanmain">
+             <div className='basicscanmaintitle'>
+               <span className='basicscanmaintitleitem'>基础扫描结果</span>
+             </div>
+             <div className='basicscanmaintable'>
+               {this.TableSwitch()}
+             </div>
+           </div>
+         </div>
+       )
+      }
+    }
     return (
       <div id="BaseScan">
         <div className='basicscantitle alertRow'>
           镜像的安全扫描，这里提供的是一个静态的扫描，能检测出镜像的诸多安全问题，例如：端口暴露异常、是否提供了SSH Daemon等等安全相关。（注：请注意每个镜像的不同版本，安全报告可能会不同）
-				</div>
+        </div>
         <div className="basicscanmain">
           <div className='basicscanmaintitle'>
             <span className='basicscanmaintitleitem'>基础扫描结果</span>
@@ -234,11 +328,13 @@ function mapStateToProps(state, props) {
   let cluster_id = entities.current.cluster.clusterID || ''
   let mirrorsafetyLyins = images.mirrorSafetyLyinsinfo
   let mirrorScanstatus = images.mirrorSafetyScanStatus
+  let mirrorSafetyScan = images.mirrorSafetyScan
   return {
     cluster_id,
     mirrorScanUrl,
     mirrorsafetyLyins,
-    mirrorScanstatus
+    mirrorScanstatus,
+    mirrorSafetyScan
   }
 }
 
