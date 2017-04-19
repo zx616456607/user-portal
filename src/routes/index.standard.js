@@ -50,6 +50,9 @@ const rootRoutes = {
     },{
       path: '/notfound',
       component: require('../containers/ErrorPage').default,
+    },{
+      path:'/alerts/invitations/join',
+      component: require('../containers/Template').default
     }
   ]},
   {

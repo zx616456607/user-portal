@@ -32,13 +32,10 @@ function getSettingList(state = {}, action) {
 }
 
 
-
-
-
-
 export default function alert(state = {
   recordFilters: {},
   records: {},
+  invitations:{}
 }, action) {
   return {
     recordFilters: reducerFactory({
@@ -98,6 +95,11 @@ export default function alert(state = {
       REQUEST: ActionTypes.ALERT_SEARCH_SETTING_REQUEST,
       SUCCESS: ActionTypes.ALERT_SEARCH_SETTING_SUCCESS,
       FAILURE: ActionTypes.ALERT_SEARCH_SETTING_FAILURE
-    }, state.deleteRule, action)
+    }, state.deleteRule, action),
+    invitations: reducerFactory({
+      REQUEST: ActionTypes.SEND_INVITATIONS_REQUEST,
+      SUCCESS: ActionTypes.SEND_INVITATIONS_SUCCESS,
+      FAILURE: ActionTypes.SEND_INVITATIONS_FAILURE
+    }, state.invitations, action, option)
   }
 }

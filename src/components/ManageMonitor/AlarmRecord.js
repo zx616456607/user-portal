@@ -245,7 +245,7 @@ class AlarmRecord extends Component {
       <QueueAnim className="AlarmRecord" type="right">
         <div id="AlarmRecord" key="AlarmRecord">
           <div className="topRow">
-        <Select style={{ width: 120 }} size="large" defaultValue={this.state.strategyFilter} placeholder="选择告警策略" onChange={(value) => this.setState({strategyFilter: value})}>
+        <Select style={{ width: 150 }} getPopupContainer={()=> document.getElementById('AlarmRecord')} size="large" defaultValue={this.state.strategyFilter} placeholder="选择告警策略" onChange={(value) => this.setState({strategyFilter: value})}>
               {filters.strategies}
             </Select>
         <Select style={{ width: 120 }} size="large" placeholder="选择类型" defaultValue={this.state.targetTypeFilter} onChange={(value) => this.setState({targetTypeFilter: value})}>
@@ -253,7 +253,7 @@ class AlarmRecord extends Component {
               <Option value="0">服务</Option>
               <Option value="1">节点</Option>
             </Select>
-        <Select style={{ width: 120 }} size="large" placeholder="选择告警对象" defaultValue={this.state.targetFilter} onChange={(value) => this.setState({targetFilter: value})}>
+        <Select style={{ width: 120 }} getPopupContainer={()=> document.getElementById('AlarmRecord')} size="large" placeholder="选择告警对象" defaultValue={this.state.targetFilter} onChange={(value) => this.setState({targetFilter: value})}>
               {filters.targets}
             </Select>
             <DatePicker placeholder="选择起始日期" size="large" onChange={(value) => this.onBeginTimeFilterChange(value)}/>
