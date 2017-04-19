@@ -226,7 +226,7 @@ export const UPDATE_CONFIGS_FAILURE = 'UPDATE_CONFIGS_FAILURE'
 
 // Update cluster configs from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUpdateCluster(cluster, body, callback) {
+function fetchUpdateClusterConfig(cluster, body, callback) {
   return {
     [FETCH_API]: {
       types: [UPDATE_CONFIGS_REQUEST, UPDATE_CONFIGS_SUCCESS, UPDATE_CONFIGS_FAILURE],
@@ -243,9 +243,9 @@ function fetchUpdateCluster(cluster, body, callback) {
 
 // Fetches update cluster configs from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function updateCluster(cluster, body, callback) {
+export function updateClusterConfig(cluster, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchUpdateCluster(cluster, body, callback))
+    return dispatch(fetchUpdateClusterConfig(cluster, body, callback))
   }
 }
 
