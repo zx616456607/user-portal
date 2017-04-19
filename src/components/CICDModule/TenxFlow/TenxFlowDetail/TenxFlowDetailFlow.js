@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Icon, Card, Alert, Modal, Button, } from 'antd'
+import { Spin, Icon, Card, Alert, Modal, Button, Form } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -64,6 +64,7 @@ class TenxFlowDetailFlow extends Component {
   toggleCustomizeBaseImageModal(visible) {
     this.setState({
       customizeBaseImageModalVisible: visible,
+      shouldNotUpdateCreateTenxFlowModal: visible
     })
   }
 
@@ -123,6 +124,7 @@ class TenxFlowDetailFlow extends Component {
     const { startBuild, getTenxFlowStateList, flowId, CreateTenxflowBuild, scope, refreshFlag, getTenxflowBuildLogs } = nextProps;
     let oldFlowId = this.props.flowId;
     let notification = new NotificationHandler()
+    return
     if (startBuild) {
       scope.setState({
         startBuild: false
@@ -421,6 +423,7 @@ class TenxFlowDetailFlow extends Component {
                       flowId={flowId} stageInfo={stageInfo} codeList={projectList}
                       supportedDependencies={supportedDependencies} imageList={imageList}
                       otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
+                      form={this.props.form}
                        />
                   </QueueAnim>
                 ] : null
@@ -435,8 +438,9 @@ class TenxFlowDetailFlow extends Component {
           title="自定义基础镜像"
           className='TenxFlowDetailFlowContinueIntegrationModal'
           visible={this.state.customizeBaseImageModalVisible}
+          footer={null}
         >
-          <ContinueIntegration />
+          <ContinueIntegration key='ContinueIntegration' ref="ContinueIntegration"/>
         </Modal>
       </div>
     )
@@ -469,7 +473,7 @@ TenxFlowDetailFlow.propTypes = {
   intl: PropTypes.object.isRequired,
 }
 
-export default connect(mapStateToProps, {
+export default Form.create()(connect(mapStateToProps, {
   getTenxFlowStateList,
   getProjectList,
   searchProject,
@@ -481,5 +485,4 @@ export default connect(mapStateToProps, {
   getTenxflowBuildLogs
 })(injectIntl(TenxFlowDetailFlow, {
   withRef: true,
-}));
-
+})))

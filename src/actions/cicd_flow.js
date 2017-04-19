@@ -1257,20 +1257,26 @@ export const GET_AVAILABLE_IMAGE_REQUEST = 'GET_AVAILABLE_IMAGE_REQUEST'
 export const GET_AVAILABLE_IMAGE_SUCCESS = 'GET_AVAILABLE_IMAGE_SUCCESS'
 export const GET_AVAILABLE_IMAGE_FAILURE = 'GET_AVAILABLE_IMAGE_FAILURE'
 
-function fetchAvailableImage(callback) {
+function fetchAvailableImage(needFetching, callback) {
+  if(typeof needFetching != 'boolean' ) {
+    callback = needFetching
+    needFetching = true
+  }
+
   return {
     [FETCH_API]: {
       types: [GET_AVAILABLE_IMAGE_REQUEST, GET_AVAILABLE_IMAGE_SUCCESS, GET_AVAILABLE_IMAGE_FAILURE],
       endpoint: `${API_URL_PREFIX}/devops/ci/images`,
       schema: {}
     },
-    callback
+    callback,
+    needFetching
   }
 }
 
-export function getAvailableImage(callback) {
+export function getAvailableImage(needFetching, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchAvailableImage(callback))
+    return dispatch(fetchAvailableImage(needFetching, callback))
   }
 }
 

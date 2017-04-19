@@ -51,10 +51,13 @@ class ContinueIntegration extends Component {
     form.setFieldsValue({number: []})
     this.loadData()
   }
-  loadData() {
+  loadData(needFetching) {
    const { getAvailableImage, form } = this.props
    const self = this
-    getAvailableImage({
+   if(needFetching == undefined) {
+     needFetching = true
+   }
+    getAvailableImage(needFetching, {
       success: {
         func: (res) => {
           const data = self.data(res.data.results)
@@ -120,7 +123,7 @@ class ContinueIntegration extends Component {
         func: () => {
           noti.close()
           noti.success(successMessage)
-          self.loadData()
+          self.loadData(false)
           self.setState({
             baseImageModal: false
           })
@@ -172,7 +175,7 @@ class ContinueIntegration extends Component {
           func: () => {
             noti.close()
             noti.success(successMessage)
-            self.loadData()
+            self.loadData(false)
             if(id) {
               form.setFieldsValue({
                 [`name${key}`]: name,
@@ -241,6 +244,9 @@ class ContinueIntegration extends Component {
     form.setFieldsValue({
       number
     })
+  }
+  regxImageUrl() {
+    
   }
 
   TempoalteTable(data, disable) {
@@ -395,9 +401,9 @@ function mapStateToProps(state, props) {
     images
   }
 }
-export default connect(mapStateToProps, {
+export default Form.create()(connect(mapStateToProps, {
   getAvailableImage,
   addBaseImage,
   updateBaseImage,
   deleteBaseImage
-})(Form.create()(ContinueIntegration))
+})(ContinueIntegration))

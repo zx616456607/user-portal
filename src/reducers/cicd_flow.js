@@ -815,7 +815,7 @@ function availableImage(state = {}, action) {
   }
   switch (action.type) {
     case ActionTypes.GET_AVAILABLE_IMAGE_REQUEST: {
-      return merge({}, defaultState, { isFetching: true })
+      return merge({}, defaultState, { isFetching: action.needFetching })
     }
     case ActionTypes.GET_AVAILABLE_IMAGE_SUCCESS: {
       const result = action.response.result.data.results || []

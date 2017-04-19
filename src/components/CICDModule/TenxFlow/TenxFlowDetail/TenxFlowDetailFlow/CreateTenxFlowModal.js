@@ -232,6 +232,11 @@ let CreateTenxFlowModal = React.createClass({
     // const {getAvailableImage} = this.props
     // getAvailableImage()
   },
+  shouldComponentUpdate(nextProps, nextState) {
+   const { scope } = nextProps
+   if(scope.state.shouldNotUpdateCreateTenxFlowModal) return false
+   return true
+  },
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
     const { stageList } = this.props;
@@ -922,7 +927,7 @@ let CreateTenxFlowModal = React.createClass({
       rules: [
         { message: '请输入项目名称' },
         { validator: this.flowNameExists },
-      ],
+      ]
     });
     const dockerFileUrlProps = getFieldProps('dockerFileUrl', {
       rules: [
@@ -1246,7 +1251,7 @@ function mapStateToProps(state, props) {
   }
 }
 
-CreateTenxFlowModal = createForm()(CreateTenxFlowModal);
+//CreateTenxFlowModal =(CreateTenxFlowModal);
 
 CreateTenxFlowModal.propTypes = {
   intl: PropTypes.object.isRequired,
@@ -1257,5 +1262,4 @@ export default connect(mapStateToProps, {
   createDockerfile
 })(injectIntl(CreateTenxFlowModal, {
   withRef: true,
-}));
-
+}))
