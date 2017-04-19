@@ -54,7 +54,7 @@ let MyComponent = React.createClass({
       return (
         <div className="text-center">
           <img src={noDbImgs} />
-          <div>还没有MySQL集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={()=> this.props.scope.createDatabaseShow()} disabled={!canCreate}>创建集群</Button></Tooltip></div>
+          <div>还没有 MySQL 集群，创建一个！ <Tooltip title={title} placement="right"><Button type="primary" size="large" onClick={()=> this.props.scope.createDatabaseShow()} disabled={!canCreate}>创建集群</Button></Tooltip></div>
         </div>
       )
     }
@@ -199,7 +199,7 @@ class MysqlCluster extends Component {
       <QueueAnim id='mysqlDatabase' type='right'>
         <div className='databaseCol' key='mysqlDatabase'>
           <div className='databaseHead'>
-            { mode === standard ? <div className='alertRow'>您的 MySql 集群 创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充正，继续使用。如无充正，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div>}
+            { mode === standard ? <div className='alertRow'>您的 MySql 集群 创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充值，继续使用。如无充值，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div>}
             <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
               <i className='fa fa-plus' />&nbsp;MySQL集群
           </Button>

@@ -55,7 +55,7 @@ let MyComponent = React.createClass({
       return (
         <div className="text-center">
           <img src={noDbImgs}/>
-          <div>还没有ZooKeeper集群，创建一个！ <Tooltip title={title} placement="right">
+          <div>还没有 ZooKeeper 集群，创建一个！ <Tooltip title={title} placement="right">
             <Button type="primary" size="large"
                     onClick={() => this.props.scope.createDatabaseShow()}
                     disabled={!canCreate}>创建集群</Button>
@@ -210,7 +210,7 @@ class ZooKeeper extends Component {
         <div className='databaseCol' key='ZooKeeper'>
           <div className='databaseHead'>
             { mode === standard ?
-              <div className='alertRow'>您的 ZooKeeper 集群创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充正，继续使用。如无充正，1 周后资源会被彻底销毁，不可恢复。</div> :
+              <div className='alertRow'>您的 ZooKeeper 集群创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充值，继续使用。如无充值，1 周后资源会被彻底销毁，不可恢复。</div> :
               <div></div>}
             <Tooltip title={title} placement="right"><Button type='primary' size='large'
                                                              onClick={this.createDatabaseShow} disabled={!canCreate}>
