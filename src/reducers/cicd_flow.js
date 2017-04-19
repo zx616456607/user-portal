@@ -14,6 +14,7 @@ import merge from 'lodash/merge'
 import reducerFactory from './factory'
 import cloneDeep from 'lodash/cloneDeep'
 import findIndex from 'lodash/findIndex'
+import groupBy from 'lodash/groupBy'
 
 function codeRepo(state = {}, action) {
   const defaultState = {
@@ -77,7 +78,7 @@ function codeRepo(state = {}, action) {
     const indexs = findIndex(addState[repoType].repoList, (item) => {
       return item.name == action.names
     })
-    
+
     if(indexs < 0) return addState
     addState[repoType].repoList[indexs].managedProject = {
       active: 1,
@@ -811,7 +812,8 @@ function getStageBuildLogList(state = {}, action) {
 function availableImage(state = {}, action) {
   const defaultState = {
     isFetching: false,
-    imageList: []
+    imageList: [],
+    baseImages: [],
   }
   switch (action.type) {
     case ActionTypes.GET_AVAILABLE_IMAGE_REQUEST: {
@@ -823,8 +825,15 @@ function availableImage(state = {}, action) {
       const temp = {}
       for (let a in result) {
         let key = result[a].categoryName
+        let id = result[a].categoryId
+        let isSystem = result[a].isSystem
         if (!temp[key]) {
-          temp[key] = { imageList: [], title: key }
+          temp[key] = {
+            imageList: [],
+            title: key,
+            id,
+            isSystem,
+          }
           temp[key].imageList.push(result[a])
         } else {
           temp[key].imageList.push(result[a])
@@ -833,9 +842,16 @@ function availableImage(state = {}, action) {
       const resultArray = Object.getOwnPropertyNames(temp).map(item => {
         return temp[item]
       })
+      let baseImages = groupBy(result, n => n.isSystem)
+      for (let key in baseImages) {
+        if (baseImages.hasOwnProperty(key)) {
+          baseImages[key] = groupBy(baseImages[key], n => n.categoryId)
+        }
+      }
       return Object.assign({}, state, {
         isFetching: false,
-        imageList: resultArray
+        imageList: resultArray,
+        baseImages,
       })
     }
     case ActionTypes.GET_AVAILABLE_IMAGE_FAILURE: {
