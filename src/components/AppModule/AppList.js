@@ -135,6 +135,9 @@ let MyComponent = React.createClass({
       case 'restartApp':
         this.restartApp(item.name);
         break;
+      case 'stack':
+        return browserHistory.push(`/app_manage/detail/${item.name}#stack`)
+      default: return false
     }
   },
   selectAppByline: function (item, e) {
@@ -253,9 +256,9 @@ let MyComponent = React.createClass({
     // confirmDeleteApps([app])
     batchDeleteApps([app])
   },
-  goStack(appName, e) {
+  goTologoly(appName, e) {
     e.stopPropagation()
-    browserHistory.push(`/app_manage/detail/${appName}#stack`)
+    browserHistory.push(`/app_manage/detail/${appName}#topology`)
   },
   render: function () {
     const { config, loading, bindingDomains, bindingIPs, parentScope } = this.props
@@ -283,6 +286,9 @@ let MyComponent = React.createClass({
           </Menu.Item>
           <Menu.Item key='deleteApp'>
             <span>删除</span>
+          </Menu.Item>
+          <Menu.Item key='stack'>
+            <span>查看编排</span>
           </Menu.Item>
           <Menu.Item key='restartApp'
             disabled={item.status.phase === 'Stopped'}
@@ -331,8 +337,8 @@ let MyComponent = React.createClass({
           <div className='actionBox commonData'>
             <Dropdown.Button
               overlay={dropdown} type='ghost'
-              onClick={this.goStack.bind(this, item.name)}>
-              查看编排
+              onClick={this.goTologoly.bind(this, item.name)}>
+              查看拓扑图
             </Dropdown.Button>
           </div>
           <div style={{ clear: 'both', width: '0' }}></div>

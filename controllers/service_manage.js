@@ -426,18 +426,18 @@ exports.getAllService = function*() {
 	let pageSize = parseInt(this.query.pageSize)
 	const query = this.query || {}
 	if(isNaN(pageIndex)) {
-    pageIndex = DEFAULT_PAGE	
+    pageIndex = DEFAULT_PAGE
 	}
 	if(isNaN(pageSize)) {
-    pageSize = DEFAULT_PAGE_SIZE	
+    pageSize = DEFAULT_PAGE_SIZE
 	}
-  let name = query.name	
+  let name = query.name
   const queryObj = {
     from: (pageIndex - 1)* pageSize,
 		size: pageSize
 	}
 	if (name) {
-    queryObj.filter = `name ${name}` 	
+    queryObj.filter = `name ${name}`
 	}
   const api = apiFactory.getK8sApi(this.session.loginUser)
 	const response = yield api.getBy([cluster, 'services'], queryObj, null)
@@ -518,4 +518,22 @@ exports.toggleHTTPs = function* () {
   const response = yield api.updateBy([cluster, 'services', service, 'tls'], queryObj)
   this.status = 200
   this.body = {}
+}
+
+exports.serviceTopology = function* () {
+  const cluster = this.params.cluster
+  const appName = this.params.appName
+  const spi = apiFactory.getSpi(this.session.loginUser)
+  const response = yield spi.clusters.getBy([cluster,'apps',appName,'services'])
+  this.status = response.code
+  this.body = response.data
+}
+
+exports.podTopology = function* () {
+  const cluster = this.params.cluster
+  const appName = this.params.appName
+  const spi = apiFactory.getSpi(this.session.loginUser)
+  const response = yield spi.clusters.getBy([cluster,'apps',appName,'pods'])
+  this.status = response.code
+  this.body = response.data
 }
