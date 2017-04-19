@@ -922,7 +922,7 @@ let CreateTenxFlowModal = React.createClass({
       rules: [
         { message: '请输入项目名称' },
         { validator: this.flowNameExists },
-      ]
+      ],
     });
     const dockerFileUrlProps = getFieldProps('dockerFileUrl', {
       rules: [
@@ -1246,16 +1246,16 @@ function mapStateToProps(state, props) {
   }
 }
 
-//CreateTenxFlowModal =(CreateTenxFlowModal);
+CreateTenxFlowModal = createForm()(CreateTenxFlowModal);
 
 CreateTenxFlowModal.propTypes = {
   intl: PropTypes.object.isRequired,
 }
 
-export default  createForm()(connect(mapStateToProps, {
+export default connect(mapStateToProps, {
   createTenxFlowState,
   createDockerfile
 })(injectIntl(CreateTenxFlowModal, {
   withRef: true,
-})));
+}));
 

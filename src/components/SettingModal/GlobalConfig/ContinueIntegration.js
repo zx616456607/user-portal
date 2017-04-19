@@ -16,6 +16,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { Row, Col, Icon, Form, Button, Input, Spin, Checkbox, Table, Select, Modal } from 'antd'
 import { getAvailableImage, addBaseImage, updateBaseImage, deleteBaseImage } from '../../../actions/cicd_flow'
 import { BASE_IMAGE_TYPE } from '../../../constants'
+import { ROLE_SYS_ADMIN } from '../../../../constants'
 import NotificationHandler from '../../../common/notification_handler'
 import './style/ContinueIntegration.less'
 
@@ -62,13 +63,20 @@ class ContinueIntegration extends Component {
         func: (res) => {
           const data = self.data(res.data.results)
           const { form } = self.props
-          form.setFieldsValue({
-            number: data.arr.map((item, index) => index)
-          })
           self.setState({
             dataArr: data.arr,
             disableArr: data.disableArr
           })
+          if(data.arr.length == 0) {
+            form.resetFields()
+             form.setFieldsValue({
+              number: []
+            })
+          } else {
+            form.setFieldsValue({
+              number: data.arr.map((item, index) => index)
+            })
+          }
         }
       }
     })
@@ -232,35 +240,43 @@ class ContinueIntegration extends Component {
     })
   }
 
-  handleAddUserDefinedimage(){
+  handleAddUserDefinedimage() {
     let disableArr = cloneDeep(this.state.disableArr)
-    disableArr.push({disable : false})
+    disableArr.push({ disable: false })
     this.setState({
       disableArr
     })
     const { form } = this.props
     const number = form.getFieldValue('number')
-    number.push(number[number.length - 1] + 1)
-    form.setFieldsValue({
-      number
-    })
-  }
-  regxImageUrl() {
-    
+    if (number.length == 0) {
+      form.setFieldsValue({
+        number: [0]
+      })
+    } else {
+      number.push(number[number.length - 1] + 1)
+      form.setFieldsValue({
+        number
+      })
+    }
   }
 
   TempoalteTable(data, disable) {
-    if (!data || data.length == 0) {
-      return <div className='nodata'><Spin /></div>
+    const { form, user } = this.props
+    const number = form.getFieldValue('number')
+    if(!number || number.length == 0) {
+      return [<div className='nodata'>暂无镜像</div>]
     }
-    const { form } = this.props
+    let tableItem = []
     const { getFieldProps } = form
-    const tableItem = []
-    form.getFieldValue('number').forEach((index, key) => {
+    number.forEach((index, key) => {
       let value = data[index]
-      if(!value) value = {
+      if (!value) value = {
         isEmpty: true
       }
+      if(user.info.role != ROLE_SYS_ADMIN) {
+        if(value.isSystem == 1) return
+      }
+      if(!disable[key]) return
       if (value.categoryId == 101) return
       tableItem.push(<ul key={index} className='tablecolum'>
         <li className='tablecell imageClass'>
@@ -354,7 +370,7 @@ class ContinueIntegration extends Component {
   render() {
     const { dataArr } = this.state
     const { images } = this.props
-    if(!images || images.isFetching) {
+    if(images.isFetching) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
     return (
@@ -391,6 +407,7 @@ class ContinueIntegration extends Component {
 
 function mapStateToProps(state, props) {
   let images = state.cicd_flow.availableImage
+  const user = state.entities.loginUser
   const defaultImages = {
     isFetching: false
   }
@@ -398,12 +415,13 @@ function mapStateToProps(state, props) {
     images = defaultImages
   }
   return {
-    images
+    images,
+    user
   }
 }
 export default Form.create()(connect(mapStateToProps, {
   getAvailableImage,
   addBaseImage,
   updateBaseImage,
-  deleteBaseImage
+  deleteBaseImage,
 })(ContinueIntegration))
