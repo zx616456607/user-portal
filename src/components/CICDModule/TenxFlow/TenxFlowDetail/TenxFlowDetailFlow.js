@@ -435,6 +435,7 @@ class TenxFlowDetailFlow extends Component {
           title="自定义基础镜像"
           className='TenxFlowDetailFlowContinueIntegrationModal'
           visible={this.state.customizeBaseImageModalVisible}
+          footer={null}
         >
           <ContinueIntegration />
         </Modal>

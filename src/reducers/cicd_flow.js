@@ -817,7 +817,7 @@ function availableImage(state = {}, action) {
   }
   switch (action.type) {
     case ActionTypes.GET_AVAILABLE_IMAGE_REQUEST: {
-      return merge({}, defaultState, { isFetching: true })
+      return merge({}, defaultState, { isFetching: action.needFetching })
     }
     case ActionTypes.GET_AVAILABLE_IMAGE_SUCCESS: {
       const result = action.response.result.data.results || []
@@ -944,6 +944,21 @@ export default function cicd_flow(state = {}, action) {
       SUCCESS: ActionTypes.STOP_BUILD_TENX_FLOW_SUCCESS,
       FAILURE: ActionTypes.STOP_BUILD_TENX_FLOW_FAILURE
     }, state.StopTenxflowBuild, action),
+    addBaseImage: reducerFactory({
+      REQUEST: ActionTypes.ADD_BASE_IMAGE_REQUEST,
+      SUCCESS: ActionTypes.ADD_BASE_IMAGE_SUCCESS,
+      FAILURE: ActionTypes.ADD_BASE_IMAGE_FAILURE
+    }, state.addBaseImage, action),
+    updateBaseImage: reducerFactory({
+      REQUEST: ActionTypes.UPDATE_BASE_IMAGE_REQUEST,
+      SUCCESS: ActionTypes.UPDATE_BASE_IMAGE_SUCCESS,
+      FAILURE: ActionTypes.UPDATE_BASE_IMAGE_FAILURE
+    }, state.updateBaseImage, action),
+    deleteBaseImage: reducerFactory({
+      REQUEST: ActionTypes.DELETE_BASE_IMAGE_REQUEST,
+      SUCCESS: ActionTypes.DELETE_BASE_IMAGE_SUCCESS,
+      FAILURE: ActionTypes.DELETE_BASE_IMAGE_FAILURE
+    }, state.deleteBaseImage, action),
   }
 }
 

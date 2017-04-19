@@ -311,6 +311,11 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/dbservices/:name', databaseCacheController.getDBService)
   router.patch('/clusters/:cluster/dbservices/:name', databaseCacheController.scaleDBService)
 
+  // BaseImage
+  router.post('/devops/ci/images', devopsController.addBaseImage)
+  router.put('/devops/ci/images/:id', devopsController.updateBaseImage)
+  router.delete('/devops/ci/images/:id', devopsController.deleteBaseImage)
+
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)
   router.post('/integrations/createIntegration', integrationController.createIntegrations)
