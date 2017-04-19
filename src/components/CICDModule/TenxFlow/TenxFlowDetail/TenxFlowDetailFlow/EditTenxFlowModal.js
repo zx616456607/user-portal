@@ -975,6 +975,7 @@ let EditTenxFlowModal = React.createClass({
     const servicesList = config.spec.container.dependencies ? config.spec.container.dependencies : [];
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
+    const currenImageUrl = config.spec.container.image
     if (imageList === undefined || imageList.length === 0) {
       return (<div></div>)
     }
@@ -1016,7 +1017,7 @@ let EditTenxFlowModal = React.createClass({
           return '预置镜像'
       }
     }
-    let defaultBaseImage
+    let currenImageName
     function renderPopGroups(groups) {
       const groupsNodes = []
       for (let key in groups) {
@@ -1024,17 +1025,20 @@ let EditTenxFlowModal = React.createClass({
           const images = groups[key] || []
           const { categoryName, categoryId, imageName } = images[0] || {}
           if (typeof categoryId !== undefined && categoryId != 101) {
-            if (categoryId == 3) {
-              defaultBaseImage = imageName
-            }
             groupsNodes.push(
               <PopGroup label={categoryName} value={categoryId} key={categoryId}>
                 {
-                  images.map(image => (
-                    <PopOption value={image.imageUrl}>
-                      {image.imageName}
-                    </PopOption>
-                  ))
+                  images.map(image => {
+                    const { imageName, imageUrl } = image
+                    if (currenImageUrl == imageUrl) {
+                      currenImageName = imageName
+                    }
+                    return (
+                      <PopOption value={image.imageUrl}>
+                        {image.imageName}
+                      </PopOption>
+                    )
+                  })
                 }
               </PopGroup>
             )
@@ -1276,7 +1280,7 @@ let EditTenxFlowModal = React.createClass({
                 {/*<Select {...imageNameProps}>
                   {baseImage}
                 </Select>*/}
-                <PopTabSelect value={buildImages[intFlowTypeIndex].imageList[0].imageName || defaultBaseImage || this.state.baseImageUrl} onChange={this.baseImageChange}>
+                <PopTabSelect value={currenImageName || this.state.baseImageUrl} onChange={this.baseImageChange}>
                   {baseImagesNodes}
                 </PopTabSelect>
               </FormItem>
