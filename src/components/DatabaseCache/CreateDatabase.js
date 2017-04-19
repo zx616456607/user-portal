@@ -313,7 +313,7 @@ let CreateDatabase = React.createClass({
                   Redis
                 </Button>
                 <Button size='large' type={this.state.currentType == 'zookeeper' ? 'primary' : 'ghost'} onClick={this.selectDatabaseType.bind(this, 'zookeeper')}>
-                  Zookeeper
+                  ZooKeeper
                 </Button>
               </div>
               <div style={{ clear: 'both' }}></div>

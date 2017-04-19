@@ -27,7 +27,7 @@ const menuList = [
 
   {
     url: '/database_cache/zookeeper_cluster',
-    name: '配置中心'
+    name: 'ZooKeeper'
   },
  
 ]

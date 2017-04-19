@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  ZookeeperDatabase module
+ *  ZooKeeperDatabase module
  *
  * v2.0 - 2016-10-18
  * @author GaoJian
@@ -55,7 +55,7 @@ let MyComponent = React.createClass({
       return (
         <div className="text-center">
           <img src={noDbImgs}/>
-          <div>还没有 Zookeeper 集群，创建一个！ <Tooltip title={title} placement="right">
+          <div>还没有ZooKeeper集群，创建一个！ <Tooltip title={title} placement="right">
             <Button type="primary" size="large"
                     onClick={() => this.props.scope.createDatabaseShow()}
                     disabled={!canCreate}>创建集群</Button>
@@ -115,7 +115,7 @@ let MyComponent = React.createClass({
   }
 });
 
-class Zookeeper extends Component {
+class ZooKeeper extends Component {
   constructor() {
     super()
     this.createDatabaseShow = this.createDatabaseShow.bind(this);
@@ -128,7 +128,7 @@ class Zookeeper extends Component {
   }
 
   componentWillMount() {
-    document.title = 'Zookeeper集群 | 时速云';
+    document.title = 'ZooKeeper集群 | 时速云';
     const {loadDbCacheList, cluster} = this.props
     if (cluster == undefined) {
       let notification = new NotificationHandler()
@@ -207,14 +207,14 @@ class Zookeeper extends Component {
     }
     return (
       <QueueAnim id='mysqlDatabase' type='right'>
-        <div className='databaseCol' key='Zookeeper'>
+        <div className='databaseCol' key='ZooKeeper'>
           <div className='databaseHead'>
             { mode === standard ?
-              <div className='alertRow'>您的Zookeeper集群创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充正，继续使用。如无充正，1 周后资源会被彻底销毁，不可恢复。</div> :
+              <div className='alertRow'>您的 ZooKeeper 集群创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充正，继续使用。如无充正，1 周后资源会被彻底销毁，不可恢复。</div> :
               <div></div>}
             <Tooltip title={title} placement="right"><Button type='primary' size='large'
                                                              onClick={this.createDatabaseShow} disabled={!canCreate}>
-              <i className='fa fa-plus'/>&nbsp;Zookeeper集群
+              <i className='fa fa-plus'/>&nbsp;ZooKeeper集群
             </Button></Tooltip>
             <span className='rightSearch'>
               <Input size='large' placeholder='搜索' style={{width: '180px', paddingRight: '28px'}} ref="zookeeperRef"
@@ -249,7 +249,7 @@ class Zookeeper extends Component {
 
 function mapStateToProps(state, props) {
   const {cluster} = state.entities.current
-  const defaultZookeeperList = {
+  const defaultZooKeeperList = {
     isFetching: false,
     cluster: cluster.clusterID,
     database: 'zookeeper',
@@ -257,7 +257,7 @@ function mapStateToProps(state, props) {
   }
 
   const {databaseAllList} = state.databaseCache
-  const {database, databaseList, isFetching} = databaseAllList.zookeeper || defaultZookeeperList
+  const {database, databaseList, isFetching} = databaseAllList.zookeeper || defaultZooKeeperList
   const {current} = state.entities
   return {
     cluster: cluster.clusterID,
@@ -268,14 +268,14 @@ function mapStateToProps(state, props) {
   }
 }
 
-Zookeeper.propTypes = {
+ZooKeeper.propTypes = {
   intl: PropTypes.object.isRequired,
   isFetching: PropTypes.bool.isRequired,
   loadDbCacheList: PropTypes.func.isRequired,
   loadMyStack: PropTypes.func.isRequired
 }
 
-Zookeeper = injectIntl(Zookeeper, {
+ZooKeeper = injectIntl(ZooKeeper, {
   withRef: true,
 })
 
@@ -283,4 +283,4 @@ export default connect(mapStateToProps, {
   loadDbCacheList,
   loadMyStack,
   searchDbservice
-})(Zookeeper)
+})(ZooKeeper)
