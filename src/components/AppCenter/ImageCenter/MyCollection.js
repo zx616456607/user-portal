@@ -390,7 +390,7 @@ class MyCollection extends Component {
           transitionName="move-right"
           onCancel={this.closeImageDetailModal}
           >
-          <ImageDetailBox parentScope={rootscope} server={this.props.server} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
+          <ImageDetailBox parentScope={rootscope} server={this.props.server} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} imageType={'fockImages'}/>
         </Modal>
         <Modal title='注销' className='liteBindCenterModal' visible={this.state.deleteBindUserModal} onOk={this.deleteBindUser} onCancel={this.closeDeleteBindUser}>
           <span style={{ color: '#00a0ea' }}><Icon type='exclamation-circle-o' />&nbsp;&nbsp;&nbsp;确定要注销时速云官方Hub？</span>

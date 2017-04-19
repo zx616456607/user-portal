@@ -717,6 +717,7 @@ function fetchMirrorSafetyLayerinfo(body, callback) {
       schema: Schemas.REGISTRYS,
     },
     imageName:body.imageName,
+    tag:body.tag,
     callback
   }
 }
