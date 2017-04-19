@@ -373,7 +373,7 @@ class TenxFlowDetailFlow extends Component {
     socket.emit('stageBuildStage', watchCondition)
   }
   render() {
-    const { flowId, stageInfo, stageList, isFetching, projectList, buildFetching, logs, supportedDependencies, cicdApi, imageList } = this.props;
+    const { flowId, stageInfo, stageList, isFetching, projectList, buildFetching, logs, supportedDependencies, cicdApi, imageList, baseImages } = this.props;
     const { forCacheShow } = this.state;
     let scope = this;
     let { currentFlowEdit } = scope.state;
@@ -389,7 +389,7 @@ class TenxFlowDetailFlow extends Component {
         return (
           <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item}
             scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} totalLength={stageList.length}
-            codeList={projectList} supportedDependencies={supportedDependencies} imageList={imageList}
+            codeList={projectList} supportedDependencies={supportedDependencies} imageList={imageList} baseImages={baseImages}
             otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
             />
         )
@@ -421,7 +421,7 @@ class TenxFlowDetailFlow extends Component {
                       flowId={flowId} stageInfo={stageInfo} codeList={projectList}
                       supportedDependencies={supportedDependencies} imageList={imageList}
                       otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
-                       />
+                      baseImages={baseImages} />
                   </QueueAnim>
                 ] : null
               }
@@ -461,7 +461,8 @@ function mapStateToProps(state, props) {
     stageList,
     projectList,
     cicdApi,
-    imageList: availableImage.imageList || []
+    imageList: availableImage.imageList || [],
+    baseImages: availableImage.baseImages || [],
   }
 }
 

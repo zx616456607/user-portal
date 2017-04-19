@@ -22,12 +22,15 @@ import EnvComponent from './EnvComponent.js'
 import CreateImageEnvComponent from './CreateImageEnvComponent.js'
 import CodeStoreListModal from './CodeStoreListModal.js'
 import NotificationHandler from '../../../../../common/notification_handler'
+import PopTabSelect from '../../../../PopTabSelect'
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
 const FormItem = Form.Item;
 const Option = Select.Option;
-
+const PopTab = PopTabSelect.Tab;
+const PopGroup = PopTabSelect.OptionGroup;
+const PopOption = PopTabSelect.Option;
 const defaultOptions = {
   readOnly: false
 }
@@ -270,8 +273,8 @@ let CreateTenxFlowModal = React.createClass({
       callback();
     }
   },
-  flowTypeChange(e) {
-    const ins = e.split('@')[1]
+  flowTypeChange(ins) {
+    // const ins = e.split('@')[1]
     this.props.form.resetFields(['otherFlowType', 'imageNameProps']);
     if (ins != 3) {
       this.props.form.resetFields(['imageRealName', 'dockerFileUrl', 'otherStoreUrl', 'otherTag', 'imageType', 'imageTag', 'buildCache']);
@@ -800,12 +803,23 @@ let CreateTenxFlowModal = React.createClass({
     }
     return callback()
   },
+  baseImageChange(key, tabKey, groupKey) {
+    const { setFieldsValue } = this.props.form
+    this.setState({
+      baseImageUrl: key
+    })
+    setFieldsValue({
+      imageName: key
+    })
+    this.flowTypeChange(groupKey)
+  },
   render() {
     const { formatMessage } = this.props.intl;
     const {
       form, codeList, stageList,
       supportedDependencies, imageList,
-      toggleCustomizeBaseImageModal
+      toggleCustomizeBaseImageModal,
+      baseImages,
     } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
@@ -832,12 +846,62 @@ let CreateTenxFlowModal = React.createClass({
         <Option key={list.title} value={list.title + `@` + (index + 1)}>{list.title}</Option>
       )
     })
-    this.state.baseImage = buildImages[intFlowTypeIndex].imageList
+    /*this.state.baseImage = buildImages[intFlowTypeIndex].imageList
     const baseImage = this.state.baseImage.map(list => {
       return (
         <Option key={list.imageName}>{list.imageName}</Option>
       )
-    })
+    })*/
+    let baseImagesNodes = []
+    function getBaseImageType(key) {
+      switch (key) {
+        case '0':
+          return '自定义镜像'
+        default:
+          return '预置镜像'
+      }
+    }
+    let defaultBaseImage
+    function renderPopGroups(groups) {
+      const groupsNodes = []
+      for (let key in groups) {
+        if (groups.hasOwnProperty(key)) {
+          const images = groups[key] || []
+          const { categoryName, categoryId, imageName } = images[0] || {}
+          if (typeof categoryId !== undefined && categoryId != 101) {
+            if (categoryId == 3) {
+              defaultBaseImage = imageName
+            }
+            groupsNodes.push(
+              <PopGroup label={categoryName} value={categoryId} key={categoryId}>
+                {
+                  images.map(image => (
+                    <PopOption value={image.imageUrl}>
+                      {image.imageName}
+                    </PopOption>
+                  ))
+                }
+              </PopGroup>
+            )
+          }
+        }
+      }
+      return groupsNodes
+    }
+    for(let key in baseImages) {
+      if (baseImages.hasOwnProperty(key)) {
+        const imageGroups = baseImages[key]
+        baseImagesNodes.push(
+          <PopTab key={key} title={getBaseImageType(key)}>
+            {
+              renderPopGroups(imageGroups)
+            }
+          </PopTab>
+        )
+      }
+    }
+    baseImagesNodes = baseImagesNodes.reverse()
+
     getFieldProps('services', {
       initialValue: [0],
     });
@@ -1025,9 +1089,12 @@ let CreateTenxFlowModal = React.createClass({
             </div>
             <div className='imageName input'>
               <FormItem style={{ width: '220px', float: 'left' }}>
-                <Select {...imageNameProps}>
+                {/*<Select {...imageNameProps}>
                   {baseImage}
-                </Select>
+                </Select>*/}
+                <PopTabSelect value={buildImages[intFlowTypeIndex].imageList[0].imageName || defaultBaseImage || this.state.baseImageUrl} onChange={this.baseImageChange}>
+                  {baseImagesNodes}
+                </PopTabSelect>
               </FormItem>
               <span className={this.state.emptyImageEnv ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'} onClick={this.openImageEnvModal}><FormattedMessage {...menusText.defineEnv} /></span>
               {this.state.emptyImageEnv ? [<span className='emptyImageEnvError'><FormattedMessage {...menusText.emptyImageEnv} /></span>] : null}
