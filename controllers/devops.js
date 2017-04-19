@@ -827,3 +827,32 @@ exports.getAvailableImages = function*() {
     data: result
   }
 }
+
+
+exports.addBaseImage = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.createBy(["ci", "images"], null, this.request.body)
+  this.body = {
+    data: result
+  }
+}
+
+exports.updateBaseImage = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const body = this.request.body
+  const result = yield api.updateBy(["ci", "images", this.params.id], null, body)
+  this.body = {
+    data: result
+  }
+}
+
+exports.deleteBaseImage = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.deleteBy(["ci", "images", this.params.id])
+  this.body = {
+    data: result
+  }
+}

@@ -98,3 +98,4 @@ export const SYSTEM_DEFAULT_SCHEDULE = 'tenx_system_default_schedule'
 export const LITE = 'lite'
 export const MAX_CHARGE = 200000
 export const NOT_AVAILABLE = 'N/A'
+export const BASE_IMAGE_TYPE = ["单元测试", "代码编译", "构建镜像", "集成测试"]

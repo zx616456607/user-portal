@@ -1312,3 +1312,76 @@ export function setStageLink(flowId, stageId, targetId, body, callback) {
     return dispatch(fetchPutStageLink(flowId, stageId, targetId, body, callback))
   }
 }
+
+
+export const ADD_BASE_IMAGE_REQUEST = 'ADD_BASE_IMAGE_REQUEST'
+export const ADD_BASE_IMAGE_SUCCESS = 'ADD_BASE_IMAGE_SUCCESS'
+export const ADD_BASE_IMAGE_FAILURE = 'ADD_BASE_IMAGE_FAILURE'
+function fetchAddBaseImage(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ADD_BASE_IMAGE_REQUEST, ADD_BASE_IMAGE_SUCCESS, ADD_BASE_IMAGE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci/images`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body: body
+      }
+    },
+    callback
+  }
+}
+
+export function addBaseImage(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchAddBaseImage(body, callback))
+  }
+}
+
+export const UPDATE_BASE_IMAGE_REQUEST = 'UPDATE_BASE_IMAGE_REQUEST'
+export const UPDATE_BASE_IMAGE_SUCCESS = 'UPDATE_BASE_IMAGE_SUCCESS'
+export const UPDATE_BASE_IMAGE_FAILURE = 'UPDATE_BASE_IMAGE_FAILURE'
+function fetchUpdateBaseImage(id, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_BASE_IMAGE_REQUEST, UPDATE_BASE_IMAGE_SUCCESS, UPDATE_BASE_IMAGE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci/images/${id}`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body: body
+      }
+    },
+    callback
+  }
+}
+
+export function updateBaseImage(id, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateBaseImage(id, body, callback))
+  }
+}
+
+export const DELETE_BASE_IMAGE_REQUEST = 'DELETE_BASE_IMAGE_REQUEST'
+export const DELETE_BASE_IMAGE_SUCCESS = 'DELETE_BASE_IMAGE_SUCCESS'
+export const DELETE_BASE_IMAGE_FAILURE = 'DELETE_BASE_IMAGE_FAILURE'
+function fetchDeleteBaseImage(id,callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_BASE_IMAGE_REQUEST, DELETE_BASE_IMAGE_SUCCESS, DELETE_BASE_IMAGE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci/images/${id}`,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      }
+    },
+    callback
+  }
+}
+
+export function deleteBaseImage(id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteBaseImage(id,callback))
+  }
+}
+

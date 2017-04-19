@@ -798,29 +798,29 @@ class Ordinary extends Component {
     let statusOption = {
       tooltip: {
         trigger: 'item',
-        formatter: function (obj) {
-          if(obj.data.cpu)  {
-            if (obj.name == '已使用') {
-              return　`已使用${usedCPU}核`
-            } else {
-              return `可使用${((capacityCPU * 100 - usedCPU * 100)/100).toFixed(2)}核`
-            }
-          }
-          if(obj.data.memory){
-            if (obj.name == '已使用') {
-              return  `已使用${usedMemory}GB`
-            } else { 
-              return  `可使用${((capacityMemory * 100 - usedMemory * 100) / 100).toFixed(2)}GB`
-            }
-          }
-          if(obj.data.volume) {
-            if (obj.name == '已使用') {
-              return `已使用${volumeUsed}GB`
-            } else {
-              return `可使用${((volumeCapacity * 100 - volumeUsed * 100 ) / 100).toFixed(2)}GB`
-            }
-          }
-        }
+        formatter: '{b} : ({d}%)' //function (obj) {
+          // if(obj.data.cpu)  {
+          //   if (obj.name == '已使用') {
+          //     return　`已使用${usedCPU}核`
+          //   } else {
+          //     return `可使用${((capacityCPU * 100 - usedCPU * 100)/100).toFixed(2)}核`
+          //   }
+          // }
+          // if(obj.data.memory){
+          //   if (obj.name == '已使用') {
+          //     return  `已使用${usedMemory}GB`
+          //   } else { 
+          //     return  `可使用${((capacityMemory * 100 - usedMemory * 100) / 100).toFixed(2)}GB`
+          //   }
+          // }
+          // if(obj.data.volume) {
+          //   if (obj.name == '已使用') {
+          //     return `已使用${volumeUsed}GB`
+          //   } else {
+          //     return `可使用${((volumeCapacity * 100 - volumeUsed * 100 ) / 100).toFixed(2)}GB`
+          //   }
+          // }
+       // }
       },
       // legend: {
       //   left: '50%',
@@ -857,12 +857,15 @@ class Ordinary extends Component {
               fontWeight: 'normal'
             },
             formatter: function (param) {
-              if (param.name == '已使用') {
-                return 　`${usedCPU}核`
-              } else {
-                return `${((capacityCPU * 100 - usedCPU * 100)/100).toFixed(2)}核`
-              }
+              return param.percent.toFixed(0) + '%'
             },
+            // formatter: function (param) {
+            //   if (param.name == '已使用') {
+            //     return 　`${usedCPU}核`
+            //   } else {
+            //     return `${((capacityCPU * 100 - usedCPU * 100)/100).toFixed(2)}核`
+            //   }
+            // },
           }
         },
         itemStyle: {
@@ -906,12 +909,15 @@ class Ordinary extends Component {
             show: true,
             position: 'center',
             formatter: function (param) {
-              if (param.name == '已使用') {
-                return `${usedMemory}GB`
-              } else {
-                return `${((capacityMemory * 100 - usedMemory * 100) / 100).toFixed(2)}GB`
-              }
+              return param.percent.toFixed(0) + '%'
             },
+            // formatter: function (param) {
+            //   if (param.name == '已使用') {
+            //     return `${usedMemory}GB`
+            //   } else {
+            //     return `${((capacityMemory * 100 - usedMemory * 100) / 100).toFixed(2)}GB`
+            //   }
+            // },
             textStyle: {
               fontSize: '13',
               color: '#666',
@@ -960,12 +966,15 @@ class Ordinary extends Component {
             show: true,
             position: 'center',
             formatter: function (param) {
-              if (param.name == '已使用') {
-                return `${volumeUsed}GB`
-              } else {
-                return `${((volumeCapacity * 100 - volumeUsed * 100 ) / 100).toFixed(2)}GB`
-              }
+              return param.percent.toFixed(0) + '%'
             },
+            // formatter: function (param) {
+            //   if (param.name == '已使用') {
+            //     return `${volumeUsed}GB`
+            //   } else {
+            //     return `${((volumeCapacity * 100 - volumeUsed * 100 ) / 100).toFixed(2)}GB`
+            //   }
+            // },
             textStyle: {
               fontSize: '13',
               color: '#666',
@@ -1074,9 +1083,9 @@ class Ordinary extends Component {
                 <table cellPadding={0} cellSpacing={0} style={{ width: '100%', textAlign: 'center', fontSize: '14px', marginBottom: '5px' }} >
                   <tbody>
                     <tr>
-                      <td>({cpuUsedPrecent}/100)</td>
-                      <td>({memoryUsedPrecent}/100)</td>
-                      <td>({volumeUsedPrecent}/100)</td>
+                      <Tooltip title={`${usedCPU}核/${capacityCPU}核`}><td>({cpuUsedPrecent}%)</td></Tooltip>
+                      <Tooltip title={`${usedMemory}GB/${capacityMemory}GB`}><td>({memoryUsedPrecent}%)</td></Tooltip>
+                      <Tooltip title={`${volumeUsed}GB/${volumeCapacity}GB`}><td>({volumeUsedPrecent}%)</td></Tooltip>
                     </tr>
                     <tr>
                       <td>CPU</td>

@@ -11,7 +11,12 @@
  * @author ZhangChengZheng
  */
 import React, { Component } from 'react'
-import { Row, Col, Icon, Form, Button, Input, Spin, Checkbox, Table, Select } from 'antd'
+import { connect } from 'react-redux'
+import cloneDeep from 'lodash/cloneDeep'
+import { Row, Col, Icon, Form, Button, Input, Spin, Checkbox, Table, Select, Modal } from 'antd'
+import { getAvailableImage, addBaseImage, updateBaseImage, deleteBaseImage } from '../../../actions/cicd_flow'
+import { BASE_IMAGE_TYPE } from '../../../constants'
+import NotificationHandler from '../../../common/notification_handler'
 import './style/ContinueIntegration.less'
 
 const FormItem = Form.Item
@@ -31,50 +36,108 @@ class ContinueIntegration extends Component {
     this.state = {
       disableArr:[],
       disable:false,
-      dataArr:[]
+      dataArr:[],
     }
   }
-  componentDidMount(){
-    this.setState({
-      dataArr:this.data().arr,
-      disableArr:this.data().disableArr
+  componentWillMount() {
+    const { form } = this.props
+    const self = this
+    self.setState({
+      images: {
+        isFetching: false,
+        imageList: []
+      }
+    })
+    form.setFieldsValue({number: []})
+    this.loadData()
+  }
+  loadData() {
+   const { getAvailableImage, form } = this.props
+   const self = this
+    getAvailableImage({
+      success: {
+        func: (res) => {
+          const data = self.data(res.data.results)
+          const { form } = self.props
+          form.setFieldsValue({
+            number: data.arr.map((item, index) => index)
+          })
+          self.setState({
+            dataArr: data.arr,
+            disableArr: data.disableArr
+          })
+        }
+      }
     })
   }
 
-  TemplateSelect(arry){
-    let tempelteselect = arry.map((item,index)=>{
-      return <Option value={item} key={index}>{item}</Option>
+  TemplateSelect(){
+    // let tempelteselect = arry.map((item,index)=>{
+    //   return <Option value={item.categoryId} key={index}>{item.categoryName}</Option>
+    // })
+    // return tempelteselect
+    return BASE_IMAGE_TYPE.map((item, index) => {
+      return <Option value={index + 1} key={index}>{item}</Option>
     })
-    return tempelteselect
   }
 
-  data(){
+  data(data){
     let arr = []
     let disableArr = []
-    for(let i=0; i<5;i++){
+    data.forEach((item, index) => {
       let itemdisable = {disable : true}
-      let item = {
-        imageClass:[('类型1'+i),('类型2'+i),('类型3'+i)],
-        UserDefinedName:'ant-design-mobile'+i,
-        UserDefinedAddress:'www.tenxcloud.com'+i,
-        handle:'qweqwe',
-      }
       disableArr.push(itemdisable)
       arr.push(item)
-    }
+    })
     return {arr, disableArr}
   }
-
-  handledeletecolums(key){
-    let index = key.substring(0,1)
-    let dataArr = this.state.dataArr
-    let disableArr = this.state.disableArr
-    dataArr.splice(index,1)
-    disableArr.splice(index,1)
+  showDeleteModal(key, index, name) {
     this.setState({
-      dataArr,
-      disableArr
+      baseImageModal: true,
+      key,
+      index,
+      currentName: name
     })
+  }
+  handledeletecolums(key, index){
+    if(!key) {
+      key = this.state.key
+    }
+    if(!index) {
+      index = this.state.index
+    }
+    const { form, deleteBaseImage } = this.props
+    const { getFieldValue } = form
+    const id = getFieldValue(`id${index}`)
+    if(!id) return
+    const noti = new NotificationHandler()
+    const self = this
+    noti.spin('删除基础镜像中')
+    let successMessage = '删除基础镜像成功'
+    let failMessage = '删除基础镜像失败'
+    const callback = {
+      success: {
+        func: () => {
+          noti.close()
+          noti.success(successMessage)
+          self.loadData()
+          self.setState({
+            baseImageModal: false
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          noti.close()
+          self.setState({
+            baseImageModal: false
+          })
+          noti.error(failMessage)
+        }
+      }
+    }
+    deleteBaseImage(id, callback)
   }
 
   handleEditcolums(key){
@@ -86,70 +149,138 @@ class ContinueIntegration extends Component {
     })
   }
 
-  handleCheckcolums(key){
+  handleCheckcolums(key, index){
+    const { form, addBaseImage, updateBaseImage } = this.props
+    const { getFieldValue } = form
+    form.validateFields((err, value) => {
+      if(err) return
+      const name = getFieldValue(`name${index}`)
+      const url = getFieldValue(`url${index}`)
+      const categoryId = getFieldValue(`categoryId${index}`)
+      const id = getFieldValue(`id${index}`)
+      const body = {
+        "image_name": name,
+        "image_url": url,
+        "category_id": categoryId,
+      }
+      const noti = new NotificationHandler()
+      const self = this
+      let successMessage = ''
+      let failMessage = ''
+      const callback = {
+        success: {
+          func: () => {
+            noti.close()
+            noti.success(successMessage)
+            self.loadData()
+            if(id) {
+              form.setFieldsValue({
+                [`name${key}`]: name,
+                [`url${key}`]: url,
+                [`categoryId${key}`]: categoryId,
+              })
+            }
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            noti.close()
+            noti.error(failMessage)
+          }
+        }
+      }
+      if(id) {
+        noti.spin('更新基础镜像中')
+        successMessage = '更新基础镜像成功'
+        failMessage = '更新基础镜像失败'
+        updateBaseImage(id, body, callback)
+      } else {
+        successMessage = '添加基础镜像成功'
+        failMessage = '添加基础镜像失败'
+        noti.spin('添加基础镜像中')
+        addBaseImage(body, callback)
+      }
+
+    })
+  }
+
+  handleCanclecolums(key, value, formIndex){
     let index = key.substring(0,1)
-    let disableArr = this.state.disableArr
+    const { form } = this.props
+    const number = form.getFieldValue('number')
+    if(value.isEmpty) {
+      if(number.indexOf(formIndex) > 0) {
+        number.splice(number.indexOf(formIndex), 1)
+        form.setFieldsValue({
+          number
+        })
+      }
+      return
+    }
+    let disableArr = cloneDeep(this.state.disableArr)
     disableArr[index].disable = true
     this.setState({
       disableArr
     })
-  }
 
-  handleCanclecolums(key){
-    let index = key.substring(0,1)
-    let disableArr = this.state.disableArr
-    disableArr[index].disable = true
-    this.setState({
-      disableArr
+    number.forEach(key => {
+      form.resetFields([`name${key}`, `url${key}`, `categoryId${key}`])
     })
   }
 
   handleAddUserDefinedimage(){
-    let dataArr = this.state.dataArr
-    let disableArr = this.state.disableArr
-    let item = {
-      imageClass:['类型1','类型2','类型3'],
-      UserDefinedName:'',
-      UserDefinedAddress:'',
-      handle:''
-    }
-    let disable = {
-      disable:false
-    }
-    dataArr.push(item)
-    disableArr.push(disable)
+    let disableArr = cloneDeep(this.state.disableArr)
+    disableArr.push({disable : false})
     this.setState({
-      dataArr,
       disableArr
+    })
+    const { form } = this.props
+    const number = form.getFieldValue('number')
+    number.push(number[number.length - 1] + 1)
+    form.setFieldsValue({
+      number
     })
   }
 
-  TempoalteTable(data,disable){
-    if(!data){
+  TempoalteTable(data, disable) {
+    if (!data || data.length == 0) {
       return <div className='nodata'><Spin /></div>
     }
-    let tablecolum = data.map((value,index) => {
-      return <ul key={index} className='tablecolum'>
+    const { form } = this.props
+    const { getFieldProps } = form
+    const tableItem = []
+    form.getFieldValue('number').forEach((index, key) => {
+      let value = data[index]
+      if(!value) value = {
+        isEmpty: true
+      }
+      if (value.categoryId == 101) return
+      tableItem.push(<ul key={index} className='tablecolum'>
         <li className='tablecell imageClass'>
           {this.state.disable ?
             [<span>
-            <Select
-              defaultValue='类型1'
-              style={{width: '100%'}}
-              size="large"
-              disabled={disable[index].disable}
-            >
-              {this.TemplateSelect(data[index].imageClass)}
-            </Select>
-          </span>] :
-            [<FormItem className='formitem' key={index+".1"}>
               <Select
-                defaultValue='类型1'
-                style={{width: '100%'}}
+                defaultValue={value.categoryId}
+                style={{ width: '100%' }}
                 size="large"
-                disabled={disable[index].disable}
+                disabled={disable[key].disable}
               >
-                {this.TemplateSelect(data[index].imageClass)}
+                {this.TemplateSelect()}
+              </Select>
+            </span>] :
+            [<FormItem className='formitem' key={index + ".1"}>
+              <Select {...getFieldProps(`categoryId${index}`, {
+                rules: [{
+                  required: true, message: "请选择镜像类别"
+                }],
+                initialValue: value.categoryId
+              }) }
+                style={{ width: '100%' }}
+                size="large"
+                disabled={disable[key].disable}
+              >
+                {this.TemplateSelect()}
               </Select>
             </FormItem>]
           }
@@ -157,11 +288,18 @@ class ContinueIntegration extends Component {
         <li className='tablecell UserDefinedName'>
           {this.state.disable ?
             <span>
-            <Input placeholder={data[index].UserDefinedName} size='large' disabled={disable[index].disable} />
-          </span>
+              <Input placeholder={value.imageName} size='large' disabled={disable[key].disable} />
+            </span>
             :
-            [<FormItem className='formitem' key={index+".2"}>
-              <Input placeholder={data[index].UserDefinedName} size='large' disabled={disable[index].disable} />
+            [<FormItem className='formitem' key={index + ".2"}>
+              <Input  {...getFieldProps(`name${index}`, {
+                rules: [{
+                  whitespace: true
+                }, {
+                  required: true, message: "请填写镜像名称"
+                }],
+                initialValue: value.imageName
+              }) } placeholder={value.imageName} size='large' disabled={disable[key].disable} />
             </FormItem>]
           }
         </li>
@@ -169,74 +307,50 @@ class ContinueIntegration extends Component {
           {
             this.state.disable ?
               [<span>
-             <Input placeholder={data[index].UserDefinedAddress} size='large' disabled={disable[index].disable}/>
-          </span>] :
-              [<FormItem className='formitem' key={index+".3"}>
-                <Input placeholder={data[index].UserDefinedAddress} size='large' disabled={disable[index].disable}/>
+                <Input placeholder={value.imageUrl} size='large' disabled={disable[key].disable} />
+              </span>] :
+              [<FormItem className='formitem' key={index + ".3"}>
+                <Input  {...getFieldProps(`url${index}`, {
+                  rules: [{
+                    whitespace: true
+                  }, {
+                    required: true, message: "请填写镜像地址"
+                  }],
+                  initialValue: value.imageUrl
+                }) } placeholder={value.imageUrl} size='large' disabled={disable[key].disable} />
               </FormItem>]
           }
         </li>
-        <li className='tablecell handle' key={index+".4"}>
-          {disable[index].disable?
+        <li className='tablecell handle' key={index + ".4"}>
+          {disable[key].disable ?
             <div>
-              <Button icon="edit" className='buttonleft edit' type="dashed" onClick={() => this.handleEditcolums((index+".4.1"))}></Button>
-              <Button icon="delete" type="ghost" onClick={() => this.handledeletecolums((index+".4.2"))}></Button>
+              <Button icon="edit" className='buttonleft edit' type="dashed" onClick={() => this.handleEditcolums((key + ".4.1"))}></Button>
+              <Button icon="delete" type="ghost" onClick={() => this.showDeleteModal(key + ".4.2", index, value.imageName)}></Button>
             </div> :
             <div>
-            <Button icon="check" className='buttonleft check' type="primary" onClick={() => this.handleCheckcolums((index+".4.1"))}></Button>
-            <Button icon="cross" type="ghost" onClick={() => this.handleCanclecolums((index+".4.2"))}></Button>
+              <Button icon="check" className='buttonleft check' type="primary" onClick={() => this.handleCheckcolums(index + ".4.1", index)}></Button>
+              <Button icon="cross" type="ghost" onClick={() => this.handleCanclecolums(key + ".4.2", value, index)}></Button>
             </div>
           }
         </li>
-      </ul>
+        <li className='tablecell handle' key={index + ".5"}>
+        <FormItem>
+          <Input type="hidden" {...getFieldProps(`id${index}`, {
+            initialValue: value.id
+          }) } />
+        </FormItem>
+        </li>
+      </ul>)
     })
-    return tablecolum
+    return tableItem
   }
 
   render() {
-    const colums = [{
-      title:'镜像分类',
-      dataIndex:'imageClass',
-      key:'imageClass',
-      width:'20%',
-      render: (text) => (<div className='imageClass'>
-          <Select
-            defaultValue="类型1"
-            style={{width:'100%'}}
-            size="large"
-          >
-            {this.TemplateSelect(text)}
-          </Select>
-        </div>)
-    },{
-      title:'自定义名称',
-      dataIndex:'UserDefinedName',
-      key:'UserDefinedName',
-      width:'21%',
-      render: (text) => (<div className='imageClass'>
-          <Input placeholder={text} size="large"/>
-      </div>)
-    },{
-      title:'自定义镜像地址',
-      dataIndex:'UserDefinedAddress',
-      key:'UserDefinedAddress',
-      width:'45%',
-      render: (text) => <div className='UserDefinedAddress'>
-        <Input placeholder={text} size="large"/>
-      </div>
-    },{
-      title:'操作',
-      dataIndex:'handle',
-      ke:'handle',
-      width:'9%',
-      render: () => <div className='handle'>
-        {/*<Button className='buttonleft check' type="primary"><i className="fa fa-check checki" aria-hidden="true"></i></Button>*/}
-        {/*<Button icon="cross"></Button>*/}
-        <Button icon="edit" className='buttonleft edit' type="dashed"></Button>
-        <Button icon="delete" type="ghost"></Button>
-      </div>
-    }]
-
+    const { dataArr } = this.state
+    const { images } = this.props
+    if(!images || images.isFetching) {
+      return <div className="loadingBox"><Spin size="large"></Spin></div>
+    }
     return (
       <div id="ContinueIntegration">
         <div className='table'>
@@ -248,18 +362,42 @@ class ContinueIntegration extends Component {
           </div>
           <div className='tablebody'>
             <Form>
-              {this.TempoalteTable(this.state.dataArr,this.state.disableArr)}
+              {this.TempoalteTable(this.state.dataArr, this.state.disableArr)}
             </Form>
           </div>
         </div>
         <div className='clearfloat'></div>
         <div className='tablefooter'>
-          <div onClick={this.handleAddUserDefinedimage} className='handlefooter'><Icon type="plus-circle-o" className='footeradd'/><span className='footerspan'>添加一个自定义镜像</span></div>
+          <div onClick={() => this.handleAddUserDefinedimage()} className='handlefooter'><Icon type="plus-circle-o" className='footeradd'/><span className='footerspan'>添加一个自定义镜像</span></div>
         </div>
-
+        <Modal title="删除基础镜像" visible={this.state.baseImageModal} width={580} okText="确定" cancelText="取消"
+            className="alarmModal"
+            onCancel={()=> this.setState({baseImageModal:false})}
+            maskClosable={false}
+            onOk={() => this.handledeletecolums()}
+          >
+          确认要删除 {this.state.currentName} 基础镜像吗?
+        </Modal>
       </div>
     )
   }
 }
 
-export default ContinueIntegration
+function mapStateToProps(state, props) {
+  let images = state.cicd_flow.availableImage
+  const defaultImages = {
+    isFetching: false
+  }
+  if(!images) {
+    images = defaultImages
+  }
+  return {
+    images
+  }
+}
+export default connect(mapStateToProps, {
+  getAvailableImage,
+  addBaseImage,
+  updateBaseImage,
+  deleteBaseImage
+})(Form.create()(ContinueIntegration))
