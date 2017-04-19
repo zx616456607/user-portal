@@ -300,7 +300,7 @@ class VersionNoraml extends Component {
                       <span className='commonTitle'>交付中心</span>
                     </div>
                     <div className='commonInfo'>
-                      <span className='commonSpan'>镜像仓库（20个镜像）</span>
+                      <span className='commonSpan'>镜像仓库（20个镜像、安全扫描）</span>
                       <span className='commonSpan'>应用商店</span>
                       <span className='commonSpan'>编排文件</span>
                     </div>

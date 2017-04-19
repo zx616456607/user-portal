@@ -12,7 +12,7 @@ import { Tabs, Button, Card, Switch, Menu, Tooltip, Icon, Input, Modal, Select }
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { imageStore, imageSwitch, loadPublicImageList, loadFavouriteList, loadPrivateImageList, updateImageinfo, getImageDetailInfo, loadImageDetailTag, loadMirrorSafetyScanStatus, loadMirrorSafetyLayerinfo } from '../../../../actions/app_center'
+import { imageStore, imageSwitch, loadPublicImageList, loadFavouriteList, loadPrivateImageList, updateImageinfo, getImageDetailInfo, loadImageDetailTag, loadMirrorSafetyScanStatus, loadMirrorSafetyLayerinfo,loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo, loadMirrorSafetyChairinfo } from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import ImageVersion from './ImageVersion.js'
 import DetailInfo from './DetailInfo'
@@ -21,6 +21,7 @@ import Attribute from './Attribute'
 import MirrorSafety from './Mirrorsafety'
 import './style/ImageDetailBox.less'
 import NotificationHandler from '../../../../common/notification_handler'
+import UpgradeModal from '../../../AccountModal/Version/UpgradeModal'
 
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
@@ -92,6 +93,7 @@ class ImageDetailBox extends Component {
     this.TemplateSafetyScan = this.TemplateSafetyScan.bind(this)
     this.handleTabsSwitch = this.handleTabsSwitch.bind(this)
     this.handelSelectedOption = this.handelSelectedOption.bind(this)
+    //this.TemplateTabPaneMirrorsafety = this.TemplateTabPaneMirrorsafety.bind(this)
     this.state = {
       imageDetail: null,
       copySuccess: false,
@@ -100,7 +102,8 @@ class ImageDetailBox extends Component {
       activeKey: '1',
       disable: true,
       tagVersion: '',
-      tag: ''
+      tag: '',
+      UpgradeVisible:false
     }
   }
 
@@ -115,7 +118,8 @@ class ImageDetailBox extends Component {
     loadImageDetailTag(registry, imageName)
     this.setState({
       imageDetail: imageDetail,
-      imageInfo: imageInfo
+      imageInfo: imageInfo,
+      TabsDisabled: true
     });
   }
 
@@ -159,6 +163,24 @@ class ImageDetailBox extends Component {
     })
     return tags
   }
+
+  //TemplateTabPaneMirrorsafety() {
+  //  const { envEdition, imageInfo, imageType } = this.props
+  //  const { formatMessage } = this.props.intl;
+  //  const standard = require('../../../../../configs/constants').STANDARD_MODE
+  //  const mode = require('../../../../../configs/model').mode
+  //  if (mode === standard) {
+  //    // standard mode
+  //    if(envEdition == 0){
+  //      return
+  //    }
+  //    if(envEdition == 1){
+  //      return <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} registry={DEFAULT_REGISTRY} tagVersion={this.state.tag} imageType={imageType}/></TabPane>
+  //    }
+  //  } else {
+  //    return <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} registry={DEFAULT_REGISTRY} tagVersion={this.state.tag} imageType={imageType}/></TabPane>
+  //  }
+  //}
 
   returnDefaultTooltip() {
     const scope = this;
@@ -292,17 +314,89 @@ class ImageDetailBox extends Component {
   }
 
   safetyscanhandleOk() {
-    const { loadMirrorSafetyScanStatus, loadMirrorSafetyLayerinfo } = this.props
+    const { loadMirrorSafetyScanStatus, loadMirrorSafetyLayerinfo, loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo, loadMirrorSafetyChairinfo, cluster_id, mirrorSafetyScan, mirrorScanUrl, mirrorScanstatus } = this.props
     const imageDetail = this.props.config
     const imageName = imageDetail.name
-    loadMirrorSafetyScanStatus({ imageName, tag })
-    loadMirrorSafetyLayerinfo({ imageName, tag })
-    this.setState({
-      safetyscanVisible: false,
-      activeKey: '5',
-      disable: false,
-      tag: this.state.tagVersion
+    const tag = this.state.tagVersion
+    const notificationHandler = new NotificationHandler()
+    loadMirrorSafetyScanStatus({ imageName, tag },{
+      success: {
+        func: () => {
+          this.setState({
+            TabsDisabled: false,
+            safetyscanVisible: false,
+            activeKey: '5',
+            disable: false,
+            tag: this.state.tagVersion
+          })
+          //const { mirrorScanstatus } = this.props
+          const currentImageScanstatus = mirrorScanstatus[imageName][tag]
+          const currentImageScanstatusResult = currentImageScanstatus.result
+          const statusCode = currentImageScanstatusResult.statusCode
+          const full_name = currentImageScanstatusResult.fullName
+          const blob_sum = currentImageScanstatusResult.blobSum
+          const status = currentImageScanstatusResult.status
+          const registry = mirrorScanUrl
+          if(statusCode == 500){
+            return
+          }
+          const config = {
+            cluster_id,
+            imageName,
+            tag,
+            registry,
+            full_name
+          }
+          if(statusCode && statusCode == 200){
+            switch(status){
+              case 'lynis':
+              case 'clair':
+              case 'running':
+              case 'both':{
+                loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+                loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name})
+                return
+              }
+              case 'noresult':
+              case 'different':{
+                if(mirrorSafetyScan[imageName]){
+                  loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+                  loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name})
+                  return
+                }
+                return loadMirrorSafetyScan({...config}, {
+                  success: {
+                    func: () =>{
+                      loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+                      loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name})
+                    },
+                    isAsync : true
+                  }
+                })
+              }
+              case 'failed':
+              default: return false
+            }
+          }
+        },
+        isAsync: true
+      },
+      failed:{
+        func: () => {
+          notificationHandler.error('镜像内容不存在或镜像已损坏！')
+          this.setState({
+            safetyscanVisible:false
+          })
+        }
+      }
     })
+    loadMirrorSafetyLayerinfo({ imageName, tag })
+    //this.setState({
+    //  safetyscanVisible: false,
+    //  activeKey: '5',
+    //  disable: false,
+    //  tag: this.state.tagVersion
+    //})
   }
 
   handleTabsSwitch(key) {
@@ -327,6 +421,7 @@ class ImageDetailBox extends Component {
     const { formatMessage } = this.props.intl;
     const imageDetailModalShow = this.props.imageDetailModalShow
     const imageInfo = this.props.imageInfo;
+    const { imageType, UpgradeVisible } = this.props
     if (!imageInfo) {
       return ('')
     }
@@ -386,7 +481,7 @@ class ImageDetailBox extends Component {
               {/* 安全扫描 */}
               <div className='rightBoxright'>
                 <Button type="ghost" size="large" onClick={this.safetyscanShow}>安全扫描</Button>
-                <Modal title="安全扫描" visible={this.state.safetyscanVisible} onOk={this.safetyscanhandleOk} onCancel={this.safetyscanhandleCancel} footer={[
+                <Modal title="安全扫描" visible={this.state.safetyscanVisible} footer={[
                   <Button
                     key="back"
                     type="ghost"
@@ -420,7 +515,7 @@ class ImageDetailBox extends Component {
                   </div>
                 </Modal>
               </div>
-
+              <UpgradeModal visible={UpgradeVisible} />
             </div>
           </div>
           <div style={{ clear: "both" }}></div>
@@ -453,7 +548,7 @@ class ImageDetailBox extends Component {
             <TabPane tab="Dockerfile" key="2"><DockerFile isFetching={this.props.isFetching} scope={this} registry={DEFAULT_REGISTRY} detailInfo={imageInfo} isOwner={imageInfo.isOwner} /></TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
             <TabPane tab={formatMessage(menusText.attribute)} key="4"><Attribute detailInfo={imageInfo} /></TabPane>
-            <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} registry={DEFAULT_REGISTRY} tagVersion={this.state.tag} /></TabPane>
+            <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} registry={DEFAULT_REGISTRY} tagVersion={this.state.tag} imageType={imageType}/></TabPane>
           </Tabs>
         </div>
       </div>
@@ -474,17 +569,31 @@ function mapStateToProps(state, props) {
   const { imagesInfo } = state.images
   const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
   const imageName = imageInfo.name
-  const { getImageTag } = state
+  const { getImageTag, entities, images } = state
+  const { imageType } = props
   const { imageTag } = getImageTag
   let imgTag = []
   if (imageTag[DEFAULT_REGISTRY] && imageTag[DEFAULT_REGISTRY][imageName]) {
     imgTag = imageTag[DEFAULT_REGISTRY][imageName].tag || []
   }
+  let mirrorScanUrl = ''
+  if (images[imageType][DEFAULT_REGISTRY] && images[imageType][DEFAULT_REGISTRY].server) {
+    mirrorScanUrl = images[imageType][DEFAULT_REGISTRY].server
+  }
+  let mirrorSafetyScan = images.mirrorSafetyScan || ''
+  let cluster_id = entities.current.cluster.clusterID || ''
+  let envEdition = entities.loginUser.info.envEdition || 0
+  let mirrorScanstatus = images.mirrorSafetyScanStatus
   return {
     imageInfo,
     registry: DEFAULT_REGISTRY,
     imageName,
-    imgTag
+    envEdition,
+    imgTag,
+    mirrorSafetyScan,
+    cluster_id,
+    mirrorScanUrl,
+    mirrorScanstatus
   }
 }
 
@@ -518,7 +627,10 @@ export default connect(mapStateToProps, {
   getImageDetailInfo,
   loadImageDetailTag,
   loadMirrorSafetyScanStatus,
-  loadMirrorSafetyLayerinfo
+  loadMirrorSafetyLayerinfo,
+  loadMirrorSafetyScan,
+  loadMirrorSafetyLyinsinfo,
+  loadMirrorSafetyChairinfo
 })(injectIntl(ImageDetailBox, {
   withRef: true,
 }));
