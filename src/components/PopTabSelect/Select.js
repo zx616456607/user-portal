@@ -75,10 +75,11 @@ export default class PopTabSelect extends Component {
     const { onChange } = this.props
     const { key, item } = obj
     let label = this.getLableFromChild(item)
+    let groupKey = item.props.groupKey
     if (!label) {
       label = key
     }
-    onChange && onChange(obj, tabKey)
+    onChange && onChange(key, tabKey, groupKey)
     this.setState({
       selectValue: label,
       visible: false,
@@ -89,7 +90,7 @@ export default class PopTabSelect extends Component {
     return this.renderOptionsFromChildren(this.props.children, true)
   }
 
-  renderOptionsFromChildren(children, showNotFound) {
+  renderOptionsFromChildren(children, showNotFound, groupKey) {
     const _options = []
     if (!children) {
       return _options
@@ -113,15 +114,16 @@ export default class PopTabSelect extends Component {
         return
       }
       if (child.type.isSelectOptionGroup) {
-        const innerItems = this.renderOptionsFromChildren(child.props.children, true)
+        this.isSelectOptionGroup = true
+        let label = child.props.label
+        let key = child.key
+        if (!key && typeof label === 'string') {
+          key = label
+        } else if (!label && key) {
+          label = key
+        }
+        const innerItems = this.renderOptionsFromChildren(child.props.children, true, key)
         if (innerItems.length) {
-          let label = child.props.label
-          let key = child.key
-          if (!key && typeof label === 'string') {
-            key = label
-          } else if (!label && key) {
-            label = key
-          }
           _options.push(
             <MenuGroup key={key} title={label}>
               {innerItems}
@@ -138,7 +140,7 @@ export default class PopTabSelect extends Component {
 
       if (this.filterOption(childValue)) {
         _options.push(
-          <MenuItem key={childValue || childLabel} {...child.props}>
+          <MenuItem key={childValue || childLabel} groupKey={groupKey} {...child.props}>
             {childLabel || childValue}
           </MenuItem>
         )
@@ -172,7 +174,7 @@ export default class PopTabSelect extends Component {
     })
     const _options = this.renderOptions() || options
     const content = (
-      <div>
+      <div className="popTabSelectContent">
         <div className="search">
           <InputGroup className="ant-search-input">
             <Input onPressEnter={this.handleSearch} onChange={this.handleSearch} />
@@ -181,11 +183,13 @@ export default class PopTabSelect extends Component {
             </div>
           </InputGroup>
         </div>
+        <div className="options">
         {
           this.isTab
           ? <Tabs>{_options}</Tabs>
           : <Menu onClick={this.handleSelect}>{_options}</Menu>
         }
+        </div>
       </div>
     )
     const popSelectId = `popTabSelect-${genRandomString(6)}`
@@ -203,9 +207,11 @@ export default class PopTabSelect extends Component {
             <span className="ant-input-wrapper">
               <input type="text" className="ant-input ant-cascader-input"
                 readonly placeholder={placeholder}
+                style={{marginTop: '0px'}}
               />
             </span>
-            <span className="ant-cascader-picker-label">{value || selectValue}</span>
+            {/*<span className="ant-cascader-picker-label">{value || selectValue}</span>*/}
+            <span className="ant-cascader-picker-label">{selectValue || value}</span>
             <i className={classArrow}></i>
           </span>
         </Popover>
