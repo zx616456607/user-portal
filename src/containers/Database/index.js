@@ -24,6 +24,11 @@ const menuList = [
     url: '/database_cache/redis_cluster',
     name: '缓存'
   },
+
+  {
+    url: '/database_cache/zookeeper_cluster',
+    name: 'ZooKeeper'
+  },
  
 ]
 

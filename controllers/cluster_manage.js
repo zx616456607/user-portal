@@ -78,6 +78,15 @@ exports.updateCluster = function* () {
   this.body = result
 }
 
+exports.updateConfigs = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(loginUser)
+  const body = this.request.body
+  const result = yield api.updateBy([cluster, 'configs'], null, body)
+  this.body = result
+}
+
 exports.deleteCluster = function* () {
   const loginUser = this.session.loginUser
   const clusterID = this.params.cluster
