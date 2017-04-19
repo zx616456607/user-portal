@@ -60,6 +60,9 @@ export default class PopTabSelect extends Component {
   }
 
   filterOption(value) {
+    if (!value) {
+      return false
+    }
     return value.indexOf(this.state.inputValue) > -1
   }
 
