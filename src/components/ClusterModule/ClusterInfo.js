@@ -218,10 +218,10 @@ let ClusterInfo = React.createClass ({
   },
   deleteClusterWhenIsBuilderEnvironmentModal(){
     Modal.info({
-      title: '提示',
+      title: '不可删除该集群',
       content: (
         <div>
-          <p>此集群作为构造环境，需选择另一个集群作为构建环境方可删除此集群</p>
+          <p>此集群为构建环境集群，需选择另一个集群作为构建环境后方可删除此集群</p>
         </div>
       ),
       onOk() {},
@@ -259,10 +259,10 @@ let ClusterInfo = React.createClass ({
     const { cluster } = this.props
     const { clusterName } = cluster
     Modal.info({
-      title: '提示',
+      title: '不可直接取消该集群为构建环境',
       content: (
         <div>
-          <p>去选择另一个集群作为构建环境则自动取消集群 [ {clusterName} ] 作为构建环境</p>
+          <p>选择其他集群作为构建环境后，即可自动取消该集群 [ {clusterName} ] 作为构建集群</p>
         </div>
       ),
       onOk() {},
@@ -281,6 +281,14 @@ let ClusterInfo = React.createClass ({
       }
     }
     return { length, currentClusterName }
+  },
+  eidtFasleCheckbox(){
+    const { cluster } = this.props
+    const { isBuilder } = cluster
+    if(isBuilder){
+      return <i className="fa fa-check-square" aria-hidden="true" style={{color:'#00a0ea',marginRight:'4px' }}></i>
+    }
+    return <i className="fa fa-square-o" aria-hidden="true" style={{marginRight:'4px' }}></i>
   },
   render () {
     const { cluster, form, clusterList } = this.props
@@ -440,7 +448,7 @@ let ClusterInfo = React.createClass ({
                 {
                   editCluster
                     ? this.eidtClusterBuilderEnvironment()
-                    : <span><i className="fa fa-check-square" aria-hidden="true" style={{color: isBuilder ? '#00a0ea' : '',marginRight:'4px' }}></i>勾选后该集群用来作为构建镜像的环境</span>
+                    : <span>{this.eidtFasleCheckbox()}勾选后该集群用来作为构建镜像的环境</span>
                 }
             </Form.Item>
             <Form.Item>
@@ -463,15 +471,14 @@ let ClusterInfo = React.createClass ({
             <Icon type='exclamation-circle-o' />
             &nbsp;&nbsp;&nbsp;确定要删除“{clusterName}”？
           </div>
-          <div className="note">注意：请确认执行删除集群操作！
-该操作会导致将选中的集群与当前控制台Portal解绑，完全脱离当前控制台的管理，但不影响该集群的容器应用等的运行状态。</div>
           {
             this.clusterListLength().length == 1
               ? <div>
-              <div>注意：请确认执行删除集群操作！
-                删除集群后将没有构建环境，导致构建镜像功能无法正常使用。</div>
+                  <div className="note">提示：</div>
+                  <div className="note"><span style={{border:'1px solid red',borderRadius:'50%',width:'14px',height:"14px",display:'inline-block',lineHeight:'14px',textAlign:'center'}}>1</span>、该操作会导致将选中的集群与当前控制台Portal解绑，完全脱离当前控制台的管理，但不影响该集群的容器应用等的运行状态。</div>
+                  <div className="note"><span style={{border:'1px solid red',borderRadius:'50%',width:'14px',height:"14px",display:'inline-block',lineHeight:'14px',textAlign:'center'}}>2</span>、删除集群后将没有构建环境，导致构建镜像功能无法正常使用。</div>
             </div>
-              : <span></span>
+              :  <span></span>
           }
         </Modal>
         <Modal
