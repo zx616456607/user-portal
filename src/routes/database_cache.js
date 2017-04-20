@@ -13,6 +13,10 @@
 const databaseCacheRoutes = [{
   path: 'redis_cluster',
   component: require('../components/DatabaseCache/RedisCluster').default,
+},
+{
+  path: 'zookeeper_cluster',
+  component: require('../components/DatabaseCache/ZookeeperCluster').default,
 }]
 
 export default databaseCacheRoutes
