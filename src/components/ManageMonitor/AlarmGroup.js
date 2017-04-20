@@ -241,7 +241,7 @@ class AlarmGroup extends Component {
     },{
       title:'操作',
       dataIndex:'handle',
-      width:'10%',
+      width:'15%',
       render:(text, group) => {
         if (group.strategies.length >0) {
           return (
