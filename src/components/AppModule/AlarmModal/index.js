@@ -22,6 +22,8 @@ import NotificationHandler from '../../../common/notification_handler'
 
 const Option = Select.Option
 const RadioGroup = Radio.Group
+let clickAddRule = false
+let isUseing = false
 
 let FistStop = React.createClass({
   componentWillMount() {
@@ -388,8 +390,10 @@ let TwoStop = React.createClass({
   addRule() {
     const _this = this
     const { form } = this.props;
+    isUseing = true
     //if(this.state.haveRepeat) return
     form.validateFields((error, values) => {
+      isUseing = false
       if (!!error) {
         return
       }
@@ -459,6 +463,7 @@ let TwoStop = React.createClass({
   },
   usedRule(rule, value, callback, key) {
     if (!value) return callback('请选择运算符')
+    this.valieAllField(key)
     if (this.validateIsRepeat(key, value, `used_rule@${key}`)) {
       return callback('告警设置填写重复')
     } else {
@@ -469,6 +474,7 @@ let TwoStop = React.createClass({
   },
   usedName(rule, value, callback, key) {
     if (!value) return callback('请选择类型')
+    this.valieAllField(key)
     if (this.validateIsRepeat(key, value, `used_name@${key}`)) {
       return callback('告警设置填写重复')
     } else {
@@ -480,6 +486,7 @@ let TwoStop = React.createClass({
   usedData(rule, value, callback, key) {
     if (!value) return callback('请填写数值')
     if (parseInt(value) <= 0) return callback('此数值需大于1')
+    this.valieAllField(key)
     if (this.validateIsRepeat(key, value, `used_data@${key}`)) {
       return callback('告警设置填写重复')
     } else {
@@ -507,11 +514,27 @@ let TwoStop = React.createClass({
       }
     })
   },
+  valieAllField(key) {
+    if(isUseing) return
+    isUseing = true
+    const { form } = this.props;
+    const { getFieldValue } = form
+    const keyCount = getFieldValue('cpu')
+    let keyArr = []
+    let obj = {}
+    keyCount.forEach(item => {
+       if(item == key) return
+       keyArr = keyArr.concat([`used_data@${item}`, `used_rule@${item}`, `used_name@${item}`])
+    })
+    form.validateFields(keyArr, {force: true,first: false, firstFields: false}, function(err, value) {
+      isUseing = false
+    })
+  },
   validateIsRepeat(key, value, field) {
     const { form } = this.props
     const { getFieldsValue, getFieldValue } = form
     const keyCount = getFieldValue('cpu')
-    let newValue = getFieldsValue([`used_data@${key}`, `used_rule@${key}`, `used_name@${key}`].filter(item => item != field))
+    let newValue = getFieldsValue([`used_data@${key}`, `used_rule@${key}`, `used_name@${key}`])
     newValue = this.getObjValueArr(newValue)
     newValue.push(value)
     if (keyCount && keyCount.length > 0) {
@@ -519,8 +542,8 @@ let TwoStop = React.createClass({
         if (item == key) return false
         let existValue = getFieldsValue([`used_data@${item}`, `used_rule@${item}`, `used_name@${item}`])
         existValue = this.getObjValueArr(existValue)
-        return existValue.every(value => {
-          return newValue.indexOf(value) >= 0
+        return existValue.every(v => {
+          return newValue.indexOf(v) >= 0
         })
       })
       if (result == this.state.haveRepeat) {
