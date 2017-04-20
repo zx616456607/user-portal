@@ -194,7 +194,7 @@ class MirrorSafety extends Component {
   }
 
   handleUpgrade(){
-    browserHistory.push('/account/balance/payment#upgrade')
+    browserHistory.push('/account/version#pro')
   }
 
   render() {
@@ -206,8 +206,8 @@ class MirrorSafety extends Component {
       <div id='mirrorsafety'>
         { (mode === standard && envEdition == 0) ?
           <div className='envEdition'>
-            您尚未开通此服务
-            <Button className='envEditionButton' onClick={this.handleUpgrade}>点击开通</Button>
+            此服务仅支持『专业版』，去查看『时速云|专业版』功能优势
+            <Button className='envEditionButton' onClick={this.handleUpgrade}>点击查看</Button>
           </div>:
           <div>
             <div className='safetyselect'>
