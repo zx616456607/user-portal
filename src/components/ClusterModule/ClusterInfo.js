@@ -259,7 +259,7 @@ let ClusterInfo = React.createClass ({
     const { cluster } = this.props
     const { clusterName } = cluster
     Modal.info({
-      title: '不可直接取消该集群为构建环境',
+      title: '不可直接取消构建环境',
       content: (
         <div>
           <p>选择其他集群作为构建环境后，即可自动取消该集群 [ {clusterName} ] 作为构建集群</p>
@@ -478,7 +478,8 @@ let ClusterInfo = React.createClass ({
                   <div className="note"><span style={{border:'1px solid red',borderRadius:'50%',width:'14px',height:"14px",display:'inline-block',lineHeight:'14px',textAlign:'center'}}>1</span>、该操作会导致将选中的集群与当前控制台Portal解绑，完全脱离当前控制台的管理，但不影响该集群的容器应用等的运行状态。</div>
                   <div className="note"><span style={{border:'1px solid red',borderRadius:'50%',width:'14px',height:"14px",display:'inline-block',lineHeight:'14px',textAlign:'center'}}>2</span>、删除集群后将没有构建环境，导致构建镜像功能无法正常使用。</div>
             </div>
-              :  <span></span>
+              :  <div className="note">注意：请确认执行删除集群操作！
+              该操作会导致将选中的集群与当前控制台Portal解绑，完全脱离当前控制台的管理，但不影响该集群的容器应用等的运行状态。</div>
           }
         </Modal>
         <Modal
