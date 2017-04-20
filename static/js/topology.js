@@ -290,7 +290,7 @@ function renderGline(){
 		}
 }
 
-function refresh(instance) {
+function refresh() {
 	pods = [];
 	services = [];
 	// controllers = [];
@@ -306,29 +306,28 @@ function refresh(instance) {
 		renderGroups();
 		renderGline()
 
-		// setTimeout(function() {
-		// 	refresh(instance);
-		// }, 3000);
   });
+}
+
+window.addEventListener("message", receiveMessage, false);
+
+function receiveMessage(event) {
+	if (event.data == 'topology') {
+		refresh()
+	}
 }
 
 jsPlumb.bind("ready", function() {
 	var instance = jsPlumb.getInstance({
 		// default drag options
-		DragOptions : { cursor: 'pointer', zIndex:2000 },
-		// the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this
-		// case it returns the 'labelText' member that we set on each connection in the 'init' method below.
+		DragOptions : { cursor: 'pointer', zIndex:200 },
 		ConnectionOverlays : [
-			[ "Arrow", { location:1 } ],
-			//[ "Label", {
-			//	location:0.1,
-			//	id:"label",
-			//	cssClass:"aLabel"
-			//}]
+			[ "Arrow", { location:1 } ]
 		],
 		Container:"flowchart-demo"
 	});
 
-	refresh(instance);
+	refresh()
+
 	jsPlumb.fire("jsPlumbDemoLoaded", instance);
-  });
+});
