@@ -233,7 +233,8 @@ var insertUse = function(name, use) {
 
 var loadData = function() {
 	var deferred = new $.Deferred();
-	var req1 = $.getJSON("/api/v2/clusters/"+ cluster +"/apps/"+ appname +"/topology-pods", function( data ) {
+	var newDate = new Date().getTime()
+	var req1 = $.getJSON("/api/v2/clusters/"+ cluster +"/apps/"+ appname +"/topology-pods?"+ newDate, function( data ) {
 		pods = data;
 		$.each(data.items, function(key, val) {
     	val.type = 'pod';
@@ -250,7 +251,7 @@ var loadData = function() {
 
 
 
-	var req2 = $.getJSON("/api/v2/clusters/"+ cluster +"/apps/"+ appname +"/topology-services", function( data ) {
+	var req2 = $.getJSON("/api/v2/clusters/"+ cluster +"/apps/"+ appname +"/topology-services?"+ newDate, function( data ) {
 		services = data;
 		//console.log(services);
 		$.each(data.items, function(key, val) {
