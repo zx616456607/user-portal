@@ -22,7 +22,6 @@ import NotificationHandler from '../../../common/notification_handler'
 
 const Option = Select.Option
 const RadioGroup = Radio.Group
-let clickAddRule = false
 let isUseing = false
 
 let FistStop = React.createClass({
