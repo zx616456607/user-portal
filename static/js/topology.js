@@ -1,7 +1,7 @@
 var search = window.location.search.slice(9)
 var cluster = search.split('&appname=')[0]
 var appname = search.split('&appname=')[1]
-console.log('search',location.hash)
+
 var truncate = function(str, width, left) {
   if (!str) return "";
 
