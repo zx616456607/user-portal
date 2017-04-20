@@ -181,6 +181,7 @@ class AlarmStrategy extends Component {
   }
   handignoreSetting() {
     const strategy = []
+    const _this = this
     const { record, time ,ignoreUnit } = this.state
     const times = time + ignoreUnit
     const notifi = new NotificationHandler()
@@ -203,7 +204,9 @@ class AlarmStrategy extends Component {
         func: () => {
           notifi.close()
           notifi.success('设置策略忽略时间成功')
-        }
+          loadStrategy(_this)
+        },
+        isAsync: true
       }
     })
   }
