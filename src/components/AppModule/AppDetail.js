@@ -86,7 +86,7 @@ class AppDetail extends Component {
       hash: activeTabKey
     })
     if (activeTabKey == '#topology') {
-      window.frames['topology'].postMessage('topology',location.href)
+      setTimeout(()=> window.frames['topology'].postMessage('topology',location.href),500)
     }
   }
 
