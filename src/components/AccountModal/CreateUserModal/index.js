@@ -12,9 +12,10 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Input, Modal, Form, Checkbox, Tooltip, Icon, Button, } from 'antd'
+import { Input, Modal, Form, Checkbox, Tooltip, Icon, Button, Select } from 'antd'
 import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
-
+import { ROLE_SYS_ADMIN } from '../../../../constants'
+const Option = Select.Option
 const createForm = Form.create
 const FormItem = Form.Item
 
@@ -118,13 +119,14 @@ let CreateUserModal = React.createClass({
       if (!!errors) {
         return
       }
-      const { name, passwd, email, tel, check } = values
+      const { name, passwd, email, tel, check, role } = values
       let newUser = {
         userName: name,
         password: passwd,
         email: email,
         phone: tel,
         sendEmail: check,
+        role: parseInt(role)
       }
       onSubmit(newUser)
       form.resetFields()
@@ -145,7 +147,6 @@ let CreateUserModal = React.createClass({
     const { form, visible, loginUser } = this.props
     const { disabled } = this.state
     const { getFieldProps, getFieldError, isFieldValidating } = form
-    const text = <span>前台只能添加普通成员</span>
     const nameProps = getFieldProps('name', {
       rules: [
         { validator: this.userExists },
@@ -189,6 +190,9 @@ let CreateUserModal = React.createClass({
       }],
     })
     const checkProps = getFieldProps('check', {})
+    const roleProps = getFieldProps('role', {
+      initialValue:'0'
+    })
     const formItemLayout = {
       labelCol: { span: 7 },
       wrapperCol: { span: 12 },
@@ -232,14 +236,15 @@ let CreateUserModal = React.createClass({
           <FormItem
             {...formItemLayout}
             label="类型"
-            hasFeedback
             >
-            <div>
-              普通成员
-              <Tooltip placement="right" title={text}>
-                <Icon type="question-circle-o" style={{ marginLeft: 10 }} />
-              </Tooltip>
-            </div>
+            { ROLE_SYS_ADMIN == loginUser.role ?
+            <Select defaultValue="0" {...roleProps} style={{ width: 120 }}>
+              <Option value="0">普通成员</Option>
+              <Option value="1">团队管理员</Option>
+              <Option value="2">系统管理员</Option>
+            </Select>
+            :<div> 普通成员</div>
+            }
           </FormItem>
 
           <FormItem
