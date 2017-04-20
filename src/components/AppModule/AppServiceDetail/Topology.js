@@ -16,8 +16,7 @@ class Topology extends Component {
   render () {
     return (
       <div id="Topology">
-        <iframe id="topologys" src={`/js/container_topology.html?cluster=${this.props.cluster}&appname=${this.props.appName
-        }`} style={{width:'100%',height:'500px',border:0}}></iframe>
+        <iframe id="topologys" src={`/js/container_topology.html?cluster=${this.props.cluster}&appname=${this.props.appName}`} style={{width:'100%',height:'500px',border:0}}></iframe>
       </div>
     )
   }
