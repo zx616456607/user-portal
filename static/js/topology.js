@@ -309,21 +309,13 @@ function refresh() {
   });
 }
 
-var isTrue = false
+window.addEventListener("message", receiveMessage, false);
 
-setInterval(function(){
-	var parentUrl = window.parent.location.hash
-	if (parentUrl == '#topology' && isTrue) {
+function receiveMessage(event) {
+	if (event.data == 'topology') {
 		refresh()
-		isTrue = false
 	}
-	if (parentUrl != '#topology') {
-		isTrue = true
-	}
-},1000)
-
-
-
+}
 
 jsPlumb.bind("ready", function() {
 	var instance = jsPlumb.getInstance({
