@@ -73,8 +73,8 @@ class TenxFlowStageBuildLog extends Component {
         <span><span>"+item+"</span></span>\
         </div>")
       })
-      let height = $(`#${tenxFlowStageBuildLog} .infoBox`).css('height')
-      $(`#${tenxFlowStageBuildLog}`).animate({
+      let height = $(`.TenxFlowStageBuildLog .infoBox`).css('height')
+      $(`.TenxFlowStageBuildLog`).animate({
         scrollTop: height + 'px'
       }, 0)
     })
@@ -114,7 +114,7 @@ class TenxFlowStageBuildLog extends Component {
       )
     }
     return (
-      <div id={this.state.TenxFlowStageBuildLog}>
+      <div id={this.state.TenxFlowStageBuildLog} className="TenxFlowStageBuildLog">
         <div className='infoBox' id={this.state.tenxFlowLog}>
           {logs ? formatLog(logs) : ''}
           {this.state.websocket}
