@@ -214,7 +214,7 @@ let ClusterInfo = React.createClass ({
     if(isBuilder){
       return <span><i className="fa fa-check-square" aria-hidden="true" style={{color:'#00a0ea',marginRight:'4px' }}  onClick={this.checkBuilderEnvironment}></i>勾选后该集群用来作为构建镜像的环境</span>
     }
-    return <Form.Item><Checkbox {...agreementProps} checked={this.state.selectedBuilderEnvironment}>勾选后该集群用来作为构建镜像的环境</Checkbox></Form.Item>
+    return <div><Form.Item style={{width:'18px',float:'left'}}><Checkbox {...agreementProps} checked={this.state.selectedBuilderEnvironment}></Checkbox></Form.Item><span>勾选后该集群用来作为构建镜像的环境</span></div>
   },
   deleteClusterWhenIsBuilderEnvironmentModal(){
     Modal.info({
@@ -436,12 +436,12 @@ let ClusterInfo = React.createClass ({
               }
             </Form.Item>
             <Form.Item>
-              <span>构建环境：&nbsp;&nbsp;</span>
-              {
-                editCluster
-                  ? this.eidtClusterBuilderEnvironment()
-                  : <span><i className="fa fa-check-square" aria-hidden="true" style={{color: isBuilder ? '#00a0ea' : '',marginRight:'4px' }}></i>勾选后该集群用来作为构建镜像的环境</span>
-              }
+              <div style={{float:'left',height:'40px'}}>构建环境：&nbsp;&nbsp;</div>
+                {
+                  editCluster
+                    ? this.eidtClusterBuilderEnvironment()
+                    : <span><i className="fa fa-check-square" aria-hidden="true" style={{color: isBuilder ? '#00a0ea' : '',marginRight:'4px' }}></i>勾选后该集群用来作为构建镜像的环境</span>
+                }
             </Form.Item>
             <Form.Item>
               <span className="h5" style={{display: 'inline-block',verticalAlign:'top',lineHeight:'30px'}}>描述：&nbsp;&nbsp;</span>
@@ -471,10 +471,7 @@ let ClusterInfo = React.createClass ({
               <div>注意：请确认执行删除集群操作！
                 删除集群后将没有构建环境，导致构建镜像功能无法正常使用。</div>
             </div>
-              : <div>
-              <div>注意：请确认执行删除集群操作！
-                删除集群后将没有构建环境，导致构建镜像功能无法正常使用。</div>
-            </div>
+              : <span></span>
           }
         </Modal>
         <Modal
