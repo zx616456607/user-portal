@@ -24,6 +24,8 @@ global.globalConfig = {
   cicdConfig: {
     host: devops.host,
     protocol: devops.protocol,
+    external_host: devops.external_host,
+    external_protocol: devops.external_protocol,
     statusPath: devops.statusPath,
     logPath: devops.logPath
   },
