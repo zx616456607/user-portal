@@ -8,8 +8,8 @@
  * @author BaiYu
  */
 import React from 'react'
-import { Icon, Button, Card, Form, Input, Tooltip, Spin, Modal, Dropdown, Menu } from 'antd'
-import { updateCluster, loadClusterList, deleteCluster } from '../../actions/cluster'
+import { Icon, Button, Card, Form, Input, Tooltip, Spin, Modal, Dropdown, Menu, Checkbox } from 'antd'
+import { updateCluster, loadClusterList, deleteCluster, updateClusterConfig } from '../../actions/cluster'
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
 import clusterImg from '../../assets/img/integration/cluster.png'
@@ -24,6 +24,8 @@ let ClusterInfo = React.createClass ({
       saveBtnLoading: false,
       deleteClusterModal: false,
       deleteClusterBtnLoading: false,
+      selectBuilderEnvironmentModal: false,
+      selectedBuilderEnvironment:false
     }
   },
   checkValue(rule, value, callback) {
@@ -43,8 +45,9 @@ let ClusterInfo = React.createClass ({
   },
   updateCluster(e) {
     e.preventDefault()
-    const { form, updateCluster, cluster, loadClusterList } = this.props
+    const { form, updateCluster, cluster, loadClusterList, updateClusterConfig, clusterList } = this.props
     const { validateFields, resetFields } = form
+    const { isBuilder } = cluster
     const notification = new NotificationHandler()
     validateFields((errors, values) => {
       if (!!errors) {
@@ -54,6 +57,66 @@ let ClusterInfo = React.createClass ({
         saveBtnLoading: true,
       })
       values.isDefault = cluster.isDefault
+      if(values.agreement){
+        updateClusterConfig(cluster.clusterID,{IsBuilder:1},{
+          success:{
+            func : () => {
+              for(let i=0;i<clusterList.length;i++){
+                if(clusterList[i].isBuilder == true){
+                  updateClusterConfig(clusterList[i].clusterID,{IsBuilder:2},{
+                    success:{
+                      func:() => {
+                        updateCluster(cluster.clusterID, values, {
+                          success: {
+                            func: result => {
+                              notification.success(`更新集群信息成功`)
+                              loadClusterList(null, {
+                                finally: {
+                                  func: () => {
+                                    this.setState({
+                                      saveBtnLoading: false,
+                                      editCluster: false,
+                                    })
+                                  }
+                                }
+                              })
+                            },
+                            isAsync: true
+                          },
+                          failed: {
+                            func: err => {
+                              notification.error(`更新集群信息失败`)
+                              this.setState({
+                                saveBtnLoading: false,
+                              })
+                            },
+                            isAsync: true
+                          }
+                        })
+                      },
+                      isAsync: true,
+                    }
+                  })
+                  break
+                }
+              }
+            },
+            isAsync: true,
+          },
+          failed:{
+            func: err => {
+              notification.error(`更新集群信息失败`)
+              this.setState({
+                selectedBuilderEnvironment: false,
+                saveBtnLoading: false,
+                editCluster: false,
+              })
+            },
+            isAsync: true,
+          }
+        })
+        return
+      }
       updateCluster(cluster.clusterID, values, {
         success: {
           func: result => {
@@ -84,6 +147,12 @@ let ClusterInfo = React.createClass ({
     })
   },
   deleteCluster() {
+    const { cluster } = this.props
+    const { isBuilder } = cluster
+    if(isBuilder){
+      this.deleteClusterWhenIsBuilderEnvironmentModal()
+      return
+    }
     this.setState({
       deleteClusterModal: true,
     })
@@ -126,14 +195,101 @@ let ClusterInfo = React.createClass ({
         }
     })
   },
-  render () {
+  eidtClusterBuilderEnvironment(){
     const { cluster, form } = this.props
+    const { getFieldProps, setFieldsValue } = form
+    const { isBuilder } = cluster
+    const agreementProps = getFieldProps('agreement', {
+      rules: [
+        { required: false, message: '请选择' },
+      ],
+      valuePropName: 'checked',
+      onChange: e => {
+        this.selectBuilderEnvironment()
+      }
+    })
+    if(this.clusterListLength().length == 1){
+      return <span><i className="fa fa-check-square" aria-hidden="true" style={{color:'#00a0ea',marginRight:'4px' }}  onClick={this.cancleClusterWhenOnlyOneClusterModal}></i>勾选后该集群用来作为构建镜像的环境</span>
+    }
+    if(isBuilder){
+      return <span><i className="fa fa-check-square" aria-hidden="true" style={{color:'#00a0ea',marginRight:'4px' }}  onClick={this.checkBuilderEnvironment}></i>勾选后该集群用来作为构建镜像的环境</span>
+    }
+    return <Form.Item><Checkbox {...agreementProps} checked={this.state.selectedBuilderEnvironment}>勾选后该集群用来作为构建镜像的环境</Checkbox></Form.Item>
+  },
+  deleteClusterWhenIsBuilderEnvironmentModal(){
+    Modal.info({
+      title: '提示',
+      content: (
+        <div>
+          <p>此集群作为构造环境，需选择另一个集群作为构建环境方可删除此集群</p>
+        </div>
+      ),
+      onOk() {},
+    });
+  },
+  cancleClusterWhenOnlyOneClusterModal(){
+    Modal.info({
+      title: '提示',
+      content: (
+        <div>
+          <p>由于目前只有一个集群，不可取消构建环境</p>
+        </div>
+      ),
+      onOk() {},
+    });
+  },
+  selectBuilderEnvironment(){
+    this.setState({
+      selectBuilderEnvironmentModal: true
+    })
+  },
+  confirmSelectCurrentCluster(){
+    this.setState({
+      selectBuilderEnvironmentModal: false,
+      selectedBuilderEnvironment: true
+    })
+  },
+  cancleSelectCurrentCluster(){
+    this.setState({
+      selectBuilderEnvironmentModal: false,
+      selectedBuilderEnvironment:false
+    })
+  },
+  checkBuilderEnvironment(){
+    const { cluster } = this.props
+    const { clusterName } = cluster
+    Modal.info({
+      title: '提示',
+      content: (
+        <div>
+          <p>去选择另一个集群作为构建环境则自动取消集群 [ {clusterName} ] 作为构建环境</p>
+        </div>
+      ),
+      onOk() {},
+    });
+  },
+  clusterListLength(){
+    const { clusterList } = this.props
+    let length = 0
+    let currentClusterName = ''
+    if(clusterList){
+      length = clusterList.length
+      for(let i=0; i<clusterList.length; i++){
+        if(clusterList[i].isBuilder ==true){
+          currentClusterName = clusterList[i].clusterName
+        }
+      }
+    }
+    return { length, currentClusterName }
+  },
+  render () {
+    const { cluster, form, clusterList } = this.props
     const { editCluster, saveBtnLoading } = this.state
     const { getFieldProps } = form
     let {
       clusterName, apiHost, apiProtocol,
       apiVersion, bindingIPs, bindingDomains,
-      description, apiToken, isOk,
+      description, apiToken, isOk, isBuilder
     } = cluster
     const apiUrl = `${apiProtocol}://${apiHost}`
     bindingIPs = parseArray(bindingIPs).join(', ')
@@ -200,7 +356,7 @@ let ClusterInfo = React.createClass ({
       <Card className="ClusterInfo">
         <div className="h3">集群信息
           { !editCluster ?
-          <Dropdown.Button overlay={dropdown} type="ghost" style={{float:'right',marginTop:'6px'}} onClick={()=> this.setState({editCluster: true})}>
+          <Dropdown.Button overlay={dropdown} type="ghost" style={{float:'right',marginTop:'6px'}} onClick={()=> this.setState({editCluster: true,selectedBuilderEnvironment:isBuilder})}>
             编辑集群
           </Dropdown.Button>
 
@@ -208,7 +364,7 @@ let ClusterInfo = React.createClass ({
           <div style={{float:'right'}}>
             <Button
               onClick={()=> {
-                this.setState({editCluster: false, saveBtnLoading: false})
+                this.setState({editCluster: false, saveBtnLoading: false,selectedBuilderEnvironment:isBuilder})
                 saveBtnDisabled = true
               }}>
               取消
@@ -280,6 +436,14 @@ let ClusterInfo = React.createClass ({
               }
             </Form.Item>
             <Form.Item>
+              <span>构建环境：&nbsp;&nbsp;</span>
+              {
+                editCluster
+                  ? this.eidtClusterBuilderEnvironment()
+                  : <span><i className="fa fa-check-square" aria-hidden="true" style={{color: isBuilder ? '#00a0ea' : '',marginRight:'4px' }}></i>勾选后该集群用来作为构建镜像的环境</span>
+              }
+            </Form.Item>
+            <Form.Item>
               <span className="h5" style={{display: 'inline-block',verticalAlign:'top',lineHeight:'30px'}}>描述：&nbsp;&nbsp;</span>
               { editCluster ?
               <Input {...descProps} type="textarea" placeholder="添加描述" defaultValue={description} />
@@ -301,6 +465,25 @@ let ClusterInfo = React.createClass ({
           </div>
           <div className="note">注意：请确认执行删除集群操作！
 该操作会导致将选中的集群与当前控制台Portal解绑，完全脱离当前控制台的管理，但不影响该集群的容器应用等的运行状态。</div>
+          {
+            this.clusterListLength().length == 1
+              ? <div>
+              <div>注意：请确认执行删除集群操作！
+                删除集群后将没有构建环境，导致构建镜像功能无法正常使用。</div>
+            </div>
+              : <div>
+              <div>注意：请确认执行删除集群操作！
+                删除集群后将没有构建环境，导致构建镜像功能无法正常使用。</div>
+            </div>
+          }
+        </Modal>
+        <Modal
+          title={`提示`}
+          visible={this.state.selectBuilderEnvironmentModal}
+          onOk={this.confirmSelectCurrentCluster}
+          onCancel={this.cancleSelectCurrentCluster}
+        >
+          <div style={{color:"#00a0ea"}}><i className="fa fa-question-circle-o" aria-hidden="true" style={{marginRight:'12px'}}></i>目前只支持一个集群作为构建环境，是否确定取消集群 [ {this.clusterListLength().currentClusterName} ] 作为构建环境，并选择集群 [ {clusterName} ] 作为构建环境</div>
         </Modal>
       </Card>
     )
@@ -325,11 +508,16 @@ ClusterInfo = Form.create({
 })(ClusterInfo)
 
 function mapStateToProps(state, props) {
-  return {}
+  const { cluster } = state
+  let clusterList = cluster.clusters.clusterList || []
+  return {
+    clusterList
+  }
 }
 
 export default connect(mapStateToProps, {
   updateCluster,
   loadClusterList,
   deleteCluster,
+  updateClusterConfig
 })(ClusterInfo)
