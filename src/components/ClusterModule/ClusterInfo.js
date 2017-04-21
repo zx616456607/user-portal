@@ -25,7 +25,8 @@ let ClusterInfo = React.createClass ({
       deleteClusterModal: false,
       deleteClusterBtnLoading: false,
       selectBuilderEnvironmentModal: false,
-      selectedBuilderEnvironment:false
+      selectedBuilderEnvironment:false,
+      checkbox: true
     }
   },
   checkValue(rule, value, callback) {
@@ -209,10 +210,10 @@ let ClusterInfo = React.createClass ({
       }
     })
     if(this.clusterListLength().length == 1){
-      return <span><i className="fa fa-check-square" aria-hidden="true" style={{color:'#00a0ea',marginRight:'4px' }}  onClick={this.cancleClusterWhenOnlyOneClusterModal}></i>勾选后该集群用来作为构建镜像的环境</span>
+      return <span><Checkbox style={{marginRight:'4px' }}  onClick={this.cancleClusterWhenOnlyOneClusterModal} checked={true}></Checkbox>勾选后该集群用来作为构建镜像的环境</span>
     }
     if(isBuilder){
-      return <span><i className="fa fa-check-square" aria-hidden="true" style={{color:'#00a0ea',marginRight:'4px' }}  onClick={this.checkBuilderEnvironment}></i>勾选后该集群用来作为构建镜像的环境</span>
+      return <span><Checkbox style={{marginRight:'4px' }}  onClick={this.checkBuilderEnvironment} checked={this.state.checkbox}></Checkbox>勾选后该集群用来作为构建镜像的环境</span>
     }
     return <div><Form.Item style={{width:'18px',float:'left'}}><Checkbox {...agreementProps} checked={this.state.selectedBuilderEnvironment}></Checkbox></Form.Item><span>勾选后该集群用来作为构建镜像的环境</span></div>
   },
@@ -286,9 +287,9 @@ let ClusterInfo = React.createClass ({
     const { cluster } = this.props
     const { isBuilder } = cluster
     if(isBuilder){
-      return <i className="fa fa-check-square" aria-hidden="true" style={{color:'#00a0ea',marginRight:'4px' }}></i>
+      return <Checkbox disabled style={{marginRight:'4px' }} checked={true}></Checkbox>
     }
-    return <i className="fa fa-square-o" aria-hidden="true" style={{marginRight:'4px' }}></i>
+    return <Checkbox disabled style={{marginRight:'4px' }} checked={false}></Checkbox>
   },
   render () {
     const { cluster, form, clusterList } = this.props
