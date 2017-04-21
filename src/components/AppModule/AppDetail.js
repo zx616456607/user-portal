@@ -85,6 +85,9 @@ class AppDetail extends Component {
       pathname,
       hash: activeTabKey
     })
+    if (activeTabKey == '#topology') {
+      setTimeout(()=> window.frames['topology'].postMessage('topology',location.href),500)
+    }
   }
 
   // For change app status when service list change

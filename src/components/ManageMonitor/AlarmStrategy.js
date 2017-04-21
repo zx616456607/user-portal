@@ -72,7 +72,7 @@ class AlarmStrategy extends Component {
     this.setState({
       currentPage: page
     })
-    
+
     getSettingList(cluster, {
       from: (page-1) * DEFAULT_PAGE_SIZE,
       size: DEFAULT_PAGE_SIZE
@@ -98,6 +98,7 @@ class AlarmStrategy extends Component {
           isEdit: true,
           alarmModal: true
         })
+        return
       }
       default: return false
     }
@@ -180,6 +181,7 @@ class AlarmStrategy extends Component {
   }
   handignoreSetting() {
     const strategy = []
+    const _this = this
     const { record, time ,ignoreUnit } = this.state
     const times = time + ignoreUnit
     const notifi = new NotificationHandler()
@@ -202,7 +204,9 @@ class AlarmStrategy extends Component {
         func: () => {
           notifi.close()
           notifi.success('设置策略忽略时间成功')
-        }
+          loadStrategy(_this)
+        },
+        isAsync: true
       }
     })
   }
@@ -308,6 +312,7 @@ class AlarmStrategy extends Component {
     return (
       <div className="alarmStrategy">
         <div className="topRow">
+           <Button size="large" type="primary" onClick={()=> this.setState({alarmModal: true,isEdit: false})}><i className="fa fa-plus" /> 创建告警</Button>
           <Button size="large" type="primary" onClick={()=>　loadStrategy(this)}><i className="fa fa-refresh" /> 刷新</Button>
           <Button icon="delete" size="large" type="ghost" onClick={() => this.setState({ deleteModal: true })} disabled={(this.state.selectedRowKeys.length == 0)}>删除</Button>
         </div>
@@ -350,7 +355,7 @@ class AlarmStrategy extends Component {
         >
           <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>您是否确定要{this.state.enable =='start' ? '启用':'停止'}此策略 ?</div>
         </Modal>
-        <Modal title="更新" visible={this.state.alarmModal} width={580}
+        <Modal title={this.state.isEdit? "更新": "创建告警策略" } visible={this.state.alarmModal} width={580}
           className="alarmModal"
           onCancel={() => this.setState({ alarmModal: false, step: 1 })}
           maskClosable={false}
@@ -368,6 +373,7 @@ class AlarmStrategy extends Component {
         >
           <CreateGroup funcs={modalFunc} shouldLoadGroup={true} />
         </Modal>
+
       </div>
     )
   }
