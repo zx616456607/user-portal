@@ -405,7 +405,7 @@ App.propTypes = {
   siderStyle: PropTypes.oneOf(['mini', 'bigger']),
   intl: PropTypes.object.isRequired,
   UpgradeModal: PropTypes.func, // 升级模块
-  License: PropTypes.Boolean,
+  // License: PropTypes.Boolean,
   tipError: PropTypes.node
 }
 

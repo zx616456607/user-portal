@@ -19,6 +19,7 @@ const InputGroup = Input.Group
 import { loadNotifyGroups, deleteNotifyGroups } from '../../actions/alert'
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
+import { Link } from 'react-router'
 import { formatDate } from '../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 
@@ -115,50 +116,40 @@ class AlarmGroup extends Component {
   }
   getGroupEmails(emails){
     if (!emails) {
-      return null
+      return '-'
     }
-    let popover = null
-    if (emails.length > 1) {
-      const content = emails.map(function(item) {
-        return <div className='alarmGroupContentEmailPopOveritem'>{item.addr}<span className='alarmGroupContentEmailPopOverspan'>{!!item.desc ? `(备注:${item.desc})` : ''}</span></div>
+    let content = '-'
+    if (emails.length > 0) {
+      content = emails.map(function(item) {
+        let status = !!emails[0].status == 0 ? <span style={{color:'#f23e3f'}}> 【未验证】</span> : null
+        return <div className='alarmGroupItem'>
+          {item.addr}
+          <span className='alarmGroupspan'>{!!item.desc ? ` (备注:${item.desc})` : ''}</span>
+          {status}
+        </div>
       })
-      popover =  (
-        <Popover placement="rightTop" content={content} trigger="click">
-          <svg className='more' >
-            <use xlinkHref='#more'/>
-          </svg>
-        </Popover>
-      )
+
     }
-    const remark = !!emails[0].desc ? `(备注:${emails[0].desc})` : ''
+
     return (
       <div>
-        {emails.length > 0 && `${emails[0].addr}${remark}`}
-        {popover}
+        { content }
       </div>
     )
   }
 
   getStragegies(strategies) {
     if (!strategies) {
-      return null
+      return '-'
     }
-    let popover = null
-    if (strategies.length > 1) {
-      const content = strategies.map(function(item, i) {
-        return <div className='alarmGroupContentRealtionPopOveritem'>关联策略 {`${i + 1}：${item.name}`}</div>
+    let popover = '-'
+    if (strategies.length > 0) {
+      popover = strategies.map(function(item) {
+        return <div className='alarmGroupItem'><Link to={`/manange_monitor/alarm_setting/${item.name}`}>{item.name}</Link></div>
       })
-      popover = (
-        <Popover placement="rightTop" content={content} trigger="click">
-          <svg className='more' >
-            <use xlinkHref='#more' />
-          </svg>
-        </Popover>
-      )
     }
     return (
       <div>
-        {strategies.length > 0 ? `${strategies[0].name}` : null}
         {popover}
       </div>
     )
@@ -289,7 +280,7 @@ class AlarmGroup extends Component {
             <Button size="large" disabled={this.state.selectedRowKeys.length === 0} icon="delete" onClick={()=> this.openDeleteModal(this.getSelectedGroups())} type="ghost">删除</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length !== 1} icon="edit" onClick={() => this.openModifyModal(this.getModifyingGroup())} type="ghost">修改</Button>
             <div className="Search">
-              <Input size="large" id="AlarmGroupInput" onPressEnter={()=> this.handSearch()} />
+              <Input size="large" placeholder="搜索" id="AlarmGroupInput" onPressEnter={()=> this.handSearch()} />
               <i className="fa fa-search" onClick={()=> this.handSearch()} />
             </div>
             {/*<div className="rightPage pageBox">
