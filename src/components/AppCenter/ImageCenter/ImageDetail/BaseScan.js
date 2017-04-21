@@ -96,7 +96,8 @@ class BaseScan extends Component {
     this.handlemirrorScanstatusFialed = this.handlemirrorScanstatusFialed.bind(this)
     this.handlemirrorScanstatusSatus = this.handlemirrorScanstatusSatus.bind(this)
     this.state = {
-      loadingRunning:false
+      loadingRunning:false,
+      basescanFailed:false,
     }
   }
 
@@ -131,13 +132,34 @@ class BaseScan extends Component {
       registry,
       full_name
     }
+    this.setState({basescanFailed : true})
     if(mirrorSafetyScan[imageName] && mirrorSafetyScan[imageName][tag]){
-      return loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name, tag})
+      return loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name, tag},{
+        success:{
+          func: () => {
+            this.setState({basescanFailed : false})
+          },
+          isAsync : true
+        }
+      })
     }
     return loadMirrorSafetyScan({...config}, {
       success: {
         func: () =>{
-          loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name, tag})
+          loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name, tag},{
+            success:{
+              func: () => {
+                this.setState({basescanFailed : false})
+              },
+              isAsync : true
+            }
+          })
+        },
+        isAsync : true
+      },
+      failed: {
+        func : () => {
+          this.setState({basescanFailed : false})
         },
         isAsync : true
       }
@@ -149,7 +171,6 @@ class BaseScan extends Component {
     if (!mirrorsafetyLyins || !mirrorsafetyLyins[imageName] || !mirrorsafetyLyins[imageName][tag] || !mirrorsafetyLyins[imageName][tag].result) {
       return <div></div>
     }
-    const isFetching = mirrorsafetyLyins[imageName][tag].isFetching
     const result = mirrorsafetyLyins[imageName][tag].result
     const statusCode = result.statusCode
     const status = result.status
@@ -170,13 +191,13 @@ class BaseScan extends Component {
         case 'failed':
           return <div className="BaseScanFailed">
             <div className='top'>扫描失败，请重新扫描</div>
-            <Button onClick={this.severScanLyins} loading={isFetching}>点击重新获取</Button>
+            <Button onClick={this.severScanLyins} loading={this.state.basescanFailed}>点击重新获取</Button>
           </div>
         case 'nojob':
         default:
           return <div className="BaseScanFailed">
             <div className="top">镜像没有被扫描过</div>
-            <Button onClick={this.severScanLyins} loading={isFetching}>点击扫描</Button>
+            <Button onClick={this.severScanLyins} loading={this.state.basescanFailed}>点击扫描</Button>
           </div>
       }
     }
@@ -239,7 +260,7 @@ class BaseScan extends Component {
       status = mirrorScanstatus[imageName][tag].result.status
     }
     if(status == 'failed' || status == 'different'){
-      if(!mirrorsafetyLyins[imageName] || !mirrorsafetyLyins[imageName]){
+      if(!mirrorsafetyLyins[imageName] || !mirrorsafetyLyins[imageName][tag]){
         return (
           <div className='BaseScanFailed' data-status="scanstatusnosult">
             <div className='top'>{this.handlemirrorScanstatusSatus(status)}</div>
@@ -291,9 +312,10 @@ class BaseScan extends Component {
 
 function mapStateToProps(state, props) {
   const { entities, images } = state
+  const { imageType } = props
   let mirrorScanUrl = ''
-  if (images.publicImages[DEFAULT_REGISTRY] && images.publicImages[DEFAULT_REGISTRY].server) {
-    mirrorScanUrl = images.publicImages[DEFAULT_REGISTRY].server || ''
+  if (images[imageType][DEFAULT_REGISTRY] && images[imageType][DEFAULT_REGISTRY].server) {
+    mirrorScanUrl = images[imageType][DEFAULT_REGISTRY].server || ''
   }
   let cluster_id = entities.current.cluster.clusterID || ''
   let mirrorsafetyLyins = images.mirrorSafetyLyinsinfo
