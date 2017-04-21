@@ -37,11 +37,11 @@ const BaseScanDescription = React.createClass({
 
 const TableTemplate = React.createClass({
   TableDataSource() {
-    const { mirrorsafetyLyins,imageName } = this.props
-    if (!mirrorsafetyLyins[imageName] || !mirrorsafetyLyins[imageName].result) {
+    const { mirrorsafetyLyins, imageName, tag } = this.props
+    if (!mirrorsafetyLyins[imageName] || !mirrorsafetyLyins[imageName][tag] || !mirrorsafetyLyins[imageName][tag].result) {
       return
     }
-    const result = mirrorsafetyLyins[imageName].result
+    const result = mirrorsafetyLyins[imageName][tag].result
     const report = result.report
     const JsonFile = JSON.parse(report)
     const dataSource = []
@@ -109,7 +109,7 @@ class BaseScan extends Component {
     const scanstatus = mirrorScanstatus[imageName][tag].result
     const blob_sum = scanstatus.blobSum
     const full_name = scanstatus.fullName
-    loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name},{
+    loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name, tag},{
       success:{
         func: () => {
           this.setState({loadingRunning:false})
@@ -131,13 +131,13 @@ class BaseScan extends Component {
       registry,
       full_name
     }
-    if(mirrorSafetyScan[imageName]){
-      return loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name})
+    if(mirrorSafetyScan[imageName] && mirrorSafetyScan[imageName][tag]){
+      return loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name, tag})
     }
     return loadMirrorSafetyScan({...config}, {
       success: {
         func: () =>{
-          loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name})
+          loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name, tag})
         },
         isAsync : true
       }
@@ -145,11 +145,12 @@ class BaseScan extends Component {
   }
 
   TableSwitch() {
-    const { mirrorsafetyLyins,imageName } = this.props
-    if (!mirrorsafetyLyins || !mirrorsafetyLyins[imageName] || !mirrorsafetyLyins[imageName].result) {
+    const { mirrorsafetyLyins, imageName, tag } = this.props
+    if (!mirrorsafetyLyins || !mirrorsafetyLyins[imageName] || !mirrorsafetyLyins[imageName][tag] || !mirrorsafetyLyins[imageName][tag].result) {
       return <div></div>
     }
-    const result = mirrorsafetyLyins[imageName].result
+    const isFetching = mirrorsafetyLyins[imageName][tag].isFetching
+    const result = mirrorsafetyLyins[imageName][tag].result
     const statusCode = result.statusCode
     const status = result.status
     const message = result.message
@@ -165,17 +166,17 @@ class BaseScan extends Component {
             <div className='bottom'><Button onClick={this.severLyins} loading={this.state.loadingRunning}>点击重新获取</Button></div>
           </div>
         case 'finished':
-          return <TableTemplate mirrorsafetyLyins={mirrorsafetyLyins} imageName={imageName}/>
+          return <TableTemplate mirrorsafetyLyins={mirrorsafetyLyins} imageName={imageName} tag={tag}/>
         case 'failed':
           return <div className="BaseScanFailed">
             <div className='top'>扫描失败，请重新扫描</div>
-            <Button onClick={this.severLyins}>点击重新获取</Button>
+            <Button onClick={this.severScanLyins} loading={isFetching}>点击重新获取</Button>
           </div>
         case 'nojob':
         default:
           return <div className="BaseScanFailed">
             <div className="top">镜像没有被扫描过</div>
-            <Button onClick={this.severScanLyins}>点击扫描</Button>
+            <Button onClick={this.severScanLyins} loading={isFetching}>点击扫描</Button>
           </div>
       }
     }
@@ -237,8 +238,8 @@ class BaseScan extends Component {
     if(mirrorScanstatus[imageName][tag].result.status){
       status = mirrorScanstatus[imageName][tag].result.status
     }
-    if(status == 'noresult' || status == 'failed' || status == 'different'){
-      if(!mirrorsafetyLyins[imageName]){
+    if(status == 'failed' || status == 'different'){
+      if(!mirrorsafetyLyins[imageName] || !mirrorsafetyLyins[imageName]){
         return (
           <div className='BaseScanFailed' data-status="scanstatusnosult">
             <div className='top'>{this.handlemirrorScanstatusSatus(status)}</div>
@@ -258,10 +259,10 @@ class BaseScan extends Component {
   }
 
   render() {
-    const { imageName, tag, mirrorScanstatus, mirrorsafetyLyins } = this.props
+    const { imageName, tag, mirrorScanstatus } = this.props
     let statusCode = 200
     let status = ''
-    if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result || Object.keys(mirrorScanstatus[imageName][tag]).length == 0){
+    if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result || Object.keys(mirrorScanstatus[imageName][tag].result).length == 0){
       return <div style={{textAlign:'center',paddingTop:'50px'}}><Spin /></div>
     }
     if(mirrorScanstatus[imageName][tag].result.status){

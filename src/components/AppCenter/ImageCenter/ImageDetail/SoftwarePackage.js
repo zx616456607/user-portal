@@ -53,194 +53,43 @@ class TableTemplate extends Component{
 
   componentDidMount() {
     const newDate = this.TableData().newData
-    this.setState({
-      Unknown: newDate.EchartsUnknownNum,
-      Negligible: newDate.EchartsNegligibleNum,
-      Low: newDate.EchartsLowNum,
-      Medium: newDate.EchartsMediumNum,
-      High: newDate.EchartsHighNum,
-      None: newDate.EchartsNoneNum,
-      Total: (newDate.EchartsUnknownNum + newDate.EchartsNegligibleNum + newDate.EchartsLowNum + newDate.EchartsMediumNum + newDate.EchartsHighNum + newDate.EchartsNoneNum)
-    })
+    if(newDate){
+      this.setState({
+        Unknown: newDate.EchartsUnknownNum,
+        Negligible: newDate.EchartsNegligibleNum,
+        Low: newDate.EchartsLowNum,
+        Medium: newDate.EchartsMediumNum,
+        High: newDate.EchartsHighNum,
+        None: newDate.EchartsNoneNum,
+        Total: (newDate.EchartsUnknownNum + newDate.EchartsNegligibleNum + newDate.EchartsLowNum + newDate.EchartsMediumNum + newDate.EchartsHighNum + newDate.EchartsNoneNum)
+      })
+    }
   }
 
   componentWillReceiveProps(nextProps){
     const mirrorsafetyClair = nextProps.mirrorsafetyClair
     const imageName = nextProps.imageName
-    const result = mirrorsafetyClair[imageName].result
-    const features = result.report.features
-    const vulnerabilities = result.report.vulnerabilities
-    const fixedIn = result.report.fixedIn
-    // Echarts 数据
-    let EchartsUnknownNum = 0
-    let EchartsNegligibleNum = 0
-    let EchartsLowNum = 0
-    let EchartsMediumNum = 0
-    let EchartsHighNum = 0
-    let EchartsNoneNum = 0
-    let index =1
-    for (let key in features) {
-      let command = {}
-      let arrBug = []
-      let bugcell = [
-        { sortNum: 0, High: 0 },
-        { sortNum: 0, Medium: 0 },
-        { sortNum: 0, Low: 0 },
-        { sortNum: 0, Unknown: 0 },
-        { sortNum: 0, Negligible: 0 },
-        { sortNum: 0, Other: 0 }
-      ]
-      let bugcellObj = []
-      let bugcellSlice = []
-      let bugcellValue = {
-        nameOne: '',
-        valueOne: '',
-        nameTwo: '',
-        valueTwo: ''
+    const tag = nextProps.imageName
+    if(imageName !== this.props.imageName || mirrorsafetyClair !== this.props.mirrorsafetyClair || !nextProps.mirrorLayeredinfo[imageName]){
+      if(!mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName][tag] || !mirrorsafetyClair[imageName][tag].result || Object.keys(mirrorsafetyClair[imageName][tag].result.report).length == 0){
+        return
       }
-      let nameStr = ''
-      let namevnlner = ''
-      let nameIndex = ''
-      let availableRepair = []
-      let unavailableRepair = []
-      let upgradeRemain = 0
-      let upgradeImapct = {}
-
-      // 漏洞数据获取
-      // 找到当前包的漏洞信息，并将其存入一个数组
-      if (features[key].vulnerabilities.length !== 0) {
-        // 升级后的剩余
-        nameStr = key.replace(/-/g, '')
-        nameStr = nameStr.substring(0, 1).toUpperCase() + nameStr.substring(1, nameStr.length)
-        for (let j = 0; j < features[key].vulnerabilities.length; j++) {
-          let flag = false
-          // 升级后的影响
-          namevnlner = (features[key].vulnerabilities[j]).replace(/-/g, '')
-          namevnlner = namevnlner.substring(0, 1).toLowerCase() + namevnlner.substring(1, namevnlner.length)
-          nameIndex = namevnlner + nameStr
-          // 遍历 fixedIn ， 判断当前漏洞是否可修复
-          for (let fixed in fixedIn) {
-            if (nameIndex == fixed) {
-              availableRepair.push(fixedIn[fixed])
-              flag = true
-              break
-            }
-          }
-          if(flag == false){
-            unavailableRepair.push(features[key].vulnerabilities[j])
-          }
-          for (let k in vulnerabilities) {
-            if (vulnerabilities[k].name == features[key].vulnerabilities[j]) {
-              arrBug.push(vulnerabilities[k])
-              break
-            }
-          }
-        }
-        upgradeRemain = unavailableRepair.length
-      } else {
-        EchartsNoneNum++
-        upgradeRemain = 0
-      }
-      //升级的影响
-      let impactArr = []
-      let impactSeverityNum = [0,0,0,0,0,0]
-      if(unavailableRepair.length == 0){
-        impactArr = []
-      }else{
-        for(let i=0;i<unavailableRepair.length;i++){
-          for(let j in vulnerabilities){
-            if(unavailableRepair[i] == vulnerabilities[j].name){
-              impactArr.push(vulnerabilities[j].severity)
-              break
-            }
-          }
-        }
-      }
-      if(impactArr.length == 0 ){
-        impactSeverityNum = [0,0,0,0,0,0]
-      }else{
-        for(let i=0;i<impactArr.length;i++){
-          switch(impactArr){
-            case 'High' :
-              impactSeverityNum[0]++
-            case 'Medium' :
-              impactSeverityNum[1]++
-            case 'Low':
-              impactSeverityNum[2]++
-            case 'Negligible':
-              impactSeverityNum[3]++
-            case 'Other':
-              impactSeverityNum[4]++
-            case 'Unknown':
-            default:
-              impactSeverityNum[5]++
-          }
-        }
-      }
-
-      let severityMax = 0
-      let severityMaxi = 0
-      let severityCount = 0
-      for (let i=0;i<impactSeverityNum.length;i++){
-        if(impactSeverityNum[i] > severityMax){
-          severityMax = impactSeverityNum[i]
-          severityMaxi = i
-          severityCount = severityCount + impactSeverityNum[i]
-        }
-      }
-
-      if(severityCount == 0){
-        upgradeImapct = {
-          impactColor:5,
-          impactSignal:0,
-          impactSorterNum:this.handleImpactSorter(0,5)
-        }
-      }else{
-        upgradeImapct = {
-          impactColor:severityMaxi,
-          impactSignal:severityMax/severityCount,
-          impactSorterNum:this.handleImpactSorter(severityMax/severityCount,severityMaxi)
-        }
-      }
-
-      // 遍历漏洞信息中的 安全等级，将安全等级信息存入一个数组中
-      if (arrBug.length > 0) {
-        for (var arr = 0; arr < arrBug.length; arr++) {
-          switch (arrBug[arr]['severity']) {
-            case "High":
-              let HighNum = parseInt(bugcell[0]['High'])
-              bugcell[0]['High'] = HighNum + 1
-              bugcell[0]['sortNum'] = HighNum + 1
-              EchartsHighNum = EchartsHighNum + 1
-            case "Medium":
-              let MediumNum = parseInt(bugcell[1]["Medium"])
-              bugcell[1]["Medium"] = MediumNum + 1
-              bugcell[1]["sortNum"] = MediumNum + 1
-              EchartsMediumNum = EchartsMediumNum + 1
-            case "Low":
-              let LowNum = parseInt(bugcell[2]["Low"])
-              bugcell[2]["Low"] = LowNum + 1
-              bugcell[2]["sortNum"] = LowNum + 1
-              EchartsLowNum = EchartsLowNum + 1
-            case "Unknown":
-              let UnknownNum = parseInt(bugcell[3]["Unknown"])
-              bugcell[3]["Unknown"] = UnknownNum + 1
-              bugcell[3]["sortNum"] = UnknownNum + 1
-              EchartsUnknownNum = EchartsUnknownNum + 1
-            case "Negligible":
-              let NegligibleNum = parseInt(bugcell[4]["Negligible"])
-              bugcell[4]["Negligible"] = NegligibleNum + 1
-              bugcell[4]["sortNum"] = NegligibleNum + 1
-              EchartsNegligibleNum = EchartsNegligibleNum + 1
-            default:
-              let OtherNum = parseInt(bugcell[5]["Other"])
-              bugcell[5]["Other"] = OtherNum + 1
-              bugcell[5]["sortNum"] = OtherNum + 1
-              EchartsUnknownNum = EchartsUnknownNum + 1
-          }
-        }
-      } else {
-        bugcell = [
+      const result = mirrorsafetyClair[imageName][tag].result.report
+      const features = result.features
+      const vulnerabilities = result.vulnerabilities
+      const fixedIn = result.fixedIn
+      // Echarts 数据
+      let EchartsUnknownNum = 0
+      let EchartsNegligibleNum = 0
+      let EchartsLowNum = 0
+      let EchartsMediumNum = 0
+      let EchartsHighNum = 0
+      let EchartsNoneNum = 0
+      let index =1
+      for (let key in features) {
+        let command = {}
+        let arrBug = []
+        let bugcell = [
           { sortNum: 0, High: 0 },
           { sortNum: 0, Medium: 0 },
           { sortNum: 0, Low: 0 },
@@ -248,73 +97,231 @@ class TableTemplate extends Component{
           { sortNum: 0, Negligible: 0 },
           { sortNum: 0, Other: 0 }
         ]
-      }
-
-      //将取到的漏洞状态进行排序
-      let max = 0
-      for (let a = 0; a < bugcell.length; a++) {
-        for (let b = a + 1; b < bugcell.length; b++) {
-          if (bugcell[a].sortNum > bugcell[b].sortNum) {
-            max = bugcell[a]
-            bugcell[a] = bugcell[b]
-            bugcell[b] = max
-          }
+        let bugcellObj = []
+        let bugcellSlice = []
+        let bugcellValue = {
+          nameOne: '',
+          valueOne: '',
+          nameTwo: '',
+          valueTwo: ''
         }
-      }
+        let nameStr = ''
+        let namevnlner = ''
+        let nameIndex = ''
+        let availableRepair = []
+        let unavailableRepair = []
+        let upgradeRemain = 0
+        let upgradeImapct = {}
 
-      //取出漏洞状态的前两位，准备传入table中
-      if (bugcell.length >= 2) {
-        bugcellSlice = bugcell.slice(4)
-        if (bugcellSlice[0].sortNum == 0 && bugcellSlice[1].sortNum == 0) {
-          bugcellValue.nameOne = '暂无数据'
-        } else {
-          delete bugcellSlice[0].sortNum
-          delete bugcellSlice[1].sortNum
-          for (let d = 0; d < bugcellSlice.length; d++) {
-            for (let e in bugcellSlice[d]) {
-              bugcellObj.push(e)
-              bugcellObj.push(bugcellSlice[d][e])
+        // 漏洞数据获取
+        // 找到当前包的漏洞信息，并将其存入一个数组
+        if (features[key].vulnerabilities.length !== 0) {
+          // 升级后的剩余
+          nameStr = key.replace(/-/g, '')
+          nameStr = nameStr.substring(0, 1).toUpperCase() + nameStr.substring(1, nameStr.length)
+          for (let j = 0; j < features[key].vulnerabilities.length; j++) {
+            let flag = false
+            // 升级后的影响
+            namevnlner = (features[key].vulnerabilities[j]).replace(/-/g, '')
+            namevnlner = namevnlner.substring(0, 1).toLowerCase() + namevnlner.substring(1, namevnlner.length)
+            nameIndex = namevnlner + nameStr
+            // 遍历 fixedIn ， 判断当前漏洞是否可修复
+            for (let fixed in fixedIn) {
+              if (nameIndex == fixed) {
+                availableRepair.push(fixedIn[fixed])
+                flag = true
+                break
+              }
+            }
+            if(flag == false){
+              unavailableRepair.push(features[key].vulnerabilities[j])
+            }
+            for (let k in vulnerabilities) {
+              if (vulnerabilities[k].name == features[key].vulnerabilities[j]) {
+                arrBug.push(vulnerabilities[k])
+                break
+              }
             }
           }
-          bugcellValue.nameOne = bugcellObj[2]
-          bugcellValue.valueOne = bugcellObj[3]
-          bugcellValue.nameTwo = bugcellObj[0]
-          bugcellValue.valueTwo = bugcellObj[1]
+          upgradeRemain = unavailableRepair.length
+        } else {
+          EchartsNoneNum++
+          upgradeRemain = 0
         }
+        //升级的影响
+        let impactArr = []
+        let impactSeverityNum = [0,0,0,0,0,0]
+        if(unavailableRepair.length == 0){
+          impactArr = []
+        }else{
+          for(let i=0;i<unavailableRepair.length;i++){
+            for(let j in vulnerabilities){
+              if(unavailableRepair[i] == vulnerabilities[j].name){
+                impactArr.push(vulnerabilities[j].severity)
+                break
+              }
+            }
+          }
+        }
+        if(impactArr.length == 0 ){
+          impactSeverityNum = [0,0,0,0,0,0]
+        }else{
+          for(let i=0;i<impactArr.length;i++){
+            switch(impactArr){
+              case 'High' :
+                impactSeverityNum[0]++
+              case 'Medium' :
+                impactSeverityNum[1]++
+              case 'Low':
+                impactSeverityNum[2]++
+              case 'Negligible':
+                impactSeverityNum[3]++
+              case 'Other':
+                impactSeverityNum[4]++
+              case 'Unknown':
+              default:
+                impactSeverityNum[5]++
+            }
+          }
+        }
+
+        let severityMax = 0
+        let severityMaxi = 0
+        let severityCount = 0
+        for (let i=0;i<impactSeverityNum.length;i++){
+          if(impactSeverityNum[i] > severityMax){
+            severityMax = impactSeverityNum[i]
+            severityMaxi = i
+            severityCount = severityCount + impactSeverityNum[i]
+          }
+        }
+
+        if(severityCount == 0){
+          upgradeImapct = {
+            impactColor:5,
+            impactSignal:0,
+            impactSorterNum:this.handleImpactSorter(0,5)
+          }
+        }else{
+          upgradeImapct = {
+            impactColor:severityMaxi,
+            impactSignal:severityMax/severityCount,
+            impactSorterNum:this.handleImpactSorter(severityMax/severityCount,severityMaxi)
+          }
+        }
+
+        // 遍历漏洞信息中的 安全等级，将安全等级信息存入一个数组中
+        if (arrBug.length > 0) {
+          for (var arr = 0; arr < arrBug.length; arr++) {
+            switch (arrBug[arr]['severity']) {
+              case "High":
+                let HighNum = parseInt(bugcell[0]['High'])
+                bugcell[0]['High'] = HighNum + 1
+                bugcell[0]['sortNum'] = HighNum + 1
+                EchartsHighNum = EchartsHighNum + 1
+              case "Medium":
+                let MediumNum = parseInt(bugcell[1]["Medium"])
+                bugcell[1]["Medium"] = MediumNum + 1
+                bugcell[1]["sortNum"] = MediumNum + 1
+                EchartsMediumNum = EchartsMediumNum + 1
+              case "Low":
+                let LowNum = parseInt(bugcell[2]["Low"])
+                bugcell[2]["Low"] = LowNum + 1
+                bugcell[2]["sortNum"] = LowNum + 1
+                EchartsLowNum = EchartsLowNum + 1
+              case "Unknown":
+                let UnknownNum = parseInt(bugcell[3]["Unknown"])
+                bugcell[3]["Unknown"] = UnknownNum + 1
+                bugcell[3]["sortNum"] = UnknownNum + 1
+                EchartsUnknownNum = EchartsUnknownNum + 1
+              case "Negligible":
+                let NegligibleNum = parseInt(bugcell[4]["Negligible"])
+                bugcell[4]["Negligible"] = NegligibleNum + 1
+                bugcell[4]["sortNum"] = NegligibleNum + 1
+                EchartsNegligibleNum = EchartsNegligibleNum + 1
+              default:
+                let OtherNum = parseInt(bugcell[5]["Other"])
+                bugcell[5]["Other"] = OtherNum + 1
+                bugcell[5]["sortNum"] = OtherNum + 1
+                EchartsUnknownNum = EchartsUnknownNum + 1
+            }
+          }
+        } else {
+          bugcell = [
+            { sortNum: 0, High: 0 },
+            { sortNum: 0, Medium: 0 },
+            { sortNum: 0, Low: 0 },
+            { sortNum: 0, Unknown: 0 },
+            { sortNum: 0, Negligible: 0 },
+            { sortNum: 0, Other: 0 }
+          ]
+        }
+
+        //将取到的漏洞状态进行排序
+        let max = 0
+        for (let a = 0; a < bugcell.length; a++) {
+          for (let b = a + 1; b < bugcell.length; b++) {
+            if (bugcell[a].sortNum > bugcell[b].sortNum) {
+              max = bugcell[a]
+              bugcell[a] = bugcell[b]
+              bugcell[b] = max
+            }
+          }
+        }
+
+        //取出漏洞状态的前两位，准备传入table中
+        if (bugcell.length >= 2) {
+          bugcellSlice = bugcell.slice(4)
+          if (bugcellSlice[0].sortNum == 0 && bugcellSlice[1].sortNum == 0) {
+            bugcellValue.nameOne = '暂无数据'
+          } else {
+            delete bugcellSlice[0].sortNum
+            delete bugcellSlice[1].sortNum
+            for (let d = 0; d < bugcellSlice.length; d++) {
+              for (let e in bugcellSlice[d]) {
+                bugcellObj.push(e)
+                bugcellObj.push(bugcellSlice[d][e])
+              }
+            }
+            bugcellValue.nameOne = bugcellObj[2]
+            bugcellValue.valueOne = bugcellObj[3]
+            bugcellValue.nameTwo = bugcellObj[0]
+            bugcellValue.valueTwo = bugcellObj[1]
+          }
+        }
+        let data = {
+          key: index.toString(),
+          softwarename: features[key].name,
+          softwareversions: features[key].version,
+          softwarebug: bugcellValue,
+          softwareremain: upgradeRemain,
+          softwareimpact: upgradeImapct,
+          softwarepicture: command
+        }
+        index ++
       }
 
-      let data = {
-        key: index.toString(),
-        softwarename: features[key].name,
-        softwareversions: features[key].version,
-        softwarebug: bugcellValue,
-        softwareremain: upgradeRemain,
-        softwareimpact: upgradeImapct,
-        softwarepicture: command
-      }
-      index ++
+      this.setState({
+        Unknown: EchartsUnknownNum,
+        Negligible: EchartsNegligibleNum,
+        Low: EchartsLowNum,
+        Medium: EchartsMediumNum,
+        High: EchartsHighNum,
+        None: EchartsNoneNum,
+        Total: (EchartsUnknownNum + EchartsNegligibleNum + EchartsLowNum + EchartsMediumNum + EchartsHighNum + EchartsNoneNum)
+      })
     }
-
-    this.setState({
-      Unknown: EchartsUnknownNum,
-      Negligible: EchartsNegligibleNum,
-      Low: EchartsLowNum,
-      Medium: EchartsMediumNum,
-      High: EchartsHighNum,
-      None: EchartsNoneNum,
-      Total: (EchartsUnknownNum + EchartsNegligibleNum + EchartsLowNum + EchartsMediumNum + EchartsHighNum + EchartsNoneNum)
-    })
   }
 
   TableData() {
     const { mirrorsafetyClair, mirrorLayeredinfo, imageName, tag } = this.props
-    if (!mirrorsafetyClair[imageName].result || !mirrorLayeredinfo[imageName] || !mirrorLayeredinfo[imageName][tag] || !mirrorLayeredinfo[imageName][tag].result) {
+    if (!mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName][tag] || !mirrorsafetyClair[imageName][tag].result || Object.keys(mirrorsafetyClair[imageName][tag].result.report).length == 0 || !mirrorLayeredinfo[imageName][tag].result) {
       return []
     }
-    const result = mirrorsafetyClair[imageName].result
-    const features = result.report.features
-    const vulnerabilities = result.report.vulnerabilities
-    const fixedIn = result.report.fixedIn
+    const result = mirrorsafetyClair[imageName][tag].result.report
+    const features = result.features
+    const vulnerabilities = result.vulnerabilities
+    const fixedIn = result.fixedIn
     const layerInfo = mirrorLayeredinfo[imageName][tag].result
     let tableDataSource = []
     let index = 1
@@ -640,7 +647,7 @@ class TableTemplate extends Component{
 
   render(){
     const { Unknown, Negligible, Low, Medium, High, None } = this.state
-    const { mirrorsafetyClair, imageName, inherwidth } = this.props
+    const { mirrorsafetyClair, imageName, inherwidth, tag } = this.props
     function softwarenameSort(a,b){
       if(a.length > b.length){
         return -1
@@ -830,7 +837,7 @@ class TableTemplate extends Component{
 
     }
 
-    if(Object.keys(mirrorsafetyClair[imageName].result.report).length == 0){
+    if(Object.keys(mirrorsafetyClair[imageName][tag].result.report).length == 0){
       return <div className='message'>暂未扫描出任何漏洞</div>
     }
 
@@ -868,41 +875,46 @@ class SoftwarePackage extends Component {
     this.APIFailedThenScan = this.APIFailedThenScan.bind(this)
     this.APIGetclairInfo = this.APIGetclairInfo.bind(this)
     this.handlemirrorScanstatusSatus = this.handlemirrorScanstatusSatus.bind(this)
+    this.state = {
+      softpackageRunning : false,
+      softpackageFailed: false
+    }
   }
 
   handleclairStatus(){
     const { mirrorsafetyClair, imageName, mirrorLayeredinfo, inherwidth, tag } = this.props
-    if(!mirrorsafetyClair || !mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName].result){
+    if(!mirrorsafetyClair || !mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName][tag] || !mirrorsafetyClair[imageName][tag].result){
       return
     }
-    const result = mirrorsafetyClair[imageName].result
+    const result = mirrorsafetyClair[imageName][tag].result
     const statusCode = result.statusCode
     const status = result.status
     const message = result.message
+    if(statusCode && statusCode == 500){
+      return <div>{message}</div>
+    }
     if (statusCode && statusCode == 200) {
       switch (status) {
         case 'running':
-          return <div className='BaseScanRunning'>
+          return <div className='BaseScanRunning' data-status="running">
             <div className="top">正在扫描尚未结束</div>
             <Spin/>
-            <div className='bottom'><Button onClick={this.APIGetclairInfo}>点击重新获取</Button></div>
+            <div className='bottom'><Button onClick={this.APIGetclairInfo} loading={this.state.softpackageRunning}>点击重新获取</Button></div>
           </div>
         case 'finished':
           return <TableTemplate mirrorsafetyClair={mirrorsafetyClair} imageName={imageName} mirrorLayeredinfo={mirrorLayeredinfo} inherwidth={inherwidth} tag={tag}/>
         case 'failed':
-          return <div className="BaseScanFailed">
+          return <div className="BaseScanFailed" data-status="filed">
             <div className='top'>扫描失败，请重新扫描</div>
-            <Button onClick={this.APIFailedThenScan}>点击重新获取</Button>
+            <Button onClick={this.APIFailedThenScan} loading={this.state.softpackageFailed}>点击重新获取</Button>
           </div>
         case 'nojob':
         default:
-          return <div>
-            <div className="top">镜像没有别扫描过</div>
-            <Button>点击扫描</Button>
+          return <div className="BaseScanFailed" data-status="nojob">
+            <div className="top">镜像没有被扫描过</div>
+            <Button onClick={this.APIFailedThenScan} loading={this.state.softpackageFailed}>点击扫描</Button>
           </div>
       }
-    } else {
-      return <div>{message}</div>
     }
   }
 
@@ -927,7 +939,15 @@ class SoftwarePackage extends Component {
     const scanstatus = mirrorScanstatus[imageName][tag]
     const blob_sum = scanstatus.result.blobSum || ''
     const full_name = scanstatus.result.fullName
-    loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+    this.setState({softpackageRunning : true})
+    loadMirrorSafetyChairinfo({imageName, blob_sum, full_name, tag},{
+      success:{
+        func : () => {
+          this.setState({softpackageRunning:false})
+        },
+        isAsync: true
+      }
+    })
   }
 
   APIFailedThenScan(){
@@ -943,13 +963,28 @@ class SoftwarePackage extends Component {
       registry,
       full_name
     }
-    if(mirrorSafetyScan[imageName]){
-      return loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+    this.setState({softpackageFailed : true})
+    if(mirrorSafetyScan[imageName] && mirrorSafetyScan[imageName][tag]){
+      return loadMirrorSafetyChairinfo({imageName, blob_sum, full_name, tag},{
+        success : {
+          func: () => {
+            this.setState({softpackageFailed : false})
+          },
+          isAsync: true
+        }
+      })
     }
     return loadMirrorSafetyScan({...config}, {
       success: {
         func: () =>{
-          loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+          loadMirrorSafetyChairinfo({imageName, blob_sum, full_name, tag},{
+            success : {
+              func: () => {
+                this.setState({softpackageFailed : false})
+              },
+              isAsync: true
+            }
+          })
         },
         isAsync : true
       }
@@ -982,12 +1017,12 @@ class SoftwarePackage extends Component {
     if(mirrorScanstatus[imageName][tag].result.statusCode == 500){
       statusCode == 500
     }
-    if(status == 'noresult' ||　status == 'different' || status == "failed"){
-      if(!mirrorsafetyClair[imageName]){
+    if(status == 'different' || status == "failed"){
+      if(!mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName][tag]){
         return (
           <div className='BaseScanFailed' data-status="scanstatus">
             <div className='top'>{this.handlemirrorScanstatusSatus(status)}</div>
-            <Button onClick={this.APIFailedThenScan}>点击扫描</Button>
+            <Button onClick={this.APIFailedThenScan} loading={this.state.softpackageFailed}>点击扫描</Button>
           </div>
         )
       }else{

@@ -695,6 +695,7 @@ function fetchMirrorSafetyScan(body, callback) {
       }
     },
     imageName:body.imageName,
+    tag:body.tag,
     callback
   }
 }
@@ -740,6 +741,7 @@ function fetchMirrorSafetyLyinsinfo(body, callback) {
       schema: Schemas.REGISTRYS,
     },
     imageName:body.imageName,
+    tag:body.tag,
     callback
   }
 }
@@ -762,6 +764,7 @@ function fetchMirrorSafetyChairinfo(body, callback) {
       schema: Schemas.REGISTRYS,
     },
     imageName:body.imageName,
+    tag:body.tag,
     callback
   }
 }

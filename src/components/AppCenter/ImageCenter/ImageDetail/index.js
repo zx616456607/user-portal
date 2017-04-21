@@ -329,7 +329,6 @@ class ImageDetailBox extends Component {
             disable: false,
             tag: this.state.tagVersion
           })
-          //const { mirrorScanstatus } = this.props
           const currentImageScanstatus = mirrorScanstatus[imageName][tag]
           const currentImageScanstatusResult = currentImageScanstatus.result
           const statusCode = currentImageScanstatusResult.statusCode
@@ -353,27 +352,27 @@ class ImageDetailBox extends Component {
               case 'clair':
               case 'running':
               case 'both':{
-                loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
-                loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name})
+                loadMirrorSafetyChairinfo({imageName, blob_sum, full_name, tag})
+                loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name, tag})
                 return
               }
-              case 'noresult':
-              case 'different':{
-                if(mirrorSafetyScan[imageName]){
-                  loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
-                  loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name})
+              case 'noresult':{
+                if(mirrorSafetyScan[imageName] && mirrorSafetyScan[imageName][tag]){
+                  loadMirrorSafetyChairinfo({imageName, blob_sum, full_name, tag})
+                  loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name, tag})
                   return
                 }
                 return loadMirrorSafetyScan({...config}, {
                   success: {
                     func: () =>{
-                      loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
-                      loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name})
+                      loadMirrorSafetyChairinfo({imageName, blob_sum, full_name, tag})
+                      loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name, tag})
                     },
                     isAsync : true
                   }
                 })
               }
+              case 'different':
               case 'failed':
               default: return false
             }

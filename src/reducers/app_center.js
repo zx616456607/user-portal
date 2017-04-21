@@ -839,12 +839,21 @@ function mirrorSafetyScan(state = {}, action) {
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCAN_REQUEST:
       return merge({}, state, {
         isFetching: true,
-        mirrorScaninfo: {}
+        [action.imageName]: {
+          [action.tag]:{
+            isFetching: true,
+          }
+        }
       })
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCAN_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        [action.imageName]: action.response
+        [action.imageName]: {
+          [action.tag]:{
+            isFetching: false,
+            result:action.response
+          }
+        }
       })
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_SCAN_FAILURE:
       return merge({}, state, {
@@ -860,11 +869,21 @@ function mirrorSafetyLyinsinfo(state = {}, action) {
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_LYINSINFO_REQUEST:
       return merge({}, state, {
         isFetching: true,
+        [action.imageName]: {
+          [action.tag]:{
+            isFetching: true,
+          }
+        }
       })
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_LYINSINFO_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        [action.imageName]: action.response
+        [action.imageName]: {
+          [action.tag]:{
+            isFetching: false,
+            result:action.response.result
+          }
+        }
       })
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_LYINSINFO_FAILURE:
       return merge({}, state, {
@@ -880,11 +899,19 @@ function mirrorSafetyClairinfo(state = {}, action) {
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_CLAIRINFO_REQUEST:
       return merge({}, state, {
         isFetching: true,
+        [action.imageName]: {
+          isFetching: true,
+        }
       })
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_CLAIRINFO_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        [action.imageName]: action.response
+        [action.imageName]: {
+          [action.tag]: {
+            isFetching: false,
+            result:action.response.result
+          }
+        }
       })
     case ActionTypes.GET_IMAGE_MIRRORSAFETY_CLAIRINFO_FAILURE:
       return merge({}, state, {
