@@ -418,7 +418,7 @@ let Login = React.createClass({
         </div>
         </div>
         <div className="footer">
-          © 2017 北京云思畅想科技有限公司 &nbsp;|&nbsp; 时速云企业版 v2.0
+          © 2017 北京云思畅想科技有限公司 &nbsp;|&nbsp; 时速云企业版 v2.1.0
           </div>
       </div>
     )
