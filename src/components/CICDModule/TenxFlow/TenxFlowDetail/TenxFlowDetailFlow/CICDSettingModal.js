@@ -20,6 +20,7 @@ import { browserHistory } from 'react-router';
 
 const createForm = Form.create;
 const FormItem = Form.Item;
+const REG_EXP = 'RegExp'
 
 const menusText = defineMessages({
   tooltip: {
@@ -32,7 +33,7 @@ const menusText = defineMessages({
   },
   tag: {
     id: 'CICD.Tenxflow.CICDSettingModal.tag',
-    defaultMessage: '提交代码到tag',
+    defaultMessage: '新建tag',
   },
   request: {
     id: 'CICD.Tenxflow.CICDSettingModal.request',
@@ -56,7 +57,7 @@ function checkBranchInit(config) {
   //this function for user check branch is used or not
   if(Boolean(config.config)) {
     if(Boolean(config.config.branch)) {
-      return config.config.branch.name;
+      return config.config.branch;
     }
     return '';
   }
@@ -67,7 +68,7 @@ function checkTagInit(config) {
   //this function for user check tag is used or not
   if(Boolean(config.config)) {
     if(Boolean(config.config.tag)) {
-      return config.config.tag.name;
+      return config.config.tag;
     }
     return '';
   }
@@ -76,7 +77,7 @@ function checkTagInit(config) {
 
 function checkBranchUsed(config) {
   //this function for check the branch is used or not
-  
+
 }
 
 let CICDSettingModal = React.createClass({
@@ -218,7 +219,7 @@ let CICDSettingModal = React.createClass({
       editTag: false
     });
   },
-  onBlurBranch() {
+  /*onBlurBranch() {
     //this function for the branch input on blur take the input disable
     this.setState({
       editBranch: false
@@ -229,7 +230,7 @@ let CICDSettingModal = React.createClass({
     this.setState({
       editTag: false
     })
-  },
+  },*/
   onChangeUseRequest(e) {
     //this function for user change use merge request or not
     this.setState({
@@ -256,7 +257,8 @@ let CICDSettingModal = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope, UpdateTenxflowCIRules, flowId } = this.props;
+    const { scope, UpdateTenxflowCIRules, flowId, form } = this.props;
+    const { validateFields, getFieldValue } = form
     const _this = this;
     const { useBranch, useTag, useRequest } = this.state;
     let branchInput = null;
@@ -267,7 +269,7 @@ let CICDSettingModal = React.createClass({
       tagInput: false
     })
     if(useBranch) {
-      this.props.form.validateFields(['branch'],(errors, values) => {
+      validateFields(['branch'],(errors, values) => {
         if (!!errors) {
           e.preventDefault();
           checkFlag = false;
@@ -278,9 +280,10 @@ let CICDSettingModal = React.createClass({
         }
         branchInput = values;
       });
+      branchInput.matchWay = getFieldValue('isBranchReg')
     }
     if(useTag) {
-      this.props.form.validateFields(['tag'],(errors, values) => {
+      validateFields(['tag'],(errors, values) => {
         if (!!errors) {
           e.preventDefault();
           checkFlag = false;
@@ -291,6 +294,7 @@ let CICDSettingModal = React.createClass({
         }
         tagInput = values;
       });
+      tagInput.matchWay = getFieldValue('isTagReg')
     }
     if(!checkFlag) {
       return;
@@ -305,12 +309,14 @@ let CICDSettingModal = React.createClass({
     }
     if(useBranch) {
       body.config.branch = {
-        name: branchInput.branch
+        name: branchInput.branch,
+        matchWay: branchInput.matchWay && REG_EXP,
       }
     }
     if(useTag) {
       body.config.tag = {
-        name: tagInput.tag
+        name: tagInput.tag,
+        matchWay: tagInput.matchWay && REG_EXP,
       }
     }
     if(useRequest) {
@@ -322,7 +328,7 @@ let CICDSettingModal = React.createClass({
     });
     UpdateTenxflowCIRules(flowId, body, {
       success: {
-        func: () => { 
+        func: () => {
           scope.ciRulesChangeSuccess()
           _this.setState({
             useBranch: false,
@@ -351,14 +357,22 @@ let CICDSettingModal = React.createClass({
       rules: [
         { required: true, message: '请输入Branch名称' },
       ],
-      initialValue: checkBranchInit(ciRules.results),
+      initialValue: checkBranchInit(ciRules.results).name,
     });
+    const isBranchRegProps = getFieldProps('isBranchReg', {
+      valuePropName: 'checked',
+      initialValue: checkBranchInit(ciRules.results).matchWay === REG_EXP,
+    })
     const tagProps = getFieldProps('tag', {
       rules: [
         { required: true, message: '请输入Tag名称' },
       ],
-      initialValue: checkTagInit(ciRules.results),
+      initialValue: checkTagInit(ciRules.results).name,
     });
+    const isTagRegProps = getFieldProps('isTagReg', {
+      valuePropName: 'checked',
+      initialValue: checkTagInit(ciRules.results).matchWay === REG_EXP,
+    })
     return (
     <Form horizontal>
       <div id='CICDSettingModal' key='CICDSettingModal'>
@@ -375,9 +389,20 @@ let CICDSettingModal = React.createClass({
                 </FormItem>
               </div>
               <div className='inputBox'>
-                <FormItem style={{ width:'380px',float:'left',marginRight:'18px' }}>
-                  <Input className={ this.state.noBranch ? 'noBranchInput' : '' } key='branchInput' {...branchProps} onBlur={this.onBlurBranch} type='text' id='branchInput' size='large' disabled={ (!this.state.editBranch) } />
-                  { this.state.noBranch ? [<span className='noValueSpan'>请输入Branch名称</span>] : null}
+                <FormItem style={{ width:'300px',float:'left',marginRight:'18px' }}>
+                  <Input
+                    className={ this.state.noBranch ? 'noBranchInput' : '' }
+                    key='branchInput'
+                    {...branchProps}
+                    type='text'
+                    id='branchInput'
+                    size='large'
+                    disabled={ (!this.state.editBranch) }
+                  />
+                    { this.state.noBranch ? [<span className='noValueSpan'>请输入Branch名称</span>] : null}
+                </FormItem>
+                <FormItem style={{ width:'80px', float:'left' }}>
+                  <Checkbox {...isBranchRegProps} disabled={!this.state.editBranch}>正则</Checkbox>
                 </FormItem>
                 {
                   !this.state.editBranch ? [
@@ -396,9 +421,20 @@ let CICDSettingModal = React.createClass({
                 </FormItem>
               </div>
               <div className='request inputBox'>
-                <FormItem style={{ width:'380px',float:'left',marginRight:'18px' }}>
-                  <Input className={ this.state.noTag ? 'noTagInput' : '' } key='tagInput' {...tagProps} onBlur={this.onBlurTag} type='text' id='tagInput' size='large' disabled={ !this.state.editTag} />
+                <FormItem style={{ width:'300px',float:'left',marginRight:'18px' }}>
+                  <Input
+                    className={ this.state.noTag ? 'noTagInput' : '' }
+                    key='tagInput'
+                    {...tagProps}
+                    type='text'
+                    id='tagInput'
+                    size='large'
+                    disabled={ !this.state.editTag}
+                  />
                   { this.state.noTag ? [<span className='noValueSpan'>请输入Tag名称</span>] : null}
+                </FormItem>
+                <FormItem style={{ width:'80px', float:'left' }}>
+                  <Checkbox {...isTagRegProps} disabled={!this.state.editTag}>正则</Checkbox>
                 </FormItem>
                 {
                   !this.state.editTag ? [
