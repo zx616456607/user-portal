@@ -21,6 +21,7 @@ import NotificationHandler from '../../common/notification_handler'
 import { ANNOTATION_SVC_SCHEMA_PORTNAME } from '../../../constants'
 import mysqlImg from '../../assets/img/database_cache/mysql.png'
 import redisImg from '../../assets/img/database_cache/redis.jpg'
+import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
 
 const Panel = Collapse.Panel;
 const ButtonGroup = Button.Group
@@ -188,7 +189,13 @@ class BaseInfo extends Component {
       <div className="modal-content">
         <div className="modal-header">更改实例数  <Icon type='cross' onClick={() => parentScope.colseModal()} className='cursor' style={{ float: 'right' }} /></div>
         <div className="modal-li padTop"><span className="spanLeft">服务名称</span><span>{dbName}</span></div>
-        <div className="modal-li"><span className="spanLeft">实例副本</span><InputNumber  onChange={(e) => parentScope.setState({ replicas: e })} value={parentScope.state.replicas} min={1} max={5} /> &nbsp; 个</div>
+        <div className="modal-li">
+          <span className="spanLeft">实例副本</span>
+          <InputNumber onChange={(e) => parentScope.setState({ replicas: e })}
+                       value={parentScope.state.replicas}
+                       min={ this.props.database == 'zookeeper' ? 3 : 1 }
+                       max={5} /> &nbsp; 个
+        </div>
         <div className="modal-li">
           <span className="spanLeft">存储大小</span>
           {/* <Slider min={500} max={10000} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} step={100} /> */}
@@ -467,6 +474,17 @@ class ModalDetail extends Component {
       activeTabKey
     })
   }
+  logo(clusterType) {
+    const logoMapping = {
+      'mysql': mysqlImg,
+      'redis': redisImg,
+      'zookeeper': zkImg
+    }
+    if (!(clusterType in logoMapping)) {
+      return redisImg
+    }
+    return logoMapping[clusterType]
+  }
   render() {
     const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs } = this.props;
     let statusClass = 'normal'
@@ -503,7 +521,7 @@ class ModalDetail extends Component {
         <div className='topBox'>
           <Icon className='closeBtn' type='cross' onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className='imgBox'>
-            <img src={ this.props.database == 'mysql' ? mysqlImg : redisImg} />
+            <img src={ this.logo(this.props.database) } />
           </div>
           <div className='infoBox'>
             <p className='instanceName'>

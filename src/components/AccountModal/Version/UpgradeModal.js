@@ -63,6 +63,7 @@ class UpgradeModal extends Component {
         return 'database'
       case 'Image':
       case 'ComposeFile':
+      case 'ImageSecure':
         return 'appcenter'
       case 'Integration':
         return 'intergation'
@@ -109,7 +110,7 @@ class UpgradeModal extends Component {
               </div>
               <div className={ currentType == 'cicd' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>CI/CD标准版（2 个TenxFlow，8个子项目）代码库（GitHub、GitLab、SVN）</span>
+                <span className='infoSpan'>CI/CD标准版（2 个TenxFlow，8个子项目）代码库（GitHub、GitLab、SVN、Gogs）</span>
               </div>
               <div className={ currentType == 'database' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
@@ -143,7 +144,7 @@ class UpgradeModal extends Component {
               <div className={ currentType == 'appcenter' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <img className='commonImg' src={proIcon} />
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>交付中心（20个镜像）</span>
+                <span className='infoSpan'>交付中心（20个镜像、安全扫描）</span>
               </div>
               <div className={ currentType == 'cicd' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <img className='commonImg' src={proIcon} />

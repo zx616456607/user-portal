@@ -38,6 +38,7 @@ class TableTemplate extends Component{
     this.handleImpactSignal = this.handleImpactSignal.bind(this)
     this.handleImpactColor = this.handleImpactColor.bind(this)
     this.TempalteUpgradeImpact = this.TempalteUpgradeImpact.bind(this)
+    this.TemplateTableIntroduceInLayer = this.TemplateTableIntroduceInLayer.bind(this)
     this.state = {
       Unknown: 0,
       Negligible: 0,
@@ -45,7 +46,8 @@ class TableTemplate extends Component{
       Medium: 0,
       High: 0,
       None: 0,
-      Total: 0
+      Total: 0,
+      inherwidth:'99%'
     }
   }
 
@@ -305,14 +307,15 @@ class TableTemplate extends Component{
   }
 
   TableData() {
-    const { mirrorsafetyClair, mirrorLayeredinfo, imageName } = this.props
-    if (!mirrorsafetyClair[imageName].result) {
+    const { mirrorsafetyClair, mirrorLayeredinfo, imageName, tag } = this.props
+    if (!mirrorsafetyClair[imageName].result || !mirrorLayeredinfo[imageName] || !mirrorLayeredinfo[imageName][tag] || !mirrorLayeredinfo[imageName][tag].result) {
       return []
     }
     const result = mirrorsafetyClair[imageName].result
     const features = result.report.features
     const vulnerabilities = result.report.vulnerabilities
     const fixedIn = result.report.fixedIn
+    const layerInfo = mirrorLayeredinfo[imageName][tag].result
     let tableDataSource = []
     let index = 1
     // Echarts 数据
@@ -528,9 +531,9 @@ class TableTemplate extends Component{
       }
 
       // 介绍了图像
-      for (let i = 0; i < mirrorLayeredinfo[imageName].length; i++) {
-        if (mirrorLayeredinfo[imageName][i].iD == features[key].layerID) {
-          command = mirrorLayeredinfo[imageName][i].command
+      for (let i = 0; i < layerInfo.length; i++) {
+        if (layerInfo[i].iD == features[key].layerID) {
+          command = layerInfo[i].command
         }
       }
       let data = {
@@ -616,9 +619,28 @@ class TableTemplate extends Component{
 
   }
 
+  TemplateTableIntroduceInLayer(text){
+    if(!text.parameters){
+      return (
+        <div>
+          <span className='softwarepicturelleft'>{text.action}</span>
+          <span className="textoverflow softwarepicturespan">{text.parameters}</span>
+          <i className="fa fa-database softwarepicturelright" aria-hidden="true"></i>
+        </div>
+      )
+    }
+    return (
+      <div>
+        <span className='softwarepicturelleft'>{text.action}</span>
+        <Tooltip title={text.parameters}><span className="textoverflow softwarepicturespan">{text.parameters}</span></Tooltip>
+        <i className="fa fa-database softwarepicturelright" aria-hidden="true"></i>
+      </div>
+    )
+  }
+
   render(){
     const { Unknown, Negligible, Low, Medium, High, None } = this.state
-    const { mirrorsafetyClair, imageName} = this.props
+    const { mirrorsafetyClair, imageName, inherwidth } = this.props
     function softwarenameSort(a,b){
       if(a.length > b.length){
         return -1
@@ -650,7 +672,13 @@ class TableTemplate extends Component{
         key: 'softwarebug',
         width: "13%",
         render: text => (
-          <div className='softwarebug'><i className="fa fa-exclamation-triangle softwarebugspan" style={{ margin: '0 8px 0 2px ', color: '#f6565e' }} aria-hidden="true"></i><span>{text.nameOne}</span><span>{text.valueOne}</span><span>{text.nameTwo}</span><span>{text.valueTwo}</span></div>)
+          <div className='softwarebug'>
+            <i className="fa fa-exclamation-triangle softwarebugi" aria-hidden="true"></i>
+            <span className='softwarebugspan'>{text.nameOne}</span>
+            <span className='softwarebugspan'>{text.valueOne}</span>
+            <span className='softwarebugspan'>{text.nameTwo}</span>
+            <span className='softwarebugspan'>{text.valueTwo}</span>
+          </div>)
       },
       {
         title: '升级后的剩余',
@@ -678,7 +706,9 @@ class TableTemplate extends Component{
         key: 'softwarepicture',
         width: '30%',
         render: (text) => (
-          <div className='softwarepicture'><span className='softwarepicturelleft'>{text.action}</span><Tooltip title={text.parameters}><span className="textoverflow softwarepicturespan">{text.parameters}</span></Tooltip><i className="fa fa-database softwarepicturelright" aria-hidden="true"></i></div>)
+          <div className='softwarepicture'>
+            {this.TemplateTableIntroduceInLayer(text)}
+          </div>)
       }
     ]
 
@@ -806,7 +836,7 @@ class TableTemplate extends Component{
 
     return(<div>
       <div className='softwarePackageTableContent'>
-        <div className='softwarePackageEcharts' style={{ width: '100%' }}>
+        <div className='softwarePackageEcharts' style={{ width: inherwidth }}>
           <ReactEcharts
           option={softwareOption}
           style={{ height: '220px' }}
@@ -836,10 +866,12 @@ class SoftwarePackage extends Component {
     this.handleclairStatus = this.handleclairStatus.bind(this)
     this.NodataTemplateSafetyBug = this.NodataTemplateSafetyBug.bind(this)
     this.APIFailedThenScan = this.APIFailedThenScan.bind(this)
+    this.APIGetclairInfo = this.APIGetclairInfo.bind(this)
+    this.handlemirrorScanstatusSatus = this.handlemirrorScanstatusSatus.bind(this)
   }
 
   handleclairStatus(){
-    const { mirrorsafetyClair, imageName, mirrorLayeredinfo } = this.props
+    const { mirrorsafetyClair, imageName, mirrorLayeredinfo, inherwidth, tag } = this.props
     if(!mirrorsafetyClair || !mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName].result){
       return
     }
@@ -856,7 +888,7 @@ class SoftwarePackage extends Component {
             <div className='bottom'><Button onClick={this.APIGetclairInfo}>点击重新获取</Button></div>
           </div>
         case 'finished':
-          return <TableTemplate mirrorsafetyClair={mirrorsafetyClair} imageName={imageName} mirrorLayeredinfo={mirrorLayeredinfo}/>
+          return <TableTemplate mirrorsafetyClair={mirrorsafetyClair} imageName={imageName} mirrorLayeredinfo={mirrorLayeredinfo} inherwidth={inherwidth} tag={tag}/>
         case 'failed':
           return <div className="BaseScanFailed">
             <div className='top'>扫描失败，请重新扫描</div>
@@ -890,11 +922,20 @@ class SoftwarePackage extends Component {
   //  callBack(getBackInfo)
   //}
   //
+  APIGetclairInfo(){
+    const { loadMirrorSafetyChairinfo, mirrorScanstatus, imageName, tag } = this.props
+    const scanstatus = mirrorScanstatus[imageName][tag]
+    const blob_sum = scanstatus.result.blobSum || ''
+    const full_name = scanstatus.result.fullName
+    loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+  }
+
   APIFailedThenScan(){
     const { loadMirrorSafetyScan, loadMirrorSafetyChairinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus } = this.props
     const registry = mirrorScanUrl
-    const blob_sum = mirrorScanstatus[imageName][tag].blobSum
-    const full_name = mirrorScanstatus[imageName][tag].fullName
+    const scanstatus = mirrorScanstatus[imageName][tag]
+    const blob_sum = scanstatus.result.blobSum || ''
+    const full_name = scanstatus.result.fullName
     const config = {
       cluster_id,
       imageName,
@@ -915,31 +956,51 @@ class SoftwarePackage extends Component {
     })
   }
 
-  render() {
-    const { imageName, tag, mirrorScanstatus } = this.props
-    let statusCode = 200
-    if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result || Object.keys(mirrorScanstatus[imageName][tag]).length == 0){
-      return <Spin />
+  handlemirrorScanstatusSatus(status){
+    switch(status){
+      case 'noresult':
+        return <span>镜像没有被扫描过，请点击扫描</span>
+      case 'different':
+        return <span>镜像扫描结果与上次扫描结果不同</span>
+      case 'failed':
+        return <span>扫描失败,请重新扫描</span>
+      default:
+        return <span></span>
     }
-    if(mirrorScanstatus[imageName].statusCode == 500){
+  }
+
+  render() {
+    const { imageName, tag, mirrorScanstatus, mirrorsafetyClair } = this.props
+    let statusCode = 200
+    let status = ''
+    if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result || Object.keys(mirrorScanstatus[imageName][tag]).length == 0){
+      return <div style={{textAlign:'center',paddingTop:'50px'}}><Spin /></div>
+    }
+    if(mirrorScanstatus[imageName][tag].result.status){
+      status = mirrorScanstatus[imageName][tag].result.status
+    }
+    if(mirrorScanstatus[imageName][tag].result.statusCode == 500){
       statusCode == 500
     }
-    if(mirrorScanstatus[imageName].status == 'failed'){
-      return (
-        <div className='BaseScanFailed' data-status="scanstatus">
-          <div className='top'>扫描失败,请重新扫描</div>
-          <Button onClick={this.APIFailedThenScan}>重新扫描</Button>
-        </div>
-      )
+    if(status == 'noresult' ||　status == 'different' || status == "failed"){
+      if(!mirrorsafetyClair[imageName]){
+        return (
+          <div className='BaseScanFailed' data-status="scanstatus">
+            <div className='top'>{this.handlemirrorScanstatusSatus(status)}</div>
+            <Button onClick={this.APIFailedThenScan}>点击扫描</Button>
+          </div>
+        )
+      }else{
+        return (
+          <div id="SoftwarePackage">
+            {statusCode == 500 ? this.NodataTemplateSafetyBug() : this.handleclairStatus()}
+          </div>
+        )
+      }
     }
     return (
       <div id="SoftwarePackage">
-        {
-          statusCode == 500 ?
-            this.NodataTemplateSafetyBug()
-            :
-            this.handleclairStatus()
-        }
+        {statusCode == 500 ? this.NodataTemplateSafetyBug() : this.handleclairStatus()}
       </div>
     )
   }
@@ -949,7 +1010,7 @@ function mapStateToProps(state,props){
   const { images, entities } = state
   let mirrorScanUrl = ''
   if (images.publicImages[DEFAULT_REGISTRY] && images.publicImages[DEFAULT_REGISTRY].server) {
-    mirrorScanUrl = 'http://' + images.publicImages[DEFAULT_REGISTRY].server
+    mirrorScanUrl = images.publicImages[DEFAULT_REGISTRY].server
   }
   let mirrorsafetyClair = images.mirrorSafetyClairinfo
   let mirrorSafetyScan = images.mirrorSafetyScan

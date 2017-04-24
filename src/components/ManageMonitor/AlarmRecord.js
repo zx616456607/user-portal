@@ -19,6 +19,9 @@ import { loadRecords, loadRecordsFilters, deleteRecords } from '../../actions/al
 import NotificationHandler from '../../common/notification_handler'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 const Option = Select.Option
+import { STANDARD_MODE } from '../../../configs/constants'
+import { mode } from '../../../configs/model'
+const standardFlag = mode === STANDARD_MODE
 
 class AlarmRecord extends Component {
   constructor(props) {
@@ -241,19 +244,25 @@ class AlarmRecord extends Component {
     const data = this.getRecordData()
     const { total } = this.props.records
     const { page, size } = this.state
+    const getTypeOptions = function() {
+      let options = [<Option value="">全部</Option>]
+      options.push(<Option value="0">服务</Option>)
+      if (!standardFlag) {
+        options.push(<Option value="1">节点</Option>)
+      }
+      return options
+    }
     return (
       <QueueAnim className="AlarmRecord" type="right">
         <div id="AlarmRecord" key="AlarmRecord">
           <div className="topRow">
-        <Select style={{ width: 120 }} size="large" defaultValue={this.state.strategyFilter} placeholder="选择告警策略" onChange={(value) => this.setState({strategyFilter: value})}>
+        <Select style={{ width: 150 }} getPopupContainer={()=> document.getElementById('AlarmRecord')} size="large" defaultValue={this.state.strategyFilter} placeholder="选择告警策略" onChange={(value) => this.setState({strategyFilter: value})}>
               {filters.strategies}
             </Select>
         <Select style={{ width: 120 }} size="large" placeholder="选择类型" defaultValue={this.state.targetTypeFilter} onChange={(value) => this.setState({targetTypeFilter: value})}>
-              <Option value="">全部</Option>
-              <Option value="0">服务</Option>
-              <Option value="1">节点</Option>
+              {getTypeOptions()}
             </Select>
-        <Select style={{ width: 120 }} size="large" placeholder="选择告警对象" defaultValue={this.state.targetFilter} onChange={(value) => this.setState({targetFilter: value})}>
+        <Select style={{ width: 120 }} getPopupContainer={()=> document.getElementById('AlarmRecord')} size="large" placeholder="选择告警对象" defaultValue={this.state.targetFilter} onChange={(value) => this.setState({targetFilter: value})}>
               {filters.targets}
             </Select>
             <DatePicker placeholder="选择起始日期" size="large" onChange={(value) => this.onBeginTimeFilterChange(value)}/>

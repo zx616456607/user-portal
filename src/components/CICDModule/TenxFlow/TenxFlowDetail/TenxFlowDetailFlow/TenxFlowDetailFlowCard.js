@@ -490,7 +490,8 @@ class TenxFlowDetailFlowCard extends Component {
       currentFlowEdit, flowId, codeList,
       isFetching, ciRules, buildFetching,
       logs, supportedDependencies, totalLength,
-      imageList, toggleCustomizeBaseImageModal
+      imageList, toggleCustomizeBaseImageModal,
+      baseImages,
     } = this.props;
     const scopeThis = this;
     const dropdown = (
@@ -585,7 +586,7 @@ class TenxFlowDetailFlowCard extends Component {
               <QueueAnim key={'EditTenxFlowModalAnimate' + index}>
                 <EditTenxFlowModal key={'EditTenxFlowModal' + index} rootScope={scope} scope={scopeThis}
                   config={config} flowId={flowId} stageId={config.metadata.id} codeList={codeList}
-                  supportedDependencies={supportedDependencies} imageList={imageList}
+                  supportedDependencies={supportedDependencies} imageList={imageList} baseImages={baseImages}
                   otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={toggleCustomizeBaseImageModal}
                   />
               </QueueAnim>

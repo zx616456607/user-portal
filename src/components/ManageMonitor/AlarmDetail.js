@@ -117,7 +117,7 @@ class AlarmDetail extends Component {
 
   }
   changeEmail(e) {
-    this.setState({sendEmail: e}) 
+    this.setState({sendEmail: e})
     const id = this.props.params.id
     const { leftSetting, getSettingList, cluster, updateEnable} = this.props
     if(leftSetting) {
@@ -242,7 +242,7 @@ class AlarmDetail extends Component {
                   <div className="alertRow">提示：当任意规则满足条件时，该策略属于触发状态！</div>
                 </div>
                 <div style={{margin: '20px 30px'}}>
-                <Button icon="reload" type="primary" size="large" onClick={() => this.refreshPage()}>刷新</Button>
+                <Button type="primary" size="large" onClick={() => this.refreshPage()}><i className="fa fa-refresh" /> 刷新</Button>
                   <Button icon="delete" size="large" style={{marginLeft: 8}} disabled={this.state.selectCheckbox.length <= 0} onClick={()=> this.setState({deleteModal: true})} type="ghost">删除</Button>
                 </div>
                 <Table className="strategyTable" rowSelection={rowSelection} columns={columns}

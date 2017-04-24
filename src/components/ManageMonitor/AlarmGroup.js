@@ -10,7 +10,7 @@
 
 'use strict'
 import React, { Component } from 'react'
-import { Button, Input, Table, Spin, Dropdown, Menu, Icon, Popover, Modal, Form, Card, Pagination } from 'antd'
+import { Button, Input, Table, Spin, Dropdown, Menu, Icon, Popover, Modal, Form, Card, Tooltip } from 'antd'
 import './style/AlarmGroup.less'
 import QueueAnim from 'rc-queue-anim'
 // import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../../constants'
@@ -47,9 +47,6 @@ class AlarmGroup extends Component {
       <Menu onClick={(record)=> this.handleDropdownClick(record, group)}
           style={{ width: '80px' }}
       >
-      <Menu.Item key="delete">
-        <span>删除</span>
-      </Menu.Item>
       <Menu.Item key="edit">
         <span>修改</span>
       </Menu.Item>
@@ -84,24 +81,23 @@ class AlarmGroup extends Component {
       failed: {
         func: (err) => {
           this.closeDeleteModal()
-          notification.error(`删除失败`)
+          notification.error('删除失败','请先取消策略对该通知组的引用，方可删除告警通知组')
         },
         isAsync: true
       }
     })
   }
   handleDropdownClick(record, group) {
-    if (record.key == 'delete') {
-      this.openDeleteModal([group.groupID])
-    } else if (record.key == 'edit') {
+    if (record.key == 'edit') {
       this.openModifyModal(group)
     }
   }
-  openDeleteModal(groupIDs) {
+  openDeleteModal(e, groupIDs) {
     this.setState({
       deleteModal: true,
       deletingGroupIDs: groupIDs,
     })
+    e.stopPropagation()
   }
   closeDeleteModal() {
     this.setState({
@@ -245,8 +241,21 @@ class AlarmGroup extends Component {
     },{
       title:'操作',
       dataIndex:'handle',
-      width:'10%',
-      render:(text, group) => <Dropdown.Button type="ghost" overlay={ this.dropdowns(text, group) } onClick={()=> this.openDeleteModal([group.groupID])}>删除</Dropdown.Button>
+      width:'15%',
+      render:(text, group) => {
+        if (group.strategies.length >0) {
+          return (
+          <Dropdown.Button type="ghost" overlay={ this.dropdowns(text, group) } onClick={(e)=> e.stopPropagation() } className='disableBtn'>
+            <Tooltip title="请先取消策略对该通知组的引用，方可删除告警通知组">
+              <Button style={{border:0}} disabled={true}>删除</Button>
+            </Tooltip>
+          </Dropdown.Button>
+          )
+        }
+        return (
+          <Dropdown.Button type="ghost" overlay={ this.dropdowns(text, group) } onClick={(e)=> this.openDeleteModal(e,[group.groupID])} className="normalBtn">删除</Dropdown.Button>
+        )
+      }
     }]
 
     // this.props.groups.map(function(item, i) {

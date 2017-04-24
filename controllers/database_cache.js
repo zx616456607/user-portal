@@ -52,7 +52,11 @@ exports.createNewDBService = function* () {
   }
   let yamlContent = appTemplate.data.content
   // For base petset and service
-  yamlContent = yamlContent.replace(/\{\{name\}\}/g, basicInfo.serviceName).replace("{{size}}", basicInfo.volumeSize).replace("{{password}}", basicInfo.password).replace("{{replicas}}", basicInfo.replicas)
+  yamlContent = yamlContent.replace(/\{\{name\}\}/g, basicInfo.serviceName)
+    .replace("{{size}}", basicInfo.volumeSize)
+    .replace("{{password}}", basicInfo.password)
+    .replace("{{replicas}}", basicInfo.replicas)
+    .replace(/\{\{max-participant\}\}/g, basicInfo.maxParticipant)
   const registry = new registryAPIs()
   yamlContent = yamlContent.replace(/\{\{registry\}\}/g, registry.getRegistryHost())
   // For external service access

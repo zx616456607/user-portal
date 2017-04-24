@@ -291,7 +291,7 @@ let MyComponent = React.createClass({
         item.active = !item.active
         return item
       }
-      // item.active = false
+      item.active = false
       return item
     })
     this.setState({
@@ -381,7 +381,7 @@ let MyComponent = React.createClass({
       if (list.active) {
         return (
             [<tr key={`list${index}`}>
-             <td style={{width:'5%'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
+             <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
               <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${list.strategyName}`}>{list.strategyName}</Link></td>
               <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.targetName}</td>

@@ -43,7 +43,10 @@ module.exports = function (Router) {
   router.patch('/api/v2/admin/setpw', adminController.SetPassword)
 
   // alert
-  router.get('/alerts/invitations/join', alertController.acceptInvitation)
+  router.get('/alerts/invitations/join', function* (){
+    yield this.render(global.indexHtml, { title: '邮箱验证 | 时速云', body: '' })
+  })
+  router.get('/alerts/invitations/join-code', alertController.acceptInvitation)
 
   return router.routes()
 }
