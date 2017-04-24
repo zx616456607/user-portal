@@ -23,7 +23,8 @@ let mid = 0
 let CreateAlarmGroup = React.createClass({
   getInitialState() {
     return {
-      isAddEmail: 1
+      isAddEmail: 1,
+      transitionTime1:'验证邮件'
     }
   },
   componentWillMount() {
@@ -110,6 +111,7 @@ let CreateAlarmGroup = React.createClass({
   ruleEmail(k) {
     // send rule email
     const _this = this
+    let time = 60
     const { getFieldValue } = this.props.form
     const {
       sendAlertNotifyInvitation,
@@ -122,6 +124,7 @@ let CreateAlarmGroup = React.createClass({
         success: {
           func: (result) => {
             _this.setState({[`emailStatus${k}`]: EMAIL_STATUS_WAIT_ACCEPT})
+            _this.getEmailStatusText(k,time)
             notification.success(`向 ${email} 发送邮件邀请成功`)
           },
           isAsync: true
@@ -184,13 +187,13 @@ let CreateAlarmGroup = React.createClass({
   },
   okModal() {
     const { form, createNotifyGroup, modifyNotifyGroup, funcs, afterCreateFunc, afterModifyFunc, data, shouldLoadGroup } = this.props
+    let notification = new NotificationHandler()
     form.validateFields((error, values) => {
       if (!!error) {
         return
       }
       // have one email at least
       if (values.keys.length === 0) {
-        let notification = new NotificationHandler()
         notification.error('请至少添加一个邮箱')
         return
       }
@@ -227,7 +230,6 @@ let CreateAlarmGroup = React.createClass({
           },
           failed: {
             func: (err) => {
-              let notification = new NotificationHandler()
               if (err.message.code === 409) {
                 notification.error('创建通知组失败', `通知组名字已存在，请修改后重试`)
               } else {
@@ -251,26 +253,38 @@ let CreateAlarmGroup = React.createClass({
           },
           failed: {
             func: (err) => {
-              let notification = new NotificationHandler()
               notification.error(`修改通知组失败`, err.message.message)
-            },
-            isAsync: true
+            }
           }
         })
       }
     })
   },
-  getEmailStatusText(k) {
+  getEmailStatusText(k,time) {
     let text = '验证邮件'
+    let enble= true
     switch (this.state[`emailStatus${k}`]) {
-      case EMAIL_STATUS_WAIT_ACCEPT:
-        text = '再次验证邮件'
-        break;
+      case EMAIL_STATUS_WAIT_ACCEPT:{
+        // text = '再次验证邮件'
+        let timefunc = setInterval(()=>{
+          if (time <=1) {
+            enble = false
+            clearInterval(timefunc)
+          }
+          time--
+          text = time +'秒后重新验证'
+          this.setState({
+            ['transitionTime'+[k]]:time ==0?'验证邮件':text,
+            ['transitionEnble'+[k]]:enble
+          })
+        },1000)
+        return;
+      }
       case EMAIL_STATUS_ACCEPTED:
-        text = '已接收邀请'
-        break;
+        this.setState({['transitionTime'+[k]]:'已接收邀请'})
+        return
+      // default: this.setState({transitionTime:text})
     }
-    return text
   },
   render() {
     const formItemLayout = {
@@ -282,7 +296,6 @@ let CreateAlarmGroup = React.createClass({
     getFieldProps('keys', {
       initialValue: [],
     });
-
     const formItems = getFieldValue('keys').map((k) => {
       return (
         <div key={k} style={{clear:'both'}}>
@@ -296,12 +309,12 @@ let CreateAlarmGroup = React.createClass({
           }) } style={{ width: '150px', marginRight: 8 }}
           />
         </Form.Item>
-          <Form.Item style={{float:'left'}}>
-            <Input placeholder="备注"size="large" style={{ width: 80,  marginRight: 8 }} {...getFieldProps(`remark${k}`)}/>
-          </Form.Item>
-          <Button type="primary" disabled={this.state[`emailStatus${k}`] == EMAIL_STATUS_ACCEPTED} size="large" onClick={()=> this.ruleEmail(k)}>{this.getEmailStatusText(k)}</Button>
-          <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removeEmail(k)}>取消</Button>
-        </div>
+        <Form.Item style={{float:'left'}}>
+          <Input placeholder="备注"size="large" style={{ width: 80,  marginRight: 8 }} {...getFieldProps(`remark${k}`)}/>
+        </Form.Item>
+        <Button type="primary" style={{padding:5}} disabled={this.state[`transitionEnble${k}`]} size="large" onClick={()=> this.ruleEmail(k)}>{this.state[`transitionEnble${k}`] ? this.state[`transitionTime${k}`]:'验证邮件'}</Button>
+        <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removeEmail(k)}>取消</Button>
+      </div>
       );
     });
     return (
