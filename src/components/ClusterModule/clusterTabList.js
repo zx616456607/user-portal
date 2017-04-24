@@ -13,6 +13,7 @@ import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import ClusterInfo from './ClusterInfo'
+import NetworkConfiguration from './NetworkConfiguration'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import {
   getAllClusterNodes,
@@ -544,6 +545,7 @@ class ClusterTabList extends Component {
         >
         <div id='clusterTabList' key='clusterTabList'>
           <ClusterInfo cluster={cluster} />
+          <NetworkConfiguration id="Network" cluster={cluster}/>
           <Row className="nodeList">
             <Col span={6} style={{padding:'0 8px'}}>
               <Card>
