@@ -13,7 +13,6 @@
 import * as ActionTypes from '../actions/cluster'
 import reducerFactory from './factory'
 import merge from 'lodash/merge'
-import mergeWith from 'lodash/mergeWith'
 import cloneDeep from 'lodash/cloneDeep'
 
 const option = {
