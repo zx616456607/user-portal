@@ -103,7 +103,8 @@ class ImageDetailBox extends Component {
       disable: true,
       tagVersion: '',
       tag: '',
-      UpgradeVisible:false
+      UpgradeVisible:false,
+      tabledisabled:true
     }
   }
 
@@ -138,6 +139,11 @@ class ImageDetailBox extends Component {
       imageDetail: nextProps.config,
       activeKey:activekeyNext
     });
+
+    //if(!imageNameNext){
+    //  console.log('!imageNameNext=',!imageNameNext)
+    //  return
+    //}
   }
 
   copyDownloadCode() {
@@ -309,12 +315,13 @@ class ImageDetailBox extends Component {
 
   safetyscanShow() {
     this.setState({
-      safetyscanVisible: true
+      safetyscanVisible: true,
+      tagVersion : ''
     })
   }
 
   safetyscanhandleOk() {
-    const { loadMirrorSafetyScanStatus, loadMirrorSafetyLayerinfo, loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo, loadMirrorSafetyChairinfo, cluster_id, mirrorSafetyScan, mirrorScanUrl, mirrorScanstatus } = this.props
+    const { loadMirrorSafetyScanStatus, loadMirrorSafetyLayerinfo, loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo, loadMirrorSafetyChairinfo, cluster_id, mirrorSafetyScan, mirrorScanUrl } = this.props
     const imageDetail = this.props.config
     const imageName = imageDetail.name
     const tag = this.state.tagVersion
@@ -329,6 +336,7 @@ class ImageDetailBox extends Component {
             disable: false,
             tag: this.state.tagVersion
           })
+          const { mirrorScanstatus } = this.props
           const currentImageScanstatus = mirrorScanstatus[imageName][tag]
           const currentImageScanstatusResult = currentImageScanstatus.result
           const statusCode = currentImageScanstatusResult.statusCode
@@ -382,11 +390,12 @@ class ImageDetailBox extends Component {
       },
       failed:{
         func: () => {
-          notificationHandler.error('镜像内容不存在或镜像已损坏！')
+          notificationHandler.error('['+imageName+ ']' +'镜像的'+ '[' + tag + ']' +'版本内容不存在或已损坏！')
           this.setState({
             safetyscanVisible:false
           })
-        }
+        },
+        isAsync : true
       }
     })
     loadMirrorSafetyLayerinfo({ imageName, tag })
@@ -395,6 +404,7 @@ class ImageDetailBox extends Component {
     //  activeKey: '5',
     //  disable: false,
     //  tag: this.state.tagVersion
+    //  tagVersion:''
     //})
   }
 
@@ -477,7 +487,7 @@ class ImageDetailBox extends Component {
               {/*<FormattedMessage {...menusText.colletctImage} />*/}
               {/*</Button>*/}
               {/*}*/}
-              {/* 安全扫描 */}
+              {/* 说扫描 */}
               <div className='rightBoxright'>
                 <Button type="ghost" size="large" onClick={this.safetyscanShow}>安全扫描</Button>
                 <Modal title="安全扫描" visible={this.state.safetyscanVisible} footer={[
@@ -547,7 +557,7 @@ class ImageDetailBox extends Component {
             <TabPane tab="Dockerfile" key="2"><DockerFile isFetching={this.props.isFetching} scope={this} registry={DEFAULT_REGISTRY} detailInfo={imageInfo} isOwner={imageInfo.isOwner} /></TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
             <TabPane tab={formatMessage(menusText.attribute)} key="4"><Attribute detailInfo={imageInfo} /></TabPane>
-            <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} registry={DEFAULT_REGISTRY} tagVersion={this.state.tag} imageType={imageType}/></TabPane>
+            <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} registry={DEFAULT_REGISTRY} tagVersion={this.state.tag} imageType={imageType} tabledisabled={this.state.tabledisabled}/></TabPane>
           </Tabs>
         </div>
       </div>

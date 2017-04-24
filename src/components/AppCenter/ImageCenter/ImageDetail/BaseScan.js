@@ -14,6 +14,7 @@ import './style/BaseScan.less'
 import { connect } from 'react-redux'
 import { loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo } from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
+import NotificationHandler from '../../../../common/notification_handler'
 
 const BaseScanDescription = React.createClass({
   render: function () {
@@ -115,12 +116,18 @@ class BaseScan extends Component {
         func: () => {
           this.setState({loadingRunning:false})
         }
+      },
+      failed: {
+        func : () => {
+          this.setState({basescanFailed : false})
+        },
+        isAsync : true
       }
     })
   }
 
   severScanLyins(){
-    const { loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus } = this.props
+    const { loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus, scanFailed } = this.props
     const registry = mirrorScanUrl
     const scanstatus = mirrorScanstatus[imageName][tag]
     const blob_sum = scanstatus.result.blobSum || ''
@@ -140,6 +147,12 @@ class BaseScan extends Component {
             this.setState({basescanFailed : false})
           },
           isAsync : true
+        },
+        failed: {
+          func : () => {
+            this.setState({basescanFailed : false})
+          },
+          isAsync : true
         }
       })
     }
@@ -152,6 +165,12 @@ class BaseScan extends Component {
                 this.setState({basescanFailed : false})
               },
               isAsync : true
+            },
+            failed: {
+              func : () => {
+                this.setState({basescanFailed : false})
+              },
+              isAsync : true
             }
           })
         },
@@ -160,6 +179,8 @@ class BaseScan extends Component {
       failed: {
         func : () => {
           this.setState({basescanFailed : false})
+          new NotificationHandler().error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' +'版本已经触发扫描，请稍后再试！')
+          scanFailed('failed')
         },
         isAsync : true
       }
@@ -283,7 +304,7 @@ class BaseScan extends Component {
     const { imageName, tag, mirrorScanstatus } = this.props
     let statusCode = 200
     let status = ''
-    if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result || Object.keys(mirrorScanstatus[imageName][tag].result).length == 0){
+    if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result){
       return <div style={{textAlign:'center',paddingTop:'50px'}}><Spin /></div>
     }
     if(mirrorScanstatus[imageName][tag].result.status){

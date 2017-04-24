@@ -15,6 +15,7 @@ import './style/MirrorSafetyBug.less'
 import { loadMirrorSafetyScan, loadMirrorSafetyChairinfo } from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { connect } from 'react-redux'
+import NotificationHandler from '../../../../common/notification_handler'
 
 const TabPane = Tabs.TabPane
 const Step = Steps.Step
@@ -574,13 +575,17 @@ class TableTemplate extends Component{
     function EchartsGapTemplate(num){
       let str = num.toString()
       switch(str.length){
-        case 1 :
+        case 1:
         default:
-          return '   '+ '    ' + num +'  封装' + '      '
-        case 2 :
-          return '   '+ '  ' + num + '  封装' + '      '
-        case 3 :
-          return '   '+ num + '  封装' + '      '
+          return '   ' + '        ' + num + '  封装' + '      '
+        case 2:
+          return '   ' + '      ' + num + '  封装' + '      '
+        case 3:
+          return '   ' + '    ' + num + '  封装' + '      '
+        case 4:
+          return '   ' + '  ' + num + '  封装' + '      '
+        case 5:
+          return '   ' + num + '  封装' + '      '
       }
     }
 
@@ -830,7 +835,7 @@ class MirrorSafetyBug extends Component {
   }
 
   APIFailedThenScan(){
-    const { loadMirrorSafetyScan, loadMirrorSafetyChairinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus } = this.props
+    const { loadMirrorSafetyScan, loadMirrorSafetyChairinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus, scanFailed } = this.props
     const registry = mirrorScanUrl
     const scanstatus = mirrorScanstatus[imageName][tag]
     const blob_sum = scanstatus.result.blobSum || ''
@@ -850,6 +855,12 @@ class MirrorSafetyBug extends Component {
             this.setState({clairFailed : false})
           },
           isAsync : true
+        },
+        failed:{
+          func: () => {
+            this.setState({clairFailed : false})
+          },
+          isAsync: true
         }
       })
     }
@@ -862,10 +873,24 @@ class MirrorSafetyBug extends Component {
                 this.setState({clairFailed : false})
               },
               isAsync : true
+            },
+            failed:{
+              func: () => {
+                this.setState({clairFailed : false})
+              },
+              isAsync: true
             }
           })
         },
         isAsync : true
+      },
+      failed:{
+        func: () => {
+          this.setState({clairFailed : false})
+          new NotificationHandler().error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' +'版本已经触发扫描，请稍后再试！')
+          scanFailed('failed')
+        },
+        isAsync: true
       }
     })
   }
@@ -929,7 +954,7 @@ class MirrorSafetyBug extends Component {
     const { imageName, tag, mirrorScanstatus, mirrorsafetyClair} = this.props
     let statusCode = 200
     let status = ''
-    if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result || Object.keys(mirrorScanstatus[imageName][tag]).length == 0){
+    if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result){
       return <div style={{textAlign:'center',paddingTop:'50px'}}><Spin /></div>
     }
     if(mirrorScanstatus[imageName][tag].result.status){
@@ -963,9 +988,10 @@ class MirrorSafetyBug extends Component {
 }
 function mapStateToProps(state,props){
   const { images, entities } = state
+  const { imageType } = props
   let mirrorScanUrl = ''
-  if (images.publicImages[DEFAULT_REGISTRY] && images.publicImages[DEFAULT_REGISTRY].server) {
-    mirrorScanUrl = images.publicImages[DEFAULT_REGISTRY].server
+  if (images[imageType][DEFAULT_REGISTRY] && images[imageType][DEFAULT_REGISTRY].server) {
+    mirrorScanUrl = images[imageType][DEFAULT_REGISTRY].server
   }
   let mirrorsafetyClair = images.mirrorSafetyClairinfo
   let mirrorLayeredinfo = images.mirrorSafetyLayerinfo

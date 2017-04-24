@@ -27,6 +27,7 @@ import SignalTwogreen from '../../../../assets/img/appCenter/mirrorSafety/signal
 import SignalOneRed from '../../../../assets/img/appCenter/mirrorSafety/signal1red.svg'
 import SignalOneyellow from '../../../../assets/img/appCenter/mirrorSafety/signal1yellow.svg'
 import SignalOnegreen from '../../../../assets/img/appCenter/mirrorSafety/signal1green.svg'
+import NotificationHandler from '../../../../common/notification_handler'
 
 const Option = Select.Option
 
@@ -47,7 +48,6 @@ class TableTemplate extends Component{
       High: 0,
       None: 0,
       Total: 0,
-      inherwidth:'99%'
     }
   }
 
@@ -640,9 +640,18 @@ class TableTemplate extends Component{
       <div>
         <span className='softwarepicturelleft'>{text.action}</span>
         <Tooltip title={text.parameters}><span className="textoverflow softwarepicturespan">{text.parameters}</span></Tooltip>
-        <i className="fa fa-database softwarepicturelright" aria-hidden="true"></i>
+        <i className="fa fa-database softwarepicturelright" aria-hidden="true" onClick={this.handleGetBackLayer.bind(this,text.parameters)}></i>
       </div>
     )
+  }
+
+  handleGetBackLayerTop(text){
+    const { callback } = this.props
+    let getBackInfo = {
+      ActiveKey:2,
+      LayerCommandParameters:text
+    }
+    callback(getBackInfo)
   }
 
   render(){
@@ -712,9 +721,7 @@ class TableTemplate extends Component{
         dataIndex: 'softwarepicture',
         key: 'softwarepicture',
         width: '30%',
-        render: (text) => (
-          <div className='softwarepicture'>
-            {this.TemplateTableIntroduceInLayer(text)}
+        render: (text) => (<div className='softwarepicture'><span className='softwarepicturelleft'>{text.action}</span><Tooltip title={text.parameters}><span className="textoverflow softwarepicturespan">{text.parameters}</span></Tooltip><i className="fa fa-database softwarepicturelright" aria-hidden="true" onClick={this.handleGetBackLayerTop.bind(this,text.parameters)}></i>
           </div>)
       }
     ]
@@ -729,10 +736,14 @@ class TableTemplate extends Component{
       switch (str.length) {
         case 1:
         default:
-          return '   ' + '    ' + num + '  封装' + '      '
+          return '   ' + '        ' + num + '  封装' + '      '
         case 2:
-          return '   ' + '  ' + num + '  封装' + '      '
+          return '   ' + '      ' + num + '  封装' + '      '
         case 3:
+          return '   ' + '    ' + num + '  封装' + '      '
+        case 4:
+          return '   ' + '  ' + num + '  封装' + '      '
+        case 5:
           return '   ' + num + '  封装' + '      '
       }
     }
@@ -838,7 +849,7 @@ class TableTemplate extends Component{
     }
 
     if(Object.keys(mirrorsafetyClair[imageName][tag].result.report).length == 0){
-      return <div className='message'>暂未扫描出任何漏洞</div>
+      return <div className='message'>暂未扫描到任何软件</div>
     }
 
     return(<div>
@@ -875,9 +886,10 @@ class SoftwarePackage extends Component {
     this.APIFailedThenScan = this.APIFailedThenScan.bind(this)
     this.APIGetclairInfo = this.APIGetclairInfo.bind(this)
     this.handlemirrorScanstatusSatus = this.handlemirrorScanstatusSatus.bind(this)
+    this.handleGetBackLayer = this.handleGetBackLayer.bind(this)
     this.state = {
       softpackageRunning : false,
-      softpackageFailed: false
+      softpackageFailed: false,
     }
   }
 
@@ -902,7 +914,7 @@ class SoftwarePackage extends Component {
             <div className='bottom'><Button onClick={this.APIGetclairInfo} loading={this.state.softpackageRunning}>点击重新获取</Button></div>
           </div>
         case 'finished':
-          return <TableTemplate mirrorsafetyClair={mirrorsafetyClair} imageName={imageName} mirrorLayeredinfo={mirrorLayeredinfo} inherwidth={inherwidth} tag={tag}/>
+          return <TableTemplate mirrorsafetyClair={mirrorsafetyClair} imageName={imageName} mirrorLayeredinfo={mirrorLayeredinfo} inherwidth={inherwidth} tag={tag} callback={this.handleGetBackLayer}/>
         case 'failed':
           return <div className="BaseScanFailed" data-status="filed">
             <div className='top'>扫描失败，请重新扫描</div>
@@ -925,15 +937,11 @@ class SoftwarePackage extends Component {
     )
   }
 
-  //handleGetBackLayer(text){
-  //  const { callBack } = this.props
-  //  let getBackInfo = {
-  //    ActiveKey:2,
-  //    LayerCommandParameters:text
-  //  }
-  //  callBack(getBackInfo)
-  //}
-  //
+  handleGetBackLayer(text){
+    const { callback } = this.props
+    callback(text)
+  }
+
   APIGetclairInfo(){
     const { loadMirrorSafetyChairinfo, mirrorScanstatus, imageName, tag } = this.props
     const scanstatus = mirrorScanstatus[imageName][tag]
@@ -946,12 +954,18 @@ class SoftwarePackage extends Component {
           this.setState({softpackageRunning:false})
         },
         isAsync: true
+      },
+      failed : {
+        func : () => {
+          this.setState({softpackageFailed : false})
+        },
+        isAsync: true
       }
     })
   }
 
   APIFailedThenScan(){
-    const { loadMirrorSafetyScan, loadMirrorSafetyChairinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus } = this.props
+    const { loadMirrorSafetyScan, loadMirrorSafetyChairinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus, scanFailed } = this.props
     const registry = mirrorScanUrl
     const scanstatus = mirrorScanstatus[imageName][tag]
     const blob_sum = scanstatus.result.blobSum || ''
@@ -971,6 +985,12 @@ class SoftwarePackage extends Component {
             this.setState({softpackageFailed : false})
           },
           isAsync: true
+        },
+        failed : {
+          func : () => {
+            this.setState({softpackageFailed : false})
+          },
+          isAsync: true
         }
       })
     }
@@ -983,10 +1003,24 @@ class SoftwarePackage extends Component {
                 this.setState({softpackageFailed : false})
               },
               isAsync: true
+            },
+            failed : {
+              func : () => {
+                this.setState({softpackageFailed : false})
+              },
+              isAsync: true
             }
           })
         },
         isAsync : true
+      },
+      failed : {
+        func : () => {
+          this.setState({softpackageFailed : false})
+          new NotificationHandler().error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' +'版本已经触发扫描，请稍后再试！')
+          scanFailed('failed')
+        },
+        isAsync: true
       }
     })
   }
@@ -1008,7 +1042,7 @@ class SoftwarePackage extends Component {
     const { imageName, tag, mirrorScanstatus, mirrorsafetyClair } = this.props
     let statusCode = 200
     let status = ''
-    if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result || Object.keys(mirrorScanstatus[imageName][tag]).length == 0){
+    if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result){
       return <div style={{textAlign:'center',paddingTop:'50px'}}><Spin /></div>
     }
     if(mirrorScanstatus[imageName][tag].result.status){
@@ -1043,9 +1077,10 @@ class SoftwarePackage extends Component {
 
 function mapStateToProps(state,props){
   const { images, entities } = state
+  const { imageType } = props
   let mirrorScanUrl = ''
-  if (images.publicImages[DEFAULT_REGISTRY] && images.publicImages[DEFAULT_REGISTRY].server) {
-    mirrorScanUrl = images.publicImages[DEFAULT_REGISTRY].server
+  if (images[imageType][DEFAULT_REGISTRY] && images[imageType][DEFAULT_REGISTRY].server) {
+    mirrorScanUrl = images[imageType][DEFAULT_REGISTRY].server
   }
   let mirrorsafetyClair = images.mirrorSafetyClairinfo
   let mirrorSafetyScan = images.mirrorSafetyScan
