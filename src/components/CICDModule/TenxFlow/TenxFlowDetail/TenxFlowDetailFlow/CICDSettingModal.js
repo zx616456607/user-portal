@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Checkbox, Alert, Icon, Spin } from 'antd'
+import { Button, Input, Form, Checkbox, Alert, Icon, Spin, Tooltip, } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -25,7 +25,7 @@ const REG_EXP = 'RegExp'
 const menusText = defineMessages({
   tooltip: {
     id: 'CICD.Tenxflow.CICDSettingModal.tooltip',
-    defaultMessage: '当该项目对应的代码仓库，发生下面的操作时触发持续集成',
+    defaultMessage: '当该子任务对应的代码仓库，发生下面的操作时触发持续集成',
   },
   branch: {
     id: 'CICD.Tenxflow.CICDSettingModal.branch',

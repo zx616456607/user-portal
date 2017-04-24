@@ -457,7 +457,7 @@ function fetchSyncRepo(type, callback) {
     callback: callback
   }
 }
-// sync code 
+// sync code
 export function syncRepoList(type, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchSyncRepo(type, callback))
@@ -497,7 +497,7 @@ export function getDockerfileList() {
     return dispatch(fetchgetDockerfileList())
   }
 }
-// get detail dockerfile 
+// get detail dockerfile
 export const GET_DOCKER_FILES_REQUEST = 'GET_DOCKER_FILES_REQUEST'
 export const GET_DOCKER_FILES_SUCCESS = 'GET_DOCKER_FILES_SUCCESS'
 export const GET_DOCKER_FILES_FAILURE = 'GET_DOCKER_FILES_FAILURE'
@@ -520,7 +520,7 @@ export function getDockerfiles(flowInfo, callback) {
     return dispatch(fetchDockerfiles(flowInfo, callback))
   }
 }
-// update detail dockerfile 
+// update detail dockerfile
 export const PUT_DOCKER_FILES_REQUEST = 'PUT_DOCKER_FILES_REQUEST'
 export const PUT_DOCKER_FILES_SUCCESS = 'PUT_DOCKER_FILES_SUCCESS'
 export const PUT_DOCKER_FILES_FAILURE = 'PUT_DOCKER_FILES_FAILURE'

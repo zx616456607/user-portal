@@ -141,7 +141,7 @@ let MyComponent = React.createClass({
           && typeof (this.props.config[i].stagesCount) === 'number'
           && this.props.config[i].stagesCount < 1) {
           let notification = new NotificationHandler()
-          notification.error('请先添加构建子项目')
+          notification.error('请先添加构建子任务')
           return
         }
       }

@@ -190,7 +190,7 @@ class TenxFlowDetail extends Component {
     //and start build flow functon will be trigger in children
     let notification = new NotificationHandler()
     if (this.props.flowInfo && this.props.flowInfo.stageInfo && this.props.flowInfo.stageInfo.length < 1) {
-      notification.error('请先添加构建子项目')
+      notification.error('请先添加构建子任务')
       return
     }
     notification.success('流程正在构建中')
@@ -264,7 +264,7 @@ class TenxFlowDetail extends Component {
       statusName
     })
   }
-  
+
   refreshStageList() {
     //this function for refrash
     const { getTenxFlowStatus } = this.props;
@@ -272,7 +272,7 @@ class TenxFlowDetail extends Component {
     search = search.split('?')[1].split('&')[0]
     const self = this
     getTenxFlowStatus(search, {
-      success: {        
+      success: {
         func: (result) => {
           let statusName = result.data.results.status;
           let status
@@ -301,7 +301,7 @@ class TenxFlowDetail extends Component {
       refreshFlag: true
     });
   }
-  
+
   callback(flowId) {
     const {getTenxflowBuildLastLogs, changeBuildStatus} = this.props
     return ()=> {
