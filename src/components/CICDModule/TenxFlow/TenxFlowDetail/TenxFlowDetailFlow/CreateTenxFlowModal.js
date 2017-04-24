@@ -600,8 +600,8 @@ let CreateTenxFlowModal = React.createClass({
                 emptyFlag = true;
               } else {
                 let tempBody = {
-                  name: values['service' + item + 'inputName' + littleItem],
-                  value: values['service' + item + 'inputValue' + littleItem]
+                  name: (values['service' + item + 'inputName' + littleItem]).trim(),
+                  value: (values['service' + item + 'inputValue' + littleItem]).trim()
                 }
                 tempList.push(tempBody);
               }
@@ -633,8 +633,8 @@ let CreateTenxFlowModal = React.createClass({
             imageEnvFlag = true;
           } else {
             let tempBody = {
-              name: values['imageEnvName' + item],
-              value: values['imageEnvValue' + item]
+              name: (values['imageEnvName' + item]).trim(),
+              value: (values['imageEnvValue' + item]).trim()
             }
             imageEnvList.push(tempBody)
           }
