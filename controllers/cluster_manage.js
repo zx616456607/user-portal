@@ -177,9 +177,7 @@ exports.getProxy = function* () {
 exports.updateProxy = function* () {
   const cluster = this.params.cluster
   const api = apiFactory.getK8sApi(this.session.loginUser)
-  console.log('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj')
   const result = yield api.createBy([cluster, 'proxy', 'update'], null, this.request.body)
-  console.log(result)
   this.body = {
     cluster,
     data: result.data
