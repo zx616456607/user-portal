@@ -162,3 +162,36 @@ exports.getAddClusterCMD = function* () {
   const result = yield api.clusters.getBy(['add'])
   this.body = result.data
 }
+
+exports.getProxy = function* () {
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.getBy([cluster, 'proxy'])
+  this.body = {
+    [cluster]: {
+      data: result.data
+    }
+  }
+}
+
+exports.updateProxy = function* () {
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  console.log('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj')
+  const result = yield api.createBy([cluster, 'proxy', 'update'], null, this.request.body)
+  console.log(result)
+  this.body = {
+    cluster,
+    data: result.data
+  }
+}
+
+exports.getClusterNodeAddr = function* () {
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.getBy([cluster, 'proxy', 'node_addr'])
+  this.body = {
+    cluster,
+    data: result.data
+  }
+}
