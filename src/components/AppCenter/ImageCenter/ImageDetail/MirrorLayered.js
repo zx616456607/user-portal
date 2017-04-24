@@ -24,7 +24,8 @@ class MirrorLayered extends Component {
     this.handleStepsCurrentNumber = this.handleStepsCurrentNumber.bind(this)
     this.APIGetLayerInfo = this.APIGetLayerInfo.bind(this)
     this.state = {
-      currentNumber:0
+      currentNumber:0,
+      APIloading : false
     }
   }
 
@@ -33,19 +34,30 @@ class MirrorLayered extends Component {
   }
 
   APIGetLayerInfo(){
-    const { loadMirrorSafetyLayerinfo, mirrorScanstatus, imageName, tag } = this.props
-    loadMirrorSafetyLayerinfo({ imageName, tag })
+    const { loadMirrorSafetyLayerinfo, imageName, tag } = this.props
+    this.setState({APIloading : true})
+    loadMirrorSafetyLayerinfo({ imageName, tag },{
+      success : {
+        func : ()=> {
+          this.setState({APIloading : false})
+        },
+        isAsync : true
+      },
+      failed : {
+        func : () => {
+          this.setState({APIloading : false})
+        },
+        isAsync : false
+      }
+    })
   }
 
   testContent(){
     const {mirrorLayeredinfo, imageName, tag } = this.props
     if(!mirrorLayeredinfo[imageName] || !mirrorLayeredinfo[imageName][tag] || !mirrorLayeredinfo[imageName][tag].result){
-      return <div></div>
-    }
-    if(mirrorLayeredinfo[imageName][tag].result && Object.keys(mirrorLayeredinfo[imageName][tag].result).length == 0){
-      return (<div>
-        <span>暂无数据</span>
-        <Button onClick={null}>点击获取数据</Button>
+      return (<div style={{textAlign:'center'}}>
+        <div style={{marginTop:'10px'}}>暂未扫描到镜像分层信息</div>
+        <Button onClick={this.APIGetLayerInfo} style={{marginTop:'10px'}} loading={this.state.APIloading}>点击扫描</Button>
       </div>)
     }
     const mirrorLayeredStep = mirrorLayeredinfo[imageName][tag].result.map((item, index) =>{
@@ -67,15 +79,13 @@ class MirrorLayered extends Component {
   }
 
   handleStepsCurrentNumber(){
-    const { mirrorLayeredinfo, LayerCommandParameters } = this.props
+    const { mirrorLayeredinfo, LayerCommandParameters, imageName, tag } = this.props
     if(!LayerCommandParameters){
       return 0
     }
-    for(let i=0;i<mirrorLayeredinfo.length;i++){
-      if(mirrorLayeredinfo[i].command.parameters == LayerCommandParameters){
-        this.setState({
-          currentNumber:i
-        })
+    const mirrorLayeredinfoArr = mirrorLayeredinfo[imageName][tag].result
+    for(let i=0;i<mirrorLayeredinfoArr.length;i++){
+      if(mirrorLayeredinfoArr[i].command.parameters == LayerCommandParameters){
         return i
       }
     }

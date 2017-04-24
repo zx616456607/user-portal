@@ -15,6 +15,7 @@ import './style/MirrorSafetyBug.less'
 import { loadMirrorSafetyScan, loadMirrorSafetyChairinfo } from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { connect } from 'react-redux'
+import NotificationHandler from '../../../../common/notification_handler'
 
 const TabPane = Tabs.TabPane
 const Step = Steps.Step
@@ -58,13 +59,15 @@ class TableTemplate extends Component{
   componentWillReceiveProps(nextProps){
     const mirrorsafetyClair = nextProps.mirrorsafetyClair
     const imageName = nextProps.imageName
+    const tag = nextProps.imageName
     if(imageName !== this.props.imageName || mirrorsafetyClair !== this.props.mirrorsafetyClair || !nextProps.mirrorLayeredinfo[imageName]){
-      if(Object.keys(mirrorsafetyClair[imageName].result.report).length == 0){
+      if(!mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName][tag] || !mirrorsafetyClair[imageName][tag].result || Object.keys(mirrorsafetyClair[imageName][tag].result.report).length == 0){
         return
       }
-      const clairVulnerabilities = mirrorsafetyClair[imageName].result.report.vulnerabilities
-      const clairFeatures = mirrorsafetyClair[imageName].result.report.features
-      const clairFixedIn = mirrorsafetyClair[imageName].result.report.fixedIn
+      const result = mirrorsafetyClair[imageName][tag].result.report
+      const clairVulnerabilities = result.vulnerabilities
+      const clairFeatures = result.features
+      const clairFixedIn = result.fixedIn
       // Echarts 数据
       let EchartsUnknownNum = 0
       let EchartsNegligibleNum = 0
@@ -73,7 +76,7 @@ class TableTemplate extends Component{
       let EchartsHighNum = 0
       let EchartsNoneNum = 0
       let EchartsFixedIn = 0
-      if(Object.keys(clairVulnerabilities).length == 0 ){
+      if(!clairVulnerabilities || Object.keys(clairVulnerabilities).length == 0){
         return
       }
       for(let keyVulner in clairVulnerabilities){
@@ -148,12 +151,13 @@ class TableTemplate extends Component{
   tableDatasource(){
     const { mirrorsafetyClair, mirrorLayeredinfo, imageName, tag } = this.props
     let tabledatasource = []
-    if(Object.keys(mirrorsafetyClair[imageName].result.report).length == 0 || !mirrorLayeredinfo[imageName] || !mirrorLayeredinfo[imageName][tag] || !mirrorLayeredinfo[imageName][tag].result){
+    if(!mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName][tag] || !mirrorsafetyClair[imageName][tag].result || Object.keys(mirrorsafetyClair[imageName][tag].result.report).length == 0 || !mirrorLayeredinfo[imageName][tag].result){
       return tabledatasource = []
     }
-    const clairVulnerabilities = mirrorsafetyClair[imageName].result.report.vulnerabilities
-    const clairFeatures = mirrorsafetyClair[imageName].result.report.features
-    const clairFixedIn = mirrorsafetyClair[imageName].result.report.fixedIn
+    const result =  mirrorsafetyClair[imageName][tag].result.report
+    const clairVulnerabilities =result.vulnerabilities
+    const clairFeatures = result.features
+    const clairFixedIn = result.fixedIn
     const layerInfo = mirrorLayeredinfo[imageName][tag].result
     let index = 1
     // Echarts 数据
@@ -165,7 +169,7 @@ class TableTemplate extends Component{
     let EchartsNoneNum = 0
     let EchartsFixedIn = 0
 
-    if(Object.keys(clairVulnerabilities).length == 0){
+    if(!clairVulnerabilities || Object.keys(clairVulnerabilities).length == 0){
       return tabledatasource = []
     }else{
       for(let keyVulner in clairVulnerabilities){
@@ -567,17 +571,21 @@ class TableTemplate extends Component{
 
   render(){
     const { Unknown, Negligible, Low, Medium, High, inherwidth }=this.state
-    const { mirrorsafetyClair, imageName} = this.props
+    const { mirrorsafetyClair, imageName, tag} = this.props
     function EchartsGapTemplate(num){
       let str = num.toString()
       switch(str.length){
-        case 1 :
+        case 1:
         default:
-          return '   '+ '    ' + num +'  封装' + '      '
-        case 2 :
-          return '   '+ '  ' + num + '  封装' + '      '
-        case 3 :
-          return '   '+ num + '  封装' + '      '
+          return '   ' + '        ' + num + '  封装' + '      '
+        case 2:
+          return '   ' + '      ' + num + '  封装' + '      '
+        case 3:
+          return '   ' + '    ' + num + '  封装' + '      '
+        case 4:
+          return '   ' + '  ' + num + '  封装' + '      '
+        case 5:
+          return '   ' + num + '  封装' + '      '
       }
     }
 
@@ -744,7 +752,11 @@ class TableTemplate extends Component{
       showSizeChanger: true,
     }
 
-    if(Object.keys(mirrorsafetyClair[imageName].result.report).length == 0){
+    if(Object.keys(mirrorsafetyClair[imageName][tag].result.report).length == 0){
+      return <div className='message'>暂未扫描出任何漏洞</div>
+    }
+
+    if(!mirrorsafetyClair[imageName][tag].result.report.vulnerabilities){
       return <div className='message'>暂未扫描出任何漏洞</div>
     }
 
@@ -794,7 +806,8 @@ class MirrorSafetyBug extends Component {
       High: 0,
       Total: 0,
       PatchTotal: 0,
-      loading:false
+      loading:false,
+      clairFailed: false
     }
   }
 
@@ -811,17 +824,18 @@ class MirrorSafetyBug extends Component {
     const blob_sum = scanstatus.result.blobSum || ''
     const full_name = scanstatus.result.fullName
     this.setState({loading:true})
-    loadMirrorSafetyChairinfo({imageName, blob_sum, full_name},{
+    loadMirrorSafetyChairinfo({imageName, blob_sum, full_name, tag},{
       success:{
         func:() => {
           this.setState({loading:false})
-        }
+        },
+        isAsync: true
       }
     })
   }
 
   APIFailedThenScan(){
-    const { loadMirrorSafetyScan, loadMirrorSafetyChairinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus } = this.props
+    const { loadMirrorSafetyScan, loadMirrorSafetyChairinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus, scanFailed } = this.props
     const registry = mirrorScanUrl
     const scanstatus = mirrorScanstatus[imageName][tag]
     const blob_sum = scanstatus.result.blobSum || ''
@@ -833,15 +847,50 @@ class MirrorSafetyBug extends Component {
       registry,
       full_name
     }
-    if(mirrorSafetyScan[imageName]){
-      return loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+    this.setState({clairFailed : true})
+    if(mirrorSafetyScan[imageName] && mirrorSafetyScan[imageName][tag]){
+      return loadMirrorSafetyChairinfo({imageName, blob_sum, full_name, tag},{
+        success: {
+          func: () => {
+            this.setState({clairFailed : false})
+          },
+          isAsync : true
+        },
+        failed:{
+          func: () => {
+            this.setState({clairFailed : false})
+          },
+          isAsync: true
+        }
+      })
     }
     return loadMirrorSafetyScan({...config}, {
       success: {
         func: () =>{
-          loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
+          loadMirrorSafetyChairinfo({imageName, blob_sum, full_name, tag},{
+            success: {
+              func: () => {
+                this.setState({clairFailed : false})
+              },
+              isAsync : true
+            },
+            failed:{
+              func: () => {
+                this.setState({clairFailed : false})
+              },
+              isAsync: true
+            }
+          })
         },
         isAsync : true
+      },
+      failed:{
+        func: () => {
+          this.setState({clairFailed : false})
+          new NotificationHandler().error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' +'版本已经触发扫描，请稍后再试！')
+          scanFailed('failed')
+        },
+        isAsync: true
       }
     })
   }
@@ -853,17 +902,20 @@ class MirrorSafetyBug extends Component {
 
   handleclairStatus(){
     const { mirrorsafetyClair, imageName, mirrorLayeredinfo, tag, inherwidth } = this.props
-    if(!mirrorsafetyClair || !mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName].result){
+    if(!mirrorsafetyClair || !mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName][tag] || !mirrorsafetyClair[imageName][tag].result){
       return
     }
-    const result = mirrorsafetyClair[imageName].result
+    const result = mirrorsafetyClair[imageName][tag].result
     const statusCode = result.statusCode
     const status = result.status
     const message = result.message
+    if(statusCode && statusCode == 500){
+      return <div>{message}</div>
+    }
     if (statusCode && statusCode == 200) {
       switch (status) {
         case 'running':
-          return <div className='BaseScanRunning'>
+          return <div className='BaseScanRunning' data-status="running">
             <div className="top">正在扫描尚未结束</div>
             <Spin/>
             <div className='bottom'><Button onClick={this.APIGetclairInfo} loading={this.state.loading}>点击重新获取</Button></div>
@@ -873,17 +925,15 @@ class MirrorSafetyBug extends Component {
         case 'failed':
           return <div className="BaseScanFailed" data-status="clair">
             <div className='top'>扫描失败，请重新扫描</div>
-            <Button onClick={this.APIFailedThenScan}>点击重新获取</Button>
+            <Button onClick={this.APIFailedThenScan} loading={this.state.clairFailed}>点击重新获取</Button>
           </div>
         case 'nojob':
         default:
-          return <div>
-            <div className="top">镜像没有别扫描过</div>
-            <Button>点击扫描</Button>
+          return <div className="BaseScanFailed" data-status="nojob">
+            <div className="top">镜像没有被扫描过</div>
+            <Button onClick={this.APIFailedThenScan} loading={this.state.clairFailed}>点击扫描</Button>
           </div>
       }
-    } else {
-      return <div>{message}</div>
     }
   }
 
@@ -904,7 +954,7 @@ class MirrorSafetyBug extends Component {
     const { imageName, tag, mirrorScanstatus, mirrorsafetyClair} = this.props
     let statusCode = 200
     let status = ''
-    if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result || Object.keys(mirrorScanstatus[imageName][tag]).length == 0){
+    if(!mirrorScanstatus[imageName] || !mirrorScanstatus[imageName][tag] || !mirrorScanstatus[imageName][tag].result){
       return <div style={{textAlign:'center',paddingTop:'50px'}}><Spin /></div>
     }
     if(mirrorScanstatus[imageName][tag].result.status){
@@ -913,12 +963,12 @@ class MirrorSafetyBug extends Component {
     if(mirrorScanstatus[imageName][tag].result.statusCode == 500){
       statusCode == 500
     }
-    if(status == 'noresult' || status == 'different' || status == 'failed'){
-      if(!mirrorsafetyClair[imageName]){
+    if(status == 'different' || status == 'failed'){
+      if(!mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName][tag]){
         return (
           <div className='BaseScanFailed' data-status="scanstatus">
             <div className='top'>{this.handlemirrorScanstatusSatus(status)}</div>
-            <Button onClick={this.APIFailedThenScan}>重新扫描</Button>
+            <Button onClick={this.APIFailedThenScan} loading={this.state.clairFailed}>重新扫描</Button>
           </div>
         )
       }else{
@@ -938,9 +988,10 @@ class MirrorSafetyBug extends Component {
 }
 function mapStateToProps(state,props){
   const { images, entities } = state
+  const { imageType } = props
   let mirrorScanUrl = ''
-  if (images.publicImages[DEFAULT_REGISTRY] && images.publicImages[DEFAULT_REGISTRY].server) {
-    mirrorScanUrl = images.publicImages[DEFAULT_REGISTRY].server
+  if (images[imageType][DEFAULT_REGISTRY] && images[imageType][DEFAULT_REGISTRY].server) {
+    mirrorScanUrl = images[imageType][DEFAULT_REGISTRY].server
   }
   let mirrorsafetyClair = images.mirrorSafetyClairinfo
   let mirrorLayeredinfo = images.mirrorSafetyLayerinfo

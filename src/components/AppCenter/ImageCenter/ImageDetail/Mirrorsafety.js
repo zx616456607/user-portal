@@ -32,16 +32,17 @@ class MirrorSafety extends Component {
     this.handleSoftwarepackageToLayer = this.handleSoftwarepackageToLayer.bind(this)
     this.handleTabsSwitch = this.handleTabsSwitch.bind(this)
     this.handleUpgrade = this.handleUpgrade.bind(this)
+    this.handleScanFailed = this.handleScanFailed.bind(this)
     this.state = {
       tag: '',
       ScanDisabled: false,
-      TabsDisabled: true,
+      TabsDisabled: this.props.tabledisabled,
       imgTag: "",
       imageName: this.props.imageName,
       ActiveKey: '1',
       LayerCommandParameters: '',
       tagVersion: this.props.tagVersion,
-      inherwidth:'99% '
+      inherwidth:'100% '
     }
   }
 
@@ -133,27 +134,27 @@ class MirrorSafety extends Component {
               case 'clair':
               case 'running':
               case 'both':{
-                loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
-                loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name})
+                loadMirrorSafetyChairinfo({imageName, blob_sum, full_name, tag})
+                loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name, tag})
                 return
               }
-              case 'noresult':
-              case 'different':{
-                if(mirrorSafetyScan[imageName]){
-                  loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
-                  loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name})
+              case 'noresult':{
+                if(mirrorSafetyScan[imageName] &&　mirrorSafetyScan[imageName][tag]){
+                  loadMirrorSafetyChairinfo({imageName, blob_sum, full_name, tag})
+                  loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name, tag})
                   return
                 }
                 return loadMirrorSafetyScan({...config}, {
                   success: {
                     func: () =>{
-                      loadMirrorSafetyChairinfo({imageName, blob_sum, full_name})
-                      loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name})
+                      loadMirrorSafetyChairinfo({imageName, blob_sum, full_name, tag})
+                      loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name, tag})
                     },
                     isAsync : true
                   }
                 })
               }
+              case 'different':
               case 'failed':
               default: return false
             }
@@ -163,7 +164,8 @@ class MirrorSafety extends Component {
       },
       failed:{
         func: () => {
-         notificationHandler.error('镜像内容不存在或镜像已损坏！')
+          this.setState({TabsDisabled : true})
+          notificationHandler.error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' +'版本内容不存在或已损坏！')
         }
       }
     })
@@ -176,29 +178,45 @@ class MirrorSafety extends Component {
     }
     this.setState({
       ActiveKey: object.ActiveKey.toString(),
-      //LayerCommandParameters: object.LayerCommandParameters
+      LayerCommandParameters: object.LayerCommandParameters
     })
-    console.log(object)
   }
 
   handleTabsSwitch(key) {
     this.setState({
       ActiveKey: key,
-      inherwidth:'100%'
+      inherwidth:'99%'
     })
-    //setTimeout(
-    //  this.setState({
-    //    inherwidth:'99.9%'
-    //  },100)
-    //)
+    switch(key){
+      case '1':
+      case '3':
+        return this.setState({
+            inherwidth:'100%'
+          })
+      case '2':
+      case '4':
+        return this.setState({
+            inherwidth:'0%'
+          })
+      default:
+        return
+    }
+  }
+
+  handleScanFailed(failed){
+    if(failed == 'failed'){
+      this.setState({
+        TabsDisabled : true
+      })
+    }
   }
 
   handleUpgrade(){
-    browserHistory.push('/account/balance/payment#upgrade')
+    browserHistory.push('/account/version#pro')
   }
 
   render() {
-    const { imgTag, imageName, envEdition } = this.props
+    const { imgTag, imageName, envEdition, imageType } = this.props
     const { TabsDisabled, LayerCommandParameters } = this.state
     const standard = require('../../../../../configs/constants').STANDARD_MODE
     const mode = require('../../../../../configs/model').mode
@@ -206,8 +224,8 @@ class MirrorSafety extends Component {
       <div id='mirrorsafety'>
         { (mode === standard && envEdition == 0) ?
           <div className='envEdition'>
-            您尚未开通此服务
-            <Button className='envEditionButton' onClick={this.handleUpgrade}>点击开通</Button>
+            此服务仅支持『专业版』，去查看『时速云|专业版』功能优势
+            <Button className='envEditionButton' onClick={this.handleUpgrade}>点击查看</Button>
           </div>:
           <div>
             <div className='safetyselect'>
@@ -228,16 +246,16 @@ class MirrorSafety extends Component {
                 <div className="safetytabbox">
                   <Tabs onChange={this.handleTabsSwitch} activeKey={ TabsDisabled ? null : this.state.ActiveKey}>
                     <TabPane tab={<span><i className="fa fa-bug safetytabIcon" aria-hidden="true"></i>漏洞扫描</span>} key="1" disabled={this.state.TabsDisabled} >
-                      <MirrorSafetyBug imageName={imageName}  tag={this.state.tag} inherwidth={this.state.inherwidth}/>
+                      <MirrorSafetyBug imageName={imageName}  tag={this.state.tag} inherwidth={this.state.inherwidth} imageType={imageType} callback={this.handleSoftwarepackageToLayer} scanFailed={this.handleScanFailed}/>
                     </TabPane>
                     <TabPane tab={<span><i className="fa fa-database safetytabIcon" aria-hidden="true"></i>镜像分层</span>} key="2" disabled={this.state.TabsDisabled}>
                       <MirrorLayered LayerCommandParameters={LayerCommandParameters} imageName={imageName} tag={this.state.tag} />
                     </TabPane>
                     <TabPane tab={<span><i className="fa fa-android safetytabIcon" aria-hidden="true"></i><span className='softspan'>软件包</span></span>} key="3" disabled={this.state.TabsDisabled}>
-                      <SoftwarePackage imageName={imageName} tag={this.state.tag} inherwidth={this.state.inherwidth}/>
+                      <SoftwarePackage imageName={imageName} tag={this.state.tag} inherwidth={this.state.inherwidth} imageType={imageType} callback={this.handleSoftwarepackageToLayer} scanFailed={this.handleScanFailed}/>
                     </TabPane>
                     <TabPane tab={<span><i className="fa fa-crosshairs safetytabIcon" aria-hidden="true"></i>基础扫描</span>} key="4" disabled={this.state.TabsDisabled}>
-                      <BaseScan imageName={imageName} tag={this.state.tag} />
+                      <BaseScan imageName={imageName} tag={this.state.tag} imageType={imageType} scanFailed={this.handleScanFailed}/>
                     </TabPane>
                   </Tabs>
                 </div>
