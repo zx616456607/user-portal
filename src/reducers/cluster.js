@@ -126,6 +126,29 @@ function podeList(state={}, action) {
   }
 }
 
+function getProxy(state = {}, action) {
+  const defaultState = {
+    isFetching: false
+  }
+  switch (action.type) {
+  case ActionTypes.PROXY_GET_REQUEST:
+    return merge({}, defaultState, state, {
+      isFetching: action.needFetching
+    })
+  case ActionTypes.PROXY_GET_SUCCESS:
+    return Object.assign({}, state, { result: Object.assign(state.result || {}, action.response.result)}, {
+      isFetching: false
+    })
+  case ActionTypes.PROXY_GET_FAILURE:
+    return merge({}, defaultState, state, {
+      isFetching: false
+    })
+  default:
+    return state
+  }
+}
+
+
 export default function cluster(state = {
   clusters: {},
   hostMetrics: {},
@@ -133,6 +156,7 @@ export default function cluster(state = {
 }, action) {
   return {
     clusters: clusters(state.clusters, action),
+    proxy: getProxy(state.proxy, action),
     createCluster: reducerFactory({
       REQUEST: ActionTypes.CREATE_CLUSTER_REQUEST,
       SUCCESS: ActionTypes.CREATE_CLUSTER_SUCCESS,
@@ -175,5 +199,15 @@ export default function cluster(state = {
       SUCCESS: ActionTypes.LOAD_HOST_INSTANT_SUCCESS,
       FAILURE: ActionTypes.LOAD_HOST_INSTANT_FAILURE,
     }, state.hostInstant, action, option),
+    updateProxy: reducerFactory({
+      REQUEST: ActionTypes.PROXY_UPDATE_REQUEST,
+      SUCCESS: ActionTypes.PROXY_UPDATE_SUCCESS,
+      FAILURE: ActionTypes.PROXY_UPDATE_FAILURE
+    }, state.updateProxy, action, option),
+    getClusterNodeAddr: reducerFactory({
+      REQUEST: ActionTypes.GET_CLUSTER_NODE_ADDR_REQUEST,
+      SUCCESS: ActionTypes.GET_CLUSTER_NODE_ADDR_SUCCESS,
+      FAILURE: ActionTypes.GET_CLUSTER_NODE_ADDR_FAILURE
+    }, state.getClusterNodeAddr, action, option)
   }
 }

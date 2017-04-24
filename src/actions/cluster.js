@@ -326,3 +326,77 @@ export function deleteCluster(cluster, callback) {
     return dispatch(fetchDeleteCluster(cluster, callback))
   }
 }
+
+export const PROXY_GET_REQUEST = 'PROXY_GET_REQUEST'
+export const PROXY_GET_SUCCESS = 'PROXY_GET_SUCCESS'
+export const PROXY_GET_FAILURE = 'PROXY_GET_FAILURE'
+
+function fetchProxy(cluster, needFetching, callback) {
+  return {
+    [FETCH_API]: {
+      types: [PROXY_GET_REQUEST, PROXY_GET_SUCCESS, PROXY_GET_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/proxy`,
+      schema: {}
+    },
+    callback,
+    needFetching
+  }
+}
+
+export function getProxy(cluster, needFetching, callback) {
+  if(typeof needFetching != 'boolean') {
+    callback = needFetching
+    needFetching = true
+  }
+  return (dispatch, getState) => {
+    return dispatch(fetchProxy(cluster, needFetching, callback))
+  }
+}
+
+export const PROXY_UPDATE_REQUEST = 'PROXY_UPDATE_REQUEST'
+export const PROXY_UPDATE_SUCCESS = 'PROXY_UPDATE_SUCCESS'
+export const PROXY_UPDATE_FAILURE = 'PROXY_UPDATE_FAILURE'
+
+function fetchUpdateProxy(cluster, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [PROXY_UPDATE_REQUEST, PROXY_UPDATE_SUCCESS, PROXY_UPDATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/proxy`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function updateProxy(cluster, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateProxy(cluster, body, callback))
+  }
+}
+
+
+
+export const GET_CLUSTER_NODE_ADDR_REQUEST = 'GET_CLUSTER_NODE_ADDR_REQUEST'
+export const GET_CLUSTER_NODE_ADDR_SUCCESS = 'GET_CLUSTER_NODE_ADDR_SUCCESS'
+export const GET_CLUSTER_NODE_ADDR_FAILURE = 'GET_CLUSTER_NODE_ADDR_FAILURE'
+
+function fetchClusterNodeAddr(cluster, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_CLUSTER_NODE_ADDR_REQUEST, GET_CLUSTER_NODE_ADDR_SUCCESS, GET_CLUSTER_NODE_ADDR_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/node_addr`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getClusterNodeAddr(cluster, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchClusterNodeAddr(cluster, callback))
+  }
+}

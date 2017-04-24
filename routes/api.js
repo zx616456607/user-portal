@@ -68,6 +68,9 @@ module.exports = function (Router) {
   // For bind node when create service(lite only)
   router.get('/clusters/:cluster/nodes', clusterController.getNodes)
   router.get('/clusters/add-cluster-cmd', clusterController.getAddClusterCMD)
+  router.get('/clusters/:cluster/proxy', clusterController.getProxy)
+  router.put('/clusters/:cluster/proxy', clusterController.updateProxy)
+  router.get('/clusters/:cluster/node_addr', clusterController.getClusterNodeAddr)
 
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)

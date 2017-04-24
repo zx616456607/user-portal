@@ -8,83 +8,289 @@
  * @author XuLongcheng
  */
 import React from 'react'
+import { camelize } from 'humps'
 import { Icon, Select, Button, Card, Form, Input, Tooltip, Spin, Modal, Dropdown, Menu,Row,Col } from 'antd'
-import { updateCluster, loadClusterList, deleteCluster } from '../../actions/cluster'
+import { getProxy, updateProxy, getClusterNodeAddr } from '../../actions/cluster'
+import { getAllClusterNodes } from '../../actions/cluster_node'
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
 import networkImg from '../../assets/img/integration/network.png'
 import { IP_REGEX, HOST_REGEX } from '../../../constants'
 
-let saveBtnDisabled = true
 let formadd=1;
+let validing = false
 let NetworkConfiguration = React.createClass ({
   getInitialState() {
     return {
       editCluster: false, // edit btn
+      saveBtnDisabled: false,
+      showDeleteModal: false
     }
   },
   componentWillMount(){
-    const { getFieldProps, getFieldValue } = this.props.form;
+    const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form;
+    const { getProxy, cluster } = this.props
     getFieldProps('arr', {
-      initialValue: [0],
-    });
-  }, 
+      initialValue: [0]
+    })
+    this.loadData()
+  },
+  loadData(needFetching) {
+    const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form;
+    const { getProxy, cluster } = this.props
+    getProxy(this.props.cluster.clusterID, needFetching == undefined ? true : needFetching, {
+      success: {
+        func:(res) => {
+          const clusterID = camelize(cluster.clusterID)
+          if(res[clusterID]) {
+            const keyArr = []
+            res[clusterID].data.nodeProxys.forEach((item, index) => {
+              keyArr.push(index)
+            })
+            setFieldsValue({'arr': keyArr})
+            return
+          }
+          setFieldsValue({'arr': [0]})
+        }
+      }
+    }) 
+  },
+  getSelectItem() {
+    const { nodeList, cluster } = this.props
+    const clusterID = cluster.clusterID
+    if(nodeList.isEmptyObject) {
+      return <div key="null"></div>
+    }
+    if(nodeList[clusterID].isFetching) {
+      return <div key="null" className="loadingBox"><Spin size="large"></Spin></div>
+    }
+    const nodes = nodeList[clusterID].nodes.clusters.nodes.nodes
+    return nodes.map(node => {
+      return <Option key={node.objectMeta.name} value={node.objectMeta.name}>{node.objectMeta.name}</Option>
+    })
+  },
+  isExistRepeat(key) {
+    const { form } = this.props
+    const { getFieldsValue, getFieldValue } = form
+    const arr = getFieldValue('arr')
+    const currentField = [`nodeSelect${key}`, `nodeIP${key}`]
+    const currentValue = getFieldsValue(currentField)
+    return arr.some(item => {
+      if(item == key) return false
+      const keyArr = [`nodeSelect${item}`, `nodeIP${item}`]
+      const value = getFieldsValue(keyArr)
+      keyArr.every((i, index) => {
+      })
+      return keyArr.every((i, index) => value[keyArr[index]] == currentValue[currentField[index]])
+    })
+  },
+  validAllField() {
+    if(validing) {
+      return
+    }
+    validing = true
+    const { form } = this.props
+    form.validateFields({force: true}, (err, callback) => {
+      validing = false
+    })
+  },
+  handDelete(key) {
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue } = form
+    let keyArr = getFieldValue('arr')
+    keyArr.splice(keyArr.indexOf(key), 1)
+    setFieldsValue({
+      arr: keyArr
+    })
+  },
+  updateCluster() {
+    const { form, cluster, updateProxy, getProxy } = this.props
+    const { getFieldValue } = form
+    validing = true
+    this.setState({
+      saveBtnDisabled: true
+    })
+    form.validateFields({force: true}, (err, v) => {
+      validing = false
+      if(err) {
+        this.setState({
+          saveBtnDisabled: false
+        })
+        return
+      }
+      const notify = new NotificationHandler()
+      const arr = getFieldValue('arr')
+      if(arr.length == 0) {
+        this.setState({
+          saveBtnDisabled: false
+        })
+        notify.error('请填入一组代理出口')
+        return
+      }
+      const entity = {
+        bindingIPs: getFieldValue('bindingIPs'),
+        bindingDomains: getFieldValue('bindingDomains'),
+        nodeProxys: []
+      }
+      const nodeProxys = entity.nodeProxys
+      arr.forEach(item => {
+        nodeProxys.push({
+          host: getFieldValue(`nodeSelect${item}`),
+          address: getFieldValue(`nodeIP${item}`)
+        })
+      })
+      notify.spin('更新代理出口中')
+      updateProxy(cluster.clusterID, entity, {
+        success: {
+          func: () => {
+            notify.close()
+            notify.success('代理出口更新成功')
+            this.loadData(false)
+            this.setState({
+              saveBtnDisabled: false,
+              editCluster: false
+            })
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            notify.close()
+            notify.error('代理出口更新失败')
+            this.setState({
+              saveBtnDisabled: false,
+              editCluster: false
+            })
+
+          }
+        }
+      })
+    })
+  },
+  cancleEdit() {
+    this.setState({editCluster: false, saveBtnLoading: false, saveBtnDisabled: true})
+    const { form, cluster, clusterProxy } = this.props
+    const clusterID = camelize(cluster.clusterID)
+    if(clusterProxy.result[clusterID]) {
+      const keyArr = []
+      clusterProxy.result[clusterID].data.nodeProxys.forEach((item, index) => {
+        keyArr.push(index)
+      })
+      form.setFieldsValue({
+        arr: keyArr
+      })
+    }
+  },
   getItems() {
-    const { cluster, form } = this.props
+    const { cluster, form, clusterProxy } = this.props
     const { getFieldProps, getFieldValue } = form;
     const { editCluster, saveBtnLoading } = this.state
     let {bindingIPs} = cluster
-
-    const nodeIPsProps = getFieldProps('bindingIPs',{
-      rules: [
-        {
-          validator: (rule, value, callback) => {
-            if (value && !IP_REGEX.test(value)) {
-              return callback([new Error('请填写正确的服务外网 IP')])
-            }
-            callback()
-          }
-        }
-      ],
-      initialValue: bindingIPs
-    });
+    if(clusterProxy.isEmptyObject || !clusterProxy.result) {
+      return <div></div>
+    }
+    let proxy = clusterProxy.result[camelize(cluster.clusterID)]
+    if(!proxy) {
+      return <div></div>
+    }
+    proxy = proxy.data
     let arr = form.getFieldValue('arr');
     if(!arr) {
       return <div></div>
     }
     return arr.map(item => {
       return <div key={item}><Form.Item>
-        <div className="formItem">
-          <Select style={{width:'230px'}} placeholder="Please select a country">
-            <Option value="china">China</Option>
-            <Option value="use">U.S.A</Option>
-          </Select>
-        </div>
-        <div className="formItem">
+        { editCluster ? 
+            <Select style={{width:'230px'}} {...getFieldProps(`nodeSelect${item}`, {
+              initialValue: proxy.nodeProxys[item] ? proxy.nodeProxys[item].host : '',
+              rules: [{
+                validator: (rule, value, callback) => {
+                  if(!value) {
+                    return callback('请选择节点')
+                  }
+                  this.validAllField()
+                  if(this.isExistRepeat(item)) {
+                    return callback('代理信息重复')
+                  }
+                  callback()
+                }
+              }]
+            })}  placeholder="Please select a country">
+            {this.getSelectItem()}
+          </Select> :
+          <span className="h5" style={{width: "230px"}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].host : ''}</span>
+        }
+        </Form.Item>
+        <Form.Item>
           { editCluster ?
-          <Input {...nodeIPsProps} style={{width:'240px',margin:'0px 100px'}}  placeholder="输入服务出口 IP" />
+            <Input {...getFieldProps(`nodeIP${item}`,{
+              rules: [
+                {
+                  validator: (rule, value, callback) => {
+                    if(!value) {
+                      return callback('请填写网卡 IP')
+                    }
+                    if (!IP_REGEX.test(value)) {
+                      return callback([new Error('请填写正确的网卡 IP')])
+                    }
+                    this.validAllField()
+                    if(this.isExistRepeat(item)) {
+                      return callback('代理信息重复')
+                    }
+                    callback()
+                  }
+                }
+              ],
+              initialValue: proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''
+            })
+          } style={{width:'240px',margin:'0px 100px'}}  placeholder="输入服务出口 IP" />
           :
-          <span className="h5" style={{margin:'0px 100px'}}>123</span>
+            <span className="h5" style={{margin:'0px 100px'}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''}</span>
           }
-        </div>
-      </Form.Item></div>
+      </Form.Item>
+        {
+          editCluster ?  <Icon type="delete"  onClick={() => this.handDelete(item)}/> : <span></span>
+        }
+      </div>
     })
   },
   add (){
-    formadd++ 
     const {form} = this.props;
-    const { getFieldProps, getFieldValue } = form;
-    let arr = form.getFieldValue('arr');
-    arr.push(formadd);
-    form.setFieldsValue({
-      arr,
-    });
+    validing = true
+    form.validateFields((err, callback) => {
+      validing = false
+      if(err) {
+        return
+      }
+      formadd++
+      const { getFieldProps, getFieldValue } = form;
+      let arr = form.getFieldValue('arr');
+      arr.push(formadd);
+      form.setFieldsValue({
+        arr,
+      });
+    })
   },
   render (){
-    const { cluster, form } = this.props
+    const { cluster, form, clusterProxy } = this.props
     const { editCluster, saveBtnLoading } = this.state
+    let bindingIPs = ''
+    let bindingDomains = ''
     const { getFieldProps } = form
-    let {bindingIPs,bindingDomains} = cluster
+    if(clusterProxy.isEmptyObject || !clusterProxy.result) {
+      return <div className="loadingBox"><Spin size="large"></Spin></div>
+    }
+    let proxy = clusterProxy.result[camelize(cluster.clusterID)]
+    if(!proxy) {
+      return <div>暂无代理</div>
+    }
+    proxy = proxy.data
+    let arr = form.getFieldValue('arr');
+    if(!arr) {
+      return <div>暂无代理</div>
+    }
+    bindingDomains = proxy.bindingDomains
+    bindingIPs = proxy.bindingIPs
     const bindingIPsProps = getFieldProps('bindingIPs',{
       rules: [
         {
@@ -123,21 +329,18 @@ let NetworkConfiguration = React.createClass ({
       <Card id="Network" className="ClusterInfo">
         <div className="h3">网路配置
           {!editCluster?
-            <Dropdown.Button overlay={dropdown} type="ghost" style={{float:'right',marginTop:'6px'}} onClick={()=> this.setState({editCluster: true})}>
+           <Dropdown.Button overlay={dropdown} type="ghost" style={{float:'right',marginTop:'6px'}} onClick={()=> this.setState({editCluster: true, saveBtnDisabled: false})}>
               编辑配置
             </Dropdown.Button>
             :
             <div style={{float:'right'}}>
               <Button
-                onClick={()=> {
-                  this.setState({editCluster: false, saveBtnLoading: false})
-                  saveBtnDisabled = true
-                }}>
+                onClick={()=> this.cancleEdit()}>
                 取消
               </Button>
               <Button
                 loading={saveBtnLoading}
-                disabled={saveBtnDisabled}
+                disabled={this.state.saveBtnDisabled}
                 type="primary" style={{marginLeft:'8px'}}
                 onClick={this.updateCluster}>
                 保存
@@ -148,18 +351,20 @@ let NetworkConfiguration = React.createClass ({
         <div className="imgBox">
           <img src={networkImg}/>
         </div>
-        <Form className="clusterTable" style={{padding:'35px 0'}}>
-          <div style={{width:'40%'}} className="formItem">
+        <Form className="clusterTable" style={{padding:'35px 0'}}> <div style={{width:'40%'}} className="formItem">
             <Form.Item >
-              <div className="h4 blod">服务内网IP  <Icon type="question-circle-o" /></div>
+              <div className="h4 blod">服务内网IP  <Tooltip title="服务内网IP显示在[应用管理-服务地址：内网IP]处，集群内任意节点作为服务的内网出口代理；"><Icon type="question-circle-o" /></Tooltip></div>
             </Form.Item>
               <Row>
                 <Col xs={{span:6}}>代理节点</Col><Col xs={{span:10,offset:8}}>节点的网卡IP(多网卡时请确认)</Col>
               </Row>
               {this.getItems()}
-              <Form.Item  style={{margin:'15px 0px',color:'#2db7f5',cursor: 'pointer'}}>
-                <Icon onClick={this.add} type="plus-circle-o"/> 新增一条内网代理
-              </Form.Item>
+              {
+                editCluster ? <Form.Item style={{ margin: '15px 0px', color: '#2db7f5', cursor: 'pointer' }}>
+                  <span onClick={this.add}><Icon type="plus-circle-o" /> 新增一条内网代理</span>
+                </Form.Item>
+                  : <span></span>
+              }
           </div>
 
           <div className="formItem" style={{margin:'0px 0px 0px 220px'}}>
@@ -189,4 +394,27 @@ let NetworkConfiguration = React.createClass ({
     )
   } 
 })
-export default Form.create()(NetworkConfiguration);
+
+function mapStateToProps(state, props) {
+  const defaultNodeList = {isFetching: false, isEmptyObject: true}
+  const defaultProxy = {isFetching: false, isEmptyObject: true}
+  let allNode = state.cluster_nodes.getAllClusterNodes
+  if(!allNode) {
+    allNode = defaultNodeList
+  }
+  let clusterProxy = state.cluster.proxy
+  if(!clusterProxy) {
+    clusterProxy = defaultProxy
+  }
+  return {
+    nodeList: allNode,
+    clusterProxy
+  }
+}
+
+export default connect(mapStateToProps, {
+  getProxy,
+  updateProxy,
+  getClusterNodeAddr,
+  getAllClusterNodes
+})(Form.create()(NetworkConfiguration))
