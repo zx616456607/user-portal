@@ -2,10 +2,10 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * Cluster info list component
+ * NetworkConfiguration list component
  *
- * v0.1 - 2017-2-24
- * @author BaiYu
+ * v0.1 - 2017-4-24
+ * @author XuLongcheng
  */
 import React from 'react'
 import { Icon, Select, Button, Card, Form, Input, Tooltip, Spin, Modal, Dropdown, Menu,Row,Col } from 'antd'
