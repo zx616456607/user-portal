@@ -169,7 +169,7 @@ class MirrorSafety extends Component {
         }
       }
     })
-    //loadMirrorSafetyLayerinfo({ imageName, tag })
+    loadMirrorSafetyLayerinfo({ imageName, tag })
   }
 
   handleSoftwarepackageToLayer(object) {
