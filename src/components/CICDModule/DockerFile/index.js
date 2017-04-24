@@ -37,7 +37,7 @@ const menusText = defineMessages({
   },
   itemName: {
     id: 'CICD.DockerFile.itemName',
-    defaultMessage: '子项目名称',
+    defaultMessage: '子任务名称',
   },
   editTime: {
     id: 'CICD.DockerFile.editTime',

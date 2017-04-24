@@ -26,13 +26,13 @@ exports.getScanStatus = function* () {
     throw err
   }
   let manifest = ''
+  const loginUser = this.session.loginUser
   if (body.isThird) {
     if (!body.registryID) {
       const err = new Error('registryID is require')
       err.status = 400
       throw err
     }
-    const loginUser = this.session.loginUser
     let serverInfo = yield _getRegistryServerInfo(this.session, loginUser, body.registryId)
 
     // If find the valid registry info
@@ -64,7 +64,7 @@ exports.getScanStatus = function* () {
     }
     manifest = result[1]
   }
-  const api = apiFactory.getImageScanApi(this.session.loginUser)
+  const api = apiFactory.getImageScanApi(loginUser)
   const response = yield api.createBy(['scan-status'], null, {
     manifest: JSON.stringify(manifest)
   })

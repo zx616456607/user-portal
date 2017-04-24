@@ -40,11 +40,11 @@ const defaultOptions = {
 const menusText = defineMessages({
   titleEdit: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.titleEdit',
-    defaultMessage: '编辑项目卡片',
+    defaultMessage: '编辑子任务卡片',
   },
   titleAdd: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.titleAdd',
-    defaultMessage: '创建项目卡片',
+    defaultMessage: '创建子任务卡片',
   },
   unitCheck: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.unitCheck',
@@ -68,15 +68,15 @@ const menusText = defineMessages({
   },
   flowType: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.flowType',
-    defaultMessage: '项目类型',
+    defaultMessage: '子任务类型',
   },
   flowCode: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.flowCode',
-    defaultMessage: '项目代码',
+    defaultMessage: '子任务代码',
   },
   flowName: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.flowName',
-    defaultMessage: '项目名称',
+    defaultMessage: '子任务名称',
   },
   selectCode: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.selectCode',
@@ -374,7 +374,7 @@ let EditTenxFlowModal = React.createClass({
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
     const { stageList } = this.props.rootScope.props;
-    let errorMsg = appNameCheck(value, '项目名称')
+    let errorMsg = appNameCheck(value, '子任务名称')
     const self = this
     if(errorMsg == 'success') {
       let flag = false;
@@ -382,7 +382,7 @@ let EditTenxFlowModal = React.createClass({
         stageList.map((item) => {
           if (item.metadata.name == value && self.props.stageId !== item.metadata.id) {
             flag = true;
-            errorMsg = appNameCheck(value, '项目名称', true);
+            errorMsg = appNameCheck(value, '子任务名称', true);
             callback([new Error(errorMsg)]);
           }
         });
@@ -1150,14 +1150,14 @@ let EditTenxFlowModal = React.createClass({
     }
     /*const flowTypeProps = getFieldProps('flowType', {
       rules: [
-        { required: true, message: '请选择项目类型' },
+        { required: true, message: '请选择子任务类型' },
       ],
       onChange: this.flowTypeChange,
       initialValue: imageList[config.metadata.type - 1].title,
     });*/
     const otherFlowTypeProps = getFieldProps('otherFlowType', {
       rules: [
-        { message: '输入自定义项目类型' },
+        { message: '输入自定义子任务类型' },
       ],
       initialValue: config.metadata.customType,
     });
@@ -1177,7 +1177,7 @@ let EditTenxFlowModal = React.createClass({
     });
     const flowNameProps = getFieldProps('flowName', {
       rules: [
-        { required: true, message: '请输入项目名称' },
+        { required: true, message: '请输入子任务名称' },
         { validator: this.flowNameExists },
       ],
       initialValue: config.metadata.name,
