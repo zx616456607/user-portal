@@ -423,6 +423,7 @@ class AppServiceDetail extends Component {
               </TabPane>
               <TabPane tab='日志' key='#logs'>
                 <AppServiceLog
+                  activeKey={activeTabKey}
                   containers={containers}
                   serviceName={service.metadata.name}
                   cluster={service.cluster}

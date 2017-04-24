@@ -178,7 +178,7 @@ let CodeStoreListModal = React.createClass({
           <div className='commonTitle'>
           {item.repoType !='svn' ?
             <div onClick={()=> this.selectedCodeStore(item)} className="forkDropdown">
-              <Select className={this.state.errorSelect == item.id ? 'noSelectCodeStore' : ''} style={{ width: '120px'}} size='large'
+              <Select placeholder="请选择分支" className={this.state.errorSelect == item.id ? 'noSelectCodeStore' : ''} style={{ width: '120px'}} size='large'
                 onChange={this.onChangeBranch.bind(this, item.id)} getPopupContainer={() => document.getElementById('codeDetailAnimate')}>
                 { showBranchList(item.branchList) }
               </Select>
