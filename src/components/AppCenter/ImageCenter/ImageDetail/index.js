@@ -389,7 +389,13 @@ class ImageDetailBox extends Component {
         isAsync: true
       },
       failed:{
-        func: () => {
+        func: (res) => {
+          if(res.statusCode == 412){
+            this.setState({
+              safetyscanVisible:false
+            })
+            return
+          }
           notificationHandler.error('['+imageName+ ']' +'镜像的'+ '[' + tag + ']' +'版本内容不存在或已损坏！')
           this.setState({
             safetyscanVisible:false
