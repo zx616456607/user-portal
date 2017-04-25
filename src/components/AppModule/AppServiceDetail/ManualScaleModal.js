@@ -120,7 +120,6 @@ class ManualScaleModal extends Component {
         保 存
       </Button>
     ]
-    console.log(realNum)
     return (
       <Modal
         visible={visible}
