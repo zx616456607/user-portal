@@ -236,6 +236,9 @@ let MyComponent = React.createClass({
       callback([new Error('抱歉，必须填写路径.')])
       return
     }
+    if(!/^[a-zA-Z0-9\/].?/.test(value)) {
+      return callback('请填写正确的路径')
+    }
     const { getFieldProps, getFieldValue, } = this.props.form
     const dir = []
     getFieldValue('volumeKey').forEach((k) => {
