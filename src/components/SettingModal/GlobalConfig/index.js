@@ -14,6 +14,7 @@ import './style/GlobalConfig.less'
 import EmailImg from '../../../assets/img/setting/globalconfigEmail.png'
 import conInter from '../../../assets/img/setting/globalconfigCICD.png'
 import MirrorImg from '../../../assets/img/setting/globalconfigmirror.png'
+import APIImg from '../../../assets/img/setting/globalconfigapi.png'
 import CephImg from '../../../assets/img/setting/globalconfigceph.png'
 import { connect } from 'react-redux'
 import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig } from '../../../actions/global_config'
@@ -445,7 +446,7 @@ let ConInter = React.createClass({
         <div className="content">
           <div className="contentMain">
             <div className="contentImg">
-              <img src={conInter} alt="持续集成" />
+              <img src={APIImg} alt="开放API地址" />
             </div>
             <div className="contentkeys">
               <div className="key">容器引擎 API</div>
