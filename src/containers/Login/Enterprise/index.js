@@ -300,6 +300,32 @@ let Login = React.createClass({
       }
     })
   },
+
+  componentDidMount(){
+    const { form } = this.props
+    const { getFieldValue } = form
+    function keyUpFunc(e){
+      e = e || window.event
+      e.preventDefault();
+      let userName = getFieldValue('name')
+      if(!userName){
+        document.getElementById('name').focus()
+        return
+      }
+      if(e.keyCode == 13 && userName){
+        document.getElementById('password').focus()
+      }
+    }
+    setTimeout(() => {
+      let userNameNode = document.getElementById('name')
+      userNameNode.focus()
+      if(userNameNode.addEventListener){
+        userNameNode.addEventListener('keyup',keyUpFunc)
+      }else if(userNameNode.attachEvent){
+        userNameNode.attachEvent('keyup',keyUpFunc)
+      }
+    }, 1000)
+  },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps } = this.state
