@@ -94,6 +94,7 @@ class ImageDetailBox extends Component {
     this.handleTabsSwitch = this.handleTabsSwitch.bind(this)
     this.handelSelectedOption = this.handelSelectedOption.bind(this)
     //this.TemplateTabPaneMirrorsafety = this.TemplateTabPaneMirrorsafety.bind(this)
+    this.formatErrorMessage = this.formatErrorMessage.bind(this)
     this.state = {
       imageDetail: null,
       copySuccess: false,
@@ -113,9 +114,6 @@ class ImageDetailBox extends Component {
     const imageInfo = this.props.imageInfo
     const { registry, loadImageDetailTag } = this.props
     const imageName = imageDetail.name
-    //console.log('imageDetail=',imageDetail)
-    //console.log('registry=',registry)
-    //console.log('imageName=',imageName)
     loadImageDetailTag(registry, imageName)
     this.setState({
       imageDetail: imageDetail,
@@ -139,11 +137,6 @@ class ImageDetailBox extends Component {
       imageDetail: nextProps.config,
       activeKey:activekeyNext
     });
-
-    //if(!imageNameNext){
-    //  console.log('!imageNameNext=',!imageNameNext)
-    //  return
-    //}
   }
 
   copyDownloadCode() {
@@ -329,6 +322,7 @@ class ImageDetailBox extends Component {
     loadMirrorSafetyScanStatus({ imageName, tag },{
       success: {
         func: () => {
+          loadMirrorSafetyLayerinfo({ imageName, tag })
           this.setState({
             TabsDisabled: false,
             safetyscanVisible: false,
@@ -396,7 +390,7 @@ class ImageDetailBox extends Component {
             })
             return
           }
-          notificationHandler.error('['+imageName+ ']' +'镜像的'+ '[' + tag + ']' +'版本内容不存在或已损坏！')
+          notificationHandler.error('['+imageName+ ']' +'镜像的'+ '[' + tag + ']' + this.formatErrorMessage(res))
           this.setState({
             safetyscanVisible:false
           })
@@ -404,14 +398,18 @@ class ImageDetailBox extends Component {
         isAsync : true
       }
     })
-    loadMirrorSafetyLayerinfo({ imageName, tag })
-    //this.setState({
-    //  safetyscanVisible: false,
-    //  activeKey: '5',
-    //  disable: false,
-    //  tag: this.state.tagVersion
-    //  tagVersion:''
-    //})
+  }
+
+  formatErrorMessage(body) {
+    const mapping = {
+      'jobalreadyexist': '版本已经触发扫描，请稍后再试！',
+      'no non-empty layer': "无法对空镜像进行扫描",
+    }
+    const message = body.message.message
+    if (!(message in mapping)) {
+      return message
+    }
+    return mapping[message]
   }
 
   handleTabsSwitch(key) {
@@ -563,7 +561,7 @@ class ImageDetailBox extends Component {
             <TabPane tab="Dockerfile" key="2"><DockerFile isFetching={this.props.isFetching} scope={this} registry={DEFAULT_REGISTRY} detailInfo={imageInfo} isOwner={imageInfo.isOwner} /></TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
             <TabPane tab={formatMessage(menusText.attribute)} key="4"><Attribute detailInfo={imageInfo} /></TabPane>
-            <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} registry={DEFAULT_REGISTRY} tagVersion={this.state.tag} imageType={imageType} tabledisabled={this.state.tabledisabled}/></TabPane>
+            <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} registry={DEFAULT_REGISTRY} tagVersion={this.state.tag} imageType={imageType} tabledisabled={this.state.tabledisabled} formatErrorMessage={this.formatErrorMessage}/></TabPane>
           </Tabs>
         </div>
       </div>

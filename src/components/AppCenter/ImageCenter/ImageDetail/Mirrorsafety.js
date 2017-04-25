@@ -42,7 +42,7 @@ class MirrorSafety extends Component {
       ActiveKey: '1',
       LayerCommandParameters: '',
       tagVersion: this.props.tagVersion,
-      inherwidth:'100% '
+      inherwidth: 1
     }
   }
 
@@ -101,12 +101,13 @@ class MirrorSafety extends Component {
   }
 
   handleSelectVesion(tag) {
-    const { imageName, loadMirrorSafetyLayerinfo, loadMirrorSafetyScanStatus, loadMirrorSafetyScan, cluster_id, loadMirrorSafetyChairinfo, loadMirrorSafetyLyinsinfo, mirrorSafetyScan, mirrorScanUrl } = this.props
+    const { imageName, loadMirrorSafetyLayerinfo, loadMirrorSafetyScanStatus, loadMirrorSafetyScan, cluster_id, loadMirrorSafetyChairinfo, loadMirrorSafetyLyinsinfo, mirrorSafetyScan, mirrorScanUrl, formatErrorMessage } = this.props
     const notificationHandler = new NotificationHandler()
     this.setState({tag})
     loadMirrorSafetyScanStatus({ imageName, tag },{
       success: {
         func: () => {
+          loadMirrorSafetyLayerinfo({ imageName, tag })
           this.setState({
             TabsDisabled: false
           })
@@ -163,13 +164,12 @@ class MirrorSafety extends Component {
         isAsync: true
       },
       failed:{
-        func: () => {
+        func: (res) => {
           this.setState({TabsDisabled : true})
-          notificationHandler.error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' +'版本内容不存在或已损坏！')
+          notificationHandler.error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' + formatErrorMessage(res))
         }
       }
     })
-    loadMirrorSafetyLayerinfo({ imageName, tag })
   }
 
   handleSoftwarepackageToLayer(object) {
@@ -185,22 +185,8 @@ class MirrorSafety extends Component {
   handleTabsSwitch(key) {
     this.setState({
       ActiveKey: key,
-      inherwidth:'99%'
+      inherwidth: key
     })
-    switch(key){
-      case '1':
-      case '3':
-        return this.setState({
-            inherwidth:'100%'
-          })
-      case '2':
-      case '4':
-        return this.setState({
-            inherwidth:'0%'
-          })
-      default:
-        return
-    }
   }
 
   handleScanFailed(failed){
@@ -246,16 +232,16 @@ class MirrorSafety extends Component {
                 <div className="safetytabbox">
                   <Tabs onChange={this.handleTabsSwitch} activeKey={ TabsDisabled ? null : this.state.ActiveKey}>
                     <TabPane tab={<span><i className="fa fa-bug safetytabIcon" aria-hidden="true"></i>漏洞扫描</span>} key="1" disabled={this.state.TabsDisabled} >
-                      <MirrorSafetyBug imageName={imageName}  tag={this.state.tag} inherwidth={this.state.inherwidth} imageType={imageType} callback={this.handleSoftwarepackageToLayer} scanFailed={this.handleScanFailed}/>
+                      <MirrorSafetyBug imageName={imageName}  tag={this.state.tag} inherwidth={this.state.inherwidth} imageType={imageType} callback={this.handleSoftwarepackageToLayer} scanFailed={this.handleScanFailed} formatErrorMessage={this.props.formatErrorMessage}/>
                     </TabPane>
                     <TabPane tab={<span><i className="fa fa-database safetytabIcon" aria-hidden="true"></i>镜像分层</span>} key="2" disabled={this.state.TabsDisabled}>
                       <MirrorLayered LayerCommandParameters={LayerCommandParameters} imageName={imageName} tag={this.state.tag} />
                     </TabPane>
                     <TabPane tab={<span><i className="fa fa-android safetytabIcon" aria-hidden="true"></i><span className='softspan'>软件包</span></span>} key="3" disabled={this.state.TabsDisabled}>
-                      <SoftwarePackage imageName={imageName} tag={this.state.tag} inherwidth={this.state.inherwidth} imageType={imageType} callback={this.handleSoftwarepackageToLayer} scanFailed={this.handleScanFailed}/>
+                      <SoftwarePackage imageName={imageName} tag={this.state.tag} inherwidth={this.state.inherwidth} imageType={imageType} callback={this.handleSoftwarepackageToLayer} scanFailed={this.handleScanFailed} formatErrorMessage={this.props.formatErrorMessage}/>
                     </TabPane>
                     <TabPane tab={<span><i className="fa fa-crosshairs safetytabIcon" aria-hidden="true"></i>基础扫描</span>} key="4" disabled={this.state.TabsDisabled}>
-                      <BaseScan imageName={imageName} tag={this.state.tag} imageType={imageType} scanFailed={this.handleScanFailed}/>
+                      <BaseScan imageName={imageName} tag={this.state.tag} imageType={imageType} scanFailed={this.handleScanFailed} formatErrorMessage={this.props.formatErrorMessage}/>
                     </TabPane>
                   </Tabs>
                 </div>

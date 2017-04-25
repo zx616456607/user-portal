@@ -127,7 +127,7 @@ class BaseScan extends Component {
   }
 
   severScanLyins(){
-    const { loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus, scanFailed } = this.props
+    const { loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus, scanFailed, formatErrorMessage } = this.props
     const registry = mirrorScanUrl
     const scanstatus = mirrorScanstatus[imageName][tag]
     const blob_sum = scanstatus.result.blobSum || ''
@@ -177,10 +177,10 @@ class BaseScan extends Component {
         isAsync : true
       },
       failed: {
-        func : () => {
+        func : (res) => {
           this.setState({basescanFailed : false})
-          new NotificationHandler().error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' +'版本已经触发扫描，请稍后再试！')
-          scanFailed('failed')
+          new NotificationHandler().error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' + formatErrorMessage(res))
+          //scanFailed('failed')
         },
         isAsync : true
       }
