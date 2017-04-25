@@ -38,7 +38,7 @@ class ManualScaleModal extends Component {
     if (!service) {
       return
     }
-    if (!visible) {
+    if (!visible || visible == this.props.visible) {
       return
     }
     this.setState({
