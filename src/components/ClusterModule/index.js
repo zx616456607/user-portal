@@ -23,6 +23,7 @@ import { changeActiveCluster } from '../../actions/terminal'
 import { loadTeamClustersList } from '../../actions/team'
 import AddClusterOrNodeModalContent from './AddClusterOrNodeModal/Content'
 import { camelize } from 'humps'
+import CI from '../../assets/img/setting/shishi.png'
 
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;
@@ -360,7 +361,7 @@ class ClusterList extends Component {
     clusters.forEach(cluster => {
       if (cluster.clusterID) {
         ImageTabList.push(
-          <TabPane tab={<div><span>{cluster.clusterName}</span>{ cluster.isBuilder ? <Tooltip title='构建环境'><span style={{marginLeft:'4px'}}>111</span></Tooltip> : <span></span>}</div>} key={cluster.clusterID}>
+          <TabPane tab={<div className='clusterDiv'><span>{cluster.clusterName}</span>{ cluster.isBuilder ? <Tooltip title='构建环境'><img src={CI} className='clusterImg'/></Tooltip> : <span></span>}</div>} key={cluster.clusterID}>
             <ClusterTabList cluster={cluster} />
           </TabPane>
         )
