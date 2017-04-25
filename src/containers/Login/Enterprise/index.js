@@ -302,29 +302,23 @@ let Login = React.createClass({
   },
 
   componentDidMount(){
+    setTimeout(() => {
+      document.getElementById('name').focus()
+    }, 1000)
+  },
+
+  handleNameInputEnter(e){
+    e.preventDefault();
     const { form } = this.props
     const { getFieldValue } = form
-    function keyUpFunc(e){
-      e = e || window.event
-      e.preventDefault();
-      let userName = getFieldValue('name')
-      if(!userName){
-        document.getElementById('name').focus()
-        return
-      }
-      if(e.keyCode == 13 && userName){
-        document.getElementById('password').focus()
-      }
+    let userName = getFieldValue('name')
+    if(!userName){
+      document.getElementById('name').focus()
+      return
     }
-    setTimeout(() => {
-      let userNameNode = document.getElementById('name')
-      userNameNode.focus()
-      if(userNameNode.addEventListener){
-        userNameNode.addEventListener('keyup',keyUpFunc)
-      }else if(userNameNode.attachEvent){
-        userNameNode.attachEvent('keyup',keyUpFunc)
-      }
-    }, 1000)
+    if(e.keyCode == 13 && userName){
+      document.getElementById('password').focus()
+    }
   },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
@@ -384,6 +378,7 @@ let Login = React.createClass({
                   onBlur={this.intOnBlur.bind(this, 'name')}
                   onFocus={this.intOnFocus.bind(this, 'name')}
                   ref="intName"
+                  onPressEnter={this.handleNameInputEnter}
                   style={{ height: 35 }} />
               </FormItem>
 

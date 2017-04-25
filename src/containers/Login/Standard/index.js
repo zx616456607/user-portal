@@ -203,29 +203,8 @@ let Login = React.createClass({
   componentDidMount() {
     // const _this = this
     // const intName = this.refs.intName
-    const { form } = this.props
-    const { getFieldValue } = form
-    function keyUpFunc(e){
-      e = e || window.event
-      e.preventDefault();
-      let userName = getFieldValue('name')
-      if(!userName){
-        document.getElementById('name').focus()
-        return
-      }
-      if(e.keyCode == 13 && userName){
-        document.getElementById('password').focus()
-      }
-    }
-
     setTimeout(() => {
-      let userNameNode = document.getElementById('name')
-      userNameNode.focus()
-      if(userNameNode.addEventListener){
-        userNameNode.addEventListener('keyup',keyUpFunc)
-      }else if(userNameNode.attachEvent){
-        userNameNode.attachEvent('keyup',keyUpFunc)
-      }
+      document.getElementById('name').focus()
       // if (!intName) return
       // const intName = intName.refs.input
       // intName.focus()
@@ -236,6 +215,20 @@ let Login = React.createClass({
       //   })
       // }
     }, 1000)
+  },
+
+  handleNameInputEnter(e){
+    e.preventDefault()
+    const { form } = this.props
+    const { getFieldValue } = form
+    let userName = getFieldValue('name')
+    if(!userName){
+      document.getElementById('name').focus()
+      return
+    }
+    if(e.keyCode == 13 && userName){
+      document.getElementById('password').focus()
+    }
   },
 
   onScanChange(scan, scanResult) {
@@ -329,6 +322,7 @@ let Login = React.createClass({
             style={{ height: 35 }}
             name='name'
             tabIndex='1'
+            onPressEnter={this.handleNameInputEnter}
           />
         </FormItem>
 
