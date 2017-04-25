@@ -300,6 +300,26 @@ let Login = React.createClass({
       }
     })
   },
+
+  componentDidMount(){
+    setTimeout(() => {
+      document.getElementById('name').focus()
+    }, 1000)
+  },
+
+  handleNameInputEnter(e){
+    e.preventDefault();
+    const { form } = this.props
+    const { getFieldValue } = form
+    let userName = getFieldValue('name')
+    if(!userName){
+      document.getElementById('name').focus()
+      return
+    }
+    if(userName){
+      document.getElementById('password').focus()
+    }
+  },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps } = this.state
@@ -358,6 +378,7 @@ let Login = React.createClass({
                   onBlur={this.intOnBlur.bind(this, 'name')}
                   onFocus={this.intOnFocus.bind(this, 'name')}
                   ref="intName"
+                  onPressEnter={this.handleNameInputEnter}
                   style={{ height: 35 }} />
               </FormItem>
 

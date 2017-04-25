@@ -215,7 +215,20 @@ let Login = React.createClass({
       //   })
       // }
     }, 1000)
+  },
 
+  handleNameInputEnter(e){
+    e.preventDefault()
+    const { form } = this.props
+    const { getFieldValue } = form
+    let userName = getFieldValue('name')
+    if(!userName){
+      document.getElementById('name').focus()
+      return
+    }
+    if(userName){
+      document.getElementById('password').focus()
+    }
   },
 
   onScanChange(scan, scanResult) {
@@ -309,6 +322,7 @@ let Login = React.createClass({
             style={{ height: 35 }}
             name='name'
             tabIndex='1'
+            onPressEnter={this.handleNameInputEnter}
           />
         </FormItem>
 
