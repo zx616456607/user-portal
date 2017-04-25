@@ -38,7 +38,7 @@ class ManualScaleModal extends Component {
     if (!service) {
       return
     }
-    if (!visible) {
+    if (!visible || visible == this.props.visible) {
       return
     }
     this.setState({
@@ -120,6 +120,7 @@ class ManualScaleModal extends Component {
         保 存
       </Button>
     ]
+    console.log(realNum)
     return (
       <Modal
         visible={visible}
