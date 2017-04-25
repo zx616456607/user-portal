@@ -22,7 +22,7 @@ let validing = false
 let NetworkConfiguration = React.createClass ({
   getInitialState() {
     return {
-      editCluster: false, // edit btn
+      editCluster: true, // edit btn
       saveBtnDisabled: false,
       showDeleteModal: false
     }
@@ -199,7 +199,7 @@ let NetworkConfiguration = React.createClass ({
       return <div></div>
     }
     return arr.map(item => {
-      return <div key={item}><Form.Item>
+      return <div key={item} style={{display:'flex'}}><Form.Item>
         { editCluster ? 
             <Select style={{width:'230px'}} {...getFieldProps(`nodeSelect${item}`, {
               initialValue: proxy.nodeProxys[item] ? proxy.nodeProxys[item].host : '',
@@ -218,10 +218,10 @@ let NetworkConfiguration = React.createClass ({
             })}  placeholder="Please select a country">
             {this.getSelectItem()}
           </Select> :
-          <span className="h5" style={{width: "230px"}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].host : ''}</span>
+          <span className="h5" style={{width: "230px",display:'inline-block'}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].host : ''}</span>
         }
         </Form.Item>
-        <Form.Item>
+        <Form.Item style={{display:'inline-block'}}>
           { editCluster ?
             <Input {...getFieldProps(`nodeIP${item}`,{
               rules: [
@@ -243,13 +243,13 @@ let NetworkConfiguration = React.createClass ({
               ],
               initialValue: proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''
             })
-          } style={{width:'240px',margin:'0px 100px'}}  placeholder="输入服务出口 IP" />
+          } style={{width:'240px',margin:'0px 10px'}}  placeholder="输入服务出口 IP" />
           :
-            <span className="h5" style={{margin:'0px 100px'}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''}</span>
+            <span className="h5" style={{width:'240px',display:'inline-block',margin:'0px 10px'}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''}</span>
           }
       </Form.Item>
         {
-          editCluster ?  <Icon type="delete"  onClick={() => this.handDelete(item)}/> : <span></span>
+          editCluster ?  <Icon style={{margin:'10px 0px 0px 0px'}} type="delete"  onClick={() => this.handDelete(item)}/> : <span></span>
         }
       </div>
     })
@@ -328,10 +328,10 @@ let NetworkConfiguration = React.createClass ({
     return (
       <Card id="Network" className="ClusterInfo">
         <div className="h3">网路配置
-          {!editCluster?
-           <Dropdown.Button overlay={dropdown} type="ghost" style={{float:'right',marginTop:'6px'}} onClick={()=> this.setState({editCluster: true, saveBtnDisabled: false})}>
+          { editCluster?
+           <Button type="ghost" style={{float:'right',marginTop:'6px'}} onClick={()=> this.setState({editCluster: true, saveBtnDisabled: false})}>
               编辑配置
-            </Dropdown.Button>
+              </Button>
             :
             <div style={{float:'right'}}>
               <Button
