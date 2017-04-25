@@ -360,7 +360,7 @@ class ClusterList extends Component {
     clusters.forEach(cluster => {
       if (cluster.clusterID) {
         ImageTabList.push(
-          <TabPane tab={cluster.clusterName} key={cluster.clusterID}>
+          <TabPane tab={<div><span>{cluster.clusterName}</span>{ cluster.isBuilder ? <Tooltip title='构建环境'><span style={{marginLeft:'4px'}}>111</span></Tooltip> : <span></span>}</div>} key={cluster.clusterID}>
             <ClusterTabList cluster={cluster} />
           </TabPane>
         )
