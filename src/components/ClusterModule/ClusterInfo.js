@@ -210,12 +210,12 @@ let ClusterInfo = React.createClass ({
       }
     })
     if(this.clusterListLength().length == 1){
-      return <span><Checkbox style={{marginRight:'4px' }}  onClick={this.cancleClusterWhenOnlyOneClusterModal} checked={true}></Checkbox>勾选后该集群用来作为构建镜像的环境</span>
+      return <span><Checkbox style={{marginRight:'4px' }}  onClick={this.cancleClusterWhenOnlyOneClusterModal} checked={true}></Checkbox>该集群用来作为构建镜像的环境</span>
     }
     if(isBuilder){
-      return <span><Checkbox style={{marginRight:'4px' }}  onClick={this.checkBuilderEnvironment} checked={this.state.checkbox}></Checkbox>勾选后该集群用来作为构建镜像的环境</span>
+      return <span><Checkbox style={{marginRight:'4px' }}  onClick={this.checkBuilderEnvironment} checked={this.state.checkbox}></Checkbox>该集群用来作为构建镜像的环境</span>
     }
-    return <div><Form.Item style={{width:'18px',float:'left'}}><Checkbox {...agreementProps} checked={this.state.selectedBuilderEnvironment}></Checkbox></Form.Item><span>勾选后该集群用来作为构建镜像的环境</span></div>
+    return <div><Form.Item style={{width:'18px',float:'left'}}><Checkbox {...agreementProps} checked={this.state.selectedBuilderEnvironment}></Checkbox></Form.Item><span>该集群用来作为构建镜像的环境</span></div>
   },
   deleteClusterWhenIsBuilderEnvironmentModal(){
     Modal.info({
@@ -449,7 +449,7 @@ let ClusterInfo = React.createClass ({
                 {
                   editCluster
                     ? this.eidtClusterBuilderEnvironment()
-                    : <span>{this.eidtFasleCheckbox()}勾选后该集群用来作为构建镜像的环境</span>
+                    : <span>{this.eidtFasleCheckbox()}该集群用来作为构建镜像的环境</span>
                 }
             </Form.Item>
             <Form.Item>
