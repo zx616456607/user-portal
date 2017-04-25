@@ -351,12 +351,12 @@ let NetworkConfiguration = React.createClass ({
         <div className="imgBox">
           <img src={networkImg}/>
         </div>
-        <Form className="clusterTable" style={{padding:'35px 0'}}> <div style={{width:'40%'}} className="formItem">
+        <Form className="clusterTable" style={{padding:'35px 0'}}> <div style={{width:'415px'}} className="formItem">
             <Form.Item >
               <div className="h4 blod">服务内网IP  <Tooltip title="服务内网IP显示在[应用管理-服务地址：内网IP]处，集群内任意节点作为服务的内网出口代理；"><Icon type="question-circle-o" /></Tooltip></div>
             </Form.Item>
               <Row>
-                <Col xs={{span:6}}>代理节点</Col><Col xs={{span:10,offset:8}}>节点的网卡IP(多网卡时请确认)</Col>
+                <Col xs={{span:14}}>代理节点</Col><Col xs={{span:10}}>节点的网卡IP(多网卡时请确认)</Col>
               </Row>
               {this.getItems()}
               {
