@@ -208,18 +208,13 @@ let Login = React.createClass({
     setTimeout(() => {
       document.getElementById('name').focus()
       document.getElementById('name').addEventListener('keyup',function(e){
-        e.preventDefault();
         e = e || window.event
+        e.preventDefault();
         let userName = getFieldValue('name')
         if(e.keyCode == 13 && userName !== ''){
           document.getElementById('password').focus()
         }
       })
-      //  .onkeydown = function(e){
-      //  //e = e || window.enent
-      //  //console.log('userName=',userName)
-      //  console.log('keydown')
-      //}
       // if (!intName) return
       // const intName = intName.refs.input
       // intName.focus()
