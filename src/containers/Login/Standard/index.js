@@ -205,16 +205,23 @@ let Login = React.createClass({
     // const intName = this.refs.intName
     const { form } = this.props
     const { getFieldValue } = form
+    function keyUpFunc(e){
+      e = e || window.event
+      e.preventDefault();
+      let userName = getFieldValue('name')
+      if(e.keyCode == 13 && userName !== ''){
+        document.getElementById('password').focus()
+      }
+    }
+
     setTimeout(() => {
-      document.getElementById('name').focus()
-      document.getElementById('name').addEventListener('keyup',function(e){
-        e = e || window.event
-        e.preventDefault();
-        let userName = getFieldValue('name')
-        if(e.keyCode == 13 && userName !== ''){
-          document.getElementById('password').focus()
-        }
-      })
+      let userNameNode = document.getElementById('name')
+      userNameNode.focus()
+      if(userNameNode.addEventListener){
+        userNameNode.addEventListener('keyup',keyUpFunc)
+      }else if(userNameNode.attachEvent){
+        userNameNode.attachEvent('keyup',keyUpFunc)
+      }
       // if (!intName) return
       // const intName = intName.refs.input
       // intName.focus()
@@ -225,7 +232,6 @@ let Login = React.createClass({
       //   })
       // }
     }, 1000)
-
   },
 
   onScanChange(scan, scanResult) {
