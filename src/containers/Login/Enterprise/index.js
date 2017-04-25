@@ -316,7 +316,7 @@ let Login = React.createClass({
       document.getElementById('name').focus()
       return
     }
-    if(e.keyCode == 13 && userName){
+    if(userName){
       document.getElementById('password').focus()
     }
   },
