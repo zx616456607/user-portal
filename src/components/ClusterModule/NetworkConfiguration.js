@@ -199,39 +199,16 @@ let NetworkConfiguration = React.createClass ({
       return <div></div>
     }
     return arr.map(item => {
-      return <div key={item} style={{display:'flex'}}><Form.Item>
-        { editCluster ? 
-            <Select style={{width:'230px'}} {...getFieldProps(`nodeSelect${item}`, {
-              initialValue: proxy.nodeProxys[item] ? proxy.nodeProxys[item].host : '',
-              rules: [{
-                validator: (rule, value, callback) => {
-                  if(!value) {
-                    return callback('请选择节点')
-                  }
-                  this.validAllField()
-                  if(this.isExistRepeat(item)) {
-                    return callback('代理信息重复')
-                  }
-                  callback()
-                }
-              }]
-            })}  placeholder="Please select a country">
-            {this.getSelectItem()}
-          </Select> :
-          <span className="h5" style={{width: "230px",display:'inline-block'}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].host : ''}</span>
-        }
-        </Form.Item>
-        <Form.Item style={{display:'inline-block'}}>
-          { editCluster ?
-            <Input {...getFieldProps(`nodeIP${item}`,{
-              rules: [
-                {
+      return <div key={item} style={{display:'flex'}}>
+      
+        <Form.Item style={{flex:'5'}}>
+          { editCluster ? 
+              <Select style={{width:'100%'}} {...getFieldProps(`nodeSelect${item}`, {
+                initialValue: proxy.nodeProxys[item] ? proxy.nodeProxys[item].host : '',
+                rules: [{
                   validator: (rule, value, callback) => {
                     if(!value) {
-                      return callback('请填写网卡 IP')
-                    }
-                    if (!IP_REGEX.test(value)) {
-                      return callback([new Error('请填写正确的网卡 IP')])
+                      return callback('请选择节点')
                     }
                     this.validAllField()
                     if(this.isExistRepeat(item)) {
@@ -239,18 +216,47 @@ let NetworkConfiguration = React.createClass ({
                     }
                     callback()
                   }
-                }
-              ],
-              initialValue: proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''
-            })
-          } style={{width:'240px',margin:'0px 10px'}}  placeholder="输入服务出口 IP" />
-          :
-            <span className="h5" style={{width:'240px',display:'inline-block',margin:'0px 10px'}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''}</span>
+                }]
+              })}  placeholder="Please select a country">
+              {this.getSelectItem()}
+            </Select> :
+            <span className="h5" style={{width: "100%",display:'inline-block'}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].host : ''}</span>
           }
-      </Form.Item>
+          </Form.Item>
+          
+          <Form.Item style={{flex:'5'}}>
+            { editCluster ?
+              <Input {...getFieldProps(`nodeIP${item}`,{
+                rules: [
+                  {
+                    validator: (rule, value, callback) => {
+                      if(!value) {
+                        return callback('请填写网卡 IP')
+                      }
+                      if (!IP_REGEX.test(value)) {
+                        return callback([new Error('请填写正确的网卡 IP')])
+                      }
+                      this.validAllField()
+                      if(this.isExistRepeat(item)) {
+                        return callback('代理信息重复')
+                      }
+                      callback()
+                    }
+                  }
+                ],
+                initialValue: proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''
+              })
+            } style={{width:'100%',margin:'0px 10px'}}  placeholder="输入服务出口 IP" />
+            :
+              <span className="h5" style={{width:'100%',display:'inline-block',margin:'0px 10px'}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''}</span>
+            }
+        </Form.Item>
+        
         {
-          editCluster ?  <Icon style={{margin:'10px 0px 0px 0px'}} type="delete"  onClick={() => this.handDelete(item)}/> : <span></span>
+          editCluster ?  <Icon style={{margin:'10px 0px 0px 0px',flex:'1'}} type="delete"  onClick={() => this.handDelete(item)}/> : <span></span>
         }
+        
+        
       </div>
     })
   },
@@ -351,44 +357,51 @@ let NetworkConfiguration = React.createClass ({
         <div className="imgBox">
           <img src={networkImg}/>
         </div>
-        <Form className="clusterTable" style={{padding:'35px 0'}}> <div style={{width:'40%'}} className="formItem">
-            <Form.Item >
-              <div className="h4 blod">服务内网IP  <Tooltip title="服务内网IP显示在[应用管理-服务地址：内网IP]处，集群内任意节点作为服务的内网出口代理；"><Icon type="question-circle-o" /></Tooltip></div>
-            </Form.Item>
-              <Row>
-                <Col xs={{span:6}}>代理节点</Col><Col xs={{span:10,offset:8}}>节点的网卡IP(多网卡时请确认)</Col>
-              </Row>
-              {this.getItems()}
-              {
-                editCluster ? <Form.Item style={{ margin: '15px 0px', color: '#2db7f5', cursor: 'pointer' }}>
-                  <span onClick={this.add}><Icon type="plus-circle-o" /> 新增一条内网代理</span>
-                </Form.Item>
-                  : <span></span>
-              }
-          </div>
+        <Form className="clusterTable" style={{padding:'35px 0'}}>
+          <Row>
+          <Col xs={{span:14}}>
+          <div style={{width:'100%'}} className="formItem">
+              <Form.Item >
+                <div className="h4 blod">服务内网IP  <Tooltip title="服务内网IP显示在[应用管理-服务地址：内网IP]处，集群内任意节点作为服务的内网出口代理；"><Icon type="question-circle-o" /></Tooltip></div>
+              </Form.Item>
+                <Row>
+                  <Col xs={{span:12}}>代理节点</Col><Col style={{margin:'0px 0px 0px -10px'}} xs={{span:12}}>节点的网卡IP(多网卡时请确认)</Col>
+                </Row>
+                {this.getItems()}
+                {
+                  editCluster ? <Form.Item style={{ margin: '15px 0px', color: '#2db7f5', cursor: 'pointer' }}>
+                    <span onClick={this.add}><Icon type="plus-circle-o" /> 新增一条内网代理</span>
+                  </Form.Item>
+                    : <span></span>
+                }
+            </div>
+            </Col>
 
-          <div className="formItem" style={{margin:'0px 0px 0px 220px'}}>
-            <Form.Item >
-              <div className="h4 blod">服务外网IP (可选)  <Icon type="question-circle-o" /></div>
-            </Form.Item>
-            <Form.Item>
-               { editCluster ?
-                <Input {...bindingIPsProps} style={{width:'260px'}}  placeholder="请填写服务的外网 IP (如 浮动IP)" />
-                :
-                <span>{bindingIPs}</span>
-                }
-            </Form.Item>
-            <Form.Item >
-              <div className="h4 blod">服务域名配置 (可选)  <Icon type="question-circle-o" /></div>
-            </Form.Item>
-            <Form.Item>
-               { editCluster ?
-                <Input {...bindingDomainsProps} style={{width:'260px'}}  placeholder="请填写该集群配置的映射域名" />
-                :
-                <span>{bindingDomains}</span>
-                }
-            </Form.Item>
-          </div>
+            <Col xs={{span:8,offset:2}}>
+            <div className="formItem" style={{width:'90%'}}>
+              <Form.Item style={{width:'100%'}}>
+                <div className="h4 blod">服务外网IP (可选)</div>
+              </Form.Item>
+              <Form.Item>
+                 { editCluster ?
+                  <Input {...bindingIPsProps} style={{width:'100%'}}  placeholder="请填写服务的外网 IP (如 浮动IP)" />
+                  :
+                  <span>{bindingIPs}</span>
+                  }
+              </Form.Item>
+              <Form.Item >
+                <div className="h4 blod">服务域名配置 (可选)</div>
+              </Form.Item>
+              <Form.Item>
+                 { editCluster ?
+                  <Input {...bindingDomainsProps} style={{width:'100%'}}  placeholder="请填写该集群配置的映射域名" />
+                  :
+                  <span>{bindingDomains}</span>
+                  }
+              </Form.Item>
+            </div>
+            </Col>
+            </Row>
         </Form>
       </Card>
     )
