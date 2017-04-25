@@ -20,8 +20,6 @@ class ContainerProgress extends Component{
     super(props)
     this.getDataSource = this.getDataSource.bind(this)
     this.renderStatus = this.renderStatus.bind(this)
-    this.bytesToSize = this.bytesToSize.bind(this)
-    this.formatSeconds = this.formatSeconds.bind(this)
     this.renderCmd = this.renderCmd.bind(this)
     this.state = {
 
@@ -140,25 +138,25 @@ class ContainerProgress extends Component{
         title: '用户名',
         dataIndex: 'userName',
         key: 'userName',
-        width:'10%'
+        width:'8%',
       },
       {
         title: 'PID',
         dataIndex: 'pid',
         key: 'pid',
-        width:'10%'
+        width:'8%'
       },
       {
         title: 'CPU',
         dataIndex: 'cpuPercent',
         key: 'cpuPercent',
-        width:'10%'
+        width:'8%'
       },
       {
         title: 'MEM',
         dataIndex: 'memPercent',
         key: 'memPercent',
-        width:'10%'
+        width:'8%'
       },
       {
         title: '占用虚拟内存',
@@ -195,7 +193,7 @@ class ContainerProgress extends Component{
         title: '命令',
         dataIndex: 'cmd',
         key: 'cmd',
-        width:'10%',
+        width: '18%',
         render: (text,record,index) => this.renderCmd(text),
       },
     ]

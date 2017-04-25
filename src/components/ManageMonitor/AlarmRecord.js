@@ -109,19 +109,18 @@ class AlarmRecord extends Component {
       loadRecords,
      } = this.props
     const _this = this
+    let notification = new NotificationHandler()
     this.setState({deleteModal: false})
     deleteRecords('', {
       success: {
         func: () => {
           loadRecords()
-          let notification = new NotificationHandler()
           notification.success('清空记录成功')
         },
         isAsync: true
       },
       failed: {
         func: (err) => {
-          let notification = new NotificationHandler()
           notification.error('清空记录失败')
         }
       }
@@ -200,10 +199,8 @@ class AlarmRecord extends Component {
           switch (text) {
             case 0:
               return <div>服务</div>
-              break
             case 1:
               return <div>节点</div>
-              break
             default:
               return <div>未知</div>
           }
@@ -229,10 +226,8 @@ class AlarmRecord extends Component {
           switch (text) {
             case 0:
               return <div>未发送</div>
-              break
             case 1:
               return <div style={{color:'#33b867'}}>已发送</div>
-              break
             default:
               return <div>未知</div>
           }
@@ -256,12 +251,19 @@ class AlarmRecord extends Component {
       <QueueAnim className="AlarmRecord" type="right">
         <div id="AlarmRecord" key="AlarmRecord">
           <div className="topRow">
-        <Select style={{ width: 150 }} getPopupContainer={()=> document.getElementById('AlarmRecord')} size="large" defaultValue={this.state.strategyFilter} placeholder="选择告警策略" onChange={(value) => this.setState({strategyFilter: value})}>
-              {filters.strategies}
-            </Select>
+        <Select style={{ width: 150 }} getPopupContainer={()=> document.getElementById('AlarmRecord')}
+          size="large"
+          showSearch
+          defaultValue={this.state.strategyFilter}
+          placeholder="选择告警策略"
+          optionFilterProp="children"
+          notFoundContent="无法找到" onChange={(value) => this.setState({strategyFilter: value})}
+        >
+          {filters.strategies}
+        </Select>
         <Select style={{ width: 120 }} size="large" placeholder="选择类型" defaultValue={this.state.targetTypeFilter} onChange={(value) => this.setState({targetTypeFilter: value})}>
-              {getTypeOptions()}
-            </Select>
+          {getTypeOptions()}
+        </Select>
         <Select style={{ width: 120 }} getPopupContainer={()=> document.getElementById('AlarmRecord')} size="large" placeholder="选择告警对象" defaultValue={this.state.targetFilter} onChange={(value) => this.setState({targetFilter: value})}>
               {filters.targets}
             </Select>
