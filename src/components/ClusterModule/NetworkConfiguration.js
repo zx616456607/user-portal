@@ -22,7 +22,7 @@ let validing = false
 let NetworkConfiguration = React.createClass ({
   getInitialState() {
     return {
-      editCluster: true, // edit btn
+      editCluster: false, // edit btn
       saveBtnDisabled: false,
       showDeleteModal: false
     }
@@ -328,7 +328,7 @@ let NetworkConfiguration = React.createClass ({
     return (
       <Card id="Network" className="ClusterInfo">
         <div className="h3">网路配置
-          { editCluster?
+          {!editCluster?
            <Button type="ghost" style={{float:'right',marginTop:'6px'}} onClick={()=> this.setState({editCluster: true, saveBtnDisabled: false})}>
               编辑配置
               </Button>
