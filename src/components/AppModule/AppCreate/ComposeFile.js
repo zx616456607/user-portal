@@ -412,6 +412,9 @@ class ComposeFile extends Component {
           className="AddStackModal"
           width="650px"
           onCancel={() => this.closeModal()}
+          footer={
+            <Button size="large" onClick={()=> this.closeModal()}>关闭</Button>
+          }
           >
           <AppAddStackModal scope={this} />
         </Modal>
