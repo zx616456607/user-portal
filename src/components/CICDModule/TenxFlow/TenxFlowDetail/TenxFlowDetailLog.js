@@ -249,11 +249,11 @@ class TenxFLowDetailLog extends Component {
   
   getBuildLogDetailInfo(buildId) {
     //this function for show user the detail log info
-    const { getTenxflowBuildLastLogs, flowId } = this.props;
+    const { getTenxflowBuildDetailLogs, flowId } = this.props;
     this.setState({
       TenxFlowDeployLogModal: true
     })
-    getTenxflowBuildLastLogs(flowId)
+    getTenxflowBuildDetailLogs(flowId, buildId)
   }
   callback(flowId) {
     const { getTenxflowBuildLastLogs, changeBuildStatus } = this.props
@@ -301,10 +301,10 @@ function mapStateToProps(state, props) {
   const { current } = state.entities
   const { space } = current
   const { spaceName } = space
-  const { getTenxflowBuildLogs, getTenxflowBuildLastLogs } = state.cicd_flow
+  const { getTenxflowBuildLogs, getTenxflowBuildDetailLogs } = state.cicd_flow
   const { logs, isFetching } = getTenxflowBuildLogs || defaultLogs
-  const detailLogs = getTenxflowBuildLastLogs.logs || defaultDetailStageLogs.logs
-  const detailFetching = getTenxflowBuildLastLogs.isFetching || defaultDetailStageLogs.detailFetching
+  const detailLogs = getTenxflowBuildDetailLogs.logs || defaultDetailStageLogs.logs
+  const detailFetching = getTenxflowBuildDetailLogs.isFetching || defaultDetailStageLogs.detailFetching
   return {
     isFetching,
     logs,
