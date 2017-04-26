@@ -45,9 +45,9 @@ const menusText = defineMessages({
 function showBranchList(list) {
   if(list.length == 0) {
     return (
-      <div key='loading' className="text-center">
+      <Option key='loading' className="text-center">
         <Spin />
-      </div>
+      </Option>
     )
   }
   let optionList = list.map((item) => {
