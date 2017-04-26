@@ -670,7 +670,7 @@ let AppDeployServiceModal = React.createClass({
         if (volumeChecked) {
            volumeMount.readOnly = true
         }
-        deploymentList.addContainerVolume(serviceName, vol, volumeMount)
+        deploymentList.addContainerVolume(serviceName, vol, [volumeMount])
       })
     }
     //配置文件

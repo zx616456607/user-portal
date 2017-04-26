@@ -50,7 +50,9 @@ let MyComponent = React.createClass({
     if(volumeMounts && volumeMounts.length > 0){
       let configMaps = []
       volumes.map(volume => {
-        configMaps = configMaps.concat(volume.configMap.items)
+        if(volumeMounts.configMap) {
+          configMaps = configMaps.concat(volume.configMap.items)
+        }
       })
       newVolumeMounts = volumeMounts.map((vol, index) => {
         let _configMap = configMaps[index]
