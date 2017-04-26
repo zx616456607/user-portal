@@ -16,6 +16,8 @@ import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
 import networkImg from '../../assets/img/integration/network.png'
 import mappingImg from '../../assets/img/integration/mapping.svg'
+import sketchImg from '../../assets/img/integration/Sketch.png'
+
 import { IP_REGEX, HOST_REGEX } from '../../../constants'
 
 let formadd=1;
@@ -25,7 +27,8 @@ let NetworkConfiguration = React.createClass ({
     return {
       editCluster: false, // edit btn
       saveBtnDisabled: false,
-      showDeleteModal: false
+      showDeleteModal: false,
+      sketchshow:false
     }
   },
   componentWillMount(){
@@ -280,7 +283,7 @@ let NetworkConfiguration = React.createClass ({
   },
   render (){
     const { cluster, form, clusterProxy } = this.props
-    const { editCluster, saveBtnLoading } = this.state
+    const { editCluster, saveBtnLoading, sketchshow } = this.state
     let bindingIPs = ''
     let bindingDomains = ''
     const { getFieldProps } = form
@@ -361,7 +364,7 @@ let NetworkConfiguration = React.createClass ({
         <Form className="clusterTable" style={{padding:'35px 0'}}>
           <Row style={{height:'100%'}}>
           <Col xs={{span:13}}>
-          <div style={{width:'100%',minHeight:'168px',border:'1px dashed #cbcbcb',padding:'15px',borderRadius:'10px'}} className="formItem">
+          <div style={{width:'100%',minHeight:'198px',border:'1px dashed #cbcbcb',padding:'15px',borderRadius:'10px'}} className="formItem">
               <Form.Item >
                 <div className="h4 blod" style={{fontSize:'14px'}}>服务内网IP  <Tooltip title="服务内网IP显示在[应用管理-服务地址：内网IP]处，集群内任意节点作为服务的内网出口代理；"><Icon type="question-circle-o" /></Tooltip></div>
               </Form.Item>
@@ -385,8 +388,11 @@ let NetworkConfiguration = React.createClass ({
             <Col xs={{span:8}}>
             <div className="formItem" style={{width:'90%',border:'1px dashed #cbcbcb',padding:'15px',borderRadius:'10px',background:'#fafbfd'}}>
               <Form.Item style={{width:'100%'}}>
-                <div className="h4 blod" style={{fontSize:'14px',width:'60%'}}>服务外网IP (可选)</div>
-                <div className="h4 blod" style={{fontSize:'14px',color:'#57c5f7',cursor: 'pointer',width:'40%',textAlign:'right'}}>查看示意图</div>
+                <div className="h4 blod" style={{fontSize:'14px',width:'60%'}}>服务外网IP (可选) <Tooltip title="服务外网 IP 显示在『应用管理→服务地址：外网IP』处，服务内网 IP 地
+                址所映射的代理或网关等性质的产品，平台暂无法自动获取，需手动填
+                写，如OpenStack 的浮动 IP、节点绑定的负载均衡器、平台出口高可用的
+                虚拟 IP 等"><Icon type="question-circle-o" /></Tooltip></div>
+                <div className="h4 blod" style={{fontSize:'14px',color:'#57c5f7',cursor: 'pointer',width:'40%',textAlign:'right'}} onClick={()=> this.setState({sketchshow:true})}>查看示意图</div>
               </Form.Item>
               <Form.Item>
                  { editCluster ?
@@ -396,19 +402,29 @@ let NetworkConfiguration = React.createClass ({
                   }
               </Form.Item>
               <Form.Item >
-                <div className="h4 blod" style={{fontSize:'14px'}}>服务域名配置 (可选)</div>
+                <div className="h4 blod" style={{fontSize:'14px'}}>服务域名配置 (可选) <Tooltip title="可以是绑定到服务外网 IP 或内网 IP 上的域名；"><Icon type="question-circle-o" /></Tooltip></div>
               </Form.Item>
               <Form.Item>
                  { editCluster ?
                   <Input {...bindingDomainsProps} style={{width:'100%'}}  placeholder="请填写该集群配置的映射域名" />
                   :
-                  <span>{bindingDomains}</span>
+                  <span>{bindingDomains||"-"}</span>
                   }
               </Form.Item>
             </div>
             </Col>
-            </Row>
+            </Row>                         
         </Form>
+        { ! sketchshow ? 
+        <div style={{width:'100%',height:'100%',position:'absolute',display:'none'}}>
+          <img style={{width:'100%',height:'200%'}} src={sketchImg}/>
+        </div>
+        :
+        <div style={{width:'100%',height:'100%',position:'absolute',display:'block'}}>
+          <Icon onClick={()=> this.setState({sketchshow:false})} style={{color:'#fff',position:'absolute',left:'95%',fontSize:'30px',background:'rgba(0,0,0,0.5)',borderRadius:'3px',marginTop:'5px'}} type="cross" />
+          <img style={{width:'100%',height:'180%'}} src={sketchImg}/>
+        </div>
+        }
       </Card>
     )
   } 
