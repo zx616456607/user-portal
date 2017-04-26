@@ -486,12 +486,12 @@ class TenxFlowDetailFlowCard extends Component {
 
   render() {
     let {
-      config, index, scope,
+      config, index, scope, uniformRepo,
       currentFlowEdit, flowId, codeList,
       isFetching, ciRules, buildFetching,
       logs, supportedDependencies, totalLength,
       imageList, toggleCustomizeBaseImageModal,
-      baseImages,
+      baseImages, firstState,
     } = this.props;
     const scopeThis = this;
     const dropdown = (
@@ -585,9 +585,10 @@ class TenxFlowDetailFlowCard extends Component {
             currentFlowEdit == index ? [
               <QueueAnim key={'EditTenxFlowModalAnimate' + index}>
                 <EditTenxFlowModal key={'EditTenxFlowModal' + index} rootScope={scope} scope={scopeThis}
-                  config={config} flowId={flowId} stageId={config.metadata.id} codeList={codeList}
+                  config={config} flowId={flowId} stageId={config.metadata.id} codeList={codeList} index={index}
                   supportedDependencies={supportedDependencies} imageList={imageList} baseImages={baseImages}
                   otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={toggleCustomizeBaseImageModal}
+                  uniformRepo={uniformRepo}
                   />
               </QueueAnim>
             ] : null

@@ -854,7 +854,7 @@ export const UPDATE_TENX_FLOW_ALERT_REQUEST = 'UPDATE_TENX_FLOW_ALERT_REQUEST'
 export const UPDATE_TENX_FLOW_ALERT_SUCCESS = 'UPDATE_TENX_FLOW_ALERT_SUCCESS'
 export const UPDATE_TENX_FLOW_ALERT_FAILURE = 'UPDATE_TENX_FLOW_ALERT_FAILURE'
 
-function updateTenxFlowAlert(flowId, newAlert, callback) {
+function fetchUpdateTenxFlow(flowId, body, callback) {
   return {
     [FETCH_API]: {
       types: [UPDATE_TENX_FLOW_ALERT_REQUEST, UPDATE_TENX_FLOW_ALERT_SUCCESS, UPDATE_TENX_FLOW_ALERT_FAILURE],
@@ -862,16 +862,16 @@ function updateTenxFlowAlert(flowId, newAlert, callback) {
       schema: {},
       options: {
         method: 'PUT',
-        body: newAlert
+        body,
       }
     },
     callback: callback
   }
 }
 
-export function putEditTenxFlowAlert(flowId, newAlert, callback) {
+export function updateTenxFlow(flowId, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(updateTenxFlowAlert(flowId, newAlert, callback))
+    return dispatch(fetchUpdateTenxFlow(flowId, body, callback))
   }
 }
 
