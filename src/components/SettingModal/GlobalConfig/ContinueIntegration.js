@@ -67,8 +67,8 @@ class ContinueIntegration extends Component {
             dataArr: data.arr,
             disableArr: data.disableArr
           })
+          form.resetFields()
           if(data.arr.length == 0) {
-            form.resetFields()
              form.setFieldsValue({
               number: []
             })
@@ -347,7 +347,7 @@ class ContinueIntegration extends Component {
           {disable[key].disable ?
             <div>
               <Button icon="edit" className='buttonleft edit' type="dashed" onClick={() => this.handleEditcolums((key + ".4.1"))}></Button>
-              <Button icon="delete" type="ghost" onClick={() => this.showDeleteModal(key + ".4.2", index, value.imageName)}></Button>
+              <Button icon="delete" disabled={value.isAllowDeletion == 1} type="ghost" onClick={() => this.showDeleteModal(key + ".4.2", index, value.imageName)}></Button>
             </div> :
             <div>
               <Button icon="check" className='buttonleft check' type="primary" onClick={() => this.handleCheckcolums(index + ".4.1", index)}></Button>
@@ -364,6 +364,7 @@ class ContinueIntegration extends Component {
         </li>
       </ul>)
     })
+    console.log(tableItem)
     return tableItem
   }
 
