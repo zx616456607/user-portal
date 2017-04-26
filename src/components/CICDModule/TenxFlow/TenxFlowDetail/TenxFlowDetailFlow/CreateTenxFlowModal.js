@@ -13,6 +13,7 @@ import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import cloneDeep from 'lodash/cloneDeep'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { appNameCheck } from '../../../../../common/naming_validation'
 import DockerFileEditor from '../../../../Editor/DockerFile'
@@ -823,29 +824,39 @@ let CreateTenxFlowModal = React.createClass({
     } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
+    let customeImageList  = cloneDeep(imageList)
     if (imageList === undefined || imageList.length === 0) {
-      return (<div></div>)
+      customeImageList = []
     }
     let intFlowTypeIndex = this.state.otherFlowType - 1
     let buildImages = []
     let dependenciesImages = []
-    imageList.forEach(function (image) {
-      if (image.imageList[0].categoryId > 100) {
-        dependenciesImages.push(image)
-      } else {
-        buildImages.push(image)
-      }
-    })
-    let serviceSelectList = dependenciesImages[0].imageList.map((item, index) => {
-      return (
-        <Option value={item.imageName} key={index}>{item.imageName}</Option>
-      )
-    });
-    const selectImage = buildImages.map((list, index) => {
-      return (
-        <Option key={list.title} value={list.title + `@` + (index + 1)}>{list.title}</Option>
-      )
-    })
+    if(customeImageList.length >0 ) {
+      customeImageList.forEach(function (image) {
+        if (image.imageList[0].categoryId > 100) {
+          dependenciesImages.push(image)
+        } else {
+          buildImages.push(image)
+        }
+      })
+    }
+    let serviceSelectList = []
+    if (dependenciesImages.length != 0) {
+      dependenciesImages[0].imageList.map((item, index) => {
+        return (
+          <Option value={item.imageName} key={index}>{item.imageName}</Option>
+        )
+      })
+    }
+    let selectImage = []
+    if (buildImages.length > 0) {
+      selectImage = buildImages.map((list, index) => {
+        return (
+          <Option key={list.title} value={list.title + `@` + (index + 1)}>{list.title}</Option>
+        )
+      })
+    }
+
     /*this.state.baseImage = buildImages[intFlowTypeIndex].imageList
     const baseImage = this.state.baseImage.map(list => {
       return (
@@ -980,7 +991,7 @@ let CreateTenxFlowModal = React.createClass({
       rules: [
         { required: true, message: '请选择基础镜像' }
       ],
-      initialValue: buildImages[intFlowTypeIndex].imageList[0].imageName
+      initialValue: buildImages[intFlowTypeIndex] ? buildImages[intFlowTypeIndex].imageList[0].imageName : ''
     });
     const flowNameProps = getFieldProps('flowName', {
       rules: [
@@ -1092,7 +1103,7 @@ let CreateTenxFlowModal = React.createClass({
                 {/*<Select {...imageNameProps}>
                   {baseImage}
                 </Select>*/}
-                <PopTabSelect value={buildImages[intFlowTypeIndex].imageList[0].imageName || defaultBaseImage || this.state.baseImageUrl} onChange={this.baseImageChange}>
+                <PopTabSelect value={buildImages[intFlowTypeIndex]　? buildImages[intFlowTypeIndex].imageList[0].imageName : '' || defaultBaseImage || this.state.baseImageUrl} onChange={this.baseImageChange}>
                   {baseImagesNodes}
                 </PopTabSelect>
               </FormItem>
