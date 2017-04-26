@@ -17,7 +17,7 @@ import { connect } from 'react-redux'
 import networkImg from '../../assets/img/integration/network.png'
 import mappingImg from '../../assets/img/integration/mapping.svg'
 import sketchImg from '../../assets/img/integration/Sketch.png'
-
+import './style/NetworkConfiguration.less'
 import { IP_REGEX, HOST_REGEX } from '../../../constants'
 
 let formadd=1;
@@ -364,7 +364,7 @@ let NetworkConfiguration = React.createClass ({
         <Form className="clusterTable" style={{padding:'35px 0'}}>
           <Row style={{height:'100%'}}>
           <Col xs={{span:13}}>
-          <div style={{width:'100%',minHeight:'198px',border:'1px dashed #cbcbcb',padding:'15px',borderRadius:'10px'}} className="formItem">
+          <div className="formItem inner-mesh">
               <Form.Item >
                 <div className="h4 blod" style={{fontSize:'14px'}}>服务内网IP  <Tooltip title="服务内网IP显示在[应用管理-服务地址：内网IP]处，集群内任意节点作为服务的内网出口代理；"><Icon type="question-circle-o" /></Tooltip></div>
               </Form.Item>
@@ -373,7 +373,7 @@ let NetworkConfiguration = React.createClass ({
                 </Row>
                 {this.getItems()}
                 {
-                  editCluster ? <Form.Item style={{ margin: '15px 0px', color: '#2db7f5', cursor: 'pointer' }}>
+                  editCluster ? <Form.Item className="increase">
                     <span onClick={this.add}><Icon type="plus-circle-o" /> 新增一条内网代理</span>
                   </Form.Item>
                     : <span></span>
@@ -381,18 +381,18 @@ let NetworkConfiguration = React.createClass ({
             </div>
             </Col>
             <Col style={{height:'100%'}} xs={{span:3}}>
-              <div className="imgBox" style={{width:'100%',padding:'0px 10px',marginTop:'80px'}}>
+              <div className="imgBox imgboxa">
                 <img style={{width:'100%'}} src={mappingImg}/>
               </div> 
             </Col>
             <Col xs={{span:8}}>
-            <div className="formItem" style={{width:'90%',border:'1px dashed #cbcbcb',padding:'15px',borderRadius:'10px',background:'#fafbfd'}}>
+            <div className="formItem extranet">
               <Form.Item style={{width:'100%'}}>
                 <div className="h4 blod" style={{fontSize:'14px',width:'60%'}}>服务外网IP (可选) <Tooltip title="服务外网 IP 显示在『应用管理→服务地址：外网IP』处，服务内网 IP 地
                 址所映射的代理或网关等性质的产品，平台暂无法自动获取，需手动填
                 写，如OpenStack 的浮动 IP、节点绑定的负载均衡器、平台出口高可用的
                 虚拟 IP 等"><Icon type="question-circle-o" /></Tooltip></div>
-                <div className="h4 blod" style={{fontSize:'14px',color:'#57c5f7',cursor: 'pointer',width:'40%',textAlign:'right'}} onClick={()=> this.setState({sketchshow:true})}>查看示意图</div>
+                <div className="h4 blod sketchMap" onClick={()=> this.setState({sketchshow:true})}>查看示意图</div>
               </Form.Item>
               <Form.Item>
                  { editCluster ?
@@ -416,13 +416,13 @@ let NetworkConfiguration = React.createClass ({
             </Row>                         
         </Form>
         { ! sketchshow ? 
-        <div style={{width:'100%',height:'100%',position:'absolute',display:'none'}}>
-          <img style={{width:'100%',height:'200%'}} src={sketchImg}/>
+        <div className="sketchimg" style={{display:'none'}}>
+          <img src={sketchImg}/>
         </div>
         :
-        <div style={{width:'100%',height:'100%',position:'absolute',display:'block'}}>
-          <Icon onClick={()=> this.setState({sketchshow:false})} style={{color:'#fff',position:'absolute',left:'95%',fontSize:'30px',background:'rgba(0,0,0,0.5)',borderRadius:'3px',marginTop:'5px'}} type="cross" />
-          <img style={{width:'100%',height:'180%'}} src={sketchImg}/>
+        <div className="sketchimg" style={{display:'block'}}>
+          <Icon className="cLick" onClick={()=> this.setState({sketchshow:false})} type="cross" />
+          <img src={sketchImg}/>
         </div>
         }
       </Card>
