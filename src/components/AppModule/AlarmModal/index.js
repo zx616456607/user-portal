@@ -375,7 +375,6 @@ let TwoStop = React.createClass({
   componentWillReceiveProps(nextProps) {
     if (this.state.firstMount || (nextProps.isShow && nextProps.isShow != this.props.isShow)) {
       const { data } = nextProps
-      console.log(data)
       if(data && data.length > 0) {
         this.setState({
           firstMount: false
