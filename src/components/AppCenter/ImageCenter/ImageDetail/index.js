@@ -208,8 +208,16 @@ class ImageDetailBox extends Component {
     this.props.imageStore(config, {
       success: {
         func: () => {
-          notification.success('更新成功！')
-          scope.props.loadFavouriteList(DEFAULT_REGISTRY)
+          if(favourite == 0){
+            notification.success('取消收藏！')
+            scope.props.loadFavouriteList(DEFAULT_REGISTRY)
+            return
+          }
+          if(favourite == 1){
+            notification.success('收藏成功！')
+            scope.props.loadFavouriteList(DEFAULT_REGISTRY)
+            return
+          }
         },
         isAsync: true
       }
