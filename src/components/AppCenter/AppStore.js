@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Spin, Modal} from 'antd'
+import { Menu, Button, Card, Input, Spin, Modal, Tooltip } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import ScrollAnim from 'rc-scroll-anim'
 import Animate from 'rc-animate'
@@ -64,9 +64,11 @@ const MyComponent = React.createClass({
             {item.imageList.map((imageDetail) => {
               return (
                 <Card className="imageDetail" key={imageDetail.name}>
+                  <Tooltip title="点击查看">
                   <div className="imgBox" onClick={()=>this.showDetail(imageDetail.id)}>
                     <img src={`${imageDetail.imageUrl}?_=${TIMESTRAP}`} />
                   </div>
+                  </Tooltip>
                   <div className="intro">
                     <span className="span7 textoverflow">{imageDetail.name}</span>
                     <span className='span2'><Link to={`/app_manage/app_create/compose_file?templateid=${imageDetail.id}`} ><Button className="btn-deploy">部署</Button></Link></span>
