@@ -49,13 +49,14 @@ function serviceItems(state = {}, action) {
         return service
       })
       serviceList = mergeStateByOpts(state[cluster][appName]['serviceList'], serviceList, 'metadata.name', customizeOpts)
-      return merge({}, state, {
+      return Object.assign({}, state, {
         [cluster]: {
           [appName]: {
             isFetching: false,
             cluster: action.response.result.cluster,
             appName: action.response.result.appName,
             total: action.response.result.total,
+            availabilityNumber: action.response.result.availableReplicas,
             serviceList,
           }
         }

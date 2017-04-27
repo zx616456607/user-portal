@@ -313,7 +313,7 @@ class TenxFlowBuildLog extends Component {
       return (
         <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
           <div className='title'>
-            <span>执行记录</span> <font size="1">(由于构建日志进行中心化收集，查看1分钟内的历史日志可能会有短暂延时)</font>
+            <span>执行记录</span>
             <i className='fa fa-expand' onClick={this.changeModalSize} />
             <div style={{ clear: 'both' }}></div>
           </div>
@@ -329,7 +329,7 @@ class TenxFlowBuildLog extends Component {
       return (
         <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
           <div className='title'>
-            <span>执行记录</span> <font size="1">(由于构建日志进行中心化收集，查看1分钟内的历史日志可能会有短暂延时)</font>
+            <span>执行记录</span>
             <i className='fa fa-expand' onClick={this.changeModalSize} />
             <div style={{ clear: 'both' }}></div>
           </div>
@@ -344,7 +344,7 @@ class TenxFlowBuildLog extends Component {
     return (
       <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
         <div className='title'>
-          <span>执行记录</span> <font size="1">(由于构建日志进行中心化收集，查看1分钟内的历史日志可能会有短暂延时)</font>
+          <span>执行记录</span>
           <i className='fa fa-expand' onClick={this.changeModalSize} />
           <div style={{ clear: 'both' }}></div>
         </div>
