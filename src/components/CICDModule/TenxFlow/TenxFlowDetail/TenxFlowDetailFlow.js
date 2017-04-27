@@ -120,16 +120,17 @@ class TenxFlowDetailFlow extends Component {
 
   componentWillReceiveProps(nextProps) {
     //this function for user click the top box and build all stages
-    const { startBuild, getTenxFlowStateList, flowId, CreateTenxflowBuild, scope, refreshFlag, getTenxflowBuildLogs } = nextProps;
+    const { startBuild, buildInfo, getTenxFlowStateList, flowId, CreateTenxflowBuild, scope, refreshFlag, getTenxflowBuildLogs } = nextProps;
     let oldFlowId = this.props.flowId;
     let notification = new NotificationHandler()
     if (startBuild) {
       scope.setState({
-        startBuild: false
+        startBuild: false,
+        buildInfo: null,
       })
-      // For test
-      const options = {
-        branch: 'master'
+      const options = {}
+      if (buildInfo) {
+        options.branch = buildInfo.name
       }
       CreateTenxflowBuild(flowId, { options }, {
         success: {
@@ -171,14 +172,14 @@ class TenxFlowDetailFlow extends Component {
     });
   }
 
-  buildFlow(stageId) {
+  buildFlow(stageId, options) {
     //this function for user build stage
     //and user can build single one
     const { CreateTenxflowBuild, getTenxFlowStateList, flowId } = this.props;
     let buildFlag = true;
     const _this = this;
     let notification = new NotificationHandler()
-    CreateTenxflowBuild(flowId, { stageId: stageId }, {
+    CreateTenxflowBuild(flowId, { stageId, options }, {
       success: {
         func: (res) => {
           _this.props.setStatus(_this.props.scope, 2)
