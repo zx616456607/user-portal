@@ -131,17 +131,17 @@ let FistStop = React.createClass({
       return <Option key={service.metadata.name} value={service.metadata.name}>{service.metadata.name}</Option>
     })
   },
-  resetService(value) {
+  resetService() {
     const { setFieldsValue } = this.props.form
     setFieldsValue({
-      server: ''
+      server: undefined
     })
   },
   resetType() {
     const { setFieldsValue } = this.props.form
     setFieldsValue({
-      apply: '',
-      server: ''
+      apply: undefined,
+      server: undefined
     })
   },
   getTargetType() {
@@ -225,7 +225,7 @@ let FistStop = React.createClass({
         onChange: this.resetType,
         initialValue: loginUser.info.role == ADMIN_ROLE ? initiaValue : 'service'
       });
-      let initAppName = ''
+      let initAppName = undefined
       if (currentApp) {
         initAppName = currentApp.name
       }
@@ -270,16 +270,19 @@ let FistStop = React.createClass({
 
           </Select>
         </Form.Item>
-        <Form.Item label="监控对象" {...formItemLayout}>
+         <Form.Item label="监控对象" {...formItemLayout}>
           <Select placeholder={isNode ? '请选择节点' : '请选择应用'} {...applyProps} style={{ width: 170 }} >
             {this.getAppOrNodeList()}
           </Select>
         </Form.Item>
+       {!isNode ?
         <Form.Item style={{ position: 'absolute', top: 240, right: 95 }}>
-          <Select placeholder="请选择服务" {...serverProps} style={{ width: 170, display: isNode ? 'none' : 'inline-block' }} >
+          <Select placeholder="请选择服务" {...serverProps} style={{ width: 170}} >
             {this.getServiceList()}
           </Select>
         </Form.Item>
+        :null
+        }
         <Form.Item label="监控周期" {...formItemLayout} style={{ clear: 'both' }}>
           <Select {...repeatInterval}>
             <Option value="300">5分钟</Option>

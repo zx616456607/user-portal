@@ -16,7 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { appNameCheck } from '../../../../../common/naming_validation'
 import DockerFileEditor from '../../../../Editor/DockerFile'
-import { updateTenxFlowState, getDockerfiles, setDockerfile, getAvailableImage } from '../../../../../actions/cicd_flow'
+import { updateTenxFlowState, getDockerfiles, setDockerfile, getAvailableImage, updateTenxFlow, getTenxFlowDetail, } from '../../../../../actions/cicd_flow'
 import './style/EditTenxFlowModal.less'
 import findIndex from 'lodash/findIndex'
 import EnvComponent from './CreateEnvComponent.js'
@@ -180,7 +180,7 @@ const menusText = defineMessages({
   },
   deleteCode: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.deleteCode',
-    defaultMessage: '清空',
+    defaultMessage: '不使用代码库',
   },
   emptyImageEnv: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.emptyImageEnv',
@@ -644,10 +644,11 @@ let EditTenxFlowModal = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope, config, updateTenxFlowState, flowId, stageId, rootScope, setDockerfile } = this.props;
+    const { scope, config, updateTenxFlowState, updateTenxFlow, flowId, stageId, rootScope, setDockerfile, getTenxFlowDetail } = this.props;
     const enabled = config.spec.ci.enabled || 0
     const { getTenxFlowStateList } = rootScope.props;
     const _this = this;
+    let notification = new NotificationHandler()
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
@@ -698,6 +699,10 @@ let EditTenxFlowModal = React.createClass({
           emptyServiceEnv: emptyServiceEnv
         })
         return;
+      }
+      if (values.uniformRepo && !_this.state.currentCodeStore) {
+        notification.error('请选择代码库')
+        return
       }
       //this flag for all form error flag
       let errorFlag = false;
@@ -807,7 +812,8 @@ let EditTenxFlowModal = React.createClass({
             'id': _this.state.currentCodeStore,
             'branch': _this.state.currentCodeStoreBranch
           },
-          ci: config.spec.ci
+          ci: config.spec.ci,
+          uniformRepo: (values.uniformRepo ? 0 : 1),
         }
       }
       //if user select the customer type (5), ths customType must be input
@@ -855,7 +861,6 @@ let EditTenxFlowModal = React.createClass({
       this.setState({
         isOnece: false
       })
-      let notification = new NotificationHandler()
       updateTenxFlowState(flowId, stageId, body, {
         success: {
           func: () => {
@@ -876,6 +881,9 @@ let EditTenxFlowModal = React.createClass({
             } else {
               getTenxFlowStateList(flowId)
             }*/
+            if (typeof values.uniformRepo !== undefined) {
+              getTenxFlowDetail(flowId)
+            }
             getTenxFlowStateList(flowId)
             rootScope.setState({
               currentFlowEdit: null
@@ -963,13 +971,51 @@ let EditTenxFlowModal = React.createClass({
     })
     this.flowTypeChange(groupKey)
   },
+  setUniformRepo() {
+    const {
+      config, codeList,
+    } = this.props
+    let codeStoreName = fetchCodeStoreName(config.spec.project, codeList)
+    this.setState({
+      currentCodeStore: config.spec.project.id,
+      currentCodeStoreName: codeStoreName,
+      currentCodeStoreBranch: config.spec.project.branch
+    })
+  },
+  renderSelectRepo() {
+    const {
+      config, index, uniformRepo,
+    } = this.props
+    const { currentCodeStore } = this.state
+    if (index === 0 || uniformRepo !== 0) {
+      return (
+        <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.openCodeStoreModal}>
+          <svg className='codeSvg'>
+            <use xlinkHref='#cicdreflash' />
+          </svg>
+          {currentCodeStore ? [<FormattedMessage {...menusText.selectCode} />] : [<span>选择代码库</span>]}
+        </Button>
+      )
+    }
+    if (currentCodeStore) {
+      return
+    }
+    return (
+      <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.setUniformRepo}>
+        <svg className='codeSvg'>
+          <use xlinkHref='#cicdreflash' />
+        </svg>
+        使用首个子任务的代码库
+      </Button>
+    )
+  },
   render() {
     const { formatMessage } = this.props.intl;
     const {
-      config, form, codeList,
+      config, form, codeList, index,
       supportedDependencies, imageList,
       toggleCustomizeBaseImageModal,
-      baseImages,
+      baseImages, uniformRepo,
     } = this.props;
     const shellList = config.spec.container.args ? config.spec.container.args : [];
     const servicesList = config.spec.container.dependencies ? config.spec.container.dependencies : [];
@@ -1100,7 +1146,7 @@ let EditTenxFlowModal = React.createClass({
         <QueueAnim key={'serviceName' + k + 'Animate'}>
           <div className='serviceDetail' key={'serviceName' + k}>
             <Form.Item className='commonItem'>
-              <Select {...serviceSelect} style={{ width: '220px' }} >
+              <Select {...serviceSelect} style={{ width: '220px' }} allowClear>
                 {serviceSelectList}
               </Select>
               <span className={emptyServiceEnvCheck(scopeThis.state.emptyServiceEnv, k) ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'}
@@ -1161,6 +1207,13 @@ let EditTenxFlowModal = React.createClass({
       ],
       initialValue: config.metadata.customType,
     });
+    let uniformRepoProps
+    if (index === 0) {
+      uniformRepoProps = getFieldProps('uniformRepo', {
+        valuePropName: 'checked',
+        initialValue: (uniformRepo == 0),
+      })
+    }
     const imageRealNameProps = getFieldProps('imageRealName', {
       rules: [
         { message: '请输入镜像名称' },
@@ -1251,22 +1304,30 @@ let EditTenxFlowModal = React.createClass({
             <div className='title'>
               <span><FormattedMessage {...menusText.flowCode} /></span>
             </div>
-            <div className='input'>
+            <div className="codeRepo">
               {this.state.currentCodeStore ? [
                 <span style={{ marginRight: '15px' }}>{this.state.currentCodeStoreName + '  ' + (this.state.currentCodeStoreBranch ? formatMessage(menusText.branch) + this.state.currentCodeStoreBranch : '')}</span>
               ] : null}
-              <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.openCodeStoreModal}>
+              {this.renderSelectRepo()}
+              {/*<Button className='selectCodeBtn' size='large' type='ghost' onClick={this.openCodeStoreModal}>
                 <svg className='codeSvg'>
                   <use xlinkHref='#cicdreflash' />
                 </svg>
                 {this.state.currentCodeStore ? [<FormattedMessage {...menusText.selectCode} />] : [<span>选择代码库</span>]}
-              </Button>
+              </Button>*/}
               {this.state.currentCodeStore ? [
                 <Button key='deleteCodeBtn' type='ghost' size='large' style={{ marginLeft: '15px' }} onClick={this.deleteCodeStore}>
-                  <Icon type='delete' style={{ marginRight: '7px' }} />
+                  <Icon type='delete' />
                   <FormattedMessage {...menusText.deleteCode} />
                 </Button>
               ] : null}
+              {
+                index === 0 && (
+                  <FormItem style={{height: "30px"}}>
+                      <Checkbox {...uniformRepoProps}>当前流水线所有任务（包括新建任务），统一使用该代码库</Checkbox>
+                  </FormItem>
+                )
+              }
             </div>
             <div style={{ clear: 'both' }} />
           </div>
@@ -1504,7 +1565,9 @@ export default connect(mapStateToProps, {
   updateTenxFlowState,
   getDockerfiles,
   setDockerfile,
-  getAvailableImage
+  getAvailableImage,
+  updateTenxFlow,
+  getTenxFlowDetail,
 })(injectIntl(EditTenxFlowModal, {
   withRef: true,
 }));

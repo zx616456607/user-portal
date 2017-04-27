@@ -15,6 +15,7 @@ import { getAllClusterNodes } from '../../actions/cluster_node'
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
 import networkImg from '../../assets/img/integration/network.png'
+import mappingImg from '../../assets/img/integration/mapping.svg'
 import { IP_REGEX, HOST_REGEX } from '../../../constants'
 
 let formadd=1;
@@ -199,7 +200,7 @@ let NetworkConfiguration = React.createClass ({
       return <div></div>
     }
     return arr.map(item => {
-      return <div key={item} style={{display:'flex'}}>
+      return <div key={item} id="error-s" style={{display:'flex'}}>
       
         <Form.Item style={{flex:'5'}}>
           { editCluster ? 
@@ -248,7 +249,7 @@ let NetworkConfiguration = React.createClass ({
               })
             } style={{width:'100%',margin:'0px 10px'}}  placeholder="输入服务出口 IP" />
             :
-              <span className="h5" style={{width:'100%',display:'inline-block',margin:'0px 10px'}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''}</span>
+              <span className="h5" style={{width:'100%',display:'inline-block',margin:'0px 0px 0px -10px'}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''}</span>
             }
         </Form.Item>
         
@@ -358,11 +359,11 @@ let NetworkConfiguration = React.createClass ({
           <img src={networkImg}/>
         </div>
         <Form className="clusterTable" style={{padding:'35px 0'}}>
-          <Row>
-          <Col xs={{span:14}}>
-          <div style={{width:'100%'}} className="formItem">
+          <Row style={{height:'100%'}}>
+          <Col xs={{span:13}}>
+          <div style={{width:'100%',minHeight:'168px',border:'1px dashed #cbcbcb',padding:'15px',borderRadius:'10px'}} className="formItem">
               <Form.Item >
-                <div className="h4 blod">服务内网IP  <Tooltip title="服务内网IP显示在[应用管理-服务地址：内网IP]处，集群内任意节点作为服务的内网出口代理；"><Icon type="question-circle-o" /></Tooltip></div>
+                <div className="h4 blod" style={{fontSize:'14px'}}>服务内网IP  <Tooltip title="服务内网IP显示在[应用管理-服务地址：内网IP]处，集群内任意节点作为服务的内网出口代理；"><Icon type="question-circle-o" /></Tooltip></div>
               </Form.Item>
                 <Row>
                   <Col xs={{span:12}}>代理节点</Col><Col style={{margin:'0px 0px 0px -10px'}} xs={{span:12}}>节点的网卡IP(多网卡时请确认)</Col>
@@ -376,11 +377,16 @@ let NetworkConfiguration = React.createClass ({
                 }
             </div>
             </Col>
-
-            <Col xs={{span:8,offset:2}}>
-            <div className="formItem" style={{width:'90%'}}>
+            <Col style={{height:'100%'}} xs={{span:3}}>
+              <div className="imgBox" style={{width:'100%',padding:'0px 10px',marginTop:'80px'}}>
+                <img style={{width:'100%'}} src={mappingImg}/>
+              </div> 
+            </Col>
+            <Col xs={{span:8}}>
+            <div className="formItem" style={{width:'90%',border:'1px dashed #cbcbcb',padding:'15px',borderRadius:'10px',background:'#fafbfd'}}>
               <Form.Item style={{width:'100%'}}>
-                <div className="h4 blod">服务外网IP (可选)</div>
+                <div className="h4 blod" style={{fontSize:'14px',width:'60%'}}>服务外网IP (可选)</div>
+                <div className="h4 blod" style={{fontSize:'14px',color:'#57c5f7',cursor: 'pointer',width:'40%',textAlign:'right'}}>查看示意图</div>
               </Form.Item>
               <Form.Item>
                  { editCluster ?
@@ -390,7 +396,7 @@ let NetworkConfiguration = React.createClass ({
                   }
               </Form.Item>
               <Form.Item >
-                <div className="h4 blod">服务域名配置 (可选)</div>
+                <div className="h4 blod" style={{fontSize:'14px'}}>服务域名配置 (可选)</div>
               </Form.Item>
               <Form.Item>
                  { editCluster ?
