@@ -142,7 +142,11 @@ let CreateAlarmGroup = React.createClass({
         success: {
           func: (result) => {
             if (email in result.data && result.data[email] === 1) {
-              _this.setState({[`emailStatus${k}`]: EMAIL_STATUS_ACCEPTED})
+               this.setState({
+                  [`emailStatus${k}`]: EMAIL_STATUS_ACCEPTED,
+                  ['transitionTime'+[k]]:'已接收邀请',
+                  ['transitionEnble'+[k]]:true
+                })
             } else {
               sendNotify(email)
             }
@@ -281,7 +285,10 @@ let CreateAlarmGroup = React.createClass({
         return;
       }
       case EMAIL_STATUS_ACCEPTED:
-        this.setState({['transitionTime'+[k]]:'已接收邀请'})
+        this.setState({
+          ['transitionTime'+[k]]:'已接收邀请',
+          ['transitionEnble'+[k]]:enble
+        })
         return
       // default: this.setState({transitionTime:text})
     }
