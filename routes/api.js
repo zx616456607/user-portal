@@ -106,6 +106,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/services/batch-status', serviceController.getServicesStatus)
   router.get('/clusters/:cluster/services/:service_name/detail', serviceController.getServiceDetail)
   router.get('/clusters/:cluster/services/:service_name/containers', serviceController.getServiceContainers)
+  router.put('/clusters/:cluster/services/:service_name/env', serviceController.updateServiceContainers)
   router.put('/clusters/:cluster/services/:service_name/manualscale', serviceController.manualScaleService)
   router.get('/clusters/:cluster/services/:service_name/autoscale', serviceController.getServiceAutoScale)
   router.put('/clusters/:cluster/services/:service_name/autoscale', serviceController.autoScaleService)
