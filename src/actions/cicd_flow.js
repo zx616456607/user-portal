@@ -1037,6 +1037,54 @@ export function getCodeStoreBranchDetail(storeType, reponame, project_id, callba
   }
 }
 
+export const GET_REPO_BRANCH_AND_TAG_REQUEST = 'GET_REPO_BRANCH_AND_TAG_REQUEST'
+export const GET_REPO_BRANCH_AND_TAG_SUCCESS = 'GET_REPO_BRANCH_AND_TAG_SUCCESS'
+export const GET_REPO_BRANCH_AND_TAG_FAILURE = 'GET_REPO_BRANCH_AND_TAG_FAILURE'
+
+function fetchRepoBranchesAndTags(storeType, reponame, project_id, callback) {
+  if (storeType == "svn") {
+    // No branch to fetch for svn
+    return
+  }
+  return {
+    reponame,
+    [FETCH_API]: {
+      types: [GET_REPO_BRANCH_AND_TAG_REQUEST, GET_REPO_BRANCH_AND_TAG_SUCCESS, GET_REPO_BRANCH_AND_TAG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/repos/${storeType}/branches_tags?reponame=${reponame}&&project_id=${project_id}`,
+      schema: {},
+    },
+    callback: callback
+  }
+}
+
+export function getRepoBranchesAndTags(storeType, reponame, project_id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchRepoBranchesAndTags(storeType, reponame, project_id, callback))
+  }
+}
+
+export const GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_REQUEST = 'GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_REQUEST'
+export const GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_SUCCESS = 'GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_SUCCESS'
+export const GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_FAILURE = 'GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_FAILURE'
+
+function fetchRepoBranchesAndTagsByProjectId(project_id, callback) {
+  return {
+    project_id,
+    [FETCH_API]: {
+      types: [GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_REQUEST, GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_SUCCESS, GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/managed-projects/${project_id}/branches_tags`,
+      schema: {},
+    },
+    callback: callback
+  }
+}
+// project_id means the id of managed-project in db
+export function getRepoBranchesAndTagsByProjectId(project_id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchRepoBranchesAndTagsByProjectId(project_id, callback))
+  }
+}
+
 export const BUILD_TENX_FLOW_REQUEST = 'BUILD_TENX_FLOW_REQUEST'
 export const BUILD_TENX_FLOW_SUCCESS = 'BUILD_TENX_FLOW_SUCCESS'
 export const BUILD_TENX_FLOW_FAILURE = 'BUILD_TENX_FLOW_FAILURE'

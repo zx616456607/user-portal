@@ -21,13 +21,14 @@ class Metrics extends Component {
   }
 
   render() {
-    const { cpu, memory, networkReceived, networkTransmitted } = this.props
+    const { cpu, memory, networkReceived, networkTransmitted, events } = this.props
     return (
-      <div>
-        <CPU cpu={cpu} />
-        <Memory memory={memory} />
+      <div className="metrics" style={{marginTop:12}}>
+        <CPU cpu={cpu} events={events}/>
+        <Memory memory={memory} events={events}/>
         <Network networkReceived={networkReceived}
           networkTransmitted={networkTransmitted}
+          events={events}
         />
       </div>
     )
