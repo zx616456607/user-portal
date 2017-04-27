@@ -143,6 +143,71 @@ exports.listBranches = function* () {
   }
 }
 
+exports.listTags = function* () {
+  const loginUser = this.session.loginUser
+  const repoType = this.params.type
+  const repoName = this.query.reponame
+  const project_id = this.query.project_id
+  if (repoType != "gitlab" && repoType != "github" && repoType != 'gogs') {
+    const err = new Error('Only support gitlab/github/gogs for now')
+    err.status = 400
+    throw err
+  }
+  if (!repoName || !project_id) {
+    const err = new Error('reponame and project_id are required in the query to get the branches information')
+    err.status = 400
+    throw err
+  }
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["repos", repoType, "tags"], {"reponame": repoName, project_id})
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.listBranchesAndTags = function* () {
+  const loginUser = this.session.loginUser
+  const repoType = this.params.type
+  const repoName = this.query.reponame
+  const project_id = this.query.project_id
+  if (repoType != "gitlab" && repoType != "github" && repoType != 'gogs') {
+    const err = new Error('Only support gitlab/github/gogs for now')
+    err.status = 400
+    throw err
+  }
+  if (!repoName || !project_id) {
+    const err = new Error('reponame and project_id are required in the query to get the branches information')
+    err.status = 400
+    throw err
+  }
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const reqArray = []
+  reqArray.push(api.getBy(["repos", repoType, "branches"], {"reponame": repoName, project_id}))
+  reqArray.push(api.getBy(["repos", repoType, "tags"], {"reponame": repoName, project_id}))
+  const results = yield reqArray
+  this.body = {
+    data: {
+      branches: results[0].results,
+      tags: results[1].results,
+    }
+  }
+}
+
+exports.getManagedProject = function* (next) {
+  const loginUser = this.session.loginUser
+  const project_id = this.params.project_id
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["managed-projects", project_id], null)
+  const repo = result.results
+  this.params.type = repo.repo_type
+  this.query.reponame = repo.name
+  this.query.project_id = repo.gitlab_project_id
+  yield next
+}
+
 exports.getUserInfo = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type

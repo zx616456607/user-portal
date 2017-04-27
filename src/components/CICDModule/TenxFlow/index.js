@@ -13,7 +13,11 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getTenxFlowList, deleteTenxFlowSingle, getTenxflowBuildLastLogs, CreateTenxflowBuild, getTenxflowBuildDetailLogs, changeTenxFlowStatus, changeFlowStatus } from '../../../actions/cicd_flow'
+import {
+  getTenxFlowList, deleteTenxFlowSingle, getTenxflowBuildLastLogs,
+  CreateTenxflowBuild, getTenxflowBuildDetailLogs, changeTenxFlowStatus,
+  changeFlowStatus, getRepoBranchesAndTagsByProjectId,
+} from '../../../actions/cicd_flow'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
 import TenxFlowBuildLog from './TenxFlowBuildLog'
@@ -23,7 +27,10 @@ import cloneDeep from 'lodash/cloneDeep'
 import findIndex from 'lodash/findIndex'
 import NotificationHandler from '../../../common/notification_handler'
 import Socket from '../../Websocket/socketIo'
+import PopTabSelect from '../../PopTabSelect'
 
+const PopTab = PopTabSelect.Tab;
+const PopOption = PopTabSelect.Option;
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 
@@ -133,21 +140,34 @@ let MyComponent = React.createClass({
       TenxFlowDeployLogModal: true
     });
   },
-  starFlowBuild(flowId, index) {
-    const {CreateTenxflowBuild, getTenxflowBuildDetailLogs} = this.props.scope.props
+  starFlowBuild(item, index) {
+    const { flowId, projectId, defaultBranch } = item
+    const { getRepoBranchesAndTagsByProjectId } = this.props.scope.props
     if (this.props.config) {
       for (let i in this.props.config) {
-        if (this.props.config[i].flowId === flowId
-          && typeof (this.props.config[i].stagesCount) === 'number'
-          && this.props.config[i].stagesCount < 1) {
-          let notification = new NotificationHandler()
-          notification.error('请先添加构建子任务')
-          return
+        let stage = this.props.config[i]
+        if (stage.flowId === flowId) {
+          if (typeof (stage.stagesCount) === 'number' && stage.stagesCount < 1) {
+            let notification = new NotificationHandler()
+            notification.error('请先添加构建子任务')
+            return
+          }
         }
       }
     }
+    if (projectId) {
+      getRepoBranchesAndTagsByProjectId(projectId)
+    }
+  },
+  startBuildStage(item, index, key, tabKey) {
+    const { flowId } = item
     const parentScope = this.props.scope
-    CreateTenxflowBuild(flowId, {}, {
+    const { CreateTenxflowBuild, getTenxflowBuildDetailLogs } = this.props.scope.props
+    const options = {}
+    if (key && tabKey) {
+      options.branch = key
+    }
+    CreateTenxflowBuild(flowId, { options }, {
       success: {
         func: (res) => {
           getTenxflowBuildDetailLogs(flowId, res.data.results.flowBuildId, {
@@ -174,6 +194,62 @@ let MyComponent = React.createClass({
       }
     })
   },
+  renderBuildBtn(item, index) {
+    const { projectId, defaultBranch, stagesCount } = item
+    const { repoBranchesAndTags } = this.props
+    const dropdown = (
+      <Menu onClick={this.operaMenuClick.bind(this, item)}>
+        <Menu.Item key='deleteFlow'>
+          <i className='fa fa-trash' style={{ lineHeight: '20px', marginRight: '5px' }} />&nbsp;
+          <FormattedMessage {...menusText.delete} style={{ display: 'inlineBlock' }} />
+        </Menu.Item>
+      </Menu>
+    );
+    const targetElement = (
+      <span>
+        <i className='fa fa-pencil-square-o' />&nbsp;
+        <FormattedMessage {...menusText.deloyStart} />
+      </span>
+    )
+    const tabs = []
+    let loading
+    const branchesAndTags = repoBranchesAndTags[projectId]
+    if (!branchesAndTags) {
+      if (stagesCount > 0) {
+        tabs.push(<PopOption key="not_found_branches_tags">未找到分支及标签，点击构建</PopOption>)
+      }
+    } else {
+      const { isFetching, data } = branchesAndTags
+      loading = isFetching
+      const { branches, tags } = data
+      for(let key in data) {
+        if (data.hasOwnProperty(key)) {
+          tabs.push(
+            <PopTab key={key} title={key === 'branches' ? '分支' : '标签'}>
+              {
+                data[key].map(item => {
+                  let name = item.branch || item.tag
+                  return <PopOption key={name}>{name}</PopOption>
+                })
+              }
+            </PopTab>
+          )
+        }
+      }
+    }
+
+    return (
+      <Dropdown.Button overlay={dropdown} type='ghost' size='large' onClick={() => this.starFlowBuild(item, index)}>
+        <PopTabSelect
+          onChange={this.startBuildStage.bind(this, item, index)}
+          targetElement={targetElement}
+          loading={loading}
+          getTooltipContainer={() => document.body}>
+          {tabs}
+        </PopTabSelect>
+      </Dropdown.Button>
+    )
+  },
   render: function () {
     const { config, scope, isFetching } = this.props;
     const { flowListState } = this.props.scope.state
@@ -199,14 +275,6 @@ let MyComponent = React.createClass({
         default:
           status = "等待中..."
       }
-      const dropdown = (
-        <Menu onClick={this.operaMenuClick.bind(this, item)}>
-          <Menu.Item key='deleteFlow'>
-            <i className='fa fa-trash' style={{ lineHeight: '20px', marginRight: '5px' }} />&nbsp;
-            <FormattedMessage {...menusText.delete} style={{ display: 'inlineBlock' }} />
-          </Menu.Item>
-        </Menu>
-      );
       return (
         <div className='tenxflowDetail' key={item.name} >
           <div className='name'>
@@ -229,12 +297,9 @@ let MyComponent = React.createClass({
               <i className='fa fa-wpforms' />&nbsp;
               <FormattedMessage {...menusText.deloyLog} />
             </Button>
-            <Dropdown.Button overlay={dropdown} type='ghost' size='large' onClick={() => this.starFlowBuild(item.flowId, index)}>
-              <span>
-                <i className='fa fa-pencil-square-o' />&nbsp;
-                <FormattedMessage {...menusText.deloyStart} />
-              </span>
-            </Dropdown.Button>
+            {
+              this.renderBuildBtn(item, index)
+            }
           </div>
         </div>
       );
@@ -459,10 +524,11 @@ class TenxFlowList extends Component {
       })
     }
   }
+
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
-    const { isFetching, buildFetching, logs, cicdApi } = this.props;
+    const { isFetching, buildFetching, logs, cicdApi, repoBranchesAndTags } = this.props;
     const { searchingFlag } = this.state;
     const { flowList } = this.props
     let message = '';
@@ -509,7 +575,7 @@ class TenxFlowList extends Component {
                 <FormattedMessage {...menusText.opera} />
               </div>
             </div>
-            <MyComponent scope={scope} config={flowList} isFetching={isFetching} />
+            <MyComponent scope={scope} config={flowList} isFetching={isFetching} repoBranchesAndTags={repoBranchesAndTags} />
             {flowList.length < 1 && !searchingFlag ?
               <div className='loadingBox'>暂无数据</div> :
               (flowList.length < 1 && searchingFlag ?
@@ -546,7 +612,7 @@ function mapStateToProps(state, props) {
     buildFetching: false,
     logs: [],
   }
-  const { getTenxflowList } = state.cicd_flow
+  const { getTenxflowList, repoBranchesAndTags } = state.cicd_flow
   const { isFetching, flowList } = getTenxflowList || defaultFlowList
   const { getTenxflowBuildLastLogs } = state.cicd_flow
   const { logs } = getTenxflowBuildLastLogs || defaultBuildLog
@@ -557,7 +623,8 @@ function mapStateToProps(state, props) {
     buildFetching,
     logs,
     currentSpace: state.entities.current.space.namespace,
-    loginUser: state.entities.loginUser
+    loginUser: state.entities.loginUser,
+    repoBranchesAndTags,
   }
 }
 
@@ -571,7 +638,8 @@ export default connect(mapStateToProps, {
   getTenxflowBuildLastLogs,
   CreateTenxflowBuild,
   getTenxflowBuildDetailLogs,
-  changeFlowStatus
+  changeFlowStatus,
+  getRepoBranchesAndTagsByProjectId,
 })(injectIntl(TenxFlowList, {
   withRef: true,
 }));

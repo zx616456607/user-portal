@@ -625,6 +625,42 @@ function getCodeStoreBranchList(state = {}, action) {
   }
 }
 
+function repoBranchesAndTags(state = {}, action) {
+  const id = action.reponame || action.project_id
+  const defaultState = {
+    [id]: {
+      isFetching: false,
+      data: {}
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.GET_REPO_BRANCH_AND_TAG_REQUEST:
+    case ActionTypes.GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_REQUEST:
+      return merge({}, defaultState, state, {
+        [id]: {
+          isFetching: true
+        }
+      })
+    case ActionTypes.GET_REPO_BRANCH_AND_TAG_SUCCESS:
+    case ActionTypes.GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_SUCCESS:
+      return Object.assign({}, state, {
+        [id]: {
+          isFetching: false,
+          data: action.response.result.data,
+        }
+      })
+    case ActionTypes.GET_REPO_BRANCH_AND_TAG_FAILURE:
+    case ActionTypes.GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_FAILURE:
+      return merge({}, defaultState, state, {
+        [id]: {
+          isFetching: false
+        }
+      })
+    default:
+      return state
+  }
+}
+
 function getTenxflowCIRules(state = {}, action) {
   const defaultState = {
     isFetching: false,
@@ -880,6 +916,7 @@ export default function cicd_flow(state = {}, action) {
     deployLog: deployLog(state.deployLog, action),
     getCdRules: getCdRules(state.getCdRules, action),
     getCdImage: getCdImage(state.getCdImage, action),
+    repoBranchesAndTags: repoBranchesAndTags(state.repoBranchesAndTags, action),
     getTenxflowCIRules: getTenxflowCIRules(state.getTenxflowCIRules, action),
     getTenxflowBuildLogs: getTenxflowBuildLogs(state.getTenxflowBuildLogs, action),
     getTenxflowBuildDetailLogs: getTenxflowBuildDetailLogs(state.getTenxflowBuildDetailLogs, action),
