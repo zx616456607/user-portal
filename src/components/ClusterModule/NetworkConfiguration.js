@@ -9,7 +9,7 @@
  */
 import React from 'react'
 import { camelize } from 'humps'
-import { Icon, Select, Button, Card, Form, Input, Tooltip, Spin, Modal, Dropdown, Menu,Row,Col } from 'antd'
+import { Icon, Select, Button, Card, Form, Input, Tooltip, Spin, Modal, Dropdown, Menu, Row, Col } from 'antd'
 import { getProxy, updateProxy, getClusterNodeAddr } from '../../actions/cluster'
 import { getAllClusterNodes } from '../../actions/cluster_node'
 import NotificationHandler from '../../common/notification_handler'
@@ -28,7 +28,7 @@ let NetworkConfiguration = React.createClass ({
       editCluster: false, // edit btn
       saveBtnDisabled: false,
       showDeleteModal: false,
-      sketchshow:false
+      visible:false
     }
   },
   componentWillMount(){
@@ -252,15 +252,14 @@ let NetworkConfiguration = React.createClass ({
               })
             } style={{width:'100%',margin:'0px 10px'}}  placeholder="输入服务出口 IP" />
             :
-              <span className="h5" style={{width:'100%',display:'inline-block',margin:'0px 0px 0px -10px'}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''}</span>
+              <span className="h5" style={{width:'100%',display:'inline-block',marginLeft:'-10px'}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''}</span>
             }
         </Form.Item>
         
         {
-          editCluster ?  <Icon style={{margin:'10px 0px 0px 0px',flex:'1'}} type="delete"  onClick={() => this.handDelete(item)}/> : <span></span>
+          editCluster ?  <Icon style={{marginTop:'10px',flex:'1'}} type="delete" onClick={() => this.handDelete(item)}/> : <span></span>
         }
-        
-        
+
       </div>
     })
   },
@@ -328,13 +327,6 @@ let NetworkConfiguration = React.createClass ({
       ],
       initialValue: bindingDomains
     });
-    const dropdown = (
-      <Menu style={{ width: "100px" }} >
-        <Menu.Item>
-          删除配置
-        </Menu.Item>
-      </Menu>
-    );
     return (
       <Card id="Network" className="ClusterInfo">
         <div className="h3">网路配置
@@ -364,21 +356,22 @@ let NetworkConfiguration = React.createClass ({
         <Form className="clusterTable" style={{padding:'35px 0'}}>
           <Row style={{height:'100%'}}>
           <Col xs={{span:13}}>
-          <div className="formItem inner-mesh">
+            <div className="formItem inner-mesh">
               <Form.Item >
                 <div className="h4 blod" style={{fontSize:'14px'}}>服务内网IP  <Tooltip title="服务内网IP显示在[应用管理-服务地址：内网IP]处，集群内任意节点作为服务的内网出口代理；"><Icon type="question-circle-o" /></Tooltip></div>
               </Form.Item>
-                <Row>
-                  <Col xs={{span:12}}>代理节点</Col><Col style={{margin:'0px 0px 0px -10px'}} xs={{span:12}}>节点的网卡IP(多网卡时请确认)</Col>
-                </Row>
+              <Row>
+                <Col xs={{span:12}}>代理节点</Col><Col style={{margin:'0px 0px 0px -10px'}} xs={{span:12}}>节点的网卡IP(多网卡时请确认)</Col>
+              </Row>
                 {this.getItems()}
-                {
-                  editCluster ? <Form.Item className="increase">
-                    <span onClick={this.add}><Icon type="plus-circle-o" /> 新增一条内网代理</span>
-                  </Form.Item>
-                    : <span></span>
+                {editCluster ? 
+                <Form.Item className="increase">
+                  <span onClick={this.add}><Icon type="plus-circle-o" /> 新增一条内网代理</span>
+                </Form.Item>
+                : 
+                <span></span>
                 }
-            </div>
+              </div>
             </Col>
             <Col style={{height:'100%'}} xs={{span:3}}>
               <div className="imgBox imgboxa">
@@ -386,45 +379,42 @@ let NetworkConfiguration = React.createClass ({
               </div> 
             </Col>
             <Col xs={{span:8}}>
-            <div className="formItem extranet">
-              <Form.Item style={{width:'100%'}}>
-                <div className="h4 blod" style={{fontSize:'14px',width:'60%'}}>服务外网IP (可选) <Tooltip title="服务外网 IP 显示在『应用管理→服务地址：外网IP』处，服务内网 IP 地
-                址所映射的代理或网关等性质的产品，平台暂无法自动获取，需手动填
-                写，如OpenStack 的浮动 IP、节点绑定的负载均衡器、平台出口高可用的
-                虚拟 IP 等"><Icon type="question-circle-o" /></Tooltip></div>
-                <div className="h4 blod sketchMap" onClick={()=> this.setState({sketchshow:true})}>查看示意图</div>
-              </Form.Item>
-              <Form.Item>
-                 { editCluster ?
+              <div className="formItem extranet">
+                <Form.Item style={{width:'100%'}}>
+                  <div className="h4 blod" style={{fontSize:'14px',width:'60%'}}>服务外网IP (可选) <Tooltip title="服务外网 IP 显示在『应用管理→服务地址：外网IP』处，服务内网 IP 地
+                    址所映射的代理或网关等性质的产品，平台暂无法自动获取，需手动填
+                    写，如OpenStack 的浮动 IP、节点绑定的负载均衡器、平台出口高可用的
+                    虚拟 IP 等"><Icon type="question-circle-o" /></Tooltip>
+                  </div>
+                  <div className="h4 blod sketchMap"><span onClick={()=> this.setState({visible:true})}>查看示意图</span>
+                    <Modal wrapClassName="vertical-center-modal" width='75%' title="示意图" footer={<Button type="primary" onClick={()=> this.setState({visible:false})}>知道了</Button>} visible={this.state.visible} onCancel={()=> this.setState({visible:false})}>
+                      <div className="imgBox">
+                        <img style={{width:'100%',height:'100%'}} src={sketchImg}/>
+                      </div>
+                    </Modal>
+                  </div>
+                </Form.Item>
+                <Form.Item>
+                  { editCluster ?
                   <Input {...bindingIPsProps} style={{width:'100%'}}  placeholder="请填写服务的外网 IP (如 浮动IP)" />
                   :
                   <span>{bindingIPs}</span>
                   }
-              </Form.Item>
-              <Form.Item >
-                <div className="h4 blod" style={{fontSize:'14px'}}>服务域名配置 (可选) <Tooltip title="可以是绑定到服务外网 IP 或内网 IP 上的域名；"><Icon type="question-circle-o" /></Tooltip></div>
-              </Form.Item>
-              <Form.Item>
-                 { editCluster ?
-                  <Input {...bindingDomainsProps} style={{width:'100%'}}  placeholder="请填写该集群配置的映射域名" />
-                  :
-                  <span>{bindingDomains||"-"}</span>
-                  }
-              </Form.Item>
-            </div>
+                </Form.Item>
+                <Form.Item >
+                  <div className="h4 blod" style={{fontSize:'14px'}}>服务域名配置 (可选) <Tooltip title="可以是绑定到服务外网 IP 或内网 IP 上的域名；"><Icon type="question-circle-o" /></Tooltip></div>
+                </Form.Item>
+                <Form.Item>
+                   { editCluster ?
+                    <Input {...bindingDomainsProps} style={{width:'100%'}}  placeholder="请填写该集群配置的映射域名" />
+                    :
+                    <span>{bindingDomains||"-"}</span>
+                    }
+                </Form.Item>
+              </div>
             </Col>
-            </Row>                         
+          </Row>                         
         </Form>
-        { ! sketchshow ? 
-        <div className="sketchimg" style={{display:'none'}}>
-          <img src={sketchImg}/>
-        </div>
-        :
-        <div className="sketchimg" style={{display:'block'}}>
-          <Icon className="cLick" onClick={()=> this.setState({sketchshow:false})} type="cross" />
-          <img src={sketchImg}/>
-        </div>
-        }
       </Card>
     )
   } 
