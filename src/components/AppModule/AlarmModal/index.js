@@ -225,7 +225,7 @@ let FistStop = React.createClass({
         onChange: this.resetType,
         initialValue: loginUser.info.role == ADMIN_ROLE ? initiaValue : 'service'
       });
-      let initAppName = ''
+      let initAppName = undefined
       if (currentApp) {
         initAppName = currentApp.name
       }
