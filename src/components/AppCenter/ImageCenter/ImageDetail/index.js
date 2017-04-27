@@ -105,7 +105,8 @@ class ImageDetailBox extends Component {
       tagVersion: '',
       tag: '',
       UpgradeVisible:false,
-      tabledisabled:true
+      tabledisabled:true,
+      safetyscanLoading:false,
     }
   }
 
@@ -208,8 +209,16 @@ class ImageDetailBox extends Component {
     this.props.imageStore(config, {
       success: {
         func: () => {
-          notification.success('更新成功！')
-          scope.props.loadFavouriteList(DEFAULT_REGISTRY)
+          if(favourite == 0){
+            notification.success('取消收藏！')
+            scope.props.loadFavouriteList(DEFAULT_REGISTRY)
+            return
+          }
+          if(favourite == 1){
+            notification.success('收藏成功！')
+            scope.props.loadFavouriteList(DEFAULT_REGISTRY)
+            return
+          }
         },
         isAsync: true
       }
@@ -319,6 +328,7 @@ class ImageDetailBox extends Component {
     const imageName = imageDetail.name
     const tag = this.state.tagVersion
     const notificationHandler = new NotificationHandler()
+    this.setState({safetyscanLoading : true})
     loadMirrorSafetyScanStatus({ imageName, tag },{
       success: {
         func: () => {
@@ -328,7 +338,8 @@ class ImageDetailBox extends Component {
             safetyscanVisible: false,
             activeKey: '5',
             disable: false,
-            tag: this.state.tagVersion
+            tag: this.state.tagVersion,
+            safetyscanLoading:false
           })
           const { mirrorScanstatus } = this.props
           const currentImageScanstatus = mirrorScanstatus[imageName][tag]
@@ -386,13 +397,15 @@ class ImageDetailBox extends Component {
         func: (res) => {
           if(res.statusCode == 412){
             this.setState({
-              safetyscanVisible:false
+              safetyscanVisible:false,
+              safetyscanLoading:false,
             })
             return
           }
           notificationHandler.error('['+imageName+ ']' +'镜像的'+ '[' + tag + ']' + this.formatErrorMessage(res))
           this.setState({
-            safetyscanVisible:false
+            safetyscanVisible:false,
+            safetyscanLoading:false,
           })
         },
         isAsync : true
@@ -494,22 +507,25 @@ class ImageDetailBox extends Component {
               {/* 说扫描 */}
               <div className='rightBoxright'>
                 <Button type="ghost" size="large" onClick={this.safetyscanShow}>安全扫描</Button>
-                <Modal title="安全扫描" visible={this.state.safetyscanVisible} footer={[
-                  <Button
-                    key="back"
-                    type="ghost"
-                    size="large"
-                    onClick={this.safetyscanhandleCancel}>
-                    取 消
-                  </Button>,
-                  <Button
-                    key="submit"
-                    type="primary"
-                    size="large"
-                    disabled={this.state.disable}
-                    onClick={this.safetyscanhandleOk}>
-                    确 定
-                  </Button>,
+                <Modal title="安全扫描" visible={this.state.safetyscanVisible} closable={false}
+                  confirmLoading={true}
+                  footer={[
+                    <Button
+                      key="back"
+                      type="ghost"
+                      size="large"
+                      onClick={this.safetyscanhandleCancel}>
+                      取 消
+                    </Button>,
+                    <Button
+                      key="submit"
+                      type="primary"
+                      size="large"
+                      loading={this.state.safetyscanLoading}
+                      disabled={this.state.disable}
+                      onClick={this.safetyscanhandleOk}>
+                      确 定
+                    </Button>,
                 ]}>
                   <div>
                     <span style={{ marginRight: '30px' }}>镜像版本</span>
