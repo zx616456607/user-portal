@@ -792,6 +792,7 @@ class AlarmModal extends Component {
     this.state = {
       isSendMail: 1,
       createGroup: false, // create alarm group modal
+      showAlramGroup: true
     }
   }
 
@@ -886,6 +887,9 @@ class AlarmModal extends Component {
         enable: this.state.isSendMail,
         disableNotifyEndTime: '0s'
       }
+      if(!this.state.isSendMail) {
+        delete requestBody.receiversGroup
+      }
       if (isEdit) {
         requestBody.strategyID = strategy.strategyID
         notification.spin('告警策略更新中')
@@ -961,7 +965,7 @@ class AlarmModal extends Component {
   }
   sendMail(e) {
     this.setState({
-      isSendMail: e.target.value
+      isSendMail: e.target.value,
     })
   }
   resetFields() {
@@ -989,13 +993,26 @@ class AlarmModal extends Component {
     if (strategy && isEdit) {
       initreceiver = strategy.receiversGroup
     }
-    const notify = getFieldProps('notify', {
+    let notify = getFieldProps('notify', {
       rules: [
         { whitespace: true },
         { validator: this.notifyGroup }
       ],
       initialValue: initreceiver
     })
+    if(this.state.isSendMail) {
+      notify = getFieldProps('notify', {
+        rules: [
+          { whitespace: true },
+          { validator: this.notifyGroup }
+        ],
+        initialValue: initreceiver
+      })
+    } else {
+      notify = getFieldProps('notify', {
+        initialValue: initreceiver
+      })
+    }
     const { funcs } = this.props
     return (
       <div className="AlarmModal">
@@ -1020,7 +1037,7 @@ class AlarmModal extends Component {
                 </RadioGroup>
               </Form.Item>
               <div className="tips" style={{ marginBottom: 20 }}><Icon type="exclamation-circle-o" /> 选择“是”，我们会向您发送监控信息和告警信息，选择“否”，我们将不会向你发送告警信息</div>
-              <Form.Item label="告警通知组" {...formItemLayout}>
+              <Form.Item label="告警通知组" {...formItemLayout} style={{display: this.state.isSendMail ? 'block' : 'none'}}>
                 <Select placeholder="请选择告警通知组" style={{ width: 170 }} {...notify}>
                   {this.getNotifyGroup()}
                 </Select>
