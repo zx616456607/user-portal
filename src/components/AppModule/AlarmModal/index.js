@@ -363,12 +363,31 @@ let TwoStop = React.createClass({
     data.forEach((item, index) => {
       this.setState({ [`typeProps_${index}`]: this.switchSymbol(item.type) })
     })
+    this.setState({
+      firstMount: true
+    })
   },
   componentDidMount() {
     const { resetFields } = this.props
     setTimeout(resetFields,0)
+
   },
   componentWillReceiveProps(nextProps) {
+    if (this.state.firstMount || (nextProps.isShow && nextProps.isShow != this.props.isShow)) {
+      const { data } = nextProps
+      console.log(data)
+      if(data && data.length > 0) {
+        this.setState({
+          firstMount: false
+        })
+      }
+      const { isEdit, strategy, getAlertSetting, cluster } = nextProps
+      if (isEdit) {
+        data.forEach((item, index) => {
+          this.setState({ [`typeProps_${index}`]: this.switchSymbol(item.type) })
+        })
+      }
+    }
   },
   removeRule(k) {
     const { form } = this.props;
@@ -820,6 +839,12 @@ class AlarmModal extends Component {
     }
   }
   componentWillReceiveProps(nextProps) {
+    const { form } = this.props
+    if(!nextProps.isShow) {
+      form.resetFields()
+      this.state.firstForm.resetFields()
+      this.state.secondForm.resetFields()
+    }
     if (nextProps.isShow && nextProps.isShow != this.props.isShow) {
       const { isEdit, strategy, getAlertSetting, cluster } = nextProps
       if (isEdit) {

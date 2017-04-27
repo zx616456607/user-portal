@@ -531,11 +531,11 @@ class AppServiceList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let { page, size, name, serviceList, onServicesChange } = nextProps
+    let { page, size, name, serviceList, onServicesChange, availabilityNumber, total } = nextProps
     this.setState({
       serviceList
     })
-    onServicesChange(serviceList)
+    onServicesChange(serviceList, availabilityNumber, total)
 
     if (page === this.props.page && size === this.props.size && name === this.props.name) {
       return
@@ -1268,7 +1268,7 @@ function mapStateToProps(state, props) {
   if (serviceItems[cluster.clusterID] && serviceItems[cluster.clusterID][appName]) {
     targetServices = serviceItems[cluster.clusterID][appName]
   }
-  const { serviceList, isFetching, total } = targetServices || defaultServices
+  const { serviceList, isFetching, total, availabilityNumber } = targetServices || defaultServices
   return {
     loginUser: loginUser,
     cluster: cluster.clusterID,
@@ -1282,7 +1282,8 @@ function mapStateToProps(state, props) {
     total,
     name,
     serviceList,
-    isFetching
+    isFetching,
+    availabilityNumber
   }
 }
 
