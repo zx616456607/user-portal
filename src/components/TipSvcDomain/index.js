@@ -238,9 +238,10 @@ export default class TipSvcDomain extends Component {
               getTooltipContainer={() => document.getElementsByClassName(parentNode)[0]}
               arrowPointAtCenter={true}
               >
-              <svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
+              {/*<svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
                 <use xlinkHref='#more' />
-              </svg>
+              </svg>*/}
+              <Icon className={this.state.show ? 'more showPop' : 'more'} type={this.state.show ? 'minus-square' : 'plus-square'} onClick={this.showPop}/>
             </Popover>
           </div>
         )
@@ -275,9 +276,10 @@ export default class TipSvcDomain extends Component {
                 getTooltipContainer={() => document.getElementsByClassName(parentNode)[0]}
                 arrowPointAtCenter={true}
                 >
-                <svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
+                {/*<svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
                   <use xlinkHref='#more' />
-                </svg>
+                </svg>*/}
+                <Icon className={this.state.show ? 'more showPop' : 'more'} type={this.state.show ? 'minus-square' : 'plus-square'} onClick={this.showPop}/>
               </Popover>
             </div>
           )
@@ -296,9 +298,10 @@ export default class TipSvcDomain extends Component {
               getTooltipContainer={() => document.getElementsByClassName(parentNode)[0]}
               arrowPointAtCenter={true}
               >
-              <svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
+              <Icon className={this.state.show ? 'more showPop' : 'more'} type={this.state.show ? 'minus-square' : 'plus-square'} onClick={this.showPop}/>
+              {/*<svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
                 <use xlinkHref='#more' />
-              </svg>
+              </svg>*/}
             </Popover>
           </div>
         )
