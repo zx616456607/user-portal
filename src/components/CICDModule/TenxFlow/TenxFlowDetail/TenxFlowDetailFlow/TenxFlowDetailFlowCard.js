@@ -498,7 +498,8 @@ class TenxFlowDetailFlowCard extends Component {
   renderBuildBtn(config) {
     const { getRepoBranchesAndTagsByProjectId } = this.props
     const { repoBranchesAndTags } = this.props
-    const projectId = config.spec.project.id
+    const project = config.spec.project || {}
+    const projectId = project.id
     const targetElement = (
       <Button size='large' type='primary' className='startBtn'
         onClick={() => getRepoBranchesAndTagsByProjectId(projectId)}>
@@ -509,9 +510,7 @@ class TenxFlowDetailFlowCard extends Component {
     let loading
     const branchesAndTags = repoBranchesAndTags[projectId]
     if (!branchesAndTags) {
-      if (stagesCount > 0) {
-        tabs.push(<PopOption key="not_found_branches_tags">未找到分支及标签，点击构建</PopOption>)
-      }
+      tabs.push(<PopOption key="not_found_branches_tags">未找到分支及标签，点击构建</PopOption>)
     } else {
       const { isFetching, data } = branchesAndTags
       loading = isFetching
