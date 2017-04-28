@@ -115,7 +115,7 @@ export function getServiceStatus(service) {
  * return one of [Pending, Running, Deploying, Stopped]
  */
 export function getServiceStatusByContainers(service, containers) {
-  if (!containers) {
+  if (!containers || containers.length <= 0) {
     return getServiceStatus(service)
   }
   let availableReplicas = 0
