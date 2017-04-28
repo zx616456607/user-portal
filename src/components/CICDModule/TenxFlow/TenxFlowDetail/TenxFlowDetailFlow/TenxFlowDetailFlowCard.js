@@ -502,7 +502,7 @@ class TenxFlowDetailFlowCard extends Component {
     const projectId = project.id
     const targetElement = (
       <Button size='large' type='primary' className='startBtn'
-        onClick={() => getRepoBranchesAndTagsByProjectId(projectId)}>
+        onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId)}>
         {currentStatusBtn(config.lastBuildStatus)}
       </Button>
     )
