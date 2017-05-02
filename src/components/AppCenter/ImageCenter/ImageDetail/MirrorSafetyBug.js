@@ -16,6 +16,7 @@ import { loadMirrorSafetyScan, loadMirrorSafetyChairinfo } from '../../../../act
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../../common/notification_handler'
+import safetyBugImg from '../../../../assets/img/appCenter/mirrorSafety/safetybug.png'
 
 const TabPane = Tabs.TabPane
 const Step = Steps.Step
@@ -768,7 +769,10 @@ class TableTemplate extends Component{
     }
 
     if(Object.keys(mirrorsafetyClair[imageName][tag].result.report).length == 0 || !mirrorsafetyClair[imageName][tag].result.report.vulnerabilities){
-      return <div className='message'>暂未扫描出任何漏洞</div>
+      return <div className='message'>
+        <img src={safetyBugImg}/>
+        <div>暂未扫描出任何漏洞</div>
+      </div>
     }
 
     return (

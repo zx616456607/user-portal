@@ -10,7 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { Row, Col, Card ,Radio, Button, Table, Modal, Spin } from 'antd'
 import { connect } from 'react-redux'
-import { Link } from 'react-router'
+import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import cloneDeep from 'lodash/cloneDeep'
 import { formatDate, isEmptyObject } from '../../common/tools'
@@ -207,7 +207,7 @@ class AlarmDetail extends Component {
       <div id="AlarmDetail">
         <QueueAnim type="right" className="AlarmDetail">
           <div className="ant-row" key="AlarmDetail" style={{marginBottom: 10, height: 50, paddingTop: 10}}>
-            <Link className="back" to="/manange_monitor/alarm_setting"><span className="backjia"></span><span className="btn-back">返回</span></Link>
+            <span className="back" onClick={()=> browserHistory.goBack()}><span className="backjia"></span><span className="btn-back">返回</span></span>
             <span className="titleName">{strategyName}</span>
           </div>
           <Row gutter={16} className="details">
