@@ -63,10 +63,12 @@ class MyComponent extends Component {
   }
 
   handleEdit(index){
-    const { rowDisableArray } = this.state
+    const { rowDisableArray, dataArray } = this.state
     rowDisableArray[index].disable = true
+    dataArray[index].edit = true
     this.setState({
       rowDisableArray,
+      dataArray,
     })
   }
 
@@ -77,6 +79,17 @@ class MyComponent extends Component {
     let name = getFieldValue(`envName${index}`)
     let value = getFieldValue(`envValue${index}`)
     if(name == undefined || value == undefined || name == '' || value == ''){
+      dataArray.splice(index,1)
+      rowDisableArray.splice(index,1)
+      saveBtnLoadingArray.splice(index,1)
+      this.setState({
+        dataArray,
+        rowDisableArray,
+        saveBtnLoadingArray,
+      })
+      return
+    }
+    if(dataArray[index].flag == true){
       dataArray.splice(index,1)
       rowDisableArray.splice(index,1)
       saveBtnLoadingArray.splice(index,1)
@@ -106,6 +119,9 @@ class MyComponent extends Component {
     }
     for(let i=0; i<dataArray.length; i++ ){
       if(dataArray[i].name == name){
+        if(dataArray[index].edit == true){
+          break
+        }
         Notification.error('变量名已近存在，请修改！')
         return
       }
@@ -127,6 +143,7 @@ class MyComponent extends Component {
           Notification.success('环境变量修改成功！')
           saveBtnLoadingArray[index].loading = false
           rowDisableArray[index].disable = false
+          delete dataArray[index].flag
           this.setState({
             rowDisableArray,
             dataArray,
@@ -158,7 +175,7 @@ class MyComponent extends Component {
     }
     rowDisableArray.push({disable : true})
     saveBtnLoadingArray.push({loading : false})
-    dataArray.push({name:'',value:''})
+    dataArray.push({name:'',value:'',flag:true})
     this.setState({
       rowDisableArray,
       dataArray,
@@ -183,21 +200,19 @@ class MyComponent extends Component {
       service : serviceDetail.metadata.name,
       arr : this.state.dataArray
     }
-    console.log('this.state=',this.state)
-    console.log('body=',body)
     let deleteEnv = dataArray[DeletingEnvIndex]
     rowDisableArray.splice(DeletingEnvIndex,1)
     dataArray.splice(DeletingEnvIndex,1)
     saveBtnLoadingArray.splice(DeletingEnvIndex,1)
     this.setState({
-      buttonLoading : true
+      buttonLoading : true,
+      ModalDeleteVisible : false,
     })
     editServiceEnv(body,{
       success : {
         func : () => {
           Notification.success('删除环境变量成功！')
           this.setState({
-            ModalDeleteVisible : false,
             rowDisableArray,
             dataArray,
             saveBtnLoadingArray,
@@ -213,7 +228,6 @@ class MyComponent extends Component {
           dataArray.splice(DeletingEnvIndex,0,deleteEnv)
           saveBtnLoadingArray.splice(DeletingEnvIndex,0,{loading : false})
           this.setState({
-            ModalDeleteVisible : false,
             buttonLoading : false,
             rowDisableArray,
             dataArray,
@@ -235,6 +249,9 @@ class MyComponent extends Component {
     const { dataArray } = this.state
     let flag = false
     let errorMsg = appEnvCheck(value, '环境变量');
+    if(value == ''){
+      callback(new Error('变量名不能为空！'))
+    }
     for(let i=0; i<dataArray.length; i++ ){
       if(dataArray[i].name == value){
         callback(new Error('变量名已存在！'))
