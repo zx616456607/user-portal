@@ -208,3 +208,22 @@ exports.getClustersInstant = function* () {
     memory:results[1].data[node],
   }
 }
+
+exports.getNodeLabels = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const node = this.params.node
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'nodes', node, 'labels'])
+  this.body = result ? result.data : {}
+}
+
+exports.updateNodeLabels = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const node = this.params.node
+  const labels = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.patchBy([cluster, 'nodes', node, 'labels'], {}, labels)
+  this.body = result ? result.data : {}
+}
