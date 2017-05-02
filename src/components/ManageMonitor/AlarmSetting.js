@@ -712,7 +712,7 @@ class AlarmSetting extends Component {
       }
     })
     if(strategy.length == 0 ) {
-      notifi.error('请选择要启动的策略')
+      notifi.error('请选择要启用的策略')
       return
     }
     this.setState({
@@ -773,10 +773,10 @@ class AlarmSetting extends Component {
       })
     }
     if(strategy.length == 0 ) {
-      notifi.error('请选择要启动的策略')
+      notifi.error('请选择要启用的策略')
       return
     }
-    notifi.spin('启动中')
+    notifi.spin('启用中')
      this.setState({
       showStart: false,
     })
@@ -787,7 +787,7 @@ class AlarmSetting extends Component {
       success: {
         func: () => {
           notifi.close()
-          notifi.success('策略启动成功')
+          notifi.success('策略启用成功')
           getSettingList(clusterID)
 
           this.disableButton()
@@ -797,7 +797,7 @@ class AlarmSetting extends Component {
       failed: {
         func: () => {
           notifi.close()
-          notifi.error('策略启动失败，请重试')
+          notifi.error('策略启用失败，请重试')
         }
       }
     })
@@ -970,11 +970,11 @@ class AlarmSetting extends Component {
           >
             <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>策略删除后将不再发送邮件告警，确认删除 {this.getCheckecSettingName()} 策略？</div>
           </Modal>
-          <Modal title={this.state.showStop ? '停止策略':'启动策略'} visible={this.state.showStop || this.state.showStart}
+          <Modal title={this.state.showStop ? '停止策略':'启用策略'} visible={this.state.showStop || this.state.showStart}
             onCancel={()=> this.handCelcan()}
             onOk={() => this.handAction()}
           >
-            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>确定{this.state.showStop ? '停止':'启动'} {this.getCheckecSettingName()} 策略？</div>
+            <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{ marginRight: 10 }}></i>确定{this.state.showStop ? '停止':'启用'} {this.getCheckecSettingName()} 策略？</div>
           </Modal>
 
 
