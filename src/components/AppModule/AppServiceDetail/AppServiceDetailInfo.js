@@ -144,6 +144,7 @@ class MyComponent extends Component {
           saveBtnLoadingArray[index].loading = false
           rowDisableArray[index].disable = false
           delete dataArray[index].flag
+          delete dataArray[index].edit
           this.setState({
             rowDisableArray,
             dataArray,
