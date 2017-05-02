@@ -128,13 +128,15 @@ class EchartsOption {
     }
     let num = (count - 4)/2;
     let windowResizeChange = 0;
-    if(clientWidth > 1280) {
-      windowResizeChange = -30;
+    if(clientWidth > 800) {
+      windowResizeChange = -10;
+    }
+    if(clientWidth > 1300) {
+      windowResizeChange = -30
     }
     if(clientWidth > 1600) {
-      windowResizeChange = -60;
+      windowResizeChange = -50;
     }
-    document.getElementById(events).clientWidth
     let initTop = Math.max(num * 25 + windowResizeChange ,60);
     this.grid = [{
       top: initTop,

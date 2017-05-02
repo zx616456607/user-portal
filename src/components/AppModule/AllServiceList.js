@@ -1254,8 +1254,9 @@ class ServiceList extends Component {
             onCancel={()=> this.setState({alarmModal:false})}
             maskClosable={false}
             footer={null}
+            
           >
-          <CreateAlarm funcs={modalFunc} currentService={this.state.alertCurrentService}/>
+          <CreateAlarm funcs={modalFunc} currentService={this.state.alertCurrentService} isShow={this.state.alarmModal}/>
           </Modal>
            {/* 通知组 */}
           <Modal title="创建新通知组" visible={this.state.createGroup}
