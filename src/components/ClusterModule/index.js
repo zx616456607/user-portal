@@ -208,15 +208,15 @@ let NoClusterStepOne = React.createClass({
         <Form horizontal>
           <Form.Item>
             <span className="itemKey">扩展服务地址</span>
-            <Input {...extendProps} placeholder="如：http://192.168.1.113:80" size="large" />
+            <Input {...extendProps} placeholder="如：http://192.168.1.113:4081" size="large" />
           </Form.Item>
           <Form.Item>
             <span className="itemKey">认证服务地址</span>
-            <Input {...approveProps} placeholder="如：http://192.168.1.113:80" size="large" />
+            <Input {...approveProps} placeholder="如：https://192.168.1.113:5000" size="large" />
           </Form.Item>
           <Form.Item>
             <span className="itemKey">镜像服务地址</span>
-            <Input {...mirrorProps} placeholder="如：https://192.168.1.113:4081" />
+            <Input {...mirrorProps} placeholder="如：192.168.1.113" />
           </Form.Item>
         </Form>
         <div className="footer">
