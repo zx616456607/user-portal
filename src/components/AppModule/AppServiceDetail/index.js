@@ -346,6 +346,7 @@ class AppServiceDetail extends Component {
               </TabPane>
               <TabPane tab='基础信息' key='#basic'>
                 <AppServiceDetailInfo
+                  cluster={service.cluster}
                   serviceDetail={serviceDetail}
                   loading={isServiceDetailFetching} />
               </TabPane>
@@ -423,6 +424,7 @@ class AppServiceDetail extends Component {
               </TabPane>
               <TabPane tab='日志' key='#logs'>
                 <AppServiceLog
+                  activeKey={activeTabKey}
                   containers={containers}
                   serviceName={service.metadata.name}
                   cluster={service.cluster}

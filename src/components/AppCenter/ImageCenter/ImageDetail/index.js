@@ -94,6 +94,7 @@ class ImageDetailBox extends Component {
     this.handleTabsSwitch = this.handleTabsSwitch.bind(this)
     this.handelSelectedOption = this.handelSelectedOption.bind(this)
     //this.TemplateTabPaneMirrorsafety = this.TemplateTabPaneMirrorsafety.bind(this)
+    this.formatErrorMessage = this.formatErrorMessage.bind(this)
     this.state = {
       imageDetail: null,
       copySuccess: false,
@@ -104,7 +105,8 @@ class ImageDetailBox extends Component {
       tagVersion: '',
       tag: '',
       UpgradeVisible:false,
-      tabledisabled:true
+      tabledisabled:true,
+      safetyscanLoading:false,
     }
   }
 
@@ -113,9 +115,6 @@ class ImageDetailBox extends Component {
     const imageInfo = this.props.imageInfo
     const { registry, loadImageDetailTag } = this.props
     const imageName = imageDetail.name
-    //console.log('imageDetail=',imageDetail)
-    //console.log('registry=',registry)
-    //console.log('imageName=',imageName)
     loadImageDetailTag(registry, imageName)
     this.setState({
       imageDetail: imageDetail,
@@ -139,11 +138,6 @@ class ImageDetailBox extends Component {
       imageDetail: nextProps.config,
       activeKey:activekeyNext
     });
-
-    //if(!imageNameNext){
-    //  console.log('!imageNameNext=',!imageNameNext)
-    //  return
-    //}
   }
 
   copyDownloadCode() {
@@ -215,8 +209,16 @@ class ImageDetailBox extends Component {
     this.props.imageStore(config, {
       success: {
         func: () => {
-          notification.success('更新成功！')
-          scope.props.loadFavouriteList(DEFAULT_REGISTRY)
+          if(favourite == 0){
+            notification.success('取消收藏！')
+            scope.props.loadFavouriteList(DEFAULT_REGISTRY)
+            return
+          }
+          if(favourite == 1){
+            notification.success('收藏成功！')
+            scope.props.loadFavouriteList(DEFAULT_REGISTRY)
+            return
+          }
         },
         isAsync: true
       }
@@ -326,15 +328,18 @@ class ImageDetailBox extends Component {
     const imageName = imageDetail.name
     const tag = this.state.tagVersion
     const notificationHandler = new NotificationHandler()
+    this.setState({safetyscanLoading : true})
     loadMirrorSafetyScanStatus({ imageName, tag },{
       success: {
         func: () => {
+          loadMirrorSafetyLayerinfo({ imageName, tag })
           this.setState({
             TabsDisabled: false,
             safetyscanVisible: false,
             activeKey: '5',
             disable: false,
-            tag: this.state.tagVersion
+            tag: this.state.tagVersion,
+            safetyscanLoading:false
           })
           const { mirrorScanstatus } = this.props
           const currentImageScanstatus = mirrorScanstatus[imageName][tag]
@@ -392,26 +397,32 @@ class ImageDetailBox extends Component {
         func: (res) => {
           if(res.statusCode == 412){
             this.setState({
-              safetyscanVisible:false
+              safetyscanVisible:false,
+              safetyscanLoading:false,
             })
             return
           }
-          notificationHandler.error('['+imageName+ ']' +'镜像的'+ '[' + tag + ']' +'版本内容不存在或已损坏！')
+          notificationHandler.error('['+imageName+ ']' +'镜像的'+ '[' + tag + ']' + this.formatErrorMessage(res))
           this.setState({
-            safetyscanVisible:false
+            safetyscanVisible:false,
+            safetyscanLoading:false,
           })
         },
         isAsync : true
       }
     })
-    loadMirrorSafetyLayerinfo({ imageName, tag })
-    //this.setState({
-    //  safetyscanVisible: false,
-    //  activeKey: '5',
-    //  disable: false,
-    //  tag: this.state.tagVersion
-    //  tagVersion:''
-    //})
+  }
+
+  formatErrorMessage(body) {
+    const mapping = {
+      'jobalreadyexist': '版本已经触发扫描，请稍后再试！',
+      'no non-empty layer': "无法对空镜像进行扫描",
+    }
+    const message = body.message.message
+    if (!(message in mapping)) {
+      return message
+    }
+    return mapping[message]
   }
 
   handleTabsSwitch(key) {
@@ -496,22 +507,25 @@ class ImageDetailBox extends Component {
               {/* 说扫描 */}
               <div className='rightBoxright'>
                 <Button type="ghost" size="large" onClick={this.safetyscanShow}>安全扫描</Button>
-                <Modal title="安全扫描" visible={this.state.safetyscanVisible} footer={[
-                  <Button
-                    key="back"
-                    type="ghost"
-                    size="large"
-                    onClick={this.safetyscanhandleCancel}>
-                    取 消
-                  </Button>,
-                  <Button
-                    key="submit"
-                    type="primary"
-                    size="large"
-                    disabled={this.state.disable}
-                    onClick={this.safetyscanhandleOk}>
-                    确 定
-                  </Button>,
+                <Modal title="安全扫描" visible={this.state.safetyscanVisible} closable={false}
+                  confirmLoading={true}
+                  footer={[
+                    <Button
+                      key="back"
+                      type="ghost"
+                      size="large"
+                      onClick={this.safetyscanhandleCancel}>
+                      取 消
+                    </Button>,
+                    <Button
+                      key="submit"
+                      type="primary"
+                      size="large"
+                      loading={this.state.safetyscanLoading}
+                      disabled={this.state.disable}
+                      onClick={this.safetyscanhandleOk}>
+                      确 定
+                    </Button>,
                 ]}>
                   <div>
                     <span style={{ marginRight: '30px' }}>镜像版本</span>
@@ -563,7 +577,7 @@ class ImageDetailBox extends Component {
             <TabPane tab="Dockerfile" key="2"><DockerFile isFetching={this.props.isFetching} scope={this} registry={DEFAULT_REGISTRY} detailInfo={imageInfo} isOwner={imageInfo.isOwner} /></TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
             <TabPane tab={formatMessage(menusText.attribute)} key="4"><Attribute detailInfo={imageInfo} /></TabPane>
-            <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} registry={DEFAULT_REGISTRY} tagVersion={this.state.tag} imageType={imageType} tabledisabled={this.state.tabledisabled}/></TabPane>
+            <TabPane tab={formatMessage(menusText.mirrorSafety)} key="5"><MirrorSafety imageName={imageInfo.name} registry={DEFAULT_REGISTRY} tagVersion={this.state.tag} imageType={imageType} tabledisabled={this.state.tabledisabled} formatErrorMessage={this.formatErrorMessage}/></TabPane>
           </Tabs>
         </div>
       </div>

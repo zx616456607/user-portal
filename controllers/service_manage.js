@@ -155,6 +155,26 @@ exports.getServiceContainers = function* () {
   }
 }
 
+// update services env
+exports.updateServiceContainers = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const body = this.request.body
+  if (!body || !Array.isArray(body)) {
+    const err = new Error('Body are required.')
+    err.status = 400
+    throw err
+  }
+  const params = [{"env":[],"container": serviceName}]
+  params[0].env = body
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'services', serviceName, 'env'], null, params )
+  this.body = {
+    data: result
+  }
+}
+
 exports.manualScaleService = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name

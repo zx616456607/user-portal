@@ -106,6 +106,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/services/batch-status', serviceController.getServicesStatus)
   router.get('/clusters/:cluster/services/:service_name/detail', serviceController.getServiceDetail)
   router.get('/clusters/:cluster/services/:service_name/containers', serviceController.getServiceContainers)
+  router.put('/clusters/:cluster/services/:service_name/env', serviceController.updateServiceContainers)
   router.put('/clusters/:cluster/services/:service_name/manualscale', serviceController.manualScaleService)
   router.get('/clusters/:cluster/services/:service_name/autoscale', serviceController.getServiceAutoScale)
   router.put('/clusters/:cluster/services/:service_name/autoscale', serviceController.autoScaleService)
@@ -251,6 +252,8 @@ module.exports = function (Router) {
   router.put('/devops/repos/:type', devopsController.syncRepository)
   router.delete('/devops/repos/:type', devopsController.removeRepository)
   router.get('/devops/repos/:type/branches', devopsController.listBranches)
+  router.get('/devops/repos/:type/tags', devopsController.listTags)
+  router.get('/devops/repos/:type/branches_tags', devopsController.listBranchesAndTags)
   router.get('/devops/repos/:type/user', devopsController.getUserInfo)
   // Auth with 3rdparty SCM and callback
   router.get('/devops/repos/:type/auth', devopsController.getAuthRedirectUrl);
@@ -260,6 +263,7 @@ module.exports = function (Router) {
   router.post('/devops/managed-projects', devopsController.addManagedProject)
   router.get('/devops/managed-projects', devopsController.listManagedProject)
   router.delete('/devops/managed-projects/:project_id', devopsController.removeManagedProject)
+  router.get('/devops/managed-projects/:project_id/branches_tags', devopsController.getManagedProject, devopsController.listBranchesAndTags)
   // CI flows
   router.post('/devops/ci-flows', devopsController.createCIFlows)
   router.get('/devops/ci-flows', devopsController.listCIFlows)

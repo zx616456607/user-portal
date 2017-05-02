@@ -14,7 +14,11 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { getTenxFlowDetail, getTenxflowBuildLastLogs, getTenxFlowYAML, deploymentLog, getTenxflowBuildLogs, getCdInimage, changeBuildStatus, getTenxFlowStatus } from '../../../../actions/cicd_flow'
+import {
+  getTenxFlowDetail, getTenxflowBuildLastLogs, getTenxFlowYAML,
+  deploymentLog, getTenxflowBuildLogs, getCdInimage,
+  changeBuildStatus, getTenxFlowStatus, getRepoBranchesAndTagsByProjectId,
+} from '../../../../actions/cicd_flow'
 import { LoadOtherImage } from '../../../../actions/app_center'
 import { checkImage } from '../../../../actions/app_center'
 import './style/TenxFlowDetail.less'
@@ -27,8 +31,12 @@ import TenxFlowDetailFlow from './TenxFlowDetailFlow.js'
 import TenxFlowBuildLog from '../TenxFlowBuildLog'
 import NotificationHandler from '../../../../common/notification_handler'
 import flowImg from '../../../../assets/img/flow.png'
+import { camelize } from 'humps'
+import PopTabSelect from '../../../PopTabSelect'
 
 const TabPane = Tabs.TabPane;
+const PopTab = PopTabSelect.Tab;
+const PopOption = PopTabSelect.Option;
 
 const menusText = defineMessages({
   search: {
@@ -90,14 +98,18 @@ class TenxFlowDetail extends Component {
     this.closeTenxFlowDeployLogModal = this.closeTenxFlowDeployLogModal.bind(this);
     this.refreshStageList = this.refreshStageList.bind(this);
     this.startBuildStage = this.startBuildStage.bind(this);
+    this.renderBuildBtn = this.renderBuildBtn.bind(this);
     this.state = {
       createTenxFlowModal: false,
       TenxFlowDeployLogModal: false,
       startBuild: false,
+      buildInfo: null,
       showImage: [],
       statusName: 0,
       refreshFlag: false,
-      showTargeImage:false
+      showTargeImage:false,
+      projectId: null,
+      projectBranch: null,
     }
   }
   flowState() {
@@ -124,7 +136,7 @@ class TenxFlowDetail extends Component {
   }
   componentWillMount() {
     document.title = 'TenxFlow | 时速云';
-    const { getTenxFlowDetail, getCdInimage } = this.props;
+    const { getTenxFlowDetail, getCdInimage, getRepoBranchesAndTagsByProjectId } = this.props;
     let { search } = this.props.location;
     search = search.split('?')[1].split('&')[0]
     const self = this
@@ -132,6 +144,20 @@ class TenxFlowDetail extends Component {
       success: {
         func: (res) => {
           getCdInimage(search)
+          const stages = res.data.results.stageInfo || []
+          const firstStage = stages[0]
+          if (!firstStage) {
+            return
+          }
+          const { id, branch } = firstStage.spec.project
+          this.setState({
+            projectId: id,
+            projectBranch: branch,
+          })
+          // data.results.stageInfo[0].spec.project.id
+          if (id) {
+            getRepoBranchesAndTagsByProjectId(id)
+          }
         },
         isAsync: true
       }
@@ -184,7 +210,7 @@ class TenxFlowDetail extends Component {
     });
   }
 
-  startBuildStage() {
+  startBuildStage(key, tabKey) {
     //this function for user build all stages
     //and the state changed will be trigger the children's recivice props
     //and start build flow functon will be trigger in children
@@ -194,9 +220,16 @@ class TenxFlowDetail extends Component {
       return
     }
     notification.success('流程正在构建中')
-    this.setState({
+    const newState = {
       startBuild: true
-    })
+    }
+    if (key && tabKey) {
+      newState.buildInfo = {
+        type: tabKey,
+        name: key,
+      }
+    }
+    this.setState(newState)
   }
   handleChange(e) {
     const {flowInfo, getTenxFlowYAML, deploymentLog, getTenxflowBuildLogs} = this.props
@@ -316,6 +349,54 @@ class TenxFlowDetail extends Component {
       })
     }
   }
+
+  renderBuildBtn() {
+    const { projectId, projectBranch } = this.state
+    const { repoBranchesAndTags } = this.props
+    const targetElement = (
+      <Button size='large' type='primary' className='buildBtn'>
+        <svg className='cicdbuildfast'>
+          <use xlinkHref='#cicdbuildfast' />
+        </svg>
+        <FormattedMessage {...menusText.deloyStart} />
+      </Button>
+    )
+    const tabs = []
+    let loading
+    const branchesAndTags = repoBranchesAndTags[projectId]
+    if (!branchesAndTags) {
+      tabs.push(<PopOption key="not_found_branches_tags">未找到分支及标签，点击构建</PopOption>)
+    } else {
+      const { isFetching, data } = branchesAndTags
+      loading = isFetching
+      const { branches, tags } = data
+      for(let key in data) {
+        if (data.hasOwnProperty(key)) {
+          tabs.push(
+            <PopTab key={key} title={key === 'branches' ? '分支' : '标签'}>
+              {
+                data[key].map(item => {
+                  let name = item.branch || item.tag
+                  return <PopOption key={name}>{name}</PopOption>
+                })
+              }
+            </PopTab>
+          )
+        }
+      }
+    }
+
+    return (
+      <PopTabSelect
+        onChange={this.startBuildStage}
+        targetElement={targetElement}
+        loading={loading}
+        getTooltipContainer={() => document.getElementById('TenxFlowDetail')}>
+        {tabs}
+      </PopTabSelect>
+    )
+  }
+
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
@@ -347,12 +428,13 @@ class TenxFlowDetail extends Component {
               <span className='updateTime'>{flowInfo.update_time ? flowInfo.update_time : flowInfo.create_time}</span>
             </div>
             <div className='btnBox'>
-              <Button size='large' type='primary' onClick={this.startBuildStage} className='buildBtn'>
+              {this.renderBuildBtn()}
+              {/*<Button size='large' type='primary' onClick={this.startBuildStage} className='buildBtn'>
                 <svg className='cicdbuildfast'>
                   <use xlinkHref='#cicdbuildfast' />
                 </svg>
                 <FormattedMessage {...menusText.deloyStart} />
-              </Button>
+              </Button>*/}
               {this.state.showImage.length > 0 ?
                 <Popover placement="topLeft" title="查看镜像" content={checkImage} visible={this.state.showTargeImage} onVisibleChange={(visible)=>this.handleVisibleChange(visible)}>
                   <Button size='large' type='ghost'>
@@ -377,7 +459,20 @@ class TenxFlowDetail extends Component {
             <div style={{ clear: 'both' }}></div>
           </Card>
           <Tabs defaultActiveKey='1' size="small" onChange={(e) => this.handleChange(e)}>
-            <TabPane tab='TenxFlow流程定义' key='1'><TenxFlowDetailFlow scope={scope} setStatus={this.setStatus} otherImage={this.props.otherImage} flowId={flowInfo.flowId} stageInfo={flowInfo.stageInfo} supportedDependencies={flowInfo.supportedDependencies} startBuild={this.state.startBuild} refreshFlag={this.state.refreshFlag} /></TabPane>
+            <TabPane tab='TenxFlow流程定义' key='1'>
+              <TenxFlowDetailFlow
+                scope={scope}
+                setStatus={this.setStatus}
+                otherImage={this.props.otherImage}
+                flowId={flowInfo.flowId}
+                uniformRepo={flowInfo[camelize('uniform_repo')]}
+                stageInfo={flowInfo.stageInfo}
+                supportedDependencies={flowInfo.supportedDependencies}
+                startBuild={this.state.startBuild}
+                buildInfo={this.state.buildInfo}
+                refreshFlag={this.state.refreshFlag}
+              />
+            </TabPane>
             <TabPane tab='TenxFlow执行记录' key='2'><TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} /></TabPane>
             <TabPane tab='自动部署' key='3'><ImageDeployLogBox scope={scope} flowId={flowInfo.flowId} /></TabPane>
             <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} notify={flowInfo.notificationConfig} flowId={flowInfo.flowId} /></TabPane>
@@ -409,7 +504,7 @@ function mapStateToProps(state, props) {
   const defaultFlowStatus = {
     initType: 0
   }
-  const { getTenxflowDetail, getTenxflowBuildLastLogs, getCdImage } = state.cicd_flow;
+  const { getTenxflowDetail, getTenxflowBuildLastLogs, getCdImage, repoBranchesAndTags } = state.cicd_flow;
   const { cdImageList } = getCdImage || []
   const { isFetching, flowInfo } = getTenxflowDetail || defaultFlowInfo;
   const { initType } = getTenxFlowStatus || defaultFlowStatus;
@@ -429,7 +524,8 @@ function mapStateToProps(state, props) {
     logs,
     buildFetching,
     currentSpace: state.entities.current.space.namespace,
-    otherImage
+    otherImage,
+    repoBranchesAndTags,
   }
 }
 
@@ -447,8 +543,8 @@ export default connect(mapStateToProps, {
   getTenxflowBuildLogs,
   changeBuildStatus,
   getTenxFlowStatus,
-  LoadOtherImage
+  LoadOtherImage,
+  getRepoBranchesAndTagsByProjectId,
 })(injectIntl(TenxFlowDetail, {
   withRef: true,
 }));
-

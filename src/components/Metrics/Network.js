@@ -28,7 +28,7 @@ class Network extends Component {
 
   render() {
     const option = new EchartsOption('网络')
-    const { networkReceived, networkTransmitted } = this.props
+    const { networkReceived, networkTransmitted ,events} = this.props
     option.addYAxis('value', {
       formatter: '{value} KB/s'
     })
@@ -38,7 +38,7 @@ class Network extends Component {
       item.metrics.map((metric) => {
         timeData.push(metric.timestamp)
         // metric.value || floatValue  only one
-        values.push(Math.floor((metric.floatValue || metric.value) / 1024 * 100) /100)
+        values.push(Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100)
       })
       option.setXAxisData(timeData)
       option.addSeries(values, `${item.containerName} 下载`)
@@ -49,12 +49,12 @@ class Network extends Component {
       item.metrics.map((metric) => {
         timeData.push(metric.timestamp)
         // metric.value || metric.floatValue  only one
-        values.push(Math.floor((metric.floatValue || metric.value) / 1024 * 100) /100)
+        values.push(Math.ceil((metric.floatValue || metric.value) / 1024 * 100) /100)
       })
       option.setXAxisData(timeData)
       option.addSeries(values, `${item.containerName} 上传`)
     })
-    option.setGirdForDataNetWork(networkTransmitted.data.length + networkReceived.data.length)
+    option.setGirdForDataNetWork(networkTransmitted.data.length + networkReceived.data.length, events)
     return (
       <ReactEcharts
         style={{ height: formatGrid(networkTransmitted.data.length + networkReceived.data.length) }}

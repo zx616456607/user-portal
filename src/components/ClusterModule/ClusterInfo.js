@@ -6,6 +6,8 @@
  *
  * v0.1 - 2017-2-24
  * @author BaiYu
+ * v0.1 - 2017-4-28
+ * @modifier XuLongcheng
  */
 import React from 'react'
 import { Icon, Button, Card, Form, Input, Tooltip, Spin, Modal, Dropdown, Menu, Checkbox } from 'antd'
@@ -210,12 +212,12 @@ let ClusterInfo = React.createClass ({
       }
     })
     if(this.clusterListLength().length == 1){
-      return <span><Checkbox style={{marginRight:'4px' }}  onClick={this.cancleClusterWhenOnlyOneClusterModal} checked={true}></Checkbox>勾选后该集群用来作为构建镜像的环境</span>
+      return <span><Checkbox style={{marginRight:'4px' }}  onClick={this.cancleClusterWhenOnlyOneClusterModal} checked={true}></Checkbox>该集群用来作为构建镜像的环境</span>
     }
     if(isBuilder){
-      return <span><Checkbox style={{marginRight:'4px' }}  onClick={this.checkBuilderEnvironment} checked={this.state.checkbox}></Checkbox>勾选后该集群用来作为构建镜像的环境</span>
+      return <span><Checkbox style={{marginRight:'4px' }}  onClick={this.checkBuilderEnvironment} checked={this.state.checkbox}></Checkbox>该集群用来作为构建镜像的环境</span>
     }
-    return <div><Form.Item style={{width:'18px',float:'left'}}><Checkbox {...agreementProps} checked={this.state.selectedBuilderEnvironment}></Checkbox></Form.Item><span>勾选后该集群用来作为构建镜像的环境</span></div>
+    return <div><Form.Item style={{width:'18px',float:'left'}}><Checkbox {...agreementProps} checked={this.state.selectedBuilderEnvironment}></Checkbox></Form.Item><span>该集群用来作为构建镜像的环境</span></div>
   },
   deleteClusterWhenIsBuilderEnvironmentModal(){
     Modal.info({
@@ -320,34 +322,6 @@ let ClusterInfo = React.createClass ({
       ],
       initialValue: clusterName
     });
-    const bindingIPsProps = getFieldProps('bindingIPs',{
-      rules: [
-        { required: true, message: '输入服务出口 IP' },
-        {
-          validator: (rule, value, callback) => {
-            if (value && !IP_REGEX.test(value)) {
-              return callback([new Error('请填写正确的服务出口 IP')])
-            }
-            callback()
-          }
-        }
-      ],
-      initialValue: bindingIPs
-    });
-    const bindingDomainsProps = getFieldProps('bindingDomains',{
-      rules: [
-        { message: '输入服务域名' },
-        {
-          validator: (rule, value, callback) => {
-            if (value && !HOST_REGEX.test(value)) {
-              return callback([new Error('请填写正确的服务域名')])
-            }
-            callback()
-          }
-        }
-      ],
-      initialValue: bindingDomains
-    });
     const descProps = getFieldProps('description',{
       rules: [
         { required: false },
@@ -409,28 +383,6 @@ let ClusterInfo = React.createClass ({
               <div className="h4">API Token：</div>
               <div className="textoverflow">{apiToken}</div>
             </Form.Item>
-
-          </div>
-          <div className="formItem">
-            <Form.Item>
-              <div className="h4 blod">&nbsp;</div>
-            </Form.Item>
-            <Form.Item>
-              <div className="h4" style={{width:'90px'}}>服务出口 IP：</div>
-              { editCluster ?
-              <Input {...bindingIPsProps } placeholder="输入服务出口 IP" />
-              :
-              <span>{bindingIPs}</span>
-              }
-            </Form.Item>
-            <Form.Item>
-              <div className="h4" style={{width:'90px'}}>服务域名：</div>
-              { editCluster ?
-              <Input {...bindingDomainsProps} placeholder="输入服务域名" />
-              :
-              <span className="cluserName textoverflow">{bindingDomains || '-'}</span>
-              }
-            </Form.Item>
           </div>
           <div className="formItem">
             <Form.Item>
@@ -449,8 +401,13 @@ let ClusterInfo = React.createClass ({
                 {
                   editCluster
                     ? this.eidtClusterBuilderEnvironment()
-                    : <span>{this.eidtFasleCheckbox()}勾选后该集群用来作为构建镜像的环境</span>
+                    : <span>{this.eidtFasleCheckbox()}该集群用来作为构建镜像的环境</span>
                 }
+            </Form.Item>
+          </div>
+          <div className="formItem">
+            <Form.Item>
+              <div className="h4 blod">&nbsp;</div>
             </Form.Item>
             <Form.Item>
               <span className="h5" style={{display: 'inline-block',verticalAlign:'top',lineHeight:'30px'}}>描述：&nbsp;&nbsp;</span>

@@ -16,7 +16,7 @@ class EchartsOption {
   constructor(text) {
     this.title = {
       text,
-      x: 'left',
+      x: 20,
       textStyle: {
         fontWeight: 'normal',
       }
@@ -29,14 +29,18 @@ class EchartsOption {
     }
     this.legend = {
       data: [],
-      align: 'left',
-      left: 50,
-      right: 50
+      right: 50,
+      left: 80,
+      orient: 'horizontal',
+      formatter: (name)=> {
+        let item = name.substring(0,name.indexOf('-'))
+        return item + name.substr(name.lastIndexOf('-'))
+      }
     }
     this.grid = [{
-      top: 50,
+      top: 70,
       left: 70,
-      right: 50,
+      right: 50
     }]
     this.xAxis = {
       name: '',
@@ -66,6 +70,7 @@ class EchartsOption {
   addYAxis(type, axisLabel) {
     const yAxisItem = {
       type: 'value',
+      min: 5,
       axisLabel: {
         formatter: '{value} %'
       },
@@ -115,29 +120,33 @@ class EchartsOption {
     this.series.push(seriesItem)
   }
 
-  setGirdForDataNetWork(count) {
+  setGirdForDataNetWork(count,events) {
     //for network grid format
-    let clientWidth = document.body.clientWidth;
+    let clientWidth = document.getElementById(events) ? document.getElementById(events).clientWidth : document.body.clientWidth
     if(count < 4) {
       return;
     }
     let num = (count - 4)/2;
     let windowResizeChange = 0;
-    if(clientWidth >= 1600) {
+    if(clientWidth > 800) {
+      windowResizeChange = -10;
+    }
+    if(clientWidth > 1300) {
+      windowResizeChange = -30
+    }
+    if(clientWidth > 1600) {
       windowResizeChange = -50;
     }
-    if(clientWidth >= 1800) {
-      windowResizeChange = -100;
-    }
-    let initTop = 85 + num * 20 + windowResizeChange;
+    let initTop = Math.max(num * 25 + windowResizeChange ,60);
     this.grid = [{
       top: initTop,
       left: 70,
-      right: 70,
+      right: 50
     }]
+
   }
 
-  setGirdForDataCommon(count) {
+  setGirdForDataCommon(count,events) {
     //for memory and cpu grid format
     let clientWidth = document.body.clientWidth;
     if(count < 4) {
@@ -151,11 +160,11 @@ class EchartsOption {
     if(clientWidth >= 1800) {
       windowResizeChange = -60;
     }
-    let initTop = 85 + num * 15 + windowResizeChange;
+    let initTop = Math.max(60 + num * 15 + windowResizeChange,60);
     this.grid = [{
       top: initTop,
       left: 70,
-      right: 70,
+      right: 50,
     }]
   }
 }

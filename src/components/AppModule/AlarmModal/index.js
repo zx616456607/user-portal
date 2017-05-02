@@ -131,17 +131,17 @@ let FistStop = React.createClass({
       return <Option key={service.metadata.name} value={service.metadata.name}>{service.metadata.name}</Option>
     })
   },
-  resetService(value) {
+  resetService() {
     const { setFieldsValue } = this.props.form
     setFieldsValue({
-      server: ''
+      server: undefined
     })
   },
   resetType() {
     const { setFieldsValue } = this.props.form
     setFieldsValue({
-      apply: '',
-      server: ''
+      apply: undefined,
+      server: undefined
     })
   },
   getTargetType() {
@@ -225,7 +225,7 @@ let FistStop = React.createClass({
         onChange: this.resetType,
         initialValue: loginUser.info.role == ADMIN_ROLE ? initiaValue : 'service'
       });
-      let initAppName = ''
+      let initAppName = undefined
       if (currentApp) {
         initAppName = currentApp.name
       }
@@ -270,16 +270,19 @@ let FistStop = React.createClass({
 
           </Select>
         </Form.Item>
-        <Form.Item label="监控对象" {...formItemLayout}>
+         <Form.Item label="监控对象" {...formItemLayout}>
           <Select placeholder={isNode ? '请选择节点' : '请选择应用'} {...applyProps} style={{ width: 170 }} >
             {this.getAppOrNodeList()}
           </Select>
         </Form.Item>
+       {!isNode ?
         <Form.Item style={{ position: 'absolute', top: 240, right: 95 }}>
-          <Select placeholder="请选择服务" {...serverProps} style={{ width: 170, display: isNode ? 'none' : 'inline-block' }} >
+          <Select placeholder="请选择服务" {...serverProps} style={{ width: 170}} >
             {this.getServiceList()}
           </Select>
         </Form.Item>
+        :null
+        }
         <Form.Item label="监控周期" {...formItemLayout} style={{ clear: 'both' }}>
           <Select {...repeatInterval}>
             <Option value="300">5分钟</Option>
@@ -360,12 +363,30 @@ let TwoStop = React.createClass({
     data.forEach((item, index) => {
       this.setState({ [`typeProps_${index}`]: this.switchSymbol(item.type) })
     })
+    this.setState({
+      firstMount: true
+    })
   },
   componentDidMount() {
     const { resetFields } = this.props
     setTimeout(resetFields,0)
+
   },
   componentWillReceiveProps(nextProps) {
+    if (this.state.firstMount || (nextProps.isShow && nextProps.isShow != this.props.isShow)) {
+      const { data } = nextProps
+      if(data && data.length > 0) {
+        this.setState({
+          firstMount: false
+        })
+      }
+      const { isEdit, strategy, getAlertSetting, cluster } = nextProps
+      if (isEdit) {
+        data.forEach((item, index) => {
+          this.setState({ [`typeProps_${index}`]: this.switchSymbol(item.type) })
+        })
+      }
+    }
   },
   removeRule(k) {
     const { form } = this.props;
@@ -792,6 +813,7 @@ class AlarmModal extends Component {
     this.state = {
       isSendMail: 1,
       createGroup: false, // create alarm group modal
+      showAlramGroup: true
     }
   }
 
@@ -816,6 +838,12 @@ class AlarmModal extends Component {
     }
   }
   componentWillReceiveProps(nextProps) {
+    const { form } = this.props
+    if(!nextProps.isShow) {
+      form.resetFields()
+      this.state.firstForm.resetFields()
+      this.state.secondForm.resetFields()
+    }
     if (nextProps.isShow && nextProps.isShow != this.props.isShow) {
       const { isEdit, strategy, getAlertSetting, cluster } = nextProps
       if (isEdit) {
@@ -885,6 +913,9 @@ class AlarmModal extends Component {
         appName,
         enable: this.state.isSendMail,
         disableNotifyEndTime: '0s'
+      }
+      if(!this.state.isSendMail) {
+        delete requestBody.receiversGroup
       }
       if (isEdit) {
         requestBody.strategyID = strategy.strategyID
@@ -961,7 +992,7 @@ class AlarmModal extends Component {
   }
   sendMail(e) {
     this.setState({
-      isSendMail: e.target.value
+      isSendMail: e.target.value,
     })
   }
   resetFields() {
@@ -989,13 +1020,26 @@ class AlarmModal extends Component {
     if (strategy && isEdit) {
       initreceiver = strategy.receiversGroup
     }
-    const notify = getFieldProps('notify', {
+    let notify = getFieldProps('notify', {
       rules: [
         { whitespace: true },
         { validator: this.notifyGroup }
       ],
       initialValue: initreceiver
     })
+    if(this.state.isSendMail) {
+      notify = getFieldProps('notify', {
+        rules: [
+          { whitespace: true },
+          { validator: this.notifyGroup }
+        ],
+        initialValue: initreceiver
+      })
+    } else {
+      notify = getFieldProps('notify', {
+        initialValue: initreceiver
+      })
+    }
     const { funcs } = this.props
     return (
       <div className="AlarmModal">
@@ -1020,7 +1064,7 @@ class AlarmModal extends Component {
                 </RadioGroup>
               </Form.Item>
               <div className="tips" style={{ marginBottom: 20 }}><Icon type="exclamation-circle-o" /> 选择“是”，我们会向您发送监控信息和告警信息，选择“否”，我们将不会向你发送告警信息</div>
-              <Form.Item label="告警通知组" {...formItemLayout}>
+              <Form.Item label="告警通知组" {...formItemLayout} style={{display: this.state.isSendMail ? 'block' : 'none'}}>
                 <Select placeholder="请选择告警通知组" style={{ width: 170 }} {...notify}>
                   {this.getNotifyGroup()}
                 </Select>

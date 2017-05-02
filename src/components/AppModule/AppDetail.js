@@ -46,6 +46,7 @@ class AppDetail extends Component {
     this.state = {
       activeTabKey: props.hash || DEFAULT_TAB,
       serviceList: null,
+      availableReplicas: 0
     }
   }
 
@@ -91,9 +92,11 @@ class AppDetail extends Component {
   }
 
   // For change app status when service list change
-  onServicesChange(serviceList) {
+  onServicesChange(serviceList, availableReplicas, total) {
     this.setState({
       serviceList,
+      availableReplicas,
+      total
     })
   }
 
@@ -132,7 +135,7 @@ class AppDetail extends Component {
 
   render() {
     const { children, appName, app, isFetching, location, bindingDomains, bindingIPs } = this.props
-    const { activeTabKey, serviceList } = this.state
+    const { activeTabKey, serviceList, availableReplicas, total } = this.state
     if (isFetching || !app) {
       return (
         <div className='loadingBox'>
@@ -140,7 +143,7 @@ class AppDetail extends Component {
         </div>
       )
     }
-    const status = getAppStatus(serviceList || app.services)
+   // const status = getAppStatus(serviceList || app.services)
     let updateDate = '-'
     if (app && app.services && app.services[0]) {
       updateDate = app.services[0].metadata.creationTimestamp
@@ -186,7 +189,7 @@ class AppDetail extends Component {
                   </div>
                   <div className='service'>
                     服务：
-                    {`${status.availableReplicas} / ${status.replicas}`}
+                    {`${availableReplicas} / ${total}`}
                   </div>
                 </div>
                 <div className='middleInfo'>

@@ -120,16 +120,17 @@ class TenxFlowDetailFlow extends Component {
 
   componentWillReceiveProps(nextProps) {
     //this function for user click the top box and build all stages
-    const { startBuild, getTenxFlowStateList, flowId, CreateTenxflowBuild, scope, refreshFlag, getTenxflowBuildLogs } = nextProps;
+    const { startBuild, buildInfo, getTenxFlowStateList, flowId, CreateTenxflowBuild, scope, refreshFlag, getTenxflowBuildLogs } = nextProps;
     let oldFlowId = this.props.flowId;
     let notification = new NotificationHandler()
     if (startBuild) {
       scope.setState({
-        startBuild: false
+        startBuild: false,
+        buildInfo: null,
       })
-      // For test
-      const options = {
-        branch: 'master'
+      const options = {}
+      if (buildInfo) {
+        options.branch = buildInfo.name
       }
       CreateTenxflowBuild(flowId, { options }, {
         success: {
@@ -171,14 +172,14 @@ class TenxFlowDetailFlow extends Component {
     });
   }
 
-  buildFlow(stageId) {
+  buildFlow(stageId, options) {
     //this function for user build stage
     //and user can build single one
     const { CreateTenxflowBuild, getTenxFlowStateList, flowId } = this.props;
     let buildFlag = true;
     const _this = this;
     let notification = new NotificationHandler()
-    CreateTenxflowBuild(flowId, { stageId: stageId }, {
+    CreateTenxflowBuild(flowId, { stageId, options }, {
       success: {
         func: (res) => {
           _this.props.setStatus(_this.props.scope, 2)
@@ -373,7 +374,12 @@ class TenxFlowDetailFlow extends Component {
     socket.emit('stageBuildStage', watchCondition)
   }
   render() {
-    const { flowId, stageInfo, stageList, isFetching, projectList, buildFetching, logs, supportedDependencies, cicdApi, imageList, baseImages } = this.props;
+    const {
+      flowId, stageInfo, stageList,
+      isFetching, projectList, buildFetching,
+      logs, supportedDependencies, cicdApi,
+      imageList, baseImages, uniformRepo,
+    } = this.props;
     const { forCacheShow } = this.state;
     let scope = this;
     let { currentFlowEdit } = scope.state;
@@ -387,10 +393,11 @@ class TenxFlowDetailFlow extends Component {
     } else {
       cards = stageList.map((item, index) => {
         return (
-          <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item}
+          <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item} uniformRepo={uniformRepo}
             scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} totalLength={stageList.length}
             codeList={projectList} supportedDependencies={supportedDependencies} imageList={imageList} baseImages={baseImages}
             otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
+            firstState={stageList[0]}
             />
         )
       });
@@ -418,7 +425,7 @@ class TenxFlowDetailFlow extends Component {
                 this.state.createNewFlow ? [
                   <QueueAnim key='creattingCardAnimate'>
                     <CreateTenxFlowModal key='CreateTenxFlowModal' stageList={stageList} scope={scope}
-                      flowId={flowId} stageInfo={stageInfo} codeList={projectList}
+                      flowId={flowId} stageInfo={stageInfo} codeList={projectList} uniformRepo={uniformRepo}
                       supportedDependencies={supportedDependencies} imageList={imageList}
                       otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
                       baseImages={baseImages} />

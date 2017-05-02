@@ -279,6 +279,7 @@ exports.getAppServices = function* () {
     data: deployments,
     total: result.data.total,
     count: result.data.count,
+    availableReplicas: result.data.runningDeployment
   }
 }
 

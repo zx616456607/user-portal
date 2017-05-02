@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { putEditTenxFlowAlert } from '../../../../actions/cicd_flow'
+import { updateTenxFlow } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailAlert.less'
 import { browserHistory } from 'react-router';
 import NotificationHandler from '../../../../common/notification_handler'
@@ -199,7 +199,7 @@ let TenxFlowDetailAlert = React.createClass({
     //this function for user submit the form
     const { scope } = this.props;
     const _this = this;
-    const { putEditTenxFlowAlert, flowId } = this.props;
+    const { updateTenxFlow, flowId } = this.props;
     let scopeHistory = scope.props.history;
     let notification = new NotificationHandler()
     this.props.form.validateFields((errors, values) => {
@@ -211,7 +211,7 @@ let TenxFlowDetailAlert = React.createClass({
         let body = {
           'notification_config': null
         }
-        putEditTenxFlowAlert(flowId, body, {
+        updateTenxFlow(flowId, body, {
           success: {
             func: () => {
               notification.success('修改构建通知成功');
@@ -251,7 +251,7 @@ let TenxFlowDetailAlert = React.createClass({
         let body = {
           'notification_config': JSON.stringify(temp)
         }
-        putEditTenxFlowAlert(flowId, body, {
+        updateTenxFlow(flowId, body, {
           success: {
             func: () => {
               notification.success('修改构建通知成功');
@@ -364,7 +364,7 @@ TenxFlowDetailAlert.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  putEditTenxFlowAlert
+  updateTenxFlow
 })(injectIntl(TenxFlowDetailAlert, {
   withRef: true,
 }));

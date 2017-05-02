@@ -854,7 +854,7 @@ export const UPDATE_TENX_FLOW_ALERT_REQUEST = 'UPDATE_TENX_FLOW_ALERT_REQUEST'
 export const UPDATE_TENX_FLOW_ALERT_SUCCESS = 'UPDATE_TENX_FLOW_ALERT_SUCCESS'
 export const UPDATE_TENX_FLOW_ALERT_FAILURE = 'UPDATE_TENX_FLOW_ALERT_FAILURE'
 
-function updateTenxFlowAlert(flowId, newAlert, callback) {
+function fetchUpdateTenxFlow(flowId, body, callback) {
   return {
     [FETCH_API]: {
       types: [UPDATE_TENX_FLOW_ALERT_REQUEST, UPDATE_TENX_FLOW_ALERT_SUCCESS, UPDATE_TENX_FLOW_ALERT_FAILURE],
@@ -862,16 +862,16 @@ function updateTenxFlowAlert(flowId, newAlert, callback) {
       schema: {},
       options: {
         method: 'PUT',
-        body: newAlert
+        body,
       }
     },
     callback: callback
   }
 }
 
-export function putEditTenxFlowAlert(flowId, newAlert, callback) {
+export function updateTenxFlow(flowId, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(updateTenxFlowAlert(flowId, newAlert, callback))
+    return dispatch(fetchUpdateTenxFlow(flowId, body, callback))
   }
 }
 
@@ -1034,6 +1034,54 @@ function fetchCodeStoreBranchDetail(storeType, reponame, project_id, callback) {
 export function getCodeStoreBranchDetail(storeType, reponame, project_id, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchCodeStoreBranchDetail(storeType, reponame, project_id, callback))
+  }
+}
+
+export const GET_REPO_BRANCH_AND_TAG_REQUEST = 'GET_REPO_BRANCH_AND_TAG_REQUEST'
+export const GET_REPO_BRANCH_AND_TAG_SUCCESS = 'GET_REPO_BRANCH_AND_TAG_SUCCESS'
+export const GET_REPO_BRANCH_AND_TAG_FAILURE = 'GET_REPO_BRANCH_AND_TAG_FAILURE'
+
+function fetchRepoBranchesAndTags(storeType, reponame, project_id, callback) {
+  if (storeType == "svn") {
+    // No branch to fetch for svn
+    return
+  }
+  return {
+    reponame,
+    [FETCH_API]: {
+      types: [GET_REPO_BRANCH_AND_TAG_REQUEST, GET_REPO_BRANCH_AND_TAG_SUCCESS, GET_REPO_BRANCH_AND_TAG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/repos/${storeType}/branches_tags?reponame=${reponame}&&project_id=${project_id}`,
+      schema: {},
+    },
+    callback: callback
+  }
+}
+
+export function getRepoBranchesAndTags(storeType, reponame, project_id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchRepoBranchesAndTags(storeType, reponame, project_id, callback))
+  }
+}
+
+export const GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_REQUEST = 'GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_REQUEST'
+export const GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_SUCCESS = 'GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_SUCCESS'
+export const GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_FAILURE = 'GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_FAILURE'
+
+function fetchRepoBranchesAndTagsByProjectId(project_id, callback) {
+  return {
+    project_id,
+    [FETCH_API]: {
+      types: [GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_REQUEST, GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_SUCCESS, GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/managed-projects/${project_id}/branches_tags`,
+      schema: {},
+    },
+    callback: callback
+  }
+}
+// project_id means the id of managed-project in db
+export function getRepoBranchesAndTagsByProjectId(project_id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchRepoBranchesAndTagsByProjectId(project_id, callback))
   }
 }
 

@@ -16,6 +16,7 @@ import { loadMirrorSafetyScan, loadMirrorSafetyChairinfo } from '../../../../act
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../../common/notification_handler'
+import safetyBugImg from '../../../../assets/img/appCenter/mirrorSafety/safetybug.png'
 
 const TabPane = Tabs.TabPane
 const Step = Steps.Step
@@ -28,7 +29,6 @@ class TableTemplate extends Component{
     this.tableSeverityColor = this.tableSeverityColor.bind(this)
     this.tableSubNo = this.tableSubNo.bind(this)
     this.tableSubNo = this.tableSubNo.bind(this)
-    this.handleEchartsWidth = this.handleEchartsWidth.bind(this)
     this.state = {
       Unknown: 0,
       Negligible: 0,
@@ -37,7 +37,7 @@ class TableTemplate extends Component{
       High: 0,
       Total: 0,
       PatchTotal: 0,
-      width:0
+      echarts : true,
     }
   }
 
@@ -59,7 +59,31 @@ class TableTemplate extends Component{
   componentWillReceiveProps(nextProps){
     const mirrorsafetyClair = nextProps.mirrorsafetyClair
     const imageName = nextProps.imageName
-    const tag = nextProps.imageName
+    const tag = nextProps.tag
+    if(tag == this.props.tag || nextProps.inherwidth !== 1){
+      this.setState({
+        echarts : true
+      })
+    }
+    if(tag !== this.props.tag || nextProps.inherwidth !== 1){
+      this.setState({
+        echarts : false
+      })
+    }
+    if(tag !== this.props.tag || nextProps.inherwidth == 1){
+      setTimeout(()=> {
+        this.setState({
+          echarts : true
+        })
+      })
+    }
+    if(tag !== this.props.tag && nextProps.inherwidth == 1){
+      setTimeout(() => {
+        this.setState({
+          echarts : false
+        })
+      },100)
+    }
     if(imageName !== this.props.imageName || mirrorsafetyClair !== this.props.mirrorsafetyClair || !nextProps.mirrorLayeredinfo[imageName]){
       if(!mirrorsafetyClair[imageName] || !mirrorsafetyClair[imageName][tag] || !mirrorsafetyClair[imageName][tag].result || Object.keys(mirrorsafetyClair[imageName][tag].result.report).length == 0){
         return
@@ -561,17 +585,9 @@ class TableTemplate extends Component{
     callback(getBackInfo)
   }
 
-  handleEchartsWidth(){
-    setTimeout(
-      this.setState({
-        width:'100%'
-      },100)
-    )
-  }
-
   render(){
-    const { Unknown, Negligible, Low, Medium, High, inherwidth }=this.state
-    const { mirrorsafetyClair, imageName, tag} = this.props
+    const { Unknown, Negligible, Low, Medium, High, echarts }=this.state
+    const { mirrorsafetyClair, imageName, tag } = this.props
     function EchartsGapTemplate(num){
       let str = num.toString()
       switch(str.length){
@@ -752,22 +768,25 @@ class TableTemplate extends Component{
       showSizeChanger: true,
     }
 
-    if(Object.keys(mirrorsafetyClair[imageName][tag].result.report).length == 0){
-      return <div className='message'>暂未扫描出任何漏洞</div>
-    }
-
-    if(!mirrorsafetyClair[imageName][tag].result.report.vulnerabilities){
-      return <div className='message'>暂未扫描出任何漏洞</div>
+    if(Object.keys(mirrorsafetyClair[imageName][tag].result.report).length == 0 || !mirrorsafetyClair[imageName][tag].result.report.vulnerabilities){
+      return <div className='message'>
+        <img src={safetyBugImg}/>
+        <div>暂未扫描出任何漏洞</div>
+      </div>
     }
 
     return (
       <div>
         <div className='safetybugEcharts'>
-          <div style={{width: inherwidth}}>
-            <ReactEcharts
-              option={safetybugOption}
-              style={{height: '220px'}}
-            />
+          <div style={{width: '100%',height:'220px'}}>
+            {
+              echarts
+              ? <ReactEcharts
+                  option={safetybugOption}
+                  style={{height: '220px'}}
+                />
+              : <div style={{textAlign:'center',paddingTop:'100px'}}><Spin /></div>
+            }
           </div>
         </div>
         <div className='safetybugmirror'>
@@ -830,12 +849,18 @@ class MirrorSafetyBug extends Component {
           this.setState({loading:false})
         },
         isAsync: true
+      },
+      failed : {
+        func : () => {
+          this.setState({loading:false})
+        },
+        isAsync : true
       }
     })
   }
 
   APIFailedThenScan(){
-    const { loadMirrorSafetyScan, loadMirrorSafetyChairinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus, scanFailed } = this.props
+    const { loadMirrorSafetyScan, loadMirrorSafetyChairinfo, cluster_id, imageName, tag, mirrorScanUrl, mirrorSafetyScan, mirrorScanstatus, scanFailed, formatErrorMessage } = this.props
     const registry = mirrorScanUrl
     const scanstatus = mirrorScanstatus[imageName][tag]
     const blob_sum = scanstatus.result.blobSum || ''
@@ -885,10 +910,10 @@ class MirrorSafetyBug extends Component {
         isAsync : true
       },
       failed:{
-        func: () => {
+        func: (res) => {
           this.setState({clairFailed : false})
-          new NotificationHandler().error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' +'版本已经触发扫描，请稍后再试！')
-          scanFailed('failed')
+          new NotificationHandler().error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' + formatErrorMessage(res))
+          //scanFailed('failed')
         },
         isAsync: true
       }
