@@ -91,9 +91,12 @@ const MyComponent = React.createClass({
             </svg>
           </div>
           <div className='contentBox'>
-            <span className='title' onClick={this.showImageDetail.bind(this, item)}>
-              {item}
-            </span><br />
+            <Tooltip title={item} placement='topLeft'>
+              <span className='title' onClick={this.showImageDetail.bind(this, item)}>
+                {item}
+              </span>
+            </Tooltip>
+            <br />
             <span className='type'>
               <FormattedMessage {...menusText.belong} />&nbsp;私有
             </span>

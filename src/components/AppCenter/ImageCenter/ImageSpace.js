@@ -208,9 +208,12 @@ const MyComponent = React.createClass({
             </svg>
           </div>
           <div className="contentBox">
-            <span className="title" onClick={this.showImageDetail.bind(this, item)}>
-              {item.name}
-            </span><br />
+            <Tooltip title={item.name} placement='topLeft'>
+              <span className="title" onClick={this.showImageDetail.bind(this, item)}>
+                {item.name}
+              </span>
+            </Tooltip>
+            <br />
             <span className="type">
               <FormattedMessage {...menusText.type} />&nbsp;&nbsp;&nbsp;
                 {item.isPrivate == "0" ? [
