@@ -740,9 +740,11 @@ let EditTenxFlowModal = React.createClass({
                 errorFlag = true;
                 emptyFlag = true;
               } else {
+                let Names = values['service' + item + 'inputName' + littleItem] ? values['service' + item + 'inputName' + littleItem].trim() : '';
+                let Value = values['service' + item + 'inputValue' + littleItem] ? values['service' + item + 'inputValue' + littleItem].trim() : '';
                 let tempBody = {
-                  name: (values['service' + item + 'inputName' + littleItem]).trim(),
-                  value: (values['service' + item + 'inputValue' + littleItem]).trim()
+                  name: Names,
+                  value: Value
                 }
                 tempList.push(tempBody);
               }
@@ -772,9 +774,11 @@ let EditTenxFlowModal = React.createClass({
             });
             errorFlag = true;
           } else {
+            let Names = values['imageEnvName' + item] ? values['imageEnvName' + item].trim(): ''
+            let Value = values['imageEnvValue' + item] ? values['imageEnvValue' + item].trim(): ''
             let tempBody = {
-              name: (values['imageEnvName' + item]).trim(),
-              value: (values['imageEnvValue' + item]).trim()
+              name: Names,
+              value: Value
             }
             imageEnvList.push(tempBody)
           }
@@ -786,6 +790,7 @@ let EditTenxFlowModal = React.createClass({
         });
       }
       if (errorFlag) {
+        new NotificationHandler().error('环境变量值输入有误')
         return;
       }
       //get shell code
