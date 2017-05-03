@@ -246,16 +246,19 @@ function _getContainerMetrics(user, cluster, instance, query) {
   return api.getBy([cluster, 'instances', containerName, 'metrics'], queryObj).then(function (result) {
     const metrics = result.metrics || []
     metrics.map((metric) => {
-      switch (type) {
+      // Handle by frontend
+      /*switch (type) {
         case METRICS_CPU:
-        // metric.value = metric.value / cpu
+          // metric.value && (metric.value = metric.value * 100)
+          // metric.floatValue && (metric.floatValue = metric.floatValue * 100)
         case METRICS_MEMORY:
-          // metric.value = metric.value / memory
-          metric.value = metric.value / 1024 / 1024
+          // metric.value && (metric.value = metric.value / 1024 / 1024)
+          // metric.floatValue && (metric.floatValue = metric.floatValue / 1024 / 1024)
         case METRICS_NETWORK_RECEIVED:
         case METRICSS_NETWORK_TRANSMITTED:
-      }
-      metric.value = metric.value.toFixed(2)
+      }*/
+      metric.value && (metric.value = Math.ceil(metric.value * 100) / 100)
+      metric.floatValue && (metric.floatValue = Math.ceil(metric.floatValue * 100) / 100)
       metric.timestamp = moment(metric.timestamp).format('MM-DD HH:mm')
     })
     return {

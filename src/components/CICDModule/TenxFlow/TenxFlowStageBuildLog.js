@@ -13,6 +13,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/TenxFlowStageBuildLog.less'
 import WebSocket from '../../Websocket/socketIo'
+import { genRandomString } from '../../../common/tools'
 import { changeCiFlowStatus } from '../../../actions/cicd_flow'
 import $ from 'jquery'
 const ciLogs = []
@@ -38,7 +39,9 @@ class TenxFlowStageBuildLog extends Component {
     this.state = {
       activePanel: [],
       modalSize: 'normal',
-      logs: ''
+      logs: '',
+      TenxFlowStageBuildLog: `TenxFlowStageBuildLog${genRandomString('qwertyuioplkjhgfdsazxcvbnmABCDEFGHIJKLMNOPQRSTUVWXYZ', 10)}`,
+      tenxFlowLog: `tenxFlowLog${genRandomString('qwertyuioplkjhgfdsazxcvbnmABCDEFGHIJKLMNOPQRSTUVWXYZ', 10)}`
     }
   }
   componentWillMount() {
@@ -58,25 +61,24 @@ class TenxFlowStageBuildLog extends Component {
     const logInfo = this.props.logInfo
     const callback = this.props.callback
     const self = this
+    const tenxFlowStageBuildLog = this.state.TenxFlowStageBuildLog
+    const tenxFlowLog = this.state.tenxFlowLog
     socket.emit("ciLogs", {flowId: this.props.flowId, stageId: logInfo.stageId, stageBuildId: logInfo.buildId })
     socket.on("ciLogs", function (data) {
       data = data.toString()
       if(!data) return
       let newLog = data.split('\n')
       newLog.forEach((item) => {
-        $("#tenxFlowLog").append("<div class='stageBuildLogDetail'>\
+        $(`#${tenxFlowLog}`).append("<div class='stageBuildLogDetail'>\
         <span><span>"+item+"</span></span>\
         </div>")
       })
-      let height = $('#TenxFlowStageBuildLog .infoBox').css('height')
-      $('#TenxFlowStageBuildLog').animate({
+      let height = $(`#${tenxFlowStageBuildLog} .infoBox`).css('height')
+      $(`#${tenxFlowStageBuildLog}`).animate({
         scrollTop: height + 'px'
-      }, 100)
+      }, 0)
     })
     socket.on("ciLogs-ended", function(data) {
-      if (callback) {
-        callback(data)
-      }
       if(self.props.index != 0 && !self.props.index) return
       self.props.changeCiFlowStatus(self.props.index, data.state, self.state.logs)
       if(callback) {
@@ -112,8 +114,8 @@ class TenxFlowStageBuildLog extends Component {
       )
     }
     return (
-      <div id='TenxFlowStageBuildLog'>
-        <div className='infoBox' id="tenxFlowLog">
+      <div id={this.state.TenxFlowStageBuildLog} className="TenxFlowStageBuildLog">
+        <div className='infoBox' id={this.state.tenxFlowLog}>
           {logs ? formatLog(logs) : ''}
           {this.state.websocket}
           <div style={{ clear: 'both' }}></div>

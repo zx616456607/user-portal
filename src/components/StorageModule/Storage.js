@@ -24,6 +24,7 @@ import { calcuDate, parseAmount } from '../../common/tools'
 import { volNameCheck } from '../../common/naming_validation'
 import NotificationHandler from '../../common/notification_handler'
 import noStorageImg from '../../assets/img/no_data/no_storage.png'
+import ResourceQuotaModal from '../ResourceQuotaModal/Storage'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -187,7 +188,7 @@ let MyComponent = React.createClass({
     } else if (type === 'resize') {
       if (this.state.size <= this.state.modalSize) {
         notification.close()
-        notification.error('不能比以前小')
+        notification.info('存储卷大小没有变化')
         isActing = false
         return
       }
@@ -275,6 +276,13 @@ let MyComponent = React.createClass({
   },
 
   render() {
+    if(this.props.isFetching) {
+      return (
+        <div className="loadingBox">
+          <Spin size="large"></Spin>
+        </div>
+      )
+    }
     const { formatMessage } = this.props.intl
     let list = this.props.storage;
     let items = list.storageList.map((item) => {
@@ -322,12 +330,16 @@ let MyComponent = React.createClass({
                 <FormattedMessage {...messages.dilation} />
               </Dropdown.Button>
             :
-              <Dropdown.Button
-                overlay={menu}
-                type='ghost'
-                className="ant-disabled">
-                  <FormattedMessage {...messages.dilation} />
-              </Dropdown.Button>
+	            <Tooltip
+		            title="停止绑定的服务后可扩容"
+	            >
+		            <Dropdown.Button
+			            overlay={menu}
+			            type='ghost'
+			            className="ant-disabled">
+			            <FormattedMessage {...messages.dilation} />
+		            </Dropdown.Button>
+	            </Tooltip>
             }
           </div>
         </div>
@@ -368,7 +380,7 @@ let MyComponent = React.createClass({
               </div>
               <div className="price-unit">
                 <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod"> { hourPrice.amount }{hourPrice.unit == '￥'? '': ' T'}/小时</span></p>
-                <p><span className="unit">（约：</span><span className="unit"> { countPrice.fullAmount }/小时）</span></p>
+                <p><span className="unit">（约：</span><span className="unit"> { countPrice.fullAmount }/月）</span></p>
               </div>
             </div>
 
@@ -424,7 +436,9 @@ class Storage extends Component {
       inputName: '',
       size: 512,
       nameError: false,
-      nameErrorMsg: ''
+      nameErrorMsg: '',
+      resourceQuotaModal: false,
+      resourceQuota: null,
     }
   }
   componentWillMount() {
@@ -510,11 +524,24 @@ class Storage extends Component {
         func: (err) => {
           isActing = false
           notification.close()
-          if (err.statusCode == 409) {
-            notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
-          } else {
-            notification.error('创建存储卷失败')
+          const { statusCode } = err
+          if (statusCode === 403) {
+            let data = err.data
+            data.select = Math.ceil(data.select / 1024 * 10) / 10
+            data.allocated = Math.ceil(data.allocated / 1024 * 10) / 10
+            data.unallocated = Math.ceil(data.unallocated / 1024 * 10) / 10
+            data.total = Math.ceil(data.total / 1024 * 10) / 10
+            this.setState({
+              resourceQuotaModal: true,
+              resourceQuota: err.data
+            })
+            return
           }
+          if (statusCode === 409) {
+            notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
+            return
+          }
+          notification.error('创建存储卷失败')
         }
       }
     })
@@ -656,6 +683,8 @@ class Storage extends Component {
     const { formatMessage } = this.props.intl
     const currentCluster = this.props.currentCluster
     const storage_type = currentCluster.storageTypes
+    const standard = require('../../../configs/constants').STANDARD_MODE
+    const mode = require('../../../configs/model').mode
     let canCreate = true
     let title = ''
     if (!storage_type || storage_type.indexOf('rbd') < 0) canCreate = false
@@ -668,16 +697,10 @@ class Storage extends Component {
     const hourPrice = parseAmount(this.state.size / 1024 * this.props.currentCluster.resourcePrice.storage, 4)
     const countPrice = parseAmount(this.state.size / 1024 * this.props.currentCluster.resourcePrice.storage * 24 *30, 4)
     const dataStorage = this.props.storageList[this.props.currentImagePool].storageList
-    if (this.props.storageList[this.props.currentImagePool].isFetching) {
-      return (
-        <div className="loadingBox">
-          <Spin size="large"></Spin>
-        </div>
-      )
-    }
     return (
       <QueueAnim className="StorageList" type="right">
         <div id="StorageList" key="StorageList">
+          { mode === standard ? <div className='alertRow'>您的存储创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充正，继续使用。如无充正，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div> }
           <div className="operationBox">
             <div className="leftBox">
               <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>
@@ -709,7 +732,7 @@ class Storage extends Component {
                   <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>
                     <FormattedMessage {...messages.name} />
                   </Col>
-                  <Col span="21">
+                  <Col span="12">
                     <Input className={ this.state.nameError ? 'nameErrorInput nameInput' : 'nameInput' } ref={(input) => this.focusInput = input} value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) } } />
                     { this.state.nameError ? [<span className='nameErrorSpan'>{this.state.nameErrorMsg}</span>] : null }
                   </Col>
@@ -780,11 +803,16 @@ class Storage extends Component {
               imagePool={this.props.currentImagePool}
               loadStorageList={() => { this.props.loadStorageList(this.props.currentImagePool, this.props.cluster) } }
               scope ={ this }
+              isFetching={this.props.storageList[this.props.currentImagePool].isFetching}
               />
           </Card>
           :
           <div className='text-center'><img src={noStorageImg} /><div>您还没有存储卷，创建一个吧！ <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>创建</Button></Tooltip></div></div>
           }
+          <ResourceQuotaModal
+            visible={this.state.resourceQuotaModal}
+            closeModal={() => this.setState({resourceQuotaModal: false})}
+            storageResource={this.state.resourceQuota} />
         </div>
       </QueueAnim>
     )

@@ -38,7 +38,7 @@ class API extends Component{
     this.props.loadApiInfo()
   }
   render(){
-    const {namespace, token} = this.props
+    const {username, token} = this.props
     const { hidToken } = this.state
     return (
       <div id='API'>
@@ -48,7 +48,7 @@ class API extends Component{
           <tbody>
             <tr>
               <td className="tableTitle">用户名</td>
-              <td>{namespace}</td>
+              <td>{username}</td>
             </tr>
             <tr>
               <td className="tableTitle">
@@ -75,7 +75,7 @@ class API extends Component{
 
 function mapStateToProp(state) {
   const result = state.openApi.result || {
-    namespace: "",
+    username: "",
     token: "",
   }
   return result

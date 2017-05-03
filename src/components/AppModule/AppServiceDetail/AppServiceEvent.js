@@ -33,6 +33,7 @@ var MyComponent = React.createClass({
     const { containersAllEvent } = this.props
     const result = []
     if (containersAllEvent.result) {
+        if(!containersAllEvent.result.data.events) return
         containersAllEvent.result.data.events.forEach(event => {
         const name = event.objectMeta.name.split('.')[0]
         if (name == podname) {

@@ -39,6 +39,10 @@ const menuList_sysAdmin = [
     url: '/setting/API',
     name: '开放 API'
   },
+  {
+    url: '/setting/globalConfig',
+    name: '全局配置'
+  }
 ]
 
 class Setting extends Component {
@@ -60,11 +64,11 @@ class Setting extends Component {
           key="settingAnimate"
           type="left"
         >
-          <div className={ this.state.containerSiderStyle == 'normal' ? 'settingMenu CommonSecondMenu' : 'hiddenMenu settingMenu CommonSecondMenu'} key='settingSider'>
+          <div className={this.state.containerSiderStyle == 'normal' ? 'settingMenu CommonSecondMenu' : 'hiddenMenu settingMenu CommonSecondMenu'} key='settingSider'>
             <SecondSider menuList={menuList} scope={scope} />
           </div>
         </QueueAnim>
-        <div className={ this.state.containerSiderStyle == 'normal' ? 'settingContent CommonSecondContent' : 'hiddenContent settingContent CommonSecondContent' } >
+        <div className={this.state.containerSiderStyle == 'normal' ? 'settingContent CommonSecondContent' : 'hiddenContent settingContent CommonSecondContent'} >
           {children}
         </div>
       </div>
@@ -79,7 +83,7 @@ Setting.propTypes = {
 
 function mapStateToProp(state) {
   let role = ROLE_USER
-  const {entities} = state
+  const { entities } = state
   if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
     role = entities.loginUser.info.role
   }

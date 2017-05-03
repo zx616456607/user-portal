@@ -20,9 +20,18 @@ export function getContainerStatus(container) {
   if (deletionTimestamp) {
     status.phase = 'Terminating'
   }
-  const { containerStatuses } = status
+  const { conditions, containerStatuses } = status
   let restartCount = 0
   let phase = status.phase
+  if (conditions) {
+    conditions.every(condition => {
+      if (condition.type !== 'Ready' && condition.status !== 'True') {
+        phase = 'Pending'
+        return false
+      }
+      return true
+    })
+  }
   if (containerStatuses) {
     containerStatuses.map(containerStatus => {
       // const { ready } = containerStatus
@@ -30,7 +39,7 @@ export function getContainerStatus(container) {
       if (containerRestartCount > restartCount) {
         restartCount = containerRestartCount
         if (!containerStatus.state || !containerStatus.state.running) {
-          //state不存在或state不为running
+          // state 不存在或 state 不为 running
           phase = 'Abnormal'
         }
       }
@@ -95,7 +104,7 @@ export function getServiceStatus(service) {
   if (specReplicas === 0 && availableReplicas > 0) {
     status.phase = 'Stopping'
   } else if (specReplicas > 0 && availableReplicas < 1) {
-    unavailableReplicas = specReplicas
+    status.unavailableReplicas = specReplicas
     status.phase = 'Pending'
   }
   return status
@@ -106,7 +115,7 @@ export function getServiceStatus(service) {
  * return one of [Pending, Running, Deploying, Stopped]
  */
 export function getServiceStatusByContainers(service, containers) {
-  if (!containers) {
+  if (!containers || containers.length <= 0) {
     return getServiceStatus(service)
   }
   let availableReplicas = 0

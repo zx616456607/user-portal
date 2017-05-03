@@ -73,8 +73,8 @@ class MyComponent extends Component {
       servicesList: newList,
       selectedList: newSeleList
     })
-    localStorage.setItem('servicesList', JSON.stringify(newList))
-    localStorage.setItem('selectedList', JSON.stringify(newSeleList))
+    sessionStorage.setItem('servicesList', JSON.stringify(newList))
+    sessionStorage.setItem('selectedList', JSON.stringify(newSeleList))
 
   }
   checkService(name, inf, imageName) {
@@ -166,19 +166,19 @@ class ServiceList extends Component {
   }
 
   componentWillMount() {
-    let forCacheServiceList = localStorage.getItem('forCacheServiceList');
+    let forCacheServiceList = sessionStorage.getItem('forCacheServiceList');
     if(!forCacheServiceList) {
-      localStorage.removeItem('servicesList')
-      localStorage.removeItem('selectedList')
-      localStorage.setItem('forCacheServiceList', false)
+      sessionStorage.removeItem('servicesList')
+      sessionStorage.removeItem('selectedList')
+      sessionStorage.setItem('forCacheServiceList', false)
     }
-    const serviceList = JSON.parse(localStorage.getItem('servicesList'))
+    const serviceList = JSON.parse(sessionStorage.getItem('servicesList'))
     if (serviceList) {
       this.setState({
         servicesList: serviceList
       })
     }
-    const selectedList = JSON.parse(localStorage.getItem('selectedList'))
+    const selectedList = JSON.parse(sessionStorage.getItem('selectedList'))
     if (selectedList) {
       this.setState({
         selectedList: selectedList
@@ -257,11 +257,11 @@ class ServiceList extends Component {
     }
     if (this.state.servicesList.length > 0) {
      // 直接执行下一步
-      localStorage.setItem('servicesList', JSON.stringify(this.state.servicesList))
+      sessionStorage.setItem('servicesList', JSON.stringify(this.state.servicesList))
       let tempList = this.state.servicesList.map((service) => {
         return service.id;
       })
-      localStorage.setItem('selectedList', JSON.stringify(tempList))
+      sessionStorage.setItem('selectedList', JSON.stringify(tempList))
       browserHistory.push(`/app_manage/app_create/compose_file?query=fast_create`)
     } else {
       this.setState({ visible });  // 进行确认
@@ -269,8 +269,8 @@ class ServiceList extends Component {
   }
 
   delServicesList() {
-    localStorage.removeItem('servicesList');
-    localStorage.removeItem('selectedList');
+    sessionStorage.removeItem('servicesList');
+    sessionStorage.removeItem('selectedList');
   }
   delAllSelected() {
     let selectedList = this.state.selectedList

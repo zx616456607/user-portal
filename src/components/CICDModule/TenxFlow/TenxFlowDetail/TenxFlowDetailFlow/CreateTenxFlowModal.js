@@ -13,21 +13,25 @@ import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import cloneDeep from 'lodash/cloneDeep'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { appNameCheck } from '../../../../../common/naming_validation'
 import DockerFileEditor from '../../../../Editor/DockerFile'
-import { createTenxFlowState, createDockerfile } from '../../../../../actions/cicd_flow'
+import { createTenxFlowState, createDockerfile, getTenxFlowDetail } from '../../../../../actions/cicd_flow'
 import './style/CreateTenxFlowModal.less'
 import EnvComponent from './EnvComponent.js'
 import CreateImageEnvComponent from './CreateImageEnvComponent.js'
 import CodeStoreListModal from './CodeStoreListModal.js'
 import NotificationHandler from '../../../../../common/notification_handler'
+import PopTabSelect from '../../../../PopTabSelect'
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
 const FormItem = Form.Item;
 const Option = Select.Option;
-
+const PopTab = PopTabSelect.Tab;
+const PopGroup = PopTabSelect.OptionGroup;
+const PopOption = PopTabSelect.Option;
 const defaultOptions = {
   readOnly: false
 }
@@ -35,11 +39,11 @@ const defaultOptions = {
 const menusText = defineMessages({
   titleEdit: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.titleEdit',
-    defaultMessage: '编辑项目卡片',
+    defaultMessage: '编辑子任务卡片',
   },
   titleAdd: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.titleAdd',
-    defaultMessage: '创建项目卡片',
+    defaultMessage: '创建子任务卡片',
   },
   unitCheck: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.unitCheck',
@@ -67,15 +71,15 @@ const menusText = defineMessages({
   },
   flowType: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.flowType',
-    defaultMessage: '项目类型',
+    defaultMessage: '子任务类型',
   },
   flowCode: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.flowCode',
-    defaultMessage: '项目代码',
+    defaultMessage: '子任务代码',
   },
   flowName: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.flowName',
-    defaultMessage: '项目名称',
+    defaultMessage: '子任务名称',
   },
   selectCode: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.selectCode',
@@ -183,7 +187,7 @@ const menusText = defineMessages({
   },
   deleteCode: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.deleteCode',
-    defaultMessage: '清空',
+    defaultMessage: '不使用代码库',
   },
   emptyImageEnv: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.emptyImageEnv',
@@ -206,6 +210,7 @@ let uuid = 0;
 let shellUid = 0;
 let CreateTenxFlowModal = React.createClass({
   getInitialState: function () {
+    const { currentCodeStore, currentCodeStoreName, currentCodeStoreBranch } = this.getUniformRepo()
     return {
       otherFlowType: 3,
       useDockerfile: true,
@@ -213,10 +218,10 @@ let CreateTenxFlowModal = React.createClass({
       envModalShow: null,
       ImageStoreType: false,
       codeStoreModalShow: false,
-      currentCodeStore: null,
-      currentCodeStoreName: null,
+      currentCodeStore,
+      currentCodeStoreName,
       noSelectedCodeStore: false,
-      currentCodeStoreBranch: null,
+      currentCodeStoreBranch,
       dockerFileModalShow: false,
       dockerFileTextarea: '',
       noDockerfileInput: false,
@@ -227,6 +232,26 @@ let CreateTenxFlowModal = React.createClass({
       showOtherImage: false
     }
   },
+  getUniformRepo() {
+    const { uniformRepo, stageList, codeList } = this.props
+    let currentCodeStore
+    let currentCodeStoreName
+    let currentCodeStoreBranch
+    if (stageList.length > 0 && uniformRepo === 0) {
+      const firstStage = stageList[0]
+      const { branch, id } = firstStage.spec.project
+      currentCodeStore = id
+      currentCodeStoreBranch = branch
+      codeList.every(code => {
+        if (code.id === id) {
+          currentCodeStoreName = code.name
+          return false
+        }
+        return true
+      })
+    }
+    return { currentCodeStore, currentCodeStoreName, currentCodeStoreBranch }
+  },
   componentWillMount() {
     // const self = this
     // const {getAvailableImage} = this.props
@@ -235,14 +260,14 @@ let CreateTenxFlowModal = React.createClass({
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
     const { stageList } = this.props;
-    let errorMsg = appNameCheck(value, '项目名称')
+    let errorMsg = appNameCheck(value, '子任务名称')
     if(errorMsg == 'success') {
       let flag = false;
       if (stageList.length > 0) {
         stageList.map((item) => {
           if (item.metadata.name == value) {
             flag = true;
-            errorMsg = appNameCheck(value, '项目名称', true);
+            errorMsg = appNameCheck(value, '子任务名称', true);
             callback([new Error(errorMsg)]);
           }
         });
@@ -270,8 +295,8 @@ let CreateTenxFlowModal = React.createClass({
       callback();
     }
   },
-  flowTypeChange(e) {
-    const ins = e.split('@')[1]
+  flowTypeChange(ins) {
+    // const ins = e.split('@')[1]
     this.props.form.resetFields(['otherFlowType', 'imageNameProps']);
     if (ins != 3) {
       this.props.form.resetFields(['imageRealName', 'dockerFileUrl', 'otherStoreUrl', 'otherTag', 'imageType', 'imageTag', 'buildCache']);
@@ -506,7 +531,7 @@ let CreateTenxFlowModal = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope, createTenxFlowState, flowId, stageInfo, createDockerfile } = this.props;
+    const { scope, createTenxFlowState, flowId, stageInfo, createDockerfile, getTenxFlowDetail } = this.props;
     const { getTenxFlowStateList } = scope.props;
     const _this = this;
     this.props.form.validateFields((errors, values) => {
@@ -560,6 +585,10 @@ let CreateTenxFlowModal = React.createClass({
         })
         return;
       }
+      if (values.uniformRepo && !_this.state.currentCodeStore) {
+        notification.error('请选择代码库')
+        return
+      }
       //this flag for all form error flag
       let errorFlag = false;
       let invalidDockerfile = Boolean(!_this.state.dockerFileTextarea && !_this.state.useDockerfile && this.state.otherFlowType == 3);
@@ -597,8 +626,8 @@ let CreateTenxFlowModal = React.createClass({
                 emptyFlag = true;
               } else {
                 let tempBody = {
-                  name: values['service' + item + 'inputName' + littleItem],
-                  value: values['service' + item + 'inputValue' + littleItem]
+                  name: (values['service' + item + 'inputName' + littleItem]).trim(),
+                  value: (values['service' + item + 'inputValue' + littleItem]).trim()
                 }
                 tempList.push(tempBody);
               }
@@ -630,8 +659,8 @@ let CreateTenxFlowModal = React.createClass({
             imageEnvFlag = true;
           } else {
             let tempBody = {
-              name: values['imageEnvName' + item],
-              value: values['imageEnvValue' + item]
+              name: (values['imageEnvName' + item]).trim(),
+              value: (values['imageEnvValue' + item]).trim()
             }
             imageEnvList.push(tempBody)
           }
@@ -669,6 +698,7 @@ let CreateTenxFlowModal = React.createClass({
             'id': this.state.currentCodeStore,
             'branch': this.state.currentCodeStoreBranch
           },
+          uniformRepo: (values.uniformRepo ? 0 : 1),
         }
       }
       //if user select the customer type (6), ths customType must be input
@@ -714,6 +744,9 @@ let CreateTenxFlowModal = React.createClass({
       createTenxFlowState(flowId, body, {
         success: {
           func: (res) => {
+            if (typeof values.uniformRepo !== undefined) {
+              getTenxFlowDetail(flowId)
+            }
             if (!_this.state.useDockerfile && _this.state.otherFlowType == 3) {
               let dockerfilebody = {
                 content: _this.state.dockerFileTextarea,
@@ -800,40 +833,145 @@ let CreateTenxFlowModal = React.createClass({
     }
     return callback()
   },
+  baseImageChange(key, tabKey, groupKey) {
+    const { setFieldsValue } = this.props.form
+    this.setState({
+      baseImageUrl: key
+    })
+    setFieldsValue({
+      imageName: key
+    })
+    this.flowTypeChange(groupKey)
+  },
+  setUniformRepo() {
+    this.setState(this.getUniformRepo())
+  },
+  renderSelectRepo() {
+    const {
+      config, stageList, uniformRepo,
+    } = this.props
+    const { currentCodeStore } = this.state
+    if (stageList.length === 0 || uniformRepo !== 0) {
+      return (
+        <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.openCodeStoreModal}>
+          <svg className='codeSvg'>
+            <use xlinkHref='#cicdreflash' />
+          </svg>
+          {currentCodeStore ? [<FormattedMessage {...menusText.selectCode} />] : [<span>选择代码库</span>]}
+        </Button>
+      )
+    }
+    if (currentCodeStore) {
+      return
+    }
+    return (
+      <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.setUniformRepo}>
+        <svg className='codeSvg'>
+          <use xlinkHref='#cicdreflash' />
+        </svg>
+        使用首个子任务的代码库
+      </Button>
+    )
+  },
   render() {
     const { formatMessage } = this.props.intl;
-    const { form, codeList, stageList, supportedDependencies, imageList} = this.props;
+    const {
+      form, codeList, stageList,
+      supportedDependencies, imageList,
+      toggleCustomizeBaseImageModal,
+      baseImages, uniformRepo,
+    } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
+    let customeImageList  = cloneDeep(imageList)
     if (imageList === undefined || imageList.length === 0) {
-      return (<div></div>)
+      customeImageList = []
     }
     let intFlowTypeIndex = this.state.otherFlowType - 1
     let buildImages = []
     let dependenciesImages = []
-    imageList.forEach(function (image) {
-      if (image.imageList[0].categoryId > 100) {
-        dependenciesImages.push(image)
-      } else {
-        buildImages.push(image)
-      }
-    })
-    let serviceSelectList = dependenciesImages[0].imageList.map((item, index) => {
-      return (
-        <Option value={item.imageName} key={index}>{item.imageName}</Option>
-      )
-    });
-    const selectImage = buildImages.map((list, index) => {
-      return (
-        <Option key={list.title} value={list.title + `@` + (index + 1)}>{list.title}</Option>
-      )
-    })
-    this.state.baseImage = buildImages[intFlowTypeIndex].imageList
+    if(customeImageList.length >0 ) {
+      customeImageList.forEach(function (image) {
+        if (image.imageList[0].categoryId > 100) {
+          dependenciesImages.push(image)
+        } else {
+          buildImages.push(image)
+        }
+      })
+    }
+    let serviceSelectList = []
+    if (dependenciesImages.length != 0) {
+      dependenciesImages[0].imageList.map((item, index) => {
+        return (
+          <Option value={item.imageName} key={index}>{item.imageName}</Option>
+        )
+      })
+    }
+    let selectImage = []
+    if (buildImages.length > 0) {
+      selectImage = buildImages.map((list, index) => {
+        return (
+          <Option key={list.title} value={list.title + `@` + (index + 1)}>{list.title}</Option>
+        )
+      })
+    }
+
+    /*this.state.baseImage = buildImages[intFlowTypeIndex].imageList
     const baseImage = this.state.baseImage.map(list => {
       return (
         <Option key={list.imageName}>{list.imageName}</Option>
       )
-    })
+    })*/
+    let baseImagesNodes = []
+    function getBaseImageType(key) {
+      switch (key) {
+        case '0':
+          return '自定义镜像'
+        default:
+          return '预置镜像'
+      }
+    }
+    let defaultBaseImage
+    function renderPopGroups(groups) {
+      const groupsNodes = []
+      for (let key in groups) {
+        if (groups.hasOwnProperty(key)) {
+          const images = groups[key] || []
+          const { categoryName, categoryId, imageName } = images[0] || {}
+          if (typeof categoryId !== undefined && categoryId != 101) {
+            if (categoryId == 3) {
+              defaultBaseImage = imageName
+            }
+            groupsNodes.push(
+              <PopGroup label={categoryName} value={categoryId} key={categoryId}>
+                {
+                  images.map(image => (
+                    <PopOption value={image.imageUrl}>
+                      {image.imageName}
+                    </PopOption>
+                  ))
+                }
+              </PopGroup>
+            )
+          }
+        }
+      }
+      return groupsNodes
+    }
+    for(let key in baseImages) {
+      if (baseImages.hasOwnProperty(key)) {
+        const imageGroups = baseImages[key]
+        baseImagesNodes.push(
+          <PopTab key={key} title={getBaseImageType(key)}>
+            {
+              renderPopGroups(imageGroups)
+            }
+          </PopTab>
+        )
+      }
+    }
+    baseImagesNodes = baseImagesNodes.reverse()
+
     getFieldProps('services', {
       initialValue: [0],
     });
@@ -850,7 +988,7 @@ let CreateTenxFlowModal = React.createClass({
         <QueueAnim key={'serviceName' + k + 'Animate'}>
           <div className='serviceDetail' key={'serviceName' + k}>
             <Form.Item className='commonItem'>
-              <Select {...serviceSelect} style={{ width: '220px' }} >
+              <Select {...serviceSelect} style={{ width: '220px' }} allowClear>
                 {serviceSelectList}
               </Select>
               <span className={emptyServiceEnvCheck(scopeThis.state.emptyServiceEnv, k) ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'}
@@ -894,13 +1032,13 @@ let CreateTenxFlowModal = React.createClass({
       )
     });
 
-    const flowTypeProps = getFieldProps('flowType', {
+    /*const flowTypeProps = getFieldProps('flowType', {
       rules: [
-        { required: true, message: '请选择项目类型' },
+        { required: true, message: '请选择子任务类型' },
       ],
       onChange: this.flowTypeChange,
       initialValue: buildImages[intFlowTypeIndex].title,
-    });
+    });*/
 
     const imageRealNameProps = getFieldProps('imageRealName', {
       rules: [
@@ -912,11 +1050,11 @@ let CreateTenxFlowModal = React.createClass({
       rules: [
         { required: true, message: '请选择基础镜像' }
       ],
-      initialValue: buildImages[intFlowTypeIndex].imageList[0].imageName
+      initialValue: buildImages[intFlowTypeIndex] ? buildImages[intFlowTypeIndex].imageList[0].imageName : ''
     });
     const flowNameProps = getFieldProps('flowName', {
       rules: [
-        { message: '请输入项目名称' },
+        { message: '请输入子任务名称' },
         { validator: this.flowNameExists },
       ],
     });
@@ -955,6 +1093,13 @@ let CreateTenxFlowModal = React.createClass({
         { validator: this.otherTagInput },
       ],
     });
+    let uniformRepoProps
+    if (stageList.length === 0) {
+      uniformRepoProps = getFieldProps('uniformRepo', {
+        valuePropName: 'checked',
+        initialValue: (uniformRepo == 0),
+      })
+    }
     return (
       <div id='CreateTenxFlowModal' key='CreateTenxFlowModal'>
         <div className='titleBox'>
@@ -962,43 +1107,6 @@ let CreateTenxFlowModal = React.createClass({
           <Icon type='cross' onClick={this.cancelChange} />
         </div>
         <Form horizontal>
-          <div className='commonBox' key='bigForm'>
-            <div className='title'>
-              <span><FormattedMessage {...menusText.flowType} /></span>
-            </div>
-            <div className='input flowType'>
-              <FormItem className='flowTypeForm'>
-                <Select {...flowTypeProps} style={{ width: 120 }}>
-                  {selectImage}
-                </Select>
-              </FormItem>
-            </div>
-            <div style={{ clear: 'both' }} />
-          </div>
-          <div className='commonBox'>
-            <div className='title'>
-              <span><FormattedMessage {...menusText.flowCode} /></span>
-            </div>
-            <div className='input'>
-              {!!this.state.currentCodeStoreName ? [
-                <span style={{ marginRight: '15px' }}>{this.state.currentCodeStoreName + '  ' + (this.state.currentCodeStoreBranch ? formatMessage(menusText.branch) + this.state.currentCodeStoreBranch : '')}</span>
-              ] : null}
-              <Button className={this.state.noSelectedCodeStore ? 'noCodeStoreButton selectCodeBtn' : 'selectCodeBtn'} size='large' type='ghost' onClick={this.openCodeStoreModal}>
-                <svg className='codeSvg'>
-                  <use xlinkHref='#cicdreflash' />
-                </svg>
-                {!!this.state.currentCodeStoreName ? [<span>更新代码库</span>] : [<FormattedMessage {...menusText.selectCode} />]}
-              </Button>
-              {!!this.state.currentCodeStoreName ? [
-                <Button key='deleteCodeBtn' type='ghost' size='large' style={{ marginLeft: '15px' }} onClick={this.deleteCodeStore}>
-                  <Icon type='delete' style={{ marginRight: '7px' }} />
-                  <FormattedMessage {...menusText.deleteCode} />
-                </Button>
-                ] : null}
-              <span className={this.state.noSelectedCodeStore ? 'noCodeStoreSpan CodeStoreSpan' : 'CodeStoreSpan'}><FormattedMessage {...menusText.noCodeStore} /></span>
-            </div>
-            <div style={{ clear: 'both' }} />
-          </div>
           <div className='commonBox'>
             <div className='title'>
               <span><FormattedMessage {...menusText.flowName} /></span>
@@ -1014,6 +1122,51 @@ let CreateTenxFlowModal = React.createClass({
             </div>
             <div style={{ clear: 'both' }} />
           </div>
+          {/*<div className='commonBox' key='bigForm'>
+            <div className='title'>
+              <span><FormattedMessage {...menusText.flowType} /></span>
+            </div>
+            <div className='input flowType'>
+              <FormItem className='flowTypeForm'>
+                <Select {...flowTypeProps} style={{ width: 120 }}>
+                  {selectImage}
+                </Select>
+              </FormItem>
+            </div>
+            <div style={{ clear: 'both' }} />
+          </div>*/}
+          <div className='commonBox'>
+            <div className='title'>
+              <span><FormattedMessage {...menusText.flowCode} /></span>
+            </div>
+            <div className='codeRepo'>
+              {!!this.state.currentCodeStoreName ? [
+                <span style={{ marginRight: '15px' }}>{this.state.currentCodeStoreName + '  ' + (this.state.currentCodeStoreBranch ? formatMessage(menusText.branch) + this.state.currentCodeStoreBranch : '')}</span>
+              ] : null}
+              {this.renderSelectRepo()}
+              {/*<Button className={this.state.noSelectedCodeStore ? 'noCodeStoreButton selectCodeBtn' : 'selectCodeBtn'} size='large' type='ghost' onClick={this.openCodeStoreModal}>
+                <svg className='codeSvg'>
+                  <use xlinkHref='#cicdreflash' />
+                </svg>
+                {!!this.state.currentCodeStoreName ? [<span>更新代码库</span>] : [<FormattedMessage {...menusText.selectCode} />]}
+              </Button>*/}
+              {!!this.state.currentCodeStoreName ? [
+                <Button key='deleteCodeBtn' type='ghost' size='large' style={{ marginLeft: '15px' }} onClick={this.deleteCodeStore}>
+                  <Icon type='delete' />
+                  <FormattedMessage {...menusText.deleteCode} />
+                </Button>
+                ] : null}
+              {
+                stageList.length === 0 && (
+                  <FormItem style={{height: "30px"}}>
+                      <Checkbox {...uniformRepoProps}>当前流水线所有任务（包括新建任务），统一使用该代码库</Checkbox>
+                  </FormItem>
+                )
+              }
+              {/*<span className={this.state.noSelectedCodeStore ? 'noCodeStoreSpan CodeStoreSpan' : 'CodeStoreSpan'}><FormattedMessage {...menusText.noCodeStore} /></span>*/}
+            </div>
+            <div style={{ clear: 'both' }} />
+          </div>
           <div className='line'></div>
           <div className='commonBox'>
             <div className='title'>
@@ -1021,12 +1174,19 @@ let CreateTenxFlowModal = React.createClass({
             </div>
             <div className='imageName input'>
               <FormItem style={{ width: '220px', float: 'left' }}>
-                <Select {...imageNameProps}>
+                {/*<Select {...imageNameProps}>
                   {baseImage}
-                </Select>
+                </Select>*/}
+                <PopTabSelect value={buildImages[intFlowTypeIndex]　? buildImages[intFlowTypeIndex].imageList[0].imageName : '' || defaultBaseImage || this.state.baseImageUrl} onChange={this.baseImageChange}>
+                  {baseImagesNodes}
+                </PopTabSelect>
               </FormItem>
               <span className={this.state.emptyImageEnv ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'} onClick={this.openImageEnvModal}><FormattedMessage {...menusText.defineEnv} /></span>
               {this.state.emptyImageEnv ? [<span className='emptyImageEnvError'><FormattedMessage {...menusText.emptyImageEnv} /></span>] : null}
+              <div className="customizeBaseImage">
+                基础镜像是用来提供执行当前任务的环境的，有默认的预置镜像（联系管理员），您也可以
+                <span className="link" onClick={() => toggleCustomizeBaseImageModal(true)}>自定义上传</span>
+              </div>
               <div style={{ clear: 'both' }} />
             </div>
             <div style={{ clear: 'both' }} />
@@ -1041,6 +1201,9 @@ let CreateTenxFlowModal = React.createClass({
                 <Icon type='plus-circle-o' />
                 <FormattedMessage {...menusText.addServices} />
               </div>*/}
+              <div className="relyOnService">
+                依赖服务是用来提供执行当前任务时所依赖的服务，因为是容器化，您可以自定义服务的环境变量
+              </div>
             </div>
             <div style={{ clear: 'both' }} />
           </div>
@@ -1072,7 +1235,7 @@ let CreateTenxFlowModal = React.createClass({
                         </Radio>
                         <Radio key='create' value={false}>使用云端创建 Dockerfile</Radio>
                       </RadioGroup>
-                    </div>                   
+                    </div>
                     {
                       !this.state.useDockerfile ? [
                         <QueueAnim key='useDockerFileAnimate' style={{ float: 'left' }}>
@@ -1243,7 +1406,8 @@ CreateTenxFlowModal.propTypes = {
 
 export default connect(mapStateToProps, {
   createTenxFlowState,
-  createDockerfile
+  createDockerfile,
+  getTenxFlowDetail,
 })(injectIntl(CreateTenxFlowModal, {
   withRef: true,
 }));

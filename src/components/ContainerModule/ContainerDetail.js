@@ -18,8 +18,8 @@ import ContainerEvents from "./ContainerEvents"
 import ContainerProgress from './ContainerProgress'
 import "./style/ContainerDetail.less"
 import { loadContainerDetail, deleteContainers } from '../../actions/app_manage'
+import { addTerminal } from '../../actions/terminal'
 import ContainerMonitior from './ContainerMonitior'
-import TerminalModal from '../TerminalModal'
 import { browserHistory } from 'react-router'
 import ContainerStatus from '../TenxStatus/ContainerStatus'
 import { formatDate } from '../../common/tools'
@@ -41,13 +41,11 @@ function loadData(props) {
 class ContainerDetail extends Component {
   constructor(props) {
     super(props)
-    this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
     this.openTerminalModal = this.openTerminalModal.bind(this)
     this.deleteContainer = this.deleteContainer.bind(this)
     this.onTabClick = this.onTabClick.bind(this)
     this.state = {
       activeTabKey: props.hash || DEFAULT_TAB,
-      TerminalLayoutModal: false,
       currentContainer: null,
     }
   }
@@ -72,20 +70,10 @@ class ContainerDetail extends Component {
     })
   }
 
-  closeTerminalLayoutModal() {
-    //this function for user close the terminal modal
-    this.setState({
-      TerminalLayoutModal: false
-    });
-  }
-
   openTerminalModal(item, e) {
-    //this function for user open the terminal modal
     e.stopPropagation();
-    this.setState({
-      currentContainer: [item],
-      TerminalLayoutModal: true
-    });
+    const { cluster, addTerminal } = this.props
+    addTerminal(cluster, item)
   }
 
   deleteContainer() {
@@ -245,14 +233,6 @@ class ContainerDetail extends Component {
               </Tabs>
             </Card>
           </div>
-          <Modal
-            visible={this.state.TerminalLayoutModal}
-            className='TerminalLayoutModal'
-            transitionName='move-down'
-            onCancel={this.closeTerminalLayoutModal}
-            >
-            <TerminalModal scope={parentScope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal} />
-          </Modal>
         </QueueAnim>
       </div>
     )
@@ -297,4 +277,5 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   loadContainerDetail,
   deleteContainers,
+  addTerminal,
 })(ContainerDetail)

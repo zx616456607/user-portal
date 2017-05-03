@@ -37,7 +37,7 @@ function validatePortNumber(proxyType, portNumber) {
     maximumPort = 32766
   }
   if( portNumber < minimumPort || portNumber > maximumPort ) {
-    return '指定端口号范围' +  minimumPort + ' ~ ' + maximumPort
+    return '端口范围' +  minimumPort + ' ~ ' + maximumPort
   } else {
     return
   }
@@ -139,7 +139,7 @@ let MyComponent = React.createClass({
   },
   checkPort(rule, value, callback, index){
     if(!value) return callback()
-    const { form } = this.props
+    const { form, loginUser } = this.props
     const { getFieldValue } = form
     if(index != undefined) {
       if(getFieldValue(`ssl{index}`) == 'HTTP') {
@@ -151,8 +151,9 @@ let MyComponent = React.createClass({
       return
     }
     const port = parseInt(value.trim())
-    if(port < 10000 || port > 65535) {
-      callback(new Error('请填入10000~65535'))
+    let msg = validatePortNumber(loginUser.info.proxyType, port)
+    if (msg) {
+      callback(new Error(msg))
       return
     }
     if(allPort.indexOf(port) >= 0) {
@@ -168,8 +169,8 @@ let MyComponent = React.createClass({
       return
     }
     const port = parseInt(value.trim())
-    if (port < 0 || port > 65535) {
-      callback(new Error('请填入0~65535'))
+    if (port < 1 || port > 65535) {
+      callback(new Error('请填入1~65535'))
       return
     }
     if (allPort.indexOf(port) >= 0) {
@@ -190,10 +191,6 @@ let MyComponent = React.createClass({
       return
     }
     const port = parseInt(value.trim())
-    if (port < 10000 || port > 65535) {
-      callback(new Error('请填入10000~65535'))
-      return
-    }
     const { loginUser } = this.props
     let msg = validatePortNumber(loginUser.info.proxyType, port)
     if (msg) {
@@ -551,8 +548,8 @@ let MyComponent = React.createClass({
             </Select>
             </Form.Item>
           </div>
-          <div className="commonData span3">
-            <Select style={{ width:'100px', display: getFieldProps(`newssl${k}`).value == 'HTTP' ? 'none' : 'inline-block'}}  {...getFieldProps(`newserverPort${k}`, {
+          <div className="commonData span2">
+            <Select style={{ width:'90px', display: getFieldProps(`newssl${k}`).value == 'HTTP' ? 'none' : 'inline-block'}}  {...getFieldProps(`newserverPort${k}`, {
                 rules: [{
                   required: true,
                   whitespace: true,
@@ -564,11 +561,13 @@ let MyComponent = React.createClass({
               <Select.Option key="2">指定端口</Select.Option>
             </Select>
             <span style={{display: getFieldProps(`newssl${k}`).value == 'HTTP' ? 'inline-block' : 'none'}}>80</span>
-            <Form.Item key={k} style={{width: '50px', float: 'right', marginRight: '70px'}}>
-            <Input  type='text' style={{width: '50px', marginLeft: '0px', display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {ref: instance => this.newInputPortOb = instance,rules: [rules, {validator: this.checkInputPort}], initialValue: this.state.disableHTTP ? '': "80"})} />
-            </Form.Item>
           </div>
           <div className="commonData span2">
+            <Form.Item key={k} style={{position: 'relative'}}>
+            <Input  type='text' style={{width: '80px', marginLeft: '0px', display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {ref: instance => this.newInputPortOb = instance,rules: [rules, {validator: this.checkInputPort}], initialValue: this.state.disableHTTP ? '': "80"})} />
+            </Form.Item>
+          </div>
+          <div className="commonData span3">
             <Button type="primary" onClick={this.save}>保存</Button>
             <Button type="ghost" style={{marginLeft:'6px'}} onClick={()=> this.remove(k)}>取消</Button>
           </div>
@@ -625,11 +624,11 @@ let MyComponent = React.createClass({
             }
            </Form.Item>
           </div>
-          <div className="commonData span3">
+          <div className="commonData span2">
 
             { this.state.openPort && this.state.openPort[index] ?
               getFieldProps(`selectssl${index+1}`).value == 'HTTP' ? <span>80</span> :
-              <Select defaultValue='动态生成' style={{width:'100px'}} onChange={(e)=> this.changeType(e, index + 1)}>
+              <Select defaultValue='动态生成' style={{width:'90px'}} onChange={(e)=> this.changeType(e, index + 1)}>
                 <Select.Option key="1">动态生成</Select.Option>
                 <Select.Option key="2">指定端口</Select.Option>
               </Select>
@@ -638,9 +637,12 @@ let MyComponent = React.createClass({
                 initialValue: target[1].toLowerCase() == 'http' ? 80 : target[2]
               })}/>{target[1].toLowerCase() == 'http' ? 80 : target[2]}</span>
             }
+
+          </div>
+          <div className="commonData span2">
             { this.state.openPort && this.state.openPort[index] && this.state.inPort =='2' ?
-              <Form.Item style={{width: '50px', float: 'right', marginRight: '70px'}}>
-                <Input style={{width:'50px', marginLeft:'0px'}} {...getFieldProps(`changeinputPort${index + 1}`, {
+              <Form.Item style={{width: '90px', float: 'left', }}>
+                <Input {...getFieldProps(`changeinputPort${index + 1}`, {
                   rules: [{
                     required: true,
                     whitespace: true,
@@ -648,11 +650,10 @@ let MyComponent = React.createClass({
                   }, {validator: (rule, value, callback) => this.checkPort(rule, value, callback, index+1)}]
                 })}/>
                </Form.Item>
-              :null
+              :<span>&nbsp;</span>
             }
-
           </div>
-          <div className="commonData span2">
+          <div className="commonData span3">
             { this.state.openPort && this.state.openPort[index] ?
               <Dropdown.Button overlay={actionText} type="ghost" style={{width:'100px'}} onClick={() => {this.save(index)}}>
                   <Icon type="save" /> 保存
@@ -720,7 +721,7 @@ class PortDetail extends Component {
           <div className="commonTitle">
             协议
           </div>
-          <div className="commonTitle span3">
+          <div className="commonTitle span4">
             服务端口
           </div>
           <div className="commonTitle span2">

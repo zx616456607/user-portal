@@ -23,7 +23,8 @@ export default function overviewCluster(state = {
   clusterAppStatus: {},
   clusterDbServices: {},
   clusterNodeSummary: {},
- }, action) {
+  clusterSummary: {},
+}, action) {
   return {
     clusterInfo: reducerFactory({
       REQUEST: ActionTypes.OVERVIEW_CLUSTERINFO_REQUEST,
@@ -55,10 +56,15 @@ export default function overviewCluster(state = {
       SUCCESS: ActionTypes.OVERVIEW_CLUSTER_DBSERVICE_SUCCESS,
       FAILURE: ActionTypes.OVERVIEW_CLUSTER_DBSERVICE_FAILURE
     }, state.clusterDbServices, action, option),
-     clusterNodeSummary: reducerFactory({
+    clusterNodeSummary: reducerFactory({
       REQUEST: ActionTypes.OVERVIEW_CLUSTER_NODESUMMARY_REQUEST,
       SUCCESS: ActionTypes.OVERVIEW_CLUSTER_NODESUMMARY_SUCCESS,
       FAILURE: ActionTypes.OVERVIEW_CLUSTER_NODESUMMARY_FAILURE
-    }, state.clusterNodeSummary, action, option)
+    }, state.clusterNodeSummary, action, option),
+    clusterSummary: reducerFactory({
+      REQUEST: ActionTypes.OVERVIEW_CLUSTER_SUMMARY_REQUEST,
+      SUCCESS: ActionTypes.OVERVIEW_CLUSTER_SUMMARY_SUCCESS,
+      FAILURE: ActionTypes.OVERVIEW_CLUSTER_SUMMARY_FAILURE
+    }, state.clusterSummary, action, option)
   }
 }

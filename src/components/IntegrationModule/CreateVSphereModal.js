@@ -116,7 +116,7 @@ let CreateVSphereModal = React.createClass({
             scope.setState({
               createIntegrationModal: false
             });
-            getAllIntegration();  
+            getAllIntegration();
           },
           isAsync: true
         }
@@ -166,7 +166,7 @@ let CreateVSphereModal = React.createClass({
             </div>
             <div className='inputBox'>
               <FormItem style={{ width:'220px' }} >
-                <Input {...configAddressProps}  type='text' size='large' />
+                <Input {...configAddressProps} placeholder="不需要填写地址协议类型" type='text' size='large' />
               </FormItem>
             </div>
             <div style={{ clear: 'both' }}></div>

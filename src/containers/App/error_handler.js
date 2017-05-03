@@ -11,7 +11,7 @@
 */
 
 import React, { Component, PropTypes } from 'react'
-import { notification } from 'antd'
+import { notification, message as MSG } from 'antd'
 import { defineMessages } from 'react-intl'
 
 const messages = defineMessages({
@@ -49,7 +49,7 @@ const messages = defineMessages({
   },
   error503: {
     id: 'App.error.503',
-    defaultMessage: '服务暂时不可用，请稍后重试',
+    defaultMessage: '网络或服务暂时不可用，请稍后重试',
   },
   error504: {
     id: 'App.error.504',
@@ -67,11 +67,16 @@ export default function handler(error, intl) {
   }
   const defaultError = formatMessage(messages.error)
   let { message, description, duration } = _errorFormat(error)
-  notification.error({
-    message,
-    description,
-    duration
-  })
+  // For network interruption
+  if (error.message.code === 503) {
+    MSG.error(message)
+  } else {
+    notification.error({
+      message,
+      description,
+      duration
+    })
+  }
 
   // Formate error message
   function _errorFormat(error) {

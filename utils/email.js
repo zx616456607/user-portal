@@ -16,6 +16,7 @@ const nodemailer = require('nodemailer')
 const moment = require('moment')
 const logger = require('./logger').getLogger('email')
 const config = require('../configs')
+config.mail_server = global.globalConfig.mail_server
 const constants = require('../configs/constants')
 const fs = require('fs')
 const EMAIL_TEMPLATES_DIR = `${__root__dirname}/templates/email`
@@ -44,7 +45,7 @@ function sendEmail(transport, mailOptions) {
     mailOptions = transport
     transport = config.mail_server
   }
-  // Workaround for SMTP not configed(lite)
+  // Workaround for SMTP not configured(lite)
   if (!transport.auth.pass) {
     return Promise.resolve({skip: true})
   }
@@ -102,7 +103,7 @@ function sendEmailBySendcloud(mailOptions) {
     // 批量邮件
     apiUser = sendcloudConfig.apiUserBatch
     sendcloud = new SendCloud(sendcloudConfig.apiUser,
-                              sendcloudConfig.apiKey,
+                              sendcloudConfig.apiKeyBatch,
                               sendcloudConfig.from,
                               sendcloudConfig.fromname,
                               apiUser)
@@ -111,7 +112,7 @@ function sendEmailBySendcloud(mailOptions) {
     // 触发邮件
     apiUser = sendcloudConfig.apiUser
     sendcloud = new SendCloud(sendcloudConfig.apiUser,
-                              sendcloudConfig.apiKey,
+                              sendcloudConfig.apiKeyTrigger,
                               sendcloudConfig.from,
                               sendcloudConfig.fromname,
                               apiUser)
@@ -140,6 +141,7 @@ exports.sendEmailBySendcloud = sendEmailBySendcloud
  */
 function sendEnsureEmail(mailOptions, htmlName) {
   return sendEmailBySendcloud(mailOptions).catch(err => {
+    logger.error("Failed to send using sendcloud: " + JSON.stringify(err))
     let html = fs.readFileSync(`${EMAIL_TEMPLATES_DIR}/${htmlName}`, 'utf8')
     const sub = mailOptions.sub
     for(let key in sub) {
@@ -528,4 +530,26 @@ function switchPayTypeToText(type) {
     default:
       return '其他方式'
   }
+}
+
+exports.sendNotifyGroupInvitationEmail = function* (to, invitorName, invitorEmail, code) {
+  const subject = `[时速云]告警通知组|邮箱验证`
+  const systemEmail = config.mail_server.service_mail
+  const date = moment(new Date()).format("YYYY-MM-DD")
+  const inviteURL = `${config.url}/alerts/invitations/join?code=${code}`
+  const mailOptions = {
+    to,
+    subject,
+    templateName: 'alarm_group',
+    sub: {
+      '%subject%': [subject],
+      '%invitorName%': [invitorName],
+      '%invitorEmail%': [invitorEmail],
+      '%systemEmail%': [systemEmail],
+      '%receiverEmail%': [to],
+      '%inviteURL%': [inviteURL],
+      '%date%': [date],
+    }
+  }
+  return sendEnsureEmail(mailOptions, 'alarm_group.html')
 }

@@ -43,6 +43,7 @@
         .github{ background-position: -54px -33px;}
         .svn{ background-position: -50px -78px;}
         .bibucket{ background-position: -54px -117px;}
+        .gogs{ background-position: -54px -165px;}
       }
     }
     .section{
@@ -77,6 +78,7 @@
       .github{ background-position: 0px -33px;}
       .svn{ background-position: 4px -78px;}
       .bibucket{ background-position: 0 -117px;}
+      .gogs{ background-position: 0 -165px;}
     }
   }
   // code row
@@ -135,12 +137,14 @@
     height: 25px;
     line-height: 25px;
   }
-    .ant-switch:after {
+  .ant-switch:after {
     width: 21px;
     height: 21px;
   }
   .ant-switch-checked:after {
     left: 35px;
   }
+  .ant-form-item-label label:before{content:''}
+  .ant-form-item-label label:after{content: '：'}
 
 }

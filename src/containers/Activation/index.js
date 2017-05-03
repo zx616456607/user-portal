@@ -47,7 +47,7 @@ let Activation = React.createClass({
         },
         failed: {
           func: (res) => {
-            new NotificationHandler().error('激活失败', res.message.message)
+            new NotificationHandler().error('激活失败', 'License 错误或不可重复添加！')
           }
         }
       })
@@ -118,12 +118,10 @@ let Activation = React.createClass({
                   <Icon type="copy" />
                 </a>
               </Tooltip>
-              <input className="CodeInput" style={{ position: "absolute", opacity: "0", top:'0'}} defaultValue={this.props.platform.platformid} />
+              <input className="CodeInput" style={{ position: "absolute", opacity: "0", top:'0'}} value={this.props.platform.platformid} />
             </div>
             <Form onSubmit={(e)=> this.handleSubmit(e)}>
-              <FormItem
-                hasFeedback
-                >
+              <FormItem>
                 <Input {...nameProps}
                   ref="intName"
                   type="textarea" placeholder="请输入许可证（发送“ 平台ID + 姓名 + 电话 + 公司名 ” 到 support@tenxcloud.com 我们将主动与您联系）"
@@ -145,7 +143,7 @@ let Activation = React.createClass({
         </div>
         </div>
         <div className="footer">
-          © 2017 北京云思畅想科技有限公司 &nbsp;|&nbsp; 时速云企业版 v2.0
+          © 2017 北京云思畅想科技有限公司 &nbsp;|&nbsp; 时速云企业版 v2.1.0
           </div>
       </div>
     )

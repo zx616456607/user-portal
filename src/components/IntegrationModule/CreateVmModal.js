@@ -185,10 +185,14 @@ let CreateVmModal = React.createClass({
       failed: {
         func: (error) => {
           let errorMsg = '克隆虚拟机失败'
-          if (error.message.message.indexOf('already exists') > -1) {
+          notification.close()
+          if (error.statusCode == 504) {
+            notification.info('克隆虚拟机返回超时')
+            return
+          }
+          if (error.message && error.message.message && error.message.message.indexOf('already exists') > -1) {
             errorMsg = '虚拟机名称重复'
           }
-          notification.close()
           notification.error('克隆虚拟机', errorMsg);
         }
       }

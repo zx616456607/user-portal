@@ -147,7 +147,7 @@ let MyComponent = React.createClass({
       if (!name) return
       usedVolume.push(name.split('/')[0])
     })
-    const servicesList = this.props.parentScope.props.scope.state.servicesList || localStorage.getItem('servicesList')
+    const servicesList = this.props.parentScope.props.scope.state.servicesList || sessionStorage.getItem('servicesList')
     servicesList.forEach(service => {
       if (service.inf.Deployment.spec.template.spec.volumes) {
         service.inf.Deployment.spec.template.spec.volumes.forEach(volume => {
@@ -235,6 +235,9 @@ let MyComponent = React.createClass({
     if(!value) {
       callback([new Error('抱歉，必须填写路径.')])
       return
+    }
+    if(!/^[a-zA-Z0-9\/].?/.test(value)) {
+      return callback('请填写正确的路径')
     }
     const { getFieldProps, getFieldValue, } = this.props.form
     const dir = []
@@ -653,12 +656,14 @@ let NormalDeployBox = React.createClass({
   },
   componentWillMount() {
     loadImageTags(this.props)
-    loadClusterNodes(this.props)
     const cluster = this.props.currentCluster
     const storageTypes = cluster.storageTypes
     let canCreate = true
     if(!storageTypes || storageTypes.length <= 0) {
       canCreate = false
+    }
+    if (cluster.canListNode) {
+      loadClusterNodes(this.props)
     }
     this.setState({
       canCreate,
@@ -695,7 +700,6 @@ let NormalDeployBox = React.createClass({
     })
     if (serviceOpen) {
       loadImageTags(nextProps)
-      loadClusterNodes(nextProps)
       const { form } = this.props
       const { getFieldValue } = form
       let storageType = getFieldValue('storageType')
@@ -710,6 +714,9 @@ let NormalDeployBox = React.createClass({
       form.setFieldsValue({
         storageType: storageType
       })
+      if (cluster.canListNode) {
+        loadClusterNodes(this.props)
+      }
       const volumeSwitch = getFieldValue('volumeSwitch')
       if(!volumeSwitch) {
 
@@ -871,7 +878,12 @@ let NormalDeployBox = React.createClass({
           </div>
           <div className="operaBox">
             <div className="selectCompose">
-              <span className="commonSpan">容器配置 <Tooltip title="专业版及企业认证用户可申请扩大容器配置"><a><Icon type="question-circle-o" /></a></Tooltip></span>
+              <span className="commonSpan">容器配置
+                {!enterpriseFlag ?
+                  <Tooltip title="专业版及企业认证用户可申请扩大容器配置"><a> <Icon type="question-circle-o" /></a></Tooltip>
+                  :null
+                }
+              </span>
               <ul className="composeList">
                 {/*<li className="composeDetail">
                   <Button type={composeType == "1" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "1")}>
@@ -1002,9 +1014,9 @@ let NormalDeployBox = React.createClass({
                       <Option value={SYSTEM_DEFAULT_SCHEDULE}>使用系统默认调度</Option>
                       {
                         clusterNodes.map(node => {
-                          const { name, ip, podCount } = node
+                          const { name, ip, podCount, schedulable } = node
                           return (
-                            <Option value={name}>
+                            <Option value={name} disabled={!schedulable}>
                               {name} | {ip} (容器：{podCount}个)
                             </Option>
                           )
@@ -1032,7 +1044,7 @@ let NormalDeployBox = React.createClass({
               {
                 form.getFieldValue('volumeSwitch') &&
                 <span id="localStorageTip">
-                  注：选择『本地存储』时，为保证有状态有效，推荐使用『绑定节点』功能&nbsp;
+                  Tips：选择『本地存储』时，为保证有状态有效，推荐使用『绑定节点』功能&nbsp;
                   <Tooltip title="以保证容器及其Volume存储不被系统调度迁移"
                     placement="topLeft"
                     getTooltipContainer={() => document.getElementById('localStorageTip')}>

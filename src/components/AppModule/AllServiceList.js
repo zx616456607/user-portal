@@ -23,7 +23,8 @@ import {
   stopServices,
   deleteServices,
   quickRestartServices,
-  loadAllServices
+  loadAllServices,
+  loadAutoScale
 } from '../../actions/services'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ANNOTATION_HTTPS } from '../../../constants'
 import { browserHistory } from 'react-router'
@@ -37,11 +38,13 @@ import AppDeployServiceModal from './AppCreate/AppDeployServiceModal'
 import TipSvcDomain from '../TipSvcDomain'
 import yaml from 'js-yaml'
 import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
-import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT } from '../../constants'
+import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
 import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
 import { SERVICE_KUBE_NODE_PORT } from '../../../constants'
+import CreateAlarm from './AlarmModal'
+import CreateGroup from './AlarmModal/CreateGroup'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -50,16 +53,20 @@ const MyComponent = React.createClass({
   propTypes: {
     serviceList: React.PropTypes.array
   },
+
   onchange: function (e) {
     const { value, checked } = e.target
     const { scope } = this.props
     const { serviceList } = scope.state
+
     const checkedList = serviceList.filter((service) => service.checked)
+
     serviceList.map((service) => {
       if (service.metadata.name === value) {
         service.checked = checked
       }
     })
+
     if (checkedList.length === 0) {
       scope.setState({
         runBtn: false,
@@ -143,6 +150,9 @@ const MyComponent = React.createClass({
     let stopPro = e._dispatchInstances;
     if (stopPro.length != 2) {
       const { scope } = this.props
+      scope.setState({
+        donotUserCurrentShowInstance: true
+      })
       const { serviceList } = scope.state
       serviceList.map((service) => {
         if (service.metadata.name === item.metadata.name) {
@@ -264,11 +274,12 @@ const MyComponent = React.createClass({
   serviceOperaClick(item, e) {
     const { scope } = this.props
     scope.setState({
-      currentShowInstance: item
+      currentShowInstance: item,
+      donotUserCurrentShowInstance: false
     })
     switch (e.key) {
       case 'manualScale':
-        return this.showManualScaleModal()
+        return this.showManualScaleModal(item)
       case 'autoScale':
         return this.showAutoScaleModal()
       case 'rollingUpdate':
@@ -291,8 +302,25 @@ const MyComponent = React.createClass({
       configModal: true
     })
   },
-  showManualScaleModal() {
-    const { scope } = this.props
+  showManualScaleModal(item) {
+    const { scope, cluster } = this.props
+    scope.props.loadAutoScale(cluster, item.metadata.name, {
+      success:{
+        func: (result) => {
+          if(result.data) {
+             if(Object.getOwnPropertyNames(result.data).length > 0) {
+               scope.setState({
+                 disableScale: true
+               })
+               return
+             }
+          }
+          scope.setState({
+            disableScale: false
+          })
+        }
+      }
+    })
     scope.setState({
       manualScaleModalShow: true
     })
@@ -311,8 +339,17 @@ const MyComponent = React.createClass({
       modalShow: true,
     })
   },
+  showMonitoring(item){
+    const { scope } = this.props
+    scope.setState({
+      selectTab: '#monitor',
+      modalShow: true,
+      currentShowInstance: item,
+      donotUserCurrentShowInstance: false
+    })
+  },
   render: function () {
-    const { cluster, serviceList, loading, page, size, total,bindingDomains, bindingIPs, loginUser } = this.props
+    const { cluster, serviceList, loading, page, size, total,bindingDomains, bindingIPs, loginUser, scope } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -329,6 +366,13 @@ const MyComponent = React.createClass({
     }
     const items = serviceList.map((item) => {
       item.cluster = cluster
+      let isHaveVolume = false
+      if(item.spec.template.spec.volumes) {
+        isHaveVolume = item.spec.template.spec.volumes.some(volume => {
+          if(!volume) return false
+          return volume.rbd
+        })
+      }
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)}>
           <Menu.Item key="manualScale">
@@ -337,7 +381,7 @@ const MyComponent = React.createClass({
           <Menu.Item key="autoScale">
             自动伸缩
           </Menu.Item>
-          <Menu.Item key="rollingUpdate">
+          <Menu.Item key="rollingUpdate" disabled={isHaveVolume}>
             灰度升级
           </Menu.Item>
           <Menu.Item key="config">
@@ -368,7 +412,7 @@ const MyComponent = React.createClass({
           key={item.metadata.name}
           onClick={(e) => this.selectServiceByLine(e, item)} >
           <div className="selectIconTitle commonData">
-            <Checkbox value={item.metadata.name} checked={item.checked} onChange={this.onchange} />
+            <Checkbox value={item.metadata.name} checked={item.checked} />
           </div>
           <div className="name commonData">
             <span className="viewBtn" onClick={() => this.modalShow(item)}>
@@ -385,13 +429,23 @@ const MyComponent = React.createClass({
               </Link>
             </Tooltip>
           </div>
+          <div className="alarm commonData">
+            <Tooltip title="查看监控">
+            <svg className="managemoniter" onClick={()=> this.showMonitoring(item)}>
+              <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use>
+            </svg>
+            </Tooltip>
+            <Tooltip title="告警设置" onClick={()=> scope.setState({alarmModal: true, alertCurrentService: item})}>
+            <Icon type="notification" />
+            </Tooltip>
+          </div>
           <div className="image commonData">
             <Tooltip title={images.join(', ') ? images.join(', ') : ""}>
               <span>{images.join(', ') || '-'}</span>
             </Tooltip>
           </div>
           <div className="service commonData allSvcListDomain">
-            <TipSvcDomain svcDomain={svcDomain} parentNode='allSvcListDomain' icon={httpIcon} />
+            <TipSvcDomain svcDomain={svcDomain} parentNode='appBox' icon={httpIcon} />
           </div>
           <div className="createTime commonData">
             <span>{calcuDate(item.metadata.creationTimestamp || '')}</span>
@@ -459,6 +513,8 @@ class ServiceList extends Component {
     this.handleQuickRestarServiceCancel = this.handleQuickRestarServiceCancel.bind(this)
     this.handleDeleteServiceOk = this.handleDeleteServiceOk.bind(this)
     this.handleDeleteServiceCancel = this.handleDeleteServiceCancel.bind(this)
+    this.cancelModal = this.cancelModal.bind(this)
+    this.nextStep = this.nextStep.bind(this)
 
     this.state = {
       modalShow: false,
@@ -483,10 +539,15 @@ class ServiceList extends Component {
       DeleteServiceModal: false,
       detail: false,
       k8sServiceList: [],
+      step:1 // create alarm step
     }
   }
-
-  loadServices(nextProps) {
+  getInitialState() {
+    return {
+      disableScale: false
+    }
+  }
+  loadServices(nextProps, options) {
     const self = this
     const { cluster, loadAllServices, page, size, name } = nextProps || this.props
     const query = {
@@ -494,6 +555,7 @@ class ServiceList extends Component {
       pageSize: size,
       name
     }
+    query.customizeOpts = options
     loadAllServices(cluster, query, {
       success: {
         func: (result) => {
@@ -524,7 +586,8 @@ class ServiceList extends Component {
     const { serviceList } = this.state
     serviceList.map((service) => service.checked = checked)
     this.setState({
-      serviceList
+      serviceList,
+      donotUserCurrentShowInstance: true
     })
     if (checked) {
       this.setState({
@@ -540,11 +603,19 @@ class ServiceList extends Component {
       })
     }
   }
+
   componentWillMount() {
     const { appName } = this.props
     document.title = '服务列表 | 时速云'
     this.loadServices()
     return
+  }
+
+  componentDidMount() {
+    // Reload list each UPDATE_INTERVAL
+    this.upStatusInterval = setInterval(() => {
+      this.loadServices(null, { keepChecked: true })
+    }, UPDATE_INTERVAL)
   }
 
   componentWillUnmount() {
@@ -553,6 +624,8 @@ class ServiceList extends Component {
       statusWatchWs,
     } = this.props
     removeDeploymentWatch(cluster, statusWatchWs)
+    clearTimeout(this.loadStatusTimeout)
+    clearInterval(this.upStatusInterval)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -572,40 +645,6 @@ class ServiceList extends Component {
     })
     this.loadServices(nextProps)
   }
-
-  /*confirmRestartServices(serviceList, callback) {
-    const self = this
-    const { cluster, loadAllServices, restartServices } = this.props
-    const serviceNames = serviceList.map((service) => service.metadata.name)
-    if (!callback) {
-      callback = {
-        success: {
-          func: () => loadServices(self.props),
-          isAsync: true
-        }
-      }
-    }
-    confirm({
-      title: `您是否确认要重新部署这${serviceNames.length}个服务`,
-      content: serviceNames.join(', '),
-      onOk() {
-        return new Promise((resolve) => {
-          const allServices = self.state.serviceList
-          allServices.map((service) => {
-            if (serviceNames.indexOf(service.metadata.name) > -1) {
-              service.status.phase = 'Redeploying'
-            }
-          })
-          self.setState({
-            serviceList: allServices
-          })
-          restartServices(cluster, serviceNames, callback)
-          resolve()
-        });
-      },
-      onCancel() { },
-    })
-  }*/
 
   batchStartService(e) {
     this.setState({
@@ -689,7 +728,7 @@ class ServiceList extends Component {
     const { cluster, stopServices, serviceList, intl } = this.props
     let checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
-    if (this.state.currentShowInstance) {
+    if (this.state.currentShowInstance && !this.state.donotUserCurrentShowInstance) {
       checkedServiceList = [this.state.currentShowInstance]
     }
     checkedServiceList.map((service, index) => {
@@ -756,7 +795,7 @@ class ServiceList extends Component {
 
     let checkedServiceList = servicesList.filter((service) => service.checked)
     let runningServices = []
-    if (this.state.currentShowInstance) {
+    if (this.state.currentShowInstance && !this.state.donotUserCurrentShowInstance) {
       checkedServiceList = [this.state.currentShowInstance]
     }
     checkedServiceList.map((service, index) => {
@@ -891,14 +930,14 @@ class ServiceList extends Component {
     deleteServices(cluster, serviceNames, {
       success: {
         func: () => {
-          self.loadAllServices(self.props)
+          self.loadServices(self.props)
         },
         isAsync: true
       },
       failed: {
         func: (err) => {
           errorHandler(err, intl)
-          self.loadAllServices(self.props)
+          self.loadServices(self.props)
         },
         isAsync: true
       }
@@ -1018,6 +1057,19 @@ class ServiceList extends Component {
       query
     })
   }
+  cancelModal() {
+    // cancel create Alarm modal
+    this.setState({
+      alarmModal: false,
+      step:1
+    })
+    this.state.resetFields()
+  }
+  nextStep(step) {
+    this.setState({
+      step: step
+    })
+  }
   render() {
     const parentScope = this
     let {
@@ -1061,12 +1113,14 @@ class ServiceList extends Component {
         </Menu.Item>
       </Menu>
     );
+    const modalFunc=  {
+      scope : this,
+      cancelModal: this.cancelModal,
+      nextStep: this.nextStep
+    }
     return (
       <div id="AppServiceList">
-        <QueueAnim className="demo-content"
-          key="demo"
-          type="right"
-          >
+        <QueueAnim className="demo-content">
           <div key='animateBox'>
           <div className='operationBox'>
             <div className='leftBox'>
@@ -1160,22 +1214,25 @@ class ServiceList extends Component {
             </div>
               <div className='status commonTitle'>
                 状态
-            </div>
+              </div>
               <div className='appname commonTitle'>
                 所属应用
-            </div>
+              </div>
+              <div className='alarm commonTitle'>
+                监控告警
+              </div>
               <div className='image commonTitle'>
                 镜像
-            </div>
+              </div>
               <div className='service commonTitle'>
                 服务地址
-            </div>
+              </div>
               <div className='createTime commonTitle'>
                 创建时间
-            </div>
+              </div>
               <div className='actionBox commonTitle'>
                 操作
-            </div>
+              </div>
               <div style={{ clear: 'both' }}></div>
             </div>
 
@@ -1188,9 +1245,29 @@ class ServiceList extends Component {
               loading={isFetching}
               bindingDomains={this.props.bindingDomains}
               bindingIPs={this.props.bindingIPs}
-              k8sServiceList={this.state.k8sServiceList} />
+              k8sServiceList={this.state.k8sServiceList}
+               />
           </Card>
           </div>
+          <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
+            className="alarmModal"
+            onCancel={()=> this.setState({alarmModal:false})}
+            maskClosable={false}
+            footer={null}
+            
+          >
+          <CreateAlarm funcs={modalFunc} currentService={this.state.alertCurrentService} isShow={this.state.alarmModal}/>
+          </Modal>
+           {/* 通知组 */}
+          <Modal title="创建新通知组" visible={this.state.createGroup}
+            width={560}
+            maskClosable={false}
+            wrapClassName="AlarmModal"
+            className="alarmContent"
+            footer={null}
+          >
+          <CreateGroup funcs={modalFunc} shouldLoadGroup={true}/>
+          </Modal>
           <Modal
             title='垂直居中的对话框'
             visible={this.state.modalShow}
@@ -1226,6 +1303,7 @@ class ServiceList extends Component {
             appName={appName}
             visible={manualScaleModalShow}
             service={currentShowInstance}
+            disableScale={this.state.disableScale}
             loadServiceList={() => this.loadServices(this.props)} />
           <Modal
             visible={deployServiceModalShow}
@@ -1283,7 +1361,8 @@ ServiceList = connect(mapStateToProps, {
   stopServices,
   deleteServices,
   quickRestartServices,
-  loadAllServices
+  loadAllServices,
+  loadAutoScale
 })(ServiceList)
 
 export default injectIntl(ServiceList, {

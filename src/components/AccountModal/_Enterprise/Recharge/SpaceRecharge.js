@@ -36,7 +36,13 @@ let SpaceRecharge = React.createClass({
     // set selected recharge memory (unit T)
     this.setState({number})
   },
-
+  otherNumber(e) {
+    let number = parseFloat(e.target.value)
+    if (!/^\d+$/.test(number)) {
+      number = 10
+    }
+    this.setState({number})
+  },
   btnCancel() {
     this.setState({number:10})
     this.props.parentScope.setState({selected:[],spaceVisible: false})
@@ -55,7 +61,7 @@ let SpaceRecharge = React.createClass({
     //  has teamList props load loadUserTeamspaceDetailList
     const body = {
       namespaces: data,
-      amount: _this.state.number
+      amount: parseFloat(_this.state.number)
     }
     if (data.length ==0) {
       notification.info('请选择要充值的空间名')
@@ -72,13 +78,22 @@ let SpaceRecharge = React.createClass({
             notification.success('空间充值成功')
             if (teamID) {
               loadTeamspaceList(teamID)
+              _this.setState({number: 10})
+              _this.props.form.resetFields()
               return
             }
             if (teamList) {
+              _this.setState({number: 10})
+              _this.props.form.resetFields()
               loadUserTeamspaceDetailList(teamList)
             }
           },
           isAsync: true
+        },
+        failed: {
+          func: ()=> {
+            _this.setState({number: 10})
+          }
         }
       })
 
@@ -93,13 +108,18 @@ let SpaceRecharge = React.createClass({
   checkCharge(rule, value, callback) {
     const form = this.props.form
     const _this = this
+    if (typeof value == 'undefined') {
+      callback(new Error('请输入数字    '))
+      return
+    }
+    value = parseFloat(value)
     const { selected } = this.props
     if (selected.length > 0 ) {
       selected.map((list)=> {
         let itemBalance =  parseAmount(_this.props.teamSpacesList[list].balance, 4).amount
-        if ((itemBalance + value) >= MAX_CHARGE ){
-          let visible = (MAX_CHARGE - itemBalance) > 0 ? MAX_CHARGE - itemBalance : 0
-          callback([new Error(`团队空间${_this.props.teamSpacesList[list].namespace}，最大可充值 ${visible}`)])
+        if ((itemBalance + value) > MAX_CHARGE ){
+          let visible = (MAX_CHARGE - itemBalance) > 0 ? parseInt(MAX_CHARGE - itemBalance) : 0
+          callback(new Error(`团队空间${_this.props.teamSpacesList[list].namespace}，最大可充值 ${visible}`))
           return
         }
       })
@@ -146,12 +166,12 @@ let SpaceRecharge = React.createClass({
       rules: [
         { validator: this.checkCharge },
       ],
-      trigger: 'onBlur',
-      initialValue: 0
+      trigger: ['onChange'],
+      initialValue: parseFloat(this.state.number)
     })
     return(
       <div className="spaceItem">
-        <div className="alertRow" style={{margin: 0}}>注：可为团队中的各团队空间充值，全选可批量充值</div>
+        <div className="alertRow" style={{margin: 0}}>Tips：可为团队中的各团队空间充值，全选可批量充值</div>
         <Table rowSelection={rowSelection} columns={columns}
           dataSource={teamSpacesList} pagination={false} className="wrapTable"/>
         <Form>
@@ -162,7 +182,7 @@ let SpaceRecharge = React.createClass({
           <div className={this.state.number ==50 ? "pushMoney selected" : 'pushMoney'} onClick={()=> this.activeMenu(50)}><span>50T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
           <div className={this.state.number ==100 ? "pushMoney selected" : 'pushMoney'} onClick={()=> this.activeMenu(100)}><span>100T</span><div className="triangle"></div><i className="anticon anticon-check"></i></div>
           <Form.Item style={{float:'left', width:'100px'}}>
-            <InputNumber size="large" {...autoNumberProps} min={0} step={50} max={MAX_CHARGE} onClick={(e)=> this.setState({number: e.target.value})}/> T
+            <InputNumber size="large" {...autoNumberProps} min={0} step={50} max={MAX_CHARGE} onClick={(e)=> this.otherNumber(e) }/> T
           </Form.Item>
         </div>
         </Form>

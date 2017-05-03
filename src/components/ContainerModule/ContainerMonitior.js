@@ -56,11 +56,11 @@ class ContainerMonitior extends Component {
   componentDidMount() {
     loadData(this.props, { start: this.changeTime(1) })
   }
-  
+
   componentWillUnmount() {
     clearInterval(metricsInterval)
   }
-  
+
   setIntervalFunc() {
     //this function for setInterval
     let query = this.state.currentStart;
@@ -70,12 +70,12 @@ class ContainerMonitior extends Component {
       this.setState({
         intervalStatus: false
       })
-    } else {      
+    } else {
       const { cluster, containerName, loadContainerAllOfMetrics } = this.props
       this.setState({
         intervalStatus: true
       })
-      metricsInterval = setInterval(() => {    
+      metricsInterval = setInterval(() => {
         loadContainerAllOfMetrics(cluster, containerName, query)
       }, 60000);
     }

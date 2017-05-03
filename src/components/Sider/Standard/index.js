@@ -23,26 +23,7 @@ const MenuItemGroup = Menu.ItemGroup
 const RadioGroup = Radio.Group
 
 function checkUrlSelectedKey(pathname) {
-  //this function for check the pathname and return the selected key of menu
-  let pathList = pathname.split('/')
-  if (pathList.length == 2) {
-    if(pathList[1].length == 0) {
-      return ['home', 'home']
-    }
-    return [pathList[1], pathList[1] + '_default']
-  } else {
-    if(pathList[1] == 'app_manage' && pathList[2] == 'detail') {
-      return [pathList[1], pathList[1] + '_default']
-    }
-    if(pathList[1] == 'account' && pathList[2] == 'user') {
-      return [pathList[1], 'member']
-    }
-    return [pathList[1], pathList[2]]
-  }
-}
-
-function checkUrlOpenKeys(pathname) {
-  //this function for check the pathname and return the opened key of menu
+  //this function for check the pathname and return the selected key of menu and return the opened key of menu
   let pathList = pathname.split('/')
   if (pathList.length == 2) {
     if(pathList[1].length == 0) {
@@ -64,7 +45,6 @@ class Sider extends Component {
   constructor(props) {
     super(props)
     this.selectModel = this.selectModel.bind(this)
-    this.changeSiderStyle = this.changeSiderStyle.bind(this)
     this.onSelectMenu = this.onSelectMenu.bind(this)
     this.onOpenBigMenu = this.onOpenBigMenu.bind(this)
     this.onCloseBigMenu = this.onCloseBigMenu.bind(this)
@@ -87,7 +67,7 @@ class Sider extends Component {
       currentKey = 'home'
     }
     let currentOpenMenu = checkUrlSelectedKey(pathname)
-    let currentSelectedMenu = checkUrlOpenKeys(pathname)
+    let currentSelectedMenu = currentOpenMenu
     if (pathname.indexOf('/account/costCenter') > -1) {
       currentOpenMenu = 'costCenter#consumptions'
       currentSelectedMenu = 'costCenter#consumptions'
@@ -108,28 +88,18 @@ class Sider extends Component {
         currentKey = 'home'
       }
       let currentOpenMenu = checkUrlSelectedKey(pathname)
-      let currentSelectedMenu = checkUrlOpenKeys(pathname)
+      let currentSelectedMenu = currentOpenMenu
       if(currentKey == '') {
         currentKey = 'home'
+      }
+      if (pathname.indexOf('app_manage/detail/') > -1) {
+        currentOpenMenu = ['app_manage','app_manage_default']
+        currentSelectedMenu = currentOpenMenu
       }
       this.setState({
         currentOpenMenu: currentOpenMenu,
         currentSelectedMenu: currentSelectedMenu,
         currentKey: currentKey
-      })
-    }
-  }
-
-  changeSiderStyle() {
-    //this function for user change the sider style to 'mini' or 'bigger'
-    const { scope, siderStyle } = this.props
-    if (siderStyle == 'mini') {
-      scope.setState({
-        siderStyle: 'bigger'
-      })
-    } else {
-      scope.setState({
-        siderStyle: 'mini'
       })
     }
   }
@@ -245,7 +215,7 @@ class Sider extends Component {
 
   onOpenBigMenu(e) {
     //this function for show only one menu opened
-    let currentOpenMenu = checkUrlOpenKeys(e.key + '/' + e.key)
+    let currentOpenMenu = checkUrlSelectedKey(e.key + '/' + e.key)
     this.setState({
       currentOpenMenu: currentOpenMenu
     })
@@ -372,7 +342,7 @@ class Sider extends Component {
                 </Tooltip>
               </li>
               <li onClick={this.selectModel.bind(this, 'manange_monitor', '#manage')} className={currentKey == 'manange_monitor' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='管理与日志' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                <Tooltip placement='right' title='管理与监控' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/manange_monitor'>
                     <svg className='manageMoniter commonImg'>
                       {currentKey == 'manange_monitor' ? [<use xlinkHref='#managemoniterselected' />] : [<use xlinkHref='#managemoniter' />]}
@@ -548,6 +518,12 @@ class Sider extends Component {
                     </Link>
                   </Menu.Item>
 
+                  <Menu.Item key='zookeeper_cluster'>
+                    <Link to='/database_cache/zookeeper_cluster'>
+                      <span><div className='sideCircle'></div> ZooKeeper</span>
+                    </Link>
+                  </Menu.Item>
+
                   <div className='sline'></div>
                 </SubMenu>
                 <Menu.Item key='integration'>
@@ -567,7 +543,7 @@ class Sider extends Component {
                       <svg className='manageMoniter commonImg'>
                         <use xlinkHref='#managemoniter' />
                       </svg>
-                      <span className='commonSiderSpan'>管理与日志</span>
+                      <span className='commonSiderSpan'>管理与监控</span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
                   }
@@ -580,6 +556,21 @@ class Sider extends Component {
                   <Menu.Item key='query_log'>
                     <Link to='/manange_monitor/query_log'>
                       <span><div className='sideCircle'></div> 日志查询</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='alarm_setting'>
+                    <Link to='/manange_monitor/alarm_setting'>
+                      <span><div className='sideCircle'></div> 告警设置</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='alarm_record'>
+                    <Link to='/manange_monitor/alarm_record'>
+                      <span><div className='sideCircle'></div> 告警记录</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='alarm_group'>
+                    <Link to='/manange_monitor/alarm_group'>
+                      <div className='sideCircle'></div> 告警通知组
                     </Link>
                   </Menu.Item>
                   <div className='sline'></div>
@@ -626,6 +617,11 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 充值记录</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item key='openApi'>
+                    <Link to='/account/API'>
+                      <span><div className='sideCircle'></div> 开放 API</span>
+                    </Link>
+                  </Menu.Item>
                   <Menu.Item key='version'>
                     <Link to='/account/version'>
                       <span><div className='sideCircle'></div> 版本</span>
@@ -660,7 +656,7 @@ class Sider extends Component {
             }
           </li>
           <Tooltip placement='right' title={siderStyle == 'mini' ? '展开导航栏' : null} getTooltipContainer={() => document.getElementById('siderTooltip')}>
-            <li className='changeStyleBox' onClick={this.changeSiderStyle}>
+            <li className='changeStyleBox' onClick={this.props.changeSiderStyle}>
               <span>
                 {siderStyle == 'mini' ? [<i key='fa-indent' className='fa fa-indent'></i>] : [<i key='fa-outdent' className='fa fa-outdent'></i>]}
               </span>
@@ -668,7 +664,7 @@ class Sider extends Component {
             </li>
           </Tooltip>
         </ul>
-        <Modal visible={this.state.oldTestingKonwShow} className='testingKnowModal' width='600'>
+        <Modal visible={this.state.oldTestingKonwShow} className='testingKnowModal' width='600' footer={null}>
           <div className='titleBox'>
             <p>欢迎使用时速云</p>
             <Icon className='closeBtn' type='cross' onClick={this.closeNavModal} />
@@ -725,7 +721,7 @@ class Sider extends Component {
             </div>
           </div>
         </Modal>
-        <Modal visible={this.state.newTestingKonwShow} className='testingKnowModal' width='600'>
+        <Modal visible={this.state.newTestingKonwShow} className='testingKnowModal' width='600' footer={null}>
           <div className='titleBox'>
             <p>欢迎使用时速云</p>
             <Icon className='closeBtn' type='cross' onClick={this.closeNavModal} />

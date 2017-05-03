@@ -23,6 +23,7 @@ import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../common/notification_handler'
 import { ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
 import { SERVICE_KUBE_NODE_PORT } from '../../../../constants'
+import ResourceQuotaModal from '../../ResourceQuotaModal'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -44,8 +45,8 @@ class ComposeFile extends Component {
     this.editYamlSetState = this.editYamlSetState.bind(this)
     this.handleVisibleChange = this.handleVisibleChange.bind(this)
 
-    let serviceList = JSON.parse(localStorage.getItem('servicesList'))
-    let selectedList = JSON.parse(localStorage.getItem('selectedList'))
+    let serviceList = JSON.parse(sessionStorage.getItem('servicesList'))
+    let selectedList = JSON.parse(sessionStorage.getItem('selectedList'))
     let serviceDesc = {}
     let deploymentDesc = {}
     let desc = []
@@ -60,7 +61,7 @@ class ComposeFile extends Component {
       })
     }
     this.state = {
-      appName: localStorage.getItem("transientAppName"),
+      appName: sessionStorage.getItem("transientAppName"),
       appDescYaml: desc.join('---\n'),
       remark: '',
       visible: false,
@@ -68,6 +69,8 @@ class ComposeFile extends Component {
       modalShow: false,
       stackType: true,
       createDisabled: false,
+      resourceQuotaModal: false,
+      resourceQuota: null,
     }
   }
   componentWillMount() {
@@ -153,9 +156,9 @@ class ComposeFile extends Component {
               appName: '',
               remark: '',
             })
-            localStorage.removeItem('servicesList')
-            localStorage.removeItem('selectedList')
-            localStorage.removeItem('transientAppName')
+            sessionStorage.removeItem('servicesList')
+            sessionStorage.removeItem('selectedList')
+            sessionStorage.removeItem('transientAppName')
             browserHistory.push('/app_manage')
           },
           isAsync: true
@@ -165,6 +168,36 @@ class ComposeFile extends Component {
             this.setState({
               createDisabled: false,
             })
+            if(err.statusCode == 403) {
+              const { data } = err.message
+              const { require, capacity, used } = data
+              let resourceQuota = {
+                selectResource: {
+                  cpu: formatCpuFromMToC(require.cpu),
+                  memory: formatMemoryFromKbToG(require.memory),
+                },
+                usedResource: {
+                  cpu: formatCpuFromMToC(used.cpu),
+                  memory: formatMemoryFromKbToG(used.memory),
+                },
+                totalResource: {
+                  cpu: formatCpuFromMToC(capacity.cpu),
+                  memory: formatMemoryFromKbToG(capacity.memory),
+                },
+              }
+              this.setState({
+                resourceQuotaModal: true,
+                resourceQuota,
+              })
+              function formatCpuFromMToC(cpu) {
+                return Math.ceil(cpu / 1000 * 10) / 10
+              }
+              function formatMemoryFromKbToG(memory) {
+                return Math.ceil(memory / 1024 / 1024 * 10) / 10
+              }
+              notification.error('创建应用失败', '集群资源不足')
+              return
+            }
             const { message } = err
             notification.error('创建应用失败', message.message)
           },
@@ -279,9 +312,9 @@ class ComposeFile extends Component {
     },100)
   }
   cacheAppName() {
-    localStorage.setItem("transientAppName", this.state.appName || '')
-    // console.info("cached app name:", localStorage.getItem("transientAppName"));
-    localStorage.setItem("forCacheServiceList", true);
+    sessionStorage.setItem("transientAppName", this.state.appName || '')
+    // console.info("cached app name:", sessionStorage.getItem("transientAppName"));
+    sessionStorage.setItem("forCacheServiceList", true);
     browserHistory.goBack()
   }
   closeModal() {
@@ -379,9 +412,16 @@ class ComposeFile extends Component {
           className="AddStackModal"
           width="650px"
           onCancel={() => this.closeModal()}
+          footer={
+            <Button size="large" onClick={()=> this.closeModal()}>关闭</Button>
+          }
           >
           <AppAddStackModal scope={this} />
         </Modal>
+        <ResourceQuotaModal
+          visible={this.state.resourceQuotaModal}
+          closeModal={() => this.setState({resourceQuotaModal: false})}
+          {...this.state.resourceQuota} />
       </QueueAnim>
     )
   }

@@ -21,6 +21,164 @@
     font-size: 13px;
   }
   .content {
+    .clusterCost {
+      .ant-card-body {
+        height: 200px;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+      }
+      .costInfo {
+        margin: 0 auto;
+        width: 100%;
+        max-width: 300px;
+        height: 152px;
+        justify-content: space-between;
+      }
+      .loginUser {
+        width: 100%;
+        max-width: 300px;
+        justify-content: space-between;
+        .logAvatar {
+          width: 46px;
+          height: 46px;
+          line-height: 46px;
+          border-radius: 50%;
+          color: #fff;
+          background-color: #D2EDFE;
+          float: left;
+          text-align: center;
+          font-size: 38px;
+          img {
+            height: 100%;
+            width: 100%;
+            border-radius: 50%;
+          }
+        }
+        .loginText {
+          float: left;
+          padding-left: 7px;
+          width: calc(~"100% - 50px");
+          display: block;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          .text {
+            line-height: 20px;
+            padding-top: 8px;
+            .userName {
+              width: 100%;
+              font-size: 16px;
+              color: #46b2fa;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              .edition {
+                width: 15px;
+                height: 15px;
+                margin-left: 5px;
+              }
+            }
+            .email {
+              width: 100%;
+              font-size: 12px;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+            }
+          }
+        }
+        .loginTag {
+          float: right;
+          height: 20px;
+          line-height: 20px;
+          text-align: center;
+          font-size: 12px;
+          width: 40px;
+          margin-top: 18px;
+          border-radius: 2px;
+          color: #fff;
+          background-color: #c4c4c4;
+        }
+      }
+      .userCost {
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-pack: justify;
+        -webkit-justify-content: space-between;
+        -ms-flex-pack: justify;
+        justify-content: space-between;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        -ms-flex-align: center;
+        align-items: center;
+        margin: 10px 0;
+        i {
+          display: inline-block;
+          width: 10px;
+          height: 10px;
+          margin-right: 5px;
+          border-radius: 3px;
+          cursor: pointer;
+        }
+        .costNum {
+          -webkit-box-flex: 1;
+          -webkit-flex: 1;
+          -ms-flex: 1;
+          flex: 1;
+          text-align: left;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        button {
+          padding: 4px 10px;
+        }
+      }
+    }
+    .clusterStatus{
+      .clusterStatusTitle{
+        height: 35px;
+        line-height: 46px;
+        width: 100%;
+        font-size: 14px;
+        text-align: center;
+      }
+      .statusBottomcontent{
+        border-top: 1px solid #e7ecf2;
+        .statusBottomleft{
+          float: left;
+          width:65px;
+          height:32px;
+          line-height: 32px;
+          padding: 0;
+          .statusBottomItem{
+            font-size: 14px;
+            margin-left: 7px;
+            width:16%;
+          }
+        }
+        .statusBottomright{
+          height:32px;
+          line-height: 35px;
+          margin-left: 65px;
+          .statusBottomrightitem{
+
+          }
+        }
+        .statusBottomthird{
+          cursor: pointer;
+          text-align: center;
+          margin-left: 7px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          color: #979797;
+        }
+      }
+    }
     .sysState {
       .errorDot {
         display: inline-block;

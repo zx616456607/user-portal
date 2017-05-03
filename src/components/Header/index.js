@@ -43,11 +43,15 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /^\/app_center\/?$/,
     /\/app_center\/stack_center/,
     /\/ci_cd/,
+    /\/manange_monitor\/alarm_record/,
+    /\/manange_monitor\/alarm_setting/,
   ],
   cluster: [
     /^\/$/,
     /\/app_manage/,
     /\/database_cache/,
+    /\/manange_monitor\/alarm_record/,
+    /\/manange_monitor\/alarm_setting/,
   ],
 }
 
@@ -352,6 +356,10 @@ class Header extends Component {
     teamClusters.map((cluster) => {
       cluster.name = cluster.clusterName
     })
+    var host = window.location.hostname
+    var protocol = window.location.protocol
+    var docUrl = protocol + '//' + host + ":9004"
+    var faqUrl = docUrl + '/faq'
     let selectValue = mode === standard ? current.space.teamName : current.space.spaceName
     return (
       <div id="header">
@@ -402,7 +410,7 @@ class Header extends Component {
           )
         }
         <div className="rightBox">
-        {
+        {/*
           standardFlag && migrated === 1 &&
           <a href='https://console.tenxcloud.com' target='_blank'>
             <div className='backVersion'>
@@ -412,7 +420,7 @@ class Header extends Component {
               <span className='backText'>返回旧版</span>
             </div>
           </a>
-        }
+        */}
         {
           type === LITE &&
           <div className='upgradeVersion' onClick={this.showUpgradeVersionModal}>
@@ -424,18 +432,39 @@ class Header extends Component {
             </span>
           </div>
         }
+        {
+          standardFlag &&
           <div className="docBtn">
             <a href="http://docs.tenxcloud.com" target="_blank">
               <FormattedMessage {...menusText.doc}/>
             </a>
           </div>
+        }
+        {
+          standardFlag &&
           <div className="docBtn">
             <a href="http://docs.tenxcloud.com/faq" target="_blank">
               FAQ
             </a>
           </div>
+        }
+        {
+          type !== LITE && !standardFlag &&
+          <div className="docBtn">
+            <a href={docUrl} target="_blank">
+              <FormattedMessage {...menusText.doc}/>
+            </a>
+          </div>
+        }
+        {
+          type !== LITE && !standardFlag &&
+          <div className="docBtn">
+            <a href={faqUrl} target="_blank">
+              FAQ
+            </a>
+          </div>
+        }
           <UserPanel loginUser={loginUser}/>
-          <Modal title="升级版本" />
           <Modal
             title='升级版本'
             className='upgradeVersionModal'

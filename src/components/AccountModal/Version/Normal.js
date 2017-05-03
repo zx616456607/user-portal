@@ -138,7 +138,7 @@ class VersionNoraml extends Component {
                   <div className='commonBox'>
                     <div className='commonTitleBox'>
                       <span className='commonIcon'></span>
-                      <span className='commonTitle'>管理与日志</span>
+                      <span className='commonTitle'>管理与监控</span>
                     </div>
                     <div className='commonInfo'>
                       <span className='commonSpan'>审计日志</span>
@@ -236,7 +236,7 @@ class VersionNoraml extends Component {
                   <div className='commonBox'>
                     <div className='commonTitleBox'>
                       <span className='commonIcon'></span>
-                      <span className='commonTitle'>管理与日志</span>
+                      <span className='commonTitle'>管理与监控</span>
                     </div>
                     <div className='commonInfo'>
                       <span className='commonSpan'>审计日志</span>
@@ -300,7 +300,7 @@ class VersionNoraml extends Component {
                       <span className='commonTitle'>交付中心</span>
                     </div>
                     <div className='commonInfo'>
-                      <span className='commonSpan'>镜像仓库（20个镜像）</span>
+                      <span className='commonSpan'>镜像仓库（20个镜像、安全扫描）</span>
                       <span className='commonSpan'>应用商店</span>
                       <span className='commonSpan'>编排文件</span>
                     </div>
@@ -340,7 +340,7 @@ class VersionNoraml extends Component {
                     <img className='commonImg' src={proIcon} />
                     <div className='commonTitleBox'>
                       <span className='commonIcon'></span>
-                      <span className='commonTitle'>管理与日志</span>
+                      <span className='commonTitle'>管理与监控</span>
                     </div>
                     <div className='commonInfo'>
                       <span className='commonSpan'>审计日志</span>

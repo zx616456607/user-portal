@@ -23,13 +23,26 @@ const path = require('path')
 const koa = require('koa')
 const Router = require('koa-router')
 const c2k = require('koa-connect')
+const co = require('co')
 const config = require('./configs')
 const constants = require('./configs/constants')
 const globalConstants = require('./constants')
+const initGlobalConfig = require('./services/init_global_config')
 const middlewares = require('./services/middlewares')
 const logger = require('./utils/logger').getLogger('app')
 const app = koa()
 const terminal = require('./controllers/web_terminal')
+
+//get global config
+co(function*(){
+  try{
+    yield initGlobalConfig.initGlobalConfig()
+  } catch(err) {
+    logger.error('Unexpected error:', JSON.stringify(err))
+    logger.error('Failed to connect to API server ' + config.tenx_api.host + ', fix the issue and restart this server.')
+    // process.exit(-1)
+  }
+})
 
 /*
  * Koa middlewares
@@ -102,7 +115,8 @@ const sessionOpts = {
   rolling: true,
   cookie: {
     maxAge: 1000 * 60 * (process.env.SESSION_MAX_AGE || 720) // 720 minutes(half a day)
-  }
+  },
+  ttl: 1000 * 60 * (process.env.SESSION_MAX_AGE || 720) // 720 minutes(half a day)
 }
 
 let sessionStore;
@@ -177,7 +191,9 @@ if (config.running_mode === constants.STANDARD_MODE) {
     yield next
   })
 }
-const koaBody = require('koa-body')()
+const koaBody = require('koa-body')({
+  formLimit: 　524288000
+})
 app.use(koaBody)
 
 // For views

@@ -6,9 +6,10 @@
  *
  * v0.1 - 2016-10-08
  * @author GaoJian
+ * update zhangcz
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Spin, Modal, Alert, Icon, Tooltip } from 'antd'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, Alert, Icon, Tooltip, Table } from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -94,158 +95,6 @@ const menusText = defineMessages({
     defaultMessage: '下载次数：',
   },
 })
-
-const MyComponent = React.createClass({
-  propTypes: {
-    config: React.PropTypes.array,
-    scope: React.PropTypes.object
-  },
-  getInitialState() {
-    return {delModal: false}
-  },
-  btnDeleteImage: function () {
-    //this function for user delete select imagex
-    const {deleteImage} = this.props.scope.props
-    const config = {
-      registry: DEFAULT_REGISTRY,
-      image: this.state.imageName
-    }
-    this.setState({delModal: false})
-    let notification = new NotificationHandler()
-    notification.spin(`删除镜像 ${this.state.imageName} 中...`)
-    deleteImage(config, {
-      success: {
-        func: () => {
-          notification.close()
-          notification.success('删除成功！')
-        }
-      },
-      failed: {
-        func: (res) => {
-          notification.close()
-          notification.error('删除失败')
-        }
-      }
-    })
-
-  },
-  componentWillMount() {
-    const imagename = location.search.split('imageName=')[1]
-    if (imagename !== '' && imagename !== undefined) {
-      const scope = this.props.scope;
-      const config = {
-        registry: DEFAULT_REGISTRY,
-        image: imagename
-      }
-      scope.setState({
-        privateDetailModal: true,
-        currentImage: this.props.imageInfo
-      });
-      scope.props.checkImage(config, {
-        success: {
-          func: (res) => {
-            if (res.data.hasOwnProperty('status') && res.data.status == 404) {
-              let notification = new NotificationHandler()
-              notification.warn('所查看的镜像不存在')
-              return
-            }
-          }
-        }
-      })
-      this.setState({
-        imageInfo: this.props.imageInfo
-      })
-    }
-  },
-  showImageDetail: function (id) {
-    //this function for user select image and show the image detail info
-    const scope = this.props.scope;
-    scope.setState({
-      privateDetailModal: true,
-      currentImage: id
-    });
-    const fullgroup = { registry: DEFAULT_REGISTRY, fullName: id.name }
-    this.props.getImageDetailInfo(fullgroup, {
-      success: {
-        func: (res) => {
-          scope.setState({
-            imageInfo: res.data
-          })
-        }
-      }
-    })
-  },
-  render: function () {
-    const { registryServer, imageList, isFetching} = this.props
-    if (isFetching) {
-      return (
-        <div className='loadingBox'>
-          <Spin size='large' />
-        </div>
-      )
-    }
-    if (imageList.length === 0) {
-      return (
-        <div style={{ lineHeight: '20px', height: '60px', paddingLeft: '30px' }}>您还没有私有镜像，去上传一个吧！</div>
-      )
-    }
-    let items = imageList.map((item, index) => {
-      const dropdown = (
-        <Menu onClick={()=> this.setState({delModal: true, imageName: item.name})}
-          style={{ width: "100px" }}
-          >
-          <Menu.Item key={item.id}>
-            <FormattedMessage {...menusText.delete} />
-          </Menu.Item>
-        </Menu>
-      );
-      return (
-        <div className="imageDetail" key={`${item.name}-${index}`} >
-          <div className="imageBox">
-            <svg className='appcenterlogo'>
-              <use xlinkHref='#appcenterlogo' />
-            </svg>
-          </div>
-          <div className="contentBox">
-            <span className="title" onClick={this.showImageDetail.bind(this, item)}>
-              {item.name}
-            </span><br />
-            <span className="type">
-              <FormattedMessage {...menusText.type} />&nbsp;&nbsp;&nbsp;
-                {item.isPrivate == "0" ? [
-                <span key={item.id + "unlock"}><svg className='cicdpublic'><use xlinkHref='#cicdpublic' /></svg>&nbsp;<FormattedMessage {...menusText.publicType} /></span>]
-                :
-                [<span key={item.id + "lock"}><svg className='cicdprivate'><use xlinkHref='#cicdprivate' /></svg>&nbsp;<FormattedMessage {...menusText.privateType} /></span>]
-              }
-            </span>
-            <span className="imageUrl textoverflow">
-              <FormattedMessage {...menusText.imageUrl} />&nbsp;
-              <span className="">{registryServer}/{item.name}</span>
-            </span>
-            <span className="downloadNum">
-              <FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNumber}
-            </span>
-          </div>
-          <div className="btnBox">
-            <Dropdown.Button overlay={dropdown} type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${registryServer}&imageName=${item.name}`)}>
-              <FormattedMessage {...menusText.deployService} />
-            </Dropdown.Button>
-          </div>
-        </div>
-      );
-    });
-    return (
-      <div className="imageList">
-        {items}
-        <Modal title="删除镜像操作" visible={this.state.delModal}
-          onOk={() => this.btnDeleteImage()} onCancel={() => this.setState({ delModal: false })}
-          >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>您确定要删除镜像 {this.state.imageName}?</div>
-        </Modal>
-      </div>
-    );
-  }
-});
 
 let NoBind = React.createClass({
   getInitialState() {
@@ -360,8 +209,7 @@ let NoBind = React.createClass({
             bindModalConfirmLoading: false,
           });
           const { message } = err
-          console.log(err)
-          notification.error(`绑定账户 ${username} 失败`, message.message || message)
+          notification.error(`绑定账户 ${username} 失败`,'请检查用户名或密码是否匹配')
         },
         isAsync: true
       }
@@ -446,6 +294,31 @@ class ImageSpace extends Component {
     if(hubConfig) {
       this.props.loadPrivateImageList(DEFAULT_REGISTRY);
     }
+    const imagename = location.search.split('imageName=')[1]
+    if (imagename !== '' && imagename !== undefined) {
+      const config = {
+        registry: DEFAULT_REGISTRY,
+        image: imagename
+      }
+      this.setState({
+        privateDetailModal: true,
+        currentImage: this.props.imageInfo
+      });
+      this.props.checkImage(config, {
+        success: {
+          func: (res) => {
+            if (res.data.hasOwnProperty('status') && res.data.status == 404) {
+              let notification = new NotificationHandler()
+              notification.warn('所查看的镜像不存在')
+              return
+            }
+          }
+        }
+      })
+      this.setState({
+        imageInfo: this.props.imageInfo
+      })
+    }
   }
   componentWillReceiveProps(nextProps) {
     const { space, hubConfig } = nextProps
@@ -528,11 +401,130 @@ class ImageSpace extends Component {
       deleteBindUserModal: false
     });
   }
+  showImageDetail (id) {
+    //this function for user select image and show the image detail info
+    const _this = this
+    this.setState({
+      privateDetailModal: true,
+      currentImage: id
+    });
+    const fullgroup = { registry: DEFAULT_REGISTRY, fullName: id.name }
+    this.props.getImageDetailInfo(fullgroup, {
+      success: {
+        func: (res) => {
+          _this.setState({
+            imageInfo: res.data
+          })
+        }
+      }
+    })
+  }
+   btnDeleteImage () {
+    //this function for user delete select imagex
+    const {deleteImage} = this.props
+    const config = {
+      registry: DEFAULT_REGISTRY,
+      image: this.state.imageName
+    }
+    this.setState({delModal: false})
+    let notification = new NotificationHandler()
+    notification.spin(`删除镜像 ${this.state.imageName} 中...`)
+    deleteImage(config, {
+      success: {
+        func: () => {
+          notification.close()
+          notification.success('删除成功！')
+        }
+      },
+      failed: {
+        func: () => {
+          notification.close()
+          notification.error('删除失败！')
+        }
+      }
+    })
+
+  }
   render() {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
     const scope = this;
     const { imageList, server, imageInfo, hubConfig, globalHubConfigured } = this.props
+
+    const columns = [{
+      title: '镜像名',
+      dataIndex: 'name',
+      key: 'name',
+      width:'30%',
+      render: (text,row) => {
+        return (
+        <div className="imageList">
+          <div className="imageBox">
+            <svg className='appcenterlogo'>
+              <use xlinkHref='#appcenterlogo' />
+            </svg>
+          </div>
+          <div className="contentBox">
+            <div className="title" onClick={()=> this.showImageDetail(row)}>
+              {text}
+            </div>
+            <div className="type">
+              <FormattedMessage {...menusText.type} />
+              {row.contributor}
+              {row.isPrivate == "0" ? [
+                <span key={row.id + "unlock"}><svg className='cicdpublic'><use xlinkHref='#cicdpublic' /></svg><FormattedMessage {...menusText.publicType} /></span>]
+                :
+                [<span key={row.id + "lock"}><svg className='cicdprivate'><use xlinkHref='#cicdprivate' /></svg><FormattedMessage {...menusText.privateType} /></span>]
+              }
+            </div>
+
+          </div>
+        </div>
+        )
+      }
+     }, {
+      title: '地址',
+      dataIndex: 'description',
+      key: 'description',
+      width:'40%',
+      render:(text, row) => {
+        return (
+          <div className="imgurl"><FormattedMessage {...menusText.imageUrl} />{server} / {row.name}</div>
+        )
+      }
+     }, {
+      title: '下载',
+      dataIndex: 'downloadNumber',
+      key: 'address',
+      width:'15%',
+      render: text => {
+        return (
+          <div><FormattedMessage {...menusText.downloadNum} />&nbsp;{text}</div>
+        )
+      }
+     }, {
+      title: '部署',
+      dataIndex: 'icon',
+      key: 'icon',
+      width:'15%',
+      render: (text, row)=> {
+        const dropdown = (
+          <Menu onClick={()=> this.setState({delModal: true, imageName: row.name})}
+            style={{ width: "100px" }}
+            >
+            <Menu.Item key={row.id}>
+              <FormattedMessage {...menusText.delete} />
+            </Menu.Item>
+          </Menu>
+        );
+        return (
+          <Dropdown.Button overlay={dropdown} type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${server}&imageName=${row.name}`)}>
+              <FormattedMessage {...menusText.deployService} />
+            </Dropdown.Button>
+        )
+      }
+     }
+    ];
     return (
       <QueueAnim className="ImageSpace"
         type="right"
@@ -556,10 +548,6 @@ class ImageSpace extends Component {
                 </svg>
                 <FormattedMessage {...menusText.downloadImage} />
               </Button>
-              <span className="searchBox">
-                <Input className="searchInput" size="large" placeholder="搜索" type="text" onChange={(e)=> this.setState({imageName: e.target.value})} onPressEnter={()=> this.searchImage()} />
-                <i className="fa fa-search" onClick={()=> this.searchImage()}></i>
-              </span>
               { !standardFlag && !globalHubConfigured ?
                 [
                 <Tooltip title='注销时速云Hub'>
@@ -569,10 +557,19 @@ class ImageSpace extends Component {
                 </Tooltip>
                 ] : null
               }
+              <span className="searchBox">
+                <Input className="searchInput" size="large" placeholder="搜索" type="text" onChange={(e)=> this.setState({imageName: e.target.value})} onPressEnter={()=> this.searchImage()} />
+                <i className="fa fa-search" onClick={()=> this.searchImage()}></i>
+              </span>
             </div>
-            <MyComponent scope={scope} isFetching={this.props.isFetching} imageList={imageList} registryServer={server} imageInfo={imageInfo} getImageDetailInfo={(obj, callback) => this.props.getImageDetailInfo(obj, callback)} />
+            <Table className="privateImage" dataSource={ imageList } columns={columns} pagination={{simple:true}} loading={this.props.isFetching}/>
           </Card>]
           }
+          <Modal title="删除镜像操作" visible={this.state.delModal}
+          onOk={() => this.btnDeleteImage()} onCancel={() => this.setState({ delModal: false })}
+          >
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>您确定要删除镜像 {this.state.imageName}?</div>
+        </Modal>
           <Modal title={<FormattedMessage {...menusText.uploadImage} />} className="uploadImageModal" visible={this.state.uploadModalVisible}
             onCancel={this.closeUploadModal} onOk={this.closeUploadModal}
             >
@@ -609,7 +606,7 @@ class ImageSpace extends Component {
             onCancel={this.closeImageDetailModal}
             >
             {/* right detail box  */}
-            <ImageDetailBox parentScope={rootscope} server={this.props.server} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
+            <ImageDetailBox parentScope={rootscope} server={this.props.server} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} imageType={'privateImages'}/>
           </Modal>
           <Modal title='注销' className='liteBindCenterModal' visible={this.state.deleteBindUserModal} onOk={this.deleteBindUser} onCancel={this.closeDeleteBindUser}>
             <span style={{ color: '#00a0ea' }}><Icon type='exclamation-circle-o' />&nbsp;&nbsp;&nbsp;确定要注销时速云官方Hub？</span>

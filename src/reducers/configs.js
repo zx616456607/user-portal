@@ -20,7 +20,7 @@ function configGroupList(state = {}, action) {
     [cluster]: {
       isFetching: false,
       cluster,
-      configGroup: []
+      configGroup: {}
     }
   }
   switch (action.type) {
@@ -29,11 +29,11 @@ function configGroupList(state = {}, action) {
         [cluster]: { isFetching: true }
       })
     case ActionTypes.CONFIG_LIST_SUCCESS:
-      const groupList = merge({}, {
+      const groupList = Object.assign({}, state, {
         [cluster]: {
           isFetching: false,
           cluster: action.response.result.cluster,
-          configGroup: state.configGroupList = action.response.result.data
+          configGroup: action.response.result.data
         }
       })
       return groupList
@@ -91,18 +91,18 @@ function configGroupList(state = {}, action) {
         }
       } else {
         // has delete err group name
-        for (let i = 0; i < configFile3.length; i++) {
-          index3 = findIndex(configFile3, item => {
-            return item == resData[i].name
-          })
-          configFile3.splice(index3, 1)
-        }
-        for (let i = 0; i < configFile3.length; i++) {
-          index4 = findIndex(configGroup3.configGroup, item => {
-            return item.name === configFile3[i]
-          })
-          configGroup3.configGroup.splice(index4, 1)
-        }
+        // for (let i = 0; i < configFile3.length; i++) {
+        //   index3 = findIndex(configFile3, item => {
+        //     return item == resData[i].name
+        //   })
+        //   configFile3.splice(index3, 1)
+        // }
+        // for (let i = 0; i < configFile3.length; i++) {
+        //   index4 = findIndex(configGroup3.configGroup, item => {
+        //     return item.name === configFile3[i]
+        //   })
+        //   configGroup3.configGroup.splice(index4, 1)
+        // }
       }
       return delState
     // return union({}, state, { isFetching: false })

@@ -32,7 +32,7 @@ let CreateSpaceModal = React.createClass({
     const { teamID, funcs } = this.props
     const { checkTeamSpaceName } = funcs
     if (!USERNAME_REG_EXP_NEW.test(value)) {
-      callback([new Error('以[a~z]开头，允许[0~9]、[-]，且以小写英文和数字结尾')])
+      callback([new Error('以[a~z]开头，允许[0~9]、[-]，长度大于4，且以小写英文和数字结尾')])
       return
     }
     // Disabled submit button when checkTeamSpaceName
@@ -98,14 +98,14 @@ let CreateSpaceModal = React.createClass({
     })
     const descriptionProps = getFieldProps('description')
     const formItemLayout = {
-      labelCol: { span: 4 },
-      wrapperCol: { span: 18 },
+      labelCol: { span: 2 },
+      wrapperCol: { span: 21 },
     }
     return (
       <Modal title="创建新空间" visible={visible}
         onOk={this.handleOk} onCancel={this.handleCancel}
         wrapClassName="addSpaceModal"
-        width="463px"
+        width="500px"
         footer={[
           <Button
             key="back"

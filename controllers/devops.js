@@ -27,24 +27,24 @@ exports.registerRepo = function* () {
 
   const api = apiFactory.getDevOpsApi(loginUser)
   switch (repoType) {
-    case "gitlab":
+    case "gitlab": case "gogs":
       if (!repoInfo.url || !repoInfo.private_token) {
-        const err = new Error("Missing url or private_token for gitlab repository")
+        const err = new Error(`Missing url or private_token for ${repoType} repository`)
         err.status = 400
         throw err
       }
       var RegExp = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
       if (!RegExp.test(repoInfo.url)) {
-        const err = new Error("Invalid gitlab url")
+        const err = new Error(`Invalid ${repoType} url`)
         err.status = 400
         throw err
       }
       break;
     case "svn":
       break;
-  
+
     default:
-      const err = new Error('Only support gitlab for now')
+      const err = new Error(`Not support ${repoType} for now`)
       err.status = 400
       throw err
   }
@@ -68,8 +68,8 @@ exports.getSupportedRepository = function* () {
 exports.listRepository = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
-  if (repoType != "gitlab" && repoType != 'github') {
-    const err = new Error('Only support gitlab/github for now')
+  if (repoType != "gitlab" && repoType != 'github' && repoType != 'gogs') {
+    const err = new Error('Only support gitlab/github/gogs for now')
     err.status = 400
     throw err
   }
@@ -85,8 +85,8 @@ exports.listRepository = function* () {
 exports.syncRepository = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
-  if (repoType != "gitlab" && repoType != 'github')  {
-    const err = new Error('Only support gitlab/github for now')
+  if (repoType != "gitlab" && repoType != 'github' && repoType != 'gogs')  {
+    const err = new Error('Only support gitlab/github/gogs for now')
     err.status = 400
     throw err
   }
@@ -102,8 +102,8 @@ exports.syncRepository = function* () {
 exports.removeRepository = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
-  if (repoType != "gitlab" && repoType != "github") {
-    const err = new Error('Only support gitlab/github for now')
+  if (repoType != "gitlab" && repoType != "github" && repoType != 'gogs') {
+    const err = new Error('Only support gitlab/github/gogs for now')
     err.status = 400
     throw err
   }
@@ -124,8 +124,8 @@ exports.listBranches = function* () {
   const repoType = this.params.type
   const repoName = this.query.reponame
   const project_id = this.query.project_id
-  if (repoType != "gitlab" && repoType != "github") {
-    const err = new Error('Only support gitlab/github for now')
+  if (repoType != "gitlab" && repoType != "github" && repoType != 'gogs') {
+    const err = new Error('Only support gitlab/github/gogs for now')
     err.status = 400
     throw err
   }
@@ -143,11 +143,76 @@ exports.listBranches = function* () {
   }
 }
 
+exports.listTags = function* () {
+  const loginUser = this.session.loginUser
+  const repoType = this.params.type
+  const repoName = this.query.reponame
+  const project_id = this.query.project_id
+  if (repoType != "gitlab" && repoType != "github" && repoType != 'gogs') {
+    const err = new Error('Only support gitlab/github/gogs for now')
+    err.status = 400
+    throw err
+  }
+  if (!repoName || !project_id) {
+    const err = new Error('reponame and project_id are required in the query to get the branches information')
+    err.status = 400
+    throw err
+  }
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["repos", repoType, "tags"], {"reponame": repoName, project_id})
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.listBranchesAndTags = function* () {
+  const loginUser = this.session.loginUser
+  const repoType = this.params.type
+  const repoName = this.query.reponame
+  const project_id = this.query.project_id
+  if (repoType != "gitlab" && repoType != "github" && repoType != 'gogs') {
+    const err = new Error('Only support gitlab/github/gogs for now')
+    err.status = 400
+    throw err
+  }
+  if (!repoName || !project_id) {
+    const err = new Error('reponame and project_id are required in the query to get the branches information')
+    err.status = 400
+    throw err
+  }
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const reqArray = []
+  reqArray.push(api.getBy(["repos", repoType, "branches"], {"reponame": repoName, project_id}))
+  reqArray.push(api.getBy(["repos", repoType, "tags"], {"reponame": repoName, project_id}))
+  const results = yield reqArray
+  this.body = {
+    data: {
+      branches: results[0].results,
+      tags: results[1].results,
+    }
+  }
+}
+
+exports.getManagedProject = function* (next) {
+  const loginUser = this.session.loginUser
+  const project_id = this.params.project_id
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["managed-projects", project_id], null)
+  const repo = result.results
+  this.params.type = repo.repo_type
+  this.query.reponame = repo.name
+  this.query.project_id = repo.gitlab_project_id
+  yield next
+}
+
 exports.getUserInfo = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
-  if (repoType != "gitlab" && repoType != "github")  {
-    const err = new Error('Only support gitlab for now')
+  if (repoType != "gitlab" && repoType != "github" && repoType != 'gogs')  {
+    const err = new Error(`Not support ${repo_type} for now`)
     err.status = 400
     throw err
   }
@@ -181,7 +246,7 @@ exports.getAuthRedirectUrl = function* () {
     this.session.authRepoInSpace = this.session.loginUser.teamspace
   }
   const result = yield api.getBy(["repos", repoType, "auth"], null)
-  
+
   this.body = {
     data: result
   }
@@ -203,7 +268,7 @@ exports.doUserAuthorization = function* () {
 
   var resData = {
     authInfo: loginUser.ciAuthInfo || {},
-    type: type 
+    type: type
   }
   var state = this.query.state
   if (state && loginUser.github_state && state !== loginUser.github_state) {
@@ -253,7 +318,7 @@ exports.addManagedProject = function* () {
   const body = this.request.body
 
   if (!body.name || !body.repo_type || !body.address) {
-    const err = new Error('name, repo_type address are required in the query to get the branches information')
+    const err = new Error('name, repo_type, address are required in the query to get the branches information')
     err.status = 400
     throw err
   }
@@ -262,6 +327,13 @@ exports.addManagedProject = function* () {
     case "gitlab":
       if (!body.source_full_name || !body.gitlab_project_id) {
         const err = new Error("source_full_name and gitlab_project_id for gitlab are required")
+        err.status = 400
+        throw err
+      }
+      break;
+    case "gogs":
+      if (!body.projectId) {
+        const err = new Error("projectId for gogs are required")
         err.status = 400
         throw err
       }
@@ -283,7 +355,7 @@ exports.addManagedProject = function* () {
       }
       break;
     default:
-      const err = new Error('Only support gitlab/github/svn for now')
+      const err = new Error('Only support gitlab/github/svn/gogs for now')
       err.status = 400
       throw err
   }
@@ -336,13 +408,13 @@ exports.createCIFlows = function* (){
 
   const api = apiFactory.getDevOpsApi(loginUser)
 
-  let result 
+  let result
   if (body.init_type == '2') {
     result = yield api.createBy(["ci-flows"], {o: 'yaml'}, body.yaml)
   } else {
     result = yield api.createBy(["ci-flows"], null, body)
   }
-  
+
 
   this.body = {
     data: result
@@ -542,7 +614,7 @@ exports.updateStageLink = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
   const stage_id = this.params.stage_id
-  const target_id = this.params.target_id 
+  const target_id = this.params.target_id
   const body = this.request.body
 
   const api = apiFactory.getDevOpsApi(loginUser)
@@ -608,15 +680,15 @@ exports.updateCDRule = function* () {
 }
 
 /*
-CI rules 
+CI rules
 */
 exports.getCIRule = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
-  
+
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["ci-flows", flow_id, "ci-rules"])
-  
+
   this.body = {
     data: result
   }
@@ -626,7 +698,7 @@ exports.updateCIRule = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
   const body = this.request.body
-  
+
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.updateBy(["ci-flows", flow_id, "ci-rules"], null, body)
 
@@ -737,10 +809,10 @@ exports.listDeploymentLogsOfFlow = function* () {
 exports.getBuildLog = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
-  
+
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["ci-flows", flow_id, "builds"], null)
-  
+
   this.body = {
     data: result
   }
@@ -749,10 +821,10 @@ exports.getBuildLog = function* () {
 exports.getLastBuildLog = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
-  
+
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["ci-flows", flow_id, "lastbuild"], null)
-  
+
   this.body = {
     data: result
   }
@@ -763,10 +835,10 @@ exports.getFlowStageBuildLog = function* () {
   const flow_id = this.params.flow_id
   const stage_id = this.params.stage_id
   const stage_build_id = this.params.stage_build_id
-  
+
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["ci-flows", flow_id, "stages", stage_id, "builds", stage_build_id, "log"], null)
-  
+
   this.body = {
     data: result
   }
@@ -793,7 +865,7 @@ exports.getStageBuildLogList = function* () {
 
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["ci-flows", flow_id, "stages", stage_id, "builds"], null)
-  
+
   this.body = {
     data: result
   }
@@ -816,6 +888,35 @@ exports.getAvailableImages = function*() {
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["ci", "images"], null)
 
+  this.body = {
+    data: result
+  }
+}
+
+
+exports.addBaseImage = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.createBy(["ci", "images"], null, this.request.body)
+  this.body = {
+    data: result
+  }
+}
+
+exports.updateBaseImage = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const body = this.request.body
+  const result = yield api.updateBy(["ci", "images", this.params.id], null, body)
+  this.body = {
+    data: result
+  }
+}
+
+exports.deleteBaseImage = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.deleteBy(["ci", "images", this.params.id])
   this.body = {
     data: result
   }

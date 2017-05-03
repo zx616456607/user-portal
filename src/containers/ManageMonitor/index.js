@@ -22,7 +22,19 @@ const menuList = [
   {
     url: '/manange_monitor/query_log',
     name: '日志查询'
-  }
+  },
+  {
+    url: '/manange_monitor/alarm_setting',
+    name:'告警设置'
+  },
+  {
+    url: '/manange_monitor/alarm_record',
+    name: '告警记录'
+  },
+   {
+    url: '/manange_monitor/alarm_group',
+    name: '告警通知组'
+  },
 ]
 
 export default class ManageMonitor extends Component {
@@ -32,7 +44,7 @@ export default class ManageMonitor extends Component {
       containerSiderStyle: 'normal'
     }
   }
-  
+
   render() {
     const { children } = this.props
     const scope = this

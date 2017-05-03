@@ -23,7 +23,6 @@ const config = {
   // sendcloud 邮箱配置
   sendcloud: {
     apiUser: 'tenxcloud_net_trigger',
-    apiKey: '97AAZxI5ATi4LeB6',
     apiKeyTrigger: '97AAZxI5ATi4LeB6',
     apiKeyBatch: '4987i0ApCzxfmJ82',
     from: 'noreply@tenxcloud.net',

@@ -86,6 +86,15 @@ module.exports = function (config) {
   // ~ vsersions
   this.versions = collections.create('versions')
 
+  // ~ config
+  this.configs = collections.create('configs')
+
+  //  ~images
+  this.images = collections.create('images')
+  
+  // ~ alerts
+  this.alerts = collections.create('alerts')
+
   ////////////////////////////////////////////////////////////////////////////////////
   ///////////////  Standard mode (Public Clould Only) ////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////

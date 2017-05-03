@@ -55,6 +55,18 @@ const menusText = defineMessages({
     id: 'CICD.TenxStorm.sureCancellationCode',
     defaultMessage: '您是否确认要注销这项代码源',
   },
+  notSrc: {
+    id: 'CICD.TenxStorm.notSrc',
+    defaultMessage: '地址不能为空',
+  },
+  errorSrc: {
+    id: 'CICD.TenxStorm.errorSrc',
+    defaultMessage: '地址输入有误',
+  },
+  syncCode: {
+    id: 'CICD.TenxStorm.syncCode',
+    defaultMessage: '同步代码',
+  },
 })
 
 
@@ -180,14 +192,16 @@ class GithubComponent extends Component {
     this.loadData = this.loadData.bind(this)
     this.searchClick = this.searchClick.bind(this)
     this.state = {
-      repokey: 'github',
+      repokey: props.typeName,
+      authorizeModal: false,
       currentSearch: ''
     }
   }
 
   loadData() {
     const self = this
-    this.props.getGithubList('github', {
+    const { typeName } = this.props
+    this.props.getGithubList(typeName, {
       success: {
         func: (res) => {
           if (res.data.hasOwnProperty('results')) {
@@ -216,20 +230,19 @@ class GithubComponent extends Component {
     const repoItem = scope.state.repokey
     this.setState({removeModal: false})
     scope.props.deleteRepo(repoItem)
-
   }
   handSyncCode() {
-    const { registryGithub } = this.props
+    const { registryGithub, typeName} = this.props
     const parentScope = this.props.scope
     const typeList = parentScope.state.typeList
-    if (!typeList || !typeList.includes('github')) {
+    if (!typeList || !typeList.includes(typeName)) {
       parentScope.setState({typeVisible: true})
       return
     }
     let notification = new NotificationHandler()
     notification.spin(`正在执行中...`)
     this.setState({loading: true})
-    registryGithub('github', {
+    registryGithub(typeName, {
       success: {
         func: (res) => {
           // notification.close()
@@ -268,26 +281,133 @@ class GithubComponent extends Component {
     this.props.searchGithubList(users, image)
   }
   syncRepoList() {
-    const types = this.state.repokey
-    this.props.syncRepoList(types)
+    const { syncRepoList } = this.props
+    const types = this.props.scope.state.repokey
+    let notification = new NotificationHandler()
+    notification.spin(`正在执行中...`)
+    syncRepoList(types, {
+      success: {
+        func: () => {
+          notification.close()
+          notification.success(`代码同步成功`)
+        },
+        isAsync: true
+      }
+    })
   }
   changeList(e) {
     this.setState({
       users: e
     })
   }
-  render() {
-    const { githubList, formatMessage, isFetching} = this.props
-    const scope = this
-    let codeList = []
-    if (!githubList) {
-      return (
-        <div style={{ lineHeight: '100px', paddingLeft: '130px', paddingBottom: '16px' }}>
-        {this.state.loading ?
-          <Button type="primary" size="large" loading={true}>授权、同步 GitHub 代码源</Button>
-        :
-          <Button type="primary" size="large" onClick={() => this.handSyncCode()}>授权、同步 GitHub 代码源</Button>
+  registryRepo() {
+    const url = this.state.regUrl
+    const token = this.state.regToken
+    const { formatMessage } = this.props
+    let notification = new NotificationHandler()
+    if (!url) {
+      notification.info(formatMessage(menusText.notSrc))
+      return
+    }
+    if (!token) {
+      notification.info('Private Token不能为空')
+      return
+    }
+    if (!(/^http:|^https:/).test(url)) {
+      notification.info(formatMessage(menusText.errorSrc))
+      return
+    }
+    const config = {
+      url,
+      token,
+      type: this.props.scope.state.repokey
+    }
+    this.setState({
+      loading: true
+    })
+    const self = this
+    notification.spin(`代码仓库添加中...`)
+    this.props.scope.props.registryRepo(config, {
+      success: {
+        func: () => {
+          notification.close()
+          notification.success(`代码仓库添加成功`)
+          self.setState({
+            authorizeModal: false,
+            regUrl: '',
+            regToken: ''
+          })
+          self.props.scope.props.getRepoList(config.type)
+          self.props.scope.props.getUserInfo(config.type)
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          let message = err.message
+          if (message && message.message) {
+            message = message.message
+          }
+          notification.close()
+          if (err.statusCode === 412) {
+            notification.error(`代码仓库添加失败`, '不允许添加此类型的代码仓库！')
+          } else {
+            notification.error(`代码仓库添加失败`, '仓库地址或者私有Token有误！')
+          }
+          self.setState({ loading: false })
         }
+      }
+    })
+  }
+  showGogsModal() {
+    this.setState({ authorizeModal: true })
+    setTimeout(function(){
+      document.getElementById('codeSrc').focus()
+    },0)
+  }
+  changeUrl(e) {
+    this.setState({ regUrl: e.target.value })
+  }
+  changeToken(e) {
+    this.setState({ regToken: e.target.value })
+  }
+  render() {
+    const { githubList, formatMessage, isFetching, typeName} = this.props
+    const scope = this
+    let typeNames = typeName == 'github' ? 'GitHub': 'Gogs'
+    let codeList = []
+
+    if (!githubList) {
+      if (typeName == 'github') {
+        return (
+          <div style={{ lineHeight: '100px', paddingLeft: '130px', paddingBottom: '16px' }}>
+          {this.state.loading ?
+            <Button type="primary" size="large" loading={true}>授权、同步 GitHub 代码源</Button>
+          :
+            <Button type="primary" size="large" onClick={() => this.handSyncCode()}>授权、同步 GitHub 代码源</Button>
+          }
+          </div>
+        )
+      }
+      return (
+        <div style={{ lineHeight: '100px', paddingLeft: '140px', paddingBottom: '16px' }}>
+          <Button type="primary" size="large" onClick={() => this.showGogsModal() }>添加 Gogs 代码仓库</Button>
+          <Modal title="添加 Gogs 代码仓库" visible={this.state.authorizeModal} maskClosable={false}
+            onCancel={this.closeAddGitlabModal}
+            footer={[
+              <Button key="back" type="ghost" size="large" onClick={() => { this.setState({ authorizeModal: false }) } }>取消</Button>,
+              <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={() => this.registryRepo()}>确定</Button>,
+            ]}
+            >
+            <div>
+              <p style={{ lineHeight: '30px' }}>仓库地址：
+                <Input placeholder="http://*** | https://***" id="codeSrc" onChange={(e)=> this.changeUrl(e)} value={this.state.regUrl} size="large" />
+              </p>
+              <p style={{ lineHeight: '30px' }}>Private Token：
+                <Input placeholder="Private Token: " size="large" onChange={(e)=> this.changeToken(e)} value={this.state.regToken} />
+              </p>
+            </div>
+          </Modal>
         </div>
       )
     }
@@ -301,33 +421,15 @@ class GithubComponent extends Component {
       }
 
     }
-    {/* let items = githubList.map((item, index) => {
-      return (
-        <div className='CodeTable' key={item.name} >
-          <div className="name textoverflow">{item.name}</div>
-          <div className="type">{item.private ? "private" : 'public'}</div>
-          <div className="action">
-            {(item.managedProject && item.managedProject.active == 1) ?
-              <span><Button type="ghost" disabled>已激活</Button>
-                <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>解除</a></span>
-              :
-              <Tooltip placement="right" title="可构建项目">
-                <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >激活</Button>
-              </Tooltip>
-            }
-          </div>
-
-        </div>
-      );
-    });
-    */}
     return (
       <div key="github-Component" type="right" className='codelink'>
         <div className="tableHead">
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={() => this.setState({removeModal: true})} style={{ margin: '0 20px' }} />
           </Tooltip>
-          <Icon type="reload" onClick={() => this.syncRepoList()} />
+          <Tooltip placement="top" title={formatMessage(menusText.syncCode)}>
+            <Icon type="reload" onClick={() => this.syncRepoList()}  />
+          </Tooltip>
           <div className="right-search">
             <Input className='searchBox' size="large" style={{ width: '180px', paddingRight:'28px'}} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
             <i className='fa fa-search' onClick={this.searchClick}></i>
@@ -354,7 +456,7 @@ function mapStateToProps(state, props) {
     isFetching: false
   }
   const { githubRepo} = state.cicd_flow
-  const { githubList, isFetching, users} = githubRepo || defaultValue
+  const { githubList, isFetching, users} = githubRepo['github'] || defaultValue
   return {
     githubList,
     isFetching,

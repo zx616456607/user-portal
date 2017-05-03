@@ -27,6 +27,8 @@ import { getAppStatus } from '../../common/status_identify'
 import NotificationHandler from '../../common/notification_handler'
 import errorHandler from '../../containers/App/error_handler'
 import AppServiceRental from './AppServiceDetail/AppServiceRental'
+import AlarmStrategy from '../ManageMonitor/AlarmStrategy'
+import Topology from './AppServiceDetail/Topology'
 
 const DEFAULT_TAB = '#service'
 
@@ -44,6 +46,7 @@ class AppDetail extends Component {
     this.state = {
       activeTabKey: props.hash || DEFAULT_TAB,
       serviceList: null,
+      availableReplicas: 0
     }
   }
 
@@ -71,7 +74,8 @@ class AppDetail extends Component {
     if (activeTabKey === this.state.activeTabKey) {
       return
     }
-    const { pathname } = this.props
+    // const { pathname } = this.props
+    const pathname = location.pathname
     this.setState({
       activeTabKey
     })
@@ -82,12 +86,17 @@ class AppDetail extends Component {
       pathname,
       hash: activeTabKey
     })
+    if (activeTabKey == '#topology') {
+      setTimeout(()=> window.frames['topology'].postMessage('topology',location.href),500)
+    }
   }
 
   // For change app status when service list change
-  onServicesChange(serviceList) {
+  onServicesChange(serviceList, availableReplicas, total) {
     this.setState({
       serviceList,
+      availableReplicas,
+      total
     })
   }
 
@@ -126,7 +135,7 @@ class AppDetail extends Component {
 
   render() {
     const { children, appName, app, isFetching, location, bindingDomains, bindingIPs } = this.props
-    const { activeTabKey, serviceList } = this.state
+    const { activeTabKey, serviceList, availableReplicas, total } = this.state
     if (isFetching || !app) {
       return (
         <div className='loadingBox'>
@@ -134,7 +143,7 @@ class AppDetail extends Component {
         </div>
       )
     }
-    const status = getAppStatus(serviceList || app.services)
+   // const status = getAppStatus(serviceList || app.services)
     let updateDate = '-'
     if (app && app.services && app.services[0]) {
       updateDate = app.services[0].metadata.creationTimestamp
@@ -180,7 +189,7 @@ class AppDetail extends Component {
                   </div>
                   <div className='service'>
                     服务：
-                    {`${status.availableReplicas} / ${status.replicas}`}
+                    {`${availableReplicas} / ${total}`}
                   </div>
                 </div>
                 <div className='middleInfo'>
@@ -237,19 +246,25 @@ class AppDetail extends Component {
                 </TabPane>
                 {/*<TabPane tab='应用拓扑' key='#topology' >应用拓扑</TabPane>*/}
                 <TabPane tab='编排文件' key='#stack' >
-                  <AppGraph key='AppGraph' cluster={this.props.cluster} appName={this.props.appName} /></TabPane>
+                  <AppGraph key='AppGraph' cluster={this.props.cluster} appName={appName} /></TabPane>
                 <TabPane tab='审计日志' key='#logs' >
                   <AppLog key='AppLog'
                     cluster={this.props.cluster}
-                    appName={this.props.appName} />
+                    appName={appName} />
                 </TabPane>
                 <TabPane tab='监控' key='#monitor' >
                   <AppMonitior
                     cluster={this.props.cluster}
-                    appName={this.props.appName} />
+                    appName={appName} />
                 </TabPane>
                 <TabPane tab="租赁信息" key="#rentalInfo">
                   <AppServiceRental serviceName={appName} serviceDetail={app.services} />
+                </TabPane>
+                <TabPane tab="告警策略" key="#strategy">
+                  <AlarmStrategy appName={appName} cluster={this.props.cluster} />
+                </TabPane>
+                <TabPane tab="拓扑图" key="#topology">
+                  <Topology appName={appName} cluster={this.props.cluster} />
                 </TabPane>
               </Tabs>
             </Card>

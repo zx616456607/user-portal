@@ -42,6 +42,10 @@ const menuList_standard = [
     name: '充值记录'
   },
   {
+    url: '/account/API',
+    name: '开放 API'
+  },
+  {
     url: '/account/version',
     name: '版本'
   }

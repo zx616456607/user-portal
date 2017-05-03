@@ -16,12 +16,14 @@ const logger = require('../utils/logger.js').getLogger("user_manage")
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
+const NO_CLUSTER_FLAG = constants.NO_CLUSTER_FLAG
 const ROLE_TEAM_ADMIN = 1
 const ROLE_SYS_ADMIN = 2
 const config = require('../configs')
 const standardMode = require('../configs/constants').STANDARD_MODE
 const serviceIndex = require('../services')
 const registryConfigLoader = require('../registry/registryConfigLoader')
+const initGlobalConfig = require('../services/init_global_config')
 const _ = require('lodash')
 
 /*
@@ -37,6 +39,9 @@ exports.getUserDetail = function* () {
   if (this.params.user_id === 'default') {
     // For get loginUser info when user refresh page
     user.watchToken = loginUser.watchToken
+    yield initGlobalConfig.initGlobalConfig()
+    // For no cluster handle
+    user[NO_CLUSTER_FLAG] = loginUser[NO_CLUSTER_FLAG]
     // Get config from config file and update session
     serviceIndex.addConfigsForFrontend(user)
     loginUser.tenxApi = user.tenxApi

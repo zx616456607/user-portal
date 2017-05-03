@@ -30,6 +30,7 @@ function serviceItems(state = {}, action) {
   }
   switch (action.type) {
     case ActionTypes.SERVICE_LIST_REQUEST:
+    if(!appName) return merge({}, defaultState, state, {})
       return merge({}, defaultState, state, {
         [cluster]: {
           [appName]: {
@@ -55,6 +56,7 @@ function serviceItems(state = {}, action) {
             cluster: action.response.result.cluster,
             appName: action.response.result.appName,
             total: action.response.result.total,
+            availabilityNumber: action.response.result.availableReplicas,
             serviceList,
           }
         }

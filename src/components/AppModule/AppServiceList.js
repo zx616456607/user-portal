@@ -23,9 +23,10 @@ import {
   restartServices,
   stopServices,
   deleteServices,
-  quickRestartServices
+  quickRestartServices,
+  loadAutoScale
 } from '../../actions/services'
-import { LOAD_STATUS_TIMEOUT } from '../../constants'
+import { LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ANNOTATION_HTTPS } from '../../../constants'
 import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
@@ -95,10 +96,10 @@ const MyComponent = React.createClass({
       let stopCount = 0
       let pending = 0
       checkedList.forEach((item, index) => {
-        if(item.status.phase === 'Running') {
+        if (item.status.phase === 'Running') {
           runCount++
         }
-        else if(item.status.phase === 'Pending' || item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
+        else if (item.status.phase === 'Pending' || item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
           pending++
         } else {
           stopCount++
@@ -140,6 +141,9 @@ const MyComponent = React.createClass({
     let stopPro = e._dispatchInstances;
     if (stopPro.length != 2) {
       const { scope } = this.props
+      scope.setState({
+        donotUserCurrentShowInstance: true
+      })
       const { serviceList } = scope.state
       serviceList.map((service) => {
         if (service.metadata.name === item.metadata.name) {
@@ -185,7 +189,7 @@ const MyComponent = React.createClass({
           if (item.status.phase === 'Running') {
             runCount++
           }
-          else if (item.status.phase === 'Pending'|| item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
+          else if (item.status.phase === 'Pending' || item.status.phase === 'Starting' || item.status.phase === 'Deploying') {
             pending++
           } else {
             stopCount++
@@ -226,7 +230,7 @@ const MyComponent = React.createClass({
   },
   modalShow: function (item) {
     // e.stopPropagation()
-    const {scope} = this.props;
+    const { scope } = this.props;
     scope.setState({
       selectTab: null,
       modalShow: true,
@@ -257,11 +261,12 @@ const MyComponent = React.createClass({
   serviceOperaClick(item, e) {
     const { scope } = this.props
     scope.setState({
-      currentShowInstance: item
+      currentShowInstance: item,
+      donotUserCurrentShowInstance: false
     })
     switch (e.key) {
       case 'manualScale':
-        return this.showManualScaleModal()
+        return this.showManualScaleModal(item)
       case 'autoScale':
         return this.showAutoScaleModal()
       case 'rollingUpdate':
@@ -284,8 +289,25 @@ const MyComponent = React.createClass({
       configModal: true
     })
   },
-  showManualScaleModal() {
-    const { scope } = this.props
+  showManualScaleModal(item) {
+    const { scope, cluster } = this.props
+    scope.props.loadAutoScale(cluster, item.metadata.name, {
+      success: {
+        func: (result) => {
+          if (result.data) {
+            if (Object.getOwnPropertyNames(result.data).length > 0) {
+              scope.setState({
+                disableScale: true
+              })
+              return
+            }
+          }
+          scope.setState({
+            disableScale: false
+          })
+        }
+      }
+    })
     scope.setState({
       manualScaleModalShow: true
     })
@@ -322,6 +344,13 @@ const MyComponent = React.createClass({
     }
     const items = serviceList.map((item) => {
       item.cluster = cluster
+      let isHaveVolume = false
+      if (item.spec.template.spec.volumes) {
+        isHaveVolume = item.spec.template.spec.volumes.some(volume => {
+          if (!volume) return false
+          return volume.rbd
+        })
+      }
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)}>
           <Menu.Item key="manualScale">
@@ -330,13 +359,13 @@ const MyComponent = React.createClass({
           <Menu.Item key="autoScale">
             自动伸缩
           </Menu.Item>
-          <Menu.Item key="rollingUpdate">
+          <Menu.Item key="rollingUpdate" disabled={isHaveVolume}>
             灰度升级
           </Menu.Item>
           <Menu.Item key="config">
             更改配置
           </Menu.Item>
-          <Menu.Item key="https" disabled={ loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT }>
+          <Menu.Item key="https" disabled={loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT}>
             设置HTTPS
           </Menu.Item>
         </Menu>
@@ -348,7 +377,7 @@ const MyComponent = React.createClass({
           key={item.metadata.name}
           onClick={(e) => this.selectServiceByLine(e, item)} >
           <div className="selectIconTitle commonData">
-            <Checkbox value={item.metadata.name} checked={item.checked} onChange={this.onchange} />
+            <Checkbox value={item.metadata.name} checked={item.checked} />
           </div>
           <div className="name commonData">
             <span className="viewBtn" onClick={() => this.modalShow(item)}>
@@ -365,7 +394,7 @@ const MyComponent = React.createClass({
           </div>
           <div className="service commonData appSvcListDomain">
             <Tooltip title={svcDomain.length > 0 ? svcDomain[0] : ""}>
-              <TipSvcDomain svcDomain={svcDomain} parentNode="appSvcListDomain" icon={item.https === true ? 'https' : 'http'} />
+              <TipSvcDomain svcDomain={svcDomain} parentNode="AppInfo" icon={item.https === true ? 'https' : 'http'} />
             </Tooltip>
           </div>
           <div className="createTime commonData">
@@ -442,13 +471,18 @@ class AppServiceList extends Component {
       DeleteServiceModal: false,
     }
   }
-
-  loadServices(nextProps) {
+  getInitialState() {
+    return {
+      disableScale: false
+    }
+  }
+  loadServices(nextProps, options) {
     const self = this
     const {
       cluster, appName, loadServiceList, page, size, name
     } = nextProps || this.props
     const query = { page, size, name }
+    query.customizeOpts = options
     loadServiceList(cluster, appName, query, {
       success: {
         func: (result) => {
@@ -472,7 +506,8 @@ class AppServiceList extends Component {
     const { serviceList } = this.state
     serviceList.map((service) => service.checked = checked)
     this.setState({
-      serviceList
+      serviceList,
+      donotUserCurrentShowInstance: true
     })
     if (checked) {
       this.setState({
@@ -496,11 +531,11 @@ class AppServiceList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let { page, size, name, serviceList, onServicesChange } = nextProps
+    let { page, size, name, serviceList, onServicesChange, availabilityNumber, total } = nextProps
     this.setState({
       serviceList
     })
-    onServicesChange(serviceList)
+    onServicesChange(serviceList, availabilityNumber, total)
 
     if (page === this.props.page && size === this.props.size && name === this.props.name) {
       return
@@ -511,12 +546,21 @@ class AppServiceList extends Component {
     this.loadServices(nextProps)
   }
 
+  componentDidMount() {
+    // Reload list each UPDATE_INTERVAL
+    this.upStatusInterval = setInterval(() => {
+      this.loadServices(null, { keepChecked: true })
+    }, UPDATE_INTERVAL)
+  }
+
   componentWillUnmount() {
     const {
       cluster,
       statusWatchWs,
     } = this.props
     removeDeploymentWatch(cluster, statusWatchWs)
+    clearTimeout(this.loadStatusTimeout)
+    clearInterval(this.upStatusInterval)
   }
 
   batchStartService() {
@@ -562,7 +606,7 @@ class AppServiceList extends Component {
         service.status.phase = 'Starting'
       }
     })
-    if(serviceNames.length <= 0 ) {
+    if (serviceNames.length <= 0) {
       const noti = new NotificationHandler()
       noti.error('没有可操作的服务')
       return
@@ -601,7 +645,7 @@ class AppServiceList extends Component {
     const { cluster, stopServices, serviceList, appName, intl } = this.props
     let checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
-    if (this.state.currentShowInstance) {
+    if (this.state.currentShowInstance && !this.state.donotUserCurrentShowInstance) {
       checkedServiceList = [this.state.currentShowInstance]
     }
     checkedServiceList.map((service, index) => {
@@ -667,7 +711,7 @@ class AppServiceList extends Component {
     let checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
 
-    if (this.state.currentShowInstance) {
+    if (this.state.currentShowInstance && !this.state.donotUserCurrentShowInstance) {
       checkedServiceList = [this.state.currentShowInstance]
     }
 
@@ -956,6 +1000,9 @@ class AppServiceList extends Component {
               errMsg = '端口冲突，请检查服务端口'
             }
           }
+          if (err.statusCode == 403) {
+            errMsg = '集群资源不足'
+          }
           notification.error(`服务 ${Service.metadata.name} 添加失败` + (errMsg ? ' => ' + errMsg : ''))
         },
         isAsync: true
@@ -1002,7 +1049,7 @@ class AppServiceList extends Component {
         <QueueAnim className="demo-content"
           key="demo"
           type="right"
-          >
+        >
           <div className="operaBox">
             <Button
               size="large"
@@ -1018,12 +1065,12 @@ class AppServiceList extends Component {
             </Button>
             <Modal title="重新部署操作" visible={this.state.RestarServiceModal}
               onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
-              >
+            >
               <StateBtnModal serviceList={serviceList} scope={parentScope} state="Restart" />
             </Modal>
             <Modal title="启动操作" visible={this.state.StartServiceModal}
               onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
-              >
+            >
               <StateBtnModal serviceList={serviceList} state="Running" />
             </Modal>
             <Button size="large" onClick={this.batchStopService} disabled={!stopBtn}>
@@ -1036,7 +1083,7 @@ class AppServiceList extends Component {
             </Button>
             <Modal title="停止操作" visible={this.state.StopServiceModal}
               onOk={this.handleStopServiceOk} onCancel={this.handleStopServiceCancel}
-              >
+            >
               <StateBtnModal serviceList={serviceList} scope={parentScope} state="Stopped" />
             </Modal>
             <Button size="large" onClick={this.batchDeleteServices} disabled={!isChecked}>
@@ -1045,7 +1092,7 @@ class AppServiceList extends Component {
             </Button>
             <Modal title="删除操作" visible={this.state.DeleteServiceModal}
               onOk={this.handleDeleteServiceOk} onCancel={this.handleDeleteServiceCancel}
-              >
+            >
               <StateBtnModal serviceList={serviceList} scope={parentScope} state='Delete' />
             </Modal>
             <Button size="large" onClick={this.batchQuickRestartService} disabled={!restartBtn}>
@@ -1054,7 +1101,7 @@ class AppServiceList extends Component {
             </Button>
             <Modal title="重启操作" visible={this.state.QuickRestarServiceModal}
               onOk={this.handleQuickRestarServiceOk} onCancel={this.handleQuickRestarServiceCancel}
-              >
+            >
               <StateBtnModal serviceList={serviceList} state="QuickRestar" />
             </Modal>
             <Dropdown overlay={operaMenu} trigger={['click']}>
@@ -1118,14 +1165,14 @@ class AppServiceList extends Component {
             className="AppServiceDetail"
             transitionName="move-right"
             onCancel={this.closeModal}
-            >
+          >
             <AppServiceDetail
               appName={appName}
               scope={parentScope}
               funcs={funcs}
               selectTab={selectTab}
               serviceDetailmodalShow={this.state.modalShow}
-              />
+            />
           </Modal>
           <RollingUpdateModal
             parentScope={parentScope}
@@ -1147,20 +1194,22 @@ class AppServiceList extends Component {
             appName={appName}
             visible={manualScaleModalShow}
             service={currentShowInstance}
-            loadServiceList={loadServiceList} />
+            loadServiceList={loadServiceList}
+            disableScale={this.state.disableScale}
+          />
           <Modal title="添加服务"
             visible={addServiceModalShow}
             className="AppAddServiceModal"
             wrapClassName="appAddServiceModal"
             onCancel={this.closeAddServiceModal}
-            >
+          >
             <AppAddServiceModal scope={parentScope} />
           </Modal>
           <Modal
             visible={deployServiceModalShow}
             className="AppServiceDetail"
             transitionName="move-right"
-            >
+          >
             <AppDeployServiceModal
               scope={parentScope}
               onSubmitAddService={this.onSubmitAddService}
@@ -1219,7 +1268,7 @@ function mapStateToProps(state, props) {
   if (serviceItems[cluster.clusterID] && serviceItems[cluster.clusterID][appName]) {
     targetServices = serviceItems[cluster.clusterID][appName]
   }
-  const { serviceList, isFetching, total } = targetServices || defaultServices
+  const { serviceList, isFetching, total, availabilityNumber } = targetServices || defaultServices
   return {
     loginUser: loginUser,
     cluster: cluster.clusterID,
@@ -1233,7 +1282,8 @@ function mapStateToProps(state, props) {
     total,
     name,
     serviceList,
-    isFetching
+    isFetching,
+    availabilityNumber
   }
 }
 
@@ -1245,6 +1295,7 @@ AppServiceList = connect(mapStateToProps, {
   stopServices,
   deleteServices,
   quickRestartServices,
+  loadAutoScale
 })(AppServiceList)
 
 export default injectIntl(AppServiceList, {

@@ -13,7 +13,7 @@ import { injectIntl } from 'react-intl'
 import { Icon, Menu, Modal, Button, Spin, } from 'antd'
 import ErrorPage from '../ErrorPage'
 import Header from '../../components/Header'
-import Sider from '../../components/Sider/Enterprise'
+import DefaultSider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
 import { Link } from 'react-router'
 import { isEmptyObject, getPortalRealMode } from '../../common/tools'
@@ -35,7 +35,7 @@ import { ROLE_SYS_ADMIN } from '../../../constants'
 import errorHandler from './error_handler'
 import Intercom from 'react-intercom'
 import NotificationHandler from '../../common/notification_handler'
-
+import Xterm from '../../components/TerminalModal/Xterm'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -79,13 +79,14 @@ class App extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { errorMessage, current, pathname, resetErrorMessage, redirectUrl } = nextProps
+    const { errorMessage, current, pathname, resetErrorMessage, redirectUrl, siderStyle } = nextProps
     const { statusWatchWs } = this.props.sockets
     const { space, cluster } = current
     let notification = new NotificationHandler()
     if (space.namespace !== this.props.current.space.namespace || cluster.clusterID !== this.props.current.cluster.clusterID) {
       statusWatchWs && statusWatchWs.close()
     }
+    this.setState({siderStyle})
     // Set previous location
     if (redirectUrl !== this.props.redirectUrl) {
       window.previousLocation = this.props.redirectUrl
@@ -307,6 +308,7 @@ class App extends Component {
     }
   }
 
+
   render() {
     let {
       children,
@@ -315,6 +317,7 @@ class App extends Component {
       pathnameWithHash,
       loginUser,
       Sider,
+      siderStyle,
       UpgradeModal,
       License
     } = this.props
@@ -325,7 +328,6 @@ class App extends Component {
       loginModalVisible,
       loadLoginUserSuccess,
       loginErr,
-      siderStyle,
       upgradeModalShow,
       upgradeFrom,
     } = this.state
@@ -347,7 +349,7 @@ class App extends Component {
           </div>
         </div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-sider' : 'tenx-layout-sider-bigger tenx-layout-sider'}>
-          <Sider pathname={pathnameWithHash} scope={scope} siderStyle={this.state.siderStyle} />
+          <Sider pathname={pathnameWithHash} changeSiderStyle={this.props.changeSiderStyle} siderStyle={this.state.siderStyle} />
         </div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-content' : 'tenx-layout-content-bigger tenx-layout-content'}>
           {this.getChildren()}
@@ -387,6 +389,7 @@ class App extends Component {
             currentType={upgradeFrom}
             visible={upgradeModalShow} />
         }
+        <Xterm />
       </div>
     )
   }
@@ -400,16 +403,15 @@ App.propTypes = {
   children: PropTypes.node,
   pathname: PropTypes.string,
   siderStyle: PropTypes.oneOf(['mini', 'bigger']),
-  Sider: PropTypes.any.isRequired,
   intl: PropTypes.object.isRequired,
   UpgradeModal: PropTypes.func, // 升级模块
-  License: PropTypes.Boolean,
+  // License: PropTypes.Boolean,
   tipError: PropTypes.node
 }
 
 App.defaultProps = {
   siderStyle: 'mini',
-  Sider,
+  Sider: DefaultSider,
 }
 
 function mapStateToProps(state, props) {

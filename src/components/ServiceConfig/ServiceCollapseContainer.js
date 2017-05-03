@@ -9,7 +9,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Row, Icon, Input, Form, Modal, Timeline, Spin, Button } from 'antd'
+import { Row, Icon, Input, Form, Modal, Timeline, Spin, Button, Tooltip } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 // import ConfigFile from './ServiceConfigFile'
 import { loadConfigName, updateConfigName, configGroupName, deleteConfigName, changeConfigFile } from '../../actions/configs'
@@ -42,7 +42,6 @@ function formatLinkContainer(data, groupname, name) {
           }
         }
       }
-
     }
   }
   return linkContainer
@@ -59,12 +58,12 @@ function formatVolumeMounts(data, groupname, name) {
           let cm = data[i].services[j].spec.template.spec.volumes[k]
           if (cm.configMap && cm.configMap.name == groupname) {
             if (!data[i].services[j].spec.template.spec.volumes[k].configMap.items) {
-              volumesMap[cm.name] = true
+              volumesMap[cm.name] = cm
               continue
             }
             for (let l = 0; l < data[i].services[j].spec.template.spec.volumes[k].configMap.items.length; l++) {
               if (data[i].services[j].spec.template.spec.volumes[k].configMap.items[l].key == name) {
-                volumesMap[cm.name] = true
+                volumesMap[cm.name] = cm
               }
             }
           }
@@ -75,11 +74,26 @@ function formatVolumeMounts(data, groupname, name) {
         if (containers[k].volumeMounts) {
           for (var l in containers[k].volumeMounts) {
             if (volumesMap[containers[k].volumeMounts[l].name]) {
-              volumeMounts = unionWith(volumeMounts, [{
-                imageName: data[i].name,
-                serviceName: data[i].services[j].metadata.name,
-                mountPath: containers[k].volumeMounts[l].mountPath
-              }], isEqual)
+              const volumeMount = containers[k].volumeMounts[l]
+              const configMap = volumesMap[containers[k].volumeMounts[l].name]
+              if (configMap.configMap.items) {
+                configMap.configMap.items.forEach(item => {
+                  const arr = volumeMount.mountPath.split('/')
+                  if (arr[arr.length - 1] == name) {
+                    volumeMounts = unionWith(volumeMounts, [{
+                      imageName: data[i].name,
+                      serviceName: data[i].services[j].metadata.name,
+                      mountPath: volumeMount.mountPath
+                    }], isEqual)
+                  }
+                })
+              } else {
+                volumeMounts = unionWith(volumeMounts, [{
+                  imageName: data[i].name,
+                  serviceName: data[i].services[j].metadata.name,
+                  mountPath: volumeMount.mountPath
+                }], isEqual)
+              }
             }
           }
         }
@@ -119,7 +133,7 @@ let CreateConfigFileModal = React.createClass({
         }
       })
     })
-    
+
   },
   configDescExists(rule, value, callback) {
     const form = this.props.form;
@@ -212,7 +226,7 @@ class CollapseContainer extends Component {
     })
 
   }
-  
+
   setInputValue(e) {
     this.setState({ configtextarea: e.target.value })
   }
@@ -260,7 +274,7 @@ class CollapseContainer extends Component {
       }
     })
 
-     
+
   }
   render() {
     const { collapseContainer, groupname } = this.props
@@ -297,9 +311,8 @@ class CollapseContainer extends Component {
             return (
               <td key={`key@${index}`}>
                 <div className="li">应用：<Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link>，服务名称：{list.serviceName}</div>
-                <div className='lis'>{list.mountPath}</div>
+                <div className='lis textoverflow'>{list.mountPath}</div>
               </td>
-
             )
           })
         }
@@ -318,7 +331,11 @@ class CollapseContainer extends Component {
               <tbody>
                 <tr>
                   <td style={{ padding: '15px' }}>
-                    <div style={{ width: '160px' }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px' }} />{configFileItem.name}</div>
+                    <div style={{ width: '160px' }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px',float:'left' }} />
+                      <Tooltip title={configFileItem.name} placement="topLeft">
+                        <div style={{float:'left',width:'130px'}} className="textoverflow">{configFileItem.name}</div>
+                      </Tooltip>
+                    </div>
                   </td>
                   <td style={{ padding: '15px 20px' }}>
                     <Button type='primary' style={{ height: '30px', padding: '0 9px' }}

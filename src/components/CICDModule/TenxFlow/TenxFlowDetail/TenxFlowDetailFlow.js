@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Icon, Card, Alert, Modal, Button } from 'antd'
+import { Spin, Icon, Card, Alert, Modal, Button, } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -21,6 +21,7 @@ import CreateTenxFlowModal from './TenxFlowDetailFlow/CreateTenxFlowModal.js'
 import TenxFlowDetailFlowCard from './TenxFlowDetailFlow/TenxFlowDetailFlowCard.js'
 import Socket from '../../../Websocket/socketIo'
 import NotificationHandler from '../../../../common/notification_handler'
+import ContinueIntegration from '../../../SettingModal/GlobalConfig/ContinueIntegration'
 
 const confirm = Modal.confirm;
 
@@ -31,11 +32,11 @@ const menusText = defineMessages({
   },
   tooltip: {
     id: 'CICD.Tenxflow.TenxFlowDetailFlow.tooltip',
-    defaultMessage: 'TenxFlow流程定义：这里可以定义一个TenxFlow项目的执行流程，每个卡片对应一个子项目，分别执行镜像构建、代码编译、单元测试或者集成测试等子任务，大部分流程以生成应用镜像作为结束。',
+    defaultMessage: 'TenxFlow流程定义：这里可以定义一个TenxFlow项目的执行流程，每个卡片对应一个子任务，分别执行镜像构建、代码编译、单元测试或者集成测试等子任务，大部分流程以生成应用镜像作为结束。',
   },
   add: {
     id: 'CICD.Tenxflow.TenxFlowDetailFlow.add',
-    defaultMessage: '添加子项目',
+    defaultMessage: '添加子任务',
   },
 })
 
@@ -46,6 +47,7 @@ class TenxFlowDetailFlow extends Component {
     this.closeCreateNewFlow = this.closeCreateNewFlow.bind(this);
     this.buildFlow = this.buildFlow.bind(this);
     this.refreshStageList = this.refreshStageList.bind(this);
+    this.toggleCustomizeBaseImageModal = this.toggleCustomizeBaseImageModal.bind(this);
     this.state = {
       editTenxFlowModal: false,
       currentModalShowFlow: null,
@@ -54,8 +56,15 @@ class TenxFlowDetailFlow extends Component {
       buildingList: [],
       refreshing: false,
       websocket: '',
-      forCacheShow: false
+      forCacheShow: false,
+      customizeBaseImageModalVisible: false,
     }
+  }
+
+  toggleCustomizeBaseImageModal(visible) {
+    this.setState({
+      customizeBaseImageModalVisible: visible,
+    })
   }
 
   componentWillMount() {
@@ -111,14 +120,19 @@ class TenxFlowDetailFlow extends Component {
 
   componentWillReceiveProps(nextProps) {
     //this function for user click the top box and build all stages
-    const { startBuild, getTenxFlowStateList, flowId, CreateTenxflowBuild, scope, refreshFlag, getTenxflowBuildLogs } = nextProps;
+    const { startBuild, buildInfo, getTenxFlowStateList, flowId, CreateTenxflowBuild, scope, refreshFlag, getTenxflowBuildLogs } = nextProps;
     let oldFlowId = this.props.flowId;
     let notification = new NotificationHandler()
     if (startBuild) {
       scope.setState({
-        startBuild: false
+        startBuild: false,
+        buildInfo: null,
       })
-      CreateTenxflowBuild(flowId, {}, {
+      const options = {}
+      if (buildInfo) {
+        options.branch = buildInfo.name
+      }
+      CreateTenxflowBuild(flowId, { options }, {
         success: {
           func: (res) => {
             getTenxflowBuildLogs(flowId)
@@ -158,14 +172,14 @@ class TenxFlowDetailFlow extends Component {
     });
   }
 
-  buildFlow(stageId) {
+  buildFlow(stageId, options) {
     //this function for user build stage
     //and user can build single one
     const { CreateTenxflowBuild, getTenxFlowStateList, flowId } = this.props;
     let buildFlag = true;
     const _this = this;
     let notification = new NotificationHandler()
-    CreateTenxflowBuild(flowId, { stageId: stageId }, {
+    CreateTenxflowBuild(flowId, { stageId, options }, {
       success: {
         func: (res) => {
           _this.props.setStatus(_this.props.scope, 2)
@@ -315,11 +329,11 @@ class TenxFlowDetailFlow extends Component {
         })
       } else {
         let lastBuilds = self.state.buildingList
-        let notified = self.state.notified || {} 
+        let notified = self.state.notified || {}
         let notification = new NotificationHandler()
         if (notified && notified[data.results.stageId] !== data.results.stageBuildId) {
           //未提示过
-          if (data.results.buildStatus == 0 && 
+          if (data.results.buildStatus == 0 &&
               lastBuilds[lastBuilds.length - 1].stageId === data.results.stageId &&
               lastBuilds[lastBuilds.length - 1].buildId === data.results.stageBuildId) {
             //最后一个stage构建完成时
@@ -345,7 +359,7 @@ class TenxFlowDetailFlow extends Component {
               }
             }
           }
-        } 
+        }
       }
       const { changeSingleState } = self.props
       changeSingleState(data.results)
@@ -360,7 +374,12 @@ class TenxFlowDetailFlow extends Component {
     socket.emit('stageBuildStage', watchCondition)
   }
   render() {
-    const { flowId, stageInfo, stageList, isFetching, projectList, buildFetching, logs, supportedDependencies, cicdApi, imageList } = this.props;
+    const {
+      flowId, stageInfo, stageList,
+      isFetching, projectList, buildFetching,
+      logs, supportedDependencies, cicdApi,
+      imageList, baseImages, uniformRepo,
+    } = this.props;
     const { forCacheShow } = this.state;
     let scope = this;
     let { currentFlowEdit } = scope.state;
@@ -374,10 +393,11 @@ class TenxFlowDetailFlow extends Component {
     } else {
       cards = stageList.map((item, index) => {
         return (
-          <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item}
+          <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item} uniformRepo={uniformRepo}
             scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} totalLength={stageList.length}
-            codeList={projectList} supportedDependencies={supportedDependencies} imageList={imageList} 
-            otherImage={this.props.otherImage}
+            codeList={projectList} supportedDependencies={supportedDependencies} imageList={imageList} baseImages={baseImages}
+            otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
+            firstState={stageList[0]}
             />
         )
       });
@@ -405,10 +425,10 @@ class TenxFlowDetailFlow extends Component {
                 this.state.createNewFlow ? [
                   <QueueAnim key='creattingCardAnimate'>
                     <CreateTenxFlowModal key='CreateTenxFlowModal' stageList={stageList} scope={scope}
-                      flowId={flowId} stageInfo={stageInfo} codeList={projectList}
+                      flowId={flowId} stageInfo={stageInfo} codeList={projectList} uniformRepo={uniformRepo}
                       supportedDependencies={supportedDependencies} imageList={imageList}
-                      otherImage={this.props.otherImage}
-                       />
+                      otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
+                      baseImages={baseImages} />
                   </QueueAnim>
                 ] : null
               }
@@ -417,6 +437,15 @@ class TenxFlowDetailFlow extends Component {
           <div style={{ clear: 'both' }}></div>
         </div>
         {this.state.websocket}
+        <Modal
+          onCancel={() => this.setState({customizeBaseImageModalVisible: false})}
+          title="自定义基础镜像"
+          className='TenxFlowDetailFlowContinueIntegrationModal'
+          visible={this.state.customizeBaseImageModalVisible}
+          footer={null}
+        >
+          <ContinueIntegration />
+        </Modal>
       </div>
     )
   }
@@ -440,7 +469,8 @@ function mapStateToProps(state, props) {
     stageList,
     projectList,
     cicdApi,
-    imageList: availableImage.imageList || []
+    imageList: availableImage.imageList || [],
+    baseImages: availableImage.baseImages || [],
   }
 }
 

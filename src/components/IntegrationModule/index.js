@@ -127,6 +127,9 @@ class Integration extends Component {
     this.setState({
       createIntegrationModal: true
     })
+    setTimeout(()=> {
+      document.getElementById('name').focus()
+    },500)
   }
 
   closeCreateIntegration() {
@@ -195,12 +198,12 @@ class Integration extends Component {
             </div>
             <div className='rightBox'>
               {
-                standardFlag ? [  
+                standardFlag ? [
                   <Button className='installedBtn' key={'installedBtn' + index} size='large' type={standardFlag ? 'primary':'ghost'} disabled={standardFlag}
                     style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
                     <span><span>敬请期待</span></span>
                   </Button>
-                ] : [  
+                ] : [
                   <Button className='installedBtn' key={'installedBtn' + index} size='large' type={standardFlag ? 'primary':'ghost'} disabled={standardFlag}
                     style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
                     <span><FormattedMessage {...menusText.showAppDetail} /></span>

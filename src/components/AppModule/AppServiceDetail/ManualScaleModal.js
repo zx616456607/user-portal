@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  Storage list
+ *  Manual scale modal
  *
  * v0.1 - 2016/10/27
  * @author ZhaoXueYu
@@ -10,7 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import './style/ManualScaleModal.less'
-import { Row, Col, Slider, InputNumber, Modal, Tooltip, Icon, Button, Spin, message } from 'antd'
+import { Row, Col, Slider, InputNumber, Modal, Icon, Button, Spin, message } from 'antd'
 import { INSTANCE_MAX_NUM } from '../../../../constants'
 import { manualScaleService } from '../../../actions/services'
 import NotificationHandler from '../../../common/notification_handler'
@@ -38,7 +38,7 @@ class ManualScaleModal extends Component {
     if (!service) {
       return
     }
-    if (!visible) {
+    if (!visible || visible == this.props.visible) {
       return
     }
     this.setState({
@@ -100,6 +100,11 @@ class ManualScaleModal extends Component {
     if (!visible) {
       return null
     }
+    /*if(autoScale.isFetching) {
+      return <div className="loadingBox">
+          <Spin size="large"></Spin>
+        </div>
+    }*/
     const { realNum } = this.state
     const modalFooter = [
       <Button
@@ -110,7 +115,7 @@ class ManualScaleModal extends Component {
       <Button
         key="submit" type="primary"
         size="large" loading={this.state.loading}
-        disabled={!this.state.scalable}
+        disabled={!this.state.scalable || this.props.disableScale}
         onClick={this.handleModalOK} >
         保 存
       </Button>
@@ -119,8 +124,6 @@ class ManualScaleModal extends Component {
       <Modal
         visible={visible}
         title="手动水平扩展"
-        onOk={this.handleModalOK}
-        onCancel={this.handleModalCancel}
         footer={modalFooter} >
         <div id="ManualScaleModal">
           <Row className="cardItem">
@@ -129,7 +132,8 @@ class ManualScaleModal extends Component {
           </Row>
           <Row className="cardItem">
             <Col className="itemTitle" span={4} style={{ textAlign: 'left' }}>
-              实际数量 <Tooltip title="默认最大10个实例，专业版及企业用户可申请更大配额"><Icon type="question-circle-o" /></Tooltip>
+              实际数量
+              {/*<Tooltip title="默认最大10个实例，专业版及企业用户可申请更大配额"><Icon type="question-circle-o" /></Tooltip>*/}
             </Col>
             <Col className="itemBody" span={20}>
               <Row>
@@ -155,7 +159,7 @@ class ManualScaleModal extends Component {
           </Row>
           <Row>
             <Col style={{ color: '#a0a0a0', textAlign: 'left', marginTop: '20px' }}>
-              注: {this.state.scalable ? '实例数量调整 , 保存后系统将调整实例数量至设置预期. (若自动伸缩开启, 则无法手动扩展)' :
+              Tips: {this.state.scalable ? '实例数量调整 , 保存后系统将调整实例数量至设置预期. (若自动伸缩开启, 则无法手动扩展)' :
                      '已挂载存储卷的服务不允许进行水平扩展'}
             </Col>
           </Row>
@@ -175,12 +179,17 @@ ManualScaleModal.propTypes = {
 }
 
 function mapStateToProps(state, props) {
-  const {
-    manualScaleService,
-  } = state.services
-  return {
-    manualScaleService
-  }
+
+  // let autoScale = state.services.autoScale
+  // if(!autoScale) {
+  //   autoScale = {
+  //     isFetching: true
+  //   }
+  // }
+  // return {
+  //   autoScale
+  // }
+  return props
 }
 
 export default connect(mapStateToProps, {

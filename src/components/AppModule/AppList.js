@@ -10,12 +10,12 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Icon, Modal, Spin, Input, Pagination, Alert } from 'antd'
+import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Icon, Modal, Spin, Input, Pagination } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
 import { loadAppList, stopApps, deleteApps, restartApps, startApps } from '../../actions/app_manage'
-import { LOAD_STATUS_TIMEOUT } from '../../constants'
+import { LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { calcuDate } from '../../common/tools'
 import { browserHistory } from 'react-router'
@@ -26,9 +26,8 @@ import { addAppWatch, removeAppWatch } from '../../containers/App/status'
 import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
-
-const confirm = Modal.confirm
-const ButtonGroup = Button.Group
+import CreateAlarm from './AlarmModal'
+import CreateGroup from './AlarmModal/CreateGroup'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -136,6 +135,9 @@ let MyComponent = React.createClass({
       case 'restartApp':
         this.restartApp(item.name);
         break;
+      case 'stack':
+        return browserHistory.push(`/app_manage/detail/${item.name}#stack`)
+      default: return false
     }
   },
   selectAppByline: function (item, e) {
@@ -254,12 +256,12 @@ let MyComponent = React.createClass({
     // confirmDeleteApps([app])
     batchDeleteApps([app])
   },
-  goStack(appName, e) {
+  goTologoly(appName, e) {
     e.stopPropagation()
-    browserHistory.push(`/app_manage/detail/${appName}#stack`)
+    browserHistory.push(`/app_manage/detail/${appName}#topology`)
   },
   render: function () {
-    const { config, loading, bindingDomains, bindingIPs } = this.props
+    const { config, loading, bindingDomains, bindingIPs, parentScope } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -284,6 +286,9 @@ let MyComponent = React.createClass({
           </Menu.Item>
           <Menu.Item key='deleteApp'>
             <span>删除</span>
+          </Menu.Item>
+          <Menu.Item key='stack'>
+            <span>查看编排</span>
           </Menu.Item>
           <Menu.Item key='restartApp'
             disabled={item.status.phase === 'Stopped'}
@@ -310,7 +315,16 @@ let MyComponent = React.createClass({
             <AppStatus app={item} />
           </div>
           <div className='containerNum commonData'>
-            {item.instanceCount + '' || '-'}
+            {item.instanceCount || '-'}
+          </div>
+          {/* normal => 设置过 */}
+          <div className="alarm commonData">
+            <Tooltip title="查看监控">
+            <svg className="managemoniter" onClick={()=> browserHistory.push(`app_manage/detail/${item.name}#monitor`)}><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use></svg>
+            </Tooltip>
+            <Tooltip title="告警设置" onClick={()=> parentScope.setState({alarmModal: true, alertCurrentApp:item })}>
+            <Icon type="notification" />
+            </Tooltip>
           </div>
           <div className='visitIp commonData appListDomain'>
             <TipSvcDomain appDomain={appDomain} parentNode='AppList' />
@@ -323,8 +337,8 @@ let MyComponent = React.createClass({
           <div className='actionBox commonData'>
             <Dropdown.Button
               overlay={dropdown} type='ghost'
-              onClick={this.goStack.bind(this, item.name)}>
-              查看编排
+              onClick={this.goTologoly.bind(this, item.name)}>
+              查看拓扑图
             </Dropdown.Button>
           </div>
           <div style={{ clear: 'both', width: '0' }}></div>
@@ -364,6 +378,8 @@ class AppList extends Component {
     this.handleRestarAppsCancel = this.handleRestarAppsCancel.bind(this)
     this.handleDeleteAppsOk = this.handleDeleteAppsOk.bind(this)
     this.handleDeleteAppsCancel = this.handleDeleteAppsCancel.bind(this)
+    this.cancelModal = this.cancelModal.bind(this)
+    this.nextStep = this.nextStep.bind(this)
 
     this.state = {
       appList: props.appList,
@@ -376,10 +392,11 @@ class AppList extends Component {
       stopAppsModal: false,
       restarAppsModal: false,
       deleteAppsModal: false,
+      step: 1, // first step create AlarmModal
     }
   }
 
-  loadData(nextProps) {
+  loadData(nextProps, options) {
     const self = this
     const {
       loadAppList, cluster, page,
@@ -387,6 +404,7 @@ class AppList extends Component {
       sortBy
     } = nextProps || this.props
     const query = { page, size, name, sortOrder, sortBy }
+    query.customizeOpts = options
     loadAppList(cluster, query, {
       success: {
         func: (result) => {
@@ -433,12 +451,21 @@ class AppList extends Component {
     this.loadData()
   }
 
+  componentDidMount() {
+    // Reload list each UPDATE_INTERVAL
+    this.upStatusInterval = setInterval(() => {
+      this.loadData(null, { keepChecked: true })
+    }, UPDATE_INTERVAL)
+  }
+
   componentWillUnmount() {
     const {
       cluster,
       statusWatchWs,
     } = this.props
     removeAppWatch(cluster, statusWatchWs)
+    clearTimeout(this.loadStatusTimeout)
+    clearInterval(this.upStatusInterval)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -813,6 +840,19 @@ class AppList extends Component {
       deleteAppsModal: false,
     })
   }
+  cancelModal() {
+    // cancel create Alarm modal
+    this.setState({
+      alarmModal: false,
+      step:1
+    })
+    this.state.resetFields()
+  }
+  nextStep(step) {
+    this.setState({
+      step: step
+    })
+  }
   render() {
     const scope = this
     const { name, pathname, page, size, sortOrder, sortBy, total, cluster, isFetching, startApps, stopApps } = this.props
@@ -832,7 +872,11 @@ class AppList extends Component {
       batchRestartApps: this.batchRestartApps,
       batchDeleteApps: this.batchDeleteApps,
     }
-
+    const modalFunc=  {
+      scope : this,
+      cancelModal: this.cancelModal,
+      nextStep: this.nextStep
+    }
     // kind: asc:升序（向上的箭头） desc:降序（向下的箭头）
     // type: create_time：创建时间 instance_count：容器数量
     function spliceSortClassName(kind, type, sortOrder, sortBy) {
@@ -851,7 +895,6 @@ class AppList extends Component {
 
       return prefix + toggle
     }
-
     return (
       <QueueAnim
         className='AppList'
@@ -961,6 +1004,9 @@ class AppList extends Component {
                   </span>
                 </div>
               </div>
+              <div className="alarm commonTitle">
+                监控告警
+              </div>
               <div className='visitIp commonTitle'>
                 访问地址
               </div>
@@ -989,6 +1035,24 @@ class AppList extends Component {
               bindingIPs={this.props.bindingIPs}
             />
           </Card>
+          <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
+            className="alarmModal"
+            onCancel={()=> this.cancelModal()}
+            maskClosable={false}
+            footer={null}
+          >
+            <CreateAlarm funcs={modalFunc} currentApp={this.state.alertCurrentApp} isShow={this.state.alarmModal}/>
+          </Modal>
+          {/* 通知组 */}
+          <Modal title="创建新通知组" visible={this.state.createGroup}
+            width={560}
+            maskClosable={false}
+            wrapClassName="AlarmModal"
+            className="alarmContent"
+            footer={null}
+          >
+        <CreateGroup funcs={modalFunc} shouldLoadGroup={true} currentApp={this.state.alertCurrentApp}/>
+          </Modal>
         </div>
       </QueueAnim>
     )

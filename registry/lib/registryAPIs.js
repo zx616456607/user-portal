@@ -12,9 +12,9 @@
  * @author Wang Lei
 */
 
-var logger  = require('../../utils/logger').getLogger('registryAPIs');
+var logger = require('../../utils/logger').getLogger('registryAPIs');
 var request = require('request');
-var async   = require('async');
+var async = require('async');
 var registryConfigLoader = require('../registryConfigLoader')
 
 var TokenCacheMgr = []
@@ -410,7 +410,7 @@ DockerRegistryAPIs.prototype.getTagsV2 = function (user, repositoryName, callbac
   */
   logger.debug(method, "Get tags for " + repositoryName);
   // Use 'admin' for now if user login, so we can always get the tags for all repositories
-  this.refreshToken(user, repositoryName, function(err, resp, token){
+  this.refreshToken(user, repositoryName, function (err, resp, token) {
     if (err) {
       logger.error(method, err);
       callback(500, resp, err);
@@ -423,7 +423,6 @@ DockerRegistryAPIs.prototype.getTagsV2 = function (user, repositoryName, callbac
       if (resp.statusCode != 200) {
         return callback(404, resp);
       }
-      var token = token;
       var tagRequestUrl = self.getRegistryUrl() + "/v2/" + repositoryName + "/tags/list";
       logger.info("Get tag url: " + tagRequestUrl);
       request.get({
@@ -444,16 +443,16 @@ DockerRegistryAPIs.prototype.getTagsV2 = function (user, repositoryName, callbac
   });
 };
 
-DockerRegistryAPIs.prototype.refreshToken = function(user, repository, callback) {
+DockerRegistryAPIs.prototype.refreshToken = function (user, repository, callback) {
   var method = 'refreshToken'
   var requestUser = (user == "" ? user : this.registryConfig.user);
   var exchangeURL = this.registryConfig.v2AuthServer + "/auth?account=" + requestUser + "&scope=repository:" + repository + ":pull&service=" + this.getRegistryHost();
   // Use exchangeURL as the key
   if (TokenCacheMgr[exchangeURL]) {
     var timePeriod = new Date() - TokenCacheMgr[exchangeURL].lastRefreshTime
-    if (timePeriod/1000 < TokenExpiredTime) {
+    if (timePeriod / 1000 < TokenExpiredTime) {
       // console.log("Using cache...")
-      return callback(null, {statusCode: 200}, TokenCacheMgr[exchangeURL].lastToken)
+      return callback(null, { statusCode: 200 }, TokenCacheMgr[exchangeURL].lastToken)
     }
   }
   logger.debug("Request url: " + exchangeURL);
@@ -543,7 +542,7 @@ DockerRegistryAPIs.prototype.getImageSize = function (user, repositoryName, tag,
   });
 };
 
-DockerRegistryAPIs.prototype.getImageJsonInfoV2 = function (user, repositoryName, tag, callback) {
+DockerRegistryAPIs.prototype.getImageJsonInfoV2 = function (user, repositoryName, tag, callback, isGetManifest) {
   var method = "getImageJsonInfoV2";
   /*
   TODO: Check if it's private repository before get the tags
@@ -554,7 +553,7 @@ DockerRegistryAPIs.prototype.getImageJsonInfoV2 = function (user, repositoryName
 
   async.waterfall([
     function (callback) {
-      self.refreshToken(requestUser, repositoryName, function(err, resp, token){
+      self.refreshToken(requestUser, repositoryName, function (err, resp, token) {
         if (err) {
           logger.error(method, err);
           callback(err, resp);
@@ -630,8 +629,14 @@ DockerRegistryAPIs.prototype.getImageJsonInfoV2 = function (user, repositoryName
           logger.debug(JSON.stringify(layerInfo));
           // Return the config info of latest layer
           var result = {}
-          if (configInfo && configInfo.history) {
-            result.configInfo = configInfo.history[0].v1Compatibility;
+          if (isGetManifest) {
+            result = configInfo
+            callback(null, result);
+            return
+          } else {
+            if (configInfo && configInfo.history) {
+              result.configInfo = configInfo.history[0].v1Compatibility;
+            }
           }
           var totalSize = 0
           var length = 0
@@ -797,7 +802,7 @@ DockerRegistryAPIs.prototype.deleteManifest = function (token, repositoryName, t
     Authorization: "Bearer " + token,
     Accept: "application/vnd.docker.distribution.manifest.v2+json"
   };
-  var baseUrl = this.getRegistryUrl()+ "/v2/" + repositoryName + "/manifests";
+  var baseUrl = this.getRegistryUrl() + "/v2/" + repositoryName + "/manifests";
   //registry不允许直接使用tag删除manifest，因此要先获取对应的digest
   request.head({
     url: baseUrl + "/" + tag,
@@ -950,7 +955,7 @@ DockerRegistryAPIs.prototype.getRepositoryStats = function (username, callback) 
 }
 
 // Return the host of registry server
-DockerRegistryAPIs.prototype.getRegistryHost = function() {
+DockerRegistryAPIs.prototype.getRegistryHost = function () {
   var registryServerHost = this.registryConfig.v2Server
   if (this.registryConfig.v2Server.indexOf('http://') >= 0 || this.registryConfig.v2Server.indexOf('https://') >= 0) {
     registryServerHost = this.registryConfig.v2Server.substring(this.registryConfig.v2Server.indexOf('://') + 3)
@@ -958,7 +963,7 @@ DockerRegistryAPIs.prototype.getRegistryHost = function() {
   return registryServerHost
 }
 
-DockerRegistryAPIs.prototype.getRegistryUrl = function() {
+DockerRegistryAPIs.prototype.getRegistryUrl = function () {
   var registryServerUrl = this.registryConfig.v2Server
   if (this.registryConfig.v2Server.indexOf('http://') >= 0 || this.registryConfig.v2Server.indexOf('https://') >= 0) {
     return registryServerUrl

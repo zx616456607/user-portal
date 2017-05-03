@@ -34,6 +34,10 @@ const accountRoutes = [
     }]
   },
   {
+    path: 'API',
+    component: require('../components/SettingModal/API').default,
+  },
+  {
     path: 'version',
     component: require('../components/AccountModal/Version').default,
   },

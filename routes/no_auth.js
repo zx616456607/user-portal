@@ -15,6 +15,7 @@ const authController = require('../controllers/auth')
 const licenseController = require('../controllers/license')
 const adminController = require('../controllers/admin')
 const middlewares = require('../services/middlewares')
+const alertController = require('../controllers/alert')
 
 module.exports = function (Router) {
   const router = new Router({})
@@ -40,6 +41,12 @@ module.exports = function (Router) {
   // Admin
   router.get('/api/v2/admin/ispwset', adminController.isPasswordSet)
   router.patch('/api/v2/admin/setpw', adminController.SetPassword)
+
+  // alert
+  router.get('/alerts/invitations/join', function* (){
+    yield this.render(global.indexHtml, { title: '邮箱验证 | 时速云', body: '' })
+  })
+  router.get('/alerts/invitations/join-code', alertController.acceptInvitation)
 
   return router.routes()
 }

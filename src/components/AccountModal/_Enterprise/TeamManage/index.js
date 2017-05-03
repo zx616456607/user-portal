@@ -183,19 +183,24 @@ let TeamTable = React.createClass({
                 sort: sort,
                 filter: filter,
               })
-              this.setState({
-                addMember: false,
-              })
-
             },
             isAsync: true
           }
         })
     }
+    this.setState({
+      addMember: false,
+    })
+    setTimeout(()=> {
+      this.setState({
+        targetKeys: [],
+      })
+    },500)
   },
   handleNewMemberCancel(e) {
     this.setState({
       addMember: false,
+      targetKeys: [],
     })
   },
   handleChange(targetKeys) {
@@ -331,28 +336,30 @@ let TeamTable = React.createClass({
         title: '操作',
         key: 'operation',
         width: '20%',
-        render: (text, record, index) => (
-          <div>
-            <Button icon="plus" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加成员</Button>
-            <Modal title='添加成员'
-              visible={this.state.nowTeamID === record.key && this.state.addMember}
-              onOk={this.handleNewMemberOk}
-              onCancel={this.handleNewMemberCancel}
-              width="660px"
-              wrapClassName="newMemberModal"
-              >
-              <MemberTransfer onChange={this.handleChange}
-                targetKeys={targetKeys}
-                teamID={record.key}
-                teamUserIDList={teamUserIDList} />
-            </Modal>
-            <Button icon="delete" className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
-            {(this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN) ?
-              <Button className="addBtn" style={{marginLeft:'12px'}} onClick={() => this.btnRecharge(record.key)}>充值</Button>
-            :null
-            }
-          </div>
-        )
+        render: (text, record, index) =>{
+          return (
+            <div className="addusers">
+              <Button icon="plus" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加成员</Button>
+              <Modal title='添加成员'
+                visible={this.state.nowTeamID === record.key && this.state.addMember}
+                onOk={this.handleNewMemberOk}
+                onCancel={this.handleNewMemberCancel}
+                width="660px"
+                wrapClassName="newMemberModal"
+                >
+                <MemberTransfer onChange={this.handleChange}
+                  targetKeys={targetKeys}
+                  teamID={record.key}
+                  teamUserIDList={teamUserIDList} />
+              </Modal>
+              <Button icon="delete" className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
+              {(this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN) ?
+                <Button className="addBtn" style={{marginLeft:'12px'}} onClick={() => this.btnRecharge(record.key)}>充值</Button>
+              :null
+              }
+            </div>
+          )
+        }
       },
     ]
     return (

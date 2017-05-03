@@ -87,7 +87,7 @@ export default class StateBtnModal extends Component{
         break;
     }
     if (scope) {
-      if (scope.state.currentShowInstance) {
+      if (scope.state.currentShowInstance && !scope.state.donotUserCurrentShowInstance) {
         checkedList = [scope.state.currentShowInstance]
       }
     }

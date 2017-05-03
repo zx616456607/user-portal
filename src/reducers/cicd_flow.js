@@ -14,85 +14,101 @@ import merge from 'lodash/merge'
 import reducerFactory from './factory'
 import cloneDeep from 'lodash/cloneDeep'
 import findIndex from 'lodash/findIndex'
+import groupBy from 'lodash/groupBy'
 
 function codeRepo(state = {}, action) {
   const defaultState = {
     isFetching: false,
-    repoList: []
+
+  }
+  let repoType = ''
+  if(action.extraData) {
+    repoType = action.extraData.type
   }
   switch (action.type) {
-    case ActionTypes.GET_REPOS_LIST_REQUEST:
-      return merge({}, defaultState, { isFetching: true })
-    case ActionTypes.GET_REPOS_LIST_SUCCESS:
-      return Object.assign({}, state, {
-        isFetching: false,
+  case ActionTypes.GET_REPOS_LIST_REQUEST:
+    return merge({}, defaultState, state, { isFetching: true })
+  case ActionTypes.GET_REPOS_LIST_SUCCESS:
+    return Object.assign({}, state, {
+      isFetching: false,
+      [repoType]: {
         repoList: action.response.result.data.results,
         bak: action.response.result.data.results
-      })
-    case ActionTypes.GET_REPOS_LIST_FAILURE:
-      return merge({}, state, {
-        isFetching: false,
+      }
+    })
+  case ActionTypes.GET_REPOS_LIST_FAILURE:
+    return merge({}, state, {
+      isFetching: false,
+      [repoType]: {
         repoList: null
-      })
+      }
+    })
     // delete
-    case ActionTypes.DELETE_GITLAB_REPO_SUCCESS:
-      return ({
-        isFetching: false,
+  case ActionTypes.DELETE_GITLAB_REPO_SUCCESS:
+    return Object.assign({}, state, {
+      isFetching: false,
+      [repoType]: {
         repoList: null,
         bak: null
-      })
-    case ActionTypes.DELETE_GITLAB_REPO_FAILURE:
-      return merge({}, state, { isFetching: false })
+      }
+    })
+  case ActionTypes.DELETE_GITLAB_REPO_FAILURE:
+    return merge({}, state, { isFetching: false })
 
     // search
-    case ActionTypes.SEARCH_CODE_REPO_LIST:
-      const newState = cloneDeep(state)
-      if (action.codeName == '') {
-        newState.repoList = newState.bak
+  case ActionTypes.SEARCH_CODE_REPO_LIST:
+    const newState = cloneDeep(state)
+    if (action.codeName == '') {
+      newState.repoList = newState.bak
+    }
+    const temp = newState[repoType].repoList.filter(list => {
+      const search = new RegExp(action.codeName)
+      if (search.test(list.name)) {
+        return true
       }
-      const temp = newState.repoList.filter(list => {
-        const search = new RegExp(action.codeName)
-        if (search.test(list.name)) {
-          return true
-        }
-        return false
-      })
-      newState.repoList = temp
-      return {
-        ...newState
-      }
+      return false
+    })
+    newState[repoType].repoList = temp
+    return {
+      ...newState
+    }
     // add active
-    case ActionTypes.ADD_CODE_STORE_SUCCESS:
-      const addState = cloneDeep(state)
-      const indexs = findIndex(addState.repoList, (item) => {
-        return item.name == action.names
-      })
-      addState.repoList[indexs].managedProject = {
-        active: 1,
-        id: action.response.result.data.projectId
-      }
-      return addState
+  case ActionTypes.ADD_CODE_STORE_SUCCESS:
+    const addState = cloneDeep(state)
+    const indexs = findIndex(addState[repoType].repoList, (item) => {
+      return item.name == action.names
+    })
+
+    if(indexs < 0) return addState
+    addState[repoType].repoList[indexs].managedProject = {
+      active: 1,
+      id: action.response.result.data.projectId
+    }
+    return addState
     // remove action
-    case ActionTypes.NOT_ACTIVE_PROJECT_SUCCESS:
-      const reState = cloneDeep(state)
-      const Keys = findIndex(reState.repoList, (item) => {
-        if (item.managedProject && item.managedProject.id == action.id) {
-          return true
-        }
-        return false
-      })
-      reState.repoList[Keys].managedProject = { active: 0 }
-      return reState
-    default:
-      return state
+  case ActionTypes.NOT_ACTIVE_PROJECT_SUCCESS:
+    const reState = cloneDeep(state)
+    const Keys = findIndex(reState[repoType].repoList, (item) => {
+      if (item.managedProject && item.managedProject.id == action.id) {
+        return true
+      }
+      return false
+    })
+    if(Keys < 0) return reState
+    reState[repoType].repoList[Keys].managedProject = { active: 0 }
+    return reState
+  default:
+    return state
   }
 }
 
 function githubRepo(state = {}, action) {
   const defaultState = {
     isFetching: false,
-    githubList: [],
-    users: ''
+  }
+  let repoType = ''
+  if (action.extraData) {
+    repoType = action.extraData.type
   }
   switch (action.type) {
     case ActionTypes.GET_GITHUB_LIST_REQUEST:
@@ -101,7 +117,9 @@ function githubRepo(state = {}, action) {
       if (!action.response.result.data.hasOwnProperty('results')) {
         return Object.assign({}, state, {
           isFetching: false,
-          githubList: false,
+          [repoType]: {
+            [`${repoType}List`]: false,
+          }
         })
       }
       const username = Object.keys(action.response.result.data.results)[0]
@@ -115,49 +133,55 @@ function githubRepo(state = {}, action) {
 
       return Object.assign({}, state, {
         isFetching: false,
-        githubList: action.response.result.data.results,
-        bak: lists,
-        users
+        [repoType]: {
+          [`${repoType}List`]: action.response.result.data.results,
+          [`${repoType}bak`]: lists,
+          users
+        }
       })
     }
     case ActionTypes.GET_GITHUB_LIST_FAILURE: {
       return Object.assign({}, state, {
         isFetching: false,
-        githubList: false,
+        [repoType]: {
+          [`${repoType}List`]: false,
+        }
       })
     }
     case ActionTypes.DELETE_GITHUB_REPO_SUCCESS: {
       return Object.assign({}, state, {
         isFetching: false,
-        githubList: false,
+        [repoType]: {
+          [`${repoType}List`]: false,
+        }
       })
     }
     case ActionTypes.SEARCH_GITHUB_LIST: {
       const newState = cloneDeep(state)
       if (action.image == '') {
-        newState.githubList[action.users] = newState.bak[action.users]
+        newState[repoType][`${repoType}List`][action.users] = newState[repoType][`${repoType}bak`][action.users]
       }
-      const temp = newState.githubList[action.users].filter(list => {
+      const temp = newState[repoType][`${repoType}List`][action.users].filter(list => {
         const search = new RegExp(action.image)
         if (search.test(list.name)) {
           return true
         }
         return false
       })
-      newState.githubList[action.users] = temp
+      newState[repoType][`${repoType}List`][action.users] = temp
       return newState
     }
     // add github active
     case ActionTypes.ADD_GITHUB_PROJECT_SUCCESS: {
       const addState = cloneDeep(state)
       const user = action.repoUser ? action.repoUser : action.users
-      const indexs = findIndex(addState.githubList[user], (item) => {
+      const indexs = findIndex(addState[repoType][`${repoType}List`][user], (item) => {
         if (item.name === action.names) {
           return true
         }
         return false
       })
-      addState.githubList[user][indexs].managedProject = {
+      addState[repoType][`${repoType}List`][user][indexs].managedProject = {
         active: 1,
         id: action.response.result.data.projectId
       }
@@ -166,13 +190,13 @@ function githubRepo(state = {}, action) {
     // remove github active
     case ActionTypes.NOT_Github_ACTIVE_PROJECT_SUCCESS: {
       const rmState = cloneDeep(state)
-      const rindex = findIndex(rmState.githubList[action.users], (item) => {
+      const rindex = findIndex(rmState[repoType][`${repoType}List`][action.users], (item) => {
         if (item.managedProject && item.managedProject.id === action.id) {
           return true
         }
         return false
       })
-      rmState.githubList[action.users][rindex].managedProject = { active: 0 }
+      rmState[repoType][`${repoType}List`][action.users][rindex].managedProject = { active: 0 }
       return rmState
     }
     default:
@@ -250,7 +274,10 @@ function getProject(state = {}, action) {
 function getUserInfo(state = {}, action) {
   const defaultState = {
     isFetching: false,
-    repoUser: { username: '', depot: '', url:''}
+  }
+  let repoType = ''
+  if(action.extraData) {
+    repoType = action.extraData.type
   }
   switch (action.type) {
     case ActionTypes.GET_REPO_USER_INFO_REQUEST:
@@ -260,7 +287,9 @@ function getUserInfo(state = {}, action) {
     case ActionTypes.GET_REPO_USER_INFO_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        repoUser: action.response.result.data.results,
+        [repoType]: {
+          repoUser: action.response.result.data.results
+        }
       }
       )
     case ActionTypes.GET_REPO_USER_INFO_FAILURE:
@@ -596,6 +625,42 @@ function getCodeStoreBranchList(state = {}, action) {
   }
 }
 
+function repoBranchesAndTags(state = {}, action) {
+  const id = action.reponame || action.project_id
+  const defaultState = {
+    [id]: {
+      isFetching: false,
+      data: {}
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.GET_REPO_BRANCH_AND_TAG_REQUEST:
+    case ActionTypes.GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_REQUEST:
+      return merge({}, defaultState, state, {
+        [id]: {
+          isFetching: true
+        }
+      })
+    case ActionTypes.GET_REPO_BRANCH_AND_TAG_SUCCESS:
+    case ActionTypes.GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_SUCCESS:
+      return Object.assign({}, state, {
+        [id]: {
+          isFetching: false,
+          data: action.response.result.data,
+        }
+      })
+    case ActionTypes.GET_REPO_BRANCH_AND_TAG_FAILURE:
+    case ActionTypes.GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_FAILURE:
+      return merge({}, defaultState, state, {
+        [id]: {
+          isFetching: false
+        }
+      })
+    default:
+      return state
+  }
+}
+
 function getTenxflowCIRules(state = {}, action) {
   const defaultState = {
     isFetching: false,
@@ -783,11 +848,12 @@ function getStageBuildLogList(state = {}, action) {
 function availableImage(state = {}, action) {
   const defaultState = {
     isFetching: false,
-    imageList: []
+    imageList: [],
+    baseImages: [],
   }
   switch (action.type) {
     case ActionTypes.GET_AVAILABLE_IMAGE_REQUEST: {
-      return merge({}, defaultState, { isFetching: true })
+      return merge({}, defaultState, { isFetching: action.needFetching })
     }
     case ActionTypes.GET_AVAILABLE_IMAGE_SUCCESS: {
       const result = action.response.result.data.results || []
@@ -795,8 +861,15 @@ function availableImage(state = {}, action) {
       const temp = {}
       for (let a in result) {
         let key = result[a].categoryName
+        let id = result[a].categoryId
+        let isSystem = result[a].isSystem
         if (!temp[key]) {
-          temp[key] = { imageList: [], title: key }
+          temp[key] = {
+            imageList: [],
+            title: key,
+            id,
+            isSystem,
+          }
           temp[key].imageList.push(result[a])
         } else {
           temp[key].imageList.push(result[a])
@@ -805,9 +878,16 @@ function availableImage(state = {}, action) {
       const resultArray = Object.getOwnPropertyNames(temp).map(item => {
         return temp[item]
       })
+      let baseImages = groupBy(result, n => n.isSystem)
+      for (let key in baseImages) {
+        if (baseImages.hasOwnProperty(key)) {
+          baseImages[key] = groupBy(baseImages[key], n => n.categoryId)
+        }
+      }
       return Object.assign({}, state, {
         isFetching: false,
-        imageList: resultArray
+        imageList: resultArray,
+        baseImages,
       })
     }
     case ActionTypes.GET_AVAILABLE_IMAGE_FAILURE: {
@@ -836,6 +916,7 @@ export default function cicd_flow(state = {}, action) {
     deployLog: deployLog(state.deployLog, action),
     getCdRules: getCdRules(state.getCdRules, action),
     getCdImage: getCdImage(state.getCdImage, action),
+    repoBranchesAndTags: repoBranchesAndTags(state.repoBranchesAndTags, action),
     getTenxflowCIRules: getTenxflowCIRules(state.getTenxflowCIRules, action),
     getTenxflowBuildLogs: getTenxflowBuildLogs(state.getTenxflowBuildLogs, action),
     getTenxflowBuildDetailLogs: getTenxflowBuildDetailLogs(state.getTenxflowBuildDetailLogs, action),
@@ -900,6 +981,21 @@ export default function cicd_flow(state = {}, action) {
       SUCCESS: ActionTypes.STOP_BUILD_TENX_FLOW_SUCCESS,
       FAILURE: ActionTypes.STOP_BUILD_TENX_FLOW_FAILURE
     }, state.StopTenxflowBuild, action),
+    addBaseImage: reducerFactory({
+      REQUEST: ActionTypes.ADD_BASE_IMAGE_REQUEST,
+      SUCCESS: ActionTypes.ADD_BASE_IMAGE_SUCCESS,
+      FAILURE: ActionTypes.ADD_BASE_IMAGE_FAILURE
+    }, state.addBaseImage, action),
+    updateBaseImage: reducerFactory({
+      REQUEST: ActionTypes.UPDATE_BASE_IMAGE_REQUEST,
+      SUCCESS: ActionTypes.UPDATE_BASE_IMAGE_SUCCESS,
+      FAILURE: ActionTypes.UPDATE_BASE_IMAGE_FAILURE
+    }, state.updateBaseImage, action),
+    deleteBaseImage: reducerFactory({
+      REQUEST: ActionTypes.DELETE_BASE_IMAGE_REQUEST,
+      SUCCESS: ActionTypes.DELETE_BASE_IMAGE_SUCCESS,
+      FAILURE: ActionTypes.DELETE_BASE_IMAGE_FAILURE
+    }, state.deleteBaseImage, action),
   }
 }
 

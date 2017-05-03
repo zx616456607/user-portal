@@ -67,11 +67,11 @@ class ServiceMonitior extends Component {
     }
     loadData(nextProps, { start: this.changeTime(1) })
   }
-  
+
   componentWillUnmount() {
     clearInterval(metricsInterval)
   }
-  
+
   setIntervalFunc() {
     //this function for setInterval
     let query = this.state.currentStart;
@@ -81,12 +81,12 @@ class ServiceMonitior extends Component {
       this.setState({
         intervalStatus: false
       })
-    } else {      
+    } else {
       const { cluster, serviceName, loadServiceAllOfMetrics } = this.props
       this.setState({
         intervalStatus: true
       })
-      metricsInterval = setInterval(() => {    
+      metricsInterval = setInterval(() => {
         loadServiceAllOfMetrics(cluster, serviceName, query)
       }, 60000);
     }
@@ -130,6 +130,7 @@ class ServiceMonitior extends Component {
       <div id="ServiceMonitior">
         <TimeControl onChange={this.handleTimeChange} setInterval={this.setIntervalFunc} intervalStatus={this.state.intervalStatus} />
         <Metrics
+          events='AppServiceDetail'
           cpu={showCpu}
           memory={showMemory}
           networkReceived={showNetworkRec}

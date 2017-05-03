@@ -23,6 +23,7 @@ import {
   DEFAULT_REGISTRY,
   RESOURCES_MEMORY_MIN,
   RESOURCES_CPU_MIN,
+  RESOURCES_CPU_DEFAULT,
   RESOURCES_DIY,
   SYSTEM_DEFAULT_SCHEDULE,
 } from '../../../constants'
@@ -49,7 +50,7 @@ let AppDeployServiceModal = React.createClass({
     return {
       composeType: DEFAULT_COMPOSE_TYPE,
       DIYMemory: RESOURCES_MEMORY_MIN,
-      DIYCPU: 1,
+      DIYCPU: RESOURCES_CPU_DEFAULT,
       runningCode: "1",
       getImageType: "0",
       stateService: false,
@@ -669,7 +670,7 @@ let AppDeployServiceModal = React.createClass({
         if (volumeChecked) {
            volumeMount.readOnly = true
         }
-        deploymentList.addContainerVolume(serviceName, vol, volumeMount)
+        deploymentList.addContainerVolume(serviceName, vol, [volumeMount])
       })
     }
     //配置文件
@@ -678,15 +679,29 @@ let AppDeployServiceModal = React.createClass({
       totalNumber.forEach(item => {
         const vol = getFieldValue(`vol${item}`)
         const volPath = getFieldValue(`volPath${item}`)
+        const volCover = getFieldValue(`volCover${item}`)
         if (!vol) return
         if(!volPath) return
         if (vol.length <= 0) return
+        let mountPath = []
+        if (volCover === 'cover') {
+          mountPath.push({
+            mountPath: (volPath.indexOf('/') == 0 ? volPath : '/'+ volPath)
+          })
+        } else {
+          vol.items.forEach((v, index) => {
+            let path = (volPath.indexOf('/') == 0 ? volPath : '/'+ volPath) + '/' + v.path
+            const pathObj = {
+              mountPath: path,
+              subPath: v.path
+            }
+            mountPath.push(pathObj)
+          })
+        }
         deploymentList.addContainerVolume(serviceName, {
           name: `configmap-volume-${item}`,
           configMap: vol,
-        }, {
-            mountPath: volPath
-          })
+        }, mountPath, volCover === 'cover')
       })
     }
     //livenessProbe 高可用

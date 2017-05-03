@@ -48,7 +48,7 @@ class AppServiceLog extends Component {
     if (!loggingEnabled) {
       let notification = new NotificationHandler()
       notification.warn('尚未安装日志服务，无法查看日志')
-      return 
+      return
     }
     this.props.loadServiceLogs(cluster, serviceName, {
       from: 0,
@@ -88,7 +88,10 @@ class AppServiceLog extends Component {
     this.props.clearServiceLogs(cluster, serviceName)
   }
   componentWillReceiveProps(nextProps) {
-     const { serviceDetailmodalShow, serviceLogs, eventLogs, cluster } = nextProps
+    const { serviceDetailmodalShow, serviceLogs, eventLogs, cluster } = nextProps
+    if (this.props.activeKey == '#logs' && !serviceDetailmodalShow) {
+      this.setState({logSize: 'normal'})
+    }
      let state = {
        serviceLogs,
      }
@@ -132,7 +135,7 @@ class AppServiceLog extends Component {
     if (!this.props.loggingEnabled) {
       let notification = new NotificationHandler()
       notification.warn('尚未安装日志服务，无法查看日志')
-      return 
+      return
     }
     this.props.loadServiceLogs(cluster, serviceName, {
       from: (this.state.pageIndex - 1) * this.state.pageSize,
@@ -187,7 +190,7 @@ class AppServiceLog extends Component {
     if (!this.props.loggingEnabled) {
       let notification = new NotificationHandler()
       notification.warn('尚未安装日志服务，无法查看日志')
-      return 
+      return
     }
     this.props.loadServiceLogs(cluster, serviceName, {
       from: 0,

@@ -146,6 +146,9 @@ class Deployment {
               if (ct.args) {
                 container.args = ct.args
               }
+              if (ct.volumeMounts) {
+                container.volumeMounts = ct.volumeMounts
+              }
               if (ct.resources) {
                 let resources = {}
                 if (ct.resources.limits) {
@@ -251,8 +254,8 @@ class Deployment {
       if (container.name !== containerName) {
         return
       }
-      if(!args) return
-      if(args.length == 1 && !args[0]) return
+      if (!args) return
+      if (args.length == 1 && !args[0]) return
       if (!container.args) {
         container.args = []
       }
@@ -260,7 +263,7 @@ class Deployment {
         container.args = container.args.concat(args)
       } else {
         let argArray = args.split(' ')
-        argArray.forEach(function(arg) {
+        argArray.forEach(function (arg) {
           if (arg != "") {
             container.args.push(arg)
           }
@@ -281,7 +284,7 @@ class Deployment {
         container.command = container.command.concat(command)
       } else {
         let cmdArray = command.split(' ')
-        cmdArray.forEach(function(cmd) {
+        cmdArray.forEach(function (cmd) {
           if (cmd != "") {
             container.command.push(cmd)
           }
@@ -301,7 +304,7 @@ class Deployment {
   }
 
   // ~ volume={name, diskType, fsType, image} volumeMounts={mountPath, readOnly}
-  addContainerVolume(containerName, volume, volumeMounts) {
+  addContainerVolume(containerName, volume, volumeMounts, isWholeDir) {
     this.spec.template.spec.containers.map((container) => {
       if (container.name !== containerName) {
         return
@@ -312,10 +315,21 @@ class Deployment {
       if (!this.spec.template.spec.volumes) {
         this.spec.template.spec.volumes = []
       }
-      container.volumeMounts.push({
-        name: volume.name,
-        mountPath: volumeMounts.mountPath,
-        readOnly: volumeMounts.readOnly || false
+      volumeMounts.forEach(item => {
+        if (!isWholeDir) {
+          container.volumeMounts.push({
+            name: volume.name,
+            mountPath: item.mountPath,
+            subPath: item.subPath,
+            readOnly: item.readOnly || false
+          })
+        } else {
+          container.volumeMounts.push({
+            name: volume.name,
+            mountPath: item.mountPath,
+            readOnly: item.readOnly || false
+          })
+        }
       })
       if (volume.hostPath) {
         this.spec.template.spec.volumes.push({
@@ -327,9 +341,13 @@ class Deployment {
         return
       }
       if (volume.configMap) {
-        this.spec.template.spec.volumes.push({
-          name: volume.name,
-          configMap: {
+        let configMap = {}
+        if (isWholeDir) {
+          configMap = {
+            name: volume.configMap.name
+          }
+        } else {
+          configMap = {
             name: volume.configMap.name,
             items: volume.configMap.items.map((item) => {
               return {
@@ -338,6 +356,10 @@ class Deployment {
               }
             })
           }
+        }
+        this.spec.template.spec.volumes.push({
+          name: volume.name,
+          configMap
         })
         return
       }

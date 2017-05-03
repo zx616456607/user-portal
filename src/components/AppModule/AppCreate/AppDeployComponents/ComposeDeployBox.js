@@ -8,10 +8,11 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Radio, Icon, Spin } from 'antd'
+import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Radio, Icon, Spin, Tooltip, } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import merge from 'lodash/merge'
+import cloneDeep from 'lodash/cloneDeep'
 import findIndex from 'lodash/findIndex'
 import filter from 'lodash/filter'
 import QueueAnim from 'rc-queue-anim'
@@ -35,14 +36,46 @@ let MyComponent = React.createClass({
   },
   componentWillReceiveProps(nextProps) {
     const serviceOpen = nextProps.serviceOpen
-    if (serviceOpen === this.props.serviceOpen) return
-     this.getList(nextProps, serviceOpen)
+    if (serviceOpen === this.props.serviceOpen) {
+      return
+    }
+    this.getList(nextProps, serviceOpen)
   },
   getList(nextProps, serviceOpen) {
     const { form } = this.props
     const { getFieldValue, setFieldsValue, getFieldProps } = form
     const volumes = getFieldValue('volumes')
-    const volumeMounts = getFieldValue('volumeMounts')
+    let volumeMounts = cloneDeep(getFieldValue('volumeMounts'))
+    let newVolumeMounts = []
+    if(volumeMounts && volumeMounts.length > 0){
+      let configMaps = []
+      volumes.map(volume => {
+        if(volumeMounts.configMap) {
+          configMaps = configMaps.concat(volume.configMap.items)
+        }
+      })
+      newVolumeMounts = volumeMounts.map((vol, index) => {
+        let _configMap = configMaps[index]
+        if (_configMap) {
+          _configMap = _configMap.key
+        }
+        vol.mountPath = vol.mountPath.replace(`/${vol.subPath || _configMap}`, '')
+        return vol
+      })
+      let helpOb = {}
+      newVolumeMounts.forEach(vol => {
+        helpOb[vol.mountPath] = 1
+      })
+      volumeMounts = []
+      let pro = Object.getOwnPropertyNames(helpOb)
+      pro.forEach(item => {
+        if(helpOb[item]) {
+          volumeMounts.push(filter(newVolumeMounts, vol => {
+            return vol.mountPath == item
+          })[0])
+        }
+      })
+    }
     if (!serviceOpen) {
       setFieldsValue({
         volKey: []
@@ -68,6 +101,20 @@ let MyComponent = React.createClass({
         })
       }
     }
+    const cluster = nextProps.cluster
+    const self = this
+    const nextConfigGroup = nextProps.configGroup[cluster]
+    if(!nextConfigGroup) {
+        this.props.loadConfigGroup(cluster, {
+          success:{
+            func: () => {
+              self.getList(self.props, serviceOpen)
+            },
+            isAsync: true
+          }
+        })
+        return
+    }
     if (volumes && volumes.length > 0) {
       const checkedList = []
       const selectValue = []
@@ -78,13 +125,32 @@ let MyComponent = React.createClass({
         if (!volume.configMap) {
           return
         }
-        checkedList.push({
+        let checkedConfig = {
           name: volume.configMap.name,
           items: volume.configMap.items
-        })
+        }
+        if (!checkedConfig.items) {
+          nextConfigGroup.configGroup.map(config => {
+            if (checkedConfig.name == config.name) {
+              checkedConfig.items = config.configs.map(item => {
+                return {
+                  key: item.name,
+                  path: item.name,
+                }
+              })
+            }
+          })
+        }
+        checkedList.push(checkedConfig)
         selectValue.push(volume.configMap.name)
-        getFieldProps(`volPath${volIndex + 1}`, { initialValue: filter(volumeMounts, ['name', volume.name])[0].mountPath })
-        getFieldProps(`volName${volIndex + 1}`, { initialValue: volume.name })
+        const mountPath = filter(volumeMounts, ['name', volume.name])[0].mountPath
+        getFieldProps(`volPath${volIndex + 1}`, { initialValue: mountPath})
+        getFieldProps(`volName${volIndex + 1}`, { initialValue: volume.configMap.name })
+        let volCoverValue = 'cover'
+        if (volumeMounts[volIndex].subPath) {
+          volCoverValue = 'unCover'
+        }
+        getFieldProps(`volCover${volIndex + 1}`, { initialValue: volCoverValue })
         volIndex++
       })
       let index = 0
@@ -97,14 +163,14 @@ let MyComponent = React.createClass({
       setFieldsValue({
         volKey
       })
-      const cluster = nextProps.cluster
+
       const configGroup = nextProps.configGroup[cluster].configGroup
       checkedList.forEach((item, index) => {
         setFieldsValue({
           [`vol${index + 1}`]: item
         })
         let itemConfig = filter(configGroup, ['name', item.name])[0]
-        if (itemConfig.configs.length === item.items.length) {
+        if (!item.items || itemConfig.configs.length === item.items.length) {
           checkAll[index] = true
         } else {
           checkAll[index] = false
@@ -169,11 +235,11 @@ let MyComponent = React.createClass({
     return configGroup.map((item, index) => {
       plainOptions[index] = {}
       plainOptions[index].name = item.name
-      plainOptions[index].rawName = []
+      plainOptions[index].path = []
       plainOptions[index].key = []
       item.configs.forEach(config => {
-        plainOptions[index].rawName.push(config.rawName)
-        plainOptions[index].key.push(config.name)
+        plainOptions[index].key.push(config.rawName)
+        plainOptions[index].path.push(config.name)
       })
       if (!item.configs || item.configs.length < 1) {
         item.disabled = true
@@ -206,9 +272,9 @@ let MyComponent = React.createClass({
     })
     const pl = plainOptions[plIndex]
     const nameArray = []
-    const rawNames = pl.rawName
+    const paths = pl.path
     const checkAll = this.state.checkAll
-    if (checkedList.length === rawNames.length) {
+    if (checkedList.length === paths.length) {
       checkAll[index] = true
       this.setState({
         checkAll
@@ -220,8 +286,8 @@ let MyComponent = React.createClass({
       })
     }
     checkedList.forEach(item => {
-      let index = findIndex(rawNames, rawName => {
-        return rawName === item
+      let index = findIndex(paths, key => {
+        return key === item
       })
       nameArray.push(pl.key[index])
     })
@@ -267,12 +333,15 @@ let MyComponent = React.createClass({
       return c.name === configName.value
     })
     const config = configList[index]
+    if (!config) {
+      return
+    }
     let newConfig = {
       name: config.name,
       items: config.configs.map(item => {
         return {
-          key: item.name,
-          path: item.rawName
+          path: item.name,
+          key: item.rawName
         }
       })
     }
@@ -286,29 +355,50 @@ let MyComponent = React.createClass({
   },
   selectChange(name, index) {
     const { form } = this.props
-    const { setFieldsValue } = form
+    const { setFieldsValue, getFieldValue } = form
     setFieldsValue({
       [`volName${index + 1}`]: name
     })
-    const checkAll = this.state.checkAll
-    checkAll[index] = false
+    const { checkAll, checkedList } = this.state
+    const isCover = getFieldValue(`volCover${index + 1}`)
+    checkedList[index] = {
+      name: name,
+      items: []
+    }
+    if (isCover === 'cover') {
+      checkAll[index] = true
+      this.onCheckAllChange({ target: { checked: true } }, index + 1)
+    } else {
+      checkAll[index] = false
+    }
     const selectValue = this.state.selectValue
     selectValue[index] = name
     this.setState({
       selectValue,
-      checkAll
+      checkAll,
+      checkedList,
     })
-    this.state.checkedList[index] = {
-      name: name,
-      items: []
-    }
   },
   getPlainOptions(index) {
-    const configName = this.state.checkedList[index].name
-    let plIndex = findIndex(this.state.plainOptions, pl => {
+    const { form } = this.props
+    const { getFieldValue} = form
+    const { checkedList, plainOptions } = this.state
+    const configName = checkedList[index].name
+    let plIndex = findIndex(plainOptions, pl => {
       return pl.name === configName
     })
-    return this.state.plainOptions[plIndex].rawName
+    let opts = plainOptions[plIndex].path
+    const isCover = getFieldValue(`volCover${index + 1}`)
+    if (isCover === 'cover') {
+      opts = opts.map(opt => {
+        return {
+          label: opt,
+          value: opt,
+          disabled: true,
+        }
+      })
+    }
+    return opts
   },
   getInitValue(k) {
     const { form } = this.props
@@ -325,6 +415,9 @@ let MyComponent = React.createClass({
   },
   getCheckboxValue(index) {
     const checkList = this.state.checkedList[index]
+    if (!checkList.items) {
+      return
+    }
     return checkList.items.map(item => {
       return item.path
     })
@@ -333,6 +426,15 @@ let MyComponent = React.createClass({
     const { form } = this.props
     const { getFieldProps, getFieldValue, setFieldsValue} = form
     setFieldsValue({[`volPath${index}`]: e.target.value})
+  },
+  onCoverChange(index, e) {
+    const { form } = this.props
+    const { setFieldsValue} = form
+    const value = e.target.value
+    setFieldsValue({[`volCover${index}`]: value})
+    if (value === 'cover') {
+      this.onCheckAllChange({ target: { checked: true } }, index)
+    }
   },
   render() {
     const cluster = this.props.cluster
@@ -353,12 +455,37 @@ let MyComponent = React.createClass({
     }
     const formItems = getFieldValue('volKey').map((k) => {
       const inputValue = getFieldProps(`volPath${k}`).value
+      let coverValue = getFieldProps(`volCover${k}`).value
+      if (!coverValue) {
+        getFieldProps(`volCover${k}`, {
+          initialValue: 'cover',
+        });
+      }
+      if (!coverValue) {
+        coverValue = 'cover'
+      }
       return (
-        <div key={`vol${k}`}>
+        <div key={`vol${k}`} id={`vol${k}`}>
           <FormItem >
             <li className="composeDetail">
               <div className="input">
                 <Input className="portUrl" size="large" placeholder="挂载目录，例如：/App" type="text" value={inputValue} onChange={(e) => this.inputChange(e, k)}/>
+              </div>
+              <div className="inputCover">
+                <RadioGroup onChange={this.onCoverChange.bind(this, k)} value={coverValue}>
+                  <Radio key="cover" value="cover">
+                    挂载整个配置组&nbsp;
+                    <Tooltip width="200px" title="镜像内该目录『所有文件』会被覆盖，支持『不重启容器』5 min 左右生效（含增、删、改配置文件）。">
+                      <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
+                    </Tooltip>
+                  </Radio>
+                  <Radio key="unCover" value="unCover">
+                    挂载若干配置文件&nbsp;
+                    <Tooltip width="200px" title="镜像内该目录『同名文件』会给覆盖，修改配置文件需『重启容器』来生效">
+                      <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
+                    </Tooltip>
+                  </Radio>
+                </RadioGroup>
               </div>
               <div className="protocol select">
                 <div className="portGroupForm">
@@ -371,8 +498,27 @@ let MyComponent = React.createClass({
                 </div>
               </div>
               <div className="check">
-                {getFieldProps(`volName${k}`).value ? <span><Checkbox checked={this.state.checkAll[k - 1]} onChange={(e) => this.onCheckAllChange(e, k)} />全选<br />
-                  <CheckboxGroup options={this.getPlainOptions(k - 1)} onChange={(list) => this.onChange(list, k - 1)} value={this.getCheckboxValue(k - 1)} /></span> : <span>请先选择配置组</span>}
+                {
+                  getFieldProps(`volName${k}`).value
+                  ? (
+                    <span>
+                      <Checkbox
+                        disabled={coverValue === 'cover'}
+                        checked={this.state.checkAll[k - 1]}
+                        onChange={(e) => this.onCheckAllChange(e, k)}
+                      >
+                        全选
+                      </Checkbox>
+                      <br />
+                      <CheckboxGroup
+                        options={this.getPlainOptions(k - 1)}
+                        onChange={(list) => this.onChange(list, k - 1)}
+                        value={this.getCheckboxValue(k - 1)}
+                      />
+                    </span>
+                   )
+                  : <span>请先选择配置组</span>
+                }
               </div>
               <div className="opera">
                 <i className="fa fa-trash-o" onClick={() => this.remove(k)} />
@@ -417,10 +563,14 @@ let ComposeDeployBox = React.createClass({
       <div id="ComposeDeployBox">
         <div className="composeBox">
           <span className="title">配置目录</span>
+          <br/>
           <div className="composeList">
             <div className="composeTitle">
               <div className="composeCommonTitle">
                 <span>挂载目录</span>
+              </div>
+              <div className="composeCommonTitle">
+                <span>覆盖方式</span>
               </div>
               <div className="composeCommonTitle">
                 <span>配置组</span>

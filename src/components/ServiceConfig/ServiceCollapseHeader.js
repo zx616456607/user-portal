@@ -12,14 +12,13 @@
 import React, { Component, PropTypes } from 'react'
 import { Row, Col, Modal, Button, Form, Icon, Checkbox, Menu, Dropdown, Input } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { createConfigFiles, deleteConfigGroup, loadConfigGroup, deleteConfigFiles, addConfigFile } from '../../actions/configs'
+import { createConfigFiles, deleteConfigGroup, deleteConfigFiles, addConfigFile } from '../../actions/configs'
 import { connect } from 'react-redux'
 import { calcuDate } from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
 import { validateServiceConfigFile } from '../../common/naming_validation'
 import { USERNAME_REG_EXP_NEW } from '../../constants'
 import { validateK8sResource } from '../../common/naming_validation'
-
 const ButtonGroup = Button.Group
 const FormItem = Form.Item
 const createForm = Form.create
@@ -31,16 +30,16 @@ let CreateConfigFileModal = React.createClass({
       callback([new Error('请输入配置文件名称')])
       return
     }
-    if(value.length > 253) {
-      callback([new Error('配置文件名称长度不超过 252 个字符')])
+    if(value.length < 3 || value.length > 63) {
+      callback([new Error('配置文件名称长度为 3-63 个字符')])
       return
     }
     if(/^[\u4e00-\u9fa5]+$/i.test(value)){
-      callback([new Error('名称由英文、数字、中划线(-)、下划线(_)、点(.)组成, 且以英文和数字结尾')])
+      callback([new Error('名称由英文、数字、点、下\中划线组成, 且名称和后缀以英文或数字开头和结尾')])
       return
-    } //^\\.?[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*
+    }
     if (!validateServiceConfigFile(value)) {
-      callback([new Error('名称由英文、数字、中划线(-)、下划线(_)、点(.)组成, 且以英文和数字结尾')])
+      callback([new Error('名称由英文、数字、点、下\中划线组成, 且名称和后缀以英文或数字开头和结尾')])
       return
     }
     callback()
@@ -95,7 +94,7 @@ let CreateConfigFileModal = React.createClass({
         modalConfigFile: false,
       })
     })
-    
+
   },
   render() {
     const { getFieldProps } = this.props.form
@@ -147,7 +146,6 @@ class CollapseHeader extends Component {
     super(props)
     this.state = {
       modalConfigFile: false,
-      configArray: [],
       sizeNumber: this.props.sizeNumber,
       configNameList: this.props.configNameList
     }
@@ -173,7 +171,7 @@ class CollapseHeader extends Component {
     e.stopPropagation()
   }
   handChage(e, Id) {
-    this.props.handChageProp(e, Id)
+    this.props.handChageProp(e,Id)
   }
   btnDeleteGroup() {
     const self = this
@@ -212,7 +210,7 @@ class CollapseHeader extends Component {
         isAsync: true
       }
     })
-    this.setState({delModal: false, configArray: []})
+    this.setState({delModal: false})
 
   }
   render() {
@@ -226,7 +224,7 @@ class CollapseHeader extends Component {
     return (
       <Row>
         <Col className="group-name textoverflow" span="6">
-          <Checkbox onChange={(e) => this.handChage(e, collapseHeader.name)} onClick={(e) => this.handleDropdown(e)}></Checkbox>
+          <Checkbox checked={(this.props.configArray.indexOf(collapseHeader.name) >-1)} onChange={(e) => this.handChage(e, collapseHeader.name)} onClick={(e) => this.handleDropdown(e)}></Checkbox>
           <Icon type="folder-open" />
           <Icon type="folder" />
           <span>{collapseHeader.name}</span>
@@ -265,7 +263,6 @@ CollapseHeader.propTypes = {
   collapseHeader: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired,
   createConfigFiles: PropTypes.func.isRequired,
-  loadConfigGroup: PropTypes.func.isRequired,
   deleteConfigGroup: PropTypes.func.isRequired
 }
 function mapStateToProps(state, props) {
@@ -292,7 +289,6 @@ function mapDispatchToProps(dispatch) {
   return {
     createConfigFiles: (obj, callback) => { dispatch(createConfigFiles(obj, callback)) },
     deleteConfigGroup: (obj, callback) => { dispatch(deleteConfigGroup(obj, callback)) },
-    loadConfigGroup: (obj) => { dispatch(loadConfigGroup(obj)) },
     addConfigFile: (configFile) => dispatch(addConfigFile(configFile))
   }
 }

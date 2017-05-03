@@ -23,9 +23,6 @@ import { LoadOtherImage, addOtherStore, getImageDetailInfo, deleteOtherImage, ge
 import findIndex from 'lodash/findIndex'
 import NotificationHandler from '../../common/notification_handler'
 
-const mode = require('../../../configs/model').mode
-const standard = require('../../../configs/constants').STANDARD_MODE
-let standardFlag = (mode == standard ? true : false);
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
@@ -426,15 +423,10 @@ class ImageCenter extends Component {
     const otherImageHead = this.state.otherImageHead || [];
     let ImageTabList = [];
     let { configured, globalConfigured } = this.state;
-    if(standardFlag) {
-      ImageTabList.push(<TabPane tab='私有空间' key='1'><ImageSpace scope={scope} hubConfig={configured} globalHubConfigured={globalConfigured} /></TabPane>)
-      ImageTabList.push(<TabPane tab='公有空间' key='2'><PublicSpace scope={scope} /></TabPane>)
-      ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} hubConfig={configured} globalHubConfigured={globalConfigured} /></TabPane>)
-    } else {
-      ImageTabList.push(<TabPane tab='公有空间' key='1'><PublicSpace scope={scope} /></TabPane>)
-      ImageTabList.push(<TabPane tab='私有空间' key='2'><ImageSpace scope={scope} hubConfig={configured} globalHubConfigured={globalConfigured} /></TabPane>)
-      ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} hubConfig={configured} globalHubConfigured={globalConfigured} /></TabPane>)
-    }
+    ImageTabList.push(<TabPane tab='私有空间' key='1'><ImageSpace scope={scope} hubConfig={configured} globalHubConfigured={globalConfigured} /></TabPane>)
+    ImageTabList.push(<TabPane tab='公有空间' key='2'><PublicSpace scope={scope} /></TabPane>)
+    ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} hubConfig={configured} globalHubConfigured={globalConfigured} /></TabPane>)
+
     let tempImageList = otherImageHead.map((list, index) => {
       return (
         <TabPane tab={<span><Icon type='shopping-cart' />&nbsp;<span>{list.title}</span></span>} key={index + 4}>

@@ -33,6 +33,9 @@ const consumptionController = require('../controllers/consumption')
 const clusternodesController = require('../controllers/cluster_node')
 const versionsController = require('../controllers/versions')
 const chargeController = require('../controllers/charge')
+const globalConfigController = require('../controllers/global_config')
+const imageScanController = require('../controllers/image_scan')
+const alertController = require('../controllers/alert')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -53,9 +56,22 @@ module.exports = function (Router) {
   router.get('/storage-pools/:pool/:cluster/volumes/:name/bindinfo', volumeController.getBindInfo)
   // router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
   router.get('/storage-pools/:cluster/volumes/available', volumeController.getAvailableVolume)
+  router.get('/storage-pools/:cluster/volumes/pool-status', volumeController.getPoolStatus)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
+  router.post('/clusters', clusterController.createCluster)
+  router.put('/clusters/:cluster', clusterController.updateCluster)
+  router.put('/clusters/:cluster/configs', clusterController.updateConfigs)
+  router.del('/clusters/:cluster', clusterController.deleteCluster)
+  router.get('/clusters/:cluster/summary', clusterController.getClusterSummary)
+  // For bind node when create service(lite only)
+  router.get('/clusters/:cluster/nodes', clusterController.getNodes)
+  router.get('/clusters/add-cluster-cmd', clusterController.getAddClusterCMD)
+  router.get('/clusters/:cluster/proxy', clusterController.getProxy)
+  router.put('/clusters/:cluster/proxy', clusterController.updateProxy)
+  router.get('/clusters/:cluster/node_addr', clusterController.getClusterNodeAddr)
+
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
   router.put('/clusters/:cluster/apps/:app_name/desc', appController.updateAppDesc)
@@ -90,6 +106,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/services/batch-status', serviceController.getServicesStatus)
   router.get('/clusters/:cluster/services/:service_name/detail', serviceController.getServiceDetail)
   router.get('/clusters/:cluster/services/:service_name/containers', serviceController.getServiceContainers)
+  router.put('/clusters/:cluster/services/:service_name/env', serviceController.updateServiceContainers)
   router.put('/clusters/:cluster/services/:service_name/manualscale', serviceController.manualScaleService)
   router.get('/clusters/:cluster/services/:service_name/autoscale', serviceController.getServiceAutoScale)
   router.put('/clusters/:cluster/services/:service_name/autoscale', serviceController.autoScaleService)
@@ -108,6 +125,8 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/certificates', serviceController.updateCertificate)
   router.delete('/clusters/:cluster/services/:service_name/certificates', serviceController.deleteCertificate)
   router.put('/clusters/:cluster/services/:service_name/tls', serviceController.toggleHTTPs)
+  router.get('/clusters/:cluster/apps/:appName/topology-services', serviceController.serviceTopology)
+  router.get('/clusters/:cluster/apps/:appName/topology-pods', serviceController.podTopology)
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
@@ -152,6 +171,7 @@ module.exports = function (Router) {
   router.get('/overview/clusters/:cluster_id/appstatus', overviewClusterController.getClusterAppStatus)
   router.get('/overview/clusters/:cluster_id/dbservices', overviewClusterController.getClusterDbServices)
   router.get('/overview/clusters/:cluster_id/nodesummary', overviewClusterController.getClusterNodeSummary)
+  router.get('/overview/clusters/:cluster_id/summary', overviewClusterController.getClusterSummary)
 
   //Overview Space
   router.get('/overview/spaceinfo', overviewSpaceController.getSpaceOverview)
@@ -232,6 +252,8 @@ module.exports = function (Router) {
   router.put('/devops/repos/:type', devopsController.syncRepository)
   router.delete('/devops/repos/:type', devopsController.removeRepository)
   router.get('/devops/repos/:type/branches', devopsController.listBranches)
+  router.get('/devops/repos/:type/tags', devopsController.listTags)
+  router.get('/devops/repos/:type/branches_tags', devopsController.listBranchesAndTags)
   router.get('/devops/repos/:type/user', devopsController.getUserInfo)
   // Auth with 3rdparty SCM and callback
   router.get('/devops/repos/:type/auth', devopsController.getAuthRedirectUrl);
@@ -241,6 +263,7 @@ module.exports = function (Router) {
   router.post('/devops/managed-projects', devopsController.addManagedProject)
   router.get('/devops/managed-projects', devopsController.listManagedProject)
   router.delete('/devops/managed-projects/:project_id', devopsController.removeManagedProject)
+  router.get('/devops/managed-projects/:project_id/branches_tags', devopsController.getManagedProject, devopsController.listBranchesAndTags)
   // CI flows
   router.post('/devops/ci-flows', devopsController.createCIFlows)
   router.get('/devops/ci-flows', devopsController.listCIFlows)
@@ -296,6 +319,11 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/dbservices/:name', databaseCacheController.getDBService)
   router.patch('/clusters/:cluster/dbservices/:name', databaseCacheController.scaleDBService)
 
+  // BaseImage
+  router.post('/devops/ci/images', devopsController.addBaseImage)
+  router.put('/devops/ci/images/:id', devopsController.updateBaseImage)
+  router.delete('/devops/ci/images/:id', devopsController.deleteBaseImage)
+
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)
   router.post('/integrations/createIntegration', integrationController.createIntegrations)
@@ -316,8 +344,15 @@ module.exports = function (Router) {
   router.get('/cluster-nodes/:cluster/add-node-cmd', clusternodesController.getAddNodeCMD)
   // Get kubectl pods names
   router.get('/cluster-nodes/:cluster/kubectls', clusternodesController.getKubectls)
-  // For bind node when create service(lite only)
-  router.get('/clusters/:cluster/nodes', clusternodesController.getNodes)
+  router.get('/cluster-nodes/:cluster/:node/podlist', clusternodesController.getPodlist)
+  // get host detail info
+  router.get('/cluster-nodes/:cluster/:node/info', clusternodesController.getClustersInfo)
+  router.get('/cluster-nodes/:cluster/:node/metrics', clusternodesController.getClustersMetrics)
+  router.get('/cluster-nodes/:cluster/:node/instant', clusternodesController.getClustersInstant)
+
+  // manipulate node's labels
+  router.get('/cluster-nodes/:cluster/:node/labels', clusternodesController.getNodeLabels)
+  router.patch('/cluster-nodes/:cluster/:node/labels', clusternodesController.updateNodeLabels)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)
@@ -340,5 +375,39 @@ module.exports = function (Router) {
   router.post('/charge/user', chargeController.chargeUser)
   router.post('/charge/teamspace', chargeController.chargeTeamspace)
 
+  //setting
+  router.post('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
+  router.put('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
+  router.get('/cluster/:cluster/config', globalConfigController.getGlobalConfig)
+  router.post('/type/:type/isvalidconfig', globalConfigController.isValidConfig)
+
+  //image scan
+  router.get('/images/scan-status', imageScanController.getScanStatus)
+  router.get('/images/layer-info', imageScanController.getLayerInfo)
+  router.get('/images/lyins-info', imageScanController.getLyins)
+  router.get('/images/clair-info', imageScanController.getClair)
+  router.post('/images/scan', imageScanController.scan)
+  router.post('/images/scan-rule', imageScanController.uploadFile)
+
+  // alert
+  router.get('/alerts/record-filters', alertController.getRecordFilters)
+  router.get('/alerts/records', alertController.getRecords)
+  router.delete('/alerts/records', alertController.deleteRecords)
+  router.post('/alerts/groups', alertController.createNotifyGroup)
+  router.put('/alerts/groups/:groupid', alertController.modifyNotifyGroup)
+  router.get('/alerts/groups', alertController.listNotifyGroups)
+  router.post('/alerts/groups/batch-delete', alertController.batchDeleteNotifyGroups)
+  router.post('/alerts/invitations', alertController.sendInvitation)
+  router.get('/alerts/invitations/status', alertController.checkEmailAcceptInvitation)
+
+  router.get('/alerts/cluster/:cluster/setting', alertController.getAlertSetting)
+  router.post('/alerts/cluster/:cluster/setting', alertController.addAlertSetting)
+  router.put('/alerts/cluster/:cluster/setting', alertController.addAlertSetting)
+  router.get('/alerts/cluster/:cluster/setting/list', alertController.getSettingList)
+  router.delete('/alerts/cluster/:cluster/setting', alertController.deleteSetting)
+  router.put('/alerts/cluster/:cluster/setting/enable', alertController.updateEnable)
+  router.put('/alerts/cluster/:cluster/setting/ignore', alertController.setIgnore)
+  router.get('/alerts/cluster/:cluster/type/:type/setting/:name/instant', alertController.getTargetInstant)
+  router.delete('/alerts/cluster/:cluster/rule', alertController.deleteRule)
   return router.routes()
 }

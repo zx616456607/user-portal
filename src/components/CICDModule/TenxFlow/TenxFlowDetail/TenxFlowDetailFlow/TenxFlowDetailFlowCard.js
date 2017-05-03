@@ -14,14 +14,20 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
-import { getTenxflowCIRules, UpdateTenxflowCIRules, deleteTenxFlowStateDetail, getStageBuildLogList } from '../../../../../actions/cicd_flow'
+import {
+  getTenxflowCIRules, UpdateTenxflowCIRules, deleteTenxFlowStateDetail,
+  getStageBuildLogList, getRepoBranchesAndTagsByProjectId,
+} from '../../../../../actions/cicd_flow'
 import './style/TenxFlowDetailFlowCard.less'
 import EditTenxFlowModal from './EditTenxFlowModal.js'
 import CICDSettingModal from './CICDSettingModal.js'
 import StageBuildLog from './StageBuildLog.js'
 import SetStageFileLink from './SetStageFileLink.js'
 import NotificationHandler from '../../../../../common/notification_handler'
+import PopTabSelect from '../../../../PopTabSelect'
 
+const PopTab = PopTabSelect.Tab;
+const PopOption = PopTabSelect.Option;
 const ButtonGroup = Button.Group;
 const confirm = Modal.confirm;
 
@@ -108,11 +114,11 @@ const menusText = defineMessages({
   },
   editBtn: {
     id: 'CICD.Tenxflow.TenxFlowDetailFlowCard.editBtn',
-    defaultMessage: '编辑项目',
+    defaultMessage: '编辑子任务',
   },
   deleteBtn: {
     id: 'CICD.Tenxflow.TenxFlowDetailFlowCard.deleteBtn',
-    defaultMessage: '删除项目',
+    defaultMessage: '删除子任务',
   },
   didNotDelete: {
     id: 'CICD.Tenxflow.TenxFlowDetailFlowCard.didNotDelete',
@@ -166,7 +172,7 @@ function currentFlowType(type, customTypeText, imageList) {
       return (imageList[i].imageList[0].categoryName)
     }
   }
-  return 
+  return
   // switch (type) {
   //   case 1:
   //     return (
@@ -303,6 +309,7 @@ class TenxFlowDetailFlowCard extends Component {
     this.openTenxFlowDeployLogModal = this.openTenxFlowDeployLogModal.bind(this);
     this.closeTenxFlowDeployLogModal = this.closeTenxFlowDeployLogModal.bind(this);
     this.openSettingStageFile = this.openSettingStageFile.bind(this);
+    this.renderBuildBtn = this.renderBuildBtn.bind(this);
     this.state = {
       editStatus: false,
       cicdSetModalShow: false,
@@ -388,7 +395,7 @@ class TenxFlowDetailFlowCard extends Component {
     deleteTenxFlowStateDetail(flowId, this.state.stageId, {
       success: {
         func: () => {
-          notification.success('删除构建项目', '删除构建项目成功');
+          notification.success('删除构建子任务', '删除构建子任务成功');
           getTenxFlowStateList(flowId, {
             success: {
               func: (results) => {
@@ -438,14 +445,18 @@ class TenxFlowDetailFlowCard extends Component {
     });
   }
 
-  buildFlow(stageId, type, stageName) {
+  buildFlow(stageId, type, stageName, key, tabKey) {
     //this function for user build single stage
     const { scope } = this.props;
     const stageStatus = !!type ? type.status : 3;
     if (stageStatus == 2) {
       scope.stopBuildFlow(stageId, stageName);
     } else {
-      scope.buildFlow(stageId);
+      const options = {}
+      if (key && tabKey) {
+        options.branch = key
+      }
+      scope.buildFlow(stageId, options);
     }
   }
 
@@ -476,16 +487,70 @@ class TenxFlowDetailFlowCard extends Component {
       TenxFlowDeployLogModal: false
     });
   }
-  
+
   openSettingStageFile() {
     //this function for open the setting stage file modal
     this.setState({
       setStageFileModal: true
     })
   }
+  // this.buildFlow.bind(this, config.metadata.id, config.lastBuildStatus, config.metadata.name)
+  renderBuildBtn(config) {
+    const { getRepoBranchesAndTagsByProjectId } = this.props
+    const { repoBranchesAndTags } = this.props
+    const project = config.spec.project || {}
+    const projectId = project.id
+    const targetElement = (
+      <Button size='large' type='primary' className='startBtn'
+        onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId)}>
+        {currentStatusBtn(config.lastBuildStatus)}
+      </Button>
+    )
+    const tabs = []
+    let loading
+    const branchesAndTags = repoBranchesAndTags[projectId]
+    if (!branchesAndTags) {
+      tabs.push(<PopOption key="not_found_branches_tags">未找到分支及标签，点击构建</PopOption>)
+    } else {
+      const { isFetching, data } = branchesAndTags
+      loading = isFetching
+      const { branches, tags } = data
+      for(let key in data) {
+        if (data.hasOwnProperty(key)) {
+          tabs.push(
+            <PopTab key={key} title={key === 'branches' ? '分支' : '标签'}>
+              {
+                data[key].map(item => {
+                  let name = item.branch || item.tag
+                  return <PopOption key={name}>{name}</PopOption>
+                })
+              }
+            </PopTab>
+          )
+        }
+      }
+    }
+
+    return (
+      <PopTabSelect
+        onChange={this.buildFlow.bind(this, config.metadata.id, config.lastBuildStatus, config.metadata.name)}
+        targetElement={targetElement}
+        loading={loading}
+        getTooltipContainer={() => document.body}>
+        {tabs}
+      </PopTabSelect>
+    )
+  }
 
   render() {
-    let { config, index, scope, currentFlowEdit, flowId, codeList, isFetching, ciRules, buildFetching, logs, supportedDependencies, totalLength, imageList } = this.props;
+    let {
+      config, index, scope, uniformRepo,
+      currentFlowEdit, flowId, codeList,
+      isFetching, ciRules, buildFetching,
+      logs, supportedDependencies, totalLength,
+      imageList, toggleCustomizeBaseImageModal,
+      baseImages, firstState,
+    } = this.props;
     const scopeThis = this;
     const dropdown = (
       <Menu onClick={this.operaMenuClick.bind(this, config.metadata.id)} style={{ width: '110px' }}>
@@ -549,10 +614,13 @@ class TenxFlowDetailFlowCard extends Component {
                       <div style={{ clear: 'both' }}></div>
                     </div>
                     <div className='btnBox'>
-                      <Button size='large' type='primary' className='startBtn'
+                      {/*<Button size='large' type='primary' className='startBtn'
                         onClick={this.buildFlow.bind(this, config.metadata.id, config.lastBuildStatus, config.metadata.name)}>
                         {currentStatusBtn(config.lastBuildStatus)}
-                      </Button>
+                      </Button>*/}
+                      {
+                        this.renderBuildBtn(config)
+                      }
                       <Button size='large' type='ghost' className='logBtn' onClick={this.openTenxFlowDeployLogModal.bind(this, config.metadata.id)}>
                         <svg className='cicdlogSvg'>
                           <use xlinkHref='#cicdlog' />
@@ -578,9 +646,10 @@ class TenxFlowDetailFlowCard extends Component {
             currentFlowEdit == index ? [
               <QueueAnim key={'EditTenxFlowModalAnimate' + index}>
                 <EditTenxFlowModal key={'EditTenxFlowModal' + index} rootScope={scope} scope={scopeThis}
-                  config={config} flowId={flowId} stageId={config.metadata.id} codeList={codeList}
-                  supportedDependencies={supportedDependencies} imageList={imageList}
-                  otherImage={this.props.otherImage}
+                  config={config} flowId={flowId} stageId={config.metadata.id} codeList={codeList} index={index}
+                  supportedDependencies={supportedDependencies} imageList={imageList} baseImages={baseImages}
+                  otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={toggleCustomizeBaseImageModal}
+                  uniformRepo={uniformRepo}
                   />
               </QueueAnim>
             ] : null
@@ -628,10 +697,10 @@ class TenxFlowDetailFlowCard extends Component {
           >
           <SetStageFileLink scope={scopeThis} flowId={flowId} config={config} />
         </Modal>
-        <Modal title="删除构建项目操作" visible={this.state.delFlowModal}
+        <Modal title="删除子任务操作" visible={this.state.delFlowModal}
           onOk={()=> this.delFlowItem()} onCancel={()=> this.setState({delFlowModal: false})}
           >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除构建项目 {config.metadata.name} 这项操作?</div>
+          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除子任务 {config.metadata.name} 这项操作?</div>
         </Modal>
       </div>
     )
@@ -647,7 +716,7 @@ function mapStateToProps(state, props) {
     isFetching: false,
     logs: []
   }
-  const { getTenxflowCIRules } = state.cicd_flow;
+  const { getTenxflowCIRules, repoBranchesAndTags } = state.cicd_flow;
   const { isFetching, ciRules } = getTenxflowCIRules || defaultCiRules
   const { getStageBuildLogList } = state.cicd_flow
   const { logs } = getStageBuildLogList || defaultLogList
@@ -657,7 +726,8 @@ function mapStateToProps(state, props) {
     isFetching,
     ciRules,
     logs,
-    buildFetching
+    buildFetching,
+    repoBranchesAndTags,
   }
 }
 
@@ -669,7 +739,8 @@ export default connect(mapStateToProps, {
   getTenxflowCIRules,
   UpdateTenxflowCIRules,
   deleteTenxFlowStateDetail,
-  getStageBuildLogList
+  getStageBuildLogList,
+  getRepoBranchesAndTagsByProjectId,
 })(injectIntl(TenxFlowDetailFlowCard, {
   withRef: true,
 }));

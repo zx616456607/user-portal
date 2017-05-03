@@ -32,12 +32,15 @@ export const GET_REPOS_LIST_SUCCESS = 'GET_REPOS_LIST_SUCCESS'
 export const GET_REPOS_LIST_FAILURE = 'GET_REPOS_LIST_FAILURE'
 
 
-function fetchCodeStormList(types, callback) {
+function fetchCodeStoreList(types, callback) {
   return {
     [FETCH_API]: {
       types: [GET_REPOS_LIST_REQUEST, GET_REPOS_LIST_SUCCESS, GET_REPOS_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/devops/repos/${types}`,
       schema: {}
+    },
+    extraData: {
+      type: types
     },
     callback
   }
@@ -45,7 +48,7 @@ function fetchCodeStormList(types, callback) {
 
 export function getRepoList(types, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchCodeStormList(types, callback))
+    return dispatch(fetchCodeStoreList(types, callback))
   }
 }
 
@@ -60,7 +63,10 @@ function fetchGithubCode(types, callback) {
       endpoint: `${API_URL_PREFIX}/devops/repos/${types}`,
       schema: {}
     },
-    callback
+    callback,
+    extraData: {
+      type: types
+    }
   }
 }
 
@@ -81,7 +87,10 @@ function fetchGithub(types, callback) {
       endpoint: `${API_URL_PREFIX}/devops/repos/${types}/auth`,
       schema: {}
     },
-    callback
+    callback,
+    extraData: {
+      type: types
+    }
   }
 }
 
@@ -93,11 +102,17 @@ export function registryGithub(types, callback) {
 
 export const SEARCH_GITHUB_LIST = 'SEARCH_GITHUB_LIST'
 
-export function searchGithubList(users, image) {
+export function searchGithubList(users, image, type) {
+  if(!type) {
+    type = 'github'
+  }
   return {
-    type: 　SEARCH_GITHUB_LIST,
+    type: SEARCH_GITHUB_LIST,
     users,
-    image
+    image,
+    extraData: {
+      type: type
+    }
   }
 }
 
@@ -111,6 +126,9 @@ function fetchGetUserInfo(types) {
       types: [GET_REPO_USER_INFO_REQUEST, GET_REPO_USER_INFO_SUCCESS, GET_REPO_USER_INFO_FAILURE],
       endpoint: `${API_URL_PREFIX}/devops/repos/${types}/user`,
       schema: {}
+    },
+    extraData: {
+      type: types
     }
   }
 }
@@ -130,9 +148,9 @@ export const DELETE_GITHUB_REPO_SUCCESS = 'DELETE_GITHUB_REPO_SUCCESS'
 export const DELETE_GITHUB_REPO_FAILURE = 'DELETE_GITHUB_REPO_FAILURE'
 
 function fetchDeleteRepoList(types) {
-  let actionKey = [DELETE_GITLAB_REPO_REQUEST,DELETE_GITLAB_REPO_SUCCESS,DELETE_GITLAB_REPO_FAILURE]
+  let actionKey = [DELETE_GITLAB_REPO_REQUEST, DELETE_GITLAB_REPO_SUCCESS, DELETE_GITLAB_REPO_FAILURE]
   if (types === 'github') {
-    actionKey = [DELETE_GITHUB_REPO_REQUEST,DELETE_GITHUB_REPO_SUCCESS,DELETE_GITHUB_REPO_FAILURE]
+    actionKey = [DELETE_GITHUB_REPO_REQUEST, DELETE_GITHUB_REPO_SUCCESS, DELETE_GITHUB_REPO_FAILURE]
   }
   return {
     [FETCH_API]: {
@@ -142,6 +160,9 @@ function fetchDeleteRepoList(types) {
       options: {
         method: 'DELETE'
       }
+    },
+    extraData: {
+      type: types
     },
   }
 }
@@ -162,7 +183,7 @@ function fetchAddCodeRepo(type, obj, callback) {
     source_full_name: obj.name,
     repo_type: type,
     address: obj.private ? obj.sshUrl : obj.cloneUrl,
-    gitlab_project_id: obj.projectId,
+    [`${type}_project_id`]: obj.projectId,
     is_private: obj.private ? 1 : 0
   }
   return {
@@ -174,6 +195,9 @@ function fetchAddCodeRepo(type, obj, callback) {
         method: 'POST',
         body: body
       }
+    },
+    extraData: {
+      type: type
     },
     names: obj.name,
     callback: callback
@@ -191,16 +215,16 @@ export const ADD_GITHUB_PROJECT_REQUEST = 'ADD_GITHUB_PROJECT_REQUEST'
 export const ADD_GITHUB_PROJECT_SUCCESS = 'ADD_GITHUB_PROJECT_SUCCESS'
 export const ADD_GITHUB_PROJECT_FAILRUE = 'ADD_GITHUB_PROJECT_FAILRUE'
 
-function fetchAddGithupRepo(obj, callback) {
-    const body = {
-      name: obj.name,
-      is_private: obj.private ? 1 : 0,
-      repo_type: "github",
-      address: obj.private ? obj.sshUrl : obj.cloneUrl,
-      description: obj.description,
-      projectId: obj.projectId
-    }
-  
+function fetchAddGithupRepo(repo_type, obj, callback) {
+  const body = {
+    name: obj.name,
+    is_private: obj.private ? 1 : 0,
+    repo_type: repo_type,
+    address: obj.private ? obj.sshUrl : obj.cloneUrl,
+    description: obj.description,
+    projectId: obj.projectId
+  }
+
   return {
     [FETCH_API]: {
       types: [ADD_GITHUB_PROJECT_REQUEST, ADD_GITHUB_PROJECT_SUCCESS, ADD_GITHUB_PROJECT_FAILRUE],
@@ -214,11 +238,18 @@ function fetchAddGithupRepo(obj, callback) {
     names: obj.name,
     users: obj.owner.username,
     repoUser: obj.repoUser,
-    callback: callback
+    callback: callback,
+    extraData: {
+      type: repo_type
+    }
   }
 }
 
 export function addGithubRepo(repo_type, obj, callback) {
+  if(typeof repo_type != 'string') {
+    obj = repo_type
+    repo_type = 'github'
+  }
   return (dispatch, getState) => {
     return dispatch(fetchAddGithupRepo(repo_type, obj, callback))
   }
@@ -303,7 +334,7 @@ export const NOT_ACTIVE_PROJECT_SUCCESS = 'NOT_ACTIVE_PROJECT_SUCCESS'
 export const NOT_ACTIVE_PROJECT_FAILURE = 'NOT_ACTIVE_PROJECT_FAILURE'
 
 // remove code repo project active
-function fetchNotActiveProject(projectId, callback) {
+function fetchNotActiveProject(projectId, type, callback) {
   return {
     [FETCH_API]: {
       types: [NOT_ACTIVE_PROJECT_REQUEST, NOT_ACTIVE_PROJECT_SUCCESS, NOT_ACTIVE_PROJECT_FAILURE],
@@ -313,14 +344,17 @@ function fetchNotActiveProject(projectId, callback) {
         method: 'DELETE',
       }
     },
+    extraData: {
+      type: type
+    },
     id: projectId,
     callback
   }
 }
 // remove gitlab repo project active
-export function notActiveProject(id, callback) {
+export function notActiveProject(id, type, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchNotActiveProject(id, callback))
+    return dispatch(fetchNotActiveProject(id, type, callback))
   }
 }
 
@@ -328,7 +362,11 @@ export const NOT_Github_ACTIVE_PROJECT_REQUEST = 'NOT_Github_ACTIVE_PROJECT_REQU
 export const NOT_Github_ACTIVE_PROJECT_SUCCESS = 'NOT_Github_ACTIVE_PROJECT_SUCCESS'
 export const NOT_Github_ACTIVE_PROJECT_FAILURE = 'NOT_Github_ACTIVE_PROJECT_FAILURE'
 
-function fetchNotGithubProject(users, projectId, callback) {
+function fetchNotGithubProject(users, projectId, type, callback) {
+  if(typeof type == 'function') {
+    callback = type
+    type = 'github'
+  }
   return {
     [FETCH_API]: {
       types: [NOT_Github_ACTIVE_PROJECT_REQUEST, NOT_Github_ACTIVE_PROJECT_SUCCESS, NOT_Github_ACTIVE_PROJECT_FAILURE],
@@ -340,7 +378,10 @@ function fetchNotGithubProject(users, projectId, callback) {
     },
     users,
     id: projectId,
-    callback
+    callback,
+    extraData: {
+      type: type
+    }
   }
 }
 
@@ -356,7 +397,7 @@ export const SEARCH_CODE_STORE_LIST = 'SEARCH_CODE_STORE_LIST'
 export function searchProject(names) {
   return {
     type: SEARCH_CODE_STORE_LIST,
-    codeName: names
+    codeName: names,
   }
 }
 
@@ -365,7 +406,10 @@ export const FILTER_CODE_STORE_LIST = 'FILTER_CODE_STORE_LIST'
 export function filterProject(types) {
   return {
     type: FILTER_CODE_STORE_LIST,
-    types: types
+    types: types,
+    extraData: {
+      type: types
+    },
   }
 }
 
@@ -387,6 +431,9 @@ function fetchRegistryRepo(item, callback) {
         }
       }
     },
+    extraData: {
+      type: item.type
+    },
     callback: callback
   }
 }
@@ -397,8 +444,7 @@ export function registryRepo(obj, callback) {
   }
 }
 
-
-function fetchSyncRepo(type) {
+function fetchSyncRepo(type, callback) {
   let actionType = [GET_REPOS_LIST_REQUEST, GET_REPOS_LIST_SUCCESS, GET_REPOS_LIST_FAILURE]
   if (type === 'github') {
     actionType = [GET_GITHUB_LIST_REQUEST, GET_GITHUB_LIST_SUCCESS, GET_GITHUB_LIST_FAILURE]
@@ -411,22 +457,26 @@ function fetchSyncRepo(type) {
       options: {
         method: 'PUT'
       }
-    }
+    },
+    callback: callback
   }
 }
-// sync code 
-export function syncRepoList(type) {
+// sync code
+export function syncRepoList(type, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchSyncRepo(type))
+    return dispatch(fetchSyncRepo(type, callback))
   }
 }
 
 export const SEARCH_CODE_REPO_LIST = 'SEARCH_CODE_REPO_LIST'
 // search code repo list
-export function searchCodeRepo(codeName) {
+export function searchCodeRepo(codeName, type) {
   return {
     type: SEARCH_CODE_REPO_LIST,
-    codeName
+    codeName,
+    extraData: {
+      type: type
+    }
   }
 }
 
@@ -451,7 +501,7 @@ export function getDockerfileList() {
     return dispatch(fetchgetDockerfileList())
   }
 }
-// get detail dockerfile 
+// get detail dockerfile
 export const GET_DOCKER_FILES_REQUEST = 'GET_DOCKER_FILES_REQUEST'
 export const GET_DOCKER_FILES_SUCCESS = 'GET_DOCKER_FILES_SUCCESS'
 export const GET_DOCKER_FILES_FAILURE = 'GET_DOCKER_FILES_FAILURE'
@@ -474,7 +524,7 @@ export function getDockerfiles(flowInfo, callback) {
     return dispatch(fetchDockerfiles(flowInfo, callback))
   }
 }
-// update detail dockerfile 
+// update detail dockerfile
 export const PUT_DOCKER_FILES_REQUEST = 'PUT_DOCKER_FILES_REQUEST'
 export const PUT_DOCKER_FILES_SUCCESS = 'PUT_DOCKER_FILES_SUCCESS'
 export const PUT_DOCKER_FILES_FAILURE = 'PUT_DOCKER_FILES_FAILURE'
@@ -804,7 +854,7 @@ export const UPDATE_TENX_FLOW_ALERT_REQUEST = 'UPDATE_TENX_FLOW_ALERT_REQUEST'
 export const UPDATE_TENX_FLOW_ALERT_SUCCESS = 'UPDATE_TENX_FLOW_ALERT_SUCCESS'
 export const UPDATE_TENX_FLOW_ALERT_FAILURE = 'UPDATE_TENX_FLOW_ALERT_FAILURE'
 
-function updateTenxFlowAlert(flowId, newAlert, callback) {
+function fetchUpdateTenxFlow(flowId, body, callback) {
   return {
     [FETCH_API]: {
       types: [UPDATE_TENX_FLOW_ALERT_REQUEST, UPDATE_TENX_FLOW_ALERT_SUCCESS, UPDATE_TENX_FLOW_ALERT_FAILURE],
@@ -812,16 +862,16 @@ function updateTenxFlowAlert(flowId, newAlert, callback) {
       schema: {},
       options: {
         method: 'PUT',
-        body: newAlert
+        body,
       }
     },
     callback: callback
   }
 }
 
-export function putEditTenxFlowAlert(flowId, newAlert, callback) {
+export function updateTenxFlow(flowId, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(updateTenxFlowAlert(flowId, newAlert, callback))
+    return dispatch(fetchUpdateTenxFlow(flowId, body, callback))
   }
 }
 
@@ -987,6 +1037,54 @@ export function getCodeStoreBranchDetail(storeType, reponame, project_id, callba
   }
 }
 
+export const GET_REPO_BRANCH_AND_TAG_REQUEST = 'GET_REPO_BRANCH_AND_TAG_REQUEST'
+export const GET_REPO_BRANCH_AND_TAG_SUCCESS = 'GET_REPO_BRANCH_AND_TAG_SUCCESS'
+export const GET_REPO_BRANCH_AND_TAG_FAILURE = 'GET_REPO_BRANCH_AND_TAG_FAILURE'
+
+function fetchRepoBranchesAndTags(storeType, reponame, project_id, callback) {
+  if (storeType == "svn") {
+    // No branch to fetch for svn
+    return
+  }
+  return {
+    reponame,
+    [FETCH_API]: {
+      types: [GET_REPO_BRANCH_AND_TAG_REQUEST, GET_REPO_BRANCH_AND_TAG_SUCCESS, GET_REPO_BRANCH_AND_TAG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/repos/${storeType}/branches_tags?reponame=${reponame}&&project_id=${project_id}`,
+      schema: {},
+    },
+    callback: callback
+  }
+}
+
+export function getRepoBranchesAndTags(storeType, reponame, project_id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchRepoBranchesAndTags(storeType, reponame, project_id, callback))
+  }
+}
+
+export const GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_REQUEST = 'GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_REQUEST'
+export const GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_SUCCESS = 'GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_SUCCESS'
+export const GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_FAILURE = 'GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_FAILURE'
+
+function fetchRepoBranchesAndTagsByProjectId(project_id, callback) {
+  return {
+    project_id,
+    [FETCH_API]: {
+      types: [GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_REQUEST, GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_SUCCESS, GET_REPO_BRANCH_AND_TAG_BY_PROJECT_ID_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/managed-projects/${project_id}/branches_tags`,
+      schema: {},
+    },
+    callback: callback
+  }
+}
+// project_id means the id of managed-project in db
+export function getRepoBranchesAndTagsByProjectId(project_id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchRepoBranchesAndTagsByProjectId(project_id, callback))
+  }
+}
+
 export const BUILD_TENX_FLOW_REQUEST = 'BUILD_TENX_FLOW_REQUEST'
 export const BUILD_TENX_FLOW_SUCCESS = 'BUILD_TENX_FLOW_SUCCESS'
 export const BUILD_TENX_FLOW_FAILURE = 'BUILD_TENX_FLOW_FAILURE'
@@ -1137,11 +1235,11 @@ export function changeBuildStatus(buildId, status) {
 export const CHANGE_TENX_FLOW_STATUS = 'CHANGE_TENX_FLOW_STATUS'
 
 export function changeTenxFlowStatus(flowId, status) {
-   return {
-     type: CHANGE_TENX_FLOW_STATUS,
-     status: status,
-     flowId: flowId
-   }
+  return {
+    type: CHANGE_TENX_FLOW_STATUS,
+    status: status,
+    flowId: flowId
+  }
 }
 
 export const GET_FLOW_BUILD_LAST_LOG_REQUEST = 'GET_FLOW_BUILD_LAST_LOG_REQUEST'
@@ -1211,20 +1309,26 @@ export const GET_AVAILABLE_IMAGE_REQUEST = 'GET_AVAILABLE_IMAGE_REQUEST'
 export const GET_AVAILABLE_IMAGE_SUCCESS = 'GET_AVAILABLE_IMAGE_SUCCESS'
 export const GET_AVAILABLE_IMAGE_FAILURE = 'GET_AVAILABLE_IMAGE_FAILURE'
 
-function fetchAvailableImage(callback) {
+function fetchAvailableImage(needFetching, callback) {
+  if(typeof needFetching != 'boolean' ) {
+    callback = needFetching
+    needFetching = true
+  }
+
   return {
     [FETCH_API]: {
       types: [GET_AVAILABLE_IMAGE_REQUEST, GET_AVAILABLE_IMAGE_SUCCESS, GET_AVAILABLE_IMAGE_FAILURE],
       endpoint: `${API_URL_PREFIX}/devops/ci/images`,
       schema: {}
     },
-    callback
+    callback,
+    needFetching
   }
 }
 
-export function getAvailableImage(callback) {
+export function getAvailableImage(needFetching, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchAvailableImage(callback))
+    return dispatch(fetchAvailableImage(needFetching, callback))
   }
 }
 
@@ -1266,3 +1370,76 @@ export function setStageLink(flowId, stageId, targetId, body, callback) {
     return dispatch(fetchPutStageLink(flowId, stageId, targetId, body, callback))
   }
 }
+
+
+export const ADD_BASE_IMAGE_REQUEST = 'ADD_BASE_IMAGE_REQUEST'
+export const ADD_BASE_IMAGE_SUCCESS = 'ADD_BASE_IMAGE_SUCCESS'
+export const ADD_BASE_IMAGE_FAILURE = 'ADD_BASE_IMAGE_FAILURE'
+function fetchAddBaseImage(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ADD_BASE_IMAGE_REQUEST, ADD_BASE_IMAGE_SUCCESS, ADD_BASE_IMAGE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci/images`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body: body
+      }
+    },
+    callback
+  }
+}
+
+export function addBaseImage(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchAddBaseImage(body, callback))
+  }
+}
+
+export const UPDATE_BASE_IMAGE_REQUEST = 'UPDATE_BASE_IMAGE_REQUEST'
+export const UPDATE_BASE_IMAGE_SUCCESS = 'UPDATE_BASE_IMAGE_SUCCESS'
+export const UPDATE_BASE_IMAGE_FAILURE = 'UPDATE_BASE_IMAGE_FAILURE'
+function fetchUpdateBaseImage(id, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_BASE_IMAGE_REQUEST, UPDATE_BASE_IMAGE_SUCCESS, UPDATE_BASE_IMAGE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci/images/${id}`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body: body
+      }
+    },
+    callback
+  }
+}
+
+export function updateBaseImage(id, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateBaseImage(id, body, callback))
+  }
+}
+
+export const DELETE_BASE_IMAGE_REQUEST = 'DELETE_BASE_IMAGE_REQUEST'
+export const DELETE_BASE_IMAGE_SUCCESS = 'DELETE_BASE_IMAGE_SUCCESS'
+export const DELETE_BASE_IMAGE_FAILURE = 'DELETE_BASE_IMAGE_FAILURE'
+function fetchDeleteBaseImage(id,callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_BASE_IMAGE_REQUEST, DELETE_BASE_IMAGE_SUCCESS, DELETE_BASE_IMAGE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci/images/${id}`,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      }
+    },
+    callback
+  }
+}
+
+export function deleteBaseImage(id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteBaseImage(id,callback))
+  }
+}
+

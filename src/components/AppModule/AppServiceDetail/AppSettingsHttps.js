@@ -449,7 +449,7 @@ class AppSettingsHttps extends Component {
           <div className="confirm"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>您是否确定删除证书：{this.props.serviceName}</div>
         </div>
       </Modal>
-        <div className="notice">注：HTTPS开启后，原有HTTP服务会自动跳转到HTTPS</div>
+        <div className="notice">Tips：HTTPS开启后，原有HTTP服务会自动跳转到HTTPS</div>
       </div>
     )
   }

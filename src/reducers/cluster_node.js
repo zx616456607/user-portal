@@ -14,23 +14,32 @@ import reducerFactory from './factory'
 import cloneDeep from 'lodash/cloneDeep'
 
 function getAllClusterNodes(state = {}, action) {
+  const { cluster, type } = action
   const defaultState = {
-    isFetching: false,
-    nodes: {}
+    [cluster]: {
+      isFetching: false,
+      nodes: {}
+    }
   }
-  switch (action.type) {
+  switch (type) {
     case ActionTypes.GET_ALL_CLUSTER_NODES_REQUEST:
       return merge({}, defaultState, state, {
-        isFetching: true
+        [cluster]: {
+          isFetching: true,
+        }
       })
     case ActionTypes.GET_ALL_CLUSTER_NODES_SUCCESS:
       return Object.assign({}, state, {
-        isFetching: false,
-        nodes: action.response.result.data || {}
+        [cluster]: {
+          isFetching: false,
+          nodes: action.response.result.data || {}
+        }
       })
     case ActionTypes.GET_ALL_CLUSTER_NODES_FAILURE:
       return merge({}, defaultState, state, {
-        isFetching: false
+        [cluster]: {
+          isFetching: false,
+        }
       })
     default:
       return state
@@ -62,6 +71,31 @@ function clusterNodes(state = {}, action) {
   }
 }
 
+function addNodeCMD(state = {}, action) {
+  const { cluster, type } = action
+  const defaultState = {
+    isFetching: false,
+    [cluster]: {},
+  }
+  switch (type) {
+    case ActionTypes.GET_ADD_NODE_CMD_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_ADD_NODE_CMD_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        [cluster]: action.response.result || {}
+      })
+    case ActionTypes.GET_ADD_NODE_CMD_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 export function cluster_nodes(state = { cluster_nodes: {} }, action) {
   return {
     getAllClusterNodes: getAllClusterNodes(state.getAllClusterNodes, action),
@@ -81,10 +115,6 @@ export function cluster_nodes(state = { cluster_nodes: {} }, action) {
       SUCCESS: ActionTypes.GET_KUBECTLS_PODS_SUCCESS,
       FAILURE: ActionTypes.GET_KUBECTLS_PODS_FAILURE
     }, state.kubectlsPods, action, {overwrite: true}),
-    addNodeCMD: reducerFactory({
-      REQUEST: ActionTypes.GET_ADD_NODE_CMD_REQUEST,
-      SUCCESS: ActionTypes.GET_ADD_NODE_CMD_SUCCESS,
-      FAILURE: ActionTypes.GET_ADD_NODE_CMD_FAILURE
-    }, state.addNodeCMD, action, {overwrite: true}),
+    addNodeCMD: addNodeCMD(state.addNodeCMD, action),
   }
 }

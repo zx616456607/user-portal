@@ -60,6 +60,9 @@ const rootRoutes = {
     path: '/notfound',
     component: require('../containers/ErrorPage').default,
   },{
+      path:'/alerts/invitations/join',
+      component: require('../containers/Template').default
+  },{
     path: '/',
     component: require('../containers/App/Enterprise').default,
     indexRoute: {
@@ -157,7 +160,12 @@ const rootRoutes = {
       component: require('../containers/Cluster').default,
       indexRoute: {
         component: require('../components/ClusterModule').default,
-      }
+      },
+      getChildRoutes: (location, cb) => {
+        require.ensure([], function (require) {
+          cb(null, require('./cluster').default)
+        })
+      },
     }, {
       path: '*',
       component: require('../containers/ErrorPage').default,

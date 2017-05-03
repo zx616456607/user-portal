@@ -56,11 +56,11 @@ class AppMonitior extends Component {
   componentDidMount() {
     loadData(this.props, { start: this.changeTime(1) })
   }
-  
+
   componentWillUnmount() {
     clearInterval(metricsInterval)
   }
-  
+
   setIntervalFunc() {
     //this function for setInterval
     let query = this.state.currentStart;
@@ -70,12 +70,12 @@ class AppMonitior extends Component {
       this.setState({
         intervalStatus: false
       })
-    } else {      
+    } else {
       const { cluster, appName, loadAppAllOfMetrics } = this.props
       this.setState({
         intervalStatus: true
       })
-      metricsInterval = setInterval(() => {    
+      metricsInterval = setInterval(() => {
         loadAppAllOfMetrics(cluster, appName, query)
       }, 60000);
     }
@@ -101,7 +101,7 @@ class AppMonitior extends Component {
       isFetching: false
     };
     if(appAllMetrics.data.length > 0) {
-      appAllMetrics.data.map((metric) => {        
+      appAllMetrics.data.map((metric) => {
         showCpu.data.push(metric[0].cpu[0]);
         showCpu.isFetching = false;
         showMemory.data.push(metric[1].memory[0]);
@@ -121,6 +121,7 @@ class AppMonitior extends Component {
       <div id="AppMonitior">
         <TimeControl onChange={this.handleTimeChange} setInterval={this.setIntervalFunc} intervalStatus={this.state.intervalStatus} />
         <Metrics
+          events="AppMonitior"
           cpu={showCpu}
           memory={showMemory}
           networkReceived={showNetworkRec}

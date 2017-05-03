@@ -24,19 +24,13 @@ import remove from 'lodash/remove'
 import { loadConfigGroup, configGroupName, createConfigGroup, deleteConfigGroup } from '../../actions/configs'
 import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
 
+
 class CollapseList extends Component {
   constructor(props) {
     super(props)
+    this.loadNumber = 0
   }
-  loadData(props) {
-    const { loadConfigGroup, cluster} = props
-    const self = this
-    loadConfigGroup(cluster)
-  }
-  componentWillMount() {
-    document.title = '服务配置 | 时速云'
-    this.loadData(this.props)
-  }
+
   // componentWillReceiveProps(nextProps) {
   //   console.log('nextProps',nextProps)
   //   this.setState({
@@ -55,9 +49,11 @@ class CollapseList extends Component {
   }
 
   render() {
-    const {groupData, isFetching} = this.props
+    const {groupData, isFetching } = this.props
     const scope = this
-    if (isFetching) {
+    // TODO: Fix loadNumber here, not sure why 'groupData.length' will be undefined -> 0 -> actual length
+    if (isFetching && this.loadNumber < 2) {
+      this.loadNumber++
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -80,6 +76,7 @@ class CollapseList extends Component {
               parentScope={scope}
               btnDeleteGroup={this.props.btnDeleteGroup}
               handChageProp={this.props.handChageProp}
+              configArray={this.props.configArray}
               collapseHeader={group}
               sizeNumber={group.size}
               />
@@ -104,18 +101,27 @@ class CollapseList extends Component {
 }
 
 CollapseList.propTypes = {
-  groupData: PropTypes.array.isRequired
+  // groupData: PropTypes.array.isRequired
 }
 
 class Service extends Component {
   constructor(props) {
     super(props)
+    this.loadData = this.loadData.bind(this)
     this.state = {
       createModal: false,
       configArray: []
     }
   }
-
+  componentWillMount() {
+    document.title = '服务配置 | 时速云'
+    this.loadData()
+  }
+  loadData() {
+    const { loadConfigGroup, cluster} = this.props
+    loadConfigGroup(cluster)
+    this.setState({configArray:[]})
+  }
   configModal(visible) {
     if (visible) {
       this.setState({
@@ -163,6 +169,7 @@ class Service extends Component {
                 <h3>{list.name}：{list.text}</h3>
               )
             })
+            self.loadData()
             Modal.error({
               title: '删除配置组失败!',
               content
@@ -209,9 +216,9 @@ class Service extends Component {
             <i className="fa fa-trash-o" /> 删除
           </Button>
           {/*创建配置组-弹出层-start*/}
-          
+
           <CreateConfigModal scope={this} />
-         
+
           {/*创建配置组-弹出层-end*/}
 
           {/* 删除配置组-弹出层-*/}
@@ -228,8 +235,9 @@ class Service extends Component {
             groupData={configGroup}
             configName={configName}
             btnDeleteGroup={this.btnDeleteGroup}
-            loading={isFetching}
+            isFetching={isFetching}
             handChageProp={this.handChageProp()}
+            configArray={this.state.configArray}
             configGroupName={(obj) => this.props.configGroupName(obj)} />
           {/*折叠面板-end*/}
         </div>
@@ -241,7 +249,7 @@ class Service extends Component {
 Service.propTypes = {
   // intl: PropTypes.object.isRequired,
   cluster: PropTypes.string.isRequired,
-  configGroup: PropTypes.array.isRequired,
+  // configGroup: PropTypes.array.isRequired,
   isFetching: PropTypes.bool.isRequired,
   loadConfigGroup: PropTypes.func.isRequired,
   createConfigGroup: PropTypes.func.isRequired,
@@ -257,7 +265,7 @@ function mapStateToProps(state, props) {
   const defaultConfigList = {
     isFetching: false,
     cluster: cluster.clusterID,
-    configGroup: [],
+    configGroup: {},
   }
   const {
     configGroupList

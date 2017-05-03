@@ -1,5 +1,6 @@
 #ComposeGroup{
   width: 100%;
+  .ant-popover-content{width: 300px;}
   .titleBox{
     padding: 0px !important;
     padding-left: 24px !important;
@@ -32,9 +33,26 @@
         line-height: 40px;
       }
       .composefile{
+        overflow: initial;
         span{
           color: #2db7f5;
           cursor: pointer;
+          float: left;
+          max-width: 100%;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+        }
+        .more {
+          display: inline-block;
+          position: absolute;
+          margin-left: 5px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 15px;
+          height: 16px;
+          cursor: pointer;
+          use{fill: #c7c7c7;}
         }
       }
     }

@@ -1,5 +1,6 @@
 .clusterTabListBox {
   .ClusterListCard {
+    margin-bottom: 20px;
     .operaBox {
       .addPodBtn {
         margin-right: 15px;
@@ -51,15 +52,12 @@
         height: 40px;
         line-height: 40px;
       }
-      .checkBox {
-        padding-left: 7px;
-        width: 30px;
-      }
       .name {
         width: 10%;
+        padding-left: 10px;
       }
       .address {
-        width: 7%;
+        width: 8%;
       }
       .status {
         width: calc(~"10% - 10px");
@@ -68,13 +66,13 @@
         width: 10%;
       }
       .container {
-        width: 7%;
+        width: 6%;
       }
       .cpu,
       .memory,
       .disk {
         position: relative;
-        width: 7%;
+        width: 6%;
         .topSpan {
           position: absolute;
           top: 10px;
@@ -100,14 +98,44 @@
         }
       }
       .runningTime {
-        width: 7%;
+        width: 6%;
       }
       .startTime {
         width: 10%;
       }
       .opera {
         padding-left: 10px;
-        width: calc(~"17% - 20px");
+        width: 14%
+      }
+      .alarm {
+        width: 6%;
+        .managemoniter {
+          width: 18px;height: 18px;
+          fill: #C7CBCE;
+          cursor: pointer;
+          vertical-align: middle;
+          transition: all 0.2s ease-in-out;
+          &:hover {
+            fill:#10B5FF;
+          }
+        }
+        i {
+          margin-left: 12px;
+          font-size: 16px;
+          cursor: pointer;
+          color: #C7CBCE;
+          line-height: 2;
+          transition: all 0.2s ease-in-out;
+          vertical-align: middle;
+          &:hover {
+            color: #10B5FF;
+            transform: rotate(40deg);
+            -webkit-transform: rotate(40deg);
+            -moz-transform: rotate(40deg);
+            -o-transform: rotate(40deg);
+            -ms-transform: rotate(40deg);
+          }
+        }
       }
       .runningSpan {
         color: #33b867;
@@ -158,10 +186,6 @@
           text-overflow: ellipsis;
           white-space: nowrap;
         }
-        .ant-switch-checked {
-          border-color: rgb(40, 189, 131) !important;
-          background-color: rgb(40, 189, 131) !important;
-        }
         .ant-btn-ghost:first-child {
           position: relative;
           // padding-left: 33px;
@@ -187,29 +211,6 @@
     }
   }
 }
-.addClusterNodeModal {
-  .ant-modal-body {
-    font-size: 14px;
-  }
-  .ant-modal-footer {
-    .ant-btn-ghost {
-      display: none;
-    }
-  }
-  pre {
-    margin: 20px 0;
-    display: block;
-    width: 100%;
-    min-height: 40px;
-    padding: 15px 20px;
-    word-break: keep-all;
-    color: #3d6cb4;
-    background-color: #F8F8F8;
-    overflow: auto;
-    border: 0;
-    border-radius: 5px;
-  }
-}
-.deleteClusterNodeModal{
+.deleteClusterNodeModal, .deleteClusterModal {
   color: red;
 }

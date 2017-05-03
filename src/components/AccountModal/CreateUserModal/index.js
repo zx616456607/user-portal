@@ -12,9 +12,10 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Input, Modal, Form, Checkbox, Tooltip, Icon, Button, } from 'antd'
+import { Input, Modal, Form, Checkbox, Tooltip, Icon, Button, Select } from 'antd'
 import { USERNAME_REG_EXP_NEW, ASYNC_VALIDATOR_TIMEOUT } from '../../../constants'
-
+import { ROLE_SYS_ADMIN } from '../../../../constants'
+const Option = Select.Option
 const createForm = Form.create
 const FormItem = Form.Item
 
@@ -36,7 +37,7 @@ let CreateUserModal = React.createClass({
       return
     }
     if (!USERNAME_REG_EXP_NEW.test(value)) {
-      callback([new Error('以[a~z]开头，允许[0~9]、[-]，且以小写英文和数字结尾')])
+      callback([new Error('以小写字母开头，允许[0~9]、[-]，且以小写英文和数字结尾')])
       return
     }
     // Disabled submit button when checkUserName
@@ -91,6 +92,10 @@ let CreateUserModal = React.createClass({
   checkPass2(rule, value, callback) {
     const { getFieldValue, getFieldError } = this.props.form;
     const pwdError = getFieldError('passwd');
+    if (!Boolean(value)) {
+      callback('请再次输入密码！')
+      return
+    }
     if(Boolean(pwdError)) {
       callback([new Error(pwdError[0])]);
       return
@@ -114,13 +119,14 @@ let CreateUserModal = React.createClass({
       if (!!errors) {
         return
       }
-      const { name, passwd, email, tel, check } = values
+      const { name, passwd, email, tel, check, role } = values
       let newUser = {
         userName: name,
         password: passwd,
         email: email,
         phone: tel,
         sendEmail: check,
+        role: parseInt(role)
       }
       onSubmit(newUser)
       form.resetFields()
@@ -141,7 +147,6 @@ let CreateUserModal = React.createClass({
     const { form, visible, loginUser } = this.props
     const { disabled } = this.state
     const { getFieldProps, getFieldError, isFieldValidating } = form
-    const text = <span>前台只能添加普通成员</span>
     const nameProps = getFieldProps('name', {
       rules: [
         { validator: this.userExists },
@@ -150,7 +155,7 @@ let CreateUserModal = React.createClass({
     const telProps = getFieldProps('tel', {
       validate: [{
         rules: [
-          { required: true, message: '请输入手机号' },
+          { whitespace: true },
         ],
         trigger: 'onBlur',
       }, {
@@ -179,15 +184,15 @@ let CreateUserModal = React.createClass({
       ],
     })
     const rePasswdProps = getFieldProps('rePasswd', {
-      rules: [{
-        required: true,
-        whitespace: true,
-        message: '请再次输入密码',
-      }, {
+      rules: [{ whitespace: true },
+      {
         validator: this.checkPass2,
       }],
     })
     const checkProps = getFieldProps('check', {})
+    const roleProps = getFieldProps('role', {
+      initialValue:'0'
+    })
     const formItemLayout = {
       labelCol: { span: 7 },
       wrapperCol: { span: 12 },
@@ -196,7 +201,7 @@ let CreateUserModal = React.createClass({
       <Modal title="添加新成员" visible={visible}
         onOk={this.handleOk} onCancel={this.handleCancel}
         wrapClassName="NewMemberForm"
-        width="463px"
+        width="500px"
         footer={[
           <Button
             key="back"
@@ -221,20 +226,25 @@ let CreateUserModal = React.createClass({
             hasFeedback
             help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
             >
+            {/*   not browser autoComplete    */}
+            <Input type="text" id="autoname" style={{visibility: 'hidden', opacity:0,position:'absolute'}} />
+            <Input type="password" id="autopassword" style={{visibility: 'hidden', opacity:0,position:'absolute'}} />
+
             <Input {...nameProps} placeholder="新成员名称" id="newUser"/>
           </FormItem>
 
           <FormItem
             {...formItemLayout}
             label="类型"
-            hasFeedback
             >
-            <div>
-              普通成员
-              <Tooltip placement="right" title={text}>
-                <Icon type="question-circle-o" style={{ marginLeft: 10 }} />
-              </Tooltip>
-            </div>
+            { ROLE_SYS_ADMIN == loginUser.role ?
+            <Select defaultValue="0" {...roleProps} style={{ width: 120 }}>
+              <Option value="0">普通成员</Option>
+              <Option value="1">团队管理员</Option>
+              <Option value="2">系统管理员</Option>
+            </Select>
+            :<div> 普通成员</div>
+            }
           </FormItem>
 
           <FormItem
