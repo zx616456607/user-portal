@@ -468,9 +468,10 @@ class ImageDetailBox extends Component {
             <p className="imageName">
               {imageDetail.name ? imageDetail.name : imageDetail.imageName}
               {(imageInfo.isFavourite == 1) ?
-                <i className="fa fa-star" aria-hidden="true" style={{ marginLeft: '10px' }} onClick={() => this.setimageStore(imageInfo.name, '0')}></i>
+                <Tooltip title="取消收藏"><i className="fa fa-star cursor" aria-hidden="true" style={{ marginLeft: '10px' }} onClick={() => this.setimageStore(imageInfo.name, '0')}></i></Tooltip>
                 :
-                <i className="fa fa-star-o" aria-hidden="true" style={{ marginLeft: '10px', color: '#2db7f5' }} onClick={() => this.setimageStore(imageInfo.name, '1')}></i>
+                <Tooltip title="点击收藏">
+                <i className="fa fa-star-o cursor" aria-hidden="true" style={{ marginLeft: '10px', color: '#2db7f5' }} onClick={() => this.setimageStore(imageInfo.name, '1')}></i></Tooltip>
               }
             </p>
             <div className="leftBox">
