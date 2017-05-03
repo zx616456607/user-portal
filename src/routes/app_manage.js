@@ -29,6 +29,9 @@ const appManageRoutes = [{
     path: 'compose_file',
     component: require('../components/AppModule/AppCreate/ComposeFile').default,
   }]
+},{
+  path: 'app_create/select_image',
+  component: require('../components/AppModule/CreateApp/SelectImage').default,
 }, {
   path: 'service',
   indexRoute: {
