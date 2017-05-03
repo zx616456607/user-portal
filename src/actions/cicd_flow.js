@@ -1458,7 +1458,6 @@ function fetchDeploymentOrAppCDRule(cluster, type, name, callback) {
 }
 
 export function getDeploymentOrAppCDRule(cluster, type, name, callback) {
-  console.log('1111111')
   return (dispatch, getState) => {
     return dispatch(fetchDeploymentOrAppCDRule(cluster, type, name,callback))
   }
