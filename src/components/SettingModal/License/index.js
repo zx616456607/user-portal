@@ -98,7 +98,7 @@ class License extends Component {
               success: {
                 func: (res) => {
                   if (res.data) {
-                    _this.setState({leftTrialDays: res.data.leftTrialDays,trialEndTime: res.data.trialEndTime})
+                    _this.setState({leftTrialDays: res.data.leftTrialDays,trialEndTime: res.data.end})
                   }
                 }
               }
@@ -197,7 +197,6 @@ class License extends Component {
         </div>
       )
     }
-
     return (
       <div id='License'>
         <div className="title">授权管理</div>
@@ -218,7 +217,7 @@ class License extends Component {
             <div className="ant-col-20">
               <Button type="primary" size="large" onClick={()=> this.onCharge()} style={{marginRight:'40px'}}>立即授权</Button>
                {
-                 license.licenses.length > 0 ? [ <Icon type="check-circle" className="success" />,' 已激活',<span className="dataKey">有效期至：{ formatDate(license.merged.end || '') } </span>]
+                 license.licenses.length > 100 ? [ <Icon type="check-circle" className="success" />,' 已激活',<span className="dataKey">有效期至：{ formatDate(license.merged.end || '') } </span>]
                  :
                  [<Icon type="check-circle" className="success"/>,' 未激活',<span className="dataKey">试用期至：{ formatDate(this.state.trialEndTime) } </span>]
                }

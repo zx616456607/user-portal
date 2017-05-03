@@ -282,7 +282,7 @@ class TenxFLowDetailLog extends Component {
         <Modal visible={this.state.TenxFlowDeployLogModal}
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal} >
-          <TenxFlowBuildLog scope={thisScope} flowId={flowId} isFetching={detailFetching} logs={detailLogs} callback={this.callback(flowId)}/>
+          <TenxFlowBuildLog scope={thisScope} flowId={flowId} isFetching={detailFetching} logs={detailLogs} callback={this.callback(flowId)} visible={this.state.TenxFlowDeployLogModal}/>
         </Modal>
       </Card>
     )

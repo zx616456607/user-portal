@@ -265,23 +265,24 @@ let AppDeployServiceModal = React.createClass({
 
   },
   setForm() {
-    const { scope } = this.props
-    const { form } = this.props
-    const { annotations } = this.props.scope.state.checkInf.Service.metadata
-    const bindNode = this.props.scope.state.checkInf.Deployment.spec.template.spec.nodeSelector[K8S_NODE_SELECTOR_KEY]
-    const volumeMounts = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].volumeMounts
-    const livenessProbe = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].livenessProbe
-    const env = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].env
-    const ports = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].ports
-    const ServicePorts = this.props.scope.state.checkInf.Service.spec.ports
-    const volumes = this.props.scope.state.checkInf.Deployment.spec.template.spec.volumes
-    let imageVersion = scope.state.checkInf.Deployment.spec.template.spec.containers[0].image.split(':')[1]
-    const entryInput = scope.state.checkInf.Deployment.spec.template.spec.containers[0].command
+    const { scope, form } = this.props
+    const { Service, Deployment } = scope.state.checkInf
+    const { annotations } = Service.metadata
+    const nodeSelector = Deployment.spec.template.spec.nodeSelector
+    const bindNode = nodeSelector ? nodeSelector[K8S_NODE_SELECTOR_KEY] : SYSTEM_DEFAULT_SCHEDULE
+    const volumeMounts = Deployment.spec.template.spec.containers[0].volumeMounts
+    const livenessProbe = Deployment.spec.template.spec.containers[0].livenessProbe
+    const env = Deployment.spec.template.spec.containers[0].env
+    const ports = Deployment.spec.template.spec.containers[0].ports
+    const ServicePorts = Service.spec.ports
+    const volumes = Deployment.spec.template.spec.volumes
+    let imageVersion = Deployment.spec.template.spec.containers[0].image.split(':')[1]
+    const entryInput = Deployment.spec.template.spec.containers[0].command
     form.setFieldsValue({
-      name: scope.state.checkInf.Service.metadata.name,
+      name: Service.metadata.name,
       imageVersion: imageVersion,
       bindNode,
-      instanceNum: scope.state.checkInf.Deployment.spec.replicas,
+      instanceNum: Deployment.spec.replicas,
       volumeSwitch: this.volumeSwitch(volumeMounts, form),
       getUsefulType: this.getUsefulType(livenessProbe, form),
       volumeMounts: volumeMounts,
@@ -331,7 +332,7 @@ let AppDeployServiceModal = React.createClass({
       DIYCPU: RESOURCES_CPU_MIN,
     }
     if (newState.composeType === RESOURCES_DIY) {
-      const { memory, cpu } = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].resources.requests
+      const { memory, cpu } = Deployment.spec.template.spec.containers[0].resources.requests
       newState.DIYMemory = memory
       newState.DIYCPU = parseInt(cpu) / 1000
     }

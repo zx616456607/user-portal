@@ -126,6 +126,7 @@ function sendEmailBySendcloud(mailOptions) {
       logger.error(result.errors)
       throw new Error(result.errors || result.message)
     }
+    return result
   })
 }
 exports.sendEmailBySendcloud = sendEmailBySendcloud

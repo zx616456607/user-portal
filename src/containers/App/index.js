@@ -10,16 +10,17 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
-import { resetErrorMessage } from '../../actions'
 import { Icon, Menu, Modal, Button, Spin, } from 'antd'
 import ErrorPage from '../ErrorPage'
 import Header from '../../components/Header'
 import Sider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
 import { Link } from 'react-router'
+import { isEmptyObject, getPortalRealMode } from '../../common/tools'
+import { resetErrorMessage } from '../../actions'
 import { setSockets, loadLoginUserDetail } from '../../actions/entities'
-import { isEmptyObject,formatDate} from '../../common/tools'
 import { updateContainerList, updateAppList } from '../../actions/app_manage'
+import { loadLicensePlatform } from '../../actions/license'
 import { updateAppServicesList, updateServiceContainersList, updateServicesList } from '../../actions/services'
 import { handleOnMessage } from './status'
 import {
@@ -28,6 +29,7 @@ import {
   PAYMENT_REQUIRED_CODE,
   UPGRADE_EDITION_REQUIRED_CODE,
   LICENSE_EXPRIED_CODE,
+  LITE,
 } from '../../constants'
 import { ROLE_SYS_ADMIN } from '../../../constants'
 import errorHandler from './error_handler'
@@ -38,6 +40,7 @@ import NotificationHandler from '../../common/notification_handler'
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
 const standardFlag = mode === standard
+const realMode = getPortalRealMode()
 
 class App extends Component {
   constructor(props) {
@@ -73,7 +76,6 @@ class App extends Component {
         }
       })
     }
-
   }
 
   componentWillReceiveProps(nextProps) {
@@ -267,6 +269,44 @@ class App extends Component {
     })
   }
 
+  renderIntercom() {
+    const {
+      loginUser,
+      platform,
+    } = this.props
+    const user = {
+      name: loginUser.userName,
+      email: loginUser.email,
+      phone: loginUser.phone,
+      creationTime: loginUser.creationTime,
+      role: loginUser.role,
+      balance: loginUser.balance,
+      teamCount: loginUser.teamCount
+    }
+    if (standardFlag) {
+      return (
+        <Intercom appID='okj9h5pl' { ...user } />
+      )
+    }
+    const { platformid } = platform
+    if (realMode === LITE && platformid) {
+      delete user.email
+      user.platformid = platformid
+      user.name = `${LITE}-${platformid.substring(0,6)}-${user.name}`
+      user.user_id = `${LITE}-${platformid}-${user.name}`
+      return (
+        <Intercom appID='okj9h5pl' { ...user } />
+      )
+    }
+  }
+
+  componentDidMount() {
+    const { loadLicensePlatform } = this.props
+    if (realMode === LITE) {
+      loadLicensePlatform()
+    }
+  }
+
   render() {
     let {
       children,
@@ -296,15 +336,6 @@ class App extends Component {
           <Spin size="large" />
         </div>
       )
-    }
-    const user = {
-      name: loginUser.userName,
-      email: loginUser.email,
-      phone: loginUser.phone,
-      creationTime: loginUser.creationTime,
-      role: loginUser.role,
-      balance: loginUser.balance,
-      teamCount: loginUser.teamCount
     }
     return (
       <div className={ this.props.License ? 'tenx-layout toptips': 'tenx-layout'} id='siderTooltip'>
@@ -348,10 +379,7 @@ class App extends Component {
           </div>
         </Modal>
         {this.getStatusWatchWs()}
-        {
-          standardFlag &&
-          <Intercom appID='okj9h5pl' { ...user } />
-        }
+        {this.renderIntercom()}
         {
           UpgradeModal &&
           <UpgradeModal
@@ -385,7 +413,8 @@ App.defaultProps = {
 }
 
 function mapStateToProps(state, props) {
-  const { errorMessage, entities } = state
+  const { errorMessage, entities, license } = state
+  const { platform } = license
   const { current, sockets, loginUser } = entities
   const { location } = props
   const { pathname, search, hash } = location
@@ -407,6 +436,7 @@ function mapStateToProps(state, props) {
     current,
     sockets,
     loginUser: loginUser.info,
+    platform: (platform.result ? platform.result.data : {})
   }
 }
 
@@ -419,6 +449,7 @@ App = connect(mapStateToProps, {
   updateAppServicesList,
   updateServiceContainersList,
   updateServicesList,
+  loadLicensePlatform,
 })(App)
 
 export default injectIntl(App, {

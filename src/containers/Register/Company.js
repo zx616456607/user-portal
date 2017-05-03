@@ -12,7 +12,8 @@ import { Tabs, Button, Form, Input, Card, Tooltip, message, Alert, Col, Row, Rad
 import { connect } from 'react-redux'
 import { registerUser, sendRegisterPhoneCaptcha } from '../../actions/user'
 import { browserHistory } from 'react-router'
-import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP, PHONE_REGEX } from '../../constants'
+import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../constants'
+import { PHONE_REGEX } from '../../../constants'
 import NotificationHandler from '../../common/notification_handler'
 
 const createForm = Form.create

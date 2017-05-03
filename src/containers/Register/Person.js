@@ -9,7 +9,8 @@
  */
 import React, { Component } from 'react'
 import { Tabs, Button, Form, Input, Card, Tooltip, message, Alert, Col, Row  } from 'antd'
-import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP, PHONE_REGEX, WECHAT_SIGNUP_HASH } from '../../constants'
+import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP, WECHAT_SIGNUP_HASH } from '../../constants'
+import { PHONE_REGEX } from '../../../constants'
 import { connect } from 'react-redux'
 import { registerUser, sendRegisterPhoneCaptcha } from '../../actions/user'
 import { login } from '../../actions/entities'

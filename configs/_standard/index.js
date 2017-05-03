@@ -24,8 +24,10 @@ const config = {
   sendcloud: {
     apiUser: 'tenxcloud_net_trigger',
     apiKey: '97AAZxI5ATi4LeB6',
+    apiKeyTrigger: '97AAZxI5ATi4LeB6',
+    apiKeyBatch: '4987i0ApCzxfmJ82',
     from: 'noreply@tenxcloud.net',
-    fromname: '时速云',
+    fromname: '时速云团队',
     apiUserBatch: 'tenxcloud_net_batch'
   },
   // for wechat login

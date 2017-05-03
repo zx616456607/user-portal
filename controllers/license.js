@@ -103,7 +103,13 @@ exports.addLicense = function* () {
 
 // get platform_id
 exports.getPlatformID = function* () {
+  const platform = this.session.platform
+  if (platform) {
+    this.body = platform
+    return
+  }
   const api = apiFactory.getApi()
   const result = yield api.licenses.getBy(["platform"])
+  this.session.platform = result
   this.body = result
 }
