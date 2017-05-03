@@ -8,12 +8,16 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Switch, Tooltip,  Row, Col} from 'antd'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Switch, Tooltip,  Row, Col, Tabs } from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import ClusterInfo from './ClusterInfo'
 import NetworkConfiguration from './NetworkConfiguration'
+import ClusterResourcesOverview from './clsuterResourcesOverview'
+import HostList from './hostList'
+import ClusterLabelManage from './clusterLabelManage'
+import ClusterPlugin from './clusterPlugin'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import {
   getAllClusterNodes,
@@ -41,6 +45,7 @@ import memoryImg from '../../assets/img/integration/memory.png'
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const ButtonGroup = Button.Group
+const TabPane = Tabs.TabPane;
 const MASTER = '主控节点/Master'
 const SLAVE = '计算节点/Slave'
 
@@ -95,41 +100,41 @@ const MyComponent = React.createClass({
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
-  changeSchedulable(node, e) {
-    //this function for change node schedulable
-    const { scope } = this.props;
-    const { clusterID, changeClusterNodeSchedule } = scope.props;
-    let { nodeList } = scope.state;
-    let notification = new NotificationHandler()
-    changeClusterNodeSchedule(clusterID, node, e, {
-      success: {
-        func: ()=> {
-          // notification.info(e ? '开启调度中，该操作 1 分钟内生效' : '关闭调度中，该操作 1 分钟内生效');
-          notification.success(e ? '开启调度成功' : '关闭调度成功');
-          nodeList.map((item) => {
-            if(item.objectMeta.name == node) {
-              item.schedulable = e;
-            }
-          });
-          scope.setState({
-            nodeList: nodeList
-          })
-        },
-        isAsync: true
-      }
-    })
-  },
-  ShowDeleteClusterNodeModal(node) {
-    //this function for delete cluster node
-    const { scope } = this.props;
-    scope.setState({
-      deleteNode: node,
-      deleteNodeModal: true
-    })
-  },
-  openTerminalModal(item, e) {
+  //changeSchedulable(node, e) {
+  //  //this function for change node schedulable
+  //  const { scope } = this.props;
+  //  const { clusterID, changeClusterNodeSchedule } = scope.props;
+  //  let { nodeList } = scope.state;
+  //  let notification = new NotificationHandler()
+  //  changeClusterNodeSchedule(clusterID, node, e, {
+  //    success: {
+  //      func: ()=> {
+  //        // notification.info(e ? '开启调度中，该操作 1 分钟内生效' : '关闭调度中，该操作 1 分钟内生效');
+  //        notification.success(e ? '开启调度成功' : '关闭调度成功');
+  //        nodeList.map((item) => {
+  //          if(item.objectMeta.name == node) {
+  //            item.schedulable = e;
+  //          }
+  //        });
+  //        scope.setState({
+  //          nodeList: nodeList
+  //        })
+  //      },
+  //      isAsync: true
+  //    }
+  //  })
+  //},
+  //ShowDeleteClusterNodeModal(node) {
+  //  //this function for delete cluster node
+  //  const { scope } = this.props;
+  //  scope.setState({
+  //    deleteNode: node,
+  //    deleteNodeModal: true
+  //  })
+  //},
+  //openTerminalModal(item, e) {
 
-  },
+  //},
   render: function () {
     const { isFetching, podList, containerList, cpuMetric, memoryMetric, license } = this.props
     const clusterID = this.props.scope.props.clusterID
@@ -161,95 +166,89 @@ const MyComponent = React.createClass({
       return (
         <div className='podDetail' key={`${item.objectMeta.name}-${index}`} >
           <div className='name commonTitle'>
-            <Link to={`/cluster/${clusterID}/${item.objectMeta.name}`}>{item.objectMeta.name}</Link>
-          </div>
-          <div className='address commonTitle'>
-            <Tooltip title={item.address}>
-              <span>{item.address}</span>
-            </Tooltip>
+            主机名称
+            {/*<Link to={`/cluster/${clusterID}/${item.objectMeta.name}`}>{item.objectMeta.name}</Link>*/}
           </div>
           <div className='status commonTitle'>
-            <span className={ item.ready == 'True' ? 'runningSpan' : 'errorSpan' }><i className='fa fa-circle' />&nbsp;&nbsp;{item.ready == 'True' ? '运行中' : '异常'}</span>
+            状态
+            {/*<span className={ item.ready == 'True' ? 'runningSpan' : 'errorSpan' }><i className='fa fa-circle' />&nbsp;&nbsp;{item.ready == 'True' ? '运行中' : '异常'}</span>*/}
           </div>
           <div className='role commonTitle'>
-            <Tooltip title={item.isMaster ? MASTER : SLAVE}>
-              <span>{item.isMaster ? MASTER : SLAVE}</span>
-            </Tooltip>
+            节点角色
+            {/*<Tooltip title={item.isMaster ? MASTER : SLAVE}>*/}
+              {/*<span>{item.isMaster ? MASTER : SLAVE}</span>*/}
+            {/*</Tooltip>*/}
           </div>
           <div className="alarm commonTitle">
-            <Tooltip title="查看监控">
-            <Link to={`/cluster/${clusterID}/${item.objectMeta.name}?monitoring`}><svg className="managemoniter"><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use></svg></Link>
-            </Tooltip>
-            <Tooltip title="告警设置" onClick={()=> this.props.scope.setState({alarmModal: true})}>
-            <Icon type="notification" />
-            </Tooltip>
+            监控警告
+            {/*<Tooltip title="查看监控">*/}
+            {/*<Link to={`/cluster/${clusterID}/${item.objectMeta.name}?monitoring`}><svg className="managemoniter"><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use></svg></Link>*/}
+            {/*</Tooltip>*/}
+            {/*<Tooltip title="告警设置" onClick={()=> this.props.scope.setState({alarmModal: true})}>*/}
+            {/*<Icon type="notification" />*/}
+            {/*</Tooltip>*/}
           </div>
           <div className='container commonTitle'>
-            <span>{getContainerNum(item.objectMeta.name, containerList)}</span>
+            容器数
+            {/*<span>{getContainerNum(item.objectMeta.name, containerList)}</span>*/}
           </div>
           <div className='cpu commonTitle'>
-            <span className='topSpan'>{item[camelize('cpu_total')] / 1000}核</span>
-            <span className='bottomSpan'>{cpuUsed(item[camelize('cpu_total')], cpuMetric, item.objectMeta.name)}</span>
+            Cpu
+            {/*<span className='topSpan'>{item[camelize('cpu_total')] / 1000}核</span>*/}
+            {/*<span className='bottomSpan'>{cpuUsed(item[camelize('cpu_total')], cpuMetric, item.objectMeta.name)}</span>*/}
           </div>
           <div className='memory commonTitle'>
-            <span className='topSpan'>{diskFormat(item[camelize('memory_total_kb')])}</span>
-            <span className='bottomSpan'>{memoryUsed(item[camelize('memory_total_kb')], memoryMetric, item.objectMeta.name)}</span>
+            内存
+            {/*<span className='topSpan'>{diskFormat(item[camelize('memory_total_kb')])}</span>*/}
+            {/*<span className='bottomSpan'>{memoryUsed(item[camelize('memory_total_kb')], memoryMetric, item.objectMeta.name)}</span>*/}
           </div>
-          {/*<div className='disk commonTitle'>
-            <span className='topSpan'>{'-'}</span>
-            <span className='bottomSpan'>{'-'}</span>
-          </div>*/}
           <div className='schedule commonTitle'>
-            <Switch
-              className='switchBox'
-              defaultChecked={item.schedulable}
-              checkedChildren='开'
-              unCheckedChildren='关'
-              disabled={index >= maxNodes}
-              onChange={this.changeSchedulable.bind(root, item.objectMeta.name)}/>
-            <span className='scheduleSpan'>
-              {
-                item.schedulable
-                ? (
-                  <span>
-                    正常调度&nbsp;
-                    <Tooltip title={`允许分配新容器`}>
-                      <Icon type="question-circle-o" />
-                    </Tooltip>
-                  </span>
-                )
-                : (
-                  <span>
-                    暂停调度&nbsp;
-                    <Tooltip title={`不允许分配新容器，正常运行的不受影响`}>
-                      <Icon type="question-circle-o" />
-                    </Tooltip>
-                  </span>
-                )
-              }
-            </span>
+            调度状态
+            {/*<Switch*/}
+              {/*className='switchBox'*/}
+              {/*defaultChecked={item.schedulable}*/}
+              {/*checkedChildren='开'*/}
+              {/*unCheckedChildren='关'*/}
+              {/*disabled={index >= maxNodes}*/}
+              {/*onChange={this.changeSchedulable.bind(root, item.objectMeta.name)}/>*/}
+            {/*<span className='scheduleSpan'>*/}
+              {/*{*/}
+                {/*item.schedulable*/}
+                {/*? (*/}
+                  {/*<span>*/}
+                    {/*正常调度&nbsp;*/}
+                    {/*<Tooltip title={`允许分配新容器`}>*/}
+                      {/*<Icon type="question-circle-o" />*/}
+                    {/*</Tooltip>*/}
+                  {/*</span>*/}
+                {/*)*/}
+                {/*: (*/}
+                  {/*<span>*/}
+                    {/*暂停调度&nbsp;*/}
+                    {/*<Tooltip title={`不允许分配新容器，正常运行的不受影响`}>*/}
+                      {/*<Icon type="question-circle-o" />*/}
+                    {/*</Tooltip>*/}
+                  {/*</span>*/}
+                {/*)*/}
+              {/*}*/}
+            {/*</span>*/}
           </div>
           <div className='runningTime commonTitle'>
-            <Tooltip title={calcuDate(item.objectMeta.creationTimestamp)}>
-            <span>{calcuDate(item.objectMeta.creationTimestamp)}</span>
-            </Tooltip>
+            运行时间
+            {/*<Tooltip title={calcuDate(item.objectMeta.creationTimestamp)}>*/}
+            {/*<span>{calcuDate(item.objectMeta.creationTimestamp)}</span>*/}
+            {/*</Tooltip>*/}
           </div>
           <div className='startTime commonTitle'>
-            <Tooltip title={formatDate(item.objectMeta.creationTimestamp)}>
-              <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
-            </Tooltip>
+            启动时间
+            {/*<Tooltip title={formatDate(item.objectMeta.creationTimestamp)}>*/}
+              {/*<span>{formatDate(item.objectMeta.creationTimestamp)}</span>*/}
+            {/*</Tooltip>*/}
           </div>
           <div className='opera commonTitle'>
             <Dropdown.Button type="ghost" overlay={dropdown}  onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`)}>
               主机详情
             </Dropdown.Button>
-            {/*<Button
-              type="ghost"
-              disabled={item.isMaster ? true : false}
-              onClick={this.ShowDeleteClusterNodeModal.bind(this, item)}>
-              删除节点
-            </Button>*/}
-
           </div>
         </div>
       );
@@ -437,6 +436,7 @@ class ClusterTabList extends Component {
   }
 
   render() {
+    console.log('this.props=',this.props)
     const {
       intl, isFetching, nodes,
       clusterID, memoryMetric, cpuMetric,
@@ -544,166 +544,41 @@ class ClusterTabList extends Component {
         type='right'
         >
         <div id='clusterTabList' key='clusterTabList'>
-          <ClusterInfo cluster={cluster} />
-          <NetworkConfiguration id="Network" cluster={cluster}/>
-          <Row className="nodeList">
-            <Col span={6} style={{padding:'0 8px'}}>
-              <Card>
-                <div className="title">主机</div>
-                <div className="listImg">
-                  <img src={hostImg}/>
-                </div>
-                <ul className="listText">
-                  <li>
-                    <span className="itemKey primary">总数</span>
-                    <span>{node ? `${node.nodeSum} 个` : NOT_AVAILABLE}</span>
-                  </li>
-                  <li>
-                    <span className="itemKey success">正常运行</span>
-                    <span>{node ? `${node.nodeRunning} 个` : NOT_AVAILABLE}</span>
-                  </li>
-                  <li>
-                    <span className="itemKey ready">可调度数</span>
-                    <span>{node ? `${node.schedulable} 个` : NOT_AVAILABLE}</span>
-                  </li>
-                </ul>
-              </Card>
-            </Col>
-            <Col span={6} style={{padding:'0 8px'}}>
-              <Card>
-                <div className="title">CPU</div>
-                <div className="listImg">
-                  <img src={cpuImg}/>
-                </div>
-                <ul className="listText">
-                  <li>
-                    <span className="itemKey primary">总数</span>
-                    <span>{resource ? `${resource.cupSum} 核` : NOT_AVAILABLE}</span>
-                  </li>
-                  <li>
-                    <span className="itemKey ready">已分配数</span>
-                    <span>{resource ? `${resource.allocatedCPU} 核` : NOT_AVAILABLE}</span>
-                  </li>
-                  <li>
-                    <span className="itemKey success">实际使用</span>
-                    <span>{useRate ? `${(useRate.cpu).toFixed(2)} %` : NOT_AVAILABLE}</span>
-                  </li>
-                </ul>
-              </Card>
-            </Col>
-            <Col span={6} style={{padding:'0 8px'}}>
-              <Card>
-                <div className="title">内存</div>
-                <div className="listImg">
-                  <img src={memoryImg}/>
-                </div>
-                <ul className="listText">
-                  <li>
-                    <span className="itemKey primary">总量</span>
-                    <span>{resource ? `${Math.ceil(resource.memSumByKB / 1024 / 1024 * 100) / 100} G` : NOT_AVAILABLE}</span>
-                  </li>
-                  <li>
-                    <span className="itemKey ready">已分配量</span>
-                    <span>{resource ? `${Math.ceil(resource.allocatedMemByKB / 1024 / 1024 * 100) / 100} G` : NOT_AVAILABLE}</span>
-                  </li>
-                  <li>
-                    <span className="itemKey success">实际使用</span>
-                    <span>{useRate ? `${Math.ceil(useRate.mem * 100) / 100} G` : NOT_AVAILABLE}</span>
-                  </li>
-                </ul>
-              </Card>
-            </Col>
-            <Col span={6} style={{padding:'0 8px'}}>
-              <Card>
-               <div className="title">容器</div>
-               <ReactEcharts
-                 notMerge={true}
-                 option={containerOption}
-                 style={{height:'150px'}}
-                 showLoading={false}
-                />
-              </Card>
-            </Col>
-          </Row>
+          <Tabs>
+            <TabPane tab="资源总览" key="1">
+              <ClusterResourcesOverview
 
-          <Card className='ClusterListCard'>
-            <div className='operaBox'>
-              <Button
-                className='addPodBtn'
-                size='large'
-                type='primary'
-                onClick={this.handleAddClusterNode}
-                disabled={nodeList.length >= maxNodes}>
-                <Icon type='plus' />
-                <span>添加主机节点</span>
-              </Button>
-              <Button disabled={kubectlsPods.namespace ? false : true} className='terminalBtn' size='large' type='ghost' onClick={this.openTerminalModal}>
-                <svg>
-                  <use xlinkHref='#terminal' />
-                </svg>
-                <span>终端 | 集群管理</span>
-              </Button>
-              <Button type='ghost' size='large' className="refreshBtn" onClick={()=> this.loadData()}>
-                <i className='fa fa-refresh' /> 刷新
-              </Button>
-              <span className='searchBox'>
-                <Input className='searchInput' onChange={(e)=> this.setState({nodeName: e.target.value})} size='large' placeholder='搜索' type='text' onPressEnter={this.searchNodes} />
-                <Icon type="search" className="fa"  onClick={this.searchNodes}/>
-              </span>
-            </div>
-            <div className='dataBox'>
-              <div className='titleBox'>
-                <div className='name commonTitle'>
-                  <span>主机名称</span>
-                </div>
-                <div className='address commonTitle'>
-                  <span>IP 地址</span>
-                </div>
-                <div className='status commonTitle'>
-                  <span>状态</span>
-                </div>
-                <div className='role commonTitle'>
-                  <span>节点角色</span>&nbsp;
-                  <Tooltip title={`主控节点：用来做系统调度管理集群，同时也会作为计算节点提供资源；
-计算节点：集群内承担计算资源提供的能力，未配置分布式存储的集群也会承担存储能力`}>
-                    <Icon type="question-circle-o" />
-                  </Tooltip>
-                </div>
-                <div className="alarm commonTitle">监控告警</div>
-                <div className='container commonTitle'>
-                  <span>容器数</span>&nbsp;
-                  <Tooltip title={`运行在当前主机节点上的容器数量（包括系统所需容器）`}>
-                    <Icon type="question-circle-o" />
-                  </Tooltip>
-                </div>
-                <div className='cpu commonTitle'>
-                  <span>CPU</span>
-                </div>
-                <div className='memory commonTitle'>
-                  <span>内存</span>
-                </div>
-                {/*<div className='disk commonTitle'>
-                  <span>硬盘</span>
-                </div>*/}
-                <div className='schedule commonTitle'>
-                  <span>调度状态</span>&nbsp;
-                  <Tooltip title={`调度状态开启的主机节点，将允许被分配新建的应用容器，未开启调度的节点，除已运行的容器之外不再允许新增调度容器`}>
-                    <Icon type="question-circle-o" />
-                  </Tooltip>
-                </div>
-                <div className='runningTime commonTitle'>
-                  <span>运行时间</span>
-                </div>
-                <div className='startTime commonTitle'>
-                  <span>启动时间</span>
-                </div>
-                <div className='opera commonTitle'>
-                  <span>操作</span>
-                </div>
-              </div>
-              <MyComponent podList={nodeList} containerList={podCount} isFetching={isFetching} scope={scope} memoryMetric={memoryMetric} cpuMetric={cpuMetric} license={license} />
-            </div>
-          </Card>
+
+
+              />
+            </TabPane>
+            <TabPane tab="主机列表" key="2">
+              <HostList
+                cluster={cluster}
+                isFetching={isFetching}
+
+                clusterID={clusterID}
+
+                cpuMetric={cpuMetric}
+                memoryMetric={memoryMetric}
+                license={license}
+
+              />
+            </TabPane>
+            <TabPane tab="标签管理" key="3">
+              <ClusterLabelManage
+
+
+              />
+            </TabPane>
+            <TabPane tab="集群插件" key="4">
+              <ClusterPlugin
+
+
+              />
+            </TabPane>
+          </Tabs>
+
           <Modal title='删除主机节点' className='deleteClusterNodeModal' visible={this.state.deleteNodeModal} onOk={this.deleteClusterNode} onCancel={this.closeDeleteModal}>
             <div style={{ color: '#00a0ea', height: "50px" }}>
               <Icon type='exclamation-circle-o' />
@@ -783,3 +658,86 @@ export default connect(mapStateToProps, {
 })(injectIntl(ClusterTabList, {
   withRef: true,
 }))
+
+//<ClusterInfo cluster={cluster} />
+//  <NetworkConfiguration id="Network" cluster={cluster}/>
+//  <Row className="nodeList">
+//  <Col span={6} style={{padding:'0 8px'}}>
+//<Card>
+//<div className="title">主机</div>
+//  <div className="listImg">
+//  <img src={hostImg}/>
+//  </div>
+//  <ul className="listText">
+//  <li>
+//  <span className="itemKey primary">总数</span>
+//  <span>{node ? `${node.nodeSum} 个` : NOT_AVAILABLE}</span>
+//</li>
+//<li>
+//  <span className="itemKey success">正常运行</span>
+//  <span>{node ? `${node.nodeRunning} 个` : NOT_AVAILABLE}</span>
+//</li>
+//<li>
+//  <span className="itemKey ready">可调度数</span>
+//  <span>{node ? `${node.schedulable} 个` : NOT_AVAILABLE}</span>
+//</li>
+//</ul>
+//</Card>
+//</Col>
+//<Col span={6} style={{padding:'0 8px'}}>
+//  <Card>
+//    <div className="title">CPU</div>
+//    <div className="listImg">
+//      <img src={cpuImg}/>
+//    </div>
+//    <ul className="listText">
+//      <li>
+//        <span className="itemKey primary">总数</span>
+//        <span>{resource ? `${resource.cupSum} 核` : NOT_AVAILABLE}</span>
+//      </li>
+//      <li>
+//        <span className="itemKey ready">已分配数</span>
+//        <span>{resource ? `${resource.allocatedCPU} 核` : NOT_AVAILABLE}</span>
+//      </li>
+//      <li>
+//        <span className="itemKey success">实际使用</span>
+//        <span>{useRate ? `${(useRate.cpu).toFixed(2)} %` : NOT_AVAILABLE}</span>
+//      </li>
+//    </ul>
+//  </Card>
+//</Col>
+//<Col span={6} style={{padding:'0 8px'}}>
+//  <Card>
+//    <div className="title">内存</div>
+//    <div className="listImg">
+//      <img src={memoryImg}/>
+//    </div>
+//    <ul className="listText">
+//      <li>
+//        <span className="itemKey primary">总量</span>
+//        <span>{resource ? `${Math.ceil(resource.memSumByKB / 1024 / 1024 * 100) / 100} G` : NOT_AVAILABLE}</span>
+//      </li>
+//      <li>
+//        <span className="itemKey ready">已分配量</span>
+//        <span>{resource ? `${Math.ceil(resource.allocatedMemByKB / 1024 / 1024 * 100) / 100} G` : NOT_AVAILABLE}</span>
+//      </li>
+//      <li>
+//        <span className="itemKey success">实际使用</span>
+//        <span>{useRate ? `${Math.ceil(useRate.mem * 100) / 100} G` : NOT_AVAILABLE}</span>
+//      </li>
+//    </ul>
+//  </Card>
+//</Col>
+//<Col span={6} style={{padding:'0 8px'}}>
+//  <Card>
+//    <div className="title">容器</div>
+//    <ReactEcharts
+//      notMerge={true}
+//      option={containerOption}
+//      style={{height:'150px'}}
+//      showLoading={false}
+//    />
+//  </Card>
+//</Col>
+//</Row>
+//
