@@ -194,6 +194,31 @@ exports.getGlobalConfig = function* () {
   const cluster = this.params.cluster
   const spi = apiFactory.getTenxSysSignSpi()
   const response = yield spi.configs.get()
+  let cicdConfigFound = false
+  let apiConfigFound = false
+  if (response && response.data) {
+    response.data.forEach(function(item) {
+      if (item.ConfigType === 'cicd') {
+        cicdConfigFound = true
+      } else if (item.ConfigType === 'apiServer') {
+        apiConfigFound = true
+      }
+    })
+  }
+  // If any config missing, will use the one from global config
+  let globalConfig = global.globalConfig
+  if (!cicdConfigFound) {
+    response.data.push({
+      "ConfigType": "cicd",
+      "ConfigDetail": JSON.stringify(globalConfig.cicdConfig),
+    })
+  }
+  if (!apiConfigFound) {
+    response.data.push({
+      "ConfigType": "apiServer",
+      "ConfigDetail": JSON.stringify(globalConfig.tenx_api),
+    })
+  }
   this.status = response.code
   this.body = response
 }

@@ -79,7 +79,10 @@ let NoClusterStepOne = React.createClass({
       })
       const notification = new NotificationHandler()
       notification.spin('保存镜像服务配置中')
-      const { updateGlobalConfig, isValidConfig, saveGlobalConfig, goNoClusterStep, loadGlobalConfig } = this.props
+      const {
+        updateGlobalConfig, isValidConfig, saveGlobalConfig,
+        goNoClusterStep, loadGlobalConfig, getAddClusterCMD,
+      } = this.props
       const { mirror, approve, extend, registryID } = values
       const self = this
       const body = {
@@ -106,6 +109,7 @@ let NoClusterStepOne = React.createClass({
             const callback = {
               success: {
                 func: (result) => {
+                  getAddClusterCMD()
                   notification.close()
                   notification.success('镜像服务配置保存成功')
                   self.setState({
@@ -498,7 +502,7 @@ let CreateClusterModal = React.createClass({
     const {
       noCluster, parentScope, updateGlobalConfig,
       isValidConfig, saveGlobalConfig, globalConfig,
-      loadGlobalConfig,
+      loadGlobalConfig, getAddClusterCMD,
     } = this.props
     const { noClusterStep } = this.state
     return (
@@ -523,6 +527,7 @@ let CreateClusterModal = React.createClass({
             updateGlobalConfig={updateGlobalConfig}
             isValidConfig={isValidConfig}
             saveGlobalConfig={saveGlobalConfig}
+            getAddClusterCMD={getAddClusterCMD}
             goNoClusterStep={this.goNoClusterStep} />
         )
       }

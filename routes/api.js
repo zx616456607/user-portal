@@ -350,6 +350,10 @@ module.exports = function (Router) {
   router.get('/cluster-nodes/:cluster/:node/metrics', clusternodesController.getClustersMetrics)
   router.get('/cluster-nodes/:cluster/:node/instant', clusternodesController.getClustersInstant)
 
+  // manipulate node's labels
+  router.get('/cluster-nodes/:cluster/:node/labels', clusternodesController.getNodeLabels)
+  router.patch('/cluster-nodes/:cluster/:node/labels', clusternodesController.updateNodeLabels)
+
   // Token info
   router.get('/token', tokenController.getTokenInfo)
 
