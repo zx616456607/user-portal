@@ -218,53 +218,53 @@ let NoBind = React.createClass({
   render() {
     const {scope} = this.props;
     return (
-    <div className='noBind'>
-      <Card className='noBindCard'>
-        <div className='leftBox'>
-          <img src={noBindImg} />
-        </div>
-        <div className='rightBox'>
-          <div className='msgDetail'>
-            <div className='square'></div>
-            <span>企业版支持关联时速云·公有云的镜像仓库。</span>
+      <div className='noBind'>
+        <Card className='noBindCard'>
+          <div className='leftBox'>
+            <img src={noBindImg} />
           </div>
-          <div className='msgDetail'>
-            <div className='square'></div>
-            <span>只需填写时速云官网注册的用户名和密码即可快速关联。</span>
+          <div className='rightBox'>
+            <div className='msgDetail'>
+              <div className='square'></div>
+              <span>企业版支持关联时速云·公有云的镜像仓库。</span>
+            </div>
+            <div className='msgDetail'>
+              <div className='square'></div>
+              <span>只需填写时速云官网注册的用户名和密码即可快速关联。</span>
+            </div>
           </div>
-        </div>
-      </Card>
-      <Button className='bindBtn' type='primary' size='large' onClick={this.openBindModal}>
-        <Icon type='plus' />
-        <span>时速云镜像Hub</span>
-      </Button>
-      <p className='alert'>目前您还没有关联时速云·公有云镜像</p>
-      <Modal
-        className='liteBindCenterModal'
-        title='关联时速云镜像Hub'
-        visible={scope.state.bindModalShow}
-        onCancel={this.closeBindModal}
-        onOk={this.submitBind}
-        confirmLoading={this.state.bindModalConfirmLoading}
-        maskClosable={false}
-      >
-        <Alert message={[<span><Icon type='exclamation-circle' style={{ marginRight: '7px', color: '#2db7f5' }} /><span>关联时速云·公有云的镜像仓库，请填写时速云官网注册的用户名和密码</span></span>]} type="info" />
-        <div className='inputBox'>
-          <span className='title'>用户名</span>
-          <span className={this.state.usernameError ? 'errorInput input' : 'input'}>
+        </Card>
+        <Button className='bindBtn' type='primary' size='large' onClick={this.openBindModal}>
+          <Icon type='plus' />
+          <span>时速云镜像Hub</span>
+        </Button>
+        <p className='alert'>目前您还没有关联时速云·公有云镜像</p>
+        <Modal
+          className='liteBindCenterModal'
+          title='关联时速云镜像Hub'
+          visible={scope.state.bindModalShow}
+          onCancel={this.closeBindModal}
+          onOk={this.submitBind}
+          confirmLoading={this.state.bindModalConfirmLoading}
+          maskClosable={false}
+        >
+          <Alert message={[<span><Icon type='exclamation-circle' style={{ marginRight: '7px', color: '#2db7f5' }} /><span>关联时速云·公有云的镜像仓库，请填写时速云官网注册的用户名和密码</span></span>]} type="info" />
+          <div className='inputBox'>
+            <span className='title'>用户名</span>
+            <span className={this.state.usernameError ? 'errorInput input' : 'input'}>
             <Input size='large' value={this.state.username} onChange={this.onChangeUsername} />
             <div className='errorMsg'><Icon type='exclamation-circle-o' /><span>用户名不能为空</span></div>
           </span>
-        </div>
-        <div className='inputBox'>
-          <span className='title'>密码</span>
-          <span className={this.state.passwordError ? 'errorInput input' : 'input'}>
+          </div>
+          <div className='inputBox'>
+            <span className='title'>密码</span>
+            <span className={this.state.passwordError ? 'errorInput input' : 'input'}>
             <Input size='large' type='password' value={this.state.password} onChange={this.onChangePassword} />
             <div className='errorMsg'><Icon type='exclamation-circle-o' /><span>密码不能为空</span></div>
           </span>
-        </div>
-      </Modal>
-    </div>
+          </div>
+        </Modal>
+      </div>
     )
   }
 });
@@ -419,7 +419,7 @@ class ImageSpace extends Component {
       }
     })
   }
-   btnDeleteImage () {
+  btnDeleteImage () {
     //this function for user delete select imagex
     const {deleteImage} = this.props
     const config = {
@@ -458,31 +458,31 @@ class ImageSpace extends Component {
       width:'30%',
       render: (text,row) => {
         return (
-        <div className="imageList">
-          <div className="imageBox">
-            <svg className='appcenterlogo'>
-              <use xlinkHref='#appcenterlogo' />
-            </svg>
-          </div>
-          <div className="contentBox">
-            <div className="title" onClick={()=> this.showImageDetail(row)}>
-              {text}
+          <div className="imageList">
+            <div className="imageBox">
+              <svg className='appcenterlogo'>
+                <use xlinkHref='#appcenterlogo' />
+              </svg>
             </div>
-            <div className="type">
-              <FormattedMessage {...menusText.type} />
-              {row.contributor}
-              {row.isPrivate == "0" ? [
-                <span key={row.id + "unlock"}><svg className='cicdpublic'><use xlinkHref='#cicdpublic' /></svg><FormattedMessage {...menusText.publicType} /></span>]
-                :
-                [<span key={row.id + "lock"}><svg className='cicdprivate'><use xlinkHref='#cicdprivate' /></svg><FormattedMessage {...menusText.privateType} /></span>]
-              }
-            </div>
+            <div className="contentBox">
+              <div className="title" onClick={()=> this.showImageDetail(row)}>
+                {text}
+              </div>
+              <div className="type">
+                <FormattedMessage {...menusText.type} />
+                {row.contributor}
+                {row.isPrivate == "0" ? [
+                  <span key={row.id + "unlock"}><svg className='cicdpublic'><use xlinkHref='#cicdpublic' /></svg><FormattedMessage {...menusText.publicType} /></span>]
+                  :
+                  [<span key={row.id + "lock"}><svg className='cicdprivate'><use xlinkHref='#cicdprivate' /></svg><FormattedMessage {...menusText.privateType} /></span>]
+                }
+              </div>
 
+            </div>
           </div>
-        </div>
         )
       }
-     }, {
+    }, {
       title: '地址',
       dataIndex: 'description',
       key: 'description',
@@ -492,7 +492,7 @@ class ImageSpace extends Component {
           <div className="imgurl"><FormattedMessage {...menusText.imageUrl} />{server} / {row.name}</div>
         )
       }
-     }, {
+    }, {
       title: '下载',
       dataIndex: 'downloadNumber',
       key: 'address',
@@ -502,7 +502,7 @@ class ImageSpace extends Component {
           <div><FormattedMessage {...menusText.downloadNum} />&nbsp;{text}</div>
         )
       }
-     }, {
+    }, {
       title: '部署',
       dataIndex: 'icon',
       key: 'icon',
@@ -511,7 +511,7 @@ class ImageSpace extends Component {
         const dropdown = (
           <Menu onClick={()=> this.setState({delModal: true, imageName: row.name})}
             style={{ width: "100px" }}
-            >
+          >
             <Menu.Item key={row.id}>
               <FormattedMessage {...menusText.delete} />
             </Menu.Item>
@@ -519,60 +519,60 @@ class ImageSpace extends Component {
         );
         return (
           <Dropdown.Button overlay={dropdown} type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${server}&imageName=${row.name}`)}>
-              <FormattedMessage {...menusText.deployService} />
-            </Dropdown.Button>
+            <FormattedMessage {...menusText.deployService} />
+          </Dropdown.Button>
         )
       }
-     }
+    }
     ];
     return (
       <QueueAnim className="ImageSpace"
         type="right"
-        >
+      >
         <div id="ImageSpace" key="ImageSpace">
           { !standardFlag ? [<Alert message={'镜像仓库用于存放镜像，您可关联时速云·公有云的镜像仓库，使用公有云中私有空间镜像；关联后，该仓库也用于存放通过TenxFlow构建出的镜像'} type="info" />] : null }
           { !hubConfig ?
             [<NoBind scope={scope} />]
             :
-          [<Card className="ImageSpaceCard">
-            <div className="operaBox">
-              <Button className="uploadBtn" size="large" type="primary" onClick={this.openUploadModal}>
-                <svg className='appcenterupload'>
-                  <use xlinkHref='#appcenterupload' />
-                </svg>
-                <FormattedMessage {...menusText.uploadImage} />
-              </Button>
-              <Button className="downloadBtn" size="large" type="ghost" onClick={this.openDownloadModal}>
-                <svg className='appcenterdownload'>
-                  <use xlinkHref='#appcenterdownload' />
-                </svg>
-                <FormattedMessage {...menusText.downloadImage} />
-              </Button>
-              { !standardFlag && !globalHubConfigured ?
-                [
-                <Tooltip title='注销时速云Hub'>
-                  <Button className='logoutBtn' size='large' type='ghost' onClick={this.showDeleteBindUser}>
-                    <span>注销</span>
-                  </Button>
-                </Tooltip>
-                ] : null
-              }
-              <span className="searchBox">
+            [<Card className="ImageSpaceCard">
+              <div className="operaBox">
+                <Button className="uploadBtn" size="large" type="primary" onClick={this.openUploadModal}>
+                  <svg className='appcenterupload'>
+                    <use xlinkHref='#appcenterupload' />
+                  </svg>
+                  <FormattedMessage {...menusText.uploadImage} />
+                </Button>
+                <Button className="downloadBtn" size="large" type="ghost" onClick={this.openDownloadModal}>
+                  <svg className='appcenterdownload'>
+                    <use xlinkHref='#appcenterdownload' />
+                  </svg>
+                  <FormattedMessage {...menusText.downloadImage} />
+                </Button>
+                { !standardFlag && !globalHubConfigured ?
+                  [
+                    <Tooltip title='注销时速云Hub'>
+                      <Button className='logoutBtn' size='large' type='ghost' onClick={this.showDeleteBindUser}>
+                        <span>注销</span>
+                      </Button>
+                    </Tooltip>
+                  ] : null
+                }
+                <span className="searchBox">
                 <Input className="searchInput" size="large" placeholder="搜索" type="text" onChange={(e)=> this.setState({imageName: e.target.value})} onPressEnter={()=> this.searchImage()} />
                 <i className="fa fa-search" onClick={()=> this.searchImage()}></i>
               </span>
-            </div>
-            <Table className="privateImage" dataSource={ imageList } columns={columns} pagination={{simple:true}} loading={this.props.isFetching}/>
-          </Card>]
+              </div>
+              <Table className="privateImage" dataSource={ imageList } columns={columns} pagination={{simple:true}} loading={this.props.isFetching}/>
+            </Card>]
           }
           <Modal title="删除镜像操作" visible={this.state.delModal}
-          onOk={() => this.btnDeleteImage()} onCancel={() => this.setState({ delModal: false })}
+            onOk={() => this.btnDeleteImage()} onCancel={() => this.setState({ delModal: false })}
           >
-          <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>您确定要删除镜像 {this.state.imageName}?</div>
-        </Modal>
+            <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>您确定要删除镜像 {this.state.imageName}?</div>
+          </Modal>
           <Modal title={<FormattedMessage {...menusText.uploadImage} />} className="uploadImageModal" visible={this.state.uploadModalVisible}
             onCancel={this.closeUploadModal} onOk={this.closeUploadModal}
-            >
+          >
             <p>1.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageFirstTips} /></p>
             <pre className="codeSpan">
               sudo docker login {this.props.server}
@@ -588,7 +588,7 @@ class ImageSpace extends Component {
           </Modal>
           <Modal title={<FormattedMessage {...menusText.downloadImage} />} className="uploadImageModal" visible={this.state.downloadModalVisible}
             onCancel={this.closeDownloadModal} onOk={this.closeDownloadModal}
-            >
+          >
             <p><FormattedMessage {...menusText.downloadImageFirstTips} /></p>
             <p><i className="fa fa-exclamation-triangle"></i>&nbsp;<FormattedMessage {...menusText.downloadImageSecondTips} /></p>
             <pre className="codeSpan">
@@ -604,7 +604,7 @@ class ImageSpace extends Component {
             className="AppServiceDetail"
             transitionName="move-right"
             onCancel={this.closeImageDetailModal}
-            >
+          >
             {/* right detail box  */}
             <ImageDetailBox parentScope={rootscope} server={this.props.server} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} imageType={'privateImages'}/>
           </Modal>
