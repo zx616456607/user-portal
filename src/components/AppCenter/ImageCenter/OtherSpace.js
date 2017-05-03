@@ -8,12 +8,12 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Spin,Input, Modal } from 'antd'
+import { Menu, Button, Card, Spin,Input, Modal, Table } from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import {DeleteOtherImage, SearchOtherImage, getOtherImageList} from '../../../actions/app_center'
+import { DeleteOtherImage, SearchOtherImage, getOtherImageList} from '../../../actions/app_center'
 import './style/OtherSpace.less'
 import ImageDetailBox from './ImageDetail/OtherDetail.js'
 
@@ -51,76 +51,6 @@ const menusText = defineMessages({
     defaultMessage: '暂无数据',
   }
 })
-
-const MyComponent = React.createClass({
-  propTypes: {
-    config: React.PropTypes.array,
-    scope: React.PropTypes.object
-  },
-  showImageDetail: function (imageName) {
-    //this function for user select image and show the image detail info
-     const {scope, imageId} = this.props
-     scope.setState({
-      imageDetailModalShow:true,
-      currentImage:imageName
-     });
-  },
-  render: function () {
-    const ipAddress = (this.props.otherHead.url).split('//')[1]
-    const {isFetching , config } = this.props
-    if (isFetching) {
-      return (
-        <div className='loadingBox'>
-          <Spin size='large' />
-        </div>
-      )
-    }
-    if (!config || config.length == 0) {
-      return (
-        <div className='loadingBox'>
-          <FormattedMessage {...menusText.noData} />
-        </div>
-      )
-    }
-    let items = config.map((item) => {
-      return (
-        <div className='imageDetail' key={item} >
-          <div className='imageBox'>
-            <svg className='appcenterlogo'>
-              <use xlinkHref='#appcenterlogo' />
-            </svg>
-          </div>
-          <div className='contentBox'>
-            <Tooltip title={item} placement='topLeft'>
-              <span className='title' onClick={this.showImageDetail.bind(this, item)}>
-                {item}
-              </span>
-            </Tooltip>
-            <br />
-            <span className='type'>
-              <FormattedMessage {...menusText.belong} />&nbsp;私有
-            </span>
-            <span className='imageUrl textoverflow'>
-              <FormattedMessage {...menusText.imageUrl} />&nbsp;
-            <span className=''>{ipAddress}/{item}</span>
-            </span>
-
-          </div>
-          <div className='btnBox'>
-            <Button type='ghost' onClick={()=>browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${ipAddress}&imageName=${item}&other=${this.props.imageId}`)}>
-              <FormattedMessage {...menusText.deployService} />
-            </Button>
-          </div>
-        </div>
-      );
-    });
-    return (
-      <div className='imageList'>
-        {items}
-      </div>
-    );
-  }
-});
 
 class OtherSpace extends Component {
   constructor(props) {
@@ -161,21 +91,75 @@ class OtherSpace extends Component {
         isAsync: true
       }
     })
-      
-  }
 
+  }
   searchImage(e) {
-    const image = e.target.value
+    const image = document.getElementById('searchInput').value
     this.props.SearchOtherImage(image)
     // this.props.getOtherImageList(this.props.imageId)
   }
-
+  showImageDetail (imageName) {
+    //this function for user select image and show the image detail info
+     this.setState({
+      imageDetailModalShow:true,
+      currentImage:imageName
+     });
+  }
   render() {
     const { formatMessage } = this.props.intl;
     const { liteFlag } = this.props;
     const rootscope = this.props.scope;
     const scope = this;
     const otherHead = this.props.otherHead
+    const registryServer = otherHead.url.split('//')[1]
+     const columns = [{
+      title: '镜像名',
+      dataIndex: 'name',
+      key: 'name',
+      width:'30%',
+      render: (text,row) => {
+        return (
+        <div className="imageList">
+          <div className="imageBox">
+            <svg className='appcenterlogo'>
+              <use xlinkHref='#appcenterlogo' />
+            </svg>
+          </div>
+          <div className="contentBox">
+            <div className="title" onClick={()=> this.showImageDetail(row.name)}>
+              {text}
+            </div>
+            <div className='type'>
+              <FormattedMessage {...menusText.belong} />&nbsp;私有
+            </div>
+          </div>
+        </div>
+        )
+      }
+     }, {
+      title: '地址',
+      dataIndex: 'description',
+      key: 'description',
+      width:'40%',
+      render:(text, row) => {
+        return (
+          <div className="imgurl"><FormattedMessage {...menusText.imageUrl} />{registryServer} / {row.name}</div>
+        )
+      }
+     }, {
+      title: '部署',
+      dataIndex: 'icon',
+      key: 'icon',
+      width:'15%',
+      render: (text, row)=> {
+        return (
+          <Button type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${registryServer}&imageName=${row.name}`)}>
+              <FormattedMessage {...menusText.deployService} />
+          </Button>
+        )
+      }
+     }
+    ];
     return (
       <QueueAnim className='OtherSpace'
         type='right'
@@ -199,11 +183,14 @@ class OtherSpace extends Component {
               <Button className='logout' size='large' type='ghost' onClick={()=>this.setState({imageId:this.props.imageId, delModal: true})}>
                 <FormattedMessage {...menusText.logout} />
               </Button>
-              <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' onPressEnter={(e)=>this.searchImage(e)}/>
-              <i className='fa fa-search'></i>
+              <div className="searchBox">
+                <Input size="large" id="searchInput" placeholder={formatMessage(menusText.search)} type='text' onPressEnter={()=>this.searchImage()}/>
+                <i className='fa fa-search' onClick={()=>this.searchImage()}></i>
+              </div>
               <div style={{ clear: 'both' }}></div>
             </div>
-            <MyComponent scope={scope} parentScope={this.props.scope.parentScope} isFetching={this.props.isFetching} imageId ={this.props.imageId} otherHead={otherHead} config={this.props.imageList} />
+            <Table className="privateImage" dataSource={this.props.imageList} columns={columns} pagination={{simple:true}} loading={this.props.isFetching}/>
+            {/*<MyComponent scope={scope} parentScope={this.props.scope.parentScope} isFetching={this.props.isFetching} imageId ={this.props.imageId} otherHead={otherHead} config={this.props.imageList} />*/}
           </Card>
         </div>
         <Modal
@@ -234,9 +221,15 @@ function mapStateToProps(state, props) {
   }
   const { otherImages} = state.images
   const { imageList, isFetching, imageRow} = otherImages || defaultPrivateImages
+  let privateImage
+  if (imageList) {
+    privateImage = imageList.map(item => {
+      return { name:item }
+    })
 
+  }
   return {
-    imageList,
+    imageList: privateImage,
     imageRow,
     isFetching,
   }
