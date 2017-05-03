@@ -68,9 +68,9 @@ let CreateSpaceModal = React.createClass({
       if (!!errors) {
         return
       }
-      const { name, description } = values
+      const { spacename, description } = values
       let newSpace = {
-        spaceName: name,
+        spaceName: spacename,
         description,
       }
       onSubmit(newSpace)
@@ -91,7 +91,7 @@ let CreateSpaceModal = React.createClass({
     const { form, visible } = this.props
     const { disabled } = this.state
     const { getFieldProps, getFieldError, isFieldValidating } = form
-    const nameProps = getFieldProps('name', {
+    const nameProps = getFieldProps('spacename', {
       rules: [
         { validator: this.spaceExists },
       ],
@@ -128,7 +128,7 @@ let CreateSpaceModal = React.createClass({
             {...formItemLayout}
             label="名称"
             hasFeedback
-            help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
+            help={isFieldValidating('spacename') ? '校验中...' : (getFieldError('spacename') || []).join(', ')}
             >
             <Input {...nameProps} placeholder="新空间名称" />
           </FormItem>

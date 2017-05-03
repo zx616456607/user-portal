@@ -277,6 +277,7 @@ class RechargeRecord extends Component {
                     title='选择团队帐户'
                     placement="bottomLeft"
                     trigger='click'
+                    overlayClassName='standardPopTeamOver'
                     getTooltipContainer={() => document.getElementById('CostCenter')}
                     visible={teamListVisible}
                     onVisibleChange={this.handleTeamListVisibleChange}
@@ -294,11 +295,13 @@ class RechargeRecord extends Component {
                 <div className='setAlertBtn'>
                   <Button icon="clock-circle-o" style={{ float: 'right', fontSize: '14px' }} onClick={this.showModal}>设置提醒</Button>
                 </div>
-              </div> :
+              </div>
+              :
               <div className='rechargeHeader'>
                 <svg className='headerteamspace'>
                   <use xlinkHref='#headerteamspace' />
                 </svg>
+                项目空间：
                 <div className='popSelect'>
                   <PopSelect
                     title="选择项目空间"

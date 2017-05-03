@@ -103,27 +103,6 @@ export function loadLoginUserDetail(callback) {
   }
 }
 
-export const LICENSE_REQUEST = 'LICENSE_REQUEST'
-export const LICENSE_SUCCESS = 'LICENSE_SUCCESS'
-export const LICENSE_FAILURE = 'LICENSE_FAILURE'
-
-function fetchLicense(callback) {
-  return {
-    [FETCH_API]: {
-      types: [LICENSE_REQUEST, LICENSE_SUCCESS, LICENSE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/license`,
-      schema: {},
-    },
-    callback
-  }
-}
-
-export function loadLicense(callback) {
-  return (dispatch) => {
-    return dispatch(fetchLicense(callback))
-  }
-}
-
 export const SET_SOCKETS = 'SET_SOCKETS'
 // Resets the currently visible error message.
 export function setSockets(sockets) {

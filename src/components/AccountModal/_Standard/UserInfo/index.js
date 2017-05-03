@@ -67,6 +67,19 @@ class BaseInfo extends Component {
   componentWillReceiveProps(nextProps) {
     const { user } = nextProps
     const oldUserInfo = this.props.user.userInfo
+    if(this.props.hash !== nextProps.hash) {
+      if(nextProps.hash == '#edit_pass') {
+        this.setState({
+          editPsd: true
+        })
+        return
+      }
+      if(!nextProps.hash) {
+        this.setState({
+          editPsd: false
+        })
+      }
+    }
     if (user && user.userInfo) {
       const userDetail = user.userInfo
       const { isPasswordSet } = userDetail

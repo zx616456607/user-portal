@@ -135,9 +135,9 @@ let Login = React.createClass({
 
   checkPass(rule, value, callback) {
     if (!value) {
-     return callback()
+      return callback()
     }
-    if (value.length < 6 || value.length >16) {
+    if (value.length < 6 || value.length > 16) {
       callback(new Error('长度为6~16个字符'))
       return
     }
@@ -149,8 +149,8 @@ let Login = React.createClass({
     if (current === 'name') {
       let name = getFieldProps('name').value
       let password = getFieldProps('password').value
-      let intPassFocus= true
-      let intNameFocus= true
+      let intPassFocus = true
+      let intNameFocus = true
       if (name === '' || !name) {
         intNameFocus = false
       }
@@ -214,7 +214,7 @@ let Login = React.createClass({
       //     intPassFocus: true
       //   })
       // }
-    },1000)
+    }, 1000)
 
   },
 
@@ -243,7 +243,7 @@ let Login = React.createClass({
       },
       failed: {
         func: (err) => {
-          const { statusCode } = err
+          const { statusCode, email, code } = err
           const errMsg = err.message
           let msg = errMsg.message || errMsg
           if (statusCode == 404) {
@@ -252,6 +252,10 @@ let Login = React.createClass({
               accountDetail: scanResult.accountDetail
             })
             browserHistory.push(`/login${WECHAT_BOUND_HASH}`)
+          }
+          if (statusCode === 401 && err.message === 'NOT_ACTIVE' && email && code) {
+            browserHistory.push(`/signup?email=${email}&code=${code}&msg=${err.message}`)
+            resetFields()
           }
           self.setState({
             submitting: false,
@@ -294,7 +298,7 @@ let Login = React.createClass({
           hasFeedback
           help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
           className="formItemName"
-          >
+        >
           <div className={this.state.intNameFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'name')}>用户名 / 邮箱</div>
 
           <Input {...nameProps}
@@ -312,7 +316,7 @@ let Login = React.createClass({
           {...formItemLayout}
           hasFeedback
           className="formItemName"
-          >
+        >
           <div className={this.state.intPassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>密码</div>
           <Input {...passwdProps}
             type='password'
@@ -375,13 +379,106 @@ let Login = React.createClass({
     )
   },
 
-  render() {
+  renderLogin() {
     const { hash } = this.props
     const { loginSucess, accountDetail, loginResult } = this.state
     let { nickname, headimgurl } = accountDetail
     headimgurl = headimgurl || ''
     headimgurl = headimgurl.replace('http:', '')
+    if (hash === WECHAT_BOUND_HASH && !isEmptyObject(accountDetail)) {
+      return (
+        <div className="login">
+          <Row style={{ textAlign: 'center' }}>
+            <span className='logoLink'>
+              <div className='logTitle'>时速云</div>
+              <div className='logDesc'>技术领先的容器云技术服务商</div>
+            </span>
+          </Row>
+          <Card className="loginForm" bordered={false}>
+            <div className="wechatBoundBtns">
+              <Button
+                onClick={() => browserHistory.push(`/login${WECHAT_BOUND_LOGIN_HASH}`)}
+                className="boundBtn">
+                绑定已有帐号
+              </Button>
+              <Button
+                type="primary"
+                onClick={() => browserHistory.push(`/signup${WECHAT_SIGNUP_HASH}`)}
+                className="subBtn">
+                注册新帐号
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )
+    }
+    if (hash === WECHAT_BOUND_LOGIN_HASH && !isEmptyObject(accountDetail)) {
+      return (
+        <div className="login">
+          <Row style={{ textAlign: 'center' }}>
+            <div className="logAvatar" title={nickname}>
+              <img alt={nickname} src={(headimgurl || '').replace('http:', '')} />
+            </div>
+          </Row>
+          <Card className="loginForm" bordered={false}>
+            <div>
+              {
+                loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
+              }
+            </div>
+            {this.renderForm('登录并绑定微信')}
+          </Card>
+        </div>
+      )
+    }
+    return (
+      <div className="login">
+        <Row style={{ textAlign: 'center' }}>
+          <span className='logoLink'>
+            <div className='logTitle'>登&nbsp;&nbsp;录</div>
+          </span>
+        </Row>
+        <Card className="loginForm" bordered={false}>
+          <div>
+            {
+              loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
+            }
+          </div>
+          {this.renderForm()}
+          <div className='logInFooter'>
+            <div className='footerTip'>
+              <div className='toRegister'>
+                <span>*&nbsp;还没有时速云帐户?</span>
+                <Link to='/signup'>立即注册</Link>
+              </div>
+              <div className='toReset'>
+                <Link to='/rpw'>忘记密码</Link>
+              </div>
+            </div>
+            <div className='moreMethod'>
+              <div className='methodTitle'>
+                <div className='line'></div>
+                <div className='methodText'>更多登录方式</div>
+                <div className='line'></div>
+              </div>
+              <div className="methodIcon">
+                <div className='weixin'>
+                  <WechatQRCodeTicket
+                    message="微信扫一扫立即登录"
+                    triggerElement={<img src={loginMethodWeixinPNG} />}
+                    getTooltipContainer={() => document.getElementById('LoginBgStd')}
+                    onScanChange={this.onScanChange} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
+    )
+  },
 
+  render() {
+    const { loginSucess } = this.state
     // 登录成功显示加载动画
     if (loginSucess) {
       return (
@@ -393,99 +490,8 @@ let Login = React.createClass({
 
     return (
       <div id="LoginBgStd">
-        <Top/>
-        {
-          !hash && (
-            <div className="login">
-              <Row style={{ textAlign: 'center' }}>
-                <span className='logoLink'>
-                  <div className='logTitle'>登&nbsp;&nbsp;录</div>
-                </span>
-              </Row>
-              <Card className="loginForm" bordered={false}>
-                <div>
-                  {
-                    loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
-                  }
-                </div>
-                {this.renderForm()}
-                <div className='logInFooter'>
-                    <div className='footerTip'>
-                    <div className='toRegister'>
-                      <span>*&nbsp;还没有时速云帐户?</span>
-                      <Link to='/signup'>立即注册</Link>
-                    </div>
-                    <div className='toReset'>
-                      <Link to='/rpw'>忘记密码</Link>
-                    </div>
-                  </div>
-                  <div className='moreMethod'>
-                    <div className='methodTitle'>
-                      <div className='line'></div>
-                      <div className='methodText'>更多登录方式</div>
-                      <div className='line'></div>
-                    </div>
-                    <div className="methodIcon">
-                      <div className='weixin'>
-                        <WechatQRCodeTicket
-                          message="微信扫一扫立即登录"
-                          triggerElement={<img src={loginMethodWeixinPNG}/>}
-                          getTooltipContainer={() => document.getElementById('LoginBgStd')}
-                          onScanChange={this.onScanChange} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          )
-        }
-        {
-          hash === WECHAT_BOUND_HASH && (
-            <div className="login">
-              <Row style={{ textAlign: 'center' }}>
-                <span className='logoLink'>
-                  <div className='logTitle'>时速云</div>
-                  <div className='logDesc'>技术领先的容器云技术服务商</div>
-                </span>
-              </Row>
-              <Card className="loginForm" bordered={false}>
-                <div className="wechatBoundBtns">
-                  <Button
-                    onClick={() => browserHistory.push(`/login${WECHAT_BOUND_LOGIN_HASH}`)}
-                    className="boundBtn">
-                    绑定已有帐号
-                  </Button>
-                  <Button
-                    type="primary"
-                    onClick={() => browserHistory.push(`/signup${WECHAT_SIGNUP_HASH}`)}
-                    className="subBtn">
-                    注册新帐号
-                  </Button>
-                </div>
-              </Card>
-            </div>
-          )
-        }
-        {
-          hash === WECHAT_BOUND_LOGIN_HASH && (
-            <div className="login">
-              <Row style={{ textAlign: 'center' }}>
-                <div className="logAvatar" title={nickname}>
-                  <img alt={nickname} src={(headimgurl || '').replace('http:', '')} />
-                </div>
-              </Row>
-              <Card className="loginForm" bordered={false}>
-                <div>
-                  {
-                    loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
-                  }
-                </div>
-                {this.renderForm('登录并绑定微信')}
-              </Card>
-            </div>
-          )
-        }
+        <Top />
+        {this.renderLogin()}
         <div className="footer">
           © 2017 时速云 京ICP备14045471号
         </div>

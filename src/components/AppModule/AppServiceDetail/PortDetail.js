@@ -137,18 +137,22 @@ let MyComponent = React.createClass({
     const openPort = {[i]: false}
     this.setState({openPort, selectType: 0})
   },
-  checkPort(rule, value, callback){
+  checkPort(rule, value, callback, index){
     if(!value) return callback()
-    if(value.trim() == 80) {
-      return callback()
+    const { form } = this.props
+    const { getFieldValue } = form
+    if(index != undefined) {
+      if(getFieldValue(`ssl{index}`) == 'HTTP') {
+        return callback()
+      }
     }
     if(!/^[0-9]+$/.test(value.trim())) {
       callback(new Error('请填入数字'))
       return
     }
     const port = parseInt(value.trim())
-    if(port < 1 || port > 65535) {
-      callback(new Error('请填入0~65535'))
+    if(port < 10000 || port > 65535) {
+      callback(new Error('请填入10000~65535'))
       return
     }
     if(allPort.indexOf(port) >= 0) {
@@ -157,21 +161,46 @@ let MyComponent = React.createClass({
     }
     return callback()
   },
-  checkInputPort(rule, value, callback) {
-   if(!value) return callback()
-    if(!/^[0-9]+$/.test(value.trim())) {
+  checkContainerPort(rule, value, callback) {
+    if (!value) return callback()
+    if (!/^[0-9]+$/.test(value.trim())) {
       callback(new Error('请填入数字'))
       return
     }
     const port = parseInt(value.trim())
-    if(port == 80) return callback()
+    if (port < 0 || port > 65535) {
+      callback(new Error('请填入0~65535'))
+      return
+    }
+    if (allPort.indexOf(port) >= 0) {
+      callback(new Error('该端口已被占用'))
+      return
+    }
+    return callback()
+  },
+  checkInputPort(rule, value, callback) {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const keys = getFieldValue('newKeys')
+    const lastOne = keys[keys.length - 1]
+    if (getFieldValue(`newssl${lastOne}`) == 'HTTP') return callback()
+    if (!value) return callback()
+    if (!/^[0-9]+$/.test(value.trim())) {
+      callback(new Error('请填入数字'))
+      return
+    }
+    const port = parseInt(value.trim())
+    if (port < 10000 || port > 65535) {
+      callback(new Error('请填入10000~65535'))
+      return
+    }
     const { loginUser } = this.props
     let msg = validatePortNumber(loginUser.info.proxyType, port)
     if (msg) {
       callback(new Error(msg))
       return
     }
-    if(allUsedPort.indexOf(value.trim()) >= 0) {
+    if (allUsedPort.indexOf(value.trim()) >= 0) {
       callback(new Error('该端口已被占用'))
       return
     }
@@ -249,6 +278,9 @@ let MyComponent = React.createClass({
     // can use data-binding to get
     let keys = form.getFieldValue('newKeys');
     keys = keys.concat(uuid);
+    setTimeout(() => {
+      this.newPortOb.refs.input.focus()
+    })
     // can use data-binding to set
     // important! notify form to detect changes
     form.setFieldsValue({
@@ -382,7 +414,12 @@ let MyComponent = React.createClass({
       })
       return
     } else {
-      this.setState({inPort: e, selectType: e})
+      this.setState({ inPort: e, selectType: e })
+      if (e == 2) {
+        setTimeout(() => {
+          document.getElementById(`changeinputPort${index}`).focus()
+        })
+      }
     }
   },
   newInputPort(index, e) {
@@ -411,6 +448,9 @@ let MyComponent = React.createClass({
     } else {
       if(e == 2) {
         ob[index] = true
+        setTimeout(() => {
+          this.newInputPortOb.refs.input.focus()
+        })
         return
       }
       this.props.form.setFieldsValue({[`newinputPort${index}`]: null})
@@ -484,13 +524,14 @@ let MyComponent = React.createClass({
         <div className="portDetail" key={`list${k}`}>
           <div className="commonData">
             <Form.Item key={k}>
-              <Input {...getFieldProps(`newport${k}`, {
+              <Input  {...getFieldProps(`newport${k}`, {
+                ref : (instance) => this.newPortOb = instance,
                 rules: [{
                   required: true,
                   whitespace: true,
                   message: '输入容器端口',
-                }, {validator: this.checkPort}],
-              })} style={{ width: '80%', marginRight: 8 }}
+                }, {validator: this.checkContainerPort}],
+              })}  style={{ width: '80%', marginRight: 8 }}
               />
             </Form.Item>
           </div>
@@ -524,7 +565,7 @@ let MyComponent = React.createClass({
             </Select>
             <span style={{display: getFieldProps(`newssl${k}`).value == 'HTTP' ? 'inline-block' : 'none'}}>80</span>
             <Form.Item key={k} style={{width: '50px', float: 'right', marginRight: '70px'}}>
-            <Input type='text' style={{width: '50px', marginLeft: '0px', display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {rules: [rules, {validator: this.checkInputPort}], initialValue: "80"})} />
+            <Input  type='text' style={{width: '50px', marginLeft: '0px', display: ob[k] ? 'inline-block' : 'none'}} {...getFieldProps(`newinputPort${k}`, {ref: instance => this.newInputPortOb = instance,rules: [rules, {validator: this.checkInputPort}], initialValue: this.state.disableHTTP ? '': "80"})} />
             </Form.Item>
           </div>
           <div className="commonData span2">
@@ -604,7 +645,7 @@ let MyComponent = React.createClass({
                     required: true,
                     whitespace: true,
                     message: '输入容器端口',
-                  }, {validator: this.checkPort}]
+                  }, {validator: (rule, value, callback) => this.checkPort(rule, value, callback, index+1)}]
                 })}/>
                </Form.Item>
               :null

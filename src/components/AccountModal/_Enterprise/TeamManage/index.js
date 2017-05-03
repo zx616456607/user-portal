@@ -17,11 +17,15 @@ import { loadUserTeamList } from '../../../../actions/user'
 import {
   createTeam, deleteTeam, createTeamspace,
   addTeamusers, removeTeamusers, loadTeamUserList,
-  checkTeamName,
+  checkTeamName,loadTeamspaceList
 } from '../../../../actions/team'
+import { chargeTeamspace } from '../../../../actions/charge'
+import { ROLE_SYS_ADMIN } from '../../../../../constants'
+
 import MemberTransfer from '../../MemberTransfer'
 import CreateTeamModal from '../../CreateTeamModal'
 import NotificationHandler from '../../../../common/notification_handler'
+import SpaceRecharge from '../Recharge/SpaceRecharge'
 
 let TeamTable = React.createClass({
   getInitialState() {
@@ -74,6 +78,10 @@ let TeamTable = React.createClass({
       failed: {
         func: (err) => {
           notification.close()
+          if (err.message.code == 403) {
+            notification.error(`删除${teamName}失败：请先删除该团队下的团队空间后, 再删除团队`)
+            return
+          }
           notification.error(`删除 ${teamName} 失败: ` + err.message.message)
         }
       }
@@ -193,6 +201,11 @@ let TeamTable = React.createClass({
   handleChange(targetKeys) {
     this.setState({ targetKeys })
   },
+  btnRecharge(teamID) {
+    const parentScope = this.props.scope
+    parentScope.props.loadTeamspaceList(teamID)
+    parentScope.setState({spaceVisible: true})
+  },
   render() {
     let { sortedInfo, filteredInfo, targetKeys, sort } = this.state
     const { searchResult, notFound, filter } = this.props.scope.state
@@ -200,7 +213,7 @@ let TeamTable = React.createClass({
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     const pagination = {
-      simple: {true},
+      simple: true,
       total: this.props.scope.props.total,
       sort,
       filter,
@@ -334,6 +347,10 @@ let TeamTable = React.createClass({
                 teamUserIDList={teamUserIDList} />
             </Modal>
             <Button icon="delete" className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
+            {(this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN) ?
+              <Button className="addBtn" style={{marginLeft:'12px'}} onClick={() => this.btnRecharge(record.key)}>充值</Button>
+            :null
+            }
           </div>
         )
       },
@@ -365,11 +382,13 @@ class TeamManage extends Component {
       searchResult: [],
       notFound: false,
       visible: false,
+      spaceVisible: false, // space recharge
       teamName: '',
       pageSize: 10,
       page: 1,
       current: 1,
-      sort: 'a,teamName'
+      sort: 'a,teamName',
+      selected: []
     }
   }
   showModal() {
@@ -470,6 +489,14 @@ class TeamManage extends Component {
               teamUserIDList={teamUserIDList} />
           </Card>
         </Row>
+        {/* 团队空间充值  */}
+        <Modal title="团队空间充值" visible={this.state.spaceVisible}
+          onCancel={()=> this.setState({spaceVisible: false})}
+          width={600}
+          footer={null}
+        >
+          <SpaceRecharge parentScope={this} selected={this.state.selected} teamSpacesList={this.props.teamSpacesList}/>
+        </Modal>
       </div>
     )
   }
@@ -482,6 +509,8 @@ function mapStateToProp(state, props) {
   let teamUserIDList = []
   const team = state.team
   const teams = state.user.teams
+  const userDetail = state.entities.loginUser.info
+  let teamSpacesList = []
   if (teams.result) {
     if (teams.result.teams) {
       teamsData = teams.result.teams
@@ -513,10 +542,15 @@ function mapStateToProp(state, props) {
       }
     }
   }
+  if (team.teamspaces.result) {
+    teamSpacesList = team.teamspaces.result.data
+  }
   return {
     teams: data,
     total,
     teamUserIDList: teamUserIDList,
+    teamSpacesList,
+    userDetail
   }
 }
 
@@ -529,4 +563,6 @@ export default connect(mapStateToProp, {
   removeTeamusers,
   loadTeamUserList,
   checkTeamName,
+  loadTeamspaceList,
+  chargeTeamspace
 })(TeamManage)

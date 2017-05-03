@@ -25,6 +25,11 @@ exports.login = function* () {
 
   if (this.session.loginUser) {
     this.status = 302
+    let redirect = this.query.redirect
+    if (redirect) {
+      this.redirect(redirect)
+      return
+    }
     this.redirect('/')
     return
   }

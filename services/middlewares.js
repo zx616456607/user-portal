@@ -102,6 +102,9 @@ exports.verifyUser = function* (next) {
       const userInfo = yield wechat.getUserInfo(access_token, accountID)
       data.accountDetail = JSON.stringify(userInfo)
     }
+  } else if(body.accountType == 'vsettan') {
+    data.accountType = body.accountType
+    data.accountID = body.accountID
   } else if ((!body.username && !body.email) || !body.password) {
     err = new Error('username(email), password are required.')
     err.status = 400
@@ -121,7 +124,6 @@ exports.verifyUser = function* (next) {
       throw err
     }
   }*/
-  delete this.session.wechat_account_id
   if (body.password) {
     data.password = body.password
   }
@@ -138,6 +140,7 @@ exports.verifyUser = function* (next) {
   let result = {}
   try {
     result = yield api.users.createBy(['login'], null, data)
+    delete this.session.wechat_account_id
   } catch (err) {
     if (body.accountType === 'wechat' && err.statusCode === 404) {
       this.session.wechat_account_id = accountID // add back for bind wechat

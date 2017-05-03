@@ -447,6 +447,11 @@ export function services(state = { appItmes: {} }, action) {
       REQUEST: ActionTypes.UPDATE_SERVICE_PORT_REQUEST,
       SUCCESS: ActionTypes.UPDATE_SERVICE_PORT_SUCCESS,
       FAILURE: ActionTypes.UPDATE_SERVICE_PORT_FAILED
-    }, state.updateServicePort, action)
+    }, state.updateServicePort, action),
+    containersAllEvent: reducerFactory({
+      REQUEST: ActionTypes.CONTAINERS_ALL_EVENTS_REQUEST,
+      SUCCESS: ActionTypes.CONTAINERS_ALL_EVENTS_SUCCESS,
+      FAILURE: ActionTypes.CONTAINERS_ALL_EVENTS_FAILURE
+    }, state.containersAllEvent, action)
   }
 }

@@ -37,6 +37,7 @@ import userPreference from './user_preference'
 import license from './license'
 import admin from './admin'
 import user3rdAccount from './user_3rd_account'
+import version from './version'
 import { LOGIN_EXPIRED_MESSAGE, PAYMENT_REQUIRED_CODE, UPGRADE_EDITION_REQUIRED_CODE, } from '../constants'
 
 
@@ -60,12 +61,14 @@ function errorMessage(state = null, action) {
 }
 
 function actionCallback(state = null, action) {
-  if (action.type.indexOf('_REQUEST') >= 0) {
+  // Get action type by the last 7 words
+  const actionType = action.type.substr(action.type.length - 7)
+  if (actionType === 'REQUEST') {
     return state
   }
   if (!action.callback) return state
   let callback = action.callback
-  if (action.type.indexOf('_SUCCESS') >= 0 || action.type == EntitiesActionTypes.SET_CURRENT ) {
+  if (actionType === 'SUCCESS' || action.type == EntitiesActionTypes.SET_CURRENT ) {
     if (!callback.success) return state
     if (callback.success.isAsync) {
       setTimeout(callback.success.func.bind(this, action.response ? action.response.result : null))
@@ -74,7 +77,7 @@ function actionCallback(state = null, action) {
     callback.success.func(action.response.result)
     return state
   }
-  if (action.type.indexOf('_FAILURE') >= 0) {
+  if (actionType === 'FAILURE') {
     if (!callback.failed) return state
     // Mark error is already handled(except login expired)
     if (action.error.statusCode !== PAYMENT_REQUIRED_CODE // 余额不足
@@ -122,6 +125,7 @@ const rootReducer = combineReducers({
   license,
   admin,
   user3rdAccount,
+  version,
 })
 
 export default rootReducer

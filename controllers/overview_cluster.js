@@ -34,6 +34,12 @@ exports.getClusterOverview = function* () {
   if (result && result[1] && result[1].data) {
     sysinfo = result[1].data
   }
+  // TODO: Setup ES cluster to replace this
+  // Handle yellow status specially for now
+  if (sysinfo.logging && sysinfo.logging.status == "warning") {
+    // yellow status
+    sysinfo.logging.status = "normal"
+  }
   let storage = {}
   if (result && result[2] && result[2].data) {
     storage = result[2].data
@@ -86,6 +92,12 @@ exports.getStdClusterOverview = function* () {
   let sysinfo = {}
   if (result && result[1] && result[1].data) {
     sysinfo = result[1].data
+  }
+  // TODO: Setup ES cluster to replace this
+  // Handle yellow status specially for now
+  if (sysinfo.logging && sysinfo.logging.status == "warning") {
+    // yellow status
+    sysinfo.logging.status = "normal"
   }
   let storage = {}
   if (result && result[2] && result[2].data) {

@@ -16,48 +16,78 @@ const constants = require('../constants')
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
+const DEFAULT_LICENSE = {
+  max_nodes: 5
+}
 
 exports.getClusterNodes = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
 
   const api = apiFactory.getApi(loginUser)
-  const result = yield api.clusters.getBy([cluster, 'nodes']);
-  const clusters = result.data || []
-
-  let podList = [];
-  clusters.nodes.nodes.map((node) => {
-    podList.push(node.objectMeta.name);
-  });
-  let cpuBody = {
-    type: 'cpu/usage_rate',
-    source: 'prometheus'
+  const reqArray = []
+  reqArray.push(api.clusters.getBy([cluster, 'nodes']))
+  reqArray.push(api.licenses.getBy(["merged"]))
+  const reqArrayResult = yield reqArray
+  const clusters = reqArrayResult[0].data || []
+  const license = reqArrayResult[1].data || DEFAULT_LICENSE
+  if (!license.max_nodes || license.max_nodes < DEFAULT_LICENSE.max_nodes) {
+    license.max_nodes = DEFAULT_LICENSE.max_nodes
   }
-  const cpuList = yield api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], cpuBody);
-  for(let key in cpuList) {
-    if(key != 'statusCode') {
-      cpuList[key].name = key;
+  let cpuList
+  let memoryList
+  try {
+    let podList = [];
+    clusters.nodes.nodes.map((node) => {
+      podList.push(node.objectMeta.name);
+    });
+    let cpuBody = {
+      type: 'cpu/usage_rate',
+      source: 'prometheus'
     }
-  }
-
-  let memoryBody = {
-    type: 'memory/usage',
-    source: 'prometheus'
-  }
-  const memoryList = yield api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], memoryBody);
-  for(let key in memoryList) {
-    if(key != 'statusCode') {
-      memoryList[key].name = key;
+    let memoryBody = {
+      type: 'memory/usage',
+      source: 'prometheus'
     }
+    const metricsReqArray = []
+    metricsReqArray.push(api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], cpuBody))
+    metricsReqArray.push(api.clusters.getBy([cluster, 'nodes', podList, 'metrics'], memoryBody))
+    const metricsReqArrayResult = yield metricsReqArray
+    cpuList = metricsReqArrayResult[0]
+    memoryList = metricsReqArrayResult[1]
+    for(let key in cpuList) {
+      if(key != 'statusCode') {
+        cpuList[key].name = key;
+      }
+    }
+    for(let key in memoryList) {
+      if(key != 'statusCode') {
+        memoryList[key].name = key;
+      }
+    }
+  } catch (error) {
+    // Catch error for show node list
   }
 
-  this.status = result.code
   this.body = {
     data: {
       clusters,
       cpuList,
-      memoryList
+      memoryList,
+      license
     }
+  }
+}
+
+// For bind node when create service(lite only)
+exports.getNodes = function* (){
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const spi = apiFactory.getSpi(loginUser)
+  const result = yield spi.clusters.getBy([cluster, 'nodes']);
+  this.body = {
+    cluster,
+    data: result.data,
   }
 }
 

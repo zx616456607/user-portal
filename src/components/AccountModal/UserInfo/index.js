@@ -14,7 +14,7 @@ import Information from './Information'
 import Space from './Space'
 import Team from './Team'
 import { connect } from 'react-redux'
-import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants' 
+import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import { loadUserDetail, loadUserList, updateUser, loadUserAppInfo, loadUserTeamspaceDetailList, loadUserTeamList } from '../../../actions/user'
 
 class UserInfo extends Component {
@@ -55,7 +55,7 @@ class UserInfo extends Component {
         </Row>
         <Row className="content">
           <Card>
-            <Information userID={userID} userDetail={userDetail} editPass={editPass} />
+            <Information userID={userID} userDetail={userDetail} editPass={editPass} location={this.props.location}/>
           </Card>
         </Row>
         <Row className="title">
@@ -70,10 +70,11 @@ class UserInfo extends Component {
               teamspaces={teamspaces} />
           </Card>
         </Row>
-        { (userDetail.role == ROLE_TEAM_ADMIN || userDetail.role == ROLE_SYS_ADMIN) ?  
+        { (userDetail.role == ROLE_TEAM_ADMIN || userDetail.role == ROLE_SYS_ADMIN) ?
         <Row className="title">
-          <Col>团队</Col>
-        </Row> : <div></div>
+          <Col>所属团队</Col>
+        </Row>
+        : null
         }
         { (userDetail.role == ROLE_TEAM_ADMIN || userDetail.role == ROLE_SYS_ADMIN) ?
         <Row className="content">
@@ -81,7 +82,8 @@ class UserInfo extends Component {
             <Team userDetail={userDetail}
               teams={teams} />
           </Card>
-        </Row> : <div></div>
+        </Row>
+        : null
         }
       </div>
     )

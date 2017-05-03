@@ -161,7 +161,7 @@ export const TEAM_REQUEST_CLUSTER_FAILURE = 'TEAM_REQUEST_CLUSTER_FAILURE'
 
 // Request team cluster from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchRequestTeamCluster(teamID, clusterID) {
+function fetchRequestTeamCluster(teamID, clusterID, callback) {
   let endpoint = `${API_URL_PREFIX}/teams/${teamID}/clusters/${clusterID}/request`
   return {
     [FETCH_API]: {
@@ -171,15 +171,16 @@ function fetchRequestTeamCluster(teamID, clusterID) {
         method: 'PUT'
       },
       schema: {}
-    }
+    },
+    callback
   }
 }
 
 // Request team cluster from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function requestTeamCluster(teamID, clusterID) {
+export function requestTeamCluster(teamID, clusterID, callback) {
   return (dispatch) => {
-    return dispatch(fetchRequestTeamCluster(teamID, clusterID))
+    return dispatch(fetchRequestTeamCluster(teamID, clusterID, callback))
   }
 }
 

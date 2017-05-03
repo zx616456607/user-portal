@@ -65,6 +65,7 @@ exports.sendPaySuccessEmail = function (email, type, amount, order) {
   let balance = order.new_balance
   amount = parseInt(amount) / AMOUNT_CONVERSION
   balance = parseInt(balance) / AMOUNT_CONVERSION
-  const payHistoryUrl = `${configs.url}/account/cost#payments`
+  // For redirect and keep hash
+  const payHistoryUrl = `${configs.url}/login?redirect=/account/costCenter${encodeURIComponent('#')}payments`
   return emailUtils.sendChargeSuccessEmail(email, type, amount, balance, payHistoryUrl, order.team_name)
 }

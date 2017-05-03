@@ -34,53 +34,6 @@ exports.setUserCurrentConfigCookie = function* (loginUser) {
   })
 }
 
-exports.getLicense = function* (loginUser) {
-  const spi = apiFactory.getSpi(loginUser)
-  let result = {}
-  let plain = {}
-  try {
-    result = yield spi.license.get()
-    let licenseObj = JSON.parse(_decrypt(result.data.license))
-    if (!licenseObj.ExpireDate) {
-      plain.status = 'LICENSE_ERROR'
-      plain.code = -1
-      return
-    }
-    let expireDate = new Date(licenseObj.ExpireDate)
-    let currentDate = new Date()
-    plain.expireDate = expireDate
-    if (currentDate > expireDate) {
-      plain.status = 'TRAIL_EXPIRED'
-      plain.code = -1
-      return
-    }
-    plain.clusterLimit = licenseObj.ClusterLimit
-    plain.nodesLimitPerCluster = licenseObj.NodesLimitPerCluster
-    let trialDays = Math.round((expireDate - currentDate) / (24 * 3600 * 1000))
-    if (trialDays < 365) {
-      plain.status = 'NO_LICENSE'
-      plain.code = 1
-      return
-    }
-    plain.status = 'LICENSE_OK'
-    plain.code = 0
-  } catch (err) {
-    logger.error(err.stack)
-    if (err.statusCode === 404) {
-      plain.status = 'NO_LICENSE'
-    } else {
-      plain.status = 'LICENSE_ERROR'
-    }
-    plain.code = -1
-  } finally {
-    return {
-      license: (result.data ? result.data.license : ''),
-      plain: plain,
-      message: i18n.t(`common:license.${plain.status}`)
-    }
-  }
-}
-
 /**
  * Add config into user for frontend
  *
@@ -126,17 +79,4 @@ exports.checkWechatAccountIsExist = function* (body) {
       exist: false
     }
   }
-}
-
-function _decrypt(text) {
-  const algorithm = 'aes-192-cbc'
-  let iv = new Buffer([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
-  let pwd1 = 'T1X2C3D!'
-  let pwd2 = 'F^I$G&H*'
-  let pwd3 = 'T(E)R088'
-  let pwd = pwd1 + pwd2 + pwd3
-  let decipher = crypto.createDecipheriv(algorithm, pwd, iv)
-  let dec = decipher.update(text, 'base64', 'utf8')
-  dec += decipher.final('utf8')
-  return dec
 }

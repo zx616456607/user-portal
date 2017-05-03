@@ -21,11 +21,13 @@ import {
   RESOURCES_CPU_STEP,
   RESOURCES_CPU_MIN,
   RESOURCES_DIY,
+  SYSTEM_DEFAULT_SCHEDULE,
 } from '../../../../constants'
 import { appNameCheck, validateK8sResourceForServiceName } from '../../../../common/naming_validation'
 import { loadImageDetailTag, loadImageDetailTagConfig, getOtherImageTag, loadOtherDetailTagConfig } from '../../../../actions/app_center'
 import { checkServiceName } from '../../../../actions/app_manage'
 import { loadFreeVolume, createStorage } from '../../../../actions/storage'
+import { getNodes } from '../../../../actions/cluster_node'
 import "./style/NormalDeployBox.less"
 import NotificationHandler from '../../../../common/notification_handler'
 import { volNameCheck } from '../../../../common/naming_validation'
@@ -444,6 +446,11 @@ function loadImageTags(props) {
   })
 }
 
+function loadClusterNodes(props) {
+  const { cluster, getNodes } = props
+  getNodes(cluster)
+}
+
 function setPorts(containerPorts, form) {
   const portsArr = []
   if (containerPorts) {
@@ -639,6 +646,7 @@ let NormalDeployBox = React.createClass({
   },
   componentWillMount() {
     loadImageTags(this.props)
+    loadClusterNodes(this.props)
     const cluster = this.props.currentCluster
     const storageTypes = cluster.storageTypes
     let canCreate = true
@@ -680,6 +688,7 @@ let NormalDeployBox = React.createClass({
     })
     if (serviceOpen) {
       loadImageTags(nextProps)
+      loadClusterNodes(nextProps)
       const { form } = this.props
       const { getFieldValue } = form
       let storageType = getFieldValue('storageType')
@@ -767,7 +776,7 @@ let NormalDeployBox = React.createClass({
   },
   render: function () {
     const parentScope = this.props.scope
-    const { imageTagsIsFetching, form, composeType, cluster } = this.props
+    const { imageTagsIsFetching, form, composeType, cluster, clusterNodes } = this.props
     const { DIYMemory, DIYCPU } = parentScope.state
     const imageTags = this.props.otherImages ? this.props.otherImages : this.props.imageTags
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form
@@ -784,6 +793,12 @@ let NormalDeployBox = React.createClass({
       ],
       initialValue: imageTags[0]
     })
+    const bindNodeProps = getFieldProps('bindNode', {
+      rules: [
+        { required: true },
+      ],
+      initialValue: SYSTEM_DEFAULT_SCHEDULE,
+    })
     let imageVersion = getFieldValue('imageVersion');
     let switchDisable = false
     let mountPath = []
@@ -793,10 +808,13 @@ let NormalDeployBox = React.createClass({
     }
     let imageVersionShow = (
       <FormItem className="imageTagForm" key='imageTagForm'>
-        <Select
+        <Select showSearch
           {...selectProps}
-          className="imageTag" size="large" tyle={{ width: 200 }}
+          className="imageTag"
+          size="large"
+          optionFilterProp="children"
           placeholder="请选择镜像版本"
+          optionFilterProp="children"
           notFoundContent="镜像版本为空"
           onSelect={this.onSelectTagChange}
           >
@@ -846,7 +864,7 @@ let NormalDeployBox = React.createClass({
           </div>
           <div className="operaBox">
             <div className="selectCompose">
-              <span className="commonSpan">容器配置 <Tooltip title="专业版及企业认证用户可申请扩大容器配置"><Icon type="question-circle-o" /></Tooltip></span>
+              <span className="commonSpan">容器配置 <Tooltip title="专业版及企业认证用户可申请扩大容器配置"><a><Icon type="question-circle-o" /></a></Tooltip></span>
               <ul className="composeList">
                 {/*<li className="composeDetail">
                   <Button type={composeType == "1" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "1")}>
@@ -946,12 +964,12 @@ let NormalDeployBox = React.createClass({
                         <div className="DIYKey">
                           <InputNumber
                             onChange={(value) => parentScope.setState({DIYCPU: value})}
-                            defaultValue={RESOURCES_CPU_MIN}
-                            value={parseInt(DIYCPU)}
+                            defaultValue={DIYCPU}
+                            value={DIYCPU}
                             step={RESOURCES_CPU_STEP}
                             min={RESOURCES_CPU_MIN}
                             max={RESOURCES_CPU_MAX}/>
-                          CPU
+                          核 CPU
                         </div>
                         <div className="triangle"></div>
                         <Icon type="check" />
@@ -960,6 +978,31 @@ let NormalDeployBox = React.createClass({
                   </li>
                 }
               </ul>
+              <div style={{ clear: "both" }}></div>
+            </div>
+            <div className="bindNode">
+              <span className="commonSpan">绑定节点</span>
+              <FormItem>
+                <Select showSearch
+                  {...bindNodeProps}
+                  style={{ width: 300 }}
+                  placeholder="请选择绑定节点"
+                  optionFilterProp="children"
+                  notFoundContent="无法找到"
+                >
+                  <Option value={SYSTEM_DEFAULT_SCHEDULE}>使用系统默认调度</Option>
+                  {
+                    clusterNodes.map(node => {
+                      const { name, ip, podCount } = node
+                      return (
+                        <Option value={name}>
+                          {name} | {ip} (容器：{podCount}个)
+                        </Option>
+                      )
+                    })
+                  }
+                </Select>
+              </FormItem>
               <div style={{ clear: "both" }}></div>
             </div>
             <div className="stateService">
@@ -973,9 +1016,19 @@ let NormalDeployBox = React.createClass({
               <Tooltip title="无存储服务可用, 请配置存储服务"><Icon type="question-circle-o" style={{verticalAlign: 'middle', marginLeft: '10px', display: this.state.canCreate ? 'none' : 'inline-block'}}  /></Tooltip>
               <span className="stateSpan">{form.getFieldValue('volumeSwitch') ? "有状态服务" : "无状态服务"}</span>
               <RadioGroup style={{display: this.state.isHaveVolume ? 'inline-block' : 'none', marginLeft: '10px'}} onChange={this.setStorageType} value={this.state.storageType || defaultCheckedValue}>
-                  {this.getStorageType()}
+                {this.getStorageType()}
               </RadioGroup>
-
+              {
+                form.getFieldValue('volumeSwitch') &&
+                <span id="localStorageTip">
+                  注：选择『本地存储』时，为保证有状态有效，推荐使用『绑定节点』功能&nbsp;
+                  <Tooltip title="以保证容器及其Volume存储不被系统调度迁移"
+                    placement="topLeft"
+                    getTooltipContainer={() => document.getElementById('localStorageTip')}>
+                    <Icon type="question-circle-o" />
+                  </Tooltip>
+                </span>
+              }
               {form.getFieldValue('volumeSwitch') ? [
                 <MyComponent
                   parentScope={parentScope}
@@ -1025,6 +1078,7 @@ function mapStateToProps(state, props) {
   let {registry, tag, isFetching } = targetImageTag || defaultImageTags
   const { cluster } = state.entities.current
   const otherImages = otherImageTag.imageTag
+  const { clusterNodes } = state.cluster_nodes
   return {
     cluster: cluster.clusterID,
     registry,
@@ -1034,7 +1088,8 @@ function mapStateToProps(state, props) {
     checkServiceName: state.apps.checkServiceName,
     tagConfig: state.getImageTagConfig.imageTagConfig,
     otherImages,
-    currentCluster: state.entities.current.cluster
+    currentCluster: state.entities.current.cluster,
+    clusterNodes: clusterNodes[cluster.clusterID] || []
   }
 }
 
@@ -1043,7 +1098,8 @@ NormalDeployBox = connect(mapStateToProps, {
   loadImageDetailTagConfig,
   checkServiceName,
   getOtherImageTag,
-  loadOtherDetailTagConfig
+  loadOtherDetailTagConfig,
+  getNodes,
 })(NormalDeployBox)
 
 export default NormalDeployBox

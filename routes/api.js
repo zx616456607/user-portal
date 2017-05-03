@@ -31,6 +31,8 @@ const clusterController = require('../controllers/cluster_manage')
 const integrationController = require('../controllers/integration')
 const consumptionController = require('../controllers/consumption')
 const clusternodesController = require('../controllers/cluster_node')
+const versionsController = require('../controllers/versions')
+const chargeController = require('../controllers/charge')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -96,6 +98,8 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/ha', serviceController.changeServiceHa)
   router.put('/clusters/:cluster/services/:service_name/rollingupdate', serviceController.rollingUpdateService)
   router.get('/clusters/:cluster/replicaset/:service_name/events', serviceController.getReplicasetDetailEvents)
+  router.get('/clusters/:cluster/dbservice/:service_name/events', serviceController.getDbServiceDetailEvents)
+  router.get('/clusters/:cluster/service/:service_name/pods/events', serviceController.getPodsEventByServicementName)
   router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
   router.get('/clusters/:cluster/services/:service_name/k8s-service', serviceController.getK8sService)
   router.get('/clusters/:cluster/services', serviceController.getAllService)
@@ -312,12 +316,13 @@ module.exports = function (Router) {
   router.get('/cluster-nodes/:cluster/add-node-cmd', clusternodesController.getAddNodeCMD)
   // Get kubectl pods names
   router.get('/cluster-nodes/:cluster/kubectls', clusternodesController.getKubectls)
+  // For bind node when create service(lite only)
+  router.get('/clusters/:cluster/nodes', clusternodesController.getNodes)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)
 
-  // License
-  router.get('/license', licenseController.getLicense)
+  // Licenses
   router.get('/licenses', licenseController.getLicenses)
 
   // consumption and charge
@@ -327,6 +332,13 @@ module.exports = function (Router) {
   router.get('/consumptions/charge-history', consumptionController.getChargeRecord)
   router.get('/consumptions/notify-rule', consumptionController.getNotifyRule)
   router.put('/consumptions/notify-rule', consumptionController.setNotifyRule)
+
+  // Versions
+  router.get('/versions/check', versionsController.checkVersion)
+
+  // Charge
+  router.post('/charge/user', chargeController.chargeUser)
+  router.post('/charge/teamspace', chargeController.chargeTeamspace)
 
   return router.routes()
 }

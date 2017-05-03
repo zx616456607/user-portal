@@ -55,7 +55,7 @@ class PopSelect extends Component {
           </li>
         </ul>
         <div style={{lineHeight:'25px'}}>
-          团队
+          团队空间
         </div>
       </div>
     )
@@ -76,8 +76,9 @@ class PopSelect extends Component {
               onClick={() => onChange(item)}>
               {
                 popTeamSelect ?
-                  item.teamName :
-                  item.name
+                  [item.teamName,<span>（团队：{item.spaceName}）</span>]
+                  :
+                  [item.name,<span>（团队：{item.spaceName}）</span>]
               }
             </li>
           )

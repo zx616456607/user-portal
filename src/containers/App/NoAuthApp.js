@@ -11,14 +11,29 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import Intercom from 'react-intercom'
-import { getCookie } from '../../common/tools'
+import { genRandomString } from '../../common/tools'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
 const standardFlag = mode === standard
+const INTERCOME_USER_ID_KEY = 'IntercomeUserId'
+
 const user = {
-  user_id: getCookie('intl_locale.sig'), // When the user refreshes the page, the record is not lost
+  user_id: getIntercomeUserId(),
   name: 'Logged-out Visitors'
+}
+
+// Return Intercome userId
+// When the user refreshes the page, the record is not lost
+function getIntercomeUserId() {
+  if (!localStorage) {
+    return genRandomString(10)
+  }
+  const userId = localStorage.getItem(INTERCOME_USER_ID_KEY)
+  if (userId) {
+    return userId
+  }
+  localStorage.setItem(INTERCOME_USER_ID_KEY, genRandomString(10))
 }
 
 class NoAuthApp extends Component {

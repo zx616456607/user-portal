@@ -202,7 +202,7 @@ class BaseInfo extends Component {
           <div className="price-unit">
             <p>合计：
             <span className="unit">{countPrice.unit=='￥' ? ' ￥' : ''}</span>
-            <span className="unit blod">{ hourPrice.amount }{containerPrc.unit=='￥'? '' : 'T'}/小时</span>
+            <span className="unit blod">{ hourPrice.amount }{containerPrc.unit=='￥'? '' : ' T'}/小时</span>
             </p>
             <p>
             <span className="unit">（约：{ countPrice.fullAmount } /月）</span>
@@ -307,7 +307,7 @@ class LeasingInfo extends Component {
             <p><Icon type="hdd" /> 存储：<span className="unit">{ storagePrc.fullAmount }/（GB*小时）</span> * {databaseInfo.podInfo.desired}个</p>
           </div>
           <div className="countPrice">
-            合计价格：<span className="unit">{hourPrice.unit =='￥' ? '￥': ''}</span><span className="unit blod">{hourPrice.amount}{hourPrice.unit =='￥' ? '': 'T'}/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：{countPrice.fullAmount}/月）</span>
+            合计价格：<span className="unit">{hourPrice.unit =='￥' ? '￥': ''}</span><span className="unit blod">{hourPrice.amount}{hourPrice.unit =='￥' ? '': ' T'}/小时</span> <span className="unit" style={{marginLeft:'10px'}}>（约：{countPrice.fullAmount}/月）</span>
           </div>
         </div>
       </div>
@@ -552,7 +552,7 @@ class ModalDetail extends Component {
                 <BaseInfo domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
               </TabPane>
               <TabPane tab='事件' key='#events'>
-                <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} />
+                <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
               </TabPane>
               <TabPane tab='租赁信息' key='#leading'>
                 <LeasingInfo databaseInfo={databaseInfo} scope= {this} />

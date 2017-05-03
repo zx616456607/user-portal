@@ -1110,6 +1110,7 @@ class AppServiceList extends Component {
             serviceList={serviceList}
             k8sServiceList={k8sServiceList}
             loading={isFetching}
+            bindingIPs={this.props.bindingIPs}
             bindingDomains={this.props.bindingDomains} />
           <Modal
             title="垂直居中的对话框"

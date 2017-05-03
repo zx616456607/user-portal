@@ -85,7 +85,6 @@ class StorageDetail extends Component {
     }
     const color = StorageInfo.isUsed ? '#f85a5a' : '#5cb85c'
 
-    const consumption = (StorageInfo.consumption / StorageInfo.size) * 100
     return (
       <div id="StorageDetail">
         <QueueAnim className="demo-content"
@@ -115,8 +114,8 @@ class StorageDetail extends Component {
                   <div className="use">
                     <FormattedMessage {...messages.useLevel} />
                     ：&nbsp;&nbsp;
-                    <Progress strokeWidth={8} showInfo={false} status="active" percent={ consumption} />
-                    &nbsp;&nbsp;{ StorageInfo.consumption } / { StorageInfo.size } M
+                    <Progress strokeWidth={8} showInfo={false} status="active" percent={ StorageInfo.consumption * 100 } />
+                    &nbsp;&nbsp;{ StorageInfo.consumption * StorageInfo.size } / { StorageInfo.size }M
                   </div>
                 </div>
                 <div style={{ clear:"both" }}></div>

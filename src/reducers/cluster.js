@@ -17,7 +17,7 @@ const option = {
   overwrite: true
 }
 
-export default function user(state = {
+export default function cluster(state = {
   clusters: [],
 }, action) {
   return {

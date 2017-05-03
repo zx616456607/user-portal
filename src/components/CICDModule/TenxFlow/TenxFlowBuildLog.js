@@ -171,6 +171,10 @@ let MyComponent = React.createClass({
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
+  componentWillMount(){
+    const { config, scope, flowId } = this.props;
+    this.collapseAction(config, ['LogDetail0'])
+  },
   collapseAction: function (config, e) {
     //this function for user open or close collapse panel action
     //and then the line collapse will be current change
@@ -251,7 +255,7 @@ let MyComponent = React.createClass({
     });
     return (
       <div className='rightBox'>
-        <Collapse className='logBox' onChange={this.collapseAction.bind(this, config)}>
+        <Collapse className='logBox' onChange={this.collapseAction.bind(this, config)} defaultActiveKey="LogDetail0">
           {items}
         </Collapse>
       </div>
@@ -344,7 +348,7 @@ class TenxFlowBuildLog extends Component {
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='paddingBox'>
-          <MyComponent config={logs} scope={scope} flowId={flowId} callback={this.props.callback}/>
+          <MyComponent config={logs} scope={scope} flowId={flowId} callback={this.props.callback} />
           <div style={{ clear: 'both' }}></div>
         </div>
       </div>

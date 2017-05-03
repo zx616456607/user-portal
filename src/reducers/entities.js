@@ -77,26 +77,6 @@ function sockets(state, action) {
   }
 }
 
-function license(state, action) {
-  switch (action.type) {
-    case ActionTypes.LICENSE_REQUEST:
-      return Object.assign({}, state, {
-        isFetching: true
-      })
-    case ActionTypes.LICENSE_SUCCESS:
-      return Object.assign({}, state, {
-        isFetching: false,
-        info: action.response.result
-      })
-    case ActionTypes.LICENSE_FAILURE:
-      return Object.assign({}, state, {
-        isFetching: false
-      })
-    default:
-      return state
-  }
-}
-
 // Updates an entity cache in response to any action with response.entities.
 export default function entities(state = {
   // isFetching: false,
@@ -109,7 +89,6 @@ export default function entities(state = {
     space: {},
     cluster: {},
   },
-  license: {},
   sockets: {},
 }, action) {
   /*if (action.response && action.response.entities) {
@@ -122,7 +101,6 @@ export default function entities(state = {
   return {
     current: current(state.current, action),
     loginUser: loginUser(state.loginUser, action),
-    license: license(state.license, action),
     sockets: sockets(state.sockets, action),
   }
 }

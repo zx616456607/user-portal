@@ -22,6 +22,7 @@ import { camelize } from 'humps'
 
 const InputGroup = Input.Group
 const CName_Default_Message = '提示：添加域名后，CNAME地址会出现在这里'
+let canAddDomain = true
 
 class BindDomain extends Component {
   constructor(props) {
@@ -121,27 +122,33 @@ class BindDomain extends Component {
    }
   }
   addDomain() {
+    if(!canAddDomain) return
+    canAddDomain = false
     const serviceName = this.props.serviceName
     const cluster = this.props.cluster
     const port = this.state.bindPort
     const domain = this.state.newValue
     let notification = new NotificationHandler()
     if(this.state.domainList.length >= 10) {
+      canAddDomain = true
       notification.error('最多绑定10个域名')
       return
     }
     if (!/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+.?/.test(domain)) {
+      canAddDomain = true
       notification.error('请填写正确的域名')
       return
     }
     if (/:[0-9]+/.test(domain)) {
       notification.error('请填写正确的域名')
+      canAddDomain = true
       return
     }
     let isExists = this.state.domainList.some(item => {
       let d = item.props.children[0].props.value
       if (d === domain) {
         notification.error('已经绑定过该域名')
+        canAddDomain = true
         return true
       }
       return false
@@ -158,6 +165,7 @@ class BindDomain extends Component {
             //this function for user add new domain name
             let newList = scope.state.domainList;
             let num = newList.length;
+            canAddDomain = true
             newList.push(
               <InputGroup className="newDomain">
                 <Input size="large" value={scope.state.newValue} disabled />
@@ -185,6 +193,7 @@ class BindDomain extends Component {
         failed: {
           func: (result) => {
             notification.close()
+            canAddDomain = true
             if(result.message.message === 'Internal error occurred: domain is already bound') {
               notification.error('此域名已被绑定')
               return

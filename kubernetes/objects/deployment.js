@@ -11,6 +11,7 @@
 
 const constants = require('../../constants')
 const TENX_LOCAL_TIME_VOLUME = constants.TENX_LOCAL_TIME_VOLUME
+const K8S_NODE_SELECTOR_KEY = constants.K8S_NODE_SELECTOR_KEY
 const DEFAULT_DISKTYPE = 'rbd'
 const Container = require('./container')
 const TENXCLOUD_PREFIX = 'tenxcloud.com/'
@@ -386,6 +387,12 @@ class Deployment {
       livenessProbe.periodSeconds = probe.periodSeconds
       container.livenessProbe = livenessProbe
     })
+  }
+
+  setNodeSelector(hostname) {
+    this.spec.template.spec.nodeSelector = {
+      [K8S_NODE_SELECTOR_KEY]: hostname
+    }
   }
 }
 

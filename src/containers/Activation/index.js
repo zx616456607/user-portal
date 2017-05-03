@@ -55,7 +55,7 @@ let Activation = React.createClass({
   },
   checkName(rule, value, callback) {
     if (!value) {
-      callback([new Error('请填写激活码')])
+      callback([new Error('请填写许可证')])
       return
     }
     callback()
@@ -126,7 +126,7 @@ let Activation = React.createClass({
                 >
                 <Input {...nameProps}
                   ref="intName"
-                  type="textarea" placeholder="请输入激活码：如XXX-XXX-XXX-XXXX"
+                  type="textarea" placeholder="请输入许可证（发送“ 平台ID + 姓名 + 电话 + 公司名 ” 到 support@tenxcloud.com 我们将主动与您联系）"
                   style={{ maxHeight: 180 , height:180}} />
               </FormItem>
 

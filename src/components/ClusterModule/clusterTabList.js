@@ -61,6 +61,9 @@ function getContainerNum(name, podList) {
 
 function cpuUsed(cpuTotal, cpuList, name) {
   //this function for compute cpu used
+  if (!cpuList) {
+    return `N/A`
+  }
   let total = 0;
   let used;
   let length;
@@ -75,13 +78,19 @@ function cpuUsed(cpuTotal, cpuList, name) {
     }
   }
   // 1h and to 100%
-  used = total / cpuTotal /length;
+  if (!length) {
+    length = 1
+  }
+  used = total / cpuTotal / length;
   used = ( used * 100 ).toFixed(2);
-  return used;
+  return `${used}%`;
 }
 
 function memoryUsed(memoryTotal, memoryList, name) {
   //this function for compute memory used
+  if (!memoryList) {
+    return `N/A`
+  }
   let total = 0;
   let used;
   let length;
@@ -97,8 +106,11 @@ function memoryUsed(memoryTotal, memoryList, name) {
   }
   used = total / memoryTotal;
   // 1h and to 100%
+  if (!length) {
+    length = 1
+  }
   used = (used * 100 / length).toFixed(2);
-  return used;
+  return `${used}%`;
 }
 
 const MyComponent = React.createClass({
@@ -111,12 +123,11 @@ const MyComponent = React.createClass({
     const { scope } = this.props;
     const { cluster, changeClusterNodeSchedule } = scope.props;
     let { nodeList } = scope.state;
+    let notification = new NotificationHandler()
     changeClusterNodeSchedule(cluster, node, e, {
       success: {
         func: ()=> {
-          notification['success']({
-            message: e ? '打开调度成功' : '暂停调度成功',
-          });
+          notification.info(e ? '开启调度中，该操作 1 分钟内生效' : '关闭调度中，该操作 1 分钟内生效');
           nodeList.map((item) => {
             if(item.objectMeta.name == node) {
               item.schedulable = e;
@@ -142,7 +153,7 @@ const MyComponent = React.createClass({
 
   },
   render: function () {
-    const { isFetching, podList, containerList, cpuList, memoryList } = this.props
+    const { isFetching, podList, containerList, cpuList, memoryList, license } = this.props
     const root = this
     if (isFetching) {
       return (
@@ -156,6 +167,7 @@ const MyComponent = React.createClass({
         <div style={{ lineHeight: '100px', height: '200px', paddingLeft: '30px' }}>您还没有主机，去创建一个吧！</div>
       )
     }
+    const maxNodes = license[camelize('max_nodes')]
     let items = podList.map((item, index) => {
       /*const dropdown = (
         <Menu onClick={this.ShowDeleteClusterNodeModal.bind(this, item.objectMeta.name)}
@@ -194,18 +206,24 @@ const MyComponent = React.createClass({
           </div>
           <div className='cpu commonTitle'>
             <span className='topSpan'>{item.cpuTotal / 1000}核</span>
-            <span className='bottomSpan'>{cpuUsed(item.cpuTotal, cpuList, item.objectMeta.name) + '%'}</span>
+            <span className='bottomSpan'>{cpuUsed(item.cpuTotal, cpuList, item.objectMeta.name)}</span>
           </div>
           <div className='memory commonTitle'>
             <span className='topSpan'>{diskFormat(item.memoryTotalKB)}</span>
-            <span className='bottomSpan'>{memoryUsed(item.memoryTotalKB, memoryList, item.objectMeta.name) + '%'}</span>
+            <span className='bottomSpan'>{memoryUsed(item.memoryTotalKB, memoryList, item.objectMeta.name)}</span>
           </div>
           {/*<div className='disk commonTitle'>
             <span className='topSpan'>{'-'}</span>
             <span className='bottomSpan'>{'-'}</span>
           </div>*/}
           <div className='schedule commonTitle'>
-            <Switch className='switchBox' defaultChecked={item.schedulable} checkedChildren='开' unCheckedChildren='关' onChange={this.changeSchedulable.bind(root, item.objectMeta.name)}/>
+            <Switch
+              className='switchBox'
+              defaultChecked={item.schedulable}
+              checkedChildren='开'
+              unCheckedChildren='关'
+              disabled={index >= maxNodes}
+              onChange={this.changeSchedulable.bind(root, item.objectMeta.name)}/>
             <span className='scheduleSpan'>
               {
                 item.schedulable
@@ -364,9 +382,7 @@ class clusterTabList extends Component {
             success: {
               func: (result) => {
                 let nodeList = result.data.clusters.nodes.nodes;
-                notification['success']({
-                  message: '主机节点删除成功',
-                });
+                notification.success('主机节点删除成功');
                 _this.setState({
                   nodeList: nodeList,
                   deleteNodeModal: false
@@ -398,6 +414,7 @@ class clusterTabList extends Component {
   openTerminalModal() {
     const { kubectlsPods } = this.props
     let { currentContainer } = this.state;
+    let notification = new NotificationHandler()
     if (currentContainer.length > 0) {
       this.setState({
         TerminalLayoutModal: true,
@@ -406,7 +423,6 @@ class clusterTabList extends Component {
     }
     const { namespace, pods } = kubectlsPods
     if (!pods || pods.length === 0) {
-      let notification = new NotificationHandler()
       notification.warn('没有可用终端节点，请联系管理员')
       return
     }
@@ -421,19 +437,6 @@ class clusterTabList extends Component {
       }],
       TerminalLayoutModal: true,
     })
-    if(!hadFlag) {
-      let body = {
-        metadata: {
-          namespace: 'kube-system',
-          name: 'temp'
-        }
-      }
-      currentContainer.push(body)
-    }
-    this.setState({
-      currentContainer: currentContainer,
-      TerminalLayoutModal: true
-    });
   }
 
   handleAddClusterNode() {
@@ -443,7 +446,7 @@ class clusterTabList extends Component {
   }
 
   render() {
-    const { intl, isFetching, nodes, cluster, memoryList, cpuList, kubectlsPods, addNodeCMD } = this.props;
+    const { intl, isFetching, nodes, cluster, memoryList, cpuList, license, kubectlsPods, addNodeCMD } = this.props;
     const { formatMessage } = intl;
     const { nodeList, podCount, deleteNode, copyAddNodeSuccess } = this.state;
     const rootscope = this.props.scope;
@@ -528,10 +531,10 @@ class clusterTabList extends Component {
                   <span>操作</span>
                 </div>
               </div>
-              <MyComponent podList={nodeList} containerList={podCount} isFetching={isFetching} scope={scope} memoryList={memoryList} cpuList={cpuList} />
+              <MyComponent podList={nodeList} containerList={podCount} isFetching={isFetching} scope={scope} memoryList={memoryList} cpuList={cpuList} license={license} />
             </div>
           </Card>
-          <Modal title='删除主机' className='deleteClusterNodeModal' visible={this.state.deleteNodeModal} onOk={this.deleteClusterNode} onCancel={this.closeDeleteModal}>
+          <Modal title='删除主机节点' className='deleteClusterNodeModal' visible={this.state.deleteNodeModal} onOk={this.deleteClusterNode} onCancel={this.closeDeleteModal}>
             <div style={{ color: '#00a0ea', height: "50px" }}>
               <Icon type='exclamation-circle-o' />
               &nbsp;&nbsp;&nbsp;确定要删除&nbsp;{deleteNode ? deleteNode.objectMeta.name : ''}&nbsp;主机节点？
@@ -571,7 +574,7 @@ class clusterTabList extends Component {
                   </Tooltip>
                   <input id="addNodeCMDInput" style={{ position: "absolute", opacity: "0", top:'0'}} value={addNodeCMD && addNodeCMD[camelize('default_command')]} />
                 </pre>
-                注意：新添加的主机需要与Master节点同一内网，可互通
+                注意：新添加的主机需要与 Master 节点同一内网，可互通
               </div>
             </div>
           </Modal>
@@ -594,12 +597,13 @@ function mapStateToProps(state, props) {
   const { getAllClusterNodes, kubectlsPods, addNodeCMD } = state.cluster_nodes
   const { isFetching } = getAllClusterNodes || pods
   const data = getAllClusterNodes.nodes || pods
-  const { cpuList, memoryList } = data
+  const { cpuList, memoryList, license } = data
   const nodes = data.clusters ? data.clusters.nodes : []
   return {
     nodes,
     cpuList,
     memoryList,
+    license,
     isFetching,
     cluster,
     kubectlsPods: (kubectlsPods ? kubectlsPods.result : {}) || {},

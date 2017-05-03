@@ -37,7 +37,8 @@ class Network extends Component {
       let values = []
       item.metrics.map((metric) => {
         timeData.push(metric.timestamp)
-        values.push((metric.value/1000000).toFixed(2))
+        // metric.value || floatValue  only one
+        values.push(Math.floor((metric.value || metric.floatValue) / 1000000 * 100) /100)
       })
       option.setXAxisData(timeData)
       option.addSeries(values, `${item.containerName} 上传`)
@@ -47,7 +48,8 @@ class Network extends Component {
       let values = []
       item.metrics.map((metric) => {
         timeData.push(metric.timestamp)
-        values.push((metric.value/1000000).toFixed(2))
+        // metric.value || metric.floatValue  only one
+        values.push(Math.floor((metric.value || metric.floatValue) / 1000000 * 100) /100)
       })
       option.setXAxisData(timeData)
       option.addSeries(values, `${item.containerName} 下载`)

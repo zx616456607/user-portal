@@ -76,10 +76,11 @@ exports.getRegistryApi = function (registryConfig) {
   return api.registries
 }
 
-exports.getSpi = function (loginUser) {
+exports.getSpi = function (loginUser, specifyConfig) {
+  let _config = specifyConfig || config.tenx_api
   const spiConfig = {
-    protocol: config.tenx_api.protocol,
-    host: config.tenx_api.host,
+    protocol: _config.protocol,
+    host: _config.host,
     api_prefix: 'spi',
     auth: loginUser
   }

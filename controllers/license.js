@@ -12,12 +12,6 @@
 const apiFactory = require('../services/api_factory')
 const indexService = require('../services')
 
-exports.getLicense = function* () {
-  const loginUser = this.session.loginUser
-  const result = yield indexService.getLicense(loginUser)
-  this.body = result
-}
-
 // license_status: VALID, NO_LICENSE, EXPIRED
 // left_license_days: xxxx
 // left_trial_days: xxx
@@ -53,14 +47,14 @@ exports.checkLicense = function* () {
     let end_time = Date.parse(end);
     let now = new Date();
     let date = end_time - now;
-    const days = Math.floor(date/(24*3600*1000));
+    const days = date/(24*3600*1000);
     if (days > 0) {
       license_status = 'VALID'
       left_license_days = days
     } else {
       license_status = 'EXPIRED'
     }
-  } 
+  }
 
   let left_trial_days = 0
   let trial_end_time = new Date()
@@ -83,7 +77,7 @@ exports.checkLicense = function* () {
   this.body = result
 }
 
-// get all licenses 
+// get all licenses
 // license info: license_uid, start, duration, end, add_time, add_user
 exports.getLicenses = function* () {
   const loginUser = this.session.loginUser

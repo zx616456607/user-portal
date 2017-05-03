@@ -76,7 +76,7 @@ class TeamDetail extends Component {
   }
   //移除成员
   handleRemoveMember () {
-    const { removeTeamusersStd ,teamID } = this.props
+    const { removeTeamusersStd ,teamID, loadTeamUserListStd } = this.props
     let notification = new NotificationHandler()
     notification.spin(`移除成员中...`)
     removeTeamusersStd(teamID, this.state.userName,{
@@ -84,6 +84,7 @@ class TeamDetail extends Component {
         func: (result) => {
           notification.close()
           loadTeamUserListStd(teamID, { sort: 'a,userName', size: 100, page: 1 })
+          this.setState({removeModal: false})
         },
         isAsync: true,
       },
@@ -91,6 +92,7 @@ class TeamDetail extends Component {
         func: (err) => {
           notification.close()
           notification.error(`移除成员失败`, err.message.message)
+          this.setState({removeModal: false})
         }
       }
     })

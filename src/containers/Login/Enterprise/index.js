@@ -17,7 +17,7 @@ import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
 import { loadMergedLicense } from '../../../actions/license'
 import { isAdminPasswordSet} from '../../../actions/admin'
 import { browserHistory } from 'react-router'
-import { genRandomString } from '../../../common/tools'
+import { genRandomString, clearSessionStorage } from '../../../common/tools'
 import Top from '../../../components/Top'
 
 const createForm = Form.create
@@ -227,6 +227,8 @@ let Login = React.createClass({
   },
 
   componentWillMount() {
+    // Clear sessionStorage when login
+    clearSessionStorage()
     const { resetFields } = this.props.form
     resetFields()
     const _this = this
@@ -245,10 +247,10 @@ let Login = React.createClass({
                   outdated = true //show error and not allow login
                 } else {
                   const { licenseStatus, leftTrialDays } = res.data
-                  if (licenseStatus == 'NO_LICENSE' && parseInt(leftTrialDays) < 0) {
+                  if (licenseStatus == 'NO_LICENSE' && Math.floor(leftTrialDays *10) /10 <= 0) {
                     outdated = true //show error and not allow login
                   }
-                  if (licenseStatus == 'VALID' && parseInt(res.data.leftLicenseDays) < 0) {
+                  if (licenseStatus == 'VALID' && Math.floor(res.data.leftLicenseDays *10) /10 <= 0) {
                     outdated = true //show error and not allow login
                   }
                 }
@@ -316,7 +318,7 @@ let Login = React.createClass({
         <Top/>
         <div className="login">
           {this.state.outdated ?
-            <div className="errorText">激活证书已过期，请重新<span className="goActive" onClick={()=> browserHistory.push("/activation")}> 输入激活码 </span>以使用平台</div>
+            <div className="errorText">许可证已过期，请重新<span className="goActive" onClick={()=> browserHistory.push("/activation")}> 输入许可证 </span>以使用平台</div>
           : null
           }
           <div className="loginContent">

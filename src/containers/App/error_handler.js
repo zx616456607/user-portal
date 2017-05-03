@@ -130,7 +130,7 @@ export default function handler(error, intl) {
       data.title = formatMessage(messages.error504, { resource })
       return data
     }
-    if (code > 500) {
+    if (code >= 500) {
       data.title = formatMessage(messages.error500, { resource })
       return data
     }

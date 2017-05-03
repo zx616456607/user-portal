@@ -38,7 +38,8 @@ class Memory extends Component {
       let values = []
       item.metrics.map((metric) => {
         timeData.push(metric.timestamp)
-        values.push(metric.value)
+        // metric.value || floatValue  only one
+        values.push(Math.floor((metric.value || metric.floatValue) * 10) /10)
       })
       option.setXAxisData(timeData)
       option.addSeries(values, item.containerName)

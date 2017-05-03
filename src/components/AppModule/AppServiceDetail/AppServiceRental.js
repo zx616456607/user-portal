@@ -8,7 +8,7 @@
  * @author Baiyu
  */
 import React, { Component, PropTypes } from 'react'
-import { Card, Icon } from 'antd'
+import { Card, Icon, Spin } from 'antd'
 import { connect } from 'react-redux'
 import { calcuDate, parseAmount} from '../../../common/tools.js'
 import './style/AppServiceDetailInfo.less'
@@ -66,7 +66,14 @@ class AppServiceRental extends Component {
     return price
   }
   render() {
-    const { serviceDetail } = this.props
+    const { serviceDetail, resourcePrice } = this.props
+    if (!resourcePrice) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     if (!serviceDetail[0] || !serviceDetail[0].spec){
       return(
         <div className='loadingBox' style={{clear:'both',background:'white'}}>
@@ -84,7 +91,7 @@ class AppServiceRental extends Component {
             <td>{list.metadata.name}</td>
             <td>{this.formetCpuMemory(list.spec.template.spec.containers[0].resources.requests.memory)}</td>
             <td>{list.spec.replicas}</td>
-            <td>{this.formetPrice(list.spec.template.spec.containers[0].resources.requests.memory) /10000 } {countPrice.unit == '￥' ? '元': 'T'}/小时</td>
+            <td>{this.formetPrice(list.spec.template.spec.containers[0].resources.requests.memory) /10000 } {countPrice.unit == '￥' ? '元': ' T'}/小时</td>
           </tr>
         )
     })
@@ -102,7 +109,7 @@ class AppServiceRental extends Component {
           <div className="dataBox">
             <div className="priceCount">合计价格：
               <span className="unit">{ countPrice.unit == '￥' ? '￥': '' }</span>
-              <span className="unit blod">{ hourPrice } { countPrice.unit == '￥' ? '': 'T' }/小时</span>
+              <span className="unit blod">{ hourPrice } { countPrice.unit == '￥' ? '': ' T' }/小时</span>
               <span className="unit" style={{marginLeft:'10px'}}>（约：{ countPrice.fullAmount }/月）</span>
             </div>
             <table className="table">

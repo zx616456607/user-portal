@@ -8,6 +8,7 @@
  * eg.
  * ```
  * window.TENX_PORTAL_VERSION = '2.0'
+ * window.TENX_PORTAL_VERSION_MAJOR = 'lite'
  * ```
  * v0.1 - 2017-02-06
  * @author Zhangpc
