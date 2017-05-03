@@ -996,6 +996,18 @@ export default function cicd_flow(state = {}, action) {
       SUCCESS: ActionTypes.DELETE_BASE_IMAGE_SUCCESS,
       FAILURE: ActionTypes.DELETE_BASE_IMAGE_FAILURE
     }, state.deleteBaseImage, action),
+    getDeploymentOrAppCDRule: reducerFactory({
+      REQUEST: ActionTypes.GET_DEPLOYMENT_CDRULE_REQUEST,
+      SUCCESS: ActionTypes.GET_DEPLOYMENT_CDRULE_SUCCESS,
+      FAILURE: ActionTypes.GET_DEPLOYMENT_CDRULE_FAILURE
+    }, state.getDeploymentOrAppCDRule, action, {
+      overwrite: true
+    }),
+    deleteDeploymentOrAppCDRule: reducerFactory({
+      REQUEST: ActionTypes.DELETE_DEPLOYMENT_CDRULE_REQUEST,
+      SUCCESS: ActionTypes.DELETE_DEPLOYMENT_CDRULE_SUCCESS,
+      FAILURE: ActionTypes.DELETE_DEPLOYMENT_CDRULE_FAILURE
+    }, state.deleteDeploymentOrAppCDRule, action)
   }
 }
 

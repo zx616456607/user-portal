@@ -1443,3 +1443,47 @@ export function deleteBaseImage(id, callback) {
   }
 }
 
+export const GET_DEPLOYMENT_CDRULE_REQUEST = 'GET_DEPLOYMENT_CDRULE_REQUEST'
+export const GET_DEPLOYMENT_CDRULE_SUCCESS = 'GET_DEPLOYMENT_CDRULE_SUCCESS'
+export const GET_DEPLOYMENT_CDRULE_FAILURE = 'GET_DEPLOYMENT_CDRULE_FAILURE'
+function fetchDeploymentOrAppCDRule(cluster, type, name, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_DEPLOYMENT_CDRULE_REQUEST, GET_DEPLOYMENT_CDRULE_SUCCESS, GET_DEPLOYMENT_CDRULE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/cd-rule/cluster/${cluster}/type/${type}?name=${name}`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getDeploymentOrAppCDRule(cluster, type, name, callback) {
+  console.log('1111111')
+  return (dispatch, getState) => {
+    return dispatch(fetchDeploymentOrAppCDRule(cluster, type, name,callback))
+  }
+}
+
+export const DELETE_DEPOLYMENT_CDRULE_REQUEST = 'DELETE_DEPOLYMENT_CDRULE_REQUEST'
+export const DELETE_DEPOLYMENT_CDRULE_SUCCESS = 'DELETE_DEPOLYMENT_CDRULE_SUCCESS'
+export const DELETE_DEPOLYMENT_CDRULE_FAILURE = 'DELETE_DEPOLYMENT_CDRULE_FAILURE'
+function fetchDeleteDeploymentOrAppCDRule(cluster, type, name, callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_DEPOLYMENT_CDRULE_REQUEST, DELETE_DEPOLYMENT_CDRULE_SUCCESS, DELETE_DEPOLYMENT_CDRULE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/cd-rule/cluster/${cluster}/type/${type}?name=${name}`,
+      schema: {},
+      options: {
+          method: 'DELETE'
+      }
+    },
+    callback
+  }
+}
+
+export function deleteDeploymentOrAppCDRule(cluster, type, name, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteDeploymentOrAppCDRule(cluster, type, name,callback))
+  }
+}
+

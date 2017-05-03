@@ -79,6 +79,10 @@ exports.deleteServices = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.batchDeleteBy([cluster, 'services', 'batch-delete'], null, { services })
+  const devOpsApi = apiFactory.getDevOpsApi(loginUser)
+  const deleteCDRuleResult = yield devOpsApi.deleteBy(['cd-rule', 'cluster', cluster], {
+    name: services.join(',')
+  })
   this.body = {
     cluster,
     data: result
