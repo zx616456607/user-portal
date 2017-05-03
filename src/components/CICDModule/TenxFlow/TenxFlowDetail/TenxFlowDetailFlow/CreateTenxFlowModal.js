@@ -672,6 +672,7 @@ let CreateTenxFlowModal = React.createClass({
         });
       }
       if (errorFlag) {
+        new NotificationHandler().error('环境变量值输入有误')
         return;
       }
       //get shell code
