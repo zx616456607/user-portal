@@ -346,6 +346,7 @@ class AppServiceDetail extends Component {
               </TabPane>
               <TabPane tab='基础信息' key='#basic'>
                 <AppServiceDetailInfo
+                  cluster={service.cluster}
                   serviceDetail={serviceDetail}
                   loading={isServiceDetailFetching} />
               </TabPane>

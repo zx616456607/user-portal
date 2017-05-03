@@ -79,7 +79,10 @@ let NoClusterStepOne = React.createClass({
       })
       const notification = new NotificationHandler()
       notification.spin('保存镜像服务配置中')
-      const { updateGlobalConfig, isValidConfig, saveGlobalConfig, goNoClusterStep, loadGlobalConfig } = this.props
+      const {
+        updateGlobalConfig, isValidConfig, saveGlobalConfig,
+        goNoClusterStep, loadGlobalConfig, getAddClusterCMD,
+      } = this.props
       const { mirror, approve, extend, registryID } = values
       const self = this
       const body = {
@@ -106,6 +109,7 @@ let NoClusterStepOne = React.createClass({
             const callback = {
               success: {
                 func: (result) => {
+                  getAddClusterCMD()
                   notification.close()
                   notification.success('镜像服务配置保存成功')
                   self.setState({
@@ -498,7 +502,7 @@ let CreateClusterModal = React.createClass({
     const {
       noCluster, parentScope, updateGlobalConfig,
       isValidConfig, saveGlobalConfig, globalConfig,
-      loadGlobalConfig,
+      loadGlobalConfig, getAddClusterCMD,
     } = this.props
     const { noClusterStep } = this.state
     return (
@@ -523,6 +527,7 @@ let CreateClusterModal = React.createClass({
             updateGlobalConfig={updateGlobalConfig}
             isValidConfig={isValidConfig}
             saveGlobalConfig={saveGlobalConfig}
+            getAddClusterCMD={getAddClusterCMD}
             goNoClusterStep={this.goNoClusterStep} />
         )
       }
@@ -608,11 +613,6 @@ class ClusterList extends Component {
         )
       }
     })
-     /*clusters.map(cluster => (
-      <TabPane tab={cluster.clusterName} key={cluster.clusterID}>
-        <ClusterTabList cluster={cluster} />
-      </TabPane>
-    ))*/
     const clusterSum = clusters.length
     let createClusterBtnDisabled = true
     const maxClusters = license[camelize('max_clusters')]
@@ -644,6 +644,7 @@ class ClusterList extends Component {
                 onChange={this.onTabChange}
                 key='ClusterTabs'
                 defaultActiveKey={currentClusterID}
+                type="card"
                 tabBarExtraContent={
                   <Tooltip
                     title={`当前许可证最多支持 ${maxClusters || '-'} 个 集群（目前已添加 ${clusterSum} 个）`}

@@ -788,3 +788,28 @@ export function updateServicePort(clusterId, service, portInfo, callback) {
     return dispath(fetchUpdateServicePort(clusterId, service, portInfo, callback))
   }
 }
+
+export const EDIT_SERVICE_ENV_REQUEST = 'EDIT_SERVICE_ENV_REQUEST'
+export const EDIT_SERVICE_ENV_SUCCESS = 'EDIT_SERVICE_ENV_SUCCESS'
+export const EDIT_SERVICE_ENV_FAILED = 'EDIT_SERVICE_ENV_FAILURE'
+
+function fetchEditServiceEnv(body, callback){
+  return {
+    [FETCH_API]: {
+      types: [EDIT_SERVICE_ENV_REQUEST, EDIT_SERVICE_ENV_SUCCESS, EDIT_SERVICE_ENV_FAILED],
+      endpoint: `${API_URL_PREFIX}/clusters/${body.clusterId}/services/${body.service}/env`,
+      options: {
+        method: 'PUT',
+        body: body.arr
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function editServiceEnv(body, callback){
+  return (dispath, getState) => {
+    return dispath(fetchEditServiceEnv(body, callback))
+  }
+}

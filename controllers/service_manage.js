@@ -164,7 +164,7 @@ exports.updateServiceContainers = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
   const body = this.request.body
-  if (!body || !body.length) {
+  if (!body || !Array.isArray(body)) {
     const err = new Error('Body are required.')
     err.status = 400
     throw err
