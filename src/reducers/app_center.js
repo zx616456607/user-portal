@@ -201,7 +201,7 @@ function otherImages(state = {}, action) {
     case ActionTypes.DELETE_OTHER_IMAGE_REQUEST:
       return merge({}, state, {
         isFetching: true
-      })
+    })
     case ActionTypes.DELETE_OTHER_IMAGE_SUCCESS:
       const oldState = cloneDeep(state)
       const Id = action.id
@@ -211,6 +211,7 @@ function otherImages(state = {}, action) {
           imageList.splice(i, 1)
         }
       }
+      oldState.isFetching = false
       return oldState
     case ActionTypes.DELETE_OTHER_IMAGE_FAILURE:
       return merge({}, state, {
@@ -237,34 +238,6 @@ function otherImages(state = {}, action) {
   }
 }
 
-function deleteOtherImage(state = {}, action) {
-  switch (action.type) {
-    case ActionTypes.DELETE_OTHER_IMAGE_REQUEST:
-      return merge({}, state, {
-        isFetching: true
-      })
-    case ActionTypes.DELETE_OTHER_IMAGE_SUCCESS:
-      // return merge({}, state, {
-      //     isFetching: false,
-      //     imageList: action.response.result.data
-      // })
-      const oldState = cloneDeep(state)
-      const Id = action.Id
-      const imageList = action.imageList
-      for (let i = 0; i < imageList.length; i++) {
-        if (imageList[i].id == Id) {
-          imageList.splice(i, 1)
-        }
-      }
-      return oldState
-    case ActionTypes.DELETE_OTHER_IMAGE_FAILURE:
-      return merge({}, state, {
-        isFetching: false
-      })
-    default:
-      return state
-  }
-}
 
 function getAppCenterBindUser(state = {}, action) {
   switch (action.type) {
