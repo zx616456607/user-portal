@@ -140,7 +140,7 @@ let ImageEnvComponent = React.createClass({
           <div className='commonTitle'>
             <span>变量名</span>
           </div>
-          <div className='equalTitle'>            
+          <div className='equalTitle'>
           </div>
           <div className='commonTitle'>
             <span>变量值</span>
@@ -149,10 +149,10 @@ let ImageEnvComponent = React.createClass({
         </div>
         {ImageEnvInputItems}
         <div className='addBtnBox'>
-          <div className='addBtn' onClick={this.addImageEnv}>
+          <span className='addBtn' onClick={this.addImageEnv}>
             <Icon type='plus-circle-o' />
             <span>增加环境变量</span>
-          </div>
+          </span>
         </div>
       </div>
     )
