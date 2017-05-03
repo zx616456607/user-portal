@@ -170,7 +170,7 @@ class License extends Component {
   lincenseList(data){
     if(!data || data.length == 0){
       return (<tr>
-        <td colSpan="7" className="text-center"><Icon type="frown"/>&nbsp;暂无数据</td>
+        <td colSpan="8" className="text-center"><Icon type="frown"/>&nbsp;暂无数据</td>
       </tr>)
     }
     const listRow = data.map((list, index) =>{
