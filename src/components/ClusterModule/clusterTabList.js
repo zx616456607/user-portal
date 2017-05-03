@@ -558,7 +558,7 @@ class ClusterTabList extends Component {
                 isFetching={isFetching}
 
                 clusterID={clusterID}
-
+                trueprops={true}
                 cpuMetric={cpuMetric}
                 memoryMetric={memoryMetric}
                 license={license}
