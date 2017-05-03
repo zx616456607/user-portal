@@ -252,12 +252,12 @@ let NetworkConfiguration = React.createClass ({
               })
             } style={{width:'100%',margin:'0px 10px'}}  placeholder="输入服务出口 IP" />
             :
-              <span className="h5" style={{width:'100%',display:'inline-block',marginLeft:'-10px'}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''}</span>
+              <span className="h5" style={{display:'inline-block',marginLeft:'-10px'}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''}</span>
             }
         </Form.Item>
         
         {
-          editCluster ?  <Icon style={{marginTop:'10px',flex:'1'}} type="delete" onClick={() => this.handDelete(item)}/> : <span></span>
+          editCluster ?  <p className="delete-p"><Icon style={{paddingTop:'5px',paddingLeft:'5px',cursor:'pointer'}}  type="delete" onClick={() => this.handDelete(item)}/></p> : <span></span>
         }
 
       </div>
