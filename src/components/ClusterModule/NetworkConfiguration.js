@@ -67,7 +67,7 @@ let NetworkConfiguration = React.createClass ({
     }
     if(nodeList[clusterID].isFetching) {
       return <Card id="Network" className="ClusterInfo">
-        <div className="h3">网路配置</div>
+        <div className="h3">网络配置</div>
         <div className="loadingBox" style={{height:'100px'}}><Spin size="large"></Spin></div>
       </Card>
     }
@@ -291,7 +291,7 @@ let NetworkConfiguration = React.createClass ({
     const { getFieldProps } = form
     if(clusterProxy.isEmptyObject || !clusterProxy.result) {
       return  <Card id="Network" className="ClusterInfo">
-        <div className="h3">网路配置</div>
+        <div className="h3">网络配置</div>
         <div className="loadingBox" style={{height:'100px'}}><Spin size="large"></Spin></div>
       </Card>
     }
@@ -335,7 +335,7 @@ let NetworkConfiguration = React.createClass ({
     });
     return (
       <Card id="Network" className="ClusterInfo">
-        <div className="h3">网路配置
+        <div className="h3">网络配置
           {!editCluster?
            <Button type="ghost" style={{float:'right',marginTop:'6px'}} onClick={()=> this.setState({editCluster: true, saveBtnDisabled: false})}>
               编辑配置
