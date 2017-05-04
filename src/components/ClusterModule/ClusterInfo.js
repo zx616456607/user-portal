@@ -336,7 +336,7 @@ let ClusterInfo = React.createClass ({
       </Menu>
     );
     return (
-      <Card className="ClusterInfo">
+      <Card className="ClusterInfo" style={{textAlign:'left'}}>
         <div className="h3">集群信息
           { !editCluster ?
           <Dropdown.Button overlay={dropdown} type="ghost" style={{float:'right',marginTop:'6px'}} onClick={()=> this.setState({editCluster: true,selectedBuilderEnvironment:isBuilder})}>

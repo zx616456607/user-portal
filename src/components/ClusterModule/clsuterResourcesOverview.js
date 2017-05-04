@@ -21,8 +21,10 @@ class ClusterResourcesOverview extends Component{
   }
 
   render(){
+    const { cluster } = this.props
+    console.log('this.props=',this.props)
     return <div id="cluster__resourcesoverview">
-      资源总览
+      <ClusterInfo cluster={cluster}/>
     </div>
   }
 }

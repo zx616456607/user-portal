@@ -545,7 +545,7 @@ class ClusterTabList extends Component {
           <Tabs>
             <TabPane tab={<div className='tablepanediv'><i className="fa fa-tachometer" aria-hidden="true"></i><span className='tablepanespan'>资源总览</span></div>} key="1">
               <ClusterResourcesOverview
-
+                cluster={cluster}
 
 
               />
