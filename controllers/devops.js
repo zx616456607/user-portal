@@ -923,7 +923,7 @@ exports.deleteBaseImage = function* () {
 }
 
 exports.getDeploymentCDRule = function* () {
-  const cluster = this.params.cluster
+  const cluster = this.query.cluster
   const type = this.params.type
   let name = this.query.name
   if(!cluster || !name || !type) {
@@ -963,7 +963,8 @@ exports.getDeploymentCDRule = function* () {
     }
   }
   const api =  apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.getBy(['cd-rule', 'cluster', cluster], {
+  const result = yield api.getBy(['cd-rule'], {
+    cluster,
     name: name.join ? name.join(',') : name
   })
   const body = []
@@ -984,7 +985,7 @@ exports.getDeploymentCDRule = function* () {
 }
 
 exports.deleteDeploymentCDRule = function* () {
-  const cluster = this.params.cluster
+  const cluster = this.query.cluster
   const type = this.params.type
   const name = this.query.name
   if(!cluster || !name || !type) {
@@ -1000,7 +1001,8 @@ exports.deleteDeploymentCDRule = function* () {
     })
   }
   const api =  apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.deleteBy(['cd-rule', 'cluster', cluster], {
+  const result = yield api.deleteBy(['cd-rule'], {
+    cluster,
     name
   })
   this.body = result
