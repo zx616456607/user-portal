@@ -2,8 +2,10 @@
  * Created by zhangchengzheng on 2017/5/2.
  */
 import React, { Component, propTypes } from 'react'
-import { Card, Button, Tooltip, Icon, Input, Select, Spin, Menu, Dropdown } from 'antd'
+import { Card, Button, Tooltip, Icon, Input, Select, Spin, Menu, Dropdown, Tag, Modal } from 'antd'
 import './style/hostList.less'
+
+const SubMenu = Menu.SubMenu;
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -173,14 +175,78 @@ const MyComponent = React.createClass({
 class hostList extends Component{
   constructor(props){
     super(props)
-
+    this.handlelabelvalue = this.handlelabelvalue.bind(this)
+    this.formMenudata = this.formMenudata.bind(this)
     this.state = {
+      createLabelModal : false,
+      manageLabelModal : true,
 
     }
   }
 
+  formMenudata(){
+    return  <Menu onClick={this.handlelabelvalue} className='selectMenu' >
+      <Menu.Item className='selectMenutitle'>
+        <div>标签键</div>
+      </Menu.Item>
+      <Menu.Divider />
+      <SubMenu title="key(系统)">
+        <Menu.Item className='selectMenutitle'>
+          <div>标签值</div>
+        </Menu.Item>
+        <Menu.Item className='selectMenuSecond'>
+          <Tooltip title="vlaue2017123123131312">
+            <div className='name'>vlaue2017123123131312</div>
+          </Tooltip>
+          <div className='num'>(<span>10</span>)</div>
+          <div className='select'><Icon type="check-circle-o" /></div>
+        </Menu.Item>
+        <Menu.Item className='selectMenuSecond'>
+          <Tooltip title="vlaue2016">
+            <div className='name'>vlaue2016</div>
+          </Tooltip>
+          <div className='num'>(<span>8</span>)</div>
+          <div className='select'><Icon type="check-circle-o" /></div>
+        </Menu.Item>
+      </SubMenu>
+      <SubMenu title="key1">
+        <Menu.Item className='selectMenutitle'>
+          <div>标签值</div>
+        </Menu.Item>
+        <Menu.Item className='selectMenuSecond'>
+          <Tooltip title="vlaue2018">
+            <div className='name'>vlaue2018</div>
+          </Tooltip>
+          <div className='num'>(<span>8</span>)</div>
+          <div className='select'><Icon type="check-circle-o" /></div>
+        </Menu.Item>
+        <Menu.Item className='selectMenuSecond'>
+          <Tooltip title="vlaue2019">
+            <div className='name'>vlaue2019</div>
+          </Tooltip>
+          <div className='num'>(<span>8</span>)</div>
+          <div className='select'><Icon type="check-circle-o"/></div>
+        </Menu.Item>
+      </SubMenu>
+      <Menu.Divider />
+      <Menu.Item>
+        <Icon type="plus" style={{marginRight:6}}/>
+        创建标签
+      </Menu.Item>
+      <Menu.Item>
+        <Icon type="setting" style={{marginRight:6}}/>
+        标签管理
+      </Menu.Item>
+    </Menu>
+  }
+
+  handlelabelvalue(item, key, keyPath){
+    console.log('item=',item)
+    console.log('key=',key)
+    console.log('keyPath=',keyPath)
+  }
+
   render(){
-    console.log('hostlist.props=',this.props)
     return <div id="cluster__hostlist">
       <Card className='ClusterListCard'>
         <div className='operaBox'>
@@ -205,6 +271,23 @@ class hostList extends Component{
           <span className='searchBox'>
             <Input className='searchInput' onChange={(e)=> this.setState({nodeName: e.target.value})} size='large' placeholder='搜索' type='text' onPressEnter={this.searchNodes} />
             <Icon type="search" className="fa"  onClick={this.searchNodes}/>
+          </span>
+          <span className='selectlabel' id="cluster__hostlist__selectlabel">
+            <Dropdown overlay={this.formMenudata()} getPopupContainer={() => document.getElementById('cluster__hostlist__selectlabel')}>
+              <Button type="ghost" style={{ marginLeft: 8 }} size="large">
+                <i className="fa fa-tag selectlabeltag" aria-hidden="true"></i>
+                标签
+                <Icon type="down" />
+              </Button>
+            </Dropdown>
+          </span>
+          <span className='selectedroom'>
+            <span className='selectedroomdiv'>
+              <Tag closable color="blue">蓝色</Tag>
+              <Tag closable color="green">绿色</Tag>
+              <Tag closable color="yellow"><a href="https://github.com/ant-design/ant-design/issues/1862">黄色</a></Tag>
+              <Tag closable color="red">红色</Tag>
+            </span>
           </span>
         </div>
         <div className='dataBox'>
@@ -248,6 +331,27 @@ class hostList extends Component{
           </div>
         </div>
       </Card>
+
+      <Modal
+        title="创建标签"
+        visible={this.state.createLabelModal}
+      >
+
+      </Modal>
+
+      <Modal
+        title="管理标签"
+        visible={this.state.manageLabelModal}
+
+      >
+        <Dropdown overlay={this.formMenudata()}>
+          <Button type="ghost" style={{ marginLeft: 8 }} size="large">
+            选择已有节点
+            <Icon type="down" />
+          </Button>
+        </Dropdown>
+
+      </Modal>
     </div>
   }
 }
@@ -256,3 +360,35 @@ class hostList extends Component{
 export default hostList
 
 //<MyComponent podList={nodeList} containerList={podCount} isFetching={isFetching} scope={scope} memoryMetric={memoryMetric} cpuMetric={cpuMetric} license={license} />
+//
+//<span className='selectlabel'>
+//  <i className="fa fa-tag selectlabeltag" aria-hidden="true"></i>
+//  标签
+//  <Icon type="down" className='selectlabelsort'/>
+//  <div className='selectlabelkey'>
+//  <div className='keytitle'>标签键</div>
+//  <div className='keybody'>
+//  <div className='keyheight'>key(系统) <Icon type="right" className='keybodyicon'/></div>
+//  <div className='keyheight'>key1 <Icon type="right" className='keybodyicon'/></div>
+//  </div>
+//  <div className='keyfoot'>
+//  <div className='keyheight'><Icon type="plus" className='iconmargin'/>创建标签</div>
+//  <div className='keyheight'><Icon type="setting" className='iconmargin'/>管理标签</div>
+//  </div>
+//  </div>
+//  <div className='selectlabelvalue'>
+//  <div className='valuetitle'>标签值</div>
+//  <div className='valuebody'>
+//  <div className='keyheight'>
+//  <span className='name'>vlaue2017</span>
+//  <span className='num'>(<span>10</span>)</span>
+//  <span className='select'><Icon type="check-circle-o" /></span>
+//  </div>
+//  <div className='keyheight'>
+//  <span className='name'>vlaue2017</span>
+//  <span className='num'>(<span>8</span>)</span>
+//  <span className='select'><Icon type="check-circle-o" /></span>
+//  </div>
+//  </div>
+//  </div>
+//  </span>
