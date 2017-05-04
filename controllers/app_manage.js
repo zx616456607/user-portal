@@ -134,7 +134,7 @@ exports.deleteApps = function* () {
     })
     const devOpsApi = apiFactory.getDevOpsApi(loginUser)
     if(deleteCDRuleServiceName.length > 0) {
-      yield devOpsApi.deleteBy(['cd-rule'], {
+      yield devOpsApi.deleteBy(['cd-rules'], {
         cluster,
         name: deleteCDRuleServiceName.join(',')
       })

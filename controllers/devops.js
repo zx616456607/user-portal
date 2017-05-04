@@ -963,7 +963,7 @@ exports.getDeploymentOrAppCDRule = function* () {
     }
   }
   const api =  apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.getBy(['cd-rule'], {
+  const result = yield api.getBy(['cd-rules'], {
     cluster,
     name: name.join ? name.join(',') : name
   })
@@ -1001,7 +1001,7 @@ exports.deleteDeploymentOrAppCDRule = function* () {
     })
   }
   const api =  apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.deleteBy(['cd-rule'], {
+  const result = yield api.deleteBy(['cd-rules'], {
     cluster,
     name
   })

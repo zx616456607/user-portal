@@ -1450,7 +1450,7 @@ function fetchDeploymentOrAppCDRule(cluster, type, name, callback) {
   return {
     [FETCH_API]: {
       types: [GET_DEPLOYMENT_CDRULE_REQUEST, GET_DEPLOYMENT_CDRULE_SUCCESS, GET_DEPLOYMENT_CDRULE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/cd-rule/type/${type}?name=${name}&cluster=${cluster}`,
+      endpoint: `${API_URL_PREFIX}/devops/cd-rules/type/${type}?name=${name}&cluster=${cluster}`,
       schema: {},
     },
     callback
@@ -1470,7 +1470,7 @@ function fetchDeleteDeploymentOrAppCDRule(cluster, type, name, callback) {
   return {
     [FETCH_API]: {
       types: [DELETE_DEPOLYMENT_CDRULE_REQUEST, DELETE_DEPOLYMENT_CDRULE_SUCCESS, DELETE_DEPOLYMENT_CDRULE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/cd-rule/type/${type}?name=${name}&cluster=${cluster}`,
+      endpoint: `${API_URL_PREFIX}/devops/cd-rules/type/${type}?name=${name}&cluster=${cluster}`,
       schema: {},
       options: {
           method: 'DELETE'
