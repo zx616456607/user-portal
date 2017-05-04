@@ -9,6 +9,8 @@
  */
 import React, { Component } from 'react'
 import './style/clusterResourcesOverview.less'
+import ClusterInfo from './ClusterInfo'
+import NetworkConfiguration from './NetworkConfiguration'
 
 class ClusterResourcesOverview extends Component{
   constructor(props){

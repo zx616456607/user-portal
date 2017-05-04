@@ -922,7 +922,7 @@ exports.deleteBaseImage = function* () {
   }
 }
 
-exports.getDeploymentCDRule = function* () {
+exports.getDeploymentOrAppCDRule = function* () {
   const cluster = this.query.cluster
   const type = this.params.type
   let name = this.query.name
@@ -984,7 +984,7 @@ exports.getDeploymentCDRule = function* () {
   this.body = result
 }
 
-exports.deleteDeploymentCDRule = function* () {
+exports.deleteDeploymentOrAppCDRule = function* () {
   const cluster = this.query.cluster
   const type = this.params.type
   const name = this.query.name
