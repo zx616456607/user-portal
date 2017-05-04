@@ -297,12 +297,18 @@ let NetworkConfiguration = React.createClass ({
     }
     let proxy = clusterProxy.result[camelize(cluster.clusterID)]
     if(!proxy) {
-      return <div>暂无代理</div>
+      return  <Card id="Network" className="ClusterInfo">
+        <div className="h3">网络配置</div>
+        <div className="loadingBox" style={{height:'100px'}}>暂无代理</div>
+      </Card>
     }
     proxy = proxy.data
     let arr = form.getFieldValue('arr');
     if(!arr) {
-      return <div>暂无代理</div>
+      return  <Card id="Network" className="ClusterInfo">
+        <div className="h3">网络配置</div>
+        <div className="loadingBox" style={{height:'100px'}}>暂无代理</div>
+      </Card>
     }
     bindingDomains = proxy.bindingDomains
     bindingIPs = proxy.bindingIPs
