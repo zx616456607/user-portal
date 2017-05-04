@@ -20,6 +20,7 @@ export default class StateBtnModal extends Component{
   }
   getDeleteMessage() {
     const { state, appList, cdRule } = this.props
+    if(state != 'Delete') return ''
     let rule = []
     const appRule = {}
     if(appList) {
@@ -52,7 +53,7 @@ export default class StateBtnModal extends Component{
     let rule = []
     const appRule = {}
     if(state == 'Delete') {
-      if(!cdRule || cdRule.isFetching) {
+      if(cdRule.isFetching) {
         return <div className="loadingBox"><Spin size="large"></Spin></div>
       }
     }
