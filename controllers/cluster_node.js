@@ -224,6 +224,73 @@ exports.updateNodeLabels = function* () {
   const node = this.params.node
   const labels = this.request.body
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.patchBy([cluster, 'nodes', node, 'labels'], {}, labels)
+  const result = yield api.updateBy([cluster, 'nodes', node, 'labels'], {}, labels)
   this.body = result ? result.data : {}
+}
+
+exports.getLabelSummary = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const api = apiFactory.getApi(loginUser)
+  const userDefinedLabels = yield getUserDefinedLabels(api.labels)
+  const clusterNodeNames = yield getClusterNodeNames(api.clusters, cluster)
+  const labelsOfNodes = yield clusterNodeNames.map(nodeName => getLabelsOfNode(api.clusters, cluster, nodeName))
+  let result = new Map(userDefinedLabels)
+  for (const node of labelsOfNodes) {
+    for (const [key, value] of Object.entries(node.labels)) {
+      const dk = distinctKey(key, value)
+      if (!result.has(dk)) {
+        result.set(dk, aLabel(key, value))
+      }
+      result.get(dk).targets.add(node.name)
+    }
+  }
+  this.body = Array.from(result.values())
+}
+
+function getUserDefinedLabels(api) {
+  return api.getBy(['/'], {target: 'node'}).then(result => {
+    const labels = result ? result.data : {}
+    let lookupByID = new Map()
+    for (const label of labels) {
+      lookupByID.set(distinctKey(label.key, label.value), {
+        id: label.id,
+        key: label.key,
+        value: label.value,
+        createAt: label.createAt,
+        isUserDefined: true,
+        targets: new Set()
+      })
+    }
+    return lookupByID
+  })
+}
+
+function getClusterNodeNames(api, clusterID) {
+  return api.getBy([clusterID, 'nodes']).then(result => {
+    return result ? result.data.nodes.nodes.map(node => node.objectMeta.name) : []
+  })
+}
+
+function getLabelsOfNode(api, clusterID, nodeName) {
+  return api.getBy([clusterID, 'nodes', nodeName, 'labels']).then(result => {
+    const labels = result ? result.data : {}
+    return {
+      name: nodeName,
+      labels: labels
+    }
+  })
+}
+
+function distinctKey(key, value) {
+  return key + value
+}
+
+function aLabel(key, value) {
+  return {
+    key: key,
+    value: value,
+    isUserDefined: false,
+    targets: new Set()
+  }
 }
