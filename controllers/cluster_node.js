@@ -167,7 +167,7 @@ exports.getClustersMetrics = function* () {
   reqArray.push(api.getBy([cluster,'nodes',node,'metrics'], cpuq))
   // metrics memory
   reqArray.push(api.getBy([cluster,'nodes',node,'metrics'],memoryq))
- // metrics network/rx_rate
+  // metrics network/rx_rate
   reqArray.push(api.getBy([cluster,'nodes',node,'metrics'],re_rateq))
   // metrics network/tx_rate
   reqArray.push(api.getBy([cluster,'nodes',node,'metrics'],te_rateq))
@@ -189,7 +189,7 @@ exports.getClustersInstant = function* () {
   const type = this.params.type
   const api = apiFactory.getK8sApi(loginUser)
   const reqArray = []
-   let cpu = {
+  let cpu = {
     targetType: 'node',
     type: 'cpu/usage_rate',
     source: 'prometheus'
@@ -236,33 +236,39 @@ exports.getLabelSummary = function* () {
   const clusterNodeNames = yield getClusterNodeNames(api.clusters, cluster)
   const labelsOfNodes = yield clusterNodeNames.map(nodeName => getLabelsOfNode(api.clusters, cluster, nodeName))
   let result = new Map(userDefinedLabels)
-  for (const node of labelsOfNodes) {
-    for (const [key, value] of Object.entries(node.labels)) {
+  let nodes = new Set()
+  labelsOfNodes.forEach(node => {
+    nodes.add(node.name)
+    Object.getOwnPropertyNames(node.labels).forEach(key => {
+      const value = node.labels[key]
       const dk = distinctKey(key, value)
       if (!result.has(dk)) {
         result.set(dk, aLabel(key, value))
       }
       result.get(dk).targets.add(node.name)
-    }
+    })
+  })
+  this.body = {
+    nodes: nodes,
+    summary: Array.from(result.values())
   }
-  this.body = Array.from(result.values())
 }
 
 function getUserDefinedLabels(api) {
-  return api.getBy(['/'], {target: 'node'}).then(result => {
+  return api.getBy([], {target: 'node'}).then(result => {
     const labels = result ? result.data : {}
-    let lookupByID = new Map()
-    for (const label of labels) {
-      lookupByID.set(distinctKey(label.key, label.value), {
+    const lookup = new Map(labels.map(label => [
+      distinctKey(label.key, label.value),
+      {
         id: label.id,
         key: label.key,
         value: label.value,
         createAt: label.createAt,
         isUserDefined: true,
         targets: new Set()
-      })
-    }
-    return lookupByID
+      }
+    ]))
+    return lookup
   })
 }
 
