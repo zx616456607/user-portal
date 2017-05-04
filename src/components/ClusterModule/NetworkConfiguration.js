@@ -66,7 +66,10 @@ let NetworkConfiguration = React.createClass ({
       return <div key="null"></div>
     }
     if(nodeList[clusterID].isFetching) {
-      return <div key="null" className="loadingBox"><Spin size="large"></Spin></div>
+      return <Card id="Network" className="ClusterInfo">
+        <div className="h3">网路配置</div>
+        <div className="loadingBox" style={{height:'100px'}}><Spin size="large"></Spin></div>
+      </Card>
     }
     const nodes = nodeList[clusterID].nodes.clusters.nodes.nodes
     return nodes.map(node => {
@@ -287,7 +290,10 @@ let NetworkConfiguration = React.createClass ({
     let bindingDomains = ''
     const { getFieldProps } = form
     if(clusterProxy.isEmptyObject || !clusterProxy.result) {
-      return <div className="loadingBox"><Spin size="large"></Spin></div>
+      return  <Card id="Network" className="ClusterInfo">
+        <div className="h3">网路配置</div>
+        <div className="loadingBox" style={{height:'100px'}}><Spin size="large"></Spin></div>
+      </Card>
     }
     let proxy = clusterProxy.result[camelize(cluster.clusterID)]
     if(!proxy) {
