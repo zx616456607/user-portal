@@ -11,10 +11,11 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Card, Row, Col, Steps } from 'antd'
+import { Card, Row, Col, Steps, Button } from 'antd'
 import { browserHistory } from 'react-router'
 import './style/index.less'
 import SelectImage from './SelectImage'
+import ConfigureService from './ConfigureService'
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
@@ -25,18 +26,28 @@ export default class QuickCreateApp extends Component {
     this.getStepsCurrent = this.getStepsCurrent.bind(this)
     this.renderBody = this.renderBody.bind(this)
     this.onSelectImage = this.onSelectImage.bind(this)
-    let imageName
-    let registry
+    this.renderFooterSteps = this.renderFooterSteps.bind(this)
+    const { location } = props
+    const { hash, query } = location
+    const { imageName, registryServer } = query
+    this.hash = hash
+    if (hash === SERVICE_CONFIG_HASH && !imageName) {
+      browserHistory.replace('/app_manage/app_create/quick_create')
+    }
     this.state = {
       imageName,
-      registry,
+      registry: registryServer,
     }
   }
 
-  getStepsCurrent() {
-    const { location } = this.props
+  componentWillReceiveProps(nextProps) {
+    const { location } = nextProps
     const { hash } = location
-    if (hash === SERVICE_CONFIG_HASH) {
+    this.hash = hash
+  }
+
+  getStepsCurrent() {
+    if (this.hash === SERVICE_CONFIG_HASH) {
       return 2
     }
     return 1
@@ -52,17 +63,52 @@ export default class QuickCreateApp extends Component {
   }
 
   renderBody() {
-    const { location } = this.props
-    const { hash } = location
-    if (hash === SERVICE_CONFIG_HASH) {
-      return
+    if (this.hash === SERVICE_CONFIG_HASH) {
+      return <ConfigureService />
     }
     return <SelectImage onChange={this.onSelectImage} />
   }
 
-  render() {
+  renderFooterSteps() {
     const { location } = this.props
     const { hash } = location
+    if (hash === SERVICE_CONFIG_HASH) {
+      return (
+        <div className="footerSteps">
+          <div className="configureSteps">
+            <div className="left">
+              <Button type="primary" size="large">
+                保存此服务并继续添加
+              </Button>
+            </div>
+            <div className="right">
+              <Button
+                size="large"
+                onClick={() => browserHistory.push('/app_manage/app_create/quick_create')}
+              >
+                上一步
+              </Button>
+              <Button size="large" type="primary">
+                &nbsp;创建&nbsp;
+              </Button>
+            </div>
+          </div>
+        </div>
+      )
+    }
+    return (
+      <div className="footerSteps">
+        <Button
+          size="large"
+          onClick={() => browserHistory.push('/app_manage/app_create')}
+        >
+          上一步
+        </Button>
+      </div>
+    )
+  }
+
+  render() {
     const steps = (
       <Steps size="small" className="steps" status="error" current={this.getStepsCurrent()}>
         <Step title="部署方式" />
@@ -76,6 +122,7 @@ export default class QuickCreateApp extends Component {
           <Col span={18}>
             <Card className="leftCard" title={steps}>
               { this.renderBody() }
+              { this.renderFooterSteps() }
             </Card>
           </Col>
           <Col span={6}>
