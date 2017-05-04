@@ -20,6 +20,7 @@ export default class StateBtnModal extends Component{
   }
   getDeleteMessage() {
     const { state, appList, cdRule } = this.props
+    if(state != 'Delete') return ''
     let rule = []
     const appRule = {}
     if(appList) {
@@ -41,6 +42,7 @@ export default class StateBtnModal extends Component{
       }
       return messages
     } else {
+      console.log(cdRule)
       rule = cdRule.result.results.map(item => {
         return item.bindingDeploymentName
       })
