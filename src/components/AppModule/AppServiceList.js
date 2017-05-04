@@ -26,6 +26,7 @@ import {
   quickRestartServices,
   loadAutoScale
 } from '../../actions/services'
+import { getDeploymentOrAppCDRule } from '../../actions/cicd_flow'
 import { LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ANNOTATION_HTTPS } from '../../../constants'
 import { browserHistory } from 'react-router'
@@ -584,6 +585,12 @@ class AppServiceList extends Component {
     })
   }
   batchDeleteServices() {
+    const { serviceList, cluster, getDeploymentOrAppCDRule } = this.props
+    const checkList = serviceList.filter(item => item.checked)
+    if(checkList && checkList.length > 0) {
+      const name = checkList.map(service => service.metadata.name).join(',')
+      getDeploymentOrAppCDRule(cluster, 'service', name)
+    }
     this.setState({
       DeleteServiceModal: true
     })
@@ -1093,7 +1100,7 @@ class AppServiceList extends Component {
             <Modal title="删除操作" visible={this.state.DeleteServiceModal}
               onOk={this.handleDeleteServiceOk} onCancel={this.handleDeleteServiceCancel}
             >
-              <StateBtnModal serviceList={serviceList} scope={parentScope} state='Delete' />
+        <StateBtnModal serviceList={serviceList} scope={parentScope} state='Delete' cdRule={this.props.cdRule}/>
             </Modal>
             <Button size="large" onClick={this.batchQuickRestartService} disabled={!restartBtn}>
               <i className="fa fa-bolt"></i>
@@ -1269,6 +1276,7 @@ function mapStateToProps(state, props) {
     targetServices = serviceItems[cluster.clusterID][appName]
   }
   const { serviceList, isFetching, total, availabilityNumber } = targetServices || defaultServices
+  const { getDeploymentOrAppCDRule } = state.cicd_flow
   return {
     loginUser: loginUser,
     cluster: cluster.clusterID,
@@ -1283,7 +1291,8 @@ function mapStateToProps(state, props) {
     name,
     serviceList,
     isFetching,
-    availabilityNumber
+    availabilityNumber,
+    cdRule: getDeploymentOrAppCDRule
   }
 }
 
@@ -1295,7 +1304,8 @@ AppServiceList = connect(mapStateToProps, {
   stopServices,
   deleteServices,
   quickRestartServices,
-  loadAutoScale
+  loadAutoScale,
+  getDeploymentOrAppCDRule
 })(AppServiceList)
 
 export default injectIntl(AppServiceList, {
