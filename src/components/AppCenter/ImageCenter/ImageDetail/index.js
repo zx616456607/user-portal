@@ -402,7 +402,7 @@ class ImageDetailBox extends Component {
             })
             return
           }
-          notificationHandler.error('['+imageName+ ']' +'镜像的'+ '[' + tag + ']' + this.formatErrorMessage(res))
+          notificationHandler.error('['+imageName+ ']' +'镜像的'+ '[' + tag + ']' + '版本' + this.formatErrorMessage(res))
           this.setState({
             safetyscanVisible:false,
             safetyscanLoading:false,
@@ -415,8 +415,8 @@ class ImageDetailBox extends Component {
 
   formatErrorMessage(body) {
     const mapping = {
-      'jobalreadyexist': '版本已经触发扫描，请稍后再试！',
-      'no non-empty layer': "无法对空镜像进行扫描",
+      'jobalreadyexist': '已经触发扫描，请稍后再试！',
+      'no non-empty layer': "为空镜像，无法对空镜像进行扫描",
     }
     const message = body.message.message
     if (!(message in mapping)) {
@@ -468,9 +468,10 @@ class ImageDetailBox extends Component {
             <p className="imageName">
               {imageDetail.name ? imageDetail.name : imageDetail.imageName}
               {(imageInfo.isFavourite == 1) ?
-                <i className="fa fa-star" aria-hidden="true" style={{ marginLeft: '10px' }} onClick={() => this.setimageStore(imageInfo.name, '0')}></i>
+                <Tooltip title="取消收藏"><i className="fa fa-star cursor" aria-hidden="true" style={{ marginLeft: '10px' }} onClick={() => this.setimageStore(imageInfo.name, '0')}></i></Tooltip>
                 :
-                <i className="fa fa-star-o" aria-hidden="true" style={{ marginLeft: '10px', color: '#2db7f5' }} onClick={() => this.setimageStore(imageInfo.name, '1')}></i>
+                <Tooltip title="点击收藏">
+                <i className="fa fa-star-o cursor" aria-hidden="true" style={{ marginLeft: '10px', color: '#2db7f5' }} onClick={() => this.setimageStore(imageInfo.name, '1')}></i></Tooltip>
               }
             </p>
             <div className="leftBox">
@@ -507,7 +508,8 @@ class ImageDetailBox extends Component {
               {/* 说扫描 */}
               <div className='rightBoxright'>
                 <Button type="ghost" size="large" onClick={this.safetyscanShow}>安全扫描</Button>
-                <Modal title="安全扫描" visible={this.state.safetyscanVisible} closable={false}
+                <Modal title="安全扫描" visible={this.state.safetyscanVisible} closable={true}
+                  onCancel={this.safetyscanhandleCancel}
                   confirmLoading={true}
                   footer={[
                     <Button

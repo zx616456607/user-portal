@@ -271,7 +271,7 @@ class RollingUpdateModal extends Component {
                 <Col span={6}>
                   {index > 0 ? "" : <Input placeholder="更新间隔时间 2~60s" defaultValue={ minReadySeconds ? minReadySeconds : 0 } onChange={(e) => { this.getintervalTime(e, item.name)}}/>}
                 </Col>
-                <Col span={1} >{ index > 0 ? "" : <span style={{marginLeft: "2px", lineHeight: "28px"}}>S</span>}</Col>
+                <Col span={1} >{ index > 0 ? "" : <span style={{marginLeft: "2px", lineHeight: "28px"}}>&nbsp;秒</span>}</Col>
               </Row>
               </div>
             )
