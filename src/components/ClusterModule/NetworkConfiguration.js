@@ -11,6 +11,7 @@ import React from 'react'
 import { camelize } from 'humps'
 import { Icon, Select, Button, Card, Form, Input, Tooltip, Spin, Modal, Dropdown, Menu, Row, Col } from 'antd'
 import { getProxy, updateProxy, getClusterNodeAddr } from '../../actions/cluster'
+import { changeClusterIPsAndDomains } from '../../actions/entities'
 import { getAllClusterNodes } from '../../actions/cluster_node'
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
@@ -57,7 +58,7 @@ let NetworkConfiguration = React.createClass ({
           setFieldsValue({'arr': [0]})
         }
       }
-    }) 
+    })
   },
   getSelectItem() {
     const { nodeList, cluster } = this.props
@@ -108,7 +109,7 @@ let NetworkConfiguration = React.createClass ({
     })
   },
   updateCluster() {
-    const { form, cluster, updateProxy, getProxy } = this.props
+    const { form, cluster, updateProxy, getProxy, changeClusterIPsAndDomains } = this.props
     const { getFieldValue } = form
     validing = true
     this.setState({
@@ -143,12 +144,12 @@ let NetworkConfiguration = React.createClass ({
           address: getFieldValue(`nodeIP${item}`)
         })
       })
-      notify.spin('更新代理出口中')
       updateProxy(cluster.clusterID, entity, {
         success: {
           func: () => {
             notify.close()
             notify.success('代理出口更新成功')
+            setTimeout(() => changeClusterIPsAndDomains(entity.bindingIPs ? `["${entity.bindingIPs}"]` : '', entity.bindingDomains ? `["${entity.bindingDomains}"]` : ''),0)
             this.loadData(false)
             this.setState({
               saveBtnDisabled: false,
@@ -441,5 +442,6 @@ export default connect(mapStateToProps, {
   getProxy,
   updateProxy,
   getClusterNodeAddr,
-  getAllClusterNodes
+  getAllClusterNodes,
+  changeClusterIPsAndDomains
 })(Form.create()(NetworkConfiguration))
