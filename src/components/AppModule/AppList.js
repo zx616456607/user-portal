@@ -1062,7 +1062,7 @@ class AppList extends Component {
             title="选择部署环境"
             visible={this.state.deployEnvModalVisible}
             onCancel={() => this.setState({ deployEnvModalVisible: false })}
-            onOk={() => browserHistory.push('/app_manage/app_create/select_image')}
+            onOk={() => browserHistory.push('/app_manage/app_create/quick_create')}
           />
         </div>
       </QueueAnim>
