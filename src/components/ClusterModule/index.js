@@ -212,7 +212,7 @@ let NoClusterStepOne = React.createClass({
           </Form.Item>
           <Form.Item>
             <span className="itemKey">认证服务地址</span>
-            <Input {...approveProps} placeholder="如：https://192.168.1.113:5000" size="large" />
+            <Input {...approveProps} placeholder="如：https://192.168.1.113:5001" size="large" />
           </Form.Item>
           <Form.Item>
             <span className="itemKey">镜像服务地址</span>
