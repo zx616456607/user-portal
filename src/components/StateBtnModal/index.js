@@ -42,7 +42,6 @@ export default class StateBtnModal extends Component{
       }
       return messages
     } else {
-      console.log(cdRule)
       rule = cdRule.result.results.map(item => {
         return item.bindingDeploymentName
       })
