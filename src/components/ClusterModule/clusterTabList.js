@@ -12,8 +12,6 @@ import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkb
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
-import ClusterInfo from './ClusterInfo'
-import NetworkConfiguration from './NetworkConfiguration'
 import ClusterResourcesOverview from './clsuterResourcesOverview'
 import HostList from './hostList'
 import ClusterLabelManage from './clusterLabelManage'
@@ -545,14 +543,14 @@ class ClusterTabList extends Component {
         >
         <div id='clusterTabList' key='clusterTabList'>
           <Tabs>
-            <TabPane tab="资源总览" key="1">
+            <TabPane tab={<div className='tablepanediv'><i className="fa fa-tachometer" aria-hidden="true"></i><span className='tablepanespan'>资源总览</span></div>} key="1">
               <ClusterResourcesOverview
 
 
 
               />
             </TabPane>
-            <TabPane tab="主机列表" key="2">
+            <TabPane tab={<div><i className="fa fa-server" aria-hidden="true"></i><span className='tablepanespan'>主机列表</span></div>} key="2">
               <HostList
                 cluster={cluster}
                 isFetching={isFetching}
@@ -565,13 +563,13 @@ class ClusterTabList extends Component {
 
               />
             </TabPane>
-            <TabPane tab="标签管理" key="3">
+            <TabPane tab={<div><i className="fa fa-tag" aria-hidden="true"></i><span className='tablepanespan'>标签管理</span></div>} key="3">
               <ClusterLabelManage
 
 
               />
             </TabPane>
-            <TabPane tab="集群插件" key="4">
+            <TabPane tab={<div><i className="fa fa-plug" aria-hidden="true"></i><span className='tablepanespan'>插件集群</span></div>} key="4">
               <ClusterPlugin
 
 
