@@ -1,0 +1,60 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ *
+ * App manage controller
+ *
+ * v0.1 - 2016-12-05
+ * @author mengyuan
+ */
+
+'use strict'
+
+const constants = require('../constants')
+
+exports.addPort =  function (deployment, serviceList) {
+  if (!deployment || !serviceList) {
+      return
+  }
+  deployment.portForInternal = []
+  deployment.portsForExternal = []
+  if (!Array.isArray(serviceList)) {
+      serviceList = [serviceList]
+  }
+  for (let i = 0; i < serviceList.length; i++) {
+    if (serviceList[i].metadata.name === deployment.metadata.name) {
+      if (serviceList[i].spec.externalIPs && serviceList[i].spec.externalIPs.length > 0 && serviceList[i].spec.ports && serviceList[i].spec.ports.length > 0) {
+        serviceList[i].spec.ports.forEach(function(port) {
+          if (!serviceList[i].metadata.annotations) {
+            return
+          }
+          let annotations = serviceList[i].metadata.annotations[constants.ANNOTATION_SVC_SCHEMA_PORTNAME]
+          let portDef = annotations.split(",")
+          for (let i = 0; i< portDef.length; i++) {
+            let p = portDef[i].split('/')
+            if (p && p.length > 1) {
+              if (p[0] == port.name && p.length > 1) {
+                port.protocol = p[1]
+                // Update to the proxy port
+                if (p.length > 2) {
+                  port.proxyPort = p[2]
+                }
+                break
+              }
+            }
+          }
+        })
+        deployment.portsForExternal = serviceList[i].spec.ports
+        if (serviceList[i].metadata.annotations) {
+          deployment.binding_domains = serviceList[i].metadata.annotations.binding_domains
+          deployment.binding_port = serviceList[i].metadata.annotations.binding_port
+          if (serviceList[i].metadata.annotations[constants.ANNOTATION_HTTPS] === 'true') {
+            deployment.https = true
+          }
+        }
+      }
+      serviceList[i].spec.ports.map((svcPort) => deployment.portForInternal.push(svcPort.port))
+      break
+    }
+  }
+}

@@ -1,0 +1,85 @@
+#AppServiceLog {
+  font-size: 12px;
+  .bottomBox {
+    padding: 0 !important;
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+    .introBox {
+      width: 100%;
+      height: 500px;
+      overflow-y: auto;
+      background-color: #000000;
+      border-radius: 5px;
+      .operaBox {
+        position: absolute;
+        top:0;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        width: 100%;
+        height: 40px;
+        line-height: 40px;
+        background-color: #333333;
+        span {
+          float: right;
+          margin-right: 20px;
+          .ant-input:hover {
+            border-color: inherit;
+          }
+          i {
+            font-size: 13px;
+          }
+        }
+        .fa {
+          float: right;
+          color: #5CB85C;
+          line-height: 40px;
+          margin-right: 20px;
+          font-size: 16px;
+          cursor: pointer;
+        }
+        .ant-calendar-picker-clear {
+          margin-right: 20px !important;
+        }
+      }
+      .infoBox {
+        padding: 10px 15px;
+        margin-top: 40px;
+        width: 100%;
+        max-height: 460px;
+        overflow: auto;
+        color: #37fc34;
+        .logDetailSpan {
+          display: block;
+          width: 100%;
+          min-height: 14px;
+          line-height: 16px;
+          word-break: break-all;
+          white-space: pre-wrap;
+        }
+        .timeSpan {
+          color: #ffff00;
+        }
+        .markSpan {
+          color: rgb(87, 197, 247);
+        }
+        .nameSpan {
+          color: orange;
+        }
+      }
+    }
+  }
+  .largeBox {
+    z-index: 999 !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    .introBox {
+      height: 100% !important;
+    }
+    .infoBox {
+      max-height: none !important;
+    }
+  }
+}

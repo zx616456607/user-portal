@@ -1,0 +1,127 @@
+#ServiceList {
+  padding: 40px;
+  button {
+    height: 35px;
+  }
+  .operaBox {
+    width: 100%;
+    button {
+      margin-right: 20px;
+    }
+  }
+  .dataBox {
+    margin-top: 20px;
+    .commonData {
+      float: left;
+    }
+    .selectIconTitle {
+      width: 30px;
+      text-align: center;
+    }
+    .name {
+      width: 18%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .image {
+      width: 30%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .resource {
+      width: 12%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .opera {
+      width: calc(~"28% - 40px");
+    }
+    .titleBox {
+      height: 40px;
+      line-height: 39px;
+      border-bottom: 1px solid #E5E5E5;
+    }
+    .serviceList {
+      .serviceDetail {
+        min-height: 50px;
+        line-height: 50px;
+        border-bottom: 1px solid #E5E5E5;
+        .viewBtn {
+          margin-right: 10px;
+        }
+      }
+      .serviceDetail:hover {
+        background-color: #F2F2F2;
+      }
+      .selectedService {
+        background-color: #effdff;
+        .viewBtn {
+          color: #FFFFFF;
+          border-color: #2db7f5;
+          background-color: #2db7f5;
+        }
+      }
+    }
+  }
+  .modal-price {
+    min-height: 60px;
+    line-height: 60px;
+    padding: 0 30px;
+    overflow: hidden;
+    background: #E4F5FD;
+    border: 1px solid #7DCFF5;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-top: 40px;
+    .price-left {
+      width: 60%;
+      float: left;
+      .keys {
+        display: inline-block;
+      }
+    }
+    .unit {
+      color: #21ADEB;
+    }
+    .blod {
+      font-size: 22px;
+      @media (max-width: 1300px) {
+        font-size: 21px;
+      }
+    }
+    .price-unit {
+      position: relative;
+      padding-left: 30px;
+      width: 40%;
+      float: left;
+      border-left: 1px dashed #7DCFF5;
+    }
+    .monthUnit {
+      margin-left: 10px;
+      @media (max-width: 1500px) {
+        margin-left: 0px;        
+        position: absolute;
+        left: 70px;
+        bottom: 5px;
+        width: 100%;
+        line-height: 14px;
+      }
+    }
+  }
+  .btnBox {
+    margin-top: 50px;
+    text-align: center;
+    button {
+      margin-right: 30px;
+      width: 110px;
+    }
+  }
+}
+.appAddServiceModal {
+  .ant-modal-footer {
+    display: none !important;
+  }
+}

@@ -1,0 +1,71 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ *
+ * AppContainer component
+ *
+ * v0.1 - 2016-09-08
+ * @author GaoJian
+ */
+import React, { Component, PropTypes } from 'react'
+import SecondSider from '../../components/SecondSider'
+import IntlExp from '../../components/IntlExp'
+import QueueAnim from 'rc-queue-anim'
+import './style/Application.less'
+
+const menuList = [
+  {
+    url: '/app_manage',
+    name: '应用'
+  },
+  {
+    url: '/app_manage/service',
+    name: '服务'
+  },
+  {
+    url: '/app_manage/container',
+    name: '容器'
+  },
+  {
+    url: '/app_manage/storage',
+    name: '存储'
+  },
+  {
+    url: '/app_manage/configs',
+    name: '服务配置'
+  }
+]
+
+export default class Application extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      containerSiderStyle: 'normal'
+    }
+  }
+  render() {
+    const { children } = this.props
+    const scope = this
+    return (
+      <div id="Application">
+        <QueueAnim
+          className="appSiderAnimate"
+          key="appSiderAnimate"
+          type="left"
+          >
+          <div className={ this.state.containerSiderStyle == 'normal' ? 'appMenu CommonSecondMenu' : 'hiddenMenu appMenu CommonSecondMenu'} key="appSider">
+            <SecondSider menuList={menuList} scope={scope} />
+          </div>
+        </QueueAnim>
+        <div className={ this.state.containerSiderStyle == 'normal' ? 'appContent CommonSecondContent' : 'hiddenContent appContent CommonSecondContent' } >
+          {children}
+        </div>
+      </div>
+    )
+  }
+}
+
+Application.propTypes = {
+  // Injected by React Router
+  children: PropTypes.node
+}
