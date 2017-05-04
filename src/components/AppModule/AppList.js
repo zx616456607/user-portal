@@ -1109,6 +1109,12 @@ function mapStateToProps(state, props) {
   } = state.apps
   const { appList, isFetching, total } = appItems[cluster.clusterID] || defaultApps
   const { getDeploymentOrAppCDRule }  = state.cicd_flow
+  const defaultCDRule = {
+    isFetching: false,
+    result: {
+      results: []
+    }
+  }
   return {
     cluster: cluster.clusterID,
     statusWatchWs,
@@ -1124,7 +1130,7 @@ function mapStateToProps(state, props) {
     sortBy,
     appList,
     isFetching,
-    cdRule: getDeploymentOrAppCDRule
+    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule :  defaultCDRule
   }
 }
 

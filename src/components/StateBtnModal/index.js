@@ -52,7 +52,7 @@ export default class StateBtnModal extends Component{
     let rule = []
     const appRule = {}
     if(state == 'Delete') {
-      if(!cdRule || cdRule.isFetching) {
+      if(cdRule.isFetching) {
         return <div className="loadingBox"><Spin size="large"></Spin></div>
       }
     }
