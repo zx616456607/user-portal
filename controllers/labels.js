@@ -12,7 +12,7 @@ exports.getLabels = function* () {
   const loginUser = this.session.loginUser
   const target = this.query.target
   const api = apiFactory.getLabelsApi(loginUser)
-  const result = yield api.getBy(['/'], {target: target})
+  const result = yield api.getBy([], {target: target})
   this.body = result ? result.data : {}
 }
 
@@ -20,7 +20,7 @@ exports.addLabel = function* () {
   const loginUser = this.session.loginUser
   const label = this.request.body
   const api = apiFactory.getLabelsApi(loginUser)
-  const result = yield api.createBy(['/'], {}, {
+  const result = yield api.createBy([], {}, {
     key: label.key,
     value: label.value,
     target: label.target
