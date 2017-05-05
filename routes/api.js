@@ -416,7 +416,7 @@ module.exports = function (Router) {
 
   // user defined labels
   router.get('/labels', labelController.getLabels)
-  router.post('/labels', labelController.addLabel)
+  router.post('/labels', labelController.addLabels)
   router.put('/labels/:id', labelController.updateLabel)
   router.delete('/labels/:id', labelController.deleteLabel)
 
