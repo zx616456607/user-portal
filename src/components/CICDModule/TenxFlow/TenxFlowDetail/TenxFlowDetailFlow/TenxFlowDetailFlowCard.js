@@ -215,7 +215,6 @@ function currentStatusBtn(status) {
           <span><FormattedMessage {...menusText.startBtn} /></span>
         </div>
       );
-      break;
     case 2:
       return (
         <div>
@@ -223,7 +222,6 @@ function currentStatusBtn(status) {
           <span><FormattedMessage {...menusText.stopBtn} /></span>
         </div>
       );
-      break;
     case 1:
       return (
         <div>
@@ -231,7 +229,6 @@ function currentStatusBtn(status) {
           <span><FormattedMessage {...menusText.restartBtn} /></span>
         </div>
       );
-      break;
     case 3:
       return (
         <div>
@@ -239,7 +236,6 @@ function currentStatusBtn(status) {
           <span><FormattedMessage {...menusText.startBtn} /></span>
         </div>
       );
-      break;
   }
 }
 
@@ -494,16 +490,27 @@ class TenxFlowDetailFlowCard extends Component {
       setStageFileModal: true
     })
   }
-  // this.buildFlow.bind(this, config.metadata.id, config.lastBuildStatus, config.metadata.name)
+
   renderBuildBtn(config) {
     const { getRepoBranchesAndTagsByProjectId } = this.props
     const { repoBranchesAndTags } = this.props
     const project = config.spec.project || {}
     const projectId = project.id
+    const { lastBuildStatus } = config
+    const { id, name } = config.metadata
+    const btn = currentStatusBtn(lastBuildStatus)
+    if (lastBuildStatus && lastBuildStatus.status === 2) {
+      return (
+        <Button size='large' type='primary' className='startBtn'
+          onClick={this.buildFlow.bind(this, id, lastBuildStatus, name)}>
+          {btn}
+        </Button>
+      )
+    }
     const targetElement = (
       <Button size='large' type='primary' className='startBtn'
         onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId)}>
-        {currentStatusBtn(config.lastBuildStatus)}
+        {btn}
       </Button>
     )
     const tabs = []
@@ -533,7 +540,7 @@ class TenxFlowDetailFlowCard extends Component {
 
     return (
       <PopTabSelect
-        onChange={this.buildFlow.bind(this, config.metadata.id, config.lastBuildStatus, config.metadata.name)}
+        onChange={this.buildFlow.bind(this, id, lastBuildStatus, name)}
         targetElement={targetElement}
         loading={loading}
         getTooltipContainer={() => document.body}>
