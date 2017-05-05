@@ -2,7 +2,7 @@
  * Created by zhangchengzheng on 2017/5/2.
  */
 import React, { Component, propTypes } from 'react'
-import { Card, Button, Tooltip, Icon, Input, Select, Spin, Menu, Dropdown, Tag, Modal } from 'antd'
+import { Card, Button, Tooltip, Icon, Input, Select, Spin, Menu, Dropdown, Tag, Modal, Form } from 'antd'
 import './style/hostList.less'
 
 const SubMenu = Menu.SubMenu;
@@ -172,15 +172,20 @@ const MyComponent = React.createClass({
   }
 });
 
-class hostList extends Component{
+class HostList extends Component{
   constructor(props){
     super(props)
     this.handlelabelvalue = this.handlelabelvalue.bind(this)
     this.formMenudata = this.formMenudata.bind(this)
+    this.handleManageLabelOk = this.handleManageLabelOk.bind(this)
+    this.handleManageLabelCancel = this.handleManageLabelCancel.bind(this)
+    this.handleManageLabel = this.handleManageLabel.bind(this)
+    this.handleAddLabel = this.handleAddLabel.bind(this)
+    this.formManegeLabelContainerTag = this.formManegeLabelContainerTag.bind(this)
     this.state = {
       createLabelModal : false,
-      manageLabelModal : true,
-
+      manageLabelModal : false,
+      manageLabelContainer : []
     }
   }
 
@@ -234,8 +239,10 @@ class hostList extends Component{
         创建标签
       </Menu.Item>
       <Menu.Item>
-        <Icon type="setting" style={{marginRight:6}}/>
-        标签管理
+        <span onClick={this.handleManageLabel}>
+          <Icon type="setting" style={{marginRight:6}}/>
+          标签管理
+        </span>
       </Menu.Item>
     </Menu>
   }
@@ -244,6 +251,39 @@ class hostList extends Component{
     console.log('item=',item)
     console.log('key=',key)
     console.log('keyPath=',keyPath)
+  }
+
+  handleManageLabel(){
+    this.setState({
+      manageLabelModal : true
+    })
+  }
+
+  handleManageLabelOk(){
+    this.setState({
+      manageLabelModal : false
+    })
+  }
+
+  handleManageLabelCancel(){
+    this.setState({
+      manageLabelModal : false
+    })
+  }
+
+  handleAddLabel(key,value){
+    console.log('key')
+    console.log('value')
+    return <div>
+      <Tag closable color="blue"><span>key</span><span>value</span></Tag>
+    </div>
+  }
+
+  formManegeLabelContainerTag(){
+    const { manageLabelContainer } = this.state
+    if(manageLabelContainer.length == 0){
+      return <div>暂无标签</div>
+    }
   }
 
   render(){
@@ -342,22 +382,45 @@ class hostList extends Component{
       <Modal
         title="管理标签"
         visible={this.state.manageLabelModal}
-
+        onOk={this.handleManageLabelOk}
+        onCancel={this.handleManageLabelCancel}
+        wrapClassName="manageLabelModal"
+        width="570px"
       >
-        <Dropdown overlay={this.formMenudata()}>
-          <Button type="ghost" style={{ marginLeft: 8 }} size="large">
-            选择已有节点
-            <Icon type="down" />
-          </Button>
-        </Dropdown>
+        <div className='labelcontainer'>
+          {this.formManegeLabelContainerTag()}
+        </div>
 
+        <div className='labelfooter'>
+          <span className='labeldropdown' id="cluster__hostlist__manageLabelModal">
+            <Dropdown overlay={this.formMenudata()} getPopupContainer={() => document.getElementById('cluster__hostlist__manageLabelModal')}>
+            <Button type="ghost" size="large">
+              选择已有节点
+              <Icon type="down" />
+            </Button>
+          </Dropdown>
+          </span>
+          <span className='item'>或</span>
+          <Form
+            inline
+            horizontal={true}
+            className='labelform'
+          >
+            <Form.Item className='itemkey'>
+              <Input placeholder="标签键" />
+            </Form.Item>
+            <Form.Item className='itemkey'>
+              <Input placeholder="标签值"/>
+            </Form.Item>
+          </Form>
+          <Button icon='plus' size="large" className='itembutton' type="ghost" onClick={this.handleAddLabel}>新建标签</Button>
+        </div>
       </Modal>
     </div>
   }
 }
 
-
-export default hostList
+export default HostList
 
 //<MyComponent podList={nodeList} containerList={podCount} isFetching={isFetching} scope={scope} memoryMetric={memoryMetric} cpuMetric={cpuMetric} license={license} />
 //
