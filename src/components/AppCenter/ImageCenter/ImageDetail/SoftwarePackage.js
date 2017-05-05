@@ -62,7 +62,7 @@ class TableTemplate extends Component{
         Medium: newDate.EchartsMediumNum,
         High: newDate.EchartsHighNum,
         None: newDate.EchartsNoneNum,
-        Total: (newDate.EchartsUnknownNum + newDate.EchartsNegligibleNum + newDate.EchartsLowNum + newDate.EchartsMediumNum + newDate.EchartsHighNum + newDate.EchartsNoneNum)
+        Total: newDate.index-1
       })
     }
   }
@@ -328,7 +328,7 @@ class TableTemplate extends Component{
         Medium: EchartsMediumNum,
         High: EchartsHighNum,
         None: EchartsNoneNum,
-        Total: (EchartsUnknownNum + EchartsNegligibleNum + EchartsLowNum + EchartsMediumNum + EchartsHighNum + EchartsNoneNum)
+        Total: index-1
       })
     }
   }
@@ -584,7 +584,8 @@ class TableTemplate extends Component{
         EchartsLowNum,
         EchartsMediumNum,
         EchartsHighNum,
-        EchartsNoneNum
+        EchartsNoneNum,
+        index
       }
     }
   }
