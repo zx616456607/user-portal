@@ -13,6 +13,7 @@ import {  getAllClusterNodes, getKubectlsPods } from '../../actions/cluster_node
 import { addTerminal } from '../../actions/terminal'
 import { NOT_AVAILABLE } from '../../constants'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
+import TagDropdown from './tagDropdown'
 
 import './style/hostList.less'
 const MASTER = '主控节点/Master'
@@ -224,7 +225,8 @@ class hostList extends Component {
       nodeList: [],
       podCount: [],
       currentContainer:[],
-      manageLabelContainer:[]
+      manageLabelContainer:[],
+      manageLabelModal : false
     }
   }
 
@@ -397,6 +399,7 @@ class hostList extends Component {
   }
   render() {
     const { addNodeCMD } = this.props
+    const TagHTML = <TagDropdown footer={false}/>
     return <div id="cluster__hostlist">
       <Card className='ClusterListCard'>
         <div className='operaBox'>
@@ -491,7 +494,7 @@ class hostList extends Component {
 
       <Modal
         title="管理标签"
-        visible={this.state.manageLabelModal}
+        visible={true}
         onOk={this.handleManageLabelOk}
         onCancel={this.handleManageLabelCancel}
         wrapClassName="manageLabelModal"
@@ -503,7 +506,7 @@ class hostList extends Component {
 
         <div className='labelfooter'>
           <span className='labeldropdown' id="cluster__hostlist__manageLabelModal">
-            <Dropdown overlay={this.formMenudata()} getPopupContainer={() => document.getElementById('cluster__hostlist__manageLabelModal')}>
+            <Dropdown overlay={TagHTML} getPopupContainer={() => document.getElementById('cluster__hostlist__manageLabelModal')}>
             <Button type="ghost" size="large">
               选择已有节点
               <Icon type="down" />
