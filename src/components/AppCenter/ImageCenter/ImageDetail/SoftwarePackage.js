@@ -62,7 +62,7 @@ class TableTemplate extends Component{
         Medium: newDate.EchartsMediumNum,
         High: newDate.EchartsHighNum,
         None: newDate.EchartsNoneNum,
-        Total: newDate.index-1
+        Total: newDate.index
       })
     }
   }
@@ -585,7 +585,7 @@ class TableTemplate extends Component{
         EchartsMediumNum,
         EchartsHighNum,
         EchartsNoneNum,
-        index
+        index:(index-1)
       }
     }
   }
