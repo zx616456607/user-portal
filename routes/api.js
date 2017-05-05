@@ -36,6 +36,7 @@ const chargeController = require('../controllers/charge')
 const globalConfigController = require('../controllers/global_config')
 const imageScanController = require('../controllers/image_scan')
 const alertController = require('../controllers/alert')
+const labelController = require('../controllers/labels')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -287,6 +288,8 @@ module.exports = function (Router) {
   router.get('/devops/ci-flows/:flow_id/cd-rules', devopsController.listCDRules)
   router.delete('/devops/ci-flows/:flow_id/cd-rules/:rule_id', devopsController.removeCDRule)
   router.put('/devops/ci-flows/:flow_id/cd-rules/:rule_id', devopsController.updateCDRule)
+  router.get('/devops/cd-rules/type/:type', devopsController.getDeploymentOrAppCDRule)
+  router.delete('/devops/cd-rules/type/:type', devopsController.deleteDeploymentOrAppCDRule)
 
   // CI rules
   router.get('/devops/ci-flows/:flow_id/ci-rules', devopsController.getCIRule)
@@ -349,10 +352,11 @@ module.exports = function (Router) {
   router.get('/cluster-nodes/:cluster/:node/info', clusternodesController.getClustersInfo)
   router.get('/cluster-nodes/:cluster/:node/metrics', clusternodesController.getClustersMetrics)
   router.get('/cluster-nodes/:cluster/:node/instant', clusternodesController.getClustersInstant)
+  router.get('/cluster-nodes/:cluster/label-summary', clusternodesController.getLabelSummary)
 
   // manipulate node's labels
   router.get('/cluster-nodes/:cluster/:node/labels', clusternodesController.getNodeLabels)
-  router.patch('/cluster-nodes/:cluster/:node/labels', clusternodesController.updateNodeLabels)
+  router.put('/cluster-nodes/:cluster/:node/labels', clusternodesController.updateNodeLabels)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)
@@ -409,5 +413,12 @@ module.exports = function (Router) {
   router.put('/alerts/cluster/:cluster/setting/ignore', alertController.setIgnore)
   router.get('/alerts/cluster/:cluster/type/:type/setting/:name/instant', alertController.getTargetInstant)
   router.delete('/alerts/cluster/:cluster/rule', alertController.deleteRule)
+
+  // user defined labels
+  router.get('/labels', labelController.getLabels)
+  router.post('/labels', labelController.addLabel)
+  router.put('/labels/:id', labelController.updateLabel)
+  router.delete('/labels/:id', labelController.deleteLabel)
+
   return router.routes()
 }

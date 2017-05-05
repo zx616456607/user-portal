@@ -124,7 +124,15 @@ exports.getRegistryApi = function() {
   return api
 }
 
-
+exports.getLabelsApi = function(loginUser) {
+  const apiConfig = {
+    protocol: config.tenx_api.protocol,
+    host: config.tenx_api.host,
+    auth: loginUser
+  }
+  const api = new tenxApi(apiConfig)
+  return api.labels
+}
 
 
 

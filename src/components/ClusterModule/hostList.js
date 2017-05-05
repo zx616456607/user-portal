@@ -2,7 +2,7 @@
  * Created by zhangchengzheng on 2017/5/2.
  */
 import React, { Component, propTypes } from 'react'
-import { Card, Button, Tooltip, Icon, Input, Select } from 'antd'
+import { Card, Button, Tooltip, Icon, Input, Select, Spin, Menu, Dropdown } from 'antd'
 import './style/hostList.less'
 
 const MyComponent = React.createClass({
@@ -46,22 +46,24 @@ const MyComponent = React.createClass({
 
   },
   render: function () {
-    const { isFetching, podList, containerList, cpuMetric, memoryMetric, license } = this.props
-    const clusterID = this.props.scope.props.clusterID
+    const { isFetching, containerList, cpuMetric, memoryMetric, license } = this.props
+    //const clusterID = this.props.scope.props.clusterID
     const root = this
-    if (isFetching) {
+    if (false) {
+    //if (isFetching) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
         </div>
       )
     }
+    let podList = [1,2,3,4,5,6,7]
     if (podList.length === 0) {
       return (
         <div style={{ lineHeight: '100px', height: '200px', paddingLeft: '30px' }}>您还没有主机，去创建一个吧！</div>
       )
     }
-    const maxNodes = license[camelize('max_nodes')]
+    //const maxNodes = license[camelize('max_nodes')]
     let items = podList.map((item, index) => {
       const dropdown = (
         <Menu disabled={item.isMaster ? true : false}
@@ -74,97 +76,88 @@ const MyComponent = React.createClass({
         </Menu>
       );
       return (
-        <div className='podDetail' key={`${item.objectMeta.name}-${index}`} >
+        <div className='podDetail' key={index} >
+        {/*<div className='podDetail' key={`${item.objectMeta.name}-${index}`} >*/}
           <div className='name commonTitle'>
-            <Link to={`/cluster/${clusterID}/${item.objectMeta.name}`}>{item.objectMeta.name}</Link>
-          </div>
-          <div className='address commonTitle'>
-            <Tooltip title={item.address}>
-              <span>{item.address}</span>
-            </Tooltip>
+            111111主机名称
+            {/*<Link to={`/cluster/${clusterID}/${item.objectMeta.name}`}>{item.objectMeta.name}</Link>*/}
           </div>
           <div className='status commonTitle'>
-            <span className={ item.ready == 'True' ? 'runningSpan' : 'errorSpan' }><i className='fa fa-circle' />&nbsp;&nbsp;{item.ready == 'True' ? '运行中' : '异常'}</span>
+            状态
+            {/*<span className={ item.ready == 'True' ? 'runningSpan' : 'errorSpan' }><i className='fa fa-circle' />&nbsp;&nbsp;{item.ready == 'True' ? '运行中' : '异常'}</span>*/}
           </div>
           <div className='role commonTitle'>
-            <Tooltip title={item.isMaster ? MASTER : SLAVE}>
-              <span>{item.isMaster ? MASTER : SLAVE}</span>
-            </Tooltip>
-          </div>
-          <div className="alarm commonTitle">
-            <Tooltip title="查看监控">
-              <Link to={`/cluster/${clusterID}/${item.objectMeta.name}?monitoring`}><svg className="managemoniter"><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use></svg></Link>
-            </Tooltip>
-            <Tooltip title="告警设置" onClick={()=> this.props.scope.setState({alarmModal: true})}>
-              <Icon type="notification" />
-            </Tooltip>
+            节点角色
+            {/*<Tooltip title={item.isMaster ? MASTER : SLAVE}>*/}
+              {/*<span>{item.isMaster ? MASTER : SLAVE}</span>*/}
+            {/*</Tooltip>*/}
           </div>
           <div className='container commonTitle'>
-            <span>{getContainerNum(item.objectMeta.name, containerList)}</span>
+            {/*<span>{getContainerNum(item.objectMeta.name, containerList)}</span>*/}
+            容器数
           </div>
           <div className='cpu commonTitle'>
-            <span className='topSpan'>{item[camelize('cpu_total')] / 1000}核</span>
-            <span className='bottomSpan'>{cpuUsed(item[camelize('cpu_total')], cpuMetric, item.objectMeta.name)}</span>
+            {/*<span className='topSpan'>{item[camelize('cpu_total')] / 1000}核</span>*/}
+            {/*<span className='bottomSpan'>{cpuUsed(item[camelize('cpu_total')], cpuMetric, item.objectMeta.name)}</span>*/}
+            CPU
           </div>
           <div className='memory commonTitle'>
-            <span className='topSpan'>{diskFormat(item[camelize('memory_total_kb')])}</span>
-            <span className='bottomSpan'>{memoryUsed(item[camelize('memory_total_kb')], memoryMetric, item.objectMeta.name)}</span>
+            {/*<span className='topSpan'>{diskFormat(item[camelize('memory_total_kb')])}</span>*/}
+            {/*<span className='bottomSpan'>{memoryUsed(item[camelize('memory_total_kb')], memoryMetric, item.objectMeta.name)}</span>*/}
+            内村
           </div>
-          {/*<div className='disk commonTitle'>
-           <span className='topSpan'>{'-'}</span>
-           <span className='bottomSpan'>{'-'}</span>
-           </div>*/}
+          <div className='disk commonTitle'>
+            磁盘
+            {/*<span className='topSpan'>{'-'}</span>*/}
+            {/*<span className='bottomSpan'>{'-'}</span>*/}
+          </div>
           <div className='schedule commonTitle'>
-            <Switch
-              className='switchBox'
-              defaultChecked={item.schedulable}
-              checkedChildren='开'
-              unCheckedChildren='关'
-              disabled={index >= maxNodes}
-              onChange={this.changeSchedulable.bind(root, item.objectMeta.name)}/>
-            <span className='scheduleSpan'>
-              {
-                item.schedulable
-                  ? (
-                  <span>
-                    正常调度&nbsp;
-                    <Tooltip title={`允许分配新容器`}>
-                      <Icon type="question-circle-o" />
-                    </Tooltip>
-                  </span>
-                )
-                  : (
-                  <span>
-                    暂停调度&nbsp;
-                    <Tooltip title={`不允许分配新容器，正常运行的不受影响`}>
-                      <Icon type="question-circle-o" />
-                    </Tooltip>
-                  </span>
-                )
-              }
-            </span>
+            {/*<Switch*/}
+              {/*className='switchBox'*/}
+              {/*defaultChecked={item.schedulable}*/}
+              {/*checkedChildren='开'*/}
+              {/*unCheckedChildren='关'*/}
+              {/*disabled={index >= maxNodes}*/}
+              {/*onChange={this.changeSchedulable.bind(root, item.objectMeta.name)}/>*/}
+            {/*<span className='scheduleSpan'>*/}
+              {/*{*/}
+                {/*item.schedulable*/}
+                  {/*? (*/}
+                  {/*<span>*/}
+                    {/*正常调度&nbsp;*/}
+                    {/*<Tooltip title={`允许分配新容器`}>*/}
+                      {/*<Icon type="question-circle-o" />*/}
+                    {/*</Tooltip>*/}
+                  {/*</span>*/}
+                {/*)*/}
+                  {/*: (*/}
+                  {/*<span>*/}
+                    {/*暂停调度&nbsp;*/}
+                    {/*<Tooltip title={`不允许分配新容器，正常运行的不受影响`}>*/}
+                      {/*<Icon type="question-circle-o" />*/}
+                    {/*</Tooltip>*/}
+                  {/*</span>*/}
+                {/*)*/}
+              {/*}*/}
+            {/*</span>*/}
+            调度状态
           </div>
           <div className='runningTime commonTitle'>
-            <Tooltip title={calcuDate(item.objectMeta.creationTimestamp)}>
-              <span>{calcuDate(item.objectMeta.creationTimestamp)}</span>
-            </Tooltip>
+            运行时间
+            {/*<Tooltip title={calcuDate(item.objectMeta.creationTimestamp)}>*/}
+              {/*<span>{calcuDate(item.objectMeta.creationTimestamp)}</span>*/}
+            {/*</Tooltip>*/}
           </div>
           <div className='startTime commonTitle'>
-            <Tooltip title={formatDate(item.objectMeta.creationTimestamp)}>
-              <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
-            </Tooltip>
+            {/*<Tooltip title={formatDate(item.objectMeta.creationTimestamp)}>*/}
+              {/*<span>{formatDate(item.objectMeta.creationTimestamp)}</span>*/}
+            {/*</Tooltip>*/}
+            启动时间
           </div>
           <div className='opera commonTitle'>
             <Dropdown.Button type="ghost" overlay={dropdown}  onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`)}>
               主机详情
             </Dropdown.Button>
-            {/*<Button
-             type="ghost"
-             disabled={item.isMaster ? true : false}
-             onClick={this.ShowDeleteClusterNodeModal.bind(this, item)}>
-             删除节点
-             </Button>*/}
-
           </div>
         </div>
       );
@@ -225,7 +218,6 @@ class hostList extends Component{
             <div className='role commonTitle'>
               <span>节点角色</span>
             </div>
-            <div className="alarm commonTitle">监控告警</div>
             <div className='container commonTitle'>
               <span>容器数</span>
             </div>
@@ -234,6 +226,9 @@ class hostList extends Component{
             </div>
             <div className='memory commonTitle'>
               <span>内存</span>
+            </div>
+            <div className='disk commonTitle'>
+              <span>磁盘</span>
             </div>
             <div className='schedule commonTitle'>
               <span>调度状态</span>
@@ -249,7 +244,7 @@ class hostList extends Component{
             </div>
           </div>
           <div className='datalist'>
-            数据列表
+            <MyComponent />
           </div>
         </div>
       </Card>

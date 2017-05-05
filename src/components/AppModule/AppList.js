@@ -15,6 +15,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
 import { loadAppList, stopApps, deleteApps, restartApps, startApps } from '../../actions/app_manage'
+import { getDeploymentOrAppCDRule } from '../../actions/cicd_flow'
 import { LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { calcuDate } from '../../common/tools'
@@ -567,6 +568,7 @@ class AppList extends Component {
     const checkedAppList = appList.filter((app) => app.checked)
     this.confirmDeleteApps(checkedAppList)*/
     const { appList } = this.state
+    const { getDeploymentOrAppCDRule, currentCluster } = this.props
     if (app) {
       appList.map((item) => {
         item.checked = false
@@ -575,6 +577,7 @@ class AppList extends Component {
         }
       });
     }
+    getDeploymentOrAppCDRule(currentCluster.clusterID, 'app', appList.filter(item => item.checked).map(item => item.name).join(','))
     this.setState({
       deleteAppsModal: true
     })
@@ -938,7 +941,7 @@ class AppList extends Component {
               <Modal title="删除操作" visible={this.state.deleteAppsModal}
                 onOk={this.handleDeleteAppsOk} onCancel={this.handleDeleteAppsCancel}
                 >
-                <StateBtnModal appList={appList} state='Delete' />
+               <StateBtnModal appList={appList} state='Delete' cdRule={this.props.cdRule}/>
               </Modal>
               <Button type='ghost' size='large' onClick={() => this.batchRestartApps()} disabled={!restartBtn}>
                 <i className='fa fa-undo' />重新部署
@@ -1116,7 +1119,13 @@ function mapStateToProps(state, props) {
     appItems
   } = state.apps
   const { appList, isFetching, total } = appItems[cluster.clusterID] || defaultApps
-
+  const { getDeploymentOrAppCDRule }  = state.cicd_flow
+  const defaultCDRule = {
+    isFetching: false,
+    result: {
+      results: []
+    }
+  }
   return {
     cluster: cluster.clusterID,
     statusWatchWs,
@@ -1131,7 +1140,8 @@ function mapStateToProps(state, props) {
     sortOrder,
     sortBy,
     appList,
-    isFetching
+    isFetching,
+    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule :  defaultCDRule
   }
 }
 
@@ -1141,6 +1151,7 @@ AppList = connect(mapStateToProps, {
   deleteApps,
   restartApps,
   startApps,
+  getDeploymentOrAppCDRule
 })(AppList)
 
 export default injectIntl(AppList, {
