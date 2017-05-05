@@ -2,22 +2,32 @@
  * Created by zhangchengzheng on 2017/5/5.
  */
 import React, { Component, propTypes } from 'react'
-import { Switch, Form, Checkbox } from 'antd';
+import { Switch, Checkbox } from 'antd';
 import './style/AdvancedSetting.less'
 
 class AdvancedSetting extends Component{
   constructor(props){
     super(props)
     this.handleSwitch = this.handleSwitch.bind(this)
+    this.handleName = this.handleName.bind(this)
+    this.handleTag = this.handleTag.bind(this)
     this.state = {
       swicthChecked : false
     }
   }
 
-  handleSwitch(){
+  handleSwitch(checked){
     this.setState({
-      swicthChecked : !this.state.swicthChecked
+      swicthChecked : checked
     })
+  }
+
+  handleName(value){
+    let checked = value.target.checked
+  }
+
+  handleTag(value){
+    let checked = value.target.checked
   }
 
   render(){
@@ -43,23 +53,19 @@ class AdvancedSetting extends Component{
           {
             swicthChecked
             ? <div className='contentfooter'>
-              <Form>
-                <Form.Item>
-                  <Checkbox>允许用户通过『主机名及IP』来实现绑定【单个节点】</Checkbox>
-                </Form.Item>
-                <Form.Item>
-                  <Checkbox>用户可通过『主机标签』绑定【某类节点】</Checkbox>
-                </Form.Item>
-              </Form>
+              <div className='item'>
+                <Checkbox onChange={this.handleName}>允许用户通过『主机名及IP』来实现绑定【单个节点】</Checkbox>
+              </div>
+              <div className='item'>
+                <Checkbox onChange={this.handleTag}>用户可通过『主机标签』绑定【某类节点】</Checkbox>
+              </div>
             </div>
             : <div></div>
           }
-
         </div>
       </div>
     </div>)
   }
 }
-AdvancedSetting = Form.create()(AdvancedSetting)
 
 export default AdvancedSetting
