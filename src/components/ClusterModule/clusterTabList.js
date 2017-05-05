@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Switch, Tooltip,  Row, Col, Tabs } from 'antd'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Tooltip,  Row, Col, Tabs } from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -18,7 +18,7 @@ import ClusterLabelManage from './clusterLabelManage'
 import ClusterPlugin from './clusterPlugin'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import {
-  getAllClusterNodes,
+  // getAllClusterNodes,
   changeClusterNodeSchedule,
   deleteClusterNode,
   getKubectlsPods,
@@ -39,54 +39,7 @@ const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const ButtonGroup = Button.Group
 const TabPane = Tabs.TabPane;
-const MASTER = '主控节点/Master'
-const SLAVE = '计算节点/Slave'
 
-function diskFormat(num) {
-  if (num < 1024) {
-    return num + 'KB'
-  }
-  num = Math.floor(num / 1024 *100) /100;
-  if (num < 1024) {
-    return num + 'MB'
-  }
-  num =  Math.floor(num / 1024 *100) /100;
-  if (num < 1024) {
-    return num + 'GB'
-  }
-  num =  Math.floor(num / 1024 *100) /100;
-  return num + 'TB'
-}
-
-function getContainerNum(name, podList) {
-  //this function for return the container num of node
-  let num;
-  podList.map((pod) => {
-    if(pod.name == name) {
-      num = pod.count;
-    }
-  });
-  return num;
-}
-
-function cpuUsed(cpuTotal, cpuMetric, name) {
-  name = camelize(name)
-  if (!cpuMetric || !cpuMetric[name]) {
-    return NOT_AVAILABLE
-  }
-  return `${cpuMetric[name].toFixed(2)}%`
-}
-
-function memoryUsed(memoryTotal, memoryMetric, name) {
-  name = camelize(name)
-  if (!memoryMetric || !memoryMetric[name]) {
-    return NOT_AVAILABLE
-  }
-  let metric = memoryMetric[name]
-  metric = metric / 1024 / memoryTotal * 100
-  metric = `${metric.toFixed(2)}%`
-  return metric
-}
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -130,7 +83,7 @@ const MyComponent = React.createClass({
   //},
   render: function () {
     const { isFetching, podList, containerList, cpuMetric, memoryMetric, license } = this.props
-    const clusterID = this.props.scope.props.clusterID
+    // const clusterID = this.props.scope.props.clusterID
     const root = this
     if (isFetching) {
       return (
@@ -239,9 +192,9 @@ const MyComponent = React.createClass({
             {/*</Tooltip>*/}
           </div>
           <div className='opera commonTitle'>
-            <Dropdown.Button type="ghost" overlay={dropdown}  onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`)}>
+            {/*<Dropdown.Button type="ghost" overlay={dropdown}  onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`)}>
               主机详情
-            </Dropdown.Button>
+            </Dropdown.Button>*/}
           </div>
         </div>
       );
@@ -258,7 +211,6 @@ class ClusterTabList extends Component {
   constructor(props) {
     super(props);
     this.loadData = this.loadData.bind(this);
-    this.searchNodes = this.searchNodes.bind(this);
     this.deleteClusterNode = this.deleteClusterNode.bind(this);
     this.closeDeleteModal = this.closeDeleteModal.bind(this);
     this.openTerminalModal = this.openTerminalModal.bind(this);
@@ -297,7 +249,7 @@ class ClusterTabList extends Component {
   }
 
   componentWillMount() {
-    this.loadData()
+    // this.loadData()
   }
 
   // componentWillReceiveProps(nextProps) {
@@ -324,26 +276,7 @@ class ClusterTabList extends Component {
     })
   }
 
-  searchNodes() {
-    //this function for search nodes
-    let search = this.state.nodeName
-    const { nodes } = this.props;
-    if(search.length == 0) {
-      this.setState({
-        nodeList: nodes.nodes
-      })
-      return;
-    }
-    let nodeList = [];
-    nodes.nodes.map((node) => {
-      if(node.objectMeta.name.indexOf(search) > -1) {
-        nodeList.push(node);
-      }
-    });
-    this.setState({
-      nodeList: nodeList
-    });
-  }
+
   cancelModal() {
     // cancel create Alarm modal
     this.setState({
@@ -463,21 +396,13 @@ class ClusterTabList extends Component {
             <TabPane tab={<div><i className="fa fa-server" aria-hidden="true"></i><span className='tablepanespan'>主机列表</span></div>} key="2">
               <HostList
                 cluster={cluster}
-                isFetching={isFetching}
-
                 clusterID={clusterID}
-                trueprops={true}
-                cpuMetric={cpuMetric}
-                memoryMetric={memoryMetric}
-                license={license}
+                containerList={podCount}
 
               />
             </TabPane>
             <TabPane tab={<div><i className="fa fa-tag" aria-hidden="true"></i><span className='tablepanespan'>标签管理</span></div>} key="3">
-              <ClusterLabelManage
-
-
-              />
+              <ClusterLabelManage  clusterID={clusterID} />
             </TabPane>
             <TabPane tab={<div><i className="fa fa-plug" aria-hidden="true"></i><span className='tablepanespan'>插件集群</span></div>} key="4">
               <ClusterPlugin
@@ -530,33 +455,33 @@ ClusterTabList.propTypes = {
 }
 
 function mapStateToProps(state, props) {
-  const pods = {
-    nodes: {},
-    isFetching: false
-  }
+  // const pods = {
+  //   nodes: {},
+  //   isFetching: false
+  // }
   const clusterID = props.cluster.clusterID
-  const { getAllClusterNodes, kubectlsPods, addNodeCMD } = state.cluster_nodes
+  // const { getAllClusterNodes, kubectlsPods, addNodeCMD } = state.cluster_nodes
   const { clusterSummary } = state.cluster
-  const targetAllClusterNodes = getAllClusterNodes[clusterID]
-  const { isFetching } = targetAllClusterNodes || pods
-  const data = (targetAllClusterNodes && targetAllClusterNodes.nodes) || pods
-  const { cpuMetric, memoryMetric, license } = data
-  const nodes = data.clusters ? data.clusters.nodes : []
+  // const targetAllClusterNodes = getAllClusterNodes[clusterID]
+  // const { isFetching } = targetAllClusterNodes || pods
+  // const data = (targetAllClusterNodes && targetAllClusterNodes.nodes) || pods
+  // const { cpuMetric, memoryMetric, license } = data
+  // const nodes = data.clusters ? data.clusters.nodes : []
   return {
-    nodes,
-    cpuMetric,
-    memoryMetric,
-    license,
-    isFetching,
+  //   nodes,
+  //   cpuMetric,
+  //   memoryMetric,
+  //   license,
+  //   isFetching,
     clusterID,
-    kubectlsPods: (kubectlsPods ? kubectlsPods.result : {}) || {},
-    addNodeCMD: addNodeCMD[clusterID] || {},
+  //   kubectlsPods: (kubectlsPods ? kubectlsPods.result : {}) || {},
+  //   addNodeCMD: addNodeCMD[clusterID] || {},
     clusterSummary: (clusterSummary && clusterSummary[clusterID] ? clusterSummary[clusterID].summary : {}) || {},
   }
 }
 
 export default connect(mapStateToProps, {
-  getAllClusterNodes,
+  // getAllClusterNodes,
   changeClusterNodeSchedule,
   deleteClusterNode,
   getKubectlsPods,
