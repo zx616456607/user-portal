@@ -306,7 +306,7 @@ class GogsComponent extends Component {
     })
   }
   registryGogs() {
-    const url = this.state.regUrl
+    let url = this.state.regUrl
     const token = this.state.regToken
     const { formatMessage } = this.props
     let notification = new NotificationHandler()
@@ -321,6 +321,9 @@ class GogsComponent extends Component {
     if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?(\/{0,1})$/.test(url) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/{0,1})$/.test(url)) {
       notification.info(formatMessage(menusText.errorSrc))
       return
+    }
+    if(url.lastIndexOf('/') == url.length - 1) {
+      url = url.substring(0, url.length -1 )
     }
     const config = {
       url,
