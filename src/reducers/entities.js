@@ -11,6 +11,7 @@
  */
 import * as ActionTypes from '../actions/entities'
 import merge from 'lodash/merge'
+import cloneDeep from 'lodash/cloneDeep'
 import { STANDARD_MODE } from '../../configs/constants'
 import { mode } from '../../configs/model'
 
@@ -32,10 +33,17 @@ function current(state, action) {
          current.unit = '￥'
       }
       return Object.assign({}, state, current)
+    case ActionTypes.CHANGE_CLUSTER_BING_IPS_DOMAINS:
+      const cloneCurrent = cloneDeep(state)
+      const cluster = cloneCurrent.cluster
+      cluster.bindingIPs = action.ips
+      cluster.bindingDomains = action.domains
+      return cloneCurrent
     default:
       return state
   }
 }
+
 
 function loginUser(state, action) {
   switch (action.type) {
