@@ -86,19 +86,19 @@ if (process.env.NODE_ENV !== 'production') {
 global.indexHtml = global.CONFIG_PROD ? 'index' : 'index.debug'
 if (!global.CONFIG_PROD) {
   const webpack = require('webpack')
-  const webpackDevMiddleware = require('webpack-dev-middleware')
-  const webpackHotMiddleware = require('webpack-hot-middleware')
+  const koaWebpackDevMiddleware = require('koa-webpack-dev-middleware')
+  const expressWebpackHotMiddleware = require('webpack-hot-middleware')
   const webpackConfig = require('./webpack.config')
   const compiler = webpack(webpackConfig)
-  app.use(c2k(webpackDevMiddleware(compiler, {
+  app.use(koaWebpackDevMiddleware(compiler, {
     noInfo: true,
     publicPath: webpackConfig.output.publicPath,
     watchOptions: {
       aggregateTimeout: 500,
       poll: true
     }
-  })))
-  app.use(c2k(webpackHotMiddleware(compiler, {
+  }))
+  app.use(c2k(expressWebpackHotMiddleware(compiler, {
     log: console.log,
     path: '/__webpack_hmr',
     heartbeat: 10 * 1000

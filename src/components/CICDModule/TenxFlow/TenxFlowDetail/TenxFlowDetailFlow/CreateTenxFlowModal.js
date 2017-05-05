@@ -902,7 +902,7 @@ let CreateTenxFlowModal = React.createClass({
     }
     let serviceSelectList = []
     if (dependenciesImages.length != 0) {
-      dependenciesImages[0].imageList.map((item, index) => {
+      serviceSelectList = dependenciesImages[0].imageList.map((item, index) => {
         return (
           <Option value={item.imageName} key={index}>{item.imageName}</Option>
         )
@@ -1098,7 +1098,7 @@ let CreateTenxFlowModal = React.createClass({
     if (stageList.length === 0) {
       uniformRepoProps = getFieldProps('uniformRepo', {
         valuePropName: 'checked',
-        initialValue: (uniformRepo == 0),
+        initialValue: true,
       })
     }
     return (
