@@ -462,7 +462,7 @@ let MyComponent = React.createClass({
         });
       }
       if (!coverValue) {
-        coverValue = 'cover'
+        coverValue = 'unCover'
       }
       return (
         <div key={`vol${k}`} id={`vol${k}`}>
@@ -473,15 +473,15 @@ let MyComponent = React.createClass({
               </div>
               <div className="inputCover">
                 <RadioGroup onChange={this.onCoverChange.bind(this, k)} value={coverValue}>
-                  <Radio key="cover" value="cover">
-                    挂载整个配置组&nbsp;
-                    <Tooltip width="200px" title="镜像内该目录『所有文件』会被覆盖，支持『不重启容器』5 min 左右生效（含增、删、改配置文件）。">
-                      <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
-                    </Tooltip>
-                  </Radio>
                   <Radio key="unCover" value="unCover">
                     挂载若干配置文件&nbsp;
                     <Tooltip width="200px" title="镜像内该目录『同名文件』会给覆盖，修改配置文件需『重启容器』来生效">
+                      <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
+                    </Tooltip>
+                  </Radio>
+                  <Radio key="cover" value="cover">
+                    挂载整个配置组&nbsp;
+                    <Tooltip width="200px" title="镜像内该目录『所有文件』会被覆盖，支持『不重启容器』5 min 左右生效（含增、删、改配置文件）。">
                       <Icon type="question-circle-o" style={{ cursor: 'pointer' }}/>
                     </Tooltip>
                   </Radio>

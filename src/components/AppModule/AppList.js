@@ -29,6 +29,7 @@ import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
 import CreateAlarm from './AlarmModal'
 import CreateGroup from './AlarmModal/CreateGroup'
+import DeployEnvModal from '../DeployEnvModal'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -393,6 +394,7 @@ class AppList extends Component {
       stopAppsModal: false,
       restarAppsModal: false,
       deleteAppsModal: false,
+      deployEnvModalVisible: false,
       step: 1, // first step create AlarmModal
     }
   }
@@ -911,6 +913,9 @@ class AppList extends Component {
                   <i className="fa fa-plus" />创建应用
                 </Button>
               </Link>
+              <Button type='ghost' size='large' onClick={() => this.setState({ deployEnvModalVisible: true })}>
+                <i className="fa fa-plus" />快速创建
+              </Button>
               <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!runBtn}>
                 <i className='fa fa-play' />启动
               </Button>
@@ -1054,8 +1059,14 @@ class AppList extends Component {
             className="alarmContent"
             footer={null}
           >
-        <CreateGroup funcs={modalFunc} shouldLoadGroup={true} currentApp={this.state.alertCurrentApp}/>
+            <CreateGroup funcs={modalFunc} shouldLoadGroup={true} currentApp={this.state.alertCurrentApp}/>
           </Modal>
+          <DeployEnvModal
+            title="选择部署环境"
+            visible={this.state.deployEnvModalVisible}
+            onCancel={() => this.setState({ deployEnvModalVisible: false })}
+            onOk={() => browserHistory.push('/app_manage/app_create/quick_create')}
+          />
         </div>
       </QueueAnim>
     )
