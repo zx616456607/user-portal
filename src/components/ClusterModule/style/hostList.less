@@ -1,6 +1,5 @@
 #cluster__hostlist{
   .operaBox {
-    text-align: left;
     .addPodBtn {
       margin-right: 15px;
     }
@@ -109,8 +108,10 @@
     }
   }
   .dataBox {
+    text-align: left;
     .podDetail{
       clear: both;
+      overflow: hidden;
     }
     .commonTitle {
       float: left;
@@ -119,6 +120,7 @@
     }
     .name {
       width: 10%;
+      padding-left: 5px;
     }
     .status {
       width: 8%;
@@ -134,14 +136,10 @@
     .disk{
       width: 8%;
       .topSpan {
-        position: absolute;
-        top: 10px;
-        line-height: 14px;
+        line-height: 35px;
       }
       .bottomSpan {
-        position: absolute;
-        bottom: 10px;
-        line-height: 14px;
+        line-height: 10px;
       }
     }
     .schedule {
@@ -161,10 +159,10 @@
       width: 8%;
     }
     .startTime {
-      width: 13%;
+      width: 11%;
     }
     .opera {
-      width: 10%;
+      width: 12%;
       min-width: 102px;
     }
     .alarm {
