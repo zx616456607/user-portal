@@ -1105,11 +1105,9 @@ class Ordinary extends Component {
                 <div className='statusBottomright'>
                   <Progress percent={memoryUsedPrecent} strokeWidth={11} className='statusBottomrightitem' showInfo={false}/>
                 </div>
-                <Tooltip title={`已创建容器 ${ isNaN(allocatedPodNumber) ? '-' :allocatedPodNumber } 个，还可创建${ isNaN(allocatedPodNumber) ? '-' : canCreateContainer } 个`}>
                   <div className='statusBottomthird' >
                     {`已创建容器 ${ isNaN(allocatedPodNumber) ? '-' :allocatedPodNumber } 个，还可创建 ${ isNaN(allocatedPodNumber) ? '-' : canCreateContainer } 个`}
                   </div>
-                </Tooltip>
               </div>
             </Card>
           </Col>

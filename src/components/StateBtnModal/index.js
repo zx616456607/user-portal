@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Alert, Icon } from 'antd'
+import { Alert, Icon, Spin } from 'antd'
 import './style/StateBtnModal.less'
 
 export default class StateBtnModal extends Component{
@@ -18,8 +18,45 @@ export default class StateBtnModal extends Component{
       //
     }
   }
+  getDeleteMessage() {
+    const { state, appList, cdRule } = this.props
+    if(state != 'Delete') return ''
+    let rule = []
+    const appRule = {}
+    if(appList) {
+      rule = cdRule.result.results
+      rule.forEach(item => {
+        if(appRule[item.appname]) appRule[item.appname].push(item.service.bindingDeploymentName)
+        else {
+          appRule[item.appname] = []
+          appRule[item.appname].push(item.service.bindingDeploymentName)
+        }
+      })
+      const keys = Object.getOwnPropertyNames(appRule)
+      if(keys.length <= 0) return ''
+      const messages = keys.map(key => {
+        return <div>{`应用${key}中, 服务${appRule[key].join(',')}已设置自动部署`}</div>
+      })
+      if(messages.length > 0) {
+        messages.push(<div>删除应用后，将自动删除对应对应自动部署规则</div>)
+      }
+      return messages
+    } else {
+      rule = cdRule.result.results.map(item => {
+        return item.bindingDeploymentName
+      })
+      return rule.length > 0 ? <div>{rule.join(',')}已设置自动部署，删除服务将自动删除对应自动部署规则</div>: '' 
+    }
+  }
   render(){
-    const { state, appList, serviceList, scope } = this.props
+    const { state, appList, serviceList, scope, cdRule } = this.props
+    let rule = []
+    const appRule = {}
+    if(state == 'Delete') {
+      if(cdRule.isFetching) {
+        return <div className="loadingBox"><Spin size="large"></Spin></div>
+      }
+    }
     let alertText = ''
     let tip = ''
     let tbInf = ''
@@ -128,7 +165,8 @@ export default class StateBtnModal extends Component{
             <div></div>
         }
         <div className="confirm">
-          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
+        { this.getDeleteMessage()}
+         <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
           您是否确定{opt}这{(checkedList.length - disableArr.length)}个{stateText}的{appList?'应用':'服务'} ?
         </div>
       </div>

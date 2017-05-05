@@ -921,3 +921,89 @@ exports.deleteBaseImage = function* () {
     data: result
   }
 }
+
+exports.getDeploymentOrAppCDRule = function* () {
+  const cluster = this.query.cluster
+  const type = this.params.type
+  let name = this.query.name
+  if(!cluster || !name || !type) {
+    const err = new Error('cluster, name, type is require')
+    err.status = 400
+    throw err
+  }
+  let appService = { isEmptyObject: true }
+  const loginUser = this.session.loginUser
+  if(type == 'app') {
+    appService.isEmptyObject = false
+    const appApi = apiFactory.getK8sApi(loginUser)
+    const result = yield appApi.getBy([cluster, 'apps', name])
+    const apps = result.data
+    if(!apps) {
+      const err = new Error(`cant't find any app`)
+      err.status = 400
+      throw err
+    }
+    const nameArr = name.split(',')
+    name = []
+    nameArr.forEach(key => {
+      const app = apps[key]
+      if(app.services && app.services.length > 0) {
+        app.services.forEach(service => {
+          name.push(service.metadata.name)
+          appService[service.metadata.name] = key
+        })
+      }
+    })
+    if(name.length == 0) {
+      this.status = 200
+      this.body = {
+        results: []
+      }
+      return
+    }
+  }
+  const api =  apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(['cd-rules'], {
+    cluster,
+    name: name.join ? name.join(',') : name
+  })
+  const body = []
+  if(!appService.isEmptyObject) {
+    result.results.forEach(item => {
+      const deploymentName = item.binding_deployment_name
+      body.push({
+        appname: appService[deploymentName],
+        service: item
+      })
+    })
+    this.body = {
+      results: body
+    }
+    return
+  }
+  this.body = result
+}
+
+exports.deleteDeploymentOrAppCDRule = function* () {
+  const cluster = this.query.cluster
+  const type = this.params.type
+  const name = this.query.name
+  if(!cluster || !name || !type) {
+    const err = new Error('cluster, name, type is require')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  if(type == 'app') {
+    const appApi = apiFactory.getK8sApi(loginUser)
+    const result = appApi.getBy([cluster, 'apps'], {
+      name
+    })
+  }
+  const api =  apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.deleteBy(['cd-rules'], {
+    cluster,
+    name
+  })
+  this.body = result
+}
