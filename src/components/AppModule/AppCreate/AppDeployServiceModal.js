@@ -763,7 +763,7 @@ let AppDeployServiceModal = React.createClass({
     const parentScope = this.props.scope
     const { form } = this.props
     e.preventDefault()
-    form.validateFieldsAndScroll((errors, values) => {
+    form.validateFieldsAndScroll({force: true}, (errors, values) => {
       if (!!errors) {
         return
       }
