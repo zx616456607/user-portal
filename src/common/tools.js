@@ -180,18 +180,24 @@ export function setCookie(cName, value, options = {}) {
 }
 
 /**
- * Generate random string with specified length, default is 6
+ * Generate random string with specified length, default is 6, max is 64
  */
 export function genRandomString(mytoken, len) {
   const DEFAULT_TOKEN = '0123456789qwertyuioplkjhgfdsazxcvbnmABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&'
   const DEFAULT_LEN = 6
+  const MAX_LEN = 64
   if (!mytoken) {
     mytoken = DEFAULT_TOKEN
     len = DEFAULT_LEN
   } else if (!len) {
-    len = mytoken
-    mytoken = DEFAULT_TOKEN
+    if (typeof mytoken === 'number') {
+      len = mytoken
+      mytoken = DEFAULT_TOKEN
+    } else {
+      len = DEFAULT_LEN
+    }
   }
+  len = len > MAX_LEN ? MAX_LEN : len
   let randomStr = ''
   for (let i = 0; i < len; i++) {
     randomStr += mytoken.charAt(Math.ceil(Math.random() * 100000000) % mytoken.length)
