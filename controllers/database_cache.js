@@ -42,7 +42,7 @@ exports.createNewDBService = function* () {
     throw err
   }
   const appTemplate = yield templateApi.getBy([basicInfo.templateId])
-  if (appTemplate.data.category == 'mysql') {
+  if (appTemplate.data.category == 'mysql' || appTemplate.data.category == 'redis') {
     // Check password for some template
     if (!basicInfo.password) {
       const err = new Error('password is required')

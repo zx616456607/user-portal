@@ -1098,7 +1098,7 @@ let CreateTenxFlowModal = React.createClass({
     if (stageList.length === 0) {
       uniformRepoProps = getFieldProps('uniformRepo', {
         valuePropName: 'checked',
-        initialValue: (uniformRepo == 0),
+        initialValue: true,
       })
     }
     return (
