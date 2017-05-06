@@ -13,7 +13,7 @@ import {  getAllClusterNodes, getKubectlsPods } from '../../actions/cluster_node
 import { addTerminal } from '../../actions/terminal'
 import { NOT_AVAILABLE } from '../../constants'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
-import TagDropdown from './tagDropdown'
+import ManageTagModal from './tagDropdown'
 
 import './style/hostList.less'
 const MASTER = '主控节点/Master'
@@ -220,6 +220,8 @@ class hostList extends Component {
   constructor(props) {
     super(props)
     this.openTerminalModal = this.openTerminalModal.bind(this)
+    this.handleDropdownTag = this.handleDropdownTag.bind(this)
+    this.formTagContainer = this.formTagContainer.bind(this)
     this.state = {
       addClusterOrNodeModalVisible:false,
       nodeList: [],
@@ -301,69 +303,6 @@ class hostList extends Component {
       addClusterOrNodeModalVisible: true,
     })
   }
-  formMenudata(){
-    return  <Menu onClick={this.handlelabelvalue} className='selectMenu' >
-      <Menu.Item className='selectMenutitle'>
-        <div>标签键</div>
-      </Menu.Item>
-      <Menu.Divider />
-      <SubMenu title="key(系统)">
-        <Menu.Item className='selectMenutitle'>
-          <div>标签值</div>
-        </Menu.Item>
-        <Menu.Item className='selectMenuSecond'>
-          <Tooltip title="vlaue2017123123131312">
-            <div className='name'>vlaue2017123123131312</div>
-          </Tooltip>
-          <div className='num'>(<span>10</span>)</div>
-          <div className='select'><Icon type="check-circle-o" /></div>
-        </Menu.Item>
-        <Menu.Item className='selectMenuSecond'>
-          <Tooltip title="vlaue2016">
-            <div className='name'>vlaue2016</div>
-          </Tooltip>
-          <div className='num'>(<span>8</span>)</div>
-          <div className='select'><Icon type="check-circle-o" /></div>
-        </Menu.Item>
-      </SubMenu>
-      <SubMenu title="key1">
-        <Menu.Item className='selectMenutitle'>
-          <div>标签值</div>
-        </Menu.Item>
-        <Menu.Item className='selectMenuSecond'>
-          <Tooltip title="vlaue2018">
-            <div className='name'>vlaue2018</div>
-          </Tooltip>
-          <div className='num'>(<span>8</span>)</div>
-          <div className='select'><Icon type="check-circle-o" /></div>
-        </Menu.Item>
-        <Menu.Item className='selectMenuSecond'>
-          <Tooltip title="vlaue2019">
-            <div className='name'>vlaue2019</div>
-          </Tooltip>
-          <div className='num'>(<span>8</span>)</div>
-          <div className='select'><Icon type="check-circle-o"/></div>
-        </Menu.Item>
-      </SubMenu>
-      <Menu.Divider />
-      <Menu.Item>
-        <Icon type="plus" style={{marginRight:6}}/>
-        创建标签
-      </Menu.Item>
-      <Menu.Item>
-        <span onClick={this.handleManageLabel}>
-          <Icon type="setting" style={{marginRight:6}}/>
-          标签管理
-        </span>
-      </Menu.Item>
-    </Menu>
-  }
-
-  handlelabelvalue(item, key, keyPath){
-    console.log('item=',item)
-    console.log('key=',key)
-    console.log('keyPath=',keyPath)
-  }
 
   handleManageLabel(){
     this.setState({
@@ -371,35 +310,29 @@ class hostList extends Component {
     })
   }
 
-  handleManageLabelOk(){
-    this.setState({
-      manageLabelModal : false
-    })
+  handleDropdownTag(obj){
+    console.log('HostList.obj=',obj)
   }
 
-  handleManageLabelCancel(){
-    this.setState({
-      manageLabelModal : false
-    })
-  }
-
-  handleAddLabel(key,value){
-    console.log('key')
-    console.log('value')
-    return <div>
-      <Tag closable color="blue"><span>key</span><span>value</span></Tag>
-    </div>
-  }
-
-  formManegeLabelContainerTag(){
-    const { manageLabelContainer } = this.state
-    if(manageLabelContainer.length == 0){
-      return <div>暂无标签</div>
+  formTagContainer(){
+    let arr = []
+    for(let i=0;i<30;i++){
+      arr.push(<Tag closable color="blue" className='tag' key={i}>
+        <Tooltip title='key1'>
+          <span className='key'>key1</span>
+        </Tooltip>
+        <span className='point'>:</span>
+        <Tooltip title='value2017'>
+          <span className='value'>value2017</span>
+        </Tooltip>
+      </Tag>)
     }
+    return arr
   }
+
+
   render() {
     const { addNodeCMD } = this.props
-    const TagHTML = <TagDropdown footer={false}/>
     return <div id="cluster__hostlist">
       <Card className='ClusterListCard'>
         <div className='operaBox'>
@@ -426,22 +359,13 @@ class hostList extends Component {
             <Icon type="search" className="fa" onClick={() => this.searchNodes()} />
           </span>
           <span className='selectlabel' id="cluster__hostlist__selectlabel">
-            <Dropdown overlay={this.formMenudata()} getPopupContainer={() => document.getElementById('cluster__hostlist__selectlabel')}>
-              <Button type="ghost" style={{ marginLeft: 8 }} size="large">
-                <i className="fa fa-tag selectlabeltag" aria-hidden="true"></i>
-                标签
-                <Icon type="down" />
-              </Button>
-            </Dropdown>
+            <ManageTagModal callbackHostList={this.handleDropdownTag}/>
           </span>
-          <span className='selectedroom'>
+          <div className='selectedroom'>
             <span className='selectedroomdiv'>
-              <Tag closable color="blue">蓝色</Tag>
-              <Tag closable color="green">绿色</Tag>
-              <Tag closable color="yellow"><a href="https://github.com/ant-design/ant-design/issues/1862">黄色</a></Tag>
-              <Tag closable color="red">红色</Tag>
+              {this.formTagContainer()}
             </span>
-          </span>
+          </div>
         </div>
         <div className='dataBox'>
           <div className='titleBox'>
@@ -485,50 +409,6 @@ class hostList extends Component {
         </div>
       </Card>
 
-      <Modal
-        title="创建标签"
-        visible={this.state.createLabelModal}
-      >
-
-      </Modal>
-
-      <Modal
-        title="管理标签"
-        visible={true}
-        onOk={this.handleManageLabelOk}
-        onCancel={this.handleManageLabelCancel}
-        wrapClassName="manageLabelModal"
-        width="570px"
-      >
-        <div className='labelcontainer'>
-          {this.formManegeLabelContainerTag()}
-        </div>
-
-        <div className='labelfooter'>
-          <span className='labeldropdown' id="cluster__hostlist__manageLabelModal">
-            <Dropdown overlay={TagHTML} getPopupContainer={() => document.getElementById('cluster__hostlist__manageLabelModal')}>
-            <Button type="ghost" size="large">
-              选择已有节点
-              <Icon type="down" />
-            </Button>
-          </Dropdown>
-          </span>
-          <span className='item'>或</span>
-          <Form
-            inline
-            horizontal={true}
-            className='labelform'
-          >
-            <Form.Item className='itemkey'>
-              <Input placeholder="标签键" />
-            </Form.Item>
-            <Form.Item className='itemkey'>
-              <Input placeholder="标签值"/>
-            </Form.Item>
-          </Form>
-          <Button icon='plus' size="large" className='itembutton' type="ghost" onClick={this.handleAddLabel}>新建标签</Button>
-        </div>
-      </Modal>
       <AddClusterOrNodeModal
         title="添加主机节点"
         visible={this.state.addClusterOrNodeModalVisible}
