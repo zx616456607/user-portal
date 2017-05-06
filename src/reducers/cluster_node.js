@@ -50,7 +50,7 @@ function clusterNodes(state = {}, action) {
   const { cluster, type } = action
   const defaultState = {
     isFetching: false,
-    [cluster]:[],
+    [cluster]: [],
   }
   switch (type) {
     case ActionTypes.GET_NODES_REQUEST:
@@ -96,7 +96,77 @@ function addNodeCMD(state = {}, action) {
   }
 }
 
-export function cluster_nodes(state = { cluster_nodes: {},clusterLabel:{} }, action) {
+function clusterLabel(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.GET_CLOUSTER_LABEL_REQUEST: {
+      return merge({}, state, {
+        isFetching: true
+      })
+    }
+    case ActionTypes.GET_CLOUSTER_LABEL_SUCCESS: {
+      return Object.assign({}, state, {
+        isFetching: false,
+        result: action.response.result,
+        back: cloneDeep(action.response.result)
+      })
+    }
+    case ActionTypes.GET_CLOUSTER_LABEL_FAILURE: {
+      return Object.assign({}, state, {
+        isFetching: false,
+        result: {summary:[]},
+        back: {summary:[]}
+      })
+    }
+    // add labels
+    case ActionTypes.ADD_LABELS_SUCCESS: {
+      const oldState = cloneDeep(state)
+      const mergeMap = action.response.result.data
+      mergeMap.map((item)=>{
+        oldState.back.summary.unshift(item)
+      })
+      const newState = oldState.back.summary
+      oldState.result.summary = oldState.back.summary = newState
+      return oldState
+    }
+
+    // delete labels or edit labels
+    case ActionTypes.EDIT_LABELS_SUCCESS: {
+      if (action.methodType == 'DELETE') {
+        const newState = cloneDeep(state)
+        const data = newState.result.summary
+        data.forEach((list, index) => {
+          if (list.id == action.id) {
+            data.splice(index, 1)
+            newState.back.summary.splice(index, 1)
+          }
+        })
+        return newState
+      }
+      return state
+    }
+    // search labels
+    case ActionTypes.SEARCH_CLUSTER_LABLELS: {
+      const oldState = cloneDeep(state)
+      const searchKey = action.search
+      if (searchKey == '') {
+        oldState.result.summary = state.back.summary
+        return oldState
+      }
+      const newState = state.back.summary.filter((item) => {
+        if (item.key.indexOf(searchKey) > -1 || item.value.indexOf(searchKey) > -1) {
+          return item
+        }
+        return false
+      })
+      oldState.result.summary = newState
+      return oldState
+    }
+    default:
+      return state
+  }
+}
+
+export function cluster_nodes(state = { cluster_nodes: {}, clusterLabel: {} }, action) {
   return {
     getAllClusterNodes: getAllClusterNodes(state.getAllClusterNodes, action),
     clusterNodes: clusterNodes(state.clusterNodes, action),
@@ -114,12 +184,8 @@ export function cluster_nodes(state = { cluster_nodes: {},clusterLabel:{} }, act
       REQUEST: ActionTypes.GET_KUBECTLS_PODS_REQUEST,
       SUCCESS: ActionTypes.GET_KUBECTLS_PODS_SUCCESS,
       FAILURE: ActionTypes.GET_KUBECTLS_PODS_FAILURE
-    }, state.kubectlsPods, action, {overwrite: true}),
+    }, state.kubectlsPods, action, { overwrite: true }),
     addNodeCMD: addNodeCMD(state.addNodeCMD, action),
-    clusterLabel:reducerFactory({
-      REQUEST: ActionTypes.GET_CLOUSTER_LABEL_REQUEST,
-      SUCCESS: ActionTypes.GET_CLOUSTER_LABEL_SUCCESS,
-      FAILURE: ActionTypes.GET_CLOUSTER_LABEL_FAILURE
-    },state.clusterLabel, action, {overwrite: true})
+    clusterLabel: clusterLabel(state.clusterLabel, action)
   }
 }
