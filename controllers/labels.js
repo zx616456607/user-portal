@@ -16,16 +16,12 @@ exports.getLabels = function* () {
   this.body = result ? result.data : {}
 }
 
-exports.addLabel = function* () {
+exports.addLabels = function* () {
   const loginUser = this.session.loginUser
-  const label = this.request.body
+  const labels = this.request.body
   const api = apiFactory.getLabelsApi(loginUser)
-  const result = yield api.createBy([], {}, {
-    key: label.key,
-    value: label.value,
-    target: label.target
-  })
-  this.body = result ? result.data : {}
+  const result = yield api.createBy([], null, labels)
+  this.body = result ? {data: result.data} : {}
 }
 
 exports.updateLabel = function* () {
@@ -33,7 +29,7 @@ exports.updateLabel = function* () {
   const id = this.params.id
   const label = this.request.body
   const api = apiFactory.getLabelsApi(loginUser)
-  const result = yield api.updateBy([id], {}, {
+  const result = yield api.updateBy([id], null, {
     key: label.key,
     value: label.value
   })
