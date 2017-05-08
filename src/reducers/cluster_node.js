@@ -96,7 +96,7 @@ function addNodeCMD(state = {}, action) {
   }
 }
 
-export function cluster_nodes(state = { cluster_nodes: {} }, action) {
+export function cluster_nodes(state = { cluster_nodes: {},clusterLabel:{} }, action) {
   return {
     getAllClusterNodes: getAllClusterNodes(state.getAllClusterNodes, action),
     clusterNodes: clusterNodes(state.clusterNodes, action),
@@ -116,5 +116,10 @@ export function cluster_nodes(state = { cluster_nodes: {} }, action) {
       FAILURE: ActionTypes.GET_KUBECTLS_PODS_FAILURE
     }, state.kubectlsPods, action, {overwrite: true}),
     addNodeCMD: addNodeCMD(state.addNodeCMD, action),
+    clusterLabel:reducerFactory({
+      REQUEST: ActionTypes.GET_CLOUSTER_LABEL_REQUEST,
+      SUCCESS: ActionTypes.GET_CLOUSTER_LABEL_SUCCESS,
+      FAILURE: ActionTypes.GET_CLOUSTER_LABEL_FAILURE
+    },state.clusterLabel, action, {overwrite: true})
   }
 }
