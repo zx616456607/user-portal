@@ -284,7 +284,10 @@ class AlarmGroup extends Component {
       <QueueAnim  className="alarmGroup">
         <div id="AlarmGroup" key="demo">
           <div className='alarmGroupHeader'>
-            <Button size="large" type="primary" icon="plus" onClick={()=> this.showAlramGroup()}>创建</Button>
+            <Button size="large" type="primary" onClick={()=> this.showAlramGroup()}>
+              <i className="fa fa-plus" style={{marginRight:'5px'}}/>
+              创建
+            </Button>
             <Button size="large" type="ghost" onClick={() => this.props.loadNotifyGroups()}><i className="fa fa-refresh" /> 刷新</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length === 0} icon="delete" onClick={(e)=> this.openDeleteModal(e,this.getSelectedGroups())} type="ghost">删除</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length !== 1} icon="edit" onClick={() => this.openModifyModal(this.getModifyingGroup())} type="ghost">修改</Button>
@@ -312,7 +315,6 @@ class AlarmGroup extends Component {
               dataSource={tableData}
               pagination={{simple: true}}
               rowSelection={rowSelection}
-              loading={this.props.isFetching}
               onRowClick={(e)=> this.handClickRow(e)}
             >
             </Table>

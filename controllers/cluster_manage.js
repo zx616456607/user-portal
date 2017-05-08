@@ -105,7 +105,7 @@ exports.deleteCluster = function* () {
     }
   })
   if (defaultClusterSum === 1 && isCurrentClusterDefalut) {
-    throw new Error('不能删除该集群，该集群为对企业内全部个人帐号开放的最后一个集群')
+    throw new Error('不能删除该集群，该集群为首个添加的集群，已授权为企业内全部用户使用的集群；')
     return
   }
   const result = yield api.delete(clusterID)

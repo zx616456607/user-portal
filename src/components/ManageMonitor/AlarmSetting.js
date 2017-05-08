@@ -332,7 +332,7 @@ let MyComponent = React.createClass({
           </div>
           <div className="lists">
             <span className="keys">CPU</span>
-            <Progress percent={parseFloat(data.cpus).toFixed(2)} status="exception" strokeWidth={8} format={ percent => percent + '%'} status={data.cpu > 80 ? 'exception' : ''}  className="progress" />
+            <Progress percent={parseFloat(data.cpus).toFixed(2)} strokeWidth={8} format={ percent => percent + '%'} status={data.cpu > 80 ? 'exception' : ''}  className="progress" />
           </div>
           <div className="lists">
             <span className="keys">流量</span>
@@ -921,7 +921,10 @@ class AlarmSetting extends Component {
       <QueueAnim type="right" className="alarmSetting">
         <div id="AlarmRecord" key="AlarmRecord">
           <div className="topRow" style={{marginBottom: '20px'}}>
-            <Button icon="plus" size="large" type="primary" onClick={()=> this.createStrategy()}>创建</Button>
+            <Button size="large" type="primary" onClick={()=> this.createStrategy()}>
+              <i className="fa fa-plus" style={{marginRight:'5px'}}/>
+              创建
+            </Button>
             <Button size="large" type="ghost" onClick={() => this.refreshPage()}><i className="fa fa-refresh" /> 刷新</Button>
             <Button icon="caret-right" size="large" type="ghost" disabled={!this.state.canStart} onClick={() => this.showStart()}>启用</Button>
             <Button size="large" type="ghost" disabled={!this.state.canStop} onClick={() => this.showStop()}><i className="fa fa-stop" /> &nbsp;停用</Button>
