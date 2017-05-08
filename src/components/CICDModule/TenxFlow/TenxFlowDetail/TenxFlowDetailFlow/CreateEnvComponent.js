@@ -8,12 +8,14 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Icon } from 'antd'
+import { Button, Input, Form, Icon, Spin } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
+import NotificationHandler from '../../../../../common/notification_handler'
+import { loadImageDetailTagConfig,  loadOtherDetailTagConfig } from '../../../../../actions/app_center'
 import './style/EnvComponent.less'
 
 const createForm = Form.create;
@@ -41,21 +43,134 @@ let CreateEnvComponent = React.createClass({
       uuid: 0
     }
   },
-  componentDidMount(){
-    const { config, form, index } = this.props;
-    config.map((item) => {
-      let tmpUuid = ++this.state.uuid;
-      this.setState({
-        uuid: tmpUuid
-      });
-      let keys = form.getFieldValue('service' + index + 'inputs');
-      keys = keys.concat(this.state.uuid);
-      let temp = 'service' + index + 'inputs';
+  loadData() {
+    const { form, loadImageDetailTagConfig, registryServer, index } = this.props
+    let imageName = form.getFieldValue(`serviceSelect${index}`)
+    if (!imageName) {
       form.setFieldsValue({
-        [`${temp}`]: keys
-      });
-    });
+        ['service' + index + 'inputs']:[]
+      })
+      return
+    }
+    this.setState({
+      currentImageName: imageName
+    })
+    let registryUrl = ''
+    if (imageName.indexOf('/') == imageName.lastIndexOf('/')) {
+      registryUrl = registryServer.v2Server
+      let tag = 'latest'
+      if (imageName.indexOf(':') > 0) {
+        imageName = imageName.split(':')
+        tag = imageName[1]
+        imageName = imageName[0]
+        if (!tag) {
+          tag = 'latest'
+        }
+      }
+      const self = this
+      if (registryUrl) {
+        loadImageDetailTagConfig(registryUrl, imageName, tag, {
+          success: {
+            func: (result) => {
+              if (!result.data) return
+              let allEnv = {}
+              const { scope, form, registry, config } = self.props;
+              const { setFieldsValue } = form
+              let imageEnv = result.data
+              let envs = imageEnv.defaultEnv
+              if (envs) {
+                envs.forEach((env, i) => {
+                  env = env.split('=')
+                  allEnv[env[0]] = env[1]
+                })
+              }
+              if (!!config) {
+                config.map((item) => {
+                  allEnv[item.name] = item.value
+                })
+              }
+              const allEnvName = Object.getOwnPropertyNames(allEnv)
+              setFieldsValue({
+                ['service' + index + 'inputs']: allEnvName.map((env, i) => i)
+              })
+              allEnvName.forEach((name, i) => {
+                setFieldsValue({
+                  [`service${index}inputName${i}`]: name,
+                  [`service${index}inputValue${i}`]: allEnv[name]
+                })
+              })
+              if ( self.state.uuid < allEnvName.length) {
+                self.setState({
+                  uuid: allEnvName.length
+                })
+              }
+            }
+          },
+          failed: {
+            func: (res) => {
+              const notify = new NotificationHandler()
+              if (res.message == 'Failed to find any tag') {
+                notify.error('获取镜像信息失败，请检查镜像是否存在')
+                return
+              }
+              notify.error(res.message)
+            }
+          }
+        })
+      }
+    }
   },
+  componentWillMount() {
+    this.loadData()
+  },
+  shouldComponentUpdate(nextProps) {
+    const { form, index } = nextProps
+    let imageName = form.getFieldValue('service' + index + 'inputs')
+     if(!nextProps.visible) {
+       return false
+     }
+     return true
+  },
+  componentWillReceiveProps(nextProps) {
+    const { form, index } = nextProps
+    let imageName = form.getFieldValue(`serviceSelect${index}`)
+    if(nextProps.visible != this.props.visible && nextProps.visible && this.state.currentImageName != imageName) {
+      this.loadData()
+    }
+    // if (nextProps.visible != this.props.visible && nextProps.visible) {
+    //   this.loadData()
+    // }
+    // if (nextProps.visible) {
+    //   if (nextProps.index == this.props.index) return
+    //   const { form } = nextProps
+    //   const { index } = this.props
+    //   const num = form.getFieldValue('service' + index + 'inputs')
+    //   const fields = []
+    //   if(num) {
+    //     num.forEach(i => {
+    //      fields.push([`service${index}inputName${i}`])
+    //      fields.push([`service${index}inputValue${i}`])
+    //     })
+    //   }
+    //   fields.push('service' + index + 'inputs')
+    //   form.resetFields(fields)
+    // }
+  },
+  // componentDidMount(){
+  //   const { config, form, index } = this.props;
+  //   config.map((item) => {
+  //     let tmpUuid = ++this.state.uuid;
+  //     this.setState({
+  //       uuid: tmpUuid
+  //     });
+  //     let keys = form.getFieldValue('service' + index + 'inputs');
+  //     keys = keys.concat(this.state.uuid);
+  //     let temp = 'service' + index + 'inputs';
+  //     form.setFieldsValue({
+  //       [`${temp}`]: keys
+  //     });
+  //   });
+  // },
   addServicesInput (index) {
     //this function for user add an new input div
     //there are no button for user click
@@ -101,7 +216,15 @@ let CreateEnvComponent = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { scope, index, form, config } = this.props;
+    const { scope, index, form, config, registryServer, imageConfig } = this.props;
+    if (!registryServer || !imageConfig) {
+      return <div className="loadingBox"><Spin size="large"></Spin></div>
+    }
+    if (registryServer && imageConfig) {
+      if (imageConfig.imageTagConfig[registryServer.v2Server] && imageConfig.imageTagConfig[registryServer.v2Server].isFetching) {
+        return <div className="loadingBox"><Spin size="large"></Spin></div>
+      }
+    }
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form;
     getFieldProps('service' + index + 'inputs', {
       initialValue: [0],
@@ -169,9 +292,21 @@ let CreateEnvComponent = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-
+  const defaultImageConfig = {}
+  let imageConfig = state.getImageTagConfig
+  if(!imageConfig) {
+    imageConfig = defaultImageConfig
+  }
+    const defaultRegistryServer = {
+  }
+  let registryServer = defaultRegistryServer
+  const { availableImage } = state.cicd_flow
+  if(availableImage) {
+    registryServer = availableImage.server ||  defaultRegistryServer
+  }
   return {
-
+    registryServer,
+    imageConfig
   }
 }
 
@@ -180,7 +315,8 @@ CreateEnvComponent.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  loadOtherDetailTagConfig,
+  loadImageDetailTagConfig
 })(injectIntl(CreateEnvComponent, {
   withRef: true,
 }));
