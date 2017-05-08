@@ -16,12 +16,15 @@ import { browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import SelectImage from './SelectImage'
 import ConfigureService from './ConfigureService'
-import { genRandomString } from '../../../common/tools'
-import { setFormFields, removeFormFields } from '../../../actions/quick_create_app'
+import { genRandomString, toQuerystring } from '../../../common/tools'
+import { removeFormFields } from '../../../actions/quick_create_app'
 import './style/index.less'
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
+const standard = require('../../../../configs/constants').STANDARD_MODE
+const mode = require('../../../../configs/model').mode
+const standardFlag = standard === mode
 
 function genConfigureServiceKey() {
   return genRandomString('0123456789')
@@ -43,10 +46,12 @@ class QuickCreateApp extends Component {
     this.configureServiceKey = genConfigureServiceKey()
     if (hash === SERVICE_CONFIG_HASH && !imageName) {
       browserHistory.replace('/app_manage/app_create/quick_create')
+    } else if (hash !== SERVICE_CONFIG_HASH && imageName && registryServer) {
+      browserHistory.replace(`/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_CONFIG_HASH}`)
     }
     this.state = {
       imageName,
-      registry: registryServer,
+      registryServer,
       serviceList: [],
       confirmGoBackModalVisible: false,
     }
@@ -65,19 +70,19 @@ class QuickCreateApp extends Component {
     return 1
   }
 
-  onSelectImage(imageName, registry) {
-    console.log(imageName, registry)
+  onSelectImage(imageName, registryServer) {
+    console.log(imageName, registryServer)
     const { setFormFields } = this.props
     this.setState({
       imageName,
-      registry,
+      registryServer,
     })
-    setFormFields(this.configureServiceKey, {
+    /*setFormFields(this.configureServiceKey, {
       imageUrl: {
         name: 'imageUrl',
-        value: `${registry}/${imageName}`,
-      }
-    })
+        value: `${registryServer}/${imageName}`,
+      },
+    })*/
     browserHistory.push(`/app_manage/app_create/quick_create${SERVICE_CONFIG_HASH}`)
   }
 
@@ -96,8 +101,8 @@ class QuickCreateApp extends Component {
   }
 
   saveService() {
-    const { validateFields } = this.form
-    validateFields((errors, values) => {
+    const { validateFieldsAndScroll } = this.form
+    validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
         console.log('errors===============')
         console.log(errors)
@@ -111,13 +116,14 @@ class QuickCreateApp extends Component {
   }
 
   renderBody() {
-    if (this.hash === SERVICE_CONFIG_HASH) {
-      const { imageName, registry } = this.state
-          // key={this.configureServiceKey}
+    const { imageName, registryServer } = this.state
+    if (this.hash === SERVICE_CONFIG_HASH && imageName) {
       return (
         <ConfigureService
           id={this.configureServiceKey}
           callbackForm={form => this.form = form}
+          {...{imageName, registryServer}}
+          {...this.props}
         />
       )
     }
@@ -169,7 +175,7 @@ class QuickCreateApp extends Component {
       <Steps size="small" className="steps" status="error" current={this.getStepsCurrent()}>
         <Step title="部署方式" />
         <Step title="选择镜像" />
-        <Step title="服务配置" />
+        <Step title="配置服务" />
       </Steps>
     )
     return(
@@ -210,11 +216,11 @@ class QuickCreateApp extends Component {
 
 function mapStateToProps(state, props) {
   return {
-    //
+    standardFlag
   }
 }
 
 export default connect(mapStateToProps, {
-  setFormFields,
+  // setFormFields,
   removeFormFields,
 })(QuickCreateApp)

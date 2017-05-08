@@ -10,22 +10,16 @@
  * @author Zhangpc
  */
 import * as ActionTypes from '../actions/quick_create_app'
-import merge from 'lodash/merge'
 
 export default function quickCreateApp(state = { fields: {} }, action) {
   const { type, key, fields } = action
   // const default
   switch (type) {
     case ActionTypes.QUICK_CREATE_APP_SET_FORM_FIELDS:
-      /*return Object.assign({}, state, {
-        fields: {
+      return Object.assign({}, state, {
+        fields: Object.assign({}, state.fields, {
           [key]: Object.assign({}, state.fields[key], fields),
-        },
-      })*/
-      return merge({}, state, {
-        fields: {
-          [key]: fields
-        }
+        }),
       })
     case ActionTypes.QUICK_CREATE_APP_REMOVE_FORM_FIELDS:
       const newFields = {}
