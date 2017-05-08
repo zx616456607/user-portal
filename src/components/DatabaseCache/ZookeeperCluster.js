@@ -128,7 +128,7 @@ class ZooKeeper extends Component {
   }
 
   componentWillMount() {
-    document.title = 'ZooKeeper集群 | 时速云';
+    document.title = 'ZooKeeper | 时速云';
     const {loadDbCacheList, cluster} = this.props
     if (cluster == undefined) {
       let notification = new NotificationHandler()

@@ -120,7 +120,7 @@ class RedisDatabase extends Component {
   }
 
   componentWillMount() {
-    document.title = 'Redis集群 | 时速云';
+    document.title = '缓存 | 时速云';
     const { loadDbCacheList, cluster } = this.props
     if (cluster == undefined) {
       let notification = new NotificationHandler()
