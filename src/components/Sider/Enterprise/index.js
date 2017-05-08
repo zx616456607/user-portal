@@ -688,11 +688,16 @@ class Sider extends Component {
                     </Link>
                   </Menu.Item>
                   {role == ROLE_SYS_ADMIN ?
-                    <Menu.Item key='globalConfig'>
+                    [<Menu.Item key='globalConfig'>
                       <Link to='/setting/globalConfig'>
                         <span><div className='sideCircle' style={{marginRight:'18px'}}></div>全局配置</span>
                       </Link>
-                    </Menu.Item>
+                    </Menu.Item>,
+                    <Menu.Item key='advancedSetting'>
+                      <Link to='/setting/advancedSetting'>
+                        <span><div className='sideCircle' style={{marginRight:'18px'}}></div>高级设置</span>
+                      </Link>
+                    </Menu.Item>]
                     :
                     <Menu.Item style={{ display: 'none' }}></Menu.Item>
                   }

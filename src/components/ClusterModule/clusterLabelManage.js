@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import { Button, Icon, Input, Table, Modal, Form } from 'antd'
 import './style/clusterLabelManege.less'
-import { getClusterLabel, addLabels, editLabels } from '../../actions/cluster_node'
+import { getClusterLabel, addLabels, editLabels,searchLabels } from '../../actions/cluster_node'
 import { connect } from 'react-redux'
 import { calcuDate } from '../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
@@ -32,57 +32,47 @@ class ClusterLabelManage extends Component{
     this.state = {
       editVisible : false,
       deleteVisible : false,
-      targets:[],
-      labeldataArray: []
+      targets:{}
     }
   }
   loadData(that) {
     const _this = this
     const { clusterID } = that.props
-    that.props.getClusterLabel(clusterID, {
-      success:{
-        func:(res)=> {
-          _this.setState({labeldataArray: res.summary})
-        }
-      }
-    })
+    that.props.getClusterLabel(clusterID)
   }
   componentWillMount(){
     this.loadData(this)
   }
-
+  // componentWillReceiveProps(nextProps) {
+  //   console.log('nextPros',nextProps)
+  // }
   handleSearchInput(){
-    console.log('按下回车键搜索')
+    const searchItem = document.getElementById('titleInput').value
+    this.props.searchLabels(searchItem)
   }
 
   handleEditCancelModal(){
     this.setState({
       editVisible : false,
-      targets:[]
+      targets:{}
     })
     setTimeout(()=> {
       this.props.form.resetFields()
     },500)
   }
 
-  handleEditButton(id){
-    let targets=[]
-    this.props.result.forEach((item) => {
-      if (item.id && item.id == id) {
-        targets.push(item)
-      }
-    })
+  handleEditButton(row){
     this.setState({
-      editVisible : true,
-      create:false,
-      targets
+      editVisible: true,
+      create: false,
+      targets: row
     })
   }
 
-  handleDeleteButton(index){
+  handleDeleteButton(id){
     this.setState({
       deleteVisible : true,
-      deleteLabelNum : index
+      deleteLabelNum : id
     })
   }
 
@@ -95,19 +85,15 @@ class ClusterLabelManage extends Component{
 
   handleDelteOkModal(){
     const { deleteLabelNum } = this.state
-    const labeldataArray = cloneDeep(this.state.labeldataArray)
     const notificat = new NotificationHandler()
     const _this = this
-    this.props.editLabels(deleteLabelNum,'DELETE',{
+    const body = {
+      id:deleteLabelNum
+    }
+    this.props.editLabels(body,'DELETE',{
       success:{
         func: () => {
-          this.state.labeldataArray.forEach((list,index)=> {
-            if (list.id == deleteLabelNum) {
-              labeldataArray.splice(index,1)
-            }
-          })
           notificat.success('删除标签成功！')
-          _this.setState({labeldataArray})
         }
       },
       failed: {
@@ -134,12 +120,12 @@ class ClusterLabelManage extends Component{
   }
   addRow() {
     const { form } = this.props;
-    this.props.form.validateFields((errors, values) => {
+    form.validateFields((errors, values) => {
       if (!!errors) {
         return
       }
       uuid++
-      let keys = form.getFieldValue('keys')
+      let keys = form.getFieldValue('keys');
       keys = keys.concat(uuid)
       form.setFieldsValue({
         keys
@@ -147,39 +133,112 @@ class ClusterLabelManage extends Component{
 
     });
   }
-   handleEditOkModal(){
+  checkKey(rule, value, callback) {
+    if (!Boolean(value)){
+      callback(new Error('请输入标签键'))
+      return
+    }
+    if (!/^[a-zA-Z-_.]+$/.test(value)) {
+      callback(new Error('请输入英文字母、数字、下划线'))
+      return
+    }
+    if (value.length < 3 || value.length > 64) {
+      callback(new Error('标签键长度为3~64位'))
+      return
+    }
+    callback()
+  }
+  checkValue(rule, value, callback) {
+    if (!Boolean(value)){
+      callback(new Error('请输入标签值'))
+      return
+    }
+    if (!/^[a-zA-Z-_.]+$/.test(value)) {
+      callback(new Error('请输入英文字母、数字、下划线'))
+      return
+    }
+    if (value.length < 3 || value.length > 64) {
+      callback(new Error('标签键长度为3~64位'))
+      return
+    }
+    callback()
+  }
+  handleEditOkModal(){
     //  e.preventDefault();
-    const { addLabels } = this.props
-    this.props.form.validateFields((errors, values) => {
-      if (!!errors) {
-        return
-      }
-      // @todo
-      console.log(values);
-      const labels =[]
-      values.keys.map((item)=> {
-        labels.push({
-          key: values[`key${item}`],
-          value: values[`value${item}`]
+    const { addLabels, editLabels, getClusterLabel, clusterID, form } = this.props
+    const _this = this
+    const notificat = new NotificationHandler()
+    if (this.state.create) {
+      form.validateFields((errors, values) => {
+        if (errors) {
+          return
+        }
+        const labels =[]
+        this.handleEditCancelModal()
+        values.keys.map((item)=> {
+          let key = form.getFieldValue(`key${item}`)
+          let value = form.getFieldValue(`value${item}`)
+          labels.push({
+            key,
+            value,
+            target:'node'
+          })
+        })
+        notificat.spin('添加中...')
+        addLabels(labels,{
+          success: {
+            func:(ret)=> {
+              notificat.close()
+              notificat.success('添加成功！')
+            }
+          },
+          failed:{
+            func:(ret)=> {
+              notificat.close()
+              notificat.success('添加失败！',ret.message.message || ret.message)
+            }
+          }
         })
       })
-      console.log('label',labels)
-      addLabels(labels,{
-        success:{
-          func:()=> {
-            console.log('success')
-          }
+
+    } else {
+      const { targets } = this.state
+      form.validateFields(['editKey','editValue'],(errors, values) => {
+        if (errors) {
+          return
         }
-      })
-    });
-    // this.setState({
-    //   editVisible : false,
-    // })
+        const labels = {
+          key: values.editKey,
+          value: values.editValue
+        }
+        if (targets.key == labels.key && targets.value == labels.value) {
+          notificat.info('未作更改，无需更新！')
+          return
+        }
+        const body = {
+          id: targets.id,
+          labels
+        }
+        this.handleEditCancelModal()
+        notificat.spin('修改中...')
+        editLabels(body,'PUT',{
+          success: {
+            func: ()=> {
+              notificat.close()
+              _this.loadData(_this)
+              notificat.success('修改成功！')
+            },
+            isAsync: true
+          }
+        })
+      });
+
+    }
   }
   render(){
-    const { form, isFetching } = this.props
+    const { form, isFetching, result } = this.props
     const { getFieldProps, getFieldValue } = form
-    const result = this.state.labeldataArray
+    const { targets } = this.state
     const labelcolumns = [
       {
         title:'标签键',
@@ -211,8 +270,8 @@ class ClusterLabelManage extends Component{
         key:'targets',
         dataIndex:'targets',
         width:'15%',
-        render : (text) => <div className='binditem'>
-          {text.length}
+        render : (row) => <div className='binditem'>
+          {row.length}
           <span className='itemspan'>个</span>
           </div>
       },{
@@ -239,7 +298,7 @@ class ClusterLabelManage extends Component{
           {
             row.createAt
             ?<span>
-              <Button type="primary"　className='editbutton' onClick={() => this.handleEditButton(row.id)}>修改</Button>
+              <Button type="primary"　className='editbutton' onClick={() => this.handleEditButton(row)}>修改</Button>
               <Button className='deletebutton' onClick={() => this.handleDeleteButton(row.id)}>删除</Button>
             </span>
             :<span className='systemmessage'>
@@ -253,73 +312,74 @@ class ClusterLabelManage extends Component{
     getFieldProps('keys', {
       initialValue: [0],
     });
-    const formItemLayout = {
-      labelCol: { span: 12 },
-      wrapperCol: { span: 12 },
-    };
-    const formItems = getFieldValue('keys').map((k) => {
-      return (
+    let formItems
+    if (this.state.create) {
+      formItems = getFieldValue('keys').map((k) => {
+        return (
+          <div className="formRow" key={`create-${k}`}>
+            <div className="formlabelkey">
+              <FormItem key={k}>
+                <Input {...getFieldProps(`key${k}`, {
+                  rules: [{
+                    whitespace: true,
+                  },{
+                    validator: this.checkKey
+                  }],
+                })} placeholder="请填写标签键"
+                />
+              </FormItem>
+            </div>
+            <div className="formlabelvalue">
+              <FormItem key={k}>
+                <Input {...getFieldProps(`value${k}`, {
+                  rules: [{
+                    whitespace: true,
+                  },{
+                    validator: this.checkValue
+                  }],
+                })} placeholder="请填写标签值"
+                />
+              </FormItem>
+            </div>
+            <Button icon="delete" className="foredelteicon" size="large" onClick={() => this.removeRow(k)}></Button>
+          </div>
+        );
+      });
+    } else {
+      formItems = (
         <div className="formRow">
           <div className="formlabelkey">
-            <FormItem key={k}>
-              <Input {...getFieldProps(`key${k}`, {
+            <FormItem >
+              <Input {...getFieldProps('editKey', {
                 rules: [{
-                  required: true,
                   whitespace: true,
                   message: '请填写标签键',
+                }, {
+                  validator: this.checkKey
                 }],
-              })} placeholder="请填写标签键" style={{ width: '90%', marginRight: 8 }}
+                initialValue: targets.key ? targets.key : undefined
+              })}
               />
             </FormItem>
           </div>
           <div className="formlabelvalue">
-            <FormItem key={k}>
-              <Input {...getFieldProps(`value${k}`, {
+            <FormItem>
+              <Input {...getFieldProps('editValue', {
                 rules: [{
-                  required: true,
                   whitespace: true,
                   message: '请填写标签值',
+                }, {
+                  validator: this.checkValue
                 }],
-              })} placeholder="请填写标签值" style={{ width: '90%', marginRight: 8 }}
-              />
-            </FormItem>
-          </div>
-          <Button icon="delete" style={{float:'left'}} size="large" onClick={() => this.removeRow(k)}></Button>
-        </div>
-      );
-    });
-    const editFormItem = this.state.targets.map((k)=> {
-      return (
-        <div className="formRow">
-          <div className="formlabelkey">
-            <FormItem key={k}>
-              <Input {...getFieldProps(`key${k}`, {
-                rules: [{
-                  required: true,
-                  whitespace: true,
-                  message: '请填写标签名',
-                }],
-                initialValue: k.key
-              })} style={{ width: '90%', marginRight: 8 }}
-              />
-            </FormItem>
-          </div>
-          <div className="formlabelvalue">
-            <FormItem key={k}>
-              <Input {...getFieldProps(`value${k}`, {
-                rules: [{
-                  required: true,
-                  whitespace: true,
-                  message: '请填写标签值',
-                }],
-                initialValue: k.value
-              })} style={{ width: '90%', marginRight: 8 }}
+                initialValue: targets.value ? targets.value : undefined
+              })}
               />
             </FormItem>
           </div>
         </div>
-      );
-    })
+      )
+    }
+
     return <div id="cluster__labelmanage">
       <div className='labelmanage__title'>
         <Button icon="plus" type="primary" onClick={()=> this.setState({editVisible: true,create: true})} size="large" className='titlebutton'>创建标签</Button>
@@ -328,7 +388,7 @@ class ClusterLabelManage extends Component{
           <Input
             placeholder="情输入标签键或标签值搜索"
             size="large"
-            className='titleInput'
+            id='titleInput'
             onPressEnter={this.handleSearchInput}
           />
           <Icon type="search" className='titleicon' onClick={this.handleSearchInput}/>
@@ -336,7 +396,7 @@ class ClusterLabelManage extends Component{
         <span className='titlenum'>共计 <span>{result.length}</span> 条</span>
       </div>
       <Table
-        rowKey={record => record.key+record.value}
+        rowKey={record => 'row-'+ record.key + record.value}
         className="labelmanage__content"
         columns={labelcolumns}
         dataSource={ result }
@@ -360,12 +420,7 @@ class ClusterLabelManage extends Component{
           </div>
           <div style={{clear:'both'}}></div>
           {/* create form  item or edit form item view */}
-          { this.state.create ?
-            formItems
-            :
-            editFormItem
-          }
-
+          {formItems}
         </Form>
         { this.state.create ?
           <div style={{clear:'both'}}>
@@ -384,8 +439,10 @@ class ClusterLabelManage extends Component{
         wrapClassName="labelManageModal"
         width="560px"
       >
-        <Icon type="info-circle-o" style={{marginRight:'3px'}}/>
-        确定要删除当前标签吗？
+        <div className="confirmText">
+          <Icon type="info-circle-o" style={{marginRight:'3px'}}/>
+          确定要删除当前标签吗？
+        </div>
       </Modal>
     </div>
   }
@@ -396,6 +453,8 @@ ClusterLabelManage = Form.create()(ClusterLabelManage)
 function mapStateToProps(state,props) {
   const { clusterLabel } = state.cluster_nodes || {}
   let { isFetching, result } = clusterLabel
+  const { current } = state.entities
+  const cluster = current.cluster || {}
   if (!isFetching) {
     isFetching = false
   }
@@ -411,5 +470,6 @@ function mapStateToProps(state,props) {
 export default connect(mapStateToProps, {
   getClusterLabel,
   addLabels,
-  editLabels
+  editLabels,
+  searchLabels
 })(ClusterLabelManage)

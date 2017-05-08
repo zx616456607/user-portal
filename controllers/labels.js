@@ -21,7 +21,10 @@ exports.addLabels = function* () {
   const labels = this.request.body
   const api = apiFactory.getLabelsApi(loginUser)
   const result = yield api.createBy([], null, labels)
-  this.body = result ? {data: result.data} : {}
+  this.body = result ? {data: result.data.map(label => Object.assign({
+    targets: [],
+    isUserDefined: true
+  }, label))} : {}
 }
 
 exports.updateLabel = function* () {
