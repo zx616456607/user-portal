@@ -415,7 +415,7 @@ class ImageDetailBox extends Component {
 
   formatErrorMessage(body) {
     const mapping = {
-      'jobalreadyexist': '已经触发扫描，请稍后再试！',
+      'jobalreadyexist': '版本已经触发扫描，请稍后再试！',
       'no non-empty layer': "版本为空镜像，无法对空镜像进行扫描",
     }
     const message = body.message.message
