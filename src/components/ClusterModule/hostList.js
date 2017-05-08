@@ -13,7 +13,7 @@ import {  getAllClusterNodes, getKubectlsPods } from '../../actions/cluster_node
 import { addTerminal } from '../../actions/terminal'
 import { NOT_AVAILABLE } from '../../constants'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
-import ManageTagModal from './tagDropdown'
+import ManageTagModal from './TagDropdown'
 
 import './style/hostList.less'
 const MASTER = '主控节点/Master'

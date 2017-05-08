@@ -9,7 +9,7 @@
  */
 import React, { Component } from 'react'
 import { Menu, Dropdown, Icon, Tooltip, Button, Modal, Form, Input, Tag } from 'antd'
-import './style/tagDropdomn.less'
+import './style/TagDropdown.less'
 import cloneDeep from 'lodash/cloneDeep'
 
 const SubMenu = Menu.SubMenu;
