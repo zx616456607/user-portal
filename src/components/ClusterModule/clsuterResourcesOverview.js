@@ -43,7 +43,6 @@ class ClusterResourcesOverview extends Component{
     //  pod.sum = pod[camelize('Failed')] + pod[camelize('Pending')] + pod[camelize('Running')] + pod[camelize('Unknown')]
     //  pod.unNormal = pod[camelize('Failed')] + pod[camelize('Unknown')]
     //}
-    console.log('pod=',pod)
     let containerOption = {
       tooltip : {
         trigger: 'item',

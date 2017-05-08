@@ -645,6 +645,7 @@ class ClusterList extends Component {
                 key='ClusterTabs'
                 defaultActiveKey={currentClusterID}
                 type="card"
+                style={{position:'relative'}}
                 tabBarExtraContent={
                   <Tooltip
                     title={`当前许可证最多支持 ${maxClusters || '-'} 个 集群（目前已添加 ${clusterSum} 个）`}
