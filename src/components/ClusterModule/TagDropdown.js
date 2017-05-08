@@ -329,6 +329,7 @@ class ManageTagModal extends Component {
           onCancel={this.handleManageLabelCancel}
           wrapClassName="manageLabelModal"
           width="570px"
+          maskClosable={false}
         >
           <div className='labelcontainer'>
             {this.formManegeLabelContainerTag()}
@@ -362,6 +363,7 @@ class ManageTagModal extends Component {
           onCancel={this.handleCancelLabelModal}
           width="560px"
           wrapClassName="manageLabelModal"
+          maskClosable={false}
         >
           <Form inline>
             <div className='title'>
