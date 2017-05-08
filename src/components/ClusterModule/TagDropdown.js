@@ -180,7 +180,7 @@ class TagDropdown extends Component {
         return <span>
           <i className="fa fa-tag selectlabeltag" aria-hidden="true"></i>
           标签
-          <Icon type="down" />
+          <Icon type="down" style={{marginLeft:'12px'}}/>
         </span>
       default :
         return <span>请输入要显示的文字</span>
