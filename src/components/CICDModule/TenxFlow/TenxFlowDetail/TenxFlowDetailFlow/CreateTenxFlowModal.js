@@ -353,6 +353,8 @@ let CreateTenxFlowModal = React.createClass({
   },
   openEnvSettingModal(index) {
     //this function for user open the modal of setting the service env
+    const imageName = this.props.form.getFieldValue(`serviceSelect${index}`)
+    if(!imageName) return
     this.setState({
       envModalShow: index
     });
@@ -1005,7 +1007,7 @@ let CreateTenxFlowModal = React.createClass({
               onOk={this.closeEnvSettingModal}
               onCancel={this.closeEnvSettingModal}
               >
-              <EnvComponent scope={scopeThis} index={k} form={form} />
+              <EnvComponent scope={scopeThis} index={k} form={form} visible={this.state.envModalShow == k ? true : false}/>
             </Modal>
           </div>
         </QueueAnim>
@@ -1363,7 +1365,7 @@ let CreateTenxFlowModal = React.createClass({
             onOk={this.closeImageEnvModal}
             onCancel={this.closeImageEnvModal}
             >
-            <CreateImageEnvComponent scope={scopeThis} form={form} />
+              <CreateImageEnvComponent scope={scopeThis} form={form} imageName={this.props.form.getFieldValue('imageName')}  visible={this.state.ImageEnvModal}/>
           </Modal>
         </Form>
         <div className='modalBtnBox'>
@@ -1396,6 +1398,7 @@ let CreateTenxFlowModal = React.createClass({
 
 function mapStateToProps(state, props) {
   return {
+
   }
 }
 

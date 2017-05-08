@@ -888,6 +888,7 @@ function availableImage(state = {}, action) {
         isFetching: false,
         imageList: resultArray,
         baseImages,
+        server: action.response.result.data.registry
       })
     }
     case ActionTypes.GET_AVAILABLE_IMAGE_FAILURE: {
