@@ -193,6 +193,15 @@ class AlarmGroup extends Component {
     })
     this.setState({selectedRowKeys: keys,selectedRows: selectGrops})
   }
+  showAlramGroup() {
+    this.setState({
+      createGroup: true,
+      createModalTitle: '创建新通知组'
+    })
+    setTimeout(()=> {
+      document.getElementById('groupName').focus()
+    },500)
+  }
   render() {
     if (!this.props.groups) {
       return (
@@ -275,7 +284,7 @@ class AlarmGroup extends Component {
       <QueueAnim  className="alarmGroup">
         <div id="AlarmGroup" key="demo">
           <div className='alarmGroupHeader'>
-            <Button size="large" type="primary" icon="plus" onClick={()=> this.setState({createGroup:true, createModalTitle: '创建新通知组'})}>创建</Button>
+            <Button size="large" type="primary" icon="plus" onClick={()=> this.showAlramGroup()}>创建</Button>
             <Button size="large" type="ghost" onClick={() => this.props.loadNotifyGroups()}><i className="fa fa-refresh" /> 刷新</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length === 0} icon="delete" onClick={(e)=> this.openDeleteModal(e,this.getSelectedGroups())} type="ghost">删除</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length !== 1} icon="edit" onClick={() => this.openModifyModal(this.getModifyingGroup())} type="ghost">修改</Button>

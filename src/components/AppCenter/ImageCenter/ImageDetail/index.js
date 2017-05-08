@@ -402,7 +402,7 @@ class ImageDetailBox extends Component {
             })
             return
           }
-          notificationHandler.error('['+imageName+ ']' +'镜像的'+ '[' + tag + ']' + '版本' + this.formatErrorMessage(res))
+          notificationHandler.error('['+imageName+ ']' +'镜像的'+ '[' + tag + ']' + this.formatErrorMessage(res))
           this.setState({
             safetyscanVisible:false,
             safetyscanLoading:false,
@@ -415,8 +415,8 @@ class ImageDetailBox extends Component {
 
   formatErrorMessage(body) {
     const mapping = {
-      'jobalreadyexist': '已经触发扫描，请稍后再试！',
-      'no non-empty layer': "为空镜像，无法对空镜像进行扫描",
+      'jobalreadyexist': '版本已经触发扫描，请稍后再试！',
+      'no non-empty layer': "版本为空镜像，无法对空镜像进行扫描",
     }
     const message = body.message.message
     if (!(message in mapping)) {
