@@ -32,9 +32,13 @@ let CreateTeamModal = React.createClass({
       callback([new Error('请输入团队名')])
       return
     }
+    if (value.length > 38) {
+      callback(new Error('请输入3~38位字符'))
+      return
+    }
     const { checkTeamName } = this.props.funcs
     if (!USERNAME_REG_EXP_NEW.test(value)) {
-      callback(new Error('以[a~z]开头，允许[0~9]、[-]，长度大于4，且以小写英文和数字结尾'))
+      callback(new Error('以[a~z]开头，允许[0~9]、[-]，3~38位字符，且以小写英文和数字结尾'))
       return
     }
 
@@ -86,10 +90,11 @@ let CreateTeamModal = React.createClass({
   },
   handleCancel(e) {
     e.preventDefault()
-    const { scope } = this.props
+    const { scope, form} = this.props
     scope.setState({
       visible: false,
     })
+    form.resetFields()
   },
   render() {
     const { form, visible } = this.props
@@ -106,10 +111,9 @@ let CreateTeamModal = React.createClass({
     }
     return (
       <Modal title="创建团队" visible={visible}
-        onOk={this.handleOk} onCancel={this.handleCancel}
         wrapClassName="NewTeamForm"
         key="NewTeamForm"
-        width={500}
+        width={510}
         footer={[
           <Button
             key="back"
