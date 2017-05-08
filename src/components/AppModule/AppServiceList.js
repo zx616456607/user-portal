@@ -1277,6 +1277,12 @@ function mapStateToProps(state, props) {
   }
   const { serviceList, isFetching, total, availabilityNumber } = targetServices || defaultServices
   const { getDeploymentOrAppCDRule } = state.cicd_flow
+  const defaultCDRule = {
+    isFetching: false,
+    result: {
+      results: []
+    }
+  }
   return {
     loginUser: loginUser,
     cluster: cluster.clusterID,
@@ -1292,7 +1298,7 @@ function mapStateToProps(state, props) {
     serviceList,
     isFetching,
     availabilityNumber,
-    cdRule: getDeploymentOrAppCDRule
+    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule : defaultCDRule
   }
 }
 

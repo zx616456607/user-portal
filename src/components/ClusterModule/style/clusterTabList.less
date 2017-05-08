@@ -1,6 +1,14 @@
 .clusterTabListBox {
-  text-align: center;
   #clusterTabList{
+    .ant-tabs-bar{
+      border-bottom: none;
+      .ant-tabs-nav-container{
+        border-bottom: none;
+        .ant-tabs-nav{
+          border-bottom: 1px solid #d9d9d9  ;
+        }
+      }
+    }
     .tablepanespan{
       margin-left: 6px;
     }
@@ -16,6 +24,12 @@
         background: #ffffff;
         width: 140px;;
         padding-right: 31px;
+      }
+      .ant-tabs-tab:nth-of-type(2){
+        border-radius: 4px 0 0 4px;
+      }
+      .ant-tabs-tab:nth-of-type(5){
+        border-radius: 0 4px 4px 0;
       }
       .ant-tabs-tab-inner{
         width: 140px;

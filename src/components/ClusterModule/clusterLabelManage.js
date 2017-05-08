@@ -10,14 +10,19 @@
 import React, { Component } from 'react'
 import { Button, Icon, Input, Table, Modal, Form } from 'antd'
 import './style/clusterLabelManege.less'
+import { getClusterLabel, addLabels, editLabels,searchLabels } from '../../actions/cluster_node'
+import { connect } from 'react-redux'
+import { calcuDate } from '../../common/tools'
+import cloneDeep from 'lodash/cloneDeep'
+import NotificationHandler from '../../common/notification_handler'
 
 const FormItem = Form.Item
+let uuid = 0
 
 class ClusterLabelManage extends Component{
   constructor(props){
     super(props)
     this.handleSearchInput = this.handleSearchInput.bind(this)
-    this.formlabeldata = this.formlabeldata.bind(this)
     this.handleEditCancelModal = this.handleEditCancelModal.bind(this)
     this.handleEditOkModal = this.handleEditOkModal.bind(this)
     this.handleEditButton = this.handleEditButton.bind(this)
@@ -26,82 +31,48 @@ class ClusterLabelManage extends Component{
     this.handleDelteCancelModal = this.handleDelteCancelModal.bind(this)
     this.state = {
       editVisible : false,
-      labeldataArray : [],
-      ModalLabelKey : '',
-      ModalLabelValue : '',
       deleteVisible : false,
-      deleteLabelNum : '',
+      targets:{}
     }
   }
-
+  loadData(that) {
+    const _this = this
+    const { clusterID } = that.props
+    that.props.getClusterLabel(clusterID)
+  }
   componentWillMount(){
-    this.setState({
-      labeldataArray : this.formlabeldata(),
-    })
+    this.loadData(this)
   }
-
-  formlabeldata(){
-    let index = 0
-    let array = [{
-      key:index,
-      labelkey:'asda',
-      attribute:'系统创建',
-      labelvalue:'value',
-      bind:'10',
-      createtime:"1个月前",
-      handle:{
-        system:true,
-        index:index
-      }
-    }]
-    for(let i=0; i <5; i++){
-      index ++
-      let item = {
-        key:index,
-        labelkey:'asda',
-        attribute:'自定义',
-        labelvalue:'value',
-        bind:'0',
-        createtime:"1个月前",
-        handle:{
-          system:false,
-          index:index
-        }
-      }
-      array.push(item)
-    }
-    return array
-  }
-
+  // componentWillReceiveProps(nextProps) {
+  //   console.log('nextPros',nextProps)
+  // }
   handleSearchInput(){
-    console.log('按下回车键搜索')
+    const searchItem = document.getElementById('titleInput').value
+    this.props.searchLabels(searchItem)
   }
 
   handleEditCancelModal(){
     this.setState({
       editVisible : false,
+      targets:{}
     })
+    setTimeout(()=> {
+      this.props.form.resetFields()
+    },500)
   }
 
-  handleEditOkModal(){
+  handleEditButton(row){
     this.setState({
-      editVisible : false,
+      editVisible: true,
+      create: false,
+      targets: row
     })
   }
 
-  handleEditButton(index){
-    const { labeldataArray } = this.state
-    this.setState({
-      editVisible : true,
-      ModalLabelKey : labeldataArray[index].labelkey,
-      ModalLabelValue : labeldataArray[index].labelvalue
-    })
-  }
-
-  handleDeleteButton(index){
+  handleDeleteButton(id){
     this.setState({
       deleteVisible : true,
-      deleteLabelNum : index
+      deleteLabelNum : id
     })
   }
 
@@ -113,94 +84,327 @@ class ClusterLabelManage extends Component{
   }
 
   handleDelteOkModal(){
-    const { labeldataArray ,deleteLabelNum } = this.state
-    labeldataArray.splice(deleteLabelNum,1)
+    const { deleteLabelNum } = this.state
+    const notificat = new NotificationHandler()
+    const _this = this
+    const body = {
+      id:deleteLabelNum
+    }
+    this.props.editLabels(body,'DELETE',{
+      success:{
+        func: () => {
+          notificat.success('删除标签成功！')
+        }
+      },
+      failed: {
+        func: (ret) => {
+          notificat.error('删除标签失败！',ret.message.message || ret.message)
+        }
+      }
+    })
     this.setState({
       deleteVisible : false,
-      labeldataArray
     })
   }
+  removeRow(k) {
+  const { form } = this.props;
+    // can use data-binding to get
+    let keys = form.getFieldValue('keys');
+    keys = keys.filter((key) => {
+      return key !== k;
+    });
+    // can use data-binding to set
+    form.setFieldsValue({
+      keys,
+    });
+  }
+  addRow() {
+    const { form } = this.props;
+    form.validateFields((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      uuid++
+      let keys = form.getFieldValue('keys');
+      keys = keys.concat(uuid)
+      form.setFieldsValue({
+        keys
+      });
 
-  render(){
-    const { form } = this.props
-    const { getFieldProps } = form
-    const labelcolumns = [{
-      title:'标签键',
-      key:'1',
-      dataIndex:'labelkey',
-      width:'19%',
-      render : (text) => <div>{text}</div>
-    },{
-      title:'属性',
-      key:'2',
-      dataIndex:'attribute',
-      width:'16%',
-      render : (text) => <div>{text}</div>
-    },{
-      title:'标签值',
-      key:'3',
-      dataIndex:'labelvalue',
-      width:'15%',
-      render : (text) => <div>{text}</div>
-    },{
-      title:'绑定实例',
-      key:'4',
-      dataIndex:'bind',
-      width:'15%',
-      render : (text) => <div className='binditem'>
-        {text}
-        <span className='itemspan'>个</span>
-        </div>
-    },{
-      title:'创建时间',
-      key:'5',
-      dataIndex:'createtime',
-      width:'19%',
-      sorter: true,
-      render : (text) => <div>{text}</div>
-    },{
-      title:'操作',
-      key:'6',
-      dataIndex:'handle',
-      width:'16%',
-      className:'handle',
-      render : (text) => <div>
-        {
-          !text.system
-          ?<span>
-            <Button type="primary"　className='editbutton' onClick={() => this.handleEditButton(text.index)}>修改</Button>
-            <Button className='deletebutton' onClick={() => this.handleDeleteButton(text.index)}>删除</Button>
-          </span>
-          :<span className='systemmessage'>
-            <Icon type="info-circle-o" className='handleicon'/>
-            该标签为系统创建，不可操作
-          </span>
+    });
+  }
+  checkKey(rule, value, callback) {
+    if (!Boolean(value)){
+      callback(new Error('请输入标签键'))
+      return
+    }
+    if (!/^[a-zA-Z-_.]+$/.test(value)) {
+      callback(new Error('请输入英文字母、数字、下划线'))
+      return
+    }
+    if (value.length < 3 || value.length > 64) {
+      callback(new Error('标签键长度为3~64位'))
+      return
+    }
+    callback()
+  }
+  checkValue(rule, value, callback) {
+    if (!Boolean(value)){
+      callback(new Error('请输入标签值'))
+      return
+    }
+    if (!/^[a-zA-Z-_.]+$/.test(value)) {
+      callback(new Error('请输入英文字母、数字、下划线'))
+      return
+    }
+    if (value.length < 3 || value.length > 64) {
+      callback(new Error('标签键长度为3~64位'))
+      return
+    }
+    callback()
+  }
+  handleEditOkModal(){
+    //  e.preventDefault();
+    const { addLabels, editLabels, getClusterLabel, clusterID, form } = this.props
+    const _this = this
+    const notificat = new NotificationHandler()
+    if (this.state.create) {
+      form.validateFields((errors, values) => {
+        if (errors) {
+          return
         }
-      </div>
-    }]
+        const labels =[]
+        this.handleEditCancelModal()
+        values.keys.map((item)=> {
+          let key = form.getFieldValue(`key${item}`)
+          let value = form.getFieldValue(`value${item}`)
+          labels.push({
+            key,
+            value,
+            target:'node'
+          })
+        })
+        notificat.spin('添加中...')
+        addLabels(labels,{
+          success: {
+            func:(ret)=> {
+              notificat.close()
+              notificat.success('添加成功！')
+            }
+          },
+          failed:{
+            func:(ret)=> {
+              notificat.close()
+              notificat.success('添加失败！',ret.message.message || ret.message)
+            }
+          }
+        })
+      })
+
+    } else {
+      const { targets } = this.state
+      form.validateFields(['editKey','editValue'],(errors, values) => {
+        if (errors) {
+          return
+        }
+        const labels = {
+          key: values.editKey,
+          value: values.editValue
+        }
+        if (targets.key == labels.key && targets.value == labels.value) {
+          notificat.info('未作更改，无需更新！')
+          return
+        }
+        const body = {
+          id: targets.id,
+          labels
+        }
+        this.handleEditCancelModal()
+        notificat.spin('修改中...')
+        editLabels(body,'PUT',{
+          success: {
+            func: ()=> {
+              notificat.close()
+              _this.loadData(_this)
+              notificat.success('修改成功！')
+            },
+            isAsync: true
+          }
+        })
+      });
+
+    }
+  }
+  render(){
+    const { form, isFetching, result } = this.props
+    const { getFieldProps, getFieldValue } = form
+    const { targets } = this.state
+    const labelcolumns = [
+      {
+        title:'标签键',
+        key:'keys',
+        dataIndex:'key',
+        width:'19%',
+      },{
+        title:'属性',
+        key:'2',
+        dataIndex:'attribute',
+        width:'16%',
+        render : (text,row) => {
+          if (row.createAt) {
+            return (
+              <div>自定义</div>
+            )
+          }
+          return (
+            <div>系统创建</div>
+          )
+        }
+      },{
+        title:'标签值',
+        key:'value',
+        dataIndex:'value',
+        width:'15%'
+      },{
+        title:'绑定实例',
+        key:'targets',
+        dataIndex:'targets',
+        width:'15%',
+        render : (row) => <div className='binditem'>
+          {row.length}
+          <span className='itemspan'>个</span>
+          </div>
+      },{
+        title:'创建时间',
+        key:'createAt',
+        dataIndex:'createAt',
+        width:'19%',
+        sorter: true,
+        render : (text)=>{
+          if (text) {
+            return (
+              <div>{calcuDate(text)}</div>
+            )
+          }
+          return '--'
+        }
+      },{
+        title:'操作',
+        key:'actions',
+        dataIndex:'handle',
+        width:'16%',
+        className:'handle',
+        render : (text,row) => <div>
+          {
+            row.createAt
+            ?<span>
+              <Button type="primary"　className='editbutton' onClick={() => this.handleEditButton(row)}>修改</Button>
+              <Button className='deletebutton' onClick={() => this.handleDeleteButton(row.id)}>删除</Button>
+            </span>
+            :<span className='systemmessage'>
+              <Icon type="info-circle-o" className='handleicon'/>
+              该标签为系统创建，不可操作
+            </span>
+          }
+        </div>
+      }
+    ]
+    getFieldProps('keys', {
+      initialValue: [0],
+    });
+    let formItems
+    if (this.state.create) {
+      formItems = getFieldValue('keys').map((k) => {
+        return (
+          <div className="formRow" key={`create-${k}`}>
+            <div className="formlabelkey">
+              <FormItem key={k}>
+                <Input {...getFieldProps(`key${k}`, {
+                  rules: [{
+                    whitespace: true,
+                  },{
+                    validator: this.checkKey
+                  }],
+                })} placeholder="请填写标签键"
+                />
+              </FormItem>
+            </div>
+            <div className="formlabelvalue">
+              <FormItem key={k}>
+                <Input {...getFieldProps(`value${k}`, {
+                  rules: [{
+                    whitespace: true,
+                  },{
+                    validator: this.checkValue
+                  }],
+                })} placeholder="请填写标签值"
+                />
+              </FormItem>
+            </div>
+            <Button icon="delete" className="foredelteicon" size="large" onClick={() => this.removeRow(k)}></Button>
+          </div>
+        );
+      });
+    } else {
+      formItems = (
+        <div className="formRow">
+          <div className="formlabelkey">
+            <FormItem >
+              <Input {...getFieldProps('editKey', {
+                rules: [{
+                  whitespace: true,
+                  message: '请填写标签键',
+                }, {
+                  validator: this.checkKey
+                }],
+                initialValue: targets.key ? targets.key : undefined
+              })}
+              />
+            </FormItem>
+          </div>
+          <div className="formlabelvalue">
+            <FormItem>
+              <Input {...getFieldProps('editValue', {
+                rules: [{
+                  whitespace: true,
+                  message: '请填写标签值',
+                }, {
+                  validator: this.checkValue
+                }],
+                initialValue: targets.value ? targets.value : undefined
+              })}
+              />
+            </FormItem>
+          </div>
+        </div>
+      )
+    }
+
     return <div id="cluster__labelmanage">
       <div className='labelmanage__title'>
-        <Button type="primary" icon="reload" size="large" className='titlebutton'>刷新</Button>
+        <Button icon="plus" type="primary" onClick={()=> this.setState({editVisible: true,create: true})} size="large" className='titlebutton'>创建标签</Button>
+        <Button type="primary" size="large" onClick={()=> this.loadData(this)} className='titlebutton'><i className='fa fa-refresh' /> 刷新</Button>
         <span className='titlesearch'>
           <Input
             placeholder="情输入标签键或标签值搜索"
             size="large"
-            className='titleInput'
+            id='titleInput'
             onPressEnter={this.handleSearchInput}
           />
           <Icon type="search" className='titleicon' onClick={this.handleSearchInput}/>
         </span>
-        <span className='titlenum'>共计 <span>4</span> 条</span>
+        <span className='titlenum'>共计 <span>{result.length}</span> 条</span>
       </div>
-      <div className="labelmanage__content">
-        <Table
-          columns={labelcolumns}
-          dataSource={this.formlabeldata()}
-        />
-      </div>
-
+      <Table
+        rowKey={record => 'row-'+ record.key + record.value}
+        className="labelmanage__content"
+        columns={labelcolumns}
+        dataSource={ result }
+        pagination={{simple:true}}
+        loading={isFetching}
+      />
       <Modal
-        title="修改标签"
+        title={this.state.create ? '创建标签':'修改标签'}
         visible={this.state.editVisible}
         onOk={this.handleEditOkModal}
         onCancel={this.handleEditCancelModal}
@@ -210,22 +414,21 @@ class ClusterLabelManage extends Component{
         <Form className='labelManageForm'>
           <div className="formlabelkey">
             <div className='top'>标签键</div>
-            <FormItem>
-              <Input {...getFieldProps('editlabelkey',{
-                initialValue : this.state.ModalLabelKey
-              })}/>
-            </FormItem>
           </div>
           <div className="formlabelvalue">
             <div className='top'>标签值</div>
-            <FormItem>
-              <Input {...getFieldProps('editlabelvalue',{
-                initialValue : this.state.ModalLabelValue
-              })}/>
-            </FormItem>
           </div>
+          <div style={{clear:'both'}}></div>
+          {/* create form  item or edit form item view */}
+          {formItems}
         </Form>
-        <div style={{clear:'both'}}></div>
+        { this.state.create ?
+          <div style={{clear:'both'}}>
+            <span className="cursor" onClick={()=> this.addRow()}><Icon type="plus-circle-o" /> 添加一组标签</span>
+          </div>
+          :
+          <div style={{clear:'both'}}></div>
+        }
       </Modal>
 
       <Modal
@@ -236,8 +439,10 @@ class ClusterLabelManage extends Component{
         wrapClassName="labelManageModal"
         width="560px"
       >
-        <Icon type="info-circle-o" style={{marginRight:'3px'}}/>
-        确定要删除当前标签吗？
+        <div className="confirmText">
+          <Icon type="info-circle-o" style={{marginRight:'3px'}}/>
+          确定要删除当前标签吗？
+        </div>
       </Modal>
     </div>
   }
@@ -245,4 +450,26 @@ class ClusterLabelManage extends Component{
 
 ClusterLabelManage = Form.create()(ClusterLabelManage)
 
-export default ClusterLabelManage
+function mapStateToProps(state,props) {
+  const { clusterLabel } = state.cluster_nodes || {}
+  let { isFetching, result } = clusterLabel
+  const { current } = state.entities
+  const cluster = current.cluster || {}
+  if (!isFetching) {
+    isFetching = false
+  }
+  if (!result) {
+    result = {summary:[]}
+  }
+  return {
+    isFetching,
+    result:result.summary
+  }
+}
+
+export default connect(mapStateToProps, {
+  getClusterLabel,
+  addLabels,
+  editLabels,
+  searchLabels
+})(ClusterLabelManage)

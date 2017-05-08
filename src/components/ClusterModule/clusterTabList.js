@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Switch, Tooltip,  Row, Col, Tabs } from 'antd'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Tooltip,  Row, Col, Tabs } from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -18,7 +18,7 @@ import ClusterLabelManage from './clusterLabelManage'
 import ClusterPlugin from './clusterPlugin'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import {
-  getAllClusterNodes,
+  // getAllClusterNodes,
   changeClusterNodeSchedule,
   deleteClusterNode,
   getKubectlsPods,
@@ -31,67 +31,15 @@ import './style/clusterTabList.less'
 import NotificationHandler from '../../common/notification_handler'
 import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
-import ReactEcharts from 'echarts-for-react'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
-
-import cpuImg from '../../assets/img/integration/cpu.png'
-import hostImg from '../../assets/img/integration/host.png'
-import memoryImg from '../../assets/img/integration/memory.png'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const ButtonGroup = Button.Group
 const TabPane = Tabs.TabPane;
-const MASTER = '主控节点/Master'
-const SLAVE = '计算节点/Slave'
 
-function diskFormat(num) {
-  if (num < 1024) {
-    return num + 'KB'
-  }
-  num = Math.floor(num / 1024 *100) /100;
-  if (num < 1024) {
-    return num + 'MB'
-  }
-  num =  Math.floor(num / 1024 *100) /100;
-  if (num < 1024) {
-    return num + 'GB'
-  }
-  num =  Math.floor(num / 1024 *100) /100;
-  return num + 'TB'
-}
-
-function getContainerNum(name, podList) {
-  //this function for return the container num of node
-  let num;
-  podList.map((pod) => {
-    if(pod.name == name) {
-      num = pod.count;
-    }
-  });
-  return num;
-}
-
-function cpuUsed(cpuTotal, cpuMetric, name) {
-  name = camelize(name)
-  if (!cpuMetric || !cpuMetric[name]) {
-    return NOT_AVAILABLE
-  }
-  return `${cpuMetric[name].toFixed(2)}%`
-}
-
-function memoryUsed(memoryTotal, memoryMetric, name) {
-  name = camelize(name)
-  if (!memoryMetric || !memoryMetric[name]) {
-    return NOT_AVAILABLE
-  }
-  let metric = memoryMetric[name]
-  metric = metric / 1024 / memoryTotal * 100
-  metric = `${metric.toFixed(2)}%`
-  return metric
-}
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -135,7 +83,7 @@ const MyComponent = React.createClass({
   //},
   render: function () {
     const { isFetching, podList, containerList, cpuMetric, memoryMetric, license } = this.props
-    const clusterID = this.props.scope.props.clusterID
+    // const clusterID = this.props.scope.props.clusterID
     const root = this
     if (isFetching) {
       return (
@@ -244,9 +192,9 @@ const MyComponent = React.createClass({
             {/*</Tooltip>*/}
           </div>
           <div className='opera commonTitle'>
-            <Dropdown.Button type="ghost" overlay={dropdown}  onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`)}>
+            {/*<Dropdown.Button type="ghost" overlay={dropdown}  onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`)}>
               主机详情
-            </Dropdown.Button>
+            </Dropdown.Button>*/}
           </div>
         </div>
       );
@@ -263,7 +211,6 @@ class ClusterTabList extends Component {
   constructor(props) {
     super(props);
     this.loadData = this.loadData.bind(this);
-    this.searchNodes = this.searchNodes.bind(this);
     this.deleteClusterNode = this.deleteClusterNode.bind(this);
     this.closeDeleteModal = this.closeDeleteModal.bind(this);
     this.openTerminalModal = this.openTerminalModal.bind(this);
@@ -302,7 +249,7 @@ class ClusterTabList extends Component {
   }
 
   componentWillMount() {
-    this.loadData()
+    // this.loadData()
   }
 
   // componentWillReceiveProps(nextProps) {
@@ -329,26 +276,7 @@ class ClusterTabList extends Component {
     })
   }
 
-  searchNodes() {
-    //this function for search nodes
-    let search = this.state.nodeName
-    const { nodes } = this.props;
-    if(search.length == 0) {
-      this.setState({
-        nodeList: nodes.nodes
-      })
-      return;
-    }
-    let nodeList = [];
-    nodes.nodes.map((node) => {
-      if(node.objectMeta.name.indexOf(search) > -1) {
-        nodeList.push(node);
-      }
-    });
-    this.setState({
-      nodeList: nodeList
-    });
-  }
+
   cancelModal() {
     // cancel create Alarm modal
     this.setState({
@@ -434,15 +362,12 @@ class ClusterTabList extends Component {
   }
 
   render() {
-    console.log('this.props=',this.props)
     const {
       intl, isFetching, nodes,
       clusterID, memoryMetric, cpuMetric,
       license, kubectlsPods, addNodeCMD,
       cluster, clusterSummary,
     } = this.props
-    const { node, pod, resource } = clusterSummary.static || {}
-    const { useRate } = clusterSummary.dynamic || {}
     const { formatMessage } = intl;
     const { nodeList, podCount, deleteNode, copyAddNodeSuccess } = this.state;
     const rootscope = this.props.scope;
@@ -451,87 +376,6 @@ class ClusterTabList extends Component {
       return item.metadata.name;
     })
     const maxNodes = license && license[camelize('max_nodes')]
-    if (pod) {
-      pod.sum = pod[camelize('Failed')] + pod[camelize('Pending')] + pod[camelize('Running')] + pod[camelize('Unknown')]
-      pod.unNormal = pod[camelize('Failed')] + pod[camelize('Unknown')]
-    }
-    let podPending = pod ? pod[camelize('Pending')] : NOT_AVAILABLE
-    let podRunning = pod ? pod[camelize('Running')] : NOT_AVAILABLE
-    let podUnNormal = pod ? pod.unNormal : NOT_AVAILABLE
-    let containerOption = {
-      tooltip : {
-        trigger: 'item',
-        formatter: "{b} : {c}({d}%)"
-      },
-      legend: {
-        orient : 'vertical',
-        left : '50%',
-        top : 'middle',
-        data:[{name: '运行中'}, {name: '操作中'}, {name: '异    常'}],
-        formatter: function (name) {
-          if(name === '操作中'){
-            return name + '  ' + podPending + ' 个'
-          } else if (name === '运行中') {
-            return  '运行中  '  + podRunning + ' 个'
-          } else if (name === '异    常') {
-            return name + '  ' + podUnNormal + ' 个'
-          }
-        },
-        textStyle: {
-          fontSize: 13,
-          color: '#666'
-        },
-        itemGap: 15,
-        itemWidth: 10,
-        itemHeight: 10,
-      },
-      color: ['#46b3f8','#2abe84','#f6575e'],
-      series: {
-        type:'pie',
-        selectedMode: 'single',
-        avoidLabelOverlap: false,
-        hoverAnimation: false,
-        selectedOffset: 0,
-        radius: ['32', '45'],
-        center: ['25%', '50%'],
-        data:[
-          {value:podRunning, name:'运行中'},
-          {value:podPending, name:'操作中'},
-          {value:podUnNormal, name:'异    常',selected:true},
-        ],
-        label: {
-          normal: {
-            position: 'center',
-            show: false,
-          },
-          emphasis: {
-            // formatter: '{b}:{c}<br/>({d}%)',
-            show: true,
-            position: 'center',
-            formatter: function (param) {
-              return param.percent.toFixed(0) + '%';
-            },
-            textStyle: {
-              fontSize: '13',
-              color: '#666',
-              fontWeight: 'normal'
-            }
-          }
-        },
-        itemStyle: {
-          normal: {
-            borderWidth: 2,
-            borderColor: '#ffffff',
-          },
-          emphasis: {
-            borderWidth: 0,
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        },
-      },
-    }
     const modalFunc=  {
       scope : this,
       cancelModal: this.cancelModal,
@@ -544,30 +388,21 @@ class ClusterTabList extends Component {
         <div id='clusterTabList' key='clusterTabList'>
           <Tabs>
             <TabPane tab={<div className='tablepanediv'><i className="fa fa-tachometer" aria-hidden="true"></i><span className='tablepanespan'>资源总览</span></div>} key="1">
-              <ClusterResourcesOverview
-
-
-
-              />
+            <ClusterResourcesOverview
+              cluster={cluster}
+              clusterSummary={clusterSummary}
+            />
             </TabPane>
             <TabPane tab={<div><i className="fa fa-server" aria-hidden="true"></i><span className='tablepanespan'>主机列表</span></div>} key="2">
               <HostList
                 cluster={cluster}
-                isFetching={isFetching}
-
                 clusterID={clusterID}
-                trueprops={true}
-                cpuMetric={cpuMetric}
-                memoryMetric={memoryMetric}
-                license={license}
+                containerList={podCount}
 
               />
             </TabPane>
             <TabPane tab={<div><i className="fa fa-tag" aria-hidden="true"></i><span className='tablepanespan'>标签管理</span></div>} key="3">
-              <ClusterLabelManage
-
-
-              />
+              <ClusterLabelManage  clusterID={clusterID} />
             </TabPane>
             <TabPane tab={<div><i className="fa fa-plug" aria-hidden="true"></i><span className='tablepanespan'>插件集群</span></div>} key="4">
               <ClusterPlugin
@@ -620,33 +455,33 @@ ClusterTabList.propTypes = {
 }
 
 function mapStateToProps(state, props) {
-  const pods = {
-    nodes: {},
-    isFetching: false
-  }
+  // const pods = {
+  //   nodes: {},
+  //   isFetching: false
+  // }
   const clusterID = props.cluster.clusterID
-  const { getAllClusterNodes, kubectlsPods, addNodeCMD } = state.cluster_nodes
+  // const { getAllClusterNodes, kubectlsPods, addNodeCMD } = state.cluster_nodes
   const { clusterSummary } = state.cluster
-  const targetAllClusterNodes = getAllClusterNodes[clusterID]
-  const { isFetching } = targetAllClusterNodes || pods
-  const data = (targetAllClusterNodes && targetAllClusterNodes.nodes) || pods
-  const { cpuMetric, memoryMetric, license } = data
-  const nodes = data.clusters ? data.clusters.nodes : []
+  // const targetAllClusterNodes = getAllClusterNodes[clusterID]
+  // const { isFetching } = targetAllClusterNodes || pods
+  // const data = (targetAllClusterNodes && targetAllClusterNodes.nodes) || pods
+  // const { cpuMetric, memoryMetric, license } = data
+  // const nodes = data.clusters ? data.clusters.nodes : []
   return {
-    nodes,
-    cpuMetric,
-    memoryMetric,
-    license,
-    isFetching,
+  //   nodes,
+  //   cpuMetric,
+  //   memoryMetric,
+  //   license,
+  //   isFetching,
     clusterID,
-    kubectlsPods: (kubectlsPods ? kubectlsPods.result : {}) || {},
-    addNodeCMD: addNodeCMD[clusterID] || {},
+  //   kubectlsPods: (kubectlsPods ? kubectlsPods.result : {}) || {},
+  //   addNodeCMD: addNodeCMD[clusterID] || {},
     clusterSummary: (clusterSummary && clusterSummary[clusterID] ? clusterSummary[clusterID].summary : {}) || {},
   }
 }
 
 export default connect(mapStateToProps, {
-  getAllClusterNodes,
+  // getAllClusterNodes,
   changeClusterNodeSchedule,
   deleteClusterNode,
   getKubectlsPods,
@@ -656,86 +491,3 @@ export default connect(mapStateToProps, {
 })(injectIntl(ClusterTabList, {
   withRef: true,
 }))
-
-//<ClusterInfo cluster={cluster} />
-//  <NetworkConfiguration id="Network" cluster={cluster}/>
-//  <Row className="nodeList">
-//  <Col span={6} style={{padding:'0 8px'}}>
-//<Card>
-//<div className="title">主机</div>
-//  <div className="listImg">
-//  <img src={hostImg}/>
-//  </div>
-//  <ul className="listText">
-//  <li>
-//  <span className="itemKey primary">总数</span>
-//  <span>{node ? `${node.nodeSum} 个` : NOT_AVAILABLE}</span>
-//</li>
-//<li>
-//  <span className="itemKey success">正常运行</span>
-//  <span>{node ? `${node.nodeRunning} 个` : NOT_AVAILABLE}</span>
-//</li>
-//<li>
-//  <span className="itemKey ready">可调度数</span>
-//  <span>{node ? `${node.schedulable} 个` : NOT_AVAILABLE}</span>
-//</li>
-//</ul>
-//</Card>
-//</Col>
-//<Col span={6} style={{padding:'0 8px'}}>
-//  <Card>
-//    <div className="title">CPU</div>
-//    <div className="listImg">
-//      <img src={cpuImg}/>
-//    </div>
-//    <ul className="listText">
-//      <li>
-//        <span className="itemKey primary">总数</span>
-//        <span>{resource ? `${resource.cupSum} 核` : NOT_AVAILABLE}</span>
-//      </li>
-//      <li>
-//        <span className="itemKey ready">已分配数</span>
-//        <span>{resource ? `${resource.allocatedCPU} 核` : NOT_AVAILABLE}</span>
-//      </li>
-//      <li>
-//        <span className="itemKey success">实际使用</span>
-//        <span>{useRate ? `${(useRate.cpu).toFixed(2)} %` : NOT_AVAILABLE}</span>
-//      </li>
-//    </ul>
-//  </Card>
-//</Col>
-//<Col span={6} style={{padding:'0 8px'}}>
-//  <Card>
-//    <div className="title">内存</div>
-//    <div className="listImg">
-//      <img src={memoryImg}/>
-//    </div>
-//    <ul className="listText">
-//      <li>
-//        <span className="itemKey primary">总量</span>
-//        <span>{resource ? `${Math.ceil(resource.memSumByKB / 1024 / 1024 * 100) / 100} G` : NOT_AVAILABLE}</span>
-//      </li>
-//      <li>
-//        <span className="itemKey ready">已分配量</span>
-//        <span>{resource ? `${Math.ceil(resource.allocatedMemByKB / 1024 / 1024 * 100) / 100} G` : NOT_AVAILABLE}</span>
-//      </li>
-//      <li>
-//        <span className="itemKey success">实际使用</span>
-//        <span>{useRate ? `${Math.ceil(useRate.mem * 100) / 100} G` : NOT_AVAILABLE}</span>
-//      </li>
-//    </ul>
-//  </Card>
-//</Col>
-//<Col span={6} style={{padding:'0 8px'}}>
-//  <Card>
-//    <div className="title">容器</div>
-//    <ReactEcharts
-//      notMerge={true}
-//      option={containerOption}
-//      style={{height:'150px'}}
-//      showLoading={false}
-//    />
-//  </Card>
-//</Col>
-//</Row>
-//

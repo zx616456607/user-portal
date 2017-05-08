@@ -93,8 +93,7 @@ if (mode === standard) {
 ```
 ### 安装依赖
 ```
-npm install cnpm -g --registry=https://registry.npm.taobao.org
-cnpm install
+npm run install
 ```
 ### Fork下来之后同步代码
 ```
@@ -126,16 +125,4 @@ npm run build-std
 npm run pro
 # production(standard mode)
 npm run pro-std
-```
-
-> 注意：如果在开发环境出现 404 错误，请修改 node_modules/webpack-dev-middleware/middleware.js 文件(大约219行)，修改如下：
-```javascript
-if(options.headers) {
-    for(var name in options.headers) {
-        res.setHeader(name, options.headers[name]);
-    }
-}
-res.statusCode = 200; // just add this line to set statusCode=200 !!
-if (res.send) res.send(content);
-else res.end(content);
 ```
