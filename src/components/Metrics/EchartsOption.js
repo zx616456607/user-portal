@@ -16,7 +16,7 @@ class EchartsOption {
   constructor(text) {
     this.title = {
       text,
-      x: 20,
+      left: 20,
       textStyle: {
         fontWeight: 'normal',
       }
@@ -110,6 +110,8 @@ class EchartsOption {
       seriesItem.name = name
       seriesItem.itemStyle.normal.color = colorHash.hex(name.substr(name.lastIndexOf('-') + 1))
       this.legend.data.push(name)
+      this.legend.left = 80
+
     }
     if (itemStyle) {
       seriesItem.itemStyle = itemStyle
@@ -138,6 +140,7 @@ class EchartsOption {
       windowResizeChange = -50;
     }
     let initTop = Math.max(num * 25 + windowResizeChange ,60);
+    this.legend.left = 80
     this.grid = [{
       top: initTop,
       left: 70,
@@ -161,6 +164,7 @@ class EchartsOption {
       windowResizeChange = -60;
     }
     let initTop = Math.max(60 + num * 15 + windowResizeChange,60);
+    this.legend.left = 80
     this.grid = [{
       top: initTop,
       left: 70,

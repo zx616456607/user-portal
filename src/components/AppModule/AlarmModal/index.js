@@ -224,7 +224,7 @@ let FistStop = React.createClass({
         onChange: this.resetType,
         initialValue: loginUser.info.role == ADMIN_ROLE ? initiaValue : 'service'
       });
-      let initAppName = undefined
+      let initAppName
       if (currentApp) {
         initAppName = currentApp.name
       }
@@ -489,7 +489,6 @@ let TwoStop = React.createClass({
       setTimeout(() => this.clearError(key), 0)
       return callback()
     }
-    return callback()
   },
   usedName(rule, value, callback, key) {
     if (!value) return callback('请选择类型')
@@ -500,7 +499,6 @@ let TwoStop = React.createClass({
       setTimeout(() => this.clearError(key), 0)
       return callback()
     }
-    return callback()
   },
   usedData(rule, value, callback, key) {
     if (!value) return callback('请填写数值')
@@ -512,7 +510,6 @@ let TwoStop = React.createClass({
       setTimeout(() => this.clearError(key), 0)
       return callback()
     }
-    return callback()
   },
   clearError(key) {
     const { form } = this.props
@@ -756,7 +753,7 @@ let TwoStop = React.createClass({
                   whitespace: true,
                   validator: (rule, value, callback) => this.usedData(rule, value, callback, key)
                 }],
-                initialValue: '0'
+                initialValue: '80'
               }) } style={{ width: 80 }} />
             </Form.Item>
             <Form.Item>
@@ -790,9 +787,8 @@ let TwoStop = React.createClass({
         {cpuItems}
 
         <div className="alertRule">
-          <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有pod占用CPU之和/CPU资源总量
-          <a style={{ marginLeft: 20 }}>内存使用率</a>= 所有pod占用内存之和/内存资源总量
-
+          <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有容器实例占用CPU总和/CPU资源总量
+          <div><a style={{ marginLeft: 16 }}>内存使用</a>= 所有容器实例占用内存总和/容器实例数量</div>
         </div>
         {/*  footer btn */}
         <div className="wrapFooter">
