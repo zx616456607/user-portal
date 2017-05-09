@@ -301,7 +301,7 @@ let CreateAlarmGroup = React.createClass({
     const { getFieldProps, getFieldValue } = this.props.form;
     const { funcs } = this.props
     getFieldProps('keys', {
-      initialValue: [],
+      initialValue: [0],
     });
     const formItems = getFieldValue('keys').map((k) => {
       return (
