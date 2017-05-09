@@ -35,7 +35,6 @@ export function setCurrent(current, callback) {
   }
 }
 
-
 export const CHANGE_CLUSTER_BING_IPS_DOMAINS = 'CHANGE_CLUSTER_BING_IPS_DOMAINS'
 
 export function changeClusterIPsAndDomains(ips, domains) {

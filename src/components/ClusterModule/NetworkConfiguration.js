@@ -444,6 +444,7 @@ function mapStateToProps(state, props) {
   if(!clusterProxy) {
     clusterProxy = defaultProxy
   }
+  console.log(allNode)
   return {
     nodeList: allNode,
     clusterProxy
