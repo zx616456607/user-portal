@@ -13,6 +13,7 @@ import './style/clusterLabelManege.less'
 import { getClusterLabel, addLabels, editLabels,searchLabels } from '../../actions/cluster_node'
 import { connect } from 'react-redux'
 import { calcuDate } from '../../common/tools'
+import { KubernetesValidator } from '../../common/naming_validation'
 import cloneDeep from 'lodash/cloneDeep'
 import NotificationHandler from '../../common/notification_handler'
 
@@ -38,17 +39,15 @@ class ClusterLabelManage extends Component{
   loadData(that) {
     const _this = this
     const { clusterID } = that.props
-    that.props.getClusterLabel(clusterID)
+    that.props.getClusterLabel(clusterID,null,'editing')
   }
   componentWillMount(){
     this.loadData(this)
   }
-  // componentWillReceiveProps(nextProps) {
-  //   console.log('nextPros',nextProps)
-  // }
   handleSearchInput(){
-    const searchItem = document.getElementById('titleInput').value
-    this.props.searchLabels(searchItem)
+    const { clusterID } = this.props
+    const searchItem = this.refs.titleInput.refs.input.value
+    this.props.searchLabels(searchItem,clusterID)
   }
 
   handleEditCancelModal(){
@@ -88,7 +87,8 @@ class ClusterLabelManage extends Component{
     const notificat = new NotificationHandler()
     const _this = this
     const body = {
-      id:deleteLabelNum
+      id:deleteLabelNum,
+      cluster:this.props.clusterID
     }
     this.props.editLabels(body,'DELETE',{
       success:{
@@ -138,8 +138,9 @@ class ClusterLabelManage extends Component{
       callback(new Error('请输入标签键'))
       return
     }
-    if (!/^[a-zA-Z-_.]+$/.test(value)) {
-      callback(new Error('请输入英文字母、数字、下划线'))
+    const Kubernetes = new KubernetesValidator()
+    if (Kubernetes.IsQualifiedName(value).length >0) {
+      callback(new Error('以英文字母开头和结尾'))
       return
     }
     if (value.length < 3 || value.length > 64) {
@@ -153,8 +154,9 @@ class ClusterLabelManage extends Component{
       callback(new Error('请输入标签值'))
       return
     }
-    if (!/^[a-zA-Z-_.]+$/.test(value)) {
-      callback(new Error('请输入英文字母、数字、下划线'))
+    const Kubernetes = new KubernetesValidator()
+    if (Kubernetes.IsValidLabelValue(value).length >0) {
+      callback(new Error('以英文字母开头和结尾'))
       return
     }
     if (value.length < 3 || value.length > 64) {
@@ -176,16 +178,14 @@ class ClusterLabelManage extends Component{
         const labels =[]
         this.handleEditCancelModal()
         values.keys.map((item)=> {
-          let key = form.getFieldValue(`key${item}`)
-          let value = form.getFieldValue(`value${item}`)
           labels.push({
-            key,
-            value,
+            key:values[`key${item}`],
+            value:values[`value${item}`],
             target:'node'
           })
         })
         notificat.spin('添加中...')
-        addLabels(labels,{
+        addLabels(labels,clusterID,{
           success: {
             func:(ret)=> {
               notificat.close()
@@ -203,13 +203,13 @@ class ClusterLabelManage extends Component{
 
     } else {
       const { targets } = this.state
-      form.validateFields(['editKey','editValue'],(errors, values) => {
+      form.validateFields((errors, values) => {
         if (errors) {
           return
         }
         const labels = {
-          key: values.editKey,
-          value: values.editValue
+          key: values.key0,
+          value: values.value0
         }
         if (targets.key == labels.key && targets.value == labels.value) {
           notificat.info('未作更改，无需更新！')
@@ -217,7 +217,8 @@ class ClusterLabelManage extends Component{
         }
         const body = {
           id: targets.id,
-          labels
+          labels,
+          cluster:clusterID
         }
         this.handleEditCancelModal()
         notificat.spin('修改中...')
@@ -229,11 +230,23 @@ class ClusterLabelManage extends Component{
               notificat.success('修改成功！')
             },
             isAsync: true
+          },
+          failed: {
+            func:()=> {
+              notificat.close()
+              notificat.success('修改失败！')
+            }
           }
         })
       });
 
     }
+  }
+  createModal() {
+    this.setState({editVisible: true,create: true})
+    setTimeout(()=> {
+      document.getElementById('key0').focus()
+    },300)
   }
   render(){
     const { form, isFetching, result } = this.props
@@ -312,9 +325,7 @@ class ClusterLabelManage extends Component{
     getFieldProps('keys', {
       initialValue: [0],
     });
-    let formItems
-    if (this.state.create) {
-      formItems = getFieldValue('keys').map((k) => {
+    const formItems = getFieldValue('keys').map((k) => {
         return (
           <div className="formRow" key={`create-${k}`}>
             <div className="formlabelkey">
@@ -325,6 +336,7 @@ class ClusterLabelManage extends Component{
                   },{
                     validator: this.checkKey
                   }],
+                  initialValue: targets.key ? targets.key : undefined
                 })} placeholder="请填写标签键"
                 />
               </FormItem>
@@ -337,6 +349,7 @@ class ClusterLabelManage extends Component{
                   },{
                     validator: this.checkValue
                   }],
+                  initialValue: targets.value ? targets.value : undefined
                 })} placeholder="请填写标签值"
                 />
               </FormItem>
@@ -345,55 +358,22 @@ class ClusterLabelManage extends Component{
           </div>
         );
       });
-    } else {
-      formItems = (
-        <div className="formRow">
-          <div className="formlabelkey">
-            <FormItem >
-              <Input {...getFieldProps('editKey', {
-                rules: [{
-                  whitespace: true,
-                  message: '请填写标签键',
-                }, {
-                  validator: this.checkKey
-                }],
-                initialValue: targets.key ? targets.key : undefined
-              })}
-              />
-            </FormItem>
-          </div>
-          <div className="formlabelvalue">
-            <FormItem>
-              <Input {...getFieldProps('editValue', {
-                rules: [{
-                  whitespace: true,
-                  message: '请填写标签值',
-                }, {
-                  validator: this.checkValue
-                }],
-                initialValue: targets.value ? targets.value : undefined
-              })}
-              />
-            </FormItem>
-          </div>
-        </div>
-      )
-    }
 
     return <div id="cluster__labelmanage">
       <div className='labelmanage__title'>
-        <Button icon="plus" type="primary" onClick={()=> this.setState({editVisible: true,create: true})} size="large" className='titlebutton'>创建标签</Button>
+        <Button icon="plus" type="primary" onClick={()=> this.createModal()} size="large" className='titlebutton'>创建标签</Button>
         <Button type="primary" size="large" onClick={()=> this.loadData(this)} className='titlebutton'><i className='fa fa-refresh' /> 刷新</Button>
         <span className='titlesearch'>
           <Input
             placeholder="情输入标签键或标签值搜索"
             size="large"
+            ref='titleInput'
             id='titleInput'
             onPressEnter={this.handleSearchInput}
           />
           <Icon type="search" className='titleicon' onClick={this.handleSearchInput}/>
         </span>
-        <span className='titlenum'>共计 <span>{result.length}</span> 条</span>
+        <span className='titlenum'>共计 <span>{result ? result.length:0}</span> 条</span>
       </div>
       <Table
         rowKey={record => 'row-'+ record.key + record.value}
@@ -452,9 +432,11 @@ ClusterLabelManage = Form.create()(ClusterLabelManage)
 
 function mapStateToProps(state,props) {
   const { clusterLabel } = state.cluster_nodes || {}
-  let { isFetching, result } = clusterLabel
-  const { current } = state.entities
-  const cluster = current.cluster || {}
+  const cluster = props.clusterID
+  if (!clusterLabel[cluster]) {
+    return props
+  }
+  let { isFetching, result } = clusterLabel[cluster]
   if (!isFetching) {
     isFetching = false
   }
