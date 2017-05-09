@@ -2,9 +2,57 @@
  * Created by zhangchengzheng on 2017/5/2.
  */
 import React, { Component, propTypes } from 'react'
-import { Card, Button, Tooltip, Icon, Input, Select } from 'antd'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Switch, Tooltip,  Row, Col, Tabs } from 'antd'
+import { camelize } from 'humps'
+import { Link ,browserHistory} from 'react-router'
+import { formatDate, calcuDate } from '../../common/tools'
+import { NOT_AVAILABLE } from '../../constants'
 import './style/hostList.less'
 
+const MASTER = '主控节点/Master'
+const SLAVE = '计算节点/Slave'
+function diskFormat(num) {
+  if (num < 1024) {
+    return num + 'KB'
+  }
+  num = Math.floor(num / 1024 *100) /100;
+  if (num < 1024) {
+    return num + 'MB'
+  }
+  num =  Math.floor(num / 1024 *100) /100;
+  if (num < 1024) {
+    return num + 'GB'
+  }
+  num =  Math.floor(num / 1024 *100) /100;
+  return num + 'TB'
+}
+function getContainerNum(name, podList) {
+  //this function for return the container num of node
+  let num;
+  podList.map((pod) => {
+    if(pod.name == name) {
+      num = pod.count;
+    }
+  });
+  return num;
+}
+function cpuUsed(cpuTotal, cpuMetric, name) {
+  name = camelize(name)
+  if (!cpuMetric || !cpuMetric[name]) {
+    return NOT_AVAILABLE
+  }
+  return `${cpuMetric[name].toFixed(2)}%`
+}
+function memoryUsed(memoryTotal, memoryMetric, name) {
+  name = camelize(name)
+  if (!memoryMetric || !memoryMetric[name]) {
+    return NOT_AVAILABLE
+  }
+  let metric = memoryMetric[name]
+  metric = metric / 1024 / memoryTotal * 100
+  metric = `${metric.toFixed(2)}%`
+  return metric
+}
 const MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
@@ -78,11 +126,11 @@ const MyComponent = React.createClass({
           <div className='name commonTitle'>
             <Link to={`/cluster/${clusterID}/${item.objectMeta.name}`}>{item.objectMeta.name}</Link>
           </div>
-          <div className='address commonTitle'>
+          {/*<div className='address commonTitle'>
             <Tooltip title={item.address}>
               <span>{item.address}</span>
             </Tooltip>
-          </div>
+          </div>*/}
           <div className='status commonTitle'>
             <span className={ item.ready == 'True' ? 'runningSpan' : 'errorSpan' }><i className='fa fa-circle' />&nbsp;&nbsp;{item.ready == 'True' ? '运行中' : '异常'}</span>
           </div>
@@ -103,19 +151,19 @@ const MyComponent = React.createClass({
             <span>{getContainerNum(item.objectMeta.name, containerList)}</span>
           </div>
           <div className='cpu commonTitle'>
-            <span className='topSpan'>{item[camelize('cpu_total')] / 1000}核</span>
-            <span className='bottomSpan'>{cpuUsed(item[camelize('cpu_total')], cpuMetric, item.objectMeta.name)}</span>
+            <span style={{display:"block"}} className='topSpan spanTop'>{item[camelize('cpu_total')] / 1000}核</span>
+            <span className='bottomSpan spanBottom'>{cpuUsed(item[camelize('cpu_total')], cpuMetric, item.objectMeta.name)}</span>
           </div>
           <div className='memory commonTitle'>
-            <span className='topSpan'>{diskFormat(item[camelize('memory_total_kb')])}</span>
-            <span className='bottomSpan'>{memoryUsed(item[camelize('memory_total_kb')], memoryMetric, item.objectMeta.name)}</span>
+            <span style={{display:"block"}} className='topSpan spanTop'>{diskFormat(item[camelize('memory_total_kb')])}</span>
+            <span className='bottomSpan spanBottom'>{memoryUsed(item[camelize('memory_total_kb')], memoryMetric, item.objectMeta.name)}</span>
           </div>
           {/*<div className='disk commonTitle'>
            <span className='topSpan'>{'-'}</span>
            <span className='bottomSpan'>{'-'}</span>
            </div>*/}
           <div className='schedule commonTitle'>
-            <Switch
+            <Switch style={{display:"block"}}
               className='switchBox'
               defaultChecked={item.schedulable}
               checkedChildren='开'
@@ -127,18 +175,12 @@ const MyComponent = React.createClass({
                 item.schedulable
                   ? (
                   <span>
-                    正常调度&nbsp;
-                    <Tooltip title={`允许分配新容器`}>
-                      <Icon type="question-circle-o" />
-                    </Tooltip>
+                    正常调度
                   </span>
                 )
                   : (
                   <span>
-                    暂停调度&nbsp;
-                    <Tooltip title={`不允许分配新容器，正常运行的不受影响`}>
-                      <Icon type="question-circle-o" />
-                    </Tooltip>
+                    暂停调度
                   </span>
                 )
               }
@@ -249,7 +291,7 @@ class hostList extends Component{
             </div>
           </div>
           <div className='datalist'>
-            数据列表
+            <MyComponent podList={this.props.nodeList} containerList={this.props.podCount} isFetching={this.props.isFetching} scope={this.props.scope} memoryMetric={this.props.memoryMetric} cpuMetric={this.props.cpuMetric} license={this.props.license} />
           </div>
         </div>
       </Card>

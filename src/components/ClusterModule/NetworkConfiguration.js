@@ -398,7 +398,7 @@ let NetworkConfiguration = React.createClass ({
                   { editCluster ?
                   <Input {...bindingIPsProps} style={{width:'100%'}}  placeholder="请填写服务的外网 IP (如 浮动IP)" />
                   :
-                  <span>{bindingIPs}</span>
+                  <span>{bindingIPs||"-"}</span>
                   }
                 </Form.Item>
                 <Form.Item >
