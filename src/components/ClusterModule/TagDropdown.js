@@ -180,7 +180,7 @@ class TagDropdown extends Component {
         return <span>
           <i className="fa fa-tag selectlabeltag" aria-hidden="true"></i>
           标签
-          <Icon type="down" />
+          <Icon type="down" style={{marginLeft:'12px'}}/>
         </span>
       default :
         return <span>请输入要显示的文字</span>
@@ -243,6 +243,7 @@ class ManageTagModal extends Component {
     this.handleCancelLabelModal = this.handleCancelLabelModal.bind(this)
     this.handeldeleteNewLabel = this.handeldeleteNewLabel.bind(this)
     this.handleAddInput = this.handleAddInput.bind(this)
+    this.formTagContainer = this.formTagContainer.bind(this)
     this.state = {
       manageLabelModal : false,
       createLabelModal : false,
@@ -279,6 +280,23 @@ class ManageTagModal extends Component {
       return <div>暂无标签</div>
     //}
   }
+
+  formTagContainer(){
+    let arr = []
+    for(let i=0;i<30;i++){
+      arr.push(<Tag closable color="blue" className='tag' key={i}>
+        <Tooltip title='key1'>
+          <span className='key'>key1</span>
+        </Tooltip>
+        <span className='point'>:</span>
+        <Tooltip title='value2017'>
+          <span className='value'>value2017</span>
+        </Tooltip>
+      </Tag>)
+    }
+    return arr
+  }
+
 
   handleAddLabel(key,value){
     return <div>
@@ -328,10 +346,11 @@ class ManageTagModal extends Component {
           onOk={this.handleManageLabelOk}
           onCancel={this.handleManageLabelCancel}
           wrapClassName="manageLabelModal"
-          width="570px"
+          width="585px"
+          maskClosable={false}
         >
           <div className='labelcontainer'>
-            {this.formManegeLabelContainerTag()}
+            {this.formTagContainer()}
           </div>
 
           <div className='labelfooter'>
@@ -362,6 +381,7 @@ class ManageTagModal extends Component {
           onCancel={this.handleCancelLabelModal}
           width="560px"
           wrapClassName="manageLabelModal"
+          maskClosable={false}
         >
           <Form inline>
             <div className='title'>

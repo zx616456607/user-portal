@@ -16,13 +16,26 @@ import "./style/AppGraph.less"
 import ReactDOM from 'react-dom';
 import { getAppOrchfile } from '../../actions/app_manage'
 import YamlEditor from '../Editor/Yaml'
+import { loadServiceList } from '../../actions/services'
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../../../constants'
+
 
 let OrchfileComponent = React.createClass({
   componentWillMount() {
-    this.props.getAppOrchfile(this.props.cluster, this.props.appName)
-  },
-  componentDidMount() {
-
+    const {cluster,appName,serviceList, onServicesChange } = this.props
+    this.props.getAppOrchfile(cluster, appName)
+    const query = {
+      page: DEFAULT_PAGE,
+      size: DEFAULT_PAGE_SIZE,
+      name: appName
+    }
+    this.props.loadServiceList(cluster,appName,query,{
+      success:{
+        func:(ret)=> {
+          setTimeout(onServicesChange(ret.data, ret.availableReplicas, ret.total),500)
+        }
+      }
+    })
   },
   render: function () {
     if (!this.props.appOrchfile || !this.props.appOrchfile.result
@@ -41,14 +54,20 @@ let OrchfileComponent = React.createClass({
   }
 });
 
-function mapStateToProp(state) {
+function mapStateToProp(state,props) {
+  const defaultServices = {
+    serviceList: [],
+    total: 0
+  }
+  const { cluster,appName } = props
   return {
-    appOrchfile: state.apps.appOrchfile
+    appOrchfile: state.apps.appOrchfile,
   }
 }
 
 OrchfileComponent = connect(mapStateToProp, {
-  getAppOrchfile: getAppOrchfile
+  getAppOrchfile,
+  loadServiceList
 })(OrchfileComponent)
 
 export default class AppGraph extends Component {
@@ -58,7 +77,7 @@ export default class AppGraph extends Component {
 
   render() {
     return (
-      <OrchfileComponent cluster={this.props.cluster} appName={this.props.appName} />
+      <OrchfileComponent onServicesChange={this.props.onServicesChange} cluster={this.props.cluster} appName={this.props.appName} />
     )
   }
 }

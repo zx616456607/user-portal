@@ -263,7 +263,7 @@ const MyComponent = React.createClass({
     }
     this.setState({ authorizeModal: true })
     setTimeout(function(){
-      document.getElementById('codeSrc').focus()
+      document.getElementById('gitlab').focus()
     },0)
   },
   changeUrl(e) {
@@ -303,7 +303,7 @@ const MyComponent = React.createClass({
             >
             <div>
               <p style={{ lineHeight: '30px' }}>仓库地址：
-                <Input placeholder="http://*** | https://***" id="codeSrc" onChange={this.changeUrl} value={this.state.regUrl} size="large" />
+                <Input placeholder="http://*** | https://***" id="gitlab" onChange={this.changeUrl} value={this.state.regUrl} size="large" />
               </p>
               <p style={{ lineHeight: '30px' }}>Private Token：
                 <Input placeholder="Private Token: " size="large" onChange={this.changeToken} value={this.state.regToken} />
@@ -479,7 +479,7 @@ class CodeRepo extends Component {
             <p style={{ paddingLeft: '36px', lineHeight: '40px' }}>选择代码源</p>
             <Tabs type="card" onChange={(e) => this.setState({ repokey: e }) } activeKey={this.state.repokey}>
               <TabPane tab={githubBud} key="github"><GithubComponent typeName="github" formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
-              <TabPane tab={gitlabBud} key="gitlab"><MyComponent typeName='gitlab' formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser.gitlab} config={this.props.repoList} /></TabPane>
+              <TabPane tab={gitlabBud} key="gitlab"><MyComponent typeName='gitlab' formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser} config={this.props.repoList} /></TabPane>
               <TabPane tab={gogsBud} key="gogs"><GogsComponent typeName="gogs" formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
               <TabPane tab={svnBud} key="svn"><SvnComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
             </Tabs>

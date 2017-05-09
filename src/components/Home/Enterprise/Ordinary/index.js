@@ -1099,7 +1099,7 @@ class Ordinary extends Component {
                 <div className='statusBottomleft'>
                   <span className='statusBottomItem'>容器</span>
                   <Tooltip title='容器可用配额是按照最小容器配置（512M内存）计算；本集群容器可用配额（个）=本集群可用内存（M）/512M；'>
-                    <Icon type="question-circle-o" style={{ margin: '0 7px' }} />
+                    <Icon type="question-circle-o" style={{ margin: '0 7px',cursor:'pointer' }} />
                   </Tooltip>
                 </div>
                 <div className='statusBottomright'>

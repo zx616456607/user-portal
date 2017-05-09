@@ -8,43 +8,121 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Icon } from 'antd'
+import { Button, Input, Form, Icon, Spin } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
+import NotificationHandler from '../../../../../common/notification_handler'
+import { loadImageDetailTagConfig,  loadOtherDetailTagConfig } from '../../../../../actions/app_center'
 import './style/ImageEnvComponent.less'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
 
 let ImageEnvComponent = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       uuid: 0
     }
   },
-  componentDidMount(){
-    const { config, form } = this.props;
-    if(!!config) {
-      config.map((item) => {
-        let tmpUuid = ++this.state.uuid;
-        this.setState({
-          uuid: tmpUuid
-        });
-        let keys = form.getFieldValue('imageEnvInputs');
-        keys = keys.concat(this.state.uuid);
-        let temp = 'imageEnvInputs';
-        form.setFieldsValue({
-          'imageEnvInputs': keys
-        });
-      });
-    } else {
-      form.setFieldsValue({
-        'imageEnvInputs': [0]
-      });
+  loadData() {
+    const { form, loadImageDetailTagConfig, registryServer } = this.props
+    let imageName = form.getFieldValue('imageName')
+    this.setState({
+      currentImageName: imageName
+    })
+    if(!imageName) return
+    let registryUrl = ''
+    if (imageName.indexOf('/') == imageName.lastIndexOf('/')) {
+      registryUrl = registryServer.v2Server
+      let tag = 'latest'
+      if (imageName.indexOf(':') > 0) {
+        imageName = imageName.split(':')
+        tag = imageName[1]
+        imageName = imageName[0]
+        if (!tag) {
+          tag = 'latest'
+        }
+      }
+      const self = this
+      if (registryUrl) {
+        loadImageDetailTagConfig(registryUrl, imageName, tag, {
+          success: {
+            func: (result) => {
+              if (!result.data) return
+              let allEnv = {}
+              const { scope, form, registry, config } = self.props;
+              const { setFieldsValue } = form
+              let imageEnv = result.data
+              let envs = imageEnv.defaultEnv
+              if (envs) {
+                setFieldsValue({
+                  imageEnvInputs: envs.map((env, index) => index)
+                })
+                envs.forEach((env, index) => {
+                  env = env.split('=')
+                  allEnv[env[0]] = env[1]
+                  // setFieldsValue({
+                  //   [`imageEnvName${index}`]: env[0],
+                  //   [`imageEnvValue${index}`]: env[1]
+                  // })
+                })
+              }
+              if (!!config) {
+                config.map((item) => {
+                  allEnv[item.name] = item.value
+                })
+              }
+              const allEnvName = Object.getOwnPropertyNames(allEnv)
+              setFieldsValue({
+                imageEnvInputs: allEnvName.map((env, index) => index)
+              })
+              allEnvName.forEach((name, index) => {
+                setFieldsValue({
+                  [`imageEnvName${index}`]: name,
+                  [`imageEnvValue${index}`]: allEnv[name]
+                })
+              })
+              if (self.state.uuid < allEnvName.length) {
+                self.setState({
+                  uuid: allEnvName.length
+                })
+              }
+            }
+          },
+          failed: {
+            func: (res) => {
+              const notify = new NotificationHandler()
+              if (res.message == 'Failed to find any tag') {
+                notify.error('获取基础镜像信息失败，请检查镜像是否存在')
+                return
+              }
+              notify.error(res.message)
+            }
+          }
+        })
+      }
     }
+  },
+  componentWillMount() {
+   this.loadData()
+  },
+  componentWillReceiveProps(nextProps) {
+    const { form } = nextProps
+    let imageName = form.getFieldValue('imageName')
+    if(nextProps.visible != this.props.visible && nextProps.visible && this.state.currentImageName != imageName) {
+      this.loadData()
+    }
+  },
+  shouldComponentUpdate(nextProps) {
+    const { form } = nextProps
+    let imageName = form.getFieldValue('imageName')
+     if(!nextProps.visible && this.state.currentImageName == imageName) {
+       return false
+     }
+     return true
   },
   addImageEnv (k, index, scope) {
     //this function for user add an new input div
@@ -89,26 +167,31 @@ let ImageEnvComponent = React.createClass({
     });
   },
   render() {
+    const { scope, form, registryServer, imageConfig, config } = this.props;
     const { formatMessage } = this.props.intl;
-    const { scope, form, config } = this.props;
-    const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form;
+    const { setFieldsValue, getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form
+    if (!registryServer || !imageConfig) {
+      return <div className="loadingBox"><Spin size="large"></Spin></div>
+    }
+    if (registryServer && imageConfig) {
+      if (imageConfig.imageTagConfig[registryServer.v2Server] && imageConfig.imageTagConfig[registryServer.v2Server].isFetching) {
+        return <div className="loadingBox"><Spin size="large"></Spin></div>
+      }
+    }
     getFieldProps('imageEnvInputs', {
       initialValue: [0],
     });
     const ImageEnvInputItems = getFieldValue('imageEnvInputs').map((i) => {
       let itemKey = '';
-      let configFlag = config[i] || {};
       const ImageEnvNameInputProps = getFieldProps(`imageEnvName${i}`, {
         rules: [
           { message: '请输入环境变量名' },
-        ],
-        initialValue: configFlag.name
+        ]
       });
       const ImageEnvValueInputProps = getFieldProps(`imageEnvValue${i}`, {
         rules: [
           { message: '请输入环境变量值' },
-        ],
-        initialValue: configFlag.value
+        ]
       });
       return (
       <QueueAnim key={`imageEnvInputs${i}`}>
@@ -160,9 +243,21 @@ let ImageEnvComponent = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-
+  const defaultImageConfig = {}
+  let imageConfig = state.getImageTagConfig
+  if(!imageConfig) {
+    imageConfig = defaultImageConfig
+  }
+    const defaultRegistryServer = {
+  }
+  let registryServer = defaultRegistryServer
+  const { availableImage } = state.cicd_flow
+  if(availableImage) {
+    registryServer = availableImage.server ||  defaultRegistryServer
+  }
   return {
-
+    registryServer,
+    imageConfig
   }
 }
 
@@ -171,7 +266,8 @@ ImageEnvComponent.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  loadOtherDetailTagConfig,
+  loadImageDetailTagConfig
 })(injectIntl(ImageEnvComponent, {
   withRef: true,
 }));

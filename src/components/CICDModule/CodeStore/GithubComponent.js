@@ -362,7 +362,7 @@ class GithubComponent extends Component {
   showGogsModal() {
     this.setState({ authorizeModal: true })
     setTimeout(function(){
-      document.getElementById('codeSrc').focus()
+      document.getElementById('github').focus()
     },0)
   }
   changeUrl(e) {
@@ -401,7 +401,7 @@ class GithubComponent extends Component {
             >
             <div>
               <p style={{ lineHeight: '30px' }}>仓库地址：
-                <Input placeholder="http://*** | https://***" id="codeSrc" onChange={(e)=> this.changeUrl(e)} value={this.state.regUrl} size="large" />
+                <Input placeholder="http://*** | https://***" id="github" onChange={(e)=> this.changeUrl(e)} value={this.state.regUrl} size="large" />
               </p>
               <p style={{ lineHeight: '30px' }}>Private Token：
                 <Input placeholder="Private Token: " size="large" onChange={(e)=> this.changeToken(e)} value={this.state.regToken} />

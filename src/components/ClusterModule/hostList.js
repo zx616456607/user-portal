@@ -362,9 +362,7 @@ class hostList extends Component {
             <ManageTagModal callbackHostList={this.handleDropdownTag}/>
           </span>
           <div className='selectedroom'>
-            <span className='selectedroomdiv'>
-              {this.formTagContainer()}
-            </span>
+            {this.formTagContainer()}
           </div>
         </div>
         <div className='dataBox'>

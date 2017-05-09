@@ -13,7 +13,7 @@ import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadFavouriteList, getImageDetailInfo, searchFavoriteImages, AppCenterBindUser, deleteAppCenterBindUser } from '../../../actions/app_center'
+import { loadFavouriteList, getImageDetailInfo, searchFavoriteImages, AppCenterBindUser } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import "./style/MyCollection.less"
 import ImageDetailBox from './ImageDetail'
@@ -208,13 +208,9 @@ class MyCollection extends Component {
   constructor(props) {
     super(props);
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this);
-    this.showDeleteBindUser = this.showDeleteBindUser.bind(this);
-    this.deleteBindUser = this.deleteBindUser.bind(this);
-    this.closeDeleteBindUser = this.closeDeleteBindUser.bind(this);
     this.state = {
       currentImage: null,
-      imageDetailModalShow: false,
-      deleteBindUserModal: false
+      imageDetailModalShow: false
     }
   }
   componentWillMount() {
@@ -239,37 +235,6 @@ class MyCollection extends Component {
     const { registry, searchFavoriteImages } = this.props
     const condition = {imageName: this.state.imageName, registry }
     searchFavoriteImages(condition)
-  }
-  deleteBindUser() {
-    //this function for unbind user from public cloud
-    const { deleteAppCenterBindUser, scope } = this.props;
-    deleteAppCenterBindUser({
-      success: {
-        func: () => {
-          let notification = new NotificationHandler()
-          notification.success('注销成功');
-          scope.setState({
-            configured: false
-          })
-        },
-        isAsync: true
-      }
-    });
-    this.setState({
-      deleteBindUserModal: false
-    })
-  }
-  showDeleteBindUser() {
-    //this function for show delete modal
-    this.setState({
-      deleteBindUserModal: true
-    });
-  }
-  closeDeleteBindUser() {
-    //this function for close delete modal
-    this.setState({
-      deleteBindUserModal: false
-    });
   }
   showImageDetail (id) {
     //this function for user select image and show the image detail info
@@ -367,15 +332,6 @@ class MyCollection extends Component {
               <div className="operaBox">
                 <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" onChange={(e)=> this.setState({imageName: e.target.value})} onPressEnter={()=> this.searchImages()} />
                 <i className="fa fa-search"></i>
-                { !standardFlag && !globalHubConfigured ?
-                  [
-                    <Tooltip title='注销时速云Hub'>
-                      <Button className='logoutBtn' size='large' type='ghost' onClick={this.showDeleteBindUser}>
-                        <span>注销</span>
-                      </Button>
-                    </Tooltip>
-                  ] : null
-                }
                 <div style={{ clear: "both" }}></div>
               </div>
               <Table className="myImage" dataSource={imageList} columns={columns} pagination={{simple:true}} loading={this.props.isFetching}/>
@@ -389,9 +345,6 @@ class MyCollection extends Component {
           onCancel={this.closeImageDetailModal}
         >
           <ImageDetailBox parentScope={rootscope} server={this.props.server} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} imageType={'fockImages'}/>
-        </Modal>
-        <Modal title='注销' className='liteBindCenterModal' visible={this.state.deleteBindUserModal} onOk={this.deleteBindUser} onCancel={this.closeDeleteBindUser}>
-          <span style={{ color: '#00a0ea' }}><Icon type='exclamation-circle-o' />&nbsp;&nbsp;&nbsp;确定要注销时速云官方Hub？</span>
         </Modal>
       </QueueAnim>
     )
@@ -429,7 +382,6 @@ export default connect(mapStateToProps, {
   getImageDetailInfo,
   searchFavoriteImages,
   AppCenterBindUser,
-  deleteAppCenterBindUser
 })(injectIntl(MyCollection, {
   withRef: true,
 }))
