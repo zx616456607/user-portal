@@ -228,13 +228,48 @@ exports.updateNodeLabels = function* () {
   this.body = result ? result.data : {}
 }
 
-exports.getLabelSummary = function* () {
+exports.getLabelSummary = function*() {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
   const api = apiFactory.getApi(loginUser)
+  const view = this.query.view
+  if (view == "editing") {
+    yield* editingView(cluster, api, this)
+  } else if (view == "binding") {
+    yield* bindingView(cluster, api, this)
+  } else {
+    // TODO: do nothing, currently for zhangcz
+    yield* bindingView(cluster, api, this)
+  }
+}
+
+function* editingView(cluster, api, ctx) {
+  const userDefinedLabels = yield getUserDefinedLabelsForEditingView(api.labels)
   const clusterNodeNames = yield getClusterNodeNames(api.clusters, cluster)
   const labelsOfNodes = yield clusterNodeNames.map(nodeName => getLabelsOfNode(api.clusters, cluster, nodeName))
-  let labels = yield getUserDefinedLabels(api.labels)
+  let result = new Map(userDefinedLabels)
+  let nodes = new Set()
+  labelsOfNodes.forEach(node => {
+    nodes.add(node.name)
+    Object.getOwnPropertyNames(node.labels).forEach(key => {
+      const value = node.labels[key]
+      const dk = distinctKey(key, value)
+      if (!result.has(dk)) {
+        result.set(dk, aLabel(key, value))
+      }
+      result.get(dk).targets.add(node.name)
+    })
+  })
+  ctx.body = {
+    nodes: nodes,
+    summary: Array.from(result.values())
+  }
+}
+
+function* bindingView(cluster, api, ctx) {
+  const clusterNodeNames = yield getClusterNodeNames(api.clusters, cluster)
+  const labelsOfNodes = yield clusterNodeNames.map(nodeName => getLabelsOfNode(api.clusters, cluster, nodeName))
+  let labels = yield getUserDefinedLabelsForBindingView(api.labels)
   let nodes = {}
   labelsOfNodes.forEach(node => {
     nodes = Object.assign(nodes, {
@@ -258,13 +293,13 @@ exports.getLabelSummary = function* () {
       [key]: Array.from(values.values())
     })
   })
-  this.body = {
+  ctx.body = {
     nodes: nodes,
     summary: summary
   }
 }
 
-function getUserDefinedLabels(api) {
+function getUserDefinedLabelsForBindingView(api) {
   return api.getBy([], {target: 'node'}).then(result => {
     const labels = result ? result.data : {}
     let lookupByKey = new Map()
@@ -285,6 +320,24 @@ function getUserDefinedLabels(api) {
       }
     })
     return lookupByKey
+  })
+}
+
+function getUserDefinedLabelsForEditingView(api) {
+  return api.getBy([], {target: 'node'}).then(result => {
+    const labels = result ? result.data : {}
+    const lookup = new Map(labels.map(label => [
+      distinctKey(label.key, label.value),
+      {
+        id: label.id,
+        key: label.key,
+        value: label.value,
+        createAt: label.createAt,
+        isUserDefined: true,
+        targets: new Set()
+      }
+    ]))
+    return lookup
   })
 }
 
@@ -311,4 +364,8 @@ function aLabel(key, value) {
     isUserDefined: false,
     targets: new Set()
   }
+}
+
+function distinctKey(key, value) {
+  return key + value
 }
