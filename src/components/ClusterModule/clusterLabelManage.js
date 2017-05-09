@@ -13,6 +13,7 @@ import './style/clusterLabelManege.less'
 import { getClusterLabel, addLabels, editLabels,searchLabels } from '../../actions/cluster_node'
 import { connect } from 'react-redux'
 import { calcuDate } from '../../common/tools'
+import { KubernetesValidator } from '../../common/naming_validation'
 import cloneDeep from 'lodash/cloneDeep'
 import NotificationHandler from '../../common/notification_handler'
 
@@ -137,8 +138,9 @@ class ClusterLabelManage extends Component{
       callback(new Error('请输入标签键'))
       return
     }
-    if (!/^[a-zA-Z-_.]+$/.test(value)) {
-      callback(new Error('请输入英文字母、数字、下划线'))
+    const Kubernetes = new KubernetesValidator()
+    if (Kubernetes.IsQualifiedName(value).length >0) {
+      callback(new Error('以英文字母开头和结尾'))
       return
     }
     if (value.length < 3 || value.length > 64) {
@@ -152,8 +154,9 @@ class ClusterLabelManage extends Component{
       callback(new Error('请输入标签值'))
       return
     }
-    if (!/^[a-zA-Z-_.]+$/.test(value)) {
-      callback(new Error('请输入英文字母、数字、下划线'))
+    const Kubernetes = new KubernetesValidator()
+    if (Kubernetes.IsValidLabelValue(value).length >0) {
+      callback(new Error('以英文字母开头和结尾'))
       return
     }
     if (value.length < 3 || value.length > 64) {
