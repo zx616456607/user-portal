@@ -15,7 +15,7 @@ import { updateCluster, loadClusterList, deleteCluster, updateClusterConfig } fr
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
 import clusterImg from '../../assets/img/integration/cluster.png'
-import { IP_REGEX, HOST_REGEX } from '../../../constants'
+import { IP_REGEX, HOST_REGEX, EMAIL_REG_EXP } from '../../../constants'
 
 let saveBtnDisabled = true
 
