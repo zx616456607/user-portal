@@ -56,6 +56,10 @@ class TerminalModal extends Component {
       _list && _list.every((item) => {
         if(item.metadata.name == name) {
           item.terminalStatus = status
+          if (status === 'exit') {
+            this.closeTerminalItem(item)
+            return false
+          }
           updateTerminal(clusterID, item)
           return false
         }
@@ -176,7 +180,7 @@ class TerminalModal extends Component {
   }
 
   closeTerminalItem(item, e) {
-    e.stopPropagation()
+    e && e.stopPropagation()
     const { clusterID, removeTerminal } = this.props
     const { resize } = this.state
     if (resize === 'min') {
@@ -185,7 +189,7 @@ class TerminalModal extends Component {
         size: DEFAULT_SIZE,
       })
     }
-    this.closeIframeTerm(item.metadata.key)
+    this.closeIframeTerm(item.metadata.name)
     removeTerminal(clusterID, item)
   }
 
@@ -269,7 +273,7 @@ class TerminalModal extends Component {
                   {this.renderTermStatus(terminalStatus, item)}
                   <iframe
                     id={name}
-                    src={`/js/container_terminal.html?namespace=${namespace}&pod=${name}&cluster=${clusterID}&_=20170330`} />
+                    src={`/js/container_terminal.html?namespace=${namespace}&pod=${name}&cluster=${clusterID}&_=20170509`} />
                 </div>
               </TabPane>
             )
@@ -281,7 +285,7 @@ class TerminalModal extends Component {
 
   closeXterm() {
     const { clusterID, removeAllTerminal, list } = this.props
-    list.map(item => this.closeIframeTerm(item.metadata.key))
+    list.map(item => this.closeIframeTerm(item.metadata.name))
     removeAllTerminal(clusterID)
   }
 

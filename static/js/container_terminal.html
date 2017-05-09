@@ -92,18 +92,18 @@
           term.refresh(term.x, term.y);
           term.focus();
           var inputCmd = ''
-          term.on('data', function (data) {
-            inputCmd += data
-            if (data == '\r' || data == '\n') {
+          term.on('data', function (_data) {
+            inputCmd += _data
+            if (_data == '\r' || _data == '\n') {
               if (inputCmd.trim() == 'exit') {
                 term.destroy()
                 term = null
-                // TODO: invoke REMOVE_TERMINAL_ITEM event???
+                termCallback(data['pod'], 'exit')
               }
               inputCmd = ''
             }
             if (ws && ws.readyState === 1) {
-              ws.send("0" + utf8_to_b64(data));
+              ws.send("0" + utf8_to_b64(_data));
             }
           });
         });
@@ -112,7 +112,6 @@
 
     function closeWebSocket(ws, term) {
       if (ws) {
-        term.detach(ws);
         if (ws.readyState == 1) {
           // exit sh process
           ws.send("0" + utf8_to_b64('e'));
@@ -128,8 +127,9 @@
         }
       }
       if (term) {
-        term.destroy()
-        term = null
+        term.detach(ws);
+        term.destroy();
+        term = null;
       }
     }
 
