@@ -54,6 +54,7 @@ class QuickCreateApp extends Component {
       registryServer,
       serviceList: [],
       confirmGoBackModalVisible: false,
+      configureMode: 'create',
     }
   }
 
@@ -116,10 +117,11 @@ class QuickCreateApp extends Component {
   }
 
   renderBody() {
-    const { imageName, registryServer } = this.state
+    const { imageName, registryServer, configureMode } = this.state
     if (this.hash === SERVICE_CONFIG_HASH && imageName) {
       return (
         <ConfigureService
+          mode={configureMode}
           id={this.configureServiceKey}
           callbackForm={form => this.form = form}
           {...{imageName, registryServer}}

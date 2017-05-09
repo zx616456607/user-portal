@@ -37,6 +37,7 @@ const Option = Select.Option
 let ConfigureService = React.createClass({
   propTypes: {
     callbackForm: PropTypes.func.isRequired,
+    mode: PropTypes.oneOf([ 'create', 'edit' ]),
   },
   componentWillMount() {
     const { callbackForm, imageName, registryServer, form } = this.props
@@ -48,6 +49,9 @@ let ConfigureService = React.createClass({
   },
   componentWillUnmount() {
     clearTimeout(this.appNameCheckTimeout)
+    // save fields to store when component unmount
+    const { id, setFormFields, fields } = this.props
+    setFormFields(id, fields)
   },
   loadImageTags(props) {
     const {
@@ -67,7 +71,8 @@ let ConfigureService = React.createClass({
             setFieldsValue({
               imageTag,
             })
-            // @Todo: load image config by tag
+            // load image config by tag
+            this.loadImageConfig(other, imageTag)
           },
           isAsync: true,
         }
@@ -85,11 +90,48 @@ let ConfigureService = React.createClass({
           setFieldsValue({
             imageTag,
           })
-          // @Todo: load image config by tag
+          // load image config by tag
+          this.loadImageConfig(other, imageTag)
         },
         isAsync: true,
       }
     })
+  },
+  loadImageConfig(other, imageTag) {
+    const {
+      mode,
+      loadOtherDetailTagConfig,
+      loadImageDetailTagConfig,
+      imageName,
+    } = this.props
+    let loadImageConfigFunc
+    const callback = {
+      success: {
+        func: (result) => {
+          // setArg()
+          if (mode !== 'create') {
+            return
+          }
+          const { containerPorts, defaultEnv, cmd, entrypoint } = result.configInfo || result.data
+          // setPorts(containerPorts, form)
+          // setEnv(defaultEnv, form)
+          // setCMD({cmd, entrypoint}, form)
+          console.log(containerPorts, defaultEnv, cmd, entrypoint)
+        },
+        isAsync: true
+      }
+    }
+    if (other) {
+      const config = {
+        imageId: other,
+        fullname: imageName,
+        imageTag
+      }
+      loadImageConfigFunc = loadOtherDetailTagConfig.bind(this, imageTag, callback)
+    } else {
+      loadImageConfigFunc = loadImageDetailTagConfig.bind(this, DEFAULT_REGISTRY, imageName, imageTag, callback)
+    }
+    loadImageConfigFunc()
   },
   checkAppName(rule, value, callback) {
     if (!value) {
@@ -153,7 +195,11 @@ let ConfigureService = React.createClass({
     }, ASYNC_VALIDATOR_TIMEOUT)
   },
   render() {
-    const { form, imageTags, fields, standardFlag } = this.props
+    const {
+      form, imageTags, fields,
+      standardFlag, loadFreeVolume, createStorage,
+      current,
+    } = this.props
     const { getFieldProps } = form
     const appNameProps = getFieldProps('appName', {
       rules: [
@@ -252,6 +298,8 @@ let ConfigureService = React.createClass({
           formItemLayout={formItemLayout}
           fields={fields}
           standardFlag={standardFlag}
+          loadFreeVolume={loadFreeVolume}
+          createStorage={createStorage}
         />
       </QueueAnim>
     )
@@ -260,9 +308,13 @@ let ConfigureService = React.createClass({
 
 const createFormOpts = {
   mapPropsToFields(props) {
+    console.log('props.fields================')
+    console.log(props.fields)
     return props.fields
   },
   onFieldsChange(props, fields) {
+    console.log('onFieldsChange.fields================')
+    console.log(fields)
     const { id, setFormFields } = props
     setFormFields(id, fields)
   }
@@ -295,6 +347,7 @@ function mapStateToProps(state, props) {
     }
   }
 }
+
 ConfigureService = connect(mapStateToProps, {
   setFormFields,
   checkAppName,

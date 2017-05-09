@@ -41,7 +41,10 @@ export default class ResourceSelect extends Component {
       DIYMemory: DIYMemory || RESOURCES_MEMORY_MIN,
       DIYCPU: DIYCPU || RESOURCES_CPU_DEFAULT,
     }
-    props.onChange(this.state)
+  }
+
+  componentWillMount() {
+    this.props.onChange(this.state)
   }
 
   selectResourceType(type) {

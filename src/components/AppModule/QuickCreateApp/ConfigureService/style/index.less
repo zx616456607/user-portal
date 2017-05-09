@@ -2,8 +2,7 @@
   padding-top: 15px;
   .ant-form-item-required {
     &:before {
-      content: "";
-      margin-right: 0;
+      display: none;
     }
   }
   .ant-form-item-label {
@@ -11,8 +10,17 @@
     label {
       font-size: 14px;
       &:after {
-        content: "";
+        display: none;
       }
+    }
+  }
+  .ant-form-item-control {
+    .ant-select-lg {
+      width: 100%;
+    }
+    .ant-select-lg .ant-select-selection--single .ant-select-selection__rendered {
+      line-height: 30px;
+      height: 30px;
     }
   }
 }
