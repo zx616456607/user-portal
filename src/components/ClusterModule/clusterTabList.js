@@ -18,7 +18,7 @@ import ClusterLabelManage from './clusterLabelManage'
 import ClusterPlugin from './clusterPlugin'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import {
-  // getAllClusterNodes,
+  getAllClusterNodes,
   changeClusterNodeSchedule,
   deleteClusterNode,
   getKubectlsPods,
@@ -249,16 +249,16 @@ class ClusterTabList extends Component {
   }
 
   componentWillMount() {
-    // this.loadData()
+    this.loadData()
   }
 
-  // componentWillReceiveProps(nextProps) {
-  //   const { clusterID } = nextProps
-  //   if (clusterID === this.props.clusterID) {
-  //     return
-  //   }
-  //   this.loadData(nextProps)
-  // }
+  componentWillReceiveProps(nextProps) {
+    const { clusterID } = nextProps
+    if (clusterID === this.props.clusterID) {
+      return
+    }
+    this.loadData(nextProps)
+  }
 
   componentDidMount() {
     const { clusterID, getAddNodeCMD, getClusterSummary } = this.props
@@ -481,7 +481,7 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  // getAllClusterNodes,
+  getAllClusterNodes,
   changeClusterNodeSchedule,
   deleteClusterNode,
   getKubectlsPods,
