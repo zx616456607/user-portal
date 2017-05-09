@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tooltip, Icon, Checkbox, Card, Menu, Dropdown, Button, Input, Spin, Pagination, Modal } from 'antd'
+import { Tooltip, Icon, Checkbox, Card, Menu, Dropdown, Button, Input, Spin, Pagination, Modal, Form } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -25,9 +25,17 @@ import { addPodWatch, removePodWatch } from '../../containers/App/status'
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm
 
-const MyComponent = React.createClass({
+let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
+  },
+  getInitialState(){
+    return{
+      exportImageModalVisible : false,
+      previewImageAddress : false,
+      exportImageModalSuccess : false,
+      exportImageName : '',
+    };
   },
   /*onchange: function (e) {
     e.stopPropagation();
@@ -50,7 +58,55 @@ const MyComponent = React.createClass({
         //this is delete the container
         this.deleteContainer(name);
         break;
+      case 'exportImage':
+        this.exportImageModal()
     }
+  },
+  exportImageModal(){
+    this.setState({
+      exportImageModalVisible : true
+    })
+  },
+  handleConfirmExportImage(){
+    const { form } = this.props
+    const { getFieldValue } = form
+    let value = getFieldValue('exportImageName')
+    console.log('value=',value)
+    this.setState({
+      exportImageModalVisible : false,
+      exportImageModalSuccess : true,
+      exportImageName : '',
+    })
+  },
+  hanldeCancleExportImage(){
+    this.setState({
+      exportImageModalVisible : false
+    })
+  },
+  handlePreviewImageAddress(){
+    this.setState({
+      previewImageAddress : true
+    })
+  },
+  handleViewImageStore(){
+    this.setState({
+      exportImageModalSuccess : false
+    })
+    browserHistory.push('/app_center')
+  },
+  hanldeClose(){
+    this.setState({
+      exportImageModalSuccess : false
+    })
+  },
+  checkImageName(rule, value, callback){
+    if(!value){
+      return callback('请输入镜像地址')
+    }
+    if(false){
+
+    }
+    return callback()
   },
   selectContainerDetail: function (name, e) {
     //this function for user click app detail ,and then this app will be selected
@@ -99,7 +155,8 @@ const MyComponent = React.createClass({
     return images.join(', ')
   },
   render: function () {
-    const { scope, config, loading } = this.props
+    const { scope, config, loading, form } = this.props
+    const { getFieldProps } = form
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -119,6 +176,9 @@ const MyComponent = React.createClass({
         <Menu onClick={this.containerOperaClick.bind(this, item.metadata.name)}
           style={{ width: '100px' }}
           >
+          <Menu.Item key='exportImage'>
+            <span>导出镜像</span>
+          </Menu.Item>
           <Menu.Item key='deleteContainer'>
             <span>重新分配</span>
           </Menu.Item>
@@ -183,13 +243,87 @@ const MyComponent = React.createClass({
         </div >
       );
     });
+    const exportImageName = getFieldProps('exportImageName',{
+      rules :  [{
+        validator: this.checkImageName
+      }]
+    })
     return (
       <div className='dataBox'>
         {items}
+        <Modal
+          title="导出镜像"
+          visible={this.state.exportImageModalVisible}
+          width="570px"
+          maskClosable={false}
+          wrapClassName="exportImage"
+          okText="导出镜像到仓库"
+          onOk={this.handleConfirmExportImage}
+          onCancel={this.hanldeCancleExportImage}
+        >
+          <div className='header'>
+            <div className='float imagename'>镜像名称</div>
+            <div className='float imageAddress'>
+              <Form>
+                <Form.Item>
+                  <Input {...exportImageName} placeholder='请填写镜像名称' />
+                </Form.Item>
+              </Form>
+            </div>
+            <div className='float previewImageAddress' onClick={this.handlePreviewImageAddress}>预览镜像地址</div>
+          </div>
+          {
+            this.state.previewImageAddress
+            ?<div className="main">
+              <div className='preview'>预览：</div>
+              <div>
+                <span className='padingRight'>{this.state.exportImageName}</span>
+                <soan className='imageName'>镜像名称：</soan>
+                <span className='padingRight'>时间戳</span>
+              </div>
+            </div>
+            :<div></div>
+          }
+          <div className='footet'>
+            <Icon type="exclamation-circle-o" style={{marginRight:'8px'}}/>
+            系统会按照上面输入的镜像地址，将导出的镜像推送到对应的仓库中。
+          </div>
+        </Modal>
+
+        <Modal
+          title='导出镜像'
+          visible={this.state.exportImageModalSuccess}
+          width="570px"
+          maskClosable={false}
+          wrapClassName="exportImageSuccess"
+          okText="查看镜像仓库"
+          cancelText="关闭"
+          onOk={this.handleViewImageStore}
+          onCancel={this.hanldeClose}
+        >
+          <div className='container'>
+            <div className='header'>
+              <div>
+                <Icon type="check-circle-o" className='icon'/>
+              </div>
+              <div className='tips'>
+                操作成功
+              </div>
+            </div>
+            <div className='footer'>
+              <div className='lineone'>
+                正在推送 <span>{this.state.exportImageName}</span> 到镜像仓库
+              </div>
+              <div>可能会花一些时间，请稍后至<span className='item'>『交付中心→镜像仓库』</span>查看</div>
+            </div>
+          </div>
+        </Modal>
       </div>
     );
   }
 })
+
+MyComponent = Form.create()(MyComponent)
 
 class ContainerList extends Component {
   constructor(props) {

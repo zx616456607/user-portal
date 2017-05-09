@@ -1,5 +1,4 @@
-#ContainerList {
-  padding-top: 20px;
+#ContainerList {  padding-top: 20px;
   padding-left: 20px;
   padding-right: 20px;
   margin-bottom: 20px;
@@ -204,6 +203,83 @@
             transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
           }
         }
+      }
+    }
+  }
+}
+
+.exportImage{
+  font-size: 14px;
+  overflow: hidden;
+  .header{
+    height: 36px;
+    line-height: 36px;
+    margin-bottom: 20px;
+    .float{
+      float: left;
+    }
+    .imagename{
+      padding-right: 37px;
+    }
+    .imageAddress{
+      width: 200px;
+      .ant-form-item{
+        margin-bottom: 0;
+      }
+    }
+    .previewImageAddress{
+      padding-left: 12px;
+      color: #45bdf9;
+      cursor:pointer;
+    }
+  }
+  .main{
+    clear: both;
+    height:70px;
+    border:1px solid #d0efe0;
+    border-radius: 3px;
+    background-color: #ebf8f1;
+    padding:13px;
+    margin-bottom: 15px;
+    .preview{
+      margin-bottom: 9px;
+    }
+    .padingRight{
+      padding-right: 6px;
+    }
+    .imageName{
+      color: #45bdf9;
+    }
+  }
+  .footer{
+    .item{
+      padding-right: 8px;
+    }
+  }
+}
+
+.exportImageSuccess{
+  text-align: center;
+  font-size: 14px;
+  .container{
+    padding:10px 0;
+    .header{
+      color:#70bc40;
+      .icon{
+        font-size: 88px;
+      }
+      .tips{
+        font-size: 18px;
+        height: 52px;
+        line-height: 52px;
+      }
+    }
+    .footer{
+      .lineone{
+        margin-bottom: 4px;
+      }
+      .item{
+        color: #45bdf9;
       }
     }
   }
