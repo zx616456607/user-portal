@@ -570,7 +570,7 @@ class ImageSpace extends Component {
           >
             <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px' }}></i>您确定要删除镜像 {this.state.imageName}?</div>
           </Modal>
-          <Modal title={<FormattedMessage {...menusText.uploadImage} />} className="uploadImageModal" visible={this.state.uploadModalVisible}
+          <Modal  title={<FormattedMessage {...menusText.uploadImage} />} className="uploadImageModal" visible={this.state.uploadModalVisible}
             onCancel={this.closeUploadModal} onOk={this.closeUploadModal}
           >
             <p>1.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageFirstTips} /></p>
@@ -579,11 +579,11 @@ class ImageSpace extends Component {
             </pre>
             <p>2.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageSecondTips} /></p>
             <pre className="codeSpan">
-              {`sudo docker tag tenxcloud/ubuntu:latest ${this.props.server}/<username>/<repository>:<tag>`}
+              {`sudo docker tag tenxcloud/ubuntu:latest ${this.props.server}/<username>/<image name>:<tag>`}
             </pre>
             <p>3.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageThirdTips} /></p>
             <pre className="codeSpan">
-              {`sudo docker push ${this.props.server}/<username>/<repository>:<tag>`}
+              {`sudo docker push ${this.props.server}/<username>/<image name>:<tag>`}
             </pre>
           </Modal>
           <Modal title={<FormattedMessage {...menusText.downloadImage} />} className="uploadImageModal" visible={this.state.downloadModalVisible}
@@ -592,11 +592,11 @@ class ImageSpace extends Component {
             <p><FormattedMessage {...menusText.downloadImageFirstTips} /></p>
             <p><i className="fa fa-exclamation-triangle"></i>&nbsp;<FormattedMessage {...menusText.downloadImageSecondTips} /></p>
             <pre className="codeSpan">
-              {`sudo docker pull ${this.props.server}/<username>/<repository>:<tag>`}
+              {`sudo docker pull ${this.props.server}/<username>/<image name>:<tag>`}
             </pre>
             <p><i className="fa fa-exclamation-triangle"></i>&nbsp;<FormattedMessage {...menusText.downloadImageThirdTips} /></p>
             <pre className="codeSpan">
-              sudo docker tag  {this.props.server}/tenxcloud/hello-world:latst tenxcloud/hello-world:latest
+              sudo docker tag  {this.props.server}/tenxcloud/hello-world:latest tenxcloud/hello-world:latest
             </pre>
           </Modal>
           <Modal
