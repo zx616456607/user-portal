@@ -13,6 +13,7 @@ import { connect } from 'react-redux'
 import { Icon, Tabs, Button } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../constants'
+import { isSafariBrower } from '../../common/tools'
 import {
   updateTerminal, removeAllTerminal, changeActiveTerminal,
   removeTerminal,
@@ -45,6 +46,7 @@ class TerminalModal extends Component {
       size: DEFAULT_SIZE,
       minSize: this.getMinHeight(),
     }
+    this.isSafariBrower = isSafariBrower()
   }
 
   componentWillMount() {
@@ -190,6 +192,13 @@ class TerminalModal extends Component {
   renderTermStatus(terminalStatus, item) {
     const { disableTips } = this.state
     const { name } = item.metadata
+    if (this.isSafariBrower) {
+      return (
+        <div className='webLoadingBox' key={`webLoadingBox-${name}`}>
+          <span>暂不支持 Safari 浏览器</span>
+        </div>
+      )
+    }
     if (terminalStatus === 'success') {
       if (!(disableTips.indexOf(name) > -1)) {
         return (
