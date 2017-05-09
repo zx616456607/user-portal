@@ -45,7 +45,7 @@ class ClusterLabelManage extends Component{
   }
   handleSearchInput(){
     const { clusterID } = this.props
-    const searchItem = document.getElementById('titleInput').value
+    const searchItem = this.refs.titleInput.refs.input.value
     this.props.searchLabels(searchItem,clusterID)
   }
 
@@ -364,6 +364,7 @@ class ClusterLabelManage extends Component{
           <Input
             placeholder="情输入标签键或标签值搜索"
             size="large"
+            ref='titleInput'
             id='titleInput'
             onPressEnter={this.handleSearchInput}
           />
