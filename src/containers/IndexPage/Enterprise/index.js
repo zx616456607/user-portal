@@ -14,7 +14,7 @@ class IndexPage extends Component {
 
   }
   componentWillMount(){
-    document.title = '总览 | 时速云企业版 2.0'
+    document.title = '总览 | 时速云'
   }
   componentDidMount(){
     const {

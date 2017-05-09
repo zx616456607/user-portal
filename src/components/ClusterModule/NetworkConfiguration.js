@@ -11,6 +11,7 @@ import React from 'react'
 import { camelize } from 'humps'
 import { Icon, Select, Button, Card, Form, Input, Tooltip, Spin, Modal, Dropdown, Menu, Row, Col } from 'antd'
 import { getProxy, updateProxy, getClusterNodeAddr } from '../../actions/cluster'
+import { changeClusterIPsAndDomains } from '../../actions/entities'
 import { getAllClusterNodes } from '../../actions/cluster_node'
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
@@ -111,7 +112,7 @@ let NetworkConfiguration = React.createClass ({
     })
   },
   updateCluster() {
-    const { form, cluster, updateProxy, getProxy } = this.props
+    const { form, cluster, updateProxy, getProxy, changeClusterIPsAndDomains } = this.props
     const { getFieldValue } = form
     validing = true
     this.setState({
@@ -152,6 +153,7 @@ let NetworkConfiguration = React.createClass ({
           func: () => {
             notify.close()
             notify.success('代理出口更新成功')
+            setTimeout(() => changeClusterIPsAndDomains(entity.bindingIPs ? `["${entity.bindingIPs}"]` : '', entity.bindingDomains ? `["${entity.bindingDomains}"]` : ''),0)
             this.loadData(false)
             this.setState({
               saveBtnDisabled: false,
@@ -443,6 +445,7 @@ function mapStateToProps(state, props) {
   if(!clusterProxy) {
     clusterProxy = defaultProxy
   }
+  console.log(allNode)
   return {
     nodeList: allNode,
     clusterProxy
@@ -453,5 +456,6 @@ export default connect(mapStateToProps, {
   getProxy,
   updateProxy,
   getClusterNodeAddr,
-  getAllClusterNodes
+  getAllClusterNodes,
+  changeClusterIPsAndDomains
 })(Form.create()(NetworkConfiguration))

@@ -203,7 +203,7 @@ let TeamTable = React.createClass({
       targetKeys: [],
     })
   },
-  handleChange(targetKeys) {
+  handleUserChange(targetKeys) {
     this.setState({ targetKeys })
   },
   btnRecharge(teamID) {
@@ -347,7 +347,7 @@ let TeamTable = React.createClass({
                 width="660px"
                 wrapClassName="newMemberModal"
                 >
-                <MemberTransfer onChange={this.handleChange}
+                <MemberTransfer onChange={this.handleUserChange}
                   targetKeys={targetKeys}
                   teamID={record.key}
                   teamUserIDList={teamUserIDList} />

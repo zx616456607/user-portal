@@ -35,6 +35,18 @@ export function setCurrent(current, callback) {
   }
 }
 
+export const CHANGE_CLUSTER_BING_IPS_DOMAINS = 'CHANGE_CLUSTER_BING_IPS_DOMAINS'
+
+export function changeClusterIPsAndDomains(ips, domains) {
+  return {
+    type: CHANGE_CLUSTER_BING_IPS_DOMAINS,
+    ips,
+    domains
+  }
+}
+
+
+
 export const VERIFY_CAPTCHA_REQUEST = 'VERIFY_CAPTCHA_REQUEST'
 export const VERIFY_CAPTCHA_SUCCESS = 'VERIFY_CAPTCHA_SUCCESS'
 export const VERIFY_CAPTCHA_FAILURE = 'VERIFY_CAPTCHA_FAILURE'

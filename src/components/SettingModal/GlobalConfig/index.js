@@ -1026,6 +1026,7 @@ class GlobalConfig extends Component {
   }
 
   componentWillMount() {
+    document.title = '全局配置 | 时速云'
     this.props.loadGlobalConfig(this.props.cluster.clusterID, {
       success: {
         func: (result) => {

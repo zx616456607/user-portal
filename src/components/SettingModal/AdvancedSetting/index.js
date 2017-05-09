@@ -15,7 +15,9 @@ class AdvancedSetting extends Component{
       swicthChecked : false
     }
   }
-
+  componentWillMount() {
+    document.title = '高级设置 | 时速云'
+  }
   handleSwitch(checked){
     this.setState({
       swicthChecked : checked

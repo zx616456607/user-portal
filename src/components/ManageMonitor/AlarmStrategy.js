@@ -326,7 +326,7 @@ class AlarmStrategy extends Component {
             pageSize={size}
             total={total} />
         </div>
-        <Table className="strategyTable" onRowClick={(e)=> this.handClickRow(e)} rowSelection={rowSelection} columns={columns} dataSource={this.props.strategys} pagination={false} loading={this.props.isFetching} />
+        <Table className="strategyTable" onRowClick={(e)=> this.handClickRow(e)} rowSelection={rowSelection} columns={columns} dataSource={this.props.strategys} pagination={false}/>
         <Modal title="删除策略" visible={this.state.deleteModal}
           onCancel={() => this.setState({ deleteModal: false })}
           onOk={() => this.handDelete()}
