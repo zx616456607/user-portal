@@ -26,6 +26,7 @@ import {
   loadAllServices,
   loadAutoScale
 } from '../../actions/services'
+import { getDeploymentOrAppCDRule } from '../../actions/cicd_flow'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ANNOTATION_HTTPS } from '../../../constants'
 import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
@@ -667,11 +668,16 @@ class ServiceList extends Component {
     })
   }
   batchDeleteServices() {
+    const { serviceList, cluster, getDeploymentOrAppCDRule } = this.props
+    const checkList = serviceList.filter(item => item.checked)
+    if(checkList && checkList.length > 0) {
+      const name = checkList.map(service => service.metadata.name).join(',')
+      getDeploymentOrAppCDRule(cluster, 'service', name)
+    }
     this.setState({
       DeleteServiceModal: true
     })
   }
-
   handleStartServiceOk() {
     const self = this
     const { cluster, startServices, serviceList, intl } = this.props
@@ -1154,7 +1160,7 @@ class ServiceList extends Component {
               <Modal title="删除操作" visible={this.state.DeleteServiceModal}
                 onOk={this.handleDeleteServiceOk} onCancel={this.handleDeleteServiceCancel}
                 >
-                <StateBtnModal serviceList={serviceList} state='Delete' />
+                <StateBtnModal serviceList={serviceList} state='Delete' cdRule={this.props.cdRule}/>
               </Modal>
               <Button type='ghost' size="large" onClick={this.batchQuickRestartService} disabled={!restartBtn}>
                 <i className="fa fa-bolt"></i>重启
@@ -1338,6 +1344,13 @@ function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
   const { statusWatchWs } = state.entities.sockets
   const { services, isFetching, total } = state.services.serviceList
+  const { getDeploymentOrAppCDRule } = state.cicd_flow
+  const defaultCDRule = {
+    isFetching: false,
+    result: {
+      results: []
+    }
+  }
   return {
     loginUser: loginUser,
     cluster: cluster.clusterID,
@@ -1351,7 +1364,8 @@ function mapStateToProps(state, props) {
     size,
     total,
     serviceList: services || [],
-    isFetching
+    isFetching,
+    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule :  defaultCDRule
   }
 }
 
@@ -1362,7 +1376,8 @@ ServiceList = connect(mapStateToProps, {
   deleteServices,
   quickRestartServices,
   loadAllServices,
-  loadAutoScale
+  loadAutoScale,
+  getDeploymentOrAppCDRule
 })(ServiceList)
 
 export default injectIntl(ServiceList, {

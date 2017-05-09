@@ -1,6 +1,20 @@
 .clusterTabListBox {
-  text-align: center;
   #clusterTabList{
+    .ant-tabs-bar{
+      border-bottom: none;
+      .ant-tabs-nav-container{
+        border-bottom: none;
+      }
+    }
+    .ant-tabs-bar:hover{
+      box-shadow: none;
+    }
+    .ant-tabs-tab-active{
+      background: #00A0E9;
+    }
+    .tablepanespan{
+      margin-left: 6px;
+    }
     .ant-tabs-nav{
       margin: 0 auto;
       width: 560px !important;
@@ -13,11 +27,16 @@
         background: #ffffff;
         width: 140px;;
         padding-right: 31px;
+        border-right:none;
       }
-      //.ant-tabs-tab-active{
-      //  background: #2db7f5;
-      //  color: #ffffff;
-      //}
+      .ant-tabs-tab:nth-of-type(2){
+        border-radius: 4px 0 0 4px;
+      }
+      .ant-tabs-tab:nth-of-type(5){
+        border-radius: 0 4px 4px 0;
+        border-right: 1px solid #d9d9d9;
+        border-left: 1px solid #d9d9d9;
+      }
       .ant-tabs-tab-inner{
         width: 140px;
       }

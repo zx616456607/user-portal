@@ -152,3 +152,88 @@ export function getNodes(cluster, callback) {
     return dispatch(fetchNodes(cluster, callback))
   }
 }
+
+export const GET_CLOUSTER_LABEL_REQUEST = 'GET_CLOUSTER_LABEL_REQUEST'
+export const GET_CLOUSTER_LABEL_SUCCESS = 'GET_CLOUSTER_LABEL_SUCCESS'
+export const GET_CLOUSTER_LABEL_FAILURE = 'GET_CLOUSTER_LABEL_FAILURE'
+
+function fetchClusterLabel(cluster, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_CLOUSTER_LABEL_REQUEST, GET_CLOUSTER_LABEL_SUCCESS, GET_CLOUSTER_LABEL_FAILURE],
+      endpoint: `${API_URL_PREFIX}/cluster-nodes/${cluster}/label-summary`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getClusterLabel(cluster, callback) {
+  return (dispatch) => {
+    return dispatch(fetchClusterLabel(cluster, callback))
+  }
+}
+
+export const ADD_LABELS_REQUERT = 'ADD_LABELS_REQUERT'
+export const ADD_LABELS_SUCCESS = 'ADD_LABELS_SUCCESS'
+export const ADD_LABELS_FAILURE = 'ADD_LABELS_FAILURE'
+
+function fetchAddLabel(label, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ADD_LABELS_REQUERT, ADD_LABELS_SUCCESS, ADD_LABELS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/labels`,
+      options: {
+        method:'POST',
+        body:label
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function addLabels(label, callback) {
+  return (dispatch) => {
+    return dispatch(fetchAddLabel(label, callback))
+  }
+}
+
+export const EDIT_LABELS_REQUERT = 'EDIT_LABELS_REQUERT'
+export const EDIT_LABELS_SUCCESS = 'EDIT_LABELS_SUCCESS'
+export const EDIT_LABELS_FAILURE = 'EDIT_LABELS_FAILURE'
+
+function fetchEditLabel(body, type, callback) {
+  if (typeof type !== 'string') {
+    return
+  }
+  return {
+    [FETCH_API]: {
+      types: [EDIT_LABELS_REQUERT, EDIT_LABELS_SUCCESS, EDIT_LABELS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/labels/${body.id}`,
+      options: {
+        method: type,
+        body: body.labels || null
+      },
+      schema: {},
+    },
+    methodType:type,
+    id: body.id,
+    callback
+  }
+}
+// include delete and update labels
+// * type is action method
+export function editLabels(body, type, callback) {
+  return (dispatch) => {
+    return dispatch(fetchEditLabel(body, type, callback))
+  }
+}
+
+export const SEARCH_CLUSTER_LABLELS = 'SEARCH_CLUSTER_LABLELS'
+export function searchLabels(search) {
+  return {
+    type: SEARCH_CLUSTER_LABLELS,
+    search: search
+  }
+}

@@ -12,7 +12,6 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Radio, Input, InputNumber, Form, Select, Icon, Button, Modal, Spin } from 'antd'
 import './style/AlarmModal.less'
-import CreateAlarmGroup from './CreateGroup'
 import { loadAppList } from '../../../actions/app_manage'
 import { loadServiceList } from '../../../actions/services'
 import { getAllClusterNodes } from '../../../actions/cluster_node'
@@ -1006,6 +1005,13 @@ class AlarmModal extends Component {
       }
     })
   }
+  showAlramGroup() {
+    const { funcs } = this.props
+    funcs.scope.setState({ alarmModal: false, createGroup: true })
+    setTimeout(()=> {
+      document.getElementById('groupName').focus()
+    },500)
+  }
   render() {
     if (this.props.isFetching) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
@@ -1069,7 +1075,7 @@ class AlarmModal extends Component {
                   {this.getNotifyGroup()}
                 </Select>
                 <div style={{ marginTop: 10 }}>
-                  <Button icon="plus" onClick={() => funcs.scope.setState({ alarmModal: false, createGroup: true })} size="large" type="primary">新建组</Button>
+                  <Button icon="plus" onClick={() => this.showAlramGroup()} size="large" type="primary">新建组</Button>
                 </div>
               </Form.Item>
             </Form>

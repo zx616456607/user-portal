@@ -259,3 +259,105 @@ export function IDValide(ID) {
   }
   return '请输入正确的身份证号码'
 }
+
+// github.com/kubernetes/apimachinery/pkg/util/validation/validation.go
+export function KubernetesValidator() {
+  this.DNS1123SubdomainMaxLength = 253
+  this.dns1123LabelFmt = "[a-z0-9]([-a-z0-9]*[a-z0-9])?"
+  this.dns1123SubdomainFmt = this.dns1123LabelFmt + "(\\." + this.dns1123LabelFmt + ")*"
+  this.dns1123SubdomainRegexp = new RegExp("^" + this.dns1123SubdomainFmt + "$")
+  this.qualifiedNameMaxLength = 63
+  this.qnameCharFmt = "[A-Za-z0-9]"
+  this.qnameExtCharFmt = "[-A-Za-z0-9_.]"
+  this.qualifiedNameFmt = "(" + this.qnameCharFmt + this.qnameExtCharFmt + "*)?" + this.qnameCharFmt
+  this.qualifiedNameRegexp = new RegExp("^" + this.qualifiedNameFmt + "$")
+  this.qualifiedNameErrMsg = "must consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric character"
+  this.dns1123SubdomainErrorMsg  = "a DNS-1123 subdomain must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character"
+  this.LabelValueMaxLength = 63
+  this.labelValueFmt = "(" + this.qualifiedNameFmt + ")?"
+  this.labelValueRegexp = new RegExp("^" + this.labelValueFmt + "$")
+  this.labelValueErrMsg = "a valid label must be an empty string or consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric character"
+  this.EmptyError = function() {
+    return "must be non-empty"
+  }
+
+  this.RegexError = function(msg, fmt, examples) {
+    if (examples.length == 0) {
+      return msg + " (regex used for validation is '" + fmt + "')"
+    }
+    msg += " (e.g. "
+    examples.forEach((example, i) => {
+      if (i > 0) {
+        msg += " or "
+      }
+      msg += "'" + example + "', "
+    })
+    msg += "regex used for validation is '" + fmt + "')"
+    return msg
+  }
+
+  this.MaxLenError = function(length) {
+    return "must be no more than " + length + " characters"
+  }
+
+  this.IsDNS1123Subdomain = function(value) {
+    let errs = []
+    if (value.length > this.DNS1123SubdomainMaxLength) {
+      errs.push(this.MaxLenError(this.DNS1123SubdomainMaxLength))
+    }
+    if (!this.dns1123SubdomainRegexp.test(value)) {
+      errs.push(this.RegexError(this.dns1123SubdomainErrorMsg, this.dns1123SubdomainFmt, ["example.com"]))
+    }
+    return errs
+  }
+
+  this.IsQualifiedName = function(value) {
+    let errs = []
+    const parts = value.split("/")
+    let name = ""
+    switch (parts.length) {
+      case 1:
+        name = parts[0]
+        break
+      case 2:
+        const prefix = parts[0]
+        name = parts[1]
+        if (prefix.length == 0) {
+          errs.push("prefix part " + this.EmptyError())
+        } else {
+          const msgs = this.IsDNS1123Subdomain(prefix)
+          if (msgs.length > 0) {
+            msgs.map(msg => "prefix part " + msg).forEach(msg => errs.push(msg))
+          }
+        }
+        break
+      default:
+        errs.push("a qualified name "
+          + this.RegexError(this.qualifiedNameErrMsg, this.qualifiedNameFmt, ["MyName", "my.name", "123-abc"])
+          + " with an optional DNS subdomain prefix and '/' (e.g. 'example.com/MyName')")
+        return errs
+    }
+    const nameLength = name.length
+    if (nameLength == 0) {
+      errs.push("name part " + this.EmptyError())
+    } else if (nameLength > this.qualifiedNameMaxLength) {
+      errs.push("name part " + this.MaxLenError(this.qualifiedNameMaxLength))
+    }
+    if (!this.qualifiedNameRegexp.test(name)) {
+      errs.push("name part "
+        + this.RegexError(this.qualifiedNameErrMsg, this.qualifiedNameFmt, ["MyName", "my.name", "123-abc"]))
+    }
+    return errs
+  }
+
+  this.IsValidLabelValue = function(value) {
+    let errs = []
+    if (value.length > this.LabelValueMaxLength) {
+      errs.push(this.MaxLenError(this.LabelValueMaxLength))
+    }
+    if (!this.labelValueRegexp.test(value)) {
+      errs.push(this.RegexError(this.labelValueErrMsg, this.labelValueFmt, ["MyValue", "my_value", "12345"]))
+    }
+    return errs
+  }
+}

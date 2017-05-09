@@ -383,7 +383,7 @@ class Deployment {
       mountPath: TENX_LOCAL_TIME_VOLUME.hostPath.path,
       readOnly: true
     }
-    this.addContainerVolume.apply(this, [containerName, TENX_LOCAL_TIME_VOLUME, volumeMounts])
+    this.addContainerVolume.apply(this, [containerName, TENX_LOCAL_TIME_VOLUME, [volumeMounts]])
   }
 
   // ~ probe={port, path, initialDelaySeconds, timeoutSeconds, periodSeconds}

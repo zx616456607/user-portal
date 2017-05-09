@@ -284,7 +284,7 @@ class AlarmRecord extends Component {
             <div style={{clear:'both'}}></div>
           </div>
           <Card style={{marginTop: 20}}>
-            <Table className="strategyTable" columns={columns} dataSource={data} pagination={false}  loading={this.props.isFetching}/>
+            <Table className="strategyTable" columns={columns} dataSource={data} pagination={false}/>
           </Card>
         </div>
         <Modal title="清除所有告警记录" visible={this.state.deleteModal}

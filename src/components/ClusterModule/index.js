@@ -212,7 +212,7 @@ let NoClusterStepOne = React.createClass({
           </Form.Item>
           <Form.Item>
             <span className="itemKey">认证服务地址</span>
-            <Input {...approveProps} placeholder="如：https://192.168.1.113:5000" size="large" />
+            <Input {...approveProps} placeholder="如：https://192.168.1.113:5001" size="large" />
           </Form.Item>
           <Form.Item>
             <span className="itemKey">镜像服务地址</span>
@@ -645,6 +645,7 @@ class ClusterList extends Component {
                 key='ClusterTabs'
                 defaultActiveKey={currentClusterID}
                 type="card"
+                style={{position:'relative'}}
                 tabBarExtraContent={
                   <Tooltip
                     title={`当前许可证最多支持 ${maxClusters || '-'} 个 集群（目前已添加 ${clusterSum} 个）`}

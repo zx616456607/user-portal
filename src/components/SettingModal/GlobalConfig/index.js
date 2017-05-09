@@ -949,10 +949,10 @@ let StorageService = React.createClass({
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
                 <FormItem >
-                  <Input {...urlProps} placeholder="如：http://192.168.88.6789" disabled={cephDisable} />
+                  <Input {...urlProps} placeholder="如：http://192.168.1.113:8001" disabled={cephDisable} />
                 </FormItem>
                 <FormItem >
-                  <Input {...nodeProps} placeholder="如：192.168.1.113:4081，如有多个 monitor 节点，请使用英文逗号隔开" disabled={cephDisable} />
+                  <Input {...nodeProps} placeholder="如：192.168.1.113:6789，如有多个 monitor 节点，请使用英文逗号隔开" disabled={cephDisable} />
                 </FormItem>
                 <FormItem>
                   {
@@ -1026,6 +1026,7 @@ class GlobalConfig extends Component {
   }
 
   componentWillMount() {
+    document.title = '全局配置 | 时速云'
     this.props.loadGlobalConfig(this.props.cluster.clusterID, {
       success: {
         func: (result) => {
@@ -1087,7 +1088,11 @@ class GlobalConfig extends Component {
     return (
       <div id="GlobalConfig">
         <div className="alertRow" style={{ margin: 0 }}>
-          全局配置---对这整个系统的邮件报警、持续集成、镜像服务、分布式存储的配置；只有做了这些配置才能完整的使用这几项功能，分别是：邮件报警对应的是系统中涉及的邮件提醒、持续集成对应的是CI/CD中整个Tenxflow功能的使用、镜像服务对应的是镜像仓库的使用、分布式存储对应的是容器有状态服务存储的使用
+          <div>全局配置---这里可以对平台的邮件报警、镜像服务、存储服务、持续集成等进行配置；</div>
+          <div className='titltitem'>①『邮件报警』对应的是系统中涉及到邮件提醒的相关配置；</div>
+          <div className='titltitem'>②『镜像服务』对应的是【交付中心-镜像仓库】的相关配置；</div>
+          <div className='titltitem'>③『存储服务』对应的【应用管理】中存储卷的相关配置；</div>
+          <div className='titltitem'>④『持续集成』对应的是 CI/CD 中 TenxFlow 的相关功能配置；</div>
 					</div>
         <Emaill setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
         <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.registry} isValidConfig={this.props.isValidConfig}/>

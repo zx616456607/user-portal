@@ -353,6 +353,8 @@ let CreateTenxFlowModal = React.createClass({
   },
   openEnvSettingModal(index) {
     //this function for user open the modal of setting the service env
+    const imageName = this.props.form.getFieldValue(`serviceSelect${index}`)
+    if(!imageName) return
     this.setState({
       envModalShow: index
     });
@@ -672,6 +674,7 @@ let CreateTenxFlowModal = React.createClass({
         });
       }
       if (errorFlag) {
+        new NotificationHandler().error('环境变量值输入有误')
         return;
       }
       //get shell code
@@ -901,7 +904,7 @@ let CreateTenxFlowModal = React.createClass({
     }
     let serviceSelectList = []
     if (dependenciesImages.length != 0) {
-      dependenciesImages[0].imageList.map((item, index) => {
+      serviceSelectList = dependenciesImages[0].imageList.map((item, index) => {
         return (
           <Option value={item.imageName} key={index}>{item.imageName}</Option>
         )
@@ -1004,7 +1007,7 @@ let CreateTenxFlowModal = React.createClass({
               onOk={this.closeEnvSettingModal}
               onCancel={this.closeEnvSettingModal}
               >
-              <EnvComponent scope={scopeThis} index={k} form={form} />
+              <EnvComponent scope={scopeThis} index={k} form={form} visible={this.state.envModalShow == k ? true : false}/>
             </Modal>
           </div>
         </QueueAnim>
@@ -1097,7 +1100,7 @@ let CreateTenxFlowModal = React.createClass({
     if (stageList.length === 0) {
       uniformRepoProps = getFieldProps('uniformRepo', {
         valuePropName: 'checked',
-        initialValue: (uniformRepo == 0),
+        initialValue: true,
       })
     }
     return (
@@ -1362,7 +1365,7 @@ let CreateTenxFlowModal = React.createClass({
             onOk={this.closeImageEnvModal}
             onCancel={this.closeImageEnvModal}
             >
-            <CreateImageEnvComponent scope={scopeThis} form={form} />
+              <CreateImageEnvComponent scope={scopeThis} form={form} imageName={this.props.form.getFieldValue('imageName')}  visible={this.state.ImageEnvModal}/>
           </Modal>
         </Form>
         <div className='modalBtnBox'>
@@ -1395,6 +1398,7 @@ let CreateTenxFlowModal = React.createClass({
 
 function mapStateToProps(state, props) {
   return {
+
   }
 }
 

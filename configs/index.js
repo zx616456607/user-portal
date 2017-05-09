@@ -60,7 +60,7 @@ const config = {
   storageConfig: {
     name: '',
     agent: {
-      user: env.STORAGE_AGENT_USER || 'system', 
+      user: env.STORAGE_AGENT_USER || 'system',
       password: env.STORAGE_AGENT_PASSWORD || '31e120b3-512a-4e3b-910c-85c747fb1ec2'
     },
     pool: env.STORAGE_POOL || 'tenx-pool',

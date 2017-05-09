@@ -8,11 +8,13 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Icon } from 'antd'
+import { Button, Input, Form, Icon, Spin } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import NotificationHandler from '../../../../../common/notification_handler'
+import { loadImageDetailTagConfig,  loadOtherDetailTagConfig } from '../../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
 import './style/EnvComponent.less'
 
@@ -25,7 +27,97 @@ let EnvComponent = React.createClass({
       uuid: 0
     }
   },
-  addServicesInput (index) {
+  loadData() {
+    const { form, loadImageDetailTagConfig, registryServer, index } = this.props
+    let imageName = form.getFieldValue(`serviceSelect${index}`)
+    if (!imageName) {
+      form.setFieldsValue({
+         ['service' + index + 'inputs']:[]
+      })
+      return
+    }
+    this.setState({
+      currentImageName: imageName
+    })
+    let registryUrl = ''
+    if (imageName.indexOf('/') == imageName.lastIndexOf('/')) {
+      registryUrl = registryServer.v2Server
+      let tag = 'latest'
+      if (imageName.indexOf(':') > 0) {
+        imageName = imageName.split(':')
+        tag = imageName[1]
+        imageName = imageName[0]
+        if (!tag) {
+          tag = 'latest'
+        }
+      }
+      const self = this
+      if (registryUrl) {
+        loadImageDetailTagConfig(registryUrl, imageName, tag, {
+          success: {
+            func: (result) => {
+              if (!result.data) return
+              let allEnv = {}
+              const { scope, form, registry, config } = self.props;
+              const { setFieldsValue } = form
+              let imageEnv = result.data
+              let envs = imageEnv.defaultEnv
+              if (envs) {
+                if (self.state.uuid < envs.length) {
+                  self.setState({
+                    uuid: envs.length
+                  })
+                }
+                envs.forEach((env, i) => {
+                  env = env.split('=')
+                  allEnv[env[0]] = env[1]
+                })
+              }
+              const allEnvName = Object.getOwnPropertyNames(allEnv)
+              setFieldsValue({
+                ['service' + index + 'inputs']: allEnvName.map((env, i) => i)
+              })
+              allEnvName.forEach((name, i) => {
+                setFieldsValue({
+                  [`service${index}inputName${i}`]: name,
+                  [`service${index}inputValue${i}`]: allEnv[name]
+                })
+              })
+            }
+          },
+          failed: {
+            func: (res) => {
+              const notify = new NotificationHandler()
+              if (res.message == 'Failed to find any tag') {
+                notify.error('获取镜像信息失败，请检查镜像是否存在')
+                return
+              }
+              notify.error(res.message)
+            }
+          }
+        })
+      }
+    }
+  },
+  componentWillMount() {
+    this.loadData()
+  },
+  componentWillReceiveProps(nextProps) {
+    const { form, index } = nextProps
+    let imageName = form.getFieldValue(`serviceSelect${index}`)
+    if(nextProps.visible != this.props.visible && nextProps.visible && this.state.currentImageName != imageName) {
+      this.loadData()
+    }
+  },
+  shouldComponentUpdate(nextProps) {
+    const { form, index } = nextProps
+    let imageName = form.getFieldValue('service' + index + 'inputs')
+     if(!nextProps.visible) {
+       return false
+     }
+     return true
+  },
+  addServicesInput(index) {
     //this function for user add an new input div
     //there are no button for user click
     //when user input words, after user key up would triger the function
@@ -70,7 +162,15 @@ let EnvComponent = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { scope, index, form } = this.props;
+    const { scope, index, form, registryServer, imageConfig } = this.props;
+    if (!registryServer || !imageConfig) {
+      return <div className="loadingBox"><Spin size="large"></Spin></div>
+    }
+    if (registryServer && imageConfig) {
+      if (imageConfig.imageTagConfig[registryServer.v2Server] && imageConfig.imageTagConfig[registryServer.v2Server].isFetching) {
+        return <div className="loadingBox"><Spin size="large"></Spin></div>
+      }
+    }
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form;
     getFieldProps('service' + index + 'inputs', {
       initialValue: [0],
@@ -118,7 +218,7 @@ let EnvComponent = React.createClass({
           <div className='commonTitle'>
             <span>变量名</span>
           </div>
-          <div className='equalTitle'>            
+          <div className='equalTitle'>
           </div>
           <div className='commonTitle'>
             <span>变量值</span>
@@ -127,10 +227,10 @@ let EnvComponent = React.createClass({
         </div>
         {servicesInputItems}
         <div className='addBtnBox'>
-          <div className='addBtn' onClick={() => this.addServicesInput(index)}>
+          <span className='addBtn' onClick={() => this.addServicesInput(index)}>
             <Icon type='plus-circle-o' />
             <span>增加环境变量</span>
-          </div>
+          </span>
         </div>
       </div>
     )
@@ -138,9 +238,21 @@ let EnvComponent = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-
+  const defaultImageConfig = {}
+  let imageConfig = state.getImageTagConfig
+  if(!imageConfig) {
+    imageConfig = defaultImageConfig
+  }
+    const defaultRegistryServer = {
+  }
+  let registryServer = defaultRegistryServer
+  const { availableImage } = state.cicd_flow
+  if(availableImage) {
+    registryServer = availableImage.server ||  defaultRegistryServer
+  }
   return {
-
+    registryServer,
+    imageConfig
   }
 }
 
@@ -149,7 +261,8 @@ EnvComponent.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  loadOtherDetailTagConfig,
+  loadImageDetailTagConfig
 })(injectIntl(EnvComponent, {
   withRef: true,
 }));
