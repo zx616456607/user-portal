@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Alert, Icon } from 'antd'
+import { Alert, Icon, Spin, Table } from 'antd'
 import './style/StateBtnModal.less'
 
 export default class StateBtnModal extends Component{
@@ -18,8 +18,122 @@ export default class StateBtnModal extends Component{
       //
     }
   }
+  getDeleteMessage() {
+    const { state, appList, cdRule, serviceList } = this.props
+    if(state != 'Delete') return ''
+    let rule = []
+    const appRule = {}
+    if(appList) {
+      rule = cdRule.result.results
+      rule.forEach(item => {
+        if(appRule[item.appname]) appRule[item.appname].push(item.service.bindingDeploymentName)
+        else {
+          appRule[item.appname] = []
+          appRule[item.appname].push(item.service.bindingDeploymentName)
+        }
+      })
+      const checkList = appList.filter(item => item.checked)
+      const keys = Object.getOwnPropertyNames(appRule)
+      if (checkList.length == 0 || keys.length <= 0) return ''
+      const dataSource = []
+      checkList.forEach((app, index) => {
+        if(app.services) {
+          app.services.forEach((service, i) => {
+            const obj = {
+              key: index.toString() + i.toString(),
+              appname: app.name,
+              servicename: service.metadata.name
+            }
+            const ruleService = appRule[app.name]
+            if(!ruleService) {
+              obj.cdrule = 0
+              dataSource.push(obj)
+              return
+            }
+            if(ruleService.indexOf(service.metadata.name) >= 0) {
+              obj.cdrule = 1
+              dataSource.push(obj)
+              return
+            }
+            obj.cdrule = 0
+            dataSource.push(obj)
+            return
+          })
+        }
+      })
+
+      const columns = [{
+        title: '应用名称',
+        dataIndex: 'appname',
+        key: 'appname',
+      }, {
+        title: '服务名称',
+        dataIndex: 'servicename',
+        key: 'servicename',
+      }, {
+        title: '自动部署',
+        dataIndex: 'cdrule',
+        key: 'cdrule',
+        render: (text, record, index) => {
+          if(text == '1') return <Icon style={{color: 'green', fontSize: '15px'}} type="check-circle" />
+          return '未设置' 
+        }
+      }];
+
+      return <div className="confirm"><Table pagination={false}  style={{marginBottom: '20px'}} dataSource={dataSource} columns={columns} />
+           <span style={{color: 'red' }}>注意：删除已设置自动部署的应用或服务，将自动删除其对应的自动部署规则</span></div>
+      const messages = keys.map(key => {
+        return <div>{`应用${key}中, 服务${appRule[key].join(',')}已设置自动部署`}</div>
+      })
+      if(messages.length > 0) {
+        messages.push(<div>删除应用后，将自动删除对应对应自动部署规则</div>)
+      }
+      return messages
+    } else {
+      const checkList = serviceList.filter(item => item.checked)
+      rule = cdRule.result.results.map(item => {
+        return item.bindingDeploymentName
+      })
+      if(checkList.length <=0 || rule.length <= 0) return ''
+      const dataSource =[]
+      checkList.forEach(service => {
+        const serviceName = service.metadata.name
+        var obj = {
+          key: serviceName,
+          servicename: serviceName,
+          cdrule: 0
+        }
+        if(rule.indexOf(serviceName) >= 0) {
+          obj.cdrule = 1
+        }
+        dataSource.push(obj)
+      })
+      const columns = [{
+        title: '服务名称',
+        dataIndex: 'servicename',
+        key: 'servicename',
+      }, {
+        title: '自动部署',
+        dataIndex: 'cdrule',
+        key: 'cdrule',
+        render: (text, record, index) => {
+          if(text == '1') return <Icon style={{color: 'green', fontSize: '15px'}} type="check-circle" />
+            return '未设置'
+        }
+      }];
+      return <div className="confirm"><Table pagination={false}  style={{marginBottom: '20px'}} dataSource={dataSource} columns={columns} />
+        <span style={{color: 'red' }}>注意：删除已设置自动部署的应用或服务，将自动删除其对应的自动部署规则</span></div>
+    }
+  }
   render(){
-    const { state, appList, serviceList, scope } = this.props
+    const { state, appList, serviceList, scope, cdRule } = this.props
+    let rule = []
+    const appRule = {}
+    if(state == 'Delete') {
+      if(cdRule.isFetching) {
+        return <div className="loadingBox"><Spin size="large"></Spin></div>
+      }
+    }
     let alertText = ''
     let tip = ''
     let tbInf = ''
@@ -127,8 +241,9 @@ export default class StateBtnModal extends Component{
             </div> :
             <div></div>
         }
+      {this.getDeleteMessage()}
         <div className="confirm">
-          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
+              <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
           您是否确定{opt}这{(checkedList.length - disableArr.length)}个{stateText}的{appList?'应用':'服务'} ?
         </div>
       </div>

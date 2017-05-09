@@ -119,6 +119,27 @@ exports.deleteApps = function* () {
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
+  //获取app下的service，　并删除其对应的cd规则
+  const appResult = yield api.getBy([cluster, 'apps', apps.join(',')])
+  const appsData = appResult.data
+  const deleteCDRuleServiceName = []
+  if(appsData) {
+    apps.forEach(key => {
+      const app = appsData[key]
+      if(app.services && app.services.length > 0) {
+        app.services.forEach(service => {
+          deleteCDRuleServiceName.push(service.metadata.name)
+        })
+      }
+    })
+    const devOpsApi = apiFactory.getDevOpsApi(loginUser)
+    if(deleteCDRuleServiceName.length > 0) {
+      yield devOpsApi.deleteBy(['cd-rules'], {
+        cluster,
+        name: deleteCDRuleServiceName.join(',')
+      })
+    }
+  }
   const result = yield api.batchDeleteBy([cluster, 'apps', 'batch-delete'], null, { apps })
   this.body = {
     cluster,

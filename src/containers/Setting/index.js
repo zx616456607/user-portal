@@ -42,6 +42,9 @@ const menuList_sysAdmin = [
   {
     url: '/setting/globalConfig',
     name: '全局配置'
+  },{
+    url: '/setting/advancedSetting',
+    name: '高级设置'
   }
 ]
 

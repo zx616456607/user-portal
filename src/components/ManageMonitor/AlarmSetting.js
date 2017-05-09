@@ -282,7 +282,8 @@ let MyComponent = React.createClass({
       data: newData
     })
   },
-  tableListMore(list) {
+  tableListMore(list, e) {
+    if(e.target.nodeName == 'A') return
     const oldData = cloneDeep(this.state.data)
     let data
     const newData = oldData.map((item, index)=> {
@@ -331,7 +332,7 @@ let MyComponent = React.createClass({
           </div>
           <div className="lists">
             <span className="keys">CPU</span>
-            <Progress percent={parseFloat(data.cpus).toFixed(2)} status="exception" strokeWidth={8} format={ percent => percent + '%'} status={data.cpu > 80 ? 'exception' : ''}  className="progress" />
+            <Progress percent={parseFloat(data.cpus).toFixed(2)} strokeWidth={8} format={ percent => percent + '%'} status={data.cpu > 80 ? 'exception' : ''}  className="progress" />
           </div>
           <div className="lists">
             <span className="keys">流量</span>
@@ -382,7 +383,7 @@ let MyComponent = React.createClass({
         return (
             [<tr key={`list${index}`}>
              <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-              <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${list.strategyName}`}>{list.strategyName}</Link></td>
+              <td onClick={(e)=> this.tableListMore(index, e)}><Link to={`/manange_monitor/alarm_setting/${list.strategyName}`}>{list.strategyName}</Link></td>
               <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.targetName}</td>
               <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
@@ -403,7 +404,7 @@ let MyComponent = React.createClass({
       return (
         <tr key={`list${index}`}>
             <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-            <td onClick={()=> this.tableListMore(index)}><Link to={`/manange_monitor/alarm_setting/${list.strategyName}`}>{list.strategyName}</Link></td>
+            <td onClick={(e)=> this.tableListMore(index, e)}><Link to={`/manange_monitor/alarm_setting/${list.strategyName}`}>{list.strategyName}</Link></td>
             <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.targetName}</td>
             <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
@@ -920,7 +921,10 @@ class AlarmSetting extends Component {
       <QueueAnim type="right" className="alarmSetting">
         <div id="AlarmRecord" key="AlarmRecord">
           <div className="topRow" style={{marginBottom: '20px'}}>
-            <Button icon="plus" size="large" type="primary" onClick={()=> this.createStrategy()}>创建</Button>
+            <Button size="large" type="primary" onClick={()=> this.createStrategy()}>
+              <i className="fa fa-plus" style={{marginRight:'5px'}}/>
+              创建
+            </Button>
             <Button size="large" type="ghost" onClick={() => this.refreshPage()}><i className="fa fa-refresh" /> 刷新</Button>
             <Button icon="caret-right" size="large" type="ghost" disabled={!this.state.canStart} onClick={() => this.showStart()}>启用</Button>
             <Button size="large" type="ghost" disabled={!this.state.canStop} onClick={() => this.showStop()}><i className="fa fa-stop" /> &nbsp;停用</Button>

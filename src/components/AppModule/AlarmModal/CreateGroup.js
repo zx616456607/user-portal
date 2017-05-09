@@ -327,7 +327,7 @@ let CreateAlarmGroup = React.createClass({
     return (
       <Form className="alarmAction" form={this.props.form}>
         <Form.Item label="名称" {...formItemLayout} >
-          <Input {...getFieldProps(`groupName`, {
+          <Input placeholder="请输入名称" {...getFieldProps(`groupName`, {
           rules: [{ whitespace: true },
             { validator: this.groupName}
           ],

@@ -416,7 +416,7 @@ class ImageDetailBox extends Component {
   formatErrorMessage(body) {
     const mapping = {
       'jobalreadyexist': '版本已经触发扫描，请稍后再试！',
-      'no non-empty layer': "无法对空镜像进行扫描",
+      'no non-empty layer': "版本为空镜像，无法对空镜像进行扫描",
     }
     const message = body.message.message
     if (!(message in mapping)) {
@@ -508,7 +508,8 @@ class ImageDetailBox extends Component {
               {/* 说扫描 */}
               <div className='rightBoxright'>
                 <Button type="ghost" size="large" onClick={this.safetyscanShow}>安全扫描</Button>
-                <Modal title="安全扫描" visible={this.state.safetyscanVisible} closable={false}
+                <Modal title="安全扫描" visible={this.state.safetyscanVisible} closable={true}
+                  onCancel={this.safetyscanhandleCancel}
                   confirmLoading={true}
                   footer={[
                     <Button

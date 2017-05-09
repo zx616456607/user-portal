@@ -328,7 +328,7 @@ class TableTemplate extends Component{
         Medium: EchartsMediumNum,
         High: EchartsHighNum,
         None: EchartsNoneNum,
-        Total: (index-1)
+        Total: index-1
       })
     }
   }

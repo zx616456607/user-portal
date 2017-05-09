@@ -15,6 +15,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
 import { loadAppList, stopApps, deleteApps, restartApps, startApps } from '../../actions/app_manage'
+import { getDeploymentOrAppCDRule } from '../../actions/cicd_flow'
 import { LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { calcuDate } from '../../common/tools'
@@ -28,6 +29,7 @@ import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
 import CreateAlarm from './AlarmModal'
 import CreateGroup from './AlarmModal/CreateGroup'
+import DeployEnvModal from '../DeployEnvModal'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -392,6 +394,7 @@ class AppList extends Component {
       stopAppsModal: false,
       restarAppsModal: false,
       deleteAppsModal: false,
+      deployEnvModalVisible: false,
       step: 1, // first step create AlarmModal
     }
   }
@@ -565,6 +568,7 @@ class AppList extends Component {
     const checkedAppList = appList.filter((app) => app.checked)
     this.confirmDeleteApps(checkedAppList)*/
     const { appList } = this.state
+    const { getDeploymentOrAppCDRule, currentCluster } = this.props
     if (app) {
       appList.map((item) => {
         item.checked = false
@@ -573,6 +577,7 @@ class AppList extends Component {
         }
       });
     }
+    getDeploymentOrAppCDRule(currentCluster.clusterID, 'app', appList.filter(item => item.checked).map(item => item.name).join(','))
     this.setState({
       deleteAppsModal: true
     })
@@ -908,6 +913,9 @@ class AppList extends Component {
                   <i className="fa fa-plus" />创建应用
                 </Button>
               </Link>
+              <Button type='ghost' size='large' onClick={() => this.setState({ deployEnvModalVisible: true })}>
+                <i className="fa fa-plus" />快速创建
+              </Button>
               <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!runBtn}>
                 <i className='fa fa-play' />启动
               </Button>
@@ -933,7 +941,7 @@ class AppList extends Component {
               <Modal title="删除操作" visible={this.state.deleteAppsModal}
                 onOk={this.handleDeleteAppsOk} onCancel={this.handleDeleteAppsCancel}
                 >
-                <StateBtnModal appList={appList} state='Delete' />
+               <StateBtnModal appList={appList} state='Delete' cdRule={this.props.cdRule}/>
               </Modal>
               <Button type='ghost' size='large' onClick={() => this.batchRestartApps()} disabled={!restartBtn}>
                 <i className='fa fa-undo' />重新部署
@@ -1051,8 +1059,14 @@ class AppList extends Component {
             className="alarmContent"
             footer={null}
           >
-        <CreateGroup funcs={modalFunc} shouldLoadGroup={true} currentApp={this.state.alertCurrentApp}/>
+            <CreateGroup funcs={modalFunc} shouldLoadGroup={true} currentApp={this.state.alertCurrentApp}/>
           </Modal>
+          <DeployEnvModal
+            title="选择部署环境"
+            visible={this.state.deployEnvModalVisible}
+            onCancel={() => this.setState({ deployEnvModalVisible: false })}
+            onOk={() => browserHistory.push('/app_manage/app_create/quick_create')}
+          />
         </div>
       </QueueAnim>
     )
@@ -1105,7 +1119,13 @@ function mapStateToProps(state, props) {
     appItems
   } = state.apps
   const { appList, isFetching, total } = appItems[cluster.clusterID] || defaultApps
-
+  const { getDeploymentOrAppCDRule }  = state.cicd_flow
+  const defaultCDRule = {
+    isFetching: false,
+    result: {
+      results: []
+    }
+  }
   return {
     cluster: cluster.clusterID,
     statusWatchWs,
@@ -1120,7 +1140,8 @@ function mapStateToProps(state, props) {
     sortOrder,
     sortBy,
     appList,
-    isFetching
+    isFetching,
+    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule :  defaultCDRule
   }
 }
 
@@ -1130,6 +1151,7 @@ AppList = connect(mapStateToProps, {
   deleteApps,
   restartApps,
   startApps,
+  getDeploymentOrAppCDRule
 })(AppList)
 
 export default injectIntl(AppList, {

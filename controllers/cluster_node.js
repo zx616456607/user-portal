@@ -167,7 +167,7 @@ exports.getClustersMetrics = function* () {
   reqArray.push(api.getBy([cluster,'nodes',node,'metrics'], cpuq))
   // metrics memory
   reqArray.push(api.getBy([cluster,'nodes',node,'metrics'],memoryq))
- // metrics network/rx_rate
+  // metrics network/rx_rate
   reqArray.push(api.getBy([cluster,'nodes',node,'metrics'],re_rateq))
   // metrics network/tx_rate
   reqArray.push(api.getBy([cluster,'nodes',node,'metrics'],te_rateq))
@@ -189,7 +189,7 @@ exports.getClustersInstant = function* () {
   const type = this.params.type
   const api = apiFactory.getK8sApi(loginUser)
   const reqArray = []
-   let cpu = {
+  let cpu = {
     targetType: 'node',
     type: 'cpu/usage_rate',
     source: 'prometheus'
@@ -224,6 +224,91 @@ exports.updateNodeLabels = function* () {
   const node = this.params.node
   const labels = this.request.body
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.patchBy([cluster, 'nodes', node, 'labels'], {}, labels)
+  const result = yield api.updateBy([cluster, 'nodes', node, 'labels'], {}, labels)
   this.body = result ? result.data : {}
+}
+
+exports.getLabelSummary = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const api = apiFactory.getApi(loginUser)
+  const clusterNodeNames = yield getClusterNodeNames(api.clusters, cluster)
+  const labelsOfNodes = yield clusterNodeNames.map(nodeName => getLabelsOfNode(api.clusters, cluster, nodeName))
+  let labels = yield getUserDefinedLabels(api.labels)
+  let nodes = {}
+  labelsOfNodes.forEach(node => {
+    nodes = Object.assign(nodes, {
+      [node.name]: node.labels
+    })
+    Object.getOwnPropertyNames(node.labels).forEach(key => {
+      const value = node.labels[key]
+      if (!labels.has(key)) {
+        labels.set(key, new Map())
+      }
+      let values = labels.get(key)
+      if (!values.has(value)) {
+        values.set(value, aLabel(key, value))
+      }
+      values.get(value).targets.add(node.name)
+    })
+  })
+  let summary = {}
+  labels.forEach((values, key, _) => {
+    summary = Object.assign(summary, {
+      [key]: Array.from(values.values())
+    })
+  })
+  this.body = {
+    nodes: nodes,
+    summary: summary
+  }
+}
+
+function getUserDefinedLabels(api) {
+  return api.getBy([], {target: 'node'}).then(result => {
+    const labels = result ? result.data : {}
+    let lookupByKey = new Map()
+    labels.forEach(label => {
+      if (!lookupByKey.has(label.key)) {
+        lookupByKey.set(label.key, new Map())
+      }
+      let values = lookupByKey.get(label.key)
+      if (!values.has(label.value)) {
+        values.set(label.value, {
+          id: label.id,
+          key: label.key,
+          value: label.value,
+          createAt: label.createAt,
+          isUserDefined: true,
+          targets: new Set()
+        })
+      }
+    })
+    return lookupByKey
+  })
+}
+
+function getClusterNodeNames(api, clusterID) {
+  return api.getBy([clusterID, 'nodes']).then(result => {
+    return result ? result.data.nodes.nodes.map(node => node.objectMeta.name) : []
+  })
+}
+
+function getLabelsOfNode(api, clusterID, nodeName) {
+  return api.getBy([clusterID, 'nodes', nodeName, 'labels']).then(result => {
+    const labels = result ? result.data : {}
+    return {
+      name: nodeName,
+      labels: labels
+    }
+  })
+}
+
+function aLabel(key, value) {
+  return {
+    key: key,
+    value: value,
+    isUserDefined: false,
+    targets: new Set()
+  }
 }

@@ -613,11 +613,6 @@ class ClusterList extends Component {
         )
       }
     })
-     /*clusters.map(cluster => (
-      <TabPane tab={cluster.clusterName} key={cluster.clusterID}>
-        <ClusterTabList cluster={cluster} />
-      </TabPane>
-    ))*/
     const clusterSum = clusters.length
     let createClusterBtnDisabled = true
     const maxClusters = license[camelize('max_clusters')]
@@ -649,6 +644,8 @@ class ClusterList extends Component {
                 onChange={this.onTabChange}
                 key='ClusterTabs'
                 defaultActiveKey={currentClusterID}
+                type="card"
+                style={{position:'relative'}}
                 tabBarExtraContent={
                   <Tooltip
                     title={`当前许可证最多支持 ${maxClusters || '-'} 个 集群（目前已添加 ${clusterSum} 个）`}

@@ -100,10 +100,10 @@ class OtherSpace extends Component {
   }
   showImageDetail (imageName) {
     //this function for user select image and show the image detail info
-     this.setState({
+    this.setState({
       imageDetailModalShow:true,
       currentImage:imageName
-     });
+    });
   }
   render() {
     const { formatMessage } = this.props.intl;
@@ -112,31 +112,31 @@ class OtherSpace extends Component {
     const scope = this;
     const otherHead = this.props.otherHead
     const registryServer = otherHead.url.split('//')[1]
-     const columns = [{
+    const columns = [{
       title: '镜像名',
       dataIndex: 'name',
       key: 'name',
       width:'30%',
       render: (text,row) => {
         return (
-        <div className="imageList">
-          <div className="imageBox">
-            <svg className='appcenterlogo'>
-              <use xlinkHref='#appcenterlogo' />
-            </svg>
-          </div>
-          <div className="contentBox">
-            <div className="title" onClick={()=> this.showImageDetail(row.name)}>
-              {text}
+          <div className="imageList">
+            <div className="imageBox">
+              <svg className='appcenterlogo'>
+                <use xlinkHref='#appcenterlogo' />
+              </svg>
             </div>
-            <div className='type'>
-              <FormattedMessage {...menusText.belong} />&nbsp;私有
+            <div className="contentBox">
+              <div className="title" onClick={()=> this.showImageDetail(row.name)}>
+                {text}
+              </div>
+              <div className='type'>
+                <FormattedMessage {...menusText.belong} />&nbsp;私有
+              </div>
             </div>
           </div>
-        </div>
         )
       }
-     }, {
+    }, {
       title: '地址',
       dataIndex: 'description',
       key: 'description',
@@ -146,7 +146,7 @@ class OtherSpace extends Component {
           <div className="imgurl"><FormattedMessage {...menusText.imageUrl} />{registryServer} / {row.name}</div>
         )
       }
-     }, {
+    }, {
       title: '部署',
       dataIndex: 'icon',
       key: 'icon',
@@ -154,30 +154,30 @@ class OtherSpace extends Component {
       render: (text, row)=> {
         return (
           <Button type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${registryServer}&imageName=${row.name}`)}>
-              <FormattedMessage {...menusText.deployService} />
+            <FormattedMessage {...menusText.deployService} />
           </Button>
         )
       }
-     }
+    }
     ];
     return (
       <QueueAnim className='OtherSpace'
         type='right'
-        >
+      >
         <div id='OtherSpace' key='OtherSpace'>
           <Card className='OtherSpaceCard'>
             <div className='operaBox'>
               <div className='infoBox'>
                 <div className='url'>
                   <i className='fa fa-link'></i>&nbsp;&nbsp;
-                    {otherHead.url}
+                  {otherHead.url}
                 </div>
                 {otherHead.username ?
-                <div className='name'>
-                  <i className='fa fa-user'></i>&nbsp;&nbsp;
-                  {otherHead.username}
-                </div>
-                :null
+                  <div className='name'>
+                    <i className='fa fa-user'></i>&nbsp;&nbsp;
+                    {otherHead.username}
+                  </div>
+                  :null
                 }
               </div>
               <Button className='logout' size='large' type='ghost' onClick={()=>this.setState({imageId:this.props.imageId, delModal: true})}>
@@ -198,12 +198,12 @@ class OtherSpace extends Component {
           className='AppServiceDetail'
           transitionName='move-right'
           onCancel={this.closeImageDetailModal}
-          >
+        >
           <ImageDetailBox scope={scope}  server={otherHead.url} parentScope={rootscope} imageId ={this.props.imageId} config={this.state.currentImage} />
         </Modal>
         <Modal title="删除第三方镜像操作" visible={this.state.delModal}
           onOk={()=> this.deleteImage()} onCancel={()=> this.setState({delModal: false})}
-          >
+        >
           <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除这项操作?</div>
         </Modal>
       </QueueAnim>

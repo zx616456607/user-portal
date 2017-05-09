@@ -123,7 +123,7 @@ class MysqlCluster extends Component {
   }
 
   componentWillMount() {
-    document.title = 'MySQL集群 | 时速云';
+    document.title = '关系型数据库 | 时速云';
     const { loadDbCacheList, cluster } = this.props
     if (cluster == undefined) {
       let notification = new NotificationHandler()
