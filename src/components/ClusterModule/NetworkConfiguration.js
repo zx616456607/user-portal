@@ -147,6 +147,7 @@ let NetworkConfiguration = React.createClass ({
           address: getFieldValue(`nodeIP${item}`)
         })
       })
+      notify.spin('更新代理出口中')
       updateProxy(cluster.clusterID, entity, {
         success: {
           func: () => {
@@ -444,7 +445,6 @@ function mapStateToProps(state, props) {
   if(!clusterProxy) {
     clusterProxy = defaultProxy
   }
-  console.log(allNode)
   return {
     nodeList: allNode,
     clusterProxy
