@@ -248,9 +248,11 @@ function* editingView(cluster, api, ctx) {
   const clusterNodeNames = yield getClusterNodeNames(api.clusters, cluster)
   const labelsOfNodes = yield clusterNodeNames.map(nodeName => getLabelsOfNode(api.clusters, cluster, nodeName))
   let result = new Map(userDefinedLabels)
-  let nodes = new Set()
+  let nodes = {}
   labelsOfNodes.forEach(node => {
-    nodes.add(node.name)
+    nodes = Object.assign(nodes, {
+      [node.name]: node.labels
+    })
     Object.getOwnPropertyNames(node.labels).forEach(key => {
       const value = node.labels[key]
       const dk = distinctKey(key, value)
