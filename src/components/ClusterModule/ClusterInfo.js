@@ -305,8 +305,6 @@ let ClusterInfo = React.createClass ({
     const apiUrl = `${apiProtocol}://${apiHost}`
     bindingIPs = parseArray(bindingIPs).join(', ')
     bindingDomains = parseArray(bindingDomains).join(', ')
-    console.log(bindingIPs)
-    console.log(bindingDomains)
     const nameProps = getFieldProps('clusterName',{
       rules: [
         {

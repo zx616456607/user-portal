@@ -66,50 +66,7 @@ function memoryUsed(memoryTotal, memoryMetric, name) {
   return metric
 }
 
-const MASTER = '主控节点/Master'
-const SLAVE = '计算节点/Slave'
-function diskFormat(num) {
-  if (num < 1024) {
-    return num + 'KB'
-  }
-  num = Math.floor(num / 1024 *100) /100;
-  if (num < 1024) {
-    return num + 'MB'
-  }
-  num =  Math.floor(num / 1024 *100) /100;
-  if (num < 1024) {
-    return num + 'GB'
-  }
-  num =  Math.floor(num / 1024 *100) /100;
-  return num + 'TB'
-}
-function getContainerNum(name, podList) {
-  //this function for return the container num of node
-  let num;
-  podList.map((pod) => {
-    if(pod.name == name) {
-      num = pod.count;
-    }
-  });
-  return num;
-}
-function cpuUsed(cpuTotal, cpuMetric, name) {
-  name = camelize(name)
-  if (!cpuMetric || !cpuMetric[name]) {
-    return NOT_AVAILABLE
-  }
-  return `${cpuMetric[name].toFixed(2)}%`
-}
-function memoryUsed(memoryTotal, memoryMetric, name) {
-  name = camelize(name)
-  if (!memoryMetric || !memoryMetric[name]) {
-    return NOT_AVAILABLE
-  }
-  let metric = memoryMetric[name]
-  metric = metric / 1024 / memoryTotal * 100
-  metric = `${metric.toFixed(2)}%`
-  return metric
-}
+
 const MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
