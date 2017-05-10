@@ -14,7 +14,7 @@ import { addTerminal } from '../../actions/terminal'
 import { NOT_AVAILABLE } from '../../constants'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
 import ManageTagModal from './TagDropdown'
-import TagDropdown from './TagDropdown'
+import ManageLabelModal from './MangeLabelModal'
 
 import './style/hostList.less'
 const MASTER = '主控节点/Master'
@@ -238,10 +238,9 @@ class hostList extends Component {
     this.openTerminalModal = this.openTerminalModal.bind(this)
     this.handleDropdownTag = this.handleDropdownTag.bind(this)
     this.formTagContainer = this.formTagContainer.bind(this)
-    this.handleManageLabelOk = this.handleManageLabelOk.bind(this)
-    this.handleManageLabelCancel = this.handleManageLabelCancel.bind(this)
     this.deleteClusterNode = this.deleteClusterNode.bind(this);
     this.closeDeleteModal = this.closeDeleteModal.bind(this)
+    this.callbackManageLabelModal = this.callbackManageLabelModal.bind(this)
     this.state = {
       addClusterOrNodeModalVisible:false,
       nodeList: [],
@@ -384,22 +383,16 @@ class hostList extends Component {
     })
   }
 
-  handleManageLabelOk(){
-    this.setState({
-      manageLabelModal : false
-    })
-  }
-
-  handleManageLabelCancel(){
-    this.setState({
-      manageLabelModal : false
-    })
-  }
-
   closeDeleteModal() {
     //this function for close delete node modal
     this.setState({
       deleteNodeModal: false
+    })
+  }
+
+  callbackManageLabelModal(obj){
+    this.setState({
+      manageLabelModal: false
     })
   }
 
@@ -488,39 +481,10 @@ class hostList extends Component {
         CMD={addNodeCMD && addNodeCMD[camelize('default_command')]}
         bottomContent={<p>注意：新添加的主机需要与 Master 节点同一内网，可互通</p>} />
 
-      <Modal
-        title="管理标签"
-        visible={this.state.manageLabelModal}
-        onOk={this.handleManageLabelOk}
-        onCancel={this.handleManageLabelCancel}
-        wrapClassName="manageLabelModal"
-        width="585px"
-        maskClosable={false}
-      >
-        <div className='labelcontainer'>
-          {this.formTagContainer()}
-        </div>
-
-        <div className='labelfooter'>
-          <span className='labeldropdown' id="cluster__hostlist__manageLabelModal">
-            <TagDropdown footer={false} width={'120px'} context={"Modal"}/>
-          </span>
-          <span className='item'>或</span>
-          <Form
-            inline
-            horizontal={true}
-            className='labelform'
-          >
-            <Form.Item className='itemkey'>
-              <Input placeholder="标签键" />
-            </Form.Item>
-            <Form.Item className='itemkey'>
-              <Input placeholder="标签值"/>
-            </Form.Item>
-          </Form>
-          <Button icon='plus' size="large" className='itembutton' type="ghost" onClick={this.handleAddLabel}>新建标签</Button>
-        </div>
-      </Modal>
+      <ManageLabelModal
+        manageLabelModal={this.state.manageLabelModal}
+        callback={this.callbackManageLabelModal}
+      />
 
       <Modal
         title='删除主机节点'
