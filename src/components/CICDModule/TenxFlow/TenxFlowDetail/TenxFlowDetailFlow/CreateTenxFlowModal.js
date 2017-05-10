@@ -536,6 +536,7 @@ let CreateTenxFlowModal = React.createClass({
     const { scope, createTenxFlowState, flowId, stageInfo, createDockerfile, getTenxFlowDetail } = this.props;
     const { getTenxFlowStateList } = scope.props;
     const _this = this;
+    let notification = new NotificationHandler()
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
