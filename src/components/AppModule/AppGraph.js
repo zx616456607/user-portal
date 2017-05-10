@@ -32,7 +32,7 @@ let OrchfileComponent = React.createClass({
     this.props.loadServiceList(cluster,appName,query,{
       success:{
         func:(ret)=> {
-          setTimeout(onServicesChange(ret.data, ret.availableReplicas, ret.total),500)
+          setTimeout(onServicesChange(ret.data, ret.availableReplicas, ret.total),0)
         }
       }
     })

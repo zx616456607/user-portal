@@ -536,6 +536,7 @@ let CreateTenxFlowModal = React.createClass({
     const { scope, createTenxFlowState, flowId, stageInfo, createDockerfile, getTenxFlowDetail } = this.props;
     const { getTenxFlowStateList } = scope.props;
     const _this = this;
+    let notification = new NotificationHandler()
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
@@ -674,7 +675,7 @@ let CreateTenxFlowModal = React.createClass({
         });
       }
       if (errorFlag) {
-        new NotificationHandler().error('环境变量值输入有误')
+        notification.error('环境变量值输入有误')
         return;
       }
       //get shell code
@@ -743,7 +744,6 @@ let CreateTenxFlowModal = React.createClass({
         }
         body.spec.build = imageBuildBody;
       }
-      let notification = new NotificationHandler()
       createTenxFlowState(flowId, body, {
         success: {
           func: (res) => {

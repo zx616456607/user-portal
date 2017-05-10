@@ -286,7 +286,7 @@ class ClusterDetail extends Component {
       metrics = cpuData.data.metrics.map((list) => {
         let floatValue = list.floatValue || list.value
         return {
-          timestamp: formatDate(list.timestamp),
+          timestamp: formatDate(list.timestamp).substr(list.timestamp.indexOf('-')+1),
           value: floatValue
         }
       })
@@ -302,7 +302,7 @@ class ClusterDetail extends Component {
     if (memoryData.data.metrics) {
       metrics = memoryData.data.metrics.map((list) => {
         return {
-          timestamp: formatDate(list.timestamp),
+          timestamp: formatDate(list.timestamp).substr(list.timestamp.indexOf('-')+1),
           value: list.floatValue || list.value
         }
       })
@@ -319,7 +319,7 @@ class ClusterDetail extends Component {
     if (memoryData.data.metrics) {
       metrics = memoryData.data.metrics.map((list) => {
         return {
-          timestamp: formatDate(list.timestamp),
+          timestamp: formatDate(list.timestamp).substr(list.timestamp.indexOf('-')+1),
           value: list.floatValue || list.value,
         }
       })
