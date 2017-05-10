@@ -45,6 +45,15 @@ let FistStop = React.createClass({
       callback(new Error('请输入名称'));
       return
     }
+    if (value.length <3 || value.length > 40) {
+       callback(new Error('请输入3~40位字符'))
+       return
+    }
+    let regx = /^[a-zA-Z][_\-0-9a-zA-Z]+[a-zA-Z0-9]$/
+    if (!regx.test(value)) {
+      callback(new Error('以字母开头，可数字、中划线、下划线组成，且字母或者数字结尾'))
+      return
+    }
     callback()
   },
   fistStopType(rule, value, callback) {
@@ -156,7 +165,7 @@ let FistStop = React.createClass({
     const { funcs, currentApp, currentService, data, isEdit, loginUser } = this.props
     const formItemLayout = {
       labelCol: { span: 4 },
-      wrapperCol: { span: 17 }
+      wrapperCol: { span: 18 }
     };
     let nameProps
     let typeProps
@@ -1014,7 +1023,7 @@ class AlarmModal extends Component {
     }
     const formItemLayout = {
       labelCol: { span: 4 },
-      wrapperCol: { span: 17 }
+      wrapperCol: { span: 18 }
     }
     const { getFieldProps } = this.props.form
     const { strategy, isEdit } = this.props
