@@ -39,7 +39,7 @@ class ClusterLabelManage extends Component{
   loadData(that) {
     const _this = this
     const { clusterID } = that.props
-    that.props.getClusterLabel(clusterID,null,'editing')
+    that.props.getClusterLabel(clusterID)
   }
   componentWillMount(){
     this.loadData(this)

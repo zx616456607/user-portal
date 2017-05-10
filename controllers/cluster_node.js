@@ -232,15 +232,8 @@ exports.getLabelSummary = function*() {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
   const api = apiFactory.getApi(loginUser)
-  const view = this.query.view
-  if (view == "editing") {
-    yield* editingView(cluster, api, this)
-  } else if (view == "binding") {
-    yield* bindingView(cluster, api, this)
-  } else {
-    // TODO: do nothing, currently for zhangcz
-    yield* bindingView(cluster, api, this)
-  }
+  yield* editingView(cluster, api, this)
+
 }
 
 function* editingView(cluster, api, ctx) {
@@ -268,62 +261,6 @@ function* editingView(cluster, api, ctx) {
   }
 }
 
-function* bindingView(cluster, api, ctx) {
-  const clusterNodeNames = yield getClusterNodeNames(api.clusters, cluster)
-  const labelsOfNodes = yield clusterNodeNames.map(nodeName => getLabelsOfNode(api.clusters, cluster, nodeName))
-  let labels = yield getUserDefinedLabelsForBindingView(api.labels)
-  let nodes = {}
-  labelsOfNodes.forEach(node => {
-    nodes = Object.assign(nodes, {
-      [node.name]: node.labels
-    })
-    Object.getOwnPropertyNames(node.labels).forEach(key => {
-      const value = node.labels[key]
-      if (!labels.has(key)) {
-        labels.set(key, new Map())
-      }
-      let values = labels.get(key)
-      if (!values.has(value)) {
-        values.set(value, aLabel(key, value))
-      }
-      values.get(value).targets.add(node.name)
-    })
-  })
-  let summary = {}
-  labels.forEach((values, key, _) => {
-    summary = Object.assign(summary, {
-      [key]: Array.from(values.values())
-    })
-  })
-  ctx.body = {
-    nodes: nodes,
-    summary: summary
-  }
-}
-
-function getUserDefinedLabelsForBindingView(api) {
-  return api.getBy([], {target: 'node'}).then(result => {
-    const labels = result ? result.data : {}
-    let lookupByKey = new Map()
-    labels.forEach(label => {
-      if (!lookupByKey.has(label.key)) {
-        lookupByKey.set(label.key, new Map())
-      }
-      let values = lookupByKey.get(label.key)
-      if (!values.has(label.value)) {
-        values.set(label.value, {
-          id: label.id,
-          key: label.key,
-          value: label.value,
-          createAt: label.createAt,
-          isUserDefined: true,
-          targets: new Set()
-        })
-      }
-    })
-    return lookupByKey
-  })
-}
 
 function getUserDefinedLabelsForEditingView(api) {
   return api.getBy([], {target: 'node'}).then(result => {
