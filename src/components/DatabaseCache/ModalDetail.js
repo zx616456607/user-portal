@@ -259,7 +259,7 @@ class BaseInfo extends Component {
             <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {externalUrl}/>
           </div>
           <div className='configList'><span className='listKey'>副本数：</span>{this.props.currentData.pending + this.props.currentData.running}/{this.props.currentData.desired}个</div>
-          {this.props.database == 'mysql' ?
+          {this.props.database != 'zookeeper' ?
             <div><div className='configHead'>参数</div>
               <ul className='parse-list'>
                 <li><span className='key'>参数名</span> <span className='value'>参数值</span></li>

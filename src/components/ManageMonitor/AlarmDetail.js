@@ -16,7 +16,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { formatDate, isEmptyObject } from '../../common/tools'
 import NotificationHandler from '../../common/notification_handler'
 import './style/AlarmDetail.less'
-import { getAlertSetting, getSettingList, updateEnable, deleteRule } from '../../actions/alert'
+import { getAlertSetting, getSettingList, updateSendEmail, deleteRule } from '../../actions/alert'
 const RadioGroup = Radio.Group
 
 class AlarmDetail extends Component {
@@ -119,18 +119,18 @@ class AlarmDetail extends Component {
   changeEmail(e) {
     this.setState({sendEmail: e})
     const id = this.props.params.id
-    const { leftSetting, getSettingList, cluster, updateEnable} = this.props
+    const { leftSetting, getSettingList, cluster, updateSendEmail} = this.props
     if(leftSetting) {
       const noti = new NotificationHandler()
-      if(leftSetting.enable == e) {
-        noti.error(`策略已处于${e == 0 ? '停用状态' : '启用状态'}`)
+      if(leftSetting.sendMail == e) {
+        noti.error(`策略已处于${e == 0 ? '不发送邮件状态' : '发送邮件状态'}`)
         return
       }
       noti.spin('更新中')
-      updateEnable(cluster.clusterID, {
+      updateSendEmail(cluster.clusterID, {
         strategies:[{
           strategyID: leftSetting.strategyID,
-          enable: e
+          sendEmail: e
         }]
       }, {
         success: {
@@ -221,7 +221,7 @@ class AlarmDetail extends Component {
                <div className="baseAttr"><span className="keys">监控周期：</span>{this.calcuTime(leftSetting.repeatInterval)}</div>
                 <div className="baseAttr">
                   <span className="keys">是否发送：</span>
-        <RadioGroup value={leftSetting.enable} onChange={(e)=> this.changeEmail(e.target.value)}>
+        <RadioGroup value={leftSetting.sendEmail} onChange={(e)=> this.changeEmail(e.target.value)}>
                     <Radio key="a" value={1}>是</Radio>
                     <Radio key="b" value={0}>否</Radio>
                   </RadioGroup>
@@ -327,6 +327,6 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   getAlertSetting,
   getSettingList,
-  updateEnable,
+  updateSendEmail,
   deleteRule
 })(AlarmDetail)
