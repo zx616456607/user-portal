@@ -381,7 +381,7 @@ exports.getTargetInstant = function* () {
       throw err
     }
   }
-  if (type == 'pod') {
+  if (type == 'service') {
     const podSummary = yield api.getBy([cluster, 'services', name])
     if (podSummary.data[name]) {
       const deployment = podSummary.data[name].deployment

@@ -303,7 +303,7 @@ let MyComponent = React.createClass({
       if(settingInstant.result && settingInstant.result[data.strategyName]) return
       let type = 'node'
       if(data.targetType == 0) {
-        type = 'pod'
+        type = 'service'
       }
       setTimeout(() => getSettingInstant(scope.props.clusterID, type, data.strategyName, {
         name: data.targetName
