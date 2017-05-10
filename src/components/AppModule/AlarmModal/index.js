@@ -810,7 +810,7 @@ class AlarmModal extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      isSendMail: 1,
+      isSendEmail: 1,
       createGroup: false, // create alarm group modal
       showAlramGroup: true
     }
@@ -832,7 +832,7 @@ class AlarmModal extends Component {
         }
       })
       this.setState({
-        isSendMail: strategy.enable
+        isSendEmail: strategy.sendEmail
       })
     }
   }
@@ -856,7 +856,7 @@ class AlarmModal extends Component {
           }
         })
         this.setState({
-          isSendMail: strategy.enable
+          isSendEmail: strategy.sendEmail
         })
       }
     }
@@ -910,15 +910,16 @@ class AlarmModal extends Component {
         strategyName,
         repeatInterval,
         appName,
-        sendMail: this.state.isSendMail,
+        sendEmail: this.state.isSendEmail,
         enable:1,
         disableNotifyEndTime: '0s'
       }
-      if(!this.state.isSendMail) {
+      if(!this.state.isSendEmail) {
         delete requestBody.receiversGroup
       }
       if (isEdit) {
         requestBody.strategyID = strategy.strategyID
+        requestBody.enable = strategy.enable
         notification.spin('告警策略更新中')
       } else {
         notification.spin('告警策略创建中')
@@ -992,7 +993,7 @@ class AlarmModal extends Component {
   }
   sendMail(e) {
     this.setState({
-      isSendMail: e.target.value,
+      isSendEmail: e.target.value,
     })
   }
   resetFields() {
@@ -1034,7 +1035,7 @@ class AlarmModal extends Component {
       ],
       initialValue: initreceiver
     })
-    if(this.state.isSendMail) {
+    if(this.state.isSendEmail) {
       notify = getFieldProps('notify', {
         rules: [
           { whitespace: true },
@@ -1065,13 +1066,13 @@ class AlarmModal extends Component {
           <div className={funcs.scope.state.step == 3 ? 'steps' : 'hidden'}>
             <Form className="alarmAction">
               <Form.Item label="发送通知" {...formItemLayout} style={{ margin: 0 }}>
-                <RadioGroup defaultValue={this.state.isSendMail} value={this.state.isSendMail} onChange={(e) => this.sendMail(e)}>
+                <RadioGroup defaultValue={this.state.isSendEmail} value={this.state.isSendEmail} onChange={(e) => this.sendMail(e)}>
                   <Radio key="a" value={1}>是</Radio>
                   <Radio key="b" value={0}>否</Radio>
                 </RadioGroup>
               </Form.Item>
               <div className="tips" style={{ marginBottom: 20 }}><Icon type="exclamation-circle-o" /> 选择“是”，我们会向您发送监控信息和告警信息，选择“否”，我们将不会向你发送告警信息</div>
-              <Form.Item label="告警通知组" {...formItemLayout} style={{display: this.state.isSendMail ? 'block' : 'none'}}>
+              <Form.Item label="告警通知组" {...formItemLayout} style={{display: this.state.isSendEmail ? 'block' : 'none'}}>
                 <Select placeholder="请选择告警通知组" style={{ width: 170 }} {...notify}>
                   {this.getNotifyGroup()}
                 </Select>
