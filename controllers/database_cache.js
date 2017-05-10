@@ -43,9 +43,7 @@ exports.createNewDBService = function* () {
     throw err
   }
   const appTemplate = yield templateApi.getBy([basicInfo.templateId])
-  // TODO: Validate password for redis later
-  // || appTemplate.data.category == 'redis'
-  if (appTemplate.data.category == 'mysql') {
+  if (appTemplate.data.category == 'mysql' || appTemplate.data.category == 'redis') {
     // Check password for some template
     if (!basicInfo.password) {
       const err = new Error('password is required')
@@ -174,6 +172,10 @@ exports.getDBService = function* () {
   delete database.eventList
   if (database.podList && database.podList.pods) {
     database.podList.pods.forEach(function(pod) {
+      if (!pod.podSpec.containers[0].env) {
+        pod.podSpec.containers[0].env = []
+      }
+      pod.podSpec.containers[0].env = initEnv
       if (pod.objectMeta) {
         delete pod.objectMeta.labels
         delete pod.objectMeta.annotations
@@ -195,8 +197,7 @@ exports.getDBService = function* () {
 
   this.body = {
     cluster,
-    database,
-    initEnv: initEnv
+    database
   }
 }
 
