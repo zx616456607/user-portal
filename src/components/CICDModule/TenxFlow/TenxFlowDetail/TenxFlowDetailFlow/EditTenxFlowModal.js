@@ -548,6 +548,7 @@ let EditTenxFlowModal = React.createClass({
         disabledBranchTag: false,
       });
     } else {
+      // 当用户选择“使用云端创建 Dockerfile”时，disable “镜像版本”的“以代码分支名为tag”选项，否则构建出的镜像 tag 为null
       const { form } = this.props
       const imageTag = form.getFieldValue('imageTag')
       if (imageTag === '1') {
