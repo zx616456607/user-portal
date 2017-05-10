@@ -137,40 +137,7 @@ let CreateEnvComponent = React.createClass({
     if(nextProps.visible != this.props.visible && nextProps.visible && this.state.currentImageName != imageName) {
       this.loadData()
     }
-    // if (nextProps.visible != this.props.visible && nextProps.visible) {
-    //   this.loadData()
-    // }
-    // if (nextProps.visible) {
-    //   if (nextProps.index == this.props.index) return
-    //   const { form } = nextProps
-    //   const { index } = this.props
-    //   const num = form.getFieldValue('service' + index + 'inputs')
-    //   const fields = []
-    //   if(num) {
-    //     num.forEach(i => {
-    //      fields.push([`service${index}inputName${i}`])
-    //      fields.push([`service${index}inputValue${i}`])
-    //     })
-    //   }
-    //   fields.push('service' + index + 'inputs')
-    //   form.resetFields(fields)
-    // }
   },
-  // componentDidMount(){
-  //   const { config, form, index } = this.props;
-  //   config.map((item) => {
-  //     let tmpUuid = ++this.state.uuid;
-  //     this.setState({
-  //       uuid: tmpUuid
-  //     });
-  //     let keys = form.getFieldValue('service' + index + 'inputs');
-  //     keys = keys.concat(this.state.uuid);
-  //     let temp = 'service' + index + 'inputs';
-  //     form.setFieldsValue({
-  //       [`${temp}`]: keys
-  //     });
-  //   });
-  // },
   addServicesInput (index) {
     //this function for user add an new input div
     //there are no button for user click

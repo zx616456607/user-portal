@@ -919,6 +919,7 @@ class QueryLog extends Component {
                 getTooltipContainer={() => document.getElementById('QueryLog')}
                 onVisibleChange={this.hideUserPopup}
                 visible={this.state.namespacePopup}
+                arrowPointAtCenter={true}
                 >
                 <div className={checkClass(this.state.namespacePopup, this.state.selectedNamespace)} >
                   <span className='selectedSpan'>{this.state.currentNamespace ? this.state.currentNamespace : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectUser} /></span>]}</span>
@@ -937,6 +938,7 @@ class QueryLog extends Component {
                 getTooltipContainer={() => document.getElementById('QueryLog')}
                 onVisibleChange={this.hideClusterPopup}
                 visible={this.state.clusterPopup}
+                arrowPointAtCenter={true}
                 >
                 <div className={checkClass(this.state.clusterPopup, this.state.selectedCluster)} >
                   <span className='selectedSpan'>{this.state.currentCluster ? this.state.currentCluster : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectCluster} /></span>]}</span>
@@ -955,6 +957,7 @@ class QueryLog extends Component {
                 getTooltipContainer={() => document.getElementById('QueryLog')}
                 onVisibleChange={this.hideServicePopup}
                 visible={this.state.servicePopup}
+                arrowPointAtCenter={true}
                 >
                 <div className={checkClass(this.state.servicePopup, this.state.selectedSerivce)} >
                   <span className='selectedSpan'>{this.state.currentService ? this.state.currentService : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectService} /></span>]}</span>
@@ -973,6 +976,7 @@ class QueryLog extends Component {
                 getTooltipContainer={() => document.getElementById('QueryLog')}
                 onVisibleChange={this.hideInstancePopup}
                 visible={this.state.instancePopup}
+                arrowPointAtCenter={true}
                 >
                 <div className={checkClass(this.state.instancePopup, this.state.selectedInstance).replace('cloneSelectError', '')} >
                   <span className='selectedSpan'>{this.state.currentInstance.length != 0 ? this.state.currentInstance.join(',') : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectInstance} /></span>]}</span>
