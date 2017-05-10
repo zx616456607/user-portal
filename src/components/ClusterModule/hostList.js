@@ -9,7 +9,7 @@ import NotificationHandler from '../../common/notification_handler'
 import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import {  getAllClusterNodes, getKubectlsPods } from '../../actions/cluster_node'
+import {  getAllClusterNodes, getKubectlsPods, getClusterLabel } from '../../actions/cluster_node'
 import { addTerminal } from '../../actions/terminal'
 import { NOT_AVAILABLE } from '../../constants'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
@@ -116,7 +116,7 @@ const MyComponent = React.createClass({
     }
     if (nodeList.length === 0) {
       return (
-        <div style={{ lineHeight: '100px', height: '200px', paddingLeft: '30px' }}>您还没有主机，去创建一个吧！</div>
+        <div className="ant-table-placeholder"><i className="anticon anticon-frown"></i> 暂无数据</div>
       )
     }
     const maxNodes = license[camelize('max_nodes')]
@@ -224,7 +224,6 @@ class hostList extends Component {
     super(props)
     this.openTerminalModal = this.openTerminalModal.bind(this)
     this.handleDropdownTag = this.handleDropdownTag.bind(this)
-    this.formTagContainer = this.formTagContainer.bind(this)
     this.state = {
       addClusterOrNodeModalVisible:false,
       nodeList: [],
@@ -254,6 +253,8 @@ class hostList extends Component {
   }
   componentWillMount() {
     this.loadData()
+    const { clusterID } = this.props
+    this.props.getClusterLabel(clusterID)
   }
   searchNodes() {
     //this function for search nodes
@@ -318,18 +319,22 @@ class hostList extends Component {
   }
 
   formTagContainer(){
-    let arr = []
-    for(let i=0;i<30;i++){
-      arr.push(<Tag closable color="blue" className='tag' key={i}>
-        <Tooltip title='key1'>
-          <span className='key'>key1</span>
+    let { labels } = this.props
+    if (!Array.isArray(labels)) {
+      return
+    }
+    const arr = labels.map((item)=> {
+      return (<Tag closable color="blue" className='tag' key={item.value}>
+        <Tooltip title={item.key}>
+          <span className='key'>{item.key}</span>
         </Tooltip>
         <span className='point'>:</span>
-        <Tooltip title='value2017'>
-          <span className='value'>value2017</span>
+        <Tooltip title={item.value}>
+          <span className='value'>{item.value}</span>
         </Tooltip>
       </Tag>)
-    }
+    })
+
     return arr
   }
 
@@ -426,14 +431,25 @@ function mapStateToProps(state, props) {
     isFetching: false
   }
   const clusterID = props.cluster.clusterID
-  const { getAllClusterNodes, kubectlsPods, addNodeCMD } = state.cluster_nodes
+  const { getAllClusterNodes, kubectlsPods, addNodeCMD, clusterLabel } = state.cluster_nodes
   const { clusterSummary } = state.cluster
   const targetAllClusterNodes = getAllClusterNodes[clusterID]
   const { isFetching } = targetAllClusterNodes || pods
   const data = (targetAllClusterNodes && targetAllClusterNodes.nodes) || pods
   const { cpuMetric, memoryMetric, license } = data
   const nodes = data.clusters ? data.clusters.nodes : []
+
+  const cluster = props.clusterID
+  if (!clusterLabel[cluster]) {
+    return props
+  }
+  let { result } = clusterLabel[cluster]
+
+  if (!result) {
+    result = {summary:[]}
+  }
   return {
+    labels:result.summary,
     nodes,
     cpuMetric,
     memoryMetric,
@@ -446,7 +462,8 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   getAllClusterNodes,
   addTerminal,
-  getKubectlsPods
+  getKubectlsPods,
+  getClusterLabel
 })(injectIntl(hostList, {
   withRef: true,
 }))
