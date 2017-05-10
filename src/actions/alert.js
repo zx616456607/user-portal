@@ -384,6 +384,31 @@ export function updateEnable(cluster, body, callback) {
   }
 }
 
+export const ALERT_UPDATE_SETTING_SENDMAIL_REQUEST = 'ALERT_UPDATE_SETTING_SENDMAIL_REQUEST'
+export const ALERT_UPDATE_SETTING_SENDMAIL_SUCCESS = 'ALERT_UPDATE_SETTING_SENDMAIL_SUCCESS'
+export const ALERT_UPDATE_SETTING_SENDMAIL_FAILURE = 'ALERT_UPDATE_SETTING_SENDMAIL_FAILURE'
+
+
+function fetchUpdateSendEmail(cluster, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ALERT_UPDATE_SETTING_SENDMAIL_REQUEST, ALERT_UPDATE_SETTING_SENDMAIL_SUCCESS, ALERT_UPDATE_SETTING_SENDMAIL_FAILURE],
+      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/email`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function updateSendEmail(cluster, body, callback) {
+  return (dispath, getState)  => {
+    dispath(fetchUpdateSendEmail(cluster, body, callback))
+  }
+}
 
 
 export const ALERT_IGNORE_SETTING_REQUEST = 'ALERT_IGNORE_SETTING_REQUEST'
