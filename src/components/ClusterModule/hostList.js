@@ -66,6 +66,7 @@ function memoryUsed(memoryTotal, memoryMetric, name) {
   return metric
 }
 
+
 const MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
@@ -148,6 +149,7 @@ const MyComponent = React.createClass({
             <span>{getContainerNum(item.objectMeta.name, containerList)}</span>
           </div>
           <div className='cpu commonTitle'>
+
             <div className='topSpan'>{item[camelize('cpu_total')] / 1000}核</div>
             <div className='bottomSpan'>{cpuUsed(item[camelize('cpu_total')], cpuMetric, item.objectMeta.name)}</div>
           </div>
@@ -160,7 +162,7 @@ const MyComponent = React.createClass({
             <div className='bottomSpan'>{'-'}</div>
           </div>
           <div className='schedule commonTitle'>
-            <Switch
+            <Switch style={{display:"block"}}
               className='switchBox'
               defaultChecked={item.schedulable}
               checkedChildren='开'
@@ -171,6 +173,7 @@ const MyComponent = React.createClass({
               {
                 item.schedulable
                   ? (
+
                     <span>
                       正常调度&nbsp;
                     <Tooltip title={`允许分配新容器`}>

@@ -157,20 +157,22 @@ export const GET_CLOUSTER_LABEL_REQUEST = 'GET_CLOUSTER_LABEL_REQUEST'
 export const GET_CLOUSTER_LABEL_SUCCESS = 'GET_CLOUSTER_LABEL_SUCCESS'
 export const GET_CLOUSTER_LABEL_FAILURE = 'GET_CLOUSTER_LABEL_FAILURE'
 
-function fetchClusterLabel(cluster, callback) {
+function fetchClusterLabel(cluster, callback, search) {
+  search = search || ''
   return {
     [FETCH_API]: {
       types: [GET_CLOUSTER_LABEL_REQUEST, GET_CLOUSTER_LABEL_SUCCESS, GET_CLOUSTER_LABEL_FAILURE],
-      endpoint: `${API_URL_PREFIX}/cluster-nodes/${cluster}/label-summary`,
+      endpoint: `${API_URL_PREFIX}/cluster-nodes/${cluster}/label-summary?view=${search}`,
       schema: {},
     },
+    cluster,
     callback
   }
 }
 
-export function getClusterLabel(cluster, callback) {
+export function getClusterLabel(cluster, callback, search) {
   return (dispatch) => {
-    return dispatch(fetchClusterLabel(cluster, callback))
+    return dispatch(fetchClusterLabel(cluster, callback, search))
   }
 }
 
@@ -178,7 +180,7 @@ export const ADD_LABELS_REQUERT = 'ADD_LABELS_REQUERT'
 export const ADD_LABELS_SUCCESS = 'ADD_LABELS_SUCCESS'
 export const ADD_LABELS_FAILURE = 'ADD_LABELS_FAILURE'
 
-function fetchAddLabel(label, callback) {
+function fetchAddLabel(label, cluster, callback) {
   return {
     [FETCH_API]: {
       types: [ADD_LABELS_REQUERT, ADD_LABELS_SUCCESS, ADD_LABELS_FAILURE],
@@ -189,13 +191,14 @@ function fetchAddLabel(label, callback) {
       },
       schema: {},
     },
+    cluster,
     callback
   }
 }
 
-export function addLabels(label, callback) {
+export function addLabels(label, cluster, callback) {
   return (dispatch) => {
-    return dispatch(fetchAddLabel(label, callback))
+    return dispatch(fetchAddLabel(label, cluster, callback))
   }
 }
 
@@ -217,6 +220,7 @@ function fetchEditLabel(body, type, callback) {
       },
       schema: {},
     },
+    cluster:body.cluster,
     methodType:type,
     id: body.id,
     callback
@@ -231,9 +235,10 @@ export function editLabels(body, type, callback) {
 }
 
 export const SEARCH_CLUSTER_LABLELS = 'SEARCH_CLUSTER_LABLELS'
-export function searchLabels(search) {
+export function searchLabels(search,cluster) {
   return {
     type: SEARCH_CLUSTER_LABLELS,
-    search: search
+    search: search,
+    cluster
   }
 }

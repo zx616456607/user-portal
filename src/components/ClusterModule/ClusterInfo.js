@@ -365,7 +365,7 @@ let ClusterInfo = React.createClass ({
         <div className="imgBox">
           <img src={clusterImg}/>
         </div>
-        <Form className="clusterTable" style={{padding:'35px 0'}}>
+        <Form className="clusterTable" style={{padding:'35px 0',textAlign:'left'}}>
           <div className="formItem">
             <Form.Item >
               <div className="h4 blod">集群名称：</div>
@@ -388,7 +388,7 @@ let ClusterInfo = React.createClass ({
             <Form.Item>
               <div className="h4 blod">&nbsp;</div>
             </Form.Item>
-            <Form.Item>
+            <Form.Item style={{textAlign:'left'}}>
               <span className="h5" style={{verticalAlign:'top',lineHeight:'30px'}}>状态：&nbsp;&nbsp;</span>
               {
                 isOk
@@ -397,7 +397,7 @@ let ClusterInfo = React.createClass ({
               }
             </Form.Item>
             <Form.Item>
-              <div style={{float:'left',height:'40px'}}>构建环境：&nbsp;&nbsp;</div>
+              <div style={{float:'left',height:'40px'}}>构建环境：</div>
                 {
                   editCluster
                     ? this.eidtClusterBuilderEnvironment()

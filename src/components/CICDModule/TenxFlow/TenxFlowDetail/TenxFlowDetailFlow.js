@@ -224,10 +224,10 @@ class TenxFlowDetailFlow extends Component {
     const { StopTenxflowBuild, getTenxFlowStateList, flowId } = this.props;
     const { buildingList } = this.state;
     let notification = new NotificationHandler()
-    confirm({
-      title: '确定停止构建？',
-      content: `停止${stageName}构建`,
-      onOk() {
+    //confirm({
+    //  title: '确定停止构建？',
+    //  content: `停止${stageName}构建`,
+    //  onOk() {
         buildingList.map((item) => {
           if (item.stageId == stageId) {
             StopTenxflowBuild(flowId, item.stageId, item.buildId, {
@@ -241,9 +241,9 @@ class TenxFlowDetailFlow extends Component {
             });
           }
         });
-      },
-      onCancel() { },
-    });
+    //  },
+    //  onCancel() { },
+    //});
   }
 
   refreshStageList() {

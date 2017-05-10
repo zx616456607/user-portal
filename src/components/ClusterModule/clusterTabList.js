@@ -39,47 +39,11 @@ const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const ButtonGroup = Button.Group
 const TabPane = Tabs.TabPane;
-
-
 const MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
-  //changeSchedulable(node, e) {
-  //  //this function for change node schedulable
-  //  const { scope } = this.props;
-  //  const { clusterID, changeClusterNodeSchedule } = scope.props;
-  //  let { nodeList } = scope.state;
-  //  let notification = new NotificationHandler()
-  //  changeClusterNodeSchedule(clusterID, node, e, {
-  //    success: {
-  //      func: ()=> {
-  //        // notification.info(e ? '开启调度中，该操作 1 分钟内生效' : '关闭调度中，该操作 1 分钟内生效');
-  //        notification.success(e ? '开启调度成功' : '关闭调度成功');
-  //        nodeList.map((item) => {
-  //          if(item.objectMeta.name == node) {
-  //            item.schedulable = e;
-  //          }
-  //        });
-  //        scope.setState({
-  //          nodeList: nodeList
-  //        })
-  //      },
-  //      isAsync: true
-  //    }
-  //  })
-  //},
-  //ShowDeleteClusterNodeModal(node) {
-  //  //this function for delete cluster node
-  //  const { scope } = this.props;
-  //  scope.setState({
-  //    deleteNode: node,
-  //    deleteNodeModal: true
-  //  })
-  //},
-  //openTerminalModal(item, e) {
-
   //},
   render: function () {
     const { isFetching, podList, containerList, cpuMetric, memoryMetric, license } = this.props
@@ -206,6 +170,7 @@ const MyComponent = React.createClass({
     );
   }
 });
+
 
 class ClusterTabList extends Component {
   constructor(props) {
@@ -387,27 +352,27 @@ class ClusterTabList extends Component {
         >
         <div id='clusterTabList' key='clusterTabList'>
           <Tabs>
+
             <TabPane tab={<div className='tablepanediv'><i className="fa fa-tachometer" aria-hidden="true"></i><span className='tablepanespan'>资源总览</span></div>} key="1">
             <ClusterResourcesOverview
               cluster={cluster}
               clusterSummary={clusterSummary}
             />
+
             </TabPane>
             <TabPane tab={<div><i className="fa fa-server" aria-hidden="true"></i><span className='tablepanespan'>主机列表</span></div>} key="2">
               <HostList
                 cluster={cluster}
                 clusterID={clusterID}
                 containerList={podCount}
-
               />
             </TabPane>
             <TabPane tab={<div><i className="fa fa-tag" aria-hidden="true"></i><span className='tablepanespan'>标签管理</span></div>} key="3">
               <ClusterLabelManage  clusterID={clusterID} />
             </TabPane>
+
             <TabPane tab={<div><i className="fa fa-plug" aria-hidden="true"></i><span className='tablepanespan'>插件集群</span></div>} key="4">
               <ClusterPlugin
-
-
               />
             </TabPane>
           </Tabs>

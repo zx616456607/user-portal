@@ -97,24 +97,29 @@ function addNodeCMD(state = {}, action) {
 }
 
 function clusterLabel(state = {}, action) {
+  const cluster = action.cluster
   switch (action.type) {
     case ActionTypes.GET_CLOUSTER_LABEL_REQUEST: {
       return merge({}, state, {
-        isFetching: true
+        [cluster]: {isFetching: true}
       })
     }
     case ActionTypes.GET_CLOUSTER_LABEL_SUCCESS: {
       return Object.assign({}, state, {
-        isFetching: false,
-        result: action.response.result,
-        back: cloneDeep(action.response.result)
+        [cluster]:{
+          isFetching: false,
+          result: action.response.result,
+          back: cloneDeep(action.response.result)
+        }
       })
     }
     case ActionTypes.GET_CLOUSTER_LABEL_FAILURE: {
       return Object.assign({}, state, {
-        isFetching: false,
-        result: {summary:[]},
-        back: {summary:[]}
+         [cluster]:{
+          isFetching: false,
+          back: {summary:[]},
+          result: {summary:[]}
+         }
       })
     }
     // add labels
@@ -122,10 +127,10 @@ function clusterLabel(state = {}, action) {
       const oldState = cloneDeep(state)
       const mergeMap = action.response.result.data
       mergeMap.map((item)=>{
-        oldState.back.summary.unshift(item)
+        oldState[cluster].back.summary.unshift(item)
       })
-      const newState = oldState.back.summary
-      oldState.result.summary = oldState.back.summary = newState
+      const newState = oldState[cluster].back.summary
+      oldState[cluster].result.summary = oldState[cluster].back.summary = newState
       return oldState
     }
 
@@ -133,11 +138,11 @@ function clusterLabel(state = {}, action) {
     case ActionTypes.EDIT_LABELS_SUCCESS: {
       if (action.methodType == 'DELETE') {
         const newState = cloneDeep(state)
-        const data = newState.result.summary
+        const data = newState[cluster].result.summary
         data.forEach((list, index) => {
           if (list.id == action.id) {
             data.splice(index, 1)
-            newState.back.summary.splice(index, 1)
+            newState[cluster].back.summary.splice(index, 1)
           }
         })
         return newState
@@ -149,16 +154,16 @@ function clusterLabel(state = {}, action) {
       const oldState = cloneDeep(state)
       const searchKey = action.search
       if (searchKey == '') {
-        oldState.result.summary = state.back.summary
+        oldState[cluster].result.summary = state[cluster].back.summary
         return oldState
       }
-      const newState = state.back.summary.filter((item) => {
+      const newState = state[cluster].back.summary.filter((item) => {
         if (item.key.indexOf(searchKey) > -1 || item.value.indexOf(searchKey) > -1) {
           return item
         }
         return false
       })
-      oldState.result.summary = newState
+      oldState[cluster].result.summary = newState
       return oldState
     }
     default:
