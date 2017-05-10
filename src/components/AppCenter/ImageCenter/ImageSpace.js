@@ -489,7 +489,7 @@ class ImageSpace extends Component {
       width:'40%',
       render:(text, row) => {
         return (
-          <div className="imgurl"><FormattedMessage {...menusText.imageUrl} />{server} / {row.name}</div>
+          <div className="imgurl"><FormattedMessage {...menusText.imageUrl} />{server}/{row.name}</div>
         )
       }
     }, {

@@ -45,6 +45,15 @@ let FistStop = React.createClass({
       callback(new Error('请输入名称'));
       return
     }
+    if (value.length <3 || value.length > 40) {
+       callback(new Error('请输入3~40位字符'))
+       return
+    }
+    let regx = /^[a-zA-Z][_\-0-9a-zA-Z]+[a-zA-Z0-9]$/
+    if (!regx.test(value)) {
+      callback(new Error('以字母开头，可数字、中划线、下划线组成，且字母或者数字结尾'))
+      return
+    }
     callback()
   },
   fistStopType(rule, value, callback) {
@@ -156,7 +165,7 @@ let FistStop = React.createClass({
     const { funcs, currentApp, currentService, data, isEdit, loginUser } = this.props
     const formItemLayout = {
       labelCol: { span: 4 },
-      wrapperCol: { span: 17 }
+      wrapperCol: { span: 18 }
     };
     let nameProps
     let typeProps
@@ -224,7 +233,7 @@ let FistStop = React.createClass({
         onChange: this.resetType,
         initialValue: loginUser.info.role == ADMIN_ROLE ? initiaValue : 'service'
       });
-      let initAppName = undefined
+      let initAppName
       if (currentApp) {
         initAppName = currentApp.name
       }
@@ -489,7 +498,6 @@ let TwoStop = React.createClass({
       setTimeout(() => this.clearError(key), 0)
       return callback()
     }
-    return callback()
   },
   usedName(rule, value, callback, key) {
     if (!value) return callback('请选择类型')
@@ -500,7 +508,6 @@ let TwoStop = React.createClass({
       setTimeout(() => this.clearError(key), 0)
       return callback()
     }
-    return callback()
   },
   usedData(rule, value, callback, key) {
     if (!value) return callback('请填写数值')
@@ -512,7 +519,6 @@ let TwoStop = React.createClass({
       setTimeout(() => this.clearError(key), 0)
       return callback()
     }
-    return callback()
   },
   clearError(key) {
     const { form } = this.props
@@ -756,7 +762,7 @@ let TwoStop = React.createClass({
                   whitespace: true,
                   validator: (rule, value, callback) => this.usedData(rule, value, callback, key)
                 }],
-                initialValue: '0'
+                initialValue: '80'
               }) } style={{ width: 80 }} />
             </Form.Item>
             <Form.Item>
@@ -790,9 +796,8 @@ let TwoStop = React.createClass({
         {cpuItems}
 
         <div className="alertRule">
-          <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有pod占用CPU之和/CPU资源总量
-          <a style={{ marginLeft: 20 }}>内存使用率</a>= 所有pod占用内存之和/内存资源总量
-
+          <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有容器实例占用CPU总和/CPU资源总量
+          <div><a style={{ marginLeft: 16 }}>内存使用</a>= 所有容器实例占用内存总和/容器实例数量</div>
         </div>
         {/*  footer btn */}
         <div className="wrapFooter">
@@ -1020,7 +1025,7 @@ class AlarmModal extends Component {
     }
     const formItemLayout = {
       labelCol: { span: 4 },
-      wrapperCol: { span: 17 }
+      wrapperCol: { span: 18 }
     }
     const { getFieldProps } = this.props.form
     const { strategy, isEdit } = this.props

@@ -29,6 +29,10 @@ let CreateSpaceModal = React.createClass({
       callback([new Error('请输入空间名')])
       return
     }
+    if (value.length <5 || value.length > 40) {
+       callback(new Error('请输入5~40位字符'))
+       return
+    }
     const { teamID, funcs } = this.props
     const { checkTeamSpaceName } = funcs
     if (!USERNAME_REG_EXP_NEW.test(value)) {

@@ -264,7 +264,7 @@ let CreateDatabase = React.createClass({
     const passwdProps = getFieldProps('password', {
       rules: [
         {
-          required: this.state.currentType == 'mysql' ? true : false,
+          required: this.state.currentType != 'zookeeper' ? true : false,
           whitespace: true,
           message: '请填写密码'
         },
@@ -379,24 +379,25 @@ let CreateDatabase = React.createClass({
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
-            {this.state.currentType == 'mysql' ?
 
             <div className='commonBox'>
               <div className='title'>
                 <span>密码</span>
               </div>
               <div className='inputBox'>
+              {this.state.currentType == 'zookeeper' ?
+                <div style={{color:'red'}}>(!) 集群建立成功后请及时设置全局ACL</div>
+                :
                 <FormItem
                   hasFeedback
                   >
                   <Input {...passwdProps} onFocus={()=> this.setPsswordType()} type={this.state.showPwd} size='large' placeholder="请输入密码" disabled={isFetching} />
                   <i className={this.state.showPwd == 'password' ? 'fa fa-eye' : 'fa fa-eye-slash'} onClick={this.checkPwd}></i>
                 </FormItem>
+              }
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
-            : null
-            }
             {this.state.currentType == 'zookeeper' ?
             <div className='commonBox'>
               <div className='title'>
@@ -409,7 +410,9 @@ let CreateDatabase = React.createClass({
                 <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>个</span>
               </div>
               <div style={{ clear: 'both' }}></div>
-            </div>:null}
+            </div>
+            :null
+            }
             <div className="modal-price">
               <div className="price-left">
                 <div className="keys">实例：{parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
