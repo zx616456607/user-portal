@@ -122,6 +122,25 @@ exports.deleteContainers = function* () {
   }
 }
 
+exports.exportContainers = function* () {
+  const cluster = this.params.cluster
+  const instance=this.params.name
+  const image = this.request.body
+  if (!image || !image.imagename) {
+    const err = new Error('imagename is required.')
+    err.status = 400
+    throw err
+  }
+
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, 'instances',instance,'export'], null, image)
+  this.body = {
+    cluster,
+    data: result.data
+  }
+}
+
 exports.getProcess = function* () {
   const cluster = this.params.cluster
   const instance = this.params.name
