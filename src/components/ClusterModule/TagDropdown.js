@@ -223,19 +223,19 @@ class ManageTagModal extends Component {
   handlecallback(obj) {
     const {callbackHostList} = this.props
     switch(obj.key){
-      case 'managetag' :
+      case 'managetag':
         callbackHostList(obj)
         this.setState({
           visible: false
         })
         return
-      case 'createtag' :
+      case 'createtag':
         return this.setState({createLabelModal: true})
-      case 'labelkey' :
+      case 'labelkey':
         return this.setState({
           visible: false
         })
-      default :
+      default:
         return this.setState({
           visible: true
         })
