@@ -157,12 +157,11 @@ export const GET_CLOUSTER_LABEL_REQUEST = 'GET_CLOUSTER_LABEL_REQUEST'
 export const GET_CLOUSTER_LABEL_SUCCESS = 'GET_CLOUSTER_LABEL_SUCCESS'
 export const GET_CLOUSTER_LABEL_FAILURE = 'GET_CLOUSTER_LABEL_FAILURE'
 
-function fetchClusterLabel(cluster, callback, search) {
-  search = search || ''
+function fetchClusterLabel(cluster, callback) {
   return {
     [FETCH_API]: {
       types: [GET_CLOUSTER_LABEL_REQUEST, GET_CLOUSTER_LABEL_SUCCESS, GET_CLOUSTER_LABEL_FAILURE],
-      endpoint: `${API_URL_PREFIX}/cluster-nodes/${cluster}/label-summary?view=${search}`,
+      endpoint: `${API_URL_PREFIX}/cluster-nodes/${cluster}/label-summary`,
       schema: {},
     },
     cluster,
@@ -170,9 +169,9 @@ function fetchClusterLabel(cluster, callback, search) {
   }
 }
 
-export function getClusterLabel(cluster, callback, search) {
+export function getClusterLabel(cluster, callback) {
   return (dispatch) => {
-    return dispatch(fetchClusterLabel(cluster, callback, search))
+    return dispatch(fetchClusterLabel(cluster, callback))
   }
 }
 

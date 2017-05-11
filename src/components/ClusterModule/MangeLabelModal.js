@@ -13,7 +13,7 @@ import { Modal, Tag, Tooltip, Form, Button, Input } from 'antd'
 import TagDropdown from './TagDropdown'
 
 class ManageLabelModal extends Component {
-	constructor(props){
+  constructor(props){
     super(props)
     this.handleManageLabelOk = this.handleManageLabelOk.bind(this)
     this.handleManageLabelCancel = this.handleManageLabelCancel.bind(this)
