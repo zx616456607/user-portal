@@ -312,6 +312,23 @@ exports.updateEnable = function* () {
   this.body = response
 }
 
+exports.updateSendEmail = function*() {
+  const body = this.request.body
+  if (!body.strategies) {
+    const err = new Error('strategies is require')
+    err.status = 400
+    throw err
+  }
+  const user = this.session.loginUser
+  body.user = user.namespace
+  if (user.teamspace) {
+    body.user = user.teamspace
+  }
+  const spi = apiFactory.getSpi(user)
+  const response = yield spi.alerts.createBy(['strategy', 'toggle_send_email'], null, body)
+  this.body = response
+}
+
 exports.setIgnore = function* () {
   const body = this.request.body
   if (!body.strategies) {
@@ -381,7 +398,7 @@ exports.getTargetInstant = function* () {
       throw err
     }
   }
-  if (type == 'pod') {
+  if (type == 'service') {
     const podSummary = yield api.getBy([cluster, 'services', name])
     if (podSummary.data[name]) {
       const deployment = podSummary.data[name].deployment

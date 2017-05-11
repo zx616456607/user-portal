@@ -164,6 +164,7 @@ function fetchClusterLabel(cluster, callback) {
       endpoint: `${API_URL_PREFIX}/cluster-nodes/${cluster}/label-summary`,
       schema: {},
     },
+    cluster,
     callback
   }
 }
@@ -178,7 +179,7 @@ export const ADD_LABELS_REQUERT = 'ADD_LABELS_REQUERT'
 export const ADD_LABELS_SUCCESS = 'ADD_LABELS_SUCCESS'
 export const ADD_LABELS_FAILURE = 'ADD_LABELS_FAILURE'
 
-function fetchAddLabel(label, callback) {
+function fetchAddLabel(label, cluster, callback) {
   return {
     [FETCH_API]: {
       types: [ADD_LABELS_REQUERT, ADD_LABELS_SUCCESS, ADD_LABELS_FAILURE],
@@ -189,13 +190,14 @@ function fetchAddLabel(label, callback) {
       },
       schema: {},
     },
+    cluster,
     callback
   }
 }
 
-export function addLabels(label, callback) {
+export function addLabels(label, cluster, callback) {
   return (dispatch) => {
-    return dispatch(fetchAddLabel(label, callback))
+    return dispatch(fetchAddLabel(label, cluster, callback))
   }
 }
 
@@ -217,6 +219,7 @@ function fetchEditLabel(body, type, callback) {
       },
       schema: {},
     },
+    cluster:body.cluster,
     methodType:type,
     id: body.id,
     callback
@@ -231,9 +234,10 @@ export function editLabels(body, type, callback) {
 }
 
 export const SEARCH_CLUSTER_LABLELS = 'SEARCH_CLUSTER_LABLELS'
-export function searchLabels(search) {
+export function searchLabels(search,cluster) {
   return {
     type: SEARCH_CLUSTER_LABLELS,
-    search: search
+    search: search,
+    cluster
   }
 }

@@ -19,6 +19,7 @@ import { NOT_AVAILABLE } from '../../constants'
 import { camelize } from 'humps'
 import ReactEcharts from 'echarts-for-react'
 
+
 class ClusterResourcesOverview extends Component{
   constructor(props){
     super(props)
@@ -158,7 +159,7 @@ class ClusterResourcesOverview extends Component{
               </li>
               <li>
                 <span className="itemKey ready">已分配数</span>
-                <span>{resource ? `${resource.allocatedCPU} 核` : NOT_AVAILABLE}</span>
+                <span>{resource ? `${resource.allocatedCPU.toFixed(2)} 核` : NOT_AVAILABLE}</span>
               </li>
               <li>
                 <span className="itemKey success">实际使用</span>

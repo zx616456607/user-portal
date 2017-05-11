@@ -73,6 +73,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/proxy', clusterController.updateProxy)
   router.get('/clusters/:cluster/node_addr', clusterController.getClusterNodeAddr)
 
+
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
   router.put('/clusters/:cluster/apps/:app_name/desc', appController.updateAppDesc)
@@ -85,8 +86,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:app_name/services', appController.getAppServices)
   router.post('/clusters/:cluster/apps/:app_name/services', appController.addService)
   router.get('/clusters/:cluster/apps/:app_name/orchfile', appController.getAppOrchfile)
-  router.get('/clusters/:cluster/apps/:app_name/detail', appController.getAppDetail)
-  // spi
+  router.get('/clusters/:cluster/apps/:app_name/detail', appController.getAppDetail) // spi
   router.get('/clusters/:cluster/apps/:app_name/logs', appController.getAppLogs)
   router.get('/clusters/:cluster/apps/:app_name/existence', appController.checkAppName)
   router.get('/clusters/:cluster/services/:service/existence', serviceController.checkServiceName)
@@ -190,7 +190,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/containers/:name/logs', containerController.getContainerLogs)
   router.post('/clusters/:cluster/containers/batch-delete', containerController.deleteContainers)
   router.get('/clusters/:cluster/containers/:name/process', containerController.getProcess)
-
+  router.post('/clusters/:cluster/containers/:name/export',containerController.exportContainers)
   // Configs
   router.get('/clusters/:cluster/configgroups', configController.listConfigGroups)
   router.get('/clusters/:cluster/configgroups/:name', configController.getConfigGroupName)
@@ -410,6 +410,7 @@ module.exports = function (Router) {
   router.get('/alerts/cluster/:cluster/setting/list', alertController.getSettingList)
   router.delete('/alerts/cluster/:cluster/setting', alertController.deleteSetting)
   router.put('/alerts/cluster/:cluster/setting/enable', alertController.updateEnable)
+  router.put('/alerts/cluster/:cluster/setting/email', alertController.updateSendEmail)
   router.put('/alerts/cluster/:cluster/setting/ignore', alertController.setIgnore)
   router.get('/alerts/cluster/:cluster/type/:type/setting/:name/instant', alertController.getTargetInstant)
   router.delete('/alerts/cluster/:cluster/rule', alertController.deleteRule)

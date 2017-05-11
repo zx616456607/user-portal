@@ -9,11 +9,12 @@ import NotificationHandler from '../../common/notification_handler'
 import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import {  getAllClusterNodes, getKubectlsPods } from '../../actions/cluster_node'
+import {  getAllClusterNodes, getKubectlsPods, deleteClusterNode, getClusterLabel } from '../../actions/cluster_node'
 import { addTerminal } from '../../actions/terminal'
 import { NOT_AVAILABLE } from '../../constants'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
 import ManageTagModal from './TagDropdown'
+import ManageLabelModal from './MangeLabelModal'
 
 import './style/hostList.less'
 const MASTER = '主控节点/Master'
@@ -66,6 +67,7 @@ function memoryUsed(memoryTotal, memoryMetric, name) {
   return metric
 }
 
+
 const MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
@@ -95,13 +97,22 @@ const MyComponent = React.createClass({
       }
     })
   },
-  ShowDeleteClusterNodeModal(node) {
+  ShowDeleteClusterNodeModal(node,item) {
     //this function for delete cluster node
     const { scope } = this.props;
-    scope.setState({
-      deleteNode: node,
-      deleteNodeModal: true
-    })
+    let handle = item.key.substring(0,6)
+    if(handle == 'manage'){
+      scope.setState({
+        manageLabelModal : true
+      })
+      return
+    }
+    if(handle == 'delete'){
+      scope.setState({
+        deleteNode: node,
+        deleteNodeModal: true
+      })
+    }
   },
   render: function () {
     const { isFetching, containerList, nodeList, cpuMetric, memoryMetric, clusterID, license } = this.props
@@ -115,7 +126,7 @@ const MyComponent = React.createClass({
     }
     if (nodeList.length === 0) {
       return (
-        <div style={{ lineHeight: '100px', height: '200px', paddingLeft: '30px' }}>您还没有主机，去创建一个吧！</div>
+        <div className="ant-table-placeholder"><i className="anticon anticon-frown"></i> 暂无数据</div>
       )
     }
     const maxNodes = license[camelize('max_nodes')]
@@ -125,7 +136,10 @@ const MyComponent = React.createClass({
           onClick={this.ShowDeleteClusterNodeModal.bind(this, item)}
           style={{ width: '100px' }}
         >
-          <Menu.Item key={item.id}>
+          <Menu.Item key={'manage'+item.id}>
+            <span>管理标签</span>
+          </Menu.Item>
+          <Menu.Item key={'delete'+item.id}>
             <span>删除节点</span>
           </Menu.Item>
         </Menu>
@@ -148,6 +162,7 @@ const MyComponent = React.createClass({
             <span>{getContainerNum(item.objectMeta.name, containerList)}</span>
           </div>
           <div className='cpu commonTitle'>
+
             <div className='topSpan'>{item[camelize('cpu_total')] / 1000}核</div>
             <div className='bottomSpan'>{cpuUsed(item[camelize('cpu_total')], cpuMetric, item.objectMeta.name)}</div>
           </div>
@@ -160,7 +175,7 @@ const MyComponent = React.createClass({
             <div className='bottomSpan'>{'-'}</div>
           </div>
           <div className='schedule commonTitle'>
-            <Switch
+            <Switch style={{display:"block"}}
               className='switchBox'
               defaultChecked={item.schedulable}
               checkedChildren='开'
@@ -171,6 +186,7 @@ const MyComponent = React.createClass({
               {
                 item.schedulable
                   ? (
+
                     <span>
                       正常调度&nbsp;
                     <Tooltip title={`允许分配新容器`}>
@@ -222,13 +238,18 @@ class hostList extends Component {
     this.openTerminalModal = this.openTerminalModal.bind(this)
     this.handleDropdownTag = this.handleDropdownTag.bind(this)
     this.formTagContainer = this.formTagContainer.bind(this)
+    this.deleteClusterNode = this.deleteClusterNode.bind(this);
+    this.closeDeleteModal = this.closeDeleteModal.bind(this)
+    this.callbackManageLabelModal = this.callbackManageLabelModal.bind(this)
     this.state = {
       addClusterOrNodeModalVisible:false,
       nodeList: [],
       podCount: [],
       currentContainer:[],
       manageLabelContainer:[],
-      manageLabelModal : false
+      manageLabelModal : false,
+      deleteNodeModal : false,
+      deleteNode : null
     }
   }
 
@@ -251,6 +272,8 @@ class hostList extends Component {
   }
   componentWillMount() {
     this.loadData()
+    const { clusterID } = this.props
+    this.props.getClusterLabel(clusterID)
   }
   searchNodes() {
     //this function for search nodes
@@ -315,24 +338,74 @@ class hostList extends Component {
   }
 
   formTagContainer(){
-    let arr = []
-    for(let i=0;i<30;i++){
-      arr.push(<Tag closable color="blue" className='tag' key={i}>
-        <Tooltip title='key1'>
-          <span className='key'>key1</span>
+    let { labels } = this.props
+    if (!Array.isArray(labels)) {
+      return
+    }
+    const arr = labels.map((item)=> {
+      return (<Tag closable color="blue" className='tag' key={item.value}>
+        <Tooltip title={item.key}>
+          <span className='key'>{item.key}</span>
         </Tooltip>
         <span className='point'>:</span>
-        <Tooltip title='value2017'>
-          <span className='value'>value2017</span>
+        <Tooltip title={item.value}>
+          <span className='value'>{item.value}</span>
         </Tooltip>
       </Tag>)
-    }
+    })
+
     return arr
   }
 
+  deleteClusterNode(){
+    //this function for delete cluster node
+    let notification = new NotificationHandler()
+    const {clusterID, deleteClusterNode, getAllClusterNodes} = this.props;
+    const {deleteNode} = this.state;
+    const _this = this;
+    if(deleteNode.isMaster){
+      notification.warn(`不能删除${MASTER}`)
+      return
+    }
+    deleteClusterNode(clusterID, deleteNode.objectMeta.name, {
+      success: {
+        func: () =>{
+          getAllClusterNodes(clusterID, {
+            success: {
+              func: (result) =>{
+                let nodeList = result.data.clusters.nodes.nodes;
+                notification.success('主机节点删除成功');
+                _this.setState({
+                  nodeList: nodeList,
+                  deleteNodeModal: false
+                })
+              },
+              isAsync: true
+            }
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
+
+  closeDeleteModal() {
+    //this function for close delete node modal
+    this.setState({
+      deleteNodeModal: false
+    })
+  }
+
+  callbackManageLabelModal(obj){
+    this.setState({
+      manageLabelModal: false
+    })
+  }
 
   render() {
     const { addNodeCMD } = this.props
+    const { deleteNode } = this.state
+    const scope = this;
     return <div id="cluster__hostlist">
       <Card className='ClusterListCard'>
         <div className='operaBox'>
@@ -402,7 +475,7 @@ class hostList extends Component {
             </div>
           </div>
           <div className='datalist'>
-            <MyComponent {...this.props} nodeList={this.state.nodeList} />
+            <MyComponent {...this.props} nodeList={this.state.nodeList} scope={scope}/>
           </div>
         </div>
       </Card>
@@ -413,6 +486,25 @@ class hostList extends Component {
         closeModal={() => this.setState({addClusterOrNodeModalVisible: false})}
         CMD={addNodeCMD && addNodeCMD[camelize('default_command')]}
         bottomContent={<p>注意：新添加的主机需要与 Master 节点同一内网，可互通</p>} />
+
+      <ManageLabelModal
+        manageLabelModal={this.state.manageLabelModal}
+        callback={this.callbackManageLabelModal}
+      />
+
+      <Modal
+        title='删除主机节点'
+        className='deleteClusterNodeModal'
+        visible={this.state.deleteNodeModal}
+        onOk={this.deleteClusterNode}
+        onCancel={this.closeDeleteModal}
+      >
+        <div style={{ color: '#00a0ea', height: "50px" }}>
+          <Icon type='exclamation-circle-o' />
+          &nbsp;&nbsp;&nbsp;确定要删除&nbsp;{deleteNode ? deleteNode.objectMeta.name : ''}&nbsp;主机节点？
+        </div>
+        <div className="note">注意：请保证其他开启调度状态的主机节点，剩余的配置足够运行所有应用的容器</div>
+      </Modal>
     </div>
   }
 }
@@ -423,14 +515,25 @@ function mapStateToProps(state, props) {
     isFetching: false
   }
   const clusterID = props.cluster.clusterID
-  const { getAllClusterNodes, kubectlsPods, addNodeCMD } = state.cluster_nodes
+  const { getAllClusterNodes, kubectlsPods, addNodeCMD, clusterLabel } = state.cluster_nodes
   const { clusterSummary } = state.cluster
   const targetAllClusterNodes = getAllClusterNodes[clusterID]
   const { isFetching } = targetAllClusterNodes || pods
   const data = (targetAllClusterNodes && targetAllClusterNodes.nodes) || pods
   const { cpuMetric, memoryMetric, license } = data
   const nodes = data.clusters ? data.clusters.nodes : []
+
+  const cluster = props.clusterID
+  if (!clusterLabel[cluster]) {
+    return props
+  }
+  let { result } = clusterLabel[cluster]
+
+  if (!result) {
+    result = {summary:[]}
+  }
   return {
+    labels:result.summary,
     nodes,
     cpuMetric,
     memoryMetric,
@@ -443,7 +546,9 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   getAllClusterNodes,
   addTerminal,
-  getKubectlsPods
+  getKubectlsPods,
+  deleteClusterNode,
+  getClusterLabel
 })(injectIntl(hostList, {
   withRef: true,
 }))

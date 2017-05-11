@@ -32,13 +32,13 @@ let CreateTeamModal = React.createClass({
       callback([new Error('请输入团队名')])
       return
     }
-    if (value.length > 38) {
-      callback(new Error('请输入3~38位字符'))
-      return
+    if (value.length <5 || value.length > 40) {
+       callback(new Error('请输入5~40位字符'))
+       return
     }
     const { checkTeamName } = this.props.funcs
     if (!USERNAME_REG_EXP_NEW.test(value)) {
-      callback(new Error('以[a~z]开头，允许[0~9]、[-]，3~38位字符，且以小写英文和数字结尾'))
+      callback(new Error('以[a~z]开头，允许[0~9]、[-]，长度大于4，且以小写英文和数字结尾'))
       return
     }
 
