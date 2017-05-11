@@ -21,8 +21,19 @@ class TagDropdown extends Component {
     this.handleDropdownContext = this.handleDropdownContext.bind(this)
     this.handelfooter = this.handelfooter.bind(this)
     this.handleMenuClick = this.handleMenuClick.bind(this)
+    this.handleLabelButton = this.handleLabelButton.bind(this)
+    this.state = {
+      DropdownVisible: this.props.visible,
+    }
   }
 
+  componentWillReceiveProps(nextProps) {
+    if(this.state.DropdownVisible !== nextProps.visible){
+      this.setState({
+        DropdownVisible: nextProps.visible
+      })
+    }
+  }
 
   formtag() {
     const { labels } = this.props
@@ -30,14 +41,14 @@ class TagDropdown extends Component {
       return
     }
     const newData = {}
-    labels.forEach((label,index) => {
-      if (newData[label.key]) {
+    labels.forEach((label, index) => {
+      if(newData[label.key]){
         newData[label.key].push(label)
       } else {
         newData[label.key] = [label]
       }
-
     })
+
     let arr = []
     for (let i in newData) {
       let item = {}
@@ -71,8 +82,8 @@ class TagDropdown extends Component {
     })
     return (
       <Menu>
-        <Menu.Item className='selectMenutitle' key="tagkey">
-          标签键
+        <Menu.Item className='selectMenutitle' key="labelkey">
+          标签键 <Icon type="cross" style={{marginLeft:'80px'}}/>
         </Menu.Item>
         <Menu.Divider key="baseline1" />
         {result}
@@ -112,9 +123,9 @@ class TagDropdown extends Component {
             创建标签
           </Menu.Item>,
           <Menu.Item key="managetag">
-            <span onClick={this.handleManageLabel}>
-              <Icon type="setting" style={{ marginRight: 6 }} />
-              标签管理
+            <span>
+            <Icon type="setting" style={{marginRight:6}}/>
+            标签管理
           </span>
           </Menu.Item>]
           : <Menu.Item className='nofooter'></Menu.Item>
@@ -128,12 +139,18 @@ class TagDropdown extends Component {
     callbackManegeTag(obj)
   }
 
-  render() {
+  handleLabelButton() {
+    this.setState({
+      DropdownVisible: true
+    })
+  }
+
+  render(){
     const { width } = this.props
     return (
       <div className='cluster__TagDropDown__Component'>
-        <Dropdown overlay={this.handelfooter()} trigger={['click']} className='cluster__TagDropDown__Component'>
-          <Button type="ghost" size="large" style={{ width: { width }, padding: '4px 12px' }}>
+        <Dropdown overlay={this.handelfooter()} trigger={['click']} className='cluster__TagDropDown__Component' visible={this.state.DropdownVisible}>
+          <Button type="ghost" size="large" style={{width:{width},padding:'4px 12px'}} onClick={this.handleLabelButton}>
             {this.handleDropdownContext()}
           </Button>
         </Dropdown>
@@ -156,21 +173,9 @@ class ManageTagModal extends Component {
     this.handleAddInput = this.handleAddInput.bind(this)
     this.formTagContainer = this.formTagContainer.bind(this)
     this.state = {
-       manageLabelModal : false,
-       createLabelModal : false,
-     }
-  }
-
-  handleManageLabelOk() {
-    this.setState({
-      manageLabelModal: false
-    })
-  }
-
-  handleManageLabelCancel() {
-    this.setState({
-      manageLabelModal: false
-    })
+      createLabelModal: false,
+      visible: false,
+    }
   }
 
   handleCreateLabelModal() {
@@ -216,14 +221,29 @@ class ManageTagModal extends Component {
   }
 
   handlecallback(obj) {
-    switch (obj.key) {
+    const {callbackHostList} = this.props
+    switch(obj.key){
       case 'managetag':
-        return this.setState({ manageLabelModal: true })
+        callbackHostList(obj)
+        this.setState({
+          visible: false
+        })
+        return
       case 'createtag':
-        return this.setState({ createLabelModal: true })
+        return this.setState({createLabelModal: true})
+      case 'labelkey':
+        return this.setState({
+          visible: false
+        })
       default:
-        return console.log('222')
+        return this.setState({
+          visible: true
+        })
+
     }
+    //this.setState({
+    //  manageLabelModal : obj.visible
+    //})
   }
 
   handlecallbackHostList(obj) {
@@ -246,7 +266,7 @@ class ManageTagModal extends Component {
   render() {
     return (
       <div id="cluster__ManageTagModal__Component">
-        <TagDropdown labels={this.props.labels} footer={true} context={'hostlist'} callbackManegeTag={this.handlecallback} callbackHostList={this.handlecallbackHostList} width={'100px'} />
+        <TagDropdown labels={this.props.labels} footer={true} context={'hostlist'} callbackManegeTag={this.handlecallback} callbackHostList={this.handlecallbackHostList} width={'100px'} visible={this.state.visible}/>
 
         <Modal
           title="创建标签"
