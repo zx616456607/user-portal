@@ -13,8 +13,9 @@ import {  getAllClusterNodes, getKubectlsPods, deleteClusterNode, getClusterLabe
 import { addTerminal } from '../../actions/terminal'
 import { NOT_AVAILABLE } from '../../constants'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
-import ManageTagModal from './TagDropdown'
+import TagDropdown from './TagDropdown'
 import ManageLabelModal from './MangeLabelModal'
+
 
 import './style/hostList.less'
 const MASTER = '主控节点/Master'
@@ -403,7 +404,7 @@ class hostList extends Component {
   }
 
   render() {
-    const { addNodeCMD } = this.props
+    const { addNodeCMD, labels } = this.props
     const { deleteNode } = this.state
     const scope = this;
     return <div id="cluster__hostlist">
@@ -432,7 +433,7 @@ class hostList extends Component {
             <Icon type="search" className="fa" onClick={() => this.searchNodes()} />
           </span>
           <span className='selectlabel' id="cluster__hostlist__selectlabel">
-            <ManageTagModal callbackHostList={this.handleDropdownTag}/>
+            <TagDropdown callbackHostList={this.handleDropdownTag} labels={labels} />
           </span>
           <div className='selectedroom'>
             {this.formTagContainer()}
