@@ -144,7 +144,8 @@ let ConfigureService = React.createClass({
     })
     const { form } = this.props
     const { setFieldsValue } = form
-    let { mountPath } = configs
+    let { mountPath, containerPorts } = configs
+
     // set storage
     if (!mountPath || !Array.isArray(mountPath)) {
       mountPath = []
@@ -156,8 +157,28 @@ let ConfigureService = React.createClass({
         [`mountPath${index}`]: path,
       })
     })
+
+    // set ports
+    if (!containerPorts || !Array.isArray(containerPorts)) {
+      containerPorts = []
+    }
+    const portsKeys = []
+    containerPorts.map((port, index) => {
+      portsKeys.push(index)
+      const portArray = port.split('/')
+      setFieldsValue({
+        [`port${index}`]: parseInt(portArray[0]),
+        [`portProtocol${index}`]: portArray[1].toUpperCase(),
+      })
+    })
+    // must set a port
+    if (portsKeys.length < 1) {
+      portsKeys.push(0)
+    }
+
     setFieldsValue({
       storageKeys,
+      portsKeys,
     })
   },
   checkAppName(rule, value, callback) {

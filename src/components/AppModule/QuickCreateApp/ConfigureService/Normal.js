@@ -15,6 +15,7 @@ import { connect } from 'react-redux'
 import { Row, Col, Form, InputNumber, Tooltip, Icon, Switch, Select } from 'antd'
 import ResourceSelect from '../../../ResourceSelect'
 import Storage from './Storage'
+import Ports from './Ports'
 import { getNodes } from '../../../../actions/cluster_node'
 import {
   SYSTEM_DEFAULT_SCHEDULE,
@@ -78,7 +79,7 @@ const Normal = React.createClass({
     } = this.props
     const { replicasInputDisabled } = this.state
     const { getFieldProps } = form
-    const { mountPath } = imageConfigs
+    const { mountPath, containerPorts } = imageConfigs
     const { resourceType, DIYMemory, DIYCPU } = fields || {}
     const replicasProps = getFieldProps('replicas', {
       rules: [
@@ -198,15 +199,13 @@ const Normal = React.createClass({
             />
             <div className="unit">个</div>
           </FormItem>
-          <FormItem
-            {...formItemLayout}
-            wrapperCol={{ span: 6 }}
-            label="映射端口"
-            hasFeedback
+          <Ports
+            formItemLayout={formItemLayout}
+            form={form}
+            fields={fields}
+            containerPorts={containerPorts}
             key="ports"
-          >
-            映射端口
-          </FormItem>
+          />
         </div>
       </div>
     )

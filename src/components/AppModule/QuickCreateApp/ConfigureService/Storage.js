@@ -103,9 +103,9 @@ const Storage = React.createClass({
         { required: true },
       ],
     })
-    // const { storageTypes } = currentCluster
+    const { storageTypes } = currentCluster
     // for test
-    const storageTypes= [ 'rbd', 'hostPath' ]
+    // const storageTypes= [ 'rbd', 'hostPath' ]
     return (
       <FormItem key="storageType" className="floatRight storageType">
         <RadioGroup {...storageTypeProps}>
@@ -356,6 +356,7 @@ const Storage = React.createClass({
             <Input
               className="formInput"
               placeholder="请输入容器目录"
+              size="default"
               {...mountPathProps}
             />
           </FormItem>
@@ -367,6 +368,7 @@ const Storage = React.createClass({
                 <Input
                   className="formInput"
                   placeholder="请输入本地目录"
+                  size="default"
                   {...hostPathProps}
                 />
               </FormItem>
@@ -379,6 +381,7 @@ const Storage = React.createClass({
               <FormItem key={volumekey}>
                 <Select
                   placeholder="请选择存储卷"
+                  size="default"
                   {...volumeProps}
                   showSearch
                   optionFilterProp="children"
