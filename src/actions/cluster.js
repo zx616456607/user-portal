@@ -400,3 +400,53 @@ export function getClusterNodeAddr(cluster, callback) {
     return dispatch(fetchClusterNodeAddr(cluster, callback))
   }
 }
+
+
+export const GET_CLUSTER_PLUGINS_REQUEST = 'GET_CLUSTER_PLUGINS_REQUEST'
+export const GET_CLUSTER_PLUGINS_SUCCESS = 'GET_CLUSTER_PLUGINS_SUCCESS'
+export const GET_CLUSTER_PLUGINS_FAILURE = 'GET_CLUSTER_PLUGINS_FAILURE'
+
+function fetchClusterPlugins(cluster, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_CLUSTER_PLUGINS_REQUEST, GET_CLUSTER_PLUGINS_SUCCESS, GET_CLUSTER_PLUGINS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/plugins`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getClusterPlugins(cluster, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchClusterPlugins(cluster, callback))
+  }
+}
+
+
+
+export const UPDATE_CLUSTER_PLUGINS_REQUEST = 'UPDATE_CLUSTER_PLUGINS_REQUEST'
+export const UPDATE_CLUSTER_PLUGINS_SUCCESS = 'UPDATE_CLUSTER_PLUGINS_SUCCESS'
+export const UPDATE_CLUSTER_PLUGINS_FAILURE = 'UPDATE_CLUSTER_PLUGINS_FAILURE'
+
+function fetchUpdateClusterPlugins(cluster, name, body, callback) {
+  const reset = body.reset
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_CLUSTER_PLUGINS_REQUEST, UPDATE_CLUSTER_PLUGINS_SUCCESS, UPDATE_CLUSTER_PLUGINS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/plugins/${name}${reset != undefined ? '?reset=' + reset : ''}`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body: body
+      }
+    },
+    callback
+  }
+}
+
+export function updateClusterPlugins(cluster, name, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateClusterPlugins(cluster, name, body, callback))
+  }
+}
