@@ -283,7 +283,7 @@ let MyComponent = React.createClass({
     })
   },
   tableListMore(list, e) {
-    if(e.target.nodeName == 'A') return
+    if(e && e.target && e.target.nodeName == 'A') return
     const oldData = cloneDeep(this.state.data)
     let data
     const newData = oldData.map((item, index)=> {
