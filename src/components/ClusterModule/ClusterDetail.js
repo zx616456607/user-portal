@@ -11,7 +11,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import { Icon, Button, Card, Tabs, Table, Input, Spin, Row, Col, Dropdown, Menu, Modal, Progress, Switch } from 'antd'
+import { Icon, Button, Card, Tabs, Table, Input, Spin, Row, Col, Dropdown, Menu, Modal, Progress, Switch, Tag, Tooltip } from 'antd'
 import { getNodesPodeList, loadHostMetrics, searchPodeList , loadHostInstant} from '../../actions/cluster'
 import './style/ClusterDetail.less'
 import hostImg from '../../assets/img/integration/host.png'
@@ -25,12 +25,18 @@ import Metrics from '../Metrics'
 import { camelize } from 'humps'
 import QueueAnim from 'rc-queue-anim'
 import AlarmStrategy from '../ManageMonitor/AlarmStrategy'
+import ManageLabelModal from './MangeLabelModal'
 
 const TabPane = Tabs.TabPane
 const MASTER = '主控节点/Master'
 const SLAVE = '计算节点/Slave'
 
 let HostInfo = React.createClass({
+  getInitialState(){
+    return {
+      manageLabelModal : false
+    }
+  },
   reloadList() {
     const { scope } = this.props
     const { clusterID, clusterName } = scope.props
@@ -72,6 +78,31 @@ let HostInfo = React.createClass({
     let podname = this.state.podname
     const { scope } = this.props
     scope.props.searchPodeList(podname)
+  },
+  formTagContainer(){
+    let arr = []
+    for(let i=0;i<5;i++){
+      arr.push(<Tag closable color="blue" className='tag' key={i}>
+        <Tooltip title='key1'>
+          <span className='key'>key1</span>
+        </Tooltip>
+        <span className='point'>:</span>
+        <Tooltip title='value2017'>
+          <span className='value'>value2017</span>
+        </Tooltip>
+      </Tag>)
+    }
+    return arr
+  },
+  handleManageLabelModal(){
+    this.setState({
+      manageLabelModal: true
+    })
+  },
+  callbackManageLabelModal(){
+    this.setState({
+      manageLabelModal: false
+    })
   },
   render() {
     const columns = [{
@@ -167,6 +198,18 @@ let HostInfo = React.createClass({
               </Row>
             </div>
 
+            <div className="host-list">
+              <div className="titles"><svg className="svg-icon"><use xlinkHref="#tag"></use></svg> 标签信息 <Button className='manageLabelButton' type="ghost" onClick={this.handleManageLabelModal}><Icon type="setting" />管理标签</Button></div>
+              <br />
+              <div className='labelContainer'>
+                {this.formTagContainer()}
+              </div>
+            </div>
+
+            <ManageLabelModal
+              manageLabelModal={this.state.manageLabelModal}
+              callback={this.callbackManageLabelModal}
+            />
           </div>
           <div className="topTitle">容器详情</div>
           <div className="containers">

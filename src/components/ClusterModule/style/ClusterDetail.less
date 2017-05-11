@@ -104,7 +104,23 @@
       margin-top: 20px;
       border:1px solid @borderColor;
       border-radius: 5px;
-      .titles {line-height: 40px;padding-left: 10px;border-bottom: 1px solid @borderColor}
+      .titles {line-height: 40px;padding-left: 10px;border-bottom: 1px solid @borderColor;
+          .manageLabelButton{
+            color: #00a0e9;
+            border-color: #00a0e9;
+            padding:4px 8px;
+            float:right;
+            margin:5px 12px 0 0;
+            vertical-align: middle;
+        }
+      }
+      .labelContainer{
+        padding:0 24px;
+
+        .inner{
+          background: red;
+        }
+      }
       .svg-icon {width: 16px;height: 17px;fill: gray;padding-top: 5px;}
       .items {height: 40px;padding: 0 2em;}
       .keys {display: block;width: 80px;float: left;height: 40px;}

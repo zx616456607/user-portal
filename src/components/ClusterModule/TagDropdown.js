@@ -232,8 +232,6 @@ class TagDropdown extends Component {
 class ManageTagModal extends Component {
 	constructor(props){
     super(props)
-    this.handleManageLabelOk = this.handleManageLabelOk.bind(this)
-    this.handleManageLabelCancel = this.handleManageLabelCancel.bind(this)
     this.formManegeLabelContainerTag = this.formManegeLabelContainerTag.bind(this)
     this.handleAddLabel = this.handleAddLabel.bind(this)
     this.handlecallback = this.handlecallback.bind(this)
@@ -245,21 +243,8 @@ class ManageTagModal extends Component {
     this.handleAddInput = this.handleAddInput.bind(this)
     this.formTagContainer = this.formTagContainer.bind(this)
     this.state = {
-      manageLabelModal : false,
       createLabelModal : false,
     }
-  }
-
-  handleManageLabelOk(){
-    this.setState({
-      manageLabelModal : false
-    })
-  }
-
-  handleManageLabelCancel(){
-    this.setState({
-      manageLabelModal : false
-    })
   }
 
   handleCreateLabelModal(){
@@ -340,39 +325,7 @@ class ManageTagModal extends Component {
       <div id="cluster__ManageTagModal__Component">
         <TagDropdown footer={true} context={'hostlist'} callbackManegeTag={this.handlecallback} callbackHostList={this.handlecallbackHostList} width={'100px'}/>
 
-        <Modal
-          title="管理标签"
-          visible={this.state.manageLabelModal}
-          onOk={this.handleManageLabelOk}
-          onCancel={this.handleManageLabelCancel}
-          wrapClassName="manageLabelModal"
-          width="585px"
-          maskClosable={false}
-        >
-          <div className='labelcontainer'>
-            {this.formTagContainer()}
-          </div>
 
-          <div className='labelfooter'>
-          <span className='labeldropdown' id="cluster__hostlist__manageLabelModal">
-            <TagDropdown footer={false} width={'120px'} context={"Modal"} callbackManegeModal={this.callbackManegeModal}/>
-          </span>
-            <span className='item'>或</span>
-            <Form
-              inline
-              horizontal={true}
-              className='labelform'
-            >
-              <Form.Item className='itemkey'>
-                <Input placeholder="标签键" />
-              </Form.Item>
-              <Form.Item className='itemkey'>
-                <Input placeholder="标签值"/>
-              </Form.Item>
-            </Form>
-            <Button icon='plus' size="large" className='itembutton' type="ghost" onClick={this.handleAddLabel}>新建标签</Button>
-          </div>
-        </Modal>
 
         <Modal
           title="创建标签"
