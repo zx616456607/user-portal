@@ -208,18 +208,6 @@ export default function cluster(state = {
       REQUEST: ActionTypes.GET_CLUSTER_NODE_ADDR_REQUEST,
       SUCCESS: ActionTypes.GET_CLUSTER_NODE_ADDR_SUCCESS,
       FAILURE: ActionTypes.GET_CLUSTER_NODE_ADDR_FAILURE
-    }, state.getClusterNodeAddr, action, option),
-    clusterPlugins: reducerFactory({
-      REQUEST: ActionTypes.GET_CLUSTER_PLUGINS_REQUEST,
-      SUCCESS: ActionTypes.GET_CLUSTER_PLUGINS_SUCCESS,
-      FAILURE: ActionTypes.GET_CLUSTER_PLUGINS_FAILURE
-    }, state.clusterPlugins, action, option),
-    updateClusterPlugins: reducerFactory({
-      REQUEST: ActionTypes.UPDATE_CLUSTER_PLUGINS_REQUEST,
-      SUCCESS: ActionTypes.UPDATE_CLUSTER_PLUGINS_SUCCESS,
-      FAILURE: ActionTypes.UPDATE_CLUSTER_PLUGINS_FAILURE
-    }, state.updateClusterPlugins, action, option)
-
-
+    }, state.getClusterNodeAddr, action, option)
   }
 }
