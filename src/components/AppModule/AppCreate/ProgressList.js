@@ -52,7 +52,7 @@ export default class ProgressList extends Component {
                   <svg className="commonCircle">
                     <use xlinkHref="#step" />
                   </svg>
-                  <span>服务配置</span>
+                  <span>配置服务</span>
                 </div>
               </div>
             </QueueAnim>

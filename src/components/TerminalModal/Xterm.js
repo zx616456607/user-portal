@@ -13,6 +13,7 @@ import { connect } from 'react-redux'
 import { Icon, Tabs, Button } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../constants'
+import { isSafariBrower } from '../../common/tools'
 import {
   updateTerminal, removeAllTerminal, changeActiveTerminal,
   removeTerminal,
@@ -45,6 +46,7 @@ class TerminalModal extends Component {
       size: DEFAULT_SIZE,
       minSize: this.getMinHeight(),
     }
+    this.isSafariBrower = isSafariBrower()
   }
 
   componentWillMount() {
@@ -54,6 +56,10 @@ class TerminalModal extends Component {
       _list && _list.every((item) => {
         if(item.metadata.name == name) {
           item.terminalStatus = status
+          if (status === 'exit') {
+            this.closeTerminalItem(item)
+            return false
+          }
           updateTerminal(clusterID, item)
           return false
         }
@@ -174,7 +180,7 @@ class TerminalModal extends Component {
   }
 
   closeTerminalItem(item, e) {
-    e.stopPropagation()
+    e && e.stopPropagation()
     const { clusterID, removeTerminal } = this.props
     const { resize } = this.state
     if (resize === 'min') {
@@ -183,13 +189,20 @@ class TerminalModal extends Component {
         size: DEFAULT_SIZE,
       })
     }
-    this.closeIframeTerm(item.metadata.key)
+    this.closeIframeTerm(item.metadata.name)
     removeTerminal(clusterID, item)
   }
 
   renderTermStatus(terminalStatus, item) {
     const { disableTips } = this.state
     const { name } = item.metadata
+    if (this.isSafariBrower) {
+      return (
+        <div className='webLoadingBox' key={`webLoadingBox-${name}`}>
+          <span>暂不支持 Safari 浏览器</span>
+        </div>
+      )
+    }
     if (terminalStatus === 'success') {
       if (!(disableTips.indexOf(name) > -1)) {
         return (
@@ -260,7 +273,7 @@ class TerminalModal extends Component {
                   {this.renderTermStatus(terminalStatus, item)}
                   <iframe
                     id={name}
-                    src={`/js/container_terminal.html?namespace=${namespace}&pod=${name}&cluster=${clusterID}&_=20170330`} />
+                    src={`/js/container_terminal.html?namespace=${namespace}&pod=${name}&cluster=${clusterID}&_=20170509`} />
                 </div>
               </TabPane>
             )
@@ -272,7 +285,7 @@ class TerminalModal extends Component {
 
   closeXterm() {
     const { clusterID, removeAllTerminal, list } = this.props
-    list.map(item => this.closeIframeTerm(item.metadata.key))
+    list.map(item => this.closeIframeTerm(item.metadata.name))
     removeAllTerminal(clusterID)
   }
 

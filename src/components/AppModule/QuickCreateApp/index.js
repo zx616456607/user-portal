@@ -11,32 +11,50 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Card, Row, Col, Steps, Button } from 'antd'
+import { Card, Row, Col, Steps, Button, Modal } from 'antd'
 import { browserHistory } from 'react-router'
-import './style/index.less'
+import { connect } from 'react-redux'
 import SelectImage from './SelectImage'
 import ConfigureService from './ConfigureService'
+import { genRandomString, toQuerystring } from '../../../common/tools'
+import { removeFormFields } from '../../../actions/quick_create_app'
+import './style/index.less'
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
+const standard = require('../../../../configs/constants').STANDARD_MODE
+const mode = require('../../../../configs/model').mode
+const standardFlag = standard === mode
 
-export default class QuickCreateApp extends Component {
+function genConfigureServiceKey() {
+  return genRandomString('0123456789')
+}
+
+class QuickCreateApp extends Component {
   constructor(props) {
     super()
     this.getStepsCurrent = this.getStepsCurrent.bind(this)
     this.renderBody = this.renderBody.bind(this)
     this.onSelectImage = this.onSelectImage.bind(this)
     this.renderFooterSteps = this.renderFooterSteps.bind(this)
+    this.goSelectCreateAppMode = this.goSelectCreateAppMode.bind(this)
+    this.saveService = this.saveService.bind(this)
     const { location } = props
     const { hash, query } = location
     const { imageName, registryServer } = query
     this.hash = hash
+    this.configureServiceKey = genConfigureServiceKey()
     if (hash === SERVICE_CONFIG_HASH && !imageName) {
       browserHistory.replace('/app_manage/app_create/quick_create')
+    } else if (hash !== SERVICE_CONFIG_HASH && imageName && registryServer) {
+      browserHistory.replace(`/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_CONFIG_HASH}`)
     }
     this.state = {
       imageName,
-      registry: registryServer,
+      registryServer,
+      serviceList: [],
+      confirmGoBackModalVisible: false,
+      configureMode: 'create',
     }
   }
 
@@ -53,18 +71,58 @@ export default class QuickCreateApp extends Component {
     return 1
   }
 
-  onSelectImage(imageName, registry) {
-    console.log(imageName, registry)
+  onSelectImage(imageName, registryServer) {
+    const { setFormFields } = this.props
     this.setState({
       imageName,
-      registry,
+      registryServer,
     })
+    /*setFormFields(this.configureServiceKey, {
+      imageUrl: {
+        name: 'imageUrl',
+        value: `${registryServer}/${imageName}`,
+      },
+    })*/
     browserHistory.push(`/app_manage/app_create/quick_create${SERVICE_CONFIG_HASH}`)
   }
 
+  goSelectCreateAppMode() {
+    this.setState({
+      confirmGoBackModalVisible: true
+    })
+  }
+
+  confirmGoBack() {
+    browserHistory.push('/app_manage/app_create')
+  }
+
+  goSelectImage() {
+    browserHistory.push('/app_manage/app_create/quick_create')
+  }
+
+  saveService() {
+    const { validateFieldsAndScroll } = this.form
+    validateFieldsAndScroll((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      this.configureServiceKey = genConfigureServiceKey()
+      browserHistory.push('/app_manage/app_create/quick_create')
+    })
+  }
+
   renderBody() {
-    if (this.hash === SERVICE_CONFIG_HASH) {
-      return <ConfigureService />
+    const { imageName, registryServer, configureMode } = this.state
+    if (this.hash === SERVICE_CONFIG_HASH && imageName) {
+      return (
+        <ConfigureService
+          mode={configureMode}
+          id={this.configureServiceKey}
+          callbackForm={form => this.form = form}
+          {...{imageName, registryServer}}
+          {...this.props}
+        />
+      )
     }
     return <SelectImage onChange={this.onSelectImage} />
   }
@@ -77,14 +135,14 @@ export default class QuickCreateApp extends Component {
         <div className="footerSteps">
           <div className="configureSteps">
             <div className="left">
-              <Button type="primary" size="large">
+              <Button type="primary" size="large" onClick={this.saveService}>
                 保存此服务并继续添加
               </Button>
             </div>
             <div className="right">
               <Button
                 size="large"
-                onClick={() => browserHistory.push('/app_manage/app_create/quick_create')}
+                onClick={this.goSelectImage}
               >
                 上一步
               </Button>
@@ -100,7 +158,7 @@ export default class QuickCreateApp extends Component {
       <div className="footerSteps">
         <Button
           size="large"
-          onClick={() => browserHistory.push('/app_manage/app_create')}
+          onClick={this.goSelectCreateAppMode}
         >
           上一步
         </Button>
@@ -109,11 +167,12 @@ export default class QuickCreateApp extends Component {
   }
 
   render() {
+    const { confirmGoBackModalVisible } = this.state
     const steps = (
       <Steps size="small" className="steps" status="error" current={this.getStepsCurrent()}>
         <Step title="部署方式" />
         <Step title="选择镜像" />
-        <Step title="服务配置" />
+        <Step title="配置服务" />
       </Steps>
     )
     return(
@@ -139,7 +198,26 @@ export default class QuickCreateApp extends Component {
             </Card>
           </Col>
         </Row>
+        <Modal
+          title="返回上一步"
+          visible={confirmGoBackModalVisible}
+          onCancel={() => this.setState({confirmGoBackModalVisible: false})}
+          onOk={this.confirmGoBack}
+        >
+          是否确定返回“上一步”？确定后已添加的服务xxx、xxx、xxx将不被保留
+        </Modal>
       </div>
     )
   }
 }
+
+function mapStateToProps(state, props) {
+  return {
+    standardFlag
+  }
+}
+
+export default connect(mapStateToProps, {
+  // setFormFields,
+  removeFormFields,
+})(QuickCreateApp)
