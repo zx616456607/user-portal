@@ -191,7 +191,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/containers/:name/logs', containerController.getContainerLogs)
   router.post('/clusters/:cluster/containers/batch-delete', containerController.deleteContainers)
   router.get('/clusters/:cluster/containers/:name/process', containerController.getProcess)
-
+  router.post('/clusters/:cluster/containers/:name/export',containerController.exportContainers)
   // Configs
   router.get('/clusters/:cluster/configgroups', configController.listConfigGroups)
   router.get('/clusters/:cluster/configgroups/:name', configController.getConfigGroupName)
