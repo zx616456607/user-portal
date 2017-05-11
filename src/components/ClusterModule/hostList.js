@@ -15,8 +15,8 @@ import { NOT_AVAILABLE } from '../../constants'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
 import ManageTagModal from './TagDropdown'
 import ManageLabelModal from './MangeLabelModal'
-
 import './style/hostList.less'
+
 const MASTER = '主控节点/Master'
 const SLAVE = '计算节点/Slave'
 const SubMenu = Menu.SubMenu;
@@ -327,14 +327,11 @@ class hostList extends Component {
     })
   }
 
-  handleManageLabel(){
-    this.setState({
-      manageLabelModal : true
-    })
-  }
-
   handleDropdownTag(obj){
-    console.log('HostList.obj=',obj)
+    const { callbackActiveKey } = this.props
+    if(obj.key == 'managetag'){
+      callbackActiveKey(obj)
+    }
   }
 
   formTagContainer(){
@@ -343,14 +340,19 @@ class hostList extends Component {
       return
     }
     const arr = labels.map((item)=> {
-      return (<Tag closable color="blue" className='tag' key={item.value}>
-        <Tooltip title={item.key}>
-          <span className='key'>{item.key}</span>
-        </Tooltip>
+      //return (<Tag closable color="blue" className='tag' key={item.value}>
+      //  <Tooltip title={item.key}>
+      //    <span className='key'>{item.key}</span>
+      //  </Tooltip>
+      //  <span className='point'>:</span>
+      //  <Tooltip title={item.value}>
+      //    <span className='value'>{item.value}</span>
+      //  </Tooltip>
+      //</Tag>)
+      return (<Tag closable color="blue" key={item.value} style={{width:'100%'}}>
+        <span>{item.key}</span>
         <span className='point'>:</span>
-        <Tooltip title={item.value}>
-          <span className='value'>{item.value}</span>
-        </Tooltip>
+        <span>{item.value}</span>
       </Tag>)
     })
 
@@ -403,7 +405,7 @@ class hostList extends Component {
   }
 
   render() {
-    const { addNodeCMD } = this.props
+    const { addNodeCMD, labels } = this.props
     const { deleteNode } = this.state
     const scope = this;
     return <div id="cluster__hostlist">
@@ -434,9 +436,13 @@ class hostList extends Component {
           <span className='selectlabel' id="cluster__hostlist__selectlabel">
             <ManageTagModal callbackHostList={this.handleDropdownTag}/>
           </span>
-          <div className='selectedroom'>
-            {this.formTagContainer()}
-          </div>
+          {
+            labels && labels.length > 0
+            ? <div className='selectedroom'>
+              {this.formTagContainer()}
+            </div>
+            : <span></span>
+          }
         </div>
         <div className='dataBox'>
           <div className='titleBox'>
