@@ -39,6 +39,11 @@ let ConfigureService = React.createClass({
     callbackForm: PropTypes.func.isRequired,
     mode: PropTypes.oneOf([ 'create', 'edit' ]),
   },
+  getInitialState() {
+    return {
+      imageConfigs: {},
+    }
+  },
   componentWillMount() {
     const { callbackForm, imageName, registryServer, form } = this.props
     callbackForm(form)
@@ -112,11 +117,10 @@ let ConfigureService = React.createClass({
           if (mode !== 'create') {
             return
           }
-          const { containerPorts, defaultEnv, cmd, entrypoint } = result.configInfo || result.data
+          this.setConfigsToForm(result.configInfo || result.data)
           // setPorts(containerPorts, form)
           // setEnv(defaultEnv, form)
           // setCMD({cmd, entrypoint}, form)
-          console.log(containerPorts, defaultEnv, cmd, entrypoint)
         },
         isAsync: true
       }
@@ -132,6 +136,29 @@ let ConfigureService = React.createClass({
       loadImageConfigFunc = loadImageDetailTagConfig.bind(this, DEFAULT_REGISTRY, imageName, imageTag, callback)
     }
     loadImageConfigFunc()
+  },
+  setConfigsToStore() {},
+  setConfigsToForm(configs) {
+    this.setState({
+      imageConfigs: configs,
+    })
+    const { form } = this.props
+    const { setFieldsValue } = form
+    let { mountPath } = configs
+    // set storage
+    if (!mountPath || !Array.isArray(mountPath)) {
+      mountPath = []
+    }
+    const storageKeys = []
+    mountPath.map((path, index) => {
+      storageKeys.push(index)
+      setFieldsValue({
+        [`mountPath${index}`]: path,
+      })
+    })
+    setFieldsValue({
+      storageKeys,
+    })
   },
   checkAppName(rule, value, callback) {
     if (!value) {
@@ -200,6 +227,7 @@ let ConfigureService = React.createClass({
       standardFlag, loadFreeVolume, createStorage,
       current,
     } = this.props
+    const { imageConfigs } = this.state
     const { getFieldProps } = form
     const appNameProps = getFieldProps('appName', {
       rules: [
@@ -304,6 +332,7 @@ let ConfigureService = React.createClass({
           standardFlag={standardFlag}
           loadFreeVolume={loadFreeVolume}
           createStorage={createStorage}
+          imageConfigs={imageConfigs}
           key="normal"
         />
       </QueueAnim>

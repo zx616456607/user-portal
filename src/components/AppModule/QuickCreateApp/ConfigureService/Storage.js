@@ -12,10 +12,17 @@
 
 import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { Form, Tooltip, Icon, Switch, Radio, Input, InputNumber, Select, Button } from 'antd'
+import {
+  Form, Tooltip, Icon,
+  Switch, Radio, Input,
+  InputNumber, Select, Button,
+  Checkbox, Col, Row,
+  Spin,
+} from 'antd'
 import { loadFreeVolume, createStorage } from '../../../../actions/storage'
 import { volNameCheck } from '../../../../common/naming_validation'
 import NotificationHandler from '../../../../common/notification_handler'
+import classNames from 'classnames'
 import './style/Storage.less'
 
 const FormItem = Form.Item
@@ -24,8 +31,12 @@ const Option = Select.Option
 const MIN = 512
 const STEP = 512
 const MAX = 20480
+const PATH_REG = /^\/[a-zA-Z0-9\/].?/
 
 const Storage = React.createClass({
+  propTypes: {
+    mountPath: PropTypes.array,
+  },
   getInitialState() {
     return {
       volumeName: '',
@@ -35,15 +46,19 @@ const Storage = React.createClass({
       createVolumeLoading: false,
     }
   },
+  getVolumes() {
+    const { loadFreeVolume, currentCluster } = this.props
+    loadFreeVolume(currentCluster.clusterID)
+  },
   componentWillMount() {
-    const { fields, loadFreeVolume, currentCluster } = this.props
+    const { fields } = this.props
     if (!fields || !fields.storageType) {
       this.setStorageTypeToDefault()
     }
     if (!fields || !fields.serviceType) {
       this.setServiceTypeToDefault()
     }
-    loadFreeVolume(currentCluster.clusterID)
+    this.getVolumes()
   },
   setStorageTypeToDefault() {
     const { currentCluster, form, isCanCreateVolume } = this.props
@@ -64,8 +79,7 @@ const Storage = React.createClass({
     if (value) {
       setReplicasToDefault()
       this.setStorageTypeToDefault()
-      const { loadFreeVolume, currentCluster } = this.props
-      loadFreeVolume(currentCluster.clusterID)
+      this.getVolumes()
     }
     this.setState({
       replicasInputDisabled: !!value
@@ -89,9 +103,9 @@ const Storage = React.createClass({
         { required: true },
       ],
     })
-    const { storageTypes } = currentCluster
+    // const { storageTypes } = currentCluster
     // for test
-    // const storageTypes= [ 'rbd', 'hostPath' ]
+    const storageTypes= [ 'rbd', 'hostPath' ]
     return (
       <FormItem key="storageType" className="floatRight storageType">
         <RadioGroup {...storageTypeProps}>
@@ -151,7 +165,7 @@ const Storage = React.createClass({
       this.setTips(message, true)
       return
     }
-    const { currentCluster, createStorage, loadFreeVolume } = this.props
+    const { currentCluster, createStorage } = this.props
     const { clusterID } = currentCluster
     const notification = new NotificationHandler()
     this.setState({
@@ -176,7 +190,7 @@ const Storage = React.createClass({
             volumeSize: MIN,
             volumeFormat: 'ext4',
           })
-          loadFreeVolume(clusterID)
+          this.getVolumes()
         },
         isAsync: true
       },
@@ -257,36 +271,215 @@ const Storage = React.createClass({
       </div>
     )
   },
-  renderVolumes(serviceType) {
-    const serviceTypeValue = serviceType && serviceType.value
-    if (!serviceTypeValue) {
-      return
-    }
-    const { avaliableVolume } = this.props
-    const { volumes, isFetching } = avaliableVolume
-    if (isFetching) {
-      return (
-        <div><Icon type="loading" /> 加载存储卷中</div>
-      )
-    }
-    if (volumes.length < 1) {
-      return this.renderCreateVolume()
-    }
+  renderVolumesOption(volume) {
+    const { form } = this.props
+    const { getFieldValue } = form
+    const storageKeys = getFieldValue('storageKeys') || []
+    const { name, fsType, size } = volume
+    const value = `${name}/${fsType}`
+    let disabled = false
+    storageKeys.every(key => {
+      const volumeValue = getFieldValue(`volume${key}`)
+      if (volumeValue === value) {
+        disabled = true
+        return false
+      }
+      return true
+    })
     return (
-      <div className="bindVolume">
-        <pre>
-          {JSON.stringify(volumes, null, 2)}
-        </pre>
-      </div>
+      <Option
+        value={value}
+        disabled={disabled}
+      >
+        {name} {fsType} {size}
+      </Option>
     )
   },
+  checkMountPath(key, rule, value, callback) {
+    if (!value) {
+      return callback()
+    }
+    if (!PATH_REG.test(value)) {
+      return callback('请输入正确的路径')
+    }
+    const { getFieldValue } = this.props.form
+    const storageKeys = getFieldValue('storageKeys') || []
+    let error
+    storageKeys.every(_key => {
+      const mountPath = getFieldValue(`mountPath${_key}`)
+      if (_key !== key && value === mountPath) {
+        error = '已填写过该路径'
+        return false
+      }
+      return true
+    })
+    callback(error)
+  },
+  renderConfigureItem(key) {
+    const { avaliableVolume, form } = this.props
+    const { volumes } = avaliableVolume
+    const { getFieldProps, getFieldValue } = form
+    const storageType = getFieldValue('storageType')
+    const hostPathFlag = storageType === 'hostPath'
+    const mountPathkey = `mountPath${key}`
+    const hostPathkey = `hostPath${key}`
+    const volumekey = `volume${key}`
+    const readOnlykey = `readOnly${key}`
+    const mountPathProps = getFieldProps(mountPathkey, {
+      rules: [
+        { required: true, message: '请输入容器目录' },
+        { validator: this.checkMountPath.bind(this, key) }
+      ],
+    })
+    let hostPathProps
+    let volumeProps
+    let readOnlyProps
+    if (hostPathFlag) {
+      hostPathProps = getFieldProps(hostPathkey, {
+        rules: [
+          { required: true, message: '请输入本地目录' },
+        ],
+      })
+    } else {
+      volumeProps = getFieldProps(volumekey, {
+        rules: [
+          { required: true, message: '请选择存储卷' },
+          // { validator: this.checkAppName }
+        ],
+      })
+      readOnlyProps = getFieldProps(readOnlykey)
+    }
+    return (
+      <Row gutter={16} className="configureItem" key={`configureItem${key}`}>
+        <Col span={6}>
+          <FormItem key={mountPathkey}>
+            <Input
+              className="formInput"
+              placeholder="请输入容器目录"
+              {...mountPathProps}
+            />
+          </FormItem>
+        </Col>
+        {
+          hostPathProps && (
+            <Col span={6}>
+              <FormItem key={hostPathkey}>
+                <Input
+                  className="formInput"
+                  placeholder="请输入本地目录"
+                  {...hostPathProps}
+                />
+              </FormItem>
+            </Col>
+          )
+        }
+        {
+          volumeProps && (
+            <Col span={6}>
+              <FormItem key={volumekey}>
+                <Select
+                  placeholder="请选择存储卷"
+                  {...volumeProps}
+                  showSearch
+                  optionFilterProp="children"
+                >
+                  { volumes.map(this.renderVolumesOption) }
+                </Select>
+              </FormItem>
+            </Col>
+          )
+        }
+        {
+          readOnlyProps && (
+            <Col span={2}>
+              <FormItem key={readOnlykey}>
+                <Checkbox {...readOnlyProps}>只读</Checkbox>
+              </FormItem>
+            </Col>
+          )
+        }
+        <Col className="operating">
+          {
+            !hostPathFlag && (
+              <Tooltip title="刷新">
+                <Icon type="reload" onClick={this.getVolumes} />
+              </Tooltip>
+            )
+          }
+          <Tooltip title="删除">
+            <Icon type="delete" />
+          </Tooltip>
+        </Col>
+      </Row>
+    )
+  },
+  addStorageKey() {
+    const { form } = this.props
+    const { setFieldsValue, getFieldValue, validateFields } = form
+    const storageType = getFieldValue('storageType')
+    const hostPathFlag = storageType === 'hostPath'
+    let storageKeys = getFieldValue('storageKeys') || []
+    const validateFieldsKeys = []
+    storageKeys.forEach(key => {
+      validateFieldsKeys.push(`mountPath${key}`)
+      if (hostPathFlag) {
+        validateFieldsKeys.push(`hostPath${key}`)
+      } else {
+        validateFieldsKeys.push(`volume${key}`)
+      }
+    })
+    validateFields(validateFieldsKeys, (errors, values) => {
+      if (!!errors) {
+        return
+      }
+      let uid = storageKeys[storageKeys.length - 1] || 0
+      uid ++
+      storageKeys = storageKeys.concat(uid)
+      setFieldsValue({
+        storageKeys,
+      })
+    })
+  },
+  renderConfigure() {
+    const { avaliableVolume, form } = this.props
+    const { volumes, isFetching } = avaliableVolume
+    let createVolumeElement
+    if (volumes.length < 1 && !isFetching) {
+      createVolumeElement = this.renderCreateVolume()
+    }
+    const { getFieldValue } = form
+    const storageKeys = getFieldValue('storageKeys') || []
+    const bindVolumesClass = classNames({
+      'bindVolume': true,
+      'ant-spin-container': avaliableVolume.isFetching,
+    })
+    return [
+      createVolumeElement,
+      <div className={bindVolumesClass}>
+        { storageKeys.map(this.renderConfigureItem) }
+        <span className="addMountPath" onClick={this.addStorageKey}>
+          <Icon type="plus-circle-o" />
+          <span>添加一个容器目录</span>
+        </span>
+      </div>
+    ]
+  },
   render() {
-    const { formItemLayout, form, isCanCreateVolume, fields } = this.props
+    const { formItemLayout, form, isCanCreateVolume, fields, avaliableVolume } = this.props
     const { getFieldProps } = form
     const { serviceType } = fields || {}
+    const { isFetching } = avaliableVolume
     const serviceTypeProps = getFieldProps('serviceType', {
       valuePropName: 'checked',
       onChange: this.onServiceTypeChange
+    })
+    const volumesClass = classNames({
+      'volumes': true,
+      'ant-spin-nested-loading': isFetching,
+      'displayNone': !(serviceType && serviceType.value),
+    })
+    const volumeSpinClass = classNames({
+      'displayNone': !isFetching,
     })
     return (
       <FormItem
@@ -319,8 +512,9 @@ const Storage = React.createClass({
           )
         }
         {this.renderServiceType(serviceType)}
-        <div className="volumes">
-        {this.renderVolumes(serviceType)}
+        <div className={volumesClass}>
+          <Spin className={volumeSpinClass}/>
+          {this.renderConfigure()}
         </div>
       </FormItem>
     )

@@ -58,7 +58,6 @@ const Normal = React.createClass({
     })
   },
   onResourceChange({ resourceType, DIYMemory, DIYCPU }) {
-    console.log(resourceType, DIYMemory, DIYCPU)
     const { setFieldsValue } = this.props.form
     setFieldsValue({ resourceType, DIYMemory, DIYCPU })
   },
@@ -75,10 +74,11 @@ const Normal = React.createClass({
     const {
       formItemLayout, form, standardFlag,
       fields, currentCluster, clusterNodes,
-      isCanCreateVolume,
+      isCanCreateVolume, imageConfigs,
     } = this.props
     const { replicasInputDisabled } = this.state
     const { getFieldProps } = form
+    const { mountPath } = imageConfigs
     const { resourceType, DIYMemory, DIYCPU } = fields || {}
     const replicasProps = getFieldProps('replicas', {
       rules: [
@@ -179,6 +179,7 @@ const Normal = React.createClass({
             form={form}
             fields={fields}
             setReplicasToDefault={this.setReplicasToDefault}
+            mountPath={mountPath}
             key="storage"
           />
           <FormItem
