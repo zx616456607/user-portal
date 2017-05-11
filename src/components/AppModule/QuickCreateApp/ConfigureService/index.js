@@ -229,13 +229,14 @@ let ConfigureService = React.createClass({
     }
     return (
       <QueueAnim id="quickCreateAppConfigureService" type="right">
-        <div id="basic">
+        <div id="basic" key="basic">
           <Form horizontal>
             <FormItem
               {...formItemLayout}
               wrapperCol={{ span: 6 }}
               label="应用名称"
               hasFeedback
+              key="appName"
             >
               <Input
                 size="large"
@@ -250,6 +251,7 @@ let ConfigureService = React.createClass({
               wrapperCol={{ span: 6 }}
               label="服务名称"
               hasFeedback
+              key="serviceName"
             >
               <Input
                 size="large"
@@ -263,6 +265,7 @@ let ConfigureService = React.createClass({
               {...formItemLayout}
               wrapperCol={{ span: 9 }}
               label="镜像"
+              key="image"
             >
               <Input
                 size="large"
@@ -276,6 +279,7 @@ let ConfigureService = React.createClass({
               {...formItemLayout}
               wrapperCol={{ span: 6 }}
               label="镜像版本"
+              key="imageTag"
             >
               <Select
                 size="large"
@@ -300,6 +304,7 @@ let ConfigureService = React.createClass({
           standardFlag={standardFlag}
           loadFreeVolume={loadFreeVolume}
           createStorage={createStorage}
+          key="normal"
         />
       </QueueAnim>
     )

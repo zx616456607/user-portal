@@ -14,8 +14,8 @@ import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Row, Col, Form, InputNumber, Tooltip, Icon, Switch, Select } from 'antd'
 import ResourceSelect from '../../../ResourceSelect'
+import Storage from './Storage'
 import { getNodes } from '../../../../actions/cluster_node'
-import { loadFreeVolume, createStorage } from '../../../../actions/storage'
 import {
   SYSTEM_DEFAULT_SCHEDULE,
  } from '../../../../constants'
@@ -71,46 +71,6 @@ const Normal = React.createClass({
     }
     callback()
   },
-  onServiceTypeChange(value) {
-    if (value) {
-      this.setReplicasToDefault()
-      const { loadFreeVolume, currentCluster } = this.props
-      loadFreeVolume(currentCluster.clusterID)
-    }
-    this.setState({
-      replicasInputDisabled: !!value
-    })
-  },
-  renderVolumes(serviceType) {
-    const { avaliableVolume } = this.props
-    const { volumes, isFetching } = avaliableVolume
-    const serviceTypeValue = serviceType && serviceType.value
-    let descContent
-    let volumesContent
-    if (!serviceTypeValue) {
-      descContent = '无状态服务'
-    } else {
-      descContent = '有状态服务'
-    }
-    if (isFetching) {
-      volumesContent = (
-        <div><Icon type="loading" /> 加载存储卷中</div>
-      )
-    }
-    if (volumes.length < 1) {
-      volumesContent = (
-        <div>点击创建</div>
-      )
-    }
-    return [
-      <span style={{marginLeft: '10px'}}>
-        {descContent}
-      </span>,
-      <div className="volumes">
-        {volumesContent}
-      </div>
-    ]
-  },
   render() {
     const {
       formItemLayout, form, standardFlag,
@@ -119,7 +79,7 @@ const Normal = React.createClass({
     } = this.props
     const { replicasInputDisabled } = this.state
     const { getFieldProps } = form
-    const { resourceType, DIYMemory, DIYCPU, serviceType } = fields || {}
+    const { resourceType, DIYMemory, DIYCPU } = fields || {}
     const replicasProps = getFieldProps('replicas', {
       rules: [
         { required: true, message: '实例数量为 1~10 之间' },
@@ -138,22 +98,18 @@ const Normal = React.createClass({
         { required: true },
       ],
     })
-    const serviceTypeProps = getFieldProps('serviceType', {
-      valuePropName: 'checked',
-      onChange: this.onServiceTypeChange
-    })
     return (
       <div id="normalConfigureService">
-        <Row className="header">
-          <Col span={3} className="left">
+        <Row className="header" key="header">
+          <Col span={3} className="left" key="left">
             <div className="line"></div>
             <span className="title">基本配置</span>
           </Col>
-          <Col span={21}>
+          <Col span={21} key="right">
             <div className="desc">服务的计算资源、服务类型、以及实例个数等设置</div>
           </Col>
         </Row>
-        <div className="body">
+        <div className="body" key="body">
           <FormItem
             {...formItemLayout}
             label={
@@ -171,6 +127,7 @@ const Normal = React.createClass({
               </div>
             }
             hasFeedback
+            key="resource"
           >
             <ResourceSelect
               standardFlag={standardFlag}
@@ -193,6 +150,7 @@ const Normal = React.createClass({
                 {...formItemLayout}
                 wrapperCol={{ span: 6 }}
                 label="绑定节点"
+                key="bindNode"
               >
                 <Select
                   size="large"
@@ -216,40 +174,19 @@ const Normal = React.createClass({
               </FormItem>
             )
           }
-          <FormItem
-            {...formItemLayout}
-            wrapperCol={{ span: 6 }}
-            label={
-              <div>
-                服务类型&nbsp;
-                <a href="http://docs.tenxcloud.com/faq#you-zhuang-tai-fu-wu-yu-wu-zhuang-tai-fu-wu-de-qu-bie" target="_blank">
-                  <Tooltip title="若需数据持久化，请使用有状态服务">
-                    <Icon type="question-circle-o" />
-                  </Tooltip>
-                </a>
-              </div>
-            }
-          >
-            <Switch
-              {...serviceTypeProps}
-              disabled={!isCanCreateVolume}
-            />
-            {
-              !isCanCreateVolume && (
-                <span style={{marginLeft: '10px'}}>
-                  <Tooltip title="无存储服务可用, 请配置存储服务">
-                    <Icon type="question-circle-o"/>
-                  </Tooltip>
-                </span>
-              )
-            }
-            {this.renderVolumes(serviceType)}
-          </FormItem>
+          <Storage
+            formItemLayout={formItemLayout}
+            form={form}
+            fields={fields}
+            setReplicasToDefault={this.setReplicasToDefault}
+            key="storage"
+          />
           <FormItem
             {...formItemLayout}
             wrapperCol={{ span: 3 }}
             label="实例数量"
             className="replicasFormItem"
+            key="replicas"
           >
             <InputNumber
               size="large"
@@ -265,6 +202,7 @@ const Normal = React.createClass({
             wrapperCol={{ span: 6 }}
             label="映射端口"
             hasFeedback
+            key="ports"
           >
             映射端口
           </FormItem>
@@ -275,29 +213,16 @@ const Normal = React.createClass({
 })
 
 function mapStateToProps(state, props) {
-  const { entities, cluster_nodes, storage } = state
+  const { entities, cluster_nodes } = state
   const { current } = entities
   const { cluster } = current
   const { clusterNodes } = cluster_nodes
-  const { avaliableVolume } = storage
-  const { storageTypes } = cluster
-  let isCanCreateVolume = true
-  if(!storageTypes || storageTypes.length <= 0) {
-    isCanCreateVolume = false
-  }
   return {
     currentCluster: cluster,
-    isCanCreateVolume,
     clusterNodes: clusterNodes[cluster.clusterID] || [],
-    avaliableVolume: {
-      volumes: (avaliableVolume.data ? avaliableVolume.data.volumes : []),
-      isFetching: avaliableVolume.isFetching,
-    }
   }
 }
 
 export default connect(mapStateToProps, {
   getNodes,
-  loadFreeVolume,
-  createStorage,
 })(Normal)
