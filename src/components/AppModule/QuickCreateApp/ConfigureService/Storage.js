@@ -407,7 +407,7 @@ const Storage = React.createClass({
             )
           }
           <Tooltip title="删除">
-            <Icon type="delete" />
+            <Icon type="delete" onClick={this.removeStorageKey.bind(this, key)} />
           </Tooltip>
         </Col>
       </Row>
@@ -438,6 +438,14 @@ const Storage = React.createClass({
       setFieldsValue({
         storageKeys,
       })
+    })
+  },
+  removeStorageKey(key) {
+    const { form } = this.props
+    const { setFieldsValue, getFieldValue } = form
+    const storageKeys = getFieldValue('storageKeys') || []
+    setFieldsValue({
+      storageKeys: storageKeys.filter(_key => _key !== key)
     })
   },
   renderConfigure() {
