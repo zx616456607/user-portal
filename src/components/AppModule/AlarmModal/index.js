@@ -49,11 +49,6 @@ let FistStop = React.createClass({
        callback(new Error('请输入3~40位字符'))
        return
     }
-    let regx = /^[a-zA-Z][_\-0-9a-zA-Z]+[a-zA-Z0-9]$/
-    if (!regx.test(value)) {
-      callback(new Error('以字母开头，可数字、中划线、下划线组成，且字母或者数字结尾'))
-      return
-    }
     callback()
   },
   fistStopType(rule, value, callback) {
