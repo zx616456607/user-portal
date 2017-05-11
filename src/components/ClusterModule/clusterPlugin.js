@@ -14,6 +14,7 @@ import { Menu, Button, InputNumber, Card, Form, Select, Input, Dropdown, Spin, M
 import './style/clusterPlugin.less'
 import { getClusterPlugins, updateClusterPlugins } from  '../../actions/cluster'
 import NotificationHandler from '../../common/notification_handler'
+import { PLUGIN_DEFAULT_CONFIG } from '../../constants/index'
 
 
 
@@ -50,9 +51,11 @@ class ClusterPlugin extends Component{
     memory = memory / 1024
     if(memory > 1024) {
       size = 'G'
-      memory = memory / 1024
+      memory = (memory / 1024).toFixed(1)
+      return memory + size
+    } else {
+      return memory.toFixed(0) + size
     }
-    return memory.toFixed(2) + size
   }
   getStatusColor(status) {
     switch(status) {
@@ -127,13 +130,70 @@ class ClusterPlugin extends Component{
       this.setState({
         setModal: false
       })
+      const self = this
       form.validateFields((err, value) => {
         if(err) {
           return
         }
-
+        this.setState({
+          setModal: false
+        })
+        const notify = new NotificationHandler()
+        const { getFieldValue } = form
+        const cpu = getFieldValue('pluginCPU')
+        const memory = getFieldValue('pluginMem')
+        const hostName = getFieldValue('selectNode')
+        notify.spin('更新插件配置中')
+        updateClusterPlugins(cluster.clusterID, this.state.currentPlugin.name, {
+          cpu,
+          memory,
+          hostName
+        }, {
+          success: {
+            func: () => {
+              notify.close()
+              form.resetFields()
+              notify.success('插件配置更新成功')
+              self.loadData()
+            },
+            isAsync: true
+          },
+          failed: {
+            func: () => {
+              notify.close()
+              notify.error('插件配置更新失败')
+            }
+          }
+        })
       })
     }
+  }
+  getDefaultConfig() {
+    const { form } = this.props
+    const pluginName = this.state.currentPlugin.name
+    const pluginCPU = PLUGIN_DEFAULT_CONFIG[pluginName] ? PLUGIN_DEFAULT_CONFIG[pluginName].cpu : 0
+    const pluginMem = PLUGIN_DEFAULT_CONFIG[pluginName] ? PLUGIN_DEFAULT_CONFIG[pluginName].memory : 0
+    form.setFieldsValue({
+      pluginMem,
+      pluginCPU
+    })
+  }
+  getSelectItem() {
+    const { nodeList, cluster } = this.props
+    const clusterID = cluster.clusterID
+    if(nodeList.isEmptyObject) {
+      return <div key="null"></div>
+    }
+    if(nodeList[clusterID].isFetching) {
+      return <Card id="Network" className="ClusterInfo">
+        <div className="h3">节点</div>
+        <div className="loadingBox" style={{height:'100px'}}><Spin size="large"></Spin></div>
+        </Card>
+    }
+    const nodes = nodeList[clusterID].nodes.clusters.nodes.nodes
+    return nodes.map(node => {
+      return <Option key={node.objectMeta.name} value={node.objectMeta.name}>{node.objectMeta.name}</Option>
+    })
   }
   getTableItem() {
     const { clusterPlugins } = this.props
@@ -167,11 +227,74 @@ class ClusterPlugin extends Component{
     }
     return items
   }
+  cancleSet() {
+    const { form } = this.props
+    this.setState({
+      setModal: false
+    })
+    form.resetFields()
+  }
+
   render(){
-    const { clusterPlugins } = this.props
+    const { clusterPlugins, form } = this.props
     if(clusterPlugins.isFetching) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
+    const { getFieldProps } = form
+    const selectNode = getFieldProps('selectNode', {
+      rules: [{
+        validator: (rule, value, callback) => {
+          if(!value) {
+            return callback('请选择要部署的集群')
+          }
+          return callback()
+        }
+      }],
+      initialValue: this.state.currentPlugin ? this.state.currentPlugin.hostName : ''
+    })
+    let currentMem = this.state.currentPlugin ? (this.state.currentPlugin.resourceRange.request.memory / 1024).toFixed(2) : 0
+
+    if(isNaN(currentMem)) currentMem = 0
+    const pluginMem = getFieldProps('pluginMem' , {
+      rules: [
+        {
+          validator: (rule, value, callback) => {
+            if(!value) {
+              return callback('请输入要使用的内存大小')
+            }
+            if(!/^([0-9]+(\.[0-9]+)?|0\.[0-9]+)$/.test(value)) {
+              return callback('请输入正确的数字')
+            }
+            if(parseFloat(value) <= 0) {
+              return callback('请输入大于0的数字')
+            }
+            return callback()
+          }
+        }
+      ],
+      initialValue: currentMem
+    })
+    let currentCPU = this.state.currentPlugin ? (this.state.currentPlugin.resourceRange.request.cpu / 1000).toFixed(2) : 0
+    if(isNaN(currentCPU)) currentCPU = 0
+    const pluginCPU = getFieldProps('pluginCPU' , {
+      rules: [
+        {
+          validator: (rule, value, callback) => {
+            if(!value) {
+              return callback('请输入要使用的CPU核数')
+            }
+            if(!/[0-9\.].test(value)/) {
+              return callback('请输入数字')
+            }
+            if(parseFloat(value) <= 0) {
+              return callback('请输入大于0的数字')
+            }
+            return callback()
+          }
+        }
+      ],
+      initialValue: currentCPU
+    })
     return <Form><div id="cluster_clusterplugin">
       <div className="alertRow">集群插件：使用以下插件可以分别使平台中的日志、发现服务、监控等可用；在这里可以重新部署插件，可以切换插件所在节点，还可以设置CPU、内存在集群中资源的限制。</div>
       <Card className='ClusterListCard'>
@@ -206,8 +329,8 @@ class ClusterPlugin extends Component{
                 title="设置节点及资源限制"
                 wrapClassName="vertical-center-modal"
                 visible={this.state.setModal}
-                onOk={() => this.setState({setUpd:false})}
-                onCancel={() => this.setState({setModal:false})}
+                onOk={() => this.updateClusterPlugins()}
+                onCancel={() => this.cancleSet()}
                 >
                 <div className="alertRow" style={{fontSize:'12px'}}><p>选择插件所在节点并设置该插件在本集群中可用的CPU和内存的限制；系统默认给出的值为最佳设置值，<span style={{fontWeight:'bold'}}>推荐使用默认设置</span>。</p>
                 <p>设置为 <span style={{fontWeight:'bold'}}>0</span> 时表示无限制；设置时请参考所选节点的资源上限设置该插件的资源限制；</p></div>
@@ -218,21 +341,20 @@ class ClusterPlugin extends Component{
                   wrapperCol={{ span: 21 }}
                   style={{borderBottom:'1px solid #ededed',paddingBottom:'30px'}}
                 >
-                  <Select id="select" size="large" defaultValue="lucy" style={{width: 200,marginLeft:'20px'}}>
-                    <Option value="jack">jack</Option>
-                    <Option value="lucy">lucy</Option>
-                    <Option value="disabled" disabled>disabled</Option>
-                    <Option value="yiminghe">yiminghe</Option>
+                  <Select {...selectNode} size="large" style={{width: 200,marginLeft:'20px'}}>
+                    { this.getSelectItem()}
                   </Select>
                 </Form.Item>
                 <Form.Item>
-                  <span className="setLimit">设置限制</span><span>CPU</span><Button className="recovery" type="ghost" size="small"><Icon type="setting" />恢复默认设置</Button>
+                 <span className="setLimit">设置限制</span><span>CPU</span><Button className="recovery" type="ghost" size="small" onClick={() => this.getDefaultConfig()}><Icon type="setting" />恢复默认设置</Button>
                   <p style={{marginLeft:'70px'}}>
-                    <InputNumber style={{width: 200}} min={0.1} max={4} step={0.1}/> 核
+                   <InputNumber {...pluginCPU} style={{width: 200}} min={0.1} max={4} step={0.1}/> 核
                   </p>
+               </Form.Item>
+               <Form.Item>
                   <span style={{marginLeft:'70px'}}>内存</span>
-                  <p style={{marginLeft:'70px'}}>
-                    <Input style={{width: 200}}/> M
+                  <p style={{marginLeft: '70px'}}>
+                  <InputNumber {...pluginMem} style={{width: 200}} min={1} step={1}/> M
                   </p>
                 </Form.Item>
                 </Modal>
@@ -247,6 +369,11 @@ class ClusterPlugin extends Component{
 }
 
 function mapStateToProp(state) {
+  const defaultNodeList = {isFetching: false, isEmptyObject: true}
+  let allNode = state.cluster_nodes.getAllClusterNodes
+  if(!allNode) {
+    allNode = defaultNodeList
+  }
   const defaultClusterPlugins = {
     isFetching: false
   }
@@ -256,6 +383,7 @@ function mapStateToProp(state) {
     clusterPlugins = defaultClusterPlugins
   }
   return {
+    nodeList: allNode,
     cluster,
     clusterPlugins
   }

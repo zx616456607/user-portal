@@ -223,7 +223,7 @@ exports.updateClusterPlugins = function* () {
     err.status = 400
     throw err
   }
-  const cpu = parseFloat(body.cpu) * 100
+  const cpu = parseFloat(body.cpu) * 1000
   const memory = parseInt(body.memory)
   const result = yield api.updateBy([cluster, 'plugins', pluginName], null, {
     limit: {
@@ -236,5 +236,5 @@ exports.updateClusterPlugins = function* () {
     },
     hostName: body.hostName
   })
-  this.body = result.data
+  this.body = result
 }
