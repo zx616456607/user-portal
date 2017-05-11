@@ -58,8 +58,8 @@ class ClusterTabList extends Component {
       addClusterOrNodeModalVisible: false,
       deleteNode: null,
       copyAddNodeSuccess: false,
-      step:1 ,// create alarm modal step
-      TabsactiveKey : 1,
+      step: 1,// create alarm modal step
+      TabsactiveKey: 1,
     }
   }
 
@@ -156,13 +156,13 @@ class ClusterTabList extends Component {
     })
   }
 
-  handleTabsSwitch(key){
+  handleTabsSwitch(key) {
     this.setState({
-      TabsactiveKey : key
+      TabsactiveKey: key
     })
   }
 
-  handleCallbackActiveKey(obj){
+  handleCallbackActiveKey(obj) {
     this.setState({
       TabsactiveKey: '3',
     })

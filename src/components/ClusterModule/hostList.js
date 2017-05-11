@@ -327,8 +327,8 @@ class hostList extends Component {
     })
   }
 
-  handleDropdownTag(obj){
-    const { callbackActiveKey } = this.props
+  handleDropdownTag(obj) {
+    const {callbackActiveKey} = this.props
     if(obj.key == 'managetag'){
       callbackActiveKey(obj)
     }

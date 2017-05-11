@@ -27,10 +27,10 @@ class TagDropdown extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps){
-    if(this.state.DropdownVisible !== nextProps.visible ){
+  componentWillReceiveProps(nextProps) {
+    if(this.state.DropdownVisible !== nextProps.visible){
       this.setState({
-        DropdownVisible : nextProps.visible
+        DropdownVisible: nextProps.visible
       })
     }
   }
@@ -41,10 +41,10 @@ class TagDropdown extends Component {
       return
     }
     const newData = {}
-    labels.forEach((label,index) =>{
+    labels.forEach((label, index) => {
       if(newData[label.key]){
         newData[label.key].push(label)
-      }else{
+      } else {
         newData[label.key] = [label]
       }
     })
@@ -173,8 +173,8 @@ class ManageTagModal extends Component {
     this.handleAddInput = this.handleAddInput.bind(this)
     this.formTagContainer = this.formTagContainer.bind(this)
     this.state = {
-      createLabelModal : false,
-      visible : false,
+      createLabelModal: false,
+      visible: false,
     }
   }
 
@@ -220,24 +220,24 @@ class ManageTagModal extends Component {
     </div>
   }
 
-  handlecallback(obj){
-    const { callbackHostList } = this.props
+  handlecallback(obj) {
+    const {callbackHostList} = this.props
     switch(obj.key){
       case 'managetag' :
         callbackHostList(obj)
         this.setState({
-          visible : false
+          visible: false
         })
         return
       case 'createtag' :
-        return this.setState({createLabelModal : true})
+        return this.setState({createLabelModal: true})
       case 'labelkey' :
         return this.setState({
-          visible : false
+          visible: false
         })
       default :
         return this.setState({
-          visible : true
+          visible: true
         })
 
     }
