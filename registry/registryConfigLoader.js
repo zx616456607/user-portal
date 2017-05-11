@@ -20,9 +20,10 @@ function GetRegistryConfig() {
   if (registryLocalStorage && registryLocalStorage != 'INIT_STATE') {
     return registryLocalStorage
   }
-   registryLocalStorage = global.globalConfig.registryConfig
-   if (global.globalConfig.registryConfig.host) {
-     registryLocalStorage.globalConfigured = true
-   }
+  registryLocalStorage = global.globalConfig.registryConfig
+  if (global.globalConfig.registryConfig.host) {
+    registryLocalStorage.globalConfigured = true
+  }
+  return registryLocalStorage
 }
 exports.GetRegistryConfig = GetRegistryConfig
