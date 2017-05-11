@@ -139,9 +139,9 @@ class TagDropdown extends Component {
     callbackManegeTag(obj)
   }
 
-  handleLabelButton(){
+  handleLabelButton() {
     this.setState({
-      DropdownVisible : true
+      DropdownVisible: true
     })
   }
 
