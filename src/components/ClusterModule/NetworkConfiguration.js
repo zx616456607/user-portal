@@ -207,13 +207,14 @@ let NetworkConfiguration = React.createClass ({
     if(!arr) {
       return <div></div>
     }
+
     return arr.map(item => {
       return <div key={item} id="error-s" style={{display:'flex'}}>
       
         <Form.Item style={{flex:'5'}}>
           { editCluster ? 
               <Select style={{width:'100%'}} {...getFieldProps(`nodeSelect${item}`, {
-                initialValue: proxy.nodeProxys[item] ? proxy.nodeProxys[item].host : '',
+                initialValue: proxy.nodeProxys && proxy.nodeProxys[item] ? proxy.nodeProxys[item].host : '',
                 rules: [{
                   validator: (rule, value, callback) => {
                     if(!value) {
@@ -229,7 +230,7 @@ let NetworkConfiguration = React.createClass ({
               })}  placeholder="Please select a country">
               {this.getSelectItem()}
             </Select> :
-            <span className="h5" style={{width: "100%",display:'inline-block'}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].host : ''}</span>
+            <span className="h5" style={{width: "100%",display:'inline-block'}}>{proxy.nodeProxys && proxy.nodeProxys[item] ? proxy.nodeProxys[item].host : ''}</span>
           }
           </Form.Item>
           
@@ -253,11 +254,11 @@ let NetworkConfiguration = React.createClass ({
                     }
                   }
                 ],
-                initialValue: proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''
+                initialValue: proxy.nodeProxys && proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''
               })
             } style={{width:'100%',margin:'0px 10px'}}  placeholder="输入服务出口 IP" />
             :
-              <span className="h5" style={{display:'inline-block',marginLeft:'-10px'}}>{proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''}</span>
+              <span className="h5" style={{display:'inline-block',marginLeft:'-10px'}}>{proxy.nodeProxys && proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''}</span>
             }
         </Form.Item>
         

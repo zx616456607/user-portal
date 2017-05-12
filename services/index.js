@@ -117,7 +117,12 @@ exports.addConfigsForFrontend = function (user) {
   // Add if email configured
   const emailConfig = global.globalConfig.mail_server
   user.emailConfiged = !!emailConfig.auth.user
+  // Add proxy type
   user.proxy_type = constants.PROXY_TYPE
+  // Add registry config
+  user.registryConfig = {
+    server: global.globalConfig.registryConfig.v2Server
+  }
   return user
 }
 
