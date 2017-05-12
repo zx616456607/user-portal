@@ -238,16 +238,27 @@ let MyComponent = React.createClass({
       }
     }
 
+    /*<Dropdown.Button overlay={dropdown} type='ghost' size='large' onClick={() => this.starFlowBuild(item, index)}>
+      <PopTabSelect
+        onChange={this.startBuildStage.bind(this, item, index)}
+        targetElement={targetElement}
+        loading={loading}>
+        {tabs}
+      </PopTabSelect>
+    </Dropdown.Button>*/
     return (
-      <Dropdown.Button overlay={dropdown} type='ghost' size='large' onClick={() => this.starFlowBuild(item, index)}>
-        <PopTabSelect
-          onChange={this.startBuildStage.bind(this, item, index)}
-          targetElement={targetElement}
-          loading={loading}
-          getTooltipContainer={() => document.body}>
-          {tabs}
-        </PopTabSelect>
-      </Dropdown.Button>
+      <PopTabSelect
+        style={{float: 'left'}}
+        onChange={this.startBuildStage.bind(this, item, index)}
+        targetElement={
+          <Dropdown.Button overlay={dropdown} type='ghost' size='large' onClick={() => this.starFlowBuild(item, index)}>
+          {targetElement}
+          </Dropdown.Button>
+        }
+        getTooltipContainer={() => document.body}
+        loading={loading}>
+        {tabs}
+      </PopTabSelect>
     )
   },
   render: function () {
