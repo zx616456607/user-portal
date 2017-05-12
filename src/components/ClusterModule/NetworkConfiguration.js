@@ -209,7 +209,6 @@ let NetworkConfiguration = React.createClass ({
     }
 
     return arr.map(item => {
-      console.log(proxy.nodeProxys)
       return <div key={item} id="error-s" style={{display:'flex'}}>
       
         <Form.Item style={{flex:'5'}}>
