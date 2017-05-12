@@ -1,0 +1,74 @@
+#appmanage_snapshot{
+  padding:20px 20px 0 20px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  .appmanage_snapshot_header{
+    padding-bottom: 14px;
+    .searchBox{
+      position: relative;
+      .searchInput{
+        width:165px;
+        margin-left: 8px;
+      }
+      .searchIcon{
+        position: absolute;
+        top: 0px;
+        left: 152px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+    }
+  }
+  .appmanage_snapshot_main{
+    position: relative;
+    padding-bottom: 50px;
+    background: #ffffff;
+    .nodata{
+      text-align: center;
+      padding-top: 40px;
+    }
+    .ant-table-body{
+      background: #ffffff;
+      .deleteButton{
+        margin-left: 10px;
+      }
+      .statusRunning{
+        color:#2eab5f;
+        .icon{
+          margin-right: 4px;
+        }
+      }
+    }
+    .ant-table-pagination{
+      position: absolute;
+      left: 91%;
+      top: -60px;
+      @media(max-width: 1360px){
+        left:89%;
+      }
+      @media(max-width: 1200px){
+        left:87%;
+      }
+    }
+    .totalNum{
+      position: absolute;
+      top:-39px;
+      left:86%;
+      @media(max-width: 1480px){
+        left:84%;
+      }
+      @media(max-width: 1400px){
+        left:83%;
+      }
+      @media(max-width: 1350px){
+        left:82%;
+      }
+      @media(max-width: 1200px){
+        left:79%;
+      }
+      .item{
+        padding:0 4px;
+      }
+    }
+  }
+}
