@@ -467,6 +467,11 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 存储</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item key='snapshot'>
+                    <Link to='/app_manage/snapshot'>
+                      <span><div className='sideCircle'></div> 快照</span>
+                    </Link>
+                  </Menu.Item>
                   <Menu.Item key='configs'>
                     <Link to='/app_manage/configs'>
                       <span><div className='sideCircle'></div> 服务配置</span>
