@@ -11,7 +11,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Card, Row, Col, Steps, Button, Modal } from 'antd'
+import { Card, Row, Col, Steps, Button, Modal, Icon } from 'antd'
 import { browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import SelectImage from './SelectImage'
@@ -166,6 +166,36 @@ class QuickCreateApp extends Component {
     )
   }
 
+  renderServiceList() {
+    const { fields } = this.props
+    const serviceList = []
+    for (let key in fields) {
+      if (fields.hasOwnProperty(key)) {
+        const service = fields[key]
+        const { serviceName } = service
+        if (serviceName && serviceName.value) {
+          serviceList.push(
+            <Row className="serviceItem" key={serviceName.value}>
+              <Col span={20}>
+              {serviceName.value}
+              </Col>
+              <Col span={4} className="btns">
+                <Icon type="edit" />
+                <Icon type="delete" />
+              </Col>
+            </Row>
+          )
+        }
+      }
+    }
+    if (serviceList.length < 1) {
+      return (
+        <div className="noService">本应用中暂无任何服务</div>
+      )
+    }
+    return serviceList
+  }
+
   render() {
     const { confirmGoBackModalVisible } = this.state
     const steps = (
@@ -194,7 +224,9 @@ class QuickCreateApp extends Component {
                 </div>
               }
             >
-              服务列表
+              <div>
+                {this.renderServiceList()}
+              </div>
             </Card>
           </Col>
         </Row>
@@ -212,8 +244,10 @@ class QuickCreateApp extends Component {
 }
 
 function mapStateToProps(state, props) {
+  const { quickCreateApp } = state
   return {
-    standardFlag
+    fields: quickCreateApp.fields,
+    standardFlag,
   }
 }
 

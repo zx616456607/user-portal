@@ -204,6 +204,7 @@ const Normal = React.createClass({
             form={form}
             fields={fields}
             containerPorts={containerPorts}
+            currentCluster={currentCluster}
             key="ports"
           />
         </div>
