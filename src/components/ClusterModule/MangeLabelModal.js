@@ -10,7 +10,10 @@
 
 import React, { Component } from 'react'
 import { Modal, Tag, Tooltip, Form, Button, Input } from 'antd'
+import { connect  } from 'react-redux'
 import TagDropdown from './TagDropdown'
+import { camelize } from 'humps'
+
 
 class ManageLabelModal extends Component {
   constructor(props){
@@ -20,6 +23,7 @@ class ManageLabelModal extends Component {
     this.formTagContainer = this.formTagContainer.bind(this)
     this.state = {
       manageLabelModalVisible : this.props.manageLabelModal,
+      userCreateLabel: {}
     }
   }
 
@@ -32,18 +36,28 @@ class ManageLabelModal extends Component {
   }
 
   formTagContainer(){
+    const { nodes, nodeName } = this.props
+    if (!nodeName) return
     let arr = []
-    for(let i=0;i<30;i++){
-      arr.push(<Tag closable color="blue" className='tag' key={i}>
-        <Tooltip title='key1'>
-          <span className='key'>key1</span>
-        </Tooltip>
-        <span className='point'>:</span>
-        <Tooltip title='value2017'>
-          <span className='value'>value2017</span>
-        </Tooltip>
-      </Tag>)
+    for (let node in nodes) {
+      if (camelize(nodeName.objectMeta.name) === node) {
+        let carnode = nodes[node]
+        for (let key in carnode) {
+          arr.push(
+            <Tag color="blue" className='tag' key={key}>
+              <Tooltip title={key}>
+                <span className='key'>{key}</span>
+              </Tooltip>
+              <span className='point'>：</span>
+              <Tooltip title={carnode[key]}>
+                <span className='value'>{carnode[key]}</span>
+              </Tooltip>
+            </Tag>
+          )
+        }
+      }
     }
+
     return arr
   }
 
@@ -65,6 +79,27 @@ class ManageLabelModal extends Component {
   }
 
   render(){
+    const { userCreateLabel } = this.state
+    console.log('userCreateLabel',userCreateLabel)
+    const createLabel = ()=> {
+      const label = []
+      for (let key in userCreateLabel) {
+        label.push(
+          <Tag closable color="blue" className='tag' key={key}>
+              <Tooltip title={key}>
+                <span className='key'>{key}</span>
+              </Tooltip>
+              <span className='point'>：</span>
+              <Tooltip title={userCreateLabel[key]}>
+                <span className='value'>{userCreateLabel[key]}</span>
+              </Tooltip>
+          </Tag>
+        )
+      }
+
+      return label
+    }
+
     return(
       <div>
         <Modal
@@ -78,11 +113,12 @@ class ManageLabelModal extends Component {
         >
           <div className='labelcontainer'>
             {this.formTagContainer()}
+            { createLabel() }
           </div>
 
           <div className='labelfooter'>
           <span className='labeldropdown' id="cluster__hostlist__manageLabelModal">
-            <TagDropdown footer={false} width={'120px'} context={"Modal"}/>
+            <TagDropdown scope={this} labels={this.props.labels} isManage={true} footer={false} width={'120px'} context={"Modal"}/>
           </span>
             <span className='item'>或</span>
             <Form
@@ -91,7 +127,7 @@ class ManageLabelModal extends Component {
               className='labelform'
             >
               <Form.Item className='itemkey'>
-                <Input placeholder="标签键" />
+                <Input placeholder="标签键"  />
               </Form.Item>
               <Form.Item className='itemkey'>
                 <Input placeholder="标签值"/>
@@ -105,5 +141,23 @@ class ManageLabelModal extends Component {
   }
 }
 
-export default ManageLabelModal;
 
+function mapStateToProps(state,props) {
+  const { clusterLabel } = state.cluster_nodes
+  const cluster = props.clusterID
+  if (!clusterLabel[cluster]) {
+    return props
+  }
+
+  let { result } = clusterLabel[cluster]
+  if (!result) {
+    result = {nodes:[]}
+  }
+  return {
+    nodes:result.nodes,
+    labels:result.summary
+  }
+}
+
+export default connect(mapStateToProps, {
+})(ManageLabelModal)
