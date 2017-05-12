@@ -8,10 +8,12 @@
  * @author ZhangChengZheng
  */
 import React,{ Component,PropTypes } from 'react'
-import { Button, Input, Table, Icon, Spin } from 'antd'
+import { Button, Input, Table, Icon, Spin, Modal } from 'antd'
 import { connect } from 'react-redux'
 import './style/Snapshot.less'
-
+import CurrentImg from '../../../assets/img/appmanage/rollbackcurrent.jpg'
+import ForwardImg from '../../../assets/img/appmanage/rollbackforward.jpg'
+import ArrowImg from '../../../assets/img/appmanage/arrow.png'
 
 class Snapshot extends Component {
   constructor(props) {
@@ -21,10 +23,14 @@ class Snapshot extends Component {
     this.handleDeleteSnapshot = this.handleDeleteSnapshot.bind(this)
     this.handleRollbackSnapback = this.handleRollbackSnapback.bind(this)
     this.handelEnterSearch = this.handelEnterSearch.bind(this)
+    this.handleConfirmRollback = this.handleConfirmRollback.bind(this)
+    this.handleCancelRollback = this.handleCancelRollback.bind(this)
     this.state = {
       selectedRowKeys: [],
       loading: false,
-      DeleteSnapshotButton: true
+      DeleteSnapshotButton: true,
+      rollbackModal: false,
+      rollbackLoading: false,
     }
   }
 
@@ -61,10 +67,27 @@ class Snapshot extends Component {
 
   handleRollbackSnapback(key){
     console.log('rollback.key=',key)
+    this.setState({
+      rollbackModal: true,
+    })
   }
 
   handelEnterSearch(){
     console.log('shanxuan')
+  }
+
+  handleConfirmRollback(){
+    console.log('确定回gun')
+    this.setState({
+      rollbackModal: false,
+    })
+  }
+
+  handleCancelRollback(){
+    console.log('取消回滚')
+    this.setState({
+      rollbackModal: false,
+    })
   }
 
   render() {
@@ -144,6 +167,71 @@ class Snapshot extends Component {
               : <span></span>
           }
         </div>
+
+        <Modal
+          title="回滚快照"
+          visible={this.state.rollbackModal}
+          closable={true}
+          onOk={this.handleConfirmRollback}
+          onCancel={this.handleCancelRollback}
+          width='570px'
+          maskClosable={false}
+          confirmLoading={this.state.rollbackLoading}
+          wrapClassName="RollbackModal"
+          okText="确定风险，并立即回滚"
+        >
+          <div>
+            <div className='img'>
+              <div className='imgBox'>
+                <div className='rollback float'><img src={ForwardImg}/></div>
+                <div className='arrow float'>
+                  <img src={ArrowImg}/>
+                  <div>回滚</div>
+                </div>
+                <div className='rollback float'><img src={CurrentImg}/>  </div>
+              </div>
+              <div className='imgtips'>
+                <span className='imgtipsBox'>
+                  <div className='left'>快照状态</div>
+                  <div className='left'>格式<span className='item'>etx5</span></div>
+                </span>
+                <span className='imgtipsBox'>
+                  <div className='right'>当前状态</div>
+                  <div className='right'>格式<span className='item'>etx5</span></div>
+                </span>
+              </div>
+            </div>
+            <div className='tips'>
+              存储卷
+              <span className='name'>xxxxx</span>
+              即将回滚至时间
+              <span className='time'>2017.1.1</span>
+              <span className='time'>12:59.08</span>
+              此刻之后的数据将被清楚，请谨慎操作！
+            </div>
+            <div className='warning'>
+              <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
+              数据回滚有一定风险，建议将当前存储卷内容提前做好备份
+            </div>
+          </div>
+        </Modal>
+
+         <Modal
+           title="删除快照"
+           visible={this.state.}
+           closable={true}
+           onOk={}
+           onCancel={}
+           width=''
+           maskClosable={false}
+           confirmLoading={}
+           wrapClassName=""
+         >
+           <div>
+
+           </div>
+         </Modal>
+
       </div>
     )
   }
