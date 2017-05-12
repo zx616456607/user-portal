@@ -72,7 +72,6 @@ class QuickCreateApp extends Component {
   }
 
   onSelectImage(imageName, registryServer) {
-    console.log(imageName, registryServer)
     const { setFormFields } = this.props
     this.setState({
       imageName,
@@ -105,13 +104,9 @@ class QuickCreateApp extends Component {
     const { validateFieldsAndScroll } = this.form
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
-        console.log('errors===============')
-        console.log(errors)
         return
       }
       this.configureServiceKey = genConfigureServiceKey()
-      console.log('this.configureServiceKey===========')
-      console.log(this.configureServiceKey)
       browserHistory.push('/app_manage/app_create/quick_create')
     })
   }

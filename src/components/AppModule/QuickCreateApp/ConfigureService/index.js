@@ -363,13 +363,9 @@ let ConfigureService = React.createClass({
 
 const createFormOpts = {
   mapPropsToFields(props) {
-    console.log('props.fields================')
-    console.log(props.fields)
     return props.fields
   },
   onFieldsChange(props, fields) {
-    console.log('onFieldsChange.fields================')
-    console.log(fields)
     const { id, setFormFields } = props
     setFormFields(id, fields)
   }
