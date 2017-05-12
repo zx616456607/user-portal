@@ -47,7 +47,7 @@ let NetworkConfiguration = React.createClass ({
       success: {
         func:(res) => {
           const clusterID = camelize(cluster.clusterID)
-          if(res[clusterID]) {
+          if(res[clusterID] && res[clusterID].data.nodeProxys) {
             const keyArr = []
             res[clusterID].data.nodeProxys.forEach((item, index) => {
               keyArr.push(index)
