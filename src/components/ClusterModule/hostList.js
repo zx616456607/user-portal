@@ -514,7 +514,7 @@ class hostList extends Component {
       <ManageLabelModal
         manageLabelModal={this.state.manageLabelModal}
         clusterID={this.props.clusterID}
-        nodeName={this.state.deleteNode}
+        nodeName={this.state.deleteNode ? camelize(this.state.deleteNode.objectMeta.name):''}
         callback={this.callbackManageLabelModal}
       />
 

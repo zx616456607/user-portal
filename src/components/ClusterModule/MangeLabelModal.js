@@ -13,6 +13,11 @@ import { Modal, Tag, Tooltip, Form, Button, Input } from 'antd'
 import { connect  } from 'react-redux'
 import TagDropdown from './TagDropdown'
 import { camelize } from 'humps'
+import { addLabels, editNodeLabels, getNodeLabels } from '../../actions/cluster_node'
+import { KubernetesValidator } from '../../common/naming_validation'
+import cloneDeep from 'lodash/cloneDeep'
+import NotificationHandler from '../../common/notification_handler'
+
 
 
 class ManageLabelModal extends Component {
@@ -20,10 +25,10 @@ class ManageLabelModal extends Component {
     super(props)
     this.handleManageLabelOk = this.handleManageLabelOk.bind(this)
     this.handleManageLabelCancel = this.handleManageLabelCancel.bind(this)
-    this.formTagContainer = this.formTagContainer.bind(this)
     this.state = {
       manageLabelModalVisible : this.props.manageLabelModal,
-      userCreateLabel: {}
+      userCreateLabel: this.props.userCreateLabel,
+      isLoad: false,// first data in nodes
     }
   }
 
@@ -32,38 +37,74 @@ class ManageLabelModal extends Component {
       this.setState({
         manageLabelModalVisible : nextProps.manageLabelModal,
       })
+      const { nodes, nodeName } = nextProps
+      if (nextProps.manageLabelModal && !this.state.isLoad) {
+        for (let node in nodes) {
+          if (node == nodeName) {
+            this.setState({userCreateLabel: nodes[node]})
+            return
+          }
+        }
+      }
+      if (nextProps.isNode) {
+        this.setState({userCreateLabel: this.props.userCreateLabel})
+      }
+    }
+    const { nodeName } = this.props
+    if (!nodeName) return
+    if (nextProps.nodeName && nextProps.nodeName !== nodeName) {
+      this.loadNodeLabels(nextProps)
     }
   }
 
-  formTagContainer(){
-    const { nodes, nodeName } = this.props
+  loadNodeLabels(props) {
+    const { clusterID, nodeName } = props
+    const _this = this
     if (!nodeName) return
-    let arr = []
-    for (let node in nodes) {
-      if (camelize(nodeName.objectMeta.name) === node) {
-        let carnode = nodes[node]
-        for (let key in carnode) {
-          arr.push(
-            <Tag color="blue" className='tag' key={key}>
-              <Tooltip title={key}>
-                <span className='key'>{key}</span>
-              </Tooltip>
-              <span className='point'>：</span>
-              <Tooltip title={carnode[key]}>
-                <span className='value'>{carnode[key]}</span>
-              </Tooltip>
-            </Tag>
-          )
+    this.props.getNodeLabels(clusterID,nodeName,{
+      success:{
+        func:(ret)=> {
+          _this.setState({userCreateLabel: ret,isLoad: true})
         }
       }
-    }
+    })
+  }
 
-    return arr
+  handleClose(key,value) {
+    const { userCreateLabel } = this.state
+    for (let lab in userCreateLabel) {
+      if (lab === key && userCreateLabel[key] === value) {
+        delete userCreateLabel[lab]
+      }
+    }
   }
 
 
   handleManageLabelOk(){
-    const { callback } = this.props
+    const { callback, labels, editNodeLabels, clusterID, nodeName } = this.props
+    const { userCreateLabel } = this.state
+    const _this = this
+    const body ={
+      node:nodeName,
+      labels:userCreateLabel,
+      cluster:clusterID,
+    }
+    const notificat = new NotificationHandler()
+    editNodeLabels(body,{
+      success:{
+        func:(ret)=> {
+          _this.setState({userCreateLabel:ret})
+          notificat.success('操作成功！')
+          _this.loadNodeLabels(_this.props)
+        },
+        isAsync:true
+      },
+      failed: {
+        func:(ret)=> {
+          notificat.error('操作失败！',ret.message.message || ret.message)
+        }
+      }
+    })
     this.setState({
       manageLabelModalVisible : false
     })
@@ -73,19 +114,82 @@ class ManageLabelModal extends Component {
   handleManageLabelCancel(){
     const { callback } = this.props
     this.setState({
-      manageLabelModalVisible : false
+      manageLabelModalVisible : false,
     })
+    const _this = this
     callback(false)
+    // setTimeout(()=> {
+    //   _this.setState({userCreateLabel:{}})
+    // },500)
+  }
+  checkKey(rule, value, callback) {
+    if (!Boolean(value)){
+      callback(new Error('请输入标签键'))
+      return
+    }
+    const Kubernetes = new KubernetesValidator()
+    if (Kubernetes.IsQualifiedName(value).length >0) {
+      callback(new Error('以英文字母开头和结尾'))
+      return
+    }
+    if (value.length < 3 || value.length > 64) {
+      callback(new Error('标签键长度为3~64位'))
+      return
+    }
+    callback()
+  }
+  checkValue(rule, value, callback) {
+    if (!Boolean(value)){
+      callback(new Error('请输入标签值'))
+      return
+    }
+    const Kubernetes = new KubernetesValidator()
+    if (Kubernetes.IsValidLabelValue(value).length >0) {
+      callback(new Error('以英文字母开头和结尾'))
+      return
+    }
+    if (value.length < 3 || value.length > 64) {
+      callback(new Error('标签键长度为3~64位'))
+      return
+    }
+    callback()
   }
 
+  handleAddLabel() {
+   const { form, addLabels, clusterID } = this.props
+   const _this = this
+   form.validateFields((errors,values)=> {
+     if (errors) {
+       return
+     }
+     values.target = 'node'
+     let createLabel = cloneDeep(_this.state.userCreateLabel)
+     createLabel[values.key] = values.value
+     addLabels([values],clusterID,{
+       success:{
+         func:(ret)=> {
+           _this.setState({userCreateLabel:createLabel})
+           form.resetFields()
+         }
+       },
+       failed: {
+         func:(res)=> {
+          new NotificationHandler().error('添加标签失败',res.message.message || res.message)
+         }
+       }
+     })
+   })
+  }
   render(){
     const { userCreateLabel } = this.state
-    console.log('userCreateLabel',userCreateLabel)
+        console.log('sfsdf',this.props.userCreateLabel)
+
+    const { getFieldProps } = this.props.form
     const createLabel = ()=> {
       const label = []
       for (let key in userCreateLabel) {
         label.push(
-          <Tag closable color="blue" className='tag' key={key}>
+          <Tag closable color="blue" className='tag' key={key} afterClose={() => this.handleClose(key, userCreateLabel[key])}>
               <Tooltip title={key}>
                 <span className='key'>{key}</span>
               </Tooltip>
@@ -112,7 +216,6 @@ class ManageLabelModal extends Component {
           maskClosable={false}
         >
           <div className='labelcontainer'>
-            {this.formTagContainer()}
             { createLabel() }
           </div>
 
@@ -127,13 +230,25 @@ class ManageLabelModal extends Component {
               className='labelform'
             >
               <Form.Item className='itemkey'>
-                <Input placeholder="标签键"  />
+                <Input {...getFieldProps(`key`, {
+                  rules: [{
+                    whitespace: true,
+                  },{
+                    validator: this.checkKey
+                  }],
+                })} placeholder="标签键"  />
               </Form.Item>
               <Form.Item className='itemkey'>
-                <Input placeholder="标签值"/>
+                <Input {...getFieldProps(`value`, {
+                  rules: [{
+                    whitespace: true,
+                  },{
+                    validator: this.checkValue
+                  }],
+                })} placeholder="标签值"/>
               </Form.Item>
             </Form>
-            <Button icon='plus' size="large" className='itembutton' type="ghost" onClick={this.handleAddLabel}>新建标签</Button>
+            <Button icon='plus' size="large" className='itembutton' type="ghost" onClick={()=> this.handleAddLabel()}>新建标签</Button>
           </div>
         </Modal>
       </div>
@@ -158,6 +273,10 @@ function mapStateToProps(state,props) {
     labels:result.summary
   }
 }
+ManageLabelModal = Form.create()(ManageLabelModal)
 
 export default connect(mapStateToProps, {
+  addLabels,
+  editNodeLabels,
+  getNodeLabels
 })(ManageLabelModal)
