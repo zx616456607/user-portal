@@ -184,6 +184,17 @@
   "CICD.DockerFile.editTime": "编辑时间",
   "CICD.DockerFile.action": "操作",
   "CICD.DockerFile.search": "搜索",
+
+  "CICD.Tenxflow.BuildImage.create": "构建镜像",
+  "CICD.Tenxflow.BuildImage.delete": "删除",
+  "CICD.Tenxflow.BuildImage.code": "代码源",
+  "CICD.Tenxflow.BuildImage.branch": "分支",
+  "CICD.Tenxflow.BuildImage.delete": "删除",
+  "CICD.Tenxflow.BuildImage.image": "镜像名称",
+
+
+
+
   "CICD.Tenxflow.TenxFlowList.search": "搜索",
   "CICD.Tenxflow.TenxFlowList.name": "名称",
   "CICD.Tenxflow.TenxFlowList.updateTime": "更新时间",

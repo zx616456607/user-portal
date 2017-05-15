@@ -25,6 +25,9 @@ const CICDRoutes = [{
 },{
   path: 'docker_file',
   component: require('../components/CICDModule/DockerFile').default,
+},{
+  path: 'build_image',
+  component: require('../components/CICDModule/BuildImage').default,
 }]
 
 export default CICDRoutes
