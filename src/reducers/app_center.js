@@ -314,8 +314,8 @@ function imageTag(state = {}, action) {
       let data = merge([], action.response.result.data)
       const latestTagIndex = data.indexOf(LATEST)
       if (latestTagIndex > -1) {
-        data.splice(latestTagIndex)
-        data = ([LATEST]).concat(data)
+        data.splice(latestTagIndex,1)
+        data.unshift(LATEST)
       }
       return Object.assign({}, state, {
         [registry]: {
