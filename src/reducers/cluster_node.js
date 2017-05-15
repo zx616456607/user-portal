@@ -125,6 +125,9 @@ function clusterLabel(state = {}, action) {
     // add labels
     case ActionTypes.ADD_LABELS_SUCCESS: {
       const oldState = cloneDeep(state)
+      if (!oldState.hasOwnProperty(cluster)) {
+        return oldState
+      }
       const mergeMap = action.response.result.data
       mergeMap.map((item)=>{
         oldState[cluster].back.summary.unshift(item)
@@ -191,6 +194,11 @@ export function cluster_nodes(state = { cluster_nodes: {}, clusterLabel: {} }, a
       FAILURE: ActionTypes.GET_KUBECTLS_PODS_FAILURE
     }, state.kubectlsPods, action, { overwrite: true }),
     addNodeCMD: addNodeCMD(state.addNodeCMD, action),
-    clusterLabel: clusterLabel(state.clusterLabel, action)
+    clusterLabel: clusterLabel(state.clusterLabel, action),
+    nodeLabel: reducerFactory({
+      REQUEST: ActionTypes.GET_NODE_LABEL_FAILURE,
+      SUCCESS: ActionTypes.GET_NODE_LABEL_SUCCESS,
+      FAILURE: ActionTypes.GET_NODE_LABEL_FAILURE
+    }, state.nodeLabel, action, { overwrite: true }),
   }
 }
