@@ -25,13 +25,29 @@ class Snapshot extends Component {
     this.handelEnterSearch = this.handelEnterSearch.bind(this)
     this.handleConfirmRollback = this.handleConfirmRollback.bind(this)
     this.handleCancelRollback = this.handleCancelRollback.bind(this)
+    this.handleConfirmDeletaSnapshot = this.handleConfirmDeletaSnapshot.bind(this)
+    this.hanndleCancelDeleteSnapshot = this.hanndleCancelDeleteSnapshot.bind(this)
     this.state = {
       selectedRowKeys: [],
       loading: false,
       DeleteSnapshotButton: true,
       rollbackModal: false,
       rollbackLoading: false,
+      DeletaSnapshotModal: false,
+      DeleteSnapshotConfirmLoading: false
     }
+  }
+
+  handleConfirmDeletaSnapshot(){
+    this.setState({
+      DeletaSnapshotModal: false,
+    })
+  }
+
+  hanndleCancelDeleteSnapshot(){
+    this.setState({
+      DeletaSnapshotModal: false,
+    })
   }
 
   handleDeleteSnapshots(){
@@ -63,6 +79,9 @@ class Snapshot extends Component {
 
   handleDeleteSnapshot(key){
     console.log('delete.key=',key)
+    this.setState({
+      DeletaSnapshotModal: true,
+    })
   }
 
   handleRollbackSnapback(key){
@@ -218,17 +237,33 @@ class Snapshot extends Component {
 
          <Modal
            title="删除快照"
-           visible={this.state.}
+           visible={this.state.DeletaSnapshotModal}
            closable={true}
-           onOk={}
-           onCancel={}
-           width=''
+           onOk={this.handleConfirmDeletaSnapshot}
+           onCancel={this.hanndleCancelDeleteSnapshot}
+           width='570px'
            maskClosable={false}
-           confirmLoading={}
-           wrapClassName=""
+           confirmLoading={this.state.DeleteSnapshotConfirmLoading}
+           wrapClassName="DeleteSnapshotModal"
+           okText="确定风险，并立即删除"
          >
            <div>
-
+              <div className='infobox'>
+                <div className='leftbox'>
+                  <div className='item'>快照名称</div>
+                  <div className='item'>快照格式</div>
+                  <div className='item'>时间</div>
+                </div>
+                <dvi className='rightbox'>
+                  <div className='item'>test-demo-volume-xxxx</div>
+                  <div className='item'>xfs</div>
+                  <div className='item color'>2017.1.1 &nbsp; 12:56:59</div>
+                </dvi>                
+              </div>
+             <div className='mainbox'>
+               <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
+               删除该快照后，数据将立即被清除，请谨慎操作！
+             </div>
            </div>
          </Modal>
 
