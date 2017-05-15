@@ -42,10 +42,10 @@ class ClusterPlugin extends Component{
     if(cpu){
       return (cpu / 1000).toFixed(1) + '核'
     }
-    return '-'
+    return '无限制'
   }
   convertMemory(memory) {
-    if(!memory) return '-'
+    if(!memory) return '无限制'
     let size = 'M'
     memory = memory / 1024
     if(memory > 1024) {
@@ -307,7 +307,7 @@ class ClusterPlugin extends Component{
       ],
       initialValue: currentMem
     })
-    let currentCPU = this.state.currentPlugin ? (this.state.currentPlugin.resourceRange.request.cpu / 1000).toFixed(1) : '无限制'
+    let currentCPU = this.state.currentPlugin ? (this.state.currentPlugin.resourceRange.request.cpu / 1000).toFixed(1) : '0'
     if(isNaN(currentCPU)) currentCPU = 0
     const pluginCPU = getFieldProps('pluginCPU' , {
       rules: [
