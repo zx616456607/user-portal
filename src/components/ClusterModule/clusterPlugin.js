@@ -301,15 +301,6 @@ class ClusterPlugin extends Component{
       rules: [
         {
           validator: (rule, value, callback) => {
-           // if(!value) {
-           //   return callback('请输入要使用的内存大小')
-           // }
-           // if(!/^([0-9]+(\.[0-9]+)?|0\.[0-9]+)$/.test(value)) {
-           //   return callback('请输入正确的数字')
-           // }
-           // if(parseFloat(value) < 0) {
-           //   return callback('请输入大于等于0的数字')
-           // }
             return callback()
           }
         }
@@ -322,15 +313,6 @@ class ClusterPlugin extends Component{
       rules: [
         {
           validator: (rule, value, callback) => {
-           // if(!value) {
-           //   return callback('请输入要使用的CPU核数')
-           // }
-           // if(!/[0-9\.].test(value)/) {
-           //   return callback('请输入数字')
-           // }
-           // if(parseFloat(value) < 0) {
-           //   return callback('请输入大于等于0的数字')
-           // }
             return callback()
           }
         }
