@@ -39,8 +39,8 @@ class AdvancedSetting extends Component {
   componentWillMount(){
     document.title = '高级设置 | 时速云'
     const { cluster } = this.props
-    const { listNode } = cluster
-    this.handleListNodeStatus(listNode)
+    const { listNodes } = cluster
+    this.handleListNodeStatus(listNodes)
   }
 
   handleUpdataConfigMessage(status,num){
@@ -75,8 +75,8 @@ class AdvancedSetting extends Component {
     }
   }
 
-  handleListNodeStatus(ListNode){
-    switch(ListNode){
+  handleListNodeStatus(listNodes){
+    switch(listNodes){
       case 0 :
       case 1 :
         return this.setState({
@@ -106,8 +106,8 @@ class AdvancedSetting extends Component {
   }
 
   componentWillReceiveProps(nextProps){
-    const num = nextProps.cluster.listNode
-    if(!this.props.cluster.listNode || this.props.cluster.clusterID !== nextProps.cluster.clusterID || this.props.cluster.listNode !== nextProps.cluster.listNode){
+    const num = nextProps.cluster.listNodes
+    if(!this.props.cluster.listNodes || this.props.cluster.clusterID !== nextProps.cluster.clusterID || this.props.cluster.listNodes !== nextProps.cluster.listNodes){
       this.handleListNodeStatus(num)
     }
   }
@@ -231,7 +231,7 @@ class AdvancedSetting extends Component {
   render(){
     const { swicthChecked, Ipcheckbox, TagCheckbox, switchdisable, Tagdisabled, Ipdisabled } = this.state
     const { cluster } = this.props
-    const { listNode } = cluster
+    const { listNodes } = cluster
     return (<div id="AdvancedSetting">
       <div className='title'>高级设置</div>
       <div className='content'>
@@ -241,7 +241,7 @@ class AdvancedSetting extends Component {
             即创建服务时，可以将服务对应容器实例，固定在节点或者某些『标签』的节点上来调度
           </div>
           {
-            listNode || listNode == 0
+            listNodes || listNodes == 0
               ? <div>
               <div className='contentbodycontainers'>
             <span>

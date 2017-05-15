@@ -82,7 +82,7 @@ class TagDropdown extends Component {
     })
     return (
       <Menu>
-        <Menu.Item className='selectMenutitle' key="labelkey">
+        <Menu.Item className='selectMenutitle' key="labelKey">
           标签键 <Icon type="cross" style={{marginLeft:'80px'}}/>
         </Menu.Item>
         <Menu.Divider key="baseline1" />
@@ -102,7 +102,7 @@ class TagDropdown extends Component {
       case 'hostlist':
       case 'app':
         return <span>
-          <i className="fa fa-tag selectlabeltag" aria-hidden="true"></i>
+          <i className="fa fa-tag selectlabeltag" aria-hidden="true"></i>&nbsp;
           标签
           <Icon type="down" style={{ marginLeft: '12px' }} />
         </span>
@@ -221,7 +221,57 @@ class ManageTagModal extends Component {
   }
 
   handlecallback(obj) {
-    const {callbackHostList} = this.props
+    console.log('e',obj)
+
+    // *bai this is action set nodelist and labels
+    // isManage  (true) to manage labes
+    const { callbackHostList, scope, labels, isManage } = this.props
+    if (obj.key != "labelKey") {
+      if (!isManage) {
+        const tag = cloneDeep(scope.state.summary)
+        let isSet = false
+        labels.map((item) => {
+          if (item.value == obj.key) {
+            tag.map(list => {
+              if (list.value == obj.key) {
+              isSet = true
+              }
+            })
+            tag.push(item)
+          }
+        })
+        if (isSet) {
+          return
+        }
+        let nodeList =[]
+        scope.props.nodes.nodes.map((node) => {
+          let labels = node.objectMeta.labels
+          for (let keys in labels) {
+            if (keys == obj.keyPath[1] && labels[keys] == obj.keyPath[0]) {
+              nodeList.push(node);
+            }
+          }
+
+        });
+        nodeList = Array.from(new Set(nodeList))
+        scope.setState({
+          summary:tag,
+          nodeList
+        })
+
+      } else {
+        console.log('href....',this.props.scope)
+        // ManagLabelModal.js in scope
+        let userCreateLabel = cloneDeep(scope.state.userCreateLabel)
+        userCreateLabel[obj.keyPath[1]] = obj.keyPath[0]
+
+        scope.setState({
+          userCreateLabel
+        })
+
+      }
+    }
+
     switch(obj.key){
       case 'managetag':
         callbackHostList(obj)
@@ -231,7 +281,7 @@ class ManageTagModal extends Component {
         return
       case 'createtag':
         return this.setState({createLabelModal: true})
-      case 'labelkey':
+      case 'labelKey':
         return this.setState({
           visible: false
         })
@@ -262,11 +312,10 @@ class ManageTagModal extends Component {
   handleAddInput() {
     console.log('添加一组标签')
   }
-
   render() {
     return (
       <div id="cluster__ManageTagModal__Component">
-        <TagDropdown labels={this.props.labels} footer={true} context={'hostlist'} callbackManegeTag={this.handlecallback} callbackHostList={this.handlecallbackHostList} width={'100px'} visible={this.state.visible}/>
+        <TagDropdown labels={this.props.labels} footer={this.props.footer} context={'hostlist'} callbackManegeTag={this.handlecallback} callbackHostList={this.handlecallbackHostList} width={'100px'} visible={this.state.visible}/>
 
         <Modal
           title="创建标签"
