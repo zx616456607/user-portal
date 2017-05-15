@@ -62,12 +62,21 @@
     .operation {
       width: 20%;
       padding-left:4%;
+      @media(max-width: 1196px){
+        padding-left:0;
+      }
       color: #a1a1a1;
       Button{
         width:80px;
       }
       .setup{
         margin-left:10px;
+        @media(max-width: 1230px){
+          margin-left:4px;
+        }
+        @media(max-width: 1196px){
+          margin-left:2px;
+        }
       }
     }
     .cpu,
