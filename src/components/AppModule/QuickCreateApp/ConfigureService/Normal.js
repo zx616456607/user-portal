@@ -146,7 +146,7 @@ const Normal = React.createClass({
             // 4 通过IP或labels
           }
           {
-            currentCluster.listNode > 1 && (
+            currentCluster.listNodes > 1 && (
               <FormItem
                 {...formItemLayout}
                 wrapperCol={{ span: 6 }}
