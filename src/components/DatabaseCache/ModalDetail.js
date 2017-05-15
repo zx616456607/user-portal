@@ -144,6 +144,11 @@ class BaseInfo extends Component {
       });
     }, 500);
   }
+  findZookeeperPassword(podSpec) {
+    const envs = podSpec.containers[0].env
+    const index = envs.findIndex(e => e.name === "SUPER_PASSWORD")
+    return envs[index].value
+  }
   render() {
     const { bindingIPs, domainSuffix, databaseInfo ,dbName } = this.props
     const parentScope = this.props.scope
@@ -266,6 +271,20 @@ class BaseInfo extends Component {
                 <li><span className='key'>用户名：</span> <span className='value'>root</span></li>
                 {this.state.passShow ?
                   <li><span className='key'>密码：</span> <span className='value'>{podSpec.containers[0].env ? podSpec.containers[0].env[0].value : ''}</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
+                  :
+                  <li><span className='key'>密码：</span> <span className='value'>******</span><span className="pasBtn" onClick={() => this.setState({ passShow: true })}><i className="fa fa-eye"></i> 显示</span></li>
+                }
+              </ul>
+            </div>
+            : null
+          }
+          {this.props.database == 'zookeeper' ?
+            <div><div className='configHead'>参数</div>
+              <ul className='parse-list'>
+                <li><span className='key'>参数名</span> <span className='value'>参数值</span></li>
+                <li><span className='key'>用户名：</span> <span className='value'>super</span></li>
+                {this.state.passShow ?
+                  <li><span className='key'>密码：</span> <span className='value'>{this.findZookeeperPassword(podSpec)}</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
                   :
                   <li><span className='key'>密码：</span> <span className='value'>******</span><span className="pasBtn" onClick={() => this.setState({ passShow: true })}><i className="fa fa-eye"></i> 显示</span></li>
                 }

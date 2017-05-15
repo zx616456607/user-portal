@@ -200,7 +200,6 @@ let CreateDatabase = React.createClass({
         replicas: replicas,
         volumeSize: values.storageSelect,
         teamspace: newSpace.namespace,
-        maxParticipant: values.maxParticipant,
         templateId
       }
       CreateDbCluster(body, {
@@ -269,14 +268,6 @@ let CreateDatabase = React.createClass({
           message: '请填写密码'
         },
       ],
-    });
-    const maxParticipantProps = getFieldProps('maxParticipant', {
-      rules: [
-          {
-            required: this.state.currentType == 'zookeeper' ? true : false,
-          }
-      ],
-      initialValue: 3
     });
     const selectNamespaceProps = getFieldProps('namespaceSelect', {
       rules: [
@@ -379,7 +370,7 @@ let CreateDatabase = React.createClass({
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
-            {this.state.currentType == 'mysql' ?
+            {this.state.currentType == 'mysql' || this.state.currentType == 'zookeeper' ?
 
             <div className='commonBox'>
               <div className='title'>
@@ -397,19 +388,6 @@ let CreateDatabase = React.createClass({
             </div>
             : null
             }
-            {this.state.currentType == 'zookeeper' ?
-            <div className='commonBox'>
-              <div className='title'>
-                <span>竞选实例数</span>
-              </div>
-              <div className='inputBox replicas'>
-                <FormItem style={{ width: '80px', float: 'left' }}>
-                  <InputNumber {...maxParticipantProps} size='large' min={3} max={5} disabled={isFetching} />
-                </FormItem>
-                <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>个</span>
-              </div>
-              <div style={{ clear: 'both' }}></div>
-            </div>:null}
             <div className="modal-price">
               <div className="price-left">
                 <div className="keys">实例：{parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
