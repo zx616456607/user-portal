@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Spin } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Spin, Alert } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -80,6 +80,10 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.CreateTenxFlow.submit',
     defaultMessage: '立即创建并配置流程定义',
   },
+  buildImageToolTip: {
+    id: 'CICD.Tenxflow.CreateBuildImage.tooltip',
+    defaultMessage: '创建构建镜像任务前需创建一个TenxFlow，请填写TenxFlow名称，可选择邮件通知 ',
+  }
 })
 
 let CreateTenxFlow = React.createClass({
@@ -331,6 +335,7 @@ let CreateTenxFlow = React.createClass({
     });
     return (
       <div id='CreateTenxFlow' key='CreateTenxFlow'>
+        {this.props.buildImage ? <Alert message={<FormattedMessage {...menusText.buildImageToolTip} />} type='info' /> : ''}
       <Form horizontal>
         <div className='commonBox'>
           <div className='title'>

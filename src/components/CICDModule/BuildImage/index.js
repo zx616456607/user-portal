@@ -34,7 +34,7 @@ const PopOption = PopTabSelect.Option;
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 
-const menusText = defineMessages({
+let menusText = defineMessages({
   search: {
     id: 'CICD.Tenxflow.TenxFlowList.search',
     defaultMessage: '搜索',
@@ -56,7 +56,7 @@ const menusText = defineMessages({
     defaultMessage: '操作',
   },
   tooltips: {
-    id: 'CICD.Tenxflow.TenxFlowList.tooltips',
+    id: 'CICD.Tenxflow.BuildImage.tooltips',
     defaultMessage: '这里是构建镜像',
   },
   create: {
@@ -68,12 +68,12 @@ const menusText = defineMessages({
     defaultMessage: '执行记录',
   },
   deloyStart: {
-    id: 'CICD.Tenxflow.TenxFlowList.deloyStart',
-    defaultMessage: '立即构建',
+    id: 'CICD.Tenxflow.BuildImage.deloyStart',
+    defaultMessage: '启动',
   },
   delete: {
     id: 'CICD.Tenxflow.BuildImage.delete',
-    defaultMessage: '删除',
+    defaultMessage: '删除构建',
   },
   code: {
     id: 'CICD.Tenxflow.BuildImage.code',
@@ -88,6 +88,7 @@ const menusText = defineMessages({
     defaultMessage: '镜像名称',
   }
 })
+
 
 function dateFormat(dateString) {
   if (!dateString) {
@@ -207,9 +208,8 @@ let MyComponent = React.createClass({
     const { repoBranchesAndTags } = this.props
     const dropdown = (
       <Menu onClick={this.operaMenuClick.bind(this, item)}>
-        <Menu.Item key='deleteFlow'>
-          <i className='fa fa-trash' style={{ lineHeight: '20px', marginRight: '5px' }} />&nbsp;
-          <FormattedMessage {...menusText.delete} style={{ display: 'inlineBlock' }} />
+        <Menu.Item key='deleteFlow111'>
+         <i className='fa fa-trash' style={{ lineHeight: '20px', marginRight: '5px' }} />&nbsp;<FormattedMessage {...menusText.delete} style={{ display: 'inlineBlock' }} />
         </Menu.Item>
       </Menu>
     );
@@ -219,7 +219,9 @@ let MyComponent = React.createClass({
         <FormattedMessage {...menusText.deloyStart} />
       </span>
     )
-    return dropdown
+    return (<Dropdown.Button  overlay={dropdown} type="ghost">
+      查看镜像
+    </Dropdown.Button>)
   },
   render: function () {
     const { config, scope, isFetching } = this.props;
@@ -287,7 +289,11 @@ let MyComponent = React.createClass({
           <div className={`status status-` + `${flowListState[index].status}`}>
             <span><i className="fa fa-circle"></i>{status}</span>
           </div>
-          <div className='oprea'>
+          <div className='opera'>
+            <Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
+              <i className='fa fa-play' />&nbsp;
+              <FormattedMessage {...menusText.deloyStart} />
+            </Button>
             <Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
               <i className='fa fa-wpforms' />&nbsp;
               <FormattedMessage {...menusText.deloyLog} />
@@ -581,7 +587,7 @@ class TenxFlowList extends Component {
       message = " * 没有匹配到相关TenxFlow"
     }
     return (
-      <QueueAnim className='TenxFlowList'
+      <QueueAnim className='BuildImageList'
                  type='right'
       >
         <div id='TenxFlowList' key='TenxFlowList'>
@@ -635,11 +641,12 @@ class TenxFlowList extends Component {
         </div>
         <Modal
           visible={this.state.createTenxFlowModal}
+          title={"构建镜像"}
           className='AppServiceDetail'
           transitionName='move-right'
           onCancel={this.closeCreateTenxFlowModal}
         >
-          <CreateTenxFlow scope={scope} isFetching={isFetching} flowList={flowList} />
+          <CreateTenxFlow scope={scope} isFetching={isFetching} flowList={flowList} buildImage={true}/>
         </Modal>
         <Modal
           visible={this.state.TenxFlowDeployLogModal}

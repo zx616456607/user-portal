@@ -42,10 +42,10 @@ class ClusterPlugin extends Component{
     if(cpu){
       return (cpu / 1000).toFixed(1) + '核'
     }
-    return '-'
+    return '无限制'
   }
   convertMemory(memory) {
-    if(!memory) return '-'
+    if(!memory) return '无限制'
     let size = 'M'
     memory = memory / 1024
     if(memory > 1024) {
@@ -316,7 +316,7 @@ class ClusterPlugin extends Component{
       ],
       initialValue: currentMem
     })
-    let currentCPU = this.state.currentPlugin ? (this.state.currentPlugin.resourceRange.request.cpu / 1000).toFixed(1) : '无限制'
+    let currentCPU = this.state.currentPlugin ? (this.state.currentPlugin.resourceRange.request.cpu / 1000).toFixed(1) : '0'
     if(isNaN(currentCPU)) currentCPU = 0
     const pluginCPU = getFieldProps('pluginCPU' , {
       rules: [
@@ -365,9 +365,9 @@ class ClusterPlugin extends Component{
                 onOk={() => this.resetPlugin() }
                 onCancel={() => this.setState({reset:false})}
                 >
-      <p>确定重新部署 {this.state.currentPlugin ? this.state.currentPlugin.name : ''} 插件吗?</p>
-                </Modal>
-                  <Modal
+                <p>确定重新部署 {this.state.currentPlugin ? this.state.currentPlugin.name : ''} 插件吗?</p>
+              </Modal>
+              <Modal
                 title="设置节点及资源限制"
                 wrapClassName="vertical-center-modal"
                 visible={this.state.setModal}
@@ -378,12 +378,10 @@ class ClusterPlugin extends Component{
                 <p>设置为 <span style={{fontWeight:'bold'}}>0</span> 时表示无限制；设置时请参考所选节点的资源上限设置该插件的资源限制；</p></div>
                  <Form.Item
                   id="select"
-                  label="选择节点"
-                  labelCol={{ span: 3 }}
-                  wrapperCol={{ span: 21 }}
                   style={{borderBottom:'1px solid #ededed',paddingBottom:'30px'}}
                 >
-                  <Select {...selectNode} size="large" style={{width: 200,marginLeft:'20px'}}>
+                  <span className="setLimit">选择节点</span>
+                  <Select {...selectNode} size="large" style={{width: 200}}>
                     { this.getSelectItem()}
                   </Select>
                 </Form.Item>
