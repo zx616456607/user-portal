@@ -15,17 +15,16 @@ import './style/clusterPlugin.less'
 import { getClusterPlugins, updateClusterPlugins } from  '../../actions/cluster'
 import NotificationHandler from '../../common/notification_handler'
 import { PLUGIN_DEFAULT_CONFIG } from '../../constants/index'
-
+import { getAllClusterNodes } from '../../actions/cluster_node'
 
 
 class ClusterPlugin extends Component{
-  constructor(props){
-    super(props)
+  constructor(prop) {
+    super(prop)
     this.state = {
-
+      maxCPU: 4,
+      maxMem: 2048
     }
-  }
-  getInitialState() {
   }
   loadData() {
     const { getClusterPlugins, cluster } = this.props
@@ -41,17 +40,17 @@ class ClusterPlugin extends Component{
   }
   convertCPU(cpu) {
     if(cpu){
-      return (cpu / 1000).toFixed(2) + '核'
+      return (cpu / 1000).toFixed(1) + '核'
     }
-    return '-'
+    return '无限制'
   }
   convertMemory(memory) {
-    if(!memory) return '-'
+    if(!memory) return '无限制'
     let size = 'M'
     memory = memory / 1024
     if(memory > 1024) {
       size = 'G'
-      memory = (memory / 1024).toFixed(1)
+      memory = (memory / 1024).toFixed(0)
       return memory + size
     } else {
       return memory.toFixed(0) + size
@@ -147,7 +146,7 @@ class ClusterPlugin extends Component{
         updateClusterPlugins(cluster.clusterID, this.state.currentPlugin.name, {
           cpu,
           memory,
-          hostName
+          hostName: hostName == 'random' ? '' : hostName
         }, {
           success: {
             func: () => {
@@ -191,9 +190,12 @@ class ClusterPlugin extends Component{
         </Card>
     }
     const nodes = nodeList[clusterID].nodes.clusters.nodes.nodes
-    return nodes.map(node => {
-      return <Option key={node.objectMeta.name} value={node.objectMeta.name}>{node.objectMeta.name}</Option>
+    const items = []
+    items.push(<Option key={'random'} value={'random'}>随机调度</Option>)
+    nodes.forEach(node => {
+      return items.push(<Option key={node.objectMeta.name} value={node.objectMeta.name}>{node.objectMeta.name}</Option>)
     })
+    return items
   }
   getTableItem() {
     const { clusterPlugins } = this.props
@@ -250,45 +252,67 @@ class ClusterPlugin extends Component{
           return callback()
         }
       }],
-      initialValue: this.state.currentPlugin ? this.state.currentPlugin.hostName : ''
+      initialValue: this.state.currentPlugin ? (this.state.currentPlugin.hostName ? this.state.currentPlugin.hostName : 'random') : '',
+      onChange: (value) => {
+        const { cluster } = this.props
+        const { nodeList } = this.props
+        if(nodeList) {
+          let nodesDetail = nodeList[cluster.clusterID]
+          console.log(nodesDetail)
+          if(nodesDetail) {
+            nodesDetail = nodesDetail.nodes.clusters.nodes.nodes
+            let nodeDetail = {}
+            let minCPU = Infinity
+            let minMemory = Infinity
+            if(value == 'random') {
+              nodesDetail.forEach(node => {
+                if(node.cPUAllocatable < minCPU) {
+                  minCPU = node.cPUAllocatable
+                }
+                if(node.memoryAllocatable < minMemory) {
+                  minMemory = node.memoryAllocatable
+                }
+              })
+              this.setState({
+                maxCPU: minCPU / 1000,
+                maxMem: Math.floor(minMemory / 1024 )
+              })
+              return
+            }
+            nodesDetail.some(node => {
+              if(node.objectMeta.name == value) {
+                nodeDetail = node
+                return true
+              }
+              return false
+            })
+            this.setState({
+              maxCPU: nodeDetail.cPUAllocatable / 1000,
+              maxMem: Math.floor(nodeDetail.memoryAllocatable / 1024)
+            })
+          }
+        }
+      }
     })
-    let currentMem = this.state.currentPlugin ? (this.state.currentPlugin.resourceRange.request.memory / 1024).toFixed(2) : 0
+    let currentMem = this.state.currentPlugin ? (this.state.currentPlugin.resourceRange.request.memory / 1024).toFixed(0) : 0
 
     if(isNaN(currentMem)) currentMem = 0
     const pluginMem = getFieldProps('pluginMem' , {
       rules: [
         {
           validator: (rule, value, callback) => {
-            if(!value) {
-              return callback('请输入要使用的内存大小')
-            }
-            if(!/^([0-9]+(\.[0-9]+)?|0\.[0-9]+)$/.test(value)) {
-              return callback('请输入正确的数字')
-            }
-            if(parseFloat(value) <= 0) {
-              return callback('请输入大于0的数字')
-            }
             return callback()
           }
         }
       ],
       initialValue: currentMem
     })
-    let currentCPU = this.state.currentPlugin ? (this.state.currentPlugin.resourceRange.request.cpu / 1000).toFixed(2) : 0
+    let currentCPU = this.state.currentPlugin ? (this.state.currentPlugin.resourceRange.request.cpu / 1000).toFixed(1) : '0'
     if(isNaN(currentCPU)) currentCPU = 0
     const pluginCPU = getFieldProps('pluginCPU' , {
       rules: [
         {
           validator: (rule, value, callback) => {
-            if(!value) {
-              return callback('请输入要使用的CPU核数')
-            }
-            if(!/[0-9\.].test(value)/) {
-              return callback('请输入数字')
-            }
-            if(parseFloat(value) <= 0) {
-              return callback('请输入大于0的数字')
-            }
             return callback()
           }
         }
@@ -348,13 +372,13 @@ class ClusterPlugin extends Component{
                 <Form.Item>
                  <span className="setLimit">设置限制</span><span>CPU</span><Button className="recovery" type="ghost" size="small" onClick={() => this.getDefaultConfig()}><Icon type="setting" />恢复默认设置</Button>
                   <p style={{marginLeft:'70px'}}>
-                   <InputNumber {...pluginCPU} style={{width: 200}} min={0.1} max={4} step={0.1}/> 核
+                   <InputNumber {...pluginCPU} style={{width: 200}} min={0} max={this.state.maxCPU} step={0.1}/> 核
                   </p>
                </Form.Item>
                <Form.Item>
                   <span style={{marginLeft:'70px'}}>内存</span>
                   <p style={{marginLeft: '70px'}}>
-                  <InputNumber {...pluginMem} style={{width: 200}} min={1} step={1}/> M
+                  <InputNumber {...pluginMem} style={{width: 200}} min={0} step={1} max={this.state.maxMem}/> M
                   </p>
                 </Form.Item>
                 </Modal>
