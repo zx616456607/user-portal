@@ -13,7 +13,7 @@ import { Modal, Tag, Tooltip, Form, Button, Input } from 'antd'
 import { connect  } from 'react-redux'
 import TagDropdown from './TagDropdown'
 import { camelize } from 'humps'
-import { addLabels, editNodeLabels, getNodeLabels } from '../../actions/cluster_node'
+import { getClusterLabel, addLabels, editNodeLabels, getNodeLabels } from '../../actions/cluster_node'
 import { KubernetesValidator } from '../../common/naming_validation'
 import cloneDeep from 'lodash/cloneDeep'
 import NotificationHandler from '../../common/notification_handler'
@@ -27,7 +27,7 @@ class ManageLabelModal extends Component {
     this.handleManageLabelCancel = this.handleManageLabelCancel.bind(this)
     this.state = {
       manageLabelModalVisible : this.props.manageLabelModal,
-      userCreateLabel: this.props.userCreateLabel,
+      userCreateLabel: this.props.userCreateLabel || {},
       isLoad: false,// first data in nodes
     }
   }
@@ -40,14 +40,15 @@ class ManageLabelModal extends Component {
       const { nodes, nodeName } = nextProps
       if (nextProps.manageLabelModal && !this.state.isLoad) {
         for (let node in nodes) {
-          if (node == nodeName) {
+          if (node == camelize(nodeName)) {
             this.setState({userCreateLabel: nodes[node]})
             return
           }
         }
       }
-      if (nextProps.isNode) {
-        this.setState({userCreateLabel: this.props.userCreateLabel})
+      if (nextProps.isNode && nextProps.manageLabelModal) {
+        this.props.getClusterLabel(nextProps.clusterID)
+        this.setState({userCreateLabel: nextProps.userCreateLabel})
       }
     }
     const { nodeName } = this.props
@@ -71,10 +72,11 @@ class ManageLabelModal extends Component {
   }
 
   handleClose(key,value) {
-    const { userCreateLabel } = this.state
+    const userCreateLabel = cloneDeep(this.state.userCreateLabel)
     for (let lab in userCreateLabel) {
       if (lab === key && userCreateLabel[key] === value) {
         delete userCreateLabel[lab]
+        this.setState({userCreateLabel})
       }
     }
   }
@@ -182,7 +184,6 @@ class ManageLabelModal extends Component {
   }
   render(){
     const { userCreateLabel } = this.state
-        console.log('sfsdf',this.props.userCreateLabel)
 
     const { getFieldProps } = this.props.form
     const createLabel = ()=> {
@@ -221,7 +222,7 @@ class ManageLabelModal extends Component {
 
           <div className='labelfooter'>
           <span className='labeldropdown' id="cluster__hostlist__manageLabelModal">
-            <TagDropdown scope={this} labels={this.props.labels} isManage={true} footer={false} width={'120px'} context={"Modal"}/>
+            <TagDropdown scope={this} labels={this.props.labels} isManage={true} footer={this.props.footer} width={'120px'} context={"Modal"}/>
           </span>
             <span className='item'>或</span>
             <Form
@@ -276,6 +277,7 @@ function mapStateToProps(state,props) {
 ManageLabelModal = Form.create()(ManageLabelModal)
 
 export default connect(mapStateToProps, {
+  getClusterLabel,
   addLabels,
   editNodeLabels,
   getNodeLabels

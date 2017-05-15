@@ -92,23 +92,23 @@ let HostInfo = React.createClass({
     scope.props.searchPodeList(podname)
   },
   formTagContainer(){
-      const label = []
-      const {nodeLabel} = this.state
-      for (let key in nodeLabel) {
-        label.push(
-          <Tag color="blue" className='tag' key={key}>
-              <Tooltip title={key}>
-                <span className='key'>{key}</span>
-              </Tooltip>
-              <span className='point'>：</span>
-              <Tooltip title={nodeLabel[key]}>
-                <span className='value'>{nodeLabel[key]}</span>
-              </Tooltip>
-          </Tag>
-        )
-      }
+    const label = []
+    const {nodeLabel} = this.props.func
+    for (let key in nodeLabel) {
+      label.push(
+        <Tag color="blue" className='tag' key={key}>
+            <Tooltip title={key}>
+              <span className='key'>{key}</span>
+            </Tooltip>
+            <span className='point'>：</span>
+            <Tooltip title={nodeLabel[key]}>
+              <span className='value'>{nodeLabel[key]}</span>
+            </Tooltip>
+        </Tag>
+      )
+    }
 
-      return label
+    return label
   },
   handleManageLabelModal(){
     this.setState({
@@ -118,7 +118,7 @@ let HostInfo = React.createClass({
   callbackManageLabelModal(){
     this.setState({
       manageLabelModal: false,
-      nodeLabel:this.props.func.nodeName
+      nodeLabel:this.props.func.nodeLabel
     })
   },
   render() {
@@ -230,6 +230,7 @@ let HostInfo = React.createClass({
               nodeName={this.props.func.nodeName}
               clusterID= {this.props.func.clusterID}
               isNode={true}
+              footer={true}
             />
           </div>
           <div className="topTitle">容器详情</div>
@@ -411,6 +412,7 @@ class ClusterDetail extends Component {
       getNodeLabels: this.props.getNodeLabels,
       clusterID: this.props.clusterID,
       nodeName: this.props.clusterName,
+      nodeLabel: this.props.nodeLabel
     }
     return (
       <div id="clusterDetail">
