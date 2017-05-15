@@ -478,11 +478,6 @@ class Sider extends Component {
                     </span>
                   }
                   >
-                  <Menu.Item key='build_image'>
-                    <Link to='/ci_cd/build_image'>
-                      <span><div className='sideCircle'></div> 构建镜像</span>
-                    </Link>
-                  </Menu.Item>
                   <Menu.Item key='ci_cd_default'>
                     <Link to='/ci_cd'>
                       <span><div className='sideCircle'></div> 代码仓库</span>

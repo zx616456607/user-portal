@@ -15,10 +15,6 @@ import './style/CICD.less'
 
 const menuList = [
   {
-    url: '/ci_cd/build_image',
-    name: '构建镜像'
-  },
-  {
     url: '/ci_cd',
     name: '代码仓库'
   },
