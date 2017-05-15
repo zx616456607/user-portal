@@ -662,7 +662,7 @@ let NormalDeployBox = React.createClass({
     if(!storageTypes || storageTypes.length <= 0) {
       canCreate = false
     }
-    if (cluster.canListNode) {
+    if (cluster.listNodes === 2) {
       loadClusterNodes(this.props)
     }
     this.setState({
@@ -714,7 +714,7 @@ let NormalDeployBox = React.createClass({
       form.setFieldsValue({
         storageType: storageType
       })
-      if (cluster.canListNode) {
+      if (cluster.listNodes === 2) {
         loadClusterNodes(this.props)
       }
       const volumeSwitch = getFieldValue('volumeSwitch')
@@ -1000,7 +1000,7 @@ let NormalDeployBox = React.createClass({
               <div style={{ clear: "both" }}></div>
             </div>
             {
-              currentCluster.canListNode && (
+              currentCluster.listNodes === 2 && (
                 <div className="bindNode">
                   <span className="commonSpan">绑定节点</span>
                   <FormItem>

@@ -45,6 +45,10 @@ let FistStop = React.createClass({
       callback(new Error('请输入名称'));
       return
     }
+    if (value.length <3 || value.length > 40) {
+       callback(new Error('请输入3~40位字符'))
+       return
+    }
     callback()
   },
   fistStopType(rule, value, callback) {
@@ -156,7 +160,7 @@ let FistStop = React.createClass({
     const { funcs, currentApp, currentService, data, isEdit, loginUser } = this.props
     const formItemLayout = {
       labelCol: { span: 4 },
-      wrapperCol: { span: 17 }
+      wrapperCol: { span: 18 }
     };
     let nameProps
     let typeProps
@@ -224,7 +228,7 @@ let FistStop = React.createClass({
         onChange: this.resetType,
         initialValue: loginUser.info.role == ADMIN_ROLE ? initiaValue : 'service'
       });
-      let initAppName = undefined
+      let initAppName
       if (currentApp) {
         initAppName = currentApp.name
       }
@@ -489,7 +493,6 @@ let TwoStop = React.createClass({
       setTimeout(() => this.clearError(key), 0)
       return callback()
     }
-    return callback()
   },
   usedName(rule, value, callback, key) {
     if (!value) return callback('请选择类型')
@@ -500,7 +503,6 @@ let TwoStop = React.createClass({
       setTimeout(() => this.clearError(key), 0)
       return callback()
     }
-    return callback()
   },
   usedData(rule, value, callback, key) {
     if (!value) return callback('请填写数值')
@@ -512,7 +514,6 @@ let TwoStop = React.createClass({
       setTimeout(() => this.clearError(key), 0)
       return callback()
     }
-    return callback()
   },
   clearError(key) {
     const { form } = this.props
@@ -756,7 +757,7 @@ let TwoStop = React.createClass({
                   whitespace: true,
                   validator: (rule, value, callback) => this.usedData(rule, value, callback, key)
                 }],
-                initialValue: '0'
+                initialValue: '80'
               }) } style={{ width: 80 }} />
             </Form.Item>
             <Form.Item>
@@ -790,9 +791,8 @@ let TwoStop = React.createClass({
         {cpuItems}
 
         <div className="alertRule">
-          <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有pod占用CPU之和/CPU资源总量
-          <a style={{ marginLeft: 20 }}>内存使用率</a>= 所有pod占用内存之和/内存资源总量
-
+          <Icon type="exclamation-circle-o" /><a> CPU利用率</a>= 所有容器实例占用CPU总和/CPU资源总量
+          <div><a style={{ marginLeft: 16 }}>内存使用</a>= 所有容器实例占用内存总和/容器实例数量</div>
         </div>
         {/*  footer btn */}
         <div className="wrapFooter">
@@ -810,7 +810,7 @@ class AlarmModal extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      isSendMail: 1,
+      isSendEmail: 1,
       createGroup: false, // create alarm group modal
       showAlramGroup: true
     }
@@ -832,7 +832,7 @@ class AlarmModal extends Component {
         }
       })
       this.setState({
-        isSendMail: strategy.enable
+        isSendEmail: strategy.sendEmail
       })
     }
   }
@@ -856,7 +856,7 @@ class AlarmModal extends Component {
           }
         })
         this.setState({
-          isSendMail: strategy.enable
+          isSendEmail: strategy.sendEmail
         })
       }
     }
@@ -910,14 +910,16 @@ class AlarmModal extends Component {
         strategyName,
         repeatInterval,
         appName,
-        enable: this.state.isSendMail,
+        sendEmail: this.state.isSendEmail,
+        enable:1,
         disableNotifyEndTime: '0s'
       }
-      if(!this.state.isSendMail) {
+      if(!this.state.isSendEmail) {
         delete requestBody.receiversGroup
       }
       if (isEdit) {
         requestBody.strategyID = strategy.strategyID
+        requestBody.enable = strategy.enable
         notification.spin('告警策略更新中')
       } else {
         notification.spin('告警策略创建中')
@@ -991,7 +993,7 @@ class AlarmModal extends Component {
   }
   sendMail(e) {
     this.setState({
-      isSendMail: e.target.value,
+      isSendEmail: e.target.value,
     })
   }
   resetFields() {
@@ -1018,7 +1020,7 @@ class AlarmModal extends Component {
     }
     const formItemLayout = {
       labelCol: { span: 4 },
-      wrapperCol: { span: 17 }
+      wrapperCol: { span: 18 }
     }
     const { getFieldProps } = this.props.form
     const { strategy, isEdit } = this.props
@@ -1033,7 +1035,7 @@ class AlarmModal extends Component {
       ],
       initialValue: initreceiver
     })
-    if(this.state.isSendMail) {
+    if(this.state.isSendEmail) {
       notify = getFieldProps('notify', {
         rules: [
           { whitespace: true },
@@ -1064,13 +1066,13 @@ class AlarmModal extends Component {
           <div className={funcs.scope.state.step == 3 ? 'steps' : 'hidden'}>
             <Form className="alarmAction">
               <Form.Item label="发送通知" {...formItemLayout} style={{ margin: 0 }}>
-                <RadioGroup defaultValue={this.state.isSendMail} value={this.state.isSendMail} onChange={(e) => this.sendMail(e)}>
+                <RadioGroup defaultValue={this.state.isSendEmail} value={this.state.isSendEmail} onChange={(e) => this.sendMail(e)}>
                   <Radio key="a" value={1}>是</Radio>
                   <Radio key="b" value={0}>否</Radio>
                 </RadioGroup>
               </Form.Item>
               <div className="tips" style={{ marginBottom: 20 }}><Icon type="exclamation-circle-o" /> 选择“是”，我们会向您发送监控信息和告警信息，选择“否”，我们将不会向你发送告警信息</div>
-              <Form.Item label="告警通知组" {...formItemLayout} style={{display: this.state.isSendMail ? 'block' : 'none'}}>
+              <Form.Item label="告警通知组" {...formItemLayout} style={{display: this.state.isSendEmail ? 'block' : 'none'}}>
                 <Select placeholder="请选择告警通知组" style={{ width: 170 }} {...notify}>
                   {this.getNotifyGroup()}
                 </Select>

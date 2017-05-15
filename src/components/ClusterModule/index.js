@@ -365,8 +365,8 @@ let CreateClusterModal = React.createClass({
         { required: true, message: '请填写集群名称' },
         {
           validator: (rule, value, callback) => {
-            if (value && value.length > 30) {
-              return callback([new Error('集群名称不能超过30个字符')])
+            if (value && value.length > 18) {
+              return callback([new Error('集群名称不能超过18个字符')])
             }
             callback()
           }

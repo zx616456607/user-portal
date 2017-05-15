@@ -1098,7 +1098,7 @@ class Ordinary extends Component {
               <div className='statusBottomcontent'>
                 <div className='statusBottomleft'>
                   <span className='statusBottomItem'>容器</span>
-                  <Tooltip title='容器可用配额是按照最小容器配置（512M内存）计算；本集群容器可用配额（个）=本集群可用内存（M）/512M；'>
+                  <Tooltip title={<div><div>容器可用配额是按照最小容器配置（512M内存）计算；</div><div>本集群容器可用配额（个）=本集群可用内存（M）/512M；</div></div>}>
                     <Icon type="question-circle-o" style={{ margin: '0 7px',cursor:'pointer' }} />
                   </Tooltip>
                 </div>

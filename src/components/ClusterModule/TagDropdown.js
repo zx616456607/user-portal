@@ -15,129 +15,53 @@ import cloneDeep from 'lodash/cloneDeep'
 const SubMenu = Menu.SubMenu;
 
 class TagDropdown extends Component {
-  constructor(props){
+  constructor(props) {
     super(props)
     this.formtag = this.formtag.bind(this)
     this.handleDropdownContext = this.handleDropdownContext.bind(this)
     this.handelfooter = this.handelfooter.bind(this)
     this.handleMenuClick = this.handleMenuClick.bind(this)
+    this.handleLabelButton = this.handleLabelButton.bind(this)
     this.state = {
-      data:{
-        "nodes": {
-          "ubuntu-24": {
-            "beta.kubernetes.io/arch": "amd64",
-            "beta.kubernetes.io/os": "linux",
-            "kubeadm.alpha.kubernetes.io/role": "master",
-            "kubernetes.io/hostname": "ubuntu-24",
-            "role": "proxy"
-          },
-          "ubuntu-25": {
-            "alternative.tenxcloud.com/role": "node",
-            "beta.kubernetes.io/arch": "amd64",
-            "beta.kubernetes.io/os": "linux",
-            "kubeadm.alpha.kubernetes.io/role": "master",
-            "kubernetes.io/hostname": "ubuntu-25",
-            "role": "proxy"
-          },
-          "ubuntu-26": {
-            "beta.kubernetes.io/arch": "amd64",
-            "beta.kubernetes.io/os": "linux",
-            "kubernetes.io/hostname": "ubuntu-26",
-            "role": "proxy"
-          }
-        },
-        "summary": {
-          "comem": [
-            {
-              "id": 6,
-              "key": "comem",
-              "value": "value",
-              "createAt": "2017-05-06T02:46:09Z",
-              "isUserDefined": true,
-              "targets": []
-            }
-          ],
-          "kubeadm.alpha.kubernetes.io/role": [
-            {
-              "key": "kubeadm.alpha.kubernetes.io/role",
-              "value": "master",
-              "isUserDefined": false,
-              "targets": [
-                "ubuntu-24",
-                "ubuntu-25"
-              ]
-            }
-          ],
-          "kubernetes.io/hostname": [
-            {
-              "key": "kubernetes.io/hostname",
-              "value": "ubuntu-24",
-              "isUserDefined": false,
-              "targets": [
-                "ubuntu-24"
-              ]
-            },
-            {
-              "key": "kubernetes.io/hostname",
-              "value": "ubuntu-25",
-              "isUserDefined": false,
-              "targets": [
-                "ubuntu-25"
-              ]
-            },
-            {
-              "key": "kubernetes.io/hostname",
-              "value": "ubuntu-26",
-              "isUserDefined": false,
-              "targets": [
-                "ubuntu-26"
-              ]
-            }
-          ],
-          "role": [
-            {
-              "key": "role",
-              "value": "proxy",
-              "isUserDefined": false,
-              "targets": [
-                "ubuntu-24",
-                "ubuntu-25",
-                "ubuntu-26"
-              ]
-            }
-          ],
-          "alternative.tenxcloud.com/role": [
-            {
-              "key": "alternative.tenxcloud.com/role",
-              "value": "node",
-              "isUserDefined": false,
-              "targets": [
-                "ubuntu-25"
-              ]
-            }
-          ]
-        }
-      },
-
+      DropdownVisible: this.props.visible,
     }
   }
 
-  formtag(){
-    const { data } = this.state
-    const summary = data.summary
+  componentWillReceiveProps(nextProps) {
+    if(this.state.DropdownVisible !== nextProps.visible){
+      this.setState({
+        DropdownVisible: nextProps.visible
+      })
+    }
+  }
+
+  formtag() {
+    const { labels } = this.props
+    if (!labels) {
+      return
+    }
+    const newData = {}
+    labels.forEach((label, index) => {
+      if(newData[label.key]){
+        newData[label.key].push(label)
+      } else {
+        newData[label.key] = [label]
+      }
+    })
+
     let arr = []
-    for(let i in summary ){
+    for (let i in newData) {
       let item = {}
       item.key = i
-      item.values = summary[i]
+      item.values = newData[i]
       arr.push(item)
     }
-    if(arr.length == 0){
+    if (arr.length == 0) {
       return <Menu.Item className='notag'>暂无标签</Menu.Item>
     }
 
-    let tagvalue = arr.map( (item, index) => {
-      return item.values.map( (itemson,indexson ) => {
+    let tagvalue = arr.map((item, index) => {
+      return item.values.map((itemson, indexson) => {
         return (<Menu.Item className='tagvaluewidth' key={itemson.value}>
           <Tooltip title={itemson.value} placement="topLeft">
             <div className='name'>{itemson.value}</div>
@@ -148,7 +72,7 @@ class TagDropdown extends Component {
       })
     })
 
-    let result = arr.map((item,index) => {
+    let result = arr.map((item, index) => {
       return <SubMenu title={item.key} className='tagkeywidth' key={item.key}>
         <Menu.Item className='selectMenutitle' key="tagvalue">
           标签值
@@ -158,69 +82,75 @@ class TagDropdown extends Component {
     })
     return (
       <Menu>
-        <Menu.Item className='selectMenutitle' key="tagkey">
-          标签键
+        <Menu.Item className='selectMenutitle' key="labelKey">
+          标签键 <Icon type="cross" style={{marginLeft:'80px'}}/>
         </Menu.Item>
-        <Menu.Divider key="baseline1"/>
+        <Menu.Divider key="baseline1" />
         {result}
       </Menu>
     )
   }
 
-  handleDropdownContext(){
+  handleDropdownContext() {
     const { context } = this.props
-    switch(context){
-      case 'Modal' :
+    switch (context) {
+      case 'Modal':
         return <span>
           选择已有节点
-          <Icon type="down" style={{marginLeft:'5px'}}/>
+          <Icon type="down" style={{ marginLeft: '5px' }} />
         </span>
-      case 'hostlist' :
-      case 'app' :
+      case 'hostlist':
+      case 'app':
         return <span>
-          <i className="fa fa-tag selectlabeltag" aria-hidden="true"></i>
+          <i className="fa fa-tag selectlabeltag" aria-hidden="true"></i>&nbsp;
           标签
-          <Icon type="down" style={{marginLeft:'12px'}}/>
+          <Icon type="down" style={{ marginLeft: '12px' }} />
         </span>
-      default :
+      default:
         return <span>请输入要显示的文字</span>
     }
   }
 
-  handelfooter(){
+  handelfooter() {
     const { footer } = this.props
     return <Menu id='cluster__TagDropDown__Component' onClick={this.handleMenuClick}>
       {this.formtag()}
       {
         footer
-          ? [<Menu.Divider key="baseline2"/>,
+          ? [<Menu.Divider key="baseline2" />,
           <Menu.Item key="createtag">
-            <Icon type="plus" style={{marginRight:6}}/>
+            <Icon type="plus" style={{ marginRight: 6 }} />
             创建标签
           </Menu.Item>,
           <Menu.Item key="managetag">
-            <span onClick={this.handleManageLabel}>
+            <span>
             <Icon type="setting" style={{marginRight:6}}/>
             标签管理
           </span>
           </Menu.Item>]
-        : <Menu.Item className='nofooter'></Menu.Item>
+          : <Menu.Item className='nofooter'></Menu.Item>
       }
-      <Menu.Divider key="baseline3"/>
+      <Menu.Divider key="baseline3" />
     </Menu>
   }
 
-  handleMenuClick(obj){
+  handleMenuClick(obj) {
     const { callbackManegeTag, callbackHostList, callbackManegeModal } = this.props
     callbackManegeTag(obj)
   }
 
+  handleLabelButton() {
+    this.setState({
+      DropdownVisible: true
+    })
+  }
+
   render(){
     const { width } = this.props
-    return(
+    return (
       <div className='cluster__TagDropDown__Component'>
-        <Dropdown overlay={this.handelfooter()} trigger={['click']} className='cluster__TagDropDown__Component'>
-          <Button type="ghost" size="large" style={{width:{width},padding:'4px 12px'}}>
+        <Dropdown overlay={this.handelfooter()} trigger={['click']} className='cluster__TagDropDown__Component' visible={this.state.DropdownVisible}>
+          <Button type="ghost" size="large" style={{width:{width},padding:'4px 12px'}} onClick={this.handleLabelButton}>
             {this.handleDropdownContext()}
           </Button>
         </Dropdown>
@@ -230,10 +160,8 @@ class TagDropdown extends Component {
 }
 
 class ManageTagModal extends Component {
-	constructor(props){
+  constructor(props) {
     super(props)
-    this.handleManageLabelOk = this.handleManageLabelOk.bind(this)
-    this.handleManageLabelCancel = this.handleManageLabelCancel.bind(this)
     this.formManegeLabelContainerTag = this.formManegeLabelContainerTag.bind(this)
     this.handleAddLabel = this.handleAddLabel.bind(this)
     this.handlecallback = this.handlecallback.bind(this)
@@ -245,45 +173,33 @@ class ManageTagModal extends Component {
     this.handleAddInput = this.handleAddInput.bind(this)
     this.formTagContainer = this.formTagContainer.bind(this)
     this.state = {
-      manageLabelModal : false,
-      createLabelModal : false,
+      createLabelModal: false,
+      visible: false,
     }
   }
 
-  handleManageLabelOk(){
+  handleCreateLabelModal() {
     this.setState({
-      manageLabelModal : false
+      createLabelModal: false
     })
   }
 
-  handleManageLabelCancel(){
+  handleCancelLabelModal() {
     this.setState({
-      manageLabelModal : false
+      createLabelModal: false
     })
   }
 
-  handleCreateLabelModal(){
-    this.setState({
-      createLabelModal : false
-    })
-  }
-
-  handleCancelLabelModal(){
-    this.setState({
-      createLabelModal : false
-    })
-  }
-
-  formManegeLabelContainerTag(){
+  formManegeLabelContainerTag() {
     //const { manageLabelContainer } = this.state
     //if(manageLabelContainer.length == 0){
-      return <div>暂无标签</div>
+    return <div>暂无标签</div>
     //}
   }
 
-  formTagContainer(){
+  formTagContainer() {
     let arr = []
-    for(let i=0;i<30;i++){
+    for (let i = 0; i < 30; i++) {
       arr.push(<Tag closable color="blue" className='tag' key={i}>
         <Tooltip title='key1'>
           <span className='key'>key1</span>
@@ -298,81 +214,108 @@ class ManageTagModal extends Component {
   }
 
 
-  handleAddLabel(key,value){
+  handleAddLabel(key, value) {
     return <div>
       <Tag closable color="blue"><span>key</span><span>value</span></Tag>
     </div>
   }
 
-  handlecallback(obj){
-    switch(obj.key){
-      case 'managetag' :
-        return this.setState({manageLabelModal : true})
-      case 'createtag' :
-        return this.setState({createLabelModal : true})
-      default :
-        return console.log('222')
+  handlecallback(obj) {
+    console.log('e',obj)
+
+    // *bai this is action set nodelist and labels
+    // isManage  (true) to manage labes
+    const { callbackHostList, scope, labels, isManage } = this.props
+    if (obj.key != "labelKey") {
+      if (!isManage) {
+        const tag = cloneDeep(scope.state.summary)
+        let isSet = false
+        labels.map((item) => {
+          if (item.value == obj.key) {
+            tag.map(list => {
+              if (list.value == obj.key) {
+              isSet = true
+              }
+            })
+            tag.push(item)
+          }
+        })
+        if (isSet) {
+          return
+        }
+        let nodeList =[]
+        scope.props.nodes.nodes.map((node) => {
+          let labels = node.objectMeta.labels
+          for (let keys in labels) {
+            if (keys == obj.keyPath[1] && labels[keys] == obj.keyPath[0]) {
+              nodeList.push(node);
+            }
+          }
+
+        });
+        nodeList = Array.from(new Set(nodeList))
+        scope.setState({
+          summary:tag,
+          nodeList
+        })
+
+      } else {
+        console.log('href....',this.props.scope)
+        // ManagLabelModal.js in scope
+        let userCreateLabel = cloneDeep(scope.state.userCreateLabel)
+        userCreateLabel[obj.keyPath[1]] = obj.keyPath[0]
+
+        scope.setState({
+          userCreateLabel
+        })
+
+      }
     }
-    this.setState({
-      manageLabelModal : obj.visible
-    })
+
+    switch(obj.key){
+      case 'managetag':
+        callbackHostList(obj)
+        this.setState({
+          visible: false
+        })
+        return
+      case 'createtag':
+        return this.setState({createLabelModal: true})
+      case 'labelKey':
+        return this.setState({
+          visible: false
+        })
+      default:
+        return this.setState({
+          visible: true
+        })
+
+    }
+    //this.setState({
+    //  manageLabelModal : obj.visible
+    //})
   }
 
-  handlecallbackHostList(obj){
+  handlecallbackHostList(obj) {
     const { callbackHostList } = this.props
     return callbackHostList(obj)
   }
 
-  callbackManegeModal(obj){
-    console.log('Modal.obj=',obj)
+  callbackManegeModal(obj) {
+    console.log('Modal.obj=', obj)
   }
 
-  handeldeleteNewLabel(){
+  handeldeleteNewLabel() {
     console.log('删除标签')
   }
 
-  handleAddInput(){
+  handleAddInput() {
     console.log('添加一组标签')
   }
-
-  render(){
-    return(
+  render() {
+    return (
       <div id="cluster__ManageTagModal__Component">
-        <TagDropdown footer={true} context={'hostlist'} callbackManegeTag={this.handlecallback} callbackHostList={this.handlecallbackHostList} width={'100px'}/>
-
-        <Modal
-          title="管理标签"
-          visible={this.state.manageLabelModal}
-          onOk={this.handleManageLabelOk}
-          onCancel={this.handleManageLabelCancel}
-          wrapClassName="manageLabelModal"
-          width="585px"
-          maskClosable={false}
-        >
-          <div className='labelcontainer'>
-            {this.formTagContainer()}
-          </div>
-
-          <div className='labelfooter'>
-          <span className='labeldropdown' id="cluster__hostlist__manageLabelModal">
-            <TagDropdown footer={false} width={'120px'} context={"Modal"} callbackManegeModal={this.callbackManegeModal}/>
-          </span>
-            <span className='item'>或</span>
-            <Form
-              inline
-              horizontal={true}
-              className='labelform'
-            >
-              <Form.Item className='itemkey'>
-                <Input placeholder="标签键" />
-              </Form.Item>
-              <Form.Item className='itemkey'>
-                <Input placeholder="标签值"/>
-              </Form.Item>
-            </Form>
-            <Button icon='plus' size="large" className='itembutton' type="ghost" onClick={this.handleAddLabel}>新建标签</Button>
-          </div>
-        </Modal>
+        <TagDropdown labels={this.props.labels} footer={this.props.footer} context={'hostlist'} callbackManegeTag={this.handlecallback} callbackHostList={this.handlecallbackHostList} width={'100px'} visible={this.state.visible}/>
 
         <Modal
           title="创建标签"
@@ -391,10 +334,10 @@ class ManageTagModal extends Component {
             </div>
             <div className='body'>
               <Form.Item className='inputlabelkey'>
-                <Input placeholder="请输入标签键" className='width'/>
+                <Input placeholder="请输入标签键" className='width' />
               </Form.Item>
               <Form.Item className='inputlabelvalue'>
-                <Input placeholder="请输入标签值" className='width'/>
+                <Input placeholder="请输入标签值" className='width' />
               </Form.Item>
               <span className='inputhandle' onClick={this.handeldeleteNewLabel}>
                 <Icon type="delete"></Icon>
@@ -402,10 +345,10 @@ class ManageTagModal extends Component {
             </div>
             <div className='body'>
               <Form.Item className='inputlabelkey'>
-                <Input placeholder="请输入标签键" className='width'/>
+                <Input placeholder="请输入标签键" className='width' />
               </Form.Item>
               <Form.Item className='inputlabelvalue'>
-                <Input placeholder="请输入标签值" className='width'/>
+                <Input placeholder="请输入标签值" className='width' />
               </Form.Item>
               <span className='inputhandle' onClick={this.handeldeleteNewLabel}>
                 <Icon type="delete"></Icon>

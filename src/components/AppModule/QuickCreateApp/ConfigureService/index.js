@@ -10,14 +10,403 @@
  * @author Zhangpc
  */
 
-import React, { Component, PropTypes } from 'react'
+import React, { PropTypes } from 'react'
+import { Form, Input, Row, Col, Select } from 'antd'
+import { connect } from 'react-redux'
+import { setFormFields } from '../../../../actions/quick_create_app'
+import { checkAppName, checkServiceName } from '../../../../actions/app_manage'
+import {
+  loadImageDetailTag,
+  loadImageDetailTagConfig,
+  getOtherImageTag,
+  loadOtherDetailTagConfig,
+} from '../../../../actions/app_center'
+import QueueAnim from 'rc-queue-anim'
+import { appNameCheck, validateK8sResourceForServiceName } from '../../../../common/naming_validation'
+import {
+  DEFAULT_REGISTRY,
+  ASYNC_VALIDATOR_TIMEOUT,
+ } from '../../../../constants'
+import Normal from './Normal'
+import './style/index.less'
 
-export default class ConfigureService extends Component {
+const LATEST = 'latest'
+const FormItem = Form.Item
+const Option = Select.Option
+
+let ConfigureService = React.createClass({
+  propTypes: {
+    callbackForm: PropTypes.func.isRequired,
+    mode: PropTypes.oneOf([ 'create', 'edit' ]),
+  },
+  getInitialState() {
+    return {
+      imageConfigs: {},
+    }
+  },
+  componentWillMount() {
+    const { callbackForm, imageName, registryServer, form } = this.props
+    callbackForm(form)
+    this.loadImageTags(this.props)
+    form.setFieldsValue({
+      imageUrl: `${registryServer}/${imageName}`,
+    })
+  },
+  componentWillUnmount() {
+    clearTimeout(this.appNameCheckTimeout)
+    // save fields to store when component unmount
+    const { id, setFormFields, fields } = this.props
+    setFormFields(id, fields)
+  },
+  loadImageTags(props) {
+    const {
+      location, loadImageDetailTag, getOtherImageTag,
+      imageName, form,
+    } = props
+    const { other } = location.query
+    const { setFieldsValue } = form
+    if (other) {
+      getOtherImageTag({ id: other, imageName }, {
+        success: {
+          func: result => {
+            let imageTag = result.tags[0]
+            if (result.tags.indexOf(LATEST) > -1) {
+              imageTag = LATEST
+            }
+            setFieldsValue({
+              imageTag,
+            })
+            // load image config by tag
+            this.loadImageConfig(other, imageTag)
+          },
+          isAsync: true,
+        }
+      })
+      return
+    }
+    // use DEFAULT_REGISTRY here!
+    loadImageDetailTag(DEFAULT_REGISTRY, imageName, {
+      success: {
+        func: result => {
+          let imageTag = result.data[0]
+          if (result.data.indexOf(LATEST) > -1) {
+            imageTag = LATEST
+          }
+          setFieldsValue({
+            imageTag,
+          })
+          // load image config by tag
+          this.loadImageConfig(other, imageTag)
+        },
+        isAsync: true,
+      }
+    })
+  },
+  loadImageConfig(other, imageTag) {
+    const {
+      mode,
+      loadOtherDetailTagConfig,
+      loadImageDetailTagConfig,
+      imageName,
+    } = this.props
+    let loadImageConfigFunc
+    const callback = {
+      success: {
+        func: (result) => {
+          // setArg()
+          if (mode !== 'create') {
+            return
+          }
+          this.setConfigsToForm(result.configInfo || result.data)
+          // setPorts(containerPorts, form)
+          // setEnv(defaultEnv, form)
+          // setCMD({cmd, entrypoint}, form)
+        },
+        isAsync: true
+      }
+    }
+    if (other) {
+      const config = {
+        imageId: other,
+        fullname: imageName,
+        imageTag
+      }
+      loadImageConfigFunc = loadOtherDetailTagConfig.bind(this, imageTag, callback)
+    } else {
+      loadImageConfigFunc = loadImageDetailTagConfig.bind(this, DEFAULT_REGISTRY, imageName, imageTag, callback)
+    }
+    loadImageConfigFunc()
+  },
+  setConfigsToStore() {},
+  setConfigsToForm(configs) {
+    this.setState({
+      imageConfigs: configs,
+    })
+    const { form } = this.props
+    const { setFieldsValue } = form
+    let { mountPath, containerPorts } = configs
+
+    // set storage
+    if (!mountPath || !Array.isArray(mountPath)) {
+      mountPath = []
+    }
+    const storageKeys = []
+    mountPath.map((path, index) => {
+      storageKeys.push(index)
+      setFieldsValue({
+        [`mountPath${index}`]: path,
+      })
+    })
+
+    // set ports
+    if (!containerPorts || !Array.isArray(containerPorts)) {
+      containerPorts = []
+    }
+    const portsKeys = []
+    containerPorts.map((port, index) => {
+      portsKeys.push(index)
+      const portArray = port.split('/')
+      setFieldsValue({
+        [`port${index}`]: parseInt(portArray[0]),
+        [`portProtocol${index}`]: portArray[1].toUpperCase(),
+      })
+    })
+    // must set a port
+    if (portsKeys.length < 1) {
+      portsKeys.push(0)
+    }
+
+    setFieldsValue({
+      storageKeys,
+      portsKeys,
+    })
+  },
+  checkAppName(rule, value, callback) {
+    if (!value) {
+      return callback()
+    }
+    const { current, checkAppName } = this.props
+    let errorMsg = appNameCheck(value, '应用名称')
+    if (errorMsg != 'success') {
+      return callback(errorMsg)
+    }
+    clearTimeout(this.appNameCheckTimeout)
+    this.appNameCheckTimeout = setTimeout(() => {
+      checkAppName(current.cluster.clusterID, value, {
+        success: {
+          func: (result) => {
+            if (result.data) {
+              errorMsg = appNameCheck(value, '应用名称', true)
+              callback(errorMsg)
+              return
+            }
+            callback()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            callback()
+          }
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
+  },
+  checkServiceName(rule, value, callback) {
+    if (!value) {
+      return callback()
+    }
+    const { current, checkServiceName } = this.props
+    if (!validateK8sResourceForServiceName(value)) {
+      return callback('服务名称可由3~24位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾')
+    }
+    // @Todo: check local service list
+    clearTimeout(this.serviceNameExistsTimeout)
+    this.serviceNameExistsTimeout = setTimeout(() => {
+      checkServiceName(current.cluster.clusterID, value, {
+        success: {
+          func: (result) => {
+            if(result.data) {
+              callback(appNameCheck(value, '服务名称', true))
+              return
+            }
+            callback()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            callback()
+          }
+        }
+      })
+    }, ASYNC_VALIDATOR_TIMEOUT)
+  },
   render() {
+    const {
+      form, imageTags, fields,
+      standardFlag, loadFreeVolume, createStorage,
+      current,
+    } = this.props
+    const { imageConfigs } = this.state
+    const { getFieldProps } = form
+    const appNameProps = getFieldProps('appName', {
+      rules: [
+        { required: true, message: '应用名称至少为3个字符' },
+        { validator: this.checkAppName }
+      ],
+    })
+    const serviceNameProps = getFieldProps('serviceName', {
+      rules: [
+        { required: true, message: '服务名称至少为3个字符' },
+        { validator: this.checkServiceName }
+      ],
+    })
+    const imageUrlProps = getFieldProps('imageUrl', {
+      rules: [
+        { required: true }
+      ],
+    })
+    const imageTagProps = getFieldProps('imageTag', {
+      rules: [
+        { required: true }
+      ],
+    })
+    const formItemLayout = {
+      labelCol: { span: 3 },
+      wrapperCol: { span: 21 },
+    }
     return (
-      <div id="quickCreateImageConfigureService">
-        配置服务
-      </div>
+      <QueueAnim id="quickCreateAppConfigureService" type="right">
+        <div id="basic" key="basic">
+          <Form horizontal>
+            <FormItem
+              {...formItemLayout}
+              wrapperCol={{ span: 6 }}
+              label="应用名称"
+              hasFeedback
+              key="appName"
+            >
+              <Input
+                size="large"
+                placeholder="请输入应用名称"
+                autoComplete="off"
+                {...appNameProps}
+                ref={ref => this.appNameInput = ref}
+              />
+            </FormItem>
+            <FormItem
+              {...formItemLayout}
+              wrapperCol={{ span: 6 }}
+              label="服务名称"
+              hasFeedback
+              key="serviceName"
+            >
+              <Input
+                size="large"
+                placeholder="请输入服务名称"
+                autoComplete="off"
+                {...serviceNameProps}
+                ref={ref => this.serviceNameInput = ref}
+              />
+            </FormItem>
+            <FormItem
+              {...formItemLayout}
+              wrapperCol={{ span: 9 }}
+              label="镜像"
+              key="image"
+            >
+              <Input
+                size="large"
+                placeholder="请输入镜像地址"
+                autoComplete="off"
+                readOnly
+                {...imageUrlProps}
+              />
+            </FormItem>
+            <FormItem
+              {...formItemLayout}
+              wrapperCol={{ span: 6 }}
+              label="镜像版本"
+              key="imageTag"
+            >
+              <Select
+                size="large"
+                placeholder="请选择镜像版本"
+                showSearch
+                optionFilterProp="children"
+                {...imageTagProps}
+              >
+                {
+                  imageTags.list.map(tag => (
+                    <Option key={tag}>{tag}</Option>
+                  ))
+                }
+              </Select>
+            </FormItem>
+          </Form>
+        </div>
+        <Normal
+          form={form}
+          formItemLayout={formItemLayout}
+          fields={fields}
+          standardFlag={standardFlag}
+          loadFreeVolume={loadFreeVolume}
+          createStorage={createStorage}
+          imageConfigs={imageConfigs}
+          key="normal"
+        />
+      </QueueAnim>
     )
   }
+})
+
+const createFormOpts = {
+  mapPropsToFields(props) {
+    return props.fields
+  },
+  onFieldsChange(props, fields) {
+    const { id, setFormFields } = props
+    setFormFields(id, fields)
+  }
 }
+
+ConfigureService = Form.create(createFormOpts)(ConfigureService)
+
+function mapStateToProps(state, props) {
+  const { quickCreateApp, entities, getImageTag } = state
+  const { imageTag, otherImageTag } = getImageTag
+  const { imageName, location, id } = props
+  let tags = []
+  let tagsIsFetching = false
+  if (location.query.other) {
+    tags = otherImageTag.imageTag || []
+    tagsIsFetching = otherImageTag.isFetching
+  } else {
+    if (imageTag[DEFAULT_REGISTRY] && imageTag[DEFAULT_REGISTRY][imageName]) {
+      const currentImageTags = imageTag[DEFAULT_REGISTRY][imageName]
+      tags = currentImageTags.tag || []
+      tagsIsFetching = currentImageTags.isFetching
+    }
+  }
+  return {
+    fields: quickCreateApp.fields[id],
+    current: entities.current,
+    imageTags: {
+      list: tags,
+      isFetching: tagsIsFetching,
+    }
+  }
+}
+
+ConfigureService = connect(mapStateToProps, {
+  setFormFields,
+  checkAppName,
+  checkServiceName,
+  loadImageDetailTag,
+  loadImageDetailTagConfig,
+  getOtherImageTag,
+  loadOtherDetailTagConfig,
+})(ConfigureService)
+
+export default ConfigureService

@@ -330,7 +330,7 @@ class TerminalModal extends Component {
                     ] : null
                   }
                   <iframe id={item.metadata.name} key={'iframe' + index}
-                    src={`/js/container_terminal.html?namespace=${item.metadata.namespace}&pod=${item.metadata.name}&cluster=${this.props.cluster}&_=20170327`} />
+                    src={`/js/container_terminal.html?namespace=${item.metadata.namespace}&pod=${item.metadata.name}&cluster=${this.props.cluster}&_=20170509`} />
                   {
                     item.terminalStatus == 'timeout' ? [
                       <div className='webLoadingBox' key={'webLoadingBox' + index}>

@@ -11,7 +11,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import { Icon, Button, Card, Tabs, Table, Input, Spin, Row, Col, Dropdown, Menu, Modal, Progress, Switch } from 'antd'
+import { Icon, Button, Card, Tabs, Table, Input, Spin, Row, Col, Dropdown, Menu, Modal, Progress, Switch, Tag, Tooltip } from 'antd'
 import { getNodesPodeList, loadHostMetrics, searchPodeList , loadHostInstant} from '../../actions/cluster'
 import './style/ClusterDetail.less'
 import hostImg from '../../assets/img/integration/host.png'
@@ -19,18 +19,36 @@ import { formatDate, calcuDate } from '../../common/tools'
 import { LABEL_APPNAME } from '../../constants'
 import NotificationHandler from '../../common/notification_handler'
 import { getHostInfo } from '../../actions/cluster'
-import { changeClusterNodeSchedule } from '../../actions/cluster_node'
+import { changeClusterNodeSchedule, getNodeLabels} from '../../actions/cluster_node'
 import TimeControl from '../Metrics/TimeControl'
 import Metrics from '../Metrics'
 import { camelize } from 'humps'
 import QueueAnim from 'rc-queue-anim'
 import AlarmStrategy from '../ManageMonitor/AlarmStrategy'
+import ManageLabelModal from './MangeLabelModal'
 
 const TabPane = Tabs.TabPane
 const MASTER = '主控节点/Master'
 const SLAVE = '计算节点/Slave'
 
 let HostInfo = React.createClass({
+  getInitialState(){
+    return {
+      manageLabelModal : false,
+      nodeLabel: {}
+    }
+  },
+  componentWillMount() {
+    const { func } = this.props
+    const _this = this
+    func.getNodeLabels(func.clusterID,func.nodeName, {
+      success: {
+        func:(ret)=> {
+          _this.setState({nodeLabel: ret})
+        }
+      }
+    })
+  },
   reloadList() {
     const { scope } = this.props
     const { clusterID, clusterName } = scope.props
@@ -72,6 +90,36 @@ let HostInfo = React.createClass({
     let podname = this.state.podname
     const { scope } = this.props
     scope.props.searchPodeList(podname)
+  },
+  formTagContainer(){
+    const label = []
+    const {nodeLabel} = this.props.func
+    for (let key in nodeLabel) {
+      label.push(
+        <Tag color="blue" className='tag' key={key}>
+            <Tooltip title={key}>
+              <span className='key'>{key}</span>
+            </Tooltip>
+            <span className='point'>：</span>
+            <Tooltip title={nodeLabel[key]}>
+              <span className='value'>{nodeLabel[key]}</span>
+            </Tooltip>
+        </Tag>
+      )
+    }
+
+    return label
+  },
+  handleManageLabelModal(){
+    this.setState({
+      manageLabelModal: true
+    })
+  },
+  callbackManageLabelModal(){
+    this.setState({
+      manageLabelModal: false,
+      nodeLabel:this.props.func.nodeLabel
+    })
   },
   render() {
     const columns = [{
@@ -167,6 +215,23 @@ let HostInfo = React.createClass({
               </Row>
             </div>
 
+            <div className="host-list">
+              <div className="titles"><svg className="svg-icon"><use xlinkHref="#tag"></use></svg> 标签信息 <Button className='manageLabelButton' type="ghost" onClick={this.handleManageLabelModal}><Icon type="setting" />管理标签</Button></div>
+              <br />
+              <div className='labelContainer'>
+                {this.formTagContainer()}
+              </div>
+            </div>
+
+            <ManageLabelModal
+              manageLabelModal={this.state.manageLabelModal}
+              callback={this.callbackManageLabelModal}
+              userCreateLabel= {this.state.nodeLabel}
+              nodeName={this.props.func.nodeName}
+              clusterID= {this.props.func.clusterID}
+              isNode={true}
+              footer={true}
+            />
           </div>
           <div className="topTitle">容器详情</div>
           <div className="containers">
@@ -286,7 +351,7 @@ class ClusterDetail extends Component {
       metrics = cpuData.data.metrics.map((list) => {
         let floatValue = list.floatValue || list.value
         return {
-          timestamp: formatDate(list.timestamp),
+          timestamp: formatDate(list.timestamp).substr(list.timestamp.indexOf('-')+1),
           value: floatValue
         }
       })
@@ -302,7 +367,7 @@ class ClusterDetail extends Component {
     if (memoryData.data.metrics) {
       metrics = memoryData.data.metrics.map((list) => {
         return {
-          timestamp: formatDate(list.timestamp),
+          timestamp: formatDate(list.timestamp).substr(list.timestamp.indexOf('-')+1),
           value: list.floatValue || list.value
         }
       })
@@ -319,7 +384,7 @@ class ClusterDetail extends Component {
     if (memoryData.data.metrics) {
       metrics = memoryData.data.metrics.map((list) => {
         return {
-          timestamp: formatDate(list.timestamp),
+          timestamp: formatDate(list.timestamp).substr(list.timestamp.indexOf('-')+1),
           value: list.floatValue || list.value,
         }
       })
@@ -343,7 +408,12 @@ class ClusterDetail extends Component {
     const showMemory = this.formetMemorymetrics(this.props.memory)
     const showNetworkRec = this.formetNetworkmetrics(this.props.networkReceived, this.props.clusterName)
     const showNetworkTrans = this.formetNetworkmetrics(this.props.networkTransmitted, this.props.clusterName)
-
+    const fetchApi = {
+      getNodeLabels: this.props.getNodeLabels,
+      clusterID: this.props.clusterID,
+      nodeName: this.props.clusterName,
+      nodeLabel: this.props.nodeLabel
+    }
     return (
       <div id="clusterDetail">
         <div className="topRow" style={{ marginBottom: '20px', height: '50px', paddingTop: '20px' }}>
@@ -379,7 +449,7 @@ class ClusterDetail extends Component {
           <div className="h3"></div>
           <Tabs defaultActiveKey={this.state.activeTabKey}>
             <TabPane tab="详情" key="info">
-              <HostInfo foreverPodNumber={this.state.foreverPodNumber} podeList={this.props.results} instant={ this.props.instant } hostInfo={hostInfo} scope={this} />
+              <HostInfo foreverPodNumber={this.state.foreverPodNumber} podeList={this.props.results} instant={ this.props.instant } hostInfo={hostInfo} func={fetchApi} scope={this} />
             </TabPane>
             <TabPane tab="监控" key="monitoring">
               <TimeControl onChange={this.handleTimeChange} />
@@ -426,6 +496,7 @@ function mapStateToProps(state, props) {
 
     isFetching: hostMetrics ? hostMetrics.isFetching : false,
   }
+  const { nodeLabel } = state.cluster_nodes || {}
   if (hostMetrics && hostMetrics.result) {
     cpuData.data = hostMetrics.result.cpus
     memoryData.data = hostMetrics.result.memory
@@ -441,7 +512,7 @@ function mapStateToProps(state, props) {
     memory: memoryData,
     networkReceived: networkReceivedData,
     networkTransmitted: networkTransmittedData,
-
+    nodeLabel: nodeLabel ? nodeLabel.result: {} ,
     clusterID,
     clusterName,
     isFetching,
@@ -457,5 +528,6 @@ export default connect(mapStateToProps, {
   loadHostMetrics,
   loadHostInstant,
   searchPodeList,
-  changeClusterNodeSchedule
+  changeClusterNodeSchedule,
+  getNodeLabels
 })(ClusterDetail)

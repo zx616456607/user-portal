@@ -39,7 +39,7 @@ class ClusterLabelManage extends Component{
   loadData(that) {
     const _this = this
     const { clusterID } = that.props
-    that.props.getClusterLabel(clusterID,null,'editing')
+    that.props.getClusterLabel(clusterID)
   }
   componentWillMount(){
     this.loadData(this)
@@ -365,7 +365,7 @@ class ClusterLabelManage extends Component{
         <Button type="primary" size="large" onClick={()=> this.loadData(this)} className='titlebutton'><i className='fa fa-refresh' /> 刷新</Button>
         <span className='titlesearch'>
           <Input
-            placeholder="情输入标签键或标签值搜索"
+            placeholder="请输入标签键或标签值搜索"
             size="large"
             ref='titleInput'
             id='titleInput'

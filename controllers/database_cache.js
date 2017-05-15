@@ -14,6 +14,7 @@ const Service = require('../kubernetes/objects/service')
 const apiFactory = require('../services/api_factory')
 const registryAPIs = require('../registry/lib/registryAPIs')
 
+const PetsetLabel = 'tenxcloud.com/petsetType'
 /*
 basicInfo {
   templateId: "xxxx",
@@ -141,6 +142,29 @@ exports.getDBService = function* () {
   const result = yield api.getBy([cluster, 'dbservices', serviceName], null);
   const database = result.data || []
 
+  // Get redis password from init container
+  let initEnv = []
+  if (database.petsetSpec.template) {
+    let podTemplate = database.petsetSpec.template
+    if (podTemplate.metadata.labels && podTemplate.metadata.labels[PetsetLabel] == 'redis') {
+      // For redis, get password from init container
+      if (podTemplate.metadata.annotations['pod.alpha.kubernetes.io/init-containers']) {
+        let initContainers = JSON.parse(podTemplate.metadata.annotations['pod.alpha.kubernetes.io/init-containers'])
+        initContainers.forEach(function(c) {
+          if (c.name === 'install' && c.env) {
+            c.env.forEach(function(e) {
+              if (e.name === 'REDIS_PASSWORD') {
+                initEnv.push({
+                  name: e.name,
+                  value: e.value
+                })
+              }
+            })
+          }
+        })
+      }
+    }
+  }
   // Remove some data
   if (database.objectMeta) {
     delete database.objectMeta.labels
@@ -149,6 +173,10 @@ exports.getDBService = function* () {
   delete database.eventList
   if (database.podList && database.podList.pods) {
     database.podList.pods.forEach(function(pod) {
+      if (!pod.podSpec.containers[0].env) {
+        pod.podSpec.containers[0].env = []
+      }
+      pod.podSpec.containers[0].env = initEnv
       if (pod.objectMeta) {
         delete pod.objectMeta.labels
         delete pod.objectMeta.annotations
@@ -170,7 +198,7 @@ exports.getDBService = function* () {
 
   this.body = {
     cluster,
-    database,
+    database
   }
 }
 

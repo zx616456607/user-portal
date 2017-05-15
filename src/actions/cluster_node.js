@@ -157,12 +157,11 @@ export const GET_CLOUSTER_LABEL_REQUEST = 'GET_CLOUSTER_LABEL_REQUEST'
 export const GET_CLOUSTER_LABEL_SUCCESS = 'GET_CLOUSTER_LABEL_SUCCESS'
 export const GET_CLOUSTER_LABEL_FAILURE = 'GET_CLOUSTER_LABEL_FAILURE'
 
-function fetchClusterLabel(cluster, callback, search) {
-  search = search || ''
+function fetchClusterLabel(cluster, callback) {
   return {
     [FETCH_API]: {
       types: [GET_CLOUSTER_LABEL_REQUEST, GET_CLOUSTER_LABEL_SUCCESS, GET_CLOUSTER_LABEL_FAILURE],
-      endpoint: `${API_URL_PREFIX}/cluster-nodes/${cluster}/label-summary?view=${search}`,
+      endpoint: `${API_URL_PREFIX}/cluster-nodes/${cluster}/label-summary`,
       schema: {},
     },
     cluster,
@@ -170,20 +169,20 @@ function fetchClusterLabel(cluster, callback, search) {
   }
 }
 
-export function getClusterLabel(cluster, callback, search) {
+export function getClusterLabel(cluster, callback) {
   return (dispatch) => {
-    return dispatch(fetchClusterLabel(cluster, callback, search))
+    return dispatch(fetchClusterLabel(cluster, callback))
   }
 }
 
-export const ADD_LABELS_REQUERT = 'ADD_LABELS_REQUERT'
+export const ADD_LABELS_REQUEST = 'ADD_LABELS_REQUEST'
 export const ADD_LABELS_SUCCESS = 'ADD_LABELS_SUCCESS'
 export const ADD_LABELS_FAILURE = 'ADD_LABELS_FAILURE'
 
 function fetchAddLabel(label, cluster, callback) {
   return {
     [FETCH_API]: {
-      types: [ADD_LABELS_REQUERT, ADD_LABELS_SUCCESS, ADD_LABELS_FAILURE],
+      types: [ADD_LABELS_REQUEST, ADD_LABELS_SUCCESS, ADD_LABELS_FAILURE],
       endpoint: `${API_URL_PREFIX}/labels`,
       options: {
         method:'POST',
@@ -202,7 +201,7 @@ export function addLabels(label, cluster, callback) {
   }
 }
 
-export const EDIT_LABELS_REQUERT = 'EDIT_LABELS_REQUERT'
+export const EDIT_LABELS_REQUEST = 'EDIT_LABELS_REQUEST'
 export const EDIT_LABELS_SUCCESS = 'EDIT_LABELS_SUCCESS'
 export const EDIT_LABELS_FAILURE = 'EDIT_LABELS_FAILURE'
 
@@ -212,7 +211,7 @@ function fetchEditLabel(body, type, callback) {
   }
   return {
     [FETCH_API]: {
-      types: [EDIT_LABELS_REQUERT, EDIT_LABELS_SUCCESS, EDIT_LABELS_FAILURE],
+      types: [EDIT_LABELS_REQUEST, EDIT_LABELS_SUCCESS, EDIT_LABELS_FAILURE],
       endpoint: `${API_URL_PREFIX}/labels/${body.id}`,
       options: {
         method: type,
@@ -240,5 +239,51 @@ export function searchLabels(search,cluster) {
     type: SEARCH_CLUSTER_LABLELS,
     search: search,
     cluster
+  }
+}
+
+export const EDIT_NODE_LABEL_REQUEST = 'EDIT_NODE_LABEL_REQUEST'
+export const EDIT_NODE_LABEL_SUCCESS = 'EDIT_NODE_LABEL_SUCCESS'
+export const EDIT_NODE_LABEL_FAILURE = 'EDIT_NODE_LABEL_FAILURE'
+
+function fetchAddNodeLabels(body,callback) {
+  return {
+    [FETCH_API]: {
+      types: [EDIT_NODE_LABEL_REQUEST, EDIT_NODE_LABEL_SUCCESS, EDIT_NODE_LABEL_FAILURE],
+      endpoint: `${API_URL_PREFIX}/cluster-nodes/${body.cluster}/${body.node}/labels`,
+      options: {
+        method: 'PUT',
+        body: body.labels
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function editNodeLabels(body,callback) {
+  return (dispatch) => {
+    return dispatch(fetchAddNodeLabels(body,callback))
+  }
+}
+
+export const GET_NODE_LABEL_REQUEST = 'GET_NODE_LABEL_REQUEST'
+export const GET_NODE_LABEL_SUCCESS = 'GET_NODE_LABEL_SUCCESS'
+export const GET_NODE_LABEL_FAILURE = 'GET_NODE_LABEL_FAILURE'
+
+function fetchNodeLabels(cluster,node,callback) {
+   return {
+    [FETCH_API]: {
+      types: [GET_NODE_LABEL_REQUEST, GET_NODE_LABEL_SUCCESS, GET_NODE_LABEL_FAILURE],
+      endpoint: `${API_URL_PREFIX}/cluster-nodes/${cluster}/${node}/labels`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getNodeLabels(cluster,node,callback) {
+  return (dispatch) => {
+    return dispatch(fetchNodeLabels(cluster,node,callback))
   }
 }

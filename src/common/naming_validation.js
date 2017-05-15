@@ -124,6 +124,7 @@ export function appNameCheck(name, itemName, existNameFlag) {
   //min length check
   if (name.length < 3) {
     errorMsg = '请输入3个以上字符';
+    errorMsg = `${itemName}至少为3个字符`;
     return errorMsg;
   }
   //existName check
