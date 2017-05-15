@@ -241,7 +241,6 @@ exports.updateClusterPlugins = function* () {
   if(hostName) {
     requestBody.hostName = hostName
   }
-  console.log(requestBody)
   const result = yield api.updateBy([cluster, 'plugins', pluginName], null, requestBody)
   this.body = result
 }

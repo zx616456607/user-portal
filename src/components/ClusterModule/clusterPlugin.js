@@ -243,7 +243,6 @@ class ClusterPlugin extends Component{
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
     const { getFieldProps } = form
-    console.log(this.state.currentPlugin)
     const selectNode = getFieldProps('selectNode', {
       rules: [{
         validator: (rule, value, callback) => {
