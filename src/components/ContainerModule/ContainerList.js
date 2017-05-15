@@ -126,7 +126,16 @@ let MyComponent = React.createClass({
     }
     instanceExport(body,{
       success: {
-        func: () => {
+        func: (res) => {
+          if(res.statusCode && res.statusCode == 204){
+            Notification.error('导出镜像失败！当前平台镜像仓库不完整')
+            this.setState({
+              exportImageModalVisible: false,
+              exportContainerName: '',
+              ModalLoadidng:false
+            })
+            return
+          }
           this.setState({
             exportImageModalVisible: false,
             exportImageModalSuccess: true,
@@ -383,24 +392,25 @@ let MyComponent = React.createClass({
               </div>
             </Form>
           </div>
-            <div className="main">
-              <div className='preview'>预览：</div>
-              <div className='address'>
-                <span>
-                  {
-                    exportimageUrl
-                    ? <span>111111</span>
-                    : <Spin></Spin>
-                  }
-                </span>
-                <span className='color'>{this.formatImageInfo().imageName}</span>
-                <span className='point'>:</span>
-                <span className='color'>{this.formatImageInfo().imageTag}</span>
-              </div>
+          <div className="main">
+            <div className='preview'>预览：</div>
+            <div className='address'>
+              <span>
+                {
+                  exportimageUrl
+                  ? <span>{exportimageUrl.registryConfig.server}/</span>
+                  : <Spin></Spin>
+                }
+              </span>
+              <span className='color'>{this.formatImageInfo().imageName}</span>
+              <span className='point'>:</span>
+              <span className='color'>{this.formatImageInfo().imageTag}</span>
             </div>
-          <div className='footet'>
-            <Icon type="exclamation-circle-o" style={{marginRight:'8px'}}/>
-            系统会按照上面输入的镜像地址，将导出的镜像推送到对应的仓库中。
+          </div>
+          <div className='footer'>
+            <div className='item'>当前容器有映射 Volume 目录，此次导出的镜像<span className='color'>不包含 Volume 的存储目录</span></div>
+            <div><Icon type="exclamation-circle-o" style={{marginRight:'8px'}}/>
+              系统会按照上面输入的镜像地址，将导出的镜像推送到对应的仓库中。</div>
           </div>
         </Modal>
 
