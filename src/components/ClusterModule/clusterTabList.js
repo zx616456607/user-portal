@@ -195,14 +195,14 @@ class ClusterTabList extends Component {
         <div id='clusterTabList' key='clusterTabList'>
           <Tabs activeKey={TabsactiveKey} onChange={this.handleTabsSwitch}>
 
-            <TabPane tab={<div className='tablepanediv'><i className="fa fa-tachometer" aria-hidden="true"></i><span className='tablepanespan'>资源总览</span></div>} key="1">
+            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#resourceoverview"></use></svg><span className='tablepanespan'>资源总览</span></div>} key="1">
             <ClusterResourcesOverview
               cluster={cluster}
               clusterSummary={clusterSummary}
             />
 
             </TabPane>
-            <TabPane tab={<div className='tablepanediv'><i className="fa fa-server" aria-hidden="true"></i><span className='tablepanespan'>主机列表</span></div>} key="2">
+            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#hostlists"></use></svg><span className='tablepanespan'>主机列表</span></div>} key="2">
               <HostList
                 cluster={cluster}
                 clusterID={clusterID}
@@ -210,11 +210,11 @@ class ClusterTabList extends Component {
                 callbackActiveKey={this.handleCallbackActiveKey}
               />
             </TabPane>
-            <TabPane tab={<div className='tablepanediv'><i className="fa fa-tag" aria-hidden="true"></i><span className='tablepanespan'>标签管理</span></div>} key="3">
+            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#managelabels"></use></svg><span className='tablepanespan'>标签管理</span></div>} key="3">
               <ClusterLabelManage  clusterID={clusterID} />
             </TabPane>
 
-            <TabPane tab={<div className='tablepanediv'><i className="fa fa-plug" aria-hidden="true"></i><span className='tablepanespan'>插件集群</span></div>} key="4">
+            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#plugin"></use></svg><span className='tablepanespan'>插件集群</span></div>} key="4">
               <ClusterPlugin
               />
             </TabPane>
