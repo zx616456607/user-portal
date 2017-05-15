@@ -218,23 +218,30 @@ exports.updateClusterPlugins = function* () {
     return
   }
   const body = this.request.body
-  if(!body.cpu || !body.memory) {
+  if(body.cpu == undefined || body.memory == undefined || body.hostName == undefined) {
     const err = new Error('cpu, memory, hostName is require')
     err.status = 400
     throw err
   }
-  const cpu = parseFloat(body.cpu) * 1000
-  const memory = parseInt(body.memory)
-  const result = yield api.updateBy([cluster, 'plugins', pluginName], null, {
+  const cpu = body.cpu != 0 ? parseFloat(body.cpu) * 1000 : undefined
+  const memory = body.memory != 0 ? parseInt(body.memory) : undefined
+  const hostName = body.hostName != "" ? body.hostName : undefined
+  let requestBody =  {
     limit: {
-      cpu,
-      memory
     },
     request: {
-      cpu,
-      memory
-    },
-    hostName: body.hostName
-  })
+    }
+  }
+  if(cpu) {
+    requestBody.limit.cpu = requestBody.request.cpu = cpu
+  }
+  if(memory) {
+    requestBody.limit.memory = requestBody.request.memory = memory
+  }
+  if(hostName) {
+    requestBody.hostName = hostName
+  }
+  console.log(requestBody)
+  const result = yield api.updateBy([cluster, 'plugins', pluginName], null, requestBody)
   this.body = result
 }
