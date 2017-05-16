@@ -11,24 +11,23 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Card, Row, Col, Steps, Button, Modal, Icon } from 'antd'
+import { Card, Row, Col, Steps, Button, Modal, Icon, Tooltip } from 'antd'
 import { browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import SelectImage from './SelectImage'
 import ConfigureService from './ConfigureService'
+import NotificationHandler from '../../../common/notification_handler'
 import { genRandomString, toQuerystring } from '../../../common/tools'
 import { removeFormFields } from '../../../actions/quick_create_app'
 import './style/index.less'
 
 const Step = Steps.Step
 const SERVICE_CONFIG_HASH = '#configure-service'
+const SERVICE_EDIT_HASH = '#edit-service'
 const standard = require('../../../../configs/constants').STANDARD_MODE
 const mode = require('../../../../configs/model').mode
 const standardFlag = standard === mode
-
-function genConfigureServiceKey() {
-  return genRandomString('0123456789')
-}
+const notification = new NotificationHandler()
 
 class QuickCreateApp extends Component {
   constructor(props) {
@@ -39,33 +38,61 @@ class QuickCreateApp extends Component {
     this.renderFooterSteps = this.renderFooterSteps.bind(this)
     this.goSelectCreateAppMode = this.goSelectCreateAppMode.bind(this)
     this.saveService = this.saveService.bind(this)
+    this.editService = this.editService.bind(this)
+    this.setConfig = this.setConfig.bind(this)
+    this.genConfigureServiceKey = this.genConfigureServiceKey.bind(this)
     const { location } = props
-    const { hash, query } = location
+    const { query } = location
     const { imageName, registryServer } = query
-    this.hash = hash
-    this.configureServiceKey = genConfigureServiceKey()
-    if (hash === SERVICE_CONFIG_HASH && !imageName) {
-      browserHistory.replace('/app_manage/app_create/quick_create')
-    } else if (hash !== SERVICE_CONFIG_HASH && imageName && registryServer) {
-      browserHistory.replace(`/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_CONFIG_HASH}`)
-    }
     this.state = {
       imageName,
       registryServer,
       serviceList: [],
       confirmGoBackModalVisible: false,
-      configureMode: 'create',
+      appName: '',
+    }
+    this.serviceSum = 0
+    this.configureServiceKey = this.genConfigureServiceKey()
+  }
+
+  genConfigureServiceKey() {
+    this.serviceSum ++
+    return `${this.serviceSum}-${genRandomString('0123456789')}`
+  }
+
+  componentWillMount() {
+    this.setConfig(this.props)
+    const { location, fields } = this.props
+    const { hash, query } = location
+    const { imageName, registryServer, key } = query
+    if ((hash === SERVICE_CONFIG_HASH && !imageName) || hash === SERVICE_EDIT_HASH) {
+      browserHistory.replace('/app_manage/app_create/quick_create')
+    } else if (hash !== SERVICE_CONFIG_HASH && imageName && registryServer) {
+      browserHistory.replace(`/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_CONFIG_HASH}`)
     }
   }
 
   componentWillReceiveProps(nextProps) {
     const { location } = nextProps
-    const { hash } = location
-    this.hash = hash
+    const { hash, query } = location
+    if (hash !== this.props.location.hash || query.key !== this.props.location.query.key) {
+      this.setConfig(nextProps)
+    }
+  }
+
+  setConfig(props) {
+    const { location } = props
+    const { hash, query } = location
+    const { key } = query
+    const configureMode = hash === SERVICE_EDIT_HASH ? 'edit' : 'create'
+    this.configureMode = configureMode
+    if (configureMode === 'edit') {
+      this.configureServiceKey = key
+    }
   }
 
   getStepsCurrent() {
-    if (this.hash === SERVICE_CONFIG_HASH) {
+    if (this.props.location.hash === SERVICE_CONFIG_HASH) {
       return 2
     }
     return 1
@@ -101,25 +128,34 @@ class QuickCreateApp extends Component {
   }
 
   saveService() {
+    const { fields } = this.props
     const { validateFieldsAndScroll } = this.form
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
         return
       }
-      this.configureServiceKey = genConfigureServiceKey()
+      const fieldsKeys = Object.keys(fields) || []
+      if (fieldsKeys.length === 1) {
+        this.setState({
+          appName: values.appName
+        })
+      }
+      this.configureServiceKey = this.genConfigureServiceKey()
       browserHistory.push('/app_manage/app_create/quick_create')
     })
   }
 
   renderBody() {
-    const { imageName, registryServer, configureMode } = this.state
-    if (this.hash === SERVICE_CONFIG_HASH && imageName) {
+    const { hash, query } = this.props.location
+    const { key } = query
+    const { imageName, registryServer, appName } = this.state
+    if ((hash === SERVICE_CONFIG_HASH && imageName) || (hash === SERVICE_EDIT_HASH && key)) {
       return (
         <ConfigureService
-          mode={configureMode}
+          mode={this.configureMode}
           id={this.configureServiceKey}
           callbackForm={form => this.form = form}
-          {...{imageName, registryServer}}
+          {...{imageName, registryServer, appName}}
           {...this.props}
         />
       )
@@ -130,7 +166,7 @@ class QuickCreateApp extends Component {
   renderFooterSteps() {
     const { location } = this.props
     const { hash } = location
-    if (hash === SERVICE_CONFIG_HASH) {
+    if (hash === SERVICE_CONFIG_HASH || hash === SERVICE_EDIT_HASH) {
       return (
         <div className="footerSteps">
           <div className="configureSteps">
@@ -166,6 +202,28 @@ class QuickCreateApp extends Component {
     )
   }
 
+  editService(key) {
+    const query = { key }
+    browserHistory.push(`/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_EDIT_HASH}`)
+  }
+
+  deleteService(key) {
+    const { removeFormFields } = this.props
+    if (this.configureMode === 'edit' && this.configureServiceKey === key) {
+      notification.warn('删除失败，请您先取消编辑')
+      return
+    }
+    removeFormFields(key, {
+      success: {
+        func: () => {
+          /*if (this.configureMode === 'edit' && this.configureServiceKey === key) {
+            browserHistory.push('/app_manage/app_create/quick_create')
+          }*/
+        }
+      }
+    })
+  }
+
   renderServiceList() {
     const { fields } = this.props
     const serviceList = []
@@ -176,12 +234,29 @@ class QuickCreateApp extends Component {
         if (serviceName && serviceName.value) {
           serviceList.push(
             <Row className="serviceItem" key={serviceName.value}>
-              <Col span={20}>
+              <Col span={18}>
               {serviceName.value}
               </Col>
-              <Col span={4} className="btns">
-                <Icon type="edit" />
-                <Icon type="delete" />
+              <Col span={6} className="btns">
+                <Tooltip title="修改">
+                  <Button
+                    type="dashed"
+                    size="small"
+                    onClick={this.editService.bind(this, key)}
+                  >
+                    <Icon type="edit" />
+                  </Button>
+                </Tooltip>
+                <Tooltip title="删除">
+                  <Button
+                    type="dashed"
+                    size="small"
+                    disabled={this.configureMode === 'edit' && this.configureServiceKey === key}
+                    onClick={this.deleteService.bind(this, key)}
+                  >
+                    <Icon type="delete" />
+                  </Button>
+                </Tooltip>
               </Col>
             </Row>
           )
@@ -245,6 +320,7 @@ class QuickCreateApp extends Component {
 
 function mapStateToProps(state, props) {
   const { quickCreateApp } = state
+  const { location } = props
   return {
     fields: quickCreateApp.fields,
     standardFlag,

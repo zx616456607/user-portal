@@ -43,7 +43,9 @@ exports.createNewDBService = function* () {
     throw err
   }
   const appTemplate = yield templateApi.getBy([basicInfo.templateId])
-  if (appTemplate.data.category == 'mysql' || appTemplate.data.category == 'redis') {
+  if (appTemplate.data.category == 'mysql'
+    || appTemplate.data.category == 'redis'
+    || appTemplate.data.category == 'zookeeper') {
     // Check password for some template
     if (!basicInfo.password) {
       const err = new Error('password is required')
@@ -54,10 +56,9 @@ exports.createNewDBService = function* () {
   let yamlContent = appTemplate.data.content
   // For base petset and service
   yamlContent = yamlContent.replace(/\{\{name\}\}/g, basicInfo.serviceName)
-    .replace("{{size}}", basicInfo.volumeSize)
-    .replace("{{password}}", basicInfo.password)
-    .replace("{{replicas}}", basicInfo.replicas)
-    .replace(/\{\{max-participant\}\}/g, basicInfo.maxParticipant)
+    .replace(/\{\{size\}\}/g, basicInfo.volumeSize)
+    .replace(/\{\{password\}\}/g, basicInfo.password)
+    .replace(/\{\{replicas\}\}/g, basicInfo.replicas)
   const registry = new registryAPIs()
   yamlContent = yamlContent.replace(/\{\{registry\}\}/g, registry.getRegistryHost())
   // For external service access
@@ -68,7 +69,7 @@ exports.createNewDBService = function* () {
   if (!basicInfo.externalIP) {
     basicInfo.externalIP = ''
   }
-  yamlContent = yamlContent.replace("{{external-ip}}", basicInfo.externalIP)
+  yamlContent = yamlContent.replace(/\{\{external-ip\}\}/g, basicInfo.externalIP)
   const result = yield api.createBy([cluster, 'dbservices'], {category: appTemplate.data.category}, yamlContent);
 
   this.body = {

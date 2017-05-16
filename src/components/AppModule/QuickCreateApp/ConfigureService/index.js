@@ -45,26 +45,35 @@ let ConfigureService = React.createClass({
     }
   },
   componentWillMount() {
-    const { callbackForm, imageName, registryServer, form } = this.props
+    const { callbackForm, imageName, registryServer, form, mode, appName } = this.props
+    const { setFieldsValue } = form
     callbackForm(form)
+    if (mode === 'create') {
+      setFieldsValue({
+        imageUrl: `${registryServer}/${imageName}`,
+        appName,
+      })
+    }
     this.loadImageTags(this.props)
-    form.setFieldsValue({
-      imageUrl: `${registryServer}/${imageName}`,
-    })
   },
   componentWillUnmount() {
     clearTimeout(this.appNameCheckTimeout)
     // save fields to store when component unmount
-    const { id, setFormFields, fields } = this.props
-    setFormFields(id, fields)
+    const { id, setFormFields, currentFields } = this.props
+    setFormFields(id, currentFields)
   },
   loadImageTags(props) {
     const {
       location, loadImageDetailTag, getOtherImageTag,
-      imageName, form,
+      form, currentFields, mode
     } = props
+    let { imageName } = props
     const { other } = location.query
     const { setFieldsValue } = form
+    if (mode !== 'create') {
+      imageName = currentFields.imageUrl.value
+      imageName = imageName.substr(imageName.indexOf('/') + 1)
+    }
     if (other) {
       getOtherImageTag({ id: other, imageName }, {
         success: {
@@ -242,9 +251,17 @@ let ConfigureService = React.createClass({
       })
     }, ASYNC_VALIDATOR_TIMEOUT)
   },
+  getAppNameDisabled() {
+    const { mode, allFields, form } = this.props
+    const fieldsKeys = Object.keys(allFields) || []
+    if (mode === 'edit' || fieldsKeys.length > 1) {
+      return true
+    }
+    return false
+  },
   render() {
     const {
-      form, imageTags, fields,
+      form, imageTags, currentFields,
       standardFlag, loadFreeVolume, createStorage,
       current,
     } = this.props
@@ -293,6 +310,7 @@ let ConfigureService = React.createClass({
                 autoComplete="off"
                 {...appNameProps}
                 ref={ref => this.appNameInput = ref}
+                disabled={this.getAppNameDisabled()}
               />
             </FormItem>
             <FormItem
@@ -349,7 +367,7 @@ let ConfigureService = React.createClass({
         <Normal
           form={form}
           formItemLayout={formItemLayout}
-          fields={fields}
+          fields={currentFields}
           standardFlag={standardFlag}
           loadFreeVolume={loadFreeVolume}
           createStorage={createStorage}
@@ -363,7 +381,7 @@ let ConfigureService = React.createClass({
 
 const createFormOpts = {
   mapPropsToFields(props) {
-    return props.fields
+    return props.currentFields
   },
   onFieldsChange(props, fields) {
     const { id, setFormFields } = props
@@ -377,6 +395,8 @@ function mapStateToProps(state, props) {
   const { quickCreateApp, entities, getImageTag } = state
   const { imageTag, otherImageTag } = getImageTag
   const { imageName, location, id } = props
+  const { fields } = quickCreateApp
+  const currentFields = quickCreateApp.fields[id]
   let tags = []
   let tagsIsFetching = false
   if (location.query.other) {
@@ -390,7 +410,8 @@ function mapStateToProps(state, props) {
     }
   }
   return {
-    fields: quickCreateApp.fields[id],
+    allFields: fields,
+    currentFields,
     current: entities.current,
     imageTags: {
       list: tags,
