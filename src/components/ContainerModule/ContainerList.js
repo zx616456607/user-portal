@@ -132,6 +132,10 @@ let MyComponent = React.createClass({
         },
         failed: {
           func: (res) => {
+            if(res.message && res.message.message == "The exportInstance operation against timeout could not be completed at this time, please try again."){
+              Notification.error('导出镜像超时，请重试！')
+              return
+            }
             Notification.error('导出镜像失败！')
             this.setState({
               exportImageModalVisible: false,
