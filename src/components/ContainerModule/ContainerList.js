@@ -201,7 +201,7 @@ let MyComponent = React.createClass({
     if(!value){
       return callback('请输入镜像版本')
     }
-    if(!/^([\w][\w.-]{0,127})?$/.test(value)){
+    if(!/^([\w][\w.-]*)?$/.test(value)){
       return callback('镜像版本只能以数字或字母开头')
     }
     if(value.length > 128){
