@@ -111,25 +111,23 @@ let MemberTable = React.createClass({
     }
     this.setState({delModal: false})
     let notification = new NotificationHandler()
+    const { page, pageSize,filter,sort } = scope.state
     scope.props.deleteUser(record.key, {
       success: {
         func: () => {
-          notification.success('删除成功')
+          notification.success('删除成功！')
           scope.props.loadUserList({
-            page: 1,
-            size: scope.state.pageSize,
-            sort: scope.state.sort,
-            filter: scope.state.filter,
-          })
-          scope.setState({
-            current: 1
+            page: page,
+            size: pageSize,
+            sort: sort,
+            filter: filter,
           })
         },
         isAsync: true
       },
       failed: {
         func: () => {
-          notification.error('删除失败')
+          notification.error('删除失败！')
         }
       }
     })
