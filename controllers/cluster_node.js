@@ -231,14 +231,19 @@ exports.updateNodeLabels = function* () {
 exports.getLabelSummary = function*() {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
+  const nodeName = this.query.nodeName
   const api = apiFactory.getApi(loginUser)
-  yield* editingView(cluster, api, this)
-
+  yield* editingView(cluster, api, this, nodeName)
 }
 
-function* editingView(cluster, api, ctx) {
-  const userDefinedLabels = yield getUserDefinedLabelsForEditingView(api.labels)
-  const clusterNodeNames = yield getClusterNodeNames(api.clusters, cluster)
+function* editingView(cluster, api, ctx, nodeName) {
+  const userDefinedLabels = yield getUserDefinedLabelsForEditingView(api.labels, cluster)
+  let clusterNodeNames = null
+  if (nodeName) {
+    clusterNodeNames = [nodeName]
+  } else {
+    clusterNodeNames = yield getClusterNodeNames(api.clusters, cluster)
+  }
   const labelsOfNodes = yield clusterNodeNames.map(nodeName => getLabelsOfNode(api.clusters, cluster, nodeName))
   let result = new Map(userDefinedLabels)
   let nodes = {}
@@ -262,8 +267,8 @@ function* editingView(cluster, api, ctx) {
 }
 
 
-function getUserDefinedLabelsForEditingView(api) {
-  return api.getBy([], {target: 'node'}).then(result => {
+function getUserDefinedLabelsForEditingView(api, clusterID) {
+  return api.getBy([], {target: 'node', clusterID: clusterID}).then(result => {
     const labels = result ? result.data : {}
     const lookup = new Map(labels.map(label => [
       distinctKey(label.key, label.value),
@@ -272,6 +277,7 @@ function getUserDefinedLabelsForEditingView(api) {
         key: label.key,
         value: label.value,
         createAt: label.createAt,
+        clusterID: label.clusterID,
         isUserDefined: true,
         targets: new Set()
       }
