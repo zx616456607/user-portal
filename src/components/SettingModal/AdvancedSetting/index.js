@@ -12,6 +12,8 @@ import { Switch, Checkbox, Spin, Modal, Icon } from 'antd';
 import './style/AdvancedSetting.less'
 import { connect } from 'react-redux'
 import { updateClusterConfig } from '../../../actions/cluster'
+import { loadTeamClustersList } from '../../../actions/team'
+import { setCurrent } from '../../../actions/entities'
 import NotificationHandler from '../../../common/notification_handler'
 
 class AdvancedSetting extends Component {
@@ -27,49 +29,51 @@ class AdvancedSetting extends Component {
     this.handleUpdataConfigMessage = this.handleUpdataConfigMessage.bind(this)
     this.state = {
       swicthChecked: true,
-      switchVisible : false ,
-      Ipdisabled : false ,
-      Tagdisabled : false ,
-      switchdisable : false ,
-      Ipcheckbox : false,
-      TagCheckbox : false,
+      switchVisible: false,
+      Ipdisabled: false,
+      Tagdisabled: false,
+      switchdisable: false,
+      Ipcheckbox: false,
+      TagCheckbox: false,
+      confirmlodaing: false
     }
   }
   
   componentWillMount(){
     document.title = '高级设置 | 时速云'
-    const { cluster } = this.props
+    const { cluster, space, loadTeamClustersList } = this.props
     const { listNodes } = cluster
     this.handleListNodeStatus(listNodes)
+    loadTeamClustersList(space.teamID, { size: 100 })
   }
 
   handleUpdataConfigMessage(status,num){
     const Notification = new NotificationHandler()
     if(status == 'success'){
       switch(num){
-        case 1 :
+        case 1:
           return Notification.success('关闭绑定节点成功！')
-        case 2 :
+        case 2:
           return Notification.success('开启【主机名及IP】绑定成功！')
-        case 3 :
+        case 3:
           return Notification.success('开启【主机标签】绑定成功！')
-        case 4 :
+        case 4:
           return Notification.success('开启【主机名及IP】与【主机标签】绑定成功！')
-        default :
+        default:
           return
       }
     }
     if(status == 'failed'){
       switch(num){
-        case 1 :
+        case 1:
           return Notification.success('关闭绑定节点失败！')
-        case 2 :
+        case 2:
           return Notification.success('开启【主机名及IP】绑定失败！')
-        case 3 :
+        case 3:
           return Notification.success('开启【主机标签】绑定失败！')
-        case 4 :
+        case 4:
           return Notification.success('开启【主机名及IP】与【主机标签】绑定失败！')
-        default :
+        default:
           return
       }
     }
@@ -77,28 +81,28 @@ class AdvancedSetting extends Component {
 
   handleListNodeStatus(listNodes){
     switch(listNodes){
-      case 0 :
-      case 1 :
+      case 0:
+      case 1:
         return this.setState({
           swicthChecked: false,
         })
-      case 2 :
+      case 2:
         return this.setState({
-          swicthChecked : true,
-          Ipcheckbox : true,
-          TagCheckbox : false,
+          swicthChecked: true,
+          Ipcheckbox: true,
+          TagCheckbox: false,
         })
-      case 3 :
+      case 3:
         return this.setState({
-          swicthChecked : true,
-          Ipcheckbox : false,
-          TagCheckbox : true,
+          swicthChecked: true,
+          Ipcheckbox: false,
+          TagCheckbox: true,
         })
-      case 4 :
+      case 4:
         return this.setState({
-          swicthChecked : true,
-          Ipcheckbox : true,
-          TagCheckbox : true,
+          swicthChecked: true,
+          Ipcheckbox: true,
+          TagCheckbox: true,
         })
       default:
         return
@@ -113,27 +117,48 @@ class AdvancedSetting extends Component {
   }
   
   updataClusterListNodes(num){
-    const {updateClusterConfig, cluster} = this.props
+    const {updateClusterConfig, cluster, loadTeamClustersList, space, setCurrent} = this.props
     const {clusterID} = cluster
+    this.setState({
+      confirmlodaing: true
+    })
     updateClusterConfig(clusterID, {ListNodes: num}, {
       success: {
         func: () =>{
-          this.handleUpdataConfigMessage('success',num)
-          this.setState({
-            switchdisable : false,
-            Tagdisabled : false,
-            Ipdisabled : false,
+          loadTeamClustersList(space.teamID, { size: 100 },{
+            success: {
+              func: () => {
+                const { result } = this.props
+                for(let i=0; i<result.data.length; i++){
+                  if(result.data[i].clusterID == clusterID){
+                    setCurrent({
+                      cluster: result.data[i],
+                    })
+                    break
+                  }
+                }
+                this.handleUpdataConfigMessage('success',num)
+                this.setState({
+                  switchdisable: false,
+                  Tagdisabled: false,
+                  Ipdisabled: false,
+                  confirmlodaing: false
+                })
+                this.handleListNodeStatus(num)
+              },
+              isAsync: true
+            }
           })
-          this.handleListNodeStatus(num)
-        }
+        },
+        isAsync: true
       },
       falied: {
-        func : () => {
+        func: () => {
           this.handleUpdataConfigMessage('failed',num)
           this.setState({
-            switchdisable : false,
-            Tagdisabled : false,
-            Ipdisabled : false,
+            switchdisable: false,
+            Tagdisabled: false,
+            Ipdisabled: false,
           })
         }
       }
@@ -142,10 +167,10 @@ class AdvancedSetting extends Component {
 
   handleSwitch(){
     return this.setState({
-      switchVisible : true,
-      switchdisable : true,
-      Ipdisabled : true,
-      Tagdisabled : true,
+      switchVisible: true,
+      switchdisable: true,
+      Ipdisabled: true,
+      Tagdisabled: true,
     })
   }
 
@@ -166,35 +191,35 @@ class AdvancedSetting extends Component {
 
   handleCancelSwitch(){
     this.setState({
-      switchVisible : false,
-      switchdisable : false,
-      Ipdisabled : false ,
-      Tagdisabled : false ,
+      switchVisible: false,
+      switchdisable: false,
+      Ipdisabled: false,
+      Tagdisabled: false,
     })
   }
 
   handleName(){
     const { Ipcheckbox, TagCheckbox } = this.state
     this.setState({
-      Ipdisabled : true,
-      Tagdisabled : true,
+      Ipdisabled: true,
+      Tagdisabled: true,
     })
-    if(TagCheckbox == true ){
+    if(TagCheckbox == true){
       switch(Ipcheckbox){
-        case true :
+        case true:
           return this.updataClusterListNodes(3)
-        case false :
+        case false:
           return this.updataClusterListNodes(4)
-        default :
+        default:
           return
       }
     }
     if(TagCheckbox == false){
       switch(Ipcheckbox){
-        case true :
+        case true:
           return this.updataClusterListNodes(1)
-        case false :
-        default :
+        case false:
+        default:
           return
       }
     }
@@ -203,26 +228,26 @@ class AdvancedSetting extends Component {
   handleTag(){
     const { Ipcheckbox, TagCheckbox } = this.state
     this.setState({
-      Ipdisabled : true,
-      Tagdisabled : true,
+      Ipdisabled: true,
+      Tagdisabled: true,
     })
     if(Ipcheckbox == true ){
       switch(TagCheckbox){
-        case true :
+        case true:
           return this.updataClusterListNodes(2)
-        case false :
+        case false:
           return this.updataClusterListNodes(4)
-        default :
+        default:
           return
       }
     }
     if(Ipcheckbox == false){
       switch(TagCheckbox){
-        case true :
+        case true:
           return this.updataClusterListNodes(1)
-        case false :
+        case false:
           return this.updataClusterListNodes(3)
-        default :
+        default:
           return
       }
     }
@@ -280,6 +305,7 @@ class AdvancedSetting extends Component {
         wrapClassName="AdvancedSettingSwitch"
         onOk={this.handleConfirmSwitch}
         onCancel={this.handleCancelSwitch}
+        confirmLoading={this.state.confirmlodaing}
       >
         {
           swicthChecked
@@ -298,12 +324,17 @@ class AdvancedSetting extends Component {
 }
 
 function mapPropsToState(state,props) {
-  const { cluster } = state.entities.current
+  const { cluster, space } = state.entities.current
+  const { result } = state.team.teamClusters || {}
   return {
     cluster,
+    space,
+    result,
   }
 }
 
 export default connect(mapPropsToState,{
   updateClusterConfig,
+  loadTeamClustersList,
+  setCurrent,
 })(AdvancedSetting)
