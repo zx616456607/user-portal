@@ -90,70 +90,57 @@ let MyComponent = React.createClass({
   },
   handleConfirmExportImage(){
     const { form, instanceExport, clusterID } = this.props
-    const { getFieldValue } = form
     const { exportContainerName } = this.state
     this.setState({
       ModalLoadidng: true
     })
-    let imagename = getFieldValue('exportImageName')
-    let tag = getFieldValue('exportImageVersion')
     let Notification = new NotificationHandler()
-    if(imagename == undefined || tag == undefined){
-      this.setState({
-        ModalLoadidng: false
-      })
-      return Notification.error('请输入镜像名称和版本！')
-    }
-    if(!/^([a-z0-9]+((?:[._]|__|[-]*)[a-z0-9]+)*)?$/.test(imagename)){
-      this.setState({
-        ModalLoadidng: false
-      })
-      return Notification.error('请输入镜像名称不合法！')
-    }
-    if(!/^([\w][\w.-]{0,127})?$/.test(tag)){
-      this.setState({
-        ModalLoadidng: false
-      })
-      return Notification.error('请输入镜像版本不合法！')
-    }
-    let body = {
-      body:{
-        imagename,
-        tag,
-      },
-      clusterID,
-      containers:exportContainerName
-    }
-    instanceExport(body,{
-      success: {
-        func: (res) => {
-          if(res.statusCode && res.statusCode == 204){
-            Notification.error('导出镜像失败！当前平台镜像仓库不完整')
+    form.validateFields((errors, values) => {
+      if(errors){
+        this.setState({
+          ModalLoadidng: false
+        })
+        return
+      }
+      let body = {
+        body:{
+          imagename: values.exportImageName,
+          tag: values.exportImageVersion,
+        },
+        clusterID,
+        containers:exportContainerName
+      }
+      instanceExport(body,{
+        success: {
+          func: (res) => {
+            if(res.statusCode && res.statusCode == 204){
+              Notification.error('导出镜像失败！当前平台镜像仓库不完整')
+              this.setState({
+                exportImageModalVisible: false,
+                exportContainerName: '',
+                ModalLoadidng:false
+              })
+              return
+            }
+            this.setState({
+              exportImageModalVisible: false,
+              exportImageModalSuccess: true,
+              exportContainerName: '',
+              ModalLoadidng: false
+            })
+          }
+        },
+        failed: {
+          func: (res) => {
+            Notification.error('导出镜像失败！')
             this.setState({
               exportImageModalVisible: false,
               exportContainerName: '',
               ModalLoadidng:false
             })
-            return
           }
-          this.setState({
-            exportImageModalVisible: false,
-            exportImageModalSuccess: true,
-            exportContainerName: '',
-            ModalLoadidng: false
-          })
         }
-      },
-      failed: {
-        func: (res) => {
-          Notification.error('导出镜像失败！')
-          this.setState({
-            exportImageModalVisible: false,
-            exportContainerName: '',
-            ModalLoadidng:false
-          })
-        }
-      }
+      })
     })
   },
   hanldeCancleExportImage(){
@@ -171,7 +158,7 @@ let MyComponent = React.createClass({
     const { form } = this.props
     const { getFieldValue } = form
     let imageName = getFieldValue('exportImageName') ? getFieldValue('exportImageName') : '镜像名称'
-    let imageTag = getFieldValue('exportImageVersion') ? getFieldValue('exportImageVersion') : '标签'
+    let imageTag = getFieldValue('exportImageVersion') ? getFieldValue('exportImageVersion') : 'laest'
     return {
       imageName,
       imageTag
@@ -205,6 +192,9 @@ let MyComponent = React.createClass({
     if(!/^([a-z0-9]+((?:[._]|__|[-]*)[a-z0-9]+)*)?$/.test(value)){
       return callback('镜像地址只能为小写字母和数字')
     }
+    if(value.length > 128){
+      return callback('镜像地址最多只能为128个字符')
+    }
     return callback()
   },
   checkImageVersion(rule, value, callback){
@@ -213,6 +203,9 @@ let MyComponent = React.createClass({
     }
     if(!/^([\w][\w.-]{0,127})?$/.test(value)){
       return callback('镜像版本只能以数字或字母开头')
+    }
+    if(value.length > 128){
+      return callback('镜像版本最多只能为128个字符')
     }
     return callback()
   },
@@ -354,7 +347,7 @@ let MyComponent = React.createClass({
     const exportImageName = getFieldProps('exportImageName',{
       rules :  [{
         validator: this.checkImageName
-      }]
+      }],
     })
     const exportImageVersion = getFieldProps('exportImageVersion',{
       rules: [{
@@ -369,10 +362,13 @@ let MyComponent = React.createClass({
           title="导出镜像"
           visible={this.state.exportImageModalVisible}
           width="570px"
-          confirmLoading={this.state.ModalLoadidng}
           maskClosable={false}
           wrapClassName="exportImage"
           okText="导出镜像到仓库"
+          footer={[
+            <Button key="cancel" size='large' onClick={this.hanldeCancleExportImage}>取消</Button>,
+            <Button key="ok" type="primary" size="large" onClick={this.handleConfirmExportImage} loading={this.state.ModalLoadidng}>导出到镜像仓库</Button>
+          ]}
           onOk={this.handleConfirmExportImage}
           onCancel={this.hanldeCancleExportImage}
         >
@@ -444,15 +440,16 @@ let MyComponent = React.createClass({
         </Modal>
 
         <Modal
-          title='警告'
+          title='提示'
           visible={this.state.containerErrorModal}
           width="570px"
           maskClosable={true}
           wrapClassName="WarningModal"
           onOk={this.handleInfoOK}
           onCancel={this.handleInfoCancel}
+          okText="知道了"
         >
-         <div><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>容器运行状态不正常，不能导出镜像!</div>
+         <div><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>容器为非运行中状态，不能导出镜像</div>
         </Modal>
       </div>
     );
