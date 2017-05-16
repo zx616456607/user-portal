@@ -170,6 +170,7 @@ let CreateImageEnvComponent = React.createClass({
       initialValue: [0],
     });
     const ImageEnvInputItems = getFieldValue('imageEnvInputs').map((i) => {
+      setTimeout(()=> document.getElementById(`imageEnvName${i}`).focus(),300)
       const ImageEnvNameInputProps = getFieldProps(`imageEnvName${i}`, {
         rules: [
           { message: '请输入环境变量名' },
@@ -210,7 +211,7 @@ let CreateImageEnvComponent = React.createClass({
           <div className='commonTitle'>
             <span>变量名</span>
           </div>
-          <div className='equalTitle'>            
+          <div className='equalTitle'>
           </div>
           <div className='commonTitle'>
             <span>变量值</span>
