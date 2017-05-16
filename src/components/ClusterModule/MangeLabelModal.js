@@ -189,7 +189,8 @@ class ManageLabelModal extends Component {
     const { getFieldProps } = this.props.form
     const createLabel = ()=> {
       const label = []
-      this.props.labels.map((item)=> {
+      const labels = this.props.labels || []
+      labels.map((item)=> {
         for (let key in userCreateLabel) {
           if (item.key === key && item.value === userCreateLabel[key] ) {
             if (!item.isUserDefined) {
