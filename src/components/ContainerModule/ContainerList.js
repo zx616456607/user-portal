@@ -398,7 +398,7 @@ let MyComponent = React.createClass({
               <span>
                 {
                   exportimageUrl
-                  ? <span>{exportimageUrl.registryConfig.server}/</span>
+                  ? <span>{exportimageUrl.registryConfig.server} / {exportimageUrl.userName} / </span>
                   : <Spin></Spin>
                 }
               </span>
