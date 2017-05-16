@@ -165,6 +165,7 @@ class ManageLabelModal extends Component {
        return
      }
      values.target = 'node'
+     values.clusterID = clusterID
      let createLabel = cloneDeep(_this.state.userCreateLabel)
      createLabel[values.key] = values.value
      addLabels([values],clusterID,{

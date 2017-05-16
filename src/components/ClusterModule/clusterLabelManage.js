@@ -181,7 +181,8 @@ class ClusterLabelManage extends Component{
           labels.push({
             key:values[`key${item}`],
             value:values[`value${item}`],
-            target:'node'
+            target:'node',
+            clusterID
           })
         })
         notificat.spin('添加中...')
