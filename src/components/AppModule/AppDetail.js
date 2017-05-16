@@ -29,6 +29,8 @@ import errorHandler from '../../containers/App/error_handler'
 import AppServiceRental from './AppServiceDetail/AppServiceRental'
 import AlarmStrategy from '../ManageMonitor/AlarmStrategy'
 import Topology from './AppServiceDetail/Topology'
+import { loadServiceList } from '../../actions/services'
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../../../constants'
 
 const DEFAULT_TAB = '#service'
 
@@ -54,6 +56,21 @@ class AppDetail extends Component {
     const { cluster, appName, loadAppDetail } = this.props
     document.title = `应用 ${appName} 详情 | 时速云`
     loadAppDetail(cluster, appName)
+    if (location.hash.length >1) {
+      const _this = this
+      const query = {
+        page: DEFAULT_PAGE,
+        size: DEFAULT_PAGE_SIZE,
+      }
+      this.props.loadServiceList(cluster,appName,query,{
+        success:{
+          func:(ret)=> {
+            _this.onServicesChange(ret.data, ret.availableReplicas, ret.total)
+          }
+        }
+      })
+
+    }
   }
 
   // For tab select
@@ -315,5 +332,6 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   loadAppDetail,
-  updateAppDesc
+  updateAppDesc,
+  loadServiceList
 })(AppDetail)
