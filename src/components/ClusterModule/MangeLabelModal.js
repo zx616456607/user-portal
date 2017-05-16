@@ -114,12 +114,13 @@ class ManageLabelModal extends Component {
   }
 
   handleManageLabelCancel(){
-    const { callback } = this.props
+    const { callback, form } = this.props
     this.setState({
       manageLabelModalVisible : false,
     })
     const _this = this
     callback(false)
+    form.resetFields()
     // setTimeout(()=> {
     //   _this.setState({userCreateLabel:{}})
     // },500)
@@ -188,19 +189,38 @@ class ManageLabelModal extends Component {
     const { getFieldProps } = this.props.form
     const createLabel = ()=> {
       const label = []
-      for (let key in userCreateLabel) {
-        label.push(
-          <Tag closable color="blue" className='tag' key={key} afterClose={() => this.handleClose(key, userCreateLabel[key])}>
-              <Tooltip title={key}>
-                <span className='key'>{key}</span>
-              </Tooltip>
-              <span className='point'>：</span>
-              <Tooltip title={userCreateLabel[key]}>
-                <span className='value'>{userCreateLabel[key]}</span>
-              </Tooltip>
-          </Tag>
-        )
-      }
+      this.props.labels.map((item)=> {
+        for (let key in userCreateLabel) {
+          if (item.key === key && item.value === userCreateLabel[key] ) {
+            if (!item.isUserDefined) {
+              label.push(
+                <Tag color="blue" className='tag' key={key}>
+                    <Tooltip title={key}>
+                      <span className='key'>{key}</span>
+                    </Tooltip>
+                    <span className='point'>：</span>
+                    <Tooltip title={userCreateLabel[key]}>
+                      <span className='value'>{userCreateLabel[key]}</span>
+                    </Tooltip>
+                </Tag>
+              )
+
+            } else {
+              label.push(
+                <Tag closable color="blue" className='tag' key={key} afterClose={() => this.handleClose(key, userCreateLabel[key])}>
+                    <Tooltip title={key}>
+                      <span className='key'>{key}</span>
+                    </Tooltip>
+                    <span className='point'>：</span>
+                    <Tooltip title={userCreateLabel[key]}>
+                      <span className='value'>{userCreateLabel[key]}</span>
+                    </Tooltip>
+                </Tag>
+              )
+            }
+          }
+        }
+      })
 
       return label
     }
@@ -222,7 +242,7 @@ class ManageLabelModal extends Component {
 
           <div className='labelfooter'>
           <span className='labeldropdown' id="cluster__hostlist__manageLabelModal">
-            <TagDropdown scope={this} labels={this.props.labels} isManage={true} footer={this.props.footer} width={'120px'} context={"Modal"}/>
+            <TagDropdown scope={this} clusterID={this.props.clusterID} labels={this.props.labels} isManage={true} width={'120px'} context={"Modal"}/>
           </span>
             <span className='item'>或</span>
             <Form

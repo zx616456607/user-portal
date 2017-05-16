@@ -8,11 +8,16 @@
  * @author ZhangChengZheng
  */
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import { Menu, Dropdown, Icon, Tooltip, Button, Modal, Form, Input, Tag } from 'antd'
+import { addLabels } from '../../actions/cluster_node'
+import { KubernetesValidator } from '../../common/naming_validation'
+import NotificationHandler from '../../common/notification_handler'
 import './style/TagDropdown.less'
 import cloneDeep from 'lodash/cloneDeep'
-
+const FormItem = Form.Item
 const SubMenu = Menu.SubMenu;
+let uuid=0
 
 class TagDropdown extends Component {
   constructor(props) {
@@ -102,7 +107,7 @@ class TagDropdown extends Component {
       case 'hostlist':
       case 'app':
         return <span>
-          <i className="fa fa-tag selectlabeltag" aria-hidden="true"></i>&nbsp;
+          <i className="fa fa-tag" aria-hidden="true"></i>&nbsp;
           标签
           <Icon type="down" style={{ marginLeft: '12px' }} />
         </span>
@@ -118,11 +123,11 @@ class TagDropdown extends Component {
       {
         footer
           ? [<Menu.Divider key="baseline2" />,
-          <Menu.Item key="createtag">
+          <Menu.Item key="createTag">
             <Icon type="plus" style={{ marginRight: 6 }} />
             创建标签
           </Menu.Item>,
-          <Menu.Item key="managetag">
+          <Menu.Item key="manageTag">
             <span>
             <Icon type="setting" style={{marginRight:6}}/>
             标签管理
@@ -135,7 +140,7 @@ class TagDropdown extends Component {
   }
 
   handleMenuClick(obj) {
-    const { callbackManegeTag, callbackHostList, callbackManegeModal } = this.props
+    const { callbackManegeTag } = this.props
     callbackManegeTag(obj)
   }
 
@@ -162,16 +167,10 @@ class TagDropdown extends Component {
 class ManageTagModal extends Component {
   constructor(props) {
     super(props)
-    this.formManegeLabelContainerTag = this.formManegeLabelContainerTag.bind(this)
-    this.handleAddLabel = this.handleAddLabel.bind(this)
     this.handlecallback = this.handlecallback.bind(this)
     this.handlecallbackHostList = this.handlecallbackHostList.bind(this)
-    this.callbackManegeModal = this.callbackManegeModal.bind(this)
     this.handleCreateLabelModal = this.handleCreateLabelModal.bind(this)
     this.handleCancelLabelModal = this.handleCancelLabelModal.bind(this)
-    this.handeldeleteNewLabel = this.handeldeleteNewLabel.bind(this)
-    this.handleAddInput = this.handleAddInput.bind(this)
-    this.formTagContainer = this.formTagContainer.bind(this)
     this.state = {
       createLabelModal: false,
       visible: false,
@@ -179,45 +178,50 @@ class ManageTagModal extends Component {
   }
 
   handleCreateLabelModal() {
-    this.setState({
-      createLabelModal: false
+    const { form, addLabels,clusterID } = this.props
+    form.validateFields((errors, values) => {
+      if (errors) {
+        return
+      }
+      const notificat = new NotificationHandler()
+      const labels =[]
+      values.keys.map((item)=> {
+        labels.push({
+          key:values[`key${item}`],
+          value:values[`value${item}`],
+          target:'node'
+        })
+      })
+      notificat.spin('添加中...')
+      addLabels(labels,clusterID,{
+        success: {
+          func:(ret)=> {
+            notificat.close()
+            notificat.success('添加成功！')
+          }
+        },
+        failed:{
+          func:(ret)=> {
+            notificat.close()
+            notificat.success('添加失败！',ret.message.message || ret.message)
+          }
+        }
+      })
     })
+    setTimeout(()=> {
+      this.setState({
+        createLabelModal: false,
+        visible: true
+      })
+    },500)
   }
 
   handleCancelLabelModal() {
     this.setState({
-      createLabelModal: false
+      createLabelModal: false,
+      visible: true
     })
-  }
-
-  formManegeLabelContainerTag() {
-    //const { manageLabelContainer } = this.state
-    //if(manageLabelContainer.length == 0){
-    return <div>暂无标签</div>
-    //}
-  }
-
-  formTagContainer() {
-    let arr = []
-    for (let i = 0; i < 30; i++) {
-      arr.push(<Tag closable color="blue" className='tag' key={i}>
-        <Tooltip title='key1'>
-          <span className='key'>key1</span>
-        </Tooltip>
-        <span className='point'>:</span>
-        <Tooltip title='value2017'>
-          <span className='value'>value2017</span>
-        </Tooltip>
-      </Tag>)
-    }
-    return arr
-  }
-
-
-  handleAddLabel(key, value) {
-    return <div>
-      <Tag closable color="blue"><span>key</span><span>value</span></Tag>
-    </div>
+    this.props.form.resetFields()
   }
 
   handlecallback(obj) {
@@ -226,12 +230,12 @@ class ManageTagModal extends Component {
     // *bai this is action set nodelist and labels
     // isManage  (true) to manage labes
     const { callbackHostList, scope, labels, isManage } = this.props
-    if (obj.key != "labelKey") {
+    if (obj.key !== "labelKey" &&  obj.key !== 'manageTag' && obj.key !=='createTag') {
       if (!isManage) {
         const tag = cloneDeep(scope.state.summary)
         let isSet = false
         labels.map((item) => {
-          if (item.value == obj.key) {
+          if (item.key == obj.keyPath[1]) {
             tag.map(list => {
               if (list.value == obj.key) {
               isSet = true
@@ -273,13 +277,13 @@ class ManageTagModal extends Component {
     }
 
     switch(obj.key){
-      case 'managetag':
+      case 'manageTag':
         callbackHostList(obj)
         this.setState({
           visible: false
         })
         return
-      case 'createtag':
+      case 'createTag':
         return this.setState({createLabelModal: true})
       case 'labelKey':
         return this.setState({
@@ -301,18 +305,99 @@ class ManageTagModal extends Component {
     return callbackHostList(obj)
   }
 
-  callbackManegeModal(obj) {
-    console.log('Modal.obj=', obj)
+  removeRow(k) {
+  const { form } = this.props;
+    // can use data-binding to get
+    let keys = form.getFieldValue('keys');
+    keys = keys.filter((key) => {
+      return key !== k;
+    });
+    // can use data-binding to set
+    form.setFieldsValue({
+      keys,
+    });
   }
+  addRow() {
+    const { form } = this.props;
+    form.validateFields((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      uuid++
+      let keys = form.getFieldValue('keys');
+      keys = keys.concat(uuid)
+      form.setFieldsValue({
+        keys
+      });
 
-  handeldeleteNewLabel() {
-    console.log('删除标签')
+    });
   }
-
-  handleAddInput() {
-    console.log('添加一组标签')
+  checkKey(rule, value, callback) {
+    if (!Boolean(value)){
+      callback(new Error('请输入标签键'))
+      return
+    }
+    const Kubernetes = new KubernetesValidator()
+    if (Kubernetes.IsQualifiedName(value).length >0) {
+      callback(new Error('以英文字母开头和结尾'))
+      return
+    }
+    if (value.length < 3 || value.length > 64) {
+      callback(new Error('标签键长度为3~64位'))
+      return
+    }
+    callback()
+  }
+  checkValue(rule, value, callback) {
+    if (!Boolean(value)){
+      callback(new Error('请输入标签值'))
+      return
+    }
+    const Kubernetes = new KubernetesValidator()
+    if (Kubernetes.IsValidLabelValue(value).length >0) {
+      callback(new Error('以英文字母开头和结尾'))
+      return
+    }
+    if (value.length < 3 || value.length > 64) {
+      callback(new Error('标签键长度为3~64位'))
+      return
+    }
+    callback()
   }
   render() {
+    const { getFieldProps, getFieldValue } = this.props.form
+    getFieldProps('keys', {
+      initialValue: [0],
+    });
+    const formItems = getFieldValue('keys').map((k) => {
+        return (
+          <div className="formRow" key={`create-${k}`}>
+              <FormItem className='inputlabelkey'>
+                <Input className="width" {...getFieldProps(`key${k}`, {
+                  rules: [{
+                    whitespace: true,
+                  },{
+                    validator: this.checkKey
+                  }],
+                })} placeholder="请填写标签键"
+                />
+              </FormItem>
+              <FormItem className='inputlabelvalue'>
+                <Input className="width" {...getFieldProps(`value${k}`, {
+                  rules: [{
+                    whitespace: true,
+                  },{
+                    validator: this.checkValue
+                  }],
+                })} placeholder="请填写标签值"
+                />
+              </FormItem>
+              <span className='inputhandle' onClick={() => this.removeRow(k)}>
+                <Icon type="delete"></Icon>
+              </span>
+          </div>
+        );
+    });
     return (
       <div id="cluster__ManageTagModal__Component">
         <TagDropdown labels={this.props.labels} footer={this.props.footer} context={'hostlist'} callbackManegeTag={this.handlecallback} callbackHostList={this.handlecallbackHostList} width={'100px'} visible={this.state.visible}/>
@@ -333,7 +418,7 @@ class ManageTagModal extends Component {
               <span className='handle'>操作</span>
             </div>
             <div className='body'>
-              <Form.Item className='inputlabelkey'>
+              {/*<Form.Item className='inputlabelkey'>
                 <Input placeholder="请输入标签键" className='width' />
               </Form.Item>
               <Form.Item className='inputlabelvalue'>
@@ -341,21 +426,11 @@ class ManageTagModal extends Component {
               </Form.Item>
               <span className='inputhandle' onClick={this.handeldeleteNewLabel}>
                 <Icon type="delete"></Icon>
-              </span>
+              </span>*/}
+              { formItems }
             </div>
-            <div className='body'>
-              <Form.Item className='inputlabelkey'>
-                <Input placeholder="请输入标签键" className='width' />
-              </Form.Item>
-              <Form.Item className='inputlabelvalue'>
-                <Input placeholder="请输入标签值" className='width' />
-              </Form.Item>
-              <span className='inputhandle' onClick={this.handeldeleteNewLabel}>
-                <Icon type="delete"></Icon>
-              </span>
-            </div>
-            <div className='footer' onClick={this.handleAddInput}>
-              <Icon type="plus-circle-o" /> <span>添加一组标签</span>
+            <div style={{clear:'both'}}>
+              <span className="cursor" onClick={()=> this.addRow()}><Icon type="plus-circle-o" /> 添加一组标签</span>
             </div>
 
           </Form>
@@ -365,4 +440,14 @@ class ManageTagModal extends Component {
   }
 }
 
-export default ManageTagModal;
+ManageTagModal= Form.create()(ManageTagModal)
+
+function mapStateToProps(state,props) {
+  return {
+
+  }
+}
+
+export default connect(mapStateToProps,{
+  addLabels
+})(ManageTagModal)

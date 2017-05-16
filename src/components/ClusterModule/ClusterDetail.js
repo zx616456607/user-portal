@@ -230,7 +230,7 @@ let HostInfo = React.createClass({
               nodeName={this.props.func.nodeName}
               clusterID= {this.props.func.clusterID}
               isNode={true}
-              footer={true}
+              footer={false}
             />
           </div>
           <div className="topTitle">容器详情</div>
