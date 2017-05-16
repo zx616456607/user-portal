@@ -331,7 +331,7 @@ class hostList extends Component {
 
   handleDropdownTag(obj) {
     const {callbackActiveKey} = this.props
-    if(obj.key == 'managetag'){
+    if(obj.key == 'manageTag'){
       callbackActiveKey(obj)
     }
   }
@@ -452,7 +452,7 @@ class hostList extends Component {
             <Icon type="search" className="fa" onClick={() => this.searchNodes()} />
           </span>
           <span className='selectlabel' id="cluster__hostlist__selectlabel">
-            <TagDropdown callbackHostList={this.handleDropdownTag} labels={labels} scope={scope} footer={true}/>
+            <TagDropdown clusterID={this.props.clusterID} callbackHostList={this.handleDropdownTag} labels={labels} scope={scope} footer={true}/>
           </span>
           {
             this.state.summary.length > 0
@@ -516,6 +516,7 @@ class hostList extends Component {
         clusterID={this.props.clusterID}
         nodeName={this.state.deleteNode ? this.state.deleteNode.objectMeta.name:''}
         callback={this.callbackManageLabelModal}
+        footer={true}
       />
 
       <Modal

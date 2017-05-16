@@ -307,19 +307,24 @@ class ClusterLabelManage extends Component{
         dataIndex:'handle',
         width:'16%',
         className:'handle',
-        render : (text,row) => <div>
-          {
-            row.createAt
-            ?<span>
+        render : (text,row) => {
+          if (row.createAt && row.targets.length ==0) {
+            return (<div>
               <Button type="primary"　className='editbutton' onClick={() => this.handleEditButton(row)}>修改</Button>
               <Button className='deletebutton' onClick={() => this.handleDeleteButton(row.id)}>删除</Button>
-            </span>
-            :<span className='systemmessage'>
+            </div>)
+          }
+          if (row.createAt && row.targets.length > 0) {
+            return (<div>解绑后可操作</div>)
+          }
+          return (
+            <span className='systemmessage'>
               <Icon type="info-circle-o" className='handleicon'/>
               该标签为系统创建，不可操作
             </span>
-          }
-        </div>
+          )
+        }
+
       }
     ]
     getFieldProps('keys', {
@@ -357,7 +362,7 @@ class ClusterLabelManage extends Component{
             <Button icon="delete" className="foredelteicon" size="large" onClick={() => this.removeRow(k)}></Button>
           </div>
         );
-      });
+    });
 
     return <div id="cluster__labelmanage">
       <div className='labelmanage__title'>
