@@ -231,11 +231,21 @@ let ConfigureService = React.createClass({
     if (!value) {
       return callback()
     }
-    const { current, checkServiceName } = this.props
+    const { current, checkServiceName, allFields, id } = this.props
     if (!validateK8sResourceForServiceName(value)) {
       return callback('服务名称可由3~24位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾')
     }
-    // @Todo: check local service list
+    for (let key in allFields) {
+      if (allFields.hasOwnProperty(key)) {
+        if (key !== id) {
+          const { serviceName } = allFields[key]
+          if (serviceName.value === value) {
+            callback(appNameCheck(value, '服务名称', true))
+            return
+          }
+        }
+      }
+    }
     clearTimeout(this.serviceNameExistsTimeout)
     this.serviceNameExistsTimeout = setTimeout(() => {
       checkServiceName(current.cluster.clusterID, value, {
