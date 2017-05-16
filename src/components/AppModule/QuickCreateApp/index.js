@@ -292,8 +292,8 @@ class QuickCreateApp extends Component {
         }
       }
     }
-    const priceMonth = parseAmount(priceHour * 24 * 30, 2).amount
-    priceHour = parseAmount(priceHour, 2).amount
+    const priceMonth = parseAmount(priceHour * 24 * 30, 4).amount
+    priceHour = parseAmount(priceHour, 4).amount
     return {
       resource: `${cpuTotal}C${memoryTotal}G`,
       priceHour,
