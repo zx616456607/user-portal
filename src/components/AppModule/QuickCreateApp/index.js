@@ -87,7 +87,8 @@ class QuickCreateApp extends Component {
     const configureMode = hash === SERVICE_EDIT_HASH ? 'edit' : 'create'
     this.configureMode = configureMode
     if (configureMode === 'edit') {
-      this.configureServiceKey = key
+      // this.configureServiceKey = key
+      this.editServiceKey = key
     }
   }
 
@@ -104,12 +105,6 @@ class QuickCreateApp extends Component {
       imageName,
       registryServer,
     })
-    /*setFormFields(this.configureServiceKey, {
-      imageUrl: {
-        name: 'imageUrl',
-        value: `${registryServer}/${imageName}`,
-      },
-    })*/
     browserHistory.push(`/app_manage/app_create/quick_create${SERVICE_CONFIG_HASH}`)
   }
 
@@ -140,7 +135,10 @@ class QuickCreateApp extends Component {
           appName: values.appName
         })
       }
-      this.configureServiceKey = this.genConfigureServiceKey()
+      // if create service, update the configure service key
+      if (this.configureMode === 'create') {
+        this.configureServiceKey = this.genConfigureServiceKey()
+      }
       browserHistory.push('/app_manage/app_create/quick_create')
     })
   }
@@ -150,10 +148,11 @@ class QuickCreateApp extends Component {
     const { key } = query
     const { imageName, registryServer, appName } = this.state
     if ((hash === SERVICE_CONFIG_HASH && imageName) || (hash === SERVICE_EDIT_HASH && key)) {
+      const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey
       return (
         <ConfigureService
           mode={this.configureMode}
-          id={this.configureServiceKey}
+          id={id}
           callbackForm={form => this.form = form}
           {...{imageName, registryServer, appName}}
           {...this.props}
@@ -204,12 +203,13 @@ class QuickCreateApp extends Component {
 
   editService(key) {
     const query = { key }
+    // this.props.removeFormFields(this.configureServiceKey)
     browserHistory.push(`/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_EDIT_HASH}`)
   }
 
   deleteService(key) {
     const { removeFormFields } = this.props
-    if (this.configureMode === 'edit' && this.configureServiceKey === key) {
+    if (this.configureMode === 'edit' && this.editServiceKey === key) {
       notification.warn('删除失败，请您先取消编辑')
       return
     }
@@ -251,7 +251,7 @@ class QuickCreateApp extends Component {
                   <Button
                     type="dashed"
                     size="small"
-                    disabled={this.configureMode === 'edit' && this.configureServiceKey === key}
+                    disabled={this.configureMode === 'edit' && this.editServiceKey === key}
                     onClick={this.deleteService.bind(this, key)}
                   >
                     <Icon type="delete" />

@@ -49,10 +49,13 @@ let ConfigureService = React.createClass({
     const { setFieldsValue } = form
     callbackForm(form)
     if (mode === 'create') {
-      setFieldsValue({
+      const values = {
         imageUrl: `${registryServer}/${imageName}`,
-        appName,
-      })
+      }
+      if (appName) {
+        values.appName = appName
+      }
+      setFieldsValue(values)
     }
     this.loadImageTags(this.props)
   },
@@ -183,6 +186,9 @@ let ConfigureService = React.createClass({
     // must set a port
     if (portsKeys.length < 1) {
       portsKeys.push(0)
+      setFieldsValue({
+        [`portProtocol0`]: 'TCP',
+      })
     }
 
     setFieldsValue({

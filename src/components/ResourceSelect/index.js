@@ -47,6 +47,15 @@ export default class ResourceSelect extends Component {
     this.props.onChange(this.state)
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { resourceType, DIYMemory, DIYCPU } = nextProps
+    this.setState({
+      resourceType: resourceType || 512,
+      DIYMemory: DIYMemory || RESOURCES_MEMORY_MIN,
+      DIYCPU: DIYCPU || RESOURCES_CPU_DEFAULT,
+    })
+  }
+
   selectResourceType(type) {
     this.setState({
       resourceType: type
