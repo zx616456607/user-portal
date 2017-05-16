@@ -5,7 +5,7 @@
  *  license list
  *
  * v0.1 - 2016/11/10
- * @author ZhaoXueYu
+ * @author BaiYu
  */
 import React, { Component } from 'react'
 import { Row, Col, Spin, Alert, Card, Tooltip, Popover, Icon, Button, Form, Input } from 'antd'
@@ -109,7 +109,7 @@ class License extends Component {
                 }
               }
             })
-            
+
           }
         },
         isAsync: true
@@ -194,7 +194,7 @@ class License extends Component {
           <td >{list[camelize('max_nodes')]} {/*(list[camelize('max_nodes')] > 0 && index == 0) ? '（当前生效）' : ''*/}</td>
           <td >{formatDate(list.start)}</td>
           <td >{formatDate(list.end)}</td>
-          <td >{(new Date(list.end).getTime() - new Date(list.start).getTime()) / 24 / 60 / 60 / 1000} 天</td>
+          <td >{Math.floor((new Date(list.end).getTime() - new Date(list.start).getTime()) / 24 / 60 / 60 / 1000 *100) /100} 天</td>
           <td >{formatDate(list.addTime)}</td>
           <td >{list.addUser ? list.addUser : '未知'}</td>
         </tr>
