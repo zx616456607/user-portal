@@ -1,0 +1,171 @@
+#appmanage_snapshot{
+  padding:20px 20px 0 20px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  .appmanage_snapshot_header{
+    padding-bottom: 14px;
+    .searchBox{
+      position: relative;
+      .searchInput{
+        width:165px;
+        margin-left: 8px;
+      }
+      .searchIcon{
+        position: absolute;
+        top: 0px;
+        left: 152px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+    }
+  }
+  .appmanage_snapshot_main{
+    position: relative;
+    padding-bottom: 50px;
+    background: #ffffff;
+    .nodata{
+      text-align: center;
+      padding-top: 40px;
+    }
+    .ant-table-body{
+      background: #ffffff;
+      .deleteButton{
+        margin-left: 10px;
+      }
+      .statusRunning{
+        color:#2eab5f;
+        .icon{
+          margin-right: 4px;
+        }
+      }
+    }
+    .ant-table-pagination{
+      position: absolute;
+      left: 91%;
+      top: -60px;
+      @media(max-width: 1360px){
+        left:89%;
+      }
+      @media(max-width: 1200px){
+        left:87%;
+      }
+    }
+    .totalNum{
+      position: absolute;
+      top:-39px;
+      left:86%;
+      @media(max-width: 1480px){
+        left:84%;
+      }
+      @media(max-width: 1400px){
+        left:83%;
+      }
+      @media(max-width: 1350px){
+        left:82%;
+      }
+      @media(max-width: 1200px){
+        left:79%;
+      }
+      .item{
+        padding:0 4px;
+      }
+    }
+  }
+}
+
+.RollbackModal{
+  .img{
+    height: 164px;
+    .imgBox{
+      height:84px;
+      padding-top: 30px;
+      .rollback{
+        width:225px;
+        text-align: center;
+      }
+      .arrow{
+        width:60px;
+        padding-top: 10px;
+        text-align: center;
+        color:#58c3f9;
+      }
+      .float{
+        float: left;
+      }
+    }
+    .imgtips{
+      height:60px;
+      padding-top: 10px;
+      font-size: 14px;
+      .imgtipsBox{
+        display: inline-block;
+        width: 50%;
+        .left{
+          text-indent: 83px;
+        }
+        .right{
+          text-indent: 118px;
+          color:#58c3f9;
+        }
+        .item{
+          padding-left: 5px;
+        }
+      }
+    }
+  }
+  .tips{
+    border:1px dashed #fbdc9c;
+    border-radius: 4px;
+    padding:16px 10px 16px 16px;
+    background: #fffaf6;
+    .name{
+      padding:0 4px;
+    }
+    .time{
+      padding:0 2px;
+      color:red;
+    }
+  }
+  .warning{
+    color:red;
+    padding:10px 10px 0 10px;
+    .icon{
+      margin-right: 4px;
+    }
+  }
+}
+
+.DeleteSnapshotModal{
+  font-size: 14px;
+  .infobox{
+    padding-bottom: 10px;
+    overflow: hidden;
+    .leftbox{
+      width: 120px;
+      float: left;
+    }
+    .rightbox{
+      float: left;
+      .color{
+        color: #f36454;
+      }
+    }
+    .item{
+      height: 34px;
+      line-height: 34px;
+    }
+  }
+  .mainbox{
+    clear: both;
+    height: 51px;
+    line-height: 51px;
+    border: 1px dashed #feda9e;
+    border-radius: 4px;
+    background: #fffbf5;
+    color: #ee3f22;
+    .icon{
+      font-size: 17px;
+      padding:4px 12px 0 16px;
+    }
+  }
+}

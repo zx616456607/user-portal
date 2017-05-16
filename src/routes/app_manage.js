@@ -60,6 +60,11 @@ const appManageRoutes = [{
   indexRoute: {
     component: require('../components/ServiceConfig/Service').default,
   },
+}, {
+  path: 'snapshot',
+  indexRoute: {
+    component: require('../components/AppModule/AppSnapshot').default,
+  },
 }]
 
 export default appManageRoutes
