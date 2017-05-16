@@ -41,7 +41,7 @@ const Normal = React.createClass({
     // get cluster nodes for bind
     getNodes(currentCluster.clusterID, {
       failed: {
-        func: {
+        func: () => {
           //
         },
         isAsync: true

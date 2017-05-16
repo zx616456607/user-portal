@@ -113,7 +113,22 @@ let AppAddServiceModal = React.createClass({
       this.props.publicImages(registry, 'all')
       return
     }
+    if (location.search.slice(1).indexOf('query=') >-1) {
+      const _this = this
+      this.props.privateImages(registry, {
+        success:{
+          func:()=> {
+            _this.props.searchPrivateImages({ imageName: location.search.substr(7), registry: registry })
+            document.getElementById('soImageName').value = location.search.substr(7)
+          },
+          isAsync: true
+        }
+      })
+      this.setState({currentImageType: 'privateImages'})
+      return
+    }
     this.props.publicImages(registry)
+
   },
   searchImage(imageType) {
     const type = imageType || this.state.currentImageType
@@ -166,7 +181,7 @@ let AppAddServiceModal = React.createClass({
           <span className={this.state.selectRepo == 'hub' ? 'selected': ''} onClick={()=> this.selectRepo('hub')}>镜像广场 | 时速云 </span>
         </div>
         {this.serverHeader()}
-      </div>  
+      </div>
       )
     }
   },

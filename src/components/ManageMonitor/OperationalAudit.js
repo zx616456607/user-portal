@@ -207,11 +207,11 @@ const menusText = defineMessages({
   },
   ServiceQuota: {
     id: 'ManageMonitor.operationalAudit.ServiceQuota',
-    defaultMessage: '服务Quota',
+    defaultMessage: '更改服务配置',
   },
   ServiceHaOption: {
     id: 'ManageMonitor.operationalAudit.ServiceHaOption',
-    defaultMessage: '服务HaOption',
+    defaultMessage: '高可用设置',
   },
   ServiceDomain: {
     id: 'ManageMonitor.operationalAudit.ServiceDomain',
