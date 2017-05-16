@@ -144,9 +144,16 @@ class BaseInfo extends Component {
       });
     }, 500);
   }
-  findZookeeperPassword(podSpec) {
-    const envs = podSpec.containers[0].env
-    const index = envs.findIndex(e => e.name === "SUPER_PASSWORD")
+  findPassword(spec) {
+    let index = spec.containers.findIndex(container => container.env && container.env.length > 0)
+    if (index === -1) {
+      return ""
+    }
+    const envs = spec.containers[index].env
+    index = envs.findIndex(env => env.name && env.name.indexOf("PASSWORD") !== -1)
+    if (index === -1) {
+      return ""
+    }
     return envs[index].value
   }
   render() {
@@ -264,34 +271,17 @@ class BaseInfo extends Component {
             <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {externalUrl}/>
           </div>
           <div className='configList'><span className='listKey'>副本数：</span>{this.props.currentData.pending + this.props.currentData.running}/{this.props.currentData.desired}个</div>
-          {this.props.database != 'zookeeper' ?
             <div><div className='configHead'>参数</div>
               <ul className='parse-list'>
                 <li><span className='key'>参数名</span> <span className='value'>参数值</span></li>
                 <li><span className='key'>用户名：</span> <span className='value'>root</span></li>
                 {this.state.passShow ?
-                  <li><span className='key'>密码：</span> <span className='value'>{podSpec.containers[0].env ? podSpec.containers[0].env[0].value : ''}</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
+                  <li><span className='key'>密码：</span> <span className='value'>{this.findPassword(podSpec)}</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
                   :
                   <li><span className='key'>密码：</span> <span className='value'>******</span><span className="pasBtn" onClick={() => this.setState({ passShow: true })}><i className="fa fa-eye"></i> 显示</span></li>
                 }
               </ul>
             </div>
-            : null
-          }
-          {this.props.database == 'zookeeper' ?
-            <div><div className='configHead'>参数</div>
-              <ul className='parse-list'>
-                <li><span className='key'>参数名</span> <span className='value'>参数值</span></li>
-                <li><span className='key'>用户名：</span> <span className='value'>super</span></li>
-                {this.state.passShow ?
-                  <li><span className='key'>密码：</span> <span className='value'>{this.findZookeeperPassword(podSpec)}</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
-                  :
-                  <li><span className='key'>密码：</span> <span className='value'>******</span><span className="pasBtn" onClick={() => this.setState({ passShow: true })}><i className="fa fa-eye"></i> 显示</span></li>
-                }
-              </ul>
-            </div>
-            : null
-          }
           <div className='configHead'>实例副本 <span>{this.props.currentData.desired}个 &nbsp;</span>
             <Popover content={modalContent} title={null} trigger="click" overlayClassName="putmodalPopover"
               visible={rootScope.state.putVisible} getTooltipContainer={()=> document.getElementById('AppServiceDetail')}
