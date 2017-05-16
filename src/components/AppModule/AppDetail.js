@@ -263,7 +263,7 @@ class AppDetail extends Component {
                 </TabPane>
                 {/*<TabPane tab='应用拓扑' key='#topology' >应用拓扑</TabPane>*/}
                 <TabPane tab='编排文件' key='#stack' >
-                  <AppGraph key='AppGraph' onServicesChange={this.onServicesChange} cluster={this.props.cluster} appName={appName} /></TabPane>
+                  <AppGraph key='AppGraph' cluster={this.props.cluster} appName={appName} /></TabPane>
                 <TabPane tab='审计日志' key='#logs' >
                   <AppLog key='AppLog'
                     cluster={this.props.cluster}
