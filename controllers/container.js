@@ -135,6 +135,7 @@ exports.exportContainers = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.createBy([cluster, 'instances',instance,'export'], null, image)
+  this.status=result.code
   this.body = {
     cluster,
     data: result.data
