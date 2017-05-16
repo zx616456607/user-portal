@@ -176,6 +176,7 @@ let EnvComponent = React.createClass({
       initialValue: [0],
     });
     const servicesInputItems = getFieldValue('service' + index + 'inputs').map((i) => {
+      setTimeout(()=> document.getElementById(`service${index}inputName${i}`).focus(),300)
       const servicesInputNameProps = getFieldProps(`service${index}inputName${i}`, {
         rules: [
           { message: '请输入环境变量名' },
