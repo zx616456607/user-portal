@@ -515,7 +515,7 @@ let MyComponent = React.createClass({
 
         <Modal
           title="创建快照"
-          visible={true}
+          visible={this.state.CreateSnapshotSuccessModal}
           closable={true}
           onOk={this.handleConfirmCreateSnapshotSuccess}
           onCancel={this.handleCancelCreateSnapshotSuccess}
