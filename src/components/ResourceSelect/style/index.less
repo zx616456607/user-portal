@@ -86,13 +86,15 @@
       overflow: hidden;
       position: relative;
       .topBox {
-        font-size: 14px;text-align: center;
+        font-size: 14px;
+        text-align: center;
       }
       .bottomBox {
         padding: 0 7px;
         text-align: left;
         .DIYKey {
           padding-top: 1px;
+          display: inline-block;
         }
         .ant-input-number {
           width: 70px;
@@ -101,10 +103,13 @@
       }
     }
     .btn.ant-btn-ghost{
-      border:1px solid #d9d9d9;
+      border: 1px solid #d9d9d9;
     }
     .btn.ant-btn-primary{
-      border:1px solid #2db7f5;
+      border: 1px solid #2db7f5;
+      .ant-form-item-control {
+        color: #2db7f5
+      }
     }
   }
   .resourceDetail:first {

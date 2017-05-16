@@ -17,7 +17,7 @@ import { connect } from 'react-redux'
 import SelectImage from './SelectImage'
 import ConfigureService from './ConfigureService'
 import NotificationHandler from '../../../common/notification_handler'
-import { genRandomString, toQuerystring } from '../../../common/tools'
+import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
 import { removeFormFields } from '../../../actions/quick_create_app'
 import './style/index.less'
 
@@ -41,6 +41,7 @@ class QuickCreateApp extends Component {
     this.editService = this.editService.bind(this)
     this.setConfig = this.setConfig.bind(this)
     this.genConfigureServiceKey = this.genConfigureServiceKey.bind(this)
+    this.getAppResources = this.getAppResources.bind(this)
     const { location } = props
     const { query } = location
     const { imageName, registryServer } = query
@@ -271,7 +272,37 @@ class QuickCreateApp extends Component {
     return serviceList
   }
 
+  getAppResources() {
+    const { current } = this.props
+    const fields = this.props.fields || {}
+    let cpuTotal = 0 // unit: C
+    let memoryTotal = 0 // unit: G
+    let priceHour = 0 // unit: T/￥
+    for (let key in fields) {
+      if (fields.hasOwnProperty(key) && fields[key].resourceType) {
+        const { resourceType, DIYMemory, DIYCPU, replicas } = fields[key]
+        const { memory, cpu, config } = getResourceByMemory(resourceType.value, DIYMemory.value, DIYCPU.value)
+        cpuTotal += cpu
+        memoryTotal += memory
+        let price = current.cluster.resourcePrice[config]
+        if (price) {
+          priceHour += price * replicas.value
+        } else {
+          // @Todo: need diy resource price
+        }
+      }
+    }
+    const priceMonth = parseAmount(priceHour * 24 * 30, 2).amount
+    priceHour = parseAmount(priceHour, 2).amount
+    return {
+      resource: `${cpuTotal}C${memoryTotal}G`,
+      priceHour,
+      priceMonth,
+    }
+  }
+
   render() {
+    const { current } = this.props
     const { confirmGoBackModalVisible } = this.state
     const steps = (
       <Steps size="small" className="steps" status="error" current={this.getStepsCurrent()}>
@@ -280,7 +311,8 @@ class QuickCreateApp extends Component {
         <Step title="配置服务" />
       </Steps>
     )
-    return(
+    const { resource, priceHour, priceMonth } = this.getAppResources()
+    return (
       <div id="quickCreateApp">
         <Row gutter={16}>
           <Col span={18}>
@@ -299,8 +331,31 @@ class QuickCreateApp extends Component {
                 </div>
               }
             >
-              <div>
+              <div className="serviceList">
                 {this.renderServiceList()}
+              </div>
+              <div className="resourcePrice">
+                <div className="resource">
+                  计算资源：
+                  <span>{resource}</span>
+                </div>
+                {
+                  current.unit === '¥'
+                  ? (
+                    <div className="price">
+                      合计：
+                      <span className="hourPrice"><font>¥</font> {priceHour}/小时</span>
+                      <span className="monthPrice">（合 <font>¥</font> {priceMonth}/月）</span>
+                    </div>
+                  )
+                  : (
+                    <div className="price">
+                      合计：
+                      <span className="hourPrice">{priceHour} {current.unit}/小时</span>
+                      <span className="monthPrice">（合 {priceMonth} {current.unit}/月）</span>
+                    </div>
+                  )
+                }
               </div>
             </Card>
           </Col>
@@ -319,11 +374,12 @@ class QuickCreateApp extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { quickCreateApp } = state
+  const { quickCreateApp, entities } = state
   const { location } = props
   return {
     fields: quickCreateApp.fields,
     standardFlag,
+    current: entities.current,
   }
 }
 

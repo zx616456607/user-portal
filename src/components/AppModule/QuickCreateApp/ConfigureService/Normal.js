@@ -59,8 +59,16 @@ const Normal = React.createClass({
     })
   },
   onResourceChange({ resourceType, DIYMemory, DIYCPU }) {
-    const { setFieldsValue } = this.props.form
-    setFieldsValue({ resourceType, DIYMemory, DIYCPU })
+    const { setFormFields, form, id } = this.props
+    const { setFieldsValue } = form
+    const values = { resourceType }
+    if (DIYMemory) {
+      values.DIYMemory = DIYMemory
+    }
+    if (DIYCPU) {
+      values.DIYCPU = DIYCPU
+    }
+    setFieldsValue(values)
   },
   checkReplicas(rule, value, callback) {
     if (!value) {
@@ -131,6 +139,8 @@ const Normal = React.createClass({
             key="resource"
           >
             <ResourceSelect
+              form={form}
+              {...{DIYMemoryProps, DIYCPUProps}}
               standardFlag={standardFlag}
               onChange={this.onResourceChange}
               resourceType={resourceType && resourceType.value}

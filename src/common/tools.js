@@ -20,6 +20,7 @@ import {
   TENX_PORTAL_VERSION_MAJOR_KEY,
   TENX_PORTAL_VERSION_KEY,
   VERSION_REG_EXP,
+  RESOURCES_DIY,
 } from '../constants'
 import { STANDARD_MODE, ENTERPRISE_MODE } from '../../configs/constants'
 import { mode } from '../../configs/model'
@@ -465,4 +466,60 @@ export function isSafariBrower() {
     }
   }
   return false
+}
+
+export function getResourceByMemory(_memory, DIYMemory, DIYCPU) {
+  if (_memory !== RESOURCES_DIY) {
+    _memory = parseInt(_memory)
+  }
+  let cpu = 1 // unit: C
+  let cpuShare = 0.1 // unit: C
+  let memory = 0.5 // unit: G
+  let config = '2x'
+  switch (_memory) {
+    case 256:
+      memory = 256 / 1024
+      cpu = 1
+      cpuShare = 0.1
+      config = '1x'
+      break
+    case 512:
+      memory = 512 / 1024
+      cpu = 1
+      cpuShare = 0.1
+      config = '2x'
+      break
+    case 1024:
+      memory = 1024 / 1024
+      cpu = 1
+      cpuShare = 0.2
+      config = '4x'
+      break
+    case 2048:
+      memory = 2048 / 1024
+      cpu = 1
+      cpuShare = 0.4
+      config = '8x'
+      break
+    case 4096:
+      memory = 4096 / 1024
+      cpu = 1
+      cpuShare = 1
+      config = '16x'
+      break
+    case 8192:
+      memory = 8192 / 1024
+      cpu = 2
+      cpuShare = 2
+      config = '32x'
+      break
+    case RESOURCES_DIY:
+      memory = Math.ceil(DIYMemory / 1024 * 100) / 100
+      cpu = DIYCPU
+      cpuShare = DIYCPU
+      config = RESOURCES_DIY
+    default:
+      break
+  }
+  return { cpu, cpuShare, memory, config }
 }

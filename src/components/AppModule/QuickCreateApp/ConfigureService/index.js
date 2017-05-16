@@ -269,7 +269,7 @@ let ConfigureService = React.createClass({
     const {
       form, imageTags, currentFields,
       standardFlag, loadFreeVolume, createStorage,
-      current,
+      current, id,
     } = this.props
     const { imageConfigs } = this.state
     const { getFieldProps } = form
@@ -371,6 +371,7 @@ let ConfigureService = React.createClass({
           </Form>
         </div>
         <Normal
+          id={id}
           form={form}
           formItemLayout={formItemLayout}
           fields={currentFields}
