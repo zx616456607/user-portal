@@ -75,7 +75,7 @@ export function buildJson(fields, cluster, loginUser) {
       const volume = {
         name: `volume-${key}`
       }
-      if(storageType == 'rbd') {
+      if (storageType == 'rbd') {
         let volumeInfo = fieldsValues[`${VOLUME}${key}`]
         volumeInfo = volumeInfo.split('/')
         volume.image = volumeInfo[0]
@@ -89,10 +89,10 @@ export function buildJson(fields, cluster, loginUser) {
       // volumeMounts
       const mountPath = fieldsValues[`${MOUNT_PATH}${key}`]
       const readOnly = fieldsValues[`${READ_ONLY}${key}`]
-      const volumeMounts = {
+      const volumeMounts = [{
         mountPath,
         readOnly,
-      }
+      }]
       deployment.addContainerVolume(serviceName, volume, volumeMounts)
     })
   }
@@ -102,17 +102,22 @@ export function buildJson(fields, cluster, loginUser) {
   const service = new Service(serviceName, cluster)
   const { proxyType } = loginUser
   portsKeys.forEach(key => {
-    const name = `serviceName-${key}`
-    const port = fieldsValues[`${PORT}${key}`]
-    const portProtocol = fieldsValues[`${PORT_PROTOCOL}${key}`]
-    const mappingPort = fieldsValues[`${MAPPING_PORT}${key}`]
-    const mappingPortType = fieldsValues[`${MAPPING_PORTTYPE}${key}`]
-    service.addPort(proxyType, name, portProtocol, port, port, mappingPort)
-    if (portProtocol === 'HTTP') {
-      service.addPortAnnotation(name, portProtocol)
-    } else if (portProtocol === 'TCP') {
-      //
+    if (key.deleted) {
+      return
     }
+    const keyValue = key.value
+    const name = `${serviceName}-${keyValue}`
+    const port = fieldsValues[`${PORT}${keyValue}`]
+    const portProtocol = fieldsValues[`${PORT_PROTOCOL}${keyValue}`]
+    const mappingPort = fieldsValues[`${MAPPING_PORT}${keyValue}`]
+    const mappingPortType = fieldsValues[`${MAPPING_PORTTYPE}${keyValue}`]
+    service.addPort(proxyType, name, portProtocol, port, port, mappingPort)
+    if (mappingPortType === 'special') {
+      service.addPortAnnotation(name, portProtocol, mappingPort)
+    } else {
+      service.addPortAnnotation(name, portProtocol)
+    }
+    deployment.addContainerPort(serviceName, port, portProtocol)
   })
 
   return { deployment, service }

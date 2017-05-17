@@ -177,7 +177,13 @@ let ConfigureService = React.createClass({
     }
     const portsKeys = []
     containerPorts.map((port, index) => {
-      portsKeys.push(index)
+      // magic code ！
+      // 此处 portsKeys 的元素必须为一个对象，而不能是一个数字
+      // 后续会在这个对象上添加 `deleted` 字段来标记这个对象是否被删除
+      // 在渲染元素时，根据 `deleted` 字段来决定是否渲染
+      // 如果为一个数字，删除时直接移除，会导致 redux store 中的 fields 与 form 中的 fields 不一致
+      // 具体原因与 rc-form 组件有关
+      portsKeys.push({ value: index })
       const portArray = port.split('/')
       setFieldsValue({
         [`port${index}`]: parseInt(portArray[0]),
@@ -186,14 +192,14 @@ let ConfigureService = React.createClass({
     })
     // must set a port
     if (portsKeys.length < 1) {
-      portsKeys.push(0)
+      portsKeys.push({ value: 0})
       setFieldsValue({
         [`portProtocol0`]: 'TCP',
       })
     }
 
     setFieldsValue({
-      // storageKeys,
+      storageKeys,
       portsKeys,
     })
   },
@@ -280,8 +286,14 @@ let ConfigureService = React.createClass({
     const {
       form, imageTags, currentFields,
       standardFlag, loadFreeVolume, createStorage,
-      current, id,
+      current, id, allFields
     } = this.props
+    const allFieldsKeys = Object.keys(allFields) || []
+    console.log(`allFieldsKeys.length===================`)
+    console.log(allFieldsKeys.length)
+    /*if (allFieldsKeys.length < 1) {
+      return <div></div>
+    }*/
     const { imageConfigs } = this.state
     const { getFieldProps } = form
     const appNameProps = getFieldProps('appName', {

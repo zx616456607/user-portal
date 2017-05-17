@@ -15,12 +15,15 @@ import { Card, Row, Col, Steps, Button, Modal, Icon, Tooltip, Spin } from 'antd'
 import { browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import classNames from 'classnames'
+import yaml from 'js-yaml'
 import SelectImage from './SelectImage'
 import ConfigureService from './ConfigureService'
+import ResourceQuotaModal from '../../ResourceQuotaModal'
 import NotificationHandler from '../../../common/notification_handler'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
 import { removeFormFields, removeAllFormFields } from '../../../actions/quick_create_app'
 import { createApp } from '../../../actions/app_manage'
+import { buildJson } from './utils'
 import './style/index.less'
 
 const Step = Steps.Step
@@ -49,6 +52,21 @@ class QuickCreateApp extends Component {
     const { location, fields } = props
     const { query } = location
     const { imageName, registryServer } = query
+    this.state = {
+      imageName,
+      registryServer,
+      serviceList: [],
+      confirmGoBackModalVisible: false,
+      appName: this.getAppName(fields),
+      isCreatingApp: false,
+      resourceQuotaModal: false,
+      resourceQuota: null,
+    }
+    this.serviceSum = 0
+    this.configureServiceKey = this.genConfigureServiceKey()
+  }
+
+  getAppName(fields) {
     let appName
     // get app name from fields
     if (fields) {
@@ -61,16 +79,7 @@ class QuickCreateApp extends Component {
         }
       }
     }
-    this.state = {
-      imageName,
-      registryServer,
-      serviceList: [],
-      confirmGoBackModalVisible: false,
-      appName,
-      isCreatingApp: false,
-    }
-    this.serviceSum = 0
-    this.configureServiceKey = this.genConfigureServiceKey()
+    return appName
   }
 
   genConfigureServiceKey() {
@@ -164,6 +173,75 @@ class QuickCreateApp extends Component {
   createApp() {
     this.setState({
       isCreatingApp: true,
+    })
+    const {
+      fields, current, loginUser,
+      createApp, removeAllFormFields,
+    } = this.props
+    const template = []
+    for (let key in fields) {
+      if (fields.hasOwnProperty(key)) {
+        const json = buildJson(fields[key], current.cluster, loginUser)
+        template.push(yaml.dump(json.deployment))
+        template.push(yaml.dump(json.service))
+      }
+    }
+    const appConfig = {
+      cluster: current.cluster.clusterID,
+      template: template.join('---\n'),
+      appName: this.getAppName(fields),
+    }
+    createApp(appConfig, {
+      success: {
+        func: res => {
+          this.form.resetFields()
+          browserHistory.push('/app_manage')
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          if (err.statusCode == 403) {
+            const { data } = err.message
+            const { require, capacity, used } = data
+            let resourceQuota = {
+              selectResource: {
+                cpu: formatCpuFromMToC(require.cpu),
+                memory: formatMemoryFromKbToG(require.memory),
+              },
+              usedResource: {
+                cpu: formatCpuFromMToC(used.cpu),
+                memory: formatMemoryFromKbToG(used.memory),
+              },
+              totalResource: {
+                cpu: formatCpuFromMToC(capacity.cpu),
+                memory: formatMemoryFromKbToG(capacity.memory),
+              },
+            }
+            this.setState({
+              resourceQuotaModal: true,
+              resourceQuota,
+            })
+            function formatCpuFromMToC(cpu) {
+              return Math.ceil(cpu / 1000 * 10) / 10
+            }
+            function formatMemoryFromKbToG(memory) {
+              return Math.ceil(memory / 1024 / 1024 * 10) / 10
+            }
+            notification.error('创建应用失败', '集群资源不足')
+            return
+          }
+          const { message } = err
+          notification.error('创建应用失败', message.message)
+        }
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            isCreatingApp: false,
+          })
+        }
+      },
     })
   }
 
@@ -432,6 +510,12 @@ class QuickCreateApp extends Component {
           >
             是否确定返回“上一步”？确定后已添加的服务xxx、xxx、xxx将不被保留
           </Modal>
+
+          <ResourceQuotaModal
+            visible={this.state.resourceQuotaModal}
+            closeModal={() => this.setState({resourceQuotaModal: false})}
+            {...this.state.resourceQuota}
+          />
         </div>
       </div>
     )
@@ -445,6 +529,7 @@ function mapStateToProps(state, props) {
     fields: quickCreateApp.fields,
     standardFlag,
     current: entities.current,
+    loginUser: entities.loginUser.info,
   }
 }
 

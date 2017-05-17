@@ -98,7 +98,7 @@ const Storage = React.createClass({
   onServiceTypeChange(value) {
     const { setReplicasToDefault } = this.props
     if (value) {
-      setReplicasToDefault()
+      setReplicasToDefault(true)
       this.setStorageTypeToDefault()
       this.setBindVolumesToDefault()
       this.getVolumes()
