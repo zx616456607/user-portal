@@ -76,7 +76,7 @@ let MyComponent = React.createClass({
       const { setFieldsValue } = form
       setFieldsValue({
         'exportImageName': undefined,
-        'exportImageVersion': 'laest',
+        'exportImageVersion': 'latest',
       })
       this.setState({
         exportImageModalVisible: true,
@@ -152,7 +152,7 @@ let MyComponent = React.createClass({
     const { setFieldsValue } = form
     setFieldsValue({
       'exportImageName': undefined,
-      'exportImageVersion': 'laest',
+      'exportImageVersion': 'latest',
     })
     this.setState({
       exportImageModalVisible : false
@@ -162,7 +162,7 @@ let MyComponent = React.createClass({
     const { form } = this.props
     const { getFieldValue } = form
     let imageName = getFieldValue('exportImageName') ? getFieldValue('exportImageName') : '镜像名称'
-    let imageTag = getFieldValue('exportImageVersion') ? getFieldValue('exportImageVersion') : 'laest'
+    let imageTag = getFieldValue('exportImageVersion') ? getFieldValue('exportImageVersion') : 'latest'
     return {
       imageName,
       imageTag
@@ -357,7 +357,7 @@ let MyComponent = React.createClass({
       rules: [{
         validator: this.checkImageVersion
       }],
-      initialValue: 'laest'
+      initialValue: 'latest'
     })
     return (
       <div className='dataBox'>
