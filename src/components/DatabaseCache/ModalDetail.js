@@ -498,29 +498,21 @@ class ModalDetail extends Component {
     }
     return logoMapping[clusterType]
   }
+  dbStatus(phase) {
+    if (phase.running >0) {
+      return (<span className='running'><i className="fa fa-circle"></i> 运行中 </span>)
+    }
+    if (phase.padding >0) {
+       return (<span className='padding'><i className="fa fa-circle"></i> 启动中 </span>)
+    }
+    if (phase.failed >0) {
+       return (<span className='stop'><i className="fa fa-circle"></i> 启动失败 </span>)
+    }
+    return (<span className='stop'><i className="fa fa-circle"></i> 已停止 </span>)
+  }
   render() {
     const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs } = this.props;
-    let statusClass = 'normal'
-    let statusText = '运行中'
-    if (databaseInfo) {
-      if (databaseInfo.podInfo.pending > 0){
-        statusClass = 'stop'
-        statusText = '已停止'
-      } else if (databaseInfo.podInfo.failed > 0) {
-        statusClass = 'error'
-        statusText = '发生错误'
-      }else if(databaseInfo.podInfo.running == databaseInfo.podList.listMeta.total) {
-        statusClass = 'running'
-        statusText = '运行中'
-      } else {
-        statusClass = 'stop'
-        statusText = '已停止'
-      }
-      if (!databaseInfo.podList.pods || databaseInfo.podList.pods.length == 0) {
-        statusClass = 'stop'
-        statusText = '已停止'
-      }
-    }
+
     if (isFetching || databaseInfo == null) {
       return (
         <div className='loadingBox'>
@@ -543,7 +535,7 @@ class ModalDetail extends Component {
             <div className='leftBox TenxStatus'>
               <div className="desc">{databaseInfo.serviceInfo.namespace} / {databaseInfo.serviceInfo.name}</div>
               <div> 状态：
-              <span className={statusClass} style={{top:'0'}}> <i className="fa fa-circle"></i> {statusText} </span>
+                {this.dbStatus(databaseInfo.podInfo)}
               </div>
 
             </div>
