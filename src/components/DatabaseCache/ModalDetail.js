@@ -508,7 +508,7 @@ class ModalDetail extends Component {
     if (phase.failed >0) {
        return (<span className='stop'><i className="fa fa-circle"></i> 启动失败 </span>)
     }
-    return (<span className='stop'><i className="fa fa-circle"></i> 停止 </span>)
+    return (<span className='stop'><i className="fa fa-circle"></i> 已停止 </span>)
   }
   render() {
     const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs } = this.props;
