@@ -48,10 +48,15 @@ const Normal = React.createClass({
       }
     })
   },
-  setReplicasToDefault() {
+  setReplicasToDefault(disabled) {
     this.props.form.setFieldsValue({
       replicas: 1,
     })
+    if (disabled) {
+      this.setState({
+        replicasInputDisabled: true,
+      })
+    }
   },
   setBindNodeToDefault() {
     this.props.form.setFieldsValue({

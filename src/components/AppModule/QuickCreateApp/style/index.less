@@ -7,6 +7,7 @@
   margin-bottom: 20px;
   .ant-card-head-title {
     font-weight: initial;
+    padding: 0 15px;
   }
   .leftCard {
     .steps {
@@ -39,14 +40,7 @@
   }
   .rightCard {
     .title {
-      position: relative;
-      clear: both;
-      .left {
-        float: left;
-      }
-      .right {
-        float: right;
-      }
+      //
     }
     .noService {
       text-align: center;
@@ -55,14 +49,15 @@
     }
     .serviceList {
       .serviceItem {
-        padding-top: 5px;
-        padding-bottom: 5px;
+        padding: 10px 15px;
         .btns {
-          text-align: right;
-          button {
+          button+button {
             margin-left: 10px;
           }
         }
+      }
+      .active {
+        background: #e4f5fd;
       }
     }
     .resourcePrice {
@@ -99,6 +94,10 @@
           color: @blueColor;
         }
       }
+    }
+    .createApp {
+      text-align: center;
+      padding: 25px 20px 0 20px;
     }
   }
 }

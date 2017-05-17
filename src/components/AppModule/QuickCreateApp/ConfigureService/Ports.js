@@ -39,8 +39,8 @@ const Ports = React.createClass({
     const portsKeys = getFieldValue('portsKeys') || []
     let error
     portsKeys.every(_key => {
-      const port = getFieldValue(`port${_key}`)
-      if (_key !== key && value === port) {
+      const port = getFieldValue(`port${_key.value}`)
+      if (_key.value !== key && value === port) {
         error = '已填写过该端口'
         return false
       }
@@ -73,22 +73,34 @@ const Ports = React.createClass({
     const { setFieldsValue, getFieldValue } = form
     const portsKeys = getFieldValue('portsKeys') || []
     setFieldsValue({
-      portsKeys: portsKeys.filter(_key => _key !== key)
+      portsKeys: portsKeys.map(_key => {
+        if (_key.value === key) {
+          // magic code ！
+          // 必须通过标记的方式删除，否则 redux store 中的 fields 与 form 中的 fields 无法一一对应
+          _key.deleted = true
+        }
+        return _key
+      })
     })
   },
-  renderPortItem(key) {
+  renderPortItem(key, index) {
+    // 根据 `deleted` 字段来决定是否渲染
+    if (key.deleted) {
+      return
+    }
+    const keyValue = key.value
     const { form, currentCluster } = this.props
     const { getFieldProps, getFieldValue } = form
     const { bindingDomains } = currentCluster
     const httpOptionDisabled = !isDomain(bindingDomains)
-    const portKey = `port${key}`
-    const portProtocolKey = `portProtocol${key}`
-    const mappingPportTypeKey = `mappingPportType${key}`
-    const mappingPortKey = `mappingPort${key}`
+    const portKey = `port${keyValue}`
+    const portProtocolKey = `portProtocol${keyValue}`
+    const mappingPportTypeKey = `mappingPortType${keyValue}`
+    const mappingPortKey = `mappingPort${keyValue}`
     const portProps = getFieldProps(portKey, {
       rules: [
         { required: true, message: '请输入容器端口' },
-        { validator: this.checkContainerPort.bind(this, key) }
+        { validator: this.checkContainerPort.bind(this, keyValue) }
       ],
     })
     const portProtocolProps = getFieldProps(portProtocolKey, {
@@ -96,21 +108,25 @@ const Ports = React.createClass({
         { required: true, message: '请选择端口协议' },
       ],
     })
-    const mappingPortTypeProps = getFieldProps(mappingPportTypeKey, {
-      rules: [
-        { required: true, message: '请选择映射服务端口类型' },
-      ],
-      initialValue: MAPPING_PORT_AUTO,
-    })
-    const mappingPortTypeValue = getFieldValue(mappingPportTypeKey)
+    const portProtocolValue = getFieldValue(portProtocolKey)
+    let mappingPortTypeProps
     let mappingPortProps
-    if (mappingPortTypeValue === MAPPING_PORT_SPECIAL) {
-      mappingPortProps = getFieldProps(mappingPortKey, {
+    if (portProtocolValue === 'TCP') {
+      mappingPortTypeProps = getFieldProps(mappingPportTypeKey, {
         rules: [
-          { required: true, message: '请输入指定端口' },
-          { validator: this.checkMappingPort.bind(this, key) }
+          { required: true, message: '请选择映射服务端口类型' },
         ],
+        initialValue: MAPPING_PORT_AUTO,
       })
+      const mappingPortTypeValue = getFieldValue(mappingPportTypeKey)
+      if (mappingPortTypeValue === MAPPING_PORT_SPECIAL) {
+        mappingPortProps = getFieldProps(mappingPortKey, {
+          rules: [
+            { required: true, message: '请输入指定端口' },
+            { validator: this.checkMappingPort.bind(this, keyValue) }
+          ],
+        })
+      }
     }
     return (
       <Row className="portItem">
@@ -134,12 +150,20 @@ const Ports = React.createClass({
         <Col span={10}>
           <Row gutter={16}>
             <Col span={12}>
-              <FormItem>
-                <Select size="default" {...mappingPortTypeProps}>
-                  <Option value={MAPPING_PORT_AUTO}>动态生成</Option>
-                  <Option value={MAPPING_PORT_SPECIAL}>指定端口</Option>
-                </Select>
-              </FormItem>
+            {
+              mappingPortTypeProps
+              ? (
+                <FormItem>
+                  <Select size="default" {...mappingPortTypeProps}>
+                    <Option value={MAPPING_PORT_AUTO}>动态生成</Option>
+                    <Option value={MAPPING_PORT_SPECIAL}>指定端口</Option>
+                  </Select>
+                </FormItem>
+              )
+              : (
+                <div className="httpMappingPort">80</div>
+              )
+            }
             </Col>
             {
               mappingPortProps && (
@@ -161,8 +185,9 @@ const Ports = React.createClass({
             <Button
               className="deleteBtn"
               type="dashed"
-              disabled={key === 0} size="default"
-              onClick={this.removePortsKey.bind(this, key)}
+              size="small"
+              disabled={index === 0}
+              onClick={this.removePortsKey.bind(this, keyValue)}
             >
               <Icon type="delete" />
             </Button>
@@ -178,21 +203,28 @@ const Ports = React.createClass({
     let portsKeys = getFieldValue('portsKeys') || []
     const validateFieldsKeys = []
     portsKeys.forEach(key => {
-      validateFieldsKeys.push(`port${key}`)
-      validateFieldsKeys.push(`portProtocol${key}`)
-      validateFieldsKeys.push(`mappingPportType${key}`)
-      const mappingPortTypeValue = getFieldValue(`mappingPportType${key}`)
-      if (mappingPortTypeValue === MAPPING_PORT_SPECIAL) {
-        validateFieldsKeys.push(`mappingPort${key}`)
+      if (key.deleted) {
+        return
+      }
+      const keyValue = key.value
+      validateFieldsKeys.push(`port${keyValue}`)
+      validateFieldsKeys.push(`portProtocol${keyValue}`)
+      const portProtocolValue = getFieldValue(`portProtocol${keyValue}`)
+      if (portProtocolValue === 'TCP') {
+        validateFieldsKeys.push(`mappingPortType${keyValue}`)
+        const mappingPortTypeValue = getFieldValue(`mappingPortType${keyValue}`)
+        if (mappingPortTypeValue === MAPPING_PORT_SPECIAL) {
+          validateFieldsKeys.push(`mappingPort${keyValue}`)
+        }
       }
     })
     validateFields(validateFieldsKeys, (errors, values) => {
       if (!!errors) {
         return
       }
-      let uid = portsKeys[portsKeys.length - 1] || 0
+      let uid = portsKeys[portsKeys.length - 1].value || 0
       uid ++
-      portsKeys = portsKeys.concat(uid)
+      portsKeys = portsKeys.concat({ value: uid })
       setFieldsValue({
         portsKeys,
         [`portProtocol${uid}`]: 'TCP',
@@ -203,7 +235,7 @@ const Ports = React.createClass({
     const { formItemLayout, form } = this.props
     const { getFieldValue } = form
     // must set a port
-    const portsKeys = getFieldValue('portsKeys') || [ 0 ]
+    const portsKeys = getFieldValue('portsKeys') || []
     return (
       <Row className="portsConfigureService">
         <Col span={formItemLayout.labelCol.span} className="label">
