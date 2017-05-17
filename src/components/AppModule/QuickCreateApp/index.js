@@ -194,7 +194,9 @@ class QuickCreateApp extends Component {
     createApp(appConfig, {
       success: {
         func: res => {
-          this.form.resetFields()
+          this.appIsCreated = true
+          // 异步清除 fields，即等 QuickCreateApp 组件卸载后再清除，否者会出错
+          setTimeout(removeAllFormFields)
           browserHistory.push('/app_manage')
         },
         isAsync: true,
@@ -426,6 +428,10 @@ class QuickCreateApp extends Component {
   }
 
   render() {
+    // magic code ~
+    /*if (this.appIsCreated) {
+      return <div></div>
+    }*/
     const { current, location } = this.props
     const { confirmGoBackModalVisible, isCreatingApp } = this.state
     const steps = (
