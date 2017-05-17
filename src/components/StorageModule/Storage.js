@@ -281,21 +281,23 @@ let MyComponent = React.createClass({
     const { form } = this.props
     const { getFieldValue, setFieldsValue } = form
     let Noti = new NotificationHandler()
-    let value = getFieldValue('snapshotName')
-    console.log('value=',value)
-    if(value == undefined){
-      Noti.error('输入快照名称')
+    form.validateFields( (errors, values) => {
+      if(errors){
+        return
+      }
+      setFieldsValue({
+        snapshotName: undefined
+      })
       return
-    }
-    return
-    this.setState({
-      createSnapModal: false,
-      volumeName: '',
-      volumeFormat: '',
-      volumeSize: '',
-    })
-    setFieldsValue({
-      snapshotName: undefined
+      this.setState({
+        createSnapModal: false,
+        volumeName: '',
+        volumeFormat: '',
+        volumeSize: '',
+      })
+      setFieldsValue({
+        snapshotName: undefined
+      })
     })
   },
   handleCancelCreateSnapshot(){
@@ -583,6 +585,7 @@ class Storage extends Component {
       nameErrorMsg: '',
       resourceQuotaModal: false,
       resourceQuota: null,
+      comfirmRisk: false,
     }
   }
   componentWillMount() {
@@ -825,6 +828,7 @@ class Storage extends Component {
   }
   render() {
     const { formatMessage } = this.props.intl
+    const { getFieldProps } = this.props.form
     const currentCluster = this.props.currentCluster
     const storage_type = currentCluster.storageTypes
     const standard = require('../../../configs/constants').STANDARD_MODE
@@ -841,6 +845,15 @@ class Storage extends Component {
     const hourPrice = parseAmount(this.state.size / 1024 * this.props.currentCluster.resourcePrice.storage, 4)
     const countPrice = parseAmount(this.state.size / 1024 * this.props.currentCluster.resourcePrice.storage * 24 *30, 4)
     const dataStorage = this.props.storageList[this.props.currentImagePool].storageList
+    const confirmRisk = getFieldProps('confirmRisk',{
+      valuePropName: 'checked',
+      initialValue: true,
+      onChange: (value) => {
+        this.setState({
+          comfirmRisk: value.target.checked
+        })
+      }
+    })
     return (
       <QueueAnim className="StorageList" type="right">
         <div id="StorageList" key="StorageList">
@@ -850,14 +863,24 @@ class Storage extends Component {
               <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>
                 <i className="fa fa-plus" /><FormattedMessage {...messages.createTitle} />
               </Button></Tooltip>
-              <Button type="ghost" className="stopBtn" size="large" onClick={() => { this.setState({delModal: true}) } }
+              <Button type="ghost" className="stopBtn" size="large" onClick={() => { this.setState({delModal: true, comfirmRisk: false}) } }
                 disabled={!this.state.volumeArray || this.state.volumeArray.length < 1}>
                 <i className="fa fa-trash-o" /><FormattedMessage {...messages.delete} />
               </Button>
               <Modal title="删除存储卷操作" visible={this.state.delModal}
                 onOk={()=> this.deleteStorage()} onCancel={()=> this.setState({delModal: false})}
+                wrapClassName="deleteVolumeModal"
+                footer={[
+                  <Button size='large' onClick={()=> this.setState({delModal: false})} key="cancel">取消</Button>,
+                  <Button size='large' type="primary" onClick={()=> this.deleteStorage()} key="ok" disabled={this.state.comfirmRisk ? false : true}>确定</Button>
+                ]}
               >
                 <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除{this.state.volumeArray.map(item => item.name).join(',')} 存储卷吗?</div>
+                <div>
+                  <Form>
+                    <Form.Item><Checkbox {...confirmRisk} checked={this.state.comfirmRisk}>了解删除快照风险，确认将存储卷关联快照一并删除。</Checkbox></Form.Item>
+                  </Form>
+                </div>
               </Modal>
               <Modal title={formatMessage(messages.createModalTitle)}
                 visible={this.state.visible} width={550}
@@ -962,6 +985,8 @@ class Storage extends Component {
     )
   }
 }
+
+Storage = Form.create()(Storage)
 
 Storage.propTypes = {
   intl: PropTypes.object.isRequired,
