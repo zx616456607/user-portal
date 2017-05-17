@@ -76,7 +76,7 @@ let MyComponent = React.createClass({
       const { setFieldsValue } = form
       setFieldsValue({
         'exportImageName': undefined,
-        'exportImageVersion': 'laest',
+        'exportImageVersion': 'latest',
       })
       this.setState({
         exportImageModalVisible: true,
@@ -132,6 +132,10 @@ let MyComponent = React.createClass({
         },
         failed: {
           func: (res) => {
+            if(res.message && res.message.message == "The exportInstance operation against timeout could not be completed at this time, please try again."){
+              Notification.error('导出镜像超时，请重试！')
+              return
+            }
             Notification.error('导出镜像失败！')
             this.setState({
               exportImageModalVisible: false,
@@ -148,7 +152,7 @@ let MyComponent = React.createClass({
     const { setFieldsValue } = form
     setFieldsValue({
       'exportImageName': undefined,
-      'exportImageVersion': 'laest',
+      'exportImageVersion': 'latest',
     })
     this.setState({
       exportImageModalVisible : false
@@ -158,7 +162,7 @@ let MyComponent = React.createClass({
     const { form } = this.props
     const { getFieldValue } = form
     let imageName = getFieldValue('exportImageName') ? getFieldValue('exportImageName') : '镜像名称'
-    let imageTag = getFieldValue('exportImageVersion') ? getFieldValue('exportImageVersion') : 'laest'
+    let imageTag = getFieldValue('exportImageVersion') ? getFieldValue('exportImageVersion') : 'latest'
     return {
       imageName,
       imageTag
@@ -353,7 +357,7 @@ let MyComponent = React.createClass({
       rules: [{
         validator: this.checkImageVersion
       }],
-      initialValue: 'laest'
+      initialValue: 'latest'
     })
     return (
       <div className='dataBox'>
@@ -394,7 +398,7 @@ let MyComponent = React.createClass({
               <span>
                 {
                   exportimageUrl
-                  ? <span>{exportimageUrl.registryConfig.server}/</span>
+                  ? <span>{exportimageUrl.registryConfig.server} / {exportimageUrl.userName} / </span>
                   : <Spin></Spin>
                 }
               </span>
