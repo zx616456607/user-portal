@@ -8,7 +8,7 @@
  * @author ZhangChengZheng
  */
 import React, { Component } from 'react'
-import { Button, Icon, Input, Table, Modal, Form } from 'antd'
+import { Button, Icon, Input, Table, Modal, Form,Tooltip } from 'antd'
 import './style/clusterLabelManege.less'
 import { getClusterLabel, addLabels, editLabels,searchLabels } from '../../actions/cluster_node'
 import { connect } from 'react-redux'
@@ -30,6 +30,7 @@ class ClusterLabelManage extends Component{
     this.handleDeleteButton = this.handleDeleteButton.bind(this)
     this.handleDelteOkModal = this.handleDelteOkModal.bind(this)
     this.handleDelteCancelModal = this.handleDelteCancelModal.bind(this)
+    this.checkKey = this.checkKey.bind(this)
     this.state = {
       editVisible : false,
       deleteVisible : false,
@@ -41,9 +42,9 @@ class ClusterLabelManage extends Component{
     const { clusterID } = that.props
     that.props.getClusterLabel(clusterID)
   }
-  componentWillMount(){
-    this.loadData(this)
-  }
+  // componentWillMount(){
+  //   this.loadData(this)
+  // }
   handleSearchInput(){
     const { clusterID } = this.props
     const searchItem = this.refs.titleInput.refs.input.value
@@ -147,6 +148,16 @@ class ClusterLabelManage extends Component{
       callback(new Error('标签键长度为3~64位'))
       return
     }
+    let isExtentd
+    for (let item of this.props.result) {
+      if (item.key === value) {
+        isExtentd = true
+        break
+      }
+    }
+    if (isExtentd) {
+      return callback(new Error('标签键已存在'))
+    }
     callback()
   }
   checkValue(rule, value, callback) {
@@ -167,7 +178,7 @@ class ClusterLabelManage extends Component{
   }
   handleEditOkModal(){
     //  e.preventDefault();
-    const { addLabels, editLabels, getClusterLabel, clusterID, form } = this.props
+    const { addLabels, editLabels, clusterID, form } = this.props
     const _this = this
     const notificat = new NotificationHandler()
     if (this.state.create) {
@@ -196,7 +207,7 @@ class ClusterLabelManage extends Component{
           failed:{
             func:(ret)=> {
               notificat.close()
-              notificat.success('添加失败！',ret.message.message || ret.message)
+              notificat.error('添加失败！')
             }
           }
         })
@@ -235,7 +246,7 @@ class ClusterLabelManage extends Component{
           failed: {
             func:()=> {
               notificat.close()
-              notificat.success('修改失败！')
+              notificat.error('修改失败！')
             }
           }
         })
@@ -284,10 +295,19 @@ class ClusterLabelManage extends Component{
         key:'targets',
         dataIndex:'targets',
         width:'15%',
-        render : (row) => <div className='binditem'>
-          {row.length}
-          <span className='itemspan'>个</span>
-          </div>
+        render : (row) => {
+          if (row.length >0) {
+            return (
+            <div className='binditem'>
+              {row.length}
+              <Tooltip title={row.join('，')}><span className='itemspan'>个</span></Tooltip>
+            </div>
+            )
+          }
+          return(
+           <span className='itemspan'>0 个</span>
+          )
+        }
       },{
         title:'创建时间',
         key:'createAt',

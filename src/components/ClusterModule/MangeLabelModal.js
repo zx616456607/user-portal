@@ -25,6 +25,7 @@ class ManageLabelModal extends Component {
     super(props)
     this.handleManageLabelOk = this.handleManageLabelOk.bind(this)
     this.handleManageLabelCancel = this.handleManageLabelCancel.bind(this)
+    this.checkKey = this.checkKey.bind(this)
     this.state = {
       manageLabelModalVisible : this.props.manageLabelModal,
       userCreateLabel: this.props.userCreateLabel || {},
@@ -98,6 +99,7 @@ class ManageLabelModal extends Component {
           _this.setState({userCreateLabel:ret})
           notificat.success('操作成功！')
           _this.loadNodeLabels(_this.props)
+          callback(false)
         },
         isAsync:true
       },
@@ -110,7 +112,6 @@ class ManageLabelModal extends Component {
     this.setState({
       manageLabelModalVisible : false
     })
-    callback(false)
   }
 
   handleManageLabelCancel(){
@@ -138,6 +139,16 @@ class ManageLabelModal extends Component {
     if (value.length < 3 || value.length > 64) {
       callback(new Error('标签键长度为3~64位'))
       return
+    }
+    let isExtentd
+    for (let item of this.props.labels) {
+      if (item.key === value) {
+        isExtentd = true
+        break
+      }
+    }
+    if (isExtentd) {
+      return callback(new Error('标签键已存在'))
     }
     callback()
   }
@@ -178,7 +189,7 @@ class ManageLabelModal extends Component {
        },
        failed: {
          func:(res)=> {
-          new NotificationHandler().error('添加标签失败',res.message.message || res.message)
+          new NotificationHandler().error('添加标签失败！')
          }
        }
      })
