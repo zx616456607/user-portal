@@ -33,6 +33,7 @@ import './style/index.less'
 const LATEST = 'latest'
 const FormItem = Form.Item
 const Option = Select.Option
+let formObj
 
 let ConfigureService = React.createClass({
   propTypes: {
@@ -40,6 +41,7 @@ let ConfigureService = React.createClass({
     mode: PropTypes.oneOf([ 'create', 'edit' ]),
   },
   getInitialState() {
+    formObj = this.props.form
     return {
       imageConfigs: {},
     }
@@ -401,6 +403,10 @@ const createFormOpts = {
   },
   onFieldsChange(props, fields) {
     const { id, setFormFields } = props
+    console.log(`fields=================`)
+    console.log(fields)
+    console.log(`getFieldsValue=================`)
+    console.log(formObj && formObj.getFieldsValue())
     setFormFields(id, fields)
   }
 }

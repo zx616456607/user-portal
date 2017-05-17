@@ -87,6 +87,10 @@ const Storage = React.createClass({
         [`mountPath${index}`]: path,
       })
     })
+    // if set stateful service, storage is required
+    if (storageKeys.length < 1) {
+      storageKeys.push(0)
+    }
     setFieldsValue({
       storageKeys,
     })
@@ -121,9 +125,9 @@ const Storage = React.createClass({
         { required: true },
       ],
     })
-    const { storageTypes } = currentCluster
+    // const { storageTypes } = currentCluster
     // for test
-    // const storageTypes= [ 'rbd', 'hostPath' ]
+    const storageTypes= [ 'rbd', 'hostPath' ]
     return (
       <FormItem key="storageType" className="floatRight storageType">
         <RadioGroup {...storageTypeProps}>
@@ -333,7 +337,7 @@ const Storage = React.createClass({
     })
     callback(error)
   },
-  renderConfigureItem(key) {
+  renderConfigureItem(key, index) {
     const { avaliableVolume, form } = this.props
     const { volumes } = avaliableVolume
     const { getFieldProps, getFieldValue } = form
@@ -431,12 +435,21 @@ const Storage = React.createClass({
           {
             !hostPathFlag && (
               <Tooltip title="刷新">
-                <Icon type="reload" onClick={this.getVolumes} />
+                <Button type="dashed" size="small" onClick={this.getVolumes} >
+                  <Icon type="reload"/>
+                </Button>
               </Tooltip>
             )
           }
           <Tooltip title="删除">
-            <Icon type="delete" onClick={this.removeStorageKey.bind(this, key)} />
+            <Button
+              type="dashed"
+              size="small"
+              onClick={this.removeStorageKey.bind(this, key)}
+              disabled={index === 0}
+            >
+              <Icon type="delete" />
+            </Button>
           </Tooltip>
         </Col>
       </Row>

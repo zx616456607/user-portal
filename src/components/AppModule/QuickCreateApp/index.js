@@ -19,7 +19,8 @@ import SelectImage from './SelectImage'
 import ConfigureService from './ConfigureService'
 import NotificationHandler from '../../../common/notification_handler'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
-import { removeFormFields } from '../../../actions/quick_create_app'
+import { removeFormFields, removeAllFormFields } from '../../../actions/quick_create_app'
+import { createApp } from '../../../actions/app_manage'
 import './style/index.less'
 
 const Step = Steps.Step
@@ -44,15 +45,28 @@ class QuickCreateApp extends Component {
     this.genConfigureServiceKey = this.genConfigureServiceKey.bind(this)
     this.getAppResources = this.getAppResources.bind(this)
     this.createApp = this.createApp.bind(this)
-    const { location } = props
+    this.onCreateAppClick = this.onCreateAppClick.bind(this)
+    const { location, fields } = props
     const { query } = location
     const { imageName, registryServer } = query
+    let appName
+    // get app name from fields
+    if (fields) {
+      for (let key in fields) {
+        if (fields.hasOwnProperty(key)) {
+          const currentFields = fields[key]
+          if (currentFields.appName && currentFields.appName.value) {
+            appName = currentFields.appName.value
+          }
+        }
+      }
+    }
     this.state = {
       imageName,
       registryServer,
       serviceList: [],
       confirmGoBackModalVisible: false,
-      appName: '',
+      appName,
       isCreatingApp: false,
     }
     this.serviceSum = 0
@@ -147,9 +161,22 @@ class QuickCreateApp extends Component {
     })
   }
 
-  createApp(isValidateFields) {
+  createApp() {
     this.setState({
       isCreatingApp: true,
+    })
+  }
+
+  onCreateAppClick(isValidateFields) {
+    if (!isValidateFields) {
+      return this.createApp()
+    }
+    const { validateFieldsAndScroll } = this.form
+    validateFieldsAndScroll((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      this.createApp()
     })
   }
 
@@ -191,7 +218,7 @@ class QuickCreateApp extends Component {
               >
                 上一步
               </Button>
-              <Button size="large" type="primary" onClick={this.createApp}>
+              <Button size="large" type="primary" onClick={this.onCreateAppClick}>
                 &nbsp;创建&nbsp;
               </Button>
             </div>
@@ -300,9 +327,9 @@ class QuickCreateApp extends Component {
     for (let key in fields) {
       if (fields.hasOwnProperty(key) && fields[key].resourceType) {
         const { resourceType, DIYMemory, DIYCPU, replicas } = fields[key]
-        const { memory, cpu, config } = getResourceByMemory(resourceType.value, DIYMemory.value, DIYCPU.value)
-        cpuTotal += cpu
-        memoryTotal += memory
+        const { memoryShow, cpuShow, config } = getResourceByMemory(resourceType.value, DIYMemory.value, DIYCPU.value)
+        cpuTotal += cpuShow
+        memoryTotal += memoryShow
         let price = current.cluster.resourcePrice[config]
         if (price) {
           priceHour += price * replicas.value
@@ -332,75 +359,80 @@ class QuickCreateApp extends Component {
     )
     const { resource, priceHour, priceMonth } = this.getAppResources()
     const quickCreateAppClass = classNames({
+      'ant-spin-nested-loading': isCreatingApp,
+    })
+    const quickCreateAppContentClass = classNames({
       'ant-spin-container': isCreatingApp,
     })
     const serviceList = this.renderServiceList()
     return (
       <div id="quickCreateApp" className={quickCreateAppClass}>
         {
-          isCreatingApp && <Spin size="large" />
+          isCreatingApp && <Spin />
         }
-        <Row gutter={16}>
-          <Col span={18}>
-            <Card className="leftCard" title={steps}>
-              { this.renderBody() }
-              { this.renderFooterSteps() }
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card
-              className="rightCard"
-              title={
-                <Row className="title">
-                  <Col span={18}>已添加服务</Col>
-                  <Col span={6}>操作</Col>
-                </Row>
-              }
-            >
-              <div className="serviceList">
-                {serviceList}
-              </div>
-              <div className="resourcePrice">
-                <div className="resource">
-                  计算资源：
-                  <span>{resource}</span>
+        <div className={quickCreateAppContentClass}>
+          <Row gutter={16}>
+            <Col span={18}>
+              <Card className="leftCard" title={steps}>
+                { this.renderBody() }
+                { this.renderFooterSteps() }
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card
+                className="rightCard"
+                title={
+                  <Row className="title">
+                    <Col span={18}>已添加服务</Col>
+                    <Col span={6}>操作</Col>
+                  </Row>
+                }
+              >
+                <div className="serviceList">
+                  {serviceList}
+                </div>
+                <div className="resourcePrice">
+                  <div className="resource">
+                    计算资源：
+                    <span>{resource}</span>
+                  </div>
+                  {
+                    current.unit === '¥'
+                    ? (
+                      <div className="price">
+                        合计：
+                        <span className="hourPrice"><font>¥</font> {priceHour}/小时</span>
+                        <span className="monthPrice">（合 <font>¥</font> {priceMonth}/月）</span>
+                      </div>
+                    )
+                    : (
+                      <div className="price">
+                        合计：
+                        <span className="hourPrice">{priceHour} {current.unit}/小时</span>
+                        <span className="monthPrice">（合 {priceMonth} {current.unit}/月）</span>
+                      </div>
+                    )
+                  }
                 </div>
                 {
-                  current.unit === '¥'
-                  ? (
-                    <div className="price">
-                      合计：
-                      <span className="hourPrice"><font>¥</font> {priceHour}/小时</span>
-                      <span className="monthPrice">（合 <font>¥</font> {priceMonth}/月）</span>
-                    </div>
-                  )
-                  : (
-                    <div className="price">
-                      合计：
-                      <span className="hourPrice">{priceHour} {current.unit}/小时</span>
-                      <span className="monthPrice">（合 {priceMonth} {current.unit}/月）</span>
+                  (serviceList.length > 0 && !location.hash) && (
+                    <div className="createApp">
+                      <Button type="primary" size="large" onClick={this.createApp.bind(this, false)}>创建应用</Button>
                     </div>
                   )
                 }
-              </div>
-              {
-                (serviceList.length > 0 && !location.hash) && (
-                  <div className="createApp">
-                    <Button type="primary" size="large" onClick={this.createApp.bind(this, false)}>创建应用</Button>
-                  </div>
-                )
-              }
-            </Card>
-          </Col>
-        </Row>
-        <Modal
-          title="返回上一步"
-          visible={confirmGoBackModalVisible}
-          onCancel={() => this.setState({confirmGoBackModalVisible: false})}
-          onOk={this.confirmGoBack}
-        >
-          是否确定返回“上一步”？确定后已添加的服务xxx、xxx、xxx将不被保留
-        </Modal>
+              </Card>
+            </Col>
+          </Row>
+          <Modal
+            title="返回上一步"
+            visible={confirmGoBackModalVisible}
+            onCancel={() => this.setState({confirmGoBackModalVisible: false})}
+            onOk={this.confirmGoBack}
+          >
+            是否确定返回“上一步”？确定后已添加的服务xxx、xxx、xxx将不被保留
+          </Modal>
+        </div>
       </div>
     )
   }
@@ -419,4 +451,6 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   // setFormFields,
   removeFormFields,
+  removeAllFormFields,
+  createApp,
 })(QuickCreateApp)

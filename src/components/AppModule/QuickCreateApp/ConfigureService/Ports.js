@@ -76,14 +76,14 @@ const Ports = React.createClass({
       portsKeys: portsKeys.filter(_key => _key !== key)
     })
   },
-  renderPortItem(key) {
+  renderPortItem(key, index) {
     const { form, currentCluster } = this.props
     const { getFieldProps, getFieldValue } = form
     const { bindingDomains } = currentCluster
     const httpOptionDisabled = !isDomain(bindingDomains)
     const portKey = `port${key}`
     const portProtocolKey = `portProtocol${key}`
-    const mappingPportTypeKey = `mappingPportType${key}`
+    const mappingPportTypeKey = `mappingPortType${key}`
     const mappingPortKey = `mappingPort${key}`
     const portProps = getFieldProps(portKey, {
       rules: [
@@ -96,21 +96,25 @@ const Ports = React.createClass({
         { required: true, message: '请选择端口协议' },
       ],
     })
-    const mappingPortTypeProps = getFieldProps(mappingPportTypeKey, {
-      rules: [
-        { required: true, message: '请选择映射服务端口类型' },
-      ],
-      initialValue: MAPPING_PORT_AUTO,
-    })
-    const mappingPortTypeValue = getFieldValue(mappingPportTypeKey)
+    const portProtocolValue = getFieldValue(portProtocolKey)
+    let mappingPortTypeProps
     let mappingPortProps
-    if (mappingPortTypeValue === MAPPING_PORT_SPECIAL) {
-      mappingPortProps = getFieldProps(mappingPortKey, {
+    if (portProtocolValue === 'TCP') {
+      mappingPortTypeProps = getFieldProps(mappingPportTypeKey, {
         rules: [
-          { required: true, message: '请输入指定端口' },
-          { validator: this.checkMappingPort.bind(this, key) }
+          { required: true, message: '请选择映射服务端口类型' },
         ],
+        initialValue: MAPPING_PORT_AUTO,
       })
+      const mappingPortTypeValue = getFieldValue(mappingPportTypeKey)
+      if (mappingPortTypeValue === MAPPING_PORT_SPECIAL) {
+        mappingPortProps = getFieldProps(mappingPortKey, {
+          rules: [
+            { required: true, message: '请输入指定端口' },
+            { validator: this.checkMappingPort.bind(this, key) }
+          ],
+        })
+      }
     }
     return (
       <Row className="portItem">
@@ -134,12 +138,20 @@ const Ports = React.createClass({
         <Col span={10}>
           <Row gutter={16}>
             <Col span={12}>
-              <FormItem>
-                <Select size="default" {...mappingPortTypeProps}>
-                  <Option value={MAPPING_PORT_AUTO}>动态生成</Option>
-                  <Option value={MAPPING_PORT_SPECIAL}>指定端口</Option>
-                </Select>
-              </FormItem>
+            {
+              mappingPortTypeProps
+              ? (
+                <FormItem>
+                  <Select size="default" {...mappingPortTypeProps}>
+                    <Option value={MAPPING_PORT_AUTO}>动态生成</Option>
+                    <Option value={MAPPING_PORT_SPECIAL}>指定端口</Option>
+                  </Select>
+                </FormItem>
+              )
+              : (
+                <div className="httpMappingPort">80</div>
+              )
+            }
             </Col>
             {
               mappingPortProps && (
@@ -161,7 +173,8 @@ const Ports = React.createClass({
             <Button
               className="deleteBtn"
               type="dashed"
-              disabled={key === 0} size="default"
+              size="small"
+              disabled={index === 0}
               onClick={this.removePortsKey.bind(this, key)}
             >
               <Icon type="delete" />
@@ -180,12 +193,17 @@ const Ports = React.createClass({
     portsKeys.forEach(key => {
       validateFieldsKeys.push(`port${key}`)
       validateFieldsKeys.push(`portProtocol${key}`)
-      validateFieldsKeys.push(`mappingPportType${key}`)
-      const mappingPortTypeValue = getFieldValue(`mappingPportType${key}`)
-      if (mappingPortTypeValue === MAPPING_PORT_SPECIAL) {
-        validateFieldsKeys.push(`mappingPort${key}`)
+      const portProtocolValue = getFieldValue(`portProtocol${key}`)
+      if (portProtocolValue === 'TCP') {
+        validateFieldsKeys.push(`mappingPortType${key}`)
+        const mappingPortTypeValue = getFieldValue(`mappingPortType${key}`)
+        if (mappingPortTypeValue === MAPPING_PORT_SPECIAL) {
+          validateFieldsKeys.push(`mappingPort${key}`)
+        }
       }
     })
+    console.log(`validateFieldsKeys===================`)
+    console.log(validateFieldsKeys)
     validateFields(validateFieldsKeys, (errors, values) => {
       if (!!errors) {
         return

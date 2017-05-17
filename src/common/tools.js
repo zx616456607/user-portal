@@ -468,58 +468,58 @@ export function isSafariBrower() {
   return false
 }
 
-export function getResourceByMemory(_memory, DIYMemory, DIYCPU) {
-  if (_memory !== RESOURCES_DIY) {
-    _memory = parseInt(_memory)
+export function getResourceByMemory(memory, DIYMemory, DIYCPU) {
+  if (memory !== RESOURCES_DIY) {
+    memory = parseInt(memory)
   }
-  let cpu = 1 // unit: C
-  let cpuShare = 0.1 // unit: C
-  let memory = 0.5 // unit: G
+  let cpuShow = 1 // unit: C
+  let cpu = 0.1 // unit: C
+  let memoryShow = 0.5 // unit: G
   let config = '2x'
-  switch (_memory) {
+  switch (memory) {
     case 256:
-      memory = 256 / 1024
-      cpu = 1
-      cpuShare = 0.1
+      memoryShow = 256 / 1024
+      cpuShow = 1
+      cpu = 0.1
       config = '1x'
       break
     case 512:
-      memory = 512 / 1024
-      cpu = 1
-      cpuShare = 0.1
+      memoryShow = 512 / 1024
+      cpuShow = 1
+      cpu = 0.1
       config = '2x'
       break
     case 1024:
-      memory = 1024 / 1024
-      cpu = 1
-      cpuShare = 0.2
+      memoryShow = 1024 / 1024
+      cpuShow = 1
+      cpu = 0.2
       config = '4x'
       break
     case 2048:
-      memory = 2048 / 1024
-      cpu = 1
-      cpuShare = 0.4
+      memoryShow = 2048 / 1024
+      cpuShow = 1
+      cpu = 0.4
       config = '8x'
       break
     case 4096:
-      memory = 4096 / 1024
+      memoryShow = 4096 / 1024
+      cpuShow = 1
       cpu = 1
-      cpuShare = 1
       config = '16x'
       break
     case 8192:
-      memory = 8192 / 1024
+      memoryShow = 8192 / 1024
+      cpuShow = 2
       cpu = 2
-      cpuShare = 2
       config = '32x'
       break
     case RESOURCES_DIY:
-      memory = Math.ceil(DIYMemory / 1024 * 100) / 100
+      memoryShow = Math.ceil(DIYMemory / 1024 * 100) / 100
+      cpuShow = DIYCPU
       cpu = DIYCPU
-      cpuShare = DIYCPU
       config = RESOURCES_DIY
     default:
       break
   }
-  return { cpu, cpuShare, memory, config }
+  return { cpu, memory, cpuShow, memoryShow, config }
 }
