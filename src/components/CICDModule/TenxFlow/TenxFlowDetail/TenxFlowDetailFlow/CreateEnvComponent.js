@@ -25,7 +25,7 @@ function checkInitEnvName(config) {
   //this function for init the env name
   if(!!config) {
     return config.name;
-  } 
+  }
   return '';
 }
 
@@ -33,7 +33,7 @@ function checkInitEnvValue(config) {
   //this function for init the env name
   if(!!config) {
     return config.value;
-  } 
+  }
   return '';
 }
 
@@ -197,6 +197,7 @@ let CreateEnvComponent = React.createClass({
       initialValue: [0],
     });
     const servicesInputItems = getFieldValue('service' + index + 'inputs').map((i) => {
+      setTimeout(()=> document.getElementById(`service${index}inputName${i}`).focus(),300)
       const servicesInputNameProps = getFieldProps(`service${index}inputName${i}`, {
         rules: [
           { message: '请输入环境变量名' },
@@ -239,7 +240,7 @@ let CreateEnvComponent = React.createClass({
           <div className='commonTitle'>
             <span>变量名</span>
           </div>
-          <div className='equalTitle'>            
+          <div className='equalTitle'>
           </div>
           <div className='commonTitle'>
             <span>变量值</span>

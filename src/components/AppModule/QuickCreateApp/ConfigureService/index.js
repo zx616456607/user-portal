@@ -49,10 +49,13 @@ let ConfigureService = React.createClass({
     const { setFieldsValue } = form
     callbackForm(form)
     if (mode === 'create') {
-      setFieldsValue({
+      const values = {
         imageUrl: `${registryServer}/${imageName}`,
-        appName,
-      })
+      }
+      if (appName) {
+        values.appName = appName
+      }
+      setFieldsValue(values)
     }
     this.loadImageTags(this.props)
   },
@@ -183,6 +186,9 @@ let ConfigureService = React.createClass({
     // must set a port
     if (portsKeys.length < 1) {
       portsKeys.push(0)
+      setFieldsValue({
+        [`portProtocol0`]: 'TCP',
+      })
     }
 
     setFieldsValue({
@@ -225,11 +231,21 @@ let ConfigureService = React.createClass({
     if (!value) {
       return callback()
     }
-    const { current, checkServiceName } = this.props
+    const { current, checkServiceName, allFields, id } = this.props
     if (!validateK8sResourceForServiceName(value)) {
       return callback('服务名称可由3~24位小写字母、数字、中划线组成，以小写字母开头，小写字母或者数字结尾')
     }
-    // @Todo: check local service list
+    for (let key in allFields) {
+      if (allFields.hasOwnProperty(key)) {
+        if (key !== id) {
+          const { serviceName } = allFields[key]
+          if (serviceName.value === value) {
+            callback(appNameCheck(value, '服务名称', true))
+            return
+          }
+        }
+      }
+    }
     clearTimeout(this.serviceNameExistsTimeout)
     this.serviceNameExistsTimeout = setTimeout(() => {
       checkServiceName(current.cluster.clusterID, value, {
@@ -263,7 +279,7 @@ let ConfigureService = React.createClass({
     const {
       form, imageTags, currentFields,
       standardFlag, loadFreeVolume, createStorage,
-      current,
+      current, id,
     } = this.props
     const { imageConfigs } = this.state
     const { getFieldProps } = form
@@ -365,6 +381,7 @@ let ConfigureService = React.createClass({
           </Form>
         </div>
         <Normal
+          id={id}
           form={form}
           formItemLayout={formItemLayout}
           fields={currentFields}

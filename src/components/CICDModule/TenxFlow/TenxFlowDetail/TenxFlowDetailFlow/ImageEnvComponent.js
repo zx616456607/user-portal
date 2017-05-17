@@ -183,6 +183,7 @@ let ImageEnvComponent = React.createClass({
     });
     const ImageEnvInputItems = getFieldValue('imageEnvInputs').map((i) => {
       let itemKey = '';
+      setTimeout(()=> document.getElementById(`imageEnvName${i}`).focus(),300)
       const ImageEnvNameInputProps = getFieldProps(`imageEnvName${i}`, {
         rules: [
           { message: '请输入环境变量名' },

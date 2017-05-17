@@ -195,6 +195,7 @@ const Ports = React.createClass({
       portsKeys = portsKeys.concat(uid)
       setFieldsValue({
         portsKeys,
+        [`portProtocol${uid}`]: 'TCP',
       })
     })
   },

@@ -11,8 +11,9 @@ const apiFactory = require('../services/api_factory')
 exports.getLabels = function* () {
   const loginUser = this.session.loginUser
   const target = this.query.target
+  const clusterID = this.query.clusterID
   const api = apiFactory.getLabelsApi(loginUser)
-  const result = yield api.getBy([], {target: target})
+  const result = yield api.getBy([], {target: target, clusterID: clusterID})
   this.body = result ? result.data : {}
 }
 
