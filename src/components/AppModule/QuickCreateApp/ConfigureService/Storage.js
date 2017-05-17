@@ -74,11 +74,29 @@ const Storage = React.createClass({
       serviceType: false,
     })
   },
+  setBindVolumesToDefault() {
+    let { mountPath, form } = this.props
+    const { setFieldsValue } = form
+    if (!mountPath || !Array.isArray(mountPath)) {
+      mountPath = []
+    }
+    const storageKeys = []
+    mountPath.map((path, index) => {
+      storageKeys.push(index)
+      setFieldsValue({
+        [`mountPath${index}`]: path,
+      })
+    })
+    setFieldsValue({
+      storageKeys,
+    })
+  },
   onServiceTypeChange(value) {
     const { setReplicasToDefault } = this.props
     if (value) {
       setReplicasToDefault()
       this.setStorageTypeToDefault()
+      this.setBindVolumesToDefault()
       this.getVolumes()
     }
     this.setState({
@@ -319,48 +337,56 @@ const Storage = React.createClass({
     const { avaliableVolume, form } = this.props
     const { volumes } = avaliableVolume
     const { getFieldProps, getFieldValue } = form
+    const serviceType = getFieldValue('serviceType')
     const storageType = getFieldValue('storageType')
     const hostPathFlag = storageType === 'hostPath'
     const mountPathkey = `mountPath${key}`
     const hostPathkey = `hostPath${key}`
     const volumekey = `volume${key}`
     const readOnlykey = `readOnly${key}`
-    const mountPathProps = getFieldProps(mountPathkey, {
-      rules: [
-        { required: true, message: '请输入容器目录' },
-        { validator: this.checkMountPath.bind(this, key) }
-      ],
-    })
+    let mountPathProps
     let hostPathProps
     let volumeProps
     let readOnlyProps
-    if (hostPathFlag) {
-      hostPathProps = getFieldProps(hostPathkey, {
+    if (serviceType) {
+      mountPathProps = getFieldProps(mountPathkey, {
         rules: [
-          { required: true, message: '请输入本地目录' },
+          { required: true, message: '请输入容器目录' },
+          { validator: this.checkMountPath.bind(this, key) }
         ],
       })
-    } else {
-      volumeProps = getFieldProps(volumekey, {
-        rules: [
-          { required: true, message: '请选择存储卷' },
-          // { validator: this.checkAppName }
-        ],
-      })
-      readOnlyProps = getFieldProps(readOnlykey)
+      if (hostPathFlag) {
+        hostPathProps = getFieldProps(hostPathkey, {
+          rules: [
+            { required: true, message: '请输入本地目录' },
+          ],
+        })
+      } else {
+        volumeProps = getFieldProps(volumekey, {
+          rules: [
+            { required: true, message: '请选择存储卷' },
+            // { validator: this.checkAppName }
+          ],
+        })
+        readOnlyProps = getFieldProps(readOnlykey)
+      }
     }
     return (
       <Row gutter={16} className="configureItem" key={`configureItem${key}`}>
-        <Col span={6}>
-          <FormItem key={mountPathkey}>
-            <Input
-              className="formInput"
-              placeholder="请输入容器目录"
-              size="default"
-              {...mountPathProps}
-            />
-          </FormItem>
-        </Col>
+        {
+          mountPathProps && (
+            <Col span={6}>
+              <FormItem key={mountPathkey}>
+                <Input
+                  className="formInput"
+                  placeholder="请输入容器目录"
+                  size="default"
+                  {...mountPathProps}
+                />
+              </FormItem>
+            </Col>
+          )
+        }
         {
           hostPathProps && (
             <Col span={6}>
@@ -460,6 +486,7 @@ const Storage = React.createClass({
     }
     const { getFieldValue } = form
     const storageKeys = getFieldValue('storageKeys') || []
+    const serviceType = getFieldValue('serviceType') || []
     const bindVolumesClass = classNames({
       'bindVolume': true,
       'ant-spin-container': avaliableVolume.isFetching,
@@ -467,7 +494,7 @@ const Storage = React.createClass({
     return [
       createVolumeElement,
       <div className={bindVolumesClass}>
-        { storageKeys.map(this.renderConfigureItem) }
+        { serviceType && storageKeys.map(this.renderConfigureItem) }
         <span className="addMountPath" onClick={this.addStorageKey}>
           <Icon type="plus-circle-o" />
           <span>添加一个容器目录</span>

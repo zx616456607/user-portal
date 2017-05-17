@@ -11,9 +11,10 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Card, Row, Col, Steps, Button, Modal, Icon, Tooltip } from 'antd'
+import { Card, Row, Col, Steps, Button, Modal, Icon, Tooltip, Spin } from 'antd'
 import { browserHistory } from 'react-router'
 import { connect } from 'react-redux'
+import classNames from 'classnames'
 import SelectImage from './SelectImage'
 import ConfigureService from './ConfigureService'
 import NotificationHandler from '../../../common/notification_handler'
@@ -51,6 +52,7 @@ class QuickCreateApp extends Component {
       serviceList: [],
       confirmGoBackModalVisible: false,
       appName: '',
+      isCreatingApp: false,
     }
     this.serviceSum = 0
     this.configureServiceKey = this.genConfigureServiceKey()
@@ -144,6 +146,12 @@ class QuickCreateApp extends Component {
     })
   }
 
+  createApp(isValidateFields) {
+    this.setState({
+      isCreatingApp: true,
+    })
+  }
+
   renderBody() {
     const { hash, query } = this.props.location
     const { key } = query
@@ -182,7 +190,7 @@ class QuickCreateApp extends Component {
               >
                 上一步
               </Button>
-              <Button size="large" type="primary">
+              <Button size="large" type="primary" onClick={this.createApp}>
                 &nbsp;创建&nbsp;
               </Button>
             </div>
@@ -226,38 +234,48 @@ class QuickCreateApp extends Component {
   }
 
   renderServiceList() {
-    const { fields } = this.props
+    const { fields, location } = this.props
     const serviceList = []
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
         const service = fields[key]
         const { serviceName } = service
         if (serviceName && serviceName.value) {
+          const isRowActive = this.editServiceKey === key || this.configureServiceKey === key
+          const rowClass = classNames({
+            'serviceItem': true,
+            'active': isRowActive,
+          })
           serviceList.push(
-            <Row className="serviceItem" key={serviceName.value}>
+            <Row className={rowClass} key={serviceName.value}>
               <Col span={18}>
               {serviceName.value}
               </Col>
               <Col span={6} className="btns">
-                <Tooltip title="修改">
-                  <Button
-                    type="dashed"
-                    size="small"
-                    onClick={this.editService.bind(this, key)}
-                  >
-                    <Icon type="edit" />
-                  </Button>
-                </Tooltip>
-                <Tooltip title="删除">
-                  <Button
-                    type="dashed"
-                    size="small"
-                    disabled={this.configureMode === 'edit' && this.editServiceKey === key}
-                    onClick={this.deleteService.bind(this, key)}
-                  >
-                    <Icon type="delete" />
-                  </Button>
-                </Tooltip>
+              {
+                (!location.hash || !isRowActive) && (
+                  <div>
+                    <Tooltip title="修改">
+                      <Button
+                        type="dashed"
+                        size="small"
+                        onClick={this.editService.bind(this, key)}
+                      >
+                        <Icon type="edit" />
+                      </Button>
+                    </Tooltip>
+                    <Tooltip title="删除">
+                      <Button
+                        type="dashed"
+                        size="small"
+                        onClick={this.deleteService.bind(this, key)}
+                      >
+                        <Icon type="delete" />
+                      </Button>
+                    </Tooltip>
+                  </div>
+                )
+              }
               </Col>
             </Row>
           )
@@ -302,8 +320,8 @@ class QuickCreateApp extends Component {
   }
 
   render() {
-    const { current } = this.props
-    const { confirmGoBackModalVisible } = this.state
+    const { current, location } = this.props
+    const { confirmGoBackModalVisible, isCreatingApp } = this.state
     const steps = (
       <Steps size="small" className="steps" status="error" current={this.getStepsCurrent()}>
         <Step title="部署方式" />
@@ -312,8 +330,15 @@ class QuickCreateApp extends Component {
       </Steps>
     )
     const { resource, priceHour, priceMonth } = this.getAppResources()
+    const quickCreateAppClass = classNames({
+      'ant-spin-container': isCreatingApp,
+    })
+    const serviceList = this.renderServiceList()
     return (
-      <div id="quickCreateApp">
+      <div id="quickCreateApp" className={quickCreateAppClass}>
+        {
+          isCreatingApp && <Spin size="large" />
+        }
         <Row gutter={16}>
           <Col span={18}>
             <Card className="leftCard" title={steps}>
@@ -325,14 +350,14 @@ class QuickCreateApp extends Component {
             <Card
               className="rightCard"
               title={
-                <div className="title">
-                  <div className="left">已添加服务</div>
-                  <div className="right">操作</div>
-                </div>
+                <Row className="title">
+                  <Col span={18}>已添加服务</Col>
+                  <Col span={6}>操作</Col>
+                </Row>
               }
             >
               <div className="serviceList">
-                {this.renderServiceList()}
+                {serviceList}
               </div>
               <div className="resourcePrice">
                 <div className="resource">
@@ -357,6 +382,13 @@ class QuickCreateApp extends Component {
                   )
                 }
               </div>
+              {
+                (serviceList.length > 0 && !location.hash) && (
+                  <div className="createApp">
+                    <Button type="primary" size="large" onClick={this.createApp.bind(this, false)}>创建应用</Button>
+                  </div>
+                )
+              }
             </Card>
           </Col>
         </Row>

@@ -149,7 +149,6 @@ let ConfigureService = React.createClass({
     }
     loadImageConfigFunc()
   },
-  setConfigsToStore() {},
   setConfigsToForm(configs) {
     this.setState({
       imageConfigs: configs,
@@ -192,7 +191,7 @@ let ConfigureService = React.createClass({
     }
 
     setFieldsValue({
-      storageKeys,
+      // storageKeys,
       portsKeys,
     })
   },
