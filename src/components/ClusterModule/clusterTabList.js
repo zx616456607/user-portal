@@ -23,6 +23,7 @@ import {
   deleteClusterNode,
   getKubectlsPods,
   getAddNodeCMD,
+  getClusterLabel
 } from '../../actions/cluster_node'
 import { getClusterSummary } from '../../actions/cluster'
 import { addTerminal } from '../../actions/terminal'
@@ -160,11 +161,14 @@ class ClusterTabList extends Component {
     this.setState({
       TabsactiveKey: key
     })
+    if (key === 'labels') {
+      this.props.getClusterLabel(this.props.clusterID)
+    }
   }
 
   handleCallbackActiveKey(obj) {
     this.setState({
-      TabsactiveKey: '3',
+      TabsactiveKey: 'labels',
     })
   }
 
@@ -210,7 +214,7 @@ class ClusterTabList extends Component {
                 callbackActiveKey={this.handleCallbackActiveKey}
               />
             </TabPane>
-            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#managelabels"></use></svg><span className='tablepanespan'>标签管理</span></div>} key="3">
+            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#managelabels"></use></svg><span className='tablepanespan'>标签管理</span></div>} key="labels">
               <ClusterLabelManage  clusterID={clusterID} />
             </TabPane>
 
@@ -288,7 +292,8 @@ export default connect(mapStateToProps, {
   getKubectlsPods,
   getAddNodeCMD,
   getClusterSummary,
-  addTerminal
+  addTerminal,
+  getClusterLabel
 })(injectIntl(ClusterTabList, {
   withRef: true,
 }))
