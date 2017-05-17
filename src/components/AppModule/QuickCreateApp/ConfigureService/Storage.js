@@ -494,7 +494,7 @@ const Storage = React.createClass({
     return [
       createVolumeElement,
       <div className={bindVolumesClass}>
-        { serviceType && storageKeys.map(this.renderConfigureItem) }
+        {storageKeys.map(this.renderConfigureItem) }
         <span className="addMountPath" onClick={this.addStorageKey}>
           <Icon type="plus-circle-o" />
           <span>添加一个容器目录</span>
@@ -514,7 +514,6 @@ const Storage = React.createClass({
     const volumesClass = classNames({
       'volumes': true,
       'ant-spin-nested-loading': isFetching,
-      'displayNone': !(serviceType && serviceType.value),
     })
     const volumeSpinClass = classNames({
       'displayNone': !isFetching,
@@ -550,10 +549,14 @@ const Storage = React.createClass({
           )
         }
         {this.renderServiceType(serviceType)}
-        <div className={volumesClass}>
-          <Spin className={volumeSpinClass}/>
-          {this.renderConfigure()}
-        </div>
+        {
+          (serviceType && serviceType.value) && (
+            <div className={volumesClass}>
+              <Spin className={volumeSpinClass}/>
+              {this.renderConfigure()}
+            </div>
+          )
+        }
       </FormItem>
     )
   }

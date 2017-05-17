@@ -43,6 +43,7 @@ class QuickCreateApp extends Component {
     this.setConfig = this.setConfig.bind(this)
     this.genConfigureServiceKey = this.genConfigureServiceKey.bind(this)
     this.getAppResources = this.getAppResources.bind(this)
+    this.createApp = this.createApp.bind(this)
     const { location } = props
     const { query } = location
     const { imageName, registryServer } = query
