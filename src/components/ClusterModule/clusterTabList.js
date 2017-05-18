@@ -218,7 +218,7 @@ class ClusterTabList extends Component {
               <ClusterLabelManage  clusterID={clusterID} />
             </TabPane>
 
-            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#plugin"></use></svg><span className='tablepanespan'>插件集群</span></div>} key="4">
+            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#plugin"></use></svg><span className='tablepanespan'>插件管理</span></div>} key="4">
               <ClusterPlugin
               />
             </TabPane>
