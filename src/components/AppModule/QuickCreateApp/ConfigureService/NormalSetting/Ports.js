@@ -16,7 +16,7 @@ import {
   Input, InputNumber, Select,
   Button, Icon, Tooltip
 } from 'antd'
-import { isDomain } from '../../../../common/tools'
+import { isDomain } from '../../../../../common/tools'
 import './style/Ports.less'
 
 const FormItem = Form.Item

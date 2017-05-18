@@ -27,7 +27,11 @@ import {
   DEFAULT_REGISTRY,
   ASYNC_VALIDATOR_TIMEOUT,
  } from '../../../../constants'
-import Normal from './Normal'
+import NormalSetting from './NormalSetting'
+import AssistSetting from './AssistSetting'
+import LivenessSetting from './LivenessSetting'
+import ConfigMapSetting from './ConfigMapSetting'
+import AdvancedSetting from './AdvancedSetting'
 import './style/index.less'
 
 const LATEST = 'latest'
@@ -386,7 +390,7 @@ let ConfigureService = React.createClass({
             </FormItem>
           </Form>
         </div>
-        <Normal
+        <NormalSetting
           id={id}
           form={form}
           formItemLayout={formItemLayout}
@@ -396,6 +400,18 @@ let ConfigureService = React.createClass({
           createStorage={createStorage}
           imageConfigs={imageConfigs}
           key="normal"
+        />
+        <AssistSetting
+          key="assist"
+        />
+        <LivenessSetting
+          key="liveness"
+        />
+        <ConfigMapSetting
+          key="configMap"
+        />
+        <AdvancedSetting
+          key="advanced"
         />
       </QueueAnim>
     )
