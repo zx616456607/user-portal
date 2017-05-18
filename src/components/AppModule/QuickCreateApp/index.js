@@ -405,7 +405,7 @@ class QuickCreateApp extends Component {
     let memoryTotal = 0 // unit: G
     let priceHour = 0 // unit: T/￥
     for (let key in fields) {
-      if (fields.hasOwnProperty(key) && fields[key].resourceType) {
+      if (fields.hasOwnProperty(key) && fields[key].serviceName) {
         const { resourceType, DIYMemory, DIYCPU, replicas } = fields[key]
         const { memoryShow, cpuShow, config } = getResourceByMemory(resourceType.value, DIYMemory.value, DIYCPU.value)
         cpuTotal += cpuShow

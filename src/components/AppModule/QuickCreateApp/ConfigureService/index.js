@@ -27,7 +27,11 @@ import {
   DEFAULT_REGISTRY,
   ASYNC_VALIDATOR_TIMEOUT,
  } from '../../../../constants'
-import Normal from './Normal'
+import NormalSetting from './NormalSetting'
+import AssistSetting from './AssistSetting'
+import LivenessSetting from './LivenessSetting'
+import ConfigMapSetting from './ConfigMapSetting'
+import AdvancedSetting from './AdvancedSetting'
 import './style/index.less'
 
 const LATEST = 'latest'
@@ -155,9 +159,14 @@ let ConfigureService = React.createClass({
     })
     const { form } = this.props
     const { setFieldsValue } = form
-    let { mountPath, containerPorts } = configs
+    let {
+      mountPath,
+      containerPorts,
+      entrypoint,
+      cmd,
+    } = configs
 
-    // set storage
+    // set storage `./NormalSetting/Storage.js`
     if (!mountPath || !Array.isArray(mountPath)) {
       mountPath = []
     }
@@ -169,7 +178,7 @@ let ConfigureService = React.createClass({
       })
     })
 
-    // set ports
+    // set ports `./NormalSetting/Ports.js`
     if (!containerPorts || !Array.isArray(containerPorts)) {
       containerPorts = []
     }
@@ -196,9 +205,31 @@ let ConfigureService = React.createClass({
       })
     }
 
+    // set entrypoint, cmd, imagePullPolicy `./AssistSetting.js`
+    // entrypoint(Docker) -> command(K8s)
+    // cmd(Docker) -> args(K8s)
+    if (entrypoint) {
+      setFieldsValue({
+        command: entrypoint.join(' '),
+      })
+    }
+    const argsKeys = []
+    if (cmd) {
+      cmd.forEach((args, index) => {
+        // magic code ！
+        // the same as portsKeys
+        argsKeys.push({ value: index })
+        setFieldsValue({
+          [`args${index}`]: args,
+        })
+      })
+    }
+
     setFieldsValue({
       storageKeys,
       portsKeys,
+      argsKeys,
+      imagePullPolicy: 'Always'
     })
   },
   checkAppName(rule, value, callback) {
@@ -386,7 +417,7 @@ let ConfigureService = React.createClass({
             </FormItem>
           </Form>
         </div>
-        <Normal
+        <NormalSetting
           id={id}
           form={form}
           formItemLayout={formItemLayout}
@@ -396,6 +427,22 @@ let ConfigureService = React.createClass({
           createStorage={createStorage}
           imageConfigs={imageConfigs}
           key="normal"
+        />
+        <AssistSetting
+          form={form}
+          formItemLayout={formItemLayout}
+          fields={currentFields}
+          imageConfigs={imageConfigs}
+          key="assist"
+        />
+        <LivenessSetting
+          key="liveness"
+        />
+        <ConfigMapSetting
+          key="configMap"
+        />
+        <AdvancedSetting
+          key="advanced"
         />
       </QueueAnim>
     )
