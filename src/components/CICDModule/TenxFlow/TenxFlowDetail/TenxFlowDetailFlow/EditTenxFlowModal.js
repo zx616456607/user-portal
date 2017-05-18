@@ -254,6 +254,7 @@ let EditTenxFlowModal = React.createClass({
       emptyServiceEnv: [],
       baseImage: [],
       updateDfBtnLoading: false,
+      disabledBranchTag: false,
     }
   },
   componentWillMount() {
@@ -543,11 +544,21 @@ let EditTenxFlowModal = React.createClass({
     //this function for user change using the Dockerfile or not
     if (e.target.value) {
       this.setState({
-        useDockerfile: true
+        useDockerfile: true,
+        disabledBranchTag: false,
       });
     } else {
+      // 当用户选择“使用云端创建 Dockerfile”时，disable “镜像版本”的“以代码分支名为tag”选项，否则构建出的镜像 tag 为null
+      const { form } = this.props
+      const imageTag = form.getFieldValue('imageTag')
+      if (imageTag === '1') {
+        form.setFieldsValue({
+          imageTag: '2'
+        })
+      }
       this.setState({
-        useDockerfile: false
+        useDockerfile: false,
+        disabledBranchTag: true,
       });
     }
   },
@@ -1467,7 +1478,7 @@ let EditTenxFlowModal = React.createClass({
                   <div className='input'>
                     <FormItem style={{ float: 'left' }}>
                       <RadioGroup {...getFieldProps('imageTag', { initialValue: (!!config.spec.build ? (config.spec.build.imageTagType + '') : '1'), onChange: this.changeImageTagType }) }>
-                        <Radio key='branch' value={'1'}><FormattedMessage {...menusText.ImageTagByBranch} /></Radio>
+                        <Radio key='branch' value={'1'} disabled={this.state.disabledBranchTag}><FormattedMessage {...menusText.ImageTagByBranch} /></Radio>
                         <Radio key='time' value={'2'}><FormattedMessage {...menusText.ImageTagByTime} /></Radio>
                         <Radio key='other' value={'3'}><FormattedMessage {...menusText.ImageTagByOther} /></Radio>
                       </RadioGroup>

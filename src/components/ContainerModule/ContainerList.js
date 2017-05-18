@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tooltip, Icon, Checkbox, Card, Menu, Dropdown, Button, Input, Spin, Pagination, Modal } from 'antd'
+import { Tooltip, Icon, Checkbox, Card, Menu, Dropdown, Button, Input, Spin, Pagination, Modal, Form } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -21,13 +21,26 @@ import { calcuDate } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
 import ContainerStatus from '../TenxStatus/ContainerStatus'
 import { addPodWatch, removePodWatch } from '../../containers/App/status'
+import { instanceExport } from '../../actions/instance_export'
+import NotificationHandler from '../../common/notification_handler'
 
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm
 
-const MyComponent = React.createClass({
+let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
+  },
+  getInitialState(){
+    return {
+      exportImageModalVisible: false,
+      previewImageAddress: false,
+      exportImageModalSuccess: false,
+      exportImageName: '',
+      exportContainerName: '',
+      ModalLoadidng: false,
+      containerErrorModal: false
+    };
   },
   /*onchange: function (e) {
     e.stopPropagation();
@@ -43,14 +56,158 @@ const MyComponent = React.createClass({
       containerList
     });
   },*/
-  containerOperaClick: function (name, e) {
+  containerOperaClick: function (name, status, e) {
     //this function for user click opera menu
     switch (e.key) {
       case 'deleteContainer':
         //this is delete the container
         this.deleteContainer(name);
-        break;
+        return;
+      case 'exportImage':
+        this.exportImageModal(name, status)
+        return
+      default:
+        return
     }
+  },
+  exportImageModal(name, status){
+    if(status == 'Running'){
+      const { form } = this.props
+      const { setFieldsValue } = form
+      setFieldsValue({
+        'exportImageName': undefined,
+        'exportImageVersion': 'laest',
+      })
+      this.setState({
+        exportImageModalVisible: true,
+        exportContainerName: name
+      })
+      return
+    }
+    this.setState({
+      containerErrorModal: true
+    })
+  },
+  handleConfirmExportImage(){
+    const { form, instanceExport, clusterID } = this.props
+    const { exportContainerName } = this.state
+    this.setState({
+      ModalLoadidng: true
+    })
+    let Notification = new NotificationHandler()
+    form.validateFields((errors, values) => {
+      if(errors){
+        this.setState({
+          ModalLoadidng: false
+        })
+        return
+      }
+      let body = {
+        body:{
+          imagename: values.exportImageName,
+          tag: values.exportImageVersion,
+        },
+        clusterID,
+        containers:exportContainerName
+      }
+      instanceExport(body,{
+        success: {
+          func: (res) => {
+            if(res.statusCode && res.statusCode == 204){
+              Notification.error('导出镜像失败！当前平台镜像仓库不完整')
+              this.setState({
+                exportImageModalVisible: false,
+                exportContainerName: '',
+                ModalLoadidng:false
+              })
+              return
+            }
+            this.setState({
+              exportImageModalVisible: false,
+              exportImageModalSuccess: true,
+              exportContainerName: '',
+              ModalLoadidng: false
+            })
+          }
+        },
+        failed: {
+          func: (res) => {
+            Notification.error('导出镜像失败！')
+            this.setState({
+              exportImageModalVisible: false,
+              exportContainerName: '',
+              ModalLoadidng:false
+            })
+          }
+        }
+      })
+    })
+  },
+  hanldeCancleExportImage(){
+    const { form } = this.props
+    const { setFieldsValue } = form
+    setFieldsValue({
+      'exportImageName': undefined,
+      'exportImageVersion': 'laest',
+    })
+    this.setState({
+      exportImageModalVisible : false
+    })
+  },
+  formatImageInfo(){
+    const { form } = this.props
+    const { getFieldValue } = form
+    let imageName = getFieldValue('exportImageName') ? getFieldValue('exportImageName') : '镜像名称'
+    let imageTag = getFieldValue('exportImageVersion') ? getFieldValue('exportImageVersion') : 'laest'
+    return {
+      imageName,
+      imageTag
+    }
+  },
+  handleInfoOK(){
+    this.setState({
+      containerErrorModal: false
+    })
+  },
+  handleInfoCancel(){
+    this.setState({
+      containerErrorModal: false
+    })
+  },
+  handleViewImageStore(){
+    this.setState({
+      exportImageModalSuccess : false
+    })
+    browserHistory.push('/app_center')
+  },
+  hanldeClose(){
+    this.setState({
+      exportImageModalSuccess : false
+    })
+  },
+  checkImageName(rule, value, callback){
+    if(!value){
+      return callback('请输入镜像地址')
+    }
+    if(!/^([a-z0-9]+((?:[._]|__|[-]*)[a-z0-9]+)*)?$/.test(value)){
+      return callback('镜像地址只能为小写字母和数字')
+    }
+    if(value.length > 128){
+      return callback('镜像地址最多只能为128个字符')
+    }
+    return callback()
+  },
+  checkImageVersion(rule, value, callback){
+    if(!value){
+      return callback('请输入镜像版本')
+    }
+    if(!/^([\w][\w.-]{0,127})?$/.test(value)){
+      return callback('镜像版本只能以数字或字母开头')
+    }
+    if(value.length > 128){
+      return callback('镜像版本最多只能为128个字符')
+    }
+    return callback()
   },
   selectContainerDetail: function (name, e) {
     //this function for user click app detail ,and then this app will be selected
@@ -99,7 +256,8 @@ const MyComponent = React.createClass({
     return images.join(', ')
   },
   render: function () {
-    const { scope, config, loading } = this.props
+    const { scope, config, loading, form, exportimageUrl } = this.props
+    const { getFieldProps } = form
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -116,9 +274,12 @@ const MyComponent = React.createClass({
     }
     const items = config.map((item) => {
       const dropdown = (
-        <Menu onClick={this.containerOperaClick.bind(this, item.metadata.name)}
+        <Menu onClick={this.containerOperaClick.bind(this, item.metadata.name, item.status.phase)}
           style={{ width: '100px' }}
           >
+          <Menu.Item key='exportImage'>
+            <span>导出镜像</span>
+          </Menu.Item>
           <Menu.Item key='deleteContainer'>
             <span>重新分配</span>
           </Menu.Item>
@@ -183,13 +344,119 @@ const MyComponent = React.createClass({
         </div >
       );
     });
+    const exportImageName = getFieldProps('exportImageName',{
+      rules :  [{
+        validator: this.checkImageName
+      }],
+    })
+    const exportImageVersion = getFieldProps('exportImageVersion',{
+      rules: [{
+        validator: this.checkImageVersion
+      }],
+      initialValue: 'laest'
+    })
     return (
       <div className='dataBox'>
         {items}
+        <Modal
+          title="导出镜像"
+          visible={this.state.exportImageModalVisible}
+          width="570px"
+          maskClosable={false}
+          wrapClassName="exportImage"
+          okText="导出镜像到仓库"
+          footer={[
+            <Button key="cancel" size='large' onClick={this.hanldeCancleExportImage}>取消</Button>,
+            <Button key="ok" type="primary" size="large" onClick={this.handleConfirmExportImage} loading={this.state.ModalLoadidng}>导出到镜像仓库</Button>
+          ]}
+          onOk={this.handleConfirmExportImage}
+          onCancel={this.hanldeCancleExportImage}
+        >
+          <div className='header'>
+            <Form>
+              <div className='float imagename'>镜像名称</div>
+              <div className='float imageAddress'>
+                <Form.Item>
+                  <Input {...exportImageName} placeholder='请填写镜像名称' />
+                </Form.Item>
+              </div>
+              <div className='float point'>:</div>
+              <div className='float previewImageAddress'>
+                <Form.Item>
+                  <Input {...exportImageVersion} placeholder='请填写标签'/>
+                </Form.Item>
+              </div>
+            </Form>
+          </div>
+          <div className="main">
+            <div className='preview'>预览：</div>
+            <div className='address'>
+              <span>
+                {
+                  exportimageUrl
+                  ? <span>{exportimageUrl.registryConfig.server}/</span>
+                  : <Spin></Spin>
+                }
+              </span>
+              <span className='color'>{this.formatImageInfo().imageName}</span>
+              <span className='point'>:</span>
+              <span className='color'>{this.formatImageInfo().imageTag}</span>
+            </div>
+          </div>
+          <div className='footer'>
+            <div className='item'>当前容器有映射 Volume 目录，此次导出的镜像<span className='color'>不包含 Volume 的存储目录</span></div>
+            <div><Icon type="exclamation-circle-o" style={{marginRight:'8px'}}/>
+              系统会按照上面输入的镜像地址，将导出的镜像推送到对应的仓库中。</div>
+          </div>
+        </Modal>
+
+        <Modal
+          title='导出镜像'
+          visible={this.state.exportImageModalSuccess}
+          width="570px"
+          maskClosable={false}
+          wrapClassName="exportImageSuccess"
+          okText="查看镜像仓库"
+          cancelText="关闭"
+          onOk={this.handleViewImageStore}
+          onCancel={this.hanldeClose}
+        >
+          <div className='container'>
+            <div className='header'>
+              <div>
+                <Icon type="check-circle-o" className='icon'/>
+              </div>
+              <div className='tips'>
+                操作成功
+              </div>
+            </div>
+            <div className='footer'>
+              <div className='lineone'>
+                正在推送 <span>{this.state.exportImageName}</span> 到镜像仓库
+              </div>
+              <div>可能会花一些时间，请稍后至<span className='item'>『交付中心→镜像仓库』</span>查看</div>
+            </div>
+          </div>
+        </Modal>
+
+        <Modal
+          title='提示'
+          visible={this.state.containerErrorModal}
+          width="570px"
+          maskClosable={true}
+          wrapClassName="WarningModal"
+          onOk={this.handleInfoOK}
+          onCancel={this.handleInfoCancel}
+          okText="知道了"
+        >
+         <div><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>容器为非运行中状态，不能导出镜像</div>
+        </Modal>
       </div>
     );
   }
 })
+
+MyComponent = Form.create()(MyComponent)
 
 class ContainerList extends Component {
   constructor(props) {
@@ -405,7 +672,7 @@ class ContainerList extends Component {
     const {
       name, page, size,
       sortOrder, total, cluster,
-      isFetching,
+      isFetching, instanceExport, exportimageUrl
     } = this.props
     const {containerList, searchInputValue, searchInputDisabled } = this.state
     const checkedContainerList = containerList.filter((app) => app.checked)
@@ -532,7 +799,11 @@ class ContainerList extends Component {
               name={name}
               config={containerList}
               loading={isFetching}
-              parentScope={parentScope} />
+              parentScope={parentScope}
+              instanceExport={instanceExport}
+              clusterID={cluster}
+              exportimageUrl={exportimageUrl}
+            />
           </Card>
         </div>
       </QueueAnim>
@@ -568,6 +839,7 @@ function mapStateToProps(state, props) {
     size = DEFAULT_PAGE_SIZE
   }
   const {cluster} = state.entities.current
+  const {loginUser} = state.entities
   const {statusWatchWs} = state.entities.sockets
   const defaultContainers = {
     isFetching: false,
@@ -583,6 +855,7 @@ function mapStateToProps(state, props) {
 
   return {
     cluster: cluster.clusterID,
+    exportimageUrl: loginUser.info,
     currentCluster: cluster,
     statusWatchWs,
     pathname,
@@ -601,4 +874,5 @@ export default connect(mapStateToProps, {
   deleteContainers,
   updateContainerList,
   addTerminal,
+  instanceExport,
 })(ContainerList)

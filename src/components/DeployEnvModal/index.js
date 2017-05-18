@@ -138,7 +138,6 @@ let DeployEnvModal = React.createClass({
         </div>
         <Form inline>
           <FormItem
-            hasFeedback
             key="space"
             className="firstFormItem"
             style={{ minWidth: '220px', marginRight: "21px" }}
@@ -160,7 +159,7 @@ let DeployEnvModal = React.createClass({
               }
             </Select>
           </FormItem>
-          <FormItem hasFeedback key="cluster">
+          <FormItem key="cluster">
             <Select size="large"
               placeholder="请选择集群"
               style={{ width: 180 }}

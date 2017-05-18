@@ -13,10 +13,10 @@ import {  getAllClusterNodes, getKubectlsPods, deleteClusterNode, getClusterLabe
 import { addTerminal } from '../../actions/terminal'
 import { NOT_AVAILABLE } from '../../constants'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
-import ManageTagModal from './TagDropdown'
+import TagDropdown from './TagDropdown'
 import ManageLabelModal from './MangeLabelModal'
-
 import './style/hostList.less'
+
 const MASTER = '主控节点/Master'
 const SLAVE = '计算节点/Slave'
 const SubMenu = Menu.SubMenu;
@@ -103,6 +103,7 @@ const MyComponent = React.createClass({
     let handle = item.key.substring(0,6)
     if(handle == 'manage'){
       scope.setState({
+        deleteNode: node,
         manageLabelModal : true
       })
       return
@@ -136,10 +137,10 @@ const MyComponent = React.createClass({
           onClick={this.ShowDeleteClusterNodeModal.bind(this, item)}
           style={{ width: '100px' }}
         >
-          <Menu.Item key={'manage'+item.id}>
+          <Menu.Item key={'manage'+item.address}>
             <span>管理标签</span>
           </Menu.Item>
-          <Menu.Item key={'delete'+item.id}>
+          <Menu.Item key={'delete'+item.address}>
             <span>删除节点</span>
           </Menu.Item>
         </Menu>
@@ -249,7 +250,8 @@ class hostList extends Component {
       manageLabelContainer:[],
       manageLabelModal : false,
       deleteNodeModal : false,
-      deleteNode : null
+      deleteNode : null,
+      summary: []
     }
   }
 
@@ -327,31 +329,49 @@ class hostList extends Component {
     })
   }
 
-  handleManageLabel(){
-    this.setState({
-      manageLabelModal : true
-    })
+  handleDropdownTag(obj) {
+    const {callbackActiveKey} = this.props
+    if(obj.key == 'manageTag'){
+      callbackActiveKey(obj)
+    }
   }
-
-  handleDropdownTag(obj){
-    console.log('HostList.obj=',obj)
-  }
-
-  formTagContainer(){
-    let { labels } = this.props
-    if (!Array.isArray(labels)) {
+  handleClose(item) {
+    console.log('item',item)
+    const summary = [...this.state.summary].filter(tag => (tag.key !== item.key) && tag);
+    let nodeList = [];
+    const { nodes } = this.props;
+    if (summary.length ==0) {
+      this.setState({
+        summary,
+        nodeList:nodes.nodes
+      });
       return
     }
-    const arr = labels.map((item)=> {
-      return (<Tag closable color="blue" className='tag' key={item.value}>
-        <Tooltip title={item.key}>
-          <span className='key'>{item.key}</span>
-        </Tooltip>
-        <span className='point'>:</span>
-        <Tooltip title={item.value}>
-          <span className='value'>{item.value}</span>
-        </Tooltip>
-      </Tag>)
+    nodes.nodes.map((node) => {
+      let labels = node.objectMeta.labels
+      summary.map((tag)=> {
+        if (labels[tag.key]) {
+          nodeList.push(node);
+        }
+      })
+
+    });
+    nodeList = Array.from(new Set(nodeList))
+    this.setState({
+      summary,
+      nodeList
+    });
+  }
+  formTagContainer(){
+    let { summary } = this.state
+    const arr = summary.map((item)=> {
+      return (
+        <Tag closable color="blue" key={item.key + item.value} afterClose={() => this.handleClose(item)} style={{width:'100%'}}>
+          <span>{item.key}</span>
+          <span className='point'>:</span>
+          <span>{item.value}</span>
+        </Tag>
+      )
     })
 
     return arr
@@ -403,7 +423,7 @@ class hostList extends Component {
   }
 
   render() {
-    const { addNodeCMD } = this.props
+    const { addNodeCMD, labels } = this.props
     const { deleteNode } = this.state
     const scope = this;
     return <div id="cluster__hostlist">
@@ -432,11 +452,15 @@ class hostList extends Component {
             <Icon type="search" className="fa" onClick={() => this.searchNodes()} />
           </span>
           <span className='selectlabel' id="cluster__hostlist__selectlabel">
-            <ManageTagModal callbackHostList={this.handleDropdownTag}/>
+            <TagDropdown clusterID={this.props.clusterID} callbackHostList={this.handleDropdownTag} labels={labels} scope={scope} footer={true}/>
           </span>
-          <div className='selectedroom'>
-            {this.formTagContainer()}
-          </div>
+          {
+            this.state.summary.length > 0
+            ? <div className='selectedroom'>
+              {this.formTagContainer()}
+            </div>
+            : null
+          }
         </div>
         <div className='dataBox'>
           <div className='titleBox'>
@@ -489,7 +513,10 @@ class hostList extends Component {
 
       <ManageLabelModal
         manageLabelModal={this.state.manageLabelModal}
+        clusterID={this.props.clusterID}
+        nodeName={this.state.deleteNode ? this.state.deleteNode.objectMeta.name:''}
         callback={this.callbackManageLabelModal}
+        footer={true}
       />
 
       <Modal

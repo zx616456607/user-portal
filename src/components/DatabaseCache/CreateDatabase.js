@@ -200,7 +200,6 @@ let CreateDatabase = React.createClass({
         replicas: replicas,
         volumeSize: values.storageSelect,
         teamspace: newSpace.namespace,
-        maxParticipant: values.maxParticipant,
         templateId
       }
       CreateDbCluster(body, {
@@ -264,19 +263,11 @@ let CreateDatabase = React.createClass({
     const passwdProps = getFieldProps('password', {
       rules: [
         {
-          required: this.state.currentType != 'zookeeper' ? true : false,
+          required: true,
           whitespace: true,
           message: '请填写密码'
         },
       ],
-    });
-    const maxParticipantProps = getFieldProps('maxParticipant', {
-      rules: [
-          {
-            required: this.state.currentType == 'zookeeper' ? true : false,
-          }
-      ],
-      initialValue: 3
     });
     const selectNamespaceProps = getFieldProps('namespaceSelect', {
       rules: [
@@ -379,39 +370,23 @@ let CreateDatabase = React.createClass({
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
+            {this.state.currentType == 'mysql' || this.state.currentType == 'zookeeper' ?
 
             <div className='commonBox'>
               <div className='title'>
                 <span>密码</span>
               </div>
               <div className='inputBox'>
-              {this.state.currentType == 'zookeeper' ?
-                <div style={{color:'red'}}>(!) 集群建立成功后请及时设置全局ACL</div>
-                :
                 <FormItem
                   hasFeedback
                   >
                   <Input {...passwdProps} onFocus={()=> this.setPsswordType()} type={this.state.showPwd} size='large' placeholder="请输入密码" disabled={isFetching} />
                   <i className={this.state.showPwd == 'password' ? 'fa fa-eye' : 'fa fa-eye-slash'} onClick={this.checkPwd}></i>
                 </FormItem>
-              }
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
-            {this.state.currentType == 'zookeeper' ?
-            <div className='commonBox'>
-              <div className='title'>
-                <span>竞选实例数</span>
-              </div>
-              <div className='inputBox replicas'>
-                <FormItem style={{ width: '80px', float: 'left' }}>
-                  <InputNumber {...maxParticipantProps} size='large' min={3} max={5} disabled={isFetching} />
-                </FormItem>
-                <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>个</span>
-              </div>
-              <div style={{ clear: 'both' }}></div>
-            </div>
-            :null
+            : null
             }
             <div className="modal-price">
               <div className="price-left">

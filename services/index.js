@@ -30,12 +30,22 @@ exports.setUserCurrentConfigCookie = function* (loginUser) {
   const spi = apiFactory.getSpi(loginUser)
   const result = yield spi.clusters.getBy(['default'])
   const clusters = result.clusters || []
+  let clusterID
   if (clusters.length < 1) {
-    clusters.push({
-      clusterID: 'default'
-    })
+    clusterID = 'default'
+  } else {
+    clusters.every((cluster => {
+      if (cluster.isOk) {
+        clusterID = cluster.clusterID
+        return false
+      }
+      return true
+    }))
+    if (!clusterID) {
+      clusterID = clusters[0].clusterID
+    }
   }
-  const config = `default,default,${clusters[0].clusterID}`
+  const config = `default,default,${clusterID}`
   logger.info(method, `set current config cookie to: ${config}`)
   this.cookies.set(USER_CURRENT_CONFIG, config, {
     httpOnly: false
@@ -107,7 +117,12 @@ exports.addConfigsForFrontend = function (user) {
   // Add if email configured
   const emailConfig = global.globalConfig.mail_server
   user.emailConfiged = !!emailConfig.auth.user
+  // Add proxy type
   user.proxy_type = constants.PROXY_TYPE
+  // Add registry config
+  user.registryConfig = {
+    server: global.globalConfig.registryConfig.v2Server
+  }
   return user
 }
 

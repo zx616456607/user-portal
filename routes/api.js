@@ -72,7 +72,8 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/proxy', clusterController.getProxy)
   router.put('/clusters/:cluster/proxy', clusterController.updateProxy)
   router.get('/clusters/:cluster/node_addr', clusterController.getClusterNodeAddr)
-
+  router.get('/clusters/:cluster/plugins', clusterController.getClusterPlugins)
+  router.put('/clusters/:cluster/plugins/:name', clusterController.updateClusterPlugins)
 
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)

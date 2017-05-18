@@ -99,3 +99,21 @@ export const LITE = 'lite'
 export const MAX_CHARGE = 200000
 export const NOT_AVAILABLE = 'N/A'
 export const BASE_IMAGE_TYPE = ["单元测试", "代码编译", "构建镜像", "集成测试"]
+export const PLUGIN_DEFAULT_CONFIG = {
+  ['elasticsearch-logging']:{
+    cpu: 0.5,
+    memory: 500
+  },
+  ['kube-dns']: {
+    cpu: 0.1,
+    memory: 179
+  },
+  prometheus: {
+    cpu: 0.1,
+    memory: 500
+  },
+  heapster: {
+    cpu: 0.1,
+    memory: 200
+  }
+}

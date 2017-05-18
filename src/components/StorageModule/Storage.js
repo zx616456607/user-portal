@@ -10,8 +10,8 @@
 
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import { Checkbox, Card, Menu, Button, Dropdown, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, Tooltip, Spin} from 'antd'
-import { Link } from 'react-router'
+import { Checkbox, Card, Menu, Button, Dropdown, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, Tooltip, Spin, Form } from 'antd'
+import { Link, browserHistory } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -131,7 +131,14 @@ let MyComponent = React.createClass({
       visible: false,
       modalTitle: '',
       modalSize: 512,
-      size: 512
+      size: 512,
+      createSnapModal: false,
+      confirmCreateSnapshotLoading: false,
+      volumeName: '',
+      volumeFormat: '',
+      volumeSize: '',
+      CreateSnapshotSuccessModal: '',
+      snapshotName: 'asdasda',
     };
   },
   propTypes: {
@@ -233,9 +240,18 @@ let MyComponent = React.createClass({
       size: value,
     });
   },
-  showAction(e, type, one, two) {
+  showAction(e, type, one, two, size) {
     if(e.stopPropagation) e.stopPropagation()
     else e.cancelable = true
+    if(e.key && e.key == 'createSnapshot'){
+      this.setState({
+       createSnapModal: true,
+       volumeName: one,
+       volumeFormat: two,
+       volumeSize: size,
+      })
+      return
+    }
     if (type === 'format') {
       this.setState({
         visible: true,
@@ -260,6 +276,59 @@ let MyComponent = React.createClass({
         modalTitle: '扩容'
       })
     }
+  },
+  handleConfirmCreateSnapshot(){
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue } = form
+    let Noti = new NotificationHandler()
+    let value = getFieldValue('snapshotName')
+    console.log('value=',value)
+    if(value == undefined){
+      Noti.error('输入快照名称')
+      return
+    }
+    return
+    this.setState({
+      createSnapModal: false,
+      volumeName: '',
+      volumeFormat: '',
+      volumeSize: '',
+    })
+    setFieldsValue({
+      snapshotName: undefined
+    })
+  },
+  handleCancelCreateSnapshot(){
+    const { form } = this.props
+    const { setFieldsValue } = form
+    setFieldsValue({
+      snapshotName: undefined
+    })
+    this.setState({
+      createSnapModal: false,
+      volumeName: '',
+      volumeFormat: '',
+      volumeSize: '',
+    })
+  },
+  checksnapshotName(rule, value, callback){
+    if(!value){
+      return callback('请输入快照名称')
+    }
+    return callback()
+  },
+  handleConfirmCreateSnapshotSuccess(){
+    this.setState({
+      CreateSnapshotSuccessModal: false,
+      snapshotName: '',
+    })
+    browserHistory.push('/app_manage/snapshot')
+  },
+  handleCancelCreateSnapshotSuccess(){
+    this.setState({
+      CreateSnapshotSuccessModal: false,
+      snapshotName: '',
+    })
   },
   changeDilation(size) {
     if (size > 20480) {
@@ -286,8 +355,9 @@ let MyComponent = React.createClass({
     const { formatMessage } = this.props.intl
     let list = this.props.storage;
     let items = list.storageList.map((item) => {
-      const menu = (<Menu onClick={(e) => { this.showAction(e, 'format', item.name, item.format) } } style={{ width: '80px' }}>
-        <Menu.Item key="1" disabled={item.isUsed}><FormattedMessage {...messages.formatting} /></Menu.Item>
+      const menu = (<Menu onClick={(e) => { this.showAction(e, 'format', item.name, item.format, item.totalSize) } } style={{ width: '80px' }}>
+        <Menu.Item key="createSnapshot">创建快照</Menu.Item>
+        <Menu.Item key="format" disabled={item.isUsed}><FormattedMessage {...messages.formatting} /></Menu.Item>
       </Menu>
       )
       return (
@@ -326,7 +396,9 @@ let MyComponent = React.createClass({
                 overlay={menu}
                 type='ghost'
                 onClick={(e) => { this.showAction(e, 'resize', item.name, item.totalSize) } }
-                 disabled={item.isUsed}>
+                disabled={item.isUsed}
+                key="dilation"
+              >
                 <FormattedMessage {...messages.dilation} />
               </Dropdown.Button>
             :
@@ -345,10 +417,16 @@ let MyComponent = React.createClass({
         </div>
       );
     });
-    const { scope } = this.props
+    const { scope, form } = this.props
+    const { getFieldProps } = form
     const { resourcePrice } = scope.props.currentCluster
     const hourPrice = parseAmount(this.state.size /1024 * resourcePrice.storage, 4)
     const countPrice = parseAmount(this.state.size /1024 * resourcePrice.storage * 24 *30, 4)
+    const snapshotName = getFieldProps('snapshotName',{
+      rules: [{
+        validator: this.checksnapshotName
+      }]
+    })
     return (
       <div className="dataBox">
         {items}
@@ -395,10 +473,76 @@ let MyComponent = React.createClass({
             </RadioGroup>
           </div>
         </Modal>
+
+        <Modal
+          title="创建快照"
+          visible={this.state.createSnapModal}
+          closable={true}
+          onOk={this.handleConfirmCreateSnapshot}
+          onCancel={this.handleCancelCreateSnapshot}
+          width='570px'
+          maskClosable={false}
+          confirmLoading={this.state.confirmCreateSnapshotLoading}
+          wrapClassName="CreateSnapshotModal"
+          okText="创建快照"
+        >
+          <div>
+            <div className='header'>
+              <div className='leftbox'>
+                <div className="item">存储卷名称</div>
+                <div className="item">存储大小</div>
+                <div className="item">存储格式</div>
+                <div className="item">快照名称</div>
+              </div>
+              <div className="rightbox">
+                <div className='item'>{this.state.volumeName}</div>
+                <div className="item">{this.state.volumeSize} MB</div>
+                <div className="item">{this.state.volumeFormat}</div>
+                <div className='item'>
+                  <Form.Item>
+                    <Input {...snapshotName} placeholder='请输入快照名称'/>
+                  </Form.Item>
+                </div>
+              </div>
+            </div>
+            <div className='footer'>
+              <div className="title">为了保证快照能完成的捕获磁盘数据内容，建议制作快照前，进行一下操作：</div>
+              <div className="item"><span className='num'>1</span>数据库业务：Flush & Lock Table</div>
+              <div className="item"><span className='num'>2</span>文件系统：进行Sync操作，将内容数据强制刷入磁盘内</div>
+            </div>
+          </div>
+        </Modal>
+
+        <Modal
+          title="创建快照"
+          visible={this.state.CreateSnapshotSuccessModal}
+          closable={true}
+          onOk={this.handleConfirmCreateSnapshotSuccess}
+          onCancel={this.handleCancelCreateSnapshotSuccess}
+          width='570px'
+          maskClosable={false}
+          wrapClassName="CreateSnapshotSccessModal"
+          okText="去查看"
+          cancelText="关闭"
+        >
+          <div className='container'>
+            <div className='header'>
+              <div>
+                <Icon type="check-circle-o" className='icon'/>
+              </div>
+              <div className='tips'>
+                操作成功
+              </div>
+            </div>
+            <div>快照名称 {this.state.snapshotName}</div>
+          </div>
+        </Modal>
       </div>
     )
   }
 });
+
+MyComponent = Form.create()(MyComponent)
 
 function myComponentMapSateToProp(state) {
   return {

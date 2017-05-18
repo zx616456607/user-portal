@@ -31,6 +31,10 @@ const menuList = [
     name: '存储'
   },
   {
+    url: '/app_manage/snapshot',
+    name: '快照'
+  },
+  {
     url: '/app_manage/configs',
     name: '服务配置'
   }

@@ -193,3 +193,54 @@ exports.getClusterNodeAddr = function* () {
     data: result.data
   }
 }
+
+exports.getClusterPlugins = function* () {
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.getBy([cluster, 'plugins'])
+  this.body = {
+    cluster,
+    data: result.data
+  }
+}
+
+exports.updateClusterPlugins = function* () {
+  const cluster = this.params.cluster
+  const pluginName = this.params.name
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  if(this.query.reset != undefined) {
+    const result = yield api.updateBy([cluster, 'plugins', pluginName], {
+      reset: this.query.reset
+    })
+    this.body = {
+      data: result.data
+    }
+    return
+  }
+  const body = this.request.body
+  if(body.cpu == undefined || body.memory == undefined || body.hostName == undefined) {
+    const err = new Error('cpu, memory, hostName is require')
+    err.status = 400
+    throw err
+  }
+  const cpu = body.cpu != 0 ? parseFloat(body.cpu) * 1000 : undefined
+  const memory = body.memory != 0 ? parseInt(body.memory) : undefined
+  const hostName = body.hostName != "" ? body.hostName : undefined
+  let requestBody =  {
+    limit: {
+    },
+    request: {
+    }
+  }
+  if(cpu) {
+    requestBody.limit.cpu = requestBody.request.cpu = cpu
+  }
+  if(memory) {
+    requestBody.limit.memory = requestBody.request.memory = memory
+  }
+  if(hostName) {
+    requestBody.hostName = hostName
+  }
+  const result = yield api.updateBy([cluster, 'plugins', pluginName], null, requestBody)
+  this.body = result
+}

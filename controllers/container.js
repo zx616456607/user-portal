@@ -137,8 +137,8 @@ exports.exportContainers = function* () {
   const result = yield api.createBy([cluster, 'instances',instance,'export'], null, image)
   this.body = {
     cluster,
-      status:result.statusCode,
-    data: result.data
+    data: result.data,
+    statusCode: result.statusCode
   }
 }
 

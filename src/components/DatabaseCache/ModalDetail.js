@@ -144,6 +144,22 @@ class BaseInfo extends Component {
       });
     }, 500);
   }
+  findPassword(spec) {
+    const length = spec.containers.length
+    for (let i = 0; i < length; i++) {
+      const container = spec.containers[i]
+      if (container.env && container.env.length > 0) {
+        const envLength = container.env.length
+        for (let j = 0; j < envLength; j++) {
+          const env = container.env[j]
+          if (env.name && env.name.indexOf("PASSWORD") !== -1) {
+            return env.value
+          }
+        }
+      }
+    }
+    return ""
+  }
   render() {
     const { bindingIPs, domainSuffix, databaseInfo ,dbName } = this.props
     const parentScope = this.props.scope
@@ -259,20 +275,17 @@ class BaseInfo extends Component {
             <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {externalUrl}/>
           </div>
           <div className='configList'><span className='listKey'>副本数：</span>{this.props.currentData.pending + this.props.currentData.running}/{this.props.currentData.desired}个</div>
-          {this.props.database != 'zookeeper' ?
             <div><div className='configHead'>参数</div>
               <ul className='parse-list'>
                 <li><span className='key'>参数名</span> <span className='value'>参数值</span></li>
-                <li><span className='key'>用户名：</span> <span className='value'>root</span></li>
+                <li><span className='key'>用户名：</span> <span className='value'>{ this.props.database === 'zookeeper' ? "super" : "root" }</span></li>
                 {this.state.passShow ?
-                  <li><span className='key'>密码：</span> <span className='value'>{podSpec.containers[0].env ? podSpec.containers[0].env[0].value : ''}</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
+                  <li><span className='key'>密码：</span> <span className='value'>{ this.findPassword(podSpec) }</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
                   :
                   <li><span className='key'>密码：</span> <span className='value'>******</span><span className="pasBtn" onClick={() => this.setState({ passShow: true })}><i className="fa fa-eye"></i> 显示</span></li>
                 }
               </ul>
             </div>
-            : null
-          }
           <div className='configHead'>实例副本 <span>{this.props.currentData.desired}个 &nbsp;</span>
             <Popover content={modalContent} title={null} trigger="click" overlayClassName="putmodalPopover"
               visible={rootScope.state.putVisible} getTooltipContainer={()=> document.getElementById('AppServiceDetail')}
