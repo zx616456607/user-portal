@@ -1,0 +1,211 @@
+#quickentry{
+  padding: 20px 30px;
+  overflow: hidden;
+  .quickentry,
+  .practiceandcourse{
+    margin-bottom: 24px;
+    .header{
+      height:36px;
+      padding-bottom: 20px;
+      clear: both;
+      .title{
+        float: left;
+        font-size: 16px;
+        height: 16px;
+        line-height: 16px;
+        border-left: 6px solid #46b2fb;
+        padding: 0 30px 0 10px;
+      }
+      .item{
+        float: left;
+        line-height:20px;
+      }
+    }
+  }
+  .quickentry{
+    .main{
+      text-align: center;
+      .item{
+        height:220px;
+        background: white;
+        border-radius: 4px;
+        cursor:pointer;
+        padding-top: 35px;
+        .img{
+          height:85px;
+        }
+        .middle{
+          font-size: 16px;
+          color: #44b3fa;
+          margin: 20px 0 6px 0;
+        }
+      }
+      .item:hover{
+        border:1px solid #46b2fa;
+        background: #f9fdff;
+      }
+      .app{
+        margin-right: 20px;
+      }
+      .image{
+        margin-right: 20px;
+      }
+    }
+  }
+  .practiceandcourse{
+    overflow: hidden;
+    .main{
+      .leftbox,
+      .rightbox{
+        background: white;
+        float: left;
+        width:50%;
+        height:460px;
+        padding: 40px;
+      }
+      .leftbox{
+        border-right:1px solid #e9edf0;
+        .item{
+          height:190px;
+          border:1px solid #e9edf0;
+          border-radius: 4px;
+          cursor:pointer;
+          text-align: center;
+          padding-top: 20px;
+          .middle{
+            color: #47b4f9;
+            font-size: 14px;
+            padding-top: 5px;
+          }
+          .bottom{
+            color:#737373;
+            padding:0 20px;
+            //overflow: hidden;
+            //text-overflow: ellipsis;
+            //white-space:nowrap;
+          }
+        }
+        .item:hover{
+          border:1px solid #46b2fa;
+          background: #f9fdff;
+        }
+        .bordernone{
+          border-right: none;
+        }
+        .bordertop{
+          border-top:none;
+        }
+      }
+      .rightbox{
+        position: relative;
+        .imgcontainer{
+          width: 745px;
+        }
+        .charts{
+          height: 380px;
+          //background: yellowgreen;
+          position: relative;
+          .title{
+            position: absolute;
+            top:0;
+            left:0;
+            font-size: 14px;
+          }
+          .scroll{
+            width:100%;
+            overflow: scroll;
+            height: 380px;
+          }
+
+          .imgcontainer{
+            position: relative;
+            .pointer{
+              cursor: pointer;
+            }
+            .cluster{
+              position: absolute;
+              height: 320px;
+              left: 80px;
+              top: 11px;
+            }
+            .nodeone{
+              position: absolute;
+              top:25px;
+              left: 230px;
+            }
+            .nodetwo{
+              position: absolute;
+              top: 110px;
+              left:383px;
+            }
+            .nodethree{
+              position: absolute;
+              top:180px;
+              left:283px;
+            }
+            .nodefour{
+              position: absolute;
+              top:83px;
+              left:130px;
+            }
+            .blue{
+              position: absolute;
+              top: 43px;
+              left: 225px;
+              z-index: 1;
+            }
+            .green{
+              position: absolute;
+              top:85px;
+              left: 408px;
+              z-index: 1;
+            }
+            .app{
+              top: -27px;
+              left: 382px;
+              position: absolute;
+              z-index: 0;
+            }
+          }
+        }
+        .legend{
+          position: absolute;
+          top:325px;
+          left:40px;
+          .container{
+            clear: both;
+            padding:6px 0;
+            .item{
+              float: left;
+              width:155px;
+              height:20px;
+              line-height: 20px;
+              .margin{
+                margin:0 15px 0 0;
+                font-size: 15px;
+              }
+              .icon{
+                display: inline-block;
+                width: 19px;
+                height:19px;
+                border-radius: 4px;
+                vertical-align: middle;
+              }
+              .node{
+                background: #f4f5f7;
+                border:1px dashed #cacccb;
+              }
+              .cluster{
+                border:1px dashed #cacccb;
+              }
+              .app{
+                background: #f4f5f7;
+                border:1px solid #cacccb;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

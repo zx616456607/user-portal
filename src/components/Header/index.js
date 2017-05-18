@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Menu, Dropdown, Select, Input, Form, Icon, Badge, Modal } from 'antd'
+import { Menu, Dropdown, Select, Input, Form, Icon, Badge, Modal, Popover } from 'antd'
 import { FormattedMessage, defineMessages } from 'react-intl'
 import "./style/header.less"
 import querystring from 'querystring'
@@ -21,10 +21,11 @@ import { checkVersion } from '../../actions/version'
 import { getCookie, isEmptyObject, getVersion, getPortalRealMode } from '../../common/tools'
 import { USER_CURRENT_CONFIG } from '../../../constants'
 import { MY_SPACE, SESSION_STORAGE_TENX_HIDE_DOT_KEY, LITE } from '../../constants'
-import { browserHistory } from 'react-router'
+import { browserHistory, Link } from 'react-router'
 import NotificationHandler from '../../common/notification_handler'
 import UserPanel from './UserPanel'
 import backOldBtn from '../../assets/img/headerBackOldArrow.png'
+import Airplane from '../../assets/img/quickentry/quick.png'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -361,6 +362,12 @@ class Header extends Component {
     var docUrl = protocol + '//' + host + ":9004"
     var faqUrl = docUrl + '/faq'
     let selectValue = mode === standard ? current.space.teamName : current.space.spaceName
+    const content = (
+      <div>
+        <p>内容</p>
+        <p>内容</p>
+      </div>
+    );
     return (
       <div id="header">
         {
@@ -421,6 +428,17 @@ class Header extends Component {
             </div>
           </a>
         */}
+          <div className="docBtn">
+            <Link to={`quickentry`}>
+              <img src={Airplane} className='icon' />
+              快速入口
+            </Link>
+          </div>
+          <div className="docBtn">
+            <Popover content={content} trigger="click" placement="bottom">
+              <div className='doc'><Icon type="file-text" className='docicon'/>弹出卡片</div>
+            </Popover>
+          </div>
         {
           type === LITE &&
           <div className='upgradeVersion' onClick={this.showUpgradeVersionModal}>

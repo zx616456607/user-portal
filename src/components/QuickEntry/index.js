@@ -1,0 +1,192 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ *
+ * Quick Entry component
+ *
+ * v0.1 - 2017-05-17
+ * @author ZhangChengZheng
+ */
+import React, { Component, PropTypes } from 'react'
+import './style/QuickEntry.less'
+import { Row, Col, Tooltip } from 'antd'
+import DatabaseImg from '../../assets/img/quickentry/database.png'
+import ImageImg from '../../assets/img/setting/globalconfigmirror.png'
+import AppImg from '../../assets/img/quickentry/app.png'
+import DockerImg from '../../assets/img/quickentry/docker.png'
+import QuickImg from '../../assets/img/quickentry/quick.png'
+import GuideImg from '../../assets/img/quickentry/guide.png'
+import APIImg from '../../assets/img/quickentry/API.png'
+import QuestionImg from '../../assets/img/quickentry/question.png'
+import EnterpriseImg from '../../assets/img/quickentry/enterprise.png'
+import NodeOneImg from '../../assets/img/quickentry/node1.png'
+import NodeTwoImg from '../../assets/img/quickentry/node2.png'
+import NodeThreeImg from '../../assets/img/quickentry/node3.png'
+import NodeFourImg from '../../assets/img/quickentry/node4.png'
+import AppGuideImg from '../../assets/img/quickentry/app2.png'
+import BlueImg from '../../assets/img/quickentry/blue.png'
+import GreenImg from '../../assets/img/quickentry/green.png'
+import ClusterImg from '../../assets/img/quickentry/cluster.png'
+
+class QuickEntry extends Component {
+	constructor(props){
+    super(props)
+
+    this.state = {
+
+    }
+  }
+
+  render(){
+    return(
+      <div id="quickentry">
+        <div className='quickentry'>
+          <div className='header'>
+            <div className='title'>快速入口</div>
+            <div className='item'>借助快速入口，有一个更直接的导向，快速的定位常用功能，并简化创建步骤</div>
+          </div>
+          <div className='main'>
+            <Row>
+              <Col span={8} className='olllllllll'>
+                <div className="item app">
+                  <img src={AppImg} alt="" className='img'/>
+                  <div className='middle'>创建一个应用</div>
+                  <div>通过镜像仓库快速创建一个应用</div>
+                </div>
+              </Col>
+              <Col span={8}>
+                <div className="item image">
+                  <img src={ImageImg} alt="" className='img'/>
+                  <div className='middle'>构建一个镜像</div>
+                  <div>无需创建TenXFLOW快速构建一个镜像</div>
+                </div>
+              </Col>
+              <Col span={8}>
+                <div className="item database">
+                  <img src={DatabaseImg} alt="" className='img'/>
+                  <div className='middle'>创建一个数据库与缓存</div>
+                  <div>快速创建原生集群环境一个数据库集群</div>
+                </div>
+              </Col>
+            </Row>
+          </div>
+        </div>
+        <div className='practiceandcourse'>
+          <div className="header">
+            <div className="title">最佳实践与教程</div>
+            <div className="item">借助开发者之旅、快速上手、用户指南 、API文档、常见问题学习部署您的解决方案</div>
+          </div>
+          <div className='main'>
+            <div className='leftbox'>
+              <Row>
+                <Col span={8}>
+                  <a href="http://docs.tenxcloud.com/developer" target="_blank">
+                    <div className="item bordernone">
+                      <img src={DockerImg} alt=""/>
+                      <div className='middle'>开发者Docker之旅</div>
+                      <div className='bottom'>包括实践教程、最佳案例、技术解析、开发工具等</div>
+                    </div>
+                  </a>
+                </Col>
+                <Col span={8}>
+                  <a href="http://docs.tenxcloud.com/quick-start" target="_blank">
+                    <div className="item bordernone">
+                      <img src={QuickImg} alt=""/>
+                      <div className='middle'>快速上手指导</div>
+                      <div className='bottom'>仅需5分钟就可以掌握容器服务的基本特点</div>
+                    </div>
+                  </a>
+                </Col>
+                <Col span={8}>
+                  <a href="http://docs.tenxcloud.com/guide" target="_blank">
+                    <div className="item">
+                      <img src={GuideImg} alt=""/>
+                      <div className='middle'>用户指南</div>
+                      <div className='bottom'>帮助开发者更快、更好、更高效使用平台的产品</div>
+                    </div>
+                  </a>
+                </Col>
+              </Row>
+              <Row>
+                <Col span={8}>
+                  <a href="https://api-doc.tenxcloud.com/" target="_blank">
+                    <div className="item bordertop bordernone">
+                      <img src={APIImg} alt=""/>
+                      <div className='middle'>API文档</div>
+                      <div className='bottom'>通过API的方式与时速云容器服务平台进行交互</div>
+                    </div>
+                  </a>
+                </Col>
+                <Col span={8}>
+                  <a href="http://docs.tenxcloud.com/faq" target="_blank">
+                    <div className="item bordertop bordernone">
+                      <img src={QuestionImg} alt=""/>
+                      <div className='middle'>常见问题</div>
+                      <div className='bottom'>关于平台使用中的常见问题，让你简单明了的使用</div>
+                    </div>
+                  </a>
+                </Col>
+                <Col span={8}>
+                  <a href="http://docs.tenxcloud.com/enterprise" target="_blank">
+                    <div className="item bordertop">
+                      <img src={EnterpriseImg} alt=""/>
+                      <div className='middle'>企业版</div>
+                      <div className='bottom'>为帮助企业快速落地容器服务，我们提供了企业版Lite和企业版Pro</div>
+                    </div>
+                  </a>
+                </Col>
+              </Row>
+            </div>
+            <div className='rightbox'>
+              <div className='charts'>
+                <span className='title'>基础设施与应用关系</span>
+                <div className='scroll'>
+                  <div className='imgcontainer'>
+                    <Tooltip title={<div><span>Cluster : 集群</span>，包含一个或多个节点</div>} placement='right'>
+                      <img src={ClusterImg} alt="" className='cluster pointer'/>
+                    </Tooltip>
+                    <Tooltip title="Node:节点，安装了Docker的服务器，可运行多个容器" placement='right'>
+                      <img src={NodeOneImg} alt="" className='nodeone pointer'/>
+                    </Tooltip>
+                    <Tooltip title="Node:节点，安装了Docker的服务器，可运行多个容器" placement='right'>
+                      <img src={NodeTwoImg} alt="" className='nodetwo pointer'/>
+                    </Tooltip>
+                    <Tooltip title="Node:节点，安装了Docker的服务器，可运行多个容器" placement='right'>
+                      <img src={NodeThreeImg} alt="" className='nodethree pointer'/>
+                    </Tooltip>
+                    <Tooltip title="Node:节点，安装了Docker的服务器，可运行多个容器" placement='right'>
+                      <img src={NodeFourImg} alt="" className='nodefour pointer'/>
+                    </Tooltip>
+
+                    <Tooltip title="APP: 服务，可包含N个相同或不同的服务" placement='right'>
+                      <img src={AppGuideImg} alt="" className='app pointer'/>
+                    </Tooltip>
+
+
+
+                    <img src={BlueImg} alt="" className='blue pointer'/>
+                    <img src={GreenImg} alt="" className='green pointer'/>
+
+                  </div>
+                </div>               
+              </div>
+              <div className='legend'>
+                <div className='container'>
+                  <div className="item"><i className="fa fa-cube margin" aria-hidden="true"></i>Container: 容器</div>
+                  <div className="item"><i className="fa fa-cubes margin" aria-hidden="true"></i>Service: 服务</div>
+                </div>
+                <div className='container'>
+                  <div className="item"><i className='icon margin node'></i>Node: 节点</div>
+                  <div className="item"><i className='icon margin cluster'></i>Cluster: 集群</div>
+                  <div className="item"><i className='icon margin app'></i>APP: 应用</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
+
+export default QuickEntry;
