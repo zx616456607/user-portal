@@ -54,8 +54,6 @@ const AssistSetting = React.createClass({
         validateFieldsKeys.push(`args${key.value}`)
       }
     })
-    console.log('validateFieldsKeys====================')
-    console.log(validateFieldsKeys)
     validateFields(validateFieldsKeys, (errors, values) => {
       if (!!errors) {
         return
