@@ -14,7 +14,7 @@ import './style/Snapshot.less'
 import CurrentImg from '../../../assets/img/appmanage/rollbackcurrent.jpg'
 import ForwardImg from '../../../assets/img/appmanage/rollbackforward.jpg'
 import ArrowImg from '../../../assets/img/appmanage/arrow.png'
-import { loadStorageList } from '../../../actions/storage'
+import { loadStorageList, SnapshotList, SnapshotRollback, SnapshotDelete } from '../../../actions/storage'
 import { DEFAULT_IMAGE_POOL } from '../../../constants'
 
 class Snapshot extends Component {
@@ -29,6 +29,7 @@ class Snapshot extends Component {
     this.handleCancelRollback = this.handleCancelRollback.bind(this)
     this.handleConfirmDeletaSnapshot = this.handleConfirmDeletaSnapshot.bind(this)
     this.hanndleCancelDeleteSnapshot = this.hanndleCancelDeleteSnapshot.bind(this)
+    this.loadSnapshotList = this.loadSnapshotList.bind(this)
     this.handlecolsetips = this.handlecolsetips.bind(this)
     this.state = {
       selectedRowKeys: [],
@@ -46,12 +47,26 @@ class Snapshot extends Component {
     }
   }
 
+  loadSnapshotList(){
+    const { loadStorageList, cluster, currentImagePool, SnapshotList } = this.props
+    const body = {
+      clusterID: cluster,
+    }
+    SnapshotList(body,{
+      success: {
+        func: () => {
+          loadStorageList(currentImagePool, cluster)
+        },
+        isAsync: true
+      }
+    })
+  }
+
   componentWillMount() {
     document.title = '存储 | 时速云'
-    const { loadStorageList, cluster, currentImagePool } = this.props
-    loadStorageList(currentImagePool, cluster)
+    this.loadSnapshotList()
   }
-  
+
   handleConfirmDeletaSnapshot(){
     this.setState({
       DeletaSnapshotModal: false,
@@ -65,15 +80,16 @@ class Snapshot extends Component {
   }
 
   handleDeleteSnapshots(){
-    this.setState({ loading: true });
-    // 模拟 ajax 请求，完成后清空
-    setTimeout(() => {
-      this.setState({
-        selectedRowKeys: [],
-        loading: false,
-        DeleteSnapshotButton: true
-      });
-    }, 1000);
+    const { SnapshotDelete } = this.props
+    //this.setState({ loading: true });
+    //// 模拟 ajax 请求，完成后清空
+    //setTimeout(() => {
+    //  this.setState({
+    //    selectedRowKeys: [],
+    //    loading: false,
+    //    DeleteSnapshotButton: true
+    //  });
+    //}, 1000);
   }
 
   onSelectChange(selectedRowKeys) {
@@ -93,7 +109,7 @@ class Snapshot extends Component {
 
   handleDeleteSnapshot(key){
     console.log('delete.key=',key)
-    const { SnapshotList } = this.props
+    const { snapshotDataList } = this.props
     this.setState({
       DeletaSnapshotModal: true,
       deletedSnapshotName: 123,
@@ -103,8 +119,8 @@ class Snapshot extends Component {
   }
 
   handleRollbackSnapback(key){
-    const { SnapshotList, storageList } = this.props
-    if(SnapshotList[key].status == '不正常'){
+    const { snapshotDataList, storageList, SnapshotRollback } = this.props
+    if(snapshotDataList[key].status == '不正常'){
       this.setState({
         tipsSwitch: true,
         tipsModal: true,
@@ -113,7 +129,7 @@ class Snapshot extends Component {
     }
     for(let pool in storageList){
       for(let i = 0; i < storageList[pool].storageList.length; i++){
-        if(SnapshotList[key].name == storageList[pool].storageList[i].name){
+        if(snapshotDataList[key].name == storageList[pool].storageList[i].name){
           if(storageList[pool].storageList[i].isUsed == true){
             this.setState({
               tipsSwitch: false,
@@ -144,7 +160,7 @@ class Snapshot extends Component {
     const { storageList } = this.props
     console.log('storageList=',storageList)
     console.log('确定回gun')
-    
+
     this.setState({
       rollbackModal: false,
     })
@@ -158,7 +174,7 @@ class Snapshot extends Component {
   }
 
   render() {
-    const { SnapshotList } = this.props
+    const { snapshotDataList } = this.props
     const { loading, selectedRowKeys , DeleteSnapshotButton} = this.state
     function iconclassName(text){
       switch(text){
@@ -168,33 +184,38 @@ class Snapshot extends Component {
     }
     const snapshotcolumns = [{
         title:'快照名称',
-        key:'ImageName',
-        dataIndex:'ImageName',
+        key:'name',
+        dataIndex:'snapshot',
+        render: (snapshot) => <div>{snapshot.name}</div>
       },{
         title:'状态',
-        key:'Status',
-        dataIndex:'Status',
-        render: (text) => <div className={iconclassName(text)}>
+        //key:'Status',
+        //dataIndex:'Status',
+        render: () => <div className={iconclassName('正常')}>
           <i className='fa fa-circle icon' aria-hidden="true"></i>
-          <span>{text}</span>
+          <span>正常</span>
         </div>
       },{
         title:'格式',
-        key:'Format',
-        dataIndex:'Format',
+        key:'type',
+        dataIndex:'fstype',
+        render: (fstype) => <div>{fstype}</div>
       },{
         title:'大小',
-        key:'Size',
-        dataIndex:'Size',
+        key:'size',
+        dataIndex:'size',
+        render: (size) => <div>{size} M</div>
       },{
         title:'关联卷',
-        key:'AssociatedVolume',
-        dataIndex:'AssociatedVolume',
+        key:'volume',
+        dataIndex:'snapshot',
+        render: (snapshot) => <div>{snapshot.volume}</div>
       },{
         title:'创建时间',
         key:'CreateTime',
-        dataIndex:'CreateTime',
-        sorter:(a, b) => { a.time - b.time }
+        dataIndex:'snapshot',
+        render: (snapshot) => <div>{snapshot.createTime}</div>,
+        sorter:(a, b) => { a.createTime - b.createTime }
       },{
         title:'操作',
         key:'Handle',
@@ -219,18 +240,18 @@ class Snapshot extends Component {
         </div>
         <div className='appmanage_snapshot_main'>
           {
-            SnapshotList
+            snapshotDataList
             ?<Table
               columns={snapshotcolumns}
-              dataSource={SnapshotList}
+              dataSource={snapshotDataList}
               rowSelection={rowSelection}
             >
             </Table>
             :<div className='nodata'><Spin/></div>
           }
           {
-            SnapshotList && SnapshotList.length !== 0
-              ? <div className='totalNum'>共计<span className='item'>{SnapshotList.length}</span>条</div>
+            snapshotDataList && snapshotDataList.length !== 0
+              ? <div className='totalNum'>共计<span className='item'>{snapshotDataList.length}</span>条</div>
               : <span></span>
           }
         </div>
@@ -306,7 +327,7 @@ class Snapshot extends Component {
                   <div className='item'>{this.state.deletedSnapshotName}</div>
                   <div className='item'>{this.state.deletedSnapshotFormat}</div>
                   <div className='item color'>{this.state.deletedSnapshotTime}</div>
-                </dvi>                
+                </dvi>
               </div>
              <div className='mainbox'>
                <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
@@ -343,49 +364,20 @@ class Snapshot extends Component {
 }
 
 function mapStateToProps(state, props){
-  const SnapshotList = [{
-      key:'1',
-      ImageName:'name-snapshot',
-      Status:'正常',
-      Format:'xfs',
-      Size:'100MB',
-      AssociatedVolume:'xxxxxx',
-      CreateTime:'1个月前'
-    },{
-      key:'2',
-      ImageName:'name-snapshot',
-      Status:'正常',
-      Format:'xfs',
-      Size:'100MB',
-      AssociatedVolume:'xxxxxx',
-      CreateTime:'7个月前'
-    },{
-      key:'3',
-      ImageName:'name-snapshot',
-      Status:'正常',
-      Format:'xfs',
-      Size:'100MB',
-      AssociatedVolume:'xxxxxx',
-      CreateTime:'20个月前'
-    },{
-      key:'4',
-      ImageName:'name-snapshot',
-      Status:'正常',
-      Format:'xfs',
-      Size:'100MB',
-      AssociatedVolume:'xxxxxx',
-      CreateTime:'5个月前'
-    }]
-  const abc = []
   const { cluster } = state.entities.current
+  const { snapshotList } = state.storage
+  const snapshotDataList = snapshotList.result || []
   return {
     storageList: state.storage.storageList || [],
     currentImagePool: DEFAULT_IMAGE_POOL,
     cluster: cluster.clusterID,
-    SnapshotList,
+    snapshotDataList,
   }
 }
 
 export default connect(mapStateToProps,{
   loadStorageList,
+  SnapshotList,
+  SnapshotDelete,
+  SnapshotRollback,
 })(Snapshot)

@@ -250,6 +250,9 @@ let MyComponent = React.createClass({
        volumeFormat: two,
        volumeSize: size,
       })
+      setTimeout(function() {
+        document.getElementById('inputSnapshotNameBox').focus()
+      },100)
       return
     }
     if (type === 'format') {
@@ -308,7 +311,8 @@ let MyComponent = React.createClass({
               volumeName: '',
               volumeFormat: '',
               volumeSize: '',
-              confirmCreateSnapshotLoading: false
+              confirmCreateSnapshotLoading: false,
+              CreateSnapshotSuccessModal: true,
             })
           }
         },
@@ -343,6 +347,21 @@ let MyComponent = React.createClass({
   checksnapshotName(rule, value, callback){
     if(!value){
       return callback('请输入快照名称')
+    }
+    if(value.length > 32){
+      return callback('快照名称不能超过32个字符')
+    }
+    if(!/^[A-Za-z]{1}/.test(value)){
+      return callback('快照名称必须以字母开头')
+    }
+    if(!/^[A-Za-z]{1}[A-Za-z0-9_-]*$/.test(value)){
+      return callback('快照名称由字母、数字、中划线-、下划线_组成')
+    }
+    if(value.length < 3){
+      return callback('快照名称不能少于3个字符')
+    }
+    if(!/^[A-Za-z]{1}[A-Za-z0-9_\-]{1,61}[A-Za-z0-9]$/.test(value)){
+      return callback('快照名称必须由字母或数字结尾')
     }
     return callback()
   },
@@ -529,7 +548,12 @@ let MyComponent = React.createClass({
                 <div className="item">{this.state.volumeFormat}</div>
                 <div className='item'>
                   <Form.Item>
-                    <Input {...snapshotName} placeholder='请输入快照名称'/>
+                    <Input
+                      {...snapshotName}
+                      placeholder='请输入快照名称'
+                      id="inputSnapshotNameBox"
+                      onPressEnter={this.handleConfirmCreateSnapshot}
+                    />
                   </Form.Item>
                 </div>
               </div>
