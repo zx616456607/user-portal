@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Menu, Dropdown, Select, Input, Form, Icon, Badge, Modal } from 'antd'
+import { Menu, Dropdown, Select, Input, Form, Icon, Badge, Modal, Popover } from 'antd'
 import { FormattedMessage, defineMessages } from 'react-intl'
 import "./style/header.less"
 import querystring from 'querystring'
@@ -21,10 +21,11 @@ import { checkVersion } from '../../actions/version'
 import { getCookie, isEmptyObject, getVersion, getPortalRealMode } from '../../common/tools'
 import { USER_CURRENT_CONFIG } from '../../../constants'
 import { MY_SPACE, SESSION_STORAGE_TENX_HIDE_DOT_KEY, LITE } from '../../constants'
-import { browserHistory } from 'react-router'
+import { browserHistory, Link } from 'react-router'
 import NotificationHandler from '../../common/notification_handler'
 import UserPanel from './UserPanel'
 import backOldBtn from '../../assets/img/headerBackOldArrow.png'
+import Airplane from '../../assets/img/quickentry/quick.png'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -120,6 +121,7 @@ class Header extends Component {
     this.handleClusterChange = this.handleClusterChange.bind(this)
     this.showUpgradeVersionModal = this.showUpgradeVersionModal.bind(this)
     this.renderCheckVersionContent = this.renderCheckVersionContent.bind(this)
+    this.handleDocVisible = this.handleDocVisible.bind(this)
     this.state = {
       spacesVisible: false,
       clustersVisible: false,
@@ -129,9 +131,17 @@ class Header extends Component {
       checkVersionErr: null,
       hideDot: getHideDot(),
       upgradeVersionModalVisible: false,
+      visible: false,
     }
   }
 
+  handleDocVisible(){
+    const { visible } = this.state 
+    this.setState({
+      visible: !visible
+    })
+  }
+  
   _checkLiteVersion() {
     const { checkVersion } = this.props
     const { version, type } = this.state
@@ -346,6 +356,7 @@ class Header extends Component {
       upgradeVersionModalVisible,
       type,
       hideDot,
+      visible,
     } = this.state
     const { isLatest } = checkVersionContent
     teamspaces.map((space) => {
@@ -360,7 +371,35 @@ class Header extends Component {
     var protocol = window.location.protocol
     var docUrl = protocol + '//' + host + ":9004"
     var faqUrl = docUrl + '/faq'
+    const rotate = visible ? 'rotate180' : 'rotate0'
     let selectValue = mode === standard ? current.space.teamName : current.space.spaceName
+    const content = (
+      <div className='container'>
+        {
+          type === LITE &&
+          <div>
+            <div className='item'><a href="http://docs.tenxcloud.com" target="_blank">文档中心</a></div>
+            <div className='item'><a href="http://docs.tenxcloud.com/faq" target="_blank">常见问题</a></div>
+          </div>
+        }
+        {
+          standardFlag &&
+          <div>
+            <div className='item'><a href="http://docs.tenxcloud.com" target="_blank">文档中心</a></div>
+            <div className='item'><a href="http://docs.tenxcloud.com/faq" target="_blank">常见问题</a></div>
+
+          </div>
+        }
+        {
+          type !== LITE && !standardFlag &&
+          <div>
+            <div className='item'><a href={docUrl} target="_blank">文档中心</a></div>
+            <div className='item'><a href={faqUrl} target="_blank">常见问题</a></div>
+          </div>
+        }
+        <div className='item'><a href="https://api-doc.tenxcloud.com/" target="_blank">API文档</a></div>
+      </div>
+    );
     return (
       <div id="header">
         {
@@ -421,6 +460,25 @@ class Header extends Component {
             </div>
           </a>
         */}
+          <div className="docBtn">
+            <Link to={`/quickentry`}>
+              <svg className='rocket'>
+                <use xlinkHref='#rocket' />
+              </svg>
+              <span className='text'>快速入口</span>
+            </Link>
+          </div>
+          <div className="docBtn border">
+            <Popover
+              content={content}
+              trigger="click"
+              overlayClassName="helpdoc"
+              placement="bottom"
+              onVisibleChange={this.handleDocVisible}
+            >
+              <div className='doc'><Icon type="file-text" className='docicon'/>帮助文档<Icon type="down" className={rotate} style={{marginLeft:'4px'}}/></div>
+            </Popover>
+          </div>
         {
           type === LITE &&
           <div className='upgradeVersion' onClick={this.showUpgradeVersionModal}>
@@ -430,38 +488,6 @@ class Header extends Component {
             <span className='backText'>
               <Badge dot={!hideDot && isLatest === false}>升级版本</Badge>
             </span>
-          </div>
-        }
-        {
-          standardFlag &&
-          <div className="docBtn">
-            <a href="http://docs.tenxcloud.com" target="_blank">
-              <FormattedMessage {...menusText.doc}/>
-            </a>
-          </div>
-        }
-        {
-          standardFlag &&
-          <div className="docBtn">
-            <a href="http://docs.tenxcloud.com/faq" target="_blank">
-              FAQ
-            </a>
-          </div>
-        }
-        {
-          type !== LITE && !standardFlag &&
-          <div className="docBtn">
-            <a href={docUrl} target="_blank">
-              <FormattedMessage {...menusText.doc}/>
-            </a>
-          </div>
-        }
-        {
-          type !== LITE && !standardFlag &&
-          <div className="docBtn">
-            <a href={faqUrl} target="_blank">
-              FAQ
-            </a>
           </div>
         }
           <UserPanel loginUser={loginUser}/>
