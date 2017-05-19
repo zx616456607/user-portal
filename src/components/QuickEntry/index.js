@@ -19,22 +19,20 @@ import GuideImg from '../../assets/img/quickentry/guide.png'
 import APIImg from '../../assets/img/quickentry/API.png'
 import QuestionImg from '../../assets/img/quickentry/question.png'
 import EnterpriseImg from '../../assets/img/quickentry/enterprise.png'
-import NodeOneImg from '../../assets/img/quickentry/node1.png'
-import NodeTwoImg from '../../assets/img/quickentry/node2.png'
-import NodeThreeImg from '../../assets/img/quickentry/node3.png'
-import NodeFourImg from '../../assets/img/quickentry/node4.png'
-import AppGuideImg from '../../assets/img/quickentry/app2.png'
-import BlueImg from '../../assets/img/quickentry/blue.png'
-import GreenImg from '../../assets/img/quickentry/green.png'
-import ClusterImg from '../../assets/img/quickentry/cluster.png'
+import { browserHistory } from 'react-router'
+import InfrastructureImg from '../../assets/img/quickentry/infrastructure.png'
 
 class QuickEntry extends Component {
 	constructor(props){
     super(props)
-
+    this.handleDatabase = this.handleDatabase.bind(this)
     this.state = {
 
     }
+  }
+
+  handleDatabase(){
+    browserHistory.push('/database_cache?createDatabase')
   }
 
   render(){
@@ -62,7 +60,7 @@ class QuickEntry extends Component {
                 </div>
               </Col>
               <Col span={8}>
-                <div className="item database">
+                <div className="item database" onClick={this.handleDatabase}>
                   <img src={DatabaseImg} alt="" className='img'/>
                   <div className='middle'>创建一个数据库与缓存</div>
                   <div>快速创建原生集群环境一个数据库集群</div>
@@ -140,45 +138,29 @@ class QuickEntry extends Component {
             <div className='rightbox'>
               <div className='charts'>
                 <span className='title'>基础设施与应用关系</span>
-                <div className='scroll'>
-                  <div className='imgcontainer'>
-                    <Tooltip title={<div><span>Cluster : 集群</span>，包含一个或多个节点</div>} placement='right'>
-                      <img src={ClusterImg} alt="" className='cluster pointer'/>
-                    </Tooltip>
-                    <Tooltip title="Node:节点，安装了Docker的服务器，可运行多个容器" placement='right'>
-                      <img src={NodeOneImg} alt="" className='nodeone pointer'/>
-                    </Tooltip>
-                    <Tooltip title="Node:节点，安装了Docker的服务器，可运行多个容器" placement='right'>
-                      <img src={NodeTwoImg} alt="" className='nodetwo pointer'/>
-                    </Tooltip>
-                    <Tooltip title="Node:节点，安装了Docker的服务器，可运行多个容器" placement='right'>
-                      <img src={NodeThreeImg} alt="" className='nodethree pointer'/>
-                    </Tooltip>
-                    <Tooltip title="Node:节点，安装了Docker的服务器，可运行多个容器" placement='right'>
-                      <img src={NodeFourImg} alt="" className='nodefour pointer'/>
-                    </Tooltip>
-
-                    <Tooltip title="APP: 服务，可包含N个相同或不同的服务" placement='right'>
-                      <img src={AppGuideImg} alt="" className='app pointer'/>
-                    </Tooltip>
-
-
-
-                    <img src={BlueImg} alt="" className='blue pointer'/>
-                    <img src={GreenImg} alt="" className='green pointer'/>
-
-                  </div>
-                </div>               
+                <div className='imgcontainer'>
+                  <img src={InfrastructureImg} alt="" className='img'/>
+                </div>
               </div>
               <div className='legend'>
                 <div className='container'>
-                  <div className="item"><i className="fa fa-cube margin" aria-hidden="true"></i>Container: 容器</div>
-                  <div className="item"><i className="fa fa-cubes margin" aria-hidden="true"></i>Service: 服务</div>
+                  <Tooltip title="运行在节点上的基于Docker镜像创建的运行时的实例">
+                    <div className="item"><i className="fa fa-cube margin" aria-hidden="true"></i><span className='text'>Container: 容器</span></div>
+                  </Tooltip>
+                  <Tooltip title="由N个相同镜像和配置定义的容器组成">
+                    <div className="item"><i className="fa fa-cubes margin" aria-hidden="true"></i><span className='text'>Service: 服务</span></div>
+                  </Tooltip>
                 </div>
                 <div className='container'>
-                  <div className="item"><i className='icon margin node'></i>Node: 节点</div>
-                  <div className="item"><i className='icon margin cluster'></i>Cluster: 集群</div>
-                  <div className="item"><i className='icon margin app'></i>APP: 应用</div>
+                  <Tooltip title="安装了Docker的服务器，可运行多个容器">
+                    <div className="item"><i className='icon margin node'></i><span className='text'>Node: 节点</span></div>
+                  </Tooltip>
+                  <Tooltip title="包含一个或多个节点">
+                    <div className="item"><i className='icon margin cluster'></i><span className='text'>Cluster: 集群</span></div>
+                  </Tooltip>
+                  <Tooltip title="可以包含N个相同或不同的服务">
+                    <div className="item"><i className='icon margin app'></i><span className='text'>APP: 应用</span></div>
+                  </Tooltip>
                 </div>
               </div>
             </div>

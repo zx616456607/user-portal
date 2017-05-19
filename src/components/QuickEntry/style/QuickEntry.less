@@ -61,10 +61,10 @@
         float: left;
         width:50%;
         height:460px;
-        padding: 40px;
       }
       .leftbox{
         border-right:1px solid #e9edf0;
+        padding: 40px;
         .item{
           height:190px;
           border:1px solid #e9edf0;
@@ -98,12 +98,8 @@
       }
       .rightbox{
         position: relative;
-        .imgcontainer{
-          width: 745px;
-        }
+        padding:30px;
         .charts{
-          height: 380px;
-          //background: yellowgreen;
           position: relative;
           .title{
             position: absolute;
@@ -111,78 +107,45 @@
             left:0;
             font-size: 14px;
           }
-          .scroll{
-            width:100%;
-            overflow: scroll;
-            height: 380px;
-          }
-
           .imgcontainer{
-            position: relative;
-            .pointer{
-              cursor: pointer;
+            text-align: center;
+
+            @media(max-width:1250px){
+              padding-top: 35px;
             }
-            .cluster{
-              position: absolute;
-              height: 320px;
-              left: 80px;
-              top: 11px;
+            @media(max-width:1160px){
+              padding-top: 35px;
             }
-            .nodeone{
-              position: absolute;
-              top:25px;
-              left: 230px;
+            @media(max-width: 1024px){
+              padding-top: 55px;
             }
-            .nodetwo{
-              position: absolute;
-              top: 110px;
-              left:383px;
-            }
-            .nodethree{
-              position: absolute;
-              top:180px;
-              left:283px;
-            }
-            .nodefour{
-              position: absolute;
-              top:83px;
-              left:130px;
-            }
-            .blue{
-              position: absolute;
-              top: 43px;
-              left: 225px;
-              z-index: 1;
-            }
-            .green{
-              position: absolute;
-              top:85px;
-              left: 408px;
-              z-index: 1;
-            }
-            .app{
-              top: -27px;
-              left: 382px;
-              position: absolute;
-              z-index: 0;
+
+            .img{
+              //width: 90%;
+              @media(max-width: 1355px){
+                width: 95%;
+              }
             }
           }
         }
         .legend{
           position: absolute;
-          top:325px;
-          left:40px;
+          top:350px;
+          left:30px;
+          clear: both;
           .container{
-            clear: both;
-            padding:6px 0;
             .item{
               float: left;
-              width:155px;
-              height:20px;
-              line-height: 20px;
+              width: 150px;
+              height:24px;
+              line-height: 24px;
+              cursor: pointer;
               .margin{
-                margin:0 15px 0 0;
                 font-size: 15px;
+              }
+              .container{
+                margin-right: 6px;
+                font-size: 16px;
               }
               .icon{
                 display: inline-block;
@@ -201,6 +164,11 @@
               .app{
                 background: #f4f5f7;
                 border:1px solid #cacccb;
+              }
+            }
+            .item:hover{
+              .text{
+                color: #00a0ea;
               }
             }
           }

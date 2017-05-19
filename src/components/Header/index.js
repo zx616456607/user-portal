@@ -121,6 +121,7 @@ class Header extends Component {
     this.handleClusterChange = this.handleClusterChange.bind(this)
     this.showUpgradeVersionModal = this.showUpgradeVersionModal.bind(this)
     this.renderCheckVersionContent = this.renderCheckVersionContent.bind(this)
+    this.handleDocVisible = this.handleDocVisible.bind(this)
     this.state = {
       spacesVisible: false,
       clustersVisible: false,
@@ -130,9 +131,17 @@ class Header extends Component {
       checkVersionErr: null,
       hideDot: getHideDot(),
       upgradeVersionModalVisible: false,
+      visible: false,
     }
   }
 
+  handleDocVisible(){
+    const { visible } = this.state 
+    this.setState({
+      visible: !visible
+    })
+  }
+  
   _checkLiteVersion() {
     const { checkVersion } = this.props
     const { version, type } = this.state
@@ -347,6 +356,7 @@ class Header extends Component {
       upgradeVersionModalVisible,
       type,
       hideDot,
+      visible,
     } = this.state
     const { isLatest } = checkVersionContent
     teamspaces.map((space) => {
@@ -361,11 +371,33 @@ class Header extends Component {
     var protocol = window.location.protocol
     var docUrl = protocol + '//' + host + ":9004"
     var faqUrl = docUrl + '/faq'
+    const rotate = visible ? 'rotate180' : 'rotate0'
     let selectValue = mode === standard ? current.space.teamName : current.space.spaceName
     const content = (
-      <div>
-        <p>内容</p>
-        <p>内容</p>
+      <div className='container'>
+        {
+          type === LITE &&
+          <div>
+            <div className='item'><a href="http://docs.tenxcloud.com" target="_blank">文档中心</a></div>
+            <div className='item'><a href="http://docs.tenxcloud.com/faq" target="_blank">常见问题</a></div>
+          </div>
+        }
+        {
+          standardFlag &&
+          <div>
+            <div className='item'><a href="http://docs.tenxcloud.com" target="_blank">文档中心</a></div>
+            <div className='item'><a href="http://docs.tenxcloud.com/faq" target="_blank">常见问题</a></div>
+
+          </div>
+        }
+        {
+          type !== LITE && !standardFlag &&
+          <div>
+            <div className='item'><a href={docUrl} target="_blank">文档中心</a></div>
+            <div className='item'><a href={faqUrl} target="_blank">常见问题</a></div>
+          </div>
+        }
+        <div className='item'><a href="https://api-doc.tenxcloud.com/" target="_blank">API文档</a></div>
       </div>
     );
     return (
@@ -429,14 +461,22 @@ class Header extends Component {
           </a>
         */}
           <div className="docBtn">
-            <Link to={`quickentry`}>
-              <img src={Airplane} className='icon' />
-              快速入口
+            <Link to={`/quickentry`}>
+              <svg className='rocket'>
+                <use xlinkHref='#rocket' />
+              </svg>
+              <span className='text'>快速入口</span>
             </Link>
           </div>
-          <div className="docBtn">
-            <Popover content={content} trigger="click" placement="bottom">
-              <div className='doc'><Icon type="file-text" className='docicon'/>弹出卡片</div>
+          <div className="docBtn border">
+            <Popover
+              content={content}
+              trigger="click"
+              overlayClassName="helpdoc"
+              placement="bottom"
+              onVisibleChange={this.handleDocVisible}
+            >
+              <div className='doc'><Icon type="file-text" className='docicon'/>帮助文档<Icon type="down" className={rotate} style={{marginLeft:'4px'}}/></div>
             </Popover>
           </div>
         {
@@ -448,38 +488,6 @@ class Header extends Component {
             <span className='backText'>
               <Badge dot={!hideDot && isLatest === false}>升级版本</Badge>
             </span>
-          </div>
-        }
-        {
-          standardFlag &&
-          <div className="docBtn">
-            <a href="http://docs.tenxcloud.com" target="_blank">
-              <FormattedMessage {...menusText.doc}/>
-            </a>
-          </div>
-        }
-        {
-          standardFlag &&
-          <div className="docBtn">
-            <a href="http://docs.tenxcloud.com/faq" target="_blank">
-              FAQ
-            </a>
-          </div>
-        }
-        {
-          type !== LITE && !standardFlag &&
-          <div className="docBtn">
-            <a href={docUrl} target="_blank">
-              <FormattedMessage {...menusText.doc}/>
-            </a>
-          </div>
-        }
-        {
-          type !== LITE && !standardFlag &&
-          <div className="docBtn">
-            <a href={faqUrl} target="_blank">
-              FAQ
-            </a>
           </div>
         }
           <UserPanel loginUser={loginUser}/>

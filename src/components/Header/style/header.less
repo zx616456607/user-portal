@@ -152,8 +152,13 @@
       padding: 0 10px;
       cursor: pointer;
       border-left:1px solid #eaeff2;
-      .icon{
-        height:21px;
+      .text{
+        color: #747474;
+      }
+      .rocket{
+        height: 21px;
+        width: 21px;
+        fill: #747474;
         display: inline-block;
         vertical-align: middle;
       }
@@ -163,16 +168,53 @@
         font-size: 12px;
         .docicon{
           height: 21px;
-          font-size: 16px;
+          font-size: 15px;
           margin-right: 3px;
           vertical-align: middle;
           display: inline-block;
           padding-top: 2px;
         }
       }
+      .doc:hover{
+        background-color: #f0f9ff;
+        color: #69bef5;
+      }
     }
+    .border{
+      border-right:1px solid #eaeff2 ;
+    }
+    .userBtn:hover,
     .docBtn:hover{
       background-color: #f0f9ff;
+      color:#69bef5;
+      .rocket{
+        fill:#69bef5;
+      }
+      .text{
+        color:#69bef5;
+      }
+    }
+    .docBtn{
+      .arrow{
+        margin-left: 10px;
+        font-size: 10px !important;
+        transform: scale(.66666667);
+      }
+      .rotate0 {
+        transform: scale(.66666667) rotate(0deg) !important;
+        transition: all 0.2s ease;
+        transition-duration: 0.2s, 0.2s;
+        transition-timing-function: ease, ease;
+        transition-delay: initial;
+      }
+      .rotate180 {
+        margin-top: -4px;
+        transform: scale(.66666667) rotate(180deg) !important;
+        transition: all 0.2s ease;
+        transition-duration: 0.2s, 0.2s;
+        transition-timing-function: ease, ease;
+        transition-delay: initial;
+      }
     }
     .userBtn {
       float: left;
@@ -213,6 +255,33 @@
   .ant-modal-footer {
     .ant-btn-ghost {
       display: none;
+    }
+  }
+}
+
+.helpdoc {
+  width:100px;
+  .ant-popover-inner-content{
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .ant-popover-inner{
+    min-width: 110px;
+  }
+  .container{
+    text-align: center;
+    .item{
+      height: 30px;
+      line-height: 30px;
+      a{
+        color:#747474;
+      }
+    }
+    .item:hover{
+      background-color: #f0f9ff;
+      a{
+        color: #69bef5;
+      }
     }
   }
 }
