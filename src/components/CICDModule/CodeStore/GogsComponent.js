@@ -404,10 +404,10 @@ class GogsComponent extends Component {
             ]}
             >
             <div>
-              <p style={{ lineHeight: '30px' }}>仓库地址：
+              <p style={{ lineHeight: '30px' }}>仓库地址：<span>（如 http://gogs.demo.com）</span>
                 <Input placeholder="http://*** | https://***" id="codeSrc" onChange={(e) => this.changeUrl(e)} value={this.state.regUrl} size="large" />
               </p>
-              <p style={{ lineHeight: '30px' }}>Private Token：
+              <p style={{ lineHeight: '30px' }}>Private Token：<span>（位于 用户设置→管理授权应用→令牌）</span>
                 <Input placeholder="Private Token: " size="large" onChange={(e) => this.changeToken(e)} value={this.state.regToken} />
               </p>
             </div>
