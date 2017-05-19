@@ -450,12 +450,9 @@ class TenxFlowDetailFlowCard extends Component {
       scope.stopBuildFlow(stageId, stageName);
     } else {
       const options = {}
-      console.log(key)
-      console.log(tabKey)
       if (key && tabKey) {
         options.branch = key
       }
-      console.log(options)
       scope.buildFlow(stageId, options);
     }
   }

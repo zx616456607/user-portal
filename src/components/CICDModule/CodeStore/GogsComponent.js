@@ -106,7 +106,6 @@ class CodeList extends Component {
           notification.success('激活成功')
           if(window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0) {
             const queryObj = parseQueryStringToObject(window.location.search)
-console.log(queryObj)
             if(queryObj.redirect) {
               browserHistory.push(queryObj.redirect)
             }

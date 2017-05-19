@@ -187,7 +187,6 @@ class TenxFlowDetailFlow extends Component {
     let buildFlag = true;
     const _this = this;
     let notification = new NotificationHandler()
-    console.log(options)
     CreateTenxflowBuild(flowId, { stageId, options }, {
       success: {
         func: (res) => {

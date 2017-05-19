@@ -207,7 +207,6 @@ let MyComponent = React.createClass({
   },
   startBuildStage(item, index, key, tabKey) {
     const notification = new NotificationHandler()
-    console.log(item)
     if(!item.address) {
       notification.error('该构建没有选择代码仓库')
       return
