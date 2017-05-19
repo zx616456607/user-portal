@@ -229,7 +229,8 @@ let ConfigureService = React.createClass({
       storageKeys,
       portsKeys,
       argsKeys,
-      imagePullPolicy: 'Always'
+      imagePullPolicy: 'Always',
+      livenessProtocol: 'none',
     })
   },
   checkAppName(rule, value, callback) {
@@ -436,6 +437,8 @@ let ConfigureService = React.createClass({
           key="assist"
         />
         <LivenessSetting
+          form={form}
+          formItemLayout={formItemLayout}
           key="liveness"
         />
         <ConfigMapSetting

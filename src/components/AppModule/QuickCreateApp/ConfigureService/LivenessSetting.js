@@ -12,14 +12,62 @@
 
 import React, { PropTypes } from 'react'
 import {
-  Form, Collapse, Row, Col,
+  Form, Collapse, Row, Col, Radio, Input, InputNumber, Button
 } from 'antd'
 import './style/LivenessSetting.less'
 
 const Panel = Collapse.Panel
+const FormItem = Form.Item
+const RadioGroup = Radio.Group
+const InputGroup = Input.Group
 
 const LivenessSetting = React.createClass({
+  onLivenessProtocolChange(e) {
+    const value = e.target.value
+    console.log(value)
+  },
   render() {
+    const { formItemLayout, form } = this.props
+    const { getFieldProps, getFieldValue } = form
+    const livenessProtocolProps = getFieldProps('livenessProtocol', {
+      rules: [
+        { required: true }
+      ],
+      onChange: this.onLivenessProtocolChange,
+    })
+    const livenessProtocol = getFieldValue('livenessProtocol')
+    let livenessPortProps
+    let livenessPathProps
+    let livenessInitialDelaySecondsProps
+    let livenessTimeoutSecondsProps
+    let livenessPeriodSecondsProps
+    if (livenessProtocol !== 'none') {
+      livenessPortProps = getFieldProps('livenessPort', {
+        rules: [
+          { required: true, message: '请填写端口' }
+        ],
+      })
+      livenessInitialDelaySecondsProps = getFieldProps('livenessInitialDelaySeconds', {
+        rules: [
+          { required: true, message: '请填写首次检查延时' }
+        ],
+      })
+      livenessTimeoutSecondsProps = getFieldProps('livenessTimeoutSeconds', {
+        rules: [
+          { required: true, message: '请填写检查超时' }
+        ],
+      })
+      livenessPeriodSecondsProps = getFieldProps('livenessPeriodSeconds', {
+        rules: [{ required: true, message: '请填写检查间隔' }],
+      })
+      if (livenessProtocol === 'HTTP') {
+        livenessPathProps = getFieldProps('livenessPath', {
+          rules: [
+            { required: true, message: '请填写 Path 路径' }
+          ],
+        })
+      }
+    }
     const header = (
       <div className="headerBox">
         <Row className="header" key="header">
@@ -37,7 +85,114 @@ const LivenessSetting = React.createClass({
       <div id="livenessConfigureService">
         <Collapse>
           <Panel header={header}>
-            <div>test</div>
+            <FormItem
+              {...formItemLayout}
+              label="类型"
+              key="type"
+            >
+              <RadioGroup {...livenessProtocolProps}>
+                <Radio value="none">无</Radio>
+                <Radio value="HTTP">HTTP</Radio>
+                <Radio value="TCP">TCP</Radio>
+              </RadioGroup>
+            </FormItem>
+            {
+              livenessProtocol !== 'none' && (
+                <Row>
+                  <Col span={formItemLayout.labelCol.span}>配置</Col>
+                  <Col span={formItemLayout.wrapperCol.span}>
+                    <div className="livenessConfig">
+                      <Row className="configHeader">
+                        <Col span={6}>
+                          端口
+                        </Col>
+                        <Col span={6}>
+                          首次检查延时
+                        </Col>
+                        <Col span={6}>
+                          检查超时
+                        </Col>
+                        <Col span={6}>
+                          检查间隔
+                        </Col>
+                      </Row>
+                      <Row className="configBody">
+                        <Col span={6}>
+                          <FormItem key="livenessPort">
+                            <InputNumber
+                              placeholder="请填写端口"
+                              size="default"
+                              {...livenessPortProps}
+                              min={0}
+                              max={65535}
+                            />
+                          </FormItem>
+                        </Col>
+                        <Col span={6}>
+                          <FormItem key="livenessInitialDelaySeconds">
+                            <InputNumber
+                              placeholder="请填写首次检查延时"
+                              size="default"
+                              {...livenessInitialDelaySecondsProps}
+                              min={0}
+                            />
+                            <span className="livenessUnit">
+                              s
+                            </span>
+                          </FormItem>
+                        </Col>
+                        <Col span={6}>
+                          <FormItem key="livenessTimeoutSeconds">
+                            <InputNumber
+                              placeholder="请填写检查超时"
+                              size="default"
+                              {...livenessTimeoutSecondsProps}
+                              min={0}
+                            />
+                            <span className="livenessUnit">
+                              s
+                            </span>
+                          </FormItem>
+                        </Col>
+                        <Col span={6}>
+                          <FormItem key="livenessPeriodSeconds">
+                            <InputNumber
+                              placeholder="请填写检查间隔"
+                              size="default"
+                              {...livenessPeriodSecondsProps}
+                              min={0}
+                            />
+                            <span className="livenessUnit">
+                              s
+                            </span>
+                          </FormItem>
+                        </Col>
+                      </Row>
+                      {
+                        livenessPathProps && [
+                          <Row className="configHeader">
+                            <Col span={6}>
+                              Path 路径
+                            </Col>
+                          </Row>,
+                          <Row className="configBody">
+                            <Col span={6}>
+                              <FormItem>
+                                <Input
+                                  placeholder="请填写 Path 路径"
+                                  size="default"
+                                  {...livenessPathProps}
+                                />
+                              </FormItem>
+                            </Col>
+                          </Row>
+                        ]
+                      }
+                    </div>
+                  </Col>
+                </Row>
+              )
+            }
           </Panel>
         </Collapse>
       </div>
@@ -45,4 +200,50 @@ const LivenessSetting = React.createClass({
   }
 })
 
+
+                {/*<FormItem
+                  {...formItemLayout}
+                  label="配置"
+                  key="config"
+                  className="lastFormItem"
+                >
+                  <div className="livenessConfig">
+                    <Row className="configHeader">
+                      <Col span={6}>
+                        端口
+                      </Col>
+                      <Col span={6}>
+                        首次检查延时
+                      </Col>
+                      <Col span={6}>
+                        检查超时
+                      </Col>
+                      <Col span={6}>
+                        检查间隔
+                      </Col>
+                    </Row>
+                    <Row className="configBody">
+                      <Col span={6}>
+                        <FormItem>
+                          <InputNumber placeholder="请填写端口" size="default" {...livenessPortProps} />
+                        </FormItem>
+                      </Col>
+                      <Col span={6}>
+                        <FormItem>
+                          <InputNumber placeholder="请填写首次检查延时" size="default" {...livenessInitialDelaySecondsProps} />
+                        </FormItem>
+                      </Col>
+                      <Col span={6}>
+                        <FormItem>
+                          <InputNumber placeholder="请填写检查超时" size="default" {...livenessTimeoutSecondsProps} />
+                        </FormItem>
+                      </Col>
+                      <Col span={6}>
+                        <FormItem>
+                          <InputNumber placeholder="请填写检查间隔" size="default" {...livenessPeriodSecondsProps} />
+                        </FormItem>
+                      </Col>
+                    </Row>
+                  </div>
+                </FormItem>*/}
 export default LivenessSetting
