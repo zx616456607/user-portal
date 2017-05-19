@@ -129,14 +129,10 @@ let ConfigureService = React.createClass({
     const callback = {
       success: {
         func: (result) => {
-          // setArg()
           if (mode !== 'create') {
             return
           }
           this.setConfigsToForm(result.configInfo || result.data)
-          // setPorts(containerPorts, form)
-          // setEnv(defaultEnv, form)
-          // setCMD({cmd, entrypoint}, form)
         },
         isAsync: true
       }
@@ -164,6 +160,7 @@ let ConfigureService = React.createClass({
       containerPorts,
       entrypoint,
       cmd,
+      defaultEnv,
     } = configs
 
     // set storage `./NormalSetting/Storage.js`
@@ -225,10 +222,26 @@ let ConfigureService = React.createClass({
       })
     }
 
+    // set envs `./AdvancedSetting.js`
+    const envKeys = []
+    if (defaultEnv) {
+      defaultEnv.forEach((env, index) => {
+        // magic code ！
+        // the same as portsKeys
+        envKeys.push({ value: index })
+        const keyIndex = env.indexOf('=')
+        setFieldsValue({
+          [`envKey${index}`]: env.substr(0, keyIndex),
+          [`envValue${index}`]: env.substr(keyIndex + 1),
+        })
+      })
+    }
+
     setFieldsValue({
       storageKeys,
       portsKeys,
       argsKeys,
+      envKeys,
       imagePullPolicy: 'Always',
       livenessProtocol: 'none',
     })
@@ -442,9 +455,13 @@ let ConfigureService = React.createClass({
           key="liveness"
         />
         <ConfigMapSetting
+          form={form}
+          formItemLayout={formItemLayout}
           key="configMap"
         />
         <AdvancedSetting
+          form={form}
+          formItemLayout={formItemLayout}
           key="advanced"
         />
       </QueueAnim>

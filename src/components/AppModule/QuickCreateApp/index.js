@@ -171,9 +171,9 @@ class QuickCreateApp extends Component {
   }
 
   createApp() {
-    this.setState({
-      isCreatingApp: true,
-    })
+    // this.setState({
+    //   isCreatingApp: true,
+    // })
     const {
       fields, current, loginUser,
       createApp, removeAllFormFields,
@@ -182,10 +182,12 @@ class QuickCreateApp extends Component {
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
         const json = buildJson(fields[key], current.cluster, loginUser)
+        console.log(JSON.stringify(json))
         template.push(yaml.dump(json.deployment))
         template.push(yaml.dump(json.service))
       }
     }
+    return
     const appConfig = {
       cluster: current.cluster.clusterID,
       template: template.join('---\n'),

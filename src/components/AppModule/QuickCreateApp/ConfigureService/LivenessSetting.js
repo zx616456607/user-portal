@@ -12,20 +12,15 @@
 
 import React, { PropTypes } from 'react'
 import {
-  Form, Collapse, Row, Col, Radio, Input, InputNumber, Button
+  Form, Collapse, Row, Col, Radio, Input, InputNumber,
 } from 'antd'
 import './style/LivenessSetting.less'
 
 const Panel = Collapse.Panel
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
-const InputGroup = Input.Group
 
 const LivenessSetting = React.createClass({
-  onLivenessProtocolChange(e) {
-    const value = e.target.value
-    console.log(value)
-  },
   render() {
     const { formItemLayout, form } = this.props
     const { getFieldProps, getFieldValue } = form
@@ -33,7 +28,6 @@ const LivenessSetting = React.createClass({
       rules: [
         { required: true }
       ],
-      onChange: this.onLivenessProtocolChange,
     })
     const livenessProtocol = getFieldValue('livenessProtocol')
     let livenessPortProps

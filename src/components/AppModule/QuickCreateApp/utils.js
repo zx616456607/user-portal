@@ -58,6 +58,7 @@ export function buildJson(fields, cluster, loginUser) {
     livenessTimeoutSeconds, // 高可用-检查超时
     livenessPeriodSeconds, // 高可用-检查间隔
     livenessPath, // 高可用-Path 路径
+    envKeys, // 环境变量的 keys(数组)
   } = fieldsValues
   const MOUNT_PATH = 'mountPath' // 容器目录
   const VOLUME = 'volume' // 存储卷(rbd)
@@ -157,6 +158,17 @@ export function buildJson(fields, cluster, loginUser) {
       initialDelaySeconds: parseInt(livenessInitialDelaySeconds),
       timeoutSeconds: parseInt(livenessTimeoutSeconds),
       periodSeconds: parseInt(livenessPeriodSeconds),
+    })
+  }
+  // 设置环境变量
+  if (envKeys) {
+    envKeys.forEach(key => {
+      if (!key.deleted) {
+        const keyValue = key.value
+        const envKey = fieldsValues[`envKey${keyValue}`]
+        const envValue = fieldsValues[`envValue${keyValue}`]
+        deployment.addContainerEnv(serviceName, envKey, envValue)
+      }
     })
   }
 
