@@ -19,9 +19,9 @@ import {
   Checkbox, Col, Row,
   Spin,
 } from 'antd'
-import { loadFreeVolume, createStorage } from '../../../../actions/storage'
-import { volNameCheck } from '../../../../common/naming_validation'
-import NotificationHandler from '../../../../common/notification_handler'
+import { loadFreeVolume, createStorage } from '../../../../../actions/storage'
+import { volNameCheck } from '../../../../../common/naming_validation'
+import NotificationHandler from '../../../../../common/notification_handler'
 import classNames from 'classnames'
 import './style/Storage.less'
 

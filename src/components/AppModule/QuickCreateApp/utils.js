@@ -48,6 +48,10 @@ export function buildJson(fields, cluster, loginUser) {
     storageKeys, // 存储的 keys(数组)
     replicas, // 实例数量
     portsKeys, // 端口的 keys(数组)
+    command, // 进入点
+    argsKeys, // 启动命令的 keys(数组)
+    imagePullPolicy, // 重新部署时拉取镜像的方式(Always, IfNotPresent)
+    timeZone, // 时区设置
   } = fieldsValues
   const MOUNT_PATH = 'mountPath' // 容器目录
   const VOLUME = 'volume' // 存储卷(rbd)
@@ -119,6 +123,26 @@ export function buildJson(fields, cluster, loginUser) {
     }
     deployment.addContainerPort(serviceName, port, portProtocol)
   })
+  // 设置进入点
+  if (command) {
+    deployment.addContainerCommand(serviceName, command)
+  }
+  // 设置启动命令
+  if (argsKeys) {
+    const args = []
+    argsKeys.forEach(key => {
+      if (!key.deleted) {
+        args.push(fieldsValues[`args${key.value}`])
+      }
+    })
+    deployment.addContainerArgs(serviceName, args)
+  }
+  // 设置重新部署
+  deployment.setContainerImagePullPolicy(serviceName, imagePullPolicy)
+  // 设置时区
+  if (timeZone) {
+    deployment.syncTimeZoneWithNode(serviceName)
+  }
 
   return { deployment, service }
 }
