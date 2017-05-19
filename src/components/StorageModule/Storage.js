@@ -17,7 +17,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import remove from 'lodash/remove'
 import findIndex from 'lodash/findIndex'
-import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
+import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage, SnapshotCreate } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP } from '../../constants'
 import './style/storage.less'
 import { calcuDate, parseAmount } from '../../common/tools'
@@ -278,25 +278,52 @@ let MyComponent = React.createClass({
     }
   },
   handleConfirmCreateSnapshot(){
-    const { form } = this.props
-    const { getFieldValue, setFieldsValue } = form
+    const { form, SnapshotCreate, cluster } = this.props
+    const { volumeName } = this.state 
+    const { setFieldsValue } = form
     let Noti = new NotificationHandler()
     form.validateFields( (errors, values) => {
       if(errors){
         return
       }
-      setFieldsValue({
-        snapshotName: undefined
-      })
-      return
+      const body = {
+        clusterID: cluster,
+        volumeName,
+        body: {
+          snapshotName:values.snapshotName
+        }
+      }
       this.setState({
-        createSnapModal: false,
-        volumeName: '',
-        volumeFormat: '',
-        volumeSize: '',
+        confirmCreateSnapshotLoading: true
       })
-      setFieldsValue({
-        snapshotName: undefined
+      SnapshotCreate(body,{
+        success: {
+          func: () => {
+            Noti.success('创建快照成功！')
+            setFieldsValue({
+              snapshotName: undefined
+            })
+            this.setState({
+              createSnapModal: false,
+              volumeName: '',
+              volumeFormat: '',
+              volumeSize: '',
+              confirmCreateSnapshotLoading: false
+            })
+          }
+        },
+        falied: {
+          func: (res) => {
+            Noti.error('创建快照失败！')
+            this.setState({
+              createSnapModal: false,
+              volumeName: '',
+              volumeFormat: '',
+              volumeSize: '',
+              confirmCreateSnapshotLoading: false
+            })
+          }
+        }
       })
     })
   },
@@ -829,6 +856,7 @@ class Storage extends Component {
   render() {
     const { formatMessage } = this.props.intl
     const { getFieldProps } = this.props.form
+    const { SnapshotCreate } = this.props
     const currentCluster = this.props.currentCluster
     const storage_type = currentCluster.storageTypes
     const standard = require('../../../configs/constants').STANDARD_MODE
@@ -971,6 +999,7 @@ class Storage extends Component {
               loadStorageList={() => { this.props.loadStorageList(this.props.currentImagePool, this.props.cluster) } }
               scope ={ this }
               isFetching={this.props.storageList[this.props.currentImagePool].isFetching}
+              SnapshotCreate={SnapshotCreate}
               />
           </Card>
           :
@@ -1008,7 +1037,8 @@ function mapStateToProps(state) {
 export default connect(mapStateToProps, {
   deleteStorage,
   createStorage,
-  loadStorageList
+  loadStorageList,
+  SnapshotCreate,
 })(injectIntl(Storage, {
   withRef: true,
 }))
