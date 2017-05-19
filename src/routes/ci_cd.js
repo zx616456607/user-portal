@@ -27,7 +27,13 @@ const CICDRoutes = [{
   component: require('../components/CICDModule/DockerFile').default,
 },{
   path: 'build_image',
-  component: require('../components/CICDModule/BuildImage').default,
+  indexRoute: {
+    component: require('../components/CICDModule/BuildImage').default,
+  },
+  childRoutes: [{
+    path: 'tenx_flow_build',
+    component: require('../components/CICDModule/TenxFlow/TenxFlowDetail').default,
+  }],
 }]
 
 export default CICDRoutes

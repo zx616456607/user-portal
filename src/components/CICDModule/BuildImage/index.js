@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Alert, Menu, Button, Card, Input, Tooltip, Dropdown, Modal, Spin, Checkbox } from 'antd'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -17,7 +17,9 @@ import {
   getTenxFlowList, deleteTenxFlowSingle, getTenxflowBuildLastLogs,
   CreateTenxflowBuild, getTenxflowBuildDetailLogs, changeTenxFlowStatus,
   changeFlowStatus, getRepoBranchesAndTagsByProjectId,
+  deleteTenxFlow
 } from '../../../actions/cicd_flow'
+import { checkImage } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from '../TenxFlow/CreateTenxFlow.js'
 import TenxFlowBuildLog from '../TenxFlow/TenxFlowBuildLog'
@@ -55,9 +57,9 @@ let menusText = defineMessages({
     id: 'CICD.Tenxflow.TenxFlowList.opera',
     defaultMessage: '操作',
   },
-  tooltips: {
-    id: 'CICD.Tenxflow.BuildImage.tooltips',
-    defaultMessage: '这里是构建镜像',
+  tooltip: {
+    id: 'CICD.Tenxflow.BuildImage.tooltip',
+    defaultMessage: '构建镜像是TenxFlow中常被创建的子任务，指可将源代码仓库包括代码GitHub、GitLab、Gogs、SVN中的代码通过代码库中的Dockerfile或云端的Dockerfile 构建成镜像，默认将构建后的镜像存放到镜像仓库--私有仓库中。',
   },
   create: {
     id: 'CICD.Tenxflow.BuildImage.create',
@@ -69,7 +71,7 @@ let menusText = defineMessages({
   },
   deloyStart: {
     id: 'CICD.Tenxflow.BuildImage.deloyStart',
-    defaultMessage: '启动',
+    defaultMessage: '立刻构建',
   },
   delete: {
     id: 'CICD.Tenxflow.BuildImage.delete',
@@ -86,7 +88,12 @@ let menusText = defineMessages({
   image: {
     id: 'CICD.Tenxflow.BuildImage.image',
     defaultMessage: '镜像名称',
+  },
+  checkImage: {
+    id: 'CICD.Tenxflow.BuildImage.checkImage',
+    defaultMessage: '查看镜像',
   }
+
 })
 
 
@@ -105,10 +112,40 @@ let MyComponent = React.createClass({
   },
   getInitialState() {
     return {
-      delFlowModal: false
+      delFlowModal: false,
+      item: {}
     }
   },
-  operaMenuClick: function (item) {
+  operaMenuClick: function (item, e) {
+    if(e.key == 'checkImage111') {
+      const notify = new NotificationHandler()
+      if(!item.image) {
+        notify.error('镜像不存在，请先执行构建')
+        return
+      }
+      const image = item.namespace + '/' + item.image
+      const config = { registry: DEFAULT_REGISTRY, image }
+      let notification = new NotificationHandler()
+      const { namespace, owner } = item
+      this.setState({ showTargeImage: false })
+      this.props.checkImage(config, {
+        success: {
+          func: (res) => {
+            if (res.data.hasOwnProperty('status') && res.data.status == 404) {
+              notification.error('镜像不存在，请先执行构建')
+              return
+            }
+            if (namespace != res.data.contributor && owner != res.data.contributor) {
+              notification.error('没有权限访问该镜像')
+              return
+            }
+            browserHistory.push(`/app_center?imageName=${image}`)
+          },
+          isAsync: true
+        }
+      })
+      return
+    }
     //this function for user click the dropdown menu
     this.setState({ delFlowModal: true, item })
     return
@@ -124,7 +161,7 @@ let MyComponent = React.createClass({
       success: {
         func: () => {
           notification.close()
-          notification.success(`删除 TenxFlow ${item.name} 成功`);
+          notification.success(`删除 ${item.name} 成功`);
           scope.loadData()
         },
         isAsync: true
@@ -137,7 +174,7 @@ let MyComponent = React.createClass({
               break;
           }
           notification.close()
-          notification.error(`删除 TenxFlow ${item.name} 失败`);
+          notification.error(`删除 ${item.name} 失败`);
         }
       }
     })
@@ -169,6 +206,16 @@ let MyComponent = React.createClass({
     }
   },
   startBuildStage(item, index, key, tabKey) {
+    const notification = new NotificationHandler()
+    console.log(item)
+    if(!item.address) {
+      notification.error('该构建没有选择代码仓库')
+      return
+    }
+    if(!item.defaultBranch) {
+      notification.error('该构建没有选择代码分支')
+      return
+    }
     const { flowId } = item
     const parentScope = this.props.scope
     const { CreateTenxflowBuild, getTenxflowBuildDetailLogs } = this.props.scope.props
@@ -208,8 +255,11 @@ let MyComponent = React.createClass({
     const { repoBranchesAndTags } = this.props
     const dropdown = (
       <Menu onClick={this.operaMenuClick.bind(this, item)}>
+        <Menu.Item key="checkImage111">
+          <FormattedMessage {...menusText.checkImage} style={{ display: 'inlineBlock' }} />
+        </Menu.Item>
         <Menu.Item key='deleteFlow111'>
-         <i className='fa fa-trash' style={{ lineHeight: '20px', marginRight: '5px' }} />&nbsp;<FormattedMessage {...menusText.delete} style={{ display: 'inlineBlock' }} />
+          <FormattedMessage {...menusText.delete} style={{ display: 'inlineBlock' }} />
         </Menu.Item>
       </Menu>
     );
@@ -219,9 +269,44 @@ let MyComponent = React.createClass({
         <FormattedMessage {...menusText.deloyStart} />
       </span>
     )
-    return (<Dropdown.Button  overlay={dropdown} type="ghost">
-      查看镜像
-    </Dropdown.Button>)
+    const tabs = []
+    let loading
+    const branchesAndTags = repoBranchesAndTags[projectId]
+    if (!branchesAndTags) {
+      if (stagesCount > 0) {
+        tabs.push(<PopOption key="not_found_branches_tags">未找到分支及标签，点击构建</PopOption>)
+      }
+    } else {
+      const { isFetching, data } = branchesAndTags
+      loading = isFetching
+      const { branches, tags } = data
+      for(let key in data) {
+        if (data.hasOwnProperty(key)) {
+          tabs.push(
+            <PopTab key={key} title={key === 'branches' ? '分支' : '标签'}>
+              {
+                data[key].map(item => {
+                  let name = item.branch || item.tag
+                  return <PopOption key={name}>{name}</PopOption>
+                })
+              }
+            </PopTab>
+          )
+        }
+      }
+    }
+
+    return (
+      <Dropdown.Button overlay={dropdown} type='ghost' size='large' onClick={() => this.starFlowBuild(item, index)}>
+        <PopTabSelect
+          onChange={this.startBuildStage.bind(this, item, index)}
+          targetElement={targetElement}
+          loading={loading}
+          getTooltipContainer={() => document.body}>
+          {tabs}
+        </PopTabSelect>
+      </Dropdown.Button>
+    )
   },
   render: function () {
     const { config, scope, isFetching } = this.props;
@@ -254,7 +339,7 @@ let MyComponent = React.createClass({
             <Checkbox onChange={(e) => this.props.changeCheckStatus(item.name, e)} checked={item.checked}/>
           </div>
           <div className='name'>
-            <Link to={`/ci_cd/tenx_flow/tenx_flow_build?${item.flowId}&${flowListState[index].status}`}>
+            <Link to={`/ci_cd/build_image/tenx_flow_build?${item.flowId}&${flowListState[index].status}`}>
               <span>{item.name}</span>
             </Link>
           </div>
@@ -291,10 +376,6 @@ let MyComponent = React.createClass({
           </div>
           <div className='opera'>
             <Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
-              <i className='fa fa-play' />&nbsp;
-              <FormattedMessage {...menusText.deloyStart} />
-            </Button>
-            <Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
               <i className='fa fa-wpforms' />&nbsp;
               <FormattedMessage {...menusText.deloyLog} />
             </Button>
@@ -313,7 +394,7 @@ let MyComponent = React.createClass({
         >
           <Alert message="请注意，删除TenxFlow，将清除项目的所有历史数据以及相关的镜像，且该操作不能被恢复" type="warning" showIcon />
           <div className="modalColor" style={{ lineHeight: '30px' }}><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px', marginLeft: '16px' }}></i>
-            您确定要删除?
+           您确定要删除 {this.state.item.name}?
           </div>
         </Modal>
       </div>
@@ -344,7 +425,7 @@ class TenxFlowList extends Component {
   loadData(callback) {
     const { getTenxFlowList } = this.props;
     const self = this
-    getTenxFlowList({
+    getTenxFlowList(1, {
       success: {
         func: (res) => {
           const flowListState = []
@@ -541,6 +622,45 @@ class TenxFlowList extends Component {
       allChecked: e.target.checked
     })
   }
+  deleteCheckFlow() {
+    if(this.state.flowList && this.state.flowList.length >0 ){
+      const deleteArr = []
+      this.state.flowList.forEach(item => {
+        if(item.checked) {
+          deleteArr.push(item.flowId)
+        }
+      })
+      if(deleteArr.length > 0) {
+        const notification = new NotificationHandler()
+        notification.spin('删除中')
+        this.props.deleteTenxFlow(deleteArr.join(','), {
+          success: {
+            func: () => {
+              notification.close()
+              notification.success(`删除成功`);
+              this.loadData()
+              this.setState({
+                allChecked: false,
+                showDeleteTenxFlowModal: false
+              })
+            },
+            isAsync: true
+          },
+          failed: {
+            func: (res) => {
+              let statusCode = res.statusCode;
+              switch (statusCode) {
+              case 500:
+                break;
+              }
+              notification.close()
+              notification.error(`删除失败`);
+            }
+          }
+        })
+      }
+    }
+  }
   changeCheckStatus(name, e) {
     const { flowList } = cloneDeep(this.state)
     if(flowList) {
@@ -565,7 +685,23 @@ class TenxFlowList extends Component {
       })
     }
   }
-
+  openDeleteTenxFlowModal() {
+    const { flowList } = this.state
+    if(flowList && flowList.length > 0) {
+      if(flowList.every(item => !item.checked)) return
+      const nameArr =  []
+      flowList.forEach(item => {
+        if(item.checked) {
+          nameArr.push(item.name)
+        }
+      })
+      if(nameArr.length == 0) return
+      this.setState({
+        showDeleteTenxFlowModal: true,
+        checkName: nameArr.join(',')
+      })
+    }
+  }
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
@@ -591,13 +727,13 @@ class TenxFlowList extends Component {
                  type='right'
       >
         <div id='TenxFlowList' key='TenxFlowList'>
-          <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
+          <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
           <div className='operaBox'>
             <Button className='createBtn' size='large' type='primary' onClick={this.openCreateTenxFlowModal}>
               <i className='fa fa-plus' />&nbsp;
               <FormattedMessage {...menusText.create} />
             </Button>
-            <Button style={{marginLeft: "10px", backgroundColor: "transparent", color: "#666", borderColor: "#d9d9d9"}} className='createBtn' size='large' type='primary' onClick={this.openCreateTenxFlowModal}>
+            <Button style={{marginLeft: "10px", backgroundColor: "transparent", color: "#666", borderColor: "#d9d9d9"}} className='createBtn' size='large' type='primary' onClick={() => this.openDeleteTenxFlowModal()}>
               <i className='fa fa-trash-o' />&nbsp;
               <FormattedMessage {...menusText.delete} />
             </Button>
@@ -632,7 +768,7 @@ class TenxFlowList extends Component {
                 <FormattedMessage {...menusText.opera} />
               </div>
             </div>
-            <MyComponent scope={scope} config={this.state.flowList} isFetching={isFetching} repoBranchesAndTags={repoBranchesAndTags} changeCheckStatus={(name, e) => this.changeCheckStatus(name, e)}/>
+            <MyComponent scope={scope} config={this.state.flowList} isFetching={isFetching} repoBranchesAndTags={repoBranchesAndTags} changeCheckStatus={(name, e) => this.changeCheckStatus(name, e)} checkImage={this.props.checkImage}/>
             {flowList.length < 1 && !searchingFlag ?
               <div className='loadingBox'>暂无数据</div> :
               (flowList.length < 1 && searchingFlag ?
@@ -655,6 +791,15 @@ class TenxFlowList extends Component {
         >
           <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} callback={this.callback(this.state.currentFlowId)} visible={this.state.TenxFlowDeployLogModal}/>
         </Modal>
+        <Modal title="删除TenxFlow操作" visible={this.state.showDeleteTenxFlowModal}
+        onOk={() => this.deleteCheckFlow()} onCancel={() => this.setState({ showDeleteTenxFlowModal: false, checkName: [] })}
+        >
+          <Alert message="请注意，删除TenxFlow，将清除项目的所有历史数据以及相关的镜像，且该操作不能被恢复" type="warning" showIcon />
+          <div className="modalColor" style={{ lineHeight: '30px' }}><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px', marginLeft: '16px' }}></i>
+            您确定要删除 {this.state.checkName} 吗？
+          </div>
+        </Modal>
+
         {this.state.websocket}
       </QueueAnim>
     )
@@ -698,6 +843,8 @@ export default connect(mapStateToProps, {
   getTenxflowBuildDetailLogs,
   changeFlowStatus,
   getRepoBranchesAndTagsByProjectId,
+  deleteTenxFlow,
+  checkImage
 })(injectIntl(TenxFlowList, {
   withRef: true,
 }));

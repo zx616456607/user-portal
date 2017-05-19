@@ -339,7 +339,7 @@ class TenxFlowDetailFlowCard extends Component {
 
   viewCicdBox(e) {
     //this function for user change open cicd or not
-    const { getTenxflowCIRules, UpdateTenxflowCIRules, flowId } = this.props;
+    const { getTenxflowCIRules, UpdateTenxflowCIRules, flowId, config } = this.props;
     const _this = this;
     let notification = new NotificationHandler()
     if (e) {
@@ -358,7 +358,8 @@ class TenxFlowDetailFlowCard extends Component {
           config: {
             branch: null,
             tag: null,
-            mergeRequest: null
+            mergeRequest: null,
+            buildCluster: config.spec.ci.config.buildCluster
           }
         }
         UpdateTenxflowCIRules(flowId, body, {
@@ -449,9 +450,12 @@ class TenxFlowDetailFlowCard extends Component {
       scope.stopBuildFlow(stageId, stageName);
     } else {
       const options = {}
+      console.log(key)
+      console.log(tabKey)
       if (key && tabKey) {
         options.branch = key
       }
+      console.log(options)
       scope.buildFlow(stageId, options);
     }
   }
@@ -560,14 +564,14 @@ class TenxFlowDetailFlowCard extends Component {
     } = this.props;
     const scopeThis = this;
     const dropdown = (
-      <Menu onClick={this.operaMenuClick.bind(this, config.metadata.id)} style={{ width: '110px' }}>
-        <Menu.Item key='deleteStage' disabled={index == (totalLength - 1) ? false : true}>
-          <Icon type='delete' style={{ float: 'left', lineHeight: '16px', marginRight: '5px', fontSize: '14px' }} />
-          <span style={{ float: 'left', lineHeight: '16px', fontSize: '14px' }} ><FormattedMessage {...menusText.deleteBtn} /></span>
-          <div style={{ clear: 'both' }}></div>
-        </Menu.Item>
-      </Menu>
-    );
+        <Menu onClick={this.operaMenuClick.bind(this, config.metadata.id)} style={{ width: '110px' }}>
+          <Menu.Item key='deleteStage' disabled={index == (totalLength - 1) ? false : true}>
+            <Icon type='delete' style={{ float: 'left', lineHeight: '16px', marginRight: '5px', fontSize: '14px' }} />
+            <span style={{ float: 'left', lineHeight: '16px', fontSize: '14px' }} ><FormattedMessage {...menusText.deleteBtn} /></span>
+            <div style={{ clear: 'both' }}></div>
+          </Menu.Item>
+        </Menu>
+      )
     return (
       <div id='TenxFlowDetailFlowCard' key={'TenxFlowDetailFlowCard' + index} className={currentFlowEdit == index ? 'TenxFlowDetailFlowCardBigDiv' : ''} >
         <Card className={currentEditClass(config.lastBuildStatus, currentFlowEdit, index)}>
@@ -634,13 +638,21 @@ class TenxFlowDetailFlowCard extends Component {
                         </svg>
                         <FormattedMessage {...menusText.logBtn} />
                       </Button>
-                      <Dropdown.Button overlay={dropdown} type='ghost' size='large'
+                      {this.props.isBuildImage ? <Button size='large' type='ghost' className='logBtn' onClick={this.editFlow}>
+                        <svg className='cicdlogSvg'>
+                          <use xlinkHref='#cicdedit' />
+                        </svg>
+                        <FormattedMessage {...menusText.editBtn} />
+                      </Button>
+                        :
+                        <Dropdown.Button overlay={dropdown} type='ghost' size='large'
                         className='editBtn' onClick={this.editFlow} disabled={buildButtonCheck(config.lastBuildStatus)}>
                         <svg className='cicdlogSvg'>
                           <use xlinkHref='#cicdedit' />
                         </svg>
                         <FormattedMessage {...menusText.editBtn} />
-                      </Dropdown.Button>
+                      </Dropdown.Button>}
+
                       <div style={{ clear: 'both' }}></div>
                     </div>
                   </div>
@@ -656,7 +668,7 @@ class TenxFlowDetailFlowCard extends Component {
                   config={config} flowId={flowId} stageId={config.metadata.id} codeList={codeList} index={index}
                   supportedDependencies={supportedDependencies} imageList={imageList} baseImages={baseImages}
                   otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={toggleCustomizeBaseImageModal}
-                  uniformRepo={uniformRepo}
+                  uniformRepo={uniformRepo} isBuildImage={this.props.isBuildImage}
                   />
               </QueueAnim>
             ] : null
@@ -677,9 +689,9 @@ class TenxFlowDetailFlowCard extends Component {
               {index != (totalLength - 1) ? [<Button size='large' className='fileButton' type='ghost' onClick={this.openSettingStageFile}>
                                             <span>{config.lastBuildStatus == 'finish' ? '重选文件' : '提取文件'}</span>
                                           </Button>] : null}
-              <svg className='cicdarrow'>
+              {this.props.isBuildImage ? '' : <svg className='cicdarrow'>
                 <use xlinkHref='#cicdarrow' />
-              </svg>
+              </svg> }
               {index != (totalLength - 1) ? [<p className='fileUrl'>{formatStageLink(config.link)}</p>]:null}
             </div>
           ] : null

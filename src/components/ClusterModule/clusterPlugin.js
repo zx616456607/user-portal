@@ -56,12 +56,15 @@ class ClusterPlugin extends Component{
       return memory.toFixed(0) + size
     }
   }
-  getStatusColor(status) {
+  getStatusColor(status, name) {
     switch(status) {
       case 'OK': {
         return '#33b867'
       }
       case 'Warning': {
+        if(name == 'elasticsearch-logging') {
+          return '#33b867'
+        }
         return '#f23e3f'
       }
       default: 
@@ -211,7 +214,7 @@ class ClusterPlugin extends Component{
             <Link>{plugin.name}</Link>
           </div>
           <div className='status commonTitle'>
-            <span  style={{color: self.getStatusColor(plugin.status.message)}}><i className='fa fa-circle' />&nbsp;&nbsp;{self.getStatusMessage(plugin.status.message)}</span>
+            <span  style={{color: self.getStatusColor(plugin.status.message, plugin.name)}}><i className='fa fa-circle' />&nbsp;&nbsp;{self.getStatusMessage(plugin.status.message)}</span>
           </div>
           <div className='resources commonTitle'>
             <div style={{lineHeight:'40px',height:30}}>CPU：{self.convertCPU(plugin.resourceRange.request.cpu)}</div>

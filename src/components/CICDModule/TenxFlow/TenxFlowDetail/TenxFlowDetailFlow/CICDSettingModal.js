@@ -268,6 +268,7 @@ let CICDSettingModal = React.createClass({
       noBranch: false,
       tagInput: false
     })
+
     if(useBranch) {
       validateFields(['branch'],(errors, values) => {
         if (!!errors) {
@@ -304,7 +305,8 @@ let CICDSettingModal = React.createClass({
       config: {
         branch: null,
         tag: null,
-        mergeRequest: null
+        mergeRequest: null,
+        buildCluster: scope.props.config.spec.ci.config.buildCluster
       }
     }
     if(useBranch) {

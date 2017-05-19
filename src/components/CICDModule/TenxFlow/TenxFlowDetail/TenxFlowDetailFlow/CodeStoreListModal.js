@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Button, Spin, Select, Icon } from 'antd'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -207,7 +207,7 @@ let CodeStoreListModal = React.createClass({
           <div style={{ clear:'both' }}></div>
         </div>
         <div className='codeList'>
-          {codeItems}
+          {codeItems.length == 0 ? <span>暂无已激活的代码仓库，<Link to={this.props.isBuildImage ? `/ci_cd/coderepo?from=build_image&redirect=${window.location.pathname+window.location.search}` : `/ci_cd/coderepo` }>前去激活代码仓库</Link></span> : codeItems}
         </div>
       </div>
     )

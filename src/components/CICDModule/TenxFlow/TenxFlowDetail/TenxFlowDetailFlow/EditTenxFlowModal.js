@@ -8,11 +8,13 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, Tooltip } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, Tooltip, Spin } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
+import { camelize } from 'humps'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import cloneDeep from 'lodash/cloneDeep'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { appNameCheck } from '../../../../../common/naming_validation'
 import DockerFileEditor from '../../../../Editor/DockerFile'
@@ -24,6 +26,10 @@ import ImageEnvComponent from './ImageEnvComponent.js'
 import CodeStoreListModal from './CodeStoreListModal.js'
 import NotificationHandler from '../../../../../common/notification_handler'
 import PopTabSelect from '../../../../PopTabSelect'
+import { loadClusterList } from '../../../../../actions/cluster'
+import { getAllClusterNodes } from '../../../../../actions/cluster_node'
+import { isStandardMode } from '../../../../../common/tools'
+
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
@@ -78,6 +84,16 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.EditTenxFlowModal.flowName',
     defaultMessage: '子任务名称',
   },
+
+  buildImageCode: {
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.buildImageCode',
+    defaultMessage: '任务代码',
+  },
+  buildImageName: {
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.buildImageName',
+    defaultMessage: '任务名称',
+  },
+
   selectCode: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.selectCode',
     defaultMessage: '更新代码库',
@@ -157,6 +173,14 @@ const menusText = defineMessages({
   buildCache: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.buildCache',
     defaultMessage: '构建缓存',
+  },
+  buildCluster: {
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.buildCluster',
+    defaultMessage: '构建集群',
+  },
+  buildArea: {
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.buildArea',
+    defaultMessage: '构建地域',
   },
   envTitle: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.envTitle',
@@ -259,6 +283,8 @@ let EditTenxFlowModal = React.createClass({
   componentWillMount() {
     // const {getAvailableImage} = this.props
     // getAvailableImage()
+    const { loadClusterList } = this.props
+    loadClusterList()
   },
   componentDidMount() {
     uuid = 0;
@@ -803,10 +829,18 @@ let EditTenxFlowModal = React.createClass({
           shellList.push(values['shellCode' + item]);
         }
       });
+      let cloneCofig = cloneDeep(config)
+      if(!cloneCofig.spec.ci) {
+        cloneCofig.spec.ci = {}
+        if(!cloneCofig.spec.ci.config) {
+          cloneCofig.spec.ci.config = {}
+        }
+      }
+      cloneCofig.spec.ci.config.buildCluster = isStandardMode() ? values['buildArea'] : values['buildCluster']
       let body = {
         'metadata': {
           'name': values.flowName,
-          'type': parseInt(this.state.otherFlowType),
+          'type': parseInt(this.state.otherFlowType)
         },
         'spec': {
           'container': {
@@ -819,7 +853,7 @@ let EditTenxFlowModal = React.createClass({
             'id': _this.state.currentCodeStore,
             'branch': _this.state.currentCodeStoreBranch
           },
-          ci: config.spec.ci,
+          ci: cloneCofig.spec.ci,
           uniformRepo: (values.uniformRepo ? 0 : 1),
         }
       }
@@ -834,7 +868,7 @@ let EditTenxFlowModal = React.createClass({
           'DockerfileFrom': dockerFileFrom,
           'registryType': parseInt(values.imageType),
           'imageTagType': parseInt(values.imageTag),
-          'noCache': values.buildCache,
+          'noCache': !values.buildCache,
           'image': values.imageRealName
         }
         if (this.state.otherTag) {
@@ -1016,6 +1050,19 @@ let EditTenxFlowModal = React.createClass({
       </Button>
     )
   },
+  getBuildCluster() {
+    const { clusters } = this.props
+    if(clusters.isFetching || !clusters.clusterList || clusters.clusterList.length == 0) {
+      return <Option key="nocluster" value={clusters}>not found </Option>
+    }
+    const buildClusters = []
+    clusters.clusterList.forEach(cluster => {
+      if(cluster.isBuilder) {
+        buildClusters.push(<Option key={cluster.name} value={cluster.clusterID}>{cluster.clusterName}</Option>)
+      }
+    })
+    return buildClusters
+  },
   render() {
     const { formatMessage } = this.props.intl;
     const {
@@ -1032,6 +1079,16 @@ let EditTenxFlowModal = React.createClass({
     if (imageList === undefined || imageList.length === 0) {
       return (<div></div>)
     }
+    const { clusters } = this.props
+    if(clusters.isFetching) {
+      return <div className="loadingBox"><Spin size="large"></Spin></div>
+    }
+    const buildClusters = []
+    clusters.clusterList.forEach(cluster => {
+      if(cluster.isBuilder) {
+        buildClusters.push(cluster.clusterID)
+      }
+    })
     let intFlowTypeIndex = this.state.otherFlowType - 1
     let buildImages = []
     let dependenciesImages = []
@@ -1261,6 +1318,24 @@ let EditTenxFlowModal = React.createClass({
       ],
       initialValue: (!!config.spec.build ? config.spec.build.customTag : null)
     });
+    let currentBuildCluster = buildClusters[0]
+    if(config.spec.ci.config){
+        if(config.spec.ci.config.buildCluster) {
+          currentBuildCluster = config.spec.ci.config.buildCluster
+        }
+    }
+    const buildCluster = getFieldProps('buildCluster', {
+      rules: [
+        { message: '请选择构建集群', required: isStandardMode() ? false : true}
+      ],
+      initialValue: currentBuildCluster
+    })
+    const buildArea = getFieldProps('buildArea', {
+      rules: [
+        { message: '请选择构建区域', required: isStandardMode() ? true : false}
+      ],
+      initialValue: buildClusters[0]
+    })
     return (
       <div id='EditTenxFlowModal' key='EditTenxFlowModal'>
         <div className='titleBox'>
@@ -1270,7 +1345,7 @@ let EditTenxFlowModal = React.createClass({
         <Form horizontal>
           <div className='commonBox'>
             <div className='title'>
-              <span><FormattedMessage {...menusText.flowName} /></span>
+              <span>{this.props.isBuildImage ? <FormattedMessage {...menusText.buildImageName} /> : <FormattedMessage {...menusText.flowName} />}</span>
             </div>
             <div className='input'>
               <FormItem
@@ -1309,7 +1384,7 @@ let EditTenxFlowModal = React.createClass({
           </div>*/}
           <div className='commonBox'>
             <div className='title'>
-              <span><FormattedMessage {...menusText.flowCode} /></span>
+              <span>{this.props.isBuildImage ? <FormattedMessage {...menusText.buildImageCode} /> : <FormattedMessage {...menusText.flowCode} />}</span>
             </div>
             <div className="codeRepo">
               {this.state.currentCodeStore ? [
@@ -1329,7 +1404,7 @@ let EditTenxFlowModal = React.createClass({
                 </Button>
               ] : null}
               {
-                index === 0 && (
+                this.props.isBuildImage ? '' : index === 0 && (
                   <FormItem style={{height: "30px"}}>
                       <Checkbox {...uniformRepoProps}>当前流水线所有任务（包括新建任务），统一使用该代码库</Checkbox>
                   </FormItem>
@@ -1339,7 +1414,7 @@ let EditTenxFlowModal = React.createClass({
             <div style={{ clear: 'both' }} />
           </div>
           <div className='line'></div>
-          <div className='commonBox'>
+          {this.props.isBuildImage ? '' : <div className='commonBox'>
             <div className='title'>
               <span><FormattedMessage {...menusText.imageName} /></span>
             </div>
@@ -1361,8 +1436,8 @@ let EditTenxFlowModal = React.createClass({
               <div style={{ clear: 'both' }} />
             </div>
             <div style={{ clear: 'both' }} />
-          </div>
-          <div className='commonBox'>
+          </div>}
+          {this.props.isBuildImage ? '' : <div className='commonBox'>
             <div className='title'>
               <span><FormattedMessage {...menusText.servicesTitle} /></span>
             </div>
@@ -1377,8 +1452,8 @@ let EditTenxFlowModal = React.createClass({
               </div>
             </div>
             <div style={{ clear: 'both' }} />
-          </div>
-          <div className='commonBox'>
+          </div>}
+          {this.props.isBuildImage ? '' :<div className='commonBox'>
             <div className='title'>
               <span><FormattedMessage {...menusText.shellCode} /></span>
             </div>
@@ -1386,7 +1461,7 @@ let EditTenxFlowModal = React.createClass({
               {shellCodeItems}
             </div>
             <div style={{ clear: 'both' }} />
-          </div>
+          </div>}
           {
             this.state.otherFlowType == 3 ? [
               <QueueAnim className='buildImageForm' key='buildImageForm'>
@@ -1493,11 +1568,38 @@ let EditTenxFlowModal = React.createClass({
                   </div>
                   <div className='input imageType'>
                     <FormItem>
-                      <Switch {...getFieldProps('buildCache') } defaultChecked={!!config.spec.build ? config.spec.build.noCache : true} />
+                      <Switch {...getFieldProps('buildCache' , { initialValue: !!config.spec.build ? !config.spec.build.noCache : true}) } defaultChecked={!!config.spec.build ? !config.spec.build.noCache : true} />
                     </FormItem>
                   </div>
                   <div style={{ clear: 'both' }} />
                 </div>
+                { isStandardMode() ?
+                  ( <div className='commonBox'>
+                    <div className='title'>
+                      <span><FormattedMessage {...menusText.buildArea} /></span>
+                    </div>
+                    <div className='input imageType'>
+                      <FormItem>
+                        <Select {...buildArea} style={{width: "150px"}}>
+                          {this.getBuildArea}
+                        </Select>
+                      </FormItem>
+                    </div>
+                    <div style={{ clear: 'both' }} />
+                  </div>)  :
+                  (<div className='commonBox'>
+                    <div className='title'>
+                      <span><FormattedMessage {...menusText.buildCluster} /></span>
+                    </div>
+                    <div className='input imageType'>
+                      <FormItem>
+                        <Select style={{width: "150px"}} {...buildCluster}>
+                          {this.getBuildCluster()}
+                        </Select>
+                      </FormItem>
+                    </div>
+                    <div style={{ clear: 'both' }} />
+                  </div>)}
               </QueueAnim>
             ] : null
           }
@@ -1552,13 +1654,27 @@ let EditTenxFlowModal = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-  // const defaultState = {
-  //   imageList: []
-  // }
-  // const { availableImage } = state.cicd_flow
-  // const { imageList } = availableImage || defaultState
+  const defaultClusterList = {
+    isFetching: false,
+    clusterList: []
+  }
+  const defaultClustersNodes = {
+    isEmptyObject: true,
+    isFetching: false,
+    nodes: []
+  }
+  let clustersNodes = state.cluster_nodes.getAllClusterNodes
+  if(!clustersNodes || Object.getOwnPropertyNames(clustersNodes).length == 0) {
+    clustersNodes = defaultClustersNodes
+  }
+
+  let { clusters } = state.cluster
+  if(!clusters || Object.getOwnPropertyNames(clusters).length == 0) {
+    clusters = defaultClusterList
+  }
   return {
-    // imageList
+    clusters,
+    clustersNodes
   }
 }
 
@@ -1575,6 +1691,8 @@ export default connect(mapStateToProps, {
   getAvailableImage,
   updateTenxFlow,
   getTenxFlowDetail,
+  loadClusterList,
+  getAllClusterNodes
 })(injectIntl(EditTenxFlowModal, {
   withRef: true,
 }));

@@ -207,7 +207,7 @@ let CreateTenxFlow = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope, createTenxFlowSingle } = this.props;
+    const { scope, createTenxFlowSingle, buildImage } = this.props;
     const _this = this;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
@@ -252,12 +252,17 @@ let CreateTenxFlow = React.createClass({
           'notification_config': null
         }
       }
+      body.isBuildImage = buildImage ? 1 : 0
       createTenxFlowSingle(body, {
         success: {
           func: (res) => {
             scope.setState({
               createTenxFlowModal: false
             });
+            if(buildImage) {
+              browserHistory.push(`/ci_cd/build_image/tenx_flow_build?${res.data.flowId}`)
+              return
+            }
             browserHistory.push(`/ci_cd/tenx_flow/tenx_flow_build?${res.data.flowId}`)
             },
           isAsync: true
