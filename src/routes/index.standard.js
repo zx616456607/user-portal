@@ -70,6 +70,9 @@ const rootRoutes = {
       },
     },
     childRoutes: [{
+      path: 'quickentry',
+      component: require('../components/QuickEntry').default,
+    },{
       path: 'app_manage',
       getComponent: (location, cb) => {
         require.ensure([], (require) => {

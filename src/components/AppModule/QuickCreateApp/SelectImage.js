@@ -178,6 +178,7 @@ class SelectImage extends Component {
     }]
     return (
       <Table
+        rowKey={row => row.name}
         showHeader={false}
         className="imageList"
         dataSource={imageList}

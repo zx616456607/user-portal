@@ -327,12 +327,12 @@ let MyComponent = React.createClass({
         </div>
         <div className="rightList">
           <div className="lists">
-            <span className="keys">内存</span>
-            <Progress percent={ data.memory * 100 } strokeWidth={8} format={ percent => percent.toFixed(2) + '%'} status={ data.memory * 100 > 80 ? 'exception' : ''} className="progress"/>
-          </div>
-          <div className="lists">
             <span className="keys">CPU</span>
             <Progress percent={parseFloat(data.cpus).toFixed(2)} strokeWidth={8} format={ percent => percent + '%'} status={data.cpu > 80 ? 'exception' : ''}  className="progress" />
+          </div>
+          <div className="lists">
+            <span className="keys">内存</span>
+            <Progress percent={ data.memory * 100 } strokeWidth={8} format={ percent => percent.toFixed(2) + '%'} status={ data.memory * 100 > 80 ? 'exception' : ''} className="progress"/>
           </div>
           <div className="lists">
             <span className="keys">流量</span>

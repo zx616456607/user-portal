@@ -144,6 +144,14 @@ class MysqlCluster extends Component {
         }
       }
     })
+
+    const { teamCluster } = this.props
+    console.log('teamCluster=',teamCluster)
+    if(teamCluster && teamCluster.result && teamCluster.result.data && location.search == '?createDatabase'){
+      _this.setState({
+        CreateDatabaseModalShow: true,
+      })
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -243,6 +251,7 @@ function mapStateToProps(state, props) {
   const { current } = state.entities
   const { databaseAllList } = state.databaseCache
   const { database, databaseList, isFetching } = databaseAllList.mysql || defaultMysqlList
+  const teamCluster = state.team.teamClusters
   return {
     cluster: cluster.clusterID,
     // cluster: 'e0e6f297f1b3285fb81d27742255cfcf11',
@@ -250,6 +259,7 @@ function mapStateToProps(state, props) {
     database,
     databaseList: databaseList,
     isFetching,
+    teamCluster,
   }
 }
 

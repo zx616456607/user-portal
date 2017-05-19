@@ -144,6 +144,22 @@ class BaseInfo extends Component {
       });
     }, 500);
   }
+  findPassword(spec) {
+    const length = spec.containers.length
+    for (let i = 0; i < length; i++) {
+      const container = spec.containers[i]
+      if (container.env && container.env.length > 0) {
+        const envLength = container.env.length
+        for (let j = 0; j < envLength; j++) {
+          const env = container.env[j]
+          if (env.name && env.name.indexOf("PASSWORD") !== -1) {
+            return env.value
+          }
+        }
+      }
+    }
+    return ""
+  }
   render() {
     const { bindingIPs, domainSuffix, databaseInfo ,dbName } = this.props
     const parentScope = this.props.scope
@@ -259,20 +275,17 @@ class BaseInfo extends Component {
             <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {externalUrl}/>
           </div>
           <div className='configList'><span className='listKey'>副本数：</span>{this.props.currentData.pending + this.props.currentData.running}/{this.props.currentData.desired}个</div>
-          {this.props.database != 'zookeeper' ?
             <div><div className='configHead'>参数</div>
               <ul className='parse-list'>
                 <li><span className='key'>参数名</span> <span className='value'>参数值</span></li>
-                <li><span className='key'>用户名：</span> <span className='value'>root</span></li>
+                <li><span className='key'>用户名：</span> <span className='value'>{ this.props.database === 'zookeeper' ? "super" : "root" }</span></li>
                 {this.state.passShow ?
-                  <li><span className='key'>密码：</span> <span className='value'>{podSpec.containers[0].env ? podSpec.containers[0].env[0].value : ''}</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
+                  <li><span className='key'>密码：</span> <span className='value'>{ this.findPassword(podSpec) }</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
                   :
                   <li><span className='key'>密码：</span> <span className='value'>******</span><span className="pasBtn" onClick={() => this.setState({ passShow: true })}><i className="fa fa-eye"></i> 显示</span></li>
                 }
               </ul>
             </div>
-            : null
-          }
           <div className='configHead'>实例副本 <span>{this.props.currentData.desired}个 &nbsp;</span>
             <Popover content={modalContent} title={null} trigger="click" overlayClassName="putmodalPopover"
               visible={rootScope.state.putVisible} getTooltipContainer={()=> document.getElementById('AppServiceDetail')}
@@ -485,29 +498,21 @@ class ModalDetail extends Component {
     }
     return logoMapping[clusterType]
   }
+  dbStatus(phase) {
+    if (phase.running >0) {
+      return (<span className='running'><i className="fa fa-circle"></i> 运行中 </span>)
+    }
+    if (phase.padding >0) {
+       return (<span className='padding'><i className="fa fa-circle"></i> 启动中 </span>)
+    }
+    if (phase.failed >0) {
+       return (<span className='stop'><i className="fa fa-circle"></i> 启动失败 </span>)
+    }
+    return (<span className='stop'><i className="fa fa-circle"></i> 已停止 </span>)
+  }
   render() {
     const { scope, dbName, isFetching, databaseInfo, domainSuffix, bindingIPs } = this.props;
-    let statusClass = 'normal'
-    let statusText = '运行中'
-    if (databaseInfo) {
-      if (databaseInfo.podInfo.pending > 0){
-        statusClass = 'stop'
-        statusText = '已停止'
-      } else if (databaseInfo.podInfo.failed > 0) {
-        statusClass = 'error'
-        statusText = '发生错误'
-      }else if(databaseInfo.podInfo.running == databaseInfo.podList.listMeta.total) {
-        statusClass = 'running'
-        statusText = '运行中'
-      } else {
-        statusClass = 'stop'
-        statusText = '已停止'
-      }
-      if (!databaseInfo.podList.pods || databaseInfo.podList.pods.length == 0) {
-        statusClass = 'stop'
-        statusText = '已停止'
-      }
-    }
+
     if (isFetching || databaseInfo == null) {
       return (
         <div className='loadingBox'>
@@ -530,7 +535,7 @@ class ModalDetail extends Component {
             <div className='leftBox TenxStatus'>
               <div className="desc">{databaseInfo.serviceInfo.namespace} / {databaseInfo.serviceInfo.name}</div>
               <div> 状态：
-              <span className={statusClass} style={{top:'0'}}> <i className="fa fa-circle"></i> {statusText} </span>
+                {this.dbStatus(databaseInfo.podInfo)}
               </div>
 
             </div>

@@ -15,14 +15,15 @@ export const IMAGE_PRIVATE_LIST_REQUEST = 'IMAGE_PRIVATE_LIST_REQUEST'
 export const IMAGE_PRIVATE_LIST_SUCCESS = 'IMAGE_PRIVATE_LIST_SUCCESS'
 export const IMAGE_PRIVATE_LIST_FAILURE = 'IMAGE_PRIVATE_LIST_FAILURE'
 
-export function loadPrivateImageList(registry) {
+export function loadPrivateImageList(registry,callback) {
   return {
     registry,
     [FETCH_API]: {
       types: [IMAGE_PRIVATE_LIST_REQUEST, IMAGE_PRIVATE_LIST_SUCCESS, IMAGE_PRIVATE_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/registries/${registry}/private`,
       schema: Schemas.REGISTRYS
-    }
+    },
+    callback
   }
 }
 

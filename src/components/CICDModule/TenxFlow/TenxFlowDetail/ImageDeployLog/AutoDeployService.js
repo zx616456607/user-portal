@@ -181,7 +181,7 @@ let AutoDeployService = React.createClass({
         }
       }
     })
-      
+
   },
   updateReule(item) {
     // console.log('list in', item.ruleId)
@@ -390,7 +390,7 @@ let AutoDeployService = React.createClass({
     }
     const content = (
       <a>
-        <Button type="primary" onClick={()=> browserHistory.push('/app_manage/app_create/fast_create?query="open"')}>马上创建</Button>
+        <Button type="primary" onClick={()=> browserHistory.push(`/app_manage/app_create/fast_create?query=${this.state.image_name}`)}>马上创建</Button>
       </a>
     );
     const {clusterList, cdImageList} = this.props
@@ -586,7 +586,7 @@ let AutoDeployService = React.createClass({
                       </Popover>
                       :
                       [<Select size="large" value={this.state.deployment_name} disabled={this.state.cluster_id ? false : true} onChange={(e) => this.setStateService(e)} placeholder="服务名称" >
-                         { appListOptions } 
+                         { appListOptions }
                       </Select>]
                     }
                     </div>
@@ -597,10 +597,10 @@ let AutoDeployService = React.createClass({
                       </Select>
                     </div>
                     {
-                      isVolMounted ? 
+                      isVolMounted ?
                         [<Tooltip placement='top' title="挂载存储卷的服务不支持灰度升级">
                            {strategyGroup}
-                         </Tooltip>] : 
+                         </Tooltip>] :
                         strategyGroup
                     }
                     <div className='opera commonItem'>

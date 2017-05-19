@@ -237,11 +237,12 @@ class Sider extends Component {
   }
 
   render() {
-    const { siderStyle, role } = this.props
+    const { siderStyle, role,backColor } = this.props
+    console.log(backColor)
     const { currentKey } = this.state
     const scope = this
     return (
-      <div id='sider'>
+      <div id='sider' style={{background:backColor.logoBack}}>
         <Modal title='上传文件' wrapClassName='vertical-center-modal' footer=''
           visible={this.props.uploadFileOptions.visible} onCancel={() => this.handleCancel()}>
           <div className='uploadModal'>
@@ -413,13 +414,13 @@ class Sider extends Component {
         {siderStyle == 'bigger' ? [
           <QueueAnim type='left' className='siderBiggerBox'>
             <div key='siderBigger' className='siderBigger'>
-              <div className='logBox'>
+              <div className='logBox' style={{background:backColor.logoBack}}>
                 <Link to='/'>
                   <img className='logo' src={logoPNG} />
                 </Link>
               </div>
               <Menu
-                style={{ width: '100%', backgroundColor: '#2b333d', color: '#c4c4c4' }}
+                style={{ width: '100%', backgroundColor: backColor.slideBack, color: '#c4c4c4' }}
                 mode='inline'
                 theme='dark'
                 selectedKeys={this.state.currentSelectedMenu}
@@ -427,6 +428,7 @@ class Sider extends Component {
                 onClick={this.onSelectMenu}
                 onOpen={this.onOpenBigMenu}
                 onClose={this.onCloseBigMenu}
+                className="xxxx"
               >
                 <Menu.Item key='home'>
                   <Link to='/'>
@@ -447,27 +449,32 @@ class Sider extends Component {
                     </span>
                   }
                 >
-                  <Menu.Item key='app_manage_default'>
+                  <Menu.Item key='app_manage_default' style={{background:backColor.logoBack}}>
                     <Link to='/app_manage'>
                       <span><div className='sideCircle'></div> 应用</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='service'>
+                  <Menu.Item key='service' style={{background:backColor.logoBack}}>
                     <Link to='/app_manage/service'>
                       <span><div className='sideCircle'></div> 服务</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='container'>
+                  <Menu.Item key='container' style={{background:backColor.logoBack}}>
                     <Link to='/app_manage/container'>
                       <span><div className='sideCircle'></div> 容器</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='storage'>
+                  <Menu.Item key='storage' style={{background:backColor.logoBack}}>
                     <Link to='/app_manage/storage'>
                       <span><div className='sideCircle'></div> 存储</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='configs'>
+                  <Menu.Item key='snapshot' style={{background:backColor.logoBack}}>
+                    <Link to='/app_manage/snapshot'>
+                      <span><div className='sideCircle'></div> 快照</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='configs' style={{background:backColor.logoBack}}>
                     <Link to='/app_manage/configs'>
                       <span><div className='sideCircle'></div> 服务配置</span>
                     </Link>
@@ -485,18 +492,18 @@ class Sider extends Component {
                     </span>
                   }
                 >
-                  <Menu.Item key='app_center_default'>
+                  <Menu.Item key='app_center_default' style={{background:backColor.logoBack}}>
                     <Link to='/app_center'>
                       <span><div className='sideCircle'></div> 镜像仓库</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='image_store'>
-                    <Link to='/app_center/image_store'>
+                    <Link to='/app_center/image_store' style={{background:backColor.logoBack}}>
                       <span><div className='sideCircle'></div> 应用商店</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='stack_center'>
-                    <Link to='/app_center/stack_center'>
+                    <Link to='/app_center/stack_center' style={{background:backColor.logoBack}}>
                       <span><div className='sideCircle'></div> 编排文件</span>
                     </Link>
                   </Menu.Item>
@@ -513,7 +520,7 @@ class Sider extends Component {
                     </span>
                   }
                 >
-                  <Menu.Item key='ci_cd_default'>
+                  <Menu.Item key='ci_cd_default' style={{background:backColor.logoBack}}>
                     <Link to='/ci_cd'>
                       <span><div className='sideCircle'></div> 构建镜像</span>
                     </Link>
@@ -523,12 +530,12 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 代码仓库</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='tenx_flow'>
+                  <Menu.Item key='tenx_flow' style={{background:backColor.logoBack}}>
                     <Link to='/ci_cd/tenx_flow'>
                       <span><div className='sideCircle'></div> TenxFlow</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='docker_file'>
+                  <Menu.Item key='docker_file' style={{background:backColor.logoBack}}>
                     <Link to='/ci_cd/docker_file'>
                       <span><div className='sideCircle'></div> Dockerfile</span>
                     </Link>
@@ -546,19 +553,19 @@ class Sider extends Component {
                     </span>
                   }
                 >
-                  <Menu.Item key='database_cache_default'>
+                  <Menu.Item key='database_cache_default' style={{background:backColor.logoBack}}>
                     <Link to='/database_cache'>
                       <span><div className='sideCircle'></div> 关系型数据库</span>
                     </Link>
                   </Menu.Item>
 
-                  <Menu.Item key='redis_cluster'>
+                  <Menu.Item key='redis_cluster' style={{background:backColor.logoBack}}>
                     <Link to='/database_cache/redis_cluster'>
                       <span><div className='sideCircle'></div> 缓存</span>
                     </Link>
                   </Menu.Item>
 
-                  <Menu.Item key='zookeeper_cluster'>
+                  <Menu.Item key='zookeeper_cluster' style={{background:backColor.logoBack}}>
                     <Link to='/database_cache/zookeeper_cluster'>
                       <span><div className='sideCircle'></div> ZooKeeper</span>
                     </Link>
@@ -566,7 +573,7 @@ class Sider extends Component {
 
                   <div className='sline'></div>
                 </SubMenu>
-                <Menu.Item key='integration'>
+                <Menu.Item key='integration' style={{background:backColor.logoBack}}>
                   <Link to='/integration'>
                     <span>
                       <svg className='system commonImg'>
@@ -588,28 +595,28 @@ class Sider extends Component {
                     </span>
                   }
                 >
-                  <Menu.Item key='manange_monitor_default'>
+                  <Menu.Item key='manange_monitor_default' style={{background:backColor.logoBack}}>
                     <Link to='/manange_monitor'>
                       <span><div className='sideCircle'></div> 操作审计</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='query_log'>
-                    <Link to='/manange_monitor/query_log'>
+                    <Link to='/manange_monitor/query_log' style={{background:backColor.logoBack}}>
                       <span><div className='sideCircle'></div> 日志查询</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='alarm_setting'>
-                    <Link to='/manange_monitor/alarm_setting'>
+                    <Link to='/manange_monitor/alarm_setting' style={{background:backColor.logoBack}}>
                       <span><div className='sideCircle'></div> 告警设置</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='alarm_record'>
-                    <Link to='/manange_monitor/alarm_record'>
+                    <Link to='/manange_monitor/alarm_record' style={{background:backColor.logoBack}}>
                       <span><div className='sideCircle'></div> 告警记录</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='alarm_group'>
-                    <Link to='/manange_monitor/alarm_group'>
+                    <Link to='/manange_monitor/alarm_group' style={{background:backColor.logoBack}}>
                       <div className='sideCircle'></div> 告警通知组
                     </Link>
                   </Menu.Item>
@@ -627,36 +634,36 @@ class Sider extends Component {
                     </span>
                   }
                 >
-                  <Menu.Item key='account_default'>
+                  <Menu.Item key='account_default' style={{background:backColor.logoBack}}>
                     <Link to='/account'>
                       <span><div className='sideCircle'></div> 我的帐户</span>
                     </Link>
                   </Menu.Item>
                   {(role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) ?
-                    <Menu.Item key='member'>
+                    <Menu.Item key='member' style={{background:backColor.logoBack}}>
                       <Link to='/account/member'>
                         <span><div className='sideCircle'></div> 成员管理</span>
                       </Link>
-                    </Menu.Item> : <Menu.Item style={{ display: 'none' }}></Menu.Item>
+                    </Menu.Item> : <Menu.Item key="key-mem" style={{ display: 'none' }}></Menu.Item>
                   }
                   {(role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) ?
-                    <Menu.Item key='team'>
+                    <Menu.Item key='team' style={{background:backColor.logoBack}}>
                       <Link to='/account/team'>
                         <span><div className='sideCircle'></div> 团队管理</span>
                       </Link>
-                    </Menu.Item> : <Menu.Item style={{ display: 'none' }}></Menu.Item>
+                    </Menu.Item> : <Menu.Item key="none-team" style={{ display: 'none' }}></Menu.Item>
                   }
                   {/*<Menu.Item key='cost'>
                    <Link to='/account/cost'>
                    <span><div className='sideCircle'></div> 费用中心</span>
                    </Link>
                    </Menu.Item>*/}
-                  <Menu.Item key='costCenter#consumptions'>
+                  <Menu.Item key='costCenter#consumptions' style={{background:backColor.logoBack}}>
                     <Link to='/account/costCenter#consumptions'>
                       <span><div className='sideCircle'></div> 消费记录</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='costCenter#payments'>
+                  <Menu.Item key='costCenter#payments' style={{background:backColor.logoBack}}>
                     <Link to='/account/costCenter#payments'>
                       <span><div className='sideCircle'></div> 充值记录</span>
                     </Link>
@@ -675,19 +682,19 @@ class Sider extends Component {
                     </span>
                   }
                 >
-                  <Menu.Item key='version'>
+                  <Menu.Item key='version' style={{background:backColor.logoBack}}>
                     <Link to='/setting/version'>
                       <span><div className='sideCircle'></div> 平台版本</span>
                     </Link>
                   </Menu.Item>
                   {role == ROLE_SYS_ADMIN ?
-                    <Menu.Item key='license'>
+                    <Menu.Item key='license' style={{background:backColor.logoBack}}>
                       <Link to='/setting/license'>
                         <span><div className='sideCircle'></div> 授权管理</span>
                       </Link>
-                    </Menu.Item> : <Menu.Item style={{ display: 'none' }}></Menu.Item>
+                    </Menu.Item> : <Menu.Item key="none-setting" style={{ display: 'none' }}></Menu.Item>
                   }
-                  <Menu.Item key='API'>
+                  <Menu.Item key='API' style={{background:backColor.logoBack}}>
                     <Link to='/setting/API'>
                       <span><div className='sideCircle'></div> 开放 API</span>
                     </Link>
@@ -702,15 +709,16 @@ class Sider extends Component {
                       <Link to='/setting/advancedSetting'>
                         <span><div className='sideCircle' style={{marginRight:'18px'}}></div>高级设置</span>
                       </Link>
-                    </Menu.Item>]
+                    </Menu.Item>,
+                    <Menu.Item key='personalized'>
+                      <Link to='/setting/personalized'>
+                    <span><div className='sideCircle'></div> 个性外观</span>
+                    </Link>
+                    </Menu.Item>
+                    ]
                     :
-                    <Menu.Item style={{ display: 'none' }}></Menu.Item>
+                    <Menu.Item key="none-config" style={{ display: 'none' }}></Menu.Item>
                   }
-                  {/*<Menu.Item key='personalized'>
-                   <Link to='/setting/personalized'>
-                   <span><div className='sideCircle'></div> 个性化设置</span>
-                   </Link>
-                   </Menu.Item>*/}
                   <div className='sline'></div>
                 </SubMenu>
                 {role == ROLE_SYS_ADMIN ?
@@ -724,7 +732,7 @@ class Sider extends Component {
                         <div style={{ clear: 'both' }}></div>
                       </span>
                     </Link>
-                  </Menu.Item> : <Menu.Item style={{ display: 'none' }}></Menu.Item>
+                  </Menu.Item> : <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
                 }
               </Menu>
             </div>
@@ -734,7 +742,7 @@ class Sider extends Component {
         <ul className='changeSiderUl'>
           <Tooltip placement='right' title={siderStyle == 'mini' ? '展开导航栏' : null}
             getTooltipContainer={() => document.getElementById('siderTooltip')}>
-            <li className='changeStyleBox' onClick={ this.props.changeSiderStyle }>
+            <li className='changeStyleBox' onClick={ this.props.changeSiderStyle } style={{background:backColor.logoBack}}>
               <span>
                 {siderStyle == 'mini' ? [<i key='fa-indent' className='fa fa-indent'></i>] : [<i key='fa-outdent'
                   className='fa fa-outdent'></i>]}
@@ -760,7 +768,7 @@ function checkCurrentPath(pathname) {
 
 function mapStateToProp(state) {
   let role = ROLE_USER
-  const { entities } = state
+  const { entities,personalized } = state
   if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
     role = entities.loginUser.info.role
   }
@@ -768,7 +776,8 @@ function mapStateToProp(state) {
     uploadFileOptions: state.storage.uploadFileOptions,
     beforeUploadState: state.storage.beforeUploadFile,
     storageDetail: state.storage.storageDetail,
-    role
+    role,
+    backColor:personalized.backColor,
   }
 }
 

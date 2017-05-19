@@ -73,6 +73,9 @@ const rootRoutes = {
       },
     },
     childRoutes: [{
+      path: 'quickentry',
+      component: require('../components/QuickEntry').default,
+    },{
       path: 'app_manage',
       component: require('../containers/Application').default,
       indexRoute: {

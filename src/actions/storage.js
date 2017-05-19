@@ -351,3 +351,118 @@ export function loadFreeVolume(cluster) {
     return dispatch(fetchFreeVolume(cluster))
   }
 }
+
+export const SNAPSHOT_CREATE_REQUEST = 'SNAPSHOT_CREATE_REQUEST'
+export const SNAPSHOT_CREATE_SUCCESS = 'SNAPSHOT_CREATE_SUCCESS'
+export const SNAPSHOT_CREATE_FAILURE = 'SNAPSHOT_CREATE_FAILURE'
+
+// Fetches upgrade or renewals from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchSnapshotCreate(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/${body.volumeName}/snapshot`
+	return {
+		[FETCH_API]: {
+			types: [SNAPSHOT_CREATE_REQUEST,SNAPSHOT_CREATE_SUCCESS, SNAPSHOT_CREATE_FAILURE],
+			endpoint,
+			schema: {},
+			options: {
+				method: 'POST',
+				body: body.body
+			},
+		},
+		callback
+	}
+}
+// Fetches upgrade or renewals from API
+// Relies on Redux Thunk middleware.
+export function SnapshotCreate(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchSnapshotCreate(body, callback))
+	}
+}
+
+export const SNAPSHOT_DELETE_REQUEST = 'SNAPSHOT_DELETE_REQUEST'
+export const SNAPSHOT_DELETE_SUCCESS = 'SNAPSHOT_DELETE_SUCCESS'
+export const SNAPSHOT_DELETE_FAILURE = 'SNAPSHOT_DELETE_FAILURE'
+
+// Fetches upgrade or renewals from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchSnapshotDelete(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/snapshot/delete`
+	return {
+		[FETCH_API]: {
+			types: [SNAPSHOT_DELETE_REQUEST,SNAPSHOT_DELETE_SUCCESS, SNAPSHOT_DELETE_FAILURE],
+			endpoint,
+			schema: {},
+			options: {
+				method: 'POST',
+				body: body.body
+			},
+		},
+		callback
+	}
+}
+// Fetches upgrade or renewals from API
+// Relies on Redux Thunk middleware.
+export function SnapshotDelete(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchSnapshotDelete(body, callback))
+	}
+}
+
+
+
+export const SNAPSHOT_ROLLBACK_REQUEST = 'SNAPSHOT_ROLLBACK_REQUEST'
+export const SNAPSHOT_ROLLBACK_SUCCESS = 'SNAPSHOT_ROLLBACK_SUCCESS'
+export const SNAPSHOT_ROLLBACK_FAILURE = 'SNAPSHOT_ROLLBACK_FAILURE'
+// Fetches upgrade or renewals from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchSnapshotRollback(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/${body.volumeName}/snapshot/rollback`
+	return {
+		[FETCH_API]: {
+			types: [SNAPSHOT_ROLLBACK_REQUEST,SNAPSHOT_ROLLBACK_SUCCESS, SNAPSHOT_ROLLBACK_FAILURE],
+			endpoint,
+			schema: {},
+			options: {
+				method: 'POST',
+				body: body.body
+			},
+		},
+		callback
+	}
+}
+// Fetches upgrade or renewals from API
+// Relies on Redux Thunk middleware.
+export function SnapshotRollback(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchSnapshotRollback(body, callback))
+	}
+}
+
+export const SNAPSHOT_LIST_REQUEST = 'SNAPSHOT_LIST_REQUEST'
+export const SNAPSHOT_LIST_SUCCESS = 'SNAPSHOT_LIST_SUCCESS'
+export const SNAPSHOT_LIST_FAILURE = 'SNAPSHOT_LIST_FAILURE'
+// Fetches upgrade or renewals from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchSnapshotList(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/snapshot/list`
+	return {
+		[FETCH_API]: {
+			types: [SNAPSHOT_LIST_REQUEST,SNAPSHOT_LIST_SUCCESS, SNAPSHOT_LIST_FAILURE],
+			endpoint,
+			schema: {},
+			options: {
+				method: 'GET'
+			},
+		},
+		callback
+	}
+}
+// Fetches upgrade or renewals from API
+// Relies on Redux Thunk middleware.
+export function SnapshotList(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchSnapshotList(body, callback))
+	}
+}

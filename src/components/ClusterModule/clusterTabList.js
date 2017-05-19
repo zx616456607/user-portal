@@ -23,6 +23,7 @@ import {
   deleteClusterNode,
   getKubectlsPods,
   getAddNodeCMD,
+  getClusterLabel
 } from '../../actions/cluster_node'
 import { getClusterSummary } from '../../actions/cluster'
 import { addTerminal } from '../../actions/terminal'
@@ -49,6 +50,8 @@ class ClusterTabList extends Component {
     this.copyAddNodeCMD = this.copyAddNodeCMD.bind(this)
     this.cancelModal = this.cancelModal.bind(this)
     this.nextStep = this.nextStep.bind(this)
+    this.handleTabsSwitch = this.handleTabsSwitch.bind(this)
+    this.handleCallbackActiveKey = this.handleCallbackActiveKey.bind(this)
     this.state = {
       nodeList: [],
       podCount: [],
@@ -56,7 +59,8 @@ class ClusterTabList extends Component {
       addClusterOrNodeModalVisible: false,
       deleteNode: null,
       copyAddNodeSuccess: false,
-      step:1 // create alarm modal step
+      step: 1,// create alarm modal step
+      TabsactiveKey: 1,
     }
   }
 
@@ -153,6 +157,21 @@ class ClusterTabList extends Component {
     })
   }
 
+  handleTabsSwitch(key) {
+    this.setState({
+      TabsactiveKey: key
+    })
+    if (key === 'labels') {
+      this.props.getClusterLabel(this.props.clusterID)
+    }
+  }
+
+  handleCallbackActiveKey(obj) {
+    this.setState({
+      TabsactiveKey: 'labels',
+    })
+  }
+
   render() {
     const {
       intl, isFetching, nodes,
@@ -161,7 +180,7 @@ class ClusterTabList extends Component {
       cluster, clusterSummary,
     } = this.props
     const { formatMessage } = intl;
-    const { nodeList, podCount, deleteNode, copyAddNodeSuccess } = this.state;
+    const { nodeList, podCount, deleteNode, copyAddNodeSuccess, TabsactiveKey } = this.state;
     const rootscope = this.props.scope;
     const scope = this;
     let oncache = this.state.currentContainer.map((item) => {
@@ -178,27 +197,28 @@ class ClusterTabList extends Component {
         type='right'
         >
         <div id='clusterTabList' key='clusterTabList'>
-          <Tabs>
+          <Tabs activeKey={TabsactiveKey} onChange={this.handleTabsSwitch}>
 
-            <TabPane tab={<div className='tablepanediv'><i className="fa fa-tachometer" aria-hidden="true"></i><span className='tablepanespan'>资源总览</span></div>} key="1">
+            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#resourceoverview"></use></svg><span className='tablepanespan'>资源总览</span></div>} key="1">
             <ClusterResourcesOverview
               cluster={cluster}
               clusterSummary={clusterSummary}
             />
 
             </TabPane>
-            <TabPane tab={<div><i className="fa fa-server" aria-hidden="true"></i><span className='tablepanespan'>主机列表</span></div>} key="2">
+            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#hostlists"></use></svg><span className='tablepanespan'>主机列表</span></div>} key="2">
               <HostList
                 cluster={cluster}
                 clusterID={clusterID}
                 containerList={podCount}
+                callbackActiveKey={this.handleCallbackActiveKey}
               />
             </TabPane>
-            <TabPane tab={<div><i className="fa fa-tag" aria-hidden="true"></i><span className='tablepanespan'>标签管理</span></div>} key="3">
+            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#managelabels"></use></svg><span className='tablepanespan'>标签管理</span></div>} key="labels">
               <ClusterLabelManage  clusterID={clusterID} />
             </TabPane>
 
-            <TabPane tab={<div><i className="fa fa-plug" aria-hidden="true"></i><span className='tablepanespan'>插件集群</span></div>} key="4">
+            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#plugin"></use></svg><span className='tablepanespan'>插件管理</span></div>} key="4">
               <ClusterPlugin
               />
             </TabPane>
@@ -272,7 +292,8 @@ export default connect(mapStateToProps, {
   getKubectlsPods,
   getAddNodeCMD,
   getClusterSummary,
-  addTerminal
+  addTerminal,
+  getClusterLabel
 })(injectIntl(ClusterTabList, {
   withRef: true,
 }))

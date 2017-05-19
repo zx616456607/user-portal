@@ -20,6 +20,7 @@ import {
   TENX_PORTAL_VERSION_MAJOR_KEY,
   TENX_PORTAL_VERSION_KEY,
   VERSION_REG_EXP,
+  RESOURCES_DIY,
 } from '../constants'
 import { STANDARD_MODE, ENTERPRISE_MODE } from '../../configs/constants'
 import { mode } from '../../configs/model'
@@ -197,18 +198,24 @@ export function setCookie(cName, value, options = {}) {
 }
 
 /**
- * Generate random string with specified length, default is 6
+ * Generate random string with specified length, default is 6, max is 64
  */
 export function genRandomString(mytoken, len) {
   const DEFAULT_TOKEN = '0123456789qwertyuioplkjhgfdsazxcvbnmABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&'
   const DEFAULT_LEN = 6
+  const MAX_LEN = 64
   if (!mytoken) {
     mytoken = DEFAULT_TOKEN
     len = DEFAULT_LEN
   } else if (!len) {
-    len = mytoken
-    mytoken = DEFAULT_TOKEN
+    if (typeof mytoken === 'number') {
+      len = mytoken
+      mytoken = DEFAULT_TOKEN
+    } else {
+      len = DEFAULT_LEN
+    }
   }
+  len = len > MAX_LEN ? MAX_LEN : len
   let randomStr = ''
   for (let i = 0; i < len; i++) {
     randomStr += mytoken.charAt(Math.ceil(Math.random() * 100000000) % mytoken.length)
@@ -466,4 +473,70 @@ export function calcuTime(time) {
     time = time / 60
   }
   return time + sym
+}
+
+export function isSafariBrower() {
+  var ua = navigator.userAgent.toLowerCase();
+  if (ua.indexOf('safari') != -1) {
+    if (ua.indexOf('chrome') < 0) {
+      return true
+    }
+  }
+  return false
+}
+
+export function getResourceByMemory(memory, DIYMemory, DIYCPU) {
+  if (memory !== RESOURCES_DIY) {
+    memory = parseInt(memory)
+  }
+  let cpuShow = 1 // unit: C
+  let cpu = 0.1 // unit: C
+  let memoryShow = 0.5 // unit: G
+  let config = '2x'
+  switch (memory) {
+    case 256:
+      memoryShow = 256 / 1024
+      cpuShow = 1
+      cpu = 0.1
+      config = '1x'
+      break
+    case 512:
+      memoryShow = 512 / 1024
+      cpuShow = 1
+      cpu = 0.1
+      config = '2x'
+      break
+    case 1024:
+      memoryShow = 1024 / 1024
+      cpuShow = 1
+      cpu = 0.2
+      config = '4x'
+      break
+    case 2048:
+      memoryShow = 2048 / 1024
+      cpuShow = 1
+      cpu = 0.4
+      config = '8x'
+      break
+    case 4096:
+      memoryShow = 4096 / 1024
+      cpuShow = 1
+      cpu = 1
+      config = '16x'
+      break
+    case 8192:
+      memoryShow = 8192 / 1024
+      cpuShow = 2
+      cpu = 2
+      config = '32x'
+      break
+    case RESOURCES_DIY:
+      memoryShow = Math.ceil(DIYMemory / 1024 * 100) / 100
+      cpuShow = DIYCPU
+      cpu = DIYCPU
+      config = RESOURCES_DIY
+    default:
+      break
+  }
+  return { cpu, memory, cpuShow, memoryShow, config }
 }

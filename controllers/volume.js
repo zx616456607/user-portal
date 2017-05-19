@@ -212,6 +212,63 @@ exports.getPoolStatus = function*() {
   this.body = response
 }
 
+exports.createSnapshot=function*() {
+  const snapshot=this.request.body
+  const volumeName = this.params.name
+  if (!snapshot.snapshotName||!volumeName) {
+      this.status = 400
+      this.body = {
+          message: 'snapname and volumeName is empty'
+      }
+      return
+  }
+  const cluster = this.params.cluster
+  const snapApi=apiFactory.getK8sApi(this.session.loginUser)
+  const response=yield snapApi.createBy([cluster,'volumes',volumeName,'snapshot'],null,this.request.body)
+  this.status = response.code
+  this.body = response
+}
+
+exports.deleteSnapshot=function* () {
+  const snapshotArray = this.request.body
+  if (!snapshotArray) {
+      this.status = 400
+      this.body = {
+          message: 'error'
+      }
+      return
+  }
+  const cluster = this.params.cluster
+  const snapApi=apiFactory.getK8sApi(this.session.loginUser)
+  const response=yield snapApi.batchDeleteBy([cluster,'volumes','snapshot','delete'],null,this.request.body)
+  this.status = response.code
+  this.body = response
+}
+exports.listSnapshots=function* () {
+  const cluster = this.params.cluster
+  const snapApi=apiFactory.getK8sApi(this.session.loginUser)
+  const response=yield snapApi.getBy([cluster,'volumes','snapshot','list'],null)
+  this.status = response.code
+  this.body = response
+}
+exports.rollbackSnapshot=function* () {
+  const snapshot=this.request.body
+  const volumeName = this.params.name
+  if (!snapshot.snapshotName||!volumeName) {
+      this.status = 400
+      this.body = {
+          message: 'snapname and volumeName is empty'
+      }
+      return
+  }
+  const cluster = this.params.cluster
+  const snapApi=apiFactory.getK8sApi(this.session.loginUser)
+  const response=yield snapApi.createBy([cluster,'volumes',volumeName,'snapshot','rollback'],null,this.request.body)
+  this.status = response.code
+  this.body = response
+}
+
+
 // exports.exportFile = function* () {
 //   const pool = this.params.pool
 //   const cluster = this.params.cluster
