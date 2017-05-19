@@ -37,6 +37,7 @@ const globalConfigController = require('../controllers/global_config')
 const imageScanController = require('../controllers/image_scan')
 const alertController = require('../controllers/alert')
 const labelController = require('../controllers/labels')
+const oemController = require('../controllers/oem_info')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -421,6 +422,11 @@ module.exports = function (Router) {
   router.post('/labels', labelController.addLabels)
   router.put('/labels/:id', labelController.updateLabel)
   router.delete('/labels/:id', labelController.deleteLabel)
+
+  // oem info
+  router.get('/oem/info', oemController.getOEMInfo)
+  router.put('/oem/logo', oemController.updateLogo)
+  router.put('/oem/info', oemController.updateText)
 
   return router.routes()
 }
