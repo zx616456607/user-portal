@@ -59,6 +59,11 @@ module.exports = function (Router) {
   // router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
   router.get('/storage-pools/:cluster/volumes/available', volumeController.getAvailableVolume)
   router.get('/storage-pools/:cluster/volumes/pool-status', volumeController.getPoolStatus)
+  router.get('/storage-pools/:cluster/volumes/snapshot/list', volumeController.listSnapshots)
+  router.post('/storage-pools/:cluster/volumes/snapshot/delete', volumeController.deleteSnapshot)
+  router.post('/storage-pools/:cluster/volumes/:name/snapshot', volumeController.createSnapshot)
+  router.post('/storage-pools/:cluster/volumes/:name/snapshot/rollback', volumeController.rollbackSnapshot)
+
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)

@@ -62,20 +62,64 @@ module.exports = function (request) {
       }
     }
 
+    /**
+     * get method with query
+     *
+     * @param {Object} querys
+     * @param {Function|Object} callback
+     * ```
+     * {
+     *   dataType: 'text|json|buffer',
+     *   contentType: 'json',
+     *   timeout: 5000, // ms
+     *   headers: {}
+     * }
+     * ```
+     * @returns
+     *
+     * @memberOf Collections
+     */
     get(querys, callback) {
       let endpoint = this[_getPaths]() + this[_getQuerys](querys)
-      return request({
+      let object = {
         endpoint,
         method: 'GET'
-      }, callback)
+      }
+      if (typeof callback === 'object') {
+        object = Object.assign({}, callback, object)
+        callback = null
+      }
+      return request(object, callback)
     }
 
+    /**
+     * get method with path and query
+     *
+     * @param {Object} querys
+     * @param {Function|Object} callback
+     * ```
+     * {
+     *   dataType: 'text|json|buffer',
+     *   contentType: 'json',
+     *   timeout: 5000, // ms
+     *   headers: {}
+     * }
+     * ```
+     * @returns
+     *
+     * @memberOf Collections
+     */
     getBy(paths, querys, callback) {
       let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
-      return request({
+      let object = {
         endpoint,
         method: 'GET'
-      }, callback)
+      }
+      if (typeof callback === 'object') {
+        object = Object.assign({}, callback, object)
+        callback = null
+      }
+      return request(object, callback)
     }
 
     create(data, callback) {

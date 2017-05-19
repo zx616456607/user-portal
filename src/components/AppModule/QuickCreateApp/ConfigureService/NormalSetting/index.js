@@ -13,14 +13,14 @@
 import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Row, Col, Form, InputNumber, Tooltip, Icon, Switch, Select } from 'antd'
-import ResourceSelect from '../../../ResourceSelect'
+import ResourceSelect from '../../../../ResourceSelect'
 import Storage from './Storage'
 import Ports from './Ports'
-import { getNodes } from '../../../../actions/cluster_node'
+import { getNodes } from '../../../../../actions/cluster_node'
 import {
   SYSTEM_DEFAULT_SCHEDULE,
- } from '../../../../constants'
-import './style/Normal.less'
+ } from '../../../../../constants'
+import './style/index.less'
 
 const FormItem = Form.Item
 
@@ -48,10 +48,15 @@ const Normal = React.createClass({
       }
     })
   },
-  setReplicasToDefault() {
+  setReplicasToDefault(disabled) {
     this.props.form.setFieldsValue({
       replicas: 1,
     })
+    if (disabled) {
+      this.setState({
+        replicasInputDisabled: true,
+      })
+    }
   },
   setBindNodeToDefault() {
     this.props.form.setFieldsValue({
