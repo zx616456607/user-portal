@@ -171,6 +171,7 @@ class ManageTagModal extends Component {
     this.handlecallbackHostList = this.handlecallbackHostList.bind(this)
     this.handleCreateLabelModal = this.handleCreateLabelModal.bind(this)
     this.handleCancelLabelModal = this.handleCancelLabelModal.bind(this)
+    this.checkKey = this.checkKey.bind(this)
     this.state = {
       createLabelModal: false,
       visible: false,
@@ -203,7 +204,7 @@ class ManageTagModal extends Component {
         failed:{
           func:(ret)=> {
             notificat.close()
-            notificat.success('添加失败！',ret.message.message || ret.message)
+            notificat.error('添加失败！')
           }
         }
       })
@@ -345,6 +346,16 @@ class ManageTagModal extends Component {
     if (value.length < 3 || value.length > 64) {
       callback(new Error('标签键长度为3~64位'))
       return
+    }
+    let isExtentd
+    for (let item of this.props.labels) {
+      if (item.key === value) {
+        isExtentd = true
+        break
+      }
+    }
+    if (isExtentd) {
+      return callback(new Error('标签键已存在'))
     }
     callback()
   }

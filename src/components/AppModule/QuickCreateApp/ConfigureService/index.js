@@ -27,7 +27,11 @@ import {
   DEFAULT_REGISTRY,
   ASYNC_VALIDATOR_TIMEOUT,
  } from '../../../../constants'
-import Normal from './Normal'
+import NormalSetting from './NormalSetting'
+import AssistSetting from './AssistSetting'
+import LivenessSetting from './LivenessSetting'
+import ConfigMapSetting from './ConfigMapSetting'
+import AdvancedSetting from './AdvancedSetting'
 import './style/index.less'
 
 const LATEST = 'latest'
@@ -149,16 +153,20 @@ let ConfigureService = React.createClass({
     }
     loadImageConfigFunc()
   },
-  setConfigsToStore() {},
   setConfigsToForm(configs) {
     this.setState({
       imageConfigs: configs,
     })
     const { form } = this.props
     const { setFieldsValue } = form
-    let { mountPath, containerPorts } = configs
+    let {
+      mountPath,
+      containerPorts,
+      entrypoint,
+      cmd,
+    } = configs
 
-    // set storage
+    // set storage `./NormalSetting/Storage.js`
     if (!mountPath || !Array.isArray(mountPath)) {
       mountPath = []
     }
@@ -170,13 +178,19 @@ let ConfigureService = React.createClass({
       })
     })
 
-    // set ports
+    // set ports `./NormalSetting/Ports.js`
     if (!containerPorts || !Array.isArray(containerPorts)) {
       containerPorts = []
     }
     const portsKeys = []
     containerPorts.map((port, index) => {
-      portsKeys.push(index)
+      // magic code ！
+      // 此处 portsKeys 的元素必须为一个对象，而不能是一个数字
+      // 后续会在这个对象上添加 `deleted` 字段来标记这个对象是否被删除
+      // 在渲染元素时，根据 `deleted` 字段来决定是否渲染
+      // 如果为一个数字，删除时直接移除，会导致 redux store 中的 fields 与 form 中的 fields 不一致
+      // 具体原因与 rc-form 组件有关
+      portsKeys.push({ value: index })
       const portArray = port.split('/')
       setFieldsValue({
         [`port${index}`]: parseInt(portArray[0]),
@@ -185,15 +199,37 @@ let ConfigureService = React.createClass({
     })
     // must set a port
     if (portsKeys.length < 1) {
-      portsKeys.push(0)
+      portsKeys.push({ value: 0})
       setFieldsValue({
         [`portProtocol0`]: 'TCP',
+      })
+    }
+
+    // set entrypoint, cmd, imagePullPolicy `./AssistSetting.js`
+    // entrypoint(Docker) -> command(K8s)
+    // cmd(Docker) -> args(K8s)
+    if (entrypoint) {
+      setFieldsValue({
+        command: entrypoint.join(' '),
+      })
+    }
+    const argsKeys = []
+    if (cmd) {
+      cmd.forEach((args, index) => {
+        // magic code ！
+        // the same as portsKeys
+        argsKeys.push({ value: index })
+        setFieldsValue({
+          [`args${index}`]: args,
+        })
       })
     }
 
     setFieldsValue({
       storageKeys,
       portsKeys,
+      argsKeys,
+      imagePullPolicy: 'Always'
     })
   },
   checkAppName(rule, value, callback) {
@@ -279,8 +315,9 @@ let ConfigureService = React.createClass({
     const {
       form, imageTags, currentFields,
       standardFlag, loadFreeVolume, createStorage,
-      current, id,
+      current, id, allFields
     } = this.props
+    const allFieldsKeys = Object.keys(allFields) || []
     const { imageConfigs } = this.state
     const { getFieldProps } = form
     const appNameProps = getFieldProps('appName', {
@@ -380,7 +417,7 @@ let ConfigureService = React.createClass({
             </FormItem>
           </Form>
         </div>
-        <Normal
+        <NormalSetting
           id={id}
           form={form}
           formItemLayout={formItemLayout}
@@ -390,6 +427,22 @@ let ConfigureService = React.createClass({
           createStorage={createStorage}
           imageConfigs={imageConfigs}
           key="normal"
+        />
+        <AssistSetting
+          form={form}
+          formItemLayout={formItemLayout}
+          fields={currentFields}
+          imageConfigs={imageConfigs}
+          key="assist"
+        />
+        <LivenessSetting
+          key="liveness"
+        />
+        <ConfigMapSetting
+          key="configMap"
+        />
+        <AdvancedSetting
+          key="advanced"
         />
       </QueueAnim>
     )
