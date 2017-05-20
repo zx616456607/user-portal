@@ -56,12 +56,15 @@ class ClusterPlugin extends Component{
       return memory.toFixed(0) + size
     }
   }
-  getStatusColor(status) {
+  getStatusColor(status, name) {
     switch(status) {
       case 'OK': {
         return '#33b867'
       }
       case 'Warning': {
+        if(name == 'elasticsearch-logging') {
+          return '#33b867'
+        }
         return '#f23e3f'
       }
       default: 
@@ -211,7 +214,7 @@ class ClusterPlugin extends Component{
             <Link>{plugin.name}</Link>
           </div>
           <div className='status commonTitle'>
-            <span  style={{color: self.getStatusColor(plugin.status.message)}}><i className='fa fa-circle' />&nbsp;&nbsp;{self.getStatusMessage(plugin.status.message)}</span>
+            <span  style={{color: self.getStatusColor(plugin.status.message, plugin.name)}}><i className='fa fa-circle' />&nbsp;&nbsp;{self.getStatusMessage(plugin.status.message)}</span>
           </div>
           <div className='resources commonTitle'>
             <div style={{lineHeight:'40px',height:30}}>CPU：{self.convertCPU(plugin.resourceRange.request.cpu)}</div>
@@ -347,9 +350,9 @@ class ClusterPlugin extends Component{
                 onOk={() => this.resetPlugin() }
                 onCancel={() => this.setState({reset:false})}
                 >
-      <p>确定重新部署 {this.state.currentPlugin ? this.state.currentPlugin.name : ''} 插件吗?</p>
-                </Modal>
-                  <Modal
+                <p>确定重新部署 {this.state.currentPlugin ? this.state.currentPlugin.name : ''} 插件吗?</p>
+              </Modal>
+              <Modal
                 title="设置节点及资源限制"
                 wrapClassName="vertical-center-modal"
                 visible={this.state.setModal}
@@ -360,12 +363,10 @@ class ClusterPlugin extends Component{
                 <p>设置为 <span style={{fontWeight:'bold'}}>0</span> 时表示无限制；设置时请参考所选节点的资源上限设置该插件的资源限制；</p></div>
                  <Form.Item
                   id="select"
-                  label="选择节点"
-                  labelCol={{ span: 3 }}
-                  wrapperCol={{ span: 21 }}
                   style={{borderBottom:'1px solid #ededed',paddingBottom:'30px'}}
                 >
-                  <Select {...selectNode} size="large" style={{width: 200,marginLeft:'20px'}}>
+                  <span className="setLimit">选择节点</span>
+                  <Select {...selectNode} size="large" style={{width: 200}}>
                     { this.getSelectItem()}
                   </Select>
                 </Form.Item>

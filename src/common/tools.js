@@ -136,6 +136,23 @@ export function toQuerystring(obj, sep, eq) {
   }
 }
 
+export function parseQueryStringToObject(querystring) {
+  if(!querystring) {
+    return {}
+  }
+  const queryObj = {}
+  querystring = querystring.trim()
+  if(querystring.indexOf('?') == 0) {
+    querystring = querystring.substr(1)
+  }
+  const queryArray = querystring.split('&')
+  queryArray.forEach(item => {
+    let t = item.split('=')
+    queryObj[t[0]] = t[1]
+  })
+  return queryObj
+}
+
 export function getCookie(cName) {
   if (document.cookie.length === 0) {
     return null

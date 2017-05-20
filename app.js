@@ -277,6 +277,8 @@ const indexRoutes = require('./routes')
 app.use(indexRoutes(Router))
 const apiRoutes = require('./routes/api')
 app.use(apiRoutes(Router))
+const proxyRoutes = require('./routes/proxy')
+app.use(proxyRoutes(Router))
 
 //3rd_account vsettan
 const vsettan = require('./routes/3rd_account/vsettan/no_auth')

@@ -522,6 +522,11 @@ class Sider extends Component {
                 >
                   <Menu.Item key='ci_cd_default' style={{background:backColor.logoBack}}>
                     <Link to='/ci_cd'>
+                      <span><div className='sideCircle'></div> 构建镜像</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='coderepo'>
+                    <Link to='/ci_cd/coderepo'>
                       <span><div className='sideCircle'></div> 代码仓库</span>
                     </Link>
                   </Menu.Item>
