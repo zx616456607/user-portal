@@ -65,6 +65,10 @@ const menuList_enterprise_admin = [
     name: '团队管理'
   },
   {
+    url: '/account/costCenter#payments',
+    name: '角色管理'
+  },
+  {
     url: '/account/costCenter#consumptions',
     name: '消费记录'
   },
