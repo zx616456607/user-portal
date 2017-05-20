@@ -134,32 +134,52 @@ let MemberTable = React.createClass({
 
   },
   filtertypes(filters) {
-    // member select filter type (0=>普通成员，1=>团队管理员，3=> 系统管理员)
+    // member select filter type (0=>普通成员，1=>团队管理员，3=> 系统管理员, )
     // return number
     let filter =''
-    if (filters.style.length === 1) {
-      return filter = `role__eq,${filters.style[0]}`
-    }
+    let isSetFilter = false
     let protoDate = ['0','1','2']
-    if (filters.style.length == 2) {
-      for (let i=0;i < protoDate.length; i++) {
-        let item = protoDate[i]
-        if(filters.style.indexOf(item) < 0){
-          filter = `role__neq,${item}`
-          break
+    let typeData = ['5', '6']
+    if(filters.style) {
+      if (filters.style.length === 1) {
+        isSetFilter = true
+         filter = `role__eq,${filters.style[0]}`
+      }
+      if (filters.style.length == 2) {
+        for (let i=0;i < protoDate.length; i++) {
+          let item = protoDate[i]
+          if(filters.style.indexOf(item) < 0){
+            isSetFilter = true
+            filter = `role__neq,${item}`
+            break
+          }
         }
       }
+    }
+    if(filters.type) {
+      if(filters.type.length == 1) {
+        if(filter) {
+          filter +=`,type__eq,${filters.type[0]}`
+        } else {
+          filter =`type__eq,${filters.type[0]}`
+        }
+
+        isSetFilter = true
+      }
+    }
+    if(isSetFilter) {
       return filter
     }
-    return protoDate
+    return protoDate.concat(typeData)
   },
   onTableChange(pagination, filters, sorter) {
     // 点击分页、筛选、排序时触发
-    if (!filters.style) {
+    if (!filters.style && !filters.type) {
       return
     }
-    let styleFilterStr = filters.style.toString()
-    if (styleFilterStr === this.styleFilter) {
+    let styleFilterStr = filters.style ? filters.style.toString() : ''
+    let typeFilterStr = filters.type ?  filters.type.toString() : ''
+    if (styleFilterStr === this.styleFilter && typeFilterStr == this.typeFilterStr) {
       return
     }
     const { scope } = this.props
@@ -178,6 +198,7 @@ let MemberTable = React.createClass({
     })
     loadUserList(query)
     this.styleFilter = styleFilterStr
+    this.typeFilterStr = typeFilterStr
   },
   render() {
     let { sortedInfo, filteredInfo, sort } = this.state
@@ -232,6 +253,10 @@ let MemberTable = React.createClass({
         { text: '系统管理员', value: 2 }
       ]
     }
+
+    let ldapFileter = [ { text: '是', value: 2 },{ text: '否', value: 1 }]
+
+
     const columns = [
       {
         title: (
@@ -345,6 +370,17 @@ let MemberTable = React.createClass({
         dataIndex: 'balance',
         key: 'balance',
         width: '10%',
+      },
+      {
+        title: 'LDAP',
+        dataIndex: 'type',
+        key: 'type',
+        filters: ldapFileter,
+        width: '10%',
+        render: (text) => {
+          if(text == 2) return '是'
+          return '否'
+        }
       },
       {
         title: '操作',
@@ -585,6 +621,7 @@ function mapStateToProp(state) {
             role: userDetail.role,// user info into team list
             team: item.teamCount,
             balance: parseAmount(item.balance).fullAmount,
+            type: item.type
           }
         )
       })
