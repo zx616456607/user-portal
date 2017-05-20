@@ -134,7 +134,7 @@ let MemberTable = React.createClass({
 
   },
   filtertypes(filters) {
-    // member select filter type (0=>普通成员，1=>团队管理员，3=> 系统管理员, )
+    // member select filter type (0=>普通成员，1=>团队管理员，3=> 系统管理员)
     // return number
     let filter =''
     let isSetFilter = false
