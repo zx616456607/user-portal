@@ -129,7 +129,7 @@ const Ports = React.createClass({
       }
     }
     return (
-      <Row className="portItem">
+      <Row className="portItem" key={`portItem${keyValue}`}>
         <Col span={4}>
           <FormItem>
             <InputNumber

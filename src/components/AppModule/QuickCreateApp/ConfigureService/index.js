@@ -13,7 +13,7 @@
 import React, { PropTypes } from 'react'
 import { Form, Input, Row, Col, Select } from 'antd'
 import { connect } from 'react-redux'
-import { setFormFields } from '../../../../actions/quick_create_app'
+import { setFormFields, removeOldFormFieldsByRegExp } from '../../../../actions/quick_create_app'
 import { checkAppName, checkServiceName } from '../../../../actions/app_manage'
 import {
   loadImageDetailTag,
@@ -66,8 +66,12 @@ let ConfigureService = React.createClass({
   componentWillUnmount() {
     clearTimeout(this.appNameCheckTimeout)
     // save fields to store when component unmount
-    const { id, setFormFields, currentFields } = this.props
+    const { id, setFormFields, currentFields, removeOldFormFieldsByRegExp, mode } = this.props
     setFormFields(id, currentFields)
+    // remove old form fields by `/^[a-zA-Z]+[0-9]+$/`
+    if (mode === 'create') {
+      removeOldFormFieldsByRegExp(id, /^[a-zA-Z]+[0-9]+$/)
+    }
   },
   loadImageTags(props) {
     const {
@@ -168,11 +172,10 @@ let ConfigureService = React.createClass({
       mountPath = []
     }
     const storageKeys = []
+    const storageFields = {}
     mountPath.map((path, index) => {
       storageKeys.push(index)
-      setFieldsValue({
-        [`mountPath${index}`]: path,
-      })
+      storageFields[`mountPath${index}`] = path
     })
 
     // set ports `./NormalSetting/Ports.js`
@@ -180,6 +183,7 @@ let ConfigureService = React.createClass({
       containerPorts = []
     }
     const portsKeys = []
+    const portsFields = {}
     containerPorts.map((port, index) => {
       // magic code ！
       // 此处 portsKeys 的元素必须为一个对象，而不能是一个数字
@@ -189,62 +193,62 @@ let ConfigureService = React.createClass({
       // 具体原因与 rc-form 组件有关
       portsKeys.push({ value: index })
       const portArray = port.split('/')
-      setFieldsValue({
-        [`port${index}`]: parseInt(portArray[0]),
-        [`portProtocol${index}`]: portArray[1].toUpperCase(),
-      })
+      portsFields[`port${index}`] = parseInt(portArray[0])
+      portsFields[`portProtocol${index}`] = portArray[1].toUpperCase()
     })
     // must set a port
     if (portsKeys.length < 1) {
       portsKeys.push({ value: 0})
-      setFieldsValue({
-        [`portProtocol0`]: 'TCP',
-      })
+      portsFields['portProtocol0'] = 'TCP'
     }
 
     // set entrypoint, cmd, imagePullPolicy `./AssistSetting.js`
     // entrypoint(Docker) -> command(K8s)
     // cmd(Docker) -> args(K8s)
+    const commandFields = {}
     if (entrypoint) {
-      setFieldsValue({
-        command: entrypoint.join(' '),
-      })
+      commandFields['command'] = entrypoint.join(' ')
     }
     const argsKeys = []
+    const argsFields = []
     if (cmd) {
       cmd.forEach((args, index) => {
         // magic code ！
         // the same as portsKeys
         argsKeys.push({ value: index })
-        setFieldsValue({
-          [`args${index}`]: args,
-        })
+        argsFields[`args${index}`] = args
       })
     }
 
     // set envs `./AdvancedSetting.js`
     const envKeys = []
+    const envFields = {}
     if (defaultEnv) {
       defaultEnv.forEach((env, index) => {
         // magic code ！
         // the same as portsKeys
         envKeys.push({ value: index })
         const keyIndex = env.indexOf('=')
-        setFieldsValue({
-          [`envKey${index}`]: env.substr(0, keyIndex),
-          [`envValue${index}`]: env.substr(keyIndex + 1),
-        })
+        envFields[`envName${index}`] = env.substr(0, keyIndex)
+        envFields[`envValue${index}`] = env.substr(keyIndex + 1)
       })
     }
 
-    setFieldsValue({
+    // use `setFieldsValue` once, dispatch one action
+    let fieldsValues = {
       storageKeys,
       portsKeys,
       argsKeys,
       envKeys,
       imagePullPolicy: 'Always',
       livenessProtocol: 'none',
-    })
+    }
+    Object.assign(fieldsValues, storageFields, portsFields,
+      commandFields,
+      argsFields,
+      envFields,
+    )
+    setFieldsValue(fieldsValues)
   },
   checkAppName(rule, value, callback) {
     if (!value) {
@@ -512,6 +516,7 @@ function mapStateToProps(state, props) {
 
 ConfigureService = connect(mapStateToProps, {
   setFormFields,
+  removeOldFormFieldsByRegExp,
   checkAppName,
   checkServiceName,
   loadImageDetailTag,

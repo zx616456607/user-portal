@@ -35,7 +35,7 @@ const LivenessSetting = React.createClass({
     let livenessInitialDelaySecondsProps
     let livenessTimeoutSecondsProps
     let livenessPeriodSecondsProps
-    if (livenessProtocol !== 'none') {
+    if (livenessProtocol === 'HTTP' || livenessProtocol === 'TCP') {
       livenessPortProps = getFieldProps('livenessPort', {
         rules: [
           { required: true, message: '请填写端口' }
@@ -91,7 +91,7 @@ const LivenessSetting = React.createClass({
               </RadioGroup>
             </FormItem>
             {
-              livenessProtocol !== 'none' && (
+              (livenessProtocol === 'HTTP' || livenessProtocol === 'TCP') && (
                 <Row>
                   <Col span={formItemLayout.labelCol.span}>配置</Col>
                   <Col span={formItemLayout.wrapperCol.span}>

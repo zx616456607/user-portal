@@ -151,7 +151,7 @@ export function buildJson(fields, cluster, loginUser) {
     deployment.syncTimeZoneWithNode(serviceName)
   }
   // 设置高可用
-  if (livenessProtocol !== 'none') {
+  if (livenessProtocol === 'HTTP' || livenessProtocol === 'TCP') {
     deployment.setLivenessProbe(serviceName, livenessProtocol, {
       port: parseInt(livenessPort),
       path: livenessPath,
@@ -165,9 +165,9 @@ export function buildJson(fields, cluster, loginUser) {
     envKeys.forEach(key => {
       if (!key.deleted) {
         const keyValue = key.value
-        const envKey = fieldsValues[`envKey${keyValue}`]
+        const envName = fieldsValues[`envName${keyValue}`]
         const envValue = fieldsValues[`envValue${keyValue}`]
-        deployment.addContainerEnv(serviceName, envKey, envValue)
+        deployment.addContainerEnv(serviceName, envName, envValue)
       }
     })
   }

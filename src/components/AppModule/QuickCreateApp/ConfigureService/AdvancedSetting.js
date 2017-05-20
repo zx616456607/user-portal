@@ -31,7 +31,7 @@ const AdvancedSetting = React.createClass({
         return
       }
       const keyValue = key.value
-      validateFieldsKeys.push(`envKey${keyValue}`)
+      validateFieldsKeys.push(`envName${keyValue}`)
       validateFieldsKeys.push(`envValue${keyValue}`)
     })
     validateFields(validateFieldsKeys, (errors, values) => {
@@ -63,6 +63,9 @@ const AdvancedSetting = React.createClass({
     })
   },
   checkEnv(rule, value, callback) {
+    if (!value) {
+      return callback()
+    }
     let errorMsg = appEnvCheck(value, '环境变量');
     if (errorMsg === 'success') {
       return callback()
@@ -76,9 +79,9 @@ const AdvancedSetting = React.createClass({
     const { form } = this.props
     const { getFieldProps } = form
     const keyValue = key.value
-    const envKeyKey = `envKey${keyValue}`
+    const envNameKey = `envName${keyValue}`
     const envValueKey = `envValue${keyValue}`
-    const envKeyProps = getFieldProps(envKeyKey, {
+    const envKeyProps = getFieldProps(envNameKey, {
       rules: [
         { required: true, message: '请填写键' },
         { validator: this.checkEnv },
@@ -90,7 +93,7 @@ const AdvancedSetting = React.createClass({
       ],
     })
     return (
-      <Row className="configItem">
+      <Row className="configItem" key={`configItem${keyValue}`}>
         <Col span={8}>
           <FormItem>
             <Input size="default" placeholder="请填写键" {...envKeyProps} />

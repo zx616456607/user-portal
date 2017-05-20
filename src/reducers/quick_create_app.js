@@ -12,8 +12,8 @@
 import * as ActionTypes from '../actions/quick_create_app'
 
 export default function quickCreateApp(state = { fields: {} }, action) {
-  const { type, key, fields } = action
-  // const default
+  const { type, key, reg, fields } = action
+  const newFields = {}
   switch (type) {
     case ActionTypes.QUICK_CREATE_APP_SET_FORM_FIELDS:
       return Object.assign({}, state, {
@@ -22,7 +22,6 @@ export default function quickCreateApp(state = { fields: {} }, action) {
         }),
       })
     case ActionTypes.QUICK_CREATE_APP_REMOVE_FORM_FIELDS:
-      const newFields = {}
       for (let fieldKey in state.fields) {
         if (state.fields.hasOwnProperty(fieldKey) && fieldKey !== key ) {
           newFields[fieldKey] = state.fields[fieldKey]
@@ -30,6 +29,18 @@ export default function quickCreateApp(state = { fields: {} }, action) {
       }
       return Object.assign({}, state, {
         fields: newFields,
+      })
+    case ActionTypes.QUICK_CREATE_APP_REMOVE_OLD_FORM_FIELDS_BY_REG_EXP:
+      const currentFields = state.fields[key] || {}
+      for (let fieldKey in currentFields) {
+        if (state.fields.hasOwnProperty(fieldKey) && !reg.test(fieldKey)) {
+          newFields[fieldKey] = currentFields[fieldKey]
+        }
+      }
+      return Object.assign({}, state, {
+        fields: {
+          [key]: newFields
+        },
       })
     case ActionTypes.QUICK_CREATE_APP_REMOVE_ALL_FORM_FIELDS:
       return Object.assign({}, state, {
