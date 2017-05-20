@@ -139,7 +139,7 @@ let MemberTable = React.createClass({
     let filter =''
     let isSetFilter = false
     let protoDate = ['0','1','2']
-    let typeData = ['5', '6']
+    let typeData = ['1', '2']
     if(filters.style) {
       if (filters.style.length === 1) {
         isSetFilter = true
