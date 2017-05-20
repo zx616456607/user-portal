@@ -302,10 +302,10 @@ const MyComponent = React.createClass({
             ]}
             >
             <div>
-              <p style={{ lineHeight: '30px' }}>仓库地址：
+              <p style={{ lineHeight: '30px' }}>仓库地址：<span>（如 http://gitlab.demo.com）</span>
                 <Input placeholder="http://*** | https://***" id="gitlab" onChange={this.changeUrl} value={this.state.regUrl} size="large" />
               </p>
-              <p style={{ lineHeight: '30px' }}>Private Token：
+              <p style={{ lineHeight: '30px' }}>Private Token：<span>（位于 Profile Settings → Account）</span>
                 <Input placeholder="Private Token: " size="large" onChange={this.changeToken} value={this.state.regToken} />
               </p>
             </div>
