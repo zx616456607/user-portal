@@ -9,47 +9,82 @@
  */
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import './style/LDAP.less'
-import { Row, Col, Form, Input, Button, Radio, Modal } from 'antd'
+import { Row, Col, Form, Input, Button, Radio, Modal, InputNumber } from 'antd'
+import { getLdap, upsertLdap, syncLdap, removeLdap } from '../../../actions/ldap'
+import Notification from '../../../common/notification_handler'
+import { formatDate } from '../../../common/tools'
 import MemberImg from '../../../assets/img/account/member.png'
 import ArrowImg from '../../../assets/img/account/arrow.png'
 import LDAPImg from '../../../assets/img/account/ldap.png'
+import './style/LDAP.less'
 
 const FormItem = Form.Item
+const notification = new Notification()
+let fieldsChange = false
+
+function showValue(value) {
+  if (value === undefined) {
+    return '-'
+  }
+  return value
+}
 
 class LDAP extends Component {
-	constructor(props){
+  constructor(props){
     super(props)
     this.checkHost = this.checkHost.bind(this)
-    this.checkPort = this.checkPort.bind(this)
-    this.checkBaseDN = this.checkBaseDN.bind(this)
-    this.checkUserDN = this.checkUserDN.bind(this)
-    this.checkPassword = this.checkPassword.bind(this)
-    this.checkAgreement = this.checkAgreement.bind(this)
-    this.checkUserObjectFilters = this.checkUserObjectFilters.bind(this)
-    this.checkUserEmail = this.checkUserEmail.bind(this)
-    this.checkUserObject = this.checkUserObject.bind(this)
-    this.handleSynchronization = this.handleSynchronization(this)
+    this.handleSyncLdap = this.handleSyncLdap.bind(this)
     this.handleSave = this.handleSave.bind(this)
-    this.handleConfirmLiftIntegration = this.handleConfirmLiftIntegration.bind(this)
     this.handelCancelLiftIntegration = this.handelCancelLiftIntegration.bind(this)
     this.handleLiftIntegration = this.handleLiftIntegration.bind(this)
-    this.handleConfirmLiftIntegrationOther = this.handleConfirmLiftIntegrationOther.bind(this)
+    this.loadLdap = this.loadLdap.bind(this)
+    this.renderLastDetail = this.renderLastDetail.bind(this)
+    this.removeLdap = this.removeLdap.bind(this)
+    this.setLdapForm = this.setLdapForm.bind(this)
+    this.cancelEditLdap = this.cancelEditLdap.bind(this)
     this.state = {
       LiftIntegrationModalVisible: false,
+      synBtnLoading: false,
     }
   }
 
-  handleConfirmLiftIntegration(){
-	  this.setState({
-      LiftIntegrationModalVisible: false
-	  })
+  componentWillMount() {
+    this.loadLdap()
   }
 
-  handleConfirmLiftIntegrationOther(){
-    this.setState({
-      LiftIntegrationModalVisible: false
+  loadLdap() {
+    const { getLdap } = this.props
+    getLdap({
+      success: {
+        func: res => {
+          this.setLdapForm(res.data)
+        }
+      }
     })
+  }
+
+  cancelEditLdap(e) {
+    this.setLdapForm()
+  }
+
+  setLdapForm(ldap) {
+    const { form } = this.props
+    const { setFieldsValue, resetFields } = form
+    resetFields()
+    if (!ldap) {
+      ldap = this.props.ldap
+    }
+    const { addr, base, bindDN, tls, userFilter, userProperty, emailProperty } = ldap.configDetail || {}
+    setFieldsValue({
+      addr,
+      base,
+      bindDN,
+      tls: (tls ? tls : 'none'),
+      userFilter,
+      userProperty,
+      emailProperty
+    })
+    fieldsChange = false
   }
 
   handelCancelLiftIntegration(){
@@ -65,174 +100,196 @@ class LDAP extends Component {
   }
 
   checkHost(rule, value, callback){
-    if(!value){
-      return callback('请输入Host')
+    if (!value) {
+      return callback()
+    }
+    if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+      return callback('请填入合法的 host 地址')
     }
     callback()
   }
 
-  checkPort(rule, value, callback){
-    if(!value){
-      return callback('请输入Port')
-    }
-    callback()
-  }
-
-  checkBaseDN(rule, value, callback){
-    if(!value){
-      return callback('请输入Base DN')
-    }
-    callback()
-  }
-
-  checkUserDN(rule, value, callback){
-    if(!value){
-      return callback('请输入User DN')
-    }
-    callback()
-  }
-
-  checkPassword(rule, value, callback){
-    if(!value){
-      return callback('请输入密码')
-    }
-    callback()
-  }
-
-  checkAgreement(rule, value, callback){
-    if(!value){
-      return callback('请选择协议')
-    }
-    callback()
-  }
-
-  checkUserObjectFilters(rule, value, callback){
-    if(!value){
-      return callback('请输入用户对象过滤器')
-    }
-    callback()
-  }
-
-  checkUserEmail(rule, value, callback){
-    if(!value){
-      return callback('请输入用户邮箱')
-    }
-    callback()
-  }
-
-  checkUserObject(rule, value, callback){
-    if(!value){
-      return callback('请输入用户对象过滤器')
-    }
-    callback()
-  }
-
-  handleSynchronization(){
-
-  }
-
-  handleSave(){
-    const { form } = this.props
-    form.validateFieldsAndScroll((errors, values) => {
-      if (!!errors) {
-        return;
+  handleSyncLdap(e){
+    const { syncLdap } = this.props
+    this.setState({
+      synBtnLoading: true,
+    })
+    syncLdap({
+      success: {
+        func: res => {
+          notification.success('同步成功')
+          this.loadLdap()
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: error => {
+          notification.error('同步失败')
+        },
+        isAsync: true,
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            synBtnLoading: false,
+          })
+        },
+        isAsync: true,
       }
     })
   }
 
-  render(){
-	  const { form } = this.props
+  handleSave(){
+    const { form, upsertLdap, ldap } = this.props
+    form.validateFieldsAndScroll((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      const body = {
+        configID: ldap.configID,
+        configDetail: JSON.stringify(values)
+      }
+      upsertLdap(body, {
+        success: {
+          func: res => {
+            notification.success('保存企业集成信息成功')
+            this.loadLdap()
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: error => {
+            notification.error('保存企业集成信息失败')
+          },
+          isAsync: true,
+        }
+      })
+    })
+  }
+
+  removeLdap(removeuser) {
+    const { removeLdap, getLdap } = this.props
+    let query
+    if (removeuser !== undefined) {
+      query = {
+        removeuser,
+      }
+    }
+    removeLdap(query, {
+      success: {
+        func: res => {
+          notification.success('解除集成成功')
+          this.setState({
+            LiftIntegrationModalVisible: false,
+          })
+          this.loadLdap()
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: error => {
+          notification.error('解除集成失败')
+        },
+        isAsync: true,
+      },
+    })
+  }
+
+  renderLastDetail() {
+    const { ldap } = this.props
+    const { configDetail, userSummary, lastSyncInfo } = ldap
+    const { dbUserCount, ldapUserCount, ldapUserInDBCount } = userSummary || {}
+    const {
+      addedUsers, updatedUsers, deletedUsers,
+      invalidUsers, conflictUsers, failedUsers,
+      syncDate
+    } = lastSyncInfo || {}
+    return (
+      <div className='lastDetails'>
+        <div className='title'>上次同步详情</div>
+        <div className='container'>
+          <div className='imgcomtainer'>
+            <Row>
+              <Col span={9} className='leftcol'>
+                <img src={MemberImg} alt=""/>
+                <div className='leftcoltips'>平台成员：<span>{showValue(dbUserCount)}</span></div>
+              </Col>
+              <Col span={6} className='centercol'>
+                <img src={ArrowImg} alt=""/>
+                <Button type="primary" loading={this.state.synBtnLoading} onClick={this.handleSyncLdap}>立即同步</Button>
+              </Col>
+              <Col span={9} className='rightcol'>
+                <img src={LDAPImg} alt=""/>
+                <div className='rightcoltips'>LDAP成员：<span>{showValue(ldapUserCount)}</span></div>
+              </Col>
+            </Row>
+          </div>
+           {
+             lastSyncInfo && (
+              <div className="detail rowStandard">
+                <Row className='item itemfirst'>
+                  <Col span={4} className='item_title'><div>上次同步时间</div></Col>
+                  <Col span={20} className='item_content'><div>{formatDate(syncDate)}</div></Col>
+                </Row>
+                <Row className='item itemfirst'>
+                  <Col span={4} className='item_title'>上次同步成员</Col>
+                  <Col span={20} className='item_content'>
+                    增<span className='number'>{showValue(addedUsers)}</span>,
+                    覆盖<span className='number'>{showValue(addedUsers)}</span>,
+                    删<span className='number'>{showValue(deletedUsers)}</span>,
+                    改<span className='number'>{showValue(updatedUsers)}</span>
+                  </Col>
+                </Row>
+                <Row className='item itemfirst'>
+                  <Col span={4} className='item_title'></Col>
+                  <Col span={20} className='item_content'>
+                    有<span className="number">{showValue(failedUsers)}</span>个成员因名称不合法而同步失败
+                  </Col>
+                </Row>
+              </div>
+            )
+           }
+        </div>
+      </div>
+    )
+  }
+
+  render() {
+    const { form, ldapFetching, ldap } = this.props
+    const { configID, configDetail } = ldap
     const { getFieldProps } = form
-	  const HostProps = getFieldProps('host',{
+	  const AddrProps = getFieldProps('addr', {
       rules: [
+        { required: true, message: '请输入 IP 地址或域名' },
         { validator: this.checkHost }
       ],
     })
-    const PortProps = getFieldProps('port',{
+    // const PortProps = getFieldProps('port')
+    const BaseBNProps = getFieldProps('base', {
       rules: [
-        { validator: this.checkPort }
+        { required: true, message: '请输入 Base DN' },
       ],
     })
-    const BaseBNProps = getFieldProps('baseDN',{
+    const UserDNProps = getFieldProps('bindDN',{
       rules: [
-        { validator: this.checkBaseDN }
+        { required: true, message: '请输入 User DN' },
       ],
     })
-    const UserDNProps = getFieldProps('UserDN',{
+    const PasswordProps = getFieldProps('bindPassword', {
       rules: [
-        { validator: this.checkUserDN }
+        { required: true, message: '请输入密码' },
       ],
     })
-    const PasswordProps = getFieldProps('password',{
-      rules: [
-        { validator: this.checkPassword }
-      ],
-    })
-    const AgreementProps =  getFieldProps('agreement', {
-      rules: [
-        { validator: this.checkAgreement }
-      ],
+    const TlsProps =  getFieldProps('tls', {
+      initialValue: 'none',
     });
-    const UserObjectFiltersProps = getFieldProps('UserObjectFilters',{
-      rules: [
-        { validator: this.checkUserObjectFilters }
-      ],
-    })
-    const UserEmailProps = getFieldProps('UserEmail',{
-      rules: [
-        { validator: this.checkUserEmail }
-      ],
-    })
-    const UserObjectProps = getFieldProps('UserObject',{
-      rules: [
-        { validator: this.checkUserObject }
-      ],
-    })
-    return(
+    const UserObjectFiltersProps = getFieldProps('userFilter')
+    const UserEmailProps = getFieldProps('emailProperty')
+    const UserObjectProps = getFieldProps('userProperty')
+    return (
       <div id="account_ldap">
         <div className='alertRow'>通过配置以下信息可将企业用户目录信息同步到该平台。所有接入的成员都默认是普通成员，同步到平台后，可修改成员类型（系统管理员、团队管理员、普通成员）；*为必填字段，其他为选填字段。</div>
-        <div className='lastDetails'>
-          <div className='title'>上次同步详情</div>
-          <div className='container'>
-            <div className='imgcomtainer'>
-              <Row>
-                <Col span={9} className='leftcol'>
-                  <img src={MemberImg} alt=""/>
-                  <div className='leftcoltips'>平台成员：<span>100</span></div>
-                </Col>
-                <Col span={6} className='centercol'>
-                  <img src={ArrowImg} alt=""/>
-                  <Button type="primary" onClick={this.handleSynchronization}>立即同步</Button>
-                </Col>
-                <Col span={9} className='rightcol'>
-                  <img src={LDAPImg} alt=""/>
-                  <div className='rightcoltips'>LDAP成员：<span>110</span></div>
-                </Col>
-              </Row>
-            </div>
-            <div className="detail rowStandard">
-              <Row className='item itemfirst'>
-                <Col span={4} className='item_title'><div>上次同步时间</div></Col>
-                <Col span={20} className='item_content'><div>2017-05-18 16:32:4</div></Col>
-              </Row>
-              <Row className='item itemfirst'>
-                <Col span={4} className='item_title'>上次同步成员</Col>
-                <Col span={20} className='item_content'>
-                  增<span className='number'>0</span>,
-                  覆盖<span className='number'>5</span>,
-                  删<span className='number'>2</span>,
-                  改<span className='number'>1</span>
-                </Col>
-              </Row>
-              <Row className='item itemfirst'>
-                <Col span={4} className='item_title'></Col>
-                <Col span={20} className='item_content'>
-                  有<span className="number">2</span>个成员因名称不合法而同步失败
-                </Col>
-              </Row>
-            </div>
-          </div>
-        </div>
+        {configID && this.renderLastDetail()}
         <div className='basicSetup'>
           <div className='title'>基本设置</div>
           <div className="container">
@@ -245,21 +302,21 @@ class LDAP extends Component {
               </div>
               <div className='host_port rowPadding'>
                 <Row className='item_input'>
-                  <Col span={4} className='item_title'>Host<span className='star'>*</span></Col>
+                  <Col span={4} className='item_title'>Addr<span className='star'>*</span></Col>
                   <Col span={20} className='item_content'>
                     <FormItem>
-                      <Input {...HostProps} placeholder="请输入IP地址或域名"/>
+                      <Input {...AddrProps} placeholder="请输入IP地址或域名"/>
                     </FormItem>
                   </Col>
                 </Row>
-                <Row className='item_input'>
+                {/*<Row className='item_input'>
                   <Col span={4} className='item_title'>Port</Col>
                   <Col span={20} className='item_content'>
                     <FormItem>
-                      <Input {...PortProps} placeholder='例：389'/>
+                      <InputNumber style={{ width: "50%" }} min={0} max={65535} {...PortProps} placeholder='例：389'/>
                     </FormItem>
                   </Col>
-                </Row>
+                </Row>*/}
               </div>
               <div className='host_port rowPadding'>
                 <Row className='item_input'>
@@ -284,7 +341,7 @@ class LDAP extends Component {
                   <Col span={4} className='item_title'>Password<span className='star'>*</span></Col>
                   <Col span={20} className='item_content'>
                     <FormItem>
-                      <Input {...PasswordProps} placeholder='请输入密码'/>
+                      <Input type="password" {...PasswordProps} placeholder='请输入密码'/>
                     </FormItem>
                   </Col>
                 </Row>
@@ -305,9 +362,9 @@ class LDAP extends Component {
                 <Row className='thirdrow'>
                   <Col span={4} className='item_title'>协议</Col>
                   <Col span={20} className='item_content'>
-                    <Radio.Group {...AgreementProps}>
-                      <Radio key="ldap" value="ldap" className='leftradio'>LDAP</Radio>
-                      <Radio key="ldaps" value="ldaps">LDAPS</Radio>   
+                    <Radio.Group {...TlsProps}>
+                      <Radio key="ldap" value="none" className='leftradio'>LDAP</Radio>
+                      <Radio key="ldaps" value="always">LDAPS</Radio>
                     </Radio.Group>
                   </Col>
                 </Row>
@@ -342,7 +399,9 @@ class LDAP extends Component {
                 <Row>
                   <Col span={4} className='item_title'></Col>
                   <Col span={20} className='item_content'>
-                    <Button className='leftbutton'>取消</Button>
+                  {
+                    fieldsChange && <Button className='leftbutton' onClick={this.cancelEditLdap}>取消</Button>
+                  }
                     <Button type="primary" onClick={this.handleSave}>保存</Button>
                   </Col>
                 </Row>
@@ -350,32 +409,34 @@ class LDAP extends Component {
             </Form>
           </div>
         </div>
-        <div className='handle'>
-          <div className="title">操作</div>
-          <div className="container">
-            <div className='tips'>
-              <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
-              请注意，点击解除企业用户目录集成，可选择仅接触集成或同时移除已经同步的用户，该操作不能被恢复
+        {
+          configID && (
+            <div className='handle'>
+              <div className="title">操作</div>
+              <div className="container">
+                <div className='tips'>
+                  <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
+                  请注意，点击解除企业用户目录集成，可选择仅接触集成或同时移除已经同步的用户，该操作不能被恢复
+                </div>
+                <div className='remove'>
+                  <Button className='removeButton' onClick={this.handleLiftIntegration}>解除</Button>
+                </div>
+              </div>
             </div>
-            <div className='remove'>
-              <Button className='removeButton' onClick={this.handleLiftIntegration}>解除</Button>
-            </div>
-          </div>
-        </div>
-
+          )
+        }
          <Modal
            title="解除集成"
            visible={this.state.LiftIntegrationModalVisible}
            closable={true}
-           onOk={this.handleConfirmLiftIntegration}
            onCancel={this.handelCancelLiftIntegration}
            width='570px'
            maskClosable={false}
            wrapClassName="LiftIntegrationModal"
            footer={[
              <Button onClick={this.handelCancelLiftIntegration} size="large">取消</Button>,
-             <Button onClick={this.handleConfirmLiftIntegrationOther} size="large">解除集成并移除用户</Button>,
-             <Button onClick={this.handleConfirmLiftIntegration} type="primary" size="large">仅解除集成</Button>
+             <Button onClick={this.removeLdap.bind(this, 1)} size="large">解除集成并移除用户</Button>,
+             <Button onClick={this.removeLdap} type="primary" size="large">仅解除集成</Button>
            ]}
          >
            <div>
@@ -384,35 +445,37 @@ class LDAP extends Component {
                <div className='iconcontainer'>
                  <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
                </div>
-               
+
                <div className='item'>
                  请注意，点击解除企业用户目录集成，可选择仅解除集成或同时移除已经同步的用户，该操作不可被恢复！
                </div>
              </div>
            </div>
          </Modal>
-
-
-
-
-
-
       </div>
     )
   }
 }
 
 
-LDAP = Form.create()(LDAP)
+LDAP = Form.create({
+  onFieldsChange: (props, fields) => {
+    fieldsChange = true
+  },
+})(LDAP)
 
-function mapStateToProp(state, props) {
-
+function mapStateToProps(state, props) {
+  const { detail } = state.ldap
   return {
-
+    ldapFetching: detail.isFetching,
+    ldap: detail.result ? detail.result.data : {},
   }
 }
 
 
-export default connect(mapStateToProp, {
-
+export default connect(mapStateToProps, {
+  getLdap,
+  upsertLdap,
+  syncLdap,
+  removeLdap,
 })(LDAP)

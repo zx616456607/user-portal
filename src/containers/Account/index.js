@@ -65,10 +65,6 @@ const menuList_enterprise_admin = [
     name: '团队管理'
   },
   {
-    url: '/account/costCenter#payments',
-    name: '角色管理'
-  },
-  {
     url: '/account/costCenter#consumptions',
     name: '消费记录'
   },
@@ -76,6 +72,13 @@ const menuList_enterprise_admin = [
     url: '/account/costCenter#payments',
     name: '充值记录'
   }
+]
+
+const menuList_enterprise_sys_admin = [
+  {
+    url: '/account/ldap',
+    name: '集成企业目录'
+  },
 ]
 
 const menuList_enterprise_user = [
@@ -107,8 +110,10 @@ class Account extends Component {
     const scope = this
     let menuList = menuList_standard
     if (mode != standard) {
-      if (role == ROLE_TEAM_ADMIN || role == ROLE_SYS_ADMIN) {
+      if (role == ROLE_TEAM_ADMIN) {
         menuList = menuList_enterprise_admin
+      } else if (role == ROLE_SYS_ADMIN) {
+        menuList = menuList_enterprise_admin.concat(menuList_enterprise_sys_admin)
       } else {
         menuList = menuList_enterprise_user
       }
