@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2017 TenxCloud. All Rights Reserved.
  */
-/* App manage controller
+/* LDAP controller
  *
  * v0.1 - 2017-05-20
  * @author Zhangpc
