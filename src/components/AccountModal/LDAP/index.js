@@ -83,9 +83,9 @@ class LDAP extends Component {
       bindDN,
       tls: tls || 'none',
       bindPassword,
-      userFilter: userFilter || '(objectClass=person)',
-      userProperty: userProperty || 'cn',
-      emailProperty: emailProperty || 'mail',
+      userFilter,
+      userProperty,
+      emailProperty,
     })
     fieldsChange = false
   }
