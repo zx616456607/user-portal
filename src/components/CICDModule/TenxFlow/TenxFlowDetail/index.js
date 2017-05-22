@@ -99,6 +99,11 @@ class TenxFlowDetail extends Component {
     this.refreshStageList = this.refreshStageList.bind(this);
     this.startBuildStage = this.startBuildStage.bind(this);
     this.renderBuildBtn = this.renderBuildBtn.bind(this);
+    const pathname = window.location.pathname
+    let isBuildImage = false
+    if(pathname.indexOf('/build_image') >= 0) {
+      isBuildImage = true
+    }
     this.state = {
       createTenxFlowModal: false,
       TenxFlowDeployLogModal: false,
@@ -110,6 +115,7 @@ class TenxFlowDetail extends Component {
       showTargeImage:false,
       projectId: null,
       projectBranch: null,
+      isBuildImage
     }
   }
   flowState() {
@@ -459,7 +465,7 @@ class TenxFlowDetail extends Component {
             <div style={{ clear: 'both' }}></div>
           </Card>
           <Tabs defaultActiveKey='1' size="small" onChange={(e) => this.handleChange(e)}>
-            <TabPane tab='TenxFlow流程定义' key='1'>
+            <TabPane tab={this.state.isBuildImage ? '构建镜像任务' : 'TenxFlow流程定义'} key='1'>
               <TenxFlowDetailFlow
                 scope={scope}
                 setStatus={this.setStatus}
@@ -471,13 +477,19 @@ class TenxFlowDetail extends Component {
                 startBuild={this.state.startBuild}
                 buildInfo={this.state.buildInfo}
                 refreshFlag={this.state.refreshFlag}
+                isBuildImage={this.state.isBuildImage}
               />
             </TabPane>
-            <TabPane tab='TenxFlow执行记录' key='2'><TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} /></TabPane>
-            <TabPane tab='自动部署' key='3'><ImageDeployLogBox scope={scope} flowId={flowInfo.flowId} /></TabPane>
-            <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} notify={flowInfo.notificationConfig} flowId={flowInfo.flowId} /></TabPane>
-            <TabPane tab='TenxFlow Yaml 描述' key='5'><TenxFlowDetailYaml flowId={flowInfo.flowId} yaml={this.state.yamlContent} /></TabPane>
-            <TabPane tab='设置' key='6'><TenxFlowDetailSetting scope={scope} flowId={flowInfo.flowId} /></TabPane>
+            {this.state.isBuildImage ? [ <TabPane tab='执行记录' key='2'><TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} /></TabPane>,
+              <TabPane tab='自动部署' key='3'><ImageDeployLogBox scope={scope} flowId={flowInfo.flowId} /></TabPane>,
+              <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} notify={flowInfo.notificationConfig} flowId={flowInfo.flowId} /></TabPane>,
+              <TabPane tab='设置' key='6'><TenxFlowDetailSetting scope={scope} flowId={flowInfo.flowId} /></TabPane>]
+              :
+              [ <TabPane tab='TenxFlow执行记录' key='2'><TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} /></TabPane>,
+                <TabPane tab='自动部署' key='3'><ImageDeployLogBox scope={scope} flowId={flowInfo.flowId} /></TabPane>,
+                <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} notify={flowInfo.notificationConfig} flowId={flowInfo.flowId} /></TabPane>,
+                <TabPane tab='TenxFlow Yaml 描述' key='5'><TenxFlowDetailYaml flowId={flowInfo.flowId} yaml={this.state.yamlContent} /></TabPane>,
+                <TabPane tab='设置' key='6'><TenxFlowDetailSetting scope={scope} flowId={flowInfo.flowId} /></TabPane>]}
           </Tabs>
         </div>
         <Modal

@@ -42,6 +42,8 @@ import version from './version'
 import alert from './alert'
 import terminal from './terminal'
 import quickCreateApp from './quick_create_app'
+import personalized from './personalized'
+import ldap from './ldap'
 
 import { LOGIN_EXPIRED_MESSAGE, PAYMENT_REQUIRED_CODE, UPGRADE_EDITION_REQUIRED_CODE, } from '../constants'
 
@@ -146,6 +148,8 @@ const rootReducer = combineReducers({
   alert,
   terminal,
   quickCreateApp,
+  personalized,
+  ldap
 })
 
 export default rootReducer

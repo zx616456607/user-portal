@@ -208,6 +208,28 @@
   "CICD.Tenxflow.TenxFlowDetail.checkImage": "View Image",
   "CICD.Tenxflow.TenxFlowDetail.delete": "Delete Flow",
   "CICD.Tenxflow.TenxFlowDetail.unUpdate": "Not Updated",
+
+
+
+  "CICD.Tenxflow.BuildImage.create": "Build Image",
+  "CICD.Tenxflow.BuildImage.code": "CodeRepo",
+  "CICD.Tenxflow.BuildImage.branch": "Branch",
+  "CICD.Tenxflow.BuildImage.delete": "删除构建",
+  "CICD.Tenxflow.BuildImage.image": "Image Name",
+  "CICD.Tenxflow.BuildImage.deloyStart": "Start Build",
+  "CICD.Tenxflow.BuildImage.tooltip": "构建镜像是TenxFlow中常被创建的子任务，指可将源代码仓库包括代码GitHub、GitLab、Gogs、SVN中的代码通过代码库中的Dockerfile或云端的Dockerfile 构建成镜像，默认将构建后的镜像存放到镜像仓库--私有仓库中。",
+  "CICD.Tenxflow.CreateBuildImage.tooltip": "创建构建镜像任务前需创建一个TenxFlow，请填写TenxFlow名称，可选择邮件通知",
+  "CICD.Tenxflow.BuildImage.checkImage": "Check Image",
+  "CICD.Tenxflow.BuildImage.add": "Add Build",
+  "CICD.Tenxflow.CreateTenxFlowModal.buildCache": "Build Cache",
+  "CICD.Tenxflow.CreateTenxFlowModal.buildCluster": "构建环境",
+  "CICD.Tenxflow.CreateTenxFlowModal.buildNode": "Build Cluster",
+  "CICD.Tenxflow.CreateTenxFlowModal.buildArea": "构建地域",
+  "CICD.Tenxflow.CreateTenxFlowModal.buildImageCode": "任务代码",
+  "CICD.Tenxflow.CreateTenxFlowModal.buildImageName": "任务名称",
+
+
+
   "CICD.Tenxflow.CreateTenxFlow.name": "TenxFlow Name",
   "CICD.Tenxflow.CreateTenxFlow.create": "Create Flow Type",
   "CICD.Tenxflow.CreateTenxFlow.viewDefine": "可视化流程定义",

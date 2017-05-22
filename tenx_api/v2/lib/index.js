@@ -91,7 +91,7 @@ module.exports = function (config) {
 
   //  ~images
   this.images = collections.create('images')
-  
+
   // ~ alerts
   this.alerts = collections.create('alerts')
 
@@ -103,8 +103,13 @@ module.exports = function (config) {
   ////////////////////////////////////////////////////////////////////////////////////
   // ~ certificates
   this.certificates = collections.create('certificates')
+
   // ~ payments
   this.payments = collections.create('payments')
+
   // ~ user-preference
   this['user-preference'] = collections.create('user-preference')
+
+  // ~ user-directory
+  this['user-directory'] = collections.create('user-directory')
 }

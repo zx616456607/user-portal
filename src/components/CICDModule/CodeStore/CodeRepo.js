@@ -9,11 +9,12 @@
 */
 import React, { Component, PropTypes } from 'react'
 import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, Dropdown, Modal, Spin } from 'antd'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/CodeRepo.less'
+import { parseQueryStringToObject } from '../../../common/tools'
 import { getRepoType, getRepoList, addCodeRepo, notActiveProject, deleteRepo, registryRepo, syncRepoList, searchCodeRepo, getUserInfo } from '../../../actions/cicd_flow'
 import GithubComponent from './GithubComponent'
 import GogsComponent from './GogsComponent'
@@ -142,7 +143,15 @@ const MyComponent = React.createClass({
           if (res.data.warnings) {
             notification.warn('公钥或WebHook未设置成功，请手动设置')
           }
-        }
+          if(window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0) {
+            const queryObj = parseQueryStringToObject(window.location.search)
+            if(queryObj.redirect) {
+              browserHistory.push(queryObj.redirect)
+            }
+            return
+          }
+        },
+        isAsync: true
       }
     })
   },
@@ -302,10 +311,10 @@ const MyComponent = React.createClass({
             ]}
             >
             <div>
-              <p style={{ lineHeight: '30px' }}>仓库地址：
+              <p style={{ lineHeight: '30px' }}>仓库地址：<span>（如 http://gitlab.demo.com）</span>
                 <Input placeholder="http://*** | https://***" id="gitlab" onChange={this.changeUrl} value={this.state.regUrl} size="large" />
               </p>
-              <p style={{ lineHeight: '30px' }}>Private Token：
+              <p style={{ lineHeight: '30px' }}>Private Token：<span>（位于 Profile Settings → Account）</span>
                 <Input placeholder="Private Token: " size="large" onChange={this.changeToken} value={this.state.regToken} />
               </p>
             </div>
@@ -324,7 +333,7 @@ const MyComponent = React.createClass({
                 <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>撤销</a></span>
               :
               <Tooltip placement="right" title="可构建项目">
-                <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >激活</Button>
+                <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >{ window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0 ? '激活并构建' : '激活'}</Button>
               </Tooltip>
             }
           </div>
