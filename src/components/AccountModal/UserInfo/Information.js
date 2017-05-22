@@ -312,7 +312,7 @@ class Information extends Component {
         <Row className="Item">
           <Col span={4}>类型</Col>
           <Col span={2}>{roleName}</Col>
-          {loginUser.role == 2 && userID ? <Col span={10}> <Button type="primary" onClick={() => this.changeUserRoleModal()}>修改用户角色</Button></Col> : ''}
+          {loginUser.role == 2 && userID && userDetail.userName != 'admin' ? <Col span={10}> <Button type="primary" onClick={() => this.changeUserRoleModal()}>修改用户角色</Button></Col> : ''}
         </Row>
         <Row className="Item">
           <Col span={4}>手机</Col>
