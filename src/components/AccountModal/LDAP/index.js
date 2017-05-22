@@ -45,6 +45,7 @@ class LDAP extends Component {
     this.state = {
       LiftIntegrationModalVisible: false,
       synBtnLoading: false,
+      saveBtnLoading: false,
     }
   }
 
@@ -57,6 +58,9 @@ class LDAP extends Component {
     getLdap({
       success: {
         func: res => {
+          this.setState({
+            saveBtnLoading: false,
+          })
           if (!res.data) {
             return
           }
@@ -67,16 +71,13 @@ class LDAP extends Component {
   }
 
   cancelEditLdap(e) {
-    this.setLdapForm()
+    this.setLdapForm(this.props.ldap)
   }
 
   setLdapForm(ldap) {
     const { form } = this.props
     const { setFieldsValue, resetFields } = form
     resetFields()
-    if (!ldap) {
-      ldap = this.props.ldap
-    }
     const {
       addr, base, bindDN, tls, userFilter, userProperty, emailProperty, bindPassword
     } = ldap.configDetail || {}
@@ -151,6 +152,9 @@ class LDAP extends Component {
       if (!!errors) {
         return
       }
+      this.setState({
+        saveBtnLoading: true,
+      })
       const body = {
         configID: ldap.configID,
         configDetail: JSON.stringify(values)
@@ -170,9 +174,12 @@ class LDAP extends Component {
               message = ''
             }
             notification.error('保存企业集成信息失败', message)
+            this.setState({
+              saveBtnLoading: false,
+            })
           },
           isAsync: true,
-        }
+        },
       })
     })
   }
@@ -431,7 +438,7 @@ class LDAP extends Component {
                   {
                     fieldsChange && <Button className='leftbutton' onClick={this.cancelEditLdap}>取消</Button>
                   }
-                    <Button type="primary" onClick={this.handleSave}>保存</Button>
+                    <Button type="primary" onClick={this.handleSave} loading={this.state.saveBtnLoading}>保存</Button>
                   </Col>
                 </Row>
               </div>
@@ -474,7 +481,6 @@ class LDAP extends Component {
                <div className='iconcontainer'>
                  <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
                </div>
-
                <div className='item'>
                  请注意，点击解除企业用户目录集成，可选择仅解除集成或同时移除已经同步的用户，该操作不可被恢复！
                </div>
@@ -485,7 +491,6 @@ class LDAP extends Component {
     )
   }
 }
-
 
 LDAP = Form.create({
   onFieldsChange: (props, fields) => {
