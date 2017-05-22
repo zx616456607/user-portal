@@ -58,14 +58,18 @@ class LDAP extends Component {
     getLdap({
       success: {
         func: res => {
-          this.setState({
-            saveBtnLoading: false,
-          })
           if (!res.data) {
             return
           }
           this.setLdapForm(res.data)
         }
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            saveBtnLoading: false,
+          })
+        },
       }
     })
   }
@@ -156,7 +160,6 @@ class LDAP extends Component {
         saveBtnLoading: true,
       })
       const body = {
-        configID: ldap.configID,
         configDetail: JSON.stringify(values)
       }
       upsertLdap(body, {
