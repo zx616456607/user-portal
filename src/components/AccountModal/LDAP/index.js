@@ -115,7 +115,7 @@ class LDAP extends Component {
       return callback()
     }
     if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
-      return callback('请填入合法的 host 地址')
+      return callback('请填入合法的 LDAP 服务地址')
     }
     callback()
   }
@@ -286,7 +286,7 @@ class LDAP extends Component {
     const { getFieldProps } = form
 	  const AddrProps = getFieldProps('addr', {
       rules: [
-        { required: true, message: '请输入 IP 地址或域名' },
+        { required: true, message: '请输入 LDAP 服务地址' },
         { validator: this.checkHost }
       ],
     })
@@ -344,7 +344,7 @@ class LDAP extends Component {
                   <Col span={4} className='item_title'>Addr<span className='star'>*</span></Col>
                   <Col span={20} className='item_content'>
                     <FormItem>
-                      <Input {...AddrProps} placeholder="请输入IP地址或域名"/>
+                      <Input {...AddrProps} placeholder="请输入 LDAP 服务地址"/>
                     </FormItem>
                   </Col>
                 </Row>
