@@ -260,7 +260,7 @@ class Information extends Component {
   changeUserRoleRequest() {
     const { updateUser, loginUser, userID, userDetail, changeUserRole } = this.props
     const notify = new NotificationHandler()
-    if(loginUser.role != 2) { return notify.error('非系统管理员用户操作')}
+    if(loginUser.role != 2) { return notify.error('只有系统管理员用户有此权限')}
     if(userDetail.role + 1 == this.state.selectUserRole ) {
       notify.error('用户角色没有发生变化')
       return
