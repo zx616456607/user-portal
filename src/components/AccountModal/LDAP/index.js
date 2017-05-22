@@ -42,7 +42,7 @@ class LDAP extends Component {
     this.removeLdap = this.removeLdap.bind(this)
     this.setLdapForm = this.setLdapForm.bind(this)
     this.cancelEditLdap = this.cancelEditLdap.bind(this)
-    this.setFormToDefaul = this.setFormToDefaul.bind(this)
+    this.setFormToDefault = this.setFormToDefault.bind(this)
     this.state = {
       LiftIntegrationModalVisible: false,
       synBtnLoading: false,
@@ -188,7 +188,7 @@ class LDAP extends Component {
     })
   }
 
-  setFormToDefaul() {
+  setFormToDefault() {
     const { form } = this.props
     const { setFieldsValue, resetFields } = form
     resetFields()
@@ -220,7 +220,7 @@ class LDAP extends Component {
             LiftIntegrationModalVisible: false,
           })
           this.loadLdap()
-          this.setFormToDefaul()
+          this.setFormToDefault()
         },
         isAsync: true,
       },
