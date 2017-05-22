@@ -134,5 +134,13 @@ exports.getLabelsApi = function(loginUser) {
   return api.labels
 }
 
-
+exports.getOemInfoApi = function (loginUser) {
+  const apiConfig = {
+    protocol: config.tenx_api.protocol,
+    host: config.tenx_api.host,
+    auth: loginUser
+  }
+  const api = new tenxApi(apiConfig)
+  return api.oem
+}
 

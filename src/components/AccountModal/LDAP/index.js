@@ -57,6 +57,9 @@ class LDAP extends Component {
     getLdap({
       success: {
         func: res => {
+          if (!res.data) {
+            return
+          }
           this.setLdapForm(res.data)
         }
       }
@@ -74,15 +77,18 @@ class LDAP extends Component {
     if (!ldap) {
       ldap = this.props.ldap
     }
-    const { addr, base, bindDN, tls, userFilter, userProperty, emailProperty } = ldap.configDetail || {}
+    const {
+      addr, base, bindDN, tls, userFilter, userProperty, emailProperty, bindPassword
+    } = ldap.configDetail || {}
     setFieldsValue({
       addr,
       base,
       bindDN,
-      tls: (tls ? tls : 'none'),
+      tls: tls || 'none',
+      bindPassword,
       userFilter,
       userProperty,
-      emailProperty
+      emailProperty,
     })
     fieldsChange = false
   }
@@ -159,7 +165,11 @@ class LDAP extends Component {
         },
         failed: {
           func: error => {
-            notification.error('保存企业集成信息失败')
+            let { message } = error.message
+            if (typeof message !== 'string') {
+              message = ''
+            }
+            notification.error('保存企业集成信息失败', message)
           },
           isAsync: true,
         }
@@ -178,7 +188,11 @@ class LDAP extends Component {
     removeLdap(query, {
       success: {
         func: res => {
-          notification.success('解除集成成功')
+          let message = '解除集成成功'
+          if (removeuser) {
+            message += `，并移除${res.data.removedUsers}个用户`
+          }
+          notification.success(message)
           this.setState({
             LiftIntegrationModalVisible: false,
           })
@@ -226,7 +240,7 @@ class LDAP extends Component {
           </div>
            {
              lastSyncInfo && (
-              <div className="detail rowStandard">
+              <div className="lastSyncInfo">
                 <Row className='item itemfirst'>
                   <Col span={4} className='item_title'><div>上次同步时间</div></Col>
                   <Col span={20} className='item_content'><div>{formatDate(syncDate)}</div></Col>
@@ -235,7 +249,6 @@ class LDAP extends Component {
                   <Col span={4} className='item_title'>上次同步成员</Col>
                   <Col span={20} className='item_content'>
                     增<span className='number'>{showValue(addedUsers)}</span>,
-                    覆盖<span className='number'>{showValue(addedUsers)}</span>,
                     删<span className='number'>{showValue(deletedUsers)}</span>,
                     改<span className='number'>{showValue(updatedUsers)}</span>
                   </Col>
@@ -243,7 +256,10 @@ class LDAP extends Component {
                 <Row className='item itemfirst'>
                   <Col span={4} className='item_title'></Col>
                   <Col span={20} className='item_content'>
-                    有<span className="number">{showValue(failedUsers)}</span>个成员因名称不合法而同步失败
+                    有<span className="number">{showValue(invalidUsers)}</span>个成员名称不合法，
+                    有<span className="number">{showValue(conflictUsers)}</span>个成员与平台成员冲突，
+                    有<span className="number">{showValue(failedUsers)}</span>个成员同步时失败<br/>
+                    共计<span className="number">{invalidUsers + conflictUsers + failedUsers}</span>个成员同步失败。
                   </Col>
                 </Row>
               </div>
@@ -256,7 +272,7 @@ class LDAP extends Component {
 
   render() {
     const { form, ldapFetching, ldap } = this.props
-    const { configID, configDetail } = ldap
+    const { configID, configDetail, warningMessage } = ldap
     const { getFieldProps } = form
 	  const AddrProps = getFieldProps('addr', {
       rules: [
@@ -283,15 +299,28 @@ class LDAP extends Component {
     const TlsProps =  getFieldProps('tls', {
       initialValue: 'none',
     });
-    const UserObjectFiltersProps = getFieldProps('userFilter')
-    const UserEmailProps = getFieldProps('emailProperty')
-    const UserObjectProps = getFieldProps('userProperty')
+    const UserObjectFiltersProps = getFieldProps('userFilter', {
+      initialValue: '(objectClass=person)',
+    })
+    const UserEmailProps = getFieldProps('emailProperty', {
+      initialValue: 'mail',
+    })
+    const UserObjectProps = getFieldProps('userProperty', {
+      initialValue: 'cn',
+    })
     return (
       <div id="account_ldap">
         <div className='alertRow'>通过配置以下信息可将企业用户目录信息同步到该平台。所有接入的成员都默认是普通成员，同步到平台后，可修改成员类型（系统管理员、团队管理员、普通成员）；*为必填字段，其他为选填字段。</div>
         {configID && this.renderLastDetail()}
         <div className='basicSetup'>
-          <div className='title'>基本设置</div>
+          <div className='title'>
+            基本设置
+            {
+              warningMessage && (
+                <font>（ LDAP 连接失败，请检查配置信息是否正确）</font>
+              )
+            }
+          </div>
           <div className="container">
             <Form>
               <div className='type rowPadding'>
