@@ -162,10 +162,7 @@ app.use(serve(__dirname + '/static', staticOpts))*/
 
 // Website favicon
 const favicon = require('koa-favicon')
-console.log('global.globalConfig======================')
-console.log(global.globalConfig)
-// app.use(favicon(__dirname + '/static/' + global.globalConfig.oemInfo.favoriteIcon))
-app.use(favicon(__dirname + '/static/favicon.ico'))
+app.use(favicon(__dirname + '/static/favicon.ico', {maxAge: 1000 * 60}))
 
 // Parser content-Type applicationnd.docker.distribution.events.v1+json
 /*app.use(function* (next) {

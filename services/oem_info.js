@@ -2,7 +2,7 @@
 
 const apiFactory = require('./api_factory.js')
 const logger = require('../utils/logger').getLogger('loadOEMInfo')
-const fs = require('mz/fs')
+const fs = require('fs')
 const oem = apiFactory.getTenxSysSignSpi().oem
 
 const naviExpand = 'naviExpand'
@@ -11,7 +11,7 @@ const loginLogo = 'loginLogo'
 const favoriteIcon = 'favoriteIcon'
 const root = global.__root__dirname
 const staticRefPath = '/static'
-const staticBlobFullPath = `${root}${staticRefPath}/blob`
+const staticFullPath = `${root}${staticRefPath}`
 
 exports.naviExpand = naviExpand
 exports.naviShrink = naviShrink
@@ -45,20 +45,27 @@ function* initOEMInfo() {
 }
 
 function* doSaveOneFile(id, fullPath) {
-  const content = yield oem.getBy(["media", id])
-  yield fs.writeFile(fullPath, content)
+  const content = yield oem.getBy(["media", id], null, {dataType: 'buffer'})
+  yield writeFile(fullPath, content)
 }
 
 function* saveOneFile(file, media, files) {
   let path = ""
   if (file.type === 'blobs') {
-    const name = makeRandomName(file.format)
+    const name = mediaName(file.format, media)
     yield doSaveOneFile(file.id, fullPath(name))
     path = name
   } else if (file.type === 'static-file') {
     path = defaultMedias[media]
   }
   files[media] = path
+}
+
+function mediaName(format, media) {
+  if (media === favoriteIcon) {
+    return defaultMedias.favoriteIcon
+  }
+  return makeRandomName(format)
 }
 
 function* saveFiles(info, files) {
@@ -72,11 +79,11 @@ function mergeToGlobalConfig(info, files) {
 
 function makeRandomName(format) {
   const name = genRandomString(5)
-  return `${name}.${format}`
+  return `blob/${name}.${format}`
 }
 
 function fullPath(fileName) {
-  return `${staticBlobFullPath}/${fileName}`
+  return `${staticFullPath}/${fileName}`
 }
 
 exports.updateOEMInfoImage = updateOEMInfoImage
@@ -84,11 +91,11 @@ exports.updateOEMInfoImage = updateOEMInfoImage
 function* updateOEMInfoImage(key, content, format) {
   const old = globalConfig.oemInfo[key]
   const isDefault = old === defaultMedias[key]
-  const newFile = makeRandomName(format)
-  yield fs.writeFile(fullPath(newFile), content)
-  globalConfig.oemInfo[key] = newFile
+  const name = mediaName(format, key)
+  yield writeFile(fullPath(name), content)
+  globalConfig.oemInfo[key] = name
   if (!isDefault) {
-    yield fs.unlink(fullPath(old))
+    yield deleteFile(fullPath(old))
   }
 }
 
@@ -108,4 +115,27 @@ function genRandomString(len) {
     randomStr += DEFAULT_TOKEN.charAt(Math.ceil(Math.random() * 100000000) % DEFAULT_TOKEN.length)
   }
   return randomStr
+}
+
+function* writeFile(path, content) {
+  return new Promise((resolve, reject) =>
+    fs.writeFile(path, content, err => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve()
+      }
+    }))
+}
+
+function* deleteFile(path) {
+  return new Promise((resolve, reject) =>
+    fs.unlink(path, err => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve()
+      }
+    })
+  )
 }
