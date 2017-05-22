@@ -668,8 +668,8 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 充值记录</span>
                     </Link>
                   </Menu.Item>
-                   {(role == ROLE_SYS_ADMIN) ?
-                    <Menu.Item key='LDAP' style={{background:backColor.logoBack}}>
+                  {role == ROLE_SYS_ADMIN ?
+                    <Menu.Item key='ldap' style={{background:backColor.logoBack}}>
                       <Link to='/account/ldap'>
                         <span><div className='sideCircle'></div> 集成企业目录</span>
                       </Link>
