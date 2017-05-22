@@ -21,7 +21,7 @@ import ConfigureService from './ConfigureService'
 import ResourceQuotaModal from '../../ResourceQuotaModal'
 import NotificationHandler from '../../../common/notification_handler'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
-import { removeFormFields, removeAllFormFields } from '../../../actions/quick_create_app'
+import { removeFormFields, removeAllFormFields, removeOldFormFieldsByRegExp } from '../../../actions/quick_create_app'
 import { createApp } from '../../../actions/app_manage'
 import { buildJson } from './utils'
 import './style/index.less'
@@ -146,6 +146,9 @@ class QuickCreateApp extends Component {
   }
 
   goSelectImage() {
+    // remove old form fields by `/^[a-zA-Z]+[0-9]+$/`
+    // const { removeOldFormFieldsByRegExp } = this.props
+    // removeOldFormFieldsByRegExp(this.configureServiceKey, /^[a-zA-Z]+[0-9]+$/)
     browserHistory.push('/app_manage/app_create/quick_create')
   }
 
@@ -171,9 +174,9 @@ class QuickCreateApp extends Component {
   }
 
   createApp() {
-    this.setState({
-      isCreatingApp: true,
-    })
+    // this.setState({
+    //   isCreatingApp: true,
+    // })
     const {
       fields, current, loginUser,
       createApp, removeAllFormFields,
@@ -182,10 +185,12 @@ class QuickCreateApp extends Component {
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
         const json = buildJson(fields[key], current.cluster, loginUser)
+        console.log(JSON.stringify(json))
         template.push(yaml.dump(json.deployment))
         template.push(yaml.dump(json.service))
       }
     }
+    return
     const appConfig = {
       cluster: current.cluster.clusterID,
       template: template.join('---\n'),
@@ -543,5 +548,6 @@ export default connect(mapStateToProps, {
   // setFormFields,
   removeFormFields,
   removeAllFormFields,
+  removeOldFormFieldsByRegExp,
   createApp,
 })(QuickCreateApp)

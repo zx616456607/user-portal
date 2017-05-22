@@ -68,13 +68,13 @@ const Ports = React.createClass({
     })
     callback(error)
   },
-  removePortsKey(key) {
+  removePortsKey(keyValue) {
     const { form } = this.props
     const { setFieldsValue, getFieldValue } = form
     const portsKeys = getFieldValue('portsKeys') || []
     setFieldsValue({
       portsKeys: portsKeys.map(_key => {
-        if (_key.value === key) {
+        if (_key.value === keyValue) {
           // magic code ！
           // 必须通过标记的方式删除，否则 redux store 中的 fields 与 form 中的 fields 无法一一对应
           _key.deleted = true
@@ -129,7 +129,7 @@ const Ports = React.createClass({
       }
     }
     return (
-      <Row className="portItem">
+      <Row className="portItem" key={`portItem${keyValue}`}>
         <Col span={4}>
           <FormItem>
             <InputNumber

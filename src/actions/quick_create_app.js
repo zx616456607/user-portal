@@ -39,3 +39,14 @@ export function removeAllFormFields(callback) {
     callback
   }
 }
+
+export const QUICK_CREATE_APP_REMOVE_OLD_FORM_FIELDS_BY_REG_EXP = 'QUICK_CREATE_APP_REMOVE_OLD_FORM_FIELDS_BY_REG_EXP'
+
+export function removeOldFormFieldsByRegExp(key, reg, callback) {
+  return {
+    key,
+    reg,
+    type: QUICK_CREATE_APP_REMOVE_OLD_FORM_FIELDS_BY_REG_EXP,
+    callback
+  }
+}

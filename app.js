@@ -28,6 +28,7 @@ const config = require('./configs')
 const constants = require('./configs/constants')
 const globalConstants = require('./constants')
 const initGlobalConfig = require('./services/init_global_config')
+const oemInfo = require('./services/oem_info')
 const middlewares = require('./services/middlewares')
 const logger = require('./utils/logger').getLogger('app')
 const app = koa()
@@ -37,6 +38,7 @@ const terminal = require('./controllers/web_terminal')
 co(function*(){
   try{
     yield initGlobalConfig.initGlobalConfig()
+    yield oemInfo.initOEMInfo()
   } catch(err) {
     logger.error('Unexpected error:', JSON.stringify(err))
     logger.error('Failed to connect to API server ' + config.tenx_api.host + ', fix the issue and restart this server.')
@@ -160,7 +162,7 @@ app.use(serve(__dirname + '/static', staticOpts))*/
 
 // Website favicon
 const favicon = require('koa-favicon')
-app.use(favicon(__dirname + '/static/favicon.ico'))
+app.use(favicon(__dirname + '/static/favicon.ico', {maxAge: 1000 * 60}))
 
 // Parser content-Type applicationnd.docker.distribution.events.v1+json
 /*app.use(function* (next) {
@@ -277,6 +279,8 @@ const indexRoutes = require('./routes')
 app.use(indexRoutes(Router))
 const apiRoutes = require('./routes/api')
 app.use(apiRoutes(Router))
+const proxyRoutes = require('./routes/proxy')
+app.use(proxyRoutes(Router))
 
 //3rd_account vsettan
 const vsettan = require('./routes/3rd_account/vsettan/no_auth')

@@ -34,6 +34,10 @@ const accountRoutes = [
   {
     path: 'costCenter',
     component: require('../components/AccountModal/CostCenter').default,
+  },
+  {
+    path: 'ldap',
+    component: require('../components/AccountModal/LDAP').default,
   }
 ]
 

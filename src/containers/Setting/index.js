@@ -45,6 +45,9 @@ const menuList_sysAdmin = [
   },{
     url: '/setting/advancedSetting',
     name: '高级设置'
+  },{
+    url:'/setting/personalized',
+    name:'个性外观'
   }
 ]
 

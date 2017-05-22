@@ -34,10 +34,18 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.TenxFlowDetailFlow.tooltip',
     defaultMessage: 'TenxFlow流程定义：这里可以定义一个TenxFlow项目的执行流程，每个卡片对应一个子任务，分别执行镜像构建、代码编译、单元测试或者集成测试等子任务，大部分流程以生成应用镜像作为结束。',
   },
+  buildImageTooltip: {
+    id: 'CICD.Tenxflow.BuildImage.tooltip',
+    defaultMessage: '构建镜像是TenxFlow中常被创建的子任务，指可将源代码仓库包括代码GitHub、GitLab、Gogs、SVN中的代码通过代码库中的Dockerfile或云端的Dockerfile 构建成镜像，默认将构建后的镜像存放到镜像仓库--私有仓库中。',
+  },
   add: {
     id: 'CICD.Tenxflow.TenxFlowDetailFlow.add',
     defaultMessage: '添加子任务',
   },
+  buildImageAdd: {
+    id: 'CICD.Tenxflow.BuildImage.add',
+    defaultMessage: '添加构建任务',
+  }
 })
 
 class TenxFlowDetailFlow extends Component {
@@ -397,7 +405,7 @@ class TenxFlowDetailFlow extends Component {
             scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} totalLength={stageList.length}
             codeList={projectList} supportedDependencies={supportedDependencies} imageList={imageList} baseImages={baseImages}
             otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
-            firstState={stageList[0]}
+            firstState={stageList[0]} isBuildImage={this.props.isBuildImage}
             />
         )
       });
@@ -405,22 +413,23 @@ class TenxFlowDetailFlow extends Component {
     return (
       <div id='TenxFlowDetailFlow'>
         <div className='paddingBox'>
-          <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
+          <Alert message={ this.props.isBuildImage ? <FormattedMessage {...menusText.buildImageTooltip} /> : <FormattedMessage {...menusText.tooltip} /> } type='info' />
           {cards}
+          {cards.length !=0 && this.props.isBuildImage ? '' :
           <div className={this.state.createNewFlow ? 'TenxFlowDetailFlowCardBigDiv commonCardBox createCardBox' : 'commonCardBox createCardBox'}>
-            <Card className='commonCard createCard' onClick={this.createNewFlow}>
-              {!this.state.createNewFlow ? [
-                <QueueAnim key='createCardAnimate'>
-                  <div className='createInfo' key='createCard'>
-                    <svg className='addIcon'>
-                      <use xlinkHref='#cicdcreate' />
-                    </svg>
-                    <p>
-                      <FormattedMessage {...menusText.add} />
-                    </p>
-                  </div>
-                </QueueAnim>
-              ] : null}
+              <Card className='commonCard createCard' onClick={this.createNewFlow}>
+                {!this.state.createNewFlow ? [
+                  <QueueAnim key='createCardAnimate'>
+                    <div className='createInfo' key='createCard'>
+                      <svg className='addIcon'>
+                        <use xlinkHref='#cicdcreate' />
+                      </svg>
+                      <p>
+                        { this.props.isBuildImage ? <FormattedMessage {...menusText.buildImageAdd} /> : <FormattedMessage {...menusText.add} /> }
+                      </p>
+                    </div>
+                  </QueueAnim>
+                ] : null}
               {
                 this.state.createNewFlow ? [
                   <QueueAnim key='creattingCardAnimate'>
@@ -428,12 +437,13 @@ class TenxFlowDetailFlow extends Component {
                       flowId={flowId} stageInfo={stageInfo} codeList={projectList} uniformRepo={uniformRepo}
                       supportedDependencies={supportedDependencies} imageList={imageList}
                       otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
-                      baseImages={baseImages} />
+                      baseImages={baseImages} isBuildImage={this.props.isBuildImage}/>
                   </QueueAnim>
                 ] : null
               }
             </Card>
-          </div>
+          </div>}
+
           <div style={{ clear: 'both' }}></div>
         </div>
         {this.state.websocket}

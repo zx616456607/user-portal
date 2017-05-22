@@ -17,7 +17,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import remove from 'lodash/remove'
 import findIndex from 'lodash/findIndex'
-import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
+import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage, SnapshotCreate } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP } from '../../constants'
 import './style/storage.less'
 import { calcuDate, parseAmount } from '../../common/tools'
@@ -138,7 +138,7 @@ let MyComponent = React.createClass({
       volumeFormat: '',
       volumeSize: '',
       CreateSnapshotSuccessModal: '',
-      snapshotName: 'asdasda',
+      snapshotName: '',
     };
   },
   propTypes: {
@@ -250,6 +250,9 @@ let MyComponent = React.createClass({
        volumeFormat: two,
        volumeSize: size,
       })
+      setTimeout(function() {
+        document.getElementById('snapshotName').focus()
+      },100)
       return
     }
     if (type === 'format') {
@@ -278,24 +281,54 @@ let MyComponent = React.createClass({
     }
   },
   handleConfirmCreateSnapshot(){
-    const { form } = this.props
-    const { getFieldValue, setFieldsValue } = form
+    const { form, SnapshotCreate, cluster } = this.props
+    const { volumeName } = this.state
+    const { setFieldsValue } = form
     let Noti = new NotificationHandler()
-    let value = getFieldValue('snapshotName')
-    console.log('value=',value)
-    if(value == undefined){
-      Noti.error('输入快照名称')
-      return
-    }
-    return
-    this.setState({
-      createSnapModal: false,
-      volumeName: '',
-      volumeFormat: '',
-      volumeSize: '',
-    })
-    setFieldsValue({
-      snapshotName: undefined
+    form.validateFields( (errors, values) => {
+      if(errors){
+        return
+      }
+      const body = {
+        clusterID: cluster,
+        volumeName,
+        body: {
+          snapshotName:values.snapshotName
+        }
+      }
+      this.setState({
+        confirmCreateSnapshotLoading: true
+      })
+      SnapshotCreate(body,{
+        success: {
+          func: () => {
+            Noti.success('创建快照成功！')
+            setFieldsValue({
+              snapshotName: undefined
+            })
+            this.setState({
+              createSnapModal: false,
+              volumeName: '',
+              volumeFormat: '',
+              volumeSize: '',
+              confirmCreateSnapshotLoading: false,
+              CreateSnapshotSuccessModal: true,
+            })
+          }
+        },
+        falied: {
+          func: (res) => {
+            Noti.error('创建快照失败！')
+            this.setState({
+              createSnapModal: false,
+              volumeName: '',
+              volumeFormat: '',
+              volumeSize: '',
+              confirmCreateSnapshotLoading: false
+            })
+          }
+        }
+      })
     })
   },
   handleCancelCreateSnapshot(){
@@ -314,6 +347,21 @@ let MyComponent = React.createClass({
   checksnapshotName(rule, value, callback){
     if(!value){
       return callback('请输入快照名称')
+    }
+    if(value.length > 32){
+      return callback('快照名称不能超过32个字符')
+    }
+    if(!/^[A-Za-z]{1}/.test(value)){
+      return callback('快照名称必须以字母开头')
+    }
+    if(!/^[A-Za-z]{1}[A-Za-z0-9_-]*$/.test(value)){
+      return callback('快照名称由字母、数字、中划线-、下划线_组成')
+    }
+    if(value.length < 3){
+      return callback('快照名称不能少于3个字符')
+    }
+    if(!/^[A-Za-z]{1}[A-Za-z0-9_\-]{1,61}[A-Za-z0-9]$/.test(value)){
+      return callback('快照名称必须由字母或数字结尾')
     }
     return callback()
   },
@@ -500,7 +548,11 @@ let MyComponent = React.createClass({
                 <div className="item">{this.state.volumeFormat}</div>
                 <div className='item'>
                   <Form.Item>
-                    <Input {...snapshotName} placeholder='请输入快照名称'/>
+                    <Input
+                      {...snapshotName}
+                      placeholder='请输入快照名称'
+                      onPressEnter={this.handleConfirmCreateSnapshot}
+                    />
                   </Form.Item>
                 </div>
               </div>
@@ -583,6 +635,7 @@ class Storage extends Component {
       nameErrorMsg: '',
       resourceQuotaModal: false,
       resourceQuota: null,
+      comfirmRisk: false,
     }
   }
   componentWillMount() {
@@ -825,6 +878,8 @@ class Storage extends Component {
   }
   render() {
     const { formatMessage } = this.props.intl
+    const { getFieldProps } = this.props.form
+    const { SnapshotCreate } = this.props
     const currentCluster = this.props.currentCluster
     const storage_type = currentCluster.storageTypes
     const standard = require('../../../configs/constants').STANDARD_MODE
@@ -841,6 +896,15 @@ class Storage extends Component {
     const hourPrice = parseAmount(this.state.size / 1024 * this.props.currentCluster.resourcePrice.storage, 4)
     const countPrice = parseAmount(this.state.size / 1024 * this.props.currentCluster.resourcePrice.storage * 24 *30, 4)
     const dataStorage = this.props.storageList[this.props.currentImagePool].storageList
+    const confirmRisk = getFieldProps('confirmRisk',{
+      valuePropName: 'checked',
+      initialValue: true,
+      onChange: (value) => {
+        this.setState({
+          comfirmRisk: value.target.checked
+        })
+      }
+    })
     return (
       <QueueAnim className="StorageList" type="right">
         <div id="StorageList" key="StorageList">
@@ -850,14 +914,24 @@ class Storage extends Component {
               <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>
                 <i className="fa fa-plus" /><FormattedMessage {...messages.createTitle} />
               </Button></Tooltip>
-              <Button type="ghost" className="stopBtn" size="large" onClick={() => { this.setState({delModal: true}) } }
+              <Button type="ghost" className="stopBtn" size="large" onClick={() => { this.setState({delModal: true, comfirmRisk: false}) } }
                 disabled={!this.state.volumeArray || this.state.volumeArray.length < 1}>
                 <i className="fa fa-trash-o" /><FormattedMessage {...messages.delete} />
               </Button>
               <Modal title="删除存储卷操作" visible={this.state.delModal}
                 onOk={()=> this.deleteStorage()} onCancel={()=> this.setState({delModal: false})}
+                wrapClassName="deleteVolumeModal"
+                footer={[
+                  <Button size='large' onClick={()=> this.setState({delModal: false})} key="cancel">取消</Button>,
+                  <Button size='large' type="primary" onClick={()=> this.deleteStorage()} key="ok" disabled={this.state.comfirmRisk ? false : true}>确定</Button>
+                ]}
               >
                 <div className="modalColor"><i className="anticon anticon-question-circle-o" style={{marginRight: '8px'}}></i>您是否确定要删除{this.state.volumeArray.map(item => item.name).join(',')} 存储卷吗?</div>
+                <div>
+                  <Form>
+                    <Form.Item><Checkbox {...confirmRisk} checked={this.state.comfirmRisk}>了解删除快照风险，确认将存储卷关联快照一并删除。</Checkbox></Form.Item>
+                  </Form>
+                </div>
               </Modal>
               <Modal title={formatMessage(messages.createModalTitle)}
                 visible={this.state.visible} width={550}
@@ -948,6 +1022,7 @@ class Storage extends Component {
               loadStorageList={() => { this.props.loadStorageList(this.props.currentImagePool, this.props.cluster) } }
               scope ={ this }
               isFetching={this.props.storageList[this.props.currentImagePool].isFetching}
+              SnapshotCreate={SnapshotCreate}
               />
           </Card>
           :
@@ -962,6 +1037,8 @@ class Storage extends Component {
     )
   }
 }
+
+Storage = Form.create()(Storage)
 
 Storage.propTypes = {
   intl: PropTypes.object.isRequired,
@@ -983,7 +1060,8 @@ function mapStateToProps(state) {
 export default connect(mapStateToProps, {
   deleteStorage,
   createStorage,
-  loadStorageList
+  loadStorageList,
+  SnapshotCreate,
 })(injectIntl(Storage, {
   withRef: true,
 }))

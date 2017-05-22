@@ -140,12 +140,12 @@ class ClusterLabelManage extends Component{
       return
     }
     const Kubernetes = new KubernetesValidator()
-    if (Kubernetes.IsQualifiedName(value).length >0) {
-      callback(new Error('以英文字母开头和结尾'))
-      return
-    }
     if (value.length < 3 || value.length > 64) {
       callback(new Error('标签键长度为3~64位'))
+      return
+    }
+    if (Kubernetes.IsQualifiedName(value).length >0) {
+      callback(new Error('以字母或数字开头和结尾中间可(_-)'))
       return
     }
     let isExtentd
@@ -166,12 +166,12 @@ class ClusterLabelManage extends Component{
       return
     }
     const Kubernetes = new KubernetesValidator()
-    if (Kubernetes.IsValidLabelValue(value).length >0) {
-      callback(new Error('以英文字母开头和结尾'))
-      return
-    }
     if (value.length < 3 || value.length > 64) {
       callback(new Error('标签键长度为3~64位'))
+      return
+    }
+    if (Kubernetes.IsValidLabelValue(value).length >0) {
+      callback(new Error('以字母或数字开头和结尾中间可(_-)'))
       return
     }
     callback()

@@ -32,7 +32,7 @@ function currentPathNameCheck(scope, menuList) {
     })
     return
   }
-  menuList.map((item, index) => {
+  menuList.some((item, index) => {
     if(index != 0) {
       let checkPath = pathname.indexOf(item.url)
       if(checkPath > -1) {
@@ -41,8 +41,11 @@ function currentPathNameCheck(scope, menuList) {
         scope.setState({
           current: temp
         })
+        return true
       }
+      return false
     }
+    return false
   })
   if(flag) {
     scope.setState({

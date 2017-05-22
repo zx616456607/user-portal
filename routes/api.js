@@ -37,6 +37,8 @@ const globalConfigController = require('../controllers/global_config')
 const imageScanController = require('../controllers/image_scan')
 const alertController = require('../controllers/alert')
 const labelController = require('../controllers/labels')
+const ldapController = require('../controllers/ldap_manage')
+const oemController = require('../controllers/oem_info')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -426,6 +428,17 @@ module.exports = function (Router) {
   router.post('/labels', labelController.addLabels)
   router.put('/labels/:id', labelController.updateLabel)
   router.delete('/labels/:id', labelController.deleteLabel)
+
+  // Ldap
+  router.get('/configs/ldap', ldapController.getLdap)
+  router.post('/configs/ldap', ldapController.upsertLdap)
+  router.post('/user-directory/ldap', ldapController.syncLdap)
+  router.delete('/user-directory/ldap', ldapController.removeLdap)
+
+  // oem info
+  router.get('/oem/info', oemController.getOEMInfo)
+  router.put('/oem/logo', oemController.updateLogo)
+  router.put('/oem/info', oemController.updateText)
 
   return router.routes()
 }
