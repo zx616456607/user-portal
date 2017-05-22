@@ -168,8 +168,6 @@ class LDAP extends Component {
             let { message } = error.message
             if (typeof message !== 'string') {
               message = ''
-            } else if (error.statusCode === 401) {
-              message = '请检查密码是否正确'
             }
             notification.error('保存企业集成信息失败', message)
           },
@@ -274,7 +272,7 @@ class LDAP extends Component {
 
   render() {
     const { form, ldapFetching, ldap } = this.props
-    const { configID, configDetail } = ldap
+    const { configID, configDetail, warningMessage } = ldap
     const { getFieldProps } = form
 	  const AddrProps = getFieldProps('addr', {
       rules: [
@@ -305,7 +303,7 @@ class LDAP extends Component {
       initialValue: '(objectClass=person)',
     })
     const UserEmailProps = getFieldProps('emailProperty', {
-      initialValue: 'email',
+      initialValue: 'mail',
     })
     const UserObjectProps = getFieldProps('userProperty', {
       initialValue: 'cn',
@@ -315,7 +313,14 @@ class LDAP extends Component {
         <div className='alertRow'>通过配置以下信息可将企业用户目录信息同步到该平台。所有接入的成员都默认是普通成员，同步到平台后，可修改成员类型（系统管理员、团队管理员、普通成员）；*为必填字段，其他为选填字段。</div>
         {configID && this.renderLastDetail()}
         <div className='basicSetup'>
-          <div className='title'>基本设置</div>
+          <div className='title'>
+            基本设置
+            {
+              warningMessage && (
+                <font>（ LDAP 连接失败，请检查配置信息是否正确）</font>
+              )
+            }
+          </div>
           <div className="container">
             <Form>
               <div className='type rowPadding'>
