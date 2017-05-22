@@ -1,6 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2017 TenxCloud. All Rights Reserved.
+ *
+ * v0.1 - 2017-05-22
+ * @author lizhen
  */
 
 'use strict'
