@@ -19,7 +19,6 @@ exports.updateLogo = function*() {
   const content = yield parseForm(this)
   const format = this.field.format
   const key = this.field.key
-  const key = this.field.key
   const api = apiFactory.getOemInfoApi(loginUser)
   const result = yield api.createBy(['logo', format], null, content)
   const id = result.data.id
