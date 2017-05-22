@@ -9,7 +9,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Row, Icon, Input, Form, Modal, Timeline, Spin, Button, Tooltip } from 'antd'
+import { Row, Icon, Input, Form, Modal, Timeline, Spin, Button, Tooltip, Upload } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 // import ConfigFile from './ServiceConfigFile'
 import { loadConfigName, updateConfigName, configGroupName, deleteConfigName, changeConfigFile } from '../../actions/configs'
@@ -106,7 +106,11 @@ function formatVolumeMounts(data, groupname, name) {
 const createForm = Form.create
 
 let CreateConfigFileModal = React.createClass({
-
+  getInitialState() {
+    return {
+      filePath: '请上传文件或直接输入内容'
+    }
+  },
   editConfigFile(group) {
     const parentScope = this.props.scope
     const _this = this
@@ -126,7 +130,10 @@ let CreateConfigFileModal = React.createClass({
             parentScope.setState({
               modalConfigFile: false,
             })
-            _this.props.form.resetFields()
+            _this.setState({
+              filePath: "请上传文件或直接输入内容"
+            })
+            setTimeout(() => _this.props.form.resetFields())
             notification.success('修改配置文件成功')
           },
           isAsync: true
@@ -138,6 +145,9 @@ let CreateConfigFileModal = React.createClass({
   configDescExists(rule, value, callback) {
     const form = this.props.form;
     if (!value) {
+      this.setState({
+        filePath: '请上传文件或直接输入内容'
+      })
       callback([new Error('内容不能为空，请重新输入内容')])
       return
     }
@@ -147,6 +157,44 @@ let CreateConfigFileModal = React.createClass({
     const parentScope = this.props.scope
     this.props.form.resetFields()
     parentScope.setState({modalConfigFile:false})
+    this.setState({
+      filePath: '请上传文件或直接输入内容'
+    })
+  },
+  beforeUpload(file) {
+    const fileInput = this.uploadInput.refs.upload.refs.inner.refs.file
+    const mimeType = file.type
+    const notify = new NotificationHandler()
+    if(/word|excel|pdf|tar|zip|gzip|rar|image/.test(mimeType)) {
+      notify.error('请上传文本文件')
+      return false
+    }
+    const self = this
+    self.setState({
+      disableUpload: true,
+      filePath: '上传文件为 ' + fileInput.value
+    })
+    notify.spin('读取文件内容中，请稍后')
+    const fileReader = new FileReader()
+    fileReader.onerror = function(err) {
+      self.setState({
+        disableUpload: false,
+      })
+      notify.close()
+      notify.error('读取文件内容失败')
+    }
+    fileReader.onload = function() {
+      self.setState({
+        disableUpload: false
+      })
+      notify.close()
+      notify.success('文件内容读取完成')
+      self.props.form.setFieldsValue({
+        configDesc: fileReader.result
+      })
+    }
+    fileReader.readAsText(file)
+    return false
   },
   render() {
     const { getFieldProps } = this.props.form
@@ -162,7 +210,7 @@ let CreateConfigFileModal = React.createClass({
       <Modal
         title="修改配置文件"
         wrapClassName="configFile-create-modal"
-        visible={parentScope.state.modalConfigFile}
+        visible={this.props.modalConfigFile}
         onOk={() => this.editConfigFile(parentScope.props.groupname)}
         onCancel={() => this.closeModal() }
         width="600px"
@@ -176,8 +224,16 @@ let CreateConfigFileModal = React.createClass({
             <FormItem  {...formItemLayout} label="名称">
               <Input type="text" disabled  value={parentScope.state.configName}/>
             </FormItem>
+            <FormItem>
+              <Upload beforeUpload={(file) => this.beforeUpload(file)} showUploadList={false} style={{marginLeft: '38px'}} ref={(instance) => this.uploadInput = instance}>
+                <span style={{width: '350px', display:'inline-block'}}>{this.state.filePath}</span>
+                <Button type="ghost" style={{marginLeft: '10px'}} disable={this.state.disableUpload}>
+                  <Icon type="upload" /> 点击上传
+                </Button>
+              </Upload>
+            </FormItem>
             <FormItem {...formItemLayout} label="内容">
-              <Input type="textarea" style={{ minHeight: '300px' }} {...descProps}  />
+              <Input type="textarea" style={{ minHeight: '300px' }} {...descProps}/>
             </FormItem>
           </Form>
         </div>
@@ -393,7 +449,7 @@ class CollapseContainer extends Component {
           {configFileList}
         </Timeline>
         {/*                     修改配置文件-弹出层-start     */}
-        <CreateConfigFileModal scope={this} />
+        <CreateConfigFileModal scope={this} modalConfigFile={this.state.modalConfigFile}/>
 
         {/* <Modal
           title='修改配置文件'
