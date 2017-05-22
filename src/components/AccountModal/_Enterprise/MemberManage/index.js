@@ -597,7 +597,6 @@ function mapStateToProp(state) {
   let data = []
   const users = state.user.users
   const userDetail = state.entities.loginUser.info
-
   if (users.result) {
     if (users.result.users) {
       usersData = users.result.users
