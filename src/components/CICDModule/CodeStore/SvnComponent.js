@@ -186,7 +186,7 @@ let SvnComponent = React.createClass({
               </FormItem>
 
               <FormItem {...formItemLayout} label="地址" >
-                <Input placeholder="http://*** | https://***" size="large" {...forUrl} />
+                <Input placeholder="如：http://svn.demo.org/project" size="large" {...forUrl} />
               </FormItem>
 
               <FormItem {...formItemLayout} label="类型">

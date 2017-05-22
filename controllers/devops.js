@@ -399,7 +399,10 @@ CI flows
 exports.createCIFlows = function* (){
   const loginUser = this.session.loginUser
   const body = this.request.body
-
+  let isBuildImage = body.isBuildImage
+  if(isBuildImage) {
+    isBuildImage = parseInt(isBuildImage)
+  }
   if (body.init_type == '1' && !body.name) {
     const err = new Error('name of flow is required')
     err.status = 400
@@ -410,11 +413,10 @@ exports.createCIFlows = function* (){
 
   let result
   if (body.init_type == '2') {
-    result = yield api.createBy(["ci-flows"], {o: 'yaml'}, body.yaml)
+    result = yield api.createBy(["ci-flows"], {o: 'yaml', isBuildImage: isBuildImage }, body.yaml)
   } else {
-    result = yield api.createBy(["ci-flows"], null, body)
+    result = yield api.createBy(["ci-flows"], { isBuildImage: isBuildImage }, body)
   }
-
 
   this.body = {
     data: result
@@ -423,9 +425,12 @@ exports.createCIFlows = function* (){
 
 exports.listCIFlows = function* (){
   const loginUser = this.session.loginUser
-
+  let isBuildImage = this.query.isBuildImage
+  if(isBuildImage) {
+    isBuildImage = parseInt(isBuildImage)
+  }
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.getBy(["ci-flows"], null)
+  const result = yield api.getBy(["ci-flows"], {isBuildImage})
 
   this.body = {
     data: result
@@ -471,8 +476,11 @@ exports.updateCIFlow = function* (){
 
 exports.removeCIFlow = function* (){
   const loginUser = this.session.loginUser
-  const flow_id = this.params.flow_id
-
+  let flow_id = this.params.flow_id
+  const queryFlowID = this.query.flowId
+  if(queryFlowID) {
+    flow_id = queryFlowID
+  }
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.deleteBy(["ci-flows", flow_id], null)
 

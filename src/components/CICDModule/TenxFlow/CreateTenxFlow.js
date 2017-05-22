@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Spin } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Spin, Alert } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -80,6 +80,10 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.CreateTenxFlow.submit',
     defaultMessage: '立即创建并配置流程定义',
   },
+  buildImageToolTip: {
+    id: 'CICD.Tenxflow.CreateBuildImage.tooltip',
+    defaultMessage: '创建构建镜像任务前需创建一个TenxFlow，请填写TenxFlow名称，可选择邮件通知 ',
+  }
 })
 
 let CreateTenxFlow = React.createClass({
@@ -203,7 +207,7 @@ let CreateTenxFlow = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope, createTenxFlowSingle } = this.props;
+    const { scope, createTenxFlowSingle, buildImage } = this.props;
     const _this = this;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
@@ -248,12 +252,17 @@ let CreateTenxFlow = React.createClass({
           'notification_config': null
         }
       }
+      body.isBuildImage = buildImage ? 1 : 0
       createTenxFlowSingle(body, {
         success: {
           func: (res) => {
             scope.setState({
               createTenxFlowModal: false
             });
+            if(buildImage) {
+              browserHistory.push(`/ci_cd/build_image/tenx_flow_build?${res.data.flowId}`)
+              return
+            }
             browserHistory.push(`/ci_cd/tenx_flow/tenx_flow_build?${res.data.flowId}`)
             },
           isAsync: true
@@ -331,6 +340,7 @@ let CreateTenxFlow = React.createClass({
     });
     return (
       <div id='CreateTenxFlow' key='CreateTenxFlow'>
+        {this.props.buildImage ? <Alert message={<FormattedMessage {...menusText.buildImageToolTip} />} type='info' /> : ''}
       <Form horizontal>
         <div className='commonBox'>
           <div className='title'>

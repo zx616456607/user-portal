@@ -914,7 +914,10 @@ class AppList extends Component {
                 </Button>
               </Link>
               <Button type='ghost' size='large' onClick={() => this.setState({ deployEnvModalVisible: true })}>
-                <i className="fa fa-plus" />快速创建
+                <svg className='rocket'>
+                  <use xlinkHref='#rocket' />
+                </svg>
+                快速创建
               </Button>
               <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!runBtn}>
                 <i className='fa fa-play' />启动

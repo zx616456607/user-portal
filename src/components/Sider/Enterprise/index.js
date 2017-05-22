@@ -522,6 +522,11 @@ class Sider extends Component {
                 >
                   <Menu.Item key='ci_cd_default' style={{background:backColor.logoBack}}>
                     <Link to='/ci_cd'>
+                      <span><div className='sideCircle'></div> 构建镜像</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='coderepo'>
+                    <Link to='/ci_cd/coderepo'>
                       <span><div className='sideCircle'></div> 代码仓库</span>
                     </Link>
                   </Menu.Item>
@@ -663,6 +668,13 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 充值记录</span>
                     </Link>
                   </Menu.Item>
+                   {(role == ROLE_SYS_ADMIN) ?
+                    <Menu.Item key='LDAP' style={{background:backColor.logoBack}}>
+                      <Link to='/account/ldap'>
+                        <span><div className='sideCircle'></div> 集成企业目录</span>
+                      </Link>
+                    </Menu.Item> : <Menu.Item key="none-ldap" style={{ display: 'none' }}></Menu.Item>
+                  }
                   <div className='sline'></div>
                 </SubMenu>
 

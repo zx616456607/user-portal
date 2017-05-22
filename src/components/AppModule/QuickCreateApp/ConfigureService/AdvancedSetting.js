@@ -12,14 +12,117 @@
 
 import React, { PropTypes } from 'react'
 import {
-  Form, Collapse, Row, Col,
+  Form, Collapse, Row, Col, Input, Tooltip, Button, Icon
 } from 'antd'
+import { appEnvCheck } from '../../../../common/naming_validation'
 import './style/AdvancedSetting.less'
 
 const Panel = Collapse.Panel
+const FormItem = Form.Item
 
 const AdvancedSetting = React.createClass({
+  addEnvKey() {
+    const { form } = this.props
+    const { setFieldsValue, getFieldValue, validateFields } = form
+    let envKeys = getFieldValue('envKeys') || []
+    const validateFieldsKeys = []
+    envKeys.forEach(key => {
+      if (key.deleted) {
+        return
+      }
+      const keyValue = key.value
+      validateFieldsKeys.push(`envName${keyValue}`)
+      validateFieldsKeys.push(`envValue${keyValue}`)
+    })
+    validateFields(validateFieldsKeys, (errors, values) => {
+      if (!!errors) {
+        return
+      }
+      const key = envKeys[envKeys.length - 1] || { value: 0 }
+      let uid = key.value
+      uid ++
+      envKeys = envKeys.concat({ value: uid })
+      setFieldsValue({
+        envKeys,
+      })
+    })
+  },
+  removeEnvKey(keyValue) {
+    const { form } = this.props
+    const { setFieldsValue, getFieldValue } = form
+    const envKeys = getFieldValue('envKeys') || []
+    setFieldsValue({
+      envKeys: envKeys.map(_key => {
+        if (_key.value === keyValue) {
+          // magic code ！
+          // 必须通过标记的方式删除，否则 redux store 中的 fields 与 form 中的 fields 无法一一对应
+          _key.deleted = true
+        }
+        return _key
+      })
+    })
+  },
+  checkEnv(rule, value, callback) {
+    if (!value) {
+      return callback()
+    }
+    let errorMsg = appEnvCheck(value, '环境变量');
+    if (errorMsg === 'success') {
+      return callback()
+    }
+    callback(errorMsg)
+  },
+  renderEnvItem(key) {
+    if (key.deleted) {
+      return
+    }
+    const { form } = this.props
+    const { getFieldProps } = form
+    const keyValue = key.value
+    const envNameKey = `envName${keyValue}`
+    const envValueKey = `envValue${keyValue}`
+    const envKeyProps = getFieldProps(envNameKey, {
+      rules: [
+        { required: true, message: '请填写键' },
+        { validator: this.checkEnv },
+      ],
+    })
+    const envValueProps = getFieldProps(envValueKey, {
+      rules: [
+        { required: true, message: '请填写值' }
+      ],
+    })
+    return (
+      <Row className="configItem" key={`configItem${keyValue}`}>
+        <Col span={8}>
+          <FormItem>
+            <Input size="default" placeholder="请填写键" {...envKeyProps} />
+          </FormItem>
+        </Col>
+        <Col span={8}>
+          <FormItem>
+            <Input size="default" placeholder="请填写值" {...envValueProps} />
+          </FormItem>
+        </Col>
+        <Col span={8}>
+          <Tooltip title="删除">
+            <Button
+              className="deleteBtn"
+              type="dashed"
+              size="small"
+              onClick={this.removeEnvKey.bind(this, keyValue)}
+            >
+              <Icon type="delete" />
+            </Button>
+          </Tooltip>
+        </Col>
+      </Row>
+    )
+  },
   render() {
+    const { formItemLayout, form } = this.props
+    const { getFieldProps, getFieldValue } = form
+    const envKeys = getFieldValue('envKeys') || []
     const header = (
       <div className="headerBox">
         <Row className="header" key="header">
@@ -37,7 +140,31 @@ const AdvancedSetting = React.createClass({
       <div id="advancedConfigureService">
         <Collapse>
           <Panel header={header}>
-            <div>test</div>
+            <Row>
+              <Col span={formItemLayout.labelCol.span}>环境变量</Col>
+              <Col span={formItemLayout.wrapperCol.span}>
+                <div className="envConfig">
+                  <Row className="configHeader">
+                    <Col span={8}>
+                      键
+                    </Col>
+                    <Col span={8}>
+                      值
+                    </Col>
+                    <Col span={8}>
+                      操作
+                    </Col>
+                  </Row>
+                  <div className="configBody">
+                    {envKeys.map(this.renderEnvItem)}
+                    <span className="addEnv" onClick={this.addEnvKey}>
+                      <Icon type="plus-circle-o" />
+                      <span>添加环境变量</span>
+                    </span>
+                  </div>
+                </div>
+              </Col>
+            </Row>
           </Panel>
         </Collapse>
       </div>
