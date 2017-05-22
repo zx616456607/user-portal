@@ -25,6 +25,7 @@ exports.upsertLdap = function* () {
   const api = apiFactory.getApi(loginUser)
   const body = this.request.body
   const ldap = yield api.configs.getBy(['ldap'])
+  const isvalidconfig = yield api.configs.createBy(['ldap', 'isvalidconfig'], null, JSON.parse(body.configDetail))
   let result
   if (ldap.data.configID) {
     // update ldap
