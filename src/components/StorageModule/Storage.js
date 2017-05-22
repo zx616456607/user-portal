@@ -138,7 +138,7 @@ let MyComponent = React.createClass({
       volumeFormat: '',
       volumeSize: '',
       CreateSnapshotSuccessModal: '',
-      snapshotName: 'asdasda',
+      snapshotName: '',
     };
   },
   propTypes: {
@@ -251,7 +251,7 @@ let MyComponent = React.createClass({
        volumeSize: size,
       })
       setTimeout(function() {
-        document.getElementById('inputSnapshotNameBox').focus()
+        document.getElementById('snapshotName').focus()
       },100)
       return
     }
@@ -282,7 +282,7 @@ let MyComponent = React.createClass({
   },
   handleConfirmCreateSnapshot(){
     const { form, SnapshotCreate, cluster } = this.props
-    const { volumeName } = this.state 
+    const { volumeName } = this.state
     const { setFieldsValue } = form
     let Noti = new NotificationHandler()
     form.validateFields( (errors, values) => {
@@ -551,7 +551,6 @@ let MyComponent = React.createClass({
                     <Input
                       {...snapshotName}
                       placeholder='请输入快照名称'
-                      id="inputSnapshotNameBox"
                       onPressEnter={this.handleConfirmCreateSnapshot}
                     />
                   </Form.Item>
