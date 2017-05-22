@@ -57,6 +57,9 @@ class LDAP extends Component {
     getLdap({
       success: {
         func: res => {
+          if (!res.data) {
+            return
+          }
           this.setLdapForm(res.data)
         }
       }
