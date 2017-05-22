@@ -21,13 +21,14 @@ import QuestionImg from '../../assets/img/quickentry/question.png'
 import EnterpriseImg from '../../assets/img/quickentry/enterprise.png'
 import { browserHistory } from 'react-router'
 import InfrastructureImg from '../../assets/img/quickentry/infrastructure.png'
+import DeployEnvModal from '../DeployEnvModal'
 
 class QuickEntry extends Component {
 	constructor(props){
     super(props)
     this.handleDatabase = this.handleDatabase.bind(this)
     this.state = {
-
+      deployEnvModalVisible: false,
     }
   }
 
@@ -46,7 +47,7 @@ class QuickEntry extends Component {
           <div className='main'>
             <Row>
               <Col span={8} className='olllllllll'>
-                <div className="item app">
+                <div className="item app" onClick={() => this.setState({ deployEnvModalVisible: true })}>
                   <img src={AppImg} alt="" className='img'/>
                   <div className='middle'>创建一个应用</div>
                   <div>通过镜像仓库快速创建一个应用</div>
@@ -166,6 +167,12 @@ class QuickEntry extends Component {
             </div>
           </div>
         </div>
+        <DeployEnvModal
+          title="选择部署环境"
+          visible={this.state.deployEnvModalVisible}
+          onCancel={() => this.setState({ deployEnvModalVisible: false })}
+          onOk={() => browserHistory.push('/app_manage/app_create/quick_create')}
+        />
       </div>
     )
   }
