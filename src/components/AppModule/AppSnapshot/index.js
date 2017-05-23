@@ -168,7 +168,8 @@ class Snapshot extends Component {
         func: () => {
           info.success('快照删除成功！')
           this.setState({
-            loading: false
+            loading: false,
+            DeleteSnapshotButton: true,
           })
           this.updateSnapshotList()
         },
@@ -176,6 +177,9 @@ class Snapshot extends Component {
       },
       failed: {
         func: () => {
+          this.setState({
+            DeleteSnapshotButton: true
+          })
           info.error('快照删除失败！')
         }
       }
@@ -252,7 +256,7 @@ class Snapshot extends Component {
   handlecolsetips(){
     this.setState({
       tipsModal: false,
-      currentKey: key,
+      //currentKey: key,
     })
   }
 
