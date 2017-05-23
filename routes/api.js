@@ -81,6 +81,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/node_addr', clusterController.getClusterNodeAddr)
   router.get('/clusters/:cluster/plugins', clusterController.getClusterPlugins)
   router.put('/clusters/:cluster/plugins/:name', clusterController.updateClusterPlugins)
+  router.get('/clusters/:cluster/network', clusterController.getClusterNetworkMode)
 
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
@@ -440,6 +441,7 @@ module.exports = function (Router) {
   router.get('/oem/info', oemController.getOEMInfo)
   router.put('/oem/logo', oemController.updateLogo)
   router.put('/oem/info', oemController.updateText)
+  router.put('/oem/info/default', oemController.restoreDefault)
 
   return router.routes()
 }

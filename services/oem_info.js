@@ -11,6 +11,7 @@
 const apiFactory = require('./api_factory.js')
 const logger = require('../utils/logger').getLogger('loadOEMInfo')
 const fs = require('fs')
+const _ = require('lodash')
 const oem = apiFactory.getTenxSysSignSpi().oem
 
 const naviExpand = 'naviExpand'
@@ -32,8 +33,6 @@ const defaultMedias = {
   [loginLogo]: 'img/TopLogo.svg',
   [favoriteIcon]: 'favicon.ico',
 }
-
-exports.location = defaultMedias
 
 let globalConfig = global.globalConfig
 const medias = Object.getOwnPropertyNames(defaultMedias)
@@ -60,20 +59,13 @@ function* doSaveOneFile(id, fullPath) {
 function* saveOneFile(file, media, files) {
   let path = ""
   if (file.type === 'blobs') {
-    const name = mediaName(file.format, media)
+    const name = makeRandomName(file.format)
     yield doSaveOneFile(file.id, fullPath(name))
     path = name
   } else if (file.type === 'static-file') {
     path = defaultMedias[media]
   }
   files[media] = path
-}
-
-function mediaName(format, media) {
-  if (media === favoriteIcon) {
-    return defaultMedias.favoriteIcon
-  }
-  return makeRandomName(format)
 }
 
 function* saveFiles(info, files) {
@@ -99,7 +91,7 @@ exports.updateOEMInfoImage = updateOEMInfoImage
 function* updateOEMInfoImage(key, content, format) {
   const old = globalConfig.oemInfo[key]
   const isDefault = old === defaultMedias[key]
-  const name = mediaName(format, key)
+  const name = makeRandomName(format)
   yield writeFile(fullPath(name), content)
   globalConfig.oemInfo[key] = name
   if (!isDefault) {
@@ -146,4 +138,20 @@ function* deleteFile(path) {
       }
     })
   )
+}
+
+exports.restoreDefault = restoreDefault
+
+function restoreDefault() {
+  globalConfig.oemInfo = Object.assign({}, defaultMedias, {
+    company: {
+      name: "© 2017 北京云思畅想科技有限公司  |  时速云企业版 v2.1.0",
+      productName: "时速云",
+      visible: true
+    },
+    colorThemeID: 1,
+  })
+  const dto = _.cloneDeep(globalConfig.oemInfo)
+  medias.forEach(key => dto[key] = {type: "static-file"})
+  return dto
 }
