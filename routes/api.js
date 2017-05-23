@@ -84,6 +84,7 @@ module.exports = function (Router) {
 
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
+  router.post('/clusters/:cluster/plugins', appController.createPlugin)
   router.put('/clusters/:cluster/apps/:app_name/desc', appController.updateAppDesc)
   router.get('/clusters/:cluster/apps', appController.getApps)
   router.post('/clusters/:cluster/apps/batch-delete', appController.deleteApps)
