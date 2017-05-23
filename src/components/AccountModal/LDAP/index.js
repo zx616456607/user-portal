@@ -42,6 +42,7 @@ class LDAP extends Component {
     this.removeLdap = this.removeLdap.bind(this)
     this.setLdapForm = this.setLdapForm.bind(this)
     this.cancelEditLdap = this.cancelEditLdap.bind(this)
+    this.setFormToDefault = this.setFormToDefault.bind(this)
     this.state = {
       LiftIntegrationModalVisible: false,
       synBtnLoading: false,
@@ -187,6 +188,18 @@ class LDAP extends Component {
     })
   }
 
+  setFormToDefault() {
+    const { form } = this.props
+    const { setFieldsValue, resetFields } = form
+    resetFields()
+    setFieldsValue({
+      tls: 'none',
+      userFilter: '(objectClass=person)',
+      emailProperty: 'mail',
+      userProperty: 'cn',
+    })
+  }
+
   removeLdap(removeuser) {
     const { removeLdap, getLdap } = this.props
     let query
@@ -207,6 +220,7 @@ class LDAP extends Component {
             LiftIntegrationModalVisible: false,
           })
           this.loadLdap()
+          this.setFormToDefault()
         },
         isAsync: true,
       },
