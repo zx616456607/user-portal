@@ -438,9 +438,10 @@ module.exports = function (Router) {
   router.delete('/user-directory/ldap', ldapController.removeLdap)
 
   // oem info
-  router.put('/oem/logo', oemController.updateLogo)
   router.put('/oem/info', oemController.updateText)
-  router.put('/oem/info/default', oemController.restoreDefault)
+  router.put('/oem/logo', oemController.updateLogo)
+  router.put('/oem/info/default', oemController.restoreDefaultInfo)
+  router.put('/oem/logo/default', oemController.restoreDefaultLogo)
 
   return router.routes()
 }
