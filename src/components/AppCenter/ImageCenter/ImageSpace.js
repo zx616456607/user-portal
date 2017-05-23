@@ -518,7 +518,7 @@ class ImageSpace extends Component {
           </Menu>
         );
         return (
-          <Dropdown.Button overlay={dropdown} type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${server}&imageName=${row.name}`)}>
+          <Dropdown.Button overlay={dropdown} type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${server}&imageName=${row.name}`)}>
             <FormattedMessage {...menusText.deployService} />
           </Dropdown.Button>
         )

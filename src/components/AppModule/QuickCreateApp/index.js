@@ -21,7 +21,7 @@ import ConfigureService from './ConfigureService'
 import ResourceQuotaModal from '../../ResourceQuotaModal'
 import NotificationHandler from '../../../common/notification_handler'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
-import { removeFormFields, removeAllFormFields, removeOldFormFieldsByRegExp } from '../../../actions/quick_create_app'
+import { removeFormFields, removeAllFormFields } from '../../../actions/quick_create_app'
 import { createApp } from '../../../actions/app_manage'
 import { buildJson } from './utils'
 import './style/index.less'
@@ -33,6 +33,7 @@ const standard = require('../../../../configs/constants').STANDARD_MODE
 const mode = require('../../../../configs/model').mode
 const standardFlag = standard === mode
 const notification = new NotificationHandler()
+const serviceNameList = []
 
 class QuickCreateApp extends Component {
   constructor(props) {
@@ -49,6 +50,8 @@ class QuickCreateApp extends Component {
     this.getAppResources = this.getAppResources.bind(this)
     this.createApp = this.createApp.bind(this)
     this.onCreateAppClick = this.onCreateAppClick.bind(this)
+    this.goSelectImage = this.goSelectImage.bind(this)
+    this.renderServiceList = this.renderServiceList.bind(this)
     const { location, fields } = props
     const { query } = location
     const { imageName, registryServer } = query
@@ -61,6 +64,7 @@ class QuickCreateApp extends Component {
       isCreatingApp: false,
       resourceQuotaModal: false,
       resourceQuota: null,
+      stepStatus: 'process',
     }
     this.serviceSum = 0
     this.configureServiceKey = this.genConfigureServiceKey()
@@ -136,6 +140,10 @@ class QuickCreateApp extends Component {
   }
 
   goSelectCreateAppMode() {
+    if (serviceNameList.length < 1) {
+      browserHistory.push('/app_manage/app_create')
+      return
+    }
     this.setState({
       confirmGoBackModalVisible: true
     })
@@ -146,9 +154,9 @@ class QuickCreateApp extends Component {
   }
 
   goSelectImage() {
-    // remove old form fields by `/^[a-zA-Z]+[0-9]+$/`
-    // const { removeOldFormFieldsByRegExp } = this.props
-    // removeOldFormFieldsByRegExp(this.configureServiceKey, /^[a-zA-Z]+[0-9]+$/)
+    this.setState({
+      stepStatus: 'process',
+    })
     browserHistory.push('/app_manage/app_create/quick_create')
   }
 
@@ -174,9 +182,10 @@ class QuickCreateApp extends Component {
   }
 
   createApp() {
-    // this.setState({
-    //   isCreatingApp: true,
-    // })
+    this.setState({
+      isCreatingApp: true,
+      stepStatus: 'process',
+    })
     const {
       fields, current, loginUser,
       createApp, removeAllFormFields,
@@ -185,12 +194,10 @@ class QuickCreateApp extends Component {
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
         const json = buildJson(fields[key], current.cluster, loginUser)
-        console.log(JSON.stringify(json))
         template.push(yaml.dump(json.deployment))
         template.push(yaml.dump(json.service))
       }
     }
-    return
     const appConfig = {
       cluster: current.cluster.clusterID,
       template: template.join('---\n'),
@@ -199,7 +206,9 @@ class QuickCreateApp extends Component {
     createApp(appConfig, {
       success: {
         func: res => {
-          this.appIsCreated = true
+          this.setState({
+            stepStatus: 'finish',
+          })
           // 异步清除 fields，即等 QuickCreateApp 组件卸载后再清除，否者会出错
           setTimeout(removeAllFormFields)
           browserHistory.push('/app_manage')
@@ -208,6 +217,9 @@ class QuickCreateApp extends Component {
       },
       failed: {
         func: err => {
+          this.setState({
+            stepStatus: 'error',
+          })
           if (err.statusCode == 403) {
             const { data } = err.message
             const { require, capacity, used } = data
@@ -354,11 +366,20 @@ class QuickCreateApp extends Component {
         const service = fields[key]
         const { serviceName } = service
         if (serviceName && serviceName.value) {
-          const isRowActive = this.editServiceKey === key || this.configureServiceKey === key
+          let isRowActive = false
+          // 排除“选择镜像”页面
+          if (location.hash) {
+            if (this.configureMode === 'create') {
+              isRowActive = this.configureServiceKey === key
+            } else if (this.configureMode === 'edit') {
+              isRowActive = this.editServiceKey === key
+            }
+          }
           const rowClass = classNames({
             'serviceItem': true,
             'active': isRowActive,
           })
+          serviceNameList.push(serviceName.value)
           serviceList.push(
             <Row className={rowClass} key={serviceName.value}>
               <Col span={18}>
@@ -433,14 +454,10 @@ class QuickCreateApp extends Component {
   }
 
   render() {
-    // magic code ~
-    /*if (this.appIsCreated) {
-      return <div></div>
-    }*/
     const { current, location } = this.props
-    const { confirmGoBackModalVisible, isCreatingApp } = this.state
+    const { confirmGoBackModalVisible, isCreatingApp, stepStatus } = this.state
     const steps = (
-      <Steps size="small" className="steps" status="error" current={this.getStepsCurrent()}>
+      <Steps size="small" className="steps" status={stepStatus} current={this.getStepsCurrent()}>
         <Step title="部署方式" />
         <Step title="选择镜像" />
         <Step title="配置服务" />
@@ -519,7 +536,7 @@ class QuickCreateApp extends Component {
             onCancel={() => this.setState({confirmGoBackModalVisible: false})}
             onOk={this.confirmGoBack}
           >
-            是否确定返回“上一步”？确定后已添加的服务xxx、xxx、xxx将不被保留
+            是否确定返回“上一步”？确定后已添加的服务 {serviceNameList.join(', ')} 将不被保留
           </Modal>
 
           <ResourceQuotaModal
@@ -548,6 +565,5 @@ export default connect(mapStateToProps, {
   // setFormFields,
   removeFormFields,
   removeAllFormFields,
-  removeOldFormFieldsByRegExp,
   createApp,
 })(QuickCreateApp)

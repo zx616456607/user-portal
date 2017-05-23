@@ -69,7 +69,7 @@ let ConfigureService = React.createClass({
     const { id, setFormFields, currentFields, removeOldFormFieldsByRegExp, mode } = this.props
     setFormFields(id, currentFields)
     // remove old form fields by `/^[a-zA-Z]+[0-9]+$/`
-    if (mode === 'create') {
+    if (mode === 'create' && !currentFields.serviceName) {
       removeOldFormFieldsByRegExp(id, /^[a-zA-Z]+[0-9]+$/)
     }
   },
@@ -292,7 +292,7 @@ let ConfigureService = React.createClass({
     for (let key in allFields) {
       if (allFields.hasOwnProperty(key)) {
         if (key !== id) {
-          const { serviceName } = allFields[key]
+          const serviceName = allFields[key].serviceName || {}
           if (serviceName.value === value) {
             callback(appNameCheck(value, '服务名称', true))
             return
@@ -352,7 +352,7 @@ let ConfigureService = React.createClass({
     })
     const imageUrlProps = getFieldProps('imageUrl', {
       rules: [
-        { required: true }
+        { required: true, message: '请选择镜像版本' }
       ],
     })
     const imageTagProps = getFieldProps('imageTag', {

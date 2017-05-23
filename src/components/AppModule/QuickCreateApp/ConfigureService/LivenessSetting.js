@@ -81,6 +81,7 @@ const LivenessSetting = React.createClass({
           <Panel header={header}>
             <FormItem
               {...formItemLayout}
+              className="lastFormItem"
               label="类型"
               key="type"
             >

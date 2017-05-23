@@ -81,7 +81,7 @@ const AdvancedSetting = React.createClass({
     const keyValue = key.value
     const envNameKey = `envName${keyValue}`
     const envValueKey = `envValue${keyValue}`
-    const envKeyProps = getFieldProps(envNameKey, {
+    const envNameProps = getFieldProps(envNameKey, {
       rules: [
         { required: true, message: '请填写键' },
         { validator: this.checkEnv },
@@ -96,7 +96,7 @@ const AdvancedSetting = React.createClass({
       <Row className="configItem" key={`configItem${keyValue}`}>
         <Col span={8}>
           <FormItem>
-            <Input size="default" placeholder="请填写键" {...envKeyProps} />
+            <Input size="default" placeholder="请填写键" {...envNameProps} />
           </FormItem>
         </Col>
         <Col span={8}>
@@ -121,7 +121,7 @@ const AdvancedSetting = React.createClass({
   },
   render() {
     const { formItemLayout, form } = this.props
-    const { getFieldProps, getFieldValue } = form
+    const { getFieldValue } = form
     const envKeys = getFieldValue('envKeys') || []
     const header = (
       <div className="headerBox">
@@ -141,7 +141,9 @@ const AdvancedSetting = React.createClass({
         <Collapse>
           <Panel header={header}>
             <Row>
-              <Col span={formItemLayout.labelCol.span}>环境变量</Col>
+              <Col span={formItemLayout.labelCol.span} className="label">
+                环境变量
+              </Col>
               <Col span={formItemLayout.wrapperCol.span}>
                 <div className="envConfig">
                   <Row className="configHeader">
