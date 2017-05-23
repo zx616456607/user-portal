@@ -165,7 +165,7 @@ const favicon = require('koa-favicon')
 app.use(function*(next) {
   if ('/favicon.ico' != this.path) return yield next;
   const favoriteIcon = __dirname + '/static' + global.globalConfig.oemInfo.favoriteIcon
-  yield favicon(favoriteIcon, {maxAge: 1000 * 60})(next)
+  yield favicon(favoriteIcon, {maxAge: 0})(next)
 })
 
 // Parser content-Type applicationnd.docker.distribution.events.v1+json
