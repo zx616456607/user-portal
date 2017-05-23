@@ -440,6 +440,7 @@ module.exports = function (Router) {
   router.get('/oem/info', oemController.getOEMInfo)
   router.put('/oem/logo', oemController.updateLogo)
   router.put('/oem/info', oemController.updateText)
+  router.put('/oem/info/default', oemController.restoreDefault)
 
   return router.routes()
 }
