@@ -67,7 +67,7 @@ class ClusterPlugin extends Component{
         }
         return '#f23e3f'
       }
-      default: 
+      default:
         return 'orange'
     }
   }
@@ -350,7 +350,7 @@ class ClusterPlugin extends Component{
                 onOk={() => this.resetPlugin() }
                 onCancel={() => this.setState({reset:false})}
                 >
-                <p>确定重新部署 {this.state.currentPlugin ? this.state.currentPlugin.name : ''} 插件吗?</p>
+                <div className="confirmText">确定重新部署 {this.state.currentPlugin ? this.state.currentPlugin.name : ''} 插件吗?</div>
               </Modal>
               <Modal
                 title="设置节点及资源限制"

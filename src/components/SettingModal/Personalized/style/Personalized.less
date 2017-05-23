@@ -10,10 +10,10 @@
     font-size: 1rem;
   }
   .image-push{
-    margin-top: 10px;
+    margin-top: 15px;
     font-size: 13px;
     .ant-card-head{border: 0;}
-    .ant-card-head-title{font-weight: 500;}
+    .ant-card-head-title{font-weight:400;}
     .ant-card-body{
       padding:0;
     }
@@ -32,6 +32,7 @@
     .logo{height: 50px;}
     .wrap-image{
       background: #2DB7F5;
+      cursor: pointer;
       border-radius: 5px;
       // padding:10px;
       position: relative;
@@ -51,22 +52,10 @@
         display: none;
       }
     }
-    .uploadStyle {
-      cursor: pointer;
-      position: absolute;
-      left: 0;
-      top: 0px;
-      z-index: 1;
-      width:200px;
-      height: 60px;
-      padding-top: 5px;
-      visibility: hidden;
-      background: #FFFFFF;
-      opacity: 0.8;
-      img{visibility: hidden;}
-    }
     .wrap-image:hover{
+      background: #D5F1FD;
       .push-icon{display: inline-block;}
+      .logo{opacity: 0.5}
       .uploadStyle{
         visibility: visible;
       }

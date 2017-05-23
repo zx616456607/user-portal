@@ -21,6 +21,7 @@ import { browserHistory } from 'react-router'
 import { genRandomString, clearSessionStorage } from '../../../common/tools'
 import Top from '../../../components/Top'
 import { camelize } from 'humps'
+import { getPersonalized } from '../../../actions/personalized'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -237,6 +238,7 @@ let Login = React.createClass({
   componentWillMount() {
     // Clear sessionStorage when login
     clearSessionStorage()
+    this.props.getPersonalized()
     const { resetFields } = this.props.form
     resetFields()
     const _this = this
@@ -320,9 +322,19 @@ let Login = React.createClass({
       document.getElementById('password').focus()
     }
   },
+  copyright(info) {
+    if (info.company) {
+      if (info.company.visible) {
+        return info.company.name
+      }
+    }
+    return
+  },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps } = this.state
+    const { info } = this.props
+    console.log(info)
     const nameProps = getFieldProps('name', {
       rules: [
         { validator: this.checkName },
@@ -345,7 +357,7 @@ let Login = React.createClass({
     }
     return (
       <div id="LoginBg">
-        <Top/>
+        <Top loginLogo={info.loginLogo} />
         <div className="login">
           {this.state.outdated ?
             <div className="errorText">许可证已过期，请重新<span className="goActive" onClick={()=> browserHistory.push("/activation")}> 输入许可证 </span>以使用平台</div>
@@ -439,8 +451,8 @@ let Login = React.createClass({
         </div>
         </div>
         <div className="footer">
-          © 2017 北京云思畅想科技有限公司 &nbsp;|&nbsp; 时速云企业版 v2.1.0
-          </div>
+          {this.copyright(info)}
+        </div>
       </div>
     )
   }
@@ -448,7 +460,10 @@ let Login = React.createClass({
 
 function mapStateToProps(state, props) {
   const { redirect } = props.location.query
+  const { personalized } = state
+  const { info } = personalized
   return {
+    info: info.result || {},
     redirect
   }
 }
@@ -460,6 +475,7 @@ Login = connect(mapStateToProps, {
   login,
   loadMergedLicense,
   isAdminPasswordSet, // check whether the 'admin' user's password was set
+  getPersonalized
 })(Login)
 
 export default Login

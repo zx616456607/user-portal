@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  Storage list
+ *  login page
  *
  * v0.1 - 2016/12/20
  * @author ZhaoXueYu
@@ -17,11 +17,10 @@ const mode = require('../../../configs/model').mode
 export default class Top extends Component {
   constructor (props) {
   	super(props)
-  	this.state = {
-
-  	}
   }
+
   render(){
+    console.log(this.props.info)
     if (mode === standard) {
       return (
         <div id='Top'>
@@ -65,9 +64,7 @@ export default class Top extends Component {
         <div className='topWrap'>
           <div className='topLogo'>
             <a href='/'>
-              <svg>
-                <use xlinkHref='#toplogo' />
-              </svg>
+              <img src={this.props.loginLogo} style={{height:40}}/>
             </a>
           </div>
           <div className='topNav'>
