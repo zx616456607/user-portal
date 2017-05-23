@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Button, Input, Icon, Form, Modal } from 'antd'
+import { Row, Col, Card, Button, Input, Icon, Form, Modal, Spin, Radio } from 'antd'
 import './style/Information.less'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
@@ -19,9 +19,11 @@ import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import MemberRecharge from '../_Enterprise/Recharge'
 import { chargeUser } from '../../../actions/charge'
 import { loadLoginUserDetail } from '../../../actions/entities'
-import { loadUserDetail } from '../../../actions/user'
+import { loadUserDetail, changeUserRole  } from '../../../actions/user'
 import { MAX_CHARGE }  from '../../../constants'
 
+
+const RadioGroup = Radio.Group
 const createForm = Form.create;
 const FormItem = Form.Item;
 
@@ -156,6 +158,7 @@ class Information extends Component {
       revisePass: false,
       number: 10,
       visibleMember: false,// member account
+      selectUserRole: 1
     }
   }
   handleRevise() {
@@ -247,9 +250,47 @@ class Information extends Component {
       }
     })
   }
+  changeUserRoleModal() {
+    const { userDetail } = this.props
+    this.setState({
+      changeUserRoleModal: true,
+      selectUserRole: userDetail ? userDetail.role + 1 : 3
+    })
+  }
+  changeUserRoleRequest() {
+    const { updateUser, loginUser, userID, userDetail, changeUserRole } = this.props
+    const notify = new NotificationHandler()
+    if(loginUser.role != 2) { return notify.error('只有系统管理员用户有此权限')}
+    if(userDetail.role + 1 == this.state.selectUserRole ) {
+      notify.error('用户角色没有发生变化')
+      return
+    }
+    notify.spin('更新用户角色中')
+    const self = this
+    updateUser(userID, { role: this.state.selectUserRole }, {
+      success: {
+        func: () => {
+          notify.close()
+          notify.success('用户角色更新成功')
+          self.setState({
+            changeUserRoleModal: false
+          })
+          changeUserRole(userID, this.state.selectUserRole - 1)
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          notify.close()
+          notify.error('用户角色更新失败')
+        }
+      }
+    })
+
+  }
   render() {
     const { revisePass } = this.state
-    const { userID, userDetail, updateUser } = this.props
+    const { userID, userDetail, updateUser, loginUser } = this.props
     let roleName
     switch (userDetail.role) {
       case ROLE_TEAM_ADMIN:
@@ -270,7 +311,8 @@ class Information extends Component {
         </Row>
         <Row className="Item">
           <Col span={4}>类型</Col>
-          <Col span={20}>{roleName}</Col>
+          <Col span={2}>{roleName}</Col>
+          {loginUser.role == 2 && userID && userDetail.userName != 'admin' ? <Col span={10}> <Button type="primary" onClick={() => this.changeUserRoleModal()}>修改用户角色</Button></Col> : ''}
         </Row>
         <Row className="Item">
           <Col span={4}>手机</Col>
@@ -280,7 +322,7 @@ class Information extends Component {
           <Col span={4}>邮箱</Col>
           <Col span={20}>{userDetail.email}</Col>
         </Row>
-        <Row className="Item">
+        { userDetail && userDetail.type == 1 ? <Row className="Item">
           <Col span={4}>修改密码</Col>
           <Col span={20}>
             {
@@ -290,7 +332,7 @@ class Information extends Component {
                 <Button type="primary" onClick={this.handleRevise}>修改密码</Button>
             }
           </Col>
-        </Row>
+        </Row> : ''}
         <Row className="Item" style={{ border: 'none' }}>
           <Col span={4}>余额</Col>
           <Col span={2}>{balance}T</Col>
@@ -307,6 +349,13 @@ class Information extends Component {
          width={600}
         >
           <MemberRecharge parentScope={this} visible={this.state.visibleMember}/>
+        </Modal>
+        <Modal title="修改用户角色" visible={this.state.changeUserRoleModal} onCancel={() => this.setState({ changeUserRoleModal: false, selectUserRole: userDetail.role + 1 })} onOk={() => this.changeUserRoleRequest()}>
+          <RadioGroup onChange={(e) => {this.setState({ selectUserRole: e.target.value })}}  value={this.state.selectUserRole}>
+            <Radio key="a" value={3}>系统管理员</Radio>
+            <Radio key="b" value={2}>团队管理员</Radio>
+            <Radio key="c" value={1}>普通成员</Radio>
+          </RadioGroup>
         </Modal>
       </div>
     )
@@ -329,5 +378,6 @@ export default connect(mapStateToProp, {
   updateUser,
   loadLoginUserDetail, // 登录用户信息
   loadUserDetail,// 用户或者成员信息
-  chargeUser
+  chargeUser,
+  changeUserRole
 })(Information)

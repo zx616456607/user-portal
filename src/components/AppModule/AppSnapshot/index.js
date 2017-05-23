@@ -14,6 +14,9 @@ import './style/Snapshot.less'
 import CurrentImg from '../../../assets/img/appmanage/rollbackcurrent.jpg'
 import ForwardImg from '../../../assets/img/appmanage/rollbackforward.jpg'
 import ArrowImg from '../../../assets/img/appmanage/arrow.png'
+import { loadStorageList, SnapshotList, SnapshotRollback, SnapshotDelete } from '../../../actions/storage'
+import { DEFAULT_IMAGE_POOL } from '../../../constants'
+import NotificationHandler from '../../../common/notification_handler'
 
 class Snapshot extends Component {
   constructor(props) {
@@ -27,6 +30,10 @@ class Snapshot extends Component {
     this.handleCancelRollback = this.handleCancelRollback.bind(this)
     this.handleConfirmDeletaSnapshot = this.handleConfirmDeletaSnapshot.bind(this)
     this.hanndleCancelDeleteSnapshot = this.hanndleCancelDeleteSnapshot.bind(this)
+    this.loadSnapshotList = this.loadSnapshotList.bind(this)
+    this.handlecolsetips = this.handlecolsetips.bind(this)
+    this.updateSnapshotList = this.updateSnapshotList.bind(this)
+    this.handleCreateTime = this.handleCreateTime.bind(this)
     this.state = {
       selectedRowKeys: [],
       loading: false,
@@ -34,84 +41,295 @@ class Snapshot extends Component {
       rollbackModal: false,
       rollbackLoading: false,
       DeletaSnapshotModal: false,
-      DeleteSnapshotConfirmLoading: false
+      DeleteSnapshotConfirmLoading: false,
+      tipsModal: false,
+      tipsSwitch: true,
+      currentKey: 0,
+      currentSnapshot: {},
+      currentDeletedSnapshotArrary: {},
+      SnapshotList: []
+    }
+  }
+
+  loadSnapshotList(){
+    const { loadStorageList, cluster, currentImagePool, SnapshotList } = this.props
+    const body = {
+      clusterID: cluster,
+    }
+    SnapshotList(body,{
+      success: {
+        func: () => {
+          loadStorageList(currentImagePool, cluster)
+        },
+        isAsync: true
+      }
+    })
+  }
+
+  updateSnapshotList(){
+    const { cluster, SnapshotList } = this.props
+    const body = {
+      clusterID: cluster,
+    }
+    SnapshotList(body)
+  }
+
+  componentWillMount() {
+    document.title = '快照 | 时速云'
+    this.loadSnapshotList()
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if(this.props.cluster !== nextProps.cluster){
+      const { loadStorageList, currentImagePool, SnapshotList } = this.props
+      const body = {
+        clusterID: nextProps.cluster,
+      }
+      SnapshotList(body,{
+        success: {
+          func: () => {
+            this.setState({
+              SnapshotList: this.props.snapshotDataList
+            })
+            loadStorageList(currentImagePool, nextProps.cluster)
+          },
+          isAsync: true
+        }
+      })
+    }
+    if(this.props.snapshotDataList !== nextProps.snapshotDataList){
+      this.setState({
+        SnapshotList: nextProps.snapshotDataList
+      })
     }
   }
 
   handleConfirmDeletaSnapshot(){
+    const { snapshotDataList, SnapshotDelete, cluster } = this.props
+    const { currentKey } = this.state
+    const info = new NotificationHandler()
     this.setState({
-      DeletaSnapshotModal: false,
+      DeleteSnapshotConfirmLoading: true
+    })
+    const body = {
+      clusterID: cluster,
+      body: {
+        snapshotName: {
+          [snapshotDataList[currentKey].volume]: [snapshotDataList[currentKey].name]
+        }
+      }
+    }
+    SnapshotDelete(body,{
+      success: {
+        func: () => {
+          info.success('快照删除成功！')
+          this.setState({
+            DeletaSnapshotModal: false,
+            DeleteSnapshotConfirmLoading: false,
+          })
+          this.updateSnapshotList()
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          info.error('快照删除失败！')
+          this.setState({
+            DeletaSnapshotModal: false,
+            DeleteSnapshotConfirmLoading: false,
+          })
+        }
+      }
     })
   }
 
   hanndleCancelDeleteSnapshot(){
     this.setState({
       DeletaSnapshotModal: false,
+      DeleteSnapshotConfirmLoading: false,
     })
   }
 
   handleDeleteSnapshots(){
-    this.setState({ loading: true });
-    // 模拟 ajax 请求，完成后清空
-    setTimeout(() => {
-      this.setState({
-        selectedRowKeys: [],
-        loading: false,
-        DeleteSnapshotButton: true
-      });
-    }, 1000);
+    const { SnapshotDelete, cluster } = this.props
+    const { currentDeletedSnapshotArrary } = this.state
+    const info = new NotificationHandler()
+    this.setState({
+      loading: true
+    })
+    const body = {
+      clusterID: cluster,
+      body: {
+        snapshotName: currentDeletedSnapshotArrary,
+      }
+    }
+    SnapshotDelete(body, {
+      success: {
+        func: () => {
+          info.success('快照删除成功！')
+          this.setState({
+            loading: false
+          })
+          this.updateSnapshotList()
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          info.error('快照删除失败！')
+        }
+      }
+    })
   }
 
   onSelectChange(selectedRowKeys) {
-    console.log('selectedRowKeys changed: ', selectedRowKeys);
+    const { snapshotDataList } = this.props
+    const currentDeletedSnapshotArrary = {}
     if(selectedRowKeys.length == 0){
       this.setState({
         selectedRowKeys,
+        currentDeletedSnapshotArrary: {},
         DeleteSnapshotButton: true
       })
       return
     }
+    for(let i=0; i < selectedRowKeys.length; i++){
+      if(!currentDeletedSnapshotArrary[snapshotDataList[selectedRowKeys[i]].volume]){
+        currentDeletedSnapshotArrary[snapshotDataList[selectedRowKeys[i]].volume] = [snapshotDataList[selectedRowKeys[i]].name]
+      } else {
+        currentDeletedSnapshotArrary[snapshotDataList[selectedRowKeys[i]].volume].push(snapshotDataList[selectedRowKeys[i]].name)
+      }
+    }
     this.setState({
       selectedRowKeys,
+      currentDeletedSnapshotArrary,
       DeleteSnapshotButton: false
     });
   }
 
   handleDeleteSnapshot(key){
-    console.log('delete.key=',key)
+    const { snapshotDataList } = this.props
     this.setState({
       DeletaSnapshotModal: true,
+      currentSnapshot: snapshotDataList[key],
+      currentKey: key,
     })
   }
 
   handleRollbackSnapback(key){
-    console.log('rollback.key=',key)
+    const { snapshotDataList, storageList } = this.props
+    //判断当前快照状态
+    if(snapshotDataList[key].status == '不正常'){
+      this.setState({
+        tipsSwitch: true,
+        tipsModal: true,
+      })
+      return
+    }
+    //判断当前快照所在存储卷的状态
+    for(let pool in storageList){
+      for(let i = 0; i < storageList[pool].storageList.length; i++){
+        if(snapshotDataList[key].volume == storageList[pool].storageList[i].name){
+          this.setState({
+            currentSnapshot: snapshotDataList[key],
+          })
+          if(storageList[pool].storageList[i].isUsed == true){
+            this.setState({
+              tipsSwitch: false,
+              tipsModal: true
+            })
+            return
+          }
+        }
+      }
+    }
     this.setState({
       rollbackModal: true,
+      currentKey: key,
     })
   }
 
-  handelEnterSearch(){
-    console.log('shanxuan')
+  handlecolsetips(){
+    this.setState({
+      tipsModal: false,
+      currentKey: key,
+    })
+  }
+
+  handelEnterSearch(e){
+    const { snapshotDataList } = this.props
+    const keyword = e.target.value
+    if(keyword.length == 0){
+      this.setState({
+        SnapshotList: snapshotDataList
+      })
+      return
+    }
+    let snapshotList = []
+    snapshotDataList.map((node) => {
+      if (node.name.indexOf(keyword) > -1) {
+        snapshotList.push(node);
+      }
+    });
+    this.setState({
+      SnapshotList: snapshotList
+    });
   }
 
   handleConfirmRollback(){
-    console.log('确定回gun')
+    const { snapshotDataList, SnapshotRollback, cluster } = this.props
+    const { currentKey } = this.state
+    const info = new NotificationHandler()
     this.setState({
-      rollbackModal: false,
+      rollbackLoading: true,
+    })
+    const body = {
+      clusterID: cluster,
+      volumeName: snapshotDataList[currentKey].volume,
+      body: {
+        snapshotName: snapshotDataList[currentKey].name
+      }
+    }
+    SnapshotRollback(body,{
+      success: {
+        func: () => {
+          info.success('快照回滚成功！')
+          this.setState({
+            rollbackModal: false,
+            rollbackLoading: false,
+          })
+        }
+      },
+      falied: {
+        func: () => {
+          info.error('快照回滚失败！')
+          this.setState({
+            rollbackModal: false,
+            rollbackLoading: false,
+          })
+        }
+      }
     })
   }
 
   handleCancelRollback(){
-    console.log('取消回滚')
     this.setState({
       rollbackModal: false,
+      rollbackLoading: false,
     })
   }
 
+  handleCreateTime(time){
+    if(!time){
+      return '未知'
+    }
+    let StandardTime = time.substring(0, 19).replace('T','   ')
+    return StandardTime
+  }
+
   render() {
-    const { data } = this.props
-    const { loading, selectedRowKeys , DeleteSnapshotButton} = this.state
+    const { snapshotDataList } = this.props
+    const { loading, selectedRowKeys , DeleteSnapshotButton, currentSnapshot } = this.state
     function iconclassName(text){
       switch(text){
         case '正常':
@@ -120,33 +338,36 @@ class Snapshot extends Component {
     }
     const snapshotcolumns = [{
         title:'快照名称',
-        key:'ImageName',
-        dataIndex:'ImageName',
+        key:'name',
+        dataIndex:'name',
       },{
         title:'状态',
-        key:'Status',
-        dataIndex:'Status',
-        render: (text) => <div className={iconclassName(text)}>
+        //key:'Status',
+        //dataIndex:'Status',
+        render: () => <div className={iconclassName('正常')}>
           <i className='fa fa-circle icon' aria-hidden="true"></i>
-          <span>{text}</span>
+          <span>正常</span>
         </div>
       },{
         title:'格式',
-        key:'Format',
-        dataIndex:'Format',
+        key:'type',
+        dataIndex:'fstype',
+        render: (fstype) => <div>{fstype}</div>
       },{
         title:'大小',
-        key:'Size',
-        dataIndex:'Size',
+        key:'size',
+        dataIndex:'size',
+        render: (size) => <div>{size} M</div>
       },{
         title:'关联卷',
-        key:'AssociatedVolume',
-        dataIndex:'AssociatedVolume',
+        key:'volume',
+        dataIndex:'volume',
       },{
         title:'创建时间',
         key:'CreateTime',
-        dataIndex:'CreateTime',
-        sorter:(a, b) => { a.time - b.time }
+        dataIndex:'createTime',
+        render: (createTime) => <div>{this.handleCreateTime(createTime)}</div>,
+        sorter:(a, b) => { this.handleCreateTime(a.createTime) - this.handleCreateTime(b.createTime) }
       },{
         title:'操作',
         key:'Handle',
@@ -171,18 +392,18 @@ class Snapshot extends Component {
         </div>
         <div className='appmanage_snapshot_main'>
           {
-            data
+            snapshotDataList
             ?<Table
               columns={snapshotcolumns}
-              dataSource={data}
+              dataSource={this.state.SnapshotList}
               rowSelection={rowSelection}
             >
             </Table>
             :<div className='nodata'><Spin/></div>
           }
           {
-            data && data.length !== 0
-              ? <div className='totalNum'>共计<span className='item'>{data.length}</span>条</div>
+            snapshotDataList && snapshotDataList.length !== 0
+              ? <div className='totalNum'>共计<span className='item'>{snapshotDataList.length}</span>条</div>
               : <span></span>
           }
         </div>
@@ -222,10 +443,9 @@ class Snapshot extends Component {
             </div>
             <div className='tips'>
               存储卷
-              <span className='name'>xxxxx</span>
+              <span className='name'>{currentSnapshot.volume}</span>
               即将回滚至时间
-              <span className='time'>2017.1.1</span>
-              <span className='time'>12:59.08</span>
+              <span className='time'>{this.handleCreateTime(currentSnapshot.createTime)}</span>
               此刻之后的数据将被清楚，请谨慎操作！
             </div>
             <div className='warning'>
@@ -255,10 +475,10 @@ class Snapshot extends Component {
                   <div className='item'>时间</div>
                 </div>
                 <dvi className='rightbox'>
-                  <div className='item'>test-demo-volume-xxxx</div>
-                  <div className='item'>xfs</div>
-                  <div className='item color'>2017.1.1 &nbsp; 12:56:59</div>
-                </dvi>                
+                  <div className='item'>{currentSnapshot.name}</div>
+                  <div className='item'>{currentSnapshot.fstype}</div>
+                  <div className='item color'>{this.handleCreateTime(currentSnapshot.createTime)}</div>
+                </dvi>
               </div>
              <div className='mainbox'>
                <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
@@ -267,51 +487,49 @@ class Snapshot extends Component {
            </div>
          </Modal>
 
+         <Modal
+           title="提示"
+           visible={this.state.tipsModal}
+           closable={true}
+           onOk={this.handlecolsetips}
+           onCancel={this.handlecolsetips}
+           width='570px'
+           maskClosable={false}
+           wrapClassName="RollbackSnapshotTipsModal"
+           okText="知道了"
+         >
+           <div className='container'>
+             <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
+             {
+               this.state.tipsSwitch
+               ? <span>快照状态非正常，不可回滚快照</span>
+               : <span>存储卷正在使用中，不可回滚快照！</span>
+             }
+           </div>
+         </Modal>
       </div>
     )
   }
 }
 
 function mapStateToProps(state, props){
-  const data = [{
-      key:'1',
-      ImageName:'name-snapshot',
-      Status:'正常',
-      Format:'xfs',
-      Size:'100MB',
-      AssociatedVolume:'xxxxxx',
-      CreateTime:'1个月前'
-    },{
-      key:'2',
-      ImageName:'name-snapshot',
-      Status:'正常',
-      Format:'xfs',
-      Size:'100MB',
-      AssociatedVolume:'xxxxxx',
-      CreateTime:'7个月前'
-    },{
-      key:'3',
-      ImageName:'name-snapshot',
-      Status:'正常',
-      Format:'xfs',
-      Size:'100MB',
-      AssociatedVolume:'xxxxxx',
-      CreateTime:'20个月前'
-    },{
-      key:'4',
-      ImageName:'name-snapshot',
-      Status:'正常',
-      Format:'xfs',
-      Size:'100MB',
-      AssociatedVolume:'xxxxxx',
-      CreateTime:'5个月前'
-    }]
-   const abc = []
+  const { cluster } = state.entities.current
+  const { snapshotList } = state.storage
+  const snapshotDataList = snapshotList.result || []
+  for(let i = 0; i < snapshotDataList.length; i++){
+    snapshotDataList[i].key = i
+  }
   return {
-    data
+    storageList: state.storage.storageList || [],
+    currentImagePool: DEFAULT_IMAGE_POOL,
+    cluster: cluster.clusterID,
+    snapshotDataList,
   }
 }
 
 export default connect(mapStateToProps,{
-
+  loadStorageList,
+  SnapshotList,
+  SnapshotDelete,
+  SnapshotRollback,
 })(Snapshot)

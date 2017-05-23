@@ -65,6 +65,17 @@ export function loadUserDetail(userID, requiredFields = []) {
   }
 }
 
+export const CHANGE_USER_ROLE = 'CHANGE_USER_ROLE'
+
+export function changeUserRole(userID, role){
+  return {
+    type: CHANGE_USER_ROLE,
+    role: role,
+    userID: userID
+  }
+}
+
+
 export const USER_APPINFO_REQUEST = 'USER_APPINFO_REQUEST'
 export const USER_APPINFO_SUCCESS = 'USER_APPINFO_SUCCESS'
 export const USER_APPINFO_FAILURE = 'USER_APPINFO_FAILURE'

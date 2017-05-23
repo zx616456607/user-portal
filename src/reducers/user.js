@@ -11,6 +11,7 @@
 import * as ActionTypes from '../actions/user'
 import reducerFactory from './factory'
 import cloneDeep from 'lodash/cloneDeep'
+import merge from 'lodash/merge'
 
 const option = {
   overwrite: true
@@ -106,6 +107,36 @@ function userCertificate (state ={}, action) {
   }
 }
 
+function userDetail(state, action) {
+  const defaultState = {
+    isFetching: false
+  }
+  switch (action.type) {
+    case ActionTypes.USER_DETAIL_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.USER_DETAIL_SUCCESS:
+      return merge({}, state, {
+        isFetching: false,
+        result: action.response.result
+      })
+    case ActionTypes.USER_DETAIL_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    case ActionTypes.CHANGE_USER_ROLE: {
+      const userDetail = cloneDeep(state)
+      if(userDetail.result && userDetail.result.data) {
+        userDetail.result.data.role = action.role
+      }
+      return userDetail
+    }
+    default:
+      return state
+  }
+}
+
 export default function user(state = {
   userDetail: {},
   users: [],
@@ -115,11 +146,7 @@ export default function user(state = {
   userAppInfo: {}
  }, action) {
   return {
-    userDetail: reducerFactory({
-      REQUEST: ActionTypes.USER_DETAIL_REQUEST,
-      SUCCESS: ActionTypes.USER_DETAIL_SUCCESS,
-      FAILURE: ActionTypes.USER_DETAIL_FAILURE
-    }, state.userDetail, action, option),
+    userDetail: userDetail(state.userDetail, action),
     userCertificate: userCertificate(state.userCertificate, action),
     standardUserDetail: standardUserDetail(state.standardUserDetail, action),
     createCertInfo: reducerFactory({
@@ -161,6 +188,11 @@ export default function user(state = {
       REQUEST: ActionTypes.USER_TEAMSPACE_DETAIL_LIST_REQUEST,
       SUCCESS: ActionTypes.USER_TEAMSPACE_DETAIL_LIST_SUCCESS,
       FAILURE: ActionTypes.USER_TEAMSPACE_DETAIL_LIST_FAILURE
-    }, state.teamspaceDetails, action, option)
+    }, state.teamspaceDetails, action, option),
+    updateUserRole: reducerFactory({
+      REQUEST: ActionTypes.UPDATE_USER_ROLE_REQUEST,
+      SUCCESS: ActionTypes.UPDATE_USER_ROLE_SUCCESS,
+      FAILURE: ActionTypes.UPDATE_USER_ROLE_FAILURE
+    }, state.updateUserRole, action, option)
   }
 }

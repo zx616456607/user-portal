@@ -27,8 +27,10 @@ exports.upsertLdap = function* () {
   const ldap = yield api.configs.getBy(['ldap'])
   const isvalidconfig = yield api.configs.createBy(['ldap', 'isvalidconfig'], null, JSON.parse(body.configDetail))
   let result
-  if (ldap.data.configID) {
+  const configID = ldap.data.configID
+  if (configID) {
     // update ldap
+    body.configID = configID
     result = yield api.configs.updateBy(['ldap'], null, body)
   } else {
     // insert ldap

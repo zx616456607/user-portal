@@ -42,9 +42,11 @@ class LDAP extends Component {
     this.removeLdap = this.removeLdap.bind(this)
     this.setLdapForm = this.setLdapForm.bind(this)
     this.cancelEditLdap = this.cancelEditLdap.bind(this)
+    this.setFormToDefault = this.setFormToDefault.bind(this)
     this.state = {
       LiftIntegrationModalVisible: false,
       synBtnLoading: false,
+      saveBtnLoading: false,
     }
   }
 
@@ -62,21 +64,25 @@ class LDAP extends Component {
           }
           this.setLdapForm(res.data)
         }
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            saveBtnLoading: false,
+          })
+        },
       }
     })
   }
 
   cancelEditLdap(e) {
-    this.setLdapForm()
+    this.setLdapForm(this.props.ldap)
   }
 
   setLdapForm(ldap) {
     const { form } = this.props
     const { setFieldsValue, resetFields } = form
     resetFields()
-    if (!ldap) {
-      ldap = this.props.ldap
-    }
     const {
       addr, base, bindDN, tls, userFilter, userProperty, emailProperty, bindPassword
     } = ldap.configDetail || {}
@@ -110,7 +116,7 @@ class LDAP extends Component {
       return callback()
     }
     if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
-      return callback('请填入合法的 host 地址')
+      return callback('请填入合法的 LDAP 服务地址')
     }
     callback()
   }
@@ -151,8 +157,10 @@ class LDAP extends Component {
       if (!!errors) {
         return
       }
+      this.setState({
+        saveBtnLoading: true,
+      })
       const body = {
-        configID: ldap.configID,
         configDetail: JSON.stringify(values)
       }
       upsertLdap(body, {
@@ -170,10 +178,25 @@ class LDAP extends Component {
               message = ''
             }
             notification.error('保存企业集成信息失败', message)
+            this.setState({
+              saveBtnLoading: false,
+            })
           },
           isAsync: true,
-        }
+        },
       })
+    })
+  }
+
+  setFormToDefault() {
+    const { form } = this.props
+    const { setFieldsValue, resetFields } = form
+    resetFields()
+    setFieldsValue({
+      tls: 'none',
+      userFilter: '(objectClass=person)',
+      emailProperty: 'mail',
+      userProperty: 'cn',
     })
   }
 
@@ -197,6 +220,7 @@ class LDAP extends Component {
             LiftIntegrationModalVisible: false,
           })
           this.loadLdap()
+          this.setFormToDefault()
         },
         isAsync: true,
       },
@@ -276,7 +300,7 @@ class LDAP extends Component {
     const { getFieldProps } = form
 	  const AddrProps = getFieldProps('addr', {
       rules: [
-        { required: true, message: '请输入 IP 地址或域名' },
+        { required: true, message: '请输入 LDAP 服务地址' },
         { validator: this.checkHost }
       ],
     })
@@ -334,7 +358,7 @@ class LDAP extends Component {
                   <Col span={4} className='item_title'>Addr<span className='star'>*</span></Col>
                   <Col span={20} className='item_content'>
                     <FormItem>
-                      <Input {...AddrProps} placeholder="请输入IP地址或域名"/>
+                      <Input {...AddrProps} placeholder="请输入 LDAP 服务地址"/>
                     </FormItem>
                   </Col>
                 </Row>
@@ -431,7 +455,7 @@ class LDAP extends Component {
                   {
                     fieldsChange && <Button className='leftbutton' onClick={this.cancelEditLdap}>取消</Button>
                   }
-                    <Button type="primary" onClick={this.handleSave}>保存</Button>
+                    <Button type="primary" onClick={this.handleSave} loading={this.state.saveBtnLoading}>保存</Button>
                   </Col>
                 </Row>
               </div>
@@ -474,7 +498,6 @@ class LDAP extends Component {
                <div className='iconcontainer'>
                  <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
                </div>
-
                <div className='item'>
                  请注意，点击解除企业用户目录集成，可选择仅解除集成或同时移除已经同步的用户，该操作不可被恢复！
                </div>
@@ -485,7 +508,6 @@ class LDAP extends Component {
     )
   }
 }
-
 
 LDAP = Form.create({
   onFieldsChange: (props, fields) => {
