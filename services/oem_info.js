@@ -140,18 +140,26 @@ function* deleteFile(path) {
   )
 }
 
-exports.restoreDefault = restoreDefault
+exports.restoreDefaultInfo = restoreDefaultInfo
 
-function restoreDefault() {
-  globalConfig.oemInfo = Object.assign({}, defaultMedias, {
+function restoreDefaultInfo() {
+  const defaultInfo = {
     company: {
       name: "© 2017 北京云思畅想科技有限公司  |  时速云企业版 v2.1.0",
       productName: "时速云",
       visible: true
     },
     colorThemeID: 1,
-  })
-  const dto = _.cloneDeep(globalConfig.oemInfo)
+  }
+  globalConfig.oemInfo = Object.assign({}, globalConfig.oemInfo, defaultInfo)
+  return defaultInfo
+}
+
+exports.restoreDefaultLogo = restoreDefaultLogo
+
+function restoreDefaultLogo() {
+  globalConfig.oemInfo = Object.assign({}, globalConfig.oemInfo, defaultMedias)
+  const dto = _.cloneDeep(defaultMedias)
   medias.forEach(key => dto[key] = {type: "static-file"})
   return dto
 }
