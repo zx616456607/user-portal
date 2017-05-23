@@ -153,7 +153,7 @@ class OtherSpace extends Component {
       width:'15%',
       render: (text, row)=> {
         return (
-          <Button type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${registryServer}&imageName=${row.name}`)}>
+          <Button type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${registryServer}&imageName=${row.name}`)}>
             <FormattedMessage {...menusText.deployService} />
           </Button>
         )

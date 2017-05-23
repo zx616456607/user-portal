@@ -18,10 +18,6 @@ import {
   SYSTEM_DEFAULT_SCHEDULE,
  } from '../../../constants'
 
-export function buildYaml(json) {
-  //
-}
-
 export function getFieldsValues(fields) {
   const values = {}
   for (let key in fields) {
@@ -59,6 +55,7 @@ export function buildJson(fields, cluster, loginUser) {
     livenessPeriodSeconds, // 高可用-检查间隔
     livenessPath, // 高可用-Path 路径
     envKeys, // 环境变量的 keys(数组)
+    configMapKeys, // 配置目录的 keys(数组)
   } = fieldsValues
   const MOUNT_PATH = 'mountPath' // 容器目录
   const VOLUME = 'volume' // 存储卷(rbd)
@@ -168,6 +165,35 @@ export function buildJson(fields, cluster, loginUser) {
         const envName = fieldsValues[`envName${keyValue}`]
         const envValue = fieldsValues[`envValue${keyValue}`]
         deployment.addContainerEnv(serviceName, envName, envValue)
+      }
+    })
+  }
+
+  // 设置配置目录
+  if (configMapKeys) {
+    configMapKeys.forEach(key => {
+      if (!key.deleted) {
+        const keyValue = key.value
+        const configMapMountPath = fieldsValues[`configMapMountPath${keyValue}`]
+        const configMapIsWholeDir = fieldsValues[`configMapIsWholeDir${keyValue}`]
+        const configGroupName = fieldsValues[`configGroupName${keyValue}`]
+        const configMapSubPathValues = fieldsValues[`configMapSubPathValues${keyValue}`]
+        const volume = {
+          name: `configmap-volume-${keyValue}`,
+          configMap: {
+            name: configGroupName,
+            items: configMapSubPathValues.map(value => {
+              return {
+                key: value,
+                path: value,
+              }
+            })
+          }
+        }
+        const volumeMounts = [{
+          mountPath: configMapMountPath,
+        }]
+        deployment.addContainerVolume(serviceName, volume, volumeMounts, configMapIsWholeDir)
       }
     })
   }
