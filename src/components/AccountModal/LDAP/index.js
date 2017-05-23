@@ -469,7 +469,7 @@ class LDAP extends Component {
               <div className="container">
                 <div className='tips'>
                   <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
-                  请注意，点击解除企业用户目录集成，可选择仅接触集成或同时移除已经同步的用户，该操作不能被恢复
+                  请注意，点击解除企业用户目录集成，可选择仅解除集成或同时移除已经同步的用户，该操作不能被恢复
                 </div>
                 <div className='remove'>
                   <Button className='removeButton' onClick={this.handleLiftIntegration}>解除</Button>
