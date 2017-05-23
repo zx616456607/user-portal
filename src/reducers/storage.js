@@ -284,6 +284,26 @@ function avaliableVolume(state = {}, action) {
   }
 }
 
+function snapshotList(state = {}, action) {
+  switch(action.type) {
+    case ActionTypes.SNAPSHOT_LIST_REQUEST:
+      return merge({}, state, {
+        isFetching: true,
+      })
+    case ActionTypes.SNAPSHOT_LIST_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        result: action.response.result.data,
+      })
+    case ActionTypes.SNAPSHOT_LIST_FAILURE:
+      return merge({}, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 
 export default function storageReducer(state = {}, action) {
   return {
@@ -299,6 +319,7 @@ export default function storageReducer(state = {}, action) {
     volumeBindInfo: volumeBindInfo(state.volumeBindInfo, action),
     uploadFileOptions: changeUploadFileOptions(state.uploadFileOptions, action),
     exportFile: exportFile(state.exportFile, action),
-    avaliableVolume: avaliableVolume(state.avaliableVolume, action)
+    avaliableVolume: avaliableVolume(state.avaliableVolume, action),
+    snapshotList:snapshotList(state.snapshotList,action)
   }
 }
