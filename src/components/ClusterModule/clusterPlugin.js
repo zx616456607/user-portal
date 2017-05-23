@@ -239,7 +239,15 @@ class ClusterPlugin extends Component{
     })
     form.resetFields()
   }
-
+  setInputCPU(value) {
+    const notify = new NotificationHandler()
+    if(value > this.state.maxCPU) {
+      this.setState({ inputCPU: this.state.maxCPU})
+      notify.error('输入的CPU数值已超出节点最大数值')
+      return
+    }
+    this.setState({ inputCPU: value})
+  }
   render(){
     const { clusterPlugins, form } = this.props
     if(clusterPlugins.isFetching) {
@@ -304,6 +312,13 @@ class ClusterPlugin extends Component{
       rules: [
         {
           validator: (rule, value, callback) => {
+            if(value > this.state.maxMem) {
+              const notify = new NotificationHandler()
+              form.setFieldsValue({
+                pluginMem: this.state.maxMem
+              })
+              notify.error('输入的内存数值超过所选节点最大内存')
+            }
             return callback()
           }
         }
@@ -316,6 +331,13 @@ class ClusterPlugin extends Component{
       rules: [
         {
           validator: (rule, value, callback) => {
+            if(value > this.state.maxCPU) {
+              const notify = new NotificationHandler()
+              form.setFieldsValue({
+                pluginCPU: this.state.maxCPU
+              })
+              notify.error('输入的CPU数值超过所选节点最大CPU')
+            }
             return callback()
           }
         }
@@ -373,13 +395,13 @@ class ClusterPlugin extends Component{
                 <Form.Item>
                  <span className="setLimit">设置限制</span><span>CPU</span><Button className="recovery" type="ghost" size="small" onClick={() => this.getDefaultConfig()}><Icon type="setting" />恢复默认设置</Button>
                   <p style={{marginLeft:'70px'}}>
-                   <InputNumber {...pluginCPU} style={{width: 200}} min={0} max={this.state.maxCPU} step={0.1}/> 核
+                   <InputNumber {...pluginCPU}  style={{width: 200}} min={0} step={0.1}/> 核
                   </p>
                </Form.Item>
                <Form.Item>
                   <span style={{marginLeft:'70px'}}>内存</span>
                   <p style={{marginLeft: '70px'}}>
-                  <InputNumber {...pluginMem} style={{width: 200}} min={0} step={1} max={this.state.maxMem}/> M
+                  <InputNumber {...pluginMem} style={{width: 200}} min={0} step={1} /> M
                   </p>
                 </Form.Item>
                 </Modal>
