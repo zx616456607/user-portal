@@ -10,7 +10,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Row, Col, Modal, Button, Form, Icon, Checkbox, Menu, Dropdown, Input } from 'antd'
+import { Row, Col, Modal, Button, Form, Icon, Checkbox, Menu, Dropdown, Input, Upload } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { createConfigFiles, deleteConfigGroup, deleteConfigFiles, addConfigFile } from '../../actions/configs'
 import { connect } from 'react-redux'
@@ -24,6 +24,11 @@ const FormItem = Form.Item
 const createForm = Form.create
 
 let CreateConfigFileModal = React.createClass({
+  getInitialState() {
+    return {
+      filePath: '请上传文件或直接输入内容'
+    }
+  },
   configNameExists(rule, value, callback) {
     const form = this.props.form;
     if (!value) {
@@ -47,11 +52,15 @@ let CreateConfigFileModal = React.createClass({
   configDescExists(rule, value, callback) {
     const form = this.props.form;
     if (!value) {
+      this.setState({
+        filePath: '请上传文件或直接输入内容'
+      })
       callback([new Error('内容不能为空，请重新输入内容')])
       return
     }
     callback()
   },
+
   createConfigFile(group) {
     const parentScope = this.props.scope
     this.props.form.validateFields((errors, values) => {
@@ -72,8 +81,11 @@ let CreateConfigFileModal = React.createClass({
         success: {
           func: () => {
             notification.success('创建配置文件成功')
-            self.props.form.resetFields()
+            setTimeout(() => self.props.form.resetFields(), 0)
             parentScope.props.addConfigFile(configfile)
+            self.setState({
+              filePath: '请上传文件或直接输入内容'
+            })
           },
           isAsync: true
         },
@@ -86,6 +98,9 @@ let CreateConfigFileModal = React.createClass({
               case 500: errorText = '网络异常'; break
               default: errorText = '缺少参数或格式错误'
             }
+            self.setState({
+              filePath: '请上传文件或直接输入内容'
+            })
             notification.error('添加配置文件失败', errorText)
           }
         }
@@ -94,7 +109,49 @@ let CreateConfigFileModal = React.createClass({
         modalConfigFile: false,
       })
     })
-
+  },
+  beforeUpload(file) {
+    const fileInput = this.uploadInput.refs.upload.refs.inner.refs.file
+    const mimeType = file.type
+    const notify = new NotificationHandler()
+    if(/word|excel|pdf|tar|zip|gzip|rar|image/.test(mimeType)) {
+      notify.error('请上传文本文件')
+      return false
+    }
+    const self = this
+    self.setState({
+      disableUpload: true,
+      filePath: '上传文件为 ' + fileInput.value
+    })
+    notify.spin('读取文件内容中，请稍后')
+    const fileReader = new FileReader()
+    fileReader.onerror = function(err) {
+      self.setState({
+        disableUpload: false,
+      })
+      notify.close()
+      notify.error('读取文件内容失败')
+    }
+    fileReader.onload = function() {
+      self.setState({
+        disableUpload: false,
+      })
+      notify.close()
+      notify.success('文件内容读取完成')
+      self.props.form.setFieldsValue({
+        configDesc: fileReader.result
+      })
+    }
+    fileReader.readAsText(file)
+    return false
+  },
+  cancelModal(e) {
+    const parentScope = this.props.scope
+    this.setState({
+      filePath: '请上传文件或直接输入内容'
+    })
+    this.props.form.resetFields()
+    parentScope.createConfigModal(e, false)
   },
   render() {
     const { getFieldProps } = this.props.form
@@ -108,7 +165,7 @@ let CreateConfigFileModal = React.createClass({
     const descProps = getFieldProps('configDesc', {
       rules: [
         { validator: this.configDescExists },
-      ],
+      ]
     });
     return(
       <Modal
@@ -116,7 +173,7 @@ let CreateConfigFileModal = React.createClass({
         wrapClassName="configFile-create-modal"
         visible={parentScope.state.modalConfigFile}
         onOk={() => this.createConfigFile(this.props.groupName)}
-        onCancel={(e) => parentScope.createConfigModal(e, false)}
+        onCancel={(e) => this.cancelModal(e)}
         width="600px"
         >
         <div className="configFile-inf" style={{ padding: '0 10px' }}>
@@ -128,8 +185,16 @@ let CreateConfigFileModal = React.createClass({
             <FormItem  {...formItemLayout} label="名称">
               <Input type="text" {...nameProps} className="nameInput" />
             </FormItem>
+            <FormItem>
+              <Upload beforeUpload={(file) => this.beforeUpload(file)} showUploadList={false} style={{marginLeft: '38px'}} ref={(instance) => this.uploadInput = instance}>
+                <span style={{width: '350px', display:'inline-block'}}>{this.state.filePath}</span>
+                <Button type="ghost" style={{marginLeft: '10px'}} disable={this.state.disableUpload}>
+                  <Icon type="upload" /> 点击上传
+                </Button>
+              </Upload>
+            </FormItem>
             <FormItem {...formItemLayout} label="内容">
-              <Input type="textarea" style={{ minHeight: '300px' }} {...descProps}  />
+              <Input type="textarea" style={{ minHeight: '300px' }} {...descProps}/>
             </FormItem>
           </Form>
         </div>

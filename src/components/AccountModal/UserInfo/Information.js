@@ -316,7 +316,7 @@ class Information extends Component {
         </Row>
         <Row className="Item">
           <Col span={4}>手机</Col>
-          <Col span={20}>{userDetail.phone}</Col>
+          <Col span={20}>{userDetail.phone || '-'}</Col>
         </Row>
         <Row className="Item">
           <Col span={4}>邮箱</Col>
