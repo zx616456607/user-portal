@@ -9,7 +9,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Row, Col, Modal, Button, Icon, Badge, Table, Input } from 'antd'
+import { Row, Col, Modal, Button, Icon, Badge, Table, Input, Upload } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import CheckContainer from './ServiceCheckContainer'
 

@@ -19,7 +19,7 @@ import GuideImg from '../../assets/img/quickentry/guide.png'
 import APIImg from '../../assets/img/quickentry/API.png'
 import QuestionImg from '../../assets/img/quickentry/question.png'
 import EnterpriseImg from '../../assets/img/quickentry/enterprise.png'
-import { browserHistory } from 'react-router'
+import { browserHistory, Link } from 'react-router'
 import InfrastructureImg from '../../assets/img/quickentry/infrastructure.png'
 import DeployEnvModal from '../DeployEnvModal'
 
@@ -54,11 +54,13 @@ class QuickEntry extends Component {
                 </div>
               </Col>
               <Col span={8}>
-                <div className="item image">
-                  <img src={ImageImg} alt="" className='img'/>
-                  <div className='middle'>构建一个镜像</div>
-                  <div>无需创建TenXFLOW快速构建一个镜像</div>
-                </div>
+                <Link to="/ci_cd">
+                  <div className="item image">
+                    <img src={ImageImg} alt="" className='img' />
+                    <div className='middle'>构建一个镜像</div>
+                    <div>无需创建TenXFLOW快速构建一个镜像</div>
+                  </div>
+                </Link>
               </Col>
               <Col span={8}>
                 <div className="item database" onClick={this.handleDatabase}>
