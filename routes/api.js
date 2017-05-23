@@ -81,6 +81,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/node_addr', clusterController.getClusterNodeAddr)
   router.get('/clusters/:cluster/plugins', clusterController.getClusterPlugins)
   router.put('/clusters/:cluster/plugins/:name', clusterController.updateClusterPlugins)
+  router.get('/clusters/:cluster/network', clusterController.getClusterNetworkMode)
 
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
