@@ -323,7 +323,7 @@ class Snapshot extends Component {
     if(!time){
       return '未知'
     }
-    let StandardTime = time.substring(0, time.length-6).replace('T','   ')
+    let StandardTime = time.substring(0, 19).replace('T','   ')
     return StandardTime
   }
 

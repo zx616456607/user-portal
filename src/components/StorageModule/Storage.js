@@ -17,7 +17,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import remove from 'lodash/remove'
 import findIndex from 'lodash/findIndex'
-import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage, SnapshotCreate } from '../../actions/storage'
+import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage, SnapshotCreate, SnapshotList } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP } from '../../constants'
 import './style/storage.less'
 import { calcuDate, parseAmount } from '../../common/tools'
@@ -345,6 +345,7 @@ let MyComponent = React.createClass({
     })
   },
   checksnapshotName(rule, value, callback){
+    const { snapshotDataList } = this.props
     if(!value){
       return callback('请输入快照名称')
     }
@@ -362,6 +363,11 @@ let MyComponent = React.createClass({
     }
     if(!/^[A-Za-z]{1}[A-Za-z0-9_\-]{1,61}[A-Za-z0-9]$/.test(value)){
       return callback('快照名称必须由字母或数字结尾')
+    }
+    for(let i = 0; i < snapshotDataList.length; i++){
+      if(value == snapshotDataList[i].name){
+        return callback('快照名称已存在！')
+      }
     }
     return callback()
   },
@@ -641,7 +647,7 @@ class Storage extends Component {
   componentWillMount() {
     document.title = '存储 | 时速云'
     this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
-
+    this.props.SnapshotList({clusterID: this.props.cluster})
   }
   componentWillReceiveProps(nextProps) {
     let { currentCluster, loadStorageList, currentImagePool, cluster } = nextProps
@@ -879,7 +885,7 @@ class Storage extends Component {
   render() {
     const { formatMessage } = this.props.intl
     const { getFieldProps } = this.props.form
-    const { SnapshotCreate } = this.props
+    const { SnapshotCreate, snapshotDataList } = this.props
     const currentCluster = this.props.currentCluster
     const storage_type = currentCluster.storageTypes
     const standard = require('../../../configs/constants').STANDARD_MODE
@@ -1023,6 +1029,7 @@ class Storage extends Component {
               scope ={ this }
               isFetching={this.props.storageList[this.props.currentImagePool].isFetching}
               SnapshotCreate={SnapshotCreate}
+              snapshotDataList={snapshotDataList}
               />
           </Card>
           :
@@ -1047,6 +1054,8 @@ Storage.propTypes = {
 
 function mapStateToProps(state) {
   const { cluster } = state.entities.current
+  const { snapshotList } = state.storage
+  const snapshotDataList = snapshotList.result || []
   return {
     storageList: state.storage.storageList || [],
     createStorage: state.storage.createStorage,
@@ -1054,6 +1063,7 @@ function mapStateToProps(state) {
     currentImagePool: DEFAULT_IMAGE_POOL,
     cluster: cluster.clusterID,
     currentCluster: cluster,
+    snapshotDataList
   }
 }
 
@@ -1062,6 +1072,7 @@ export default connect(mapStateToProps, {
   createStorage,
   loadStorageList,
   SnapshotCreate,
+  SnapshotList,
 })(injectIntl(Storage, {
   withRef: true,
 }))
