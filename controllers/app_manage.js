@@ -41,6 +41,33 @@ exports.createApp = function* () {
   }
 }
 
+exports.createPlugin = function* () {
+  const cluster = this.params.cluster
+  const loginUser = this.session.loginUser
+  const basicInfo = this.request.body
+  if (!basicInfo || !basicInfo.templateID) {
+    const err = new Error('No plugin templateID provided.')
+    err.status = 400
+    throw err
+  }
+  const templateApi = apiFactory.getTemplateApi(loginUser)
+  const pluginTemplate = yield templateApi.getBy([basicInfo.templateID])
+  if (pluginTemplate.data.type != 4) {
+    const err = new Error('Template not for plugin.')
+  }
+  let yamlContent = pluginTemplate.data.content
+  const api = apiFactory.getK8sApi(loginUser)
+  let params = {
+    pluginName: basicInfo.pluginName,
+    template: yamlContent
+  }
+  const result = yield api.createBy([cluster, 'plugins'], null, params)
+  this.body = {
+    cluster,
+    data: result.data
+  }
+}
+
 exports.updateAppDesc = function *() {
   const cluster = this.params.cluster
   const name = this.params.app_name
