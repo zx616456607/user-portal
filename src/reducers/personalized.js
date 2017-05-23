@@ -9,7 +9,7 @@
  */
 
 import * as ActionTypes from '../actions/personalized'
-// import reducerFactory from './factory'
+import reducerFactory from './factory'
 // import merge from 'lodash/merge'
 
 function backColor(state={},action) {
@@ -62,8 +62,21 @@ function backColor(state={},action) {
 
 }
 
-export default function personalized(state = {}, action) {
+function copyright(state= false, action) {
+  if (action.type === ActionTypes.SET_COPYRIGHT) {
+    return action.types
+  }
+  return state
+}
+
+export default function personalized(state = {info:{}}, action) {
   return {
-    backColor: backColor(state.backColor, action)
+    info:reducerFactory({
+      REQUEST:ActionTypes.GET_PERSONALIZED_REQUEST,
+      SUCCESS:ActionTypes.GET_PERSONALIZED_SUCCESS,
+      FALIURE:ActionTypes.GET_PERSONALIZED_FAILURE,
+    }, state.info, action,{overwrite:true}),
+    backColor: backColor(state.backColor, action),
+    copyright: copyright(state.copyright,action)
   }
 }

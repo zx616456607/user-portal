@@ -29,7 +29,8 @@ function fetchApi(endpoint, options, schema) {
   // Other data structures need to be encoded before hand as one of these types.
   // https://github.github.io/fetch/#request-body
   const REQUEST_BODY_METHODS = ['POST', 'PUT', 'PATCH']
-  if (REQUEST_BODY_METHODS.indexOf(options.method) > -1) {
+  // if set options.noContentType true skip set 'Content-Type'
+  if (!options.noContentType && REQUEST_BODY_METHODS.indexOf(options.method) > -1) {
     if (!options.headers) options.headers = {}
     if (!options.headers['Content-Type']) {
       options.headers['Content-Type'] = 'application/json'
@@ -96,7 +97,6 @@ const configSchema = new Schema('configGroupList', {
 const registrySchema = new Schema('registries', {
   idAttribute: 'name'
 })
-
 
 // Schemas for API responses.
 export const Schemas = {

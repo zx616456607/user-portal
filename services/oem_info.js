@@ -28,10 +28,10 @@ exports.loginLogo = loginLogo
 exports.favoriteIcon = favoriteIcon
 
 const defaultMedias = {
-  [naviExpand]: 'img/sider/logo.svg',
-  [naviShrink]: 'img/sider/LogInLogo.svg',
-  [loginLogo]: 'img/TopLogo.svg',
-  [favoriteIcon]: 'favicon.ico',
+  [loginLogo]: '/img/TopLogo.svg',
+  [naviExpand]: '/img/logo.png',
+  [naviShrink]: '/img/sider/sidernewlogo.svg',
+  [favoriteIcon]: '/favicon.ico',
 }
 
 let globalConfig = global.globalConfig
@@ -79,11 +79,11 @@ function mergeToGlobalConfig(info, files) {
 
 function makeRandomName(format) {
   const name = genRandomString(5)
-  return `blob/${name}.${format}`
+  return `/blob/${name}.${format}`
 }
 
 function fullPath(fileName) {
-  return `${staticFullPath}/${fileName}`
+  return `${staticFullPath}${fileName}`
 }
 
 exports.updateOEMInfoImage = updateOEMInfoImage
