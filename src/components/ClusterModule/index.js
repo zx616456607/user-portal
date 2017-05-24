@@ -25,6 +25,7 @@ import { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, isValidConfig }
 import AddClusterOrNodeModalContent from './AddClusterOrNodeModal/Content'
 import { camelize } from 'humps'
 import CI from '../../assets/img/setting/shishi.png'
+import Title from '../Title'
 
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;
@@ -565,7 +566,6 @@ class ClusterList extends Component {
   }
 
   componentDidMount() {
-    document.title = '基础设施 | 时速云'
     const { loginUser, getAddClusterCMD } = this.props
     const { role } = loginUser
     if (!this.checkIsAdmin()) {
@@ -623,6 +623,7 @@ class ClusterList extends Component {
       <QueueAnim className='ClusterBox'
         type='right'
       >
+        <Title title="基础设施" />
         <div id='ClusterContent' key='ClusterContent'>
           <div className="alertRow">基础设施，在这里您可以完成容器云平台的计算资源池管理：集群的添加、删除，以及集群内主机的添加、删除，并管理主机内的容器实例、查看主机维度的监控等。</div>
           <CreateClusterModal

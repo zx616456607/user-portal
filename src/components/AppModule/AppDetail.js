@@ -31,6 +31,7 @@ import AlarmStrategy from '../ManageMonitor/AlarmStrategy'
 import Topology from './AppServiceDetail/Topology'
 import { loadServiceList } from '../../actions/services'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '../../../constants'
+import Title from '../Title'
 
 const DEFAULT_TAB = '#service'
 
@@ -54,7 +55,6 @@ class AppDetail extends Component {
 
   componentWillMount() {
     const { cluster, appName, loadAppDetail } = this.props
-    document.title = `应用 ${appName} 详情 | 时速云`
     loadAppDetail(cluster, appName)
     if (location.hash.length >1) {
       const _this = this
@@ -169,6 +169,7 @@ class AppDetail extends Component {
     const descProps = this.props.form.getFieldProps('desc', {initialValue: this.state.desc || app.description})
     return (
       <div id='AppDetail'>
+        <Title title={`应用 ${appName} 详情`} />
         <QueueAnim className='demo-content'
           key='demo'
           type='right'

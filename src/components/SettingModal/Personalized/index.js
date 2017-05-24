@@ -16,20 +16,115 @@ import tenxImgIcon from '../../../assets/img/icon/tenxImg.svg'
 import tenxColorIcon from '../../../assets/img/icon/tenxColor.svg'
 import tenxTextIcon from '../../../assets/img/icon/tenxText.svg'
 import NotificationHandler from '../../../common/notification_handler'
-import { setBackColor } from '../../../actions/personalized'
+import { getPersonalized,setBackColor,isCopyright,updateLogo,restoreDefault } from '../../../actions/personalized'
 class Personalized extends Component{
   constructor(props){
     super(props)
     this.state = {
-      switch: false,
+      // switch: false,
       siderColor:'1'
     }
+    this.updateInfo = this.updateInfo.bind(this)
+  }
+  loadInfo(props){
+    props.getPersonalized({
+      success:{
+        func:(ret)=>{
+          console.log('update info')
+          document.title = `个性外观 | ${ret.company.productName}`
+        }
+      }
+    })
+
   }
   componentWillMount() {
-    document.title = '个性外观 | 时速云'
+    // document.title = '个性外观 | 时速云'
+    this.loadInfo(this.props)
+  }
+  updateInfo(body) {
+    const notificat = new NotificationHandler()
+    const _this = this
+    this.props.isCopyright(body, {
+      success: {
+        func: ()=> {
+          _this.loadInfo(_this.props)
+          notificat.success('修改成功！')
+        },
+        isAsync: true
+      },
+      failed: {
+        func:()=> {
+          notificat.error('修改失败！')
+        }
+      }
+    })
   }
   changeSwitch(e) {
-    this.setState({switch:e})
+    // bai 是否显示版权信息
+    const { oemInfo,getPersonalized } = this.props
+    const body = {
+      "company": {
+      "name": oemInfo.company.name,
+      "visible": e,
+      "productName": oemInfo.company.productName,
+      }
+    }
+    this.updateInfo(body)
+  }
+  clearProductName() {
+    document.getElementById('productName').value = ''
+  }
+  saveproductName() {
+    // bai 更新产品名称
+    const { oemInfo } = this.props
+    const name = document.getElementById('productName').value
+    const body = {
+      "company": {
+      "name": oemInfo.company.name,
+      "productName": name ||'',
+      "visible": oemInfo.company.visible
+      }
+    }
+    this.updateInfo(body)
+  }
+
+  beforeUpload(file, type) {
+    const notificat = new NotificationHandler()
+    console.log('filet,',file.type)
+
+    if (file.type !== 'image/png' && file.type !== 'image/jpeg' && file.type !== 'image/gif' && file.type !== 'image/x-icon' ) {
+      notificat.info('只能上传 jpg、png、gif 文件哦！')
+      return false
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      notificat.error('图片大小应小于2M！')
+      return false
+    }
+    // return true;
+    const data = new FormData()
+    data.append('file', file)
+    data.append('key',type)
+
+    console.log('file',file)
+    if (type == 'favoriteIcon') {
+      data.append('format','ico')
+    } else {
+      data.append('format',file.type.split('/')[1])
+    }
+    const _this = this
+    this.props.updateLogo(data,{
+      success:{
+        func:()=>{
+          _this.loadInfo(_this.props)
+          if (type == 'favoriteIcon') {
+            notificat.success('修改成功！')
+          }
+          notificat.success('修改成功！')
+        },
+        isAsync: true
+      }
+    })
+    return false
   }
   setSliderColor(c) {
     this.setState({siderColor:c})
@@ -40,9 +135,27 @@ class Personalized extends Component{
   }
   restoreLogo() {
     console.log('this is restore default logo')
+    const notificat = new NotificationHandler()
+    this.props.restoreDefault('logo', {
+      success:{
+        func:()=> {
+          notificat.success('恢复成功！')
+        }
+      }
+    })
+    this.setState({logo:false})
   }
   restoreText() {
     console.log('this is restore default text')
+    this.props.restoreDefault('info', {
+      success:{
+        func:()=> {
+          notificat.success('恢复成功！')
+        }
+      }
+    })
+    this.setState({tenxText:false})
+
   }
   restoreColor() {
     console.log('this is restore default color')
@@ -53,23 +166,14 @@ class Personalized extends Component{
   render(){
     const uploadParams = {
       name: 'file',
-      // showUploadList: false,
-      action: '/static/',
-      beforeUpload(file) {
-        const notificat = new NotificationHandler()
-        console.log('filetype,',file.type)
-        const isJPG = file.type === 'image/jpeg';
-        if (file.type !== 'image/jpeg'|| file.type !== 'image/png' || file.type !== 'image/gif') {
-          notificat.info('只能上传 jpg、png、gif 文件哦！')
-          return false
-        }
-        if (file.size > 2 * 1024 * 1024) {
-          notificat.error('头像图片大小应小于2M！')
-          return false
-        }
-        return true;
-      }
+      defaultFileList:[{
+        uid:-1,
+        name: 'xxx.png',
+        status: 'done',
+      }]
     };
+    console.log(this.props.oemInfo)
+    const { oemInfo } = this.props
     return (
       <QueueAnim className="Personalized" type="right">
         <div id='Personalized' key="Personalized">
@@ -79,72 +183,71 @@ class Personalized extends Component{
               <Col span="3"style={{width:150}}>导航图片（展开）</Col>
               <Col span="20" style={{width:400}}>
                 <div className="row-text">此处图片用于替换左侧导航顶部展开时图标，建议大小120px * 30px</div>
+                <Upload beforeUpload={(file)=> this.beforeUpload(file,'naviExpand')}>
                   <span className="wrap-image">
-                    <img className="logo" src="/public/img/logo.377057cc.png" />
                     <Icon type="plus" className="push-icon"/>
-                    <Upload {...uploadParams} className="uploadStyle">
-                      <img className="logo" src="/public/img/logo.377057cc.png" />
-                    </Upload>
+                    <img className="logo" src={ oemInfo.naviExpand } />
                   </span>
+                </Upload>
               </Col>
             </Row>
             <Row className="image-row">
               <Col span="3"style={{width:150}}>导航图片（收起）</Col>
               <Col span="20" style={{width:400}}>
                 <div className="row-text">此处图片用于替换左侧导航顶部收起时图标，建议大小40px * 40px</div>
+                <Upload beforeUpload={(file)=> this.beforeUpload(file,'naviShrink')}>
                   <span className="wrap-image">
-                    <img className="logo" src="/public/img/logo.377057cc.png" />
                     <Icon type="plus" className="push-icon"/>
-                    <Upload {...uploadParams} className="uploadStyle">
-                      <img className="logo" src="/public/img/logo.377057cc.png" />
-                    </Upload>
+                    <img className="logo" src={ oemInfo.naviShrink } />
                   </span>
+                </Upload>
               </Col>
             </Row>
             <Row className="image-row">
               <Col span="3"style={{width:150}}>浏览器图标</Col>
               <Col span="20" style={{width:400}}>
                 <div className="row-text">此处图片用于替换浏览器标签图标，建议大小40px * 40px</div>
+                <Upload beforeUpload={(file)=> this.beforeUpload(file,'favoriteIcon')}>
                   <span className="wrap-image">
-                    <img className="logo" src="/public/img/logo.377057cc.png" />
-                    <Icon type="plus" className="push-icon"/>
-                    <Upload {...uploadParams} className="uploadStyle">
-                      <img className="logo" src="/public/img/logo.377057cc.png" />
-                    </Upload>
+                    <Icon type="plus" className="push-icon" />
+                    <img className="logo" src={ oemInfo.favoriteIcon } />
                   </span>
+                </Upload>
               </Col>
             </Row>
             <Row className="image-row">
               <Col span="3"style={{width:150}}>登录图片</Col>
               <Col span="20" style={{width:400}}>
                 <div className="row-text">此处图片用于替换登录顶部左侧图标，建议大小120px * 30px</div>
-                  <span className="wrap-image">
-                    <img className="logo" src="/public/img/logo.377057cc.png" />
+                <Upload beforeUpload={(file)=> this.beforeUpload(file,'loginLogo')}>
+                  <span className="wrap-image login">
+                    <img className="logo" src={ oemInfo.loginLogo } />
                     <Icon type="plus" className="push-icon"/>
-                    <Upload {...uploadParams} className="uploadStyle">
-                      <img className="logo" src="/public/img/logo.377057cc.png" />
-                    </Upload>
                   </span>
+                </Upload>
               </Col>
             </Row>
           </Card>
 
-          <Card className="image-push" title={[<img className="img-icon" src={tenxTextIcon} key="image-text" />,<span key='span-text'>文字定义</span>]} extra={<Button icon="setting" className="btnRestore" onClick={()=> this.restoreDefault('tenxText')}>恢复默认设置</Button>} >
+          <Card className="image-push" title={[<img className="img-icon" src={tenxTextIcon} key="image-text" />,<span key='span-text'>文字定制</span>]} extra={<Button icon="setting" className="btnRestore" onClick={()=> this.restoreDefault('tenxText')}>恢复默认设置</Button>} >
             <Row className="image-row">
               <Col span="3"style={{width:150}}>产品名称</Col>
               <Col span="20" style={{width:600}}>
-                <div className="row-text">此处文字用于替换平台上的“时速云 / 时速云企业版”字样，包换登录页、浏览器标签文字；</div>
-                <Input style={{width:200}}  size="large" placeholder="请输入产品名称"  />
-                <Button size="large" style={{margin:'0 10px'}}>取消</Button>
-                <Button size="large" type="primary">保存</Button>
+                <div className="row-text">此处文字用于替换平台上的“时速云 | 时速云企业版”字样，包换登录页、浏览器标签文字；</div>
+                <Input style={{width:200}} id="productName"  size="large" placeholder="请输入产品名称"  />
+                <Button size="large" onClick={()=> this.clearProductName()} style={{margin:'0 10px'}}>取消</Button>
+                <Button size="large" type="primary" onClick={()=> this.saveproductName()}>保存</Button>
               </Col>
             </Row>
             <Row className="image-row">
               <Col span="3"style={{width:150}}>版权声明</Col>
-              <Col span="20" style={{width:400}}>
-                <div className="row-text">切换是否显示登录页公司名“© 2017 北京云思畅想科技有限公司”</div>
-                <Switch defaultChecked={this.state.switch} onChange={(e)=> this.changeSwitch(e)} checkedChildren="ON" unCheckedChildren="OFF" className="inswitch"/>
-                <span className="switchText">{this.state.switch ? '开启':'关闭'}</span>
+              <Col span="20">
+                <div className="row-text">切换是否显示登录页公司名“ {oemInfo.company ? oemInfo.company.name :''} ”</div>
+                <Switch checked={oemInfo.company?oemInfo.company.visible:true} onChange={(e)=> this.changeSwitch(e)} checkedChildren="ON" unCheckedChildren="OFF" className="inswitch"/>
+                  {oemInfo.company?
+                  <span className="switchText">{oemInfo.company.visible ? '开启':'关闭'}</span>
+                  :null
+                  }
               </Col>
             </Row>
           </Card>
@@ -198,12 +301,16 @@ class Personalized extends Component{
 }
 
 function mapStateToProps(state,props) {
-  console.log('state---',state.personalized)
+  const { info } = state.personalized
   return {
-
+    oemInfo: info.result || {}
   }
 }
 
 export default connect(mapStateToProps,{
-  setBackColor
+  getPersonalized,
+  setBackColor,
+  isCopyright,
+  updateLogo,
+  restoreDefault
 })(Personalized)

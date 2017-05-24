@@ -17,6 +17,7 @@ import MemberImg from '../../../assets/img/account/member.png'
 import ArrowImg from '../../../assets/img/account/arrow.png'
 import LDAPImg from '../../../assets/img/account/ldap.png'
 import './style/LDAP.less'
+import Title from '../../Title'
 
 const FormItem = Form.Item
 const notification = new Notification()
@@ -115,7 +116,7 @@ class LDAP extends Component {
     if (!value) {
       return callback()
     }
-    if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+    if (!/^([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
       return callback('请填入合法的 LDAP 服务地址')
     }
     callback()
@@ -244,6 +245,7 @@ class LDAP extends Component {
     } = lastSyncInfo || {}
     return (
       <div className='lastDetails'>
+        <Title title="集成企业目录" />
         <div className='title'>上次同步详情</div>
         <div className='container'>
           <div className='imgcomtainer'>
@@ -312,12 +314,12 @@ class LDAP extends Component {
     })
     const UserDNProps = getFieldProps('bindDN',{
       rules: [
-        { required: true, message: '请输入 User DN' },
+        { message: '请输入 User DN' },
       ],
     })
     const PasswordProps = getFieldProps('bindPassword', {
       rules: [
-        { required: true, message: '请输入密码' },
+        { message: '请输入密码' },
       ],
     })
     const TlsProps =  getFieldProps('tls', {
@@ -383,7 +385,7 @@ class LDAP extends Component {
               </div>
               <div className='host_port rowPadding'>
                 <Row className='item_input'>
-                  <Col span={4} className='item_title'>User DN<span className='star'>*</span></Col>
+                  <Col span={4} className='item_title'>User DN</Col>
                   <Col span={20} className='item_content'>
                     <FormItem>
                       <Input {...UserDNProps} placeholder="例：cn=admin, dc=demo, dc=com"/>
@@ -391,7 +393,7 @@ class LDAP extends Component {
                   </Col>
                 </Row>
                 <Row className='item_input'>
-                  <Col span={4} className='item_title'>Password<span className='star'>*</span></Col>
+                  <Col span={4} className='item_title'>Password</Col>
                   <Col span={20} className='item_content'>
                     <FormItem>
                       <Input type="password" {...PasswordProps} placeholder='请输入密码'/>
@@ -469,7 +471,7 @@ class LDAP extends Component {
               <div className="container">
                 <div className='tips'>
                   <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
-                  请注意，点击解除企业用户目录集成，可选择仅接触集成或同时移除已经同步的用户，该操作不能被恢复
+                  请注意，点击解除企业用户目录集成，可选择仅解除集成或同时移除已经同步的用户，该操作不能被恢复
                 </div>
                 <div className='remove'>
                   <Button className='removeButton' onClick={this.handleLiftIntegration}>解除</Button>

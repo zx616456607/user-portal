@@ -17,6 +17,22 @@ exports.getOEMInfo = function*() {
   this.body = globalConfig.oemInfo
 }
 
+exports.restoreDefaultInfo = function*() {
+  const loginUser = this.session.loginUser
+  const defaultInfo = oemInfoSvc.restoreDefaultInfo()
+  const api = apiFactory.getOemInfoApi(loginUser)
+  yield api.updateBy(['info'], null, defaultInfo)
+  this.body = global.globalConfig.oemInfo
+}
+
+exports.restoreDefaultLogo = function*() {
+  const loginUser = this.session.loginUser
+  const defaultLogo = oemInfoSvc.restoreDefaultLogo()
+  const api = apiFactory.getOemInfoApi(loginUser)
+  yield api.updateBy(['info'], null, defaultLogo)
+  this.body = global.globalConfig.oemInfo
+}
+
 exports.updateLogo = function*() {
   const loginUser = this.session.loginUser
   const content = yield parseForm(this)

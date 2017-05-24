@@ -13,7 +13,7 @@
 import React, { PropTypes } from 'react'
 import { Form, Input, Row, Col, Select } from 'antd'
 import { connect } from 'react-redux'
-import { setFormFields, removeOldFormFieldsByRegExp } from '../../../../actions/quick_create_app'
+import { setFormFields } from '../../../../actions/quick_create_app'
 import { checkAppName, checkServiceName } from '../../../../actions/app_manage'
 import {
   loadImageDetailTag,
@@ -65,13 +65,10 @@ let ConfigureService = React.createClass({
   },
   componentWillUnmount() {
     clearTimeout(this.appNameCheckTimeout)
+    clearTimeout(this.serviceNameExistsTimeout)
     // save fields to store when component unmount
-    const { id, setFormFields, currentFields, removeOldFormFieldsByRegExp, mode } = this.props
+    const { id, setFormFields, currentFields, mode } = this.props
     setFormFields(id, currentFields)
-    // remove old form fields by `/^[a-zA-Z]+[0-9]+$/`
-    if (mode === 'create') {
-      removeOldFormFieldsByRegExp(id, /^[a-zA-Z]+[0-9]+$/)
-    }
   },
   loadImageTags(props) {
     const {
@@ -292,7 +289,7 @@ let ConfigureService = React.createClass({
     for (let key in allFields) {
       if (allFields.hasOwnProperty(key)) {
         if (key !== id) {
-          const { serviceName } = allFields[key]
+          const serviceName = allFields[key].serviceName || {}
           if (serviceName.value === value) {
             callback(appNameCheck(value, '服务名称', true))
             return
@@ -352,7 +349,7 @@ let ConfigureService = React.createClass({
     })
     const imageUrlProps = getFieldProps('imageUrl', {
       rules: [
-        { required: true }
+        { required: true, message: '请选择镜像版本' }
       ],
     })
     const imageTagProps = getFieldProps('imageTag', {
@@ -516,7 +513,6 @@ function mapStateToProps(state, props) {
 
 ConfigureService = connect(mapStateToProps, {
   setFormFields,
-  removeOldFormFieldsByRegExp,
   checkAppName,
   checkServiceName,
   loadImageDetailTag,

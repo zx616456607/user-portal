@@ -38,6 +38,7 @@ import { getServiceStatusByContainers } from '../../../common/status_identify'
 import { ANNOTATION_HTTPS } from '../../../../constants'
 import { camelize } from 'humps'
 import { SERVICE_KUBE_NODE_PORT } from '../../../../constants'
+import Title from '../../Title'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -79,7 +80,6 @@ class AppServiceDetail extends Component {
       loadK8sService,
       loadServiceContainerList,
     } = nextProps || this.props
-    document.title = `${serviceName} 服务详情页 | 时速云`
     const query = {}
     loadServiceDetail(cluster, serviceName)
     loadK8sService(cluster, serviceName, {
@@ -278,6 +278,7 @@ class AppServiceDetail extends Component {
     return (
       <div id='AppServiceDetail'>
         <div className='titleBox'>
+          <Title title={`${appName} 服务详情页`} />
           <Icon className='closeBtn' type='cross' onClick={this.closeModal} />
           {/*<i className='closeBtn fa fa-times' onClick={this.closeModal}></i>*/}
           <div className='imgBox'>

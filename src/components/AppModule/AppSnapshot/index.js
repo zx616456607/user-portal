@@ -17,6 +17,8 @@ import ArrowImg from '../../../assets/img/appmanage/arrow.png'
 import { loadStorageList, SnapshotList, SnapshotRollback, SnapshotDelete } from '../../../actions/storage'
 import { DEFAULT_IMAGE_POOL } from '../../../constants'
 import NotificationHandler from '../../../common/notification_handler'
+import { formatDate } from  '../../../common/tools'
+import Title from '../../Title'
 
 class Snapshot extends Component {
   constructor(props) {
@@ -33,7 +35,6 @@ class Snapshot extends Component {
     this.loadSnapshotList = this.loadSnapshotList.bind(this)
     this.handlecolsetips = this.handlecolsetips.bind(this)
     this.updateSnapshotList = this.updateSnapshotList.bind(this)
-    this.handleCreateTime = this.handleCreateTime.bind(this)
     this.state = {
       selectedRowKeys: [],
       loading: false,
@@ -75,7 +76,6 @@ class Snapshot extends Component {
   }
 
   componentWillMount() {
-    document.title = '快照 | 时速云'
     this.loadSnapshotList()
   }
 
@@ -168,7 +168,9 @@ class Snapshot extends Component {
         func: () => {
           info.success('快照删除成功！')
           this.setState({
-            loading: false
+            loading: false,
+            DeleteSnapshotButton: true,
+            selectedRowKeys: [],
           })
           this.updateSnapshotList()
         },
@@ -176,6 +178,10 @@ class Snapshot extends Component {
       },
       failed: {
         func: () => {
+          this.setState({
+            DeleteSnapshotButton: true,
+            selectedRowKeys: [],
+          })
           info.error('快照删除失败！')
         }
       }
@@ -252,7 +258,7 @@ class Snapshot extends Component {
   handlecolsetips(){
     this.setState({
       tipsModal: false,
-      currentKey: key,
+      //currentKey: key,
     })
   }
 
@@ -319,14 +325,6 @@ class Snapshot extends Component {
     })
   }
 
-  handleCreateTime(time){
-    if(!time){
-      return '未知'
-    }
-    let StandardTime = time.substring(0, 19).replace('T','   ')
-    return StandardTime
-  }
-
   render() {
     const { snapshotDataList } = this.props
     const { loading, selectedRowKeys , DeleteSnapshotButton, currentSnapshot } = this.state
@@ -336,6 +334,17 @@ class Snapshot extends Component {
           return 'statusRunning'
       }
     }
+
+    function soterCreateTime(a, b){
+      let oDate1 = new Date(a);
+      let oDate2 = new Date(b);
+      if(oDate1.getTime() > oDate2.getTime()){
+        return 1
+      } else {
+        return -1
+      }
+    }
+
     const snapshotcolumns = [{
         title:'快照名称',
         key:'name',
@@ -366,8 +375,8 @@ class Snapshot extends Component {
         title:'创建时间',
         key:'CreateTime',
         dataIndex:'createTime',
-        render: (createTime) => <div>{this.handleCreateTime(createTime)}</div>,
-        sorter:(a, b) => { this.handleCreateTime(a.createTime) - this.handleCreateTime(b.createTime) }
+        render: (createTime) => <div>{formatDate(createTime)}</div>,
+        sorter:(a, b) => soterCreateTime(a.createTime, b.createTime)
       },{
         title:'操作',
         key:'Handle',
@@ -383,6 +392,7 @@ class Snapshot extends Component {
     };
     return (
       <div id="appmanage_snapshot">
+        <Title title="快照" />
         <div className='appmanage_snapshot_header'>
           <Button icon="delete" size='large' loading={loading} onClick={this.handleDeleteSnapshots} disabled={DeleteSnapshotButton}>删除</Button>
           <span className='searchBox'>
@@ -445,7 +455,7 @@ class Snapshot extends Component {
               存储卷
               <span className='name'>{currentSnapshot.volume}</span>
               即将回滚至时间
-              <span className='time'>{this.handleCreateTime(currentSnapshot.createTime)}</span>
+              <span className='time'>{formatDate(currentSnapshot.createTime)}</span>
               此刻之后的数据将被清楚，请谨慎操作！
             </div>
             <div className='warning'>
@@ -472,12 +482,12 @@ class Snapshot extends Component {
                 <div className='leftbox'>
                   <div className='item'>快照名称</div>
                   <div className='item'>快照格式</div>
-                  <div className='item'>时间</div>
+                  <div className='item'>创建时间</div>
                 </div>
                 <dvi className='rightbox'>
                   <div className='item'>{currentSnapshot.name}</div>
                   <div className='item'>{currentSnapshot.fstype}</div>
-                  <div className='item color'>{this.handleCreateTime(currentSnapshot.createTime)}</div>
+                  <div className='item color'>{formatDate(currentSnapshot.createTime)}</div>
                 </dvi>
               </div>
              <div className='mainbox'>

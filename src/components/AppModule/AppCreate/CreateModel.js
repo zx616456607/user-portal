@@ -37,8 +37,8 @@ class CreateModel extends Component {
     this.handleSpaceChange = this.handleSpaceChange.bind(this)
     this.handleClusterChange = this.handleClusterChange.bind(this)
     this.state = {
-      createModel: "fast",
-      linkUrl: "fast_create",
+      createModel: "quick",
+      linkUrl: "quick_create",
       disabled: false,
     }
   }
@@ -66,8 +66,8 @@ class CreateModel extends Component {
   selectCreateModel(currentSelect) {
     //user select current create model,so that current selected model's css will be change
     let linkUrl = "";
-    if (currentSelect == "fast") {
-      linkUrl = "fast_create"
+    if (currentSelect == "quick") {
+      linkUrl = "quick_create"
     } else if (currentSelect == "store") {
       linkUrl = "app_store"
     } else if (currentSelect == "layout") {
@@ -194,8 +194,8 @@ class CreateModel extends Component {
         <div className="CreateModel" key="CreateModel">
           <div className="topBox">
             <div className="contentBox">
-              <div className={createModel == "fast" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"} onClick={this.selectCreateModel.bind(this, "fast")}>
-                <img src={createModel == "fast" ? imageHover : image} />
+              <div className={createModel == "quick" ? "fastCreate commonBox selectedBox" : "fastCreate commonBox"} onClick={this.selectCreateModel.bind(this, "quick")}>
+                <img src={createModel == "quick" ? imageHover : image} />
                 <div className="infoBox">
                   <p>镜像仓库</p>
                   <span>通过镜像仓库创建应用</span>
@@ -228,7 +228,7 @@ class CreateModel extends Component {
                 <i className="fa fa-check"></i>
               </div>
               <div style={{ clear: "both" }}></div>
-              
+
             </div>
           </div>
           <div className="envirBox">

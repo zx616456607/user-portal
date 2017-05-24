@@ -15,6 +15,7 @@ import CostRecord from './CostRecord'
 import RechargeRecord from './RechargeRecord'
 const mode = require('../../../../configs/model').mode
 const standard = require('../../../../configs/constants').STANDARD_MODE
+import Title from '../../Title'
 
 const TabPane = Tabs.TabPane
 const DEFAULT_TAB = '#consumptions'
@@ -45,10 +46,6 @@ class CostCenter extends Component {
     })
   }
 
-  componentWillMount() {
-    document.title = '费用中心 | 时速云'
-  }
-
   // For tab select
   componentWillReceiveProps(nextProps) {
     let { hash } = nextProps
@@ -67,6 +64,7 @@ class CostCenter extends Component {
     const { activeTabKey } = this.state
     return (
       <div id='CostCenter'>
+        <Title title="费用中心" />
         <Tabs
           defaultActiveKey={DEFAULT_TAB}
           onTabClick={this.onTabClick}

@@ -11,6 +11,7 @@
 const apiFactory = require('./api_factory.js')
 const logger = require('../utils/logger').getLogger('loadOEMInfo')
 const fs = require('fs')
+const _ = require('lodash')
 const oem = apiFactory.getTenxSysSignSpi().oem
 
 const naviExpand = 'naviExpand'
@@ -27,13 +28,11 @@ exports.loginLogo = loginLogo
 exports.favoriteIcon = favoriteIcon
 
 const defaultMedias = {
-  [naviExpand]: 'img/sider/logo.svg',
-  [naviShrink]: 'img/sider/LogInLogo.svg',
-  [loginLogo]: 'img/TopLogo.svg',
-  [favoriteIcon]: 'favicon.ico',
+  [loginLogo]: '/img/TopLogo.svg',
+  [naviExpand]: '/img/logo.png',
+  [naviShrink]: '/img/sider/sidernewlogo.svg',
+  [favoriteIcon]: '/favicon.ico',
 }
-
-exports.location = defaultMedias
 
 let globalConfig = global.globalConfig
 const medias = Object.getOwnPropertyNames(defaultMedias)
@@ -60,20 +59,13 @@ function* doSaveOneFile(id, fullPath) {
 function* saveOneFile(file, media, files) {
   let path = ""
   if (file.type === 'blobs') {
-    const name = mediaName(file.format, media)
+    const name = makeRandomName(file.format)
     yield doSaveOneFile(file.id, fullPath(name))
     path = name
   } else if (file.type === 'static-file') {
     path = defaultMedias[media]
   }
   files[media] = path
-}
-
-function mediaName(format, media) {
-  if (media === favoriteIcon) {
-    return defaultMedias.favoriteIcon
-  }
-  return makeRandomName(format)
 }
 
 function* saveFiles(info, files) {
@@ -87,11 +79,11 @@ function mergeToGlobalConfig(info, files) {
 
 function makeRandomName(format) {
   const name = genRandomString(5)
-  return `blob/${name}.${format}`
+  return `/blob/${name}.${format}`
 }
 
 function fullPath(fileName) {
-  return `${staticFullPath}/${fileName}`
+  return `${staticFullPath}${fileName}`
 }
 
 exports.updateOEMInfoImage = updateOEMInfoImage
@@ -99,7 +91,7 @@ exports.updateOEMInfoImage = updateOEMInfoImage
 function* updateOEMInfoImage(key, content, format) {
   const old = globalConfig.oemInfo[key]
   const isDefault = old === defaultMedias[key]
-  const name = mediaName(format, key)
+  const name = makeRandomName(format)
   yield writeFile(fullPath(name), content)
   globalConfig.oemInfo[key] = name
   if (!isDefault) {
@@ -146,4 +138,28 @@ function* deleteFile(path) {
       }
     })
   )
+}
+
+exports.restoreDefaultInfo = restoreDefaultInfo
+
+function restoreDefaultInfo() {
+  const defaultInfo = {
+    company: {
+      name: "© 2017 北京云思畅想科技有限公司  |  时速云企业版 v2.1.0",
+      productName: "时速云",
+      visible: true
+    },
+    colorThemeID: 1,
+  }
+  globalConfig.oemInfo = Object.assign({}, globalConfig.oemInfo, defaultInfo)
+  return defaultInfo
+}
+
+exports.restoreDefaultLogo = restoreDefaultLogo
+
+function restoreDefaultLogo() {
+  globalConfig.oemInfo = Object.assign({}, globalConfig.oemInfo, defaultMedias)
+  const dto = _.cloneDeep(defaultMedias)
+  medias.forEach(key => dto[key] = {type: "static-file"})
+  return dto
 }

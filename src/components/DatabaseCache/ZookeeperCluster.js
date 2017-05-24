@@ -24,6 +24,7 @@ import {formatDate} from '../../common/tools.js'
 import './style/MysqlCluster.less'
 import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
 import noDbImgs from '../../assets/img/no_data/no_db.png'
+import Title from '../Title'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -128,7 +129,6 @@ class ZooKeeper extends Component {
   }
 
   componentWillMount() {
-    document.title = 'ZooKeeper | 时速云';
     const {loadDbCacheList, cluster} = this.props
     if (cluster == undefined) {
       let notification = new NotificationHandler()
@@ -208,6 +208,7 @@ class ZooKeeper extends Component {
     return (
       <QueueAnim id='mysqlDatabase' type='right'>
         <div className='databaseCol' key='ZooKeeper'>
+          <Title title="Zookeeper" />
           <div className='databaseHead'>
             { mode === standard ?
               <div className='alertRow'>您的 ZooKeeper 集群创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充值，继续使用。如无充值，1 周后资源会被彻底销毁，不可恢复。</div> :

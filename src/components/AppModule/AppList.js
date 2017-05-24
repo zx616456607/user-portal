@@ -30,6 +30,7 @@ import NotificationHandler from '../../common/notification_handler'
 import CreateAlarm from './AlarmModal'
 import CreateGroup from './AlarmModal/CreateGroup'
 import DeployEnvModal from '../DeployEnvModal'
+import Title from '../Title'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -450,7 +451,6 @@ class AppList extends Component {
   }
 
   componentWillMount() {
-    document.title = '应用列表 | 时速云'
     this.loadData()
   }
 
@@ -905,6 +905,7 @@ class AppList extends Component {
         className='AppList'
         type='right'
         >
+        <Title title="应用列表"/>
         <div id='AppList' key='AppList'>
           <div className='operationBox'>
             <div className='leftBox'>

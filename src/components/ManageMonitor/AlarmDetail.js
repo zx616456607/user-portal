@@ -16,6 +16,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { formatDate, isEmptyObject } from '../../common/tools'
 import NotificationHandler from '../../common/notification_handler'
 import './style/AlarmDetail.less'
+import Title from '../Title'
 import { getAlertSetting, getSettingList, updateSendEmail, deleteRule } from '../../actions/alert'
 const RadioGroup = Radio.Group
 
@@ -30,7 +31,6 @@ class AlarmDetail extends Component {
     }
   }
   componentWillMount() {
-    document.title = '告警设置 | 时速云 '
     const id = this.props.params.id
     const { getAlertSetting, cluster, getSettingList } = this.props
     getAlertSetting(cluster.clusterID, {
@@ -207,6 +207,7 @@ class AlarmDetail extends Component {
       <div id="AlarmDetail">
         <QueueAnim type="right" className="AlarmDetail">
           <div className="ant-row" key="AlarmDetail" style={{marginBottom: 10, height: 50, paddingTop: 10}}>
+            <Title title="告警设置" />
             <span className="back" onClick={()=> browserHistory.goBack()}><span className="backjia"></span><span className="btn-back">返回</span></span>
             <span className="titleName">{strategyName}</span>
           </div>

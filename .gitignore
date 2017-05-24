@@ -38,4 +38,6 @@ manifest.json
 static/webpack_dll/
 stats.json
 index.html
+static/blob/*
 !static/blob/
+!static/blob/dump.txt
