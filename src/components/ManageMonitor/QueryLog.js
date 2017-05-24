@@ -24,6 +24,7 @@ import { mode } from '../../../configs/model'
 import { STANDARD_MODE } from '../../../configs/constants'
 import { UPGRADE_EDITION_REQUIRED_CODE, DATE_PIRCKER_FORMAT } from '../../constants'
 import moment from 'moment'
+import Title from '../Title'
 
 const YESTERDAY = new Date(moment(moment().subtract(1, 'day')).format(DATE_PIRCKER_FORMAT))
 const standardFlag = (mode == STANDARD_MODE ? true : false);
@@ -582,7 +583,6 @@ class QueryLog extends Component {
   componentWillMount() {
     const { loadUserTeamspaceList, current, query, intl } = this.props;
     const { formatMessage } = intl;
-    document.title = formatMessage(menusText.headTitle);
     const _this = this;
     loadUserTeamspaceList('default', { size: 100 }, {
       success: {
@@ -650,7 +650,7 @@ class QueryLog extends Component {
     //this function for user get search 10-20 of service list
     const { getServiceOfQueryLog } = this.props;
     const _this = this;
-    if (this.state.searchNamespace != undefined) { 
+    if (this.state.searchNamespace != undefined) {
       namespace = this.state.searchNamespace;
     }
     if (name != this.state.currentCluster) {
@@ -909,6 +909,7 @@ class QueryLog extends Component {
     return (
       <QueueAnim className='QueryLogBox' type='right'>
         <div id='QueryLog' key='QueryLog' className={this.state.bigLog ? 'bigLogContainer' :''} >
+          <Title title="日志查询" />
           <div className='operaBox'>
             <div className='commonBox'>
               <span className='titleSpan'>{standardFlag ? [<span>团队：</span>] : [<FormattedMessage {...menusText.user} />]}</span>

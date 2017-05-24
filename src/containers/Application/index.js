@@ -13,7 +13,11 @@ import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
 import './style/Application.less'
 
-const menuList = [
+const standard = require('../../../configs/constants').STANDARD_MODE
+const mode = require('../../../configs/model').mode
+let menuList = []
+
+const menuList_standard  = [
   {
     url: '/app_manage',
     name: '应用'
@@ -36,6 +40,33 @@ const menuList = [
   }
 ]
 
+const menuList_enterprise = [
+  {
+    url: '/app_manage',
+    name: '应用'
+  },
+  {
+    url: '/app_manage/service',
+    name: '服务'
+  },
+  {
+    url: '/app_manage/container',
+    name: '容器'
+  },
+  {
+    url: '/app_manage/storage',
+    name: '存储'
+  },
+  {
+    url: '/app_manage/snapshot',
+    name: '快照'
+  },
+  {
+    url: '/app_manage/configs',
+    name: '服务配置'
+  }
+]
+
 export default class Application extends Component {
   constructor(props) {
     super(props);
@@ -46,6 +77,10 @@ export default class Application extends Component {
   render() {
     const { children } = this.props
     const scope = this
+    let menuList = menuList_standard
+    if(mode != standard){
+      menuList = menuList_enterprise
+    }
     return (
       <div id="Application">
         <QueueAnim

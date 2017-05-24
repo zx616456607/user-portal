@@ -216,7 +216,7 @@ let NoBind = React.createClass({
     });
   },
   render() {
-    const {scope} = this.props;
+    const {scope,productName} = this.props;
     return (
       <div className='noBind'>
         <Card className='noBindCard'>
@@ -226,29 +226,29 @@ let NoBind = React.createClass({
           <div className='rightBox'>
             <div className='msgDetail'>
               <div className='square'></div>
-              <span>企业版支持关联时速云·公有云的镜像仓库。</span>
+              <span>企业版支持关联{productName}·公有云的镜像仓库。</span>
             </div>
             <div className='msgDetail'>
               <div className='square'></div>
-              <span>只需填写时速云官网注册的用户名和密码即可快速关联。</span>
+              <span>只需填写{productName}官网注册的用户名和密码即可快速关联。</span>
             </div>
           </div>
         </Card>
         <Button className='bindBtn' type='primary' size='large' onClick={this.openBindModal}>
           <Icon type='plus' />
-          <span>时速云镜像Hub</span>
+          <span>{productName}镜像Hub</span>
         </Button>
-        <p className='alert'>目前您还没有关联时速云·公有云镜像</p>
+        <p className='alert'>目前您还没有关联{productName}·公有云镜像</p>
         <Modal
           className='liteBindCenterModal'
-          title='关联时速云镜像Hub'
+          title={`关联${productName}镜像Hub`}
           visible={scope.state.bindModalShow}
           onCancel={this.closeBindModal}
           onOk={this.submitBind}
           confirmLoading={this.state.bindModalConfirmLoading}
           maskClosable={false}
         >
-          <Alert message={[<span><Icon type='exclamation-circle' style={{ marginRight: '7px', color: '#2db7f5' }} /><span>关联时速云·公有云的镜像仓库，请填写时速云官网注册的用户名和密码</span></span>]} type="info" />
+          <Alert message={[<span><Icon type='exclamation-circle' style={{ marginRight: '7px', color: '#2db7f5' }} /><span>关联{productName}·公有云的镜像仓库，请填写{productName}官网注册的用户名和密码</span></span>]} type="info" />
           <div className='inputBox'>
             <span className='title'>用户名</span>
             <span className={this.state.usernameError ? 'errorInput input' : 'input'}>
@@ -449,7 +449,7 @@ class ImageSpace extends Component {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
     const scope = this;
-    const { imageList, server, imageInfo, hubConfig, globalHubConfigured } = this.props
+    const { imageList, server, imageInfo, hubConfig, globalHubConfigured,productName } = this.props
 
     const columns = [{
       title: '镜像名',
@@ -530,9 +530,9 @@ class ImageSpace extends Component {
         type="right"
       >
         <div id="ImageSpace" key="ImageSpace">
-          { !standardFlag ? [<Alert message={'镜像仓库用于存放镜像，您可关联时速云·公有云的镜像仓库，使用公有云中私有空间镜像；关联后，该仓库也用于存放通过TenxFlow构建出的镜像'} type="info" />] : null }
+          { !standardFlag ? [<Alert message={'镜像仓库用于存放镜像，关联时速云·公有云镜像仓库后，使用公有云中私有空间镜像；关联后，该仓库也用于存放通过TenxFlow构建出的镜像'} type="info" />] : null }
           { !hubConfig ?
-            [<NoBind scope={scope} />]
+            [<NoBind scope={scope} productName={productName}/>]
             :
             [<Card className="ImageSpaceCard">
               <div className="operaBox">
@@ -550,7 +550,7 @@ class ImageSpace extends Component {
                 </Button>
                 { !standardFlag && !globalHubConfigured ?
                   [
-                    <Tooltip title='注销时速云Hub'>
+                    <Tooltip title={`注销${productName}Hub`}>
                       <Button className='logoutBtn' size='large' type='ghost' onClick={this.showDeleteBindUser}>
                         <span>注销</span>
                       </Button>
@@ -609,7 +609,7 @@ class ImageSpace extends Component {
             <ImageDetailBox parentScope={rootscope} server={this.props.server} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} imageType={'privateImages'}/>
           </Modal>
           <Modal title='注销' className='liteBindCenterModal' visible={this.state.deleteBindUserModal} onOk={this.deleteBindUser} onCancel={this.closeDeleteBindUser}>
-            <span style={{ color: '#00a0ea' }}><Icon type='exclamation-circle-o' />&nbsp;&nbsp;&nbsp;确定要注销时速云官方Hub？</span>
+            <span style={{ color: '#00a0ea' }}><Icon type='exclamation-circle-o' />&nbsp;&nbsp;&nbsp;确定要注销{productName}官方Hub？</span>
           </Modal>
         </div>
       </QueueAnim>
@@ -636,7 +636,8 @@ function mapStateToProps(state, props) {
   const { imageList, isFetching, registry, server} = privateImages[DEFAULT_REGISTRY] || defaultPrivateImages
   const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
   const { space } = state.entities.current
-
+  const { oemInfo } = state.entities.loginUser.info
+  const { productName } =oemInfo.company
   return {
     imageList,
     isFetching,
@@ -644,6 +645,7 @@ function mapStateToProps(state, props) {
     registry,
     server,
     space,
+    productName
   }
 }
 

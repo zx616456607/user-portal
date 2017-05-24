@@ -18,7 +18,7 @@ import { formatDate, calcuDate } from '../../common/tools'
 import './style/VmList.less'
 import CreateVmModal from './CreateVmModal'
 import NotificationHandler from '../../common/notification_handler'
-
+import Title from '../Title'
 const ButtonGroup = Button.Group;
 const Option = Select.Option;
 
@@ -153,7 +153,6 @@ class VmList extends Component {
   }
 
   componentWillMount() {
-    document.title = '集成中心 | 时速云';
     const { getIntegrationVmList, integrationId, currentDataCenter } = this.props;
     const _this = this;
     getIntegrationVmList(integrationId, currentDataCenter, {
@@ -476,6 +475,7 @@ class VmList extends Component {
     }
     return (
       <div id='VmList' key='VmList'>
+        <Title title="集成中心" />
         <div className='operaBox'>
           <Button type='primary' size='large' onClick={this.openCreateVmModal.bind(this)}>
             <i className='fa fa-plus' />&nbsp;

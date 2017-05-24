@@ -69,13 +69,40 @@ function copyright(state= false, action) {
   return state
 }
 
+function info(state={result:{}},action) {
+
+  switch(action.type) {
+    case ActionTypes.GET_PERSONALIZED_REQUEST:{
+      return Object.assign({}, state, {
+          isFetching: true,
+      })
+    }
+    case ActionTypes.GET_PERSONALIZED_SUCCESS:{
+      return Object.assign({}, state, {
+          isFetching: false,
+          result: action.response.result
+      })
+    }
+    case ActionTypes.GET_PERSONALIZED_FAILURE:{
+      return Object.assign({}, state, {
+          isFetching: false,
+          result: action.response.result
+      })
+    }
+    case ActionTypes.GET_DEFAULT_INFO_SUCCESS:{
+      return Object.assign({}, state, {
+          isFetching: false,
+          result: action.response.result
+      })
+    }
+    default: return state
+
+  }
+}
+
 export default function personalized(state = {info:{}}, action) {
   return {
-    info:reducerFactory({
-      REQUEST:ActionTypes.GET_PERSONALIZED_REQUEST,
-      SUCCESS:ActionTypes.GET_PERSONALIZED_SUCCESS,
-      FALIURE:ActionTypes.GET_PERSONALIZED_FAILURE,
-    }, state.info, action,{overwrite:true}),
+    info: info(state.info, action),
     backColor: backColor(state.backColor, action),
     copyright: copyright(state.copyright,action)
   }

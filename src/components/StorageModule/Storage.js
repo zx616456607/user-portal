@@ -139,6 +139,8 @@ let MyComponent = React.createClass({
       volumeSize: '',
       CreateSnapshotSuccessModal: '',
       snapshotName: '',
+      tipsModal: false,
+      dilation: false,
     };
   },
   propTypes: {
@@ -240,15 +242,20 @@ let MyComponent = React.createClass({
       size: value,
     });
   },
-  showAction(e, type, one, two, size) {
+  showAction(e, type, item) {
     if(e.stopPropagation) e.stopPropagation()
     else e.cancelable = true
     if(e.key && e.key == 'createSnapshot'){
+      const { form } = this.props
+      const { setFieldsValue } = form
+      setFieldsValue({
+        snapshotName: undefined
+      })
       this.setState({
        createSnapModal: true,
-       volumeName: one,
-       volumeFormat: two,
-       volumeSize: size,
+       volumeName: item.name,
+       volumeFormat: item.format,
+       volumeSize: item.totalSize,
       })
       setTimeout(function() {
         document.getElementById('snapshotName').focus()
@@ -256,34 +263,45 @@ let MyComponent = React.createClass({
       return
     }
     if (type === 'format') {
+      if(item.isUsed){
+        this.setState({
+          tipsModal: true,
+          dilation: true,
+        })
+        return
+      }
       this.setState({
         visible: true,
         modalType: type,
-        modalName: one,
-        modalFormat: two,
-        format: two,
-        formateType: two
+        modalName: item.name,
+        modalFormat: item.format,
+        format: item.format,
+        formateType: item.format
       });
       this.setState({
         modalTitle: '格式化'
       })
     } else {
+      if(item.isUsed){
+        this.setState({
+          tipsModal: true,
+          dilation: false,
+        })
+        return
+      }
       this.setState({
         visible: true,
         modalType: type,
-        modalName: one,
-        modalSize: two,
-        size: two,
-      });
-      this.setState({
+        modalName: item.name,
+        modalSize: item.totalSize,
+        size: item.totalSize,
         modalTitle: '扩容'
-      })
+      });
     }
   },
   handleConfirmCreateSnapshot(){
-    const { form, SnapshotCreate, cluster } = this.props
+    const { form, SnapshotCreate, cluster, SnapshotList } = this.props
     const { volumeName } = this.state
-    const { setFieldsValue } = form
     let Noti = new NotificationHandler()
     form.validateFields( (errors, values) => {
       if(errors){
@@ -303,27 +321,21 @@ let MyComponent = React.createClass({
         success: {
           func: () => {
             Noti.success('创建快照成功！')
-            setFieldsValue({
-              snapshotName: undefined
-            })
+            SnapshotList({clusterID: cluster})
             this.setState({
               createSnapModal: false,
-              volumeName: '',
-              volumeFormat: '',
-              volumeSize: '',
               confirmCreateSnapshotLoading: false,
               CreateSnapshotSuccessModal: true,
+              snapshotName: values.snapshotName,
             })
-          }
+          },
+          isAsync: true
         },
-        falied: {
-          func: (res) => {
+        failed: {
+          func: () => {
             Noti.error('创建快照失败！')
             this.setState({
               createSnapModal: false,
-              volumeName: '',
-              volumeFormat: '',
-              volumeSize: '',
               confirmCreateSnapshotLoading: false
             })
           }
@@ -332,16 +344,12 @@ let MyComponent = React.createClass({
     })
   },
   handleCancelCreateSnapshot(){
-    const { form } = this.props
-    const { setFieldsValue } = form
-    setFieldsValue({
-      snapshotName: undefined
-    })
     this.setState({
       createSnapModal: false,
       volumeName: '',
       volumeFormat: '',
       volumeSize: '',
+      confirmCreateSnapshotLoading: false,
     })
   },
   checksnapshotName(rule, value, callback){
@@ -398,6 +406,12 @@ let MyComponent = React.createClass({
     this.props.saveVolumeArray({target:{checked:!this.isChecked(item.name)}}, item.name)
   },
 
+  colseTipsModal(){
+    this.setState({
+      tipsModal: false
+    })
+  },
+
   render() {
     if(this.props.isFetching) {
       return (
@@ -409,9 +423,9 @@ let MyComponent = React.createClass({
     const { formatMessage } = this.props.intl
     let list = this.props.storage;
     let items = list.storageList.map((item) => {
-      const menu = (<Menu onClick={(e) => { this.showAction(e, 'format', item.name, item.format, item.totalSize) } } style={{ width: '80px' }}>
+      const menu = (<Menu onClick={(e) => { this.showAction(e, 'format', item) } } style={{ width: '80px' }}>
         <Menu.Item key="createSnapshot">创建快照</Menu.Item>
-        <Menu.Item key="format" disabled={item.isUsed}><FormattedMessage {...messages.formatting} /></Menu.Item>
+        <Menu.Item key="format"><FormattedMessage {...messages.formatting} /></Menu.Item>
       </Menu>
       )
       return (
@@ -440,33 +454,15 @@ let MyComponent = React.createClass({
             </span>
           </div>
           <div className="actionBtn commonData">
-            {/*<Dropdown overlay={menu}>
-              <Button type="ghost" disabled={item.isUsed} style={{ marginLeft: 8 }}>
-                <span onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><FormattedMessage {...messages.dilation} /> </span><Icon type="down" />
-              </Button>
-            </Dropdown>*/}
-            {!item.isUsed ?
-              <Dropdown.Button
-                overlay={menu}
-                type='ghost'
-                onClick={(e) => { this.showAction(e, 'resize', item.name, item.totalSize) } }
-                disabled={item.isUsed}
-                key="dilation"
-              >
-                <FormattedMessage {...messages.dilation} />
-              </Dropdown.Button>
-            :
-	            <Tooltip
-		            title="停止绑定的服务后可扩容"
-	            >
-		            <Dropdown.Button
-			            overlay={menu}
-			            type='ghost'
-			            className="ant-disabled">
-			            <FormattedMessage {...messages.dilation} />
-		            </Dropdown.Button>
-	            </Tooltip>
-            }
+            <Dropdown.Button
+              overlay={menu}
+              type='ghost'
+              onClick={(e) => { this.showAction(e, 'resize', item) } }
+              key="dilation"
+              trigger={['click']}
+            >
+              <FormattedMessage {...messages.dilation} />
+            </Dropdown.Button>
           </div>
         </div>
       );
@@ -595,6 +591,27 @@ let MyComponent = React.createClass({
             <div>快照名称 {this.state.snapshotName}</div>
           </div>
         </Modal>
+
+         <Modal
+           title="提示"
+           visible={this.state.tipsModal}
+           closable={true}
+           onOk={this.colseTipsModal}
+           onCancel={this.colseTipsModal}
+           width='570px'
+           maskClosable={true}
+           wrapClassName="handleVolumeTips"
+         >
+           <div className='content'>
+             <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
+             停止绑定的服务后可
+             {
+               this.state.dilation
+               ? <span>格式化</span>
+               : <span>扩容</span>
+             }
+           </div>
+         </Modal>
       </div>
     )
   }
@@ -650,9 +667,10 @@ class Storage extends Component {
     this.props.SnapshotList({clusterID: this.props.cluster})
   }
   componentWillReceiveProps(nextProps) {
-    let { currentCluster, loadStorageList, currentImagePool, cluster } = nextProps
+    let { currentCluster, loadStorageList, currentImagePool, cluster, SnapshotList } = nextProps
     if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
       loadStorageList(currentImagePool, cluster)
+      SnapshotList({clusterID: nextProps.cluster})
     }
   }
   onChange(value) {
@@ -885,7 +903,7 @@ class Storage extends Component {
   render() {
     const { formatMessage } = this.props.intl
     const { getFieldProps } = this.props.form
-    const { SnapshotCreate, snapshotDataList } = this.props
+    const { SnapshotCreate, snapshotDataList, SnapshotList } = this.props
     const currentCluster = this.props.currentCluster
     const storage_type = currentCluster.storageTypes
     const standard = require('../../../configs/constants').STANDARD_MODE
@@ -1030,6 +1048,7 @@ class Storage extends Component {
               isFetching={this.props.storageList[this.props.currentImagePool].isFetching}
               SnapshotCreate={SnapshotCreate}
               snapshotDataList={snapshotDataList}
+              SnapshotList={SnapshotList}
               />
           </Card>
           :

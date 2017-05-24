@@ -44,6 +44,7 @@ import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
 import NotificationHandler from '../../common/notification_handler'
 import { SERVICE_KUBE_NODE_PORT } from '../../../constants'
+import Title from '../Title'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -526,8 +527,6 @@ class AppServiceList extends Component {
   }
 
   componentWillMount() {
-    const { appName } = this.props
-    document.title = `${appName} 的服务列表 | 时速云`
     this.loadServices()
   }
 
@@ -1057,7 +1056,8 @@ class AppServiceList extends Component {
           key="demo"
           type="right"
         >
-          <div className="operaBox">
+          <div className="operaBox" key="serverList">
+            <Title title={`${appName} 的服务列表`} />
             <Button
               size="large"
               type="primary"

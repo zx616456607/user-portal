@@ -16,6 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import "./style/Normal.less"
 import arrow from '../../../assets/img/version/arrow.png'
 import proIcon from '../../../assets/img/version/proIcon.png'
+import Title from '../../Title'
 
 class VersionNoraml extends Component {
   constructor(props) {
@@ -31,10 +32,6 @@ class VersionNoraml extends Component {
       currentPage,
       upgradeModalShow: false,
     }
-  }
-
-  componentWillMount() {
-    document.title = '版本 | 时速云'
   }
 
   changePage() {
@@ -60,6 +57,7 @@ class VersionNoraml extends Component {
     const { upgradeModalShow } = this.state
     return (
       <div id = 'VersionNoraml'>
+        <Title title="版本" />
         {
           this.state.currentPage == 'first' ? [
           <QueueAnim key='firstPageAnim'>

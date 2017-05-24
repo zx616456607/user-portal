@@ -16,6 +16,7 @@ import { Button, Alert, Card, Spin, Input, Tooltip, Dropdown, Menu, Select } fro
 import { getIntegrationPodDetail } from '../../actions/integration'
 import { formatDate, calcuDate } from '../../common/tools'
 import './style/PhysicalList.less'
+import Title from '../Title'
 
 const ButtonGroup = Button.Group;
 const Option = Select.Option;
@@ -142,13 +143,12 @@ class PhysicalList extends Component {
       pods: []
     }
   }
-  
+
   componentWillMount() {
-    document.title = '集成中心 | 时速云';
     const { getIntegrationPodDetail, integrationId, currentDataCenter } = this.props;
     getIntegrationPodDetail(integrationId, currentDataCenter)
   }
-  
+
   componentWillReceiveProps(nextProps) {
     const { isFetching, pods, getIntegrationPodDetail, integrationId, currentDataCenter } = nextProps;
     if(!isFetching && Boolean(pods)) {
@@ -160,28 +160,28 @@ class PhysicalList extends Component {
       getIntegrationPodDetail(integrationId, currentDataCenter)
     }
   }
-  
+
   onChangeShowType(type) {
     //this function for user change the type of app list
     this.setState({
       currentShowApps: type
     });
   }
-  
+
   onChangeAppType(type) {
     //this function for user change the type of app
     this.setState({
       currentAppType: type
     });
   }
-  
+
   ShowDetailInfo(name) {
     //this function for view the app detail info
     this.setState({
       showType: 'detail'
     });
   }
-  
+
   onSearchPods(e) {
     //this function for user search the detail pod
     let value = e.target.value;
@@ -203,7 +203,7 @@ class PhysicalList extends Component {
       });
     }
   }
-  
+
   render() {
     const { formatMessage } = this.props.intl;
     const {isFetching, pods, dataCenters, currentDataCenter} = this.props;
@@ -283,6 +283,7 @@ class PhysicalList extends Component {
     });
     return (
       <div id='PhysicalList' key='PhysicalList'>
+        <Title title="集成中心" />
         <div className='operaBox'>
           <div className='searchBox'>
             <Input type='text' size='large' onKeyUp={this.onSearchPods.bind(this)}/>

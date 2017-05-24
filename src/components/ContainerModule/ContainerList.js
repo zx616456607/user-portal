@@ -23,6 +23,7 @@ import ContainerStatus from '../TenxStatus/ContainerStatus'
 import { addPodWatch, removePodWatch } from '../../containers/App/status'
 import { instanceExport } from '../../actions/instance_export'
 import NotificationHandler from '../../common/notification_handler'
+import Title from '../Title'
 
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm
@@ -521,7 +522,6 @@ class ContainerList extends Component {
   }
 
   componentWillMount() {
-    document.title = '容器列表 | 时速云'
     this.loadData()
   }
 
@@ -697,6 +697,7 @@ class ContainerList extends Component {
         className='ContainerList'
         type='right'
         >
+        <Title title="容器列表"/>
         <div id='ContainerList' key='ContainerList'>
           <div className='operationBox'>
             <div className='leftBox'>

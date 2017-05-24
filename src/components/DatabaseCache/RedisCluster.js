@@ -25,6 +25,7 @@ import { formatDate } from '../../common/tools.js'
 import './style/MysqlCluster.less'
 import redisImg from '../../assets/img/database_cache/redis.jpg'
 import noDbImgs from '../../assets/img/no_data/no_db.png'
+import Title from '../Title'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -120,7 +121,6 @@ class RedisDatabase extends Component {
   }
 
   componentWillMount() {
-    document.title = '缓存 | 时速云';
     const { loadDbCacheList, cluster } = this.props
     if (cluster == undefined) {
       let notification = new NotificationHandler()
@@ -194,6 +194,7 @@ class RedisDatabase extends Component {
     return (
       <QueueAnim id='mysqlDatabase' type='right'>
         <div className='databaseCol' key='RedisDatabase'>
+          <Title title="缓存" />
           <div className='databaseHead'>
             { mode === standard ? <div className='alertRow'>您的 Redis 集群创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充值，继续使用。如无充值，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div>}
             <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
