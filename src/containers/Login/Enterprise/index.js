@@ -334,7 +334,6 @@ let Login = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps } = this.state
     const { info } = this.props
-    console.log(info)
     const nameProps = getFieldProps('name', {
       rules: [
         { validator: this.checkName },

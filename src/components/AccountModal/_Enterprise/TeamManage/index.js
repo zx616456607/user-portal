@@ -26,6 +26,7 @@ import MemberTransfer from '../../MemberTransfer'
 import CreateTeamModal from '../../CreateTeamModal'
 import NotificationHandler from '../../../../common/notification_handler'
 import SpaceRecharge from '../Recharge/SpaceRecharge'
+import Title from '../../../Title'
 
 let TeamTable = React.createClass({
   getInitialState() {
@@ -443,7 +444,6 @@ class TeamManage extends Component {
     })
   }
   componentWillMount() {
-    document.title = '团队管理 | 时速云'
     this.props.loadUserTeamList('default', {
       page: 1,
       size: 10,
@@ -467,6 +467,7 @@ class TeamManage extends Component {
     }
     return (
       <div id="TeamManage">
+        <Title title="团队管理" />
         <Alert message={`团队，由若干个成员组成的一个集体，可等效于公司的部门、项目组、或子公司，
           包含『团队空间』这一逻辑隔离层，以实现对应您企业内部各个不同项目，或者不同逻辑组在云平台上操作对象的隔离，团队管理员可见对应团队的所有空间的应用等对象。`}
           type="info" />

@@ -17,6 +17,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import DockerFileEditor from '../../Editor/DockerFile'
 import './style/DockerFile.less'
 import NotificationHandler from '../../../common/notification_handler'
+import Title from '../../Title'
 
 const editorOptions = {
   readOnly: false
@@ -232,7 +233,6 @@ class DockerFile extends Component {
   }
 
   componentWillMount() {
-    document.title = 'Dockerfile | 时速云';
     this.props.getDockerfileList()
   }
 
@@ -259,6 +259,7 @@ class DockerFile extends Component {
       <QueueAnim className='TenxFlowList'
         type='right'
         >
+        <Title title="DockerFile" />
         <div id='dockerFile' key='dockerFile'>
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
           <div className='operaBox'>

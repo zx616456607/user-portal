@@ -27,6 +27,7 @@ import { loadLoginUserDetail } from '../../../../actions/entities'
 import proIcon from '../../../../assets/img/version/proIcon.png'
 import proIconGray from '../../../../assets/img/version/proIcon-gray.png'
 import WechatQRCodeTicket from '../../../WechatQRCodeTicket'
+import Title from '../../../Title'
 
 const TabPane = Tabs.TabPane
 const createForm = Form.create
@@ -51,7 +52,6 @@ class BaseInfo extends Component {
     }
   }
   componentWillMount() {
-    document.title = '我的帐户 | 时速云'
     const self = this
     const { loadStandardUserInfo } = this.props
     loadStandardUserInfo({
@@ -478,6 +478,7 @@ class BaseInfo extends Component {
     }
     return (
       <div className="baseInfo" id="baseInfo">
+        <Title title="我的账户" />
         <div className="topBox">
           <div className="userimage">
             <img src={`${AVATAR_HOST}${userDetail.avatar}`} />

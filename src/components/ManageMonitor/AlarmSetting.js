@@ -22,6 +22,8 @@ import no_alarm from '../../assets/img/no_data/no_alarm.png'
 import { formatDate } from '../../common/tools.js'
 import './style/AlarmRecord.less'
 import cloneDeep from 'lodash/cloneDeep'
+import Title from '../Title'
+
 const Option = Select.Option
 
 let MyComponent = React.createClass({
@@ -504,7 +506,6 @@ class AlarmSetting extends Component {
     }
   }
   componentWillMount() {
-    document.title = '告警设置 | 时速云 '
     const { getSettingList, clusterID } = this.props
     getSettingList(clusterID, {
       from: DEFAULT_PAGE - 1,
@@ -920,6 +921,7 @@ class AlarmSetting extends Component {
     return (
       <QueueAnim type="right" className="alarmSetting">
         <div id="AlarmRecord" key="AlarmRecord">
+          <Title title="告警设置" />
           <div className="topRow" style={{marginBottom: '20px'}}>
             <Button size="large" type="primary" onClick={()=> this.createStrategy()}>
               <i className="fa fa-plus" style={{marginRight:'5px'}}/>

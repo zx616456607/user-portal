@@ -46,6 +46,7 @@ import NotificationHandler from '../../common/notification_handler'
 import { SERVICE_KUBE_NODE_PORT } from '../../../constants'
 import CreateAlarm from './AlarmModal'
 import CreateGroup from './AlarmModal/CreateGroup'
+import Title from '../Title'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -607,7 +608,6 @@ class ServiceList extends Component {
 
   componentWillMount() {
     const { appName } = this.props
-    document.title = '服务列表 | 时速云'
     this.loadServices()
     return
   }
@@ -1126,6 +1126,7 @@ class ServiceList extends Component {
     }
     return (
       <div id="AppServiceList">
+        <Title title="服务列表" />
         <QueueAnim className="demo-content">
           <div key='animateBox'>
           <div className='operationBox'>
@@ -1260,7 +1261,7 @@ class ServiceList extends Component {
             onCancel={()=> this.setState({alarmModal:false})}
             maskClosable={false}
             footer={null}
-            
+
           >
           <CreateAlarm funcs={modalFunc} currentService={this.state.alertCurrentService} isShow={this.state.alarmModal}/>
           </Modal>

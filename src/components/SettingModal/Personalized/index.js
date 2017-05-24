@@ -16,7 +16,7 @@ import tenxImgIcon from '../../../assets/img/icon/tenxImg.svg'
 import tenxColorIcon from '../../../assets/img/icon/tenxColor.svg'
 import tenxTextIcon from '../../../assets/img/icon/tenxText.svg'
 import NotificationHandler from '../../../common/notification_handler'
-import { getPersonalized,setBackColor,isCopyright,updateLogo } from '../../../actions/personalized'
+import { getPersonalized,setBackColor,isCopyright,updateLogo,restoreDefault } from '../../../actions/personalized'
 class Personalized extends Component{
   constructor(props){
     super(props)
@@ -71,6 +71,9 @@ class Personalized extends Component{
     }
     this.updateInfo(body)
   }
+  clearProductName() {
+    document.getElementById('productName').value = ''
+  }
   saveproductName() {
     // bai 更新产品名称
     const { oemInfo } = this.props
@@ -94,20 +97,19 @@ class Personalized extends Component{
       return false
     }
     if (file.size > 2 * 1024 * 1024) {
-      notificat.error('头像图片大小应小于2M！')
+      notificat.error('图片大小应小于2M！')
       return false
     }
     // return true;
     const data = new FormData()
     data.append('file', file)
+    data.append('key',type)
 
     console.log('file',file)
     if (type == 'favoriteIcon') {
       data.append('format','ico')
-      data.append('key','favorite')
     } else {
       data.append('format',file.type.split('/')[1])
-      data.append('key',type)
     }
     const _this = this
     this.props.updateLogo(data,{
@@ -133,9 +135,27 @@ class Personalized extends Component{
   }
   restoreLogo() {
     console.log('this is restore default logo')
+    const notificat = new NotificationHandler()
+    this.props.restoreDefault('logo', {
+      success:{
+        func:()=> {
+          notificat.success('恢复成功！')
+        }
+      }
+    })
+    this.setState({logo:false})
   }
   restoreText() {
     console.log('this is restore default text')
+    this.props.restoreDefault('info', {
+      success:{
+        func:()=> {
+          notificat.success('恢复成功！')
+        }
+      }
+    })
+    this.setState({tenxText:false})
+
   }
   restoreColor() {
     console.log('this is restore default color')
@@ -215,14 +235,14 @@ class Personalized extends Component{
               <Col span="20" style={{width:600}}>
                 <div className="row-text">此处文字用于替换平台上的“时速云 | 时速云企业版”字样，包换登录页、浏览器标签文字；</div>
                 <Input style={{width:200}} id="productName"  size="large" placeholder="请输入产品名称"  />
-                <Button size="large" style={{margin:'0 10px'}}>取消</Button>
+                <Button size="large" onClick={()=> this.clearProductName()} style={{margin:'0 10px'}}>取消</Button>
                 <Button size="large" type="primary" onClick={()=> this.saveproductName()}>保存</Button>
               </Col>
             </Row>
             <Row className="image-row">
               <Col span="3"style={{width:150}}>版权声明</Col>
               <Col span="20">
-                <div className="row-text">切换是否显示登录页公司名“ {oemInfo.company ?oemInfo.company.name :''} ”</div>
+                <div className="row-text">切换是否显示登录页公司名“ {oemInfo.company ? oemInfo.company.name :''} ”</div>
                 <Switch checked={oemInfo.company?oemInfo.company.visible:true} onChange={(e)=> this.changeSwitch(e)} checkedChildren="ON" unCheckedChildren="OFF" className="inswitch"/>
                   {oemInfo.company?
                   <span className="switchText">{oemInfo.company.visible ? '开启':'关闭'}</span>
@@ -291,5 +311,6 @@ export default connect(mapStateToProps,{
   getPersonalized,
   setBackColor,
   isCopyright,
-  updateLogo
+  updateLogo,
+  restoreDefault
 })(Personalized)

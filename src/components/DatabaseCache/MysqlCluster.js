@@ -23,6 +23,7 @@ import { formatDate } from '../../common/tools.js'
 import './style/MysqlCluster.less'
 import mysqlImg from '../../assets/img/database_cache/mysql.png'
 import noDbImgs from '../../assets/img/no_data/no_db.png'
+import Title from '../Title'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -123,7 +124,6 @@ class MysqlCluster extends Component {
   }
 
   componentWillMount() {
-    document.title = '关系型数据库 | 时速云';
     const { loadDbCacheList, cluster } = this.props
     if (cluster == undefined) {
       let notification = new NotificationHandler()
@@ -206,6 +206,7 @@ class MysqlCluster extends Component {
     return (
       <QueueAnim id='mysqlDatabase' type='right'>
         <div className='databaseCol' key='mysqlDatabase'>
+          <Title  title="关系型数据库" />
           <div className='databaseHead'>
             { mode === standard ? <div className='alertRow'>您的 MySql 集群 创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充值，继续使用。如无充值，1 周后资源会被彻底销毁，不可恢复。</div> : <div></div>}
             <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>

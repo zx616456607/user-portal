@@ -17,6 +17,7 @@ import { DEFAULT_REGISTRY } from '../../../../constants'
 import './style/TenxFlowDetailYaml.less'
 import { browserHistory } from 'react-router';
 import YamlEditor from '../../../Editor/Yaml'
+import Title from '../../../Title'
 
 const menusText = defineMessages({
   tooltips: {
@@ -30,14 +31,12 @@ let TenxFlowDetailYaml = React.createClass({
     return {
     }
   },
-  componentWillMount() {
-    document.title = 'TenxFlow | 时速云';
-  },
   render() {
     const { formatMessage } = this.props.intl;
     const { scope, yaml } = this.props;
     return (
     <div id='TenxFlowDetailYaml' key='TenxFlowDetailYaml'>
+      <Title title="TenxFlow" />
       <Alert type='info' message={<FormattedMessage {...menusText.tooltips} />} />
       <Card className='yamlCard'>
         <YamlEditor title="TenxFlow 定义文件" value={yaml} parentId={'TenxFlowDetail'}/>
@@ -48,9 +47,9 @@ let TenxFlowDetailYaml = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-  
+
   return {
-    
+
   }
 }
 
@@ -59,7 +58,7 @@ TenxFlowDetailYaml.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  
+
 })(injectIntl(TenxFlowDetailYaml, {
   withRef: true,
 }));
