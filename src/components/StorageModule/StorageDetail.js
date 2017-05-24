@@ -20,6 +20,7 @@ import { loadStorageInfo } from '../../actions/storage'
 import "./style/StorageDetail.less"
 import { DEFAULT_IMAGE_POOL } from '../../constants'
 import storagePNG from '../../assets/img/storage.png'
+import Title from '../Title'
 
 function loadData(props) {
   const { loadStorageInfo } = props
@@ -69,7 +70,6 @@ class StorageDetail extends Component {
     }
   }
   componentWillMount() {
-    document.title = "存储详情 | 时速云"
     loadData(this.props)
   }
   render() {
@@ -92,6 +92,7 @@ class StorageDetail extends Component {
           type="right"
           >
           <div key="ca" className="AppInfo">
+            <Title title="存储详情" />
             <Card className="topCard">
               <div className="imgBox">
                 <img src={storagePNG} />

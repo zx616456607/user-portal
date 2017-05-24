@@ -18,6 +18,7 @@ import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../common/notification_handler'
 import './style/CreateTenxFlow.less'
 import { browserHistory } from 'react-router';
+import Title from '../../Title'
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
@@ -96,9 +97,6 @@ let CreateTenxFlow = React.createClass({
       currentYaml: null
     }
   },
-  componentWillMount() {
-    document.title = 'TenxFlow | 时速云';
-  },
   nameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
     if (this.state.currentType == '2') {
@@ -115,7 +113,7 @@ let CreateTenxFlow = React.createClass({
           callback([new Error(errorMsg)]);
         }
       });
-      if(!flag) {      
+      if(!flag) {
         callback();
       }
     } else {
@@ -173,7 +171,7 @@ let CreateTenxFlow = React.createClass({
     if(this.state.otherEmail && !!!value){
        callback([new Error('请输入邮件通知地址')]);
     }else{
-      if(this.state.otherEmail) {        
+      if(this.state.otherEmail) {
         let emailList = value.split(',');
         let emailCheck = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
         let flag = true;
@@ -183,9 +181,9 @@ let CreateTenxFlow = React.createClass({
             callback([new Error('请输入正确邮件地址')]);
           }
         });
-        if(flag) {        
+        if(flag) {
           callback();
-        }      
+        }
       } else {
         callback();
       }
@@ -237,7 +235,7 @@ let CreateTenxFlow = React.createClass({
             'success_notification': values.checkThird,
             'failed_notification': values.checkForth
           }
-        }       
+        }
         body = {
           'name': values.name,
           'init_type': parseInt(values.radioFlow),
@@ -292,7 +290,7 @@ let CreateTenxFlow = React.createClass({
           },
           isAsync: true
         }
-      });    
+      });
     });
   },
   onChangeYamlEditor(e) {
@@ -341,6 +339,7 @@ let CreateTenxFlow = React.createClass({
     return (
       <div id='CreateTenxFlow' key='CreateTenxFlow'>
         {this.props.buildImage ? <Alert message={<FormattedMessage {...menusText.buildImageToolTip} />} type='info' /> : ''}
+        <Title title="TenxFlow" />
       <Form horizontal>
         <div className='commonBox'>
           <div className='title'>

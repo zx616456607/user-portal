@@ -10,20 +10,19 @@
 import React, { Component } from 'react'
 import { Row, Col, Card, Icon, } from 'antd'
 import './style/Version.less'
+import Title from '../../Title'
 
 export default class Version extends Component{
   constructor(props){
     super(props)
     this.state = {
-      
+
     }
-  }
-  componentWillMount() {
-    document.title = '平台版本 | 时速云'
   }
   render(){
     return (
       <div id='Version'>
+        <Title title="平台版本" />
         <Row className="title">
           <Col>平台版本</Col>
         </Row>

@@ -33,6 +33,7 @@ import NotificationHandler from '../../../../common/notification_handler'
 import flowImg from '../../../../assets/img/flow.png'
 import { camelize } from 'humps'
 import PopTabSelect from '../../../PopTabSelect'
+import Title from '../../../Title'
 
 const TabPane = Tabs.TabPane;
 const PopTab = PopTabSelect.Tab;
@@ -141,7 +142,6 @@ class TenxFlowDetail extends Component {
     })
   }
   componentWillMount() {
-    document.title = 'TenxFlow | 时速云';
     const { getTenxFlowDetail, getCdInimage, getRepoBranchesAndTagsByProjectId } = this.props;
     let { search } = this.props.location;
     search = search.split('?')[1].split('&')[0]
@@ -423,6 +423,7 @@ class TenxFlowDetail extends Component {
       <QueueAnim className='TenxFlowDetail'
         type='right'
         >
+        <Title title="TenxFlow" />
         <div id='TenxFlowDetail' key='TenxFlowDetail'>
           <Card className='infoBox'>
             <div className='imgBox' >

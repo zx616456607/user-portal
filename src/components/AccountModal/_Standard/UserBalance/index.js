@@ -20,6 +20,7 @@ import { parseAmount, formatDate } from '../../../../common/tools'
 import './style/balance.less'
 import proIcon from '../../../../assets/img/version/proIcon.png'
 import proIconGray from '../../../../assets/img/version/proIcon-gray.png'
+import Title from '../../../Title'
 
 class UserBalance extends Component {
   constructor(props) {
@@ -35,7 +36,6 @@ class UserBalance extends Component {
   }
 
   componentWillMount() {
-    document.title = '充值/续费 | 时速云'
     const { currentTeamName, loadLoginUserDetail, loadUserTeamspaceList } = this.props
     loadLoginUserDetail()
     loadUserTeamspaceList('default', { size: 100 }).then(({response}) => {
@@ -114,6 +114,7 @@ class UserBalance extends Component {
     })
     return (
       <div id="UserBalance">
+        <Title title="充值/续费" />
         <div className="myAccount">
           <div className="topRow"><Icon type="user" className="typeIcon" />我的帐户</div>
           <div className="moneyRow">

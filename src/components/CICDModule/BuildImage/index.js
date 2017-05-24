@@ -30,6 +30,7 @@ import findIndex from 'lodash/findIndex'
 import NotificationHandler from '../../../common/notification_handler'
 import Socket from '../../Websocket/socketIo'
 import PopTabSelect from '../../PopTabSelect'
+import Title from '../../Title'
 
 const PopTab = PopTabSelect.Tab;
 const PopOption = PopTabSelect.Option;
@@ -452,7 +453,6 @@ class TenxFlowList extends Component {
   }
 
   componentWillMount() {
-    document.title = 'BuildImage | 时速云';
     const { getTenxFlowList } = this.props;
     const self = this
     this.loadData()
@@ -730,10 +730,9 @@ class TenxFlowList extends Component {
       message = " * 没有匹配到相关TenxFlow"
     }
     return (
-      <QueueAnim className='BuildImageList'
-                 type='right'
-      >
+      <QueueAnim className='BuildImageList' type='right'>
         <div id='TenxFlowList' key='TenxFlowList'>
+          <Title title="BuildImage" />
           <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
           <div className='operaBox'>
             <Button className='createBtn' size='large' type='primary' onClick={this.openCreateTenxFlowModal}>

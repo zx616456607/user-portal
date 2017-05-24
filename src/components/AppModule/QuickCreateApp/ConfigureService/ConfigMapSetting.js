@@ -162,7 +162,7 @@ const ConfigMapSetting = React.createClass({
                   const title = disabled ? '未包含任何配置文件' : item.name
                   return (
                     <Option
-                      value={item.name}
+                      key={item.name}
                       title={title}
                       disabled={disabled}
                     >
@@ -250,7 +250,7 @@ const ConfigMapSetting = React.createClass({
   },
   removeConfigMapKey(keyValue) {
     const { form } = this.props
-    const { setFieldsValue, getFieldValue } = form
+    const { setFieldsValue, getFieldValue, resetFields } = form
     const configMapKeys = getFieldValue('configMapKeys') || []
     setFieldsValue({
       configMapKeys: configMapKeys.map(_key => {
@@ -258,6 +258,12 @@ const ConfigMapSetting = React.createClass({
           // magic code ！
           // 必须通过标记的方式删除，否则 redux store 中的 fields 与 form 中的 fields 无法一一对应
           _key.deleted = true
+          resetFields([
+            `configMapMountPath${keyValue}`,
+            `configMapIsWholeDir${keyValue}`,
+            `configGroupName${keyValue}`,
+            `configMapSubPathValues${keyValue}`,
+          ])
         }
         return _key
       })

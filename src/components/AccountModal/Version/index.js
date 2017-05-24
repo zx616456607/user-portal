@@ -16,6 +16,7 @@ import VersionNoraml from './Normal'
 import VersionProfress from './Profress'
 import "./style/Version.less"
 import { loadLoginUserDetail } from '../../../actions/entities'
+import Title from '../../Title'
 
 class Version extends Component {
   constructor(props) {
@@ -26,7 +27,6 @@ class Version extends Component {
   }
 
   componentWillMount() {
-    document.title = '版本 | 时速云'
     const { loadLoginUserDetail } = this.props
     loadLoginUserDetail()
   }
@@ -43,6 +43,7 @@ class Version extends Component {
             <VersionProfress key='VersionProfress' {...this.props} />
           ]
         }
+        <Title title="版本" />
       </div>
     )
   }

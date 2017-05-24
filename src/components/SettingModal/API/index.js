@@ -12,6 +12,7 @@ import { Row, Col, Icon, } from 'antd'
 import './style/API.less'
 import { connect } from 'react-redux'
 import { loadApiInfo } from '../../../actions/open_api'
+import Title from '../../Title'
 
 class API extends Component{
   constructor(props){
@@ -34,7 +35,6 @@ class API extends Component{
     }
   }
   componentDidMount() {
-    document.title = '开放 API | 时速云'
     this.props.loadApiInfo()
   }
   render(){
@@ -42,6 +42,7 @@ class API extends Component{
     const { hidToken } = this.state
     return (
       <div id='API'>
+        <Title title="开放 API" />
         <Row className="APITitle">时速云开放 API</Row>
         <Row className="APIInfo">以下是用于访问 TenxCloud 开放 API 的 token 信息及相关文档</Row>
         <table className="APITable">

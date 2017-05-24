@@ -157,7 +157,7 @@ let NoBind = React.createClass({
     });
   },
   render() {
-    const {scope} = this.props;
+    const {scope,productName} = this.props;
     return (
       <div className='noBind'>
         <Card className='noBindCard'>
@@ -167,23 +167,23 @@ let NoBind = React.createClass({
           <div className='rightBox'>
             <div className='msgDetail'>
               <div className='square'></div>
-              <span>企业版支持关联时速云·公有云的镜像仓库。</span>
+              <span>企业版支持关联{productName}·公有云的镜像仓库。</span>
             </div>
             <div className='msgDetail'>
               <div className='square'></div>
-              <span>只需填写时速云官网注册的用户名和密码即可快速关联。</span>
+              <span>只需填写{productName}官网注册的用户名和密码即可快速关联。</span>
             </div>
           </div>
         </Card>
         <Button className='bindBtn' type='primary' size='large' onClick={this.openBindModal}>
           <Icon type='plus' />
-          <span>时速云镜像Hub</span>
+          <span>{productName}镜像Hub</span>
         </Button>
-        <p className='alert'>目前您还没有关联时速云·公有云镜像</p>
-        <Modal className='liteBindCenterModal' title='关联时速云镜像Hub' visible={scope.state.bindModalShow}
+        <p className='alert'>目前您还没有关联{productName}·公有云镜像</p>
+        <Modal className='liteBindCenterModal' title={`关联${productName}镜像Hub`} visible={scope.state.bindModalShow}
           onCancel={this.closeBindModal} onOk={this.submitBind}
         >
-          <Alert message={[<span><Icon type='exclamation-circle' style={{ marginRight: '7px', color: '#2db7f5' }} /><span>关联时速云·公有云的镜像仓库，请填写时速云官网注册的用户名和密码</span></span>]} type="info" />
+          <Alert message={[<span><Icon type='exclamation-circle' style={{ marginRight: '7px', color: '#2db7f5' }} /><span>关联{productName}·公有云的镜像仓库，请填写{productName}官网注册的用户名和密码</span></span>]} type="info" />
           <div className='inputBox'>
             <span className='title'>用户名</span>
             <span className={this.state.usernameError ? 'errorInput input' : 'input'}>
@@ -256,7 +256,7 @@ class MyCollection extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
-    const { hubConfig, globalHubConfigured, server } = this.props;
+    const { hubConfig, globalHubConfigured, server,productName } = this.props;
     const scope = this;
     const imageList = this.props.fockImageList
     const columns = [{
@@ -326,7 +326,7 @@ class MyCollection extends Component {
         <div id="MyCollection" key="MyCollection">
           <Alert message={standardFlag ? [<FormattedMessage {...menusText.tooltips} />] : '关联时速云·公有云镜像仓库后，您可使用公有云中收藏的镜像，也可以将时速云镜像hub中的任意镜像，一键收藏到我的收藏，便捷的管理常用容器镜像。'} type="info" />
           { !hubConfig ?
-            [<NoBind scope={scope} />]
+            [<NoBind scope={scope} productName={productName}/>]
             :
             [<Card className="MyCollectionCard">
               <div className="operaBox">
@@ -367,13 +367,15 @@ function mapStateToProps(state, props) {
   const { fockImages, imagesInfo } = state.images
   const { registry, imageList, isFetching, server } = fockImages[DEFAULT_REGISTRY] || defaultPublicImages
   const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
-
+  const { oemInfo } = state.entities.loginUser.info
+  const { productName } =oemInfo.company
   return {
     registry,
     server,
     fockImageList: imageList,
     isFetching,
-    imageInfo
+    imageInfo,
+    productName
   }
 }
 

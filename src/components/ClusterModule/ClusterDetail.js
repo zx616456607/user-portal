@@ -26,6 +26,7 @@ import { camelize } from 'humps'
 import QueueAnim from 'rc-queue-anim'
 import AlarmStrategy from '../ManageMonitor/AlarmStrategy'
 import ManageLabelModal from './MangeLabelModal'
+import Title from '../Title'
 
 const TabPane = Tabs.TabPane
 const MASTER = '主控节点/Master'
@@ -268,7 +269,6 @@ class ClusterDetail extends Component {
   }
   componentWillMount() {
     const { clusterID, clusterName, loadHostInstant, loadHostMetrics } = this.props
-    document.title = '基础设施 | 时速云'
     const body = {
       clusterID,
       clusterName
@@ -416,6 +416,7 @@ class ClusterDetail extends Component {
     }
     return (
       <div id="clusterDetail">
+        <Title title="基础设施"/>
         <div className="topRow" style={{ marginBottom: '20px', height: '50px', paddingTop: '20px' }}>
           <Link className="back" to="/cluster"><span className="backjia"></span><span className="btn-back">返回</span></Link>
           <span className="title">主机详情 （{this.props.clusterName}）</span>

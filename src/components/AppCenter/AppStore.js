@@ -18,6 +18,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadAppStore , loadStackDetail } from '../../actions/app_center'
 import DetailBox from './StoreDetail'
 import { DEFAULT_REGISTRY, TIMESTRAP } from '../../constants'
+import Title from '../Title'
 
 import "./style/ImageStore.less"
 
@@ -133,7 +134,6 @@ class AppStore extends Component {
   }
 
   componentWillMount() {
-    document.title = '应用商店 | 时速云'
     const { loadAppStore } = this.props
     loadAppStore(DEFAULT_REGISTRY)
   }
@@ -206,6 +206,7 @@ class AppStore extends Component {
         >
         <div className="nav">
           {storeList}
+          <Title title="应用商店" />
         </div>
         <MyComponent key="ImageStoreBox-component" scope={scope} config={this.props.appStoreList} />
         <Modal

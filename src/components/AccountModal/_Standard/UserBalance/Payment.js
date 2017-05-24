@@ -26,6 +26,7 @@ import alipay from '../../../../assets/img/standard/allpay.png'
 import weixin from '../../../../assets/img/standard/weixin.png'
 import userBalancePNG from '../../../../assets/img/standard/userBalance.png'
 import proImg from '../../../../assets/img/version/proImg.png'
+import Title from '../../../Title'
 
 const periodPrice = {
   period_1: 99,
@@ -140,8 +141,7 @@ class UserPay extends Component {
   }
 
   componentWillMount() {
-    const { teamName, title } = this.state
-    document.title = `${title} | 时速云`
+    const { teamName } = this.state
     const { loadLoginUserDetail, orderId } = this.props
     // Load login user detail
     loadLoginUserDetail()
@@ -689,6 +689,7 @@ class UserPay extends Component {
     }
     return (
       <div id="UserPay">
+        <Title title={title} />
         <div className="topPay">
           <span className="backjia"></span>
           <span className="btn-back" onClick={() => browserHistory.goBack()}>返回</span>

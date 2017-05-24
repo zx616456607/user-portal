@@ -52,11 +52,9 @@ const Normal = React.createClass({
     this.props.form.setFieldsValue({
       replicas: 1,
     })
-    if (disabled) {
-      this.setState({
-        replicasInputDisabled: true,
-      })
-    }
+    this.setState({
+      replicasInputDisabled: disabled,
+    })
   },
   setBindNodeToDefault() {
     this.props.form.setFieldsValue({
@@ -180,7 +178,7 @@ const Normal = React.createClass({
                     clusterNodes.map(node => {
                       const { name, ip, podCount, schedulable } = node
                       return (
-                        <Option value={name} disabled={!schedulable}>
+                        <Option key={name} disabled={!schedulable}>
                           {name} | {ip} (容器：{podCount}个)
                         </Option>
                       )

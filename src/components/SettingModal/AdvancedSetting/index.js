@@ -15,6 +15,7 @@ import { updateClusterConfig } from '../../../actions/cluster'
 import { loadTeamClustersList } from '../../../actions/team'
 import { setCurrent } from '../../../actions/entities'
 import NotificationHandler from '../../../common/notification_handler'
+import Title from '../../Title'
 
 class AdvancedSetting extends Component {
   constructor(props){
@@ -38,9 +39,8 @@ class AdvancedSetting extends Component {
       confirmlodaing: false
     }
   }
-  
+
   componentWillMount(){
-    document.title = '高级设置 | 时速云'
     const { cluster, space, loadTeamClustersList } = this.props
     const { listNodes } = cluster
     this.handleListNodeStatus(listNodes)
@@ -115,7 +115,7 @@ class AdvancedSetting extends Component {
       this.handleListNodeStatus(num)
     }
   }
-  
+
   updataClusterListNodes(num){
     const {updateClusterConfig, cluster, loadTeamClustersList, space, setCurrent} = this.props
     const {clusterID} = cluster
@@ -258,6 +258,7 @@ class AdvancedSetting extends Component {
     const { cluster } = this.props
     const { listNodes } = cluster
     return (<div id="AdvancedSetting">
+      <Title title="高级设置" />
       <div className='title'>高级设置</div>
       <div className='content'>
         <div className='contentheader'>允许用户绑定节点（所有集群）</div>

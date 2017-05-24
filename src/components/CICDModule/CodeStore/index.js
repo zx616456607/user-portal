@@ -15,6 +15,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getProjectList, removeProject, searchProject, filterProject } from '../../../actions/cicd_flow'
 import NotificationHandler from '../../../common/notification_handler'
+import Title from '../../Title'
 
 import './style/CodeStore.less'
 
@@ -211,10 +212,10 @@ const MyComponent = React.createClass({
                 <use xlinkHref='#cicdprivate' />
               </svg>
               <span className="margin">private</span>
-              {item.repoType != 'svn' ? 
+              {item.repoType != 'svn' ?
               <Button type="ghost" style={{ marginLeft: '10px' }} onClick={() => this.showItemKeyModal(item)}><i className="fa fa-eye"></i> 查看公钥</Button>
               : null
-              }      
+              }
             </div>
             :
             <div className='type public'>
@@ -298,7 +299,6 @@ class CodeStore extends Component {
   }
 
   componentWillMount() {
-    document.title = '代码仓库 | 时速云';
     this.props.getProjectList()
   }
 
@@ -385,6 +385,7 @@ class CodeStore extends Component {
       <QueueAnim className='TenxFlowList'
         type='right'
         >
+        <Title title="代码仓库" />
         <div id='CodeStore' key='CodeStore'>
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
           <div className='operaBox'>

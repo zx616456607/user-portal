@@ -16,6 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadAppStore } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY, TIMESTRAP } from '../../../constants'
 import "./style/AppStore.less"
+import Title from '../../Title'
 
 
 let MyComponent = React.createClass({
@@ -84,7 +85,6 @@ class AppStore extends Component {
   }
   componentWillMount() {
     const self = this
-    document.title = '创建应用 | 时速云'
     this.props.loadAppStore(DEFAULT_REGISTRY, {
       success: {
         func: (res) => {
@@ -139,6 +139,7 @@ class AppStore extends Component {
       <QueueAnim id="AppStore"
         type="right"
         >
+        <Title title="创建应用" />
         <div className="AppStore" key="AppStore">
           <div className="operaBox">
             <div className="line"></div>

@@ -15,6 +15,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import PrivateCompose from './ComposeCenter/PrivateCompose.js'
 import PublicCompose from './ComposeCenter/PublicCompose.js'
 import "./style/ComposeCenter.less"
+import Title from '../Title'
 
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
@@ -25,9 +26,6 @@ class ComposeCenter extends Component {
     this.state = {
       current: "privateCompose",
     }
-  }
-  componentWillMount() {
-    document.title = '编排文件 | 时速云'
   }
   selectCurrentTab(current) {
     //this function for user select current show tabs
@@ -44,6 +42,7 @@ class ComposeCenter extends Component {
         type="right"
         >
         <div id="ComposeCenter" key="ComposeCenterBox">
+          <Title title="编排文件" />
           <Card className="titleList">
             <ul>
               <li className={current == "privateCompose" ? "titleSelected" : "titleDetail"}
