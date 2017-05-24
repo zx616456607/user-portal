@@ -202,6 +202,9 @@ class ClusterPlugin extends Component{
   }
   getTableItem() {
     const { clusterPlugins } = this.props
+    if(clusterPlugins.isFetching) {
+      return <div className="loadingBox"><Spin size="large"></Spin></div>
+    }
     const items = []
     const self = this
     if (clusterPlugins && clusterPlugins.result) {
@@ -250,9 +253,7 @@ class ClusterPlugin extends Component{
   }
   render(){
     const { clusterPlugins, form } = this.props
-    if(clusterPlugins.isFetching) {
-      return <div className="loadingBox"><Spin size="large"></Spin></div>
-    }
+
     const { getFieldProps } = form
     const selectNode = getFieldProps('selectNode', {
       rules: [{
@@ -347,6 +348,9 @@ class ClusterPlugin extends Component{
     return <Form><div id="cluster_clusterplugin">
       <div className="alertRow">集群插件：使用以下插件可以分别使平台中的日志、发现服务、监控等可用；在这里可以重新部署插件，可以切换插件所在节点，还可以设置CPU、内存在集群中资源的限制。</div>
       <Card className='ClusterListCard'>
+        <div className='operaBox'>
+          <Button type="primary" size="large" onClick={()=> this.loadData()} className='titlebutton'><i className='fa fa-refresh' /> 刷新</Button>
+        </div>
       <div className='dataBox'>
           <div className='titleBox'>
             <div className='name commonTitle'>

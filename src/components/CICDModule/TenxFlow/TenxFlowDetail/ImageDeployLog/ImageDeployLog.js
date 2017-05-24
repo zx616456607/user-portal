@@ -29,11 +29,11 @@ const menusText = defineMessages({
   },
   name: {
     id: 'CICD.Tenxflow.ImageDeployLog.name',
-    defaultMessage: '应用名称',
+    defaultMessage: '服务名称',
   },
   config: {
     id: 'CICD.Tenxflow.ImageDeployLog.config',
-    defaultMessage: '应用配置',
+    defaultMessage: '分支名称',
   },
   cluster: {
     id: 'CICD.Tenxflow.ImageDeployLog.cluster',
@@ -46,6 +46,10 @@ const menusText = defineMessages({
   runningStatus: {
     id: 'CICD.Tenxflow.ImageDeployLog.runningStatus',
     defaultMessage: '运行状态',
+  },
+  appName: {
+    id: 'CICD.Tenxflow.ImageDeployLog.appName',
+    defaultMessage: '所属应用',
   },
   cost: {
     id: 'CICD.Tenxflow.ImageDeployLog.cost',

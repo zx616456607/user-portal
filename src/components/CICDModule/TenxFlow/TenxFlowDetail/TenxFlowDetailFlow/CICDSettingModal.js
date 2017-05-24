@@ -400,6 +400,7 @@ let CICDSettingModal = React.createClass({
                     id='branchInput'
                     size='large'
                     disabled={ (!this.state.editBranch) }
+                    placeholder="branch名称，支持正则表达式，如：^feature.*"
                   />
                     { this.state.noBranch ? [<span className='noValueSpan'>请输入Branch名称</span>] : null}
                 </FormItem>
@@ -432,6 +433,7 @@ let CICDSettingModal = React.createClass({
                     id='tagInput'
                     size='large'
                     disabled={ !this.state.editTag}
+                    placeholder="tag名称，支持正则表达式，如：^feature.*"
                   />
                   { this.state.noTag ? [<span className='noValueSpan'>请输入Tag名称</span>] : null}
                 </FormItem>
