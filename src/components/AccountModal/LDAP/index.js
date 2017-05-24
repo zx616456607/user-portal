@@ -115,7 +115,7 @@ class LDAP extends Component {
     if (!value) {
       return callback()
     }
-    if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+    if (!/^([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
       return callback('请填入合法的 LDAP 服务地址')
     }
     callback()
@@ -317,7 +317,7 @@ class LDAP extends Component {
     })
     const PasswordProps = getFieldProps('bindPassword', {
       rules: [
-        { required: true, message: '请输入密码' },
+        { message: '请输入密码' },
       ],
     })
     const TlsProps =  getFieldProps('tls', {
@@ -391,7 +391,7 @@ class LDAP extends Component {
                   </Col>
                 </Row>
                 <Row className='item_input'>
-                  <Col span={4} className='item_title'>Password<span className='star'>*</span></Col>
+                  <Col span={4} className='item_title'>Password</Col>
                   <Col span={20} className='item_content'>
                     <FormItem>
                       <Input type="password" {...PasswordProps} placeholder='请输入密码'/>
