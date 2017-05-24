@@ -17,6 +17,7 @@ import MemberImg from '../../../assets/img/account/member.png'
 import ArrowImg from '../../../assets/img/account/arrow.png'
 import LDAPImg from '../../../assets/img/account/ldap.png'
 import './style/LDAP.less'
+import Title from '../../Title'
 
 const FormItem = Form.Item
 const notification = new Notification()
@@ -244,6 +245,7 @@ class LDAP extends Component {
     } = lastSyncInfo || {}
     return (
       <div className='lastDetails'>
+        <Title title="集成企业目录" />
         <div className='title'>上次同步详情</div>
         <div className='container'>
           <div className='imgcomtainer'>

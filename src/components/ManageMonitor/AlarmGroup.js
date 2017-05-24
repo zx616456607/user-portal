@@ -22,6 +22,7 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { formatDate } from '../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
+import Title from '../Title'
 
 class AlarmGroup extends Component {
   constructor(props) {
@@ -38,7 +39,6 @@ class AlarmGroup extends Component {
      }
   }
   componentWillMount() {
-    document.title = '告警通知组 | 时速云'
     const { loadNotifyGroups } = this.props
     loadNotifyGroups()
   }
@@ -283,6 +283,7 @@ class AlarmGroup extends Component {
     return (
       <QueueAnim  className="alarmGroup">
         <div id="AlarmGroup" key="demo">
+          <Title title="告警通知组" />
           <div className='alarmGroupHeader'>
             <Button size="large" type="primary" onClick={()=> this.showAlramGroup()}>
               <i className="fa fa-plus" style={{marginRight:'5px'}}/>

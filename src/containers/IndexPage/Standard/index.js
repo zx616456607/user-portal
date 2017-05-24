@@ -7,14 +7,12 @@ import Admin from '../../../components/Home/Standard/Admin'
 import Ordinary from '../../../components/Home/Standard/Ordinary'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import Footer from '../../../components/Home/Footer'
+import Title from '../../../components/Title'
 
 class IndexPage extends Component {
   constructor(props) {
     super(props)
 
-  }
-  componentWillMount(){
-    document.title = '总览 | 时速云'
   }
   componentDidMount(){
     const {
@@ -33,6 +31,7 @@ class IndexPage extends Component {
       if((loginUser.info.role === ROLE_TEAM_ADMIN || loginUser.info.role === ROLE_SYS_ADMIN) && current.space.namespace !== 'default'){
         return (
           <div id="IndexPage">
+            <Title title="总览" />
             <Admin spaceName={current.space.spaceName}/>
             <Ordinary spaceName={current.space.spaceName} clusterName={current.cluster.clusterName}/>
             <Footer />
@@ -42,6 +41,7 @@ class IndexPage extends Component {
     }
     return (
       <div id="IndexPage">
+        <Title title="总览" />
         <Ordinary spaceName={current.space.spaceName} clusterName={current.cluster.clusterName}/>
         <Footer />
       </div>

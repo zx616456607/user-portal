@@ -90,3 +90,27 @@ export function updateLogo(body,callback) {
     return dispatch(fetchUpdateLogo(body,callback))
   }
 }
+
+export const GET_DEFAULT_INFO_REQUEST = 'GET_DEFAULT_INFO_REQUEST'
+export const GET_DEFAULT_INFO_SUCCESS = 'GET_DEFAULT_INFO_SUCCESS'
+export const GET_DEFAULT_INFO_FAILURE = 'GET_DEFAULT_INFO_FAILURE'
+
+function fetchDefaultInfo(type,callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_DEFAULT_INFO_REQUEST, GET_DEFAULT_INFO_SUCCESS, GET_DEFAULT_INFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/oem/${type}/default`,
+      options:{
+        method: 'PUT'
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function restoreDefault(type,callback) {
+  return (dispatch)=> {
+    return dispatch(fetchDefaultInfo(type,callback))
+  }
+}

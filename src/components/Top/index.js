@@ -20,7 +20,6 @@ export default class Top extends Component {
   }
 
   render(){
-    console.log(this.props.info)
     if (mode === standard) {
       return (
         <div id='Top'>

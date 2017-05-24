@@ -23,6 +23,7 @@ import { connect } from 'react-redux'
 import remove from 'lodash/remove'
 import { loadConfigGroup, configGroupName, createConfigGroup, deleteConfigGroup } from '../../actions/configs'
 import noConfigGroupImg from '../../assets/img/no_data/no_config.png'
+import Title from '../Title'
 
 
 class CollapseList extends Component {
@@ -114,7 +115,6 @@ class Service extends Component {
     }
   }
   componentWillMount() {
-    document.title = '服务配置 | 时速云'
     this.loadData()
   }
   loadData() {
@@ -208,6 +208,7 @@ class Service extends Component {
     return (
       <QueueAnim className="Service" type="right">
         <div id="Service" key="Service">
+          <Title title="服务配置" />
           <Button type="primary" size="large" onClick={(e) => this.configModal(true)}>
             <i className="fa fa-plus" /> 创建配置组
           </Button>

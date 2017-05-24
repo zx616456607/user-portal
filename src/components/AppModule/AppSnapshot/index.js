@@ -18,6 +18,7 @@ import { loadStorageList, SnapshotList, SnapshotRollback, SnapshotDelete } from 
 import { DEFAULT_IMAGE_POOL } from '../../../constants'
 import NotificationHandler from '../../../common/notification_handler'
 import { formatDate } from  '../../../common/tools'
+import Title from '../../Title'
 
 class Snapshot extends Component {
   constructor(props) {
@@ -75,7 +76,6 @@ class Snapshot extends Component {
   }
 
   componentWillMount() {
-    document.title = '快照 | 时速云'
     this.loadSnapshotList()
   }
 
@@ -392,6 +392,7 @@ class Snapshot extends Component {
     };
     return (
       <div id="appmanage_snapshot">
+        <Title title="快照" />
         <div className='appmanage_snapshot_header'>
           <Button icon="delete" size='large' loading={loading} onClick={this.handleDeleteSnapshots} disabled={DeleteSnapshotButton}>删除</Button>
           <span className='searchBox'>

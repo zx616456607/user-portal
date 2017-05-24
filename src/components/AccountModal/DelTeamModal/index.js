@@ -59,7 +59,7 @@ class DelTeamModal extends Component{
           if (current && current.cluster && current.cluster.clusterID) {
             clusterID = current.cluster.clusterID
           }
-          if (teamID != current.space.teamID) { 
+          if (teamID != current.space.teamID) {
             // other team was dissolved
             if (current) {
               if (current.space) {
@@ -167,6 +167,7 @@ class DelTeamModal extends Component{
   }
   render(){
     const { visible, balance, teamName, userName } = this.props
+    console.log(this.props,1111111111111111111)
     let delMessage = (
       <div>
         <Row className="tip delTip">
@@ -194,7 +195,7 @@ class DelTeamModal extends Component{
           </Col>
         </Row>
       </div>
-      
+
     )
     return (
       <Modal
@@ -219,7 +220,7 @@ class DelTeamModal extends Component{
           </Row>:
           <div></div>
         }
-        
+
       </Modal>
     )
   }
