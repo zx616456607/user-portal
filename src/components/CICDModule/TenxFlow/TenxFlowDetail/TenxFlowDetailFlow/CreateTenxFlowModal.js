@@ -1372,6 +1372,10 @@ let CreateTenxFlowModal = React.createClass({
                         <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio>
                         <Radio key='otherImage' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
                       </RadioGroup>
+                      <div className="customizeBaseImage">
+                       为方便管理，构建后的镜像可发布到镜像仓库（私有仓库）或第三方仓库中
+                     </div>
+                    <div style={{ clear: 'both' }} />
                     </FormItem>
                     <FormItem style={{ float: 'left', width:'120px' }}>
                       <Select {...validOtherImage} style={{display: this.state.showOtherImage ? 'inline-block' : 'none'}}>
@@ -1404,6 +1408,10 @@ let CreateTenxFlowModal = React.createClass({
                         <Radio key='time' value={'2'}><FormattedMessage {...menusText.ImageTagByTime} /></Radio>
                         <Radio key='other' value={'3'}><FormattedMessage {...menusText.ImageTagByOther} /></Radio>
                       </RadioGroup>
+                     <div className="customizeBaseImage">
+                      选择构建生成的Docker镜像的tag命名规范，支持以上三种命名规则
+                     </div>
+                    <div style={{ clear: 'both' }} />
                     </FormItem>
                     {
                       this.state.otherTag ? [
