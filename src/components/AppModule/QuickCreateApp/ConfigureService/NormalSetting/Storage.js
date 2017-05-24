@@ -97,8 +97,8 @@ const Storage = React.createClass({
   },
   onServiceTypeChange(value) {
     const { setReplicasToDefault } = this.props
+    setReplicasToDefault(value)
     if (value) {
-      setReplicasToDefault(true)
       this.setStorageTypeToDefault()
       this.setBindVolumesToDefault()
       this.getVolumes()
@@ -125,9 +125,9 @@ const Storage = React.createClass({
         { required: true },
       ],
     })
-    // const { storageTypes } = currentCluster
+    const { storageTypes } = currentCluster
     // for test
-    const storageTypes= [ 'rbd', 'hostPath' ]
+    // const storageTypes= [ 'rbd', 'hostPath' ]
     return (
       <FormItem key="storageType" className="floatRight storageType">
         <RadioGroup {...storageTypeProps}>
@@ -310,7 +310,7 @@ const Storage = React.createClass({
     })
     return (
       <Option
-        value={value}
+        key={value}
         disabled={disabled}
       >
         {name} {fsType} {size}

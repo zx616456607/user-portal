@@ -17,6 +17,7 @@ import {
 } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/AppAddServiceModal.less'
+import Title from '../../Title'
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -104,7 +105,6 @@ let AppAddServiceModal = React.createClass({
     this.props[currentType](this.props.registry)
   },
   componentWillMount() {
-    document.title = '添加应用 | 时速云'
     const { registry, unit} = this.props
     setTimeout(function() {
       document.getElementById('soImageName').focus()
@@ -178,7 +178,7 @@ let AppAddServiceModal = React.createClass({
       <div className="serverType">
         <div className="serverTitle">
           <span className={this.state.selectRepo == 'local' ? 'selected': ''} onClick={()=> this.selectRepo('local')}>官方镜像</span>
-          <span className={this.state.selectRepo == 'hub' ? 'selected': ''} onClick={()=> this.selectRepo('hub')}>镜像广场 | 时速云 </span>
+          <span className={this.state.selectRepo == 'hub' ? 'selected': ''} onClick={()=> this.selectRepo('hub')}>镜像广场 | {this.props.productName} </span>
         </div>
         {this.serverHeader()}
       </div>
@@ -213,6 +213,7 @@ let AppAddServiceModal = React.createClass({
     const { imageList, server, isFetching } = images
     return (
       <div id="AppAddServiceModal" key="AppAddServiceModal">
+        <Title title="添加应用" />
         <div className="operaBox">
           <span className="titleSpan">选择镜像</span>
           <Button type={this.state.currentImageType == "publicImages" ? "primary" : "ghost"} size="large" onClick={this.selectImageType.bind(this, "publicImages")}>
@@ -244,11 +245,14 @@ let AppAddServiceModal = React.createClass({
 function mapStateToProps(state, props) {
   const registry = DEFAULT_REGISTRY
   const { cluster, unit } =  state.entities.current
+    const {oemInfo} = state.entities.loginUser.info
+  const { productName } = oemInfo.company
   return {
     registry,
     imageList: state.images,
     cluster: cluster.clusterID,
-    unit
+    unit,
+    productName
   }
 }
 

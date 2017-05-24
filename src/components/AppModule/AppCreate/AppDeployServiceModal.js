@@ -30,7 +30,7 @@ import {
 import { ENTERPRISE_MODE } from '../../../../configs/constants'
 import { K8S_NODE_SELECTOR_KEY } from '../../../../constants'
 import { mode } from '../../../../configs/model'
-
+import Title from '../../Title'
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const DEFAULT_COMPOSE_TYPE = '2'
 const Deployment = require('../../../../kubernetes/objects/deployment')
@@ -342,7 +342,6 @@ let AppDeployServiceModal = React.createClass({
   componentWillMount() {
     noPortFlag = false;
     noArgsAndCommandFlag = false;
-    document.title = '部署应用 | 时速云'
     if (!this.props.scope.state.isCreate) {
       this.setForm()
     }
@@ -824,6 +823,7 @@ let AppDeployServiceModal = React.createClass({
 
     return (
       <div id="AppDeployServiceModal">
+        <Title title="部署应用" />
         <Form horizontal onSubmit={this.handleForm} >
           <NormalDeployBox
             scope={scope}

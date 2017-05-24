@@ -721,20 +721,24 @@ export const GET_TENX_FLOW_LIST_REQUEST = 'GET_TENX_FLOW_LIST_REQUEST'
 export const GET_TENX_FLOW_LIST_SUCCESS = 'GET_TENX_FLOW_LIST_SUCCESS'
 export const GET_TENX_FLOW_LIST_FAILURE = 'GET_TENX_FLOW_LIST_FAILURE'
 
-function fetchTenxFlowList(callback) {
+function fetchTenxFlowList(isBuildImage, callback) {
   return {
     [FETCH_API]: {
       types: [GET_TENX_FLOW_LIST_REQUEST, GET_TENX_FLOW_LIST_SUCCESS, GET_TENX_FLOW_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci-flows`,
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows?isBuildImage=${isBuildImage}`,
       schema: {},
     },
     callback: callback
   }
 }
 
-export function getTenxFlowList(callback) {
+export function getTenxFlowList(isBuildImage, callback) {
+  if(typeof isBuildImage == 'object') {
+    callback = isBuildImage
+    isBuildImage = 0
+  }
   return (dispatch, getState) => {
-    return dispatch(fetchTenxFlowList(callback))
+    return dispatch(fetchTenxFlowList(isBuildImage, callback))
   }
 }
 
@@ -782,6 +786,32 @@ export function deleteTenxFlowSingle(flowId, callback) {
     return dispatch(postDelTenxFlow(flowId, callback))
   }
 }
+
+export const DELETE_TENX_FLOW_REQUEST = 'DELETE_TENX_FLOW_REQUEST'
+export const DELETE_TENX_FLOW_SUCCESS = 'DELETE_TENX_FLOW_SUCCESS'
+export const DELETE_TENX_FLOW_FAILURE = 'DELETE_TENX_FLOW_FAILURE'
+
+function delTenxFlow(flowId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_TENX_FLOW_REQUEST, DELETE_TENX_FLOW_SUCCESS, DELETE_TENX_FLOW_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/flowId?flowId=${flowId}`,
+      schema: {},
+      options: {
+        method: 'DELETE'
+      }
+    },
+    callback: callback
+  }
+}
+
+export function deleteTenxFlow(flowId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(delTenxFlow(flowId, callback))
+  }
+}
+
+
 
 export const CREATE_SINGLE_TENX_FLOW_REQUEST = 'CREATE_SINGLE_TENX_FLOW_REQUEST'
 export const CREATE_SINGLE_TENX_FLOW_SUCCESS = 'CREATE_SINGLE_TENX_FLOW_SUCCESS'

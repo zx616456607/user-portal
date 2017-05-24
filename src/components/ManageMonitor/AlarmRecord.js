@@ -22,6 +22,7 @@ const Option = Select.Option
 import { STANDARD_MODE } from '../../../configs/constants'
 import { mode } from '../../../configs/model'
 const standardFlag = mode === STANDARD_MODE
+import Title from '../Title'
 
 class AlarmRecord extends Component {
   constructor(props) {
@@ -63,7 +64,6 @@ class AlarmRecord extends Component {
     this.props.loadRecords(query)
   }
   componentWillMount() {
-    document.title = '告警记录 | 时速云'
     const { loadRecordsFilters, clusterID, location } = this.props
     const { targetType, targetName, strategyName } = location.query
     this.setState({
@@ -250,7 +250,8 @@ class AlarmRecord extends Component {
     return (
       <QueueAnim className="AlarmRecord" type="right">
         <div id="AlarmRecord" key="AlarmRecord">
-          <div className="topRow">
+          <Title title="告警记录" />
+        <div className="topRow">
         <Select style={{ width: 150 }} getPopupContainer={()=> document.getElementById('AlarmRecord')}
           size="large"
           showSearch

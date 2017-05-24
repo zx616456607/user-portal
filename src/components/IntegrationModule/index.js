@@ -19,6 +19,7 @@ import IntegrationDetail from './IntegrationDetail'
 import CreateVSphereModal from './CreateVSphereModal'
 import vmwareImg from '../../assets/img/appstore/vmware.png'
 import cephImg from '../../assets/img/appstore/ceph.png'
+import Title from '../Title'
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
 
@@ -95,7 +96,6 @@ class Integration extends Component {
   }
 
   componentWillMount() {
-    document.title = '集成中心 | 时速云';
     const { getAllIntegration } = this.props;
     getAllIntegration();
   }
@@ -225,7 +225,8 @@ class Integration extends Component {
     }
     return (
       <QueueAnim className='IntegrationAnimateBox' key='IntegrationAnimateBox'>
-        <div id='IntegrationList'>
+        <div id='IntegrationList' key="integration">
+          <Title title="集成中心" />
           <Alert message={formatMessage(menusText.tooltips)} type='info' />
           {/*<div className='operaBox'>
             <ButtonGroup size='large'>

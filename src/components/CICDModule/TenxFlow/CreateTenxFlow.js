@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Spin } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Spin, Alert } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -18,6 +18,7 @@ import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../common/notification_handler'
 import './style/CreateTenxFlow.less'
 import { browserHistory } from 'react-router';
+import Title from '../../Title'
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
@@ -80,6 +81,10 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.CreateTenxFlow.submit',
     defaultMessage: '立即创建并配置流程定义',
   },
+  buildImageToolTip: {
+    id: 'CICD.Tenxflow.CreateBuildImage.tooltip',
+    defaultMessage: '创建构建镜像任务前需创建一个TenxFlow，请填写TenxFlow名称，可选择邮件通知 ',
+  }
 })
 
 let CreateTenxFlow = React.createClass({
@@ -91,9 +96,6 @@ let CreateTenxFlow = React.createClass({
       currentTenxFlow: null,
       currentYaml: null
     }
-  },
-  componentWillMount() {
-    document.title = 'TenxFlow | 时速云';
   },
   nameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
@@ -111,7 +113,7 @@ let CreateTenxFlow = React.createClass({
           callback([new Error(errorMsg)]);
         }
       });
-      if(!flag) {      
+      if(!flag) {
         callback();
       }
     } else {
@@ -169,7 +171,7 @@ let CreateTenxFlow = React.createClass({
     if(this.state.otherEmail && !!!value){
        callback([new Error('请输入邮件通知地址')]);
     }else{
-      if(this.state.otherEmail) {        
+      if(this.state.otherEmail) {
         let emailList = value.split(',');
         let emailCheck = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
         let flag = true;
@@ -179,9 +181,9 @@ let CreateTenxFlow = React.createClass({
             callback([new Error('请输入正确邮件地址')]);
           }
         });
-        if(flag) {        
+        if(flag) {
           callback();
-        }      
+        }
       } else {
         callback();
       }
@@ -203,7 +205,7 @@ let CreateTenxFlow = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope, createTenxFlowSingle } = this.props;
+    const { scope, createTenxFlowSingle, buildImage } = this.props;
     const _this = this;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
@@ -233,7 +235,7 @@ let CreateTenxFlow = React.createClass({
             'success_notification': values.checkThird,
             'failed_notification': values.checkForth
           }
-        }       
+        }
         body = {
           'name': values.name,
           'init_type': parseInt(values.radioFlow),
@@ -248,12 +250,17 @@ let CreateTenxFlow = React.createClass({
           'notification_config': null
         }
       }
+      body.isBuildImage = buildImage ? 1 : 0
       createTenxFlowSingle(body, {
         success: {
           func: (res) => {
             scope.setState({
               createTenxFlowModal: false
             });
+            if(buildImage) {
+              browserHistory.push(`/ci_cd/build_image/tenx_flow_build?${res.data.flowId}`)
+              return
+            }
             browserHistory.push(`/ci_cd/tenx_flow/tenx_flow_build?${res.data.flowId}`)
             },
           isAsync: true
@@ -283,7 +290,7 @@ let CreateTenxFlow = React.createClass({
           },
           isAsync: true
         }
-      });    
+      });
     });
   },
   onChangeYamlEditor(e) {
@@ -331,6 +338,8 @@ let CreateTenxFlow = React.createClass({
     });
     return (
       <div id='CreateTenxFlow' key='CreateTenxFlow'>
+        {this.props.buildImage ? <Alert message={<FormattedMessage {...menusText.buildImageToolTip} />} type='info' /> : ''}
+        <Title title="TenxFlow" />
       <Form horizontal>
         <div className='commonBox'>
           <div className='title'>

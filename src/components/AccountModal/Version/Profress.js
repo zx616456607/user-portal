@@ -16,6 +16,7 @@ import "./style/Profress.less"
 import { browserHistory } from 'react-router'
 import { getEdition } from '../../../actions/user_preference'
 import { formatDate, calcuDate } from '../../../common/tools'
+import Title from '../../Title'
 
 class VersionProfress extends Component {
   constructor(props) {
@@ -26,7 +27,6 @@ class VersionProfress extends Component {
   }
 
   componentWillMount() {
-    document.title = '版本 | 时速云'
     const { getEdition } = this.props
     getEdition()
   }
@@ -57,6 +57,7 @@ class VersionProfress extends Component {
     return (
       <QueueAnim key='VersionProfressAnim'>
         <div id = 'VersionProfress' key='VersionProfress'>
+          <Title title="版本" />
           <div className='bigTitle'>专业版<span>￥99/月</span></div>
           <Card className='topCard'>
             {/*<div className='timeBox'>

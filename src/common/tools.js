@@ -136,6 +136,23 @@ export function toQuerystring(obj, sep, eq) {
   }
 }
 
+export function parseQueryStringToObject(querystring) {
+  if(!querystring) {
+    return {}
+  }
+  const queryObj = {}
+  querystring = querystring.trim()
+  if(querystring.indexOf('?') == 0) {
+    querystring = querystring.substr(1)
+  }
+  const queryArray = querystring.split('&')
+  queryArray.forEach(item => {
+    let t = item.split('=')
+    queryObj[t[0]] = t[1]
+  })
+  return queryObj
+}
+
 export function getCookie(cName) {
   if (document.cookie.length === 0) {
     return null
@@ -357,8 +374,8 @@ export function parseCpuToNumber(cpu) {
  * @returns
  */
 export function cpuFormat(memory, resources) {
-  let cpuLimits = parseCpuToNumber(resources.limits.cpu)
-  let cpuRequests = parseCpuToNumber(resources.requests.cpu)
+  let cpuLimits = parseCpuToNumber(resources.limits ? resources.limits.cpu : null)
+  let cpuRequests = parseCpuToNumber(resources.requests ? resources.requests.cpu : null)
   if (enterpriseFlag) {
     if (cpuLimits && cpuRequests) {
       return `${cpuRequests}~${cpuLimits} CPU`
@@ -392,9 +409,9 @@ export function cpuFormat(memory, resources) {
 }
 
 export function memoryFormat(resources) {
-  let memoryLimits = resources.limits.memory
-  let memoryRequests = resources.requests.memory
-  if (!memoryLimits) {
+  let memoryLimits = resources.limits ? resources.limits.memory : null
+  let memoryRequests = resources.requests ? resources.requests.memory : null
+  if (!memoryLimits || !memoryRequests) {
     return '-'
   }
   memoryLimits = memoryLimits.replace('i', '')

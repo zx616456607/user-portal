@@ -112,7 +112,7 @@ const rootRoutes = {
       path: 'ci_cd',
       component: require('../containers/CICD').default,
       indexRoute: {
-        component: require('../components/CICDModule/CodeStore').default,
+        component: require('../components/CICDModule/BuildImage').default,
       },
       getChildRoutes: (location, cb) => {
         require.ensure([], function (require) {

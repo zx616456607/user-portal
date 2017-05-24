@@ -27,7 +27,7 @@ export default class ProgressList extends Component {
         >
         <div>
           <div className="blockBox"></div>
-          {createModel == "fast" ? [
+          {createModel == "quick" ? [
             <QueueAnim className="ProgressList" key="ProgressList" type="left">
               <div key="a">
                 <div className="firstStep step">
@@ -124,7 +124,7 @@ ProgressList.propTypes = {
 //check create model for show different step
 function currentShowSecondStep(pathname, step) {
   let appStore = new RegExp("app_store", "gi");
-  let serviceList = new RegExp("fast_create", "gi");
+  let serviceList = new RegExp("quick_create", "gi");
   //check current step is setting compose file?
   let composeFile = new RegExp("compose_file", "gi");
   if (composeFile.test(pathname)) {

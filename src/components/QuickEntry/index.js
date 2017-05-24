@@ -19,15 +19,16 @@ import GuideImg from '../../assets/img/quickentry/guide.png'
 import APIImg from '../../assets/img/quickentry/API.png'
 import QuestionImg from '../../assets/img/quickentry/question.png'
 import EnterpriseImg from '../../assets/img/quickentry/enterprise.png'
-import { browserHistory } from 'react-router'
+import { browserHistory, Link } from 'react-router'
 import InfrastructureImg from '../../assets/img/quickentry/infrastructure.png'
+import DeployEnvModal from '../DeployEnvModal'
 
 class QuickEntry extends Component {
 	constructor(props){
     super(props)
     this.handleDatabase = this.handleDatabase.bind(this)
     this.state = {
-
+      deployEnvModalVisible: false,
     }
   }
 
@@ -45,19 +46,21 @@ class QuickEntry extends Component {
           </div>
           <div className='main'>
             <Row>
-              <Col span={8} className='olllllllll'>
-                <div className="item app">
+              <Col span={8} className='CreateApp'>
+                <div className="item app" onClick={() => this.setState({ deployEnvModalVisible: true })}>
                   <img src={AppImg} alt="" className='img'/>
                   <div className='middle'>创建一个应用</div>
                   <div>通过镜像仓库快速创建一个应用</div>
                 </div>
               </Col>
-              <Col span={8}>
-                <div className="item image">
-                  <img src={ImageImg} alt="" className='img'/>
-                  <div className='middle'>构建一个镜像</div>
-                  <div>无需创建TenXFLOW快速构建一个镜像</div>
-                </div>
+              <Col span={8} className='CreateImage'>
+                <Link to="/ci_cd">
+                  <div className="item image">
+                    <img src={ImageImg} alt="" className='img' />
+                    <div className='middle'>构建一个镜像</div>
+                    <div>无需创建TenxFlow快速构建一个镜像</div>
+                  </div>
+                </Link>
               </Col>
               <Col span={8}>
                 <div className="item database" onClick={this.handleDatabase}>
@@ -79,7 +82,7 @@ class QuickEntry extends Component {
               <Row>
                 <Col span={8}>
                   <a href="http://docs.tenxcloud.com/developer" target="_blank">
-                    <div className="item bordernone">
+                    <div className="item bordernone docker">
                       <img src={DockerImg} alt=""/>
                       <div className='middle'>开发者Docker之旅</div>
                       <div className='bottom'>包括实践教程、最佳案例、技术解析、开发工具等</div>
@@ -97,7 +100,7 @@ class QuickEntry extends Component {
                 </Col>
                 <Col span={8}>
                   <a href="http://docs.tenxcloud.com/guide" target="_blank">
-                    <div className="item">
+                    <div className="item guide">
                       <img src={GuideImg} alt=""/>
                       <div className='middle'>用户指南</div>
                       <div className='bottom'>帮助开发者更快、更好、更高效使用平台的产品</div>
@@ -108,7 +111,7 @@ class QuickEntry extends Component {
               <Row>
                 <Col span={8}>
                   <a href="https://api-doc.tenxcloud.com/" target="_blank">
-                    <div className="item bordertop bordernone">
+                    <div className="item bordertop bordernone APIdocument">
                       <img src={APIImg} alt=""/>
                       <div className='middle'>API文档</div>
                       <div className='bottom'>通过API的方式与时速云容器服务平台进行交互</div>
@@ -126,7 +129,7 @@ class QuickEntry extends Component {
                 </Col>
                 <Col span={8}>
                   <a href="http://docs.tenxcloud.com/enterprise" target="_blank">
-                    <div className="item bordertop">
+                    <div className="item bordertop enterprise">
                       <img src={EnterpriseImg} alt=""/>
                       <div className='middle'>企业版</div>
                       <div className='bottom'>为帮助企业快速落地容器服务，我们提供了企业版Lite和企业版Pro</div>
@@ -145,7 +148,7 @@ class QuickEntry extends Component {
               <div className='legend'>
                 <div className='container'>
                   <Tooltip title="运行在节点上的基于Docker镜像创建的运行时的实例">
-                    <div className="item"><i className="fa fa-cube margin" aria-hidden="true"></i><span className='text'>Container: 容器</span></div>
+                    <div className="item"><i className="fa fa-cube margin item_container" aria-hidden="true"></i><span className='text'>Container: 容器</span></div>
                   </Tooltip>
                   <Tooltip title="由N个相同镜像和配置定义的容器组成">
                     <div className="item"><i className="fa fa-cubes margin" aria-hidden="true"></i><span className='text'>Service: 服务</span></div>
@@ -166,6 +169,12 @@ class QuickEntry extends Component {
             </div>
           </div>
         </div>
+        <DeployEnvModal
+          title="选择部署环境"
+          visible={this.state.deployEnvModalVisible}
+          onCancel={() => this.setState({ deployEnvModalVisible: false })}
+          onOk={() => browserHistory.push('/app_manage/app_create/quick_create')}
+        />
       </div>
     )
   }

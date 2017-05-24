@@ -25,19 +25,25 @@
   .quickentry{
     .main{
       text-align: center;
+      .CreateImage{
+        a{
+          color: #666;
+        }
+      }
       .item{
         height:220px;
         background: white;
         border-radius: 4px;
         cursor:pointer;
-        padding-top: 35px;
+        padding-top: 36px;
+        border:1px solid #ffffff;
         .img{
           height:85px;
         }
         .middle{
           font-size: 16px;
           color: #44b3fa;
-          margin: 20px 0 6px 0;
+          margin: 24px 0 6px 0;
         }
       }
       .item:hover{
@@ -61,21 +67,34 @@
         float: left;
         width:50%;
         height:460px;
+        @media(max-width:1250px){
+          height: 480px;
+        }
+        @media(max-width:1120px){
+          height:510px;
+        }
       }
       .leftbox{
         border-right:1px solid #e9edf0;
         padding: 40px;
         .item{
           height:190px;
+          @media(max-width:1250px){
+            height: 200px;
+          }
+          @media(max-width:1120px){
+            height: 215px;
+          }
           border:1px solid #e9edf0;
-          border-radius: 4px;
+          //border-radius: 4px;
           cursor:pointer;
           text-align: center;
           padding-top: 20px;
           .middle{
             color: #47b4f9;
             font-size: 14px;
-            padding-top: 5px;
+            padding-top: 10px;
+            padding-bottom: 8px;
           }
           .bottom{
             color:#737373;
@@ -86,14 +105,26 @@
           }
         }
         .item:hover{
-          border:1px solid #46b2fa;
+          border-color:#46b2fa;
           background: #f9fdff;
         }
+        .docker{
+          border-radius: 4px 0 0 0;
+        }
+        .guide{
+          border-radius: 0 4px 0 0;
+        }
+        .APIdocument{
+          border-radius: 0 0 0 4px;
+        }
+        .enterprise{
+          border-radius: 0 0 4px 0;
+        }
         .bordernone{
-          border-right: none;
+          border-right-color: #ffffff;
         }
         .bordertop{
-          border-top:none;
+          border-top-color:#ffffff;
         }
       }
       .rightbox{
@@ -116,8 +147,9 @@
             @media(max-width:1160px){
               padding-top: 35px;
             }
-            @media(max-width: 1024px){
-              padding-top: 55px;
+
+            @media(max-width: 1120px){
+              padding-top: 65px;
             }
 
             .img{
@@ -133,6 +165,9 @@
           top:350px;
           left:30px;
           clear: both;
+          @media(max-width:1120px){
+            top:400px;
+          }
           .container{
             .item{
               float: left;
@@ -142,6 +177,9 @@
               cursor: pointer;
               .margin{
                 font-size: 15px;
+              }
+              .item_container{
+                padding:0 2px 0 1px;
               }
               .container{
                 margin-right: 6px;

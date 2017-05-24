@@ -16,6 +16,7 @@ const licenseController = require('../controllers/license')
 const adminController = require('../controllers/admin')
 const middlewares = require('../services/middlewares')
 const alertController = require('../controllers/alert')
+const oemController = require('../controllers/oem_info')
 
 module.exports = function (Router) {
   const router = new Router({})
@@ -30,8 +31,11 @@ module.exports = function (Router) {
   router.get('/captcha/:captcha/verify', authController.checkCaptchaIsCorrect)
   // Notfound
   router.get('/notfound', function* () {
-    yield this.render(global.indexHtml, { title: 'Page not found | 时速云', body: '' })
+    yield this.render(global.indexHtml, { title: 'Page not found', body: '' })
   })
+
+  // oem info
+  router.get('/oem/info', oemController.getOEMInfo)
 
   // License
   router.get('/api/v2/licenses/merged', licenseController.checkLicense)

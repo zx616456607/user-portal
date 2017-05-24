@@ -169,10 +169,16 @@ class SelectImage extends Component {
       width: '10%',
       render: (text, row)=> {
         return (
-          <Button type="primary" size="large" onClick={this.onDeploy.bind(this, row.name, server)}>
-            部署&nbsp;
-            <i className="fa fa-arrow-circle-o-right" />
-          </Button>
+          <div className="deployBox">
+            <Button
+              className="deployBtn"
+              type="primary" size="large"
+              onClick={this.onDeploy.bind(this, row.name, server)}
+            >
+              部署&nbsp;
+              <i className="fa fa-arrow-circle-o-right" />
+            </Button>
+          </div>
         )
       }
     }]
@@ -246,7 +252,7 @@ class SelectImage extends Component {
                   </RadioGroup>
                   {this.renderImageList(imageData)}
                 </TabPane>
-                <TabPane tab="镜像广场 | 时速云" key="hub">
+                <TabPane tab={`镜像广场 | ${this.props.productName}`} key="hub">
                   {noTabimageList}
                 </TabPane>
               </Tabs>
@@ -262,11 +268,14 @@ class SelectImage extends Component {
 function mapStateToProps(state, props) {
   const registry = DEFAULT_REGISTRY
   const { cluster, unit } =  state.entities.current
+  const { oemInfo } = state.entities.loginUser.info
+  const { productName } = oemInfo.company
   return {
     registry,
     images: state.images,
     cluster: cluster.clusterID,
-    unit
+    unit,
+    productName
   }
 }
 

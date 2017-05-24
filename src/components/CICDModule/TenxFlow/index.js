@@ -28,6 +28,7 @@ import findIndex from 'lodash/findIndex'
 import NotificationHandler from '../../../common/notification_handler'
 import Socket from '../../Websocket/socketIo'
 import PopTabSelect from '../../PopTabSelect'
+import Title from '../../Title'
 
 const PopTab = PopTabSelect.Tab;
 const PopOption = PopTabSelect.Option;
@@ -372,7 +373,6 @@ class TenxFlowList extends Component {
   }
 
   componentWillMount() {
-    document.title = 'TenxFlow | 时速云';
     const { getTenxFlowList } = this.props;
     const self = this
     this.loadData()
@@ -560,6 +560,7 @@ class TenxFlowList extends Component {
       <QueueAnim className='TenxFlowList'
         type='right'
       >
+        <Title title="TenxFlow" />
         <div id='TenxFlowList' key='TenxFlowList'>
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
           <div className='operaBox'>

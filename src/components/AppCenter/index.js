@@ -22,6 +22,7 @@ import './style/ImageCenter.less'
 import { LoadOtherImage, addOtherStore, getImageDetailInfo, deleteOtherImage, getAppCenterBindUser } from '../../actions/app_center'
 import findIndex from 'lodash/findIndex'
 import NotificationHandler from '../../common/notification_handler'
+import Title from '../Title'
 
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;
@@ -381,7 +382,6 @@ class ImageCenter extends Component {
   }
 
   componentDidMount() {
-    document.title = '镜像仓库 | 时速云'
     this.props.LoadOtherImage({
       success: {
         func: (res) => {
@@ -440,6 +440,7 @@ class ImageCenter extends Component {
         type='right'
         >
         <div id='ImageCenter' key='ImageCenterBox'>
+          <Title title="镜像仓库" />
           <Tabs
             key='ImageCenterTabs'
             defaultActiveKey='1'

@@ -94,15 +94,15 @@ let Activation = React.createClass({
         { validator: this.checkName },
       ],
     })
-
+    const { result } = this.props
     return (
       <div id="LoginBg">
-        <Top/>
+        <Top loginLogo={result.loginLogo}/>
         <div className="login">
           <div className="loginContent">
           <Row style={{ textAlign: 'center' }}>
             <span className='logoLink'>
-              <div className='logTitle'>时速云</div>
+              <div className='logTitle'>{result.company.productName}</div>
               <div className=''>技术领先的容器云计算服务商</div>
             </span>
           </Row>
@@ -143,8 +143,11 @@ let Activation = React.createClass({
         </div>
         </div>
         <div className="footer">
-          © 2017 北京云思畅想科技有限公司 &nbsp;|&nbsp; 时速云企业版 v2.1.0
-          </div>
+         { result.company.visible ?
+            result.company.name
+          :null
+          }
+        </div>
       </div>
     )
   }
@@ -153,8 +156,10 @@ let Activation = React.createClass({
 function mapStateToProps(state, props) {
   const defaultState = {data: {'platformid': ''}}
   const {data} = state.license.platform.result || defaultState
+  const { result } = state.personalized.info
   return {
-   platform: data
+   platform: data,
+   result
   }
 }
 

@@ -16,6 +16,8 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getOperationLogList } from '../../actions/manage_monitor'
 import { formatDate } from '../../common/tools.js'
 import './style/OperationalAudit.less'
+import Title from '../Title'
+
 import NotificationHandler from '../../common/notification_handler'
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
@@ -903,7 +905,6 @@ class OperationalAudit extends Component {
   componentWillMount() {
     const { getOperationLogList } = this.props;
     const { formatMessage } = this.props.intl;
-    document.title = formatMessage(menusText.headTitle);
     const _this = this;
     let operationalList = returnOperationList(this)
     this.setState({
@@ -1412,6 +1413,7 @@ class OperationalAudit extends Component {
     return (
       <QueueAnim className='operationalAuditBox' type='right'>
         <div id='operationalAudit' key='operationalAudit'>
+          <Title title="操作审计"/>
           <div className='operaBox'>
             <Cascader
               options={resourceOption}

@@ -29,6 +29,7 @@ import { parseAmount } from '../../../../common/tools'
 import moment from 'moment'
 import cloneDeep from 'lodash/cloneDeep'
 import { loadUserTeamspaceList } from '../../../../actions/user'
+import Title from '../../../Title'
 
 //团队列表组件
 let TeamTable = React.createClass({
@@ -520,7 +521,6 @@ class MyTeam extends Component {
     })
   }
   componentWillMount() {
-    document.title = '我的团队 | 时速云'
     this.props.loadUserTeamList('default', {
       page: 1,
       size: 10,
@@ -550,6 +550,7 @@ class MyTeam extends Component {
     }
     return (
       <div id="TeamManage">
+        <Title title="我的团队" />
         <Alert message={`团队，由若干个成员组成的一个集体, 可等效于公司的部门、项目组、或子公司，
           包含『团队空间』这一逻辑隔离层，以实现对应您企业内部各个不同项目，或者不同逻辑组在云平台上操作对象的隔离， 团队管理员 (创建者) 可管理团队、邀请新成员、解散团队、移除成员; 团队成员 (参与者) 可退出团队。`}
           type="info"

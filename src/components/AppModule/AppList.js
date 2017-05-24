@@ -30,6 +30,7 @@ import NotificationHandler from '../../common/notification_handler'
 import CreateAlarm from './AlarmModal'
 import CreateGroup from './AlarmModal/CreateGroup'
 import DeployEnvModal from '../DeployEnvModal'
+import Title from '../Title'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -450,7 +451,6 @@ class AppList extends Component {
   }
 
   componentWillMount() {
-    document.title = '应用列表 | 时速云'
     this.loadData()
   }
 
@@ -905,6 +905,7 @@ class AppList extends Component {
         className='AppList'
         type='right'
         >
+        <Title title="应用列表"/>
         <div id='AppList' key='AppList'>
           <div className='operationBox'>
             <div className='leftBox'>
@@ -914,7 +915,10 @@ class AppList extends Component {
                 </Button>
               </Link>
               <Button type='ghost' size='large' onClick={() => this.setState({ deployEnvModalVisible: true })}>
-                <i className="fa fa-plus" />快速创建
+                <svg className='rocket'>
+                  <use xlinkHref='#rocket' />
+                </svg>
+                快速创建
               </Button>
               <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!runBtn}>
                 <i className='fa fa-play' />启动

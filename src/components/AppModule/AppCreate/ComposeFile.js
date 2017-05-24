@@ -215,7 +215,7 @@ class ComposeFile extends Component {
   }
   confirm() {
     this.setState({ visible: false });
-    browserHistory.push('/app_manage/app_create/fast_create')
+    browserHistory.push('/app_manage/app_create/quick_create')
   }
   cancel() {
     this.setState({ visible: false })

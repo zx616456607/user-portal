@@ -56,15 +56,18 @@ class ClusterPlugin extends Component{
       return memory.toFixed(0) + size
     }
   }
-  getStatusColor(status) {
+  getStatusColor(status, name) {
     switch(status) {
       case 'OK': {
         return '#33b867'
       }
       case 'Warning': {
+        if(name == 'elasticsearch-logging') {
+          return '#33b867'
+        }
         return '#f23e3f'
       }
-      default: 
+      default:
         return 'orange'
     }
   }
@@ -211,7 +214,7 @@ class ClusterPlugin extends Component{
             <Link>{plugin.name}</Link>
           </div>
           <div className='status commonTitle'>
-            <span  style={{color: self.getStatusColor(plugin.status.message)}}><i className='fa fa-circle' />&nbsp;&nbsp;{self.getStatusMessage(plugin.status.message)}</span>
+            <span  style={{color: self.getStatusColor(plugin.status.message, plugin.name)}}><i className='fa fa-circle' />&nbsp;&nbsp;{self.getStatusMessage(plugin.status.message)}</span>
           </div>
           <div className='resources commonTitle'>
             <div style={{lineHeight:'40px',height:30}}>CPU：{self.convertCPU(plugin.resourceRange.request.cpu)}</div>
@@ -236,7 +239,15 @@ class ClusterPlugin extends Component{
     })
     form.resetFields()
   }
-
+  setInputCPU(value) {
+    const notify = new NotificationHandler()
+    if(value > this.state.maxCPU) {
+      this.setState({ inputCPU: this.state.maxCPU})
+      notify.error('输入的CPU数值已超出节点最大数值')
+      return
+    }
+    this.setState({ inputCPU: value})
+  }
   render(){
     const { clusterPlugins, form } = this.props
     if(clusterPlugins.isFetching) {
@@ -301,6 +312,13 @@ class ClusterPlugin extends Component{
       rules: [
         {
           validator: (rule, value, callback) => {
+            if(value > this.state.maxMem) {
+              const notify = new NotificationHandler()
+              form.setFieldsValue({
+                pluginMem: this.state.maxMem
+              })
+              notify.error('输入的内存数值超过所选节点最大内存')
+            }
             return callback()
           }
         }
@@ -313,6 +331,13 @@ class ClusterPlugin extends Component{
       rules: [
         {
           validator: (rule, value, callback) => {
+            if(value > this.state.maxCPU) {
+              const notify = new NotificationHandler()
+              form.setFieldsValue({
+                pluginCPU: this.state.maxCPU
+              })
+              notify.error('输入的CPU数值超过所选节点最大CPU')
+            }
             return callback()
           }
         }
@@ -347,9 +372,9 @@ class ClusterPlugin extends Component{
                 onOk={() => this.resetPlugin() }
                 onCancel={() => this.setState({reset:false})}
                 >
-      <p>确定重新部署 {this.state.currentPlugin ? this.state.currentPlugin.name : ''} 插件吗?</p>
-                </Modal>
-                  <Modal
+                <div className="confirmText">确定重新部署 {this.state.currentPlugin ? this.state.currentPlugin.name : ''} 插件吗?</div>
+              </Modal>
+              <Modal
                 title="设置节点及资源限制"
                 wrapClassName="vertical-center-modal"
                 visible={this.state.setModal}
@@ -360,25 +385,23 @@ class ClusterPlugin extends Component{
                 <p>设置为 <span style={{fontWeight:'bold'}}>0</span> 时表示无限制；设置时请参考所选节点的资源上限设置该插件的资源限制；</p></div>
                  <Form.Item
                   id="select"
-                  label="选择节点"
-                  labelCol={{ span: 3 }}
-                  wrapperCol={{ span: 21 }}
                   style={{borderBottom:'1px solid #ededed',paddingBottom:'30px'}}
                 >
-                  <Select {...selectNode} size="large" style={{width: 200,marginLeft:'20px'}}>
+                  <span className="setLimit">选择节点</span>
+                  <Select {...selectNode} size="large" style={{width: 200}}>
                     { this.getSelectItem()}
                   </Select>
                 </Form.Item>
                 <Form.Item>
                  <span className="setLimit">设置限制</span><span>CPU</span><Button className="recovery" type="ghost" size="small" onClick={() => this.getDefaultConfig()}><Icon type="setting" />恢复默认设置</Button>
                   <p style={{marginLeft:'70px'}}>
-                   <InputNumber {...pluginCPU} style={{width: 200}} min={0} max={this.state.maxCPU} step={0.1}/> 核
+                   <InputNumber {...pluginCPU}  style={{width: 200}} min={0} step={0.1}/> 核
                   </p>
                </Form.Item>
                <Form.Item>
                   <span style={{marginLeft:'70px'}}>内存</span>
                   <p style={{marginLeft: '70px'}}>
-                  <InputNumber {...pluginMem} style={{width: 200}} min={0} step={1} max={this.state.maxMem}/> M
+                  <InputNumber {...pluginMem} style={{width: 200}} min={0} step={1} /> M
                   </p>
                 </Form.Item>
                 </Modal>

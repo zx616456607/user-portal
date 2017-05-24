@@ -244,3 +244,10 @@ exports.updateClusterPlugins = function* () {
   const result = yield api.updateBy([cluster, 'plugins', pluginName], null, requestBody)
   this.body = result
 }
+
+exports.getClusterNetworkMode = function*() {
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.getBy([cluster, 'network'])
+  this.body = result.data
+}

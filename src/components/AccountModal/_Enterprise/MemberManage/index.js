@@ -21,6 +21,7 @@ import NotificationHandler from '../../../../common/notification_handler'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../../constants'
 import MemberRecharge from '../Recharge'
 import { MAX_CHARGE }  from '../../../../constants'
+import Title from '../../../Title'
 
 const confirm = Modal.confirm
 
@@ -137,29 +138,49 @@ let MemberTable = React.createClass({
     // member select filter type (0=>普通成员，1=>团队管理员，3=> 系统管理员)
     // return number
     let filter =''
-    if (filters.style.length === 1) {
-      return filter = `role__eq,${filters.style[0]}`
-    }
+    let isSetFilter = false
     let protoDate = ['0','1','2']
-    if (filters.style.length == 2) {
-      for (let i=0;i < protoDate.length; i++) {
-        let item = protoDate[i]
-        if(filters.style.indexOf(item) < 0){
-          filter = `role__neq,${item}`
-          break
+    let typeData = ['1', '2']
+    if(filters.style) {
+      if (filters.style.length === 1) {
+        isSetFilter = true
+         filter = `role__eq,${filters.style[0]}`
+      }
+      if (filters.style.length == 2) {
+        for (let i=0;i < protoDate.length; i++) {
+          let item = protoDate[i]
+          if(filters.style.indexOf(item) < 0){
+            isSetFilter = true
+            filter = `role__neq,${item}`
+            break
+          }
         }
       }
+    }
+    if(filters.type) {
+      if(filters.type.length == 1) {
+        if(filter) {
+          filter +=`,type__eq,${filters.type[0]}`
+        } else {
+          filter =`type__eq,${filters.type[0]}`
+        }
+
+        isSetFilter = true
+      }
+    }
+    if(isSetFilter) {
       return filter
     }
-    return protoDate
+    return protoDate.concat(typeData)
   },
   onTableChange(pagination, filters, sorter) {
     // 点击分页、筛选、排序时触发
-    if (!filters.style) {
+    if (!filters.style && !filters.type) {
       return
     }
-    let styleFilterStr = filters.style.toString()
-    if (styleFilterStr === this.styleFilter) {
+    let styleFilterStr = filters.style ? filters.style.toString() : ''
+    let typeFilterStr = filters.type ?  filters.type.toString() : ''
+    if (styleFilterStr === this.styleFilter && typeFilterStr == this.typeFilterStr) {
       return
     }
     const { scope } = this.props
@@ -178,6 +199,7 @@ let MemberTable = React.createClass({
     })
     loadUserList(query)
     this.styleFilter = styleFilterStr
+    this.typeFilterStr = typeFilterStr
   },
   render() {
     let { sortedInfo, filteredInfo, sort } = this.state
@@ -232,6 +254,10 @@ let MemberTable = React.createClass({
         { text: '系统管理员', value: 2 }
       ]
     }
+
+    let ldapFileter = [ { text: '是', value: 2 },{ text: '否', value: 1 }]
+
+
     const columns = [
       {
         title: (
@@ -347,6 +373,17 @@ let MemberTable = React.createClass({
         width: '10%',
       },
       {
+        title: 'LDAP',
+        dataIndex: 'type',
+        key: 'type',
+        filters: ldapFileter,
+        width: '10%',
+        render: (text) => {
+          if(text == 2) return '是'
+          return '否'
+        }
+      },
+      {
         title: '操作',
         dataIndex: 'operation',
         key: 'operation',
@@ -417,7 +454,6 @@ class MemberManage extends Component {
     }, 500);
   }
   componentWillMount() {
-    document.title = '成员管理 | 时速云'
     this.props.loadUserList({
       page: 1,
       size: 10,
@@ -524,6 +560,7 @@ class MemberManage extends Component {
     }
     return (
       <div id="MemberManage">
+        <Title title="成员管理" />
         <Row>
           <Button type="primary" size="large" onClick={this.showModal} className="addBtn">
             <i className='fa fa-plus' /> 添加新成员
@@ -561,7 +598,6 @@ function mapStateToProp(state) {
   let data = []
   const users = state.user.users
   const userDetail = state.entities.loginUser.info
-
   if (users.result) {
     if (users.result.users) {
       usersData = users.result.users
@@ -585,6 +621,7 @@ function mapStateToProp(state) {
             role: userDetail.role,// user info into team list
             team: item.teamCount,
             balance: parseAmount(item.balance).fullAmount,
+            type: item.type
           }
         )
       })

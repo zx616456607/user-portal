@@ -65,8 +65,9 @@ let ConfigureService = React.createClass({
   },
   componentWillUnmount() {
     clearTimeout(this.appNameCheckTimeout)
+    clearTimeout(this.serviceNameExistsTimeout)
     // save fields to store when component unmount
-    const { id, setFormFields, currentFields } = this.props
+    const { id, setFormFields, currentFields, mode } = this.props
     setFormFields(id, currentFields)
   },
   loadImageTags(props) {
@@ -129,14 +130,10 @@ let ConfigureService = React.createClass({
     const callback = {
       success: {
         func: (result) => {
-          // setArg()
           if (mode !== 'create') {
             return
           }
           this.setConfigsToForm(result.configInfo || result.data)
-          // setPorts(containerPorts, form)
-          // setEnv(defaultEnv, form)
-          // setCMD({cmd, entrypoint}, form)
         },
         isAsync: true
       }
@@ -164,6 +161,7 @@ let ConfigureService = React.createClass({
       containerPorts,
       entrypoint,
       cmd,
+      defaultEnv,
     } = configs
 
     // set storage `./NormalSetting/Storage.js`
@@ -171,11 +169,10 @@ let ConfigureService = React.createClass({
       mountPath = []
     }
     const storageKeys = []
+    const storageFields = {}
     mountPath.map((path, index) => {
       storageKeys.push(index)
-      setFieldsValue({
-        [`mountPath${index}`]: path,
-      })
+      storageFields[`mountPath${index}`] = path
     })
 
     // set ports `./NormalSetting/Ports.js`
@@ -183,6 +180,7 @@ let ConfigureService = React.createClass({
       containerPorts = []
     }
     const portsKeys = []
+    const portsFields = {}
     containerPorts.map((port, index) => {
       // magic code ！
       // 此处 portsKeys 的元素必须为一个对象，而不能是一个数字
@@ -192,45 +190,62 @@ let ConfigureService = React.createClass({
       // 具体原因与 rc-form 组件有关
       portsKeys.push({ value: index })
       const portArray = port.split('/')
-      setFieldsValue({
-        [`port${index}`]: parseInt(portArray[0]),
-        [`portProtocol${index}`]: portArray[1].toUpperCase(),
-      })
+      portsFields[`port${index}`] = parseInt(portArray[0])
+      portsFields[`portProtocol${index}`] = portArray[1].toUpperCase()
     })
     // must set a port
     if (portsKeys.length < 1) {
       portsKeys.push({ value: 0})
-      setFieldsValue({
-        [`portProtocol0`]: 'TCP',
-      })
+      portsFields['portProtocol0'] = 'TCP'
     }
 
     // set entrypoint, cmd, imagePullPolicy `./AssistSetting.js`
     // entrypoint(Docker) -> command(K8s)
     // cmd(Docker) -> args(K8s)
+    const commandFields = {}
     if (entrypoint) {
-      setFieldsValue({
-        command: entrypoint.join(' '),
-      })
+      commandFields['command'] = entrypoint.join(' ')
     }
     const argsKeys = []
+    const argsFields = []
     if (cmd) {
       cmd.forEach((args, index) => {
         // magic code ！
         // the same as portsKeys
         argsKeys.push({ value: index })
-        setFieldsValue({
-          [`args${index}`]: args,
-        })
+        argsFields[`args${index}`] = args
       })
     }
 
-    setFieldsValue({
+    // set envs `./AdvancedSetting.js`
+    const envKeys = []
+    const envFields = {}
+    if (defaultEnv) {
+      defaultEnv.forEach((env, index) => {
+        // magic code ！
+        // the same as portsKeys
+        envKeys.push({ value: index })
+        const keyIndex = env.indexOf('=')
+        envFields[`envName${index}`] = env.substr(0, keyIndex)
+        envFields[`envValue${index}`] = env.substr(keyIndex + 1)
+      })
+    }
+
+    // use `setFieldsValue` once, dispatch one action
+    let fieldsValues = {
       storageKeys,
       portsKeys,
       argsKeys,
-      imagePullPolicy: 'Always'
-    })
+      envKeys,
+      imagePullPolicy: 'Always',
+      livenessProtocol: 'none',
+    }
+    Object.assign(fieldsValues, storageFields, portsFields,
+      commandFields,
+      argsFields,
+      envFields,
+    )
+    setFieldsValue(fieldsValues)
   },
   checkAppName(rule, value, callback) {
     if (!value) {
@@ -274,7 +289,7 @@ let ConfigureService = React.createClass({
     for (let key in allFields) {
       if (allFields.hasOwnProperty(key)) {
         if (key !== id) {
-          const { serviceName } = allFields[key]
+          const serviceName = allFields[key].serviceName || {}
           if (serviceName.value === value) {
             callback(appNameCheck(value, '服务名称', true))
             return
@@ -334,7 +349,7 @@ let ConfigureService = React.createClass({
     })
     const imageUrlProps = getFieldProps('imageUrl', {
       rules: [
-        { required: true }
+        { required: true, message: '请选择镜像版本' }
       ],
     })
     const imageTagProps = getFieldProps('imageTag', {
@@ -436,12 +451,18 @@ let ConfigureService = React.createClass({
           key="assist"
         />
         <LivenessSetting
+          form={form}
+          formItemLayout={formItemLayout}
           key="liveness"
         />
         <ConfigMapSetting
+          form={form}
+          formItemLayout={formItemLayout}
           key="configMap"
         />
         <AdvancedSetting
+          form={form}
+          formItemLayout={formItemLayout}
           key="advanced"
         />
       </QueueAnim>

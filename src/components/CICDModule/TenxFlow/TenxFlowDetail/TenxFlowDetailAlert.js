@@ -18,6 +18,7 @@ import { updateTenxFlow } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailAlert.less'
 import { browserHistory } from 'react-router';
 import NotificationHandler from '../../../../common/notification_handler'
+import Title from '../../../Title'
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
@@ -99,7 +100,6 @@ let TenxFlowDetailAlert = React.createClass({
     }
   },
   componentWillMount() {
-    document.title = 'TenxFlow | 时速云';
     const { notify } = this.props;
     let flag = !!notify;
     if (notify == 'null') {
@@ -282,6 +282,7 @@ let TenxFlowDetailAlert = React.createClass({
     });
     return (
       <Card id='TenxFlowDetailAlert' key='TenxFlowDetailAlert'>
+        <Title title="TenxFlow" />
         <Form horizontal>
           <div className='commonBox'>
             <div className='title'>

@@ -98,7 +98,7 @@ const AssistSetting = React.createClass({
         ],
       })
       return (
-        <Row>
+        <Row key={`args${keyValue}`}>
           <Col span={formItemLayout.labelCol.span}></Col>
           <Col span={6}>
             <FormItem>

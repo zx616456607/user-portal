@@ -18,10 +18,6 @@ import {
   SYSTEM_DEFAULT_SCHEDULE,
  } from '../../../constants'
 
-export function buildYaml(json) {
-  //
-}
-
 export function getFieldsValues(fields) {
   const values = {}
   for (let key in fields) {
@@ -52,6 +48,14 @@ export function buildJson(fields, cluster, loginUser) {
     argsKeys, // 启动命令的 keys(数组)
     imagePullPolicy, // 重新部署时拉取镜像的方式(Always, IfNotPresent)
     timeZone, // 时区设置
+    livenessProtocol, // 高可用-协议类型
+    livenessPort, // 高可用-端口
+    livenessInitialDelaySeconds, // 高可用-首次检查延时
+    livenessTimeoutSeconds, // 高可用-检查超时
+    livenessPeriodSeconds, // 高可用-检查间隔
+    livenessPath, // 高可用-Path 路径
+    envKeys, // 环境变量的 keys(数组)
+    configMapKeys, // 配置目录的 keys(数组)
   } = fieldsValues
   const MOUNT_PATH = 'mountPath' // 容器目录
   const VOLUME = 'volume' // 存储卷(rbd)
@@ -142,6 +146,56 @@ export function buildJson(fields, cluster, loginUser) {
   // 设置时区
   if (timeZone) {
     deployment.syncTimeZoneWithNode(serviceName)
+  }
+  // 设置高可用
+  if (livenessProtocol === 'HTTP' || livenessProtocol === 'TCP') {
+    deployment.setLivenessProbe(serviceName, livenessProtocol, {
+      port: parseInt(livenessPort),
+      path: livenessPath,
+      initialDelaySeconds: parseInt(livenessInitialDelaySeconds),
+      timeoutSeconds: parseInt(livenessTimeoutSeconds),
+      periodSeconds: parseInt(livenessPeriodSeconds),
+    })
+  }
+  // 设置环境变量
+  if (envKeys) {
+    envKeys.forEach(key => {
+      if (!key.deleted) {
+        const keyValue = key.value
+        const envName = fieldsValues[`envName${keyValue}`]
+        const envValue = fieldsValues[`envValue${keyValue}`]
+        deployment.addContainerEnv(serviceName, envName, envValue)
+      }
+    })
+  }
+
+  // 设置配置目录
+  if (configMapKeys) {
+    configMapKeys.forEach(key => {
+      if (!key.deleted) {
+        const keyValue = key.value
+        const configMapMountPath = fieldsValues[`configMapMountPath${keyValue}`]
+        const configMapIsWholeDir = fieldsValues[`configMapIsWholeDir${keyValue}`]
+        const configGroupName = fieldsValues[`configGroupName${keyValue}`]
+        const configMapSubPathValues = fieldsValues[`configMapSubPathValues${keyValue}`]
+        const volume = {
+          name: `configmap-volume-${keyValue}`,
+          configMap: {
+            name: configGroupName,
+            items: configMapSubPathValues.map(value => {
+              return {
+                key: value,
+                path: value,
+              }
+            })
+          }
+        }
+        const volumeMounts = [{
+          mountPath: configMapMountPath,
+        }]
+        deployment.addContainerVolume(serviceName, volume, volumeMounts, configMapIsWholeDir)
+      }
+    })
   }
 
   return { deployment, service }
