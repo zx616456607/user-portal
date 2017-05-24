@@ -169,10 +169,16 @@ class SelectImage extends Component {
       width: '10%',
       render: (text, row)=> {
         return (
-          <Button type="primary" size="large" onClick={this.onDeploy.bind(this, row.name, server)}>
-            部署&nbsp;
-            <i className="fa fa-arrow-circle-o-right" />
-          </Button>
+          <div className="deployBox">
+            <Button
+              className="deployBtn"
+              type="primary" size="large"
+              onClick={this.onDeploy.bind(this, row.name, server)}
+            >
+              部署&nbsp;
+              <i className="fa fa-arrow-circle-o-right" />
+            </Button>
+          </div>
         )
       }
     }]
