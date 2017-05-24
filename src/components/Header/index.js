@@ -460,7 +460,7 @@ class Header extends Component {
             </div>
           </a>
         */}
-          <div className="docBtn">
+          <div className="docBtn quickentry">
             <Link to={`/quickentry`}>
               <svg className='rocket'>
                 <use xlinkHref='#rocket' />
