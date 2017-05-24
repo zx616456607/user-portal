@@ -33,7 +33,7 @@ export default function quickCreateApp(state = { fields: {} }, action) {
     case ActionTypes.QUICK_CREATE_APP_REMOVE_OLD_FORM_FIELDS_BY_REG_EXP:
       const currentFields = state.fields[key] || {}
       for (let fieldKey in currentFields) {
-        if (state.fields.hasOwnProperty(fieldKey) && !reg.test(fieldKey)) {
+        if (currentFields.hasOwnProperty(fieldKey) && !reg.test(fieldKey)) {
           newFields[fieldKey] = currentFields[fieldKey]
         }
       }

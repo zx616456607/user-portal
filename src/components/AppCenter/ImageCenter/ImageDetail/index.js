@@ -491,7 +491,7 @@ class ImageDetailBox extends Component {
             <div className="rightBox">
               <Icon type='cross' className='cursor' style={{ fontSize: '18px', position: 'absolute', top: '0px', right: '0px' }} onClick={this.props.scope.closeImageDetailModal} />
               <div className='rightBoxleft'>
-                <Button size="large" type="primary" onClick={() => browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${ipAddress}&imageName=${imageName}`)}>
+                <Button size="large" type="primary" onClick={() => browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${ipAddress}&imageName=${imageName}`)}>
                   <FormattedMessage {...menusText.deployImage} />
                 </Button>
               </div>

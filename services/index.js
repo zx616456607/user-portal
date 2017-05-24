@@ -123,6 +123,7 @@ exports.addConfigsForFrontend = function (user) {
   user.registryConfig = {
     server: global.globalConfig.registryConfig.v2Server
   }
+  user.oemInfo = global.globalConfig.oemInfo
   return user
 }
 
