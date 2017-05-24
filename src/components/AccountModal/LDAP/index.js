@@ -312,7 +312,7 @@ class LDAP extends Component {
     })
     const UserDNProps = getFieldProps('bindDN',{
       rules: [
-        { required: true, message: '请输入 User DN' },
+        { message: '请输入 User DN' },
       ],
     })
     const PasswordProps = getFieldProps('bindPassword', {
@@ -383,7 +383,7 @@ class LDAP extends Component {
               </div>
               <div className='host_port rowPadding'>
                 <Row className='item_input'>
-                  <Col span={4} className='item_title'>User DN<span className='star'>*</span></Col>
+                  <Col span={4} className='item_title'>User DN</Col>
                   <Col span={20} className='item_content'>
                     <FormItem>
                       <Input {...UserDNProps} placeholder="例：cn=admin, dc=demo, dc=com"/>
