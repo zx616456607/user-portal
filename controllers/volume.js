@@ -251,6 +251,14 @@ exports.listSnapshots=function* () {
   this.status = response.code
   this.body = response
 }
+exports.getCalamariUrl=function* () {
+  const cluster = this.params.cluster
+  const snapApi=apiFactory.getK8sApi(this.session.loginUser)
+  const response=yield snapApi.getBy([cluster,'volumes','calamari'],null)
+  this.status = response.code
+  this.body = response
+}
+
 exports.rollbackSnapshot=function* () {
   const snapshot=this.request.body
   const volumeName = this.params.name
