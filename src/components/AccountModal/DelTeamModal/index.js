@@ -167,7 +167,6 @@ class DelTeamModal extends Component{
   }
   render(){
     const { visible, balance, teamName, userName } = this.props
-    console.log(this.props,1111111111111111111)
     let delMessage = (
       <div>
         <Row className="tip delTip">
