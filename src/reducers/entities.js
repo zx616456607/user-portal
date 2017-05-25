@@ -46,6 +46,7 @@ function current(state, action) {
 
 
 function loginUser(state, action) {
+  const types = action.types || 1
   switch (action.type) {
     case ActionTypes.LOGIN_REQUEST:
     case ActionTypes.LOGIN_USER_DETAIL_REQUEST:
@@ -67,6 +68,11 @@ function loginUser(state, action) {
       return Object.assign({}, state, {
         isFetching: false
       })
+    case ActionTypes.SET_BACK_COLOR:{
+      const colorState = cloneDeep(state)
+      colorState.info.oemInfo.colorThemeID = types
+      return colorState
+    }
     default:
       return state
   }
