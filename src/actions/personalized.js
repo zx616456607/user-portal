@@ -31,15 +31,6 @@ export function getPersonalized(callback) {
   }
 }
 
-export const SET_BACK_COLOR = 'SET_BACK_COLOR'
-
-export function setBackColor(types) {
-  return {
-    type:SET_BACK_COLOR,
-    types
-  }
-}
-
 export const SET_COPYRIGHT_REQUEST = 'SET_COPYRIGHT_REQUEST'
 export const SET_COPYRIGHT_SUCCESS = 'SET_COPYRIGHT_SUCCESS'
 export const SET_COPYRIGHT_FAILURE = 'SET_COPYRIGHT_FAILURE'

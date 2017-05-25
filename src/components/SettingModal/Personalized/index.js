@@ -16,7 +16,9 @@ import tenxImgIcon from '../../../assets/img/icon/tenxImg.svg'
 import tenxColorIcon from '../../../assets/img/icon/tenxColor.svg'
 import tenxTextIcon from '../../../assets/img/icon/tenxText.svg'
 import NotificationHandler from '../../../common/notification_handler'
-import { getPersonalized,setBackColor,isCopyright,updateLogo,restoreDefault } from '../../../actions/personalized'
+import { getPersonalized,isCopyright,updateLogo,restoreDefault } from '../../../actions/personalized'
+import {setBackColor} from '../../../actions/entities'
+
 class Personalized extends Component{
   constructor(props){
     super(props)
@@ -26,12 +28,12 @@ class Personalized extends Component{
     }
     this.updateInfo = this.updateInfo.bind(this)
   }
-  loadInfo(props){
-    props.getPersonalized({
+  loadInfo(scope){
+    scope.props.getPersonalized({
       success:{
         func:(ret)=>{
-          console.log('update info')
           document.title = `个性外观 | ${ret.company.productName}`
+          scope.setState({siderColor:ret.colorThemeID})
         }
       }
     })
@@ -39,7 +41,7 @@ class Personalized extends Component{
   }
   componentWillMount() {
     // document.title = '个性外观 | 时速云'
-    this.loadInfo(this.props)
+    this.loadInfo(this)
   }
   updateInfo(body) {
     const notificat = new NotificationHandler()
@@ -47,8 +49,10 @@ class Personalized extends Component{
     this.props.isCopyright(body, {
       success: {
         func: ()=> {
-          _this.loadInfo(_this.props)
+          _this.loadInfo(_this)
           notificat.success('修改成功！')
+          _this.setState({loading: false})
+
         },
         isAsync: true
       },
@@ -86,12 +90,14 @@ class Personalized extends Component{
       }
     }
     this.updateInfo(body)
+    this.setState({loading: true})
+    setTimeout(()=> {
+      document.getElementById('productName').value = ''
+    }, 1000);
   }
 
   beforeUpload(file, type) {
     const notificat = new NotificationHandler()
-    console.log('filet,',file.type)
-
     if (file.type !== 'image/png' && file.type !== 'image/jpeg' && file.type !== 'image/gif' && file.type !== 'image/x-icon' ) {
       notificat.info('只能上传 jpg、png、gif 文件哦！')
       return false
@@ -105,7 +111,6 @@ class Personalized extends Component{
     data.append('file', file)
     data.append('key',type)
 
-    console.log('file',file)
     if (type == 'favoriteIcon') {
       data.append('format','ico')
     } else {
@@ -115,7 +120,7 @@ class Personalized extends Component{
     this.props.updateLogo(data,{
       success:{
         func:()=>{
-          _this.loadInfo(_this.props)
+          _this.loadInfo(_this)
           if (type == 'favoriteIcon') {
             notificat.success('修改成功！')
           }
@@ -128,13 +133,16 @@ class Personalized extends Component{
   }
   setSliderColor(c) {
     this.setState({siderColor:c})
-    this.props.setBackColor(c-1)
+    this.props.setBackColor(c)
+  }
+  handCancelTheme() {
+    const { oemInfo,setBackColor } = this.props
+    setBackColor(oemInfo.colorThemeID)
   }
   restoreDefault(type) {
     this.setState({[type]:true})
   }
-  restoreLogo() {
-    console.log('this is restore default logo')
+  restoreTheme(type) {
     const notificat = new NotificationHandler()
     this.props.restoreDefault('logo', {
       success:{
@@ -143,25 +151,18 @@ class Personalized extends Component{
         }
       }
     })
-    this.setState({logo:false})
-  }
-  restoreText() {
-    console.log('this is restore default text')
-    this.props.restoreDefault('info', {
-      success:{
-        func:()=> {
-          notificat.success('恢复成功！')
-        }
-      }
+    this.setState({
+      logo:false,
+      tenxText:false,
+      tenxColor:false
     })
-    this.setState({tenxText:false})
 
   }
-  restoreColor() {
-    console.log('this is restore default color')
-  }
   saveColor() {
-    console.log('saveColor')
+    const body = {
+      colorThemeID: this.state.siderColor
+    }
+    this.updateInfo(body)
   }
   render(){
     const uploadParams = {
@@ -236,7 +237,7 @@ class Personalized extends Component{
                 <div className="row-text">此处文字用于替换平台上的“时速云 | 时速云企业版”字样，包换登录页、浏览器标签文字；</div>
                 <Input style={{width:200}} id="productName"  size="large" placeholder="请输入产品名称"  />
                 <Button size="large" onClick={()=> this.clearProductName()} style={{margin:'0 10px'}}>取消</Button>
-                <Button size="large" type="primary" onClick={()=> this.saveproductName()}>保存</Button>
+                <Button size="large" type="primary" loading={this.state.loading} onClick={()=> this.saveproductName()}>保存</Button>
               </Col>
             </Row>
             <Row className="image-row">
@@ -269,7 +270,7 @@ class Personalized extends Component{
 
                 </div>
                 <div className="colorButton">
-                  <Button size="large">取消</Button>
+                  <Button size="large" onClick={()=> this.handCancelTheme()}>取消</Button>
                   <Button size="large" style={{margin:'0 10px'}} type="primary" onClick={()=> this.saveColor()}>保存</Button>
                 </div>
               </Col>
@@ -277,19 +278,19 @@ class Personalized extends Component{
 
           </Card>
           <Modal visible={this.state.logo} title="恢复默认设置图标"
-            onOk={()=> this.restoreLogo()}
+            onOk={()=> this.restoreTheme('logo')}
             onCancel={()=> this.setState({logo: false})}
           >
             <div className="confirmText">是否确定将所有图标恢复至默认设置？</div>
           </Modal>
           <Modal visible={this.state.tenxText} title="恢复默认设置文字"
-            onOk={()=> this.restoreText()}
+            onOk={()=> this.restoreTheme('info')}
             onCancel={()=> this.setState({tenxText: false})}
           >
             <div className="confirmText">是否确定将文字定制中内容恢复至默认设置？</div>
           </Modal>
           <Modal visible={this.state.tenxColor} title="恢复默认设置颜色"
-            onOk={()=> this.restoreColor()}
+            onOk={()=> this.restoreTheme('color')}
             onCancel={()=> this.setState({tenxColor: false})}
           >
             <div className="confirmText">是否确定将左侧导航的颜色恢复至默认设置？</div>
