@@ -112,45 +112,41 @@ const Normal = React.createClass({
     })
     return (
       <div id="normalConfigureService">
-        <Row className="header" key="header">
-          <Col span={3} className="left" key="left">
+        <Row className="configBoxHeader" key="header">
+          <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
             <div className="line"></div>
             <span className="title">基本配置</span>
           </Col>
-          <Col span={21} key="right">
+          <Col span={formItemLayout.wrapperCol.span} key="right">
             <div className="desc">服务的计算资源、服务类型、以及实例个数等设置</div>
           </Col>
         </Row>
         <div className="body" key="body">
-          <FormItem
-            {...formItemLayout}
-            label={
-              <div>
-                容器配置&nbsp;
-                {
-                  standardFlag && (
-                    <Tooltip title="专业版及企业认证用户可申请扩大容器配置">
-                      <a>
-                        <Icon type="question-circle-o" />
-                      </a>
-                    </Tooltip>
-                  )
-                }
-              </div>
-            }
-            hasFeedback
-            key="resource"
-          >
-            <ResourceSelect
-              form={form}
-              {...{DIYMemoryProps, DIYCPUProps}}
-              standardFlag={standardFlag}
-              onChange={this.onResourceChange}
-              resourceType={resourceType && resourceType.value}
-              DIYMemory={DIYMemory && DIYMemory.value}
-              DIYCPU={DIYCPU && DIYCPU.value}
-            />
-          </FormItem>
+          <Row>
+            <Col span={formItemLayout.labelCol.span} className="formItemLabel label">
+              容器配置&nbsp;
+              {
+                standardFlag && (
+                  <Tooltip title="专业版及企业认证用户可申请扩大容器配置">
+                    <a>
+                      <Icon type="question-circle-o" />
+                    </a>
+                  </Tooltip>
+                )
+              }
+            </Col>
+            <Col span={formItemLayout.wrapperCol.span}>
+              <ResourceSelect
+                form={form}
+                {...{DIYMemoryProps, DIYCPUProps}}
+                standardFlag={standardFlag}
+                onChange={this.onResourceChange}
+                resourceType={resourceType && resourceType.value}
+                DIYMemory={DIYMemory && DIYMemory.value}
+                DIYCPU={DIYCPU && DIYCPU.value}
+              />
+            </Col>
+          </Row>
           {
             // listNode
             // 1 不可以
