@@ -238,7 +238,7 @@ const Ports = React.createClass({
     const portsKeys = getFieldValue('portsKeys') || []
     return (
       <Row className="portsConfigureService">
-        <Col span={formItemLayout.labelCol.span} className="label">
+        <Col span={formItemLayout.labelCol.span} className="formItemLabel">
           映射端口
         </Col>
         <Col span={formItemLayout.wrapperCol.span}>

@@ -300,12 +300,12 @@ const ConfigMapSetting = React.createClass({
     const configMapKeys = getFieldValue('configMapKeys') || []
     const header = (
       <div className="headerBox">
-        <Row className="header" key="header">
-          <Col span={3} className="left" key="left">
+        <Row className="configBoxHeader" key="header">
+          <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
             <div className="line"></div>
             <span className="title">配置管理</span>
           </Col>
-          <Col span={21} key="right">
+          <Col span={formItemLayout.wrapperCol.span} key="right">
             <div className="desc">满足您统一管理某些服务配置文件的需求，即：不用停止服务，即可变更多个容器内的配置文件</div>
           </Col>
         </Row>
@@ -316,7 +316,7 @@ const ConfigMapSetting = React.createClass({
         <Collapse>
           <Panel header={header}>
             <Row>
-              <Col span={formItemLayout.labelCol.span} className="label">
+              <Col span={formItemLayout.labelCol.span} className="formItemLabel">
                 配置目录
               </Col>
               <Col span={formItemLayout.wrapperCol.span}>

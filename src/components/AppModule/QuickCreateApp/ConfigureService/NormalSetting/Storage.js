@@ -532,10 +532,8 @@ const Storage = React.createClass({
       'displayNone': !isFetching,
     })
     return (
-      <FormItem
-        className="storageConfigureService"
-        {...formItemLayout}
-        label={
+      <Row className="storageConfigureService">
+        <Col span={formItemLayout.labelCol.span} className="formItemLabel label">
           <div>
             服务类型&nbsp;
             <a href="http://docs.tenxcloud.com/faq#you-zhuang-tai-fu-wu-yu-wu-zhuang-tai-fu-wu-de-qu-bie" target="_blank">
@@ -544,33 +542,35 @@ const Storage = React.createClass({
               </Tooltip>
             </a>
           </div>
-        }
-        key="serviceType"
-      >
-        <Switch
-          className="floatRight"
-          {...serviceTypeProps}
-          disabled={!isCanCreateVolume}
-        />
-        {
-          !isCanCreateVolume && (
-            <span className="noVolumeServiceSpan">
-              <Tooltip title="无存储服务可用, 请配置存储服务">
-                <Icon type="question-circle-o"/>
-              </Tooltip>
-            </span>
-          )
-        }
-        {this.renderServiceType(serviceType)}
-        {
-          (serviceType && serviceType.value) && (
-            <div className={volumesClass}>
-              <Spin className={volumeSpinClass}/>
-              {this.renderConfigure()}
-            </div>
-          )
-        }
-      </FormItem>
+        </Col>
+        <Col span={formItemLayout.wrapperCol.span}>
+          <FormItem>
+            <Switch
+              className="floatRight"
+              {...serviceTypeProps}
+              disabled={!isCanCreateVolume}
+            />
+            {
+              !isCanCreateVolume && (
+                <span className="noVolumeServiceSpan">
+                  <Tooltip title="无存储服务可用, 请配置存储服务">
+                    <Icon type="question-circle-o"/>
+                  </Tooltip>
+                </span>
+              )
+            }
+            {this.renderServiceType(serviceType)}
+            {
+              (serviceType && serviceType.value) && (
+                <div className={volumesClass}>
+                  <Spin className={volumeSpinClass}/>
+                  {this.renderConfigure()}
+                </div>
+              )
+            }
+          </FormItem>
+        </Col>
+      </Row>
     )
   }
 })
