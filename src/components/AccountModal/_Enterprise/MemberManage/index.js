@@ -277,11 +277,16 @@ let MemberTable = React.createClass({
         key: 'name',
         className: 'memberName',
         width: '15%',
-        render: (text, record, index) => (
-          <Link to={`/account/user/${record.key}`}>
-            {text}
-          </Link>
-        ),
+        render: (text, record, index) => {
+          if (userDetail.role === ROLE_SYS_ADMIN) {
+            return (
+              <Link to={`/account/user/${record.key}`}>
+                {text}
+              </Link>
+            )
+          }
+          return text
+        },
       },
       {
         title: '手机',
