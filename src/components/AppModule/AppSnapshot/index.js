@@ -462,11 +462,11 @@ class Snapshot extends Component {
               <div className='imgtips'>
                 <span className='imgtipsBox'>
                   <div className='left'>快照状态</div>
-                  <div className='left'>格式<span className='item'>etx5</span></div>
+                  <div className='left'>格式<span className='item'>{currentSnapshot.fstype}</span></div>
                 </span>
                 <span className='imgtipsBox'>
                   <div className='right'>当前状态</div>
-                  <div className='right'>格式<span className='item'>etx5</span></div>
+                  <div className='right'>格式<span className='item'>{currentSnapshot.fstype}</span></div>
                 </span>
               </div>
             </div>
