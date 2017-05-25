@@ -20,6 +20,7 @@ import GithubComponent from './GithubComponent'
 import GogsComponent from './GogsComponent'
 import SvnComponent from './SvnComponent'
 import NotificationHandler from '../../../common/notification_handler'
+import Title from '../../Title'
 
 const TabPane = Tabs.TabPane
 
@@ -383,7 +384,6 @@ class CodeRepo extends Component {
     }
   }
   componentWillMount () {
-    document.title = '关联代码库 | 时速云';
     const _this = this
     const {getRepoList, getUserInfo} = this.props
     this.props.getRepoType({
@@ -476,6 +476,7 @@ class CodeRepo extends Component {
       <QueueAnim id='codeRepo'
         type='right'
         >
+        <Title title="代码仓库" />
         <div className="codeContent">
           <div className='headBox'>
             <Link to="/ci_cd">

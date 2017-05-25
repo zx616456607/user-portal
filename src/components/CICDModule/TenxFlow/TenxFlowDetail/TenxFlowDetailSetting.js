@@ -17,6 +17,7 @@ import { DEFAULT_REGISTRY } from '../../../../constants'
 import { deleteTenxFlowSingle } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailSetting.less'
 import { browserHistory } from 'react-router';
+import Title from '../../../Title'
 
 const menusText = defineMessages({
   tooltips: {
@@ -39,9 +40,6 @@ let TenxFlowDetailSetting = React.createClass({
       delFlowModal: false
     }
   },
-  componentWillMount() {
-    document.title = 'TenxFlow | 时速云';
-  },
   delFlowAction() {
     const { deleteTenxFlowSingle, flowId } = this.props;
     deleteTenxFlowSingle(flowId, {
@@ -56,6 +54,7 @@ let TenxFlowDetailSetting = React.createClass({
     const { scope, flowId } = this.props;
     return (
       <Card id='TenxFlowDetailSetting' key='TenxFlowDetailSetting'>
+        <Title title="TenxFlow" />
         <p>
           <i className='fa fa-exclamation-triangle' />&nbsp;
         <FormattedMessage {...menusText.tooltips} />

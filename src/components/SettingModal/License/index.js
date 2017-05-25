@@ -18,6 +18,7 @@ import NotificationHandler from '../../../common/notification_handler'
 import { getPortalRealMode } from '../../../common/tools'
 import { LITE } from '../../../constants'
 import { camelize } from 'humps'
+import Title from '../../Title'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -93,7 +94,6 @@ class License extends Component {
   }
 
   componentWillMount(){
-    document.title = '授权管理 | 时速云'
     const _this = this
     this.props.loadLicensePlatform()
     this.props.loadLicenseList({
@@ -221,6 +221,7 @@ class License extends Component {
     const { licenses, merged } = license
     return (
       <div id='License'>
+        <Title title="授权管理" />
         <div className="title">授权管理</div>
         <Card className="licenseWrap">
           <div className="list list-first">

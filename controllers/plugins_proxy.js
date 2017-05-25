@@ -11,14 +11,13 @@
 
 const http = require('http')
 const https = require('https')
+const apiFactory = require('../services/api_factory')
 
-const protocol = 'https'
-const port = 6443
-const host  = '192.168.1.163'
-const prefix = '/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard/'
+const prefix = '/api/v1/proxy/namespaces/kube-system/services/'
 
-const author = 'Bearer 814c5cd689b60ab5'
-const reg = /\/proxy\/clusters\/[-a-zA-z0-9_]+\/plugins\/[-a-zA-z0-9_]+\/?/
+const reg = /\/proxy\/clusters\/[-a-zA-z0-9_]+\/plugins\//
+const clusterReg = /\/clusters\/[-a-zA-z0-9_]+/
+const pluginReg = /\/plugins\/[-a-zA-z0-9_]+/
 
 exports.pluginsProxy = function* () {
   if(this.session.loginUser.role != 2 ) {
@@ -26,31 +25,72 @@ exports.pluginsProxy = function* () {
     err.status = 401
     throw err
   }
+
   const req = this.req
+  let cluster = clusterReg.exec(req.url)
+  if(!cluster) {
+    const err = new Error('params cluster is require')
+    err.status = 400
+    throw err
+  }
+  cluster = cluster[0].substr(cluster[0].lastIndexOf('/') + 1)
+  let pluginName = pluginReg.exec(req.url)
+  if(!pluginName) {
+    const err = new Error('params cluster is require')
+    err.status = 400
+    throw err
+  }
+
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.getBy([cluster])
+  const clusterInfo = result.data
+  if(!clusterInfo) {
+    const err = new Error(`Can't find the cluster`)
+    err.status = 404
+    throw err
+  }
+  const apiToken = clusterInfo.apiToken
+  let host = clusterInfo.apiHost
+  let port = 80
+  if(host.indexOf(':') > 0) {
+    const tempArr = host.split(':')
+    host = tempArr[0]
+    port = tempArr[1]
+  }
+
+
+  const path = prefix +  req.url.replace(reg, '')
   yield new Promise((resolve, reject) => {
     asProxy(sendRequest({
-      headers: Object.assign(req.headers, { Authorization: author }),
-      path: prefix + req.url.replace(reg, ''),
-      method: req.method
-    }), this, resolve)
+      headers: Object.assign(req.headers, { 'Authorization': `Bearer ${apiToken}` }),
+      path,
+      method: req.method,
+      host,
+      protocol: clusterInfo.apiProtocol,
+      port
+    }, this.request.body), this, resolve)
   })
 }
 
-function sendRequest(option) {
-  const proxy  = protocol == 'https' ? https : http
+function sendRequest(option, data) {
+  const proxy  = option.protocol == 'https' ? https : http
+  delete option.protocol
   delete option.headers.host
   delete option.headers.port
   delete option.headers.protocol
   delete option.headers.cookie
   const defaultOptions = {
-    port,
-    host,
-    rejectUnauthorized: false,
+    port: option.port,
+    host: option.host,
+    rejectUnauthorized: false
   }
   const proxyOption = Object.assign({}, defaultOptions, option)
-  req = proxy.request(proxyOption)
-  req.end()
-  return req
+  const requestSocket = proxy.request(proxyOption)
+  if(data) {
+    requestSocket.write(JSON.stringify(data))
+  }
+  requestSocket.end()
+  return requestSocket
 }
 
 function asProxy(socket, ctx, callback) {
@@ -62,8 +102,10 @@ function asProxy(socket, ctx, callback) {
       res.setHeader(key, socketRes.headers[key])
     })
     socketRes.pipe(res)
-    socketRes.on('end', () => {
-      if(callback) callback
-    })
+  })
+  socket.on('error', (err) => {
+    throw err
   })
 }
+
+

@@ -23,7 +23,7 @@ import NotificationHandler from '../../../common/notification_handler'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
 import { removeFormFields, removeAllFormFields } from '../../../actions/quick_create_app'
 import { createApp } from '../../../actions/app_manage'
-import { buildJson } from './utils'
+import { buildJson, getFieldsValues } from './utils'
 import './style/index.less'
 
 const Step = Steps.Step
@@ -33,7 +33,7 @@ const standard = require('../../../../configs/constants').STANDARD_MODE
 const mode = require('../../../../configs/model').mode
 const standardFlag = standard === mode
 const notification = new NotificationHandler()
-const serviceNameList = []
+let serviceNameList = []
 
 class QuickCreateApp extends Component {
   constructor(props) {
@@ -52,6 +52,8 @@ class QuickCreateApp extends Component {
     this.onCreateAppClick = this.onCreateAppClick.bind(this)
     this.goSelectImage = this.goSelectImage.bind(this)
     this.renderServiceList = this.renderServiceList.bind(this)
+    this.confirmSave = this.confirmSave.bind(this)
+    this.cancelSave = this.cancelSave.bind(this)
     const { location, fields } = props
     const { query } = location
     const { imageName, registryServer } = query
@@ -60,11 +62,14 @@ class QuickCreateApp extends Component {
       registryServer,
       serviceList: [],
       confirmGoBackModalVisible: false,
+      confirmSaveModalVisible: false,
       appName: this.getAppName(fields),
       isCreatingApp: false,
       resourceQuotaModal: false,
       resourceQuota: null,
       stepStatus: 'process',
+      formErrors: null,
+      editServiceLoading: false,
     }
     this.serviceSum = 0
     this.configureServiceKey = this.genConfigureServiceKey()
@@ -103,6 +108,16 @@ class QuickCreateApp extends Component {
     }
   }
 
+  componentWillUnmount() {
+    this.removeAllFormFieldsAsync(this.props)
+  }
+
+  removeAllFormFieldsAsync(props) {
+    // 异步清除 fields，即等 QuickCreateApp 组件卸载后再清除，否者会出错
+    const { removeAllFormFields } = props
+    setTimeout(removeAllFormFields)
+  }
+
   componentWillReceiveProps(nextProps) {
     const { location } = nextProps
     const { hash, query } = location
@@ -124,14 +139,14 @@ class QuickCreateApp extends Component {
   }
 
   getStepsCurrent() {
-    if (this.props.location.hash === SERVICE_CONFIG_HASH) {
+    const { hash } = this.props.location
+    if (hash === SERVICE_CONFIG_HASH || hash === SERVICE_EDIT_HASH) {
       return 2
     }
     return 1
   }
 
   onSelectImage(imageName, registryServer) {
-    const { setFormFields } = this.props
     this.setState({
       imageName,
       registryServer,
@@ -150,19 +165,67 @@ class QuickCreateApp extends Component {
   }
 
   confirmGoBack() {
+    this.removeAllFormFieldsAsync(this.props)
     browserHistory.push('/app_manage/app_create')
   }
 
-  goSelectImage() {
+  confirmSave() {
+    if (this.state.formErrors) {
+      notification.warn('请修改错误表单后，点击 [保存此服务并继续添加] 保存服务')
+    }
     this.setState({
-      stepStatus: 'process',
+      confirmSaveModalVisible: false,
+      formErrors: null,
+    })
+    this.saveService()
+  }
+
+  cancelSave() {
+    this.setState({
+      confirmSaveModalVisible: false,
+    })
+    const { removeFormFields } = this.props
+    setTimeout(() => {
+      removeFormFields(this.configureServiceKey)
     })
     browserHistory.push('/app_manage/app_create/quick_create')
   }
 
-  saveService() {
+  goSelectImage() {
+    if (this.configureMode === 'edit') {
+      return
+    }
+    this.setState({
+      stepStatus: 'process',
+    })
+    const { removeFormFields } = this.props
+    const { validateFieldsAndScroll } = this.form
+    validateFieldsAndScroll((errors, values) => {
+      if (!!errors) {
+        // 如果未填写服务名称，直接移除 store 中的表单记录
+        if (errors.serviceName) {
+          setTimeout(() => {
+            removeFormFields(this.configureServiceKey)
+          })
+          browserHistory.push('/app_manage/app_create/quick_create')
+          return
+        }
+        // 如果已填写服务名称，保存 errors 到 state 中
+        this.setState({
+          formErrors: errors,
+        })
+      }
+      // 提示用户是否保留该服务
+      this.setState({
+        confirmSaveModalVisible: true,
+      })
+    })
+  }
+
+  saveService(options) {
     const { fields } = this.props
     const { validateFieldsAndScroll } = this.form
+    const { noJumpPage } = options || {}
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
         return
@@ -177,7 +240,9 @@ class QuickCreateApp extends Component {
       if (this.configureMode === 'create') {
         this.configureServiceKey = this.genConfigureServiceKey()
       }
-      browserHistory.push('/app_manage/app_create/quick_create')
+      if (!noJumpPage) {
+        browserHistory.push('/app_manage/app_create/quick_create')
+      }
     })
   }
 
@@ -188,7 +253,7 @@ class QuickCreateApp extends Component {
     })
     const {
       fields, current, loginUser,
-      createApp, removeAllFormFields,
+      createApp,
     } = this.props
     const template = []
     for (let key in fields) {
@@ -209,8 +274,6 @@ class QuickCreateApp extends Component {
           this.setState({
             stepStatus: 'finish',
           })
-          // 异步清除 fields，即等 QuickCreateApp 组件卸载后再清除，否者会出错
-          setTimeout(removeAllFormFields)
           browserHistory.push('/app_manage')
         },
         isAsync: true,
@@ -280,9 +343,12 @@ class QuickCreateApp extends Component {
   renderBody() {
     const { hash, query } = this.props.location
     const { key } = query
-    const { imageName, registryServer, appName } = this.state
+    const { imageName, registryServer, appName, editServiceLoading } = this.state
     if ((hash === SERVICE_CONFIG_HASH && imageName) || (hash === SERVICE_EDIT_HASH && key)) {
       const id = this.configureMode === 'create' ? this.configureServiceKey : this.editServiceKey
+      if (editServiceLoading) {
+        return <div className="loadingBox"><Spin size="large" /></div>
+      }
       return (
         <ConfigureService
           mode={this.configureMode}
@@ -312,6 +378,7 @@ class QuickCreateApp extends Component {
               <Button
                 size="large"
                 onClick={this.goSelectImage}
+                disabled={this.configureMode === 'edit'}
               >
                 上一步
               </Button>
@@ -336,9 +403,42 @@ class QuickCreateApp extends Component {
   }
 
   editService(key) {
+    const { location } = this.props
+    const { hash } = location
     const query = { key }
-    // this.props.removeFormFields(this.configureServiceKey)
-    browserHistory.push(`/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_EDIT_HASH}`)
+    const url = `/app_manage/app_create/quick_create?${toQuerystring(query)}${SERVICE_EDIT_HASH}`
+    const currentStep = this.getStepsCurrent()
+    // 在选择镜像界面
+    if (currentStep === 1) {
+      browserHistory.push(url)
+      return
+    }
+    // 在配置服务界面
+    if (currentStep === 2) {
+      const { validateFieldsAndScroll } = this.form
+      validateFieldsAndScroll((errors, values) => {
+        if (!!errors) {
+          let message = '请先修改错误的表单'
+          // 如果未填写服务名称，提示填写服务名称
+          if (errors.serviceName) {
+            message = '请先填写服务名称'
+          }
+          notification.warn(message)
+          return
+        }
+        this.setState({ editServiceLoading: true }, () => {
+          this.saveService({ noJumpPage: true })
+          browserHistory.push(url)
+          this.setState({
+            editServiceLoading: false,
+          })
+        })
+      })
+      // const { removeFormFields } = this.props
+      // setTimeout(() => {
+      //   removeFormFields(this.configureServiceKey)
+      // })
+    }
   }
 
   deleteService(key) {
@@ -350,9 +450,7 @@ class QuickCreateApp extends Component {
     removeFormFields(key, {
       success: {
         func: () => {
-          /*if (this.configureMode === 'edit' && this.configureServiceKey === key) {
-            browserHistory.push('/app_manage/app_create/quick_create')
-          }*/
+          //
         }
       }
     })
@@ -361,6 +459,8 @@ class QuickCreateApp extends Component {
   renderServiceList() {
     const { fields, location } = this.props
     const serviceList = []
+    const currentStep = this.getStepsCurrent()
+    const _serviceNameList = []
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
         const service = fields[key]
@@ -379,15 +479,15 @@ class QuickCreateApp extends Component {
             'serviceItem': true,
             'active': isRowActive,
           })
-          serviceNameList.push(serviceName.value)
+          _serviceNameList.push(serviceName.value)
           serviceList.push(
             <Row className={rowClass} key={serviceName.value}>
-              <Col span={18}>
+              <Col span={12} className="textoverflow">
               {serviceName.value}
               </Col>
-              <Col span={6} className="btns">
+              <Col span={12} className="btns">
               {
-                (!location.hash || !isRowActive) && (
+                (currentStep === 1 || !isRowActive) && (
                   <div>
                     <Tooltip title="修改">
                       <Button
@@ -416,6 +516,7 @@ class QuickCreateApp extends Component {
         }
       }
     }
+    serviceNameList = _serviceNameList
     if (serviceList.length < 1) {
       return (
         <div className="noService">本应用中暂无任何服务</div>
@@ -432,13 +533,13 @@ class QuickCreateApp extends Component {
     let priceHour = 0 // unit: T/￥
     for (let key in fields) {
       if (fields.hasOwnProperty(key) && fields[key].serviceName) {
-        const { resourceType, DIYMemory, DIYCPU, replicas } = fields[key]
-        const { memoryShow, cpuShow, config } = getResourceByMemory(resourceType.value, DIYMemory.value, DIYCPU.value)
+        const { resourceType, DIYMemory, DIYCPU, replicas } = getFieldsValues(fields[key])
+        const { memoryShow, cpuShow, config } = getResourceByMemory(resourceType, DIYMemory, DIYCPU)
         cpuTotal += cpuShow
         memoryTotal += memoryShow
         let price = current.cluster.resourcePrice[config]
         if (price) {
-          priceHour += price * replicas.value
+          priceHour += price * replicas
         } else {
           // @Todo: need diy resource price
         }
@@ -455,7 +556,10 @@ class QuickCreateApp extends Component {
 
   render() {
     const { current, location } = this.props
-    const { confirmGoBackModalVisible, isCreatingApp, stepStatus } = this.state
+    const {
+      confirmGoBackModalVisible, confirmSaveModalVisible, isCreatingApp,
+      stepStatus,
+    } = this.state
     const steps = (
       <Steps size="small" className="steps" status={stepStatus} current={this.getStepsCurrent()}>
         <Step title="部署方式" />
@@ -471,6 +575,7 @@ class QuickCreateApp extends Component {
       'ant-spin-container': isCreatingApp,
     })
     const serviceList = this.renderServiceList()
+    const currentStep = this.getStepsCurrent()
     return (
       <div id="quickCreateApp" className={quickCreateAppClass}>
         {
@@ -489,8 +594,8 @@ class QuickCreateApp extends Component {
                 className="rightCard"
                 title={
                   <Row className="title">
-                    <Col span={18}>已添加服务</Col>
-                    <Col span={6}>操作</Col>
+                    <Col span={16}>已添加服务</Col>
+                    <Col span={8} className="textAlignRight">操作</Col>
                   </Row>
                 }
               >
@@ -521,7 +626,7 @@ class QuickCreateApp extends Component {
                   }
                 </div>
                 {
-                  (serviceList.length > 0 && !location.hash) && (
+                  (serviceList.length > 0 && currentStep === 1) && (
                     <div className="createApp">
                       <Button type="primary" size="large" onClick={this.createApp.bind(this, false)}>创建应用</Button>
                     </div>
@@ -534,9 +639,23 @@ class QuickCreateApp extends Component {
             title="返回上一步"
             visible={confirmGoBackModalVisible}
             onCancel={() => this.setState({confirmGoBackModalVisible: false})}
-            onOk={this.confirmGoBack}
+            onOk={this.confirmGoBack.bind(this)}
           >
             是否确定返回“上一步”？确定后已添加的服务 {serviceNameList.join(', ')} 将不被保留
+          </Modal>
+          <Modal
+            title="返回上一步"
+            visible={confirmSaveModalVisible}
+            onCancel={() => this.setState({ confirmSaveModalVisible: false })}
+            onOk={this.confirmSave}
+            footer={[
+              <Button key="back" type="ghost" size="large" onClick={this.cancelSave}>取 消</Button>,
+              <Button key="submit" type="primary" size="large" onClick={this.confirmSave}>
+                确 定
+              </Button>,
+            ]}
+          >
+            是否确定保存该服务？
           </Modal>
 
           <ResourceQuotaModal
@@ -562,7 +681,6 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  // setFormFields,
   removeFormFields,
   removeAllFormFields,
   createApp,

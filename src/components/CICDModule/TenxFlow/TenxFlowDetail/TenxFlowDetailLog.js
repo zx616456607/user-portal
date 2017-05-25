@@ -18,6 +18,7 @@ import { getTenxflowBuildLogs, getTenxflowBuildDetailLogs, getTenxflowBuildLastL
 import moment from 'moment'
 import './style/TenxFLowDetailLog.less'
 import TenxFlowBuildLog from '../TenxFlowBuildLog'
+import Title from '../../../Title'
 
 const menusText = defineMessages({
   bulidLog: {
@@ -82,7 +83,7 @@ function checkStatusSpan(status, scope) {
       return formatMessage(menusText.running);
     case 3:
       return formatMessage(menusText.wait);
-    default: 
+    default:
       return formatMessage(menusText.normal);
   }
 }
@@ -235,18 +236,17 @@ class TenxFLowDetailLog extends Component {
   }
 
   componentWillMount() {
-    document.title = 'TenxFlow | 时速云';
     const { getTenxflowBuildLogs, flowId } = this.props;
     getTenxflowBuildLogs(flowId);
   }
-  
+
   closeTenxFlowDeployLogModal() {
     //this function for user close the deploy log
     this.setState({
       TenxFlowDeployLogModal: false
     });
   }
-  
+
   getBuildLogDetailInfo(buildId) {
     //this function for show user the detail log info
     const { getTenxflowBuildDetailLogs, flowId } = this.props;
@@ -278,6 +278,7 @@ class TenxFLowDetailLog extends Component {
     const thisScope = this;
     return (
       <Card id='TenxFLowDetailLog'>
+        <Title title="TenxFlow" />
         <MyComponent config={logs} scope={thisScope} isFetching={isFetching} spaceName={spaceName} flowName={flowName} />
         <Modal visible={this.state.TenxFlowDeployLogModal}
           className='TenxFlowBuildLogModal'

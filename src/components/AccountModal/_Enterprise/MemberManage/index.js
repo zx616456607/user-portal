@@ -21,6 +21,7 @@ import NotificationHandler from '../../../../common/notification_handler'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../../constants'
 import MemberRecharge from '../Recharge'
 import { MAX_CHARGE }  from '../../../../constants'
+import Title from '../../../Title'
 
 const confirm = Modal.confirm
 
@@ -276,11 +277,16 @@ let MemberTable = React.createClass({
         key: 'name',
         className: 'memberName',
         width: '15%',
-        render: (text, record, index) => (
-          <Link to={`/account/user/${record.key}`}>
-            {text}
-          </Link>
-        ),
+        render: (text, record, index) => {
+          if (userDetail.role === ROLE_SYS_ADMIN) {
+            return (
+              <Link to={`/account/user/${record.key}`}>
+                {text}
+              </Link>
+            )
+          }
+          return text
+        },
       },
       {
         title: '手机',
@@ -453,7 +459,6 @@ class MemberManage extends Component {
     }, 500);
   }
   componentWillMount() {
-    document.title = '成员管理 | 时速云'
     this.props.loadUserList({
       page: 1,
       size: 10,
@@ -560,6 +565,7 @@ class MemberManage extends Component {
     }
     return (
       <div id="MemberManage">
+        <Title title="成员管理" />
         <Row>
           <Button type="primary" size="large" onClick={this.showModal} className="addBtn">
             <i className='fa fa-plus' /> 添加新成员

@@ -16,6 +16,7 @@ import Team from './Team'
 import { connect } from 'react-redux'
 import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import { loadUserDetail, loadUserList, updateUser, loadUserAppInfo, loadUserTeamspaceDetailList, loadUserTeamList } from '../../../actions/user'
+import Title from '../../Title'
 
 class UserInfo extends Component {
   constructor(props) {
@@ -25,7 +26,6 @@ class UserInfo extends Component {
   }
   componentWillMount() {
     const { userID, loadUserDetail, loadUserAppInfo, loadUserTeamspaceDetailList, loadUserTeamList } = this.props
-    document.title = userID ? '成员管理 | 时速云' : '我的帐户 | 时速云'
     loadUserDetail(userID ? userID : 'default')
     loadUserAppInfo(userID ? userID : 'default')
     loadUserTeamspaceDetailList(userID ? userID : 'default', null)
@@ -34,7 +34,6 @@ class UserInfo extends Component {
   componentWillReceiveProps(nextProps) {
     const { userID, loadUserDetail, loadUserAppInfo, loadUserTeamspaceDetailList, loadUserTeamList } = nextProps
     if (this.props.userID != userID) {
-      document.title = userID ? '成员管理 | 时速云' : '我的帐户 | 时速云'
       loadUserDetail(userID ? userID : 'default')
       loadUserAppInfo(userID ? userID : 'default')
       loadUserTeamspaceDetailList(userID ? userID : 'default', null)
@@ -50,6 +49,7 @@ class UserInfo extends Component {
     }
     return (
       <div id="UserInfo">
+        <Title title={userID ? '成员管理' : '我的帐户'} />
         <Row className="title">
           <Col>{ memberFlag ? '成员信息' : '我的信息'}</Col>
         </Row>

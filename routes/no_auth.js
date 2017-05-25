@@ -31,7 +31,7 @@ module.exports = function (Router) {
   router.get('/captcha/:captcha/verify', authController.checkCaptchaIsCorrect)
   // Notfound
   router.get('/notfound', function* () {
-    yield this.render(global.indexHtml, { title: 'Page not found | 时速云', body: '' })
+    yield this.render(global.indexHtml, { title: 'Page not found', body: '' })
   })
 
   // oem info

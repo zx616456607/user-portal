@@ -64,12 +64,12 @@ const LivenessSetting = React.createClass({
     }
     const header = (
       <div className="headerBox">
-        <Row className="header" key="header">
-          <Col span={3} className="left" key="left">
+        <Row className="configBoxHeader" key="header">
+          <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
             <div className="line"></div>
             <span className="title">高可用</span>
           </Col>
-          <Col span={21} key="right">
+          <Col span={formItemLayout.wrapperCol.span} key="right">
             <div className="desc">设置重启检查项目，如遇到检查项不满足，为自动保证服务高可用，将自动重启该服务</div>
           </Col>
         </Row>

@@ -70,7 +70,7 @@ let Admin = React.createClass({
     const _this = this
     setTimeout(function(){
       document.getElementById('password').focus()
-    }, 300)
+    }, 1000)
   },
   handleSubmit(e) {
     e.preventDefault()
@@ -134,15 +134,15 @@ let Admin = React.createClass({
         { validator: this.checkPass2 },
       ],
     })
-
+    const { result } = this.props
     return (
       <div id="LoginBg">
-        <Top/>
+        <Top loginLogo={ result.loginLogo }/>
         <div className="login">
           <div className="loginContent">
           <Row style={{ textAlign: 'center' }}>
             <span className='logoLink'>
-              <div className='logTitle'>时速云</div>
+              <div className='logTitle'>{this.props.company.productName}</div>
               <div className=''>技术领先的容器云计算服务商</div>
             </span>
           </Row>
@@ -178,7 +178,10 @@ let Admin = React.createClass({
         </div>
         </div>
         <div className="footer">
-          © 2017 北京云思畅想科技有限公司 &nbsp;|&nbsp; 时速云企业版 v2.1.0
+          { result.company.visible ?
+            result.company.name
+          :null
+          }
           </div>
       </div>
     )
@@ -186,8 +189,9 @@ let Admin = React.createClass({
 })
 
 function mapStateToProps(state, props) {
+  const { result } = state.personalized.info
   return {
-   
+    result
   }
 }
 

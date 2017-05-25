@@ -25,6 +25,7 @@ import ContainerStatus from '../TenxStatus/ContainerStatus'
 import { formatDate } from '../../common/tools'
 import NotificationHandler from '../../common/notification_handler'
 import serverSVG from '../../assets/img/app.png'
+import Title from '../Title'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -51,8 +52,6 @@ class ContainerDetail extends Component {
   }
 
   componentWillMount() {
-    const { cluster, containerName } = this.props
-    document.title = `容器 ${containerName} | 时速云`
     loadData(this.props)
   }
 
@@ -152,6 +151,7 @@ class ContainerDetail extends Component {
           key="demo"
           type="right"
           >
+          <Title title={`容器 ${containerName}`} />
           <div className="cover"></div>
           <div key="ca" className="containerInfo" id='containerInfo'>
             <Card className="topCard">

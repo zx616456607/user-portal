@@ -30,6 +30,7 @@ import findIndex from 'lodash/findIndex'
 import NotificationHandler from '../../../common/notification_handler'
 import Socket from '../../Websocket/socketIo'
 import PopTabSelect from '../../PopTabSelect'
+import Title from '../../Title'
 
 const PopTab = PopTabSelect.Tab;
 const PopOption = PopTabSelect.Option;
@@ -71,7 +72,7 @@ let menusText = defineMessages({
   },
   deloyStart: {
     id: 'CICD.Tenxflow.BuildImage.deloyStart',
-    defaultMessage: '立刻构建',
+    defaultMessage: '立即构建',
   },
   delete: {
     id: 'CICD.Tenxflow.BuildImage.delete',
@@ -117,6 +118,11 @@ let MyComponent = React.createClass({
     }
   },
   operaMenuClick: function (item, e) {
+    const { scope } = this.props
+    if(e.key == 'deloylog111'){
+      scope.openTenxFlowDeployLogModal(item.flowId)
+      return
+    }
     if(e.key == 'checkImage111') {
       const notify = new NotificationHandler()
       if(!item.image) {
@@ -254,6 +260,9 @@ let MyComponent = React.createClass({
     const { repoBranchesAndTags } = this.props
     const dropdown = (
       <Menu onClick={this.operaMenuClick.bind(this, item)}>
+        <Menu.Item key="deloylog111">
+          <FormattedMessage {...menusText.deloyLog} style={{ display: 'inlineBlock' }} />
+        </Menu.Item>
         <Menu.Item key="checkImage111">
           <FormattedMessage {...menusText.checkImage} style={{ display: 'inlineBlock' }} />
         </Menu.Item>
@@ -374,10 +383,10 @@ let MyComponent = React.createClass({
             <span><i className="fa fa-circle"></i>{status}</span>
           </div>
           <div className='opera'>
-            <Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
-              <i className='fa fa-wpforms' />&nbsp;
-              <FormattedMessage {...menusText.deloyLog} />
-            </Button>
+            {/*<Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>*/}
+              {/*<i className='fa fa-wpforms' />&nbsp;*/}
+              {/*<FormattedMessage {...menusText.deloyLog} />*/}
+            {/*</Button>*/}
             {
               this.renderBuildBtn(item, index)
             }
@@ -444,7 +453,6 @@ class TenxFlowList extends Component {
   }
 
   componentWillMount() {
-    document.title = 'BuildImage | 时速云';
     const { getTenxFlowList } = this.props;
     const self = this
     this.loadData()
@@ -722,10 +730,9 @@ class TenxFlowList extends Component {
       message = " * 没有匹配到相关TenxFlow"
     }
     return (
-      <QueueAnim className='BuildImageList'
-                 type='right'
-      >
+      <QueueAnim className='BuildImageList' type='right'>
         <div id='TenxFlowList' key='TenxFlowList'>
+          <Title title="BuildImage" />
           <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
           <div className='operaBox'>
             <Button className='createBtn' size='large' type='primary' onClick={this.openCreateTenxFlowModal}>

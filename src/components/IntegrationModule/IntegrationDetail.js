@@ -19,6 +19,7 @@ import VSphere from './VSphereDetail'
 import VmList from './VmList'
 import PhysicalList from './PhysicalList'
 import VSphereConfig from './VSphereConfig'
+import Title from '../Title'
 
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
@@ -55,7 +56,7 @@ class IntegrationDetail extends Component {
       currentDataCenter: null
     }
   }
-  
+
   componentWillMount() {
     document.title = '集成中心 | 时速云';
     const { getIntegrationDateCenter, integrationId } = this.props;
@@ -71,7 +72,7 @@ class IntegrationDetail extends Component {
       }
     });
   }
-  
+
   returnToList() {
     //the function for user return to the list
     const { scope } = this.props;
@@ -79,14 +80,14 @@ class IntegrationDetail extends Component {
       showType: 'list'
     });
   }
-  
+
   onChangeDataCenter(e) {
     //this function for user change the current data center
     this.setState({
       currentDataCenter: e
     });
   }
-  
+
   render() {
     const { formatMessage } = this.props.intl;
     const { scope } = this.props;
@@ -106,7 +107,8 @@ class IntegrationDetail extends Component {
     });
     return (
       <QueueAnim className='IntegrationDetailAnimate' key='IntegrationDetailAnimate'>
-        <div id='IntegrationDetail'>
+         <div id='IntegrationDetail' key="detail">
+            <Title title="集成中心" />
           <div className='dcSelector'>
             <Select defaultValue={this.state.currentDataCenter} style={{ width: 150, marginLeft: '15px' }} size='large' onChange={this.onChangeDataCenter}>
               {selectDcShow}

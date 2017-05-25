@@ -105,7 +105,7 @@ let AutoDeployService = React.createClass({
     }
   },
   componentWillMount() {
-    const {gitCdRules, form, flowId, getCdInimage} = this.props
+    const {gitCdRules, form, flowId, getCdInimage } = this.props
     const _this = this
     gitCdRules(flowId, {
       success: {

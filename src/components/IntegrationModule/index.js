@@ -19,6 +19,9 @@ import IntegrationDetail from './IntegrationDetail'
 import CreateVSphereModal from './CreateVSphereModal'
 import vmwareImg from '../../assets/img/appstore/vmware.png'
 import cephImg from '../../assets/img/appstore/ceph.png'
+import Title from '../Title'
+import Ceph from './Ceph'
+
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
 
@@ -95,7 +98,6 @@ class Integration extends Component {
   }
 
   componentWillMount() {
-    document.title = '集成中心 | 时速云';
     const { getAllIntegration } = this.props;
     getAllIntegration();
   }
@@ -224,8 +226,9 @@ class Integration extends Component {
       });
     }
     return (
-      <QueueAnim className='IntegrationAnimateBox' key='IntegrationAnimateBox'>
-        <div id='IntegrationList'>
+      <div className='IntegrationAnimateBox' key='IntegrationAnimateBox'>
+        <div id='IntegrationList' key="integration">
+          <Title title="集成中心" />
           <Alert message={formatMessage(menusText.tooltips)} type='info' />
           {/*<div className='operaBox'>
             <ButtonGroup size='large'>
@@ -250,7 +253,6 @@ class Integration extends Component {
                 <Spin size='large' />
               </div>
             ] : [
-              <QueueAnim key='infoBoxAnimateBox'>
                 <div key='infoBoxAnimate'>
                   {/*<div className='typeBox'>
                     <span className='title'><FormattedMessage {...menusText.appType} /></span>
@@ -348,9 +350,9 @@ class Integration extends Component {
                               <div style={{ clear:'both' }}></div>
                             </div>
                             <div className='rightBox'>
-                              <Button className='unintsallBtn' key='unintsallBtn' size='large' type='primary'
-                                style={{ width: '102px' }} disabled>
-                                <FormattedMessage {...menusText.commingSoon} />
+                              <Button className='unintsallBtn' onClick={()=> this.setState({showType:'Ceph'})} key='unintsallBtn' size='large' type='primary'
+                                style={{ width: '102px' }}>
+                                <FormattedMessage {...menusText.showAppDetail} />
                               </Button>
                             </div>
                             <div style={{ clear:'both' }}></div>
@@ -365,9 +367,13 @@ class Integration extends Component {
                         </div>
                       </QueueAnim>
                     ] : null}
+                    {this.state.showType === 'Ceph'?
+                      <Ceph key="ceph" scope={this}/>
+                      :null
+                    }
                   </Card>
                 </div>
-              </QueueAnim>
+
             ]
           }
         </div>
@@ -379,7 +385,7 @@ class Integration extends Component {
         >
           <CreateVSphereModal scope={scope} createIntegrationModal={this.state.createIntegrationModal}/>
         </Modal>
-      </QueueAnim>
+      </div>
     )
   }
 }

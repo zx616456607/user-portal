@@ -46,6 +46,42 @@ let ClusterInfo = React.createClass ({
     }
     callback()
   },
+  APIupdateCluster(clusterID, values){
+    const { updateCluster, loadClusterList } = this.props
+    const notification = new NotificationHandler()
+    if(values.isAuthorized){
+      values.isAuthorized = 1
+    } else {
+      values.isAuthorized = 0
+    }
+    updateCluster(clusterID, values, {
+      success: {
+        func: result => {
+          notification.success(`更新集群信息成功`)
+          loadClusterList(null, {
+            finally: {
+              func: () => {
+                this.setState({
+                  saveBtnLoading: false,
+                  editCluster: false,
+                })
+              }
+            }
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: err => {
+          notification.error(`更新集群信息失败`)
+          this.setState({
+            saveBtnLoading: false,
+          })
+        },
+        isAsync: true
+      }
+    })
+  },
   updateCluster(e) {
     e.preventDefault()
     const { form, updateCluster, cluster, loadClusterList, updateClusterConfig, clusterList } = this.props
@@ -69,38 +105,11 @@ let ClusterInfo = React.createClass ({
                   updateClusterConfig(clusterList[i].clusterID,{IsBuilder:2},{
                     success:{
                       func:() => {
-                        updateCluster(cluster.clusterID, values, {
-                          success: {
-                            func: result => {
-                              notification.success(`更新集群信息成功`)
-                              loadClusterList(null, {
-                                finally: {
-                                  func: () => {
-                                    this.setState({
-                                      saveBtnLoading: false,
-                                      editCluster: false,
-                                    })
-                                  }
-                                }
-                              })
-                            },
-                            isAsync: true
-                          },
-                          failed: {
-                            func: err => {
-                              notification.error(`更新集群信息失败`)
-                              this.setState({
-                                saveBtnLoading: false,
-                              })
-                            },
-                            isAsync: true
-                          }
-                        })
+                        this.APIupdateCluster(cluster.clusterID, values)
                       },
                       isAsync: true,
                     }
                   })
-                  break
                 }
               }
             },
@@ -120,33 +129,7 @@ let ClusterInfo = React.createClass ({
         })
         return
       }
-      updateCluster(cluster.clusterID, values, {
-        success: {
-          func: result => {
-            notification.success(`更新集群信息成功`)
-            loadClusterList(null, {
-              finally: {
-                func: () => {
-                  this.setState({
-                    saveBtnLoading: false,
-                    editCluster: false,
-                  })
-                }
-              }
-            })
-          },
-          isAsync: true
-        },
-        failed: {
-          func: err => {
-            notification.error(`更新集群信息失败`)
-            this.setState({
-              saveBtnLoading: false,
-            })
-          },
-          isAsync: true
-        }
-      })
+      this.APIupdateCluster(cluster.clusterID, values)
     })
   },
   deleteCluster() {
@@ -300,7 +283,7 @@ let ClusterInfo = React.createClass ({
     let {
       clusterName, apiHost, apiProtocol,
       apiVersion, bindingIPs, bindingDomains,
-      description, apiToken, isOk, isBuilder
+      description, apiToken, isOk, isBuilder, isAuthorized
     } = cluster
     const apiUrl = `${apiProtocol}://${apiHost}`
     bindingIPs = parseArray(bindingIPs).join(', ')
@@ -328,6 +311,13 @@ let ClusterInfo = React.createClass ({
       ],
       initialValue: description
     });
+    const authorizedProps = getFieldProps('isAuthorized', {
+      rules: [
+        { required: false, message: '请选择' },
+      ],
+      initialValue: isAuthorized,
+      valuePropName: 'checked',
+    })
     const dropdown = (
       <Menu onClick={this.deleteCluster} style={{ width: "100px" }} >
         <Menu.Item>
@@ -408,6 +398,12 @@ let ClusterInfo = React.createClass ({
           <div className="formItem">
             <Form.Item>
               <div className="h4 blod">&nbsp;</div>
+            </Form.Item>
+            <Form.Item>
+              <div style={{float:'left',height:'40px'}}>授权成员：</div>
+              <span>
+                <Checkbox disabled={!editCluster} {...authorizedProps}>该集群可被所有成员选择使用</Checkbox>
+              </span>
             </Form.Item>
             <Form.Item>
               <span className="h5" style={{display: 'inline-block',verticalAlign:'top',lineHeight:'30px'}}>描述：&nbsp;&nbsp;</span>

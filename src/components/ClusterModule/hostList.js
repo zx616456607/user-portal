@@ -336,8 +336,12 @@ class hostList extends Component {
     }
   }
   handleClose(item) {
-    console.log('item',item)
-    const summary = [...this.state.summary].filter(tag => (tag.key !== item.key) && tag);
+    const summary = this.state.summary.filter(tag => {
+      if (tag.key !== item.key && tag.value !== item.value) {
+        return false
+      }
+      return true
+    });
     let nodeList = [];
     const { nodes } = this.props;
     if (summary.length ==0) {
@@ -349,14 +353,20 @@ class hostList extends Component {
     }
     nodes.nodes.map((node) => {
       let labels = node.objectMeta.labels
-      summary.map((tag)=> {
-        if (labels[tag.key]) {
-          nodeList.push(node);
+      let isEqual = true
+      summary.every(item => {
+        if (!labels[item.key]) {
+          isEqual = false
+          return false
         }
+        return true
       })
+      if (isEqual) {
+        nodeList.push(node)
+      }
 
     });
-    nodeList = Array.from(new Set(nodeList))
+    // nodeList = Array.from(new Set(nodeList))
     this.setState({
       summary,
       nodeList

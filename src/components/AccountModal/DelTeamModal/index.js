@@ -59,7 +59,7 @@ class DelTeamModal extends Component{
           if (current && current.cluster && current.cluster.clusterID) {
             clusterID = current.cluster.clusterID
           }
-          if (teamID != current.space.teamID) { 
+          if (teamID != current.space.teamID) {
             // other team was dissolved
             if (current) {
               if (current.space) {
@@ -194,7 +194,7 @@ class DelTeamModal extends Component{
           </Col>
         </Row>
       </div>
-      
+
     )
     return (
       <Modal
@@ -219,7 +219,7 @@ class DelTeamModal extends Component{
           </Row>:
           <div></div>
         }
-        
+
       </Modal>
     )
   }
