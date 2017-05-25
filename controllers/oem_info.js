@@ -27,9 +27,17 @@ exports.restoreDefaultInfo = function*() {
 
 exports.restoreDefaultLogo = function*() {
   const loginUser = this.session.loginUser
-  const defaultLogo = oemInfoSvc.restoreDefaultLogo()
+  const defaultLogo = yield oemInfoSvc.restoreDefaultLogo()
   const api = apiFactory.getOemInfoApi(loginUser)
   yield api.updateBy(['info'], null, defaultLogo)
+  this.body = global.globalConfig.oemInfo
+}
+
+exports.restoreDefaultColor = function*() {
+  const loginUser = this.session.loginUser
+  const defaultColor = oemInfoSvc.restoreDefaultColor()
+  const api = apiFactory.getOemInfoApi(loginUser)
+  yield api.updateBy(['info'], null, defaultColor)
   this.body = global.globalConfig.oemInfo
 }
 
