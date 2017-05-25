@@ -139,6 +139,18 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.Expand',
     defaultMessage: '扩张',
   },
+  BatchIgnore: {
+    id: 'ManageMonitor.operationalAudit.BatchIgnore',
+    defaultMessage: '批量忽略',
+  },
+  EnablEmail: {
+    id: 'ManageMonitor.operationalAudit.EnablEmail',
+    defaultMessage: '允许发邮件',
+  },
+  DisablEmail: {
+    id: 'ManageMonitor.operationalAudit.DisablEmail',
+    defaultMessage: '禁止发邮件',
+  },
   Unknown: {
     id: 'ManageMonitor.operationalAudit.Unknown',
     defaultMessage: '其它',
@@ -367,6 +379,26 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.CDNotification',
     defaultMessage: 'CD部署镜像',
   },
+  Alert: {
+    id: 'ManageMonitor.operationalAudit.Alert',
+    defaultMessage: '告警',
+  },
+  AlertEmailGroup: {
+    id: 'ManageMonitor.operationalAudit.AlertEmailGroup',
+    defaultMessage: '邮件告警通知组',
+  },
+  AlertRecord: {
+    id: 'ManageMonitor.operationalAudit.AlertRecord',
+    defaultMessage: '告警记录',
+  },
+  AlertStrategy: {
+    id: 'ManageMonitor.operationalAudit.AlertStrategy',
+    defaultMessage: '告警策略',
+  },
+  AlertRule: {
+    id: 'ManageMonitor.operationalAudit.AlertRule',
+    defaultMessage: '告警规则',
+  },
   User: {
     id: 'ManageMonitor.operationalAudit.User',
     defaultMessage: '用户',
@@ -411,7 +443,7 @@ function returnOperationList(scope) {
   //I don't know why when I init the object and the label equal intl function return is error
   const { formatMessage } = scope.props.intl;
   const operationalList = [
-    {
+    { // 0
       value: '1',
       label: (<FormattedMessage {...menusText.Create} />)
     },
@@ -419,7 +451,7 @@ function returnOperationList(scope) {
       value: '4',
       label: (<FormattedMessage {...menusText.Update} />)
     },
-    {
+    { // 2
       value: '5',
       label: (<FormattedMessage {...menusText.Delete} />)
     },
@@ -427,7 +459,7 @@ function returnOperationList(scope) {
       value: '6',
       label: (<FormattedMessage {...menusText.Start} />)
     },
-    {
+    { // 4
       value: '7',
       label: (<FormattedMessage {...menusText.Stop} />)
     },
@@ -435,7 +467,7 @@ function returnOperationList(scope) {
       value: '8',
       label: (<FormattedMessage {...menusText.Restart} />)
     },
-    {
+    { // 6
       value: '9',
       label: (<FormattedMessage {...menusText.Pause} />)
     },
@@ -443,7 +475,7 @@ function returnOperationList(scope) {
       value: '10',
       label: (<FormattedMessage {...menusText.Resume} />)
     },
-    {
+    { // 8
       value: '11',
       label: (<FormattedMessage {...menusText.BatchDelete} />)
     },
@@ -451,7 +483,7 @@ function returnOperationList(scope) {
       value: '12',
       label: (<FormattedMessage {...menusText.BatchStart} />)
     },
-    {
+    { // 10
       value: '13',
       label: (<FormattedMessage {...menusText.BatchStop} />)
     },
@@ -459,7 +491,7 @@ function returnOperationList(scope) {
       value: '14',
       label: (<FormattedMessage {...menusText.BatchRestart} />)
     },
-    {
+    { // 12
       value: '15',
       label: (<FormattedMessage {...menusText.QuickRestart} />)
     },
@@ -467,13 +499,25 @@ function returnOperationList(scope) {
       value: '16',
       label: (<FormattedMessage {...menusText.CheckExist} />)
     },
-    {
+    { // 14
       value: '17',
       label: (<FormattedMessage {...menusText.Format} />)
     },
     {
       value: '18',
       label: (<FormattedMessage {...menusText.Expand} />)
+    },
+    { //  16
+      value: '19',
+      label: (<FormattedMessage {...menusText.BatchIgnore} />)
+    },
+    {
+      value: '20',
+      label: (<FormattedMessage {...menusText.EnablEmail} />)
+    },
+    { // 18
+      value: '21',
+      label: (<FormattedMessage {...menusText.DisablEmail} />)
     }
   ];
   return operationalList;
@@ -651,6 +695,21 @@ function resourceFormat(resourceType, scope) {
     case '46':
       return formatMessage(menusText.CDNotification)
       break;
+    case '46':
+      return formatMessage(menusText.CDNotification)
+      break;
+    case '48':
+      return formatMessage(menusText.AlertEmailGroup)
+      break;
+    case '49':
+      return formatMessage(menusText.AlertRecord)
+      break;
+    case '50':
+      return formatMessage(menusText.AlertStrategy)
+      break;
+    case '51':
+      return formatMessage(menusText.AlertRule)
+      break;
     case '0':
       return formatMessage(menusText.Unknown)
       break;
@@ -711,6 +770,15 @@ function operationalFormat(operationalType, scope) {
       break;
     case '18':
       return formatMessage(menusText.Expand)
+      break;
+    case '19':
+      return formatMessage(menusText.BatchIgnore)
+      break;
+    case '20':
+      return formatMessage(menusText.EnablEmail)
+      break;
+    case '21':
+      return formatMessage(menusText.DisablEmail)
       break;
   }
 }
@@ -782,6 +850,25 @@ function formatResourceName(resourceName, resourceId) {
       }
       newName = newName.join(',');
       return newName;
+    }
+    if (newBody.name) {
+      return newBody.name
+    }
+    if (newBody.strategyName) {
+      return newBody.strategyName
+    }
+    if (newBody.strategyIDs && Array.isArray(newBody.strategyIDs) && newBody.strategyIDs.length > 0) {
+      return newBody.strategyIDs.join(",")
+    }
+    if (newBody.strategies && Array.isArray(newBody.strategies) && newBody.strategies.length > 0) {
+      let ids = new Array()
+      for(let i=0; i < newBody.strategies.length; i++) {
+        let item = newBody.strategies[i]
+        if (item && item.strategyID) {
+          ids.push(item.strategyID)
+        }
+      }
+      return ids.join(',')
     }
   } else {
     if(resourceName.length == 0) {
@@ -1180,6 +1267,31 @@ class OperationalAudit extends Component {
         //CDNotifications
         showOperationalList.push(operationalList[3]);
         break;
+      case '48':
+        //AlertEmailGroup
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[1]);
+        showOperationalList.push(operationalList[8]);
+        break;
+      case '49':
+        //AlertRecord
+        showOperationalList.push(operationalList[2]);
+        break;
+      case '50':
+        //AlertStrategy
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[1]);
+        showOperationalList.push(operationalList[8]);
+        showOperationalList.push(operationalList[9]);
+        showOperationalList.push(operationalList[10]);
+        showOperationalList.push(operationalList[16]);
+        showOperationalList.push(operationalList[17]);
+        showOperationalList.push(operationalList[18]);
+        break;
+      case '51':
+        //AlertRule
+        showOperationalList.push(operationalList[10]);
+        break;
       case '0':
         //Unknown
         showOperationalList = operationalList;
@@ -1399,6 +1511,24 @@ class OperationalAudit extends Component {
           }, {
             value: '46',
             label: formatMessage(menusText.CDNotification),
+          }
+        ]
+      }, {
+        value: '48',
+        label: formatMessage(menusText.Alert),
+        children: [
+          {
+            value: '48',
+            label: formatMessage(menusText.AlertEmailGroup),
+          }, {
+            value: '49',
+            label: formatMessage(menusText.AlertRecord),
+          }, {
+            value: '50',
+            label: formatMessage(menusText.AlertStrategy),
+          }, {
+            value: '51',
+            label: formatMessage(menusText.AlertRule),
           }
         ]
       }, {
