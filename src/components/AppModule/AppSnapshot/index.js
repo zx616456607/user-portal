@@ -19,6 +19,7 @@ import { DEFAULT_IMAGE_POOL } from '../../../constants'
 import NotificationHandler from '../../../common/notification_handler'
 import { formatDate } from  '../../../common/tools'
 import Title from '../../Title'
+import { Link } from 'react-router'
 
 class Snapshot extends Component {
   constructor(props) {
@@ -35,9 +36,9 @@ class Snapshot extends Component {
     this.loadSnapshotList = this.loadSnapshotList.bind(this)
     this.handlecolsetips = this.handlecolsetips.bind(this)
     this.updateSnapshotList = this.updateSnapshotList.bind(this)
+    this.handleTableRowClick = this.handleTableRowClick.bind(this)
     this.state = {
       selectedRowKeys: [],
-      loading: false,
       DeleteSnapshotButton: true,
       rollbackModal: false,
       rollbackLoading: false,
@@ -48,7 +49,11 @@ class Snapshot extends Component {
       currentKey: 0,
       currentSnapshot: {},
       currentDeletedSnapshotArrary: {},
-      SnapshotList: []
+      SnapshotList: [],
+      RowClickObj: {},
+      delelteSnapshotNum: false,
+      RowDelete: false,
+      TopDelete: false,
     }
   }
 
@@ -106,16 +111,28 @@ class Snapshot extends Component {
 
   handleConfirmDeletaSnapshot(){
     const { snapshotDataList, SnapshotDelete, cluster } = this.props
-    const { currentKey } = this.state
+    const { currentKey, currentDeletedSnapshotArrary, selectedRowKeys, RowDelete, TopDelete } = this.state
     const info = new NotificationHandler()
     this.setState({
-      DeleteSnapshotConfirmLoading: true
+      DeleteSnapshotConfirmLoading: true,
+      RowClickObj: {},
     })
-    const body = {
-      clusterID: cluster,
-      body: {
-        snapshotName: {
-          [snapshotDataList[currentKey].volume]: [snapshotDataList[currentKey].name]
+    let body = {}
+    if(RowDelete){
+      body = {
+        clusterID: cluster,
+        body: {
+          snapshotName: {
+            [snapshotDataList[currentKey].volume]: [snapshotDataList[currentKey].name]
+          }
+        }
+      }
+    }
+    if(TopDelete){
+      body = {
+        clusterID: cluster,
+        body: {
+          snapshotName: currentDeletedSnapshotArrary,
         }
       }
     }
@@ -126,6 +143,10 @@ class Snapshot extends Component {
           this.setState({
             DeletaSnapshotModal: false,
             DeleteSnapshotConfirmLoading: false,
+            DeleteSnapshotButton: true,
+            selectedRowKeys: [],
+            RowDelete: false,
+            TopDelete: false,
           })
           this.updateSnapshotList()
         },
@@ -137,6 +158,10 @@ class Snapshot extends Component {
           this.setState({
             DeletaSnapshotModal: false,
             DeleteSnapshotConfirmLoading: false,
+            DeleteSnapshotButton: true,
+            selectedRowKeys: [],
+            RowDelete: false,
+            TopDelete: false,
           })
         }
       }
@@ -151,40 +176,10 @@ class Snapshot extends Component {
   }
 
   handleDeleteSnapshots(){
-    const { SnapshotDelete, cluster } = this.props
-    const { currentDeletedSnapshotArrary } = this.state
-    const info = new NotificationHandler()
     this.setState({
-      loading: true
-    })
-    const body = {
-      clusterID: cluster,
-      body: {
-        snapshotName: currentDeletedSnapshotArrary,
-      }
-    }
-    SnapshotDelete(body, {
-      success: {
-        func: () => {
-          info.success('快照删除成功！')
-          this.setState({
-            loading: false,
-            DeleteSnapshotButton: true,
-            selectedRowKeys: [],
-          })
-          this.updateSnapshotList()
-        },
-        isAsync: true
-      },
-      failed: {
-        func: () => {
-          this.setState({
-            DeleteSnapshotButton: true,
-            selectedRowKeys: [],
-          })
-          info.error('快照删除失败！')
-        }
-      }
+      delelteSnapshotNum: false,
+      DeletaSnapshotModal: true,
+      TopDelete: true,
     })
   }
 
@@ -213,16 +208,20 @@ class Snapshot extends Component {
     });
   }
 
-  handleDeleteSnapshot(key){
+  handleDeleteSnapshot(key, e){
+    e.stopPropagation()
     const { snapshotDataList } = this.props
     this.setState({
       DeletaSnapshotModal: true,
       currentSnapshot: snapshotDataList[key],
       currentKey: key,
+      delelteSnapshotNum: true,
+      RowDelete: true,
     })
   }
 
-  handleRollbackSnapback(key){
+  handleRollbackSnapback(key, e){
+    e.stopPropagation()
     const { snapshotDataList, storageList } = this.props
     //判断当前快照状态
     if(snapshotDataList[key].status == '不正常'){
@@ -325,9 +324,23 @@ class Snapshot extends Component {
     })
   }
 
+  handleTableRowClick(record, index,e){
+    const { RowClickObj } = this.state
+    let arr = []
+    if(RowClickObj[index]){
+      delete RowClickObj[index]
+    } else {
+      RowClickObj[index] = index+1
+    }
+    for(let i in RowClickObj){
+      arr.push(RowClickObj[i]-1)
+    }
+    this.onSelectChange(arr)
+  }
+  
   render() {
     const { snapshotDataList } = this.props
-    const { loading, selectedRowKeys , DeleteSnapshotButton, currentSnapshot } = this.state
+    const { selectedRowKeys, DeleteSnapshotButton, currentSnapshot, delelteSnapshotNum } = this.state
     function iconclassName(text){
       switch(text){
         case '正常':
@@ -371,6 +384,11 @@ class Snapshot extends Component {
         title:'关联卷',
         key:'volume',
         dataIndex:'volume',
+        render: (volume) => <div>
+          <Link to={`/app_manage/storage/${DEFAULT_IMAGE_POOL}/${this.props.cluster}/${volume}`} >
+            {volume}
+          </Link>
+        </div>
       },{
         title:'创建时间',
         key:'CreateTime',
@@ -382,8 +400,8 @@ class Snapshot extends Component {
         key:'Handle',
         dataIndex:'key',
         render: (key) => <div>
-          <Button type="primary" onClick={ () => this.handleRollbackSnapback(key)}>回滚</Button>
-          <Button onClick={ () => this.handleDeleteSnapshot(key)} className='deleteButton'>删除</Button>
+          <Button type="primary" onClick={ this.handleRollbackSnapback.bind(this, key)}>回滚</Button>
+          <Button onClick={ this.handleDeleteSnapshot.bind(this, key)} className='deleteButton'>删除</Button>
         </div>
       }]
     const rowSelection = {
@@ -394,7 +412,7 @@ class Snapshot extends Component {
       <div id="appmanage_snapshot">
         <Title title="快照" />
         <div className='appmanage_snapshot_header'>
-          <Button icon="delete" size='large' loading={loading} onClick={this.handleDeleteSnapshots} disabled={DeleteSnapshotButton}>删除</Button>
+          <Button icon="delete" size='large' onClick={this.handleDeleteSnapshots} disabled={DeleteSnapshotButton}>删除</Button>
           <span className='searchBox'>
             <Input className='searchInput' placeholder='按快照名称搜索' size="large" onPressEnter={this.handelEnterSearch}/>
             <i className="fa fa-search searchIcon" aria-hidden="true" onClick={this.handelEnterSearch}></i>
@@ -407,6 +425,7 @@ class Snapshot extends Component {
               columns={snapshotcolumns}
               dataSource={this.state.SnapshotList}
               rowSelection={rowSelection}
+              onRowClick={this.handleTableRowClick}
             >
             </Table>
             :<div className='nodata'><Spin/></div>
@@ -478,18 +497,22 @@ class Snapshot extends Component {
            okText="确定风险，并立即删除"
          >
            <div>
-              <div className='infobox'>
-                <div className='leftbox'>
-                  <div className='item'>快照名称</div>
-                  <div className='item'>快照格式</div>
-                  <div className='item'>创建时间</div>
-                </div>
-                <dvi className='rightbox'>
-                  <div className='item'>{currentSnapshot.name}</div>
-                  <div className='item'>{currentSnapshot.fstype}</div>
-                  <div className='item color'>{formatDate(currentSnapshot.createTime)}</div>
-                </dvi>
-              </div>
+             { delelteSnapshotNum
+               ? <div className='infobox'>
+                   <div className='leftbox'>
+                     <div className='item'>快照名称</div>
+                     <div className='item'>快照格式</div>
+                     <div className='item'>创建时间</div>
+                   </div>
+                   <dvi className='rightbox'>
+                     <div className='item'>{currentSnapshot.name}</div>
+                     <div className='item'>{currentSnapshot.fstype}</div>
+                     <div className='item color'>{formatDate(currentSnapshot.createTime)}</div>
+                   </dvi>
+                 </div>
+               : <span></span>
+             }
+
              <div className='mainbox'>
                <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>
                删除该快照后，数据将立即被清除，请谨慎操作！
