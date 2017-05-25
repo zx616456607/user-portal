@@ -236,7 +236,7 @@ class ManageTagModal extends Component {
         const tag = cloneDeep(scope.state.summary)
         let isSet = false
         labels.map((item) => {
-          if (item.key == obj.keyPath[1]) {
+          if (item.key == obj.keyPath[1] && item.value ==  obj.keyPath[0]) {
             tag.map(list => {
               if (list.value == obj.key) {
               isSet = true
@@ -251,14 +251,20 @@ class ManageTagModal extends Component {
         let nodeList =[]
         scope.props.nodes.nodes.map((node) => {
           let labels = node.objectMeta.labels
-          for (let keys in labels) {
-            if (keys == obj.keyPath[1] && labels[keys] == obj.keyPath[0]) {
-              nodeList.push(node);
+          let isEqual = true
+          tag.every(item => {
+            if (!labels[item.key]) {
+              isEqual = false
+              return false
             }
+            return true
+          })
+          if (isEqual) {
+            nodeList.push(node)
           }
 
         });
-        nodeList = Array.from(new Set(nodeList))
+        // nodeList = Array.from(new Set(nodeList))
         scope.setState({
           summary:tag,
           nodeList
