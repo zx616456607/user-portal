@@ -430,7 +430,6 @@ class TenxFlowList extends Component {
       allChecked: false
     }
     const queryObj = parseQueryStringToObject(window.location.search)
-    console.log(queryObj)
     if(queryObj.showCard == 'true') {
       this.state.createTenxFlowModal = true
     }
