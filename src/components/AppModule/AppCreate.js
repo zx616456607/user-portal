@@ -14,7 +14,6 @@ import ProgressList from './AppCreate/ProgressList.js'
 import AppCreateSelectModel from './AppCreate/CreateModel.js'
 import './style/AppCreate.less'
 
-
 class AppCreate extends Component {
   constructor(props) {
     super(props);
