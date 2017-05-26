@@ -65,6 +65,7 @@ module.exports = function (Router) {
   router.post('/storage-pools/:cluster/volumes/:name/snapshot', volumeController.createSnapshot)
   router.post('/storage-pools/:cluster/volumes/:name/snapshot/rollback', volumeController.rollbackSnapshot)
   router.get('/storage-pools/:cluster/volumes/calamari-url', volumeController.getCalamariUrl)
+  router.post('/storage-pools/:cluster/volumes/calamari-url', volumeController.setCalamariUrl)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
@@ -76,12 +77,16 @@ module.exports = function (Router) {
   // For bind node when create service(lite only)
   router.get('/clusters/:cluster/nodes', clusterController.getNodes)
   router.get('/clusters/add-cluster-cmd', clusterController.getAddClusterCMD)
-  router.get('/clusters/:cluster/proxy', clusterController.getProxy)
-  router.put('/clusters/:cluster/proxy', clusterController.updateProxy)
-  router.get('/clusters/:cluster/node_addr', clusterController.getClusterNodeAddr)
-  router.get('/clusters/:cluster/plugins', clusterController.getClusterPlugins)
-  router.put('/clusters/:cluster/plugins/:name', clusterController.updateClusterPlugins)
+  router.get('/clusters/:cluster/proxy', middlewares.isAdminUser, clusterController.getProxy)
+  router.put('/clusters/:cluster/proxy', middlewares.isAdminUser, clusterController.updateProxy)
+  router.get('/clusters/:cluster/node_addr', middlewares.isAdminUser, clusterController.getClusterNodeAddr)
+  router.get('/clusters/:cluster/plugins', middlewares.isAdminUser, clusterController.getClusterPlugins)
+  router.put('/clusters/:cluster/plugins/:name', middlewares.isAdminUser, clusterController.updateClusterPlugins)
   router.get('/clusters/:cluster/network', clusterController.getClusterNetworkMode)
+  router.put('/clusters/:cluster/plugins/stop', middlewares.isAdminUser, clusterController.batchStopPlugins)
+  router.put('/clusters/:cluster/plugins/start', middlewares.isAdminUser, clusterController.batchStartPlugins)
+  router.delete('/clusters/:cluster/plugins', middlewares.isAdminUser, clusterController.batchDeletePlugins)
+  router.post('/clusters/:cluster/plugins', middlewares.isAdminUser, clusterController.createPlugins)
 
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
