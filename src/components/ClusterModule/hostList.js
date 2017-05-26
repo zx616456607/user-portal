@@ -338,9 +338,9 @@ class hostList extends Component {
   handleClose(item) {
     const summary = this.state.summary.filter(tag => {
       if (tag.key !== item.key && tag.value !== item.value) {
-        return false
+        return true
       }
-      return true
+      return false
     });
     let nodeList = [];
     const { nodes } = this.props;
@@ -374,9 +374,9 @@ class hostList extends Component {
   }
   formTagContainer(){
     let { summary } = this.state
-    const arr = summary.map((item)=> {
+    const arr = summary.map((item, index)=> {
       return (
-        <Tag closable color="blue" key={item.key + item.value} afterClose={() => this.handleClose(item)} style={{width:'100%'}}>
+        <Tag closable color="blue" key={item.key + index} afterClose={() => this.handleClose(item)} style={{width:'100%'}}>
           <span>{item.key}</span>
           <span className='point'>:</span>
           <span>{item.value}</span>

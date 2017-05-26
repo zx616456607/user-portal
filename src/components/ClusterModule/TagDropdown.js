@@ -226,7 +226,7 @@ class ManageTagModal extends Component {
   }
 
   handlecallback(obj) {
-    console.log('e',obj)
+    //console.log('e',obj)
 
     // *bai this is action set nodelist and labels
     // isManage  (true) to manage labes
@@ -248,30 +248,37 @@ class ManageTagModal extends Component {
         if (isSet) {
           return
         }
-        let nodeList =[]
-        scope.props.nodes.nodes.map((node) => {
-          let labels = node.objectMeta.labels
-          let isEqual = true
-          tag.every(item => {
-            if (!labels[item.key]) {
-              isEqual = false
-              return false
-            }
-            return true
-          })
-          if (isEqual) {
-            nodeList.push(node)
-          }
-
-        });
-        // nodeList = Array.from(new Set(nodeList))
+        if(scope.handledDropDownSetvalues){
+          scope.handledDropDownSetvalues(tag)
+        }
         scope.setState({
           summary:tag,
-          nodeList
         })
+        if(scope.props.nodes){
+          let nodeList =[]
+          scope.props.nodes.nodes.map((node) => {
+            let labels = node.objectMeta.labels
+            let isEqual = true
+            tag.every(item => {
+              if (!labels[item.key]) {
+                isEqual = false
+                return false
+              }
+              return true
+            })
+            if (isEqual) {
+              nodeList.push(node)
+            }
 
+          });
+          // nodeList = Array.from(new Set(nodeList))
+          scope.setState({
+            summary:tag,
+            nodeList
+          })
+        }
       } else {
-        console.log('href....',this.props.scope)
+        //console.log('href....',this.props.scope)
         // ManagLabelModal.js in scope
         let userCreateLabel = cloneDeep(scope.state.userCreateLabel)
         userCreateLabel[obj.keyPath[1]] = obj.keyPath[0]

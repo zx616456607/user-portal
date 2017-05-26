@@ -36,6 +36,8 @@ export function buildJson(fields, cluster, loginUser) {
     imageUrl, // 镜像地址
     imageTag, // 镜像版本
     bindNode, // 绑定节点
+    bindNodeType,//绑定节点类型
+    bindLabel,//主机标签绑定
     resourceType, // 容器配置
     DIYMemory, // 自定义配置-内存
     DIYCPU, // 自定义配置-CPU
@@ -70,8 +72,12 @@ export function buildJson(fields, cluster, loginUser) {
   // 设置镜像地址
   deployment.addContainer(serviceName, `${imageUrl}:${imageTag}`)
   // 设置绑定节点
-  if (bindNode !== SYSTEM_DEFAULT_SCHEDULE) {
+  if (bindNodeType == 'hostname') {
     deployment.setNodeSelector(bindNode)
+  }
+  // 设置主机标签绑定节点
+  if (bindNodeType == 'hostlabel') {
+    deployment.setLabelSelector(bindLabel)
   }
   // 设置资源
   const { cpu, memory } = getResourceByMemory(resourceType, DIYMemory, DIYCPU)
