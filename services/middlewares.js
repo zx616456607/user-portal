@@ -225,3 +225,14 @@ exports.verifyUser = function* (next) {
   this.request.result = result
   yield next
 }
+
+
+exports.isAdminUser = function* (next) {
+  console.log('---------------')
+  if(this.session.loginUser.role != 2) {
+    const err  = new Error('Is not admin user')
+    err.status = 401
+    throw err
+  }
+  yield next
+}
