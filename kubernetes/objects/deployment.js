@@ -419,7 +419,9 @@ class Deployment {
 
   setLabelSelector(labels) {
     if (labels && labels.length && labels.length > 0) {
-      this.spec.template.metadata.annotations = this.makeNodeAffinity(labels)
+      this.spec.template.metadata.annotations = {
+        "scheduler.alpha.kubernetes.io/affinity": this.makeNodeAffinity(labels)
+      }
     }
   }
 
