@@ -237,8 +237,7 @@ class Sider extends Component {
   }
 
   render() {
-    const { siderStyle, role,backColor } = this.props
-    console.log('backColor---=',backColor)
+    const { siderStyle, role,backColor,oemInfo } = this.props
     const { currentKey } = this.state
     const scope = this
     return (
@@ -272,9 +271,7 @@ class Sider extends Component {
             <ul className='siderTop'>
               <li className='logoItem'>
                 <Link to='/'>
-                  <svg className='logo'>
-                    <use xlinkHref='#sidernewlogo' />
-                  </svg>
+                  <img src={oemInfo.naviShrink} className="logo" />
                 </Link>
               </li>
               <li onClick={this.selectModel.bind(this, 'home', '#home')}
@@ -412,7 +409,7 @@ class Sider extends Component {
             <div key='siderBigger' className='siderBigger'>
               <div className='logBox'>
                 <Link to='/'>
-                  <img className='logo' src={logoPNG} />
+                  <img className='logo' src={oemInfo.naviExpand} />
                 </Link>
               </div>
               <Menu
@@ -781,7 +778,8 @@ function mapStateToProp(state) {
     beforeUploadState: state.storage.beforeUploadFile,
     storageDetail: state.storage.storageDetail,
     role,
-    backColor: oemInfo.colorThemeID
+    backColor: oemInfo.colorThemeID,
+    oemInfo
   }
 }
 
