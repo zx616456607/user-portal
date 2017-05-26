@@ -300,7 +300,8 @@ let EditTenxFlowModal = React.createClass({
     }
     let otherFlowType = config.metadata.type + '';
     let codeStoreName = fetchCodeStoreName(config.spec.project, codeList)
-    if (config.spec.build && config.spec.build.dockerfileFrom == 2) {
+    // get dockerfile not only dockerfileFrom = 2 for keep old dockerfile
+    if (config.spec.build) {
       let tempBody = {
         flowId: flowId,
         stageId: stageId
@@ -313,6 +314,11 @@ let EditTenxFlowModal = React.createClass({
             })
           },
           isAsync: true
+        },
+        failed: {
+          func: (res) => {
+            //
+          }
         }
       })
     }
