@@ -11,6 +11,6 @@
 
 exports.index = function* () {
   let method = 'index'
-  let title = `${this.t('common:console')} | ${this.t('common:tenxcloud')}`
+  let title = this.t('common:console')
   yield this.render(global.indexHtml, { title, body: '' })
 }

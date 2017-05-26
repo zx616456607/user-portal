@@ -44,6 +44,10 @@ class Personalized extends Component{
     // document.title = '个性外观 | 时速云'
     this.loadInfo(this)
   }
+  componentWillUnmount() {
+    const {colorThemeID} = this.props.oemInfo
+    this.props.setBackColor(colorThemeID)
+  }
   updateInfo(body) {
     const notificat = new NotificationHandler()
     const _this = this
@@ -192,7 +196,7 @@ class Personalized extends Component{
               <Col span="20" style={{width:400}}>
                 <div className="row-text">此处图片用于替换左侧导航顶部收起时图标，建议大小40px * 40px</div>
                 <Upload beforeUpload={(file)=> this.beforeUpload(file,'naviShrink')}>
-                  <span className="wrap-image">
+                  <span className="wrap-image" style={{width:100}}>
                     <Icon type="plus" className="push-icon"/>
                     <img className="logo" src={ oemInfo.naviShrink } />
                   </span>
@@ -204,7 +208,7 @@ class Personalized extends Component{
               <Col span="20" style={{width:400}}>
                 <div className="row-text">此处图片用于替换浏览器标签图标，建议大小40px * 40px</div>
                 <Upload beforeUpload={(file)=> this.beforeUpload(file,'favoriteIcon')}>
-                  <span className="wrap-image">
+                  <span className="wrap-image" style={{width:100}}>
                     <Icon type="plus" className="push-icon" />
                     <img className="logo" src={ oemInfo.favoriteIcon } />
                   </span>
@@ -216,7 +220,7 @@ class Personalized extends Component{
               <Col span="20" style={{width:400}}>
                 <div className="row-text">此处图片用于替换登录顶部左侧图标，建议大小120px * 30px</div>
                 <Upload beforeUpload={(file)=> this.beforeUpload(file,'loginLogo')}>
-                  <span className="wrap-image login">
+                  <span className="wrap-image">
                     <img className="logo" src={ oemInfo.loginLogo } />
                     <Icon type="plus" className="push-icon"/>
                   </span>
