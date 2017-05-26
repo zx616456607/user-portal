@@ -165,7 +165,7 @@ let CreateConfigFileModal = React.createClass({
     const fileInput = this.uploadInput.refs.upload.refs.inner.refs.file
     const mimeType = file.type
     const notify = new NotificationHandler()
-    if(/word|excel|pdf|tar|zip|gzip|rar|image/.test(mimeType)) {
+    if(/word|excel|pdf|tar|zip|gzip|rar|image|exe|ppt/.test(mimeType)) {
       notify.error('请上传文本文件')
       return false
     }

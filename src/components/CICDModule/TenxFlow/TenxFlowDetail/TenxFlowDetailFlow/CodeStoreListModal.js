@@ -207,7 +207,7 @@ let CodeStoreListModal = React.createClass({
           <div style={{ clear:'both' }}></div>
         </div>
         <div className='codeList'>
-          {codeItems.length == 0 ? <span>暂无已激活的代码仓库，<Link to={this.props.isBuildImage ? `/ci_cd/coderepo?from=build_image&redirect=${window.location.pathname+window.location.search}` : `/ci_cd/coderepo` }>前去激活代码仓库</Link></span> : codeItems}
+          {codeItems.length == 0 ? <span>暂无已激活的代码仓库，<Link to={this.props.isBuildImage ? `/ci_cd/coderepo/repos?from=build_image&redirect=${window.location.pathname+window.location.search}` : `/ci_cd/coderepo` }>前去激活代码仓库</Link></span> : codeItems}
         </div>
       </div>
     )

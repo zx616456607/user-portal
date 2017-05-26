@@ -61,6 +61,7 @@ const menusText = defineMessages({
   podToPodCheck: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.podToPodCheck',
     defaultMessage: '端对端测试',
+    defaultMessage: '端对端测试',
   },
   runningCode: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.runningCode',
