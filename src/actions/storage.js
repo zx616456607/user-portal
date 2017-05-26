@@ -466,3 +466,31 @@ export function SnapshotList(body, callback) {
 		return dispatch(fetchSnapshotList(body, callback))
 	}
 }
+
+
+export const CALAMARI_URL_REQUEST = 'CALAMARI_URL_REQUEST'
+export const CALAMARI_URL_SUCCESS = 'CALAMARI_URL_SUCCESS'
+export const CALAMARI_URL_FAILURE = 'CALAMARI_URL_FAILURE'
+// Fetches upgrade or renewals from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchCalamariUrl(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/calamari-url`
+	return {
+		[FETCH_API]: {
+			types: [CALAMARI_URL_REQUEST,CALAMARI_URL_SUCCESS, CALAMARI_URL_FAILURE],
+			endpoint,
+			schema: {},
+			options: {
+				method: 'GET'
+			},
+		},
+		callback
+	}
+}
+// Fetches upgrade or renewals from API
+// Relies on Redux Thunk middleware.
+export function GetCalamariUrl(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchCalamariUrl(body, callback))
+	}
+}

@@ -146,12 +146,12 @@ const AssistSetting = React.createClass({
     })
     const header = (
       <div className="headerBox">
-        <Row className="header" key="header">
-          <Col span={3} className="left" key="left">
+        <Row className="configBoxHeader" key="header">
+          <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
             <div className="line"></div>
             <span className="title">辅助设置</span>
           </Col>
-          <Col span={21} key="right">
+          <Col span={formItemLayout.wrapperCol.span} key="right">
             <div className="desc">一些常用的辅助设置：①容器进入点，②启动执行命令，③重新部署所用镜像，④容器时区设置</div>
           </Col>
         </Row>

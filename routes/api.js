@@ -64,7 +64,7 @@ module.exports = function (Router) {
   router.post('/storage-pools/:cluster/volumes/snapshot/delete', volumeController.deleteSnapshot)
   router.post('/storage-pools/:cluster/volumes/:name/snapshot', volumeController.createSnapshot)
   router.post('/storage-pools/:cluster/volumes/:name/snapshot/rollback', volumeController.rollbackSnapshot)
-
+  router.get('/storage-pools/:cluster/volumes/calamari-url', volumeController.getCalamariUrl)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
@@ -442,6 +442,7 @@ module.exports = function (Router) {
   router.put('/oem/logo', oemController.updateLogo)
   router.put('/oem/info/default', oemController.restoreDefaultInfo)
   router.put('/oem/logo/default', oemController.restoreDefaultLogo)
+  router.put('/oem/color/default', oemController.restoreDefaultColor)
 
   return router.routes()
 }

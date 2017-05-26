@@ -121,3 +121,12 @@ export function setSockets(sockets) {
     type: SET_SOCKETS
   }
 }
+
+export const SET_BACK_COLOR = 'SET_BACK_COLOR'
+// set theme color
+export function setBackColor(types) {
+  return {
+    type:SET_BACK_COLOR,
+    types
+  }
+}

@@ -11,7 +11,6 @@
 const apiFactory = require('./api_factory.js')
 const logger = require('../utils/logger').getLogger('loadOEMInfo')
 const fs = require('fs')
-const _ = require('lodash')
 const oem = apiFactory.getTenxSysSignSpi().oem
 
 const naviExpand = 'naviExpand'
@@ -30,8 +29,27 @@ exports.favoriteIcon = favoriteIcon
 const defaultMedias = {
   [loginLogo]: '/img/TopLogo.svg',
   [naviExpand]: '/img/logo.png',
-  [naviShrink]: '/img/sider/sidernewlogo.svg',
+  [naviShrink]: '/img/sider/siderNewLogo.svg',
   [favoriteIcon]: '/favicon.ico',
+}
+
+const customDefaultInfo = {
+  company: {
+    name: "© 2017 北京云思畅想科技有限公司  |  时速云企业版 v2.1.0",
+    productName: "时速云",
+    visible: true
+  },
+}
+
+const customDefaultMedias = {
+  [loginLogo]: {type: "static-file"},
+  [naviExpand]: {type: "static-file"},
+  [naviShrink]: {type: "static-file"},
+  [favoriteIcon]: {type: "static-file"},
+}
+
+let customDefaultColor = {
+  colorThemeID: 1,
 }
 
 let globalConfig = global.globalConfig
@@ -49,6 +67,14 @@ function* initOEMInfo() {
   let files = {}
   yield saveFiles(info, files)
   mergeToGlobalConfig(info, files)
+  syncCustomDefault(info)
+}
+
+function syncCustomDefault(info) {
+  const customDefault = info.customDefault
+  medias.forEach(media => customDefaultMedias[media] = customDefault[media])
+  customDefaultInfo.company = customDefault.company
+  customDefaultColor.colorThemeID = customDefault.colorThemeID
 }
 
 function* doSaveOneFile(id, fullPath) {
@@ -107,7 +133,7 @@ function updateOEMInfo(info) {
 }
 
 function genRandomString(len) {
-  const DEFAULT_TOKEN = '0123456789qwertyuioplkjhgfdsazxcvbnmABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&'
+  const DEFAULT_TOKEN = '0123456789qwertyuioplkjhgfdsazxcvbnmABCDEFGHIJKLMNOPQRSTUVWXYZ'
   const MAX_LEN = 64
   len = len > MAX_LEN ? MAX_LEN : len
   let randomStr = ''
@@ -143,23 +169,39 @@ function* deleteFile(path) {
 exports.restoreDefaultInfo = restoreDefaultInfo
 
 function restoreDefaultInfo() {
-  const defaultInfo = {
-    company: {
-      name: "© 2017 北京云思畅想科技有限公司  |  时速云企业版 v2.1.0",
-      productName: "时速云",
-      visible: true
-    },
-    colorThemeID: 1,
-  }
-  globalConfig.oemInfo = Object.assign({}, globalConfig.oemInfo, defaultInfo)
-  return defaultInfo
+  globalConfig.oemInfo = Object.assign({}, globalConfig.oemInfo, customDefaultInfo)
+  return customDefaultInfo
 }
 
 exports.restoreDefaultLogo = restoreDefaultLogo
 
-function restoreDefaultLogo() {
-  globalConfig.oemInfo = Object.assign({}, globalConfig.oemInfo, defaultMedias)
-  const dto = _.cloneDeep(defaultMedias)
-  medias.forEach(key => dto[key] = {type: "static-file"})
-  return dto
+function* restoreDefaultLogo() {
+  yield restoreFiles()
+  return customDefaultMedias
+}
+
+function* restoreFiles() {
+  yield medias.map(media => restoreOneFile(media, customDefaultMedias[media]))
+}
+
+function* restoreOneFile(key, meta) {
+  const old = globalConfig.oemInfo[key]
+  const tenxDefault = defaultMedias[key]
+  const isDefault = old === tenxDefault
+  const isBlobs = meta.type === 'blobs'
+  const name = isBlobs ? makeRandomName(meta.format) : tenxDefault
+  if (isBlobs) {
+    yield doSaveOneFile(meta.id, fullPath(name))
+  }
+  globalConfig.oemInfo[key] = name
+  if (!isDefault) {
+    yield deleteFile(fullPath(old))
+  }
+}
+
+exports.restoreDefaultColor = restoreDefaultColor
+
+function restoreDefaultColor() {
+  globalConfig.oemInfo.colorThemeID = customDefaultColor.colorThemeID
+  return customDefaultColor
 }

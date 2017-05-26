@@ -358,8 +358,8 @@ let ConfigureService = React.createClass({
       ],
     })
     const formItemLayout = {
-      labelCol: { span: 3 },
-      wrapperCol: { span: 21 },
+      labelCol: { span: 4 },
+      wrapperCol: { span: 20 },
     }
     return (
       <QueueAnim id="quickCreateAppConfigureService" type="right">

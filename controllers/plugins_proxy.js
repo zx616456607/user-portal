@@ -8,6 +8,7 @@
 * v0.1 - 2017-05-19
 * @author YangYuBiao
 */
+'use strict'
 
 const http = require('http')
 const https = require('https')

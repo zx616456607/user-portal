@@ -49,9 +49,10 @@ let ClusterInfo = React.createClass ({
   APIupdateCluster(clusterID, values){
     const { updateCluster, loadClusterList } = this.props
     const notification = new NotificationHandler()
-    values.isAuthorized = 0
     if(values.isAuthorized){
       values.isAuthorized = 1
+    } else {
+      values.isAuthorized = 0
     }
     updateCluster(clusterID, values, {
       success: {
