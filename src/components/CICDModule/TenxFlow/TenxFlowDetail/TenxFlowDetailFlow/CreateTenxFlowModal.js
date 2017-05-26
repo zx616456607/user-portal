@@ -1259,7 +1259,7 @@ let CreateTenxFlowModal = React.createClass({
             <div style={{ clear: 'both' }} />
           </div>
 
-          <div className='line'></div>
+          {this.props.isBuildImage ? '' : <div className='line'></div>}
           {this.props.isBuildImage ? '' :<div className='commonBox'>
             <div className='title'>
               <span><FormattedMessage {...menusText.imageName} /></span>
@@ -1500,8 +1500,7 @@ let CreateTenxFlowModal = React.createClass({
             <FormattedMessage {...menusText.submit} />
           </Button>
         </div>
-        <Modal className='tenxFlowCodeStoreModal'
-          title={<FormattedMessage {...menusText.codeStore} />}
+        <Modal className='tenxFlowCodeStoreModal' title={ !codeList || codeList.length == 0 ? <FormattedMessage {...menusText.codeStore} /> : <span><FormattedMessage {...menusText.codeStore} /><Button style={{marginLeft: '450px'}}  type='primary' onClick={()=> browserHistory.push('/ci_cd/coderepo/repos')}>去关联代码库</Button></span>}
           visible={this.state.codeStoreModalShow}
           onOk={this.closeCodeStoreModal}
           onCancel={this.closeCodeStoreModal}

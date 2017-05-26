@@ -23,7 +23,7 @@ import './style/CodeStore.less'
 const menusText = defineMessages({
   tooltips: {
     id: 'CICD.TenxStorm.tooltips',
-    defaultMessage: '代码仓库：这里完成构建前的准备工作，开发者可以在这里关联企业里业务代码所在的代码仓库，关联好代码仓库后，选择激活代码项目为可构建状态，以便后续构建 TenxFlow 时选择可构建的代码项目。',
+    defaultMessage: '代码仓库：这里完成构建前的准备工作，开发者可以在这里关联企业里业务代码所在的代码仓库，关联好代码仓库后，选择激活代码项目为可构建状态， 以便后续构建TenxFlow时选择可构建的代码项目。注：构建时无权访问已注销代码仓库的代码源，下次重新关联后可正常使用',
   },
   show: {
     id: 'CICD.TenxStorm.show',
