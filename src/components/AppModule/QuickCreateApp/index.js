@@ -33,7 +33,7 @@ const standard = require('../../../../configs/constants').STANDARD_MODE
 const mode = require('../../../../configs/model').mode
 const standardFlag = standard === mode
 const notification = new NotificationHandler()
-const serviceNameList = []
+let serviceNameList = []
 
 class QuickCreateApp extends Component {
   constructor(props) {
@@ -460,6 +460,7 @@ class QuickCreateApp extends Component {
     const { fields, location } = this.props
     const serviceList = []
     const currentStep = this.getStepsCurrent()
+    const _serviceNameList = []
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
         const service = fields[key]
@@ -478,7 +479,7 @@ class QuickCreateApp extends Component {
             'serviceItem': true,
             'active': isRowActive,
           })
-          serviceNameList.push(serviceName.value)
+          _serviceNameList.push(serviceName.value)
           serviceList.push(
             <Row className={rowClass} key={serviceName.value}>
               <Col span={12} className="textoverflow">
@@ -515,6 +516,7 @@ class QuickCreateApp extends Component {
         }
       }
     }
+    serviceNameList = _serviceNameList
     if (serviceList.length < 1) {
       return (
         <div className="noService">本应用中暂无任何服务</div>
@@ -554,7 +556,10 @@ class QuickCreateApp extends Component {
 
   render() {
     const { current, location } = this.props
-    const { confirmGoBackModalVisible, confirmSaveModalVisible, isCreatingApp, stepStatus } = this.state
+    const {
+      confirmGoBackModalVisible, confirmSaveModalVisible, isCreatingApp,
+      stepStatus,
+    } = this.state
     const steps = (
       <Steps size="small" className="steps" status={stepStatus} current={this.getStepsCurrent()}>
         <Step title="部署方式" />
@@ -641,10 +646,16 @@ class QuickCreateApp extends Component {
           <Modal
             title="返回上一步"
             visible={confirmSaveModalVisible}
-            onCancel={this.cancelSave}
+            onCancel={() => this.setState({ confirmSaveModalVisible: false })}
             onOk={this.confirmSave}
+            footer={[
+              <Button key="back" type="ghost" size="large" onClick={this.cancelSave}>取 消</Button>,
+              <Button key="submit" type="primary" size="large" onClick={this.confirmSave}>
+                确 定
+              </Button>,
+            ]}
           >
-            是否保存该服务？
+            是否确定保存该服务？
           </Modal>
 
           <ResourceQuotaModal

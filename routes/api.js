@@ -443,6 +443,7 @@ module.exports = function (Router) {
   router.put('/oem/logo', oemController.updateLogo)
   router.put('/oem/info/default', oemController.restoreDefaultInfo)
   router.put('/oem/logo/default', oemController.restoreDefaultLogo)
+  router.put('/oem/color/default', oemController.restoreDefaultColor)
 
   return router.routes()
 }

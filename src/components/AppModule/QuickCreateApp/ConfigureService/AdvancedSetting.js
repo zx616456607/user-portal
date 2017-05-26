@@ -125,12 +125,12 @@ const AdvancedSetting = React.createClass({
     const envKeys = getFieldValue('envKeys') || []
     const header = (
       <div className="headerBox">
-        <Row className="header" key="header">
-          <Col span={3} className="left" key="left">
+        <Row className="configBoxHeader" key="header">
+          <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
             <div className="line"></div>
             <span className="title">高级设置</span>
           </Col>
-          <Col span={21} key="right">
+          <Col span={formItemLayout.wrapperCol.span} key="right">
             <div className="desc">在高级设置里，您可以修改环境变量配置</div>
           </Col>
         </Row>
@@ -141,7 +141,7 @@ const AdvancedSetting = React.createClass({
         <Collapse>
           <Panel header={header}>
             <Row>
-              <Col span={formItemLayout.labelCol.span} className="label">
+              <Col span={formItemLayout.labelCol.span} className="formItemLabel">
                 环境变量
               </Col>
               <Col span={formItemLayout.wrapperCol.span}>

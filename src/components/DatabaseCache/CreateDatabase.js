@@ -370,7 +370,6 @@ let CreateDatabase = React.createClass({
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
-            {this.state.currentType == 'mysql' || this.state.currentType == 'zookeeper' ?
 
             <div className='commonBox'>
               <div className='title'>
@@ -386,8 +385,6 @@ let CreateDatabase = React.createClass({
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
-            : null
-            }
             <div className="modal-price">
               <div className="price-left">
                 <div className="keys">实例：{parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>

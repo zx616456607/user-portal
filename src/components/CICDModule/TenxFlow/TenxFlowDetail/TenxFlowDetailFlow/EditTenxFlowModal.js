@@ -300,7 +300,8 @@ let EditTenxFlowModal = React.createClass({
     }
     let otherFlowType = config.metadata.type + '';
     let codeStoreName = fetchCodeStoreName(config.spec.project, codeList)
-    if (config.spec.build && config.spec.build.dockerfileFrom == 2) {
+    // get dockerfile not only dockerfileFrom = 2 for keep old dockerfile
+    if (config.spec.build) {
       let tempBody = {
         flowId: flowId,
         stageId: stageId
@@ -313,6 +314,11 @@ let EditTenxFlowModal = React.createClass({
             })
           },
           isAsync: true
+        },
+        failed: {
+          func: (res) => {
+            // maybe can't get dockerfile, do not show error in page
+          }
         }
       })
     }
@@ -1644,8 +1650,7 @@ let EditTenxFlowModal = React.createClass({
             <FormattedMessage {...menusText.submit} />
           </Button>
         </div>
-        <Modal className='tenxFlowCodeStoreModal'
-          title={<FormattedMessage {...menusText.codeStore} />}
+        <Modal className='tenxFlowCodeStoreModal' title={ !codeList || codeList.length == 0 ? <FormattedMessage {...menusText.codeStore} /> : <span><FormattedMessage {...menusText.codeStore} /><Button style={{marginLeft: '450px'}}  type='primary' onClick={()=> browserHistory.push('/ci_cd/coderepo/repos')}>去关联代码库</Button></span>}
           visible={this.state.codeStoreModalShow}
           onOk={this.closeCodeStoreModal}
           onCancel={this.closeCodeStoreModal}
