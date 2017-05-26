@@ -106,6 +106,10 @@ class CodeList extends Component {
           if(window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0) {
             const queryObj = parseQueryStringToObject(window.location.search)
             if(queryObj.redirect) {
+              if(queryObj.showCard) {
+                browserHistory.push(queryObj.redirect + '&showCard=' + queryObj.showCard)
+                return
+              }
               browserHistory.push(queryObj.redirect)
             }
             return

@@ -310,7 +310,7 @@ class TenxFlowDetailFlowCard extends Component {
       editStatus: false,
       cicdSetModalShow: false,
       ciRulesOpened: false,
-      enxFlowDeployLogModal: false,
+      TenxFlowDeployLogModal: false,
       setStageFileModal: false
     }
   }

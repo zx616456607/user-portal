@@ -54,7 +54,7 @@ class QuickEntry extends Component {
                 </div>
               </Col>
               <Col span={8} className='CreateImage'>
-                <Link to="/ci_cd">
+                <Link to="/ci_cd?showCard=true">
                   <div className="item image">
                     <img src={ImageImg} alt="" className='img' />
                     <div className='middle'>构建一个镜像</div>

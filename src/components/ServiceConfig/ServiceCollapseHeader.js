@@ -112,10 +112,10 @@ let CreateConfigFileModal = React.createClass({
   },
   beforeUpload(file) {
     const fileInput = this.uploadInput.refs.upload.refs.inner.refs.file
-    const mimeType = file.type
+    const fileType = fileInput.value.substr(fileInput.value.lastIndexOf('.') + 1)
     const notify = new NotificationHandler()
-    if(/word|excel|pdf|tar|zip|gzip|rar|image/.test(mimeType)) {
-      notify.error('请上传文本文件')
+    if(!/xml|json|conf|config|data|ini|txt/.test(fileType)) {
+      notify.error('目前仅支持 xml/json/conf/config/data/ini/txt 格式')
       return false
     }
     const self = this

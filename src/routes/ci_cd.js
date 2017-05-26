@@ -10,9 +10,18 @@
  * @author Zhangpc
 */
 
+
 const CICDRoutes = [{
   path: 'coderepo',
-  component: require('../components/CICDModule/CodeStore/CodeRepo').default,
+  indexRoute: {
+    component: require('../components/CICDModule/CodeStore').default,
+  },
+  childRoutes: [{
+    path: 'repos',
+    component: require('../components/CICDModule/CodeStore/CodeRepo').default,
+  }]
+},{
+  path: 'codelist',
 },{
   path: 'tenx_flow',
   indexRoute: {
