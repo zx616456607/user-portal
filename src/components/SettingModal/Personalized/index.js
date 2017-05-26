@@ -169,14 +169,6 @@ class Personalized extends Component{
     this.updateInfo(body)
   }
   render(){
-    const uploadParams = {
-      name: 'file',
-      defaultFileList:[{
-        uid:-1,
-        name: 'xxx.png',
-        status: 'done',
-      }]
-    };
     const { oemInfo } = this.props
     return (
       <QueueAnim className="Personalized" type="right">

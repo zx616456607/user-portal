@@ -18,7 +18,6 @@ import QueueAnim from 'rc-queue-anim'
 import NotificationHandler from '../../../common/notification_handler'
 // import { loadUserDetail } from '../../../actions/user'
 import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
-import logoPNG from '../../../assets/img/sider/logo.png'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
