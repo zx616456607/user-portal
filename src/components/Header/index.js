@@ -179,7 +179,7 @@ class Header extends Component {
           }
           // select first cluster by default
           const firstCluster = result.data[0]
-          firstCluster.namespace = current.space.namespace
+          firstCluster.namespace = space.namespace
           setCurrent({
             team: { teamID: space.teamID },
             space,
