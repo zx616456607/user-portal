@@ -65,6 +65,7 @@ module.exports = function (Router) {
   router.post('/storage-pools/:cluster/volumes/:name/snapshot', volumeController.createSnapshot)
   router.post('/storage-pools/:cluster/volumes/:name/snapshot/rollback', volumeController.rollbackSnapshot)
   router.get('/storage-pools/:cluster/volumes/calamari-url', volumeController.getCalamariUrl)
+  router.post('/storage-pools/:cluster/volumes/calamari-url', volumeController.setCalamariUrl)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
