@@ -679,15 +679,7 @@ class TableTemplate extends Component{
     const { Unknown, Negligible, Low, Medium, High, None, echarts } = this.state
     const { mirrorsafetyClair, imageName, tag } = this.props
     function softwarenameSort(a,b){
-      if(a.length > b.length){
-        return -1
-      }
-      if(a.length == b.length){
-        return a.localeCompare(b)
-      }
-      if(a.length < b.length){
-        return 1
-      }
+      return a.localeCompare(b)
     }
     const softwareColumns = [
       {

@@ -151,10 +151,10 @@ let Emaill = React.createClass({
   },
   checkPass(rule, value, callback) {
     const { validateFields } = this.props.form
-    if (!value) {
-      callback([new Error('请填写密码')])
-      return
-    }
+    //if (!value) {
+    //  callback([new Error('请填写密码')])
+    //  return
+    //}
     callback()
   },
   checkEmail(rule, value, callback) {
