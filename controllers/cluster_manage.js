@@ -245,6 +245,71 @@ exports.updateClusterPlugins = function* () {
   this.body = result
 }
 
+
+exports.createPlugins = function* () {
+  const cluster = this.params.cluster
+  const body = this.request.body
+  if(!body || !body.template || body.pluginName) {
+    const err = new Error('template and pluginName is require')
+    err.status = 400
+    throw err
+  }
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = api.createBy([cluster, 'plugins'], null, {
+    cluster: cluster,
+    pluginName: body.pluginName,
+    template: body.template
+  })
+  this.body = result
+}
+
+exports.batchStopPlugins = function* () {
+  const cluster = this.params.cluster
+  const body = this.request.body
+  if(!body || !body.pluginNames || body.pluginNames.length == 0) {
+    const err = new Error('pluginNames is require')
+    err.status = 400
+    throw err
+  }
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = api.updateBy([cluster, 'plugins', 'batch-stop'], null, {
+    pluginNames: body.pluginNames
+  })
+  this.body = result
+}
+
+exports.batchStartPlugins = function* () {
+  const cluster = this.params.cluster
+  const body = this.request.body
+  if(!body || !body.pluginNames || body.pluginNames.length == 0) {
+    const err = new Error('pluginNames is require')
+    err.status = 400
+    throw err
+  }
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = api.updateBy([cluster, 'plugins', 'batch-start'], null, {
+    pluginNames: body.pluginNames
+  })
+  this.body = result
+}
+
+
+exports.batchDeletePlugins = function* () {
+  const cluster = this.params.cluster
+  const body = this.query.pluginNames
+  if(!body) {
+    const err = new Error('pluginNames is require')
+    err.status = 400
+    throw err
+  }
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = api.updateBy([cluster, 'plugins', 'batch-delete'], null, {
+    pluginNames: body.split(',')
+  })
+  this.body = result
+}
+
+
 exports.getClusterNetworkMode = function*() {
   const cluster = this.params.cluster
   const api = apiFactory.getK8sApi(this.session.loginUser)
