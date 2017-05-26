@@ -204,7 +204,7 @@ const MyComponent = React.createClass({
       return (
         <div className='CodeTable' key={item.name} >
           <div className='name textoverflow'>
-            {item.isLogout ? <span>[已注销]</span> : <span></span>}<span>{item.name}</span>
+            <span>{item.name}</span>
           </div>
           {item.isPrivate == 1 ?
             <div className="type private">
