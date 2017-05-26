@@ -28,10 +28,13 @@ class Personalized extends Component{
     }
     this.updateInfo = this.updateInfo.bind(this)
   }
-  loadInfo(scope){
+  loadInfo(scope,type){
     scope.props.getPersonalized({
       success:{
         func:(ret)=>{
+          if (type && type === 'logo') {
+            return
+          }
           document.title = `个性外观 | ${ret.company.productName}`
           scope.setState({siderColor:ret.colorThemeID})
           document.getElementById('productName').value = ret.company.productName
@@ -41,7 +44,6 @@ class Personalized extends Component{
 
   }
   componentWillMount() {
-    // document.title = '个性外观 | 时速云'
     this.loadInfo(this)
   }
   componentWillUnmount() {
@@ -122,12 +124,16 @@ class Personalized extends Component{
     this.props.updateLogo(data,{
       success:{
         func:()=>{
-          _this.loadInfo(_this)
-          _this.props.loadLoginUserDetail()
+          _this.loadInfo(_this,'logo')
           if (type == 'favoriteIcon') {
-            notificat.success('修改成功！')
+            notificat.info('修改成功，刷新浏览器可看到效果！')
+            return
           }
           notificat.success('修改成功！')
+          if (type == 'loginLogo') {
+            return
+          }
+          _this.props.loadLoginUserDetail()
         },
         isAsync: true
       }
