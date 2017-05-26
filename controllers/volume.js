@@ -258,6 +258,23 @@ exports.getCalamariUrl=function* () {
   this.status = response.code
   this.body = response
 }
+exports.setCalamariUrl=function*() {
+	const calamari=this.request.body
+	if (!calamari.calamariUrl) {
+		this.status = 400
+		this.body = {
+			message: 'calamariUrl is empty'
+		}
+		return
+	}
+	const cluster = this.params.cluster
+	const snapApi=apiFactory.getK8sApi(this.session.loginUser)
+	const response=yield snapApi.createBy([cluster,'volumes','calamari'],null,this.request.body)
+	this.status = response.code
+	this.body = response
+}
+
+
 
 exports.rollbackSnapshot=function* () {
   const snapshot=this.request.body
