@@ -136,12 +136,12 @@ class Header extends Component {
   }
 
   handleDocVisible(){
-    const { visible } = this.state 
+    const { visible } = this.state
     this.setState({
       visible: !visible
     })
   }
-  
+
   _checkLiteVersion() {
     const { checkVersion } = this.props
     const { version, type } = this.state
@@ -177,13 +177,21 @@ class Header extends Component {
             })
             return
           }
+          // select first cluster by default
+          const firstCluster = result.data[0]
+          firstCluster.namespace = current.space.namespace
           setCurrent({
             team: { teamID: space.teamID },
             space,
+            cluster: firstCluster,
           })
+          let isShowCluster = !!showCluster
+          if (result.data.length === 1) {
+            isShowCluster = false
+          }
           _this.setState({
             spacesVisible: false,
-            clustersVisible: (showCluster ? true : false),
+            clustersVisible: isShowCluster,
           })
         },
         isAsync: true
@@ -197,10 +205,6 @@ class Header extends Component {
           })
         }
       }
-    })
-    this.setState({
-      spacesVisible: false,
-      clustersVisible: true,
     })
   }
 
