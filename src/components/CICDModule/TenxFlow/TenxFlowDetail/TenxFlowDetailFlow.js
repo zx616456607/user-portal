@@ -63,15 +63,16 @@ class TenxFlowDetailFlow extends Component {
       editTenxFlowModal: false,
       currentModalShowFlow: null,
       currentFlowEdit: null,
-      createNewFlow: false,
       buildingList: [],
       refreshing: false,
       websocket: '',
       forCacheShow: false,
       customizeBaseImageModalVisible: false,
     }
-    if(queryObj.showCard) {
+    if(queryObj.showCard == 'true') {
       this.state.createNewFlow = true
+    } else {
+      this.state.createNewFlow = false
     }
   }
 
