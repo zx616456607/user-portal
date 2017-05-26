@@ -317,7 +317,7 @@ let EditTenxFlowModal = React.createClass({
         },
         failed: {
           func: (res) => {
-            //
+            // maybe can't get dockerfile, do not show error in page
           }
         }
       })
