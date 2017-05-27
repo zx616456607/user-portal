@@ -40,7 +40,8 @@ class AlarmGroup extends Component {
   }
   componentWillMount() {
     const { loadNotifyGroups } = this.props
-    loadNotifyGroups()
+    const clusterID = this.props.cluster.clusterID
+    loadNotifyGroups("", clusterID)
   }
   dropdowns (record, group){
     // Dropdown delete btn
@@ -57,6 +58,7 @@ class AlarmGroup extends Component {
 
   // group must be an array. e.g. ['ID1'] or ['ID1', 'ID2']
   deleteGroup(rowSelection) {
+    const clusterID = this.props.cluster.clusterID
     let notification = new NotificationHandler()
     if (!this.state.deletingGroupIDs) {
       notification.error('请选择要删除的通知组')
@@ -75,7 +77,7 @@ class AlarmGroup extends Component {
         func: (result) => {
           this.closeDeleteModal()
           notification.success(`删除成功`)
-          loadNotifyGroups()
+          loadNotifyGroups("", clusterID)
         },
         isAsync: true
       },
@@ -157,7 +159,8 @@ class AlarmGroup extends Component {
   handSearch() {
     let search = document.getElementById('AlarmGroupInput').value.trim()
     const { loadNotifyGroups } = this.props
-    loadNotifyGroups(search)
+    const clusterID = this.props.cluster.clusterID
+    loadNotifyGroups(search, clusterID)
   }
   getSelectedGroups() {
     let groupIDs = []
@@ -354,6 +357,7 @@ class AlarmGroup extends Component {
 
 function mapStateToProps(state, props) {
   const { groups } = state.alert
+  const { cluster } = state.entities.current
   if (!groups) {
     return props
   }
@@ -367,6 +371,7 @@ function mapStateToProps(state, props) {
   let groupsData = result ? result.data : []
   return {
     isFetching,
+    cluster,
     groups: groupsData
   }
 }

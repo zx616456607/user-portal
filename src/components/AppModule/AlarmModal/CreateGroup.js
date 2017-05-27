@@ -362,7 +362,10 @@ let CreateAlarmGroup = React.createClass({
 
 CreateAlarmGroup = Form.create()(CreateAlarmGroup)
 function mapStateToProps(state, props) {
-  return {}
+  const { cluster } = state.entities.current
+  return {
+    cluster
+  }
 }
 
 export default connect(mapStateToProps, {

@@ -61,7 +61,7 @@ class AlarmRecord extends Component {
         query.targetType = targetTypeFilter
         query.targetName = targetFilter
     }
-    this.props.loadRecords(query)
+    this.props.loadRecords(query, props.clusterID)
   }
   componentWillMount() {
     const { loadRecordsFilters, clusterID, location } = this.props
@@ -109,9 +109,10 @@ class AlarmRecord extends Component {
       loadRecords,
      } = this.props
     const _this = this
+    const clusterID = this.props.clusterID
     let notification = new NotificationHandler()
     this.setState({deleteModal: false})
-    deleteRecords('', {
+    deleteRecords('', clusterID, {
       success: {
         func: () => {
           loadRecords()
@@ -177,7 +178,7 @@ class AlarmRecord extends Component {
       endTime: endTimeFilter,
       cluster: clusterID
     }
-    this.props.loadRecords(query)
+    this.props.loadRecords(query, clusterID)
   }
   render () {
     const columns = [

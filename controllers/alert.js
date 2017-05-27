@@ -13,25 +13,17 @@ const logger = require('../utils/logger.js').getLogger('alert')
 const co = require('co')
 
 exports.getRecordFilters = function* () {
-  if (!this.query || this.query.cluster == undefined) {
-    const err = new Error('invalid parameter')
-    err.status = 400
-    throw err
-  }
-
+  const cluster = this.params.cluster
   const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
-  const query = {
-    cluster: this.query.cluster
-  }
-  const result = yield api.alerts.getBy(["record-filters"], query)
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, "alerts/record-filters"], null)
   this.body = result
 }
 
 exports.getRecords = function* () {
+  const cluster = this.params.cluster
   let query = {}
   if (this.query) {
-    query.cluster = this.query.cluster || ''
     query.strategyName = this.query.strategyName || ''
     query.targetType = this.query.targetType != undefined ? this.query.targetType : ''
     query.targetName = this.query.targetName
@@ -42,12 +34,13 @@ exports.getRecords = function* () {
     query.size = this.query.size != undefined ? this.query.size : ''
   }
   const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
-  const result = yield api.alerts.getBy(["records"], query)
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, "alerts/records"], query)
   this.body = result
 }
 
 exports.deleteRecords = function* () {
+  const cluster = this.params.cluster
   let query = {
     strategyID: '',
   }
@@ -56,12 +49,13 @@ exports.deleteRecords = function* () {
   }
 
   const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
-  const result = yield api.alerts.deleteBy(["records"], query)
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.deleteBy([cluster, "alerts/records"], query)
   this.body = result
 }
 
 exports.listNotifyGroups = function* () {
+  const cluster = this.params.cluster
   let query = {
     name: '',
   }
@@ -69,15 +63,16 @@ exports.listNotifyGroups = function* () {
     query.name = this.query.name
   }
   const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
-  const result = yield api.alerts.getBy(["groups"], query)
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, "alerts/groups"], query)
   this.body = result
 }
 
 exports.createNotifyGroup = function* () {
+  const cluster = this.params.cluster
   const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
-  const result = yield api.alerts.createBy(["groups"], null, this.request.body)
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, "alters/groups"], null, this.request.body)
   this.body = result
 }
 

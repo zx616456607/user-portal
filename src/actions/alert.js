@@ -22,7 +22,7 @@ function fetchRecordsFilters(clusterID) {
   return {
     [FETCH_API]: {
       types: [ALERT_GET_RECORDS_FILTERS_REQUEST, ALERT_GET_RECORDS_FILTERS_SUCCESS, ALERT_GET_RECORDS_FILTERS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/record-filters?cluster=${clusterID}`,
+      endpoint: `${API_URL_PREFIX}/cluster/${clusterID}/alerts/record-filters`,
       schema: {}
     },
   }
@@ -38,20 +38,20 @@ export const ALERT_GET_RECORDS_REQUEST = 'ALERT_GET_RECORDS_REQUEST'
 export const ALERT_GET_RECORDS_SUCCESS = 'ALERT_GET_RECORDS_SUCCESS'
 export const ALERT_GET_RECORDS_FAILURE = 'ALERT_GET_RECORDS_FAILURE'
 
-function fetchRecords(query) {
+function fetchRecords(query, clusterID) {
   const queryStr = toQuerystring(query)
   return {
     [FETCH_API]: {
       types: [ALERT_GET_RECORDS_REQUEST, ALERT_GET_RECORDS_SUCCESS, ALERT_GET_RECORDS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/records?${queryStr}`,
+      endpoint: `${API_URL_PREFIX}/cluster/${clusterID}/alerts/records?${queryStr}`,
       schema: {}
     }
   }
 }
 
-export function loadRecords(query) {
+export function loadRecords(query, clusterID) {
   return (dispatch, getState) => {
-    return dispatch(fetchRecords(query))
+    return dispatch(fetchRecords(query, clusterID))
   }
 }
 
@@ -59,8 +59,8 @@ export const ALERT_DELETE_RECORDS_REQUEST = 'ALERT_DELETE_RECORDS_REQUEST'
 export const ALERT_DELETE_RECORDS_SUCCESS = 'ALERT_DELETE_RECORDS_SUCCESS'
 export const ALERT_DELETE_RECORDS_FAILURE = 'ALERT_DELETE_RECORDS_FAILURE'
 
-function fetchDeleteRecords(strategyID, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/records`
+function fetchDeleteRecords(strategyID, clusterID, callback) {
+  let endpoint = `${API_URL_PREFIX}/cluster/${clusterID}/alerts/records`
   if (strategyID) {
     endpoint += `?strategyID=${strategyID}`
   }
@@ -77,9 +77,9 @@ function fetchDeleteRecords(strategyID, callback) {
   }
 }
 
-export function deleteRecords(strategyID, callback) {
+export function deleteRecords(strategyID,clusterID, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchDeleteRecords(strategyID, callback))
+    return dispatch(fetchDeleteRecords(strategyID, clusterID, callback))
   }
 }
 
@@ -87,8 +87,8 @@ export const ALERT_GET_NOTIFY_GROUPS_REQUEST = 'ALERT_GET_NOTIFY_GROUPS_REQUEST'
 export const ALERT_GET_NOTIFY_GROUPS_SUCCESS = 'ALERT_GET_NOTIFY_GROUPS_SUCCESS'
 export const ALERT_GET_NOTIFY_GROUPS_FAILURE = 'ALERT_GET_NOTIFY_GROUPS_FAILURE'
 
-function fetchNotifyGroups(name, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/groups`
+function fetchNotifyGroups(name, clusterID, callback) {
+  let endpoint = `${API_URL_PREFIX}/cluster/${clusterID}/alerts/groups`
   if (name) {
     endpoint += `?name=${name}`
   }
@@ -102,9 +102,9 @@ function fetchNotifyGroups(name, callback) {
   }
 }
 
-export function loadNotifyGroups(name, callback) {
+export function loadNotifyGroups(name, clusterID, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchNotifyGroups(name, callback))
+    return dispatch(fetchNotifyGroups(name, clusterID, callback))
   }
 }
 
@@ -192,8 +192,8 @@ export const ALERT_CREATE_NOTIFY_GROUP_REQUEST = 'ALERT_CREATE_NOTIFY_GROUP_REQU
 export const ALERT_CREATE_NOTIFY_GROUP_SUCCESS = 'ALERT_CREATE_NOTIFY_GROUP_SUCCESS'
 export const ALERT_CREATE_NOTIFY_GROUP_FAILURE = 'ALERT_CREATE_NOTIFY_GROUP_FAILURE'
 
-function fetchCreateNotifyGroup(body, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/groups`
+function fetchCreateNotifyGroup(body, clusterID, callback) {
+  let endpoint = `${API_URL_PREFIX}/cluster/${clusterID}/alerts/groups`
   return {
     [FETCH_API]: {
       types: [ALERT_CREATE_NOTIFY_GROUP_REQUEST, ALERT_CREATE_NOTIFY_GROUP_SUCCESS, ALERT_CREATE_NOTIFY_GROUP_FAILURE],
@@ -208,9 +208,9 @@ function fetchCreateNotifyGroup(body, callback) {
   }
 }
 
-export function createNotifyGroup(body, callback) {
+export function createNotifyGroup(body, clusterID, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchCreateNotifyGroup(body, callback))
+    return dispatch(fetchCreateNotifyGroup(body, clusterID, callback))
   }
 }
 

@@ -983,7 +983,8 @@ class AlarmModal extends Component {
   }
   loadNotifyGroups() {
     const { loadNotifyGroups } = this.props
-    loadNotifyGroups()
+    const clusterID = this.props.cluster.clusterID
+    loadNotifyGroups("", clusterID)
   }
   notifyGroup(rule, value, callback) {
     if (!value) {
