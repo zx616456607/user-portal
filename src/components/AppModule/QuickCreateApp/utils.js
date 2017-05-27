@@ -73,10 +73,11 @@ export function buildJson(fields, cluster, loginUser) {
   deployment.addContainer(serviceName, `${imageUrl}:${imageTag}`)
   // 设置绑定节点
   if (bindNodeType == 'hostname') {
-    deployment.setNodeSelector(bindNode)
-  }
-  // 设置主机标签绑定节点
-  if (bindNodeType == 'hostlabel') {
+    if (bindNode !== SYSTEM_DEFAULT_SCHEDULE) {
+      deployment.setNodeSelector(bindNode)
+    }
+  } else if (bindNodeType == 'hostlabel') {
+    // 设置主机标签绑定节点
     deployment.setLabelSelector(bindLabel)
   }
   // 设置资源
