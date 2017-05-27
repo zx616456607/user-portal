@@ -8,17 +8,18 @@
  * @author ZhangChengZheng
  */
 import React, { Component } from 'react'
-import { Link ,browserHistory} from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
-import { Menu, Button, InputNumber, Card, Form, Select, Input, Dropdown, Spin, Modal, message, Icon, Checkbox, Switch, Tooltip,  Row, Col, Tabs } from 'antd'
+import { Menu, Button, InputNumber, Card, Form, Select, Input, Dropdown, Spin, Modal, Icon, Row, Col, Table } from 'antd'
 import './style/clusterPlugin.less'
-import { getClusterPlugins, updateClusterPlugins } from  '../../actions/cluster'
+import './style/clusterLabelManege.less'
+import { getClusterPlugins, updateClusterPlugins } from '../../actions/cluster'
 import NotificationHandler from '../../common/notification_handler'
 import { PLUGIN_DEFAULT_CONFIG } from '../../constants/index'
-import { getAllClusterNodes } from '../../actions/cluster_node'
+import { getAllClusterNodes, deleteMiddleware, updateMiddleware } from '../../actions/cluster_node'
+import openUrl from '../../assets/img/icon/openUrl.svg'
 
-
-class ClusterPlugin extends Component{
+class ClusterPlugin extends Component {
   constructor(prop) {
     super(prop)
     this.state = {
@@ -28,7 +29,7 @@ class ClusterPlugin extends Component{
   }
   loadData() {
     const { getClusterPlugins, cluster } = this.props
-    if(cluster) {
+    if (cluster) {
       getClusterPlugins(cluster.clusterID)
     }
 
@@ -39,16 +40,16 @@ class ClusterPlugin extends Component{
   onChange(value) {
   }
   convertCPU(cpu) {
-    if(cpu){
+    if (cpu) {
       return (cpu / 1000).toFixed(1) + '核'
     }
     return '无限制'
   }
   convertMemory(memory) {
-    if(!memory) return '无限制'
+    if (!memory) return '无限制'
     let size = 'M'
     memory = memory / 1024
-    if(memory > 1024) {
+    if (memory > 1024) {
       size = 'G'
       memory = (memory / 1024).toFixed(0)
       return memory + size
@@ -57,15 +58,15 @@ class ClusterPlugin extends Component{
     }
   }
   getStatusColor(status, name) {
-    switch(status) {
-      case 'OK': {
+    switch (status) {
+      case 'normal': {
         return '#33b867'
       }
-      case 'Warning': {
-        if(name == 'elasticsearch-logging') {
-          return '#33b867'
+      case 'warning': {
+        if (name == 'elasticsearch-logging') {
+          return '#F3575A'
         }
-        return '#f23e3f'
+        return '#F3575A'
       }
       default:
         return 'orange'
@@ -73,17 +74,46 @@ class ClusterPlugin extends Component{
   }
   getStatusMessage(status) {
     switch (status) {
-      case 'OK': {
+      case 'normal': {
         return '正常'
       }
-      case 'Warning': {
-        return '异常'
+      case 'uninstalled': {
+        return '未安装'
       }
-      case 'pending': {
-        return '启动中'
+      case 'abnormal': {
+        return '不正常'
+      }
+      case 'warning': {
+        return '报警'
       }
       default:
         return '未知'
+    }
+  }
+  startPlugin(row,type) {
+    const { cluster } = this.props.clusterPlugins.result
+    const body = {
+      pluginNames: row.name,
+      cluster: cluster
+    }
+    const notify = new NotificationHandler()
+    this.props.updateMiddleware(body, type, {
+      success: {
+        func: () => {
+          notify.success('操作成功！')
+          this.props.getClusterPlugins(cluster)
+        },
+        isAsync: true
+      }
+    })
+
+  }
+  getStateusForEvent(row) {
+    if (row.status.message == 'abnormal' && row.status.code == '503') {
+      return (<Button type="primary" onClick={() => this.showResetModal(row)}>重新安装</Button>)
+    }
+    if (row.status.message == 'uninstalled' && row.status.code == '503') {
+      return (<Button type="primary" onClick={() => this.startPlugin(row,'start')}>安装插件</Button>)
     }
   }
   showResetModal(plugin) {
@@ -99,42 +129,42 @@ class ClusterPlugin extends Component{
     })
   }
   resetPlugin(isReset) {
-    if(this.state.currentPlugin) {
+    if (this.state.currentPlugin) {
       this.setState({
         reset: false
       })
-      const notify =  new NotificationHandler()
+      const notify = new NotificationHandler()
       notify.spin('插件重新部署请求中')
       const { cluster, updateClusterPlugins } = this.props
-      updateClusterPlugins(cluster.clusterID, this.state.currentPlugin.name,{
+      updateClusterPlugins(cluster.clusterID, this.state.currentPlugin.name, {
         reset: true
-      },  {
-        success: {
-          func: () => {
-            notify.close()
-            notify.success('插件重新部署请求成功')
-            this.loadData()
+      }, {
+          success: {
+            func: () => {
+              notify.close()
+              notify.success('插件重新部署请求成功')
+              this.loadData()
+            },
+            isAsync: true
           },
-          isAsync: true
-        },
-        failed: {
-          func: () => {
-            notify.close()
-            notify.error('插件重新部署请求失败')
+          failed: {
+            func: () => {
+              notify.close()
+              notify.error('插件重新部署请求失败')
+            }
           }
-        }
-      })
+        })
     }
   }
   updateClusterPlugins() {
-    if(this.state.currentPlugin) {
+    if (this.state.currentPlugin) {
       const { cluster, form, updateClusterPlugins } = this.props
       this.setState({
         setModal: false
       })
       const self = this
       form.validateFields((err, value) => {
-        if(err) {
+        if (err) {
           return
         }
         this.setState({
@@ -151,22 +181,22 @@ class ClusterPlugin extends Component{
           memory,
           hostName: hostName == 'random' ? '' : hostName
         }, {
-          success: {
-            func: () => {
-              notify.close()
-              form.resetFields()
-              notify.success('插件配置更新成功')
-              self.loadData()
+            success: {
+              func: () => {
+                notify.close()
+                form.resetFields()
+                notify.success('插件配置更新成功')
+                self.loadData()
+              },
+              isAsync: true
             },
-            isAsync: true
-          },
-          failed: {
-            func: () => {
-              notify.close()
-              notify.error('插件配置更新失败')
+            failed: {
+              func: () => {
+                notify.close()
+                notify.error('插件配置更新失败')
+              }
             }
-          }
-        })
+          })
       })
     }
   }
@@ -183,14 +213,14 @@ class ClusterPlugin extends Component{
   getSelectItem() {
     const { nodeList, cluster } = this.props
     const clusterID = cluster.clusterID
-    if(nodeList.isEmptyObject) {
+    if (nodeList.isEmptyObject) {
       return <div key="null"></div>
     }
-    if(nodeList[clusterID].isFetching) {
+    if (nodeList[clusterID].isFetching) {
       return <Card id="Network" className="ClusterInfo">
         <div className="h3">节点</div>
-        <div className="loadingBox" style={{height:'100px'}}><Spin size="large"></Spin></div>
-        </Card>
+        <div className="loadingBox" style={{ height: '100px' }}><Spin size="large"></Spin></div>
+      </Card>
     }
     const nodes = nodeList[clusterID].nodes.clusters.nodes.nodes
     const items = []
@@ -202,38 +232,15 @@ class ClusterPlugin extends Component{
   }
   getTableItem() {
     const { clusterPlugins } = this.props
-    if(clusterPlugins.isFetching) {
-      return <div className="loadingBox"><Spin size="large"></Spin></div>
-    }
-    const items = []
-    const self = this
     if (clusterPlugins && clusterPlugins.result) {
       const plugins = clusterPlugins.result.data
-      const pluginsNames = Object.getOwnPropertyNames(plugins)
-      pluginsNames.forEach(name => {
-        const plugin = plugins[name]
-        items.push(<div className='podDetail'>
-          <div className='name commonTitle'>
-            <Link>{plugin.name}</Link>
-          </div>
-          <div className='status commonTitle'>
-            <span  style={{color: self.getStatusColor(plugin.status.message, plugin.name)}}><i className='fa fa-circle' />&nbsp;&nbsp;{self.getStatusMessage(plugin.status.message)}</span>
-          </div>
-          <div className='resources commonTitle'>
-            <div style={{lineHeight:'40px',height:30}}>CPU：{self.convertCPU(plugin.resourceRange.request.cpu)}</div>
-            <div style={{lineHeight:'normal'}}>内存：{self.convertMemory(plugin.resourceRange.request.memory)}</div>
-          </div>
-          <div className='locationNode commonTitle'>
-            <span>{plugin.hostName || '随机调度'}</span>
-          </div>
-          <div className='operation commonTitle'>
-            <Button type="primary" onClick={() => self.showResetModal(plugin)}>重新部署</Button>
-            <Button className="setup" type="ghost" onClick={()=> self.showSetModal(plugin)}>设置</Button>
-          </div>
-        </div>)
-      })
+      let pluginsNames = []
+      for (let key in plugins) {
+        pluginsNames.push(plugins[key])
+      }
+      return pluginsNames
     }
-    return items
+    return []
   }
   cancleSet() {
     const { form } = this.props
@@ -244,21 +251,57 @@ class ClusterPlugin extends Component{
   }
   setInputCPU(value) {
     const notify = new NotificationHandler()
-    if(value > this.state.maxCPU) {
-      this.setState({ inputCPU: this.state.maxCPU})
+    if (value > this.state.maxCPU) {
+      this.setState({ inputCPU: this.state.maxCPU })
       notify.error('输入的CPU数值已超出节点最大数值')
       return
     }
-    this.setState({ inputCPU: value})
+    this.setState({ inputCPU: value })
   }
-  render(){
+  handleMenuClick(key, row) {
+    console.log('key', row)
+    this.setState({
+      key,
+      plugins: row.name,
+      action: true
+    })
+
+  }
+  handPlugins() {
+    console.log('this.props.clusterPlugins.result', this.props)
+    const { cluster } = this.props.clusterPlugins.result
+    const body = {
+      pluginNames: this.state.plugins,
+      cluster: cluster
+    }
+    setTimeout(() => {
+      this.setState({ action: false })
+    }, 300)
+    const notify = new NotificationHandler()
+    if (this.state.key == 'stop') {
+      this.startPlugin(body,'stop')
+      return
+    }
+    this.props.deleteMiddleware(body, {
+      success: {
+        func: () => {
+          notify.success('删除成功！')
+          this.props.getClusterPlugins(cluster)
+        },
+        isAsync: true
+      }
+    })
+
+  }
+
+  render() {
     const { clusterPlugins, form } = this.props
 
     const { getFieldProps } = form
     const selectNode = getFieldProps('selectNode', {
       rules: [{
         validator: (rule, value, callback) => {
-          if(!value) {
+          if (!value) {
             return callback('请选择要部署的集群')
           }
           return callback()
@@ -268,31 +311,31 @@ class ClusterPlugin extends Component{
       onChange: (value) => {
         const { cluster } = this.props
         const { nodeList } = this.props
-        if(nodeList) {
+        if (nodeList) {
           let nodesDetail = nodeList[cluster.clusterID]
           console.log(nodesDetail)
-          if(nodesDetail) {
+          if (nodesDetail) {
             nodesDetail = nodesDetail.nodes.clusters.nodes.nodes
             let nodeDetail = {}
             let minCPU = Infinity
             let minMemory = Infinity
-            if(value == 'random') {
+            if (value == 'random') {
               nodesDetail.forEach(node => {
-                if(node.cPUAllocatable < minCPU) {
+                if (node.cPUAllocatable < minCPU) {
                   minCPU = node.cPUAllocatable
                 }
-                if(node.memoryAllocatable < minMemory) {
+                if (node.memoryAllocatable < minMemory) {
                   minMemory = node.memoryAllocatable
                 }
               })
               this.setState({
                 maxCPU: minCPU / 1000,
-                maxMem: Math.floor(minMemory / 1024 )
+                maxMem: Math.floor(minMemory / 1024)
               })
               return
             }
             nodesDetail.some(node => {
-              if(node.objectMeta.name == value) {
+              if (node.objectMeta.name == value) {
                 nodeDetail = node
                 return true
               }
@@ -308,12 +351,12 @@ class ClusterPlugin extends Component{
     })
     let currentMem = this.state.currentPlugin ? (this.state.currentPlugin.resourceRange.request.memory / 1024).toFixed(0) : 0
 
-    if(isNaN(currentMem)) currentMem = 0
-    const pluginMem = getFieldProps('pluginMem' , {
+    if (isNaN(currentMem)) currentMem = 0
+    const pluginMem = getFieldProps('pluginMem', {
       rules: [
         {
           validator: (rule, value, callback) => {
-            if(value > this.state.maxMem) {
+            if (value > this.state.maxMem) {
               const notify = new NotificationHandler()
               form.setFieldsValue({
                 pluginMem: this.state.maxMem
@@ -327,12 +370,12 @@ class ClusterPlugin extends Component{
       initialValue: currentMem
     })
     let currentCPU = this.state.currentPlugin ? (this.state.currentPlugin.resourceRange.request.cpu / 1000).toFixed(1) : '0'
-    if(isNaN(currentCPU)) currentCPU = 0
-    const pluginCPU = getFieldProps('pluginCPU' , {
+    if (isNaN(currentCPU)) currentCPU = 0
+    const pluginCPU = getFieldProps('pluginCPU', {
       rules: [
         {
           validator: (rule, value, callback) => {
-            if(value > this.state.maxCPU) {
+            if (value > this.state.maxCPU) {
               const notify = new NotificationHandler()
               form.setFieldsValue({
                 pluginCPU: this.state.maxCPU
@@ -345,84 +388,162 @@ class ClusterPlugin extends Component{
       ],
       initialValue: currentCPU
     })
-    return <Form><div id="cluster_clusterplugin">
-      <div className="alertRow">集群插件：使用以下插件可以分别使平台中的日志、发现服务、监控等可用；在这里可以重新部署插件，可以切换插件所在节点，还可以设置CPU、内存在集群中资源的限制。</div>
-      <Card className='ClusterListCard'>
-        <div className='operaBox'>
-          <Button type="primary" size="large" onClick={()=> this.loadData()} className='titlebutton'><i className='fa fa-refresh' /> 刷新</Button>
-        </div>
-      <div className='dataBox'>
-          <div className='titleBox'>
-            <div className='name commonTitle'>
-              <span>插件名称</span>
+
+    const labelcolumns = [
+      {
+        title: '插件名称',
+        key: 'keys',
+        dataIndex: 'name',
+        render: (text, row) => {
+          return (<Link>{text}</Link>)
+        }
+      },
+      {
+        title: '插件状态',
+        key: 'status',
+        dataIndex: 'status',
+        render: (status, row) => {
+          return (
+            <div style={{ color: this.getStatusColor(status.message, row.name) }}><i className='fa fa-circle' />&nbsp;&nbsp;{this.getStatusMessage(status.message)}</div>
+          )
+        }
+      },
+      {
+        title: '资源限制',
+        key: 'resourceRange',
+        dataIndex: 'resourceRange',
+        render: (plugin, row) => {
+          return (
+            <div><div>CPU：{this.convertCPU(plugin.request.cpu)}</div>
+              <div>内存：{this.convertMemory(plugin.request.memory)}</div>
             </div>
-            <div className='status commonTitle'>
-              <span>插件状态</span>
+          )
+        }
+      },
+      {
+        title: '所在节点',
+        key: 'templateID',
+        dataIndex: 'templateID',
+        render: (text, row) => {
+          return (
+            <span>{row.hostName || '随机调度'}</span>
+          )
+        }
+      },
+      {
+        title: '管理界面',
+        key: 'web',
+        dataIndex: 'web',
+        render: (text, row) => {
+          if (row.servingURIs) {
+            const url = row.servingURIs[0].split('/services/')[1]
+            return (<a href={`/proxy/clusters/${clusterPlugins.result.cluster}/plugins/${url}`} target="_blank"><img src={openUrl} className="openUrl" />打开界面</a>)
+          }
+          return '--'
+        }
+      },
+      {
+        title: '操作',
+        key: 'action',
+        dataIndex: 'action',
+        render: (text, row) => {
+          const menu = (
+            <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
+              <Menu.Item key="stop">停止插件</Menu.Item>
+              <Menu.Item key="delete">卸载插件</Menu.Item>
+            </Menu>
+          )
+          return (
+            <div className="pluginAction">
+              <span className="button">
+                {this.getStateusForEvent(row)}
+              </span>
+              <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
+                设置插件
+              </Dropdown.Button>
+              {/*<Button type="primary" onClick={() => this.showResetModal(row.name)}>重新部署</Button>
+              <Button className="setup" type="ghost" onClick={()=> this.showSetModal(row.name)}>设置</Button>*/}
             </div>
-            <div className='resources commonTitle'>
-              <span>资源限制</span>
-            </div>
-            <div className='locationNode commonTitle'>
-              <span>所在节点</span>
-            </div>
-            <div className='operation commonTitle'>
-              <span>操作</span>
-            </div>
+          )
+        }
+      }
+    ]
+    return (
+      <div id="cluster_clusterplugin">
+        <div className="alertRow">集群插件：使用以下插件可以分别使平台中的日志、发现服务、监控等可用；在这里可以重新部署插件，可以切换插件所在节点，还可以设置CPU、内存在集群中资源的限制。</div>
+
+        <div className='ClusterListCard' id="cluster__labelmanage">
+          <div className='operaBox'>
+            <Button type="primary" size="large" onClick={() => this.loadData()} className='titlebutton'><i className='fa fa-refresh' /> 刷新</Button>
           </div>
-             <Modal
-                title="重新部署操作"
-                wrapClassName="vertical-center-modal"
-                visible={this.state.reset}
-                onOk={() => this.resetPlugin() }
-                onCancel={() => this.setState({reset:false})}
-                >
-                <div className="confirmText">确定重新部署 {this.state.currentPlugin ? this.state.currentPlugin.name : ''} 插件吗?</div>
-              </Modal>
-              <Modal
-                title="设置节点及资源限制"
-                wrapClassName="vertical-center-modal"
-                visible={this.state.setModal}
-                onOk={() => this.updateClusterPlugins()}
-                onCancel={() => this.cancleSet()}
-                >
-                <div className="alertRow" style={{fontSize:'12px'}}><p>选择插件所在节点并设置该插件在本集群中可用的CPU和内存的限制；系统默认给出的值为最佳设置值，<span style={{fontWeight:'bold'}}>推荐使用默认设置</span>。</p>
-                <p>设置为 <span style={{fontWeight:'bold'}}>0</span> 时表示无限制；设置时请参考所选节点的资源上限设置该插件的资源限制；</p></div>
-                 <Form.Item
-                  id="select"
-                  style={{borderBottom:'1px solid #ededed',paddingBottom:'30px'}}
-                >
-                  <span className="setLimit">选择节点</span>
-                  <Select {...selectNode} size="large" style={{width: 200}}>
-                    { this.getSelectItem()}
-                  </Select>
-                </Form.Item>
-                <Form.Item>
-                 <span className="setLimit">设置限制</span><span>CPU</span><Button className="recovery" type="ghost" size="small" onClick={() => this.getDefaultConfig()}><Icon type="setting" />恢复默认设置</Button>
-                  <p style={{marginLeft:'70px'}}>
-                   <InputNumber {...pluginCPU}  style={{width: 200}} min={0} step={0.1}/> 核
-                  </p>
-               </Form.Item>
-               <Form.Item>
-                  <span style={{marginLeft:'70px'}}>内存</span>
-                  <p style={{marginLeft: '70px'}}>
-                  <InputNumber {...pluginMem} style={{width: 200}} min={0} step={1} /> M
-                  </p>
-                </Form.Item>
-                </Modal>
-          <div className='datalist'>
-            {this.getTableItem()}
-          </div>
+          <br />
+          <Table
+            className="labelmanage__content"
+            columns={labelcolumns}
+            dataSource={this.getTableItem()}
+            pagination={false}
+          />
         </div>
-        </Card>
+        <Modal
+          title={this.state.key == 'stop' ? '停止插件' : '删除插件'}
+          wrapClassName="vertical-center-modal"
+          visible={this.state.action}
+          onOk={() => this.handPlugins()}
+          onCancel={() => this.setState({ action: false })}
+        >
+          <div className="confirmText">确定要{this.state.key == 'stop' ? '停止' : '删除'} {this.state.plugins} 此插件吗?</div>
+        </Modal>
+        <Modal
+          title="重新部署操作"
+          wrapClassName="vertical-center-modal"
+          visible={this.state.reset}
+          onOk={() => this.resetPlugin()}
+          onCancel={() => this.setState({ reset: false })}
+        >
+          <div className="confirmText">确定重新部署 {this.state.currentPlugin ? this.state.currentPlugin.name : ''} 插件吗?</div>
+        </Modal>
+        <Modal
+          title="设置节点及资源限制"
+          wrapClassName="vertical-center-modal"
+          visible={this.state.setModal}
+          onOk={() => this.updateClusterPlugins()}
+          onCancel={() => this.cancleSet()}
+        >
+          <div className="alertRow" style={{ fontSize: '12px' }}><div>选择插件所在节点并设置该插件在本集群中可用的CPU和内存的限制；系统默认给出的值为最佳设置值，<span style={{ fontWeight: 'bold' }}>推荐使用默认设置</span>。</div>
+            <div>设置为 <span style={{ fontWeight: 'bold' }}>0</span> 时表示无限制；设置时请参考所选节点的资源上限设置该插件的资源限制；</div></div>
+          <Form>
+            <Form.Item
+              id="select"
+              style={{ borderBottom: '1px solid #ededed', paddingBottom: '30px' }}
+            >
+              <span className="setLimit">选择节点</span>
+              <Select {...selectNode} size="large" style={{ width: 200 }}>
+                {this.getSelectItem()}
+              </Select>
+            </Form.Item>
+            <Form.Item>
+              <span className="setLimit">设置限制</span><span>CPU</span><Button className="recovery" type="ghost" size="small" onClick={() => this.getDefaultConfig()}><Icon type="setting" />恢复默认设置</Button>
+              <div style={{ marginLeft: '70px' }}>
+                <InputNumber {...pluginCPU} style={{ width: 200 }} min={0} step={0.1} /> 核
+                </div>
+            </Form.Item>
+            <Form.Item>
+              <span style={{ marginLeft: '70px' }}>内存</span>
+              <div style={{ marginLeft: '70px' }}>
+                <InputNumber {...pluginMem} style={{ width: 200 }} min={0} step={1} /> M
+                </div>
+            </Form.Item>
+          </Form>
+        </Modal>
       </div>
-      </Form>
+    )
   }
 }
 
 function mapStateToProp(state) {
-  const defaultNodeList = {isFetching: false, isEmptyObject: true}
+  const defaultNodeList = { isFetching: false, isEmptyObject: true }
   let allNode = state.cluster_nodes.getAllClusterNodes
-  if(!allNode) {
+  if (!allNode) {
     allNode = defaultNodeList
   }
   const defaultClusterPlugins = {
@@ -430,7 +551,7 @@ function mapStateToProp(state) {
   }
   const cluster = state.entities.current.cluster
   let clusterPlugins = state.cluster.clusterPlugins
-  if(!clusterPlugins) {
+  if (!clusterPlugins) {
     clusterPlugins = defaultClusterPlugins
   }
   return {
@@ -441,6 +562,8 @@ function mapStateToProp(state) {
 }
 
 export default connect(mapStateToProp, {
+  deleteMiddleware,
+  updateMiddleware,
   getClusterPlugins,
   updateClusterPlugins
 })(Form.create()(ClusterPlugin))
