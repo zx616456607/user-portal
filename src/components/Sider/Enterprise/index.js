@@ -565,6 +565,7 @@ class Sider extends Component {
 
                   <div className='sline'></div>
                 </SubMenu>
+                {(role == ROLE_SYS_ADMIN) ?
                 <Menu.Item key='integration'>
                   <Link to='/integration'>
                     <span>
@@ -576,6 +577,8 @@ class Sider extends Component {
                     </span>
                   </Link>
                 </Menu.Item>
+                :null
+                }
                 <SubMenu key='manange_monitor'
                   title={
                     <span>
