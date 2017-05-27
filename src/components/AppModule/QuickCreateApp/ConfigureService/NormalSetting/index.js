@@ -52,7 +52,7 @@ const Normal = React.createClass({
   },
   componentDidMount(){
     const { fields } = this.props
-    if(fields.bindLabel){
+    if(fields && fields.bindLabel){
       this.setState({
         summary: fields.bindLabel.value
       })
