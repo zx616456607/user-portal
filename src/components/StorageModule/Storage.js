@@ -539,7 +539,7 @@ let MyComponent = React.createClass({
           <div>
             <div className='header'>
               <div className='leftbox'>
-                <div className="item">存储卷名称</div>
+                <div className="item">存储名称</div>
                 <div className="item">存储大小</div>
                 <div className="item">存储格式</div>
                 <div className="item">快照名称</div>
@@ -560,9 +560,9 @@ let MyComponent = React.createClass({
               </div>
             </div>
             <div className='footer'>
-              <div className="title">为了保证快照能完成的捕获磁盘数据内容，建议制作快照前，进行一下操作：</div>
+              <div className="title">为了保证快照能完整的捕获磁盘数据内容，建议制作快照前，进行以下操作：</div>
               <div className="item"><span className='num'>1</span>数据库业务：Flush & Lock Table</div>
-              <div className="item"><span className='num'>2</span>文件系统：进行Sync操作，将内容数据强制刷入磁盘内</div>
+              <div className="item"><span className='num'>2</span>文件系统：进行Sync操作，将内存缓冲区中的数据立刻写入磁盘内</div>
             </div>
           </div>
         </Modal>
