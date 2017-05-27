@@ -10,16 +10,16 @@
  * @author Zhangpc
  */
 
-import React,{ PropTypes } from 'react'
+import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { Row,Col,Form,InputNumber,Tooltip,Icon,Switch,Select,Radio,Tag } from 'antd'
+import { Row, Col, Form, InputNumber, Tooltip, Icon, Switch, Select, Radio, Tag } from 'antd'
 import ResourceSelect from '../../../../ResourceSelect'
 import Storage from './Storage'
 import Ports from './Ports'
-import { getNodes,getClusterLabel } from '../../../../../actions/cluster_node'
+import { getNodes, getClusterLabel } from '../../../../../actions/cluster_node'
 import {
   SYSTEM_DEFAULT_SCHEDULE,
-} from '../../../../../constants'
+ } from '../../../../../constants'
 import './style/index.less'
 import TagDropDown from '../../../../ClusterModule/TagDropdown'
 
@@ -33,15 +33,15 @@ let Normal = React.createClass({
     }
   },
   componentWillMount() {
-    const { fields,getNodes,currentCluster,getClusterLabel } = this.props
+    const { fields, getNodes, currentCluster, getClusterLabel } = this.props
     if(!fields || !fields.replicas){
       this.setReplicasToDefault()
     }
-    if(!fields || !fields.bindNode){
+    if (!fields || !fields.bindNode) {
       this.setBindNodeToDefault()
     }
     // get cluster nodes for bind
-    getNodes(currentCluster.clusterID,{
+    getNodes(currentCluster.clusterID, {
       failed: {
         func: () => {
           //
@@ -77,23 +77,23 @@ let Normal = React.createClass({
       bindNode: SYSTEM_DEFAULT_SCHEDULE,
     })
   },
-  onResourceChange({ resourceType,DIYMemory,DIYCPU }) {
-    const { setFormFields,form,id } = this.props
+  onResourceChange({ resourceType, DIYMemory, DIYCPU }) {
+    const { setFormFields, form, id } = this.props
     const { setFieldsValue } = form
     const values = { resourceType }
-    if(DIYMemory){
+    if (DIYMemory) {
       values.DIYMemory = DIYMemory
     }
-    if(DIYCPU){
+    if (DIYCPU) {
       values.DIYCPU = DIYCPU
     }
     setFieldsValue(values)
   },
-  checkReplicas(rule,value,callback) {
-    if(!value){
+  checkReplicas(rule, value, callback) {
+    if (!value) {
       callback()
     }
-    if(value < 1 || value > 10){
+    if (value < 1 || value > 10) {
       return callback('实例数量为 1~10 之间')
     }
     callback()
@@ -261,21 +261,21 @@ let Normal = React.createClass({
   },
   render() {
     const {
-      formItemLayout,form,standardFlag,
-      fields,currentCluster,clusterNodes,
-      isCanCreateVolume,imageConfigs,
+      formItemLayout, form, standardFlag,
+      fields, currentCluster, clusterNodes,
+      isCanCreateVolume, imageConfigs,
     } = this.props
     const { replicasInputDisabled } = this.state
     const { getFieldProps } = form
-    const { mountPath,containerPorts } = imageConfigs
-    const { resourceType,DIYMemory,DIYCPU } = fields || {}
+    const { mountPath, containerPorts } = imageConfigs
+    const { resourceType, DIYMemory,DIYCPU } = fields || {}
     const replicasProps = getFieldProps('replicas',{
       rules: [
         { required: true,message: '实例数量为 1~10 之间' },
         { validator: this.checkReplicas }
       ],
     })
-    const resourceTypeProps = getFieldProps('resourceType',{
+    const resourceTypeProps = getFieldProps('resourceType', {
       rules: [
         { required: true },
       ],
@@ -310,7 +310,7 @@ let Normal = React.createClass({
             <Col span={formItemLayout.wrapperCol.span}>
               <ResourceSelect
                 form={form}
-                {...{ DIYMemoryProps,DIYCPUProps }}
+                {...{DIYMemoryProps, DIYCPUProps}}
                 standardFlag={standardFlag}
                 onChange={this.onResourceChange}
                 resourceType={resourceType && resourceType.value}
@@ -370,7 +370,7 @@ let Normal = React.createClass({
 Normal = Form.create()(Normal);
 
 function mapStateToProps(state,props) {
-  const { entities,cluster_nodes } = state
+  const { entities, cluster_nodes } = state
   const { current } = entities
   const { cluster } = current
   const { clusterNodes } = cluster_nodes
@@ -386,7 +386,7 @@ function mapStateToProps(state,props) {
   }
 }
 
-export default connect(mapStateToProps,{
+export default connect(mapStateToProps, {
   getNodes,
   getClusterLabel,
 })(Normal)
