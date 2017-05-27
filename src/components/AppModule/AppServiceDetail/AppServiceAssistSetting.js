@@ -9,7 +9,7 @@
  * @author Zhangpc
  */
 import React from 'react'
-import { Card, Spin, Form, Input, Checkbox, Radio, Icon, } from 'antd'
+import { Card, Spin, Form, Input, Checkbox, Radio, Icon,Tooltip } from 'antd'
 import './style/AppServiceAssistSetting.less'
 import { formatDate } from '../../../common/tools'
 import { TENX_LOCAL_TIME_VOLUME } from '../../../../constants'
@@ -39,13 +39,15 @@ let AppServiceAssistSetting = React.createClass({
     return command.map((cmd, index) => (
       <FormItem
         className="runningCodeForm"
-        style={{paddingLeft:'120px'}}
+        style={{paddingLeft:'100px'}}
         key={`cmd_${index}`}>
+        <Tooltip title={com}>
         <Input
           className="entryInput"
           size="large"
           value={cmd}
           disabled={true} />
+          </Tooltip>
       </FormItem>
     ))
   },
@@ -62,13 +64,15 @@ let AppServiceAssistSetting = React.createClass({
     return args.map((arg, index) => (
       <FormItem
         className="runningCodeForm"
-        style={{paddingLeft:'120px'}}
+        style={{paddingLeft:'100px'}}
         key={`arg_${index}`}>
+        <Tooltip title={arg}>
         <Input
           className="entryInput"
           size="large"
           value={arg}
           disabled={true} />
+          </Tooltip>
       </FormItem>
     ))
   },
