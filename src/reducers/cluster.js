@@ -213,13 +213,26 @@ export default function cluster(state = {
       REQUEST: ActionTypes.GET_CLUSTER_PLUGINS_REQUEST,
       SUCCESS: ActionTypes.GET_CLUSTER_PLUGINS_SUCCESS,
       FAILURE: ActionTypes.GET_CLUSTER_PLUGINS_FAILURE
-    }, state.clusterPlugins, action, option),
+    }, state.clusterPlugins, action, { overwrite: false}),
     updateClusterPlugins: reducerFactory({
       REQUEST: ActionTypes.UPDATE_CLUSTER_PLUGINS_REQUEST,
       SUCCESS: ActionTypes.UPDATE_CLUSTER_PLUGINS_SUCCESS,
       FAILURE: ActionTypes.UPDATE_CLUSTER_PLUGINS_FAILURE
-    }, state.updateClusterPlugins, action, option)
-
-
+    }, state.updateClusterPlugins, action, option),
+    editClusterPlugins: reducerFactory({
+      REQUEST: ActionTypes.EDIT_PLUGINS_REQUERT,
+      SUCCESS: ActionTypes.EDIT_PLUGINS_SUCCESS,
+      FAILURE: ActionTypes.EDIT_PLUGINS_FAILURE
+    }, state.editClusterPlugins, action, option),
+    deleteClusterPlugins: reducerFactory({
+      REQUEST: ActionTypes.DELETE_PLUGINS_REQUEST,
+      SUCCESS: ActionTypes.DELETE_PLUGINS_SUCCESS,
+      FAILURE: ActionTypes.DELETE_PLUGINS_FAILURE
+    }, state.deleteClusterPlugins, action, option),
+    createClusterPlugins: reducerFactory({
+      REQUEST: ActionTypes.CREATE_CLUSTER_PLUGINS_REQUEST,
+      SUCCESS: ActionTypes.CREATE_CLUSTER_PLUGINS_SUCCESS,
+      FAILURE: ActionTypes.CREATE_CLUSTER_PLUGINS_FAILURE
+    }, state.createClusterPlugins, action, option)
   }
 }

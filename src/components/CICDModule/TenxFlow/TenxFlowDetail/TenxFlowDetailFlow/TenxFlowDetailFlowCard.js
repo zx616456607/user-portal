@@ -126,7 +126,8 @@ const menusText = defineMessages({
   }
 })
 
-function currentStatus(status) {
+//<p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>查看执行容器</Link> : ''}</p>
+function currentStatus(status, podName) {
   //this function for show different status
   const stageStatus = !!status ? status.status : 3;
   switch (stageStatus) {
@@ -143,6 +144,7 @@ function currentStatus(status) {
         <div className='runningStatus status'>
           <i className='fa fa-cog fa-spin fa-3x fa-fw' />
           <p><FormattedMessage {...menusText.running} /></p>
+          <p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>查看执行容器</Link> : ''}</p>
         </div>
       );
       break;
@@ -577,7 +579,7 @@ class TenxFlowDetailFlowCard extends Component {
               <QueueAnim key={'FlowCardShowAnimate' + index}>
                 <div key={'TenxFlowDetailFlowCardShow' + index}>
                   <div className='statusBox'>
-                    {currentStatus(config.lastBuildStatus)}
+                    {currentStatus(config.lastBuildStatus, config.podName)}
                   </div>
                   <div className='infoBox'>
                     <div className='name commonInfo'>

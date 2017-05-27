@@ -219,7 +219,7 @@ class ClusterTabList extends Component {
             </TabPane>
 
             <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#plugin"></use></svg><span className='tablepanespan'>插件管理</span></div>} key="4">
-              <ClusterPlugin
+              <ClusterPlugin cluster={cluster}
               />
             </TabPane>
           </Tabs>

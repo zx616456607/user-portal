@@ -16,7 +16,8 @@ import './style/clusterLabelManege.less'
 import { getClusterPlugins, updateClusterPlugins } from '../../actions/cluster'
 import NotificationHandler from '../../common/notification_handler'
 import { PLUGIN_DEFAULT_CONFIG } from '../../constants/index'
-import { getAllClusterNodes, deleteMiddleware, updateMiddleware } from '../../actions/cluster_node'
+import { camelize } from 'humps'
+import { getAllClusterNodes, deleteMiddleware, updateMiddleware, createMiddleware } from '../../actions/cluster'
 import openUrl from '../../assets/img/icon/openUrl.svg'
 
 class ClusterPlugin extends Component {
@@ -86,24 +87,33 @@ class ClusterPlugin extends Component {
       case 'warning': {
         return '报警'
       }
+      case 'stopped': {
+        return '已停止'
+      }
       default:
         return '未知'
     }
   }
   startPlugin(row,type) {
-    const { cluster } = this.props.clusterPlugins.result
-    const body = {
-      pluginNames: row.name,
-      cluster: cluster
-    }
+    const cluster = this.props.cluster.clusterID
+    const operation = type == 'stop' ? '停止' : '启动'
     const notify = new NotificationHandler()
-    this.props.updateMiddleware(body, type, {
+    const pluginNames = row.pluginNames.join(',')
+    notify.spin(`${operation}插件 ${pluginNames} 中`)
+    this.props.updateMiddleware(row, type, {
       success: {
         func: () => {
-          notify.success('操作成功！')
+          notify.close()
+          notify.success(`${operation}插件 ${pluginNames} 成功`)
           this.props.getClusterPlugins(cluster)
         },
         isAsync: true
+      },
+      failed: {
+        func: () => {
+          notify.close()
+          notify.error( `${operation}插件 ${pluginNames} 失败`)
+        }
       }
     })
 
@@ -113,7 +123,7 @@ class ClusterPlugin extends Component {
       return (<Button type="primary" onClick={() => this.showResetModal(row)}>重新安装</Button>)
     }
     if (row.status.message == 'uninstalled' && row.status.code == '503') {
-      return (<Button type="primary" onClick={() => this.startPlugin(row,'start')}>安装插件</Button>)
+      return (<Button type="primary" onClick={() => this.installPlugin(row)}>安装插件</Button>)
     }
   }
   showResetModal(plugin) {
@@ -128,6 +138,38 @@ class ClusterPlugin extends Component {
       setModal: true
     })
   }
+  installPlugin(row) {
+    const notify = new NotificationHandler()
+    if(row.status.code != 503 && row.status.message != 'uninstalled') {
+      notify.error('该插件已安装')
+      return
+    }
+    const { createMiddleware, cluster } = this.props
+    const self = this
+    notify.spin('安装插件中')
+    createMiddleware(cluster.clusterID, {
+      pluginName: row.name,
+      template: row.templateID,
+    }, {
+      success: {
+        func: () => {
+          notify.close()
+          notify.success(`插件${row.name}安装成功`)
+          self.loadData()
+          return
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          notify.close()
+          notify.error(`插件${row.name}安装失败`)
+          return
+        }
+      }
+    })
+  }
+
   resetPlugin(isReset) {
     if (this.state.currentPlugin) {
       this.setState({
@@ -232,8 +274,8 @@ class ClusterPlugin extends Component {
   }
   getTableItem() {
     const { clusterPlugins } = this.props
-    if (clusterPlugins && clusterPlugins.result) {
-      const plugins = clusterPlugins.result.data
+    if (clusterPlugins && clusterPlugins.data) {
+      const plugins = clusterPlugins.data
       let pluginsNames = []
       for (let key in plugins) {
         pluginsNames.push(plugins[key])
@@ -259,7 +301,6 @@ class ClusterPlugin extends Component {
     this.setState({ inputCPU: value })
   }
   handleMenuClick(key, row) {
-    console.log('key', row)
     this.setState({
       key,
       plugins: row.name,
@@ -268,10 +309,9 @@ class ClusterPlugin extends Component {
 
   }
   handPlugins() {
-    console.log('this.props.clusterPlugins.result', this.props)
-    const { cluster } = this.props.clusterPlugins.result
+    const cluster = this.props.cluster.clusterID
     const body = {
-      pluginNames: this.state.plugins,
+      pluginNames: Array.isArray(this.state.plugins) ? this.state.plugins : [this.state.plugins],
       cluster: cluster
     }
     setTimeout(() => {
@@ -280,6 +320,10 @@ class ClusterPlugin extends Component {
     const notify = new NotificationHandler()
     if (this.state.key == 'stop') {
       this.startPlugin(body,'stop')
+      return
+    }
+    if(this.state.key == 'start') {
+      this.startPlugin(body, 'start')
       return
     }
     this.props.deleteMiddleware(body, {
@@ -295,8 +339,7 @@ class ClusterPlugin extends Component {
   }
 
   render() {
-    const { clusterPlugins, form } = this.props
-
+    const { clusterPlugins, form, cluster } = this.props
     const { getFieldProps } = form
     const selectNode = getFieldProps('selectNode', {
       rules: [{
@@ -313,7 +356,6 @@ class ClusterPlugin extends Component {
         const { nodeList } = this.props
         if (nodeList) {
           let nodesDetail = nodeList[cluster.clusterID]
-          console.log(nodesDetail)
           if (nodesDetail) {
             nodesDetail = nodesDetail.nodes.clusters.nodes.nodes
             let nodeDetail = {}
@@ -435,9 +477,9 @@ class ClusterPlugin extends Component {
         key: 'web',
         dataIndex: 'web',
         render: (text, row) => {
-          if (row.servingURIs) {
+          if (row.servingURIs && ['stopped', 'uninstalled'].indexOf(row.status.message) < 0 ) {
             const url = row.servingURIs[0].split('/services/')[1]
-            return (<a href={`/proxy/clusters/${clusterPlugins.result.cluster}/plugins/${url}`} target="_blank"><img src={openUrl} className="openUrl" />打开界面</a>)
+            return (<a href={`/proxy/clusters/${cluster.clusterID}/plugins/${url}`} target="_blank"><img src={openUrl} className="openUrl" />打开界面</a>)
           }
           return '--'
         }
@@ -447,12 +489,23 @@ class ClusterPlugin extends Component {
         key: 'action',
         dataIndex: 'action',
         render: (text, row) => {
-          const menu = (
-            <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
-              <Menu.Item key="stop">停止插件</Menu.Item>
-              <Menu.Item key="delete">卸载插件</Menu.Item>
-            </Menu>
-          )
+          let menu
+           if(row.status.message == 'stopped') {
+             menu = (
+               <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
+                 <Menu.Item key="start">启动插件</Menu.Item>
+                 <Menu.Item key="delete">卸载插件</Menu.Item>
+               </Menu>
+             )
+           } else {
+             menu = (
+               <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
+                 <Menu.Item key="stop">停止插件</Menu.Item>
+                 <Menu.Item key="delete">卸载插件</Menu.Item>
+               </Menu>
+             )
+           }
+
           return (
             <div className="pluginAction">
               <span className="button">
@@ -485,13 +538,13 @@ class ClusterPlugin extends Component {
           />
         </div>
         <Modal
-          title={this.state.key == 'stop' ? '停止插件' : '删除插件'}
+          title={this.state.key == 'stop' ? '停止插件' : (this.state.key == 'start' ? '启动' : '删除')}
           wrapClassName="vertical-center-modal"
           visible={this.state.action}
           onOk={() => this.handPlugins()}
           onCancel={() => this.setState({ action: false })}
         >
-          <div className="confirmText">确定要{this.state.key == 'stop' ? '停止' : '删除'} {this.state.plugins} 此插件吗?</div>
+          <div className="confirmText">确定要{this.state.key == 'stop' ? '停止插件' : (this.state.key == 'start' ? '启动' : '删除')} {this.state.plugins} 此插件吗?</div>
         </Modal>
         <Modal
           title="重新部署操作"
@@ -540,7 +593,7 @@ class ClusterPlugin extends Component {
   }
 }
 
-function mapStateToProp(state) {
+function mapStateToProp(state, props) {
   const defaultNodeList = { isFetching: false, isEmptyObject: true }
   let allNode = state.cluster_nodes.getAllClusterNodes
   if (!allNode) {
@@ -549,14 +602,12 @@ function mapStateToProp(state) {
   const defaultClusterPlugins = {
     isFetching: false
   }
-  const cluster = state.entities.current.cluster
-  let clusterPlugins = state.cluster.clusterPlugins
+  let clusterPlugins = state.cluster.clusterPlugins && state.cluster.clusterPlugins.result && state.cluster.clusterPlugins.result[camelize(props.cluster.clusterID)]
   if (!clusterPlugins) {
     clusterPlugins = defaultClusterPlugins
   }
   return {
     nodeList: allNode,
-    cluster,
     clusterPlugins
   }
 }
@@ -564,6 +615,7 @@ function mapStateToProp(state) {
 export default connect(mapStateToProp, {
   deleteMiddleware,
   updateMiddleware,
+  createMiddleware,
   getClusterPlugins,
   updateClusterPlugins
 })(Form.create()(ClusterPlugin))
