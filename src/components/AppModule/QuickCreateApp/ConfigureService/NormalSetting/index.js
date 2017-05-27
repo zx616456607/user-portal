@@ -34,7 +34,7 @@ const Normal = React.createClass({
   },
   componentWillMount() {
     const { fields, getNodes, currentCluster, getClusterLabel } = this.props
-    if(!fields || !fields.replicas){
+    if (!fields || !fields.replicas) {
       this.setReplicasToDefault()
     }
     if (!fields || !fields.bindNode) {
@@ -268,10 +268,10 @@ const Normal = React.createClass({
     const { replicasInputDisabled } = this.state
     const { getFieldProps } = form
     const { mountPath, containerPorts } = imageConfigs
-    const { resourceType, DIYMemory,DIYCPU } = fields || {}
+    const { resourceType, DIYMemory, DIYCPU } = fields || {}
     const replicasProps = getFieldProps('replicas',{
       rules: [
-        { required: true,message: '实例数量为 1~10 之间' },
+        { required: true, message: '实例数量为 1~10 之间' },
         { validator: this.checkReplicas }
       ],
     })
@@ -301,7 +301,7 @@ const Normal = React.createClass({
                 standardFlag && (
                   <Tooltip title="专业版及企业认证用户可申请扩大容器配置">
                     <a>
-                      <Icon type="question-circle-o"/>
+                      <Icon type="question-circle-o" />
                     </a>
                   </Tooltip>
                 )
@@ -367,7 +367,7 @@ const Normal = React.createClass({
   }
 })
 
-function mapStateToProps(state,props) {
+function mapStateToProps(state, props) {
   const { entities, cluster_nodes } = state
   const { current } = entities
   const { cluster } = current
