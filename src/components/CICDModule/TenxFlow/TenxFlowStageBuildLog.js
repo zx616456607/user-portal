@@ -24,7 +24,7 @@ function formatLog(log) {
   let newLog = log.split('\n')
   let showLogs = newLog.map((item, index) => {
     return (
-      <div className='stageBuildLogDetail' key={ 'stageBuildLogDetail' + index } id={ 'stageBuildLogDetail' + index }>
+      <div className='stageBuildLogDetail' key={ 'stageBuildLogDetail' + index }>
         <span><span dangerouslySetInnerHTML={{__html:item}}></span></span>
       </div>
     )
@@ -56,19 +56,6 @@ class TenxFlowStageBuildLog extends Component {
     this.setState({
       status: status
     })
-  }
-
-  componentWillReceiveProps(nextProps){
-    if(nextProps.logs){
-      //let id = this.state.tenxFlowLog
-      //let obj = document.getElementById(id)
-      //console.log('obj=',obj)
-      let newLog = nextProps.logs.split('\n')
-      let id = 'stageBuildLogDetail' + (newLog.length - 1)
-      setTimeout(function() {
-        document.getElementById(id).scrollIntoView(true)
-      },100)
-    }
   }
   onSetup(socket) {
     const logInfo = this.props.logInfo
