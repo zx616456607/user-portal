@@ -82,6 +82,7 @@ module.exports = {
       title: '<%= title %>',
       body: '<%- body %>',
       intl_locale: '<%= intl_locale %>',
+      randomStr: '<%= +new Date() %>',
       timestrap: (+ new Date()),
       template: path.join(__dirname, 'src/templates/index.html'),
       filename: path.join(__dirname, 'index.html'),

@@ -327,6 +327,7 @@ const MyComponent = React.createClass({
         </div>
       )
     }
+
     let items = config.length > 0 && config.map((item, index) => {
       return (
         <div className='CodeTable' key={item.name} >
@@ -346,6 +347,9 @@ const MyComponent = React.createClass({
         </div>
       );
     });
+    if (config.length ==0) {
+      items = (<div className="ant-table-placeholder"><i className="anticon anticon-frown"></i>暂无数据</div>)
+    }
     return (
       <div className='codelink'>
         <div className="tableHead">

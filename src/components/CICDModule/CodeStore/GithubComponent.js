@@ -191,6 +191,9 @@ class CodeList extends Component {
         );
       });
     }
+    if (data.length ==0) {
+      items = (<div className="ant-table-placeholder"><i className="anticon anticon-frown"></i>暂无数据</div>)
+    }
     return (
       <QueueAnim type="right" key="detail-list">
         {items}
