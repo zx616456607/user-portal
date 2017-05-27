@@ -40,10 +40,12 @@ class SelectImage extends Component {
     this.onTabChange = this.onTabChange.bind(this)
     this.searchImages = this.searchImages.bind(this)
     this.onDeploy = this.onDeploy.bind(this)
+    this.renderImageList = this.renderImageList.bind(this)
     this.state = {
       imageType: PUBLIC_IMAGES,
       imageFilter: 'all',
       searchInputValue: '',
+      currentPage: 1,
     }
   }
 
@@ -75,6 +77,7 @@ class SelectImage extends Component {
     this.setState({
       imageType,
       searchInputValue: '',
+      currentPage: 1,
     })
     switch (imageType) {
       case PUBLIC_IMAGES:
@@ -182,6 +185,11 @@ class SelectImage extends Component {
         )
       }
     }]
+    const paginationOpts = {
+      simple: true,
+      current: this.state.currentPage,
+      onChange: current => this.setState({ currentPage: current })
+    }
     return (
       <Table
         rowKey={row => row.name}
@@ -189,7 +197,7 @@ class SelectImage extends Component {
         className="imageList"
         dataSource={imageList}
         columns={columns}
-        pagination={{simple:true}}
+        pagination={paginationOpts}
         loading={isFetching}
       />
     )
