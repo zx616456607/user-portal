@@ -287,3 +287,52 @@ export function getNodeLabels(cluster,node,callback) {
     return dispatch(fetchNodeLabels(cluster,node,callback))
   }
 }
+
+export const DELETE_PLUGINS_REQUEST = 'DELETE_PLUGINS_REQUEST'
+export const DELETE_PLUGINS_SUCCESS = 'DELETE_PLUGINS_SUCCESS'
+export const DELETE_PLUGINS_FAILURE = 'DELETE_PLUGINS_FAILURE'
+
+function fetchDelPlugins(body,callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_PLUGINS_REQUEST, DELETE_PLUGINS_SUCCESS, DELETE_PLUGINS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${body.cluster}/plugins?pluginNames=${body.pluginNames}`,
+      options: {
+        method:'DELETE',
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function deleteMiddleware(plugins,callback) {
+  return (dispatch) => {
+    return dispatch(fetchDelPlugins(plugins,callback))
+  }
+}
+
+export const EDIT_PLUGINS_REQUERT = 'EDIT_PLUGINS_REQUERT'
+export const EDIT_PLUGINS_SUCCESS = 'EDIT_PLUGINS_SUCCESS'
+export const EDIT_PLUGINS_FAILURE = 'EDIT_PLUGINS_FAILURE'
+
+function fetchUpdatePlugins(body,type,callback) {
+  return {
+    [FETCH_API]: {
+      types: [EDIT_PLUGINS_REQUERT, EDIT_PLUGINS_SUCCESS, EDIT_PLUGINS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${body.cluster}/plugins/opreation/${type}`,
+      options: {
+        method:'PUT',
+        body:body
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function updateMiddleware(body,type,callback) {
+  return (dispatch) => {
+    return dispatch(fetchUpdatePlugins(body,type,callback))
+  }
+}
