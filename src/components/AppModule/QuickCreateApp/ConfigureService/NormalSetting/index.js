@@ -269,7 +269,7 @@ const Normal = React.createClass({
     const { getFieldProps } = form
     const { mountPath, containerPorts } = imageConfigs
     const { resourceType, DIYMemory, DIYCPU } = fields || {}
-    const replicasProps = getFieldProps('replicas',{
+    const replicasProps = getFieldProps('replicas', {
       rules: [
         { required: true, message: '实例数量为 1~10 之间' },
         { validator: this.checkReplicas }
