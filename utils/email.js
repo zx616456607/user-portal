@@ -45,9 +45,9 @@ function sendEmail(transport, mailOptions) {
     mailOptions = transport
     transport = config.mail_server
   }
-  // Workaround for SMTP not configured(lite)
-  if (transport.auth.user && !transport.auth.pass) {
-    logger.warn(method, `user ${transport.auth.user} found, but no pass found, skip send email`)
+  // if SMTP not configured(lite) skip send email
+  if (!transport.host) {
+    logger.warn(method, 'SMTP not configured, skip send email')
     return Promise.resolve({skip: true})
   }
   // Force to use this 'from' user if using sendEmail method
