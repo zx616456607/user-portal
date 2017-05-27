@@ -63,6 +63,20 @@ let ConfigureService = React.createClass({
     }
     this.loadImageTags(this.props)
   },
+  focusInput(refId) {
+    const ref = this.refs[refId]
+    ref && ref.refs.input.focus()
+  },
+  componentDidMount() {
+    setTimeout(() => {
+      const disabled = this.getAppNameDisabled()
+      if (!disabled) {
+        this.focusInput('appNameInput')
+      } else {
+        this.focusInput('serviceNameInput')
+      }
+    }, 50)
+  },
   componentWillUnmount() {
     clearTimeout(this.appNameCheckTimeout)
     clearTimeout(this.serviceNameExistsTimeout)
@@ -377,7 +391,7 @@ let ConfigureService = React.createClass({
                 placeholder="请输入应用名称"
                 autoComplete="off"
                 {...appNameProps}
-                ref={ref => this.appNameInput = ref}
+                ref="appNameInput"
                 disabled={this.getAppNameDisabled()}
               />
             </FormItem>
@@ -393,7 +407,7 @@ let ConfigureService = React.createClass({
                 placeholder="请输入服务名称"
                 autoComplete="off"
                 {...serviceNameProps}
-                ref={ref => this.serviceNameInput = ref}
+                ref="serviceNameInput"
               />
             </FormItem>
             <FormItem
