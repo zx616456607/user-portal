@@ -197,7 +197,7 @@ class ContainerProgress extends Component{
         render: (text,record,index) => this.renderCmd(text),
       },
     ]
-    const {processList} = this.props
+    const { processList, isFetching } = this.props
     return (
       <div id='ContainerProgress'>
         <span className="titleSpan">进程信息</span>
@@ -205,6 +205,7 @@ class ContainerProgress extends Component{
           columns={columns}
           dataSource={this.getDataSource(processList)}
           pagination={false}
+          loading={isFetching}
         />
       </div>
     )
@@ -212,15 +213,18 @@ class ContainerProgress extends Component{
 }
 function mapStateToProps (state, props) {
   let processList = []
+  let isFetching = true
   const result = state.containers.containerProcess
   try {
     processList = result.result.data.data
-  }
-  catch (e) {
+    isFetching = result.isFetching
+  } catch (e) {
     processList = []
+    isFetching = true
   }
   return {
     processList,
+    isFetching,
   }
 }
 export default connect(mapStateToProps,{
