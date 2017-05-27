@@ -416,6 +416,49 @@ class Deployment {
       [K8S_NODE_SELECTOR_KEY]: hostname
     }
   }
+
+  setLabelSelector(labels) {
+    if (labels && labels.length && labels.length > 0) {
+      this.spec.template.metadata.annotations = {
+        "scheduler.alpha.kubernetes.io/affinity": this.makeNodeAffinity(labels)
+      }
+    }
+  }
+
+  makeNodeAffinity(labels) {
+    const multiMap = {}
+    labels.forEach(label => this.mergeLabelsToMultiMap(multiMap, label))
+    return JSON.stringify({
+      nodeAffinity: {
+        requiredDuringSchedulingIgnoredDuringExecution: {
+          nodeSelectorTerms: [
+            {
+              matchExpressions: Array.from(Object.getOwnPropertyNames(multiMap).map(
+                key => this.multiMapEntryToMatchExpression(key, multiMap[key])))
+            }
+          ]
+        }
+      }
+    })
+  }
+
+  mergeLabelsToMultiMap(multiMap, label) {
+    const key = label.key
+    const value = label.value
+    if (multiMap.hasOwnProperty(key)) {
+      multiMap[key].push(value)
+    } else {
+      multiMap[key] = [value]
+    }
+  }
+
+  multiMapEntryToMatchExpression(key, values) {
+    return {
+      key,
+      operator: "In",
+      values,
+    }
+  }
 }
 
 module.exports = Deployment

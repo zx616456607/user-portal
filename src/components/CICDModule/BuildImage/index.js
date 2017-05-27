@@ -31,6 +31,7 @@ import NotificationHandler from '../../../common/notification_handler'
 import Socket from '../../Websocket/socketIo'
 import PopTabSelect from '../../PopTabSelect'
 import Title from '../../Title'
+import { parseQueryStringToObject } from '../../../common/tools'
 
 const PopTab = PopTabSelect.Tab;
 const PopOption = PopTabSelect.Option;
@@ -428,6 +429,10 @@ class TenxFlowList extends Component {
       searchingFlag: false,
       allChecked: false
     }
+    const queryObj = parseQueryStringToObject(window.location.search)
+    if(queryObj.showCard == 'true') {
+      this.state.createTenxFlowModal = true
+    }
   }
 
   loadData(callback) {
@@ -455,6 +460,7 @@ class TenxFlowList extends Component {
   componentWillMount() {
     const { getTenxFlowList } = this.props;
     const self = this
+
     this.loadData()
 
   }

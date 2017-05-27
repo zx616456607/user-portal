@@ -347,7 +347,7 @@ let EditTenxFlowModal = React.createClass({
       });
     }
     let shellList = Boolean(config.spec.container.args) ? config.spec.container.args : [];
-    if (shellList) {
+    if (shellList && Array.isArray(shellList)) {
       shellList.map((item, index) => {
         shellUid++;
         let keys = form.getFieldValue('shellCodes');
@@ -849,10 +849,11 @@ let EditTenxFlowModal = React.createClass({
       let cloneCofig = cloneDeep(config)
       if(!cloneCofig.spec.ci) {
         cloneCofig.spec.ci = {}
-        if(!cloneCofig.spec.ci.config) {
-          cloneCofig.spec.ci.config = {}
-        }
       }
+      if(!cloneCofig.spec.ci.config) {
+        cloneCofig.spec.ci.config = {}
+      }
+
       cloneCofig.spec.ci.config.buildCluster = isStandardMode() ? values['buildArea'] : values['buildCluster']
       let body = {
         'metadata': {
@@ -1590,36 +1591,36 @@ let EditTenxFlowModal = React.createClass({
                   </div>
                   <div style={{ clear: 'both' }} />
                 </div>
-                { isStandardMode() ?
-                  ( <div className='commonBox'>
-                    <div className='title'>
-                      <span><FormattedMessage {...menusText.buildArea} /></span>
-                    </div>
-                    <div className='input imageType'>
-                      <FormItem>
-                        <Select {...buildArea} style={{width: "150px"}}>
-                          {this.getBuildArea}
-                        </Select>
-                      </FormItem>
-                    </div>
-                    <div style={{ clear: 'both' }} />
-                  </div>)  :
-                  (<div className='commonBox'>
-                    <div className='title'>
-                      <span><FormattedMessage {...menusText.buildCluster} /></span>
-                    </div>
-                    <div className='input imageType'>
-                      <FormItem>
-                        <Select style={{width: "150px"}} {...buildCluster}>
-                          {this.getBuildCluster()}
-                        </Select>
-                      </FormItem>
-                    </div>
-                    <div style={{ clear: 'both' }} />
-                  </div>)}
               </QueueAnim>
             ] : null
           }
+          { isStandardMode() ?
+            ( <div className='commonBox'>
+              <div className='title'>
+                <span><FormattedMessage {...menusText.buildArea} /></span>
+              </div>
+              <div className='input imageType'>
+                <FormItem>
+                  <Select {...buildArea} style={{width: "150px"}}>
+                    {this.getBuildArea}
+                  </Select>
+                </FormItem>
+              </div>
+              <div style={{ clear: 'both' }} />
+            </div>)  :
+            (<div className='commonBox'>
+              <div className='title'>
+                <span><FormattedMessage {...menusText.buildCluster} /></span>
+              </div>
+              <div className='input imageType'>
+                <FormItem>
+                  <Select style={{width: "150px"}} {...buildCluster}>
+                    {this.getBuildCluster()}
+                  </Select>
+                </FormItem>
+              </div>
+              <div style={{ clear: 'both' }} />
+            </div>)}
           <Modal className='dockerFileEditModal'
             title={<FormattedMessage {...menusText.dockerFileTitle} />}
             visible={this.state.dockerFileModalShow}
@@ -1650,8 +1651,7 @@ let EditTenxFlowModal = React.createClass({
             <FormattedMessage {...menusText.submit} />
           </Button>
         </div>
-        <Modal className='tenxFlowCodeStoreModal'
-          title={<FormattedMessage {...menusText.codeStore} />}
+        <Modal className='tenxFlowCodeStoreModal' title={ !codeList || codeList.length == 0 ? <FormattedMessage {...menusText.codeStore} /> : <span><FormattedMessage {...menusText.codeStore} /><Button style={{marginLeft: '450px'}}  type='primary' onClick={()=> browserHistory.push('/ci_cd/coderepo/repos')}>去关联代码库</Button></span>}
           visible={this.state.codeStoreModalShow}
           onOk={this.closeCodeStoreModal}
           onCancel={this.closeCodeStoreModal}
