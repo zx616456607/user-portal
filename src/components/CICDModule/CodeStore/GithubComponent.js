@@ -66,7 +66,7 @@ const menusText = defineMessages({
   },
   syncCode: {
     id: 'CICD.TenxStorm.syncCode',
-    defaultMessage: '同步代码',
+    defaultMessage: '同步代码源项目结构',
   },
 })
 

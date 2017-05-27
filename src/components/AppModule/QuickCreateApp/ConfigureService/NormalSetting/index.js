@@ -46,12 +46,17 @@ const Normal = React.createClass({
         func: () => {
           //
         },
-        isAsync: true
       }
     })
     getClusterLabel(currentCluster.clusterID)
   },
   componentDidMount(){
+    const { fields } = this.props
+    if(fields && fields.bindLabel){
+      this.setState({
+        summary: fields.bindLabel.value
+      })
+    }
     const { currentCluster, form } = this.props
     const { listNodes } = currentCluster
     switch(listNodes){
@@ -130,11 +135,7 @@ const Normal = React.createClass({
     const { labels, form } = this.props
     const { getFieldProps } = form
     const scope = this
-    const bindLabelProps = getFieldProps('bindLabel',{
-      rules: [
-        { required: true },
-      ],
-    })
+    const bindLabelProps = getFieldProps('bindLabel')
     return <div className='hostlabel'>
       <TagDropDown
         labels={labels}
