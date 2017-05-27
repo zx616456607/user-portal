@@ -33,7 +33,7 @@ class SelectImage extends Component {
     onChange: PropTypes.func.isRequired,
   }
 
-  constructor(porps) {
+  constructor(props) {
     super()
     this.imageTypeChange = this.imageTypeChange.bind(this)
     this.imageFilterChange = this.imageFilterChange.bind(this)
@@ -41,25 +41,45 @@ class SelectImage extends Component {
     this.searchImages = this.searchImages.bind(this)
     this.onDeploy = this.onDeploy.bind(this)
     this.renderImageList = this.renderImageList.bind(this)
+    const { location } = props
+    let { imageName, imageType } = location.query
+    if (!imageType) {
+      imageType = PUBLIC_IMAGES
+    }
     this.state = {
-      imageType: PUBLIC_IMAGES,
+      imageType,
       imageFilter: 'all',
-      searchInputValue: '',
+      searchInputValue: imageName,
       currentPage: 1,
     }
   }
 
-  loadData(props) {
+  loadData(props, callback) {
     const { registry, loadPublicImageList } = props
     let serverType = null
     if (standardFlag) {
       serverType = 'all'
     }
-    loadPublicImageList(registry, serverType)
+    loadPublicImageList(registry, serverType, callback)
   }
 
   componentWillMount() {
-    this.loadData(this.props)
+    const { searchInputValue, imageType } = this.state
+    const callback = {
+      success: {
+        func: () => {
+          if (searchInputValue) {
+            this.searchImages()
+          }
+        },
+        isAsync: true,
+      }
+    }
+    this.imageTypeChange({
+      target: {
+        value: imageType,
+      }
+    }, false, callback)
   }
 
   componentDidMount() {
@@ -67,27 +87,30 @@ class SelectImage extends Component {
     searchImagesInput && searchImagesInput.focus()
   }
 
-  imageTypeChange(e) {
-    const imageType =  e.target.value
+  imageTypeChange(e, isResetSearchInput, callback) {
+    const imageType = e.target.value
     const {
       registry,
       loadPrivateImageList,
       loadFavouriteList,
     } = this.props
-    this.setState({
+    const newState = {
       imageType,
-      searchInputValue: '',
       currentPage: 1,
-    })
+    }
+    if (isResetSearchInput === true || isResetSearchInput === undefined) {
+      newState.searchInputValue = ''
+    }
+    this.setState(newState)
     switch (imageType) {
       case PUBLIC_IMAGES:
-        this.loadData(this.props)
+        this.loadData(this.props, callback)
         break
       case 'privateImages':
-        loadPrivateImageList(registry)
+        loadPrivateImageList(registry, callback)
         break
       case 'fockImages':
-        loadFavouriteList(registry)
+        loadFavouriteList(registry, callback)
         break
       default:
         break

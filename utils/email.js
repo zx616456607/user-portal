@@ -47,6 +47,7 @@ function sendEmail(transport, mailOptions) {
   }
   // Workaround for SMTP not configured(lite)
   if (!transport.auth.pass) {
+    logger.info(method, 'no pass found, skip send email')
     return Promise.resolve({skip: true})
   }
   // Force to use this 'from' user if using sendEmail method
