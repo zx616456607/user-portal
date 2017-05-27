@@ -303,7 +303,15 @@ let CreateAlarmGroup = React.createClass({
     getFieldProps('keys', {
       initialValue: [0],
     });
+    const { isModify,data } = this.props
     const formItems = getFieldValue('keys').map((k) => {
+      let indexed = Math.max(0,k-1)
+      let initAddrValue = ''
+      let initDescValue = ''
+      if (isModify && data.receivers.email[indexed]) {
+        initAddrValue = data.receivers.email[indexed].addr
+        initDescValue = data.receivers.email[indexed].desc
+      }
       return (
         <div key={k} style={{clear:'both'}}>
         <Form.Item style={{float:'left'}}>
@@ -313,11 +321,12 @@ let CreateAlarmGroup = React.createClass({
             },
             {validator: this.addRuleEmail}
             ],
+            initialValue: initAddrValue,
           }) } style={{ width: '150px', marginRight: 8 }}
           />
         </Form.Item>
         <Form.Item style={{float:'left'}}>
-          <Input placeholder="备注"size="large" style={{ width: 80,  marginRight: 8 }} {...getFieldProps(`remark${k}`)}/>
+          <Input placeholder="备注"size="large" style={{ width: 80,  marginRight: 8 }} {...getFieldProps(`remark${k}`,{initialValue: initDescValue})}/>
         </Form.Item>
         <Button type="primary" style={{padding:5}} disabled={this.state[`transitionEnble${k}`]} size="large" onClick={()=> this.ruleEmail(k)}>{this.state[`transitionEnble${k}`] ? this.state[`transitionTime${k}`]:'验证邮件'}</Button>
         <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removeEmail(k)}>取消</Button>
