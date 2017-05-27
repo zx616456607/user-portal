@@ -83,8 +83,8 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/plugins', middlewares.isAdminUser, clusterController.getClusterPlugins)
   router.put('/clusters/:cluster/plugins/:name', middlewares.isAdminUser, clusterController.updateClusterPlugins)
   router.get('/clusters/:cluster/network', clusterController.getClusterNetworkMode)
-  router.put('/clusters/:cluster/plugins/opreation/stop', middlewares.isAdminUser, clusterController.batchStopPlugins)
-  router.put('/clusters/:cluster/plugins/opreation/start', middlewares.isAdminUser, clusterController.batchStartPlugins)
+  router.put('/clusters/:cluster/plugins/operation/stop', middlewares.isAdminUser, clusterController.batchStopPlugins)
+  router.put('/clusters/:cluster/plugins/operation/start', middlewares.isAdminUser, clusterController.batchStartPlugins)
   router.delete('/clusters/:cluster/plugins', middlewares.isAdminUser, clusterController.batchDeletePlugins)
   router.post('/clusters/:cluster/plugins', middlewares.isAdminUser, clusterController.createPlugins)
 

@@ -450,3 +450,79 @@ export function updateClusterPlugins(cluster, name, body, callback) {
     return dispatch(fetchUpdateClusterPlugins(cluster, name, body, callback))
   }
 }
+
+export const DELETE_PLUGINS_REQUEST = 'DELETE_PLUGINS_REQUEST'
+export const DELETE_PLUGINS_SUCCESS = 'DELETE_PLUGINS_SUCCESS'
+export const DELETE_PLUGINS_FAILURE = 'DELETE_PLUGINS_FAILURE'
+
+function fetchDelPlugins(body,callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_PLUGINS_REQUEST, DELETE_PLUGINS_SUCCESS, DELETE_PLUGINS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${body.cluster}/plugins?pluginNames=${body.pluginNames}`,
+      options: {
+        method:'DELETE',
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function deleteMiddleware(plugins,callback) {
+  return (dispatch) => {
+    return dispatch(fetchDelPlugins(plugins,callback))
+  }
+}
+
+export const EDIT_PLUGINS_REQUERT = 'EDIT_PLUGINS_REQUERT'
+export const EDIT_PLUGINS_SUCCESS = 'EDIT_PLUGINS_SUCCESS'
+export const EDIT_PLUGINS_FAILURE = 'EDIT_PLUGINS_FAILURE'
+
+function fetchUpdatePlugins(body,type,callback) {
+  return {
+    [FETCH_API]: {
+      types: [EDIT_PLUGINS_REQUERT, EDIT_PLUGINS_SUCCESS, EDIT_PLUGINS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${body.cluster}/plugins/operation/${type}`,
+      options: {
+        method:'PUT',
+        body:body
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+
+export function updateMiddleware(body,type,callback) {
+  return (dispatch) => {
+    return dispatch(fetchUpdatePlugins(body,type,callback))
+  }
+}
+
+
+export const CREATE_CLUSTER_PLUGINS_REQUEST = 'CREATE_CLUSTER_PLUGINS_REQUEST'
+export const CREATE_CLUSTER_PLUGINS_SUCCESS = 'CREATE_CLUSTER_PLUGINS_SUCCESS'
+export const CREATE_CLUSTER_PLUGINS_FAILURE = 'CREATE_CLUSTER_PLUGINS_FAILURE'
+
+function fetchCreatePlugins(cluster, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [CREATE_CLUSTER_PLUGINS_REQUEST, CREATE_CLUSTER_PLUGINS_SUCCESS, CREATE_CLUSTER_PLUGINS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/plugins`,
+      options: {
+        method:'POST',
+        body,
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function createMiddleware(cluster, body, callback) {
+  return (dispatch) => {
+    return dispatch(fetchCreatePlugins(cluster, body, callback))
+  }
+}
