@@ -25,7 +25,7 @@ import TagDropDown from '../../../../ClusterModule/TagDropdown'
 
 const FormItem = Form.Item
 
-let Normal = React.createClass({
+const Normal = React.createClass({
   getInitialState() {
     return {
       replicasInputDisabled: false,
@@ -366,8 +366,6 @@ let Normal = React.createClass({
     )
   }
 })
-
-Normal = Form.create()(Normal);
 
 function mapStateToProps(state,props) {
   const { entities, cluster_nodes } = state
