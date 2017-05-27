@@ -57,6 +57,15 @@ class TenxFlowStageBuildLog extends Component {
       status: status
     })
   }
+  componentWillReceiveProps(nextProps){
+    if(nextProps.logs){
+      const { TenxFlowStageBuildLog } = this.state
+      let id = TenxFlowStageBuildLog.toString()
+      setTimeout(() => {
+        document.getElementById(id).scrollTop = 100
+      }, 100)
+    }
+  }
   onSetup(socket) {
     const logInfo = this.props.logInfo
     const callback = this.props.callback
