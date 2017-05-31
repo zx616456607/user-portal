@@ -51,10 +51,7 @@ module.exports = function (Router) {
   router.get('/alerts/invitations/join', function* (){
     yield this.render(global.indexHtml, { title: '邮箱验证 | 时速云', body: '' })
   })
-
-
   router.get('/alerts/invitations/join-code', alertController.acceptInvitation)
-  router.get('/configs/email/verification/accepted',globalConfigController.VerificationSucceed)
 
   return router.routes()
 }

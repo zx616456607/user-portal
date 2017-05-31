@@ -282,25 +282,6 @@ function* isValidResistryConfig(entity) {
 exports.sendVerification = function* () {
 	const method = 'configs.email.sendVerification'
 	const loginUser = this.session.loginUser
-	// const spi = apiFactory.getSpi(loginUser)
-	// const result = yield spi.configs.createBy(['email','verification'], null, this.request.body)
-	// get email addr and code, then send out the code
-	// const item = result.data.email
-	yield email.sendGlobalConfigVerificationEmail(item.addr, loginUser.user, loginUser.email, item.code)
+	yield email.sendGlobalConfigVerificationEmail(this.request.body.email, loginUser.user, loginUser.email)
 	this.body = {}
-}
-
-exports.VerificationSucceed = function* () {
-	if (!this.query || !this.query.code) {
-		const err = new Error('invalid parameter')
-		err.status = 400
-		throw err
-	}
-	const loginUser = this.session.loginUser
-	const spi = apiFactory.getSpi(loginUser)
-	const body = {
-		code: this.query.code
-	}
-	const result = yield spi.configs.createBy(["email", 'join'], null, body)
-	this.body = result
 }
