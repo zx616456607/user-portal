@@ -485,9 +485,9 @@ class ClusterPlugin extends Component {
             }
             if(path) {
               return (<a href={`/proxy/clusters/${cluster.clusterID}/plugins/${row.name + (port ? ':' + port : '')}/${path}`} target="_blank"><img src={openUrl} className="openUrl" />打开界面</a>)
-            } else {
-              return (<a href={`/proxy/clusters/${cluster.clusterID}/plugins/${row.name + (port ? ':' + port : '')}/`} target="_blank"><img src={openUrl} className="openUrl" />打开界面</a>)
             }
+            return (<a href={`/proxy/clusters/${cluster.clusterID}/plugins/${row.name + (port ? ':' + port : '')}/`} target="_blank"><img src={openUrl} className="openUrl" />打开界面</a>)
+
           }
           return '--'
         }
