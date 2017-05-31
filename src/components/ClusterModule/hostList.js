@@ -279,7 +279,7 @@ class hostList extends Component {
     this.props.getClusterLabel(clusterID)
   }
   componentWillReceiveProps(nextProps) {
-    if (nextProps.summary.length ==0) {
+    if (!nextProps.summary || nextProps.summary.length ==0) {
       return
     }
     if (!isEqual(nextProps.summary,this.props.summary)) {
