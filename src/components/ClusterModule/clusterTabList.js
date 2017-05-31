@@ -16,6 +16,7 @@ import ClusterResourcesOverview from './clsuterResourcesOverview'
 import HostList from './hostList'
 import ClusterLabelManage from './clusterLabelManage'
 import ClusterPlugin from './clusterPlugin'
+import NetworkSolutions from './NetworkSolutions'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import {
   getAllClusterNodes,
@@ -197,7 +198,7 @@ class ClusterTabList extends Component {
         type='right'
         >
         <div id='clusterTabList' key='clusterTabList'>
-          <Tabs activeKey={TabsactiveKey} onChange={this.handleTabsSwitch}>
+          <Tabs activeKey={TabsactiveKey} onChange={this.handleTabsSwitch} className='clusterlisttab'>
 
             <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#resourceoverview"></use></svg><span className='tablepanespan'>资源总览</span></div>} key="1">
             <ClusterResourcesOverview
@@ -220,6 +221,12 @@ class ClusterTabList extends Component {
 
             <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#plugin"></use></svg><span className='tablepanespan'>插件管理</span></div>} key="4">
               <ClusterPlugin cluster={cluster}
+              />
+            </TabPane>
+
+            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#networksolutions"></use></svg><span className='tablepanespan'>网络方案</span></div>} key="5">
+              <NetworkSolutions
+                clusterID={clusterID}
               />
             </TabPane>
           </Tabs>
