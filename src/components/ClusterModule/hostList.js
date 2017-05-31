@@ -279,6 +279,9 @@ class hostList extends Component {
     this.props.getClusterLabel(clusterID)
   }
   componentWillReceiveProps(nextProps) {
+    if (nextProps.summary.length ==0) {
+      return
+    }
     if (!isEqual(nextProps.summary,this.props.summary)) {
       let nodeList =[]
       nextProps.nodes.nodes.map((item)=> {
@@ -348,7 +351,7 @@ class hostList extends Component {
   handleDropdownTag(obj) {
     const {callbackActiveKey} = this.props
     if(obj.key == 'manageTag'){
-      callbackActiveKey('lables')
+      callbackActiveKey('labels')
     }
   }
   handleClose(item) {
