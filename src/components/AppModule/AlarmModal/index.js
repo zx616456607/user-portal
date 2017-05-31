@@ -157,7 +157,7 @@ let FistStop = React.createClass({
   },
   render: function () {
     const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form;
-    const { funcs, currentApp, currentService, data, isEdit, loginUser } = this.props
+    const { funcs, currentApp, currentService, data, isEdit, loginUser,clusterNode } = this.props
     const formItemLayout = {
       labelCol: { span: 6 },
       wrapperCol: { span: 16 }
@@ -233,10 +233,11 @@ let FistStop = React.createClass({
         initialValue: loginUser.info.role == ADMIN_ROLE ? initiaValue : 'service'
       });
       let initAppName
+      let initService
       if (currentApp) {
+        initService = currentApp.services[0].metadata.name
         initAppName = currentApp.name
       }
-      let initService = ''
       if (currentService) {
         initService = currentService.metadata.name
         initAppName = currentService.metadata.labels['tenxcloud.com/appName']
@@ -247,7 +248,8 @@ let FistStop = React.createClass({
           { validator: this.fistStopApply }
         ],
         onChange: this.resetService,
-        initialValue: initAppName
+        // initialValue: initAppName
+        initialValue: funcs.scope.props.nodeName? funcs.scope.props.nodeName : initAppName
       })
       isNode = getFieldValue('type') == 'node'
       serverProps = getFieldProps('server', {
@@ -255,6 +257,7 @@ let FistStop = React.createClass({
           { whitespace: true },
           { validator: isNode ? '' : this.fistStopServer }
         ],
+        initialValue: initService
       });
       repeatInterval = getFieldProps('interval', {
         rules: [
