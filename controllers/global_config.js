@@ -16,6 +16,7 @@ const config = require('../configs')
 const devOps = require('../configs/devops')
 const constant = require('../constants')
 const initGlobalConfig = require('../services/init_global_config')
+const email = require('../utils/email')
 
 exports.changeGlobalConfig = function* () {
   if(this.session.loginUser.role != constant.ADMIN_ROLE) {
@@ -276,4 +277,30 @@ function* isValidResistryConfig(entity) {
   }
   const response = yield api.configs.createBy(['registry', 'isvalidconfig'], null, registryConfig)
   return response
+}
+
+exports.sendVerification = function* () {
+	const method = 'configs.email.sendVerification'
+	const loginUser = this.session.loginUser
+	// const spi = apiFactory.getSpi(loginUser)
+	// const result = yield spi.configs.createBy(['email','verification'], null, this.request.body)
+	// get email addr and code, then send out the code
+	// const item = result.data.email
+	yield email.sendGlobalConfigVerificationEmail(item.addr, loginUser.user, loginUser.email, item.code)
+	this.body = {}
+}
+
+exports.VerificationSucceed = function* () {
+	if (!this.query || !this.query.code) {
+		const err = new Error('invalid parameter')
+		err.status = 400
+		throw err
+	}
+	const loginUser = this.session.loginUser
+	const spi = apiFactory.getSpi(loginUser)
+	const body = {
+		code: this.query.code
+	}
+	const result = yield spi.configs.createBy(["email", 'join'], null, body)
+	this.body = result
 }

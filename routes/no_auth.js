@@ -17,6 +17,7 @@ const adminController = require('../controllers/admin')
 const middlewares = require('../services/middlewares')
 const alertController = require('../controllers/alert')
 const oemController = require('../controllers/oem_info')
+const globalConfigController = require('../controllers/global_config')
 
 module.exports = function (Router) {
   const router = new Router({})
@@ -50,7 +51,10 @@ module.exports = function (Router) {
   router.get('/alerts/invitations/join', function* (){
     yield this.render(global.indexHtml, { title: '邮箱验证 | 时速云', body: '' })
   })
+
+
   router.get('/alerts/invitations/join-code', alertController.acceptInvitation)
+  router.get('/configs/email/verification/accepted',globalConfigController.VerificationSucceed)
 
   return router.routes()
 }

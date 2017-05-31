@@ -395,7 +395,8 @@ module.exports = function (Router) {
   router.put('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
   router.get('/cluster/:cluster/config', globalConfigController.getGlobalConfig)
   router.post('/type/:type/isvalidconfig', globalConfigController.isValidConfig)
-
+  router.post('/configs/email/verification',globalConfigController.sendVerification)
+  router.put('/configs/email/verification/accepted',globalConfigController.VerificationSucceed)
   //image scan
   router.get('/images/scan-status', imageScanController.getScanStatus)
   router.get('/images/layer-info', imageScanController.getLayerInfo)
