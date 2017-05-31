@@ -189,7 +189,7 @@ let CreateAlarmGroup = React.createClass({
     form.resetFields()
     this.setState({
       isAddEmail: true,
-      [`transitionEnble${0}`]: false,
+      'transitionEnble0': false,
     })
   },
   okModal() {
@@ -227,7 +227,7 @@ let CreateAlarmGroup = React.createClass({
               form.resetFields()
               this.setState({
                 isAddEmail: true,
-                [`transitionEnble${0}`]: false,
+                'transitionEnble0': false,
               })
               if (afterCreateFunc) {
                 afterCreateFunc()
@@ -241,7 +241,7 @@ let CreateAlarmGroup = React.createClass({
           failed: {
             func: (err) => {
               this.setState({
-                [`transitionEnble${0}`]: false,
+                'transitionEnble0': false,
               })
               if (err.message.code === 409) {
                 notification.error('创建通知组失败', `通知组名字已存在，请修改后重试`)
@@ -259,7 +259,7 @@ let CreateAlarmGroup = React.createClass({
               form.resetFields()
               this.setState({
                 isAddEmail: true,
-                [`transitionEnble${0}`]: false,
+                'transitionEnble0': false,
               })
               if (afterModifyFunc) {
                 afterModifyFunc()
@@ -270,7 +270,7 @@ let CreateAlarmGroup = React.createClass({
           failed: {
             func: (err) => {
               this.setState({
-                [`transitionEnble${0}`]: false,
+                'transitionEnble0': false,
               })
               notification.error(`修改通知组失败`, err.message.message)
             }
