@@ -206,8 +206,8 @@ const MyComponent = React.createClass({
           </div>
         </Modal>
 
-        <Modal className='dockerFileEditModal' title="Dockerfile" width="600px" visible={this.state.editDockerFileModal}
-          onCancel={() => this.closeModal()}
+        <Modal maskClosable={false} className='dockerFileEditModal' title="Dockerfile" width="600px" visible={this.state.editDockerFileModal}
+          onCancel={() => this.closeModal()} footer={null}
           >
           <div style={{ minHeight: '300px' }}>
             <DockerFileEditor value={this.state.dockerfiles} callback={this.onChangeDockerFile} options={editorOptions} />
