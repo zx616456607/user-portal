@@ -10,7 +10,7 @@
 
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Radio, Input, InputNumber, Form, Select, Icon, Button, Modal, Spin } from 'antd'
+import { Radio, Input, InputNumber, Form, Select, Icon, Button, Modal, Spin,Row,Col } from 'antd'
 import './style/AlarmModal.less'
 import { loadAppList } from '../../../actions/app_manage'
 import { loadServiceList } from '../../../actions/services'
@@ -150,17 +150,21 @@ let FistStop = React.createClass({
   getTargetType() {
     const { loginUser } = this.props
     if (loginUser.info.role == ADMIN_ROLE) {
-      return [<Option value="node">节点</Option>,
-      <Option value="service">服务</Option>]
+      return [<Option value="node" key="node">节点</Option>,
+      <Option value="service" key="service">服务</Option>]
     }
-    return <Option value="service">服务</Option>
+    return <Option value="service" key="service">服务</Option>
   },
   render: function () {
     const { getFieldProps, getFieldValue, setFieldsValue } = this.props.form;
     const { funcs, currentApp, currentService, data, isEdit, loginUser } = this.props
     const formItemLayout = {
-      labelCol: { span: 4 },
-      wrapperCol: { span: 18 }
+      labelCol: { span: 6 },
+      wrapperCol: { span: 16 }
+    };
+    const ItemLayout = {
+      labelCol: { span: 3 },
+      wrapperCol: { span: 20 }
     };
     let nameProps
     let typeProps
@@ -264,35 +268,43 @@ let FistStop = React.createClass({
 
     return (
       <Form className="paramsSetting">
-        <Form.Item label="名称" {...formItemLayout}>
+        <Form.Item label="名称" {...ItemLayout}>
           <Input {...nameProps} placeholder="请输入名称"/>
         </Form.Item>
+        <Row>
+          <Col span="12">
         <Form.Item label="类型" {...formItemLayout}>
           <Select placeholder="请选择类型" {...typeProps} >
             { this.getTargetType()}
 
           </Select>
         </Form.Item>
-         <Form.Item label="监控对象" {...formItemLayout}>
-          <Select placeholder={isNode ? '请选择节点' : '请选择应用'} {...applyProps} style={{ width: 170 }} >
-            {this.getAppOrNodeList()}
-          </Select>
-        </Form.Item>
-       {!isNode ?
-        <Form.Item style={{ position: 'absolute', top: 240, right: 95 }}>
-          <Select placeholder="请选择服务" {...serverProps} style={{ width: 170}} >
-            {this.getServiceList()}
-          </Select>
-        </Form.Item>
-        :null
-        }
-        <Form.Item label="监控周期" {...formItemLayout} style={{ clear: 'both' }}>
+        </Col>
+        <Col span="12">
+         <Form.Item label="监控周期" {...formItemLayout} >
           <Select {...repeatInterval}>
             <Option value="300">5分钟</Option>
             <Option value="1800">30分钟</Option>
             <Option value="3600">一小时</Option>
           </Select>
         </Form.Item>
+        </Col>
+        </Row>
+         <Form.Item label="监控对象" {...ItemLayout}>
+          <Select placeholder={isNode ? '请选择节点' : '请选择应用'} {...applyProps} >
+            {this.getAppOrNodeList()}
+          </Select>
+        </Form.Item>
+
+       {!isNode ?
+        <Form.Item label="监控服务" {...ItemLayout}>
+          <Select placeholder="请选择服务" {...serverProps} >
+            {this.getServiceList()}
+          </Select>
+        </Form.Item>
+        :null
+        }
+
         <div className="wrapFooter">
           <Button size="large" onClick={() => funcs.cancelModal()}>取消</Button>
           <Button size="large" onClick={() => this.firstForm()} type="primary">下一步</Button>
