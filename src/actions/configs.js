@@ -178,6 +178,3 @@ export function updateConfigName(obj, callback) {
     callback: callback
   }
 }
-
-
-
