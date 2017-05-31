@@ -477,9 +477,17 @@ class ClusterPlugin extends Component {
         key: 'web',
         dataIndex: 'web',
         render: (text, row) => {
-          if (row.servingURIs && ['stopped', 'uninstalled'].indexOf(row.status.message) < 0 ) {
-            const url = row.servingURIs[0].split('/services/')[1]
-            return (<a href={`/proxy/clusters/${cluster.clusterID}/plugins/${url}`} target="_blank"><img src={openUrl} className="openUrl" />打开界面</a>)
+          if (row.serviceInfo && row.serviceInfo.entryPoints && ['stopped', 'uninstalled'].indexOf(row.status.message) < 0 ) {
+            let path = row.serviceInfo.entryPoints[0].path
+            const port = row.serviceInfo.entryPoints[0].port
+            if(path.indexOf('/') == 0) {
+              path = path.substr(1)
+            }
+            if(path) {
+              return (<a href={`/proxy/clusters/${cluster.clusterID}/plugins/${row.name + (port ? ':' + port : '')}/${path}`} target="_blank"><img src={openUrl} className="openUrl" />打开界面</a>)
+            } else {
+              return (<a href={`/proxy/clusters/${cluster.clusterID}/plugins/${row.name + (port ? ':' + port : '')}/`} target="_blank"><img src={openUrl} className="openUrl" />打开界面</a>)
+            }
           }
           return '--'
         }
