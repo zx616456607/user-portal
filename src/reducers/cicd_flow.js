@@ -59,7 +59,8 @@ function codeRepo(state = {}, action) {
   case ActionTypes.SEARCH_CODE_REPO_LIST:
     const newState = cloneDeep(state)
     if (action.codeName == '') {
-      newState.repoList = newState.bak
+      newState[repoType].repoList = newState[repoType].bak
+      return newState
     }
     const temp = newState[repoType].repoList.filter(list => {
       const search = new RegExp(action.codeName)

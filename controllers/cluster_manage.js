@@ -199,8 +199,9 @@ exports.getClusterPlugins = function* () {
   const api = apiFactory.getK8sApi(this.session.loginUser)
   const result = yield api.getBy([cluster, 'plugins'])
   this.body = {
-    cluster,
-    data: result.data
+    [cluster]: {
+      data: result.data
+    }
   }
 }
 
@@ -244,6 +245,80 @@ exports.updateClusterPlugins = function* () {
   const result = yield api.updateBy([cluster, 'plugins', pluginName], null, requestBody)
   this.body = result
 }
+
+
+exports.createPlugins = function* () {
+  const cluster = this.params.cluster
+  const body = this.request.body
+  if(!body || !body.template || !body.pluginName) {
+    const err = new Error('template and pluginName is require')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const templateApi = apiFactory.getTemplateApi(loginUser)
+  const templateResult = yield templateApi.getBy([body.template])
+  let templateContent = templateResult.data.content
+  if(!templateContent) {
+    const err = new Error('Plugin template is null')
+    err.status = 400
+    throw err
+  }
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, 'plugins'], null, {
+    cluster: cluster,
+    pluginName: body.pluginName,
+    template: templateContent
+  })
+  this.body = result
+}
+
+exports.batchStopPlugins = function* () {
+  const cluster = this.params.cluster
+  const body = this.request.body
+  if(!body || !body.pluginNames || body.pluginNames.length == 0) {
+    const err = new Error('pluginNames is require')
+    err.status = 400
+    throw err
+  }
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.updateBy([cluster, 'plugins', 'batch-stop'], null, {
+    pluginNames: body.pluginNames
+  })
+  this.body = result
+}
+
+exports.batchStartPlugins = function* () {
+  const cluster = this.params.cluster
+  const body = this.request.body
+  if(!body || !body.pluginNames || body.pluginNames.length == 0) {
+    const err = new Error('pluginNames is require')
+    err.status = 400
+    throw err
+  }
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.updateBy([cluster, 'plugins', 'batch-start'], null, {
+    pluginNames: body.pluginNames
+  })
+  this.body = result
+}
+
+
+exports.batchDeletePlugins = function* () {
+  const cluster = this.params.cluster
+  const body = this.query.pluginNames
+  if(!body) {
+    const err = new Error('pluginNames is require')
+    err.status = 400
+    throw err
+  }
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.updateBy([cluster, 'plugins', 'batch-delete'], null, {
+    pluginNames: body.split(',')
+  })
+  this.body = result
+}
+
 
 exports.getClusterNetworkMode = function*() {
   const cluster = this.params.cluster

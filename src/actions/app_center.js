@@ -15,7 +15,7 @@ export const IMAGE_PRIVATE_LIST_REQUEST = 'IMAGE_PRIVATE_LIST_REQUEST'
 export const IMAGE_PRIVATE_LIST_SUCCESS = 'IMAGE_PRIVATE_LIST_SUCCESS'
 export const IMAGE_PRIVATE_LIST_FAILURE = 'IMAGE_PRIVATE_LIST_FAILURE'
 
-export function loadPrivateImageList(registry,callback) {
+export function loadPrivateImageList(registry, callback) {
   return {
     registry,
     [FETCH_API]: {
@@ -36,7 +36,7 @@ export const IMAGE_PUBLIC_LIST_FAILURE = 'IMAGE_PUBLIC_LIST_FAILURE'
 
 // Fetches apps list from API unless it is cached.
 // public image list
-export function loadPublicImageList(registry, serverType = null) {
+export function loadPublicImageList(registry, serverType = null, callback) {
   return {
     registry,
     [FETCH_API]: {
@@ -44,7 +44,8 @@ export function loadPublicImageList(registry, serverType = null) {
       endpoint: `${API_URL_PREFIX}/registries/${registry}`,
       schema: Schemas.REGISTRYS
     },
-    serverType
+    serverType,
+    callback
   }
 }
 
@@ -387,14 +388,15 @@ export const GET_IMAGE_FOCK_SUCCESS = "GET_IMAGE_FOCK_SUCCESS"
 export const GET_IMAGE_FOCK_FAILURE = "GET_IMAGE_FOCK_FAILURE"
 
 // -------------------------- 我的收藏  ------------------------------------------
-export function loadFavouriteList(registry) {
+export function loadFavouriteList(registry, callback) {
   return {
     registry,
     [FETCH_API]: {
       types: [GET_IMAGE_FOCK_REQUEST, GET_IMAGE_FOCK_SUCCESS, GET_IMAGE_FOCK_FAILURE],
       endpoint: `${API_URL_PREFIX}/registries/${registry}/favourite`,
       schema: Schemas.REGISTRYS,
-    }
+    },
+    callback
   }
 }
 

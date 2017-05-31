@@ -508,7 +508,7 @@ function fetchCalamariSet(body, callback) {
 			endpoint,
 			schema: {},
 			options: {
-				body: body.body,
+				body: body,
 				method: 'POST'
 			},
 		},

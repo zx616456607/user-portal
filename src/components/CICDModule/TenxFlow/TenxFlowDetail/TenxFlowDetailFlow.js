@@ -406,15 +406,18 @@ class TenxFlowDetailFlow extends Component {
         </div>
       )
     } else {
+      let preStage = {}
       cards = stageList.map((item, index) => {
-        return (
-          <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item} uniformRepo={uniformRepo}
+        let content = (
+          <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} preStage={preStage} config={item} uniformRepo={uniformRepo}
             scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} totalLength={stageList.length}
             codeList={projectList} supportedDependencies={supportedDependencies} imageList={imageList} baseImages={baseImages}
             otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
             firstState={stageList[0]} isBuildImage={this.props.isBuildImage}
             />
         )
+        preStage = item
+        return content
       });
     }
     return (

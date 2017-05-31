@@ -144,9 +144,11 @@ exports.getDBService = function* () {
 
   // Get redis password from init container
   let initEnv = []
+  let isRedis = false
   if (database.petsetSpec.template) {
     let podTemplate = database.petsetSpec.template
     if (podTemplate.metadata.labels && podTemplate.metadata.labels[PetsetLabel] == 'redis') {
+      isRedis = true
       // For redis, get password from init container
       if (podTemplate.metadata.annotations['pod.alpha.kubernetes.io/init-containers']) {
         let initContainers = JSON.parse(podTemplate.metadata.annotations['pod.alpha.kubernetes.io/init-containers'])
@@ -176,7 +178,10 @@ exports.getDBService = function* () {
       if (!pod.podSpec.containers[0].env) {
         pod.podSpec.containers[0].env = []
       }
-      pod.podSpec.containers[0].env = initEnv
+      // For redis, use password from init container
+      if (isRedis) {
+        pod.podSpec.containers[0].env = initEnv
+      }
       if (pod.objectMeta) {
         delete pod.objectMeta.labels
         delete pod.objectMeta.annotations

@@ -66,7 +66,7 @@ const menusText = defineMessages({
   },
   syncCode: {
     id: 'CICD.TenxStorm.syncCode',
-    defaultMessage: '同步代码',
+    defaultMessage: '同步代码源项目结构',
   },
 })
 
@@ -190,6 +190,9 @@ class CodeList extends Component {
           </div>
         );
       });
+    }
+    if (data.length ==0) {
+      items = (<div className="ant-table-placeholder"><i className="anticon anticon-frown"></i>暂无数据</div>)
     }
     return (
       <QueueAnim type="right" key="detail-list">
