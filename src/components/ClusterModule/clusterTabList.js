@@ -198,7 +198,7 @@ class ClusterTabList extends Component {
         type='right'
         >
         <div id='clusterTabList' key='clusterTabList'>
-          <Tabs activeKey={TabsactiveKey} onChange={this.handleTabsSwitch} className='clusterlisttab'>
+          <Tabs activeKey={TabsactiveKey} onChange={this.handleTabsSwitch}>
 
             <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#resourceoverview"></use></svg><span className='tablepanespan'>资源总览</span></div>} key="1">
             <ClusterResourcesOverview
