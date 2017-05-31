@@ -46,10 +46,10 @@ class AlarmGroup extends Component {
     // Dropdown delete btn
     return(
       <Menu onClick={(record)=> this.handleDropdownClick(record, group)}
-          style={{ width: '80px' }}
+          style={{ width: '80px',height:'20px'}}
       >
       <Menu.Item key="edit">
-        <span>修改</span>
+        <Button disabled={this.state.selectedRowKeys.length !== 1} className="moDify" style={{ width: '80px' }}>修改</Button>
       </Menu.Item>
     </Menu>
     )
