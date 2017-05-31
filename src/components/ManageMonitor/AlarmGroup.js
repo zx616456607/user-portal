@@ -338,6 +338,7 @@ class AlarmGroup extends Component {
             afterModifyFunc={() => this.props.loadNotifyGroups()}
             isModify={!!this.state.modifyGroup}
             data={this.state.modifyingGroupInfo}
+            createGroup={this.state.createGroup}
             />
           </Modal>
           <Modal title="删除通知组" visible={this.state.deleteModal}

@@ -16,6 +16,7 @@ import AddClusterOrNodeModal from './AddClusterOrNodeModal'
 import TagDropdown from './TagDropdown'
 import ManageLabelModal from './MangeLabelModal'
 import './style/hostList.less'
+import isEqual from 'lodash/isEqual'
 
 const MASTER = '主控节点/Master'
 const SLAVE = '计算节点/Slave'
@@ -251,7 +252,7 @@ class hostList extends Component {
       manageLabelModal : false,
       deleteNodeModal : false,
       deleteNode : null,
-      summary: []
+      summary: props.summary || []
     }
   }
 
@@ -276,6 +277,24 @@ class hostList extends Component {
     this.loadData()
     const { clusterID } = this.props
     this.props.getClusterLabel(clusterID)
+  }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.summary.length ==0) {
+      return
+    }
+    if (!isEqual(nextProps.summary,this.props.summary)) {
+      let nodeList =[]
+      nextProps.nodes.nodes.map((item)=> {
+        if (item.objectMeta.labels[nextProps.summary[0].key] && item.objectMeta.labels[nextProps.summary[0].key] == nextProps.summary[0].value) {
+          nodeList.push(item)
+        }
+      })
+
+      this.setState({
+        summary: nextProps.summary,
+        nodeList
+      })
+    }
   }
   searchNodes() {
     //this function for search nodes
@@ -332,7 +351,7 @@ class hostList extends Component {
   handleDropdownTag(obj) {
     const {callbackActiveKey} = this.props
     if(obj.key == 'manageTag'){
-      callbackActiveKey(obj)
+      callbackActiveKey('labels')
     }
   }
   handleClose(item) {
