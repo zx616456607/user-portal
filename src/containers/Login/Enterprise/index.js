@@ -305,7 +305,7 @@ let Login = React.createClass({
 
   componentDidMount(){
     setTimeout(() => {
-      document.getElementById('name').focus()
+      document.getElementById('name')? document.getElementById('name').focus():''
     }, 1000)
   },
 
@@ -460,7 +460,7 @@ let Login = React.createClass({
 function mapStateToProps(state, props) {
   const { redirect } = props.location.query
   const { personalized } = state
-  const { info } = personalized
+  const { info } = personalized || {}
   return {
     info: info.result || {},
     redirect
