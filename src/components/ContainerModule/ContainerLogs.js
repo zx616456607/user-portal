@@ -40,8 +40,8 @@ class ContainerLogs extends Component {
   componentWillMount() {
     //bind 'esc' key down
     const scope = this;
-    document.addEventListener('keyup', function(){
-      if(scope.state.logSize == 'big') {
+    document.addEventListener('keyup', function(e){
+      if(e.keyCode == 27 && scope.state.logSize == 'big') {
         scope.setState({
           logSize: 'normal'
         });
