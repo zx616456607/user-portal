@@ -130,7 +130,7 @@ const Ports = React.createClass({
     }
     return (
       <Row className="portItem" key={`portItem${keyValue}`}>
-        <Col span={4}>
+        <Col span={5}>
           <FormItem>
             <InputNumber
               size="default"
@@ -147,7 +147,7 @@ const Ports = React.createClass({
             </Select>
           </FormItem>
         </Col>
-        <Col span={10}>
+        <Col span={9}>
           <Row gutter={16}>
             <Col span={12}>
             {
@@ -244,13 +244,13 @@ const Ports = React.createClass({
         <Col span={formItemLayout.wrapperCol.span}>
           <div className="portList">
             <Row className="portsHeader">
-              <Col span={4}>
+              <Col span={5}>
                 容器端口
               </Col>
               <Col span={5}>
                 协议
               </Col>
-              <Col span={10}>
+              <Col span={9}>
                 映射服务端口
               </Col>
               <Col span={5}>
