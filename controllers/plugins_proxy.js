@@ -129,8 +129,6 @@ function sendRequest(option, data) {
   const proxyOption = Object.assign({}, defaultOptions, option)
   const requestSocket = proxy.request(proxyOption)
   if(data && Object.getOwnPropertyNames(data).length > 0) {
-    console.log(option.path)
-    console.log(JSON.stringify(data))
     requestSocket.write(JSON.stringify(data))
   }
   requestSocket.end()
