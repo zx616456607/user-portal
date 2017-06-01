@@ -350,6 +350,13 @@ const MyComponent = React.createClass({
       donotUserCurrentShowInstance: false
     })
   },
+  showAlert(item) {
+    const { scope } = this.props
+    scope.setState({alarmModal: true, alertCurrentService: item})
+    setTimeout(()=> {
+      document.getElementById('name').focus()
+    },500)
+  },
   render: function () {
     const { cluster, serviceList, loading, page, size, total,bindingDomains, bindingIPs, loginUser, scope } = this.props
     if (loading) {
@@ -437,7 +444,7 @@ const MyComponent = React.createClass({
               <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use>
             </svg>
             </Tooltip>
-            <Tooltip title="告警设置" onClick={()=> scope.setState({alarmModal: true, alertCurrentService: item})}>
+            <Tooltip title="告警设置" onClick={()=> this.showAlert(item)}>
             <Icon type="notification" />
             </Tooltip>
           </div>

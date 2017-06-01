@@ -260,6 +260,9 @@ class ClusterLabelManage extends Component{
       document.getElementById('key0').focus()
     },300)
   }
+  handHost(key) {
+    this.props.callbackActiveKey('host',[key])
+  }
   render(){
     const { form, isFetching, result } = this.props
     const { getFieldProps, getFieldValue } = form
@@ -295,17 +298,17 @@ class ClusterLabelManage extends Component{
         key:'targets',
         dataIndex:'targets',
         width:'15%',
-        render : (row) => {
-          if (row.length >0) {
+        render : (text,row) => {
+          if (text.length >0) {
             return (
-            <div className='binditem'>
-              {row.length}
-              <Tooltip title={row.join('，')}><span className='itemspan'>个</span></Tooltip>
+            <div className='binditem cursor' onClick={()=> this.handHost(row)}>
+              {text.length}
+              <Tooltip title={text.join('，')}><span> 个</span></Tooltip>
             </div>
             )
           }
           return(
-           <span className='itemspan'>0 个</span>
+           <div className='binditem cursor' onClick={()=> this.handHost(row)}>0 个</div>
           )
         }
       },{
@@ -388,7 +391,7 @@ class ClusterLabelManage extends Component{
     return <div id="cluster__labelmanage">
       <div className='labelmanage__title'>
         <Button icon="plus" type="primary" onClick={()=> this.createModal()} size="large" className='titlebutton'>创建标签</Button>
-        <Button type="primary" size="large" onClick={()=> this.loadData(this)} className='titlebutton'><i className='fa fa-refresh' /> 刷新</Button>
+        <Button type="ghost" size="large" onClick={()=> this.loadData(this)} className='titlebutton'><i className='fa fa-refresh' /> 刷新</Button>
         <span className='titlesearch'>
           <Input
             placeholder="请输入标签键或标签值搜索"

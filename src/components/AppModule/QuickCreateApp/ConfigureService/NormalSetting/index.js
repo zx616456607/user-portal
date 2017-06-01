@@ -40,15 +40,20 @@ const Normal = React.createClass({
     if (!fields || !fields.bindNode) {
       this.setBindNodeToDefault()
     }
+    const { listNodes, clusterID } = currentCluster
     // get cluster nodes for bind
-    getNodes(currentCluster.clusterID, {
-      failed: {
-        func: () => {
-          //
-        },
-      }
-    })
-    getClusterLabel(currentCluster.clusterID)
+    if (listNodes === 2 || listNodes === 4) {
+      getNodes(clusterID, {
+        failed: {
+          func: () => {
+            //
+          },
+        }
+      })
+    }
+    if (listNodes === 3 || listNodes === 4) {
+      getClusterLabel(clusterID)
+    }
   },
   componentDidMount(){
     const { fields } = this.props
