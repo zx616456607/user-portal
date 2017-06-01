@@ -44,31 +44,37 @@ class TagDropdown extends Component {
     return summary.filter(label => label.targets && label.targets.length && label.targets.length > 0)
   }
 
-  isPodExecuatable(labels, nodes) {
+  matchedNodes(labels, nodes) {
+    const matched = []
     const multiMap = this.labelsToMultiMap(labels)
-    const keys = Object.getOwnPropertyNames(multiMap)
     const nodeNames = Object.getOwnPropertyNames(nodes)
-    let executable = false
-    for (let i = 0; i < nodeNames.length && !executable; i++) {
+    for (let i = 0; i < nodeNames.length; i++) {
       const name = nodeNames[i]
       const node = nodes[name]
-      let labelsMatched = true
-      for (let j = 0; j < keys.length && labelsMatched; j++) {
-        const key = keys[j]
-        if (node.hasOwnProperty(key)) {
-          const values = multiMap[key]
-          for (let k = 0; k < values.length; k++) {
-            const value = values[k]
-            labelsMatched = node[key] === value
-            if (labelsMatched) {
-              break
-            }
-          }
-        }
+      if (this.isNodeMatchLabels(node, multiMap)) {
+        matched.push({
+          nodeName: name,
+          labels: node,
+        })
       }
-      executable = labelsMatched
     }
-    return executable
+    return matched
+  }
+
+  isNodeMatchLabels(node, multiMap) {
+    const labelKeys = Object.getOwnPropertyNames(multiMap)
+    for (let i = 0; i < labelKeys.length; i++) {
+      const labelKey = labelKeys[i]
+      if (!node.hasOwnProperty(labelKey)) {
+        return false
+      }
+      const nodeValue = node[labelKey]
+      const labelValues = multiMap[labelKey]
+      if (labelValues.indexOf(nodeValue) === -1) {
+        return false
+      }
+    }
+    return true
   }
 
   labelsToMultiMap(labels) {
