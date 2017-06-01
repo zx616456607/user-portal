@@ -245,7 +245,7 @@ const Storage = React.createClass({
     }
     this.setState(newState)
   },
-  onVolumeSizeChange(e) {
+  onVolumeSizeChange(value) {
     if (!value) {
       value = 512
     }
