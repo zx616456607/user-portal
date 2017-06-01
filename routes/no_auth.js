@@ -17,6 +17,7 @@ const adminController = require('../controllers/admin')
 const middlewares = require('../services/middlewares')
 const alertController = require('../controllers/alert')
 const oemController = require('../controllers/oem_info')
+const globalConfigController = require('../controllers/global_config')
 
 module.exports = function (Router) {
   const router = new Router({})

@@ -16,6 +16,7 @@ const config = require('../configs')
 const devOps = require('../configs/devops')
 const constant = require('../constants')
 const initGlobalConfig = require('../services/init_global_config')
+const email = require('../utils/email')
 
 exports.changeGlobalConfig = function* () {
   if(this.session.loginUser.role != constant.ADMIN_ROLE) {
@@ -276,4 +277,11 @@ function* isValidResistryConfig(entity) {
   }
   const response = yield api.configs.createBy(['registry', 'isvalidconfig'], null, registryConfig)
   return response
+}
+
+exports.sendVerification = function* () {
+	const method = 'configs.email.sendVerification'
+	const loginUser = this.session.loginUser
+	yield email.sendGlobalConfigVerificationEmail(this.request.body.email, loginUser.user, loginUser.email)
+	this.body = {}
 }
