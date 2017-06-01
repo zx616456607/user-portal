@@ -15,6 +15,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
 import { loadAppList, stopApps, deleteApps, restartApps, startApps } from '../../actions/app_manage'
+import { deleteSetting, getSettingListfromserviceorapp } from '../../actions/alert'
 import { getDeploymentOrAppCDRule } from '../../actions/cicd_flow'
 import { LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
@@ -817,7 +818,7 @@ class AppList extends Component {
   }
   handleDeleteAppsOk() {
     const self = this
-    const { cluster, deleteApps, intl, appList } = this.props
+    const { cluster, deleteApps, intl, appList, getSettingListfromserviceorapp } = this.props
     const checkedAppList = appList.filter((app) => app.checked)
 
     const appNames = checkedAppList.map((app) => app.name)
@@ -947,7 +948,7 @@ class AppList extends Component {
                 <i className='fa fa-refresh' />刷新
               </Button>
               <Button type='ghost' size='large' onClick={() => this.batchDeleteApps()} disabled={!isChecked}>
-                <i className='fa fa-trash-o' />删除
+                <i className='fa fa-trash-o' />删除111
               </Button>
               <Modal title="删除操作" visible={this.state.deleteAppsModal}
                 onOk={this.handleDeleteAppsOk} onCancel={this.handleDeleteAppsCancel}
@@ -1162,7 +1163,9 @@ AppList = connect(mapStateToProps, {
   deleteApps,
   restartApps,
   startApps,
-  getDeploymentOrAppCDRule
+  getDeploymentOrAppCDRule,
+  deleteSetting,
+  getSettingListfromserviceorapp,
 })(AppList)
 
 export default injectIntl(AppList, {

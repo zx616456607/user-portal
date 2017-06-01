@@ -958,18 +958,18 @@ class ServiceList extends Component {
             }
             getSettingListfromserviceorapp(query,{
               success: {
-                func: () => {
-                  const { SettingListfromserviceorapp } = this.props
+                func: (res) => {
                   let strategyID = []
-                  console.log('SettingListfromserviceorapp=',SettingListfromserviceorapp)
-                  if(SettingListfromserviceorapp && SettingListfromserviceorapp.result && SettingListfromserviceorapp.result.length !== 0){
-                    SettingListfromserviceorapp.result.forEach((item, index) => {
+                  console.log('res=',res)
+                  if(res.data.length !== 0){
+                    res.data.forEach((item, index) => {
                       strategyID.push(item.strategyID)
                     })
                     console.log('strategyID=',strategyID)
                     //deleteSetting(cluster)
                   }
-                }
+                },
+                isAsync: true
               }
             })
           }
