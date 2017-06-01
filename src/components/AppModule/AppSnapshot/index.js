@@ -473,9 +473,9 @@ class Snapshot extends Component {
             <div className='tips'>
               存储卷
               <span className='name'>{currentSnapshot.volume}</span>
-              即将回滚至时间
+              即将回滚至
               <span className='time'>{formatDate(currentSnapshot.createTime)}</span>
-              此刻之后的数据将被清楚，请谨慎操作！
+              ，此刻之后的数据将被清除，请谨慎操作！
             </div>
             <div className='warning'>
               <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>

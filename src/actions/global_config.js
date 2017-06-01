@@ -94,3 +94,27 @@ return {
   }
 }
 
+export const VERIFY_EMAIL_REQUEST = 'VALIDATE_EMAIL_REQUEST'
+export const VERIFY_EMAIL_SUCCESS = 'VALIDATE_EMAIL_SUCCESS'
+export const VERIFY_EMAIL_FAILURE = 'VALIDATE_EMAIL_FAILURE'
+
+function sendEmailVerification(body, callback) {
+	return {
+		[FETCH_API]: {
+			types: [VERIFY_EMAIL_REQUEST, VERIFY_EMAIL_SUCCESS, VERIFY_EMAIL_FAILURE],
+			schema: {},
+			endpoint: `/configs/email/verification`,
+			options: {
+				method: 'POST',
+				body:body.body
+			}
+		},
+		callback
+	}
+}
+
+export function invitations(body, callback) {
+	return (dispatch, getState) => {
+		return dispatch(fetchInvitations(body, callback))
+	}
+}

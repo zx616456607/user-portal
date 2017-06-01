@@ -263,6 +263,13 @@ let MyComponent = React.createClass({
     e.stopPropagation()
     browserHistory.push(`/app_manage/detail/${appName}#topology`)
   },
+  showAlert(item) {
+    const { parentScope } = this.props
+    parentScope.setState({alarmModal: true, alertCurrentApp:item })
+    setTimeout(()=> {
+      document.getElementById('name').focus()
+    },500)
+  },
   render: function () {
     const { config, loading, bindingDomains, bindingIPs, parentScope } = this.props
     if (loading) {
@@ -325,7 +332,7 @@ let MyComponent = React.createClass({
             <Tooltip title="查看监控">
             <svg className="managemoniter" onClick={()=> browserHistory.push(`app_manage/detail/${item.name}#monitor`)}><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"></use></svg>
             </Tooltip>
-            <Tooltip title="告警设置" onClick={()=> parentScope.setState({alarmModal: true, alertCurrentApp:item })}>
+            <Tooltip title="告警设置" onClick={()=> this.showAlert(item)}>
             <Icon type="notification" />
             </Tooltip>
           </div>
