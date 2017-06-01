@@ -522,3 +522,31 @@ export function SetCalamariUrl(body, callback) {
 		return dispatch(fetchCalamariSet(body, callback))
 	}
 }
+
+export const SNAPSHOT_CLONE_REQUEST = 'SNAPSHOT_CLONE_REQUEST'
+export const SNAPSHOT_CLONE_SUCCESS = 'SNAPSHOT_CLONE_SUCCESS'
+export const SNAPSHOT_CLONE_FAILURE = 'SNAPSHOT_CLONE_FAILURE'
+// Fetches upgrade or renewals from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchSnapshotClone(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/storage-pools/${body.clusterID}/volumes/${body.volumeName}/snapshot/clone`
+	return {
+		[FETCH_API]: {
+			types: [SNAPSHOT_CLONE_REQUEST,SNAPSHOT_CLONE_SUCCESS, SNAPSHOT_CLONE_FAILURE],
+			endpoint,
+			schema: {},
+			options: {
+				method: 'POST',
+				body: body.body
+			},
+		},
+		callback
+	}
+}
+// Fetches upgrade or renewals from API
+// Relies on Redux Thunk middleware.
+export function SnapshotClone(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchSnapshotClone(body, callback))
+	}
+}
