@@ -191,6 +191,7 @@ let CreateAlarmGroup = React.createClass({
   },
   okModal() {
     const { form, createNotifyGroup, modifyNotifyGroup, funcs, afterCreateFunc, afterModifyFunc, data, shouldLoadGroup } = this.props
+    const clusterID = this.props.cluster.clusterID
     let notification = new NotificationHandler()
     form.validateFields((error, values) => {
       if (!!error) {
@@ -227,7 +228,7 @@ let CreateAlarmGroup = React.createClass({
                 afterCreateFunc()
               }
               if(shouldLoadGroup) {
-                setTimeout(this.props.loadNotifyGroups(), 0)
+                setTimeout(this.props.loadNotifyGroups("", clusterID), 0)
               }
             },
             isAsync: true

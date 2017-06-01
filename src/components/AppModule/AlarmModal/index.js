@@ -818,8 +818,9 @@ class AlarmModal extends Component {
 
   componentDidMount() {
     const { notifyGroup, loadNotifyGroups, isEdit, strategy, getAlertSetting, cluster } = this.props
+    const clusterID = this.props.cluster.clusterID
     if (!notifyGroup.result) {
-      loadNotifyGroups()
+      loadNotifyGroups("", clusterID)
     }
     if (isEdit) {
       getAlertSetting(cluster.clusterID, {
