@@ -554,3 +554,23 @@ exports.sendNotifyGroupInvitationEmail = function* (to, invitorName, invitorEmai
   }
   return sendEnsureEmail(mailOptions, 'alarm_group.html')
 }
+
+exports.sendGlobalConfigVerificationEmail = function* (to, invitorName, invitorEmail) {
+	const subject = `[时速云]邮件报警|邮箱验证`
+	const systemEmail = config.mail_server.service_mail
+	const date = moment(new Date()).format("YYYY-MM-DD")
+	const mailOptions = {
+		to,
+		subject,
+		templateName: 'alarm_email',
+		sub: {
+			'%subject%': [subject],
+			'%invitorName%': [invitorName],
+			'%invitorEmail%': [invitorEmail],
+			'%systemEmail%': [systemEmail],
+			'%receiverEmail%': [to],
+			'%date%': [date],
+		}
+	}
+	return sendEnsureEmail(mailOptions, 'alarm_email.html')
+}

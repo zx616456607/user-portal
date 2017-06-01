@@ -15,10 +15,15 @@ module.exports = function (Router) {
   router.use(middlewares.auth)
 
   //plugins proxy
-  router.get(/\/proxy\/clusters\/[-a-zA-z0-9_]+\/plugins\/[-a-zA-z0-9_]+(\/[-a-zA-z0-9_\.\/]+)?/, pluginsProxyController.pluginsProxy)
-  router.post(/\/proxy\/clusters\/[-a-zA-z0-9_]+\/plugins\/[-a-zA-z0-9_]+(\/[-a-zA-z0-9_\.\/]+)?/, pluginsProxyController.pluginsProxy)
-  router.put(/\/proxy\/clusters\/[-a-zA-z0-9_]+\/plugins\/[-a-zA-z0-9_]+(\/[-a-zA-z0-9_\.\/]+)?/, pluginsProxyController.pluginsProxy)
-  router.delete(/\/proxy\/clusters\/[-a-zA-z0-9_]+\/plugins\/[-a-zA-z0-9_]+(\/[-a-zA-z0-9_\.\/]+)?/, pluginsProxyController.pluginsProxy)
- 
+  router.get(/\/proxy\/clusters\/[-a-zA-z0-9_]+\/plugins\/[-a-zA-z_]+(\/[-a-zA-z0-9_\.\/]+)?/, pluginsProxyController.pluginsProxy)
+  router.post(/\/proxy\/clusters\/[-a-zA-z0-9_]+\/plugins\/[-a-zA-z_]+(\/[-a-zA-z0-9_\.\/]+)?/, pluginsProxyController.pluginsProxy)
+  router.put(/\/proxy\/clusters\/[-a-zA-z0-9_]+\/plugins\/[-a-zA-z_]+(\/[-a-zA-z0-9_\.\/]+)?/, pluginsProxyController.pluginsProxy)
+  router.delete(/\/proxy\/clusters\/[-a-zA-z0-9_]+\/plugins\/[-a-zA-z_]+(\/[-a-zA-z0-9_\.\/]+)?/, pluginsProxyController.pluginsProxy)
+  
+  router.get(/\/api\/v1\/proxy\/namespaces\/kube-system\/services\/[_a-z-A-Z0-9:-]+(\/[_a-zA-Z-]+(\/[-a-zA-Z_]+(.[a-zA-z])?)?)?/, pluginsProxyController.pluginsStaticProxy)
+  router.post(/\/api\/v1\/proxy\/namespaces\/kube-system\/services\/[_a-z-A-Z0-9:-]+(\/[_a-zA-Z-]+(\/[-a-zA-Z_]+(.[a-zA-z])?)?)?/, pluginsProxyController.pluginsStaticProxy)
+  router.put(/\/api\/v1\/proxy\/namespaces\/kube-system\/services\/[_a-z-A-Z0-9:-]+(\/[_a-zA-Z-]+(\/[-a-zA-Z_]+(.[a-zA-z])?)?)?/, pluginsProxyController.pluginsStaticProxy)
+  router.delete(/\/api\/v1\/proxy\/namespaces\/kube-system\/services\/[_a-z-A-Z0-9:-]+(\/[_a-zA-Z-]+(\/[-a-zA-Z_]+(.[a-zA-z])?)?)?/, pluginsProxyController.pluginsStaticProxy)
+
   return router.routes()
 }

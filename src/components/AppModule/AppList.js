@@ -921,12 +921,12 @@ class AppList extends Component {
                   <i className="fa fa-plus" />创建应用
                 </Button>
               </Link>
-              <Button type='ghost' size='large' onClick={() => this.setState({ deployEnvModalVisible: true })}>
+              {/*<Button type='ghost' size='large' onClick={() => this.setState({ deployEnvModalVisible: true })}>
                 <svg className='rocket'>
                   <use xlinkHref='#rocket' />
                 </svg>
                 快速创建
-              </Button>
+              </Button>*/}
               <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!runBtn}>
                 <i className='fa fa-play' />启动
               </Button>

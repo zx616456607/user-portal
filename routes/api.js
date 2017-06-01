@@ -64,6 +64,7 @@ module.exports = function (Router) {
   router.post('/storage-pools/:cluster/volumes/snapshot/delete', volumeController.deleteSnapshot)
   router.post('/storage-pools/:cluster/volumes/:name/snapshot', volumeController.createSnapshot)
   router.post('/storage-pools/:cluster/volumes/:name/snapshot/rollback', volumeController.rollbackSnapshot)
+  router.post('/storage-pools/:cluster/volumes/:name/snapshot/clone', volumeController.cloneSnapshot)
   router.get('/storage-pools/:cluster/volumes/calamari-url', volumeController.getCalamariUrl)
   router.post('/storage-pools/:cluster/volumes/calamari-url', volumeController.setCalamariUrl)
 
@@ -372,6 +373,7 @@ module.exports = function (Router) {
   // manipulate node's labels
   router.get('/cluster-nodes/:cluster/:node/labels', clusternodesController.getNodeLabels)
   router.put('/cluster-nodes/:cluster/:node/labels', clusternodesController.updateNodeLabels)
+  router.post('/cluster-nodes/:cluster/:node/affectedpods', clusternodesController.getAffectedPods)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)
@@ -399,7 +401,7 @@ module.exports = function (Router) {
   router.put('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
   router.get('/cluster/:cluster/config', globalConfigController.getGlobalConfig)
   router.post('/type/:type/isvalidconfig', globalConfigController.isValidConfig)
-
+  router.post('/configs/email/verification',globalConfigController.sendVerification)
   //image scan
   router.get('/images/scan-status', imageScanController.getScanStatus)
   router.get('/images/layer-info', imageScanController.getLayerInfo)
