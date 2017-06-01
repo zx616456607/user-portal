@@ -31,6 +31,21 @@ function getSettingList(state = {}, action) {
   }
 }
 
+function getSettingListfromserviceorapp(state = {}, action) {
+  const defaultState = {
+    isFetching: false
+  }
+  switch(action.type) {
+    case ActionTypes.GET_SETTINGLLIST_FROM_SERVICE_APP_REQUEST:
+      return Object.assign({}, defaultState, state, { isFetching: action.needFetching})
+    case ActionTypes.GET_SETTINGLLIST_FROM_SERVICE_APP_SUCCESS:
+      return Object.assign({}, defaultState, state, { isFetching: false, result: action.response.result.data})
+    case ActionTypes.GET_SETTINGLLIST_FROM_SERVICE_APP_FAILURE:
+      return Object.assign({}, defaultState, state, { isFetching: false})
+    default:
+      return state
+  }
+}
 
 export default function alert(state = {
   recordFilters: {},
@@ -64,6 +79,7 @@ export default function alert(state = {
       FAILURE: ActionTypes.ALERT_SETTING_ADD_FAILURE
     }, state.addSetting, action, option),
     settingList: getSettingList(state.settingList, action),
+    SettingListfromserviceorapp: getSettingListfromserviceorapp(state.SettingListfromserviceorapp, action),
     deleteSetting: reducerFactory({
       REQUEST: ActionTypes.ALERT_DELETE_SETTING_REQUEST,
       SUCCESS: ActionTypes.ALERT_DELETE_SETTING_SUCCESS,

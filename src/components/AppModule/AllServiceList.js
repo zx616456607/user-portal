@@ -624,9 +624,9 @@ class ServiceList extends Component {
 
   componentDidMount() {
     // Reload list each UPDATE_INTERVAL
-    this.upStatusInterval = setInterval(() => {
-      this.loadServices(null, { keepChecked: true })
-    }, UPDATE_INTERVAL)
+    //this.upStatusInterval = setInterval(() => {
+    //  this.loadServices(null, { keepChecked: true })
+    //}, UPDATE_INTERVAL)
   }
 
   componentWillUnmount() {
@@ -935,18 +935,6 @@ class ServiceList extends Component {
     const serviceNames = checkedServiceList.map((service) => service.metadata.name)
     const allServices = self.state.serviceList
 
-
-
-    const targetNamesStr = serviceNames.join(',')
-    const query = {
-      clusterID: cluster,
-      targetNames: targetNamesStr,
-    }
-    console.log('this.props=',this.props)
-    getSettingListfromserviceorapp(query)
-
-
-    return
     allServices.map((service) => {
       if (serviceNames.indexOf(service.metadata.name) > -1) {
         service.status.phase = 'Terminating'
@@ -960,16 +948,30 @@ class ServiceList extends Component {
       success: {
         func: () => {
           self.loadServices(self.props)
-          const { alarmStrategy } = self.state
 
+          const { alarmStrategy } = self.state
           if(alarmStrategy){
             const targetNamesStr = serviceNames.join(',')
             const query = {
               clusterID: cluster,
               targetNames: targetNamesStr,
             }
-            getSettingListfromserviceorapp(query)
-            //deleteSetting(cluster,)
+            getSettingListfromserviceorapp(query,{
+              success: {
+                func: () => {
+                  const { SettingListfromserviceorapp } = this.props
+                  let strategyID = []
+                  console.log('SettingListfromserviceorapp=',SettingListfromserviceorapp)
+                  if(SettingListfromserviceorapp && SettingListfromserviceorapp.result && SettingListfromserviceorapp.result.length !== 0){
+                    SettingListfromserviceorapp.result.forEach((item, index) => {
+                      strategyID.push(item.strategyID)
+                    })
+                    console.log('strategyID=',strategyID)
+                    //deleteSetting(cluster)
+                  }
+                }
+              }
+            })
           }
         },
         isAsync: true
@@ -1383,6 +1385,7 @@ function mapStateToProps(state, props) {
   if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
+  const { SettingListfromserviceorapp } = state.alert
   const { loginUser } = state.entities
   const { cluster } = state.entities.current
   const { statusWatchWs } = state.entities.sockets
@@ -1408,7 +1411,8 @@ function mapStateToProps(state, props) {
     total,
     serviceList: services || [],
     isFetching,
-    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule :  defaultCDRule
+    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule :  defaultCDRule,
+    SettingListfromserviceorapp
   }
 }
 
