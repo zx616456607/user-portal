@@ -134,10 +134,6 @@ function sendRequest(option, data) {
     requestSocket.write(JSON.stringify(data))
   }
   requestSocket.end()
-  requestSocket.on('error', (err) => {
-
-    throw err
-  })
   return requestSocket
 }
 
@@ -151,7 +147,9 @@ function asProxy(socket, ctx, callback) {
     })
     socketRes.pipe(res)
   })
-
+   socket.on('error', (err) => {
+     throw err
+   })
 }
 
 
