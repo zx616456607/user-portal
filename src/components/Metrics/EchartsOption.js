@@ -39,7 +39,7 @@ class EchartsOption {
     }
     this.grid = [{
       top: 70,
-      left: 70,
+      left: 100,
       right: 50
     }]
     this.xAxis = {
@@ -110,7 +110,6 @@ class EchartsOption {
       seriesItem.name = name
       seriesItem.itemStyle.normal.color = colorHash.hex(name.substr(name.lastIndexOf('-') + 1))
       this.legend.data.push(name)
-      this.legend.left = 80
 
     }
     if (itemStyle) {
@@ -140,10 +139,9 @@ class EchartsOption {
       windowResizeChange = -50;
     }
     let initTop = Math.max(num * 25 + windowResizeChange ,60);
-    this.legend.left = 80
     this.grid = [{
       top: initTop,
-      left: 70,
+      left: 100,
       right: 50
     }]
 
@@ -164,10 +162,9 @@ class EchartsOption {
       windowResizeChange = -60;
     }
     let initTop = Math.max(60 + num * 15 + windowResizeChange,60);
-    this.legend.left = 80
     this.grid = [{
       top: initTop,
-      left: 70,
+      left: 100,
       right: 50,
     }]
   }

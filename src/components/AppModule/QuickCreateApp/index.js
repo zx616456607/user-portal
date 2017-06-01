@@ -341,7 +341,8 @@ class QuickCreateApp extends Component {
   }
 
   renderBody() {
-    const { hash, query } = this.props.location
+    const { location } = this.props
+    const { hash, query } = location
     const { key } = query
     const { imageName, registryServer, appName, editServiceLoading } = this.state
     if ((hash === SERVICE_CONFIG_HASH && imageName) || (hash === SERVICE_EDIT_HASH && key)) {
@@ -359,7 +360,7 @@ class QuickCreateApp extends Component {
         />
       )
     }
-    return <SelectImage onChange={this.onSelectImage} />
+    return <SelectImage location={location} onChange={this.onSelectImage} />
   }
 
   renderFooterSteps() {

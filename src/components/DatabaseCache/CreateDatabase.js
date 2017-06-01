@@ -252,7 +252,7 @@ let CreateDatabase = React.createClass({
       ],
     });
     const replicasProps = getFieldProps('replicas', {
-      initialValue: 1
+      initialValue: 3
     });
     const zkReplicasProps = getFieldProps('zkReplicas', {
       initialValue: 3

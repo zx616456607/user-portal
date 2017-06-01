@@ -288,3 +288,24 @@ export function getNodeLabels(cluster,node,callback) {
   }
 }
 
+export const GET_NETWORK_SOLUTIONS_REQUEST = 'GET_NETWORK_SOLUTIONS_REQUEST'
+export const GET_NETWORK_SOLUTIONS_SUCCESS = 'GET_NETWORK_SOLUTIONS_SUCCESS'
+export const GET_NETWORK_SOLUTIONS_FAILURE = 'GET_NETWORK_SOLUTIONS_FAILURE'
+
+function fetchNetworkSolutions(clusterID,callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_NETWORK_SOLUTIONS_REQUEST, GET_NETWORK_SOLUTIONS_SUCCESS, GET_NETWORK_SOLUTIONS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${clusterID}/network`,
+      schema: {},
+    },
+    clusterID: clusterID,
+    callback
+  }
+}
+
+export function getNetworkSolutions(clusterID,callback) {
+  return (dispatch) => {
+    return dispatch(fetchNetworkSolutions(clusterID,callback))
+  }
+}

@@ -168,7 +168,7 @@
   "CICD.TenxStorm.back": "返回",
   "CICD.TenxStorm.creageCodeStore": "关联代码仓库",
   "CICD.TenxStorm.logout": "注销",
-  "CICD.TenxStorm.syncCode": "同步代码",
+  "CICD.TenxStorm.syncCode": "同步代码源项目结构",
   "CICD.TenxStorm.publicType": "公有",
   "CICD.TenxStorm.privateType": "私有",
   "CICD.TenxStorm.SuccessfulActivation": "激活成功",

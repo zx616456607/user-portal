@@ -399,13 +399,13 @@ let MyComponent = React.createClass({
               <span>
                 {
                   exportimageUrl
-                  ? <span>{exportimageUrl.registryConfig.server} / {exportimageUrl.userName} / </span>
+                  ? <span>{exportimageUrl.registryConfig.server}/{exportimageUrl.userName}/</span>
                   : <Spin></Spin>
                 }
               </span>
-              <span className='color'>{this.formatImageInfo().imageName}</span>
-              <span className='point'>:</span>
-              <span className='color'>{this.formatImageInfo().imageTag}</span>
+              <span className='imagecolor'>{this.formatImageInfo().imageName}</span>
+              <span>:</span>
+              <span className='imagecolor'>{this.formatImageInfo().imageTag}</span>
             </div>
           </div>
           <div className='footer'>

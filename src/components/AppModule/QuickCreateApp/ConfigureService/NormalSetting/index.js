@@ -40,18 +40,28 @@ const Normal = React.createClass({
     if (!fields || !fields.bindNode) {
       this.setBindNodeToDefault()
     }
+    const { listNodes, clusterID } = currentCluster
     // get cluster nodes for bind
-    getNodes(currentCluster.clusterID, {
-      failed: {
-        func: () => {
-          //
-        },
-        isAsync: true
-      }
-    })
-    getClusterLabel(currentCluster.clusterID)
+    if (listNodes === 2 || listNodes === 4) {
+      getNodes(clusterID, {
+        failed: {
+          func: () => {
+            //
+          },
+        }
+      })
+    }
+    if (listNodes === 3 || listNodes === 4) {
+      getClusterLabel(clusterID)
+    }
   },
   componentDidMount(){
+    const { fields } = this.props
+    if(fields && fields.bindLabel){
+      this.setState({
+        summary: fields.bindLabel.value
+      })
+    }
     const { currentCluster, form } = this.props
     const { listNodes } = currentCluster
     switch(listNodes){
@@ -130,11 +140,7 @@ const Normal = React.createClass({
     const { labels, form } = this.props
     const { getFieldProps } = form
     const scope = this
-    const bindLabelProps = getFieldProps('bindLabel',{
-      rules: [
-        { required: true },
-      ],
-    })
+    const bindLabelProps = getFieldProps('bindLabel')
     return <div className='hostlabel'>
       <TagDropDown
         labels={labels}
