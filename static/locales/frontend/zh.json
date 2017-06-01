@@ -193,7 +193,7 @@
   "CICD.Tenxflow.BuildImage.delete": "删除构建",
   "CICD.Tenxflow.BuildImage.image": "镜像名称",
   "CICD.Tenxflow.BuildImage.deloyStart": "立即构建",
-  "CICD.Tenxflow.BuildImage.tooltip": "构建镜像是TenxFlow中常被创建的子任务，指可将源代码仓库包括代码GitHub、GitLab、Gogs、SVN中的代码通过代码库中的Dockerfile或云端的Dockerfile 构建成镜像，默认将构建后的镜像存放到镜像仓库--私有仓库中。",
+  "CICD.Tenxflow.BuildImage.tooltip": "构建镜像是TenxFlow中常被创建的子任务，指可将源代码仓库包括代码GitHub、GitLab、Gogs、SVN中的代码通过代码库中的Dockerfile或云端的Dockerfile 构建成镜像，默认将构建后的镜像存放到镜像仓库--私有空间。",
   "CICD.Tenxflow.CreateBuildImage.tooltip": "创建构建镜像任务前需创建一个TenxFlow，请填写TenxFlow名称，可选择邮件通知",
   "CICD.Tenxflow.BuildImage.checkImage": "查看镜像",
   "CICD.Tenxflow.BuildImage.add": "添加构建任务",
