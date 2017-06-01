@@ -26,6 +26,7 @@ import {
   loadAllServices,
   loadAutoScale
 } from '../../actions/services'
+import { deleteSetting, getSettingListfromserviceorapp } from '../../actions/alert'
 import { getDeploymentOrAppCDRule } from '../../actions/cicd_flow'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ANNOTATION_HTTPS } from '../../../constants'
 import { browserHistory } from 'react-router'
@@ -524,6 +525,7 @@ class ServiceList extends Component {
     this.handleDeleteServiceCancel = this.handleDeleteServiceCancel.bind(this)
     this.cancelModal = this.cancelModal.bind(this)
     this.nextStep = this.nextStep.bind(this)
+    this.handleCheckboxvalue = this.handleCheckboxvalue.bind(this)
 
     this.state = {
       modalShow: false,
@@ -548,7 +550,8 @@ class ServiceList extends Component {
       DeleteServiceModal: false,
       detail: false,
       k8sServiceList: [],
-      step:1 // create alarm step
+      step:1 ,// create alarm step
+      alarmStrategy: true
     }
   }
   getInitialState() {
@@ -926,11 +929,24 @@ class ServiceList extends Component {
   }
   handleDeleteServiceOk() {
     const self = this
-    const { cluster, appName, loadAllServices, deleteServices, intl, serviceList } = this.props
+    const { cluster, appName, loadAllServices, deleteServices, intl, serviceList, deleteSetting, getSettingListfromserviceorapp } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
 
     const serviceNames = checkedServiceList.map((service) => service.metadata.name)
     const allServices = self.state.serviceList
+
+
+
+    const targetNamesStr = serviceNames.join(',')
+    const query = {
+      clusterID: cluster,
+      targetNames: targetNamesStr,
+    }
+    console.log('this.props=',this.props)
+    getSettingListfromserviceorapp(query)
+
+
+    return
     allServices.map((service) => {
       if (serviceNames.indexOf(service.metadata.name) > -1) {
         service.status.phase = 'Terminating'
@@ -944,6 +960,17 @@ class ServiceList extends Component {
       success: {
         func: () => {
           self.loadServices(self.props)
+          const { alarmStrategy } = self.state
+
+          if(alarmStrategy){
+            const targetNamesStr = serviceNames.join(',')
+            const query = {
+              clusterID: cluster,
+              targetNames: targetNamesStr,
+            }
+            getSettingListfromserviceorapp(query)
+            //deleteSetting(cluster,)
+          }
         },
         isAsync: true
       },
@@ -1083,6 +1110,14 @@ class ServiceList extends Component {
       step: step
     })
   }
+  handleCheckboxvalue(obj){
+    if(obj){
+      this.setState({
+        alarmStrategy: obj.checkedvalue
+      })
+    }
+  }
+
   render() {
     const parentScope = this
     let {
@@ -1168,7 +1203,7 @@ class ServiceList extends Component {
               <Modal title="删除操作" visible={this.state.DeleteServiceModal}
                 onOk={this.handleDeleteServiceOk} onCancel={this.handleDeleteServiceCancel}
                 >
-                <StateBtnModal serviceList={serviceList} state='Delete' cdRule={this.props.cdRule}/>
+                <StateBtnModal serviceList={serviceList} state='Delete' cdRule={this.props.cdRule} callback={this.handleCheckboxvalue}/>
               </Modal>
               <Button type='ghost' size="large" onClick={this.batchQuickRestartService} disabled={!restartBtn}>
                 <i className="fa fa-bolt"></i>重启
@@ -1385,7 +1420,9 @@ ServiceList = connect(mapStateToProps, {
   quickRestartServices,
   loadAllServices,
   loadAutoScale,
-  getDeploymentOrAppCDRule
+  getDeploymentOrAppCDRule,
+  deleteSetting,
+  getSettingListfromserviceorapp,
 })(ServiceList)
 
 export default injectIntl(ServiceList, {

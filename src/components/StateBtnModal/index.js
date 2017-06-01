@@ -8,14 +8,15 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Alert, Icon, Spin, Table } from 'antd'
+import { Alert, Icon, Spin, Table, Checkbox } from 'antd'
 import './style/StateBtnModal.less'
 
 export default class StateBtnModal extends Component{
   constructor(props){
     super(props)
+    this.handlecallback = this.handlecallback.bind(this)
     this.state = {
-      //
+      checkedvalue: true,
     }
   }
   getDeleteMessage() {
@@ -76,7 +77,7 @@ export default class StateBtnModal extends Component{
         key: 'cdrule',
         render: (text, record, index) => {
           if(text == '1') return <Icon style={{color: 'green', fontSize: '15px'}} type="check-circle" />
-          return '未设置' 
+          return '未设置'
         }
       }];
 
@@ -124,6 +125,16 @@ export default class StateBtnModal extends Component{
       return <div className="confirm"><Table pagination={false}  style={{marginBottom: '20px'}} dataSource={dataSource} columns={columns} />
         <span style={{color: 'red' }}>注意：删除已设置自动部署的应用或服务，将自动删除其对应的自动部署规则</span></div>
     }
+  }
+  handlecallback(){
+    const { callback } = this.props
+    this.setState({
+      checkedvalue: !this.state.checkedvalue
+    })
+    let body = {
+      checkedvalue: !this.state.checkedvalue
+    }
+    callback(body)
   }
   render(){
     const { state, appList, serviceList, scope, cdRule } = this.props
@@ -243,8 +254,13 @@ export default class StateBtnModal extends Component{
         }
       {this.getDeleteMessage()}
         <div className="confirm">
-              <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
+          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
           您是否确定{opt}这{(checkedList.length - disableArr.length)}个{stateText}的{appList?'应用':'服务'} ?
+          {
+            state == 'Delete'
+            ? <div style={{paddingTop:'10px',color: 'red'}}><Checkbox checked={this.state.checkedvalue} onChange={this.handlecallback}>同时删除关联的告警策略?</Checkbox></div>
+            : <span></span>
+          }
         </div>
       </div>
     )
