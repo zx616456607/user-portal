@@ -131,7 +131,9 @@ class ClusterLabelManage extends Component{
       form.setFieldsValue({
         keys
       });
-
+      setTimeout(()=> {
+        document.getElementById(`key${uuid}`).focus()
+      },200)
     });
   }
   checkKey(rule, value, callback) {
@@ -148,13 +150,24 @@ class ClusterLabelManage extends Component{
       callback(new Error('以字母或数字开头和结尾中间可(_-)'))
       return
     }
+    const {form} = this.props
     let isExtentd
-    for (let item of this.props.result) {
+    let isEsist
+    let key = form.getFieldValue('keys')
+    let currentKey = Math.max.apply(null,key)
+    key.length >1 && key.forEach(item => {
+       if (item !== currentKey && value == form.getFieldValue(`key${item}`)) {
+        isEsist = true
+      }
+    })
+    if (isEsist) {
+      return callback('标签键重复')
+    }
+    this.props.result.forEach(item => {
       if (item.key === value) {
         isExtentd = true
-        break
       }
-    }
+    })
     if (isExtentd) {
       return callback(new Error('标签键已存在'))
     }
