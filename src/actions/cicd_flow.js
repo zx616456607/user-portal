@@ -446,7 +446,7 @@ export function registryRepo(obj, callback) {
 
 function fetchSyncRepo(type, callback) {
   let actionType = [GET_REPOS_LIST_REQUEST, GET_REPOS_LIST_SUCCESS, GET_REPOS_LIST_FAILURE]
-  if (type === 'github') {
+  if (type === 'github' || type === 'gogs') {
     actionType = [GET_GITHUB_LIST_REQUEST, GET_GITHUB_LIST_SUCCESS, GET_GITHUB_LIST_FAILURE]
   }
   return {
@@ -457,6 +457,9 @@ function fetchSyncRepo(type, callback) {
       options: {
         method: 'PUT'
       }
+    },
+    extraData: {
+      type
     },
     callback: callback
   }

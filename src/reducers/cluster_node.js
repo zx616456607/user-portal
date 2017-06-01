@@ -174,6 +174,31 @@ function clusterLabel(state = {}, action) {
   }
 }
 
+function networksolutions(state = {}, action){
+  const { clusterID, type } = action
+  const defaultState = {
+    isFetching: false,
+    [clusterID]: {},
+  }
+  switch (type) {
+    case ActionTypes.GET_NETWORK_SOLUTIONS_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_NETWORK_SOLUTIONS_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        [clusterID]: action.response.result || {}
+      })
+    case ActionTypes.GET_NETWORK_SOLUTIONS_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 export function cluster_nodes(state = { cluster_nodes: {}, clusterLabel: {} }, action) {
   return {
     getAllClusterNodes: getAllClusterNodes(state.getAllClusterNodes, action),
@@ -195,6 +220,7 @@ export function cluster_nodes(state = { cluster_nodes: {}, clusterLabel: {} }, a
     }, state.kubectlsPods, action, { overwrite: true }),
     addNodeCMD: addNodeCMD(state.addNodeCMD, action),
     clusterLabel: clusterLabel(state.clusterLabel, action),
+    networksolutions: networksolutions(state.networksolutions, action),
     nodeLabel: reducerFactory({
       REQUEST: ActionTypes.GET_NODE_LABEL_FAILURE,
       SUCCESS: ActionTypes.GET_NODE_LABEL_SUCCESS,

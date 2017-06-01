@@ -53,13 +53,13 @@ class ClusterResourcesOverview extends Component{
         orient : 'vertical',
         left : '50%',
         top : 'middle',
-        data:[{name: '运行中'}, {name: '操作中'}, {name: '异    常'}],
+        data:[{name: '运行中'}, {name: '操作中'}, {name: '异   常'}],
         formatter: function (name) {
           if(name === '操作中'){
             return name + '  ' + podPending + ' 个'
           } else if (name === '运行中') {
             return  '运行中  '  + podRunning + ' 个'
-          } else if (name === '异    常') {
+          } else if (name === '异   常') {
             return name + '  ' + podUnNormal + ' 个'
           }
         },
@@ -83,7 +83,7 @@ class ClusterResourcesOverview extends Component{
         data:[
           {value:podRunning, name:'运行中'},
           {value:podPending, name:'操作中'},
-          {value:podUnNormal, name:'异    常',selected:true},
+          {value:podUnNormal, name:'异   常',selected:true},
         ],
         label: {
           normal: {
@@ -136,12 +136,12 @@ class ClusterResourcesOverview extends Component{
                 <span>{node ? `${node.nodeSum} 个` : NOT_AVAILABLE}</span>
               </li>
               <li>
-                <span className="itemKey success">正常运行</span>
-                <span>{node ? `${node.nodeRunning} 个` : NOT_AVAILABLE}</span>
-              </li>
-              <li>
                 <span className="itemKey ready">可调度数</span>
                 <span>{node ? `${node.schedulable} 个` : NOT_AVAILABLE}</span>
+              </li>
+              <li>
+                <span className="itemKey success">正常运行</span>
+                <span>{node ? `${node.nodeRunning} 个` : NOT_AVAILABLE}</span>
               </li>
             </ul>
           </Card>

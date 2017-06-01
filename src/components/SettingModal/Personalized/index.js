@@ -17,7 +17,7 @@ import tenxColorIcon from '../../../assets/img/icon/tenxColor.svg'
 import tenxTextIcon from '../../../assets/img/icon/tenxText.svg'
 import NotificationHandler from '../../../common/notification_handler'
 import { getPersonalized,isCopyright,updateLogo,restoreDefault } from '../../../actions/personalized'
-import {setBackColor} from '../../../actions/entities'
+import { setBackColor,loadLoginUserDetail } from '../../../actions/entities'
 
 class Personalized extends Component{
   constructor(props){
@@ -28,20 +28,27 @@ class Personalized extends Component{
     }
     this.updateInfo = this.updateInfo.bind(this)
   }
-  loadInfo(scope){
+  loadInfo(scope,type){
     scope.props.getPersonalized({
       success:{
         func:(ret)=>{
+          if (type && type === 'logo') {
+            return
+          }
           document.title = `个性外观 | ${ret.company.productName}`
           scope.setState({siderColor:ret.colorThemeID})
+          document.getElementById('productName').value = ret.company.productName
         }
       }
     })
 
   }
   componentWillMount() {
-    // document.title = '个性外观 | 时速云'
     this.loadInfo(this)
+  }
+  componentWillUnmount() {
+    const {colorThemeID} = this.props.oemInfo
+    this.props.setBackColor(colorThemeID)
   }
   updateInfo(body) {
     const notificat = new NotificationHandler()
@@ -91,9 +98,6 @@ class Personalized extends Component{
     }
     this.updateInfo(body)
     this.setState({loading: true})
-    setTimeout(()=> {
-      document.getElementById('productName').value = ''
-    }, 1000);
   }
 
   beforeUpload(file, type) {
@@ -120,11 +124,16 @@ class Personalized extends Component{
     this.props.updateLogo(data,{
       success:{
         func:()=>{
-          _this.loadInfo(_this)
+          _this.loadInfo(_this,'logo')
           if (type == 'favoriteIcon') {
-            notificat.success('修改成功！')
+            notificat.info('修改成功，刷新浏览器可看到效果！')
+            return
           }
           notificat.success('修改成功！')
+          if (type == 'loginLogo') {
+            return
+          }
+          _this.props.loadLoginUserDetail()
         },
         isAsync: true
       }
@@ -138,17 +147,22 @@ class Personalized extends Component{
   handCancelTheme() {
     const { oemInfo,setBackColor } = this.props
     setBackColor(oemInfo.colorThemeID)
+    this.setState({siderColor:oemInfo.colorThemeID})
   }
   restoreDefault(type) {
     this.setState({[type]:true})
   }
   restoreTheme(type) {
+    const _this = this
     const notificat = new NotificationHandler()
-    this.props.restoreDefault('logo', {
+    this.props.restoreDefault(type, {
       success:{
         func:()=> {
           notificat.success('恢复成功！')
-        }
+          _this.loadInfo(_this)
+          _this.props.loadLoginUserDetail()
+        },
+        isAsync: true
       }
     })
     this.setState({
@@ -165,15 +179,6 @@ class Personalized extends Component{
     this.updateInfo(body)
   }
   render(){
-    const uploadParams = {
-      name: 'file',
-      defaultFileList:[{
-        uid:-1,
-        name: 'xxx.png',
-        status: 'done',
-      }]
-    };
-    console.log(this.props.oemInfo)
     const { oemInfo } = this.props
     return (
       <QueueAnim className="Personalized" type="right">
@@ -197,7 +202,7 @@ class Personalized extends Component{
               <Col span="20" style={{width:400}}>
                 <div className="row-text">此处图片用于替换左侧导航顶部收起时图标，建议大小40px * 40px</div>
                 <Upload beforeUpload={(file)=> this.beforeUpload(file,'naviShrink')}>
-                  <span className="wrap-image">
+                  <span className="wrap-image" style={{width:100}}>
                     <Icon type="plus" className="push-icon"/>
                     <img className="logo" src={ oemInfo.naviShrink } />
                   </span>
@@ -209,7 +214,7 @@ class Personalized extends Component{
               <Col span="20" style={{width:400}}>
                 <div className="row-text">此处图片用于替换浏览器标签图标，建议大小40px * 40px</div>
                 <Upload beforeUpload={(file)=> this.beforeUpload(file,'favoriteIcon')}>
-                  <span className="wrap-image">
+                  <span className="wrap-image" style={{width:100}}>
                     <Icon type="plus" className="push-icon" />
                     <img className="logo" src={ oemInfo.favoriteIcon } />
                   </span>
@@ -221,7 +226,7 @@ class Personalized extends Component{
               <Col span="20" style={{width:400}}>
                 <div className="row-text">此处图片用于替换登录顶部左侧图标，建议大小120px * 30px</div>
                 <Upload beforeUpload={(file)=> this.beforeUpload(file,'loginLogo')}>
-                  <span className="wrap-image login">
+                  <span className="wrap-image">
                     <img className="logo" src={ oemInfo.loginLogo } />
                     <Icon type="plus" className="push-icon"/>
                   </span>
@@ -234,7 +239,7 @@ class Personalized extends Component{
             <Row className="image-row">
               <Col span="3"style={{width:150}}>产品名称</Col>
               <Col span="20" style={{width:600}}>
-                <div className="row-text">此处文字用于替换平台上的“时速云 | 时速云企业版”字样，包换登录页、浏览器标签文字；</div>
+                <div className="row-text">此处文字用于替换平台上的“时速云 | 时速云企业版”字样，如：浏览器标签文字；</div>
                 <Input style={{width:200}} id="productName"  size="large" placeholder="请输入产品名称"  />
                 <Button size="large" onClick={()=> this.clearProductName()} style={{margin:'0 10px'}}>取消</Button>
                 <Button size="large" type="primary" loading={this.state.loading} onClick={()=> this.saveproductName()}>保存</Button>
@@ -309,6 +314,7 @@ function mapStateToProps(state,props) {
 }
 
 export default connect(mapStateToProps,{
+  loadLoginUserDetail,
   getPersonalized,
   setBackColor,
   isCopyright,

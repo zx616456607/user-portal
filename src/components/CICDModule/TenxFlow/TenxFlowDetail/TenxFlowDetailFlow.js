@@ -22,6 +22,8 @@ import TenxFlowDetailFlowCard from './TenxFlowDetailFlow/TenxFlowDetailFlowCard.
 import Socket from '../../../Websocket/socketIo'
 import NotificationHandler from '../../../../common/notification_handler'
 import ContinueIntegration from '../../../SettingModal/GlobalConfig/ContinueIntegration'
+import { parseQueryStringToObject } from '../../../../common/tools'
+
 
 const confirm = Modal.confirm;
 
@@ -56,16 +58,21 @@ class TenxFlowDetailFlow extends Component {
     this.buildFlow = this.buildFlow.bind(this);
     this.refreshStageList = this.refreshStageList.bind(this);
     this.toggleCustomizeBaseImageModal = this.toggleCustomizeBaseImageModal.bind(this);
+    const queryObj = parseQueryStringToObject(window.location.search)
     this.state = {
       editTenxFlowModal: false,
       currentModalShowFlow: null,
       currentFlowEdit: null,
-      createNewFlow: false,
       buildingList: [],
       refreshing: false,
       websocket: '',
       forCacheShow: false,
       customizeBaseImageModalVisible: false,
+    }
+    if(queryObj.showCard == 'true') {
+      this.state.createNewFlow = true
+    } else {
+      this.state.createNewFlow = false
     }
   }
 
@@ -399,15 +406,18 @@ class TenxFlowDetailFlow extends Component {
         </div>
       )
     } else {
+      let preStage = {}
       cards = stageList.map((item, index) => {
-        return (
-          <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item} uniformRepo={uniformRepo}
+        let content = (
+          <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} preStage={preStage} config={item} uniformRepo={uniformRepo}
             scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} totalLength={stageList.length}
             codeList={projectList} supportedDependencies={supportedDependencies} imageList={imageList} baseImages={baseImages}
             otherImage={this.props.otherImage} toggleCustomizeBaseImageModal={this.toggleCustomizeBaseImageModal}
             firstState={stageList[0]} isBuildImage={this.props.isBuildImage}
             />
         )
+        preStage = item
+        return content
       });
     }
     return (

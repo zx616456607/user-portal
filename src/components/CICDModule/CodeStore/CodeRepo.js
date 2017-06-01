@@ -147,6 +147,10 @@ const MyComponent = React.createClass({
           if(window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0) {
             const queryObj = parseQueryStringToObject(window.location.search)
             if(queryObj.redirect) {
+              if(queryObj.showCard) {
+                browserHistory.push(queryObj.redirect + '&showCard=' + queryObj.showCard)
+                return
+              }
               browserHistory.push(queryObj.redirect)
             }
             return
@@ -323,6 +327,7 @@ const MyComponent = React.createClass({
         </div>
       )
     }
+
     let items = config.length > 0 && config.map((item, index) => {
       return (
         <div className='CodeTable' key={item.name} >
@@ -342,6 +347,9 @@ const MyComponent = React.createClass({
         </div>
       );
     });
+    if (config.length ==0) {
+      items = (<div className="ant-table-placeholder"><i className="anticon anticon-frown"></i>暂无数据</div>)
+    }
     return (
       <div className='codelink'>
         <div className="tableHead">

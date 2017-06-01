@@ -258,7 +258,7 @@ let CreateTenxFlow = React.createClass({
               createTenxFlowModal: false
             });
             if(buildImage) {
-              browserHistory.push(`/ci_cd/build_image/tenx_flow_build?${res.data.flowId}`)
+              browserHistory.push(`/ci_cd/build_image/tenx_flow_build?${res.data.flowId}&showCard=${true}`)
               return
             }
             browserHistory.push(`/ci_cd/tenx_flow/tenx_flow_build?${res.data.flowId}`)
@@ -270,7 +270,11 @@ let CreateTenxFlow = React.createClass({
             // body...
             switch (res.statusCode) {
               case 400:
-                notification.error('数据格式错误，请参考其他TenxFlow详情页面中的YAML定义')
+                if (res.message && res.message.message) {
+                  notification.error(res.message.message)
+                } else {
+                  notification.error('数据格式错误，请参考其他TenxFlow详情页面中的YAML定义')
+                }
                 break
               case 403:
                 notification.error('非法的参数值')

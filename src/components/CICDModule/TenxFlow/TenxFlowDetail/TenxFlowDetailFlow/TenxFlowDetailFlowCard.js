@@ -126,7 +126,8 @@ const menusText = defineMessages({
   }
 })
 
-function currentStatus(status) {
+//<p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>查看执行容器</Link> : ''}</p>
+function currentStatus(status, podName) {
   //this function for show different status
   const stageStatus = !!status ? status.status : 3;
   switch (stageStatus) {
@@ -143,6 +144,7 @@ function currentStatus(status) {
         <div className='runningStatus status'>
           <i className='fa fa-cog fa-spin fa-3x fa-fw' />
           <p><FormattedMessage {...menusText.running} /></p>
+          <p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>查看执行容器</Link> : ''}</p>
         </div>
       );
       break;
@@ -310,7 +312,7 @@ class TenxFlowDetailFlowCard extends Component {
       editStatus: false,
       cicdSetModalShow: false,
       ciRulesOpened: false,
-      enxFlowDeployLogModal: false,
+      TenxFlowDeployLogModal: false,
       setStageFileModal: false
     }
   }
@@ -492,14 +494,21 @@ class TenxFlowDetailFlowCard extends Component {
     })
   }
 
-  renderBuildBtn(config) {
+  renderBuildBtn(config, preStage) {
     const { getRepoBranchesAndTagsByProjectId } = this.props
     const { repoBranchesAndTags } = this.props
     const project = config.spec.project || {}
     const projectId = project.id
     const { lastBuildStatus } = config
     const { id, name } = config.metadata
+    let disabled = false
+    if (preStage && preStage.link && preStage.link.enabled == 1 && preStage.link.sourceDir != "") {
+      disabled = true
+    }
     const btn = currentStatusBtn(lastBuildStatus)
+    if (disabled) {
+
+    }
     if (lastBuildStatus && lastBuildStatus.status === 2) {
       return (
         <Button size='large' type='primary' className='startBtn'
@@ -508,12 +517,20 @@ class TenxFlowDetailFlowCard extends Component {
         </Button>
       )
     }
-    const targetElement = (
+    let targetElement = (
       <Button size='large' type='primary' className='startBtn'
         onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId)}>
         {btn}
       </Button>
     )
+    if (disabled) {
+      targetElement = (
+        <Tooltip title="子任务依赖前面任务的输出，不能单独执行" placement="left"><Button size='large' type='primary' className='startBtn'
+          onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId)} disabled={disabled}>
+          {btn}
+        </Button></Tooltip>
+      )
+    }
     const tabs = []
     let loading
     const branchesAndTags = repoBranchesAndTags[projectId]
@@ -552,7 +569,7 @@ class TenxFlowDetailFlowCard extends Component {
 
   render() {
     let {
-      config, index, scope, uniformRepo,
+      config, preStage, index, scope, uniformRepo,
       currentFlowEdit, flowId, codeList,
       isFetching, ciRules, buildFetching,
       logs, supportedDependencies, totalLength,
@@ -577,7 +594,7 @@ class TenxFlowDetailFlowCard extends Component {
               <QueueAnim key={'FlowCardShowAnimate' + index}>
                 <div key={'TenxFlowDetailFlowCardShow' + index}>
                   <div className='statusBox'>
-                    {currentStatus(config.lastBuildStatus)}
+                    {currentStatus(config.lastBuildStatus, config.podName)}
                   </div>
                   <div className='infoBox'>
                     <div className='name commonInfo'>
@@ -627,7 +644,7 @@ class TenxFlowDetailFlowCard extends Component {
                         {currentStatusBtn(config.lastBuildStatus)}
                       </Button>*/}
                       {
-                        this.renderBuildBtn(config)
+                        this.renderBuildBtn(config, preStage)
                       }
                       <Button size='large' type='ghost' className='logBtn' onClick={this.openTenxFlowDeployLogModal.bind(this, config.metadata.id)}>
                         <svg className='cicdlogSvg'>

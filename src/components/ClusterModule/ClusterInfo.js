@@ -49,10 +49,10 @@ let ClusterInfo = React.createClass ({
   APIupdateCluster(clusterID, values){
     const { updateCluster, loadClusterList } = this.props
     const notification = new NotificationHandler()
-    if(values.isAuthorized){
-      values.isAuthorized = 1
+    if(values.isDefault){
+      values.isDefault = 1
     } else {
-      values.isAuthorized = 0
+      values.isDefault = 0
     }
     updateCluster(clusterID, values, {
       success: {
@@ -95,7 +95,6 @@ let ClusterInfo = React.createClass ({
       this.setState({
         saveBtnLoading: true,
       })
-      values.isDefault = cluster.isDefault
       if(values.agreement){
         updateClusterConfig(cluster.clusterID,{IsBuilder:1},{
           success:{
@@ -283,7 +282,7 @@ let ClusterInfo = React.createClass ({
     let {
       clusterName, apiHost, apiProtocol,
       apiVersion, bindingIPs, bindingDomains,
-      description, apiToken, isOk, isBuilder, isAuthorized
+      description, apiToken, isOk, isBuilder, isDefault
     } = cluster
     const apiUrl = `${apiProtocol}://${apiHost}`
     bindingIPs = parseArray(bindingIPs).join(', ')
@@ -311,11 +310,11 @@ let ClusterInfo = React.createClass ({
       ],
       initialValue: description
     });
-    const authorizedProps = getFieldProps('isAuthorized', {
+    const authorizedProps = getFieldProps('isDefault', {
       rules: [
         { required: false, message: '请选择' },
       ],
-      initialValue: isAuthorized,
+      initialValue: isDefault,
       valuePropName: 'checked',
     })
     const dropdown = (

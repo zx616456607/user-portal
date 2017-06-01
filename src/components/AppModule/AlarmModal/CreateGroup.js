@@ -187,7 +187,10 @@ let CreateAlarmGroup = React.createClass({
     const {funcs,form } = this.props
     funcs.scope.setState({ createGroup: false, alarmModal: true, modifyGroup: false})
     form.resetFields()
-    this.setState({isAddEmail: true})
+    this.setState({
+      isAddEmail: true,
+      'transitionEnble0': false,
+    })
   },
   okModal() {
     const { form, createNotifyGroup, modifyNotifyGroup, funcs, afterCreateFunc, afterModifyFunc, data, shouldLoadGroup } = this.props
@@ -223,7 +226,10 @@ let CreateAlarmGroup = React.createClass({
             func: (result) => {
               funcs.scope.setState({ createGroup: false, alarmModal: true})
               form.resetFields()
-              this.setState({isAddEmail: true})
+              this.setState({
+                isAddEmail: true,
+                'transitionEnble0': false,
+              })
               if (afterCreateFunc) {
                 afterCreateFunc()
               }
@@ -235,6 +241,9 @@ let CreateAlarmGroup = React.createClass({
           },
           failed: {
             func: (err) => {
+              this.setState({
+                'transitionEnble0': false,
+              })
               if (err.message.code === 409) {
                 notification.error('创建通知组失败', `通知组名字已存在，请修改后重试`)
               } else {
@@ -249,7 +258,10 @@ let CreateAlarmGroup = React.createClass({
             func: (result) => {
               funcs.scope.setState({ modifyGroup: false, alarmModal: true})
               form.resetFields()
-              this.setState({isAddEmail: true})
+              this.setState({
+                isAddEmail: true,
+                'transitionEnble0': false,
+              })
               if (afterModifyFunc) {
                 afterModifyFunc()
               }
@@ -258,6 +270,9 @@ let CreateAlarmGroup = React.createClass({
           },
           failed: {
             func: (err) => {
+              this.setState({
+                'transitionEnble0': false,
+              })
               notification.error(`修改通知组失败`, err.message.message)
             }
           }
@@ -272,6 +287,13 @@ let CreateAlarmGroup = React.createClass({
       case EMAIL_STATUS_WAIT_ACCEPT:{
         // text = '再次验证邮件'
         let timefunc = setInterval(()=>{
+          if(this.props.createGroup == false){
+            clearInterval(timefunc)
+            this.setState({
+              [`transitionEnble${k}`]: false,
+            })
+            return
+          }
           if (time <=1) {
             enble = false
             clearInterval(timefunc)
@@ -304,7 +326,15 @@ let CreateAlarmGroup = React.createClass({
     getFieldProps('keys', {
       initialValue: [0],
     });
+    const { isModify,data } = this.props
     const formItems = getFieldValue('keys').map((k) => {
+      let indexed = Math.max(0,k-1)
+      let initAddrValue = ''
+      let initDescValue = ''
+      if (isModify && data.receivers.email[indexed]) {
+        initAddrValue = data.receivers.email[indexed].addr
+        initDescValue = data.receivers.email[indexed].desc
+      }
       return (
         <div key={k} style={{clear:'both'}}>
         <Form.Item style={{float:'left'}}>
@@ -314,11 +344,12 @@ let CreateAlarmGroup = React.createClass({
             },
             {validator: this.addRuleEmail}
             ],
+            initialValue: initAddrValue,
           }) } style={{ width: '150px', marginRight: 8 }}
           />
         </Form.Item>
         <Form.Item style={{float:'left'}}>
-          <Input placeholder="备注"size="large" style={{ width: 80,  marginRight: 8 }} {...getFieldProps(`remark${k}`)}/>
+          <Input placeholder="备注"size="large" style={{ width: 80,  marginRight: 8 }} {...getFieldProps(`remark${k}`,{initialValue: initDescValue})}/>
         </Form.Item>
         <Button type="primary" style={{padding:5}} disabled={this.state[`transitionEnble${k}`]} size="large" onClick={()=> this.ruleEmail(k)}>{this.state[`transitionEnble${k}`] ? this.state[`transitionTime${k}`]:'验证邮件'}</Button>
         <Button size="large" style={{ marginLeft: 8}} onClick={()=> this.removeEmail(k)}>取消</Button>

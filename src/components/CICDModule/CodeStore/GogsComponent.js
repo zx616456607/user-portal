@@ -107,6 +107,10 @@ class CodeList extends Component {
           if(window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0) {
             const queryObj = parseQueryStringToObject(window.location.search)
             if(queryObj.redirect) {
+              if(queryObj.showCard) {
+                browserHistory.push(queryObj.redirect + '&showCard=' + queryObj.showCard)
+                return
+              }
               browserHistory.push(queryObj.redirect)
             }
             return
@@ -204,6 +208,7 @@ class GogsComponent extends Component {
     super(props);
     this.loadData = this.loadData.bind(this)
     this.searchClick = this.searchClick.bind(this)
+    this.closeAddGitlabModal = this.closeAddGitlabModal.bind(this)
     this.state = {
       repokey: props.typeName,
       authorizeModal: false,
@@ -238,7 +243,11 @@ class GogsComponent extends Component {
       return
     }
   }
-
+  closeAddGitlabModal(){
+    this.setState({
+      authorizeModal: false
+    })
+  }
   removeRepo() {
     const scope = this.props.scope
     const repoItem = scope.state.repokey
@@ -406,7 +415,7 @@ class GogsComponent extends Component {
         <div style={{ lineHeight: '100px', paddingLeft: '140px', paddingBottom: '16px' }}>
           <Button type="primary" size="large" onClick={() => this.showGogsModal()}>添加 Gogs 代码仓库</Button>
           <Modal title="添加 Gogs 代码仓库" visible={this.state.authorizeModal} maskClosable={false}
-            onCancel={this.closeAddGitlabModal}
+            onCancel={this.closeAddGitlabModal} closable={true}
             footer={[
               <Button key="back" type="ghost" size="large" onClick={() => { this.setState({ authorizeModal: false }) } }>取消</Button>,
               <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={() => this.registryGogs()}>确定</Button>,

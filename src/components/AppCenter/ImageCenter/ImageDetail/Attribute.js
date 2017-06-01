@@ -11,6 +11,7 @@
 import React, { Component } from 'react'
 import { Card , Spin ,Icon} from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { formatDate } from '../../../../common/tools'
 
 const menusText = defineMessages({
   contributor: {
@@ -48,9 +49,16 @@ class Attribute extends Component {
     return (
       <Card className="attr">
         <ul id="attribute">
-          <li className="leftKey"><Icon type="user" /><FormattedMessage{...menusText.contributor} />： &nbsp;{detailInfo.contributor}</li>
-          <li className="leftKey"><Icon type="star-o" /><FormattedMessage{...menusText.favouriteNumber} />： &nbsp;{favouriteMessage}</li>
-          <li className="leftKey"><Icon type="clock-circle-o" /><FormattedMessage{...menusText.creationTime} />： &nbsp;{detailInfo.creationTime}</li>
+          <li className="leftKey"><Icon type="user" /><FormattedMessage {...menusText.contributor} />： &nbsp;{detailInfo.contributor}</li>
+          <li className="leftKey"><Icon type="star-o" /><FormattedMessage {...menusText.favouriteNumber} />： &nbsp;{favouriteMessage}</li>
+          <li className="leftKey"><Icon type="clock-circle-o" />
+            <FormattedMessage {...menusText.creationTime} />： &nbsp;
+            {formatDate(detailInfo.creationTime)}
+          </li>
+          <li className="leftKey"><Icon type="clock-circle-o" />
+            <span>更新时间</span>： &nbsp;
+            {formatDate(detailInfo.updateTime || detailInfo.creationTime)}
+          </li>
         </ul>
       </Card>
     )

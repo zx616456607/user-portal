@@ -16,6 +16,7 @@ import ClusterResourcesOverview from './clsuterResourcesOverview'
 import HostList from './hostList'
 import ClusterLabelManage from './clusterLabelManage'
 import ClusterPlugin from './clusterPlugin'
+import NetworkSolutions from './NetworkSolutions'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import {
   getAllClusterNodes,
@@ -166,9 +167,11 @@ class ClusterTabList extends Component {
     }
   }
 
-  handleCallbackActiveKey(obj) {
+  handleCallbackActiveKey(type,labels) {
+    let summary = labels || []
     this.setState({
-      TabsactiveKey: 'labels',
+      TabsactiveKey: type,
+      summary
     })
   }
 
@@ -206,20 +209,27 @@ class ClusterTabList extends Component {
             />
 
             </TabPane>
-            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#hostlists"></use></svg><span className='tablepanespan'>主机列表</span></div>} key="2">
+            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#hostlists"></use></svg><span className='tablepanespan'>主机列表</span></div>} key="host">
               <HostList
                 cluster={cluster}
                 clusterID={clusterID}
                 containerList={podCount}
+                summary={this.state.summary}
                 callbackActiveKey={this.handleCallbackActiveKey}
               />
             </TabPane>
             <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#managelabels"></use></svg><span className='tablepanespan'>标签管理</span></div>} key="labels">
-              <ClusterLabelManage  clusterID={clusterID} />
+              <ClusterLabelManage callbackActiveKey={this.handleCallbackActiveKey}  clusterID={clusterID} />
             </TabPane>
 
             <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#plugin"></use></svg><span className='tablepanespan'>插件管理</span></div>} key="4">
-              <ClusterPlugin
+              <ClusterPlugin cluster={cluster}
+              />
+            </TabPane>
+
+            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#networksolutions"></use></svg><span className='tablepanespan'>网络方案</span></div>} key="5">
+              <NetworkSolutions
+                clusterID={clusterID}
               />
             </TabPane>
           </Tabs>

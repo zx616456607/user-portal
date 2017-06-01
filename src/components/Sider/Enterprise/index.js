@@ -18,7 +18,6 @@ import QueueAnim from 'rc-queue-anim'
 import NotificationHandler from '../../../common/notification_handler'
 // import { loadUserDetail } from '../../../actions/user'
 import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
-import logoPNG from '../../../assets/img/sider/logo.png'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -237,8 +236,7 @@ class Sider extends Component {
   }
 
   render() {
-    const { siderStyle, role,backColor } = this.props
-    console.log('backColor---=',backColor)
+    const { siderStyle, role,backColor,oemInfo } = this.props
     const { currentKey } = this.state
     const scope = this
     return (
@@ -272,9 +270,7 @@ class Sider extends Component {
             <ul className='siderTop'>
               <li className='logoItem'>
                 <Link to='/'>
-                  <svg className='logo'>
-                    <use xlinkHref='#sidernewlogo' />
-                  </svg>
+                  <img src={oemInfo.naviShrink} className="logo" />
                 </Link>
               </li>
               <li onClick={this.selectModel.bind(this, 'home', '#home')}
@@ -412,7 +408,7 @@ class Sider extends Component {
             <div key='siderBigger' className='siderBigger'>
               <div className='logBox'>
                 <Link to='/'>
-                  <img className='logo' src={logoPNG} />
+                  <img className='logo' src={oemInfo.naviExpand} />
                 </Link>
               </div>
               <Menu
@@ -569,6 +565,7 @@ class Sider extends Component {
 
                   <div className='sline'></div>
                 </SubMenu>
+                {(role == ROLE_SYS_ADMIN) ?
                 <Menu.Item key='integration'>
                   <Link to='/integration'>
                     <span>
@@ -580,6 +577,8 @@ class Sider extends Component {
                     </span>
                   </Link>
                 </Menu.Item>
+                :null
+                }
                 <SubMenu key='manange_monitor'
                   title={
                     <span>
@@ -781,7 +780,8 @@ function mapStateToProp(state) {
     beforeUploadState: state.storage.beforeUploadFile,
     storageDetail: state.storage.storageDetail,
     role,
-    backColor: oemInfo.colorThemeID
+    backColor: oemInfo.colorThemeID,
+    oemInfo
   }
 }
 

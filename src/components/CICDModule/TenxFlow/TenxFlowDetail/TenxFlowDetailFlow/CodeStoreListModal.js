@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Spin, Select, Icon } from 'antd'
+import { Button, Spin, Select, Icon, Alert } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -97,7 +97,7 @@ let CodeStoreListModal = React.createClass({
         func: (err) => {
           let notif = new NotificationHandler
           if (err.statusCode == 401) {
-            notif.error('查询失败', '没有权限访问代码分支信息', 5)
+            notif.error('查询失败', '没有权限访问代码分支信息，请确认是否已集成对应代码仓库', 5)
             return
           }
            notif.error('查询失败', '无法获取代码分支信息，检查网络或者是否授权', 5)
@@ -194,6 +194,7 @@ let CodeStoreListModal = React.createClass({
     });
     return (
       <div id='CodeStoreListModal' key='CodeStoreListModal'>
+        <Alert message="Tips：无权访问已注销代码仓库的代码源，若无法获取代码源分支，下次重新关联代码仓库后可正常使用" />
         <div className='titleBox'>
           <div className='commonTitle'>
             <FormattedMessage {...menusText.name} />
@@ -207,7 +208,7 @@ let CodeStoreListModal = React.createClass({
           <div style={{ clear:'both' }}></div>
         </div>
         <div className='codeList'>
-          {codeItems.length == 0 ? <span>暂无已激活的代码仓库，<Link to={this.props.isBuildImage ? `/ci_cd/coderepo?from=build_image&redirect=${window.location.pathname+window.location.search}` : `/ci_cd/coderepo` }>前去激活代码仓库</Link></span> : codeItems}
+          {codeItems.length == 0 ? <span>暂无已激活的代码仓库，<Link to={this.props.isBuildImage ? `/ci_cd/coderepo/repos?from=build_image&redirect=${window.location.pathname+window.location.search}` : `/ci_cd/coderepo/repos` }>前去激活代码仓库</Link></span> : codeItems}
         </div>
       </div>
     )

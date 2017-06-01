@@ -160,14 +160,6 @@ if (global.CONFIG_PROD) {
 }
 app.use(serve(__dirname + '/static', staticOpts))*/
 
-// Website favicon
-const favicon = require('koa-favicon')
-app.use(function*(next) {
-  if ('/favicon.ico' != this.path) return yield next;
-  const favoriteIcon = __dirname + '/static' + global.globalConfig.oemInfo.favoriteIcon
-  yield favicon(favoriteIcon, {maxAge: 0})(next)
-})
-
 // Parser content-Type applicationnd.docker.distribution.events.v1+json
 /*app.use(function* (next) {
   let contentType = this.headers["content-type"]
@@ -298,6 +290,10 @@ app.use(function* (next){
     // Open cache in production mode
     if (global.CONFIG_PROD) {
       staticOpts.maxAge = 1000 * 60 * 60 * 24 * 7 // 静态文件一周的缓存
+    }
+    if (this.path === '/favicon.ico') {
+      this.path = global.globalConfig.oemInfo.favoriteIcon
+      staticOpts.maxAge = 0
     }
     yield serveStatic(__dirname + '/static', staticOpts)
   } catch (error) {
