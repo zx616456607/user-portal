@@ -372,7 +372,7 @@ module.exports = function (Router) {
   // manipulate node's labels
   router.get('/cluster-nodes/:cluster/:node/labels', clusternodesController.getNodeLabels)
   router.put('/cluster-nodes/:cluster/:node/labels', clusternodesController.updateNodeLabels)
-  router.post('/cluster-nodes/:cluster/affectedpods', clusternodesController.getAffectedPods)
+  router.post('/cluster-nodes/:cluster/:node/affectedpods', clusternodesController.getAffectedPods)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)
