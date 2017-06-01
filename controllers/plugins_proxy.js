@@ -19,6 +19,7 @@ const prefix = '/api/v1/proxy/namespaces/kube-system/services/'
 const reg = /\/proxy\/clusters\/[-a-zA-z0-9_]+\/plugins\//
 const clusterReg = /\/clusters\/[-a-zA-z0-9_]+/
 const pluginReg = /\/plugins\/[-a-zA-z0-9_]+/
+let globalClusterInfo = ''
 
 exports.pluginsProxy = function* () {
   if(this.session.loginUser.role != 2 ) {
@@ -41,10 +42,15 @@ exports.pluginsProxy = function* () {
     err.status = 400
     throw err
   }
-
-  const api = apiFactory.getK8sApi(this.session.loginUser)
-  const result = yield api.getBy([cluster])
-  const clusterInfo = result.data
+  let clusterInfo = ''
+  if(globalClusterInfo && globalClusterInfo.name == cluster) {
+    clusterInfo = globalClusterInfo
+  } else {
+    const api = apiFactory.getK8sApi(this.session.loginUser)
+    const result = yield api.getBy([cluster])
+    clusterInfo = result.data
+    globalClusterInfo = clusterInfo
+  }
   if(!clusterInfo) {
     const err = new Error(`Can't find the cluster`)
     err.status = 404
@@ -59,8 +65,43 @@ exports.pluginsProxy = function* () {
     port = tempArr[1]
   }
 
-
   const path = prefix +  req.url.replace(reg, '')
+  yield new Promise((resolve, reject) => {
+    asProxy(sendRequest({
+      headers: Object.assign(req.headers, { 'Authorization': `Bearer ${apiToken}` }),
+      path,
+      method: req.method,
+      host,
+      protocol: clusterInfo.apiProtocol,
+      port
+    }, this.request.body), this, resolve)
+  })
+}
+
+exports.pluginsStaticProxy = function* () {
+  if (this.session.loginUser.role != 2) {
+    const err = new Error('no admin user')
+    err.status = 401
+    throw err
+  }
+  if (!globalClusterInfo) {
+    const err = new Error('cluster is require')
+    err.status = 400
+    throw err
+  }
+  const clusterInfo = globalClusterInfo
+  const apiToken = clusterInfo.apiToken
+  let host = clusterInfo.apiHost
+  const req = this.req
+  let port = 80
+  if (host.indexOf(':') > 0) {
+    const tempArr = host.split(':')
+    host = tempArr[0]
+    port = tempArr[1]
+  }
+
+  const path = req.url
+
   yield new Promise((resolve, reject) => {
     asProxy(sendRequest({
       headers: Object.assign(req.headers, { 'Authorization': `Bearer ${apiToken}` }),
@@ -87,10 +128,16 @@ function sendRequest(option, data) {
   }
   const proxyOption = Object.assign({}, defaultOptions, option)
   const requestSocket = proxy.request(proxyOption)
-  if(data) {
+  if(data && Object.getOwnPropertyNames(data).length > 0) {
+    console.log(option.path)
+    console.log(JSON.stringify(data))
     requestSocket.write(JSON.stringify(data))
   }
   requestSocket.end()
+  requestSocket.on('error', (err) => {
+
+    throw err
+  })
   return requestSocket
 }
 
@@ -104,9 +151,7 @@ function asProxy(socket, ctx, callback) {
     })
     socketRes.pipe(res)
   })
-  socket.on('error', (err) => {
-    throw err
-  })
+
 }
 
 
