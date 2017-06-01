@@ -246,11 +246,13 @@ class RollingUpdateModal extends Component {
               </Row>
               <Row style={{marginBottom: "10px"}} >
                 <Col span={4}></Col>
-                <Col className="rollingUpdateUpdateItem" span={8}>
+                <Col className="rollingUpdateUpdateItem" span={10}>
                   <Select
                     placeholder="请选择目标版本"
                     value={item.targetTag}
-                    onChange={(value) => this.handleTagChange(value, item.name)}>
+                    onChange={(value) => this.handleTagChange(value, item.name)}
+                    className='rollingUpdateUpdateItemSelect'
+                  >
                     <OptGroup label="请选择目标版本">
                       {
                         this.props[item.imageObj.fullName] && this.props[item.imageObj.fullName].tag && this.props[item.imageObj.fullName].tag.map((tag) => {
