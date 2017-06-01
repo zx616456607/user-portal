@@ -107,7 +107,7 @@ const ConfigMapSetting = React.createClass({
     }
     const configMapMountPathProps = getFieldProps(configMapMountPathKey, {
       rules: [
-        { required: true, message: '挂载目录，例如：/App' },
+        { required: true, message: '请填写挂载目录' },
         { validator: this.checkPath.bind(this, keyValue) },
       ],
     })

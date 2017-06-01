@@ -33,6 +33,22 @@ class ManageLabelModal extends Component {
     }
   }
 
+  diffLabels(before, after) {
+    const deleted = []
+    for (let i = 0; i < before.length; i++) {
+      const aLabel = before[i]
+      let remained = false
+      for (let j = 0; j < after.length && !remained; j++) {
+        const anotherLabel = after[j]
+        remained = aLabel.key === anotherLabel.key && aLabel.value === anotherLabel.value
+      }
+      if (!remained) {
+        deleted.push(aLabel)
+      }
+    }
+    return deleted
+  }
+
   componentWillReceiveProps(nextProps){
     if(this.props.manageLabelModal !== nextProps.manageLabelModal){
       this.setState({

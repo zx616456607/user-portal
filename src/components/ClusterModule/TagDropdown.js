@@ -40,6 +40,51 @@ class TagDropdown extends Component {
     }
   }
 
+  filerBindableLabels(summary) {
+    return summary.filter(label => label.targets && label.targets.length && label.targets.length > 0)
+  }
+
+  isPodExecuatable(labels, nodes) {
+    const multiMap = this.labelsToMultiMap(labels)
+    const keys = Object.getOwnPropertyNames(multiMap)
+    const nodeNames = Object.getOwnPropertyNames(nodes)
+    let executable = false
+    for (let i = 0; i < nodeNames.length && !executable; i++) {
+      const name = nodeNames[i]
+      const node = nodes[name]
+      let labelsMatched = true
+      for (let j = 0; j < keys.length && labelsMatched; j++) {
+        const key = keys[j]
+        if (node.hasOwnProperty(key)) {
+          const values = multiMap[key]
+          for (let k = 0; k < values.length; k++) {
+            const value = values[k]
+            labelsMatched = node[key] === value
+            if (labelsMatched) {
+              break
+            }
+          }
+        }
+      }
+      executable = labelsMatched
+    }
+    return executable
+  }
+
+  labelsToMultiMap(labels) {
+    const multiMap = {}
+    labels.forEach(label => {
+      const key = label.key
+      const value = label.value
+      if (multiMap.hasOwnProperty(key)) {
+        multiMap[key].push(value)
+      } else {
+        multiMap[key] = [value]
+      }
+    })
+    return multiMap
+  }
+
   formtag() {
     const { labels } = this.props
     if (!labels) {

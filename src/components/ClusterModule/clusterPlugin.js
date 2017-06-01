@@ -339,7 +339,7 @@ class ClusterPlugin extends Component {
   }
 
   render() {
-    const { clusterPlugins, form, cluster } = this.props
+    const { clusterPlugins, form, cluster, isFetching } = this.props
     const { getFieldProps } = form
     const selectNode = getFieldProps('selectNode', {
       rules: [{
@@ -543,6 +543,7 @@ class ClusterPlugin extends Component {
             columns={labelcolumns}
             dataSource={this.getTableItem()}
             pagination={false}
+            loading={isFetching}
           />
         </div>
         <Modal
@@ -608,15 +609,20 @@ function mapStateToProp(state, props) {
     allNode = defaultNodeList
   }
   const defaultClusterPlugins = {
-    isFetching: false
+
   }
+  let isFetching = false
   let clusterPlugins = state.cluster.clusterPlugins && state.cluster.clusterPlugins.result && state.cluster.clusterPlugins.result[camelize(props.cluster.clusterID)]
   if (!clusterPlugins) {
     clusterPlugins = defaultClusterPlugins
   }
+  if(state.cluster.clusterPlugins) {
+    isFetching = state.cluster.clusterPlugins.isFetching
+  }
   return {
     nodeList: allNode,
-    clusterPlugins
+    clusterPlugins,
+    isFetching
   }
 }
 

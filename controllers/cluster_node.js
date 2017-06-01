@@ -314,3 +314,13 @@ function aLabel(key, value) {
 function distinctKey(key, value) {
   return key + value
 }
+
+exports.getAffectedPods = function*() {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const node = this.params.node
+  const labels = this.request.body
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, node, 'affectedpods'], null, labels)
+  this.body = result ? result.data : {}
+}
