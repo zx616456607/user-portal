@@ -294,6 +294,24 @@ exports.rollbackSnapshot=function* () {
 }
 
 
+exports.cloneSnapshot=function* () {
+	const snapshot=this.request.body
+	const volumeName = this.params.name
+	if (!snapshot.snapshotName||!volumeName) {
+		this.status = 400
+		this.body = {
+			message: 'snapname and volumeName is empty'
+		}
+		return
+	}
+	const cluster = this.params.cluster
+	const snapApi=apiFactory.getK8sApi(this.session.loginUser)
+	const response=yield snapApi.createBy([cluster,'volumes',volumeName,'snapshot','clone'],null,this.request.body)
+	this.status = response.code
+	this.body = response
+}
+
+
 // exports.exportFile = function* () {
 //   const pool = this.params.pool
 //   const cluster = this.params.cluster
