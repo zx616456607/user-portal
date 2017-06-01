@@ -424,14 +424,14 @@ const Storage = React.createClass({
         }
         {
           readOnlyProps && (
-            <Col span={2}>
+            <Col span={3}>
               <FormItem key={readOnlykey}>
                 <Checkbox {...readOnlyProps}>只读</Checkbox>
               </FormItem>
             </Col>
           )
         }
-        <Col className="operating">
+        <Col span={6} className="operating">
           {
             !hostPathFlag && (
               <Tooltip title="刷新">
