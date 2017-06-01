@@ -388,7 +388,7 @@ export default class AppServiceDetailInfo extends Component {
   }
   getMount(container) {
      let ele = []
-    const volumes = container.spec.volumes
+    const volumes = container.spec.template.spec.volumes
     if (container.spec.template.spec.containers[0].volumeMounts) {
       container.spec.template.spec.containers[0].volumeMounts.forEach((volume, index) => {
         let name = ''
@@ -427,7 +427,7 @@ export default class AppServiceDetailInfo extends Component {
   }
   getConfigMap(container) {
     let ele = []
-    let volumes = container.spec.volumes
+    let volumes = container.spec.template.spec.volumes
     let configMaps = []
     if (container.spec.template.spec.containers[0].volumeMounts) {
      container.spec.template.spec.containers[0].volumeMounts.forEach((volume) => {
