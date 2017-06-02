@@ -15,8 +15,17 @@ export default class StateBtnModal extends Component{
   constructor(props){
     super(props)
     this.handlecallback = this.handlecallback.bind(this)
+    this.handleWarningTemplate = this.handleWarningTemplate.bind(this)
     this.state = {
       checkedvalue: true,
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if(nextProps.settingList !== this.props.settingList){
+      this.setState({
+        checkedvalue: true
+      })
     }
   }
   getDeleteMessage() {
@@ -135,6 +144,13 @@ export default class StateBtnModal extends Component{
       checkedvalue: !this.state.checkedvalue
     }
     callback(body)
+  }
+  handleWarningTemplate(){
+    const { settingList } = this.props
+    if(settingList && settingList.result && settingList.result.length){
+      return <div className='checkBox'><Checkbox checked={this.state.checkedvalue} onChange={this.handlecallback}>同时删除关联的告警策略?</Checkbox></div>
+    }
+    return <span></span>
   }
   render(){
     const { state, appList, serviceList, scope, cdRule } = this.props
@@ -256,11 +272,7 @@ export default class StateBtnModal extends Component{
         <div className="confirm">
           <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
           您是否确定{opt}这{(checkedList.length - disableArr.length)}个{stateText}的{appList?'应用':'服务'} ?
-          {
-            state == 'Delete'
-            ? <div style={{paddingTop:'10px',color: 'red'}}><Checkbox checked={this.state.checkedvalue} onChange={this.handlecallback}>同时删除关联的告警策略?</Checkbox></div>
-            : <span></span>
-          }
+          <div>{this.handleWarningTemplate()}</div>
         </div>
       </div>
     )

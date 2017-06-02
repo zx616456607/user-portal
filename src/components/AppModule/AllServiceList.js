@@ -624,9 +624,9 @@ class ServiceList extends Component {
 
   componentDidMount() {
     // Reload list each UPDATE_INTERVAL
-    //this.upStatusInterval = setInterval(() => {
-    //  this.loadServices(null, { keepChecked: true })
-    //}, UPDATE_INTERVAL)
+    this.upStatusInterval = setInterval(() => {
+      this.loadServices(null, { keepChecked: true })
+    }, UPDATE_INTERVAL)
   }
 
   componentWillUnmount() {
@@ -678,14 +678,20 @@ class ServiceList extends Component {
     })
   }
   batchDeleteServices() {
-    const { serviceList, cluster, getDeploymentOrAppCDRule } = this.props
+    const { serviceList, cluster, getDeploymentOrAppCDRule, getSettingListfromserviceorapp } = this.props
     const checkList = serviceList.filter(item => item.checked)
     if(checkList && checkList.length > 0) {
       const name = checkList.map(service => service.metadata.name).join(',')
       getDeploymentOrAppCDRule(cluster, 'service', name)
+      const query = {
+        clusterID: cluster,
+        targetNames: name,
+      }
+      getSettingListfromserviceorapp(query)
     }
     this.setState({
-      DeleteServiceModal: true
+      DeleteServiceModal: true,
+      alarmStrategy: true,
     })
   }
   handleStartServiceOk() {
@@ -929,7 +935,7 @@ class ServiceList extends Component {
   }
   handleDeleteServiceOk() {
     const self = this
-    const { cluster, appName, loadAllServices, deleteServices, intl, serviceList, deleteSetting, getSettingListfromserviceorapp } = this.props
+    const { cluster, appName, loadAllServices, deleteServices, intl, serviceList, deleteSetting, SettingListfromserviceorapp } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
 
     const serviceNames = checkedServiceList.map((service) => service.metadata.name)
@@ -951,27 +957,11 @@ class ServiceList extends Component {
 
           const { alarmStrategy } = self.state
           if(alarmStrategy){
-            const targetNamesStr = serviceNames.join(',')
-            const query = {
-              clusterID: cluster,
-              targetNames: targetNamesStr,
-            }
-            getSettingListfromserviceorapp(query,{
-              success: {
-                func: (res) => {
-                  let strategyID = []
-                  console.log('res=',res)
-                  if(res.data.length !== 0){
-                    res.data.forEach((item, index) => {
-                      strategyID.push(item.strategyID)
-                    })
-                    console.log('strategyID=',strategyID)
-                    //deleteSetting(cluster)
-                  }
-                },
-                isAsync: true
-              }
+            let strategyID = []
+            SettingListfromserviceorapp.result.forEach((item, index) => {
+              strategyID.push(item.strategyID)
             })
+            deleteSetting(cluster,strategyID)
           }
         },
         isAsync: true
@@ -1133,7 +1123,7 @@ class ServiceList extends Component {
     } = this.state
     const {
       pathname, page, size, total, isFetching, cluster,
-      loadAllServices, loginUser
+      loadAllServices, loginUser, SettingListfromserviceorapp
     } = this.props
     let selectTab = this.state.selectTab
     let appName = ''
@@ -1205,7 +1195,7 @@ class ServiceList extends Component {
               <Modal title="删除操作" visible={this.state.DeleteServiceModal}
                 onOk={this.handleDeleteServiceOk} onCancel={this.handleDeleteServiceCancel}
                 >
-                <StateBtnModal serviceList={serviceList} state='Delete' cdRule={this.props.cdRule} callback={this.handleCheckboxvalue}/>
+                <StateBtnModal serviceList={serviceList} state='Delete' cdRule={this.props.cdRule} callback={this.handleCheckboxvalue} settingList={SettingListfromserviceorapp}/>
               </Modal>
               <Button type='ghost' size="large" onClick={this.batchQuickRestartService} disabled={!restartBtn}>
                 <i className="fa fa-bolt"></i>重启
