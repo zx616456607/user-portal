@@ -336,7 +336,7 @@ exports.getAppOrchfile = function* () {
   const appName = this.params.app_name
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'apps-detail', appName])
+  const result = yield api.getBy([cluster, 'apps', 'detail', appName])
   const app = result.data[appName]
   if (!app) {
     const err = new Error(`App '${appName}' not exits.`)
