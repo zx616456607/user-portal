@@ -38,6 +38,14 @@ const accountRoutes = [
   {
     path: 'ldap',
     component: require('../components/AccountModal/LDAP').default,
+  },
+  {
+    path: 'rolemanagement',
+    component: require('../components/AccountModal/RoleManagement').default,
+  },
+  {
+    path: 'allpermissions',
+    component: require('../components/AccountModal/AllPermissions').default,
   }
 ]
 

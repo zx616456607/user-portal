@@ -670,6 +670,16 @@ class Sider extends Component {
                       </Link>
                     </Menu.Item> : <Menu.Item key="none-ldap" style={{ display: 'none' }}></Menu.Item>
                   }
+                  <Menu.Item>
+                    <Link to='/account/rolemanagement'>
+                      <span><div className='sideCircle'></div> 角色管理</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <Link to='/account/allpermissions'>
+                      <span><div className='sideCircle'></div> 所有权限</span>
+                    </Link>
+                  </Menu.Item>
                   <div className='sline'></div>
                 </SubMenu>
 
