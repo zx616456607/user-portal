@@ -309,3 +309,22 @@ export function getNetworkSolutions(clusterID,callback) {
     return dispatch(fetchNetworkSolutions(clusterID,callback))
   }
 }
+
+export const CHECK_LABELS_TO_SERVICE_REQUEST = 'CHECK_LABELS_TO_SERVICE_REQUEST'
+export const CHECK_LABELS_TO_SERVICE_SUCCESS = 'CHECK_LABELS_TO_SERVICE_SUCCESS'
+export const CHECK_LABELS_TO_SERVICE_FAILURE = 'CHECK_LABELS_TO_SERVICE_FAILURE'
+
+export function checkLablesToService(body,callback) {
+  return {
+    [FETCH_API]: {
+      types: [CHECK_LABELS_TO_SERVICE_REQUEST, CHECK_LABELS_TO_SERVICE_SUCCESS, CHECK_LABELS_TO_SERVICE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/cluster-nodes/${body.cluster}/${body.node}/affectedpods`,
+      options:{
+        method:'POST',
+        body:body.labels
+      },
+      schema: {},
+    },
+    callback
+  }
+}
