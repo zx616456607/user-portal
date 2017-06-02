@@ -425,6 +425,7 @@ module.exports = function (Router) {
   router.post('/alerts/cluster/:cluster/setting', alertController.addAlertSetting)
   router.put('/alerts/cluster/:cluster/setting', alertController.addAlertSetting)
   router.get('/alerts/cluster/:cluster/setting/list', alertController.getSettingList)
+  router.get('/alerts/group-strategies', alertController.getSettingListfromserviceorapp)
   router.delete('/alerts/cluster/:cluster/setting', alertController.deleteSetting)
   router.put('/alerts/cluster/:cluster/setting/enable', alertController.updateEnable)
   router.put('/alerts/cluster/:cluster/setting/email', alertController.updateSendEmail)
