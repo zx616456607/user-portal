@@ -15,6 +15,7 @@ const serviceController = require('../controllers/service_manage')
 const containerController = require('../controllers/container')
 const configController = require('../controllers/configs')
 const registryController = require('../controllers/registry')
+const harborController = require('../controllers/registry_harbor')
 const metricsController = require('../controllers/metrics')
 const databaseCacheController = require('../controllers/database_cache')
 const appTemplateController = require('../controllers/app_template')
@@ -216,6 +217,9 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/configgroups/:group/configs/:name', configController.updateConfigFile)
   router.post('/clusters/:cluster/configs/delete', configController.deleteConfigGroup)
   router.post('/clusters/:cluster/configgroups/:group/configs-batch-delete', configController.deleteConfigFiles)
+
+  // Harbor integration
+  router.get('/registries/:registry/projects', harborController.searchProjects)
 
   // Registries of TenxCloud
   router.get('/registries/:registry', registryController.getImages)

@@ -67,15 +67,9 @@ exports.initGlobalConfig = function* () {
       globalConfig.mail_server.service_mail = configDetail.senderMail
       ConfigArray.Mail='NotEmpty'
     }
-    if (configType == 'registry') {
-      globalConfig.registryConfig.protocol = configDetail.protocol
-      globalConfig.registryConfig.host = configDetail.host
-      globalConfig.registryConfig.port = configDetail.port
-      globalConfig.registryConfig.v2Server = configDetail.v2Server
-      globalConfig.registryConfig.v2AuthServer = configDetail.v2AuthServer
-      globalConfig.registryConfig.user = configDetail.user
-      globalConfig.registryConfig.password = configDetail.password
-      logger.info('registry config: ', configDetail.protocol + '://' + configDetail.host + ':' + configDetail.port)
+    if (configType == 'harbor') { // Use harbor from v2.6.0
+      globalConfig.registryConfig.url = configDetail.url
+      logger.info('registry config: ', configDetail.url)
       ConfigArray.Registry='NotEmpty'
     }
     // Use db settings if env is empty
