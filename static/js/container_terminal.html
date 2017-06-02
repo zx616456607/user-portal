@@ -66,10 +66,8 @@
       terminalConnect();
       // Create a new terminal connection to a container
       function terminalConnect() {
-        // var rowsNum = parseInt(window.innerHeight / 12) - 2;
-        // var colsNum = parseInt((window.innerWidth - 40) / 12) - 2;
-        var rowsNum = window.innerHeight
-        var colsNum = window.innerWidth
+        var rowsNum = parseInt(window.innerHeight / 12) - 2;
+        var colsNum = parseInt((window.innerWidth - 40) / 12) - 2;
         term = new Terminal({
           cols: colsNum,
           rows: rowsNum,
