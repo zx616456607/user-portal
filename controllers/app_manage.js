@@ -307,7 +307,7 @@ exports.getAppServices = function* () {
     queryObj.filter = `name ${name}`
   }
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'apps', appName, 'services'], queryObj)
+  const result = yield api.getBy([cluster, 'services', appName, 'services'], queryObj)
   const services = result.data.services
 
   let deployments = []
