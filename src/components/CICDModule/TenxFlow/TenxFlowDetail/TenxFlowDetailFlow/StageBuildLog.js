@@ -272,7 +272,7 @@ let MyComponent = React.createClass({
             <div className='line'></div>
           </div>
           <div className='rightInfo'>
-            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} logInfo={item} flowId={flowId} index={index} callback={this.callback(flowId)}/>
+            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} logInfo={item} flowId={flowId} index={index} callback={this.callback(flowId)} visible={this.props.visible}/>
           </div>
         </Panel>
       );
@@ -395,7 +395,7 @@ class StageBuildLog extends Component {
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='paddingBox'>
-        <MyComponent config={logs} scope={scope} flowId={flowId} getTenxflowBuildLastLogs={(flowId)=>this.props.getTenxflowBuildLastLogs(flowId)}/>
+        <MyComponent config={logs} scope={scope} flowId={flowId} getTenxflowBuildLastLogs={(flowId)=>this.props.getTenxflowBuildLastLogs(flowId)} visible={this.props.visible}/>
           <div style={{ clear: 'both' }}></div>
         </div>
       </div>
