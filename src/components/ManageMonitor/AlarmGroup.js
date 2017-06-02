@@ -49,7 +49,7 @@ class AlarmGroup extends Component {
           style={{ width: '80px',height:'20px'}}
       >
       <Menu.Item key="edit">
-        <Button disabled={this.state.selectedRowKeys.length !== 1} className="moDify" style={{ width: '80px' }}>修改</Button>
+        <Button className="moDify" style={{ width: '80px' }}>修改</Button>
       </Menu.Item>
     </Menu>
     )
@@ -121,7 +121,7 @@ class AlarmGroup extends Component {
     let content = '-'
     if (emails.length > 0) {
       content = emails.map(function(item) {
-        let status = !!emails[0].status == 0 ? <span style={{color:'#f23e3f'}}> 【未验证】</span> : null
+        let status = !!emails[0].status != 1 ? <span style={{color:'#f23e3f'}}> 【未验证】</span> : null
         return <div className='alarmGroupItem'>
           {item.addr}
           <span className='alarmGroupspan'>{!!item.desc ? ` (备注:${item.desc})` : ''}</span>
