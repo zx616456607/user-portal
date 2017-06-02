@@ -40,27 +40,6 @@ class TagDropdown extends Component {
     }
   }
 
-  filerBindableLabels(summary) {
-    return summary.filter(label => label.targets && label.targets.length && label.targets.length > 0)
-  }
-
-  matchedNodes(labels, nodes) {
-    const matched = []
-    const multiMap = this.labelsToMultiMap(labels)
-    const nodeNames = Object.getOwnPropertyNames(nodes)
-    for (let i = 0; i < nodeNames.length; i++) {
-      const name = nodeNames[i]
-      const node = nodes[name]
-      if (this.isNodeMatchLabels(node, multiMap)) {
-        matched.push({
-          nodeName: name,
-          labels: node,
-        })
-      }
-    }
-    return matched
-  }
-
   isNodeMatchLabels(node, multiMap) {
     const labelKeys = Object.getOwnPropertyNames(multiMap)
     for (let i = 0; i < labelKeys.length; i++) {
@@ -299,12 +278,13 @@ class ManageTagModal extends Component {
         if (isSet) {
           return
         }
-        if(scope.handledDropDownSetvalues){
+        if(scope.state.createApp){
           scope.handledDropDownSetvalues(tag)
+          scope.setState({
+            summary:tag,
+          })
+          return
         }
-        scope.setState({
-          summary:tag,
-        })
         if(scope.props.nodes){
           let nodeList =[]
           scope.props.nodes.nodes.map((node) => {

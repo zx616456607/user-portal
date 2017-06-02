@@ -32,16 +32,24 @@
       }
       .hostlabel{
         position: relative;
-        padding-bottom: 62px;
-        .labelcontainer{
-          padding:5px 10px;
-          position:absolute;
+        .tips{
+          position: absolute;
           top:0;
           left:108px;
+          height:31px;
+          line-height: 30px;
+          .num{
+            cursor: pointer;
+            padding:0 5px 0 3px;
+            color:#00a1e9;
+          }
+        }
+        .labelcontainer{
+          margin-top: 12px;
+          padding:5px 10px;
           border:1px dashed #dbdbdb;
           height: 103px;
           overflow-y: scroll;
-          width:calc(~"100% - 115px");
           -webkit-border-radius:4px;
           -moz-border-radius:4px;
           border-radius:4px;
