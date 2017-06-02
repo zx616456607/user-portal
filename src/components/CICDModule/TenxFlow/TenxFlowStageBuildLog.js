@@ -65,9 +65,7 @@ class TenxFlowStageBuildLog extends Component {
         document.getElementById(id).scrollTop = 100
       }, 100)
     }
-    console.log(nextProps.visible)
     if(!nextProps.visible && nextProps.visible != this.props.visible) {
-      console.log('-------------')
       if(this.state.socket) {
         this.state.socket.emit("stop_recevie_log")
       }
