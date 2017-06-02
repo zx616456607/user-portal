@@ -387,6 +387,17 @@ class Sider extends Component {
                   </li>
                 ] : null
               }
+              <li onClick={this.selectModel.bind(this, 'tenant_manage', '#tenant_manage')}
+                className={currentKey == 'tenant_manage' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='租户管理'
+                  getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/tenant_manage'>
+                    <svg className='account commonImg'>
+                     <use xlinkHref='#message' />
+                    </svg>
+                  </Link>
+                </Tooltip>
+              </li>
               <div style={{ clear: 'both' }}></div>
             </ul>
             {/*<ul className='siderBottom'>
@@ -577,7 +588,7 @@ class Sider extends Component {
                     </span>
                   </Link>
                 </Menu.Item>
-                :null
+                : <Menu.Item key="none-config" style={{ display: 'none' }}></Menu.Item>
                 }
                 <SubMenu key='manange_monitor'
                   title={
@@ -736,6 +747,24 @@ class Sider extends Component {
                     </Link>
                   </Menu.Item> : <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
                 }
+                <SubMenu key='tenant_manage'
+                  title={
+                    <span>
+                      <svg className='account commonImg'>
+                        <use xlinkHref='#message' />
+                      </svg>
+                      <span className='commonSiderSpan'>租户管理</span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                >
+                  <Menu.Item key='tenant_manage_default'>
+                    <Link to='/tenant_manage'>
+                      <span><div className='sideCircle'></div> 租户</span>
+                    </Link>
+                  </Menu.Item>
+                  <div className='sline'></div>
+                </SubMenu>
               </Menu>
             </div>
           </QueueAnim>
@@ -774,13 +803,18 @@ function mapStateToProp(state) {
   if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
     role = entities.loginUser.info.role
   }
-  const { oemInfo } = entities.loginUser.info
+  const { oemInfo } = entities.loginUser.info || {}
+  let backColor = 1
+  if (oemInfo && oemInfo.colorThemeID) {
+    backColor = oemInfo.colorThemeID
+  }
+
   return {
     uploadFileOptions: state.storage.uploadFileOptions,
     beforeUploadState: state.storage.beforeUploadFile,
     storageDetail: state.storage.storageDetail,
     role,
-    backColor: oemInfo.colorThemeID,
+    backColor,
     oemInfo
   }
 }

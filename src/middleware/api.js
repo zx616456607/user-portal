@@ -50,7 +50,11 @@ function fetchApi(endpoint, options, schema) {
   // Encode url before fetch(multiple encoding produce errors !!!)
   endpoint = encodeURI(endpoint)
   return fetch(endpoint, options).then(response =>
-    response.json().then(json => ({ json, response }))
+    response.json().then(json => ({ json, response })).catch(error => {
+      return Promise.reject({
+        message: '网络或服务暂时不可用，请稍后重试',
+      })
+    })
   ).then(({json, response}) => {
     if (!response.ok) {
       return Promise.reject(json)
