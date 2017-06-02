@@ -54,6 +54,7 @@ class Snapshot extends Component {
       delelteSnapshotNum: false,
       RowDelete: false,
       TopDelete: false,
+      currentVolume: {},
     }
   }
 
@@ -237,6 +238,7 @@ class Snapshot extends Component {
         if(snapshotDataList[key].volume == storageList[pool].storageList[i].name){
           this.setState({
             currentSnapshot: snapshotDataList[key],
+            currentVolume: storageList[pool].storageList[i]
           })
           if(storageList[pool].storageList[i].isUsed == true){
             this.setState({
@@ -337,10 +339,10 @@ class Snapshot extends Component {
     }
     this.onSelectChange(arr)
   }
-  
+
   render() {
     const { snapshotDataList } = this.props
-    const { selectedRowKeys, DeleteSnapshotButton, currentSnapshot, delelteSnapshotNum } = this.state
+    const { selectedRowKeys, DeleteSnapshotButton, currentSnapshot, delelteSnapshotNum, currentVolume } = this.state
     function iconclassName(text){
       switch(text){
         case '正常':
@@ -466,7 +468,7 @@ class Snapshot extends Component {
                 </span>
                 <span className='imgtipsBox'>
                   <div className='right'>当前状态</div>
-                  <div className='right'>格式<span className='item'>{currentSnapshot.fstype}</span></div>
+                  <div className='right'>格式<span className='item'>{currentVolume.format}</span></div>
                 </span>
               </div>
             </div>
