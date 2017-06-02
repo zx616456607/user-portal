@@ -117,6 +117,14 @@ let SvcState = React.createClass({
         </div>
       )
     }
+    if (currentState === 'stopped') {
+      item = (
+        <div id='SvcState'>
+          <div className='errorDot' style={{ backgroundColor: '#ffa500' }}></div>
+          <span style={{ color: '#ffa500' }}>已停止</span>
+        </div>
+      )
+    }
     return (
       <div id='SvcState'>
         {item}

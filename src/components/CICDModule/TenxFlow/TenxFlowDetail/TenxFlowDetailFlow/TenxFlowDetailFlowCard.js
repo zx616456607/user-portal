@@ -706,7 +706,7 @@ class TenxFlowDetailFlowCard extends Component {
               {this.props.isBuildImage ? '' : <svg className='cicdarrow'>
                 <use xlinkHref='#cicdarrow' />
               </svg> }
-              {index != (totalLength - 1) ? [<p className='fileUrl'>{formatStageLink(config.link)}</p>]:null}
+              {(index != (totalLength - 1) && config.link.enabled === 1) ? [<p className='fileUrl'>{formatStageLink(config.link)}</p>]:null}
             </div>
           ] : null
         }
@@ -722,7 +722,7 @@ class TenxFlowDetailFlowCard extends Component {
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-          <StageBuildLog scope={scopeThis} isFetching={buildFetching} logs={logs} flowId={flowId} />
+          <StageBuildLog scope={scopeThis} isFetching={buildFetching} logs={logs} flowId={flowId} visible={this.state.TenxFlowDeployLogModal}/>
         </Modal>
         <Modal
           visible={this.state.setStageFileModal}
