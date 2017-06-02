@@ -29,9 +29,9 @@ class NetworkSolutions extends Component {
     getNetworkSolutions(clusterID)
   }
 
-  handleCurrentTemplate(item){
-	  if(item == 'macvlan'){
-	    return <span>已启用基于Macvlan的私有网络</span>
+  handleCurrentTemplate(item) {
+    if(item == 'macvlan'){
+      return <span>已启用基于Macvlan的私有网络</span>
     }
     return <span>已启用基于BGP协议的私有网络</span>
   }
