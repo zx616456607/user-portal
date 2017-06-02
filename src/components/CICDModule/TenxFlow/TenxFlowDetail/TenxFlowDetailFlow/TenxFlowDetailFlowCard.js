@@ -722,7 +722,7 @@ class TenxFlowDetailFlowCard extends Component {
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-          <StageBuildLog scope={scopeThis} isFetching={buildFetching} logs={logs} flowId={flowId} />
+          <StageBuildLog scope={scopeThis} isFetching={buildFetching} logs={logs} flowId={flowId} visible={this.state.TenxFlowDeployLogModal}/>
         </Modal>
         <Modal
           visible={this.state.setStageFileModal}
