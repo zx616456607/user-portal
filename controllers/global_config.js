@@ -282,6 +282,6 @@ function* isValidResistryConfig(entity) {
 exports.sendVerification = function* () {
 	const method = 'configs.email.sendVerification'
 	const loginUser = this.session.loginUser
-	yield email.sendGlobalConfigVerificationEmail(this.request.body.email, loginUser.user, loginUser.email)
+	yield email.sendGlobalConfigVerificationEmail(this.request.body.email,this.request.body.password,loginUser.user, loginUser.email)
 	this.body = {}
 }

@@ -157,6 +157,33 @@ function sendEnsureEmail(mailOptions, htmlName) {
 }
 exports.sendEnsureEmail = sendEnsureEmail
 
+
+/**
+ * Send verification email
+ * At first send email by sendcloud, if send failed use sendEmail
+ * @param {Object} transport
+ * @param {Object} mailOptions
+ * @param {String} htmlName (html template file name)
+ * @returns {Promise}
+ */
+function sendVerificationEmail(transport,mailOptions, htmlName) {
+	return sendEmailBySendcloud(mailOptions).catch(err => {
+		logger.error("Failed to send using sendcloud: " + JSON.stringify(err))
+		let html = fs.readFileSync(`${EMAIL_TEMPLATES_DIR}/${htmlName}`, 'utf8')
+		const sub = mailOptions.sub
+		for(let key in sub) {
+			if (sub.hasOwnProperty(key)) {
+				let regExp = new RegExp(key, 'g')
+				html = html.replace(regExp, sub[key][0])
+			}
+		}
+		mailOptions.html = html
+		return sendEmail(transport,mailOptions)
+	})
+}
+exports.sendVerificationEmail = sendVerificationEmail
+
+
 /**
  * Send email when user created
  *
@@ -555,11 +582,12 @@ exports.sendNotifyGroupInvitationEmail = function* (to, invitorName, invitorEmai
   return sendEnsureEmail(mailOptions, 'alarm_group.html')
 }
 
-exports.sendGlobalConfigVerificationEmail = function* (to, invitorName, invitorEmail) {
+exports.sendGlobalConfigVerificationEmail = function* (to,pas,invitorName, invitorEmail) {
 	const subject = `[时速云]邮件报警|邮箱验证`
 	const systemEmail = config.mail_server.service_mail
 	const date = moment(new Date()).format("YYYY-MM-DD")
 	const mailOptions = {
+	    from:to,
 		to,
 		subject,
 		templateName: 'alarm_email',
@@ -572,5 +600,14 @@ exports.sendGlobalConfigVerificationEmail = function* (to, invitorName, invitorE
 			'%date%': [date],
 		}
 	}
-	return sendEnsureEmail(mailOptions, 'alarm_email.html')
+	const transport={
+		host: config.mail_server.host,
+		secureConnection: false, // 使用 SSL
+		port: 465, // SMTP 端口
+		auth: {
+			user: to, // 账号
+			pass: pas // 密码
+		}
+    }
+	return sendVerificationEmail(transport,mailOptions, 'alarm_email.html')
 }
