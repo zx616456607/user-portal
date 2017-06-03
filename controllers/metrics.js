@@ -149,7 +149,7 @@ exports.getAppMetrics = function* () {
   }
   const api = apiFactory.getK8sApi(user)
   // Top 10 services
-  const servicesResult = yield api.getBy([cluster, 'apps', appName, 'services'])
+  const servicesResult = yield api.getBy([cluster, 'services', appName, 'services'])
   const services = servicesResult.data.services || []
   const servicesPromiseArray = services.map((service) => {
     let serviceName = service.deployment.metadata.name
@@ -178,7 +178,7 @@ exports.getAllAppMetrics = function* () {
   const user = this.session.loginUser
   const api = apiFactory.getK8sApi(user)
   // Top 10 services
-  const servicesResult = yield api.getBy([cluster, 'apps', appName, 'services'])
+  const servicesResult = yield api.getBy([cluster, 'services', appName, 'services'])
   const services = servicesResult.data.services || []
   const servicesPromiseArray = services.map((service) => {
     let serviceName = service.deployment.metadata.name
