@@ -162,7 +162,13 @@ class TenxFlowDetail extends Component {
           })
           // data.results.stageInfo[0].spec.project.id
           if (id) {
-            getRepoBranchesAndTagsByProjectId(id)
+            getRepoBranchesAndTagsByProjectId(id, {
+              failed: {
+                func: () => {
+                  // do not show error in page
+                },
+              }
+            })
           }
         },
         isAsync: true
@@ -370,7 +376,7 @@ class TenxFlowDetail extends Component {
     const tabs = []
     let loading
     const branchesAndTags = repoBranchesAndTags[projectId]
-    if (!branchesAndTags) {
+    if (!branchesAndTags || (!branchesAndTags.data.branches && !branchesAndTags.data.tags)) {
       tabs.push(<PopOption key="not_found_branches_tags">未找到分支及标签，点击构建</PopOption>)
     } else {
       const { isFetching, data } = branchesAndTags

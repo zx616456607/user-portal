@@ -517,16 +517,23 @@ class TenxFlowDetailFlowCard extends Component {
         </Button>
       )
     }
+    const callback = {
+      failed: {
+        func: () => {
+          // do not show error in page
+        },
+      }
+    }
     let targetElement = (
       <Button size='large' type='primary' className='startBtn'
-        onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId)}>
+        onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId, callback)}>
         {btn}
       </Button>
     )
     if (disabled) {
       targetElement = (
         <Tooltip title="子任务依赖前面任务的输出，不能单独执行" placement="left"><Button size='large' type='primary' className='startBtn'
-          onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId)} disabled={disabled}>
+          onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId, callback)} disabled={disabled}>
           {btn}
         </Button></Tooltip>
       )
@@ -534,7 +541,7 @@ class TenxFlowDetailFlowCard extends Component {
     const tabs = []
     let loading
     const branchesAndTags = repoBranchesAndTags[projectId]
-    if (!branchesAndTags) {
+    if (!branchesAndTags || (!branchesAndTags.data.branches && !branchesAndTags.data.tags)) {
       tabs.push(<PopOption key="not_found_branches_tags">未找到分支及标签，点击构建</PopOption>)
     } else {
       const { isFetching, data } = branchesAndTags
