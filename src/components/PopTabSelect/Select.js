@@ -86,6 +86,12 @@ export default class PopTabSelect extends Component {
     if (!label) {
       label = key
     }
+    if (this.state.selectValue === label) {
+      this.setState({
+        visible: false,
+      })
+      return
+    }
     onChange && onChange.apply(onChange, [key, tabKey, groupKey])
     this.setState({
       selectValue: label,
