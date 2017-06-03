@@ -173,10 +173,16 @@ let Emaill = React.createClass({
       email,
       password
     }
+    const notitf = new NotificationHandler()
     this.props.sendEmailVerification(body,{
       success:{
         func:(ret)=> {
-          console.log('ret',ret)
+          notitf.success('验证成功')
+        }
+      },
+      failed:{
+        func:()=> {
+          notitf.error('验证失败','请检查邮箱或者密码是否正确')
         }
       }
     })
@@ -268,10 +274,10 @@ let Emaill = React.createClass({
                       ? <Button type='primary' className="itemInputLeft" onClick={this.handleEmail}>编辑</Button>
                       : ([
                         <Button onClick={this.handleReset} className="itemInputLeft" disabled={emailDisable}>取消</Button>,
-                        <Button type='primary' onClick={this.saveEmail}>保存</Button>
+                        <Button type='primary' className="itemInputLeft" onClick={this.saveEmail}>保存</Button>
                       ])
                   }
-                  <Button onClick={()=> this.sendEmail()}>验证邮箱</Button>
+                  <Button onClick={()=> this.sendEmail()} >验证邮箱</Button>
                 </FormItem>
                 <input type="hidden" {...emailID} />
               </Form>

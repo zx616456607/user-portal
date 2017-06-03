@@ -273,7 +273,7 @@ class TerminalModal extends Component {
                   {this.renderTermStatus(terminalStatus, item)}
                   <iframe
                     id={name}
-                    src={`/js/container_terminal.html?namespace=${namespace}&pod=${name}&cluster=${clusterID}&_=20170509`} />
+                    src={`/js/container_terminal.html?namespace=${namespace}&pod=${name}&cluster=${clusterID}&_=20170602`} />
                 </div>
               </TabPane>
             )

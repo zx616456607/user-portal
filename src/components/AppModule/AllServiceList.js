@@ -26,6 +26,7 @@ import {
   loadAllServices,
   loadAutoScale
 } from '../../actions/services'
+import { deleteSetting, getSettingListfromserviceorapp } from '../../actions/alert'
 import { getDeploymentOrAppCDRule } from '../../actions/cicd_flow'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ANNOTATION_HTTPS } from '../../../constants'
 import { browserHistory } from 'react-router'
@@ -524,6 +525,7 @@ class ServiceList extends Component {
     this.handleDeleteServiceCancel = this.handleDeleteServiceCancel.bind(this)
     this.cancelModal = this.cancelModal.bind(this)
     this.nextStep = this.nextStep.bind(this)
+    this.handleCheckboxvalue = this.handleCheckboxvalue.bind(this)
 
     this.state = {
       modalShow: false,
@@ -548,7 +550,8 @@ class ServiceList extends Component {
       DeleteServiceModal: false,
       detail: false,
       k8sServiceList: [],
-      step:1 // create alarm step
+      step:1 ,// create alarm step
+      alarmStrategy: true
     }
   }
   getInitialState() {
@@ -675,14 +678,20 @@ class ServiceList extends Component {
     })
   }
   batchDeleteServices() {
-    const { serviceList, cluster, getDeploymentOrAppCDRule } = this.props
+    const { serviceList, cluster, getDeploymentOrAppCDRule, getSettingListfromserviceorapp } = this.props
     const checkList = serviceList.filter(item => item.checked)
     if(checkList && checkList.length > 0) {
       const name = checkList.map(service => service.metadata.name).join(',')
       getDeploymentOrAppCDRule(cluster, 'service', name)
+      const query = {
+        clusterID: cluster,
+        targetNames: name,
+      }
+      getSettingListfromserviceorapp(query)
     }
     this.setState({
-      DeleteServiceModal: true
+      DeleteServiceModal: true,
+      alarmStrategy: true,
     })
   }
   handleStartServiceOk() {
@@ -926,11 +935,12 @@ class ServiceList extends Component {
   }
   handleDeleteServiceOk() {
     const self = this
-    const { cluster, appName, loadAllServices, deleteServices, intl, serviceList } = this.props
+    const { cluster, appName, loadAllServices, deleteServices, intl, serviceList, deleteSetting, SettingListfromserviceorapp } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
 
     const serviceNames = checkedServiceList.map((service) => service.metadata.name)
     const allServices = self.state.serviceList
+
     allServices.map((service) => {
       if (serviceNames.indexOf(service.metadata.name) > -1) {
         service.status.phase = 'Terminating'
@@ -944,6 +954,15 @@ class ServiceList extends Component {
       success: {
         func: () => {
           self.loadServices(self.props)
+
+          const { alarmStrategy } = self.state
+          if(alarmStrategy){
+            let strategyID = []
+            SettingListfromserviceorapp.result.forEach((item, index) => {
+              strategyID.push(item.strategyID)
+            })
+            deleteSetting(cluster,strategyID)
+          }
         },
         isAsync: true
       },
@@ -1083,6 +1102,14 @@ class ServiceList extends Component {
       step: step
     })
   }
+  handleCheckboxvalue(obj){
+    if(obj){
+      this.setState({
+        alarmStrategy: obj.checkedvalue
+      })
+    }
+  }
+
   render() {
     const parentScope = this
     let {
@@ -1096,7 +1123,7 @@ class ServiceList extends Component {
     } = this.state
     const {
       pathname, page, size, total, isFetching, cluster,
-      loadAllServices, loginUser
+      loadAllServices, loginUser, SettingListfromserviceorapp
     } = this.props
     let selectTab = this.state.selectTab
     let appName = ''
@@ -1168,7 +1195,7 @@ class ServiceList extends Component {
               <Modal title="删除操作" visible={this.state.DeleteServiceModal}
                 onOk={this.handleDeleteServiceOk} onCancel={this.handleDeleteServiceCancel}
                 >
-                <StateBtnModal serviceList={serviceList} state='Delete' cdRule={this.props.cdRule}/>
+                <StateBtnModal serviceList={serviceList} state='Delete' cdRule={this.props.cdRule} callback={this.handleCheckboxvalue} settingList={SettingListfromserviceorapp}/>
               </Modal>
               <Button type='ghost' size="large" onClick={this.batchQuickRestartService} disabled={!restartBtn}>
                 <i className="fa fa-bolt"></i>重启
@@ -1348,6 +1375,7 @@ function mapStateToProps(state, props) {
   if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
+  const { SettingListfromserviceorapp } = state.alert
   const { loginUser } = state.entities
   const { cluster } = state.entities.current
   const { statusWatchWs } = state.entities.sockets
@@ -1373,7 +1401,8 @@ function mapStateToProps(state, props) {
     total,
     serviceList: services || [],
     isFetching,
-    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule :  defaultCDRule
+    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule :  defaultCDRule,
+    SettingListfromserviceorapp
   }
 }
 
@@ -1385,7 +1414,9 @@ ServiceList = connect(mapStateToProps, {
   quickRestartServices,
   loadAllServices,
   loadAutoScale,
-  getDeploymentOrAppCDRule
+  getDeploymentOrAppCDRule,
+  deleteSetting,
+  getSettingListfromserviceorapp,
 })(ServiceList)
 
 export default injectIntl(ServiceList, {
