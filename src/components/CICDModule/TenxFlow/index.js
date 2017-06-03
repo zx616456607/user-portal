@@ -157,7 +157,13 @@ let MyComponent = React.createClass({
       }
     }
     if (projectId) {
-      getRepoBranchesAndTagsByProjectId(projectId)
+      getRepoBranchesAndTagsByProjectId(projectId, {
+        failed: {
+          func: () => {
+            // do not show error in page
+          },
+        }
+      })
     }
   },
   startBuildStage(item, index, key, tabKey) {
@@ -215,7 +221,7 @@ let MyComponent = React.createClass({
     const tabs = []
     let loading
     const branchesAndTags = repoBranchesAndTags[projectId]
-    if (!branchesAndTags) {
+    if (!branchesAndTags || (!branchesAndTags.data.branches && !branchesAndTags.data.tags)) {
       if (stagesCount > 0) {
         tabs.push(<PopOption key="not_found_branches_tags">未找到分支及标签，点击构建</PopOption>)
       }
