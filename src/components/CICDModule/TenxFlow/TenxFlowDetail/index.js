@@ -162,13 +162,7 @@ class TenxFlowDetail extends Component {
           })
           // data.results.stageInfo[0].spec.project.id
           if (id) {
-            getRepoBranchesAndTagsByProjectId(id, {
-              failed: {
-                func: () => {
-                  // do not show error in page
-                },
-              }
-            })
+            getRepoBranchesAndTagsByProjectId(id)
           }
         },
         isAsync: true

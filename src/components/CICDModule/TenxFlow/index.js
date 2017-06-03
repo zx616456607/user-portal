@@ -157,13 +157,7 @@ let MyComponent = React.createClass({
       }
     }
     if (projectId) {
-      getRepoBranchesAndTagsByProjectId(projectId, {
-        failed: {
-          func: () => {
-            // do not show error in page
-          },
-        }
-      })
+      getRepoBranchesAndTagsByProjectId(projectId)
     }
   },
   startBuildStage(item, index, key, tabKey) {

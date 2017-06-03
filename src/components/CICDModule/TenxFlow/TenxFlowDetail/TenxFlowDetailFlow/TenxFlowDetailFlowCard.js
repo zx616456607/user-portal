@@ -517,23 +517,16 @@ class TenxFlowDetailFlowCard extends Component {
         </Button>
       )
     }
-    const callback = {
-      failed: {
-        func: () => {
-          // do not show error in page
-        },
-      }
-    }
     let targetElement = (
       <Button size='large' type='primary' className='startBtn'
-        onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId, callback)}>
+        onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId)}>
         {btn}
       </Button>
     )
     if (disabled) {
       targetElement = (
         <Tooltip title="子任务依赖前面任务的输出，不能单独执行" placement="left"><Button size='large' type='primary' className='startBtn'
-          onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId, callback)} disabled={disabled}>
+          onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId)} disabled={disabled}>
           {btn}
         </Button></Tooltip>
       )
