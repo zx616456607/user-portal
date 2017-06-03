@@ -35,12 +35,16 @@
       float: left;
       width: calc(~"100% - 150px");
       min-height: 50px;
-      input {
-        margin-top: 8px;
-        width: 220px !important;
-      }
       .ant-form-item {
         margin-bottom: 0 !important;
+        .ant-form-item-control {
+          >.ant-input-wrapper {
+            >input {
+              margin-top: 8px;
+              width: 220px !important;
+            }
+          }
+        }
       }
       .ant-form-item-control {
         line-height: 50px !important;

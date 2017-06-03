@@ -311,6 +311,7 @@ let MyComponent = React.createClass({
           onChange={this.startBuildStage.bind(this, item, index)}
           targetElement={targetElement}
           loading={loading}
+          isShowBuildBtn={true}
           getTooltipContainer={() => document.body}>
           {tabs}
         </PopTabSelect>

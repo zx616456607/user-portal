@@ -257,6 +257,7 @@ let MyComponent = React.createClass({
           </Dropdown.Button>
         }
         getTooltipContainer={() => document.body}
+        isShowBuildBtn={true}
         loading={loading}>
         {tabs}
       </PopTabSelect>
