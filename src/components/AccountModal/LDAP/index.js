@@ -174,7 +174,7 @@ class LDAP extends Component {
         },
         failed: {
           func: error => {
-            let { message } = error.message
+            let message = error.message
             if (typeof message !== 'string') {
               message = ''
             }
