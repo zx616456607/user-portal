@@ -17,7 +17,7 @@ import MirrorImg from '../../../assets/img/setting/globalconfigmirror.png'
 import APIImg from '../../../assets/img/setting/globalconfigapi.png'
 import CephImg from '../../../assets/img/setting/globalconfigceph.png'
 import { connect } from 'react-redux'
-import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig } from '../../../actions/global_config'
+import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig, sendEmailVerification } from '../../../actions/global_config'
 import NotificationHandler from '../../../common/notification_handler'
 import { getPortalRealMode } from '../../../common/tools'
 import { LITE } from '../../../constants'
@@ -166,6 +166,27 @@ let Emaill = React.createClass({
     }
     return callback()
   },
+  sendEmail() {
+    const email = this.props.form.getFieldValue('email')
+    const password = this.props.form.getFieldValue('password')
+    const body ={
+      email,
+      password
+    }
+    const notitf = new NotificationHandler()
+    this.props.sendEmailVerification(body,{
+      success:{
+        func:(ret)=> {
+          notitf.success('验证成功')
+        }
+      },
+      failed:{
+        func:()=> {
+          notitf.error('验证失败','请检查邮箱或者密码是否正确')
+        }
+      }
+    })
+  },
   render() {
     const { emailDisable, emailChange, config } = this.props
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form
@@ -253,9 +274,10 @@ let Emaill = React.createClass({
                       ? <Button type='primary' className="itemInputLeft" onClick={this.handleEmail}>编辑</Button>
                       : ([
                         <Button onClick={this.handleReset} className="itemInputLeft" disabled={emailDisable}>取消</Button>,
-                        <Button type='primary' onClick={this.saveEmail}>保存</Button>
+                        <Button type='primary' className="itemInputLeft" onClick={this.saveEmail}>保存</Button>
                       ])
                   }
+                  <Button onClick={()=> this.sendEmail()} >验证邮箱</Button>
                 </FormItem>
                 <input type="hidden" {...emailID} />
               </Form>
@@ -1095,7 +1117,7 @@ class GlobalConfig extends Component {
           <div className='titltitem'>③『存储服务』对应的【应用管理】中存储卷的相关配置；</div>
           <div className='titltitem'>④『持续集成』对应的是 CI/CD 中 TenxFlow 的相关功能配置；</div>
 					</div>
-        <Emaill setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
+        <Emaill sendEmailVerification={this.props.sendEmailVerification} setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
         <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.registry} isValidConfig={this.props.isValidConfig}/>
         <StorageService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />
         <ConInter setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
@@ -1113,6 +1135,7 @@ function mapPropsToState(state) {
 }
 
 export default connect(mapPropsToState, {
+  sendEmailVerification,
   saveGlobalConfig,
   updateGlobalConfig,
   loadGlobalConfig,
