@@ -329,7 +329,6 @@ class ClusterLabelManage extends Component{
         key:'createAt',
         dataIndex:'createAt',
         width:'19%',
-        sorter: true,
         render : (text)=>{
           if (text) {
             return (
