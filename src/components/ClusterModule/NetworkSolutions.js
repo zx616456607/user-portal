@@ -18,6 +18,7 @@ class NetworkSolutions extends Component {
     super(props)
     this.handlebodyTemplate = this.handlebodyTemplate.bind(this)
     this.handlefooterTemplate = this.handlefooterTemplate.bind(this)
+    this.handleCurrentTemplate = this.handleCurrentTemplate.bind(this)
     this.state = {
 
     }
@@ -26,6 +27,13 @@ class NetworkSolutions extends Component {
   componentWillMount() {
     const { getNetworkSolutions, clusterID } = this.props
     getNetworkSolutions(clusterID)
+  }
+
+  handleCurrentTemplate(item) {
+    if(item == 'macvlan'){
+      return <span>已启用基于Macvlan的私有网络</span>
+    }
+    return <span>已启用基于BGP协议的私有网络</span>
   }
 
   handlebodyTemplate(){
@@ -39,7 +47,7 @@ class NetworkSolutions extends Component {
           <span className='title'>{item}</span>
           {
             item == networksolutions[clusterID].current
-            ? <span className='tips'>已打开固定服务内『容器实例IP』，且保留IP超时时间50min</span>
+            ? <span className='tips'>{this.handleCurrentTemplate(item)}</span>
             : <span></span>
           }
         </div>
@@ -65,13 +73,13 @@ class NetworkSolutions extends Component {
         return <div className="standard" key={'footer' + item}>
           <div className="title">Macvlan</div>
           <div className="item"><i className="fa fa-square pointer" aria-hidden="true"></i>基于二层隔离，所以需要二层路由支持，对物理网络基础设施依赖程度最高，从逻辑和Kemel层来看隔离性和性能最优的方案 ，大多数云服务商不支持，所以混合云上比较难以实现。</div>
+          <div className="item seconditem"><i className="fa fa-square pointer" aria-hidden="true"></i>固定容器实例IP：即固定服务内『容器实例』的IP，且设有一定的超时时间，如容器重启、容器删除后服务重新扩容实例个数、容器重新部署，会在超时时间之内保证服务内容器实例IP不变。</div>
         </div>
       }
       if(item == 'calico'){
         return <div className="standard" key={'footer' + item}>
           <div className="title">Calico</div>
           <div className="item"><i className="fa fa-square pointer" aria-hidden="true"></i>基于BGP协议的路由方案，支持细致的ACL控制，适合对隔离要求比较严格的场景，因为不涉及到二层的支持，所以对混合云亲和度比较高。</div>
-          <div className="item seconditem"><i className="fa fa-square pointer" aria-hidden="true"></i>固定容器实例IP：即固定服务内『容器实例』的IP，且设有一定的超时时间，如容器重启、容器删除后服务重新扩容实例个数、容器重新部署，会在超时时间之内保证服务内容器实例IP不变。</div>
         </div>
       }
     })

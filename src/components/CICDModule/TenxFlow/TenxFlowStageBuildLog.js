@@ -65,6 +65,21 @@ class TenxFlowStageBuildLog extends Component {
         document.getElementById(id).scrollTop = 100
       }, 100)
     }
+    if(!nextProps.visible && nextProps.visible != this.props.visible) {
+      if(this.state.socket) {
+        this.state.socket.emit("stop_recevie_log")
+      }
+    }
+    if(nextProps.updateWebSocket) {
+      this.props.setUpdateWebSocket()
+      if(this.state.socket) {
+        this.state.socket.disconnect()
+        this.state.socket.connect()
+         $(`#${this.state.tenxFlowLog}`).html('')
+        const logInfo = this.props.logInfo
+        this.state.socket.emit("ciLogs", { flowId: this.props.flowId, stageId: logInfo.stageId, stageBuildId: logInfo.buildId })
+      }
+    }
   }
   onSetup(socket) {
     const logInfo = this.props.logInfo
@@ -72,6 +87,9 @@ class TenxFlowStageBuildLog extends Component {
     const self = this
     const tenxFlowStageBuildLog = this.state.TenxFlowStageBuildLog
     const tenxFlowLog = this.state.tenxFlowLog
+    this.setState({
+      socket: socket
+    })
     socket.emit("ciLogs", {flowId: this.props.flowId, stageId: logInfo.stageId, stageBuildId: logInfo.buildId })
     socket.on("ciLogs", function (data) {
       data = data.toString()

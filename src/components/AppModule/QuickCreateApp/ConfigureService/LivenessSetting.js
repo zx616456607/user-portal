@@ -94,7 +94,7 @@ const LivenessSetting = React.createClass({
             {
               (livenessProtocol === 'HTTP' || livenessProtocol === 'TCP') && (
                 <Row>
-                  <Col span={formItemLayout.labelCol.span}>配置</Col>
+                  <Col span={formItemLayout.labelCol.span} className='configCol'>配置</Col>
                   <Col span={formItemLayout.wrapperCol.span}>
                     <div className="livenessConfig">
                       <Row className="configHeader">

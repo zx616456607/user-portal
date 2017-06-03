@@ -57,22 +57,22 @@ export default class Version extends Component{
                 <Row className='contentList'>
                   <Col span={8}>TenxCloud User Portal</Col>
                   <Col span={8}>用户使用中心</Col>
-                  <Col span={8}>v2.1.0</Col>
+                  <Col span={8}>v2.2.0</Col>
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>TenxCloud Application Center</Col>
                   <Col span={8}>应用中心</Col>
-                  <Col span={8}>v2.1.0</Col>
+                  <Col span={8}>v2.2.0</Col>
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>TenxCloud Container Engine</Col>
                   <Col span={8}>容器引擎</Col>
-                  <Col span={8}>v2.1.0</Col>
+                  <Col span={8}>v2.2.0</Col>
                 </Row>
                 <Row className='contentList'>
                   <Col span={8}>TenxCloud CI/CD Center</Col>
                   <Col span={8}>持续集成交付中心</Col>
-                  <Col span={8}>v2.1.0</Col>
+                  <Col span={8}>v2.2.0</Col>
                 </Row>
                 {/*<Row className='contentList'>
                   <Col span={8}>TenxCloud API Gateway</Col>
@@ -82,7 +82,7 @@ export default class Version extends Component{
                 <Row className='contentList'>
                   <Col span={8}>TenxCloud Integration Center</Col>
                   <Col span={8}>集成中心</Col>
-                  <Col span={8}>v2.1.0</Col>
+                  <Col span={8}>v2.2.0</Col>
                 </Row>
               </div>
             </Row>

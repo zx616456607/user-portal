@@ -209,7 +209,6 @@ let MyComponent = React.createClass({
     }
   },
   render: function () {
-
     const { config, scope, flowId } = this.props;
     let items = config.map((item, index) => {
       const header = (
