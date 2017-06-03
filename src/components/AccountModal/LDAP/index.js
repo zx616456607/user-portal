@@ -174,9 +174,10 @@ class LDAP extends Component {
         },
         failed: {
           func: error => {
-            let message = error.message
-            if (typeof message !== 'string') {
-              message = ''
+            let errorMessage = error.message
+            let { message } = errorMessage
+            if (message === undefined) {
+              message = errorMessage
             }
             notification.error('保存企业集成信息失败', message)
             this.setState({
