@@ -11,12 +11,12 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Input, Button, Popover, Menu, Tabs, Spin } from 'antd'
+import { Input, Button, Popover, Menu, Tabs, Spin, Row, Col, Tooltip } from 'antd'
 import classNames from 'classnames'
 import { genRandomString } from '../../common/tools'
 import './style/Select.less'
 
-const InputGroup = Input.Group
+const ButtonGroup = Button.Group
 const MenuItem = Menu.Item
 const MenuGroup = Menu.ItemGroup
 const TabPane = Tabs.TabPane
@@ -31,21 +31,25 @@ export default class PopTabSelect extends Component {
     getTooltipContainer: PropTypes.func,
     notFoundContent: PropTypes.string,
     loading: PropTypes.bool,
+    isShowBuildBtn: PropTypes.bool,
   }
 
   static defaultProps = {
     notFoundContent: '无记录',
+    isShowBuildBtn: false,
   }
 
   constructor(props) {
     super()
     this.popSelectId = `popTabSelect-${genRandomString(6)}`
+    this.searchInputId = `popTabSearch-${genRandomString(6)}`
     this.handleVisibleChange = this.handleVisibleChange.bind(this)
     this.handleSearch = this.handleSearch.bind(this)
     this.filterOption = this.filterOption.bind(this)
     this.handleSelect = this.handleSelect.bind(this)
     this.renderOptions = this.renderOptions.bind(this)
     this.renderOptionsFromChildren = this.renderOptionsFromChildren.bind(this)
+    this.handleBuild = this.handleBuild.bind(this)
     this.state = {
       visible: false,
       inputValue: '',
@@ -85,6 +89,12 @@ export default class PopTabSelect extends Component {
     let groupKey = item.props.groupKey
     if (!label) {
       label = key
+    }
+    if (this.state.selectValue === label) {
+      this.setState({
+        visible: false,
+      })
+      return
     }
     onChange && onChange.apply(onChange, [key, tabKey, groupKey])
     this.setState({
@@ -186,11 +196,23 @@ export default class PopTabSelect extends Component {
     )
   }
 
+  handleBuild() {
+    const { inputValue } = this.state
+    if (!inputValue) {
+      const searchInput = document.getElementById(this.searchInputId)
+      searchInput && searchInput.focus()
+      return
+    }
+    const { onChange } = this.props
+    onChange && onChange.apply(onChange, [inputValue, 'inputBuild'])
+  }
+
   render() {
     const {
       targetElement,
       value,
       placeholder,
+      isShowBuildBtn,
     } = this.props
     let {
       getTooltipContainer,
@@ -205,15 +227,42 @@ export default class PopTabSelect extends Component {
       'anticon': true,
       'anticon-down': true,
     })
+    let colSpan = {
+      input: 20,
+      btn: 4
+    }
+    if (isShowBuildBtn) {
+      colSpan = {
+        input: 16,
+        btn: 8
+      }
+    }
     const content = (
       <div className="popTabSelectContent">
         <div className="search">
-          <InputGroup className="ant-search-input">
-            <Input onPressEnter={this.handleSearch} onChange={this.handleSearch} />
-            <div className="ant-input-group-wrap">
-              <Button icon="search" className="ant-search-btn" />
-            </div>
-          </InputGroup>
+          <Row>
+            <Col span={colSpan.input}>
+              <Input
+                id={this.searchInputId}
+                onPressEnter={this.handleSearch}
+                placeholder="输入分支或标签"
+                onChange={this.handleSearch} />
+            </Col>
+            <Col span={colSpan.btn} className="btns">
+              <ButtonGroup>
+                <Tooltip title="搜索">
+                  <Button icon="search"/>
+                </Tooltip>
+                {
+                  isShowBuildBtn && (
+                    <Tooltip title="立即构建">
+                      <Button icon="check" onClick={this.handleBuild} />
+                    </Tooltip>
+                  )
+                }
+              </ButtonGroup>
+            </Col>
+          </Row>
         </div>
         <div className="options">
         { this.renderContent() }

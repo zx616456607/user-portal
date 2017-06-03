@@ -561,6 +561,7 @@ class TenxFlowDetailFlowCard extends Component {
         onChange={this.buildFlow.bind(this, id, lastBuildStatus, name)}
         targetElement={targetElement}
         loading={loading}
+        isShowBuildBtn={true}
         getTooltipContainer={() => document.body}>
         {tabs}
       </PopTabSelect>
