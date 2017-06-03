@@ -36,7 +36,6 @@ function info(state={result:{}},action) {
     case ActionTypes.GET_PERSONALIZED_FAILURE:{
       return Object.assign({}, state, {
           isFetching: false,
-          result: action.response.result
       })
     }
     case ActionTypes.GET_DEFAULT_INFO_SUCCESS:{
