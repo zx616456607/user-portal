@@ -681,16 +681,6 @@ class Sider extends Component {
                       </Link>
                     </Menu.Item> : <Menu.Item key="none-ldap" style={{ display: 'none' }}></Menu.Item>
                   }
-                  <Menu.Item>
-                    <Link to='/account/rolemanagement'>
-                      <span><div className='sideCircle'></div> 角色管理</span>
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item>
-                    <Link to='/account/allpermissions'>
-                      <span><div className='sideCircle'></div> 所有权限</span>
-                    </Link>
-                  </Menu.Item>
                   <div className='sline'></div>
                 </SubMenu>
 
@@ -771,6 +761,16 @@ class Sider extends Component {
                   <Menu.Item key='tenant_manage_default'>
                     <Link to='/tenant_manage'>
                       <span><div className='sideCircle'></div> 租户</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <Link to='/tenant_manage/rolemanagement'>
+                      <span><div className='sideCircle'></div> 角色管理</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <Link to='/tenant_manage/allpermissions'>
+                      <span><div className='sideCircle'></div> 所有权限</span>
                     </Link>
                   </Menu.Item>
                   <div className='sline'></div>

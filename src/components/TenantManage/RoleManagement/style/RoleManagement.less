@@ -1,4 +1,8 @@
 #RoleManagement {
+  padding-top: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-bottom: 20px;
   .ant-alert {
     color: #1a7db6;
     font-size: 13px !important;
@@ -9,6 +13,7 @@
   }
   //顶部工具栏样式
   .operationBox {
+    height:32px;
     width: 100%;
     .bag {
       background:#fff;
@@ -85,7 +90,6 @@
     .selectIconTitle {
       width: 5%;
       overflow: hidden;
-      text-align: center;
     }
     .appStatus,
     .serviceNum {
@@ -94,43 +98,13 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .containerNum{width: 8%;}
-    .alarm {
-      width: 8%;
-      .managemoniter {
-        width: 18px;height: 18px;
-        fill: #C7CBCE;
-        margin-right: 12px;
-        cursor: pointer;
-        transition: all 0.2s ease-in-out;
-        vertical-align: middle;
-        &:hover {
-          fill:#10B5FF;
-        }
-      }
-      i {
-        font-size: 16px;
-        cursor: pointer;
-        color: #C7CBCE;
-        line-height: 2;
-        transition: all 0.2s ease-in-out;
-        vertical-align: middle;
-        &:hover {
-          color: #10B5FF;
-          transform: rotate(40deg);
-          -webkit-transform: rotate(40deg);
-          -moz-transform: rotate(40deg);
-          -o-transform: rotate(40deg);
-          -ms-transform: rotate(40deg);
-        }
-      }
-    }
+    .containerNum{width: 14%;}
     .normal {
       color: #5cb85c;
     }
 
     .appName {
-      width: 15%;
+      width: 13%;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -140,27 +114,26 @@
         text-transform: uppercase;
         width:18px;height: 18px;
         display: inline-block;
-        text-align: center;
         line-height: 18px;
         border-radius: 50%;
         margin-right: 5px;
       }
     }
     .actionBox {
-      width: 16%;
+      width: 15%;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .visitIp {
-      width: 22%;
+      width: 18%;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       cursor: pointer;
     }
     .createTime {
-      width: 14%;
+      width: 22%;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -173,21 +146,48 @@
       overflow: hidden;
       .commonTitle {
         float: left;
+        text-align:left;
         padding-left: 10px;
         i {
           margin-left: 5px;
           cursor: pointer;
         }
+        .ant-table-column-sorter{
+          display:inline;
+          span {
+            position:absolute;
+          }
+          .Numtop {
+            top:23px;
+          }
+          .Numbot {
+            top:30px;
+          }
+        }
+      }
+      .selectIconTitle {
+        width:5%;
       }
     }
     .dataBox {
-      padding-bottom: 20px;
+      text-align:left;
       width: 100%;
       height: auto;
       line-height: 60px;
       .commonData {
         float: left;
-        padding-left: 10px;
+      }
+      .selectIconTitle,
+      .appName,
+      .appStatus {
+        padding-left:10px;
+      }
+      .createTime {
+        margin-top:10px;
+        line-height:20px;
+        span {
+          display:block;
+        }
       }
       .appDetailSelected {
         background-color: #effdff;
@@ -230,6 +230,7 @@
           text-align: left;
         }
         .appStatus {
+          width:13%;
           i {
             margin-right: 5px;
           }
@@ -239,7 +240,6 @@
             height:30px;
           }
           i {
-            float: right;
             line-height: 18px;
           }
         }
@@ -256,4 +256,7 @@
       }
     }
   }
+}
+.createRoles {
+  margin-top:20px;
 }

@@ -12,6 +12,14 @@
 const tenantRoutes = [{
   path: 'integration',
   component: require('../components/IntegrationModule').default,
-}]
+},{
+    path: 'rolemanagement',
+    component: require('../components/TenantManage/RoleManagement').default,
+  },
+  {
+    path: 'allpermissions',
+    component: require('../components/TenantManage/AllPermissions').default,
+  }
+]
 
 export default tenantRoutes
