@@ -364,10 +364,12 @@ class Snapshot extends Component {
         title:'快照名称',
         key:'name',
         dataIndex:'name',
+        width:'14%',
       },{
         title:'状态',
         //key:'Status',
         //dataIndex:'Status',
+        width:'12%',
         render: () => <div className={iconclassName('正常')}>
           <i className='fa fa-circle icon' aria-hidden="true"></i>
           <span>正常</span>
@@ -376,16 +378,19 @@ class Snapshot extends Component {
         title:'格式',
         key:'type',
         dataIndex:'fstype',
+        width:'12%',
         render: (fstype) => <div>{fstype}</div>
       },{
         title:'大小',
         key:'size',
         dataIndex:'size',
+        width:'12%',
         render: (size) => <div>{size} M</div>
       },{
         title:'关联卷',
         key:'volume',
         dataIndex:'volume',
+        width:'12%',
         render: (volume) => <div>
           <Link to={`/app_manage/storage/${DEFAULT_IMAGE_POOL}/${this.props.cluster}/${volume}`} >
             {volume}

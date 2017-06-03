@@ -13,7 +13,7 @@
 import React from 'react'
 import { Input, Modal, Form, Button, } from 'antd'
 import { USERNAME_REG_EXP_NEW } from '../../../constants'
-
+import './style/CreateSpaceModal.less'
 const createForm = Form.create
 const FormItem = Form.Item
 
