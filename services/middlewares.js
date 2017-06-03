@@ -35,7 +35,7 @@ exports.setUserCurrentConfig = function* (next) {
   const method = 'setCurrent'
   let config = this.cookies.get(USER_CURRENT_CONFIG)
   if (config && config.split(',').length === 3) {
-    logger.info(method, `skip set current config cookie`)
+    logger.debug(method, `skip set current config cookie`)
     return yield next
   }
   yield indexService.setUserCurrentConfigCookie.apply(this, [this.session.loginUser])

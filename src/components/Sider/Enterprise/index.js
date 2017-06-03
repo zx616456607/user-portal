@@ -813,7 +813,7 @@ function mapStateToProp(state) {
   if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
     role = entities.loginUser.info.role
   }
-  const { oemInfo } = entities.loginUser.info || {}
+  const { oemInfo } = entities.loginUser.info
   let backColor = 1
   if (oemInfo && oemInfo.colorThemeID) {
     backColor = oemInfo.colorThemeID
@@ -825,7 +825,7 @@ function mapStateToProp(state) {
     storageDetail: state.storage.storageDetail,
     role,
     backColor,
-    oemInfo
+    oemInfo: oemInfo || {}
   }
 }
 

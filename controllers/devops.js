@@ -172,6 +172,12 @@ exports.listBranchesAndTags = function* () {
   const repoType = this.params.type
   const repoName = this.query.reponame
   const project_id = this.query.project_id
+  if (repoType === 'svn') {
+    this.body = {
+      data: {}
+    }
+    return
+  }
   if (repoType != "gitlab" && repoType != "github" && repoType != 'gogs') {
     const err = new Error('Only support gitlab/github/gogs for now')
     err.status = 400
