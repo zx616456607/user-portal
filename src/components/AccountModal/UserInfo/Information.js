@@ -280,8 +280,12 @@ class Information extends Component {
         isAsync: true
       },
       failed: {
-        func: () => {
+        func: (res) => {
           notify.close()
+          if(res.statusCode == 401) {
+            notify.error('权限不足')
+            return
+          }
           notify.error('用户角色更新失败')
         }
       }
