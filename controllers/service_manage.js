@@ -422,7 +422,7 @@ exports.getServiceLogs = function* () {
   const reqData = this.request.body
   reqData.kind = 'service'
   const api = apiFactory.getK8sApi(this.session.loginUser)
-  const result = yield api.createBy([cluster, 'instances', serviceName, 'logs'], null, reqData)
+  const result = yield api.createBy([cluster, 'logs', 'instances', serviceName, 'logs'], null, reqData)
   this.status = result.code
   this.body = result
 }
