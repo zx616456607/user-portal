@@ -311,7 +311,7 @@ function imageTag(state = {}, action) {
       })
     case ActionTypes.IMAGE_GET_DETAILTAG_SUCCESS:
       const LATEST = 'latest'
-      let data = merge([], action.response.result.data)
+      let data = merge([], Array.reverse(action.response.result.data))
       const latestTagIndex = data.indexOf(LATEST)
       if (latestTagIndex > -1) {
         data.splice(latestTagIndex,1)

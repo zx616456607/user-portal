@@ -232,7 +232,7 @@ class AlarmGroup extends Component {
       title:'创建时间',
       dataIndex:'createTime',
       width:'20%',
-      render:(text)=> formatDate(text.createTime),
+      render: text => formatDate(text),
     },{
       title:'关联策略',
       dataIndex:'strategies',

@@ -763,6 +763,16 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 租户</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item>
+                    <Link to='/tenant_manage/rolemanagement'>
+                      <span><div className='sideCircle'></div> 角色管理</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <Link to='/tenant_manage/allpermissions'>
+                      <span><div className='sideCircle'></div> 所有权限</span>
+                    </Link>
+                  </Menu.Item>
                   <div className='sline'></div>
                 </SubMenu>
               </Menu>
@@ -803,9 +813,10 @@ function mapStateToProp(state) {
   if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
     role = entities.loginUser.info.role
   }
-  const { oemInfo } = entities.loginUser.info || {}
+  const oemInfo = entities.loginUser.info.oemInfo || {}
+
   let backColor = 1
-  if (oemInfo && oemInfo.colorThemeID) {
+  if (oemInfo.colorThemeID) {
     backColor = oemInfo.colorThemeID
   }
 
@@ -815,7 +826,7 @@ function mapStateToProp(state) {
     storageDetail: state.storage.storageDetail,
     role,
     backColor,
-    oemInfo
+    oemInfo: oemInfo || {}
   }
 }
 

@@ -370,7 +370,7 @@ class TenxFlowDetail extends Component {
     const tabs = []
     let loading
     const branchesAndTags = repoBranchesAndTags[projectId]
-    if (!branchesAndTags) {
+    if (!branchesAndTags || (!branchesAndTags.data.branches && !branchesAndTags.data.tags)) {
       tabs.push(<PopOption key="not_found_branches_tags">未找到分支及标签，点击构建</PopOption>)
     } else {
       const { isFetching, data } = branchesAndTags
@@ -397,6 +397,7 @@ class TenxFlowDetail extends Component {
         onChange={this.startBuildStage}
         targetElement={targetElement}
         loading={loading}
+        isShowBuildBtn={true}
         getTooltipContainer={() => document.getElementById('TenxFlowDetail')}>
         {tabs}
       </PopTabSelect>
