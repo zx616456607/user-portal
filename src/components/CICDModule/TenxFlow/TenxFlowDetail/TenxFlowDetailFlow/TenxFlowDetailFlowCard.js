@@ -693,7 +693,7 @@ class TenxFlowDetailFlowCard extends Component {
               <div className='cicdBox' key='cicdBox'>
                 <Switch onChange={this.viewCicdBox} checked={this.state.ciRulesOpened} />
                 <p className='switchTitile'><FormattedMessage {...menusText.cicd} /></p>
-                <p className='viewP' onClick={this.viewCicdBoxP}><FormattedMessage {...menusText.view} /></p>
+                <p className='viewP' onClick={()=>this.viewCicdBoxP()}><FormattedMessage {...menusText.view} /></p>
               </div>
             ] : null
           }

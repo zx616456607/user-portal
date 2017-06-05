@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Checkbox, Alert, Icon, Spin, Tooltip, } from 'antd'
+import { Button, Input, Form, Checkbox, Alert, Icon, Spin, Tooltip,message } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -210,13 +210,15 @@ let CICDSettingModal = React.createClass({
   onCancelEditBranch() {
     //this function for cancel edit branch
     this.setState({
-      editBranch: false
+      editBranch: false,
+      useBranch: false
     });
   },
   onCancelEditTag() {
     //this function for cancel edit tag
     this.setState({
-      editTag: false
+      editTag: false,
+      useTag:false
     });
   },
   /*onBlurBranch() {
@@ -299,6 +301,9 @@ let CICDSettingModal = React.createClass({
     }
     if(!checkFlag) {
       return;
+    }
+    if(!useBranch && !useTag && !useRequest){
+      return message.error('请选择至少一个触发规则')
     }
     let body = {
       enabled: 1,
@@ -411,7 +416,7 @@ let CICDSettingModal = React.createClass({
                   !this.state.editBranch ? [
                     <i className='fa fa-pencil-square-o' onClick={this.onEditBranch} />
                   ] : [
-                    <Button size='large' onClick={this.onCancelEditBranch}><FormattedMessage {...menusText.cancel} /></Button>
+                    <Button size='large' onClick={()=>this.onCancelEditBranch()}><FormattedMessage {...menusText.cancel} /></Button>
                   ]
                 }
                 <div style={{ clear:'both' }}></div>
