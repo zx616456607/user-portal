@@ -217,6 +217,9 @@ class ZooKeeper extends Component {
                                                              onClick={this.createDatabaseShow} disabled={!canCreate}>
               <i className='fa fa-plus'/>&nbsp;ZooKeeper集群
             </Button></Tooltip>
+            <Button style={{marginLeft:'20px'}} size='large' onClick={this.clusterRefresh} disabled={!canCreate}>
+              <i className='fa fa-refresh' />&nbsp;刷新
+            </Button>
             <span className='rightSearch'>
               <Input size='large' placeholder='搜索' style={{width: '180px', paddingRight: '28px'}} ref="zookeeperRef"
                      onPressEnter={(e) => this.handSearch(e)}/>
