@@ -83,10 +83,12 @@ class ContainerDetail extends Component {
   getSchedulingPolicy(data) {
     const metadata = data.metadata
     const spec = data.spec
+    const nodeName = spec.nodeName
     const labels = this.getNodeAffinityLabels(metadata)
     const node = this.getNodeSelectorTarget(spec)
     const policy = {
-      type: scheduleBySystem
+      type: scheduleBySystem,
+      nodeName
     }
     if (labels && node) {
       policy.type = unknownSchedulePolicy
@@ -107,12 +109,12 @@ class ContainerDetail extends Component {
     }
     const affinity = JSON.parse(metadata.annotations[affinityKey])
     const labels = affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms.reduce(
-      (expressions, term) => expressions.concat(term.matchExpressions), []).map(
-        expression => expression.values.map(
-          value => ({
-            key: expression.key,
-            value: value}))).reduce(
-              (labels, kvs) => labels.concat(kvs), [])
+      (expressions, term) => expressions.concat(term.matchExpressions), []).reduce(
+      (labels, expression) => labels.concat(expression.values.map(
+        value => ({
+          key: expression.key,
+          value
+        }))), [])
     return labels.length > 0 ? labels : null
   }
 
