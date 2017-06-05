@@ -67,7 +67,7 @@ exports.getClusterOfQueryLog = function* () {
   let tempResult = [];
   try {
     clusters.map((item, index) => {
-      tempResult.push(api.clusters.getBy([item.clusterID, namespace, 'instances']))
+      tempResult.push(api.clusters.getBy([item.clusterID, 'instances', namespace, 'instances']))
     });
     let temp = yield tempResult;
     clusters.map((item, index) => {
