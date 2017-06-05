@@ -61,7 +61,7 @@ HarborAPIs.prototype.deleteReplicationJob = function (id, callback) {
 }
 
 // [GET] /jobs/replication/{id}/log
-HarborAPIs.prototype.getReplicationJobLogs = function (callback) {
+HarborAPIs.prototype.getReplicationJobLogs = function (id, callback) {
   const url = `${this.getAPIPrefix()}/jobs/replication/${id}/log`
   this.sendRequest(url, 'GET', null, callback)
 }
@@ -74,64 +74,75 @@ HarborAPIs.prototype.getReplicationPolicies = function (query, callback) {
 
 // [POST] /policies/replication
 HarborAPIs.prototype.newReplicationPolicy = function (policy, callback) {
-  const method = "newReplicationPolicy"
+  const url = `${this.getAPIPrefix()}/policies/replication`
+  this.sendRequest(url, 'POST', policy, callback)
 }
 
 // [GET] /policies/replication/{id}
-HarborAPIs.prototype.getReplicationPolicy = function (callback) {
-  const method = "getReplicationPolicy"
+HarborAPIs.prototype.getReplicationPolicy = function (id, callback) {
+  const url = `${this.getAPIPrefix()}/policies/replication/${id}`
+  this.sendRequest(url, 'GET', null, callback)
 }
 
 // [PUT] /policies/replication/{id}
-HarborAPIs.prototype.modifyReplicationPolicy = function (policy, callback) {
-  const method = "modifyReplicationPolicy"
+HarborAPIs.prototype.modifyReplicationPolicy = function (id, policy, callback) {
+  const url = `${this.getAPIPrefix()}/policies/replication/${id}`
+  this.sendRequest(url, 'PUT', policy, callback)
 }
 
-// [PUT] /policies/replication/{id}/enablement
-HarborAPIs.prototype.enableReplicationPolicy = function (enable, callback) {
-  const method = "enableReplicationPolicy"
+// [PUT] /policies/replication/{id}/enablement  -- { enable: 0 } / { enable: 1 }
+HarborAPIs.prototype.enableReplicationPolicy = function (id, enable, callback) {
+  const url = `${this.getAPIPrefix()}/policies/replication/${id}/enablement`
+  this.sendRequest(url, 'PUT', enable, callback)
 }
 
 // [GET] /targets
 HarborAPIs.prototype.getReplicationTargets = function (query, callback) {
-  const method = "getReplicationTargets"
+  const url = `${this.getAPIPrefix()}/targets${encodeQueryString(query)}`
+  this.sendRequest(url, 'GET', null, callback)
 }
 
 // [POST] /targets
 HarborAPIs.prototype.newReplicationTarget = function (target, callback) {
-  const method = "newReplicationTarget"
+  const url = `${this.getAPIPrefix()}/targets`
+  this.sendRequest(url, 'POST', target, callback)
 }
 
 // [POST] /targets/ping
 HarborAPIs.prototype.pingReplicationTarget = function (target, callback) {
-  const method = "pingReplicationTarget"
+  const url = `${this.getAPIPrefix()}/targets/ping`
+  this.sendRequest(url, 'POST', target, callback)
 }
 
 // [POST] /targets/{id}/ping
-HarborAPIs.prototype.pingReplicationTargetByID = function (callback) {
-  const method = "pingReplicationTargetByID"
+HarborAPIs.prototype.pingReplicationTargetByID = function (id, callback) {
+  const url = `${this.getAPIPrefix()}/targets/${id}/ping`
+  this.sendRequest(url, 'POST', null, callback)
 }
 
 // [PUT] /targets/{id}
-HarborAPIs.prototype.modifyReplicationTarget = function (target, callback) {
-  const method = "modifyReplicationTarget"
+HarborAPIs.prototype.modifyReplicationTarget = function (id, target, callback) {
+  const url = `${this.getAPIPrefix()}/targets/${id}`
+  this.sendRequest(url, 'PUT', target, callback)
 }
 
 // [GET] /targets/{id}
-HarborAPIs.prototype.getReplicationTarget = function (callback) {
-  const method = "getReplicationTarget"
+HarborAPIs.prototype.getReplicationTarget = function (id, callback) {
+  const url = `${this.getAPIPrefix()}/targets/${id}`
+  this.sendRequest(url, 'GET', null, callback)
 }
 
 // [DELETE] /targets/{id}
-HarborAPIs.prototype.deleteReplicationTarget = function (callback) {
-  const method = "deleteReplicationTarget"
+HarborAPIs.prototype.deleteReplicationTarget = function (id, callback) {
+  const url = `${this.getAPIPrefix()}/targets/${id}`
+  this.sendRequest(url, 'DELETE', null, callback)
 }
 
 // [GET] /targets/{id}/policies
-HarborAPIs.prototype.getReplicationTargetRelatedPolicies = function (callback) {
-  const method = "getReplicationTargetRelatedPolicies"
+HarborAPIs.prototype.getReplicationTargetRelatedPolicies = function (id, callback) {
+  const url = `${this.getAPIPrefix()}/targets/${id}/policies`
+  this.sendRequest(url, 'GET', null, callback)
 }
-
 
 HarborAPIs.prototype.sendRequest = function (requestUrl, httpMethod, data, callback) {
   var method = "sendRequest";

@@ -42,6 +42,70 @@ exports.searchProjects = function* () {
   }
 }
 
+// [GET] /jobs/replication
+exports.getReplicationJobs = harborHandler(
+  (harbor, ctx, callback) => harbor.getReplicationJobs(ctx.query, callback))
+
+// [DELETE] /jobs/replication/{id}
+exports.deleteReplicationJob = harborHandler(
+  (harbor, ctx, callback) => harbor.deleteReplicationJob(ctx.params.id, callback))
+
+// [GET] /jobs/replication/{id}/log
+exports.getReplicationJobLogs = harborHandler(
+  (harbor, ctx, callback) => harbor.getReplicationJobLogs(ctx.params.id, callback))
+
+// [GET] /policies/replication
+exports.getReplicationPolicies = harborHandler(
+  (harbor, ctx, callback) => harbor.getReplicationPolicies(ctx.query, callback))
+
+// [POST] /policies/replication
+exports.newReplicationPolicy = harborHandler(
+  (harbor, ctx, callback) => harbor.newReplicationPolicy(ctx.request.body, callback))
+
+// [GET] /policies/replication/{id}
+exports.getReplicationPolicy = harborHandler(
+  (harbor, ctx, callback) => harbor.getReplicationPolicy(ctx.params.id, callback))
+
+// [PUT] /policies/replication/{id}
+exports.modifyReplicationPolicy = harborHandler(
+  (harbor, ctx, callback) => harbor.modifyReplicationPolicy(ctx.params.id, ctx.request.body, callback))
+
+// [PUT] /policies/replication/{id}/enablement  -- { enable: 0 } / { enable: 1 }
+exports.enableReplicationPolicy = harborHandler(
+  (harbor, ctx, callback) => harbor.enableReplicationPolicy(ctx.params.id, ctx.request.body, callback))
+
+// [GET] /targets
+exports.getReplicationTargets = harborHandler(
+  (harbor, ctx, callback) => harbor.getReplicationTargets(ctx.query, callback))
+
+// [POST] /targets
+exports.newReplicationTarget = harborHandler(
+  (harbor, ctx, callback) => harbor.newReplicationTarget(ctx.request.body, callback))
+
+// [POST] /targets/ping
+exports.pingReplicationTarget = harborHandler(
+  (harbor, ctx, callback) => harbor.pingReplicationTarget(ctx.request.body, callback))
+
+// [POST] /targets/{id}/ping
+exports.pingReplicationTargetByID = harborHandler(
+  (harbor, ctx, callback) => harbor.pingReplicationTargetByID(ctx.params.id, callback))
+
+// [PUT] /targets/{id}
+exports.modifyReplicationTarget = harborHandler(
+  (harbor, ctx, callback) => harbor.modifyReplicationTarget(ctx.params.id, ctx.request.body, callback))
+
+// [GET] /targets/{id}
+exports.getReplicationTarget = harborHandler(
+  (harbor, ctx, callback) => harbor.getReplicationTarget(ctx.params.id, callback))
+
+// [DELETE] /targets/{id}
+exports.deleteReplicationTarget = harborHandler(
+  (harbor, ctx, callback) => harbor.deleteReplicationTarget(ctx.params.id, callback))
+
+// [GET] /targets/{id}/policies
+exports.getReplicationTargetRelatedPolicies = harborHandler(
+  (harbor, ctx, callback) => harbor.getReplicationTargetRelatedPolicies(ctx.params.id, callback))
+
 function getRegistryConfig() {
   // Global check
   if (registryConfigLoader.GetRegistryConfig() && registryConfigLoader.GetRegistryConfig().url) {
@@ -69,4 +133,27 @@ function* getAuthInfo(registry, loginUser) {
     HarborAuthCache[registry][loginUser.user] = result.data.authHeader
   }
   return HarborAuthCache[registry][loginUser.user]
+}
+
+function harborHandler(handler) {
+  return function* () {
+    const config = getRegistryConfig()
+    const loginUser = this.session.loginUser
+    const auth = yield getAuthInfo(config.url, loginUser)
+    const harbor = new harborAPIs(config, auth)
+    const result = yield new Promise((resolve, reject) => {
+      handler(harbor, this, (err, statusCode, jobs) => {
+        if (err) {
+          reject(err)
+        } else if (statusCode > 300) {
+          reject(`status code: ${statusCode}`)
+        } else {
+          resolve(jobs)
+        }
+      })
+    })
+    this.body = {
+      data: result
+    }
+  }
 }
