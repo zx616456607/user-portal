@@ -112,15 +112,14 @@ const Normal = React.createClass({
   },
   formTagContainer(){
     const { summary } = this.state
-    console.log('summary=',summary)
     const arr = summary.map((item, index) => {
       return (
-        <Tag closable color="blue" key={item.key + index} afterClose={() => this.handleClose(item)}
-          style={{ width: '100%' }}>
+        <div color="blue" key={item.key + index} className='tagStyle'>
           <span>{item.key}</span>
           <span className='point'>:</span>
           <span>{item.value}</span>
-        </Tag>
+          <Icon type="cross" onClick={() => this.handleClose(item)} className='cross'/>
+        </div>
       )
     })
     return arr

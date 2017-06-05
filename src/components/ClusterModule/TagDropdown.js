@@ -202,6 +202,7 @@ class ManageTagModal extends Component {
     this.handleCreateLabelModal = this.handleCreateLabelModal.bind(this)
     this.handleCancelLabelModal = this.handleCancelLabelModal.bind(this)
     this.checkKey = this.checkKey.bind(this)
+    this.handleDropdownVisible = this.handleDropdownVisible.bind(this)
     this.state = {
       createLabelModal: false,
       visible: false,
@@ -283,6 +284,7 @@ class ManageTagModal extends Component {
           scope.setState({
             summary:tag,
           })
+          this.handleDropdownVisible(obj)
           return
         }
         if(scope.props.nodes){
@@ -321,6 +323,13 @@ class ManageTagModal extends Component {
       }
     }
 
+    this.handleDropdownVisible(obj)
+    //this.setState({
+    //  manageLabelModal : obj.visible
+    //})
+  }
+
+  handleDropdownVisible(obj){
     switch(obj.key){
       case 'manageTag':
         callbackHostList(obj)
@@ -340,9 +349,6 @@ class ManageTagModal extends Component {
         })
 
     }
-    //this.setState({
-    //  manageLabelModal : obj.visible
-    //})
   }
 
   handlecallbackHostList(obj) {
