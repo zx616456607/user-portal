@@ -498,7 +498,6 @@ class ClusterPlugin extends Component {
         dataIndex: 'action',
         render: (text, row) => {
           let menu
-          console.log(row)
            if(row.status.message == 'stopped') {
              menu = (
                <Menu onClick={(e) => this.handleMenuClick(e.key, row)}>
