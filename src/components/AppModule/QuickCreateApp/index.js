@@ -401,7 +401,7 @@ class QuickCreateApp extends Component {
     if (this.action === 'addService') {
       return '完成添加服务'
     }
-    return '&nbsp;创建&nbsp;'
+    return <span>&nbsp;创建&nbsp;</span>
   }
 
   renderFooterSteps() {
