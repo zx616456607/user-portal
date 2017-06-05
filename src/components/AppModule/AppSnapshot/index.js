@@ -8,7 +8,7 @@
  * @author ZhangChengZheng
  */
 import React,{ Component,PropTypes } from 'react'
-import { Button, Input, Table, Icon, Spin, Modal } from 'antd'
+import { Button, Input, Table, Icon, Spin, Modal, Dropdown, Menu } from 'antd'
 import { connect } from 'react-redux'
 import './style/Snapshot.less'
 import CurrentImg from '../../../assets/img/appmanage/rollbackcurrent.jpg'
@@ -20,6 +20,7 @@ import NotificationHandler from '../../../common/notification_handler'
 import { formatDate } from  '../../../common/tools'
 import Title from '../../Title'
 import { Link } from 'react-router'
+import CreateVolume from '../../StorageModule/CreateVolume'
 
 class Snapshot extends Component {
   constructor(props) {
@@ -37,6 +38,10 @@ class Snapshot extends Component {
     this.handlecolsetips = this.handlecolsetips.bind(this)
     this.updateSnapshotList = this.updateSnapshotList.bind(this)
     this.handleTableRowClick = this.handleTableRowClick.bind(this)
+    this.handleDropdown = this.handleDropdown.bind(this)
+    this.handleCloneSnapshot = this.handleCloneSnapshot.bind(this)
+    this.handleConfirmCreate = this.handleConfirmCreate.bind(this)
+    this.handleCancelCreate = this.handleCancelCreate.bind(this)
     this.state = {
       selectedRowKeys: [],
       DeleteSnapshotButton: true,
@@ -55,6 +60,7 @@ class Snapshot extends Component {
       RowDelete: false,
       TopDelete: false,
       currentVolume: {},
+      createvolume: false,
     }
   }
 
@@ -210,7 +216,7 @@ class Snapshot extends Component {
   }
 
   handleDeleteSnapshot(key, e){
-    e.stopPropagation()
+    //e.stopPropagation()
     const { snapshotDataList } = this.props
     this.setState({
       DeletaSnapshotModal: true,
@@ -340,6 +346,35 @@ class Snapshot extends Component {
     this.onSelectChange(arr)
   }
 
+  handleCloneSnapshot(key){
+    this.setState({
+      createvolume: true
+    })
+  }
+
+  handleDropdown(key, item){
+    switch(item.key){
+      case 'deleteSnapshot':
+        return this.handleDeleteSnapshot(key)
+      case 'cloneSnapshot':
+        return this.handleCloneSnapshot(key)
+      default:
+        return
+    }
+  }
+
+  handleConfirmCreate(){
+    this.setState({
+      createvolume: false
+    })
+  }
+
+  handleCancelCreate(){
+    this.setState({
+      createvolume: false
+    })
+  }
+
   render() {
     const { snapshotDataList } = this.props
     const { selectedRowKeys, DeleteSnapshotButton, currentSnapshot, delelteSnapshotNum, currentVolume } = this.state
@@ -360,6 +395,13 @@ class Snapshot extends Component {
       }
     }
 
+    const menu = snapshotDataList.map((item, index) => {
+      return <Menu onClick={this.handleDropdown.bind(this,index)}>
+        <Menu.Item key="deleteSnapshot">删除</Menu.Item>
+        <Menu.Item key="cloneSnapshot">创建</Menu.Item>
+      </Menu>
+    })
+    
     const snapshotcolumns = [{
         title:'快照名称',
         key:'name',
@@ -407,8 +449,9 @@ class Snapshot extends Component {
         key:'Handle',
         dataIndex:'key',
         render: (key) => <div>
-          <Button type="primary" onClick={ this.handleRollbackSnapback.bind(this, key)}>回滚</Button>
-          <Button onClick={ this.handleDeleteSnapshot.bind(this, key)} className='deleteButton'>删除</Button>
+          <Dropdown.Button onClick={ this.handleRollbackSnapback.bind(this, key)} overlay={menu[key]}>
+            回滚
+          </Dropdown.Button>
         </div>
       }]
     const rowSelection = {
@@ -545,6 +588,21 @@ class Snapshot extends Component {
                ? <span>快照状态非正常，不可回滚快照</span>
                : <span>存储卷正在使用中，不可回滚快照！</span>
              }
+           </div>
+         </Modal>
+
+         <Modal
+           title="创建存储卷"
+           visible={this.state.createvolume}
+           closable={true}
+           onOk={this.handleConfirmCreate}
+           onCancel={this.handleCancelCreate}
+           width='570px'
+           maskClosable={false}
+           wrapClassName="createVloumeModal"
+         >
+           <div>
+             <CreateVolume/>
            </div>
          </Modal>
       </div>
