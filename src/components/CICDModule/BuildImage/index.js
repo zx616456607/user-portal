@@ -61,7 +61,7 @@ let menusText = defineMessages({
   },
   tooltip: {
     id: 'CICD.Tenxflow.BuildImage.tooltip',
-    defaultMessage: '构建镜像是TenxFlow中常被创建的子任务，指可将源代码仓库包括代码GitHub、GitLab、Gogs、SVN中的代码通过代码库中的Dockerfile或云端的Dockerfile 构建成镜像，默认将构建后的镜像存放到镜像仓库--私有仓库中。',
+    defaultMessage: '构建镜像是TenxFlow中常被创建的子任务，指可将源代码仓库包括代码GitHub、GitLab、Gogs、SVN中的代码通过代码库中的Dockerfile或云端的Dockerfile 构建成镜像，默认将构建后的镜像存放到镜像仓库--私有空间。',
   },
   create: {
     id: 'CICD.Tenxflow.BuildImage.create',
@@ -311,6 +311,7 @@ let MyComponent = React.createClass({
           onChange={this.startBuildStage.bind(this, item, index)}
           targetElement={targetElement}
           loading={loading}
+          isShowBuildBtn={true}
           getTooltipContainer={() => document.body}>
           {tabs}
         </PopTabSelect>

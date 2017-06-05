@@ -338,6 +338,9 @@ export const ALERT_DELETE_SETTING_FAILURE = 'ALERT_DELETE_SETTING_FAILURE'
 
 
 function fetchDeleteSetting(cluster, id, callback) {
+  if (!id || id == "") {
+    return
+  }
   return {
     [FETCH_API]: {
       types: [ALERT_DELETE_SETTING_REQUEST, ALERT_DELETE_SETTING_SUCCESS, ALERT_DELETE_SETTING_FAILURE],
@@ -537,3 +540,28 @@ export function invitations(body, callback) {
   }
 }
 
+export const GET_SETTINGLLIST_FROM_SERVICE_APP_REQUEST = 'GET_SETTINGLLIST_FROM_SERVICE_APP_REQUEST'
+export const GET_SETTINGLLIST_FROM_SERVICE_APP_SUCCESS = 'GET_SETTINGLLIST_FROM_SERVICE_APP_SUCCESS'
+export const GET_SETTINGLLIST_FROM_SERVICE_APP_FAILURE = 'GET_SETTINGLLIST_FROM_SERVICE_APP_FAILURE'
+
+function fetchSettingListfromserviceorapp(query, callback) {
+  let endpoint = `${API_URL_PREFIX}/alerts/group-strategies`
+  endpoint += `?${toQuerystring(query)}`
+  return {
+    [FETCH_API]: {
+      types: [GET_SETTINGLLIST_FROM_SERVICE_APP_REQUEST, GET_SETTINGLLIST_FROM_SERVICE_APP_SUCCESS, GET_SETTINGLLIST_FROM_SERVICE_APP_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'GET',
+      }
+    },
+    callback
+  }
+}
+
+export function getSettingListfromserviceorapp(query, callback) {
+  return (dispath, getState)  => {
+    dispath(fetchSettingListfromserviceorapp(query, callback))
+  }
+}

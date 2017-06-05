@@ -39,6 +39,11 @@ function loadData(props) {
   props.loadContainerDetail(cluster, containerName)
 }
 
+const scheduleBySystem = 'ScheduleBySystem'
+const scheduleByHostNameOrIP = 'ScheduleByHostNameOrIP'
+const scheduleByLabels = 'ScheduleByLabels'
+const unknownSchedulePolicy = 'Error'
+
 class ContainerDetail extends Component {
   constructor(props) {
     super(props)
@@ -73,6 +78,50 @@ class ContainerDetail extends Component {
     e.stopPropagation();
     const { cluster, addTerminal } = this.props
     addTerminal(cluster, item)
+  }
+
+  getSchedulingPolicy(data) {
+    const metadata = data.metadata
+    const spec = data.spec
+    const labels = this.getNodeAffinityLabels(metadata)
+    const node = this.getNodeSelectorTarget(spec)
+    const policy = {
+      type: scheduleBySystem
+    }
+    if (labels && node) {
+      policy.type = unknownSchedulePolicy
+    } else if (labels) {
+      policy.type = scheduleByLabels
+      policy.labels = labels
+    } else if (node) {
+      policy.type = scheduleByHostNameOrIP
+      policy.node = node
+    }
+    return policy
+  }
+
+  getNodeAffinityLabels(metadata) {
+    const affinityKey = 'scheduler.alpha.kubernetes.io/affinity'
+    if (!metadata.hasOwnProperty('annotations') || !metadata.annotations.hasOwnProperty(affinityKey)) {
+      return null
+    }
+    const affinity = JSON.parse(metadata.annotations[affinityKey])
+    const labels = affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms.reduce(
+      (expressions, term) => expressions.concat(term.matchExpressions), []).map(
+        expression => expression.values.map(
+          value => ({
+            key: expression.key,
+            value: value}))).reduce(
+              (labels, kvs) => labels.concat(kvs), [])
+    return labels.length > 0 ? labels : null
+  }
+
+  getNodeSelectorTarget(spec) {
+    const hostNameKey = 'kubernetes.io/hostname'
+    if (!spec.hasOwnProperty('nodeSelector') || !spec.nodeSelector.hasOwnProperty(hostNameKey)) {
+      return null
+    }
+    return spec.nodeSelector[hostNameKey]
   }
 
   deleteContainer() {

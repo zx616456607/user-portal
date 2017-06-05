@@ -433,8 +433,8 @@ class Deployment {
         requiredDuringSchedulingIgnoredDuringExecution: {
           nodeSelectorTerms: [
             {
-              matchExpressions: Array.from(Object.getOwnPropertyNames(multiMap).map(
-                key => this.multiMapEntryToMatchExpression(key, multiMap[key])))
+              matchExpressions: Object.getOwnPropertyNames(multiMap).map(
+                key => this.multiMapEntryToMatchExpression(key, multiMap[key]))
             }
           ]
         }

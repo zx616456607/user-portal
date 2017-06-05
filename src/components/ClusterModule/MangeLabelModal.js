@@ -13,7 +13,7 @@ import { Modal, Tag, Tooltip, Form, Button, Input } from 'antd'
 import { connect  } from 'react-redux'
 import TagDropdown from './TagDropdown'
 import { camelize } from 'humps'
-import { getClusterLabel, addLabels, editNodeLabels, getNodeLabels } from '../../actions/cluster_node'
+import { getClusterLabel, addLabels, editNodeLabels, getNodeLabels,checkLablesToService } from '../../actions/cluster_node'
 import { KubernetesValidator } from '../../common/naming_validation'
 import cloneDeep from 'lodash/cloneDeep'
 import NotificationHandler from '../../common/notification_handler'
@@ -30,7 +30,24 @@ class ManageLabelModal extends Component {
       manageLabelModalVisible : this.props.manageLabelModal,
       userCreateLabel: this.props.userCreateLabel || {},
       isLoad: false,// first data in nodes
+      diffLabels:[] // check labels
     }
+  }
+
+  diffLabels(before, after) {
+    const deleted = []
+    for (let i = 0; i < before.length; i++) {
+      const aLabel = before[i]
+      let remained = false
+      for (let j = 0; j < after.length && !remained; j++) {
+        const anotherLabel = after[j]
+        remained = aLabel.key === anotherLabel.key && aLabel.value === anotherLabel.value
+      }
+      if (!remained) {
+        deleted.push(aLabel)
+      }
+    }
+    return deleted
   }
 
   componentWillReceiveProps(nextProps){
@@ -73,15 +90,74 @@ class ManageLabelModal extends Component {
   }
 
   handleClose(key,value) {
+    // *bai delete tag
+    const diffLabels= [{
+      key,value
+    }]
+    const { clusterID, nodeName } = this.props
+
+    const diff ={
+      node:nodeName,
+      cluster:clusterID,
+      labels:diffLabels
+    }
+    const _this = this
+    this.props.checkLablesToService(diff,{
+      success:{
+        func:(ret)=> {
+          if (ret.affectedPods.length !== 0 ) {
+            Modal.confirm({
+              width:460,
+              title: <span style={{fontWeight:500}}>当前标签被引用绑定，删除后会导致服务变为系统调度</span>,
+              content: this.formetTable(ret.affectedPods),
+              onOk() {
+                _this.beforeCloseLabel(key,value)
+              },
+              onCancel() {
+                return
+              },
+            })
+            return
+          }
+          this.beforeCloseLabel(key,value)
+        }
+      }
+    })
+  }
+  formetTable(pods) {
+
+    const tbody = pods.map(pod=> {
+      return <tr key={pod.appName} className="ant-table-row  ant-table-row-level-0"><td>{pod.namespace}</td><td ><span className="ant-table-row-indent indent-level-0" style={{paddingLeft:0}}></span>{pod.appName}</td><td >{pod.svcName}</td></tr>
+    })
+    const list = (
+      [<div key="1" className="ant-table ant-table-small ant-table-without-column-header ant-table-scroll-position-left">
+        <div className="ant-table-content">
+          <div class="ant-table-body"><table><thead className="ant-table-thead"><tr><th>用户</th><th ><span>应用</span></th><th><span>服务</span></th></tr></thead>
+          <tbody className="ant-table-tbody">
+            {tbody}
+          </tbody></table>
+          </div>
+        </div>
+      </div>,
+      <div key="2" style={{marginTop:15,fontSize:14}}>确定要删除这个标签吗？</div>]
+    )
+    return list
+  }
+
+  beforeCloseLabel(key,value) {
+    const diffLabels = cloneDeep(this.state.diffLabels)
     const userCreateLabel = cloneDeep(this.state.userCreateLabel)
     for (let lab in userCreateLabel) {
       if (lab === key && userCreateLabel[key] === value) {
+        diffLabels.push({
+          'key':lab,
+          'value':userCreateLabel[lab]
+        })
         delete userCreateLabel[lab]
-        this.setState({userCreateLabel})
+        this.setState({userCreateLabel,diffLabels})
       }
     }
   }
-
 
   handleManageLabelOk(){
     const { callback, labels, editNodeLabels, clusterID, nodeName } = this.props
@@ -220,15 +296,17 @@ class ManageLabelModal extends Component {
 
             } else {
               label.push(
-                <Tag closable color="blue" className='tag' key={key} afterClose={() => this.handleClose(key, userCreateLabel[key])}>
-                    <Tooltip title={key}>
-                      <span className='key'>{key}</span>
-                    </Tooltip>
-                    <span className='point'>：</span>
-                    <Tooltip title={userCreateLabel[key]}>
-                      <span className='value'>{userCreateLabel[key]}</span>
-                    </Tooltip>
-                </Tag>
+                <div data-show="true" key={key} className="ant-tag ant-tag-blue tag">
+                  <span className="ant-tag-text">
+                  <Tooltip title={key}>
+                    <span className="key">{key}</span>
+                  </Tooltip>
+                  <span className="point">：</span>
+                  <Tooltip title={userCreateLabel[key]}>
+                    <span className="value">{userCreateLabel[key]}</span>
+                  </Tooltip>
+                  </span><i className="anticon anticon-cross" onClick={() => this.handleClose(key, userCreateLabel[key])}></i>
+                </div>
               )
             }
           }
@@ -310,6 +388,7 @@ function mapStateToProps(state,props) {
 ManageLabelModal = Form.create()(ManageLabelModal)
 
 export default connect(mapStateToProps, {
+  checkLablesToService,
   getClusterLabel,
   addLabels,
   editNodeLabels,

@@ -31,7 +31,7 @@ class Websocket extends Component {
       ws: ws
     })
     const { onSetup } = this.props
-    ws.on("connect", function() {
+    ws.once("connect", function() {
       onSetup(ws)
     })
   }

@@ -271,6 +271,13 @@ exports.getSettingList = function* () {
   this.body = response
 }
 
+exports.getSettingListfromserviceorapp = function* () {
+  const spi = apiFactory.getSpi(this.session.loginUser)
+  const queryBody = this.query
+  const body = yield  spi.alerts.getBy(['group-strategies'],queryBody)
+  this.body = body
+}
+
 exports.deleteSetting = function* () {
   const cluster = this.params.cluster
   const strategyID = this.query.strategyID

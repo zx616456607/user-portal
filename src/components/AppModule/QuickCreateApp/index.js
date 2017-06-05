@@ -546,10 +546,12 @@ class QuickCreateApp extends Component {
         }
       }
     }
+    cpuTotal = Math.ceil(cpuTotal * 100) / 100
+    memoryTotal = Math.ceil(memoryTotal * 100) / 100
     const priceMonth = parseAmount(priceHour * 24 * 30, 4).amount
     priceHour = parseAmount(priceHour, 4).amount
     return {
-      resource: `${cpuTotal}C${memoryTotal}G`,
+      resource: `${cpuTotal}C ${memoryTotal}G`,
       priceHour,
       priceMonth,
     }

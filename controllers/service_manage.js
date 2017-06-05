@@ -143,7 +143,7 @@ exports.getServiceContainers = function* () {
   const serviceName = this.params.service_name
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'services', serviceName, 'instances'])
+  const result = yield api.getBy([cluster, 'instances', 'services', serviceName, 'instances'])
   const instances = result.data.instances || []
   instances.map((pod) => {
     pod.images = []
@@ -324,7 +324,7 @@ exports.rollingUpdateService = function* () {
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([cluster, 'services', serviceName, 'rollingupdate'], null, targets)
+  const result = yield api.updateBy([cluster, 'upgrade', 'services', serviceName, 'rollingupdate'], null, targets)
   this.body = {
     cluster,
     serviceName,
@@ -371,7 +371,7 @@ exports.getReplicasetDetailEvents = function* () {
   const serviceName = this.params.service_name
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'replicaset', serviceName, 'events'])
+  const result = yield api.getBy([cluster, 'events', 'replicaset', serviceName, 'events'])
   const events = result.data || []
   //eventList.events = []
   //if (eventList.data) {
@@ -391,7 +391,7 @@ exports.getPodsEventByServicementName = function* () {
   const serviceName = this.params.service_name
   const cluster = this.params.cluster
   const api = apiFactory.getK8sApi(this.session.loginUser)
-  const result = yield api.getBy([cluster, 'services', serviceName, 'pods' ,'events'])
+  const result = yield api.getBy([cluster, 'events', 'services', serviceName, 'pods' ,'events'])
   this.body = {
     cluster,
     serviceName,
@@ -406,7 +406,7 @@ exports.getDbServiceDetailEvents = function* () {
   const serviceName = this.params.service_name
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'services', serviceName, 'events'])
+  const result = yield api.getBy([cluster, 'events', 'services', serviceName, 'events'])
   const events = result.data || []
 
   this.body = {
@@ -422,7 +422,7 @@ exports.getServiceLogs = function* () {
   const reqData = this.request.body
   reqData.kind = 'service'
   const api = apiFactory.getK8sApi(this.session.loginUser)
-  const result = yield api.createBy([cluster, 'instances', serviceName, 'logs'], null, reqData)
+  const result = yield api.createBy([cluster, 'logs', 'instances', serviceName, 'logs'], null, reqData)
   this.status = result.code
   this.body = result
 }

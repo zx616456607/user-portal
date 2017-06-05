@@ -15,6 +15,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
 import { loadAppList, stopApps, deleteApps, restartApps, startApps } from '../../actions/app_manage'
+import { deleteSetting, getSettingListfromserviceorapp } from '../../actions/alert'
 import { getDeploymentOrAppCDRule } from '../../actions/cicd_flow'
 import { LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
@@ -390,7 +391,8 @@ class AppList extends Component {
     this.handleDeleteAppsCancel = this.handleDeleteAppsCancel.bind(this)
     this.cancelModal = this.cancelModal.bind(this)
     this.nextStep = this.nextStep.bind(this)
-
+    this.GetServiceSettingList = this.GetServiceSettingList.bind(this)
+    this.handleCheckboxvalue = this.handleCheckboxvalue.bind(this)
     this.state = {
       appList: props.appList,
       searchInputValue: props.name,
@@ -404,6 +406,7 @@ class AppList extends Component {
       deleteAppsModal: false,
       deployEnvModalVisible: false,
       step: 1, // first step create AlarmModal
+      alarmStrategy: true
     }
   }
 
@@ -570,6 +573,18 @@ class AppList extends Component {
       onCancel() {},
     });
   }*/
+  GetServiceSettingList(app, name){
+    const { cluster, getSettingListfromserviceorapp } = this.props
+    const query = {
+      clusterID: cluster,
+      appNames: name,
+    }
+    if(app){
+      query.appNames = app[0].name
+    }
+    getSettingListfromserviceorapp(query)
+  }
+  
   batchDeleteApps(app) {
     /*const { appList } = this.state
     const checkedAppList = appList.filter((app) => app.checked)
@@ -584,9 +599,12 @@ class AppList extends Component {
         }
       });
     }
-    getDeploymentOrAppCDRule(currentCluster.clusterID, 'app', appList.filter(item => item.checked).map(item => item.name).join(','))
+    const name = appList.filter(item => item.checked).map(item => item.name).join(',')
+    getDeploymentOrAppCDRule(currentCluster.clusterID, 'app', name)
+    this.GetServiceSettingList(app, name)
     this.setState({
-      deleteAppsModal: true
+      deleteAppsModal: true,
+      alarmStrategy: true,
     })
   }
 
@@ -817,7 +835,7 @@ class AppList extends Component {
   }
   handleDeleteAppsOk() {
     const self = this
-    const { cluster, deleteApps, intl, appList } = this.props
+    const { cluster, deleteApps, intl, appList, deleteSetting, SettingListfromserviceorapp } = this.props
     const checkedAppList = appList.filter((app) => app.checked)
 
     const appNames = checkedAppList.map((app) => app.name)
@@ -835,6 +853,15 @@ class AppList extends Component {
       success: {
         func: () => {
           self.loadData(self.props)
+
+          const { alarmStrategy } = self.state
+          if(alarmStrategy){
+            let strategyID = []
+            SettingListfromserviceorapp.result.forEach((item, index) => {
+              strategyID.push(item.strategyID)
+            })
+            deleteSetting(cluster,strategyID)
+          }
         },
         isAsync: true
       },
@@ -865,9 +892,16 @@ class AppList extends Component {
       step: step
     })
   }
+  handleCheckboxvalue(obj){
+    if(obj){
+      this.setState({
+        alarmStrategy: obj.checkedvalue
+      })
+    }
+  }
   render() {
     const scope = this
-    const { name, pathname, page, size, sortOrder, sortBy, total, cluster, isFetching, startApps, stopApps } = this.props
+    const { name, pathname, page, size, sortOrder, sortBy, total, cluster, isFetching, startApps, stopApps, SettingListfromserviceorapp } = this.props
     const { appList, searchInputValue, searchInputDisabled, runBtn, stopBtn, restartBtn } = this.state
     const checkedAppList = appList.filter((app) => app.checked)
     const isChecked = (checkedAppList.length > 0)
@@ -921,12 +955,12 @@ class AppList extends Component {
                   <i className="fa fa-plus" />创建应用
                 </Button>
               </Link>
-              <Button type='ghost' size='large' onClick={() => this.setState({ deployEnvModalVisible: true })}>
+              {/*<Button type='ghost' size='large' onClick={() => this.setState({ deployEnvModalVisible: true })}>
                 <svg className='rocket'>
                   <use xlinkHref='#rocket' />
                 </svg>
                 快速创建
-              </Button>
+              </Button>*/}
               <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!runBtn}>
                 <i className='fa fa-play' />启动
               </Button>
@@ -952,7 +986,7 @@ class AppList extends Component {
               <Modal title="删除操作" visible={this.state.deleteAppsModal}
                 onOk={this.handleDeleteAppsOk} onCancel={this.handleDeleteAppsCancel}
                 >
-               <StateBtnModal appList={appList} state='Delete' cdRule={this.props.cdRule}/>
+               <StateBtnModal appList={appList} state='Delete' cdRule={this.props.cdRule} settingList={SettingListfromserviceorapp} callback={this.handleCheckboxvalue}/>
               </Modal>
               <Button type='ghost' size='large' onClick={() => this.batchRestartApps()} disabled={!restartBtn}>
                 <i className='fa fa-undo' />重新部署
@@ -1121,6 +1155,7 @@ function mapStateToProps(state, props) {
   }
   const { cluster } = state.entities.current
   const { statusWatchWs } = state.entities.sockets
+  const { SettingListfromserviceorapp } = state.alert
   const defaultApps = {
     isFetching: false,
     cluster: cluster.clusterID,
@@ -1152,7 +1187,8 @@ function mapStateToProps(state, props) {
     sortBy,
     appList,
     isFetching,
-    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule :  defaultCDRule
+    cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule :  defaultCDRule,
+    SettingListfromserviceorapp
   }
 }
 
@@ -1162,7 +1198,9 @@ AppList = connect(mapStateToProps, {
   deleteApps,
   restartApps,
   startApps,
-  getDeploymentOrAppCDRule
+  getDeploymentOrAppCDRule,
+  deleteSetting,
+  getSettingListfromserviceorapp,
 })(AppList)
 
 export default injectIntl(AppList, {

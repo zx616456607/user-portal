@@ -10,7 +10,7 @@
 'use strict'
 
 const log4js = require('log4js')
-let level = "INFO"
+let level = process.env.LOG_LEVEL || "INFO"
 const LOGPATH = './logs'
 const fs = require('fs')
 const log4jsConfig = require('../configs/log4js.json')

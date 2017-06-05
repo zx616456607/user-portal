@@ -64,6 +64,7 @@ module.exports = function (Router) {
   router.post('/storage-pools/:cluster/volumes/snapshot/delete', volumeController.deleteSnapshot)
   router.post('/storage-pools/:cluster/volumes/:name/snapshot', volumeController.createSnapshot)
   router.post('/storage-pools/:cluster/volumes/:name/snapshot/rollback', volumeController.rollbackSnapshot)
+  router.post('/storage-pools/:cluster/volumes/:name/snapshot/clone', volumeController.cloneSnapshot)
   router.get('/storage-pools/:cluster/volumes/calamari-url', volumeController.getCalamariUrl)
   router.post('/storage-pools/:cluster/volumes/calamari-url', volumeController.setCalamariUrl)
 
@@ -372,6 +373,7 @@ module.exports = function (Router) {
   // manipulate node's labels
   router.get('/cluster-nodes/:cluster/:node/labels', clusternodesController.getNodeLabels)
   router.put('/cluster-nodes/:cluster/:node/labels', clusternodesController.updateNodeLabels)
+  router.post('/cluster-nodes/:cluster/:node/affectedpods', clusternodesController.getAffectedPods)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)
@@ -427,6 +429,7 @@ module.exports = function (Router) {
   router.post('/alerts/cluster/:cluster/setting', alertController.addAlertSetting)
   router.put('/alerts/cluster/:cluster/setting', alertController.addAlertSetting)
   router.get('/alerts/cluster/:cluster/setting/list', alertController.getSettingList)
+  router.get('/alerts/group-strategies', alertController.getSettingListfromserviceorapp)
   router.delete('/alerts/cluster/:cluster/setting', alertController.deleteSetting)
   router.put('/alerts/cluster/:cluster/setting/enable', alertController.updateEnable)
   router.put('/alerts/cluster/:cluster/setting/email', alertController.updateSendEmail)

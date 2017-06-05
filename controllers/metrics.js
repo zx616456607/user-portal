@@ -87,7 +87,7 @@ exports.getServiceMetrics = function* () {
     throw err
   }
   const api = apiFactory.getK8sApi(user)
-  const result = yield api.getBy([cluster, 'services', serviceName, 'instances'])
+  const result = yield api.getBy([cluster, 'instances', 'services', serviceName, 'instances'])
   const instances = result.data.instances || []
   const promiseArray = instances.map((instance) => {
     return _getContainerMetrics(user, cluster, instance, query)
@@ -106,7 +106,7 @@ exports.getAllServiceMetrics = function* () {
   const query = this.query
   const user = this.session.loginUser
   const api = apiFactory.getK8sApi(user)
-  const result = yield api.getBy([cluster, 'services', serviceName, 'instances'])
+  const result = yield api.getBy([cluster, 'instances', 'services', serviceName, 'instances'])
   const instances = result.data.instances || []
   let promiseArray = [];
   const promiseCpuArray = instances.map((instance) => {
@@ -149,11 +149,11 @@ exports.getAppMetrics = function* () {
   }
   const api = apiFactory.getK8sApi(user)
   // Top 10 services
-  const servicesResult = yield api.getBy([cluster, 'apps', appName, 'services'])
+  const servicesResult = yield api.getBy([cluster, 'services', appName, 'services'])
   const services = servicesResult.data.services || []
   const servicesPromiseArray = services.map((service) => {
     let serviceName = service.deployment.metadata.name
-    return api.getBy([cluster, 'services', serviceName, 'instances'])
+    return api.getBy([cluster, 'instances', 'services', serviceName, 'instances'])
   })
   const instancesResults = yield servicesPromiseArray
   const instancesPromiseArray = []
@@ -178,11 +178,11 @@ exports.getAllAppMetrics = function* () {
   const user = this.session.loginUser
   const api = apiFactory.getK8sApi(user)
   // Top 10 services
-  const servicesResult = yield api.getBy([cluster, 'apps', appName, 'services'])
+  const servicesResult = yield api.getBy([cluster, 'services', appName, 'services'])
   const services = servicesResult.data.services || []
   const servicesPromiseArray = services.map((service) => {
     let serviceName = service.deployment.metadata.name
-    return api.getBy([cluster, 'services', serviceName, 'instances'])
+    return api.getBy([cluster, 'instances', 'services', serviceName, 'instances'])
   })
   const instancesResults = yield servicesPromiseArray
   const instancesPromiseArray = []
@@ -243,7 +243,7 @@ function _getContainerMetrics(user, cluster, instance, query) {
     end
   }
   const api = apiFactory.getK8sApi(user)
-  return api.getBy([cluster, 'instances', containerName, 'metrics'], queryObj).then(function (result) {
+  return api.getBy([cluster, 'metric', 'instances', containerName, 'metrics'], queryObj).then(function (result) {
     const metrics = result.metrics || []
     metrics.map((metric) => {
       // Handle by frontend
