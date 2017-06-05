@@ -18,7 +18,6 @@ import './style/AppServiceList.less'
 import { calcuDate } from '../../common/tools'
 import {
   loadServiceList,
-  addService,
   startServices,
   restartServices,
   stopServices,
@@ -35,8 +34,6 @@ import ConfigModal from './AppServiceDetail/ConfigModal'
 import ManualScaleModal from './AppServiceDetail/ManualScaleModal'
 import { parseServiceDomain } from '../parseDomain'
 import ServiceStatus from '../TenxStatus/ServiceStatus'
-import AppAddServiceModal from './AppCreate/AppAddServiceModal'
-import AppDeployServiceModal from './AppCreate/AppDeployServiceModal'
 import TipSvcDomain from '../TipSvcDomain'
 import yaml from 'js-yaml'
 import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
@@ -429,11 +426,9 @@ class AppServiceList extends Component {
     this.onAllChange = this.onAllChange.bind(this)
     // this.batchDeleteServices = this.batchDeleteServices.bind(this)
     // this.confirmDeleteServices = this.confirmDeleteServices.bind(this)
-    this.showAddServiceModal = this.showAddServiceModal.bind(this)
-    this.closeAddServiceModal = this.closeAddServiceModal.bind(this)
+    this.goAddService = this.goAddService.bind(this)
     this.onPageChange = this.onPageChange.bind(this)
     this.onShowSizeChange = this.onShowSizeChange.bind(this)
-    this.onSubmitAddService = this.onSubmitAddService.bind(this)
 
     this.batchStartService = this.batchStartService.bind(this)
     this.batchStopService = this.batchStopService.bind(this)
@@ -458,8 +453,6 @@ class AppServiceList extends Component {
       searchInputDisabled: false,
       rollingUpdateModalShow: false,
       manualScaleModalShow: false,
-      addServiceModalShow: false, // for add service
-      deployServiceModalShow: false,
       isCreate: true,
       servicesList: [],
       selectedList: [],
@@ -926,11 +919,11 @@ class AppServiceList extends Component {
     })
   }
 
-  showAddServiceModal() {
-    this.setState({
-      addServiceModalShow: true
-    })
+  goAddService() {
+    const { appName } = this.props
+    browserHistory.push(`/app_manage/app_create/quick_create?appName=${appName}&action=addService`)
   }
+
   onShowSizeChange(page, size) {
     if (size === this.props.size) {
       return
@@ -971,58 +964,12 @@ class AppServiceList extends Component {
     })
   }
 
-  closeAddServiceModal() {
-    this.setState({
-      addServiceModalShow: false
-    })
-  }
-
-  onSubmitAddService(serviceTemplate) {
-    const self = this
-    const { Service, Deployment } = serviceTemplate
-    let notification = new NotificationHandler()
-    notification.spin(`服务 ${Service.metadata.name} 添加中...`)
-    const { cluster, appName, addService, loadServiceList } = this.props
-    const body = {
-      template: `${yaml.dump(Service)}\n---\n${yaml.dump(Deployment)}`
-    }
-    addService(cluster, appName, body, {
-      success: {
-        func: () => {
-          self.loadServices(self.props)
-          notification.close()
-          notification.success(`服务 ${Service.metadata.name} 添加成功`)
-        },
-        isAsync: true
-      },
-      failed: {
-        func: (err) => {
-          self.loadServices(self.props)
-          notification.close()
-          let errMsg
-          // Handle port conflict error
-          if (err.statusCode == 409) {
-            if (err.message.message.indexOf('ip_port') > 0) {
-              errMsg = '端口冲突，请检查服务端口'
-            }
-          }
-          if (err.statusCode == 403) {
-            errMsg = '集群资源不足'
-          }
-          notification.error(`服务 ${Service.metadata.name} 添加失败` + (errMsg ? ' => ' + errMsg : ''))
-        },
-        isAsync: true
-      }
-    })
-  }
-
   render() {
     const parentScope = this
     let {
       modalShow, currentShowInstance, serviceList,
       selectTab, rollingUpdateModalShow, configModal,
-      manualScaleModalShow, addServiceModalShow, deployServiceModalShow,
-      runBtn, stopBtn, restartBtn,
+      manualScaleModalShow, runBtn, stopBtn, restartBtn,
     } = this.state
     const {
       name, pathname, page,
@@ -1061,7 +1008,7 @@ class AppServiceList extends Component {
             <Button
               size="large"
               type="primary"
-              onClick={this.showAddServiceModal}
+              onClick={this.goAddService}
               style={{ backgroundColor: '#2db7f5' }}>
               <i className="fa fa-plus"></i>
               添加服务
@@ -1204,24 +1151,6 @@ class AppServiceList extends Component {
             loadServiceList={loadServiceList}
             disableScale={this.state.disableScale}
           />
-          <Modal title="添加服务"
-            visible={addServiceModalShow}
-            className="AppAddServiceModal"
-            wrapClassName="appAddServiceModal"
-            onCancel={this.closeAddServiceModal}
-          >
-            <AppAddServiceModal scope={parentScope} />
-          </Modal>
-          <Modal
-            visible={deployServiceModalShow}
-            className="AppServiceDetail"
-            transitionName="move-right"
-          >
-            <AppDeployServiceModal
-              scope={parentScope}
-              onSubmitAddService={this.onSubmitAddService}
-              serviceOpen={deployServiceModalShow} />
-          </Modal>
         </QueueAnim>
       </div>
     )
@@ -1304,7 +1233,6 @@ function mapStateToProps(state, props) {
 
 AppServiceList = connect(mapStateToProps, {
   loadServiceList,
-  addService,
   startServices,
   restartServices,
   stopServices,

@@ -23,6 +23,7 @@ import NotificationHandler from '../../../common/notification_handler'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
 import { removeFormFields, removeAllFormFields } from '../../../actions/quick_create_app'
 import { createApp } from '../../../actions/app_manage'
+import { addService } from '../../../actions/services'
 import { buildJson, getFieldsValues } from './utils'
 import './style/index.less'
 
@@ -48,22 +49,27 @@ class QuickCreateApp extends Component {
     this.setConfig = this.setConfig.bind(this)
     this.genConfigureServiceKey = this.genConfigureServiceKey.bind(this)
     this.getAppResources = this.getAppResources.bind(this)
-    this.createApp = this.createApp.bind(this)
-    this.onCreateAppClick = this.onCreateAppClick.bind(this)
+    this.createAppOrAddService = this.createAppOrAddService.bind(this)
+    this.onCreateAppOrAddServiceClick = this.onCreateAppOrAddServiceClick.bind(this)
     this.goSelectImage = this.goSelectImage.bind(this)
     this.renderServiceList = this.renderServiceList.bind(this)
     this.confirmSave = this.confirmSave.bind(this)
     this.cancelSave = this.cancelSave.bind(this)
     const { location, fields } = props
     const { query } = location
-    const { imageName, registryServer } = query
+    const { imageName, registryServer, appName, action } = query
+    let appNameInit = this.getAppName(fields)
+    if (appName && action) {
+      appNameInit = appName
+      this.action = action
+    }
     this.state = {
       imageName,
       registryServer,
       serviceList: [],
       confirmGoBackModalVisible: false,
       confirmSaveModalVisible: false,
-      appName: this.getAppName(fields),
+      appName: appNameInit,
       isCreatingApp: false,
       resourceQuotaModal: false,
       resourceQuota: null,
@@ -246,15 +252,16 @@ class QuickCreateApp extends Component {
     })
   }
 
-  createApp() {
+  createAppOrAddService() {
     this.setState({
       isCreatingApp: true,
       stepStatus: 'process',
     })
     const {
       fields, current, loginUser,
-      createApp,
+      createApp, addService,
     } = this.props
+    const { clusterID } = current.cluster
     const template = []
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
@@ -263,18 +270,19 @@ class QuickCreateApp extends Component {
         template.push(yaml.dump(json.service))
       }
     }
-    const appConfig = {
-      cluster: current.cluster.clusterID,
-      template: template.join('---\n'),
-      appName: this.getAppName(fields),
-    }
-    createApp(appConfig, {
+    const callback = {
       success: {
         func: res => {
           this.setState({
             stepStatus: 'finish',
           })
-          browserHistory.push('/app_manage')
+          let redirectUrl
+          if (this.action === 'addService') {
+            redirectUrl = `/app_manage/detail/${this.state.appName}`
+          } else {
+            redirectUrl = '/app_manage'
+          }
+          browserHistory.push(redirectUrl)
         },
         isAsync: true,
       },
@@ -283,6 +291,12 @@ class QuickCreateApp extends Component {
           this.setState({
             stepStatus: 'error',
           })
+          let msgObj
+          if (this.action === 'addService') {
+            msgObj = '添加服务'
+          } else {
+            msgObj = '创建应用'
+          }
           if (err.statusCode == 403) {
             const { data } = err.message
             const { require, capacity, used } = data
@@ -310,11 +324,17 @@ class QuickCreateApp extends Component {
             function formatMemoryFromKbToG(memory) {
               return Math.ceil(memory / 1024 / 1024 * 10) / 10
             }
-            notification.error('创建应用失败', '集群资源不足')
+            notification.error(`${msgObj}失败`, '集群资源不足')
             return
           }
+          if (err.statusCode == 409) {
+            if (err.message.message.indexOf('ip_port') > 0) {
+              notification.error(`${msgObj}失败`, '端口冲突，请检查服务端口')
+              return
+            }
+          }
           const { message } = err
-          notification.error('创建应用失败', message.message)
+          notification.error(`${msgObj}失败`, message.message)
         }
       },
       finally: {
@@ -324,19 +344,32 @@ class QuickCreateApp extends Component {
           })
         }
       },
-    })
+    }
+    if (this.action === 'addService') {
+      const body = {
+        template: template.join('---\n'),
+      }
+      addService(clusterID, this.state.appName, body, callback)
+      return
+    }
+    const appConfig = {
+      cluster: clusterID,
+      template: template.join('---\n'),
+      appName: this.getAppName(fields),
+    }
+    createApp(appConfig, callback)
   }
 
-  onCreateAppClick(isValidateFields) {
+  onCreateAppOrAddServiceClick(isValidateFields) {
     if (!isValidateFields) {
-      return this.createApp()
+      return this.createAppOrAddService()
     }
     const { validateFieldsAndScroll } = this.form
     validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
         return
       }
-      this.createApp()
+      this.createAppOrAddService()
     })
   }
 
@@ -354,6 +387,7 @@ class QuickCreateApp extends Component {
         <ConfigureService
           mode={this.configureMode}
           id={id}
+          action={this.action}
           callbackForm={form => this.form = form}
           {...{imageName, registryServer, appName}}
           {...this.props}
@@ -361,6 +395,13 @@ class QuickCreateApp extends Component {
       )
     }
     return <SelectImage location={location} onChange={this.onSelectImage} />
+  }
+
+  renderCreateBtnText() {
+    if (this.action === 'addService') {
+      return '完成添加服务'
+    }
+    return '&nbsp;创建&nbsp;'
   }
 
   renderFooterSteps() {
@@ -383,8 +424,8 @@ class QuickCreateApp extends Component {
               >
                 上一步
               </Button>
-              <Button size="large" type="primary" onClick={this.onCreateAppClick}>
-                &nbsp;创建&nbsp;
+              <Button size="large" type="primary" onClick={this.onCreateAppOrAddServiceClick}>
+                { this.renderCreateBtnText() }
               </Button>
             </div>
           </div>
@@ -631,7 +672,9 @@ class QuickCreateApp extends Component {
                 {
                   (serviceList.length > 0 && currentStep === 1) && (
                     <div className="createApp">
-                      <Button type="primary" size="large" onClick={this.createApp.bind(this, false)}>创建应用</Button>
+                      <Button type="primary" size="large" onClick={this.onCreateAppOrAddServiceClick.bind(this, false)}>
+                        {this.renderCreateBtnText()}
+                      </Button>
                     </div>
                   )
                 }
@@ -687,4 +730,5 @@ export default connect(mapStateToProps, {
   removeFormFields,
   removeAllFormFields,
   createApp,
+  addService,
 })(QuickCreateApp)
