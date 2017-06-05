@@ -100,7 +100,7 @@ exports.getContainerLogs = function* () {
   const containerName = this.params.name
   const reqData = this.request.body
   const api = apiFactory.getK8sApi(this.session.loginUser)
-  const result = yield api.createBy([cluster, 'instances', containerName, 'logs'], null, reqData)
+  const result = yield api.createBy([cluster, 'logs', 'instances', containerName, 'logs'], null, reqData)
   this.status = result.code
   this.body = result
 }
