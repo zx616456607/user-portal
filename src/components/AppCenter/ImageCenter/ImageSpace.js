@@ -636,8 +636,8 @@ function mapStateToProps(state, props) {
   const { imageList, isFetching, registry, server} = privateImages[DEFAULT_REGISTRY] || defaultPrivateImages
   const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
   const { space } = state.entities.current
-  const { oemInfo } = state.entities.loginUser.info
-  const { productName } =oemInfo.company
+  const oemInfo = state.entities.loginUser.info.oemInfo || {}
+  const { productName } = oemInfo.company || {}
   return {
     imageList,
     isFetching,

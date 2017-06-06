@@ -366,8 +366,8 @@ function mapStateToProps(state, props) {
   const { fockImages, imagesInfo } = state.images
   const { registry, imageList, isFetching, server } = fockImages[DEFAULT_REGISTRY] || defaultPublicImages
   const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
-  const { oemInfo } = state.entities.loginUser.info
-  const { productName } =oemInfo.company
+  const oemInfo = state.entities.loginUser.info.oemInfo || {}
+  const { productName } = oemInfo.company || {}
   return {
     registry,
     server,
