@@ -29,7 +29,7 @@ exports.getSearchLog = function* () {
   const reqBody = this.request.body
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.createBy([cluster, 'instances', instances, 'logs'], null, reqBody);
+  const result = yield api.createBy([cluster, 'logs', 'instances', instances, 'logs'], null, reqBody);
   this.body = {
     logs: result.data
   }
@@ -41,7 +41,7 @@ exports.getServiceSearchLog = function* () {
   const reqBody = this.request.body
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.createBy([cluster, 'services', services, 'logs'], null, reqBody);
+  const result = yield api.createBy([cluster, 'logs', 'services', services, 'logs'], null, reqBody);
   this.body = {
     logs: result.data
   }
@@ -67,7 +67,7 @@ exports.getClusterOfQueryLog = function* () {
   let tempResult = [];
   try {
     clusters.map((item, index) => {
-      tempResult.push(api.clusters.getBy([item.clusterID, namespace, 'instances']))
+      tempResult.push(api.clusters.getBy([item.clusterID, 'instances', namespace, 'instances']))
     });
     let temp = yield tempResult;
     clusters.map((item, index) => {

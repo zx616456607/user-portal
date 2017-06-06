@@ -519,19 +519,17 @@ class ClusterPlugin extends Component {
                </Menu>
              )
            }
-
-          return (
-            <div className="pluginAction">
-              <span className="button">
-                {this.getStateusForEvent(row)}
-              </span>
-              <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
-                设置插件
+           const result = row.serviceInfo && row.serviceInfo.isSystem ? <div></div> : <div className="pluginAction">
+             <span className="button">
+               {this.getStateusForEvent(row)}
+             </span>
+             <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
+               设置插件
               </Dropdown.Button>
-              {/*<Button type="primary" onClick={() => this.showResetModal(row.name)}>重新部署</Button>
+             {/*<Button type="primary" onClick={() => this.showResetModal(row.name)}>重新部署</Button>
               <Button className="setup" type="ghost" onClick={()=> this.showSetModal(row.name)}>设置</Button>*/}
-            </div>
-          )
+           </div>
+           return result
         }
       }
     ]

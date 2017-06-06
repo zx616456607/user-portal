@@ -35,8 +35,6 @@ import ConfigModal from './AppServiceDetail/ConfigModal'
 import ManualScaleModal from './AppServiceDetail/ManualScaleModal'
 import { parseServiceDomain } from '../parseDomain'
 import ServiceStatus from '../TenxStatus/ServiceStatus'
-import AppAddServiceModal from './AppCreate/AppAddServiceModal'
-import AppDeployServiceModal from './AppCreate/AppDeployServiceModal'
 import TipSvcDomain from '../TipSvcDomain'
 import yaml from 'js-yaml'
 import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
@@ -534,8 +532,6 @@ class ServiceList extends Component {
       searchInputDisabled: false,
       rollingUpdateModalShow: false,
       manualScaleModalShow: false,
-      addServiceModalShow: false, // for add service
-      deployServiceModalShow: false,
       isCreate: true,
       servicesList: [],
       selectedList: [],
@@ -1119,7 +1115,7 @@ class ServiceList extends Component {
       rollingUpdateModalShow,
       configModal,
       manualScaleModalShow,
-      deployServiceModalShow, runBtn, stopBtn, restartBtn
+      runBtn, stopBtn, restartBtn
     } = this.state
     const {
       pathname, page, size, total, isFetching, cluster,
@@ -1346,17 +1342,6 @@ class ServiceList extends Component {
             service={currentShowInstance}
             disableScale={this.state.disableScale}
             loadServiceList={() => this.loadServices(this.props)} />
-          <Modal
-            visible={deployServiceModalShow}
-            className='AppServiceDetail'
-            transitionName='move-right'
-            >
-            <AppDeployServiceModal
-              scope={parentScope}
-              onSubmitAddService={this.onSubmitAddService}
-              serviceOpen={deployServiceModalShow} />
-          </Modal>
-
         </QueueAnim>
       </div>
     )
