@@ -1,6 +1,6 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
- * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ * (C) Copyright 2017 TenxCloud. All Rights Reserved.
  *
  * AppList component
  *
@@ -10,18 +10,99 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import { Row, Alert, Col, Transfer, Form, Menu, Input, Icon, Button, Dropdown, Modal, InputNumber, Pagination, Select, Card, Checkbox, Tooltip } from 'antd'
+import { Row, Table, Alert, Col, Transfer, Form, Menu, Input, Icon, Button, Dropdown, Modal, InputNumber, Pagination, Select, Card, Checkbox, Tooltip } from 'antd'
 import './style/RoleManagement.less'
 
 let MyComponent = React.createClass({
+  getInitialState:function() {
+    return { 
+      editrole: false,
+      Viewpermissions:false, 
+      Deleteroles:false,
+      mockData: [],
+      targetKeys: [] 
+    };
+  },
+  componentDidMount() {
+    this.getMock();
+  },
+  getMock() {
+    const targetKeys = [];
+    const mockData = [];
+    for (let i = 0; i < 20; i++) {
+      const data = {
+        key: i,
+        title: `内容${i + 1}`,
+        description: `内容${i + 1}的描述`,
+        chosen: Math.random() * 2 > 1,
+      };
+      if (data.chosen) {
+        targetKeys.push(data.key);
+      }
+      mockData.push(data);
+    }
+    this.setState({ mockData, targetKeys });
+  },
+  handleChange(targetKeys, direction, moveKeys) {
+    console.log(targetKeys, direction, moveKeys);
+    this.setState({ targetKeys });
+  },
+  handleOk:function() {
+    this.setState({
+      editrole: false,
+      Viewpermissions: false,
+      Deleteroles:false,
+    });
+  },
+  handleCancel:function() {
+    this.setState({
+      editrole: false,
+      Viewpermissions: false,
+      Deleteroles:false,
+    });
+  },
   render: function(){
+    const columns = [{
+      title: '角色名称',
+      dataIndex: 'name',
+      key: 'name',
+      width:'28%',
+    }, {
+      title: '已引用项目',
+      dataIndex: 'Referencedproject',
+      key: 'Referencedproject',
+      width:'30%',
+    }, {
+      title: '已引用项目中是否保留改角色',
+      key: 'operation',
+      render: (text, record) => (
+        <span>
+          <Checkbox >项目中保留</Checkbox>
+          <Checkbox >彻底删除</Checkbox>
+        </span>
+      ),
+    }];
+
+    const data = [{
+      key: '1',
+      name: '开发',
+      Referencedproject: 3,
+    }, {
+      key: '2',
+      name: '测试',
+      Referencedproject: 4,
+    }, {
+      key: '3',
+      name: '团队管理员',
+      Referencedproject: 3,
+    }];
     const dropdown = (
-        <Menu style={{ width: '130px' }}>
+        <Menu style={{ width: '115px' }}>
           <Menu.Item key='stopApp'>
-            <span><Icon type="edit" /> 编辑角色</span>
+            <span onClick={()=> this.setState({editrole:true})} ><Icon type="edit" /> 编辑角色</span>
           </Menu.Item>
           <Menu.Item key='deleteApp'>
-            <span><Icon type="delete" /> 删除</span>
+            <span onClick={()=> this.setState({Deleteroles:true})} ><Icon type="delete" /> 删除</span>
           </Menu.Item>
         </Menu>
       );
@@ -57,10 +138,30 @@ let MyComponent = React.createClass({
           </div>
           <div className='actionBox commonData'>
             <Dropdown.Button overlay={dropdown} type='ghost'>
-              <Icon type="eye-o" />查看拓扑图
+              <span onClick={()=> this.setState({Viewpermissions:true})}><Icon type="eye-o" />查看权限</span>
+              <Modal title="查看权限" visible={this.state.Viewpermissions} footer={<Button type="primary" onClick={this.handleOk}>知道了</Button>} onCancel={this.handleCancel} >
+                <p className="createRolesa">角色名称<Input style={{width:'50%',marginLeft:'50px'}} placeholder="请填写角色名称"/></p>
+                <p className="createRoles">备注<Input style={{width:'50%',marginLeft:'73px'}}/></p>
+                <p>对话框的内容</p>
+              </Modal>
             </Dropdown.Button>
           </div>
           <div style={{ clear: 'both', width: '0' }}></div>
+          <Modal width="650px" title="编辑角色" visible={this.state.editrole} onOk={this.handleOk} onCancel={this.handleCancel} >
+            <p className="createRolesa">角色名称<Input style={{width:'50%',marginLeft:'50px'}} placeholder="请填写角色名称"/></p>
+            <p className="createRoles">备注<Input style={{width:'50%',marginLeft:'73px'}}/></p>
+            <p className="createRoles"><sapn className="PermissionSelection">权限选择</sapn>
+                <Transfer
+                dataSource={this.state.mockData}
+                targetKeys={this.state.targetKeys}
+                onChange={this.handleChange}
+                render={item => item.title}/>
+            </p>
+          </Modal>
+          <Modal title="删除角色操作" visible={this.state.Deleteroles} onOk={this.handleOk} onCancel={this.handleCancel} >
+            <p className="createRolesa"><div className="mainbox"><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>将永久删除以下角色以及该角色所关联的对象，您确定要删除以下角色么？</div></p>
+            <p className="createRoles"><Table columns={columns} dataSource={data} pagination={false} /></p>
+          </Modal>
         </div>
       </div>
     )
@@ -125,13 +226,12 @@ let RoleManagement = React.createClass({
                 <Button onClick={()=> this.setState({visible:true})} type='primary' size='large'>
                   <Icon type="plus" />创建角色
                 </Button>
-                <Modal width="50%" title="创建角色" visible={this.state.visible}
+                <Modal width="650px" title="创建角色" visible={this.state.visible}
                   onOk={this.handleOk} onCancel={this.handleCancel}>
-                  <p className="createRoles">角色名称<Input style={{width:'50%',marginLeft:'50px'}}/></p>
+                  <p className="createRolesa">角色名称<Input style={{width:'50%',marginLeft:'50px'}} placeholder="请填写角色名称"/></p>
                   <p className="createRoles">备注<Input style={{width:'50%',marginLeft:'73px'}}/></p>
-                  <p className="createRoles">权限选择
+                  <p className="createRoles"><sapn className="PermissionSelection">权限选择</sapn>
                     <Transfer
-                    
                     dataSource={this.state.mockData}
                     targetKeys={this.state.targetKeys}
                     onChange={this.handleChange}
