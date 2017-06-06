@@ -125,7 +125,9 @@ function harborHandler(handler) {
         if (err) {
           reject(err)
         } else if (statusCode > 300) {
-          reject(`status code: ${statusCode}`)
+          err = new Error("call harbor native api failed")
+          err.status = statusCode
+          reject(err)
         } else {
           resolve(result)
         }
