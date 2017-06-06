@@ -53,8 +53,8 @@ exports.getClusterNodes = function* () {
       source: 'prometheus'
     }
     const metricsReqArray = []
-    metricsReqArray.push(api.clusters.getBy([cluster, podList, 'metric', 'instant'], cpuBody))
-    metricsReqArray.push(api.clusters.getBy([cluster, podList, 'metric', 'instant'], memoryBody))
+    metricsReqArray.push(api.clusters.getBy([cluster, 'metric', podList, 'metric', 'instant'], cpuBody))
+    metricsReqArray.push(api.clusters.getBy([cluster, 'metric', podList, 'metric', 'instant'], memoryBody))
     const metricsReqArrayResult = yield metricsReqArray
     cpuMetric = metricsReqArrayResult[0].data
     memoryMetric = metricsReqArrayResult[1].data
@@ -113,7 +113,7 @@ exports.getAddNodeCMD = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
   const spi = apiFactory.getApi(loginUser)
-  const result = yield spi.clusters.getBy([cluster, 'add'])
+  const result = yield spi.clusters.getBy([cluster, 'nodes', 'add'])
   this.body = result.data
 }
 // cluster node detail pod list
@@ -164,13 +164,13 @@ exports.getClustersMetrics = function* () {
   }
   const reqArray = []
   // metrics cpu use
-  reqArray.push(api.getBy([cluster,'nodes',node,'metrics'], cpuq))
+  reqArray.push(api.getBy([cluster,'metric','nodes',node,'metrics'], cpuq))
   // metrics memory
-  reqArray.push(api.getBy([cluster,'nodes',node,'metrics'],memoryq))
+  reqArray.push(api.getBy([cluster,'metric','nodes',node,'metrics'],memoryq))
   // metrics network/rx_rate
-  reqArray.push(api.getBy([cluster,'nodes',node,'metrics'],re_rateq))
+  reqArray.push(api.getBy([cluster,'metric','nodes',node,'metrics'],re_rateq))
   // metrics network/tx_rate
-  reqArray.push(api.getBy([cluster,'nodes',node,'metrics'],te_rateq))
+  reqArray.push(api.getBy([cluster,'metric','nodes',node,'metrics'],te_rateq))
 
   const results = yield reqArray
   this.body = {

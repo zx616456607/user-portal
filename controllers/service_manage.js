@@ -371,7 +371,7 @@ exports.getReplicasetDetailEvents = function* () {
   const serviceName = this.params.service_name
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'replicaset', serviceName, 'events'])
+  const result = yield api.getBy([cluster, 'events', 'replicaset', serviceName, 'events'])
   const events = result.data || []
   //eventList.events = []
   //if (eventList.data) {
@@ -391,7 +391,7 @@ exports.getPodsEventByServicementName = function* () {
   const serviceName = this.params.service_name
   const cluster = this.params.cluster
   const api = apiFactory.getK8sApi(this.session.loginUser)
-  const result = yield api.getBy([cluster, 'services', serviceName, 'pods' ,'events'])
+  const result = yield api.getBy([cluster, 'events', 'services', serviceName, 'pods' ,'events'])
   this.body = {
     cluster,
     serviceName,
@@ -406,7 +406,7 @@ exports.getDbServiceDetailEvents = function* () {
   const serviceName = this.params.service_name
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'services', serviceName, 'events'])
+  const result = yield api.getBy([cluster, 'events', 'services', serviceName, 'events'])
   const events = result.data || []
 
   this.body = {

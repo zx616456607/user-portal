@@ -243,7 +243,7 @@ function _getContainerMetrics(user, cluster, instance, query) {
     end
   }
   const api = apiFactory.getK8sApi(user)
-  return api.getBy([cluster, 'instances', containerName, 'metrics'], queryObj).then(function (result) {
+  return api.getBy([cluster, 'metric', 'instances', containerName, 'metrics'], queryObj).then(function (result) {
     const metrics = result.metrics || []
     metrics.map((metric) => {
       // Handle by frontend

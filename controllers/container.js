@@ -80,7 +80,7 @@ exports.getContainerDetailEvents = function* () {
   const containerName = this.params.container_name;
   const loginUser = this.session.loginUser;
   const api = apiFactory.getK8sApi(loginUser);
-  const result = yield api.getBy([cluster, 'instances', containerName, 'events'])
+  const result = yield api.getBy([cluster, 'events', 'instances', containerName, 'events'])
   const events = result.data || {}
   /*pod.events = []
   if (pod.data) {
