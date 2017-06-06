@@ -238,6 +238,15 @@ module.exports = function (Router) {
   router.delete('/registries/:registry/targets/:id', harborController.deleteReplicationTarget)
   router.get('/registries/:registry/targets/:id/policies', harborController.getReplicationTargetRelatedPolicies)
 
+  router.get('/registries/:registry/logs', harborController.getLogs)
+  router.post('/registries/:registry/projects/:projectID/log', harborController.getProjectLogs)
+  router.get('/registries/:registry/systeminfo', harborController.getSystemInfo)
+  router.get('/registries/:registry/systeminfo/volumes', harborController.getSystemInfoVolumes)
+  router.get('/registries/:registry/systeminfo/cert', harborController.getSystemInfoCert)
+  router.get('/registries/:registry/configurations', harborController.getConfigurations)
+  router.put('/registries/:registry/configurations', harborController.updateConfigurations)
+  router.post('/registries/:registry/configurations/reset', harborController.resetConfigurations)
+
   // Registries of TenxCloud
   router.get('/registries/:registry', registryController.getImages)
   router.get('/registries/:registry/:user/:name/detailInfo', registryController.getImageInfo)

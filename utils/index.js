@@ -143,3 +143,14 @@ exports.isAdmin = function(user) {
   }
   return false
 }
+
+
+/**
+ * Check object if empty.
+ */
+exports.isEmptyObject = function(obj) {
+  for (var name in obj) {
+    return false
+  }
+  return true
+}

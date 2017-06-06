@@ -11,7 +11,11 @@
 const logger     = require('../utils/logger.js').getLogger("registry_harbor")
 const harborAPIs = require('../registry/lib/harborAPIs')
 const registryConfigLoader = require('../registry/registryConfigLoader')
-const apiFactory   = require('../services/api_factory')
+const apiFactory = require('../services/api_factory')
+const constants = require('../constants')
+const utils = require('../utils')
+
+var HarborAuthCache = []
 const securityUtil = require('../utils/security')
 
 // Get projects from harbor server
@@ -104,6 +108,216 @@ exports.deleteReplicationTarget = harborHandler(
 // [GET] /targets/{id}/policies
 exports.getReplicationTargetRelatedPolicies = harborHandler(
   (harbor, ctx, callback) => harbor.getReplicationTargetRelatedPolicies(ctx.params.id, callback))
+
+/*------------------log start------------------------*/
+exports.getLogs = function* () {
+  const loginUser = this.session.loginUser
+  const registryConfig = getRegistryConfig()
+  const authInfo = yield getAuthInfo(loginUser)
+  const harborAPI = new harborAPIs(registryConfig, authInfo)
+  const query = utils.isEmptyObject(this.query) ? null : this.query
+  const result = yield new Promise((resolve, reject) => {
+    harborAPI.getLogs(query, (err, statusCode, logs) => {
+      if(err) {
+        return reject(err)
+      }
+      if(statusCode > 300) {
+        return reject(`Error from request: ${statusCode}`)
+      }
+      resolve(logs)
+    })
+  })
+  this.body = {
+    server: registryConfig.url,
+    data: result
+  }
+}
+
+exports.getProjectLogs = function* () {
+  const loginUser = this.session.loginUser
+  const registryConfig = getRegistryConfig()
+  const authInfo = yield getAuthInfo(loginUser)
+  const harborAPI = new harborAPIs(registryConfig, authInfo)
+  const projectID = this.params.projectID
+  const query = utils.isEmptyObject(this.query) ? null : this.query
+  const body = this.request.body
+  body.project_id = parseInt(projectID)
+  const result = yield new Promise((resolve, reject) => {
+    harborAPI.getProjectLogs(projectID, query, body, (err, statusCode, logs) => {
+      if(err) {
+        return reject(err)
+      }
+      if(statusCode > 300) {
+        return reject(`Error from request: ${statusCode}`)
+      }
+      resolve(logs)
+    })
+  })
+  this.body = {
+    server: registryConfig.url,
+    data: result
+  }
+}
+/*------------------log end-------------------------*/
+
+
+/*------------------systeminfo start--------------------------------*/
+exports.getSystemInfo = function* () {
+  const loginUser = this.session.loginUser
+  const registryConfig = getRegistryConfig()
+  const authInfo = yield getAuthInfo(loginUser)
+  const harborAPI = new harborAPIs(registryConfig, authInfo)
+  const result = yield new Promise((resolve, reject) => {
+    harborAPI.getSystemInfo((err, statusCode, logs) => {
+      if(err) {
+        return reject(err)
+      }
+      if(statusCode > 300) {
+        return reject(`Error from request: ${statusCode}`)
+      }
+      resolve(logs)
+    })
+  })
+  this.body = {
+    server: registryConfig.url,
+    data: result
+  }
+}
+
+exports.getSystemInfoVolumes = function* () {
+  const loginUser = this.session.loginUser
+  if(loginUser.role != constants.ADMIN_ROLE) {
+    const err = new Error('No admin user')
+    throw err
+  }
+  const registryConfig = getRegistryConfig()
+  const authInfo = yield getAuthInfo(loginUser)
+  const harborAPI = new harborAPIs(registryConfig, authInfo)
+  const result = yield new Promise((resolve, reject) => {
+    harborAPI.getSystemInfoVolumes((err, statusCode, volumes) => {
+      if(err) {
+        return reject(err)
+      }
+      if(statusCode > 300) {
+        return reject(`Error from request: ${statusCode}`)
+      }
+      resolve(volumes)
+    })
+  })
+  this.body = {
+    server: registryConfig.url,
+    data: result
+  }
+}
+
+exports.getSystemInfoCert = function* () {
+  const loginUser = this.session.loginUser
+  if(loginUser.role != constants.ADMIN_ROLE) {
+    const err = new Error('No admin user')
+    throw err
+  }
+  const registryConfig = getRegistryConfig()
+  const authInfo = yield getAuthInfo(loginUser)
+  const harborAPI = new harborAPIs(registryConfig, authInfo)
+  const result = yield new Promise((resolve, reject) => {
+    harborAPI.getSystemInfoCert((err, statusCode, cert) => {
+      if(err) {
+        return reject(err)
+      }
+      if(statusCode > 300) {
+        return reject(`Error from request: ${statusCode}`)
+      }
+      resolve(cert)
+    })
+  })
+  this.body = {
+    server: registryConfig.url,
+    data: result
+  }
+}
+/*------------------systeminfo end--------------------------------*/
+
+
+/*------------------configurations start--------------------------------*/
+exports.getConfigurations = function* () {
+  const loginUser = this.session.loginUser
+  if(loginUser.role != constants.ADMIN_ROLE) {
+    const err = new Error('No admin user')
+    throw err
+  }
+  const registryConfig = getRegistryConfig()
+  const authInfo = yield getAuthInfo(loginUser)
+  const harborAPI = new harborAPIs(registryConfig, authInfo)
+  const result = yield new Promise((resolve, reject) => {
+    harborAPI.getConfigurations((err, statusCode, configurations) => {
+      if(err) {
+        return reject(err)
+      }
+      if(statusCode > 300) {
+        return reject(`Error from request: ${statusCode}`)
+      }
+      resolve(configurations)
+    })
+  })
+  this.body = {
+    server: registryConfig.url,
+    data: result
+  }
+}
+
+exports.updateConfigurations = function* () {
+  const loginUser = this.session.loginUser
+  if(loginUser.role != constants.ADMIN_ROLE) {
+    const err = new Error('No admin user')
+    throw err
+  }
+  const registryConfig = getRegistryConfig()
+  const authInfo = yield getAuthInfo(loginUser)
+  const harborAPI = new harborAPIs(registryConfig, authInfo)
+  const body = utils.isEmptyObject(this.request.body) ? null : this.request.body
+  const result = yield new Promise((resolve, reject) => {
+    harborAPI.updateConfigurations(body, (err, statusCode, updateResult) => {
+      if(err) {
+        return reject(err)
+      }
+      if(statusCode > 300) {
+        return reject(`Error from request: ${statusCode}`)
+      }
+      resolve(updateResult)
+    })
+  })
+  this.body = {
+    server: registryConfig.url,
+    data: result
+  }
+}
+
+exports.resetConfigurations = function* () {
+  const loginUser = this.session.loginUser
+  if(loginUser.role != constants.ADMIN_ROLE) {
+    const err = new Error('No admin user')
+    throw err
+  }
+  const registryConfig = getRegistryConfig()
+  const authInfo = yield getAuthInfo(loginUser)
+  const harborAPI = new harborAPIs(registryConfig, authInfo)
+  const result = yield new Promise((resolve, reject) => {
+    harborAPI.resetConfigurations((err, statusCode, resetResult) => {
+      if(err) {
+        return reject(err)
+      }
+      if(statusCode > 300) {
+        return reject(`Error from request: ${statusCode}`)
+      }
+      resolve(resetResult)
+    })
+  })
+  this.body = {
+    server: registryConfig.url,
+    data: result
+  }
+}
+/*------------------configurations end--------------------------------*/
 
 function getRegistryConfig() {
   // Global check

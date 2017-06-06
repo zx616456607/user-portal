@@ -13,6 +13,7 @@
 var logger = require('../../utils/logger').getLogger('harborAPIs');
 var request = require('request');
 var async = require('async');
+var queryString = require ('querystring')
 var registryConfigLoader = require('../registryConfigLoader')
 
 // Used to cache basic auth info of each user
@@ -143,6 +144,110 @@ HarborAPIs.prototype.getReplicationTargetRelatedPolicies = function (id, callbac
   const url = `${this.getAPIPrefix()}/targets/${id}/policies`
   this.sendRequest(url, 'GET', null, callback)
 }
+
+
+/*----------------log start---------------*/
+
+HarborAPIs.prototype.getLogs = function(query, callback) {
+  const method = 'getLog'
+  logger.debug(method, 'Get user recent log')
+  let requestUrl = `${this.getAPIPrefix()}/logs`
+  if(typeof query == 'function') {
+    callback = query
+    query = null
+  } else {
+    if(query) {
+      requestUrl += `?${queryString.stringify(query)}`
+    }
+  }
+  logger.debug(method, `Request url: ${requestUrl}`)
+  this.sendRequest(requestUrl, 'GET', null, callback)
+}
+
+HarborAPIs.prototype.getProjectLogs = function(projectID, query, data, callback) {
+  const method = 'getProjectLogs'
+  logger.debug(method, `Get project logs`)
+  let requestUrl = `${this.getAPIPrefix()}/projects/${projectID}/logs/filter`
+  if(typeof projectID != 'string') {
+    const err = new Error('project is require')
+    return callback(err)
+  }
+  if(typeof query == 'function') {
+    callback = query
+    query = null
+  }
+  if(typeof data == 'function') {
+    callback = data
+    data = null
+  }
+  if(query) {
+    requestUrl += `?${queryString.stringify(query)}`
+  }
+  logger.debug(method, `Request url: ${requestUrl}`)
+  this.sendRequest(requestUrl, 'POST', data, callback)
+}
+
+/*----------------log end---------------*/
+
+/*----------------systeminfo start---------------*/
+
+HarborAPIs.prototype.getSystemInfo = function(callback) {
+  const method = 'getSystemInfo'
+  logger.debug(method, `Get SystemInfo`)
+  const requestUrl = `${this.getAPIPrefix()}/systeminfo`
+  logger.debug(method, `Request url: ${requestUrl}`)
+  this.sendRequest(requestUrl, 'GET', null, callback)
+}
+
+HarborAPIs.prototype.getSystemInfoVolumes = function(callback) {
+  const method = 'getSystemInfoVolumes'
+  logger.debug(method, `Get SystemInfoVolumes`)
+  const requestUrl = `${this.getAPIPrefix()}/systeminfo/volumes`
+  logger.debug(method, `Request url: ${requestUrl}`)
+  this.sendRequest(requestUrl, 'GET', null, callback)
+}
+
+HarborAPIs.prototype.getSystemInfoCert = function(callback) {
+  const method = 'getSystemInfoCert'
+  logger.debug(method, `Get SystemInfoCert`)
+  const requestUrl = `${this.getAPIPrefix()}/systeminfo/getcert`
+  logger.debug(method, `Request url: ${requestUrl}`)
+  this.sendRequest(requestUrl, 'GET', null, callback)
+}
+
+
+/*----------------systeminfo end---------------*/
+
+
+
+/*----------------configurations start---------------*/
+
+HarborAPIs.prototype.getConfigurations = function(callback) {
+  const method = 'getConfiguratoins'
+  logger.debug(method, `Get Configurations`)
+  const requestUrl = `${this.getAPIPrefix()}/configurations`
+  logger.debug(method, `Request url: ${requestUrl}`)
+  this.sendRequest(requestUrl, 'GET', null, callback)
+}
+
+HarborAPIs.prototype.updateConfigurations = function(data, callback) {
+  const method = 'updateConfiguratoins'
+  logger.debug(method, `Update Configurations`)
+  const requestUrl = `${this.getAPIPrefix()}/configurations`
+  logger.debug(method, `Request url: ${requestUrl}`)
+  this.sendRequest(requestUrl, 'PUT', data, callback)
+}
+
+HarborAPIs.prototype.resetConfigurations = function(callback) {
+  const method = 'resetConfiguratoins'
+  logger.debug(method, `Reset Configurations`)
+  const requestUrl = `${this.getAPIPrefix()}/configurations/reset`
+  logger.debug(method, `Request url: ${requestUrl}`)
+  this.sendRequest(requestUrl, 'POST', null, callback)
+}
+
+/*----------------configurations end---------------*/
+
 
 HarborAPIs.prototype.sendRequest = function (requestUrl, httpMethod, data, callback) {
   var method = "sendRequest";
