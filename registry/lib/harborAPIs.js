@@ -321,4 +321,54 @@ function encodeQueryString(kvs) {
     key => `${encodeURIComponent(key)}=${encodeURIComponent(kvs[key])}`).join('&')
 }
 
+function range(begin, end) {
+  const count = end - begin
+  return Array.apply(null, Array(count)).map((_, index) => index + begin)
+}
+
+function parseAuthParameter(query, parameter) {
+  const removeQuote = JSON.parse
+  const kv = parameter.split('=')
+  const key = kv[0]
+  const value = removeQuote(kv[1])
+  query[key] = value
+  return query
+}
+
+function getRequestBearerTokenURL(realm) {
+  const removeQuote = JSON.parse
+  const params = realm.split(',').map(param => param.trim())
+  const authURL = removeQuote(params[0].split('=')[1])
+  const query = range(1, params.length).reduce(
+    (query, index) => parseAuthParameter(query, params[index]), {})
+  return `${authURL}${encodeQueryString(query)}`
+}
+
+HarborAPIs.prototype.basicAuthToBearerToken = function (realm, callback) {
+  const url = getRequestBearerTokenURL(realm)
+  this.sendRequest(url, 'GET', null, callback)
+}
+
+HarborAPIs.prototype.getManifest = function (repoName, tag, callback) {
+  const url = `${this.registryConfig.url}/v2/${repoName}/manifests/${tag}`
+  request.get({url, json: true}, (err, resp, body) => {
+    if (resp.statusCode == 401) {
+      const realm = resp.headers['www-authenticate']
+      this.basicAuthToBearerToken(realm, (err, statusCode, result) => {
+        if (err) {
+          callback(err, statusCode, result)
+        } else {
+          const token = result.token
+          const headers = {'Authorization': `Bearer ${token}`}
+          request.get({url, json: true, headers}, (err, resp, body) => {
+            callback(err, resp.statusCode, {manifest: body, headers})
+          })
+        }
+      })
+    } else {
+      callback(err, resp.statusCode, body)
+    }
+  })
+}
+
 module.exports = HarborAPIs;
