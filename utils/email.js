@@ -48,8 +48,9 @@ function sendEmail(transport, mailOptions) {
   // if SMTP not configured(lite) skip send email
   if (!transport.host) {
     logger.warn(method, 'SMTP not configured, skip send email')
-    return Promise.resolve({skip: true})
+    return Promise.reject({message: 'config email first', status: 400})
   }
+
   // Force to use this 'from' user if using sendEmail method
   mailOptions.from = config.mail_server.auth.user
   const smtpTransport = nodemailer.createTransport(transport)
