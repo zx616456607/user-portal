@@ -11,6 +11,7 @@
 */
 
 var logger = require('../../utils/logger').getLogger('harborAPIs');
+const utils = require('../../utils')
 var request = require('request');
 var async = require('async');
 var queryString = require ('querystring')
@@ -145,7 +146,6 @@ HarborAPIs.prototype.getReplicationTargetRelatedPolicies = function (id, callbac
   this.sendRequest(url, 'GET', null, callback)
 }
 
-
 /*----------------log start---------------*/
 
 HarborAPIs.prototype.getLogs = function(query, callback) {
@@ -248,6 +248,24 @@ HarborAPIs.prototype.resetConfigurations = function(callback) {
 
 /*----------------configurations end---------------*/
 
+
+// [GET] /projects?page=1&page_size=10&page_name=test
+HarborAPIs.prototype.getProjects = function (query, callback) {
+  var method = "getProjects";
+  logger.debug(method, "Get harbor projects");
+
+  // If no callback, then will use the 1st parameter as callback, so we can do search all by default
+  var requestUrl = this.getAPIPrefix() + "/projects";
+  if (!callback) {
+    callback = query
+  } else {
+    if (query) {
+      requestUrl += `?${utils.toQuerystring(query)}`
+    }
+  }
+  logger.debug(method, "Request url: " + requestUrl);
+  this.sendRequest(requestUrl, 'GET', null, callback);
+}
 
 HarborAPIs.prototype.sendRequest = function (requestUrl, httpMethod, data, callback) {
   var method = "sendRequest";

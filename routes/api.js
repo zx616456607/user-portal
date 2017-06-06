@@ -219,7 +219,9 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/configgroups/:group/configs-batch-delete', configController.deleteConfigFiles)
 
   // Harbor integration
-  router.get('/registries/:registry/projects', harborController.searchProjects)
+  // router.get('/registries/:registry/projects', harborController.searchProjects)
+  router.get('/registries/:registry/search', harborController.searchProjects)
+  router.get('/registries/:registry/projects', harborController.getProjects)
 
   router.get('/registries/:registry/jobs/replication', harborController.getReplicationJobs)
   router.delete('/registries/:registry/jobs/replication/:id', harborController.deleteReplicationJob)

@@ -19,6 +19,7 @@ import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { appNameCheck } from '../../../../../common/naming_validation'
 import DockerFileEditor from '../../../../Editor/DockerFile'
 import { updateTenxFlowState, getDockerfiles, setDockerfile, getAvailableImage, updateTenxFlow, getTenxFlowDetail, } from '../../../../../actions/cicd_flow'
+import { loadProjectList } from '../../../../../actions/harbor'
 import './style/EditTenxFlowModal.less'
 import findIndex from 'lodash/findIndex'
 import EnvComponent from './CreateEnvComponent.js'
@@ -284,8 +285,9 @@ let EditTenxFlowModal = React.createClass({
   componentWillMount() {
     // const {getAvailableImage} = this.props
     // getAvailableImage()
-    const { loadClusterList } = this.props
+    const { loadClusterList, loadProjectList } = this.props
     loadClusterList()
+    loadProjectList(DEFAULT_REGISTRY, { page_size: 100 })
   },
   componentDidMount() {
     uuid = 0;
@@ -890,7 +892,8 @@ let EditTenxFlowModal = React.createClass({
           'registryType': parseInt(values.imageType),
           'imageTagType': parseInt(values.imageTag),
           'noCache': !values.buildCache,
-          'image': values.imageRealName
+          'image': values.imageRealName,
+          'project': values.harborProjectName,
         }
         if (this.state.otherTag) {
           imageBuildBody.customTag = values.otherTag;
@@ -1306,6 +1309,12 @@ let EditTenxFlowModal = React.createClass({
       ],
       initialValue: (!!config.spec.build ? config.spec.build.image : null)
     });
+    const harborProjectProps = getFieldProps('harborProjectName', {
+      rules: [
+        { message: '请选择项目', required: true },
+      ],
+      initialValue: (!!config.spec.build ? config.spec.build.project : null)
+    });
     const configBaseConfig = config.spec.container.image
     const imageNameProps = getFieldProps('imageName', {
       rules: [
@@ -1528,6 +1537,15 @@ let EditTenxFlowModal = React.createClass({
                     <span><FormattedMessage {...menusText.imageRealName} /></span>
                   </div>
                   <div className='input imageType'>
+                    <FormItem style={{ width: '220px', float: 'left', marginRight: '20px' }}>
+                      <Select {...harborProjectProps} size='large'>
+                        {
+                          (this.props.harborProjects.list || []).map(project => (
+                            <Option key={project.name}>{project.name}</Option>
+                          ))
+                        }
+                      </Select>
+                    </FormItem>
                     <FormItem hasFeedback style={{ width: '220px', float: 'left', marginRight: '20px' }}>
                       <Input {...imageRealNameProps} type='text' size='large' />
                     </FormItem>
@@ -1699,9 +1717,11 @@ function mapStateToProps(state, props) {
   if(!clusters || Object.getOwnPropertyNames(clusters).length == 0) {
     clusters = defaultClusterList
   }
+  let harborProjects = state.harbor.projects && state.harbor.projects[DEFAULT_REGISTRY] || {}
   return {
     clusters,
-    clustersNodes
+    clustersNodes,
+    harborProjects,
   }
 }
 
@@ -1719,7 +1739,8 @@ export default connect(mapStateToProps, {
   updateTenxFlow,
   getTenxFlowDetail,
   loadClusterList,
-  getAllClusterNodes
+  getAllClusterNodes,
+  loadProjectList,
 })(injectIntl(EditTenxFlowModal, {
   withRef: true,
 }));

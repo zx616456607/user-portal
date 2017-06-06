@@ -16,7 +16,32 @@ const utils = require('../utils')
 
 const securityUtil = require('../utils/security')
 
-// Get projects from harbor server
+exports.getProjects = function* () {
+  const registry = this.params.registry
+  const loginUser = this.session.loginUser
+  const query = this.query || {}
+  let authInfo = yield getAuthInfo(loginUser)
+  const harborAPI = new harborAPIs(getRegistryConfig(), authInfo)
+  const result = yield new Promise(function (resolve, reject) {
+    harborAPI.getProjects(query, function(err, statusCode, projects) {
+      if (err) {
+        reject(err)
+        return
+      }
+      if (statusCode > 300) {
+        reject("Error from request: " + statusCode)
+        return
+      }
+      resolve(projects)
+    })
+  })
+  this.body = {
+    server: getRegistryConfig().url,
+    data: result
+  }
+}
+
+// Search projects from harbor server
 exports.searchProjects = function* () {
   const registry = this.params.registry
   const loginUser = this.session.loginUser
