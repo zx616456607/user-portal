@@ -121,13 +121,11 @@ function harborHandler(handler) {
     const auth = yield getAuthInfo(loginUser)
     const harbor = new harborAPIs(config, auth)
     const result = yield new Promise((resolve, reject) => {
-      handler(harbor, this, (err, statusCode, jobs) => {
+      handler(harbor, this, (err, statusCode, result) => {
         if (err) {
           reject(err)
-        } else if (statusCode > 300) {
-          reject(`status code: ${statusCode}`)
         } else {
-          resolve(jobs)
+          resolve(result)
         }
       })
     })

@@ -221,6 +221,23 @@ module.exports = function (Router) {
   // Harbor integration
   router.get('/registries/:registry/projects', harborController.searchProjects)
 
+  router.get('/jobs/replication', harborController.getReplicationJobs)
+  router.delete('/jobs/replication/:id', harborController.deleteReplicationJob)
+  router.get('/jobs/replication/:id/log', harborController.getReplicationJobLogs)
+  router.get('/policies/replication', harborController.getReplicationPolicies)
+  router.post('/policies/replication', harborController.newReplicationPolicy)
+  router.get('/policies/replication/:id', harborController.getReplicationPolicy)
+  router.put('/policies/replication/:id', harborController.modifyReplicationPolicy)
+  router.put('/policies/replication/:id/enablement', harborController.enableReplicationPolicy)
+  router.get('/targets', harborController.getReplicationTargets)
+  router.post('/targets', harborController.newReplicationTarget)
+  router.post('/targets/ping', harborController.pingReplicationTarget)
+  router.post('/targets/:id/ping', harborController.pingReplicationTargetByID)
+  router.put('/targets/:id', harborController.modifyReplicationTarget)
+  router.get('/targets/:id', harborController.getReplicationTarget)
+  router.delete('/targets/:id', harborController.deleteReplicationTarget)
+  router.get('/targets/:id/policies', harborController.getReplicationTargetRelatedPolicies)
+
   // Registries of TenxCloud
   router.get('/registries/:registry', registryController.getImages)
   router.get('/registries/:registry/:user/:name/detailInfo', registryController.getImageInfo)
