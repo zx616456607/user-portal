@@ -124,6 +124,8 @@ function harborHandler(handler) {
       handler(harbor, this, (err, statusCode, result) => {
         if (err) {
           reject(err)
+        } else if (statusCode > 300) {
+          reject(`status code: ${statusCode}`)
         } else {
           resolve(result)
         }
