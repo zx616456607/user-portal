@@ -563,7 +563,7 @@ let MirrorService = React.createClass({
         success: {
           func: (result) => {
             notification.close()
-            notification.success('harbor服务配置保存成功')
+            notification.success('镜像服务配置保存成功')
             const { form } = self.props
             const { setFieldsValue } = form
             self.handleMirror()
@@ -590,7 +590,7 @@ let MirrorService = React.createClass({
             } else {
               msg = err.message
             }
-            notification.error('harbor服务配置保存失败 => ' + msg)
+            notification.error('镜像服务配置保存失败 => ' + msg)
             self.setState({
               canClick: true
             })
@@ -602,11 +602,11 @@ let MirrorService = React.createClass({
   // 镜像服务地址校验规则
   checkMirror(rule, value, callback) {
     if (!value) {
-      callback([new Error('请填写harbor服务地址')])
+      callback([new Error('请填写镜像服务地址')])
       return
     }
     if (!/^(http:\/\/|https\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
-      return callback('请填入合法的harbor服务地址')
+      return callback('请填入合法的镜像服务地址')
     }
     callback()
   },
@@ -643,7 +643,7 @@ let MirrorService = React.createClass({
               <img src={MirrorImg} alt="镜像服务" />
             </div>
             <div className="contentkeys"> 
-              <div className="key">harbor服务地址</div>
+              <div className="key">镜像服务地址</div>
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">

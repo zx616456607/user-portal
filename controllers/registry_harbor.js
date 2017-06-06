@@ -11,11 +11,9 @@
 const logger     = require('../utils/logger.js').getLogger("registry_harbor")
 const harborAPIs = require('../registry/lib/harborAPIs')
 const registryConfigLoader = require('../registry/registryConfigLoader')
-const apiFactory = require('../services/api_factory')
 const constants = require('../constants')
 const utils = require('../utils')
 
-var HarborAuthCache = []
 const securityUtil = require('../utils/security')
 
 // Get projects from harbor server
