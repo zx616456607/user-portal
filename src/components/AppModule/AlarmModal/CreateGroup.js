@@ -221,7 +221,7 @@ let CreateAlarmGroup = React.createClass({
         }
       })
       if (!this.props.isModify) {
-        createNotifyGroup(body, {
+        createNotifyGroup(clusterID, body, {
           success: {
             func: (result) => {
               funcs.scope.setState({ createGroup: false, alarmModal: true})
@@ -253,7 +253,7 @@ let CreateAlarmGroup = React.createClass({
             isAsync: true
           }})
       } else {
-        modifyNotifyGroup(data.groupID, body, {
+        modifyNotifyGroup(data.groupID,clusterID, body, {
           success: {
             func: (result) => {
               funcs.scope.setState({ modifyGroup: false, alarmModal: true})

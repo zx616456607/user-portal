@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { getSettingList, deleteSetting, updateEnable, ignoreSetting } from '../../actions/alert'
+import { getSettingList, deleteSetting, batchEnable, batchDisable, ignoreSetting } from '../../actions/alert'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { calcuTime, formatDate } from '../../common/tools'
@@ -155,28 +155,49 @@ class AlarmStrategy extends Component {
     let enables = enable == 'start' ? 1: 0
     const noticeText = enable== 'start' ? '策略启动中...':'策略停止中...'
     const body = {
-      strategies:[{
-        enable: enables,
-        strategyID: strategyID.toString()
-      }]
+      strategyIDs:[strategyID.toString()]
     }
+    // const body = {
+    //   strategies:[{
+    //     enable: enables,
+    //     strategyID: strategyID.toString()
+    //   }]
+    // }
     const notifcation = new NotificationHandler()
     notifcation.spin(noticeText)
-    this.props.updateEnable(this.props.cluster, body, {
-      success: {
-        func: ()=> {
-          notifcation.close()
-          loadStrategy(_this)
+    if (enables) {
+      this.props.batchEnable(this.props.cluster, body, {
+        success: {
+          func: ()=> {
+            notifcation.close()
+            loadStrategy(_this)
+          },
+          isAsync: true
         },
-        isAsync: true
-      },
-      failed: {
-        func: ()=> {
-          notifcation.close()
-          notifcation.error('策略修改失败！')
+        failed: {
+          func: ()=> {
+            notifcation.close()
+            notifcation.error('策略修改失败！')
+          }
         }
-      }
-    })
+      })
+    }else{
+      this.props.batchDisable(this.props.cluster, body, {
+        success: {
+          func: ()=> {
+            notifcation.close()
+            loadStrategy(_this)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: ()=> {
+            notifcation.close()
+            notifcation.error('策略修改失败！')
+          }
+        }
+      })
+    }
     _this.setState({enable: false})
   }
   handignoreSetting() {
@@ -408,6 +429,7 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   getSettingList,
   deleteSetting,
-  updateEnable, // start or stop
+  batchEnable,
+  batchDisable,
   ignoreSetting
 })(AlarmStrategy)

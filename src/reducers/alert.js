@@ -97,11 +97,21 @@ export default function alert(state = {
     }, state.settingInstant, action, {
       overwrite: false
     }),
-    updateEnable: reducerFactory({
+    batchEnable: reducerFactory({
       REQUEST: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_REQUEST,
       SUCCESS: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_SUCCESS,
       FAILURE: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_FAILURE
     }, state.updteEnable, action, option),
+    batchDisable: reducerFactory({
+      REQUEST: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_REQUEST,
+      SUCCESS: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_SUCCESS,
+      FAILURE: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_FAILURE
+    }, state.updteEnable, action, option),
+    // updateEnable: reducerFactory({
+    //   REQUEST: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_REQUEST,
+    //   SUCCESS: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_SUCCESS,
+    //   FAILURE: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_FAILURE
+    // }, state.updteEnable, action, option),
     updateSendEmail: reducerFactory({
       REQUEST: ActionTypes.ALERT_UPDATE_SETTING_SENDEMAIL_REQUEST,
       SUCCESS: ActionTypes.ALERT_UPDATE_SETTING_SENDEMAIL_SUCCESS,

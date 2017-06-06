@@ -870,6 +870,9 @@ function formatResourceName(resourceName, resourceId) {
       }
       return ids.join(',')
     }
+    if (newBody.ids && Array.isArray(newBody.ids) && newBody.ids.length > 0){
+      return newBody.ids.join(",")
+    }
   } else {
     if(resourceName.length == 0) {
       if(resourceId.length == 0) {

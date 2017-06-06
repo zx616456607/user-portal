@@ -15,7 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../common/notification_handler'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { getAlertSetting, deleteRecords, getSettingList, deleteSetting, updateEnable, ignoreSetting, getSettingInstant } from '../../actions/alert'
+import { getAlertSetting, deleteRecords, getSettingList, deleteSetting, batchEnable, batchDisable, ignoreSetting, getSettingInstant } from '../../actions/alert'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 import no_alarm from '../../assets/img/no_data/no_alarm.png'
@@ -760,17 +760,11 @@ class AlarmSetting extends Component {
         notifi.error('该策略已启用')
         return
       }
-      strategy.push({
-        strategyID: selectStrategy.strategyID,
-        enable: 1
-      })
+      strategy.push(selectStrategy.strategyID)
     } else {
       data.forEach(item => {
         if(item.checked) {
-          strategy.push({
-            strategyID: item.strategyID,
-            enable: 1
-          })
+          strategy.push(item.strategyID)
         }
       })
     }
@@ -782,9 +776,9 @@ class AlarmSetting extends Component {
      this.setState({
       showStart: false,
     })
-    const { clusterID, updateEnable, getSettingList } = this.props
-    updateEnable(clusterID, {
-      strategies: strategy
+    const { clusterID, batchEnable, getSettingList } = this.props
+    batchEnable(clusterID, {
+      strategyIDs: strategy
     }, {
       success: {
         func: () => {
@@ -815,17 +809,11 @@ class AlarmSetting extends Component {
         notifi.error('该策略已停用')
         return
       }
-      strategy.push({
-        strategyID: selectStrategy.strategyID,
-        enable: 0
-      })
+      strategy.push(selectStrategy.strategyID)
     } else {
       data.forEach(item => {
         if(item.checked) {
-          strategy.push({
-            strategyID: item.strategyID,
-            enable: 0
-          })
+          strategy.push(item.strategyID)
         }
       })
     }
@@ -838,9 +826,9 @@ class AlarmSetting extends Component {
     this.setState({
       showStop: false,
     })
-    const { clusterID, updateEnable, getSettingList } = this.props
-    updateEnable(clusterID, {
-      strategies: strategy
+    const { clusterID, batchEnable, getSettingList } = this.props
+    batchDisable(clusterID, {
+      strategyIDs: strategy
     }, {
       success: {
         func: () => {
@@ -1036,6 +1024,7 @@ export default connect(mapStateToProps, {
   deleteRecords,
   getSettingList,
   deleteSetting,
-  updateEnable,
+  batchEnable,
+  batchDisable,
   ignoreSetting,
 })(AlarmSetting)

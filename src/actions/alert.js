@@ -113,8 +113,8 @@ export const ALERT_BATCH_DELETE_GROUPS_REQUEST = 'ALERT_BATCH_DELETE_GROUPS_REQU
 export const ALERT_BATCH_DELETE_GROUPS_SUCCESS = 'ALERT_BATCH_DELETE_GROUPS_SUCCESS'
 export const ALERT_BATCH_DELETE_GROUPS_FAILURE = 'ALERT_BATCH_DELETE_GROUPS_FAILURE'
 
-function fetchdeleteNotifyGroups(groupIDs, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/groups/batch-delete`
+function fetchdeleteNotifyGroups(groupIDs, clusterID, callback) {
+  let endpoint = `${API_URL_PREFIX}/cluster/${clusterID}/alerts/groups/batch-delete`
   return {
     [FETCH_API]: {
       types: [ALERT_BATCH_DELETE_GROUPS_REQUEST, ALERT_BATCH_DELETE_GROUPS_SUCCESS, ALERT_BATCH_DELETE_GROUPS_FAILURE],
@@ -131,9 +131,9 @@ function fetchdeleteNotifyGroups(groupIDs, callback) {
   }
 }
 
-export function deleteNotifyGroups(groupIDs, callback) {
+export function deleteNotifyGroups(groupIDs, clusterID, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchdeleteNotifyGroups(groupIDs, callback))
+    return dispatch(fetchdeleteNotifyGroups(groupIDs, clusterID, callback))
   }
 }
 
@@ -142,7 +142,7 @@ export const ALERT_SEND_ALERTNOTIFY_INVITATION_SUCCESS = 'ALERT_SEND_ALERTNOTIFY
 export const ALERT_SEND_ALERTNOTIFY_INVITATION_FAILURE = 'ALERT_SEND_ALERTNOTIFY_INVITATION_FAILURE'
 
 function fetchSendAlertNotifyInvitation(email, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/invitations`
+  let endpoint = `${API_URL_PREFIX}/email/invitations`
   return {
     [FETCH_API]: {
       types: [ALERT_SEND_ALERTNOTIFY_INVITATION_REQUEST, ALERT_SEND_ALERTNOTIFY_INVITATION_SUCCESS, ALERT_SEND_ALERTNOTIFY_INVITATION_FAILURE],
@@ -170,7 +170,7 @@ export const ALERT_GET_ALERTNOTIFY_INVITATION_SUCCESS = 'ALERT_GET_ALERTNOTIFY_I
 export const ALERT_GET_ALERTNOTIFY_INVITATION_FAILURE = 'ALERT_GET_ALERTNOTIFY_INVITATION_FAILURE'
 
 function fetchGetAlertNotifyInvitationStatus(email, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/invitations/status?emails=${email}`
+  let endpoint = `${API_URL_PREFIX}/email/invitations/status?emails=${email}`
   return {
     [FETCH_API]: {
       types: [ALERT_GET_ALERTNOTIFY_INVITATION_REQUEST, ALERT_GET_ALERTNOTIFY_INVITATION_SUCCESS, ALERT_GET_ALERTNOTIFY_INVITATION_FAILURE],
@@ -192,7 +192,7 @@ export const ALERT_CREATE_NOTIFY_GROUP_REQUEST = 'ALERT_CREATE_NOTIFY_GROUP_REQU
 export const ALERT_CREATE_NOTIFY_GROUP_SUCCESS = 'ALERT_CREATE_NOTIFY_GROUP_SUCCESS'
 export const ALERT_CREATE_NOTIFY_GROUP_FAILURE = 'ALERT_CREATE_NOTIFY_GROUP_FAILURE'
 
-function fetchCreateNotifyGroup(body, clusterID, callback) {
+function fetchCreateNotifyGroup(clusterID, body, callback) {
   let endpoint = `${API_URL_PREFIX}/cluster/${clusterID}/alerts/groups`
   return {
     [FETCH_API]: {
@@ -208,9 +208,9 @@ function fetchCreateNotifyGroup(body, clusterID, callback) {
   }
 }
 
-export function createNotifyGroup(body, clusterID, callback) {
+export function createNotifyGroup(clusterID, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchCreateNotifyGroup(body, clusterID, callback))
+    return dispatch(fetchCreateNotifyGroup(clusterID, body, callback))
   }
 }
 
@@ -219,8 +219,8 @@ export const ALERT_MODIFY_NOTIFY_GROUP_REQUEST = 'ALERT_MODIFY_NOTIFY_GROUP_REQU
 export const ALERT_MODIFY_NOTIFY_GROUP_SUCCESS = 'ALERT_MODIFY_NOTIFY_GROUP_SUCCESS'
 export const ALERT_MODIFY_NOTIFY_GROUP_FAILURE = 'ALERT_MODIFY_NOTIFY_GROUP_FAILURE'
 
-function fetchModifyNotifyGroup(groupID, body, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/groups/${groupID}`
+function fetchModifyNotifyGroup(groupID, clusterID, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/cluster/${clusterID}/alerts/groups/${groupID}`
   return {
     [FETCH_API]: {
       types: [ALERT_MODIFY_NOTIFY_GROUP_REQUEST, ALERT_MODIFY_NOTIFY_GROUP_SUCCESS, ALERT_MODIFY_NOTIFY_GROUP_FAILURE],
@@ -235,9 +235,9 @@ function fetchModifyNotifyGroup(groupID, body, callback) {
   }
 }
 
-export function modifyNotifyGroup(groupID, body, callback) {
+export function modifyNotifyGroup(groupID, clusterID, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchModifyNotifyGroup(groupID, body, callback))
+    return dispatch(fetchModifyNotifyGroup(groupID, clusterID, body, callback))
   }
 }
 
@@ -293,6 +293,27 @@ function fetchAddAlertSetting(cluster, body, callback){
 export function addAlertSetting(cluster, body, callback) {
   return (dispath, getState) => {
     return dispath(fetchAddAlertSetting(cluster, body, callback))
+  }
+}
+
+function fetchUpdateAlertSetting(cluster, strategyID, body, callback){
+  return {
+    [FETCH_API]: {
+      types: [ALERT_SETTING_ADD_REQUEST, ALERT_SETTING_ADD_SUCCESS, ALERT_SETTING_ADD_FAILURE],
+      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/${strategyID}`,
+      schema: {},
+      options: {
+        body: body,
+        method: 'PUT'
+      },
+    },
+    callback
+  }
+}
+
+export function updateAlertSetting(cluster, strategyID, body, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchUpdateAlertSetting(cluster, strategyID, body, callback))
   }
 }
 
@@ -366,11 +387,53 @@ export const ALERT_UPDATE_SETTING_ENABLE_SUCCESS = 'ALERT_UPDATE_SETTING_ENABLE_
 export const ALERT_UPDATE_SETTING_ENABLE_FAILURE = 'ALERT_UPDATE_SETTING_ENABLE_FAILURE'
 
 
+function fetchBatchEnable(cluster, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ALERT_UPDATE_SETTING_ENABLE_REQUEST, ALERT_UPDATE_SETTING_ENABLE_SUCCESS, ALERT_UPDATE_SETTING_ENABLE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/batch-enable`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function batchEnable(cluster, body, callback) {
+  return (dispath, getState)  => {
+    dispath(fetchBatchEnable(cluster, body, callback))
+  }
+}
+
+function fetchBatchDisable(cluster, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ALERT_UPDATE_SETTING_ENABLE_REQUEST, ALERT_UPDATE_SETTING_ENABLE_SUCCESS, ALERT_UPDATE_SETTING_ENABLE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/batch-disable`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function batchDisable(cluster, body, callback) {
+  return (dispath, getState)  => {
+    dispath(fetchBatchDisable(cluster, body, callback))
+  }
+}
+// TODO: remove this
 function fetchUpdateEnable(cluster, body, callback) {
   return {
     [FETCH_API]: {
       types: [ALERT_UPDATE_SETTING_ENABLE_REQUEST, ALERT_UPDATE_SETTING_ENABLE_SUCCESS, ALERT_UPDATE_SETTING_ENABLE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/enable`,
+      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/batch-enable`,
       schema: {},
       options: {
         method: 'PUT',
@@ -528,7 +591,7 @@ function fetchInvitations(body, callback) {
     [FETCH_API]: {
       types: [SEND_INVITATIONS_REQUEST, SEND_INVITATIONS_SUCCESS, SEND_INVITATIONS_FAILURE],
       schema: {},
-      endpoint: `/alerts/invitations/join-code?${body}`,
+      endpoint: `/email/invitations/join-code?${body}`,
     },
     callback
   }
@@ -544,8 +607,8 @@ export const GET_SETTINGLLIST_FROM_SERVICE_APP_REQUEST = 'GET_SETTINGLLIST_FROM_
 export const GET_SETTINGLLIST_FROM_SERVICE_APP_SUCCESS = 'GET_SETTINGLLIST_FROM_SERVICE_APP_SUCCESS'
 export const GET_SETTINGLLIST_FROM_SERVICE_APP_FAILURE = 'GET_SETTINGLLIST_FROM_SERVICE_APP_FAILURE'
 
-function fetchSettingListfromserviceorapp(query, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/group-strategies`
+function fetchSettingListfromserviceorapp(query, cluster, callback) {
+  let endpoint = `${API_URL_PREFIX}/cluster/:cluster/alerts/group-strategies`
   endpoint += `?${toQuerystring(query)}`
   return {
     [FETCH_API]: {
@@ -560,8 +623,8 @@ function fetchSettingListfromserviceorapp(query, callback) {
   }
 }
 
-export function getSettingListfromserviceorapp(query, callback) {
+export function getSettingListfromserviceorapp(query, cluster, callback) {
   return (dispath, getState)  => {
-    dispath(fetchSettingListfromserviceorapp(query, callback))
+    dispath(fetchSettingListfromserviceorapp(query, cluster, callback))
   }
 }

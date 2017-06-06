@@ -72,7 +72,7 @@ class AlarmGroup extends Component {
     this.setState({
       selectedRowKeys: [],
     })
-    deleteNotifyGroups(this.state.deletingGroupIDs, {
+    deleteNotifyGroups(this.state.deletingGroupIDs, clusterID, {
       success: {
         func: (result) => {
           this.closeDeleteModal()
@@ -274,6 +274,7 @@ class AlarmGroup extends Component {
     // })
 
     const _this = this
+    const clusterID = this.props.cluster.clusterID
     const rowSelection = {
       onChange(selectedRowKeys, selectedRows) {
         _this.setState({
@@ -292,7 +293,7 @@ class AlarmGroup extends Component {
               <i className="fa fa-plus" style={{marginRight:'5px'}}/>
               创建
             </Button>
-            <Button size="large" type="ghost" onClick={() => this.props.loadNotifyGroups()}><i className="fa fa-refresh" /> 刷新</Button>
+            <Button size="large" type="ghost" onClick={() => this.props.loadNotifyGroups("", clusterID)}><i className="fa fa-refresh" /> 刷新</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length === 0} icon="delete" onClick={(e)=> this.openDeleteModal(e,this.getSelectedGroups())} type="ghost">删除</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length !== 1} icon="edit" onClick={() => this.openModifyModal(this.getModifyingGroup())} type="ghost">修改</Button>
             <div className="Search">
@@ -337,8 +338,8 @@ class AlarmGroup extends Component {
             footer={null}
           >
             <CreateAlarm funcs={modalFunc}
-            afterCreateFunc={() => this.props.loadNotifyGroups()}
-            afterModifyFunc={() => this.props.loadNotifyGroups()}
+            afterCreateFunc={() => this.props.loadNotifyGroups("", clusterID)}
+            afterModifyFunc={() => this.props.loadNotifyGroups("", clusterID)}
             isModify={!!this.state.modifyGroup}
             data={this.state.modifyingGroupInfo}
             createGroup={this.state.createGroup}
@@ -359,9 +360,9 @@ class AlarmGroup extends Component {
 function mapStateToProps(state, props) {
   const { groups } = state.alert
   const { cluster } = state.entities.current
-  if (!groups) {
-    return props
-  }
+  if (!groups && !cluster) {
+   return props
+ }
   let defaultData = {
       isFetching: false,
       result:{data:[]}
