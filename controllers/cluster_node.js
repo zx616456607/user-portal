@@ -113,7 +113,7 @@ exports.getAddNodeCMD = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
   const spi = apiFactory.getApi(loginUser)
-  const result = yield spi.clusters.getBy([cluster, 'add'])
+  const result = yield spi.clusters.getBy([cluster, 'nodes', 'add'])
   this.body = result.data
 }
 // cluster node detail pod list

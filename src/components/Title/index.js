@@ -43,8 +43,8 @@ class Title extends Component {
 function mapStateToProps(state,props) {
   // state.entities.loginUser.info
   const { loginUser } = state.entities
-  const { oemInfo } = loginUser.info
-  const { productName } = oemInfo.company
+  const oemInfo = loginUser.info.oemInfo || {}
+  const { productName } = oemInfo.company || {}
   return {
     productName
   }

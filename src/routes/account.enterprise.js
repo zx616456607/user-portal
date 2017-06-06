@@ -38,7 +38,8 @@ const accountRoutes = [
   {
     path: 'ldap',
     component: require('../components/AccountModal/LDAP').default,
-  }
+  },
+  
 ]
 
 export default accountRoutes
