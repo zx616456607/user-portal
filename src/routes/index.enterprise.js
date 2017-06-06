@@ -170,6 +170,17 @@ const rootRoutes = {
         })
       },
     }, {
+      path: 'tenant_manage',
+      component: require('../containers/Tenant').default,
+      indexRoute: {
+        component: require('../components/TenantManage').default,
+      },
+      getChildRoutes: (location, cb) => {
+        require.ensure([], function (require) {
+          cb(null, require('./tenant').default)
+        })
+      },
+    }, {
       path: '*',
       component: require('../containers/ErrorPage').default,
     }],

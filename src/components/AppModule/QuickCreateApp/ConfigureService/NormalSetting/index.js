@@ -22,6 +22,7 @@ import {
  } from '../../../../../constants'
 import './style/index.less'
 import TagDropDown from '../../../../ClusterModule/TagDropdown'
+import cloneDeep from 'lodash/cloneDeep'
 
 const FormItem = Form.Item
 
@@ -30,6 +31,7 @@ const Normal = React.createClass({
     return {
       replicasInputDisabled: false,
       summary: [],
+      createApp: true,
     }
   },
   componentWillMount() {
@@ -40,15 +42,20 @@ const Normal = React.createClass({
     if (!fields || !fields.bindNode) {
       this.setBindNodeToDefault()
     }
+    const { listNodes, clusterID } = currentCluster
     // get cluster nodes for bind
-    getNodes(currentCluster.clusterID, {
-      failed: {
-        func: () => {
-          //
-        },
-      }
-    })
-    getClusterLabel(currentCluster.clusterID)
+    if (listNodes === 2 || listNodes === 4) {
+      getNodes(clusterID, {
+        failed: {
+          func: () => {
+            //
+          },
+        }
+      })
+    }
+    if (listNodes === 3 || listNodes === 4) {
+      getClusterLabel(clusterID)
+    }
   },
   componentDidMount(){
     const { fields } = this.props
@@ -107,35 +114,45 @@ const Normal = React.createClass({
     const { summary } = this.state
     const arr = summary.map((item, index) => {
       return (
-        <Tag closable color="blue" key={item.key + index} afterClose={() => this.handleClose(item)}
-          style={{ width: '100%' }}>
+        <div color="blue" key={item.key + index} className='tagStyle'>
           <span>{item.key}</span>
           <span className='point'>:</span>
           <span>{item.value}</span>
-        </Tag>
+          <Icon type="cross" onClick={() => this.handleClose(item)} className='cross'/>
+        </div>
       )
     })
     return arr
   },
   handleClose(item){
     const { summary } = this.state
-    for(let i=0;i<summary.length;i++){
-      if(summary[i].key == item.key && summary[i].value == item.value){
-        summary.splice(i, 1)
+    const tag = cloneDeep(summary)
+    for(let i=0;i<tag.length;i++){
+      if(tag[i].key == item.key && tag[i].value == item.value){
+        tag.splice(i, 1)
       }
     }
+    this.setState({
+      summary: tag
+    })
     const { form } = this.props
-    form.setFieldsValue({'bindLabel': summary})
+    form.setFieldsValue({'bindLabel': tag})
   },
   handledDropDownSetvalues(arr){
     const { form } = this.props
-    form.setFieldsValue({'bindLabel': arr})
+    const { summary } = this.state
+    form.setFieldsValue({'bindLabel': summary})
   },
   handleLabelTemplate(){
-    const { labels, form } = this.props
+    const { labels, form, nodes } = this.props
     const { getFieldProps } = form
+    const { summary } = this.state
     const scope = this
     const bindLabelProps = getFieldProps('bindLabel')
+    let nodesArray = this.matchedNodes(summary, nodes)
+    let nodesNameList = nodesArray.map((item, index) => {
+      return <span key={item.nodeName} style={{paddingRight:'5px'}}>{item.nodeName}</span>
+    })
     return <div className='hostlabel'>
       <TagDropDown
         labels={labels}
@@ -143,15 +160,28 @@ const Normal = React.createClass({
         scope={scope}
         appcallback={this.handledDropDownSetvalues}
       />
-      <div className='labelcontainer'>
-        <Form.Item {...bindLabelProps}>
-          {
-            this.state.summary.length > 0
-              ? <div>{ this.formTagContainer() }</div>
-              : null
-          }
-        </Form.Item>
+      <div className='tips'>
+        满足条件的节点：
+        {
+          summary.length
+          ? <span>
+            <Tooltip title={nodesNameList.length ? nodesNameList : '无'}>
+              <span className='num'>{nodesArray.length}</span>
+            </Tooltip>
+            个
+          </span>
+          : <span>未选标签，使用系统调度</span>
+        }
       </div>
+      {
+        this.state.summary.length > 0
+        ? <div className='labelcontainer'>
+          <Form.Item {...bindLabelProps}>
+            <div>{ this.formTagContainer() }</div>
+          </Form.Item>
+        </div>
+        : <span></span>
+      }
     </div>
   },
   handelhostnameTemplate(){
@@ -259,6 +289,50 @@ const Normal = React.createClass({
           </Row>
         </div>
     }
+  },
+  matchedNodes(labels, nodes) {
+    const matched = []
+    const multiMap = this.labelsToMultiMap(labels)
+    const nodeNames = Object.getOwnPropertyNames(nodes)
+    for (let i = 0; i < nodeNames.length; i++) {
+      const name = nodeNames[i]
+      const node = nodes[name]
+      if (this.isNodeMatchLabels(node, multiMap)) {
+        matched.push({
+          nodeName: name,
+          labels: node,
+        })
+      }
+    }
+    return matched
+  },
+  isNodeMatchLabels(node, multiMap) {
+    const labelKeys = Object.getOwnPropertyNames(multiMap)
+    for (let i = 0; i < labelKeys.length; i++) {
+      const labelKey = labelKeys[i]
+      if (!node.hasOwnProperty(labelKey)) {
+        return false
+      }
+      const nodeValue = node[labelKey]
+      const labelValues = multiMap[labelKey]
+      if (labelValues.indexOf(nodeValue) === -1) {
+        return false
+      }
+    }
+    return true
+  },
+  labelsToMultiMap(labels) {
+    const multiMap = {}
+    labels.forEach(label => {
+      const key = label.key
+      const value = label.value
+      if (multiMap.hasOwnProperty(key)) {
+        multiMap[key].push(value)
+      } else {
+        multiMap[key] = [value]
+      }
+    })
+    return multiMap
   },
   render() {
     const {
@@ -375,13 +449,17 @@ function mapStateToProps(state, props) {
   const { clusterNodes } = cluster_nodes
   const { clusterLabel } = cluster_nodes
   let labels = []
+  let nodes = {}
   if(clusterLabel[cluster.clusterID] && clusterLabel[cluster.clusterID].result && clusterLabel[cluster.clusterID].result.summary){
-    labels = clusterLabel[cluster.clusterID].result.summary
+    nodes = clusterLabel[cluster.clusterID].result.nodes
+    let summary = clusterLabel[cluster.clusterID].result.summary
+    labels = summary.filter(label => label.targets && label.targets.length && label.targets.length > 0)
   }
   return {
     currentCluster: cluster,
     clusterNodes: clusterNodes[cluster.clusterID] || [],
     labels,
+    nodes,
   }
 }
 

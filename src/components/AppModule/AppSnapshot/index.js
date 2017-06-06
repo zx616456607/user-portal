@@ -54,6 +54,7 @@ class Snapshot extends Component {
       delelteSnapshotNum: false,
       RowDelete: false,
       TopDelete: false,
+      currentVolume: {},
     }
   }
 
@@ -237,6 +238,7 @@ class Snapshot extends Component {
         if(snapshotDataList[key].volume == storageList[pool].storageList[i].name){
           this.setState({
             currentSnapshot: snapshotDataList[key],
+            currentVolume: storageList[pool].storageList[i]
           })
           if(storageList[pool].storageList[i].isUsed == true){
             this.setState({
@@ -337,10 +339,10 @@ class Snapshot extends Component {
     }
     this.onSelectChange(arr)
   }
-  
+
   render() {
     const { snapshotDataList } = this.props
-    const { selectedRowKeys, DeleteSnapshotButton, currentSnapshot, delelteSnapshotNum } = this.state
+    const { selectedRowKeys, DeleteSnapshotButton, currentSnapshot, delelteSnapshotNum, currentVolume } = this.state
     function iconclassName(text){
       switch(text){
         case '正常':
@@ -362,10 +364,12 @@ class Snapshot extends Component {
         title:'快照名称',
         key:'name',
         dataIndex:'name',
+        width:'14%',
       },{
         title:'状态',
         //key:'Status',
         //dataIndex:'Status',
+        width:'12%',
         render: () => <div className={iconclassName('正常')}>
           <i className='fa fa-circle icon' aria-hidden="true"></i>
           <span>正常</span>
@@ -374,16 +378,19 @@ class Snapshot extends Component {
         title:'格式',
         key:'type',
         dataIndex:'fstype',
+        width:'12%',
         render: (fstype) => <div>{fstype}</div>
       },{
         title:'大小',
         key:'size',
         dataIndex:'size',
+        width:'12%',
         render: (size) => <div>{size} M</div>
       },{
         title:'关联卷',
         key:'volume',
         dataIndex:'volume',
+        width:'12%',
         render: (volume) => <div>
           <Link to={`/app_manage/storage/${DEFAULT_IMAGE_POOL}/${this.props.cluster}/${volume}`} >
             {volume}
@@ -466,16 +473,16 @@ class Snapshot extends Component {
                 </span>
                 <span className='imgtipsBox'>
                   <div className='right'>当前状态</div>
-                  <div className='right'>格式<span className='item'>{currentSnapshot.fstype}</span></div>
+                  <div className='right'>格式<span className='item'>{currentVolume.format}</span></div>
                 </span>
               </div>
             </div>
             <div className='tips'>
               存储卷
               <span className='name'>{currentSnapshot.volume}</span>
-              即将回滚至时间
+              即将回滚至
               <span className='time'>{formatDate(currentSnapshot.createTime)}</span>
-              此刻之后的数据将被清楚，请谨慎操作！
+              ，此刻之后的数据将被清除，请谨慎操作！
             </div>
             <div className='warning'>
               <i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>

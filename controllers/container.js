@@ -80,7 +80,7 @@ exports.getContainerDetailEvents = function* () {
   const containerName = this.params.container_name;
   const loginUser = this.session.loginUser;
   const api = apiFactory.getK8sApi(loginUser);
-  const result = yield api.getBy([cluster, 'instances', containerName, 'events'])
+  const result = yield api.getBy([cluster, 'events', 'instances', containerName, 'events'])
   const events = result.data || {}
   /*pod.events = []
   if (pod.data) {
@@ -100,7 +100,7 @@ exports.getContainerLogs = function* () {
   const containerName = this.params.name
   const reqData = this.request.body
   const api = apiFactory.getK8sApi(this.session.loginUser)
-  const result = yield api.createBy([cluster, 'instances', containerName, 'logs'], null, reqData)
+  const result = yield api.createBy([cluster, 'logs', 'instances', containerName, 'logs'], null, reqData)
   this.status = result.code
   this.body = result
 }

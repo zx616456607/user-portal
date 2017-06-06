@@ -241,6 +241,12 @@ class AlarmStrategy extends Component {
       step: step
     })
   }
+  showAlert() {
+    this.setState({alarmModal: true,isEdit: false})
+    setTimeout(()=> {
+      document.getElementById('name').focus()
+    },500)
+  }
   render() {
     const columns = [
       {
@@ -312,7 +318,7 @@ class AlarmStrategy extends Component {
     return (
       <div className="alarmStrategy">
         <div className="topRow">
-           <Button size="large" type="primary" onClick={()=> this.setState({alarmModal: true,isEdit: false})}><i className="fa fa-plus" /> 创建告警</Button>
+           <Button size="large" type="primary" onClick={()=> this.showAlert()}><i className="fa fa-plus" /> 创建告警</Button>
           <Button size="large" type="primary" onClick={()=>　loadStrategy(this)}><i className="fa fa-refresh" /> 刷新</Button>
           <Button icon="delete" size="large" type="ghost" onClick={() => this.setState({ deleteModal: true })} disabled={(this.state.selectedRowKeys.length == 0)}>删除</Button>
         </div>

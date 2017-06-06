@@ -173,7 +173,7 @@ let HostInfo = React.createClass({
       }
     ];
 
-    const { hostInfo, instant, podeList, foreverPodNumber } = this.props
+    const { hostInfo, instant, podeList, foreverPodNumber,func } = this.props
     const memTotal = isNaN(hostInfo[camelize('memory_total_kb')] /1024) ? '' : Math.floor(hostInfo[camelize('memory_total_kb')] / 1024 / 1024 *100) /100
     const useMem = (instant.memory /1024  / hostInfo[camelize('memory_total_kb')] *100).toFixed(2)
     return (
@@ -227,9 +227,9 @@ let HostInfo = React.createClass({
             <ManageLabelModal
               manageLabelModal={this.state.manageLabelModal}
               callback={this.callbackManageLabelModal}
-              userCreateLabel= {this.state.nodeLabel}
-              nodeName={this.props.func.nodeName}
-              clusterID= {this.props.func.clusterID}
+              userCreateLabel= { func.nodeLabel }
+              nodeName={ func.nodeName }
+              clusterID= { func.clusterID }
               isNode={true}
               footer={false}
             />

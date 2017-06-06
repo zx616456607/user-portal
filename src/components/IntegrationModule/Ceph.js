@@ -59,6 +59,7 @@ class Ceph extends Component {
   }
   loadUrl(scope) {
     const { clusterID } = this.props
+    const notific = new NotificationHandler()
     scope.props.GetCalamariUrl({clusterID},{
       success:{
         func:(ret) => {
@@ -66,13 +67,19 @@ class Ceph extends Component {
             scope.setState({setting: true})
             return
           }
+          if (!ret.data.calamariUrl) {
+            scope.setState({setting: true})
+            notific.info('请设置地址')
+            return
+          }
           scope.setState({calamariUrl:ret.data.calamariUrl,setting:false})
         }
       },
       failed:{
         func:()=> {
+          notific.close()
           scope.setState({setting: true})
-          new NotificationHandler().error('获取地址失败！','地址无效')
+          notific.error('获取地址失败！','地址无效')
         }
       }
     })

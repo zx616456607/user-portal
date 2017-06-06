@@ -19,10 +19,7 @@ const appManageRoutes = [{
   indexRoute: {
     component: require('../components/AppModule/AppCreate/CreateModel').default,
   },
-  childRoutes: [/*{
-    path: 'fast_create',
-    component: require('../components/AppModule/AppCreate/ServiceList').default,
-  }, */{
+  childRoutes: [{
     path: 'app_store',
     component: require('../components/AppModule/AppCreate/AppStore').default,
   }, {

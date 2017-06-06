@@ -262,7 +262,7 @@ let ConfigureService = React.createClass({
     setFieldsValue(fieldsValues)
   },
   checkAppName(rule, value, callback) {
-    if (!value) {
+    if (!value || this.props.action === 'addService') {
       return callback()
     }
     const { current, checkAppName } = this.props
@@ -333,9 +333,9 @@ let ConfigureService = React.createClass({
     }, ASYNC_VALIDATOR_TIMEOUT)
   },
   getAppNameDisabled() {
-    const { mode, allFields, form } = this.props
+    const { mode, allFields, form, action } = this.props
     const fieldsKeys = Object.keys(allFields) || []
-    if (mode === 'edit' || fieldsKeys.length > 1) {
+    if (mode === 'edit' || fieldsKeys.length > 1 || action === 'addService') {
       return true
     }
     return false

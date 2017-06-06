@@ -195,6 +195,7 @@ let CodeStoreListModal = React.createClass({
     return (
       <div id='CodeStoreListModal' key='CodeStoreListModal'>
         <Alert message="Tips：无权访问已注销代码仓库的代码源，若无法获取代码源分支，下次重新关联代码仓库后可正常使用" />
+        <Button type='primary' onClick={()=> browserHistory.push('/ci_cd/coderepo/repos')}>去关联代码库</Button>
         <div className='titleBox'>
           <div className='commonTitle'>
             <FormattedMessage {...menusText.name} />

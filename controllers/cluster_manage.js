@@ -11,6 +11,7 @@
  */
 'use strict'
 
+const registryAPIs = require('../registry/lib/registryAPIs')
 const apiFactory = require('../services/api_factory')
 const constants = require('../constants')
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
@@ -159,7 +160,7 @@ exports.getNodes = function* (){
 exports.getAddClusterCMD = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const result = yield api.clusters.getBy(['add'])
+  const result = yield api.clusters.getBy(['nodes', 'add'])
   this.body = result.data
 }
 
@@ -264,6 +265,8 @@ exports.createPlugins = function* () {
     err.status = 400
     throw err
   }
+  const registry = new registryAPIs()
+  templateContent = templateContent.replace(/\{\{registry\}\}/g, registry.getRegistryHost())
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.createBy([cluster, 'plugins'], null, {
     cluster: cluster,

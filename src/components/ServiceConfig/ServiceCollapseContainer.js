@@ -226,9 +226,9 @@ let CreateConfigFileModal = React.createClass({
             </FormItem>
             <FormItem>
               <Upload beforeUpload={(file) => this.beforeUpload(file)} showUploadList={false} style={{marginLeft: '38px'}} ref={(instance) => this.uploadInput = instance}>
-                <span style={{width: '350px', display:'inline-block'}}>{this.state.filePath}</span>
+                <span style={{width: '325px', display:'inline-block'}}>{this.state.filePath}</span>
                 <Button type="ghost" style={{marginLeft: '10px'}} disable={this.state.disableUpload}>
-                  <Icon type="upload" /> 点击上传
+                  <Icon type="upload" /> 读取文件内容
                 </Button>
               </Upload>
             </FormItem>
