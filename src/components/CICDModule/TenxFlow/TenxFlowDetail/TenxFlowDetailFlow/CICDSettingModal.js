@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Checkbox, Alert, Icon, Spin, Tooltip,message } from 'antd'
+import { Button, Input, Form, Checkbox, Alert, Icon, Spin, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -17,6 +17,8 @@ import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { UpdateTenxflowCIRules } from '../../../../../actions/cicd_flow'
 import './style/CICDSettingModal.less'
 import { browserHistory } from 'react-router';
+import NotificationHandler from '../../../../../common/notification_handler'
+
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -303,7 +305,8 @@ let CICDSettingModal = React.createClass({
       return;
     }
     if(!useBranch && !useTag && !useRequest){
-      return message.error('请选择至少一个触发规则')
+      let notification = new NotificationHandler();
+      return notification.error('请选择至少一个触发规则')
     }
     let body = {
       enabled: 1,
