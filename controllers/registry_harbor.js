@@ -11,9 +11,8 @@
 const logger     = require('../utils/logger.js').getLogger("registry_harbor")
 const harborAPIs = require('../registry/lib/harborAPIs')
 const registryConfigLoader = require('../registry/registryConfigLoader')
-const apiFactory = require('../services/api_factory')
-
-var HarborAuthCache = []
+const apiFactory   = require('../services/api_factory')
+const securityUtil = require('../utils/security')
 
 // Get projects from harbor server
 exports.searchProjects = function* () {
@@ -21,7 +20,7 @@ exports.searchProjects = function* () {
   const loginUser = this.session.loginUser
   const query = this.query || {}
   var q = query.q || ""
-  let authInfo = yield getAuthInfo(getRegistryConfig().url, loginUser)
+  let authInfo = yield getAuthInfo(loginUser)
   const harborAPI = new harborAPIs(getRegistryConfig(), authInfo)
   const result = yield new Promise(function (resolve, reject) {
     harborAPI.searchProjects(q, function(err, statusCode, projects) {
@@ -115,31 +114,11 @@ function getRegistryConfig() {
   return {url: "localhost"}
 }
 
-/*
-Cache user/habor auth info, get from k8s secret if miss cache
-*/
-function* getAuthInfo(registry, loginUser) {
-  // Initialize the registry auth cache
-  registry = registry.replace('http://', '').replace('https://', '')
-  if (!HarborAuthCache[registry]) {
-    HarborAuthCache[registry] = []
-  }
-  if (HarborAuthCache[registry][loginUser.user]) {
-    return HarborAuthCache[registry][loginUser.user]
-  } else {
-    // Request API to get from secret
-    const api = apiFactory.getApi(loginUser)
-    const result = yield api.registries.getBy([registry, 'secrets'], null)
-    HarborAuthCache[registry][loginUser.user] = result.data.authHeader
-  }
-  return HarborAuthCache[registry][loginUser.user]
-}
-
 function harborHandler(handler) {
   return function* () {
     const config = getRegistryConfig()
     const loginUser = this.session.loginUser
-    const auth = yield getAuthInfo(config.url, loginUser)
+    const auth = yield getAuthInfo(loginUser)
     const harbor = new harborAPIs(config, auth)
     const result = yield new Promise((resolve, reject) => {
       handler(harbor, this, (err, statusCode, jobs) => {
@@ -156,4 +135,10 @@ function harborHandler(handler) {
       data: result
     }
   }
+}
+/*
+Get registry auth info from user session
+*/
+function* getAuthInfo(loginUser) {
+  return securityUtil.decryptContent(loginUser.registryAuth)
 }
