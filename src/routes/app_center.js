@@ -16,6 +16,24 @@ const appCenterRoutes = [{
 },{
   path: 'stack_center',
   component: require('../components/AppCenter/Stack').default,
-}]
+},
+  {
+    path: 'projects',
+    component: require('../components/AppCenter/Item').default,
+    indexRoute: {
+      component: require('../components/AppCenter/ImageCenter/Project').default,
+    },
+    childRoutes: [
+      {
+        path: 'public',
+        component: require('../components/AppCenter/ImageCenter/Project/PublicProject').default,
+      },
+      {
+        path: 'detail/:name',
+        component: require('../components/AppCenter/ImageCenter/ItemDetail').default,
+      }
+    ]
+  }
+]
 
 export default appCenterRoutes

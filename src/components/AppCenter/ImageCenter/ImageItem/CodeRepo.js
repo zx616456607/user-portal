@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * ImageCenter component
+ * CodeRepo component
  *
  * v0.1 - 2017-6-5
  * @author Baiyu
@@ -105,8 +105,8 @@ class CodeRepo extends Component {
             <Button type="primary" size="large" icon="cloud-upload-o">上传镜像</Button>
             <Button type="ghost" size="large" icon="cloud-download-o">下载镜像</Button>
 
-          <Input placeholder="搜索" className="search" size="large" icon="search" />
-          {/*<i className="fa fa-search"></i>*/}
+          <Input placeholder="搜索" className="search" size="large" />
+          <i className="fa fa-search"></i>
           <span className="totalPage">共计：{dataSource.length} 条</span>
         </div>
         <Table showHeader={false} className="myImage_item" dataSource={dataSource} columns={columns} pagination={{ simple: true }} />

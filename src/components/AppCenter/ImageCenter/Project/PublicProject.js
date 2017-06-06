@@ -12,14 +12,14 @@
 import React, { Component } from 'react'
 import { Modal, Tabs, Table, Icon, Button, Card, Input } from 'antd'
 import QueueAnim from 'rc-queue-anim'
-import './style/Project.less'
+import '../style/Project.less'
 import { Link } from 'react-router'
-import Logs from './ImageItem/Logs'
-import Management from './ImageItem/Management'
-import CodeRepo from './ImageItem/CodeRepo'
+import Logs from '../ImageItem/Logs'
+import Management from '../ImageItem/Management'
+import CodeRepo from '../ImageItem/CodeRepo'
 const TabPane = Tabs.TabPane
 
-class Project extends Component {
+class PublicProject extends Component {
   constructor(props) {
     super()
     this.state = {
@@ -33,10 +33,7 @@ class Project extends Component {
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     const { route } = this.props
-    let projectType = true
-    if (route.path) {
-      projectType = false
-    }
+
     const dataSource = [
       {
         name: 'demo-1',
@@ -155,12 +152,6 @@ class Project extends Component {
 
             <Card className="project">
               <div className="topRow">
-                {
-                  projectType ?
-                    [<Button type="primary" size="large" icon="plus" key="1">新建项目</Button>,
-                    <Button type="ghost" size="large" icon="delete" key="2">删除</Button>]
-                    : null
-                }
                 <Input placeholder="搜索" className="search" size="large" />
                 <i className="fa fa-search"></i>
                 <span className="totalPage">共计：{dataSource.length} 条</span>
@@ -175,4 +166,4 @@ class Project extends Component {
   }
 }
 
-export default Project
+export default PublicProject
