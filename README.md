@@ -33,6 +33,7 @@ USERPORTAL_IHUYI_APIKEY | `undefined` | 互亿无线短信服务 API key | *只�
 WECHAT_SERVER_USER | `undefined` | 微信 server basic 认证 username | *只适用于公有云*
 WECHAT_SERVER_PASS | `undefined` | 微信 server basic 认证 password | *只适用于公有云*
 SESSION_MAX_AGE | `undefined` | 登录状态超时时间 | 单位：分
+LOG_LEVEL | `'INFO'` | 日志级别 |`'INFO'`, `'WARN'`, `'ERROR'`
 **注：外网协议及端口用于 user-portal 浏览器直连 API**
 
 ### 全局变量说明

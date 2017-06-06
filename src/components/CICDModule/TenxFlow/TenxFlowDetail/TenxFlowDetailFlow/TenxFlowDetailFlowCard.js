@@ -534,7 +534,7 @@ class TenxFlowDetailFlowCard extends Component {
     const tabs = []
     let loading
     const branchesAndTags = repoBranchesAndTags[projectId]
-    if (!branchesAndTags) {
+    if (!branchesAndTags || (!branchesAndTags.data.branches && !branchesAndTags.data.tags)) {
       tabs.push(<PopOption key="not_found_branches_tags">未找到分支及标签，点击构建</PopOption>)
     } else {
       const { isFetching, data } = branchesAndTags
@@ -561,6 +561,7 @@ class TenxFlowDetailFlowCard extends Component {
         onChange={this.buildFlow.bind(this, id, lastBuildStatus, name)}
         targetElement={targetElement}
         loading={loading}
+        isShowBuildBtn={true}
         getTooltipContainer={() => document.body}>
         {tabs}
       </PopTabSelect>
@@ -692,7 +693,7 @@ class TenxFlowDetailFlowCard extends Component {
               <div className='cicdBox' key='cicdBox'>
                 <Switch onChange={this.viewCicdBox} checked={this.state.ciRulesOpened} />
                 <p className='switchTitile'><FormattedMessage {...menusText.cicd} /></p>
-                <p className='viewP' onClick={this.viewCicdBoxP}><FormattedMessage {...menusText.view} /></p>
+                <p className='viewP' onClick={()=>this.viewCicdBoxP()}><FormattedMessage {...menusText.view} /></p>
               </div>
             ] : null
           }
@@ -722,7 +723,7 @@ class TenxFlowDetailFlowCard extends Component {
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-          <StageBuildLog scope={scopeThis} isFetching={buildFetching} logs={logs} flowId={flowId} />
+          <StageBuildLog scope={scopeThis} isFetching={buildFetching} logs={logs} flowId={flowId} visible={this.state.TenxFlowDeployLogModal}/>
         </Modal>
         <Modal
           visible={this.state.setStageFileModal}

@@ -18,6 +18,12 @@ const menuList = [
   {
     url: '/tenant_manage',
     name: '租户'
+  },{
+    url: '/tenant_manage/rolemanagement',
+    name: '角色管理'
+  },{
+    url: '/tenant_manage/allpermissions',
+    name: '所有权限'
   },
   {
     url: '/tenant_manage/project_manage',

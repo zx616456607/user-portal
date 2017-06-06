@@ -436,6 +436,7 @@ class ClusterPlugin extends Component {
         title: '插件名称',
         key: 'keys',
         dataIndex: 'name',
+        width:'15%',
         render: (text, row) => {
           return (<Link>{text}</Link>)
         }
@@ -444,6 +445,7 @@ class ClusterPlugin extends Component {
         title: '插件状态',
         key: 'status',
         dataIndex: 'status',
+        width:'15%',
         render: (status, row) => {
           return (
             <div style={{ color: this.getStatusColor(status.message, row.name) }}><i className='fa fa-circle' />&nbsp;&nbsp;{this.getStatusMessage(status.message)}</div>
@@ -454,6 +456,7 @@ class ClusterPlugin extends Component {
         title: '资源限制',
         key: 'resourceRange',
         dataIndex: 'resourceRange',
+        width:'16%',
         render: (plugin, row) => {
           return (
             <div><div>CPU：{this.convertCPU(plugin.request.cpu)}</div>
@@ -466,6 +469,7 @@ class ClusterPlugin extends Component {
         title: '所在节点',
         key: 'templateID',
         dataIndex: 'templateID',
+        width:'15%',
         render: (text, row) => {
           return (
             <span>{row.hostName || '随机调度'}</span>
@@ -476,6 +480,7 @@ class ClusterPlugin extends Component {
         title: '管理界面',
         key: 'web',
         dataIndex: 'web',
+        width:'15%',
         render: (text, row) => {
           if (row.serviceInfo && row.serviceInfo.entryPoints && ['stopped', 'uninstalled'].indexOf(row.status.message) < 0 ) {
             let path = row.serviceInfo.entryPoints[0].path
@@ -496,6 +501,7 @@ class ClusterPlugin extends Component {
         title: '操作',
         key: 'action',
         dataIndex: 'action',
+        width:'15%',
         render: (text, row) => {
           let menu
            if(row.status.message == 'stopped') {
@@ -513,19 +519,17 @@ class ClusterPlugin extends Component {
                </Menu>
              )
            }
-
-          return (
-            <div className="pluginAction">
-              <span className="button">
-                {this.getStateusForEvent(row)}
-              </span>
-              <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
-                设置插件
+           const result = row.serviceInfo && row.serviceInfo.isSystem ? <div></div> : <div className="pluginAction">
+             <span className="button">
+               {this.getStateusForEvent(row)}
+             </span>
+             <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
+               设置插件
               </Dropdown.Button>
-              {/*<Button type="primary" onClick={() => this.showResetModal(row.name)}>重新部署</Button>
+             {/*<Button type="primary" onClick={() => this.showResetModal(row.name)}>重新部署</Button>
               <Button className="setup" type="ghost" onClick={()=> this.showSetModal(row.name)}>设置</Button>*/}
-            </div>
-          )
+           </div>
+           return result
         }
       }
     ]

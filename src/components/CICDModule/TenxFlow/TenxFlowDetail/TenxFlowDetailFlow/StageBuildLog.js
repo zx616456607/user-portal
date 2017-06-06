@@ -181,6 +181,11 @@ let MyComponent = React.createClass({
     //and then the line collapse will be current change
     const { scope, flowId } = this.props;
     const { getFlowBuildStageLogs } = scope.props;
+    if(e && e.length > 0) {
+      this.setState({
+        updateWebSocket: true
+      })
+    }
     if (e.length > 0) {
       let index = e[e.length - 1].replace('LogDetail', '');
       if (config[index].status == 2 || config[index].status == 3) {
@@ -224,6 +229,13 @@ let MyComponent = React.createClass({
     return () => {
       const {getTenxflowBuildLastLogs} = this.props
       getTenxflowBuildLastLogs(flowId)
+    }
+  },
+  setUpdateWebSocket() {
+    return () => {
+      this.setState({
+        updateWebSocket: false
+      })
     }
   },
   render: function () {
@@ -272,7 +284,7 @@ let MyComponent = React.createClass({
             <div className='line'></div>
           </div>
           <div className='rightInfo'>
-            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} logInfo={item} flowId={flowId} index={index} callback={this.callback(flowId)}/>
+            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} logInfo={item} flowId={flowId} index={index} callback={this.callback(flowId)} visible={this.props.visible} setUpdateWebSocket={this.setUpdateWebSocket()} updateWebSocket={this.state.updateWebSocket}/>
           </div>
         </Panel>
       );
@@ -395,7 +407,7 @@ class StageBuildLog extends Component {
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='paddingBox'>
-        <MyComponent config={logs} scope={scope} flowId={flowId} getTenxflowBuildLastLogs={(flowId)=>this.props.getTenxflowBuildLastLogs(flowId)}/>
+        <MyComponent config={logs} scope={scope} flowId={flowId} getTenxflowBuildLastLogs={(flowId)=>this.props.getTenxflowBuildLastLogs(flowId)} visible={this.props.visible}/>
           <div style={{ clear: 'both' }}></div>
         </div>
       </div>

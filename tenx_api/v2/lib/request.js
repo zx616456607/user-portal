@@ -64,12 +64,12 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
       object.contentType = options.contentType
       object.dataType = options.dataType
     }
-    logger.info(`<-- [${options.method || 'GET'}] ${url}`)
+    logger.debug(`<-- [${options.method || 'GET'}] ${url}`)
     logger.debug(`--> [options]`, options)
     if (!callback) {
       return urllib.request(url, options).then(
         function done(result) {
-          logger.info(`--> [${options.method || 'GET'}] ${url}`)
+          logger.debug(`--> [${options.method || 'GET'}] ${url}`)
           logger.debug(`api result: ${JSON.stringify(result.data)}`)
           if (_isSuccess(result.res.statusCode)) {
             // data maybe null

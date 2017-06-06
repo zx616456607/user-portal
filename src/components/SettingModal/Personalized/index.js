@@ -309,7 +309,7 @@ class Personalized extends Component{
 function mapStateToProps(state,props) {
   const { info } = state.personalized
   return {
-    oemInfo: info.result || {}
+    oemInfo: info.result || { company: {} }
   }
 }
 
