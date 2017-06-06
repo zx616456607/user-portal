@@ -200,8 +200,8 @@ exports.getClustersInstant = function* () {
     source: 'prometheus'
   }
   // metrics cpu use
-  reqArray.push(api.getBy([cluster,node,'metric/instant'], cpu))
-  reqArray.push(api.getBy([cluster,node,'metric/instant'], mem))
+  reqArray.push(api.getBy([cluster,'metric',node,'metric/instant'], cpu))
+  reqArray.push(api.getBy([cluster,'metric',node,'metric/instant'], mem))
   const results = yield reqArray
   this.body = {
     cpus: results[0].data[node],
