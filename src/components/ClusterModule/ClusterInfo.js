@@ -49,7 +49,7 @@ let ClusterInfo = React.createClass ({
   APIupdateCluster(clusterID, values){
     const { updateCluster, loadClusterList } = this.props
     const notification = new NotificationHandler()
-    if(values.isDefault){
+    if(values.isDefault || loadClusterList.length == 1){
       values.isDefault = 1
     } else {
       values.isDefault = 0
@@ -218,6 +218,17 @@ let ClusterInfo = React.createClass ({
       content: (
         <div>
           <p>由于目前只有一个集群，不可取消构建环境</p>
+        </div>
+      ),
+      onOk() {},
+    });
+  },
+  CancelClusterMemberOnlyOne(){
+    Modal.info({
+      title: '提示',
+      content: (
+        <div>
+          <p>由于目前只有一个集群，不可取消成员授权</p>
         </div>
       ),
       onOk() {},
@@ -401,7 +412,11 @@ let ClusterInfo = React.createClass ({
             <Form.Item>
               <div style={{float:'left',height:'40px'}}>授权成员：</div>
               <span>
-                <Checkbox disabled={!editCluster} {...authorizedProps}>该集群可被所有成员选择使用</Checkbox>
+                {
+                  clusterList.length == 1
+                  ? <Checkbox checked={true} disabled={!editCluster} onClick={this.CancelClusterMemberOnlyOne}>该集群可被所有成员选择使用</Checkbox>
+                  : <Checkbox disabled={!editCluster} {...authorizedProps}>该集群可被所有成员选择使用</Checkbox>
+                }
               </span>
             </Form.Item>
             <Form.Item>
