@@ -352,8 +352,12 @@ HarborAPIs.prototype.getAuthorizationHeader = function () {
 }
 
 function encodeQueryString(kvs) {
-  return '?' + Object.getOwnPropertyNames(kvs).map(
+  const query = Object.getOwnPropertyNames(kvs).map(
     key => `${encodeURIComponent(key)}=${encodeURIComponent(kvs[key])}`).join('&')
+  if (query) {
+    return '?' + query
+  }
+  return ''
 }
 
 function range(begin, end) {
