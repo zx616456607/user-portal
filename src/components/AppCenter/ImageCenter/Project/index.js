@@ -14,6 +14,10 @@ import { Modal, Icon, Button,Form,Radio, Card, Input } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import '../style/Project.less'
 import DataTable from './DataTable'
+import { connect } from 'react-redux'
+import { loadProjectList } from '../../../../actions/harbor'
+import { DEFAULT_REGISTRY } from '../../../../constants'
+
 const RadioGroup = Radio.Group
 
 class CreateItem extends Component {
@@ -78,43 +82,35 @@ class Project extends Component {
       deleteItem: false,// delte modal
       selectedRows:[]
     }
+    this.loadData = this.loadData.bind(this)
   }
+
+  loadData(query) {
+    const { loadProjectList } = this.props
+    loadProjectList(DEFAULT_REGISTRY, query)
+  }
+
+  componentWillMount() {
+    this.loadData({
+      page_size: 10,
+    })
+  }
+
   deleteItemOk() {
     // go delete item
     console.log('sfsfsdf')
   }
-  render() {
 
-    const dataSource = [
-      {
-        name: 'demo-1',
-        type: 1,
-        role: '1',
-        ropo: '90',
-        createTime: '2017-4-5'
-      },
-      {
-        name: 'demo-2',
-        type: 2,
-        role: '2',
-        ropo: '30',
-        createTime: '2017-8-5'
-      },
-      {
-        name: 'demo-33',
-        type: 1,
-        role: '3',
-        ropo: '50',
-        createTime: '2017-4-0'
-      }
-    ]
-    const func={
+  render() {
+    const { harborProjects } = this.props
+    const func = {
       scope: this,
+      loadData: this.loadData
     }
     return (
       <div className="imageProject">
         <br />
-        <div className="alertRow">镜像仓库用于存放镜像，您可关联第三方镜像仓库，使用公开云中私有空间镜像；关联后，该仓库也用于存放通过TenxFlow构建出来的镜像</div>
+        <div className="alertRow">镜像仓库用于存放镜像，您可关联第三方镜像仓库，使用公开云中私有空间镜像；关联后，该仓库也用于存放通过 TenxFlow 构建出来的镜像</div>
         <QueueAnim>
           <div key="projects">
 
@@ -125,9 +121,9 @@ class Project extends Component {
 
                 <Input placeholder="搜索" className="search" size="large" />
                 <i className="fa fa-search"></i>
-                <span className="totalPage">共计：{dataSource.length} 条</span>
+                <span className="totalPage">共计：{harborProjects.list && harborProjects.list.length || 0} 条</span>
               </div>
-              <DataTable dataSource={dataSource}  func={func}/>
+              <DataTable dataSource={harborProjects} func={func}/>
             </Card>
             {/* 创建项目 Modal */}
             <CreateItem visible={this.state.createItem} func={func}/>
@@ -147,4 +143,14 @@ class Project extends Component {
   }
 }
 
-export default Project
+function mapStateToProps(state, props) {
+  const { harbor } = state
+  let harborProjects = harbor.projects && harbor.projects[DEFAULT_REGISTRY] || {}
+  return {
+    harborProjects,
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadProjectList,
+})(Project)

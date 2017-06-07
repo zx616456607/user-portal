@@ -248,8 +248,13 @@ HarborAPIs.prototype.resetConfigurations = function(callback) {
 
 /*----------------configurations end---------------*/
 
+// [GET] /users/current
+HarborAPIs.prototype.getCurrentUser = function (callback) {
+  const url = `${this.getAPIPrefix()}/users/current`
+  this.sendRequest(url, 'GET', null, callback)
+}
 
-// [GET] /projects?page=1&page_size=10&page_name=test
+// [GET] /projects?page=1&page_size=10&page_name=test&is_public=1
 HarborAPIs.prototype.getProjects = function (query, callback) {
   var method = "getProjects";
   logger.debug(method, "Get harbor projects");
@@ -265,6 +270,36 @@ HarborAPIs.prototype.getProjects = function (query, callback) {
   }
   logger.debug(method, "Request url: " + requestUrl);
   this.sendRequest(requestUrl, 'GET', null, callback);
+}
+
+// [POST] /projects
+HarborAPIs.prototype.createProject = function (body, callback) {
+  const url = `${this.getAPIPrefix()}/projects`
+  this.sendRequest(url, 'POST', body, callback)
+}
+
+// [GET] /projects/:project_id
+HarborAPIs.prototype.getProjectDetail = function (id, callback) {
+  const url = `${this.getAPIPrefix()}/projects/${id}`
+  this.sendRequest(url, 'GET', null, callback)
+}
+
+// [DELETE] /projects/:project_id
+HarborAPIs.prototype.deleteProject = function (id, callback) {
+  const url = `${this.getAPIPrefix()}/projects/${id}`
+  this.sendRequest(url, 'DELETE', null, callback)
+}
+
+// [PUT] /projects/:project_id/publicity
+HarborAPIs.prototype.updateProjectPublicity = function (id, body, callback) {
+  const url = `${this.getAPIPrefix()}/projects/${id}/publicity`
+  this.sendRequest(url, 'PUT', body, callback)
+}
+
+// [GET] /repositories
+HarborAPIs.prototype.getProjectRepositories = function (query, callback) {
+  const url = `${this.getAPIPrefix()}/repositories?${utils.toQuerystring(query)}`
+  this.sendRequest(url, 'GET', null, callback)
 }
 
 HarborAPIs.prototype.sendRequest = function (requestUrl, httpMethod, data, callback) {

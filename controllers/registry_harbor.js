@@ -16,33 +16,36 @@ const utils = require('../utils')
 
 const securityUtil = require('../utils/security')
 
-exports.getProjects = function* () {
-  const registry = this.params.registry
-  const loginUser = this.session.loginUser
-  const query = this.query || {}
-  let authInfo = yield getAuthInfo(loginUser)
-  const harborAPI = new harborAPIs(getRegistryConfig(), authInfo)
-  const result = yield new Promise(function (resolve, reject) {
-    harborAPI.getProjects(query, function(err, statusCode, projects) {
-      if (err) {
-        reject(err)
-        return
-      }
-      if (statusCode > 300) {
-        reject("Error from request: " + statusCode)
-        return
-      }
-      resolve(projects)
-    })
-  })
-  this.body = {
-    server: getRegistryConfig().url,
-    data: result
-  }
-}
+// [GET] /users/current
+exports.getCurrentUser = harborHandler(
+  (harbor, ctx, callback) => harbor.getCurrentUser(callback))
+
+// [GET] /projects?page=1&page_size=10&page_name=test&is_public=1
+exports.getProjects = harborHandler(
+  (harbor, ctx, callback) => harbor.getProjects(ctx.query, callback))
+
+// [POST] /projects
+exports.createProject = harborHandler(
+  (harbor, ctx, callback) => harbor.createProject(ctx.request.body, callback))
+
+// [GET] /projects/:project_id
+exports.getProjectDetail = harborHandler(
+  (harbor, ctx, callback) => harbor.getProjectDetail(ctx.params.project_id, callback))
+
+// [DELETE] /projects/:project_id
+exports.deleteProject = harborHandler(
+  (harbor, ctx, callback) => harbor.deleteProject(ctx.params.project_id, callback))
+
+// [PUT] /projects/:project_id/publicity
+exports.updateProjectPublicity = harborHandler(
+  (harbor, ctx, callback) => harbor.updateProjectPublicity(ctx.params.project_id, ctx.request.body, callback))
+
+// [GET] /repositories
+exports.getProjectRepositories = harborHandler(
+  (harbor, ctx, callback) => harbor.getProjectRepositories(ctx.query, callback))
 
 // Search projects from harbor server
-exports.searchProjects = function* () {
+/*exports.searchProjects = function* () {
   const registry = this.params.registry
   const loginUser = this.session.loginUser
   const query = this.query || {}
@@ -66,7 +69,7 @@ exports.searchProjects = function* () {
     server: getRegistryConfig().url,
     data: result
   }
-}
+}*/
 
 // [GET] /jobs/replication
 exports.getReplicationJobs = harborHandler(
@@ -373,13 +376,19 @@ function harborHandler(handler) {
           err.status = statusCode
           reject(err)
         } else {
-          resolve(result)
+          resolve({ result, headers })
         }
       })
     })
-    this.body = {
-      data: result
+    const body = {
+      server: getRegistryConfig().url,
+      data: result.result,
     }
+    const total = result.headers['x-total-count']
+    if (total !== undefined) {
+      body.total = parseInt(total)
+    }
+    this.body = body
   }
 }
 /*

@@ -11,7 +11,7 @@
 import React, { Component } from 'react'
 import { Button, Input, Icon, Table, Modal, Form, Row, Col, Checkbox, Select, Spin, Radio, Dropdown, Menu } from 'antd'
 import { connect } from 'react-redux'
-import '../style/ImageUpdata.less'
+import '../style/ImageUpdate.less'
 import { ecma48SgrEscape } from '../../../../common/ecma48_sgr_escape'
 
 let LogsTemplate = React.createClass({
@@ -55,7 +55,7 @@ let LogsTemplate = React.createClass({
   }
 })
 
-class ImageUpdata extends Component {
+class ImageUpdate extends Component {
 	constructor(props){
     super(props)
     this.handleSearchRules = this.handleSearchRules.bind(this)
@@ -437,7 +437,7 @@ class ImageUpdata extends Component {
       SelectTargetStore: 'value0'
     })
   }
-  
+
   render(){
     const { form } = this.props
     const { rulesData, taskUpdataData } = this.state
@@ -749,16 +749,16 @@ class ImageUpdata extends Component {
   }
 }
 
-ImageUpdata = Form.create()(ImageUpdata)
+ImageUpdate = Form.create()(ImageUpdate)
 
 function mapStateToProp(state, props) {
-  
+
   return {
-    
+
   }
 }
 
 export default connect(mapStateToProp, {
-  
-})(ImageUpdata)
+
+})(ImageUpdate)
 

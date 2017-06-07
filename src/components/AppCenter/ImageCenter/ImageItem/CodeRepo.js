@@ -10,8 +10,12 @@
 
 
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import { Modal, Tabs, Menu, Dropdown, Table, Icon, Button, Card, Input } from 'antd'
 import { Link, browserHistory } from 'react-router'
+import { camelize } from 'humps'
+import { loadProjectRepos } from '../../../../actions/harbor'
+import { DEFAULT_REGISTRY } from '../../../../constants'
 import '../style/CodeRepo.less'
 
 class CodeRepo extends Component {
@@ -21,7 +25,19 @@ class CodeRepo extends Component {
       downloadModalVisible: false,
       uploadModalVisible: false
     }
+    this.loadRepos = this.loadRepos.bind(this)
   }
+
+  componentWillMount() {
+    const { params } = this.props
+    this.loadRepos(DEFAULT_REGISTRY, { page_size: 10, project_id: params.id, detail: 1 })
+  }
+
+  loadRepos(registry, query) {
+    const { loadProjectRepos } = this.props
+    loadProjectRepos(registry, query)
+  }
+
   showUpload(visible) {
     this.setState({uploadModalVisible:visible})
   }
@@ -29,24 +45,11 @@ class CodeRepo extends Component {
     this.setState({downloadModalVisible:visible})
   }
   render() {
-    const server = '192.168.1.1'
-    const dataSource = [
-      {
-        name: 'demo-1',
-        downloadNumber: 1,
-        address: '1',
-      },
-      {
-        name: 'demo-2',
-        downloadNumber: 2,
-        address: '2',
-      },
-      {
-        name: 'demo-33',
-        downloadNumber: 1,
-        address: '3',
-      }
-    ]
+    const { repos } = this.props
+    let { isFetching, list, server } = repos || {}
+    list = list || []
+    server = server || ''
+    server = server.replace('http://', '').replace('https://', '')
     const columns = [
       {
         title: '镜像名',
@@ -79,8 +82,8 @@ class CodeRepo extends Component {
         }
       }, {
         title: '下载',
-        dataIndex: 'downloadNumber',
-        key: 'downloadNumber',
+        dataIndex: camelize('pull_count'),
+        key: camelize('pull_count'),
         render: text => {
           return (
             <div>下载次数：{text}</div>
@@ -117,9 +120,16 @@ class CodeRepo extends Component {
 
           <Input placeholder="搜索" className="search" size="large" />
           <i className="fa fa-search"></i>
-          <span className="totalPage">共计：{dataSource.length} 条</span>
+          <span className="totalPage">共计：{list.length || 0} 条</span>
         </div>
-        <Table showHeader={false} className="myImage_item" dataSource={dataSource} columns={columns} pagination={{ simple: true }} />
+        <Table
+          showHeader={false}
+          className="myImage_item"
+          dataSource={list}
+          columns={columns}
+          pagination={{ simple: true }}
+          loading={isFetching}
+        />
         <Modal title="上传镜像" className="uploadImageModal" visible={this.state.uploadModalVisible} width="800px"
           onCancel={()=> this.showUpload(false)} onOk={()=> this.showUpload(false)}
         >
@@ -154,4 +164,13 @@ class CodeRepo extends Component {
   }
 }
 
-export default CodeRepo
+function mapStateToProps(state, props) {
+  const { harbor } = state
+  return {
+    repos: harbor.repos || {},
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadProjectRepos,
+})(CodeRepo)
