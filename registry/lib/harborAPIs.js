@@ -350,7 +350,8 @@ HarborAPIs.prototype.basicAuthToBearerToken = function (realm, callback) {
 }
 
 HarborAPIs.prototype.getManifest = function (repoName, tag, callback) {
-  const url = `${this.registryConfig.url}/v2/${repoName}/manifests/${tag}`
+  const registry = this.registryConfig.url
+  const url = `${registry}/v2/${repoName}/manifests/${tag}`
   request.get({url, json: true}, (err, resp, body) => {
     if (resp.statusCode == 401) {
       const realm = resp.headers['www-authenticate']
@@ -361,7 +362,11 @@ HarborAPIs.prototype.getManifest = function (repoName, tag, callback) {
           const token = result.token
           const headers = {'Authorization': `Bearer ${token}`}
           request.get({url, json: true, headers}, (err, resp, body) => {
-            callback(err, resp.statusCode, {manifest: body, headers})
+            callback(err, resp.statusCode, {
+              manifest: body,
+              headers,
+              registry: registry.replace("http://", "").replace("https://", "")
+            })
           })
         }
       })

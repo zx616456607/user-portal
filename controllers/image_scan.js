@@ -17,6 +17,30 @@ const algorithm = 'aes-256-ctr'
 const parse = require('co-busboy')
 const formStream = require('formstream')
 const mime = require('mime')
+const harborAPI = require('../registry/lib/harborAPIs')
+
+function getImageInfo(user, repoName, tag) {
+  const auth = securityUtil.decryptContent(user.registryAuth)
+  const harbor = new harborAPI(null, auth)
+  return new Promise((resolve, reject) => harbor.getManifest(repoName, tag, (err, statusCode, result) => {
+    if (err) {
+      reject(err)
+    } else if (statusCode > 300) {
+      err = new Error(`call registry v2 api failed`)
+      err.status = statusCode
+      reject(err)
+    } else {
+      resolve(result)
+    }
+  }))
+}
+
+function postToSecuredWithManifest(user, action, info, params) {
+  const secured = apiFactory.getImageScanApi(user)
+  const manifest = info.manifest
+  info.manifest = JSON.stringify(manifest)
+  return secured.createBy([action], params, info)
+}
 
 exports.getScanStatus = function* () {
   const body = this.query
@@ -25,50 +49,10 @@ exports.getScanStatus = function* () {
     err.status = 400
     throw err
   }
-  let manifest = ''
-  const loginUser = this.session.loginUser
-  if (body.isThird) {
-    if (!body.registryID) {
-      const err = new Error('registryID is require')
-      err.status = 400
-      throw err
-    }
-    let serverInfo = yield _getRegistryServerInfo(this.session, loginUser, body.registryId)
-
-    // If find the valid registry info
-    if (serverInfo.server) {
-      logger.info("Found the matched registry config ...")
-      // Get the real password before pass to registry service
-      let realPassword = securityUtil.decryptContent(serverInfo.password, loginUser.token, algorithm)
-      let registryConfig = JSON.parse(JSON.stringify(serverInfo))
-      registryConfig.password = realPassword
-      let specRegistryService = new SpecRegistryService(registryConfig)
-      var self = this
-      var result = yield specRegistryService.getImageTagInfo(body.imageName, body.tag, true)
-      manifest = result.result
-    } else {
-      const err = new Error('The registry is invalid')
-      err.status = 400
-      throw err
-    }
-  } else {
-    const registryApi = apiFactory.getRegistryApi()
-    const result = yield thunkToPromise(registryApi.getImageJsonInfoV2, registryApi)(this.session.loginUser.user, body.imageName, body.tag)
-    if (!result.length) {
-      throw result
-    }
-    if (result[0] != 200) {
-      const err = result[2]
-      err.status = result[0]
-      throw err
-    }
-    manifest = result[1]
-  }
-  const api = apiFactory.getImageScanApi(loginUser)
-  const response = yield api.createBy(['scan-status'], null, {
-    manifest: JSON.stringify(manifest)
-  })
-  this.body = response
+  const user = this.session.loginUser
+  const info = yield getImageInfo(user, body.imageName, body.tag)
+  const status = yield postToSecuredWithManifest(user, 'scan-status', {manifest: info.manifest})
+  this.body = status
 }
 
 exports.getLayerInfo = function* () {
@@ -78,51 +62,10 @@ exports.getLayerInfo = function* () {
     err.status = 400
     throw err
   }
-  let manifest = ''
-  if (body.isThird) {
-    if (!body.registryID) {
-      const err = new Error('registryID is require')
-      err.status = 400
-      throw err
-    }
-    const loginUser = this.session.loginUser
-    let serverInfo = yield _getRegistryServerInfo(this.session, loginUser, body.registryId)
-
-    // If find the valid registry info
-    if (serverInfo.server) {
-      logger.info("Found the matched registry config ...")
-      // Get the real password before pass to registry service
-      let realPassword = securityUtil.decryptContent(serverInfo.password, loginUser.token, algorithm)
-      let registryConfig = JSON.parse(JSON.stringify(serverInfo))
-      registryConfig.password = realPassword
-      let specRegistryService = new SpecRegistryService(registryConfig)
-      var self = this
-      var result = yield specRegistryService.getImageTagInfo(body.imageName, body.tag, true)
-      manifest = result.result
-    } else {
-      const err = new Error('The registry is invalid')
-      err.status = 400
-      throw err
-    }
-  } else {
-    const registryApi = apiFactory.getRegistryApi()
-    const result = yield thunkToPromise(registryApi.getImageJsonInfoV2, registryApi)(this.session.loginUser.user, body.imageName, body.tag)
-    if (!result.length) {
-      throw result
-    }
-    if (result[0] != 200) {
-      const err = result[2]
-      err.status = result[0]
-      throw err
-    }
-    manifest = result[1]
-  }
-
-  const api = apiFactory.getImageScanApi(this.session.loginUser)
-  const response = yield api.createBy(['layer-info'], null, {
-    manifest: JSON.stringify(manifest)
-  })
-  this.body = response
+  const user = this.session.loginUser
+  const info = yield getImageInfo(user, body.imageName, body.tag)
+  const layerInfo = yield postToSecuredWithManifest(user, 'layer-info', {manifest: info.manifest})
+  this.body = layerInfo
 }
 
 exports.getLyins = function* () {
@@ -163,77 +106,15 @@ exports.getClair = function* () {
 
 exports.scan = function* () {
   const body = this.request.body
-  if (!body.registry || !body.imageName || !body.tag || !body.cluster_id) {
+  if (!body.imageName || !body.tag || !body.cluster_id) {
     const err = new Error('registry, imageName, tag, cluster_id is require')
     err.status = 400
     throw err
   }
-  let manifest = ''
-  let token = ''
-  if (body.isThird) {
-    if (!body.registryID) {
-      const err = new Error('registryID is require')
-      err.status = 400
-      throw err
-    }
-    const loginUser = this.session.loginUser
-    let serverInfo = yield _getRegistryServerInfo(this.session, loginUser, body.registryId)
-    // If find the valid registry info
-    if (serverInfo.server) {
-      logger.info("Found the matched registry config ...")
-      // Get the real password before pass to registry service
-      let realPassword = securityUtil.decryptContent(serverInfo.password, loginUser.token, algorithm)
-      let registryConfig = JSON.parse(JSON.stringify(serverInfo))
-      registryConfig.password = realPassword
-      let specRegistryService = new SpecRegistryService(registryConfig)
-      var self = this
-      var result = yield specRegistryService.getImageTagInfo(body.imageName, body.tag, true)
-      manifest = result.result
-      const tokenResult = yield thunkToPromise(specRegistryService.refreshToken, specRegistryService)('repository')
-      if (tokenResult[0] != 200) {
-        const err = new Error('get registry token failed')
-        err.status = tokenResult[0]
-        throw err
-      }
-      token = tokenResult[1]
-    } else {
-      const err = new Error('The registry is invalid')
-      err.status = 400
-      throw err
-    }
-  } else {
-    const registryApi = apiFactory.getRegistryApi()
-    const result = yield thunkToPromise(registryApi.refreshToken, registryApi)(this.session.loginUser.user, body.imageName)
-    if (!result.length || result[0]) {
-      throw result
-    }
-    if (result[1].statusCode != 200) {
-      const err = new Error('Internal Error')
-      err.status = result[0]
-      throw err
-      return
-    }
-    token = result[2]
-    const tokenResult = yield thunkToPromise(registryApi.getImageJsonInfoV2, registryApi)(this.session.loginUser.user, body.imageName, body.tag)
-    if (!tokenResult.length) {
-      throw result
-    }
-    if (tokenResult[0] != 200) {
-      const err = tokenResult[2]
-      err.status = tokenResult[0]
-      throw err
-    }
-    manifest = tokenResult[1]
-  }
-  const api = apiFactory.getImageScanApi(this.session.loginUser)
-  const response = yield api.createBy(['scan'], { cluster_id: body.cluster_id }, {
-    manifest: JSON.stringify(manifest),
-    registry: body.registry,
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  })
-  this.body = response
+  const user = this.session.loginUser
+  const info = yield getImageInfo(user, body.imageName, body.tag)
+  const result = yield postToSecuredWithManifest(user, 'scan', info, {cluster_id: body.cluster_id})
+  this.body = result
 }
 
 exports.uploadFile = function* () {
