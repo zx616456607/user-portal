@@ -351,6 +351,13 @@ function getRegistryConfig() {
   return {url: "localhost"}
 }
 
+/*
+Get registry auth info from user session
+*/
+function* getAuthInfo(loginUser) {
+  return securityUtil.decryptContent(loginUser.registryAuth)
+}
+
 function harborHandler(handler) {
   return function* () {
     const config = getRegistryConfig()
