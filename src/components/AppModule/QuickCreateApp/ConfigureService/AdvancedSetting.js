@@ -83,14 +83,14 @@ const AdvancedSetting = React.createClass({
     const envValueKey = `envValue${keyValue}`
     const envNameProps = getFieldProps(envNameKey, {
       rules: [
-        { required: true, message: '请填写键' },
+        // { required: true, message: '请填写键' },
         { validator: this.checkEnv },
       ],
     })
     const envValueProps = getFieldProps(envValueKey, {
-      rules: [
-        { required: true, message: '请填写值' }
-      ],
+      // rules: [
+      //   { required: true, message: '请填写值' }
+      // ],
     })
     return (
       <Row className="configItem" key={`configItem${keyValue}`}>
