@@ -826,7 +826,7 @@ class AlarmSetting extends Component {
     this.setState({
       showStop: false,
     })
-    const { clusterID, batchEnable, getSettingList } = this.props
+    const { clusterID, batchDisable, getSettingList } = this.props
     batchDisable(clusterID, {
       strategyIDs: strategy
     }, {

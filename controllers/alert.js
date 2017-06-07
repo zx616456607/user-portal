@@ -236,43 +236,27 @@ exports.addAlertSetting = function* () {
   const cluster = this.params.cluster
   const body = this.request.body
   const user = this.session.loginUser
-  body.user = user.user
-  body.namespace = user.namespace
-  if (user.teamspace) {
-    body.namespace = user.teamspace
-  }
   body.clusterID = cluster
   const api = apiFactory.getK8sApi(user)
   const response = yield api.createBy([cluster, 'alerts/strategies'], null, body)
   this.body = response
 }
 
-// change this 
 exports.modifyAlertSetting = function* () {
   const cluster = this.params.cluster
   const strategyID = this.params.strategyID
   const body = this.request.body
   const user = this.session.loginUser
-  body.user = user.user
-  body.namespace = user.namespace
-  if (user.teamspace) {
-    body.namespace = user.teamspace
-  }
   body.clusterID = cluster
   const api = apiFactory.getK8sApi(user)
-  const response = yield api.createBy([cluster, 'alerts/strategies', strategyID], null, body)
+  const response = yield api.updateBy([cluster, 'alerts/strategies', strategyID], null, body)
   this.body = response
 }
 
 exports.getSettingList = function* () {
   const cluster = this.params.cluster
   const queryBody = this.query || {}
-  queryBody.clusterID = cluster
   const user = this.session.loginUser
-  queryBody.namespace = user.namespace
-  if (user.teamspace) {
-    queryBody.namespace = user.teamspace
-  }
   const api = apiFactory.getK8sApi(this.session.loginUser)
   if (queryBody.search) {
     const cluster = this.params.cluster
@@ -316,77 +300,65 @@ exports.deleteSetting = function* () {
   this.body = response
 }
 
-
-exports.updateEnable = function* () {
-  const body = this.request.body
-  if (!body.strategies) {
-    const err = new Error('strategies is require')
-    err.status = 400
-    throw err
-  }
-  const user = this.session.loginUser
-  body.user = user.namespace
-  if (user.teamspace) {
-    body.user = user.teamspace
-  }
-  const api = apiFactory.getK8sApi(user)
-  const response = yield api.createBy([cluster, 'alerts/strategy', 'toggle_enable'], null, body)
-  this.body = response
-}
-// /strategies/batch-enable
 exports.batchEnable = function* () {
+  const cluster = this.params.cluster
   const body = this.request.body
-  if (!body.strategies) {
-    const err = new Error('strategies is require')
+  if (!body.strategyIDs) {
+    const err = new Error('strategyIDs is require')
     err.status = 400
     throw err
   }
   const user = this.session.loginUser
-  // body.user = user.namespace
-  // if (user.teamspace) {
-  //   body.user = user.teamspace
-  // }
   const api = apiFactory.getK8sApi(user)
   const response = yield api.createBy([cluster, 'alerts/strategies/batch-enable'], null, body)
   this.body = response
 }
 
-// enable and disable
 exports.batchDisable = function* () {
+  const cluster = this.params.cluster
   const body = this.request.body
-  if (!body.strategies) {
-    const err = new Error('strategies is require')
+  if (!body.strategyIDs) {
+    const err = new Error('strategyIDs is require')
     err.status = 400
     throw err
   }
   const user = this.session.loginUser
-  // body.user = user.namespace
-  // if (user.teamspace) {
-  //   body.user = user.teamspace
-  // }
   const api = apiFactory.getK8sApi(user)
   const response = yield api.createBy([cluster, 'alerts/strategies/batch-disable'], null, body)
   this.body = response
 }
 
-exports.updateSendEmail = function*() {
+
+exports.batchEnableEmail = function* () {
+  const cluster = this.params.cluster
   const body = this.request.body
-  if (!body.strategies) {
-    const err = new Error('strategies is require')
+  if (!body.strategyIDs) {
+    const err = new Error('strategyIDs is require')
     err.status = 400
     throw err
   }
   const user = this.session.loginUser
-  body.user = user.namespace
-  if (user.teamspace) {
-    body.user = user.teamspace
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.createBy([cluster, 'alerts/strategies/batch-enable-email'], null, body)
+  this.body = response
+}
+
+exports.batchDisableEmail = function* () {
+  const cluster = this.params.cluster
+  const body = this.request.body
+  if (!body.strategyIDs) {
+    const err = new Error('strategyIDs is require')
+    err.status = 400
+    throw err
   }
-  const spi = apiFactory.getSpi(user)
-  const response = yield spi.alerts.createBy(['strategy', 'toggle_send_email'], null, body)
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.createBy([cluster, 'alerts/strategies/batch-disable-email'], null, body)
   this.body = response
 }
 
 exports.setIgnore = function* () {
+  const cluster = this.params.cluster
   const body = this.request.body
   if (!body.strategies) {
     const err = new Error('strategies is require')
@@ -394,12 +366,12 @@ exports.setIgnore = function* () {
     throw err
   }
   const user = this.session.loginUser
-  body.user = user.namespace
-  if (user.teamspace) {
-    body.user = user.teamspace
-  }
-  const spi = apiFactory.getSpi(user)
-  const response = yield spi.alerts.createBy(['strategy', 'ingore'], null, body)
+  // body.user = user.namespace
+  // if (user.teamspace) {
+  //   body.user = user.teamspace
+  // }
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.createBy([cluster, 'alerts/strategies/batch-ingore'], null, body)
   this.body = response
 }
 
@@ -499,15 +471,9 @@ exports.deleteRule = function* () {
     err.status = 400
     throw err
   }
-  queryBody.clusterID = cluster
   const user = this.session.loginUser
-  queryBody.namespace = user.namespace
-  if (user.teamspace) {
-    queryBody.namespace = user.teamspace
-  }
-  queryBody.updater = user.user
-  const spi = apiFactory.getSpi(user)
-  const response = yield spi.alerts.deleteBy(['rule'], queryBody)
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.deleteBy([cluster, 'alerts/rules'], queryBody)
   this.body = response
 }
 

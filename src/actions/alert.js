@@ -428,38 +428,17 @@ export function batchDisable(cluster, body, callback) {
     dispath(fetchBatchDisable(cluster, body, callback))
   }
 }
-// TODO: remove this
-function fetchUpdateEnable(cluster, body, callback) {
-  return {
-    [FETCH_API]: {
-      types: [ALERT_UPDATE_SETTING_ENABLE_REQUEST, ALERT_UPDATE_SETTING_ENABLE_SUCCESS, ALERT_UPDATE_SETTING_ENABLE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/batch-enable`,
-      schema: {},
-      options: {
-        method: 'PUT',
-        body
-      }
-    },
-    callback
-  }
-}
-
-export function updateEnable(cluster, body, callback) {
-  return (dispath, getState)  => {
-    dispath(fetchUpdateEnable(cluster, body, callback))
-  }
-}
 
 export const ALERT_UPDATE_SETTING_SENDMAIL_REQUEST = 'ALERT_UPDATE_SETTING_SENDMAIL_REQUEST'
 export const ALERT_UPDATE_SETTING_SENDMAIL_SUCCESS = 'ALERT_UPDATE_SETTING_SENDMAIL_SUCCESS'
 export const ALERT_UPDATE_SETTING_SENDMAIL_FAILURE = 'ALERT_UPDATE_SETTING_SENDMAIL_FAILURE'
 
 
-function fetchUpdateSendEmail(cluster, body, callback) {
+function fetchBatchEnableEmail(cluster, body, callback) {
   return {
     [FETCH_API]: {
       types: [ALERT_UPDATE_SETTING_SENDMAIL_REQUEST, ALERT_UPDATE_SETTING_SENDMAIL_SUCCESS, ALERT_UPDATE_SETTING_SENDMAIL_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/email`,
+      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/batch-enable-email`,
       schema: {},
       options: {
         method: 'PUT',
@@ -470,9 +449,31 @@ function fetchUpdateSendEmail(cluster, body, callback) {
   }
 }
 
-export function updateSendEmail(cluster, body, callback) {
+export function batchEnableEmail(cluster, body, callback) {
   return (dispath, getState)  => {
-    dispath(fetchUpdateSendEmail(cluster, body, callback))
+    dispath(fetchBatchEnableEmail(cluster, body, callback))
+  }
+}
+
+
+function fetchBatchDisableEmail(cluster, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ALERT_UPDATE_SETTING_SENDMAIL_REQUEST, ALERT_UPDATE_SETTING_SENDMAIL_SUCCESS, ALERT_UPDATE_SETTING_SENDMAIL_FAILURE],
+      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/batch-disable-email`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function batchDisableEmail(cluster, body, callback) {
+  return (dispath, getState)  => {
+    dispath(fetchBatchDisableEmail(cluster, body, callback))
   }
 }
 
@@ -486,7 +487,7 @@ function fetchIngoreSetting(cluster, body, callback) {
   return {
     [FETCH_API]: {
       types: [ALERT_IGNORE_SETTING_REQUEST, ALERT_IGNORE_SETTING_SUCCESS, ALERT_IGNORE_SETTING_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/ignore`,
+      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/batch-ignore`,
       schema: {},
       options: {
         method: 'PUT',

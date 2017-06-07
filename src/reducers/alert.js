@@ -101,22 +101,22 @@ export default function alert(state = {
       REQUEST: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_REQUEST,
       SUCCESS: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_SUCCESS,
       FAILURE: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_FAILURE
-    }, state.updteEnable, action, option),
+    }, state.batchEnable, action, option),
     batchDisable: reducerFactory({
       REQUEST: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_REQUEST,
       SUCCESS: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_SUCCESS,
       FAILURE: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_FAILURE
-    }, state.updteEnable, action, option),
-    // updateEnable: reducerFactory({
-    //   REQUEST: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_REQUEST,
-    //   SUCCESS: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_SUCCESS,
-    //   FAILURE: ActionTypes.ALERT_UPDATE_SETTING_ENABLE_FAILURE
-    // }, state.updteEnable, action, option),
-    updateSendEmail: reducerFactory({
+    }, state.batchDisable, action, option),
+    batchEnableEmail: reducerFactory({
       REQUEST: ActionTypes.ALERT_UPDATE_SETTING_SENDEMAIL_REQUEST,
       SUCCESS: ActionTypes.ALERT_UPDATE_SETTING_SENDEMAIL_SUCCESS,
       FAILURE: ActionTypes.ALERT_UPDATE_SETTING_SENDEMAIL_FAILURE
-    }, state.updateSendEmail, action, option),
+    }, state.batchEnableEmail, action, option),
+    batchDisableEmail: reducerFactory({
+      REQUEST: ActionTypes.ALERT_UPDATE_SETTING_SENDEMAIL_REQUEST,
+      SUCCESS: ActionTypes.ALERT_UPDATE_SETTING_SENDEMAIL_SUCCESS,
+      FAILURE: ActionTypes.ALERT_UPDATE_SETTING_SENDEMAIL_FAILURE
+    }, state.batchDisableEmail, action, option),
     deleteRule: reducerFactory({
       REQUEST: ActionTypes.ALERT_DELETE_RULE_REQUEST,
       SUCCESS: ActionTypes.ALERT_DELETE_RULE_SUCCESS,

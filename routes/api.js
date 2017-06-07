@@ -434,8 +434,10 @@ module.exports = function (Router) {
   router.put('/alerts/cluster/:cluster/setting/batch-enable', alertController.batchEnable)
   router.put('/alerts/cluster/:cluster/setting/batch-disable', alertController.batchDisable)
   // router.put('/alerts/cluster/:cluster/setting/enable', alertController.updateEnable)
-  router.put('/alerts/cluster/:cluster/setting/email', alertController.updateSendEmail)
-  router.put('/alerts/cluster/:cluster/setting/ignore', alertController.setIgnore)
+  router.put('/alerts/cluster/:cluster/setting/batch-enable-email', alertController.batchEnableEmail)
+  router.put('/alerts/cluster/:cluster/setting/batch-disable-email', alertController.batchDisableEmail)
+  router.put('/alerts/cluster/:cluster/setting/batch-ignore', alertController.setIgnore)
+  // router.put('/alerts/cluster/:cluster/setting/ignore', alertController.setIgnore)
   router.get('/alerts/cluster/:cluster/type/:type/setting/:name/instant', alertController.getTargetInstant)
   router.delete('/alerts/cluster/:cluster/rule', alertController.deleteRule)
 
