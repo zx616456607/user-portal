@@ -10,6 +10,8 @@
  * @author Wang Lei
 */
 
+'use strict'
+
 var logger = require('../../utils/logger').getLogger('harborAPIs');
 const utils = require('../../utils')
 var request = require('request');
@@ -17,8 +19,6 @@ var async = require('async');
 var queryString = require ('querystring')
 var registryConfigLoader = require('../registryConfigLoader')
 
-// Used to cache basic auth info of each user
-var basicAuthCache = []
 /*
  * Docker registry APIs
  */
