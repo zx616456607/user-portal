@@ -143,7 +143,7 @@ function genRandomString(len) {
   return randomStr
 }
 
-function* writeFile(path, content) {
+function writeFile(path, content) {
   return new Promise((resolve, reject) =>
     fs.writeFile(path, content, err => {
       if (err) {
@@ -154,7 +154,7 @@ function* writeFile(path, content) {
     }))
 }
 
-function* deleteFile(path) {
+function deleteFile(path) {
   return new Promise((resolve, reject) =>
     fs.unlink(path, err => {
       if (err) {
