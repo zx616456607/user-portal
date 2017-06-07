@@ -122,11 +122,6 @@ export default function alert(state = {
       SUCCESS: ActionTypes.ALERT_DELETE_RULE_SUCCESS,
       FAILURE: ActionTypes.ALERT_DELETE_RULE_FAILURE
     }, state.deleteRule, action),
-    searchSetting: reducerFactory({
-      REQUEST: ActionTypes.ALERT_SEARCH_SETTING_REQUEST,
-      SUCCESS: ActionTypes.ALERT_SEARCH_SETTING_SUCCESS,
-      FAILURE: ActionTypes.ALERT_SEARCH_SETTING_FAILURE
-    }, state.deleteRule, action),
     invitations: reducerFactory({
       REQUEST: ActionTypes.SEND_INVITATIONS_REQUEST,
       SUCCESS: ActionTypes.SEND_INVITATIONS_SUCCESS,

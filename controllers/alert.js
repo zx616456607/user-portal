@@ -163,13 +163,7 @@ exports.getAlertSetting = function* () {
   const user = this.session.loginUser
   let owner = user.user
   const body = this.query
-  body.clusterID = cluster
-  const teamspace = user.teamspace
   const api = apiFactory.getK8sApi(user)
-  body.namespace = user.namespace
-  if (teamspace) {
-    body.namespace = teamspace
-  }
   // if(teamspace){
   //   const teamID = this.query.teamID
   //   if(!teamID) {
@@ -236,7 +230,6 @@ exports.addAlertSetting = function* () {
   const cluster = this.params.cluster
   const body = this.request.body
   const user = this.session.loginUser
-  body.clusterID = cluster
   const api = apiFactory.getK8sApi(user)
   const response = yield api.createBy([cluster, 'alerts/strategies'], null, body)
   this.body = response
@@ -247,7 +240,6 @@ exports.modifyAlertSetting = function* () {
   const strategyID = this.params.strategyID
   const body = this.request.body
   const user = this.session.loginUser
-  body.clusterID = cluster
   const api = apiFactory.getK8sApi(user)
   const response = yield api.updateBy([cluster, 'alerts/strategies', strategyID], null, body)
   this.body = response
@@ -258,18 +250,6 @@ exports.getSettingList = function* () {
   const queryBody = this.query || {}
   const user = this.session.loginUser
   const api = apiFactory.getK8sApi(this.session.loginUser)
-  if (queryBody.search) {
-    const cluster = this.params.cluster
-    if (!queryBody.strategyName) {
-      const err = new Error('strategyName is require')
-      err.status = 400
-      throw err
-    }
-    // TODO: check unify this
-    const response = yield api.getBy([cluster, 'alerts/strategies'], queryBody)
-    this.body = response
-    return
-  }
   const response = yield api.getBy([cluster, 'alerts/strategies'], queryBody)
   this.body = response
 }
@@ -293,9 +273,7 @@ exports.deleteSetting = function* () {
   const user = this.session.loginUser
   const api = apiFactory.getK8sApi(user)
   const response = yield api.deleteBy([cluster, 'alerts/strategies'], {
-    clusterID: cluster,
     strategyIDs: strategyID,
-    namespace: user.teamspace || user.namespace
   })
   this.body = response
 }
@@ -327,7 +305,6 @@ exports.batchDisable = function* () {
   const response = yield api.createBy([cluster, 'alerts/strategies/batch-disable'], null, body)
   this.body = response
 }
-
 
 exports.batchEnableEmail = function* () {
   const cluster = this.params.cluster
@@ -366,10 +343,6 @@ exports.setIgnore = function* () {
     throw err
   }
   const user = this.session.loginUser
-  // body.user = user.namespace
-  // if (user.teamspace) {
-  //   body.user = user.teamspace
-  // }
   const api = apiFactory.getK8sApi(user)
   const response = yield api.createBy([cluster, 'alerts/strategies/batch-ingore'], null, body)
   this.body = response
@@ -474,25 +447,6 @@ exports.deleteRule = function* () {
   const user = this.session.loginUser
   const api = apiFactory.getK8sApi(user)
   const response = yield api.deleteBy([cluster, 'alerts/rules'], queryBody)
-  this.body = response
-}
-
-exports.searchSetting = function* () {
-  const cluster = this.params.cluster
-  const queryBody = this.query
-  if (!queryBody.strategyName) {
-    const err = new Error('strategyName is require')
-    err.status = 400
-    throw err
-  }
-  queryBody.clusterID = cluster
-  const user = this.session.loginUser
-  queryBody.namespace = user.namespace
-  if (user.teamspace) {
-    queryBody.namespace = user.teamspace
-  }
-  const spi = apiFactory.getSpi(user)
-  const response = yield spi.alerts.deleteBy(['strategy', 'search'], queryBody)
   this.body = response
 }
 

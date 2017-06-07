@@ -251,7 +251,7 @@ export const ALERT_SETTING_FAILURE =  'ALERT_SETTING_FAILURE'
 
 
 function fetchAlertSetting(cluster, body, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting`
+  let endpoint = `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting`
   if(body) {
     endpoint += `?${toQuerystring(body)}`
   }
@@ -279,7 +279,7 @@ function fetchAddAlertSetting(cluster, body, callback){
   return {
     [FETCH_API]: {
       types: [ALERT_SETTING_ADD_REQUEST, ALERT_SETTING_ADD_SUCCESS, ALERT_SETTING_ADD_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting`,
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting`,
       schema: {},
       options: {
         body: body,
@@ -300,7 +300,7 @@ function fetchUpdateAlertSetting(cluster, strategyID, body, callback){
   return {
     [FETCH_API]: {
       types: [ALERT_SETTING_ADD_REQUEST, ALERT_SETTING_ADD_SUCCESS, ALERT_SETTING_ADD_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/${strategyID}`,
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting/${strategyID}`,
       schema: {},
       options: {
         body: body,
@@ -323,7 +323,7 @@ export const ALERT_SETTING_LIST_QUERY_FAILURE = 'ALERT_SETTING_LIST_QUERY_FAILUR
 
 
 function fetchGetAlertList(cluster, body, needFetching, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/list`
+  let endpoint = `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting/list`
   if(typeof body == 'function') {
     callback = body
     body = null
@@ -365,7 +365,7 @@ function fetchDeleteSetting(cluster, id, callback) {
   return {
     [FETCH_API]: {
       types: [ALERT_DELETE_SETTING_REQUEST, ALERT_DELETE_SETTING_SUCCESS, ALERT_DELETE_SETTING_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting?strategyID=${id.join(',')}`,
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting?strategyID=${id.join(',')}`,
       schema: {},
       options: {
         method: 'DELETE'
@@ -391,10 +391,10 @@ function fetchBatchEnable(cluster, body, callback) {
   return {
     [FETCH_API]: {
       types: [ALERT_UPDATE_SETTING_ENABLE_REQUEST, ALERT_UPDATE_SETTING_ENABLE_SUCCESS, ALERT_UPDATE_SETTING_ENABLE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/batch-enable`,
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting/batch-enable`,
       schema: {},
       options: {
-        method: 'PUT',
+        method: 'POST',
         body
       }
     },
@@ -412,10 +412,10 @@ function fetchBatchDisable(cluster, body, callback) {
   return {
     [FETCH_API]: {
       types: [ALERT_UPDATE_SETTING_ENABLE_REQUEST, ALERT_UPDATE_SETTING_ENABLE_SUCCESS, ALERT_UPDATE_SETTING_ENABLE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/batch-disable`,
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting/batch-disable`,
       schema: {},
       options: {
-        method: 'PUT',
+        method: 'POST',
         body
       }
     },
@@ -438,10 +438,10 @@ function fetchBatchEnableEmail(cluster, body, callback) {
   return {
     [FETCH_API]: {
       types: [ALERT_UPDATE_SETTING_SENDMAIL_REQUEST, ALERT_UPDATE_SETTING_SENDMAIL_SUCCESS, ALERT_UPDATE_SETTING_SENDMAIL_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/batch-enable-email`,
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting/batch-enable-email`,
       schema: {},
       options: {
-        method: 'PUT',
+        method: 'POST',
         body
       }
     },
@@ -460,10 +460,10 @@ function fetchBatchDisableEmail(cluster, body, callback) {
   return {
     [FETCH_API]: {
       types: [ALERT_UPDATE_SETTING_SENDMAIL_REQUEST, ALERT_UPDATE_SETTING_SENDMAIL_SUCCESS, ALERT_UPDATE_SETTING_SENDMAIL_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/batch-disable-email`,
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting/batch-disable-email`,
       schema: {},
       options: {
-        method: 'PUT',
+        method: 'POST',
         body
       }
     },
@@ -487,10 +487,10 @@ function fetchIngoreSetting(cluster, body, callback) {
   return {
     [FETCH_API]: {
       types: [ALERT_IGNORE_SETTING_REQUEST, ALERT_IGNORE_SETTING_SUCCESS, ALERT_IGNORE_SETTING_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/batch-ignore`,
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting/batch-ignore`,
       schema: {},
       options: {
-        method: 'PUT',
+        method: 'POST',
         body
       }
     },
@@ -513,7 +513,7 @@ export const ALERT_SETTING_INSTANT_FAILURE = 'ALERT_SETTING_INSTANT_FAILURET'
 
 
 function fetchSettingInstant(cluster, type, name, body, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/cluster/${cluster}/type/${type}/setting/${name}/instant`
+  let endpoint = `${API_URL_PREFIX}/cluster/${cluster}/alerts/type/${type}/setting/${name}/instant`
   if(body) {
     endpoint += `?${toQuerystring(body)}`
   }
@@ -544,7 +544,7 @@ function fetchDeleteRule(cluster, body, callback) {
     [FETCH_API]: {
       types: [ALERT_DELETE_RULE_REQUEST, ALERT_DELETE_RULE_SUCCESS, ALERT_DELETE_RULE_FAILURE],
       schema: {},
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/rule?${toQuerystring(body)}`,
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/rule?${toQuerystring(body)}`,
       options: {
         method: 'DELETE'
       }
@@ -560,28 +560,6 @@ export function deleteRule(cluster, body, callback) {
   }
 }
 
-
-export const ALERT_SEARCH_SETTING_REQUEST = 'ALERT_SEARCH_SETTING_REQUEST'
-export const ALERT_SEARCH_SETTING_SUCCESS = 'ALERT_SEARCH_SETTING_SUCCESS'
-export const ALERT_SEARCH_SETTING_FAILURE = 'ALERT_SEARCH_SETTING_FAILURE'
-
-function fetchSearchSetting(cluster, body, callback) {
-  return {
-    [FETCH_API]: {
-      types: [ALERT_SEARCH_SETTING_REQUEST, ALERT_SEARCH_SETTING_SUCCESS, ALERT_SEARCH_SETTING_FAILURE],
-      schema: {},
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/search?${toQuerystring(body)}`,
-    },
-    callback
-  }
-}
-
-
-export function searchSetting(cluster, body, callback) {
-  return (dispatch, getState) => {
-    return dispatch(fetchDeleteRule(cluster, body, callback))
-  }
-}
 
 export const SEND_INVITATIONS_REQUEST = 'SEND_INVITATIONS_REQUEST'
 export const SEND_INVITATIONS_SUCCESS = 'SEND_INVITATIONS_SUCCESS'

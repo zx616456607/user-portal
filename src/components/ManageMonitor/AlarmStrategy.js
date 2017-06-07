@@ -157,12 +157,6 @@ class AlarmStrategy extends Component {
     const body = {
       strategyIDs:[strategyID.toString()]
     }
-    // const body = {
-    //   strategies:[{
-    //     enable: enables,
-    //     strategyID: strategyID.toString()
-    //   }]
-    // }
     const notifcation = new NotificationHandler()
     notifcation.spin(noticeText)
     if (enables) {
