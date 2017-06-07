@@ -19,28 +19,40 @@ import { connect } from 'react-redux'
 import { loadProjectList } from '../../../../actions/harbor'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 
+const DEFAULT_QUERY = {
+  page: 1,
+  page_size: 10,
+  is_public: 1,
+}
 
 class PublicProject extends Component {
   constructor(props) {
     super()
     this.loadData = this.loadData.bind(this)
+    this.searchProjects = this.searchProjects.bind(this)
+    this.state = {
+      searchInput: '',
+    }
   }
 
   loadData(query) {
     const { loadProjectList } = this.props
-    loadProjectList(DEFAULT_REGISTRY, query)
+    loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, query))
+  }
+
+  searchProjects() {
+    this.loadData({ project_name: this.state.searchInput })
   }
 
   componentWillMount() {
     this.loadData({
-      page_size: 10,
       is_public: 1,
     })
   }
 
   render() {
     const { harborProjects } = this.props
-    const func={
+    const func = {
       scope: this,
       loadData: this.loadData
     }
@@ -53,9 +65,15 @@ class PublicProject extends Component {
 
             <Card className="project">
               <div className="topRow">
-                <Input placeholder="搜索" className="search" size="large" />
-                <i className="fa fa-search"></i>
-                <span className="totalPage">共计：{harborProjects.list && harborProjects.list.length || 0} 条</span>
+                <Input
+                  placeholder="搜索"
+                  className="search"
+                  size="large"
+                  onChange={e => this.setState({ searchInput: e.target.value })}
+                  onPressEnter={this.searchProjects}
+                />
+                <i className="fa fa-search" onClick={this.searchProjects}></i>
+                <span className="totalPage">共计：{harborProjects.total || 0} 条</span>
               </div>
               <DataTable dataSource={harborProjects} func={func}/>
             </Card>

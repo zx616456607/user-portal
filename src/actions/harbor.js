@@ -101,7 +101,6 @@ export const HARBOR_PROJECT_LOGS_FAILURE = 'HARBOR_PROJECT_LOGS_FAILURE'
 
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchProjectLogs(registry, projectID, query, body,callback) {
-  let { customizeOpts } = query || {}
   let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${projectID}/logs`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -125,5 +124,91 @@ function fetchProjectLogs(registry, projectID, query, body,callback) {
 export function loadProjectLogs(registry, projectID, query, body, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchProjectLogs(registry, projectID, query, body, callback))
+  }
+}
+
+export const CREATE_HARBOR_PROJECT_REQUEST = 'CREATE_HARBOR_PROJECT_REQUEST'
+export const CREATE_HARBOR_PROJECT_SUCCESS = 'CREATE_HARBOR_PROJECT_SUCCESS'
+export const CREATE_HARBOR_PROJECT_FAILURE = 'CREATE_HARBOR_PROJECT_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchCreateProject(registry, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ CREATE_HARBOR_PROJECT_REQUEST, CREATE_HARBOR_PROJECT_SUCCESS, CREATE_HARBOR_PROJECT_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function createProject(registry, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateProject(registry, body, callback))
+  }
+}
+
+export const DELETE_HARBOR_PROJECT_REQUEST = 'DELETE_HARBOR_PROJECT_REQUEST'
+export const DELETE_HARBOR_PROJECT_SUCCESS = 'DELETE_HARBOR_PROJECT_SUCCESS'
+export const DELETE_HARBOR_PROJECT_FAILURE = 'DELETE_HARBOR_PROJECT_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDeleteProject(registry, id, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${id}`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ DELETE_HARBOR_PROJECT_REQUEST, DELETE_HARBOR_PROJECT_SUCCESS, DELETE_HARBOR_PROJECT_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function deleteProject(registry, id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteProject(registry, id, callback))
+  }
+}
+
+export const UPDATE_HARBOR_PROJECT_REQUEST = 'UPDATE_HARBOR_PROJECT_REQUEST'
+export const UPDATE_HARBOR_PROJECT_SUCCESS = 'UPDATE_HARBOR_PROJECT_SUCCESS'
+export const UPDATE_HARBOR_PROJECT_FAILURE = 'UPDATE_HARBOR_PROJECT_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateProject(registry, id, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${id}/publicity`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ UPDATE_HARBOR_PROJECT_REQUEST, UPDATE_HARBOR_PROJECT_SUCCESS, UPDATE_HARBOR_PROJECT_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function updateProject(registry, id, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateProject(registry, id, body, callback))
   }
 }

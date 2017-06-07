@@ -33,6 +33,7 @@ function projects(state = {}, action) {
           isFetching: false,
           server: action.response.result.server,
           list: action.response.result.data,
+          total: action.response.result.total,
         }
       })
     case ActionTypes.HARBOR_PROJECT_LIST_FAILURE:
@@ -92,6 +93,7 @@ function repos(state = {}, action) {
         isFetching: false,
         server: action.response.result.server,
         list: action.response.result.data,
+        total: action.response.result.total,
       })
     case ActionTypes.HARBOR_GET_PROJECT_REPOS_FAILURE:
       return merge({}, defaultState, state, {

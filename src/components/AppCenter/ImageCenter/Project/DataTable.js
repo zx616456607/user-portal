@@ -14,20 +14,48 @@ import { Table,Button } from 'antd'
 import { Link } from 'react-router'
 import { camelize } from 'humps'
 import { formatDate } from '../../../../common/tools'
+import { DEFAULT_REGISTRY } from '../../../../constants'
+import NotificationHandler from '../../../../common/notification_handler'
+
+const notification = new NotificationHandler()
 
 class DataTable extends Component {
   constructor(props) {
     super()
     this.handleChange = this.handleChange.bind(this)
+    this.setProjectPublic = this.setProjectPublic.bind(this)
     this.state = {
       sortedInfo: null,
       filteredInfo: null,
       selectedRows: [],
     }
+    this.setPulicBtnLoading = {}
+  }
+
+  setProjectPublic(project) {
+    this.setPulicBtnLoading[project.name] = true
+    const { func } = this.props
+    const body = {
+      public: Math.abs(project.public - 1)
+    }
+    func.updateProject(DEFAULT_REGISTRY, project[camelize('project_id')], body, {
+      success: {
+        func: () => {
+          func.loadData()
+          this.setPulicBtnLoading[project.name] = false
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          notification.error(`更新项目 ${projet.name} 失败`)
+          this.setPulicBtnLoading[project.name] = false
+        },
+      }
+    })
   }
 
   handleChange(pagination, filters, sorter) {
-    console.log('各类参数是', pagination, filters, sorter);
     this.setState({
       filteredInfo: filters,
       sortedInfo: sorter,
@@ -103,14 +131,27 @@ class DataTable extends Component {
         sortOrder: sortedInfo.columnKey === camelize('creation_time') && sortedInfo.order
       },
       {
+        title: '更新时间',
+        dataIndex: camelize('update_time'),
+        key: camelize('update_time'),
+        render: text => formatDate(text),
+        sorter: (a, b) => new Date(a[camelize('update_time')]) - new Date(b[camelize('update_time')]),
+        sortOrder: sortedInfo.columnKey === camelize('update_time') && sortedInfo.order
+      },
+      {
         title: '操作',
         dataIndex: 'action',
         key: 'action',
         render: (text, row) => {
-          if (row[camelize('current_user_role_id')] == 1 || row[camelize('current_user_role_id')] == 2) {
+          if (row[camelize('current_user_role_id')] == 1) {
             return (
               <div className="action">
-                <Button size="large" type="primary">
+                <Button
+                  size="large"
+                  type="primary"
+                  loading={this.setPulicBtnLoading[row.name]}
+                  onClick={this.setProjectPublic.bind(this, row)}
+                >
                   {row.public == 1 ? '设为私有' : '设为公开'}
                 </Button>
                 <Button size="large" type="ghost" onClick={()=>scope.setState({deleteItem:true,selectedRows:[row]})}>
@@ -130,19 +171,24 @@ class DataTable extends Component {
         }
       }
     ]
-    const rowSelection = {
+    /*const rowSelection = {
       onChange(selectedRowKeys, selectedRows) {
-        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
         scope.setState({selectedRows})
       }
+    }*/
+    const { dataSource, func } = this.props
+    const paginationOpts = {
+      simple: true,
+      pageSize: 10,
+      total: dataSource.total,
+      onChange: current => func.loadData({ page: current })
     }
-    const { dataSource } = this.props
     return (
       <Table className="myImage"
         dataSource={dataSource.list}
         columns={columns}
-        rowSelection={rowSelection}
-        pagination={{ simple: true }}
+        loading={dataSource.isFetching}
+        pagination={paginationOpts}
         onChange={this.handleChange}
       />
     )

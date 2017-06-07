@@ -572,7 +572,7 @@ class ImageUpdate extends Component {
 
     const SelcetTargetStoreProps = getFieldProps('SelectTargetStore',{
       rules: [
-        {required: require, message: '请选择一个目标仓库'},
+        {required: true, message: '请选择一个目标仓库'},
       ]
     })
 

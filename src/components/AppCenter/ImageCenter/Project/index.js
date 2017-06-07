@@ -15,42 +15,74 @@ import QueueAnim from 'rc-queue-anim'
 import '../style/Project.less'
 import DataTable from './DataTable'
 import { connect } from 'react-redux'
-import { loadProjectList } from '../../../../actions/harbor'
+import { camelize } from 'humps'
+import { loadProjectList, createProject, deleteProject, updateProject } from '../../../../actions/harbor'
+import NotificationHandler from '../../../../common/notification_handler'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 
 const RadioGroup = Radio.Group
+const notification = new NotificationHandler()
+const DEFAULT_QUERY = {
+  page: 1,
+  page_size: 10,
+}
 
 class CreateItem extends Component {
   constructor(props) {
     super()
   }
   handCancel() {
-    const {form,func} = this.props
+    const { form,func } = this.props
     form.resetFields()
     func.scope.setState({createItem:false})
   }
+
   handOk() {
-    const {form,func} = this.props
-    form.validateFields((error,values)=> {
-      if (error) {
+    const { form, func } = this.props
+    form.validateFields((error, values)=> {
+      if (!!error) {
         return
       }
-      console.log('value',values)
-      func.scope.setState({createItem:false})
+      func.createProject(DEFAULT_QUERY, values, {
+        success: {
+          func: () => {
+            func.loadData()
+            func.scope.setState({ createItem:false })
+            form.resetFields()
+          },
+          isAsync: true,
+        },
+        failed: {
+          func: err => {
+            const { statusCode } = err
+            if (statusCode === 409) {
+              notification.error(`项目名称 ${values.project_name} 已存在`)
+              return
+            }
+            notification.error(`创建项目 ${values.project_name} 失败`)
+          },
+        }
+      })
     })
-
   }
+
   render() {
     const { getFieldProps } = this.props.form
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 16 },
     }
-    const itemName= getFieldProps('itemName',{
+    const itemName= getFieldProps('project_name',{
       rules: [
         { required: true, min: 3, message: '项目至少为3个字符' },
-        { validator: this.nameExists },
+        // { validator: this.nameExists },
       ],
+    })
+    const projectPublic = getFieldProps('public',{
+      rules: [
+        { required: true },
+      ],
+      initialValue: 0,
     })
     return (
       <Modal title="新建项目" visible={this.props.visible} onOk={()=> this.handOk()} onCancel={()=> this.handCancel()}>
@@ -59,9 +91,9 @@ class CreateItem extends Component {
             <Input placeholder="请输入项目名称" {...itemName}/>
           </Form.Item>
           <Form.Item label="项目类型" {...formItemLayout} className="createForm">
-            <RadioGroup defaultValue="1">
-              <Radio value="1">私有</Radio>
-              <Radio value="2">公开</Radio>
+            <RadioGroup {...projectPublic}>
+              <Radio value={0}>私有</Radio>
+              <Radio value={1}>公开</Radio>
             </RadioGroup>
           </Form.Item>
 
@@ -80,32 +112,69 @@ class Project extends Component {
     this.state = {
       createItem: false,// create modal
       deleteItem: false,// delte modal
-      selectedRows:[]
+      selectedRows:[],
+      searchInput: '',
     }
     this.loadData = this.loadData.bind(this)
+    this.searchProjects = this.searchProjects.bind(this)
+    this.deleteItemOk = this.deleteItemOk.bind(this)
   }
 
   loadData(query) {
     const { loadProjectList } = this.props
-    loadProjectList(DEFAULT_REGISTRY, query)
+    loadProjectList(DEFAULT_REGISTRY, Object.assign({}, DEFAULT_QUERY, query))
   }
 
   componentWillMount() {
-    this.loadData({
-      page_size: 10,
-    })
+    this.loadData()
+  }
+
+  searchProjects() {
+    this.loadData({ project_name: this.state.searchInput })
   }
 
   deleteItemOk() {
     // go delete item
-    console.log('sfsfsdf')
+    const { deleteProject } = this.props
+    const { selectedRows } = this.state
+    const doSuccess = () => {
+      notification.success(`项目 ${selectedRows[0].name} 删除成功`)
+      this.setState({
+        deleteItem: false,
+      })
+      this.loadData()
+    }
+    deleteProject(DEFAULT_QUERY, selectedRows[0][camelize('project_id')], {
+      success: {
+        func: () => {
+          doSuccess()
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode === 404) {
+            doSuccess()
+            return
+          }
+          if (statusCode === 412) {
+            notification.error(`项目包含规则，删除失败`)
+            return
+          }
+          notification.error(`项目删除失败`)
+        },
+      }
+    })
   }
 
   render() {
-    const { harborProjects } = this.props
+    const { harborProjects, createProject, updateProject } = this.props
     const func = {
       scope: this,
-      loadData: this.loadData
+      loadData: this.loadData,
+      createProject,
+      updateProject,
     }
     return (
       <div className="imageProject">
@@ -117,11 +186,16 @@ class Project extends Component {
             <Card className="project">
               <div className="topRow">
                 <Button type="primary" size="large" icon="plus" onClick={()=> this.setState({createItem:true})}>新建项目</Button>
-                <Button type="ghost" disabled={this.state.selectedRows.length==0} onClick={()=> this.setState({deleteItem:true})} size="large" icon="delete">删除</Button>
-
-                <Input placeholder="搜索" className="search" size="large" />
-                <i className="fa fa-search"></i>
-                <span className="totalPage">共计：{harborProjects.list && harborProjects.list.length || 0} 条</span>
+                {/*<Button type="ghost" disabled={this.state.selectedRows.length==0} onClick={()=> this.setState({deleteItem:true})} size="large" icon="delete">删除</Button>*/}
+                <Input
+                  placeholder="搜索"
+                  className="search"
+                  size="large"
+                  onChange={e => this.setState({ searchInput: e.target.value })}
+                  onPressEnter={this.searchProjects}
+                />
+                <i className="fa fa-search" onClick={this.searchProjects}></i>
+                <span className="totalPage">共计：{harborProjects.total || 0} 条</span>
               </div>
               <DataTable dataSource={harborProjects} func={func}/>
             </Card>
@@ -153,4 +227,7 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   loadProjectList,
+  createProject,
+  deleteProject,
+  updateProject,
 })(Project)
