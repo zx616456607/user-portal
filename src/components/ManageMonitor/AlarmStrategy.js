@@ -67,6 +67,12 @@ class AlarmStrategy extends Component {
   componentWillMount() {
     loadStrategy(this)
   }
+  componentWillReceiveProps(nextProps){
+    let { modalOpen }= nextProps
+    if(modalOpen) {
+      this.showAlert()
+    }
+  }
   onPageChange(page) {
     if(page == this.state.currentPage) return
     this.setState({
@@ -368,7 +374,7 @@ class AlarmStrategy extends Component {
           footer={null}
         >
           <CreateAlarm funcs={modalFunc} strategy={this.state.editStrategy} isEdit={this.state.isEdit} isShow={this.state.alarmModal}
-            getSettingList={() => loadStrategy(this)} />  {/*this.props.getSettingList(this.props.clusterID, { from: (this.state.currentPage - 1) * DEFAULT_PAGE_SIZE, size: DEFAULT_PAGE_SIZE })} />*/}
+            getSettingList={() => loadStrategy(this)} />
         </Modal>
         <Modal title="创建新通知组" visible={this.state.createGroup}
           width={560}

@@ -41,6 +41,8 @@ class AlarmGroup extends Component {
   componentWillMount() {
     const { loadNotifyGroups } = this.props
     loadNotifyGroups()
+    console.log('====willmount')
+    console.log(this.props.entities)
   }
   dropdowns (record, group){
     // Dropdown delete btn
@@ -54,7 +56,10 @@ class AlarmGroup extends Component {
     </Menu>
     )
   }
-
+  componentWillReceiveProps(nextProps){
+    console.log('====next')
+    console.log(nextProps)
+  }
   // group must be an array. e.g. ['ID1'] or ['ID1', 'ID2']
   deleteGroup(rowSelection) {
     let notification = new NotificationHandler()
@@ -211,7 +216,6 @@ class AlarmGroup extends Component {
       )
     }
     const tableData = this.props.groups
-
     const modalFunc=  {
       scope : this,
     }
@@ -354,7 +358,8 @@ class AlarmGroup extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { groups } = state.alert
+  const { entities } = state;
+  const { groups } = state.alert;
   if (!groups) {
     return props
   }
@@ -362,13 +367,14 @@ function mapStateToProps(state, props) {
       isFetching: false,
       result:{data:[]}
   }
-
+  
   const { isFetching } = groups || defaultData
   const { result } = groups || defaultData
   let groupsData = result ? result.data : []
   return {
+    entities,
     isFetching,
-    groups: groupsData
+    groups: groupsData,
   }
 }
 
