@@ -1,5 +1,7 @@
-
-/*
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ *
  * Project Manage
  *
  * v0.1 - 2017-06-02
@@ -9,7 +11,7 @@ import React, { Component } from 'react'
 import classNames from 'classnames';
 import './style/ProjectManage.less'
 import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, Steps, Transfer, InputNumber, Tree} from 'antd'
-import { browserHistory } from 'react-router'
+import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
 import SearchInput from '../../SearchInput'
 
@@ -37,13 +39,6 @@ class ProjectManage extends Component{
       current: 0,
       
     }
-  }
-  componentDidMount(){
-  
-  }
-  componentWillReceiveProps(nextProps){
-    let step = nextProps.location.query.step;
-    
   }
   goStep(current) {
     let s = '';
@@ -128,7 +123,7 @@ class ProjectManage extends Component{
       title: '项目名',
       dataIndex: 'projectName',
       key: 'projectName',
-      render: (text) => <a href="#">{text}</a>,
+      render: (text) => <Link to="/tenant_manage/project_manage/project_detail">{text}</Link>,
     }, {
       title: '备注',
       dataIndex: 'comment',
@@ -329,7 +324,7 @@ class ProjectManage extends Component{
           <Button size="large" onClick={()=> browserHistory.push('/tenant_manage/project_manage')}>取消</Button>
           <Button size="large" className={classNames({'hidden': step === '' || step === 'first'})} onClick={()=> this.goBack()}>上一步</Button>
           <Button size="large" className={classNames({'hidden': step === 'third'})} onClick={()=> this.next()}>下一步</Button>
-          <Button type="primary" size="large" style={{display: step === 'third' ? 'inline-block' : 'none'}}>创建</Button>
+          <Button type="primary" size="large" onClick={()=> browserHistory.push('/tenant_manage/project_manage')} style={{display: step === 'third' ? 'inline-block' : 'none'}}>创建</Button>
         </div>
       </div>
     )
@@ -600,7 +595,30 @@ class CreateStepThird extends Component{
       autoExpandParent: true,
       checkedKeys: ['0-0-0'],
       selectedKeys: [],
+      connectModal: false,
+      mockData: [],
+      targetKeys: [],
     }
+  }
+  componentDidMount() {
+    this.getMock();
+  }
+  getMock() {
+    const targetKeys = [];
+    const mockData = [];
+    for (let i = 0; i < 20; i++) {
+      const data = {
+        key: i,
+        title: `内容${i + 1}`,
+        description: `内容${i + 1}的描述`,
+        chosen: Math.random() * 2 > 1,
+      };
+      if (data.chosen) {
+        targetKeys.push(data.key);
+      }
+      mockData.push(data);
+    }
+    this.setState({ mockData, targetKeys });
   }
   onExpand(expandedKeys) {
     console.log('onExpand', arguments);
@@ -620,6 +638,18 @@ class CreateStepThird extends Component{
   onSelect(selectedKeys, info) {
     console.log('onSelect', info);
     this.setState({ selectedKeys });
+  }
+  closeModal() {
+    this.setState({connectModal: false})
+  }
+  submitModal() {
+    this.setState({connectModal: false})
+  }
+  filterOption(inputValue, option) {
+    return option.description.indexOf(inputValue) > -1;
+  }
+  handleChange(targetKeys) {
+    this.setState({ targetKeys });
   }
   render() {
     const TreeNode = Tree.TreeNode;
@@ -655,22 +685,41 @@ class CreateStepThird extends Component{
                 <div className="treeBox">
                   <Tree
                     checkable
-                    // onExpand={()=>this.onExpand()} expandedKeys={this.state.expandedKeys}
-                    // autoExpandParent={this.state.autoExpandParent}
-                    // onCheck={()=>this.onCheck()} checkedKeys={this.state.checkedKeys}
-                    // onSelect={()=>this.onSelect()} selectedKeys={this.state.selectedKeys}
+                    onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
+                    autoExpandParent={this.state.autoExpandParent}
+                    onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
+                    onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
                   >
                     {loop(gData)}
                   </Tree>
                 </div>
               </div>
               <div className="connectMemberBox inlineBlock">
-                <Button type="primary" size="large">关联对象</Button>
+                <Button type="primary" size="large" onClick={()=> this.setState({connectModal:true})}>关联对象</Button>
               </div>
             </div>
-            
           </div>
         </div>
+        <Modal title="关联对象" width={765} visible={this.state.connectModal}
+          onCancel={()=> this.closeModal()}
+          onOk={()=> this.submitModal()}
+        >
+          <Transfer
+            dataSource={this.state.mockData}
+            showSearch
+            listStyle={{
+              width: 300,
+              height: 290,
+            }}
+            searchPlaceholde="请输入搜索内容"
+            titles={['可选对象（个）', '已选对象（个）']}
+            operations={['移除', '添加']}
+            filterOption={this.filterOption.bind(this)}
+            targetKeys={this.state.targetKeys}
+            onChange={this.handleChange.bind(this)}
+            render={item => item.title}
+          />
+        </Modal>
       </div>
     )
   }
