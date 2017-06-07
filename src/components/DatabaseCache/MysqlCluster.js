@@ -122,7 +122,8 @@ class MysqlCluster extends Component {
       dbservice: []
     }
   }
-
+  refreshDatabase() {   
+  }
   componentWillMount() {
     const { loadDbCacheList, cluster } = this.props
     if (cluster == undefined) {
@@ -189,7 +190,7 @@ class MysqlCluster extends Component {
     const names = this.refs.mysqlRef.refs.input.value
     this.props.searchDbservice('mysql', names)
   }
-
+ 
   render() {
     const _this = this;
     const { isFetching, databaseList } = this.props;
@@ -213,6 +214,9 @@ class MysqlCluster extends Component {
               <i className='fa fa-plus' />&nbsp;MySQL集群
           </Button>
           </Tooltip>
+            <Button style={{marginLeft:'20px'}} size='large' onClick={this.refreshDatabase} disabled={!canCreate}>
+              <i className='fa fa-refresh' />&nbsp;刷新
+            </Button>
             <span className='rightSearch'>
               <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight:'28px'}} ref="mysqlRef" onPressEnter={(e)=> this.handSearch(e)} />
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()}/>
