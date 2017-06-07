@@ -24,6 +24,7 @@ const standardMode = require('../configs/constants').STANDARD_MODE
 const serviceIndex = require('../services')
 const registryConfigLoader = require('../registry/registryConfigLoader')
 const initGlobalConfig = require('../services/init_global_config')
+const securityUtil = require('../utils/security')
 const _ = require('lodash')
 
 /*
@@ -310,9 +311,11 @@ exports.updateUser = function* () {
   const result = yield api.users.patch(userID, user)
   // If update admin password, refresh the cache of registry
   if (result && result.statusCode === 200) {
-    if (user.password && registryConfigLoader.GetRegistryConfig() && loginUser.user == registryConfigLoader.GetRegistryConfig().user) {
-      logger.info("Update registry config in cache...")
-      registryConfigLoader.GetRegistryConfig().password = user.password
+    if (user.password && registryConfigLoader.GetRegistryConfig()) {
+      logger.info("Update registry auth in cache...")
+      // Update registry auth cache
+      let registryAuth = Buffer(loginUser.user + ':' + user.password).toString('base64')
+      loginUser.registryAuth = securityUtil.encryptContent(registryAuth)
     }
   }
 

@@ -279,7 +279,7 @@ HarborAPIs.prototype.sendRequest = function (requestUrl, httpMethod, data, callb
   } else if (httpMethod == 'DELETE') {
     requestAction = request.del;
   }
-  logger.info(method, this.getAuthorizationHeader());
+  logger.debug(method, this.getAuthorizationHeader());
   logger.debug(method, data);
   requestAction({
     url: requestUrl,
