@@ -48,6 +48,16 @@
       top:10px;right: 10px;
     }
   }
+  .management {
+    .topRow{
+      padding-top: 10px;
+      .totalPage {margin-right: 150px;}
+    }
+    .ant-table-pagination {
+      position: absolute;
+      top:-5px;right: 0px;
+    }
+  }
   .topNav {
     .itemName {
       vertical-align: middle;
@@ -59,6 +69,25 @@
       margin-right: 50px;
       font-size: 25px;
     }
+  }
+  .ant-popover-inner-content {
+    padding:0;
+  }
+  .menu-item{
+    line-height: 35px;
+    padding:0 20px;
+    cursor: pointer;
+    &:hover{
+      background: #EDF8FE;
+    }
+    .icon {
+      color: @activeColor;
+      float: right;
+    }
+  }
+  .menu-item.menu-disabled {
+    cursor: not-allowed;
+    background: none;
   }
 }
 .itemCreateFrom {
