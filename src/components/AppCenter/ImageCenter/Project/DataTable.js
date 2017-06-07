@@ -110,7 +110,29 @@ class DataTable extends Component {
     }
     const { dataSource } = this.props
     return (
-      <Table className="myImage" dataSource={dataSource} columns={columns} rowSelection={rowSelection} pagination={{ simple: true }} />
+      <div className="imageProject">
+        <br />
+        <div className="alertRow">镜像仓库用于存放镜像，您可关联第三方镜像仓库，使用公开云中私有空间镜像；关联后，该仓库也用于存放通过TenxFlow构建出来的镜像</div>
+        <QueueAnim>
+          <div key="projects">
+
+            <Card className="project">
+              <div className="topRow">
+                {
+                  projectType ?
+                    [<Button type="primary" size="large" icon="plus" key="1">新建项目</Button>,
+                    <Button type="ghost" size="large" icon="delete" key="2">删除</Button>]
+                    : null
+                }
+                <Input placeholder="搜索" className="search" size="large" />
+                <i className="fa fa-search"></i>
+                <span className="totalPage">共计：{dataSource.length} 条</span>
+              </div>
+              <Table className="myImage" dataSource={dataSource} columns={columns} rowSelection={rowSelection} pagination={{ simple: true }} />
+            </Card>
+          </div>
+        </QueueAnim>
+      </div>
     )
   }
 }

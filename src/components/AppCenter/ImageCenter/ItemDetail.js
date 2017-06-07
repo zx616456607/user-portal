@@ -17,6 +17,7 @@ import { Link, browserHistory } from 'react-router'
 import Logs from './ImageItem/Logs'
 import Management from './ImageItem/Management'
 import CodeRepo from './ImageItem/CodeRepo'
+import ImageUpdata from './ImageItem/ImageUpdata'
 const TabPane = Tabs.TabPane
 
 class ItemDetail extends Component {
@@ -48,7 +49,7 @@ class ItemDetail extends Component {
                 <TabPane tab="镜像仓库" key="repo"><CodeRepo /></TabPane>
                 <TabPane tab="权限管理" key="role"><Management /></TabPane>
                 <TabPane tab="审计日志" key="log"><Logs /></TabPane>
-                <TabPane tab="镜像同步" key="sync">镜像同步内容</TabPane>
+                <TabPane tab="镜像同步" key="sync"><ImageUpdata /></TabPane>
               </Tabs>
             </Card>
           </div>
