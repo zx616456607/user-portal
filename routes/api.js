@@ -227,6 +227,15 @@ module.exports = function (Router) {
   router.put('/registries/:registry/projects/:project_id/publicity', harborController.updateProjectPublicity)
   router.get('/registries/:registry/repositories', harborController.getProjectRepositories)
 
+  router.get('/registries/:registry/logs', harborController.getLogs)
+  router.post('/registries/:registry/projects/:projectID/logs', harborController.getProjectLogs)
+  router.get('/registries/:registry/systeminfo', harborController.getSystemInfo)
+  router.get('/registries/:registry/systeminfo/volumes', harborController.getSystemInfoVolumes)
+  router.get('/registries/:registry/systeminfo/cert', harborController.getSystemInfoCert)
+  router.get('/registries/:registry/configurations', harborController.getConfigurations)
+  router.put('/registries/:registry/configurations', harborController.updateConfigurations)
+  router.post('/registries/:registry/configurations/reset', harborController.resetConfigurations)
+
   router.get('/registries/:registry/jobs/replication', harborController.getReplicationJobs)
   router.delete('/registries/:registry/jobs/replication/:id', harborController.deleteReplicationJob)
   router.get('/registries/:registry/jobs/replication/:id/log', harborController.getReplicationJobLogs)
@@ -244,14 +253,7 @@ module.exports = function (Router) {
   router.delete('/registries/:registry/targets/:id', harborController.deleteReplicationTarget)
   router.get('/registries/:registry/targets/:id/policies', harborController.getReplicationTargetRelatedPolicies)
 
-  router.get('/registries/:registry/logs', harborController.getLogs)
-  router.post('/registries/:registry/projects/:projectID/log', harborController.getProjectLogs)
-  router.get('/registries/:registry/systeminfo', harborController.getSystemInfo)
-  router.get('/registries/:registry/systeminfo/volumes', harborController.getSystemInfoVolumes)
-  router.get('/registries/:registry/systeminfo/cert', harborController.getSystemInfoCert)
-  router.get('/registries/:registry/configurations', harborController.getConfigurations)
-  router.put('/registries/:registry/configurations', harborController.updateConfigurations)
-  router.post('/registries/:registry/configurations/reset', harborController.resetConfigurations)
+  router.get('/registries/:registry/statistics', harborController.getStatistics)
 
   // Registries of TenxCloud
   router.get('/registries/:registry', registryController.getImages)
@@ -263,7 +265,7 @@ module.exports = function (Router) {
   router.get('/registries/:registry/favourite', registryController.getFavouriteImages)
   router.put('/registries/:registry/:image*', registryController.updateImageInfo)
   router.delete('/registries/:registry/:image*', registryController.deleteImage)
-  router.get('/registries/:registry/stats', registryController.queryServerStats)
+  // router.get('/registries/:registry/stats', registryController.queryServerStats)
 
   // Private docker registry integration
   router.get('/docker-registry', registryController.getPrivateRegistries)

@@ -142,8 +142,8 @@ class MySpace extends Component{
         axisLine: {
           lineStyle: {
             width: 16,
-            color: [[this.calcPer(spaceImageStats.publicNumber,spaceImageStats.privateNumber), "#13c563"],
-                    [(this.calcPer(spaceImageStats.publicNumber,spaceImageStats.privateNumber)+0.02),'#fff'],[1, "#46b2fa"]]
+            color: [[this.calcPer(spaceImageStats.publicRepoCount,spaceImageStats.myRepoCount), "#13c563"],
+                    [(this.calcPer(spaceImageStats.publicRepoCount,spaceImageStats.myRepoCount)+0.02),'#fff'],[1, "#46b2fa"]]
           }
         },
         splitLine: {
@@ -200,10 +200,10 @@ class MySpace extends Component{
                 option={imageOption}
                 style={{height:'90px'}}
               />
-              <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>{spaceImageStats.publicNumber+spaceImageStats.privateNumber} 个</div>
+              <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>{spaceImageStats.publicRepoCount+spaceImageStats.myRepoCount} 个</div>
               <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px',fontSize: '13px', color: '#666'}}>
-                <Col span={12}>公有 {spaceImageStats.publicNumber} 个</Col>
-                <Col span={12}>私有 {spaceImageStats.privateNumber} 个</Col>
+                <Col span={12}>公有 {spaceImageStats.publicRepoCount} 个</Col>
+                <Col span={12}>私有 {spaceImageStats.myRepoCount} 个</Col>
               </Row>
               <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px',fontSize:'12px'}}>
                 服务状态:
@@ -531,9 +531,7 @@ function mapStateToProp(state,props) {
     spaceCICDStatsData.failedNumber = data.failedNumber
   }
   if (spaceImageStats.result && spaceImageStats.result.data) {
-    let data = spaceImageStats.result.data
-    spaceImageStatsData.publicNumber = data.publicNumber
-    spaceImageStatsData.privateNumber = data.privateNumber
+    spaceImageStatsData = spaceImageStats.result.data
   }
   return {
     spaceOperations: spaceOperationsData,

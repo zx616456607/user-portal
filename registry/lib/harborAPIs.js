@@ -9,6 +9,7 @@
  * v0.1 - 2017-06-02
  * @author Wang Lei
 */
+'use strict'
 
 'use strict'
 
@@ -49,6 +50,16 @@ HarborAPIs.prototype.searchProjects = function (query, callback) {
   logger.debug(method, "Request url: " + requestUrl);
   this.sendRequest(requestUrl, 'GET', null, callback);
 };
+
+HarborAPIs.prototype.getStatistics = function (query, callback) {
+  var method = "getStatistics"
+  logger.debug(method, "Get statistics of projects and repositories")
+
+  // If no callback, then will use the 1st parameter as callback, so we can do search all by default
+  var requestUrl = this.getAPIPrefix() + "/statistics"
+  logger.debug(method, "Request url: " + requestUrl)
+  this.sendRequest(requestUrl, 'GET', null, callback)
+}
 
 // [GET] /jobs/replication
 HarborAPIs.prototype.getReplicationJobs = function (query, callback) {

@@ -44,33 +44,69 @@ exports.updateProjectPublicity = harborHandler(
 exports.getProjectRepositories = harborHandler(
   (harbor, ctx, callback) => harbor.getProjectRepositories(ctx.query, callback))
 
-// Search projects from harbor server
-/*exports.searchProjects = function* () {
-  const registry = this.params.registry
-  const loginUser = this.session.loginUser
-  const query = this.query || {}
-  var q = query.q || ""
-  let authInfo = yield getAuthInfo(loginUser)
-  const harborAPI = new harborAPIs(getRegistryConfig(), authInfo)
-  const result = yield new Promise(function (resolve, reject) {
-    harborAPI.searchProjects(q, function(err, statusCode, projects) {
-      if (err) {
-        reject(err)
-        return
-      }
-      if (statusCode > 300) {
-        reject("Error from request: " + statusCode)
-        return
-      }
-      resolve(projects)
-    })
+// [GET] /statistics
+exports.getStatistics = harborHandler(
+  (harbor, ctx, callback) => {
+    const query = utils.isEmptyObject(ctx.query) ? null : ctx.query
+    harbor.getStatistics(query, callback)
   })
-  this.body = {
-    server: getRegistryConfig().url,
-    data: result
-  }
-}*/
 
+/*------------------log start------------------------*/
+exports.getLogs = harborHandler(
+  (harbor, ctx, callback) => {
+    const query = utils.isEmptyObject(ctx.query) ? null : ctx.query
+    harbor.getLogs(query, callback)
+  })
+
+exports.getProjectLogs = harborHandler(
+  (harbor, ctx, callback, headers) => {
+    const projectID = ctx.params.projectID
+    const query = utils.isEmptyObject(ctx.query) ? null : ctx.query
+    const body = ctx.request.body
+    body.project_id = parseInt(projectID)
+    harbor.getProjectLogs(projectID, query, body, callback)
+  })
+
+/*------------------log end-------------------------*/
+
+
+/*------------------systeminfo start--------------------------------*/
+
+exports.getSystemInfo = harborHandler(
+  (harbor, ctx, callback) => {
+    harbor.getSystemInfo(callback)
+  })
+
+exports.getSystemInfoVolumes = harborHandler(
+  (harbor, ctx, callback) => {
+    harbor.getSystemInfoVolumes(callback)
+  })
+
+exports.getSystemInfoCert = harborHandler(
+  (harbor, ctx, callback) => {
+    harbor.getSystemInfoCert(callback)
+  })
+/*------------------systeminfo end--------------------------------*/
+
+
+/*------------------configurations start--------------------------------*/
+
+exports.getConfigurations = harborHandler(
+  (harbor, ctx, callback) => {
+    harbor.getConfigurations(callback)
+  })
+
+exports.updateConfigurations = harborHandler(
+  (harbor, ctx, callback) => {
+    const body = utils.isEmptyObject(ctx.request.body) ? null : ctx.request.body
+    harbor.updateConfigurations(body, callback)
+  })
+
+exports.resetConfigurations = harborHandler(
+  (harbor, ctx, callback) => {
+    harbor.resetConfigurations(callback)
+  })
+/*------------------configurations end--------------------------------*/
 // [GET] /jobs/replication
 exports.getReplicationJobs = harborHandler(
   (harbor, ctx, callback) => harbor.getReplicationJobs(ctx.query, callback))
