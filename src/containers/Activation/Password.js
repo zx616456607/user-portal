@@ -142,7 +142,7 @@ let Admin = React.createClass({
           <div className="loginContent">
           <Row style={{ textAlign: 'center' }}>
             <span className='logoLink'>
-              <div className='logTitle'>{this.props.company.productName}</div>
+              <div className='logTitle'>{result.company.productName}</div>
               <div className=''>技术领先的容器云计算服务商</div>
             </span>
           </Row>
@@ -189,7 +189,10 @@ let Admin = React.createClass({
 })
 
 function mapStateToProps(state, props) {
-  const { result } = state.personalized.info
+  let { result } = state.personalized.info
+  if (!result || !result.company) {
+    result = {company:{}}
+  }
   return {
     result
   }

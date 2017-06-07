@@ -361,6 +361,17 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
+              <li onClick={this.selectModel.bind(this, 'tenant_manage', '#tenant_manage')}
+                className={currentKey == 'tenant_manage' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='租户管理'
+                  getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/tenant_manage'>
+                    <svg className='account commonImg'>
+                     <use xlinkHref='#message' />
+                    </svg>
+                  </Link>
+                </Tooltip>
+              </li>
               <li onClick={this.selectModel.bind(this, 'setting', '#setting')}
                 className={currentKey == 'setting' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='系统设置'
@@ -387,17 +398,6 @@ class Sider extends Component {
                   </li>
                 ] : null
               }
-              <li onClick={this.selectModel.bind(this, 'tenant_manage', '#tenant_manage')}
-                className={currentKey == 'tenant_manage' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='租户管理'
-                  getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                  <Link to='/tenant_manage'>
-                    <svg className='account commonImg'>
-                     <use xlinkHref='#message' />
-                    </svg>
-                  </Link>
-                </Tooltip>
-              </li>
               <div style={{ clear: 'both' }}></div>
             </ul>
             {/*<ul className='siderBottom'>
@@ -628,7 +628,6 @@ class Sider extends Component {
                   </Menu.Item>
                   <div className='sline'></div>
                 </SubMenu>
-
                 <SubMenu key='account'
                   title={
                     <span>
@@ -683,7 +682,39 @@ class Sider extends Component {
                   }
                   <div className='sline'></div>
                 </SubMenu>
-
+                <SubMenu key='tenant_manage'
+                  title={
+                    <span>
+                      <svg className='account commonImg'>
+                        <use xlinkHref='#message' />
+                      </svg>
+                      <span className='commonSiderSpan'>租户管理</span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                >
+                  <Menu.Item key='tenant_manage_default'>
+                    <Link to='/tenant_manage'>
+                      <span><div className='sideCircle'></div> 租户</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='projectManage'>
+                    <Link to='/tenant_manage/project_manage'>
+                      <span><div className='sideCircle'></div> 项目管理</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <Link to='/tenant_manage/rolemanagement'>
+                      <span><div className='sideCircle'></div> 角色管理</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <Link to='/tenant_manage/allpermissions'>
+                      <span><div className='sideCircle'></div> 所有权限</span>
+                    </Link>
+                  </Menu.Item>
+                  <div className='sline'></div>
+                </SubMenu>
                 <SubMenu key='setting'
                   title={
                     <span>
@@ -747,39 +778,6 @@ class Sider extends Component {
                     </Link>
                   </Menu.Item> : <Menu.Item key="none-footer" style={{ display: 'none' }}></Menu.Item>
                 }
-                <SubMenu key='tenant_manage'
-                  title={
-                    <span>
-                      <svg className='account commonImg'>
-                        <use xlinkHref='#message' />
-                      </svg>
-                      <span className='commonSiderSpan'>租户管理</span>
-                      <div style={{ clear: 'both' }}></div>
-                    </span>
-                  }
-                >
-                  <Menu.Item key='tenant_manage_default'>
-                    <Link to='/tenant_manage'>
-                      <span><div className='sideCircle'></div> 租户</span>
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item key='projectManage'>
-                    <Link to='/tenant_manage/project_manage'>
-                      <span><div className='sideCircle'></div> 项目管理</span>
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item>
-                    <Link to='/tenant_manage/rolemanagement'>
-                      <span><div className='sideCircle'></div> 角色管理</span>
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item>
-                    <Link to='/tenant_manage/allpermissions'>
-                      <span><div className='sideCircle'></div> 所有权限</span>
-                    </Link>
-                  </Menu.Item>
-                  <div className='sline'></div>
-                </SubMenu>
               </Menu>
             </div>
           </QueueAnim>

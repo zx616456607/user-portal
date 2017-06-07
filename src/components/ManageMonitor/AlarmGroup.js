@@ -41,8 +41,6 @@ class AlarmGroup extends Component {
   componentWillMount() {
     const { loadNotifyGroups } = this.props
     loadNotifyGroups()
-    console.log('====willmount')
-    console.log(this.props.entities)
   }
   dropdowns (record, group){
     // Dropdown delete btn
@@ -57,8 +55,12 @@ class AlarmGroup extends Component {
     )
   }
   componentWillReceiveProps(nextProps){
-    console.log('====next')
-    console.log(nextProps)
+    let pre = this.props.entities.current.space.spaceName;
+    let next = nextProps.entities.current.space.spaceName;
+    const { loadNotifyGroups } = this.props
+    if(pre !== next) {
+      loadNotifyGroups()
+    }
   }
   // group must be an array. e.g. ['ID1'] or ['ID1', 'ID2']
   deleteGroup(rowSelection) {
@@ -126,7 +128,7 @@ class AlarmGroup extends Component {
     let content = '-'
     if (emails.length > 0) {
       content = emails.map(function(item) {
-        let status = !!emails[0].status != 1 ? <span style={{color:'#f23e3f'}}> 【未验证】</span> : null
+        let status = emails[0].status != 1 ? <span style={{color:'#f23e3f'}}> 【未验证】</span> : null
         return <div className='alarmGroupItem'>
           {item.addr}
           <span className='alarmGroupspan'>{!!item.desc ? ` (备注:${item.desc})` : ''}</span>
