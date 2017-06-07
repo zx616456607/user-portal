@@ -110,13 +110,13 @@ let MyComponent = React.createClass({
     }
   },
   clearRecords() {
-    const { deleteRecords } = this.props
+    const { deleteRecords, clusterID } = this.props
     const notify = new NotificationHandler()
     if(!this.state.clearStraregy.strategyID) {
       return notify.error('请选择要清除记录的策略')
     }
     notify.spin('策略告警记录清除中')
-    deleteRecords(this.state.clearStraregy.strategyID, {
+    deleteRecords(this.state.clearStraregy.strategyID, clusterID, {
       success: {
         func: () => {
           notify.close()
@@ -938,7 +938,7 @@ class AlarmSetting extends Component {
             :null
           }
           </div>
-          <MyComponent data={this.props.setting} scope={this} funcs={{ deleteRecords: this.props.deleteRecords }} needUpdate={this.state.needUpdate} />
+          <MyComponent data={this.props.setting} scope={this} funcs={{ deleteRecords: this.props.deleteRecords }} needUpdate={this.state.needUpdate} clusterID={this.props.clusterID}/>
           <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
             className="alarmModal"
             onCancel={() => this.setState({ alarmModal: false, step: 1 })}

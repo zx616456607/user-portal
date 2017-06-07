@@ -587,7 +587,7 @@ export const GET_SETTINGLLIST_FROM_SERVICE_APP_SUCCESS = 'GET_SETTINGLLIST_FROM_
 export const GET_SETTINGLLIST_FROM_SERVICE_APP_FAILURE = 'GET_SETTINGLLIST_FROM_SERVICE_APP_FAILURE'
 
 function fetchSettingListfromserviceorapp(query, cluster, callback) {
-  let endpoint = `${API_URL_PREFIX}/cluster/:cluster/alerts/group-strategies`
+  let endpoint = `${API_URL_PREFIX}/cluster/${cluster}/alerts/group-strategies`
   endpoint += `?${toQuerystring(query)}`
   return {
     [FETCH_API]: {
