@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * ImageCenter component
+ * DataTable project component
  *
  * v0.1 - 2017-6-5
  * @author Baiyu
@@ -10,56 +10,23 @@
 
 
 import React, { Component } from 'react'
-import { Modal, Tabs, Table, Icon, Button, Card, Input } from 'antd'
-import QueueAnim from 'rc-queue-anim'
-import './style/Project.less'
+import { Table,Button } from 'antd'
 import { Link } from 'react-router'
-import Logs from './ImageItem/Logs'
-import Management from './ImageItem/Management'
-import CodeRepo from './ImageItem/CodeRepo'
-const TabPane = Tabs.TabPane
 
-class Project extends Component {
+class DataTable extends Component {
   constructor(props) {
     super()
     this.state = {
-      isProject: true, // top project type
       sortedInfo: null,
-      filteredInfo: null
+      filteredInfo: null,
+      selectedRows:[]
     }
   }
   render() {
-    let { sortedInfo, filteredInfo } = this.state
+     let { sortedInfo, filteredInfo } = this.state
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    const { route } = this.props
-    let projectType = true
-    if (route.path) {
-      projectType = false
-    }
-    const dataSource = [
-      {
-        name: 'demo-1',
-        type: 1,
-        role: '1',
-        ropo: '90',
-        createTime: '2017-4-5'
-      },
-      {
-        name: 'demo-2',
-        type: 2,
-        role: '2',
-        ropo: '30',
-        createTime: '2017-8-5'
-      },
-      {
-        name: 'demo-33',
-        type: 1,
-        role: '3',
-        ropo: '50',
-        createTime: '2017-4-0'
-      }
-    ]
+    const scope = this.props.func.scope
     const columns = [
       {
         title: '项目名称',
@@ -126,7 +93,7 @@ class Project extends Component {
         render: (text, row) => {
           if (row.role == 1) {
             return (
-              <div className="action"><Button size="large" type="primary">设为公开</Button><Button size="large" type="ghost">删除</Button></div>
+              <div className="action"><Button size="large" type="primary">设为公开</Button><Button size="large" type="ghost" onClick={()=>scope.setState({deleteItem:true,selectedRows:[row]})}>删除</Button></div>
             )
           }
           return (
@@ -138,41 +105,14 @@ class Project extends Component {
     const rowSelection = {
       onChange(selectedRowKeys, selectedRows) {
         console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-      },
-      onSelect(record, selected, selectedRows) {
-        console.log(record, selected, selectedRows);
-      },
-      onSelectAll(selected, selectedRows, changeRows) {
-        console.log(selected, selectedRows, changeRows);
-      },
-    };
+        scope.setState({selectedRows})
+      }
+    }
+    const { dataSource } = this.props
     return (
-      <div className="imageProject">
-        <br />
-        <div className="alertRow">镜像仓库用于存放镜像，您可关联第三方镜像仓库，使用公开云中私有空间镜像；关联后，该仓库也用于存放通过TenxFlow构建出来的镜像</div>
-        <QueueAnim>
-          <div key="projects">
-
-            <Card className="project">
-              <div className="topRow">
-                {
-                  projectType ?
-                    [<Button type="primary" size="large" icon="plus" key="1">新建项目</Button>,
-                    <Button type="ghost" size="large" icon="delete" key="2">删除</Button>]
-                    : null
-                }
-                <Input placeholder="搜索" className="search" size="large" />
-                <i className="fa fa-search"></i>
-                <span className="totalPage">共计：{dataSource.length} 条</span>
-              </div>
-              <Table className="myImage" dataSource={dataSource} columns={columns} rowSelection={rowSelection} pagination={{ simple: true }} />
-            </Card>
-
-          </div>
-        </QueueAnim>
-      </div>
+      <Table className="myImage" dataSource={dataSource} columns={columns} rowSelection={rowSelection} pagination={{ simple: true }} />
     )
   }
 }
 
-export default Project
+export default DataTable

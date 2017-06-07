@@ -30,8 +30,6 @@ class ItemDetail extends Component {
   }
 
   render() {
-    console.log(this.props.params)
-
     const { params } = this.props
     return (
       <div className="imageProject">
