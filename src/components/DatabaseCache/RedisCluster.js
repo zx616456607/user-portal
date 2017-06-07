@@ -119,7 +119,9 @@ class RedisDatabase extends Component {
       CreateDatabaseModalShow: false
     }
   }
-
+  clusterRefresh() {
+    
+  }
   componentWillMount() {
     const { loadDbCacheList, cluster } = this.props
     if (cluster == undefined) {
@@ -200,6 +202,9 @@ class RedisDatabase extends Component {
             <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
               <i className='fa fa-plus' />&nbsp;Redis集群
           </Button></Tooltip>
+            <Button style={{marginLeft:'20px'}} size='large' onClick={this.clusterRefresh} disabled={!canCreate}>
+              <i className='fa fa-refresh' />&nbsp;刷新
+            </Button>
             <span className='rightSearch'>
               <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight:'28px' }} ref="redisRef" onPressEnter={(e)=> this.handSearch(e)}/>
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()} />

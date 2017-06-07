@@ -123,7 +123,7 @@ class AlarmGroup extends Component {
     let content = '-'
     if (emails.length > 0) {
       content = emails.map(function(item) {
-        let status = !!emails[0].status != 1 ? <span style={{color:'#f23e3f'}}> 【未验证】</span> : null
+        let status = emails[0].status != 1 ? <span style={{color:'#f23e3f'}}> 【未验证】</span> : null
         return <div className='alarmGroupItem'>
           {item.addr}
           <span className='alarmGroupspan'>{!!item.desc ? ` (备注:${item.desc})` : ''}</span>

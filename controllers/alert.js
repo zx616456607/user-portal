@@ -411,10 +411,10 @@ exports.getTargetInstant = function* () {
     type: 'network/rx_rate',
     source: 'prometheus'
   }
-  reqArray.push(api.getBy([cluster, name, 'metric/instant'], cpu))
-  reqArray.push(api.getBy([cluster, name, 'metric/instant'], mem))
-  reqArray.push(api.getBy([cluster, name, 'metric/instant'], tx_rage))
-  reqArray.push(api.getBy([cluster, name, 'metric/instant'], rx_rate))
+  reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], cpu))
+  reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], mem))
+  reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], tx_rage))
+  reqArray.push(api.getBy([cluster, 'metric', name, 'metric/instant'], rx_rate))
   const results = yield reqArray
   let totalMemoryByte = 0
   if (type == 'node') {

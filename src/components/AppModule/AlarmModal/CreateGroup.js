@@ -110,6 +110,7 @@ let CreateAlarmGroup = React.createClass({
   },
   ruleEmail(k) {
     // send rule email
+    
     const _this = this
     let time = 60
     const { getFieldValue } = this.props.form
@@ -159,6 +160,8 @@ let CreateAlarmGroup = React.createClass({
           }
         }
       })
+    }else{
+      this.okModal()
     }
   },
   groupName(rule, value, callback) {
