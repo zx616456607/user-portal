@@ -409,8 +409,8 @@ class Snapshot extends Component {
 
     const menu = snapshotDataList.map((item, index) => {
       return <Menu onClick={this.handleDropdown.bind(this,index)}>
-        <Menu.Item key="deleteSnapshot">删除</Menu.Item>
-        <Menu.Item key="cloneSnapshot">创建</Menu.Item>
+        <Menu.Item key="deleteSnapshot" style={{paddingRight:'25px',paddingLeft:'20px'}}>删除</Menu.Item>
+        <Menu.Item key="cloneSnapshot" style={{paddingRight:'25px',paddingLeft:'20px'}}>创建</Menu.Item>
       </Menu>
     })
     
