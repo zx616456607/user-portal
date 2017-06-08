@@ -44,9 +44,8 @@ const messages = defineMessages({
   },
 })
 
-
 class CreateVolume extends Component {
-	constructor(props){
+  constructor(props) {
     super(props)
     this.checkVolumeName = this.checkVolumeName.bind(this)
     this.changeVolumeSizeSlider = this.changeVolumeSizeSlider.bind(this)
@@ -100,10 +99,10 @@ class CreateVolume extends Component {
     }
   }
 
-  handleSelectSnapshot(value){
-	  const { snapshotDataList, form } = this.props
-    for(let i=0;i<snapshotDataList.length;i++){
-	    if(snapshotDataList[i].name == value){
+  handleSelectSnapshot(value) {
+    const { snapshotDataList,form } = this.props
+    for(let i = 0; i < snapshotDataList.length; i++){
+      if(snapshotDataList[i].name == value){
         this.setState({
           volumeSizemin: snapshotDataList[i].size,
           volumeSize: snapshotDataList[i].size,
@@ -119,37 +118,37 @@ class CreateVolume extends Component {
     }
   }
 
-  handleResetState(){
-	  const { scope, form } = this.props
+  handleResetState() {
+    const { scope,form } = this.props
     form.resetFields()
     scope.setState({
       visible: false,
     })
     this.setState({
       loading: false,
-      ext4Disabled:false,
+      ext4Disabled: false,
       xfsDisabled: false,
       volumeSize: 512,
     })
   }
 
-  handleComfirmCreateVolume(){
-	  const { form, SnapshotClone, cluster, currentVolume, createStorage, currentImagePool, loadStorageList } = this.props
-    const { volumeSize, fstype } = this.state
+  handleComfirmCreateVolume() {
+    const { form,SnapshotClone,cluster,currentVolume,createStorage,currentImagePool,loadStorageList } = this.props
+    const { volumeSize,fstype } = this.state
     this.setState({
       loading: true,
     })
-    form.validateFields((errors, values) => {
-	    if(!!errors){
+    form.validateFields((errors,values) => {
+      if(!!errors){
         this.setState({
           loading: false,
         })
-	      return
+        return
       }
       let notification = new NotificationHandler()
       notification.spin('创建存储卷中')
       if(!values.selectSnapshotName){
-	      let storageConfig = {
+        let storageConfig = {
           driver: 'rbd',
           name: values.volumeName,
           driverConfig: {
@@ -164,14 +163,14 @@ class CreateVolume extends Component {
               this.handleResetState()
               notification.close()
               notification.success('创建存储成功')
-              loadStorageList(currentImagePool, cluster.clusterID)
+              loadStorageList(currentImagePool,cluster.clusterID)
             },
             isAsync: true
           },
           failed: {
             func: (err) => {
               this.handleResetState()
-              if (err.statusCode === 409) {
+              if(err.statusCode === 409){
                 notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
                 return
               }
@@ -185,11 +184,11 @@ class CreateVolume extends Component {
       const body = {
         clusterID: cluster.clusterID,
         volumeName: currentVolume.name,
-        body:{
-          "snapshotName":values.selectSnapshotName,
-          "cloneName":values.volumeName,
-          "size":volumeSize,
-          "fstype":fstype
+        body: {
+          "snapshotName": values.selectSnapshotName,
+          "cloneName": values.volumeName,
+          "size": volumeSize,
+          "fstype": fstype
         }
       }
       SnapshotClone(body,{
@@ -211,7 +210,7 @@ class CreateVolume extends Component {
     })
   }
 
-  handleCancelCreateVolume(){
+  handleCancelCreateVolume() {
     this.handleResetState()
   }
 
@@ -409,7 +408,6 @@ function mapStateToProp(state, props) {
     currentImagePool: DEFAULT_IMAGE_POOL,
   }
 }
-
 
 export default connect(mapStateToProp, {
   SnapshotClone,
