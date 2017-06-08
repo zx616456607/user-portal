@@ -252,7 +252,7 @@ module.exports = function (Router) {
   router.get('/registries/:registry/targets/:id', harborController.getReplicationTarget)
   router.delete('/registries/:registry/targets/:id', harborController.deleteReplicationTarget)
   router.get('/registries/:registry/targets/:id/policies', harborController.getReplicationTargetRelatedPolicies)
-  router.get('/registries/:registry/project/:id/replication/summary', harborController.getReplicationSummary)
+  router.get('/registries/:registry/projects/:id/replication/summary', harborController.getReplicationSummary)
 
   router.get('/registries/:registry/statistics', harborController.getStatistics)
 
