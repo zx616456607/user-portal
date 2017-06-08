@@ -211,7 +211,8 @@ class SelectImage extends Component {
     const paginationOpts = {
       simple: true,
       current: this.state.currentPage,
-      onChange: current => this.setState({ currentPage: current })
+      onChange: current => this.setState({ currentPage: current }),
+      pageSize: 10
     }
     return (
       <Table
