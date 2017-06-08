@@ -11,7 +11,6 @@
 */
 'use strict'
 
-'use strict'
 
 var logger = require('../../utils/logger').getLogger('harborAPIs');
 const utils = require('../../utils')
