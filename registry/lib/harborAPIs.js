@@ -156,6 +156,22 @@ HarborAPIs.prototype.getReplicationTargetRelatedPolicies = function (id, callbac
   this.sendRequest(url, 'GET', null, callback)
 }
 
+HarborAPIs.prototype.getRepositoriesTags = function(name, callback) {
+  const method = 'getRepositoriesTags'
+  logger.debug(method, `Get Repos tags`)
+  const requestUrl =`${this.getAPIPrefix()}/repositories/${name}/tags` 
+  logger.debug(method, `Request url: ${requestUrl}`)
+  this.sendRequest(requestUrl, 'GET', null, callback)
+}
+
+HarborAPIs.prototype.getRepositoriesManifest = function(name, tag, callback) {
+  const method = 'getRepositoriesManifest'
+  logger.debug(method, `Get Repos tags`)
+  const requestUrl =`${this.getAPIPrefix()}/repositories/${name}/tags/${tag}/manifest` 
+  logger.debug(method, `Request url: ${requestUrl}`)
+  this.sendRequest(requestUrl, 'GET', null, callback)
+}
+
 /*----------------log start---------------*/
 
 HarborAPIs.prototype.getLogs = function(query, callback) {

@@ -16,6 +16,7 @@ const utils = require('../utils')
 
 const securityUtil = require('../utils/security')
 
+// [GET] /projects/search
 exports.searchProjects = harborHandler(
   (harbor, ctx, callback) => {
     harbor.searchProjects(ctx.query.q, callback)
@@ -33,6 +34,49 @@ exports.getProjects = harborHandler(
 // [POST] /projects
 exports.createProject = harborHandler(
   (harbor, ctx, callback) => harbor.createProject(ctx.request.body, callback))
+
+// [GET] /repositories/:user/:name/tags
+exports.getRepositoriesTags = harborHandler(
+  (harbor, ctx, callback) => {
+    const repoName = `${ctx.params.user}/${ctx.params.name}`
+    harbor.getRepositoriesTags(repoName, callback)
+  }
+)
+// [GET] /repositories/:user/:name/tags/configinfo
+exports.getRepositoriyConfig = function* () {
+  const config = getRegistryConfig()
+  const loginUser = this.session.loginUser
+  const auth = yield getAuthInfo(loginUser)
+  const harbor = new harborAPIs(config, auth)
+  const repoName = `${this.params.user}/${this.params.name}`
+  const tag = this.params.tag
+  const result = yield new Promise((resolve, reject) => {
+    harbor.getRepositoriesManifest(repoName, tag, (err, statusCode, body) => {
+      if(body.config) {
+        body.config = JSON.parse(body.config)
+      }
+      resolve(body.config)
+    })
+  })
+  this.body = {
+    data: result ? _formatConfig(result.config) : {},
+    server: config.url
+  }
+}
+
+function _formatConfig(config) {
+  const body = {
+    defaultEnv: config.Env,
+    mountPath: config.Volume,
+    cmd: config.Cmd,
+    entrypoint: config.Entrypoint
+  }
+  body.containerPorts = []
+  if(config.ExposedPorts) {
+    body.containerPorts = Object.getOwnPropertyNames(config.ExposedPorts)
+  }
+  return body
+}
 
 // [GET] /projects/:project_id
 exports.getProjectDetail = harborHandler(
