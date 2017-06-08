@@ -16,6 +16,7 @@
   "Storage.menu.create": "创建存储卷",
   "Storage.menu.delete": "删除",
   "Storage.titleRow.name": "存储名称",
+  "Storage.titleRow.snapshot": "快照",
   "Storage.titleRow.status": "状态",
   "Storage.titleRow.formats": "格式",
   "Storage.titleRow.forin": "挂载点",

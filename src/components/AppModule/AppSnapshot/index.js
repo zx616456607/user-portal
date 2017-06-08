@@ -8,7 +8,7 @@
  * @author ZhangChengZheng
  */
 import React,{ Component,PropTypes } from 'react'
-import { Button, Input, Table, Icon, Spin, Modal, Dropdown, Menu } from 'antd'
+import { Button, Input, Table, Icon, Spin, Modal, Dropdown, Menu, Form } from 'antd'
 import { connect } from 'react-redux'
 import './style/Snapshot.less'
 import CurrentImg from '../../../assets/img/appmanage/rollbackcurrent.jpg'
@@ -40,8 +40,6 @@ class Snapshot extends Component {
     this.handleTableRowClick = this.handleTableRowClick.bind(this)
     this.handleDropdown = this.handleDropdown.bind(this)
     this.handleCloneSnapshot = this.handleCloneSnapshot.bind(this)
-    this.handleConfirmCreate = this.handleConfirmCreate.bind(this)
-    this.handleCancelCreate = this.handleCancelCreate.bind(this)
     this.state = {
       selectedRowKeys: [],
       DeleteSnapshotButton: true,
@@ -60,7 +58,8 @@ class Snapshot extends Component {
       RowDelete: false,
       TopDelete: false,
       currentVolume: {},
-      createvolume: false,
+      visible: false,
+      createFalse: false,
     }
   }
 
@@ -347,8 +346,29 @@ class Snapshot extends Component {
   }
 
   handleCloneSnapshot(key){
+    const { snapshotDataList, storageList, currentCluster } = this.props
+    const storage_type = currentCluster.storageTypes
+    if (!storage_type || storage_type.indexOf('rbd') < 0){
+      this.setState({
+        createFalse: true,
+      })
+      return
+    }
+    setTimeout(() => {
+      document.getElementById('volumeName').focus()
+    },100)
+    for(let pool in storageList){
+      for(let i = 0; i < storageList[pool].storageList.length; i++){
+        if(snapshotDataList[key].volume == storageList[pool].storageList[i].name){
+          this.setState({
+            currentSnapshot: snapshotDataList[key],
+            currentVolume: storageList[pool].storageList[i]
+          })
+        }
+      }
+    }
     this.setState({
-      createvolume: true
+      visible: true
     })
   }
 
@@ -363,21 +383,13 @@ class Snapshot extends Component {
     }
   }
 
-  handleConfirmCreate(){
-    this.setState({
-      createvolume: false
-    })
-  }
-
-  handleCancelCreate(){
-    this.setState({
-      createvolume: false
-    })
-  }
-
   render() {
-    const { snapshotDataList } = this.props
+    const { snapshotDataList, currentCluster, storageList, currentImagePool } = this.props
     const { selectedRowKeys, DeleteSnapshotButton, currentSnapshot, delelteSnapshotNum, currentVolume } = this.state
+    let currentStorageList= []
+    if(storageList[currentImagePool]){
+      currentStorageList = storageList[currentImagePool].storageList
+    }
     function iconclassName(text){
       switch(text){
         case '正常':
@@ -467,6 +479,11 @@ class Snapshot extends Component {
             <Input className='searchInput' placeholder='按快照名称搜索' size="large" onPressEnter={this.handelEnterSearch}/>
             <i className="fa fa-search searchIcon" aria-hidden="true" onClick={this.handelEnterSearch}></i>
           </span>
+          {
+            snapshotDataList && snapshotDataList.length !== 0
+              ? <span className='totalNum'>共计<span className='item'>{snapshotDataList.length}</span>条</span>
+              : <span></span>
+          }
         </div>
         <div className='appmanage_snapshot_main'>
           {
@@ -476,14 +493,10 @@ class Snapshot extends Component {
               dataSource={this.state.SnapshotList}
               rowSelection={rowSelection}
               onRowClick={this.handleTableRowClick}
+              pagination={{ simple: true }}
             >
             </Table>
             :<div className='nodata'><Spin/></div>
-          }
-          {
-            snapshotDataList && snapshotDataList.length !== 0
-              ? <div className='totalNum'>共计<span className='item'>{snapshotDataList.length}</span>条</div>
-              : <span></span>
           }
         </div>
 
@@ -593,18 +606,27 @@ class Snapshot extends Component {
 
          <Modal
            title="创建存储卷"
-           visible={this.state.createvolume}
+           visible={this.state.visible}
            closable={true}
-           onOk={this.handleConfirmCreate}
-           onCancel={this.handleCancelCreate}
+           onCancel={() => this.setState({visible: false})}
            width='570px'
            maskClosable={false}
+           footer={[]}
            wrapClassName="createVloumeModal"
          >
            <div>
-             <CreateVolume/>
+             <CreateVolume scope={this} snapshotRequired={true} snapshotDataList={snapshotDataList} currentVolume={currentVolume} currentSnapshot={currentSnapshot} storageList={currentStorageList}/>
            </div>
          </Modal>
+
+          <Modal
+            title="提示"
+            visible={this.state.createFalse}
+            onOk={() => this.setState({createFalse: false})}
+            onCancel={() => this.setState({createFalse: false})}
+          >
+            尚未部署分布式存储，暂不能创建
+          </Modal>
       </div>
     )
   }
@@ -622,6 +644,7 @@ function mapStateToProps(state, props){
     currentImagePool: DEFAULT_IMAGE_POOL,
     cluster: cluster.clusterID,
     snapshotDataList,
+    currentCluster: cluster
   }
 }
 
