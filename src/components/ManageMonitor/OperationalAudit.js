@@ -695,9 +695,6 @@ function resourceFormat(resourceType, scope) {
     case '46':
       return formatMessage(menusText.CDNotification)
       break;
-    case '46':
-      return formatMessage(menusText.CDNotification)
-      break;
     case '48':
       return formatMessage(menusText.AlertEmailGroup)
       break;
@@ -869,6 +866,9 @@ function formatResourceName(resourceName, resourceId) {
         }
       }
       return ids.join(',')
+    }
+    if (newBody.ids && Array.isArray(newBody.ids) && newBody.ids.length > 0){
+      return newBody.ids.join(",")
     }
   } else {
     if(resourceName.length == 0) {
@@ -1290,7 +1290,7 @@ class OperationalAudit extends Component {
         break;
       case '51':
         //AlertRule
-        showOperationalList.push(operationalList[10]);
+        showOperationalList.push(operationalList[8]);
         break;
       case '0':
         //Unknown

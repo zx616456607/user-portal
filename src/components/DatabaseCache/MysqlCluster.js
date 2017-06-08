@@ -42,7 +42,7 @@ let MyComponent = React.createClass({
     const { config, isFetching } = this.props;
     let title = ''
     if (!canCreate) {
-      title = '尚未部署分布式存储，暂不能创建（如需帮助，请查看文档或通过右下角工单联系我们）'
+      title = '尚未部署分布式存储，暂不能创建'
     }
     if (isFetching) {
       return (
@@ -122,7 +122,8 @@ class MysqlCluster extends Component {
       dbservice: []
     }
   }
-
+  refreshDatabase() {   
+  }
   componentWillMount() {
     const { loadDbCacheList, cluster } = this.props
     if (cluster == undefined) {
@@ -189,7 +190,7 @@ class MysqlCluster extends Component {
     const names = this.refs.mysqlRef.refs.input.value
     this.props.searchDbservice('mysql', names)
   }
-
+ 
   render() {
     const _this = this;
     const { isFetching, databaseList } = this.props;
@@ -201,7 +202,7 @@ class MysqlCluster extends Component {
     let canCreate = true
     if (!storage_type || storage_type.indexOf('rbd') < 0) canCreate = false
     if(!canCreate) {
-      title = '尚未部署分布式存储，暂不能创建（如需帮助，请查看文档或通过右下角工单联系我们）'
+      title = '尚未部署分布式存储，暂不能创建'
     }
     return (
       <QueueAnim id='mysqlDatabase' type='right'>
@@ -213,6 +214,9 @@ class MysqlCluster extends Component {
               <i className='fa fa-plus' />&nbsp;MySQL集群
           </Button>
           </Tooltip>
+            <Button style={{marginLeft:'20px'}} size='large' onClick={this.refreshDatabase} disabled={!canCreate}>
+              <i className='fa fa-refresh' />&nbsp;刷新
+            </Button>
             <span className='rightSearch'>
               <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight:'28px'}} ref="mysqlRef" onPressEnter={(e)=> this.handSearch(e)} />
               <i className="fa fa-search cursor" onClick={()=> this.handSearch()}/>

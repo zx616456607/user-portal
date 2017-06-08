@@ -92,8 +92,11 @@ module.exports = function (config) {
   //  ~images
   this.images = collections.create('images')
 
+  // TODO: remove this
   // ~ alerts
   this.alerts = collections.create('alerts')
+  // ~ email
+  this.email = collections.create('email')
 
   // ~ labels
   this.labels = collections.create('labels')

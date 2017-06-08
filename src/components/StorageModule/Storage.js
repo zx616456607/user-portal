@@ -25,6 +25,7 @@ import { volNameCheck } from '../../common/naming_validation'
 import NotificationHandler from '../../common/notification_handler'
 import noStorageImg from '../../assets/img/no_data/no_storage.png'
 import ResourceQuotaModal from '../ResourceQuotaModal/Storage'
+import CreateVolume from '../StorageModule/CreateVolume'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -683,89 +684,14 @@ class Storage extends Component {
       visible: true,
     });
     const self = this
+    setTimeout(() => {
+      document.getElementById('volumeName').focus()
+    },100)
     setTimeout(function () {
       if (self.focusInput) {
         self.focusInput.refs.input.focus()
       }
     }, 0)
-  }
-  handleOk() {
-    let notification = new NotificationHandler()
-    //create storage
-    if (!this.state.name) {
-      notification.error('请输入存储卷名称')
-      return
-    }
-    if(this.state.nameError) {
-      return
-    }
-    if (this.state.size === 0) {
-      notification.error('请输入存储卷大小')
-      return
-    }
-    /*if(this.state.name.length < 3 || this.state.name.length > 20) {
-      notification.error('存储卷名称大小应在3到15个字符, 且只可以a-z或A-Z开始,且只可以英文字母或者数字组成')
-      return
-    }
-    if(!/^[a-zA-z][a-zA-z0-9]*$/.test(this.state.name)) {
-      notification.error('存储名称只可以a-z或A-Z开始,且只可以英文字母或者数字组成')
-      return
-    }*/
-    if(isActing) return
-    isActing = true
-    notification.spin('创建存储卷中')
-    let storageConfig = {
-      driver: 'rbd',
-      name: this.state.name,
-      driverConfig: {
-        size: this.state.size,
-        fsType: this.state.currentType,
-      },
-      cluster: this.props.cluster
-    }
-    let self = this
-    this.props.createStorage(storageConfig, {
-      success: {
-        func: () => {
-          isActing = false
-          self.setState({
-            visible: false,
-            name: '',
-            size: 512,
-            currentType: 'ext4'
-          })
-          notification.close()
-          notification.success('创建存储成功')
-          self.props.loadStorageList(self.props.currentImagePool, self.props.cluster)
-        },
-        isAsync: true
-      },
-      failed: {
-        isAsync: true,
-        func: (err) => {
-          isActing = false
-          notification.close()
-          const { statusCode } = err
-          if (statusCode === 403) {
-            let data = err.data
-            data.select = Math.ceil(data.select / 1024 * 10) / 10
-            data.allocated = Math.ceil(data.allocated / 1024 * 10) / 10
-            data.unallocated = Math.ceil(data.unallocated / 1024 * 10) / 10
-            data.total = Math.ceil(data.total / 1024 * 10) / 10
-            this.setState({
-              resourceQuotaModal: true,
-              resourceQuota: err.data
-            })
-            return
-          }
-          if (statusCode === 409) {
-            notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
-            return
-          }
-          notification.error('创建存储卷失败')
-        }
-      }
-    })
   }
   handleCancel() {
     this.setState({
@@ -903,7 +829,7 @@ class Storage extends Component {
   render() {
     const { formatMessage } = this.props.intl
     const { getFieldProps } = this.props.form
-    const { SnapshotCreate, snapshotDataList, SnapshotList } = this.props
+    const { SnapshotCreate, snapshotDataList } = this.props
     const currentCluster = this.props.currentCluster
     const storage_type = currentCluster.storageTypes
     const standard = require('../../../configs/constants').STANDARD_MODE
@@ -957,58 +883,19 @@ class Storage extends Component {
                   </Form>
                 </div>
               </Modal>
-              <Modal title={formatMessage(messages.createModalTitle)}
+              <Modal
+                title={formatMessage(messages.createModalTitle)}
                 visible={this.state.visible} width={550}
-                okText={formatMessage(messages.createBtn)}
-                cancelText={formatMessage(messages.cancelBtn)}
                 className='createAppStorageModal'
                 onCancel= {() => this.handleCancel() }
-                footer={[
-                   <Button key="back" type="ghost" size="large" onClick={() => { this.handleCancel() }}>取消</Button>,
-                   <Button key="submit" type="primary" size="large" disabled={isActing} loading={this.state.loading} onClick={(e) => { this.handleOk() } }>
-                   确定
-                   </Button>
-                ]}
+                footer={[]}
                 >
-                <Row style={{ height: '45px' }}>
-                  <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>
-                    <FormattedMessage {...messages.name} />
-                  </Col>
-                  <Col span="12">
-                    <Input className={ this.state.nameError ? 'nameErrorInput nameInput' : 'nameInput' } ref={(input) => this.focusInput = input} value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) } } />
-                    { this.state.nameError ? [<span className='nameErrorSpan'>{this.state.nameErrorMsg}</span>] : null }
-                  </Col>
-                </Row>
-                <Row style={{ height: '40px' }}>
-                  <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>
-                    {formatMessage(messages.size)}
-                  </Col>
-                  <Col span="12">
-                    <Slider min={512} max={20480} step={512} onChange={this.onChange} value={this.state.size} />
-                  </Col>
-                  <Col span="8">
-                    <InputNumber min={512} max={20480} step={512} style={{ marginLeft: '16px' }} value={this.state.size} onChange={this.onChange} />
-                    <span style={{ paddingLeft: 10 }} >MB</span>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>
-                    {formatMessage(messages.formats)}
-                  </Col>
-                  <Col span="20" className="action-btns" style={{ lineHeight: '30px' }}>
-                    <Button type={this.state.currentType === 'ext4' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('ext4') } }>ext4</Button>
-                    <Button type={this.state.currentType === 'xfs' ? 'primary' : 'ghost'} style={{ margin: '0 10px' }} onClick={(e) => { this.changeType('xfs') } }>xfs</Button>
-                  </Col>
-                </Row>
-                <div className="modal-price">
-                  <div className="price-left">
-                    存储：{hourPrice.unit == '￥' ? '￥' : ''}{ storagePrice } {hourPrice.unit == '￥' ? '' : ' T'}/(GB*小时)
-                  </div>
-                  <div className="price-unit">
-                    <p>合计：<span className="unit">{hourPrice.unit == '￥'? '￥': ''}</span><span className="unit blod">{ hourPrice.amount }{hourPrice.unit == '￥'? '': ' T'}/小时</span></p>
-                    <p><span className="unit">（约：</span><span className="unit">{ countPrice.fullAmount }/月）</span></p>
-                  </div>
-                </div>
+                 <CreateVolume
+                   snapshotRequired={false}
+                   scope={this}
+                   snapshotDataList={snapshotDataList}
+                   storageList={this.props.storageList}
+                 />
               </Modal>
             </div>
             <div className="rightBox">

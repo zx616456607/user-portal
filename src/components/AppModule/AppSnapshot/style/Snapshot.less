@@ -3,7 +3,7 @@
   margin-bottom: 20px;
   overflow: hidden;
   .appmanage_snapshot_header{
-    padding-bottom: 14px;
+    padding-bottom: 22px;
     .searchBox{
       position: relative;
       .searchInput{
@@ -17,6 +17,11 @@
         font-size: 14px;
         cursor: pointer;
       }
+    }
+    .totalNum{
+      float: right;
+      margin-right: 165px;
+      margin-top: 14px;
     }
   }
   .appmanage_snapshot_main{
@@ -48,34 +53,8 @@
     }
     .ant-table-pagination{
       position: absolute;
-      left: 89%;
+      right: 10px;
       top: -60px;
-      @media(max-width: 1360px){
-        left:89%;
-      }
-      @media(max-width: 1200px){
-        left:87%;
-      }
-    }
-    .totalNum{
-      position: absolute;
-      top:-39px;
-      left:84%;
-      @media(max-width: 1480px){
-        left:84%;
-      }
-      @media(max-width: 1400px){
-        left:83%;
-      }
-      @media(max-width: 1350px){
-        left:82%;
-      }
-      @media(max-width: 1200px){
-        left:79%;
-      }
-      .item{
-        padding:0 4px;
-      }
     }
   }
 }
@@ -183,5 +162,15 @@
     .icon{
       margin-right: 5px;
     }
+  }
+}
+
+.createVloumeModal{
+  .ant-modal-body{
+    padding:0;
+  }
+  .ant-modal-footer{
+    border-top:none;
+    padding:0;
   }
 }
