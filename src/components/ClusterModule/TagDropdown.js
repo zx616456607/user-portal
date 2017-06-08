@@ -330,6 +330,7 @@ class ManageTagModal extends Component {
   }
 
   handleDropdownVisible(obj){
+    const { callbackHostList } = this.props
     switch(obj.key){
       case 'manageTag':
         callbackHostList(obj)

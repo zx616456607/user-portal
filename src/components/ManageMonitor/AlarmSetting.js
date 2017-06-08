@@ -318,6 +318,8 @@ let MyComponent = React.createClass({
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
     const data = settingInstant.result[camelize(list.strategyName)]
+    console.log('====data')
+    console.log(data)
     if(settingInstant.isFetching && !data) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
@@ -334,7 +336,7 @@ let MyComponent = React.createClass({
           </div>
           <div className="lists">
             <span className="keys">内存</span>
-            <Progress percent={ data.memory * 100 } strokeWidth={8} format={ percent => percent.toFixed(2) + '%'} status={ data.memory * 100 > 80 ? 'exception' : ''} className="progress"/>
+            <Progress percent={ data.memory[2] * 100 } strokeWidth={8} format={ () =>  parseInt(data.memory[1]/(1024*1024)) + 'MB'}   status={ data.memory[2]*100 > 80 ? 'exception' : ''} className="progress"/>
           </div>
           <div className="lists">
             <span className="keys">流量</span>
