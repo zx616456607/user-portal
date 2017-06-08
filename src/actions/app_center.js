@@ -133,16 +133,18 @@ export function getOtherImageList(id) {
       types: [GET_OTHER_LIST_REQUEST, GET_OTHER_LIST_SUCCESS, GET_OTHER_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/docker-registry/${id}/images`,
       schema: Schemas.REGISTRYS
-    }
+    },
+    id
   }
 }
 
 export const SEARCH_OTHER_LIST_REQUEST = 'SEARCH_OTHER_LIST_REQUEST'
 // Search Other image list getOtherImageList
-export function SearchOtherImage(image) {
+export function SearchOtherImage(image,id) {
   return {
     type: SEARCH_OTHER_LIST_REQUEST,
     image,
+    id
   }
 }
 
