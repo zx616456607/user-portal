@@ -22,7 +22,7 @@ function fetchRecordsFilters(clusterID) {
   return {
     [FETCH_API]: {
       types: [ALERT_GET_RECORDS_FILTERS_REQUEST, ALERT_GET_RECORDS_FILTERS_SUCCESS, ALERT_GET_RECORDS_FILTERS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/record-filters?cluster=${clusterID}`,
+      endpoint: `${API_URL_PREFIX}/cluster/${clusterID}/alerts/record-filters`,
       schema: {}
     },
   }
@@ -38,20 +38,20 @@ export const ALERT_GET_RECORDS_REQUEST = 'ALERT_GET_RECORDS_REQUEST'
 export const ALERT_GET_RECORDS_SUCCESS = 'ALERT_GET_RECORDS_SUCCESS'
 export const ALERT_GET_RECORDS_FAILURE = 'ALERT_GET_RECORDS_FAILURE'
 
-function fetchRecords(query) {
+function fetchRecords(query, clusterID) {
   const queryStr = toQuerystring(query)
   return {
     [FETCH_API]: {
       types: [ALERT_GET_RECORDS_REQUEST, ALERT_GET_RECORDS_SUCCESS, ALERT_GET_RECORDS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/records?${queryStr}`,
+      endpoint: `${API_URL_PREFIX}/cluster/${clusterID}/alerts/records?${queryStr}`,
       schema: {}
     }
   }
 }
 
-export function loadRecords(query) {
+export function loadRecords(query, clusterID) {
   return (dispatch, getState) => {
-    return dispatch(fetchRecords(query))
+    return dispatch(fetchRecords(query, clusterID))
   }
 }
 
@@ -59,8 +59,8 @@ export const ALERT_DELETE_RECORDS_REQUEST = 'ALERT_DELETE_RECORDS_REQUEST'
 export const ALERT_DELETE_RECORDS_SUCCESS = 'ALERT_DELETE_RECORDS_SUCCESS'
 export const ALERT_DELETE_RECORDS_FAILURE = 'ALERT_DELETE_RECORDS_FAILURE'
 
-function fetchDeleteRecords(strategyID, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/records`
+function fetchDeleteRecords(strategyID, clusterID, callback) {
+  let endpoint = `${API_URL_PREFIX}/cluster/${clusterID}/alerts/records`
   if (strategyID) {
     endpoint += `?strategyID=${strategyID}`
   }
@@ -77,9 +77,9 @@ function fetchDeleteRecords(strategyID, callback) {
   }
 }
 
-export function deleteRecords(strategyID, callback) {
+export function deleteRecords(strategyID,clusterID, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchDeleteRecords(strategyID, callback))
+    return dispatch(fetchDeleteRecords(strategyID, clusterID, callback))
   }
 }
 
@@ -87,8 +87,8 @@ export const ALERT_GET_NOTIFY_GROUPS_REQUEST = 'ALERT_GET_NOTIFY_GROUPS_REQUEST'
 export const ALERT_GET_NOTIFY_GROUPS_SUCCESS = 'ALERT_GET_NOTIFY_GROUPS_SUCCESS'
 export const ALERT_GET_NOTIFY_GROUPS_FAILURE = 'ALERT_GET_NOTIFY_GROUPS_FAILURE'
 
-function fetchNotifyGroups(name, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/groups`
+function fetchNotifyGroups(name, clusterID, callback) {
+  let endpoint = `${API_URL_PREFIX}/cluster/${clusterID}/alerts/groups`
   if (name) {
     endpoint += `?name=${name}`
   }
@@ -102,9 +102,9 @@ function fetchNotifyGroups(name, callback) {
   }
 }
 
-export function loadNotifyGroups(name, callback) {
+export function loadNotifyGroups(name, clusterID, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchNotifyGroups(name, callback))
+    return dispatch(fetchNotifyGroups(name, clusterID, callback))
   }
 }
 
@@ -113,8 +113,8 @@ export const ALERT_BATCH_DELETE_GROUPS_REQUEST = 'ALERT_BATCH_DELETE_GROUPS_REQU
 export const ALERT_BATCH_DELETE_GROUPS_SUCCESS = 'ALERT_BATCH_DELETE_GROUPS_SUCCESS'
 export const ALERT_BATCH_DELETE_GROUPS_FAILURE = 'ALERT_BATCH_DELETE_GROUPS_FAILURE'
 
-function fetchdeleteNotifyGroups(groupIDs, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/groups/batch-delete`
+function fetchdeleteNotifyGroups(groupIDs, clusterID, callback) {
+  let endpoint = `${API_URL_PREFIX}/cluster/${clusterID}/alerts/groups/batch-delete`
   return {
     [FETCH_API]: {
       types: [ALERT_BATCH_DELETE_GROUPS_REQUEST, ALERT_BATCH_DELETE_GROUPS_SUCCESS, ALERT_BATCH_DELETE_GROUPS_FAILURE],
@@ -131,9 +131,9 @@ function fetchdeleteNotifyGroups(groupIDs, callback) {
   }
 }
 
-export function deleteNotifyGroups(groupIDs, callback) {
+export function deleteNotifyGroups(groupIDs, clusterID, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchdeleteNotifyGroups(groupIDs, callback))
+    return dispatch(fetchdeleteNotifyGroups(groupIDs, clusterID, callback))
   }
 }
 
@@ -142,7 +142,7 @@ export const ALERT_SEND_ALERTNOTIFY_INVITATION_SUCCESS = 'ALERT_SEND_ALERTNOTIFY
 export const ALERT_SEND_ALERTNOTIFY_INVITATION_FAILURE = 'ALERT_SEND_ALERTNOTIFY_INVITATION_FAILURE'
 
 function fetchSendAlertNotifyInvitation(email, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/invitations`
+  let endpoint = `${API_URL_PREFIX}/email/invitations`
   return {
     [FETCH_API]: {
       types: [ALERT_SEND_ALERTNOTIFY_INVITATION_REQUEST, ALERT_SEND_ALERTNOTIFY_INVITATION_SUCCESS, ALERT_SEND_ALERTNOTIFY_INVITATION_FAILURE],
@@ -170,7 +170,7 @@ export const ALERT_GET_ALERTNOTIFY_INVITATION_SUCCESS = 'ALERT_GET_ALERTNOTIFY_I
 export const ALERT_GET_ALERTNOTIFY_INVITATION_FAILURE = 'ALERT_GET_ALERTNOTIFY_INVITATION_FAILURE'
 
 function fetchGetAlertNotifyInvitationStatus(email, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/invitations/status?emails=${email}`
+  let endpoint = `${API_URL_PREFIX}/email/invitations/status?emails=${email}`
   return {
     [FETCH_API]: {
       types: [ALERT_GET_ALERTNOTIFY_INVITATION_REQUEST, ALERT_GET_ALERTNOTIFY_INVITATION_SUCCESS, ALERT_GET_ALERTNOTIFY_INVITATION_FAILURE],
@@ -192,8 +192,8 @@ export const ALERT_CREATE_NOTIFY_GROUP_REQUEST = 'ALERT_CREATE_NOTIFY_GROUP_REQU
 export const ALERT_CREATE_NOTIFY_GROUP_SUCCESS = 'ALERT_CREATE_NOTIFY_GROUP_SUCCESS'
 export const ALERT_CREATE_NOTIFY_GROUP_FAILURE = 'ALERT_CREATE_NOTIFY_GROUP_FAILURE'
 
-function fetchCreateNotifyGroup(body, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/groups`
+function fetchCreateNotifyGroup(clusterID, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/cluster/${clusterID}/alerts/groups`
   return {
     [FETCH_API]: {
       types: [ALERT_CREATE_NOTIFY_GROUP_REQUEST, ALERT_CREATE_NOTIFY_GROUP_SUCCESS, ALERT_CREATE_NOTIFY_GROUP_FAILURE],
@@ -208,9 +208,9 @@ function fetchCreateNotifyGroup(body, callback) {
   }
 }
 
-export function createNotifyGroup(body, callback) {
+export function createNotifyGroup(clusterID, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchCreateNotifyGroup(body, callback))
+    return dispatch(fetchCreateNotifyGroup(clusterID, body, callback))
   }
 }
 
@@ -219,8 +219,8 @@ export const ALERT_MODIFY_NOTIFY_GROUP_REQUEST = 'ALERT_MODIFY_NOTIFY_GROUP_REQU
 export const ALERT_MODIFY_NOTIFY_GROUP_SUCCESS = 'ALERT_MODIFY_NOTIFY_GROUP_SUCCESS'
 export const ALERT_MODIFY_NOTIFY_GROUP_FAILURE = 'ALERT_MODIFY_NOTIFY_GROUP_FAILURE'
 
-function fetchModifyNotifyGroup(groupID, body, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/groups/${groupID}`
+function fetchModifyNotifyGroup(groupID, clusterID, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/cluster/${clusterID}/alerts/groups/${groupID}`
   return {
     [FETCH_API]: {
       types: [ALERT_MODIFY_NOTIFY_GROUP_REQUEST, ALERT_MODIFY_NOTIFY_GROUP_SUCCESS, ALERT_MODIFY_NOTIFY_GROUP_FAILURE],
@@ -235,9 +235,9 @@ function fetchModifyNotifyGroup(groupID, body, callback) {
   }
 }
 
-export function modifyNotifyGroup(groupID, body, callback) {
+export function modifyNotifyGroup(groupID, clusterID, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchModifyNotifyGroup(groupID, body, callback))
+    return dispatch(fetchModifyNotifyGroup(groupID, clusterID, body, callback))
   }
 }
 
@@ -251,7 +251,7 @@ export const ALERT_SETTING_FAILURE =  'ALERT_SETTING_FAILURE'
 
 
 function fetchAlertSetting(cluster, body, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting`
+  let endpoint = `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting`
   if(body) {
     endpoint += `?${toQuerystring(body)}`
   }
@@ -279,7 +279,7 @@ function fetchAddAlertSetting(cluster, body, callback){
   return {
     [FETCH_API]: {
       types: [ALERT_SETTING_ADD_REQUEST, ALERT_SETTING_ADD_SUCCESS, ALERT_SETTING_ADD_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting`,
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting`,
       schema: {},
       options: {
         body: body,
@@ -296,13 +296,34 @@ export function addAlertSetting(cluster, body, callback) {
   }
 }
 
+function fetchUpdateAlertSetting(cluster, strategyID, body, callback){
+  return {
+    [FETCH_API]: {
+      types: [ALERT_SETTING_ADD_REQUEST, ALERT_SETTING_ADD_SUCCESS, ALERT_SETTING_ADD_FAILURE],
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting/${strategyID}`,
+      schema: {},
+      options: {
+        body: body,
+        method: 'PUT'
+      },
+    },
+    callback
+  }
+}
+
+export function updateAlertSetting(cluster, strategyID, body, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchUpdateAlertSetting(cluster, strategyID, body, callback))
+  }
+}
+
 export const ALERT_SETTING_LIST_QUERY_REQUEST = 'ALERT_SETTING_LIST_QUERY_REQUEST'
 export const ALERT_SETTING_LIST_QUERY_SUCCESS= 'ALERT_SETTING_LIST_QUERY_SUCCESS'
 export const ALERT_SETTING_LIST_QUERY_FAILURE = 'ALERT_SETTING_LIST_QUERY_FAILURE'
 
 
 function fetchGetAlertList(cluster, body, needFetching, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/list`
+  let endpoint = `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting/list`
   if(typeof body == 'function') {
     callback = body
     body = null
@@ -344,7 +365,7 @@ function fetchDeleteSetting(cluster, id, callback) {
   return {
     [FETCH_API]: {
       types: [ALERT_DELETE_SETTING_REQUEST, ALERT_DELETE_SETTING_SUCCESS, ALERT_DELETE_SETTING_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting?strategyID=${id.join(',')}`,
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting?strategyID=${id.join(',')}`,
       schema: {},
       options: {
         method: 'DELETE'
@@ -366,14 +387,14 @@ export const ALERT_UPDATE_SETTING_ENABLE_SUCCESS = 'ALERT_UPDATE_SETTING_ENABLE_
 export const ALERT_UPDATE_SETTING_ENABLE_FAILURE = 'ALERT_UPDATE_SETTING_ENABLE_FAILURE'
 
 
-function fetchUpdateEnable(cluster, body, callback) {
+function fetchBatchEnable(cluster, body, callback) {
   return {
     [FETCH_API]: {
       types: [ALERT_UPDATE_SETTING_ENABLE_REQUEST, ALERT_UPDATE_SETTING_ENABLE_SUCCESS, ALERT_UPDATE_SETTING_ENABLE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/enable`,
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting/batch-enable`,
       schema: {},
       options: {
-        method: 'PUT',
+        method: 'POST',
         body
       }
     },
@@ -381,9 +402,30 @@ function fetchUpdateEnable(cluster, body, callback) {
   }
 }
 
-export function updateEnable(cluster, body, callback) {
+export function batchEnable(cluster, body, callback) {
   return (dispath, getState)  => {
-    dispath(fetchUpdateEnable(cluster, body, callback))
+    dispath(fetchBatchEnable(cluster, body, callback))
+  }
+}
+
+function fetchBatchDisable(cluster, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ALERT_UPDATE_SETTING_ENABLE_REQUEST, ALERT_UPDATE_SETTING_ENABLE_SUCCESS, ALERT_UPDATE_SETTING_ENABLE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting/batch-disable`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function batchDisable(cluster, body, callback) {
+  return (dispath, getState)  => {
+    dispath(fetchBatchDisable(cluster, body, callback))
   }
 }
 
@@ -392,14 +434,14 @@ export const ALERT_UPDATE_SETTING_SENDMAIL_SUCCESS = 'ALERT_UPDATE_SETTING_SENDM
 export const ALERT_UPDATE_SETTING_SENDMAIL_FAILURE = 'ALERT_UPDATE_SETTING_SENDMAIL_FAILURE'
 
 
-function fetchUpdateSendEmail(cluster, body, callback) {
+function fetchBatchEnableEmail(cluster, body, callback) {
   return {
     [FETCH_API]: {
       types: [ALERT_UPDATE_SETTING_SENDMAIL_REQUEST, ALERT_UPDATE_SETTING_SENDMAIL_SUCCESS, ALERT_UPDATE_SETTING_SENDMAIL_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/email`,
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting/batch-enable-email`,
       schema: {},
       options: {
-        method: 'PUT',
+        method: 'POST',
         body
       }
     },
@@ -407,9 +449,31 @@ function fetchUpdateSendEmail(cluster, body, callback) {
   }
 }
 
-export function updateSendEmail(cluster, body, callback) {
+export function batchEnableEmail(cluster, body, callback) {
   return (dispath, getState)  => {
-    dispath(fetchUpdateSendEmail(cluster, body, callback))
+    dispath(fetchBatchEnableEmail(cluster, body, callback))
+  }
+}
+
+
+function fetchBatchDisableEmail(cluster, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ALERT_UPDATE_SETTING_SENDMAIL_REQUEST, ALERT_UPDATE_SETTING_SENDMAIL_SUCCESS, ALERT_UPDATE_SETTING_SENDMAIL_FAILURE],
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting/batch-disable-email`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function batchDisableEmail(cluster, body, callback) {
+  return (dispath, getState)  => {
+    dispath(fetchBatchDisableEmail(cluster, body, callback))
   }
 }
 
@@ -423,10 +487,10 @@ function fetchIngoreSetting(cluster, body, callback) {
   return {
     [FETCH_API]: {
       types: [ALERT_IGNORE_SETTING_REQUEST, ALERT_IGNORE_SETTING_SUCCESS, ALERT_IGNORE_SETTING_FAILURE],
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/ignore`,
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/setting/batch-ignore`,
       schema: {},
       options: {
-        method: 'PUT',
+        method: 'POST',
         body
       }
     },
@@ -449,7 +513,7 @@ export const ALERT_SETTING_INSTANT_FAILURE = 'ALERT_SETTING_INSTANT_FAILURET'
 
 
 function fetchSettingInstant(cluster, type, name, body, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/cluster/${cluster}/type/${type}/setting/${name}/instant`
+  let endpoint = `${API_URL_PREFIX}/cluster/${cluster}/alerts/type/${type}/setting/${name}/instant`
   if(body) {
     endpoint += `?${toQuerystring(body)}`
   }
@@ -480,7 +544,7 @@ function fetchDeleteRule(cluster, body, callback) {
     [FETCH_API]: {
       types: [ALERT_DELETE_RULE_REQUEST, ALERT_DELETE_RULE_SUCCESS, ALERT_DELETE_RULE_FAILURE],
       schema: {},
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/rule?${toQuerystring(body)}`,
+      endpoint: `${API_URL_PREFIX}/cluster/${cluster}/alerts/rule?${toQuerystring(body)}`,
       options: {
         method: 'DELETE'
       }
@@ -497,28 +561,6 @@ export function deleteRule(cluster, body, callback) {
 }
 
 
-export const ALERT_SEARCH_SETTING_REQUEST = 'ALERT_SEARCH_SETTING_REQUEST'
-export const ALERT_SEARCH_SETTING_SUCCESS = 'ALERT_SEARCH_SETTING_SUCCESS'
-export const ALERT_SEARCH_SETTING_FAILURE = 'ALERT_SEARCH_SETTING_FAILURE'
-
-function fetchSearchSetting(cluster, body, callback) {
-  return {
-    [FETCH_API]: {
-      types: [ALERT_SEARCH_SETTING_REQUEST, ALERT_SEARCH_SETTING_SUCCESS, ALERT_SEARCH_SETTING_FAILURE],
-      schema: {},
-      endpoint: `${API_URL_PREFIX}/alerts/cluster/${cluster}/setting/search?${toQuerystring(body)}`,
-    },
-    callback
-  }
-}
-
-
-export function searchSetting(cluster, body, callback) {
-  return (dispatch, getState) => {
-    return dispatch(fetchDeleteRule(cluster, body, callback))
-  }
-}
-
 export const SEND_INVITATIONS_REQUEST = 'SEND_INVITATIONS_REQUEST'
 export const SEND_INVITATIONS_SUCCESS = 'SEND_INVITATIONS_SUCCESS'
 export const SEND_INVITATIONS_FAILURE = 'SEND_INVITATIONS_FAILURE'
@@ -528,7 +570,7 @@ function fetchInvitations(body, callback) {
     [FETCH_API]: {
       types: [SEND_INVITATIONS_REQUEST, SEND_INVITATIONS_SUCCESS, SEND_INVITATIONS_FAILURE],
       schema: {},
-      endpoint: `/alerts/invitations/join-code?${body}`,
+      endpoint: `/email/invitations/join-code?${body}`,
     },
     callback
   }
@@ -544,8 +586,8 @@ export const GET_SETTINGLLIST_FROM_SERVICE_APP_REQUEST = 'GET_SETTINGLLIST_FROM_
 export const GET_SETTINGLLIST_FROM_SERVICE_APP_SUCCESS = 'GET_SETTINGLLIST_FROM_SERVICE_APP_SUCCESS'
 export const GET_SETTINGLLIST_FROM_SERVICE_APP_FAILURE = 'GET_SETTINGLLIST_FROM_SERVICE_APP_FAILURE'
 
-function fetchSettingListfromserviceorapp(query, callback) {
-  let endpoint = `${API_URL_PREFIX}/alerts/group-strategies`
+function fetchSettingListfromserviceorapp(query, cluster, callback) {
+  let endpoint = `${API_URL_PREFIX}/cluster/${cluster}/alerts/group-strategies`
   endpoint += `?${toQuerystring(query)}`
   return {
     [FETCH_API]: {
@@ -560,8 +602,8 @@ function fetchSettingListfromserviceorapp(query, callback) {
   }
 }
 
-export function getSettingListfromserviceorapp(query, callback) {
+export function getSettingListfromserviceorapp(query, cluster, callback) {
   return (dispath, getState)  => {
-    dispath(fetchSettingListfromserviceorapp(query, callback))
+    dispath(fetchSettingListfromserviceorapp(query, cluster, callback))
   }
 }

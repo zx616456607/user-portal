@@ -15,7 +15,7 @@ import './style/AlarmModal.less'
 import { loadAppList } from '../../../actions/app_manage'
 import { loadServiceList } from '../../../actions/services'
 import { getAllClusterNodes } from '../../../actions/cluster_node'
-import { loadNotifyGroups, addAlertSetting, getAlertSetting } from '../../../actions/alert'
+import { loadNotifyGroups, addAlertSetting, updateAlertSetting, getAlertSetting } from '../../../actions/alert'
 import { ADMIN_ROLE } from '../../../../constants'
 import NotificationHandler from '../../../common/notification_handler'
 
@@ -833,8 +833,9 @@ class AlarmModal extends Component {
 
   componentDidMount() {
     const { notifyGroup, loadNotifyGroups, isEdit, strategy, getAlertSetting, cluster } = this.props
+    const clusterID = this.props.cluster.clusterID
     if (!notifyGroup.result) {
-      loadNotifyGroups()
+      loadNotifyGroups("", clusterID)
     }
     if (isEdit) {
       getAlertSetting(cluster.clusterID, {
@@ -933,49 +934,76 @@ class AlarmModal extends Component {
         delete requestBody.receiversGroup
       }
       if (isEdit) {
-        requestBody.strategyID = strategy.strategyID
+        // update 
+        // requestBody.strategyID = strategy.strategyID
         requestBody.enable = strategy.enable
         notification.spin('告警策略更新中')
-      } else {
-        notification.spin('告警策略创建中')
-      }
-      this.props.addAlertSetting(cluster.clusterID, requestBody, {
-        success: {
-          func: () => {
-            notification.close()
-            if (isEdit) {
-              notification.success('告警策略更新成功')
-            } else {
-              notification.success('告警策略创建成功')
-            }
-            const { funcs } = this.props
-            funcs.cancelModal()
-            form.resetFields()
-            this.state.firstForm.resetFields()
-            this.state.secondForm.resetFields()
-            funcs.nextStep(1)
-            if (getSettingList) {
-              getSettingList()
-            }
+        this.props.updateAlertSetting(cluster.clusterID, strategy.strategyID, requestBody, {
+          success: {
+            func: () => {
+              notification.close()
+                notification.success('告警策略更新成功')
+              const { funcs } = this.props
+              funcs.cancelModal()
+              form.resetFields()
+              this.state.firstForm.resetFields()
+              this.state.secondForm.resetFields()
+              funcs.nextStep(1)
+              if (getSettingList) {
+                getSettingList()
+              }
+            },
+            isAsync: true
           },
-          isAsync: true
-        },
-        failed: {
-          func: (result) => {
-            notification.close()
-            let message = '告警策略创建失败'
-            if (isEdit) {
-              message = '告警策略更新失败'
+          failed: {
+            func: (result) => {
+              notification.close()
+                message = '告警策略更新失败'
+              if (result.message.message) {
+                message = result.message.message
+              } else if (result.message) {
+                message = result.message
+              }
+              notification.error(message)
             }
-            if (result.message.message) {
-              message = result.message.message
-            } else if (result.message) {
-              message = result.message
-            }
-            notification.error(message)
           }
-        }
-      })
+        })
+      } else {
+         // create
+        notification.spin('告警策略创建中')
+        this.props.addAlertSetting(cluster.clusterID, requestBody, {
+          success: {
+            func: () => {
+              notification.close()
+                notification.success('告警策略创建成功')
+              const { funcs } = this.props
+              funcs.cancelModal()
+              form.resetFields()
+              this.state.firstForm.resetFields()
+              this.state.secondForm.resetFields()
+              funcs.nextStep(1)
+              if (getSettingList) {
+                getSettingList()
+              }
+            },
+            isAsync: true
+          },
+          failed: {
+            func: (result) => {
+              notification.close()
+              let message = '告警策略创建失败'
+              if (result.message.message) {
+                message = result.message.message
+              } else if (result.message) {
+                message = result.message
+              }
+              notification.error(message)
+            }
+          }
+        })
+      }
+     
+
     })
   }
 
@@ -998,7 +1026,8 @@ class AlarmModal extends Component {
   }
   loadNotifyGroups() {
     const { loadNotifyGroups } = this.props
-    loadNotifyGroups()
+    const clusterID = this.props.cluster.clusterID
+    loadNotifyGroups("", clusterID)
   }
   notifyGroup(rule, value, callback) {
     if (!value) {
@@ -1139,6 +1168,7 @@ function alarmModalMapStateToProp(state, porp) {
 AlarmModal = connect(alarmModalMapStateToProp, {
   loadNotifyGroups,
   addAlertSetting,
+  updateAlertSetting,
   getAlertSetting
 })(Form.create()(AlarmModal))
 

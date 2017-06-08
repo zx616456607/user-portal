@@ -17,7 +17,7 @@ import { formatDate, isEmptyObject } from '../../common/tools'
 import NotificationHandler from '../../common/notification_handler'
 import './style/AlarmDetail.less'
 import Title from '../Title'
-import { getAlertSetting, getSettingList, updateSendEmail, deleteRule } from '../../actions/alert'
+import { getAlertSetting, getSettingList, batchEnableEmail, batchDisableEmail, deleteRule } from '../../actions/alert'
 const RadioGroup = Radio.Group
 
 class AlarmDetail extends Component {
@@ -119,7 +119,7 @@ class AlarmDetail extends Component {
   changeEmail(e) {
     this.setState({sendEmail: e})
     const id = this.props.params.id
-    const { leftSetting, getSettingList, cluster, updateSendEmail} = this.props
+    const { leftSetting, getSettingList, cluster, batchDisableEmail, batchEnableEmail} = this.props
     if(leftSetting) {
       const noti = new NotificationHandler()
       if(leftSetting.sendMail == e) {
@@ -127,29 +127,49 @@ class AlarmDetail extends Component {
         return
       }
       noti.spin('更新中')
-      updateSendEmail(cluster.clusterID, {
-        strategies:[{
-          strategyID: leftSetting.strategyID,
-          sendEmail: e
-        }]
-      }, {
-        success: {
-          func: () => {
-            noti.close()
-            noti.success('策略更新成功')
-            getSettingList(cluster.clusterID, {
-              strategyName: id
-            }, false)
+      if (e == 0) {
+        batchDisableEmail(cluster.clusterID, {
+          strategyIDs:[leftSetting.strategyID]
+        }, {
+          success: {
+            func: () => {
+              noti.close()
+              noti.success('策略更新成功')
+              getSettingList(cluster.clusterID, {
+                strategyName: id
+              }, false)
+            },
+            isAsync: true
           },
-          isAsync: true
-        },
-        failed: {
-          func: (res) => {
-            noti.close()
-            noti.error('策略更新失败')
+          failed: {
+            func: (res) => {
+              noti.close()
+              noti.error('策略更新失败')
+            }
           }
-        }
-      })
+        })
+      }else {
+       batchEnableEmail(cluster.clusterID, {
+          strategyIDs:[leftSetting.strategyID]
+        }, {
+          success: {
+            func: () => {
+              noti.close()
+              noti.success('策略更新成功')
+              getSettingList(cluster.clusterID, {
+                strategyName: id
+              }, false)
+            },
+            isAsync: true
+          },
+          failed: {
+            func: (res) => {
+              noti.close()
+              noti.error('策略更新失败')
+            }
+          }
+        }) 
+      }
     }
   }
   render() {
@@ -328,6 +348,7 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   getAlertSetting,
   getSettingList,
-  updateSendEmail,
+  batchDisableEmail,
+  batchEnableEmail,
   deleteRule
 })(AlarmDetail)

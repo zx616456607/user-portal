@@ -160,7 +160,7 @@ exports.getNodes = function* (){
 exports.getAddClusterCMD = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const result = yield api.clusters.getBy(['nodes', 'add'])
+  const result = yield api.clusters.getBy(['add'])
   this.body = result.data
 }
 
