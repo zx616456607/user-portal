@@ -221,6 +221,11 @@ module.exports = function (Router) {
   // Harbor integration
   router.get('/registries/:registry/users/current', harborController.getCurrentUser)
   router.get('/registries/:registry/projects', harborController.getProjects)
+  router.get('/registries/:registry/projects/search', harborController.searchProjects)
+
+  router.get('/registries/:registry/repositories/:user/:name/tags', harborController.getRepositoriesTags)
+  router.get('/registries/:registry/repositories/:user/:name/tags/:tag/configinfo', harborController.getRepositoriyConfig)
+
   router.post('/registries/:registry/projects', harborController.createProject)
   router.get('/registries/:registry/projects/:project_id', harborController.getProjectDetail)
   router.del('/registries/:registry/projects/:project_id', harborController.deleteProject)

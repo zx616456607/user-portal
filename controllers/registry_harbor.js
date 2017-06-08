@@ -16,6 +16,12 @@ const utils = require('../utils')
 
 const securityUtil = require('../utils/security')
 
+exports.searchProjects = harborHandler(
+  (harbor, ctx, callback) => {
+    harbor.searchProjects(ctx.query.q, callback)
+  }
+)
+
 // [GET] /users/current
 exports.getCurrentUser = harborHandler(
   (harbor, ctx, callback) => harbor.getCurrentUser(callback))

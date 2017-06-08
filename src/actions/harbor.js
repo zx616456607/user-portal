@@ -127,6 +127,35 @@ export function loadProjectLogs(registry, projectID, query, body, callback) {
   }
 }
 
+export const HARBOR_ALL_PROJECT_REQUEST = 'HARBOR_ALL_PROJECT_REQUEST'
+export const HARBOR_ALL_PROJECT_SUCCESS = 'HARBOR_ALL_PROJECT_SUCCESS'
+export const HARBOR_ALL_PROJECT_FAILURE = 'HARBOR_ALL_PROJECT_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchAllProject(registry, query, callback) {
+  let { customizeOpts } = query || {}
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/search`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ HARBOR_ALL_PROJECT_REQUEST, HARBOR_ALL_PROJECT_SUCCESS, HARBOR_ALL_PROJECT_FAILURE ],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+
+
+// Relies on Redux Thunk middleware.
+export function loadAllProject(registry, query,callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchAllProject(registry, query, callback))
+  }
+}
+
 export const CREATE_HARBOR_PROJECT_REQUEST = 'CREATE_HARBOR_PROJECT_REQUEST'
 export const CREATE_HARBOR_PROJECT_SUCCESS = 'CREATE_HARBOR_PROJECT_SUCCESS'
 export const CREATE_HARBOR_PROJECT_FAILURE = 'CREATE_HARBOR_PROJECT_FAILURE'
