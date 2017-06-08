@@ -95,7 +95,7 @@ class ItemDetail extends Component {
               <Tabs defaultActiveKey="repo">
                 <TabPane tab="镜像仓库" key="repo"><CodeRepo {...this.props} /></TabPane>
                 <TabPane tab="权限管理" key="role"><Management /></TabPane>
-                <TabPane tab="审计日志" key="log"><Logs /></TabPane>
+                <TabPane tab="审计日志" key="log"><Logs params={this.props.params}/></TabPane>
                 <TabPane tab="镜像同步" key="sync"><ImageUpdate /></TabPane>
               </Tabs>
             </Card>
