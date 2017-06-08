@@ -46,6 +46,7 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/ci_cd/,
     /\/manange_monitor\/alarm_record/,
     /\/manange_monitor\/alarm_setting/,
+    /\/manange_monitor\/alarm_group/,
   ],
   cluster: [
     /^\/$/,
