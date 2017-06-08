@@ -19,6 +19,10 @@ const tenantRoutes = [{
   {
     path: 'allpermissions',
     component: require('../components/TenantManage/AllPermissions').default,
+  },
+  {
+    path: 'rolemanagement/rolename/TID',
+    component: require('../components/TenantManage/TenantDetail').default,
   }
 ]
 
