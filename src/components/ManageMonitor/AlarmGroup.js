@@ -55,7 +55,14 @@ class AlarmGroup extends Component {
     </Menu>
     )
   }
-
+  componentWillReceiveProps(nextProps){
+    let pre = this.props.entities.current.space.spaceName;
+    let next = nextProps.entities.current.space.spaceName;
+    const { loadNotifyGroups } = this.props
+    if(pre !== next) {
+      loadNotifyGroups()
+    }
+  }
   // group must be an array. e.g. ['ID1'] or ['ID1', 'ID2']
   deleteGroup(rowSelection) {
     const clusterID = this.props.cluster.clusterID
@@ -214,7 +221,6 @@ class AlarmGroup extends Component {
       )
     }
     const tableData = this.props.groups
-
     const modalFunc=  {
       scope : this,
     }
@@ -363,15 +369,17 @@ function mapStateToProps(state, props) {
   if (!groups && !cluster) {
    return props
  }
+  
   let defaultData = {
       isFetching: false,
       result:{data:[]}
   }
-
+  
   const { isFetching } = groups || defaultData
   const { result } = groups || defaultData
   let groupsData = result ? result.data : []
   return {
+    entities,
     isFetching,
     cluster,
     groups: groupsData

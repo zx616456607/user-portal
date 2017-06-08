@@ -513,6 +513,10 @@ class AlarmSetting extends Component {
     })
   }
   componentWillReceiveProps(nextProps) {
+    if(this.props.space.spaceName !== nextProps.space.spaceName){
+      this.refreshPage()
+    }
+  
     if(this.state.needUpdate) {
       this.setState({
         data: nextProps.setting
@@ -1003,6 +1007,7 @@ function mapStateToProps(state, props) {
   const { entities } = state
   const cluster = entities.current.cluster
   const team = entities.current.team
+  const space = entities.current.space
   let setting = state.alert.settingList || defaultSettingList
   if(!setting.result || !setting.result.data) {
     setting = defaultSettingList
@@ -1015,7 +1020,8 @@ function mapStateToProps(state, props) {
     clusterID: cluster.clusterID,
     teamID: team.teamID,
     setting,
-    total
+    total,
+    space
   }
 }
 
