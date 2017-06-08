@@ -565,7 +565,7 @@ exports.sendNotifyGroupInvitationEmail = function* (to, invitorName, invitorEmai
   const subject = `[时速云]告警通知组|邮箱验证`
   const systemEmail = config.mail_server.service_mail
   const date = moment(new Date()).format("YYYY-MM-DD")
-  const inviteURL = `${config.url}/alerts/invitations/join?code=${code}`
+  const inviteURL = `${config.url}/email/invitations/join?code=${code}`
   const mailOptions = {
     to,
     subject,

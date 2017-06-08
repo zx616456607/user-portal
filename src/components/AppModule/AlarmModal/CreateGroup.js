@@ -197,6 +197,7 @@ let CreateAlarmGroup = React.createClass({
   },
   okModal() {
     const { form, createNotifyGroup, modifyNotifyGroup, funcs, afterCreateFunc, afterModifyFunc, data, shouldLoadGroup } = this.props
+    const clusterID = this.props.cluster.clusterID
     let notification = new NotificationHandler()
     form.validateFields((error, values) => {
       if (!!error) {
@@ -223,7 +224,7 @@ let CreateAlarmGroup = React.createClass({
         }
       })
       if (!this.props.isModify) {
-        createNotifyGroup(body, {
+        createNotifyGroup(clusterID, body, {
           success: {
             func: (result) => {
               funcs.scope.setState({ createGroup: false, alarmModal: true})
@@ -236,7 +237,7 @@ let CreateAlarmGroup = React.createClass({
                 afterCreateFunc()
               }
               if(shouldLoadGroup) {
-                setTimeout(this.props.loadNotifyGroups(), 0)
+                setTimeout(this.props.loadNotifyGroups("", clusterID), 0)
               }
             },
             isAsync: true
@@ -255,7 +256,7 @@ let CreateAlarmGroup = React.createClass({
             isAsync: true
           }})
       } else {
-        modifyNotifyGroup(data.groupID, body, {
+        modifyNotifyGroup(data.groupID,clusterID, body, {
           success: {
             func: (result) => {
               funcs.scope.setState({ modifyGroup: false, alarmModal: true})
@@ -396,7 +397,10 @@ let CreateAlarmGroup = React.createClass({
 
 CreateAlarmGroup = Form.create()(CreateAlarmGroup)
 function mapStateToProps(state, props) {
-  return {}
+  const { cluster } = state.entities.current
+  return {
+    cluster
+  }
 }
 
 export default connect(mapStateToProps, {

@@ -13,12 +13,24 @@ const tenantRoutes = [{
   path: 'integration',
   component: require('../components/IntegrationModule').default,
 },{
+    path: 'project_manage',
+    component: require('../components/TenantManage/ProjectManage').default,
+},
+  {
     path: 'rolemanagement',
     component: require('../components/TenantManage/RoleManagement').default,
   },
   {
     path: 'allpermissions',
     component: require('../components/TenantManage/AllPermissions').default,
+  },
+  {
+    path: 'project_manage/project_detail',
+    component: require('../components/TenantManage/ProjectManage/ProjectDetail').default
+  },
+  {
+    path: 'rolemanagement/rolename/TID',
+    component: require('../components/TenantManage/TenantDetail').default,
   }
 ]
 

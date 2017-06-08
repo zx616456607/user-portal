@@ -25,6 +25,10 @@ const menuList = [
     url: '/tenant_manage/allpermissions',
     name: '所有权限'
   },
+  {
+    url: '/tenant_manage/project_manage',
+    name: '项目管理'
+  }
 ]
 
 export default class Tenant extends Component {

@@ -29,6 +29,7 @@ module.exports = function (Router) {
   router.get(/^(\/manange_monitor|\/manange_monitor\/[a-zA-Z0-9_-]+|\/manange_monitor\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
   router.get(/^(\/integration|\/integration\/[a-zA-Z0-9_-]+|\/integration\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
   if (mode === 'enterprise') {
+    router.get(/^(\/tenant_manage|\/tenant_manage\/[a-zA-Z0-9_-]+|\/tenant_manage\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+|\/tenant_manage\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
     router.get(/^(\/setting|\/setting\/[a-zA-Z0-9_-]+|\/setting\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+|\/setting\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
     router.get(/^(\/cluster|\/cluster\/[a-zA-Z0-9\._-]+|\/cluster\/[a-zA-Z0-9\._-]+\/[\.a-zA-Z0-9_-]+|\/cluster\/[a-zA-Z0-9\._-]+\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
   }

@@ -40,7 +40,8 @@ class AlarmGroup extends Component {
   }
   componentWillMount() {
     const { loadNotifyGroups } = this.props
-    loadNotifyGroups()
+    const clusterID = this.props.cluster.clusterID
+    loadNotifyGroups("", clusterID)
   }
   dropdowns (record, group){
     // Dropdown delete btn
@@ -54,9 +55,17 @@ class AlarmGroup extends Component {
     </Menu>
     )
   }
-
+  componentWillReceiveProps(nextProps){
+    let pre = this.props.entities.current.space.spaceName;
+    let next = nextProps.entities.current.space.spaceName;
+    const { loadNotifyGroups } = this.props
+    if(pre !== next) {
+      loadNotifyGroups()
+    }
+  }
   // group must be an array. e.g. ['ID1'] or ['ID1', 'ID2']
   deleteGroup(rowSelection) {
+    const clusterID = this.props.cluster.clusterID
     let notification = new NotificationHandler()
     if (!this.state.deletingGroupIDs) {
       notification.error('请选择要删除的通知组')
@@ -70,12 +79,12 @@ class AlarmGroup extends Component {
     this.setState({
       selectedRowKeys: [],
     })
-    deleteNotifyGroups(this.state.deletingGroupIDs, {
+    deleteNotifyGroups(this.state.deletingGroupIDs, clusterID, {
       success: {
         func: (result) => {
           this.closeDeleteModal()
           notification.success(`删除成功`)
-          loadNotifyGroups()
+          loadNotifyGroups("", clusterID)
         },
         isAsync: true
       },
@@ -157,7 +166,8 @@ class AlarmGroup extends Component {
   handSearch() {
     let search = document.getElementById('AlarmGroupInput').value.trim()
     const { loadNotifyGroups } = this.props
-    loadNotifyGroups(search)
+    const clusterID = this.props.cluster.clusterID
+    loadNotifyGroups(search, clusterID)
   }
   getSelectedGroups() {
     let groupIDs = []
@@ -211,7 +221,6 @@ class AlarmGroup extends Component {
       )
     }
     const tableData = this.props.groups
-
     const modalFunc=  {
       scope : this,
     }
@@ -271,6 +280,7 @@ class AlarmGroup extends Component {
     // })
 
     const _this = this
+    const clusterID = this.props.cluster.clusterID
     const rowSelection = {
       onChange(selectedRowKeys, selectedRows) {
         _this.setState({
@@ -289,7 +299,7 @@ class AlarmGroup extends Component {
               <i className="fa fa-plus" style={{marginRight:'5px'}}/>
               创建
             </Button>
-            <Button size="large" type="ghost" onClick={() => this.props.loadNotifyGroups()}><i className="fa fa-refresh" /> 刷新</Button>
+            <Button size="large" type="ghost" onClick={() => this.props.loadNotifyGroups("", clusterID)}><i className="fa fa-refresh" /> 刷新</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length === 0} icon="delete" onClick={(e)=> this.openDeleteModal(e,this.getSelectedGroups())} type="ghost">删除</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length !== 1} icon="edit" onClick={() => this.openModifyModal(this.getModifyingGroup())} type="ghost">修改</Button>
             <div className="Search">
@@ -334,8 +344,8 @@ class AlarmGroup extends Component {
             footer={null}
           >
             <CreateAlarm funcs={modalFunc}
-            afterCreateFunc={() => this.props.loadNotifyGroups()}
-            afterModifyFunc={() => this.props.loadNotifyGroups()}
+            afterCreateFunc={() => this.props.loadNotifyGroups("", clusterID)}
+            afterModifyFunc={() => this.props.loadNotifyGroups("", clusterID)}
             isModify={!!this.state.modifyGroup}
             data={this.state.modifyingGroupInfo}
             createGroup={this.state.createGroup}
@@ -355,19 +365,23 @@ class AlarmGroup extends Component {
 
 function mapStateToProps(state, props) {
   const { groups } = state.alert
-  if (!groups) {
-    return props
-  }
+  const { cluster } = state.entities.current
+  if (!groups && !cluster) {
+   return props
+ }
+  
   let defaultData = {
       isFetching: false,
       result:{data:[]}
   }
-
+  
   const { isFetching } = groups || defaultData
   const { result } = groups || defaultData
   let groupsData = result ? result.data : []
   return {
+    entities,
     isFetching,
+    cluster,
     groups: groupsData
   }
 }
