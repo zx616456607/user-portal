@@ -307,9 +307,9 @@ function mapStateToProps(state, props) {
     isFetching: false,
     result: {
       data: {
-        strategys: []
-      },
-      total: 0
+        strategys: [],
+        total: 0
+      }
     }
   }
   let leftSetting = {
@@ -321,17 +321,19 @@ function mapStateToProps(state, props) {
   if(settingList.isFetching) {
     isFetching = settingList.isFetching
   } else {
-    if(settingList.result && settingList.result.data.total > 1) {
+    if(settingList.result && settingList.result.data.strategys) {
       settingList.result.data.strategys.some(item => {
-        if(item.strategyName == props.params.id) {
+        if(item.strategyID == props.params.id) {
           leftSetting = item
           return true
         }
         return false
       })
     } else {
-      if(settingList.result && settingList.result.data) {
+      if(settingList.result && settingList.result.data && settingList.result.data.strategys ) {
         leftSetting = settingList.result.data.strategys[0]
+      } else {
+        leftSetting = {}
       }
     }
   }
