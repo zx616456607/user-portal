@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { getSettingList, deleteSetting, updateEnable, ignoreSetting } from '../../actions/alert'
+import { getSettingList, deleteSetting, batchEnable, batchDisable, ignoreSetting } from '../../actions/alert'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { calcuTime, formatDate } from '../../common/tools'
@@ -66,6 +66,12 @@ class AlarmStrategy extends Component {
   }
   componentWillMount() {
     loadStrategy(this)
+  }
+  componentWillReceiveProps(nextProps){
+    let { modalOpen }= nextProps
+    if(modalOpen) {
+      this.showAlert()
+    }
   }
   onPageChange(page) {
     if(page == this.state.currentPage) return
@@ -155,28 +161,43 @@ class AlarmStrategy extends Component {
     let enables = enable == 'start' ? 1: 0
     const noticeText = enable== 'start' ? '策略启动中...':'策略停止中...'
     const body = {
-      strategies:[{
-        enable: enables,
-        strategyID: strategyID.toString()
-      }]
+      strategyIDs:[strategyID.toString()]
     }
     const notifcation = new NotificationHandler()
     notifcation.spin(noticeText)
-    this.props.updateEnable(this.props.cluster, body, {
-      success: {
-        func: ()=> {
-          notifcation.close()
-          loadStrategy(_this)
+    if (enables) {
+      this.props.batchEnable(this.props.cluster, body, {
+        success: {
+          func: ()=> {
+            notifcation.close()
+            loadStrategy(_this)
+          },
+          isAsync: true
         },
-        isAsync: true
-      },
-      failed: {
-        func: ()=> {
-          notifcation.close()
-          notifcation.error('策略修改失败！')
+        failed: {
+          func: ()=> {
+            notifcation.close()
+            notifcation.error('策略修改失败！')
+          }
         }
-      }
-    })
+      })
+    }else{
+      this.props.batchDisable(this.props.cluster, body, {
+        success: {
+          func: ()=> {
+            notifcation.close()
+            loadStrategy(_this)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: ()=> {
+            notifcation.close()
+            notifcation.error('策略修改失败！')
+          }
+        }
+      })
+    }
     _this.setState({enable: false})
   }
   handignoreSetting() {
@@ -368,7 +389,7 @@ class AlarmStrategy extends Component {
           footer={null}
         >
           <CreateAlarm funcs={modalFunc} strategy={this.state.editStrategy} isEdit={this.state.isEdit} isShow={this.state.alarmModal}
-            getSettingList={() => loadStrategy(this)} />  {/*this.props.getSettingList(this.props.clusterID, { from: (this.state.currentPage - 1) * DEFAULT_PAGE_SIZE, size: DEFAULT_PAGE_SIZE })} />*/}
+            getSettingList={() => loadStrategy(this)} />
         </Modal>
         <Modal title="创建新通知组" visible={this.state.createGroup}
           width={560}
@@ -408,6 +429,7 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   getSettingList,
   deleteSetting,
-  updateEnable, // start or stop
+  batchEnable,
+  batchDisable,
   ignoreSetting
 })(AlarmStrategy)

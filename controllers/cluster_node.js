@@ -113,7 +113,7 @@ exports.getAddNodeCMD = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
   const spi = apiFactory.getApi(loginUser)
-  const result = yield spi.clusters.getBy([cluster, 'add'])
+  const result = yield spi.clusters.getBy([cluster, 'nodes', 'add'])
   this.body = result.data
 }
 // cluster node detail pod list
@@ -200,8 +200,8 @@ exports.getClustersInstant = function* () {
     source: 'prometheus'
   }
   // metrics cpu use
-  reqArray.push(api.getBy([cluster,node,'metric/instant'], cpu))
-  reqArray.push(api.getBy([cluster,node,'metric/instant'], mem))
+  reqArray.push(api.getBy([cluster,'metric',node,'metric/instant'], cpu))
+  reqArray.push(api.getBy([cluster,'metric',node,'metric/instant'], mem))
   const results = yield reqArray
   this.body = {
     cpus: results[0].data[node],

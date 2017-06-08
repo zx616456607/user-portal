@@ -48,8 +48,9 @@ function sendEmail(transport, mailOptions) {
   // if SMTP not configured(lite) skip send email
   if (!transport.host) {
     logger.warn(method, 'SMTP not configured, skip send email')
-    return Promise.resolve({skip: true})
+    return Promise.reject({message: 'config email first', status: 400})
   }
+
   // Force to use this 'from' user if using sendEmail method
   mailOptions.from = config.mail_server.auth.user
   const smtpTransport = nodemailer.createTransport(transport)
@@ -564,7 +565,7 @@ exports.sendNotifyGroupInvitationEmail = function* (to, invitorName, invitorEmai
   const subject = `[时速云]告警通知组|邮箱验证`
   const systemEmail = config.mail_server.service_mail
   const date = moment(new Date()).format("YYYY-MM-DD")
-  const inviteURL = `${config.url}/alerts/invitations/join?code=${code}`
+  const inviteURL = `${config.url}/email/invitations/join?code=${code}`
   const mailOptions = {
     to,
     subject,

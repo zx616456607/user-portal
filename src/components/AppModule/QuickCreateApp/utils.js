@@ -171,7 +171,9 @@ export function buildJson(fields, cluster, loginUser) {
         const keyValue = key.value
         const envName = fieldsValues[`envName${keyValue}`]
         const envValue = fieldsValues[`envValue${keyValue}`]
-        deployment.addContainerEnv(serviceName, envName, envValue)
+        if (envName) {
+          deployment.addContainerEnv(serviceName, envName, envValue)
+        }
       }
     })
   }
