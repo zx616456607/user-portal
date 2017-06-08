@@ -431,10 +431,11 @@ class ProjectDetail extends Component{
                     <span>开发角色已关联 <span className="themeColor">10</span> 个对象</span>
                     <Button type="primary" size="large">继续关联对象</Button>
                   </div>
-                  <Table rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false}/>
+                  <div className="memberTableBox">
+                    <Table rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false}/>
+                  </div>
                 </div>
               </div>
-              
             </div>
           </Card>
         </div>
