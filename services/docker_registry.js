@@ -49,11 +49,11 @@ SpecRegistryAPIs.prototype.getCatalog = function () {
           if (statusCode === 200) {
             resolve({"code": statusCode, "result": result})
           } else {
-            reject({"code": statusCode, "result": result})
+            reject({"code": statusCode, "message": result})
           }
         })
       } else {
-        reject({"code": statusCode, "result": result})
+        reject({"code": statusCode, "message": result})
       }
     })
   })
