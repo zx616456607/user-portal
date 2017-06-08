@@ -125,6 +125,10 @@ class Admin extends Component{
     const { loadTeamInfo } = this.props
     loadTeamInfo()
   }
+  componentWillReceiveProps(nextProps) {
+    console.log('======')
+    console.log(nextProps)
+  }
   render(){
     const { spaceName } = this.props
     const teamDetail = this.props.teamDetail

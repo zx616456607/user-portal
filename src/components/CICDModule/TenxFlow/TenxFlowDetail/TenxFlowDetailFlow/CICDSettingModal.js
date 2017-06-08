@@ -39,7 +39,7 @@ const menusText = defineMessages({
   },
   request: {
     id: 'CICD.Tenxflow.CICDSettingModal.request',
-    defaultMessage: '新建一个Pull Request',
+    defaultMessage: '新建一个合并请求 Merge Request（或 Pull Request）',
   },
   cancel: {
     id: 'CICD.Tenxflow.CICDSettingModal.cancel',

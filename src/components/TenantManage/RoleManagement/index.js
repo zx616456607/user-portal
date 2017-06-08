@@ -107,6 +107,7 @@ let MyComponent = React.createClass({
         </Menu>
       );
     return (
+      <div>
       <div className='dataBox'>
         <div className="appDetail">
           <div className='selectIconTitle commonData'>
@@ -114,8 +115,65 @@ let MyComponent = React.createClass({
           </div>
           <div className='appName commonData'>
             <Tooltip>
-              <Link to="##">
-                系统管理员
+              <Link to="/tenant_manage/rolemanagement/rolename/TID">
+                项目管理员
+              </Link>
+            </Tooltip>
+          </div>
+          <div className='appStatus commonData'>
+            系统默认
+          </div>
+          <div className='containerNum commonData'>
+            3
+          </div>
+          <div className='visitIp commonData appListDomain'>
+            3
+          </div>
+          <div className='createTime commonData'>
+            <Tooltip calssName="">
+              <span>2017-03-20 19:00:26</span>
+            </Tooltip>
+            <Tooltip>
+              <span>2017-03-20 19:00:26</span>
+            </Tooltip>
+          </div>
+          <div className='actionBox commonData'>
+            <Dropdown.Button overlay={dropdown} type='ghost'>
+              <span onClick={()=> this.setState({Viewpermissions:true})}><Icon type="eye-o" />查看权限</span>
+              <Modal title="查看权限" visible={this.state.Viewpermissions} footer={<Button type="primary" onClick={this.handleOk}>知道了</Button>} onCancel={this.handleCancel} >
+                <p className="createRolesa">角色名称<Input style={{width:'50%',marginLeft:'50px'}} placeholder="请填写角色名称"/></p>
+                <p className="createRoles">备注<Input style={{width:'50%',marginLeft:'73px'}}/></p>
+                <p>对话框的内容</p>
+              </Modal>
+            </Dropdown.Button>
+          </div>
+          <div style={{ clear: 'both', width: '0' }}></div>
+          <Modal width="650px" title="编辑角色" visible={this.state.editrole} onOk={this.handleOk} onCancel={this.handleCancel} >
+            <p className="createRolesa">角色名称<Input style={{width:'50%',marginLeft:'50px'}} placeholder="请填写角色名称"/></p>
+            <p className="createRoles">备注<Input style={{width:'50%',marginLeft:'73px'}}/></p>
+            <p className="createRoles"><sapn className="PermissionSelection">权限选择</sapn>
+                <Transfer
+                dataSource={this.state.mockData}
+                targetKeys={this.state.targetKeys}
+                onChange={this.handleChange}
+                render={item => item.title}/>
+            </p>
+          </Modal>
+          <Modal title="删除角色操作" visible={this.state.Deleteroles} onOk={this.handleOk} onCancel={this.handleCancel} >
+            <p className="createRolesa"><div className="mainbox"><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>将永久删除以下角色以及该角色所关联的对象，您确定要删除以下角色么？</div></p>
+            <p className="createRoles"><Table columns={columns} dataSource={data} pagination={false} /></p>
+          </Modal>
+        </div>
+      </div>
+      <div className='dataBox'>
+        <div className="appDetail">
+          <div className='selectIconTitle commonData'>
+            <Checkbox/>
+          </div>
+          <div className='appName commonData'>
+            <Tooltip>
+              <Link to="/tenant_manage/rolemanagement/rolename/TID">
+                项目访客
               </Link>
             </Tooltip>
           </div>
@@ -163,6 +221,7 @@ let MyComponent = React.createClass({
             <p className="createRoles"><Table columns={columns} dataSource={data} pagination={false} /></p>
           </Modal>
         </div>
+      </div>
       </div>
     )
   }

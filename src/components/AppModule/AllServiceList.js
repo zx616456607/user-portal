@@ -680,10 +680,9 @@ class ServiceList extends Component {
       const name = checkList.map(service => service.metadata.name).join(',')
       getDeploymentOrAppCDRule(cluster, 'service', name)
       const query = {
-        clusterID: cluster,
         targetNames: name,
       }
-      getSettingListfromserviceorapp(query)
+      getSettingListfromserviceorapp(query, cluster)
     }
     this.setState({
       DeleteServiceModal: true,
