@@ -383,7 +383,7 @@ class ImageUpdate extends Component {
       case '启用':
         return  obj = {
           title: '启用规则',
-          text: '启用规则后，该项目下的所有镜像仓库将同步到目标实例。'
+          text: '启用规则后，该仓库组下的所有镜像仓库将同步到目标实例。'
         }
       case '删除':
         return  obj = {

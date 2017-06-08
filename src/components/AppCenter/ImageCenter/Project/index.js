@@ -56,10 +56,10 @@ class CreateItem extends Component {
           func: err => {
             const { statusCode } = err
             if (statusCode === 409) {
-              notification.error(`项目名称 ${values.project_name} 已存在`)
+              notification.error(`仓库组名称 ${values.project_name} 已存在`)
               return
             }
-            notification.error(`创建项目 ${values.project_name} 失败`)
+            notification.error(`创建仓库组 ${values.project_name} 失败`)
           },
         }
       })
@@ -74,7 +74,7 @@ class CreateItem extends Component {
     }
     const itemName= getFieldProps('project_name',{
       rules: [
-        { required: true, min: 3, message: '项目至少为3个字符' },
+        { required: true, min: 3, message: '仓库组至少为3个字符' },
         // { validator: this.nameExists },
       ],
     })
@@ -85,19 +85,19 @@ class CreateItem extends Component {
       initialValue: 0,
     })
     return (
-      <Modal title="新建项目" visible={this.props.visible} onOk={()=> this.handOk()} onCancel={()=> this.handCancel()}>
+      <Modal title="新建仓库组" visible={this.props.visible} onOk={()=> this.handOk()} onCancel={()=> this.handCancel()}>
         <Form className="itemCreateFrom">
-          <Form.Item label="项目名称" {...formItemLayout} className="createForm">
-            <Input placeholder="请输入项目名称" {...itemName}/>
+          <Form.Item label="仓库组名称" {...formItemLayout} className="createForm">
+            <Input placeholder="请输入仓库组名称" {...itemName}/>
           </Form.Item>
-          <Form.Item label="项目类型" {...formItemLayout} className="createForm">
+          <Form.Item label="仓库组类型" {...formItemLayout} className="createForm">
             <RadioGroup {...projectPublic}>
               <Radio value={0}>私有</Radio>
               <Radio value={1}>公开</Radio>
             </RadioGroup>
           </Form.Item>
 
-          <div className="alertRow">当项目设为公开后，任何人都有此项目下镜像的读权限。命令行用户不需要“docker login”就可以拉取此项目下的镜像。</div>
+          <div className="alertRow">当仓库组设为公开后，任何人都有此仓库组下镜像的读权限。命令行用户不需要“docker login”就可以拉取此仓库组下的镜像。</div>
         </Form>
       </Modal>
     )
@@ -138,7 +138,7 @@ class Project extends Component {
     const { deleteProject } = this.props
     const { selectedRows } = this.state
     const doSuccess = () => {
-      notification.success(`项目 ${selectedRows[0].name} 删除成功`)
+      notification.success(`仓库组 ${selectedRows[0].name} 删除成功`)
       this.setState({
         deleteItem: false,
       })
@@ -159,10 +159,10 @@ class Project extends Component {
             return
           }
           if (statusCode === 412) {
-            notification.error(`项目包含规则，删除失败`)
+            notification.error(`仓库组包含规则，删除失败`)
             return
           }
-          notification.error(`项目删除失败`)
+          notification.error(`仓库组删除失败`)
         },
       }
     })
@@ -185,7 +185,7 @@ class Project extends Component {
 
             <Card className="project">
               <div className="topRow">
-                <Button type="primary" size="large" icon="plus" onClick={()=> this.setState({createItem:true})}>新建项目</Button>
+                <Button type="primary" size="large" icon="plus" onClick={()=> this.setState({createItem:true})}>新建仓库组</Button>
                 {/*<Button type="ghost" disabled={this.state.selectedRows.length==0} onClick={()=> this.setState({deleteItem:true})} size="large" icon="delete">删除</Button>*/}
                 <Input
                   placeholder="搜索"
@@ -199,11 +199,11 @@ class Project extends Component {
               </div>
               <DataTable dataSource={harborProjects} func={func}/>
             </Card>
-            {/* 创建项目 Modal */}
+            {/* 创建仓库组 Modal */}
             <CreateItem visible={this.state.createItem} func={func}/>
 
-            {/* 删除项目 Modal */}
-            <Modal title="删除项目" visible={this.state.deleteItem}
+            {/* 删除仓库组 Modal */}
+            <Modal title="删除仓库组" visible={this.state.deleteItem}
               onCancel={()=> this.setState({deleteItem:false})}
               onOk={()=> this.deleteItemOk()}
             >

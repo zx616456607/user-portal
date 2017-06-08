@@ -130,6 +130,33 @@ function detail(state = {}, action) {
   }
 }
 
+function members(state = {}, action) {
+  const { registry } = action
+  const defaultState = {
+    isFetching: false,
+    list: []
+  }
+  switch (action.type) {
+    case ActionTypes.HARBOR_GET_PROJECT_MEMBERS_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.HARBOR_GET_PROJECT_MEMBERS_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        server: action.response.result.server,
+        list: action.response.result.data,
+        total: action.response.result.total,
+      })
+    case ActionTypes.HARBOR_GET_PROJECT_MEMBERS_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 function projectLogs(state = {}, action) {
   const { registry } = action
   const defaultState = {
@@ -168,5 +195,6 @@ export default function harborRegistry(state = { projects: {} }, action) {
     projectLogs: projectLogs(state.projectLogs, action),
     detail: detail(state.detail, action),
     repos: repos(state.repos, action),
+    members: members(state.members, action),
   }
 }

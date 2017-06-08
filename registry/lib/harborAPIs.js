@@ -322,6 +322,30 @@ HarborAPIs.prototype.updateProjectPublicity = function (id, body, callback) {
   this.sendRequest(url, 'PUT', body, callback)
 }
 
+// [GET] /projects/:project_id/members
+HarborAPIs.prototype.getProjectMembers = function (id, query, callback) {
+  const url = `${this.getAPIPrefix()}/projects/${id}/members?${utils.toQuerystring(query)}`
+  this.sendRequest(url, 'GET', null, callback)
+}
+
+// [POST] /projects/:project_id/members
+HarborAPIs.prototype.addProjectMember = function (id, body, callback) {
+  const url = `${this.getAPIPrefix()}/projects/${id}/members`
+  this.sendRequest(url, 'POST', body, callback)
+}
+
+// [PUT] /projects/:project_id/members/:user_id
+HarborAPIs.prototype.updateProjectMember = function (project_id, user_id, body, callback) {
+  const url = `${this.getAPIPrefix()}/projects/${project_id}/members/${user_id}`
+  this.sendRequest(url, 'PUT', body, callback)
+}
+
+// [DELETE] /projects/:project_id/members/:user_id
+HarborAPIs.prototype.deleteProjectMember = function (project_id, user_id, callback) {
+  const url = `${this.getAPIPrefix()}/projects/${project_id}/members/${user_id}`
+  this.sendRequest(url, 'DELETE', null, callback)
+}
+
 // [GET] /repositories
 HarborAPIs.prototype.getProjectRepositories = function (query, callback) {
   const url = `${this.getAPIPrefix()}/repositories?${utils.toQuerystring(query)}`

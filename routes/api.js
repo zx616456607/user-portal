@@ -230,6 +230,10 @@ module.exports = function (Router) {
   router.get('/registries/:registry/projects/:project_id', harborController.getProjectDetail)
   router.del('/registries/:registry/projects/:project_id', harborController.deleteProject)
   router.put('/registries/:registry/projects/:project_id/publicity', harborController.updateProjectPublicity)
+  router.get('/registries/:registry/projects/:project_id/members', harborController.getProjectMembers)
+  router.post('/registries/:registry/projects/:project_id/members', harborController.addProjectMember)
+  router.put('/registries/:registry/projects/:project_id/members/:user_id', harborController.updateProjectMember)
+  router.del('/registries/:registry/projects/:project_id/members/:user_id', harborController.deleteProjectMember)
   router.get('/registries/:registry/repositories', harborController.getProjectRepositories)
 
   router.get('/registries/:registry/logs', harborController.getLogs)

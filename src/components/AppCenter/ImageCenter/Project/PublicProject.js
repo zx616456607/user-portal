@@ -75,7 +75,7 @@ class PublicProject extends Component {
                 <i className="fa fa-search" onClick={this.searchProjects}></i>
                 <span className="totalPage">共计：{harborProjects.total || 0} 条</span>
               </div>
-              <DataTable dataSource={harborProjects} func={func}/>
+              <DataTable from="public" dataSource={harborProjects} func={func}/>
             </Card>
 
           </div>

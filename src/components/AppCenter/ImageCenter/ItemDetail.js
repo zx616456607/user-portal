@@ -19,10 +19,12 @@ import Logs from './ImageItem/Logs'
 import Management from './ImageItem/Management'
 import CodeRepo from './ImageItem/CodeRepo'
 import ImageUpdate from './ImageItem/ImageUpdate'
-import { loadProjectDetail } from '../../../actions/harbor'
+import { loadProjectDetail, loadProjectMembers } from '../../../actions/harbor'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import { camelize } from 'humps'
+import NotificationHandler from '../../../common/notification_handler'
 
+const notification = new NotificationHandler()
 const TabPane = Tabs.TabPane
 
 class ItemDetail extends Component {
@@ -33,19 +35,32 @@ class ItemDetail extends Component {
       sortedInfo: null,
       filteredInfo: null
     }
+    this.currentUser = {}
   }
 
   componentWillMount() {
-    const { loadProjectDetail, params } = this.props
+    const { loadProjectDetail, loadProjectMembers, params } = this.props
     loadProjectDetail(DEFAULT_REGISTRY, params.id)
+    loadProjectMembers(DEFAULT_REGISTRY,  params.id, null, {
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          this.currentUser = {}
+          if (statusCode === 403) {
+            return
+          }
+          notification.error(`获取成员失败`)
+        }
+      }
+    })
   }
 
   renderPublic(key) {
     switch (key) {
       case 0:
-        return '私有项目'
+        return '私有仓库组'
       case 1:
-        return '公开项目'
+        return '公开仓库组'
       default:
         break;
     }
@@ -56,7 +71,7 @@ class ItemDetail extends Component {
       case 0:
         return '未知'
       case 1:
-        return '项目管理员'
+        return '管理员'
       case 2:
         return '开发人员'
       case 3:
@@ -67,8 +82,16 @@ class ItemDetail extends Component {
   }
 
   render() {
-    const { projectDetail, params } = this.props
-    const { name, } = projectDetail
+    const { projectDetail, params, projectMembers, loginUser } = this.props
+    const { name } = projectDetail
+    const members = projectMembers.list || []
+    members.every(member => {
+      if (member.username === loginUser.userName) {
+        this.currentUser = member
+        return false
+      }
+      return true
+    })
     return (
       <div className="imageProject">
         <br />
@@ -83,18 +106,31 @@ class ItemDetail extends Component {
                 </span>
                 <span className="itemName">{name || ''}</span>
                 <span>{this.renderPublic(projectDetail.public)} </span>
-                <span className="margin">|</span>
-                <span className="role">
-                  <span className="role-key">
-                    我的角色&nbsp;
-                  </span>
-                  {this.renderRole(projectDetail[camelize('current_user_role_id')])}
-                </span>
+                {
+                  this.currentUser.username && [
+                    <span className="margin">|</span>,
+                    <span className="role">
+                      <span className="role-key">
+                        我的角色&nbsp;
+                      </span>
+                      {this.renderRole(this.currentUser[camelize('role_id')])}
+                    </span>
+                  ]
+                }
               </div>
               <br />
               <Tabs defaultActiveKey="repo">
-                <TabPane tab="镜像仓库" key="repo"><CodeRepo {...this.props} /></TabPane>
-                <TabPane tab="权限管理" key="role"><Management /></TabPane>
+                <TabPane tab="镜像仓库" key="repo">
+                  <CodeRepo {...this.props} />
+                </TabPane>
+                <TabPane tab="权限管理" key="role">
+                  <Management
+                    {...params}
+                    registry={DEFAULT_REGISTRY}
+                    members={projectMembers}
+                    currentUser={this.currentUser}
+                  />
+                </TabPane>
                 <TabPane tab="审计日志" key="log"><Logs params={this.props.params}/></TabPane>
                 <TabPane tab="镜像同步" key="sync"><ImageUpdate /></TabPane>
               </Tabs>
@@ -107,12 +143,15 @@ class ItemDetail extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { harbor } = state
+  const { harbor, entities } = state
   return {
     projectDetail: harbor.detail.data || {},
+    projectMembers: harbor.members || {},
+    loginUser: entities.loginUser.info,
   }
 }
 
 export default connect(mapStateToProps, {
   loadProjectDetail,
+  loadProjectMembers,
 })(ItemDetail)

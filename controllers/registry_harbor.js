@@ -90,6 +90,22 @@ exports.deleteProject = harborHandler(
 exports.updateProjectPublicity = harborHandler(
   (harbor, ctx, callback) => harbor.updateProjectPublicity(ctx.params.project_id, ctx.request.body, callback))
 
+// [GET] /projects/:project_id/user_id
+exports.getProjectMembers = harborHandler(
+  (harbor, ctx, callback) => harbor.getProjectMembers(ctx.params.project_id, ctx.query, callback))
+
+// [POST] /projects/:project_id/user_id
+exports.addProjectMember = harborHandler(
+  (harbor, ctx, callback) => harbor.addProjectMember(ctx.params.project_id, ctx.request.body, callback))
+
+// [PUT] /projects/:project_id/user_id/:user_id
+exports.updateProjectMember = harborHandler(
+  (harbor, ctx, callback) => harbor.updateProjectMember(ctx.params.project_id, ctx.params.user_id, ctx.request.body, callback))
+
+// [DELETE] /projects/:project_id/user_id/:user_id
+exports.deleteProjectMember = harborHandler(
+  (harbor, ctx, callback) => harbor.deleteProjectMember(ctx.params.project_id, ctx.params.user_id, callback))
+
 // [GET] /repositories
 exports.getProjectRepositories = harborHandler(
   (harbor, ctx, callback) => harbor.getProjectRepositories(ctx.query, callback))

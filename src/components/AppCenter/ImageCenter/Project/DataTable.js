@@ -48,7 +48,7 @@ class DataTable extends Component {
       },
       failed: {
         func: err => {
-          notification.error(`更新项目 ${projet.name} 失败`)
+          notification.error(`更新仓库组 ${projet.name} 失败`)
           this.setPulicBtnLoading[project.name] = false
         },
       }
@@ -67,9 +67,9 @@ class DataTable extends Component {
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     const scope = this.props.func.scope
-    const columns = [
+    const defaultColumns = [
       {
-        title: '项目名称',
+        title: '仓库组名称',
         dataIndex: 'name',
         key: 'name',
         render: (text, record) => <Link to={`/app_center/projects/detail/${record[camelize('project_id')]}`}>{text}</Link>
@@ -96,7 +96,7 @@ class DataTable extends Component {
         dataIndex: camelize('current_user_role_id'),
         key: camelize('current_user_role_id'),
         filters: [
-          { text: '项目管理员', value: 1 },
+          { text: '管理员', value: 1 },
           { text: '开发人员', value: 2 },
           { text: '访客', value: 3 },
         ],
@@ -104,7 +104,7 @@ class DataTable extends Component {
         onFilter: (value, record) => record[camelize('current_user_role_id')] == value,
         render: text => {
           if (text == 1) {
-            return '项目管理员'
+            return '管理员'
           }
           if (text == 2) {
             return '开发人员'
@@ -171,6 +171,15 @@ class DataTable extends Component {
         }
       }
     ]
+    const columns = []
+    defaultColumns.forEach(column => {
+      if (this.props.from === 'public') {
+        if (([ 'public', 'action' ]).indexOf(column.dataIndex) > -1) {
+          return
+        }
+      }
+      columns.push(column)
+    })
     /*const rowSelection = {
       onChange(selectedRowKeys, selectedRows) {
         scope.setState({selectedRows})

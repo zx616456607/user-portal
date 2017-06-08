@@ -95,6 +95,120 @@ export function loadProjectRepos(registry, query, callback) {
   }
 }
 
+export const HARBOR_GET_PROJECT_MEMBERS_REQUEST = 'HARBOR_GET_PROJECT_MEMBERS_REQUEST'
+export const HARBOR_GET_PROJECT_MEMBERS_SUCCESS = 'HARBOR_GET_PROJECT_MEMBERS_SUCCESS'
+export const HARBOR_GET_PROJECT_MEMBERS_FAILURE = 'HARBOR_GET_PROJECT_MEMBERS_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchProjectMembers(registry, projectID, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${projectID}/members`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ HARBOR_GET_PROJECT_MEMBERS_REQUEST, HARBOR_GET_PROJECT_MEMBERS_SUCCESS, HARBOR_GET_PROJECT_MEMBERS_FAILURE ],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function loadProjectMembers(registry, projectID, query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchProjectMembers(registry, projectID, query, callback))
+  }
+}
+
+export const HARBOR_ADD_PROJECT_MEMBER_REQUEST = 'HARBOR_ADD_PROJECT_MEMBER_REQUEST'
+export const HARBOR_ADD_PROJECT_MEMBER_SUCCESS = 'HARBOR_ADD_PROJECT_MEMBER_SUCCESS'
+export const HARBOR_ADD_PROJECT_MEMBER_FAILURE = 'HARBOR_ADD_PROJECT_MEMBER_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchAddProjectMember(registry, projectID, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${projectID}/members`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ HARBOR_ADD_PROJECT_MEMBER_REQUEST, HARBOR_ADD_PROJECT_MEMBER_SUCCESS, HARBOR_ADD_PROJECT_MEMBER_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function addProjectMember(registry, projectID, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchAddProjectMember(registry, projectID, body, callback))
+  }
+}
+
+export const HARBOR_DELETE_PROJECT_MEMBER_REQUEST = 'HARBOR_DELETE_PROJECT_MEMBER_REQUEST'
+export const HARBOR_DELETE_PROJECT_MEMBER_SUCCESS = 'HARBOR_DELETE_PROJECT_MEMBER_SUCCESS'
+export const HARBOR_DELETE_PROJECT_MEMBER_FAILURE = 'HARBOR_DELETE_PROJECT_MEMBER_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDeleteProjectMember(registry, projectID, userId, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${projectID}/members/${userId}`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ HARBOR_DELETE_PROJECT_MEMBER_REQUEST, HARBOR_DELETE_PROJECT_MEMBER_SUCCESS, HARBOR_DELETE_PROJECT_MEMBER_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function deleteProjectMember(registry, projectID, userId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteProjectMember(registry, projectID, userId, callback))
+  }
+}
+
+export const HARBOR_UPDATE_PROJECT_MEMBER_REQUEST = 'HARBOR_UPDATE_PROJECT_MEMBER_REQUEST'
+export const HARBOR_UPDATE_PROJECT_MEMBER_SUCCESS = 'HARBOR_UPDATE_PROJECT_MEMBER_SUCCESS'
+export const HARBOR_UPDATE_PROJECT_MEMBER_FAILURE = 'HARBOR_UPDATE_PROJECT_MEMBER_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateProjectMember(registry, projectID, userId, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/projects/${projectID}/members/${userId}`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ HARBOR_UPDATE_PROJECT_MEMBER_REQUEST, HARBOR_UPDATE_PROJECT_MEMBER_SUCCESS, HARBOR_UPDATE_PROJECT_MEMBER_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function updateProjectMember(registry, projectID, userId, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateProjectMember(registry, projectID, userId, body, callback))
+  }
+}
+
 export const HARBOR_PROJECT_LOGS_REQUEST = 'HARBOR_PROJECT_LOGS_REQUEST'
 export const HARBOR_PROJECT_LOGS_SUCCESS = 'HARBOR_PROJECT_LOGS_SUCCESS'
 export const HARBOR_PROJECT_LOGS_FAILURE = 'HARBOR_PROJECT_LOGS_FAILURE'
@@ -185,6 +299,31 @@ export function createProject(registry, body, callback) {
   }
 }
 
+export const HARBOR_REPOSITORIES_TAGS_REQUEST = 'HARBOR_REPOSITORIES_TAGS_REQUEST'
+export const HARBOR_REPOSITORIES_TAGS_SUCCESS = 'HARBOR_REPOSITORIES_TAGS_SUCCESS'
+export const HARBOR_REPOSITORIES_TAGS_FAILURE = 'HARBOR_REPOSITORIES_TAGS_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchRepositoriesTags(registry, imageName, callback) {
+  return {
+    registry,
+    imageName,
+    callback,
+    [FETCH_API]: {
+      types: [ HARBOR_REPOSITORIES_TAGS_REQUEST, HARBOR_REPOSITORIES_TAGS_SUCCESS, HARBOR_REPOSITORIES_TAGS_FAILURE ],
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${imageName}/tags`,
+      schema: {}
+    }
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function loadRepositoriesTags(registry, imageName,callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchRepositoriesTags(registry, imageName, callback))
+  }
+}
+
 export const DELETE_HARBOR_PROJECT_REQUEST = 'DELETE_HARBOR_PROJECT_REQUEST'
 export const DELETE_HARBOR_PROJECT_SUCCESS = 'DELETE_HARBOR_PROJECT_SUCCESS'
 export const DELETE_HARBOR_PROJECT_FAILURE = 'DELETE_HARBOR_PROJECT_FAILURE'
@@ -210,6 +349,31 @@ function fetchDeleteProject(registry, id, callback) {
 export function deleteProject(registry, id, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchDeleteProject(registry, id, callback))
+  }
+}
+
+export const HARBOR_REPOSITORIES_TAG_CONFIGINFO_REQUEST = 'HARBOR_REPOSITORIES_TAG_CONFIGINFO_REQUEST'
+export const HARBOR_REPOSITORIES_TAG_CONFIGINFO_SUCCESS = 'HARBOR_REPOSITORIES_TAG_CONFIGINFO_SUCCESS'
+export const HARBOR_REPOSITORIES_TAG_CONFIGINFO_FAILURE = 'HARBOR_REPOSITORIES_TAG_CONFIGINFO_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchRepositoriesTagConfigInfo(registry, imageName, tag, callback) {
+  return {
+    registry,
+    imageName,
+    tag,
+    [FETCH_API]: {
+      types: [ HARBOR_REPOSITORIES_TAG_CONFIGINFO_REQUEST, HARBOR_REPOSITORIES_TAG_CONFIGINFO_SUCCESS, HARBOR_REPOSITORIES_TAG_CONFIGINFO_FAILURE ],
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${imageName}/tags/${tag}/configinfo`,
+      schema: {}
+    }
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function loadRepositoriesTagConfigInfo(registry, imageName, tag, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchRepositoriesTagConfigInfo(registry, imageName, tag, callback))
   }
 }
 
