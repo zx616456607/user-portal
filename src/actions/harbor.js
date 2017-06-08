@@ -362,6 +362,7 @@ function fetchRepositoriesTagConfigInfo(registry, imageName, tag, callback) {
     registry,
     imageName,
     tag,
+    callback,
     [FETCH_API]: {
       types: [ HARBOR_REPOSITORIES_TAG_CONFIGINFO_REQUEST, HARBOR_REPOSITORIES_TAG_CONFIGINFO_SUCCESS, HARBOR_REPOSITORIES_TAG_CONFIGINFO_FAILURE ],
       endpoint: `${API_URL_PREFIX}/registries/${registry}/repositories/${imageName}/tags/${tag}/configinfo`,

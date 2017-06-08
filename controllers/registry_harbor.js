@@ -363,7 +363,7 @@ function harborHandler(handler) {
         if (err) {
           reject(err)
         } else if (statusCode > 300) {
-          err = new Error("call harbor native api failed")
+          err = new Error("请求镜像仓库错误，错误代码：" + statusCode)
           err.status = statusCode
           reject(err)
         } else {

@@ -165,7 +165,7 @@ exports.verifyUser = function* (next) {
     }
   }
   // These message(and watchToken etc.) will be save to session
-  let registryAuth = Buffer(body.username + ':' + body.password).toString('base64');
+  let registryAuth = Buffer(result.userName + ':' + body.password).toString('base64');
   const loginUser = {
     user: result.userName,
     id: result.userID,
