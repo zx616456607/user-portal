@@ -256,7 +256,7 @@ exports.getSettingList = function* () {
 
 exports.getSettingListfromserviceorapp = function* () {
   const cluster = this.params.cluster
-  const api = apiFactory.getApi(this.session.loginUser)
+  const api = apiFactory.getK8sApi(this.session.loginUser)
   const queryBody = this.query
   const body = yield  api.getBy([cluster, 'alerts/group-strategies'],queryBody)
   this.body = body
