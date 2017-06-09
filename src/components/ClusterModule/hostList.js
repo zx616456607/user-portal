@@ -9,7 +9,7 @@ import NotificationHandler from '../../common/notification_handler'
 import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import {  getAllClusterNodes, getKubectlsPods, deleteClusterNode, getClusterLabel } from '../../actions/cluster_node'
+import {  getAllClusterNodes, getKubectlsPods, deleteClusterNode, getClusterLabel, changeClusterNodeSchedule } from '../../actions/cluster_node'
 import { addTerminal } from '../../actions/terminal'
 import { NOT_AVAILABLE } from '../../constants'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
@@ -600,7 +600,8 @@ export default connect(mapStateToProps, {
   addTerminal,
   getKubectlsPods,
   deleteClusterNode,
-  getClusterLabel
+  getClusterLabel,
+  changeClusterNodeSchedule
 })(injectIntl(hostList, {
   withRef: true,
 }))
