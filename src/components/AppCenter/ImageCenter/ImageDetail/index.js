@@ -529,7 +529,7 @@ class ImageDetailBox extends Component {
                       onClick={this.safetyscanhandleOk}>
                       确 定
                     </Button>,
-                ]}>
+                  ]}>
                   <div>
                     <span style={{ marginRight: '30px' }}>镜像版本</span>
                     <Select

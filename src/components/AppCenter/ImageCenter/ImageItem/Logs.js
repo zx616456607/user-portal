@@ -104,28 +104,14 @@ class Logs extends Component {
     }, postBody)
   }
   render() {
-     const dataSource = [
-      {
-        name: 'shwart-1',
-        imageName: 'shwart/hello word',
-        labels: 'lates',
-        action: 'create',
-        createTime: '2017-6-8'
-      },
-      {
-        name: 'demo',
-        imageName: 'demo/testing',
-        labels: '2017',
-        action: 'delete',
-        createTime: '2017-6-4'
-      },
-      {
-        name: 'test',
-        imageName: 'test/hello word',
-        labels: '666',
-        action: 'put',
-        createTime: '2017-6-18'
-      }
+    const { projectLogs } = this.props
+    const { isFetching, list, total } = projectLogs
+    let filterKey = [
+      { text: 'Pull', value: 'pull' },
+      { text: 'Push', value: 'push' },
+      { text: 'Create', value: 'create' },
+      { text: 'Delete', value: 'Delete' },
+      { text: '其他', value: 'other' },
     ]
     const columns = [
       {
@@ -154,9 +140,11 @@ class Logs extends Component {
     return (
       <div id="logs">
         <div className="topRow">
-          <Input placeholder="搜索" className="search" size='large' />
-          <i className="fa fa-search"></i>
-          <span className="totalPage">共计：{dataSource.length} 条</span>
+          <Input addonBefore={this.select} placeholder="搜索" className="search" size='large' onPressEnter={(e) => this.searchLogs(e)} />
+          {total >0 ?
+            <span className="totalPage">共计：{total} 条</span>
+          :null
+          }
         </div>
         <Table className="myImage" dataSource={dataSource} columns={columns} pagination={{ simple: true }} />
       </div>

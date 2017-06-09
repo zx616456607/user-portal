@@ -15,7 +15,8 @@ import MirrorSafetyBug from './MirrorSafetyBug'
 import SoftwarePackage from './SoftwarePackage'
 import BaseScan from './BaseScan'
 import './style/MirrorSafety.less'
-import { loadMirrorSafetyLayerinfo, loadImageDetailTag, loadMirrorSafetyScanStatus, loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo, loadMirrorSafetyChairinfo } from '../../../../actions/app_center'
+import { loadMirrorSafetyLayerinfo, loadMirrorSafetyScanStatus, loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo, loadMirrorSafetyChairinfo } from '../../../../actions/app_center'
+import { loadRepositoriesTags } from '../../../../actions/harbor'
 import { connect } from 'react-redux'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import NotificationHandler from '../../../../common/notification_handler'
@@ -47,13 +48,13 @@ class MirrorSafety extends Component {
   }
 
   componentWillMount() {
-    const { registry, imageName, loadImageDetailTag, tagVersion, envEdition } = this.props
+    const { registry, imageName, loadRepositoriesTags, tagVersion, envEdition } = this.props
     const standard = require('../../../../../configs/constants').STANDARD_MODE
     const mode = require('../../../../../configs/model').mode
     if( mode === standard && envEdition == 0){
       return
     }
-    loadImageDetailTag(registry, imageName)
+    loadRepositoriesTags(registry, imageName)
     if (tagVersion !== '') {
       this.setState({
         tag: tagVersion,
@@ -63,7 +64,7 @@ class MirrorSafety extends Component {
   }
 
   componentWillReceiveProps(nextPorps) {
-    const { registry, loadImageDetailTag } = this.props
+    const { registry, loadRepositoriesTags } = this.props
     const imageName = nextPorps.imageName
     const tagVersion = nextPorps.tagVersion
     let ActiveKeyNext = '1'
@@ -77,7 +78,7 @@ class MirrorSafety extends Component {
       ActiveKeyNext = this.state.ActiveKey
     }
     if (this.state.imageName !== imageName) {
-      loadImageDetailTag(registry, imageName)
+      loadRepositoriesTags(registry, imageName)
       this.setState({
         TabsDisabled: true,
         imageName,
@@ -86,7 +87,18 @@ class MirrorSafety extends Component {
       })
     }
   }
-
+  formatErrorMessage(body) {
+    const mapping = {
+      'jobalreadyexist': '版本已经触发扫描，请稍后再试！',
+      'no non-empty layer': "版本为空镜像，无法对空镜像进行扫描",
+      "The connection could not be established": '版本无法连接到安全服务',
+    }
+    const message = body.message
+    if (!(message in mapping)) {
+      return message
+    }
+    return mapping[message]
+  }
   TemplateSelectOption() {
     const { imgTag } = this.props
     if (!imgTag) {
@@ -101,7 +113,7 @@ class MirrorSafety extends Component {
   }
 
   handleSelectVesion(tag) {
-    const { imageName, loadMirrorSafetyLayerinfo, loadMirrorSafetyScanStatus, loadMirrorSafetyScan, cluster_id, loadMirrorSafetyChairinfo, loadMirrorSafetyLyinsinfo, mirrorSafetyScan, mirrorScanUrl, formatErrorMessage } = this.props
+    const { imageName, loadMirrorSafetyLayerinfo, loadMirrorSafetyScanStatus, loadMirrorSafetyScan, cluster_id, loadMirrorSafetyChairinfo, loadMirrorSafetyLyinsinfo, mirrorSafetyScan, mirrorScanUrl } = this.props
     const notificationHandler = new NotificationHandler()
     this.setState({tag})
     loadMirrorSafetyScanStatus({ imageName, tag },{
@@ -166,7 +178,7 @@ class MirrorSafety extends Component {
       failed:{
         func: (res) => {
           this.setState({TabsDisabled : true})
-          notificationHandler.error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' + formatErrorMessage(res))
+          notificationHandler.error('[ '+imageName+ ' ] ' +'镜像的'+ ' [ ' + tag + ' ] ' + this.formatErrorMessage(res))
         }
       }
     })
@@ -203,6 +215,7 @@ class MirrorSafety extends Component {
 
   render() {
     const { imgTag, imageName, envEdition, imageType } = this.props
+    console.log('imageTag',imgTag)
     const { TabsDisabled, LayerCommandParameters } = this.state
     const standard = require('../../../../../configs/constants').STANDARD_MODE
     const mode = require('../../../../../configs/model').mode
@@ -232,16 +245,16 @@ class MirrorSafety extends Component {
                 <div className="safetytabbox">
                   <Tabs onChange={this.handleTabsSwitch} activeKey={ TabsDisabled ? null : this.state.ActiveKey}>
                     <TabPane tab={<span><i className="fa fa-bug safetytabIcon" aria-hidden="true"></i>漏洞扫描</span>} key="1" disabled={this.state.TabsDisabled} >
-                      <MirrorSafetyBug imageName={imageName}  tag={this.state.tag} inherwidth={this.state.inherwidth} imageType={imageType} callback={this.handleSoftwarepackageToLayer} scanFailed={this.handleScanFailed} formatErrorMessage={this.props.formatErrorMessage}/>
+                      <MirrorSafetyBug imageName={imageName}  tag={this.state.tag} inherwidth={this.state.inherwidth} imageType={imageType} callback={this.handleSoftwarepackageToLayer} scanFailed={this.handleScanFailed} formatErrorMessage={this.formatErrorMessage}/>
                     </TabPane>
                     <TabPane tab={<span><i className="fa fa-database safetytabIcon" aria-hidden="true"></i>镜像分层</span>} key="2" disabled={this.state.TabsDisabled}>
                       <MirrorLayered LayerCommandParameters={LayerCommandParameters} imageName={imageName} tag={this.state.tag} />
                     </TabPane>
                     <TabPane tab={<span><i className="fa fa-android safetytabIcon" aria-hidden="true"></i><span className='softspan'>软件包</span></span>} key="3" disabled={this.state.TabsDisabled}>
-                      <SoftwarePackage imageName={imageName} tag={this.state.tag} inherwidth={this.state.inherwidth} imageType={imageType} callback={this.handleSoftwarepackageToLayer} scanFailed={this.handleScanFailed} formatErrorMessage={this.props.formatErrorMessage}/>
+                      <SoftwarePackage imageName={imageName} tag={this.state.tag} inherwidth={this.state.inherwidth} imageType={imageType} callback={this.handleSoftwarepackageToLayer} scanFailed={this.handleScanFailed} formatErrorMessage={this.formatErrorMessage}/>
                     </TabPane>
                     <TabPane tab={<span><i className="fa fa-crosshairs safetytabIcon" aria-hidden="true"></i>基础扫描</span>} key="4" disabled={this.state.TabsDisabled}>
-                      <BaseScan imageName={imageName} tag={this.state.tag} imageType={imageType} scanFailed={this.handleScanFailed} formatErrorMessage={this.props.formatErrorMessage}/>
+                      <BaseScan imageName={imageName} tag={this.state.tag} imageType={imageType} scanFailed={this.handleScanFailed} formatErrorMessage={this.formatErrorMessage}/>
                     </TabPane>
                   </Tabs>
                 </div>
@@ -255,12 +268,12 @@ class MirrorSafety extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { entities, getImageTag, images } = state
-  const { imageTag } = getImageTag
+  const { entities, harbor,images} = state
+  const { imageTags } = harbor
   const { imageInfo, imageName, imageType } = props
   let imgTag = []
-  if (imageTag[DEFAULT_REGISTRY] && imageTag[DEFAULT_REGISTRY][imageName]) {
-    imgTag = imageTag[DEFAULT_REGISTRY][imageName].tag || []
+  if (imageTags[DEFAULT_REGISTRY] && imageTags[DEFAULT_REGISTRY][imageName]) {
+    imgTag = imageTags[DEFAULT_REGISTRY][imageName].tag || []
   }
   let mirrorScanUrl = ''
   if (images[imageType][DEFAULT_REGISTRY] && images[imageType][DEFAULT_REGISTRY].server) {
@@ -293,5 +306,5 @@ export default connect(mapStateToProps, {
   loadMirrorSafetyChairinfo,
   loadMirrorSafetyScan,
   loadMirrorSafetyScanStatus,
-  loadImageDetailTag
+  loadRepositoriesTags
 })(MirrorSafety)

@@ -159,7 +159,10 @@ class CodeRepo extends Component {
             onPressEnter={this.searchProjects}
           />
           <i className="fa fa-search" onClick={this.searchProjects}></i>
+          {total >0?
           <span className="totalPage">共计：{total || 0} 条</span>
+          :null
+          }
         </div>
         <Table
           showHeader={false}

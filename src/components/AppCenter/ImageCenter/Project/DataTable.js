@@ -149,13 +149,12 @@ class DataTable extends Component {
             return (
               <div className="action">
                 <Button
-                  size="large"
                   type="primary"
                   onClick={() => this.setState({ currentProject: row, publicModalVisible: true })}
                 >
                   {row.public == 1 ? '设为私有' : '设为公开'}
                 </Button>
-                <Button size="large" type="ghost" onClick={()=>scope.setState({deleteItem:true,selectedRows:[row]})}>
+                <Button type="ghost" onClick={()=>scope.setState({deleteItem:true,selectedRows:[row]})}>
                   删除
                 </Button>
               </div>
@@ -163,10 +162,10 @@ class DataTable extends Component {
           }
           return (
             <div className="action">
-              <Button size="large" disabled={true} type="primary">
+              <Button disabled={true} type="primary">
                 {row.public == 1 ? '设为私有' : '设为公开'}
               </Button>
-              <Button size="large" disabled={true} type="ghost">删除</Button>
+              <Button disabled={true} type="ghost">删除</Button>
             </div>
           )
         }

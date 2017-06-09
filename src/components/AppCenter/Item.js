@@ -360,7 +360,6 @@ class ImageCenter extends Component {
     this.props.LoadOtherImage({
       success: {
         func: (res) => {
-          console.log('rest',res)
           this.setState({
             otherImageHead: res.data
           })
@@ -372,13 +371,14 @@ class ImageCenter extends Component {
     const { children } = this.props
     const { otherImageHead,other } = this.state
     const _this = this
-    console.log('other',this.state.other)
     const OtherItem = otherImageHead.map(item => {
       return (<span key={item.title} className={ other.title == item.title ?'tab active':'tab'} onClick={()=> this.setItem('other',item)}>
-        {item.title}
+        <Icon type="shopping-cart" />&nbsp;{item.title}
       </span>)
     })
-
+    if (OtherItem.length >0) {
+      OtherItem.unshift(<span className="otherName">第三方仓库：</span>)
+    }
     let tempImageList = otherImageHead.map((list, index) => {
       return (
         <TabPane tab={<span>{list.title}</span>} key={list.title}>
