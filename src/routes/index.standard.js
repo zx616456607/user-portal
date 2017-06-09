@@ -140,7 +140,7 @@ const rootRoutes = {
       indexRoute: {
         getComponent: (location, cb) => {
           require.ensure([], (require) => {
-            cb(null, require('../components/CICDModule/BuildImage').default)
+            cb(null, require('../components/CICDModule/CodeStore').default)
           })
         },
       },
