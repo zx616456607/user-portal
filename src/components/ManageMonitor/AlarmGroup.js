@@ -56,8 +56,8 @@ class AlarmGroup extends Component {
     )
   }
   componentWillReceiveProps(nextProps){
-    let pre = this.props.entities.current.space.spaceName;
-    let next = nextProps.entities.current.space.spaceName;
+    let pre = this.props.space.spaceID
+    let next = nextProps.space.spaceID;
     const { loadNotifyGroups } = this.props
     if(pre !== next) {
       loadNotifyGroups()
@@ -369,6 +369,7 @@ class AlarmGroup extends Component {
 function mapStateToProps(state, props) {
   const { groups } = state.alert
   const { cluster } = state.entities.current
+  const { space } = state.entities.current
   if (!groups && !cluster) {
    return props
  }
@@ -382,7 +383,7 @@ function mapStateToProps(state, props) {
   const { result } = groups || defaultData
   let groupsData = result ? result.data : []
   return {
-    entities,
+    space,
     isFetching,
     cluster,
     groups: groupsData
