@@ -61,7 +61,6 @@ class Logs extends Component {
   }
   searchLogs(e) {
     const keyword = e.target.value
-    if(!keyword) return
     this.setState({
       keyword,
       currentPage: 1

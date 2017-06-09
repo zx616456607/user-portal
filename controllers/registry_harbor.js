@@ -85,21 +85,33 @@ exports.getRepositoriyConfig = function* () {
       if(body.config) {
         body.config = JSON.parse(body.config)
       }
+      const manifest = body.manifest
+      let size = 0
+      if(manifest && manifest.layers) {
+        manifest.layers.forEach(layer => {
+          size += layer.size
+        })
+      }
+      body.config.size = size
       resolve(body.config)
     })
   })
   this.body = {
-    data: result ? _formatConfig(result.config) : {},
+    data: result ? _formatConfig(result) : {},
     server: config.url
   }
 }
 
-function _formatConfig(config) {
+function _formatConfig(configInfo) {
+  const config = configInfo.config
   const body = {
     defaultEnv: config.Env,
     mountPath: config.Volume,
     cmd: config.Cmd,
-    entrypoint: config.Entrypoint
+    entrypoint: config.Entrypoint,
+    sizeInfo: {
+      totalSize: configInfo.size
+    }
   }
   body.containerPorts = []
   if(config.ExposedPorts) {
