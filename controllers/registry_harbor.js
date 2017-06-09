@@ -23,9 +23,14 @@ exports.searchProjects = harborHandler(
   }
 )
 
+// [GET] /users/systeminfo
+exports.getSysteminfo = harborHandler(
+  (harbor, ctx, callback) => {
+    harbor.getSysteminfo(callback)
+  }
+)
+
 // [GET] /users/current
-// exports.getCurrentUser = harborHandler(
-//   (harbor, ctx, callback) => harbor.getCurrentUser(callback))
 exports.getCurrentUserCtl = function* () {
   const result = yield getCurrentUser(this.session.loginUser)
   const body = {

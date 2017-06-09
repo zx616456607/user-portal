@@ -12,6 +12,38 @@
 import * as ActionTypes from '../actions/harbor'
 import merge from 'lodash/merge'
 
+function systeminfo(state = {}, action) {
+  const { registry } = action
+  const defaultState = {
+    [registry]: {
+      isFetching: false,
+      info: {}
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.HARBOR_SYSTEMINFO_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: {
+          isFetching: true
+        }
+      })
+    case ActionTypes.HARBOR_SYSTEMINFO_SUCCESS:
+      return Object.assign({}, state, {
+        [registry]: {
+          isFetching: false,
+          server: action.response.result.server,
+          info: action.response.result.data,
+        }
+      })
+    case ActionTypes.HARBOR_SYSTEMINFO_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+    default:
+      return state
+  }
+}
+
 function projects(state = {}, action) {
   const { registry } = action
   const defaultState = {
@@ -375,6 +407,7 @@ function updateConfigurations(state = {}, action) {
 
 export default function harborRegistry(state = { projects: {} }, action) {
   return {
+    systeminfo: systeminfo(state.systeminfo, action),
     projects: projects(state.projects, action),
     projectLogs: projectLogs(state.projectLogs, action),
     allProject: allProject(state.allProject, action),

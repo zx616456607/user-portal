@@ -42,6 +42,31 @@ export function loadProjectList(registry, query, callback) {
   }
 }
 
+export const HARBOR_SYSTEMINFO_REQUEST = 'HARBOR_SYSTEMINFO_REQUEST'
+export const HARBOR_SYSTEMINFO_SUCCESS = 'HARBOR_SYSTEMINFO_SUCCESS'
+export const HARBOR_SYSTEMINFO_FAILURE = 'HARBOR_SYSTEMINFO_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchSysteminfo(registry, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/systeminfo`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ HARBOR_SYSTEMINFO_REQUEST, HARBOR_SYSTEMINFO_SUCCESS, HARBOR_SYSTEMINFO_FAILURE ],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function loadSysteminfo(registry, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSysteminfo(registry, callback))
+  }
+}
+
 export const HARBOR_GET_PROJECT_DETAIL_REQUEST = 'HARBOR_GET_PROJECT_DETAIL_REQUEST'
 export const HARBOR_GET_PROJECT_DETAIL_SUCCESS = 'HARBOR_GET_PROJECT_DETAIL_SUCCESS'
 export const HARBOR_GET_PROJECT_DETAIL_FAILURE = 'HARBOR_GET_PROJECT_DETAIL_FAILURE'

@@ -127,7 +127,7 @@ exports.addConfigsForFrontend = function (user, loginUser) {
   user.oemInfo = global.globalConfig.oemInfo
   // Add harbor info
   if (loginUser) {
-    user.harbor = loginUser.harbor
+    user.harbor = loginUser.harbor || {}
   }
   return user
 }

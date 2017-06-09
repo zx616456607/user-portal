@@ -178,12 +178,12 @@ exports.verifyUser = function* (next) {
     balance: result.balance,
     // Encrypt base64 password to make it some secure, and save to session
     registryAuth: securityUtil.encryptContent(registryAuth),
+    harbor: {},
   }
   // get harbor current user for check is harbor admin user
-  let harborCurrentUser = {}
   try {
-    harborCurrentUser = yield harbor.getCurrentUser(loginUser)
-    loginUser.harbor = harborCurrentUser
+    const harborCurrentUser = yield harbor.getCurrentUser(loginUser)
+    loginUser.harbor = harborCurrentUser || {}
   } catch (error) {
     //
   }

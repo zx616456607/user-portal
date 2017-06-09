@@ -1144,7 +1144,7 @@ let CreateTenxFlowModal = React.createClass({
     });
     const harborProjectProps = getFieldProps('harborProjectName', {
       rules: [
-        { message: '请选择项目', required: true },
+        { message: '请选择仓库组', required: true },
       ],
     });
     const imageNameProps = getFieldProps('imageName', {
@@ -1377,15 +1377,6 @@ let CreateTenxFlowModal = React.createClass({
                     <span><FormattedMessage {...menusText.imageRealName} /></span>
                   </div>
                   <div className='input imageType'>
-                    <FormItem style={{ width: '220px', float: 'left', marginRight: '20px' }}>
-                      <Select {...harborProjectProps} size='large'>
-                        {
-                          (this.props.harborProjects.list || []).map(project => (
-                            <Option key={project.name}>{project.name}</Option>
-                          ))
-                        }
-                      </Select>
-                    </FormItem>
                     <FormItem hasFeedback style={{ width: '220px', float: 'left', marginRight: '20px' }}>
                       <Input {...imageRealNameProps} type='text' size='large' />
                     </FormItem>
@@ -1404,16 +1395,25 @@ let CreateTenxFlowModal = React.createClass({
                         <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio>
                         <Radio key='otherImage' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
                       </RadioGroup>
-                      <div className="customizeBaseImage">
-                       为方便管理，构建后的镜像可发布到镜像仓库（私有仓库）或第三方仓库中
-                     </div>
                     <div style={{ clear: 'both' }} />
                     </FormItem>
-                    <FormItem style={{ float: 'left', width:'120px' }}>
+                    <FormItem style={{ width:'220px' }}>
                       <Select {...validOtherImage} style={{display: this.state.showOtherImage ? 'inline-block' : 'none'}}>
                         {this.getOtherImage()}
                       </Select>
                     </FormItem>
+                    <FormItem style={{ width: '220px'}}>
+                      <Select {...harborProjectProps} size='large' style={{display: !this.state.showOtherImage ? 'inline-block' : 'none'}}>
+                        {
+                          (this.props.harborProjects.list || []).map(project => (
+                            <Option key={project.name}>{project.name}</Option>
+                          ))
+                        }
+                      </Select>
+                    </FormItem>
+                    <div className="customizeBaseImage">
+                      为方便管理，构建后的镜像可发布到镜像仓库（私有仓库）或第三方仓库中
+                    </div>
                     {/*
                       this.state.ImageStoreType ? [
                         <QueueAnim key='otherImageStoreTypeAnimate'>

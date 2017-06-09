@@ -159,7 +159,7 @@ HarborAPIs.prototype.getReplicationTargetRelatedPolicies = function (id, callbac
 HarborAPIs.prototype.getRepositoriesTags = function(name, callback) {
   const method = 'getRepositoriesTags'
   logger.debug(method, `Get Repos tags`)
-  const requestUrl =`${this.getAPIPrefix()}/repositories/${name}/tags` 
+  const requestUrl =`${this.getAPIPrefix()}/repositories/${name}/tags`
   logger.debug(method, `Request url: ${requestUrl}`)
   this.sendRequest(requestUrl, 'GET', null, callback)
 }
@@ -167,7 +167,7 @@ HarborAPIs.prototype.getRepositoriesTags = function(name, callback) {
 HarborAPIs.prototype.getRepositoriesManifest = function(name, tag, callback) {
   const method = 'getRepositoriesManifest'
   logger.debug(method, `Get Repos tags`)
-  const requestUrl =`${this.getAPIPrefix()}/repositories/${name}/tags/${tag}/manifest` 
+  const requestUrl =`${this.getAPIPrefix()}/repositories/${name}/tags/${tag}/manifest`
   logger.debug(method, `Request url: ${requestUrl}`)
   this.sendRequest(requestUrl, 'GET', null, callback)
 }
@@ -273,6 +273,12 @@ HarborAPIs.prototype.resetConfigurations = function(callback) {
 }
 
 /*----------------configurations end---------------*/
+
+// [GET] /users/systeminfo
+HarborAPIs.prototype.getSysteminfo = function (callback) {
+  const url = `${this.getAPIPrefix()}/systeminfo`
+  this.sendRequest(url, 'GET', null, callback)
+}
 
 // [GET] /users/current
 HarborAPIs.prototype.getCurrentUser = function (callback) {

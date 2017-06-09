@@ -16,7 +16,7 @@ import '../style/Project.less'
 import DataTable from './DataTable'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
-import { loadProjectList, createProject, deleteProject, updateProject } from '../../../../actions/harbor'
+import { loadProjectList, createProject, deleteProject, updateProject, loadSysteminfo } from '../../../../actions/harbor'
 import NotificationHandler from '../../../../common/notification_handler'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 
@@ -127,6 +127,7 @@ class Project extends Component {
 
   componentWillMount() {
     this.loadData()
+    this.props.loadSysteminfo(DEFAULT_REGISTRY)
   }
 
   searchProjects() {
@@ -169,13 +170,15 @@ class Project extends Component {
   }
 
   render() {
-    const { harborProjects, createProject, updateProject, loginUser } = this.props
+    const { harborProjects, harborSysteminfo, createProject, updateProject, loginUser } = this.props
     const func = {
       scope: this,
       loadData: this.loadData,
       createProject,
       updateProject,
     }
+    const isAdmin = loginUser.harbor[camelize('has_admin_role')] == 1
+    const isShowCreateBtn = harborSysteminfo[camelize('project_creation_restriction')] === 'everyone' || isAdmin
     return (
       <div className="imageProject">
         <br />
@@ -185,7 +188,17 @@ class Project extends Component {
 
             <Card className="project">
               <div className="topRow">
-                <Button type="primary" size="large" icon="plus" onClick={()=> this.setState({createItem:true})}>新建仓库组</Button>
+                {
+                  isShowCreateBtn &&
+                  <Button
+                    type="primary"
+                    size="large"
+                    icon="plus"
+                    onClick={()=> this.setState({createItem:true})}
+                  >
+                    新建仓库组
+                  </Button>
+                }
                 {/*<Button type="ghost" disabled={this.state.selectedRows.length==0} onClick={()=> this.setState({deleteItem:true})} size="large" icon="delete">删除</Button>*/}
                 <Input
                   placeholder="搜索"
@@ -220,8 +233,10 @@ class Project extends Component {
 function mapStateToProps(state, props) {
   const { harbor, entities } = state
   let harborProjects = harbor.projects && harbor.projects[DEFAULT_REGISTRY] || {}
+  let harborSysteminfo = harbor.systeminfo && harbor.systeminfo[DEFAULT_REGISTRY] && harbor.systeminfo[DEFAULT_REGISTRY].info || {}
   return {
     harborProjects,
+    harborSysteminfo,
     loginUser: entities.loginUser.info,
   }
 }
@@ -231,4 +246,5 @@ export default connect(mapStateToProps, {
   createProject,
   deleteProject,
   updateProject,
+  loadSysteminfo,
 })(Project)

@@ -10,7 +10,7 @@
 
 
 import React, { Component } from 'react'
-import { Table,Button } from 'antd'
+import { Table, Button, Modal } from 'antd'
 import { Link } from 'react-router'
 import { camelize } from 'humps'
 import { formatDate } from '../../../../common/tools'
@@ -28,28 +28,28 @@ class DataTable extends Component {
       sortedInfo: null,
       filteredInfo: null,
       selectedRows: [],
+      publicModalVisible: false,
+      currentProject: {},
     }
-    this.setPulicBtnLoading = {}
   }
 
-  setProjectPublic(project) {
-    this.setPulicBtnLoading[project.name] = true
+  setProjectPublic() {
+    const { currentProject } = this.state
     const { func } = this.props
     const body = {
-      public: Math.abs(project.public - 1)
+      public: Math.abs(currentProject.public - 1)
     }
-    func.updateProject(DEFAULT_REGISTRY, project[camelize('project_id')], body, {
+    func.updateProject(DEFAULT_REGISTRY, currentProject[camelize('project_id')], body, {
       success: {
         func: () => {
           func.loadData()
-          this.setPulicBtnLoading[project.name] = false
+          this.setState({ publicModalVisible: false })
         },
         isAsync: true,
       },
       failed: {
         func: err => {
-          notification.error(`更新仓库组 ${projet.name} 失败`)
-          this.setPulicBtnLoading[project.name] = false
+          notification.error(`更新仓库组 ${currentProject.name} 失败`)
         },
       }
     })
@@ -66,7 +66,9 @@ class DataTable extends Component {
     let { sortedInfo, filteredInfo } = this.state
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    const scope = this.props.func.scope
+    const { dataSource, func, loginUser } = this.props
+    const scope = func.scope
+    const isAdmin = loginUser.harbor[camelize('has_admin_role')] == 1
     const defaultColumns = [
       {
         title: '仓库组名称',
@@ -143,14 +145,13 @@ class DataTable extends Component {
         dataIndex: 'action',
         key: 'action',
         render: (text, row) => {
-          if (row[camelize('current_user_role_id')] == 1) {
+          if (row[camelize('current_user_role_id')] == 1 || isAdmin) {
             return (
               <div className="action">
                 <Button
                   size="large"
                   type="primary"
-                  loading={this.setPulicBtnLoading[row.name]}
-                  onClick={this.setProjectPublic.bind(this, row)}
+                  onClick={() => this.setState({ currentProject: row, publicModalVisible: true })}
                 >
                   {row.public == 1 ? '设为私有' : '设为公开'}
                 </Button>
@@ -185,21 +186,47 @@ class DataTable extends Component {
         scope.setState({selectedRows})
       }
     }*/
-    const { dataSource, func } = this.props
     const paginationOpts = {
       simple: true,
       pageSize: 10,
       total: dataSource.total,
       onChange: current => func.loadData({ page: current })
     }
+    const setPublicValue = Math.abs(this.state.currentProject.public - 1)
+    const publicModalTitle = `设为${setPublicValue == 1 ? '公开' : '私有'}`
     return (
-      <Table className="myImage"
-        dataSource={dataSource.list}
-        columns={columns}
-        loading={dataSource.isFetching}
-        pagination={paginationOpts}
-        onChange={this.handleChange}
-      />
+      <div>
+        <Table className="myImage"
+          dataSource={dataSource.list}
+          columns={columns}
+          loading={dataSource.isFetching}
+          pagination={paginationOpts}
+          onChange={this.handleChange}
+        />
+        {/* 设置仓库组 公共/私有 属性 */}
+        <Modal
+          title={publicModalTitle}
+          visible={this.state.publicModalVisible}
+          onCancel={()=> this.setState({publicModalVisible: false})}
+          onOk={this.setProjectPublic}
+        >
+          <div className="confirmText">
+            {
+              setPublicValue == 1
+              ? <div>
+                  <p>① 当仓库组设为公开后，任何人都有此仓库组下镜像的读权限。</p>
+                  <p>② 命令行用户不需要 <code>docker login</code> 就可以拉取此仓库组下的镜像。请确认以继续。</p>
+                </div>
+              : <div>
+                  <p>① 当仓库组设为私有后，仅仓库组成员有此仓库组下镜像的读权限。</p>
+                  <p>② 命令行用户必须 <code>docker login</code> 才可以拉取此仓库组下的镜像。请确认以继续。</p>
+                </div>
+            }
+          </div>
+          <br/>
+          <div className="confirmText">您确认将项目 {this.state.currentProject.name} {publicModalTitle}吗?</div>
+        </Modal>
+      </div>
     )
   }
 }

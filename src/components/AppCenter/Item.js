@@ -347,8 +347,13 @@ class ImageCenter extends Component {
     browserHistory.push(`/app_center/projects/${type}`)
   }
   componentWillMount() {
+    const { location } = this.props
+    if (location.pathname === '/app_center') {
+      browserHistory.replace('/app_center/projects')
+      return
+    }
     let type='private'
-    if(location.pathname.indexOf('/app_center/projects/public') >-1) {
+    if (location.pathname.indexOf('/app_center/projects/public') >-1) {
       type = 'public'
     }
     this.setState({itemType:type})
