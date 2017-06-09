@@ -728,7 +728,10 @@ function resourceFormat(resourceType, scope) {
       return formatMessage(menusText.CDNotification)
       break;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 8b353cad... modify alert_group_email and audit  module
     case '47':
       return formatMessage(menusText.InstanceExport)
       break;
@@ -1345,6 +1348,10 @@ class OperationalAudit extends Component {
       case '51':
         //AlertRule
         showOperationalList.push(operationalList[8]);
+        break;
+      case '52':
+        //Snapshot
+        showOperationalList.push(operationalList[10]);
         break;
       case '52':
         //Snapshot
