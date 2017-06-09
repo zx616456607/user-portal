@@ -10,22 +10,20 @@
 
 
 import React, { Component, PropTypes } from 'react'
-import { Modal, Menu, Button,Form, Card,Alert, Input } from 'antd'
+import { Modal, Menu,Tabs, Icon, Button,Form, Card, Alert, Input } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { Link,browserHistory } from 'react-router'
-// import ImageDetailBox from './ImageCenter/ImageDetail'
-// import ImageSpace from './ImageCenter/ImageSpace.js'
-// import PublicSpace from './ImageCenter/PublicSpace.js'
-import Project from './ImageCenter/Project'
+import OtherSpace from './ImageCenter/OtherSpace'
 import TweenOne from 'rc-tween-one'
 import './style/Item.less'
-import { addOtherStore } from '../../actions/app_center'
+import { LoadOtherImage, addOtherStore, deleteOtherImage, } from '../../actions/app_center'
 import NotificationHandler from '../../common/notification_handler'
 import Title from '../Title'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
+const TabPane = Tabs.TabPane;
 
 let MyComponent = React.createClass({
   getInitialState: function () {
@@ -335,15 +333,18 @@ class ImageCenter extends Component {
     super(props)
     this.state = {
       createModalShow: false,
+      otherImageHead: [], // other image store
+      other: {}
     }
   }
-  setItem(type) {
-    this.setState({itemType:type})
-    if (type=='public') {
-      browserHistory.push('/app_center/projects/public')
+  setItem(type,other) {
+    other = other || {}
+    this.setState({itemType:type,other})
+    if (type=='private') {
+      browserHistory.push('/app_center/projects')
       return
     }
-    browserHistory.push('/app_center/projects')
+    browserHistory.push(`/app_center/projects/${type}`)
   }
   componentWillMount() {
     let type='private'
@@ -351,9 +352,35 @@ class ImageCenter extends Component {
       type = 'public'
     }
     this.setState({itemType:type})
+    this.props.LoadOtherImage({
+      success: {
+        func: (res) => {
+          console.log('rest',res)
+          this.setState({
+            otherImageHead: res.data
+          })
+        }
+      }
+    })
   }
   render() {
     const { children } = this.props
+    const { otherImageHead,other } = this.state
+    const _this = this
+    console.log('other',this.state.other)
+    const OtherItem = otherImageHead.map(item => {
+      return (<span key={item.title} className={ other.title == item.title ?'tab active':'tab'} onClick={()=> this.setItem('other',item)}>
+        {item.title}
+      </span>)
+    })
+
+    let tempImageList = otherImageHead.map((list, index) => {
+      return (
+        <TabPane tab={<span>{list.title}</span>} key={list.title}>
+          <OtherSpace scope={_this} otherHead={list} imageId={list.id} />
+        </TabPane>
+      )
+    })
     return (
       <QueueAnim className='ImageCenterBox' type='right'>
         <div id='ImageCenter' key='ImageCenterBox'>
@@ -361,12 +388,22 @@ class ImageCenter extends Component {
           <div className="ImageCenterTabs">
            <span className={this.state.itemType =='private' ?'tab active':'tab'} onClick={()=> this.setItem('private')}>我的仓库组</span>
             <span className={this.state.itemType =='public' ?'tab active':'tab'} onClick={()=> this.setItem('public')}>公开仓库组</span>
+            {OtherItem}
             <Button type="primary" size="large" icon="plus" style={{float:'right',marginTop:10,marginRight:10}} onClick={()=> this.setState({createModalShow:true})}>添加第三方</Button>
           </div>
-          {children}
+          {this.state.itemType =='other'?
+            <Tabs
+              key='ImageCenterTabs'
+              className="otherStore"
+              activeKey={this.state.other.title}
+              >
+              {tempImageList}
+            </Tabs>
+          : children
+          }
 
-          <Modal title='添加第三方' className='addOtherSpaceModal' footer={null} onCancel={()=> this.setState({createModalShow:false})} visible={this.state.createModalShow}
-            >
+
+          <Modal title='添加第三方' className='addOtherSpaceModal' footer={null} onCancel={()=> this.setState({createModalShow:false})} visible={this.state.createModalShow}>
             <MyComponent scope={this} addOtherStore={this.props.addOtherStore} />
           </Modal>
         </div>
@@ -398,5 +435,7 @@ function mapStateToProps(state, props) {
 
 
 export default connect(mapStateToProps,{
-  addOtherStore
+  addOtherStore,
+  LoadOtherImage,
+  deleteOtherImage
 })(ImageCenter)

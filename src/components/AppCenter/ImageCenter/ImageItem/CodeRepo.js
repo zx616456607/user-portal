@@ -17,13 +17,16 @@ import { camelize } from 'humps'
 import { loadProjectRepos } from '../../../../actions/harbor'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import '../style/CodeRepo.less'
+import ProjectDetail from '../ProjectDetail'
 
 class CodeRepo extends Component {
   constructor(props) {
     super()
+    this.closeImageDetailModal= this.closeImageDetailModal.bind(this)
     this.state = {
       downloadModalVisible: false,
-      uploadModalVisible: false
+      uploadModalVisible: false,
+      imageDetailModalShow: false
     }
     this.loadRepos = this.loadRepos.bind(this)
   }
@@ -43,6 +46,17 @@ class CodeRepo extends Component {
   }
   showDownload(visible) {
     this.setState({downloadModalVisible:visible})
+  }
+  showImageDetail (item) {
+    //this function for user select image and show the image detail info
+    console.log('item detail ',item)
+    this.setState({
+      imageDetailModalShow: true,
+      currentImage: item
+    });
+  }
+  closeImageDetailModal(){
+    this.setState({imageDetailModalShow:false})
   }
   render() {
     const { repos } = this.props
@@ -64,9 +78,9 @@ class CodeRepo extends Component {
                 </svg>
               </div>
               <div className="contentBox">
-                <div className="title">
+                <span className="title" onClick={()=> this.showImageDetail(row)}>
                   {text}
-                </div>
+                </span>
               </div>
             </div>
           )
@@ -104,7 +118,7 @@ class CodeRepo extends Component {
             </Menu>
           );
           return (
-            <Dropdown.Button overlay={dropdown} type="ghost" trigger="click" onClick={() => browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${server}&imageName=${row.name}`)}>
+            <Dropdown.Button overlay={dropdown} type="ghost" trigger={['click']} onClick={() => browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${server}&imageName=${row.name}`)}>
               部署服务
             </Dropdown.Button>
           )
@@ -132,7 +146,7 @@ class CodeRepo extends Component {
         />
         <Modal title="上传镜像" className="uploadImageModal" visible={this.state.uploadModalVisible} width="800px"
           onCancel={()=> this.showUpload(false)} onOk={()=> this.showUpload(false)}
-        >
+         >
           <p>1.&nbsp;&nbsp;在本地 docker 环境中输入以下命令进行登录</p>
           <pre className="codeSpan">
             sudo docker login {server}
@@ -158,6 +172,14 @@ class CodeRepo extends Component {
           <pre className="codeSpan">
             sudo docker tag  {server}/tenxcloud/hello-world:latest tenxcloud/hello-world:latest
             </pre>
+        </Modal>
+        <Modal
+          visible={this.state.imageDetailModalShow}
+          className="AppServiceDetail"
+          transitionName="move-right"
+          onCancel={()=> this.setState({imageDetailModalShow:false})}
+        >
+          <ProjectDetail server={server} scope={this} config={this.state.currentImage}/>
         </Modal>
       </div>
     )
