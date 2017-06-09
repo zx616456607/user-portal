@@ -73,9 +73,9 @@ exports.initGlobalConfig = function* () {
       globalConfig.registryConfig.v2AuthServer = configDetail.v2AuthServer
       globalConfig.registryConfig.user = configDetail.user
       globalConfig.registryConfig.password = configDetail.password
-      logger.info('registry config: ', configDetail.protocol + '://' + configDetail.host + ':' + configDetail.port)
     }
-    if (configType == 'cicd') {
+    // Use db settings if env is empty
+    if (configType == 'cicd' && globalConfig.cicdConfig.host == "") {
       let host
       let protocol
       if (devops.host) {
@@ -103,11 +103,14 @@ exports.initGlobalConfig = function* () {
       }
       globalConfig.cicdConfig.statusPath = devops.statusPath //configDetail.statusPath,
       globalConfig.cicdConfig.logPath = devops.logPath //configDetail.logPath
-      logger.info('devops config: ', protocol + '://' + host)
     }
     if (configType === 'rbd') {
       item.ConfigDetail = configDetail
       globalConfig.storageConfig.push(item)
     }
   })
+  logger.info('api-server config: ', globalConfig.tenx_api.host)
+  logger.info('registry config: ', globalConfig.registryConfig.protocol + '://' + globalConfig.registryConfig.host + ':' + globalConfig.registryConfig.port)
+  logger.info('devops config: ', globalConfig.cicdConfig.protocol + '://' + globalConfig.cicdConfig.host)
+  logger.info('mailbox config: ', globalConfig.mail_server.host)
 }
