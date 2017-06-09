@@ -4,19 +4,19 @@
 const apiFactory = require('../services/api_factory')
 
 exports.createProject=function* () {
-const project=this.request.body
-if (!project.projectName) {
-this.status = 400
-this.body = {
-	message: 'project name is empty'
-}
-return
-}
-const loginUser = this.session.loginUser
-const projectApi=apiFactory.getApi(loginUser)
-const response=yield projectApi.project.createBy([''],null,this.request.body)
-this.status = response.statusCode
-this.body = response
+  const project=this.request.body
+  if (!project.projectName) {
+  this.status = 400
+  this.body = {
+	 message: 'project name is empty'
+  }
+  return
+ }
+  const loginUser = this.session.loginUser
+  const projectApi=apiFactory.getApi(loginUser)
+  const response=yield projectApi.project.createBy([''],null,this.request.body)
+  this.status = response.statusCode
+  this.body = response
 }
 
 exports.deleteProject=function* () {
