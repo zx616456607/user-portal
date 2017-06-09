@@ -127,9 +127,6 @@ const AssistSetting = React.createClass({
   onArgsTypeChange(e) {
     const argsType = e.target.value
     this.setState({ argsType })
-    if (argsType === 'default') {
-      this.setArgsToDefault()
-    }
   },
   render() {
     const { formItemLayout, form } = this.props
