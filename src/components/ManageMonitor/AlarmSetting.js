@@ -318,8 +318,6 @@ let MyComponent = React.createClass({
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
     const data = settingInstant.result[camelize(list.strategyName)]
-    console.log('====data')
-    console.log(data)
     if(settingInstant.isFetching && !data) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
