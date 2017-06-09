@@ -407,3 +407,58 @@ export function updateProject(registry, id, body, callback) {
     return dispatch(fetchUpdateProject(registry, id, body, callback))
   }
 }
+
+
+export const GET_CONFIGURATIONS_REQUEST = 'GET_CONFIGURATIONS_REQUEST'
+export const GET_CONFIGURATIONS_SUCCESS = 'GET_CONFIGURATIONS_SUCCESS'
+export const GET_CONFIGURATIONS_FAILURE = 'GET_CONFIGURATIONS_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchGetConfigurations(registry, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/configurations`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ GET_CONFIGURATIONS_REQUEST, GET_CONFIGURATIONS_SUCCESS, GET_CONFIGURATIONS_FAILURE ],
+      endpoint,
+      schema: {},
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function getConfigurations(registry, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchGetConfigurations(registry, callback))
+  }
+}
+
+export const UPDATE_CONFIGURATIONS_REQUEST = 'UPDATE_CONFIGURATIONS_REQUEST'
+export const UPDATE_CONFIGURATIONS_SUCCESS = 'UPDATE_CONFIGURATIONS_SUCCESS'
+export const UPDATE_CONFIGURATIONS_FAILURE = 'UPDATE_CONFIGURATIONS_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateConfigurations(registry, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/configurations`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ UPDATE_CONFIGURATIONS_REQUEST, UPDATE_CONFIGURATIONS_SUCCESS, UPDATE_CONFIGURATIONS_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function updateConfigurations(registry, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateConfigurations(registry, body, callback))
+  }
+}

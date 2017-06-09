@@ -312,6 +312,67 @@ function repositoriesTagConfigInfo(state = {}, action) {
   }
 }
 
+function getConfigurations(state = {}, action) {
+  const { registry } = action
+  const defaultState = {
+    [registry]: {
+      isFetching: false,
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.GET_CONFIGURATIONS_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: {
+          isFetching: true
+        }
+      })
+    case ActionTypes.GET_CONFIGURATIONS_SUCCESS:
+      return Object.assign({}, state, {
+        [registry]: {
+          isFetching: false,
+          data: action.response.result.data
+        }
+      })
+    case ActionTypes.GET_CONFIGURATIONS_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+    default:
+      return state
+  }
+}
+
+
+function updateConfigurations(state = {}, action) {
+  const { registry } = action
+  const defaultState = {
+    [registry]: {
+      isFetching: false,
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.UPDATE_CONFIGURATIONS_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: {
+          isFetching: true
+        }
+      })
+    case ActionTypes.UPDATE_CONFIGURATIONS_SUCCESS:
+      return Object.assign({}, state, {
+        [registry]: {
+          isFetching: false,
+          data: action.response.result.data
+        }
+      })
+    case ActionTypes.UPDATE_CONFIGURATIONS_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+    default:
+      return state
+  }
+}
+
 export default function harborRegistry(state = { projects: {} }, action) {
   return {
     projects: projects(state.projects, action),
@@ -322,5 +383,7 @@ export default function harborRegistry(state = { projects: {} }, action) {
     detail: detail(state.detail, action),
     repos: repos(state.repos, action),
     members: members(state.members, action),
+    updateConfigurations: updateConfigurations(state.updateConfiguration, action),
+    configurations: getConfigurations(state.configurations, action)
   }
 }
