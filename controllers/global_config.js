@@ -226,8 +226,8 @@ exports.isValidConfig = function* () {
   if(type == 'rbd') {
     response = yield isValidStorageConfig.apply(this, [entity])
   }
-  else if(type == 'registry') {
-    response = yield isValidResistryConfig.apply(this, [entity])
+  else if(type == 'harbor') {
+    response = yield isValidHarborConfig.apply(this, [entity])
   }
   this.body = response
   return
@@ -251,21 +251,13 @@ function* isValidStorageConfig (entity) {
   return response
 }
 
-function* isValidResistryConfig(entity) {
+function* isValidHarborConfig(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
   const type = 'registry'
-  const urlObject = url.parse(entity.host)
-  const globalRegistryConfig = global.globalConfig.registryConfig
-  const registryConfig = {
-    protocol: urlObject.protocol.replace(':', ''),
-    host: urlObject.hostname,
-    port: urlObject.port,
-    v2AuthServer: entity.v2AuthServer,
-    v2Server: entity.v2Server,
-    user: globalRegistryConfig.user || config.registryConfig.user,
-    password: globalRegistryConfig.password || config.registryConfig.password
+  const harborConfig = {
+    url: entity.url
   }
-  const response = yield api.configs.createBy(['registry', 'isvalidconfig'], null, registryConfig)
+  const response = yield api.configs.createBy(['registry', 'isvalidconfig'], null, harborConfig)
   return response
 }
 

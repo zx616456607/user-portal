@@ -559,21 +559,49 @@ let MirrorService = React.createClass({
           url
         }
       }
-      saveGlobalConfig(cluster.clusterID, 'harbor', body, {
-        success: {
-          func: (result) => {
-            notification.close()
-            notification.success('镜像服务配置保存成功')
-            const { form } = self.props
-            const { setFieldsValue } = form
-            self.handleMirror()
-            this.setState({
-              canClick: true,
-              aleardySave: true
-            })
-            if (result.data.toLowerCase() != 'success') {
-              setFieldsValue({
-                harborID: result.data
+      notification.spin('保存中')
+      isValidConfig('harbor', {
+        url: url
+      }, {
+          success: {
+            func: () => {
+              saveGlobalConfig(cluster.clusterID, 'harbor', body, {
+                success: {
+                  func: (result) => {
+                    notification.close()
+                    notification.success('镜像服务配置保存成功')
+                    const { form } = self.props
+                    const { setFieldsValue } = form
+                    self.handleMirror()
+                    this.setState({
+                      canClick: true,
+                      aleardySave: true
+                    })
+                    if (result.data.toLowerCase() != 'success') {
+                      setFieldsValue({
+                        harborID: result.data
+                      })
+                      body.configID = result.data
+                    }
+                    body.configDetail = JSON.stringify(body.detail)
+                    setGlobalConfig('harbor', body)
+                  }
+                },
+                failed: {
+                  func: (err) => {
+                    notification.close()
+                    let msg
+                    if (err.message.message) {
+                      msg = err.message.message
+                    } else {
+                      msg = err.message
+                    }
+                    notification.error('镜像服务配置保存失败 => ' + msg)
+                    self.setState({
+                      canClick: true
+                    })
+                  }
+                }
               })
               body.configID = result.data
             }
