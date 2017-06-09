@@ -126,7 +126,7 @@ class ClusterResourcesOverview extends Component{
       <Row className="nodeList">
         <Col span={6} style={{padding:'0 8px'}}>
           <Card>
-            <div className="title">主机</div>
+            <div className="title">主机状态</div>
             <div className="listImg">
               <img src={hostImg}/>
             </div>
@@ -148,7 +148,7 @@ class ClusterResourcesOverview extends Component{
         </Col>
         <Col span={6} style={{padding:'0 8px'}}>
           <Card>
-            <div className="title">CPU</div>
+            <div className="title">CPU分配</div>
             <div className="listImg">
               <img src={cpuImg}/>
             </div>
@@ -170,7 +170,7 @@ class ClusterResourcesOverview extends Component{
         </Col>
         <Col span={6} style={{padding:'0 8px'}}>
           <Card>
-            <div className="title">内存</div>
+            <div className="title">内存分配</div>
             <div className="listImg">
               <img src={memoryImg}/>
             </div>
