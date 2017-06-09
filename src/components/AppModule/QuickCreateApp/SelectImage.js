@@ -65,15 +65,11 @@ class SelectImage extends Component {
 
   componentWillMount() {
     const { searchInputValue, imageType } = this.state
-    const callback = {
-      success: {
-        func: () => {
-          if (searchInputValue) {
-            this.searchImages()
-          }
-        },
-        isAsync: true,
-      }
+    if(searchInputValue) {
+      this.loadData(this.props, {
+        q: searchInputValue
+      })
+      return
     }
     this.imageTypeChange({
       target: {

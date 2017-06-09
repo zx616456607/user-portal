@@ -254,6 +254,7 @@ function fetchAllProject(registry, query, callback) {
   }
   return {
     registry,
+    callback,
     [FETCH_API]: {
       types: [ HARBOR_ALL_PROJECT_REQUEST, HARBOR_ALL_PROJECT_SUCCESS, HARBOR_ALL_PROJECT_FAILURE ],
       endpoint,
