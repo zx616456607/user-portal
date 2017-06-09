@@ -348,7 +348,8 @@ class TenxFlowList extends Component {
       currentTenxFlow: null,
       currentFlowId: null,
       flowList: [],
-      searchingFlag: false
+      searchingFlag: false,
+      searchValue:''
     }
   }
 
@@ -434,17 +435,17 @@ class TenxFlowList extends Component {
     });
   }
 
-  onSearchFlow(e) {
+  onSearchFlow() {
     //this function for user search special flow
-    let keyword = e.target.value;
     let searchingFlag = false;
-    if (keyword.length > 0) {
-      searchingFlag = true;
-    }
+    const { searchValue } = this.state
     const { flowList } = this.props;
     let newList = [];
+    if (searchValue.length > 0) {
+      searchingFlag = true;
+    }
     flowList.map((item) => {
-      if (item.name.indexOf(keyword) > -1) {
+      if (item.name.indexOf(searchValue) > -1) {
         newList.push(item);
       }
     });
@@ -542,7 +543,7 @@ class TenxFlowList extends Component {
     const scope = this;
     const { isFetching, buildFetching, logs, cicdApi, repoBranchesAndTags } = this.props;
     const { searchingFlag } = this.state;
-    const { flowList } = this.props
+    const { flowList } = this.state
     let message = '';
     if (isFetching || !flowList) {
       return (
@@ -569,9 +570,11 @@ class TenxFlowList extends Component {
               <i className='fa fa-plus' />&nbsp;
               <FormattedMessage {...menusText.create} />
             </Button>
-            <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' onChange={this.onSearchFlow} />
-            <i className='fa fa-search'></i>
-            <div style={{ clear: 'both' }}></div>
+            <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' value={this.state.searchValue}
+                   onChange={(e)=> this.setState({searchValue:e.target.value})} onPressEnter={()=>this.onSearchFlow()}
+            />
+            <i className='fa fa-search' onClick={()=> this.onSearchFlow()}/>
+            <div style={{ clear: 'both' }}/>
           </div>
           <Card className='tenxflowBox'>
             <div className='titleBox' >

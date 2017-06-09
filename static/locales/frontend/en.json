@@ -16,6 +16,7 @@
   "Storage.menu.create": "Create Storage",
   "Storage.menu.delete": "Delete",
   "Storage.titleRow.name": "Storage Name",
+  "Storage.titleRow.snapshot": "Snapshot",
   "Storage.titleRow.status": "Status",
   "Storage.titleRow.formats": "Format",
   "Storage.titleRow.forin": "Containers mount point",
