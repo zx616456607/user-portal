@@ -129,7 +129,7 @@ const menusText = defineMessages({
 //<p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>查看执行容器</Link> : ''}</p>
 function currentStatus(status) {
   //this function for show different status
-  const podName = status.podName
+  const podName = status ? status.podName : ''
   const stageStatus = !!status ? status.status : 3;
   switch (stageStatus) {
     case 0:
