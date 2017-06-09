@@ -141,7 +141,11 @@ let SvnComponent = React.createClass({
           func: (res) => {
             let notification = new NotificationHandler()
             self.setState({ submiting: false })
-            notification.error('添加失败!')
+            if (res.statusCode === 409) {
+              notification.error('所添加项目（' + config.name + '）已经存在，修改后重试')
+            } else {
+              notification.error('添加失败：' + JSON.stringify(res))
+            }
           }
         }
       })
