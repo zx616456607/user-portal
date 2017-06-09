@@ -12,6 +12,7 @@ import { Tooltip, Icon, Checkbox, Card, Menu, Dropdown, Button, Input, Spin, Pag
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
+import { camelize } from 'humps'
 import './style/ContainerList.less'
 import { loadContainerList, deleteContainers, updateContainerList } from '../../actions/app_manage'
 import { loadProjectList } from '../../actions/harbor'
@@ -393,9 +394,14 @@ let MyComponent = React.createClass({
                 <Form.Item>
                   <Select {...harborProjectProps} size='large'>
                     {
-                      (this.props.harborProjects.list || []).map(project => (
-                        <Option key={project.name}>{project.name}</Option>
-                      ))
+                      (this.props.harborProjects.list || []).map(project => {
+                        const currentRoleId = project[camelize('current_user_role_id')]
+                        return (
+                          <Option key={project.name} disabled={currentRoleId != 1}>
+                            {project.name} {(currentRoleId == 2 || currentRoleId == 3) && '（访客）'}
+                          </Option>
+                        )}
+                      )
                     }
                   </Select>
                 </Form.Item>

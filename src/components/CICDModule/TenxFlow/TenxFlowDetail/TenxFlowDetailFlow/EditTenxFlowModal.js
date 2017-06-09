@@ -1575,9 +1575,14 @@ let EditTenxFlowModal = React.createClass({
                     <FormItem style={{ width: '220px'}}>
                       <Select {...harborProjectProps} size='large' style={{display: !this.state.showOtherImage ? 'inline-block' : 'none'}}>
                         {
-                          (this.props.harborProjects.list || []).map(project => (
-                            <Option key={project.name}>{project.name}</Option>
-                          ))
+                          (this.props.harborProjects.list || []).map(project => {
+                            const currentRoleId = project[camelize('current_user_role_id')]
+                            return (
+                              <Option key={project.name} disabled={currentRoleId != 1}>
+                                {project.name} {(currentRoleId == 2 || currentRoleId == 3) && '（访客）'}
+                              </Option>
+                            )}
+                          )
                         }
                       </Select>
                     </FormItem>

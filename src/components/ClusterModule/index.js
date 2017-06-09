@@ -30,6 +30,8 @@ import Title from '../Title'
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
+// const registry = 'registry'
+const registry = 'harbor'
 
 let NoClusterStepOne = React.createClass({
   getInitialState() {
@@ -43,13 +45,13 @@ let NoClusterStepOne = React.createClass({
       callback([new Error('请填写镜像服务地址')])
       return
     }
-    if (!/^([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+    if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
       return callback('请填入合法的镜像服务地址')
     }
     callback()
   },
   // 认证服务地址校验规则
-  checkApprove(rule, value, callback) {
+  /*checkApprove(rule, value, callback) {
     if (!value) {
       callback([new Error('请填写认证服务地址')])
       return
@@ -58,9 +60,9 @@ let NoClusterStepOne = React.createClass({
       return callback('请填入合法的认证服务地址')
     }
     callback()
-  },
+  },*/
   // 扩展服务地址校验规则
-  checkExtend(rule, value, callback) {
+  /*checkExtend(rule, value, callback) {
     if (!value) {
       callback([new Error('请填写扩展服务地址')])
       return
@@ -69,7 +71,7 @@ let NoClusterStepOne = React.createClass({
       return callback('请填入合法的扩展服务地址')
     }
     callback()
-  },
+  },*/
   addRegistry() {
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
@@ -84,26 +86,34 @@ let NoClusterStepOne = React.createClass({
         updateGlobalConfig, isValidConfig, saveGlobalConfig,
         goNoClusterStep, loadGlobalConfig, getAddClusterCMD,
       } = this.props
-      const { mirror, approve, extend, registryID } = values
+      // const { mirror, approve, extend, registryID } = values
+      const { registryID, url } = values
       const self = this
-      const body = {
+      /*const body = {
         configID: registryID,
         detail: {
           host: extend,
           v2AuthServer: approve,
           v2Server: mirror
         }
+      }*/
+      const body = {
+        configID: registryID,
+        detail: {
+          url,
+        }
       }
-      isValidConfig('registry', {
-        host: extend ,
+      isValidConfig(registry, {
+        /*host: extend ,
         v2AuthServer: approve,
-        v2Server: mirror
+        v2Server: mirror,*/
+        url,
       }, {
         success: {
           func: (result) => {
             if (!result.data || result.data !== 'success') {
               notification.close()
-              notification.error('扩展服务地址不可用')
+              notification.error('镜像服务地址不可用')
               return
             }
             let saveOrUpdate
@@ -140,9 +150,9 @@ let NoClusterStepOne = React.createClass({
               }
             }
             if (!registryID) {
-              saveOrUpdate = saveGlobalConfig.bind(this, null, 'registry', body, callback)
+              saveOrUpdate = saveGlobalConfig.bind(this, null, registry, body, callback)
             } else {
-              saveOrUpdate = updateGlobalConfig.bind(this, null, registryID, 'registry', body, callback)
+              saveOrUpdate = updateGlobalConfig.bind(this, null, registryID, registry, body, callback)
             }
             saveOrUpdate()
           },
@@ -166,7 +176,7 @@ let NoClusterStepOne = React.createClass({
     const { addRegistryBtnLoading } = this.state
     let registryConfig = {}
     globalConfig.every(config => {
-      if (config.configType === 'registry') {
+      if (config.configType === registry) {
         registryConfig = config
         try {
           registryConfig.configDetail = JSON.parse(registryConfig.configDetail)
@@ -177,7 +187,8 @@ let NoClusterStepOne = React.createClass({
       }
       return true
     })
-    const { v2Server, v2AuthServer, protocol, host, port } = registryConfig.configDetail || {}
+    const { url } = registryConfig.configDetail
+    /*const { v2Server, v2AuthServer, protocol, host, port } = registryConfig.configDetail || {}
     const extendProps = getFieldProps('extend', {
       rules: [
         { validator: this.checkExtend }
@@ -189,12 +200,12 @@ let NoClusterStepOne = React.createClass({
         { validator: this.checkApprove }
       ],
       initialValue: v2AuthServer
-    })
-    const mirrorProps = getFieldProps('mirror', {
+    })*/
+    const mirrorProps = getFieldProps('url', {
       rules: [
         { validator: this.checkMirror }
       ],
-      initialValue: v2Server
+      initialValue: url
     })
     const registryID = getFieldProps('registryID', {
       initialValue: registryConfig ? registryConfig.configID : ''
@@ -207,14 +218,14 @@ let NoClusterStepOne = React.createClass({
           <p>② 该仓库会作为平台 DevOps 的镜像仓库（交付中心、CI/CD 模块中使用）</p>
         </div>
         <Form horizontal>
-          <Form.Item>
+          {/*<Form.Item>
             <span className="itemKey">扩展服务地址</span>
             <Input {...extendProps} placeholder="如：http://192.168.1.113:4081" size="large" />
           </Form.Item>
           <Form.Item>
             <span className="itemKey">认证服务地址</span>
             <Input {...approveProps} placeholder="如：https://192.168.1.113:5001" size="large" />
-          </Form.Item>
+          </Form.Item>*/}
           <Form.Item>
             <span className="itemKey">镜像服务地址</span>
             <Input {...mirrorProps} placeholder="如：192.168.1.113" />
