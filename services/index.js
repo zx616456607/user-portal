@@ -96,7 +96,7 @@ exports.isNoCluster = function* () {
  * @param {Object} user
  * @returns {Object}
  */
-exports.addConfigsForFrontend = function (user) {
+exports.addConfigsForFrontend = function (user, loginUser) {
   const NODE_ENV = config.node_env
   const NODE_ENV_PROD = constantsConfig.NODE_ENV_PROD
   // Add api config
@@ -123,7 +123,12 @@ exports.addConfigsForFrontend = function (user) {
   user.registryConfig = {
     server: global.globalConfig.registryConfig.v2Server
   }
+  // Add oem info
   user.oemInfo = global.globalConfig.oemInfo
+  // Add harbor info
+  if (loginUser) {
+    user.harbor = loginUser.harbor
+  }
   return user
 }
 

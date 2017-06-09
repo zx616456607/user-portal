@@ -112,7 +112,7 @@ class DataTable extends Component {
           if (text == 3) {
             return '访客'
           }
-          return '未知'
+          return ''
         }
       },
       {
@@ -174,7 +174,7 @@ class DataTable extends Component {
     const columns = []
     defaultColumns.forEach(column => {
       if (this.props.from === 'public') {
-        if (([ 'public', 'action' ]).indexOf(column.dataIndex) > -1) {
+        if (([ 'public', 'action', camelize('current_user_role_id') ]).indexOf(column.dataIndex) > -1) {
           return
         }
       }

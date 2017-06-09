@@ -118,6 +118,7 @@ class Management extends Component {
     this.handCancel = this.handCancel.bind(this)
     this.handleChange = this.handleChange.bind(this)
     this.loadData = this.loadData.bind(this)
+    this.isProjectAdmin = this.isProjectAdmin.bind(this)
     this.state = {
       filteredInfo: null,
       sortedInfo: null,
@@ -129,7 +130,11 @@ class Management extends Component {
     this.popVisible = {}
   }
 
-  handSelected(user, role) {
+  handSelected(user, role, e) {
+    if (user[camelize('role_id')] == role) {
+      e.stopPropagation()
+      return
+    }
     const { id, registry, updateProjectMember } = this.props
     const body = {
       roles: [ role ]
@@ -201,6 +206,11 @@ class Management extends Component {
     })
   }
 
+  isProjectAdmin() {
+    const { currentUser } = this.props
+    return currentUser[camelize('role_id')] == 1 || currentUser[camelize('has_admin_role')] == 1
+  }
+
   render() {
     const { members, currentUser, addProjectMember } = this.props
     const { list, isFetching } = members || {}
@@ -241,7 +251,7 @@ class Management extends Component {
         render: text => formatDate(text),
       }
     ]
-    if (currentUser[camelize('role_id')] == 1) {
+    if (this.isProjectAdmin()) {
       columns.push({
         title: '操作',
         dataIndex: 'action',
@@ -253,13 +263,13 @@ class Management extends Component {
           }
           const content= (
             <div className="menu" onClick={() => this.popVisible[row.username] = false}>
-              <div className={row[camelize('role_id')] == 1 ? 'menu-item menu-disabled':'menu-item'} onClick={()=> this.handSelected(row, 1)}>
+              <div className={row[camelize('role_id')] == 1 ? 'menu-item menu-disabled':'menu-item'} onClick={(e)=> this.handSelected(row, 1, e)}>
                 管理员 <span className="icon">{this.state.selected ==1?<Icon type="check-circle-o" />:null}</span>
               </div>
-              <div className={row[camelize('role_id')] == 2 ? 'menu-item menu-disabled':'menu-item'}  onClick={()=> this.handSelected(row, 2)}>
+              <div className={row[camelize('role_id')] == 2 ? 'menu-item menu-disabled':'menu-item'}  onClick={(e)=> this.handSelected(row, 2, e)}>
                 开发人员 <span className="icon">{this.state.selected ==2?<Icon type="check-circle-o" />:null}</span>
               </div>
-              <div className={row[camelize('role_id')] == 3 ? 'menu-item menu-disabled':'menu-item'}  onClick={()=> this.handSelected(row, 3)}>
+              <div className={row[camelize('role_id')] == 3 ? 'menu-item menu-disabled':'menu-item'}  onClick={(e)=> this.handSelected(row, 3, e)}>
                 访客 <span className="icon">{this.state.selected ==3?<Icon type="check-circle-o" />:null}</span>
               </div>
             </div>
@@ -298,7 +308,7 @@ class Management extends Component {
       <div className="management">
         <div className="topRow">
           {
-            currentUser[camelize('role_id')] == 1 && (
+            this.isProjectAdmin() && (
               <Button
                 type="primary"
                 size="large"

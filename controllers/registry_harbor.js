@@ -24,8 +24,33 @@ exports.searchProjects = harborHandler(
 )
 
 // [GET] /users/current
-exports.getCurrentUser = harborHandler(
-  (harbor, ctx, callback) => harbor.getCurrentUser(callback))
+// exports.getCurrentUser = harborHandler(
+//   (harbor, ctx, callback) => harbor.getCurrentUser(callback))
+exports.getCurrentUserCtl = function* () {
+  const result = yield getCurrentUser(this.session.loginUser)
+  const body = {
+    server: getRegistryConfig().url,
+    data: result,
+  }
+  this.body = body
+}
+
+function* getCurrentUser(loginUser) {
+  const config = getRegistryConfig()
+  const auth = yield getAuthInfo(loginUser)
+  const harbor = new harborAPIs(config, auth)
+  return new Promise((resolve, reject) => {
+    harbor.getCurrentUser((err, statusCode, body) => {
+      if (err) {
+        reject(err)
+        return
+      }
+      resolve(body)
+    })
+  })
+}
+
+exports.getCurrentUser = getCurrentUser
 
 // [GET] /projects?page=1&page_size=10&page_name=test&is_public=1
 exports.getProjects = harborHandler(

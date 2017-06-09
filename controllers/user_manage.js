@@ -44,7 +44,7 @@ exports.getUserDetail = function* () {
     // For no cluster handle
     user[NO_CLUSTER_FLAG] = loginUser[NO_CLUSTER_FLAG]
     // Get config from config file and update session
-    serviceIndex.addConfigsForFrontend(user)
+    serviceIndex.addConfigsForFrontend(user, loginUser)
     loginUser.tenxApi = user.tenxApi
     loginUser.cicdApi = user.cicdApi
     _.merge(loginUser, user)

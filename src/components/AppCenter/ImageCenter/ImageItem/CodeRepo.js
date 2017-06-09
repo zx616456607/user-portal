@@ -15,7 +15,6 @@ import { Modal, Tabs, Menu, Dropdown, Table, Icon, Button, Card, Input } from 'a
 import { Link, browserHistory } from 'react-router'
 import { camelize } from 'humps'
 import { loadProjectRepos } from '../../../../actions/harbor'
-import { DEFAULT_REGISTRY } from '../../../../constants'
 import '../style/CodeRepo.less'
 import ProjectDetail from '../ProjectDetail'
 
@@ -26,30 +25,43 @@ class CodeRepo extends Component {
     this.state = {
       downloadModalVisible: false,
       uploadModalVisible: false,
-      imageDetailModalShow: false
+      imageDetailModalShow: false,
+      searchInput: '',
+    }
+    this.DEFAULT_QUERY = {
+      page: 1,
+      page_size: 10,
+      project_id: props.params.id,
+      detail: 1,
     }
     this.loadRepos = this.loadRepos.bind(this)
+    this.searchProjects = this.searchProjects.bind(this)
   }
 
   componentWillMount() {
     const { params } = this.props
-    this.loadRepos(DEFAULT_REGISTRY, { page_size: 10, project_id: params.id, detail: 1 })
+    this.loadRepos()
   }
 
-  loadRepos(registry, query) {
-    const { loadProjectRepos } = this.props
-    loadProjectRepos(registry, query)
+  loadRepos(query) {
+    const { loadProjectRepos, registry } = this.props
+    loadProjectRepos(registry, Object.assign({}, this.DEFAULT_QUERY, query))
+  }
+
+  searchProjects() {
+    const { registry } = this.props
+    this.loadRepos({ q: this.state.searchInput })
   }
 
   showUpload(visible) {
     this.setState({uploadModalVisible:visible})
   }
+
   showDownload(visible) {
     this.setState({downloadModalVisible:visible})
   }
   showImageDetail (item) {
     //this function for user select image and show the image detail info
-    console.log('item detail ',item)
     this.setState({
       imageDetailModalShow: true,
       currentImage: item
@@ -60,7 +72,7 @@ class CodeRepo extends Component {
   }
   render() {
     const { repos } = this.props
-    let { isFetching, list, server } = repos || {}
+    let { isFetching, list, server, total } = repos || {}
     list = list || []
     server = server || ''
     server = server.replace('http://', '').replace('https://', '')
@@ -126,22 +138,35 @@ class CodeRepo extends Component {
       }
     ]
 
+    const paginationOpts = {
+      simple: true,
+      pageSize: this.DEFAULT_QUERY.page_size,
+      total: total,
+      onChange: current => this.loadRepos({ page: current })
+    }
+
     return (
       <div id="codeRepo">
         <div className="topRow">
           <Button type="primary" size="large" icon="cloud-upload-o" onClick={()=> this.showUpload(true)}>上传镜像</Button>
           <Button type="ghost" size="large" icon="cloud-download-o" onClick={()=> this.showDownload(true)}>下载镜像</Button>
 
-          <Input placeholder="搜索" className="search" size="large" />
-          <i className="fa fa-search"></i>
-          <span className="totalPage">共计：{list.length || 0} 条</span>
+          <Input
+            placeholder="搜索"
+            className="search"
+            size="large"
+            onChange={e => this.setState({ searchInput: e.target.value })}
+            onPressEnter={this.searchProjects}
+          />
+          <i className="fa fa-search" onClick={this.searchProjects}></i>
+          <span className="totalPage">共计：{total || 0} 条</span>
         </div>
         <Table
           showHeader={false}
           className="myImage_item"
           dataSource={list}
           columns={columns}
-          pagination={{ simple: true }}
+          pagination={paginationOpts}
           loading={isFetching}
         />
         <Modal title="上传镜像" className="uploadImageModal" visible={this.state.uploadModalVisible} width="800px"

@@ -51,7 +51,7 @@ class PublicProject extends Component {
   }
 
   render() {
-    const { harborProjects } = this.props
+    const { harborProjects, loginUser } = this.props
     const func = {
       scope: this,
       loadData: this.loadData
@@ -75,7 +75,7 @@ class PublicProject extends Component {
                 <i className="fa fa-search" onClick={this.searchProjects}></i>
                 <span className="totalPage">共计：{harborProjects.total || 0} 条</span>
               </div>
-              <DataTable from="public" dataSource={harborProjects} func={func}/>
+              <DataTable loginUser={loginUser} from="public" dataSource={harborProjects} func={func}/>
             </Card>
 
           </div>
@@ -87,10 +87,11 @@ class PublicProject extends Component {
 
 
 function mapStateToProps(state, props) {
-  const { harbor } = state
+  const { harbor, entities } = state
   let harborProjects = harbor.projects && harbor.projects[DEFAULT_REGISTRY] || {}
   return {
     harborProjects,
+    loginUser: entities.loginUser.info,
   }
 }
 

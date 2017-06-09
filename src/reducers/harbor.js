@@ -143,8 +143,9 @@ function repos(state = {}, action) {
         total: action.response.result.total,
       })
     case ActionTypes.HARBOR_GET_PROJECT_REPOS_FAILURE:
-      return merge({}, defaultState, state, {
-        isFetching: false
+      return Object.assign({}, defaultState, state, {
+        isFetching: false,
+        list: [],
       })
     default:
       return state
@@ -211,8 +212,9 @@ function detail(state = {}, action) {
         data: action.response.result.data,
       })
     case ActionTypes.HARBOR_GET_PROJECT_DETAIL_FAILURE:
-      return merge({}, defaultState, state, {
-        isFetching: false
+      return Object.assign({}, defaultState, state, {
+        isFetching: false,
+        data: {},
       })
     default:
       return state
@@ -238,8 +240,9 @@ function members(state = {}, action) {
         total: action.response.result.total,
       })
     case ActionTypes.HARBOR_GET_PROJECT_MEMBERS_FAILURE:
-      return merge({}, defaultState, state, {
-        isFetching: false
+      return Object.assign({}, defaultState, state, {
+        isFetching: false,
+        list: [],
       })
     default:
       return state

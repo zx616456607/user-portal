@@ -85,13 +85,40 @@ class ItemDetail extends Component {
     const { projectDetail, params, projectMembers, loginUser } = this.props
     const { name } = projectDetail
     const members = projectMembers.list || []
-    members.every(member => {
-      if (member.username === loginUser.userName) {
-        this.currentUser = member
-        return false
-      }
-      return true
-    })
+    const isAdmin = loginUser.harbor[camelize('has_admin_role')] == 1
+    if (isAdmin) {
+      this.currentUser = loginUser.harbor
+    } else {
+      members.every(member => {
+        if (member.username === loginUser.userName) {
+          this.currentUser = member
+          return false
+        }
+        return true
+      })
+    }
+    const currentUserRole = this.currentUser[camelize('role_id')]
+    const tabPanels = [
+      <TabPane tab="镜像仓库" key="repo">
+        <CodeRepo registry={DEFAULT_REGISTRY} {...this.props} />
+      </TabPane>,
+    ]
+    if (currentUserRole > 0 || isAdmin) {
+      tabPanels.push(<TabPane tab="审计日志" key="log"><Logs params={this.props.params}/></TabPane>)
+      tabPanels.push(
+        <TabPane tab="权限管理" key="role">
+          <Management
+            {...params}
+            registry={DEFAULT_REGISTRY}
+            members={projectMembers}
+            currentUser={this.currentUser}
+          />
+        </TabPane>
+      )
+    }
+    if (isAdmin) {
+      tabPanels.push(<TabPane tab="镜像同步" key="sync"><ImageUpdate /></TabPane>)
+    }
     return (
       <div className="imageProject">
         <br />
@@ -107,32 +134,20 @@ class ItemDetail extends Component {
                 <span className="itemName">{name || ''}</span>
                 <span>{this.renderPublic(projectDetail.public)} </span>
                 {
-                  this.currentUser.username && [
+                  currentUserRole > 0 && [
                     <span className="margin">|</span>,
                     <span className="role">
                       <span className="role-key">
                         我的角色&nbsp;
                       </span>
-                      {this.renderRole(this.currentUser[camelize('role_id')])}
+                      {this.renderRole(currentUserRole)}
                     </span>
                   ]
                 }
               </div>
               <br />
               <Tabs defaultActiveKey="repo">
-                <TabPane tab="镜像仓库" key="repo">
-                  <CodeRepo {...this.props} />
-                </TabPane>
-                <TabPane tab="权限管理" key="role">
-                  <Management
-                    {...params}
-                    registry={DEFAULT_REGISTRY}
-                    members={projectMembers}
-                    currentUser={this.currentUser}
-                  />
-                </TabPane>
-                <TabPane tab="审计日志" key="log"><Logs params={this.props.params}/></TabPane>
-                <TabPane tab="镜像同步" key="sync"><ImageUpdate /></TabPane>
+                { tabPanels }
               </Tabs>
             </Card>
           </div>

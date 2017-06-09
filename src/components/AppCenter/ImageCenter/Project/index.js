@@ -43,7 +43,7 @@ class CreateItem extends Component {
       if (!!error) {
         return
       }
-      func.createProject(DEFAULT_QUERY, values, {
+      func.createProject(DEFAULT_REGISTRY, values, {
         success: {
           func: () => {
             func.loadData()
@@ -169,7 +169,7 @@ class Project extends Component {
   }
 
   render() {
-    const { harborProjects, createProject, updateProject } = this.props
+    const { harborProjects, createProject, updateProject, loginUser } = this.props
     const func = {
       scope: this,
       loadData: this.loadData,
@@ -197,7 +197,7 @@ class Project extends Component {
                 <i className="fa fa-search" onClick={this.searchProjects}></i>
                 <span className="totalPage">共计：{harborProjects.total || 0} 条</span>
               </div>
-              <DataTable dataSource={harborProjects} func={func}/>
+              <DataTable loginUser={loginUser} dataSource={harborProjects} func={func}/>
             </Card>
             {/* 创建仓库组 Modal */}
             <CreateItem visible={this.state.createItem} func={func}/>
@@ -218,10 +218,11 @@ class Project extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { harbor } = state
+  const { harbor, entities } = state
   let harborProjects = harbor.projects && harbor.projects[DEFAULT_REGISTRY] || {}
   return {
     harborProjects,
+    loginUser: entities.loginUser.info,
   }
 }
 
