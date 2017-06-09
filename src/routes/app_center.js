@@ -29,6 +29,10 @@ const appCenterRoutes = [{
         component: require('../components/AppCenter/ImageCenter/Project/PublicProject').default,
       },
       {
+        path: 'other',
+        component: require('../components/AppCenter/ImageCenter/Project/PublicProject').default,
+      },
+      {
         path: 'detail/:id',
         component: require('../components/AppCenter/ImageCenter/ItemDetail').default,
       }

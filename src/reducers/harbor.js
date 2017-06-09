@@ -77,6 +77,53 @@ function projectLogs(state = {}, action) {
   }
 }
 
+function allProject(state = {}, action) {
+  const { registry } = action
+  const defaultState = {
+    [registry]: {
+      isFetching: false,
+      list: []
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.HARBOR_ALL_PROJECT_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: {
+          isFetching: true
+        }
+      })
+    case ActionTypes.HARBOR_ALL_PROJECT_SUCCESS:
+      const result = action.response.result.data
+      const mergeState = {
+        publicImages: [],
+        privateImages:[]
+      }
+      if(result.repository) {
+        const publicList = result.repository.filter(item => {
+          return item.projectPublic == 1
+        })
+        const privateList = result.repository.filter(item => {
+          return item.projectPublic == 0
+        })
+        mergeState.publicImages = publicList
+        mergeState.privateImages = privateList
+      }
+      return Object.assign({}, state, {
+        [registry]: {
+          isFetching: false,
+          server: action.response.result.server.replace(/(http:\/\/|https:\/\/)/, ''),
+          ...mergeState
+        }
+      })
+    case ActionTypes.HARBOR_ALL_PROJECT_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+    default:
+      return state
+  }
+}
+
 function repos(state = {}, action) {
   const { registry } = action
   const defaultState = {
@@ -101,6 +148,48 @@ function repos(state = {}, action) {
       })
     default:
       return state
+  }
+}
+
+function repositoriesTags(state = {}, action) {
+  const { registry, imageName } = action
+  const defaultState = {
+    [registry]: {
+      [imageName]: {
+        isFetching: false,
+        tag: []
+      }
+    }
+  }
+  switch (action.type) {
+  case ActionTypes.HARBOR_REPOSITORIES_TAGS_REQUEST:
+    return merge({}, defaultState, state, {
+      [registry]: {
+        [imageName]: {
+          isFetching: true
+        }
+      }
+    })
+  case ActionTypes.HARBOR_REPOSITORIES_TAGS_SUCCESS:
+    return Object.assign({}, state, {
+      [registry]: {
+        [imageName]: {
+          isFetching: false,
+          server: action.response.result.server,
+          tag: action.response.result.data
+        }
+      }
+    })
+  case ActionTypes.HARBOR_REPOSITORIES_TAGS_FAILURE:
+    return merge({}, defaultState, state, {
+      [registry]: {
+        [imageName]: {
+          isFetching: false
+        }
+      }
+    })
+  default:
+    return state
   }
 }
 
@@ -189,10 +278,44 @@ function projectLogs(state = {}, action) {
   }
 }
 
+function repositoriesTagConfigInfo(state = {}, action) {
+  const { registry, imageName, tag } = action
+  const defaultState = {
+    [registry]: {
+      isFetching: false,
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.HARBOR_REPOSITORIES_TAG_CONFIGINFO_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: {
+          isFetching: true
+        }
+      })
+    case ActionTypes.HARBOR_REPOSITORIES_TAG_CONFIGINFO_SUCCESS:
+      return Object.assign({}, state, {
+        [registry]: {
+          isFetching: false,
+          server: action.response.result.server.replace(/(http:\/\/|https:\/\/)/, ''),
+          [tag]: action.response.result.data
+        }
+      })
+    case ActionTypes.HARBOR_REPOSITORIES_TAG_CONFIGINFO_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+    default:
+      return state
+  }
+}
+
 export default function harborRegistry(state = { projects: {} }, action) {
   return {
     projects: projects(state.projects, action),
     projectLogs: projectLogs(state.projectLogs, action),
+    allProject: allProject(state.allProject, action),
+    imageTags: repositoriesTags(state.imageTags, action),
+    imageTagConfig: repositoriesTagConfigInfo(state.imageTagConfig, action),
     detail: detail(state.detail, action),
     repos: repos(state.repos, action),
     members: members(state.members, action),
