@@ -253,7 +253,6 @@ function* isValidStorageConfig (entity) {
 
 function* isValidHarborConfig(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
-  const type = 'registry'
   const harborConfig = {
     url: entity.url
   }
