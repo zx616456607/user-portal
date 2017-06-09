@@ -230,11 +230,17 @@ const MyComponent = React.createClass({
           </div>
           <div className='action'>
 
-            <Dropdown.Button overlay={dropdown} type='ghost' onClick={() => this.notActive(item.id)} >
-              <Icon type='delete' />
-              <FormattedMessage {...menusText.releaseActivation} />
-            </Dropdown.Button>
-
+            {item.webhookId || item.webhookUrl ?
+              <Dropdown.Button overlay={dropdown} type='ghost' onClick={() => this.notActive(item.id)} >
+                <Icon type='delete' />
+                <FormattedMessage {...menusText.releaseActivation} />
+              </Dropdown.Button>
+            :
+              <Button style={{width:'120px'}} overlay={dropdown} type='ghost' onClick={() => this.notActive(item.id)} >
+                <Icon type='delete' />
+                <FormattedMessage {...menusText.releaseActivation} />
+              </Button>
+            }
 
           </div>
         </div>
