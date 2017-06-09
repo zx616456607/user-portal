@@ -94,8 +94,8 @@ class OtherSpace extends Component {
 
   }
   searchImage(e) {
-    const image = document.getElementById('searchInput').value
-    this.props.SearchOtherImage(image)
+    const image = document.getElementById(this.props.imageId).value
+    this.props.SearchOtherImage(image,this.props.imageId)
     // this.props.getOtherImageList(this.props.imageId)
   }
   showImageDetail (imageName) {
@@ -107,7 +107,7 @@ class OtherSpace extends Component {
   }
   render() {
     const { formatMessage } = this.props.intl;
-    const { liteFlag } = this.props;
+    const { liteFlag,imageId } = this.props;
     const rootscope = this.props.scope;
     const scope = this;
     const otherHead = this.props.otherHead
@@ -184,7 +184,7 @@ class OtherSpace extends Component {
                 <FormattedMessage {...menusText.logout} />
               </Button>
               <div className="searchBox">
-                <Input size="large" id="searchInput" placeholder={formatMessage(menusText.search)} type='text' onPressEnter={()=>this.searchImage()}/>
+                <Input size="large" id={imageId} placeholder={formatMessage(menusText.search)} type='text' onPressEnter={()=>this.searchImage()}/>
                 <i className='fa fa-search' onClick={()=>this.searchImage()}></i>
               </div>
               <div style={{ clear: 'both' }}></div>
@@ -220,7 +220,8 @@ function mapStateToProps(state, props) {
     imageList: [],
   }
   const { otherImages} = state.images
-  const { imageList, isFetching, imageRow} = otherImages || defaultPrivateImages
+  const { imageList, isFetching} = otherImages[props.imageId] || defaultPrivateImages
+  const { imageRow } = otherImages
   let privateImage
   if (imageList) {
     privateImage = imageList.map(item => {
@@ -235,19 +236,10 @@ function mapStateToProps(state, props) {
   }
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    getOtherImageList: (id) => {
-      dispatch(getOtherImageList(id))
-    },
-    DeleteOtherImage: (id, callback)=> {
-      dispatch(DeleteOtherImage(id,callback))
-    },
-    SearchOtherImage: (image, callback) => {
-      dispatch(SearchOtherImage(image, callback))
-    }
-  }
-}
-export default connect(mapStateToProps,mapDispatchToProps)(injectIntl(OtherSpace, {
+export default connect(mapStateToProps,{
+  getOtherImageList,
+  DeleteOtherImage,
+  SearchOtherImage
+})(injectIntl(OtherSpace, {
   withRef: true,
 }))

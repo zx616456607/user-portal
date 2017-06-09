@@ -57,8 +57,17 @@ export default class PopTabSelect extends Component {
     }
   }
 
+  focusInput(id) {
+    const _input = document.getElementById(id)
+    _input && _input.focus()
+  }
+
   handleVisibleChange(visible) {
-    this.setState({ visible })
+    this.setState({ visible }, () => {
+      if (visible) {
+        this.focusInput(this.searchInputId)
+      }
+    })
   }
 
   handleSearch(e) {
@@ -199,8 +208,7 @@ export default class PopTabSelect extends Component {
   handleBuild() {
     const { inputValue } = this.state
     if (!inputValue) {
-      const searchInput = document.getElementById(this.searchInputId)
-      searchInput && searchInput.focus()
+      this.focusInput(this.searchInputId)
       return
     }
     const { onChange } = this.props
