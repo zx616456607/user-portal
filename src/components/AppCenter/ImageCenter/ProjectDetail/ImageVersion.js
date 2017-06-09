@@ -12,7 +12,6 @@ import { Card, Spin, Tabs } from 'antd'
 import { connect } from 'react-redux'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import ServiceAPI from './ServiceAPI.js'
-import OtherServiceApi from './OtherServiceApi.js'
 import './style/ImageVersion.less'
 import { loadRepositoriesTags } from '../../../../actions/harbor'
 

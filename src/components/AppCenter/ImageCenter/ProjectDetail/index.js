@@ -4,8 +4,8 @@
  *
  * ImageDetailBox component
  *
- * v0.1 - 2016-10-09
- * @author GaoJian
+ * v0.1 - 2017-6-09
+ * @author BaiYu
  */
 import React, { Component, PropTypes } from 'react'
 import { Tabs, Button, Card, Switch, Menu, Tooltip, Icon, Input, Modal, Select } from 'antd'
