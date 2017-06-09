@@ -35,7 +35,12 @@ let MyComponent = React.createClass({
         </div>
       )
     }
-    let tagList = this.props.config || []
+    let tagList = this.props.config
+    if (tagList.length ==0) {
+      return (
+        <div>镜像版本不存在</div>
+      )
+    }
     const fullname = this.props.fullname
     let items = tagList.map((item, index) => {
       return (

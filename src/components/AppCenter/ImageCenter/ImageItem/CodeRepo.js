@@ -41,6 +41,13 @@ class CodeRepo extends Component {
   componentWillMount() {
     const { params } = this.props
     this.loadRepos()
+    const imagename = location.search.split('imageName=')[1]
+    if (imagename !== '' && imagename !== undefined) {
+      this.setState({
+        imageDetailModalShow: true,
+        currentImage: {name:imagename}
+      })
+    }
   }
 
   loadRepos(query) {

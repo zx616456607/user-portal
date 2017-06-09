@@ -122,12 +122,11 @@ class Management extends Component {
     this.state = {
       filteredInfo: null,
       sortedInfo: null,
-      selected: null,
       deleteUser: false,
       addUser: false,
       userList: [],// deleete user list
+      popVisible: {},
     }
-    this.popVisible = {}
   }
 
   handSelected(user, role, e) {
@@ -262,15 +261,15 @@ class Management extends Component {
             return '无需切换'
           }
           const content= (
-            <div className="menu" onClick={() => this.popVisible[row.username] = false}>
+            <div className="menu" onClick={() => this.state.popVisible[row.username] = false}>
               <div className={row[camelize('role_id')] == 1 ? 'menu-item menu-disabled':'menu-item'} onClick={(e)=> this.handSelected(row, 1, e)}>
-                管理员 <span className="icon">{this.state.selected ==1?<Icon type="check-circle-o" />:null}</span>
+                管理员 <span className="icon">{row[camelize('role_id')] ==1?<Icon type="check-circle-o" />:null}</span>
               </div>
               <div className={row[camelize('role_id')] == 2 ? 'menu-item menu-disabled':'menu-item'}  onClick={(e)=> this.handSelected(row, 2, e)}>
-                开发人员 <span className="icon">{this.state.selected ==2?<Icon type="check-circle-o" />:null}</span>
+                开发人员 <span className="icon">{row[camelize('role_id')] ==2?<Icon type="check-circle-o" />:null}</span>
               </div>
               <div className={row[camelize('role_id')] == 3 ? 'menu-item menu-disabled':'menu-item'}  onClick={(e)=> this.handSelected(row, 3, e)}>
-                访客 <span className="icon">{this.state.selected ==3?<Icon type="check-circle-o" />:null}</span>
+                访客 <span className="icon">{row[camelize('role_id')] ==3?<Icon type="check-circle-o" />:null}</span>
               </div>
             </div>
           )
@@ -279,13 +278,14 @@ class Management extends Component {
               <Popover content={content} placement="left" title="切换角色" trigger="click"
                 getTooltipContainer={()=>document.getElementsByClassName('imageProject')[0]}
                 onVisibleChange={visible => {
-                    this.setState({selected:null})
-                    this.popVisible[row.username] = visible
+                    this.setState({
+                      popVisible: { [row.username]: visible }
+                    })
                   }
                 }
-                visible={this.popVisible[row.username]}
+                visible={this.state.popVisible[row.username]}
               >
-                <Button onClick={() => this.popVisible[row.username] = true} type="primary">切换角色</Button>
+                <Button onClick={() => this.setState({popVisible: {[row.username]: true}})} type="primary">切换角色</Button>
               </Popover>
               <Button onClick={()=> this.setState({deleteUser:true,userList:[row]})}>删除</Button>
             </div>
