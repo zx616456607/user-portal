@@ -12,9 +12,12 @@
   color: white;
 }
 
-.pod {
+#main .demo .pod{
   width: 100px;
   background-color:#eeeeef;
+}
+#main .demo .pod span{
+  font-size: 12px;
 }
 
 .pending {

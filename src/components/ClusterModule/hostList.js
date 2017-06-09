@@ -508,10 +508,10 @@ class hostList extends Component {
               <span>容器数</span>
             </div>
             <div className='cpu commonTitle'>
-              <span>CPU</span>
+              <span>CPU使用</span>
             </div>
             <div className='memory commonTitle'>
-              <span>内存</span>
+              <span>内存占用</span>
             </div>
             <div className='schedule commonTitle'>
               <span>调度状态</span>

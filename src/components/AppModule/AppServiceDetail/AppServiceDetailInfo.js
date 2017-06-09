@@ -17,7 +17,7 @@ import { mode } from '../../../../configs/model'
 import { appEnvCheck } from '../../../common/naming_validation'
 import { editServiceEnv } from '../../../actions/services'
 import NotificationHandler from '../../../common/notification_handler.js'
-
+import { Link } from 'react-router'
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item
 class MyComponent extends Component {
