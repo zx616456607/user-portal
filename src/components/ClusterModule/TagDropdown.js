@@ -40,27 +40,6 @@ class TagDropdown extends Component {
     }
   }
 
-  filerBindableLabels(summary) {
-    return summary.filter(label => label.targets && label.targets.length && label.targets.length > 0)
-  }
-
-  matchedNodes(labels, nodes) {
-    const matched = []
-    const multiMap = this.labelsToMultiMap(labels)
-    const nodeNames = Object.getOwnPropertyNames(nodes)
-    for (let i = 0; i < nodeNames.length; i++) {
-      const name = nodeNames[i]
-      const node = nodes[name]
-      if (this.isNodeMatchLabels(node, multiMap)) {
-        matched.push({
-          nodeName: name,
-          labels: node,
-        })
-      }
-    }
-    return matched
-  }
-
   isNodeMatchLabels(node, multiMap) {
     const labelKeys = Object.getOwnPropertyNames(multiMap)
     for (let i = 0; i < labelKeys.length; i++) {
@@ -223,6 +202,7 @@ class ManageTagModal extends Component {
     this.handleCreateLabelModal = this.handleCreateLabelModal.bind(this)
     this.handleCancelLabelModal = this.handleCancelLabelModal.bind(this)
     this.checkKey = this.checkKey.bind(this)
+    this.handleDropdownVisible = this.handleDropdownVisible.bind(this)
     this.state = {
       createLabelModal: false,
       visible: false,
@@ -299,12 +279,14 @@ class ManageTagModal extends Component {
         if (isSet) {
           return
         }
-        if(scope.handledDropDownSetvalues){
+        if(scope.state.createApp){
           scope.handledDropDownSetvalues(tag)
+          scope.setState({
+            summary:tag,
+          })
+          this.handleDropdownVisible(obj)
+          return
         }
-        scope.setState({
-          summary:tag,
-        })
         if(scope.props.nodes){
           let nodeList =[]
           scope.props.nodes.nodes.map((node) => {
@@ -341,6 +323,14 @@ class ManageTagModal extends Component {
       }
     }
 
+    this.handleDropdownVisible(obj)
+    //this.setState({
+    //  manageLabelModal : obj.visible
+    //})
+  }
+
+  handleDropdownVisible(obj){
+    const { callbackHostList } = this.props
     switch(obj.key){
       case 'manageTag':
         callbackHostList(obj)
@@ -360,9 +350,6 @@ class ManageTagModal extends Component {
         })
 
     }
-    //this.setState({
-    //  manageLabelModal : obj.visible
-    //})
   }
 
   handlecallbackHostList(obj) {

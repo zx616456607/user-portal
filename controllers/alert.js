@@ -13,25 +13,17 @@ const logger = require('../utils/logger.js').getLogger('alert')
 const co = require('co')
 
 exports.getRecordFilters = function* () {
-  if (!this.query || this.query.cluster == undefined) {
-    const err = new Error('invalid parameter')
-    err.status = 400
-    throw err
-  }
-
+  const cluster = this.params.cluster
   const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
-  const query = {
-    cluster: this.query.cluster
-  }
-  const result = yield api.alerts.getBy(["record-filters"], query)
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, "alerts/record-filters"], null)
   this.body = result
 }
 
 exports.getRecords = function* () {
+  const cluster = this.params.cluster
   let query = {}
   if (this.query) {
-    query.cluster = this.query.cluster || ''
     query.strategyName = this.query.strategyName || ''
     query.targetType = this.query.targetType != undefined ? this.query.targetType : ''
     query.targetName = this.query.targetName
@@ -42,12 +34,13 @@ exports.getRecords = function* () {
     query.size = this.query.size != undefined ? this.query.size : ''
   }
   const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
-  const result = yield api.alerts.getBy(["records"], query)
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, "alerts/records"], query)
   this.body = result
 }
 
 exports.deleteRecords = function* () {
+  const cluster = this.params.cluster
   let query = {
     strategyID: '',
   }
@@ -56,12 +49,13 @@ exports.deleteRecords = function* () {
   }
 
   const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
-  const result = yield api.alerts.deleteBy(["records"], query)
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.deleteBy([cluster, "alerts/records"], query)
   this.body = result
 }
 
 exports.listNotifyGroups = function* () {
+  const cluster = this.params.cluster
   let query = {
     name: '',
   }
@@ -69,29 +63,32 @@ exports.listNotifyGroups = function* () {
     query.name = this.query.name
   }
   const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
-  const result = yield api.alerts.getBy(["groups"], query)
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, "alerts/groups"], query)
   this.body = result
 }
 
 exports.createNotifyGroup = function* () {
+  const cluster = this.params.cluster
   const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
-  const result = yield api.alerts.createBy(["groups"], null, this.request.body)
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, "alerts/groups"], null, this.request.body)
   this.body = result
 }
 
 exports.modifyNotifyGroup = function* () {
+  const cluster = this.params.cluster
   const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
-  const result = yield api.alerts.updateBy(["groups", this.params.groupid], null, this.request.body)
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, "alerts/groups", this.params.groupid], null, this.request.body)
   this.body = result
 }
 
 exports.batchDeleteNotifyGroups = function* () {
+  const cluster = this.params.cluster
   const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
-  const result = yield api.alerts.createBy(["groups", 'batch-delete'], null, this.request.body)
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, "alerts/groups", 'batch-delete'], null, this.request.body)
   this.body = result
 }
 
@@ -99,7 +96,7 @@ exports.sendInvitation = function* () {
   const method = 'alert.sendInvitation'
   const loginUser = this.session.loginUser
   const spi = apiFactory.getSpi(loginUser)
-  const result = yield spi.alerts.createBy(['invitations'], null, this.request.body)
+  const result = yield spi.email.createBy(['invitations'], null, this.request.body)
   // get email addr and code, then send out the code
   var self = this
   var index = 0
@@ -135,7 +132,7 @@ exports.acceptInvitation = function* () {
   const body = {
     code: this.query.code
   }
-  const result = yield spi.alerts.createBy(["invitations", 'join'], null, body)
+  const result = yield spi.email.createBy(["invitations", 'join'], null, body)
   this.body = result
 }
 
@@ -152,7 +149,7 @@ exports.checkEmailAcceptInvitation = function* () {
 
   const loginUser = this.session.loginUser
   const spi = apiFactory.getSpi(loginUser)
-  const result = yield spi.alerts.getBy(["invitations", 'status'], query)
+  const result = yield spi.email.getBy(["invitations", 'status'], query)
 
   this.body = result
 }
@@ -166,14 +163,7 @@ exports.getAlertSetting = function* () {
   const user = this.session.loginUser
   let owner = user.user
   const body = this.query
-  body.clusterID = cluster
-  const teamspace = user.teamspace
-  const api = apiFactory.getApi(user)
-  const spi = apiFactory.getSpi(user)
-  body.namespace = user.namespace
-  if (teamspace) {
-    body.namespace = teamspace
-  }
+  const api = apiFactory.getK8sApi(user)
   // if(teamspace){
   //   const teamID = this.query.teamID
   //   if(!teamID) {
@@ -184,7 +174,7 @@ exports.getAlertSetting = function* () {
   //   const teamCreator = yield api.teams.getBy([teamID, 'creator'])
   //   owner = teamCreator.data.userName
   // }
-  const response = yield spi.alerts.getBy(['strategy'], body)
+  const response = yield api.getBy([cluster, 'alerts/strategy-rules'], body)
   const setting = response.data
   const keyArr = Object.getOwnPropertyNames(setting)
   if (keyArr.length == 0) {
@@ -223,7 +213,7 @@ exports.getAlertSetting = function* () {
       ruleName: rule.name
     })
   })
-  let recordCount = yield api.alerts.createBy(['record', 'count'], null, {
+  let recordCount = yield api.createBy([cluster, 'alerts/records', 'count'], null, {
     strategyID: strategyID,
     specs
   })
@@ -240,46 +230,35 @@ exports.addAlertSetting = function* () {
   const cluster = this.params.cluster
   const body = this.request.body
   const user = this.session.loginUser
-  body.user = user.user
-  body.namespace = user.namespace
-  if (user.teamspace) {
-    body.namespace = user.teamspace
-  }
-  body.clusterID = cluster
-  const spi = apiFactory.getSpi(user)
-  const response = yield spi.alerts.createBy(['strategy'], null, body)
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.createBy([cluster, 'alerts/strategies'], null, body)
+  this.body = response
+}
+
+exports.modifyAlertSetting = function* () {
+  const cluster = this.params.cluster
+  const strategyID = this.params.strategyID
+  const body = this.request.body
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.updateBy([cluster, 'alerts/strategies', strategyID], null, body)
   this.body = response
 }
 
 exports.getSettingList = function* () {
   const cluster = this.params.cluster
   const queryBody = this.query || {}
-  queryBody.clusterID = cluster
   const user = this.session.loginUser
-  queryBody.namespace = user.namespace
-  if (user.teamspace) {
-    queryBody.namespace = user.teamspace
-  }
-  const spi = apiFactory.getSpi(this.session.loginUser)
-  if (queryBody.search) {
-    const cluster = this.params.cluster
-    if (!queryBody.strategyName) {
-      const err = new Error('strategyName is require')
-      err.status = 400
-      throw err
-    }
-    const response = yield spi.alerts.getBy(['strategy', 'search'], queryBody)
-    this.body = response
-    return
-  }
-  const response = yield spi.alerts.getBy(['strategy', 'list'], queryBody)
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const response = yield api.getBy([cluster, 'alerts/strategies'], queryBody)
   this.body = response
 }
 
 exports.getSettingListfromserviceorapp = function* () {
-  const spi = apiFactory.getSpi(this.session.loginUser)
+  const cluster = this.params.cluster
+  const api = apiFactory.getK8sApi(this.session.loginUser)
   const queryBody = this.query
-  const body = yield  spi.alerts.getBy(['group-strategies'],queryBody)
+  const body = yield  api.getBy([cluster, 'alerts/group-strategies'],queryBody)
   this.body = body
 }
 
@@ -292,51 +271,71 @@ exports.deleteSetting = function* () {
     throw err
   }
   const user = this.session.loginUser
-  const spi = apiFactory.getSpi(user)
-  const response = yield spi.alerts.deleteBy(['strategy'], {
-    clusterID: cluster,
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.deleteBy([cluster, 'alerts/strategies'], {
     strategyIDs: strategyID,
-    namespace: user.teamspace || user.namespace
   })
   this.body = response
 }
 
-
-exports.updateEnable = function* () {
+exports.batchEnable = function* () {
+  const cluster = this.params.cluster
   const body = this.request.body
-  if (!body.strategies) {
-    const err = new Error('strategies is require')
+  if (!body.strategyIDs) {
+    const err = new Error('strategyIDs is require')
     err.status = 400
     throw err
   }
   const user = this.session.loginUser
-  body.user = user.namespace
-  if (user.teamspace) {
-    body.user = user.teamspace
-  }
-  const spi = apiFactory.getSpi(user)
-  const response = yield spi.alerts.createBy(['strategy', 'toggle_enable'], null, body)
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.createBy([cluster, 'alerts/strategies/batch-enable'], null, body)
   this.body = response
 }
 
-exports.updateSendEmail = function*() {
+exports.batchDisable = function* () {
+  const cluster = this.params.cluster
   const body = this.request.body
-  if (!body.strategies) {
-    const err = new Error('strategies is require')
+  if (!body.strategyIDs) {
+    const err = new Error('strategyIDs is require')
     err.status = 400
     throw err
   }
   const user = this.session.loginUser
-  body.user = user.namespace
-  if (user.teamspace) {
-    body.user = user.teamspace
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.createBy([cluster, 'alerts/strategies/batch-disable'], null, body)
+  this.body = response
+}
+
+exports.batchEnableEmail = function* () {
+  const cluster = this.params.cluster
+  const body = this.request.body
+  if (!body.strategyIDs) {
+    const err = new Error('strategyIDs is require')
+    err.status = 400
+    throw err
   }
-  const spi = apiFactory.getSpi(user)
-  const response = yield spi.alerts.createBy(['strategy', 'toggle_send_email'], null, body)
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.createBy([cluster, 'alerts/strategies/batch-enable-email'], null, body)
+  this.body = response
+}
+
+exports.batchDisableEmail = function* () {
+  const cluster = this.params.cluster
+  const body = this.request.body
+  if (!body.strategyIDs) {
+    const err = new Error('strategyIDs is require')
+    err.status = 400
+    throw err
+  }
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.createBy([cluster, 'alerts/strategies/batch-disable-email'], null, body)
   this.body = response
 }
 
 exports.setIgnore = function* () {
+  const cluster = this.params.cluster
   const body = this.request.body
   if (!body.strategies) {
     const err = new Error('strategies is require')
@@ -344,12 +343,8 @@ exports.setIgnore = function* () {
     throw err
   }
   const user = this.session.loginUser
-  body.user = user.namespace
-  if (user.teamspace) {
-    body.user = user.teamspace
-  }
-  const spi = apiFactory.getSpi(user)
-  const response = yield spi.alerts.createBy(['strategy', 'ingore'], null, body)
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.createBy([cluster, 'alerts/strategies/batch-ingore'], null, body)
   this.body = response
 }
 
@@ -430,11 +425,16 @@ exports.getTargetInstant = function* () {
       throw err
     }
   }
-  const memory = parseFloat(results[1].data[name] / totalMemoryByte).toFixed(4)
+  const memory = [
+    results[1].data[name],
+    totalMemoryByte,
+    parseFloat(results[1].data[name] / totalMemoryByte).toFixed(4)
+  ]
+  
   this.body = {
     [strategyName]: {
       cpus: results[0].data[name],
-      memory: isNaN(memory) ? 0 : memory,
+      memory: memory,
       tx_rate: results[2].data[name],
       rx_rate: results[3].data[name]
     }
@@ -449,34 +449,9 @@ exports.deleteRule = function* () {
     err.status = 400
     throw err
   }
-  queryBody.clusterID = cluster
   const user = this.session.loginUser
-  queryBody.namespace = user.namespace
-  if (user.teamspace) {
-    queryBody.namespace = user.teamspace
-  }
-  queryBody.updater = user.user
-  const spi = apiFactory.getSpi(user)
-  const response = yield spi.alerts.deleteBy(['rule'], queryBody)
-  this.body = response
-}
-
-exports.searchSetting = function* () {
-  const cluster = this.params.cluster
-  const queryBody = this.query
-  if (!queryBody.strategyName) {
-    const err = new Error('strategyName is require')
-    err.status = 400
-    throw err
-  }
-  queryBody.clusterID = cluster
-  const user = this.session.loginUser
-  queryBody.namespace = user.namespace
-  if (user.teamspace) {
-    queryBody.namespace = user.teamspace
-  }
-  const spi = apiFactory.getSpi(user)
-  const response = yield spi.alerts.deleteBy(['strategy', 'search'], queryBody)
+  const api = apiFactory.getK8sApi(user)
+  const response = yield api.deleteBy([cluster, 'alerts/rules'], queryBody)
   this.body = response
 }
 

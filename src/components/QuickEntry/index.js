@@ -42,7 +42,7 @@ class QuickEntry extends Component {
         <div className='quickentry'>
           <div className='header'>
             <div className='title'>快速入口</div>
-            <div className='item'>借助快速入口，有一个更直接的导向，快速的定位常用功能，并简化创建步骤</div>
+            <div className='item'>快速入口通过提供平台上主要功能的入口，帮助用户快速了解并使用平台</div>
           </div>
           <div className='main'>
             <Row>
@@ -66,7 +66,7 @@ class QuickEntry extends Component {
                 <div className="item database" onClick={this.handleDatabase}>
                   <img src={DatabaseImg} alt="" className='img'/>
                   <div className='middle'>创建一个数据库与缓存</div>
-                  <div>快速创建原生集群环境一个数据库集群</div>
+                  <div>快速创建一个原生数据库集群环境</div>
                 </div>
               </Col>
             </Row>

@@ -84,61 +84,69 @@ let SetStageFileLink = React.createClass({
     }
     form.validateFields(['useFile'],(errors, values) => {
       if (!!errors) {
-        e.preventDefault();
         return;
       }
       useFileFlag = values.useFile;
     });
-    if(useFileFlag) {
-      body.enabled = 1
-      form.validateFields(['thisFile'],(errors, values) => {
-        if (!!errors) {
-          e.preventDefault();
-          return;
+    const _setStageLink = () => {
+      setStageLink(flowId, config.metadata.id, config.link.target, body, {
+        success: {
+          func: () => {
+            notification.success({messgae:'设置共享目录',description:'设置共享目录成功'});
+            const { scope } = this.props;
+            scope.setState({
+              setStageFileModal: false
+            })
+            let rootScope = scope.props.scope;
+            const { getTenxFlowStateList } = rootScope.props;
+            getTenxFlowStateList(flowId);
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            notification.error({messgae:'设置共享目录',description:'设置共享目录失败'});
+          },
+          isAsync: true
         }
-        let tempThisFile = '';
-        if(values.thisFile.indexOf('/') != 0) {
-          tempThisFile = '/' + values.thisFile;
-        } else {
-          tempThisFile = values.thisFile;
-        }
-        body.sourceDir = tempThisFile;
-      });
-      form.validateFields(['nextFile'],(errors, values) => {
-        if (!!errors) {
-          e.preventDefault();
-          return;
-        }
-        let tempNextFile = '';
-        if(values.nextFile.indexOf('/') != 0) {
-          tempNextFile = '/' + values.nextFile;
-        } else {
-          tempNextFile = values.nextFile;
-        }
-        body.targetDir = tempNextFile;
       });
     }
-    setStageLink(flowId, config.metadata.id, config.link.target, body, {
-      success: {
-        func: () => {
-          notification.success({messgae:'设置共享目录',description:'设置共享目录成功'});
-          const { scope } = this.props;
-          scope.setState({
-            setStageFileModal: false
-          })
-          let rootScope = scope.props.scope;
-          const { getTenxFlowStateList } = rootScope.props;
-          getTenxFlowStateList(flowId);
-        },
-        isAsync: true
-      },
-      failed: {
-        func: () => {
-          notification.error({messgae:'设置共享目录',description:'设置共享目录失败'});
-        },
-        isAsync: true
+    if (!useFileFlag) {
+      return _setStageLink()
+    }
+    body.enabled = 1
+    form.validateFields(['thisFile', 'nextFile'], (errors, values) => {
+      if (!!errors) {
+        return;
       }
+      let tempThisFile = '';
+      if(values.thisFile.indexOf('/') != 0) {
+        tempThisFile = '/' + values.thisFile;
+      } else {
+        tempThisFile = values.thisFile;
+      }
+      body.sourceDir = tempThisFile;
+      let tempNextFile = '';
+      if(values.nextFile.indexOf('/') != 0) {
+        tempNextFile = '/' + values.nextFile;
+      } else {
+        tempNextFile = values.nextFile;
+      }
+      body.targetDir = tempNextFile;
+      _setStageLink()
     });
+    /*form.validateFields(['nextFile'],(errors, values) => {
+      if (!!errors) {
+        return;
+      }
+      let tempNextFile = '';
+      if(values.nextFile.indexOf('/') != 0) {
+        tempNextFile = '/' + values.nextFile;
+      } else {
+        tempNextFile = values.nextFile;
+      }
+      body.targetDir = tempNextFile;
+    });*/
   },
   onChangeUseFile(e) {
     //this function for change the input disabled or not
@@ -164,6 +172,12 @@ let SetStageFileLink = React.createClass({
       setStageFileModal: false
     })
   },
+  checkPath(rule, value, callback) {
+    if (/^\/app\/?$/.test(value)) {
+      return callback('/app 为系统目录，用于拉取项目代码，请填写其他目录')
+    }
+    callback()
+  },
   render() {
     const { formatMessage } = this.props.intl;
     const { scope, config } = this.props;
@@ -171,37 +185,37 @@ let SetStageFileLink = React.createClass({
     const thisFileProps = getFieldProps('thisFile', {
       rules: [
         { message: '请输入当前步骤共享目录' },
+        { validator: this.checkPath }
       ],
       initialValue: formatSourceFile(config),
     });
     const nextFileProps = getFieldProps('nextFile', {
       rules: [
         { message: '请输入下一步骤共享目录' },
+        { validator: this.checkPath }
       ],
       initialValue: formatNextFile(config),
     });
+    const formItemLayout = {
+      labelCol: { span: 6 },
+      wrapperCol: { span: 18 },
+    }
     return (
       <div id='SetStageFileLink' key='SetStageFileLink'>
         <div className='titleBox'>
           <span>设置共享目录</span>
           <Icon type='cross' onClick={this.closeModal} />
         </div>
-        <Form horizontal>
-          <div className='commonInputBox'>
-             <Checkbox {...getFieldProps('useFile', {valuePropName: 'checked',initialValue: formatUseFileFlag(config), onChange: this.onChangeUseFile})}>启用共享目录</Checkbox>
-          </div>
-          <div className='commonInputBox'>
-            <span className='commonTitle'>当前步骤共享目录</span>
-            <FormItem>
-              <Input {...thisFileProps} disabled={!this.state.useFileFlag} className='commonInput' size='large' />
-            </FormItem>
-          </div>
-          <div className='commonInputBox'>
-            <span className='commonTitle'>下一步骤共享目录</span>
-            <FormItem>
-              <Input {...nextFileProps} disabled={!this.state.useFileFlag} className='commonInput' size='large' />
-            </FormItem>
-          </div>
+        <Form horizontal style={{ padding: "10px 20px" }}>
+          <FormItem label="是否启用共享目录" {...formItemLayout}>
+            <Checkbox {...getFieldProps('useFile', {valuePropName: 'checked',initialValue: formatUseFileFlag(config), onChange: this.onChangeUseFile})}>启用共享目录</Checkbox>
+          </FormItem>
+          <FormItem label="当前步骤共享目录"  {...formItemLayout}>
+            <Input {...thisFileProps} disabled={!this.state.useFileFlag} className='commonInput' size='large' />
+          </FormItem>
+          <FormItem label="下一步骤共享目录"  {...formItemLayout}>
+            <Input {...nextFileProps} disabled={!this.state.useFileFlag} className='commonInput' size='large' />
+          </FormItem>
           <div className='btnBox'>
             <Button size='large' type='primary' onClick={this.submitForm.bind(this, config)}>修改</Button>
             <Button size='large' type='ghost' onClick={this.closeModal}>取消</Button>

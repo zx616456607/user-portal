@@ -183,6 +183,12 @@ let AutoDeployService = React.createClass({
     })
 
   },
+  editRule(item) {
+    const self = this;
+    const editingList = Object.assign({},self.state.editingList);
+    editingList[item.ruleId] = true;
+    self.setState({editingList})
+  },
   updateReule(item) {
     // console.log('list in', item.ruleId)
     const self = this
@@ -485,7 +491,8 @@ let AutoDeployService = React.createClass({
                 </span>
                 */}
                 {!self.state.editingList[item.ruleId] ? [
-                  <Button type="ghost" onClick={() => self.setState({ruleId:item.ruleId, delAuthModal: true})}>删除</Button>
+                  <Button type="ghost" onClick={() => self.setState({ruleId:item.ruleId, delAuthModal: true})}>删除</Button>,
+                  <Button type="ghost" style={{marginLeft:'10px'}} onClick={()=> self.editRule(item)}>编辑</Button>
                 ] :
                   [
                     <span>

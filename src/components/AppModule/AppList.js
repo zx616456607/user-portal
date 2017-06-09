@@ -576,13 +576,12 @@ class AppList extends Component {
   GetServiceSettingList(app, name){
     const { cluster, getSettingListfromserviceorapp } = this.props
     const query = {
-      clusterID: cluster,
       appNames: name,
     }
     if(app){
       query.appNames = app[0].name
     }
-    getSettingListfromserviceorapp(query)
+    getSettingListfromserviceorapp(query, cluster)
   }
   
   batchDeleteApps(app) {
