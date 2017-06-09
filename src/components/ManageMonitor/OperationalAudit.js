@@ -151,6 +151,18 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.DisablEmail',
     defaultMessage: '禁止发邮件',
   },
+  CreateOrUpdate: {
+      id: 'ManageMonitor.operationalAudit.CreateOrUpdate',
+      defaultMessage: '创建或更新',
+  },
+  ToggleEnable: {
+      id: 'ManageMonitor.operationalAudit.ToggleEnable',
+      defaultMessage: '切换',
+  },
+  Ignore: {
+      id: 'ManageMonitor.operationalAudit.Ignore',
+      defaultMessage: '忽略',
+  },
   Unknown: {
     id: 'ManageMonitor.operationalAudit.Unknown',
     defaultMessage: '其它',
@@ -182,6 +194,14 @@ const menusText = defineMessages({
   InstanceMetrics: {
     id: 'ManageMonitor.operationalAudit.InstanceMetrics',
     defaultMessage: '实例指标',
+  },
+  InstanceExport: {
+    id: 'ManageMonitor.operationalAudit.InstanceExport',
+    defaultMessage: '镜像导出',
+  },
+  Snapshot: {
+    id: 'ManageMonitor.operationalAudit.Snapshot',
+    defaultMessage: '快照',
   },
   InstanceContainerMetrics: {
     id: 'ManageMonitor.operationalAudit.InstanceContainerMetrics',
@@ -518,6 +538,18 @@ function returnOperationList(scope) {
     { // 18
       value: '21',
       label: (<FormattedMessage {...menusText.DisablEmail} />)
+    },
+    { // 18
+      value: '22',
+      label: (<FormattedMessage {...menusText.CreateOrUpdate} />)
+    },
+    { // 18
+      value: '23',
+      label: (<FormattedMessage {...menusText.ToggleEnable} />)
+    },
+    { // 18
+      value: '24',
+      label: (<FormattedMessage {...menusText.Ignore} />)
     }
   ];
   return operationalList;
@@ -695,6 +727,12 @@ function resourceFormat(resourceType, scope) {
     case '46':
       return formatMessage(menusText.CDNotification)
       break;
+<<<<<<< HEAD
+=======
+    case '47':
+      return formatMessage(menusText.InstanceExport)
+      break;
+>>>>>>> 8b353cad... modify alert_group_email and audit  module
     case '48':
       return formatMessage(menusText.AlertEmailGroup)
       break;
@@ -706,6 +744,9 @@ function resourceFormat(resourceType, scope) {
       break;
     case '51':
       return formatMessage(menusText.AlertRule)
+      break;
+    case '52':
+      return formatMessage(menusText.Snapshot)
       break;
     case '0':
       return formatMessage(menusText.Unknown)
@@ -776,6 +817,15 @@ function operationalFormat(operationalType, scope) {
       break;
     case '21':
       return formatMessage(menusText.DisablEmail)
+      break;
+    case '22':
+      return formatMessage(menusText.CreateOrUpdate)
+      break;
+    case '23':
+      return formatMessage(menusText.ToggleEnable)
+      break;
+    case '24':
+      return formatMessage(menusText.Ignore)
       break;
   }
 }
@@ -1267,6 +1317,10 @@ class OperationalAudit extends Component {
         //CDNotifications
         showOperationalList.push(operationalList[3]);
         break;
+      case '47':
+		    //InstanceExport
+		    showOperationalList.push([]);
+		    break;
       case '48':
         //AlertEmailGroup
         showOperationalList.push(operationalList[0]);
@@ -1291,6 +1345,10 @@ class OperationalAudit extends Component {
       case '51':
         //AlertRule
         showOperationalList.push(operationalList[8]);
+        break;
+      case '52':
+        //Snapshot
+        showOperationalList.push(operationalList[10]);
         break;
       case '0':
         //Unknown
@@ -1513,7 +1571,10 @@ class OperationalAudit extends Component {
             label: formatMessage(menusText.CDNotification),
           }
         ]
-      }, {
+      },{
+				    value: '47',
+				    label: formatMessage(menusText.InstanceExport),
+		    }, {
         value: '48',
         label: formatMessage(menusText.Alert),
         children: [
@@ -1532,6 +1593,9 @@ class OperationalAudit extends Component {
           }
         ]
       }, {
+				    value: '52',
+				    label: formatMessage(menusText.Snapshot),
+		    },{
         value: null,
         label: formatMessage(menusText.allResource)
       }];

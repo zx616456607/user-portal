@@ -561,7 +561,7 @@ function switchPayTypeToText(type) {
   }
 }
 
-exports.sendNotifyGroupInvitationEmail = function* (to, invitorName, invitorEmail, code) {
+exports.sendNotifyGroupInvitationEmail = function* (to, invitorName, invitorEmail, code,transport) {
   const subject = `[时速云]告警通知组|邮箱验证`
   const systemEmail = config.mail_server.service_mail
   const date = moment(new Date()).format("YYYY-MM-DD")
@@ -580,7 +580,7 @@ exports.sendNotifyGroupInvitationEmail = function* (to, invitorName, invitorEmai
       '%date%': [date],
     }
   }
-  return sendEnsureEmail(mailOptions, 'alarm_group.html')
+  return sendVerificationEmail(transport,mailOptions, 'alarm_group.html')
 }
 
 exports.sendGlobalConfigVerificationEmail = function* (to,pas,invitorName, invitorEmail) {

@@ -98,25 +98,29 @@ exports.sendInvitation = function* () {
   const spi = apiFactory.getSpi(loginUser)
   const result = yield spi.email.createBy(['invitations'], null, this.request.body)
   // get email addr and code, then send out the code
-  var self = this
-  var index = 0
-  yield result.data.emails.map(function (item) {
-    return email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code)
+  const configspi = apiFactory.getTenxSysSignSpi(loginUser)
+  const response = yield configspi.configs.get()
+  const configs = response.data
+  var transport = {}
+  configs.map(function (item){
+      const configType = item.ConfigType
+      let configDetail = JSON.parse(item.ConfigDetail)
+      if (configType === 'mail') {
+          let arr = configDetail.mailServer.split(':')
+		      transport = {
+				      host: arr[0],
+				      secureConnection: false, // 使用 SSL
+				      port: 465, // SMTP 端口
+				      auth: {
+						      user: configDetail.senderMail, // 账号
+						      pass: configDetail.senderPassword // 密码
+				      }
+		      }
+      }
   })
-  // yield new Promise(function (resolve, reject) {
-  //   result.data.emails.map(function (item) {
-  //     co(function* () {
-  //       yield email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code)
-  //       index++
-  //       if (index == result.data.emails.length) {
-  //         resolve()
-  //       }
-  //     }).catch(function (err) {
-  //       logger.error(method, "Failed to send email: " + JSON.stringify(err))
-  //       reject(err)
-  //     })
-  //   })
-  // })
+  yield result.data.emails.map(function (item) {
+    return email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code,transport)
+  })
   this.body = {}
 }
 
