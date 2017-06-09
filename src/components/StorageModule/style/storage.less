@@ -225,71 +225,13 @@
   }
 }
 .createAppStorageModal {
-  .nameInput {
-    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-    -webkit-transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  .ant-modal-body{
+    padding:0;
   }
-  .nameErrorInput {
-    border-color: #FF5500 !important;
-    &:hover {
-      border-color: #FF5500 !important;
-      box-shadow: 0 0 0 2px rgba(255, 85, 0, 0.2) !important;
-    }
-    &:focus {
-      border-color: #FF5500 !important;
-      box-shadow: 0 0 0 2px rgba(255, 85, 0, 0.2) !important;
-    }
+  .ant-modal-footer{
+    border-top:none;
+    padding:0;
   }
-  .nameErrorSpan {
-    position: absolute;
-    display: block;
-    padding: 0 5px !important;
-    top: 30px;
-    left: 0px;
-    word-break: keep-all;
-    white-space: nowrap;
-    width: fit-content;
-    width: -webkit-fit-content;
-    width: -moz-fit-content;
-    height: 18px;
-    line-height: 18px !important;
-    color: #FFFFFF !important;
-    border-radius: 4px;
-    background-color: #fe4e50;
-    &:before {
-      margin-right: 5px;
-      font-family: anticon!important;
-      content: '\E635';
-    }
-  }
-}
-.storageModal, .createAppStorageModal{
- .modal-price{
-    border-radius: 10px;
-    border: 1px solid #21ADEB;
-    background: #E4F5FD;
-    clear: both;overflow: hidden;
-    height: 70px;
-    margin:0 20px;
-    padding:0px 20px;
-    margin-top: 20px;
-    .price-left{
-      width: 50%;float: left;line-height:70px;font-size:14px;
-      .keys{line-height: 30px;}
-    }
-    .price-unit{
-      width: 50%;float: left;
-      text-align: center;
-      padding-top: 8px;
-      height: 70px;
-      border-left: 1px dashed #21ADEB;
-      .unit{
-        color: #21ADEB;
-      }
-      .blod{font-size: 22px;}
-    }
-  }
-
 }
 
 .CreateSnapshotModal{

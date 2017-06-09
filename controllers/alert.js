@@ -256,7 +256,7 @@ exports.getSettingList = function* () {
 
 exports.getSettingListfromserviceorapp = function* () {
   const cluster = this.params.cluster
-  const api = apiFactory.getApi(this.session.loginUser)
+  const api = apiFactory.getK8sApi(this.session.loginUser)
   const queryBody = this.query
   const body = yield  api.getBy([cluster, 'alerts/group-strategies'],queryBody)
   this.body = body
@@ -425,11 +425,16 @@ exports.getTargetInstant = function* () {
       throw err
     }
   }
-  const memory = parseFloat(results[1].data[name] / totalMemoryByte).toFixed(4)
+  const memory = [
+    results[1].data[name],
+    totalMemoryByte,
+    parseFloat(results[1].data[name] / totalMemoryByte).toFixed(4)
+  ]
+  
   this.body = {
     [strategyName]: {
       cpus: results[0].data[name],
-      memory: isNaN(memory) ? 0 : memory,
+      memory: memory,
       tx_rate: results[2].data[name],
       rx_rate: results[3].data[name]
     }

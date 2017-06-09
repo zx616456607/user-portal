@@ -174,34 +174,36 @@
     }
   }
 }
+#projectCreateStepOne,#projectCreateStepSecond,#projectCreateStepThird{
+  .inputBox{
+    margin-bottom: 20px;
+    display: flex;
+    display: -webkit-flex;
+    align-items: center;
+    -webkit-align-items: center;
+    span:first-of-type{
+      width: 90px;
+    }
+    .ant-input{
+      width: 360px !important;
+    }
+    .projectName{
+      width: 360px;
+      height: 36px;
+      border:1px solid #CCCCCC;
+      text-indent: 15px;
+      border-radius: 5px;
+      -webkit-border-radius: 5px;
+      -moz-border-radius: 5px;
+    }
+    textarea.ant-input{
+      height: 60px;
+      resize: none;
+    }
 
-.inputBox{
-  margin-bottom: 20px;
-  display: flex;
-  display: -webkit-flex;
-  align-items: center;
-  -webkit-align-items: center;
-  span:first-of-type{
-    width: 90px;
   }
-  .ant-input{
-    width: 360px !important;
-  }
-  .projectName{
-    width: 360px;
-    height: 36px;
-    border:1px solid #CCCCCC;
-    text-indent: 15px;
-    border-radius: 5px;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-  }
-  textarea.ant-input{
-    height: 60px;
-    resize: none;
-  }
-
 }
+
 
 #projectCreateStepThird{
   padding: 20px;
