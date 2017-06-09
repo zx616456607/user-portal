@@ -107,6 +107,7 @@ export default class SecondSider extends Component {
     const { current } = this.state
     const { menuList } = this.props
     let menuShow = menuList.map((item, index) => {
+      console.log(item)
       return (
         <Menu.Item key={'secondSider' + index}>
           <Link to={item.url}>{item.name}</Link>
