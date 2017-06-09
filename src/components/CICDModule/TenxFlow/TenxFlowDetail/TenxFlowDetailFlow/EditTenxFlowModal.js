@@ -886,7 +886,17 @@ let EditTenxFlowModal = React.createClass({
       }
       //if user select the image build type (3),the body will be add new body
       if (this.state.otherFlowType == 3) {
-        let dockerFileFrom = _this.state.useDockerfile ? 1 : 2;
+        let dockerFileFrom = _this.state.useDockerfile ? 1 : 2
+        // Get the projectId of harbor project
+        let harborProjects = this.props.harborProjects.list || []
+        let projectId = 0
+        for (let i in harborProjects) {
+          console.log(values.harborProjectName + " vs " + harborProjects[i].name)
+          if (values.harborProjectName == harborProjects[i].name) {
+            projectId = harborProjects[i].projectId
+            break
+          }
+        }
         let imageBuildBody = {
           'DockerfileFrom': dockerFileFrom,
           'registryType': parseInt(values.imageType),
@@ -894,6 +904,7 @@ let EditTenxFlowModal = React.createClass({
           'noCache': !values.buildCache,
           'image': values.imageRealName,
           'project': values.harborProjectName,
+          'projectId': projectId
         }
         if (this.state.otherTag) {
           imageBuildBody.customTag = values.otherTag;

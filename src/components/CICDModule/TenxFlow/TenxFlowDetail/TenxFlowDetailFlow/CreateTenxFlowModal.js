@@ -767,9 +767,19 @@ let CreateTenxFlowModal = React.createClass({
       if (this.state.otherFlowType == 5) {
         body.metadata.customType = values.otherFlowType;
       }
-      //if user select the image build type (5),the body will be add new body
+      //if user select the image build type (3),the body will add more data
       if (this.state.otherFlowType == 3) {
-        let dockerFileFrom = _this.state.useDockerfile ? 1 : 2;
+        let dockerFileFrom = _this.state.useDockerfile ? 1 : 2
+        // Get the projectId of harbor project
+        let harborProjects = this.props.harborProjects.list || []
+        let projectId = 0
+        for (let i in harborProjects) {
+          console.log(values.harborProjectName + " vs " + harborProjects[i].name)
+          if (values.harborProjectName == harborProjects[i].name) {
+            projectId = harborProjects[i].projectId
+            break
+          }
+        }
         let imageBuildBody = {
           'DockerfileFrom': dockerFileFrom,
           'registryType': parseInt(values.imageType),
@@ -777,12 +787,13 @@ let CreateTenxFlowModal = React.createClass({
           'noCache': !values.buildCache,
           'image': values.imageRealName,
           'project': values.harborProjectName,
+          'projectId': projectId
         }
         if(imageBuildBody.registryType == 3) {
           imageBuildBody.customRegistry = values.otherImage
         }
         if (this.state.otherTag) {
-          imageBuildBody.customTag = values.otherTag;
+          imageBuildBody.customTag = values.otherTag
         }
         // if (this.state.ImageStoreType) {
         //   imageBuildBody.customRegistry = values.otherStoreUrl;
