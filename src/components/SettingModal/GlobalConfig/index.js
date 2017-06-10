@@ -174,8 +174,8 @@ let Emaill = React.createClass({
     const body ={
       email,
       password,
-	    host,
-	    secure
+	  host,
+	  secure
     }
     const notitf = new NotificationHandler()
     this.props.sendEmailVerification(body,{
