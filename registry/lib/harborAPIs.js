@@ -96,6 +96,12 @@ HarborAPIs.prototype.getReplicationPolicy = function (id, callback) {
   this.sendRequest(url, 'GET', null, callback)
 }
 
+// [DELETE] /policies/replication/{id}
+HarborAPIs.prototype.deleteReplicationPolicy = function (id, callback) {
+  const url = `${this.getAPIPrefix()}/policies/replication/${id}`
+  this.sendRequest(url, 'DELETE', null, callback)
+}
+
 // [PUT] /policies/replication/{id}
 HarborAPIs.prototype.modifyReplicationPolicy = function (id, policy, callback) {
   const url = `${this.getAPIPrefix()}/policies/replication/${id}`

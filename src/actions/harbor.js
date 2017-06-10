@@ -433,7 +433,6 @@ export function updateProject(registry, id, body, callback) {
   }
 }
 
-
 export const GET_CONFIGURATIONS_REQUEST = 'GET_CONFIGURATIONS_REQUEST'
 export const GET_CONFIGURATIONS_SUCCESS = 'GET_CONFIGURATIONS_SUCCESS'
 export const GET_CONFIGURATIONS_FAILURE = 'GET_CONFIGURATIONS_FAILURE'
@@ -456,6 +455,137 @@ function fetchGetConfigurations(registry, callback) {
 export function getConfigurations(registry, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchGetConfigurations(registry, callback))
+  }
+}
+
+export const LOAD_IMAGEUPDATE_LIST_REQUEST = 'LOAD_IMAGEUPDATE_LIST_REQUEST'
+export const LOAD_IMAGEUPDATE_LIST_SUCCESS = 'LOAD_IMAGEUPDATE_LIST_SUCCESS'
+export const LOAD_IMAGEUPDATE_LIST_FAILURE = 'LOAD_IMAGEUPDATE_LIST_FAILURE'
+
+function fetchLoadImageUpdateList(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${body.registry}/projects/${body.projectID}/replication/summary`
+  return {
+    registry: body.registry,
+    [FETCH_API]: {
+      types: [ LOAD_IMAGEUPDATE_LIST_REQUEST, LOAD_IMAGEUPDATE_LIST_SUCCESS, LOAD_IMAGEUPDATE_LIST_FAILURE ],
+      endpoint,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function loadImageUpdateList(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchLoadImageUpdateList(body, callback))
+  }
+}
+
+export const IMAGE_UPDATE_RULES_SWITCH_REQUEST = 'IMAGE_UPDATE_RULES_SWITCH_REQUEST'
+export const IMAGE_UPDATE_RULES_SWITCH_SUCCESS = 'IMAGE_UPDATE_RULES_SWITCH_SUCCESS'
+export const IMAGE_UPDATE_RULES_SWITCH_FAILURE = 'IMAGE_UPDATE_RULES_SWITCH_FAILURE'
+
+function fetchImageUpdateSwitch(registry, id, body,  callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/policies/replication/${id}/enablement`
+  return {
+    [FETCH_API]: {
+      types: [ IMAGE_UPDATE_RULES_SWITCH_REQUEST, IMAGE_UPDATE_RULES_SWITCH_SUCCESS, IMAGE_UPDATE_RULES_SWITCH_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function imageUpdateSwitch(registry, id, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchImageUpdateSwitch(registry, id, body, callback))
+  }
+}
+
+export const DELETE_IMAGE_UPDATE_RULES_REQUEST = 'DELETE_IMAGE_UPDATE_RULES_REQUEST'
+export const DELETE_IMAGE_UPDATE_RULES_SUCCESS = 'DELETE_IMAGE_UPDATE_RULES_SUCCESS'
+export const DELETE_IMAGE_UPDATE_RULES_FAILURE = 'DELETE_IMAGE_UPDATE_RULES_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDelteImageUpdateRules(registry, id, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/policies/replication/${id}`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ DELETE_IMAGE_UPDATE_RULES_REQUEST, DELETE_IMAGE_UPDATE_RULES_SUCCESS, DELETE_IMAGE_UPDATE_RULES_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function deleteImageUpdateRules(registry, id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDelteImageUpdateRules(registry, id, callback))
+  }
+}
+
+export const EDIT_IMAGE_UPDATE_RULES_REQUEST = 'EDIT_IMAGE_UPDATE_RULES_REQUEST'
+export const EDIT_IMAGE_UPDATE_RULES_SUCCESS = 'EDIT_IMAGE_UPDATE_RULES_SUCCESS'
+export const EDIT_IMAGE_UPDATE_RULES_FAILURE = 'EDIT_IMAGE_UPDATE_RULES_FAILURE'
+
+function fetchEditImageUpdateRules(registry, id, body,  callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/policies/replication/${id}`
+  return {
+    [FETCH_API]: {
+      types: [ EDIT_IMAGE_UPDATE_RULES_REQUEST, EDIT_IMAGE_UPDATE_RULES_SUCCESS, EDIT_IMAGE_UPDATE_RULES_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body
+      }
+    },
+    callback
+  }
+}
+
+export function editImageUpdateRules(registry, id, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchEditImageUpdateRules(registry, id, body, callback))
+  }
+}
+
+export const CREATE_TARGET_STORE_REQUEST = 'CREATE_TARGET_STORE_REQUEST'
+export const CREATE_TARGET_STORE_SUCCESS = 'CREATE_TARGET_STORE_SUCCESS'
+export const CREATE_TARGET_STORE_FAILURE = 'CREATE_TARGET_STORE_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchCreateTargeStore(registry, body,callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets`
+  return {
+    [FETCH_API]: {
+      types: [ CREATE_TARGET_STORE_REQUEST, CREATE_TARGET_STORE_SUCCESS, CREATE_TARGET_STORE_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function createTargetStore(registry, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateTargeStore(registry, body, callback))
   }
 }
 
@@ -485,5 +615,116 @@ function fetchUpdateConfigurations(registry, body, callback) {
 export function updateConfigurations(registry, body, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchUpdateConfigurations(registry, body, callback))
+  }
+}
+
+export const IMAGE_UPDATE_ADD_NEW_RULES_REQUEST = 'IMAGE_UPDATE_ADD_NEW_RULES_REQUEST'
+export const IMAGE_UPDATE_ADD_NEW_RULES_SUCCESS = 'IMAGE_UPDATE_ADD_NEW_RULES_SUCCESS'
+export const IMAGE_UPDATE_ADD_NEW_RULES_FAILURE = 'IMAGE_UPDATE_ADD_NEW_RULES_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchiImageUpdateAddNewRules(registry, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/policies/replication`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ IMAGE_UPDATE_ADD_NEW_RULES_REQUEST, IMAGE_UPDATE_ADD_NEW_RULES_SUCCESS, IMAGE_UPDATE_ADD_NEW_RULES_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function iamgeUpdateAddNewRules(registry, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchiImageUpdateAddNewRules(registry, body, callback))
+  }
+}
+
+export const VALIDATION_NEW_TARGET_STORE_REQUEST = 'VALIDATION_NEW_TARGET_STORE_REQUEST'
+export const VALIDATION_NEW_TARGET_STORE_SUCCESS = 'VALIDATION_NEW_TARGET_STORE_SUCCESS'
+export const VALIDATION_NEW_TARGET_STORE_FAILURE = 'VALIDATION_NEW_TARGET_STORE_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchiValidationNewTargetStore(registry, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets/ping`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ VALIDATION_NEW_TARGET_STORE_REQUEST, VALIDATION_NEW_TARGET_STORE_SUCCESS, VALIDATION_NEW_TARGET_STORE_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function validationNewTargetStore(registry, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchiValidationNewTargetStore(registry, body, callback))
+  }
+}
+
+export const VALIDATION_OLD_TARGET_STORE_REQUEST = 'VALIDATION_OLD_TARGET_STORE_REQUEST'
+export const VALIDATION_OLD_TARGET_STORE_SUCCESS = 'VALIDATION_OLD_TARGET_STORE_SUCCESS'
+export const VALIDATION_OLD_TARGET_STORE_FAILURE = 'VALIDATION_OLD_TARGET_STORE_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchiValidationOldTargetStore(registry, id, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/targets/${id}/ping`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ VALIDATION_OLD_TARGET_STORE_REQUEST, VALIDATION_OLD_TARGET_STORE_SUCCESS, VALIDATION_OLD_TARGET_STORE_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function validationOldTargetStore(registry, id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchiValidationOldTargetStore(registry, id, callback))
+  }
+}
+
+export const GET_IMAGE_UPDATE_TASK_LOG_REQUEST = 'GET_IMAGE_UPDATE_TASK_LOG_REQUEST'
+export const GET_IMAGE_UPDATE_TASK_LOG_SUCCESS = 'GET_IMAGE_UPDATE_TASK_LOG_SUCCESS'
+export const GET_IMAGE_UPDATE_TASK_LOG_FAILURE = 'GET_IMAGE_UPDATE_TASK_LOG_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchGetImageUpdateTaskLog(registry, id, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/jobs/replication/${id}/log`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ GET_IMAGE_UPDATE_TASK_LOG_REQUEST, GET_IMAGE_UPDATE_TASK_LOG_SUCCESS, GET_IMAGE_UPDATE_TASK_LOG_FAILURE ],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function getTasklogs(registry, id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchGetImageUpdateTaskLog(registry, id, callback))
   }
 }

@@ -68,6 +68,89 @@ export function formatDate(timestamp, format) {
 }
 
 /**
+ * Format date
+ * `YYYY-MM-DD HH:mm:ss`
+ * @export
+ * @param {any} timestamp
+ * @returns
+ */
+const dateLiteral = {
+  zh: {
+    year: ["年", "年"],
+    month: ["月", "月"],
+    day: ["日", "日"],
+    hour: ["小时", "小时"],
+    minute: ["分", "分"],
+    second: ["秒", "秒"],
+    millisecond: ["毫秒", "毫秒"]
+  },
+  en: {
+    year: ["year", "years"],
+    month: ["month", "months"],
+    day: ["day", "days"],
+    hour: ["hour", "hours"],
+    minute: ["minute", "minutes"],
+    second: ["second", "seconds"],
+    millisecond: ["ms", "ms"]
+  },
+  jp: {
+    year: ["年", "年"],
+    month: ["ヶ月", "ヶ月"],
+    day: ["日", "日"],
+    hour: ["時間", "時間"],
+    minute: ["分", "分"],
+    second: ["秒", "秒"],
+    millisecond: ["ミリ秒", "ミリ秒"]
+  }
+}
+
+export function formatDuration(begin, end, showZeroSecond, separator, showZero, loc) {
+  const start = toDate(begin)
+  const over = toDate(end)
+  const d = moment.duration(over - start)
+  loc = loc ? loc : locale
+  let table = {}
+  if (dateLiteral.hasOwnProperty(loc)) {
+    table = dateLiteral[loc]
+  } else {
+    table = dateLiteral['en']
+  }
+  if (!separator) {
+    separator = ' '
+  }
+  const duration = [
+    ['year', d.years()],
+    ['month', d.months()],
+    ['day', d.days()],
+    ['hour', d.hours()],
+    ['minute', d.minutes()],
+    ['second', d.seconds()],
+    ['millisecond', d.milliseconds()]
+  ]
+  const result = duration.reduce((parts, entry) => {
+    const key = entry[0]
+    const value = entry[1]
+    if (value === 0 && !showZero) {
+      return parts
+    }
+    const literal = value === 1 ? table[key][0] : table[key][1]
+    parts.push(`${value} ${literal}`)
+    return parts
+  }, []).join(separator)
+  if (result) {
+    return result
+  }
+  return showZeroSecond ? `0 ${table['second'][0]}` : ""
+}
+
+function toDate(date) {
+  if (typeof date === 'string') {
+    return new Date(date)
+  }
+  return date
+}
+
+/**
  * Calculate time from now
  * Option
  * - beginDate

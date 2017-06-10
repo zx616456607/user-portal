@@ -252,6 +252,7 @@ module.exports = function (Router) {
   router.get('/registries/:registry/policies/replication', harborController.getReplicationPolicies)
   router.post('/registries/:registry/policies/replication', harborController.newReplicationPolicy)
   router.get('/registries/:registry/policies/replication/:id', harborController.getReplicationPolicy)
+  router.delete('/registries/:registry/policies/replication/:id', harborController.deleteReplicationPolicy)
   router.put('/registries/:registry/policies/replication/:id', harborController.modifyReplicationPolicy)
   router.put('/registries/:registry/policies/replication/:id/enablement', harborController.enableReplicationPolicy)
   router.get('/registries/:registry/targets', harborController.getReplicationTargets)

@@ -239,6 +239,10 @@ exports.newReplicationPolicy = harborHandler(
 exports.getReplicationPolicy = harborHandler(
   (harbor, ctx, callback) => harbor.getReplicationPolicy(ctx.params.id, callback))
 
+// [DELETE] /policies/replication/{id}
+exports.deleteReplicationPolicy = harborHandler(
+  (harbor, ctx, callback) => harbor.deleteReplicationPolicy(ctx.params.id, callback))
+
 // [PUT] /policies/replication/{id}
 exports.modifyReplicationPolicy = harborHandler(
   (harbor, ctx, callback) => harbor.modifyReplicationPolicy(ctx.params.id, ctx.request.body, callback))
@@ -253,7 +257,17 @@ exports.getReplicationTargets = harborHandler(
 
 // [POST] /targets
 exports.newReplicationTarget = harborHandler(
-  (harbor, ctx, callback) => harbor.newReplicationTarget(ctx.request.body, callback))
+  (harbor, ctx, callback) => harbor.newReplicationTarget(ctx.request.body, (err, statusCode, result, headers) => {
+    if (statusCode === 201 && headers.hasOwnProperty('location') && headers.location) {
+      const targetIDRule = /(?:^|\s)\/api\/targets\/(\d+?)(?:\s|$)/g
+      const match = targetIDRule.exec(headers.location)
+      const targetID = Number(match[1])
+      callback(null, 201, {id: targetID}, {})
+    } else {
+      callback(err, statusCode, result, headers)
+    }
+  })
+)
 
 // [POST] /targets/ping
 exports.pingReplicationTarget = harborHandler(
@@ -327,9 +341,6 @@ function JobsIterator(result, policyIDs, harbor, ctx, callback) {
 
 JobsIterator.prototype.next = function (err, statusCode, body) {
   if (err || statusCode > 300) {
-    if (!this.result.hasOwnProperty("jobs")) {
-      this.result.jobs = []
-    }
     this.callback(err, statusCode, body)
   } else {
     if (body) {
@@ -339,8 +350,7 @@ JobsIterator.prototype.next = function (err, statusCode, body) {
       this.result.jobs = this.jobs
       next(err, statusCode, body, getReplicationTargets, this.callback, this.harbor, this.ctx, this.result)
     } else {
-      this.harbor.getReplicationJobs({policy_id: this.currentPolicyID()},
-        (err, statusCode, body) => this.next(err, statusCode, body))
+      this.harbor.getReplicationJobs({policy_id: this.currentPolicyID()}, this.next.bind(this))
     }
   }
 }
@@ -358,8 +368,7 @@ function getReplicationJobs(harbor, ctx, callback, result) {
   const count = policyIDs.length
   if (count > 0) {
     const iterator = new JobsIterator(result, policyIDs, harbor, ctx, callback)
-    harbor.getReplicationJobs({policy_id: policyIDs[0]},
-      (err, statusCode, body) => iterator.next(err, statusCode, body))
+    harbor.getReplicationJobs({policy_id: policyIDs[0]}, iterator.next.bind(iterator))
   } else {
     next(null, null, null, (harbor, ctx, callback, result) => {
       result.jobs = []

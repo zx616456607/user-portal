@@ -405,6 +405,74 @@ function updateConfigurations(state = {}, action) {
   }
 }
 
+function imageUpdate(state = {},action) {
+  const { registry } = action
+  const defaultState = {
+    isFetching: false,
+  }
+  switch(action.type){
+    case ActionTypes.LOAD_IMAGEUPDATE_LIST_REQUEST:
+      return merge({},defaultState,state,{
+        isFetching: true
+      })
+    case ActionTypes.LOAD_IMAGEUPDATE_LIST_SUCCESS:
+      let policies = action.response.result.data.policies
+      let targets = action.response.result.data.targets
+      let jobs = action.response.result.data.jobs
+      for(let i = 0; i < jobs.length; i++){
+        jobs[i].key = i
+        jobs[i].timeConsuming = {
+          begin: jobs[i].creationTime,
+          end: jobs[i].updateTime
+        }
+      }
+      for(let i = 0; i < policies.length; i++){
+        policies[i].key = i
+        for(let j = 0; j < targets.length; j++){
+          if(policies[i].targetId == targets[j].id){
+            policies[i].targetName = targets[j].name
+          }
+        }
+      }
+      return Object.assign({},state,{
+        isFetching: false,
+        policies,
+        jobs,
+        targets,
+      })
+    case ActionTypes.LOAD_IMAGEUPDATE_LIST_FAILURE:
+      return merge({},defaultState,state,{
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+function imageUpdateLogs(state = {},action) {
+  const { registry } = action
+  const defaultState = {
+    isFetching: false,
+  }
+  switch(action.type){
+    case ActionTypes.GET_IMAGE_UPDATE_TASK_LOG_REQUEST:
+      return merge({},defaultState,state,{
+        isFetching: true
+      })
+    case ActionTypes.GET_IMAGE_UPDATE_TASK_LOG_SUCCESS:
+      return Object.assign({},state,{
+        isFetching: false,
+        logs: action.response.result.data
+      })
+    case ActionTypes.GET_IMAGE_UPDATE_TASK_LOG_FAILURE:
+      return merge({},defaultState,state,{
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 export default function harborRegistry(state = { projects: {} }, action) {
   return {
     systeminfo: systeminfo(state.systeminfo, action),
@@ -417,6 +485,8 @@ export default function harborRegistry(state = { projects: {} }, action) {
     repos: repos(state.repos, action),
     members: members(state.members, action),
     updateConfigurations: updateConfigurations(state.updateConfiguration, action),
-    configurations: getConfigurations(state.configurations, action)
+    configurations: getConfigurations(state.configurations, action),
+    imageUpdate: imageUpdate(state.imageUpdate, action),
+    imageUpdateLogs: imageUpdateLogs(state.imageUpdateLogs, action),
   }
 }
