@@ -349,9 +349,11 @@ let MyComponent = React.createClass({
             <Checkbox onChange={(e) => this.props.changeCheckStatus(item.name, e)} checked={item.checked}/>
           </div>
           <div className='name'>
-            <Link to={`/ci_cd/build_image/tenx_flow_build?${item.flowId}&${flowListState[index].status}`}>
-              <span>{item.name}</span>
-            </Link>
+            <Tooltip placement='topLeft' title={item.name}>
+              <Link to={`/ci_cd/build_image/tenx_flow_build?${item.flowId}&${flowListState[index].status}`}>
+                <span>{item.name}</span>
+              </Link>
+            </Tooltip>
           </div>
           <div className='time'>
             <span className='timeSpan'>
@@ -804,10 +806,10 @@ class TenxFlowList extends Component {
         >
           <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} callback={this.callback(this.state.currentFlowId)} visible={this.state.TenxFlowDeployLogModal}/>
         </Modal>
-        <Modal title="删除TenxFlow操作" visible={this.state.showDeleteTenxFlowModal}
+        <Modal title="删除构建任务" visible={this.state.showDeleteTenxFlowModal}
         onOk={() => this.deleteCheckFlow()} onCancel={() => this.setState({ showDeleteTenxFlowModal: false, checkName: [] })}
         >
-          <Alert message="请注意，删除TenxFlow，将清除项目的所有历史数据以及相关的镜像，且该操作不能被恢复" type="warning" showIcon />
+          <Alert message="请注意，删除构建任务将清楚所有相关历史数据，且该操作不可恢复" type="warning" showIcon />
           <div className="modalColor" style={{ lineHeight: '30px' }}><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px', marginLeft: '16px' }}></i>
             您确定要删除 {this.state.checkName} 吗？
           </div>

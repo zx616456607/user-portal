@@ -56,7 +56,7 @@ class AlarmGroup extends Component {
     )
   }
   componentWillReceiveProps(nextProps){
-    let pre = this.props.space.spaceID;
+    let pre = this.props.space.spaceID
     let next = nextProps.space.spaceID;
     const { loadNotifyGroups } = this.props
     if(pre !== next) {
@@ -212,6 +212,12 @@ class AlarmGroup extends Component {
       document.getElementById('groupName').focus()
     },500)
   }
+  handleCancel() {
+    this.setState({
+      createGroup: false,
+      modifyGroup: false,
+    });
+  }
   render() {
     if (!this.props.groups) {
       return (
@@ -335,10 +341,8 @@ class AlarmGroup extends Component {
             :null
             }
           </Card>
-          <Modal title={this.state.createModalTitle} visible={this.state.createGroup || this.state.modifyGroup}
+          <Modal title={this.state.createModalTitle} onCancel={()=> this.handleCancel()} visible={this.state.createGroup || this.state.modifyGroup}
             width={560}
-            maskClosable={false}
-            closable={false}
             wrapClassName="AlarmModal"
             className="alarmContent"
             footer={null}

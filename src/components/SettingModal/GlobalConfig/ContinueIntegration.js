@@ -152,7 +152,7 @@ class ContinueIntegration extends Component {
   }
 
   handleEditcolums(key){
-    let index = key.substring(0,1)
+    let index = key.substring(0,key.indexOf('.'))
     let disableArr = this.state.disableArr
     disableArr[index].disable = false
     this.setState({
@@ -217,7 +217,7 @@ class ContinueIntegration extends Component {
   }
 
   handleCanclecolums(key, value, formIndex){
-    let index = key.substring(0,1)
+    let index = key.substring(0,key.indexOf('.'))
     const { form } = this.props
     const number = form.getFieldValue('number')
     if(value.isEmpty) {
