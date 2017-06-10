@@ -49,6 +49,7 @@ exports.initGlobalConfig = function* () {
     return
   }
   let globalConfig = global.globalConfig
+  const ConfigArray = {}
   globalConfig.storageConfig = []
   configs.forEach(item => {
     const configType = item.ConfigType
@@ -64,6 +65,7 @@ exports.initGlobalConfig = function* () {
       globalConfig.mail_server.auth.user = configDetail.senderMail
       globalConfig.mail_server.auth.pass = configDetail.senderPassword
       globalConfig.mail_server.service_mail = configDetail.senderMail
+      ConfigArray.Mail='NotEmpty'
     }
     if (configType == 'registry') {
       globalConfig.registryConfig.protocol = configDetail.protocol
@@ -74,6 +76,7 @@ exports.initGlobalConfig = function* () {
       globalConfig.registryConfig.user = configDetail.user
       globalConfig.registryConfig.password = configDetail.password
       logger.info('registry config: ', configDetail.protocol + '://' + configDetail.host + ':' + configDetail.port)
+      ConfigArray.Registry='NotEmpty'
     }
     if (configType == 'cicd') {
       let host
@@ -104,10 +107,23 @@ exports.initGlobalConfig = function* () {
       globalConfig.cicdConfig.statusPath = devops.statusPath //configDetail.statusPath,
       globalConfig.cicdConfig.logPath = devops.logPath //configDetail.logPath
       logger.info('devops config: ', protocol + '://' + host)
+      ConfigArray.Cicd='NotEmpty'
     }
     if (configType === 'rbd') {
       item.ConfigDetail = configDetail
       globalConfig.storageConfig.push(item)
+      ConfigArray.Rbd='NotEmpty'
     }
   })
+  if (ConfigArray.Mail!=='NotEmpty'){
+      globalConfig.mail_server={
+      auth: {}
+    }
+  }
+  if (ConfigArray.Registry!=='NotEmpty'){
+      globalConfig.registryConfig={}
+  }
+  if (ConfigArray.Rbd!=='NotEmpty'){
+      globalConfig.storageConfig=[]
+  }
 }
