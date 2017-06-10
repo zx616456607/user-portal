@@ -10,6 +10,7 @@
 const apiFactory = require('../services/api_factory')
 const email = require('../utils/email')
 const logger = require('../utils/logger.js').getLogger('alert')
+const initGlobalConfig = require('../services/init_global_config')
 const co = require('co')
 
 exports.getRecordFilters = function* () {
@@ -93,35 +94,16 @@ exports.batchDeleteNotifyGroups = function* () {
 }
 
 exports.sendInvitation = function* () {
-  const method = 'alert.sendInvitation'
-  const loginUser = this.session.loginUser
-  const spi = apiFactory.getSpi(loginUser)
-  const result = yield spi.email.createBy(['invitations'], null, this.request.body)
-  // get email addr and code, then send out the code
-  const configspi = apiFactory.getTenxSysSignSpi(loginUser)
-  const response = yield configspi.configs.get()
-  const configs = response.data
-  var transport = {}
-  configs.map(function (item){
-      const configType = item.ConfigType
-      let configDetail = JSON.parse(item.ConfigDetail)
-      if (configType === 'mail') {
-          let arr = configDetail.mailServer.split(':')
-		      transport = {
-				      host: arr[0],
-				      secureConnection: false, // 使用 SSL
-				      port: 465, // SMTP 端口
-				      auth: {
-						      user: configDetail.senderMail, // 账号
-						      pass: configDetail.senderPassword // 密码
-				      }
-		      }
-      }
-  })
-  yield result.data.emails.map(function (item) {
-    return email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code,transport)
-  })
-  this.body = {}
+	const method = 'alert.sendInvitation'
+	const loginUser = this.session.loginUser
+	const spi = apiFactory.getSpi(loginUser)
+	const result = yield spi.alerts.createBy(['invitations'], null, this.request.body)
+	// get email addr and code, then send out the code
+	const initConfig = yield initGlobalConfig.initGlobalConfig()
+	yield result.data.emails.map(function (item) {
+		return email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code,globalConfig.mail_server)
+	})
+	this.body = {}
 }
 
 exports.acceptInvitation = function* () {
