@@ -163,6 +163,14 @@ const menusText = defineMessages({
 		id: 'ManageMonitor.operationalAudit.Ignore',
 		defaultMessage: '忽略',
 	},
+	RollBack: {
+		id: 'ManageMonitor.operationalAudit.RollBack',
+		defaultMessage: '回滚',
+	},
+	Clone: {
+		id: 'ManageMonitor.operationalAudit.Clone',
+		defaultMessage: '克隆',
+	},
   Unknown: {
     id: 'ManageMonitor.operationalAudit.Unknown',
     defaultMessage: '其它',
@@ -550,7 +558,15 @@ function returnOperationList(scope) {
     { // 18
       value: '24',
       label: (<FormattedMessage {...menusText.Ignore} />)
-    }
+    },
+	  { // 18
+		  value: '25',
+		  label: (<FormattedMessage {...menusText.RollBack} />)
+	  },
+	  { // 18
+		  value: '26',
+		  label: (<FormattedMessage {...menusText.Clone} />)
+	  }
   ];
   return operationalList;
 }
@@ -727,6 +743,9 @@ function resourceFormat(resourceType, scope) {
     case '46':
       return formatMessage(menusText.CDNotification)
       break;
+	  case '47':
+		  return formatMessage(menusText.InstanceExport)
+		  break;
     case '48':
       return formatMessage(menusText.AlertEmailGroup)
       break;
@@ -821,6 +840,12 @@ function operationalFormat(operationalType, scope) {
     case '24':
       return formatMessage(menusText.Ignore)
       break;
+	  case '25':
+		  return formatMessage(menusText.RollBack)
+		  break;
+	  case '26':
+		  return formatMessage(menusText.Clone)
+		  break;
   }
 }
 
@@ -1311,6 +1336,10 @@ class OperationalAudit extends Component {
         //CDNotifications
         showOperationalList.push(operationalList[3]);
         break;
+	    case '47':
+		    //CDNotifications
+		    showOperationalList.push([]);
+		    break;
       case '48':
         //AlertEmailGroup
         showOperationalList.push(operationalList[0]);
