@@ -25,7 +25,6 @@ import {
 } from '../../../../actions/harbor'
 import { formatDate, formatDuration } from  '../../../../common/tools'
 import NotificationHandler from '../../../../common/notification_handler'
-import { LogFormatter } from '../../../../common/formatLog'
 
 let LogsTemplate = React.createClass({
   getInitialState() {
