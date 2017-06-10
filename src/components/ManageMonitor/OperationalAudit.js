@@ -727,15 +727,9 @@ function resourceFormat(resourceType, scope) {
     case '46':
       return formatMessage(menusText.CDNotification)
       break;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 8b353cad... modify alert_group_email and audit  module
     case '47':
       return formatMessage(menusText.InstanceExport)
       break;
->>>>>>> 8b353cad... modify alert_group_email and audit  module
     case '48':
       return formatMessage(menusText.AlertEmailGroup)
       break;
