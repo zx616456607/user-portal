@@ -64,8 +64,8 @@ class ClusterPlugin extends Component {
         return '#33b867'
       }
       case 'warning': {
-        if (name == 'elasticsearch-logging') {
-          return '#F3575A'
+        if (name == 'elasticsearch-logging-v1') {
+          return '#33b867'
         }
         return '#F3575A'
       }
@@ -73,7 +73,7 @@ class ClusterPlugin extends Component {
         return 'orange'
     }
   }
-  getStatusMessage(status) {
+  getStatusMessage(status, name) {
     switch (status) {
       case 'normal': {
         return '正常'
@@ -85,6 +85,9 @@ class ClusterPlugin extends Component {
         return '不正常'
       }
       case 'warning': {
+        if (name == 'elasticsearch-logging-v1') {
+          return '正常'
+        }
         return '报警'
       }
       case 'stopped': {
@@ -448,7 +451,7 @@ class ClusterPlugin extends Component {
         width:'15%',
         render: (status, row) => {
           return (
-            <div style={{ color: this.getStatusColor(status.message, row.name) }}><i className='fa fa-circle' />&nbsp;&nbsp;{this.getStatusMessage(status.message)}</div>
+            <div style={{ color: this.getStatusColor(status.message, row.name) }}><i className='fa fa-circle' />&nbsp;&nbsp;{this.getStatusMessage(status.message, row.name)}</div>
           )
         }
       },

@@ -215,6 +215,7 @@ class AlarmGroup extends Component {
   handleCancel() {
     this.setState({
       createGroup: false,
+      modifyGroup: false,
     });
   }
   render() {
