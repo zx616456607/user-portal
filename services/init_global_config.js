@@ -78,7 +78,8 @@ exports.initGlobalConfig = function* () {
       logger.info('registry config: ', configDetail.protocol + '://' + configDetail.host + ':' + configDetail.port)
       ConfigArray.Registry='NotEmpty'
     }
-    if (configType == 'cicd') {
+    // Use db settings if env is empty
+    if (configType == 'cicd' && globalConfig.cicdConfig.host == "") {
       let host
       let protocol
       if (devops.host) {
@@ -126,4 +127,8 @@ exports.initGlobalConfig = function* () {
   if (ConfigArray.Rbd!=='NotEmpty'){
       globalConfig.storageConfig=[]
   }
+  logger.info('api-server config: ', globalConfig.tenx_api.host)
+  logger.info('registry config: ', globalConfig.registryConfig.protocol + '://' + globalConfig.registryConfig.host + ':' + globalConfig.registryConfig.port)
+  logger.info('devops config: ', globalConfig.cicdConfig.protocol + '://' + globalConfig.cicdConfig.host)
+  logger.info('mailbox config: ', globalConfig.mail_server.host)
 }

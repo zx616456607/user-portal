@@ -173,7 +173,7 @@ let SetStageFileLink = React.createClass({
     })
   },
   checkPath(rule, value, callback) {
-    if (/^\/app\/?$/.test(value) || /^\/app\/.*$/.test(value)) {
+    if (/^\/app\/?$/.test(value)) {
       return callback('/app 为系统目录，用于拉取项目代码，请填写其他目录')
     }
     callback()
@@ -192,6 +192,7 @@ let SetStageFileLink = React.createClass({
     const nextFileProps = getFieldProps('nextFile', {
       rules: [
         { message: '请输入下一步骤共享目录' },
+        { validator: this.checkPath }
       ],
       initialValue: formatNextFile(config),
     });

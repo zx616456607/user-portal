@@ -349,9 +349,11 @@ let MyComponent = React.createClass({
             <Checkbox onChange={(e) => this.props.changeCheckStatus(item.name, e)} checked={item.checked}/>
           </div>
           <div className='name'>
-            <Link to={`/ci_cd/build_image/tenx_flow_build?${item.flowId}&${flowListState[index].status}`}>
-              <span>{item.name}</span>
-            </Link>
+            <Tooltip placement='topLeft' title={item.name}>
+              <Link to={`/ci_cd/build_image/tenx_flow_build?${item.flowId}&${flowListState[index].status}`}>
+                <span>{item.name}</span>
+              </Link>
+            </Tooltip>
           </div>
           <div className='time'>
             <span className='timeSpan'>

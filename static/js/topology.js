@@ -185,7 +185,7 @@ var renderGroups = function() {
 				eltDiv = $('<div class="window pod ' + phase + '" title="' + value.metadata.name + '" id="pod-' + value.metadata.name +
 					'" style="left: ' + (x + 250) + 'px; top: ' + (y + 160) + 'px"/>');
 				eltDiv.html('<span>' +
-          truncate(value.metadata.name, 10, true) +
+          value.metadata.name +
           (value.metadata.labels.version ? "<br/>" + value.metadata.labels.version : "") + "<br/><br/>" +
           "(" + (value.spec.nodeName ? truncate(value.spec.nodeName, 10) : "None")  +")" +
           '</span>');
