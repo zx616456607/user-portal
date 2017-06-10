@@ -468,7 +468,7 @@
   "ManageMonitor.operationalAudit.InstanceExport": "镜像导出",
   "ManageMonitor.operationalAudit.Snapshot": "快照",
   "ManageMonitor.operationalAudit.InstanceContainerMetrics": "实例容器指标",
-  "ManageMonitor.operationalAudit.  Service": "服务",
+  "ManageMonitor.operationalAudit.Service": "服务",
   "ManageMonitor.operationalAudit.ServiceInstance": "服务实例",
   "ManageMonitor.operationalAudit.ServiceEvent": "服务事件",
   "ManageMonitor.operationalAudit.ServiceLog": "服务日志",
