@@ -37,7 +37,7 @@ class AlarmDetail extends Component {
       strategy: id
     })
     getSettingList(cluster.clusterID, {
-      strategyName: id
+      strategyID: id
     }, true)
   }
   formatStatus(text){
@@ -136,7 +136,7 @@ class AlarmDetail extends Component {
               noti.close()
               noti.success('策略更新成功')
               getSettingList(cluster.clusterID, {
-                strategyName: id
+                strategyID: id
               }, false)
             },
             isAsync: true
@@ -157,7 +157,7 @@ class AlarmDetail extends Component {
               noti.close()
               noti.success('策略更新成功')
               getSettingList(cluster.clusterID, {
-                strategyName: id
+                strategyID: id
               }, false)
             },
             isAsync: true
