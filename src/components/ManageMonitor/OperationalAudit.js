@@ -162,15 +162,15 @@ const menusText = defineMessages({
 	Ignore: {
 		id: 'ManageMonitor.operationalAudit.Ignore',
 		defaultMessage: '忽略',
-	},
+  },
   RollBack: {
-    id: 'ManageMonitor.operationalAudit.RollBack',
-    defaultMessage: '回滚',
-  },
-  Clone: {
-    id: 'ManageMonitor.operationalAudit.Clone',
-    defaultMessage: '克隆',
-  },
+		id: 'ManageMonitor.operationalAudit.RollBack',
+		defaultMessage: '回滚',
+	},
+	Clone: {
+		id: 'ManageMonitor.operationalAudit.Clone',
+		defaultMessage: '克隆',
+	},
   Unknown: {
     id: 'ManageMonitor.operationalAudit.Unknown',
     defaultMessage: '其它',
