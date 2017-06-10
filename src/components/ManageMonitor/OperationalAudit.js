@@ -151,19 +151,19 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.DisablEmail',
     defaultMessage: '禁止发邮件',
   },
-	CreateOrUpdate: {
+  CreateOrUpdate: {
 		id: 'ManageMonitor.operationalAudit.CreateOrUpdate',
 		defaultMessage: '创建或更新',
-	},
-	ToggleEnable: {
+  },
+  ToggleEnable: {
 		id: 'ManageMonitor.operationalAudit.ToggleEnable',
 		defaultMessage: '切换',
-	},
-	Ignore: {
+  },
+  Ignore: {
 		id: 'ManageMonitor.operationalAudit.Ignore',
 		defaultMessage: '忽略',
-	},
-	RollBack: {
+  },
+  RollBack: {
 		id: 'ManageMonitor.operationalAudit.RollBack',
 		defaultMessage: '回滚',
 	},
