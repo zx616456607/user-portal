@@ -421,6 +421,18 @@ let TwoStop = React.createClass({
     form.setFieldsValue({
       cpu,
     });
+    let keyArr = []
+    cpu.forEach(item => {
+      if (item == k) return
+      keyArr = keyArr.concat([`used_data@${item}`, `used_rule@${item}`, `used_name@${item}`])
+    })
+    form.validateFields(keyArr, {force: true,first: false, firstFields: false}, (err) => {
+      if(!err) {
+        this.setState({
+          needClearError: false
+        })
+      }
+    })
     // this.setState({
     //   newselectCpu: 0
     // })
@@ -436,6 +448,7 @@ let TwoStop = React.createClass({
         return
       }
       uuid++;
+      
       // can use data-binding to get
       let cpu = form.getFieldValue('cpu');
       let typeProps = `typeProps_${uuid}`
@@ -501,7 +514,7 @@ let TwoStop = React.createClass({
   },
   usedRule(rule, value, callback, key) {
     if (!value) return callback('请选择运算符')
-    this.valieAllField(key)
+    this.valieAllField(key, 'used_rule')
     if (this.validateIsRepeat(key, value, `used_rule@${key}`)) {
       return callback('告警设置填写重复')
     } else {
@@ -511,7 +524,7 @@ let TwoStop = React.createClass({
   },
   usedName(rule, value, callback, key) {
     if (!value) return callback('请选择类型')
-    this.valieAllField(key)
+    this.valieAllField(key, 'used_name')
     if (this.validateIsRepeat(key, value, `used_name@${key}`)) {
       return callback('告警设置填写重复')
     } else {
@@ -522,13 +535,14 @@ let TwoStop = React.createClass({
   usedData(rule, value, callback, key) {
     if (!value) return callback('请填写数值')
     if (parseInt(value) <= 0) return callback('此数值需大于1')
-    this.valieAllField(key)
-    if (this.validateIsRepeat(key, value, `used_data@${key}`)) {
-      return callback('告警设置填写重复')
-    } else {
-      setTimeout(() => this.clearError(key), 0)
-      return callback()
-    }
+    this.valieAllField(key, 'used_data')
+    return callback()
+    // if (this.validateIsRepeat(key, value, `used_data@${key}`)) {
+    //   return callback('告警设置填写重复')
+    // } else {
+    //   setTimeout(() => this.clearError(key), 0)
+    //   return callback()
+    // }
   },
   clearError(key) {
     const { form } = this.props
@@ -549,7 +563,7 @@ let TwoStop = React.createClass({
       }
     })
   },
-  valieAllField(key) {
+  valieAllField(key, name) {
     if(isUseing) return
     isUseing = true
     const { form } = this.props;
@@ -561,6 +575,11 @@ let TwoStop = React.createClass({
        if(item == key) return
        keyArr = keyArr.concat([`used_data@${item}`, `used_rule@${item}`, `used_name@${item}`])
     })
+    if (name) {
+      keyArr = keyArr.concat([`used_rule@${key}`, `used_data@${key}`, `used_name@${key}`].filter(item => {
+        return item !== `${name}@${key}`
+      }))
+    }
     form.validateFields(keyArr, {force: true,first: false, firstFields: false}, function(err, value) {
       isUseing = false
     })
@@ -569,13 +588,13 @@ let TwoStop = React.createClass({
     const { form } = this.props
     const { getFieldsValue, getFieldValue } = form
     const keyCount = getFieldValue('cpu')
-    let newValue = getFieldsValue([`used_data@${key}`, `used_rule@${key}`, `used_name@${key}`])
+    let newValue = getFieldsValue([`used_rule@${key}`, `used_name@${key}`])
     newValue = this.getObjValueArr(newValue)
     newValue.push(value)
     if (keyCount && keyCount.length > 0) {
       const result = keyCount.some(item => {
         if (item == key) return false
-        let existValue = getFieldsValue([`used_data@${item}`, `used_rule@${item}`, `used_name@${item}`])
+        let existValue = getFieldsValue([`used_rule@${item}`, `used_name@${item}`])
         existValue = this.getObjValueArr(existValue)
         return existValue.every(v => {
           return newValue.indexOf(v) >= 0
@@ -839,7 +858,7 @@ class AlarmModal extends Component {
     }
     if (isEdit) {
       getAlertSetting(cluster.clusterID, {
-        strategy: strategy.strategyName
+        strategyName: strategy.strategyName
       }, {
         success: {
           func: (res) => {
@@ -863,7 +882,7 @@ class AlarmModal extends Component {
       const { isEdit, strategy, getAlertSetting, cluster } = nextProps
       if (isEdit) {
         getAlertSetting(cluster.clusterID, {
-          strategy: strategy.strategyName
+          strategyName: strategy.strategyName
         }, {
           success: {
             func: (res) => {
