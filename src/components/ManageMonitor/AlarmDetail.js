@@ -331,7 +331,7 @@ function mapStateToProps(state, props) {
       })
     } else {
       if(settingList.result && settingList.result.data) {
-        leftSetting = settingList.result.data.strategys[0]
+        leftSetting = settingList.result.data.strategys&&settingList.result.data.strategys[0]
       }
     }
   }

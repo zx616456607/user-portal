@@ -16,7 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { addSvnManaged, getUserInfo } from '../../../actions/cicd_flow'
 import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../common/notification_handler'
-
+import './style/SvnComponent.less'
 const TabPane = Tabs.TabPane
 const FormItem = Form.Item;
 const menusText = defineMessages({
@@ -172,7 +172,7 @@ let SvnComponent = React.createClass({
     const forPassword = getFieldProps('password', {
     });
     return (
-      <div style={{ lineHeight: '100px', paddingLeft: '140px', paddingBottom: '16px' }}>
+      <div id="svnBox">
         <Button type="primary" size="large" onClick={() => this.setModalStaus(true)}>添加 SVN 代码仓库</Button>
         <Modal title="添加 SVN 代码源" wrapClassName="svnModal" visible={this.state.authorizeModal}
           onCancel={() => this.setModalStaus(false)} maskClosable={false}

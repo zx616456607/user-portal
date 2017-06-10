@@ -9,6 +9,7 @@
 import React, { Component } from 'react'
 import { Card, Spin, Icon, Form, Input, Select, Button, Dropdown, Menu, Tooltip, Modal } from 'antd'
 import { connect } from 'react-redux'
+import classNames from 'classnames'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppServiceDetailInfo.less'
 import { formatDate, cpuFormat, memoryFormat } from '../../../common/tools'
@@ -105,10 +106,9 @@ class MyComponent extends Component {
       rowDisableArray
     })
   }
-
   handleSaveEdit(index){
     const { rowDisableArray, dataArray, saveBtnLoadingArray } = this.state
-    const { form, serviceDetail, cluster, editServiceEnv } = this.props
+    const { form, serviceDetail, cluster, editServiceEnv, changeAppEditBtn } = this.props
     const { getFieldValue } = form
     const Notification = new NotificationHandler()
     let name = getFieldValue(`envName${index}`)
@@ -122,10 +122,11 @@ class MyComponent extends Component {
         if(dataArray[index].edit == true){
           break
         }
-        Notification.error('变量名已近存在，请修改！')
+        Notification.error('变量名已经存在，请修改！')
         return
       }
     }
+    changeAppEditBtn(true)
     saveBtnLoadingArray[index].loading = true
     this.setState({
       saveBtnLoadingArray
@@ -385,6 +386,15 @@ MyComponent = connect(mapStateToProp, {
 export default class AppServiceDetailInfo extends Component {
   constructor(props) {
     super(props)
+    this.state={
+      appEditBtn:false
+    }
+  }
+  changeAppEditBtn(flag) {
+    this.setState({appEditBtn: flag})
+  }
+  appModifySave=()=> {
+  
   }
   getMount(container) {
      let ele = []
@@ -536,6 +546,8 @@ export default class AppServiceDetailInfo extends Component {
         </div>
         <div className="environment commonBox">
           <span className="titleSpan">环境变量</span>
+          {/*<div className={classNames("editTip",{'hide' : !this.state.appEditBtn})}>修改尚未更新，请点击"应用修改"使之生效</div>*/}
+          {/*<Button size="large" type="primary" disabled={this.state.appEditBtn ? false : true} onClick={this.appModifySave}>应用修改</Button>*/}
           <div className="titleBox">
             <div className="commonTitle">
               变量名
@@ -551,6 +563,7 @@ export default class AppServiceDetailInfo extends Component {
           <MyComponent
             serviceDetail={serviceDetail}
             cluster={cluster}
+            changeAppEditBtn={this.changeAppEditBtn.bind(this)}
           />
         </div>
         <div className="storage commonBox">
