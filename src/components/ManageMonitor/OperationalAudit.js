@@ -162,6 +162,14 @@ const menusText = defineMessages({
 	Ignore: {
 		id: 'ManageMonitor.operationalAudit.Ignore',
 		defaultMessage: '忽略',
+  },
+  RollBack: {
+		id: 'ManageMonitor.operationalAudit.RollBack',
+		defaultMessage: '回滚',
+	},
+	Clone: {
+		id: 'ManageMonitor.operationalAudit.Clone',
+		defaultMessage: '克隆',
 	},
   Unknown: {
     id: 'ManageMonitor.operationalAudit.Unknown',
@@ -195,14 +203,14 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.InstanceMetrics',
     defaultMessage: '实例指标',
   },
-	InstanceExport: {
-		id: 'ManageMonitor.operationalAudit.InstanceExport',
-		defaultMessage: '镜像导出',
-	},
-	Snapshot: {
-		id: 'ManageMonitor.operationalAudit.Snapshot',
-		defaultMessage: '快照',
-	},
+  InstanceExport: {
+    id: 'ManageMonitor.operationalAudit.InstanceExport',
+    defaultMessage: '镜像导出',
+  },
+  Snapshot: {
+    id: 'ManageMonitor.operationalAudit.Snapshot',
+    defaultMessage: '快照',
+  },
   InstanceContainerMetrics: {
     id: 'ManageMonitor.operationalAudit.InstanceContainerMetrics',
     defaultMessage: '实例容器指标',
@@ -550,6 +558,14 @@ function returnOperationList(scope) {
     { // 18
       value: '24',
       label: (<FormattedMessage {...menusText.Ignore} />)
+    },
+    { // 18
+      value: '25',
+      label: (<FormattedMessage {...menusText.RollBack} />)
+    },
+    { // 18
+      value: '26',
+      label: (<FormattedMessage {...menusText.Clone} />)
     }
   ];
   return operationalList;
@@ -727,6 +743,9 @@ function resourceFormat(resourceType, scope) {
     case '46':
       return formatMessage(menusText.CDNotification)
       break;
+	  case '47':
+		  return formatMessage(menusText.InstanceExport)
+		  break;
     case '48':
       return formatMessage(menusText.AlertEmailGroup)
       break;
@@ -820,6 +839,12 @@ function operationalFormat(operationalType, scope) {
       break;
     case '24':
       return formatMessage(menusText.Ignore)
+      break;
+    case '25':
+      return formatMessage(menusText.RollBack)
+      break;
+    case '26':
+      return formatMessage(menusText.Clone)
       break;
   }
 }
@@ -1311,6 +1336,10 @@ class OperationalAudit extends Component {
         //CDNotifications
         showOperationalList.push(operationalList[3]);
         break;
+      case '47':
+        //CDNotifications
+        showOperationalList.push([]);
+        break;
       case '48':
         //AlertEmailGroup
         showOperationalList.push(operationalList[0]);
@@ -1562,9 +1591,9 @@ class OperationalAudit extends Component {
           }
         ]
       },{
-				    value: '47',
-				    label: formatMessage(menusText.InstanceExport),
-		    }, {
+            value: '47',
+            label: formatMessage(menusText.InstanceExport),
+        }, {
         value: '48',
         label: formatMessage(menusText.Alert),
         children: [
@@ -1583,9 +1612,9 @@ class OperationalAudit extends Component {
           }
         ]
       }, {
-				    value: '52',
-				    label: formatMessage(menusText.Snapshot),
-		    },{
+            value: '52',
+            label: formatMessage(menusText.Snapshot),
+         },{
         value: null,
         label: formatMessage(menusText.allResource)
       }];
