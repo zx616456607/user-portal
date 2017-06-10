@@ -21,6 +21,7 @@
       font-size: 16px;
       border-left: 5px solid #00A1EA;
       color: #333;
+      margin-bottom: 10px;
     }
     .titleBox{
       margin-top: 30px;
@@ -73,6 +74,31 @@
   }
   .environment{
     border-bottom: 0px;
+    position: relative;
+    &>button{
+      margin-left: 18px;
+    }
+    .editTip{
+      position: absolute;
+      top: 5px;
+      left: 0;
+      padding: 10px 20px;
+      -webkit-border-radius: 5px;
+      -moz-border-radius: 5px;
+      border-radius: 5px;
+      background-color: rgb(255, 247, 230);
+      &:after{
+        content:'';
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-top: 10px solid rgb(255, 247, 230);
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        bottom: -6px;
+        left: 50px;
+      }
+    }
     .DetailInfo__MyComponent{
       //padding-left: 20px;
       .noData{

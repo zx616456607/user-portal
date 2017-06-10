@@ -24,10 +24,10 @@ export default class Storage extends Component {
 
   static defaultProps = {
     storageResource: {
-      select: 0, // GB
-      allocated: 0, // GB
-      unallocated: 0, // GB
-      total: 0 // GB
+      select: 0, // MB
+      allocated: 0, // MB
+      unallocated: 0, // MB
+      total: 0 // MB
     }
   }
 
@@ -36,7 +36,7 @@ export default class Storage extends Component {
   }
 
   getPercentage(allocated, total) {
-    const percent = Math.ceil(allocated / total * 1000) / 10
+    const percent = Math.ceil(allocated * 100 / total)
     if (isNaN(percent)) {
       return 0
     }
@@ -50,6 +50,7 @@ export default class Storage extends Component {
     } = this.props
     const { select, allocated, unallocated, total } = storageResource || {}
     const allocatedPercent = this.getPercentage(allocated, total)
+
     return (
       <Modal
         visible={visible}
