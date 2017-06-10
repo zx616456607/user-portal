@@ -97,7 +97,7 @@ exports.sendInvitation = function* () {
 	const method = 'alert.sendInvitation'
 	const loginUser = this.session.loginUser
 	const spi = apiFactory.getSpi(loginUser)
-	const result = yield spi.alerts.createBy(['invitations'], null, this.request.body)
+	const result = yield spi.email.createBy(['invitations'], null, this.request.body)
 	// get email addr and code, then send out the code
 	const initConfig = yield initGlobalConfig.initGlobalConfig()
 	yield result.data.emails.map(function (item) {
