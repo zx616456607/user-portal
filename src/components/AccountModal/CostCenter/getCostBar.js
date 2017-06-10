@@ -52,7 +52,7 @@ export function getCostBar (costArr, summaryData, standard, transformDate){
         type : 'shadow'
       },
       formatter: standard ? (transformDate() + '-{b}<br/>消费 ￥{c}') :
-                            (transformDate() + '-{b}<br/>消费 {c}T币'),
+                            (transformDate() + '-{b}<br/>消费 {c} T'),
       textStyle: {
         color: '#46b2fa',
         fontSize: 12,

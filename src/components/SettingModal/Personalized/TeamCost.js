@@ -54,9 +54,9 @@ export default class TeamCost extends Component{
         data: [{name:'余额'}, {name:'消费'}],
         formatter: function (name) {
           if(name === '余额'){
-            return name + ': ' + 70 + 'T币'
+            return name + ': ' + 70 + ' T'
           } else {
-            return name + ': ' + 30 + 'T币'
+            return name + ': ' + 30 + ' T'
           }
         },
         textStyle: {
