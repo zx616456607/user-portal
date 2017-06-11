@@ -24,7 +24,10 @@ import {
   getTasklogs,
 } from '../../../../actions/harbor'
 import { formatDate, formatDuration } from  '../../../../common/tools'
+import { ecma48SgrEscape } from '../../../../common/ecma48_sgr_escape'
 import NotificationHandler from '../../../../common/notification_handler'
+
+const DATE_REG = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{9})?(Z|(\+\d{2}:\d{2}))\b/
 
 let LogsTemplate = React.createClass({
   getInitialState() {
@@ -34,23 +37,28 @@ let LogsTemplate = React.createClass({
   },
   formatLogDetails() {
     const { imageUpdateLogs } = this.props
-    return <div style={{color:"#ffffff"}}>待实现。。。</div>
-    if(!imageUpdateLogs || !imageUpdateLogs.logs){
+    let { isFetching, logs } = imageUpdateLogs || {}
+    if (isFetching) {
       return <div style={{textAlign:'center'}}><Spin /></div>
     }
-    console.log('LogFormatter()=',LogFormatter(imageUpdateLogs.logs))
-    return
-    let arr = []
-    let log = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-    for(let i=0;i<100;i++){
-      let item = <div className='logDetail' key={'logs' + i}>
-        <span className='time'>名字 </span>
-        <span className='info'>时间 </span>
-        <span className='logs'>{log}</span>
-      </div>
-      arr.push(item)
-    }
-    return arr
+    const logsArray = []
+    logs = logs.split('\n')
+    logs.map(log => {
+      let logDateArray = log.match(DATE_REG)
+      let logDate
+      if (logDateArray && logDateArray[0]) {
+        logDate = logDateArray[0]
+        log = log.replace(logDate, '')
+      }
+      logsArray.push(
+        <div>
+          {logDate && <font color="orange">[{formatDate(logDate)}]</font>}
+          <span>{log}</span>
+        </div>
+      )
+    })
+    return logsArray
+    // return ecma48SgrEscape(logs)
   },
   handleExpand(){
     this.props.scope.setState({
@@ -67,9 +75,9 @@ let LogsTemplate = React.createClass({
           : <i className="fa fa-expand" aria-hidden="true" onClick={this.handleExpand}></i>
         }
       </div>
-      <div className='logsbody'>
+      <pre className='logsbody'>
         {this.formatLogDetails()}
-      </div>
+      </pre>
     </div>)
   }
 })
@@ -139,7 +147,7 @@ class ImageUpdate extends Component {
   componentWillMount() {
     this.handleloadImageUpdateList()
   }
-  
+
   componentDidMount() {
     //bind 'esc' key down
     const scope = this;
@@ -444,7 +452,7 @@ class ImageUpdate extends Component {
     }
     this.validationTargetStore(false, values, editBody, id)
   }
-  
+
   handleeditImageUpdateRules(values){
     const { registry, rulesData, detail, targets } = this.props
     const { currentKey } = this.state
@@ -718,7 +726,7 @@ class ImageUpdate extends Component {
       return
     }
   }
-  
+
   handleConfirmSwitchRules(){
     const { switchTitle, currentKey } = this.state
     this.setState({
@@ -988,7 +996,7 @@ class ImageUpdate extends Component {
         <div className='rules'>
           <div className='header'>
             <Button type="primary" size='large' icon="plus" className='buttonadd' onClick={this.handleAddRules}>添加规则</Button>
-            <span className='searchBox'>
+            {/*<span className='searchBox'>
               <Input size="large" placeholder='搜索' className='inputStandrd' onPressEnter={this.handleSearchRules}
                 onChange={this.handleInputValue}/>
               <Icon type="search" className='iconSearch' onClick={this.handleSearchRules}/>
@@ -997,21 +1005,19 @@ class ImageUpdate extends Component {
               rulesData.length
               ? <span className='totleNum'>共计：{rulesData.length} 条</span>
               : null
-            }
+            }*/}
           </div>
           <div className="body">
             <Table
               columns={rulesColumn}
               dataSource={rulesData}
-              pagination={{ simple: true }}
-
-              >
-              </Table>
+              pagination={false}
+            />
           </div>
         </div>
         <div className='updataTask'>
           <div className='title'>同步任务</div>
-          <div className="header">
+          {/*<div className="header">
             <span className="searchBox">
               <Input size="large" placeholder='搜索' className='inputStandrd' onPressEnter={this.handleSearchRules}
                 onChange={this.handleInputValue}/>
@@ -1022,14 +1028,13 @@ class ImageUpdate extends Component {
               ? <span className='totleNum'>共计：{taskUpdataData.length} 条</span>
               : null
             }
-          </div>
+          </div>*/}
           <div className="body">
             <Table
               columns={updataTaskColumn}
               dataSource={taskUpdataData}
-              pagination={{ simple: true }}
-              >
-              </Table>
+              pagination={false}
+            />
           </div>
         </div>
 
@@ -1159,7 +1164,7 @@ class ImageUpdate extends Component {
           onCancel={() => this.setState({logsVisible: false})}
           footer={[]}
           maskClosable={true}
-          width="570px"
+          width="750px"
           wrapClassName="taskUpdataLogsModal"
         >
           <LogsTemplate scope={scope} imageUpdateLogs={imageUpdateLogs}/>
