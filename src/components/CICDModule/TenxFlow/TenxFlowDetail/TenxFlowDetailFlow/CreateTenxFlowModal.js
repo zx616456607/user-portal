@@ -1143,7 +1143,7 @@ let CreateTenxFlowModal = React.createClass({
     });
     const harborProjectProps = getFieldProps('harborProjectName', {
       rules: [
-        { message: '请选择仓库组', required: true },
+        { message: '请选择仓库组', required: false },
       ],
     });
     const imageNameProps = getFieldProps('imageName', {
