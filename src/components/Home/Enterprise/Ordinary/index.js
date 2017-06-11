@@ -391,7 +391,6 @@ class Ordinary extends Component {
 
     //volume
     let volumeAllocated = parseFloat(volumeSummary.allocated)
-    let volumeUsedPrecent = Math.ceil(volumeAllocated / volumeCapacity * 100)
     if (volumeCapacity.toLowerCase().indexOf('g') > 0) {
       volumeCapacity = parseFloat(volumeCapacity).toFixed(2)
     } else if (volumeCapacity.toLowerCase().indexOf('t') > 0) {
@@ -399,6 +398,7 @@ class Ordinary extends Component {
     } else {
       volumeCapacity = (parseFloat(volumeCapacity) / 1024).toFixed(2)
     }
+    let volumeUsedPrecent = Math.ceil(volumeAllocated / (volumeCapacity * 1024) * 100)
     let volumeUsed = (volumeAllocated / 1024).toFixed(2)
 
     // pod number
