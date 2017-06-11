@@ -78,7 +78,7 @@ class CodeRepo extends Component {
     this.setState({imageDetailModalShow:false})
   }
   render() {
-    const { repos } = this.props
+    const { repos, projectDetail } = this.props
     let { isFetching, list, server, total } = repos || {}
     list = list || []
     server = server || ''
@@ -188,11 +188,11 @@ class CodeRepo extends Component {
           </pre>
           <p>2.&nbsp;&nbsp; 然后，对本地需要 push 的 image 进行标记，比如：</p>
           <pre className="codeSpan">
-            {`sudo docker tag tenxcloud/ubuntu:latest ${this.props.server}/<username>/<image name>:<tag>`}
+            {`sudo docker tag ubuntu:latest ${server}/${projectDetail.name}/<image name>:<tag>`}
           </pre>
           <p>3.&nbsp;&nbsp;最后在命令行输入如下命令，就可以 push 这个 image 到镜像仓库中了</p>
           <pre className="codeSpan">
-            {`sudo docker push ${server}/<username>/<image name>:<tag>`}
+            {`sudo docker push ${server}/${projectDetail.name}/<image name>:<tag>`}
           </pre>
         </Modal>
         <Modal title="下载镜像" className="uploadImageModal" visible={this.state.downloadModalVisible} width="800px"
@@ -201,11 +201,11 @@ class CodeRepo extends Component {
           <p>在本地 docker 环境中输入以下命令，就可以 pull 一个镜像到本地了</p>
           <p><i className="fa fa-exclamation-triangle"></i>&nbsp;私有镜像需要先 login 后才能拉取</p>
           <pre className="codeSpan">
-            {`sudo docker pull ${server}/<username>/<image name>:<tag>`}
+            {`sudo docker pull ${server}/${projectDetail.name}/<image name>:<tag>`}
           </pre>
           <p><i className="fa fa-exclamation-triangle"></i>&nbsp;为了在本地方便使用，下载后可以修改tag为短标签，比如：</p>
           <pre className="codeSpan">
-            sudo docker tag  {server}/tenxcloud/hello-world:latest tenxcloud/hello-world:latest
+            sudo docker tag  {server}/{projectDetail.name}/hello-world:latest {projectDetail.name}/hello-world:latest
             </pre>
         </Modal>
         <Modal
