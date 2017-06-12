@@ -88,6 +88,7 @@ class CodeRepo extends Component {
         title: '镜像名',
         dataIndex: 'name',
         key: 'name',
+        width:'33%',
         render: (text, row) => {
           return (
             <div className="imageList">
@@ -108,6 +109,7 @@ class CodeRepo extends Component {
         title: '地址',
         dataIndex: 'address',
         key: 'address',
+        width:'35%',
         render: (text, row) => {
           return (
             <div className="imgurl">镜像地址：{server}/{row.name}</div>
@@ -117,6 +119,7 @@ class CodeRepo extends Component {
         title: '下载',
         dataIndex: camelize('pull_count'),
         key: camelize('pull_count'),
+        width:'14%',
         render: text => {
           return (
             <div>下载次数：{text}</div>
@@ -126,6 +129,7 @@ class CodeRepo extends Component {
         title: '部署',
         dataIndex: 'icon',
         key: 'icon',
+        width:'120px',
         render: (text, row) => {
           const dropdown = (
             <Menu onClick={() => this.setState({ delModal: true, imageName: row.name })}

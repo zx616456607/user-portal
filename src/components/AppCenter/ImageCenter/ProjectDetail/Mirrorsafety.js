@@ -215,7 +215,6 @@ class MirrorSafety extends Component {
 
   render() {
     const { imgTag, imageName, envEdition, imageType } = this.props
-    console.log('imageTag',imgTag)
     const { TabsDisabled, LayerCommandParameters } = this.state
     const standard = require('../../../../../configs/constants').STANDARD_MODE
     const mode = require('../../../../../configs/model').mode
