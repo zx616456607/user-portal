@@ -505,13 +505,10 @@ class TenxFlowDetailFlowCard extends Component {
       disabled = true
     }
     const btn = currentStatusBtn(lastBuildStatus)
-    if (disabled) {
-
-    }
-    if (lastBuildStatus && lastBuildStatus.status === 2) {
+    if ((lastBuildStatus && lastBuildStatus.status === 2) || project.repoType === 'svn') {
       return (
         <Button size='large' type='primary' className='startBtn'
-          onClick={this.buildFlow.bind(this, id, lastBuildStatus, name)}>
+          onClick={this.buildFlow.bind(this, id, lastBuildStatus, name, null, null)}>
           {btn}
         </Button>
       )
@@ -524,10 +521,14 @@ class TenxFlowDetailFlowCard extends Component {
     )
     if (disabled) {
       targetElement = (
-        <Tooltip title="子任务依赖前面任务的输出，不能单独执行" placement="left"><Button size='large' type='primary' className='startBtn'
-          onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId)} disabled={disabled}>
-          {btn}
-        </Button></Tooltip>
+        <Tooltip title="子任务依赖前面任务的输出，不能单独执行" placement="left">
+          <Button size='large' type='primary' className='startBtn'
+            onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId)}
+            disabled={disabled}
+          >
+            {btn}
+          </Button>
+        </Tooltip>
       )
     }
     const tabs = []
