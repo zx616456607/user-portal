@@ -877,6 +877,9 @@ class AlarmSetting extends Component {
   }
   createStrategy(){
     this.setState({alarmModal: true, isEdit: false})
+    setTimeout(() => {
+      document.getElementById('name').focus()
+    }, 100)
   }
   handCelcan() {
     this.setState({
