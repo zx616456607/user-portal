@@ -532,9 +532,11 @@ export function getResourceByMemory(memory, DIYMemory, DIYCPU) {
       break
     case RESOURCES_DIY:
       memoryShow = Math.ceil(DIYMemory / 1024 * 100) / 100
+      memory = Math.ceil(DIYMemory) + 'Mi'
       cpuShow = DIYCPU
       cpu = DIYCPU
       config = RESOURCES_DIY
+      break
     default:
       break
   }

@@ -140,8 +140,7 @@ const Normal = React.createClass({
   },
   handledDropDownSetvalues(arr){
     const { form } = this.props
-    const { summary } = this.state
-    form.setFieldsValue({'bindLabel': summary})
+    form.setFieldsValue({'bindLabel': arr})
   },
   handleLabelTemplate(){
     const { labels, form, nodes } = this.props
@@ -158,7 +157,6 @@ const Normal = React.createClass({
         labels={labels}
         footer={false}
         scope={scope}
-        appcallback={this.handledDropDownSetvalues}
       />
       <div className='tips'>
         满足条件的节点：
@@ -176,7 +174,7 @@ const Normal = React.createClass({
       {
         this.state.summary.length > 0
         ? <div className='labelcontainer'>
-          <Form.Item {...bindLabelProps}>
+          <Form.Item >
             <div>{ this.formTagContainer() }</div>
           </Form.Item>
         </div>

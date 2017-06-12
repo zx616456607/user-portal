@@ -37,7 +37,7 @@ class AlarmDetail extends Component {
       strategy: id
     })
     getSettingList(cluster.clusterID, {
-      strategyName: id
+      strategyID: id
     }, true)
   }
   formatStatus(text){
@@ -136,7 +136,7 @@ class AlarmDetail extends Component {
               noti.close()
               noti.success('策略更新成功')
               getSettingList(cluster.clusterID, {
-                strategyName: id
+                strategyID: id
               }, false)
             },
             isAsync: true
@@ -157,7 +157,7 @@ class AlarmDetail extends Component {
               noti.close()
               noti.success('策略更新成功')
               getSettingList(cluster.clusterID, {
-                strategyName: id
+                strategyID: id
               }, false)
             },
             isAsync: true
@@ -178,7 +178,7 @@ class AlarmDetail extends Component {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
     let settingData = this.props.setting
-    let { leftSetting } = this.props
+    let { leftSetting, location} = this.props
     if(leftSetting.isEmptyObject) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
@@ -209,7 +209,7 @@ class AlarmDetail extends Component {
         key:'recordCount',
       },
     ];
-    const strategyName = this.props.params.id
+    const strategyName = location.query.name
 
     const _this = this
     const rowSelection = {
@@ -307,9 +307,9 @@ function mapStateToProps(state, props) {
     isFetching: false,
     result: {
       data: {
-        strategys: []
-      },
-      total: 0
+        strategys: [],
+        total: 0
+      }
     }
   }
   let leftSetting = {
@@ -321,17 +321,19 @@ function mapStateToProps(state, props) {
   if(settingList.isFetching) {
     isFetching = settingList.isFetching
   } else {
-    if(settingList.result && settingList.result.data.total > 1) {
+    if(settingList.result && settingList.result.data.strategys) {
       settingList.result.data.strategys.some(item => {
-        if(item.strategyName == props.params.id) {
+        if(item.strategyID == props.params.id) {
           leftSetting = item
           return true
         }
         return false
       })
     } else {
-      if(settingList.result && settingList.result.data) {
+      if(settingList.result && settingList.result.data && settingList.result.data.strategys ) {
         leftSetting = settingList.result.data.strategys[0]
+      } else {
+        leftSetting = {}
       }
     }
   }

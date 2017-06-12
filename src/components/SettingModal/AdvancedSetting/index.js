@@ -105,7 +105,9 @@ class AdvancedSetting extends Component {
           TagCheckbox: true,
         })
       default:
-        return
+        return this.setState({
+          swicthChecked: false,
+        })
     }
   }
 
@@ -267,8 +269,7 @@ class AdvancedSetting extends Component {
             即创建服务时，可以将服务对应容器实例，固定在节点或者某些『标签』的节点上来调度
           </div>
           {
-            listNodes || listNodes == 0
-              ? <div>
+            <div>
               <div className='contentbodycontainers'>
             <span>
               {
@@ -294,7 +295,6 @@ class AdvancedSetting extends Component {
                   : <div></div>
               }
             </div>
-              : <div className='nodata'><Spin></Spin></div>
           }
         </div>
       </div>

@@ -334,7 +334,7 @@ let MyComponent = React.createClass({
           </div>
           <div className="lists">
             <span className="keys">内存</span>
-            <Progress percent={ data.memory * 100 } strokeWidth={8} format={ percent => percent.toFixed(2) + '%'} status={ data.memory * 100 > 80 ? 'exception' : ''} className="progress"/>
+            <Progress percent={ data.memory[2] * 100 } strokeWidth={8} format={ () =>  parseInt(data.memory[1]/(1024*1024)) + 'MB'}   status={ data.memory[2]*100 > 80 ? 'exception' : ''} className="progress"/>
           </div>
           <div className="lists">
             <span className="keys">流量</span>
@@ -385,7 +385,7 @@ let MyComponent = React.createClass({
         return (
             [<tr key={`list${index}`}>
              <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-              <td onClick={(e)=> this.tableListMore(index, e)}><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyName)}`}>{list.strategyName}</Link></td>
+              <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-down" /><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
               <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.targetName}</td>
               <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
@@ -406,7 +406,7 @@ let MyComponent = React.createClass({
       return (
         <tr key={`list${index}`}>
             <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-            <td onClick={(e)=> this.tableListMore(index, e)}><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyName)}`}>{list.strategyName}</Link></td>
+            <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-right" /><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
             <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.targetName}</td>
             <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
@@ -513,10 +513,18 @@ class AlarmSetting extends Component {
     })
   }
   componentWillReceiveProps(nextProps) {
-    if(this.props.space.spaceName !== nextProps.space.spaceName){
-      this.refreshPage()
+    const { getSettingList } = this.props
+    let preSpaceName = this.props.space.spaceName;
+    let nextSpaceName = nextProps.space.spaceName;
+    let preClusterID = this.props.clusterID;
+    let nextClusterID = nextProps.clusterID;
+    
+    if(preSpaceName !== nextSpaceName || preClusterID !== nextClusterID){
+      getSettingList(nextClusterID, {
+        from: DEFAULT_PAGE - 1,
+        size: DEFAULT_PAGE_SIZE
+      })
     }
-  
     if(this.state.needUpdate) {
       this.setState({
         data: nextProps.setting

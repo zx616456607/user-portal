@@ -10,6 +10,7 @@
 const apiFactory = require('../services/api_factory')
 const email = require('../utils/email')
 const logger = require('../utils/logger.js').getLogger('alert')
+const initGlobalConfig = require('../services/init_global_config')
 const co = require('co')
 
 exports.getRecordFilters = function* () {
@@ -93,31 +94,16 @@ exports.batchDeleteNotifyGroups = function* () {
 }
 
 exports.sendInvitation = function* () {
-  const method = 'alert.sendInvitation'
-  const loginUser = this.session.loginUser
-  const spi = apiFactory.getSpi(loginUser)
-  const result = yield spi.email.createBy(['invitations'], null, this.request.body)
-  // get email addr and code, then send out the code
-  var self = this
-  var index = 0
-  yield result.data.emails.map(function (item) {
-    return email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code)
-  })
-  // yield new Promise(function (resolve, reject) {
-  //   result.data.emails.map(function (item) {
-  //     co(function* () {
-  //       yield email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code)
-  //       index++
-  //       if (index == result.data.emails.length) {
-  //         resolve()
-  //       }
-  //     }).catch(function (err) {
-  //       logger.error(method, "Failed to send email: " + JSON.stringify(err))
-  //       reject(err)
-  //     })
-  //   })
-  // })
-  this.body = {}
+	const method = 'alert.sendInvitation'
+	const loginUser = this.session.loginUser
+	const spi = apiFactory.getSpi(loginUser)
+	const result = yield spi.email.createBy(['invitations'], null, this.request.body)
+	// get email addr and code, then send out the code
+	const initConfig = yield initGlobalConfig.initGlobalConfig()
+	yield result.data.emails.map(function (item) {
+		return email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code,globalConfig.mail_server)
+	})
+	this.body = {}
 }
 
 exports.acceptInvitation = function* () {
@@ -256,7 +242,7 @@ exports.getSettingList = function* () {
 
 exports.getSettingListfromserviceorapp = function* () {
   const cluster = this.params.cluster
-  const api = apiFactory.getApi(this.session.loginUser)
+  const api = apiFactory.getK8sApi(this.session.loginUser)
   const queryBody = this.query
   const body = yield  api.getBy([cluster, 'alerts/group-strategies'],queryBody)
   this.body = body
@@ -425,11 +411,16 @@ exports.getTargetInstant = function* () {
       throw err
     }
   }
-  const memory = parseFloat(results[1].data[name] / totalMemoryByte).toFixed(4)
+  const memory = [
+    results[1].data[name],
+    totalMemoryByte,
+    parseFloat(results[1].data[name] / totalMemoryByte).toFixed(4)
+  ]
+  
   this.body = {
     [strategyName]: {
       cpus: results[0].data[name],
-      memory: isNaN(memory) ? 0 : memory,
+      memory: memory,
       tx_rate: results[2].data[name],
       rx_rate: results[3].data[name]
     }

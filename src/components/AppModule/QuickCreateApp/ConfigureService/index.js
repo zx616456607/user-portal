@@ -344,7 +344,7 @@ let ConfigureService = React.createClass({
     const {
       form, imageTags, currentFields,
       standardFlag, loadFreeVolume, createStorage,
-      current, id, allFields
+      current, id, allFields, location
     } = this.props
     const allFieldsKeys = Object.keys(allFields) || []
     const { imageConfigs } = this.state
@@ -370,6 +370,9 @@ let ConfigureService = React.createClass({
       rules: [
         { required: true }
       ],
+      onChange: (tag) => {
+        this.loadImageConfig(location.query.other, tag)
+      }
     })
     const formItemLayout = {
       labelCol: { span: 4 },

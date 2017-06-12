@@ -230,11 +230,17 @@ const MyComponent = React.createClass({
           </div>
           <div className='action'>
 
-            <Dropdown.Button overlay={dropdown} type='ghost' onClick={() => this.notActive(item.id)} >
-              <Icon type='delete' />
-              <FormattedMessage {...menusText.releaseActivation} />
-            </Dropdown.Button>
-
+            {item.webhookId || item.webhookUrl ?
+              <Dropdown.Button overlay={dropdown} type='ghost' onClick={() => this.notActive(item.id)} >
+                <Icon type='delete' />
+                <FormattedMessage {...menusText.releaseActivation} />
+              </Dropdown.Button>
+            :
+              <Button style={{width:'120px'}} overlay={dropdown} type='ghost' onClick={() => this.notActive(item.id)} >
+                <Icon type='delete' />
+                <FormattedMessage {...menusText.releaseActivation} />
+              </Button>
+            }
 
           </div>
         </div>
@@ -405,7 +411,7 @@ class CodeStore extends Component {
         <div id='CodeStore' key='CodeStore'>
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
           <div className='operaBox'>
-            <Link to="/ci_cd/coderepo/repos">
+            <Link to="/ci_cd/coderepo">
               <Button className='createBtn' size='large' type='primary'>
                 <i className='fa fa-plus' />&nbsp;
               <FormattedMessage {...menusText.linkCode} />

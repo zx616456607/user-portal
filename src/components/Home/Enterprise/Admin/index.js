@@ -19,7 +19,7 @@ function getOption(cost, rest) {
   return {
     title: {
       show: false,
-      text: '余额：'+rest+'T币\n\n消费：'+cost+'T币',
+      text: '余额：'+rest+' T\n\n消费：'+cost+' T',
       x:'center',
       top: '65%',
       textStyle:{
@@ -44,9 +44,9 @@ function getOption(cost, rest) {
       data:['余额','消费'],
       formatter: function (name) {
         if(name === '余额'){
-          return name + '：' + rest + 'T币'
+          return name + '：' + rest + ' T'
         } else if (name === '消费') {
-          return name + '：' + cost + 'T币'
+          return name + '：' + cost + ' T'
         }
       },
       textStyle: {
@@ -124,10 +124,6 @@ class Admin extends Component{
   componentDidMount(){
     const { loadTeamInfo } = this.props
     loadTeamInfo()
-  }
-  componentWillReceiveProps(nextProps) {
-    console.log('======')
-    console.log(nextProps)
   }
   render(){
     const { spaceName } = this.props

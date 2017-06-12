@@ -44,7 +44,7 @@ let MyComponent = React.createClass({
     const canCreate = this.props.canCreate
     let title = ''
     if (!canCreate) {
-      title = '尚未部署分布式存储，暂不能创建（如需帮助，请查看文档或通过右下角工单联系我们）'
+      title = '尚未部署分布式存储，暂不能创建'
     }
     if (isFetching) {
       return (
@@ -191,7 +191,7 @@ class RedisDatabase extends Component {
     let canCreate = true
     if (!storage_type || storage_type.indexOf('rbd') < 0) canCreate = false
     if(!canCreate) {
-      title = '尚未部署分布式存储，暂不能创建（如需帮助，请查看文档或通过右下角工单联系我们）'
+      title = '尚未部署分布式存储，暂不能创建'
     }
     return (
       <QueueAnim id='mysqlDatabase' type='right'>
