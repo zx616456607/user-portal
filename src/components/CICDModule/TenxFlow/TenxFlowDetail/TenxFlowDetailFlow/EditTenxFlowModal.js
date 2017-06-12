@@ -1006,10 +1006,11 @@ let EditTenxFlowModal = React.createClass({
     })
   },
   getOtherImage() {
-    if(!this.props.otherImage ||  this.props.otherImage.length <= 0){
+    const { otherImage } = this.props
+    if(!otherImage || !Array.isArray(otherImage)){
       return []
     }
-    return this.props.otherImage.map(item => {
+    return otherImage.map(item => {
       return <Option key={item.id} value={item.id}>{item.title}</Option>
     })
   },

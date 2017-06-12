@@ -878,7 +878,11 @@ let CreateTenxFlowModal = React.createClass({
     scope.onSetup(scope.state.socket, buildingList)
   },
   getOtherImage() {
-    return this.props.otherImage.map(item => {
+    const { otherImage } = this.props
+    if(!otherImage || !Array.isArray(otherImage)){
+      return []
+    }
+    return otherImage.map(item => {
       return <Option value={item.id}>{item.title}</Option>
     })
   },
