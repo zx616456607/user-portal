@@ -14,19 +14,23 @@ import { connect } from 'react-redux'
 import { Modal, Tabs, Menu, Dropdown, Table, Icon, Button, Card, Input } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import { camelize } from 'humps'
-import { loadProjectRepos } from '../../../../actions/harbor'
+import { loadProjectRepos, deleteRepo } from '../../../../actions/harbor'
+import NotificationHandler from '../../../../common/notification_handler'
 import '../style/CodeRepo.less'
 import ProjectDetail from '../ProjectDetail'
+
+const notification = new NotificationHandler()
 
 class CodeRepo extends Component {
   constructor(props) {
     super()
-    this.closeImageDetailModal= this.closeImageDetailModal.bind(this)
     this.state = {
       downloadModalVisible: false,
       uploadModalVisible: false,
       imageDetailModalShow: false,
       searchInput: '',
+      deleteRepoVisible: false,
+      selectedRepo: '',
     }
     this.DEFAULT_QUERY = {
       page: 1,
@@ -34,6 +38,8 @@ class CodeRepo extends Component {
       project_id: props.params.id,
       detail: 1,
     }
+    this.closeImageDetailModal= this.closeImageDetailModal.bind(this)
+    this.deleteRepoOk= this.deleteRepoOk.bind(this)
     this.loadRepos = this.loadRepos.bind(this)
     this.searchProjects = this.searchProjects.bind(this)
   }
@@ -55,6 +61,36 @@ class CodeRepo extends Component {
     loadProjectRepos(registry, Object.assign({}, this.DEFAULT_QUERY, query))
   }
 
+  deleteRepoOk() {
+    const { deleteRepo } = this.props
+    const { selectedRepo } = this.state
+    const doSuccess = () => {
+      notification.success(`镜像 ${selectedRepo} 删除成功`)
+      this.setState({
+        deleteRepoVisible: false,
+      })
+      this.loadRepos()
+    }
+    deleteRepo(this.DEFAULT_QUERY, selectedRepo, {
+      success: {
+        func: () => {
+          doSuccess()
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: err => {
+          const { statusCode } = err
+          if (statusCode === 404) {
+            doSuccess()
+            return
+          }
+          notification.error(`镜像删除失败`)
+        },
+      }
+    })
+  }
+
   searchProjects() {
     const { registry } = this.props
     this.loadRepos({ q: this.state.searchInput })
@@ -67,6 +103,7 @@ class CodeRepo extends Component {
   showDownload(visible) {
     this.setState({downloadModalVisible:visible})
   }
+
   showImageDetail (item) {
     //this function for user select image and show the image detail info
     this.setState({
@@ -74,9 +111,11 @@ class CodeRepo extends Component {
       currentImage: item
     });
   }
+
   closeImageDetailModal(){
     this.setState({imageDetailModalShow:false})
   }
+
   render() {
     const { repos, projectDetail } = this.props
     let { isFetching, list, server, total } = repos || {}
@@ -132,10 +171,17 @@ class CodeRepo extends Component {
         width:'120px',
         render: (text, row) => {
           const dropdown = (
-            <Menu onClick={() => this.setState({ delModal: true, imageName: row.name })}
+            <Menu onClick={({key}) => {
+                if (key === 'delete') {
+                  this.setState({
+                    deleteRepoVisible: true,
+                    selectedRepo: row.name
+                  })
+                }
+              }}
               style={{ width: "100px" }}
             >
-              <Menu.Item key={row.id}>
+              <Menu.Item key="delete">
                 删除
               </Menu.Item>
             </Menu>
@@ -220,6 +266,13 @@ class CodeRepo extends Component {
         >
           <ProjectDetail server={server} scope={this} config={this.state.currentImage}/>
         </Modal>
+        {/* 删除镜像 Modal */}
+        <Modal title="删除镜像" visible={this.state.deleteRepoVisible}
+          onCancel={()=> this.setState({deleteRepoVisible:false})}
+          onOk={()=> this.deleteRepoOk()}
+        >
+          <div className="confirmText">您确定要删除镜像 {this.state.selectedRepo} ?</div>
+        </Modal>
       </div>
     )
   }
@@ -234,4 +287,5 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   loadProjectRepos,
+  deleteRepo,
 })(CodeRepo)

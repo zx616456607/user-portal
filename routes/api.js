@@ -224,6 +224,7 @@ module.exports = function (Router) {
   router.get('/registries/:registry/projects', harborController.getProjects)
   router.get('/registries/:registry/projects/search', harborController.searchProjects)
 
+  router.del('/registries/:registry/repositories/:user/:name/tags', harborController.deleteRepository)
   router.get('/registries/:registry/repositories/:user/:name/tags', harborController.getRepositoriesTags)
   router.get('/registries/:registry/repositories/:user/:name/tags/:tag/configinfo', harborController.getRepositoriyConfig)
 

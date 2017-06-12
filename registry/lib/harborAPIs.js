@@ -162,6 +162,14 @@ HarborAPIs.prototype.getReplicationTargetRelatedPolicies = function (id, callbac
   this.sendRequest(url, 'GET', null, callback)
 }
 
+HarborAPIs.prototype.deleteRepository = function(name, callback) {
+  const method = 'deleteRepository'
+  logger.debug(method, `delete repo`)
+  const requestUrl =`${this.getAPIPrefix()}/repositories/${name}/tags`
+  logger.debug(method, `Request url: ${requestUrl}`)
+  this.sendRequest(requestUrl, 'DELETE', null, callback)
+}
+
 HarborAPIs.prototype.getRepositoriesTags = function(name, callback) {
   const method = 'getRepositoriesTags'
   logger.debug(method, `Get Repos tags`)

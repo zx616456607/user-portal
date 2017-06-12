@@ -65,6 +65,14 @@ exports.getProjects = harborHandler(
 exports.createProject = harborHandler(
   (harbor, ctx, callback) => harbor.createProject(ctx.request.body, callback))
 
+// [DELETE] /repositories/:user/:name
+exports.deleteRepository = harborHandler(
+  (harbor, ctx, callback) => {
+    const repoName = `${ctx.params.user}/${ctx.params.name}`
+    harbor.deleteRepository(repoName, callback)
+  }
+)
+
 // [GET] /repositories/:user/:name/tags
 exports.getRepositoriesTags = harborHandler(
   (harbor, ctx, callback) => {

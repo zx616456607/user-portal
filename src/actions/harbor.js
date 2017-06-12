@@ -350,6 +350,34 @@ export function loadRepositoriesTags(registry, imageName,callback) {
   }
 }
 
+export const HARBOR_DELETE_REPO_REQUEST = 'HARBOR_DELETE_REPO_REQUEST'
+export const HARBOR_DELETE_REPO_SUCCESS = 'HARBOR_DELETE_REPO_SUCCESS'
+export const HARBOR_DELETE_REPO_FAILURE = 'HARBOR_DELETE_REPO_FAILURE'
+
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDeleteRepo(registry, repoName, callback) {
+  let endpoint = `${API_URL_PREFIX}/registries/${registry}/repositories/${repoName}/tags`
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ HARBOR_DELETE_REPO_REQUEST, HARBOR_DELETE_REPO_SUCCESS, HARBOR_DELETE_REPO_FAILURE ],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      }
+    },
+    callback
+  }
+}
+
+// Relies on Redux Thunk middleware.
+export function deleteRepo(registry, repoName, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteRepo(registry, repoName, callback))
+  }
+}
+
 export const DELETE_HARBOR_PROJECT_REQUEST = 'DELETE_HARBOR_PROJECT_REQUEST'
 export const DELETE_HARBOR_PROJECT_SUCCESS = 'DELETE_HARBOR_PROJECT_SUCCESS'
 export const DELETE_HARBOR_PROJECT_FAILURE = 'DELETE_HARBOR_PROJECT_FAILURE'
