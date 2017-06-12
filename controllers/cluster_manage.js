@@ -225,8 +225,8 @@ exports.updateClusterPlugins = function* () {
     err.status = 400
     throw err
   }
-  const cpu = body.cpu != 0 ? parseFloat(body.cpu) * 1000 : undefined
-  const memory = body.memory != 0 ? parseInt(body.memory) : undefined
+  const cpu = parseFloat(body.cpu) != 0 ? parseFloat(body.cpu) * 1000 : undefined
+  const memory = parseInt(body.memory) != 0 ? parseInt(body.memory) : undefined
   const hostName = body.hostName != "" ? body.hostName : undefined
   let requestBody =  {
     limit: {

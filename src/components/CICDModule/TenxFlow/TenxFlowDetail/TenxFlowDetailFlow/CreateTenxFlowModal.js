@@ -514,6 +514,9 @@ let CreateTenxFlowModal = React.createClass({
     if (e.target.value == 3) {
       this.setState({
         otherTag: true
+      },() => {
+        const _input = document.getElementById('otherTag')
+        _input && _input.focus() 
       });
     } else {
       this.setState({
@@ -1416,13 +1419,11 @@ let CreateTenxFlowModal = React.createClass({
                     </FormItem>
                     {
                       this.state.otherTag ? [
-                        <QueueAnim key='otherTagAnimateBox'>
-                          <div key='otherTagAnimate'>
-                            <FormItem style={{ width: '200px', float: 'left' }}>
-                              <Input {...otherImageTagProps} type='text' size='large' />
-                            </FormItem>
-                          </div>
-                        </QueueAnim>
+                        <div key='otherTagAnimate'>
+                          <FormItem style={{ width: '200px', float: 'left' }}>
+                            <Input {...otherImageTagProps} type='text' size='large' />
+                          </FormItem>
+                        </div>
                       ] : null
                     }
                     <div style={{ clear: 'both' }} />

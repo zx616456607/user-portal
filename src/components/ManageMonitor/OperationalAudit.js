@@ -1044,6 +1044,7 @@ class OperationalAudit extends Component {
     this.onChangeNamespace = this.onChangeNamespace.bind(this);
     this.onPageChange = this.onPageChange.bind(this);
     this.submitSearch = this.submitSearch.bind(this);
+    this.refreshLogs = this.refreshLogs.bind(this)
     this.state = {
       selectOperationalList: [],
       from: 1,
@@ -1471,6 +1472,32 @@ class OperationalAudit extends Component {
     });
   }
 
+  refreshLogs(){
+    const { getOperationLogList } = this.props
+    let body = {
+      from: 0,
+      size: 15,
+      namespace: null,
+      operation: null,
+      resource: null,
+      start_time: null,
+      end_time: null
+    }
+    let notification = new NotificationHandler()
+    getOperationLogList(body, {
+      success: {
+        func: (res) => {
+          notification.success("刷新成功")
+        }
+      },
+      failed: {
+        func: (error) => {
+          notification.error('刷新失败，请重试');
+        }
+      }
+    })
+  }
+  
   render() {
     const { isFetching, logs } = this.props;
     const { formatMessage } = this.props.intl;
@@ -1657,6 +1684,9 @@ class OperationalAudit extends Component {
             <DatePicker onChange={this.onChangeEndTime} style={{ marginRight: 20, marginTop: 10, float: 'left' }} showTime format='yyyy-MM-dd HH:mm:ss' size='large' />
             <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch}>
               <i className='fa fa-wpforms'></i> <FormattedMessage {...menusText.search} />
+            </Button>
+            <Button type="primary" size="large" className='refresh' onClick={this.refreshLogs}>
+              刷新
             </Button>
             <div className='bottomBox'>
               <div className='pageBox'>

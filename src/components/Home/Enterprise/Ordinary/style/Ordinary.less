@@ -9,6 +9,9 @@
     height: 10px;
     margin-right: 10px;
     border-radius: 3px;
+    @media(max-width:1066px){
+      margin-right: 3px;
+    }
   }
   .title {
     border-left:3px solid #46b2fa;
@@ -309,6 +312,10 @@
         line-height: 28px;
         cursor: pointer;
         font-size: 13px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        cursor: pointer;
       }
       .seleted {
         .dataBtn{
