@@ -234,7 +234,7 @@ class ProjectDetail extends Component{
               <Col span={4} style={{ color: '#7a7a7a' }}>提醒规则</Col>
               <Col span={20} style={{ color: '#666666' }}>我的空间可用余额小于&nbsp;
                 <InputNumber/>
-                <span> T币</span>
+                <span> T</span>
                 &nbsp;时发送提醒
               </Col>
             </Row>

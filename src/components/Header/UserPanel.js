@@ -207,7 +207,7 @@ class UserPanel extends Component {
               {
                 mode === standard?
                 <span className="unit">¥</span>:
-                <span className="unit">T币</span>
+                <span className="unit"> T</span>
               }
               <span className="number">{balance}</span>
             </p>

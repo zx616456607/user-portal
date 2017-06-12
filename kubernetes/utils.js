@@ -54,6 +54,7 @@ exports.getResources = function (memory, cpu) {
   }
   if (enterpriseFlag && cpu) {
     resources.requests.cpu = cpu
+    resources.limits.cpu = cpu
   }
   return resources
 }
