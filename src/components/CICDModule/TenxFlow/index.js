@@ -196,7 +196,7 @@ let MyComponent = React.createClass({
     })
   },
   renderBuildBtn(item, index) {
-    const { projectId, defaultBranch, stagesCount } = item
+    const { projectId, defaultBranch, stagesCount, repoType } = item
     const { repoBranchesAndTags } = this.props
     const dropdown = (
       <Menu onClick={this.operaMenuClick.bind(this, item)}>
@@ -207,11 +207,26 @@ let MyComponent = React.createClass({
       </Menu>
     );
     const targetElement = (
-      <span>
-        <i className='fa fa-pencil-square-o' />&nbsp;
-        <FormattedMessage {...menusText.deloyStart} />
-      </span>
+      <Dropdown.Button
+        overlay={dropdown}
+        type='ghost'
+        size='large'
+        onClick={() => {
+          if (repoType === 'svn') {
+            this.startBuildStage(item, index)
+            return
+          }
+          this.starFlowBuild(item, index)
+        }}>
+        <span>
+          <i className='fa fa-pencil-square-o' />&nbsp;
+          <FormattedMessage {...menusText.deloyStart} />
+        </span>
+      </Dropdown.Button>
     )
+    if (repoType === 'svn') {
+      return targetElement
+    }
     const tabs = []
     let loading
     const branchesAndTags = repoBranchesAndTags[projectId]
@@ -251,11 +266,7 @@ let MyComponent = React.createClass({
       <PopTabSelect
         style={{float: 'left'}}
         onChange={this.startBuildStage.bind(this, item, index)}
-        targetElement={
-          <Dropdown.Button overlay={dropdown} type='ghost' size='large' onClick={() => this.starFlowBuild(item, index)}>
-          {targetElement}
-          </Dropdown.Button>
-        }
+        targetElement={targetElement}
         getTooltipContainer={() => document.body}
         isShowBuildBtn={true}
         loading={loading}>
