@@ -362,7 +362,7 @@ class RechargeRecord extends Component {
                   {
                     standard?
                     null :
-                    <span> T币</span>
+                    <span> T</span>
                   }
                 &nbsp;时发送提醒
               </Col>

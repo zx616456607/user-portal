@@ -400,7 +400,7 @@ class Ordinary extends Component {
     } else if (volumeCapacity.toLowerCase().indexOf('t') > 0) {
       volumeCapacity = (parseFloat(volumeCapacity) * 1024).toFixed(2)
     } else {
-      volumeCapacity = parseFloat(volumeCapacity).toFixed(2)
+      volumeCapacity = (parseFloat(volumeCapacity) / 1024).toFixed(2)
     }
     let volumeUsedPrecent = Math.ceil(volumeAllocated / (volumeCapacity * 1024) * 100)
     let volumeUsed = (volumeAllocated / 1024).toFixed(2)

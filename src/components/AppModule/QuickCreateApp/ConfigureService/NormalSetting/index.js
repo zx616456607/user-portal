@@ -198,6 +198,7 @@ const Normal = React.createClass({
           showSearch
           optionFilterProp="children"
           {...bindNodeProps}
+          style={{minWidth:'290px'}}
         >
           <Select.Option value={SYSTEM_DEFAULT_SCHEDULE}>使用系统默认调度</Select.Option>
           {

@@ -8,7 +8,7 @@
 * @author BaiYu
 */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, Dropdown, Modal, Spin } from 'antd'
+import { Alert, Icon, Menu, Button, Card, Input, Tooltip, Dropdown, Modal, Spin } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -18,7 +18,6 @@ import { parseQueryStringToObject } from '../../../common/tools'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import NotificationHandler from '../../../common/notification_handler'
 
-const TabPane = Tabs.TabPane
 
 const menusText = defineMessages({
   search: {
@@ -318,11 +317,11 @@ class GogsComponent extends Component {
       }
     })
   }
-  changeList(e) {
-    this.setState({
-      users: e
-    })
-  }
+  // changeList(e) {
+  //   this.setState({
+  //     users: e
+  //   })
+  // }
   registryGogs() {
     let url = this.state.regUrl
     const token = this.state.regToken
@@ -337,7 +336,7 @@ class GogsComponent extends Component {
       return
     }
     if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?(\/{0,1})$/.test(url) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/{0,1})$/.test(url)) {
-      notification.info(formatMessage(menusText.errorSrc))
+      notification.info(formatMessage(menusText.errorSrc) + '，以http://或者https://开头')
       return
     }
     if(url.lastIndexOf('/') == url.length - 1) {
@@ -369,7 +368,7 @@ class GogsComponent extends Component {
               func: (res) => {
                 if (res.data.hasOwnProperty('results')) {
                   const users = res.data.results[Object.keys(res.data.results)[0]].user
-                  self.setState({ users })
+                  self.setState({ users ,loading: false})
                 }
               }
             }
@@ -434,17 +433,30 @@ class GogsComponent extends Component {
       )
     }
     if (Object.keys(gogsList).length > 0) {
-      for (let i in gogsList) {
-        codeList.push(
-          <TabPane tab={<span><Icon type="user" />{i}</span>} key={i}>
-            <CodeList scope={scope} isFetching={isFetching} repoUser={i} data={gogsList[i]} typeName={this.props.typeName} />
-          </TabPane>
+      codeList = gogsList[Object.keys(gogsList)].map((item,index)=> {
+        return (
+          <div className='CodeTable' key={item.name} >
+            <div className="name textoverflow">{item.name}</div>
+            <div className="type">{item.private ? "private" : "public"}</div>
+            <div className="action">
+              {(item.managedProject && item.managedProject.active == 1) ?
+                <span><Button type="ghost" disabled>已激活</Button>
+                  <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>撤销</a></span>
+                :
+                <Tooltip placement="right" title="可构建项目">
+                  <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >{ window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0 ? '激活并构建' : '激活'}</Button>
+                </Tooltip>
+              }
+            </div>
+          </div>
         )
-      }
+      })
+
     }
     return (
       <div key="github-Component" type="right" className='codelink'>
         <div className="tableHead">
+          <Icon type="user" /> {this.props.users ? this.props.users : ''}
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={() => this.setState({ removeModal: true })} style={{ margin: '0 20px' }} />
           </Tooltip>
@@ -456,9 +468,9 @@ class GogsComponent extends Component {
             <i className='fa fa-search' onClick={this.searchClick}></i>
           </div>
         </div>
-        <Tabs onChange={(e) => this.changeList(e)}>
+        {/*<Tabs onChange={(e) => this.changeList(e)}>*/}
           {codeList}
-        </Tabs>
+        {/*</Tabs>*/}
         <Modal title="注销代码源操作" visible={this.state.removeModal}
           onOk={() => this.removeRepo()} onCancel={() => this.setState({ removeModal: false })}
           >

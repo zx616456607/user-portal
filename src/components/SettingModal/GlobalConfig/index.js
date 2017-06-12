@@ -168,10 +168,14 @@ let Emaill = React.createClass({
   },
   sendEmail() {
     const email = this.props.form.getFieldValue('email')
+    const host = this.props.form.getFieldValue('service')
     const password = this.props.form.getFieldValue('password')
+    const secure = this.props.form.getFieldValue('secure')
     const body ={
       email,
-      password
+      password,
+	  host,
+	  secure
     }
     const notitf = new NotificationHandler()
     this.props.sendEmailVerification(body,{

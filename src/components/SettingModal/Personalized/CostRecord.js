@@ -85,7 +85,7 @@ class CostRecord extends Component{
     let spaceMonthCost = {
       title: {
         show: false,
-        text: '余额 :  '+70+'T币\n\n消费 :  '+30+'T币',
+        text: '余额 :  '+70+' T\n\n消费 :  '+30+' T',
         x:'center',
         top: '65%',
         textStyle:{
@@ -110,9 +110,9 @@ class CostRecord extends Component{
         data:['余额','消费'],
         formatter: function (name) {
           if(name === '余额'){
-            return name + ': ' + 70 + 'T币'
+            return name + ': ' + 70 + ' T'
           } else if (name === '消费') {
-            return name + ': ' + 30 + 'T币'
+            return name + ': ' + 30 + ' T'
           }
         },
         textStyle: {
