@@ -137,7 +137,7 @@ function currentStatus(status) {
         <div className='finishStatus status'>
           <Icon type="check-circle-o" />
           <p><FormattedMessage {...menusText.finish} /></p>
-          <p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>(查看执行容器)</Link> : ''}</p>
+          <p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>查看详情</Link> : ''}</p>
         </div>
       );
     case 2:
@@ -145,6 +145,7 @@ function currentStatus(status) {
         <div className='runningStatus status'>
           <i className='fa fa-cog fa-spin fa-3x fa-fw' />
           <p><FormattedMessage {...menusText.running} /></p>
+          <p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>查看详情</Link> : ''}</p>
         </div>
       );
     case 1:
@@ -152,7 +153,7 @@ function currentStatus(status) {
         <div className='failStatus status'>
           <Icon type="cross-circle-o" />
           <p><FormattedMessage {...menusText.fail} /></p>
-          <p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>(查看执行容器)</Link> : ''}</p>
+          <p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>查看详情</Link> : ''}</p>
         </div>
       );
     case 3:
@@ -160,7 +161,7 @@ function currentStatus(status) {
         <div className='runningStatus status'>
           <Icon type="clock-circle-o" />
           <p><FormattedMessage {...menusText.wait} /></p>
-          <p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>(查看执行容器)</Link> : ''}</p>
+          <p style={{bottom: '60px'}}>{podName ? <Link to={`/app_manage/container/${podName}`}>查看详情</Link> : ''}</p>
         </div>
       );
   }
