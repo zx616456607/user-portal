@@ -406,6 +406,9 @@ let MemberTable = React.createClass({
         ),
       },
     ]
+    if(userDetail.role !== ROLE_SYS_ADMIN){
+      columns.pop()
+    }
     if (notFound) {
       return (
         <div id="notFound">
