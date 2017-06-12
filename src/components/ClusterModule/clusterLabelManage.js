@@ -356,7 +356,7 @@ class ClusterLabelManage extends Component{
           return (
             <span className='systemmessage'>
               <Icon type="info-circle-o" className='handleicon'/>
-              该标签为系统创建，不可操作
+              系统创建，不可操作
             </span>
           )
         }
