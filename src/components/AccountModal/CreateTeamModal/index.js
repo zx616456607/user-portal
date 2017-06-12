@@ -111,6 +111,8 @@ let CreateTeamModal = React.createClass({
     }
     return (
       <Modal title="创建团队" visible={visible}
+        onCancel={this.handleCancel}
+        closable={true}
         wrapClassName="NewTeamForm"
         key="NewTeamForm"
         width={510}
