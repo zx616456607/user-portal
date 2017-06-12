@@ -212,14 +212,7 @@ class MyComponent extends Component {
 
   ModalDeleteOk(){
     const { rowDisableArray, dataArray, DeletingEnvIndex, saveBtnLoadingArray } = this.state
-    const { serviceDetail, cluster, editServiceEnv } = this.props
-    const Notification = new NotificationHandler()
-    let body = {
-      clusterId : cluster,
-      service : serviceDetail.metadata.name,
-      arr : this.state.dataArray
-    }
-    let deleteEnv = dataArray[DeletingEnvIndex]
+    
     rowDisableArray.splice(DeletingEnvIndex,1)
     dataArray.splice(DeletingEnvIndex,1)
     saveBtnLoadingArray.splice(DeletingEnvIndex,1)
@@ -227,36 +220,16 @@ class MyComponent extends Component {
       buttonLoading : true,
       ModalDeleteVisible : false,
       appEditBtn: true
-    })
-    editServiceEnv(body,{
-      success : {
-        func : () => {
-          Notification.success('删除环境变量成功！')
-          this.setState({
-            rowDisableArray,
-            dataArray,
-            saveBtnLoadingArray,
-            buttonLoading : false,
-          })
-        },
-        isAsync : true
-      },
-      failed : {
-        func : () => {
-          Notification.error('删除环境变量失败！')
-          rowDisableArray.splice(DeletingEnvIndex,0,{disable : false})
-          dataArray.splice(DeletingEnvIndex,0,deleteEnv)
-          saveBtnLoadingArray.splice(DeletingEnvIndex,0,{loading : false})
-          this.setState({
-            buttonLoading : false,
-            rowDisableArray,
-            dataArray,
-            saveBtnLoadingArray,
-          })
-        },
-        isAsync : true
-      }
-    })
+    },()=>{
+      setTimeout(()=>{
+        this.setState({
+          rowDisableArray,
+          dataArray,
+          saveBtnLoadingArray,
+          buttonLoading : false,
+        })
+      })
+    },300)
   }
 
   ModalDeleteCancel(){
