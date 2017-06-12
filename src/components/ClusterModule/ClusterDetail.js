@@ -10,7 +10,7 @@
 
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Link, browserHistory } from 'react-router'
+import { Link } from 'react-router'
 import { Icon, Button, Card, Tabs, Table, Input, Spin, Row, Col, Dropdown, Menu, Modal, Progress, Switch, Tag, Tooltip } from 'antd'
 import { getNodesPodeList, loadHostMetrics, searchPodeList , loadHostInstant} from '../../actions/cluster'
 import './style/ClusterDetail.less'
@@ -264,13 +264,11 @@ class ClusterDetail extends Component {
     this.state = {
       schedulable: false,
       foreverPodNumber: 0,
-      activeTabKey: 'info',
-      alarmOpen: false
+      activeTabKey:'info'
     }
   }
   componentWillMount() {
-    const { clusterID, clusterName, loadHostInstant, loadHostMetrics,location } = this.props
-    //this.setState({activeTabKey:tab || 'info'})
+    const { clusterID, clusterName, loadHostInstant, loadHostMetrics } = this.props
     const body = {
       clusterID,
       clusterName
@@ -295,15 +293,12 @@ class ClusterDetail extends Component {
     })
 
     loadHostMetrics(body, { start: this.changeTime(1) })
-    let { tab , open } = location.query
-    if (tab) {
-      if(open) {
-        this.setState({alarmOpen: open})
-      }
-      this.setState({activeTabKey: tab},()=>{
-        browserHistory.push(`/cluster/${clusterID}/${clusterName}`)
-      })
+
+    let query = location.search
+    if (query.length >0) {
+      this.setState({activeTabKey: query.split('?')[1]})
     }
+
   }
 
   changeSchedulable(node, e) {
@@ -467,7 +462,7 @@ class ClusterDetail extends Component {
               />
             </TabPane>
             <TabPane tab="告警策略" key="alarm">
-              <AlarmStrategy nodeName={this.props.clusterName} cluster={this.props.clusterID} modalOpen={this.state.alarmOpen}/>
+              <AlarmStrategy nodeName={this.props.clusterName} cluster={this.props.clusterID}/>
             </TabPane>
           </Tabs>
 
