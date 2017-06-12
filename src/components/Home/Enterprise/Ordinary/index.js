@@ -396,13 +396,13 @@ class Ordinary extends Component {
     //volume
     let volumeAllocated = parseFloat(volumeSummary.allocated)
     if (volumeCapacity.toLowerCase().indexOf('g') > 0) {
-      volumeCapacity = parseFloat(volumeCapacity * 1024).toFixed(2)
+      volumeCapacity = parseFloat(volumeCapacity).toFixed(2)
     } else if (volumeCapacity.toLowerCase().indexOf('t') > 0) {
-      volumeCapacity = (parseFloat(volumeCapacity) * 1024 * 1024).toFixed(2)
+      volumeCapacity = (parseFloat(volumeCapacity) * 1024).toFixed(2)
     } else {
       volumeCapacity = parseFloat(volumeCapacity).toFixed(2)
     }
-    let volumeUsedPrecent = Math.ceil(volumeAllocated / volumeCapacity * 100)
+    let volumeUsedPrecent = Math.ceil(volumeAllocated / (volumeCapacity * 1024) * 100)
     let volumeUsed = (volumeAllocated / 1024).toFixed(2)
 
     // pod number
