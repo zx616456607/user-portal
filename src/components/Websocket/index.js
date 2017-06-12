@@ -32,7 +32,6 @@ class Websocket extends Component {
   setupWebsocket() {
     let websocket = this.state.ws
     const { url, protocol, onSetup, pingInterval, heartBeat } = this.props
-
     websocket.onopen = () => {
       this.logging('Websocket connected')
       this.logging(new Date())
@@ -58,26 +57,28 @@ class Websocket extends Component {
       this.logging(err)
     }
 
-    this.shouldReconnect = this.props.reconnect
 
     websocket.onclose = (err) => {
-      this.logging('Websocket disconnected')
-      this.logging(this.shouldReconnect)
-      this.logging(new Date())
       this.pingInterval && clearInterval(this.pingInterval)
-      if (this.shouldReconnect) {
-        let time = this.generateInterval(this.state.attempts)
-        this.logging(time)
-        setTimeout(() => {
-          let attempts = this.state.attempts
-          attempts++
+      let time = this.generateInterval(this.state.attempts)
+      let attempts = this.state.attempts
+      attempts++
+      this.setState([
+        attempts
+      ])
+      setTimeout(() => {
+        this.logging('Websocket disconnected')
+        this.shouldReconnect = this.props.reconnect
+        this.logging(this.shouldReconnect)
+        this.logging(new Date())
+        if (this.shouldReconnect) {
+          this.logging(time)
           this.setState({
-            ws: new WebSocket(url, protocol),
-            attempts,
+            ws: new WebSocket(url, protocol)
           })
           this.setupWebsocket()
-        }, time)
-      }
+        }
+      }, time)
     }
   }
 
