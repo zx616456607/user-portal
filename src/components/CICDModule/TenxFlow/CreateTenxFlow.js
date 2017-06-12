@@ -97,6 +97,11 @@ let CreateTenxFlow = React.createClass({
       currentYaml: null
     }
   },
+  componentDidMount(){
+    setTimeout(() => {
+      document.getElementById('flowName').focus()
+    }, 500)
+  },
   nameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
     if (this.state.currentType == '2') {

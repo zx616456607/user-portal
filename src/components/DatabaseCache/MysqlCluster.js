@@ -151,6 +151,9 @@ class MysqlCluster extends Component {
       _this.setState({
         CreateDatabaseModalShow: true,
       })
+      setTimeout(() => {
+        document.getElementById('dbName').focus()
+      },100)
     }
   }
 
