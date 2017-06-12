@@ -295,6 +295,7 @@ class ClusterDetail extends Component {
     })
 
     loadHostMetrics(body, { start: this.changeTime(1) })
+
     let { tab , open } = location.query
     if (tab) {
       if(open) {
