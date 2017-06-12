@@ -38,7 +38,6 @@ class ClusterLabelManage extends Component{
     }
   }
   loadData(that) {
-    const _this = this
     const { clusterID } = that.props
     that.props.getClusterLabel(clusterID)
   }
@@ -215,7 +214,9 @@ class ClusterLabelManage extends Component{
             func:(ret)=> {
               notificat.close()
               notificat.success('添加成功！')
-            }
+              this.loadData(this)
+            },
+            isAsync:true
           },
           failed:{
             func:(ret)=> {
