@@ -1441,9 +1441,9 @@ class Ordinary extends Component {
           <Col span={6} className='dataBase'>
             <Card title="数据库与缓存" bordered={false} bodyStyle={{ height: 200 }}>
               <Row gutter={16}>
-                <Col span={8} onClick={() => this.handleDataBaseClick('tab1')} className={this.state.tab1 ? 'seleted' : ''}><span className='dataBtn'>MySQL</span></Col>
-                <Col span={8} onClick={() => this.handleDataBaseClick('tab3')} className={this.state.tab3 ? 'seleted' : ''}><span className='dataBtn'>Redis</span></Col>
-                <Col span={8} onClick={() => this.handleDataBaseClick('tab4')} className={this.state.tab4 ? 'seleted' : ''}><span className='dataBtn'>Zookeeper</span></Col>
+                <Col span={8} onClick={() => this.handleDataBaseClick('tab1')} className={this.state.tab1 ? 'seleted' : ''}><Tooltip title="MySQL"><span className='dataBtn'>MySQL</span></Tooltip></Col>
+                <Col span={8} onClick={() => this.handleDataBaseClick('tab3')} className={this.state.tab3 ? 'seleted' : ''}><Tooltip title="Redis"><span className='dataBtn'>Redis</span></Tooltip></Col>
+                <Col span={8} onClick={() => this.handleDataBaseClick('tab4')} className={this.state.tab4 ? 'seleted' : ''}><Tooltip title="Zookeeper"><span className='dataBtn'>Zookeeper</span></Tooltip></Col>
               </Row>
               <Row style={{ display: this.state.tab1 ? 'block' : 'none', height: 130 }}>
                 <Col span={12} className='dbImg'>
