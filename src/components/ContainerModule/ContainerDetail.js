@@ -83,7 +83,6 @@ class ContainerDetail extends Component {
   getSchedulingPolicy(data) {
     const metadata = data.metadata
     const spec = data.spec
-    const nodeName = spec.nodeName
     const labels = this.getNodeAffinityLabels(metadata)
     const node = this.getNodeSelectorTarget(spec)
     const policy = {
