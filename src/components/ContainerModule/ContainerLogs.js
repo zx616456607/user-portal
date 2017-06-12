@@ -34,6 +34,7 @@ class ContainerLogs extends Component {
       watchStatus: 'play',
       logs: [],
       logsLoading: false,
+      reconnect: true
     }
   }
 
@@ -116,6 +117,7 @@ class ContainerLogs extends Component {
       <Websocket
         url={`${protocol}//${loginUser.tenxApi.host}/spi/v2/watch`}
         onSetup={this.onLogsWebsocketSetup}
+        reconnect={this.state.reconnect}
         debug={false} />
     )
   }
@@ -143,6 +145,12 @@ class ContainerLogs extends Component {
     }
     ws.send(JSON.stringify(watchAuthInfo))
     ws.onmessage = (event) => {
+      if (event.data == "TENXCLOUD_END_OF_STREAM") {
+        this.setState({
+          reconnect: false
+        })
+        return
+      }
       clearTimeout(this.logsLoadingTimeout)
       this.logsLoadingTimeout = setTimeout(function() {
         _this.setState({
