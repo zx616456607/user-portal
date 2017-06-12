@@ -218,7 +218,7 @@ let MyComponent = React.createClass({
       notification.error('该构建没有选择代码仓库')
       return
     }
-    if(!item.defaultBranch) {
+    if(!item.defaultBranch && item.repoType !== 'svn') {
       notification.error('该构建没有选择代码分支')
       return
     }
@@ -257,7 +257,7 @@ let MyComponent = React.createClass({
     })
   },
   renderBuildBtn(item, index) {
-    const { projectId, defaultBranch, stagesCount } = item
+    const { projectId, defaultBranch, stagesCount, repoType } = item
     const { repoBranchesAndTags } = this.props
     const dropdown = (
       <Menu onClick={this.operaMenuClick.bind(this, item)}>
@@ -278,6 +278,24 @@ let MyComponent = React.createClass({
         <FormattedMessage {...menusText.deloyStart} />
       </span>
     )
+    if (repoType === 'svn') {
+      return (
+        <Dropdown.Button
+          overlay={dropdown}
+          type='ghost'
+          size='large'
+          onClick={() => {
+            if (repoType === 'svn') {
+              this.startBuildStage(item, index)
+              return
+            }
+            this.starFlowBuild(item, index)
+          }}
+        >
+        { targetElement }
+      </Dropdown.Button>
+      )
+    }
     const tabs = []
     let loading
     const branchesAndTags = repoBranchesAndTags[projectId]
@@ -474,6 +492,11 @@ class TenxFlowList extends Component {
     this.setState({
     //  websocket: <Socket url={cicdApi.host} protocol={cicdApi.protocol} path={cicdApi.statusPath} onSetup={(socket) => this.onSetup(socket)} />
     })
+    if(location.search == '?build_image=true'){
+      this.setState({
+        createTenxFlowModal: true
+      })
+    }
   }
   componentWillReceiveProps(nextProps) {
     const { isFetching, flowList, currentSpace } = nextProps;
