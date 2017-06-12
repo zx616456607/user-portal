@@ -392,9 +392,8 @@ let MemberTable = React.createClass({
         title: '操作',
         dataIndex: 'operation',
         key: 'operation',
-        width: 180,
         render: (text, record, index) => (
-          <div>
+          <div className="action">
             <Button icon="delete" className="delBtn setBtn" onClick={() => this.setState({delModal: true,userManage: record})}>
               删除
             </Button>

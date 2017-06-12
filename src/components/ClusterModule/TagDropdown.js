@@ -76,7 +76,7 @@ class TagDropdown extends Component {
       return
     }
     const newData = {}
-    labels.forEach((label, index) => {
+    labels.filter(a => a.isUserDefined).forEach((label, index) => {
       if(newData[label.key]){
         newData[label.key].push(label)
       } else {
