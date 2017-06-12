@@ -114,6 +114,7 @@ class MysqlCluster extends Component {
   constructor(props) {
     super(props)
     this.createDatabaseShow = this.createDatabaseShow.bind(this);
+    this.refreshDatabase = this.refreshDatabase.bind(this);
     this.state = {
       detailModal: false,
       putVisible: false,
@@ -122,7 +123,24 @@ class MysqlCluster extends Component {
       dbservice: []
     }
   }
-  refreshDatabase() {   
+  refreshDatabase() {
+    const _this = this
+    this.props.loadMyStack(DEFAULT_REGISTRY, 'dbservice', {
+      success: {
+        func: (res) => {
+          _this.setState({
+            dbservice: res.data.data
+          })
+        }
+      }
+    })
+
+    const { teamCluster } = this.props
+    if(teamCluster && teamCluster.result && teamCluster.result.data && location.search == '?createDatabase'){
+      _this.setState({
+        CreateDatabaseModalShow: true,
+      })
+    }   
   }
   componentWillMount() {
     const { loadDbCacheList, cluster } = this.props
@@ -213,8 +231,8 @@ class MysqlCluster extends Component {
               <i className='fa fa-plus' />&nbsp;MySQL集群
           </Button>
           </Tooltip>
-            <Button style={{marginLeft:'20px'}} size='large' onClick={this.refreshDatabase} disabled={!canCreate}>
-              <i className='fa fa-refresh' />&nbsp;刷新
+            <Button style={{marginLeft:'20px',padding:'5px 15px'}} size='large' onClick={this.refreshDatabase} disabled={!canCreate}>
+              <i className='fa fa-refresh' />&nbsp;刷 新
             </Button>
             <span className='rightSearch'>
               <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight:'28px'}} ref="mysqlRef" onPressEnter={(e)=> this.handSearch(e)} />

@@ -112,6 +112,7 @@ class RedisDatabase extends Component {
   constructor() {
     super()
     this.createDatabaseShow = this.createDatabaseShow.bind(this);
+    this.clusterRefresh = this.clusterRefresh.bind(this);
     this.state = {
       detailModal: false,
       putVisible: false,
@@ -120,7 +121,16 @@ class RedisDatabase extends Component {
     }
   }
   clusterRefresh() {
-    
+    const _this = this
+    this.props.loadMyStack(DEFAULT_REGISTRY, 'dbservice', {
+      success: {
+        func: (res) => {
+          _this.setState({
+            dbservice: res.data.data
+          })
+        }
+      }
+    })
   }
   componentWillMount() {
     const { loadDbCacheList, cluster } = this.props
@@ -202,8 +212,8 @@ class RedisDatabase extends Component {
             <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
               <i className='fa fa-plus' />&nbsp;Redis集群
           </Button></Tooltip>
-            <Button style={{marginLeft:'20px'}} size='large' onClick={this.clusterRefresh} disabled={!canCreate}>
-              <i className='fa fa-refresh' />&nbsp;刷新
+            <Button style={{marginLeft:'20px',padding:'5px 15px'}} size='large' onClick={this.clusterRefresh} disabled={!canCreate}>
+              <i className='fa fa-refresh' />&nbsp;刷 新
             </Button>
             <span className='rightSearch'>
               <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight:'28px' }} ref="redisRef" onPressEnter={(e)=> this.handSearch(e)}/>
