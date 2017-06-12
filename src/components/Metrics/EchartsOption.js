@@ -70,7 +70,6 @@ class EchartsOption {
   addYAxis(type, axisLabel) {
     const yAxisItem = {
       type: 'value',
-      min: 5,
       axisLabel: {
         formatter: '{value} %'
       },
