@@ -180,7 +180,7 @@ const MyComponent = React.createClass({
       return
     }
     if (!(/^http:|^https:/).test(url)) {
-      notification.info(formatMessage(menusText.errorSrc))
+      notification.info(formatMessage(menusText.errorSrc) + '，以http://或者https://开头')
       return
     }
     const config = {
@@ -201,7 +201,8 @@ const MyComponent = React.createClass({
           self.setState({
             authorizeModal: false,
             regUrl: '',
-            regToken: ''
+            regToken: '',
+            loading: false
           })
           self.props.scope.props.getRepoList(config.type)
           self.props.scope.props.getUserInfo(config.type)
