@@ -891,7 +891,6 @@ let EditTenxFlowModal = React.createClass({
         let harborProjects = this.props.harborProjects.list || []
         let projectId = 0
         for (let i in harborProjects) {
-          console.log(values.harborProjectName + " vs " + harborProjects[i].name)
           if (values.harborProjectName == harborProjects[i].name) {
             projectId = harborProjects[i].projectId
             break
@@ -1041,7 +1040,8 @@ let EditTenxFlowModal = React.createClass({
   baseImageChange(key, tabKey, groupKey) {
     const { setFieldsValue } = this.props.form
     this.setState({
-      baseImageUrl: key
+      baseImageUrl: key,
+      otherFlowType: groupKey,
     })
     setFieldsValue({
       imageName: key
@@ -1323,7 +1323,7 @@ let EditTenxFlowModal = React.createClass({
     });
     const harborProjectProps = getFieldProps('harborProjectName', {
       rules: [
-        { message: '请选择仓库组', required: true },
+        { message: '请选择仓库组', required: this.state.otherFlowType == 3 },
       ],
       initialValue: (!!config.spec.build ? config.spec.build.project : null)
     });
