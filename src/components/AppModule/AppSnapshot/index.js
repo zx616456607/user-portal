@@ -21,6 +21,7 @@ import { formatDate } from  '../../../common/tools'
 import Title from '../../Title'
 import { Link } from 'react-router'
 import CreateVolume from '../../StorageModule/CreateVolume'
+import { browserHistory } from 'react-router'
 
 class Snapshot extends Component {
   constructor(props) {
@@ -40,6 +41,7 @@ class Snapshot extends Component {
     this.handleTableRowClick = this.handleTableRowClick.bind(this)
     this.handleDropdown = this.handleDropdown.bind(this)
     this.handleCloneSnapshot = this.handleCloneSnapshot.bind(this)
+    this.rollbackSuccessConfirm = this.rollbackSuccessConfirm.bind(this)
     this.state = {
       selectedRowKeys: [],
       DeleteSnapshotButton: true,
@@ -60,6 +62,7 @@ class Snapshot extends Component {
       currentVolume: {},
       visible: false,
       createFalse: false,
+      rollbackSuccess: false,
     }
   }
 
@@ -305,10 +308,10 @@ class Snapshot extends Component {
     SnapshotRollback(body,{
       success: {
         func: () => {
-          info.success('快照回滚成功！')
           this.setState({
             rollbackModal: false,
             rollbackLoading: false,
+            rollbackSuccess: true,
           })
         }
       },
@@ -381,6 +384,13 @@ class Snapshot extends Component {
       default:
         return
     }
+  }
+
+  rollbackSuccessConfirm(){
+    this.setState({
+      rollbackSuccess : false
+    })
+    browserHistory.push('/manange_monitor')
   }
 
   render() {
@@ -626,6 +636,36 @@ class Snapshot extends Component {
             onCancel={() => this.setState({createFalse: false})}
           >
             尚未部署分布式存储，暂不能创建
+          </Modal>
+
+          <Modal
+            title="回滚成功"
+            visible={this.state.rollbackSuccess}
+            closable={true}
+            onOk={this.rollbackSuccessConfirm}
+            onCancel={() => this.setState({rollbackSuccess: false})}
+            width='570px'
+            maskClosable={false}
+            wrapClassName="rollbackSuccess"
+            footer={[
+              <Button onClick={() => this.setState({rollbackSuccess: false})} size="large">关闭</Button>,
+              <Button onClick={this.rollbackSuccessConfirm} size='large' type="primary">查看审计日志</Button>]}
+          >
+            <div className='container'>
+              <div className='header'>
+                <div>
+                  <Icon type="check-circle-o" className='icon'/>
+                </div>
+                <div className='tips'>
+                  操作成功
+                </div>
+              </div>
+              <div className='footer'>
+                <div className='lineone'>
+                  正在回滚，请在审计日志查看回滚进度
+                </div>
+              </div>
+            </div>
           </Modal>
       </div>
     )
