@@ -166,7 +166,6 @@ class MysqlCluster extends Component {
     })
 
     const { teamCluster } = this.props
-    console.log('teamCluster=',teamCluster)
     if(teamCluster && teamCluster.result && teamCluster.result.data && location.search == '?createDatabase'){
       _this.setState({
         CreateDatabaseModalShow: true,

@@ -1631,13 +1631,16 @@ let EditTenxFlowModal = React.createClass({
           <Modal className='dockerFileEditModal'
             title={<FormattedMessage {...menusText.dockerFileTitle} />}
             visible={this.state.dockerFileModalShow}
-            onOk={this.closeDockerFileModal}
-            onCancel={this.closeDockerFileModal}
+            maskClosable={false}
+            footer={null}
             >
             <DockerFileEditor value={this.state.dockerFileTextarea} callback={this.onChangeDockerFileTextarea} options={defaultOptions} />
             <div className='btnBox'>
               <Button size='large' type='primary' loading={this.state.updateDfBtnLoading} onClick={this.handleUpdateDockerfile}>
                 <span>保存并使用</span>
+              </Button>
+               <Button size='large' onClick={this.closeDockerFileModal}>
+                <span>取消</span>
               </Button>
             </div>
           </Modal>

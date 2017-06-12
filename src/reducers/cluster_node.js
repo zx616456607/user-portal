@@ -123,19 +123,19 @@ function clusterLabel(state = {}, action) {
       })
     }
     // add labels
-    case ActionTypes.ADD_LABELS_SUCCESS: {
-      const oldState = cloneDeep(state)
-      if (!oldState.hasOwnProperty(cluster)) {
-        return oldState
-      }
-      const mergeMap = action.response.result.data
-      mergeMap.map((item)=>{
-        oldState[cluster].back.summary.unshift(item)
-      })
-      const newState = oldState[cluster].back.summary
-      oldState[cluster].result.summary = oldState[cluster].back.summary = newState
-      return oldState
-    }
+    // case ActionTypes.ADD_LABELS_SUCCESS: {
+    //   const oldState = cloneDeep(state)
+    //   if (!oldState.hasOwnProperty(cluster)) {
+    //     return oldState
+    //   }
+    //   const mergeMap = action.response.result.data
+    //   mergeMap.map((item)=>{
+    //     oldState[cluster].back.summary.unshift(item)
+    //   })
+    //   const newState = oldState[cluster].back.summary
+    //   oldState[cluster].result.summary = oldState[cluster].back.summary = newState
+    //   return oldState
+    // }
 
     // delete labels or edit labels
     case ActionTypes.EDIT_LABELS_SUCCESS: {
