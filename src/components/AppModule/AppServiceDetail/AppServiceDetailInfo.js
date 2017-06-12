@@ -32,6 +32,7 @@ class MyComponent extends Component {
     this.ModalDeleteOk = this.ModalDeleteOk.bind(this)
     this.ModalDeleteCancel = this.ModalDeleteCancel.bind(this)
     this.envNameCheck = this.envNameCheck.bind(this)
+    this.editServiceConfirm = this.editServiceConfirm.bind(this)
     this.state = {
       rowDisableArray : [],
       dataArray : [],
@@ -40,6 +41,8 @@ class MyComponent extends Component {
       DeletingEnvName : '',
       DeletingEnvIndex : '',
       buttonLoading : false,
+      appEditBtn: false,
+      appEditLoading: false
     }
   }
 
@@ -62,7 +65,6 @@ class MyComponent extends Component {
       saveBtnLoadingArray,
     })
   }
-
   handleEdit(index){
     const { rowDisableArray, dataArray } = this.state
     rowDisableArray[index].disable = true
@@ -106,9 +108,46 @@ class MyComponent extends Component {
       rowDisableArray
     })
   }
+  editServiceConfirm(){
+    const { rowDisableArray, dataArray, saveBtnLoadingArray } = this.state
+    const { serviceDetail, cluster, editServiceEnv } = this.props
+    const Notification = new NotificationHandler()
+    this.setState({appEditLoading: true})
+    let body = {
+      clusterId : cluster,
+      service : serviceDetail.metadata.name,
+      arr : dataArray
+    }
+    editServiceEnv(body,{
+      success : {
+        func : () => {
+          Notification.success('环境变量修改成功！')
+          this.setState({
+            rowDisableArray,
+            dataArray,
+            saveBtnLoadingArray,
+            appEditBtn: false,
+            appEditLoading: false
+          })
+        },
+        isAsync : true
+      },
+      failed : {
+        func : () => {
+          Notification.error('环境变量修改失败！')
+          this.setState({
+            rowDisableArray,
+            saveBtnLoadingArray,
+            appEditLoading: false
+          })
+        },
+        isAsync : true
+      }
+    })
+  }
   handleSaveEdit(index){
     const { rowDisableArray, dataArray, saveBtnLoadingArray } = this.state
-    const { form, serviceDetail, cluster, editServiceEnv, changeAppEditBtn } = this.props
+    const { form } = this.props
     const { getFieldValue } = form
     const Notification = new NotificationHandler()
     let name = getFieldValue(`envName${index}`)
@@ -126,46 +165,24 @@ class MyComponent extends Component {
         return
       }
     }
-    changeAppEditBtn(true)
     saveBtnLoadingArray[index].loading = true
-    this.setState({
-      saveBtnLoadingArray
-    })
     dataArray[index].name = name
     dataArray[index].value = value
-    let body = {
-      clusterId : cluster,
-      service : serviceDetail.metadata.name,
-      arr : dataArray
-    }
-    editServiceEnv(body,{
-      success : {
-        func : () => {
-          Notification.success('环境变量修改成功！')
-          saveBtnLoadingArray[index].loading = false
-          rowDisableArray[index].disable = false
-          delete dataArray[index].flag
-          delete dataArray[index].edit
-          this.setState({
-            rowDisableArray,
-            dataArray,
-            saveBtnLoadingArray,
-          })
-        },
-        isAsync : true
-      },
-      failed : {
-        func : () => {
-          Notification.error('环境变量修改失败！')
-          rowDisableArray[index].disable = false
-          saveBtnLoadingArray[index].loading = false
-          this.setState({
-            rowDisableArray,
-            saveBtnLoadingArray
-          })
-        },
-        isAsync : true
-      }
+    this.setState({
+      saveBtnLoadingArray,
+      appEditBtn: true
+    },()=>{
+      setTimeout(()=>{
+        saveBtnLoadingArray[index].loading = false
+        rowDisableArray[index].disable = false
+        delete dataArray[index].flag
+        delete dataArray[index].edit
+        this.setState({
+          rowDisableArray,
+          dataArray,
+          saveBtnLoadingArray,
+        })
+      },300)
     })
   }
 
@@ -209,6 +226,7 @@ class MyComponent extends Component {
     this.setState({
       buttonLoading : true,
       ModalDeleteVisible : false,
+      appEditBtn: true
     })
     editServiceEnv(body,{
       success : {
@@ -331,6 +349,24 @@ class MyComponent extends Component {
     const { DeletingEnvName } = this.state
     return (
       <div className='DetailInfo__MyComponent'>
+        <div className="environment commonBox">
+          <span className="titleSpan">环境变量</span>
+          <div className={classNames("editTip",{'hide' : !this.state.appEditBtn})}>修改尚未更新，请点击"应用修改"使之生效</div>
+          <Button size="large" type="primary" disabled={this.state.appEditBtn ? false : true} loading={this.state.appEditLoading} onClick={this.editServiceConfirm}>应用修改</Button>
+          <div className="titleBox">
+            <div className="commonTitle">
+              变量名
+            </div>
+            <div className="commonTitle">
+              变量值
+            </div>
+            <div className="commonTitle">
+              操作
+            </div>
+            <div style={{ clear: 'both' }}></div>
+          </div>
+  
+        </div>
         <div>
           <Form>
             {this.templateTable(this.state.dataArray,this.state.rowDisableArray)}
@@ -379,7 +415,7 @@ function mapStateToProp(state, props){
 }
 
 MyComponent = connect(mapStateToProp, {
-  editServiceEnv
+  editServiceEnv,
 })(MyComponent)
 
 
@@ -387,14 +423,8 @@ export default class AppServiceDetailInfo extends Component {
   constructor(props) {
     super(props)
     this.state={
-      appEditBtn:false
+    
     }
-  }
-  changeAppEditBtn(flag) {
-    this.setState({appEditBtn: flag})
-  }
-  appModifySave=()=> {
-  
   }
   getMount(container) {
      let ele = []
@@ -544,28 +574,11 @@ export default class AppServiceDetailInfo extends Component {
             <div style={{ clear: 'both' }}></div>
           </div>
         </div>
-        <div className="environment commonBox">
-          <span className="titleSpan">环境变量</span>
-          {/*<div className={classNames("editTip",{'hide' : !this.state.appEditBtn})}>修改尚未更新，请点击"应用修改"使之生效</div>*/}
-          {/*<Button size="large" type="primary" disabled={this.state.appEditBtn ? false : true} onClick={this.appModifySave}>应用修改</Button>*/}
-          <div className="titleBox">
-            <div className="commonTitle">
-              变量名
-            </div>
-            <div className="commonTitle">
-              变量值
-            </div>
-            <div className="commonTitle">
-              操作
-            </div>
-            <div style={{ clear: 'both' }}></div>
-          </div>
-          <MyComponent
-            serviceDetail={serviceDetail}
-            cluster={cluster}
-            changeAppEditBtn={this.changeAppEditBtn.bind(this)}
-          />
-        </div>
+        <MyComponent
+          ref="envComponent"
+          serviceDetail={serviceDetail}
+          cluster={cluster}
+        />
         <div className="storage commonBox">
           <span className="titleSpan">存储卷</span>
           <div className="titleBox">
