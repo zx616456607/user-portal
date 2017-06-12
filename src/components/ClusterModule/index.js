@@ -187,7 +187,7 @@ let NoClusterStepOne = React.createClass({
       }
       return true
     })
-    const { url } = registryConfig.configDetail
+    const { url } = registryConfig.configDetail || {}
     /*const { v2Server, v2AuthServer, protocol, host, port } = registryConfig.configDetail || {}
     const extendProps = getFieldProps('extend', {
       rules: [

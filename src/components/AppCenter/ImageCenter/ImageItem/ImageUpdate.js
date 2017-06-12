@@ -1000,24 +1000,24 @@ class ImageUpdate extends Component {
               <Input size="large" placeholder='搜索' className='inputStandrd' onPressEnter={this.handleSearchRules}
                 onChange={this.handleInputValue}/>
               <Icon type="search" className='iconSearch' onClick={this.handleSearchRules}/>
-            </span>
+            </span>*/}
             {
               rulesData.length
               ? <span className='totleNum'>共计：{rulesData.length} 条</span>
               : null
-            }*/}
+            }
           </div>
           <div className="body">
             <Table
               columns={rulesColumn}
               dataSource={rulesData}
-              pagination={false}
+              pagination={{simple: true}}
             />
           </div>
         </div>
         <div className='updataTask'>
           <div className='title'>同步任务</div>
-          {/*<div className="header">
+          <div className="header">
             <span className="searchBox">
               <Input size="large" placeholder='搜索' className='inputStandrd' onPressEnter={this.handleSearchRules}
                 onChange={this.handleInputValue}/>
@@ -1028,12 +1028,12 @@ class ImageUpdate extends Component {
               ? <span className='totleNum'>共计：{taskUpdataData.length} 条</span>
               : null
             }
-          </div>*/}
+          </div>
           <div className="body">
             <Table
               columns={updataTaskColumn}
               dataSource={taskUpdataData}
-              pagination={false}
+              pagination={{simple: true}}
             />
           </div>
         </div>
