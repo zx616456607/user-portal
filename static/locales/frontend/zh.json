@@ -467,6 +467,8 @@
   "ManageMonitor.operationalAudit.InstanceMetrics": "实例指标",
   "ManageMonitor.operationalAudit.InstanceExport": "镜像导出",
   "ManageMonitor.operationalAudit.Snapshot": "快照",
+  "ManageMonitor.operationalAudit.RollBack": "回滚",
+  "ManageMonitor.operationalAudit.Clone": "克隆",
   "ManageMonitor.operationalAudit.InstanceContainerMetrics": "实例容器指标",
   "ManageMonitor.operationalAudit.Service": "服务",
   "ManageMonitor.operationalAudit.ServiceInstance": "服务实例",

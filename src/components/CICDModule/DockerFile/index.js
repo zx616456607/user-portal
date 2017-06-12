@@ -216,7 +216,7 @@ const MyComponent = React.createClass({
             <Button size='large' type='primary' onClick={this.editDockerFile}>
               <span>确定</span>
             </Button>
-            <Button size='large' type='primary' onClick={this.closeModal}>
+            <Button size='large' onClick={this.closeModal}>
               <span>取消</span>
             </Button>
           </div>

@@ -201,7 +201,7 @@ class CostRecord extends Component{
           axisPointer: {
             animation: false
           },
-          formatter: standard ? '{b}<br/>消费 ￥{c}' : '{b}<br/>消费 {c}T币',
+          formatter: standard ? '{b}<br/>消费 ￥{c}' : '{b}<br/>消费 {c} T',
           textStyle: {
             color: '#666',
             fontSize: 12,
@@ -590,11 +590,11 @@ function getSpaceMonthCost(balance, cost, standard) {
         formatter: function (name) {
           if(name === '余额'){
             let balanceText = standard ? (name + '：￥ ' + balance) :
-                                        (name + '：' +balance + 'T币')
+                                        (name + '：' +balance + ' T')
             return balanceText
           } else {
             let costText = standard ? (name + '：￥ ' + cost) :
-                                      (name + '：' + cost + 'T币')
+                                      (name + '：' + cost + ' T')
             return costText
           }
         },

@@ -178,7 +178,7 @@ class AlarmDetail extends Component {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
     let settingData = this.props.setting
-    let { leftSetting } = this.props
+    let { leftSetting, location} = this.props
     if(leftSetting.isEmptyObject) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
@@ -209,7 +209,7 @@ class AlarmDetail extends Component {
         key:'recordCount',
       },
     ];
-    const strategyName = this.props.params.id
+    const strategyName = location.query.name
 
     const _this = this
     const rowSelection = {

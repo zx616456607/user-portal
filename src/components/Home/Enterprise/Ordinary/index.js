@@ -270,10 +270,12 @@ class Ordinary extends Component {
     //计算资源使用率
     //CPU
     let CPUNameArr = []
+    let CPUResourceName = []
     let CPUUsedArr = []
     if (clusterNodeSummary.cpu.length !== 0) {
       clusterNodeSummary.cpu.slice(0, 3).map((item, index) => {
         let name = item.name.replace(/192.168./, '')
+        CPUResourceName.push(name)
         name = name.length > 9 ? `${name.substring(0,6)}...` : name
         CPUNameArr.push(name)
         CPUUsedArr.push(item.used)
@@ -283,10 +285,12 @@ class Ordinary extends Component {
     }
     //内存
     let memoryNameArr = []
+    let memoryResourceName = []
     let memoryUsedArr = []
     if (clusterNodeSummary.memory.length !== 0) {
       clusterNodeSummary.memory.slice(0, 3).map((item, index) => {
         let name = item.name.replace(/192.168./, '')
+        memoryResourceName.push(name)
         name = name.length > 9 ? `${name.substring(0,6)}...` : name
         memoryNameArr.push(name)
         memoryUsedArr.push(item.used)
@@ -392,13 +396,13 @@ class Ordinary extends Component {
     //volume
     let volumeAllocated = parseFloat(volumeSummary.allocated)
     if (volumeCapacity.toLowerCase().indexOf('g') > 0) {
-      volumeCapacity = parseFloat(volumeCapacity * 1024).toFixed(2)
-    } else if (volumeCapacity.toLowerCase().indexOf('t') > 0) {
-      volumeCapacity = (parseFloat(volumeCapacity) * 1024 * 1024).toFixed(2)
-    } else {
       volumeCapacity = parseFloat(volumeCapacity).toFixed(2)
+    } else if (volumeCapacity.toLowerCase().indexOf('t') > 0) {
+      volumeCapacity = (parseFloat(volumeCapacity) * 1024).toFixed(2)
+    } else {
+      volumeCapacity = (parseFloat(volumeCapacity) / 1024).toFixed(2)
     }
-    let volumeUsedPrecent = Math.ceil(volumeAllocated / volumeCapacity * 100)
+    let volumeUsedPrecent = Math.ceil(volumeAllocated / (volumeCapacity * 1024) * 100)
     let volumeUsed = (volumeAllocated / 1024).toFixed(2)
 
     // pod number
@@ -645,11 +649,30 @@ class Ordinary extends Component {
       },
       color: ['#46b2fa'],
       tooltip: {
+        width: '100px',
         trigger: 'axis',
         axisPointer: {
           type: 'shadow'
         },
-        formatter: clusterNodeSummary.cpu.length === 0 ? '{c}' : '{b} : {c}%'
+        formatter: function (params) {
+          let content = '';
+          for(let i = 0; i < params.length; i++){
+            if(params[i].name){
+              content += "<div>"+CPUResourceName[i] ;
+              break;
+            }
+          }
+          for(let i = 0, key = {}; i < params.length; i++){
+            key = params[i];
+            if( typeof key.value==='undefined' || key.value === '-')
+              key.value = '暂无';
+            content += key.seriesName + " : " + key.value + "%";
+          }
+          content += '</div>';
+  
+          //return出去后echarts会调用html()函数将content字符串代码化
+          return content;
+        }
       },
       grid: {
         left: '3%',
@@ -715,7 +738,25 @@ class Ordinary extends Component {
         axisPointer: {
           type: 'shadow'
         },
-        formatter: clusterNodeSummary.memory.length === 0 ? '{c}' : '{b} : {c}%'
+        formatter: function (params) {
+          let content = '';
+          for(let i = 0; i < params.length; i++){
+            if(params[i].name){
+              content += "<div>"+memoryResourceName[i] ;
+              break;
+            }
+          }
+          for(let i = 0, key = {}; i < params.length; i++){
+            key = params[i];
+            if( typeof key.value==='undefined' || key.value === '-')
+              key.value = '暂无';
+            content += key.seriesName + " : " + key.value + "%";
+          }
+          content += '</div>';
+    
+          //return出去后echarts会调用html()函数将content字符串代码化
+          return content;
+        }
       },
       grid: {
         left: '3%',
