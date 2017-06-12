@@ -54,7 +54,7 @@ let ImageEnvComponent = React.createClass({
               if (!result.data) return
               let allEnv = {}
               const { scope, form, registry, config } = self.props;
-              const { setFieldsValue } = form
+              const { setFieldsValue, getFieldValue } = form
               let imageEnv = result.data
               let envs = imageEnv.defaultEnv
               if (envs) {
@@ -90,6 +90,13 @@ let ImageEnvComponent = React.createClass({
                   uuid: allEnvName.length
                 })
               }
+              setTimeout(() => {
+                const arr = getFieldValue('imageEnvInputs')
+                const index = arr[arr.length - 1]
+                if (document.getElementById(`imageEnvName${index}`)) {
+                  document.getElementById(`imageEnvName${index}`).focus()
+                }
+              }, 300)
             }
           },
           failed: {
@@ -113,7 +120,16 @@ let ImageEnvComponent = React.createClass({
     const { form } = nextProps
     let imageName = form.getFieldValue('imageName')
     if(nextProps.visible != this.props.visible && nextProps.visible && this.state.currentImageName != imageName) {
-      this.loadData()
+      return this.loadData()
+    }
+    if (nextProps.visible != this.props.visible && nextProps.visible) {
+      let keys = form.getFieldValue('imageEnvInputs')
+      const index = keys[keys.length - 1]
+      if (document.getElementById(`imageEnvName${index}`)) {
+        setTimeout(() => {
+          document.getElementById(`imageEnvName${index}`).focus()
+        }, 0)
+      }
     }
   },
   shouldComponentUpdate(nextProps) {
@@ -142,6 +158,7 @@ let ImageEnvComponent = React.createClass({
     form.setFieldsValue({
       'imageEnvInputs': keys
     });
+    setTimeout(()=> document.getElementById(`imageEnvName${this.state.uuid}`).focus(),300)
   },
   removeImageEnv (k, index, scope){
     //this function for user remove the input div
@@ -156,8 +173,9 @@ let ImageEnvComponent = React.createClass({
       'imageEnvInputs': keys
     });
     if(keys.length == 0) {
-      this.addImageEnv(scope)
+      return this.addImageEnv(scope)
     }
+    setTimeout(()=> document.getElementById(`imageEnvName${keys[keys.length - 1]}`).focus(),0)
   },
   closeModal () {
     //this function for user close the env input modal
@@ -183,7 +201,6 @@ let ImageEnvComponent = React.createClass({
     });
     const ImageEnvInputItems = getFieldValue('imageEnvInputs').map((i) => {
       let itemKey = '';
-      setTimeout(()=> document.getElementById(`imageEnvName${i}`).focus(),300)
       const ImageEnvNameInputProps = getFieldProps(`imageEnvName${i}`, {
         rules: [
           { message: '请输入环境变量名' },
