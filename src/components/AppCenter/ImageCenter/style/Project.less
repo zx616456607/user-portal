@@ -23,17 +23,15 @@
     .fa-search{margin-left: -20px;font-size: 14px;position: relative;color: #999;cursor: pointer;}
     .totalPage {
       float: right;
-      margin-right: 130px;
-      padding-top: 5px;
+      margin-right: 150px;
+      padding-top: 7px;
     }
 
   }
   .myImage {
     margin-top: 10px;
     margin-bottom: 20px;
-    .ant-table {
-      font-size: 14px;
-    }
+    position: relative;
     .ant-table-thead>tr >th{
       font-weight: normal;
       background: white;
@@ -45,7 +43,17 @@
     .action{button{margin-right: 10px}}
     .ant-table-pagination {
       position: absolute;
-      top:10px;right: 10px;
+      top:-55px;right: 0px;
+    }
+  }
+  .management {
+    .topRow{
+      padding-top: 10px;
+      .totalPage {margin-right: 150px;}
+    }
+    .ant-table-pagination {
+      position: absolute;
+      top:-5px;right: 0px;
     }
   }
   .topNav {
@@ -57,6 +65,33 @@
       border-left: 5px #00A0E9 solid;
       margin-left: 20px;
       margin-right: 50px;
+      font-size: 25px;
     }
+  }
+  .ant-popover-inner-content {
+    padding:0;
+  }
+  .menu-item{
+    line-height: 35px;
+    padding:0 20px;
+    cursor: pointer;
+    &:hover{
+      background: #EDF8FE;
+    }
+    .icon {
+      color: @activeColor;
+      float: right;
+    }
+  }
+  .menu-item.menu-disabled {
+    cursor: not-allowed;
+    background: none;
+  }
+}
+.itemCreateFrom {
+  .createForm{
+    .ant-form-item-label{text-align: left;}
+    .ant-form-item-label label:before{content: ''}
+    .ant-form-item-label label:after{content: ''}
   }
 }

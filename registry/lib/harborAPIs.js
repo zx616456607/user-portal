@@ -9,15 +9,16 @@
  * v0.1 - 2017-06-02
  * @author Wang Lei
 */
+'use strict'
+
 
 var logger = require('../../utils/logger').getLogger('harborAPIs');
+const utils = require('../../utils')
 var request = require('request');
 var async = require('async');
 var queryString = require ('querystring')
 var registryConfigLoader = require('../registryConfigLoader')
 
-// Used to cache basic auth info of each user
-var basicAuthCache = []
 /*
  * Docker registry APIs
  */
@@ -48,6 +49,16 @@ HarborAPIs.prototype.searchProjects = function (query, callback) {
   logger.debug(method, "Request url: " + requestUrl);
   this.sendRequest(requestUrl, 'GET', null, callback);
 };
+
+HarborAPIs.prototype.getStatistics = function (query, callback) {
+  var method = "getStatistics"
+  logger.debug(method, "Get statistics of projects and repositories")
+
+  // If no callback, then will use the 1st parameter as callback, so we can do search all by default
+  var requestUrl = this.getAPIPrefix() + "/statistics"
+  logger.debug(method, "Request url: " + requestUrl)
+  this.sendRequest(requestUrl, 'GET', null, callback)
+}
 
 // [GET] /jobs/replication
 HarborAPIs.prototype.getReplicationJobs = function (query, callback) {
@@ -83,6 +94,12 @@ HarborAPIs.prototype.newReplicationPolicy = function (policy, callback) {
 HarborAPIs.prototype.getReplicationPolicy = function (id, callback) {
   const url = `${this.getAPIPrefix()}/policies/replication/${id}`
   this.sendRequest(url, 'GET', null, callback)
+}
+
+// [DELETE] /policies/replication/{id}
+HarborAPIs.prototype.deleteReplicationPolicy = function (id, callback) {
+  const url = `${this.getAPIPrefix()}/policies/replication/${id}`
+  this.sendRequest(url, 'DELETE', null, callback)
 }
 
 // [PUT] /policies/replication/{id}
@@ -145,6 +162,29 @@ HarborAPIs.prototype.getReplicationTargetRelatedPolicies = function (id, callbac
   this.sendRequest(url, 'GET', null, callback)
 }
 
+HarborAPIs.prototype.deleteRepository = function(name, callback) {
+  const method = 'deleteRepository'
+  logger.debug(method, `delete repo`)
+  const requestUrl =`${this.getAPIPrefix()}/repositories/${name}/tags`
+  logger.debug(method, `Request url: ${requestUrl}`)
+  this.sendRequest(requestUrl, 'DELETE', null, callback)
+}
+
+HarborAPIs.prototype.getRepositoriesTags = function(name, callback) {
+  const method = 'getRepositoriesTags'
+  logger.debug(method, `Get Repos tags`)
+  const requestUrl =`${this.getAPIPrefix()}/repositories/${name}/tags`
+  logger.debug(method, `Request url: ${requestUrl}`)
+  this.sendRequest(requestUrl, 'GET', null, callback)
+}
+
+HarborAPIs.prototype.getRepositoriesManifest = function(name, tag, callback) {
+  const method = 'getRepositoriesManifest'
+  logger.debug(method, `Get Repos tags`)
+  const requestUrl =`${this.getAPIPrefix()}/repositories/${name}/tags/${tag}/manifest`
+  logger.debug(method, `Request url: ${requestUrl}`)
+  this.sendRequest(requestUrl, 'GET', null, callback)
+}
 
 /*----------------log start---------------*/
 
@@ -248,6 +288,89 @@ HarborAPIs.prototype.resetConfigurations = function(callback) {
 
 /*----------------configurations end---------------*/
 
+// [GET] /users/systeminfo
+HarborAPIs.prototype.getSysteminfo = function (callback) {
+  const url = `${this.getAPIPrefix()}/systeminfo`
+  this.sendRequest(url, 'GET', null, callback)
+}
+
+// [GET] /users/current
+HarborAPIs.prototype.getCurrentUser = function (callback) {
+  const url = `${this.getAPIPrefix()}/users/current`
+  this.sendRequest(url, 'GET', null, callback)
+}
+
+// [GET] /projects?page=1&page_size=10&page_name=test&is_public=1
+HarborAPIs.prototype.getProjects = function (query, callback) {
+  var method = "getProjects";
+  logger.debug(method, "Get harbor projects");
+
+  // If no callback, then will use the 1st parameter as callback, so we can do search all by default
+  var requestUrl = this.getAPIPrefix() + "/projects";
+  if (!callback) {
+    callback = query
+  } else {
+    if (query) {
+      requestUrl += `?${utils.toQuerystring(query)}`
+    }
+  }
+  logger.debug(method, "Request url: " + requestUrl);
+  this.sendRequest(requestUrl, 'GET', null, callback);
+}
+
+// [POST] /projects
+HarborAPIs.prototype.createProject = function (body, callback) {
+  const url = `${this.getAPIPrefix()}/projects`
+  this.sendRequest(url, 'POST', body, callback)
+}
+
+// [GET] /projects/:project_id
+HarborAPIs.prototype.getProjectDetail = function (id, callback) {
+  const url = `${this.getAPIPrefix()}/projects/${id}`
+  this.sendRequest(url, 'GET', null, callback)
+}
+
+// [DELETE] /projects/:project_id
+HarborAPIs.prototype.deleteProject = function (id, callback) {
+  const url = `${this.getAPIPrefix()}/projects/${id}`
+  this.sendRequest(url, 'DELETE', null, callback)
+}
+
+// [PUT] /projects/:project_id/publicity
+HarborAPIs.prototype.updateProjectPublicity = function (id, body, callback) {
+  const url = `${this.getAPIPrefix()}/projects/${id}/publicity`
+  this.sendRequest(url, 'PUT', body, callback)
+}
+
+// [GET] /projects/:project_id/members
+HarborAPIs.prototype.getProjectMembers = function (id, query, callback) {
+  const url = `${this.getAPIPrefix()}/projects/${id}/members?${utils.toQuerystring(query)}`
+  this.sendRequest(url, 'GET', null, callback)
+}
+
+// [POST] /projects/:project_id/members
+HarborAPIs.prototype.addProjectMember = function (id, body, callback) {
+  const url = `${this.getAPIPrefix()}/projects/${id}/members`
+  this.sendRequest(url, 'POST', body, callback)
+}
+
+// [PUT] /projects/:project_id/members/:user_id
+HarborAPIs.prototype.updateProjectMember = function (project_id, user_id, body, callback) {
+  const url = `${this.getAPIPrefix()}/projects/${project_id}/members/${user_id}`
+  this.sendRequest(url, 'PUT', body, callback)
+}
+
+// [DELETE] /projects/:project_id/members/:user_id
+HarborAPIs.prototype.deleteProjectMember = function (project_id, user_id, callback) {
+  const url = `${this.getAPIPrefix()}/projects/${project_id}/members/${user_id}`
+  this.sendRequest(url, 'DELETE', null, callback)
+}
+
+// [GET] /repositories
+HarborAPIs.prototype.getProjectRepositories = function (query, callback) {
+  const url = `${this.getAPIPrefix()}/repositories?${utils.toQuerystring(query)}`
+  this.sendRequest(url, 'GET', null, callback)
+}
 
 HarborAPIs.prototype.sendRequest = function (requestUrl, httpMethod, data, callback) {
   var method = "sendRequest";
@@ -261,7 +384,7 @@ HarborAPIs.prototype.sendRequest = function (requestUrl, httpMethod, data, callb
   } else if (httpMethod == 'DELETE') {
     requestAction = request.del;
   }
-  logger.info(method, this.getAuthorizationHeader());
+  logger.debug(method, this.getAuthorizationHeader());
   logger.debug(method, data);
   requestAction({
     url: requestUrl,
@@ -299,8 +422,67 @@ HarborAPIs.prototype.getAuthorizationHeader = function () {
 }
 
 function encodeQueryString(kvs) {
-  return '?' + Object.getOwnPropertyNames(kvs).map(
+  const query = Object.getOwnPropertyNames(kvs).map(
     key => `${encodeURIComponent(key)}=${encodeURIComponent(kvs[key])}`).join('&')
+  if (query) {
+    return '?' + query
+  }
+  return ''
+}
+
+function range(begin, end) {
+  const count = end - begin
+  return Array.apply(null, Array(count)).map((_, index) => index + begin)
+}
+
+function parseAuthParameter(query, parameter) {
+  const removeQuote = JSON.parse
+  const kv = parameter.split('=')
+  const key = kv[0]
+  const value = removeQuote(kv[1])
+  query[key] = value
+  return query
+}
+
+function getRequestBearerTokenURL(realm) {
+  const removeQuote = JSON.parse
+  const params = realm.split(',').map(param => param.trim())
+  const authURL = removeQuote(params[0].split('=')[1])
+  const query = range(1, params.length).reduce(
+    (query, index) => parseAuthParameter(query, params[index]), {})
+  return `${authURL}${encodeQueryString(query)}`
+}
+
+HarborAPIs.prototype.basicAuthToBearerToken = function (realm, callback) {
+  const url = getRequestBearerTokenURL(realm)
+  this.sendRequest(url, 'GET', null, callback)
+}
+
+HarborAPIs.prototype.getManifest = function (repoName, tag, callback) {
+  const registry = this.registryConfig.url
+  const url = `${registry}/v2/${repoName}/manifests/${tag}`
+  request.get({url, json: true}, (err, resp, body) => {
+    if (resp.statusCode == 401) {
+      const realm = resp.headers['www-authenticate']
+      this.basicAuthToBearerToken(realm, (err, statusCode, result) => {
+        if (err) {
+          callback(err, statusCode, result)
+        } else {
+          const token = result.token
+          const headers = {'Authorization': `Bearer ${token}`}
+          request.get({url, json: true, headers}, (err, resp, body) => {
+            callback(err, resp.statusCode, {
+              manifest: body,
+              headers,
+              registry: registry.replace("http://", "").replace("https://", "")
+            })
+          })
+        }
+      })
+    } else {
+      callback(err, resp.statusCode, body)
+    }
+  })
 }
 
 module.exports = HarborAPIs;

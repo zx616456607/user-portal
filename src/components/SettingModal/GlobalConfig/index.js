@@ -544,7 +544,6 @@ let MirrorService = React.createClass({
         return
       }
       const notification = new NotificationHandler()
-      notification.spin('保存中')
       this.setState({
         canClick: false
       })
@@ -559,54 +558,73 @@ let MirrorService = React.createClass({
           url
         }
       }
-      saveGlobalConfig(cluster.clusterID, 'harbor', body, {
-        success: {
-          func: (result) => {
-            notification.close()
-            notification.success('harbor服务配置保存成功')
-            const { form } = self.props
-            const { setFieldsValue } = form
-            self.handleMirror()
-            this.setState({
-              canClick: true,
-              aleardySave: true
-            })
-            if (result.data.toLowerCase() != 'success') {
-              setFieldsValue({
-                harborID: result.data
+      notification.spin('保存中')
+      isValidConfig('harbor', {
+        url: url
+      }, {
+          success: {
+            func: () => {
+              saveGlobalConfig(cluster.clusterID, 'harbor', body, {
+                success: {
+                  func: (result) => {
+                    notification.close()
+                    notification.success('镜像服务配置保存成功')
+                    const { form } = self.props
+                    const { setFieldsValue } = form
+                    self.handleMirror()
+                    this.setState({
+                      canClick: true,
+                      aleardySave: true
+                    })
+                    if (result.data.toLowerCase() != 'success') {
+                      setFieldsValue({
+                        harborID: result.data
+                      })
+                      body.configID = result.data
+                    }
+                    body.configDetail = JSON.stringify(body.detail)
+                    setGlobalConfig('harbor', body)
+                  }
+                },
+                failed: {
+                  func: (err) => {
+                    notification.close()
+                    let msg
+                    if (err.message.message) {
+                      msg = err.message.message
+                    } else {
+                      msg = err.message
+                    }
+                    notification.error('镜像服务配置保存失败 => ' + msg)
+                    self.setState({
+                      canClick: true
+                    })
+                  }
+                }
               })
-              body.configID = result.data
+            },
+            isAsync: true
+          },
+          failed: {
+            func: (res) => {
+               notification.close()
+               notification.error('镜像服务地址不可用')
+               self.setState({
+                 canClick: true
+               })
             }
-            body.configDetail = JSON.stringify(body.detail)
-            setGlobalConfig('harbor', body)
           }
-        },
-        failed: {
-          func: (err) => {
-            notification.close()
-            let msg
-            if (err.message.message) {
-              msg = err.message.message
-            } else {
-              msg = err.message
-            }
-            notification.error('harbor服务配置保存失败 => ' + msg)
-            self.setState({
-              canClick: true
-            })
-          }
-        }
-      })
+        })
     })
   },
   // 镜像服务地址校验规则
   checkMirror(rule, value, callback) {
     if (!value) {
-      callback([new Error('请填写harbor服务地址')])
+      callback([new Error('请填写镜像服务地址')])
       return
     }
     if (!/^(http:\/\/|https\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
-      return callback('请填入合法的harbor服务地址')
+      return callback('请填入合法的镜像服务地址')
     }
     callback()
   },
@@ -643,7 +661,7 @@ let MirrorService = React.createClass({
               <img src={MirrorImg} alt="镜像服务" />
             </div>
             <div className="contentkeys"> 
-              <div className="key">harbor服务地址</div>
+              <div className="key">镜像服务地址</div>
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">

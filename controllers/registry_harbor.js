@@ -11,40 +11,218 @@
 const logger     = require('../utils/logger.js').getLogger("registry_harbor")
 const harborAPIs = require('../registry/lib/harborAPIs')
 const registryConfigLoader = require('../registry/registryConfigLoader')
-const apiFactory = require('../services/api_factory')
 const constants = require('../constants')
 const utils = require('../utils')
 
-var HarborAuthCache = []
 const securityUtil = require('../utils/security')
 
-// Get projects from harbor server
-exports.searchProjects = function* () {
-  const registry = this.params.registry
-  const loginUser = this.session.loginUser
-  const query = this.query || {}
-  var q = query.q || ""
-  let authInfo = yield getAuthInfo(loginUser)
-  const harborAPI = new harborAPIs(getRegistryConfig(), authInfo)
-  const result = yield new Promise(function (resolve, reject) {
-    harborAPI.searchProjects(q, function(err, statusCode, projects) {
+// [GET] /projects/search
+exports.searchProjects = harborHandler(
+  (harbor, ctx, callback) => {
+    harbor.searchProjects(ctx.query.q, callback)
+  }
+)
+
+// [GET] /users/systeminfo
+exports.getSysteminfo = harborHandler(
+  (harbor, ctx, callback) => {
+    harbor.getSysteminfo(callback)
+  }
+)
+
+// [GET] /users/current
+exports.getCurrentUserCtl = function* () {
+  const result = yield getCurrentUser(this.session.loginUser)
+  const body = {
+    server: getRegistryConfig().url,
+    data: result,
+  }
+  this.body = body
+}
+
+function* getCurrentUser(loginUser) {
+  const config = getRegistryConfig()
+  const auth = yield getAuthInfo(loginUser)
+  const harbor = new harborAPIs(config, auth)
+  return new Promise((resolve, reject) => {
+    harbor.getCurrentUser((err, statusCode, body) => {
       if (err) {
         reject(err)
         return
       }
-      if (statusCode > 300) {
-        reject("Error from request: " + statusCode)
-        return
+      resolve(body)
+    })
+  })
+}
+
+exports.getCurrentUser = getCurrentUser
+
+// [GET] /projects?page=1&page_size=10&page_name=test&is_public=1
+exports.getProjects = harborHandler(
+  (harbor, ctx, callback) => harbor.getProjects(ctx.query, callback))
+
+// [POST] /projects
+exports.createProject = harborHandler(
+  (harbor, ctx, callback) => harbor.createProject(ctx.request.body, callback))
+
+// [DELETE] /repositories/:user/:name
+exports.deleteRepository = harborHandler(
+  (harbor, ctx, callback) => {
+    const repoName = `${ctx.params.user}/${ctx.params.name}`
+    harbor.deleteRepository(repoName, callback)
+  }
+)
+
+// [GET] /repositories/:user/:name/tags
+exports.getRepositoriesTags = harborHandler(
+  (harbor, ctx, callback) => {
+    const repoName = `${ctx.params.user}/${ctx.params.name}`
+    harbor.getRepositoriesTags(repoName, callback)
+  }
+)
+// [GET] /repositories/:user/:name/tags/configinfo
+exports.getRepositoriyConfig = function* () {
+  const config = getRegistryConfig()
+  const loginUser = this.session.loginUser
+  const auth = yield getAuthInfo(loginUser)
+  const harbor = new harborAPIs(config, auth)
+  const repoName = `${this.params.user}/${this.params.name}`
+  const tag = this.params.tag
+  const result = yield new Promise((resolve, reject) => {
+    harbor.getRepositoriesManifest(repoName, tag, (err, statusCode, body) => {
+      if(body.config) {
+        body.config = JSON.parse(body.config)
       }
-      resolve(projects)
+      const manifest = body.manifest
+      let size = 0
+      if(manifest && manifest.layers) {
+        manifest.layers.forEach(layer => {
+          size += layer.size
+        })
+      }
+      body.config.size = size
+      resolve(body.config)
     })
   })
   this.body = {
-    server: getRegistryConfig().url,
-    data: result
+    data: result ? _formatConfig(result) : {},
+    server: config.url
   }
 }
 
+function _formatConfig(configInfo) {
+  const config = configInfo.config
+  const body = {
+    defaultEnv: config.Env,
+    mountPath: config.Volume,
+    cmd: config.Cmd,
+    entrypoint: config.Entrypoint,
+    sizeInfo: {
+      totalSize: configInfo.size
+    }
+  }
+  body.containerPorts = []
+  if(config.ExposedPorts) {
+    body.containerPorts = Object.getOwnPropertyNames(config.ExposedPorts)
+  }
+  return body
+}
+
+// [GET] /projects/:project_id
+exports.getProjectDetail = harborHandler(
+  (harbor, ctx, callback) => harbor.getProjectDetail(ctx.params.project_id, callback))
+
+// [DELETE] /projects/:project_id
+exports.deleteProject = harborHandler(
+  (harbor, ctx, callback) => harbor.deleteProject(ctx.params.project_id, callback))
+
+// [PUT] /projects/:project_id/publicity
+exports.updateProjectPublicity = harborHandler(
+  (harbor, ctx, callback) => harbor.updateProjectPublicity(ctx.params.project_id, ctx.request.body, callback))
+
+// [GET] /projects/:project_id/user_id
+exports.getProjectMembers = harborHandler(
+  (harbor, ctx, callback) => harbor.getProjectMembers(ctx.params.project_id, ctx.query, callback))
+
+// [POST] /projects/:project_id/user_id
+exports.addProjectMember = harborHandler(
+  (harbor, ctx, callback) => harbor.addProjectMember(ctx.params.project_id, ctx.request.body, callback))
+
+// [PUT] /projects/:project_id/user_id/:user_id
+exports.updateProjectMember = harborHandler(
+  (harbor, ctx, callback) => harbor.updateProjectMember(ctx.params.project_id, ctx.params.user_id, ctx.request.body, callback))
+
+// [DELETE] /projects/:project_id/user_id/:user_id
+exports.deleteProjectMember = harborHandler(
+  (harbor, ctx, callback) => harbor.deleteProjectMember(ctx.params.project_id, ctx.params.user_id, callback))
+
+// [GET] /repositories
+exports.getProjectRepositories = harborHandler(
+  (harbor, ctx, callback) => harbor.getProjectRepositories(ctx.query, callback))
+
+// [GET] /statistics
+exports.getStatistics = harborHandler(
+  (harbor, ctx, callback) => {
+    const query = utils.isEmptyObject(ctx.query) ? null : ctx.query
+    harbor.getStatistics(query, callback)
+  })
+
+/*------------------log start------------------------*/
+exports.getLogs = harborHandler(
+  (harbor, ctx, callback) => {
+    const query = utils.isEmptyObject(ctx.query) ? null : ctx.query
+    harbor.getLogs(query, callback)
+  })
+
+exports.getProjectLogs = harborHandler(
+  (harbor, ctx, callback, headers) => {
+    const projectID = ctx.params.projectID
+    const query = utils.isEmptyObject(ctx.query) ? null : ctx.query
+    const body = ctx.request.body
+    body.project_id = parseInt(projectID)
+    harbor.getProjectLogs(projectID, query, body, callback)
+  })
+
+/*------------------log end-------------------------*/
+
+
+/*------------------systeminfo start--------------------------------*/
+
+exports.getSystemInfo = harborHandler(
+  (harbor, ctx, callback) => {
+    harbor.getSystemInfo(callback)
+  })
+
+exports.getSystemInfoVolumes = harborHandler(
+  (harbor, ctx, callback) => {
+    harbor.getSystemInfoVolumes(callback)
+  })
+
+exports.getSystemInfoCert = harborHandler(
+  (harbor, ctx, callback) => {
+    harbor.getSystemInfoCert(callback)
+  })
+/*------------------systeminfo end--------------------------------*/
+
+
+/*------------------configurations start--------------------------------*/
+
+exports.getConfigurations = harborHandler(
+  (harbor, ctx, callback) => {
+    harbor.getConfigurations(callback)
+  })
+
+exports.updateConfigurations = harborHandler(
+  (harbor, ctx, callback) => {
+    const body = utils.isEmptyObject(ctx.request.body) ? null : ctx.request.body
+    harbor.updateConfigurations(body, callback)
+  })
+
+exports.resetConfigurations = harborHandler(
+  (harbor, ctx, callback) => {
+    harbor.resetConfigurations(callback)
+  })
+/*------------------configurations end--------------------------------*/
 // [GET] /jobs/replication
 exports.getReplicationJobs = harborHandler(
   (harbor, ctx, callback) => harbor.getReplicationJobs(ctx.query, callback))
@@ -69,6 +247,10 @@ exports.newReplicationPolicy = harborHandler(
 exports.getReplicationPolicy = harborHandler(
   (harbor, ctx, callback) => harbor.getReplicationPolicy(ctx.params.id, callback))
 
+// [DELETE] /policies/replication/{id}
+exports.deleteReplicationPolicy = harborHandler(
+  (harbor, ctx, callback) => harbor.deleteReplicationPolicy(ctx.params.id, callback))
+
 // [PUT] /policies/replication/{id}
 exports.modifyReplicationPolicy = harborHandler(
   (harbor, ctx, callback) => harbor.modifyReplicationPolicy(ctx.params.id, ctx.request.body, callback))
@@ -83,7 +265,17 @@ exports.getReplicationTargets = harborHandler(
 
 // [POST] /targets
 exports.newReplicationTarget = harborHandler(
-  (harbor, ctx, callback) => harbor.newReplicationTarget(ctx.request.body, callback))
+  (harbor, ctx, callback) => harbor.newReplicationTarget(ctx.request.body, (err, statusCode, result, headers) => {
+    if (statusCode === 201 && headers.hasOwnProperty('location') && headers.location) {
+      const targetIDRule = /(?:^|\s)\/api\/targets\/(\d+?)(?:\s|$)/g
+      const match = targetIDRule.exec(headers.location)
+      const targetID = Number(match[1])
+      callback(null, 201, {id: targetID}, {})
+    } else {
+      callback(err, statusCode, result, headers)
+    }
+  })
+)
 
 // [POST] /targets/ping
 exports.pingReplicationTarget = harborHandler(
@@ -109,215 +301,99 @@ exports.deleteReplicationTarget = harborHandler(
 exports.getReplicationTargetRelatedPolicies = harborHandler(
   (harbor, ctx, callback) => harbor.getReplicationTargetRelatedPolicies(ctx.params.id, callback))
 
-/*------------------log start------------------------*/
-exports.getLogs = function* () {
-  const loginUser = this.session.loginUser
-  const registryConfig = getRegistryConfig()
-  const authInfo = yield getAuthInfo(loginUser)
-  const harborAPI = new harborAPIs(registryConfig, authInfo)
-  const query = utils.isEmptyObject(this.query) ? null : this.query
-  const result = yield new Promise((resolve, reject) => {
-    harborAPI.getLogs(query, (err, statusCode, logs) => {
-      if(err) {
-        return reject(err)
-      }
-      if(statusCode > 300) {
-        return reject(`Error from request: ${statusCode}`)
-      }
-      resolve(logs)
-    })
-  })
-  this.body = {
-    server: registryConfig.url,
-    data: result
+exports.getReplicationSummary = harborHandler(
+  (harbor, ctx, callback) => next(null, null, null, ensureUserHasAdminRole, callback, harbor, ctx, {})
+)
+
+function next(err, statusCode, body, successor, predecessor, harbor, ctx, result) {
+  if (err || statusCode > 300) {
+    predecessor(err, statusCode, body)
+  } else {
+    successor(harbor, ctx, predecessor, result)
   }
 }
 
-exports.getProjectLogs = function* () {
-  const loginUser = this.session.loginUser
-  const registryConfig = getRegistryConfig()
-  const authInfo = yield getAuthInfo(loginUser)
-  const harborAPI = new harborAPIs(registryConfig, authInfo)
-  const projectID = this.params.projectID
-  const query = utils.isEmptyObject(this.query) ? null : this.query
-  const body = this.request.body
-  body.project_id = parseInt(projectID)
-  const result = yield new Promise((resolve, reject) => {
-    harborAPI.getProjectLogs(projectID, query, body, (err, statusCode, logs) => {
-      if(err) {
-        return reject(err)
+function ensureUserHasAdminRole(harbor, ctx, callback, result) {
+  harbor.getCurrentUser((err, statusCode, body) => {
+    next(err, statusCode, body, (harbor, ctx, callback, result) => {
+      if (body.has_admin_role === 0) {
+        const err = new Error("only admin role can access replications")
+        err.status = 401
+        callback(err, 401, {})
+      } else {
+        getReplicationPolicies(harbor, ctx, callback, result)
       }
-      if(statusCode > 300) {
-        return reject(`Error from request: ${statusCode}`)
-      }
-      resolve(logs)
-    })
+    }, callback, harbor, ctx, result)
   })
-  this.body = {
-    server: registryConfig.url,
-    data: result
-  }
-}
-/*------------------log end-------------------------*/
-
-
-/*------------------systeminfo start--------------------------------*/
-exports.getSystemInfo = function* () {
-  const loginUser = this.session.loginUser
-  const registryConfig = getRegistryConfig()
-  const authInfo = yield getAuthInfo(loginUser)
-  const harborAPI = new harborAPIs(registryConfig, authInfo)
-  const result = yield new Promise((resolve, reject) => {
-    harborAPI.getSystemInfo((err, statusCode, logs) => {
-      if(err) {
-        return reject(err)
-      }
-      if(statusCode > 300) {
-        return reject(`Error from request: ${statusCode}`)
-      }
-      resolve(logs)
-    })
-  })
-  this.body = {
-    server: registryConfig.url,
-    data: result
-  }
 }
 
-exports.getSystemInfoVolumes = function* () {
-  const loginUser = this.session.loginUser
-  if(loginUser.role != constants.ADMIN_ROLE) {
-    const err = new Error('No admin user')
-    throw err
-  }
-  const registryConfig = getRegistryConfig()
-  const authInfo = yield getAuthInfo(loginUser)
-  const harborAPI = new harborAPIs(registryConfig, authInfo)
-  const result = yield new Promise((resolve, reject) => {
-    harborAPI.getSystemInfoVolumes((err, statusCode, volumes) => {
-      if(err) {
-        return reject(err)
-      }
-      if(statusCode > 300) {
-        return reject(`Error from request: ${statusCode}`)
-      }
-      resolve(volumes)
-    })
+function getReplicationPolicies(harbor, ctx, callback, result) {
+  harbor.getReplicationPolicies({project_id: ctx.params.id}, (err, statusCode, body) => {
+    next(err, statusCode, body, (harbor, ctx, callback, result) => {
+      result.policies = body ? body : []
+      getReplicationJobs(harbor, ctx, callback, result)
+    }, callback, harbor, ctx, result)
   })
-  this.body = {
-    server: registryConfig.url,
-    data: result
+}
+
+function JobsIterator(result, policyIDs, harbor, ctx, callback) {
+  this.result = result
+  this.jobs = []
+  this.callback = callback
+  this.harbor = harbor
+  this.ctx = ctx
+  this.ids = policyIDs
+  this.count = policyIDs.length
+  this.index = 0
+}
+
+JobsIterator.prototype.next = function (err, statusCode, body) {
+  if (err || statusCode > 300) {
+    this.callback(err, statusCode, body)
+  } else {
+    if (body) {
+      this.jobs = this.jobs.concat(body)
+    }
+    if (this.end()) {
+      this.result.jobs = this.jobs
+      next(err, statusCode, body, getReplicationTargets, this.callback, this.harbor, this.ctx, this.result)
+    } else {
+      this.harbor.getReplicationJobs({policy_id: this.currentPolicyID()}, this.next.bind(this))
+    }
   }
 }
 
-exports.getSystemInfoCert = function* () {
-  const loginUser = this.session.loginUser
-  if(loginUser.role != constants.ADMIN_ROLE) {
-    const err = new Error('No admin user')
-    throw err
-  }
-  const registryConfig = getRegistryConfig()
-  const authInfo = yield getAuthInfo(loginUser)
-  const harborAPI = new harborAPIs(registryConfig, authInfo)
-  const result = yield new Promise((resolve, reject) => {
-    harborAPI.getSystemInfoCert((err, statusCode, cert) => {
-      if(err) {
-        return reject(err)
-      }
-      if(statusCode > 300) {
-        return reject(`Error from request: ${statusCode}`)
-      }
-      resolve(cert)
-    })
-  })
-  this.body = {
-    server: registryConfig.url,
-    data: result
-  }
+JobsIterator.prototype.end = function () {
+  return ++this.index >= this.count
 }
-/*------------------systeminfo end--------------------------------*/
 
+JobsIterator.prototype.currentPolicyID = function () {
+  return this.ids[this.index]
+}
 
-/*------------------configurations start--------------------------------*/
-exports.getConfigurations = function* () {
-  const loginUser = this.session.loginUser
-  if(loginUser.role != constants.ADMIN_ROLE) {
-    const err = new Error('No admin user')
-    throw err
-  }
-  const registryConfig = getRegistryConfig()
-  const authInfo = yield getAuthInfo(loginUser)
-  const harborAPI = new harborAPIs(registryConfig, authInfo)
-  const result = yield new Promise((resolve, reject) => {
-    harborAPI.getConfigurations((err, statusCode, configurations) => {
-      if(err) {
-        return reject(err)
-      }
-      if(statusCode > 300) {
-        return reject(`Error from request: ${statusCode}`)
-      }
-      resolve(configurations)
-    })
-  })
-  this.body = {
-    server: registryConfig.url,
-    data: result
+function getReplicationJobs(harbor, ctx, callback, result) {
+  const policyIDs = result.policies.map(policy => policy.id)
+  const count = policyIDs.length
+  if (count > 0) {
+    const iterator = new JobsIterator(result, policyIDs, harbor, ctx, callback)
+    harbor.getReplicationJobs({policy_id: policyIDs[0]}, iterator.next.bind(iterator))
+  } else {
+    next(null, null, null, (harbor, ctx, callback, result) => {
+      result.jobs = []
+      getReplicationTargets(harbor, ctx, callback, result)
+    }, callback, harbor, ctx, result)
   }
 }
 
-exports.updateConfigurations = function* () {
-  const loginUser = this.session.loginUser
-  if(loginUser.role != constants.ADMIN_ROLE) {
-    const err = new Error('No admin user')
-    throw err
-  }
-  const registryConfig = getRegistryConfig()
-  const authInfo = yield getAuthInfo(loginUser)
-  const harborAPI = new harborAPIs(registryConfig, authInfo)
-  const body = utils.isEmptyObject(this.request.body) ? null : this.request.body
-  const result = yield new Promise((resolve, reject) => {
-    harborAPI.updateConfigurations(body, (err, statusCode, updateResult) => {
-      if(err) {
-        return reject(err)
-      }
-      if(statusCode > 300) {
-        return reject(`Error from request: ${statusCode}`)
-      }
-      resolve(updateResult)
-    })
+function getReplicationTargets(harbor, ctx, callback, result) {
+  harbor.getReplicationTargets({}, (err, statusCode, body) => {
+    next(err, statusCode, body, (harbor, ctx, callback, result) => {
+      const resolve = callback
+      result.targets = body ? body : []
+      resolve(null, 200, result)
+    }, callback, harbor, ctx, result)
   })
-  this.body = {
-    server: registryConfig.url,
-    data: result
-  }
 }
-
-exports.resetConfigurations = function* () {
-  const loginUser = this.session.loginUser
-  if(loginUser.role != constants.ADMIN_ROLE) {
-    const err = new Error('No admin user')
-    throw err
-  }
-  const registryConfig = getRegistryConfig()
-  const authInfo = yield getAuthInfo(loginUser)
-  const harborAPI = new harborAPIs(registryConfig, authInfo)
-  const result = yield new Promise((resolve, reject) => {
-    harborAPI.resetConfigurations((err, statusCode, resetResult) => {
-      if(err) {
-        return reject(err)
-      }
-      if(statusCode > 300) {
-        return reject(`Error from request: ${statusCode}`)
-      }
-      resolve(resetResult)
-    })
-  })
-  this.body = {
-    server: registryConfig.url,
-    data: result
-  }
-}
-/*------------------configurations end--------------------------------*/
 
 function getRegistryConfig() {
   // Global check
@@ -326,6 +402,13 @@ function getRegistryConfig() {
   }
   // Default registry url
   return {url: "localhost"}
+}
+
+/*
+Get registry auth info from user session
+*/
+function* getAuthInfo(loginUser) {
+  return securityUtil.decryptContent(loginUser.registryAuth)
 }
 
 function harborHandler(handler) {
@@ -339,17 +422,25 @@ function harborHandler(handler) {
         if (err) {
           reject(err)
         } else if (statusCode > 300) {
-          err = new Error("call harbor native api failed")
+          err = new Error("请求镜像仓库错误，错误代码：" + statusCode)
           err.status = statusCode
           reject(err)
         } else {
-          resolve(result)
+          resolve({ result, headers })
         }
       })
     })
-    this.body = {
-      data: result
+    const body = {
+      server: getRegistryConfig().url,
+      data: result.result,
     }
+    if (result.hasOwnProperty('headers')
+      && result.headers
+      && result.headers.hasOwnProperty('x-total-count')
+      && result.headers['x-total-count']) {
+      body.total = parseInt(result.headers['x-total-count'])
+    }
+    this.body = body
   }
 }
 /*

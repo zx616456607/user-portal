@@ -177,7 +177,6 @@ let ConfigureService = React.createClass({
       cmd,
       defaultEnv,
     } = configs
-
     // set storage `./NormalSetting/Storage.js`
     if (!mountPath || !Array.isArray(mountPath)) {
       mountPath = []

@@ -19,6 +19,7 @@ import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { appNameCheck } from '../../../../../common/naming_validation'
 import DockerFileEditor from '../../../../Editor/DockerFile'
 import { updateTenxFlowState, getDockerfiles, setDockerfile, getAvailableImage, updateTenxFlow, getTenxFlowDetail, } from '../../../../../actions/cicd_flow'
+import { loadProjectList } from '../../../../../actions/harbor'
 import './style/EditTenxFlowModal.less'
 import findIndex from 'lodash/findIndex'
 import EnvComponent from './CreateEnvComponent.js'
@@ -284,8 +285,9 @@ let EditTenxFlowModal = React.createClass({
   componentWillMount() {
     // const {getAvailableImage} = this.props
     // getAvailableImage()
-    const { loadClusterList } = this.props
+    const { loadClusterList, loadProjectList } = this.props
     loadClusterList()
+    loadProjectList(DEFAULT_REGISTRY, { page_size: 100 })
   },
   componentDidMount() {
     uuid = 0;
@@ -884,13 +886,24 @@ let EditTenxFlowModal = React.createClass({
       }
       //if user select the image build type (3),the body will be add new body
       if (this.state.otherFlowType == 3) {
-        let dockerFileFrom = _this.state.useDockerfile ? 1 : 2;
+        let dockerFileFrom = _this.state.useDockerfile ? 1 : 2
+        // Get the projectId of harbor project
+        let harborProjects = this.props.harborProjects.list || []
+        let projectId = 0
+        for (let i in harborProjects) {
+          if (values.harborProjectName == harborProjects[i].name) {
+            projectId = harborProjects[i].projectId
+            break
+          }
+        }
         let imageBuildBody = {
           'DockerfileFrom': dockerFileFrom,
           'registryType': parseInt(values.imageType),
           'imageTagType': parseInt(values.imageTag),
           'noCache': !values.buildCache,
-          'image': values.imageRealName
+          'image': values.imageRealName,
+          'project': values.harborProjectName,
+          'projectId': projectId
         }
         if (this.state.otherTag) {
           imageBuildBody.customTag = values.otherTag;
@@ -992,10 +1005,11 @@ let EditTenxFlowModal = React.createClass({
     })
   },
   getOtherImage() {
-    if(!this.props.otherImage ||  this.props.otherImage.length <= 0){
+    const { otherImage } = this.props
+    if(!otherImage || !Array.isArray(otherImage)){
       return []
     }
-    return this.props.otherImage.map(item => {
+    return otherImage.map(item => {
       return <Option key={item.id} value={item.id}>{item.title}</Option>
     })
   },
@@ -1026,7 +1040,8 @@ let EditTenxFlowModal = React.createClass({
   baseImageChange(key, tabKey, groupKey) {
     const { setFieldsValue } = this.props.form
     this.setState({
-      baseImageUrl: key
+      baseImageUrl: key,
+      otherFlowType: groupKey,
     })
     setFieldsValue({
       imageName: key
@@ -1306,6 +1321,12 @@ let EditTenxFlowModal = React.createClass({
       ],
       initialValue: (!!config.spec.build ? config.spec.build.image : null)
     });
+    const harborProjectProps = getFieldProps('harborProjectName', {
+      rules: [
+        { message: '请选择仓库组', required: this.state.otherFlowType == 3 },
+      ],
+      initialValue: (!!config.spec.build ? config.spec.build.project : null)
+    });
     const configBaseConfig = config.spec.container.image
     const imageNameProps = getFieldProps('imageName', {
       rules: [
@@ -1546,15 +1567,29 @@ let EditTenxFlowModal = React.createClass({
                         <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio>
                         <Radio key='otherImage' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
                       </RadioGroup>
-                      <div className="customizeBaseImage">
-                        为方便管理，构建后的镜像可发布到镜像仓库（私有仓库）或第三方仓库中
-                      </div>
                     </FormItem>
-                    <FormItem style={{ float: 'left', width:'120px' }}>
+                    <FormItem style={{ width:'220px' }}>
                       <Select {...validOtherImage} style={{display: getFieldProps('imageType').value == '3' ? 'inline-block' : 'none'}}>
                         {this.getOtherImage()}
                       </Select>
                     </FormItem>
+                    <FormItem style={{ width: '220px'}}>
+                      <Select {...harborProjectProps} size='large' style={{display: !this.state.showOtherImage ? 'inline-block' : 'none'}}>
+                        {
+                          (this.props.harborProjects.list || []).map(project => {
+                            const currentRoleId = project[camelize('current_user_role_id')]
+                            return (
+                              <Option key={project.name} disabled={currentRoleId != 1}>
+                                {project.name} {(currentRoleId == 2 || currentRoleId == 3) && '（访客）'}
+                              </Option>
+                            )}
+                          )
+                        }
+                      </Select>
+                    </FormItem>
+                    <div className="customizeBaseImage">
+                      为方便管理，构建后的镜像可发布到镜像仓库（私有仓库）或第三方仓库中
+                    </div>
                     <div style={{ clear: 'both' }} />
                   </div>
                   <div style={{ clear: 'both' }} />
@@ -1699,9 +1734,11 @@ function mapStateToProps(state, props) {
   if(!clusters || Object.getOwnPropertyNames(clusters).length == 0) {
     clusters = defaultClusterList
   }
+  let harborProjects = state.harbor.projects && state.harbor.projects[DEFAULT_REGISTRY] || {}
   return {
     clusters,
-    clustersNodes
+    clustersNodes,
+    harborProjects,
   }
 }
 
@@ -1719,7 +1756,8 @@ export default connect(mapStateToProps, {
   updateTenxFlow,
   getTenxFlowDetail,
   loadClusterList,
-  getAllClusterNodes
+  getAllClusterNodes,
+  loadProjectList,
 })(injectIntl(EditTenxFlowModal, {
   withRef: true,
 }));
