@@ -717,7 +717,7 @@ class TenxFlowDetailFlowCard extends Component {
           visible={this.state.cicdSetModalShow}
           >
           <CICDSettingModal scope={scopeThis} flowId={flowId}
-            ciRules={ciRules} isFetching={isFetching} />
+            ciRules={ciRules} isFetching={isFetching} visible={this.state.cicdSetModalShow}/>
         </Modal>
         <Modal
           visible={this.state.TenxFlowDeployLogModal}
