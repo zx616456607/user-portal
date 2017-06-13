@@ -10,9 +10,14 @@
 
 
 import React, { Component } from 'react'
-import { Modal, Tabs, Menu, Dropdown, Table, Icon, Button, Input } from 'antd'
+import { connect } from 'react-redux'
+import { Modal, Tabs, Menu, Dropdown, Table, Icon, Button, Input, Select } from 'antd'
 import '../style/Logs.less'
-
+import { loadProjectLogs } from '../../../../actions/harbor'
+import { DEFAULT_REGISTRY,  } from '../../../../constants'
+import { formatDate } from '../../../../common/tools'
+import SearchInput from '../../../SearchInput'
+const Option = Select.Option
 
 class Logs extends Component {
   constructor(props) {
@@ -115,29 +120,40 @@ class Logs extends Component {
     const columns = [
       {
         title: '成员名',
-        dataIndex: 'name',
-        key: 'name',
+        dataIndex: 'username',
+        key: 'username',
 
       }, {
         title: '镜像名称',
-        dataIndex: 'imageName',
-        key: 'imageName',
+        dataIndex: 'repoName',
+        key: 'repoName',
       }, {
         title: '标签',
-        dataIndex: 'labels',
-        key: 'labels',
-      }, {
+        dataIndex: 'repoTag',
+        key: 'repoTag',
+      },{
         title: '操作',
-        dataIndex: 'action',
-        key: 'action'
+        dataIndex: 'operation',
+        filters: filterKey,
+        key: 'operation'
       }, {
         title: '时间戳',
-        dataIndex: 'createTime',
-        key: 'createTime'
+        dataIndex: 'opTime',
+        key: 'opTime',
+        render(value, row, index) {
+          if(row.opTime) {
+            return formatDate(row.opTime)
+          }
+          return ''
+        }
       }
     ]
+
     return (
       <div id="logs">
+        <div className='littleLeft'>
+          <i className='fa fa-search' onClick={this.handleSearch} />
+        </div>
         <div className="topRow">
           <Input addonBefore={this.select} placeholder="搜索" className="search" size='large' onPressEnter={(e) => this.searchLogs(e)} />
           {total >0 ?
@@ -145,12 +161,33 @@ class Logs extends Component {
           :null
           }
         </div>
-        <Table className="myImage" dataSource={dataSource} columns={columns} pagination={{ simple: true }} />
+        <Table style={{ marginTop: '20px' }} className="myImage"
+          dataSource={list}
+          columns={columns}
+          pagination={{ simple: true, defaultPageSize: this.state.pageSize, total: total ? total : 0, current: this.state.currentPage }}
+          onChange={(pagination, filter, sort) => this.filter(pagination, filter, sort)}
+          loading={isFetching} />
       </div>
     )
   }
-
-
 }
 
-export default Logs
+function mapStateToProps(state, props) {
+  const defaultProjectLogs = {
+    isFetching: false,
+    list: []
+  }
+  let projectLogs = state.harbor.projectLogs
+  if(projectLogs[DEFAULT_REGISTRY]) {
+    projectLogs = projectLogs[DEFAULT_REGISTRY]
+  } else {
+    projectLogs = defaultProjectLogs
+  }
+  return {
+    projectLogs
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadProjectLogs
+})(Logs)
