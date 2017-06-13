@@ -690,13 +690,24 @@ class TenxFlowDetailFlowCard extends Component {
             ] : null
           }
           {
-            (index == 0 && currentFlowEdit != index) ? [
-              <div className='cicdBox' key='cicdBox'>
-                <Switch onChange={this.viewCicdBox} checked={this.state.ciRulesOpened} />
-                <p className='switchTitile'><FormattedMessage {...menusText.cicd} /></p>
-                <p className='viewP' onClick={()=>this.viewCicdBoxP()}><FormattedMessage {...menusText.view} /></p>
-              </div>
-            ] : null
+            (index == 0 && currentFlowEdit != index) && (
+              (config.spec.project && config.spec.project.repoType === 'svn')
+              ? (
+                <Tooltip title="SVN 代码库不支持持续集成">
+                  <div className='cicdBox' key='cicdBox'>
+                    <Switch disabled/>
+                    <p className='switchTitile' style={{color: '#ccc'}}><FormattedMessage {...menusText.cicd} /></p>
+                  </div>
+                </Tooltip>
+              )
+              : (
+                <div className='cicdBox' key='cicdBox'>
+                  <Switch onChange={this.viewCicdBox} checked={this.state.ciRulesOpened} />
+                  <p className='switchTitile'><FormattedMessage {...menusText.cicd} /></p>
+                  <p className='viewP' onClick={()=>this.viewCicdBoxP()}><FormattedMessage {...menusText.view} /></p>
+                </div>
+              )
+            )
           }
         </Card>
         {
