@@ -54,6 +54,11 @@ class Ceph extends Component {
           notifcat.success('设置成功！')
         },
         isAsync: true
+      },
+      failed: {
+        func:()=> {
+          notifcat.error('设置地址失败','地址无效')
+        }
       }
     })
   }
@@ -76,10 +81,21 @@ class Ceph extends Component {
         }
       },
       failed:{
-        func:()=> {
+        func:(ret)=> {
           notific.close()
-          scope.setState({setting: true})
-          notific.error('获取地址失败！','地址无效')
+          if (ret.message.message == 'CEPH_CONFIG_IS_EMPTY') {
+            notific.error('获取地址失败','请先配置ceph集群')
+            return
+          }
+          if (ret.message.code >= 300) {
+            scope.setState({setting: true})
+          }
+          if (ret.message.message == 'CALAMARI_ADDRESS_IS_EMPTY') {
+            notific.error('获取地址失败','请先设置地址')
+          }
+          if (ret.message.message == 'CALAMARI_ADDRESS_IS_INVALID') {
+            notific.error('获取地址失败','地址无效')
+          }
         }
       }
     })
