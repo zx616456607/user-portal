@@ -872,11 +872,14 @@ class AlarmModal extends Component {
     }
   }
   componentWillReceiveProps(nextProps) {
-    const { form } = this.props
+    const { form, loadNotifyGroups } = this.props
     if(!nextProps.isShow) {
       form.resetFields()
       this.state.firstForm.resetFields()
       this.state.secondForm.resetFields()
+    }
+    if(nextProps.space.spaceID && nextProps.space.spaceID !== this.props.space.spaceID) {
+      loadNotifyGroups('', nextProps.cluster.clusterID)
     }
     if (nextProps.isShow && nextProps.isShow != this.props.isShow) {
       const { isEdit, strategy, getAlertSetting, cluster } = nextProps
@@ -1158,7 +1161,7 @@ class AlarmModal extends Component {
 function alarmModalMapStateToProp(state, porp) {
   const defaultGroup = {}
   let { groups } = state.alert
-  const { cluster } = state.entities.current
+  const { cluster, space } = state.entities.current
   if (!groups) {
     groups = defaultGroup
   }
@@ -1181,7 +1184,8 @@ function alarmModalMapStateToProp(state, porp) {
     notifyGroup: groups,
     cluster,
     setting,
-    isFetching
+    isFetching,
+    space
   }
 }
 AlarmModal = connect(alarmModalMapStateToProp, {
