@@ -91,10 +91,9 @@ exports.getRepositoriyConfig = function* () {
   const result = yield new Promise((resolve, reject) => {
     harbor.getRepositoriesManifest(repoName, tag, (err, statusCode, body) => {
       if(statusCode != 200) {
-        console.log(body)
         const err = new Error(body)
         err.status = statusCode
-        return reject(body)
+        return reject(err)
       }
       if(body.config) {
         body.config = JSON.parse(body.config)
