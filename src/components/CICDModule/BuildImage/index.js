@@ -492,11 +492,6 @@ class TenxFlowList extends Component {
     this.setState({
     //  websocket: <Socket url={cicdApi.host} protocol={cicdApi.protocol} path={cicdApi.statusPath} onSetup={(socket) => this.onSetup(socket)} />
     })
-    if(location.search == '?build_image=true'){
-      this.setState({
-        createTenxFlowModal: true
-      })
-    }
   }
   componentWillReceiveProps(nextProps) {
     const { isFetching, flowList, currentSpace } = nextProps;

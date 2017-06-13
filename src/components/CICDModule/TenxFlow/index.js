@@ -29,6 +29,7 @@ import NotificationHandler from '../../../common/notification_handler'
 import Socket from '../../Websocket/socketIo'
 import PopTabSelect from '../../PopTabSelect'
 import Title from '../../Title'
+import { parseQueryStringToObject } from '../../../common/tools'
 
 const PopTab = PopTabSelect.Tab;
 const PopOption = PopTabSelect.Option;
@@ -362,6 +363,10 @@ class TenxFlowList extends Component {
       searchingFlag: false,
       searchValue:''
     }
+    const queryObj = parseQueryStringToObject(window.location.search)
+    if (queryObj.showCard == 'true') {
+      this.state.createTenxFlowModal = true
+    }
   }
 
   loadData(callback) {
@@ -395,6 +400,11 @@ class TenxFlowList extends Component {
     const { status, buildId, stageId } = this.props.loginUser
     const { flowId, loginUser } = this.props
     const cicdApi = loginUser.info.cicdApi
+    if (location.search == '?build_image=true') {
+      this.setState({
+        createTenxFlowModal: true
+      })
+    }
     this.setState({
       websocket: <Socket url={cicdApi.host} protocol={cicdApi.protocol} path={cicdApi.statusPath} onSetup={(socket) => this.onSetup(socket)} />
     })
