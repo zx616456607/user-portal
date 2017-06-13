@@ -70,138 +70,6 @@ const menusText = defineMessages({
   },
 })
 
-
-class CodeList extends Component {
-  constructor(props) {
-    super(props)
-  }
-  componentWillMount() {
-    const loadingList = {}
-    const data = this.props.data
-    if (data) {
-      for (let i = 0; i < data.length; i++) {
-        loadingList[i] = false
-      }
-      this.setState({
-        loadingList
-      })
-    }
-  }
-
-  // let CodeList = React.createClass({
-
-  addBuild(item, index, repoUser) {
-    const loadingList = {}
-    const self = this
-    loadingList[index] = true
-    this.setState({
-      loadingList
-    })
-    let notification = new NotificationHandler()
-    item.repoUser = repoUser
-    this.props.scope.props.addGithubRepo(this.props.typeName, item, {
-      success: {
-        func: () => {
-          notification.success('激活成功')
-          if(window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0) {
-            const queryObj = parseQueryStringToObject(window.location.search)
-            if(queryObj.redirect) {
-              if(queryObj.showCard) {
-                browserHistory.push(queryObj.redirect + '&showCard=' + queryObj.showCard)
-                return
-              }
-              browserHistory.push(queryObj.redirect)
-            }
-            return
-          }
-          loadingList[index] = false
-          self.setState({
-            loadingList
-          })
-        },
-        isAsync: true
-      },
-      failed: {
-        func: (res) => {
-          let message = '激活失败'
-          if(res.message.message) {
-            message = res.message.message
-          }
-          notification.error(message)
-          loadingList[index] = false
-          self.setState({
-            loadingList
-          })
-        }
-      }
-    })
-  }
-  notActive(id, index) {
-    const parentScope = this.props.scope
-    const loadingList = {}
-    const users = parentScope.state.users
-    loadingList[index] = false
-    this.setState({
-      loadingList
-    })
-    let notification = new NotificationHandler()
-    parentScope.props.notGithubProject(users, id, this.props.typeName, {
-      success: {
-        func: () => {
-          notification.success('解除激活成功')
-        }
-      },
-      failed: {
-        func: (res) => {
-          if (res.statusCode == 400) {
-            notification.error('该项目正在被TenxFlow引用，请解除引用后重试')
-          } else {
-            notification.error('解除激活失败')
-          }
-        }
-      }
-    })
-  }
-
-  render() {
-    const { data, isFetching, repoUser } = this.props
-    const scope = this
-    if (isFetching) {
-      return (
-        <div className='loadingBox'>
-          <Spin size='large' />
-        </div>
-      )
-    }
-    let items = []
-    if (data) {
-      items = data.map((item, index) => {
-        return (
-          <div className='CodeTable' key={item.name} >
-            <div className="name textoverflow">{item.name}</div>
-            <div className="type">{item.private ? "private" : 'public'}</div>
-            <div className="action">
-              {(item.managedProject && item.managedProject.active == 1) ?
-                <span><Button type="ghost" disabled>已激活</Button>
-                  <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>解除</a></span>
-                :
-                <Tooltip placement="right" title="可构建项目">
-                  <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index, repoUser)} >{ window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0 ? '激活并构建' : '激活'}</Button>
-                </Tooltip>
-              }
-            </div>
-
-          </div>
-        );
-      });
-    }
-    return (
-      <QueueAnim type="right" key="detail-list">
-        {items}
-      </QueueAnim>
-    )
-  }
-}
 class GogsComponent extends Component {
   constructor(props) {
     super(props);
@@ -405,8 +273,79 @@ class GogsComponent extends Component {
   changeToken(e) {
     this.setState({ regToken: e.target.value })
   }
+  addBuild(item, index, repoUser) {
+    const loadingList = {}
+    const self = this
+    loadingList[index] = true
+    this.setState({
+      loadingList
+    })
+    let notification = new NotificationHandler()
+    item.repoUser = repoUser
+    this.props.addGithubRepo(this.props.typeName, item, {
+      success: {
+        func: () => {
+          notification.success('激活成功')
+          if(window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0) {
+            const queryObj = parseQueryStringToObject(window.location.search)
+            if(queryObj.redirect) {
+              if(queryObj.showCard) {
+                browserHistory.push(queryObj.redirect + '&showCard=' + queryObj.showCard)
+                return
+              }
+              browserHistory.push(queryObj.redirect)
+            }
+            return
+          }
+          loadingList[index] = false
+          self.setState({
+            loadingList
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (res) => {
+          let message = '激活失败'
+          if(res.message.message) {
+            message = res.message.message
+          }
+          notification.error(message)
+          loadingList[index] = false
+          self.setState({
+            loadingList
+          })
+        }
+      }
+    })
+  }
+  notActive(id, index) {
+    const loadingList = {}
+    const users = this.props.users
+    loadingList[index] = false
+    this.setState({
+      loadingList
+    })
+    let notification = new NotificationHandler()
+    this.props.notGithubProject(users, id, this.props.typeName, {
+      success: {
+        func: () => {
+          notification.success('解除激活成功')
+        }
+      },
+      failed: {
+        func: (res) => {
+          if (res.statusCode == 400) {
+            notification.error('该项目正在被TenxFlow引用，请解除引用后重试')
+          } else {
+            notification.error('解除激活失败')
+          }
+        }
+      }
+    })
+  }
   render() {
-    const { gogsList, formatMessage, isFetching, typeName} = this.props
+    const { gogsList, formatMessage, isFetching, typeName, users } = this.props
     const scope = this
     let codeList = []
     if (!gogsList || this.state.loggedOut) {
@@ -444,7 +383,7 @@ class GogsComponent extends Component {
                   <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>撤销</a></span>
                 :
                 <Tooltip placement="right" title="可构建项目">
-                  <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >{ window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0 ? '激活并构建' : '激活'}</Button>
+                  <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index,users)} >{ window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0 ? '激活并构建' : '激活'}</Button>
                 </Tooltip>
               }
             </div>
