@@ -99,7 +99,7 @@ export const LITE = 'lite'
 export const MAX_CHARGE = 200000
 export const NOT_AVAILABLE = 'N/A'
 export const BASE_IMAGE_TYPE = ["单元测试", "代码编译", "构建镜像", "集成测试"]
-export const NEED_BUILD_IMAGE = false
+export const NEED_BUILD_IMAGE = true
 export const PLUGIN_DEFAULT_CONFIG = {
   ['elasticsearch-logging']:{
     cpu: 0.5,
