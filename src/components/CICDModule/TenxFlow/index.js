@@ -400,11 +400,6 @@ class TenxFlowList extends Component {
     const { status, buildId, stageId } = this.props.loginUser
     const { flowId, loginUser } = this.props
     const cicdApi = loginUser.info.cicdApi
-    if (location.search == '?build_image=true') {
-      this.setState({
-        createTenxFlowModal: true
-      })
-    }
     this.setState({
       websocket: <Socket url={cicdApi.host} protocol={cicdApi.protocol} path={cicdApi.statusPath} onSetup={(socket) => this.onSetup(socket)} />
     })
