@@ -115,4 +115,10 @@ module.exports = function (config) {
 
   // ~ user-directory
   this['user-directory'] = collections.create('user-directory')
+
+  // ~permission
+  this.permission = collections.create('permission')
+
+  // ~role
+  this.role = collections.create('role')
 }

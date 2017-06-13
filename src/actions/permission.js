@@ -1,0 +1,82 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2017 TenxCloud. All Rights Reserved.
+ *
+ * Permission
+ *
+ * v0.1 - 2017-06-08
+ * @author lijunbao
+ */
+
+import { FETCH_API, Schemas } from '../middleware/api'
+import { API_URL_PREFIX } from '../constants'
+import { toQuerystring } from '../common/tools'
+
+export const PERMISSION_LIST_REQUEST = 'PERMISSION_LIST_REQUEST'
+export const PERMISSION_LIST_SUCCESS = 'PERMISSION_LIST_SUCCESS'
+export const PERMISSION_LIST_FAILURE = 'PERMISSION_LIST_FAILURE'
+
+// Fetches all permission.
+function fetchPermissionAndCount(callback) {
+  return {
+    [FETCH_API]: {
+      types: [PERMISSION_LIST_REQUEST, PERMISSION_LIST_SUCCESS, PERMISSION_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/permission`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+function fetchPermission(callback) {
+	return {
+    [FETCH_API]: {
+      types: [PERMISSION_LIST_REQUEST, PERMISSION_LIST_SUCCESS, PERMISSION_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/permission/permission`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export const PERMISSION_RETRIEVE_REQUEST = 'PERMISSION_RETRIEVE_REQUEST'
+export const PERMISSION_RETRIEVE_SUCCESS = 'PERMISSION_RETRIEVE_SUCCESS'
+export const PERMISSION_RETRIEVE_FAILURE = 'PERMISSION_RETRIEVE_FAILURE'
+
+function fetchRetrievePermissionAndCount(id,callback){
+	let endpoint = `${API_URL_PREFIX}/permission/${id}/retrieve`
+	return {
+    [FETCH_API]: {
+      types: [PERMISSION_RETRIEVE_REQUEST, PERMISSION_RETRIEVE_SUCCESS, PERMISSION_RETRIEVE_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+function fetchRetrievePermission(id,callback){
+	let endpoint = `${API_URL_PREFIX}/permission/permission/${id}/retrieve`
+	return {
+    [FETCH_API]: {
+      types: [PERMISSION_RETRIEVE_REQUEST, PERMISSION_RETRIEVE_SUCCESS, PERMISSION_RETRIEVE_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export const PERMISSION_DEPENDENT_REQUEST = 'PERMISSION_DEPENDENT_REQUEST'
+export const PERMISSION_DEPENDENT_SUCCESS = 'PERMISSION_DEPENDENT_SUCCESS'
+export const PERMISSION_DEPENDENT_FAILURE = 'PERMISSION_DEPENDENT_FAILURE'
+function fetchDependent(id,callback) {
+	let endpoint = `${API_URL_PREFIX}/permission/${id}/dependent`
+	return {
+    [FETCH_API]: {
+      types: [PERMISSION_DEPENDENT_REQUEST, PERMISSION_DEPENDENT_SUCCESS, PERMISSION_DEPENDENT_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback
+}
