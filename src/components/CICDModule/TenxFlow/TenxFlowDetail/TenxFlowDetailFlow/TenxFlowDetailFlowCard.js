@@ -522,13 +522,19 @@ class TenxFlowDetailFlowCard extends Component {
     )
     if (disabled) {
       targetElement = (
-        <Tooltip title="子任务依赖前面任务的输出，不能单独执行" placement="left">
-          <Button size='large' type='primary' className='startBtn'
-            onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId)}
-            disabled={disabled}
-          >
-            {btn}
-          </Button>
+        <Tooltip
+          title="子任务依赖前面任务的输出，不能单独执行"
+          placement="left"
+          getTooltipContainer={() => document.getElementById('TenxFlowDetailFlow')}
+        >
+          <div className="disabledBoxForToolTip">
+            <Button size='large' type='primary' className='startBtn'
+              onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId)}
+              disabled={disabled}
+            >
+              {btn}
+            </Button>
+          </div>
         </Tooltip>
       )
     }
@@ -594,7 +600,7 @@ class TenxFlowDetailFlowCard extends Component {
           {
             currentFlowEdit != index ? [
               <QueueAnim key={'FlowCardShowAnimate' + index}>
-                <div key={'TenxFlowDetailFlowCardShow' + index}>
+                <div key={'TenxFlowDetailFlowCardShow' + index} id={this.cardId}>
                   <div className='statusBox'>
                     {currentStatus(config.lastBuildStatus)}
                   </div>
