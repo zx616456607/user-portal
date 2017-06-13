@@ -17,28 +17,38 @@ import { formatDate, isEmptyObject } from '../../common/tools'
 import NotificationHandler from '../../common/notification_handler'
 import './style/AlarmDetail.less'
 import Title from '../Title'
-import { getAlertSetting, getSettingList, updateSendEmail, deleteRule } from '../../actions/alert'
+import CreateAlarm from '../AppModule/AlarmModal'
+import { getAlertSetting, getSettingList, batchEnableEmail, batchDisableEmail, deleteRule } from '../../actions/alert'
 const RadioGroup = Radio.Group
+
 
 class AlarmDetail extends Component {
   constructor(props) {
     super(props)
+    this.nextStep = this.nextStep.bind(this)
+    this.cancelModal = this.cancelModal.bind(this)
+    this.loadData = this.loadData.bind(this)
     this.state = {
       sendEmail: 2, // no send eamil
       delBtn: true,
       selectCheckbox: [], // default table selected item
-      ruleName: {}
+      ruleName: {},
+      alarmModal:false,
+      step: 3,
     }
   }
-  componentWillMount() {
+  loadData() {
     const id = this.props.params.id
     const { getAlertSetting, cluster, getSettingList } = this.props
     getAlertSetting(cluster.clusterID, {
       strategy: id
     })
     getSettingList(cluster.clusterID, {
-      strategyName: id
+      strategyID: id
     }, true)
+  }
+  componentWillMount() {
+    this.loadData()
   }
   formatStatus(text){
     if (text ==1) {
@@ -116,10 +126,15 @@ class AlarmDetail extends Component {
     })
 
   }
-  changeEmail(e) {
+  changeEmail(e, receivers) {
+    console.log('receivers',)
+    if(e ==1 && receivers =='') {
+      this.setState({alarmModal: true})
+      return
+    }
     this.setState({sendEmail: e})
     const id = this.props.params.id
-    const { leftSetting, getSettingList, cluster, updateSendEmail} = this.props
+    const { leftSetting, getSettingList, cluster, batchDisableEmail, batchEnableEmail} = this.props
     if(leftSetting) {
       const noti = new NotificationHandler()
       if(leftSetting.sendMail == e) {
@@ -127,30 +142,60 @@ class AlarmDetail extends Component {
         return
       }
       noti.spin('更新中')
-      updateSendEmail(cluster.clusterID, {
-        strategies:[{
-          strategyID: leftSetting.strategyID,
-          sendEmail: e
-        }]
-      }, {
-        success: {
-          func: () => {
-            noti.close()
-            noti.success('策略更新成功')
-            getSettingList(cluster.clusterID, {
-              strategyName: id
-            }, false)
+      if (e == 0) {
+        batchDisableEmail(cluster.clusterID, {
+          strategyIDs:[leftSetting.strategyID]
+        }, {
+          success: {
+            func: () => {
+              noti.close()
+              noti.success('策略更新成功')
+              getSettingList(cluster.clusterID, {
+                strategyID: id
+              }, false)
+            },
+            isAsync: true
           },
-          isAsync: true
-        },
-        failed: {
-          func: (res) => {
-            noti.close()
-            noti.error('策略更新失败')
+          failed: {
+            func: (res) => {
+              noti.close()
+              noti.error('策略更新失败')
+            }
           }
-        }
-      })
+        })
+      }else {
+       batchEnableEmail(cluster.clusterID, {
+          strategyIDs:[leftSetting.strategyID]
+        }, {
+          success: {
+            func: () => {
+              noti.close()
+              noti.success('策略更新成功')
+              getSettingList(cluster.clusterID, {
+                strategyID: id
+              }, false)
+            },
+            isAsync: true
+          },
+          failed: {
+            func: (res) => {
+              noti.close()
+              noti.error('策略更新失败')
+            }
+          }
+        })
+      }
     }
+  }
+  cancelModal() {
+    // cancel create Alarm modal
+    this.setState({
+      alarmModal: false,
+      step: this.props.setting.length>0 ? 3 : 1
+    })
+  }
+  nextStep(step) {
+    this.setState({step})
   }
   render() {
     const { isFetching } = this.props.setting
@@ -158,7 +203,9 @@ class AlarmDetail extends Component {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
     let settingData = this.props.setting
-    let { leftSetting } = this.props
+    let { leftSetting, location} = this.props
+    const editSetting = cloneDeep(leftSetting)
+    editSetting.sendEmail = 1 // is send email
     if(leftSetting.isEmptyObject) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
@@ -189,7 +236,7 @@ class AlarmDetail extends Component {
         key:'recordCount',
       },
     ];
-    const strategyName = this.props.params.id
+    const strategyName = location.query.name
 
     const _this = this
     const rowSelection = {
@@ -203,6 +250,12 @@ class AlarmDetail extends Component {
         })
       },
     };
+    const modalFunc=  {
+      scope : this,
+      cancelModal: this.cancelModal,
+      nextStep: this.nextStep,
+      callback: this.loadData
+    }
     return (
       <div id="AlarmDetail">
         <QueueAnim type="right" className="AlarmDetail">
@@ -222,13 +275,13 @@ class AlarmDetail extends Component {
                <div className="baseAttr"><span className="keys">监控周期：</span>{this.calcuTime(leftSetting.repeatInterval)}</div>
                 <div className="baseAttr">
                   <span className="keys">是否发送：</span>
-        <RadioGroup value={leftSetting.sendEmail} onChange={(e)=> this.changeEmail(e.target.value)}>
+                    <RadioGroup value={leftSetting.sendEmail} onChange={(e)=> this.changeEmail(e.target.value, leftSetting.receivers)}>
                     <Radio key="a" value={1}>是</Radio>
                     <Radio key="b" value={0}>否</Radio>
                   </RadioGroup>
                 </div>
                 <div className="baseAttr"><span className="keys">最后修改人：</span>{leftSetting.updater}</div>
-        <div className="baseAttr"><span className="keys">通知列表：</span>{leftSetting.receivers}</div>
+                <div className="baseAttr"><span className="keys">通知列表：</span>{leftSetting.receivers}</div>
                 <div className="baseAttr"><span className="keys">创建时间：</span>{formatDate(leftSetting.createTime)}</div>
               </Card>
               <Card style={{marginTop:'15px',paddingBottom:'50px'}}>
@@ -257,6 +310,15 @@ class AlarmDetail extends Component {
             onOk={()=> this.deleteRecords()}
           >
             <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>策略删除后将不再发送邮件告警，是否确定删除？</div>
+          </Modal>
+          <Modal title="修改告警策略" visible={this.state.alarmModal} width={580}
+            className="alarmModal"
+            onCancel={() => this.setState({ alarmModal: false, step: 3 })}
+            maskClosable={false}
+            footer={null}
+          >
+            <CreateAlarm funcs={modalFunc} strategy={editSetting} setting={settingData}  isEdit={true} isShow={this.state.alarmModal}
+              getSettingList={() => this.refreshPage()} />
           </Modal>
         </QueueAnim>
       </div>
@@ -287,9 +349,9 @@ function mapStateToProps(state, props) {
     isFetching: false,
     result: {
       data: {
-        strategys: []
-      },
-      total: 0
+        strategys: [],
+        total: 0
+      }
     }
   }
   let leftSetting = {
@@ -301,17 +363,19 @@ function mapStateToProps(state, props) {
   if(settingList.isFetching) {
     isFetching = settingList.isFetching
   } else {
-    if(settingList.result && settingList.result.data.total > 1) {
+    if(settingList.result && settingList.result.data.strategys) {
       settingList.result.data.strategys.some(item => {
-        if(item.strategyName == props.params.id) {
+        if(item.strategyID == props.params.id) {
           leftSetting = item
           return true
         }
         return false
       })
     } else {
-      if(settingList.result && settingList.result.data) {
+      if(settingList.result && settingList.result.data && settingList.result.data.strategys ) {
         leftSetting = settingList.result.data.strategys[0]
+      } else {
+        leftSetting = {}
       }
     }
   }
@@ -328,6 +392,7 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   getAlertSetting,
   getSettingList,
-  updateSendEmail,
+  batchDisableEmail,
+  batchEnableEmail,
   deleteRule
 })(AlarmDetail)

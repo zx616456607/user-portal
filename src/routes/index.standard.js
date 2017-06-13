@@ -51,7 +51,8 @@ const rootRoutes = {
       path: '/notfound',
       component: require('../containers/ErrorPage').default,
     },{
-      path:'/alerts/invitations/join',
+      path:'/email/invitations/join',
+      // path:'/alerts/invitations/join',
       component: require('../containers/Template').default
     }
   ]},
@@ -139,7 +140,7 @@ const rootRoutes = {
       indexRoute: {
         getComponent: (location, cb) => {
           require.ensure([], (require) => {
-            cb(null, require('../components/CICDModule/BuildImage').default)
+            cb(null, require('../components/CICDModule/CodeStore').default)
           })
         },
       },

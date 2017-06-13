@@ -8,7 +8,7 @@
  * @author ZhangChengZheng
  */
 import React,{ Component,PropTypes } from 'react'
-import { Button, Input, Table, Icon, Spin, Modal } from 'antd'
+import { Button, Input, Table, Icon, Spin, Modal, Dropdown, Menu, Form } from 'antd'
 import { connect } from 'react-redux'
 import './style/Snapshot.less'
 import CurrentImg from '../../../assets/img/appmanage/rollbackcurrent.jpg'
@@ -20,6 +20,8 @@ import NotificationHandler from '../../../common/notification_handler'
 import { formatDate } from  '../../../common/tools'
 import Title from '../../Title'
 import { Link } from 'react-router'
+import CreateVolume from '../../StorageModule/CreateVolume'
+import { browserHistory } from 'react-router'
 
 class Snapshot extends Component {
   constructor(props) {
@@ -37,6 +39,9 @@ class Snapshot extends Component {
     this.handlecolsetips = this.handlecolsetips.bind(this)
     this.updateSnapshotList = this.updateSnapshotList.bind(this)
     this.handleTableRowClick = this.handleTableRowClick.bind(this)
+    this.handleDropdown = this.handleDropdown.bind(this)
+    this.handleCloneSnapshot = this.handleCloneSnapshot.bind(this)
+    this.rollbackSuccessConfirm = this.rollbackSuccessConfirm.bind(this)
     this.state = {
       selectedRowKeys: [],
       DeleteSnapshotButton: true,
@@ -55,6 +60,9 @@ class Snapshot extends Component {
       RowDelete: false,
       TopDelete: false,
       currentVolume: {},
+      visible: false,
+      createFalse: false,
+      rollbackSuccess: false,
     }
   }
 
@@ -210,7 +218,7 @@ class Snapshot extends Component {
   }
 
   handleDeleteSnapshot(key, e){
-    e.stopPropagation()
+    //e.stopPropagation()
     const { snapshotDataList } = this.props
     this.setState({
       DeletaSnapshotModal: true,
@@ -300,10 +308,10 @@ class Snapshot extends Component {
     SnapshotRollback(body,{
       success: {
         func: () => {
-          info.success('快照回滚成功！')
           this.setState({
             rollbackModal: false,
             rollbackLoading: false,
+            rollbackSuccess: true,
           })
         }
       },
@@ -340,9 +348,58 @@ class Snapshot extends Component {
     this.onSelectChange(arr)
   }
 
+  handleCloneSnapshot(key){
+    const { snapshotDataList, storageList, currentCluster } = this.props
+    const storage_type = currentCluster.storageTypes
+    if (!storage_type || storage_type.indexOf('rbd') < 0){
+      this.setState({
+        createFalse: true,
+      })
+      return
+    }
+    setTimeout(() => {
+      document.getElementById('volumeName').focus()
+    },100)
+    for(let pool in storageList){
+      for(let i = 0; i < storageList[pool].storageList.length; i++){
+        if(snapshotDataList[key].volume == storageList[pool].storageList[i].name){
+          this.setState({
+            currentSnapshot: snapshotDataList[key],
+            currentVolume: storageList[pool].storageList[i]
+          })
+        }
+      }
+    }
+    this.setState({
+      visible: true
+    })
+  }
+
+  handleDropdown(key, item){
+    switch(item.key){
+      case 'deleteSnapshot':
+        return this.handleDeleteSnapshot(key)
+      case 'cloneSnapshot':
+        return this.handleCloneSnapshot(key)
+      default:
+        return
+    }
+  }
+
+  rollbackSuccessConfirm(){
+    this.setState({
+      rollbackSuccess : false
+    })
+    browserHistory.push('/manange_monitor')
+  }
+
   render() {
-    const { snapshotDataList } = this.props
+    const { snapshotDataList, currentCluster, storageList, currentImagePool } = this.props
     const { selectedRowKeys, DeleteSnapshotButton, currentSnapshot, delelteSnapshotNum, currentVolume } = this.state
+    let currentStorageList= []
+    if(storageList[currentImagePool]){
+      currentStorageList = storageList[currentImagePool].storageList
+    }
     function iconclassName(text){
       switch(text){
         case '正常':
@@ -360,6 +417,13 @@ class Snapshot extends Component {
       }
     }
 
+    const menu = snapshotDataList.map((item, index) => {
+      return <Menu onClick={this.handleDropdown.bind(this,index)}>
+        <Menu.Item key="deleteSnapshot" style={{paddingRight:'25px',paddingLeft:'20px'}}>删除</Menu.Item>
+        <Menu.Item key="cloneSnapshot" style={{paddingRight:'25px',paddingLeft:'20px'}}>创建</Menu.Item>
+      </Menu>
+    })
+    
     const snapshotcolumns = [{
         title:'快照名称',
         key:'name',
@@ -407,8 +471,9 @@ class Snapshot extends Component {
         key:'Handle',
         dataIndex:'key',
         render: (key) => <div>
-          <Button type="primary" onClick={ this.handleRollbackSnapback.bind(this, key)}>回滚</Button>
-          <Button onClick={ this.handleDeleteSnapshot.bind(this, key)} className='deleteButton'>删除</Button>
+          <Dropdown.Button onClick={ this.handleRollbackSnapback.bind(this, key)} overlay={menu[key]}>
+            回滚
+          </Dropdown.Button>
         </div>
       }]
     const rowSelection = {
@@ -424,6 +489,11 @@ class Snapshot extends Component {
             <Input className='searchInput' placeholder='按快照名称搜索' size="large" onPressEnter={this.handelEnterSearch}/>
             <i className="fa fa-search searchIcon" aria-hidden="true" onClick={this.handelEnterSearch}></i>
           </span>
+          {
+            snapshotDataList && snapshotDataList.length !== 0
+              ? <span className='totalNum'>共计<span className='item'>{snapshotDataList.length}</span>条</span>
+              : <span></span>
+          }
         </div>
         <div className='appmanage_snapshot_main'>
           {
@@ -433,14 +503,10 @@ class Snapshot extends Component {
               dataSource={this.state.SnapshotList}
               rowSelection={rowSelection}
               onRowClick={this.handleTableRowClick}
+              pagination={{ simple: true }}
             >
             </Table>
             :<div className='nodata'><Spin/></div>
-          }
-          {
-            snapshotDataList && snapshotDataList.length !== 0
-              ? <div className='totalNum'>共计<span className='item'>{snapshotDataList.length}</span>条</div>
-              : <span></span>
           }
         </div>
 
@@ -547,6 +613,60 @@ class Snapshot extends Component {
              }
            </div>
          </Modal>
+
+         <Modal
+           title="创建存储卷"
+           visible={this.state.visible}
+           closable={true}
+           onCancel={() => this.setState({visible: false})}
+           width='570px'
+           maskClosable={false}
+           footer={[]}
+           wrapClassName="createVloumeModal"
+         >
+           <div>
+             <CreateVolume scope={this} snapshotRequired={true} snapshotDataList={snapshotDataList} currentVolume={currentVolume} currentSnapshot={currentSnapshot} storageList={currentStorageList}/>
+           </div>
+         </Modal>
+
+          <Modal
+            title="提示"
+            visible={this.state.createFalse}
+            onOk={() => this.setState({createFalse: false})}
+            onCancel={() => this.setState({createFalse: false})}
+          >
+            尚未部署分布式存储，暂不能创建
+          </Modal>
+
+          <Modal
+            title="回滚成功"
+            visible={this.state.rollbackSuccess}
+            closable={true}
+            onOk={this.rollbackSuccessConfirm}
+            onCancel={() => this.setState({rollbackSuccess: false})}
+            width='570px'
+            maskClosable={false}
+            wrapClassName="rollbackSuccess"
+            footer={[
+              <Button onClick={() => this.setState({rollbackSuccess: false})} size="large">关闭</Button>,
+              <Button onClick={this.rollbackSuccessConfirm} size='large' type="primary">查看审计日志</Button>]}
+          >
+            <div className='container'>
+              <div className='header'>
+                <div>
+                  <Icon type="check-circle-o" className='icon'/>
+                </div>
+                <div className='tips'>
+                  操作成功
+                </div>
+              </div>
+              <div className='footer'>
+                <div className='lineone'>
+                  正在回滚，请在审计日志查看回滚进度
+                </div>
+              </div>
+            </div>
+          </Modal>
       </div>
     )
   }
@@ -564,6 +684,7 @@ function mapStateToProps(state, props){
     currentImagePool: DEFAULT_IMAGE_POOL,
     cluster: cluster.clusterID,
     snapshotDataList,
+    currentCluster: cluster
   }
 }
 

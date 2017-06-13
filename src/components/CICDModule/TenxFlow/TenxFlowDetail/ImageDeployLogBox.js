@@ -71,7 +71,6 @@ class ImageDeployLogBox extends Component {
   }
   
   componentWillMount() {
-    console.log('flowId', this.props.flowId)
   }
 
   render() {

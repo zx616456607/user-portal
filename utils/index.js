@@ -143,3 +143,43 @@ exports.isAdmin = function(user) {
   }
   return false
 }
+
+/**
+ * Check object if empty.
+ */
+exports.isEmptyObject = function(obj) {
+  for (var name in obj) {
+    return false
+  }
+  return true
+}
+
+exports.toQuerystring = function(obj, sep, eq) {
+  sep = sep || '&'
+  eq = eq || '='
+  if (!obj) {
+    return ''
+  }
+  return Object.keys(obj).map(function (k) {
+    let ks = stringifyPrimitive(k) + eq
+    if (Array.isArray(obj[k])) {
+      return obj[k].map(function (v) {
+        return ks + stringifyPrimitive(v)
+      }).join(sep)
+    } else {
+      return ks + stringifyPrimitive(obj[k])
+    }
+  }).join(sep)
+  function stringifyPrimitive(v) {
+    switch (typeof v) {
+      case 'string':
+        return v
+      case 'boolean':
+        return v ? 'true' : 'false'
+      case 'number':
+        return isFinite(v) ? v : ''
+      default:
+        return ''
+    }
+  }
+}

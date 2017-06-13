@@ -152,16 +152,25 @@ class QuickCreateApp extends Component {
     return 1
   }
 
-  onSelectImage(imageName, registryServer) {
+  onSelectImage(imageName, registryServer, appName, fromDetail) {
     this.setState({
       imageName,
       registryServer,
     })
+    if(fromDetail){
+      browserHistory.push(`/app_manage/app_create/quick_create${SERVICE_CONFIG_HASH}?appName=${appName}&fromDetail=${fromDetail}`)
+      return;
+    }
     browserHistory.push(`/app_manage/app_create/quick_create${SERVICE_CONFIG_HASH}`)
   }
 
   goSelectCreateAppMode() {
+    const { query } = this.props.location;
     if (serviceNameList.length < 1) {
+      if( query.fromDetail ) {
+        browserHistory.push(`/app_manage/detail/${query.appName}`)
+        return
+      }
       browserHistory.push('/app_manage/app_create')
       return
     }

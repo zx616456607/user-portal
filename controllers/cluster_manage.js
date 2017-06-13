@@ -11,9 +11,10 @@
  */
 'use strict'
 
-const registryAPIs = require('../registry/lib/registryAPIs')
 const apiFactory = require('../services/api_factory')
 const constants = require('../constants')
+const registryConfigLoader = require('../registry/registryConfigLoader')
+
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
@@ -225,8 +226,8 @@ exports.updateClusterPlugins = function* () {
     err.status = 400
     throw err
   }
-  const cpu = body.cpu != 0 ? parseFloat(body.cpu) * 1000 : undefined
-  const memory = body.memory != 0 ? parseInt(body.memory) : undefined
+  const cpu = parseFloat(body.cpu) != 0 ? parseFloat(body.cpu) * 1000 : undefined
+  const memory = parseInt(body.memory) != 0 ? parseInt(body.memory) : undefined
   const hostName = body.hostName != "" ? body.hostName : undefined
   let requestBody =  {
     limit: {
@@ -265,8 +266,7 @@ exports.createPlugins = function* () {
     err.status = 400
     throw err
   }
-  const registry = new registryAPIs()
-  templateContent = templateContent.replace(/\{\{registry\}\}/g, registry.getRegistryHost())
+  templateContent = templateContent.replace(/\{\{registry\}\}/g, getRegistryURL())
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.createBy([cluster, 'plugins'], null, {
     cluster: cluster,
@@ -322,10 +322,22 @@ exports.batchDeletePlugins = function* () {
   this.body = result
 }
 
-
 exports.getClusterNetworkMode = function*() {
   const cluster = this.params.cluster
   const api = apiFactory.getK8sApi(this.session.loginUser)
   const result = yield api.getBy([cluster, 'network'])
   this.body = result.data
+}
+
+function getRegistryURL() {
+  // Global check
+  if (registryConfigLoader.GetRegistryConfig() && registryConfigLoader.GetRegistryConfig().url) {
+    let url = registryConfigLoader.GetRegistryConfig().url
+    if (url.indexOf('://') > 0) {
+      url = url.split('://')[1]
+    }
+    return url
+  }
+  // Default registry url
+  return "localhost"
 }

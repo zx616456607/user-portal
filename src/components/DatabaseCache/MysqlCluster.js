@@ -42,7 +42,7 @@ let MyComponent = React.createClass({
     const { config, isFetching } = this.props;
     let title = ''
     if (!canCreate) {
-      title = '尚未部署分布式存储，暂不能创建（如需帮助，请查看文档或通过右下角工单联系我们）'
+      title = '尚未部署分布式存储，暂不能创建'
     }
     if (isFetching) {
       return (
@@ -114,6 +114,7 @@ class MysqlCluster extends Component {
   constructor(props) {
     super(props)
     this.createDatabaseShow = this.createDatabaseShow.bind(this);
+    this.refreshDatabase = this.refreshDatabase.bind(this);
     this.state = {
       detailModal: false,
       putVisible: false,
@@ -122,7 +123,24 @@ class MysqlCluster extends Component {
       dbservice: []
     }
   }
-  refreshDatabase() {   
+  refreshDatabase() {
+    const _this = this
+    this.props.loadMyStack(DEFAULT_REGISTRY, 'dbservice', {
+      success: {
+        func: (res) => {
+          _this.setState({
+            dbservice: res.data.data
+          })
+        }
+      }
+    })
+
+    const { teamCluster } = this.props
+    if(teamCluster && teamCluster.result && teamCluster.result.data && location.search == '?createDatabase'){
+      _this.setState({
+        CreateDatabaseModalShow: true,
+      })
+    }   
   }
   componentWillMount() {
     const { loadDbCacheList, cluster } = this.props
@@ -147,11 +165,13 @@ class MysqlCluster extends Component {
     })
 
     const { teamCluster } = this.props
-    console.log('teamCluster=',teamCluster)
     if(teamCluster && teamCluster.result && teamCluster.result.data && location.search == '?createDatabase'){
       _this.setState({
         CreateDatabaseModalShow: true,
       })
+      setTimeout(() => {
+        document.getElementById('dbName').focus()
+      },100)
     }
   }
 
@@ -202,7 +222,7 @@ class MysqlCluster extends Component {
     let canCreate = true
     if (!storage_type || storage_type.indexOf('rbd') < 0) canCreate = false
     if(!canCreate) {
-      title = '尚未部署分布式存储，暂不能创建（如需帮助，请查看文档或通过右下角工单联系我们）'
+      title = '尚未部署分布式存储，暂不能创建'
     }
     return (
       <QueueAnim id='mysqlDatabase' type='right'>
@@ -214,8 +234,8 @@ class MysqlCluster extends Component {
               <i className='fa fa-plus' />&nbsp;MySQL集群
           </Button>
           </Tooltip>
-            <Button style={{marginLeft:'20px'}} size='large' onClick={this.refreshDatabase} disabled={!canCreate}>
-              <i className='fa fa-refresh' />&nbsp;刷新
+            <Button style={{marginLeft:'20px',padding:'5px 15px'}} size='large' onClick={this.refreshDatabase} disabled={!canCreate}>
+              <i className='fa fa-refresh' />&nbsp;刷 新
             </Button>
             <span className='rightSearch'>
               <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight:'28px'}} ref="mysqlRef" onPressEnter={(e)=> this.handSearch(e)} />

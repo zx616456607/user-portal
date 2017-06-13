@@ -151,6 +151,26 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.DisablEmail',
     defaultMessage: '禁止发邮件',
   },
+	CreateOrUpdate: {
+		id: 'ManageMonitor.operationalAudit.CreateOrUpdate',
+		defaultMessage: '创建或更新',
+	},
+	ToggleEnable: {
+		id: 'ManageMonitor.operationalAudit.ToggleEnable',
+		defaultMessage: '切换',
+	},
+	Ignore: {
+		id: 'ManageMonitor.operationalAudit.Ignore',
+		defaultMessage: '忽略',
+  },
+  RollBack: {
+		id: 'ManageMonitor.operationalAudit.RollBack',
+		defaultMessage: '回滚',
+	},
+	Clone: {
+		id: 'ManageMonitor.operationalAudit.Clone',
+		defaultMessage: '克隆',
+	},
   Unknown: {
     id: 'ManageMonitor.operationalAudit.Unknown',
     defaultMessage: '其它',
@@ -182,6 +202,14 @@ const menusText = defineMessages({
   InstanceMetrics: {
     id: 'ManageMonitor.operationalAudit.InstanceMetrics',
     defaultMessage: '实例指标',
+  },
+  InstanceExport: {
+    id: 'ManageMonitor.operationalAudit.InstanceExport',
+    defaultMessage: '镜像导出',
+  },
+  Snapshot: {
+    id: 'ManageMonitor.operationalAudit.Snapshot',
+    defaultMessage: '快照',
   },
   InstanceContainerMetrics: {
     id: 'ManageMonitor.operationalAudit.InstanceContainerMetrics',
@@ -518,6 +546,26 @@ function returnOperationList(scope) {
     { // 18
       value: '21',
       label: (<FormattedMessage {...menusText.DisablEmail} />)
+    },
+    { // 18
+      value: '22',
+      label: (<FormattedMessage {...menusText.CreateOrUpdate} />)
+    },
+    { // 18
+      value: '23',
+      label: (<FormattedMessage {...menusText.ToggleEnable} />)
+    },
+    { // 18
+      value: '24',
+      label: (<FormattedMessage {...menusText.Ignore} />)
+    },
+    { // 18
+      value: '25',
+      label: (<FormattedMessage {...menusText.RollBack} />)
+    },
+    { // 18
+      value: '26',
+      label: (<FormattedMessage {...menusText.Clone} />)
     }
   ];
   return operationalList;
@@ -695,9 +743,9 @@ function resourceFormat(resourceType, scope) {
     case '46':
       return formatMessage(menusText.CDNotification)
       break;
-    case '46':
-      return formatMessage(menusText.CDNotification)
-      break;
+	  case '47':
+		  return formatMessage(menusText.InstanceExport)
+		  break;
     case '48':
       return formatMessage(menusText.AlertEmailGroup)
       break;
@@ -709,6 +757,9 @@ function resourceFormat(resourceType, scope) {
       break;
     case '51':
       return formatMessage(menusText.AlertRule)
+      break;
+    case '52':
+      return formatMessage(menusText.Snapshot)
       break;
     case '0':
       return formatMessage(menusText.Unknown)
@@ -779,6 +830,21 @@ function operationalFormat(operationalType, scope) {
       break;
     case '21':
       return formatMessage(menusText.DisablEmail)
+      break;
+    case '22':
+      return formatMessage(menusText.CreateOrUpdate)
+      break;
+    case '23':
+      return formatMessage(menusText.ToggleEnable)
+      break;
+    case '24':
+      return formatMessage(menusText.Ignore)
+      break;
+    case '25':
+      return formatMessage(menusText.RollBack)
+      break;
+    case '26':
+      return formatMessage(menusText.Clone)
       break;
   }
 }
@@ -869,6 +935,9 @@ function formatResourceName(resourceName, resourceId) {
         }
       }
       return ids.join(',')
+    }
+    if (newBody.ids && Array.isArray(newBody.ids) && newBody.ids.length > 0){
+      return newBody.ids.join(",")
     }
   } else {
     if(resourceName.length == 0) {
@@ -975,6 +1044,7 @@ class OperationalAudit extends Component {
     this.onChangeNamespace = this.onChangeNamespace.bind(this);
     this.onPageChange = this.onPageChange.bind(this);
     this.submitSearch = this.submitSearch.bind(this);
+    this.refreshLogs = this.refreshLogs.bind(this)
     this.state = {
       selectOperationalList: [],
       from: 1,
@@ -1267,6 +1337,10 @@ class OperationalAudit extends Component {
         //CDNotifications
         showOperationalList.push(operationalList[3]);
         break;
+      case '47':
+        //CDNotifications
+        showOperationalList.push([]);
+        break;
       case '48':
         //AlertEmailGroup
         showOperationalList.push(operationalList[0]);
@@ -1290,6 +1364,10 @@ class OperationalAudit extends Component {
         break;
       case '51':
         //AlertRule
+        showOperationalList.push(operationalList[8]);
+        break;
+      case '52':
+        //Snapshot
         showOperationalList.push(operationalList[10]);
         break;
       case '0':
@@ -1394,6 +1472,32 @@ class OperationalAudit extends Component {
     });
   }
 
+  refreshLogs(){
+    const { getOperationLogList } = this.props
+    let body = {
+      from: 0,
+      size: 15,
+      namespace: null,
+      operation: null,
+      resource: null,
+      start_time: null,
+      end_time: null
+    }
+    let notification = new NotificationHandler()
+    getOperationLogList(body, {
+      success: {
+        func: (res) => {
+          notification.success("刷新成功")
+        }
+      },
+      failed: {
+        func: (error) => {
+          notification.error('刷新失败，请重试');
+        }
+      }
+    })
+  }
+  
   render() {
     const { isFetching, logs } = this.props;
     const { formatMessage } = this.props.intl;
@@ -1513,7 +1617,10 @@ class OperationalAudit extends Component {
             label: formatMessage(menusText.CDNotification),
           }
         ]
-      }, {
+      },{
+            value: '47',
+            label: formatMessage(menusText.InstanceExport),
+        }, {
         value: '48',
         label: formatMessage(menusText.Alert),
         children: [
@@ -1532,6 +1639,9 @@ class OperationalAudit extends Component {
           }
         ]
       }, {
+            value: '52',
+            label: formatMessage(menusText.Snapshot),
+         },{
         value: null,
         label: formatMessage(menusText.allResource)
       }];
@@ -1574,6 +1684,9 @@ class OperationalAudit extends Component {
             <DatePicker onChange={this.onChangeEndTime} style={{ marginRight: 20, marginTop: 10, float: 'left' }} showTime format='yyyy-MM-dd HH:mm:ss' size='large' />
             <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch}>
               <i className='fa fa-wpforms'></i> <FormattedMessage {...menusText.search} />
+            </Button>
+            <Button type="primary" size="large" className='refresh' onClick={this.refreshLogs}>
+              刷新
             </Button>
             <div className='bottomBox'>
               <div className='pageBox'>

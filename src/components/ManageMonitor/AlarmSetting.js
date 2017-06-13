@@ -15,7 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../common/notification_handler'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { getAlertSetting, deleteRecords, getSettingList, deleteSetting, updateEnable, ignoreSetting, getSettingInstant } from '../../actions/alert'
+import { getAlertSetting, deleteRecords, getSettingList, deleteSetting, batchEnable, batchDisable, ignoreSetting, getSettingInstant } from '../../actions/alert'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 import no_alarm from '../../assets/img/no_data/no_alarm.png'
@@ -110,13 +110,13 @@ let MyComponent = React.createClass({
     }
   },
   clearRecords() {
-    const { deleteRecords } = this.props
+    const { deleteRecords, clusterID } = this.props
     const notify = new NotificationHandler()
     if(!this.state.clearStraregy.strategyID) {
       return notify.error('请选择要清除记录的策略')
     }
     notify.spin('策略告警记录清除中')
-    deleteRecords(this.state.clearStraregy.strategyID, {
+    deleteRecords(this.state.clearStraregy.strategyID, clusterID, {
       success: {
         func: () => {
           notify.close()
@@ -334,7 +334,7 @@ let MyComponent = React.createClass({
           </div>
           <div className="lists">
             <span className="keys">内存</span>
-            <Progress percent={ data.memory * 100 } strokeWidth={8} format={ percent => percent.toFixed(2) + '%'} status={ data.memory * 100 > 80 ? 'exception' : ''} className="progress"/>
+            <Progress percent={ data.memory[2] * 100 } strokeWidth={8} format={ () =>  parseInt(data.memory[1]/(1024*1024)) + 'MB'}   status={ data.memory[2]*100 > 80 ? 'exception' : ''} className="progress"/>
           </div>
           <div className="lists">
             <span className="keys">流量</span>
@@ -385,7 +385,7 @@ let MyComponent = React.createClass({
         return (
             [<tr key={`list${index}`}>
              <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-              <td onClick={(e)=> this.tableListMore(index, e)}><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyName)}`}>{list.strategyName}</Link></td>
+              <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-down" /><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
               <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.targetName}</td>
               <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
@@ -406,7 +406,7 @@ let MyComponent = React.createClass({
       return (
         <tr key={`list${index}`}>
             <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-            <td onClick={(e)=> this.tableListMore(index, e)}><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyName)}`}>{list.strategyName}</Link></td>
+            <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-right" /><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
             <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.targetName}</td>
             <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
@@ -513,6 +513,18 @@ class AlarmSetting extends Component {
     })
   }
   componentWillReceiveProps(nextProps) {
+    const { getSettingList } = this.props
+    let preSpaceName = this.props.space.spaceName;
+    let nextSpaceName = nextProps.space.spaceName;
+    let preClusterID = this.props.clusterID;
+    let nextClusterID = nextProps.clusterID;
+    
+    if(preSpaceName !== nextSpaceName || preClusterID !== nextClusterID){
+      getSettingList(nextClusterID, {
+        from: DEFAULT_PAGE - 1,
+        size: DEFAULT_PAGE_SIZE
+      })
+    }
     if(this.state.needUpdate) {
       this.setState({
         data: nextProps.setting
@@ -760,17 +772,11 @@ class AlarmSetting extends Component {
         notifi.error('该策略已启用')
         return
       }
-      strategy.push({
-        strategyID: selectStrategy.strategyID,
-        enable: 1
-      })
+      strategy.push(selectStrategy.strategyID)
     } else {
       data.forEach(item => {
         if(item.checked) {
-          strategy.push({
-            strategyID: item.strategyID,
-            enable: 1
-          })
+          strategy.push(item.strategyID)
         }
       })
     }
@@ -782,9 +788,9 @@ class AlarmSetting extends Component {
      this.setState({
       showStart: false,
     })
-    const { clusterID, updateEnable, getSettingList } = this.props
-    updateEnable(clusterID, {
-      strategies: strategy
+    const { clusterID, batchEnable, getSettingList } = this.props
+    batchEnable(clusterID, {
+      strategyIDs: strategy
     }, {
       success: {
         func: () => {
@@ -815,17 +821,11 @@ class AlarmSetting extends Component {
         notifi.error('该策略已停用')
         return
       }
-      strategy.push({
-        strategyID: selectStrategy.strategyID,
-        enable: 0
-      })
+      strategy.push(selectStrategy.strategyID)
     } else {
       data.forEach(item => {
         if(item.checked) {
-          strategy.push({
-            strategyID: item.strategyID,
-            enable: 0
-          })
+          strategy.push(item.strategyID)
         }
       })
     }
@@ -838,9 +838,9 @@ class AlarmSetting extends Component {
     this.setState({
       showStop: false,
     })
-    const { clusterID, updateEnable, getSettingList } = this.props
-    updateEnable(clusterID, {
-      strategies: strategy
+    const { clusterID, batchDisable, getSettingList } = this.props
+    batchDisable(clusterID, {
+      strategyIDs: strategy
     }, {
       success: {
         func: () => {
@@ -877,6 +877,9 @@ class AlarmSetting extends Component {
   }
   createStrategy(){
     this.setState({alarmModal: true, isEdit: false})
+    setTimeout(() => {
+      document.getElementById('name').focus()
+    }, 100)
   }
   handCelcan() {
     this.setState({
@@ -950,7 +953,7 @@ class AlarmSetting extends Component {
             :null
           }
           </div>
-          <MyComponent data={this.props.setting} scope={this} funcs={{ deleteRecords: this.props.deleteRecords }} needUpdate={this.state.needUpdate} />
+          <MyComponent data={this.props.setting} scope={this} funcs={{ deleteRecords: this.props.deleteRecords }} needUpdate={this.state.needUpdate} clusterID={this.props.clusterID}/>
           <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
             className="alarmModal"
             onCancel={() => this.setState({ alarmModal: false, step: 1 })}
@@ -1015,6 +1018,7 @@ function mapStateToProps(state, props) {
   const { entities } = state
   const cluster = entities.current.cluster
   const team = entities.current.team
+  const space = entities.current.space
   let setting = state.alert.settingList || defaultSettingList
   if(!setting.result || !setting.result.data) {
     setting = defaultSettingList
@@ -1027,7 +1031,8 @@ function mapStateToProps(state, props) {
     clusterID: cluster.clusterID,
     teamID: team.teamID,
     setting,
-    total
+    total,
+    space
   }
 }
 
@@ -1036,6 +1041,7 @@ export default connect(mapStateToProps, {
   deleteRecords,
   getSettingList,
   deleteSetting,
-  updateEnable,
+  batchEnable,
+  batchDisable,
   ignoreSetting,
 })(AlarmSetting)

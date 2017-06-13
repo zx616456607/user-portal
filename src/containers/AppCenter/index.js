@@ -15,7 +15,7 @@ import './style/AppCenter.less'
 
 const menuList = [
   {
-    url: '/app_center',
+    url: '/app_center/projects',
     name: '镜像仓库'
   },
   {
@@ -36,7 +36,7 @@ export default class ImageCenter extends Component {
       containerSiderStyle: 'normal'
     }
   }
-  
+
   render() {
     const { children } = this.props
     const scope = this

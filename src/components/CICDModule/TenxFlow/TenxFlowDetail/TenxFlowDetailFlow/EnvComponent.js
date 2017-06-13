@@ -59,7 +59,7 @@ let EnvComponent = React.createClass({
               if (!result.data) return
               let allEnv = {}
               const { scope, form, registry, config } = self.props;
-              const { setFieldsValue } = form
+              const { setFieldsValue, getFieldValue } = form
               let imageEnv = result.data
               let envs = imageEnv.defaultEnv
               if (envs) {
@@ -83,6 +83,13 @@ let EnvComponent = React.createClass({
                   [`service${index}inputValue${i}`]: allEnv[name]
                 })
               })
+              setTimeout(() => {
+                const arr = getFieldValue(['service' + index + 'inputs'])
+                const i = arr[arr.length - 1]
+                if (document.getElementById(`service${index}inputName${i}`)) {
+                  document.getElementById(`service${index}inputName${i}`).focus()
+                }
+              }, 300)
             }
           },
           failed: {
@@ -106,7 +113,12 @@ let EnvComponent = React.createClass({
     const { form, index } = nextProps
     let imageName = form.getFieldValue(`serviceSelect${index}`)
     if(nextProps.visible != this.props.visible && nextProps.visible && this.state.currentImageName != imageName) {
-      this.loadData()
+      return this.loadData()
+    }
+    if (nextProps.visible != this.props.visible && nextProps.visible) {
+      const arr = form.getFieldValue(['service' + index + 'inputs'])
+      const i = arr[arr.length - 1]
+      setTimeout(() => { document.getElementById(`service${index}inputName${i}`).focus() }, 300)
     }
   },
   shouldComponentUpdate(nextProps) {
@@ -135,6 +147,7 @@ let EnvComponent = React.createClass({
     form.setFieldsValue({
       [`${temp}`]: keys
     });
+    setTimeout(() => document.getElementById(`service${index}inputName${this.state.uuid}`).focus(), 300)
   },
   removeServicesInput (k, index){
     //this function for user remove the input div
@@ -150,8 +163,9 @@ let EnvComponent = React.createClass({
       [`${temp}`]: keys
     });
     if(keys.length == 0) {
-      this.addServicesInput(index)
+      return this.addServicesInput(index)
     }
+    setTimeout(() => document.getElementById(`service${index}inputName${keys[keys.length - 1]}`).focus(), 0)
   },
   closeModal () {
     //this function for user close the env input modal
@@ -175,8 +189,8 @@ let EnvComponent = React.createClass({
     getFieldProps('service' + index + 'inputs', {
       initialValue: [0],
     });
+    
     const servicesInputItems = getFieldValue('service' + index + 'inputs').map((i) => {
-      setTimeout(()=> document.getElementById(`service${index}inputName${i}`).focus(),300)
       const servicesInputNameProps = getFieldProps(`service${index}inputName${i}`, {
         rules: [
           { message: '请输入环境变量名' },

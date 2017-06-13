@@ -133,16 +133,18 @@ export function getOtherImageList(id) {
       types: [GET_OTHER_LIST_REQUEST, GET_OTHER_LIST_SUCCESS, GET_OTHER_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/docker-registry/${id}/images`,
       schema: Schemas.REGISTRYS
-    }
+    },
+    id
   }
 }
 
 export const SEARCH_OTHER_LIST_REQUEST = 'SEARCH_OTHER_LIST_REQUEST'
 // Search Other image list getOtherImageList
-export function SearchOtherImage(image) {
+export function SearchOtherImage(image,id) {
   return {
     type: SEARCH_OTHER_LIST_REQUEST,
     image,
+    id
   }
 }
 
@@ -171,11 +173,12 @@ export const GET_OTHER_IMAGE_TAGS_SUCCESS = 'GET_OTHER_IMAGE_TAGS_SUCCESS'
 export const GET_OTHER_IMAGE_TAGS_FAILURE = 'GET_OTHER_IMAGE_TAGS_FAILURE'
 
 export function getOtherImageTag(obj, callback) {
+  let urlImageName = processImageName(obj.imageName)
   return {
     registry: obj.registry,
     [FETCH_API]: {
       types: [GET_OTHER_IMAGE_TAGS_REQUEST, GET_OTHER_IMAGE_TAGS_SUCCESS, GET_OTHER_IMAGE_TAGS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.id}/images/${obj.imageName}/tags`,
+      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.id}/images/${urlImageName}/tags`,
       schema: Schemas.REGISTRYS
     },
     callback
@@ -188,12 +191,13 @@ export const IMAGE_GET_DETAILTAG_SUCCESS = 'IMAGE_GET_DETAILTAG_SUCCESS'
 export const IMAGE_GET_DETAILTAG_FAILURE = 'IMAGE_GET_DETAILTAG_FAILURE'
 
 function fetchImageGetDetailTag(registry, fullName, callback) {
+  let urlFullName = processImageName(fullName)
   return {
     registry,
     fullName,
     [FETCH_API]: {
       types: [IMAGE_GET_DETAILTAG_REQUEST, IMAGE_GET_DETAILTAG_SUCCESS, IMAGE_GET_DETAILTAG_FAILURE],
-      endpoint: `${API_URL_PREFIX}/registries/${registry}/${fullName}/tags`,
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/${urlFullName}/tags`,
       schema: Schemas.REGISTRYS
     },
     callback
@@ -216,11 +220,12 @@ export const IMAGE_GET_DETAILTAGCONFIG_FAILURE = 'IMAGE_GET_DETAILTAGCONFIG_FAIL
 // Fetches apps list from API unless it is cached.
 // Relies on Redux Thunk middleware.
 function fetchImageGetDetailTagConfig(registry, fullName, tag, callback) {
+  let urlFullName = processImageName(fullName)
   return {
     registry,
     [FETCH_API]: {
       types: [IMAGE_GET_DETAILTAGCONFIG_REQUEST, IMAGE_GET_DETAILTAGCONFIG_SUCCESS, IMAGE_GET_DETAILTAGCONFIG_FAILURE],
-      endpoint: `${API_URL_PREFIX}/registries/${registry}/${fullName}/tags/${tag}/configs`,
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/${urlFullName}/tags/${tag}/configs`,
       schema: Schemas.REGISTRYS
     },
     callback,
@@ -238,10 +243,11 @@ export const GET_OTHER_TAG_CONFIG_REQUEST = 'GET_OTHER_TAG_CONFIG_REQUEST'
 export const GET_OTHER_TAG_CONFIG_SUCCESS = 'GET_OTHER_TAG_CONFIG_SUCCESS'
 export const GET_OTHER_TAG_CONFIG_FAILURE = 'GET_OTHER_TAG_CONFIG_FAILURE'
 export function loadOtherDetailTagConfig(obj, callback) {
+  let urlFullName = processImageName(obj.fullname)
   return {
     [FETCH_API]: {
       types: [GET_OTHER_TAG_CONFIG_REQUEST, GET_OTHER_TAG_CONFIG_SUCCESS, GET_OTHER_TAG_CONFIG_FAILURE],
-      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.imageId}/images/${obj.fullname}/tags/${obj.imageTag}`,
+      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.imageId}/images/${urlFullName}/tags/${obj.imageTag}`,
       schema: Schemas.REGISTRYS
     },
     tag: obj.imageTag,
@@ -255,11 +261,12 @@ export const GET_IMAGEINFO_SUCCESS = 'GET_IMAGEINFO_SUCCESS'
 export const GET_IMAGEINFO_FAILURE = 'GET_IMAGEINFO_FAILURE'
 
 export function getImageDetailInfo(obj, callback) {
+  let urlFullName = processImageName(obj.fullName)
   return {
     registry: obj.registry,
     [FETCH_API]: {
       types: [GET_IMAGEINFO_REQUEST, GET_IMAGEINFO_SUCCESS, GET_IMAGEINFO_FAILURE],
-      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${obj.fullName}/detailInfo`,
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${urlFullName}/detailInfo`,
       schema: Schemas.REGISTRYS,
     },
     callback
@@ -271,10 +278,11 @@ export const GET_CHECK_IMAGE_SUCCESS = 'GET_CHECK_IMAGE_SUCCESS'
 export const GET_CHECK_IMAGE_FAILURE = 'GET_CHECK_IMAGE_FAILURE'
 
 function fetchCheckImage(obj, callback) {
+  let urlImage = processImageName(obj.image)
   return {
     [FETCH_API]: {
       types: [GET_CHECK_IMAGE_REQUEST, GET_CHECK_IMAGE_SUCCESS, GET_CHECK_IMAGE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${obj.image}`,
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${urlImage}`,
       schema: {}
     },
     registry: obj.registry,
@@ -293,10 +301,11 @@ export const DELETE_PRIVATE_IMAGE_SUCCESS = 'DELETE_PRIVATE_IMAGE_SUCCESS'
 export const DELETE_PRIVATE_IMAGE_FAILURE = 'DELETE_PRIVATE_IMAGE_FAILURE'
 
 function fetchDeletePrivateImage(obj, callback) {
+  let urlImage = processImageName(obj.image)
   return {
     [FETCH_API]: {
       types: [DELETE_PRIVATE_IMAGE_REQUEST, DELETE_PRIVATE_IMAGE_SUCCESS, DELETE_PRIVATE_IMAGE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${obj.image}`,
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${urlImage}`,
       schema: Schemas.REGISTRYS,
       options: {
         method: 'DELETE',
@@ -319,10 +328,11 @@ export const UPDATA_IMAGE_INFO_SUCCESS = 'UPDATA_IMAGE_INFO_SUCCESS'
 export const UPDATA_IMAGE_INFO_FAILURE = 'UPDATA_IMAGE_INFO_FAILURE'
 
 function fetchUpdateImageInfo(obj, callback) {
+  let urlImage = processImageName(obj.image)
   return {
     [FETCH_API]: {
       types: [UPDATA_IMAGE_INFO_REQUEST, UPDATA_IMAGE_INFO_SUCCESS, UPDATA_IMAGE_INFO_FAILURE],
-      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${obj.image}`,
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${urlImage}`,
       schema: Schemas.REGISTRYS,
       options: {
         method: 'PUT',
@@ -346,10 +356,11 @@ export const SET_IMAGE_STORE_SUCCESS = 'SET_IMAGE_STORE_SUCCESS'
 export const SET_IMAGE_STORE_FAILURE = 'SET_IMAGE_STORE_FAILURE'
 // set image store 收藏镜像
 export function imageStore(obj, callback) {
+  let urlImage = processImageName(obj.image)
   return {
     [FETCH_API]: {
       types: [SET_IMAGE_STORE_REQUEST, SET_IMAGE_STORE_SUCCESS, SET_IMAGE_STORE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${obj.image}`,
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${urlImage}`,
       schema: Schemas.REGISTRYS,
       options: {
         method: 'PUT',
@@ -365,10 +376,11 @@ export function imageStore(obj, callback) {
 }
 // set image store 设置镜像 公开 or 私有
 export function imageSwitch(obj, callback) {
+  let urlImage = processImageName(obj.image)
   return {
     [FETCH_API]: {
       types: [SET_IMAGE_STORE_REQUEST, SET_IMAGE_STORE_SUCCESS, SET_IMAGE_STORE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${obj.image}`,
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${urlImage}`,
       schema: Schemas.REGISTRYS,
       options: {
         method: 'PUT',
@@ -776,4 +788,16 @@ export function loadMirrorSafetyChairinfo(body, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchMirrorSafetyChairinfo(body, callback))
   }
+}
+
+function processImageName(name) {
+  let arr = name.split('/')
+  if (arr.length > 2) {
+    name = arr[0] + '/' + arr[1]
+    for (let i = 2; i < arr.length; i++) {
+      name += "%2F"
+      name += arr[i]
+    }   
+  }
+  return name
 }

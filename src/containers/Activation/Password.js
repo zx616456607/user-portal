@@ -12,12 +12,14 @@ import React, { PropTypes } from 'react'
 import { Button, Form, Input, Card, message, Alert, Col, Row, Icon } from 'antd'
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../constants'
+import { NO_CLUSTER_FLAG, CLUSTER_PAGE } from '../../../constants'
 import Top from '../../components/Top'
 import '../Login/Enterprise/style/Login.less'
 import { setAdminPassword } from '../../actions/admin'
 import { login } from '../../actions/entities'
 import { browserHistory } from 'react-router'
 import NotificationHandler from '../../common/notification_handler'
+import { camelize } from 'humps'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -89,7 +91,13 @@ let Admin = React.createClass({
             }
             _this.props.login(body, {
               success: {
-                func: () => {
+                func: (result) => {
+                   // If no cluster found, redirect to CLUSTER_PAGE
+                  if (result.user[camelize(NO_CLUSTER_FLAG)] === true) {
+                    message.warning(`请先添加集群`, 10)
+                    browserHistory.push(CLUSTER_PAGE)
+                    return
+                  }
                   new NotificationHandler().success('用户admin设置并登录成功')
                   browserHistory.push('/')
                 },

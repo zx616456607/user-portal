@@ -168,10 +168,14 @@ let Emaill = React.createClass({
   },
   sendEmail() {
     const email = this.props.form.getFieldValue('email')
+    const host = this.props.form.getFieldValue('service')
     const password = this.props.form.getFieldValue('password')
+    const secure = this.props.form.getFieldValue('secure')
     const body ={
       email,
-      password
+      password,
+	  host,
+	  secure
     }
     const notitf = new NotificationHandler()
     this.props.sendEmailVerification(body,{
@@ -521,20 +525,13 @@ let MirrorService = React.createClass({
     const { mirrorChange, config } = this.props
     const { setFieldsValue } = this.props.form
     let mirroDetail = {
-      protocol: "",
-      host: "",
-      port: "",
-      v2Server: "",
-      v2AuthServer: ""
+       url: ''
     }
     if (config) {
       mirroDetail = JSON.parse(config.configDetail)
     }
     setFieldsValue({
-      mirror: mirroDetail.v2Server,
-      approve: mirroDetail.v2AuthServer,
-      extend: mirroDetail.protocol ? mirroDetail.protocol + '://' + mirroDetail.host + (mirroDetail.port ? ':' + mirroDetail.port : '') : '',
-      registryID: config ? config.configID : ''
+      mirror: mirroDetail.url
     })
     mirrorChange()
   },
@@ -547,93 +544,74 @@ let MirrorService = React.createClass({
         return
       }
       const notification = new NotificationHandler()
-      notification.spin('保存中')
       this.setState({
         canClick: false
       })
       const { form, saveGlobalConfig, updateGlobalConfig, cluster, isValidConfig, setGlobalConfig } = this.props
       const { getFieldValue } = form
-      const mirror = getFieldValue('mirror')
-      const approve = getFieldValue('approve')
-      const extend = getFieldValue('extend')
-      const registryID = getFieldValue('registryID')
+      const url = getFieldValue('mirror')
+      const harborID = getFieldValue('harborID')
       const self = this
       const body = {
-        configID: registryID,
+        configID: harborID,
         detail: {
-          host: extend,
-          v2AuthServer: approve,
-          v2Server: mirror
+          url
         }
       }
-      isValidConfig('registry', {
-        host: extend ,
-        v2AuthServer: approve,
-        v2Server: mirror
+      notification.spin('保存中')
+      isValidConfig('harbor', {
+        url: url
       }, {
           success: {
-            func: (result) => {
-              if (result.data && result.data == 'success') {
-                saveGlobalConfig(cluster.clusterID, 'registry', body, {
-                    success: {
-                      func: (result) => {
-                        notification.close()
-                        notification.success('镜像服务配置保存成功')
-                        const { form } = self.props
-                        const { setFieldsValue } = form
-                        self.handleMirror()
-                        this.setState({
-                          canClick: true,
-                          aleardySave: true
-                        })
-                        if (result.data.toLowerCase() != 'success') {
-                          setFieldsValue({
-                            registryID: result.data
-                          })
-                          body.configID = result.data
-                        }
-                        let arr = body.detail.host.split('://')
-                        body.detail.protocol = arr[0]
-                        arr = arr[1].split(':')
-                        body.detail.port = arr[1]
-                        body.detail.host = arr[0]
-                        body.configDetail = JSON.stringify(body.detail)
-                        setGlobalConfig('registry', body)
-                      }
-                    },
-                    failed: {
-                      func: (err) => {
-                        notification.close()
-                        let msg
-                        if (err.message.message) {
-                          msg = err.message.message
-                        } else {
-                          msg = err.message
-                        }
-                        notification.error('镜像服务配置保存失败 => ' + msg)
-                        self.setState({
-                          canClick: true
-                        })
-                      }
+            func: () => {
+              saveGlobalConfig(cluster.clusterID, 'harbor', body, {
+                success: {
+                  func: (result) => {
+                    notification.close()
+                    notification.success('镜像服务配置保存成功')
+                    const { form } = self.props
+                    const { setFieldsValue } = form
+                    self.handleMirror()
+                    this.setState({
+                      canClick: true,
+                      aleardySave: true
+                    })
+                    if (result.data.toLowerCase() != 'success') {
+                      setFieldsValue({
+                        harborID: result.data
+                      })
+                      body.configID = result.data
                     }
-                  })
-              } else {
-                notification.close()
-                notification.error('扩展服务地址不可用')
-                self.setState({
-                  canClick: true
-                })
-              }
+                    body.configDetail = JSON.stringify(body.detail)
+                    setGlobalConfig('harbor', body)
+                  }
+                },
+                failed: {
+                  func: (err) => {
+                    notification.close()
+                    let msg
+                    if (err.message.message) {
+                      msg = err.message.message
+                    } else {
+                      msg = err.message
+                    }
+                    notification.error('镜像服务配置保存失败 => ' + msg)
+                    self.setState({
+                      canClick: true
+                    })
+                  }
+                }
+              })
             },
             isAsync: true
           },
           failed: {
-            func: () => {
-              notification.close()
-              notification.error('镜像服务地址不可用')
-              self.setState({
-                canClick: true
-              })
+            func: (res) => {
+               notification.close()
+               notification.error('镜像服务地址不可用')
+               self.setState({
+                 canClick: true
+               })
             }
           }
         })
@@ -645,32 +623,8 @@ let MirrorService = React.createClass({
       callback([new Error('请填写镜像服务地址')])
       return
     }
-    if (!/^([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+    if (!/^(http:\/\/|https\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
       return callback('请填入合法的镜像服务地址')
-    }
-    callback()
-  },
-
-  // 认证服务地址校验规则
-  checkApprove(rule, value, callback) {
-    if (!value) {
-      callback([new Error('请填写认证服务地址')])
-      return
-    }
-    if (!/^(http|https):\/\/([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
-      return callback('请填入合法的认证服务地址')
-    }
-    callback()
-  },
-
-  // 扩展服务地址校验规则
-  checkExtend(rule, value, callback) {
-    if (!value) {
-      callback([new Error('请填写扩展服务地址')])
-      return
-    }
-    if (!/^(http|https):\/\/([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
-      return callback('请填入合法的扩展服务地址')
     }
     callback()
   },
@@ -678,11 +632,7 @@ let MirrorService = React.createClass({
     const { mirrorDisable, mirrorChange, config } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     let mirroDetail = {
-      protocol: "",
-      host: "",
-      port: "",
-      v2Server: "",
-      v2AuthServer: ""
+       url: ''
     }
     if (config) {
       mirroDetail = JSON.parse(config.configDetail)
@@ -691,21 +641,9 @@ let MirrorService = React.createClass({
       rules: [
         { validator: this.checkMirror }
       ],
-      initialValue: mirroDetail.v2Server
+      initialValue: mirroDetail.url
     })
-    const approveProps = getFieldProps('approve', {
-      rules: [
-        { validator: this.checkApprove }
-      ],
-      initialValue: mirroDetail.v2AuthServer
-    })
-    const extendProps = getFieldProps('extend', {
-      rules: [
-        { validator: this.checkExtend }
-      ],
-      initialValue: mirroDetail.protocol ? mirroDetail.protocol + '://' + mirroDetail.host + (mirroDetail.port ? ':' + mirroDetail.port : '') : ''
-    })
-    const registryID = getFieldProps('registryID', {
+    const harborID = getFieldProps('harborID', {
       initialValue: config ? config.configID : ''
     })
     return (
@@ -722,19 +660,11 @@ let MirrorService = React.createClass({
             <div className="contentImg">
               <img src={MirrorImg} alt="镜像服务" />
             </div>
-            <div className="contentkeys">
-              <div className="key">扩展服务地址</div>
-              <div className="key">认证服务地址</div>
+            <div className="contentkeys"> 
               <div className="key">镜像服务地址</div>
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
-                <FormItem >
-                  <Input {...extendProps} placeholder="如：http://192.168.1.113:80" disabled={mirrorDisable} />
-                </FormItem>
-                <FormItem >
-                  <Input {...approveProps} placeholder="如：https://192.168.1.113:5001" disabled={mirrorDisable} />
-                </FormItem>
                 <FormItem >
                   <Input {...mirrorProps} placeholder="如：https://192.168.1.113:4081" disabled={mirrorDisable} />
                 </FormItem>
@@ -748,7 +678,7 @@ let MirrorService = React.createClass({
                       ])
                   }
                 </FormItem>
-                <input type="hidden" {...registryID} />
+                <input type="hidden" {...harborID} />
               </Form>
             </div>
           </div>
@@ -1117,8 +1047,8 @@ class GlobalConfig extends Component {
           <div className='titltitem'>③『存储服务』对应的【应用管理】中存储卷的相关配置；</div>
           <div className='titltitem'>④『持续集成』对应的是 CI/CD 中 TenxFlow 的相关功能配置；</div>
 					</div>
-        <Emaill sendEmailVerification={this.props.sendEmailVerification} setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
-        <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.registry} isValidConfig={this.props.isValidConfig}/>
+        <Emaill setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
+        <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.harbor} isValidConfig={this.props.isValidConfig}/>
         <StorageService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />
         <ConInter setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />
         <Continue />

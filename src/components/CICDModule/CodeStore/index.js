@@ -230,11 +230,17 @@ const MyComponent = React.createClass({
           </div>
           <div className='action'>
 
-            <Dropdown.Button overlay={dropdown} type='ghost' onClick={() => this.notActive(item.id)} >
-              <Icon type='delete' />
-              <FormattedMessage {...menusText.releaseActivation} />
-            </Dropdown.Button>
-
+            {item.webhookId || item.webhookUrl ?
+              <Dropdown.Button overlay={dropdown} type='ghost' onClick={() => this.notActive(item.id)} >
+                <Icon type='delete' />
+                <FormattedMessage {...menusText.releaseActivation} />
+              </Dropdown.Button>
+            :
+              <Button style={{width:'120px'}} overlay={dropdown} type='ghost' onClick={() => this.notActive(item.id)} >
+                <Icon type='delete' />
+                <FormattedMessage {...menusText.releaseActivation} />
+              </Button>
+            }
 
           </div>
         </div>
@@ -252,6 +258,14 @@ const MyComponent = React.createClass({
           ]}
           >
           <div>
+            <div className="alertRow">
+              <p>
+                ① 在激活项目时，TenxFlow 会自动在代码管理工具端添加『访问公钥』、『Webhook』 等集成所需的资源；
+              </p>
+              <p>
+                ② 如果激活时提示添加对应资源失败，可以通过『查看公钥』、『Webhook』 获取的信息，手动添加到对应代码项目的配置中。
+              </p>
+            </div>
             <p style={{ lineHeight: '40px' }}>* 将该URL填入到 {this.state.repoType ? this.state.repoType.replace('l', 'L').replace('h', 'H').replace('g', 'G') : ''}项目的Web Hooks URL中</p>
             <div style={{ padding: '10px', border: '1px solid #d9d9d9', wordWrap: 'break-word' }} className="valueBox">{this.state.webhookUrl}</div>
             <p style={{ opacity: '0', position: 'absolute' }}><Input type="textarea" className="CodeCopy" autosize={{ minRows: 2, maxRows: 6 }} value={this.state.webhookUrl} /></p>
@@ -269,6 +283,14 @@ const MyComponent = React.createClass({
           ]}
           >
           <div>
+            <div className="alertRow">
+              <p>
+                ① 在激活项目时，TenxFlow 会自动在代码管理工具端添加『访问公钥』、『Webhook』 等集成所需的资源；
+              </p>
+              <p>
+                ② 如果激活时提示添加对应资源失败，可以通过『查看公钥』、『Webhook』 获取的信息，手动添加到对应代码项目的配置中。
+              </p>
+            </div>
             <p style={{ lineHeight: '30px' }}>检测到关联的代码托管系统：</p>
             <p style={{ lineHeight: '40px' }}><span style={{ color: '#00A0EA' }} className="name">仓库: {this.state.itemName} </span>  <span style={{ color: '#00A0EA', marginLeft: '20px' }} className="type">属性：{this.state.itemType == 1 ? "私有" : "公有"}</span> </p>
 
@@ -389,7 +411,7 @@ class CodeStore extends Component {
         <div id='CodeStore' key='CodeStore'>
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
           <div className='operaBox'>
-            <Link to="/ci_cd/coderepo/repos">
+            <Link to="/ci_cd/coderepo">
               <Button className='createBtn' size='large' type='primary'>
                 <i className='fa fa-plus' />&nbsp;
               <FormattedMessage {...menusText.linkCode} />

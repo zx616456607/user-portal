@@ -317,12 +317,15 @@ class Deployment {
       }
       volumeMounts.forEach(item => {
         if (!isWholeDir) {
-          container.volumeMounts.push({
+          const body = {
             name: volume.name,
             mountPath: item.mountPath,
-            subPath: item.subPath,
             readOnly: item.readOnly || false
-          })
+          }
+          if(item.subPath) {
+            body.subPath = item.subPath
+          }
+          container.volumeMounts.push(body)
         } else {
           container.volumeMounts.push({
             name: volume.name,

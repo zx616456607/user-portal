@@ -9,7 +9,7 @@ import NotificationHandler from '../../common/notification_handler'
 import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import {  getAllClusterNodes, getKubectlsPods, deleteClusterNode, getClusterLabel } from '../../actions/cluster_node'
+import {  getAllClusterNodes, getKubectlsPods, deleteClusterNode, getClusterLabel, changeClusterNodeSchedule } from '../../actions/cluster_node'
 import { addTerminal } from '../../actions/terminal'
 import { NOT_AVAILABLE } from '../../constants'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
@@ -160,21 +160,24 @@ const MyComponent = React.createClass({
               <span>{item.isMaster ? MASTER : SLAVE}</span>
             </Tooltip>
           </div>
+          <div className='alarm commonTitle'>
+            <Tooltip title="查看监控">
+              <svg className="managemoniter" onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}?tab=monitoring`)}><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"/></svg>
+            </Tooltip>
+            <Tooltip title="告警设置" onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}?tab=alarm&open=true`)} >
+              <Icon type="notification" />
+            </Tooltip>
+          </div>
           <div className='container commonTitle'>
             <span>{getContainerNum(item.objectMeta.name, containerList)}</span>
           </div>
           <div className='cpu commonTitle'>
-
             <div className='topSpan'>{item[camelize('cpu_total')] / 1000}核</div>
             <div className='bottomSpan'>{cpuUsed(item[camelize('cpu_total')], cpuMetric, item.objectMeta.name)}</div>
           </div>
           <div className='memory commonTitle'>
             <div className='topSpan'>{diskFormat(item[camelize('memory_total_kb')])}</div>
             <div className='bottomSpan'>{memoryUsed(item[camelize('memory_total_kb')], memoryMetric, item.objectMeta.name)}</div>
-          </div>
-          <div className='disk commonTitle'>
-            <div className='topSpan'>{'-'}</div>
-            <div className='bottomSpan'>{'-'}</div>
           </div>
           <div className='schedule commonTitle'>
             <Switch style={{display:"block"}}
@@ -207,11 +210,7 @@ const MyComponent = React.createClass({
               }
             </span>
           </div>
-          <div className='runningTime commonTitle'>
-            <Tooltip title={calcuDate(item.objectMeta.creationTimestamp)}>
-              <span>{calcuDate(item.objectMeta.creationTimestamp)}</span>
-            </Tooltip>
-          </div>
+          
           <div className='startTime commonTitle'>
             <Tooltip title={formatDate(item.objectMeta.creationTimestamp)}>
               <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
@@ -502,26 +501,23 @@ class hostList extends Component {
             <div className='role commonTitle'>
               <span>节点角色</span>
             </div>
+            <div className='alarm commonTitle'>
+              <span>监控告警</span>
+            </div>
             <div className='container commonTitle'>
               <span>容器数</span>
             </div>
             <div className='cpu commonTitle'>
-              <span>CPU</span>
+              <span>CPU使用</span>
             </div>
             <div className='memory commonTitle'>
-              <span>内存</span>
-            </div>
-            <div className='disk commonTitle'>
-              <span>磁盘</span>
+              <span>内存占用</span>
             </div>
             <div className='schedule commonTitle'>
               <span>调度状态</span>
             </div>
-            <div className='runningTime commonTitle'>
-              <span>运行时间</span>
-            </div>
             <div className='startTime commonTitle'>
-              <span>启动时间</span>
+              <span>加入集群时间</span>
             </div>
             <div className='opera commonTitle'>
               <span>操作</span>
@@ -604,7 +600,8 @@ export default connect(mapStateToProps, {
   addTerminal,
   getKubectlsPods,
   deleteClusterNode,
-  getClusterLabel
+  getClusterLabel,
+  changeClusterNodeSchedule
 })(injectIntl(hostList, {
   withRef: true,
 }))

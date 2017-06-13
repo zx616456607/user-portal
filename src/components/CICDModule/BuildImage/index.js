@@ -218,7 +218,7 @@ let MyComponent = React.createClass({
       notification.error('该构建没有选择代码仓库')
       return
     }
-    if(!item.defaultBranch) {
+    if(!item.defaultBranch && item.repoType !== 'svn') {
       notification.error('该构建没有选择代码分支')
       return
     }
@@ -257,7 +257,7 @@ let MyComponent = React.createClass({
     })
   },
   renderBuildBtn(item, index) {
-    const { projectId, defaultBranch, stagesCount } = item
+    const { projectId, defaultBranch, stagesCount, repoType } = item
     const { repoBranchesAndTags } = this.props
     const dropdown = (
       <Menu onClick={this.operaMenuClick.bind(this, item)}>
@@ -278,6 +278,24 @@ let MyComponent = React.createClass({
         <FormattedMessage {...menusText.deloyStart} />
       </span>
     )
+    if (repoType === 'svn') {
+      return (
+        <Dropdown.Button
+          overlay={dropdown}
+          type='ghost'
+          size='large'
+          onClick={() => {
+            if (repoType === 'svn') {
+              this.startBuildStage(item, index)
+              return
+            }
+            this.starFlowBuild(item, index)
+          }}
+        >
+        { targetElement }
+      </Dropdown.Button>
+      )
+    }
     const tabs = []
     let loading
     const branchesAndTags = repoBranchesAndTags[projectId]
@@ -349,9 +367,11 @@ let MyComponent = React.createClass({
             <Checkbox onChange={(e) => this.props.changeCheckStatus(item.name, e)} checked={item.checked}/>
           </div>
           <div className='name'>
-            <Link to={`/ci_cd/build_image/tenx_flow_build?${item.flowId}&${flowListState[index].status}`}>
-              <span>{item.name}</span>
-            </Link>
+            <Tooltip placement='topLeft' title={item.name}>
+              <Link to={`/ci_cd/build_image/tenx_flow_build?${item.flowId}&${flowListState[index].status}`}>
+                <span>{item.name}</span>
+              </Link>
+            </Tooltip>
           </div>
           <div className='time'>
             <span className='timeSpan'>
@@ -399,10 +419,10 @@ let MyComponent = React.createClass({
     return (
       <div className='tenxflowList'>
         {items}
-        <Modal title="删除TenxFlow操作" visible={this.state.delFlowModal}
+        <Modal title="删除构建任务" visible={this.state.delFlowModal}
                onOk={() => this.delFlowAction()} onCancel={() => this.setState({ delFlowModal: false })}
         >
-          <Alert message="请注意，删除TenxFlow，将清除项目的所有历史数据以及相关的镜像，且该操作不能被恢复" type="warning" showIcon />
+          <Alert message="请注意，删除构建任务将清楚所有相关历史数据，且该操作不可恢复" type="warning" showIcon />
           <div className="modalColor" style={{ lineHeight: '30px' }}><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px', marginLeft: '16px' }}></i>
            您确定要删除 {this.state.item.name}?
           </div>
@@ -472,6 +492,11 @@ class TenxFlowList extends Component {
     this.setState({
     //  websocket: <Socket url={cicdApi.host} protocol={cicdApi.protocol} path={cicdApi.statusPath} onSetup={(socket) => this.onSetup(socket)} />
     })
+    if(location.search == '?build_image=true'){
+      this.setState({
+        createTenxFlowModal: true
+      })
+    }
   }
   componentWillReceiveProps(nextProps) {
     const { isFetching, flowList, currentSpace } = nextProps;
@@ -804,10 +829,10 @@ class TenxFlowList extends Component {
         >
           <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} callback={this.callback(this.state.currentFlowId)} visible={this.state.TenxFlowDeployLogModal}/>
         </Modal>
-        <Modal title="删除TenxFlow操作" visible={this.state.showDeleteTenxFlowModal}
+        <Modal title="删除构建任务" visible={this.state.showDeleteTenxFlowModal}
         onOk={() => this.deleteCheckFlow()} onCancel={() => this.setState({ showDeleteTenxFlowModal: false, checkName: [] })}
         >
-          <Alert message="请注意，删除TenxFlow，将清除项目的所有历史数据以及相关的镜像，且该操作不能被恢复" type="warning" showIcon />
+          <Alert message="请注意，删除构建任务将清楚所有相关历史数据，且该操作不可恢复" type="warning" showIcon />
           <div className="modalColor" style={{ lineHeight: '30px' }}><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px', marginLeft: '16px' }}></i>
             您确定要删除 {this.state.checkName} 吗？
           </div>

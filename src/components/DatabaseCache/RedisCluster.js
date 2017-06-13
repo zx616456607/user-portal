@@ -44,7 +44,7 @@ let MyComponent = React.createClass({
     const canCreate = this.props.canCreate
     let title = ''
     if (!canCreate) {
-      title = '尚未部署分布式存储，暂不能创建（如需帮助，请查看文档或通过右下角工单联系我们）'
+      title = '尚未部署分布式存储，暂不能创建'
     }
     if (isFetching) {
       return (
@@ -112,6 +112,7 @@ class RedisDatabase extends Component {
   constructor() {
     super()
     this.createDatabaseShow = this.createDatabaseShow.bind(this);
+    this.clusterRefresh = this.clusterRefresh.bind(this);
     this.state = {
       detailModal: false,
       putVisible: false,
@@ -120,7 +121,16 @@ class RedisDatabase extends Component {
     }
   }
   clusterRefresh() {
-    
+    const _this = this
+    this.props.loadMyStack(DEFAULT_REGISTRY, 'dbservice', {
+      success: {
+        func: (res) => {
+          _this.setState({
+            dbservice: res.data.data
+          })
+        }
+      }
+    })
   }
   componentWillMount() {
     const { loadDbCacheList, cluster } = this.props
@@ -191,7 +201,7 @@ class RedisDatabase extends Component {
     let canCreate = true
     if (!storage_type || storage_type.indexOf('rbd') < 0) canCreate = false
     if(!canCreate) {
-      title = '尚未部署分布式存储，暂不能创建（如需帮助，请查看文档或通过右下角工单联系我们）'
+      title = '尚未部署分布式存储，暂不能创建'
     }
     return (
       <QueueAnim id='mysqlDatabase' type='right'>
@@ -202,8 +212,8 @@ class RedisDatabase extends Component {
             <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
               <i className='fa fa-plus' />&nbsp;Redis集群
           </Button></Tooltip>
-            <Button style={{marginLeft:'20px'}} size='large' onClick={this.clusterRefresh} disabled={!canCreate}>
-              <i className='fa fa-refresh' />&nbsp;刷新
+            <Button style={{marginLeft:'20px',padding:'5px 15px'}} size='large' onClick={this.clusterRefresh} disabled={!canCreate}>
+              <i className='fa fa-refresh' />&nbsp;刷 新
             </Button>
             <span className='rightSearch'>
               <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight:'28px' }} ref="redisRef" onPressEnter={(e)=> this.handSearch(e)}/>
