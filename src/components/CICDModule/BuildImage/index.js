@@ -394,17 +394,17 @@ let MyComponent = React.createClass({
               </Tooltip>
             </span>
           </div>
-          <div className='image'>
+          <div className='image' style={{paddingLeft: '35px'}}>
             <span className='timeSpan'>
               <Tooltip placement='topLeft' title={item.image}>
                 <span>{item.image || '-'}</span>
               </Tooltip>
             </span>
           </div>
-          <div className={`status status-` + `${flowListState[index].status}`}>
+          <div className={`status status-` + `${flowListState[index].status}`} style={{paddingLeft: '0px'}}>
             <span><i className="fa fa-circle"></i>{status}</span>
           </div>
-          <div className='opera'>
+          <div className='opera' style={{paddingLeft: '0px'}}>
             {/*<Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>*/}
               {/*<i className='fa fa-wpforms' />&nbsp;*/}
               {/*<FormattedMessage {...menusText.deloyLog} />*/}
@@ -792,9 +792,6 @@ class TenxFlowList extends Component {
               </div>
               <div className='code'>
                 <FormattedMessage {...menusText.code} />
-              </div>
-              <div className='branch'>
-                <FormattedMessage {...menusText.branch} />
               </div>
               <div className='image'>
                 <FormattedMessage {...menusText.image} />
