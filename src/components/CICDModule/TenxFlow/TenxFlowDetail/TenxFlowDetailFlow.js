@@ -423,7 +423,7 @@ class TenxFlowDetailFlow extends Component {
     return (
       <div id='TenxFlowDetailFlow'>
         <div className='paddingBox'>
-          <Alert message={ this.props.isBuildImage ? <FormattedMessage {...menusText.buildImageTooltip} /> : <FormattedMessage {...menusText.tooltip} /> } type='info' />
+          {/*<Alert message={ this.props.isBuildImage ? <FormattedMessage {...menusText.buildImageTooltip} /> : <FormattedMessage {...menusText.tooltip} /> } type='info' />*/}
           {cards}
           {cards.length !=0 && this.props.isBuildImage ? '' :
           <div className={this.state.createNewFlow ? 'TenxFlowDetailFlowCardBigDiv commonCardBox createCardBox' : 'commonCardBox createCardBox'}>

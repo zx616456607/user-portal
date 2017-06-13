@@ -17,7 +17,8 @@ import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import NotificationHandler from '../../../common/notification_handler'
 // import { loadUserDetail } from '../../../actions/user'
-import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
+import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN,  } from '../../../../constants'
+import { NEED_BUILD_IMAGE } from '../../../constants'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -527,11 +528,13 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 代码仓库</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='build_image'>
-                    <Link to='/ci_cd/build_image'>
-                      <span><div className='sideCircle'></div> 构建镜像</span>
-                    </Link>
-                  </Menu.Item>
+                  {NEED_BUILD_IMAGE ?
+                    <Menu.Item key='build_image'>
+                      <Link to='/ci_cd/build_image'>
+                        <span><div className='sideCircle'></div> 构建镜像</span>
+                      </Link>
+                    </Menu.Item> : <Menu.Item key='integration-none' style={{ display: 'none' }}></Menu.Item>
+                  }
                   <Menu.Item key='tenx_flow'>
                     <Link to='/ci_cd/tenx_flow'>
                       <span><div className='sideCircle'></div> TenxFlow</span>

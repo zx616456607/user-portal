@@ -414,7 +414,7 @@
   "CICD.Tenxflow.TenxFlowDetailFlowCard.deleteBtn": "删除任务",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.didNotDelete": "只能从最后一个开始删除哦",
   "CICD.Tenxflow.TenxFlowDetailFlow.title": "部署记录",
-  "CICD.Tenxflow.TenxFlowDetailFlow.tooltip": "TenxFlow流程定义：这里可以定义一个TenxFlow项目的执行流程，每个卡片对应一个子任务，分别执行镜像构建、代码编译、单元测试或者集成测试等子任务，大部分流程以生成应用镜像作为结束。",
+  "CICD.Tenxflow.TenxFlowDetailFlow.tooltip": "TenxFlow流程定义：这里可以定义一个TenxFlow项目的执行流程，每个卡片对应一个子任务，分别执行代码编译、单元测试、集成测试和镜像构建等子任务，大部分流程以生成应用镜像作为结束。",
   "CICD.Tenxflow.TenxFlowDetailFlow.add": "添加子任务",
   "CICD.Tenxflow.CodeStoreListModal.name": "名称",
   "CICD.Tenxflow.CodeStoreListModal.attr": "属性",
