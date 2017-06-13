@@ -544,7 +544,6 @@ let MirrorService = React.createClass({
         return
       }
       const notification = new NotificationHandler()
-      notification.spin('保存中')
       this.setState({
         canClick: false
       })
@@ -603,28 +602,19 @@ let MirrorService = React.createClass({
                   }
                 }
               })
-              body.configID = result.data
+            },
+            isAsync: true
+          },
+          failed: {
+            func: (res) => {
+               notification.close()
+               notification.error('镜像服务地址不可用')
+               self.setState({
+                 canClick: true
+               })
             }
-            body.configDetail = JSON.stringify(body.detail)
-            setGlobalConfig('harbor', body)
           }
-        },
-        failed: {
-          func: (err) => {
-            notification.close()
-            let msg
-            if (err.message.message) {
-              msg = err.message.message
-            } else {
-              msg = err.message
-            }
-            notification.error('镜像服务配置保存失败 => ' + msg)
-            self.setState({
-              canClick: true
-            })
-          }
-        }
-      })
+        })
     })
   },
   // 镜像服务地址校验规则
