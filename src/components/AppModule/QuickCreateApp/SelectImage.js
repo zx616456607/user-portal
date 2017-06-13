@@ -18,6 +18,7 @@ import {
   loadFavouriteList, searchFavoriteImages, searchPrivateImages,
   publicFilterServer
 } from '../../../actions/app_center'
+import { loadAllProject, searchHarborPublicImages, searchHarborPrivateImages } from '../../../actions/harbor'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/SelectImage.less'
 
@@ -54,13 +55,19 @@ class SelectImage extends Component {
     }
   }
 
-  loadData(props, callback) {
-    const { registry, loadPublicImageList } = props
-    let serverType = null
-    if (standardFlag) {
-      serverType = 'all'
+  loadData(props, query, callback) {
+    // const { registry, loadPublicImageList } = props
+    // let serverType = null
+    // if (standardFlag) {
+    //   serverType = 'all'
+    // }
+    // loadPublicImageList(registry, serverType, callback)
+    const { registry, loadAllProject } = props
+    if(typeof query == 'function') {
+      callback = query
+      query = null
     }
-    loadPublicImageList(registry, serverType, callback)
+    loadAllProject(registry, query, callback)
   }
 
   componentWillMount() {
@@ -71,11 +78,7 @@ class SelectImage extends Component {
       })
       return
     }
-    this.imageTypeChange({
-      target: {
-        value: imageType,
-      }
-    }, false, callback)
+    this.loadData(this.props)
   }
 
   componentDidMount() {
@@ -87,30 +90,34 @@ class SelectImage extends Component {
     const imageType = e.target.value
     const {
       registry,
-      loadPrivateImageList,
-      loadFavouriteList,
+      //loadPrivateImageList,
+    //  loadFavouriteList,
     } = this.props
     const newState = {
       imageType,
       currentPage: 1,
+      searchInputValue: this.state.searchInputValue
     }
     if (isResetSearchInput === true || isResetSearchInput === undefined) {
       newState.searchInputValue = ''
     }
     this.setState(newState)
-    switch (imageType) {
-      case PUBLIC_IMAGES:
-        this.loadData(this.props, callback)
-        break
-      case 'privateImages':
-        loadPrivateImageList(registry, callback)
-        break
-      case 'fockImages':
-        loadFavouriteList(registry, callback)
-        break
-      default:
-        break
-    }
+    this.loadData(this.props, {
+      q: newState.searchInputValue
+    })
+    // switch (imageType) {
+    //   case PUBLIC_IMAGES:
+    //     this.loadData(this.props, callback)
+    //     break
+    //   case 'privateImages':
+    //     loadPrivateImageList(registry, callback)
+    //     break
+    //   case 'fockImages':
+    //     loadFavouriteList(registry, callback)
+    //     break
+    //   default:
+    //     break
+    // }
   }
 
   imageFilterChange(e) {
@@ -133,32 +140,38 @@ class SelectImage extends Component {
 
   searchImages() {
     const { searchInputValue, imageType } = this.state
-    const {
-      registry,
-      searchPublicImages,
-      searchPrivateImages,
-      searchFavoriteImages,
-    } = this.props
-    this.setState({
-      imageFilter: 'all',
-    })
-    switch (imageType) {
-      case PUBLIC_IMAGES:
-        if (searchInputValue) {
-          searchPublicImages(registry, searchInputValue)
-        } else {
-          this.loadData(this.props)
-        }
-        break
-      case 'privateImages':
-        searchPrivateImages({ registry, imageName: searchInputValue })
-        break
-      case 'fockImages':
-        searchFavoriteImages({ registry, imageName: searchInputValue })
-        break
-      default:
-        break
+    if(searchInputValue) {
+      return this.loadData(this.props, {
+        q: searchInputValue
+      })
     }
+    return this.loadData(this.props)
+    // const {
+    //   registry,
+    //   searchPublicImages,
+    //   searchPrivateImages,
+    //   //searchFavoriteImages,
+    // } = this.props
+    // this.setState({
+    //   imageFilter: 'all',
+    // })
+    // switch (imageType) {
+    //   case PUBLIC_IMAGES:
+    //     if (searchInputValue) {
+    //       searchPublicImages(registry, searchInputValue)
+    //     } else {
+    //       this.loadData(this.props)
+    //     }
+    //     break
+    //   case 'privateImages':
+    //     searchPrivateImages({ registry, imageName: searchInputValue })
+    //     break
+    //   case 'fockImages':
+    //     searchFavoriteImages({ registry, imageName: searchInputValue })
+    //     break
+    //   default:
+    //     break
+    // }
   }
 
   onDeploy(imageName, registry) {
@@ -166,11 +179,18 @@ class SelectImage extends Component {
   }
 
   renderImageList(imageData) {
-    const { imageList, server, isFetching } = imageData
+    if(!imageData) {
+      imageData = {
+        server: '',
+      }
+    }
+    const { server, isFetching } = imageData
+    const { imageType } = this.state
+    const imageList = imageData[imageType]
     const columns = [{
       title: '镜像名称',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'repositoryName',
+      key: 'repositoryName',
       render(text, row) {
         return (
           <div>
@@ -195,7 +215,7 @@ class SelectImage extends Component {
             <Button
               className="deployBtn"
               type="primary" size="large"
-              onClick={this.onDeploy.bind(this, row.name, server)}
+              onClick={this.onDeploy.bind(this, row.repositoryName, server)}
             >
               部署&nbsp;
               <i className="fa fa-arrow-circle-o-right" />
@@ -226,15 +246,10 @@ class SelectImage extends Component {
   render() {
     const { images, registry } = this.props
     const { imageType, imageFilter, searchInputValue } = this.state
-    let imageData = this.props.images[imageType]
-    imageData = imageData && imageData[registry]
-    if (!imageData) {
-      imageData = { imageList: [] }
-    }
     const noTabimageList = (
       <div>
         <div style={{height: "28px"}}></div>
-        {this.renderImageList(imageData)}
+        {this.renderImageList(images)}
       </div>
     )
     return(
@@ -245,7 +260,7 @@ class SelectImage extends Component {
             <RadioGroup size="large" onChange={this.imageTypeChange} value={imageType}>
               <RadioButton value={PUBLIC_IMAGES}>公有</RadioButton>
               <RadioButton value="privateImages">私有</RadioButton>
-              <RadioButton value="fockImages">收藏</RadioButton>
+              { /*<RadioButton value="fockImages">收藏</RadioButton> */ }
             </RadioGroup>
           </span>
           <span className="searchInputBox">
@@ -300,7 +315,7 @@ function mapStateToProps(state, props) {
   const { productName } = oemInfo.company || {}
   return {
     registry,
-    images: state.images,
+    images: state.harbor.allProject[registry],
     cluster: cluster.clusterID,
     unit,
     productName
@@ -308,11 +323,12 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  loadPublicImageList,
-  loadPrivateImageList,
-  loadFavouriteList,
+ // loadPublicImageList,
+ // loadPrivateImageList,
+ // loadFavouriteList,
   searchPublicImages,
   searchFavoriteImages,
   searchPrivateImages,
-  publicFilterServer
+  publicFilterServer,
+  loadAllProject
 })(SelectImage)
