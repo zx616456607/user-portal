@@ -358,15 +358,29 @@ class TenxFlowDetail extends Component {
 
   renderBuildBtn() {
     const { projectId, projectBranch } = this.state
-    const { repoBranchesAndTags } = this.props
+    const { repoBranchesAndTags, flowInfo } = this.props
+    const stageInfo = flowInfo.stageInfo || []
+    const isNoPop = stageInfo.length < 1 || stageInfo[0].spec.project.repoType === 'svn'
     const targetElement = (
-      <Button size='large' type='primary' className='buildBtn'>
+      <Button
+        size='large'
+        type='primary'
+        className='buildBtn'
+        onClick={() => {
+          if (isNoPop) {
+            this.startBuildStage()
+          }
+        }}
+      >
         <svg className='cicdbuildfast'>
           <use xlinkHref='#cicdbuildfast' />
         </svg>
         <FormattedMessage {...menusText.deloyStart} />
       </Button>
     )
+    if (isNoPop) {
+      return targetElement
+    }
     const tabs = []
     let loading
     const branchesAndTags = repoBranchesAndTags[projectId]

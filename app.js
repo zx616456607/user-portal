@@ -38,12 +38,18 @@ const terminal = require('./controllers/web_terminal')
 co(function*(){
   try{
     yield initGlobalConfig.initGlobalConfig()
-    yield oemInfo.initOEMInfo()
   } catch(err) {
     logger.error('Unexpected error:', JSON.stringify(err))
     logger.error('Failed to connect to API server ' + config.tenx_api.host + ', fix the issue and restart this server.')
     // process.exit(-1)
   }
+})
+
+app.use(function* (next) {
+  if (!global.globalConfig.oemInfo) {
+    yield oemInfo.initOEMInfo()
+  }
+  yield next
 })
 
 /*
