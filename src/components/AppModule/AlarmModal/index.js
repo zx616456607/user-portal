@@ -906,7 +906,7 @@ class AlarmModal extends Component {
         return 'memory/usage'
       case '上传流量':
         return 'network/tx_rate'
-      case '下传流量':
+      case '下载流量':
         return 'network/rx_rate'
       default:
         return 'cpu/usage_rate'
