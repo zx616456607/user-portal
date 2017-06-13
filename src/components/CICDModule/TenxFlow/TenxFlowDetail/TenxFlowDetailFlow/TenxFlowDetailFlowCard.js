@@ -600,7 +600,7 @@ class TenxFlowDetailFlowCard extends Component {
           {
             currentFlowEdit != index ? [
               <QueueAnim key={'FlowCardShowAnimate' + index}>
-                <div key={'TenxFlowDetailFlowCardShow' + index} id={this.cardId}>
+                <div key={'TenxFlowDetailFlowCardShow' + index}>
                   <div className='statusBox'>
                     {currentStatus(config.lastBuildStatus)}
                   </div>
