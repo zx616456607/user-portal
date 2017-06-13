@@ -95,7 +95,7 @@ function fetchSpaceImageStats(callback) {
   return {
     [FETCH_API]: {
       types: [OVERVIEW_SPACE_IMAGE_REQUEST, OVERVIEW_SPACE_IMAGE_SUCCESS, OVERVIEW_SPACE_IMAGE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/registries/:registry/stats`,
+      endpoint: `${API_URL_PREFIX}/registries/:registry/statistics`,
       schema: {}
     },
     callback

@@ -17,20 +17,27 @@ import { formatDate, isEmptyObject } from '../../common/tools'
 import NotificationHandler from '../../common/notification_handler'
 import './style/AlarmDetail.less'
 import Title from '../Title'
+import CreateAlarm from '../AppModule/AlarmModal'
 import { getAlertSetting, getSettingList, batchEnableEmail, batchDisableEmail, deleteRule } from '../../actions/alert'
 const RadioGroup = Radio.Group
+
 
 class AlarmDetail extends Component {
   constructor(props) {
     super(props)
+    this.nextStep = this.nextStep.bind(this)
+    this.cancelModal = this.cancelModal.bind(this)
+    this.loadData = this.loadData.bind(this)
     this.state = {
       sendEmail: 2, // no send eamil
       delBtn: true,
       selectCheckbox: [], // default table selected item
-      ruleName: {}
+      ruleName: {},
+      alarmModal:false,
+      step: 3,
     }
   }
-  componentWillMount() {
+  loadData() {
     const id = this.props.params.id
     const { getAlertSetting, cluster, getSettingList } = this.props
     getAlertSetting(cluster.clusterID, {
@@ -39,6 +46,9 @@ class AlarmDetail extends Component {
     getSettingList(cluster.clusterID, {
       strategyID: id
     }, true)
+  }
+  componentWillMount() {
+    this.loadData()
   }
   formatStatus(text){
     if (text ==1) {
@@ -116,7 +126,12 @@ class AlarmDetail extends Component {
     })
 
   }
-  changeEmail(e) {
+  changeEmail(e, receivers) {
+    console.log('receivers',)
+    if(e ==1 && receivers =='') {
+      this.setState({alarmModal: true})
+      return
+    }
     this.setState({sendEmail: e})
     const id = this.props.params.id
     const { leftSetting, getSettingList, cluster, batchDisableEmail, batchEnableEmail} = this.props
@@ -168,9 +183,19 @@ class AlarmDetail extends Component {
               noti.error('策略更新失败')
             }
           }
-        }) 
+        })
       }
     }
+  }
+  cancelModal() {
+    // cancel create Alarm modal
+    this.setState({
+      alarmModal: false,
+      step: this.props.setting.length>0 ? 3 : 1
+    })
+  }
+  nextStep(step) {
+    this.setState({step})
   }
   render() {
     const { isFetching } = this.props.setting
@@ -179,6 +204,8 @@ class AlarmDetail extends Component {
     }
     let settingData = this.props.setting
     let { leftSetting, location} = this.props
+    const editSetting = cloneDeep(leftSetting)
+    editSetting.sendEmail = 1 // is send email
     if(leftSetting.isEmptyObject) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
@@ -223,6 +250,12 @@ class AlarmDetail extends Component {
         })
       },
     };
+    const modalFunc=  {
+      scope : this,
+      cancelModal: this.cancelModal,
+      nextStep: this.nextStep,
+      callback: this.loadData
+    }
     return (
       <div id="AlarmDetail">
         <QueueAnim type="right" className="AlarmDetail">
@@ -242,13 +275,13 @@ class AlarmDetail extends Component {
                <div className="baseAttr"><span className="keys">监控周期：</span>{this.calcuTime(leftSetting.repeatInterval)}</div>
                 <div className="baseAttr">
                   <span className="keys">是否发送：</span>
-        <RadioGroup value={leftSetting.sendEmail} onChange={(e)=> this.changeEmail(e.target.value)}>
+                    <RadioGroup value={leftSetting.sendEmail} onChange={(e)=> this.changeEmail(e.target.value, leftSetting.receivers)}>
                     <Radio key="a" value={1}>是</Radio>
                     <Radio key="b" value={0}>否</Radio>
                   </RadioGroup>
                 </div>
                 <div className="baseAttr"><span className="keys">最后修改人：</span>{leftSetting.updater}</div>
-        <div className="baseAttr"><span className="keys">通知列表：</span>{leftSetting.receivers}</div>
+                <div className="baseAttr"><span className="keys">通知列表：</span>{leftSetting.receivers}</div>
                 <div className="baseAttr"><span className="keys">创建时间：</span>{formatDate(leftSetting.createTime)}</div>
               </Card>
               <Card style={{marginTop:'15px',paddingBottom:'50px'}}>
@@ -277,6 +310,15 @@ class AlarmDetail extends Component {
             onOk={()=> this.deleteRecords()}
           >
             <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>策略删除后将不再发送邮件告警，是否确定删除？</div>
+          </Modal>
+          <Modal title="修改告警策略" visible={this.state.alarmModal} width={580}
+            className="alarmModal"
+            onCancel={() => this.setState({ alarmModal: false, step: 3 })}
+            maskClosable={false}
+            footer={null}
+          >
+            <CreateAlarm funcs={modalFunc} strategy={editSetting} setting={settingData}  isEdit={true} isShow={this.state.alarmModal}
+              getSettingList={() => this.refreshPage()} />
           </Modal>
         </QueueAnim>
       </div>

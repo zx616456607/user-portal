@@ -90,6 +90,7 @@ let FistStop = React.createClass({
         interval: getFieldValue('interval')
       })
       funcs.nextStep(2) // go step 2
+      this.setState({otherEnble:false})
     })
   },
   getAppOrNodeList() {
@@ -448,7 +449,7 @@ let TwoStop = React.createClass({
         return
       }
       uuid++;
-      
+
       // can use data-binding to get
       let cpu = form.getFieldValue('cpu');
       let typeProps = `typeProps_${uuid}`
@@ -846,7 +847,8 @@ class AlarmModal extends Component {
     this.state = {
       isSendEmail: 1,
       createGroup: false, // create alarm group modal
-      showAlramGroup: true
+      showAlramGroup: true,
+      otherEnble: true
     }
   }
 
@@ -872,11 +874,14 @@ class AlarmModal extends Component {
     }
   }
   componentWillReceiveProps(nextProps) {
-    const { form } = this.props
+    const { form, loadNotifyGroups } = this.props
     if(!nextProps.isShow) {
       form.resetFields()
       this.state.firstForm.resetFields()
       this.state.secondForm.resetFields()
+    }
+    if(nextProps.space.spaceID && nextProps.space.spaceID !== this.props.space.spaceID) {
+      loadNotifyGroups('', nextProps.cluster.clusterID)
     }
     if (nextProps.isShow && nextProps.isShow != this.props.isShow) {
       const { isEdit, strategy, getAlertSetting, cluster } = nextProps
@@ -896,7 +901,20 @@ class AlarmModal extends Component {
       }
     }
   }
-
+  formetType(type) {
+    switch(type) {
+      case 'CPU利用率':
+        return 'cpu/usage_rate'
+      case '内存使用':
+        return 'memory/usage'
+      case '上传流量':
+        return 'network/tx_rate'
+      case '下载流量':
+        return 'network/rx_rate'
+      default:
+        return 'cpu/usage_rate'
+    }
+  }
   submitRule() {
     const { form, getSettingList } = this.props;
     form.validateFields((error, values) => {
@@ -905,7 +923,7 @@ class AlarmModal extends Component {
       }
       const specs = []
       const keyCount = this.state.keyCount
-      keyCount.forEach(item => {
+      Array.isArray(keyCount) && keyCount.forEach(item => {
         const obj = {
           metricType: this.state[`used_name@${item}`],
           value: parseInt(this.state[`used_data@${item}`]),
@@ -936,8 +954,8 @@ class AlarmModal extends Component {
       const repeatInterval = parseInt(this.state.interval)
       const cluster = this.props.cluster
       const notification = new NotificationHandler()
-      const { isEdit, strategy } = this.props
-      const requestBody = {
+      const { isEdit, strategy, setting } = this.props
+      let requestBody = {
         targetType,
         targetName,
         specs,
@@ -949,24 +967,52 @@ class AlarmModal extends Component {
         enable:1,
         disableNotifyEndTime: '0s'
       }
-      if(!this.state.isSendEmail) {
-        delete requestBody.receiversGroup
-      }
+
       if (isEdit) {
-        // update 
+        // update
         // requestBody.strategyID = strategy.strategyID
         requestBody.enable = strategy.enable
+        if (this.state.otherEnble) {
+          requestBody = strategy
+          requestBody.specs= []
+          requestBody.sendEmail = this.state.isSendEmail
+          requestBody.disableNotifyEndTime='0s'
+          requestBody.receiversGroup = form.getFieldValue('notify')
+          setting.forEach(item => {
+            const obj = {
+              metricType: this.formetType(item.type),
+              value: parseInt(item.threshold),
+              operator: item.operation
+            }
+            if (obj.metricType == 'network/rx_rate' || obj.metricType == 'network/tx_rate') {
+              obj.value = obj.value * 1024
+            } else if (obj.metricType == 'memory/usage') {
+              obj.value = obj.value * 1024 * 1024
+            } else {
+              obj.value = obj.value * 100
+            }
+            obj.value = obj.value.toString()
+            requestBody.specs.push(obj)
+          })
+        }
+        if(!this.state.isSendEmail) {
+          delete requestBody.receiversGroup
+        }
         notification.spin('告警策略更新中')
         this.props.updateAlertSetting(cluster.clusterID, strategy.strategyID, requestBody, {
           success: {
             func: () => {
               notification.close()
-                notification.success('告警策略更新成功')
+              notification.success('告警策略更新成功')
               const { funcs } = this.props
               funcs.cancelModal()
               form.resetFields()
               this.state.firstForm.resetFields()
               this.state.secondForm.resetFields()
+              if (funcs.callback) {
+                funcs.callback()
+                return
+              }
               funcs.nextStep(1)
               if (getSettingList) {
                 getSettingList()
@@ -977,7 +1023,7 @@ class AlarmModal extends Component {
           failed: {
             func: (result) => {
               notification.close()
-                message = '告警策略更新失败'
+              let message = '告警策略更新失败'
               if (result.message.message) {
                 message = result.message.message
               } else if (result.message) {
@@ -1021,7 +1067,7 @@ class AlarmModal extends Component {
           }
         })
       }
-     
+
 
     })
   }
@@ -1158,7 +1204,7 @@ class AlarmModal extends Component {
 function alarmModalMapStateToProp(state, porp) {
   const defaultGroup = {}
   let { groups } = state.alert
-  const { cluster } = state.entities.current
+  const { cluster, space } = state.entities.current
   if (!groups) {
     groups = defaultGroup
   }
@@ -1181,7 +1227,8 @@ function alarmModalMapStateToProp(state, porp) {
     notifyGroup: groups,
     cluster,
     setting,
-    isFetching
+    isFetching,
+    space
   }
 }
 AlarmModal = connect(alarmModalMapStateToProp, {

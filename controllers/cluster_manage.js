@@ -11,9 +11,10 @@
  */
 'use strict'
 
-const registryAPIs = require('../registry/lib/registryAPIs')
 const apiFactory = require('../services/api_factory')
 const constants = require('../constants')
+const registryConfigLoader = require('../registry/registryConfigLoader')
+
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
@@ -226,8 +227,8 @@ exports.updateClusterPlugins = function* () {
     err.status = 400
     throw err
   }
-  const cpu = body.cpu != 0 ? parseFloat(body.cpu) * 1000 : undefined
-  const memory = body.memory != 0 ? parseInt(body.memory) : undefined
+  const cpu = parseFloat(body.cpu) != 0 ? parseFloat(body.cpu) * 1000 : undefined
+  const memory = parseInt(body.memory) != 0 ? parseInt(body.memory) : undefined
   const hostName = body.hostName != "" ? body.hostName : undefined
   let requestBody = {
     limit: {
@@ -266,8 +267,7 @@ exports.createPlugins = function* () {
     err.status = 400
     throw err
   }
-  const registry = new registryAPIs()
-  templateContent = templateContent.replace(/\{\{registry\}\}/g, registry.getRegistryHost())
+  templateContent = templateContent.replace(/\{\{registry\}\}/g, getRegistryURL())
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.createBy([cluster, 'plugins'], null, {
     cluster: cluster,
@@ -323,7 +323,6 @@ exports.batchDeletePlugins = function* () {
   this.body = result
 }
 
-
 exports.getClusterNetworkMode = function* () {
   const cluster = this.params.cluster
   const api = apiFactory.getK8sApi(this.session.loginUser)
@@ -331,6 +330,18 @@ exports.getClusterNetworkMode = function* () {
   this.body = result.data
 }
 
+function getRegistryURL() {
+  // Global check
+  if (registryConfigLoader.GetRegistryConfig() && registryConfigLoader.GetRegistryConfig().url) {
+    let url = registryConfigLoader.GetRegistryConfig().url
+    if (url.indexOf('://') > 0) {
+      url = url.split('://')[1]
+    }
+    return url
+  }
+  // Default registry url
+  return "localhost"
+}
 function FilterEmoji(str) {
   var reg = /[^\u4e00-\u9fa5|\u0000-\u00ff|\u3002|\uFF1F|\uFF01|\uff0c|\u3001|\uff1b|\uff1a|\u3008-\u300f|\u2018|\u2019|\u201c|\u201d|\uff08|\uff09|\u2014|\u2026|\u2013|\uff0e]/g;
   str = str.replace(reg, '');

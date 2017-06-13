@@ -72,76 +72,78 @@
     p{line-height: 35px;}
 
   }
-  .environment{
-    border-bottom: 0px;
-    position: relative;
-    &>button{
-      margin-left: 18px;
-    }
-    .editTip{
-      position: absolute;
-      top: 5px;
-      left: 0;
-      padding: 10px 20px;
-      -webkit-border-radius: 5px;
-      -moz-border-radius: 5px;
-      border-radius: 5px;
-      background-color: rgb(255, 247, 230);
-      &:after{
-        content:'';
+
+  .DetailInfo__MyComponent{
+    //padding-left: 20px;
+    .environment{
+      border-bottom: 0px;
+      position: relative;
+      &>button{
+        margin-left: 18px;
+      }
+      .editTip{
         position: absolute;
-        width: 0;
-        height: 0;
-        border-top: 10px solid rgb(255, 247, 230);
-        border-left: 10px solid transparent;
-        border-right: 10px solid transparent;
-        bottom: -6px;
-        left: 50px;
-      }
-    }
-    .DetailInfo__MyComponent{
-      //padding-left: 20px;
-      .noData{
-        text-align: center;
-      }
-      .editButton{
-        width: 100px;
-      }
-      .dataBox{
-        padding: 5px 0;
-        line-height: 28px;
-        padding-left: 20px;
-        .ant-row{
-          margin-bottom: 0;
+        top: 5px;
+        left: 0;
+        padding: 10px 20px;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        background-color: rgb(255, 247, 230);
+        &:after{
+          content:'';
+          position: absolute;
+          width: 0;
+          height: 0;
+          border-top: 10px solid rgb(255, 247, 230);
+          border-left: 10px solid transparent;
+          border-right: 10px solid transparent;
+          bottom: -6px;
+          left: 50px;
         }
       }
-      .checkbox{
-        clear: both;
+
+    }
+    .noData{
+      text-align: center;
+    }
+    .editButton{
+      width: 100px;
+    }
+    .dataBox{
+      padding: 5px 0;
+      line-height: 28px;
+      padding-left: 20px;
+      .ant-row{
+        margin-bottom: 0;
       }
-      .commonTitleName{
-        padding-right: 10px;
-        float: left;
-        width: 33%;
-        word-break: break-all;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow : ellipsis;
-      }
-      .commonTitleValue{
-        padding-right: 10px;
-        float: left;
-        width: 33%;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow : ellipsis;
-      }
-      .saveBtn{
-        margin-right: 5px;
-      }
-      .pushRow{
-        height: 40px;line-height: 50px;text-align: center;
-        color: #2db7f5;
-      }
+    }
+    .checkbox{
+      clear: both;
+    }
+    .commonTitleName{
+      padding-right: 10px;
+      float: left;
+      width: 33%;
+      word-break: break-all;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow : ellipsis;
+    }
+    .commonTitleValue{
+      padding-right: 10px;
+      float: left;
+      width: 33%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow : ellipsis;
+    }
+    .saveBtn{
+      margin-right: 5px;
+    }
+    .pushRow{
+      height: 40px;line-height: 50px;text-align: center;
+      color: #2db7f5;
     }
   }
   .priceCount{

@@ -19,6 +19,7 @@ import {
   deploymentLog, getTenxflowBuildLogs, getCdInimage,
   changeBuildStatus, getTenxFlowStatus, getRepoBranchesAndTagsByProjectId,
 } from '../../../../actions/cicd_flow'
+import { loadRepositoriesTags } from '../../../../actions/harbor'
 import { LoadOtherImage } from '../../../../actions/app_center'
 import { checkImage } from '../../../../actions/app_center'
 import './style/TenxFlowDetail.less'
@@ -257,25 +258,34 @@ class TenxFlowDetail extends Component {
       getTenxflowBuildLogs(flowInfo.flowId)
     }
   }
-  goCheckImage(image) {
-    const config = { registry: DEFAULT_REGISTRY, image }
+  goCheckImage(item) {
+    const { imageName, projectId } = item
     let notification = new NotificationHandler()
     const {namespace, owner} = this.props.flowInfo
     this.setState({showTargeImage: false})
-    this.props.checkImage(config, {
+    this.props.loadRepositoriesTags(DEFAULT_REGISTRY, imageName, {
       success: {
         func: (res) => {
-          if (res.data.hasOwnProperty('status') && res.data.status == 404) {
+          if(!res.data || res.data.length == 0) {
             notification.error('镜像不存在，请先执行构建')
             return
           }
-          if (namespace != res.data.contributor && owner != res.data.contributor) {
+          browserHistory.push(`/app_center/projects/detail/${projectId}?imageName=${imageName}`)
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (res) => {
+          if(res.statusCode == 404) {
+            notification.error('镜像不存在，请先执行构建')
+            return
+          }
+          if(res.statusCode == 403) {
             notification.error('没有权限访问该镜像')
             return
           }
-          browserHistory.push(`/app_center?imageName=${image}`)
-        },
-        isAsync: true
+          notification.error('内部错误，请稍后再试')
+        }
       }
     })
   }
@@ -431,7 +441,7 @@ class TenxFlowDetail extends Component {
     }
     const checkImage = this.state.showImage.length > 0 && this.state.showImage.map(list => {
       return (
-        <div className="cursor" onClick={() => this.goCheckImage(list)} key={list} style={{ lineHeight: '25px' }}><a>{list}</a></div>
+        <div className="cursor" onClick={() => this.goCheckImage(list)} key={list.imageName} style={{ lineHeight: '25px' }}><a>{list.imageName}</a></div>
       )
     })
     return (
@@ -550,7 +560,6 @@ function mapStateToProps(state, props) {
     buildFetching,
     cdImageList,
     logs,
-    buildFetching,
     currentSpace: state.entities.current.space.namespace,
     otherImage,
     repoBranchesAndTags,
@@ -573,6 +582,7 @@ export default connect(mapStateToProps, {
   getTenxFlowStatus,
   LoadOtherImage,
   getRepoBranchesAndTagsByProjectId,
+  loadRepositoriesTags
 })(injectIntl(TenxFlowDetail, {
   withRef: true,
 }));

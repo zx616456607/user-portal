@@ -154,7 +154,7 @@ class AlarmGroup extends Component {
     let popover = '-'
     if (strategies.length > 0) {
       popover = strategies.map(function(item) {
-        return <div className='alarmGroupItem'><Link to={`/manange_monitor/alarm_setting/${item.name}`}>{item.name}</Link></div>
+        return <div className='alarmGroupItem'><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(item.id)}?name=${item.name}`}>{item.name}</Link></div>
       })
     }
     return (
