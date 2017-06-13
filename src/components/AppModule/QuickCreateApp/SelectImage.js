@@ -65,15 +65,11 @@ class SelectImage extends Component {
 
   componentWillMount() {
     const { searchInputValue, imageType } = this.state
-    const callback = {
-      success: {
-        func: () => {
-          if (searchInputValue) {
-            this.searchImages()
-          }
-        },
-        isAsync: true,
-      }
+    if(searchInputValue) {
+      this.loadData(this.props, {
+        q: searchInputValue
+      })
+      return
     }
     this.imageTypeChange({
       target: {
@@ -211,7 +207,8 @@ class SelectImage extends Component {
     const paginationOpts = {
       simple: true,
       current: this.state.currentPage,
-      onChange: current => this.setState({ currentPage: current })
+      onChange: current => this.setState({ currentPage: current }),
+      pageSize: 10
     }
     return (
       <Table

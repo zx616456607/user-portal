@@ -8,14 +8,16 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tooltip, Icon, Checkbox, Card, Menu, Dropdown, Button, Input, Spin, Pagination, Modal, Form } from 'antd'
+import { Tooltip, Icon, Checkbox, Card, Menu, Dropdown, Button, Input, Spin, Pagination, Modal, Form, Select } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
+import { camelize } from 'humps'
 import './style/ContainerList.less'
 import { loadContainerList, deleteContainers, updateContainerList } from '../../actions/app_manage'
+import { loadProjectList } from '../../actions/harbor'
 import { addTerminal } from '../../actions/terminal'
-import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL } from '../../constants'
+import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL, DEFAULT_REGISTRY } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { calcuDate } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
@@ -27,6 +29,7 @@ import Title from '../Title'
 
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm
+const Option = Select.Option
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -79,6 +82,7 @@ let MyComponent = React.createClass({
         'exportImageName': undefined,
         'exportImageVersion': 'latest',
       })
+      this.props.funcs.loadProjectList(DEFAULT_REGISTRY, { page_size: 100 })
       this.setState({
         exportImageModalVisible: true,
         exportContainerName: name
@@ -107,6 +111,7 @@ let MyComponent = React.createClass({
         body:{
           imagename: values.exportImageName,
           tag: values.exportImageVersion,
+          projectname: values.harborProjectName,
         },
         clusterID,
         containers:exportContainerName
@@ -262,7 +267,7 @@ let MyComponent = React.createClass({
   },
   render: function () {
     const { scope, config, loading, form, exportimageUrl } = this.props
-    const { getFieldProps } = form
+    const { getFieldProps, getFieldValue } = form
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -349,6 +354,11 @@ let MyComponent = React.createClass({
         </div >
       );
     });
+    const harborProjectProps = getFieldProps('harborProjectName', {
+      rules: [
+        { message: '请选择仓库组', required: true },
+      ],
+    })
     const exportImageName = getFieldProps('exportImageName',{
       rules :  [{
         validator: this.checkImageName
@@ -379,7 +389,25 @@ let MyComponent = React.createClass({
         >
           <div className='header'>
             <Form>
-              <div className='float imagename'>镜像名称</div>
+              <div className='float imagename'>选择仓库组</div>
+              <div className='float imageAddress'>
+                <Form.Item>
+                  <Select {...harborProjectProps} size='large'>
+                    {
+                      (this.props.harborProjects.list || []).map(project => {
+                        const currentRoleId = project[camelize('current_user_role_id')]
+                        return (
+                          <Option key={project.name} disabled={currentRoleId != 1}>
+                            {project.name} {(currentRoleId == 2 || currentRoleId == 3) && '（访客）'}
+                          </Option>
+                        )}
+                      )
+                    }
+                  </Select>
+                </Form.Item>
+              </div>
+              <div style={{clear: 'both', height: '15px'}}></div>
+              <div className='float imagename'>镜像名称&nbsp;&nbsp;&nbsp;&nbsp;</div>
               <div className='float imageAddress'>
                 <Form.Item>
                   <Input {...exportImageName} placeholder='请填写镜像名称' />
@@ -399,7 +427,7 @@ let MyComponent = React.createClass({
               <span>
                 {
                   exportimageUrl
-                  ? <span>{exportimageUrl.registryConfig.server}/{exportimageUrl.userName}/</span>
+                  ? <span>{exportimageUrl.registryConfig.server}/{getFieldValue('harborProjectName') || '仓库组名称'}/</span>
                   : <Spin></Spin>
                 }
               </span>
@@ -676,7 +704,8 @@ class ContainerList extends Component {
     const {
       name, page, size,
       sortOrder, total, cluster,
-      isFetching, instanceExport, exportimageUrl
+      isFetching, instanceExport, exportimageUrl,
+      loadProjectList, harborProjects,
     } = this.props
     const {containerList, searchInputValue, searchInputDisabled } = this.state
     const checkedContainerList = containerList.filter((app) => app.checked)
@@ -688,6 +717,7 @@ class ContainerList extends Component {
     const funcs = {
       confirmDeleteContainer: this.confirmDeleteContainer,
       openTerminal: this.openTerminal,
+      loadProjectList,
     }
     let oncache = this.state.currentContainer.map((item) => {
       return item.metadata.name;
@@ -808,6 +838,7 @@ class ContainerList extends Component {
               instanceExport={instanceExport}
               clusterID={cluster}
               exportimageUrl={exportimageUrl}
+              harborProjects={harborProjects}
             />
           </Card>
         </div>
@@ -857,6 +888,7 @@ function mapStateToProps(state, props) {
     containerItems
   } = state.containers
   const {containerList, isFetching, total } = containerItems[cluster.clusterID] || defaultContainers
+  const harborProjects = state.harbor.projects && state.harbor.projects[DEFAULT_REGISTRY] || {}
 
   return {
     cluster: cluster.clusterID,
@@ -870,7 +902,8 @@ function mapStateToProps(state, props) {
     name,
     sortOrder,
     containerList,
-    isFetching
+    isFetching,
+    harborProjects,
   }
 }
 
@@ -880,4 +913,5 @@ export default connect(mapStateToProps, {
   updateContainerList,
   addTerminal,
   instanceExport,
+  loadProjectList,
 })(ContainerList)

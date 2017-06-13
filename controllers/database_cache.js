@@ -12,8 +12,7 @@ let yaml = require('js-yaml')
 let utils = require('../utils')
 const Service = require('../kubernetes/objects/service')
 const apiFactory = require('../services/api_factory')
-const registryAPIs = require('../registry/lib/registryAPIs')
-
+const registryConfigLoader = require('../registry/registryConfigLoader')
 const PetsetLabel = 'tenxcloud.com/petsetType'
 /*
 basicInfo {
@@ -59,8 +58,7 @@ exports.createNewDBService = function* () {
     .replace(/\{\{size\}\}/g, basicInfo.volumeSize)
     .replace(/\{\{password\}\}/g, basicInfo.password)
     .replace(/\{\{replicas\}\}/g, basicInfo.replicas)
-  const registry = new registryAPIs()
-  yamlContent = yamlContent.replace(/\{\{registry\}\}/g, registry.getRegistryHost())
+  yamlContent = yamlContent.replace(/\{\{registry\}\}/g, getRegistryURL())
   // For external service access
   let externalName = basicInfo.serviceName + '-' + utils.genRandomString(5)
   yamlContent = yamlContent.replace(/\{\{external-name\}\}/g, externalName)
@@ -207,4 +205,15 @@ exports.getDBService = function* () {
   }
 }
 
-
+function getRegistryURL() {
+  // Global check
+  if (registryConfigLoader.GetRegistryConfig() && registryConfigLoader.GetRegistryConfig().url) {
+    let url = registryConfigLoader.GetRegistryConfig().url
+    if (url.indexOf('://') > 0) {
+      url = url.split('://')[1]
+    }
+    return url
+  }
+  // Default registry url
+  return "localhost"
+}

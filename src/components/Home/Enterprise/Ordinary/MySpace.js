@@ -117,11 +117,12 @@ class MySpace extends Component{
 
   render(){
     const {spaceWarnings, spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName,isFetching } = this.props
+    // spaceImageStats => {"myProjectCount":3,"myRepoCount":6,"publicProjectCount":6,"publicRepoCount":6}
     let isFetchingAuditLog = true
     if (this.props.auditLog) {
       isFetchingAuditLog  = this.props.auditLog.isFetching
     }
-    let ImagePublicNum = ((spaceImageStats.publicNumber)/(spaceImageStats.publicNumber+spaceImageStats.privateNumber)).toFixed(2)
+    let ImagePublicNum = ((spaceImageStats.publicRepoCount)/(spaceImageStats.publicRepoCount+spaceImageStats.myRepoCount)).toFixed(2)
     let ImageLine = isNaN(ImagePublicNum)?0:ImagePublicNum*1+0.02
     let TempPublicNum = ((spaceTemplateStats.public)/(spaceTemplateStats.public+spaceTemplateStats.private)).toFixed(2)
     let TempLine = isNaN(TempPublicNum)?0:TempPublicNum*1+0.02
@@ -201,14 +202,14 @@ class MySpace extends Component{
                 showLoading={isFetching}
               />
               <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>
-                {spaceImageStats.publicNumber+spaceImageStats.privateNumber} 个
+                {spaceImageStats.publicRepoCount+spaceImageStats.myRepoCount} 个
               </div>
               <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px',fontSize: '13px', color: '#666'}}>
-                <Col span={12}>公有 {spaceImageStats.publicNumber} 个</Col>
-                <Col span={12}>私有 {spaceImageStats.privateNumber} 个</Col>
+                <Col span={12}>公开 {spaceImageStats.publicRepoCount} 个</Col>
+                <Col span={12}>私有 {spaceImageStats.myRepoCount} 个</Col>
               </Row>
               <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px',fontSize:'12px'}}>
-                服务状态:
+                仓库组: <strong>{spaceImageStats.publicProjectCount}</strong> 公开 / <strong>{spaceImageStats.myProjectCount}</strong> 私有
                 {
                   this.state.ImageStates ?
                     <div style={{float:'right'}}>
@@ -557,9 +558,7 @@ function mapStateToProp(state,props) {
     spaceCICDStatsData.failedNumber = data.failedNumber
   }
   if (spaceImageStats.result && spaceImageStats.result.data) {
-    let data = spaceImageStats.result.data
-    spaceImageStatsData.publicNumber = data.publicNumber
-    spaceImageStatsData.privateNumber = data.privateNumber
+    spaceImageStatsData = spaceImageStats.result.data
   }
   return {
     spaceOperations: spaceOperationsData,
