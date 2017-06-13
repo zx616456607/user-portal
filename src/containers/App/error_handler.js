@@ -67,6 +67,12 @@ export default function handler(error, intl) {
   }
   const defaultError = formatMessage(messages.error)
   let { message, description, duration } = _errorFormat(error)
+  if (typeof message !== 'string') {
+    message = '请求错误'
+  }
+  if (typeof description !== 'string') {
+    description = ''
+  }
   // For network interruption
   if (error.message.code === 503) {
     MSG.error(message)
