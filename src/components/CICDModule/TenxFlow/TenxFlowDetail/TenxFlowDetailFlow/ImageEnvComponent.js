@@ -16,6 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
 import NotificationHandler from '../../../../../common/notification_handler'
 import { loadImageDetailTagConfig,  loadOtherDetailTagConfig } from '../../../../../actions/app_center'
+import { loadRepositoriesTagConfigInfo } from '../../../../../actions/harbor'
 import './style/ImageEnvComponent.less'
 
 const createForm = Form.create;
@@ -28,15 +29,13 @@ let ImageEnvComponent = React.createClass({
     }
   },
   loadData() {
-    const { form, loadImageDetailTagConfig, registryServer } = this.props
+    const { form, loadRepositoriesTagConfigInfo, registryServer } = this.props
     let imageName = form.getFieldValue('imageName')
     this.setState({
       currentImageName: imageName
     })
-    if(!imageName) return
-    let registryUrl = ''
+    if (!imageName) return
     if (imageName.indexOf('/') == imageName.lastIndexOf('/')) {
-      registryUrl = registryServer.v2Server
       let tag = 'latest'
       if (imageName.indexOf(':') > 0) {
         imageName = imageName.split(':')
@@ -47,70 +46,68 @@ let ImageEnvComponent = React.createClass({
         }
       }
       const self = this
-      if (registryUrl) {
-        loadImageDetailTagConfig(registryUrl, imageName, tag, {
-          success: {
-            func: (result) => {
-              if (!result.data) return
-              let allEnv = {}
-              const { scope, form, registry, config } = self.props;
-              const { setFieldsValue, getFieldValue } = form
-              let imageEnv = result.data
-              let envs = imageEnv.defaultEnv
-              if (envs) {
-                setFieldsValue({
-                  imageEnvInputs: envs.map((env, index) => index)
-                })
-                envs.forEach((env, index) => {
-                  env = env.split('=')
-                  allEnv[env[0]] = env[1]
-                  // setFieldsValue({
-                  //   [`imageEnvName${index}`]: env[0],
-                  //   [`imageEnvValue${index}`]: env[1]
-                  // })
-                })
-              }
-              if (!!config) {
-                config.map((item) => {
-                  allEnv[item.name] = item.value
-                })
-              }
-              const allEnvName = Object.getOwnPropertyNames(allEnv)
+      loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY, imageName, tag, {
+        success: {
+          func: (result) => {
+            if (!result.data) return
+            let allEnv = {}
+            const { scope, form, registry, config } = self.props;
+            const { setFieldsValue, getFieldValue } = form
+            let imageEnv = result.data
+            let envs = imageEnv.defaultEnv
+            if (envs) {
               setFieldsValue({
-                imageEnvInputs: allEnvName.map((env, index) => index)
+                imageEnvInputs: envs.map((env, index) => index)
               })
-              allEnvName.forEach((name, index) => {
-                setFieldsValue({
-                  [`imageEnvName${index}`]: name,
-                  [`imageEnvValue${index}`]: allEnv[name]
-                })
+              envs.forEach((env, index) => {
+                env = env.split('=')
+                allEnv[env[0]] = env[1]
+                // setFieldsValue({
+                //   [`imageEnvName${index}`]: env[0],
+                //   [`imageEnvValue${index}`]: env[1]
+                // })
               })
-              if (self.state.uuid < allEnvName.length) {
-                self.setState({
-                  uuid: allEnvName.length
-                })
-              }
-              setTimeout(() => {
-                const arr = getFieldValue('imageEnvInputs')
-                const index = arr[arr.length - 1]
-                if (document.getElementById(`imageEnvName${index}`)) {
-                  document.getElementById(`imageEnvName${index}`).focus()
-                }
-              }, 300)
             }
-          },
-          failed: {
-            func: (res) => {
-              const notify = new NotificationHandler()
-              if (res.message == 'Failed to find any tag') {
-                notify.error('获取基础镜像信息失败，请检查镜像是否存在')
-                return
-              }
-              notify.error(res.message)
+            if (!!config) {
+              config.map((item) => {
+                allEnv[item.name] = item.value
+              })
             }
+            const allEnvName = Object.getOwnPropertyNames(allEnv)
+            setFieldsValue({
+              imageEnvInputs: allEnvName.map((env, index) => index)
+            })
+            allEnvName.forEach((name, index) => {
+              setFieldsValue({
+                [`imageEnvName${index}`]: name,
+                [`imageEnvValue${index}`]: allEnv[name]
+              })
+            })
+            if (self.state.uuid < allEnvName.length) {
+              self.setState({
+                uuid: allEnvName.length
+              })
+            }
+            setTimeout(() => {
+              const arr = getFieldValue('imageEnvInputs')
+              const index = arr[arr.length - 1]
+              if (document.getElementById(`imageEnvName${index}`)) {
+                document.getElementById(`imageEnvName${index}`).focus()
+              }
+            }, 300)
           }
-        })
-      }
+        },
+        failed: {
+          func: (res) => {
+            const notify = new NotificationHandler()
+            if (res.message == 'Failed to find any tag') {
+              notify.error('获取基础镜像信息失败，请检查镜像是否存在')
+              return
+            }
+            notify.error(res.message)
+          }
+        }
+      })
     }
   },
   componentWillMount() {
@@ -185,14 +182,14 @@ let ImageEnvComponent = React.createClass({
     });
   },
   render() {
-    const { scope, form, registryServer, imageConfig, config } = this.props;
+    const { scope, form, imageConfig, config } = this.props;
     const { formatMessage } = this.props.intl;
     const { setFieldsValue, getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form
-    if (!registryServer || !imageConfig) {
+    if (!imageConfig) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
-    if (registryServer && imageConfig) {
-      if (imageConfig.imageTagConfig[registryServer.v2Server] && imageConfig.imageTagConfig[registryServer.v2Server].isFetching) {
+    if (imageConfig) {
+      if (imageConfig[DEFAULT_REGISTRY] && imageConfig[DEFAULT_REGISTRY].isFetching) {
         return <div className="loadingBox"><Spin size="large"></Spin></div>
       }
     }
@@ -285,7 +282,7 @@ ImageEnvComponent.propTypes = {
 
 export default connect(mapStateToProps, {
   loadOtherDetailTagConfig,
-  loadImageDetailTagConfig
+  loadRepositoriesTagConfigInfo
 })(injectIntl(ImageEnvComponent, {
   withRef: true,
 }));

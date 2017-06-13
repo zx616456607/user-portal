@@ -90,6 +90,12 @@ exports.getRepositoriyConfig = function* () {
   const tag = this.params.tag
   const result = yield new Promise((resolve, reject) => {
     harbor.getRepositoriesManifest(repoName, tag, (err, statusCode, body) => {
+      if(statusCode != 200) {
+        console.log(body)
+        const err = new Error(body)
+        err.status = statusCode
+        return reject(body)
+      }
       if(body.config) {
         body.config = JSON.parse(body.config)
       }
@@ -100,6 +106,9 @@ exports.getRepositoriyConfig = function* () {
           size += layer.size
         })
       }
+      if(!body.config) {
+        body.config = {}
+      } 
       body.config.size = size
       resolve(body.config)
     })
