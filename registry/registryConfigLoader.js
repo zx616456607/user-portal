@@ -21,7 +21,7 @@ function GetRegistryConfig() {
     return registryLocalStorage
   }
   registryLocalStorage = global.globalConfig.registryConfig
-  if (global.globalConfig.registryConfig.host) {
+  if (global.globalConfig.registryConfig.url) {
     registryLocalStorage.globalConfigured = true
   }
   return registryLocalStorage

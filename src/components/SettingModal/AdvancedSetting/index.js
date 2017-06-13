@@ -8,7 +8,7 @@
  * @author ZhangChengZheng
  */
 import React, { Component, propTypes } from 'react'
-import { Switch, Checkbox, Spin, Modal, Icon } from 'antd';
+import { Switch, Checkbox, Spin, Modal, Icon, Form, Radio, Button } from 'antd';
 import './style/AdvancedSetting.less'
 import { connect } from 'react-redux'
 import { updateClusterConfig } from '../../../actions/cluster'
@@ -28,6 +28,9 @@ class AdvancedSetting extends Component {
     this.handleCancelSwitch = this.handleCancelSwitch.bind(this)
     this.handleListNodeStatus = this.handleListNodeStatus.bind(this)
     this.handleUpdataConfigMessage = this.handleUpdataConfigMessage.bind(this)
+    this.handleImageProjectRight = this.handleImageProjectRight.bind(this)
+    this.handleCancelImageProjectRight = this.handleCancelImageProjectRight.bind(this)
+    this.handleSaveImageProjectRight = this.handleSaveImageProjectRight.bind(this)
     this.state = {
       swicthChecked: true,
       switchVisible: false,
@@ -36,7 +39,8 @@ class AdvancedSetting extends Component {
       switchdisable: false,
       Ipcheckbox: false,
       TagCheckbox: false,
-      confirmlodaing: false
+      confirmlodaing: false,
+      imageProjectRightIsEdit: false,
     }
   }
 
@@ -255,22 +259,50 @@ class AdvancedSetting extends Component {
     }
   }
 
+  handleImageProjectRight(){
+    this.setState({
+      imageProjectRightIsEdit: true
+    })
+  }
+
+  handleCancelImageProjectRight(){
+    this.setState({
+      imageProjectRightIsEdit: false
+    })
+  }
+
+  handleSaveImageProjectRight(){
+    const { form } = this.props
+    const { getFieldValue } = form
+    let value = getFieldValue('imageProjectRightProps')
+    console.log('value=',value)
+    this.setState({
+      imageProjectRightIsEdit: false
+    })
+  }
+
   render(){
-    const { swicthChecked, Ipcheckbox, TagCheckbox, switchdisable, Tagdisabled, Ipdisabled } = this.state
-    const { cluster } = this.props
+    const { swicthChecked, Ipcheckbox, TagCheckbox, switchdisable, Tagdisabled, Ipdisabled, imageProjectRightIsEdit } = this.state
+    const { cluster, form } = this.props
     const { listNodes } = cluster
+    const { getFieldProps  } = form
+    const imageProjectRightProps = getFieldProps('imageProjectRightProps',{
+      initialValue: 'alluser'
+    })
     return (<div id="AdvancedSetting">
       <Title title="高级设置" />
       <div className='title'>高级设置</div>
       <div className='content'>
-        <div className='contentheader'>允许用户绑定节点（所有集群）</div>
-        <div className='contentbody'>
-          <div className='contentbodytitle alertRow'>
-            即创建服务时，可以将服务对应容器实例，固定在节点或者某些『标签』的节点上来调度
-          </div>
-          {
-            <div>
-              <div className='contentbodycontainers'>
+        <div className='nodes'>
+          <div className='contentheader'>允许用户绑定节点（所有集群）</div>
+          <div className='contentbody'>
+            <div className='contentbodytitle alertRow'>
+              即创建服务时，可以将服务对应容器实例，固定在节点或者某些『标签』的节点上来调度
+            </div>
+            {
+              listNodes || listNodes == 0
+                ? <div>
+                <div className='contentbodycontainers'>
             <span>
               {
                 swicthChecked
@@ -278,24 +310,53 @@ class AdvancedSetting extends Component {
                   : <span>关闭</span>
               }
               绑定节点</span>
-                <Switch checked={swicthChecked} onChange={this.handleSwitch} className='switchstyle' disabled={switchdisable}/>
-              </div>
-              {
-                swicthChecked
-                  ? <div className='contentfooter'>
-                  <div className='item'>
-                    <Checkbox onChange={this.handleName}
-                      checked={ Ipcheckbox } disabled={Ipdisabled}>允许用户通过『主机名及IP』来实现绑定【单个节点】</Checkbox>
-                  </div>
-                  <div className='item'>
-                    <Checkbox onChange={this.handleTag}
-                      checked={ TagCheckbox } disabled={Tagdisabled}>用户可通过『主机标签』绑定【某类节点】</Checkbox>
-                  </div>
+                  <Switch checked={swicthChecked} onChange={this.handleSwitch} className='switchstyle' disabled={switchdisable}/>
                 </div>
-                  : <div></div>
-              }
-            </div>
-          }
+                {
+                  swicthChecked
+                    ? <div className='contentfooter'>
+                    <div className='item'>
+                      <Checkbox onChange={this.handleName}
+                        checked={ Ipcheckbox } disabled={Ipdisabled}>允许用户通过『主机名及IP』来实现绑定【单个节点】</Checkbox>
+                    </div>
+                    <div className='item'>
+                      <Checkbox onChange={this.handleTag}
+                        checked={ TagCheckbox } disabled={Tagdisabled}>用户可通过『主机标签』绑定【某类节点】</Checkbox>
+                    </div>
+                  </div>
+                    : <div></div>
+                }
+              </div>
+                : <div className='nodata'><Spin></Spin></div>
+            }
+          </div>
+        </div>
+
+        <div className='imageprojectright'>
+          <div className="contentheader imageproject">镜像项目创建权限</div>
+          <div className="contentbody">
+            <div className="alertRow">用来确定哪些用户有权限创建项目，默认为‘所有人’，设置为‘仅管理员'则只有管理员（admin）有权限</div>
+          </div>
+          <div className='radiobox'>
+            <Form>
+              <Form.Item>
+                <Radio.Group disabled={!imageProjectRightIsEdit} {...imageProjectRightProps}>
+                  <Radio value="alluser" key="alluser">所有人均可创建</Radio>
+                  <Radio value="admin" key="admin">仅管理员可创建</Radio>
+                </Radio.Group>
+              </Form.Item>
+            </Form>
+          </div>
+          <div className='buttonbox'>
+            {
+              imageProjectRightIsEdit
+              ? <span>
+                 <Button onClick={this.handleCancelImageProjectRight}>取消</Button>
+                 <Button onClick={this.handleSaveImageProjectRight} type="primary" className='saveButton' >保存</Button>
+              </span>
+              : <Button type="primary" onClick={this.handleImageProjectRight}>编辑</Button>
+            }
+          </div>
         </div>
       </div>
 
@@ -323,6 +384,8 @@ class AdvancedSetting extends Component {
     </div>)
   }
 }
+
+AdvancedSetting = Form.create()(AdvancedSetting)
 
 function mapPropsToState(state,props) {
   const { cluster, space } = state.entities.current

@@ -21,8 +21,7 @@ const indexService = require('./')
 const _ = require('lodash')
 const user3rdAccount = require('./user_3rd_account')
 const utils = require('../utils')
-
-
+const securityUtil = require('../utils/security')
 
 /**
  * Set user current config: teamspace, cluster
@@ -166,6 +165,7 @@ exports.verifyUser = function* (next) {
     }
   }
   // These message(and watchToken etc.) will be save to session
+  let registryAuth = Buffer(body.username + ':' + body.password).toString('base64');
   const loginUser = {
     user: result.userName,
     id: result.userID,
@@ -175,6 +175,8 @@ exports.verifyUser = function* (next) {
     token: result.apiToken,
     role: result.role,
     balance: result.balance,
+    // Encrypt base64 password to make it some secure, and save to session
+    registryAuth: securityUtil.encryptContent(registryAuth),
   }
   // Add config into user for frontend websocket
   indexService.addConfigsForFrontend(loginUser)
