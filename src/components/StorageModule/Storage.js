@@ -460,7 +460,6 @@ let MyComponent = React.createClass({
               type='ghost'
               onClick={(e) => { this.showAction(e, 'resize', item) } }
               key="dilation"
-              trigger={['click']}
             >
               <FormattedMessage {...messages.dilation} />
             </Dropdown.Button>

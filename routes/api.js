@@ -40,6 +40,7 @@ const alertController = require('../controllers/alert')
 const labelController = require('../controllers/labels')
 const ldapController = require('../controllers/ldap_manage')
 const oemController = require('../controllers/oem_info')
+const projectController =require('../controllers/project')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -68,6 +69,21 @@ module.exports = function (Router) {
   router.post('/storage-pools/:cluster/volumes/:name/snapshot/clone', volumeController.cloneSnapshot)
   router.get('/storage-pools/:cluster/volumes/calamari-url', volumeController.getCalamariUrl)
   router.post('/storage-pools/:cluster/volumes/calamari-url', volumeController.setCalamariUrl)
+  // project
+  router.post('/project',projectController.createProject)
+  router.post('/project/batch-delete',projectController.deleteProject)
+  router.get('/project/:name/detail',projectController.getProjectDetail)
+  router.get('/project/list',projectController.listProject)
+  router.get('/project/list-visible',projectController.listVisibleProject)
+  router.put('/project/:name',projectController.updateProject)
+  router.get('/project/:name/check-exists',projectController.checkProjectNameExists)
+  router.get('/project/check-manager',projectController.checkProjectManager)
+  router.get('/project/:name/cluster',projectController.getProjectClusters)
+  router.post('/project/:name/cluster',projectController.addProjectClusters)
+  router.post('/project/:name/cluster/batch-delete',projectController.deleteProjectClusters)
+  router.get('/project/:name/user',projectController.getProjectRelatedUsers)
+  router.post('/project/:name/user',projectController.addProjectRelatedUsers)
+  router.post('/project/:name/user/batch-delete',projectController.deleteProjectRelatedUsers)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)

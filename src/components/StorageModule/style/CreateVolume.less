@@ -4,7 +4,7 @@
     padding:16px 30px 16px 30px;
   }
   .name-text-center{
-    text-align: center;
+    text-align: left;
   }
   .snapshot{
     height:57px;
@@ -22,6 +22,25 @@
     .nameValue{
       .ant-form-item{
         margin-bottom: 0;
+      }
+    }
+  }
+  .switchSnapshot{
+    .switchName{
+      height:35px;
+    }
+  }
+  .selectSnapshot{
+    .ant-select-selection-selected-value{
+      .ant-col-8{
+        padding-right: 0;
+        overflow: hidden;
+        white-space: normal;
+        text-overflow: ellipsis;
+      }
+      .ant-col-4,
+      .ant-col-3{
+        display: none !important;
       }
     }
   }
@@ -74,6 +93,21 @@
         color: #21ADEB;
       }
       .blod{font-size: 22px;}
+    }
+  }
+
+  .ant-select-dropdown{
+    width: 400px !important;
+    .ant-select-dropdown-menu-item-disabled{
+      color: #666;
+    }
+    .ant-select-dropdown-menu-item{
+      .snapshotName{
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        padding-right: 4px;
+      }
     }
   }
 
