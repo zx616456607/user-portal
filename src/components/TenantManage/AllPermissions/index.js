@@ -16,7 +16,23 @@ let AllPermissions =  React.createClass ({
   getInitialState() {
     return {
       filteredInfo: null,
+      sortedInfo: null,
     };
+  },
+  handleChange( filters, sorter) {
+    this.setState({
+      filteredInfo: filters,
+      sortedInfo: sorter,
+    });
+  },
+  setAgeSort(e) {
+    e.preventDefault();
+    this.setState({
+      sortedInfo: {
+        order: 'descend',
+        columnKey: 'citationtimes',
+      },
+    });
   },
   render() {
     let { sortedInfo } = this.state;
@@ -36,14 +52,13 @@ let AllPermissions =  React.createClass ({
       dataIndex: 'citationtimes',
       key: 'citationtimes',
       sorter: (a, b) => a.citationtimes - b.citationtimes,
-      sortOrder: sortedInfo.columnKey === 'citationtimes' && sortedInfo.order,
     }];
 
     const data = [{
       key: 1,
       name: 'a',
       describe: 32,
-      citationtimes: '_',
+      citationtimes: 1,
       children: [{
         key: 11,
         name: 'aa',
@@ -53,33 +68,33 @@ let AllPermissions =  React.createClass ({
         key: 12,
         name: 'ab',
         describe: 33,
-        citationtimes: '我是ab',
+        citationtimes: 2,
         children: [{
           key: 121,
           name: 'aba',
           describe: 33,
-          citationtimes: '我是aba',
+          citationtimes: 4,
         }],
       }, {
         key: 13,
         name: 'ac',
         describe: 33,
-        citationtimes: '我是ac',
+        citationtimes: 3,
         children: [{
           key: 131,
           name: 'aca',
           describe: 33,
-          citationtimes: '我是aca',
+          citationtimes: 3,
           children: [{
             key: 1311,
             name: 'acaa',
             describe: 33,
-            citationtimes: '我是acaa',
+            citationtimes: 2,
           }, {
             key: 1312,
             name: 'acab',
             describe: 33,
-            citationtimes: '我是acab',
+            citationtimes: 1,
           }],
         }],
       }],
@@ -106,7 +121,7 @@ let AllPermissions =  React.createClass ({
                   style={{paddingRight: '28px',width:'200px'}}/>
               </div>
             </div>
-          <Table pagination={false} columns={columns} dataSource={data} />
+          <Table pagination={false} columns={columns} dataSource={data} onChange={this.handleChange} />
         </div>
         
       </div>
