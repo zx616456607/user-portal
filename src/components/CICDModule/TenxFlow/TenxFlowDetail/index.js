@@ -378,7 +378,7 @@ class TenxFlowDetail extends Component {
     const { projectId, projectBranch } = this.state
     const { repoBranchesAndTags, flowInfo } = this.props
     const stageInfo = flowInfo.stageInfo || []
-    const isNoPop = stageInfo.length < 1 || stageInfo[0].spec.project.repoType === 'svn'
+    const isNoPop = stageInfo.length < 1 || !stageInfo[0].spec.project || stageInfo[0].spec.project.repoType === 'svn'
     const targetElement = (
       <Button
         size='large'
@@ -447,6 +447,8 @@ class TenxFlowDetail extends Component {
         </div>
       )
     }
+    console.log('flowInfo')
+    console.log(flowInfo)
     const checkImage = this.state.showImage.length > 0 && this.state.showImage.map(list => {
       return (
         <div className="cursor" onClick={() => this.goCheckImage(list)} key={list.imageName} style={{ lineHeight: '25px' }}><a>{list.imageName}</a></div>

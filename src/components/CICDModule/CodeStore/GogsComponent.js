@@ -315,6 +315,13 @@ class GogsComponent extends Component {
           notification.success(`代码同步成功`)
         },
         isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          notification.close()
+          let message = err.message
+          notification.error(message.message)
+        }
       }
     })
   }

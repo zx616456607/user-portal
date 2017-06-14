@@ -48,7 +48,7 @@ function sendEmail(transport, mailOptions) {
   // if SMTP not configured(lite) skip send email
   if (!transport.host) {
     logger.warn(method, 'SMTP not configured, skip send email')
-    return Promise.reject({message: 'config email first', status: 400})
+    return Promise.reject({ message: 'config email first', status: 400 })
   }
   // Force to use this 'from' user if using sendEmail method
   mailOptions.from = transport.auth.user
@@ -104,32 +104,32 @@ function sendEmailBySendcloud(mailOptions) {
     // 批量邮件
     apiUser = sendcloudConfig.apiUserBatch
     sendcloud = new SendCloud(sendcloudConfig.apiUser,
-                              sendcloudConfig.apiKeyBatch,
-                              sendcloudConfig.from,
-                              sendcloudConfig.fromname,
-                              apiUser)
+      sendcloudConfig.apiKeyBatch,
+      sendcloudConfig.from,
+      sendcloudConfig.fromname,
+      apiUser)
     _send = sendcloud.sendByTemplate.bind(sendcloud)
   } else {
     // 触发邮件
     apiUser = sendcloudConfig.apiUser
     sendcloud = new SendCloud(sendcloudConfig.apiUser,
-                              sendcloudConfig.apiKeyTrigger,
-                              sendcloudConfig.from,
-                              sendcloudConfig.fromname,
-                              apiUser)
+      sendcloudConfig.apiKeyTrigger,
+      sendcloudConfig.from,
+      sendcloudConfig.fromname,
+      apiUser)
     _send = sendcloud.templateToOne.bind(sendcloud)
   }
   return _send(mailOptions.to,
-               mailOptions.subject,
-               mailOptions.templateName,
-               mailOptions.sub,
-               mailOptions.options).then(result => {
-    if (result.message !== 'success') {
-      logger.error(result.errors)
-      throw new Error(result.errors || result.message)
-    }
-    return result
-  })
+    mailOptions.subject,
+    mailOptions.templateName,
+    mailOptions.sub,
+    mailOptions.options).then(result => {
+      if (result.message !== 'success') {
+        logger.error(result.errors)
+        throw new Error(result.errors || result.message)
+      }
+      return result
+    })
 }
 exports.sendEmailBySendcloud = sendEmailBySendcloud
 
@@ -145,7 +145,7 @@ function sendEnsureEmail(mailOptions, htmlName) {
     logger.error("Failed to send using sendcloud: " + JSON.stringify(err))
     let html = fs.readFileSync(`${EMAIL_TEMPLATES_DIR}/${htmlName}`, 'utf8')
     const sub = mailOptions.sub
-    for(let key in sub) {
+    for (let key in sub) {
       if (sub.hasOwnProperty(key)) {
         let regExp = new RegExp(key, 'g')
         html = html.replace(regExp, sub[key][0])
@@ -166,20 +166,20 @@ exports.sendEnsureEmail = sendEnsureEmail
  * @param {String} htmlName (html template file name)
  * @returns {Promise}
  */
-function sendVerificationEmail(transport,mailOptions, htmlName) {
-	return sendEmailBySendcloud(mailOptions).catch(err => {
-		logger.error("Failed to send using sendcloud: " + JSON.stringify(err))
-		let html = fs.readFileSync(`${EMAIL_TEMPLATES_DIR}/${htmlName}`, 'utf8')
-		const sub = mailOptions.sub
-		for(let key in sub) {
-			if (sub.hasOwnProperty(key)) {
-				let regExp = new RegExp(key, 'g')
-				html = html.replace(regExp, sub[key][0])
-			}
-		}
-		mailOptions.html = html
-		return sendEmail(transport,mailOptions)
-	})
+function sendVerificationEmail(transport, mailOptions, htmlName) {
+  return sendEmailBySendcloud(mailOptions).catch(err => {
+    logger.error("Failed to send using sendcloud: " + JSON.stringify(err))
+    let html = fs.readFileSync(`${EMAIL_TEMPLATES_DIR}/${htmlName}`, 'utf8')
+    const sub = mailOptions.sub
+    for (let key in sub) {
+      if (sub.hasOwnProperty(key)) {
+        let regExp = new RegExp(key, 'g')
+        html = html.replace(regExp, sub[key][0])
+      }
+    }
+    mailOptions.html = html
+    return sendEmail(transport, mailOptions)
+  })
 }
 exports.sendVerificationEmail = sendVerificationEmail
 
@@ -195,7 +195,7 @@ exports.sendVerificationEmail = sendVerificationEmail
  * @param {String} userPassword
  * @returns {Promise}
  */
-exports.sendUserCreationEmail = function(to, creatorName, creatorEmail, userName, userPassword) {
+exports.sendUserCreationEmail = function (to, creatorName, creatorEmail, userName, userPassword) {
   const method = "sendUserCreationEmail"
   const subject = `已为您创建时速云帐号`
   const systemEmail = config.mail_server.service_mail
@@ -230,7 +230,7 @@ exports.sendUserCreationEmail = function(to, creatorName, creatorEmail, userName
  * @param {String} inviteURL
  * @returns {Promise}
  */
-exports.sendInviteTeamMemberEmail = function(to, invitorName, invitorEmail, teamName, inviteURL) {
+exports.sendInviteTeamMemberEmail = function (to, invitorName, invitorEmail, teamName, inviteURL) {
   const method = "sendInviteTeamMemberEmail"
   const subject = `${teamName} 团队动态通知（邀请新成员）`
   const systemEmail = config.mail_server.service_mail
@@ -262,7 +262,7 @@ exports.sendInviteTeamMemberEmail = function(to, invitorName, invitorEmail, team
  * @param {String} teamName
  * @returns {Promise}
  */
-exports.sendCancelInvitationEmail = function(to, invitorName, invitorEmail, teamName) {
+exports.sendCancelInvitationEmail = function (to, invitorName, invitorEmail, teamName) {
   const method = "sendCancelInvitationEmail"
 
   const subject = `${teamName} 团队动态通知（取消邀请）`
@@ -295,7 +295,7 @@ exports.sendCancelInvitationEmail = function(to, invitorName, invitorEmail, team
  * @param {Boolean} hasRefund
  * @returns {Promise}
  */
-exports.sendDismissTeamEmail = function(teamAdminName, teamAdminEmail, teamMemberEmails, teamName, hasRefund) {
+exports.sendDismissTeamEmail = function (teamAdminName, teamAdminEmail, teamMemberEmails, teamName, hasRefund) {
   const method = "sendDismissTeamEmail"
   const subject = `${teamName} 团队动态通知（解散团队）`
   const emails = [teamAdminEmail, teamMemberEmails]
@@ -358,7 +358,7 @@ exports.sendDismissTeamEmail = function(teamAdminName, teamAdminEmail, teamMembe
  * @param {String} teamName
  * @returns {Promise}
  */
-exports.sendExitTeamEmail = function(teamAdminEmail, teamMemberEmail, teamMemberName, teamName) {
+exports.sendExitTeamEmail = function (teamAdminEmail, teamMemberEmail, teamMemberName, teamName) {
   const method = "sendEixtTeamEmail"
 
   const subject = `${teamName} 团队动态通知（${teamMemberName} 退出团队）`
@@ -398,7 +398,7 @@ exports.sendExitTeamEmail = function(teamAdminEmail, teamMemberEmail, teamMember
  * @param {String} teamName
  * @returns {Promise}
  */
-exports.sendRemoveTeamMemberEmail = function(teamAdminName, teamAdminEmail, teamMemberName, teamMemberEmail, teamName) {
+exports.sendRemoveTeamMemberEmail = function (teamAdminName, teamAdminEmail, teamMemberName, teamMemberEmail, teamName) {
   const method = "sendRemoveTeamMemberEmail"
   const subject = `${teamName} 团队动态通知（移除成员 ${teamMemberName}）`
   const emails = [teamAdminEmail, teamMemberEmail]
@@ -434,7 +434,7 @@ exports.sendRemoveTeamMemberEmail = function(teamAdminName, teamAdminEmail, team
  * @param {String} resetPasswordURL
  * @returns {Promise}
  */
-exports.sendResetPasswordEmail = function(to, resetPasswordURL) {
+exports.sendResetPasswordEmail = function (to, resetPasswordURL) {
   const method = "sendResetPasswordEmail"
   const subject = `时速云用户重置密码`
   const systemEmail = config.mail_server.service_mail
@@ -509,7 +509,7 @@ exports.sendChargeSuccessEmail = function (to, payMethod, payAmount, payBalance,
  * @param {String} userActivationURL
  * @returns {Promise}
  */
-exports.sendUserActivationEmail = function(to, userActivationURL) {
+exports.sendUserActivationEmail = function (to, userActivationURL) {
   const method = "sendUserActivationEmail"
 
   const subject = `时速云用户完成注册`
@@ -560,35 +560,35 @@ function switchPayTypeToText(type) {
   }
 }
 
-exports.sendNotifyGroupInvitationEmail = function* (to, invitorName, invitorEmail, code,transport) {
-	const subject = `[时速云]告警通知组|邮箱验证`
-	const systemEmail = config.mail_server.service_mail
-	const date = moment(new Date()).format("YYYY-MM-DD")
-	const inviteURL = `${config.url}/email/invitations/join?code=${code}`
-	const mailOptions = {
-		to,
-		subject,
-		templateName: 'alarm_group',
-		sub: {
-			'%subject%': [subject],
-			'%invitorName%': [invitorName],
-			'%invitorEmail%': [invitorEmail],
-			'%systemEmail%': [systemEmail],
-			'%receiverEmail%': [to],
-			'%inviteURL%': [inviteURL],
-			'%date%': [date],
-		}
-	}
-	return sendVerificationEmail(transport,mailOptions, 'alarm_group.html')
+exports.sendNotifyGroupInvitationEmail = function* (to, invitorName, invitorEmail, code, transport) {
+  const subject = `[时速云]告警通知组|邮箱验证`
+  const systemEmail = config.mail_server.service_mail
+  const date = moment(new Date()).format("YYYY-MM-DD")
+  const inviteURL = `${config.url}/email/invitations/join?code=${code}`
+  const mailOptions = {
+    to,
+    subject,
+    templateName: 'alarm_group',
+    sub: {
+      '%subject%': [subject],
+      '%invitorName%': [invitorName],
+      '%invitorEmail%': [invitorEmail],
+      '%systemEmail%': [systemEmail],
+      '%receiverEmail%': [to],
+      '%inviteURL%': [inviteURL],
+      '%date%': [date],
+    }
+  }
+  return sendVerificationEmail(transport, mailOptions, 'alarm_group.html')
 }
 
-exports.sendGlobalConfigVerificationEmail = function* (body,invitorName, invitorEmail) {
+exports.sendGlobalConfigVerificationEmail = function* (body, invitorName, invitorEmail) {
   const subject = `[时速云]邮件报警|邮箱验证`
   const systemEmail = config.mail_server.service_mail
   const date = moment(new Date()).format("YYYY-MM-DD")
   const mailOptions = {
-    from:body.email,
-    to:body.email,
+    from: body.email,
+    to: body.email,
     subject,
     templateName: 'alarm_email',
     sub: {
@@ -600,9 +600,9 @@ exports.sendGlobalConfigVerificationEmail = function* (body,invitorName, invitor
       '%date%': [date],
     }
   }
-  var senderHost=body.host
+  var senderHost = body.host
   var senderEmail = senderHost.split(':')
-  const transport={
+  const transport = {
     host: senderEmail[0],
     secure: body.secure, // 使用 SSL
     port: senderEmail[1], // SMTP 端口
@@ -610,7 +610,7 @@ exports.sendGlobalConfigVerificationEmail = function* (body,invitorName, invitor
       user: body.email, // 账号
       pass: body.password, // 密码
     },
-    service_mail:body.email
+    service_mail: body.email
   }
-  return sendVerificationEmail(transport,mailOptions, 'alarm_email.html')
+  return sendVerificationEmail(transport, mailOptions, 'alarm_email.html')
 }

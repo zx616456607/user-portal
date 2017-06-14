@@ -9,10 +9,11 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Button, Input, Form, Switch, Radio, Checkbox, Spin, Alert } from 'antd'
+import classNames from 'classnames'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { createTenxFlowSingle } from '../../../actions/cicd_flow'
+import { createTenxFlowSingle, updateTenxFlow, getTenxFlowDetail } from '../../../actions/cicd_flow'
 import YamlEditor from '../../Editor/Yaml'
 import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../common/notification_handler'
@@ -93,8 +94,73 @@ let CreateTenxFlow = React.createClass({
       currentType: '1',
       emailAlert: false,
       otherEmail: false,
-      currentTenxFlow: null,
-      currentYaml: null
+      currentYaml: null,
+      currentFlow: null,
+      forEdit: false,
+      checkFirst: false,
+      checkSecond: false,
+      checkThird: false,
+      checkForth: false,
+      emailList: ''
+    }
+  },
+  componentWillMount(){
+    const { flowList, currentFlowId, scope,flowInfo } = this.props;
+    if (currentFlowId) {
+      this.setState({
+        currentFlow:flowInfo,
+        forEdit: scope.state.forEdit
+      },()=> {
+        //this.refreshInfo()
+      })
+    }
+  },
+  componentWillReceiveProps(nextProps) {
+    const { flowList, currentFlowId, scope, flowInfo } = this.props;
+    let nextId = nextProps.currentFlowId;
+    if (currentFlowId !== nextId) {
+      this.setState({
+        currentFlow:flowInfo,
+        forEdit: scope.state.forEdit
+      },()=> {
+        //this.refreshInfo()
+      })
+    }
+  },
+  refreshInfo() {
+    this.setState({emailAlert: this.state.currentFlow.notificationConfig})
+    let notify = this.state.currentFlow.notificationConfig
+    let flag = !! notify
+    if (notify == 'null') {
+      flag = false;
+    }
+    this.setState({
+      emailAlert: flag
+    });
+    if (flag) {
+      let newNotify
+      try {
+        newNotify = JSON.parse(notify);
+      } catch (e) {
+        this.setState({
+          emailAlert: false
+        })
+        return
+      }
+      let otherEmail = true;
+      let emailList = newNotify.email_list;
+      if (newNotify.email_list == DefaultEmailAddress) {
+        otherEmail = null
+        emailList = ''
+      }
+      this.setState({
+        checkFirst: newNotify.ci.success_notification,
+        checkSecond: newNotify.ci.failed_notification,
+        checkThird: newNotify.cd.success_notification,
+        checkForth: newNotify.cd.failed_notification,
+        emailList: emailList,
+        otherEmail: otherEmail
+      });
     }
   },
   componentDidMount(){
@@ -210,7 +276,7 @@ let CreateTenxFlow = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope, createTenxFlowSingle, buildImage } = this.props;
+    const { scope, createTenxFlowSingle, buildImage, updateTenxFlow } = this.props;
     const _this = this;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
@@ -312,7 +378,8 @@ let CreateTenxFlow = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { scope, isFetching } = this.props;
+    const { scope, isFetching, flowInfo } = this.props;
+    const { currentFlow, forEdit } = this.state;
     if(isFetching) {
       return (
         <div className='loadingBox'>
@@ -325,6 +392,7 @@ let CreateTenxFlow = React.createClass({
       rules: [
         { validator: this.nameExists },
       ],
+      initialValue: currentFlow&&currentFlow.name
     });
     const radioFlowTypeProps = getFieldProps('radioFlow', {
       rules: [
@@ -350,9 +418,9 @@ let CreateTenxFlow = React.createClass({
         {this.props.buildImage ? <Alert message={<FormattedMessage {...menusText.buildImageToolTip} />} type='info' /> : ''}
         <Title title="TenxFlow" />
       <Form horizontal>
-        <div className='commonBox'>
+        <div className={classNames('commonBox',{'hide': forEdit})}>
           <div className='title'>
-            <span><FormattedMessage {...menusText.create} /></span>
+            <span><FormattedMessage { ...menusText.create } /></span>
           </div>
           <div className='input'>
             <FormItem className='flowTypeForm'>
@@ -453,12 +521,19 @@ let CreateTenxFlow = React.createClass({
 });
 
 function mapStateToProps(state, props) {
+  const defaultFlowInfo = {
+    
+    flowInfo: {}
+  }
   const {entities} = state
+  const { getTenxflowDetail } = state.cicd_flow;
+  const { flowInfo } = getTenxflowDetail || defaultFlowInfo;
   if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
     DefaultEmailAddress = entities.loginUser.info.email
   }
   return {
-
+    
+    flowInfo,
   }
 }
 
@@ -469,7 +544,9 @@ CreateTenxFlow.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  createTenxFlowSingle
+  createTenxFlowSingle,
+  updateTenxFlow,
+  getTenxFlowDetail
 })(injectIntl(CreateTenxFlow, {
   withRef: true,
 }));
