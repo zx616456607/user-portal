@@ -40,68 +40,80 @@ let EnvComponent = React.createClass({
     this.setState({
       currentImageName: imageName
     })
-    if (imageName.indexOf('/') == imageName.lastIndexOf('/')) {
-      let tag = 'latest'
+    let imageTag = 'latest'
+    if (imageName.indexOf('/') == imageName.lastIndexOf('/')  && imageName.indexOf('/') > 0) {
       if (imageName.indexOf(':') > 0) {
         imageName = imageName.split(':')
-        tag = imageName[1]
+        if (imageName[1]) {
+          imageTag = imageName[1]
+        }
         imageName = imageName[0]
-        if (!tag) {
-          tag = 'latest'
+      }
+    } else {
+      if (imageName.indexOf(':') > 0) {
+        imageName = imageName.split(':')
+        if (imageName[1]) {
+          imageTag = imageName[1]
+        }
+        imageName = imageName[0]
+      }
+      imageName = `library/${imageName}`
+    }
+    const self = this
+    loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY, imageName, imageTag, {
+      success: {
+        func: (result) => {
+          if (!result.data) {
+            result.data = {
+              defaultEnv: []
+            }
+          }
+          let allEnv = {}
+          const { scope, form, registry, config } = self.props;
+          const { setFieldsValue, getFieldValue } = form
+          let imageEnv = result.data
+          let envs = imageEnv.defaultEnv
+          if (envs) {
+            if (self.state.uuid < envs.length) {
+              self.setState({
+                uuid: envs.length
+              })
+            }
+            envs.forEach((env, i) => {
+              env = env.split('=')
+              allEnv[env[0]] = env[1]
+            })
+          }
+          const allEnvName = Object.getOwnPropertyNames(allEnv)
+          setFieldsValue({
+            ['service' + index + 'inputs']: allEnvName.map((env, i) => i)
+          })
+          allEnvName.forEach((name, i) => {
+            setFieldsValue({
+              [`service${index}inputName${i}`]: name,
+              [`service${index}inputValue${i}`]: allEnv[name]
+            })
+          })
+          setTimeout(() => {
+            const arr = getFieldValue(['service' + index + 'inputs'])
+            const i = arr[arr.length - 1]
+            if (document.getElementById(`service${index}inputName${i}`)) {
+              document.getElementById(`service${index}inputName${i}`).focus()
+            }
+          }, 300)
+        }
+      },
+      failed: {
+        func: (res) => {
+          const notify = new NotificationHandler()
+          if (res.message == 'Failed to find any tag') {
+            notify.error('获取镜像信息失败，请检查镜像是否存在')
+            return
+          }
+          notify.error(res.message)
         }
       }
-      const self = this
-      loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY, imageName, tag, {
-        success: {
-          func: (result) => {
-            if (!result.data) return
-            let allEnv = {}
-            const { scope, form, registry, config } = self.props;
-            const { setFieldsValue, getFieldValue } = form
-            let imageEnv = result.data
-            let envs = imageEnv.defaultEnv
-            if (envs) {
-              if (self.state.uuid < envs.length) {
-                self.setState({
-                  uuid: envs.length
-                })
-              }
-              envs.forEach((env, i) => {
-                env = env.split('=')
-                allEnv[env[0]] = env[1]
-              })
-            }
-            const allEnvName = Object.getOwnPropertyNames(allEnv)
-            setFieldsValue({
-              ['service' + index + 'inputs']: allEnvName.map((env, i) => i)
-            })
-            allEnvName.forEach((name, i) => {
-              setFieldsValue({
-                [`service${index}inputName${i}`]: name,
-                [`service${index}inputValue${i}`]: allEnv[name]
-              })
-            })
-            setTimeout(() => {
-              const arr = getFieldValue(['service' + index + 'inputs'])
-              const i = arr[arr.length - 1]
-              if (document.getElementById(`service${index}inputName${i}`)) {
-                document.getElementById(`service${index}inputName${i}`).focus()
-              }
-            }, 300)
-          }
-        },
-        failed: {
-          func: (res) => {
-            const notify = new NotificationHandler()
-            if (res.message == 'Failed to find any tag') {
-              notify.error('获取镜像信息失败，请检查镜像是否存在')
-              return
-            }
-            notify.error(res.message)
-          }
-        }
-      })
-    }
+    })
   },
   componentWillMount() {
     this.loadData()
@@ -115,7 +127,11 @@ let EnvComponent = React.createClass({
     if (nextProps.visible != this.props.visible && nextProps.visible) {
       const arr = form.getFieldValue(['service' + index + 'inputs'])
       const i = arr[arr.length - 1]
-      setTimeout(() => { document.getElementById(`service${index}inputName${i}`).focus() }, 300)
+      setTimeout(() => { 
+        if(document.getElementById(`service${index}inputName${i}`)) {
+          document.getElementById(`service${index}inputName${i}`).focus()
+        }
+       }, 300)
     }
   },
   shouldComponentUpdate(nextProps) {
