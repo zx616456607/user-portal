@@ -33,7 +33,7 @@ class CPU extends Component {
     option.addYAxis('value', {
       formatter: '{value} %'
     })
-    data.map((item) => {
+    data&&data.map((item) => {
       let timeData = []
       let values = []
       item.metrics.map((metric) => {
@@ -44,10 +44,10 @@ class CPU extends Component {
       option.setXAxisData(timeData)
       option.addSeries(values, item.containerName)
     })
-    option.setGirdForDataCommon(data.length)
+    option.setGirdForDataCommon(data&&data.length)
     return (
       <ReactEcharts
-        style={{ height: formatGrid(data.length) }}
+        style={{ height: formatGrid(data&&data.length) }}
         notMerge={true}
         option={option}
         showLoading={isFetching}

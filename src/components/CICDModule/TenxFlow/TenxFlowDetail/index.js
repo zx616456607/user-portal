@@ -447,6 +447,8 @@ class TenxFlowDetail extends Component {
         </div>
       )
     }
+    console.log('flowInfo')
+    console.log(flowInfo)
     const checkImage = this.state.showImage.length > 0 && this.state.showImage.map(list => {
       return (
         <div className="cursor" onClick={() => this.goCheckImage(list)} key={list.imageName} style={{ lineHeight: '25px' }}><a>{list.imageName}</a></div>
