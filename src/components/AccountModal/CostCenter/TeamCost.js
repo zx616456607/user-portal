@@ -106,11 +106,11 @@ class TeamCost extends Component{
           formatter: function (name) {
             if(name === '余额'){
               let balanceText = standard ? (name + '：￥ ' + balance) :
-                                          (name + '：' +balance + 'T币')
+                                          (name + '：' +balance + ' T')
               return balanceText
             } else {
               let costText = standard ? (name + '：￥ ' + cost) :
-                                        (name + '：' + cost + 'T币')
+                                        (name + '：' + cost + ' T')
               return costText
             }
           },

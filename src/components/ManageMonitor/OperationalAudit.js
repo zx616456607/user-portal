@@ -151,6 +151,7 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.DisablEmail',
     defaultMessage: '禁止发邮件',
   },
+<<<<<<< HEAD
   CreateOrUpdate: {
       id: 'ManageMonitor.operationalAudit.CreateOrUpdate',
       defaultMessage: '创建或更新',
@@ -163,6 +164,28 @@ const menusText = defineMessages({
       id: 'ManageMonitor.operationalAudit.Ignore',
       defaultMessage: '忽略',
   },
+=======
+	CreateOrUpdate: {
+		id: 'ManageMonitor.operationalAudit.CreateOrUpdate',
+		defaultMessage: '创建或更新',
+	},
+	ToggleEnable: {
+		id: 'ManageMonitor.operationalAudit.ToggleEnable',
+		defaultMessage: '切换',
+	},
+	Ignore: {
+		id: 'ManageMonitor.operationalAudit.Ignore',
+		defaultMessage: '忽略',
+  },
+  RollBack: {
+		id: 'ManageMonitor.operationalAudit.RollBack',
+		defaultMessage: '回滚',
+	},
+	Clone: {
+		id: 'ManageMonitor.operationalAudit.Clone',
+		defaultMessage: '克隆',
+	},
+>>>>>>> upstream/dev-branch
   Unknown: {
     id: 'ManageMonitor.operationalAudit.Unknown',
     defaultMessage: '其它',
@@ -273,7 +296,7 @@ const menusText = defineMessages({
   },
   Config: {
     id: 'ManageMonitor.operationalAudit.Config',
-    defaultMessage: '配置',
+    defaultMessage: '服务配置',
   },
   ConfigGroup: {
     id: 'ManageMonitor.operationalAudit.ConfigGroup',
@@ -405,7 +428,7 @@ const menusText = defineMessages({
   },
   AlertEmailGroup: {
     id: 'ManageMonitor.operationalAudit.AlertEmailGroup',
-    defaultMessage: '邮件告警通知组',
+    defaultMessage: '告警通知组',
   },
   AlertRecord: {
     id: 'ManageMonitor.operationalAudit.AlertRecord',
@@ -550,6 +573,17 @@ function returnOperationList(scope) {
     { // 18
       value: '24',
       label: (<FormattedMessage {...menusText.Ignore} />)
+<<<<<<< HEAD
+=======
+    },
+    { // 18
+      value: '25',
+      label: (<FormattedMessage {...menusText.RollBack} />)
+    },
+    { // 18
+      value: '26',
+      label: (<FormattedMessage {...menusText.Clone} />)
+>>>>>>> upstream/dev-branch
     }
   ];
   return operationalList;
@@ -727,9 +761,15 @@ function resourceFormat(resourceType, scope) {
     case '46':
       return formatMessage(menusText.CDNotification)
       break;
+<<<<<<< HEAD
     case '47':
       return formatMessage(menusText.InstanceExport)
       break;
+=======
+	  case '47':
+		  return formatMessage(menusText.InstanceExport)
+		  break;
+>>>>>>> upstream/dev-branch
     case '48':
       return formatMessage(menusText.AlertEmailGroup)
       break;
@@ -824,6 +864,15 @@ function operationalFormat(operationalType, scope) {
     case '24':
       return formatMessage(menusText.Ignore)
       break;
+<<<<<<< HEAD
+=======
+    case '25':
+      return formatMessage(menusText.RollBack)
+      break;
+    case '26':
+      return formatMessage(menusText.Clone)
+      break;
+>>>>>>> upstream/dev-branch
   }
 }
 
@@ -1022,6 +1071,7 @@ class OperationalAudit extends Component {
     this.onChangeNamespace = this.onChangeNamespace.bind(this);
     this.onPageChange = this.onPageChange.bind(this);
     this.submitSearch = this.submitSearch.bind(this);
+    this.refreshLogs = this.refreshLogs.bind(this)
     this.state = {
       selectOperationalList: [],
       from: 1,
@@ -1315,9 +1365,15 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[3]);
         break;
       case '47':
+<<<<<<< HEAD
 		    //InstanceExport
 		    showOperationalList.push([]);
 		    break;
+=======
+        //CDNotifications
+        showOperationalList.push([]);
+        break;
+>>>>>>> upstream/dev-branch
       case '48':
         //AlertEmailGroup
         showOperationalList.push(operationalList[0]);
@@ -1347,10 +1403,13 @@ class OperationalAudit extends Component {
         //Snapshot
         showOperationalList.push(operationalList[10]);
         break;
+<<<<<<< HEAD
       case '52':
         //Snapshot
         showOperationalList.push(operationalList[10]);
         break;
+=======
+>>>>>>> upstream/dev-branch
       case '0':
         //Unknown
         showOperationalList = operationalList;
@@ -1453,6 +1512,32 @@ class OperationalAudit extends Component {
     });
   }
 
+  refreshLogs(){
+    const { getOperationLogList } = this.props
+    let body = {
+      from: 0,
+      size: 15,
+      namespace: null,
+      operation: null,
+      resource: null,
+      start_time: null,
+      end_time: null
+    }
+    let notification = new NotificationHandler()
+    getOperationLogList(body, {
+      success: {
+        func: (res) => {
+          notification.success("刷新成功")
+        }
+      },
+      failed: {
+        func: (error) => {
+          notification.error('刷新失败，请重试');
+        }
+      }
+    })
+  }
+  
   render() {
     const { isFetching, logs } = this.props;
     const { formatMessage } = this.props.intl;
@@ -1573,9 +1658,15 @@ class OperationalAudit extends Component {
           }
         ]
       },{
+<<<<<<< HEAD
 				    value: '47',
 				    label: formatMessage(menusText.InstanceExport),
 		    }, {
+=======
+            value: '47',
+            label: formatMessage(menusText.InstanceExport),
+        }, {
+>>>>>>> upstream/dev-branch
         value: '48',
         label: formatMessage(menusText.Alert),
         children: [
@@ -1594,9 +1685,15 @@ class OperationalAudit extends Component {
           }
         ]
       }, {
+<<<<<<< HEAD
 				    value: '52',
 				    label: formatMessage(menusText.Snapshot),
 		    },{
+=======
+            value: '52',
+            label: formatMessage(menusText.Snapshot),
+         },{
+>>>>>>> upstream/dev-branch
         value: null,
         label: formatMessage(menusText.allResource)
       }];
@@ -1639,6 +1736,9 @@ class OperationalAudit extends Component {
             <DatePicker onChange={this.onChangeEndTime} style={{ marginRight: 20, marginTop: 10, float: 'left' }} showTime format='yyyy-MM-dd HH:mm:ss' size='large' />
             <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch}>
               <i className='fa fa-wpforms'></i> <FormattedMessage {...menusText.search} />
+            </Button>
+            <Button type="primary" size="large" className='refresh' onClick={this.refreshLogs}>
+              刷新
             </Button>
             <div className='bottomBox'>
               <div className='pageBox'>

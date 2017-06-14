@@ -233,7 +233,7 @@ let CreateDatabase = React.createClass({
     });
   },
   render() {
-    const { isFetching, teamspaces, teamCluster} = this.props;
+    const { isFetching, teamspaces, teamCluster, space } = this.props;
     const teamspaceList = teamspaces.map((list, index) => {
       return (
         <Option key={list.namespace}>{list.spaceName}</Option>
@@ -273,7 +273,7 @@ let CreateDatabase = React.createClass({
       rules: [
         { required: true, message: '请选择空间' },
       ],
-      initialValue: 'default',
+      initialValue: space.namespace,
       onChange: this.onChangeNamespace
     });
     const selectClusterProps = getFieldProps('clusterSelect', {
@@ -417,7 +417,7 @@ let CreateDatabase = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-  const { cluster } = state.entities.current
+  const { cluster, space } = state.entities.current
   const defaultDbNames = {
     isFetching: false,
     cluster: cluster.clusterID,
@@ -431,6 +431,7 @@ function mapStateToProps(state, props) {
   return {
     cluster: cluster.clusterID,
     clusterName: cluster.clusterName,
+    space,
     current,
     databaseNames,
     isFetching,

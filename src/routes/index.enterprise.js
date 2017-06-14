@@ -91,7 +91,7 @@ const rootRoutes = {
       path: 'app_center',
       component: require('../containers/AppCenter').default,
       indexRoute: {
-        component: require('../components/AppCenter').default,
+        component: require('../components/AppCenter/Item').default,
       },
       getChildRoutes: (location, cb) => {
         require.ensure([], function (require) {
@@ -113,7 +113,7 @@ const rootRoutes = {
       path: 'ci_cd',
       component: require('../containers/CICD').default,
       indexRoute: {
-        component: require('../components/CICDModule/BuildImage').default,
+        component: require('../components/CICDModule/CodeStore').default,
       },
       getChildRoutes: (location, cb) => {
         require.ensure([], function (require) {

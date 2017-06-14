@@ -50,8 +50,13 @@ function sendEmail(transport, mailOptions) {
     logger.warn(method, 'SMTP not configured, skip send email')
     return Promise.reject({message: 'config email first', status: 400})
   }
+<<<<<<< HEAD
 	// Force to use this 'from' user if using sendEmail method
 	mailOptions.from = transport.auth.user
+=======
+  // Force to use this 'from' user if using sendEmail method
+  mailOptions.from = transport.auth.user
+>>>>>>> upstream/dev-branch
   const smtpTransport = nodemailer.createTransport(transport)
   return new Promise(function (resovle, reject) {
     logger.info(method, 'Send email to: ' + mailOptions.to)
@@ -562,6 +567,7 @@ function switchPayTypeToText(type) {
 
 exports.sendNotifyGroupInvitationEmail = function* (to, invitorName, invitorEmail, code,transport) {
 	const subject = `[时速云]告警通知组|邮箱验证`
+<<<<<<< HEAD
 	const systemEmail = config.mail_server.service_mail
 	const date = moment(new Date()).format("YYYY-MM-DD")
 	const inviteURL = `${config.url}/alerts/invitations/join?code=${code}`
@@ -584,18 +590,26 @@ exports.sendNotifyGroupInvitationEmail = function* (to, invitorName, invitorEmai
 
 exports.sendGlobalConfigVerificationEmail = function* (body,invitorName, invitorEmail) {
 	const subject = `[时速云]邮件报警|邮箱验证`
+=======
+>>>>>>> upstream/dev-branch
 	const systemEmail = config.mail_server.service_mail
 	const date = moment(new Date()).format("YYYY-MM-DD")
+	const inviteURL = `${config.url}/email/invitations/join?code=${code}`
 	const mailOptions = {
+<<<<<<< HEAD
 		from:body.email,
 		to:body.email,
+=======
+		to,
+>>>>>>> upstream/dev-branch
 		subject,
-		templateName: 'alarm_email',
+		templateName: 'alarm_group',
 		sub: {
 			'%subject%': [subject],
 			'%invitorName%': [invitorName],
 			'%invitorEmail%': [invitorEmail],
 			'%systemEmail%': [systemEmail],
+<<<<<<< HEAD
 			'%receiverEmail%': [body.email],
 			'%date%': [date],
 		}
@@ -613,4 +627,45 @@ exports.sendGlobalConfigVerificationEmail = function* (body,invitorName, invitor
 		service_mail:body.email
 	}
 	return sendVerificationEmail(transport,mailOptions, 'alarm_email.html')
+=======
+			'%receiverEmail%': [to],
+			'%inviteURL%': [inviteURL],
+			'%date%': [date],
+		}
+	}
+	return sendVerificationEmail(transport,mailOptions, 'alarm_group.html')
+}
+
+exports.sendGlobalConfigVerificationEmail = function* (body,invitorName, invitorEmail) {
+  const subject = `[时速云]邮件报警|邮箱验证`
+  const systemEmail = config.mail_server.service_mail
+  const date = moment(new Date()).format("YYYY-MM-DD")
+  const mailOptions = {
+    from:body.email,
+    to:body.email,
+    subject,
+    templateName: 'alarm_email',
+    sub: {
+      '%subject%': [subject],
+      '%invitorName%': [invitorName],
+      '%invitorEmail%': [invitorEmail],
+      '%systemEmail%': [systemEmail],
+      '%receiverEmail%': [body.email],
+      '%date%': [date],
+    }
+  }
+  var senderHost=body.host
+  var senderEmail = senderHost.split(':')
+  const transport={
+    host: senderEmail[0],
+    secure: body.secure, // 使用 SSL
+    port: senderEmail[1], // SMTP 端口
+    auth: {
+      user: body.email, // 账号
+      pass: body.password, // 密码
+    },
+    service_mail:body.email
+  }
+  return sendVerificationEmail(transport,mailOptions, 'alarm_email.html')
+>>>>>>> upstream/dev-branch
 }

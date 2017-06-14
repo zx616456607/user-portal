@@ -137,6 +137,7 @@ class CostRecord extends Component{
       loadConsumptionTrend,
       loadSpaceSummaryInDay,
       loadSpaceSummary,
+      current
     } = this.props
     loadUserTeamspaceList(loginUser.info.userID||userDetail.userID||'default',{ size: 100 }, {
       success: {
@@ -145,10 +146,23 @@ class CostRecord extends Component{
         isAsync: true
       }
     })
-    loadConsumptionDetail(this.state.currentNamespace, 0, this.state.consumptionDetailPageSize)
-    loadConsumptionTrend(this.state.currentNamespace)
-    loadSpaceSummaryInDay(this.state.currentNamespace)
-    loadSpaceSummary(this.state.currentNamespace)
+    let currentNamespace = ''
+    let currentSpaceName= '我的空间'
+    let currentTeamName = ''
+    if (current.space && current.space.namespace) {
+      currentNamespace = current.space.namespace
+      currentSpaceName = current.space.spaceName || current.space.namespace
+      currentTeamName = current.space.teamName
+    }
+    this.setState({
+      currentNamespace,
+      currentSpaceName,
+      currentTeamName
+    })
+    loadConsumptionDetail(currentNamespace, 0, this.state.consumptionDetailPageSize)
+    loadConsumptionTrend(currentNamespace)
+    loadSpaceSummaryInDay(currentNamespace)
+    loadSpaceSummary(currentNamespace)
   }
   render(){
     const _this = this
@@ -201,7 +215,7 @@ class CostRecord extends Component{
           axisPointer: {
             animation: false
           },
-          formatter: standard ? '{b}<br/>消费 ￥{c}' : '{b}<br/>消费 {c}T币',
+          formatter: standard ? '{b}<br/>消费 ￥{c}' : '{b}<br/>消费 {c} T',
           textStyle: {
             color: '#666',
             fontSize: 12,
@@ -590,11 +604,11 @@ function getSpaceMonthCost(balance, cost, standard) {
         formatter: function (name) {
           if(name === '余额'){
             let balanceText = standard ? (name + '：￥ ' + balance) :
-                                        (name + '：' +balance + 'T币')
+                                        (name + '：' +balance + ' T')
             return balanceText
           } else {
             let costText = standard ? (name + '：￥ ' + cost) :
-                                      (name + '：' + cost + 'T币')
+                                      (name + '：' + cost + ' T')
             return costText
           }
         },

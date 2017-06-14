@@ -29,6 +29,7 @@ import NotificationHandler from '../../../common/notification_handler'
 import Socket from '../../Websocket/socketIo'
 import PopTabSelect from '../../PopTabSelect'
 import Title from '../../Title'
+import { parseQueryStringToObject } from '../../../common/tools'
 
 const PopTab = PopTabSelect.Tab;
 const PopOption = PopTabSelect.Option;
@@ -196,7 +197,7 @@ let MyComponent = React.createClass({
     })
   },
   renderBuildBtn(item, index) {
-    const { projectId, defaultBranch, stagesCount } = item
+    const { projectId, defaultBranch, stagesCount, repoType } = item
     const { repoBranchesAndTags } = this.props
     const dropdown = (
       <Menu onClick={this.operaMenuClick.bind(this, item)}>
@@ -207,11 +208,26 @@ let MyComponent = React.createClass({
       </Menu>
     );
     const targetElement = (
-      <span>
-        <i className='fa fa-pencil-square-o' />&nbsp;
-        <FormattedMessage {...menusText.deloyStart} />
-      </span>
+      <Dropdown.Button
+        overlay={dropdown}
+        type='ghost'
+        size='large'
+        onClick={() => {
+          if (repoType === 'svn') {
+            this.startBuildStage(item, index)
+            return
+          }
+          this.starFlowBuild(item, index)
+        }}>
+        <span>
+          <i className='fa fa-pencil-square-o' />&nbsp;
+          <FormattedMessage {...menusText.deloyStart} />
+        </span>
+      </Dropdown.Button>
     )
+    if (repoType === 'svn') {
+      return targetElement
+    }
     const tabs = []
     let loading
     const branchesAndTags = repoBranchesAndTags[projectId]
@@ -251,11 +267,7 @@ let MyComponent = React.createClass({
       <PopTabSelect
         style={{float: 'left'}}
         onChange={this.startBuildStage.bind(this, item, index)}
-        targetElement={
-          <Dropdown.Button overlay={dropdown} type='ghost' size='large' onClick={() => this.starFlowBuild(item, index)}>
-          {targetElement}
-          </Dropdown.Button>
-        }
+        targetElement={targetElement}
         getTooltipContainer={() => document.body}
         isShowBuildBtn={true}
         loading={loading}>
@@ -348,7 +360,12 @@ class TenxFlowList extends Component {
       currentTenxFlow: null,
       currentFlowId: null,
       flowList: [],
-      searchingFlag: false
+      searchingFlag: false,
+      searchValue:''
+    }
+    const queryObj = parseQueryStringToObject(window.location.search)
+    if (queryObj.showCard == 'true') {
+      this.state.createTenxFlowModal = true
     }
   }
 
@@ -434,17 +451,17 @@ class TenxFlowList extends Component {
     });
   }
 
-  onSearchFlow(e) {
+  onSearchFlow() {
     //this function for user search special flow
-    let keyword = e.target.value;
     let searchingFlag = false;
-    if (keyword.length > 0) {
-      searchingFlag = true;
-    }
+    const { searchValue } = this.state
     const { flowList } = this.props;
     let newList = [];
+    if (searchValue.length > 0) {
+      searchingFlag = true;
+    }
     flowList.map((item) => {
-      if (item.name.indexOf(keyword) > -1) {
+      if (item.name.indexOf(searchValue) > -1) {
         newList.push(item);
       }
     });
@@ -542,7 +559,7 @@ class TenxFlowList extends Component {
     const scope = this;
     const { isFetching, buildFetching, logs, cicdApi, repoBranchesAndTags } = this.props;
     const { searchingFlag } = this.state;
-    const { flowList } = this.props
+    const { flowList } = this.state
     let message = '';
     if (isFetching || !flowList) {
       return (
@@ -569,9 +586,11 @@ class TenxFlowList extends Component {
               <i className='fa fa-plus' />&nbsp;
               <FormattedMessage {...menusText.create} />
             </Button>
-            <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' onChange={this.onSearchFlow} />
-            <i className='fa fa-search'></i>
-            <div style={{ clear: 'both' }}></div>
+            <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' value={this.state.searchValue}
+                   onChange={(e)=> this.setState({searchValue:e.target.value})} onPressEnter={()=>this.onSearchFlow()}
+            />
+            <i className='fa fa-search' onClick={()=> this.onSearchFlow()}/>
+            <div style={{ clear: 'both' }}/>
           </div>
           <Card className='tenxflowBox'>
             <div className='titleBox' >

@@ -3,7 +3,7 @@
   margin-bottom: 20px;
   overflow: hidden;
   .appmanage_snapshot_header{
-    padding-bottom: 22px;
+    padding-bottom: 25px;
     .searchBox{
       position: relative;
       .searchInput{
@@ -27,6 +27,7 @@
   .appmanage_snapshot_main{
     position: relative;
     padding:14px 24px 50px 24px;
+    border-radius:5px;
     //padding-bottom: 50px;
     background: #ffffff;
     .nodata{
@@ -172,5 +173,32 @@
   .ant-modal-footer{
     border-top:none;
     padding:0;
+  }
+}
+
+.rollbackSuccess{
+  font-size: 14px;
+  .container{
+    text-align: center;
+    padding:10px 0;
+    .header{
+      color:#70bc40;
+      .icon{
+        font-size: 88px;
+      }
+      .tips{
+        font-size: 18px;
+        height: 52px;
+        line-height: 52px;
+      }
+    }
+    .footer{
+      .lineone{
+        margin-bottom: 4px;
+      }
+      .item{
+        color: #45bdf9;
+      }
+    }
   }
 }

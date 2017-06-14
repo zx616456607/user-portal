@@ -190,13 +190,15 @@ function otherImages(state = {}, action) {
       })
     case ActionTypes.GET_OTHER_LIST_SUCCESS:
       return Object.assign({}, defaultState, state, {
-        isFetching: false,
-        imageList: action.response.result.repositories || [],
-        bak: action.response.result.repositories
+        [action.id]:{
+          isFetching: false,
+          imageList: action.response.result.repositories || [],
+          bak: action.response.result.repositories
+        }
       })
     case ActionTypes.GET_OTHER_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        isFetching: false
+        [action.id]:{isFetching: false}
       })
     case ActionTypes.DELETE_OTHER_IMAGE_REQUEST:
       return merge({}, state, {
@@ -221,17 +223,17 @@ function otherImages(state = {}, action) {
       const imageName = action.image
       const newState = cloneDeep(state)
       if (imageName == '') {
-        newState.imageList = newState.bak
+        newState[action.id].imageList = newState[action.id].bak
         return newState
       }
-      const temp = state.bak.filter(list => {
+      const temp = state[action.id].bak.filter(list => {
         const search = new RegExp(imageName)
         if (search.test(list)) {
           return true
         }
         return false
       })
-      newState.imageList = temp
+      newState[action.id].imageList = temp
       return newState
     default:
       return state

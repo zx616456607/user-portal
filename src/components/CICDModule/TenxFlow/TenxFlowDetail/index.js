@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Card, Button, Tabs, Modal, message, Popover } from 'antd'
+import { Spin, Card, Button, Tabs, Modal, message, Popover, Tooltip, Icon } from 'antd'
 import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -19,6 +19,7 @@ import {
   deploymentLog, getTenxflowBuildLogs, getCdInimage,
   changeBuildStatus, getTenxFlowStatus, getRepoBranchesAndTagsByProjectId,
 } from '../../../../actions/cicd_flow'
+import { loadRepositoriesTags } from '../../../../actions/harbor'
 import { LoadOtherImage } from '../../../../actions/app_center'
 import { checkImage } from '../../../../actions/app_center'
 import './style/TenxFlowDetail.less'
@@ -87,6 +88,14 @@ const menusText = defineMessages({
   unUpdate: {
     id: 'CICD.Tenxflow.TenxFlowDetail.unUpdate',
     defaultMessage: '未更新',
+  },
+  tenxFlowtooltip: {
+    id: 'CICD.Tenxflow.TenxFlowDetailFlow.tooltip',
+    defaultMessage: 'TenxFlow流程定义：这里可以定义一个TenxFlow项目的执行流程，每个卡片对应一个子任务，分别执行代码编译、单元测试、集成测试和镜像构建等子任务，大部分流程以生成应用镜像作为结束。',
+  },
+  buildImageTooltip: {
+    id: 'CICD.Tenxflow.BuildImage.tooltip',
+    defaultMessage: '构建镜像是TenxFlow中常被创建的子任务，指可将源代码仓库包括代码GitHub、GitLab、Gogs、SVN中的代码通过代码库中的Dockerfile或云端的Dockerfile 构建成镜像，默认将构建后的镜像存放到镜像仓库--私有空间。',
   },
 });
 
@@ -257,25 +266,34 @@ class TenxFlowDetail extends Component {
       getTenxflowBuildLogs(flowInfo.flowId)
     }
   }
-  goCheckImage(image) {
-    const config = { registry: DEFAULT_REGISTRY, image }
+  goCheckImage(item) {
+    const { imageName, projectId } = item
     let notification = new NotificationHandler()
     const {namespace, owner} = this.props.flowInfo
     this.setState({showTargeImage: false})
-    this.props.checkImage(config, {
+    this.props.loadRepositoriesTags(DEFAULT_REGISTRY, imageName, {
       success: {
         func: (res) => {
-          if (res.data.hasOwnProperty('status') && res.data.status == 404) {
+          if(!res.data || res.data.length == 0) {
             notification.error('镜像不存在，请先执行构建')
             return
           }
-          if (namespace != res.data.contributor && owner != res.data.contributor) {
+          browserHistory.push(`/app_center/projects/detail/${projectId}?imageName=${imageName}`)
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (res) => {
+          if(res.statusCode == 404) {
+            notification.error('镜像不存在，请先执行构建')
+            return
+          }
+          if(res.statusCode == 403) {
             notification.error('没有权限访问该镜像')
             return
           }
-          browserHistory.push(`/app_center?imageName=${image}`)
-        },
-        isAsync: true
+          notification.error('内部错误，请稍后再试')
+        }
       }
     })
   }
@@ -358,15 +376,29 @@ class TenxFlowDetail extends Component {
 
   renderBuildBtn() {
     const { projectId, projectBranch } = this.state
-    const { repoBranchesAndTags } = this.props
+    const { repoBranchesAndTags, flowInfo } = this.props
+    const stageInfo = flowInfo.stageInfo || []
+    const isNoPop = stageInfo.length < 1 || stageInfo[0].spec.project.repoType === 'svn'
     const targetElement = (
-      <Button size='large' type='primary' className='buildBtn'>
+      <Button
+        size='large'
+        type='primary'
+        className='buildBtn'
+        onClick={() => {
+          if (isNoPop) {
+            this.startBuildStage()
+          }
+        }}
+      >
         <svg className='cicdbuildfast'>
           <use xlinkHref='#cicdbuildfast' />
         </svg>
         <FormattedMessage {...menusText.deloyStart} />
       </Button>
     )
+    if (isNoPop) {
+      return targetElement
+    }
     const tabs = []
     let loading
     const branchesAndTags = repoBranchesAndTags[projectId]
@@ -417,7 +449,7 @@ class TenxFlowDetail extends Component {
     }
     const checkImage = this.state.showImage.length > 0 && this.state.showImage.map(list => {
       return (
-        <div className="cursor" onClick={() => this.goCheckImage(list)} key={list} style={{ lineHeight: '25px' }}><a>{list}</a></div>
+        <div className="cursor" onClick={() => this.goCheckImage(list)} key={list.imageName} style={{ lineHeight: '25px' }}><a>{list.imageName}</a></div>
       )
     })
     return (
@@ -467,7 +499,7 @@ class TenxFlowDetail extends Component {
             <div style={{ clear: 'both' }}></div>
           </Card>
           <Tabs defaultActiveKey='1' size="small" onChange={(e) => this.handleChange(e)}>
-            <TabPane tab={this.state.isBuildImage ? '构建镜像任务' : 'TenxFlow流程定义'} key='1'>
+            <TabPane tab={this.state.isBuildImage ? <span>构建镜像任务<Tooltip title={<FormattedMessage {...menusText.buildImageTooltip} />}><Icon style={{marginLeft: '3px'}} type="question-circle-o" /></Tooltip></span> : <span>TenxFlow流程定义<Tooltip title={<FormattedMessage {...menusText.tenxFlowtooltip} />}><Icon style={{marginLeft: '5px'}} type="question-circle-o" /></Tooltip></span>} key='1'>
               <TenxFlowDetailFlow
                 scope={scope}
                 setStatus={this.setStatus}
@@ -536,7 +568,6 @@ function mapStateToProps(state, props) {
     buildFetching,
     cdImageList,
     logs,
-    buildFetching,
     currentSpace: state.entities.current.space.namespace,
     otherImage,
     repoBranchesAndTags,
@@ -559,6 +590,7 @@ export default connect(mapStateToProps, {
   getTenxFlowStatus,
   LoadOtherImage,
   getRepoBranchesAndTagsByProjectId,
+  loadRepositoriesTags
 })(injectIntl(TenxFlowDetail, {
   withRef: true,
 }));

@@ -49,6 +49,7 @@ exports.initGlobalConfig = function* () {
     return
   }
   let globalConfig = global.globalConfig
+  const ConfigArray = {}
   globalConfig.storageConfig = []
   configs.forEach(item => {
     const configType = item.ConfigType
@@ -64,18 +65,15 @@ exports.initGlobalConfig = function* () {
       globalConfig.mail_server.auth.user = configDetail.senderMail
       globalConfig.mail_server.auth.pass = configDetail.senderPassword
       globalConfig.mail_server.service_mail = configDetail.senderMail
+      ConfigArray.Mail='NotEmpty'
     }
-    if (configType == 'registry') {
-      globalConfig.registryConfig.protocol = configDetail.protocol
-      globalConfig.registryConfig.host = configDetail.host
-      globalConfig.registryConfig.port = configDetail.port
-      globalConfig.registryConfig.v2Server = configDetail.v2Server
-      globalConfig.registryConfig.v2AuthServer = configDetail.v2AuthServer
-      globalConfig.registryConfig.user = configDetail.user
-      globalConfig.registryConfig.password = configDetail.password
-      logger.info('registry config: ', configDetail.protocol + '://' + configDetail.host + ':' + configDetail.port)
+    if (configType == 'harbor') { // Use harbor from v2.6.0
+      globalConfig.registryConfig.url = configDetail.url
+      logger.info('registry config: ', configDetail.url)
+      ConfigArray.Registry='NotEmpty'
     }
-    if (configType == 'cicd') {
+    // Use db settings if env is empty
+    if (configType == 'cicd' && globalConfig.cicdConfig.host == "") {
       let host
       let protocol
       if (devops.host) {
@@ -104,10 +102,27 @@ exports.initGlobalConfig = function* () {
       globalConfig.cicdConfig.statusPath = devops.statusPath //configDetail.statusPath,
       globalConfig.cicdConfig.logPath = devops.logPath //configDetail.logPath
       logger.info('devops config: ', protocol + '://' + host)
+      ConfigArray.Cicd='NotEmpty'
     }
     if (configType === 'rbd') {
       item.ConfigDetail = configDetail
       globalConfig.storageConfig.push(item)
+      ConfigArray.Rbd='NotEmpty'
     }
   })
+  if (ConfigArray.Mail!=='NotEmpty'){
+      globalConfig.mail_server={
+      auth: {}
+    }
+  }
+  if (ConfigArray.Registry!=='NotEmpty'){
+      globalConfig.registryConfig={}
+  }
+  if (ConfigArray.Rbd!=='NotEmpty'){
+      globalConfig.storageConfig=[]
+  }
+  logger.info('api-server config: ', globalConfig.tenx_api.host)
+  logger.info('registry config: ', globalConfig.registryConfig.protocol + '://' + globalConfig.registryConfig.host + ':' + globalConfig.registryConfig.port)
+  logger.info('devops config: ', globalConfig.cicdConfig.protocol + '://' + globalConfig.cicdConfig.host)
+  logger.info('mailbox config: ', globalConfig.mail_server.host)
 }

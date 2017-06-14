@@ -15,6 +15,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { loadImageDetailTagConfig,  loadOtherDetailTagConfig } from '../../../../../actions/app_center'
+import { loadRepositoriesTagConfigInfo } from '../../../../../actions/harbor'
 import NotificationHandler from '../../../../../common/notification_handler'
 import './style/CreateImageEnvComponent.less'
 
@@ -28,70 +29,77 @@ let CreateImageEnvComponent = React.createClass({
     }
   },
   loadData() {
-    const { form, loadImageDetailTagConfig, registryServer } = this.props
+    const { form, loadRepositoriesTagConfigInfo, registryServer } = this.props
     let imageName = form.getFieldValue('imageName')
-    if(!imageName) return
-      this.setState({
+    if (!imageName) return
+    this.setState({
       currentImageName: imageName
     })
-    let registryUrl = ''
     if (imageName.indexOf('/') == imageName.lastIndexOf('/')) {
-      registryUrl = registryServer.v2Server
-      let tag = 'latest'
+      let imageTag = 'latest'
       if (imageName.indexOf(':') > 0) {
         imageName = imageName.split(':')
-        tag = imageName[1]
+        imageTag = imageName[1]
         imageName = imageName[0]
-        if (!tag) {
-          tag = 'latest'
+        if (!imageTag) {
+          imageTag = 'latest'
         }
       }
       const self = this
-      if (registryUrl) {
-        loadImageDetailTagConfig(registryUrl, imageName, tag, {
-          success: {
-            func: (result) => {
-              if (!result.data) return
-              const { scope, form, registry } = self.props;
-              const { setFieldsValue } = form
-              let imageEnv = result.data
-              let envs = imageEnv.defaultEnv
-              if (envs) {
-                setFieldsValue({
-                  imageEnvInputs: envs.map((env, index) => index)
-                })
-                if (this.state.uuid < envs.length) {
-                  self.setState({
-                    uuid: envs.length
-                  })
-                }
-                envs.forEach((env, index) => {
-                  env = env.split('=')
-                  setFieldsValue({
-                    [`imageEnvName${index}`]: env[0],
-                    [`imageEnvValue${index}`]: env[1]
-                  })
-                })
-              }
-            }
-          },
-          failed: {
-            func: (res) => {
-              const { setFieldsValue } = self.props.form
-              const notify = new NotificationHandler()
+      loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY, imageName, imageTag, {
+        success: {
+          func: (result) => {
+            if (!result.data) return
+            const { scope, form, registry } = self.props;
+            const { setFieldsValue } = form
+            let imageEnv = result.data
+            let envs = imageEnv.defaultEnv
+            if (envs) {
               setFieldsValue({
-                  imageEnvInputs: [0]
+                imageEnvInputs: envs.map((env, index) => index)
               })
-              if(res.message == 'Failed to find any tag') {
-                notify.error('获取镜像信息失败，请检查该基础镜像是否存在')
-                return
+              if (this.state.uuid < envs.length) {
+                self.setState({
+                  uuid: envs.length
+                })
               }
-              notify.error(res.message)
+              envs.forEach((env, index) => {
+                env = env.split('=')
+                setFieldsValue({
+                  [`imageEnvName${index}`]: env[0],
+                  [`imageEnvValue${index}`]: env[1]
+                })
+              })
+              setTimeout(() => {
+                if (document.getElementById(`imageEnvName${envs.length - 1}`)) {
+                  document.getElementById(`imageEnvName${envs.length - 1}`).focus()
+                }
+              }, 300)
             }
           }
-        })
-      }
+        },
+        failed: {
+          func: (res) => {
+            const { setFieldsValue } = self.props.form
+            const notify = new NotificationHandler()
+            setFieldsValue({
+              imageEnvInputs: [0]
+            })
+            setTimeout(() => {
+              if (document.getElementById(`imageEnvName0`)) {
+                document.getElementById(`imageEnvName0`).focus()
+              }
+            }, 300)
+            if (res.message == 'Failed to find any tag') {
+              notify.error('获取镜像信息失败，请检查该基础镜像是否存在')
+              return
+            }
+            notify.error(res.message)
+          }
+        }
+      })
     }
+
   },
   componentWillMount() {
    this.loadData()
@@ -100,7 +108,16 @@ let CreateImageEnvComponent = React.createClass({
     const { form } = nextProps
     let imageName = form.getFieldValue('imageName')
     if(nextProps.visible != this.props.visible && nextProps.visible && this.state.currentImageName != imageName) {
-      this.loadData()
+      return this.loadData()
+    }
+    if (nextProps.visible != this.props.visible && nextProps.visible) {
+      let keys = form.getFieldValue('imageEnvInputs')
+      const index = keys[keys.length - 1]
+      if (document.getElementById(`imageEnvName${index}`)) {
+        setTimeout(() => {
+          document.getElementById(`imageEnvName${index}`).focus()
+        }, 0)
+      }
     }
   },
   shouldComponentUpdate(nextProps) {
@@ -129,6 +146,7 @@ let CreateImageEnvComponent = React.createClass({
     form.setFieldsValue({
       'imageEnvInputs': keys
     });
+    setTimeout(()=> document.getElementById(`imageEnvName${this.state.uuid}`).focus(),300)
   },
   removeImageEnv (k, scope){
     //this function for user remove the input div
@@ -143,8 +161,9 @@ let CreateImageEnvComponent = React.createClass({
       'imageEnvInputs': keys
     });
     if(keys.length == 0) {
-      this.addImageEnv(scope)
+      return this.addImageEnv(scope)
     }
+    setTimeout(()=> document.getElementById(`imageEnvName${keys[keys.length - 1]}`).focus(),0)
   },
   closeModal () {
     //this function for user close the env input modal
@@ -154,13 +173,13 @@ let CreateImageEnvComponent = React.createClass({
     });
   },
   render() {
-    const { scope, form, registryServer, imageConfig } = this.props;
+    const { scope, form, imageConfig } = this.props;
     const { setFieldsValue } = form
-    if(!registryServer || !imageConfig) {
+    if(!imageConfig) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
-    if(registryServer && imageConfig) {
-      if(imageConfig.imageTagConfig[registryServer.v2Server] && imageConfig.imageTagConfig[registryServer.v2Server].isFetching) {
+    if(DEFAULT_REGISTRY && imageConfig) {
+      if(imageConfig[DEFAULT_REGISTRY] && imageConfig[DEFAULT_REGISTRY].isFetching) {
         return <div className="loadingBox"><Spin size="large"></Spin></div>
       }
     }
@@ -170,7 +189,6 @@ let CreateImageEnvComponent = React.createClass({
       initialValue: [0],
     });
     const ImageEnvInputItems = getFieldValue('imageEnvInputs').map((i) => {
-      setTimeout(()=> document.getElementById(`imageEnvName${i}`).focus(),300)
       const ImageEnvNameInputProps = getFieldProps(`imageEnvName${i}`, {
         rules: [
           { message: '请输入环境变量名' },
@@ -232,11 +250,11 @@ let CreateImageEnvComponent = React.createClass({
 
 function mapStateToProps(state, props) {
   const defaultImageConfig = {}
-  let imageConfig = state.getImageTagConfig
+  let imageConfig = state.harbor.imageTagConfig
   if(!imageConfig) {
     imageConfig = defaultImageConfig
   }
-    const defaultRegistryServer = {
+  const defaultRegistryServer = {
   }
   let registryServer = defaultRegistryServer
   const { availableImage } = state.cicd_flow
@@ -255,7 +273,7 @@ CreateImageEnvComponent.propTypes = {
 
 export default connect(mapStateToProps, {
   loadOtherDetailTagConfig,
-  loadImageDetailTagConfig
+  loadRepositoriesTagConfigInfo
 })(injectIntl(CreateImageEnvComponent, {
   withRef: true,
 }));

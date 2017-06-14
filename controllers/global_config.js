@@ -31,8 +31,8 @@ exports.changeGlobalConfig = function* () {
   if (type == 'cicd') {
     this.body = yield cicdConfigFunc.apply(this, [entity])
   }
-  if (type == 'registry') {
-    this.body = yield registryConfigFunc.apply(this, [entity])
+  if (type == 'harbor') {
+    this.body = yield harborConfigFunc.apply(this, [entity])
   }
   if (type == 'mail') {
     this.body = yield mailConfigFunc.apply(this, [entity])
@@ -96,24 +96,14 @@ function* cicdConfigFunc(entity) {
 }
 
 
-function* registryConfigFunc(entity) {
+function* harborConfigFunc(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
-  const type = 'registry'
-  const urlObject = url.parse(entity.detail.host)
+  const type = 'harbor'
   entity.configDetail = {
-    protocol: urlObject.protocol.replace(':', ''),
-    host: urlObject.hostname,
-    port: urlObject.port,
-    v2AuthServer: entity.detail.v2AuthServer,
-    v2Server: entity.detail.v2Server,
-    user: config.registryConfig.user,
-    password: config.registryConfig.password
+    url: entity.detail.url
   }
   let response
   if (entity.configID) {
-    const config = global.globalConfig.registryConfig
-    entity.configDetail.user = config.user
-    entity.configDetail.password = config.password
     entity.configDetail = JSON.stringify(entity.configDetail)
     response = yield api.configs.updateBy([type], null, entity)
   } else {
@@ -236,8 +226,8 @@ exports.isValidConfig = function* () {
   if(type == 'rbd') {
     response = yield isValidStorageConfig.apply(this, [entity])
   }
-  else if(type == 'registry') {
-    response = yield isValidResistryConfig.apply(this, [entity])
+  else if(type == 'harbor') {
+    response = yield isValidHarborConfig.apply(this, [entity])
   }
   this.body = response
   return
@@ -261,27 +251,18 @@ function* isValidStorageConfig (entity) {
   return response
 }
 
-function* isValidResistryConfig(entity) {
+function* isValidHarborConfig(entity) {
   const api = apiFactory.getApi(this.session.loginUser)
-  const type = 'registry'
-  const urlObject = url.parse(entity.host)
-  const globalRegistryConfig = global.globalConfig.registryConfig
-  const registryConfig = {
-    protocol: urlObject.protocol.replace(':', ''),
-    host: urlObject.hostname,
-    port: urlObject.port,
-    v2AuthServer: entity.v2AuthServer,
-    v2Server: entity.v2Server,
-    user: globalRegistryConfig.user || config.registryConfig.user,
-    password: globalRegistryConfig.password || config.registryConfig.password
+  const harborConfig = {
+    url: entity.url
   }
-  const response = yield api.configs.createBy(['registry', 'isvalidconfig'], null, registryConfig)
+  const response = yield api.configs.createBy(['registry', 'isvalidconfig'], null, harborConfig)
   return response
 }
 
 exports.sendVerification = function* () {
 	const method = 'configs.email.sendVerification'
 	const loginUser = this.session.loginUser
-	yield email.sendGlobalConfigVerificationEmail(this.request.body.email,this.request.body.password,loginUser.user, loginUser.email)
+	yield email.sendGlobalConfigVerificationEmail(Body, loginUser.user, loginUser.email)
 	this.body = {}
 }

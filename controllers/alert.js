@@ -94,16 +94,16 @@ exports.batchDeleteNotifyGroups = function* () {
 }
 
 exports.sendInvitation = function* () {
-	const method = 'alert.sendInvitation'
-	const loginUser = this.session.loginUser
-	const spi = apiFactory.getSpi(loginUser)
-	const result = yield spi.alerts.createBy(['invitations'], null, this.request.body)
-	// get email addr and code, then send out the code
-	const initConfig = yield initGlobalConfig.initGlobalConfig()
-	yield result.data.emails.map(function (item) {
-		return email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code,globalConfig.mail_server)
-	})
-	this.body = {}
+  const method = 'alert.sendInvitation'
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+  const result = yield spi.email.createBy(['invitations'], null, this.request.body)
+  // get email addr and code, then send out the code
+  const initConfig = yield initGlobalConfig.initGlobalConfig()
+  yield result.data.emails.map(function (item) {
+    return email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code, globalConfig.mail_server)
+  })
+  this.body = {}
 }
 
 exports.acceptInvitation = function* () {
@@ -244,7 +244,7 @@ exports.getSettingListfromserviceorapp = function* () {
   const cluster = this.params.cluster
   const api = apiFactory.getK8sApi(this.session.loginUser)
   const queryBody = this.query
-  const body = yield  api.getBy([cluster, 'alerts/group-strategies'],queryBody)
+  const body = yield api.getBy([cluster, 'alerts/group-strategies'], queryBody)
   this.body = body
 }
 
@@ -411,11 +411,16 @@ exports.getTargetInstant = function* () {
       throw err
     }
   }
-  const memory = parseFloat(results[1].data[name] / totalMemoryByte).toFixed(4)
+  const memory = [
+    results[1].data[name],
+    totalMemoryByte,
+    parseFloat(results[1].data[name] / totalMemoryByte).toFixed(4)
+  ]
+
   this.body = {
     [strategyName]: {
       cpus: results[0].data[name],
-      memory: isNaN(memory) ? 0 : memory,
+      memory: memory,
       tx_rate: results[2].data[name],
       rx_rate: results[3].data[name]
     }

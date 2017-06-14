@@ -17,7 +17,8 @@ import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import NotificationHandler from '../../../common/notification_handler'
 // import { loadUserDetail } from '../../../actions/user'
-import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
+import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN,  } from '../../../../constants'
+import { NEED_BUILD_IMAGE } from '../../../constants'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -45,7 +46,6 @@ function checkUrlSelectedKey(pathname) {
 class Sider extends Component {
   constructor(props) {
     super(props)
-    this.selectModel = this.selectModel.bind(this)
     this.onSelectMenu = this.onSelectMenu.bind(this)
     this.onOpenBigMenu = this.onOpenBigMenu.bind(this)
     this.onCloseBigMenu = this.onCloseBigMenu.bind(this)
@@ -117,7 +117,7 @@ class Sider extends Component {
     this.props.changeUploadFileOptions(currentOptions)
   }
 
-  selectModel(currentKey, currentIcon, event) {
+  selectModel(currentKey) {
     this.setState({
       currentKey: currentKey,
     })
@@ -273,7 +273,7 @@ class Sider extends Component {
                   <img src={oemInfo.naviShrink} className="logo" />
                 </Link>
               </li>
-              <li onClick={this.selectModel.bind(this, 'home', '#home')}
+              <li onClick={()=> this.selectModel('home')}
                 className={currentKey == 'home' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='总览'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
@@ -284,7 +284,7 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, 'app_manage', '#app')}
+              <li onClick={()=> this.selectModel('app_manage')}
                 className={currentKey == 'app_manage' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='应用管理'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
@@ -295,18 +295,18 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, 'app_center', '#appCenter')}
-                className={currentKey == 'app_center' ? 'selectedLi' : ''}>
+              <li onClick={()=> this.selectModel('app_center')}
+                className={currentKey == 'projects' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='交付中心'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                  <Link to='/app_center'>
+                  <Link to='/app_center/projects'>
                     <svg className='center commonImg'>
                       <use xlinkHref='#center' />
                     </svg>
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, 'ci_cd', '#system')}
+              <li onClick={()=> this.selectModel('ci_cd')}
                 className={currentKey == 'ci_cd' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='CI/CD'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
@@ -317,7 +317,7 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, 'database_cache', '#database')}
+              <li onClick={()=> this.selectModel('database_cache')}
                 className={currentKey == 'database_cache' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='数据库与缓存'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
@@ -328,7 +328,7 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, 'integration', '#system')}
+              <li onClick={()=> this.selectModel('integration')}
                 className={currentKey == 'integration' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='集成中心'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
@@ -339,7 +339,7 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, 'manange_monitor', '#manage')}
+              <li onClick={()=> this.selectModel('manange_monitor')}
                 className={currentKey == 'manange_monitor' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='管理与监控'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
@@ -350,7 +350,7 @@ class Sider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, 'account', '#account')}
+              <li onClick={()=> this.selectModel('account')}
                 className={currentKey == 'account' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='帐户中心'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
@@ -385,7 +385,7 @@ class Sider extends Component {
               </li>
               {role == ROLE_SYS_ADMIN ?
                 [
-                  <li onClick={this.selectModel.bind(this, 'cluster', '#cluster')}
+                  <li onClick={()=> this.selectModel('cluster')}
                     className={currentKey == 'cluster' ? 'selectedLi' : ''}>
                     <Tooltip placement='right' title='基础设施'
                       getTooltipContainer={() => document.getElementById('siderTooltip')}>
@@ -495,8 +495,8 @@ class Sider extends Component {
                     </span>
                   }
                 >
-                  <Menu.Item key='app_center_default'>
-                    <Link to='/app_center'>
+                  <Menu.Item key='projects'>
+                    <Link to='/app_center/projects'>
                       <span><div className='sideCircle'></div> 镜像仓库</span>
                     </Link>
                   </Menu.Item>
@@ -525,14 +525,16 @@ class Sider extends Component {
                 >
                   <Menu.Item key='ci_cd_default'>
                     <Link to='/ci_cd'>
-                      <span><div className='sideCircle'></div> 构建镜像</span>
-                    </Link>
-                  </Menu.Item>
-                  <Menu.Item key='coderepo'>
-                    <Link to='/ci_cd/coderepo'>
                       <span><div className='sideCircle'></div> 代码仓库</span>
                     </Link>
                   </Menu.Item>
+                  {NEED_BUILD_IMAGE ?
+                    <Menu.Item key='build_image'>
+                      <Link to='/ci_cd/build_image'>
+                        <span><div className='sideCircle'></div> 构建镜像</span>
+                      </Link>
+                    </Menu.Item> : <Menu.Item key='integration-none' style={{ display: 'none' }}></Menu.Item>
+                  }
                   <Menu.Item key='tenx_flow'>
                     <Link to='/ci_cd/tenx_flow'>
                       <span><div className='sideCircle'></div> TenxFlow</span>

@@ -12,25 +12,32 @@ import SecondSider from '../../components/SecondSider'
 import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
 import './style/CICD.less'
+import { NEED_BUILD_IMAGE } from '../../constants'
 
-const menuList = [
+let menuList = [
   {
     url: '/ci_cd',
-    name: '构建镜像'
-  },
-  {
-    url: '/ci_cd/coderepo',
     name: '代码仓库'
-  },
-  {
-    url: '/ci_cd/tenx_flow',
-    name: 'TenxFlow'
-  },
-  {
+  }
+]
+
+if (NEED_BUILD_IMAGE) {
+  menuList.push({
+    url: '/ci_cd/build_image',
+    name: '构建镜像'
+  })
+}
+
+menuList = menuList.concat({
+  url: '/ci_cd/tenx_flow',
+  name: 'TenxFlow'
+}, {
     url: '/ci_cd/docker_file',
     name: 'Dockerfile'
   }
-]
+)
+
+
 
 export default class CICD extends Component {
   constructor(props) {
