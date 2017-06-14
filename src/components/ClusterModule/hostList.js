@@ -116,6 +116,33 @@ const MyComponent = React.createClass({
       })
     }
   },
+  getDiskStage(node) {
+    const conditions = node.conditions || []
+    let color = 'green'
+    let text = '健康'
+    conditions.forEach(condition => {
+      const { type, status } = condition
+      switch (type) {
+        case 'DiskPressure':
+          if (status !== 'False') {
+            color = 'yellow'
+            text = '不足'
+          }
+          break
+        case 'OutOfDisk':
+          if (status !== 'False') {
+            color = 'red'
+            text = '告警'
+          }
+          break
+        default:
+          break
+      }
+    })
+    return (
+      <Tag color={color}>{text}</Tag>
+    )
+  },
   render: function () {
     const { isFetching, containerList, nodeList, cpuMetric, memoryMetric, clusterID, license } = this.props
     const root = this
@@ -210,7 +237,10 @@ const MyComponent = React.createClass({
               }
             </span>
           </div>
-          
+          <div className="diskState commonTitle">
+            {this.getDiskStage(item)}
+          </div>
+
           <div className='startTime commonTitle'>
             <Tooltip title={formatDate(item.objectMeta.creationTimestamp)}>
               <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
@@ -515,6 +545,9 @@ class hostList extends Component {
             </div>
             <div className='schedule commonTitle'>
               <span>调度状态</span>
+            </div>
+            <div className='diskState commonTitle'>
+              <span>磁盘情况</span>
             </div>
             <div className='startTime commonTitle'>
               <span>加入集群时间</span>
