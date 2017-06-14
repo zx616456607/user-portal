@@ -339,12 +339,29 @@ class TenxFlowDetailFlowCard extends Component {
     });
   }
 
-  viewCicdBox(e) {
+  viewCicdBox(value, isSvn) {
     //this function for user change open cicd or not
     const { getTenxflowCIRules, UpdateTenxflowCIRules, flowId, config } = this.props;
     const _this = this;
     let notification = new NotificationHandler()
-    if (e) {
+    if (value) {
+      if (isSvn) {
+        let body = {
+          enabled: 1,
+        }
+        UpdateTenxflowCIRules(flowId, body, {
+          success: {
+            func: (res) => {
+              notification.success('持续集成', '开启持续集成成功');
+              _this.setState({
+                ciRulesOpened: true,
+              });
+            },
+            isAsync: true
+          }
+        })
+        return
+      }
       getTenxflowCIRules(flowId);
       this.setState({
         cicdSetModalShow: true,
@@ -699,9 +716,9 @@ class TenxFlowDetailFlowCard extends Component {
             (index == 0 && currentFlowEdit != index) && (
               (config.spec.project && config.spec.project.repoType === 'svn')
               ? (
-                <Tooltip title="SVN 代码库不支持持续集成">
+                <Tooltip title="SVN 代码库不支持配置触发规则">
                   <div className='cicdBox' key='cicdBox'>
-                    <Switch disabled/>
+                    <Switch onChange={value => this.viewCicdBox(value, true)} checked={this.state.ciRulesOpened} />
                     <p className='switchTitile' style={{color: '#ccc'}}><FormattedMessage {...menusText.cicd} /></p>
                   </div>
                 </Tooltip>

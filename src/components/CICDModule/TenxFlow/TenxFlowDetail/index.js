@@ -378,7 +378,7 @@ class TenxFlowDetail extends Component {
     const { projectId, projectBranch } = this.state
     const { repoBranchesAndTags, flowInfo } = this.props
     const stageInfo = flowInfo.stageInfo || []
-    const isNoPop = stageInfo.length < 1 || stageInfo[0].spec.project.repoType === 'svn'
+    const isNoPop = stageInfo.length < 1 || !stageInfo[0].spec.project || stageInfo[0].spec.project.repoType === 'svn'
     const targetElement = (
       <Button
         size='large'
