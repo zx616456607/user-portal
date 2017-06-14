@@ -472,8 +472,8 @@ class BindNodes extends Component {
     switch (bindNodesData.type) {
       case "ScheduleBySystem":
         return <span>
-          <div className="commonTitle">系统默认调度</div>
-          <div>--</div>
+          <div className="commonTitle">--</div>
+          <div>系统默认调度</div>
         </span>
       case "ScheduleByHostNameOrIP":
         return <span>
