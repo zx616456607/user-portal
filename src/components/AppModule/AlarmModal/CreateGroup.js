@@ -339,7 +339,7 @@ let CreateAlarmGroup = React.createClass({
         initDescValue = data.receivers.email[indexed].desc
       }
       return (
-        <div key={k} style={{clear:'both'}}>
+        <div key={k} className="createEmailList" style={{clear:'both'}}>
         <Form.Item style={{float:'left'}}>
           <Input {...getFieldProps(`email${k}`, {
             rules: [{
