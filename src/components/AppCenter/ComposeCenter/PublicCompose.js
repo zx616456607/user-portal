@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, Dropdown, Modal } from 'antd'
+import { Alert, Menu, Button, Card, Input, Dropdown, Modal, Table, Spin } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -18,10 +18,6 @@ import { loadStack, loadStackDetail } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import { calcuDate } from '../../../common/tools'
 import CreateCompose from './CreateCompose'
-
-const SubMenu = Menu.SubMenu
-const MenuItemGroup = Menu.ItemGroup
-const ButtonGroup = Button.Group
 
 const menusText = defineMessages({
   search: {
@@ -94,81 +90,14 @@ const menusText = defineMessages({
   }
 })
 
-
-const MyComponent = React.createClass({
-  propTypes: {
-    config: React.PropTypes.array,
-    scope: React.PropTypes.object
-  },
-  actionStack(itemId, itemIndex) {
-    const scope = this
-    this.props.scope.props.loadStackDetail(itemId, {
-      success: {
-        func: (res) => {
-          scope.props.scope.setState({
-            stackItemContent: res.data.data.content
-          })
-        }
-      }
-    })
-    this.props.scope.setState({
-      createModalShow: true,
-      stackItem: this.props.config[itemIndex]
-    });
-
-  },
-  render: function () {
-    const config = this.props.config
-    if (config.length == 0) {
-      return(
-        <div className="loadingBox">暂无数据</div>
-      )
-    }
-    let items = config.map((item, index) => {
-      const dropdown = (
-        <Menu onClick={()=> browserHistory.push(`/app_manage/app_create/compose_file?templateid=${item.id}`)} style={{ width: '100px' }}>
-          <Menu.Item key={`&${item.id}`}>
-           <FormattedMessage {...menusText.deployService} />
-          </Menu.Item>
-
-        </Menu>
-      );
-      return (
-        <div className="composeDetail" key={`item-${index}`} >
-          <div className="name textoverflow">
-            <span className="maxSpan">{item.name}</span>
-          </div>
-          <div className="type">
-            {/* <span>{(item.type ==1) ? <FormattedMessage {...menusText.publicType} /> : <FormattedMessage {...menusText.privateType} />}</span> */}
-            {item.owner}
-          </div>
-          <div className="image textoverflow">
-            <span className="maxSpan">{item.description}</span>
-          </div>
-          <div className="time textoverflow">
-            {calcuDate(item.createTime)}
-          </div>
-          <div className="opera">
-            <Dropdown.Button overlay={dropdown} onClick={()=> this.actionStack(item.id, index)}>
-              <FormattedMessage {...menusText.showService} />
-            </Dropdown.Button>
-          </div>
-        </div>
-      );
-    });
-    return (
-      <div className="composeList">
-        {items}
-      </div>
-    );
-  }
-});
-
 class PublicCompose extends Component {
   constructor(props) {
     super(props)
+    this.actionStack = this.actionStack.bind(this)
     this.state = {
-      //
+      stackItemContent: '',
+      createModalShow: false,
+      stackItem: '',
     }
   }
 
@@ -183,42 +112,88 @@ class PublicCompose extends Component {
     }
   }
 
+  actionStack(itemId, itemIndex) {
+    const { loadStackDetail, stackList } = this.props
+    loadStackDetail(itemId, {
+      success: {
+        func: (res) => {
+          this.setState({
+            stackItemContent: res.data.data.content
+          })
+        }
+      }
+    })
+    this.setState({
+      createModalShow: true,
+      stackItem: stackList[itemIndex]
+    });
+  }
+
   render() {
     const { formatMessage } = this.props.intl;
+    const { stackList } = this.props
+    if(!stackList){
+      return <div className='loadingBox'><Spin></Spin></div>
+    }
+    const menu = stackList.map((item, index) => {
+      return <Menu onClick={()=> browserHistory.push(`/app_manage/app_create/compose_file?templateid=${item.id}`)}
+        style={{ width: '100px' }}>
+        <Menu.Item key={`&${item.id}`}>
+          <FormattedMessage {...menusText.deployService} />
+        </Menu.Item>
+      </Menu>
+    })
+    const columns = [
+      {
+        title: menusText.name.defaultMessage,
+        dataIndex: 'name',
+        width: '20%',
+        className: 'name',
+      },
+      {
+        title: menusText.author.defaultMessage,
+        dataIndex: 'owner',
+        width: '15%',
+        className: 'type',
+      },
+      {
+        title: menusText.desc.defaultMessage,
+        dataIndex: 'description',
+        width: '25%',
+        className: 'image',
+      },
+      {
+        title: menusText.time.defaultMessage,
+        dataIndex: 'createTime',
+        width: '15%',
+        className: 'time',
+        render: (createTime) => <div>{calcuDate(createTime)}</div>
+      },
+      {
+        title: menusText.opera.defaultMessage,
+        dataIndex: 'handle',
+        width: '20%',
+        className: 'opera',
+        render: (text, record, index) => <div><Dropdown.Button onClick={()=> this.actionStack(record.id, index)} overlay={menu[index]} type='ghost'>查看编排</Dropdown.Button></div>
+      },
+   ]
     return (
       <QueueAnim className="PublicCompose"
         type="right"
         >
         <div id="PublicCompose" key="PublicCompose">
-          <Alert type="info" message={
-            <div>
-              <p><FormattedMessage {...menusText.tooltipsFirst} /></p>
-              <p><FormattedMessage {...menusText.tooltipsSecond} /></p>
-              <p><FormattedMessage {...menusText.tooltipsThird} /></p>
-              <p><FormattedMessage {...menusText.tooltipsForth} /></p>
-            </div>
-          } />
-          <Card className="PublicComposeCard">
-            <div className="titleBox">
-              <div className="name">
-                <FormattedMessage {...menusText.name} />
-              </div>
-              <div className="type">
-                <FormattedMessage {...menusText.author} />
-              </div>
-              <div className="image">
-                <FormattedMessage {...menusText.desc} />
-              </div>
-              <div className="time">
-                <FormattedMessage {...menusText.time} />
-              </div>
-              <div className="opera">
-                <FormattedMessage {...menusText.opera} />
-              </div>
-              <div style={{ clear: "both" }}></div>
-            </div>
-            <MyComponent scope={this} config={this.props.stackList} />
-          </Card>
+          <div  className='alertRow'>
+            <p><FormattedMessage {...menusText.tooltipsFirst} /></p>
+            <p><FormattedMessage {...menusText.tooltipsSecond} /></p>
+            <p><FormattedMessage {...menusText.tooltipsThird} /></p>
+            <p><FormattedMessage {...menusText.tooltipsForth} /></p>
+          </div>
+          <div className='PublicComposeList'>
+            <Table
+              columns={columns}
+              dataSource={stackList}
+            ></Table>
+          </div>
         </div>
         <Modal
           visible={this.state.createModalShow}

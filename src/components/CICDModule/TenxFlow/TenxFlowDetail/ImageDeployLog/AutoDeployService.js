@@ -400,8 +400,7 @@ let AutoDeployService = React.createClass({
       </a>
     );
     const {clusterList, cdImageList} = this.props
-
-    const imageOptions = cdImageList.map(item => <Option key={item}>{item}</Option>)
+    const imageOptions = cdImageList.map(item => <Option key={item.imageName}>{item.imageName}</Option>)
     const clusterOptions = clusterList.map(list => <Option key={list.clusterID}>{list.clusterName}</Option>)
     const appListOptions = []
     if (this.state.serviceList.length > 0) {

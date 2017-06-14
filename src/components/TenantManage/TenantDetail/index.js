@@ -20,24 +20,14 @@ let TenantDetail = React.createClass({
       sortedInfo: null,
       Removerol: false,
       Removepermis: false,
+      addpermission:false,
+      editrole:false,
     };
   },
   handleChange(pagination, filters, sorter) {
-    console.log('各类参数是', pagination, filters, sorter);
     this.setState({
       filteredInfo: filters,
       sortedInfo: sorter,
-    });
-  },
-  clearFilters(e) {
-    e.preventDefault();
-    this.setState({ filteredInfo: null });
-  },
-  clearAll(e) {
-    e.preventDefault();
-    this.setState({
-      filteredInfo: null,
-      sortedInfo: null,
     });
   },
   setAgeSort(e) {
@@ -53,12 +43,16 @@ let TenantDetail = React.createClass({
     this.setState({
       Removerol: false,
       Removepermis: false,
+      addpermission:false,
+      editrole:false,
     });
   },
   handleCancel() {
     this.setState({
       Removerol: false,
       Removepermis: false,
+      addpermission:false,
+      editrole:false,
     });
   },
   render() {
@@ -192,7 +186,8 @@ let TenantDetail = React.createClass({
           </div>
         </div>
         <div className='lastDetails lastDetailtable' style={{width:'49%',float:'left'}} >
-          <div className='title'>权限 （ <span>10个</span> ）<Button className="Editroles" type="ghost">编辑角色</Button></div>
+          <div className='title'>权限 （ <span>10个</span> ）<Button className="Editroles" onClick={()=> this.setState({editrole:true})} type="ghost">编辑角色</Button></div>
+          <div className="addpermission"><Button onClick={()=> this.setState({addpermission:true})} type="primary"><Icon size="large" type="plus" /> 添加权限</Button></div>
           <div className='container'>
             <div className="lastSyncInfo">
               <Table scroll={{y:300}} columns={jurisdictions} pagination={false} dataSource={jurisdictiondata} />
@@ -213,6 +208,14 @@ let TenantDetail = React.createClass({
         <Modal title="移除权限" visible={this.state.Removepermis} onOk={this.handleOk} onCancel={this.handleCancel} >
           <p className="createRol"><div className="mainbox"><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>从该角色中移除权限<span style={{color:'red'}}>（创建应用）</span>后，关联该角色的对象（成员／团队）在引用该角色的项目中无此项权限</div></p>
           <p className="createRoles">确定从<span className="Specialcolor">角色xxx</span>移除改权限？</p>
+        </Modal>
+        <Modal title="添加权限" visible={this.state.addpermission}
+          onOk={this.handleOk} onCancel={this.handleCancel}>
+          <p>角色名称</p>
+        </Modal>
+        <Modal width="650px" title="编辑角色" visible={this.state.editrole} onOk={this.handleOk} onCancel={this.handleCancel} >
+          <p className="createRolesa">角色名称<Input style={{width:'50%',marginLeft:'50px'}} placeholder="请填写角色名称"/></p>
+          <p className="createRoles">备注<Input style={{width:'50%',marginLeft:'73px'}}/></p>
         </Modal>
       </div>
     )
