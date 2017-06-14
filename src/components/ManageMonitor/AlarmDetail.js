@@ -268,7 +268,7 @@ class AlarmDetail extends Component {
             <Col span="6">
               <Card style={{paddingBottom:'20px'}}>
                 <div className="title">基本属性</div>
-                <div className="baseAttr"><span className="keys">策略名称：</span>{leftSetting.strategyName}</div>
+                <div className="baseAttr"><span className="keys">策略名称：</span><div className="ant-radio-group">{leftSetting.strategyName}</div></div>
                 <div className="baseAttr"><span className="keys">类型：</span>{leftSetting.targetType == '1' ? '节点' : '服务'}</div>
                 <div className="baseAttr"><span className="keys">告警对象：</span>{leftSetting.targetName}</div>
                 <div className="baseAttr"><span className="keys">状态：</span>{this.formatStatus(leftSetting.statusCode)}</div>
@@ -281,7 +281,7 @@ class AlarmDetail extends Component {
                   </RadioGroup>
                 </div>
                 <div className="baseAttr"><span className="keys">最后修改人：</span>{leftSetting.updater}</div>
-                <div className="baseAttr"><span className="keys">通知列表：</span>{leftSetting.receivers}</div>
+                <div className="baseAttr"><span className="keys">通知列表：</span><div className="ant-radio-group">{leftSetting.receivers}</div></div>
                 <div className="baseAttr"><span className="keys">创建时间：</span>{formatDate(leftSetting.createTime)}</div>
               </Card>
               <Card style={{marginTop:'15px',paddingBottom:'50px'}}>
