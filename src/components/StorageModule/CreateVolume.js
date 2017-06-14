@@ -8,11 +8,11 @@
  * @author ZhangChengZheng
  */
 import React,{ Component,PropTypes } from 'react'
-import { Modal, Row, Col, InputNumber, Input, Slider, Button, Form, Select, Icon } from 'antd'
+import { Modal, Row, Col, InputNumber, Input, Slider, Button, Form, Select, Icon, Switch } from 'antd'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/CreateVolume.less'
-import { calcuDate, parseAmount } from '../../common/tools'
+import { calcuDate, parseAmount, formatDate } from '../../common/tools'
 import { SnapshotClone, createStorage, loadStorageList } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL } from '../../constants'
 import NotificationHandler from '../../common/notification_handler'
@@ -55,6 +55,7 @@ class CreateVolume extends Component {
     this.handleCancelCreateVolume = this.handleCancelCreateVolume.bind(this)
     this.handleResetState = this.handleResetState.bind(this)
     this.handleSelectSnapshot = this.handleSelectSnapshot.bind(this)
+    this.SnapshotSwitch = this.SnapshotSwitch.bind(this)
     this.state = {
       volumeSizemin: this.props.volumeSize || 512,
       volumeSize:this.props.volumeSize || 512,
@@ -64,6 +65,21 @@ class CreateVolume extends Component {
       loading: false,
       ext4Disabled: false,
       xfsDisabled: false,
+      swicthChecked: false,
+      switchDisabled: false,
+      selectChecked: false,
+    }
+  }
+
+  SnapshotSwitch(){
+    this.setState({
+      swicthChecked: !this.state.swicthChecked
+    })
+    if(this.state.swicthChecked){
+      this.setState({
+        ext4Disabled: false,
+        xfsDisabled: false,
+      })
     }
   }
 
@@ -76,12 +92,18 @@ class CreateVolume extends Component {
         volumeSizemin: currentSnapshot.size,
         ext4Disabled: currentSnapshot.fstype == 'xfs',
         xfsDisabled: currentSnapshot.fstype == 'ext4',
+        swicthChecked: true,
+        switchDisabled: true,
+        selectChecked: true,
       })
       return
     }
     this.setState({
       ext4Disabled: false,
       xfsDisabled: false,
+      swicthChecked: false,
+      switchDisabled: false,
+      selectChecked: false,
     })
   }
 
@@ -95,6 +117,9 @@ class CreateVolume extends Component {
         volumeSizemin: nextProps.currentSnapshot.size,
         ext4Disabled: nextProps.currentSnapshot.fstype == 'xfs',
         xfsDisabled: nextProps.currentSnapshot.fstype == 'ext4',
+        swicthChecked: true,
+        switchDisabled: true,
+        selectChecked: true,
       })
     }
   }
@@ -119,7 +144,7 @@ class CreateVolume extends Component {
   }
 
   handleResetState() {
-    const { scope,form } = this.props
+    const { scope, form, currentSnapshot } = this.props
     form.resetFields()
     scope.setState({
       visible: false,
@@ -130,10 +155,17 @@ class CreateVolume extends Component {
       xfsDisabled: false,
       volumeSize: 512,
     })
+    if(!currentSnapshot){
+      this.setState({
+        swicthChecked: false,
+        switchDisabled: false,
+        selectChecked: false,
+      })
+    }
   }
 
   handleComfirmCreateVolume() {
-    const { form,SnapshotClone,cluster,currentVolume,createStorage,currentImagePool,loadStorageList } = this.props
+    const { form,SnapshotClone,cluster,currentVolume,createStorage,currentImagePool,loadStorageList, snapshotDataList } = this.props
     const { volumeSize,fstype } = this.state
     this.setState({
       loading: true,
@@ -181,9 +213,20 @@ class CreateVolume extends Component {
         })
         return
       }
+      let volumeName = ''
+      if(currentVolume){
+        volumeName = currentVolume.name
+      } else {
+        for(let i=0;i<snapshotDataList.length;i++){
+          if(snapshotDataList[i].name == values.selectSnapshotName){
+            volumeName = snapshotDataList[i].volume
+            break
+          }
+        }
+      }
       const body = {
         clusterID: cluster.clusterID,
-        volumeName: currentVolume.name,
+        volumeName,
         body: {
           "snapshotName": values.selectSnapshotName,
           "cloneName": values.volumeName,
@@ -245,7 +288,14 @@ class CreateVolume extends Component {
   handleFormatSelectOption(){
     const { snapshotDataList } = this.props
     let Options = snapshotDataList.map((item, index) => {
-      return <Select.Option key={item.name} value={item.name}>{item.name}</Select.Option>
+      return <Select.Option key={item.name} value={item.name}>
+        <Row>
+          <Col span={8} className='snapshotName'>{item.name}</Col>
+          <Col span={9}>{formatDate(item.createTime)}</Col>
+          <Col span={4}>{item.size} M</Col>
+          <Col span={3}>{item.fstype}</Col>
+        </Row>
+      </Select.Option>
     })
     return Options
   }
@@ -302,28 +352,9 @@ class CreateVolume extends Component {
     return(
       <div id="CreateVolume">
         <Form className='formStyle'>
-          <Row className='snapshot'>
-            <Col span="3" className="name-text-center name">
-              <FormattedMessage {...messages.snapshot} />
-            </Col>
-            <Col span="12" className='nameValue'>
-              <Form.Item>
-                <Select
-                  showSearch
-                  placeholder="请选择快照"
-                  size="large"
-                  notFoundContent="无法找到"
-                  {...selectSnapshotNameProps}
-                  onChange={this.handleSelectSnapshot}
-                >
-                  {this.handleFormatSelectOption()}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
           <Row className='volumeName'>
-            <Col span="3" className="name-text-center name">
-              <FormattedMessage {...messages.name} />
+            <Col span="4" className="name-text-center name">
+              存储卷名称
             </Col>
             <Col span="12" className='nameValue'>
               <Form.Item>
@@ -331,8 +362,56 @@ class CreateVolume extends Component {
               </Form.Item>
             </Col>
           </Row>
+          <Row className='switchSnapshot'>
+            <Col span="4" className="name-text-center switchName">
+              使用快照创建
+            </Col>
+            <Col span="12">
+              <Switch
+                checkedChildren={<Icon type="check" />}
+                unCheckedChildren={<Icon type="cross" />}
+                onChange={this.SnapshotSwitch}
+                checked={this.state.swicthChecked}
+                disabled={this.state.switchDisabled}
+              />
+            </Col>
+          </Row>
+          {
+            this.state.swicthChecked
+            ? <Row className='snapshot'>
+              <Col span="4" className="name-text-center name">
+                <FormattedMessage {...messages.snapshot} />
+              </Col>
+              <Col span="12" className='nameValue'>
+                <Form.Item>
+                  <Select
+                    showSearch
+                    placeholder="请选择快照"
+                    size="large"
+                    notFoundContent="无法找到"
+                    {...selectSnapshotNameProps}
+                    onChange={this.handleSelectSnapshot}
+                    getPopupContainer={() => document.getElementById('CreateVolume')}
+                    className='selectSnapshot'
+                    disabled={this.state.selectChecked}
+                  >
+                    <Select.Option key="title" value="title" disabled={true}>
+                      <Row>
+                        <Col span={8}>快照名称</Col>
+                        <Col span={9}>创建时间</Col>
+                        <Col span={4}>大小</Col>
+                        <Col span={3}>格式</Col>
+                      </Row>
+                    </Select.Option>
+                    {this.handleFormatSelectOption()}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            : null
+          }
           <Row className='volumeSize'>
-            <Col span="3" className="text-center size">
+            <Col span="4" className="name-text-center size">
               <FormattedMessage {...messages.size} />
             </Col>
             <Col span="12">
@@ -345,7 +424,7 @@ class CreateVolume extends Component {
                 value={this.state.volumeSize}
               />
             </Col>
-            <Col span="8" className='inputbox'>
+            <Col span="7" className='inputbox'>
               <InputNumber
                 min={this.state.volumeSizemin}
                 max={20480}
@@ -358,10 +437,10 @@ class CreateVolume extends Component {
             </Col>
           </Row>
           <Row className='volumeFormat'>
-            <Col span="3" className="text-center format">
+            <Col span="4" className="name-text-center format">
               <FormattedMessage {...messages.formats} />
             </Col>
-            <Col span="21" className="action-btns">
+            <Col span="20" className="action-btns">
               <Button
                 className='formatbutton'
                 type={this.state.fstype == 'ext4' ? 'primary' : 'default'}
