@@ -22,6 +22,7 @@ import EnterpriseImg from '../../assets/img/quickentry/enterprise.png'
 import { browserHistory, Link } from 'react-router'
 import InfrastructureImg from '../../assets/img/quickentry/infrastructure.png'
 import DeployEnvModal from '../DeployEnvModal'
+import { NEED_BUILD_IMAGE } from '../../constants'
 
 class QuickEntry extends Component {
 	constructor(props){
@@ -53,15 +54,26 @@ class QuickEntry extends Component {
                   <div>通过镜像仓库快速创建一个应用</div>
                 </div>
               </Col>
+              {NEED_BUILD_IMAGE ? 
               <Col span={8} className='CreateImage'>
-                <Link to="/ci_cd/build_image?build_image=true">
+                <Link to="/ci_cd/build_image?showCard=true">
                   <div className="item image">
                     <img src={ImageImg} alt="" className='img' />
                     <div className='middle'>构建一个镜像</div>
                     <div>无需创建TenxFlow快速构建一个镜像</div>
                   </div>
                 </Link>
-              </Col>
+              </Col> :
+                <Col span={8} className='CreateImage'>
+                  <Link to="/ci_cd/tenx_flow?showCard=true">
+                    <div className="item image">
+                      <img src={ImageImg} alt="" className='img' />
+                      <div className='middle'>构建一个镜像</div>
+                      <div>使用TenxFlow快速构建一个镜像</div>
+                    </div>
+                  </Link>
+                </Col>
+              }
               <Col span={8}>
                 <div className="item database" onClick={this.handleDatabase}>
                   <img src={DatabaseImg} alt="" className='img'/>

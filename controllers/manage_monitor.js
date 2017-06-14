@@ -89,7 +89,7 @@ exports.getServiceOfQueryLog = function* () {
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'apps', namespace, 'apps'], { size: 1000 })
+  const result = yield api.getBy([cluster, 'apps', namespace, 'apps'], { size: 100 })
   const apps = result.data.apps
   let serviceList = []
   apps.map((app) => {

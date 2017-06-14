@@ -281,7 +281,7 @@ const menusText = defineMessages({
   },
   Config: {
     id: 'ManageMonitor.operationalAudit.Config',
-    defaultMessage: '配置',
+    defaultMessage: '服务配置',
   },
   ConfigGroup: {
     id: 'ManageMonitor.operationalAudit.ConfigGroup',
@@ -413,7 +413,7 @@ const menusText = defineMessages({
   },
   AlertEmailGroup: {
     id: 'ManageMonitor.operationalAudit.AlertEmailGroup',
-    defaultMessage: '邮件告警通知组',
+    defaultMessage: '告警通知组',
   },
   AlertRecord: {
     id: 'ManageMonitor.operationalAudit.AlertRecord',

@@ -115,26 +115,38 @@ let CICDSettingModal = React.createClass({
     }
   },
   componentWillReceiveProps(nextProps) {
-    const {isFetching, ciRules } = nextProps;
-    if(!isFetching) {
-      if(Boolean(ciRules)) {
+    const { isFetching, ciRules, visible } = nextProps;
+    if (this.props.isFetching != isFetching || (nextProps.visible && this.props.visible != nextProps.visible)) {
+      if (Boolean(ciRules)) {
         let config = ciRules.results;
-        if(!Boolean(config.config)) {
+        if (!Boolean(config.config)) {
           return;
         }
-        if(Boolean(config.config.branch)) {
+        if (Boolean(config.config.branch)) {
           this.setState({
             useBranch: true
           });
+        } else {
+          this.setState({
+            useBranch: false
+          });
         }
-        if(Boolean(config.config.tag)) {
+        if (Boolean(config.config.tag)) {
           this.setState({
             useTag: true
           });
+        } else {
+          this.setState({
+            useTag: false
+          });
         }
-        if(Boolean(config.config.mergeRequest)) {
+        if (Boolean(config.config.mergeRequest)) {
           this.setState({
             useRequest: true
+          });
+        } else {
+          this.setState({
+            useRequest: false
           });
         }
       }
