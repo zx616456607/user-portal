@@ -35,8 +35,8 @@ let CreateImageEnvComponent = React.createClass({
     this.setState({
       currentImageName: imageName
     })
-    if (imageName.indexOf('/') == imageName.lastIndexOf('/')) {
-      let imageTag = 'latest'
+    let imageTag = 'latest'
+    if (imageName.indexOf('/') == imageName.lastIndexOf('/') && imageName.indexOf('/') > 0) {
       if (imageName.indexOf(':') > 0) {
         imageName = imageName.split(':')
         imageTag = imageName[1]
@@ -45,61 +45,74 @@ let CreateImageEnvComponent = React.createClass({
           imageTag = 'latest'
         }
       }
-      const self = this
-      loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY, imageName, imageTag, {
-        success: {
-          func: (result) => {
-            if (!result.data) return
-            const { scope, form, registry } = self.props;
-            const { setFieldsValue } = form
-            let imageEnv = result.data
-            let envs = imageEnv.defaultEnv
-            if (envs) {
-              setFieldsValue({
-                imageEnvInputs: envs.map((env, index) => index)
-              })
-              if (this.state.uuid < envs.length) {
-                self.setState({
-                  uuid: envs.length
-                })
-              }
-              envs.forEach((env, index) => {
-                env = env.split('=')
-                setFieldsValue({
-                  [`imageEnvName${index}`]: env[0],
-                  [`imageEnvValue${index}`]: env[1]
-                })
-              })
-              setTimeout(() => {
-                if (document.getElementById(`imageEnvName${envs.length - 1}`)) {
-                  document.getElementById(`imageEnvName${envs.length - 1}`).focus()
-                }
-              }, 300)
+    } else {
+      if (imageName.indexOf(':') > 0) {
+        imageName = imageName.split(':')
+        imageTag = imageName[1]
+        imageName = imageName[0]
+        if (!imageTag) {
+          imageTag = 'latest'
+        }
+      }
+      imageName = `library/${imageName}`
+    }
+    const self = this
+    loadRepositoriesTagConfigInfo(DEFAULT_REGISTRY, imageName, imageTag, {
+      success: {
+        func: (result) => {
+          if (!result.data) {
+            result.data = {
+              defaultEnv: []
             }
           }
-        },
-        failed: {
-          func: (res) => {
-            const { setFieldsValue } = self.props.form
-            const notify = new NotificationHandler()
+          const { scope, form, registry } = self.props;
+          const { setFieldsValue } = form
+          let imageEnv = result.data
+          let envs = imageEnv.defaultEnv
+          if (envs) {
             setFieldsValue({
-              imageEnvInputs: [0]
+              imageEnvInputs: envs.map((env, index) => index)
+            })
+            if (this.state.uuid < envs.length) {
+              self.setState({
+                uuid: envs.length
+              })
+            }
+            envs.forEach((env, index) => {
+              env = env.split('=')
+              setFieldsValue({
+                [`imageEnvName${index}`]: env[0],
+                [`imageEnvValue${index}`]: env[1]
+              })
             })
             setTimeout(() => {
-              if (document.getElementById(`imageEnvName0`)) {
-                document.getElementById(`imageEnvName0`).focus()
+              if (document.getElementById(`imageEnvName${envs.length - 1}`)) {
+                document.getElementById(`imageEnvName${envs.length - 1}`).focus()
               }
             }, 300)
-            if (res.message == 'Failed to find any tag') {
-              notify.error('获取镜像信息失败，请检查该基础镜像是否存在')
-              return
-            }
-            notify.error(res.message)
           }
         }
-      })
-    }
-
+      },
+      failed: {
+        func: (res) => {
+          const { setFieldsValue } = self.props.form
+          const notify = new NotificationHandler()
+          setFieldsValue({
+            imageEnvInputs: [0]
+          })
+          setTimeout(() => {
+            if (document.getElementById(`imageEnvName0`)) {
+              document.getElementById(`imageEnvName0`).focus()
+            }
+          }, 300)
+          if (res.message == 'Failed to find any tag') {
+            notify.error('获取镜像信息失败，请检查该基础镜像是否存在')
+            return
+          }
+          notify.error(res.message.message)
+        }
+      }
+    })
   },
   componentWillMount() {
    this.loadData()
@@ -113,11 +126,11 @@ let CreateImageEnvComponent = React.createClass({
     if (nextProps.visible != this.props.visible && nextProps.visible) {
       let keys = form.getFieldValue('imageEnvInputs')
       const index = keys[keys.length - 1]
-      if (document.getElementById(`imageEnvName${index}`)) {
-        setTimeout(() => {
+      setTimeout(() => {
+        if (document.getElementById(`imageEnvName${index}`)) {
           document.getElementById(`imageEnvName${index}`).focus()
-        }, 0)
-      }
+        }
+      }, 0)
     }
   },
   shouldComponentUpdate(nextProps) {

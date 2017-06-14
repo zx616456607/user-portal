@@ -91,7 +91,13 @@ exports.getRepositoriyConfig = function* () {
   const result = yield new Promise((resolve, reject) => {
     harbor.getRepositoriesManifest(repoName, tag, (err, statusCode, body) => {
       if(statusCode != 200) {
-        const err = new Error(body)
+        let message = ''
+        if(body.errors) {
+          message = body.errors[0].message
+        } else {
+          message = body
+        }
+        const err = new Error(message)
         err.status = statusCode
         return reject(err)
       }
