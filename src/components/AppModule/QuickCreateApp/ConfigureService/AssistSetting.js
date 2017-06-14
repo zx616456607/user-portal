@@ -65,6 +65,9 @@ const AssistSetting = React.createClass({
       setFieldsValue({
         argsKeys,
       })
+      setTimeout(()=> {
+        document.getElementById(`args${uid}`).focus()
+      },300)
     })
   },
   removeArgsKey(key) {
