@@ -33,11 +33,14 @@ function checkUrlSelectedKey(pathname) {
     }
     return [pathList[1], pathList[1] + '_default']
   } else {
-    if (pathList[1] == 'app_manage' && pathList[2] == 'detail') {
+    if (pathList[1] == 'app_manage' && pathList[2] == 'app_create') {
       return [pathList[1], pathList[1] + '_default']
     }
     if (pathList[1] == 'account' && pathList[2] == 'user') {
       return [pathList[1], 'member']
+    }
+    if (pathList[2] == 'coderepo') {
+      return [pathList[1], pathList[1] + '_default']
     }
     return [pathList[1], pathList[2]]
   }

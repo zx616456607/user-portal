@@ -518,7 +518,7 @@ let CreateTenxFlowModal = React.createClass({
         otherTag: true
       },() => {
         const _input = document.getElementById('otherTag')
-        _input && _input.focus() 
+        _input && _input.focus()
       });
     } else {
       this.setState({
@@ -1294,7 +1294,11 @@ let CreateTenxFlowModal = React.createClass({
                 {/*<Select {...imageNameProps}>
                  {baseImage}
                  </Select>*/}
-                <PopTabSelect value={buildImages[intFlowTypeIndex]　? buildImages[intFlowTypeIndex].imageList[0].imageName : '' || defaultBaseImage || this.state.baseImageUrl} onChange={this.baseImageChange}>
+                <PopTabSelect
+                  value={buildImages[intFlowTypeIndex]　? buildImages[intFlowTypeIndex].imageList[0].imageName : '' || defaultBaseImage || this.state.baseImageUrl}
+                  onChange={this.baseImageChange}
+                  getTooltipContainer={() => document.getElementById('TenxFlowDetailFlow')}
+                >
                   {baseImagesNodes}
                 </PopTabSelect>
               </FormItem>
