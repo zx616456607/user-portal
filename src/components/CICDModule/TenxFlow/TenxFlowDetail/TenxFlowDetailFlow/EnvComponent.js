@@ -41,23 +41,21 @@ let EnvComponent = React.createClass({
       currentImageName: imageName
     })
     let imageTag = 'latest'
-    if (imageName.indexOf('/') == imageName.lastIndexOf('/')) {
+    if (imageName.indexOf('/') == imageName.lastIndexOf('/')  && imageName.indexOf('/') > 0) {
       if (imageName.indexOf(':') > 0) {
         imageName = imageName.split(':')
-        imageTag = imageName[1]
-        imageName = imageName[0]
-        if (!imageTag) {
-          imageTag = 'latest'
+        if (imageName[1]) {
+          imageTag = imageName[1]
         }
+        imageName = imageName[0]
       }
     } else {
       if (imageName.indexOf(':') > 0) {
         imageName = imageName.split(':')
-        imageTag = imageName[1]
-        imageName = imageName[0]
-        if (!imageTag) {
-          imageTag = 'latest'
+        if (imageName[1]) {
+          imageTag = imageName[1]
         }
+        imageName = imageName[0]
       }
       imageName = `library/${imageName}`
     }
