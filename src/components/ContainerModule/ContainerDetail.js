@@ -39,11 +39,6 @@ function loadData(props) {
   props.loadContainerDetail(cluster, containerName)
 }
 
-const scheduleBySystem = 'ScheduleBySystem'
-const scheduleByHostNameOrIP = 'ScheduleByHostNameOrIP'
-const scheduleByLabels = 'ScheduleByLabels'
-const unknownSchedulePolicy = 'Error'
-
 class ContainerDetail extends Component {
   constructor(props) {
     super(props)
