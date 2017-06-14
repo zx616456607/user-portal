@@ -184,9 +184,6 @@
   "CICD.DockerFile.editTime": "编辑时间",
   "CICD.DockerFile.action": "操作",
   "CICD.DockerFile.search": "搜索",
-
-
-
   "CICD.Tenxflow.BuildImage.create": "构建镜像",
   "CICD.Tenxflow.BuildImage.code": "代码源",
   "CICD.Tenxflow.BuildImage.branch": "分支",
@@ -203,9 +200,6 @@
   "CICD.Tenxflow.CreateTenxFlowModal.buildArea": "构建地域",
   "CICD.Tenxflow.CreateTenxFlowModal.buildImageCode": "任务代码",
   "CICD.Tenxflow.CreateTenxFlowModal.buildImageName": "任务名称",
-
-
-
   "CICD.Tenxflow.TenxFlowList.search": "搜索",
   "CICD.Tenxflow.TenxFlowList.name": "名称",
   "CICD.Tenxflow.TenxFlowList.updateTime": "更新时间",
@@ -472,11 +466,8 @@
   "ManageMonitor.operationalAudit.InstanceMetrics": "实例指标",
   "ManageMonitor.operationalAudit.InstanceExport": "镜像导出",
   "ManageMonitor.operationalAudit.Snapshot": "快照",
-<<<<<<< HEAD
-=======
   "ManageMonitor.operationalAudit.RollBack": "回滚",
   "ManageMonitor.operationalAudit.Clone": "克隆",
->>>>>>> upstream/dev-branch
   "ManageMonitor.operationalAudit.InstanceContainerMetrics": "实例容器指标",
   "ManageMonitor.operationalAudit.Service": "服务",
   "ManageMonitor.operationalAudit.ServiceInstance": "服务实例",

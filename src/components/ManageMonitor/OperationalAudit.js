@@ -151,41 +151,26 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.DisablEmail',
     defaultMessage: '禁止发邮件',
   },
-<<<<<<< HEAD
   CreateOrUpdate: {
-      id: 'ManageMonitor.operationalAudit.CreateOrUpdate',
-      defaultMessage: '创建或更新',
+    id: 'ManageMonitor.operationalAudit.CreateOrUpdate',
+    defaultMessage: '创建或更新',
   },
   ToggleEnable: {
-      id: 'ManageMonitor.operationalAudit.ToggleEnable',
-      defaultMessage: '切换',
+    id: 'ManageMonitor.operationalAudit.ToggleEnable',
+    defaultMessage: '切换',
   },
   Ignore: {
-      id: 'ManageMonitor.operationalAudit.Ignore',
-      defaultMessage: '忽略',
-  },
-=======
-	CreateOrUpdate: {
-		id: 'ManageMonitor.operationalAudit.CreateOrUpdate',
-		defaultMessage: '创建或更新',
-	},
-	ToggleEnable: {
-		id: 'ManageMonitor.operationalAudit.ToggleEnable',
-		defaultMessage: '切换',
-	},
-	Ignore: {
-		id: 'ManageMonitor.operationalAudit.Ignore',
-		defaultMessage: '忽略',
+    id: 'ManageMonitor.operationalAudit.Ignore',
+    defaultMessage: '忽略',
   },
   RollBack: {
-		id: 'ManageMonitor.operationalAudit.RollBack',
-		defaultMessage: '回滚',
-	},
-	Clone: {
-		id: 'ManageMonitor.operationalAudit.Clone',
-		defaultMessage: '克隆',
-	},
->>>>>>> upstream/dev-branch
+    id: 'ManageMonitor.operationalAudit.RollBack',
+    defaultMessage: '回滚',
+  },
+  Clone: {
+    id: 'ManageMonitor.operationalAudit.Clone',
+    defaultMessage: '克隆',
+  },
   Unknown: {
     id: 'ManageMonitor.operationalAudit.Unknown',
     defaultMessage: '其它',
@@ -573,8 +558,6 @@ function returnOperationList(scope) {
     { // 18
       value: '24',
       label: (<FormattedMessage {...menusText.Ignore} />)
-<<<<<<< HEAD
-=======
     },
     { // 18
       value: '25',
@@ -583,7 +566,6 @@ function returnOperationList(scope) {
     { // 18
       value: '26',
       label: (<FormattedMessage {...menusText.Clone} />)
->>>>>>> upstream/dev-branch
     }
   ];
   return operationalList;
@@ -761,15 +743,9 @@ function resourceFormat(resourceType, scope) {
     case '46':
       return formatMessage(menusText.CDNotification)
       break;
-<<<<<<< HEAD
     case '47':
       return formatMessage(menusText.InstanceExport)
       break;
-=======
-	  case '47':
-		  return formatMessage(menusText.InstanceExport)
-		  break;
->>>>>>> upstream/dev-branch
     case '48':
       return formatMessage(menusText.AlertEmailGroup)
       break;
@@ -864,15 +840,12 @@ function operationalFormat(operationalType, scope) {
     case '24':
       return formatMessage(menusText.Ignore)
       break;
-<<<<<<< HEAD
-=======
     case '25':
       return formatMessage(menusText.RollBack)
       break;
     case '26':
       return formatMessage(menusText.Clone)
       break;
->>>>>>> upstream/dev-branch
   }
 }
 
@@ -889,7 +862,7 @@ function statusFormat(status, scope, createTime) {
         </span>
       )
     case 0:
-      if((nowDate - newDate) > 300000) {
+      if ((nowDate - newDate) > 300000) {
         return (
           <span className='fail'>
             <i className='fa fa-times-circle-o' />
@@ -955,7 +928,7 @@ function formatResourceName(resourceName, resourceId) {
     }
     if (newBody.strategies && Array.isArray(newBody.strategies) && newBody.strategies.length > 0) {
       let ids = new Array()
-      for(let i=0; i < newBody.strategies.length; i++) {
+      for (let i = 0; i < newBody.strategies.length; i++) {
         let item = newBody.strategies[i]
         if (item && item.strategyID) {
           ids.push(item.strategyID)
@@ -963,12 +936,12 @@ function formatResourceName(resourceName, resourceId) {
       }
       return ids.join(',')
     }
-    if (newBody.ids && Array.isArray(newBody.ids) && newBody.ids.length > 0){
+    if (newBody.ids && Array.isArray(newBody.ids) && newBody.ids.length > 0) {
       return newBody.ids.join(",")
     }
   } else {
-    if(resourceName.length == 0) {
-      if(resourceId.length == 0) {
+    if (resourceName.length == 0) {
+      if (resourceId.length == 0) {
         return '-';
       }
       return resourceId;
@@ -1031,7 +1004,7 @@ let MyComponent = React.createClass({
           </div>
           {!standardFlag ? [<div className='env commonTitle'>
             <span className='commonSpan'>{item.namespace}</span>
-          </div>] : null }
+          </div>] : null}
           {!standardFlag ? [<div className='cluster commonTitle'>
             <span className='commonSpan'>
               <Tooltip placement="topLeft" title={item.clusterName}>
@@ -1170,7 +1143,7 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[12]);
         break;
       case '7':
-      //ServiceInstance
+        //ServiceInstance
         showOperationalList = [];
         break;
       case '8':
@@ -1365,15 +1338,9 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[3]);
         break;
       case '47':
-<<<<<<< HEAD
-		    //InstanceExport
-		    showOperationalList.push([]);
-		    break;
-=======
         //CDNotifications
         showOperationalList.push([]);
         break;
->>>>>>> upstream/dev-branch
       case '48':
         //AlertEmailGroup
         showOperationalList.push(operationalList[0]);
@@ -1403,13 +1370,6 @@ class OperationalAudit extends Component {
         //Snapshot
         showOperationalList.push(operationalList[10]);
         break;
-<<<<<<< HEAD
-      case '52':
-        //Snapshot
-        showOperationalList.push(operationalList[10]);
-        break;
-=======
->>>>>>> upstream/dev-branch
       case '0':
         //Unknown
         showOperationalList = operationalList;
@@ -1417,11 +1377,11 @@ class OperationalAudit extends Component {
       default:
         showOperationalList = operationalList;
         break;
-        }
-        this.setState({
-        selectOperationalList: showOperationalList,
-        resource: parseInt(eventCode)
-        });
+    }
+    this.setState({
+      selectOperationalList: showOperationalList,
+      resource: parseInt(eventCode)
+    });
   }
 
   onShowResource(value, items) {
@@ -1512,7 +1472,7 @@ class OperationalAudit extends Component {
     });
   }
 
-  refreshLogs(){
+  refreshLogs() {
     const { getOperationLogList } = this.props
     let body = {
       from: 0,
@@ -1537,7 +1497,7 @@ class OperationalAudit extends Component {
       }
     })
   }
-  
+
   render() {
     const { isFetching, logs } = this.props;
     const { formatMessage } = this.props.intl;
@@ -1605,16 +1565,16 @@ class OperationalAudit extends Component {
           value: '29',
           label: formatMessage(menusText.User),
         }],
-      },{
+      }, {
         value: '32',
         label: formatMessage(menusText.Team),
         children: [{
           value: '32',
           label: formatMessage(menusText.Team),
-        },{
+        }, {
           value: '33',
           label: formatMessage(menusText.TeamUsers),
-        },{
+        }, {
           value: '34',
           label: formatMessage(menusText.TeamSpaces),
         }],
@@ -1657,16 +1617,10 @@ class OperationalAudit extends Component {
             label: formatMessage(menusText.CDNotification),
           }
         ]
-      },{
-<<<<<<< HEAD
-				    value: '47',
-				    label: formatMessage(menusText.InstanceExport),
-		    }, {
-=======
-            value: '47',
-            label: formatMessage(menusText.InstanceExport),
-        }, {
->>>>>>> upstream/dev-branch
+      }, {
+        value: '47',
+        label: formatMessage(menusText.InstanceExport),
+      }, {
         value: '48',
         label: formatMessage(menusText.Alert),
         children: [
@@ -1685,15 +1639,9 @@ class OperationalAudit extends Component {
           }
         ]
       }, {
-<<<<<<< HEAD
-				    value: '52',
-				    label: formatMessage(menusText.Snapshot),
-		    },{
-=======
-            value: '52',
-            label: formatMessage(menusText.Snapshot),
-         },{
->>>>>>> upstream/dev-branch
+        value: '52',
+        label: formatMessage(menusText.Snapshot),
+      }, {
         value: null,
         label: formatMessage(menusText.allResource)
       }];
@@ -1705,7 +1653,7 @@ class OperationalAudit extends Component {
     return (
       <QueueAnim className='operationalAuditBox' type='right'>
         <div id='operationalAudit' key='operationalAudit'>
-          <Title title="操作审计"/>
+          <Title title="操作审计" />
           <div className='operaBox'>
             <Cascader
               options={resourceOption}
@@ -1716,17 +1664,17 @@ class OperationalAudit extends Component {
               className='resourceSelect'
               popupClassName='resourceSelectPopup'
               placeholder={formatMessage(menusText.selectObject)}
-              />
+            />
             <Select showSearch className='eventSelect'
               placeholder={formatMessage(menusText.selectEvent)}
               onChange={this.onChangeObject} size='large' allowClear={true}
-              >
+            >
               {operationalSelectOptions}
             </Select>
             <Select showSearch className='statusSelect'
               onChange={this.onChangeStatus} size='large' allowClear={true}
               placeholder={formatMessage(menusText.selectStatus)}
-              >
+            >
               <Option value=''><FormattedMessage {...menusText.allstatus} /></Option>
               <Option value='running'><FormattedMessage {...menusText.running} /></Option>
               <Option value='success'><FormattedMessage {...menusText.success} /></Option>
@@ -1748,7 +1696,7 @@ class OperationalAudit extends Component {
                   pageSize={15}
                   current={this.state.from}
                   onChange={this.onPageChange}
-                  />
+                />
               </div>
               <span style={{ float: 'right', lineHeight: '24px' }}>共计 {this.state.totalNum}条</span>
             </div>
@@ -1770,10 +1718,10 @@ class OperationalAudit extends Component {
               </div>
               {!standardFlag ? [<div className='env commonTitle'>
                 <FormattedMessage {...menusText.env} />
-              </div>] : null }
+              </div>] : null}
               {!standardFlag ? [<div className='cluster commonTitle'>
-                {standardFlag ? [<FormattedMessage {...menusText.areaTitle} key='areaTitle' />] : [<FormattedMessage {...menusText.clusterTitle} key='clusterTitle' />] }
-              </div>] : null }
+                {standardFlag ? [<FormattedMessage {...menusText.areaTitle} key='areaTitle' />] : [<FormattedMessage {...menusText.clusterTitle} key='clusterTitle' />]}
+              </div>] : null}
               <div className={standardFlag ? 'standardStatus status commonTitle' : 'status commonTitle'}>
                 <FormattedMessage {...menusText.status} />
               </div>
