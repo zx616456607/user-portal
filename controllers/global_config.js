@@ -263,6 +263,7 @@ function* isValidHarborConfig(entity) {
 exports.sendVerification = function* () {
 	const method = 'configs.email.sendVerification'
 	const loginUser = this.session.loginUser
+  const Body = this.request.body
 	yield email.sendGlobalConfigVerificationEmail(Body, loginUser.user, loginUser.email)
 	this.body = {}
 }

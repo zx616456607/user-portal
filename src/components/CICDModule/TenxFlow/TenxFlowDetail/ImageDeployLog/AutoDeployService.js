@@ -396,7 +396,7 @@ let AutoDeployService = React.createClass({
     }
     const content = (
       <a>
-        <Button type="primary" onClick={()=> browserHistory.push(`/app_manage/app_create/quick_create?imageType=privateImages&imageName=${this.state.image_name}`)}>马上创建</Button>
+        <Button type="primary" onClick={()=> browserHistory.push(`/app_manage/app_create/quick_create?searchImage=true&imageName=${this.state.image_name}`)}>马上创建</Button>
       </a>
     );
     const {clusterList, cdImageList} = this.props

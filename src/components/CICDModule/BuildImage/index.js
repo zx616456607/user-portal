@@ -262,12 +262,15 @@ let MyComponent = React.createClass({
     const dropdown = (
       <Menu onClick={this.operaMenuClick.bind(this, item)}>
         <Menu.Item key="deloylog111">
+          <i className="anticon anticon-book" style={{marginRight: '5px'}}/>&nbsp;
           <FormattedMessage {...menusText.deloyLog} style={{ display: 'inlineBlock' }} />
         </Menu.Item>
         <Menu.Item key="checkImage111">
+          <i className="anticon anticon-folder-open" style={{marginRight: '5px'}}/>&nbsp;
           <FormattedMessage {...menusText.checkImage} style={{ display: 'inlineBlock' }} />
         </Menu.Item>
         <Menu.Item key='deleteFlow111'>
+          <i className="anticon anticon-delete" style={{marginRight: '5px'}}/>&nbsp;
           <FormattedMessage {...menusText.delete} style={{ display: 'inlineBlock' }} />
         </Menu.Item>
       </Menu>
@@ -765,10 +768,6 @@ class TenxFlowList extends Component {
             <Button className='createBtn' size='large' type='primary' onClick={this.openCreateTenxFlowModal}>
               <i className='fa fa-plus' />&nbsp;
               <FormattedMessage {...menusText.create} />
-            </Button>
-            <Button style={{marginLeft: "10px", backgroundColor: "transparent", color: "#666", borderColor: "#d9d9d9"}} className='createBtn' size='large' type='primary' onClick={() => this.openDeleteTenxFlowModal()}>
-              <i className='fa fa-trash-o' />&nbsp;
-              <FormattedMessage {...menusText.delete} />
             </Button>
             <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' onChange={this.onSearchFlow} />
             <i className='fa fa-search'></i>

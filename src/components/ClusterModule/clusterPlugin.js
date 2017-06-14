@@ -440,9 +440,7 @@ class ClusterPlugin extends Component {
         key: 'keys',
         dataIndex: 'name',
         width:'15%',
-        render: (text, row) => {
-          return (<Link>{text}</Link>)
-        }
+        render: text => text
       },
       {
         title: '插件状态',
