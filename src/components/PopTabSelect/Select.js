@@ -32,11 +32,13 @@ export default class PopTabSelect extends Component {
     notFoundContent: PropTypes.string,
     loading: PropTypes.bool,
     isShowBuildBtn: PropTypes.bool,
+    placement: PropTypes.string,
   }
 
   static defaultProps = {
     notFoundContent: '无记录',
     isShowBuildBtn: false,
+    placement: 'top',
   }
 
   constructor(props) {
@@ -221,6 +223,7 @@ export default class PopTabSelect extends Component {
       value,
       placeholder,
       isShowBuildBtn,
+      placement,
     } = this.props
     let {
       getTooltipContainer,
@@ -286,10 +289,10 @@ export default class PopTabSelect extends Component {
           content={content}
           trigger="click"
           overlayClassName="popTabSelectCard"
-          placement="bottomLeft"
           getTooltipContainer={getTooltipContainer}
           visible={visible}
           onVisibleChange={this.handleVisibleChange}
+          placement={placement}
         >
         {
           targetElement || (
