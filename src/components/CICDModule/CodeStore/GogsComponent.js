@@ -8,7 +8,7 @@
 * @author BaiYu
 */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Icon, Menu, Button, Card, Input, Tooltip, Dropdown, Modal, Spin } from 'antd'
+import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, Dropdown, Modal, Spin } from 'antd'
 import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -18,6 +18,7 @@ import { parseQueryStringToObject } from '../../../common/tools'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import NotificationHandler from '../../../common/notification_handler'
 
+const TabPane = Tabs.TabPane
 
 const menusText = defineMessages({
   search: {
@@ -70,6 +71,138 @@ const menusText = defineMessages({
   },
 })
 
+
+class CodeList extends Component {
+  constructor(props) {
+    super(props)
+  }
+  componentWillMount() {
+    const loadingList = {}
+    const data = this.props.data
+    if (data) {
+      for (let i = 0; i < data.length; i++) {
+        loadingList[i] = false
+      }
+      this.setState({
+        loadingList
+      })
+    }
+  }
+
+  // let CodeList = React.createClass({
+
+  addBuild(item, index, repoUser) {
+    const loadingList = {}
+    const self = this
+    loadingList[index] = true
+    this.setState({
+      loadingList
+    })
+    let notification = new NotificationHandler()
+    item.repoUser = repoUser
+    this.props.scope.props.addGithubRepo(this.props.typeName, item, {
+      success: {
+        func: () => {
+          notification.success('激活成功')
+          if(window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0) {
+            const queryObj = parseQueryStringToObject(window.location.search)
+            if(queryObj.redirect) {
+              if(queryObj.showCard) {
+                browserHistory.push(queryObj.redirect + '&showCard=' + queryObj.showCard)
+                return
+              }
+              browserHistory.push(queryObj.redirect)
+            }
+            return
+          }
+          loadingList[index] = false
+          self.setState({
+            loadingList
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (res) => {
+          let message = '激活失败'
+          if(res.message.message) {
+            message = res.message.message
+          }
+          notification.error(message)
+          loadingList[index] = false
+          self.setState({
+            loadingList
+          })
+        }
+      }
+    })
+  }
+  notActive(id, index) {
+    const parentScope = this.props.scope
+    const loadingList = {}
+    const users = parentScope.state.users
+    loadingList[index] = false
+    this.setState({
+      loadingList
+    })
+    let notification = new NotificationHandler()
+    parentScope.props.notGithubProject(users, id, this.props.typeName, {
+      success: {
+        func: () => {
+          notification.success('解除激活成功')
+        }
+      },
+      failed: {
+        func: (res) => {
+          if (res.statusCode == 400) {
+            notification.error('该项目正在被TenxFlow引用，请解除引用后重试')
+          } else {
+            notification.error('解除激活失败')
+          }
+        }
+      }
+    })
+  }
+
+  render() {
+    const { data, isFetching, repoUser } = this.props
+    const scope = this
+    if (isFetching) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
+    let items = []
+    if (data) {
+      items = data.map((item, index) => {
+        return (
+          <div className='CodeTable' key={item.name} >
+            <div className="name textoverflow">{item.name}</div>
+            <div className="type">{item.private ? "private" : 'public'}</div>
+            <div className="action">
+              {(item.managedProject && item.managedProject.active == 1) ?
+                <span><Button type="ghost" disabled>已激活</Button>
+                  <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>解除</a></span>
+                :
+                <Tooltip placement="right" title="可构建项目">
+                  <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index, repoUser)} >{ window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0 ? '激活并构建' : '激活'}</Button>
+                </Tooltip>
+              }
+            </div>
+
+          </div>
+        );
+      });
+    }
+    return (
+      <QueueAnim type="right" key="detail-list">
+        {items}
+      </QueueAnim>
+    )
+  }
+}
 class GogsComponent extends Component {
   constructor(props) {
     super(props);
@@ -185,11 +318,11 @@ class GogsComponent extends Component {
       }
     })
   }
-  // changeList(e) {
-  //   this.setState({
-  //     users: e
-  //   })
-  // }
+  changeList(e) {
+    this.setState({
+      users: e
+    })
+  }
   registryGogs() {
     let url = this.state.regUrl
     const token = this.state.regToken
@@ -204,7 +337,7 @@ class GogsComponent extends Component {
       return
     }
     if (!/^(http|https):\/\/([a-zA-Z-]+\.)+[a-zA-Z-]+(:[0-9]{1,5})?(\/{0,1})$/.test(url) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?(\/{0,1})$/.test(url)) {
-      notification.info(formatMessage(menusText.errorSrc) + '，以http://或者https://开头')
+      notification.info(formatMessage(menusText.errorSrc))
       return
     }
     if(url.lastIndexOf('/') == url.length - 1) {
@@ -236,7 +369,7 @@ class GogsComponent extends Component {
               func: (res) => {
                 if (res.data.hasOwnProperty('results')) {
                   const users = res.data.results[Object.keys(res.data.results)[0]].user
-                  self.setState({ users ,loading: false})
+                  self.setState({ users })
                 }
               }
             }
@@ -273,79 +406,8 @@ class GogsComponent extends Component {
   changeToken(e) {
     this.setState({ regToken: e.target.value })
   }
-  addBuild(item, index, repoUser) {
-    const loadingList = {}
-    const self = this
-    loadingList[index] = true
-    this.setState({
-      loadingList
-    })
-    let notification = new NotificationHandler()
-    item.repoUser = repoUser
-    this.props.addGithubRepo(this.props.typeName, item, {
-      success: {
-        func: () => {
-          notification.success('激活成功')
-          if(window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0) {
-            const queryObj = parseQueryStringToObject(window.location.search)
-            if(queryObj.redirect) {
-              if(queryObj.showCard) {
-                browserHistory.push(queryObj.redirect + '&showCard=' + queryObj.showCard)
-                return
-              }
-              browserHistory.push(queryObj.redirect)
-            }
-            return
-          }
-          loadingList[index] = false
-          self.setState({
-            loadingList
-          })
-        },
-        isAsync: true
-      },
-      failed: {
-        func: (res) => {
-          let message = '激活失败'
-          if(res.message.message) {
-            message = res.message.message
-          }
-          notification.error(message)
-          loadingList[index] = false
-          self.setState({
-            loadingList
-          })
-        }
-      }
-    })
-  }
-  notActive(id, index) {
-    const loadingList = {}
-    const users = this.props.users
-    loadingList[index] = false
-    this.setState({
-      loadingList
-    })
-    let notification = new NotificationHandler()
-    this.props.notGithubProject(users, id, this.props.typeName, {
-      success: {
-        func: () => {
-          notification.success('解除激活成功')
-        }
-      },
-      failed: {
-        func: (res) => {
-          if (res.statusCode == 400) {
-            notification.error('该项目正在被TenxFlow引用，请解除引用后重试')
-          } else {
-            notification.error('解除激活失败')
-          }
-        }
-      }
-    })
-  }
   render() {
-    const { gogsList, formatMessage, isFetching, typeName, users } = this.props
+    const { gogsList, formatMessage, isFetching, typeName} = this.props
     const scope = this
     let codeList = []
     if (!gogsList || this.state.loggedOut) {
@@ -372,30 +434,17 @@ class GogsComponent extends Component {
       )
     }
     if (Object.keys(gogsList).length > 0) {
-      codeList = gogsList[Object.keys(gogsList)].map((item,index)=> {
-        return (
-          <div className='CodeTable' key={item.name} >
-            <div className="name textoverflow">{item.name}</div>
-            <div className="type">{item.private ? "private" : "public"}</div>
-            <div className="action">
-              {(item.managedProject && item.managedProject.active == 1) ?
-                <span><Button type="ghost" disabled>已激活</Button>
-                  <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>撤销</a></span>
-                :
-                <Tooltip placement="right" title="可构建项目">
-                  <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index,users)} >{ window.location.search && window.location.search.indexOf('redirect=/ci_cd/build_image/tenx_flow_build') >= 0 ? '激活并构建' : '激活'}</Button>
-                </Tooltip>
-              }
-            </div>
-          </div>
+      for (let i in gogsList) {
+        codeList.push(
+          <TabPane tab={<span><Icon type="user" />{i}</span>} key={i}>
+            <CodeList scope={scope} isFetching={isFetching} repoUser={i} data={gogsList[i]} typeName={this.props.typeName} />
+          </TabPane>
         )
-      })
-
+      }
     }
     return (
       <div key="github-Component" type="right" className='codelink'>
         <div className="tableHead">
-          <Icon type="user" /> {this.props.users ? this.props.users : ''}
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={() => this.setState({ removeModal: true })} style={{ margin: '0 20px' }} />
           </Tooltip>
@@ -407,9 +456,9 @@ class GogsComponent extends Component {
             <i className='fa fa-search' onClick={this.searchClick}></i>
           </div>
         </div>
-        {/*<Tabs onChange={(e) => this.changeList(e)}>*/}
+        <Tabs onChange={(e) => this.changeList(e)}>
           {codeList}
-        {/*</Tabs>*/}
+        </Tabs>
         <Modal title="注销代码源操作" visible={this.state.removeModal}
           onOk={() => this.removeRepo()} onCancel={() => this.setState({ removeModal: false })}
           >
