@@ -73,7 +73,7 @@ class SelectImage extends Component {
       callback = {
         success: {
           func: (res) => {
-            if(res.data && res.data.repository && res.data.repository.length >= 0) {
+            if(res.data && res.data.repository && res.data.repository.length >= 0 && this.state.searchImage) {
               const repo = res.data.repository[0]
               if(repo.projectPublic) {
                 this.setState({
