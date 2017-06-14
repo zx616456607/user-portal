@@ -143,6 +143,8 @@ let SvnComponent = React.createClass({
             self.setState({ submiting: false })
             if (res.statusCode === 409) {
               notification.error('所添加项目（' + config.name + '）已经存在，修改后重试')
+            } else if (res.statusCode === 401) {
+              notification.error('用户名、密码错误，或该用户无权访问')
             } else {
               notification.error('添加失败：' + JSON.stringify(res))
             }
