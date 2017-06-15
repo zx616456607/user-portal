@@ -102,12 +102,12 @@ class StorageDetail extends Component {
                   {StorageInfo.volumeName}
                 </div>
                 <div className="info">
-                  <FormattedMessage {...messages.useStatus} />
-                  &nbsp;：
-                    <span>
-                    <i className= 'fa fa-circle error' style={ {color: color} }></i>&nbsp;
-                      <span className={StorageInfo.isUsed ? 'error' : 'normal'} style={{ color: color }}>{StorageInfo.isUsed ? <FormattedMessage {...messages.using} /> : <FormattedMessage {...messages.stop} />}</span>
-                  </span>
+                  {/*<FormattedMessage {...messages.useStatus} />*/}
+                  {/*&nbsp;：*/}
+                    {/*<span>*/}
+                    {/*<i className= 'fa fa-circle error' style={ {color: color} }></i>&nbsp;*/}
+                      {/*<span className={StorageInfo.isUsed ? 'error' : 'normal'} style={{ color: color }}>{StorageInfo.isUsed ? <FormattedMessage {...messages.using} /> : <FormattedMessage {...messages.stop} />}</span>*/}
+                  {/*</span>*/}
                   <div className="createDate">
                     <FormattedMessage {...messages.create} />：
                    { StorageInfo.createTime }

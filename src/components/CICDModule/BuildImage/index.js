@@ -260,18 +260,18 @@ let MyComponent = React.createClass({
     const { projectId, defaultBranch, stagesCount, repoType } = item
     const { repoBranchesAndTags } = this.props
     const dropdown = (
-      <Menu onClick={this.operaMenuClick.bind(this, item)}>
+      <Menu onClick={this.operaMenuClick.bind(this, item)} style={{width:'127px'}}>
         <Menu.Item key="deloylog111">
           <i className="anticon anticon-book" style={{marginRight: '5px'}}/>&nbsp;
-          <FormattedMessage {...menusText.deloyLog} style={{ display: 'inlineBlock' }} />
+          <FormattedMessage {...menusText.deloyLog}/>
         </Menu.Item>
         <Menu.Item key="checkImage111">
           <i className="anticon anticon-folder-open" style={{marginRight: '5px'}}/>&nbsp;
-          <FormattedMessage {...menusText.checkImage} style={{ display: 'inlineBlock' }} />
+          <FormattedMessage {...menusText.checkImage}/>
         </Menu.Item>
         <Menu.Item key='deleteFlow111'>
           <i className="anticon anticon-delete" style={{marginRight: '5px'}}/>&nbsp;
-          <FormattedMessage {...menusText.delete} style={{ display: 'inlineBlock' }} />
+          <FormattedMessage {...menusText.delete}/>
         </Menu.Item>
       </Menu>
     );
@@ -366,9 +366,6 @@ let MyComponent = React.createClass({
       }
       return (
         <div className='tenxflowDetail' key={item.name} >
-          <div className="name" style={{width: '20px'}}>
-            <Checkbox onChange={(e) => this.props.changeCheckStatus(item.name, e)} checked={item.checked}/>
-          </div>
           <div className='name'>
             <Tooltip placement='topLeft' title={item.name}>
               <Link to={`/ci_cd/build_image/tenx_flow_build?${item.flowId}&${flowListState[index].status}`}>
@@ -390,24 +387,17 @@ let MyComponent = React.createClass({
               </Tooltip>
             </span>
           </div>
-          <div className='branch'>
-            <span className='timeSpan'>
-              <Tooltip placement='topLeft' title={item.defaultBranch}>
-                <span>{item.defaultBranch || '-'}</span>
-              </Tooltip>
-            </span>
-          </div>
-          <div className='image' style={{paddingLeft: '35px'}}>
+          <div className='image'>
             <span className='timeSpan'>
               <Tooltip placement='topLeft' title={item.image}>
                 <span>{item.image || '-'}</span>
               </Tooltip>
             </span>
           </div>
-          <div className={`status status-` + `${flowListState[index].status}`} style={{paddingLeft: '0px'}}>
+          <div className={`status status-` + `${flowListState[index].status}`}>
             <span><i className="fa fa-circle"></i>{status}</span>
           </div>
-          <div className='opera' style={{paddingLeft: '0px'}}>
+          <div className='opera'>
             {/*<Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>*/}
               {/*<i className='fa fa-wpforms' />&nbsp;*/}
               {/*<FormattedMessage {...menusText.deloyLog} />*/}
@@ -775,9 +765,6 @@ class TenxFlowList extends Component {
           </div>
           <Card className='tenxflowBox'>
             <div className='titleBox' >
-              <div className="name" style={{width: '2%'}}>
-                <Checkbox checked={this.state.allChecked}  onChange={(e) => this.onAllChange(e)}  ></Checkbox>
-              </div>
               <div className='name'>
                 <FormattedMessage {...menusText.name} />
               </div>

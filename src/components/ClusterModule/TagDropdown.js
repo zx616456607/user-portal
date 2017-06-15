@@ -91,30 +91,32 @@ class TagDropdown extends Component {
       item.values = newData[i]
       arr.push(item)
     }
-    if (arr.length == 0) {
-      return <Menu.Item className='notag'>暂无标签</Menu.Item>
+    let result = []
+    if (arr.length !== 0) {
+      let tagvalue = arr.map((item, index) => {
+        return item.values.map((itemson, indexson) => {
+          return (<Menu.Item className='tagvaluewidth' key={itemson.value}>
+            <Tooltip title={itemson.value} placement="topLeft">
+              <div className='name'>{itemson.value}</div>
+            </Tooltip>
+            <div className='num'>(<span>{item.values.length}</span>)</div>
+            <div className='select'><Icon type="check-circle-o" /></div>
+          </Menu.Item>)
+        })
+      })
+
+      result = arr.map((item, index) => {
+        return <SubMenu title={item.key} className='tagkeywidth' key={item.key}>
+          <Menu.Item className='selectMenutitle' key="tagvalue">
+            标签值
+          </Menu.Item>
+          {tagvalue[index]}
+        </SubMenu>
+      })
+    } else {
+      result =  <Menu.Item className='notag'>暂无标签</Menu.Item>
     }
 
-    let tagvalue = arr.map((item, index) => {
-      return item.values.map((itemson, indexson) => {
-        return (<Menu.Item className='tagvaluewidth' key={itemson.value}>
-          <Tooltip title={itemson.value} placement="topLeft">
-            <div className='name'>{itemson.value}</div>
-          </Tooltip>
-          <div className='num'>(<span>{item.values.length}</span>)</div>
-          <div className='select'><Icon type="check-circle-o" /></div>
-        </Menu.Item>)
-      })
-    })
-
-    let result = arr.map((item, index) => {
-      return <SubMenu title={item.key} className='tagkeywidth' key={item.key}>
-        <Menu.Item className='selectMenutitle' key="tagvalue">
-          标签值
-        </Menu.Item>
-        {tagvalue[index]}
-      </SubMenu>
-    })
     return (
       <Menu>
         <Menu.Item className='selectMenutitle' key="labelKey">
@@ -333,13 +335,16 @@ class ManageTagModal extends Component {
     const { callbackHostList } = this.props
     switch(obj.key){
       case 'manageTag':
-        callbackHostList(obj)
         this.setState({
           visible: false
         })
+        callbackHostList(obj)
         return
       case 'createTag':
-        return this.setState({createLabelModal: true})
+        return this.setState({
+          createLabelModal: true,
+          visible: false,
+        })
       case 'labelKey':
         return this.setState({
           visible: false

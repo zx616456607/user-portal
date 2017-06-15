@@ -311,8 +311,9 @@ let EditTenxFlowModal = React.createClass({
       getDockerfiles(tempBody, {
         success: {
           func: (res) => {
+            const result = res.data.message || {}
             _this.setState({
-              dockerFileTextarea: res.data.message.content
+              dockerFileTextarea: result.content
             })
           },
           isAsync: true
@@ -1281,9 +1282,17 @@ let EditTenxFlowModal = React.createClass({
         <QueueAnim key={'shellCode' + i + 'Animate'}>
           <div className='serviceDetail' key={'shellCode' + i}>
             <FormItem className='serviceForm'>
-              <Input disabled={scopeThis.state.otherFlowType == 3 ? true : false} onKeyUp={() => this.addShellCode(i)} {...shellCodeProps} type='text' size='large' />
+              <Input
+                style={{ width: '220px' }}
+                disabled={scopeThis.state.otherFlowType == 3 ? true : false}
+                onKeyUp={() => this.addShellCode(i)}
+                {...shellCodeProps}
+                size='large'
+                type='textarea'
+                autosize
+              />
               {scopeThis.state.otherFlowType == 3 || scodes.length == 1 ? null : [
-                <Icon type='delete' onClick={() => this.removeShellCode(i)} />
+                <Icon className="removeShellCodeIcon" type='delete' onClick={() => this.removeShellCode(i)} />
               ]}
             </FormItem>
             <div style={{ clera: 'both' }}></div>

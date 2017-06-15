@@ -493,7 +493,7 @@ class hostList extends Component {
             type='primary'
             onClick={()=> this.handleAddClusterNode()}
           >
-            <Icon type='plus' />
+            <i className="fa fa-plus" style={{marginRight:'5px'}}/>
             <span>添加主机节点</span>
           </Button>
           <Button className='terminalBtn' size='large' type='ghost' onClick={this.openTerminalModal}>
@@ -503,7 +503,7 @@ class hostList extends Component {
             <span>终端 | 集群管理</span>
           </Button>
           <Button type='ghost' size='large' className="refreshBtn" onClick={() => this.loadData()}>
-            <i className='fa fa-refresh' /> 刷新
+            <i className='fa fa-refresh' /> 刷 新
           </Button>
           <span className='searchBox'>
             <Input className='searchInput' size='large' placeholder='搜索' type='text' onPressEnter={() => this.searchNodes()} />
