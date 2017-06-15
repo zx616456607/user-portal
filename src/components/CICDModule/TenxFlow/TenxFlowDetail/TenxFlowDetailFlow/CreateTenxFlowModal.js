@@ -1294,7 +1294,7 @@ let CreateTenxFlowModal = React.createClass({
                  {baseImage}
                  </Select>*/}
                 <PopTabSelect
-                  value={buildImages[intFlowTypeIndex]　? buildImages[intFlowTypeIndex].imageList[0].imageName : '' || defaultBaseImage || this.state.baseImageUrl}
+                  value={initialBuildImage || defaultBaseImage || this.state.baseImageUrl}
                   onChange={this.baseImageChange}
                   getTooltipContainer={() => document.getElementById('TenxFlowDetailFlow')}
                 >

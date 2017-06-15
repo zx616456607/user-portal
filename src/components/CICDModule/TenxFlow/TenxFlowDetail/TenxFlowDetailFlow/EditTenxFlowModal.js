@@ -1368,7 +1368,7 @@ let EditTenxFlowModal = React.createClass({
     }
     const buildCluster = getFieldProps('buildCluster', {
       rules: [
-        { message: '请选择构建集群', required: isStandardMode() ? false : true}
+        { message: '请选择构建集群', required: isStandardMode() ? true : true}
       ],
       initialValue: currentBuildCluster
     })
