@@ -175,7 +175,8 @@ class ContainerProgress extends Component{
         title: '启动时间',
         dataIndex: 'startTime',
         key: 'startTime',
-        width:'11%'
+        width:'90px',
+        className:'Startuptime'
       },
       {
         title: 'CPU时间',
