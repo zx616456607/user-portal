@@ -71,7 +71,7 @@ exports.checkLicense = function* () {
       left_license_days,
       left_trial_days,
       trial_end_time,
-      end: end || left_trial_days
+      end: end || trial_end_time
     }
   }
   this.body = result
