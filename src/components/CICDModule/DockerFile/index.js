@@ -69,17 +69,18 @@ const MyComponent = React.createClass({
     this.props.scope.props.getDockerfiles(item, {
       success: {
         func: (res) => {
+          const result = res.data.message || {}
           if (e.key == 1) {
             self.setState({
               showDockerFileModal: true,
-              dockerfiles: res.data.message.content,
+              dockerfiles: result.content,
               dockerfileId: item
             })
             return
           }
           self.setState({
             editDockerFileModal: true,
-            dockerfiles: res.data.message.content,
+            dockerfiles: result.content,
             dockerfileId: item
           })
         }
@@ -97,9 +98,10 @@ const MyComponent = React.createClass({
     this.props.scope.props.getDockerfiles(item, {
       success: {
         func: (res) => {
+          const result = res.data.message || {}
           self.setState({
             showDockerFileModal: true,
-            dockerfiles: res.data.message.content,
+            dockerfiles: result.content,
           })
         }
       }

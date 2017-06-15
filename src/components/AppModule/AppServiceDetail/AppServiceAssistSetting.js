@@ -41,7 +41,7 @@ let AppServiceAssistSetting = React.createClass({
         className="runningCodeForm"
         style={{paddingLeft:'100px'}}
         key={`cmd_${index}`}>
-        <Tooltip title={com}>
+        <Tooltip title={cmd}>
         <Input
           className="entryInput"
           size="large"

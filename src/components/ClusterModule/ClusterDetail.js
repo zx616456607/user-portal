@@ -27,6 +27,7 @@ import QueueAnim from 'rc-queue-anim'
 import AlarmStrategy from '../ManageMonitor/AlarmStrategy'
 import ManageLabelModal from './MangeLabelModal'
 import Title from '../Title'
+import Resourcequota from '../../../static/img/Resourcequota.svg'
 
 const TabPane = Tabs.TabPane
 const MASTER = '主控节点/Master'
@@ -182,7 +183,7 @@ let HostInfo = React.createClass({
           <div className="topTitle" style={{marginTop:'20px',marginBottom: 10}}>主机信息</div>
           <div className="wrapRow">
             <div className="host-list">
-              <div className="titles"><svg className="svg-icon"><use xlinkHref="#resource"></use></svg> 资源配额</div>
+              <div className="titles"><div className="quotaimg"><img style={{width:'100%'}} src={Resourcequota}/></div> 资源配额</div>
               <br />
               <Row className="items">
                 <Col span={8}><span className="keys">CPU：</span><span className="valus">{isNaN(hostInfo.cpuTotal / 1000)? '': hostInfo.cpuTotal / 1000} 核</span></Col>
@@ -217,7 +218,7 @@ let HostInfo = React.createClass({
             </div>
 
             <div className="host-list">
-              <div className="titles"><svg className="svg-icon"><use xlinkHref="#tag"></use></svg> 标签信息 <Button className='manageLabelButton' type="ghost" onClick={this.handleManageLabelModal}><Icon type="setting" />管理标签</Button></div>
+              <div className="titles"><svg className='size select'><use xlinkHref="#managelabels"></use></svg> 标签信息 <Button className='manageLabelButton' type="ghost" onClick={this.handleManageLabelModal}><Icon type="setting" />管理标签</Button></div>
               <br />
               <div className='labelContainer'>
                 {this.formTagContainer()}
