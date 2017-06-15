@@ -15,7 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import { camelize } from 'humps'
 import './style/ContainerList.less'
 import { loadContainerList, deleteContainers, updateContainerList } from '../../actions/app_manage'
-import { loadProjectList } from '../../actions/harbor'
+import { loadProjectList, loadAllProject } from '../../actions/harbor'
 import { addTerminal } from '../../actions/terminal'
 import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL, DEFAULT_REGISTRY } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
@@ -195,6 +195,31 @@ let MyComponent = React.createClass({
       exportImageModalSuccess : false
     })
   },
+  checkSameImageName(e){
+    const { form } = this.props
+    if(e){
+      form.setFieldsValue({'exportImageName': e.target.value})
+    }
+    let value = form.getFieldValue('exportImageName')
+    this.props.loadAllProject(DEFAULT_REGISTRY, {q: value},{
+      success: {
+        func: (res) => {
+          let projectName = form.getFieldValue('harborProjectName')
+          let imageName = projectName + '/' + value
+          let array = res.data.repository
+          console.log('imageName=',imageName)
+          console.log('array=',array)
+          for(let i = 0; i < array.length; i++){
+            if(imageName === array[i].repositoryName){
+              console.log(11111)
+              return 'block'
+            }
+          }
+          return 'none'
+        },
+      }
+    })
+  },
   checkImageName(rule, value, callback){
     if(!value){
       return callback('请输入镜像地址')
@@ -363,6 +388,7 @@ let MyComponent = React.createClass({
       rules :  [{
         validator: this.checkImageName
       }],
+      onChange: this.checkSameImageName()
     })
     const exportImageVersion = getFieldProps('exportImageVersion',{
       rules: [{
@@ -370,6 +396,8 @@ let MyComponent = React.createClass({
       }],
       initialValue: 'latest'
     })
+    const displayState = this.checkSameImageName('render')
+    console.log('displayState=',displayState)
     return (
       <div className='dataBox'>
         {items}
@@ -410,7 +438,8 @@ let MyComponent = React.createClass({
               <div className='float imagename'>镜像名称&nbsp;&nbsp;&nbsp;&nbsp;</div>
               <div className='float imageAddress'>
                 <Form.Item>
-                  <Input {...exportImageName} placeholder='请填写镜像名称' />
+                  <Input {...exportImageName} placeholder='请填写镜像名称' onChange={(e) => this.checkSameImageName(e)}/>
+                  <div className='sameImageNameTips' style={{display: displayState}}>名称已存在，使用会覆盖已有镜像</div>
                 </Form.Item>
               </div>
               <div className='float point'>:</div>
@@ -555,9 +584,9 @@ class ContainerList extends Component {
 
   componentDidMount() {
     // Reload list each UPDATE_INTERVAL
-    this.upStatusInterval = setInterval(() => {
-      this.loadData(null, { keepChecked: true })
-    }, UPDATE_INTERVAL)
+    //this.upStatusInterval = setInterval(() => {
+    //  this.loadData(null, { keepChecked: true })
+    //}, UPDATE_INTERVAL)
   }
 
   componentWillUnmount() {
@@ -705,7 +734,7 @@ class ContainerList extends Component {
       name, page, size,
       sortOrder, total, cluster,
       isFetching, instanceExport, exportimageUrl,
-      loadProjectList, harborProjects,
+      loadProjectList, harborProjects, loadAllProject
     } = this.props
     const {containerList, searchInputValue, searchInputDisabled } = this.state
     const checkedContainerList = containerList.filter((app) => app.checked)
@@ -839,6 +868,7 @@ class ContainerList extends Component {
               clusterID={cluster}
               exportimageUrl={exportimageUrl}
               harborProjects={harborProjects}
+              loadAllProject={loadAllProject}
             />
           </Card>
         </div>
@@ -914,4 +944,5 @@ export default connect(mapStateToProps, {
   addTerminal,
   instanceExport,
   loadProjectList,
+  loadAllProject,
 })(ContainerList)
