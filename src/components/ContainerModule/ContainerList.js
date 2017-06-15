@@ -200,7 +200,6 @@ let MyComponent = React.createClass({
   checkImageName(rule, value, callback){
     const { form } = this.props
     let projectName = form.getFieldValue('harborProjectName')
-    console.log('projectName=',projectName)
     if(!projectName){
       return callback('请选择仓库组')
     }
@@ -582,9 +581,9 @@ class ContainerList extends Component {
 
   componentDidMount() {
     // Reload list each UPDATE_INTERVAL
-    //this.upStatusInterval = setInterval(() => {
-    //  this.loadData(null, { keepChecked: true })
-    //}, UPDATE_INTERVAL)
+    this.upStatusInterval = setInterval(() => {
+      this.loadData(null, { keepChecked: true })
+    }, UPDATE_INTERVAL)
   }
 
   componentWillUnmount() {
