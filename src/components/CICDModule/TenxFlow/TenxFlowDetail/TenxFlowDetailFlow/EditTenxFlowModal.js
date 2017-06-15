@@ -311,8 +311,9 @@ let EditTenxFlowModal = React.createClass({
       getDockerfiles(tempBody, {
         success: {
           func: (res) => {
+            const result = res.data.message || {}
             _this.setState({
-              dockerFileTextarea: res.data.message.content
+              dockerFileTextarea: result.content
             })
           },
           isAsync: true

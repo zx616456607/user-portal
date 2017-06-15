@@ -10,7 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Input, Alert, } from 'antd'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppServiceDetail from './AppServiceDetail'
@@ -29,7 +29,6 @@ import {
 import { deleteSetting, getSettingListfromserviceorapp } from '../../actions/alert'
 import { getDeploymentOrAppCDRule } from '../../actions/cicd_flow'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ANNOTATION_HTTPS } from '../../../constants'
-import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
 import ConfigModal from './AppServiceDetail/ConfigModal'
 import ManualScaleModal from './AppServiceDetail/ManualScaleModal'
@@ -547,7 +546,6 @@ class ServiceList extends Component {
       k8sServiceList: [],
       step:1 ,// create alarm step
       alarmStrategy: true,
-      currentService:''
     }
   }
   getInitialState() {
@@ -555,7 +553,7 @@ class ServiceList extends Component {
       disableScale: false
     }
   }
-  loadServices(nextProps, options) {
+  loadServices(nextProps, options, openModal) {
     const self = this
     const { cluster, loadAllServices, page, size, name } = nextProps || this.props
     const query = {
@@ -583,6 +581,18 @@ class ServiceList extends Component {
           self.loadStatusTimeout = setTimeout(() => {
             loadAllServices(cluster, query)
           }, LOAD_STATUS_TIMEOUT)
+          if (openModal) {
+            const { serName, serviceList } = this.props
+            if (serName && serviceList) {
+              this.setState({
+                currentShowInstance: serviceList.filter((item)=>item.metadata.name === serName)[0],
+                selectTab: null,
+                modalShow: true,
+              },()=>{
+                browserHistory.replace('/app_manage/service')
+              })
+            }
+          }
         },
         isAsync: true
       }
@@ -613,13 +623,11 @@ class ServiceList extends Component {
   }
 
   componentWillMount() {
-    const { appName } = this.props
-    this.loadServices()
+    this.loadServices(null, null, true)
     return
   }
 
   componentDidMount() {
-    const { appName } = this.props
     this.loadServices()
     // Reload list each UPDATE_INTERVAL
     this.upStatusInterval = setInterval(() => {
@@ -638,10 +646,10 @@ class ServiceList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    let { page, size, name, currentCluster, serviceList } = nextProps
     this.setState({
-      serviceList: nextProps.serviceList
+      serviceList: serviceList,
     })
-    let { page, size, name, currentCluster } = nextProps
     if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
       this.loadServices(nextProps)
       return
@@ -654,7 +662,6 @@ class ServiceList extends Component {
     })
     this.loadServices(nextProps)
   }
-
   batchStartService(e) {
     this.setState({
       StartServiceModal: true
@@ -1110,7 +1117,7 @@ class ServiceList extends Component {
   render() {
     const parentScope = this
     let {
-      modalShow, currentService,
+      modalShow,
       currentShowInstance,
       serviceList,
       rollingUpdateModalShow,
@@ -1119,16 +1126,14 @@ class ServiceList extends Component {
       runBtn, stopBtn, restartBtn
     } = this.state
     const {
-      pathname, page, size, total, isFetching, cluster, service,
+      pathname, page, size, total, isFetching, cluster,
       loadAllServices, loginUser, SettingListfromserviceorapp
     } = this.props
     let selectTab = this.state.selectTab
     let appName = ''
+    
     if (this.state.currentShowInstance) {
       appName = this.state.currentShowInstance.metadata.labels['tenxcloud.com/appName']
-    }
-    if (currentService) {
-      appName = currentService
     }
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
@@ -1287,7 +1292,6 @@ class ServiceList extends Component {
               bindingDomains={this.props.bindingDomains}
               bindingIPs={this.props.bindingIPs}
               k8sServiceList={this.state.k8sServiceList}
-              service={service}
                />
           </Card>
           </div>
@@ -1356,7 +1360,7 @@ class ServiceList extends Component {
 
 function mapStateToProps(state, props) {
   const { query, pathname } = props.location
-  let { page, size, name,service } = query
+  let { page, size, name,serName } = query
   page = parseInt(page || DEFAULT_PAGE)
   size = parseInt(size || DEFAULT_PAGE_SIZE)
   if (isNaN(page) || page < DEFAULT_PAGE) {
@@ -1389,7 +1393,7 @@ function mapStateToProps(state, props) {
     page,
     size,
     total,
-    service,
+    serName,
     serviceList: services || [],
     isFetching,
     cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule :  defaultCDRule,

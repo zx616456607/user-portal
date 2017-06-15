@@ -460,7 +460,8 @@ function mapStateToProps(state, props) {
   const {loginUser} = state.entities
   const {statusWatchWs} = state.entities.sockets
   const currentShowInstance = scope.state.currentShowInstance
-  const {cluster, metadata } = currentShowInstance
+  const  cluster = currentShowInstance && currentShowInstance.cluster
+  const  metadata  = currentShowInstance && currentShowInstance.metadata
   const serviceName = metadata ? metadata.name : ''
   const defaultService = {
     isFetching: false,
