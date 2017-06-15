@@ -389,7 +389,7 @@ let MyComponent = React.createClass({
               <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-down" /><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
               <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
               <td onClick={()=> this.tableListMore(index)}>
-                <Link to={ list.targetType ? `/cluster/${clusterID}/${list.targetName}` : `/app_manage/service?serviceName=${list.targetName}`}>{list.targetName}</Link>
+                <Link to={ list.targetType ? `/cluster/${clusterID}/${list.targetName}` : `/app_manage/service?serName=${list.targetName}`}>{list.targetName}</Link>
               </td>
               <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
               <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
@@ -412,7 +412,7 @@ let MyComponent = React.createClass({
             <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-right" /><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
             <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
             <td onClick={()=> this.tableListMore(index)}>
-              <Link to={ list.targetType ? `/cluster/${clusterID}/${list.targetName}` : `/app_manage/service?serviceName=${list.targetName}`}>{list.targetName}</Link>
+              <Link to={ list.targetType ? `/cluster/${clusterID}/${list.targetName}` : `/app_manage/service?serName=${list.targetName}`}>{list.targetName}</Link>
             </td>
             <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
             <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
