@@ -1339,7 +1339,7 @@ class OperationalAudit extends Component {
         break;
       case '47':
         //CDNotifications
-        showOperationalList.push([]);
+        showOperationalList.push(operationalList[0]);
         break;
       case '48':
         //AlertEmailGroup
@@ -1368,7 +1368,10 @@ class OperationalAudit extends Component {
         break;
       case '52':
         //Snapshot
-        showOperationalList.push(operationalList[10]);
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[8])
+        showOperationalList.push(operationalList[22]);
+        showOperationalList.push(operationalList[23]);
         break;
       case '0':
         //Unknown
