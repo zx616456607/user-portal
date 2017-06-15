@@ -248,7 +248,10 @@ class AlarmStrategy extends Component {
         return selectedRows.push(index)
       }
     })
-    this.setState({selectedRowKeys: selectedRows})
+    this.setState({
+      selectedRowKeys: selectedRows,
+      strategyID: strategie,
+    })
   }
   cancelModal() {
     // cancel create Alarm modal
@@ -353,7 +356,14 @@ class AlarmStrategy extends Component {
             pageSize={size}
             total={total} />
         </div>
-        <Table className="strategyTable" onRowClick={(e)=> this.handClickRow(e)} rowSelection={rowSelection} columns={columns} dataSource={this.props.strategys} pagination={false}/>
+        <Table
+          className="strategyTable"
+          onRowClick={(e)=> this.handClickRow(e)}
+          rowSelection={rowSelection}
+          columns={columns}
+          dataSource={this.props.strategys}
+          pagination={false}
+        />
         <Modal title="删除策略" visible={this.state.deleteModal}
           onCancel={() => this.setState({ deleteModal: false })}
           onOk={() => this.handDelete()}

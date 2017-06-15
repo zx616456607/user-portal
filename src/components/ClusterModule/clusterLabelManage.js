@@ -403,8 +403,10 @@ class ClusterLabelManage extends Component{
 
     return <div id="cluster__labelmanage">
       <div className='labelmanage__title'>
-        <Button icon="plus" type="primary" onClick={()=> this.createModal()} size="large" className='titlebutton'>创建标签</Button>
-        <Button type="ghost" size="large" onClick={()=> this.loadData(this)} className='titlebutton'><i className='fa fa-refresh' /> 刷新</Button>
+        <Button type="primary" onClick={()=> this.createModal()} size="large" className='titlebutton'>
+          <i className="fa fa-plus" style={{marginRight:'5px'}}/>创建标签
+        </Button>
+        <Button type="ghost" size="large" onClick={()=> this.loadData(this)} className='titlebutton'><i className='fa fa-refresh' /> 刷 新</Button>
         <span className='titlesearch'>
           <Input
             placeholder="请输入标签键或标签值搜索"
