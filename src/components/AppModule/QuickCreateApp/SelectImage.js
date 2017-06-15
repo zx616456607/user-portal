@@ -43,15 +43,21 @@ class SelectImage extends Component {
     this.onDeploy = this.onDeploy.bind(this)
     this.renderImageList = this.renderImageList.bind(this)
     const { location } = props
-    let { imageName, imageType } = location.query
+    let { imageName, imageType, searchImage } = location.query
     if (!imageType) {
       imageType = PUBLIC_IMAGES
+    }
+    if(!searchImage) {
+      searchImage = false
+    } else {
+      imageType = 'privateImages'
     }
     this.state = {
       imageType,
       imageFilter: 'all',
       searchInputValue: imageName,
       currentPage: 1,
+      searchImage
     }
   }
 
@@ -63,9 +69,21 @@ class SelectImage extends Component {
     // }
     // loadPublicImageList(registry, serverType, callback)
     const { registry, loadAllProject } = props
-    if(typeof query == 'function') {
-      callback = query
-      query = null
+    if (!callback) {
+      callback = {
+        success: {
+          func: (res) => {
+            if(res.data && res.data.repository && res.data.repository.length >= 0 && this.state.searchImage) {
+              const repo = res.data.repository[0]
+              if(repo.projectPublic) {
+                this.setState({
+                  imageType: PUBLIC_IMAGES,
+                })
+              }
+            }
+          }
+        }
+      }
     }
     loadAllProject(registry, query, callback)
   }
