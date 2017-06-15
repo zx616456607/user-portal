@@ -145,16 +145,12 @@ function checkStatusIcon(status) {
   switch (status) {
     case 0:
       return (<i className='normal fa fa-check-circle' aria-hidden='false'></i>);
-      break;
     case 1:
       return (<i className='fail fa fa-times-circle' aria-hidden='false'></i>);
-      break;
     case 2:
       return (<Spin />);
-      break;
     case 3:
       return (<i className='wait fa fa-circle' ></i>);
-      break;
   }
 }
 
@@ -173,13 +169,17 @@ let MyComponent = React.createClass({
   },
   getInitialState() {
     return {
-      showModal: false
+      showModal: false,
+      currentKey: []
     }
   },
   collapseAction: function (config, e) {
     //this function for user open or close collapse panel action
     //and then the line collapse will be current change
     const { scope, flowId } = this.props;
+    this.setState({
+      currentKey: e
+    })
     const { getFlowBuildStageLogs } = scope.props;
     if(e && e.length > 0) {
       this.setState({
@@ -199,11 +199,11 @@ let MyComponent = React.createClass({
         notification.warn('尚未安装日志服务，无法查看日志')
         return 
       }
+      if(this.state.currentKey.length > e.length) return
       config[index].isFetching = true;
       scope.setState({
         currentLogList: config
       })
-
       getFlowBuildStageLogs(flowId, config[index].stageId, config[index].buildId, {
         success: {
           func: (res) => {
