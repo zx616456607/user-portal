@@ -30,12 +30,9 @@ class MySpace extends Component{
   }
 
   componentWillMount() {
-
-  }
-  componentDidMount() {
     const { loadSpaceInfo, loadSpaceCICDStats, loadSpaceImageStats, getOperationLogList } = this.props
     loadSpaceCICDStats({
-      error: {
+      failed: {
         func: () => {
           this.setState({
             cicdStates: false,
@@ -45,13 +42,12 @@ class MySpace extends Component{
       }
     })
     loadSpaceImageStats({
-      error: {
+      failed: {
         func: () => {
           this.setState({
             ImageStates: false,
           })
-        },
-        isAsync: true
+        }
       }
     })
     loadSpaceInfo()

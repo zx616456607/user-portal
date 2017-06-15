@@ -299,7 +299,7 @@ class Sider extends Component {
                 </Tooltip>
               </li>
               <li onClick={()=> this.selectModel('app_center')}
-                className={currentKey == 'projects' ? 'selectedLi' : ''}>
+                className={currentKey == 'app_center' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='交付中心'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_center/projects'>
