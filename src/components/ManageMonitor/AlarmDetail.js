@@ -55,7 +55,7 @@ class AlarmDetail extends Component {
     if (text ==3) {
       return <span className="stop"><i className="fa fa-circle" /> 忽略</span>
     }
-    return <span className="unknown"><i className="fa fa-circle" /> 告警</span>
+    return <span className="padding"><i className="fa fa-circle" /> 告警</span>
   }
   rowClick(record, ins) {
     let selectCheckbox = cloneDeep(this.state.selectCheckbox)

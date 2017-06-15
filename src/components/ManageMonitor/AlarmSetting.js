@@ -184,7 +184,7 @@ let MyComponent = React.createClass({
     if (text ==3) {
       return <span className="stop"><i className="fa fa-circle" /> 忽略</span>
     }
-    return <span className="unknown"><i className="fa fa-circle" /> 告警</span>
+    return <span className="padding"><i className="fa fa-circle" /> 告警</span>
   },
   handOverlook() {
     const { currentStrategy, ignoreTime, ignoreSymbol } = this.state
@@ -523,7 +523,7 @@ class AlarmSetting extends Component {
     let nextSpaceName = nextProps.space.spaceName;
     let preClusterID = this.props.clusterID;
     let nextClusterID = nextProps.clusterID;
-    
+
     if(preSpaceName !== nextSpaceName || preClusterID !== nextClusterID){
       getSettingList(nextClusterID, {
         from: DEFAULT_PAGE - 1,
