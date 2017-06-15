@@ -80,6 +80,7 @@ let MyComponent = React.createClass({
       const { setFieldsValue } = form
       setFieldsValue({
         'exportImageName': undefined,
+        'harborProjectName': undefined,
         'exportImageVersion': 'latest',
       })
       this.props.funcs.loadProjectList(DEFAULT_REGISTRY, { page_size: 100 })
@@ -93,73 +94,74 @@ let MyComponent = React.createClass({
       containerErrorModal: true
     })
   },
-  handleConfirmExportImage(){
-    const { form, instanceExport, clusterID } = this.props
+  apiInstanceExport(values){
+    const { instanceExport, clusterID } = this.props
     const { exportContainerName } = this.state
-    this.setState({
-      ModalLoadidng: true
-    })
     let Notification = new NotificationHandler()
-    form.validateFields((errors, values) => {
-      if(errors){
-        this.setState({
-          ModalLoadidng: false
-        })
-        return
-      }
-      let body = {
-        body:{
-          imagename: values.exportImageName,
-          tag: values.exportImageVersion,
-          projectname: values.harborProjectName,
-        },
-        clusterID,
-        containers:exportContainerName
-      }
-      instanceExport(body,{
-        success: {
-          func: (res) => {
-            if(res.statusCode && res.statusCode == 204){
-              Notification.error('导出镜像失败！当前平台镜像仓库不完整')
-              this.setState({
-                exportImageModalVisible: false,
-                exportContainerName: '',
-                ModalLoadidng:false
-              })
-              return
-            }
-            this.setState({
-              exportImageModalVisible: false,
-              exportImageModalSuccess: true,
-              exportContainerName: '',
-              ModalLoadidng: false
-            })
-          }
-        },
-        failed: {
-          func: (res) => {
-            if(res.message && res.message.message == "The exportInstance operation against timeout could not be completed at this time, please try again."){
-              Notification.error('导出镜像超时，请重试！')
-              return
-            }
-            Notification.error('导出镜像失败！')
+    let body = {
+      body:{
+        imagename: values.exportImageName,
+        tag: values.exportImageVersion,
+        projectname: values.harborProjectName,
+      },
+      clusterID,
+      containers:exportContainerName
+    }
+    instanceExport(body,{
+      success: {
+        func: (res) => {
+          if(res.statusCode && res.statusCode == 204){
+            Notification.error('导出镜像失败！当前平台镜像仓库不完整')
             this.setState({
               exportImageModalVisible: false,
               exportContainerName: '',
               ModalLoadidng:false
             })
+            return
           }
+          this.setState({
+            exportImageModalVisible: false,
+            exportImageModalSuccess: true,
+            exportContainerName: '',
+            ModalLoadidng: false
+          })
         }
-      })
+      },
+      failed: {
+        func: (res) => {
+          if(res.message && res.message.message == "The exportInstance operation against timeout could not be completed at this time, please try again."){
+            Notification.error('导出镜像超时，请重试！')
+            return
+          }
+          Notification.error('导出镜像失败！')
+          this.setState({
+            exportImageModalVisible: false,
+            exportContainerName: '',
+            ModalLoadidng:false
+          })
+        }
+      }
+    })
+  },
+  handleConfirmExportImage(){
+    const { form } = this.props
+    this.setState({
+      ModalLoadidng: true
+    })
+    form.validateFields((errors, values) => {
+      if(errors){
+        if(Object.keys(errors).length == 1 && errors.exportImageName && errors.exportImageName.errors[0].message == "名称已存在，使用会覆盖已有镜像"){
+          return this.apiInstanceExport(values)
+        }
+        this.setState({
+          ModalLoadidng: false
+        })
+        return
+      }
+      this.apiInstanceExport(values)
     })
   },
   hanldeCancleExportImage(){
-    const { form } = this.props
-    const { setFieldsValue } = form
-    setFieldsValue({
-      'exportImageName': undefined,
-      'exportImageVersion': 'latest',
-    })
     this.setState({
       exportImageModalVisible : false
     })
@@ -195,52 +197,49 @@ let MyComponent = React.createClass({
       exportImageModalSuccess : false
     })
   },
-  checkSameImageName(e){
-    const { form } = this.props
-    if(e){
-      form.setFieldsValue({'exportImageName': e.target.value})
-    }
-    let value = form.getFieldValue('exportImageName')
-    this.props.loadAllProject(DEFAULT_REGISTRY, {q: value},{
-      success: {
-        func: (res) => {
-          let projectName = form.getFieldValue('harborProjectName')
-          let imageName = projectName + '/' + value
-          let array = res.data.repository
-          console.log('imageName=',imageName)
-          console.log('array=',array)
-          for(let i = 0; i < array.length; i++){
-            if(imageName === array[i].repositoryName){
-              console.log(11111)
-              return 'block'
-            }
-          }
-          return 'none'
-        },
-      }
-    })
-  },
   checkImageName(rule, value, callback){
+    const { form } = this.props
+    let projectName = form.getFieldValue('harborProjectName')
+    console.log('projectName=',projectName)
+    if(!projectName){
+      return callback('请选择仓库组')
+    }
     if(!value){
       return callback('请输入镜像地址')
     }
     if(!/^([a-z0-9]+((?:[._]|__|[-]*)[a-z0-9]+)*)?$/.test(value)){
-      return callback('镜像地址只能为小写字母和数字')
+      return callback('由小写字母或数字组成')
     }
     if(value.length > 128){
-      return callback('镜像地址最多只能为128个字符')
+      return callback('最多只能为128个字符')
     }
-    return callback()
+    this.props.loadAllProject(DEFAULT_REGISTRY, {q: value},{
+      success: {
+        func: (res) => {
+          const { form } = this.props
+          let projectName = form.getFieldValue('harborProjectName')
+          let imageName = projectName + '/' + value
+          let array = res.data.repository
+          for(let i = 0; i < array.length; i++){
+            if(imageName === array[i].repositoryName){
+              return callback('名称已存在，使用会覆盖已有镜像')
+            }
+          }
+          callback()
+        },
+        isAsync: true
+      }
+    })
   },
   checkImageVersion(rule, value, callback){
     if(!value){
       return callback('请输入镜像版本')
     }
     if(!/^([\w][\w.-]*)?$/.test(value)){
-      return callback('镜像版本只能以数字或字母开头')
+      return callback('由小写字母或数字组成')
     }
     if(value.length > 128){
-      return callback('镜像版本最多只能为128个字符')
+      return callback('最多只能为128个字符')
     }
     return callback()
   },
@@ -292,7 +291,7 @@ let MyComponent = React.createClass({
   },
   render: function () {
     const { scope, config, loading, form, exportimageUrl } = this.props
-    const { getFieldProps, getFieldValue } = form
+    const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -388,7 +387,6 @@ let MyComponent = React.createClass({
       rules :  [{
         validator: this.checkImageName
       }],
-      onChange: this.checkSameImageName()
     })
     const exportImageVersion = getFieldProps('exportImageVersion',{
       rules: [{
@@ -396,8 +394,6 @@ let MyComponent = React.createClass({
       }],
       initialValue: 'latest'
     })
-    const displayState = this.checkSameImageName('render')
-    console.log('displayState=',displayState)
     return (
       <div className='dataBox'>
         {items}
@@ -437,9 +433,11 @@ let MyComponent = React.createClass({
               <div style={{clear: 'both', height: '15px'}}></div>
               <div className='float imagename'>镜像名称&nbsp;&nbsp;&nbsp;&nbsp;</div>
               <div className='float imageAddress'>
-                <Form.Item>
-                  <Input {...exportImageName} placeholder='请填写镜像名称' onChange={(e) => this.checkSameImageName(e)}/>
-                  <div className='sameImageNameTips' style={{display: displayState}}>名称已存在，使用会覆盖已有镜像</div>
+                <Form.Item
+                  hasFeedback
+                  help={isFieldValidating('exportImageName') ? '校验中...' : (getFieldError('exportImageName') || []).join(', ')}
+                >
+                  <Input {...exportImageName} placeholder='请填写镜像名称'  />
                 </Form.Item>
               </div>
               <div className='float point'>:</div>
