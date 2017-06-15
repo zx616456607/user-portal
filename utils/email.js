@@ -52,10 +52,9 @@ function sendEmail(transport, mailOptions) {
   }
   // Force to use this 'from' user if using sendEmail method
   mailOptions.from = transport.auth.user
-  if (transport.auth.user.password === "") {
+  if (transport.auth.pass === '') {
       transport.auth = null
   }
-  console.log(transport)
   const smtpTransport = nodemailer.createTransport(transport)
   return new Promise(function (resovle, reject) {
     logger.info(method, 'Send email to: ' + mailOptions.to)
