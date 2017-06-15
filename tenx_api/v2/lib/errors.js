@@ -54,6 +54,8 @@ class ServerError extends ClientError {
       case 'ENOTFOUND':
         this.message = `Request ${data.host} ENOTFOUND`
         break
+      default:
+        this.message = 'Internal server error'
     }
     this.statusCode = 500
   }
@@ -90,21 +92,23 @@ class InvalidHttpCodeError extends Error {
 }
 
 function get(res) {
-  switch (res.statusCode) {
+  const statusCode = res.statusCode
+  const data = res.data || {}
+  switch (statusCode) {
     case 400:
-      return new InvalidDataError(res.data)
+      return new InvalidDataError(data)
     case 401:
-      return new AuthenticationError(res.data)
+      return new AuthenticationError(data)
     case 403:
-      return new AuthorizationError(res.data)
+      return new AuthorizationError(data)
     case 404:
-      return new NotFoundError(res.data)
+      return new NotFoundError(data)
     case 500:
-      return new ServerError(res.data)
+      return new ServerError(data)
     case -1:
       return new InvalidHttpCodeError(res)
     default:
-      return new ClientError(res.data, res.statusCode)
+      return new ClientError(data, statusCode)
   }
 }
 

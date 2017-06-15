@@ -12,6 +12,7 @@ import React, { Component, PropTypes } from 'react'
 import { Card, Icon, Spin, Table, Select, DatePicker, Menu, Button, Pagination, Modal } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
+import { Link } from 'react-router'
 // import { calcuDate } from '../../../common/tools.js'
 import moment from 'moment'
 import './style/AlarmRecord.less'
@@ -153,6 +154,7 @@ class AlarmRecord extends Component {
           triggerValue: r.triggerValue,
           triggerRule: r.triggerRule,
           status: r.status,
+          strategyID: r.strategyID
         })
       })
     }
@@ -181,6 +183,7 @@ class AlarmRecord extends Component {
     this.props.loadRecords(query, clusterID)
   }
   render () {
+    const { clusterID } = this.props;
     const columns = [
       {
         title: '告警时间',
@@ -192,6 +195,9 @@ class AlarmRecord extends Component {
       {
         title: '策略名称',
         dataIndex: 'strategyName',
+        render: (text,recode)=> {
+          return <Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(recode.strategyID)}?name=${text}`}>{text}</Link>
+        }
       },
       {
         title: '类型',
@@ -210,6 +216,9 @@ class AlarmRecord extends Component {
       {
         title: '告警对象',
         dataIndex: 'targetName',
+        render: (text,recode)=> {
+          return <Link to={ recode.targetType ? `/cluster/${clusterID}/${recode.targetName}` : `/app_manage/service?serName=${recode.targetName}`}>{text}</Link>
+        }
       },
       {
         title: '告警当前值',
