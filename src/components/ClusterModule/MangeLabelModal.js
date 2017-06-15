@@ -324,7 +324,7 @@ class ManageLabelModal extends Component {
           onOk={this.handleManageLabelOk}
           onCancel={this.handleManageLabelCancel}
           wrapClassName="manageLabelModal"
-          width="585px"
+          width="600px"
           maskClosable={false}
         >
           <div className='labelcontainer'>

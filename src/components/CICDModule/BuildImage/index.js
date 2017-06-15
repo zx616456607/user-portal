@@ -366,9 +366,6 @@ let MyComponent = React.createClass({
       }
       return (
         <div className='tenxflowDetail' key={item.name} >
-          <div className="name" style={{width: '20px'}}>
-            <Checkbox onChange={(e) => this.props.changeCheckStatus(item.name, e)} checked={item.checked}/>
-          </div>
           <div className='name'>
             <Tooltip placement='topLeft' title={item.name}>
               <Link to={`/ci_cd/build_image/tenx_flow_build?${item.flowId}&${flowListState[index].status}`}>
@@ -775,9 +772,6 @@ class TenxFlowList extends Component {
           </div>
           <Card className='tenxflowBox'>
             <div className='titleBox' >
-              <div className="name" style={{width: '2%'}}>
-                <Checkbox checked={this.state.allChecked}  onChange={(e) => this.onAllChange(e)}  ></Checkbox>
-              </div>
               <div className='name'>
                 <FormattedMessage {...menusText.name} />
               </div>
