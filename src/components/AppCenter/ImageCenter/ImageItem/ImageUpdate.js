@@ -218,6 +218,8 @@ class ImageUpdate extends Component {
       edit: false,
       currentKey: false,
       currentRulesEnabled: false,
+    },()=>{
+      document.getElementById('rulesName').focus()
     })
   }
 
@@ -1042,7 +1044,7 @@ class ImageUpdate extends Component {
           title={this.state.edit ? '修改规则' : '新建规则'}
           visible={this.state.addRulesVisible}
           closable={true}
-          width='570px'
+          width='460px'
           onCancel={this.handleCancelAddRules}
           maskClosable={false}
           wrapClassName="imageUpdataAddRules"

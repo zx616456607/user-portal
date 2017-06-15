@@ -275,6 +275,7 @@ class Ordinary extends Component {
     if (clusterNodeSummary.cpu.length !== 0) {
       clusterNodeSummary.cpu.slice(0, 3).map((item, index) => {
         let name = item.name.replace(/192.168./, '')
+        CPUResourceName.push(name)
         name = name.length > 9 ? `${name.substring(0,6)}...` : name
         CPUNameArr.push(name)
         CPUUsedArr.push(item.used)
@@ -289,6 +290,7 @@ class Ordinary extends Component {
     if (clusterNodeSummary.memory.length !== 0) {
       clusterNodeSummary.memory.slice(0, 3).map((item, index) => {
         let name = item.name.replace(/192.168./, '')
+        memoryResourceName.push(name)
         name = name.length > 9 ? `${name.substring(0,6)}...` : name
         memoryNameArr.push(name)
         memoryUsedArr.push(item.used)
@@ -656,7 +658,7 @@ class Ordinary extends Component {
           let content = '';
           for(let i = 0; i < params.length; i++){
             if(params[i].name){
-              content += "<div>"+CPUResourceName[i] ;
+              content += "<div>"+CPUResourceName[params[i]['dataIndex']] ;
               break;
             }
           }
@@ -740,7 +742,7 @@ class Ordinary extends Component {
           let content = '';
           for(let i = 0; i < params.length; i++){
             if(params[i].name){
-              content += "<div>"+memoryResourceName[i] ;
+              content += "<div>"+memoryResourceName[params[i]['dataIndex']] ;
               break;
             }
           }

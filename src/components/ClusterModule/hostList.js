@@ -18,8 +18,8 @@ import ManageLabelModal from './MangeLabelModal'
 import './style/hostList.less'
 import isEqual from 'lodash/isEqual'
 
-const MASTER = '主控节点/Master'
-const SLAVE = '计算节点/Slave'
+const MASTER = 'Master'
+const SLAVE = 'Slave'
 const SubMenu = Menu.SubMenu;
 
 function diskFormat(num) {
@@ -207,7 +207,7 @@ const MyComponent = React.createClass({
             <div className='bottomSpan'>{memoryUsed(item[camelize('memory_total_kb')], memoryMetric, item.objectMeta.name)}</div>
           </div>
           <div className='schedule commonTitle'>
-            <Switch style={{display:"block"}}
+            <Switch
               className='switchBox'
               defaultChecked={item.schedulable}
               checkedChildren='开'
@@ -529,7 +529,7 @@ class hostList extends Component {
               <span>状态</span>
             </div>
             <div className='role commonTitle'>
-              <span>节点角色</span>
+              <span>角色</span>
             </div>
             <div className='alarm commonTitle'>
               <span>监控告警</span>
