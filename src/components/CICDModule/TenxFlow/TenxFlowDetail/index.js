@@ -288,7 +288,7 @@ class TenxFlowDetail extends Component {
             notification.error('镜像不存在，请先执行构建')
             return
           }
-          if(res.statusCode == 403) {
+          if(res.statusCode == 403 || res.statusCode == 401) {
             notification.error('没有权限访问该镜像')
             return
           }
