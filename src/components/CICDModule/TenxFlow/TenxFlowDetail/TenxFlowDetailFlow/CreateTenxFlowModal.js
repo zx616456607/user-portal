@@ -1149,11 +1149,15 @@ let CreateTenxFlowModal = React.createClass({
         { message: '请选择仓库组', required: false },
       ],
     });
+    let initialBuildImage = buildImages[intFlowTypeIndex] ? buildImages[intFlowTypeIndex].imageList[0].imageName : ''
+    if (intFlowTypeIndex === 2) { // It's to build image step, use default one
+      initialBuildImage = 'tenx_containers/image-builder:v2.2'
+    }
     const imageNameProps = getFieldProps('imageName', {
       rules: [
         { required: true, message: '请选择基础镜像' }
       ],
-      initialValue: buildImages[intFlowTypeIndex] ? buildImages[intFlowTypeIndex].imageList[0].imageName : ''
+      initialValue: initialBuildImage,
     });
     const flowNameProps = getFieldProps('flowName', {
       rules: [
