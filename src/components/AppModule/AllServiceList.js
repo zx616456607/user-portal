@@ -547,7 +547,6 @@ class ServiceList extends Component {
       k8sServiceList: [],
       step:1 ,// create alarm step
       alarmStrategy: true,
-      currentService:''
     }
   }
   getInitialState() {
@@ -615,6 +614,7 @@ class ServiceList extends Component {
   componentWillMount() {
     const { appName } = this.props
     this.loadServices()
+    
     return
   }
 
@@ -638,10 +638,13 @@ class ServiceList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    let { page, size, name, currentCluster, serviceName } = nextProps
     this.setState({
-      serviceList: nextProps.serviceList
+      serviceList: nextProps.serviceList,
+      currentShowInstance: nextProps.serviceList.filter((item)=>item.metadata.name === serviceName)[0],
+      selectTab: null,
+      modalShow: true,
     })
-    let { page, size, name, currentCluster } = nextProps
     if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
       this.loadServices(nextProps)
       return
@@ -1110,7 +1113,7 @@ class ServiceList extends Component {
   render() {
     const parentScope = this
     let {
-      modalShow, currentService,
+      modalShow,
       currentShowInstance,
       serviceList,
       rollingUpdateModalShow,
@@ -1119,16 +1122,14 @@ class ServiceList extends Component {
       runBtn, stopBtn, restartBtn
     } = this.state
     const {
-      pathname, page, size, total, isFetching, cluster, service,
+      pathname, page, size, total, isFetching, cluster,
       loadAllServices, loginUser, SettingListfromserviceorapp
     } = this.props
     let selectTab = this.state.selectTab
     let appName = ''
+    
     if (this.state.currentShowInstance) {
       appName = this.state.currentShowInstance.metadata.labels['tenxcloud.com/appName']
-    }
-    if (currentService) {
-      appName = currentService
     }
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
@@ -1287,7 +1288,6 @@ class ServiceList extends Component {
               bindingDomains={this.props.bindingDomains}
               bindingIPs={this.props.bindingIPs}
               k8sServiceList={this.state.k8sServiceList}
-              service={service}
                />
           </Card>
           </div>
@@ -1356,7 +1356,7 @@ class ServiceList extends Component {
 
 function mapStateToProps(state, props) {
   const { query, pathname } = props.location
-  let { page, size, name,service } = query
+  let { page, size, name,serviceName } = query
   page = parseInt(page || DEFAULT_PAGE)
   size = parseInt(size || DEFAULT_PAGE_SIZE)
   if (isNaN(page) || page < DEFAULT_PAGE) {
@@ -1389,7 +1389,7 @@ function mapStateToProps(state, props) {
     page,
     size,
     total,
-    service,
+    serviceName,
     serviceList: services || [],
     isFetching,
     cdRule: getDeploymentOrAppCDRule && getDeploymentOrAppCDRule.result ? getDeploymentOrAppCDRule :  defaultCDRule,
