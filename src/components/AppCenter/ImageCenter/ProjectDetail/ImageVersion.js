@@ -36,7 +36,7 @@ let MyComponent = React.createClass({
       )
     }
     let tagList = this.props.config
-    if (tagList.length ==0) {
+    if (!tagList || tagList.length ==0) {
       return (
         <div>镜像版本不存在</div>
       )
