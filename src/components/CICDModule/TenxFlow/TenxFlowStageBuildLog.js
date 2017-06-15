@@ -58,15 +58,20 @@ class TenxFlowStageBuildLog extends Component {
     })
   }
   componentWillReceiveProps(nextProps){
-    if(nextProps.logs){
-      const { TenxFlowStageBuildLog } = this.state
-      let id = TenxFlowStageBuildLog.toString()
-      setTimeout(() => {
-        document.getElementById(id).scrollTop = 100
-      }, 100)
+    let { isFetching } = this.props;
+    if (!nextProps.isFetching && isFetching != nextProps.isFetching ) {
+      if (nextProps.logs) {
+        const { TenxFlowStageBuildLog } = this.state
+        let id = TenxFlowStageBuildLog.toString()
+        setTimeout(() => {
+          if (document.getElementById(id)) {
+            $(`#${id}`).scrollTop($(`#${id}`).height())
+          }
+        }, 300)
+      }
     }
-    if(!nextProps.visible && nextProps.visible != this.props.visible) {
-      if(this.state.socket) {
+    if (!nextProps.visible && nextProps.visible != this.props.visible) {
+      if (this.state.socket) {
         this.state.socket.emit("stop_recevie_log")
       }
     }
