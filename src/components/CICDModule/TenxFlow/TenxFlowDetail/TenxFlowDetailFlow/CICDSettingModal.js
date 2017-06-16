@@ -320,13 +320,14 @@ let CICDSettingModal = React.createClass({
       let notification = new NotificationHandler();
       return notification.error('请选择至少一个触发规则')
     }
+    const _config = scope.props.config.spec.ci.config || {}
     let body = {
       enabled: 1,
       config: {
         branch: null,
         tag: null,
         mergeRequest: null,
-        buildCluster: scope.props.config.spec.ci.config.buildCluster
+        buildCluster: _config.buildCluster
       }
     }
     if(useBranch) {
