@@ -456,7 +456,7 @@ let EditTenxFlowModal = React.createClass({
         otherTag: false,
         ImageStoreType: false
       });
-    } else {
+    } else if(this.state.otherFlowType != ins) {
       this.setState({
         useDockerfile: true,
         otherTag: false,
