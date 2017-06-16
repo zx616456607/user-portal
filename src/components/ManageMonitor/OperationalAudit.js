@@ -761,6 +761,9 @@ function resourceFormat(resourceType, scope) {
     case '52':
       return formatMessage(menusText.Snapshot)
       break;
+    case '53':
+      return formatMessage(menusText.Labels)
+      break;
     case '0':
       return formatMessage(menusText.Unknown)
       break;
