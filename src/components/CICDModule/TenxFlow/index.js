@@ -47,7 +47,7 @@ const menusText = defineMessages({
   },
   updateTime: {
     id: 'CICD.Tenxflow.TenxFlowList.updateTime',
-    defaultMessage: '更新时间',
+    defaultMessage: '上次构建时间',
   },
   status: {
     id: 'CICD.Tenxflow.TenxFlowList.status',
