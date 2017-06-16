@@ -858,7 +858,7 @@ class AlarmModal extends Component {
     }
     if (isEdit) {
       getAlertSetting(cluster.clusterID, {
-        strategyName: strategy.strategyName
+        strategy: strategy.strategyID
       }, {
         success: {
           func: (res) => {
@@ -885,7 +885,7 @@ class AlarmModal extends Component {
       const { isEdit, strategy, getAlertSetting, cluster } = nextProps
       if (isEdit) {
         getAlertSetting(cluster.clusterID, {
-          strategyName: strategy.strategyName
+          strategy: strategy.strategyName
         }, {
           success: {
             func: (res) => {
