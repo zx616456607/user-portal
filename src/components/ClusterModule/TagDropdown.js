@@ -27,6 +27,7 @@ class TagDropdown extends Component {
     this.handelfooter = this.handelfooter.bind(this)
     this.handleMenuClick = this.handleMenuClick.bind(this)
     this.handleLabelButton = this.handleLabelButton.bind(this)
+    this.visibleChange = this.visibleChange.bind(this)
     this.state = {
       DropdownVisible: this.props.visible,
     }
@@ -182,11 +183,24 @@ class TagDropdown extends Component {
     })
   }
 
+  visibleChange(visible) {
+    const { handleDropdownVisible } = this.props
+    handleDropdownVisible('onVisibleChange')
+    this.setState({
+      DropdownVisible: visible,
+    })
+  }
+
   render(){
     const { width } = this.props
     return (
       <div className='cluster__TagDropDown__Component'>
-        <Dropdown overlay={this.handelfooter()} trigger={['click']} className='cluster__TagDropDown__Component' visible={this.state.DropdownVisible}>
+        <Dropdown
+          overlay={this.handelfooter()}
+          trigger={['click']}
+          className='cluster__TagDropDown__Component'
+          visible={this.state.DropdownVisible}
+          onVisibleChange={(visible) => this.visibleChange(visible)}>
           <Button type="ghost" size="large" style={{width:{width},padding:'4px 12px'}} onClick={this.handleLabelButton}>
             {this.handleDropdownContext()}
           </Button>
@@ -202,7 +216,6 @@ class ManageTagModal extends Component {
     this.handlecallback = this.handlecallback.bind(this)
     this.handlecallbackHostList = this.handlecallbackHostList.bind(this)
     this.handleCreateLabelModal = this.handleCreateLabelModal.bind(this)
-    this.handleCancelLabelModal = this.handleCancelLabelModal.bind(this)
     this.checkKey = this.checkKey.bind(this)
     this.handleDropdownVisible = this.handleDropdownVisible.bind(this)
     this.state = {
@@ -212,7 +225,7 @@ class ManageTagModal extends Component {
   }
 
   handleCreateLabelModal() {
-    const { form, addLabels,clusterID } = this.props
+    const { form, addLabels,clusterID, getClusterLabel } = this.props
     form.validateFields((errors, values) => {
       if (errors) {
         return
@@ -223,16 +236,22 @@ class ManageTagModal extends Component {
         labels.push({
           key:values[`key${item}`],
           value:values[`value${item}`],
-          target:'node'
+          target:'node',
+          clusterID,
         })
       })
       notificat.spin('添加中...')
       addLabels(labels,clusterID,{
         success: {
           func:(ret)=> {
+            getClusterLabel(clusterID)
             notificat.close()
             notificat.success('添加成功！')
-          }
+            this.setState({
+              createLabelModal: false,
+            })
+          },
+          isAsync: true
         },
         failed:{
           func:(ret)=> {
@@ -242,20 +261,6 @@ class ManageTagModal extends Component {
         }
       })
     })
-    setTimeout(()=> {
-      this.setState({
-        createLabelModal: false,
-        visible: true
-      })
-    },500)
-  }
-
-  handleCancelLabelModal() {
-    this.setState({
-      createLabelModal: false,
-      visible: true
-    })
-    this.props.form.resetFields()
   }
 
   handlecallback(obj) {
@@ -333,6 +338,12 @@ class ManageTagModal extends Component {
 
   handleDropdownVisible(obj){
     const { callbackHostList } = this.props
+    if(obj == 'onVisibleChange'){
+      this.setState({
+        visible: false
+      })
+      return
+    }
     switch(obj.key){
       case 'manageTag':
         this.setState({
@@ -341,10 +352,12 @@ class ManageTagModal extends Component {
         callbackHostList(obj)
         return
       case 'createTag':
-        return this.setState({
+        this.props.form.resetFields()
+        this.setState({
           createLabelModal: true,
           visible: false,
         })
+        return
       case 'labelKey':
         return this.setState({
           visible: false
@@ -353,7 +366,6 @@ class ManageTagModal extends Component {
         return this.setState({
           visible: true
         })
-
     }
   }
 
@@ -467,33 +479,33 @@ class ManageTagModal extends Component {
     });
     return (
       <div id="cluster__ManageTagModal__Component">
-        <TagDropdown labels={this.props.labels} footer={this.props.footer} context={'hostlist'} callbackManegeTag={this.handlecallback} callbackHostList={this.handlecallbackHostList} width={'100px'} visible={this.state.visible}/>
+        <TagDropdown
+          labels={this.props.labels}
+          footer={this.props.footer}
+          context={'hostlist'}
+          callbackManegeTag={this.handlecallback}
+          callbackHostList={this.handlecallbackHostList}
+          handleDropdownVisible={this.handleDropdownVisible}
+          width={'100px'}
+          visible={this.state.visible}
+        />
 
         <Modal
           title="创建标签"
           visible={this.state.createLabelModal}
           onOk={this.handleCreateLabelModal}
-          onCancel={this.handleCancelLabelModal}
+          onCancel={() => this.setState({createLabelModal: false})}
           width="560px"
           wrapClassName="manageLabelModal"
           maskClosable={false}
         >
+          <div className='title'>
+            <div className='labelkey'>标签键</div>
+            <div className='labelvalue'>标签值</div>
+            <div className='handle'>操作</div>
+          </div>
           <Form inline>
-            <div className='title'>
-              <span className='labelkey'>标签键</span>
-              <span className='labelvalue'>标签值</span>
-              <span className='handle'>操作</span>
-            </div>
             <div className='body'>
-              {/*<Form.Item className='inputlabelkey'>
-                <Input placeholder="请输入标签键" className='width' />
-              </Form.Item>
-              <Form.Item className='inputlabelvalue'>
-                <Input placeholder="请输入标签值" className='width' />
-              </Form.Item>
-              <span className='inputhandle' onClick={this.handeldeleteNewLabel}>
-                <Icon type="delete"></Icon>
-              </span>*/}
               { formItems }
             </div>
             <div style={{clear:'both'}}>
