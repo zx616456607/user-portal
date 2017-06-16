@@ -141,7 +141,9 @@ let SvnComponent = React.createClass({
           func: (res) => {
             let notification = new NotificationHandler()
             self.setState({ submiting: false })
-            if (res.statusCode === 409) {
+            if (res.statusCode === 500) {
+              notification.error('无法连接到 SVN 服务器，请检查输入地址和服务器可用性')
+            } else if (res.statusCode === 409) {
               notification.error('所添加项目（' + config.name + '）已经存在，修改后重试')
             } else if (res.statusCode === 401) {
               notification.error('用户名、密码错误，或该用户无权访问')

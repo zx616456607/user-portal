@@ -360,6 +360,8 @@ exports.addManagedProject = function* () {
           throw err
         }
         yield validateSVNAccount(body.address, body.username, body.password)
+      } else {
+        yield checkURLConnectivity(body.address)
       }
       break;
     default:
@@ -385,26 +387,33 @@ function* tryWithDigestAuth(repoURL, username, password) {
 }
 
 function tryRequestWithAuth(repoURL, username, password, sendImmediately) {
-  return new Promise((resolve, reject) => {
-    request.get(repoURL, {
+  return new Promise((resolve, reject) => request.get(repoURL, {
       auth: {
         user: username,
         pass: password,
         sendImmediately
       }
-    }, (error, response, body) => {
-      if (error) {
-        reject(error)
-      }
-      if (response.statusCode !== 200) {
-        error = new Error(JSON.stringify(body))
-        error.status = response.statusCode
-        reject(error)
-      } else {
-        resolve(body)
-      }
-    })
-  })
+    }, waitResponse.bind(null, resolve, reject))
+  )
+}
+
+function checkURLConnectivity(repoURL) {
+  return new Promise((resolve, reject) => request.get(repoURL, waitResponse.bind(null, resolve, reject)))
+}
+
+function waitResponse(resolve, reject, error, response, body) {
+  if (error) {
+    reject(error)
+    return
+  }
+  if (response.statusCode !== 200) {
+    error = new Error(JSON.stringify(body))
+    error.status = response.statusCode
+    reject(error)
+    return
+  } else {
+    resolve(body)
+  }
 }
 
 function* validateSVNAccount(repoURL, username, password) {

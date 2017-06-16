@@ -19,6 +19,11 @@ const FormItem = Form.Item
 const SubMenu = Menu.SubMenu;
 let uuid=0
 
+function range(begin, end) {
+  const count = end - begin
+  return Array.apply(null, Array(count)).map((_, index) => index + begin)
+}
+
 class TagDropdown extends Component {
   constructor(props) {
     super(props)
@@ -100,7 +105,7 @@ class TagDropdown extends Component {
             <Tooltip title={itemson.value} placement="topLeft">
               <div className='name'>{itemson.value}</div>
             </Tooltip>
-            <div className='num'>(<span>{item.values.length}</span>)</div>
+            <div className='num'>(<Tooltip title={itemson.targets.join(", ")}><span>{itemson.targets.length}</span></Tooltip>)</div>
             <div className='select'><Icon type="check-circle-o" /></div>
           </Menu.Item>)
         })
@@ -216,7 +221,7 @@ class ManageTagModal extends Component {
     this.handlecallback = this.handlecallback.bind(this)
     this.handlecallbackHostList = this.handlecallbackHostList.bind(this)
     this.handleCreateLabelModal = this.handleCreateLabelModal.bind(this)
-    this.checkKey = this.checkKey.bind(this)
+    this.checkValue = this.checkValue.bind(this)
     this.handleDropdownVisible = this.handleDropdownVisible.bind(this)
     this.state = {
       createLabelModal: false,
@@ -258,6 +263,9 @@ class ManageTagModal extends Component {
             notificat.close()
             notificat.error('添加失败！')
           }
+        },
+        finally: {
+          func: () => uuid = 0
         }
       })
     })
@@ -298,18 +306,9 @@ class ManageTagModal extends Component {
           let nodeList =[]
           scope.props.nodes.nodes.map((node) => {
             let labels = node.objectMeta.labels
-            let isEqual = true
-            tag.every(item => {
-              if (!labels[item.key]) {
-                isEqual = false
-                return false
-              }
-              return true
-            })
-            if (isEqual) {
+            if (tag.every(label => labels[label.key] === label.value)) {
               nodeList.push(node)
             }
-
           });
           // nodeList = Array.from(new Set(nodeList))
           scope.setState({
@@ -392,7 +391,7 @@ class ManageTagModal extends Component {
       if (!!errors) {
         return
       }
-      uuid++
+      ++uuid
       let keys = form.getFieldValue('keys');
       keys = keys.concat(uuid)
       form.setFieldsValue({
@@ -415,16 +414,6 @@ class ManageTagModal extends Component {
       callback(new Error('以字母或数字开头和结尾中间可(_-)'))
       return
     }
-    let isExtentd
-    for (let item of this.props.labels) {
-      if (item.key === value) {
-        isExtentd = true
-        break
-      }
-    }
-    if (isExtentd) {
-      return callback(new Error('标签键已存在'))
-    }
     callback()
   }
   checkValue(rule, value, callback) {
@@ -439,6 +428,17 @@ class ManageTagModal extends Component {
     }
     if (Kubernetes.IsValidLabelValue(value).length >0) {
       callback(new Error('以字母或数字开头和结尾中间可(_-)'))
+      return
+    }
+    const { form, labels } = this.props
+    const key = form.getFieldValue(`key${uuid}`)
+    if (range(0, uuid).filter(
+        id => form.getFieldValue(`key${id}`) === key
+        && form.getFieldValue(`value${id}`) === value).length > 0) {
+      callback(new Error('标签已重复添加'))
+    }
+    if (labels.filter(label =>  label.key === key && label.value === value).length > 0) {
+      callback(new Error('标签已经存在'))
       return
     }
     callback()
