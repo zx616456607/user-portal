@@ -205,7 +205,7 @@ const Normal = React.createClass({
             clusterNodes.map(node => {
               const { name,ip,podCount,schedulable,isMaster } = node
               return (
-                <Select.Option key={name} disabled={isMaster || schedulable == false ? true : false}>
+                <Select.Option key={name} disabled={isMaster || !schedulable}>
                   {name} | {ip} (容器：{podCount}个)
                 </Select.Option>
               )

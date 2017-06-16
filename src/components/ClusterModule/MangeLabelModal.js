@@ -246,7 +246,7 @@ class ManageLabelModal extends Component {
   }
 
   handleAddLabel() {
-   const { form, addLabels, clusterID } = this.props
+   const { form, addLabels, clusterID, getClusterLabel } = this.props
    const _this = this
    form.validateFields((errors,values)=> {
      if (errors) {
@@ -259,9 +259,11 @@ class ManageLabelModal extends Component {
      addLabels([values],clusterID,{
        success:{
          func:(ret)=> {
+           getClusterLabel(clusterID)
            _this.setState({userCreateLabel:createLabel})
            form.resetFields()
-         }
+         },
+         isAsync: true
        },
        failed: {
          func:(res)=> {

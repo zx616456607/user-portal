@@ -846,6 +846,10 @@ class AppList extends Component {
     })
     self.setState({
       deleteAppsModal: false,
+      runBtn:false,
+      stopBtn:false,
+      isChecked:false,
+      restartBtn:false,
       appList: allApps
     })
     deleteApps(cluster, appNames, {
