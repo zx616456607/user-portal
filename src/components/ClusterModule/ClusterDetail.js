@@ -423,8 +423,8 @@ class ClusterDetail extends Component {
       nodeName: this.props.clusterName,
       nodeLabel: this.props.nodeLabel
     }
-    const runningtime = calcuDate(hostInfo.objectMeta.creationTimestamp)
-    const runningTime = runningtime.substring(0,runningtime.length-1)
+    let runningtime = calcuDate(hostInfo.objectMeta.creationTimestamp)
+    runningtime = runningtime.substring(0,runningtime.length-1)
     return (
       <div id="clusterDetail">
         <Title title="基础设施"/>
@@ -445,7 +445,7 @@ class ClusterDetail extends Component {
             <div className="formItem">
               <div className="h2"></div>
               <div className="list">创建时间：<span className="status">{formatDate(hostInfo.objectMeta ? hostInfo.objectMeta.creationTimestamp : '')}</span></div>
-              <div className="list">运行时间：<span className="role">{runningTime}</span></div>
+              <div className="list">运行时间：<span className="role">{runningtime}</span></div>
             </div>
             <div className="formItem">
               <div className="h2"></div>
