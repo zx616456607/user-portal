@@ -368,6 +368,7 @@ class TenxFlowDetailFlowCard extends Component {
       });
       return
     }
+    const _config = config.spec.ci.config || {}
     confirm({
       title: '确定关闭持续集成？',
       content: `关闭持续集成`,
@@ -378,7 +379,7 @@ class TenxFlowDetailFlowCard extends Component {
             branch: null,
             tag: null,
             mergeRequest: null,
-            buildCluster: config.spec.ci.config.buildCluster
+            buildCluster: _config.buildCluster
           }
         }
         UpdateTenxflowCIRules(flowId, body, {
