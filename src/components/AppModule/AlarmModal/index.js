@@ -899,20 +899,6 @@ class AlarmModal extends Component {
       }
     }
   }
-  formetType(type) {
-    switch(type) {
-      case 'CPU利用率':
-        return 'cpu/usage_rate'
-      case '内存使用':
-        return 'memory/usage'
-      case '上传流量':
-        return 'network/tx_rate'
-      case '下载流量':
-        return 'network/rx_rate'
-      default:
-        return 'cpu/usage_rate'
-    }
-  }
   submitRule() {
     const { form, getSettingList } = this.props;
     form.validateFields((error, values) => {
@@ -970,7 +956,7 @@ class AlarmModal extends Component {
         // update
         // requestBody.strategyID = strategy.strategyID
         requestBody.enable = strategy.enable
-        
+
         if(!this.state.isSendEmail) {
           delete requestBody.receiversGroup
         }
@@ -1103,6 +1089,7 @@ class AlarmModal extends Component {
     if (this.props.isFetching) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
+
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 18 }

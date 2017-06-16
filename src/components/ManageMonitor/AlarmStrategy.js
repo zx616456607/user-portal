@@ -398,7 +398,7 @@ class AlarmStrategy extends Component {
           maskClosable={false}
           footer={null}
         >
-          <CreateAlarm funcs={modalFunc} strategy={this.state.editStrategy} isEdit={this.state.isEdit} isShow={this.state.alarmModal}
+          <CreateAlarm funcs={modalFunc} strategy={this.state.editStrategy} currentService={this.props.currentService} isEdit={this.state.isEdit} isShow={this.state.alarmModal}
             getSettingList={() => loadStrategy(this)} />
         </Modal>
         <Modal title="创建新通知组" visible={this.state.createGroup}

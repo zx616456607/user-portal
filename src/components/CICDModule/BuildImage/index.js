@@ -49,7 +49,7 @@ let menusText = defineMessages({
   },
   updateTime: {
     id: 'CICD.Tenxflow.TenxFlowList.updateTime',
-    defaultMessage: '更新时间',
+    defaultMessage: '上次构建时间',
   },
   status: {
     id: 'CICD.Tenxflow.TenxFlowList.status',
@@ -375,8 +375,8 @@ let MyComponent = React.createClass({
           </div>
           <div className='time'>
             <span className='timeSpan'>
-              <Tooltip placement='topLeft' title={item.updateTime ? dateFormat(item.updateTime) : dateFormat(item.createTime)}>
-                <span>{item.updateTime ? dateFormat(item.updateTime) : dateFormat(item.createTime)}</span>
+              <Tooltip placement='topLeft' title={item.lastBuildTime ? dateFormat(item.lastBuildTime) : '-'}>
+                <span>{item.lastBuildTime ? dateFormat(item.lastBuildTime) : '-'}</span>
               </Tooltip>
             </span>
           </div>
