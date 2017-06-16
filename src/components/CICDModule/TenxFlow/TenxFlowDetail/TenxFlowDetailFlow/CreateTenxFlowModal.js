@@ -62,7 +62,6 @@ const menusText = defineMessages({
   podToPodCheck: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.podToPodCheck',
     defaultMessage: '端对端测试',
-    defaultMessage: '端对端测试',
   },
   runningCode: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.runningCode',
@@ -335,7 +334,7 @@ let CreateTenxFlowModal = React.createClass({
       callback();
     }
   },
-  flowTypeChange(ins) {
+  flowTypeChange(ins, notResetShell) {
     // const ins = e.split('@')[1]
     this.props.form.resetFields(['otherFlowType', 'imageNameProps']);
     if (ins != 3) {
@@ -351,6 +350,12 @@ let CreateTenxFlowModal = React.createClass({
         otherTag: false,
         ImageStoreType: false
       });
+    }
+    if (notResetShell) {
+      this.setState({
+        otherFlowType: ins
+      })
+      return
     }
     // Clean the command entries
     this.props.form.setFieldsValue({ 'shellCodes': [0] });
@@ -910,14 +915,32 @@ let CreateTenxFlowModal = React.createClass({
     return callback()
   },
   baseImageChange(key, tabKey, groupKey) {
-    const { setFieldsValue } = this.props.form
+    const { setFieldsValue, getFieldValue } = this.props.form
+    const oldImageName = getFieldValue('imageName')
+    const oldOtherFlowType = this.state.otherFlowType
+    if (oldOtherFlowType == groupKey && oldImageName == key) return
     this.setState({
-      baseImageUrl: key
+      baseImageUrl: key,
+      otherFlowType: groupKey,
     })
     setFieldsValue({
       imageName: key
     })
-    this.flowTypeChange(groupKey)
+    if(!oldImageName) {
+      this.flowTypeChange(groupKey, false)
+      return
+    }
+    let notResetShell = false
+    if(oldImageName.indexOf(':') > 0 && oldOtherFlowType == groupKey) {
+      if(key.indexOf(':') > 0) {
+        let old = oldImageName.split(':')
+        let newKey = key.split(':')
+        if(old[0] == newKey[0] && old[1] != newKey[1]) {
+          notResetShell = true
+        }
+      }
+    }
+    this.flowTypeChange(groupKey, notResetShell)
   },
   setUniformRepo() {
     this.setState(this.getUniformRepo())
@@ -1120,9 +1143,17 @@ let CreateTenxFlowModal = React.createClass({
         <QueueAnim key={'shellCode' + i + 'Animate'}>
           <div className='serviceDetail' key={'shellCode' + i}>
             <FormItem className='serviceForm'>
-              <Input disabled={scopeThis.state.otherFlowType == 3 ? true : false} onKeyUp={() => this.addShellCode(i)} {...shellCodeProps} type='text' size='large' />
+              <Input
+                style={{ width: '220px' }}
+                disabled={scopeThis.state.otherFlowType == 3 ? true : false}
+                onKeyUp={() => this.addShellCode(i)}
+                {...shellCodeProps}
+                size='large'
+                type='textarea'
+                autosize
+              />
               {scopeThis.state.otherFlowType == 3 || scodes.length == 1 ? null : [
-                <Icon type='delete' onClick={() => this.removeShellCode(i)} />
+                <Icon className="removeShellCodeIcon" type='delete' onClick={() => this.removeShellCode(i)} />
               ]}
             </FormItem>
             <div style={{ clera: 'both' }}></div>
@@ -1150,11 +1181,15 @@ let CreateTenxFlowModal = React.createClass({
         { message: '请选择仓库组', required: false },
       ],
     });
+    let initialBuildImage = buildImages[intFlowTypeIndex] ? buildImages[intFlowTypeIndex].imageList[0].imageName : ''
+    if (intFlowTypeIndex === 2) { // It's to build image step, use default one
+      initialBuildImage = 'tenx_containers/image-builder:v2.2'
+    }
     const imageNameProps = getFieldProps('imageName', {
       rules: [
         { required: true, message: '请选择基础镜像' }
       ],
-      initialValue: buildImages[intFlowTypeIndex] ? buildImages[intFlowTypeIndex].imageList[0].imageName : ''
+      initialValue: initialBuildImage,
     });
     const flowNameProps = getFieldProps('flowName', {
       rules: [

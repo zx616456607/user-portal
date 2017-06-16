@@ -135,62 +135,57 @@ class ContainerProgress extends Component{
   render(){
     const columns = [
       {
-        title: '用户名',
+        title: '用户',
         dataIndex: 'userName',
         key: 'userName',
-        width:'8%',
+        width:'9%',
       },
       {
         title: 'PID',
         dataIndex: 'pid',
         key: 'pid',
-        width:'8%'
+        width:'9%'
       },
       {
         title: 'CPU',
         dataIndex: 'cpuPercent',
         key: 'cpuPercent',
-        width:'8%'
+        width:'9%'
       },
       {
-        title: 'MEM',
-        dataIndex: 'memPercent',
-        key: 'memPercent',
-        width:'8%'
-      },
-      {
-        title: '占用虚拟内存',
+        title: '虚拟内存',
         dataIndex: 'vmSize',
         key: 'vmSize',
-        width:'10%'
+        width:'11%'
       },
       {
-        title: '占用物理内存',
+        title: '物理内存',
         dataIndex: 'vmRSS',
         key: 'vmRSS',
-        width:'10%'
+        width:'11%'
       },
       {
-        title: '进程状态',
+        title: '状态',
         dataIndex: 'status',
         key: 'status',
         render: (text,record,index) => this.renderStatus(text),
-        width:'10%'
+        width:'11%'
       },
       {
         title: '启动时间',
         dataIndex: 'startTime',
         key: 'startTime',
-        width:'10%'
+        width:'90px',
+        className:'Startuptime'
       },
       {
-        title: '使用CPU时间',
+        title: 'CPU时间',
         dataIndex: 'cpuTime',
         key: 'cpuTime',
-        width:'10%'
+        width:'11%'
       },
       {
-        title: '命令',
+        title: '命令行',
         dataIndex: 'cmd',
         key: 'cmd',
         width: '18%',

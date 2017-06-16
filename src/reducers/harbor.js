@@ -204,12 +204,19 @@ function repositoriesTags(state = {}, action) {
       }
     })
   case ActionTypes.HARBOR_REPOSITORIES_TAGS_SUCCESS:
+    const LATEST = 'latest'
+    let data = action.response.result.data
+    const latestTagIndex = data.indexOf(LATEST)
+    if (latestTagIndex > 0) {
+      data.splice(latestTagIndex,1)
+      data.unshift(LATEST)
+    }
     return Object.assign({}, state, {
       [registry]: {
         [imageName]: {
           isFetching: false,
           server: action.response.result.server,
-          tag: action.response.result.data
+          tag: data
         }
       }
     })

@@ -148,7 +148,7 @@ class Ordinary extends Component {
     }
   }
 
-  componentDidMount() {
+  componentWillMount() {
     const {loadClusterInfo, current, loadClusterSummary} = this.props
     const {clusterID} = current.cluster
     loadClusterInfo(clusterID)
@@ -275,6 +275,7 @@ class Ordinary extends Component {
     if (clusterNodeSummary.cpu.length !== 0) {
       clusterNodeSummary.cpu.slice(0, 3).map((item, index) => {
         let name = item.name.replace(/192.168./, '')
+        CPUResourceName.push(name)
         name = name.length > 9 ? `${name.substring(0,6)}...` : name
         CPUNameArr.push(name)
         CPUUsedArr.push(item.used)
@@ -289,6 +290,7 @@ class Ordinary extends Component {
     if (clusterNodeSummary.memory.length !== 0) {
       clusterNodeSummary.memory.slice(0, 3).map((item, index) => {
         let name = item.name.replace(/192.168./, '')
+        memoryResourceName.push(name)
         name = name.length > 9 ? `${name.substring(0,6)}...` : name
         memoryNameArr.push(name)
         memoryUsedArr.push(item.used)
@@ -656,7 +658,7 @@ class Ordinary extends Component {
           let content = '';
           for(let i = 0; i < params.length; i++){
             if(params[i].name){
-              content += "<div>"+CPUResourceName[i] ;
+              content += "<div>"+CPUResourceName[params[i]['dataIndex']] ;
               break;
             }
           }
@@ -667,7 +669,7 @@ class Ordinary extends Component {
             content += key.seriesName + " : " + key.value + "%";
           }
           content += '</div>';
-  
+
           //return出去后echarts会调用html()函数将content字符串代码化
           return content;
         }
@@ -740,7 +742,7 @@ class Ordinary extends Component {
           let content = '';
           for(let i = 0; i < params.length; i++){
             if(params[i].name){
-              content += "<div>"+memoryResourceName[i] ;
+              content += "<div>"+memoryResourceName[params[i]['dataIndex']] ;
               break;
             }
           }
@@ -751,7 +753,7 @@ class Ordinary extends Component {
             content += key.seriesName + " : " + key.value + "%";
           }
           content += '</div>';
-    
+
           //return出去后echarts会调用html()函数将content字符串代码化
           return content;
         }
@@ -886,7 +888,7 @@ class Ordinary extends Component {
           // if(obj.data.memory){
           //   if (obj.name == '已使用') {
           //     return  `已使用${usedMemory}GB`
-          //   } else { 
+          //   } else {
           //     return  `可使用${((capacityMemory * 100 - usedMemory * 100) / 100).toFixed(2)}GB`
           //   }
           // }

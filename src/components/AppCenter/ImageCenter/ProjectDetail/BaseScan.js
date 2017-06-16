@@ -96,10 +96,51 @@ class BaseScan extends Component {
     this.handlemirrorScanstatus = this.handlemirrorScanstatus.bind(this)
     this.handlemirrorScanstatusFialed = this.handlemirrorScanstatusFialed.bind(this)
     this.handlemirrorScanstatusSatus = this.handlemirrorScanstatusSatus.bind(this)
+    this.stopWatching = this.stopWatching.bind(this)
+    this.watchScanStatus = this.watchScanStatus.bind(this)
     this.state = {
       loadingRunning:false,
       basescanFailed:false,
+      watchHandler: null,
     }
+  }
+
+  componentWillUnmount() {
+    this.stopWatching()
+  }
+
+  stopWatching() {
+    if (this.state.watchHandler) {
+      clearTimeout(this.state.watchHandler)
+    }
+  }
+
+  watchScanStatus() {
+    const { imageName, tag, mirrorScanstatus, loadMirrorSafetyLyinsinfo } = this.props
+    const result = mirrorScanstatus[imageName][tag].result
+    const { blobSum, fullName } = result
+    loadMirrorSafetyLyinsinfo({
+      imageName,
+      blob_sum: blobSum,
+      full_name: fullName,
+      tag}, {
+      success: {
+        func: () => {
+          this.setState({basescanFailed : false})
+          const status = result.status
+          if (status === 'running') {
+            this.state.watchHandler = setTimeout(this.watchScanStatus, 60000)
+          } else {
+            this.stopWatching()
+          }
+        },
+        isAsync : true
+      },
+      failed: {
+        func : () => this.setState({basescanFailed : false}),
+        isAsync : true
+      }
+    })
   }
 
   severLyins() {
@@ -158,22 +199,7 @@ class BaseScan extends Component {
     }
     return loadMirrorSafetyScan({...config}, {
       success: {
-        func: () =>{
-          loadMirrorSafetyLyinsinfo({imageName, blob_sum, full_name, tag},{
-            success:{
-              func: () => {
-                this.setState({basescanFailed : false})
-              },
-              isAsync : true
-            },
-            failed: {
-              func : () => {
-                this.setState({basescanFailed : false})
-              },
-              isAsync : true
-            }
-          })
-        },
+        func: this.watchScanStatus,
         isAsync : true
       },
       failed: {
@@ -202,10 +228,12 @@ class BaseScan extends Component {
     if (statusCode && statusCode == 200) {
       switch (status) {
         case 'running':
+          if (!this.state.watchHandler) {
+            this.watchScanStatus()
+          }
           return <div className='BaseScanRunning'>
             <div className="top">正在扫描尚未结束</div>
             <Spin/>
-            <div className='bottom'><Button onClick={this.severLyins} loading={this.state.loadingRunning}>点击重新获取</Button></div>
           </div>
         case 'finished':
           return <TableTemplate mirrorsafetyLyins={mirrorsafetyLyins} imageName={imageName} tag={tag}/>

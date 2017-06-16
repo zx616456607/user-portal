@@ -90,7 +90,6 @@ let FistStop = React.createClass({
         interval: getFieldValue('interval')
       })
       funcs.nextStep(2) // go step 2
-      this.setState({otherEnble:false})
     })
   },
   getAppOrNodeList() {
@@ -848,7 +847,6 @@ class AlarmModal extends Component {
       isSendEmail: 1,
       createGroup: false, // create alarm group modal
       showAlramGroup: true,
-      otherEnble: true
     }
   }
 
@@ -860,7 +858,7 @@ class AlarmModal extends Component {
     }
     if (isEdit) {
       getAlertSetting(cluster.clusterID, {
-        strategyName: strategy.strategyName
+        strategy: strategy.strategyID
       }, {
         success: {
           func: (res) => {
@@ -887,7 +885,7 @@ class AlarmModal extends Component {
       const { isEdit, strategy, getAlertSetting, cluster } = nextProps
       if (isEdit) {
         getAlertSetting(cluster.clusterID, {
-          strategyName: strategy.strategyName
+          strategy: strategy.strategyName
         }, {
           success: {
             func: (res) => {
@@ -972,29 +970,7 @@ class AlarmModal extends Component {
         // update
         // requestBody.strategyID = strategy.strategyID
         requestBody.enable = strategy.enable
-        if (this.state.otherEnble) {
-          requestBody = strategy
-          requestBody.specs= []
-          requestBody.sendEmail = this.state.isSendEmail
-          requestBody.disableNotifyEndTime='0s'
-          requestBody.receiversGroup = form.getFieldValue('notify')
-          setting.forEach(item => {
-            const obj = {
-              metricType: this.formetType(item.type),
-              value: parseInt(item.threshold),
-              operator: item.operation
-            }
-            if (obj.metricType == 'network/rx_rate' || obj.metricType == 'network/tx_rate') {
-              obj.value = obj.value * 1024
-            } else if (obj.metricType == 'memory/usage') {
-              obj.value = obj.value * 1024 * 1024
-            } else {
-              obj.value = obj.value * 100
-            }
-            obj.value = obj.value.toString()
-            requestBody.specs.push(obj)
-          })
-        }
+        
         if(!this.state.isSendEmail) {
           delete requestBody.receiversGroup
         }

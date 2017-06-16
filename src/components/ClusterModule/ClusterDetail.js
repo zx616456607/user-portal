@@ -27,6 +27,7 @@ import QueueAnim from 'rc-queue-anim'
 import AlarmStrategy from '../ManageMonitor/AlarmStrategy'
 import ManageLabelModal from './MangeLabelModal'
 import Title from '../Title'
+import Resourcequota from '../../../static/img/Resourcequota.svg'
 
 const TabPane = Tabs.TabPane
 const MASTER = '主控节点/Master'
@@ -127,16 +128,18 @@ let HostInfo = React.createClass({
         title: '容器名称',
         dataIndex: 'objectMeta.name',
         key: 'name',
+        width:'250px',
       }, {
         title: '状态',
         dataIndex: 'podPhase',
-        width:'15%',
+        width:'8%',
         key: 'success',
         render: (text) => this.checkedState(text)
       }, {
         title: '命名空间',
         dataIndex: 'objectMeta.namespace',
         key: 'address',
+        width:'100px',
       }, {
         title: '所属应用',
         dataIndex: `objectMeta.labels`,
@@ -182,21 +185,21 @@ let HostInfo = React.createClass({
           <div className="topTitle" style={{marginTop:'20px',marginBottom: 10}}>主机信息</div>
           <div className="wrapRow">
             <div className="host-list">
-              <div className="titles"><svg className="svg-icon"><use xlinkHref="#resource"></use></svg> 资源配额</div>
+              <div className="titles"><div className="quotaimg"><img style={{width:'100%'}} src={Resourcequota}/></div> 资源配额</div>
               <br />
               <Row className="items">
-                <Col span={8}><span className="keys">CPU：</span><span className="valus">{isNaN(hostInfo.cpuTotal / 1000)? '': hostInfo.cpuTotal / 1000} 核</span></Col>
+                <Col span={8}><span className="keys resources">CPU：</span><span className="valus">{isNaN(hostInfo.cpuTotal / 1000)? '': hostInfo.cpuTotal / 1000} 核</span></Col>
                 <Col span={10}><Progress percent={ Math.min(instant.cpus, 100) } showInfo={false} strokeWidth={8} status="active" /></Col>
                 <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 { (instant.cpus || 0).toFixed(2) } %</Col>
               </Row>
               <Row className="items">
-                <Col span={8}><span className="keys">内存：</span><span className="valus">{ memTotal } GB</span></Col>
+                <Col span={8}><span className="keys resources">内存：</span><span className="valus">{ memTotal } GB</span></Col>
                 <Col span={10}><Progress percent={ Math.min(useMem, 100) } strokeWidth={8} showInfo={false} status="active" /></Col>
                 <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 { useMem } %</Col>
 
               </Row>
               <Row className="items">
-                <Col span={8}><span className="keys">容器配额：</span><span className="valus">{hostInfo.podCap} 个</span></Col>
+                <Col span={8}><span className="keys resources">容器配额：</span><span className="valus">{hostInfo.podCap} 个</span></Col>
                 <Col span={10}><Progress percent={ Math.round(foreverPodNumber / hostInfo.podCap *100) } strokeWidth={8} showInfo={false} status="active" /></Col>
                 <Col span={6} style={{whiteSpace:'nowrap'}}>&nbsp; 已使用 { foreverPodNumber} 个</Col>
 
@@ -206,18 +209,18 @@ let HostInfo = React.createClass({
             <div className="host-list">
               <div className="titles"><svg className="svg-icon"><use xlinkHref="#tag"></use></svg> 版本信息</div>
               <br />
-              <Row className="items">
-                <Col span={12}><span className="keys">内核版本：</span>{hostInfo.versions ? hostInfo.versions.kernel : ''}</Col>
-                <Col span={12}><span className="keys">kubelet 版本：</span>{hostInfo.versions ? hostInfo.versions.kubelet : ''}</Col>
+              <Row className="items versioninformation">
+                <Col span={12}>内核版本： {hostInfo.versions ? hostInfo.versions.kernel : ''}</Col>
+                <Col span={12}>kubelet 版本： {hostInfo.versions ? hostInfo.versions.kubelet : ''}</Col>
               </Row>
-              <Row className="items">
-                <Col span={12}><span className="keys">Docker 版本：</span>{hostInfo.versions ? hostInfo.versions.docker.replace('docker://','') : ''}</Col>
-                <Col span={12}><span className="keys">kube-proxy：</span>{hostInfo.versions ? hostInfo.versions.kubeProxy : ''}</Col>
+              <Row className="items versioninformation">
+                <Col span={12}>Docker 版本： {hostInfo.versions ? hostInfo.versions.docker.replace('docker://','') : ''}</Col>
+                <Col span={12}>kube-proxy： {hostInfo.versions ? hostInfo.versions.kubeProxy : ''}</Col>
               </Row>
             </div>
 
             <div className="host-list">
-              <div className="titles"><svg className="svg-icon"><use xlinkHref="#tag"></use></svg> 标签信息 <Button className='manageLabelButton' type="ghost" onClick={this.handleManageLabelModal}><Icon type="setting" />管理标签</Button></div>
+              <div className="titles"><svg className='size select'><use xlinkHref="#managelabels"></use></svg> 标签信息 <Button className='manageLabelButton' type="ghost" onClick={this.handleManageLabelModal}><Icon type="setting" />管理标签</Button></div>
               <br />
               <div className='labelContainer'>
                 {this.formTagContainer()}
@@ -420,6 +423,8 @@ class ClusterDetail extends Component {
       nodeName: this.props.clusterName,
       nodeLabel: this.props.nodeLabel
     }
+    let runningtime = calcuDate(hostInfo.objectMeta.creationTimestamp)
+    runningtime = runningtime.substring(0,runningtime.length-1)
     return (
       <div id="clusterDetail">
         <Title title="基础设施"/>
@@ -440,7 +445,7 @@ class ClusterDetail extends Component {
             <div className="formItem">
               <div className="h2"></div>
               <div className="list">创建时间：<span className="status">{formatDate(hostInfo.objectMeta ? hostInfo.objectMeta.creationTimestamp : '')}</span></div>
-              <div className="list">运行时间：<span className="role">{calcuDate(hostInfo.objectMeta.creationTimestamp)}</span></div>
+              <div className="list">运行时间：<span className="role">{runningtime}</span></div>
             </div>
             <div className="formItem">
               <div className="h2"></div>

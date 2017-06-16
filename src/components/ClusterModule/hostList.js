@@ -18,8 +18,8 @@ import ManageLabelModal from './MangeLabelModal'
 import './style/hostList.less'
 import isEqual from 'lodash/isEqual'
 
-const MASTER = '主控节点/Master'
-const SLAVE = '计算节点/Slave'
+const MASTER = 'Master'
+const SLAVE = 'Slave'
 const SubMenu = Menu.SubMenu;
 
 function diskFormat(num) {
@@ -207,7 +207,7 @@ const MyComponent = React.createClass({
             <div className='bottomSpan'>{memoryUsed(item[camelize('memory_total_kb')], memoryMetric, item.objectMeta.name)}</div>
           </div>
           <div className='schedule commonTitle'>
-            <Switch style={{display:"block"}}
+            <Switch
               className='switchBox'
               defaultChecked={item.schedulable}
               checkedChildren='开'
@@ -493,7 +493,7 @@ class hostList extends Component {
             type='primary'
             onClick={()=> this.handleAddClusterNode()}
           >
-            <Icon type='plus' />
+            <i className="fa fa-plus" style={{marginRight:'5px'}}/>
             <span>添加主机节点</span>
           </Button>
           <Button className='terminalBtn' size='large' type='ghost' onClick={this.openTerminalModal}>
@@ -503,7 +503,7 @@ class hostList extends Component {
             <span>终端 | 集群管理</span>
           </Button>
           <Button type='ghost' size='large' className="refreshBtn" onClick={() => this.loadData()}>
-            <i className='fa fa-refresh' /> 刷新
+            <i className='fa fa-refresh' /> 刷 新
           </Button>
           <span className='searchBox'>
             <Input className='searchInput' size='large' placeholder='搜索' type='text' onPressEnter={() => this.searchNodes()} />
@@ -529,7 +529,7 @@ class hostList extends Component {
               <span>状态</span>
             </div>
             <div className='role commonTitle'>
-              <span>节点角色</span>
+              <span>角色</span>
             </div>
             <div className='alarm commonTitle'>
               <span>监控告警</span>

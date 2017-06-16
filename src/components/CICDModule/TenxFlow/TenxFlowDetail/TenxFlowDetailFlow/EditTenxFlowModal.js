@@ -311,8 +311,9 @@ let EditTenxFlowModal = React.createClass({
       getDockerfiles(tempBody, {
         success: {
           func: (res) => {
+            const result = res.data.message || {}
             _this.setState({
-              dockerFileTextarea: res.data.message.content
+              dockerFileTextarea: result.content
             })
           },
           isAsync: true
@@ -445,7 +446,7 @@ let EditTenxFlowModal = React.createClass({
       callback();
     }
   },
-  flowTypeChange(ins) {
+  flowTypeChange(ins, notResetShell) {
     // const ins = e.split('@')[1]
     this.props.form.resetFields(['otherFlowType', 'imageNameProps']);
     if (ins != 3) {
@@ -461,6 +462,12 @@ let EditTenxFlowModal = React.createClass({
         otherTag: false,
         ImageStoreType: false
       });
+    }
+    if(notResetShell == true) {
+      this.setState({
+        otherFlowType: ins
+      })
+      return
     }
     // Clean the command entries
     this.props.form.setFieldsValue({ 'shellCodes': [0] });
@@ -1038,7 +1045,10 @@ let EditTenxFlowModal = React.createClass({
     return callback()
   },
   baseImageChange(key, tabKey, groupKey) {
-    const { setFieldsValue } = this.props.form
+    const { setFieldsValue, getFieldValue } = this.props.form
+    const oldImageName = getFieldValue('imageName')
+    const oldOtherFlowType = this.state.otherFlowType
+    if (oldOtherFlowType == groupKey && oldImageName == key) return
     this.setState({
       baseImageUrl: key,
       otherFlowType: groupKey,
@@ -1046,7 +1056,21 @@ let EditTenxFlowModal = React.createClass({
     setFieldsValue({
       imageName: key
     })
-    this.flowTypeChange(groupKey)
+    if(!oldImageName) {
+      this.flowTypeChange(groupKey, false)
+      return
+    }
+    let notResetShell = false
+    if(oldImageName.indexOf(':') > 0 && oldOtherFlowType == groupKey) {
+      if(key.indexOf(':') > 0) {
+        let old = oldImageName.split(':')
+        let newKey = key.split(':')
+        if(old[0] == newKey[0] && old[1] != newKey[1]) {
+          notResetShell = true
+        }
+      }
+    }
+    this.flowTypeChange(groupKey, notResetShell)
   },
   setUniformRepo() {
     const {
@@ -1281,9 +1305,17 @@ let EditTenxFlowModal = React.createClass({
         <QueueAnim key={'shellCode' + i + 'Animate'}>
           <div className='serviceDetail' key={'shellCode' + i}>
             <FormItem className='serviceForm'>
-              <Input disabled={scopeThis.state.otherFlowType == 3 ? true : false} onKeyUp={() => this.addShellCode(i)} {...shellCodeProps} type='text' size='large' />
+              <Input
+                style={{ width: '220px' }}
+                disabled={scopeThis.state.otherFlowType == 3 ? true : false}
+                onKeyUp={() => this.addShellCode(i)}
+                {...shellCodeProps}
+                size='large'
+                type='textarea'
+                autosize
+              />
               {scopeThis.state.otherFlowType == 3 || scodes.length == 1 ? null : [
-                <Icon type='delete' onClick={() => this.removeShellCode(i)} />
+                <Icon className="removeShellCodeIcon" type='delete' onClick={() => this.removeShellCode(i)} />
               ]}
             </FormItem>
             <div style={{ clera: 'both' }}></div>

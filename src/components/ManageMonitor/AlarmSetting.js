@@ -184,7 +184,7 @@ let MyComponent = React.createClass({
     if (text ==3) {
       return <span className="stop"><i className="fa fa-circle" /> 忽略</span>
     }
-    return <span className="unknown"><i className="fa fa-circle" /> 告警</span>
+    return <span className="padding"><i className="fa fa-circle" /> 告警</span>
   },
   handOverlook() {
     const { currentStrategy, ignoreTime, ignoreSymbol } = this.state
@@ -389,7 +389,7 @@ let MyComponent = React.createClass({
               <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-down" /><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
               <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
               <td onClick={()=> this.tableListMore(index)}>
-                <Link to={ list.targetType ? `/cluster/${clusterID}/${list.targetName}` : `/app_manage/service`}>{list.targetName}</Link>
+                <Link to={ list.targetType ? `/cluster/${clusterID}/${list.targetName}` : `/app_manage/service?serName=${list.targetName}`}>{list.targetName}</Link>
               </td>
               <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
               <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
@@ -412,7 +412,7 @@ let MyComponent = React.createClass({
             <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-right" /><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
             <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
             <td onClick={()=> this.tableListMore(index)}>
-              <Link to={ list.targetType ? `/cluster/${clusterID}/${list.targetName}` : `/app_manage/service`}>{list.targetName}</Link>
+              <Link to={ list.targetType ? `/cluster/${clusterID}/${list.targetName}` : `/app_manage/service?serName=${list.targetName}`}>{list.targetName}</Link>
             </td>
             <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
             <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
@@ -523,7 +523,7 @@ class AlarmSetting extends Component {
     let nextSpaceName = nextProps.space.spaceName;
     let preClusterID = this.props.clusterID;
     let nextClusterID = nextProps.clusterID;
-    
+
     if(preSpaceName !== nextSpaceName || preClusterID !== nextClusterID){
       getSettingList(nextClusterID, {
         from: DEFAULT_PAGE - 1,
@@ -935,9 +935,10 @@ class AlarmSetting extends Component {
               <i className="fa fa-plus" style={{marginRight:'5px'}}/>
               创建
             </Button>
-            <Button size="large" type="ghost" onClick={() => this.refreshPage()}><i className="fa fa-refresh" /> 刷新</Button>
+
             <Button icon="caret-right" size="large" type="ghost" disabled={!this.state.canStart} onClick={() => this.showStart()}>启用</Button>
             <Button size="large" type="ghost" disabled={!this.state.canStop} onClick={() => this.showStop()}><i className="fa fa-stop" /> &nbsp;停用</Button>
+            <Button size="large" type="ghost" onClick={() => this.refreshPage()}><i className="fa fa-refresh" /> 刷新</Button>
             <Button icon="delete" type="ghost" disabled={this.state.isDelete} onClick={()=> this.setState({deleteModal: true})} size="large">删除</Button>
             {/*<Button icon="edit" type="ghost" disabled={!canEdit} size="large" onClick={() => this.editSetting()} >修改</Button>*/}
             <div className="inputGrop">

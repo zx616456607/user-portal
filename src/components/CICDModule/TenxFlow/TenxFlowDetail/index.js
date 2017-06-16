@@ -288,7 +288,7 @@ class TenxFlowDetail extends Component {
             notification.error('镜像不存在，请先执行构建')
             return
           }
-          if(res.statusCode == 403) {
+          if(res.statusCode == 403 || res.statusCode == 401) {
             notification.error('没有权限访问该镜像')
             return
           }
@@ -447,8 +447,6 @@ class TenxFlowDetail extends Component {
         </div>
       )
     }
-    console.log('flowInfo')
-    console.log(flowInfo)
     const checkImage = this.state.showImage.length > 0 && this.state.showImage.map(list => {
       return (
         <div className="cursor" onClick={() => this.goCheckImage(list)} key={list.imageName} style={{ lineHeight: '25px' }}><a>{list.imageName}</a></div>

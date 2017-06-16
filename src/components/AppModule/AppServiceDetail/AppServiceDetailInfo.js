@@ -119,6 +119,11 @@ class MyComponent extends Component {
     const { serviceDetail, cluster, editServiceEnv } = this.props
     const Notification = new NotificationHandler()
     this.setState({appEditLoading: true})
+    if(dataArray.length > 1 && (dataArray[dataArray.length-1].name == '' || dataArray[dataArray.length-1].value == '' )){
+      
+      new NotificationHandler().error("请先保存新增的环境变量")
+      return
+    }
     let body = {
       clusterId : cluster,
       service : serviceDetail.metadata.name,
@@ -205,6 +210,8 @@ class MyComponent extends Component {
       rowDisableArray,
       dataArray,
       saveBtnLoadingArray
+    },()=>{
+      document.getElementById(`envName${dataArray.length-1}`).focus()
     })
   }
 
@@ -282,7 +289,7 @@ class MyComponent extends Component {
             {
               rowDisableArray[index].disable
               ?<FormItem>
-                <Input {...getFieldProps(`envName${index}`, {
+                <Input id={`envName${index}`} {...getFieldProps(`envName${index}`, {
                   initialValue:env.name,
                   rules: [{ validator: this.envNameCheck },],
                 })} placeholder={env.name} size="default"/>

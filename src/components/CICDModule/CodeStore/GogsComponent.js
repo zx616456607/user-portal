@@ -458,6 +458,9 @@ class GogsComponent extends Component {
           <Tooltip placement="top" title={formatMessage(menusText.syncCode)}>
             <Icon type="reload" onClick={() => this.syncRepoList()}  />
           </Tooltip>
+          <Tooltip title={this.props.repoUser ? this.props.repoUser.url : ''}>
+            <Icon type="link" style={{ margin: '0 20px' }} />
+          </Tooltip>
           <div className="right-search">
             <Input className='searchBox' size="large" style={{ width: '180px', paddingRight: '28px' }} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
             <i className='fa fa-search' onClick={this.searchClick}></i>
