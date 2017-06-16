@@ -375,8 +375,8 @@ let MyComponent = React.createClass({
           </div>
           <div className='time'>
             <span className='timeSpan'>
-              <Tooltip placement='topLeft' title={item.updateTime ? dateFormat(item.updateTime) : dateFormat(item.createTime)}>
-                <span>{item.updateTime ? dateFormat(item.updateTime) : dateFormat(item.createTime)}</span>
+              <Tooltip placement='topLeft' title={item.lastBuildTime ? dateFormat(item.lastBuildTime) : '-'}>
+                <span>{item.lastBuildTime ? dateFormat(item.lastBuildTime) : '-'}</span>
               </Tooltip>
             </span>
           </div>
