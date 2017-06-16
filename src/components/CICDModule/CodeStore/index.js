@@ -184,7 +184,7 @@ const MyComponent = React.createClass({
                 <FormattedMessage {...menusText.show} />
                 </span>
               </Menu.Item>
-              : null
+              : <Menu.Item key="none" style={{ display: 'none' }}></Menu.Item>
             }
           </Menu>
           :
@@ -197,7 +197,7 @@ const MyComponent = React.createClass({
               <FormattedMessage {...menusText.show} />
               </span>
             </Menu.Item>
-            : null
+            : <Menu.Item key="none" style={{ display: 'none' }}></Menu.Item>
             }
           </Menu>
       );

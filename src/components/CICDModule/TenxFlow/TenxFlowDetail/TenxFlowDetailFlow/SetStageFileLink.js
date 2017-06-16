@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { DEFAULT_REGISTRY } from '../../../../../constants'
+import { DEFAULT_REGISTRY, DEFAULT_SHARE_DIR } from '../../../../../constants'
 import { setStageLink } from '../../../../../actions/cicd_flow'
 import './style/SetStageFileLink.less'
 import { browserHistory } from 'react-router';
@@ -115,7 +115,7 @@ let SetStageFileLink = React.createClass({
       return _setStageLink()
     }
     body.enabled = 1
-    form.validateFields(['thisFile', 'nextFile'], (errors, values) => {
+    form.validateFields(['thisFile'], (errors, values) => {
       if (!!errors) {
         return;
       }
@@ -126,27 +126,9 @@ let SetStageFileLink = React.createClass({
         tempThisFile = values.thisFile;
       }
       body.sourceDir = tempThisFile;
-      let tempNextFile = '';
-      if(values.nextFile.indexOf('/') != 0) {
-        tempNextFile = '/' + values.nextFile;
-      } else {
-        tempNextFile = values.nextFile;
-      }
-      body.targetDir = tempNextFile;
+      body.targetDir = DEFAULT_SHARE_DIR
       _setStageLink()
     });
-    /*form.validateFields(['nextFile'],(errors, values) => {
-      if (!!errors) {
-        return;
-      }
-      let tempNextFile = '';
-      if(values.nextFile.indexOf('/') != 0) {
-        tempNextFile = '/' + values.nextFile;
-      } else {
-        tempNextFile = values.nextFile;
-      }
-      body.targetDir = tempNextFile;
-    });*/
   },
   onChangeUseFile(e) {
     //this function for change the input disabled or not
@@ -163,7 +145,7 @@ let SetStageFileLink = React.createClass({
   closeModal() {
     //this function for close the setting modal
     const { scope, form, config } = this.props;
-    form.resetFields(['useFile', 'thisFile', 'nextFile']);
+    form.resetFields(['useFile', 'thisFile']);
     let tempFlag = config.link.enabled == 1 ? true : false;
     this.setState({
       useFileFlag: tempFlag
@@ -189,13 +171,6 @@ let SetStageFileLink = React.createClass({
       ],
       initialValue: formatSourceFile(config),
     });
-    const nextFileProps = getFieldProps('nextFile', {
-      rules: [
-        { message: '请输入下一步骤共享目录' },
-        { validator: this.checkPath }
-      ],
-      initialValue: formatNextFile(config),
-    });
     const formItemLayout = {
       labelCol: { span: 6 },
       wrapperCol: { span: 18 },
@@ -212,9 +187,6 @@ let SetStageFileLink = React.createClass({
           </FormItem>
           <FormItem label="当前步骤共享目录"  {...formItemLayout}>
             <Input {...thisFileProps} disabled={!this.state.useFileFlag} className='commonInput' size='large' />
-          </FormItem>
-          <FormItem label="下一步骤共享目录"  {...formItemLayout}>
-            <Input {...nextFileProps} disabled={!this.state.useFileFlag} className='commonInput' size='large' />
           </FormItem>
           <div className='btnBox'>
             <Button size='large' type='primary' onClick={this.submitForm.bind(this, config)}>修改</Button>
