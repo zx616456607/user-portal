@@ -342,6 +342,9 @@ class QuickCreateApp extends Component {
               return
             }
           }
+          if (err.statusCode == 402) {
+            return
+          }
           const { message } = err
           notification.error(`${msgObj}失败`, message.message)
         }
