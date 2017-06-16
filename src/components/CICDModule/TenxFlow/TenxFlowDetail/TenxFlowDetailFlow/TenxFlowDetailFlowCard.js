@@ -749,6 +749,7 @@ class TenxFlowDetailFlowCard extends Component {
         <div style={{ clear: 'both' }}></div>
         <Modal className='tenxFlowCicdSetting'
           visible={this.state.cicdSetModalShow}
+          onCancel={()=>this.setState({cicdSetModalShow:false})}
           >
           <CICDSettingModal scope={scopeThis} flowId={flowId}
             ciRules={ciRules} isFetching={isFetching} visible={this.state.cicdSetModalShow}/>

@@ -83,7 +83,7 @@ function checkBranchUsed(config) {
 }
 
 let CICDSettingModal = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       useBranch: false,
       useTag: false,

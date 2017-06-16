@@ -202,11 +202,15 @@ class CreateVolume extends Component {
           failed: {
             func: (err) => {
               this.handleResetState()
+              notification.close()
               if(err.statusCode === 409){
                 notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
                 return
               }
-              notification.close()
+              if (err.message) {
+                notification.error(err.message)
+                return
+              }
               notification.error('创建存储卷失败')
             }
           }

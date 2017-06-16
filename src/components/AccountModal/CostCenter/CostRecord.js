@@ -89,7 +89,7 @@ class CostRecord extends Component{
       teamListVisible: visible
     })
   }
-  transformDate(data){
+  transformDate(isFullDate){
     function _addZero(text) {
       return text.toString().length === 2 ? text : `0${text}`
     }
@@ -98,7 +98,7 @@ class CostRecord extends Component{
     let y = date.getFullYear()
     let m = date.getMonth() + 1
     let d = date.getDate()
-    if (data) {
+    if (isFullDate) {
       return (y + '-' + _addZero(m) + '-' + _addZero(d))
     }
     return (y+'-'+_addZero(m))
@@ -329,7 +329,7 @@ class CostRecord extends Component{
       </div>
     )
     let getSpaceCostBar = function() {
-      return getCostBar(spaceCostArr, spaceSummaryInDay, standard, _this.transformDate)
+      return getCostBar(spaceCostArr, spaceSummaryInDay, standard)
     }
     let convertDetailItems = function(itemsRaw) {
       if (!Array.isArray(itemsRaw)) {
