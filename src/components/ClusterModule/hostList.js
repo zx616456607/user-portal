@@ -294,7 +294,8 @@ class hostList extends Component {
           let podCount = result.data.clusters.podCount;
           this.setState({
             nodeList: nodeList,
-            podCount: podCount
+            podCount: podCount,
+            summary: [],
           })
         },
         isAsync: true
@@ -510,7 +511,14 @@ class hostList extends Component {
             <Icon type="search" className="fa" onClick={() => this.searchNodes()} />
           </span>
           <span className='selectlabel' id="cluster__hostlist__selectlabel">
-            <TagDropdown clusterID={this.props.clusterID} callbackHostList={this.handleDropdownTag} labels={labels} scope={scope} footer={true}/>
+            <TagDropdown
+              clusterID={this.props.clusterID}
+              callbackHostList={this.handleDropdownTag}
+              labels={labels}
+              scope={scope}
+              footer={true}
+              getClusterLabel={this.props.getClusterLabel}
+            />
           </span>
           {
             this.state.summary.length > 0
