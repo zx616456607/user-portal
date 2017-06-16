@@ -163,7 +163,6 @@ class BaseScan extends Component {
             success:{
               func: () => {
                 this.setState({basescanFailed : false})
-                this.watchScanStatus()
               },
               isAsync : true
             },
@@ -206,6 +205,7 @@ class BaseScan extends Component {
           return <div className='BaseScanRunning'>
             <div className="top">正在扫描尚未结束</div>
             <Spin/>
+            <div className='bottom'><Button onClick={this.severLyins} loading={this.state.loadingRunning}>点击重新获取</Button></div>
           </div>
         case 'finished':
           return <TableTemplate mirrorsafetyLyins={mirrorsafetyLyins} imageName={imageName} tag={tag}/>
