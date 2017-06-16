@@ -20,6 +20,11 @@ import NotificationHandler from '../../common/notification_handler'
 const FormItem = Form.Item
 let uuid = 0
 
+function range(begin, end) {
+  const count = end - begin
+  return Array.apply(null, Array(count)).map((_, index) => index + begin)
+}
+
 class ClusterLabelManage extends Component{
   constructor(props){
     super(props)
@@ -30,7 +35,7 @@ class ClusterLabelManage extends Component{
     this.handleDeleteButton = this.handleDeleteButton.bind(this)
     this.handleDelteOkModal = this.handleDelteOkModal.bind(this)
     this.handleDelteCancelModal = this.handleDelteCancelModal.bind(this)
-    this.checkKey = this.checkKey.bind(this)
+    this.checkValue = this.checkValue.bind(this)
     this.state = {
       editVisible : false,
       deleteVisible : false,
@@ -57,6 +62,7 @@ class ClusterLabelManage extends Component{
     })
     setTimeout(()=> {
       this.props.form.resetFields()
+      uuid = 0
     },500)
   }
 
@@ -124,8 +130,8 @@ class ClusterLabelManage extends Component{
       if (!!errors) {
         return
       }
-      uuid++
-      let keys = form.getFieldValue('keys');
+      ++uuid
+      let keys = form.getFieldValue('keys')
       keys = keys.concat(uuid)
       form.setFieldsValue({
         keys
@@ -149,27 +155,6 @@ class ClusterLabelManage extends Component{
       callback(new Error('以字母或数字开头和结尾中间可(_-)'))
       return
     }
-    const {form} = this.props
-    let isExtentd
-    let isEsist
-    let key = form.getFieldValue('keys')
-    let currentKey = Math.max.apply(null,key)
-    key.length >1 && key.forEach(item => {
-       if (item !== currentKey && value == form.getFieldValue(`key${item}`)) {
-        isEsist = true
-      }
-    })
-    if (isEsist) {
-      return callback('标签键重复')
-    }
-    this.props.result.forEach(item => {
-      if (item.key === value) {
-        isExtentd = true
-      }
-    })
-    if (isExtentd) {
-      return callback(new Error('标签键已存在'))
-    }
     callback()
   }
   checkValue(rule, value, callback) {
@@ -184,6 +169,17 @@ class ClusterLabelManage extends Component{
     }
     if (Kubernetes.IsValidLabelValue(value).length >0) {
       callback(new Error('以字母或数字开头和结尾中间可(_-)'))
+      return
+    }
+    const { form, result } = this.props
+    const key = form.getFieldValue(`key${uuid}`)
+    if (range(0, uuid).filter(
+      id => form.getFieldValue(`key${id}`) === key
+        && form.getFieldValue(`value${id}`) === value).length > 0) {
+      callback(new Error('标签已重复添加'))
+    }
+    if (result.filter(label =>  label.key === key && label.value === value).length > 0) {
+      callback(new Error('标签已经存在'))
       return
     }
     callback()
@@ -239,6 +235,7 @@ class ClusterLabelManage extends Component{
         }
         if (targets.key == labels.key && targets.value == labels.value) {
           notificat.info('未作更改，无需更新！')
+          uuid = 0
           return
         }
         const body = {
@@ -262,6 +259,9 @@ class ClusterLabelManage extends Component{
               notificat.close()
               notificat.error('修改失败！')
             }
+          },
+          finally: {
+            func:()=> uuid = 0
           }
         })
       });
