@@ -285,6 +285,24 @@ let EditTenxFlowModal = React.createClass({
   componentWillMount() {
     // const {getAvailableImage} = this.props
     // getAvailableImage()
+    const { config, form } = this.props
+    const { setFieldsValue, getFieldProps, getFieldValue } = form
+    if (config) {
+      const envs = config.spec.container.env
+      const imageEnvInputs = []
+      envs.forEach((env, index) => {
+        imageEnvInputs.push(index)
+        getFieldProps(`imageEnvName${index}`, {
+          initialValue: env.name
+        })
+        getFieldProps(`imageEnvValue${index}`, {
+          initialValue: env.value
+        })
+      })
+      getFieldProps('imageEnvInputs', {
+        initialValue: imageEnvInputs
+      })
+    }
     const { loadClusterList, loadProjectList } = this.props
     loadClusterList()
     loadProjectList(DEFAULT_REGISTRY, { page_size: 100 })
@@ -362,16 +380,42 @@ let EditTenxFlowModal = React.createClass({
         }
       });
     }
+    
     let serviceList = Boolean(config.spec.container.dependencies) ? config.spec.container.dependencies : [];
     if (serviceList) {
       serviceList.map((item, index) => {
-        uuid++;
         let keys = form.getFieldValue('services');
-        keys = keys.concat(uuid);
+        if (keys.indexOf(index) >= 0) {
+          return
+        }
+        keys = keys.concat(index);
         form.setFieldsValue({
           'services': keys
         });
-      });
+      })
+      const { getFieldProps, getFieldValue } = form
+      getFieldValue('services').forEach(k => {
+        const dependency = serviceList[k]
+        if(!dependency) return
+        form.getFieldProps('service' + index + 'inputs', {
+          initialValue: []
+        })
+        const inputs = []
+        if(dependency.env) {
+          dependency.env.forEach((env, index) => {
+            inputs.push(index)
+            getFieldProps(`service${k}inputName${index}`, {
+              initialValue: env.name
+            })
+            getFieldProps(`service${k}inputValue${index}`, {
+              initialValue: env.value
+            })
+          })
+        }
+        getFieldProps('service' + k + 'inputs', {
+          initialValue: inputs
+        })
+      })
     }
   },
   componentWillReceiveProps(nextProps){
@@ -456,7 +500,7 @@ let EditTenxFlowModal = React.createClass({
         otherTag: false,
         ImageStoreType: false
       });
-    } else {
+    } else if(this.state.otherFlowType != ins) {
       this.setState({
         useDockerfile: true,
         otherTag: false,
