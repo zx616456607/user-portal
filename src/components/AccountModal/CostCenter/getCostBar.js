@@ -9,7 +9,7 @@
 import moment from 'moment'
 import { parseAmount } from '../../../common/tools'
 
-export function getCostBar (costArr, summaryData, standard, transformDate){
+export function getCostBar (costArr, summaryData, standard){
   let xAxisData = costArr
   let yAxisData = []
   if (!summaryData.isFetching && summaryData.month != '') {
@@ -51,8 +51,8 @@ export function getCostBar (costArr, summaryData, standard, transformDate){
       axisPointer : {
         type : 'shadow'
       },
-      formatter: standard ? (transformDate() + '-{b}<br/>消费 ￥{c}') :
-                            (transformDate() + '-{b}<br/>消费 {c}T币'),
+      formatter: standard ? (summaryData.month + '-{b}<br/>消费 ￥{c}') :
+                            (summaryData.month + '-{b}<br/>消费 {c} T'),
       textStyle: {
         color: '#46b2fa',
         fontSize: 12,

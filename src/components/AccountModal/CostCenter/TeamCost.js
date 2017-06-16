@@ -144,7 +144,7 @@ class TeamCost extends Component{
       }
     }
     let getTeamCostBar = function (){
-      return getCostBar(teamCostArr, teamSummary, standard, _this.transformDate)
+      return getCostBar(teamCostArr, teamSummary, standard)
     }
     return (
       <div id='TeamCost'>
