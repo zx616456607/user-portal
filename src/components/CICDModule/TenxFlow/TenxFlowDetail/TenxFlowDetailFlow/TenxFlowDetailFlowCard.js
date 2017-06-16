@@ -523,7 +523,7 @@ class TenxFlowDetailFlowCard extends Component {
       disabled = true
     }
     const btn = currentStatusBtn(lastBuildStatus)
-    if ((lastBuildStatus && lastBuildStatus.status === 2) || project.repoType === 'svn') {
+    if (lastBuildStatus && lastBuildStatus.status === 2) {
       return (
         <Button size='large' type='primary' className='startBtn'
           onClick={this.buildFlow.bind(this, id, lastBuildStatus, name, null, null)}>
@@ -532,8 +532,14 @@ class TenxFlowDetailFlowCard extends Component {
       )
     }
     let targetElement = (
-      <Button size='large' type='primary' className='startBtn'
-        onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId)}>
+      <Button size='large' type='primary' className='startBtn' disabled={disabled}
+        onClick={() => {
+          if (project.repoType === 'svn') {
+            this.buildFlow(id, lastBuildStatus, name, null, null)
+            return
+          }
+          projectId && getRepoBranchesAndTagsByProjectId(projectId)
+        }}>
         {btn}
       </Button>
     )
@@ -545,15 +551,13 @@ class TenxFlowDetailFlowCard extends Component {
           getTooltipContainer={() => document.getElementById('TenxFlowDetailFlow')}
         >
           <div className="disabledBoxForToolTip">
-            <Button size='large' type='primary' className='startBtn'
-              onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId)}
-              disabled={disabled}
-            >
-              {btn}
-            </Button>
+            {targetElement}
           </div>
         </Tooltip>
       )
+    }
+    if (project.repoType === 'svn') {
+      return targetElement
     }
     const tabs = []
     let loading

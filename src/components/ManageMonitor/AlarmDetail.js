@@ -8,7 +8,7 @@
  * @author Baiyu
  */
 import React, { Component, PropTypes } from 'react'
-import { Row, Col, Card ,Radio, Button, Table, Modal, Spin } from 'antd'
+import { Row, Col, Card ,Radio, Button, Table, Modal, Spin, notification } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
@@ -82,6 +82,16 @@ class AlarmDetail extends Component {
     getAlertSetting(cluster.clusterID, {
       strategy: id
     })
+  }
+  Deleterule(settingData) {
+    const selectCheckbox = this.state.selectCheckbox
+    if(selectCheckbox.length>=settingData.length){
+      notification['info']({
+        description: '至少有一项规则',
+      });
+      return
+    }
+    this.setState({deleteModal: true})
   }
   deleteRecords() {
     const noti = new NotificationHandler()
@@ -276,7 +286,7 @@ class AlarmDetail extends Component {
                 </div>
                 <div style={{margin: '20px 30px'}}>
                 <Button type="primary" size="large" onClick={() => this.refreshPage()}><i className="fa fa-refresh" /> 刷新</Button>
-                  <Button icon="delete" size="large" style={{marginLeft: 8}} disabled={this.state.selectCheckbox.length <= 0} onClick={()=> this.setState({deleteModal: true})} type="ghost">删除</Button>
+                  <Button icon="delete" size="large" style={{marginLeft: 8}} disabled={this.state.selectCheckbox.length <= 0} onClick={()=> this.Deleterule(settingData)} type="ghost">删除</Button>
                 </div>
                 <Table className="strategyTable" rowSelection={rowSelection} columns={columns}
                 onRowClick={(record, index)=> this.rowClick(record, index)}

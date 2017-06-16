@@ -952,6 +952,10 @@ class ServiceList extends Component {
     })
     self.setState({
       DeleteServiceModal: false,
+      runBtn:false,
+      stopBtn:false,
+      isChecked:false,
+      restartBtn:false,
       serviceList: allServices
     })
     deleteServices(cluster, serviceNames, {
