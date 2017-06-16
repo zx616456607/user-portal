@@ -36,7 +36,6 @@ class CreateItem extends Component {
     form.resetFields()
     func.scope.setState({createItem:false})
   }
-
   handOk() {
     const { form, func } = this.props
     form.validateFields((error, values)=> {
@@ -97,7 +96,7 @@ class CreateItem extends Component {
             </RadioGroup>
           </Form.Item>
 
-          <div className="alertRow">当仓库组设为公开后，任何人都有此仓库组下镜像的读权限。命令行用户不需要“docker login”就可以拉取此仓库组下的镜像。</div>
+          <div className="alertRow">当仓库组设为公开后，所有人都有读取该仓库组内镜像的权限。命令行操作下无需“docker login”即可以拉取该仓库组内的所有镜像。</div>
         </Form>
       </Modal>
     )
@@ -168,7 +167,11 @@ class Project extends Component {
       }
     })
   }
-
+  openCreateModal() {
+    this.setState({createItem: true},()=>{
+      document.getElementById('project_name').focus()
+    })
+  }
   render() {
     const { harborProjects, harborSysteminfo, createProject, updateProject, loginUser } = this.props
     const func = {
@@ -194,7 +197,7 @@ class Project extends Component {
                     type="primary"
                     size="large"
                     icon="plus"
-                    onClick={()=> this.setState({createItem:true})}
+                    onClick={this.openCreateModal.bind(this)}
                   >
                     新建仓库组
                   </Button>
