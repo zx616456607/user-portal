@@ -93,16 +93,6 @@ let CICDSettingModal = React.createClass({
     }
   },
   componentWillMount() {
-    const { scope } = this.props
-    this.setState({
-      cicdSetting: (e) => {
-        if (e && e.keyCode == 27) {
-          scope.setState({
-            cicdSetModalShow: false
-          })
-        }
-      }
-    })
     const {isFetching, ciRules} = this.props;
     if(!isFetching) {
       if(Boolean(ciRules)) {
@@ -123,13 +113,6 @@ let CICDSettingModal = React.createClass({
         }
       }
     }
-  },
-  componentDidMount() {
-    const { scope } = this.props
-    document.body.addEventListener('keydown', this.state.cicdSetting)
-  },
-  componentWillUnmount() {
-    document.body.removeEventListener('keydown', this.state.cicdSetting)
   },
   componentWillReceiveProps(nextProps) {
     const { isFetching, ciRules, visible } = nextProps;
