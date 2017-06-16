@@ -118,3 +118,4 @@ export const PLUGIN_DEFAULT_CONFIG = {
     memory: 200
   }
 }
+export const DEFAULT_SHARE_DIR = '/tenxcloud-tmp-dir'
