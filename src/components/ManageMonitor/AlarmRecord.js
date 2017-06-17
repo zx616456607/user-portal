@@ -217,7 +217,7 @@ class AlarmRecord extends Component {
         title: '告警对象',
         dataIndex: 'targetName',
         render: (text,recode)=> {
-          return <Link to={ recode.targetType ? `/cluster/${clusterID}/${recode.targetName}` : `/app_manage/service?serName=${recode.targetName}`}>{text}</Link>
+          return <Link to={ recode.targetType ? `/cluster/${clusterID}/${recode.targetName}` : `/app_manage/service`}>{text}</Link>
         }
       },
       {

@@ -392,7 +392,7 @@ class AlarmStrategy extends Component {
         >
           <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>您是否确定要{this.state.enable =='start' ? '启用':'停止'}此策略 ?</div>
         </Modal>
-        <Modal title={this.state.isEdit? "更新": "创建告警策略" } visible={this.state.alarmModal} width={580}
+        <Modal title={this.state.isEdit? "修改告警策略": "创建告警策略" } visible={this.state.alarmModal} width={580}
           className="alarmModal"
           onCancel={() => this.setState({ alarmModal: false, step: 1 })}
           maskClosable={false}
