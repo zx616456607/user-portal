@@ -203,10 +203,11 @@ class CodeRepo extends Component {
     ]
 
     const paginationOpts = {
-      simple: true,
+      size: "small",
       pageSize: this.DEFAULT_QUERY.page_size,
       total: total,
-      onChange: current => this.loadRepos({ page: current })
+      onChange: current => this.loadRepos({ page: current }),
+      showTotal: total => `共计： ${total} 条`,
     }
 
     return (
@@ -223,10 +224,10 @@ class CodeRepo extends Component {
             onPressEnter={this.searchProjects}
           />
           <i className="fa fa-search" onClick={this.searchProjects}></i>
-          {total >0?
+          {/*{total >0?
           <span className="totalPage">共计：{total || 0} 条</span>
           :null
-          }
+          }*/}
         </div>
         <Table
           showHeader={false}
