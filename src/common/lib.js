@@ -9,7 +9,6 @@
  */
 
 import './version'
-import './polyfill'
 
 if (process.env.RUNNING_MODE === 'standard') { // Magic code, do not change
   module.exports = require('./lib.standard')
