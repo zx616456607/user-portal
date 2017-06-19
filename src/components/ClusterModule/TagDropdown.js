@@ -304,9 +304,19 @@ class ManageTagModal extends Component {
         }
         if(scope.props.nodes){
           let nodeList =[]
+          const multiMap = tag.reduce((mm, label) => {
+            const key = label.key
+            const value = label.value
+            if (mm.hasOwnProperty(key)) {
+              mm[key].push(value)
+            } else {
+              mm[key] = [value]
+            }
+            return mm
+          }, {})
           scope.props.nodes.nodes.map((node) => {
             let labels = node.objectMeta.labels
-            if (tag.every(label => labels[label.key] === label.value)) {
+            if (Object.getOwnPropertyNames(multiMap).every(key => multiMap[key].indexOf(labels[key]) !== -1)) {
               nodeList.push(node)
             }
           });

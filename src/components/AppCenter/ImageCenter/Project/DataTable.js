@@ -118,7 +118,7 @@ class DataTable extends Component {
         }
       },
       {
-        title: '镜像仓库数',
+        title: '镜像数',
         dataIndex: camelize('repo_count'),
         key: camelize('repo_count'),
         sorter: (a, b) => a[camelize('repo_count')] - b[camelize('repo_count')],

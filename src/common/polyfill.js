@@ -7,7 +7,7 @@
  * v0.1 - 2017-02-27
  * @author Zhangpc
  */
-
+'use strict';
 /**
  * Polyfill for `Array.prototype.includes()`
  */
@@ -59,3 +59,8 @@ if (!Array.prototype.includes) {
     }
   });
 }
+
+/**
+ * Polyfill for `Objec.assign`
+ */
+require('es6-object-assign').polyfill()

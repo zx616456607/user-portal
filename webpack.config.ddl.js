@@ -5,15 +5,28 @@ console.log('Build webpack dll ...')
 
 const vendors = [
   'antd',
-  'babel-polyfill',
+  'babel-plugin-antd',
+  'babel-plugin-react-transform',
+  'babel-plugin-transform-runtime',
+  'babel-preset-es2015',
+  'babel-preset-react',
+  'babel-preset-react-hmre',
+  'babel-preset-stage-0',
+  'babel-preset-stage-2',
   'classnames',
+  'codemirror',
   'color-hash',
+  'echarts',
   'echarts-for-react',
+  'es6-object-assign',
+  'es6-promise',
   'humps',
   'isomorphic-fetch',
   'lodash',
+  'jquery',
   'moment',
   'normalizr',
+  'qrcode.react',
   'rc-animate',
   'rc-queue-anim',
   'rc-scroll-anim',
@@ -21,6 +34,7 @@ const vendors = [
   'react',
   'react-codemirror',
   'react-dom',
+  'react-intercom',
   'react-intl',
   'react-redux',
   'react-router',
@@ -32,7 +46,9 @@ const vendors = [
   'redux-logger',
   'redux-thunk',
   'socket.io-client',
-  'qrcode.react',
+  'text-encoding',
+  'whatwg-fetch',
+  'xterm',
   // ...其它库
 ];
 
@@ -45,6 +61,19 @@ module.exports = {
   },
   entry: {
     "lib": vendors,
+  },
+  module: {
+    loaders: [{
+      test: /\.json$/,
+      loader: 'json-loader'
+    }, {
+      test: /\.css$/,
+      loader: 'style!css?sourceMap'
+    }, {
+      test: /\.less$/,
+      loader:
+      'style!css!less?sourceMap'
+    }]
   },
   plugins: [
     new webpack.DllPlugin({
