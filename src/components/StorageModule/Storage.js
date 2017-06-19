@@ -404,7 +404,7 @@ let MyComponent = React.createClass({
 
   selectByline(e, item) {
     if(item.isUsed) return
-    this.props.saveVolumeArray({target:{checked:!this.isChecked(item.name)}}, item.name)
+    this.props.saveVolumeArray({target:{checked:!this.isChecked(item.name)}}, item.name, 'rbd', item.serviceName)
   },
 
   colseTipsModal(){
@@ -648,6 +648,7 @@ class Storage extends Component {
     this.onChange = this.onChange.bind(this)
     this.deleteStorage = this.deleteStorage.bind(this)
     // this.focus = this.focus.bind(this)
+    this.deleteButton = this.deleteButton.bind(this)
     this.state = {
       visible: false,
       volumeArray: [],
@@ -744,7 +745,8 @@ class Storage extends Component {
       storage.storageList.forEach(item => {
         volumeArray.push({
           name: item.name,
-          diskType: 'rbd'
+          diskType: 'rbd',
+          serviceName: item.serviceName,
         })
       })
       this.setState({
@@ -767,7 +769,7 @@ class Storage extends Component {
   }
 
   selectItem() {
-    return (e, name, diskType) => {
+    return (e, name, diskType, serviceName) => {
       let volumeArray = this.state.volumeArray
       if (e.target.checked) {
         if (findIndex(volumeArray, { name }) >= 0) {
@@ -775,7 +777,8 @@ class Storage extends Component {
         }
         volumeArray.push({
           name,
-          diskType: 'rbd'
+          diskType: 'rbd',
+          serviceName: serviceName,
         })
       } else {
         remove(volumeArray, (item) => {
@@ -825,6 +828,29 @@ class Storage extends Component {
   searchByStorageName(e) {
     this.props.loadStorageList(this.props.currentImagePool, this.props.cluster, this.state.storageName)
   }
+
+  deleteButton(){
+    const { volumeArray } = this.state
+    let notification = new NotificationHandler()
+    let serviceList = []
+    for(let i=0;i<volumeArray.length;i++){
+      if(volumeArray[i].serviceName){
+        serviceList.push(volumeArray[i])
+      }
+    }
+    if(serviceList.length){
+      let serviceStr = serviceList.map((item, index) => {
+        return item.name
+      })
+      let message = '存储卷 ' + serviceStr.join('、') + ' 为与服务挂载状态，暂时无法删除，请先删除对应服务'
+      notification.info(message)
+      return
+    }
+    this.setState({
+      delModal: true,
+      comfirmRisk: false
+    })
+  }
   render() {
     const { formatMessage } = this.props.intl
     const { getFieldProps } = this.props.form
@@ -863,7 +889,7 @@ class Storage extends Component {
               <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>
                 <i className="fa fa-plus" /><FormattedMessage {...messages.createTitle} />
               </Button></Tooltip>
-              <Button type="ghost" className="stopBtn" size="large" onClick={() => { this.setState({delModal: true, comfirmRisk: false}) } }
+              <Button type="ghost" className="stopBtn" size="large" onClick={this.deleteButton}
                 disabled={!this.state.volumeArray || this.state.volumeArray.length < 1}>
                 <i className="fa fa-trash-o" />删除
               </Button>
