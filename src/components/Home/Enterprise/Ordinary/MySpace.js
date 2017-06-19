@@ -1343,6 +1343,7 @@ function formatResourceName(resourceName) {
     if (newBody.ids && Array.isArray(newBody.ids) && newBody.ids.length > 0) {
       return newBody.ids.join(",")
     }
+    return resourceName;
   } else {
     return resourceName;
   }
