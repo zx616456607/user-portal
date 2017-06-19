@@ -380,7 +380,7 @@ let EditTenxFlowModal = React.createClass({
         }
       });
     }
-    
+
     let serviceList = Boolean(config.spec.container.dependencies) ? config.spec.container.dependencies : [];
     if (serviceList) {
       serviceList.map((item, index) => {
@@ -1659,8 +1659,8 @@ let EditTenxFlowModal = React.createClass({
                           (this.props.harborProjects.list || []).map(project => {
                             const currentRoleId = project[camelize('current_user_role_id')]
                             return (
-                              <Option key={project.name} disabled={currentRoleId != 1}>
-                                {project.name} {(currentRoleId == 2 || currentRoleId == 3) && '（访客）'}
+                              <Option key={project.name} disabled={currentRoleId === 3}>
+                                {project.name} {currentRoleId == 3 && '（访客）'}
                               </Option>
                             )}
                           )
@@ -1815,6 +1815,18 @@ function mapStateToProps(state, props) {
     clusters = defaultClusterList
   }
   let harborProjects = state.harbor.projects && state.harbor.projects[DEFAULT_REGISTRY] || {}
+  const list = harborProjects.list || []
+  const newList = []
+  const visitorList = []
+  list.forEach(project => {
+    const currentRoleId = project[camelize('current_user_role_id')]
+    if (currentRoleId === 3) {
+      visitorList.push(project)
+      return
+    }
+    newList.push(project)
+  })
+  harborProjects.list = newList.concat(visitorList)
   return {
     clusters,
     clustersNodes,
