@@ -402,7 +402,7 @@ HarborAPIs.prototype.sendRequest = function (requestUrl, httpMethod, data, callb
       if (!resp) {
         logger.error("No response? " + resp);
       }
-      callback(err, resp.statusCode, body);
+      callback(err, resp.statusCode, body, resp.headers);
     }
   });
 };

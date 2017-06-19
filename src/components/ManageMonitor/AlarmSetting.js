@@ -959,8 +959,8 @@ class AlarmSetting extends Component {
             :null
           }
           </div>
-          <MyComponent data={this.props.setting} scope={this} funcs={{ deleteRecords: this.props.deleteRecords }} needUpdate={this.state.needUpdate} clusterID={this.props.clusterID}/>
-          <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
+          <MyComponent data={this.props.setting} scope={this} funcs={{ deleteRecords: this.props.deleteRecords }} needUpdate={this.state.needUpdate} />
+          <Modal title={this.state.isEdit? "修改告警策略": "创建告警策略" } visible={this.state.alarmModal} width={580}
             className="alarmModal"
             onCancel={() => this.setState({ alarmModal: false, step: 1 })}
             maskClosable={false}

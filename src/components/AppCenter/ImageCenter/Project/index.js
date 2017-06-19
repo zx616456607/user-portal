@@ -212,10 +212,10 @@ class Project extends Component {
                 />
                 <i className="fa fa-search" onClick={this.searchProjects}></i>
                 <div className="alertRow inlineBlock" style={{marginLeft:'20px'}}>此处需要先搜索仓库组，进入仓库组后再搜索具体的镜像</div>
-                {harborProjects.total >0 ?
+                {/*{harborProjects.total >0 ?
                 <span className="totalPage">共计：{harborProjects.total} 条</span>
                 :null
-                }
+                }*/}
               </div>
               <DataTable loginUser={loginUser} dataSource={harborProjects} func={func}/>
             </Card>
