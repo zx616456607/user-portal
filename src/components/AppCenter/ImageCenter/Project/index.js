@@ -211,10 +211,10 @@ class Project extends Component {
                   onPressEnter={this.searchProjects}
                 />
                 <i className="fa fa-search" onClick={this.searchProjects}></i>
-                {harborProjects.total >0 ?
+                {/*{harborProjects.total >0 ?
                 <span className="totalPage">共计：{harborProjects.total} 条</span>
                 :null
-                }
+                }*/}
               </div>
               <DataTable loginUser={loginUser} dataSource={harborProjects} func={func}/>
             </Card>

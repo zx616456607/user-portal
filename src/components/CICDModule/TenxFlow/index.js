@@ -349,7 +349,7 @@ let MyComponent = React.createClass({
         <Modal title="删除TenxFlow操作" visible={this.state.delFlowModal}
           onOk={() => this.delFlowAction()} onCancel={() => this.setState({ delFlowModal: false })}
         >
-          <Alert message="请注意，删除TenxFlow，将清除项目的所有历史数据以及相关的镜像，且该操作不能被恢复" type="warning" showIcon />
+          <Alert message="请注意，删除 TenxFlow 将清除相关的历史构建数据，且该操作不能被恢复" type="warning" showIcon />
           <div className="modalColor" style={{ lineHeight: '30px' }}><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px', marginLeft: '16px' }}></i>
             您确定要删除?
           </div>

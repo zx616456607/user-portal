@@ -22,7 +22,7 @@ import Title from '../../../Title'
 const menusText = defineMessages({
   tooltips: {
     id: 'CICD.Tenxflow.TenxFlowDetailSetting.tooltips',
-    defaultMessage: '请注意，删除TenxFlow，将清除项目的所有历史数据以及相关的镜像，且该操作不能被恢复，您确定要删除吗？',
+    defaultMessage: '请注意，删除 TenxFlow 将清除相关的历史构建数据，且该操作不能被恢复，您确定要删除吗？',
   },
   delete: {
     id: 'CICD.Tenxflow.TenxFlowDetailSetting.delete',
