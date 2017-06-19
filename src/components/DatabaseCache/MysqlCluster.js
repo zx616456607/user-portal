@@ -96,7 +96,7 @@ let MyComponent = React.createClass({
                 <span className='listKey'>创建时间</span>
                 <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
               </li>
-              <li><span className='listKey'>存储大小</span>{item.volumeSize ? item.volumeSize: '0'}</li>
+              <li><span className='listKey'>存储大小</span>{item.volumeSize ? item.volumeSize.replace('Mi','MB').replace('Gi','GB'): '0'}</li>
             </ul>
           </div>
         </div>
@@ -140,7 +140,7 @@ class MysqlCluster extends Component {
       _this.setState({
         CreateDatabaseModalShow: true,
       })
-    }   
+    }
   }
   componentWillMount() {
     const { loadDbCacheList, cluster } = this.props
@@ -210,7 +210,7 @@ class MysqlCluster extends Component {
     const names = this.refs.mysqlRef.refs.input.value
     this.props.searchDbservice('mysql', names)
   }
- 
+
   render() {
     const _this = this;
     const { isFetching, databaseList } = this.props;
