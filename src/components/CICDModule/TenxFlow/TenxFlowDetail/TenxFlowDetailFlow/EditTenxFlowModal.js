@@ -1105,14 +1105,17 @@ let EditTenxFlowModal = React.createClass({
       return
     }
     let notResetShell = false
-    if(oldImageName.indexOf(':') > 0 && oldOtherFlowType == groupKey) {
-      if(key.indexOf(':') > 0) {
-        let old = oldImageName.split(':')
-        let newKey = key.split(':')
-        if(old[0] == newKey[0] && old[1] != newKey[1]) {
-          notResetShell = true
-        }
-      }
+    // if(oldImageName.indexOf(':') > 0 && oldOtherFlowType == groupKey) {
+    //   if(key.indexOf(':') > 0) {
+    //     let old = oldImageName.split(':')
+    //     let newKey = key.split(':')
+    //     if(old[0] == newKey[0] && old[1] != newKey[1]) {
+    //       notResetShell = true
+    //     }
+    //   }
+    // }
+    if(oldOtherFlowType == groupKey) {
+      notResetShell = true
     }
     this.flowTypeChange(groupKey, notResetShell)
   },
