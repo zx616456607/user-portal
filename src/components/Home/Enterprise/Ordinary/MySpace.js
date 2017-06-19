@@ -691,6 +691,38 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.Expand',
     defaultMessage: '扩张',
   },
+  BatchIgnore: {
+    id: 'ManageMonitor.operationalAudit.BatchIgnore',
+    defaultMessage: '批量忽略',
+  },
+  EnablEmail: {
+    id: 'ManageMonitor.operationalAudit.EnablEmail',
+    defaultMessage: '允许发邮件',
+  },
+  DisablEmail: {
+    id: 'ManageMonitor.operationalAudit.DisablEmail',
+    defaultMessage: '禁止发邮件',
+  },
+  CreateOrUpdate: {
+    id: 'ManageMonitor.operationalAudit.CreateOrUpdate',
+    defaultMessage: '创建或更新',
+  },
+  ToggleEnable: {
+    id: 'ManageMonitor.operationalAudit.ToggleEnable',
+    defaultMessage: '切换',
+  },
+  Ignore: {
+    id: 'ManageMonitor.operationalAudit.Ignore',
+    defaultMessage: '忽略',
+  },
+  RollBack: {
+    id: 'ManageMonitor.operationalAudit.RollBack',
+    defaultMessage: '回滚',
+  },
+  Clone: {
+    id: 'ManageMonitor.operationalAudit.Clone',
+    defaultMessage: '克隆',
+  },
   Unknown: {
     id: 'ManageMonitor.operationalAudit.Unknown',
     defaultMessage: '其它',
@@ -818,6 +850,94 @@ const menusText = defineMessages({
   VolumeConsumption: {
     id: 'ManageMonitor.operationalAudit.VolumeConsumption',
     defaultMessage: '存储使用',
+  },
+  User: {
+    id: 'ManageMonitor.operationalAudit.User',
+    defaultMessage: '用户',
+  },
+  UserTeams: {
+    id: 'ManageMonitor.operationalAudit.UserTeams',
+    defaultMessage: '用户团队',
+  },
+  UserSpaces: {
+    id: 'ManageMonitor.operationalAudit.UserSpaces',
+    defaultMessage: '用户空间',
+  },
+  Team: {
+    id: 'ManageMonitor.operationalAudit.Team',
+    defaultMessage: '团队',
+  },
+  TeamUsers: {
+    id: 'ManageMonitor.operationalAudit.TeamUsers',
+    defaultMessage: '团队用户',
+  },
+  TeamSpaces: {
+    id: 'ManageMonitor.operationalAudit.TeamSpaces',
+    defaultMessage: '团队空间',
+  },
+  Alert: {
+    id: 'ManageMonitor.operationalAudit.Alert',
+    defaultMessage: '告警',
+  },
+  AlertEmailGroup: {
+    id: 'ManageMonitor.operationalAudit.AlertEmailGroup',
+    defaultMessage: '告警通知组',
+  },
+  AlertRecord: {
+    id: 'ManageMonitor.operationalAudit.AlertRecord',
+    defaultMessage: '告警记录',
+  },
+  AlertStrategy: {
+    id: 'ManageMonitor.operationalAudit.AlertStrategy',
+    defaultMessage: '告警策略',
+  },
+  AlertRule: {
+    id: 'ManageMonitor.operationalAudit.AlertRule',
+    defaultMessage: '告警规则',
+  },
+  Repo: {
+    id: 'ManageMonitor.operationalAudit.Repo',
+    defaultMessage: '代码仓库',
+  },
+  Project: {
+    id: 'ManageMonitor.operationalAudit.Project',
+    defaultMessage: '已激活代码库',
+  },
+  Flow: {
+    id: 'ManageMonitor.operationalAudit.Flow',
+    defaultMessage: 'TenxFlow',
+  },
+  Stage: {
+    id: 'ManageMonitor.operationalAudit.Stage',
+    defaultMessage: 'TenxFlow执行过程',
+  },
+  Link: {
+    id: 'ManageMonitor.operationalAudit.Link',
+    defaultMessage: 'TenxFlow共享目录',
+  },
+  Build: {
+    id: 'ManageMonitor.operationalAudit.Build',
+    defaultMessage: 'TenxFlow构建',
+  },
+  CIRule: {
+    id: 'ManageMonitor.operationalAudit.CIRule',
+    defaultMessage: 'CI规则',
+  },
+  CDRule: {
+    id: 'ManageMonitor.operationalAudit.CDRule',
+    defaultMessage: 'CD规则',
+  },
+  Dockerfile: {
+    id: 'ManageMonitor.operationalAudit.Dockerfile',
+    defaultMessage: '云端Dockerfile',
+  },
+  CINotification: {
+    id: 'ManageMonitor.operationalAudit.CINotification',
+    defaultMessage: 'CI构建',
+  },
+  CDNotification: {
+    id: 'ManageMonitor.operationalAudit.CDNotification',
+    defaultMessage: 'CD部署镜像',
   },
   allstatus: {
     id: 'ManageMonitor.operationalAudit.allstatus',
@@ -992,6 +1112,81 @@ function resourceFormat(resourceType, scope) {
     case '28':
       return formatMessage(menusText.VolumeConsumption)
       break;
+    case '29':
+      return formatMessage(menusText.User)
+      break;
+    case '30':
+      return formatMessage(menusText.UserTeams)
+      break;
+    case '31':
+      return formatMessage(menusText.UserSpaces)
+      break;
+    case '32':
+      return formatMessage(menusText.Team)
+      break;
+    case '33':
+      return formatMessage(menusText.TeamUsers)
+      break;
+    case '34':
+      return formatMessage(menusText.TeamSpaces)
+      break;
+    case '35':
+      return formatMessage(menusText.cluster)
+      break;
+    case '36':
+      return formatMessage(menusText.Repo)
+      break;
+    case '37':
+      return formatMessage(menusText.Project)
+      break;
+    case '38':
+      return formatMessage(menusText.Flow)
+      break;
+    case '39':
+      return formatMessage(menusText.Stage)
+      break;
+    case '40':
+      return formatMessage(menusText.Link)
+      break;
+    case '41':
+      return formatMessage(menusText.Build)
+      break;
+    case '42':
+      return formatMessage(menusText.CIRule)
+      break;
+    case '43':
+      return formatMessage(menusText.CDRule)
+      break;
+    case '44':
+      return formatMessage(menusText.Dockerfile)
+      break;
+    case '45':
+      return formatMessage(menusText.CINotification)
+      break;
+    case '46':
+      return formatMessage(menusText.CDNotification)
+      break;
+    case '47':
+      return formatMessage(menusText.InstanceExport)
+      break;
+    case '48':
+      return formatMessage(menusText.AlertEmailGroup)
+      break;
+    case '49':
+      return formatMessage(menusText.AlertRecord)
+      break;
+    case '50':
+      return formatMessage(menusText.AlertStrategy)
+      break;
+    case '51':
+      return formatMessage(menusText.AlertRule)
+      break;
+    case '52':
+      return formatMessage(menusText.Snapshot)
+      break;
+    case '53':
+      return formatMessage(menusText.Labels)
+      break;
     case '0':
       return formatMessage(menusText.Unknown)
       break;
@@ -1057,6 +1252,30 @@ function operationalFormat(operationalType, scope) {
     case '18':
       return formatMessage(menusText.Expand)
       break;
+    case '19':
+      return formatMessage(menusText.BatchIgnore)
+      break;
+    case '20':
+      return formatMessage(menusText.EnablEmail)
+      break;
+    case '21':
+      return formatMessage(menusText.DisablEmail)
+      break;
+    case '22':
+      return formatMessage(menusText.CreateOrUpdate)
+      break;
+    case '23':
+      return formatMessage(menusText.ToggleEnable)
+      break;
+    case '24':
+      return formatMessage(menusText.Ignore)
+      break;
+    case '25':
+      return formatMessage(menusText.RollBack)
+      break;
+    case '26':
+      return formatMessage(menusText.Clone)
+      break;
     case '0':
       return formatMessage(menusText.Unknown)
       break;
@@ -1101,6 +1320,28 @@ function formatResourceName(resourceName) {
       }
       newName = newName.join(',');
       return newName;
+    }
+    if (newBody.name) {
+      return newBody.name
+    }
+    if (newBody.strategyName) {
+      return newBody.strategyName
+    }
+    if (newBody.strategyIDs && Array.isArray(newBody.strategyIDs) && newBody.strategyIDs.length > 0) {
+      return newBody.strategyIDs.join(",")
+    }
+    if (newBody.strategies && Array.isArray(newBody.strategies) && newBody.strategies.length > 0) {
+      let ids = new Array()
+      for (let i = 0; i < newBody.strategies.length; i++) {
+        let item = newBody.strategies[i]
+        if (item && item.strategyID) {
+          ids.push(item.strategyID)
+        }
+      }
+      return ids.join(',')
+    }
+    if (newBody.ids && Array.isArray(newBody.ids) && newBody.ids.length > 0) {
+      return newBody.ids.join(",")
     }
     return resourceName;
   } else {
