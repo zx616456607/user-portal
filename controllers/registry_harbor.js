@@ -113,7 +113,7 @@ exports.getRepositoriyConfig = function* () {
       }
       if(!body.config) {
         body.config = {}
-      } 
+      }
       body.config.size = size
       resolve(body.config)
     })
@@ -125,7 +125,7 @@ exports.getRepositoriyConfig = function* () {
 }
 
 function _formatConfig(configInfo) {
-  const config = configInfo.config
+  const config = configInfo.config || {}
   const body = {
     defaultEnv: config.Env,
     mountPath: config.Volume,

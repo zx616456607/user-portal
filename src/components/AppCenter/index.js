@@ -19,7 +19,7 @@ import MyCollection from './ImageCenter/MyCollection.js'
 import PublicSpace from './ImageCenter/PublicSpace.js'
 import OtherSpace from './ImageCenter/OtherSpace.js'
 import './style/ImageCenter.less'
-import { LoadOtherImage, addOtherStore, getImageDetailInfo, deleteOtherImage, getAppCenterBindUser } from '../../actions/app_center'
+import { LoadOtherImage, addOtherStore, getImageDetailInfo, getAppCenterBindUser } from '../../actions/app_center'
 import findIndex from 'lodash/findIndex'
 import NotificationHandler from '../../common/notification_handler'
 import Title from '../Title'
@@ -497,9 +497,6 @@ function mapDispatchToProps(dispatch) {
     LoadOtherImage: (callback) => {
       dispatch(LoadOtherImage(callback))
     },
-    deleteOtherImage: (obj, callback) => {
-      dispatch(deleteOtherImage(obj, callback))
-    },
     getAppCenterBindUser
   }
 }
@@ -507,7 +504,6 @@ function mapDispatchToProps(dispatch) {
 export default connect(mapStateToProps, {
   addOtherStore,
   LoadOtherImage,
-  deleteOtherImage,
   getAppCenterBindUser,
 })(injectIntl(ImageCenter, {
   withRef: true,

@@ -11,7 +11,7 @@ import React, { Component } from 'react'
 import './style/RollingUpdateModal.less'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import { Button, Card, Menu, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Modal, Input } from 'antd'
-import { loadImageDetailTag } from '../../../actions/app_center'
+import { loadRepositoriesTags } from '../../../actions/harbor'
 import { rollingUpdateService } from '../../../actions/services'
 import { connect } from 'react-redux'
 import NotificationHandler from '../../../common/notification_handler'
@@ -20,8 +20,8 @@ const Option = Select.Option
 const OptGroup = Select.OptGroup
 
 function loadTags(props, imageFullName) {
-  const { loadImageDetailTag, registry } = props
-  loadImageDetailTag(registry, imageFullName)
+  const { loadRepositoriesTags, registry } = props
+  loadRepositoriesTags(registry, imageFullName)
 }
 
 class RollingUpdateModal extends Component {
@@ -286,10 +286,9 @@ class RollingUpdateModal extends Component {
 
 function mapStateToProps(state, props) {
   const {
-    imageTag
-  } = state.getImageTag
-  let targetImageTag = imageTag[DEFAULT_REGISTRY] || {}
-
+    imageTags
+  } = state.harbor
+  let targetImageTag = imageTags[DEFAULT_REGISTRY] || {}
   return {
     registry: DEFAULT_REGISTRY,
     ...targetImageTag
@@ -297,6 +296,6 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  loadImageDetailTag,
+  loadRepositoriesTags,
   rollingUpdateService
 })(RollingUpdateModal)

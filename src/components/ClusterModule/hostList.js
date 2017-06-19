@@ -209,7 +209,7 @@ const MyComponent = React.createClass({
           <div className='schedule commonTitle'>
             <Switch
               className='switchBox'
-              defaultChecked={item.schedulable}
+              checked={item.schedulable || false}
               checkedChildren='开'
               unCheckedChildren='关'
               disabled={index >= maxNodes}

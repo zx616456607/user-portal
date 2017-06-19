@@ -11,7 +11,7 @@
 import React, { Component } from 'react'
 import { Card , Spin ,Icon} from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { formatDate } from '../../../../common/tools'
+import { formatDate, isValidateDate } from '../../../../common/tools'
 
 const menusText = defineMessages({
   favouriteNumber: {
@@ -46,7 +46,11 @@ class Attribute extends Component {
           </li>
           <li className="leftKey"><Icon type="clock-circle-o" />
             <span>更新时间</span>： &nbsp;
-            {formatDate(detailInfo.updateTime || detailInfo.creationTime)}
+            {
+              isValidateDate(detailInfo.updateTime)
+              ? formatDate(detailInfo.updateTime)
+              : formatDate(detailInfo.creationTime)
+            }
           </li>
         </ul>
       </Card>

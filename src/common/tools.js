@@ -625,3 +625,14 @@ export function getResourceByMemory(memory, DIYMemory, DIYCPU) {
   }
   return { cpu, memory, cpuShow, memoryShow, config }
 }
+
+export function isValidateDate(date) {
+  if (Object.prototype.toString.call(date) !== "[object Date]") {
+    date = new Date(date)
+  }
+  const dateTime = date.getTime()
+  if (isNaN(dateTime) || dateTime < 0) {
+    return false
+  }
+  return true
+}
