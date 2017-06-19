@@ -287,9 +287,9 @@ function fetchAlertSettingExistence(cluster, strategyName, callback) {
   }
 }
 
-export function getAlertSettingExistence(cluster, body, callback) {
+export function getAlertSettingExistence(cluster, strategyName, callback) {
   return (dispath, getState) => {
-    return dispath(fetchAlertSettingExistence(cluster, body, callback))
+    return dispath(fetchAlertSettingExistence(cluster, strategyName, callback))
   }
 }
 
