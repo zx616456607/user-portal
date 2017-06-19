@@ -660,6 +660,7 @@ class Storage extends Component {
       resourceQuotaModal: false,
       resourceQuota: null,
       comfirmRisk: false,
+      disableList: []
     }
   }
   componentWillMount() {
@@ -703,6 +704,7 @@ class Storage extends Component {
     });
   }
   deleteStorage() {
+    const { disableList } = this.state
     let volumeArray = this.state.volumeArray
     if (volumeArray && volumeArray.length === 0) {
       return
@@ -722,6 +724,13 @@ class Storage extends Component {
           notification.close()
           this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
           notification.success('删除存储成功')
+          if(disableList.length){
+            let serviceStr = disableList.map((item, index) => {
+              return item.name
+            })
+            let message = '存储卷 ' + serviceStr.join('、') + ' 仍在服务挂载状态，暂时无法删除，请先删除对应服务'
+            notification.info(message)
+          }
         },
         isAsync: true
       },
@@ -831,24 +840,20 @@ class Storage extends Component {
 
   deleteButton(){
     const { volumeArray } = this.state
-    let notification = new NotificationHandler()
-    let serviceList = []
+    let ableList = []
+    let disableList = []
     for(let i=0;i<volumeArray.length;i++){
       if(volumeArray[i].serviceName){
-        serviceList.push(volumeArray[i])
+        disableList.push(volumeArray[i])
+      } else {
+        ableList.push(volumeArray[i])
       }
-    }
-    if(serviceList.length){
-      let serviceStr = serviceList.map((item, index) => {
-        return item.name
-      })
-      let message = '存储卷 ' + serviceStr.join('、') + ' 为与服务挂载状态，暂时无法删除，请先删除对应服务'
-      notification.info(message)
-      return
     }
     this.setState({
       delModal: true,
-      comfirmRisk: false
+      comfirmRisk: false,
+      volumeArray: ableList,
+      disableList,
     })
   }
   render() {
