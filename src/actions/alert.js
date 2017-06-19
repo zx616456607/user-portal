@@ -270,6 +270,29 @@ export function getAlertSetting(cluster, body, callback) {
     return dispath(fetchAlertSetting(cluster, body, callback))
   }
 }
+
+export const ALERT_SETTING_EXISTENCE_REQUEST = 'ALERT_SETTING_EXISTENCE_REQUEST'
+export const ALERT_SETTING_EXISTENCE_SUCCESS = 'ALERT_SETTING_EXISTENCE_SUCCESS'
+export const ALERT_SETTING_EXISTENCE_FAILURE =  'ALERT_SETTING_EXISTENCE_FAILURE'
+
+function fetchAlertSettingExistence(cluster, strategyName, callback) {
+  let endpoint = `${API_URL_PREFIX}/cluster/${cluster}/alerts/${strategyName}/existence`
+  return {
+    [FETCH_API]: {
+      types: [ALERT_SETTING_EXISTENCE_REQUEST, ALERT_SETTING_EXISTENCE_SUCCESS,ALERT_SETTING_EXISTENCE_FAILURE],
+      schema: {},
+      endpoint
+    },
+    callback
+  }
+}
+
+export function getAlertSettingExistence(cluster, strategyName, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchAlertSettingExistence(cluster, strategyName, callback))
+  }
+}
+
 export const ALERT_SETTING_ADD_REQUEST = 'ALERT_SETTING_ADD_REQUEST'
 export const ALERT_SETTING_ADD_SUCCESS = 'ALERT_SETTING_ADD_SUCCESS'
 export const ALERT_SETTING_ADD_FAILURE = 'ALERT_SETTING_ADD_FAILURE'
