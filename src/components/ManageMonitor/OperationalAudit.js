@@ -211,6 +211,10 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.Snapshot',
     defaultMessage: '快照',
   },
+  Labels: {
+    id: 'ManageMonitor.operationalAudit.Labels',
+    defaultMessage: '标签',
+  },
   InstanceContainerMetrics: {
     id: 'ManageMonitor.operationalAudit.InstanceContainerMetrics',
     defaultMessage: '实例容器指标',
@@ -760,6 +764,9 @@ function resourceFormat(resourceType, scope) {
       break;
     case '52':
       return formatMessage(menusText.Snapshot)
+      break;
+    case '53':
+      return formatMessage(menusText.Labels)
       break;
     case '0':
       return formatMessage(menusText.Unknown)
