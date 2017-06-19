@@ -17,7 +17,7 @@ import { Link,browserHistory } from 'react-router'
 import OtherSpace from './ImageCenter/OtherSpace'
 import TweenOne from 'rc-tween-one'
 import './style/Item.less'
-import { LoadOtherImage, addOtherStore, deleteOtherImage, } from '../../actions/app_center'
+import { LoadOtherImage, addOtherStore, } from '../../actions/app_center'
 import NotificationHandler from '../../common/notification_handler'
 import Title from '../Title'
 
@@ -442,5 +442,4 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps,{
   addOtherStore,
   LoadOtherImage,
-  deleteOtherImage
 })(ImageCenter)
