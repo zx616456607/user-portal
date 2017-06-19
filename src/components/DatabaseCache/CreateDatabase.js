@@ -366,7 +366,7 @@ let CreateDatabase = React.createClass({
                 <FormItem  style={{ width: '80px', float: 'left' }}>
                   <InputNumber {...selectStorageProps}  defaultValue={512} min={512} step={512} max={20480} size='large' disabled={isFetching}/>
                 </FormItem>
-                <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>M</span>
+                <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>MB</span>
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>

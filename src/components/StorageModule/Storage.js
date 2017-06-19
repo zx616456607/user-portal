@@ -865,7 +865,7 @@ class Storage extends Component {
               </Button></Tooltip>
               <Button type="ghost" className="stopBtn" size="large" onClick={() => { this.setState({delModal: true, comfirmRisk: false}) } }
                 disabled={!this.state.volumeArray || this.state.volumeArray.length < 1}>
-                <i className="fa fa-trash-o" /><FormattedMessage {...messages.delete} />
+                <i className="fa fa-trash-o" />删除
               </Button>
               <Modal title="删除存储卷操作" visible={this.state.delModal}
                 onOk={()=> this.deleteStorage()} onCancel={()=> this.setState({delModal: false})}
