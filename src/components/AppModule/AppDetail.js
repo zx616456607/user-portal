@@ -279,7 +279,7 @@ class AppDetail extends Component {
                   <AppServiceRental serviceName={appName} serviceDetail={app.services} />
                 </TabPane>
                 <TabPane tab="告警策略" key="#strategy">
-                  <AlarmStrategy appName={appName} cluster={this.props.cluster} />
+                  <AlarmStrategy appName={appName} cluster={this.props.cluster} currentService={app.services[0]}/>
                 </TabPane>
                 <TabPane tab="拓扑图" key="#topology">
                   <Topology appName={appName} cluster={this.props.cluster} />
