@@ -206,7 +206,7 @@ let HostInfo = React.createClass({
               </Row>
             </div>
 
-            <div className="host-list">
+            <div className="host-list Versionin">
               <div className="titles"><svg className="svg-icon"><use xlinkHref="#tag"></use></svg> 版本信息</div>
               <br />
               <Row className="items versioninformation">

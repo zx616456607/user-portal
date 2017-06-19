@@ -647,6 +647,7 @@ class Storage extends Component {
     this.handleCancel = this.handleCancel.bind(this)
     this.onChange = this.onChange.bind(this)
     this.deleteStorage = this.deleteStorage.bind(this)
+    this.refreshstorage = this.refreshstorage.bind(this)
     // this.focus = this.focus.bind(this)
     this.deleteButton = this.deleteButton.bind(this)
     this.state = {
@@ -743,6 +744,10 @@ class Storage extends Component {
         }
       }
     })
+  }
+  refreshstorage() {
+    this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
+    this.props.SnapshotList({clusterID: this.props.cluster})
   }
   onAllChange(e) {
     const storage = this.props.storageList[this.props.currentImagePool]
@@ -894,6 +899,9 @@ class Storage extends Component {
               <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>
                 <i className="fa fa-plus" /><FormattedMessage {...messages.createTitle} />
               </Button></Tooltip>
+              <Button style={{padding:'5px 15px'}} size='large' onClick={this.refreshstorage}>
+                <i className='fa fa-refresh' />&nbsp;刷 新
+              </Button>
               <Button type="ghost" className="stopBtn" size="large" onClick={this.deleteButton}
                 disabled={!this.state.volumeArray || this.state.volumeArray.length < 1}>
                 <i className="fa fa-trash-o" />删除
