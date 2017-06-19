@@ -89,13 +89,18 @@ let CICDSettingModal = React.createClass({
       useTag: false,
       useRequest: false,
       editBranch: false,
-      editTag: false
+      editTag: false,
+      oldConfig: {}
     }
   },
   componentWillMount() {
     const {isFetching, ciRules} = this.props;
     if(!isFetching) {
       if(Boolean(ciRules)) {
+        let config = ciRules.results;
+        this.setState({
+          oldConfig:config
+        })
         if(Boolean(config.config.branch)) {
           this.setState({
             useBranch: true
@@ -119,6 +124,9 @@ let CICDSettingModal = React.createClass({
     if (this.props.isFetching != isFetching || (nextProps.visible && this.props.visible != nextProps.visible)) {
       if (Boolean(ciRules)) {
         let config = ciRules.results;
+        this.setState({
+          oldConfig:config
+        })
         if (!Boolean(config.config)) {
           return;
         }
@@ -223,16 +231,28 @@ let CICDSettingModal = React.createClass({
   },
   onCancelEditBranch() {
     //this function for cancel edit branch
+    const { setFieldsValue } = this.props.form
+    const { oldConfig } = this.state;
     this.setState({
       editBranch: false,
-      useBranch: false
+    },()=>{
+      setFieldsValue({
+        'branch': oldConfig.config.branch.name,
+        'isBranchReg': oldConfig.config.branch.matchWay
+      })
     });
   },
   onCancelEditTag() {
     //this function for cancel edit tag
+    const { setFieldsValue } = this.props.form
+    const { oldConfig } = this.state;
     this.setState({
       editTag: false,
-      useTag:false
+    },()=>{
+      setFieldsValue({
+        'tag': oldConfig.config.tag.name,
+        'isTagReg': oldConfig.config.tag.matchWay
+      })
     });
   },
   /*onBlurBranch() {
@@ -368,6 +388,7 @@ let CICDSettingModal = React.createClass({
   render() {
     const { formatMessage } = this.props.intl;
     const { scope, isFetching, ciRules  } = this.props;
+    const { oldConfig, editBranch, editTag } = this.state;
     if(isFetching || !Boolean(ciRules) ) {
       return (
         <div className='loadingBox'>
