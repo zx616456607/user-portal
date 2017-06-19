@@ -144,6 +144,15 @@ exports.checkEmailAcceptInvitation = function* () {
 
 /*--------------alert setting--------------------*/
 
+exports.checkExist = function* (){
+  const cluster = this.params.cluster
+  const strategyName = this.params.strategyName
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(user)
+  const result = yield api.getBy([cluster, 'alerts/strategies', strategyName, "existence"], null)
+  this.body = result
+}
+
 exports.getAlertSetting = function* () {
   const cluster = this.params.cluster
   const user = this.session.loginUser
