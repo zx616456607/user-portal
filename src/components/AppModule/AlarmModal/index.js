@@ -218,7 +218,6 @@ let FistStop = React.createClass({
           { whitespace: true },
           { validator: this.fistStopName }
         ],
-        initialValue: currentService ? currentService.metadata.name : ''
       });
       let initiaValue = 'node'
       if (currentService || currentApp) {

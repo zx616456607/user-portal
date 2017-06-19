@@ -266,6 +266,15 @@ class AlarmStrategy extends Component {
     })
   }
   showAlert() {
+    const { currentApp } = this.props
+    if(currentApp && currentApp.services && !currentApp.services.length){
+      Modal.info({
+        title: '提示',
+        content: <div style={{color:'#2db7f5'}}>当前应用下还未添加服务，添加服务后可为服务创建告警策略</div>,
+        onOk() {},
+      });
+      return
+    }
     this.setState({alarmModal: true,isEdit: false})
     setTimeout(()=> {
       document.getElementById('name').focus()
@@ -398,8 +407,15 @@ class AlarmStrategy extends Component {
           maskClosable={false}
           footer={null}
         >
-          <CreateAlarm funcs={modalFunc} strategy={this.state.editStrategy} currentService={this.props.currentService} isEdit={this.state.isEdit} isShow={this.state.alarmModal}
-            getSettingList={() => loadStrategy(this)} />
+          <CreateAlarm
+            funcs={modalFunc}
+            strategy={this.state.editStrategy}
+            currentService={this.props.currentService}
+            isEdit={this.state.isEdit}
+            isShow={this.state.alarmModal}
+            getSettingList={() => loadStrategy(this)}
+            currentApp={this.props.currentApp}
+          />
         </Modal>
         <Modal title="创建新通知组" visible={this.state.createGroup}
           width={560}
