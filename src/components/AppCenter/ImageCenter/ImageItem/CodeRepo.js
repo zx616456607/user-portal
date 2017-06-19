@@ -85,6 +85,13 @@ class CodeRepo extends Component {
             doSuccess()
             return
           }
+          if (statusCode === 403) {
+            notification.warn(`您没有权限删除该镜像`)
+            this.setState({
+              deleteRepoVisible: false,
+            })
+            return
+          }
           notification.error(`镜像删除失败`)
         },
       }

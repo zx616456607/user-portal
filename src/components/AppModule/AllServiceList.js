@@ -349,7 +349,7 @@ const MyComponent = React.createClass({
   },
   showAlert(item) {
     const { scope } = this.props
-    scope.setState({alarmModal: true, alertCurrentService: item})
+    scope.setState({alarmModal: true, currentShowInstance: item})
     setTimeout(()=> {
       document.getElementById('name').focus()
     },500)
@@ -1135,7 +1135,7 @@ class ServiceList extends Component {
     } = this.props
     let selectTab = this.state.selectTab
     let appName = ''
-    
+
     if (this.state.currentShowInstance) {
       appName = this.state.currentShowInstance.metadata.labels['tenxcloud.com/appName']
     }
@@ -1306,7 +1306,7 @@ class ServiceList extends Component {
             footer={null}
 
           >
-          <CreateAlarm funcs={modalFunc} currentService={this.state.alertCurrentService} isShow={this.state.alarmModal}/>
+            <CreateAlarm funcs={modalFunc} currentService={currentShowInstance} isShow={this.state.alarmModal}/>
           </Modal>
            {/* 通知组 */}
           <Modal title="创建新通知组" visible={this.state.createGroup}

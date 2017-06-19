@@ -56,7 +56,7 @@ exports.createNewDBService = function* () {
   // For base petset and service
   yamlContent = yamlContent.replace(/\{\{name\}\}/g, basicInfo.serviceName)
     .replace(/\{\{size\}\}/g, basicInfo.volumeSize)
-    .replace(/\{\{password\}\}/g, basicInfo.password)
+    .replace(/\{\{password\}\}/g, '"' + basicInfo.password + '"') // We can also add double quota to template later
     .replace(/\{\{replicas\}\}/g, basicInfo.replicas)
   yamlContent = yamlContent.replace(/\{\{registry\}\}/g, getRegistryURL())
   // For external service access
@@ -68,8 +68,7 @@ exports.createNewDBService = function* () {
     basicInfo.externalIP = ''
   }
   yamlContent = yamlContent.replace(/\{\{external-ip\}\}/g, basicInfo.externalIP)
-  const result = yield api.createBy([cluster, 'dbservices'], {category: appTemplate.data.category}, yamlContent);
-
+  const result = yield api.createBy([cluster, 'dbservices'], { category: appTemplate.data.category }, yamlContent);
   this.body = {
     result
   }
@@ -101,10 +100,10 @@ exports.listDBService = function* () {
   const category = query.type
 
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'dbservices'], {"category": category});
+  const result = yield api.getBy([cluster, 'dbservices'], { "category": category });
   const databases = result.data.petSets || []
   // remote some data
-  databases.forEach(function(db) {
+  databases.forEach(function (db) {
     if (db.objectMeta) {
       delete db.objectMeta.labels
     }
@@ -150,9 +149,9 @@ exports.getDBService = function* () {
       // For redis, get password from init container
       if (podTemplate.metadata.annotations['pod.alpha.kubernetes.io/init-containers']) {
         let initContainers = JSON.parse(podTemplate.metadata.annotations['pod.alpha.kubernetes.io/init-containers'])
-        initContainers.forEach(function(c) {
+        initContainers.forEach(function (c) {
           if (c.name === 'install' && c.env) {
-            c.env.forEach(function(e) {
+            c.env.forEach(function (e) {
               if (e.name === 'REDIS_PASSWORD') {
                 initEnv.push({
                   name: e.name,
@@ -172,7 +171,7 @@ exports.getDBService = function* () {
   delete database.typeMeta
   delete database.eventList
   if (database.podList && database.podList.pods) {
-    database.podList.pods.forEach(function(pod) {
+    database.podList.pods.forEach(function (pod) {
       if (!pod.podSpec.containers[0].env) {
         pod.podSpec.containers[0].env = []
       }
