@@ -84,20 +84,12 @@ const Ports = React.createClass({
     })
   },
   portTypeChange(keyValue, value){
-    const { form } = this.props
     if(value == MAPPING_PORT_SPECIAL){
-      form.setFieldsValue({
-        [`mappingPortType${keyValue}`]: MAPPING_PORT_SPECIAL
-      })
       setTimeout(() => {
         let id = `mappingPort${keyValue}`
         document.getElementById(id).focus()
       },500)
-      return
     }
-    form.setFieldsValue({
-      [`mappingPortType${keyValue}`]: MAPPING_PORT_AUTO
-    })
   },
   renderPortItem(key, index) {
     // 根据 `deleted` 字段来决定是否渲染
@@ -133,6 +125,7 @@ const Ports = React.createClass({
           { required: true, message: '请选择映射服务端口类型' },
         ],
         initialValue: MAPPING_PORT_AUTO,
+        onChange: this.portTypeChange.bind(this, keyValue)
       })
       const mappingPortTypeValue = getFieldValue(mappingPportTypeKey)
       if (mappingPortTypeValue === MAPPING_PORT_SPECIAL) {
@@ -170,7 +163,7 @@ const Ports = React.createClass({
               mappingPortTypeProps
               ? (
                 <FormItem>
-                  <Select size="default" {...mappingPortTypeProps} onChange={this.portTypeChange.bind(this, keyValue)}>
+                  <Select size="default" {...mappingPortTypeProps}>
                     <Option value={MAPPING_PORT_AUTO}>动态生成</Option>
                     <Option value={MAPPING_PORT_SPECIAL}>指定端口</Option>
                   </Select>
