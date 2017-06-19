@@ -167,6 +167,8 @@ class AppDetail extends Component {
     }
     const appDomain = parseAppDomain(app, bindingDomains, bindingIPs)
     const descProps = this.props.form.getFieldProps('desc', {initialValue: this.state.desc || app.description})
+    const currentApp = app
+    currentApp.name = appName
     return (
       <div id='AppDetail'>
         <Title title={`应用 ${appName} 详情`} />
@@ -279,7 +281,7 @@ class AppDetail extends Component {
                   <AppServiceRental serviceName={appName} serviceDetail={app.services} />
                 </TabPane>
                 <TabPane tab="告警策略" key="#strategy">
-                  <AlarmStrategy appName={appName} cluster={this.props.cluster} currentService={app.services[0]}/>
+                  <AlarmStrategy appName={appName} cluster={this.props.cluster} currentApp={currentApp}/>
                 </TabPane>
                 <TabPane tab="拓扑图" key="#topology">
                   <Topology appName={appName} cluster={this.props.cluster} />
