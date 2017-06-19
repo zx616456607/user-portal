@@ -164,7 +164,6 @@ let TenxFlowDetailAlert = React.createClass({
     }
   },
   emailInputCheck(rule, value, callback) {
-    console.log(value)
     if (this.state.otherEmail && !!!value) {
       callback([new Error('请输入邮件通知地址')]);
     } else {
