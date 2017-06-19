@@ -286,7 +286,7 @@ class ClusterLabelManage extends Component{
         title:'标签键',
         key:'keys',
         dataIndex:'key',
-        width:'19%',
+        width:'15%',
       },{
         title:'属性',
         key:'2',
@@ -329,7 +329,7 @@ class ClusterLabelManage extends Component{
         title:'创建时间',
         key:'createAt',
         dataIndex:'createAt',
-        width:'19%',
+        width:'18%',
         render : (text)=>{
           if (text) {
             return (
@@ -342,7 +342,7 @@ class ClusterLabelManage extends Component{
         title:'操作',
         key:'actions',
         dataIndex:'handle',
-        width:'16%',
+        width:'132px',
         className:'handle',
         render : (text,row) => {
           if (row.createAt && row.targets.length ==0) {
