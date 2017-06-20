@@ -661,7 +661,8 @@ class Storage extends Component {
       resourceQuotaModal: false,
       resourceQuota: null,
       comfirmRisk: false,
-      disableList: []
+      disableListArray: [],
+      ableListArray: [],
     }
   }
   componentWillMount() {
@@ -705,19 +706,32 @@ class Storage extends Component {
     });
   }
   deleteStorage() {
-    const { disableList } = this.state
-    let volumeArray = this.state.volumeArray
+    const { disableListArray } = this.state
+    let volumeArray = this.state.ableListArray
+    let notification = new NotificationHandler()
+    let message = ''
+    if(disableListArray.length){
+      let serviceStr = disableListArray.map((item, index) => {
+        return item.name
+      })
+      message = '存储卷 ' + serviceStr.join('、') + ' 仍在服务挂载状态，暂时无法删除，请先删除对应服务'
+    }
     if (volumeArray && volumeArray.length === 0) {
+      notification.info(message)
+      this.setState({
+        volumeArray: [],
+        disableListArray: [],
+        ableListArray: [],
+        delModal: false,
+      })
       return
     }
-    this.setState({
-      volumeArray: []
-    })
     volumeArray = volumeArray.map(item => {
       return item.name
     })
-    this.setState({delModal: false})
-    let notification = new NotificationHandler()
+    this.setState({
+      delModal: false,
+    })
     notification.spin("删除存储中")
     this.props.deleteStorage(this.props.currentImagePool, this.props.cluster, { volumes: volumeArray }, {
       success: {
@@ -725,11 +739,12 @@ class Storage extends Component {
           notification.close()
           this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
           notification.success('删除存储成功')
-          if(disableList.length){
-            let serviceStr = disableList.map((item, index) => {
-              return item.name
-            })
-            let message = '存储卷 ' + serviceStr.join('、') + ' 仍在服务挂载状态，暂时无法删除，请先删除对应服务'
+          this.setState({
+            volumeArray: [],
+            disableListArray: [],
+            ableListArray: [],
+          })
+          if(disableListArray.length){
             notification.info(message)
           }
         },
@@ -748,6 +763,11 @@ class Storage extends Component {
   refreshstorage() {
     this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
     this.props.SnapshotList({clusterID: this.props.cluster})
+    this.setState({
+      volumeArray: [],
+      disableListArray: [],
+      ableListArray: [],
+    })
   }
   onAllChange(e) {
     const storage = this.props.storageList[this.props.currentImagePool]
@@ -857,8 +877,8 @@ class Storage extends Component {
     this.setState({
       delModal: true,
       comfirmRisk: false,
-      volumeArray: ableList,
-      disableList,
+      disableListArray: disableList,
+      ableListArray: ableList
     })
   }
   render() {
