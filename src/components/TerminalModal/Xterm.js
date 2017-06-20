@@ -112,10 +112,15 @@ class TerminalModal extends Component {
   }
 
   updateMinSize() {
-    const state = {
-      minSize: this.getMinHeight()
+    let minSize = this.getMinHeight()
+    minSize = Math.ceil(minSize * 100000) / 100000
+    if (this.state.minSize === minSize) {
+      return
     }
-    if (this.state.resize = 'min') {
+    const state = {
+      minSize
+    }
+    if (this.state.resize === 'min') {
       state.size = state.minSize
     }
     this.setState(state)
