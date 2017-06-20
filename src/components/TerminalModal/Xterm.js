@@ -112,10 +112,15 @@ class TerminalModal extends Component {
   }
 
   updateMinSize() {
-    const state = {
-      minSize: this.getMinHeight()
+    let minSize = this.getMinHeight()
+    minSize = Math.ceil(minSize * 100000) / 100000
+    if (this.state.minSize === minSize) {
+      return
     }
-    if (this.state.resize = 'min') {
+    const state = {
+      minSize
+    }
+    if (this.state.resize === 'min') {
       state.size = state.minSize
     }
     this.setState(state)
@@ -201,7 +206,7 @@ class TerminalModal extends Component {
     }
     this.closeIframeTerm(item.metadata.name)
     removeTerminal(clusterID, item)
-    if (list.length == 1) {
+    if (list.length == 1 && this.state.showLogs) {
       this.props.setTingLogs(null)
       document.getElementsByClassName('bottomBox')[0].style.height = null
     }
@@ -315,8 +320,10 @@ class TerminalModal extends Component {
     const { clusterID, removeAllTerminal, list } = this.props
     list.map(item => this.closeIframeTerm(item.metadata.name))
     removeAllTerminal(clusterID)
-    this.props.setTingLogs(null)
-    document.getElementsByClassName('bottomBox')[0].style.height = null
+    if (this.state.showLogs) {
+      this.props.setTingLogs(null)
+      document.getElementsByClassName('bottomBox')[0].style.height = null
+    }
   }
 
   onDockSizeChange(size) {
