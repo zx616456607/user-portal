@@ -157,9 +157,14 @@ class AlarmGroup extends Component {
     if (cluster.clusterID !== currentCluster.clusterID) {
       setCurrent({
         cluster:currentCluster
-      },(()=>{
-        browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(item.id)}?name=${item.name}`)
-      })())
+      },{
+        success:{
+          func: ()=>{
+            browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(item.id)}?name=${item.name}`)
+          },
+          isAsync: true
+        }
+      })
     } else {
       browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(item.id)}?name=${item.name}`)
     }
@@ -390,8 +395,8 @@ function mapStateToProps(state, props) {
   const { groups } = state.alert
   const { cluster } = state.entities.current
   const { space } = state.entities.current
-  const { data } = state.team.teamClusters.result
-  if (!groups && !cluster) {
+  const { teamClusters } = state.team
+  if (!groups && !cluster && !teamClusters) {
    return props
  }
 
@@ -399,16 +404,20 @@ function mapStateToProps(state, props) {
       isFetching: false,
       result:{data:[]}
   }
-
+  let defaultDatas = {
+    result: {data:[]}
+  }
   const { isFetching } = groups || defaultData
   const { result } = groups || defaultData
   let groupsData = result ? result.data : []
+  let clusterResult = teamClusters.result || defaultDatas.result
+  let clusterData = clusterResult ? clusterResult.data : []
   return {
     space,
     isFetching,
     cluster,
     groups: groupsData,
-    data
+    data :clusterData
   }
 }
 
