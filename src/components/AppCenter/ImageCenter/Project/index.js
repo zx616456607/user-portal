@@ -57,8 +57,11 @@ class CreateItem extends Component {
             if (statusCode === 409) {
               notification.error(`仓库组名称 ${values.project_name} 已存在`)
               return
+            } else if (statusCode === 400) {
+              notification.error(`请求错误，请检查仓库名称： ${values.project_name}`)
+              return
             }
-            notification.error(`创建仓库组 ${values.project_name} 失败`)
+            notification.error(`创建仓库组 ${values.project_name} 失败，错误代码: ${statusCode}`)
           },
         }
       })
