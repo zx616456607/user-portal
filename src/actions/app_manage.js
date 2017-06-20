@@ -501,3 +501,12 @@ export function getPodProcess(cluster, name) {
     return dispatch(fetchPodProcess(cluster, name))
   }
 }
+
+export const SET_LOGSIZE_STYLE = 'SET_LOGSIZE_STYLE'
+// @baiyu set log bigBox
+export function setTingLogs(logSize) {
+  return {
+    logSize,
+    type: SET_LOGSIZE_STYLE
+  }
+}

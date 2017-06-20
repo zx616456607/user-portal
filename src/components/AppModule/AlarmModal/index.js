@@ -18,12 +18,18 @@ import { getAllClusterNodes } from '../../../actions/cluster_node'
 import { loadNotifyGroups, addAlertSetting, updateAlertSetting, getAlertSetting } from '../../../actions/alert'
 import { ADMIN_ROLE } from '../../../../constants'
 import NotificationHandler from '../../../common/notification_handler'
+import { getAlertSettingExistence } from '../../../actions/alert'
 
 const Option = Select.Option
 const RadioGroup = Radio.Group
 let isUseing = false
 
 let FistStop = React.createClass({
+  getInitialState() {
+    return {
+      checkName: null
+    }
+  },
   componentWillMount() {
     const { loadAppList, appList, cluster, isFetchingApp, clusterNode, getAllClusterNodes, setParentState, loginUser, funcs } = this.props
     if (!appList || appList.length == 0) {
@@ -49,7 +55,27 @@ let FistStop = React.createClass({
        callback(new Error('请输入3~40位字符'))
        return
     }
-    callback()
+    const { cluster } = this.props
+    this.setState({checkName: 'validating'})
+    this.props.getAlertSettingExistence(cluster.clusterID,value,{
+      success: {
+        func:(res)=> {
+          if (res.data[value]) {
+            this.setState({checkName:'error'})
+            callback('策略名称重复')
+            return
+          }
+          this.setState({checkName:'success'})
+          callback()
+        }
+      },
+      failed: {
+        func:()=> {
+          this.setState({checkName:'warning'})
+          callback('服务异常，请稍后重试')
+        }
+      }
+    })
   },
   fistStopType(rule, value, callback) {
     if (!Boolean(value)) {
@@ -270,7 +296,7 @@ let FistStop = React.createClass({
 
     return (
       <Form className="paramsSetting">
-        <Form.Item label="名称" {...ItemLayout}>
+        <Form.Item label="名称" {...ItemLayout} validateStatus={this.state.checkName} hasFeedback>
           <Input {...nameProps} placeholder="请输入名称"/>
         </Form.Item>
         <Row>
@@ -359,6 +385,7 @@ FistStop = connect(mapStateToProp, {
   loadServiceList,
   loadAppList,
   getAllClusterNodes,
+  getAlertSettingExistence,
 })(Form.create()(FistStop))
 
 // two step in cpu add rule
