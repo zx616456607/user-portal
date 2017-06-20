@@ -370,7 +370,7 @@ class CreateVolume extends Component {
             <Col span="4" className="name-text-center switchName">
               使用快照创建
             </Col>
-            <Col span="12">
+            <Col span="3">
               <Switch
                 checkedChildren={<Icon type="check" />}
                 unCheckedChildren={<Icon type="cross" />}
@@ -379,6 +379,7 @@ class CreateVolume extends Component {
                 disabled={this.state.switchDisabled}
               />
             </Col>
+            <Col span="15">通过快照创建存储卷，1-2分钟即可创建成功</Col>
           </Row>
           {
             this.state.swicthChecked

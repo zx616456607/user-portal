@@ -286,7 +286,7 @@ class ClusterLabelManage extends Component{
         title:'标签键',
         key:'keys',
         dataIndex:'key',
-        width:'19%',
+        width:'15%',
         sorter: (a, b) => a.key.localeCompare(b.key)
       },{
         title:'属性',
@@ -332,7 +332,7 @@ class ClusterLabelManage extends Component{
         title:'创建时间',
         key:'createAt',
         dataIndex:'createAt',
-        width:'19%',
+        width:'18%',
         sorter: (a, b) => {
           const getDate = l => l.hasOwnProperty('createAt') ? new Date(l.createAt) : new Date(0)
           const at = getDate(a)
@@ -351,7 +351,7 @@ class ClusterLabelManage extends Component{
         title:'操作',
         key:'actions',
         dataIndex:'handle',
-        width:'16%',
+        width:'132px',
         className:'handle',
         render : (text,row) => {
           if (row.createAt && row.targets.length ==0) {

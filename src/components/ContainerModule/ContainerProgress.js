@@ -138,19 +138,19 @@ class ContainerProgress extends Component{
         title: '用户',
         dataIndex: 'userName',
         key: 'userName',
-        width:'9%',
+        width:'7%',
       },
       {
         title: 'PID',
         dataIndex: 'pid',
         key: 'pid',
-        width:'9%'
+        width:'6%'
       },
       {
         title: 'CPU',
         dataIndex: 'cpuPercent',
         key: 'cpuPercent',
-        width:'9%'
+        width:'7%'
       },
       {
         title: '虚拟内存',
@@ -169,20 +169,19 @@ class ContainerProgress extends Component{
         dataIndex: 'status',
         key: 'status',
         render: (text,record,index) => this.renderStatus(text),
-        width:'11%'
+        width:'13%'
       },
       {
         title: '启动时间',
         dataIndex: 'startTime',
         key: 'startTime',
-        width:'90px',
-        className:'Startuptime'
+        width:'140px',
       },
       {
         title: 'CPU时间',
         dataIndex: 'cpuTime',
         key: 'cpuTime',
-        width:'11%'
+        width:'12%'
       },
       {
         title: '命令行',
