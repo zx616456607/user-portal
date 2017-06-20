@@ -16,7 +16,7 @@ import { formatDate } from '../../common/tools'
 import { ecma48SgrEscape } from '../../common/ecma48_sgr_escape'
 import './style/ContainerLogs.less'
 // import { clearContainerLogs } from '../../actions/app_manage'
-import { loadContainerDetailEvents } from '../../actions/app_manage'
+import { loadContainerDetailEvents,setTingLogs } from '../../actions/app_manage'
 import Websocket from '../Websocket'
 import { MAX_LOGS_NUMBER } from '../../constants'
 
@@ -66,15 +66,34 @@ class ContainerLogs extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { eventLogs } = nextProps
+    const { eventLogs,containerLogs } = nextProps
     const { logs } = this.state
-    // Set events to logs when logs empty
+       // Set events to logs when logs empty
     if (logs.length === 0) {
       this.setState({
         logs: eventLogs,
         logsLoading: false
       })
     }
+    if (containerLogs.logSize) {
+      let logSize = 'normal'
+      if (containerLogs.logSize == 'big') {
+        logSize = 'big'
+        document.getElementById('containerInfo').style.transform = 'none';
+        let h = document.getElementById('TerminalModal').offsetHeight
+        let b = document.getElementsByClassName('bottomBox')[0]
+        b.style.height = document.body.offsetHeight - h +'px'
+
+      } else {
+        document.getElementById('containerInfo').style.transform = 'translateX(0px)';
+      }
+      this.setState({
+        logSize
+      })
+      return
+    }
+    document.getElementsByClassName('bottomBox')[0].style.height = null
+
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -95,6 +114,8 @@ class ContainerLogs extends Component {
       this.setState({
         logSize: 'normal'
       })
+      this.props.setTingLogs('normal')
+      document.getElementsByClassName('bottomBox')[0].style.height = null
       return
     }
     document.getElementById('containerInfo').style.transform = 'none';
@@ -330,6 +351,7 @@ function mapStateToProps(state, props) {
 ContainerLogs = connect(mapStateToProps, {
   // clearContainerLogs,
   loadContainerDetailEvents,
+  setTingLogs
 })(ContainerLogs)
 
 export default ContainerLogs

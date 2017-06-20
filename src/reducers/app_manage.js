@@ -387,6 +387,9 @@ function containerLogs(state = {}, action) {
         }
       })
       return dd
+    case ActionTypes.SET_LOGSIZE_STYLE: {
+      return Object.assign({}, {logSize: action.logSize})
+    }
     default:
       return merge({}, state)
   }

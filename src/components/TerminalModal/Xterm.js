@@ -8,7 +8,7 @@
  * @author Zhangpc
  */
 import React, { Component, PropTypes } from 'react'
-import { Link } from 'react-router'
+import { Link,browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import { Icon, Tabs, Button } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -18,6 +18,7 @@ import {
   updateTerminal, removeAllTerminal, changeActiveTerminal,
   removeTerminal,
 } from '../../actions/terminal'
+import { setTingLogs } from '../../actions/app_manage'
 import cloneDeep from 'lodash/cloneDeep'
 import Dock from 'react-dock'
 import './style/Xterm.less'
@@ -45,6 +46,7 @@ class TerminalModal extends Component {
       resize: 'min',
       size: DEFAULT_SIZE,
       minSize: this.getMinHeight(),
+      showLogs: false
     }
     this.isSafariBrower = isSafariBrower()
   }
@@ -65,6 +67,9 @@ class TerminalModal extends Component {
         }
         return true
       })
+    }
+    if (location.href.indexOf('/app_manage/container/') >-1) {
+      this.setState({showLogs: true})
     }
   }
 
@@ -87,6 +92,11 @@ class TerminalModal extends Component {
         resize: 'min',
       })
     }
+    if (location.href.indexOf('/app_manage/container/') >-1) {
+      this.setState({showLogs: true})
+      return
+    }
+    this.setState({showLogs: false})
   }
 
   closeIframeTerm(key) {
@@ -181,7 +191,7 @@ class TerminalModal extends Component {
 
   closeTerminalItem(item, e) {
     e && e.stopPropagation()
-    const { clusterID, removeTerminal } = this.props
+    const { clusterID, removeTerminal, list} = this.props
     const { resize } = this.state
     if (resize === 'min') {
       this.setState({
@@ -191,6 +201,10 @@ class TerminalModal extends Component {
     }
     this.closeIframeTerm(item.metadata.name)
     removeTerminal(clusterID, item)
+    if (list.length == 1) {
+      this.props.setTingLogs(null)
+      document.getElementsByClassName('bottomBox')[0].style.height = null
+    }
   }
 
   renderTermStatus(terminalStatus, item) {
@@ -236,7 +250,17 @@ class TerminalModal extends Component {
       </div>
     )
   }
+  openLogs() {
+    if (location.href.indexOf('/app_manage/container/') >-1) {
+      // @todo start setting show log in container detail
+      browserHistory.push({
+        pathname:location.pathname,
+        hash: '#logs'
+      })
+      this.props.setTingLogs('big')
+    }
 
+  }
   renderTabs() {
     const { clusterID, active, list } = this.props
     const { disableTips, size, minSize, resize } = this.state
@@ -264,6 +288,10 @@ class TerminalModal extends Component {
             const titleTab = (
               <div>
                 <span>{name}</span>
+                <span>&nbsp;&nbsp;</span>
+                {this.state.showLogs ?
+                  <Icon type="file-text" onClick={()=> this.openLogs()} title="查看日志" />
+                :null}
                 <Icon type='cross' onClick={this.closeTerminalItem.bind(this, item)}/>
               </div>
             )
@@ -287,6 +315,8 @@ class TerminalModal extends Component {
     const { clusterID, removeAllTerminal, list } = this.props
     list.map(item => this.closeIframeTerm(item.metadata.name))
     removeAllTerminal(clusterID)
+    this.props.setTingLogs(null)
+    document.getElementsByClassName('bottomBox')[0].style.height = null
   }
 
   onDockSizeChange(size) {
@@ -300,6 +330,10 @@ class TerminalModal extends Component {
       state.resize = 'min'
     } else if (size >= 1) {
       state.size = 1
+    }
+    if (this.props.containerLogs.logSize == 'big') {
+      // 设置 分层显示log 和控制台
+      setTimeout(()=>this.props.setTingLogs('big'),200)
     }
     this.setState(state)
   }
@@ -336,6 +370,7 @@ function mapStateToProps(state, props) {
     loginUser: loginUser.info,
     active: active[clusterID],
     list: list[clusterID],
+    containerLogs: state.containers.containerLogs,
   }
 }
 
@@ -348,6 +383,7 @@ export default connect(mapStateToProps, {
   removeAllTerminal,
   changeActiveTerminal,
   removeTerminal,
+  setTingLogs,
 })(injectIntl(TerminalModal, {
   withRef: true,
 }))
