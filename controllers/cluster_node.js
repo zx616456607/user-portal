@@ -61,7 +61,7 @@ exports.getClusterNodes = function* () {
   } catch (error) {
     // Catch error for show node list
   }
-
+  clusters.nodes.nodes.forEach(node => node.objectMeta.labels = JSON.stringify(node.objectMeta.labels))
   this.body = {
     data: {
       clusters,
@@ -213,9 +213,11 @@ exports.getNodeLabels = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
   const node = this.params.node
+  const raw = Object.getOwnPropertyNames(this.query).indexOf('raw') !== -1
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'nodes', node, 'labels'])
-  this.body = result ? result.data : {}
+  const data = result ? result.data : {}
+  this.body = raw ? {raw: JSON.stringify(data)} : data
 }
 
 exports.updateNodeLabels = function* () {
@@ -249,7 +251,7 @@ function* editingView(cluster, api, ctx, nodeName) {
   let nodes = {}
   labelsOfNodes.forEach(node => {
     nodes = Object.assign(nodes, {
-      [node.name]: node.labels
+      [node.name]: JSON.stringify(node.labels)
     })
     Object.getOwnPropertyNames(node.labels).forEach(key => {
       const value = node.labels[key]

@@ -275,7 +275,7 @@ function fetchNodeLabels(cluster,node,callback) {
    return {
     [FETCH_API]: {
       types: [GET_NODE_LABEL_REQUEST, GET_NODE_LABEL_SUCCESS, GET_NODE_LABEL_FAILURE],
-      endpoint: `${API_URL_PREFIX}/cluster-nodes/${cluster}/${node}/labels`,
+      endpoint: `${API_URL_PREFIX}/cluster-nodes/${cluster}/${node}/labels?raw=true`,
       schema: {},
     },
     callback

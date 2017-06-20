@@ -29,6 +29,8 @@ function getAllClusterNodes(state = {}, action) {
         }
       })
     case ActionTypes.GET_ALL_CLUSTER_NODES_SUCCESS:
+      const nodes = action.response.result.data.clusters.nodes.nodes
+      nodes.forEach(node => node.objectMeta.labels = JSON.parse(node.objectMeta.labels))
       return Object.assign({}, state, {
         [cluster]: {
           isFetching: false,
@@ -96,6 +98,25 @@ function addNodeCMD(state = {}, action) {
   }
 }
 
+function getNodeLabels(state = {}, action) {
+  const vtable = {
+    [ActionTypes.GET_NODE_LABEL_REQUEST]: state => merge({}, state, {
+      isFetching: true,
+    }),
+    [ActionTypes.GET_NODE_LABEL_SUCCESS]: state => merge({}, state, {
+      isFetching: false,
+      result: JSON.parse(action.response.result.raw),
+    }),
+    [ActionTypes.GET_NODE_LABEL_FAILURE]: state => merge({}, state, {
+      isFetching: false,
+    }),
+  }
+  if (vtable.hasOwnProperty(action.type)) {
+    return vtable[action.type](state)
+  }
+  return state
+}
+
 function clusterLabel(state = {}, action) {
   const cluster = action.cluster
   switch (action.type) {
@@ -105,6 +126,9 @@ function clusterLabel(state = {}, action) {
       })
     }
     case ActionTypes.GET_CLOUSTER_LABEL_SUCCESS: {
+      const nodes = action.response.result.nodes
+      Object.getOwnPropertyNames(nodes).forEach(
+        nodeName => nodes[nodeName] = JSON.parse(nodes[nodeName]))
       return Object.assign({}, state, {
         [cluster]:{
           isFetching: false,
@@ -221,10 +245,6 @@ export function cluster_nodes(state = { cluster_nodes: {}, clusterLabel: {} }, a
     addNodeCMD: addNodeCMD(state.addNodeCMD, action),
     clusterLabel: clusterLabel(state.clusterLabel, action),
     networksolutions: networksolutions(state.networksolutions, action),
-    nodeLabel: reducerFactory({
-      REQUEST: ActionTypes.GET_NODE_LABEL_FAILURE,
-      SUCCESS: ActionTypes.GET_NODE_LABEL_SUCCESS,
-      FAILURE: ActionTypes.GET_NODE_LABEL_FAILURE
-    }, state.nodeLabel, action, { overwrite: true }),
+    nodeLabel: getNodeLabels(state.nodeLabel, action)
   }
 }

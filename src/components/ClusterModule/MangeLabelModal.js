@@ -108,7 +108,7 @@ class ManageLabelModal extends Component {
           if (ret.affectedPods.length !== 0 ) {
             Modal.confirm({
               width:460,
-              title: <span style={{fontWeight:500}}>当前标签被引用绑定，删除后会导致服务变为系统调度</span>,
+              title: <span style={{fontWeight:500}}>下列服务依赖此标签调度，从此主机删除此标签可能导致服务无法启动</span>,
               content: this.formetTable(ret.affectedPods),
               onOk() {
                 _this.beforeCloseLabel(key,value)
