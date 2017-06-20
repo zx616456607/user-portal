@@ -17,9 +17,10 @@ import QueueAnim from 'rc-queue-anim'
 import CreateAlarm from '../AppModule/AlarmModal/CreateGroup'
 const InputGroup = Input.Group
 import { loadNotifyGroups, deleteNotifyGroups } from '../../actions/alert'
+import { setCurrent } from '../../actions/entities'
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import { formatDate } from '../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 import Title from '../Title'
@@ -150,15 +151,29 @@ class AlarmGroup extends Component {
       </div>
     )
   }
-
+  toAlarmDetail(item,e) {
+    const { data, cluster, setCurrent } = this.props;
+    let currentCluster = data.find((record,index)=> record.clusterID === item.clusterID)
+    if (cluster.clusterID !== currentCluster.clusterID) {
+      setCurrent({
+        cluster:currentCluster
+      },(()=>{
+        browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(item.id)}?name=${item.name}`)
+      })())
+    } else {
+      browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(item.id)}?name=${item.name}`)
+    }
+    e.stopPropagation()
+  }
   getStragegies(strategies) {
+    const _this = this;
     if (!strategies) {
       return '-'
     }
     let popover = '-'
     if (strategies.length > 0) {
       popover = strategies.map(function(item) {
-        return <div className='alarmGroupItem'><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(item.id)}?name=${item.name}`}>{item.name}</Link></div>
+        return <div className='alarmGroupItem'><span onClick={(e)=> _this.toAlarmDetail(item,e)}>{item.name}</span></div>
       })
     }
     return (
@@ -375,6 +390,7 @@ function mapStateToProps(state, props) {
   const { groups } = state.alert
   const { cluster } = state.entities.current
   const { space } = state.entities.current
+  const { data } = state.team.teamClusters.result
   if (!groups && !cluster) {
    return props
  }
@@ -391,11 +407,13 @@ function mapStateToProps(state, props) {
     space,
     isFetching,
     cluster,
-    groups: groupsData
+    groups: groupsData,
+    data
   }
 }
 
 export default connect(mapStateToProps, {
   loadNotifyGroups,
   deleteNotifyGroups,
+  setCurrent
 })(AlarmGroup)

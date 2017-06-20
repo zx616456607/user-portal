@@ -66,7 +66,7 @@ class PublicProject extends Component {
             <Card className="project">
               <div className="topRow">
                 <Input
-                  placeholder="搜索"
+                  placeholder="按仓库组名称搜索"
                   className="search"
                   size="large"
                   onChange={e => this.setState({ searchInput: e.target.value })}

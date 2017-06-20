@@ -217,7 +217,7 @@ class CodeRepo extends Component {
           <Button type="ghost" size="large" icon="cloud-download-o" onClick={()=> this.showDownload(true)}>下载镜像</Button>
 
           <Input
-            placeholder="搜索"
+            placeholder="按镜像名称搜索"
             className="search"
             size="large"
             onChange={e => this.setState({ searchInput: e.target.value })}
