@@ -124,11 +124,6 @@ let CreateConfigFileModal = React.createClass({
       disableUpload: true,
       filePath: '上传文件为 ' + fileName
     })
-    const { form } = self.props
-    const { setFieldsValue } = form
-    setFieldsValue({
-      configName: fileName
-    })
     notify.spin('读取文件内容中，请稍后')
     const fileReader = new FileReader()
     fileReader.onerror = function(err) {
