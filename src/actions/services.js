@@ -89,7 +89,7 @@ export const SERVICE_DETAIL_FAILURE = 'SERVICE_DETAIL_FAILURE'
 
 // Fetches service list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchServiceDetail(cluster, serviceName) {
+function fetchServiceDetail(cluster, serviceName, callback) {
   return {
     cluster,
     serviceName,
@@ -97,15 +97,16 @@ function fetchServiceDetail(cluster, serviceName) {
       types: [SERVICE_DETAIL_REQUEST, SERVICE_DETAIL_SUCCESS, SERVICE_DETAIL_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/detail`,
       schema: {}
-    }
+    },
+    callback: callback
   }
 }
 
 // Fetches services list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadServiceDetail(cluster, serviceName, requiredFields = []) {
+export function loadServiceDetail(cluster, serviceName, callback, requiredFields = []) {
   return (dispatch, getState) => {
-    return dispatch(fetchServiceDetail(cluster, serviceName))
+    return dispatch(fetchServiceDetail(cluster, serviceName, callback))
   }
 }
 
