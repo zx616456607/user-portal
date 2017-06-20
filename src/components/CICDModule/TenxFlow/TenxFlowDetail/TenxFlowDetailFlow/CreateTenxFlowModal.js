@@ -267,7 +267,7 @@ let CreateTenxFlowModal = React.createClass({
       clusterNodes: [],
       disabledBranchTag: false,
       isFirstChangeTag: true,
-      isFirsteChangeDockerfileType: true
+      isFirstChangeDockerfileType: true
     }
   },
   getUniformRepo() {
@@ -566,9 +566,9 @@ let CreateTenxFlowModal = React.createClass({
         isFirstChangeTag: false
       })
     }
-    if(this.state.isFirsteChangeDockerfileType) {
+    if(this.state.isFirstChangeDockerfileType) {
       this.setState({
-        isFirsteChangeDockerfileType: false,
+        isFirstChangeDockerfileType: false,
         useDockerfile: true
       })
     }

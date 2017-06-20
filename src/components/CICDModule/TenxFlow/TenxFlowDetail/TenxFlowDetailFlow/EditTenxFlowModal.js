@@ -281,7 +281,7 @@ let EditTenxFlowModal = React.createClass({
       updateDfBtnLoading: false,
       disabledBranchTag: false,
       isFirstChangeTag: true,
-      isFirsteChangeDockerfileType: true
+      isFirstChangeDockerfileType: true
     }
   },
   componentWillMount() {
