@@ -706,31 +706,6 @@ let EditTenxFlowModal = React.createClass({
     this.setState({
       codeStoreModalShow: false
     })
-    // const { form } = this.props
-    // if (this.state.isFirstChangeTag) {
-    //   form.setFieldsValue({
-    //     imageTag: '1'
-    //   })
-    //   this.changeImageTagType({
-    //     target: {
-    //       value: 1
-    //     }
-    //   })
-    //   this.setState({
-    //     isFirstChangeTag: false
-    //   })
-    // }
-    // if (this.state.isFirsteChangeDockerfileType) {
-    //   this.setState({
-    //     isFirsteChangeDockerfileType: false,
-    //     useDockerfile: true
-    //   })
-    // }
-    // if (this.state.useDockerfile) {
-    //   this.setState({
-    //     noDockerfileInput: false
-    //   })
-    // }
   },
   deleteCodeStore() {
     //this function for user delete the code store
