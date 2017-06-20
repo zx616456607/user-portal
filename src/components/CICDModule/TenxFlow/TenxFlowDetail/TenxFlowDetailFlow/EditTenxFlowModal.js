@@ -264,7 +264,7 @@ let EditTenxFlowModal = React.createClass({
   getInitialState: function () {
     return {
       otherFlowType: 3,
-      useDockerfile: true,
+      useDockerfile: false,
       otherTag: false,
       envModalShow: null,
       ImageStoreType: false,
@@ -280,6 +280,8 @@ let EditTenxFlowModal = React.createClass({
       baseImage: [],
       updateDfBtnLoading: false,
       disabledBranchTag: false,
+      isFirstChangeTag: true,
+      isFirsteChangeDockerfileType: true
     }
   },
   componentWillMount() {
@@ -684,6 +686,9 @@ let EditTenxFlowModal = React.createClass({
         otherTag: false
       });
     }
+    this.setState({
+      isFirstChangeTag: false
+    })
   },
   openCodeStoreModal() {
     //this function for user select code store and user must be select code modal
@@ -697,13 +702,55 @@ let EditTenxFlowModal = React.createClass({
       codeStoreModalShow: false
     });
   },
+  okCodeStoreModal() {
+    this.setState({
+      codeStoreModalShow: false
+    })
+    // const { form } = this.props
+    // if (this.state.isFirstChangeTag) {
+    //   form.setFieldsValue({
+    //     imageTag: '1'
+    //   })
+    //   this.changeImageTagType({
+    //     target: {
+    //       value: 1
+    //     }
+    //   })
+    //   this.setState({
+    //     isFirstChangeTag: false
+    //   })
+    // }
+    // if (this.state.isFirsteChangeDockerfileType) {
+    //   this.setState({
+    //     isFirsteChangeDockerfileType: false,
+    //     useDockerfile: true
+    //   })
+    // }
+    // if (this.state.useDockerfile) {
+    //   this.setState({
+    //     noDockerfileInput: false
+    //   })
+    // }
+  },
   deleteCodeStore() {
     //this function for user delete the code store
     this.setState({
       currentCodeStore: null,
       currentCodeStoreBranch: '',
-      currentCodeStoreName: ''
+      currentCodeStoreName: '',
+      useDockerfile: false
     })
+    const { form } = this.props
+    if (form.getFieldValue('imageTag') == '1') {
+      form.setFieldsValue({
+        imageTag: '2'
+      })
+      this.changeImageTagType({
+        target: {
+          value: 2
+        }
+      })
+    }
   },
   openDockerFileModal() {
     this.setState({
@@ -714,6 +761,15 @@ let EditTenxFlowModal = React.createClass({
     this.setState({
       dockerFileModalShow: false
     });
+    if (this.state.dockerFileTextarea) {
+      this.setState({
+        noDockerfileInput: false
+      })
+    } else {
+      this.setState({
+        noDockerfileInput: true
+      })
+    }
   },
   onChangeDockerFileTextarea(e) {
     this.setState({
@@ -753,6 +809,17 @@ let EditTenxFlowModal = React.createClass({
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
+        if (!_this.state.currentCodeStore && !_this.state.dockerFileTextarea) {
+          this.setState({
+            noDockerfileInput: true
+          })
+          return
+        }
+        if (_this.state.currentCodeStore) {
+          this.setState({
+            noDockerfileInput: false
+          })
+        }
         let invalidDockerfile = Boolean(!_this.state.dockerFileTextarea && !_this.state.useDockerfile && this.state.otherFlowType == 3);
         _this.setState({
           noDockerfileInput: invalidDockerfile
@@ -803,6 +870,12 @@ let EditTenxFlowModal = React.createClass({
       }
       if (values.uniformRepo && !_this.state.currentCodeStore) {
         notification.error('请选择代码库')
+        return
+      }
+      if (!_this.state.currentCodeStore && !_this.state.dockerFileTextarea) {
+        this.setState({
+          noDockerfileInput: true
+        })
         return
       }
       //this flag for all form error flag
@@ -937,7 +1010,12 @@ let EditTenxFlowModal = React.createClass({
       }
       //if user select the image build type (3),the body will be add new body
       if (this.state.otherFlowType == 3) {
-        let dockerFileFrom = _this.state.useDockerfile ? 1 : 2
+        let dockerFileFrom
+        if (_this.state.currentCodeStore) {
+          dockerFileFrom = _this.state.useDockerfile ? 1 : 2
+        } else {
+          dockerFileFrom = 2
+        }
         // Get the projectId of harbor project
         let harborProjects = this.props.harborProjects.list || []
         let projectId = 0
@@ -966,7 +1044,7 @@ let EditTenxFlowModal = React.createClass({
         //   imageBuildBody.customRegistry = values.otherStoreUrl;
         // }
         let tmpDockerFileUrl = null;
-        if (!!!values.dockerFileUrl) {
+        if (!values.dockerFileUrl || !this.state.currentCodeStore) {
           tmpDockerFileUrl = '';
         } else {
           tmpDockerFileUrl = values.dockerFileUrl;
@@ -1597,8 +1675,8 @@ let EditTenxFlowModal = React.createClass({
                   </div>
                   <div className='input' style={{ height: '100px' }}>
                     <div className='operaBox' style={{ float: 'left', width: '500px' }}>
-                      <RadioGroup onChange={this.changeUseDockerFile} value={this.state.useDockerfile}>
-                        <Radio key='codeStore' value={true}>
+                       <RadioGroup onChange={this.changeUseDockerFile} value={this.state.currentCodeStore ? this.state.useDockerfile : false}>
+                          <Radio key='codeStore' value={true} disabled={!this.state.currentCodeStore}>
                           <span>使用代码仓库中的 Dockerfile</span>
                           <Tooltip title='请输入Dockerfile在代码仓库内的路径，其中 / 代表代码仓库的当前路径'>
                             <Icon className='dockerIcon' type='question-circle-o' style={{ marginLeft: '10px', cursor: 'pointer' }} />
@@ -1608,7 +1686,7 @@ let EditTenxFlowModal = React.createClass({
                       </RadioGroup>
                     </div>
                     {
-                      !this.state.useDockerfile ? [
+                      (this.state.currentCodeStore ? !this.state.useDockerfile : true) ? [
                         <QueueAnim key='useDockerFileAnimate' style={{ float: 'left' }}>
                           <div key='useDockerFileAnimateSecond'>
                             <Button className={this.state.noDockerfileInput ? 'noCodeStoreButton' : null} type={(this.state.dockerFileTextarea && this.state.dockerFileTextarea.length > 0) ? 'primary' : 'ghost'} size='large'
@@ -1683,8 +1761,8 @@ let EditTenxFlowModal = React.createClass({
                   </div>
                   <div className='input'>
                     <FormItem style={{ float: 'left' }}>
-                      <RadioGroup {...getFieldProps('imageTag', { initialValue: (!!config.spec.build ? (config.spec.build.imageTagType + '') : '1'), onChange: this.changeImageTagType }) }>
-                        <Radio key='branch' value={'1'} disabled={this.state.disabledBranchTag}><FormattedMessage {...menusText.ImageTagByBranch} /></Radio>
+                     <RadioGroup {...getFieldProps('imageTag', { initialValue: (!!config.spec.build ? (config.spec.build.imageTagType + '') : '1'), onChange: this.changeImageTagType }) }>
+                        <Radio key='branch' value={'1'} disabled={this.state.disabledBranchTag || !this.state.currentCodeStore}><FormattedMessage {...menusText.ImageTagByBranch} /></Radio>
                         <Radio key='time' value={'2'}><FormattedMessage {...menusText.ImageTagByTime} /></Radio>
                         <Radio key='other' value={'3'}><FormattedMessage {...menusText.ImageTagByOther} /></Radio>
                       </RadioGroup>
@@ -1781,10 +1859,10 @@ let EditTenxFlowModal = React.createClass({
         </div>
         <Modal className='tenxFlowCodeStoreModal' title={<FormattedMessage {...menusText.codeStore} />}
           visible={this.state.codeStoreModalShow}
-          onOk={this.closeCodeStoreModal}
+          onOk={() => this.okCodeStoreModal()}
           onCancel={this.closeCodeStoreModal}
           >
-          <CodeStoreListModal scope={scopeThis} config={codeList} hadSelected={this.state.currentCodeStore} />
+          <CodeStoreListModal scope={scopeThis} config={codeList} hadSelected={this.state.currentCodeStore} okCallback={() => this.okCodeStoreModal()}/>
         </Modal>
          <Modal title="添加第三方仓库" visible={this.state.addOtherImage}
           onOk={()=> this.addOtherImage()} onCancel={()=> this.cancelModal()}
