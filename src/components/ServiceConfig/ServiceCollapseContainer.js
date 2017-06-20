@@ -78,14 +78,11 @@ function formatVolumeMounts(data, groupname, name) {
               const configMap = volumesMap[containers[k].volumeMounts[l].name]
               if (configMap.configMap.items) {
                 configMap.configMap.items.forEach(item => {
-                  const arr = volumeMount.mountPath.split('/')
-                  if (arr[arr.length - 1] == name) {
-                    volumeMounts = unionWith(volumeMounts, [{
-                      imageName: data[i].name,
-                      serviceName: data[i].services[j].metadata.name,
-                      mountPath: volumeMount.mountPath
-                    }], isEqual)
-                  }
+                  volumeMounts = unionWith(volumeMounts, [{
+                    imageName: data[i].name,
+                    serviceName: data[i].services[j].metadata.name,
+                    mountPath: volumeMount.mountPath
+                  }], isEqual)
                 })
               } else {
                 volumeMounts = unionWith(volumeMounts, [{
