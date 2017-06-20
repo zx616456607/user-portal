@@ -489,6 +489,7 @@ module.exports = function (Router) {
   router.get('/email/invitations/status', alertController.checkEmailAcceptInvitation)
 
   router.get('/cluster/:cluster/alerts/setting', alertController.getAlertSetting)
+  router.get('/cluster/:cluster/alerts/:strategyName/existence', alertController.checkExist)
   router.post('/cluster/:cluster/alerts/setting', alertController.addAlertSetting)
   router.put('/cluster/:cluster/alerts/setting/:strategyID', alertController.modifyAlertSetting)
   router.get('/cluster/:cluster/alerts/setting/list', alertController.getSettingList)

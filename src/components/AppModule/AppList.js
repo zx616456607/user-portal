@@ -265,6 +265,14 @@ let MyComponent = React.createClass({
     browserHistory.push(`/app_manage/detail/${appName}#topology`)
   },
   showAlert(item) {
+    if(!item.services.length){
+      Modal.info({
+        title: '提示',
+        content: <div style={{color:'#2db7f5'}}>当前应用下还未添加服务，添加服务后可为服务创建告警策略</div>,
+        onOk() {},
+      });
+      return
+    }
     const { parentScope } = this.props
     parentScope.setState({alarmModal: true, alertCurrentApp:item })
     setTimeout(()=> {
@@ -583,7 +591,7 @@ class AppList extends Component {
     }
     getSettingListfromserviceorapp(query, cluster)
   }
-  
+
   batchDeleteApps(app) {
     /*const { appList } = this.state
     const checkedAppList = appList.filter((app) => app.checked)

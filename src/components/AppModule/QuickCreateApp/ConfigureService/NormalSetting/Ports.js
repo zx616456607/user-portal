@@ -83,6 +83,14 @@ const Ports = React.createClass({
       })
     })
   },
+  portTypeChange(keyValue, value){
+    if(value == MAPPING_PORT_SPECIAL){
+      setTimeout(() => {
+        let id = `mappingPort${keyValue}`
+        document.getElementById(id).focus()
+      },500)
+    }
+  },
   renderPortItem(key, index) {
     // 根据 `deleted` 字段来决定是否渲染
     if (key.deleted) {
@@ -117,6 +125,7 @@ const Ports = React.createClass({
           { required: true, message: '请选择映射服务端口类型' },
         ],
         initialValue: MAPPING_PORT_AUTO,
+        onChange: this.portTypeChange.bind(this, keyValue)
       })
       const mappingPortTypeValue = getFieldValue(mappingPportTypeKey)
       if (mappingPortTypeValue === MAPPING_PORT_SPECIAL) {

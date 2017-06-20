@@ -470,7 +470,7 @@ class ClusterPlugin extends Component {
         title: '所在节点',
         key: 'templateID',
         dataIndex: 'templateID',
-        width:'15%',
+        width:'11%',
         render: (text, row) => {
           return (
             <span>{row.hostName || '随机调度'}</span>
@@ -481,7 +481,7 @@ class ClusterPlugin extends Component {
         title: '管理界面',
         key: 'web',
         dataIndex: 'web',
-        width:'15%',
+        width:'13%',
         render: (text, row) => {
           if (row.serviceInfo && row.serviceInfo.entryPoints && ['stopped', 'uninstalled'].indexOf(row.status.message) < 0 ) {
             let path = row.serviceInfo.entryPoints[0].path
@@ -502,7 +502,7 @@ class ClusterPlugin extends Component {
         title: '操作',
         key: 'action',
         dataIndex: 'action',
-        width:'15%',
+        width:'180px',
         render: (text, row) => {
           let menu
            if(row.status.message == 'stopped') {

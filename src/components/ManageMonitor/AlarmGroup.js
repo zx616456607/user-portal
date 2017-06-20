@@ -47,10 +47,10 @@ class AlarmGroup extends Component {
     // Dropdown delete btn
     return(
       <Menu onClick={(record)=> this.handleDropdownClick(record, group)}
-          style={{ width: '80px',height:'20px'}}
+        style={{ width: '80px'}}
       >
       <Menu.Item key="edit">
-        <Button className="moDify" style={{ width: '80px' }}>修改</Button>
+        修改
       </Menu.Item>
     </Menu>
     )
@@ -103,11 +103,15 @@ class AlarmGroup extends Component {
     }
   }
   openDeleteModal(e, groupIDs) {
+    e.stopPropagation()
+    if (!groupIDs) {
+      new NotificationHandler().info('请先取消策略对该通知组的引用，方可删除告警通知组')
+      return
+    }
     this.setState({
       deleteModal: true,
       deletingGroupIDs: groupIDs,
     })
-    e.stopPropagation()
   }
   closeDeleteModal() {
     this.setState({
@@ -260,10 +264,10 @@ class AlarmGroup extends Component {
       render:(text, group) => {
         if (group.strategies.length >0) {
           return (
-          <Dropdown.Button type="ghost" overlay={ this.dropdowns(text, group) } onClick={(e)=> e.stopPropagation() } className='disableBtn'>
-            <Tooltip title="请先取消策略对该通知组的引用，方可删除告警通知组">
-              <Button style={{border:0}} disabled={true}>删除</Button>
-            </Tooltip>
+          <Dropdown.Button type="ghost" overlay={ this.dropdowns(text, group) } onClick={(e)=> this.openDeleteModal(e,false) } className='disableBtn'>
+              删除
+            {/*<Tooltip title="请先取消策略对该通知组的引用，方可删除告警通知组">
+            </Tooltip>*/}
           </Dropdown.Button>
           )
         }
@@ -374,12 +378,12 @@ function mapStateToProps(state, props) {
   if (!groups && !cluster) {
    return props
  }
-  
+
   let defaultData = {
       isFetching: false,
       result:{data:[]}
   }
-  
+
   const { isFetching } = groups || defaultData
   const { result } = groups || defaultData
   let groupsData = result ? result.data : []

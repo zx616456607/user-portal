@@ -94,7 +94,7 @@ let MyComponent = React.createClass({
                 <span className='listKey'>创建时间</span>
                 <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
               </li>
-              <li><span className='listKey'>存储大小</span>{item.volumeSize ? item.volumeSize :'0'}<div style={{ clear: 'both' }}></div></li>
+              <li><span className='listKey'>存储大小</span>{item.volumeSize ? item.volumeSize.replace('Mi','MB').replace('Gi','GB') :'0'}<div style={{ clear: 'both' }}></div></li>
             </ul>
           </div>
         </div>

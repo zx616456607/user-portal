@@ -931,14 +931,17 @@ let CreateTenxFlowModal = React.createClass({
       return
     }
     let notResetShell = false
-    if(oldImageName.indexOf(':') > 0 && oldOtherFlowType == groupKey) {
-      if(key.indexOf(':') > 0) {
-        let old = oldImageName.split(':')
-        let newKey = key.split(':')
-        if(old[0] == newKey[0] && old[1] != newKey[1]) {
-          notResetShell = true
-        }
-      }
+    // if(oldImageName.indexOf(':') > 0 && oldOtherFlowType == groupKey) {
+    //   if(key.indexOf(':') > 0) {
+    //     let old = oldImageName.split(':')
+    //     let newKey = key.split(':')
+    //     if(old[0] == newKey[0] && old[1] != newKey[1]) {
+    //       notResetShell = true
+    //     }
+    //   }
+    // }
+    if(oldOtherFlowType == groupKey) {
+      notResetShell = true
     }
     this.flowTypeChange(groupKey, notResetShell)
   },
@@ -1396,9 +1399,9 @@ let CreateTenxFlowModal = React.createClass({
                       !this.state.useDockerfile ? [
                         <QueueAnim key='useDockerFileAnimate' style={{ float: 'left' }}>
                           <div key='useDockerFileAnimateSecond'>
-                            <Button className={this.state.noDockerfileInput ? 'noCodeStoreButton' : null} type={this.state.dockerFileTextarea.length > 0 ? 'primary' : 'ghost'} size='large'
+                            <Button className={this.state.noDockerfileInput ? 'noCodeStoreButton' : null} type={(this.state.dockerFileTextarea && this.state.dockerFileTextarea.length > 0) ? 'primary' : 'ghost'} size='large'
                               onClick={this.openDockerFileModal}>
-                              {this.state.dockerFileTextarea.length > 0 ? [<span>编辑云端 Dockerfile</span>] : [<FormattedMessage {...menusText.createNewDockerFile} />]}
+                              {(this.state.dockerFileTextarea && this.state.dockerFileTextarea.length > 0)  ? [<span>编辑云端 Dockerfile</span>] : [<FormattedMessage {...menusText.createNewDockerFile} />]}
                             </Button>
                             <span className={this.state.noDockerfileInput ? 'noCodeStoreSpan CodeStoreSpan' : 'CodeStoreSpan'}><FormattedMessage {...menusText.noDockerFileInput} /></span>
                           </div>

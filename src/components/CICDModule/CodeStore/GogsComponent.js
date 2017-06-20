@@ -12,7 +12,7 @@ import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, Dropdown, Modal,
 import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
-import { getGithubList, searchGithubList, addGithubRepo, notGithubProject, registryGithub, syncRepoList } from '../../../actions/cicd_flow'
+import { getGithubList, searchGithubList, addGithubRepo, notGithubProject, registryGithub, syncRepoList,getUserInfo } from '../../../actions/cicd_flow'
 import { parseQueryStringToObject } from '../../../common/tools'
 
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -234,6 +234,8 @@ class GogsComponent extends Component {
 
   componentWillMount() {
     this.loadData()
+    const { getUserInfo } = this.props;
+    getUserInfo('gogs')
   }
 
   componentWillReceiveProps(nextProps) {
@@ -483,10 +485,19 @@ function mapStateToProps(state, props) {
   const defaultValue = {
     gogsList: []
   }
-  const { githubRepo } = state.cicd_flow
+  const defaultUser = {
+    repoUser: {
+      username: '',
+      depot: '',
+      url: ''
+    }
+  }
+  const { githubRepo,userInfo } = state.cicd_flow
   const { isFetching } = githubRepo
   const { gogsList, users} = githubRepo['gogs'] || defaultValue
+  const { repoUser } = userInfo.gogs || defaultUser
   return {
+    repoUser,
     gogsList,
     isFetching,
     users,
@@ -499,6 +510,7 @@ GogsComponent.propTypes = {
 }
 
 export default connect(mapStateToProps, {
+  getUserInfo,
   getGithubList,
   addGithubRepo,
   registryGithub,

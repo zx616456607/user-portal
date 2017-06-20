@@ -1384,7 +1384,7 @@ class Ordinary extends Component {
         </Row>
         <Row className="content" gutter={16} style={{ marginTop: 16 }}>
           <Col span={6}>
-            <Card title="应用" bordered={false} bodyStyle={{ height: 180, padding: '0 24px' }}>
+            <Card title="应用" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
               <ReactEcharts
                 notMerge={true}
                 option={appOption}
@@ -1394,7 +1394,7 @@ class Ordinary extends Component {
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="服务" bordered={false} bodyStyle={{ height: 180, padding: '0 24px' }}>
+            <Card title="服务" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
               <ReactEcharts
                 notMerge={true}
                 option={serviceOption}
@@ -1404,7 +1404,7 @@ class Ordinary extends Component {
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="容器" bordered={false} bodyStyle={{ height: 180, padding: '0 24px' }}>
+            <Card title="容器" bordered={false} bodyStyle={{ height: 180, padding: '0px' }}>
               <ReactEcharts
                 notMerge={true}
                 option={containerOption}
@@ -1414,7 +1414,7 @@ class Ordinary extends Component {
             </Card>
           </Col>
           <Col span={6} className='storage'>
-            <Card title="存储" bordered={false} bodyStyle={{ height: 180, padding: '0 24px' }}>
+            <Card title="存储" bordered={false} bodyStyle={{ height: 180, padding: '0px 20px 0px 0px' }}>
               <ProgressBox boxPos={boxPos} />
               <Col span={12} className='storageInf'>
                 <div className="storageInfList">
