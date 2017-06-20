@@ -170,9 +170,10 @@ let CreateConfigFileModal = React.createClass({
       return false
     }
     const self = this
+    const fileName = fileInput.value.substr(fileInput.value.lastIndexOf('\\') + 1)
     self.setState({
       disableUpload: true,
-      filePath: '上传文件为 ' + fileInput.value.substr(fileInput.value.lastIndexOf('\\') + 1)
+      filePath: '上传文件为 ' + fileName
     })
     notify.spin('读取文件内容中，请稍后')
     const fileReader = new FileReader()
