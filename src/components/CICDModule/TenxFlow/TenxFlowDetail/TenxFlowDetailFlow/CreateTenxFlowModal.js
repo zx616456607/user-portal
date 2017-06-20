@@ -266,7 +266,6 @@ let CreateTenxFlowModal = React.createClass({
       showOtherImage: false,
       clusterNodes: [],
       disabledBranchTag: false,
-      groupKey: '3',
       isFirstChangeTag: true,
       isFirsteChangeDockerfileType: true
     }
