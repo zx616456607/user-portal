@@ -1399,9 +1399,9 @@ let CreateTenxFlowModal = React.createClass({
                       !this.state.useDockerfile ? [
                         <QueueAnim key='useDockerFileAnimate' style={{ float: 'left' }}>
                           <div key='useDockerFileAnimateSecond'>
-                            <Button className={this.state.noDockerfileInput ? 'noCodeStoreButton' : null} type={this.state.dockerFileTextarea.length > 0 ? 'primary' : 'ghost'} size='large'
+                            <Button className={this.state.noDockerfileInput ? 'noCodeStoreButton' : null} type={(this.state.dockerFileTextarea && this.state.dockerFileTextarea.length > 0) ? 'primary' : 'ghost'} size='large'
                               onClick={this.openDockerFileModal}>
-                              {this.state.dockerFileTextarea.length > 0 ? [<span>编辑云端 Dockerfile</span>] : [<FormattedMessage {...menusText.createNewDockerFile} />]}
+                              {(this.state.dockerFileTextarea && this.state.dockerFileTextarea.length > 0)  ? [<span>编辑云端 Dockerfile</span>] : [<FormattedMessage {...menusText.createNewDockerFile} />]}
                             </Button>
                             <span className={this.state.noDockerfileInput ? 'noCodeStoreSpan CodeStoreSpan' : 'CodeStoreSpan'}><FormattedMessage {...menusText.noDockerFileInput} /></span>
                           </div>
@@ -1453,8 +1453,8 @@ let CreateTenxFlowModal = React.createClass({
                           (this.props.harborProjects.list || []).map(project => {
                             const currentRoleId = project[camelize('current_user_role_id')]
                             return (
-                              <Option key={project.name} disabled={currentRoleId != 1}>
-                                {project.name} {(currentRoleId == 2 || currentRoleId == 3) && '（访客）'}
+                              <Option key={project.name} disabled={currentRoleId === 3}>
+                                {project.name} {currentRoleId == 3 && '（访客）'}
                               </Option>
                             )}
                           )
@@ -1621,6 +1621,18 @@ function mapStateToProps(state, props) {
     clusters = defaultClusterList
   }
   let harborProjects = state.harbor.projects && state.harbor.projects[DEFAULT_REGISTRY] || {}
+  const list = harborProjects.list || []
+  const newList = []
+  const visitorList = []
+  list.forEach(project => {
+    const currentRoleId = project[camelize('current_user_role_id')]
+    if (currentRoleId === 3) {
+      visitorList.push(project)
+      return
+    }
+    newList.push(project)
+  })
+  harborProjects.list = newList.concat(visitorList)
   return {
     clusters,
     clustersNodes,

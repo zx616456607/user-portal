@@ -273,7 +273,7 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'team',
         key: 'team',
-        width: '10%',
+        width: '14%',
         className: 'teamName',
         render: (text, record, index) => (
           <Link to={`/account/team/${record.team}/${record.key}`}>{text}</Link>
@@ -295,7 +295,7 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'member',
         key: 'member',
-        width: '10%',
+        width: '15%',
       },
       {
         title: (
@@ -313,7 +313,7 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'cluster',
         key: 'cluster',
-        width: '10%',
+        width: '15%',
       },
       {
         title: (
@@ -331,12 +331,12 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'space',
         key: 'space',
-        width: '10%',
+        width: '15%',
       },
       {
         title: '操作',
         key: 'operation',
-        width: '20%',
+        width: '333px',
         render: (text, record, index) =>{
           return (
             <div className="addusers">

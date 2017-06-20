@@ -895,6 +895,14 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.AlertRule',
     defaultMessage: '告警规则',
   },
+  Snapshot: {
+    id: 'ManageMonitor.operationalAudit.Snapshot',
+    defaultMessage: '快照',
+  },
+  Labels: {
+    id: 'ManageMonitor.operationalAudit.Labels',
+    defaultMessage: '标签',
+  },
   Repo: {
     id: 'ManageMonitor.operationalAudit.Repo',
     defaultMessage: '代码仓库',
@@ -938,6 +946,10 @@ const menusText = defineMessages({
   CDNotification: {
     id: 'ManageMonitor.operationalAudit.CDNotification',
     defaultMessage: 'CD部署镜像',
+  },
+  InstanceExport: {
+    id: 'ManageMonitor.operationalAudit.InstanceExport',
+    defaultMessage: '镜像导出',
   },
   allstatus: {
     id: 'ManageMonitor.operationalAudit.allstatus',
