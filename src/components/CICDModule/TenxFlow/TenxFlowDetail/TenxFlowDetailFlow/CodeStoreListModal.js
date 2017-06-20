@@ -123,7 +123,7 @@ let CodeStoreListModal = React.createClass({
   },
   onSubmitCodeStore(id, name, e) {
     e.stopPropagation();
-    const { scope } = this.props;
+    const { scope, okCallback } = this.props;
     let tempList = this.state.projectList;
     let branch = null;
     let repoType = null
@@ -146,6 +146,9 @@ let CodeStoreListModal = React.createClass({
       codeStoreModalShow: false,
       noSelectedCodeStore: false
     });
+    if(okCallback) {
+      okCallback()
+    }
   },
   render() {
     const { formatMessage } = this.props.intl;

@@ -438,7 +438,7 @@ let CreateTenxFlow = React.createClass({
                 notification.error('非法的参数值')
                 break
               case 409:
-                notification.error('资源存在冲突，无法创建')
+                notification.error('已存在同名构建任务，无法创建')
                 break
               case 500:
                 notification.error('创建 TenxFlow 失败')
