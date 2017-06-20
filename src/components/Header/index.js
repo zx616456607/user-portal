@@ -162,7 +162,7 @@ class Header extends Component {
 
   handleSpaceChange(space) {
     const _this = this
-    const { loadTeamClustersList, setCurrent, current, showCluster } = this.props
+    const { loadTeamClustersList, setCurrent, current, showCluster, pathname } = this.props
     /*if (space.namespace === current.space.namespace) {
       return
     }*/
@@ -189,6 +189,9 @@ class Header extends Component {
           let isShowCluster = !!showCluster
           if (result.data.length === 1) {
             isShowCluster = false
+            if (pathname.match(/\//g).length > 2) {
+              browserHistory.push('/')
+            }
           }
           _this.setState({
             spacesVisible: false,
