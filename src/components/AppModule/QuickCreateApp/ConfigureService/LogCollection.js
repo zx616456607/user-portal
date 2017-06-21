@@ -18,7 +18,7 @@ const FormItem = Form.Item
 const RadioGroup = Radio.Group
 
 class LogCollection extends Component {
-	constructor(props){
+  constructor(props) {
     super(props)
     this.directoryTemplate = this.directoryTemplate.bind(this)
     this.state = {
@@ -119,13 +119,13 @@ class LogCollection extends Component {
         </div>*/}
       </Form>
     }
-	  return <span></span>
+    return <span></span>
   }
 
-  render(){
-	  const { formItemLayout, form } = this.props
+  render() {
+    const { formItemLayout, form } = this.props
     const { getFieldProps, getFieldValue } = form
-    const sourceTypeProps = getFieldProps('sourceType',{
+    const sourceTypeProps = getFieldProps('sourceType', {
       rules: [
         { required: true }
       ],

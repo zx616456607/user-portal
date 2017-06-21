@@ -1090,7 +1090,6 @@ class QueryLog extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { routing } = state
   const { current, loginUser } = state.entities
   const { cluster, space } = current
   const defaultNamespace = space.namespace
@@ -1126,8 +1125,7 @@ function mapStateToProps(state, props) {
     current,
     query,
     loggingEnabled,
-    defaultNamespace,
-    location: routing.locationBeforeTransitions || {}
+    defaultNamespace
   }
 }
 
