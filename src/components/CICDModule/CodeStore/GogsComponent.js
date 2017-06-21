@@ -445,15 +445,16 @@ class GogsComponent extends Component {
     if (Object.keys(gogsList).length > 0) {
       for (let i in gogsList) {
         codeList.push(
-          <TabPane tab={<span><Icon type="user" />{i}</span>} key={i}>
+          <TabPane tab={<span></span>} key={i}>
             <CodeList scope={scope} isFetching={isFetching} repoUser={i} data={gogsList[i]} typeName={this.props.typeName} />
           </TabPane>
         )
       }
     }
     return (
-      <div key="github-Component" type="right" className='codelink'>
+      <div key="github-Component" type="right"  id="gogList" className='codelink'>
         <div className="tableHead">
+          <Icon type="user" /> {this.state.users}
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={() => this.setState({ removeModal: true })} style={{ margin: '0 20px' }} />
           </Tooltip>
