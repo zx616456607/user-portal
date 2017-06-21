@@ -100,8 +100,20 @@ exports.sendInvitation = function* () {
   const result = yield spi.email.createBy(['invitations'], null, this.request.body)
   // get email addr and code, then send out the code
   const initConfig = yield initGlobalConfig.initGlobalConfig()
+  const sendMail = globalConfig.mail_server
+  const transport={
+    host: sendMail.host,
+    secure: sendMail.secure, // 使用 SSL
+    port: sendMail.port, // SMTP 端口
+    auth: sendMail.auth,
+    service_mail : sendMail.service_mail
+  }
   yield result.data.emails.map(function (item) {
+<<<<<<< HEAD
     return email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code, globalConfig.mail_server)
+=======
+    return email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code,transport)
+>>>>>>> c53ae4e5... fix alert email with no password bug
   })
   this.body = {}
 }
