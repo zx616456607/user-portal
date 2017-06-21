@@ -139,6 +139,7 @@ class Ordinary extends Component {
     this.handleDataBaseClick = this.handleDataBaseClick.bind(this)
     this.handleSize = this.handleSize.bind(this)
     this.thousandBitSeparator = this.thousandBitSeparator.bind(this)
+    this.loadClusterSummary = this.loadClusterSummary.bind(this)
     this.state = {
       tab1: true,
       tab2: false,
@@ -148,19 +149,30 @@ class Ordinary extends Component {
     }
   }
 
+  loadClusterSummary(clusterID) {
+    const { loadClusterSummary } = this.props
+    loadClusterSummary(clusterID, {
+      failed: {
+        func: () => {
+          // do not show error in page
+        }
+      }
+    })
+  }
+
   componentWillMount() {
-    const {loadClusterInfo, current, loadClusterSummary} = this.props
+    const {loadClusterInfo, current} = this.props
     const {clusterID} = current.cluster
     loadClusterInfo(clusterID)
-    loadClusterSummary(clusterID)
+    this.loadClusterSummary(clusterID)
   }
   componentWillReceiveProps(nextProps) {
-    const { loadClusterInfo, loadClusterSummary } = this.props
+    const { loadClusterInfo } = this.props
     const { current } = nextProps
     const { clusterID } = current.cluster
     if (clusterID !== this.props.current.cluster.clusterID) {
       loadClusterInfo(clusterID)
-      loadClusterSummary(clusterID)
+      this.loadClusterSummary(clusterID)
       return
     }
     if (current.team.teamID !== 'default') {
