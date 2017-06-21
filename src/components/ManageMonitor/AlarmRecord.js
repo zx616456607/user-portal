@@ -12,11 +12,13 @@ import React, { Component, PropTypes } from 'react'
 import { Card, Icon, Spin, Table, Select, DatePicker, Menu, Button, Pagination, Modal } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 // import { calcuDate } from '../../../common/tools.js'
 import moment from 'moment'
 import './style/AlarmRecord.less'
-import { loadRecords, loadRecordsFilters, deleteRecords } from '../../actions/alert'
+import { loadRecords, loadRecordsFilters, deleteRecords, getAlertSetting } from '../../actions/alert'
+import { loadServiceDetail } from '../../actions/services'
+import { getHostInfo } from '../../actions/cluster'
 import NotificationHandler from '../../common/notification_handler'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 const Option = Select.Option
@@ -24,6 +26,7 @@ import { STANDARD_MODE } from '../../../configs/constants'
 import { mode } from '../../../configs/model'
 const standardFlag = mode === STANDARD_MODE
 import Title from '../Title'
+const _ = require('lodash')
 
 class AlarmRecord extends Component {
   constructor(props) {
@@ -182,6 +185,72 @@ class AlarmRecord extends Component {
     }
     this.props.loadRecords(query, clusterID)
   }
+  toProjectDetail(list) {
+    const { clusterID, loadServiceDetail,getHostInfo } = this.props;
+    const notify = new NotificationHandler()
+    if (!list.targetType) {
+      loadServiceDetail(clusterID,list.targetName,{
+        success: {
+          func: ()=> {
+            browserHistory.push(`/app_manage/service?serName=${list.targetName}`)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err)=> {
+            if (err.statusCode === 404) {
+              notify.error('关联服务不存在或者已经被删除')
+            }
+          },
+          isAsync: true
+        }
+      })
+    }else {
+      const body = {
+        clusterID:clusterID,
+        clusterName: list.targetName
+      }
+      getHostInfo(body,{
+        success: {
+          func: ()=>{
+            browserHistory.push(`/cluster/${clusterID}/${list.targetName}`)
+          },
+          isAsync:true
+        },
+        failed: {
+          func: ()=>{
+            notify.error('关联节点不存在或者已被删除')
+          },
+          isAsync:true
+        }
+      })
+    }
+    
+  }
+  toAlarmDetail(record) {
+    const { getAlertSetting, clusterID } = this.props
+    const notify = new NotificationHandler()
+    getAlertSetting(clusterID, {
+      strategy: record.strategyID
+    },{
+      success: {
+        func: (result)=> {
+          if (_.isEmpty(result.data)) {
+            notify.error('此策略不存在或者已被删除')
+          } else {
+            browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(record.strategyID)}?name=${record.strategyName}`)
+          }
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (err)=> {
+          notify.error('此策略不存在或者已被删除')
+        },
+        isAsync: true
+      }
+    })
+  }
   render () {
     const { clusterID } = this.props;
     const columns = [
@@ -195,8 +264,8 @@ class AlarmRecord extends Component {
       {
         title: '策略名称',
         dataIndex: 'strategyName',
-        render: (text,recode)=> {
-          return <Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(recode.strategyID)}?name=${text}`}>{text}</Link>
+        render: (text,record)=> {
+          return <span className="targetName" onClick={()=>this.toAlarmDetail(record)}>{text}</span>
         }
       },
       {
@@ -216,8 +285,8 @@ class AlarmRecord extends Component {
       {
         title: '告警对象',
         dataIndex: 'targetName',
-        render: (text,recode)=> {
-          return <Link to={ recode.targetType ? `/cluster/${clusterID}/${recode.targetName}` : `/app_manage/service`}>{text}</Link>
+        render: (text,record)=> {
+          return <span className="targetName" onClick={()=> this.toProjectDetail(record)}>{text}</span>
         }
       },
       {
@@ -344,4 +413,7 @@ export default connect(mapStateToProps, {
   loadRecords,
   loadRecordsFilters,
   deleteRecords,
+  loadServiceDetail,
+  getHostInfo,
+  getAlertSetting
 })(AlarmRecord)
