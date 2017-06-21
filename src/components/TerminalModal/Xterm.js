@@ -206,7 +206,7 @@ class TerminalModal extends Component {
     }
     this.closeIframeTerm(item.metadata.name)
     removeTerminal(clusterID, item)
-    if (list.length == 1 && this.state.showLogs) {
+    if (list.length == 1 && document.getElementsByClassName('bottomBox')[0]) {
       this.props.setTingLogs(null)
       document.getElementsByClassName('bottomBox')[0].style.height = null
     }
@@ -320,7 +320,7 @@ class TerminalModal extends Component {
     const { clusterID, removeAllTerminal, list } = this.props
     list.map(item => this.closeIframeTerm(item.metadata.name))
     removeAllTerminal(clusterID)
-    if (this.state.showLogs) {
+    if (document.getElementsByClassName('bottomBox')[0]) {
       this.props.setTingLogs(null)
       document.getElementsByClassName('bottomBox')[0].style.height = null
     }
