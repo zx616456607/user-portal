@@ -238,6 +238,8 @@ class AlarmRecord extends Component {
               return <div>未发送</div>
             case 1:
               return <div style={{color:'#33b867'}}>已发送</div>
+            case 2:
+              return <div style={{color:'#f23e3f'}}>发送失败</div>
             default:
               return <div>未知</div>
           }
