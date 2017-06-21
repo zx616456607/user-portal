@@ -56,7 +56,7 @@ exports.createNewDBService = function* () {
   // For base petset and service
   yamlContent = yamlContent.replace(/\{\{name\}\}/g, basicInfo.serviceName)
     .replace(/\{\{size\}\}/g, basicInfo.volumeSize)
-    .replace(/\{\{password\}\}/g, '"' + basicInfo.password + '"') // We can also add double quota to template later
+    .replace(/\{\{password\}\}/g, basicInfo.password) // Must have double quote in the template
     .replace(/\{\{replicas\}\}/g, basicInfo.replicas)
   yamlContent = yamlContent.replace(/\{\{registry\}\}/g, getRegistryURL())
   // For external service access
@@ -68,6 +68,7 @@ exports.createNewDBService = function* () {
     basicInfo.externalIP = ''
   }
   yamlContent = yamlContent.replace(/\{\{external-ip\}\}/g, basicInfo.externalIP)
+
   const result = yield api.createBy([cluster, 'dbservices'], { category: appTemplate.data.category }, yamlContent);
   this.body = {
     result

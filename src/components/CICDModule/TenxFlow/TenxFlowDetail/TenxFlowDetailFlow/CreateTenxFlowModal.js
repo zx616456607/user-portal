@@ -973,7 +973,7 @@ let CreateTenxFlowModal = React.createClass({
     this.setState({
       addOtherImage: false
     })
-    browserHistory.push('/app_center')
+    browserHistory.push('/app_center/projects?addUserDefined=true')
   },
   cancelModal() {
     const { form } = this.props
