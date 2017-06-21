@@ -1104,12 +1104,16 @@ class OperationalAudit extends Component {
     //this function for user select different image
     //the nextProps is mean new props, and the this.props didn't change
     //so that we should use the nextProps
-    const { isFetching } = nextPorps;
+    let preNamespace = this.props.namespace
+    const { isFetching, namespace } = nextPorps;
     if (!isFetching && !!nextPorps.logs) {
       this.setState({
         logs: nextPorps.logs,
         totalNum: nextPorps.logs.count
       });
+    }
+    if (preNamespace !== namespace) {
+      this.refreshLogs()
     }
   }
 
@@ -1754,10 +1758,13 @@ function mapStateToProps(state, props) {
     logs: []
   }
   const { operationAuditLog } = state.manageMonitor
+  const { current } = state.entities
+  const { namespace } = current.space || { namespace: ''}
   const { logs, isFetching } = operationAuditLog.logs || defaultLogs
   return {
     isFetching,
-    logs
+    logs,
+    namespace
   }
 }
 
