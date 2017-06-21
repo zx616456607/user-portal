@@ -79,7 +79,7 @@ const menusText = defineMessages({
   },
   edit: {
     id: 'CICD.Tenxflow.TenxFlowList.edit',
-    defaultMessage: '编辑TenxFlow',
+    defaultMessage: '修改TenxFlow',
   },
   unUpdate: {
     id: 'CICD.Tenxflow.TenxFlowList.unUpdate',
@@ -212,11 +212,11 @@ let MyComponent = React.createClass({
     const dropdown = (
       <Menu onClick={(Item)=>{this.operaMenuClick.call(this, item, Item)}}>
         <Menu.Item key='deleteFlow'>
-          <i className='fa fa-trash' style={{ lineHeight: '20px', marginRight: '5px' }} />&nbsp;
+          <i className='fa fa-trash' style={{ marginRight: '5px' }} />&nbsp;
           <FormattedMessage {...menusText.delete} style={{ display: 'inlineBlock' }} />
         </Menu.Item>
         <Menu.Item key='editFlow'>
-          <i className="anticon anticon-edit" style={{marginRight: '5px'}}/>&nbsp;
+          <i className="anticon anticon-edit" style={{marginRight: '3px'}}/>&nbsp;
           <FormattedMessage {...menusText.edit} style={{ display: 'inlineBlock' }} />
         </Menu.Item>
       </Menu>

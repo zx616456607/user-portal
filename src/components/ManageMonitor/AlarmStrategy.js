@@ -9,9 +9,9 @@
  */
 
 import React, { Component } from 'react'
-import { getSettingList, deleteSetting, batchEnable, batchDisable, ignoreSetting } from '../../actions/alert'
+import { getSettingList, deleteSetting, batchEnable, batchDisable, ignoreSetting, deleteRecords } from '../../actions/alert'
 import { connect } from 'react-redux'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import { calcuTime, formatDate } from '../../common/tools'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
@@ -61,7 +61,9 @@ class AlarmStrategy extends Component {
       selectedRowKeys: [],
       ignoreUnit:'m',
       time: 1,// ignore time
-      step: 1
+      step: 1,
+      clearStraregy: {},
+      clearModal: false
     }
   }
   componentWillMount() {
@@ -106,6 +108,21 @@ class AlarmStrategy extends Component {
         })
         return
       }
+      case 'list': {
+        browserHistory.push({
+          pathname: '/manange_monitor/alarm_record',
+          query: {
+            strategyName: record.strategyName,
+            targetType: record.targetType,
+            targetName: record.targetName
+          }
+        })
+      return
+    }
+      case 'clear': {
+        this.setState({clearModal: true, clearStraregy: record})
+        return
+      }
       default: return false
     }
   }
@@ -127,7 +144,12 @@ class AlarmStrategy extends Component {
         <Menu.Item disabled={(record.enable ==1)} key="start">
           <span>启用</span>
         </Menu.Item>
-
+        <Menu.Item key="list">
+          <span>查看记录</span>
+        </Menu.Item>
+        <Menu.Item key="clear">
+          <span>清除记录</span>
+        </Menu.Item>
       </Menu>
 
     )
@@ -280,6 +302,36 @@ class AlarmStrategy extends Component {
       document.getElementById('name').focus()
     },500)
   }
+  clearRecords() {
+    const { deleteRecords, clusterID } = this.props
+    const notify = new NotificationHandler()
+    if(!this.state.clearStraregy.strategyID) {
+      return notify.error('请选择要清除记录的策略')
+    }
+    notify.spin('策略告警记录清除中')
+    deleteRecords(this.state.clearStraregy.strategyID, clusterID, {
+      success: {
+        func: () => {
+          notify.close()
+          notify.success('策略告警记录清除成功')
+          this.setState({
+            clearStraregy: {},
+            clearModal: false
+          })
+        }
+      },
+      failed: {
+        func: () => {
+          notify.close()
+          notify.error('策略告警记录删除失败')
+          this.setState({
+            clearStraregy: {},
+            clearModal: false
+          })
+        }
+      }
+    })
+  }
   render() {
     const columns = [
       {
@@ -426,7 +478,12 @@ class AlarmStrategy extends Component {
         >
           <CreateGroup funcs={modalFunc} shouldLoadGroup={true} />
         </Modal>
-
+        <Modal title="清除策略告警记录" visible={this.state.clearModal}
+               onCancel={()=> this.setState({clearModal: false, clearStrategy: {}})}
+               onOk={()=> this.clearRecords()}
+        >
+          <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>您的操作将会清空 {this.state.clearStraregy.name} 策略所有告警记录，并且重置告警次数，是否清空？</div>
+        </Modal>
       </div>
     )
   }
@@ -434,6 +491,8 @@ class AlarmStrategy extends Component {
 
 function mapStateToProps(state, props) {
   const { settingList } = state.alert
+  const { cluster } = state.entities.current
+  const { clusterID } = cluster || { clusterID : ''}
   if (!settingList) {
     return props
   }
@@ -448,7 +507,8 @@ function mapStateToProps(state, props) {
   return {
     data,
     isFetching: settingList.isFetching || false,
-    strategys
+    strategys,
+    clusterID
   }
 }
 
@@ -457,5 +517,6 @@ export default connect(mapStateToProps, {
   deleteSetting,
   batchEnable,
   batchDisable,
-  ignoreSetting
+  ignoreSetting,
+  deleteRecords
 })(AlarmStrategy)
