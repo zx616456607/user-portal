@@ -783,7 +783,7 @@ let EditTenxFlowModal = React.createClass({
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
-        if (!_this.state.currentCodeStore && !_this.state.dockerFileTextarea) {
+        if (this.state.otherFlowType == 3 && !_this.state.currentCodeStore && !_this.state.dockerFileTextarea) {
           this.setState({
             noDockerfileInput: true
           })
@@ -846,7 +846,7 @@ let EditTenxFlowModal = React.createClass({
         notification.error('请选择代码库')
         return
       }
-      if (!_this.state.currentCodeStore && !_this.state.dockerFileTextarea) {
+      if (this.state.otherFlowType == 3 && !_this.state.currentCodeStore && !_this.state.dockerFileTextarea) {
         this.setState({
           noDockerfileInput: true
         })
