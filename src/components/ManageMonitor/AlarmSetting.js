@@ -378,7 +378,7 @@ let MyComponent = React.createClass({
     }
   },
   toProjectDetail(list) {
-    const { cluster, loadServiceDetail,getHostInfo, clusterName } = this.props;
+    const { cluster, loadServiceDetail,getHostInfo } = this.props;
     const notify = new NotificationHandler()
     if (!list.targetType) {
       loadServiceDetail(cluster.clusterID,list.targetName,{
