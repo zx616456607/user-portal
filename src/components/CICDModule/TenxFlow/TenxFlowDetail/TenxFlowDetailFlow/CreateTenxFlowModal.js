@@ -301,24 +301,24 @@ let CreateTenxFlowModal = React.createClass({
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
     const { stageList } = this.props;
-    let errorMsg = appNameCheck(value, '子任务名称')
-    if(errorMsg == 'success') {
-      let flag = false;
-      if (stageList.length > 0) {
-        stageList.map((item) => {
-          if (item.metadata.name == value) {
-            flag = true;
-            errorMsg = appNameCheck(value, '子任务名称', true);
-            callback([new Error(errorMsg)]);
-          }
-        });
-      }
-      if (!flag) {
-        callback();
-      }
-    } else {
-      callback([new Error(errorMsg)]);
+    if (!value || !value.trim()) {
+      return callback()
     }
+    if (value.length < 3 || value.length > 63) {
+      return callback('子任务名称为 3~63 位字符')
+    }
+    let flag = false;
+    if (stageList.length > 0) {
+      stageList.map((item) => {
+        if (item.metadata.name == value) {
+          flag = true;
+        }
+      });
+    }
+    if (flag) {
+      return callback('子任务名称已存在');
+    }
+    callback();
   },
   otherStoreUrlInput(rule, value, callback) {
     //this function for user selected other store and should be input the image store url
@@ -1274,7 +1274,7 @@ let CreateTenxFlowModal = React.createClass({
     });
     const flowNameProps = getFieldProps('flowName', {
       rules: [
-        { message: '请输入子任务名称' },
+        { message: '请输入子任务名称', required: true },
         { validator: this.flowNameExists },
       ],
     });
