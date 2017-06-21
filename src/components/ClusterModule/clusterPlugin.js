@@ -20,6 +20,8 @@ import { camelize } from 'humps'
 import { getAllClusterNodes, deleteMiddleware, updateMiddleware, createMiddleware } from '../../actions/cluster'
 import openUrl from '../../assets/img/icon/openUrl.svg'
 
+const Option = Select.Option
+
 class ClusterPlugin extends Component {
   constructor(prop) {
     super(prop)
@@ -271,6 +273,7 @@ class ClusterPlugin extends Component {
     const items = []
     items.push(<Option key={'random'} value={'random'}>随机调度</Option>)
     nodes.forEach(node => {
+      if(!node.schedulable || node.isMaster) return
       return items.push(<Option key={node.objectMeta.name} value={node.objectMeta.name}>{node.objectMeta.name}</Option>)
     })
     return items
@@ -520,13 +523,16 @@ class ClusterPlugin extends Component {
                </Menu>
              )
            }
-           const result = row.serviceInfo && row.serviceInfo.isSystem ? <div></div> : <div className="pluginAction">
+          const result = (row.serviceInfo && row.serviceInfo.isSystem) ? <div className="pluginAction"> <span className="button">
+              {this.getStateusForEvent(row)}
+            </span>
+              <Button style={{backgroundColor:'#fff'}} onClick={() => this.showSetModal(row)} overlay={{}}>设置插件</Button></div> : <div className="pluginAction">
              <span className="button">
                {this.getStateusForEvent(row)}
              </span>
              <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
                设置插件
-              </Dropdown.Button>
+          </Dropdown.Button>
              {/*<Button type="primary" onClick={() => this.showResetModal(row.name)}>重新部署</Button>
               <Button className="setup" type="ghost" onClick={()=> this.showSetModal(row.name)}>设置</Button>*/}
            </div>
@@ -552,13 +558,13 @@ class ClusterPlugin extends Component {
           />
         </div>
         <Modal
-          title={this.state.key == 'stop' ? '停止插件' : (this.state.key == 'start' ? '启动' : '删除')}
+          title={this.state.key == 'stop' ? '停止插件' : (this.state.key == 'start' ? '启动' : '卸载')}
           wrapClassName="vertical-center-modal"
           visible={this.state.action}
           onOk={() => this.handPlugins()}
           onCancel={() => this.setState({ action: false })}
         >
-          <div className="confirmText">确定要{this.state.key == 'stop' ? '停止插件' : (this.state.key == 'start' ? '启动' : '删除')} {this.state.plugins} 此插件吗?</div>
+          <div className="confirmText">确定要{this.state.key == 'stop' ? '停止插件' : (this.state.key == 'start' ? '启动' : '卸载')} {this.state.plugins} 此插件吗?</div>
         </Modal>
         <Modal
           title="重新部署操作"
@@ -584,7 +590,7 @@ class ClusterPlugin extends Component {
               style={{ borderBottom: '1px solid #ededed', paddingBottom: '30px' }}
             >
               <span className="setLimit">选择节点</span>
-              <Select {...selectNode} size="large" style={{ width: 200 }}>
+              <Select {...selectNode} size="large" style={{ width: 200 }} disabled={this.state.currentPlugin && this.state.currentPlugin.serviceInfo.isDeamonSet}>
                 {this.getSelectItem()}
               </Select>
             </Form.Item>
