@@ -26,7 +26,7 @@ import { STANDARD_MODE } from '../../../configs/constants'
 import { mode } from '../../../configs/model'
 const standardFlag = mode === STANDARD_MODE
 import Title from '../Title'
-const _ = require('lodash')
+import isEmpty from 'lodash/isEmpty'
 
 class AlarmRecord extends Component {
   constructor(props) {
@@ -235,7 +235,7 @@ class AlarmRecord extends Component {
     },{
       success: {
         func: (result)=> {
-          if (_.isEmpty(result.data)) {
+          if (isEmpty(result.data)) {
             notify.error('此策略不存在或者已被删除')
           } else {
             browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(record.strategyID)}?name=${record.strategyName}`)
