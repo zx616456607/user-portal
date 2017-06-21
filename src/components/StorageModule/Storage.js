@@ -919,8 +919,8 @@ class Storage extends Component {
               <Tooltip title={title} placement="right"><Button type="primary" size="large" disabled={!canCreate} onClick={this.showModal}>
                 <i className="fa fa-plus" /><FormattedMessage {...messages.createTitle} />
               </Button></Tooltip>
-              <Button style={{padding:'5px 15px'}} size='large' onClick={this.refreshstorage}>
-                <i className='fa fa-refresh' />&nbsp;刷 新
+              <Button className="refreshBtn" size='large' onClick={this.refreshstorage}>
+                <i className='fa fa-refresh' />刷新
               </Button>
               <Button type="ghost" className="stopBtn" size="large" onClick={this.deleteButton}
                 disabled={!this.state.volumeArray || this.state.volumeArray.length < 1}>
