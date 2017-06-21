@@ -429,7 +429,9 @@ class AppServiceDetail extends Component {
                   containers={containers}
                   serviceName={service.metadata.name}
                   cluster={service.cluster}
-                  serviceDetailmodalShow={serviceDetailmodalShow} />
+                  serviceDetailmodalShow={serviceDetailmodalShow}
+                  serviceDetail={serviceDetail}
+                relative/>
               </TabPane>
               <TabPane tab='事件' key='#events'>
                 <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} type={'replicaset'} serviceDetailmodalShow={serviceDetailmodalShow}/>

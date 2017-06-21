@@ -11,7 +11,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Card, Select, Button, DatePicker, Input, Spin, Popover, Icon, Checkbox } from 'antd'
+import { Card, Select, Button, DatePicker, Input, Spin, Popover, Icon, Checkbox, Radio, Form } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getQueryLogList, getServiceQueryLogList } from '../../actions/manage_monitor'
 import { loadServiceContainerList } from '../../actions/services'
@@ -570,7 +570,9 @@ class QueryLog extends Component {
       key_word: null,
       searchKeyword: null,
       bigLog: false,
-      queryType: true
+      queryType: true,
+      logType: 'stdout',
+      path: ''
     }
   }
 
@@ -611,6 +613,19 @@ class QueryLog extends Component {
       this.onSelectService(service);
       this.onSelectInstance(instance);
       setTimeout(this.submitSearch);
+    }
+  }
+
+  componentDidMount(){
+    const { location } = this.props
+    const query = location.query
+    console.log('query=',query)
+    if(query.from == 'serviceDetailLogs'){
+      this.setState({
+        currentService: query.serviceName,
+        path: query.servicePath,
+        logType: 'file'
+      })
     }
   }
 
@@ -874,7 +889,8 @@ class QueryLog extends Component {
       date_end: this.state.end_time,
       from: null,
       size: null,
-      keyword: key_word
+      keyword: key_word,
+      log_type: this.state.logType,
     }
     this.setState({
       searchKeyword: this.state.key_word
@@ -910,6 +926,33 @@ class QueryLog extends Component {
       <QueueAnim className='QueryLogBox' type='right'>
         <div id='QueryLog' key='QueryLog' className={this.state.bigLog ? 'bigLogContainer' :''} >
           <Title title="日志查询" />
+          <div className='logsOfType'>
+            <Form.Item
+              labelCol={{span: 2}}
+              wrapperCol={{span: 20}}
+              label="日志类型"
+              key="logOfType"
+            >
+              <Radio.Group>
+                <Radio
+                  checked={this.state.logType == 'stdout'}
+                  onClick={() => {this.setState({logType: 'stdout'})}}
+                  value="stdout"
+                  key="stdout"
+                >
+                  标准日志查询
+                </Radio>
+                <Radio
+                  checked={this.state.logType == 'file'}
+                  onClick={() => {this.setState({logType: 'file'})}}
+                  value="file"
+                  key="file"
+                >
+                  采集日志查询
+                </Radio>
+              </Radio.Group>
+            </Form.Item>
+          </div>
           <div className='operaBox'>
             <div className='commonBox'>
               <span className='titleSpan'>{standardFlag ? [<span>团队：</span>] : [<FormattedMessage {...menusText.user} />]}</span>
@@ -1024,7 +1067,16 @@ class QueryLog extends Component {
           </div>
           <Card className={this.state.bigLog ? 'bigLogBox logBox' : 'logBox'}>
             <div className='titleBox'>
-              <span className='keywordSpan'>{this.state.searchKeyword ? '关键词' + this.state.searchKeyword + '结果查询页' : '结果查询页'}</span>
+              <span className='keywordSpan'>
+                {this.state.searchKeyword ? '关键词' + this.state.searchKeyword + '结果查询页' : '结果查询页'}
+              </span>
+              {
+                this.state.logType == 'file'
+                ? <span className='filePath'>
+                  采集日志目录：{this.state.path}
+                </span>
+                : null
+              }
               <i className={this.state.bigLog ? 'fa fa-compress' : 'fa fa-expand'} onClick={this.onChangeBigLog} />
             </div>
             <div className='msgBox'>
@@ -1038,6 +1090,7 @@ class QueryLog extends Component {
 }
 
 function mapStateToProps(state, props) {
+  const { routing } = state
   const { current, loginUser } = state.entities
   const { cluster, space } = current
   const defaultNamespace = space.namespace
@@ -1073,7 +1126,8 @@ function mapStateToProps(state, props) {
     current,
     query,
     loggingEnabled,
-    defaultNamespace
+    defaultNamespace,
+    location: routing.locationBeforeTransitions || {}
   }
 }
 

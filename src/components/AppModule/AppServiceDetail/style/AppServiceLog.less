@@ -1,5 +1,35 @@
 #AppServiceLog {
   font-size: 12px;
+  padding-top: 20px;
+  position: relative;
+  .ant-tabs-tabpane{
+    margin: 0;
+    width: 565px !important;
+  }
+  .body{
+    .logTabs{
+      .ant-tabs-bar{
+        padding-top: 0;
+        padding-bottom: 0;
+        border: none;
+        box-shadow: none;
+        overflow: hidden;
+        border-radius: 0;
+        background: none;
+        border-bottom: 1px solid #dad9d9;
+      }
+      .ant-tabs-tab{
+        margin-right: 0;
+      }
+      .ant-tabs-tab:hover,
+      .ant-tabs-tab-active{
+        border-color: #2db7f5;
+      }
+      .ant-tabs-tab-active{
+        border-bottom:2px solid #ffffff;
+      }
+    }
+  }
   .bottomBox {
     padding: 0 !important;
     -webkit-transition: all 0.3s;
@@ -80,6 +110,29 @@
     }
     .infoBox {
       max-height: none !important;
+    }
+  }
+  .collectLogs{
+    background: white;
+    border: 1px solid #dadada;
+    border-radius: 4px;
+    .info{
+      padding: 17px 30px;
+    }
+    .rowStyle{
+      height:42px;
+      line-height: 42px;
+    }
+    .footer{
+      border-top:1px solid #dadada;
+      height:56px;
+      line-height: 56px;
+      padding-left: 30px;
+      color: #3bbbf8;
+      font-size: 14px;
+      > span {
+        cursor: pointer;
+      }
     }
   }
 }
