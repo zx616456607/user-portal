@@ -149,6 +149,15 @@ class Logs extends Component {
       }
     ]
 
+    const pagination = {
+      size: "small",
+      defaultPageSize:
+      this.state.pageSize,
+      total: total ? total : 0,
+      current: this.state.currentPage,
+      showTotal: total => `共计： ${total} 条`,
+    }
+
     return (
       <div id="logs">
         <div className='littleLeft'>
@@ -156,15 +165,15 @@ class Logs extends Component {
         </div>
         <div className="topRow">
           <Input addonBefore={this.select} placeholder="搜索" className="search" size='large' onPressEnter={(e) => this.searchLogs(e)} />
-          {total >0 ?
+          {/*{total >0 ?
             <span className="totalPage">共计：{total} 条</span>
           :null
-          }
+          }*/}
         </div>
         <Table style={{ marginTop: '20px' }} className="myImage"
           dataSource={list}
           columns={columns}
-          pagination={{ simple: true, defaultPageSize: this.state.pageSize, total: total ? total : 0, current: this.state.currentPage }}
+          pagination={pagination}
           onChange={(pagination, filter, sort) => this.filter(pagination, filter, sort)}
           loading={isFetching} />
       </div>
