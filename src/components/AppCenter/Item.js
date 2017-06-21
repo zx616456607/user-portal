@@ -47,7 +47,6 @@ let MyComponent = React.createClass({
       regPaused: true,
       regReverse: false,
       inputType: 'text',
-
     };
   },
   propTypes: {
@@ -335,6 +334,9 @@ class ImageCenter extends Component {
       createModalShow: false,
       otherImageHead: [], // other image store
       other: {}
+    }
+    if(props.location.query.addUserDefined) {
+      this.state.createModalShow = true
     }
   }
   setItem(type,other) {
