@@ -619,7 +619,6 @@ class QueryLog extends Component {
   componentDidMount(){
     const { location } = this.props
     const query = location.query
-    console.log('query=',query)
     if(query.from == 'serviceDetailLogs'){
       this.setState({
         currentService: query.serviceName,
