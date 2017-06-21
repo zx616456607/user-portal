@@ -636,7 +636,7 @@ class ClusterList extends Component {
       >
         <Title title="基础设施" />
         <div id='ClusterContent' key='ClusterContent'>
-          
+
           <CreateClusterModal
             {...this.props}
             parentScope={scope}
@@ -663,22 +663,23 @@ class ClusterList extends Component {
                     title={`当前许可证最多支持 ${maxClusters || '-'} 个 集群（目前已添加 ${clusterSum} 个）`}
                     placement="topLeft"
                   >
-                    <Button
-                      disabled={createClusterBtnDisabled}
-                      className='addBtn'
-                      key='addBtn' size='large'
-                      type='primary'
-                      style={{right: '35px'}}
-                      onClick={() => this.setState({ createModal: true })}>
-                      <Icon type='plus' />&nbsp;
-                        <span>添加集群</span>
-                    </Button>
+                    <span className='addBtn'>
+                      <Button
+                        disabled={createClusterBtnDisabled}
+                        key='addBtn'
+                        type='primary'
+                        icon="plus"
+                        onClick={() => this.setState({ createModal: true })}>
+                        添加集群
+                      </Button>
+                    </span>
                   </Tooltip>,
-                 <Tooltip
-                    title={'基础设施，在这里您可以完成容器云平台的计算资源池管理：集群的添加、删除，以及集群内主机的添加、删除，并管理主机内的容器实例、查看主机维度的监控等。'}
-                    placement="topLeft"
-                  ><Button className="tooltipBtn"><Icon type="question-circle-o"  style={{width: '30px', height: '21px', marginTop: '10px'}}/></Button>
-                  </Tooltip>]
+                <Tooltip
+                  title={'基础设施，在这里您可以完成容器云平台的计算资源池管理：集群的添加、删除，以及集群内主机的添加、删除，并管理主机内的容器实例、查看主机维度的监控等。'}
+                  placement="topLeft"
+                >
+                  <Button className="tooltipBtn" icon="question-circle-o" />
+                </Tooltip>]
                 }
               >
                 {ImageTabList}

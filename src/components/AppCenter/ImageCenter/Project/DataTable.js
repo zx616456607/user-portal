@@ -190,7 +190,7 @@ class DataTable extends Component {
       pageSize: 10,
       total: dataSource.total,
       onChange: current => func.loadData({ page: current }),
-      showTotal: total => `共计： ${dataSource.total} 条`,
+      showTotal: total => `共计： ${total} 条`,
     }
     const setPublicValue = Math.abs(this.state.currentProject.public - 1)
     const publicModalTitle = `设为${setPublicValue == 1 ? '公开' : '私有'}`

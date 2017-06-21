@@ -22,7 +22,32 @@ import { isStorageUsed, isEmptyObject } from '../../../common/tools'
 
 function loadData(props) {
   const { cluster, serviceName, loadAutoScale } = props
-  loadAutoScale(cluster, serviceName)
+  loadAutoScale(cluster, serviceName, {
+    success: {
+      func: (res) => {
+          let isAutoScaleOpen = false
+          let autoScale = {}
+          if (res && res.data && res.data.spec) {
+            autoScale = res.data.spec
+            isAutoScaleOpen = true
+          }
+          const { replicas, volumes, activeTabKey } = props
+          let newState = {
+            isAutoScaleOpen: isAutoScaleOpen,
+            edit: false,
+            isAvailable: !isStorageUsed(volumes)
+          }
+          if (!isEmptyObject(autoScale)) {
+            Object.assign(newState, {
+              minReplicas: autoScale.minReplicas || replicas,
+              maxReplicas: autoScale.maxReplicas || replicas,
+              targetCPUUtilizationPercentage: autoScale.targetCPUUtilizationPercentage || 30
+            })
+          }
+        this.setState(newState)
+      }
+    }
+  })
 }
 
 class AppAutoScale extends Component {
@@ -47,28 +72,13 @@ class AppAutoScale extends Component {
   }
 
   componentWillMount() {
-    loadData(this.props)
+    loadData.call(this, this.props)
   }
 
   componentWillReceiveProps(nextProps) {
-    const { cluster, serviceName, autoScale, replicas, isAutoScaleOpen, volumes } = nextProps
-    let newState = {
-      isAutoScaleOpen: isAutoScaleOpen,
-      edit: false,
-      isAvailable: !isStorageUsed(volumes)
-    }
-    if (!isEmptyObject(autoScale)) {
-      Object.assign(newState, {
-        minReplicas: autoScale.minReplicas || replicas,
-        maxReplicas: autoScale.maxReplicas || replicas,
-        targetCPUUtilizationPercentage: autoScale.targetCPUUtilizationPercentage || 30
-      })
-    }
-    this.setState(newState)
-    if (serviceName === this.props.serviceName) {
-      return
-    }
-    loadData(nextProps)
+    const { serviceName } = nextProps
+    if(serviceName == this.props.serviceName) return
+    loadData.call(this, nextProps)
   }
 
   handleMinReplicas(value) {

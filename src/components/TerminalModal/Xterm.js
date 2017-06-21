@@ -206,7 +206,7 @@ class TerminalModal extends Component {
     }
     this.closeIframeTerm(item.metadata.name)
     removeTerminal(clusterID, item)
-    if (list.length == 1 && this.state.showLogs) {
+    if (list.length == 1 && document.getElementsByClassName('bottomBox')[0]) {
       this.props.setTingLogs(null)
       document.getElementsByClassName('bottomBox')[0].style.height = null
     }
@@ -214,7 +214,8 @@ class TerminalModal extends Component {
 
   renderTermStatus(terminalStatus, item) {
     const { disableTips } = this.state
-    const { name } = item.metadata
+    const { name, labels } = item.metadata
+    const serviceName = labels.name
     if (this.isSafariBrower) {
       return (
         <div className='webLoadingBox' key={`webLoadingBox-${name}`}>
@@ -223,14 +224,14 @@ class TerminalModal extends Component {
       )
     }
     if (terminalStatus === 'success') {
-      if (!(disableTips.indexOf(name) > -1)) {
+      if (!(disableTips.indexOf(serviceName) > -1)) {
         return (
           <div className="tips">
             <Icon type="info-circle-o" /> 由于容器本身无状态且不可变的特性，以防容器销毁后，对容器内部做的改动无法保留，
             <span className="important">建议不要直接修改容器中内容（有状态容器中存储映射出来的目录除外）</span>
             <div className="btns">
-              <Button key="back" type="primary" onClick={() => this.closeTip(name)}>知道了</Button>
-              <Button key="submit" onClick={() => this.disabledTermTips(name)}>
+              <Button key="back" type="primary" onClick={() => this.closeTip(serviceName)}>知道了</Button>
+              <Button key="submit" onClick={() => this.disabledTermTips(serviceName)}>
                 不再提醒
               </Button>
             </div>
@@ -320,7 +321,7 @@ class TerminalModal extends Component {
     const { clusterID, removeAllTerminal, list } = this.props
     list.map(item => this.closeIframeTerm(item.metadata.name))
     removeAllTerminal(clusterID)
-    if (this.state.showLogs) {
+    if (document.getElementsByClassName('bottomBox')[0]) {
       this.props.setTingLogs(null)
       document.getElementsByClassName('bottomBox')[0].style.height = null
     }
