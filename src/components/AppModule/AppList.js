@@ -962,7 +962,7 @@ class AppList extends Component {
           <div className='operationBox'>
             <div className='leftBox'>
               <Button type='primary' size='large'>
-                <i className="fa fa-plus" /><Link to='/app_manage/app_create'>创建应用</Link>
+                <Link to='/app_manage/app_create'><i className="fa fa-plus" />创建应用</Link>
               </Button>
               {/*<Button type='ghost' size='large' onClick={() => this.setState({ deployEnvModalVisible: true })}>
                 <svg className='rocket'>
