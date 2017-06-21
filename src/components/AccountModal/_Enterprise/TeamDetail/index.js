@@ -484,6 +484,7 @@ class TeamDetail extends Component {
   }
   handleNewMemberOk() {
     const { addTeamusers, teamID, loadTeamUserList } = this.props
+    let nofity = new NotificationHandler()
     const { targetKeys, sortUser } = this.state
     if (targetKeys.length !== 0) {
       addTeamusers(teamID,
@@ -500,6 +501,13 @@ class TeamDetail extends Component {
               })
             },
             isAsync: true
+          },
+          failed: {
+            func: (err) => {
+              if (err.statusCode === 409) {
+                nofity.info('成员已添加')
+              }
+            }
           }
         })
     }
