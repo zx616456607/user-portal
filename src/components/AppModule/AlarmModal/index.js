@@ -302,7 +302,7 @@ let FistStop = React.createClass({
         <Row>
           <Col span="12">
         <Form.Item label="类型" {...formItemLayout}>
-          <Select placeholder="请选择类型" {...typeProps} >
+          <Select placeholder="请选择类型" {...typeProps} disabled={currentApp || currentService}>
             { this.getTargetType()}
 
           </Select>
