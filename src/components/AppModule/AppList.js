@@ -1086,7 +1086,7 @@ class AppList extends Component {
               </Button>
               <Dropdown overlay={dropdownb} trigger={['click']}>
                 <Button size="large" >
-                  更多操作 <i className="fa fa-caret-down"></i>
+                  更多操作<i className="fa fa-caret-down Arrow"></i>
                 </Button>
               </Dropdown>
             </div>
@@ -1144,7 +1144,7 @@ class AppList extends Component {
               </Button>
               <Dropdown overlay={dropdownc} trigger={['click']}>
                 <Button size="large" >
-                  更多操作 <i className="fa fa-caret-down"></i>
+                  更多操作<i className="fa fa-caret-down Arrow"></i>
                 </Button>
               </Dropdown>
             </div>

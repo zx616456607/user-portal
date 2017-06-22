@@ -1231,7 +1231,7 @@ class ServiceList extends Component {
               </Modal>
               <Dropdown overlay={operaMenu} trigger={['click']}>
                 <Button size="large" disabled={!isChecked}>
-                  更多操作 <i className="fa fa-caret-down"></i>
+                  更多操作<i className="fa fa-caret-down Arrow"></i>
                 </Button>
               </Dropdown>
             </div>
@@ -1285,7 +1285,7 @@ class ServiceList extends Component {
               </Button>
               <Dropdown overlay={operaMenua} trigger={['click']}>
                 <Button size="large" disabled={!isChecked}>
-                  更多操作 <i className="fa fa-caret-down"></i>
+                  更多操作<i className="fa fa-caret-down Arrow"></i>
                 </Button>
               </Dropdown>
             </div>
