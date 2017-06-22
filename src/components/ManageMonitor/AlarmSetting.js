@@ -391,7 +391,7 @@ let MyComponent = React.createClass({
         failed: {
           func: (err)=> {
             if (err.statusCode === 404) {
-              notify.error('关联服务不存在或者已经被删除')
+              notify.info('关联服务不存在或者已经被删除')
             }
           },
           isAsync: true
@@ -411,7 +411,7 @@ let MyComponent = React.createClass({
         },
         failed: {
           func: ()=>{
-            notify.error('关联节点不存在或者已被删除')
+            notify.info('关联节点不存在或者已被删除')
           },
           isAsync:true
         }
