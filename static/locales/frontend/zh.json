@@ -272,6 +272,7 @@
   "CICD.Tenxflow.ImageDeployLog.cluster": "所属集群",
   "CICD.Tenxflow.ImageDeployLog.updateType": "升级方式",
   "CICD.Tenxflow.ImageDeployLog.runningStatus": "运行状态",
+  "CICD.Tenxflow.ImageDeployLog.operate": "操作",
   "CICD.Tenxflow.ImageDeployLog.cost": "耗时",
   "CICD.Tenxflow.ImageDeployLog.runningNormal": "运行中",
   "CICD.Tenxflow.ImageDeployLog.runningAbnormal": "异常",

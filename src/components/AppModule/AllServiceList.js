@@ -561,6 +561,11 @@ class ServiceList extends Component {
       pageSize: size,
       name
     }
+    if(name) {
+      this.setState({
+        searchInputValue: name
+      })
+    }
     query.customizeOpts = options
     loadAllServices(cluster, query, {
       success: {
