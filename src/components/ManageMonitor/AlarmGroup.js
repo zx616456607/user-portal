@@ -136,6 +136,10 @@ class AlarmGroup extends Component {
     if (emails.length > 0) {
       content = emails.map(function(item) {
         let status = emails[0].status != 1 ? <span style={{color:'#f23e3f'}}> 【未验证】</span> : null
+        let tyag = <br/>
+        if(document.body.scrollWidth<1300) {
+          status=emails[0].status != 1 ? <p style={{color:'#f23e3f'}}>【未验证】</p> : null
+        }  
         return <div className='alarmGroupItem'>
           {item.addr}
           <span className='alarmGroupspan'>{!!item.desc ? ` (备注:${item.desc})` : ''}</span>
@@ -321,7 +325,7 @@ class AlarmGroup extends Component {
       selectedRowKeys: this.state.selectedRowKeys,
     }
     return (
-      <QueueAnim  className="alarmGroup">
+      <QueueAnim className="alarmGroup">
         <div id="AlarmGroup" key="demo">
           <Title title="告警通知组" />
           <div className='alarmGroupHeader'>

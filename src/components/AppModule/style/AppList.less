@@ -6,6 +6,39 @@
   .clearDiv {
     clear: both;
   }
+  @media screen and (min-width:1210px){
+    .operationBoxa {
+      display:block;
+    }
+    .operationBoxb {
+      display:none;
+    }
+    .operationBoxc {
+      display:none;
+    }
+  }
+  @media screen and (max-width:1210px){
+      .operationBoxa {
+        display:none;
+      }
+      .operationBoxb {
+        display:block;
+      }
+      .operationBoxc {
+        display:none;
+      }
+    }
+  @media screen and (max-width:1120px){
+    .operationBoxa {
+      display:none;
+    }
+    .operationBoxb {
+      display:none;
+    }
+    .operationBoxc {
+      display:block;
+    }
+  }
   //顶部工具栏样式
   .operationBox {
     width: 100%;
@@ -43,7 +76,15 @@
         vertical-align: middle;
         transition: all .3s cubic-bezier(.645,.045,.355,1);
       }
-
+      .dropDowna {
+        margin-right:10px;
+        .ant-btn {
+          padding: 4px 15px 5px 15px;
+          font-size: 14px;
+          background-color: white !important;
+          margin-right:0px;
+        }
+      }
     }
     .rightBox {
       position: relative;
@@ -256,5 +297,10 @@
         }
       }
     }
+  }
+}
+.Moreoperations {
+  span {
+    font-size: 14px;
   }
 }
