@@ -269,10 +269,14 @@ class ClusterPlugin extends Component {
         <div className="loadingBox" style={{ height: '100px' }}><Spin size="large"></Spin></div>
       </Card>
     }
+    const { clusters } = nodeList[clusterID].nodes
+    if (!clusters) {
+      return <Option key="notclsuter">暂无数据</Option>
+    }
     const nodes = nodeList[clusterID].nodes.clusters.nodes.nodes
     const items = []
     items.push(<Option key={'random'} value={'random'}>随机调度</Option>)
-    nodes.forEach(node => {
+    Array.isArray(nodes) && nodes.forEach(node => {
       if(!node.schedulable || node.isMaster) return
       return items.push(<Option key={node.objectMeta.name} value={node.objectMeta.name}>{node.objectMeta.name}</Option>)
     })

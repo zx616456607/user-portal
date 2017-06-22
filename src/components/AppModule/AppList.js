@@ -291,7 +291,7 @@ let MyComponent = React.createClass({
     if (config.length < 1) {
       return (
         <div className='loadingBox'>
-          暂无数据
+          <Icon type="frown"/>&nbsp;暂无数据
         </div>
       )
     }
