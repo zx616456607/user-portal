@@ -70,7 +70,7 @@ class StorageBind extends Component {
                     </div>
                     <p>
                       <FormattedMessage {...messages.container} />
-                      ： {mountInfo.serviceName}
+                      <div className="serviceName">{mountInfo.serviceName}</div>
                     </p>
                   </div>
                 </Card>
@@ -88,7 +88,7 @@ class StorageBind extends Component {
                   </div>
                   <p>
                     <FormattedMessage {...messages.volume} />
-                    ： {this.props.volumeName}
+                    <div className="volumeName">{this.props.volumeName}</div>
                   </p>
                 </div>
               </Timeline.Item>
