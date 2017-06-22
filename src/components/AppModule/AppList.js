@@ -1064,7 +1064,6 @@ class AppList extends Component {
             <div className='clearDiv'></div>
           </div>
 
-
           <div className='operationBox operationBoxb'>
             <div className='leftBox'>
               <Button type='primary' size='large'>
@@ -1079,19 +1078,9 @@ class AppList extends Component {
               <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!runBtn}>
                 <i className='fa fa-play' />启动
               </Button>
-              <Modal title="启动操作" visible={this.state.startAppsModal}
-                onOk={this.handleStartAppsOk} onCancel={this.handleStartAppsCancel}
-                >
-                <StateBtnModal appList={appList} state='Running' />
-              </Modal>
               <Button type='ghost' size='large' onClick={() => this.batchStopApps()} disabled={!stopBtn}>
                 <i className='fa fa-stop' />停止
               </Button>
-              <Modal title="停止操作" visible={this.state.stopAppsModal}
-                onOk={this.handleStopAppsOk} onCancel={this.handleStopAppsCancel}
-                >
-                <StateBtnModal appList={appList} state='Stopped' />
-              </Modal>
               <Button type='ghost' size='large' onClick={() => this.loadData(this.props)}>
                 <i className='fa fa-refresh' />刷新
               </Button>
@@ -1101,17 +1090,6 @@ class AppList extends Component {
                   <i className="fa fa-caret-down"></i>
                 </Button>
               </Dropdown>
-              <Modal title="删除操作" visible={this.state.deleteAppsModal}
-                onOk={this.handleDeleteAppsOk} onCancel={this.handleDeleteAppsCancel}
-                >
-               <StateBtnModal appList={appList} state='Delete' cdRule={this.props.cdRule} settingList={SettingListfromserviceorapp} callback={this.handleCheckboxvalue}/>
-              </Modal>
-              
-              <Modal title="重新部署操作" visible={this.state.restarAppsModal}
-                onOk={this.handleRestarAppsOk} onCancel={this.handleRestarAppsCancel}
-                >
-                <StateBtnModal appList={appList} state='Restart' />
-              </Modal>
             </div>
             <div className='rightBox'>
               <div className='littleLeft' onClick={this.searchApps}>
@@ -1147,7 +1125,6 @@ class AppList extends Component {
             </div>
             <div className='clearDiv'></div>
           </div>
-
 
           <div className='operationBox operationBoxc'>
             <div className='leftBox'>
@@ -1163,36 +1140,15 @@ class AppList extends Component {
               <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!runBtn}>
                 <i className='fa fa-play' />启动
               </Button>
-              <Modal title="启动操作" visible={this.state.startAppsModal}
-                onOk={this.handleStartAppsOk} onCancel={this.handleStartAppsCancel}
-                >
-                <StateBtnModal appList={appList} state='Running' />
-              </Modal>
               <Button type='ghost' size='large' onClick={() => this.batchStopApps()} disabled={!stopBtn}>
                 <i className='fa fa-stop' />停止
               </Button>
-              <Modal title="停止操作" visible={this.state.stopAppsModal}
-                onOk={this.handleStopAppsOk} onCancel={this.handleStopAppsCancel}
-                >
-                <StateBtnModal appList={appList} state='Stopped' />
-              </Modal>
               <Dropdown overlay={dropdownc} trigger={['click']}>
                 <Button size="large" >
                   更多操作
                   <i className="fa fa-caret-down"></i>
                 </Button>
               </Dropdown>
-              <Modal title="删除操作" visible={this.state.deleteAppsModal}
-                onOk={this.handleDeleteAppsOk} onCancel={this.handleDeleteAppsCancel}
-                >
-               <StateBtnModal appList={appList} state='Delete' cdRule={this.props.cdRule} settingList={SettingListfromserviceorapp} callback={this.handleCheckboxvalue}/>
-              </Modal>
-              
-              <Modal title="重新部署操作" visible={this.state.restarAppsModal}
-                onOk={this.handleRestarAppsOk} onCancel={this.handleRestarAppsCancel}
-                >
-                <StateBtnModal appList={appList} state='Restart' />
-              </Modal>
             </div>
             <div className='rightBox'>
               <div className='littleLeft' onClick={this.searchApps}>
@@ -1228,7 +1184,6 @@ class AppList extends Component {
             </div>
             <div className='clearDiv'></div>
           </div>
-
 
           <Card className='appBox'>
             <div className='appTitle'>

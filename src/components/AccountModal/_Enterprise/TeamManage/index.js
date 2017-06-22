@@ -348,18 +348,6 @@ let TeamTable = React.createClass({
             <div className="addusers">
               <div className="Deleterechargea">
                 <Button icon="plus" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加成员</Button>
-                <Modal title='添加成员'
-                  visible={this.state.nowTeamID === record.key && this.state.addMember}
-                  onOk={this.handleNewMemberOk}
-                  onCancel={this.handleNewMemberCancel}
-                  width="660px"
-                  wrapClassName="newMemberModal"
-                  >
-                  <MemberTransfer onChange={this.handleUserChange}
-                    targetKeys={targetKeys}
-                    teamID={record.key}
-                    teamUserIDList={teamUserIDList} />
-                </Modal>
                 <Button icon="delete" className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
                 {(this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN) ?
                   <Button className="addBtn" style={{marginLeft:'12px'}} onClick={() => this.btnRecharge(record.key)}>充值</Button>
@@ -368,22 +356,22 @@ let TeamTable = React.createClass({
               </div>
               <div className="Deleterechargeb">
                 <Button icon="plus" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加成员</Button>
-                <Modal title='添加成员'
-                  visible={this.state.nowTeamID === record.key && this.state.addMember}
-                  onOk={this.handleNewMemberOk}
-                  onCancel={this.handleNewMemberCancel}
-                  width="660px"
-                  wrapClassName="newMemberModal"
-                  >
-                <MemberTransfer onChange={this.handleUserChange}
-                  targetKeys={targetKeys}
-                  teamID={record.key}
-                  teamUserIDList={teamUserIDList} />
-                </Modal>
                  <Dropdown.Button  onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})} overlay={this.Recharges(record)} type="ghost">
                   删除
                 </Dropdown.Button>
               </div>
+              <Modal title='添加成员'
+                visible={this.state.nowTeamID === record.key && this.state.addMember}
+                onOk={this.handleNewMemberOk}
+                onCancel={this.handleNewMemberCancel}
+                width="660px"
+                wrapClassName="newMemberModal"
+                >
+                <MemberTransfer onChange={this.handleUserChange}
+                  targetKeys={targetKeys}
+                  teamID={record.key}
+                  teamUserIDList={teamUserIDList} />
+              </Modal>
             </div>
           )
         }
