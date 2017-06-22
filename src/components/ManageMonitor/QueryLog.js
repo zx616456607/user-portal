@@ -617,9 +617,20 @@ class QueryLog extends Component {
   }
 
   componentDidMount(){
-    const { location } = this.props
+    const { location, cluster, loadServiceContainerList } = this.props
     const query = location.query
     if(query.from == 'serviceDetailLogs'){
+      loadServiceContainerList(cluster, query.serviceName, null, {
+        success: {
+          func: (res) => {
+            this.setState({
+              gettingInstance: false,
+              instanceList: res.data
+            })
+          },
+          isAsync: true
+        }
+      })
       this.setState({
         currentService: query.serviceName,
         path: query.servicePath,
