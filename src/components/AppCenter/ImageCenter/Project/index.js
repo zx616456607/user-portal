@@ -36,6 +36,19 @@ class CreateItem extends Component {
     form.resetFields()
     func.scope.setState({createItem:false})
   }
+  projectNameExists(role, value, callback) {
+    if (value.length <3) {
+      return callback('仓库组名称至少3位字符')
+    }
+    if (value.length >30) {
+      return callback('仓库组名称长度不可超过30个字符')
+    }
+    if (!/^[a-z0-9]+(?:[_-][a-z0-9]+)*$/.test(value)) {
+      callback('请输入小写英文字母和数学开头和结尾，中间可[_-]')
+      return
+    }
+    callback()
+  }
   handOk() {
     const { form, func } = this.props
     form.validateFields((error, values)=> {
@@ -76,8 +89,7 @@ class CreateItem extends Component {
     }
     const itemName= getFieldProps('project_name',{
       rules: [
-        { required: true, min: 3, message: '仓库组至少为3个字符' },
-        // { validator: this.nameExists },
+        { validator: this.projectNameExists },
       ],
     })
     const projectPublic = getFieldProps('public',{
