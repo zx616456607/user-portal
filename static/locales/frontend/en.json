@@ -280,6 +280,7 @@
   "CICD.Tenxflow.ImageDeployLog.cluster": "Cluster",
   "CICD.Tenxflow.ImageDeployLog.updateType": "Update Type",
   "CICD.Tenxflow.ImageDeployLog.runningStatus": "Status",
+  "CICD.Tenxflow.ImageDeployLog.operate": "Operate",
   "CICD.Tenxflow.ImageDeployLog.cost": "Cose",
   "CICD.Tenxflow.ImageDeployLog.runningNormal": "Running",
   "CICD.Tenxflow.ImageDeployLog.runningAbnormal": "Abnormal",
