@@ -46,7 +46,8 @@ const AdvancedSetting = React.createClass({
         envKeys,
       })
       setTimeout(()=>{
-        document.getElementById(`envName${envKeys.length-1}`).focus()
+        let input = document.getElementById(`envName${uid}`)
+        input && input.focus()
       },0)
     })
   },

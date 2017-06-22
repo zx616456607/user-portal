@@ -239,7 +239,8 @@ const Ports = React.createClass({
         [`portProtocol${uid}`]: 'TCP',
       })
       setTimeout(()=>{
-        document.getElementById(`port${portsKeys.length-1}`).focus()
+        let input = document.getElementById(`port${uid}`);
+        input && input.focus()
       },0)
       
     })
