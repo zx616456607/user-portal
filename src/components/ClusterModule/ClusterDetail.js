@@ -128,7 +128,7 @@ let HostInfo = React.createClass({
         title: '容器名称',
         dataIndex: 'objectMeta.name',
         key: 'name',
-        width:'250px',
+        width:'200px',
       }, {
         title: '状态',
         dataIndex: 'podPhase',
@@ -139,10 +139,10 @@ let HostInfo = React.createClass({
         title: '命名空间',
         dataIndex: 'objectMeta.namespace',
         key: 'address',
-        width:'100px',
       }, {
         title: '所属应用',
         dataIndex: `objectMeta.labels`,
+        width:'70px',
         key: 'apply',
         render: (text) => {
           if (text && text[LABEL_APPNAME]) {

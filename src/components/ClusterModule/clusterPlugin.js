@@ -131,6 +131,14 @@ class ClusterPlugin extends Component {
       return (<Button type="primary" onClick={() => this.installPlugin(row)}>安装插件</Button>)
     }
   }
+  getStateusForEventa(row) {
+    if (row.status.message == 'abnormal' && row.status.code == '503') {
+      return (<Menu.Item key="install"><span onClick={() => this.showResetModal(row)}>重新安装</span></Menu.Item>)
+    }
+    if (row.status.message == 'uninstalled' && row.status.code == '503') {
+      return (<Menu.Item key="install"><span onClick={() => this.installPlugin(row)}>安装插件</span></Menu.Item>)
+    }
+  }
   showResetModal(plugin) {
     this.setState({
       currentPlugin: plugin,
@@ -446,14 +454,14 @@ class ClusterPlugin extends Component {
         title: '插件名称',
         key: 'keys',
         dataIndex: 'name',
-        width:'15%',
+        width:'18%',
         render: text => text
       },
       {
         title: '插件状态',
         key: 'status',
         dataIndex: 'status',
-        width:'15%',
+        width:'16%',
         render: (status, row) => {
           return (
             <div style={{ color: this.getStatusColor(status.message, row.name) }}><i className='fa fa-circle' />&nbsp;&nbsp;{this.getStatusMessage(status.message, row.name)}</div>
@@ -464,7 +472,7 @@ class ClusterPlugin extends Component {
         title: '资源限制',
         key: 'resourceRange',
         dataIndex: 'resourceRange',
-        width:'16%',
+        width:'17%',
         render: (plugin, row) => {
           return (
             <div><div>CPU：{this.convertCPU(plugin.request.cpu)}</div>
@@ -477,7 +485,7 @@ class ClusterPlugin extends Component {
         title: '所在节点',
         key: 'templateID',
         dataIndex: 'templateID',
-        width:'11%',
+        width:'13%',
         render: (text, row) => {
           return (
             <span>{row.hostName || '随机调度'}</span>
@@ -488,7 +496,7 @@ class ClusterPlugin extends Component {
         title: '管理界面',
         key: 'web',
         dataIndex: 'web',
-        width:'13%',
+        width:'15%',
         render: (text, row) => {
           if (row.serviceInfo && row.serviceInfo.entryPoints && ['stopped', 'uninstalled'].indexOf(row.status.message) < 0 ) {
             let path = row.serviceInfo.entryPoints[0].path
@@ -509,7 +517,6 @@ class ClusterPlugin extends Component {
         title: '操作',
         key: 'action',
         dataIndex: 'action',
-        width:'180px',
         render: (text, row) => {
           let menu
            if(row.status.message == 'stopped') {
@@ -527,16 +534,41 @@ class ClusterPlugin extends Component {
                </Menu>
              )
            }
+          let menua
+          if(row.status.message == 'stopped') {
+             menua = (
+               <Menu className="Settingplugin">
+                 <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="start">启动插件</Menu.Item>
+                 <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="delete">卸载插件</Menu.Item>
+                 {this.getStateusForEventa(row)}
+               </Menu>
+             )
+           } else {
+             menua = (
+               <Menu className="Settingplugin">
+                 <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="stop">停止插件</Menu.Item>
+                 <Menu.Item onClick={(e) => this.handleMenuClick(e.key, row)} key="delete">卸载插件</Menu.Item>
+                 {this.getStateusForEventa(row)}
+               </Menu>
+             )
+           }
           const result = (row.serviceInfo && row.serviceInfo.isSystem) ? <div className="pluginAction"> <span className="button">
               {this.getStateusForEvent(row)}
             </span>
               <Button style={{backgroundColor:'#fff'}} onClick={() => this.showSetModal(row)} overlay={{}}>设置插件</Button></div> : <div className="pluginAction">
-             <span className="button">
-               {this.getStateusForEvent(row)}
-             </span>
-             <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
-               设置插件
-          </Dropdown.Button>
+             <div className="Settingplugina">
+               <span className="button">
+                {this.getStateusForEvent(row)}
+               </span>
+               <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menu} type="ghost">
+                 设置插件
+               </Dropdown.Button>
+             </div>
+             <div className="Settingpluginb">
+               <Dropdown.Button onClick={() => this.showSetModal(row)} overlay={menua} type="ghost">
+                 设置插件
+               </Dropdown.Button>
+             </div>
              {/*<Button type="primary" onClick={() => this.showResetModal(row.name)}>重新部署</Button>
               <Button className="setup" type="ghost" onClick={()=> this.showSetModal(row.name)}>设置</Button>*/}
            </div>

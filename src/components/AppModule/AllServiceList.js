@@ -1167,6 +1167,16 @@ class ServiceList extends Component {
         </Menu.Item>
       </Menu>
     );
+    const operaMenua = (
+      <Menu>
+        <Menu.Item key="0" disabled={!restartBtn}>
+          <span onClick={this.batchQuickRestartService}><i className="fa fa-bolt"></i> 重启</span>
+        </Menu.Item>
+        <Menu.Item key="1" disabled={!restartBtn}>
+          <span onClick={this.batchRestartService}>重新部署</span>
+        </Menu.Item>
+      </Menu>
+    );
     const modalFunc=  {
       scope : this,
       cancelModal: this.cancelModal,
@@ -1177,7 +1187,7 @@ class ServiceList extends Component {
         <Title title="服务列表" />
         <QueueAnim className="demo-content">
           <div key='animateBox'>
-          <div className='operationBox'>
+          <div className='operationBox operationBoxa'>
             <div className='leftBox'>
               <Button type='ghost' size='large' onClick={this.batchStartService} disabled={!runBtn}>
                 <i className='fa fa-play'></i>启动
@@ -1259,6 +1269,62 @@ class ServiceList extends Component {
             </div>
             <div style={{ clear: 'both' }}></div>
           </div>
+
+          <div className='operationBox operationBoxb'>
+            <div className='leftBox'>
+              <Button type='ghost' size='large' onClick={this.batchStartService} disabled={!runBtn}>
+                <i className='fa fa-play'></i>启动
+              </Button>
+              <Button type='ghost' size='large' onClick={this.batchStopService} disabled={!stopBtn}>
+                <i className='fa fa-stop'></i>停止
+              </Button>
+              <Button type='ghost' size='large' onClick={() => this.loadServices(this.props)}>
+                <i className='fa fa-refresh'></i>刷新
+              </Button>
+              <Button type='ghost' size='large' onClick={this.batchDeleteServices} disabled={!isChecked}>
+                <i className='fa fa-trash-o'></i>删除
+              </Button>
+              <Dropdown overlay={operaMenua} trigger={['click']}>
+                <Button size="large" disabled={!isChecked}>
+                  更多操作
+                  <i className="fa fa-caret-down"></i>
+                </Button>
+              </Dropdown>
+            </div>
+            <div className='rightBox'>
+              <div className='littleLeft' onClick={this.searchApps}>
+                <i className='fa fa-search'></i>
+              </div>
+              <div className='littleRight'>
+                <Input
+                  size='large'
+                  onChange={(e) => {
+                    this.setState({
+                      searchInputValue: e.target.value
+                    })
+                  } }
+                  value={this.state.searchInputValue}
+                  placeholder='按服务名称搜索'
+                  style={{paddingRight: '28px'}}
+                  onPressEnter={() => this.searchServices()} />
+              </div>
+            </div>
+            <div className='pageBox'>
+              <span className='totalPage'>共 {total}条</span>
+              <div className='paginationBox'>
+                <Pagination
+                  simple
+                  className='inlineBlock'
+                  onChange={this.onPageChange}
+                  onShowSizeChange={this.onShowSizeChange}
+                  current={page}
+                  pageSize={size}
+                  total={total} />
+              </div>
+            </div>
+            <div style={{ clear: 'both' }}></div>
+          </div>
+
           <Card className='appBox'>
             <div className='appTitle'>
               <div className="selectIconTitle commonTitle">
