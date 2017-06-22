@@ -47,6 +47,10 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.ImageDeployLog.runningStatus',
     defaultMessage: '运行状态',
   },
+  operate: {
+    id: 'CICD.Tenxflow.ImageDeployLog.operate',
+    defaultMessage: '操作',
+  },
   appName: {
     id: 'CICD.Tenxflow.ImageDeployLog.appName',
     defaultMessage: '所属应用',
@@ -190,7 +194,6 @@ const MyComponent = React.createClass({
           </span>
         </div>
       );
-
       return (
         <Panel header={header} className='LogDetail' key={`${item.appName}+${index}`} >
           <div className='titleBox'>
@@ -207,7 +210,7 @@ const MyComponent = React.createClass({
               <FormattedMessage {...menusText.updateType} />
             </span>
             <span className='status commonTitle'>
-              <FormattedMessage {...menusText.runningStatus} />
+              <FormattedMessage {...menusText.operate} />
             </span>
             <div style={{ clear:'both' }}></div>
           </div>
@@ -226,8 +229,7 @@ const MyComponent = React.createClass({
             </span>
             <span className='status commonInfo'>
               <span className={ checkStatusClass(item.result.status) }>
-                <i className='fa fa-circle' />
-                { checkRunningStatusSpan(item.result.status, scope) }
+                <Link to={`/app_manage/service?name=${item.appName}`}>查看服务</Link>
               </span>
             </span>
             <div style={{ clear:'both' }}></div>
