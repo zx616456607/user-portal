@@ -366,6 +366,13 @@ class Deployment {
         })
         return
       }
+      if(volume.emptyDir){
+        this.spec.template.spec.volumes.push({
+          name: volume.name,
+          emptyDir: {},
+        })
+        return
+      }
       if (!volume.diskType) {
         volume.diskType = DEFAULT_DISKTYPE
       }
@@ -427,9 +434,18 @@ class Deployment {
     }
   }
 
-  setCollectLog(item) {
+  setCollectLog(serviceName, item) {
     this.spec.template.metadata.annotations = this.spec.template.metadata.annotations || {}
     let annotations = this.spec.template.metadata.annotations
+    let volume = {
+      name: item.name,
+      emptyDir: {}
+    }
+    let volumeMounts = [{
+      mountPath: item.path,
+      name: item.name,
+    }]
+    this.addContainerVolume(serviceName, volume, volumeMounts)
     if(!annotations["applogs"]){
      annotations["applogs"] = []
     } else {

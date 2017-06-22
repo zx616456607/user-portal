@@ -161,18 +161,22 @@ export function buildJson(fields, cluster, loginUser) {
   }
   // 设置日志采集
   if (sourceType === 'directory') {
+    let str = path
+    if(path.substring(path.length-1,path.length) == '/'){
+      str = path.substring(0,path.length-1)
+    }
     let item = {
-      path,
+      path: str,
       inregex,
       exregex
     }
     if (name) {
       item.name = name
     } else {
-      let name = 'volumeName' + (Math.random() * 10000).toFixed(0)
+      let name = 'volumename' + (Math.random() * 10000).toFixed(0)
       item.name = name
     }
-    deployment.setCollectLog(item)
+    deployment.setCollectLog(serviceName, item)
   }
   // 设置高可用
   if (livenessProtocol === 'HTTP' || livenessProtocol === 'TCP') {
