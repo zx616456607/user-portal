@@ -33,6 +33,7 @@ import AssistSetting from './AssistSetting'
 import LivenessSetting from './LivenessSetting'
 import ConfigMapSetting from './ConfigMapSetting'
 import AdvancedSetting from './AdvancedSetting'
+import LogCollection from './LogCollection'
 import './style/index.less'
 
 const LATEST = 'latest'
@@ -483,6 +484,11 @@ let ConfigureService = React.createClass({
           fields={currentFields}
           imageConfigs={imageConfigs}
           key="assist"
+        />
+         <LogCollection
+          form={form}
+          formItemLayout={formItemLayout}
+          key="logCollection"
         />
         <LivenessSetting
           form={form}

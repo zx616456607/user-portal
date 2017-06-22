@@ -61,7 +61,7 @@ class CollapseList extends Component {
         </div>
       )
     }
-    if (groupData.length === 0) {
+    if (!Array.isArray(groupData) || groupData.length === 0) {
       return (
         <div className="text-center">
           <img src={noConfigGroupImg} />

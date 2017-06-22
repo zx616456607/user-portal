@@ -199,7 +199,7 @@ class AlarmRecord extends Component {
         failed: {
           func: (err)=> {
             if (err.statusCode === 404) {
-              notify.error('关联服务不存在或者已经被删除')
+              notify.info('关联服务不存在或者已经被删除')
             }
           },
           isAsync: true
@@ -219,7 +219,7 @@ class AlarmRecord extends Component {
         },
         failed: {
           func: ()=>{
-            notify.error('关联节点不存在或者已被删除')
+            notify.info('关联节点不存在或者已被删除')
           },
           isAsync:true
         }

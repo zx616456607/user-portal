@@ -8,8 +8,8 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { DatePicker, Spin } from 'antd'
-import { Link } from 'react-router'
+import { DatePicker, Spin, Tabs, Row, Col } from 'antd'
+import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/AppServiceLog.less"
@@ -26,6 +26,7 @@ import NotificationHandler from '../../../common/notification_handler'
 
 const YESTERDAY = new Date(moment(moment().subtract(1, 'day')).format(DATE_PIRCKER_FORMAT))
 const standardFlag = (mode == STANDARD_MODE ? true : false);
+const TabPane = Tabs.TabPane
 
 class AppServiceLog extends Component {
   constructor(props) {
@@ -321,26 +322,78 @@ class AppServiceLog extends Component {
     // can not select days after today
     return current && current.getTime() > Date.now();
   }
+   collectLogsTemplate(){
+    const { serviceDetail, serviceName } = this.props
+    let applog = {}
+    let url = ''
+    if(serviceDetail &&　serviceDetail.spec &&　serviceDetail.spec.template && serviceDetail.spec.template.metadata && serviceDetail.spec.template.metadata.annotations && serviceDetail.spec.template.metadata.annotations.applogs){
+      let arr = JSON.parse(serviceDetail.spec.template.metadata.annotations.applogs)
+      if(arr.length){
+        applog = arr[0]
+        url = '/manange_monitor/query_log?from=serviceDetailLogs&serviceName=' + serviceName + '&servicePath=' + applog.path
+      }
+    }
+    return <div>
+      <div className='info'>
+        <Row className='rowStyle'>
+          <Col span={6}>来源类型</Col>
+          <Col span={18}>{applog.path ? '目录' : '不采集'}</Col>
+        </Row>
+        <Row className='rowStyle'>
+          <Col span={6}>日志目录</Col>
+          <Col span={18}>{applog.path || '--'}</Col>
+        </Row>
+        <Row className='rowStyle'>
+          <Col span={6}>采集规则</Col>
+          <Col span={18}>{applog.inregex || '--'}</Col>
+        </Row>
+        <Row className='rowStyle'>
+          <Col span={6}>排除规则</Col>
+          <Col span={18}>{applog.exregex || '--'}</Col>
+        </Row>
+      </div>
+      {
+        applog.path
+          ? <div className="footer">
+            <span onClick={() => browserHistory.push(url)}>
+              日志查询>>
+            </span>
+        </div>
+          : null
+      }
+    </div>
+  }
   render() {
     return (
       <div id="AppServiceLog">
-        <div className={ this.state.logSize == 'large' ? "largeBox bottomBox" : "bottomBox"}>
-          <div className="introBox">
-            <div className="operaBox">
-              <i className="fa fa-expand" onClick={this.resizeLog}></i>
-              <i className="fa fa-refresh" onClick={() => { this.refreshLogs() } }></i>
-              <DatePicker
-                disabledDate={this.disabledDate}
-                className="datePicker"
-                onChange={(date) => this.changeCurrentDate(date) }
-                value={this.state.currentDate}/>
-            </div>
-            <div className="infoBox" ref={(c) => this.infoBox = c} onScroll ={ () => this.moutseRollLoadLogs() }>
-              <pre> { this.getLogs() } </pre>
-            </div>
-            <div style={{ clear: "both" }}></div>
-          </div>
-          <div style={{ clear: "both" }}></div>
+        <div className='body'>
+          <Tabs type="card" className='logTabs'>
+            <TabPane key="0" tab="标准日志">
+              <div className={ this.state.logSize == 'large' ? "largeBox bottomBox" : "bottomBox"}>
+                <div className="introBox">
+                  <div className="operaBox">
+                    <i className="fa fa-expand" onClick={this.resizeLog}></i>
+                    <i className="fa fa-refresh" onClick={() => { this.refreshLogs() } }></i>
+                    <DatePicker
+                      disabledDate={this.disabledDate}
+                      className="datePicker"
+                      onChange={(date) => this.changeCurrentDate(date) }
+                      value={this.state.currentDate}/>
+                  </div>
+                  <div className="infoBox" ref={(c) => this.infoBox = c} onScroll ={ () => this.moutseRollLoadLogs() }>
+                    <pre> { this.getLogs() } </pre>
+                  </div>
+                  <div style={{ clear: "both" }}></div>
+                </div>
+                <div style={{ clear: "both" }}></div>
+              </div>
+            </TabPane>
+            <TabPane key="1" tab="采集日志">
+              <div className='collectLogs'>
+                { this.collectLogsTemplate() }
+              </div>
+            </TabPane>
+          </Tabs>
         </div>
       </div>
     )

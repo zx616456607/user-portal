@@ -291,7 +291,7 @@ let MyComponent = React.createClass({
     if (config.length < 1) {
       return (
         <div className='loadingBox'>
-          暂无数据
+          <Icon type="frown"/>&nbsp;暂无数据
         </div>
       )
     }
@@ -934,6 +934,29 @@ class AppList extends Component {
       cancelModal: this.cancelModal,
       nextStep: this.nextStep
     }
+    const dropdownb = (
+      <Menu className="Moreoperations">
+        <Menu.Item key="0" disabled={!isChecked}>
+          <span onClick={() => this.batchDeleteApps()}><i className='fa fa-trash-o' /> 删除</span>
+        </Menu.Item>
+        <Menu.Item key="1" disabled={!restartBtn}>
+          <span onClick={() => this.batchRestartApps()}><i className='fa fa-undo' /> 重新部署</span>
+        </Menu.Item>
+      </Menu>
+    );
+    const dropdownc = (
+      <Menu className="Moreoperations">
+        <Menu.Item key="0">
+          <span onClick={() => this.loadData(this.props)}><i className='fa fa-refresh' /> 刷新</span>
+        </Menu.Item>
+        <Menu.Item key="1" disabled={!isChecked}>
+          <span onClick={() => this.batchDeleteApps()}><i className='fa fa-trash-o' /> 删除</span>
+        </Menu.Item>
+        <Menu.Item key="2" disabled={!restartBtn}>
+          <span onClick={() => this.batchRestartApps()}><i className='fa fa-undo' /> 重新部署</span>
+        </Menu.Item>
+      </Menu>
+    );
     // kind: asc:升序（向上的箭头） desc:降序（向下的箭头）
     // type: create_time：创建时间 instance_count：容器数量
     function spliceSortClassName(kind, type, sortOrder, sortBy) {
@@ -959,7 +982,7 @@ class AppList extends Component {
         >
         <Title title="应用列表"/>
         <div id='AppList' key='AppList'>
-          <div className='operationBox'>
+          <div className='operationBox operationBoxa'>
             <div className='leftBox'>
               <Button type='primary' size='large' onClick={() => browserHistory.push('/app_manage/app_create')}>
                 <i className="fa fa-plus" />创建应用
@@ -1040,6 +1063,128 @@ class AppList extends Component {
             </div>
             <div className='clearDiv'></div>
           </div>
+
+          <div className='operationBox operationBoxb'>
+            <div className='leftBox'>
+              <Button type='primary' size='large'>
+                <Link to='/app_manage/app_create'><i className="fa fa-plus" />创建应用</Link>
+              </Button>
+              {/*<Button type='ghost' size='large' onClick={() => this.setState({ deployEnvModalVisible: true })}>
+                <svg className='rocket'>
+                  <use xlinkHref='#rocket' />
+                </svg>
+                快速创建
+              </Button>*/}
+              <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!runBtn}>
+                <i className='fa fa-play' />启动
+              </Button>
+              <Button type='ghost' size='large' onClick={() => this.batchStopApps()} disabled={!stopBtn}>
+                <i className='fa fa-stop' />停止
+              </Button>
+              <Button type='ghost' size='large' onClick={() => this.loadData(this.props)}>
+                <i className='fa fa-refresh' />刷新
+              </Button>
+              <Dropdown overlay={dropdownb} trigger={['click']}>
+                <Button size="large" >
+                  更多操作
+                  <i className="fa fa-caret-down"></i>
+                </Button>
+              </Dropdown>
+            </div>
+            <div className='rightBox'>
+              <div className='littleLeft' onClick={this.searchApps}>
+                <i className='fa fa-search' />
+              </div>
+              <div className='littleRight'>
+                <Input
+                  size='large'
+                  onChange={(e) => {
+                    this.setState({
+                      searchInputValue: e.target.value
+                    })
+                  } }
+                  value={searchInputValue}
+                  placeholder='按应用名搜索'
+                  style={{paddingRight: '28px'}}
+                  disabled={searchInputDisabled}
+                  onPressEnter={this.searchApps} />
+              </div>
+            </div>
+            <div className='pageBox'>
+              <span className='totalPage'>共 {total} 条</span>
+              <div className='paginationBox'>
+                <Pagination
+                  simple
+                  className='inlineBlock'
+                  onChange={this.onPageChange}
+                  onShowSizeChange={this.onShowSizeChange}
+                  current={page}
+                  pageSize={size}
+                  total={total} />
+              </div>
+            </div>
+            <div className='clearDiv'></div>
+          </div>
+
+          <div className='operationBox operationBoxc'>
+            <div className='leftBox'>
+              <Button type='primary' size='large'>
+                <Link to='/app_manage/app_create'><i className="fa fa-plus" />创建应用</Link>
+              </Button>
+              {/*<Button type='ghost' size='large' onClick={() => this.setState({ deployEnvModalVisible: true })}>
+                <svg className='rocket'>
+                  <use xlinkHref='#rocket' />
+                </svg>
+                快速创建
+              </Button>*/}
+              <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!runBtn}>
+                <i className='fa fa-play' />启动
+              </Button>
+              <Button type='ghost' size='large' onClick={() => this.batchStopApps()} disabled={!stopBtn}>
+                <i className='fa fa-stop' />停止
+              </Button>
+              <Dropdown overlay={dropdownc} trigger={['click']}>
+                <Button size="large" >
+                  更多操作
+                  <i className="fa fa-caret-down"></i>
+                </Button>
+              </Dropdown>
+            </div>
+            <div className='rightBox'>
+              <div className='littleLeft' onClick={this.searchApps}>
+                <i className='fa fa-search' />
+              </div>
+              <div className='littleRight'>
+                <Input
+                  size='large'
+                  onChange={(e) => {
+                    this.setState({
+                      searchInputValue: e.target.value
+                    })
+                  } }
+                  value={searchInputValue}
+                  placeholder='按应用名搜索'
+                  style={{paddingRight: '28px'}}
+                  disabled={searchInputDisabled}
+                  onPressEnter={this.searchApps} />
+              </div>
+            </div>
+            <div className='pageBox'>
+              <span className='totalPage'>共 {total} 条</span>
+              <div className='paginationBox'>
+                <Pagination
+                  simple
+                  className='inlineBlock'
+                  onChange={this.onPageChange}
+                  onShowSizeChange={this.onShowSizeChange}
+                  current={page}
+                  pageSize={size}
+                  total={total} />
+              </div>
+            </div>
+            <div className='clearDiv'></div>
+          </div>
+
           <Card className='appBox'>
             <div className='appTitle'>
               <div className='selectIconTitle commonTitle'>

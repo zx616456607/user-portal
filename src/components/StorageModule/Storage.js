@@ -423,6 +423,9 @@ let MyComponent = React.createClass({
     }
     const { formatMessage } = this.props.intl
     let list = this.props.storage;
+    if (!list.storageList) {
+      return <div className="loadingBox"><Icon type="frown"/>&nbsp;暂无数据</div>
+    }
     let items = list.storageList.map((item) => {
       const menu = (<Menu onClick={(e) => { this.showAction(e, 'format', item) } } style={{ width: '80px' }}>
         <Menu.Item key="createSnapshot">创建快照</Menu.Item>
@@ -831,8 +834,9 @@ class Storage extends Component {
   }
   disableSelectAll() {
     let selectAll = true
-    if (this.props.storageList && this.props.storageList[this.props.currentImagePool]) {
-      this.props.storageList[this.props.currentImagePool].storageList.some((item) => {
+    let { storageList } = this.props.storageList[this.props.currentImagePool]
+    if (this.props.storageList && storageList) {
+      storageList.some((item) => {
         if (item.isUsed) {
           selectAll = false
         }
@@ -966,7 +970,7 @@ class Storage extends Component {
             </div>
             <div className="clearDiv"></div>
           </div>
-          {dataStorage.length >0 ?
+          {!Array.isArray(dataStorage) || dataStorage.length >0 ?
 
           <Card className="storageBox appBox">
             <div className="appTitle">
