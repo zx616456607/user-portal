@@ -1,7 +1,8 @@
 var search = window.location.search.slice(9)
 var cluster = search.split('&appname=')[0]
 var appname = search.split('&appname=')[1]
-
+appname = appname.split('&teamspace=')[0]
+var teamspace = search.split('&teamspace=')[1]
 var truncate = function(str, width, left) {
   if (!str) return "";
 
@@ -234,30 +235,47 @@ var insertUse = function(name, use) {
 var loadData = function() {
 	var deferred = new $.Deferred();
 	var newDate = new Date().getTime()
-	var req1 = $.getJSON("/api/v2/clusters/"+ cluster +"/apps/"+ appname +"/topology-pods?"+ newDate, function( data ) {
-		pods = data;
-		$.each(data.items, function(key, val) {
-    	val.type = 'pod';
-      if (val.metadata.labels && val.metadata.labels.uses) {
-      	var key = val.metadata.labels.name;
-		    if (!uses[key]) {
-			  	uses[key] = val.metadata.labels.uses.split("_");
-		    } else {
-			  	$.each(val.metadata.labels.uses.split("_"), function(ix, use) { insertUse(key, use); });
-		    }
-		  }
-    });
+
+	// var req1 = $.getJSON("/api/v2/clusters/"+ cluster +"/apps/"+ appname +"/topology-pods?"+ newDate, function( data ) {
+	var req1 = $.ajax({
+		headers:{'teamspace': teamspace},
+		type: 'GET',
+		dataType:'JSON',
+		url: "/api/v2/clusters/"+ cluster +"/apps/"+ appname +"/topology-pods?"+ newDate,
+		success:function(data){
+			pods = data; // not remove
+			$.each(data.items, function(key, val) {
+				val.type = 'pod';
+				if (val.metadata.labels && val.metadata.labels.uses) {
+					var key = val.metadata.labels.name;
+					if (!uses[key]) {
+						uses[key] = val.metadata.labels.uses.split("_");
+					} else {
+						$.each(val.metadata.labels.uses.split("_"), function(ix, use) { insertUse(key, use); });
+					}
+				}
+			});
+
+		}
 	});
 
 
 
-	var req2 = $.getJSON("/api/v2/clusters/"+ cluster +"/apps/"+ appname +"/topology-services?"+ newDate, function( data ) {
-		services = data;
+	// var req2 = $.getJSON("/api/v2/clusters/"+ cluster +"/apps/"+ appname +"/topology-services?"+ newDate, function( data ) {
+	var req2 = $.ajax({
+		headers:{'teamspace': teamspace},
+		type: 'GET',
+		dataType: 'JSON',
+		url: "/api/v2/clusters/"+ cluster +"/apps/"+ appname +"/topology-services?"+ newDate,
+		success:function(data) {
+			services = data; // not remove
 		//console.log(services);
-		$.each(data.items, function(key, val) {
-      val.type = 'service';
-      //console.log("service ID = " + val.metadata.name)
-    });
+			$.each(data.items, function(key, val) {
+				val.type = 'service';
+				//console.log("service ID = " + val.metadata.name)
+			});
+
+		}
 	});
 
 
