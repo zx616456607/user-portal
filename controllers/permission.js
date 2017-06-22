@@ -38,24 +38,24 @@ exports.get = function* (){
   }
 }
 
-exports.listPermission = function* (){
+exports.listWithCount = function* (){
 	const loginUser = this.session.loginUser
   const query = this.query || {}
   var filter = query.filter
   const api = apiFactory.getPermissionApi(loginUser)
-  const result = yield api.getBy(['permission'],query)
+  const result = yield api.getBy(['withCount'],query)
   this.body = {
   	data: result
   }
 }
 
-exports.getPermission = function* (){
+exports.getWithCount = function* (){
 	const id = this.params.id
 	const loginUser = this.session.loginUser
   const query = this.query || {}
   var filter = query.filter
   const api = apiFactory.getPermissionApi(loginUser)
-  const result = yield api.getBy(['permission',id,'retrieve'],query)
+  const result = yield api.getBy([id,'retrieve','withCount'],query)
   this.body = {
   	data: result
   }
