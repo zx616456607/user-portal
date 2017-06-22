@@ -45,6 +45,9 @@ const AdvancedSetting = React.createClass({
       setFieldsValue({
         envKeys,
       })
+      setTimeout(()=>{
+        document.getElementById(`envName${envKeys.length-1}`).focus()
+      },0)
     })
   },
   removeEnvKey(keyValue) {
