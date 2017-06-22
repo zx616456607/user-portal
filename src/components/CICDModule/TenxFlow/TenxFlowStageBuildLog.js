@@ -131,7 +131,7 @@ class TenxFlowStageBuildLog extends Component {
       })
       socket.disconnect()
       $(`#${tenxFlowLog}`).append(`<div class='stageBuildLogDetail'>\
-        <span><a id="pod-init">${data}</a></span>\
+        <span><a id="pod-init">30秒后自动重载，或点击刷新</a></span>\
         </div>`)
       $('#pod-init').click(function () {
         self.reconnectSocket()
