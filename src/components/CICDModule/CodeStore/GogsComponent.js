@@ -12,7 +12,7 @@ import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, Dropdown, Modal,
 import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
-import { getGithubList, searchGithubList, addGithubRepo, notGithubProject, registryGithub, syncRepoList,getUserInfo } from '../../../actions/cicd_flow'
+import { getGithubList, searchGithubList, addGithubRepo, notGithubProject, registryGithub, syncRepoList,getUserInfo, getRepoList } from '../../../actions/cicd_flow'
 import { parseQueryStringToObject } from '../../../common/tools'
 
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -234,8 +234,17 @@ class GogsComponent extends Component {
 
   componentWillMount() {
     this.loadData()
-    const { getUserInfo } = this.props;
-    getUserInfo('gogs')
+    const { getUserInfo, getRepoList } = this.props;
+    getRepoList('gogs',{
+      success: {
+        func: (res) => {
+          if (res.data.total && res.data.total > 0) {
+            getUserInfo('gogs')
+          }
+        },
+        isAsync: true
+      }
+    })
   }
 
   componentWillReceiveProps(nextProps) {
@@ -517,7 +526,8 @@ export default connect(mapStateToProps, {
   registryGithub,
   syncRepoList,
   searchGithubList,
-  notGithubProject
+  notGithubProject,
+  getRepoList
 })(injectIntl(GogsComponent, {
   withRef: true
 }))
