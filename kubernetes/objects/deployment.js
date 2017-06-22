@@ -421,11 +421,22 @@ class Deployment {
   }
 
   setLabelSelector(labels) {
-    if (labels && labels.length && labels.length > 0) {
-      this.spec.template.metadata.annotations = {
-        "scheduler.alpha.kubernetes.io/affinity": this.makeNodeAffinity(labels)
-      }
+     if (labels && labels.length && labels.length > 0) {
+      this.spec.template.metadata.annotations = this.spec.template.metadata.annotations || {}
+      this.spec.template.metadata.annotations["scheduler.alpha.kubernetes.io/affinity"] = this.makeNodeAffinity(labels)
     }
+  }
+
+  setCollectLog(item) {
+    this.spec.template.metadata.annotations = this.spec.template.metadata.annotations || {}
+    let annotations = this.spec.template.metadata.annotations
+    if(!annotations["applogs"]){
+     annotations["applogs"] = []
+    } else {
+      annotations["applogs"] = JSON.parse(annotations["applogs"] = [])
+    }
+    annotations["applogs"].push(item)
+    annotations["applogs"] = JSON.stringify(annotations["applogs"])
   }
 
   makeNodeAffinity(labels) {

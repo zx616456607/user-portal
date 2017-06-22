@@ -19,6 +19,7 @@ const standard = require('../../../configs/constants').STANDARD_MODE
 class PopSelect extends Component {
   constructor(props) {
     super(props)
+    this.handleSearchInput = this.handleSearchInput.bind(this)
   }
 
   componentWillMount() {
@@ -32,6 +33,24 @@ class PopSelect extends Component {
     const { list } = nextProps
     this.setState({
       list,
+    })
+  }
+
+  handleSearchInput() {
+    const searchItem = this.refs.titleInput.refs.input.value
+    const { list } = this.props
+    let last = [];
+    if(searchItem=="" || (searchItem.indexOf(" ")!=-1)){
+      last = list
+    }else {
+      for(let i = 0;i < list.length;i++){
+        if((list[i].name).indexOf(searchItem)!=-1) {
+          last.push(list[i])
+        }
+      }
+    }
+    this.setState({
+      list:last
     })
   }
 
@@ -64,7 +83,7 @@ class PopSelect extends Component {
   }
 
   render() {
-    const { onChange, loading, special, popTeamSelect } = this.props
+    const { onChange, loading, special, popTeamSelect, Search } = this.props
     const { list } = this.state
     let searchList = (
       list.length === 0 ?
@@ -107,14 +126,36 @@ class PopSelect extends Component {
       )
     }
 
-    return (
-      <div className="PopSelectContent">
-        {this.getSpecial()}
-        <ul className="searchList">
-          {searchList}
-        </ul>
-      </div>
-    )
+    if(Search){
+      return (
+        <div className="PopSelectContent">
+          {this.getSpecial()}
+          <span className='titlesearch'>
+            <Input
+              placeholder="请输入空间名"
+              size="large"
+              ref='titleInput'
+              id='titleInput'
+              onChange={this.handleSearchInput}
+              onPressEnter={this.handleSearchInput}
+            />
+            <Icon type="search" className='titleicon' onClick={this.handleSearchInput}/>
+          </span>
+          <ul className="searchList">
+            {searchList}
+          </ul>
+        </div>
+      )
+    }else{
+      return (
+        <div className="PopSelectContent">
+          {this.getSpecial()}
+          <ul className="searchList">
+            {searchList}
+          </ul>
+        </div>
+      )
+    } 
   }
 }
 

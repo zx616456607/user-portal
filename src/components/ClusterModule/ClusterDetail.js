@@ -46,7 +46,7 @@ let HostInfo = React.createClass({
     func.getNodeLabels(func.clusterID,func.nodeName, {
       success: {
         func:(ret)=> {
-          _this.setState({nodeLabel: ret})
+          _this.setState({nodeLabel: JSON.parse(ret.raw)})
         }
       }
     })

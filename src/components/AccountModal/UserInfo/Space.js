@@ -95,6 +95,7 @@ let TeamSpace = React.createClass({
   render: function () {
     let firstRow = true
     let className = ""
+    let Search = false
     const { userDetail } = this.props
     const {
       teamspaces,
@@ -128,6 +129,7 @@ let TeamSpace = React.createClass({
               title={text}
               content={
                 <PopContent
+                  Search={Search}
                   list={contentClusterList}
                   onChange={this.handleClusterChange}
                   loading={isTeamClustersFetching} />
