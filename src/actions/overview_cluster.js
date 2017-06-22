@@ -203,20 +203,21 @@ export const OVERVIEW_CLUSTER_SUMMARY_FAILURE = 'OVERVIEW_CLUSTER_SUMMARY_FAILUR
 
 // Fetches cluster summary information from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchClusterSummary(clusterID) {
+function fetchClusterSummary(clusterID, callback) {
   return {
     [FETCH_API]: {
       types: [OVERVIEW_CLUSTER_SUMMARY_REQUEST, OVERVIEW_CLUSTER_SUMMARY_SUCCESS, OVERVIEW_CLUSTER_SUMMARY_FAILURE],
       endpoint: `${API_URL_PREFIX}/overview/clusters/${clusterID}/summary`,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
 // Fetches cluster summary information from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadClusterSummary(clusterID) {
+export function loadClusterSummary(clusterID, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchClusterSummary(clusterID))
+    return dispatch(fetchClusterSummary(clusterID, callback))
   }
 }

@@ -389,7 +389,7 @@ let CreateTenxFlow = React.createClass({
         updateTenxFlow(currentFlowId, body, {
           success: {
             func: () => {
-              notification.success('修改构建通知成功');
+              notification.success('修改构建成功');
               scope.setState({
                 createTenxFlowModal: false,
                 forEdit: false,

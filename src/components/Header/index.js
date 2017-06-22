@@ -382,6 +382,7 @@ class Header extends Component {
     var faqUrl = docUrl + '/faq'
     const rotate = visible ? 'rotate180' : 'rotate0'
     let selectValue = mode === standard ? current.space.teamName : current.space.spaceName
+    let Search=true
     const content = (
       <div className='container'>
         {
@@ -422,6 +423,7 @@ class Header extends Component {
                 </div>
                 <div className="spaceBtn">
                   <PopSelect
+                    Search={Search}
                     title={selectTeam}
                     btnStyle={false}
                     special={true}

@@ -95,7 +95,7 @@ class MirrorSafety extends Component {
     }
     const message = body.message
     if (!(message in mapping)) {
-      return message
+      return JSON.stringify(message)
     }
     return mapping[message]
   }

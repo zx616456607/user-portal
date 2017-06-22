@@ -42,7 +42,7 @@ export default class PopSelect extends Component {
   }
 
   render() {
-    const { title, btnStyle, loading, special, selectValue, list, popTeamSelect } = this.props
+    const { title, btnStyle, loading, special, selectValue, list, popTeamSelect, Search } = this.props
     const text = <span className="PopSelectTitle">{title}</span>
     const { visible } = this.state
     const rotate = visible ? 'rotate180' : 'rotate0'
@@ -54,6 +54,7 @@ export default class PopSelect extends Component {
           title={text}
           content={
             <Content
+              Search={Search}
               list={list}
               onChange={this.setValue}
               loading={loading}
