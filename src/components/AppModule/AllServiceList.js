@@ -1163,17 +1163,17 @@ class ServiceList extends Component {
     const operaMenu = (
       <Menu>
         <Menu.Item key="0" disabled={!restartBtn}>
-          <span onClick={this.batchRestartService}>重新部署</span>
+          <span className="Moreoperation" onClick={this.batchRestartService}><i className='fa fa-undo' /> 重新部署</span>
         </Menu.Item>
       </Menu>
     );
     const operaMenua = (
       <Menu>
         <Menu.Item key="0" disabled={!restartBtn}>
-          <span onClick={this.batchQuickRestartService}><i className="fa fa-bolt"></i> 重启</span>
+          <span className="Moreoperation" onClick={this.batchQuickRestartService}><i className="fa fa-bolt"></i> 重启</span>
         </Menu.Item>
         <Menu.Item key="1" disabled={!restartBtn}>
-          <span onClick={this.batchRestartService}>重新部署</span>
+          <span className="Moreoperation" onClick={this.batchRestartService}><i className='fa fa-undo' /> 重新部署</span>
         </Menu.Item>
       </Menu>
     );
@@ -1231,8 +1231,7 @@ class ServiceList extends Component {
               </Modal>
               <Dropdown overlay={operaMenu} trigger={['click']}>
                 <Button size="large" disabled={!isChecked}>
-                  更多操作
-                  <i className="fa fa-caret-down"></i>
+                  更多操作 <i className="fa fa-caret-down"></i>
                 </Button>
               </Dropdown>
             </div>
@@ -1286,8 +1285,7 @@ class ServiceList extends Component {
               </Button>
               <Dropdown overlay={operaMenua} trigger={['click']}>
                 <Button size="large" disabled={!isChecked}>
-                  更多操作
-                  <i className="fa fa-caret-down"></i>
+                  更多操作 <i className="fa fa-caret-down"></i>
                 </Button>
               </Dropdown>
             </div>
