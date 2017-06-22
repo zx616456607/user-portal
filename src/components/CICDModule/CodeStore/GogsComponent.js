@@ -219,13 +219,14 @@ class GogsComponent extends Component {
 
   loadData() {
     const self = this
-    const { typeName } = this.props
+    const { typeName, getUserInfo } = this.props
     this.props.getGithubList(typeName, {
       success: {
         func: (res) => {
           if (res.data.hasOwnProperty('results')) {
             const users = res.data.results[Object.keys(res.data.results)[0]].user
             self.setState({ users })
+            getUserInfo('gogs')
           }
         }
       }
@@ -234,17 +235,6 @@ class GogsComponent extends Component {
 
   componentWillMount() {
     this.loadData()
-    const { getUserInfo, getRepoList } = this.props;
-    getRepoList('gogs',{
-      success: {
-        func: (res) => {
-          if (res.data.total && res.data.total > 0) {
-            getUserInfo('gogs')
-          }
-        },
-        isAsync: true
-      }
-    })
   }
 
   componentWillReceiveProps(nextProps) {
