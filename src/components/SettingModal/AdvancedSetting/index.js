@@ -344,7 +344,7 @@ class AdvancedSetting extends Component {
     const { cluster, form, configurations, harbor } = this.props
     const { listNodes } = cluster
     const { getFieldProps  } = form
-    if(!listNodes || (harbor.hasAdminRole && (!configurations[DEFAULT_REGISTRY] || configurations[DEFAULT_REGISTRY].isFetching))) {
+    if(listNodes == undefined || (harbor.hasAdminRole && (!configurations[DEFAULT_REGISTRY] || configurations[DEFAULT_REGISTRY].isFetching))) {
       return <div className='nodata'><Spin></Spin></div>
     }
     let projectCreationRestriction 

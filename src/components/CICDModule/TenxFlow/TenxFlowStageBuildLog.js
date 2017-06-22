@@ -40,6 +40,7 @@ class TenxFlowStageBuildLog extends Component {
       activePanel: [],
       modalSize: 'normal',
       logs: '',
+      needReconnect: false,
       TenxFlowStageBuildLog: `TenxFlowStageBuildLog${genRandomString('qwertyuioplkjhgfdsazxcvbnmABCDEFGHIJKLMNOPQRSTUVWXYZ', 10)}`,
       tenxFlowLog: `tenxFlowLog${genRandomString('qwertyuioplkjhgfdsazxcvbnmABCDEFGHIJKLMNOPQRSTUVWXYZ', 10)}`
     }
@@ -77,13 +78,20 @@ class TenxFlowStageBuildLog extends Component {
     }
     if(nextProps.updateWebSocket) {
       this.props.setUpdateWebSocket()
-      if(this.state.socket) {
-        this.state.socket.disconnect()
-        this.state.socket.connect()
-         $(`#${this.state.tenxFlowLog}`).html('')
-        const logInfo = this.props.logInfo
-        this.state.socket.emit("ciLogs", { flowId: this.props.flowId, stageId: logInfo.stageId, stageBuildId: logInfo.buildId })
-      }
+      this.reconnectSocket()
+    }
+  }
+  reconnectSocket(){
+    if (this.state.socket) {
+      const socket = this.state.socket
+      socket.disconnect()
+      socket.connect()
+      $(`#${this.state.tenxFlowLog}`).html('')
+      const logInfo = this.props.logInfo
+      socket.emit("ciLogs", { flowId: this.props.flowId, stageId: logInfo.stageId, stageBuildId: logInfo.buildId })
+      this.setState({
+        needReconnect: false
+      })
     }
   }
   onSetup(socket) {
@@ -116,6 +124,27 @@ class TenxFlowStageBuildLog extends Component {
       if(callback) {
         callback(data)
       }
+    })
+    socket.on('pod-init', function(data) {
+      self.setState({
+        needReconnect: true
+      })
+      socket.disconnect()
+      $(`#${tenxFlowLog}`).append(`<div class='stageBuildLogDetail'>\
+        <span><a id="pod-init">${data}</a></span>\
+        </div>`)
+      $('#pod-init').click(function () {
+        self.reconnectSocket()
+      })
+      setTimeout(() => {
+        if (self.state.needReconnect) {
+          socket.connect()
+          socket.emit("ciLogs", { flowId: self.props.flowId, stageId: logInfo.stageId, stageBuildId: logInfo.buildId })
+          self.setState({
+            needReconnect: false
+          })
+        }
+      }, 30000)
     })
   } 
   render() {
