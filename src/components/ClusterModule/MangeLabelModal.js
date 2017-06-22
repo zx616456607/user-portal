@@ -83,7 +83,7 @@ class ManageLabelModal extends Component {
     this.props.getNodeLabels(clusterID,nodeName,{
       success:{
         func:(ret)=> {
-          _this.setState({userCreateLabel: ret,isLoad: true})
+          _this.setState({userCreateLabel: JSON.parse(ret.raw),isLoad: true})
         }
       }
     })
@@ -172,7 +172,7 @@ class ManageLabelModal extends Component {
     editNodeLabels(body,{
       success:{
         func:(ret)=> {
-          _this.setState({userCreateLabel:ret})
+          // _this.setState({userCreateLabel:ret})
           notificat.success('操作成功！')
           _this.loadNodeLabels(_this.props)
           callback(false)
