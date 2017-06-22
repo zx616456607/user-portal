@@ -96,12 +96,13 @@ let CreateAlarmGroup = React.createClass({
     this.setState({isAddEmail: false})
   },
   addRuleEmail(rule, value, callback) {
+    let newValue = value.trim()
     let isAddEmail= true
-    if(!Boolean(value)) {
+    if(!Boolean(newValue)) {
       callback(new Error('请输入邮箱地址'))
       isAddEmail = false
     }
-    if (!/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(value)) {
+    if (!/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(newValue)) {
       callback(new Error('请输入正确的邮箱地址'))
       isAddEmail = false
     }
@@ -166,11 +167,12 @@ let CreateAlarmGroup = React.createClass({
   },
   groupName(rule, value, callback) {
     // top email rule name
-    if (!Boolean(value)) {
+    let newValue = value.trim()
+    if (!Boolean(newValue)) {
       callback(new Error('请输入名称'))
       return
     }
-    if (value.length < 3 || value.length > 21) {
+    if (newValue.length < 3 || newValue.length > 21) {
       callback(new Error('请输入3~21个字符'))
       return
     }
@@ -342,9 +344,7 @@ let CreateAlarmGroup = React.createClass({
         <div key={k} className="createEmailList" style={{clear:'both'}}>
         <Form.Item style={{float:'left'}}>
           <Input {...getFieldProps(`email${k}`, {
-            rules: [{
-              whitespace: true,
-            },
+            rules: [
             {validator: this.addRuleEmail}
             ],
             initialValue: initAddrValue,
@@ -363,7 +363,7 @@ let CreateAlarmGroup = React.createClass({
       <Form className="alarmAction" form={this.props.form}>
         <Form.Item label="名称" {...formItemLayout} >
           <Input placeholder="请输入名称" {...getFieldProps(`groupName`, {
-          rules: [{ whitespace: true },
+          rules: [
             { validator: this.groupName}
           ],
           initialValue: this.props.isModify ? this.props.data.name : '',}) }
@@ -371,8 +371,6 @@ let CreateAlarmGroup = React.createClass({
         </Form.Item>
         <Form.Item label="描述" {...formItemLayout} >
           <Input type="textarea" {...getFieldProps(`groupDesc`, {
-          rules: [{ whitespace: true },
-          ],
           initialValue: this.props.isModify ? this.props.data.desc : '',
           }) }/>
         </Form.Item>
