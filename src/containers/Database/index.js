@@ -29,6 +29,11 @@ const menuList = [
     url: '/database_cache/zookeeper_cluster',
     name: 'ZooKeeper'
   },
+
+  {
+    url: '/database_cache/elasticsearch_cluster',
+    name: 'ElasticSearch'
+  }
  
 ]
 

@@ -579,6 +579,12 @@ class Sider extends Component {
                     </Link>
                   </Menu.Item>
 
+                  <Menu.Item key='elasticsearch_cluster'>
+                    <Link to='/database_cache/elasticsearch_cluster'>
+                      <span><div className='sideCircle'></div> ElasticSearch</span>
+                    </Link>
+                  </Menu.Item>
+
                   <div className='sline'></div>
                 </SubMenu>
                 {(role == ROLE_SYS_ADMIN) ?
