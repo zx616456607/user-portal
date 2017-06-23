@@ -33,6 +33,10 @@ const menusText = defineMessages({
     id: 'CICD.TenxStorm.name',
     defaultMessage: '名称',
   },
+  ID: {
+    id: 'CICD.TenxStorm.ID',
+    defaultMessage: 'ID',
+  },
   attr: {
     id: 'CICD.TenxStorm.attr',
     defaultMessage: '属性',
@@ -202,9 +206,12 @@ const MyComponent = React.createClass({
           </Menu>
       );
       return (
-        <div className='CodeTable' key={item.name} >
-          <div className='name textoverflow'>
-            <span>{item.name}</span>
+        <div className='CodeTable' key={item.id} >
+         <div className='name textoverflow'>
+            <Tooltip title={item.name}><span>{item.name}</span></Tooltip>
+          </div>
+          <div className='id textoverflow'>
+            <Tooltip title={item.id}><span>{item.id}</span></Tooltip>
           </div>
           {item.isPrivate == 1 ?
             <div className="type private">
@@ -226,7 +233,7 @@ const MyComponent = React.createClass({
             </div>
           }
           <div className='codelink textoverflow'>
-            <i className={`fa fa-${item.repoType}`} /> {item.address}
+            <Tooltip title={item.address}><span><i className={`fa fa-${item.repoType}`}/> {item.address}</span></Tooltip>
           </div>
           <div className='action'>
 
@@ -425,6 +432,9 @@ class CodeStore extends Component {
             <div className='titleBox' >
               <div className='name'>
                 <FormattedMessage {...menusText.name} />
+              </div>
+              <div className='id'>
+                <FormattedMessage {...menusText.ID} />
               </div>
               <div className='type'>
                 <Dropdown overlay={menu} trigger={['click']}>
