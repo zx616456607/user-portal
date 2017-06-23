@@ -88,19 +88,13 @@ class ImageUpdate extends Component {
     this.handleSearchRules = this.handleSearchRules.bind(this)
     this.handleInputValue = this.handleInputValue.bind(this)
     this.handleAddRules = this.handleAddRules.bind(this)
-    this.handleCancelAddRules = this.handleCancelAddRules.bind(this)
-    this.handleComfirmAddRules = this.handleComfirmAddRules.bind(this)
-    this.handelTestStoreLink = this.handelTestStoreLink.bind(this)
-    this.handlTestLinkResult = this.handlTestLinkResult.bind(this)
+    this.modalCancel = this.modalCancel.bind(this)
+    this.modalConfirm = this.modalConfirm.bind(this)
+    this.testStoreLink = this.testStoreLink.bind(this)
+    this.testLinkResult = this.testLinkResult.bind(this)
     this.handleModalFooterDomNodes = this.handleModalFooterDomNodes.bind(this)
     this.handleSelectOption = this.handleSelectOption.bind(this)
     this.checkRulesNameProps = this.checkRulesNameProps.bind(this)
-    this.checkURLAddressProps = this.checkURLAddressProps.bind(this)
-    this.checkNewTargetstoreNameProps = this.checkNewTargetstoreNameProps.bind(this)
-    this.checkuserNameProps = this.checkuserNameProps.bind(this)
-    this.checkpassWordProps = this.checkpassWordProps.bind(this)
-    this.handleEditTargetStore = this.handleEditTargetStore.bind(this)
-    this.handleDelteTargetStore = this.handleDelteTargetStore.bind(this)
     this.handleConfirmSwitchRules = this.handleConfirmSwitchRules.bind(this)
     this.handleRulesModalText = this.handleRulesModalText.bind(this)
     this.handleImageUpdateSwitch = this.handleImageUpdateSwitch.bind(this)
@@ -109,12 +103,13 @@ class ImageUpdate extends Component {
     this.handleSelcetOnchange = this.handleSelcetOnchange.bind(this)
     this.handleRadioGroupChange = this.handleRadioGroupChange.bind(this)
     this.handleeditImageUpdateRules = this.handleeditImageUpdateRules.bind(this)
-    this.handleCreateTargetStore = this.handleCreateTargetStore.bind(this)
+    this.createNewTargetStore = this.createNewTargetStore.bind(this)
     this.handelEidtImageRules = this.handelEidtImageRules.bind(this)
     this.createNewRules = this.createNewRules.bind(this)
-    this.handleImageUpdateAddNewRules = this.handleImageUpdateAddNewRules.bind(this)
+    this.postCreateNewRules = this.postCreateNewRules.bind(this)
     this.validationTargetStore = this.validationTargetStore.bind(this)
     this.getLogs = this.getLogs.bind(this)
+    this.startUseRules = this.startUseRules.bind(this)
     this.state = {
       inputValue: '',
       addRulesVisible: false,
@@ -141,7 +136,26 @@ class ImageUpdate extends Component {
       registry: registry,
       projectID,
     }
-    loadImageUpdateList(body)
+    return new Promise((resolve, reject) => {
+      loadImageUpdateList(body, {
+        success : {
+          func: (res) => {
+            resolve({
+              result: true,
+              policies: res.data.policies
+            })
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            resolve({
+              result: false
+            })
+          }
+        }
+      })
+    })
   }
 
   componentWillMount() {
@@ -175,16 +189,6 @@ class ImageUpdate extends Component {
     }
 
     document.removeEventListener('keyup', handler)
-  }
-
-  handleEditTargetStore(){
-	  this.setState({
-      eidtTargetStore: true,
-	  })
-  }
-
-  handleDelteTargetStore(){
-    console.log('delete')
   }
 
   handleInputValue(e){
@@ -223,7 +227,7 @@ class ImageUpdate extends Component {
     })
   }
 
-  handleCancelAddRules(){
+  modalCancel(){
     const { form } = this.props
     form.resetFields()
     this.setState({
@@ -233,37 +237,28 @@ class ImageUpdate extends Component {
     })
   }
 
-  handleCreateTargetStore(values, id, editBody, add){
+  createNewTargetStore(newStoreInfo){
     const { registry, createTargetStore } = this.props
-    let Notification = new NotificationHandler()
-    let body = {
-      endpoint: values.URLAddress,
-      name: values.NewTargetstoreName,
-      username: values.userName,
-      password: values.passWord,
-    }
-    createTargetStore(registry, body, {
-      success : {
-        func: (res) => {
-          editBody.target_id = res.data.id
-          if(add){
-            this.validationTargetStore(true, values, editBody, id)
-            return
-          }
-          this.handelEidtImageRules(id, editBody)
-          return
+    return new Promise((resolve, reject) => {
+      createTargetStore(registry, newStoreInfo, {
+        success : {
+          func: (res) => {
+            resolve({
+              useful: true,
+              target_id: res.data.id
+            })
+          },
+          isAsync: true
         },
-        isAsync: true
-      },
-      failed: {
-        func: (res) => {
-          if(res.statusCode == 409){
-            Notification.error('仓库名称已存在！')
-            return
+        failed: {
+          func: (res) => {
+            resolve({
+              useful: false,
+              statusCode: res.statusCode
+            })
           }
-          Notification.error('新仓库创建失败！规则修改失败!')
         }
-      }
+      })
     })
   }
 
@@ -293,170 +288,186 @@ class ImageUpdate extends Component {
     })
   }
 
-  validationTargetStore(createNewTargetStore, body, editBody, id, text){
+  validationTargetStore(storeType, storeInfo){
     const { registry, validationOldTargetStore, validationNewTargetStore } = this.props
-    let Notification = new NotificationHandler()
-    let abled = false
-    if(body.startUse){
-      abled = true
-    }
-    if(createNewTargetStore){
-      let testBody = {
-        endpoint: body.URLAddress,
-        username: body.userName,
-        password: body.passWord
+    return new Promise((resolve, reject) => {
+      if(storeType == 'create'){
+        // test create store
+        validationNewTargetStore(registry, storeInfo, {
+          success : {
+            func: () => {
+              resolve(true)
+            },
+            isAsync: true
+          },
+          failed: {
+            func: () => {
+              resolve(false)
+            }
+          }
+        })
+        return
       }
-      validationNewTargetStore(registry, testBody, {
+      // test original store
+      validationOldTargetStore(registry, storeInfo, {
         success : {
           func: () => {
-            if(text){
-              this.setState({
-                testLink: true,
-                testLinkResult: true,
-              })
-              return
-            }
-            this.handleImageUpdateAddNewRules(editBody, abled)
+            resolve(true)
+          }
+        },
+        failed: {
+          func: () => {
+            resolve(false)
+          }
+        }
+      })
+    })
+  }
+
+  postCreateNewRules(ruleName, targetId, startUse){
+    const { iamgeUpdateAddNewRules, registry, detail } = this.props
+    let projectID = detail.data.projectId
+    const body = {
+      project_id: projectID,
+      target_id: targetId,
+      name: ruleName,
+      enabled: 0
+    }
+    return new Promise((resolve, reject) => {
+      iamgeUpdateAddNewRules(registry, body, {
+        success : {
+          func: () => {
+            this.setState({
+              addRulesVisible: false,
+              testLink: false,
+              testLinkResult: false,
+            })
+            this.modalCancel()
+            resolve({
+              result: true
+            })
           },
           isAsync: true
         },
         failed: {
-          func: () => {
-            if(text){
-              this.setState({
-                testLink: true,
-                testLinkResult: false,
-              })
+          func: (res) => {
+            resolve({
+              result: false,
+              statusCode: res.statusCode
+            })
+          }
+        }
+      })
+    }).then(createRulesResult => {
+      if(!createRulesResult.result){
+        if(createRulesResult.statusCode == 409){
+          throw(new Error('存在相同规则，添加规则失败'))
+        }
+        throw(new Error('添加规则失败'))
+      }
+      // reload 镜像同步页面
+      return this.handleloadImageUpdateList()
+    }).then(loadListResult => {
+      if(!loadListResult.result){
+        throw(new Error('添加规则成功，页面列表刷新失败，请刷新重试！'))
+      }
+      if(startUse){
+        let id = 0
+        for(let i=0;i<loadListResult.policies.length;i++){
+          if(loadListResult.policies[i].name == ruleName){
+            id = loadListResult.policies[i].id
+            break
+          }
+        }
+        // 启用规则
+        return this.startUseRules(id)
+      }else{
+        throw(new Error('添加规则成功'))
+      }
+    }).then(switchResult => {
+      if(!switchResult.result){
+        throw(new Error('添加规则成功，启用规则失败，请手动启用！'))
+      }
+      // reload 镜像同步页面
+      return this.handleloadImageUpdateList()
+    }).then(loadListResult => {
+      if(!loadListResult.result){
+        throw(new Error('添加规则成功，页面列表刷新失败，请刷新重试！'))
+      }
+      throw(new Error('添加规则成功'))
+    })
+  }
+
+  createNewRules(values){
+    const {  targets } = this.props
+    let Notification = new NotificationHandler()
+    if(values.targetStoreType == "createNewstore"){
+      let newStoremInfo = {
+        name: values.NewTargetstoreName,
+        endpoint: values.URLAddress,
+        username: values.userName,
+        password: values.passWord
+      }
+      // 检验新仓库是否可用
+      this.validationTargetStore('create', newStoremInfo).then(validateResult => {
+        if(!validateResult){
+          throw(new Error('新目标仓库未连接，创建规则失败！'))
+        }
+        // 创建新仓库
+        return this.createNewTargetStore(newStoremInfo)
+      }).then(createStoreResult => {
+        if(!createStoreResult.useful){
+          if(createStoreResult.statusCode == 409){
+            throw(new Error('仓库名称已存在！请直接选择已有目标仓库！'))
+          }
+          throw(new Error('新目标仓库创建失败！添加规则失败!'))
+        }
+        // 创建新规则
+        return this.postCreateNewRules(values.rulesName, createStoreResult.target_id, values.startUse)
+      }).catch(err => {
+        if (err) {
+          switch(err.message){
+            case 'none':
               return
-            }
-            Notification.error('新目标仓库未连接，创建规则失败！')
+            case '添加规则成功':
+              return Notification.success('添加规则成功')
+            default:
+              return Notification.error(err.message)
           }
         }
       })
       return
     }
-    validationOldTargetStore(registry, id, {
-      success : {
-        func: () => {
-          if(text){
-            this.setState({
-              testLink: true,
-              testLinkResult: true,
-            })
-            return
-          }
-          this.handleImageUpdateAddNewRules(editBody, abled)
-        },
-        isAsync: true
-      },
-      failed: {
-        func: () => {
-          if(text){
-            this.setState({
-              testLink: true,
-              testLinkResult: false,
-            })
-            return
-          }
-          Notification.error('目标仓库未连接，创建规则失败！')
-        }
-      }
-    })
-  }
-
-  handleImageUpdateAddNewRules(addBody, abled){
-    const { iamgeUpdateAddNewRules, registry, imageUpdateSwitch, loadImageUpdateList, detail } = this.props
-    let Notification = new NotificationHandler()
-    let projectID = detail.data.projectId
-    let newbody = {
-      registry: registry,
-      projectID,
-    }
-    iamgeUpdateAddNewRules(registry, addBody, {
-      success : {
-        func: () => {
-          Notification.success('添加规则成功')
-          if(abled){
-            loadImageUpdateList(newbody,{
-              success : {
-                func: (res) => {
-                  let id = 0
-                  for(let i=0;i<res.data.policies.length;i++){
-                    if(res.data.policies[i].name == addBody.name){
-                      id = res.data.policies[i].id
-                      break
-                    }
-                  }
-                  imageUpdateSwitch(registry, id, {enabled: 1},{
-                    success : {
-                      func: () => {
-                        this.handleCancelAddRules()
-                        this.handleloadImageUpdateList()
-                      },
-                      isAsync: true
-                    },
-                    failed: {
-                      func: () => {
-
-                      }
-                    }
-                  })
-                },
-                isAsync: true
-              },
-              failed: {
-                func: () => {
-
-                }
-              }
-            })
-            return
-          }
-          this.handleloadImageUpdateList()
-          this.setState({
-            addRulesVisible: false
-          })
-        },
-        isAsync: true
-      },
-      failed: {
-        func: (res) => {
-          if(res.statusCode = 409){
-            Notification.error('存在相同规则，修改规则失败')
-            return
-          }
-          Notification.error('添加规则失败')
-        }
-      }
-    })
-  }
-
-  createNewRules(values){
-    const { detail, rulesData, targets } = this.props
-    let projectID = detail.data.projectId
-    let id = 0
-    let editBody = {
-      project_id: projectID,
-      target_id: 0,
-      name: values.rulesName,
-      enabled: 0,
-    }
-    if(values.targetStoreType == "createNewstore"){
-      this.handleCreateTargetStore(values, 0, editBody, true)
-      return
-    }
+    // 检验原有仓库是否可用
+    let targetId = 0
     for(let i=0; i< targets.length; i++){
       if(values.SelectTargetStore == targets[i].name){
-        editBody.target_id = targets[i].id
-        id = targets[i].id
+        targetId = targets[i].id
         break
       }
     }
-    this.validationTargetStore(false, values, editBody, id)
+    this.validationTargetStore('original', targetId).then(validateResult => {
+      if(!validateResult){
+        throw(new Error('新目标仓库未连接，创建规则失败！'))
+      }
+      //创建新规则
+      return this.postCreateNewRules(values.rulesName, targetId, values.startUse)
+    }).catch(err => {
+      if (err) {
+        switch(err.message){
+          case 'none':
+            return
+          case '添加规则成功':
+            return Notification.success('添加规则成功')
+          default:
+            return Notification.error(err.message)
+        }
+      }
+    })
   }
 
   handleeditImageUpdateRules(values){
-    const { registry, rulesData, detail, targets } = this.props
+    const { rulesData, detail, targets } = this.props
     const { currentKey } = this.state
     let id = rulesData[currentKey].id
     let projectID = detail.data.projectId
@@ -481,14 +492,10 @@ class ImageUpdate extends Component {
       enabled:rulesData[currentKey].enabled,
       description:values.description,
     }
-    if(values.targetStoreType !== "selectTargetStore"){
-      this.handleCreateTargetStore(values, id, editBody, false)
-      return
-    }
     this.handelEidtImageRules(id, editBody)
   }
 
-  handleComfirmAddRules(){
+  modalConfirm(){
     const { form } = this.props
     const { edit } = this.state
     form.validateFields((errors, values) => {
@@ -503,29 +510,60 @@ class ImageUpdate extends Component {
     })
   }
 
-  handelTestStoreLink(){
+  testStoreLink(){
     const { form, targets } = this.props
     form.validateFields((errors, values) => {
       if(!!errors){
         return
       }
-
-      let createNewTargetStore = true
-      let id = 0
-      if(values.SelectTargetStore !== "createNewstore"){
-        createNewTargetStore = false
-        for(let i=0; i< targets.length; i++){
-          if(values.SelectTargetStore == targets[i].name){
-            id = targets[i].id
-            break
+      if(values.SelectTargetStore == "createNewstore"){
+        let newStoremInfo = {
+          name: values.NewTargetstoreName,
+          endpoint: values.URLAddress,
+          username: values.userName,
+          password: values.passWord
+        }
+        // 检验新仓库是否可用
+        this.validationTargetStore('create', newStoremInfo).then(validateResult => {
+          if(!validateResult){
+            this.setState({
+              testLink: true,
+              testLinkResult: false,
+            })
+            return
           }
+          this.setState({
+            testLink: true,
+            testLinkResult: false,
+          })
+        })
+        return
+      }
+      // 检验原仓库是否可用
+      let targetId = 0
+      for(let i=0; i< targets.length; i++){
+        if(values.SelectTargetStore == targets[i].name){
+          targetId = targets[i].id
+          break
         }
       }
-      this.validationTargetStore(createNewTargetStore, values, 'none', id, true)
+      this.validationTargetStore('original', targetId).then(validateResult => {
+        if(!validateResult){
+          this.setState({
+            testLink: true,
+            testLinkResult: false,
+          })
+          return
+        }
+        this.setState({
+          testLink: true,
+          testLinkResult: true,
+        })
+      })
     })
   }
 
-  handlTestLinkResult(){
+  testLinkResult(){
     const { testLinkResult } = this.state
     if(testLinkResult){
       return <div className='success'><Icon type="check-circle-o icon" />测试连接成功</div>
@@ -537,14 +575,14 @@ class ImageUpdate extends Component {
   handleModalFooterDomNodes(){
     const { testLink } = this.state
     return <div>
-      <Button  type="primary" className='test' size="large" onClick={this.handelTestStoreLink}>测试仓库连接</Button>
+      <Button  type="primary" className='test' size="large" onClick={this.testStoreLink}>测试仓库连接</Button>
       {
         testLink
-        ? <div className='wrap'>{this.handlTestLinkResult()}</div>
+        ? <div className='wrap'>{this.testLinkResult()}</div>
         : <span></span>
       }
-      <Button size="large" onClick={this.handleCancelAddRules}>取消</Button>
-      <Button type="primary" size="large" onClick={this.handleComfirmAddRules}>确定</Button>
+      <Button size="large" onClick={this.modalCancel}>取消</Button>
+      <Button type="primary" size="large" onClick={this.modalConfirm}>确定</Button>
     </div>
   }
 
@@ -569,35 +607,30 @@ class ImageUpdate extends Component {
     callback()
   }
 
-  checkNewTargetstoreNameProps(rule, value, callback){
-    //if(!value){
-    //  return callback('请输入新目标仓库名称')
-    //}
-    callback()
-  }
-
-  checkURLAddressProps(rule, value, callback){
-    if(!value){
-      return callback('请输入URL地址')
+  startUseRules(id){
+    const { registry, imageUpdateSwitch } = this.props
+    const body = {
+      enabled: 1
     }
-    if (!/^(http|https):\/\/([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?$/.test(value) && !/^(http|https):\/\/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
-      return callback('请填入合法的URL地址')
-    }
-    callback()
-  }
-
-  checkuserNameProps(rule, value, callback){
-    if(!value){
-      return callback('请输入用户名')
-    }
-    callback()
-  }
-
-  checkpassWordProps(rule, value, callback){
-    if(!value){
-      return callback('请输入密码')
-    }
-    callback()
+    return new Promise((resolve, reject) => {
+      imageUpdateSwitch(registry, id, body, {
+        success : {
+          func: () => {
+            resolve({
+              result: true
+            })
+          },
+          isAsync: true
+        },
+        failed: {
+          func: () => {
+            resolve({
+              result: false
+            })
+          }
+        }
+      })
+    })
   }
 
   handleImageUpdateSwitch(currentKey){
@@ -671,6 +704,9 @@ class ImageUpdate extends Component {
     const { form, targets } = this.props
     let id = values.split(',')[1]
     let value = values.split(',')[0]
+    this.setState({
+      testLink: false,
+    })
     for(let i=0;i<targets.length;i++){
       if(targets[i].id == id){
         form.setFieldsValue({
@@ -690,7 +726,9 @@ class ImageUpdate extends Component {
     form.setFieldsValue({
       targetStoreType: value.target.value,
     })
-
+    this.setState({
+      testLink: false,
+    })
     if(value.target.value == 'selectTargetStore'){
       this.setState({
         editUrlDisabled: true,
@@ -819,14 +857,8 @@ class ImageUpdate extends Component {
             rules: rulesData[key],
             store: targets[i],
           },
-          currentRulesEnabled: false,
+          currentRulesEnabled: true,
         })
-
-        if(rulesData[key].enabled){
-          this.setState({
-            currentRulesEnabled: true,
-          })
-        }
        return
       }
     }
@@ -937,7 +969,7 @@ class ImageUpdate extends Component {
 
     const rulesNameProps = getFieldProps('rulesName',{
       rules: [
-        {validator: this.checkRulesNameProps}
+        { validator: this.checkRulesNameProps}
       ]
     })
 
@@ -950,48 +982,50 @@ class ImageUpdate extends Component {
     const targetStoreTypeProps = getFieldProps('targetStoreType',{
       initialValue: 'createNewstore'
     })
-
-    const URLAddressProps = getFieldProps('URLAddress',{
-      rules: [
-        {validator: this.checkURLAddressProps},
-      ]
-    })
-
-    const userNameProps = getFieldProps('userName',{
-      rules: [
-        {validator: this.checkuserNameProps},
-      ]
-    })
-
-    const passWordProps = getFieldProps('passWord',{
-      rules: [
-        {validator: this.checkpassWordProps},
-      ]
-    })
-
+    const targetstoretype = getFieldValue('targetStoreType')
+    let NewTargetstoreNameProps = getFieldProps('NewTargetstoreName')
+    let URLAddressProps = getFieldProps('URLAddress')
+    let userNameProps = getFieldProps('userName')
+    let passWordProps = getFieldProps('passWord')
+    let SelcetTargetStoreProps = getFieldProps('SelectTargetStore')
+    if(targetstoretype == 'createNewstore'){
+      NewTargetstoreNameProps = getFieldProps('NewTargetstoreName',{
+        rules: [
+          { required: true, message: '请输入新目标仓库名称' },
+        ]
+      })
+      URLAddressProps = getFieldProps('URLAddress',{
+        rules: [
+          { required: true, message: '请输入URL地址' },
+        ]
+      })
+      userNameProps = getFieldProps('userName',{
+        rules: [
+          { required: true, message: '请输入用户名' },
+        ]
+      })
+      passWordProps = getFieldProps('passWord',{
+        rules: [
+          { required: true, message: '请输入密码' },
+        ],
+      })
+    }
+    if(targetstoretype == 'selectTargetStore'){
+      SelcetTargetStoreProps = getFieldProps('SelectTargetStore',{
+        rules: [
+          { required: true, message: '请选择一个目标仓库' },
+        ]
+      })
+    }
     const startUseProps = getFieldProps('startUse',{
       valuePropName:'checked',
       initialValue: false
     })
 
-    let aa = false
-    let bb = getFieldValue('targetStoreType')
-    if(bb == 'createNewstore'){
-      aa = true
+    const formItemLayout = {
+      labelCol: {span: 4},
+      wrapperCol: {span: 20},
     }
-    const NewTargetstoreNameProps = getFieldProps('NewTargetstoreName',{
-      rules: [
-        { validator: this.checkNewTargetstoreNameProps, required: false},
-      ]
-    })
-
-    const SelcetTargetStoreProps = getFieldProps('SelectTargetStore',{
-      rules: [
-        {required: !aa, message: '请选择一个目标仓库'},
-      ]
-    })
-
-    let targetstoretype = getFieldValue('targetStoreType')
 
     return(
       <div id='imageUpdata'>
@@ -1045,99 +1079,85 @@ class ImageUpdate extends Component {
           visible={this.state.addRulesVisible}
           closable={true}
           width='460px'
-          onCancel={this.handleCancelAddRules}
+          onCancel={this.modalCancel}
           maskClosable={false}
           wrapClassName="imageUpdataAddRules"
           footer={this.handleModalFooterDomNodes()}
         >
           <Form>
-            <Row className='rulesName standard'>
-              <Col span="4" className='title'>规则名称</Col>
-              <Col span="20">
-                <Form.Item className='value'>
-                  <Input size="large" {...rulesNameProps}/>
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row className='description'>
-              <Col span="4" className='title'>描述</Col>
-              <Col span="20" className='valueheight'>
-                <Form.Item className='value'>
-                  <Input size="large" {...descriptionProps} className='textareaStyle' type="textarea"/>
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row className='radioBox'>
-              <Col span="4"></Col>
-              <Col span="20">
-                <Form.Item>
-                  <Radio.Group {...targetStoreTypeProps} onChange={this.handleRadioGroupChange}>
-                    <Radio value="createNewstore" key="createNewstore" disabled={currentRulesEnabled}>新建目标仓库</Radio>
-                    <Radio value="selectTargetStore" key="selectTargetStore">选择已有目标仓库</Radio>
-                  </Radio.Group>
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row className='targetStore standard'>
-              <Col span="4" className='title'>目标仓库<span className='star'>*</span></Col>
-              <Col span="20" style={{height:'56px'}}>
-                {
-                  targetstoretype == 'createNewstore'
-                  ? <Form.Item className='value'>
-                     <Input {...NewTargetstoreNameProps}/>
-                  </Form.Item>
-                  : <Form.Item className='value' style={{paddingTop:'0'}}>
-                      <Select
-                        showSearch
-                        {...SelcetTargetStoreProps}
-                        placeholder="选择目标仓库"
-                        className='widthbox'
-                        size='large'
-                        style={{width:'320px'}}
-                        onChange={this.handleSelcetOnchange}
-                        disabled={currentRulesEnabled}
-                      >
-                        {this.handleSelectOption()}
-                      </Select>
-                  </Form.Item>
-                }
-              </Col>
-            </Row>
-            <Row className='URLAddress standard'>
-              <Col span="4" className='title'>URL 地址<span className='star'>*</span></Col>
-              <Col span="20">
-                <Form.Item className='value'>
-                  <Input size="large" {...URLAddressProps} disabled={this.state.editUrlDisabled}/>
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row className='userName standard'>
-              <Col span="4" className='title'>用户名</Col>
-              <Col span="20">
-                <Form.Item className='value'>
-                  <Input size="large" {...userNameProps} disabled={this.state.editDisabled}/>
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row className='passWord standard'>
-              <Col span="4" className='title'>密码</Col>
-              <Col span="20">
-                <Form.Item className='value'>
-                  <Input size="large" {...passWordProps} disabled={this.state.editDisabled}/>
-                </Form.Item>
-              </Col>
-            </Row>
+            <Form.Item
+              {...formItemLayout}
+              label="规则名称"
+              key="rulesName"
+            >
+              <Input size="large" {...rulesNameProps}/>
+            </Form.Item>
+            <Form.Item
+              {...formItemLayout}
+              label="描述"
+              className='description itemMarginBottom'
+            >
+              <Input size="large" {...descriptionProps} className='textareaStyle' type="textarea"/>
+            </Form.Item>
+            <Form.Item
+              {...formItemLayout}
+              key="targeStoreType"
+              label={<span></span>}
+              className='itemMarginBottom'
+            >
+              <Radio.Group {...targetStoreTypeProps} onChange={this.handleRadioGroupChange}>
+                <Radio value="createNewstore" key="createNewstore" disabled={currentRulesEnabled}>新建目标仓库</Radio>
+                <Radio value="selectTargetStore" key="selectTargetStore">选择已有目标仓库</Radio>
+              </Radio.Group>
+            </Form.Item>
+            <Form.Item
+              {...formItemLayout}
+              label={<span>目标仓库<span className='star'>*</span></span>}
+              key="targetStoreName"
+            >
+              {
+                targetstoretype == 'createNewstore'
+                  ? <Input {...NewTargetstoreNameProps}/>
+                  : <Select
+                  showSearch
+                  {...SelcetTargetStoreProps}
+                  placeholder="选择目标仓库"
+                  size='large'
+                  onChange={this.handleSelcetOnchange}
+                  disabled={currentRulesEnabled}
+                >
+                  {this.handleSelectOption()}
+                </Select>
+              }
+            </Form.Item>
+            <Form.Item
+              {...formItemLayout}
+              label={<span>URL地址<span className='star'>*</span></span>}
+            >
+              <Input size="large" {...URLAddressProps} disabled={this.state.editUrlDisabled}/>
+            </Form.Item>
+            <Form.Item
+              {...formItemLayout}
+              label='用户名'
+            >
+              <Input size="large" {...userNameProps} disabled={this.state.editDisabled}/>
+            </Form.Item>
+            <Form.Item
+              {...formItemLayout}
+              label="密码"
+            >
+              <Input size="large" {...passWordProps} disabled={this.state.editDisabled}/>
+            </Form.Item>
             {
               edit
               ? null
-              : <Row className='using'>
-                <Col span="4"></Col>
-                <Col span="20">
-                  <Form.Item>
-                    <Checkbox {...startUseProps}>创建完成后，立即启用</Checkbox>
-                  </Form.Item>
-                </Col>
-              </Row>
+              : <Form.Item
+                {...formItemLayout}
+                label={<span></span>}
+                className='itemMarginBottom'
+              >
+                <Checkbox {...startUseProps}>创建完成后，立即启用</Checkbox>
+              </Form.Item>
             }
           </Form>
         </Modal>
