@@ -720,9 +720,15 @@ class QueryLog extends Component {
       loadServiceContainerList(this.state.currentClusterId, name, null, {
         success: {
           func: (res) => {
+            let path = '未配置采集目录'
+            if(res.data && res.data[0] && res.data[0].metadata && res.data[0].metadata.annotations && res.data[0].metadata.annotations.applogs){
+              let applogs = JSON.parse(res.data[0].metadata.annotations.applogs)
+              path = applogs[0].path
+            }
             _this.setState({
               gettingInstance: false,
-              instanceList: res.data
+              instanceList: res.data,
+              path,
             })
           },
           isAsync: true
@@ -1081,7 +1087,7 @@ class QueryLog extends Component {
                 {this.state.searchKeyword ? '关键词' + this.state.searchKeyword + '结果查询页' : '结果查询页'}
               </span>
               {
-                this.state.logType == 'file'
+                this.state.logType == 'file' && this.state.currentService
                 ? <span className='filePath'>
                   采集日志目录：{this.state.path}
                 </span>
