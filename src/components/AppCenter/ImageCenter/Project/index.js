@@ -37,6 +37,9 @@ class CreateItem extends Component {
     func.scope.setState({createItem:false})
   }
   projectNameExists(role, value, callback) {
+    if (!Boolean(value)) {
+      return callback('请输入仓库组名称')
+    }
     if (value.length <3) {
       return callback('仓库组名称至少3位字符')
     }

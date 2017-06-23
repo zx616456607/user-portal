@@ -15,10 +15,9 @@ import './style/AlarmModal.less'
 import { loadAppList } from '../../../actions/app_manage'
 import { loadServiceList } from '../../../actions/services'
 import { getAllClusterNodes } from '../../../actions/cluster_node'
-import { loadNotifyGroups, addAlertSetting, updateAlertSetting, getAlertSetting } from '../../../actions/alert'
+import { loadNotifyGroups, addAlertSetting, updateAlertSetting, getAlertSetting, getAlertSettingExistence } from '../../../actions/alert'
 import { ADMIN_ROLE } from '../../../../constants'
 import NotificationHandler from '../../../common/notification_handler'
-import { getAlertSettingExistence } from '../../../actions/alert'
 
 const Option = Select.Option
 const RadioGroup = Radio.Group
@@ -56,7 +55,10 @@ let FistStop = React.createClass({
        callback(new Error('请输入3~40位字符'))
        return
     }
-    const { cluster } = this.props
+    const { cluster,isEdit,data } = this.props
+    if (isEdit && newValue == data.strategyName) {
+      return callback()
+    }
     this.setState({checkName: 'validating'})
     this.props.getAlertSettingExistence(cluster.clusterID,newValue,{
       success: {
@@ -423,7 +425,7 @@ let TwoStop = React.createClass({
           firstMount: false
         })
       }
-      const { isEdit, strategy, getAlertSetting, cluster } = nextProps
+      const { isEdit } = nextProps
       if (isEdit) {
         data.forEach((item, index) => {
           this.setState({ [`typeProps_${index}`]: this.switchSymbol(item.type) })
@@ -910,7 +912,7 @@ class AlarmModal extends Component {
       const { isEdit, strategy, getAlertSetting, cluster } = nextProps
       if (isEdit) {
         getAlertSetting(cluster.clusterID, {
-          strategy: strategy.strategyName
+          strategy: strategy.strategyID
         }, {
           success: {
             func: (res) => {
