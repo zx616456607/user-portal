@@ -42,11 +42,10 @@ let HostInfo = React.createClass({
   },
   componentWillMount() {
     const { func } = this.props
-    const _this = this
     func.getNodeLabels(func.clusterID,func.nodeName, {
       success: {
         func:(ret)=> {
-          _this.setState({nodeLabel: JSON.parse(ret.raw)})
+          this.setState({nodeLabel: JSON.parse(ret.raw)})
         }
       }
     })
@@ -233,6 +232,7 @@ let HostInfo = React.createClass({
               userCreateLabel= { func.nodeLabel }
               nodeName={ func.nodeName }
               clusterID= { func.clusterID }
+              labels={[this.state.nodeLabel]}
               isNode={true}
               footer={false}
             />
@@ -278,11 +278,10 @@ class ClusterDetail extends Component {
       clusterID,
       clusterName
     }
-    const _this = this
     this.props.getHostInfo(body, {
       success: {
         func:(res)=> {
-          _this.setState({schedulable: res.schedulable})
+          this.setState({schedulable: res.schedulable})
         }
       }
     })
@@ -292,7 +291,7 @@ class ClusterDetail extends Component {
     this.props.getNodesPodeList({ clusterID, clusterName }, {
       success: {
         func:(ret) => {
-          _this.setState({foreverPodNumber: ret.pods.length})
+          this.setState({foreverPodNumber: ret.pods.length})
         }
       }
     })

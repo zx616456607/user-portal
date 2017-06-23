@@ -103,7 +103,7 @@ function getNodeLabels(state = {}, action) {
     [ActionTypes.GET_NODE_LABEL_REQUEST]: state => merge({}, state, {
       isFetching: true,
     }),
-    [ActionTypes.GET_NODE_LABEL_SUCCESS]: state => merge({}, state, {
+    [ActionTypes.GET_NODE_LABEL_SUCCESS]: state => Object.assign({}, state, {
       isFetching: false,
       result: JSON.parse(action.response.result.raw),
     }),
