@@ -415,7 +415,7 @@ let MyComponent = React.createClass({
               <div className='float imagename'>选择仓库组</div>
               <div className='float imageAddress'>
                 <Form.Item>
-                  <Select {...harborProjectProps} size='large'>
+                  <Select showSearch {...harborProjectProps} size='large'>
                     {
                       (this.props.harborProjects.list || []).map(project => {
                         const currentRoleId = project[camelize('current_user_role_id')]
