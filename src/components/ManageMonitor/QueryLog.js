@@ -11,7 +11,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Card, Select, Button, DatePicker, Input, Spin, Popover, Icon, Checkbox, Radio, Form } from 'antd'
+import { Card, Select, Button, DatePicker, Input, Spin, Popover, Icon, Checkbox, Radio, Form, Tooltip } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getQueryLogList, getServiceQueryLogList } from '../../actions/manage_monitor'
 import { loadServiceContainerList } from '../../actions/services'
@@ -25,6 +25,8 @@ import { STANDARD_MODE } from '../../../configs/constants'
 import { UPGRADE_EDITION_REQUIRED_CODE, DATE_PIRCKER_FORMAT } from '../../constants'
 import moment from 'moment'
 import Title from '../Title'
+import cloneDeep from 'lodash/cloneDeep'
+import classNames from 'classnames'
 
 const YESTERDAY = new Date(moment(moment().subtract(1, 'day')).format(DATE_PIRCKER_FORMAT))
 const standardFlag = (mode == STANDARD_MODE ? true : false);
@@ -484,8 +486,38 @@ let InstanceModal = React.createClass({
 });
 
 let LogComponent = React.createClass({
+  getInitialState() {
+    return {
+      timeNano: null,
+    }
+  },
+  searchLogContext(timeNano) {
+    let { submitSearch } = this.props;
+    submitSearch(timeNano, 'backward', {
+      success: {
+        func: () => {
+          submitSearch(timeNano, 'forward', {
+            success: {
+              func: () => {
+                setTimeout(() => {
+                  const currentLog = document.getElementById(timeNano)
+                  currentLog && currentLog.scrollIntoView()
+                }, 30)
+              },
+              isAsync: true,
+            }
+          })
+        },
+        isAsync: true,
+      }
+    })
+    this.setState({
+      timeNano,
+    })
+  },
   render: function () {
-    const { logs, isFetching, scope } = this.props;
+    let { logs, isFetching, scope, keyWords, backward } = this.props;
+    keyWords = keyWords && keyWords.trim()
     if (isFetching) {
       return (
         <div className='loadingBox'>
@@ -504,15 +536,33 @@ let LogComponent = React.createClass({
         </div>
       )
     }
+    // 保存原有的 logs
+    if (keyWords && !backward) {
+      scope.stashLogs = cloneDeep(logs)
+    }
     let logItems = logs.map((item, index) => {
-      return (
-        <div className='logDetail' key={'logDetail' + index}>
+      const logDetailClass = classNames({
+        logDetail: true,
+        logDetailActive: backward && item.timeNano === this.state.timeNano,
+      })
+      const logDetail = (
+        <div className={logDetailClass} key={'logDetail' + index} id={item.timeNano}>
           <span className='instanceSpan'>{'[' + item.name + ']'}</span>
           <span className='instanceSpan'>{timeFormat(item.timeNano)}</span>
           <span className='logSpan'>
             <span dangerouslySetInnerHTML={{ __html: keywordFormat(item.log, scope) }}></span>
           </span>
         </div>
+      )
+      if (!keyWords || backward) {
+        return logDetail
+      }
+      return (
+        <Tooltip title="点击查看结果上下文" getTooltipContainer={() => document.getElementById('QueryLog')}>
+          <div style={{cursor: 'pointer'}} onClick={this.searchLogContext.bind(this, item.timeNano)}>
+            {logDetail}
+          </div>
+        </Tooltip>
       )
     })
     return (
@@ -543,6 +593,7 @@ class QueryLog extends Component {
     this.onChangeQueryType = this.onChangeQueryType.bind(this);
     this.submitSearch = this.submitSearch.bind(this);
     this.throwUpgradeError = this.throwUpgradeError.bind(this);
+    this.renderKeywordSpan = this.renderKeywordSpan.bind(this);
     this.state = {
       namespacePopup: false,
       currentNamespace: null,
@@ -572,7 +623,9 @@ class QueryLog extends Component {
       bigLog: false,
       queryType: true,
       logType: 'stdout',
-      path: ''
+      path: '',
+      backward: false,
+      goBackLogs: false,
     }
   }
 
@@ -862,7 +915,7 @@ class QueryLog extends Component {
     })
   }
 
-  submitSearch() {
+  submitSearch(time_nano, direction, callback) {
     //this function for search the log
     //check user had selected all item
     let checkFlag = true;
@@ -893,7 +946,10 @@ class QueryLog extends Component {
     if (!checkFlag) {
       return;
     }
-    const { getQueryLogList, getServiceQueryLogList } = this.props;
+    this.setState({
+      goBackLogs: false,
+    })
+    const { getQueryLogList, getServiceQueryLogList, logs } = this.props;
     let key_word = this.state.key_word;
     if (this.state.queryType) {
       if (key_word && key_word.length > 0) {
@@ -908,15 +964,32 @@ class QueryLog extends Component {
       keyword: key_word,
       log_type: this.state.logType,
     }
+    if (time_nano) {
+      body.time_nano = time_nano
+    }
+    if (direction) {
+      body.direction = direction
+    }
+    // 查询上下文时删除 keyword
+    if (direction) {
+      delete body.keyword
+      this.setState({
+        backward: true,
+      })
+    } else {
+      this.setState({
+        backward: false,
+      })
+    }
     this.setState({
       searchKeyword: this.state.key_word
     });
     let instances = this.state.currentInstance.join(',');
     let services = this.state.currentService
     if(instances) {
-      return getQueryLogList(this.state.currentClusterId, instances, body);
+      return getQueryLogList(this.state.currentClusterId, instances, body, callback);
     }
-    getServiceQueryLogList(this.state.currentClusterId, services, body)
+    getServiceQueryLogList(this.state.currentClusterId, services, body, callback)
   }
 
   onChangeBigLog() {
@@ -926,11 +999,30 @@ class QueryLog extends Component {
     })
   }
 
+  renderKeywordSpan() {
+    const { searchKeyword, backward } = this.state
+    let text = '结果查询页'
+    if (!searchKeyword) {
+      return text
+    }
+    if (!backward) {
+      text = `关键词 ${searchKeyword} 结果查询页`
+      return text
+    }
+    return [
+      <span className="goBackLogs" onClick={() => this.setState({goBackLogs: true, backward: false})}>
+        <Icon type="rollback" /> {text}
+      </span>,
+      <span className="anticonRight context"><Icon type="right" /></span>,
+      <span className="context">结果行上下文</span>,
+    ]
+  }
+
   render() {
     const { logs, isFetching, intl, defaultNamespace } = this.props;
     const { formatMessage } = intl;
     const scope = this;
-    const { gettingNamespace, start_time, end_time } = this.state;
+    const { gettingNamespace, start_time, end_time, key_word, backward, goBackLogs } = this.state;
     if (gettingNamespace) {
       return (
         <div className='loadingBox'>
@@ -1074,7 +1166,7 @@ class QueryLog extends Component {
             <div className='commonBox'>
               <Checkbox onChange={this.onChangeQueryType} checked={this.state.queryType} style={{ marginLeft: '29px', display: 'none' }}>
                 <FormattedMessage {...menusText.searchType} /></Checkbox>
-              <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch} style={{ marginLeft: '29px' }} disabled={!this.props.loggingEnabled}>
+              <Button className='searchBtn' size='large' type='primary' onClick={() => this.submitSearch()} style={{ marginLeft: '29px' }} disabled={!this.props.loggingEnabled}>
                 <i className='fa fa-wpforms'></i>
                 <FormattedMessage {...menusText.search} />
               </Button>
@@ -1084,7 +1176,7 @@ class QueryLog extends Component {
           <Card className={this.state.bigLog ? 'bigLogBox logBox' : 'logBox'}>
             <div className='titleBox'>
               <span className='keywordSpan'>
-                {this.state.searchKeyword ? '关键词' + this.state.searchKeyword + '结果查询页' : '结果查询页'}
+                {this.renderKeywordSpan()}
               </span>
               {
                 this.state.logType == 'file' && this.state.currentService
@@ -1096,7 +1188,18 @@ class QueryLog extends Component {
               <i className={this.state.bigLog ? 'fa fa-compress' : 'fa fa-expand'} onClick={this.onChangeBigLog} />
             </div>
             <div className='msgBox'>
-              <LogComponent logs={logs} isFetching={isFetching} scope={scope} />
+              <LogComponent
+                logs={
+                  goBackLogs
+                  ? this.stashLogs
+                  : logs
+                }
+                isFetching={isFetching}
+                scope={scope}
+                keyWords={key_word}
+                backward={backward}
+                submitSearch={this.submitSearch}
+              />
             </div>
           </Card>
         </div>
