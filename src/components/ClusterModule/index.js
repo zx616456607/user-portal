@@ -619,7 +619,7 @@ class ClusterList extends Component {
       intl, clustersIsFetching, clusters,
       currentClusterID, addClusterCMD, createCluster,
       license, noCluster, loadClusterList,
-      loadLoginUserDetail, loginUser, globalConfig,
+      loadLoginUserDetail, loginUser, globalConfig, location
     } = this.props
     if (!this.checkIsAdmin()) {
       return (
@@ -637,7 +637,7 @@ class ClusterList extends Component {
       if (cluster.clusterID) {
         ImageTabList.push(
           <TabPane tab={<div className='clusterDiv'><Tooltip title={cluster.clusterName}><span className='clustername'>{cluster.clusterName}</span></Tooltip>{ cluster.isBuilder ? <Tooltip title='构建环境'><img src={CI} className='clusterImg'/></Tooltip> : <span></span>}</div>} key={cluster.clusterID}>
-            <ClusterTabList cluster={cluster} />
+            <ClusterTabList cluster={cluster} location={location}/>
           </TabPane>
         )
       }
