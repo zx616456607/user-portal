@@ -8,14 +8,13 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Icon, Collapse, Alert } from 'antd'
+import { Spin, Icon, Collapse, Alert, Button, Modal } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import moment from 'moment'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { DEFAULT_REGISTRY } from '../../../constants'
-import { getFlowBuildStageLogs } from '../../../actions/cicd_flow'
+import { getFlowBuildStageLogs, StopTenxflowBuild, getTenxflowBuildLastLogs } from '../../../actions/cicd_flow'
 import './style/TenxFlowBuildLog.less'
 import TenxFlowStageBuildLog from './TenxFlowStageBuildLog'
 import NotificationHandler from '../../../common/notification_handler'
@@ -175,6 +174,12 @@ let MyComponent = React.createClass({
     const { config, scope, flowId } = this.props;
     this.collapseAction(config, ['LogDetail0'])
   },
+  getInitialState() {
+    return {
+      showModal: false,
+      currentKey: []
+    }
+  },
   collapseAction: function (config, e) {
     //this function for user open or close collapse panel action
     //and then the line collapse will be current change
@@ -208,6 +213,13 @@ let MyComponent = React.createClass({
       })
     }
   },
+  showModal(item) {
+    const { scope } = this.props
+    this.setState({
+      showModal: true,
+      currentItem: item
+    })
+  },
   render: function () {
     const { config, scope, flowId } = this.props;
     let items = config.map((item, index) => {
@@ -232,9 +244,14 @@ let MyComponent = React.createClass({
                 { dateFormat(item.creationTime) }
               </span>
               <span className='commonHeader'>
-                <Icon type='clock-circle-o' />
-                { item.status != 2 ? [<FormattedMessage {...menusText.cost} key='cost' />] : null }
-                { dateSizeFormat(item.creationTime, item.endTime, scope) }
+                {(item.status != 2 && item.status != 3) ? [<Icon type='clock-circle-o' />] : null}
+                {(item.status != 2 && item.status != 3) ? [<FormattedMessage {...menusText.cost} />] : null}
+                {(item.status == 2 || item.status == 3) ? '' : dateSizeFormat(item.creationTime, item.endTime, scope)}
+                {(item.status == 2 || item.status == 3) ? [
+                  <Button type='primary' onClick={() => this.showModal(item)}>
+                    <span>停止</span>
+                  </Button>
+                ] : null}
               </span>
               <div style={{ clear: 'both' }}></div>
             </div>
@@ -258,6 +275,10 @@ let MyComponent = React.createClass({
         <Collapse className='logBox' onChange={this.collapseAction.bind(this, config)} defaultActiveKey="LogDetail0">
           {items}
         </Collapse>
+        <Modal title="确认停止" visible={this.state.showModal}
+          onOk={() => scope.stopStageBuild.call(scope, this.state.currentItem)} onCancel={() => this.setState({ showModal: false })} >
+          是否确认停止此次构建
+        </Modal>
       </div>
     );
   }
@@ -267,6 +288,7 @@ class TenxFlowBuildLog extends Component {
   constructor(props) {
     super(props);
     this.changeModalSize = this.changeModalSize.bind(this);
+    this.stopStageBuild = this.stopStageBuild.bind(this);
     this.state = {
       modalSize: 'normal',
       currentLogList: []
@@ -303,6 +325,23 @@ class TenxFlowBuildLog extends Component {
         modalSize: 'normal'
       });
     }
+  }
+  stopStageBuild(item, e) {
+    if (e) {
+      e.stopPropagation();
+    }
+    const { StopTenxflowBuild, flowId, scope } = this.props;
+    const { getStageBuildLogList } = scope.props;
+    let notification = new NotificationHandler()
+    StopTenxflowBuild(flowId, item.stageId, item.buildId, {
+      success: {
+        func: () => {
+          notification.success('停止构建', '停止构建成功');
+          getStageBuildLogList(flowId, item.stageId)
+        },
+        isAsync: true
+      }
+    })
   }
 
   render() {
@@ -372,7 +411,9 @@ TenxFlowBuildLog.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  getFlowBuildStageLogs
+  getFlowBuildStageLogs,
+  StopTenxflowBuild,
+  getTenxflowBuildLastLogs
 })(injectIntl(TenxFlowBuildLog, {
   withRef: true,
 }));
