@@ -176,8 +176,8 @@ const MyComponent = React.createClass({
       return (
         <div className='podDetail' key={index} >
           {/*<div className='podDetail' key={`${item.objectMeta.name}-${index}`} >*/}
-          <div className='name commonTitle'>
-            <Link to={`/cluster/${clusterID}/${item.objectMeta.name}`}>{item.objectMeta.name}</Link>
+          <div className='name commonTitle namecursor'>
+            <span onClick={() => { browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`) }}>{item.objectMeta.name}</span>
           </div>
           <div className='status commonTitle'>
             <span className={item.ready == 'True' ? 'runningSpan' : 'errorSpan'}><i className='fa fa-circle' />&nbsp;&nbsp;{item.ready == 'True' ? '运行中' : '异常'}</span>

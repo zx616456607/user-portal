@@ -96,9 +96,14 @@ class ClusterTabList extends Component {
   }
 
   componentDidMount() {
-    const { clusterID, getAddNodeCMD, getClusterSummary } = this.props
+    const { clusterID, getAddNodeCMD, getClusterSummary, location } = this.props
     getAddNodeCMD(clusterID)
     getClusterSummary(clusterID)
+    if(location &&　location.query.from == "clusterDetail"){
+      this.setState({
+        TabsactiveKey: "host"
+      })
+    }
   }
 
   copyAddNodeCMD() {
