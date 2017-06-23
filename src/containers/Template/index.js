@@ -9,7 +9,7 @@
  * @author Zhangpc
  */
 import React, { Component } from 'react'
-import { Spin } from 'antd'
+import { Spin, Icon } from 'antd'
 import Top from '../../components/Top'
 import { connect } from 'react-redux'
 import { STANDARD_MODE } from '../../../configs/constants'
@@ -67,8 +67,12 @@ class Template extends Component {
         <Top />
         {this.state.error ?
           <div className='status'>
+            <div className="icon failed">
+              <Icon type="cross-circle-o" className='failedIcon'/>
+            </div>
             <div className="text">
               <div>邮箱验证失败</div>
+              <div>请稍后<span onClick={() => window.location.reload()} className='retry'>重试</span></div>
             </div>
           </div>
           :
@@ -79,7 +83,6 @@ class Template extends Component {
             <div className="text">
               <div>邮箱验证成功</div>
               <div>此邮箱已加入告警通知组</div>
-
             </div>
           </div>
         }
