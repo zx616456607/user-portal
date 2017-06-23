@@ -266,6 +266,7 @@ let CreateTenxFlowModal = React.createClass({
       showOtherImage: false,
       clusterNodes: [],
       disabledBranchTag: false,
+      groupKey: '3',
       isFirstChangeTag: true,
       isFirstChangeDockerfileType: true
     }
@@ -999,6 +1000,7 @@ let CreateTenxFlowModal = React.createClass({
     if (oldOtherFlowType == groupKey && oldImageName == key) return
     this.setState({
       baseImageUrl: key,
+      groupKey,
       otherFlowType: groupKey,
     })
     setFieldsValue({
@@ -1259,7 +1261,7 @@ let CreateTenxFlowModal = React.createClass({
     });
     const harborProjectProps = getFieldProps('harborProjectName', {
       rules: [
-        { message: '请选择仓库组', required: false },
+        { message: '请选择仓库组', required: this.state.groupKey == 3 },
       ],
     });
     let initialBuildImage = buildImages[intFlowTypeIndex] ? buildImages[intFlowTypeIndex].imageList[0].imageName : ''

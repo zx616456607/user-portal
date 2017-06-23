@@ -215,7 +215,7 @@ class TerminalModal extends Component {
   renderTermStatus(terminalStatus, item) {
     const { disableTips } = this.state
     const { name, labels } = item.metadata
-    const serviceName = labels.name
+    const serviceName = labels && labels.name || name.split('-')[0]
     if (this.isSafariBrower) {
       return (
         <div className='webLoadingBox' key={`webLoadingBox-${name}`}>
