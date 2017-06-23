@@ -55,8 +55,8 @@ let FistStop = React.createClass({
        callback(new Error('请输入3~40位字符'))
        return
     }
-    const { cluster,isEdit } = this.props
-    if (isEdit) {
+    const { cluster,isEdit,data } = this.props
+    if (isEdit && newValue == data.strategyName) {
       return callback()
     }
     this.setState({checkName: 'validating'})
