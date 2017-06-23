@@ -10,7 +10,7 @@
 
 
 import React, { Component } from 'react'
-import { Table, Button, Modal } from 'antd'
+import { Table, Button, Modal, Icon } from 'antd'
 import { Link } from 'react-router'
 import { camelize } from 'humps'
 import { formatDate } from '../../../../common/tools'
@@ -214,17 +214,17 @@ class DataTable extends Component {
             {
               setPublicValue == 1
               ? <div>
-                  <p>① 当仓库组设为公开后，任何人都有此仓库组下镜像的读权限。</p>
-                  <p>② 命令行用户不需要 <code>docker login</code> 就可以拉取此仓库组下的镜像。请确认以继续。</p>
+                  <p>① 当仓库组设为公开后，任何人都可查看仓库组内镜像；</p>
+                  <p>② 命令行操作下无需 <code>docker login</code> 即可拉取此仓库组内的所有镜像。</p>
                 </div>
               : <div>
-                  <p>① 当仓库组设为私有后，仅仓库组成员有此仓库组下镜像的读权限。</p>
-                  <p>② 命令行用户必须 <code>docker login</code> 才可以拉取此仓库组下的镜像。请确认以继续。</p>
+                  <p>① 当仓库组设为私有后，仅仓库组成员可查看仓库组内镜像；</p>
+                  <p>② 命令行操作下需 <code>docker login</code> 方可拉取此仓库组内的镜像。</p>
                 </div>
             }
           </div>
           <br/>
-          <div className="confirmText">您确认将项目 {this.state.currentProject.name} {publicModalTitle}吗?</div>
+          <div className="confirmText"><Icon type="question-circle-o" style={{ marginRight: '10px' }} />您确认将项目 {this.state.currentProject.name} {publicModalTitle}吗?</div>
         </Modal>
       </div>
     )
