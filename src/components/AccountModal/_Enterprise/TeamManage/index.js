@@ -212,18 +212,12 @@ let TeamTable = React.createClass({
     parentScope.props.loadTeamspaceList(teamID)
     parentScope.setState({spaceVisible: true})
   },
-  Recharges(record) {
-      return((this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN) ?
-                  <Menu className="Recharge" onClick={() => this.btnRecharge(record.key)}>
-                  <Menu.Item key="0">充值</Menu.Item></Menu>
-                  :null)
-    },   
   render() {
     let { sortedInfo, filteredInfo, targetKeys, sort } = this.state
     const { searchResult, notFound, filter } = this.props.scope.state
     const { data, scope, teamUserIDList } = this.props
-    sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
+    sortedInfo = sortedInfo || {}
     const pagination = {
       simple: true,
       total: this.props.scope.props.total,
@@ -262,7 +256,7 @@ let TeamTable = React.createClass({
         })
       },
     }
-       
+
     const columns = [
       {
         title: (
@@ -350,15 +344,29 @@ let TeamTable = React.createClass({
                 <Button icon="plus" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加成员</Button>
                 <Button icon="delete" className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
                 {(this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN) ?
-                  <Button className="addBtn" style={{marginLeft:'12px'}} onClick={() => this.btnRecharge(record.key)}>充值</Button>
+                  <Button icon="pay-circle-o" className="addBtn" style={{marginLeft:'12px'}} onClick={() => this.btnRecharge(record.key)}>充值</Button>
                 :null
                 }
               </div>
               <div className="Deleterechargeb">
                 <Button icon="plus" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加成员</Button>
-                 <Dropdown.Button  onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})} overlay={this.Recharges(record)} type="ghost">
-                  删除
-                </Dropdown.Button>
+                {
+                  this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN
+                  ? (
+                    <Dropdown.Button
+                      onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}
+                      overlay={
+                        <Menu className="Recharge" onClick={() => this.btnRecharge(record.key)}>
+                          <Menu.Item key="0"><Icon type="pay-circle-o" /> 充值</Menu.Item>
+                        </Menu>
+                      }
+                      type="ghost"
+                    >
+                      删除
+                    </Dropdown.Button>
+                  )
+                  : <Button icon="delete" className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
+                }
               </div>
               <Modal title='添加成员'
                 visible={this.state.nowTeamID === record.key && this.state.addMember}
