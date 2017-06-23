@@ -10,7 +10,7 @@
 
 
 import React, { Component, PropTypes } from 'react'
-import { Modal, Menu,Tabs, Icon, Button,Form, Card, Alert, Input } from 'antd'
+import { Modal, Menu,Tabs, Icon, Button,Form, Card, Alert, Input, Tooltip } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { Link,browserHistory } from 'react-router'
@@ -396,7 +396,12 @@ class ImageCenter extends Component {
            <span className={this.state.itemType =='private' ?'tab active':'tab'} onClick={()=> this.setItem('private')}>我的仓库组</span>
             <span className={this.state.itemType =='public' ?'tab active':'tab'} onClick={()=> this.setItem('public')}>公开仓库组</span>
             {OtherItem}
-            <Button type="primary" size="large" icon="plus" style={{float:'right',marginTop:10,marginRight:10}} onClick={()=> this.setState({createModalShow:true})}>添加第三方</Button>
+            <span style={{display:'inline-block',float:'right'}}>
+              <Button type="primary" size="large" icon="plus" onClick={()=> this.setState({createModalShow:true})}>添加第三方</Button>
+              <Tooltip title='镜像仓库用于存放镜像，您可关联第三方镜像仓库，使用公开云中私有空间镜像；关联后，该仓库也用于存放通过 TenxFlow 构建出来的镜像新建仓库组' placement="bottomRight">
+                <Button icon='question-circle-o' style={{margin:'0 10px'}} type='ghost'></Button>
+              </Tooltip>
+            </span>
           </div>
           {this.state.itemType =='other'?
             <Tabs

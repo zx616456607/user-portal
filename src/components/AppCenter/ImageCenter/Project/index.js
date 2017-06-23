@@ -203,7 +203,6 @@ class Project extends Component {
     return (
       <div className="imageProject">
         <br />
-        <div className="alertRow">镜像仓库用于存放镜像，您可关联第三方镜像仓库，使用公开云中私有空间镜像；关联后，该仓库也用于存放通过 TenxFlow 构建出来的镜像</div>
         <QueueAnim>
           <div key="projects">
 
