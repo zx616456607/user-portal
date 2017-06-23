@@ -106,7 +106,7 @@ class Editor extends Component {
     this.onChangeTheme = this.onChangeTheme.bind(this);
     this.state = {
       currentBox: 'normal',
-      currentValues: null,
+      currentValues: '',
       currentTheme: 'monokai'
     }
   }
