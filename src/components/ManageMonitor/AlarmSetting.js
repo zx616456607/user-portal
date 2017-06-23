@@ -336,7 +336,7 @@ let MyComponent = React.createClass({
           </div>
           <div className="lists">
             <span className="keys">内存</span>
-            <Progress percent={ data.memory[2] * 100 } strokeWidth={8} format={ () =>  parseInt(data.memory[1]/(1024*1024)) + 'MB'}   status={ data.memory[2]*100 > 80 ? 'exception' : ''} className="progress"/>
+            <Progress percent={ data.memory[2] * 100 } strokeWidth={8} format={ () =>  parseInt(data.memory[0]/(1024*1024)) + 'MB'}   status={ data.memory[2]*100 > 80 ? 'exception' : ''} className="progress"/>
           </div>
           <div className="lists">
             <span className="keys">流量</span>
