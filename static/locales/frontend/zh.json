@@ -239,6 +239,7 @@
   "CICD.Tenxflow.CreateTenxFlow.alertForth": "自动部署失败",
   "CICD.Tenxflow.CreateTenxFlow.cancel": "取消",
   "CICD.Tenxflow.CreateTenxFlow.submit": "立即创建并配置流程定义",
+  "CICD.Tenxflow.CreateTenxFlow.edit": "立即修改",
   "CICD.Tenxflow.TenxFlowDetailAlert.email": "邮件通知",
   "CICD.Tenxflow.TenxFlowDetailAlert.otherEmail": "使用其它邮箱",
   "CICD.Tenxflow.TenxFlowDetailAlert.alert": "通知场景",
