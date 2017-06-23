@@ -63,6 +63,7 @@ function fetchQueryLogList(cluster, instances, body, callback) {
           keyword: body.keyword,
           date_start: body.date_start,
           date_end: body.date_end,
+          log_type: body.log_type
         }
       },
       schema: {}
@@ -94,6 +95,7 @@ function fetchServiceQueryLogList(cluster, service, body, callback) {
           keyword: body.keyword,
           date_start: body.date_start,
           date_end: body.date_end,
+          log_type: body.log_type
         }
       },
       schema: {}

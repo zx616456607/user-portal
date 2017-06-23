@@ -366,6 +366,13 @@ class Deployment {
         })
         return
       }
+      if(volume.emptyDir){
+        this.spec.template.spec.volumes.push({
+          name: volume.name,
+          emptyDir: {},
+        })
+        return
+      }
       if (!volume.diskType) {
         volume.diskType = DEFAULT_DISKTYPE
       }
@@ -421,11 +428,31 @@ class Deployment {
   }
 
   setLabelSelector(labels) {
-    if (labels && labels.length && labels.length > 0) {
-      this.spec.template.metadata.annotations = {
-        "scheduler.alpha.kubernetes.io/affinity": this.makeNodeAffinity(labels)
-      }
+     if (labels && labels.length && labels.length > 0) {
+      this.spec.template.metadata.annotations = this.spec.template.metadata.annotations || {}
+      this.spec.template.metadata.annotations["scheduler.alpha.kubernetes.io/affinity"] = this.makeNodeAffinity(labels)
     }
+  }
+
+  setCollectLog(serviceName, item) {
+    this.spec.template.metadata.annotations = this.spec.template.metadata.annotations || {}
+    let annotations = this.spec.template.metadata.annotations
+    let volume = {
+      name: item.name,
+      emptyDir: {}
+    }
+    let volumeMounts = [{
+      mountPath: item.path,
+      name: item.name,
+    }]
+    this.addContainerVolume(serviceName, volume, volumeMounts)
+    if(!annotations["applogs"]){
+     annotations["applogs"] = []
+    } else {
+      annotations["applogs"] = JSON.parse(annotations["applogs"] = [])
+    }
+    annotations["applogs"].push(item)
+    annotations["applogs"] = JSON.stringify(annotations["applogs"])
   }
 
   makeNodeAffinity(labels) {

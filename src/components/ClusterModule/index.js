@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, Tooltip, Spin, Alert, Checkbox } from 'antd'
+import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, Tooltip, Spin, Alert, Checkbox, Steps } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -30,6 +30,7 @@ import Title from '../Title'
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
+const Step = Steps.Step
 // const registry = 'registry'
 const registry = 'harbor'
 
@@ -38,6 +39,11 @@ let NoClusterStepOne = React.createClass({
     return {
       //
     }
+  },
+  componentDidMount() {
+    setTimeout(() => {
+      this.urlInput && this.urlInput.refs.input.focus()
+    }, 300)
   },
   // 镜像服务地址校验规则
   checkMirror(rule, value, callback) {
@@ -228,7 +234,7 @@ let NoClusterStepOne = React.createClass({
           </Form.Item>*/}
           <Form.Item>
             <span className="itemKey">镜像服务地址</span>
-            <Input {...mirrorProps} placeholder="如：192.168.1.113" />
+            <Input {...mirrorProps} placeholder="如：http://192.168.1.113" ref={urlInput => this.urlInput = urlInput} />
           </Form.Item>
         </Form>
         <div className="footer">
@@ -518,7 +524,12 @@ let CreateClusterModal = React.createClass({
     } = this.props
     const { noClusterStep } = this.state
     return (
-      <Modal title="添加集群"
+      <Modal
+        title={
+          noCluster
+          ? "初始化配置"
+          : "添加集群"
+        }
         visible={noCluster || parentScope.state.createModal}
         closable={!noCluster}
         wrapClassName="createClusterModal"
@@ -529,7 +540,14 @@ let CreateClusterModal = React.createClass({
       >
       {
         noCluster &&
-        <Alert message="请您先添加集群，添加完集群才能进行其他操作" type="warning" showIcon />
+        <Steps current={noClusterStep - 1} size="small" className="noclusterSteps">
+          <Step title="镜像服务配置" />
+          <Step title="添加集群" />
+        </Steps>
+      }
+      {
+        noCluster &&
+        <Alert message="请您先镜像仓库并添加集群，然后才能进行其他操作" type="warning" showIcon />
       }
       {
         (noCluster && noClusterStep === 1) && (

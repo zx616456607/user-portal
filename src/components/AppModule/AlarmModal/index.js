@@ -47,20 +47,21 @@ let FistStop = React.createClass({
     setTimeout(resetFields, 0)
   },
   fistStopName(rule, value, callback) {
-    if (!Boolean(value)) {
+    let newValue = value.trim()
+    if (!Boolean(newValue)) {
       callback(new Error('请输入名称'));
       return
     }
-    if (value.length <3 || value.length > 40) {
+    if (newValue.length <3 || newValue.length > 40) {
        callback(new Error('请输入3~40位字符'))
        return
     }
     const { cluster } = this.props
     this.setState({checkName: 'validating'})
-    this.props.getAlertSettingExistence(cluster.clusterID,value,{
+    this.props.getAlertSettingExistence(cluster.clusterID,newValue,{
       success: {
         func:(res)=> {
-          if (res.data[value]) {
+          if (res.data[newValue]) {
             this.setState({checkName:'error'})
             callback('策略名称重复')
             return
@@ -201,7 +202,6 @@ let FistStop = React.createClass({
     if (isEdit) {
       nameProps = getFieldProps('name', {
         rules: [
-          { whitespace: true },
           { validator: this.fistStopName }
         ],
         initialValue: data.strategyName
@@ -241,7 +241,6 @@ let FistStop = React.createClass({
     } else {
       nameProps = getFieldProps('name', {
         rules: [
-          { whitespace: true },
           { validator: this.fistStopName }
         ],
       });
