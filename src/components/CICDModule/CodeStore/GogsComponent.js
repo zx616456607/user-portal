@@ -221,14 +221,15 @@ class GogsComponent extends Component {
     const self = this
     const { typeName, getUserInfo } = this.props
     this.props.getGithubList(typeName, {
-      success: {
+        success: {
         func: (res) => {
           if (res.data.hasOwnProperty('results')) {
             const users = res.data.results[Object.keys(res.data.results)[0]].user
             self.setState({ users })
             getUserInfo('gogs')
           }
-        }
+        },
+       isAsync: true
       }
     })
   }
