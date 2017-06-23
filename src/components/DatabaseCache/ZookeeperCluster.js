@@ -130,6 +130,7 @@ class ZooKeeper extends Component {
   }
   clusterRefresh() {
     const _this = this
+    const {loadDbCacheList, cluster} = this.props
     this.props.loadMyStack(DEFAULT_REGISTRY, 'dbservice', {
       success: {
         func: (res) => {
@@ -139,6 +140,7 @@ class ZooKeeper extends Component {
         }
       }
     })
+    loadDbCacheList(cluster, 'zookeeper')
   }
   componentWillMount() {
     const {loadDbCacheList, cluster} = this.props

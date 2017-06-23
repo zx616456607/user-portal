@@ -125,6 +125,7 @@ class MysqlCluster extends Component {
   }
   refreshDatabase() {
     const _this = this
+    const { loadDbCacheList, cluster } = this.props
     this.props.loadMyStack(DEFAULT_REGISTRY, 'dbservice', {
       success: {
         func: (res) => {
@@ -134,7 +135,7 @@ class MysqlCluster extends Component {
         }
       }
     })
-
+    loadDbCacheList(cluster, 'mysql')
     const { teamCluster } = this.props
     if(teamCluster && teamCluster.result && teamCluster.result.data && location.search == '?createDatabase'){
       _this.setState({

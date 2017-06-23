@@ -122,6 +122,7 @@ class RedisDatabase extends Component {
   }
   clusterRefresh() {
     const _this = this
+    const { loadDbCacheList, cluster } = this.props
     this.props.loadMyStack(DEFAULT_REGISTRY, 'dbservice', {
       success: {
         func: (res) => {
@@ -131,6 +132,7 @@ class RedisDatabase extends Component {
         }
       }
     })
+    loadDbCacheList(cluster, 'redis')
   }
   componentWillMount() {
     const { loadDbCacheList, cluster } = this.props
