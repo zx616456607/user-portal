@@ -156,13 +156,14 @@ let CreateTenxFlow = React.createClass({
     }
   },
   componentWillReceiveProps(nextProps) {
-    const { scope, getTenxFlowDetail ,modalShow} = this.props;
+    const { scope, getTenxFlowDetail ,modalShow, currentFlowId} = this.props;
     const notification = new NotificationHandler()
+    let preId = currentFlowId;
     let nextId = nextProps.currentFlowId;
     if ((modalShow === true) && (nextProps.modalShow === false)){
       this.handleReset()
     }
-    if (nextId && scope.state.forEdit) {
+    if ((nextId !== preId) && scope.state.forEdit) {
       getTenxFlowDetail(nextId,{
         success:{
           func: (res)=>{
@@ -221,6 +222,7 @@ let CreateTenxFlow = React.createClass({
   },
   nameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
+    const { currentFlow } = this.state;
     if (this.state.currentType == '2') {
       return callback()
     };
@@ -229,7 +231,7 @@ let CreateTenxFlow = React.createClass({
     let errorMsg = appNameCheck(value, 'TenxFlow名称');
     if (errorMsg == 'success') {
       flowList.map((item) => {
-        if(item.name == value) {
+        if((item.name == value) && (item.name != currentFlow.name)) {
           flag = true;
           errorMsg = appNameCheck(value, 'TenxFlow名称', true);
           callback([new Error(errorMsg)]);
@@ -325,8 +327,8 @@ let CreateTenxFlow = React.createClass({
       currentType: '1',
       emailAlert: false,
       otherEmail: false,
-      currentYaml: null,
-      currentFlow: null,
+      currentYaml: '',
+      currentFlow: '',
       checkFirst: false,
       checkSecond: false,
       checkThird: false,
@@ -360,7 +362,7 @@ let CreateTenxFlow = React.createClass({
           }
         }
         let temp = {
-          'email_list': tempEmail,
+          'email_list': tempEmail || _this.state.emailList,
           'ci': {
             'success_notification': values.checkFirst,
             'failed_notification': values.checkSecond

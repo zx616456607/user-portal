@@ -147,6 +147,7 @@ class StatefulCluster extends Component {
   }
   clusterRefresh() {
     const _this = this
+    const {loadDbCacheList, cluster} = this.props
     this.props.loadMyStack(DEFAULT_REGISTRY, 'dbservice', {
       success: {
         func: (res) => {
@@ -156,6 +157,7 @@ class StatefulCluster extends Component {
         }
       }
     })
+    loadDbCacheList(cluster, 'zookeeper')
   }
   componentWillMount() {
     const {loadDbCacheList, cluster, clusterType} = this.props
