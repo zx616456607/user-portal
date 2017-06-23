@@ -204,11 +204,10 @@ class UserPanel extends Component {
           <div className='balance'>
             <p>帐户余额 &nbsp;:</p>
             <p>
-              <span className="number">{balance}</span>
               {
                 mode === standard?
-                <span className="unit">¥</span>:
-                <span className="unit"> T</span>
+                [<span className="unit" key="standard">¥ </span>,<span className="number" key="s-number">{balance}</span>]:
+                [<span className="number" key="enterprise">{balance}</span>,<span className="unit" key="e-number"> T</span>]
               }
             </p>
           </div>
