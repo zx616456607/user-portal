@@ -975,6 +975,11 @@ class AppList extends Component {
 
       return prefix + toggle
     }
+    
+    const createButton = (<Button type='primary' size='large' onClick={() => browserHistory.push('/app_manage/app_create')}>
+        <i className="fa fa-plus" />创建应用
+      </Button>)
+
     return (
       <QueueAnim
         className='AppList'
@@ -984,9 +989,7 @@ class AppList extends Component {
         <div id='AppList' key='AppList'>
           <div className='operationBox operationBoxa'>
             <div className='leftBox'>
-              <Button type='primary' size='large' onClick={() => browserHistory.push('/app_manage/app_create')}>
-                <i className="fa fa-plus" />创建应用
-              </Button>
+             { createButton }
               {/*<Button type='ghost' size='large' onClick={() => this.setState({ deployEnvModalVisible: true })}>
                 <svg className='rocket'>
                   <use xlinkHref='#rocket' />
@@ -1066,9 +1069,7 @@ class AppList extends Component {
 
           <div className='operationBox operationBoxb'>
             <div className='leftBox'>
-              <Button type='primary' size='large' onClick={() => browserHistory.push('/app_manage/app_create')}>
-                <i className="fa fa-plus" />创建应用
-              </Button>
+              { createButton }
               {/*<Button type='ghost' size='large' onClick={() => this.setState({ deployEnvModalVisible: true })}>
                 <svg className='rocket'>
                   <use xlinkHref='#rocket' />
@@ -1127,9 +1128,7 @@ class AppList extends Component {
 
           <div className='operationBox operationBoxc'>
             <div className='leftBox'>
-              <Button type='primary' size='large' onClick={() => browserHistory.push('/app_manage/app_create')}>
-                <i className="fa fa-plus" />创建应用
-              </Button>
+             { createButton }
               {/*<Button type='ghost' size='large' onClick={() => this.setState({ deployEnvModalVisible: true })}>
                 <svg className='rocket'>
                   <use xlinkHref='#rocket' />
