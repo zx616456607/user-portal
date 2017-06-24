@@ -1066,8 +1066,8 @@ class AppList extends Component {
 
           <div className='operationBox operationBoxb'>
             <div className='leftBox'>
-              <Button type='primary' size='large'>
-                <Link to='/app_manage/app_create'><i className="fa fa-plus" />创建应用</Link>
+              <Button type='primary' size='large' onClick={() => browserHistory.push('/app_manage/app_create')}>
+                <i className="fa fa-plus" />创建应用
               </Button>
               {/*<Button type='ghost' size='large' onClick={() => this.setState({ deployEnvModalVisible: true })}>
                 <svg className='rocket'>
@@ -1127,8 +1127,8 @@ class AppList extends Component {
 
           <div className='operationBox operationBoxc'>
             <div className='leftBox'>
-              <Button type='primary' size='large'>
-                <Link to='/app_manage/app_create'><i className="fa fa-plus" />创建应用</Link>
+              <Button type='primary' size='large' onClick={() => browserHistory.push('/app_manage/app_create')}>
+                <i className="fa fa-plus" />创建应用
               </Button>
               {/*<Button type='ghost' size='large' onClick={() => this.setState({ deployEnvModalVisible: true })}>
                 <svg className='rocket'>
