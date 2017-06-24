@@ -61,6 +61,7 @@ class CreateItem extends Component {
       func.createProject(DEFAULT_REGISTRY, values, {
         success: {
           func: () => {
+            notification.success(`仓库组 ${values.project_name} 创建成功`)
             func.loadData()
             func.scope.setState({ createItem:false })
             form.resetFields()
