@@ -15,7 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import { camelize } from 'humps'
 import './style/ContainerList.less'
 import { loadContainerList, deleteContainers, updateContainerList } from '../../actions/app_manage'
-import { loadProjectList, loadAllProject } from '../../actions/harbor'
+import { loadProjectList, loadAllProject, loadRepositoriesTags } from '../../actions/harbor'
 import { addTerminal } from '../../actions/terminal'
 import { LABEL_APPNAME, LOAD_STATUS_TIMEOUT, UPDATE_INTERVAL, DEFAULT_REGISTRY } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
@@ -43,7 +43,9 @@ let MyComponent = React.createClass({
       exportImageName: '',
       exportContainerName: '',
       ModalLoadidng: false,
-      containerErrorModal: false
+      containerErrorModal: false,
+      imageNameEqual: false,
+      imageTagEqual: false,
     };
   },
   /*onchange: function (e) {
@@ -68,6 +70,10 @@ let MyComponent = React.createClass({
         this.deleteContainer(name);
         return;
       case 'exportImage':
+        this.setState({
+          imageNameEqual: false,
+          imageTagEqual: false,
+        })
         this.exportImageModal(name, status)
         return
       default:
@@ -197,6 +203,56 @@ let MyComponent = React.createClass({
       exportImageModalSuccess : false
     })
   },
+  checkImageNameEqual(exportImageName, callback){
+    const { loadAllProject, loadRepositoriesTags } = this.props
+    loadAllProject(DEFAULT_REGISTRY, {q: exportImageName},{
+      success: {
+        func: (res) => {
+          const { form } = this.props
+          let projectName = form.getFieldValue('harborProjectName')
+          if(!projectName){
+            return
+          }
+          if(callback){
+            callback()
+          }
+          let imageName = projectName + '/' + exportImageName
+          let array = res.data.repository
+          this.setState({
+            imageNameEqual: false
+          })
+          for(let i = 0; i < array.length; i++){
+            if(imageName === array[i].repositoryName){
+              this.setState({
+                imageNameEqual: true
+              })
+              loadRepositoriesTags(DEFAULT_REGISTRY, imageName, {
+                success: {
+                  func: (res) => {
+                    let imageTag = form.getFieldValue('exportImageVersion')
+                    let imageTagArray = res.data
+                    this.setState({
+                      imageTagEqual: false,
+                    })
+                    for(let i = 0; i < imageTagArray.length; i++){
+                      if(imageTag == imageTagArray[i]){
+                        this.setState({
+                          imageTagEqual: true,
+                        })
+                        break
+                      }
+                    }
+                  }
+                }
+              })
+              break
+            }
+          }
+        },
+        isAsync: true
+      }
+    })
+  },
   checkImageName(rule, value, callback){
     const { form } = this.props
     let projectName = form.getFieldValue('harborProjectName')
@@ -212,25 +268,10 @@ let MyComponent = React.createClass({
     if(value.length > 128){
       return callback('最多只能为128个字符')
     }
-    this.props.loadAllProject(DEFAULT_REGISTRY, {q: value},{
-      success: {
-        func: (res) => {
-          const { form } = this.props
-          let projectName = form.getFieldValue('harborProjectName')
-          let imageName = projectName + '/' + value
-          let array = res.data.repository
-          for(let i = 0; i < array.length; i++){
-            if(imageName === array[i].repositoryName){
-              return callback('名称已存在，使用会覆盖已有镜像')
-            }
-          }
-          callback()
-        },
-        isAsync: true
-      }
-    })
+    this.checkImageNameEqual(value, callback)
   },
   checkImageVersion(rule, value, callback){
+    const { loadRepositoriesTags, form } = this.props
     if(!value){
       return callback('请输入镜像版本')
     }
@@ -240,7 +281,40 @@ let MyComponent = React.createClass({
     if(value.length > 128){
       return callback('最多只能为128个字符')
     }
+    if(this.state.imageNameEqual){
+      let projectName = form.getFieldValue('harborProjectName')
+      let exporImageName = form.getFieldValue('exportImageName')
+      let imageName = projectName + '/' + exporImageName
+      loadRepositoriesTags(DEFAULT_REGISTRY, imageName, {
+        success: {
+          func: (res) => {
+            let imageTagArray = res.data
+            this.setState({
+              imageTagEqual: false,
+            })
+            for(let i = 0; i < imageTagArray.length; i++){
+              if(value == imageTagArray[i]){
+                this.setState({
+                  imageTagEqual: true,
+                })
+                break
+              }
+            }
+          }
+        }
+      })
+    }
     return callback()
+  },
+  selectChange(){
+    const { form } = this.props
+    const { getFieldValue } = form
+    let exportImageName = getFieldValue("exportImageName")
+    let exportImageTag = getFieldValue("exportImageVersion")
+    if(!exportImageName || !exportImageTag){
+      return
+    }
+    this.checkImageNameEqual(exportImageName)
   },
   selectContainerDetail: function (name, e) {
     //this function for user click app detail ,and then this app will be selected
@@ -381,6 +455,7 @@ let MyComponent = React.createClass({
       rules: [
         { message: '请选择仓库组', required: true },
       ],
+      onChange: this.selectChange
     })
     const exportImageName = getFieldProps('exportImageName',{
       rules :  [{
@@ -433,7 +508,6 @@ let MyComponent = React.createClass({
               <div className='float imagename'>镜像名称&nbsp;&nbsp;&nbsp;&nbsp;</div>
               <div className='float imageAddress'>
                 <Form.Item
-                  hasFeedback
                   help={isFieldValidating('exportImageName') ? '校验中...' : (getFieldError('exportImageName') || []).join(', ')}
                 >
                   <Input {...exportImageName} placeholder='请填写镜像名称'  />
@@ -460,6 +534,9 @@ let MyComponent = React.createClass({
               <span className='imagecolor'>{this.formatImageInfo().imageName}</span>
               <span>:</span>
               <span className='imagecolor'>{this.formatImageInfo().imageTag}</span>
+              {
+                this.state.imageNameEqual && this.state.imageTagEqual && <span className='tips'><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>镜像已存在，继续使用会覆盖已有镜像</span>
+              }
             </div>
           </div>
           <div className='footer'>
@@ -731,7 +808,7 @@ class ContainerList extends Component {
       name, page, size,
       sortOrder, total, cluster,
       isFetching, instanceExport, exportimageUrl,
-      loadProjectList, harborProjects, loadAllProject
+      loadProjectList, harborProjects, loadAllProject, loadRepositoriesTags
     } = this.props
     const {containerList, searchInputValue, searchInputDisabled } = this.state
     const checkedContainerList = containerList.filter((app) => app.checked)
@@ -866,6 +943,7 @@ class ContainerList extends Component {
               exportimageUrl={exportimageUrl}
               harborProjects={harborProjects}
               loadAllProject={loadAllProject}
+              loadRepositoriesTags={loadRepositoriesTags}
             />
           </Card>
         </div>
@@ -954,4 +1032,5 @@ export default connect(mapStateToProps, {
   instanceExport,
   loadProjectList,
   loadAllProject,
+  loadRepositoriesTags,
 })(ContainerList)
