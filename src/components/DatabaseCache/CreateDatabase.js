@@ -263,7 +263,7 @@ let CreateDatabase = React.createClass({
     const passwdProps = getFieldProps('password', {
       rules: [
         {
-          required: true,
+          required: this.state.currentType !== 'elasticsearch',
           whitespace: true,
           message: '请填写密码'
         },

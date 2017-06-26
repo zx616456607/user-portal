@@ -481,7 +481,7 @@ let AutoDeployService = React.createClass({
                 <Radio key='b' value={2} ><FormattedMessage {...menusText.imageUpdate} /></Radio>
               </RadioGroup>
             </Form.Item>
-            <div className='opera commonItem'>
+            <div className='opera commonItem' style={{padding:0}}>
               <div className='btnBox'>
                 {/*
                 <span>
@@ -490,12 +490,12 @@ let AutoDeployService = React.createClass({
                 </span>
                 */}
                 {!self.state.editingList[item.ruleId] ? [
-                  <Button type="ghost" onClick={() => self.setState({ruleId:item.ruleId, delAuthModal: true})}>删除</Button>,
-                  <Button type="ghost" style={{marginLeft:'10px'}} onClick={()=> self.editRule(item)}>编辑</Button>
+                  <Button type="ghost" className='cancelBtn' onClick={() => self.setState({ruleId:item.ruleId, delAuthModal: true})}>删除</Button>,
+                  <Button type="ghost" className='cancelBtn' onClick={()=> self.editRule(item)}>编辑</Button>
                 ] :
                   [
                     <span>
-                      <Button className='cancelBtn' style={{ marginRight: '10px' }} size='large' type='ghost' onClick={() => self.updateReule(item)}>
+                      <Button className='cancelBtn' size='large' type='ghost' onClick={() => self.updateReule(item)}>
                         <FormattedMessage {...menusText.confirm} />
                       </Button>
 
@@ -588,7 +588,7 @@ let AutoDeployService = React.createClass({
                     <div key='appname' className='service commonItem'>
                       {this.state.deployment_name =='' ?
                        <Popover content={content} placement="rightTop" overlayClassName="autoTipsBox" title="在筛选条件下，无服务实例，您可以用该镜像立即创建一个服务" trigger="click">
-                        <Input size="large" placeholder="请先选择镜像" disabled={this.state.cluster_id ? false : true}/>
+                        <Input size="large" value="" placeholder="请先选择镜像" disabled={this.state.cluster_id ? false : true}/>
                       </Popover>
                       :
                       [<Select size="large" value={this.state.deployment_name} disabled={this.state.cluster_id ? false : true} onChange={(e) => this.setStateService(e)} placeholder="服务名称" >
@@ -597,7 +597,7 @@ let AutoDeployService = React.createClass({
                     }
                     </div>
                     <div className='tag commonItem'>
-                      <Select size="large" onChange={(e) => this.setStateValue('match_tag', e)} placeholder="选择镜像版本" >
+                      <Select size="large" onChange={(e) => this.setStateValue('match_tag', e)} placeholder="匹配规则" >
                         <Option value="1">匹配版本</Option>
                         <Option value="2">不匹配版本</Option>
                       </Select>
@@ -609,11 +609,11 @@ let AutoDeployService = React.createClass({
                          </Tooltip>] :
                         strategyGroup
                     }
-                    <div className='opera commonItem'>
+                    <div className='opera commonItem' style={{ padding: 0 }}>
                       <Button className='cancelBtn' type='primary' onClick={() => self.addRule()}>
                         添加
                     </Button>
-                      <Button style={{ marginLeft: '10px' }} className='cancelBtn' type='ghost' onClick={() => self.cancelReule()}>
+                      <Button className='cancelBtn' type='ghost' onClick={() => self.cancelReule()}>
                         取消
                     </Button>
                     </div>
