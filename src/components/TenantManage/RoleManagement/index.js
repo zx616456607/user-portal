@@ -143,7 +143,7 @@ let RoleManagement = React.createClass({
     const rolecolumns = [{
       title: '角色名称',
       dataIndex: 'Rolename',
-      width:'14%',
+      width:'13%',
       render: text => <Link to="/tenant_manage/rolemanagement/rolename/TID">{text}</Link>,
     }, {
       title: '创建人',
@@ -163,7 +163,7 @@ let RoleManagement = React.createClass({
     }, {
       title: '创建时间 / 更新时间',
       dataIndex: 'Times',
-      width:'22%',
+      width:'20%',
       filters: [{
         text: '2017',
         value: '2017',
