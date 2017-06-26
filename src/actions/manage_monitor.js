@@ -51,6 +51,7 @@ export const GET_QUERY_LOG_FAILURE = 'GET_QUERY_LOG_FAILURE'
 
 function fetchQueryLogList(cluster, instances, body, callback) {
   return {
+    direction: body.direction,
     [FETCH_API]: {
       types: [GET_QUERY_LOG_REQUEST, GET_QUERY_LOG_SUCCESS, GET_QUERY_LOG_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/instances/${instances}/getSearchLog`,
@@ -63,7 +64,9 @@ function fetchQueryLogList(cluster, instances, body, callback) {
           keyword: body.keyword,
           date_start: body.date_start,
           date_end: body.date_end,
-          log_type: body.log_type
+          log_type: body.log_type,
+          time_nano: body.time_nano,
+          direction: body.direction,
         }
       },
       schema: {}
@@ -83,6 +86,7 @@ export const GET_SERVICE_QUERY_LOG_SUCCESS = 'GET_SERVICE_QUERY_LOG_SUCCESS'
 export const GET_SERVICE_QUERY_LOG_FAILURE = 'GET_SERVICE_QUERY_LOG_FAILURE'
 function fetchServiceQueryLogList(cluster, service, body, callback) {
   return {
+    direction: body.direction,
     [FETCH_API]: {
       types: [GET_SERVICE_QUERY_LOG_REQUEST, GET_SERVICE_QUERY_LOG_SUCCESS, GET_SERVICE_QUERY_LOG_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/getSearchLog`,
@@ -95,7 +99,9 @@ function fetchServiceQueryLogList(cluster, service, body, callback) {
           keyword: body.keyword,
           date_start: body.date_start,
           date_end: body.date_end,
-          log_type: body.log_type
+          log_type: body.log_type,
+          time_nano: body.time_nano,
+          direction: body.direction,
         }
       },
       schema: {}

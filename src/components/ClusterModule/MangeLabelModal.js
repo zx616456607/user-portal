@@ -60,7 +60,7 @@ class ManageLabelModal extends Component {
         for (let node in nodes) {
           if (node == camelize(nodeName)) {
             this.setState({userCreateLabel: nodes[node]})
-            return
+            break
           }
         }
       }

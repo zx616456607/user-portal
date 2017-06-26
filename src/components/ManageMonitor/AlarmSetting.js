@@ -438,7 +438,7 @@ let MyComponent = React.createClass({
               <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
               <td onClick={()=> this.tableListMore(index)}>{formatDate(list.createTime)}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.updater}</td>
-             <td><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={ this.setIgnore(list) }>忽略</Dropdown.Button></td>
+             <td className='dropdownTd'><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={ this.setIgnore(list) }>忽略</Dropdown.Button></td>
             </tr>,
             <tr key={`list-${index}`} className="ant-table-expanded">
               <td style={{width:'5%',textAlign:'center'}}></td>
@@ -461,7 +461,7 @@ let MyComponent = React.createClass({
             <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
             <td onClick={()=> this.tableListMore(index)}>{formatDate(list.createTime)}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.updater}</td>
-          <td><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={ this.setIgnore(list)}>忽略</Dropdown.Button></td>
+          <td className='dropdownTd'><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={ this.setIgnore(list)}>忽略</Dropdown.Button></td>
           </tr>
       )
     })

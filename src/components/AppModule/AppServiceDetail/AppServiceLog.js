@@ -56,6 +56,7 @@ class AppServiceLog extends Component {
       size: 50,
       date_start: this.state.currentDate,
       date_end: this.state.currentDate,
+      log_type: 'stdout',
     }, {
         success: {
           func(result) {
@@ -143,6 +144,7 @@ class AppServiceLog extends Component {
       size: this.state.pageSize,
       date_start: this.state.currentDate,
       date_end: this.state.currentDate,
+      log_type: 'stdout',
     }, {
         success: {
           func(result) {
@@ -197,7 +199,8 @@ class AppServiceLog extends Component {
       from: 0,
       size: this.state.pageSize,
       date_start: date,
-      date_end: date
+      date_end: date,
+      log_type: 'stdout',
     }, {
         success: {
           func(result) {

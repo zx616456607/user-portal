@@ -331,6 +331,18 @@
           line-height: 40px;
           font-size: 14px;
           border-bottom: 2px solid #5CB85C;
+          .goBackLogs {
+            cursor: pointer;
+          }
+          .anticonRight {
+            margin: 0 5px;
+          }
+          i {
+            font-size: 12px;
+          }
+          .context {
+            color: #D3D4D3
+          }
         }
         .filePath{
           padding: 0 15px;
@@ -362,6 +374,12 @@
             width: 100%;
             word-break: keep-all;
             white-space: pre-wrap;
+            &:hover {
+              background-color: rgba(91, 91, 91, 0.5);
+            }
+          }
+          .logDetailActive {
+            background-color: rgba(91, 91, 91, 0.5);
           }
           .instanceSpan {
             margin-right: 15px;

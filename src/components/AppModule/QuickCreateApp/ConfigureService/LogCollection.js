@@ -138,7 +138,7 @@ class LogCollection extends Component {
         <Row className="configBoxHeader" key="header">
           <Col span={formItemLayout.labelCol.span} className="headerLeft" key="left">
             <div className="line"></div>
-            <span className="title">日志采集</span>
+            <span className="title" style={{paddingLeft: '8px'}}>日志采集</span>
           </Col>
           <Col span={formItemLayout.wrapperCol.span} key="right">
             <div className="desc">采集应用的运行日志，结合平台的日志查询功能提供托管式、一站式日志采集、查询服务</div>

@@ -106,64 +106,26 @@
       color: red;
     }
   }
-  .standard{
-    .title{
-      display: inline-block;
-      height:36px;
-      line-height: 36px;
-      font-size: 14px;
-      .star{
-        color: red;
-      }
+  .star{
+    color: red;
+  }
+  .ant-form-item-label{
+    text-align: left;
+    label:after{
+      content:'';
     }
-    .value{
-      //width:320px;
-    }
+  }
+  .ant-form-item-required:before{
+    content:'';
+    margin-right: 0;
+  }
+  .itemMarginBottom{
+    margin-bottom: 0;
   }
   .description{
-    .valueheight{
-      height:80px;
-      .textareaStyle{
-        //width: 320px;
-        height: 80px;
-        resize: none;
-      }
-    }
-  }
-  .radioBox{
-    .ant-form-item{
-      margin-bottom: 0;
-    }
-  }
-  .targetStore{
-    .checkboxStyle{
-      font-size: 14px;
-      height:32px;
-      position: relative;
-      .widthbox{
-        width:320px;
-      }
-      .handlebox{
-        padding-left: 12px;
-        position: absolute;
-        top: 1px;
-        right:20px;
-        span{
-          cursor: pointer;
-        }
-        .edit{
-          margin-right: 12px;
-        }
-        .edit:hover,
-        .delete:hover{
-          color: #00a0e9;
-        }
-      }
-    }
-  }
-  .using{
-    .ant-form-item{
-      margin-bottom: 0;
+    .textareaStyle{
+      height: 80px;
+      resize: none;
     }
   }
 }

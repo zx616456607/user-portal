@@ -12,6 +12,7 @@ import * as ActionTypes from '../actions/manage_monitor'
 import merge from 'lodash/merge'
 import reducerFactory from './factory'
 import cloneDeep from 'lodash/cloneDeep'
+import union from 'lodash/union'
 
 function operationAuditLog(state = {}, action) {
   const defaultState = {
@@ -48,33 +49,38 @@ function getQueryLog(state = {}, action) {
       logs: []
     }
   }
+  const { direction } = action
+  let resLogs = []
   switch (action.type) {
     case ActionTypes.GET_QUERY_LOG_REQUEST:
+    case ActionTypes.GET_SERVICE_QUERY_LOG_REQUEST:
+      if (direction === 'forward') {
+        return merge({}, state, {
+          logs: {
+            isFetching: false,
+          }
+        })
+      }
       return Object.assign({}, defaultState, state, {
         logs: { isFetching: true }
       })
     case ActionTypes.GET_QUERY_LOG_SUCCESS:
+    case ActionTypes.GET_SERVICE_QUERY_LOG_SUCCESS:
+      resLogs = action.response.result.logs || []
+      if (direction === 'forward') {
+        resLogs.shift()
+      }
       return Object.assign({}, state, {
         logs: {
           isFetching: false,
-          logs: action.response.result.logs || []
+          logs: (
+            direction === 'forward'
+            ? state.logs.logs.concat(resLogs)
+            : resLogs
+          )
         }
       })
     case ActionTypes.GET_QUERY_LOG_FAILURE:
-      return Object.assign({}, defaultState, state, {
-        logs: { isFetching: false }
-      })
-    case ActionTypes.GET_SERVICE_QUERY_LOG_REQUEST:
-      return Object.assign({}, defaultState, state, {
-        logs: { isFetching: true }
-      })
-    case ActionTypes.GET_SERVICE_QUERY_LOG_SUCCESS:
-      return Object.assign({}, state, {
-        logs: {
-          isFetching: false,
-          logs: action.response.result.logs || []
-        }
-      })
     case ActionTypes.GET_SERVICE_QUERY_LOG_FAILURE:
       return Object.assign({}, defaultState, state, {
         logs: { isFetching: false }

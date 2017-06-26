@@ -279,7 +279,8 @@ class BaseInfo extends Component {
               <ul className='parse-list'>
                 <li><span className='key'>参数名</span> <span className='value'>参数值</span></li>
                 <li><span className='key'>用户名：</span> <span className='value'>{ this.props.database === 'zookeeper' ? "super" : "root" }</span></li>
-                {this.state.passShow ?
+                {this.state.database === 'elasticsearch' ? null :
+                this.state.passShow ?
                   <li><span className='key'>密码：</span> <span className='value'>{ this.findPassword(podSpec) }</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
                   :
                   <li><span className='key'>密码：</span> <span className='value'>******</span><span className="pasBtn" onClick={() => this.setState({ passShow: true })}><i className="fa fa-eye"></i> 显示</span></li>

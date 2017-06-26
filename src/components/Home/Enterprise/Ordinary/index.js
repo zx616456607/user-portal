@@ -22,6 +22,7 @@ import homeMySQL from '../../../../assets/img/homeMySQL.png'
 import homeMongoCluster from '../../../../assets/img/homeMongoCluster.png'
 import homeRedis from '../../../../assets/img/homeRedis.png'
 import homeZookeeper from '../../../../assets/img/homeZookeeper.png'
+import homeElasticSearch from '../../../../assets/img/homeElasticSearch.png'
 import { Link } from 'react-router'
 import { AVATAR_HOST } from '../../../../constants'
 
@@ -145,6 +146,7 @@ class Ordinary extends Component {
       tab2: false,
       tab3: false,
       tab4: false,
+      tab5: false,
       isTeam: false,
     }
   }
@@ -188,6 +190,7 @@ class Ordinary extends Component {
         tab2: false,
         tab3: false,
         tab4: false,
+        tab5: false,
       })
       return
     }
@@ -197,6 +200,7 @@ class Ordinary extends Component {
         tab2: true,
         tab3: false,
         tab4: false,
+        tab5: false,
       })
       return
     }
@@ -206,6 +210,7 @@ class Ordinary extends Component {
         tab2: false,
         tab3: true,
         tab4: false,
+        tab5: false,
       })
       return
     }
@@ -215,6 +220,17 @@ class Ordinary extends Component {
         tab2: false,
         tab3: false,
         tab4: true,
+        tab5: false,
+      })
+      return
+    }
+    if (current === 'tab5') {
+      this.setState({
+        tab1: false,
+        tab2: false,
+        tab3: false,
+        tab4: false,
+        tab5: true,
       })
       return
     }
@@ -379,6 +395,20 @@ class Ordinary extends Component {
       zookeeperRunning = runningCount
       zookeeperStopped = failedCount + unknownCount
       zookeeperOthers = pendingCount
+    }
+    // ElasticSearch
+    const elasticSearchData = clusterDbServices.get('elasticsearch')
+    let elasticSearchRunning = 0
+    let elasticSearchStopped = 0
+    let elasticSearchOthers = 0
+    if (elasticSearchData.size !== 0) {
+      const failedCount = elasticSearchData.get('failed') ? elasticSearchData.get('failed') : 0
+      const pendingCount = elasticSearchData.get('pending') ? elasticSearchData.get('pending') : 0
+      const runningCount = elasticSearchData.get('running') ? elasticSearchData.get('running') : 0
+      const unknownCount = elasticSearchData.get('unknown') ? elasticSearchData.get('unknown') : 0
+      elasticSearchRunning = runningCount
+      elasticSearchStopped = failedCount + unknownCount
+      elasticSearchOthers = pendingCount
     }
     //集群mem、cpu和存储概况
     let clusterSummaryCapacity = clusterSummary.capacity
@@ -1453,11 +1483,12 @@ class Ordinary extends Component {
         </Row>
         <Row className="content" gutter={16} style={{ marginTop: 16 }}>
           <Col span={6} className='dataBase'>
-            <Card title="数据库与缓存" bordered={false} bodyStyle={{ height: 200 }}>
+            <Card title="数据库与缓存" bordered={false} bodyStyle={{ height: 200, padding:'15px 24px'}}>
               <Row gutter={16}>
                 <Col span={8} onClick={() => this.handleDataBaseClick('tab1')} className={this.state.tab1 ? 'seleted' : ''}><Tooltip title="MySQL"><span className='dataBtn'>MySQL</span></Tooltip></Col>
                 <Col span={8} onClick={() => this.handleDataBaseClick('tab3')} className={this.state.tab3 ? 'seleted' : ''}><Tooltip title="Redis"><span className='dataBtn'>Redis</span></Tooltip></Col>
                 <Col span={8} onClick={() => this.handleDataBaseClick('tab4')} className={this.state.tab4 ? 'seleted' : ''}><Tooltip title="Zookeeper"><span className='dataBtn'>Zookeeper</span></Tooltip></Col>
+                <Col span={8} onClick={() => this.handleDataBaseClick('tab5')} className={this.state.tab5 ? 'seleted' : ''}><Tooltip title="ElasticSearch"><span className='dataBtn'>ElasticSearch</span></Tooltip></Col>
               </Row>
               <Row style={{ display: this.state.tab1 ? 'block' : 'none', height: 130 }}>
                 <Col span={12} className='dbImg'>
@@ -1611,6 +1642,44 @@ class Ordinary extends Component {
                   </table>
                 </Col>
               </Row>
+              <Row style={{ display: this.state.tab5 ? 'block' : 'none', height: 130 }}>
+                <Col span={12} className='dbImg'>
+                  <img src={homeElasticSearch} alt="ElasticSearch" />
+                </Col>
+                <Col span={12} className='dbInf'>
+                  <table>
+                    <tbody>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#46b2fa' }}></div>
+                        运行中
+                      </td>
+                      <td className="dbNum">
+                        {elasticSearchRunning} 个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#f6575e' }}></div>
+                        已停止
+                      </td>
+                      <td className="dbNum">
+                        {elasticSearchStopped} 个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{ backgroundColor: '#28bd83' }}></div>
+                        操作中
+                      </td>
+                      <td className="dbNum">
+                        {elasticSearchOthers} 个
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </Col>
+              </Row>
             </Card>
           </Col>
           <Col span={18} className="hostState">
@@ -1714,6 +1783,7 @@ function getDbServiceStatus(data) {
   dbServiceMap.set("mongo", new Map())
   dbServiceMap.set("redis", new Map())
   dbServiceMap.set("zookeeper", new Map())
+  dbServiceMap.set("elasticsearch", new Map())
 
   data.petSets.map(petSet => {
     let key = "unknown"
@@ -1789,6 +1859,7 @@ function mapStateToProp(state, props) {
   clusterDbServicesData.set("mongo", new Map())
   clusterDbServicesData.set("redis", new Map())
   clusterDbServicesData.set("zookeeper", new Map())
+  clusterDbServicesData.set("elasticsearch", new Map())
 
   let clusterNodeSummaryData = {
     nodeInfo: {

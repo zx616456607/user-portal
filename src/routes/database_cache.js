@@ -16,7 +16,11 @@ const databaseCacheRoutes = [{
 },
 {
   path: 'zookeeper_cluster',
-  component: require('../components/DatabaseCache/ZookeeperCluster').default,
+  component: require('../components/DatabaseCache/StatefulCluster').default,
+},
+{
+  path: 'elasticsearch_cluster',
+  component: require('../components/DatabaseCache/StatefulCluster').default,
 }]
 
 export default databaseCacheRoutes
