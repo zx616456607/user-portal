@@ -264,6 +264,14 @@
       .commonTitle {
         height: 60px;
         line-height: 60px;
+        .hostname {
+          height: 30px;
+          line-height: 40px;
+        }
+        .address {
+          height: 30px;
+          line-height: 20px;
+        }
       }
       .name,
       .role,
@@ -272,6 +280,9 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        .timeSpan {
+          cursor: pointer
+        }
       }
       .ant-btn-ghost:first-child {
         position: relative;
