@@ -62,6 +62,58 @@
     background-color: white;
     border-radius: 3px;
     padding: 30px;
+    .stepBox{
+      margin: 0;
+      display: flex;
+      justify-content:space-around;
+      li{
+        flex: auto;
+        font-size: 14px;
+        text-align: center;
+        margin-right: 30px;
+        padding: 0px 20px;
+        line-height: 40px;
+        background: #50abe4;
+        display: inline-block;
+        color: #fff;
+        position: relative;
+        &:after{
+          content: '';
+          display: block;
+          border-top: 20px solid transparent;
+          border-bottom: 20px solid transparent;
+          border-left: 20px solid #50abe4;
+          position: absolute;
+          right: -20px;
+          top: 0;
+          z-index: 10;
+        }
+        &:before{
+          content: '';
+          display: block;
+          border-top: 20px solid #50abe4;
+          border-bottom: 20px solid #50abe4;
+          border-left: 20px solid transparent;
+          position: absolute;
+          left: -20px;
+          top: 0;
+        }
+        &:first-child{
+          border-radius: 4px 0 0 4px;
+          padding-left: 25px;
+        }
+        &:last-child{
+          border-radius: 0px 4px 4px 0px;
+          padding-right: 25px;
+        }
+        &:first-of-type:before{
+          display: none;
+        }
+        &:last-of-type:after{
+          display: none;
+        }
+      }
+    }
     .createTip{
       margin-top: 30px;
     }
@@ -116,6 +168,29 @@
     .btnList{
       width: 50px;
       cursor: pointer;
+      position: relative;
+      .triangle {
+        display: none;
+        width: 0;
+        height: 0;
+        border-bottom: 0 solid transparent;
+        border-top: 19px solid transparent;
+        border-right: 23px solid #00a1ec;
+        font-size: 0;
+        line-height: 0;
+        position: absolute;
+        top: 14px;
+        right: 0;
+          i {
+          display: none;
+          font-size: 8px;
+          position: absolute;
+          right: -22px;
+          bottom: -2px;
+          z-index: 2;
+          color: #fff
+        }
+      }
     }
     .btnList,input{
       height: 35px;
@@ -134,6 +209,12 @@
     .active{
       border-color: #2cb6f5;
       color: #2cb6f5;
+      .triangle{
+        display: inline-block;
+        i{
+          display: inline-block;
+        }
+      }
     }
   }
 }
@@ -152,6 +233,29 @@
       .btnList{
         width: 70px;
         cursor: pointer;
+        position: relative;
+        .triangle {
+          display: none;
+          width: 0;
+          height: 0;
+          border-bottom: 0 solid transparent;
+          border-top: 19px solid transparent;
+          border-right: 23px solid #00a1ec;
+          font-size: 0;
+          line-height: 0;
+          position: absolute;
+          top: 14px;
+          right: 0;
+          i {
+            display: none;
+            font-size: 8px;
+            position: absolute;
+            right: -22px;
+            bottom: -2px;
+            z-index: 2;
+            color: #fff
+          }
+        }
       }
       .btnList,input{
         height: 35px;
@@ -170,6 +274,12 @@
       .active{
         border-color: #2cb6f5;
         color: #2cb6f5;
+        .triangle{
+          display: inline-block;
+          i{
+            display: inline-block;
+          }
+        }
       }
     }
   }
@@ -203,7 +313,43 @@
 
   }
 }
-
+.createCharacterModal{
+  .inputBox{
+    margin-bottom: 20px;
+    display: flex;
+    display: -webkit-flex;
+    align-items: center;
+    -webkit-align-items: center;
+    span:first-of-type{
+      width: 90px;
+    }
+    .ant-input{
+      width: 320px !important;
+    }
+  }
+  .authChoose{
+    &>span{
+      width: 90px;
+      display: inline-block;
+      margin-top: 15px;
+    }
+    .authBox{
+      border: 1px solid #d8d8d8;
+      border-radius: 5px;
+      vertical-align: top;
+      .authTitle{
+        line-height: 40px;
+        padding: 0 15px;
+      }
+      .treeBox{
+        height: 300px;
+        width: 320px;
+        overflow-y: scroll;
+        border-top: 1px solid #d8d8d8;
+      }
+    }
+  }
+}
 
 #projectCreateStepThird{
   padding: 20px;

@@ -37,6 +37,7 @@ class ProjectManage extends Component{
       payModal:false,
       loading:false,
       current: 0,
+      payNumber: 10
       
     }
   }
@@ -107,9 +108,12 @@ class ProjectManage extends Component{
       },1000)
     })
   }
+  changePayNumber(payNumber) {
+    this.setState({payNumber})
+  }
   render() {
     const step = this.props.location.query.step || '';
-    const { current } = this.state;
+    const { current, payNumber } = this.state;
     const pagination = {
       simple: true,
       total:  36,
@@ -263,10 +267,10 @@ class ProjectManage extends Component{
           <dl className="paySingleList">
             <dt>充值金额</dt>
             <dd className="payBtn">
-              <span className="active btnList">10T</span>
-              <span className="btnList">20T</span>
-              <span className="btnList">50T</span>
-              <span className="btnList">100T</span>
+              <span className={classNames('btnList',{'active': payNumber === 10})} onClick={()=>{this.changePayNumber(10)}}>10T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+              <span className={classNames('btnList',{'active': payNumber === 20})} onClick={()=>{this.changePayNumber(20)}}>20T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+              <span className={classNames('btnList',{'active': payNumber === 50})} onClick={()=>{this.changePayNumber(50)}}>50T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+              <span className={classNames('btnList',{'active': payNumber === 100})} onClick={()=>{this.changePayNumber(100)}}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
               <InputNumber size="large" min={10}/>
               <b>T</b>
             </dd>
@@ -293,11 +297,11 @@ class ProjectManage extends Component{
           创建项目
         </div>
         <div className={classNames('createBox',{'hidden': step === ''})}>
-          <div className="">
-            <Steps current={current}>
-              {steps.map((s, i) => <Step key={i} title={s.title} description={s.description} />)}
-            </Steps>
-          </div>
+          <ul className="stepBox">
+            <li>项目基础信息</li>
+            <li>为项目添加角色</li>
+            <li>为角色关联对象</li>
+          </ul>
           <div className="alertRow createTip">
             {
               step === 'first' ? '请填写项目名称、备注、并为该项目授权集群' : ''
@@ -381,6 +385,7 @@ class PayTable extends Component{
     this.state={
       selectedRowKeys: [],  // 这里配置默认勾选列
       loading: false,
+      payNumber: 10
     }
   }
   start() {
@@ -397,7 +402,11 @@ class PayTable extends Component{
     console.log('selectedRowKeys changed: ', selectedRowKeys);
     this.setState({ selectedRowKeys});//报错
   }
+  changePayNumber(payNumber) {
+    this.setState({payNumber})
+  }
   render() {
+    const { payNumber } = this.state;
     const columns = [{
       title: '项目名',
       dataIndex: 'projectName',
@@ -421,10 +430,10 @@ class PayTable extends Component{
         <dl className="payBtnBox">
           <dt>充值金额</dt>
           <dd className="payBtn">
-            <span className="active btnList">10T</span>
-            <span className="btnList">20T</span>
-            <span className="btnList">50T</span>
-            <span className="btnList">100T</span>
+            <span className={classNames('btnList',{'active': payNumber === 10})} onClick={()=>{this.changePayNumber(10)}}>10T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+            <span className={classNames('btnList',{'active': payNumber === 20})} onClick={()=>{this.changePayNumber(20)}}>20T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+            <span className={classNames('btnList',{'active': payNumber === 50})} onClick={()=>{this.changePayNumber(50)}}>50T<div className="triangle"><i className="anticon anticon-check"/></div></span>
+            <span className={classNames('btnList',{'active': payNumber === 100})} onClick={()=>{this.changePayNumber(100)}}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
             <InputNumber size="large" min={10}/>
             <b>T</b>
           </dd>
@@ -472,17 +481,67 @@ class CreateStepFirst extends Component{
     )
   }
 }
+const x = 3;
+const y = 2;
+const z = 1;
+const gDatas = [];
+
+const generateDatas = (_level, _preKey, _tns) => {
+  const preKey = _preKey || '0';
+  const tns = _tns || gDatas;
+  
+  const children = [];
+  for (let i = 0; i < x; i++) {
+    const key = `${preKey}-${i}`;
+    tns.push({ title: key, key });
+    if (i < y) {
+      children.push(key);
+    }
+  }
+  if (_level < 0) {
+    return tns;
+  }
+  const level = _level - 1;
+  children.forEach((key, index) => {
+    tns[index].children = [];
+    return generateDatas(level, key, tns[index].children);
+  });
+};
+generateDatas(z);
 class CreateStepSecond extends Component{
   constructor(props){
     super(props)
     this.state={
       mockData: [],
       targetKeys: [],
-      characterModal: false
+      characterModal: false,
+      expandedKeys: ['0-0-0', '0-0-1'],
+      autoExpandParent: true,
+      checkedKeys: ['0-0-0'],
+      selectedKeys: [],
     }
   }
   componentDidMount(){
     this.getMock();
+  }
+  onExpand(expandedKeys) {
+    console.log('onExpand', arguments);
+    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
+    // or, you can remove all expanded chilren keys.
+    this.setState({
+      expandedKeys,
+      autoExpandParent: false,
+    });
+  }
+  onCheck(checkedKeys) {
+    this.setState({
+      checkedKeys,
+      selectedKeys: ['0-3', '0-4'],
+    });
+  }
+  onSelect(selectedKeys, info) {
+    console.log('onSelect', info);
+    this.setState({ selectedKeys });
   }
   getMock() {
     const targetKeys = [];
@@ -514,9 +573,21 @@ class CreateStepSecond extends Component{
     this.setState({characterModal:false})
   }
   render() {
+    const TreeNode = Tree.TreeNode;
+    
+    const loop = data => data.map((item) => {
+      if (item.children) {
+        return (
+          <TreeNode key={item.key} title={item.key} disableCheckbox={item.key === '0-0-0'}>
+            {loop(item.children)}
+          </TreeNode>
+        );
+      }
+      return <TreeNode key={item.key} title={item.key} />;
+    });
     return (
       <div id="projectCreateStepSecond" className="projectCreateStepSecond">
-        <Modal title="创建角色" visible={this.state.characterModal} width={765}
+        <Modal title="创建角色" wrapClassName="createCharacterModal" visible={this.state.characterModal} width={570}
           onCancel={()=> this.cancelModal()}
           onOk={()=> this.createModal()}
         >
@@ -530,7 +601,20 @@ class CreateStepSecond extends Component{
           </div>
           <div className="authChoose">
             <span>权限选择</span>
-            
+            <div className="authBox inlineBlock">
+              <div className="authTitle clearfix">可选权限 <div className="pull-right"><span style={{color:'#59c3f5'}}>14</span> 个权限</div></div>
+              <div className="treeBox">
+                <Tree
+                  checkable
+                  onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
+                  autoExpandParent={this.state.autoExpandParent}
+                  onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
+                  onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
+                >
+                  {loop(gDatas)}
+                </Tree>
+              </div>
+            </div>
           </div>
         </Modal>
         <div className="inputBox">
@@ -560,33 +644,7 @@ class CreateStepSecond extends Component{
     )
   }
 }
-const x = 3;
-const y = 2;
-const z = 1;
-const gData = [];
 
-const generateData = (_level, _preKey, _tns) => {
-  const preKey = _preKey || '0';
-  const tns = _tns || gData;
-  
-  const children = [];
-  for (let i = 0; i < x; i++) {
-    const key = `${preKey}-${i}`;
-    tns.push({ title: key, key });
-    if (i < y) {
-      children.push(key);
-    }
-  }
-  if (_level < 0) {
-    return tns;
-  }
-  const level = _level - 1;
-  children.forEach((key, index) => {
-    tns[index].children = [];
-    return generateData(level, key, tns[index].children);
-  });
-};
-generateData(z);
 class CreateStepThird extends Component{
   constructor(props){
     super(props)
@@ -653,7 +711,33 @@ class CreateStepThird extends Component{
   }
   render() {
     const TreeNode = Tree.TreeNode;
+    const x = 3;
+    const y = 2;
+    const z = 1;
+    const gData = [];
+  
+    const generateData = (_level, _preKey, _tns) => {
+      const preKey = _preKey || '0';
+      const tns = _tns || gData;
     
+      const children = [];
+      for (let i = 0; i < x; i++) {
+        const key = `${preKey}-${i}`;
+        tns.push({ title: key, key });
+        if (i < y) {
+          children.push(key);
+        }
+      }
+      if (_level < 0) {
+        return tns;
+      }
+      const level = _level - 1;
+      children.forEach((key, index) => {
+        tns[index].children = [];
+        return generateData(level, key, tns[index].children);
+      });
+    };
+    generateData(z);
     const loop = data => data.map((item) => {
       if (item.children) {
         return (
