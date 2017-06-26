@@ -81,7 +81,7 @@ export default class Team extends Component{
   render(){
     const { teams, userDetail } = this.props
     return (
-      <div id='Team'>
+      <div id='Teams'>
         <Row className="teamWrap">
           <div className="teamTitle">
             <svg className="infSvg" style={{marginRight:8,color:'black'}}>

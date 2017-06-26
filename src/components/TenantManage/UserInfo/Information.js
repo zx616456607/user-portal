@@ -262,6 +262,11 @@ class Information extends Component {
       Modifycellphone: true,
     })
   }
+  Modifymailbox() {
+    this.setState({
+      Modifymailbox: true,
+    })
+  }
   changeUserRoleRequest() {
     const { updateUser, loginUser, userID, userDetail, changeUserRole } = this.props
     const notify = new NotificationHandler()
@@ -299,7 +304,8 @@ class Information extends Component {
   }
   render() {
     const { revisePass } = this.state
-    const { userID, userDetail, updateUser, loginUser } = this.props
+    const { form, userID, userDetail, updateUser, loginUser } = this.props
+    
     let roleName
     switch (userDetail.role) {
       case ROLE_TEAM_ADMIN:
@@ -313,7 +319,7 @@ class Information extends Component {
     }
     let balance = parseAmount(userDetail.balance || 0).amount
     return (
-      <div id='Information'>
+      <div id='Informations'>
         <div className="Essentialinformation">基本信息</div>
         <div className="informationleft">
           <Row className="Item">
@@ -333,7 +339,7 @@ class Information extends Component {
           <Row className="Item">
             <Col span={4}>邮箱</Col>
             <Col span={8}>{userDetail.email}</Col>
-            <Col span={10}> <Button type="primary" onClick={() => this.changeUserRoleModal()}>修改邮箱</Button></Col>
+            <Col span={10}> <Button type="primary" onClick={() => this.Modifymailbox()}>修改邮箱</Button></Col>
           </Row>
           { userDetail && userDetail.type == 1 ? <Row className="Item">
             <Col span={4}>密码</Col>
@@ -387,7 +393,22 @@ class Information extends Component {
           </RadioGroup>
         </Modal>
         <Modal title="修改手机" visible={this.state.Modifycellphone} onCancel={() => this.setState({ Modifycellphone: false})}>
-          
+          <Form horizontal>
+            <FormItem
+              hasFeedback
+              >
+              <Input  type="text" placeholder="输入新手机号" />
+            </FormItem>
+          </Form>
+        </Modal>
+        <Modal title="修改邮箱" visible={this.state.Modifymailbox} onCancel={() => this.setState({ Modifymailbox: false})}>
+          <Form horizontal>
+            <FormItem
+              hasFeedback
+              >
+              <Input  type="text" placeholder="输入新邮箱" />
+            </FormItem>
+          </Form>
         </Modal>
       </div>
     )
