@@ -215,7 +215,7 @@ exports.updateProjectRelatedUsers=function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.updateBy([projectName,user],null,this.request.body)
+  const response=yield projectApi.project.updateBy([projectName,'user'],null,this.request.body)
   this.status = response.statusCode
   this.body = response
 }
@@ -232,7 +232,7 @@ exports.updateProjectRelatedRoles=function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.updateBy([projectName,role],null,this.request.body)
+  const response=yield projectApi.project.updateBy([projectName,'role'],null,this.request.body)
   this.status = response.statusCode
   this.body = response
 }
