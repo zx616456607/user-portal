@@ -10,10 +10,11 @@
 import React, { Component } from 'react'
 import classNames from 'classnames';
 import './style/ProjectManage.less'
-import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, Steps, Transfer, InputNumber, Tree} from 'antd'
+import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, Steps, Transfer, InputNumber, Tree, Dropdown, Menu} from 'antd'
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
 import SearchInput from '../../SearchInput'
+import { ListProject } from '../../../actions/project'
 
 const Step = Steps.Step;
 const array = Array.apply(null, Array(Math.floor(Math.random() * 3) + 3));
@@ -37,9 +38,23 @@ class ProjectManage extends Component{
       payModal:false,
       loading:false,
       current: 0,
-      payNumber: 10
-      
+      payNumber: 10,
+      selected: [],
+      projectList: []
     }
+  }
+  componentWillMount() {
+    const { ListProject } = this.props;
+    ListProject({},{
+      success:{
+        func: (result)=>{
+          if (result.statusCode === 200) {
+            this.setState({projectList:result.data})
+          }
+        },
+        isAsync:true
+      }
+    })
   }
   goStep(current) {
     let s = '';
@@ -111,9 +126,27 @@ class ProjectManage extends Component{
   changePayNumber(payNumber) {
     this.setState({payNumber})
   }
+  handClickRow(record,index) {
+    const { selected } = this.state;
+    let newSelected = selected.slice(0);
+    let result = newSelected.findIndex((value,ind)=> value === record['key'])
+    if (result > -1) {
+      newSelected.splice(result,1)
+    }else {
+      newSelected.splice(index,0,record['key'])
+    }
+    this.setState({
+      selected:newSelected
+    })
+  }
+  onSelectChange(keys) {
+    const { selected } = this.state;
+    this.setState({selected:keys})
+  }
   render() {
     const step = this.props.location.query.step || '';
-    const { current, payNumber } = this.state;
+    const { current, payNumber, selected, projectList } = this.state;
+    console.log(projectList)
     const pagination = {
       simple: true,
       total:  36,
@@ -129,23 +162,42 @@ class ProjectManage extends Component{
       key: 'projectName',
       render: (text) => <Link to="/tenant_manage/project_manage/project_detail">{text}</Link>,
     }, {
+      title: '项目角色',
+      dataIndex: 'role',
+      key: 'role',
+      filters: [{
+        text: '创建者',
+        value: '创建者',
+      }, {
+        text: '项目管理员',
+        value: '项目管理员',
+      }, {
+        text: '项目访客',
+        value: '项目访客',
+      }],
+      onFilter: (value, record) => record.role.indexOf(value) === 0,
+      render: (data) =>
+        <div>
+          <div>{data}</div>
+        </div>
+    }, {
       title: '备注',
-      dataIndex: 'comment',
-      key: 'comment',
+      dataIndex: 'description',
+      key: 'description',
     }, {
       title: '授权集群',
       dataIndex: 'schooling',
       key: 'schooling',
-      sorter: (a, b) => a.schooling.length - b.schooling.length,
+      sorter: (a, b) => a.description.length - b.description.length,
     }, {
       title: '成员',
-      dataIndex: 'member',
-      key: 'member',
+      dataIndex: 'userCount',
+      key: 'userCount',
       sorter: (a, b) => a.name - b.name,
     }, {
-      title: '创建时间/更新时间',
-      dataIndex: 'ctime',
-      key: 'ctime',
+      title: '创建时间',
+      dataIndex: 'creationTime',
+      key: 'creationTime',
       filters: [{
         text: '2017',
         value: '2017',
@@ -153,7 +205,7 @@ class ProjectManage extends Component{
         text: '2016',
         value: '2016',
       }],
-      onFilter: (value, record) => record.ctime.indexOf(value) === 0,
+      onFilter: (value, record) => record.creationTime.indexOf(value) === 0,
       render: (data) =>
         <div>
           <div>{data}</div>
@@ -191,41 +243,9 @@ class ProjectManage extends Component{
         balance: `100${i} T`
       })
     }
-    const data = [{
-      key: '1',
-      projectName: '胡彦斌',
-      comment: 32,
-      schooling: '阿西湖区湖底公园1',
-      member: '粉丝',
-      ctime: '2017-03-20 18:12:11',
-      balance: '1000'
-    }, {
-      key: '2',
-      projectName: '胡彦斌',
-      comment: 32,
-      schooling: '号西湖区湖底公园1',
-      member: '粉丝们',
-      ctime: '2016-03-20 18:12:11',
-      balance: '1001'
-    }, {
-      key: '3',
-      projectName: '胡彦斌',
-      comment: 32,
-      schooling: '西湖区湖底公园1',
-      member: '粉丝们',
-      ctime: '2017-03-20 18:12:11',
-      balance: '1002'
-    }];
     const rowSelection = {
-      onChange(selectedRowKeys, selectedRows) {
-        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-      },
-      onSelect(record, selected, selectedRows) {
-        console.log(record, selected, selectedRows);
-      },
-      onSelectAll(selected, selectedRows, changeRows) {
-        console.log(selected, selectedRows, changeRows);
-      },
+      selectedRowKeys: selected,
+      onChange:(selectedRowKeys)=> this.onSelectChange(selectedRowKeys),
     };
     return (
       <div id="account_projectManage">
@@ -271,7 +291,7 @@ class ProjectManage extends Component{
               <span className={classNames('btnList',{'active': payNumber === 20})} onClick={()=>{this.changePayNumber(20)}}>20T<div className="triangle"><i className="anticon anticon-check"/></div></span>
               <span className={classNames('btnList',{'active': payNumber === 50})} onClick={()=>{this.changePayNumber(50)}}>50T<div className="triangle"><i className="anticon anticon-check"/></div></span>
               <span className={classNames('btnList',{'active': payNumber === 100})} onClick={()=>{this.changePayNumber(100)}}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-              <InputNumber size="large" min={10}/>
+              <InputNumber value={payNumber} onChange={(value)=>this.setState({payNumber:value})} size="large" min={10}/>
               <b>T</b>
             </dd>
           </dl>
@@ -288,7 +308,13 @@ class ProjectManage extends Component{
         </Row>
         <Row className={classNames("projectList",{'hidden': step !== ''})}>
           <Card>
-            <Table rowSelection={rowSelection} pagination={pagination} columns={columns} dataSource={data}/>
+            <Table
+              rowSelection={rowSelection}
+              pagination={pagination}
+              columns={columns}
+              dataSource={projectList}
+              onRowClick={(recode,index)=>this.handClickRow(recode,index)}
+            />
           </Card>
         </Row>
         <div className={classNames("goBackBox",{'hidden': step === ''})}>
@@ -298,9 +324,9 @@ class ProjectManage extends Component{
         </div>
         <div className={classNames('createBox',{'hidden': step === ''})}>
           <ul className="stepBox">
-            <li>项目基础信息</li>
-            <li>为项目添加角色</li>
-            <li>为角色关联对象</li>
+            <li className={classNames({'active' : step === 'first'})}><span>1</span>项目基础信息</li>
+            <li className={classNames({'active' : step === 'second'})}><span>2</span>为项目添加角色</li>
+            <li className={classNames({'active' : step === 'third'})}><span>3</span>为角色关联对象</li>
           </ul>
           <div className="alertRow createTip">
             {
@@ -354,8 +380,20 @@ class DelProjectTable extends Component{
     }, 1000);
   }
   onSelectChange(selectedRowKeys) {
-    console.log('selectedRowKeys changed: ', selectedRowKeys);
     this.setState({ selectedRowKeys});//报错
+  }
+  handClickRow(record,index) {
+    const { selectedRowKeys } = this.state;
+    let newSelected = selectedRowKeys.slice(0);
+    let result = newSelected.findIndex((value,ind)=> value === record['key'])
+    if (result > -1) {
+      newSelected.splice(result,1)
+    }else {
+      newSelected.splice(index,0,record['key'])
+    }
+    this.setState({
+      selectedRowKeys:newSelected
+    })
   }
   render() {
     const columns = [{
@@ -373,7 +411,7 @@ class DelProjectTable extends Component{
     };
     return (
       <div className="delProjectModal">
-        <Table scroll={{y: 300}} rowSelection={rowSelection} columns={columns} dataSource={delData} pagination={false} />
+        <Table scroll={{y: 300}} rowSelection={rowSelection} columns={columns} dataSource={delData} pagination={false} onRowClick={(recode,index)=>this.handClickRow(recode,index)}/>
         <div className="delTipBox"><i className="fa fa-check-square"/>选中此框以确认您要删除这些项目。</div>
       </div>
     )
@@ -385,7 +423,7 @@ class PayTable extends Component{
     this.state={
       selectedRowKeys: [],  // 这里配置默认勾选列
       loading: false,
-      payNumber: 10
+      payNumber: 10,
     }
   }
   start() {
@@ -399,14 +437,28 @@ class PayTable extends Component{
     }, 1000);
   }
   onSelectChange(selectedRowKeys) {
-    console.log('selectedRowKeys changed: ', selectedRowKeys);
+    console.log(selectedRowKeys)
     this.setState({ selectedRowKeys});//报错
+  }
+  handClickRow(record,index) {
+    const { selectedRowKeys } = this.state;
+    let newSelected = selectedRowKeys.slice(0);
+    let result = newSelected.findIndex((value,ind)=> value === record['key'])
+    if (result > -1) {
+      newSelected.splice(result,1)
+    }else {
+      newSelected.splice(index,0,record['key'])
+    }
+    this.setState({
+      selectedRowKeys:newSelected
+    })
   }
   changePayNumber(payNumber) {
     this.setState({payNumber})
   }
   render() {
-    const { payNumber } = this.state;
+    const { payNumber, loading, selectedRowKeys } = this.state;
+    const {data}= this.props;
     const columns = [{
       title: '项目名',
       dataIndex: 'projectName',
@@ -414,19 +466,16 @@ class PayTable extends Component{
       title: '余额',
       dataIndex: 'balance',
     }];
-    const { loading, selectedRowKeys } = this.state;
-    const {data}= this.props;
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange.bind(this),
     };
-    const hasSelected = selectedRowKeys.length > 0;
     return (
       <div className="payModal">
         <div className="alertRow">
           注：可为项目充值，全选可为项目充值
         </div>
-        <Table scroll={{y: 300}} rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false}/>
+        <Table scroll={{y: 300}} rowSelection={rowSelection} columns={columns} dataSource={data} pagination={false} onRowClick={(recode,index)=>this.handClickRow(recode,index)}/>
         <dl className="payBtnBox">
           <dt>充值金额</dt>
           <dd className="payBtn">
@@ -434,7 +483,7 @@ class PayTable extends Component{
             <span className={classNames('btnList',{'active': payNumber === 20})} onClick={()=>{this.changePayNumber(20)}}>20T<div className="triangle"><i className="anticon anticon-check"/></div></span>
             <span className={classNames('btnList',{'active': payNumber === 50})} onClick={()=>{this.changePayNumber(50)}}>50T<div className="triangle"><i className="anticon anticon-check"/></div></span>
             <span className={classNames('btnList',{'active': payNumber === 100})} onClick={()=>{this.changePayNumber(100)}}>100T<div className="triangle"><i className="anticon anticon-check"/></div></span>
-            <InputNumber size="large" min={10}/>
+            <InputNumber value={payNumber} onChange={(value)=>{this.setState({payNumber:value})}} size="large" min={10}/>
             <b>T</b>
           </dd>
         </dl>
@@ -446,15 +495,20 @@ class CreateStepFirst extends Component{
   constructor(props) {
     super(props)
   }
-  handleChange(value){
-    console.log(value)
+  handleMenuClick(e) {
+    console.log(e)
   }
   render() {
-    const Option = Select.Option;
-    let children = [];
-    for (let i = 10; i < 36; i++) {
-      children.push(<Option key={i.toString(36) + i}>{i.toString(36) + i}</Option>);
-    }
+    const menu = (
+      <Menu onClick={this.handleMenuClick}>
+        <Menu.Item key="-1" disabled style={{color:'#666',background:'#eee'}}>已选集群（2）</Menu.Item>
+        <Menu.Item key="1">第一个菜单项 <Icon type="delete" className="pull-right"/></Menu.Item>
+        <Menu.Item key="2">第二个菜单项 <Icon type="delete" className="pull-right"/></Menu.Item>
+        <Menu.Item key="0" disabled style={{color:'#666',background:'#eee'}}>可选集群（2）</Menu.Item>
+        <Menu.Item key="3">第三个菜单项</Menu.Item>
+        <Menu.Item key="4">第四个菜单项</Menu.Item>
+      </Menu>
+    );
     
     return (
       <div id="projectCreateStepOne">
@@ -468,14 +522,11 @@ class CreateStepFirst extends Component{
         </div>
         <div className="inputBox">
           <span>授权集群</span>
-          <Select
-            multiple
-            style={{ width: '170px' }}
-            placeholder="请选择授权集群"
-            onChange={()=>this.handleChange()}
-          >
-            {children}
-          </Select>
+          <Dropdown overlay={menu} trigger={['click']}>
+            <Button type="ghost" style={{ height:34, color:'#b0b0b0'  }}>
+              请选择授权集群 <Icon type="down" />
+            </Button>
+          </Dropdown>
         </div>
       </div>
     )
@@ -633,7 +684,7 @@ class CreateStepSecond extends Component{
             height: 255,
           }}
           searchPlaceholde="请输入策略名搜索"
-          titles={['包含权限（个）', '包含权限（个）']}
+          titles={['可选角色（个）', '已选角色（个）']}
           operations={['移除', '添加']}
           filterOption={this.filterOption.bind(this)}
           targetKeys={this.state.targetKeys}
@@ -808,4 +859,14 @@ class CreateStepThird extends Component{
     )
   }
 }
-export default ProjectManage;
+
+function mapStateToProps(state, props) {
+  
+  return {
+  
+  }
+}
+export default connect(mapStateToProps,{
+  ListProject
+})(ProjectManage);
+

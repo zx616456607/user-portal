@@ -1,6 +1,8 @@
 /**
  * Created by dengqiaoling on 2017/6/6.
  */
+import { FETCH_API } from '../middleware/api'
+import { API_URL_PREFIX } from '../constants'
 export const PROJECT_CREATE_REQUEST = 'PROJECT_CREATE_REQUEST'
 export const PROJECT_CREATE_SUCCESS = 'PROJECT_CREATE_SUCCESS'
 export const PROJECT_CREATE_FAILURE = 'PROJECT_CREATE_FAILURE'
