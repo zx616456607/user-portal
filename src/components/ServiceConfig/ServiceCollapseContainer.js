@@ -78,14 +78,11 @@ function formatVolumeMounts(data, groupname, name) {
               const configMap = volumesMap[containers[k].volumeMounts[l].name]
               if (configMap.configMap.items) {
                 configMap.configMap.items.forEach(item => {
-                  const arr = volumeMount.mountPath.split('/')
-                  if (arr[arr.length - 1] == name) {
-                    volumeMounts = unionWith(volumeMounts, [{
-                      imageName: data[i].name,
-                      serviceName: data[i].services[j].metadata.name,
-                      mountPath: volumeMount.mountPath
-                    }], isEqual)
-                  }
+                  volumeMounts = unionWith(volumeMounts, [{
+                    imageName: data[i].name,
+                    serviceName: data[i].services[j].metadata.name,
+                    mountPath: volumeMount.mountPath
+                  }], isEqual)
                 })
               } else {
                 volumeMounts = unionWith(volumeMounts, [{
@@ -170,9 +167,10 @@ let CreateConfigFileModal = React.createClass({
       return false
     }
     const self = this
+    const fileName = fileInput.value.substr(fileInput.value.lastIndexOf('\\') + 1)
     self.setState({
       disableUpload: true,
-      filePath: '上传文件为 ' + fileInput.value.substr(fileInput.value.lastIndexOf('\\') + 1)
+      filePath: '上传文件为 ' + fileName
     })
     notify.spin('读取文件内容中，请稍后')
     const fileReader = new FileReader()
@@ -363,10 +361,10 @@ class CollapseContainer extends Component {
           )
         } else {
           mounts = formatVolumeMounts(self.props.appList, groupname, configFileItem.name)
-          volume = mounts.slice(0, 2).map((list, index) => {
+          volume = mounts.slice(0, 1).map((list, index) => {
             return (
               <td key={`key@${index}`}>
-                <div className="li">应用：<Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link>，服务名称：{list.serviceName}</div>
+                <div className="li">应用：<Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link>，服务：{list.serviceName}</div>
                 <div className='lis textoverflow'>{list.mountPath}</div>
               </td>
             )
@@ -408,9 +406,9 @@ class CollapseContainer extends Component {
                   </td>
                   { volume }
 
-                  {(mounts && mounts.length > 2) ?
+                  {(mounts && mounts.length >1) ?
                     [<td style={{ textAlign: 'center' }}>
-                      <div style={{cursor:'pointer'}} onClick={()=> {this.setState({[this.props.groupname + configFileItem.name]: true})}}>查看更多</div>
+                      <div style={{cursor:'pointer'}} onClick={()=> {this.setState({[this.props.groupname + configFileItem.name]: true})}}><a>查看更多</a></div>
                     </td>]
                     :null
                   }
@@ -428,7 +426,7 @@ class CollapseContainer extends Component {
                 <div className="span6">挂载路径</div>
               </div>
                 {/*查看更多-关联容器列表-start*/}
-                {mounts && mounts.slice(2).map((list) => {
+                {mounts && mounts.slice(1).map((list) => {
                   return (
                     <div className="check-config">
                       <div className="span4"><Link to={`/app_manage/detail/${list.imageName}`}>{list.serviceName}</Link></div>

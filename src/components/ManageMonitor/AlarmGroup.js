@@ -17,9 +17,10 @@ import QueueAnim from 'rc-queue-anim'
 import CreateAlarm from '../AppModule/AlarmModal/CreateGroup'
 const InputGroup = Input.Group
 import { loadNotifyGroups, deleteNotifyGroups } from '../../actions/alert'
+import { setCurrent } from '../../actions/entities'
 import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import { formatDate } from '../../common/tools'
 import cloneDeep from 'lodash/cloneDeep'
 import Title from '../Title'
@@ -47,10 +48,10 @@ class AlarmGroup extends Component {
     // Dropdown delete btn
     return(
       <Menu onClick={(record)=> this.handleDropdownClick(record, group)}
-          style={{ width: '80px',height:'20px'}}
+        style={{ width: '80px'}}
       >
       <Menu.Item key="edit">
-        <Button className="moDify" style={{ width: '80px' }}>修改</Button>
+        修改
       </Menu.Item>
     </Menu>
     )
@@ -103,11 +104,15 @@ class AlarmGroup extends Component {
     }
   }
   openDeleteModal(e, groupIDs) {
+    e.stopPropagation()
+    if (!groupIDs) {
+      new NotificationHandler().info('请先取消策略对该通知组的引用，方可删除告警通知组')
+      return
+    }
     this.setState({
       deleteModal: true,
       deletingGroupIDs: groupIDs,
     })
-    e.stopPropagation()
   }
   closeDeleteModal() {
     this.setState({
@@ -146,15 +151,34 @@ class AlarmGroup extends Component {
       </div>
     )
   }
-
+  toAlarmDetail(item,e) {
+    const { data, cluster, setCurrent } = this.props;
+    let currentCluster = data.find((record,index)=> record.clusterID === item.clusterID)
+    if (cluster.clusterID !== currentCluster.clusterID) {
+      setCurrent({
+        cluster:currentCluster
+      },{
+        success:{
+          func: ()=>{
+            browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(item.id)}?name=${item.name}`)
+          },
+          isAsync: true
+        }
+      })
+    } else {
+      browserHistory.push(`/manange_monitor/alarm_setting/${encodeURIComponent(item.id)}?name=${item.name}`)
+    }
+    e.stopPropagation()
+  }
   getStragegies(strategies) {
+    const _this = this;
     if (!strategies) {
       return '-'
     }
     let popover = '-'
     if (strategies.length > 0) {
       popover = strategies.map(function(item) {
-        return <div className='alarmGroupItem'><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(item.id)}?name=${item.name}`}>{item.name}</Link></div>
+        return <div className='alarmGroupItem'><span onClick={(e)=> _this.toAlarmDetail(item,e)}>{item.name}</span></div>
       })
     }
     return (
@@ -260,10 +284,10 @@ class AlarmGroup extends Component {
       render:(text, group) => {
         if (group.strategies.length >0) {
           return (
-          <Dropdown.Button type="ghost" overlay={ this.dropdowns(text, group) } onClick={(e)=> e.stopPropagation() } className='disableBtn'>
-            <Tooltip title="请先取消策略对该通知组的引用，方可删除告警通知组">
-              <Button style={{border:0}} disabled={true}>删除</Button>
-            </Tooltip>
+          <Dropdown.Button type="ghost" overlay={ this.dropdowns(text, group) } onClick={(e)=> this.openDeleteModal(e,false) } className='disableBtn'>
+              删除
+            {/*<Tooltip title="请先取消策略对该通知组的引用，方可删除告警通知组">
+            </Tooltip>*/}
           </Dropdown.Button>
           )
         }
@@ -305,7 +329,7 @@ class AlarmGroup extends Component {
               <i className="fa fa-plus" style={{marginRight:'5px'}}/>
               创建
             </Button>
-            <Button size="large" type="ghost" onClick={() => this.props.loadNotifyGroups("", clusterID)}><i className="fa fa-refresh" /> 刷新</Button>
+            <Button size="large" type="ghost" onClick={() => this.props.loadNotifyGroups("", clusterID)}><i className="fa fa-refresh" />刷新</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length === 0} icon="delete" onClick={(e)=> this.openDeleteModal(e,this.getSelectedGroups())} type="ghost">删除</Button>
             <Button size="large" disabled={this.state.selectedRowKeys.length !== 1} icon="edit" onClick={() => this.openModifyModal(this.getModifyingGroup())} type="ghost">修改</Button>
             <div className="Search">
@@ -371,27 +395,34 @@ function mapStateToProps(state, props) {
   const { groups } = state.alert
   const { cluster } = state.entities.current
   const { space } = state.entities.current
-  if (!groups && !cluster) {
+  const { teamClusters } = state.team
+  if (!groups && !cluster && !teamClusters) {
    return props
  }
-  
+
   let defaultData = {
       isFetching: false,
       result:{data:[]}
   }
-  
+  let defaultDatas = {
+    result: {data:[]}
+  }
   const { isFetching } = groups || defaultData
   const { result } = groups || defaultData
   let groupsData = result ? result.data : []
+  let clusterResult = teamClusters.result || defaultDatas.result
+  let clusterData = clusterResult ? clusterResult.data : []
   return {
     space,
     isFetching,
     cluster,
-    groups: groupsData
+    groups: groupsData,
+    data :clusterData
   }
 }
 
 export default connect(mapStateToProps, {
   loadNotifyGroups,
   deleteNotifyGroups,
+  setCurrent
 })(AlarmGroup)

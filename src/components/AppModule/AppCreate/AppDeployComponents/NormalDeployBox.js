@@ -828,7 +828,6 @@ let NormalDeployBox = React.createClass({
           size="large"
           optionFilterProp="children"
           placeholder="请选择镜像版本"
-          optionFilterProp="children"
           notFoundContent="镜像版本为空"
           onSelect={this.onSelectTagChange}
           >

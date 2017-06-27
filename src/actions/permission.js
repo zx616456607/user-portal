@@ -17,7 +17,7 @@ export const PERMISSION_LIST_SUCCESS = 'PERMISSION_LIST_SUCCESS'
 export const PERMISSION_LIST_FAILURE = 'PERMISSION_LIST_FAILURE'
 
 // Fetches all permission.
-function fetchPermissionAndCount(callback) {
+function fetchPermission(callback) {
   return {
     [FETCH_API]: {
       types: [PERMISSION_LIST_REQUEST, PERMISSION_LIST_SUCCESS, PERMISSION_LIST_FAILURE],
@@ -28,11 +28,11 @@ function fetchPermissionAndCount(callback) {
   }
 }
 
-function fetchPermission(callback) {
+function fetchPermissionAndCount(callback) {
 	return {
     [FETCH_API]: {
       types: [PERMISSION_LIST_REQUEST, PERMISSION_LIST_SUCCESS, PERMISSION_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/permission/permission`,
+      endpoint: `${API_URL_PREFIX}/permission/withCount`,
       schema: {}
     },
     callback
@@ -43,7 +43,7 @@ export const PERMISSION_RETRIEVE_REQUEST = 'PERMISSION_RETRIEVE_REQUEST'
 export const PERMISSION_RETRIEVE_SUCCESS = 'PERMISSION_RETRIEVE_SUCCESS'
 export const PERMISSION_RETRIEVE_FAILURE = 'PERMISSION_RETRIEVE_FAILURE'
 
-function fetchRetrievePermissionAndCount(id,callback){
+function fetchRetrievePermission(id,callback){
 	let endpoint = `${API_URL_PREFIX}/permission/${id}/retrieve`
 	return {
     [FETCH_API]: {
@@ -55,8 +55,8 @@ function fetchRetrievePermissionAndCount(id,callback){
   }
 }
 
-function fetchRetrievePermission(id,callback){
-	let endpoint = `${API_URL_PREFIX}/permission/permission/${id}/retrieve`
+function fetchRetrievePermissionAndCount(id,callback){
+	let endpoint = `${API_URL_PREFIX}/permission/${id}/retrieve/withCount`
 	return {
     [FETCH_API]: {
       types: [PERMISSION_RETRIEVE_REQUEST, PERMISSION_RETRIEVE_SUCCESS, PERMISSION_RETRIEVE_FAILURE],
@@ -79,4 +79,5 @@ function fetchDependent(id,callback) {
       schema: {}
     },
     callback
+  }
 }

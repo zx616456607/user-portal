@@ -107,7 +107,7 @@ class OtherSpace extends Component {
   }
   render() {
     const { formatMessage } = this.props.intl;
-    const { liteFlag,imageId } = this.props;
+    const { liteFlag, imageId } = this.props;
     const rootscope = this.props.scope;
     const scope = this;
     const otherHead = this.props.otherHead
@@ -153,7 +153,7 @@ class OtherSpace extends Component {
       width:'15%',
       render: (text, row)=> {
         return (
-          <Button type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${registryServer}&imageName=${row.name}`)}>
+          <Button type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/quick_create?registryServer=${registryServer}&imageName=${row.name}&other=${imageId}`)}>
             <FormattedMessage {...menusText.deployService} />
           </Button>
         )

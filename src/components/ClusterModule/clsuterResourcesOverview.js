@@ -39,7 +39,7 @@ class ClusterResourcesOverview extends Component{
     const { useRate } = clusterSummary.dynamic || {}
     let podPending = pod ? pod[camelize('Pending')] : NOT_AVAILABLE
     let podRunning = pod ? pod[camelize('Running')] : NOT_AVAILABLE
-    let podUnNormal = (pod && pod.unNormal) ? pod.unNormal : NOT_AVAILABLE
+    let podUnNormal = (pod && pod.unNormal) ? pod.unNormal : 0
     //if (pod) {
     //  pod.sum = pod[camelize('Failed')] + pod[camelize('Pending')] + pod[camelize('Running')] + pod[camelize('Unknown')]
     //  pod.unNormal = pod[camelize('Failed')] + pod[camelize('Unknown')]

@@ -83,19 +83,24 @@ function checkBranchUsed(config) {
 }
 
 let CICDSettingModal = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       useBranch: false,
       useTag: false,
       useRequest: false,
       editBranch: false,
-      editTag: false
+      editTag: false,
+      oldConfig: {}
     }
   },
   componentWillMount() {
     const {isFetching, ciRules} = this.props;
     if(!isFetching) {
       if(Boolean(ciRules)) {
+        let config = ciRules.results;
+        this.setState({
+          oldConfig:config
+        })
         if(Boolean(config.config.branch)) {
           this.setState({
             useBranch: true
@@ -115,26 +120,41 @@ let CICDSettingModal = React.createClass({
     }
   },
   componentWillReceiveProps(nextProps) {
-    const {isFetching, ciRules } = nextProps;
-    if(!isFetching) {
-      if(Boolean(ciRules)) {
+    const { isFetching, ciRules, visible } = nextProps;
+    if (this.props.isFetching != isFetching || (nextProps.visible && this.props.visible != nextProps.visible)) {
+      if (Boolean(ciRules)) {
         let config = ciRules.results;
-        if(!Boolean(config.config)) {
+        this.setState({
+          oldConfig:config
+        })
+        if (!Boolean(config.config)) {
           return;
         }
-        if(Boolean(config.config.branch)) {
+        if (Boolean(config.config.branch)) {
           this.setState({
             useBranch: true
           });
+        } else {
+          this.setState({
+            useBranch: false
+          });
         }
-        if(Boolean(config.config.tag)) {
+        if (Boolean(config.config.tag)) {
           this.setState({
             useTag: true
           });
+        } else {
+          this.setState({
+            useTag: false
+          });
         }
-        if(Boolean(config.config.mergeRequest)) {
+        if (Boolean(config.config.mergeRequest)) {
           this.setState({
             useRequest: true
+          });
+        } else {
+          this.setState({
+            useRequest: false
           });
         }
       }
@@ -211,16 +231,28 @@ let CICDSettingModal = React.createClass({
   },
   onCancelEditBranch() {
     //this function for cancel edit branch
+    const { setFieldsValue } = this.props.form
+    const { oldConfig } = this.state;
     this.setState({
       editBranch: false,
-      useBranch: false
+    },()=>{
+      setFieldsValue({
+        'branch': oldConfig.config.branch.name,
+        'isBranchReg': oldConfig.config.branch.matchWay
+      })
     });
   },
   onCancelEditTag() {
     //this function for cancel edit tag
+    const { setFieldsValue } = this.props.form
+    const { oldConfig } = this.state;
     this.setState({
       editTag: false,
-      useTag:false
+    },()=>{
+      setFieldsValue({
+        'tag': oldConfig.config.tag.name,
+        'isTagReg': oldConfig.config.tag.matchWay
+      })
     });
   },
   /*onBlurBranch() {
@@ -308,13 +340,14 @@ let CICDSettingModal = React.createClass({
       let notification = new NotificationHandler();
       return notification.error('请选择至少一个触发规则')
     }
+    const _config = scope.props.config.spec.ci.config || {}
     let body = {
       enabled: 1,
       config: {
         branch: null,
         tag: null,
         mergeRequest: null,
-        buildCluster: scope.props.config.spec.ci.config.buildCluster
+        buildCluster: _config.buildCluster
       }
     }
     if(useBranch) {
@@ -355,6 +388,7 @@ let CICDSettingModal = React.createClass({
   render() {
     const { formatMessage } = this.props.intl;
     const { scope, isFetching, ciRules  } = this.props;
+    const { oldConfig, editBranch, editTag } = this.state;
     if(isFetching || !Boolean(ciRules) ) {
       return (
         <div className='loadingBox'>

@@ -265,6 +265,14 @@ let MyComponent = React.createClass({
     browserHistory.push(`/app_manage/detail/${appName}#topology`)
   },
   showAlert(item) {
+    if(!item.services.length){
+      Modal.info({
+        title: '提示',
+        content: <div style={{color:'#2db7f5'}}>当前应用下还未添加服务，添加服务后可为服务创建告警策略</div>,
+        onOk() {},
+      });
+      return
+    }
     const { parentScope } = this.props
     parentScope.setState({alarmModal: true, alertCurrentApp:item })
     setTimeout(()=> {
@@ -583,7 +591,7 @@ class AppList extends Component {
     }
     getSettingListfromserviceorapp(query, cluster)
   }
-  
+
   batchDeleteApps(app) {
     /*const { appList } = this.state
     const checkedAppList = appList.filter((app) => app.checked)
@@ -846,6 +854,10 @@ class AppList extends Component {
     })
     self.setState({
       deleteAppsModal: false,
+      runBtn:false,
+      stopBtn:false,
+      isChecked:false,
+      restartBtn:false,
       appList: allApps
     })
     deleteApps(cluster, appNames, {
@@ -949,11 +961,9 @@ class AppList extends Component {
         <div id='AppList' key='AppList'>
           <div className='operationBox'>
             <div className='leftBox'>
-              <Link to='/app_manage/app_create'>
-                <Button type='primary' size='large'>
-                  <i className="fa fa-plus" />创建应用
-                </Button>
-              </Link>
+              <Button type='primary' size='large'>
+                <Link to='/app_manage/app_create'><i className="fa fa-plus" />创建应用</Link>
+              </Button>
               {/*<Button type='ghost' size='large' onClick={() => this.setState({ deployEnvModalVisible: true })}>
                 <svg className='rocket'>
                   <use xlinkHref='#rocket' />

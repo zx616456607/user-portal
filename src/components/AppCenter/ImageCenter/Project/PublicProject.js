@@ -66,17 +66,17 @@ class PublicProject extends Component {
             <Card className="project">
               <div className="topRow">
                 <Input
-                  placeholder="搜索"
+                  placeholder="按仓库组名称搜索"
                   className="search"
                   size="large"
                   onChange={e => this.setState({ searchInput: e.target.value })}
                   onPressEnter={this.searchProjects}
                 />
                 <i className="fa fa-search" onClick={this.searchProjects}></i>
-                {harborProjects.total >0?
+                {/*{harborProjects.total >0?
                 <span className="totalPage">共计：{harborProjects.total} 条</span>
                 :null
-                }
+                }*/}
               </div>
               <DataTable loginUser={loginUser} from="public" dataSource={harborProjects} func={func}/>
             </Card>

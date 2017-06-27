@@ -9,10 +9,11 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Button, Input, Form, Switch, Radio, Checkbox, Spin, Alert } from 'antd'
+import classNames from 'classnames'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { createTenxFlowSingle } from '../../../actions/cicd_flow'
+import { createTenxFlowSingle, updateTenxFlow, getTenxFlowDetail } from '../../../actions/cicd_flow'
 import YamlEditor from '../../Editor/Yaml'
 import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../common/notification_handler'
@@ -81,11 +82,38 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.CreateTenxFlow.submit',
     defaultMessage: '立即创建并配置流程定义',
   },
+  edit: {
+    id: 'CICD.Tenxflow.CreateTenxFlow.edit',
+    defaultMessage: '立即修改',
+  },
   buildImageToolTip: {
     id: 'CICD.Tenxflow.CreateBuildImage.tooltip',
     defaultMessage: '创建构建镜像任务前需创建一个TenxFlow，请填写TenxFlow名称，可选择邮件通知 ',
   }
 })
+
+function checkEmailType(emailList, scope, type) {
+  if (!Boolean(emailList)) {
+    return DefaultEmailAddress;
+  }
+  if (emailList == DefaultEmailAddress) {
+    if (type != 'init') {
+      scope.setState({
+        emailList: null
+      });
+    }
+    return DefaultEmailAddress;
+  } else if (emailList) {
+    if (type != 'init') {
+      scope.setState({
+        emailList: emailList
+      });
+    }
+    return 'others'
+  } else {
+    return ''
+  }
+}
 
 let CreateTenxFlow = React.createClass({
   getInitialState: function() {
@@ -93,14 +121,103 @@ let CreateTenxFlow = React.createClass({
       currentType: '1',
       emailAlert: false,
       otherEmail: false,
-      currentTenxFlow: null,
-      currentYaml: null
+      currentYaml: null,
+      currentFlow: null,
+      //forEdit: false,
+      checkFirst: false,
+      checkSecond: false,
+      checkThird: false,
+      checkForth: false,
+      emailList: ''
     }
   },
-  componentDidMount(){
-    setTimeout(() => {
-      document.getElementById('flowName').focus()
-    }, 500)
+  componentWillMount(){
+    const { currentFlowId, scope, getTenxFlowDetail } = this.props;
+    const notification = new NotificationHandler()
+    if (currentFlowId && scope.state.forEdit) {
+      getTenxFlowDetail(currentFlowId,{
+        success:{
+          func: (res)=>{
+            this.setState({
+              currentFlow: res.data.results,
+              //forEdit: scope.state.forEdit
+            },()=>{
+              this.refreshInfo()
+            })
+          },
+          isAsync: true
+        },
+        failed:{
+          func: (err)=>{
+            notification.error(err)
+          }
+        }
+      })
+    }
+  },
+  componentWillReceiveProps(nextProps) {
+    const { scope, getTenxFlowDetail ,modalShow} = this.props;
+    const notification = new NotificationHandler()
+    let nextId = nextProps.currentFlowId;
+    if ((modalShow === true) && (nextProps.modalShow === false)){
+      this.handleReset()
+    }
+    if (nextId && scope.state.forEdit) {
+      getTenxFlowDetail(nextId,{
+        success:{
+          func: (res)=>{
+            this.setState({
+              currentFlow: res.data.results,
+              //forEdit: scope.state.forEdit
+            },()=>{
+              this.refreshInfo()
+            })
+          },
+          isAsync: true
+        },
+        failed:{
+          func: (err)=>{
+            notification.error(err)
+          }
+        }
+      })
+    }
+  },
+  refreshInfo() {
+    this.setState({emailAlert: this.state.currentFlow.notificationConfig})
+    let notify = this.state.currentFlow.notificationConfig
+    let flag = !! notify
+    if (notify == 'null') {
+      flag = false;
+    }
+    this.setState({
+      emailAlert: flag
+    });
+    if (flag) {
+      let newNotify
+      try {
+        newNotify = JSON.parse(notify);
+      } catch (e) {
+        this.setState({
+          emailAlert: false
+        })
+        return
+      }
+      let otherEmail = true;
+      let emailList = newNotify.email_list;
+      if (newNotify.email_list == DefaultEmailAddress) {
+        otherEmail = null
+        emailList = ''
+      }
+      this.setState({
+        checkFirst: newNotify.ci.success_notification,
+        checkSecond: newNotify.ci.failed_notification,
+        checkThird: newNotify.cd.success_notification,
+        checkForth: newNotify.cd.failed_notification,
+        emailList: emailList,
+        otherEmail: otherEmail
+      });
+    }
   },
   nameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
@@ -172,21 +289,24 @@ let CreateTenxFlow = React.createClass({
       });
     }
   },
-  emailInputCheck(rule, value, callback){
-    if(this.state.otherEmail && !!!value){
-       callback([new Error('请输入邮件通知地址')]);
-    }else{
-      if(this.state.otherEmail) {
+  emailInputCheck(rule, value, callback) {
+    if (this.state.otherEmail && !!!value) {
+      callback([new Error('请输入邮件通知地址')]);
+    } else {
+      if (this.state.otherEmail) {
+        if (value.indexOf(',', value.length - 1) == -1) {
+          value += ',';
+        }
         let emailList = value.split(',');
         let emailCheck = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
         let flag = true;
         emailList.map((item) => {
-          if( !emailCheck.test(item) ) {
+          if (item.trim() != '' && !emailCheck.test(item)) {
             flag = false;
             callback([new Error('请输入正确邮件地址')]);
           }
         });
-        if(flag) {
+        if (flag) {
           callback();
         }
       } else {
@@ -196,21 +316,28 @@ let CreateTenxFlow = React.createClass({
   },
   handleReset(e) {
     //this function for reset the form
-    e.preventDefault();
+    if (e){
+      e.preventDefault();
+    }
     this.props.form.resetFields();
     const { scope } = this.props;
     this.setState({
       currentType: '1',
       emailAlert: false,
-      otherEmail: false
+      otherEmail: false,
+      currentYaml: null,
+      currentFlow: null,
+      checkFirst: false,
+      checkSecond: false,
+      checkThird: false,
+      checkForth: false,
+      emailList: ''
     });
-    scope.setState({
-      createTenxFlowModal: false
-    });
+    scope.closeCreateTenxFlowModal()
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope, createTenxFlowSingle, buildImage } = this.props;
+    const { scope, createTenxFlowSingle, buildImage, updateTenxFlow, currentFlowId, loadData } = this.props;
     const _this = this;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
@@ -228,7 +355,9 @@ let CreateTenxFlow = React.createClass({
         if(values.radioEmail != 'others') {
           tempEmail = [values.radioEmail];
         } else {
-          tempEmail = values.inputEmail.split(',');
+          if (typeof values.inputEmail === 'string') {
+            tempEmail = values.inputEmail.split(',')
+          }
         }
         let temp = {
           'email_list': tempEmail,
@@ -256,12 +385,36 @@ let CreateTenxFlow = React.createClass({
         }
       }
       body.isBuildImage = buildImage ? 1 : 0
+      if (scope.state.forEdit) {
+        updateTenxFlow(currentFlowId, body, {
+          success: {
+            func: () => {
+              notification.success('修改构建成功');
+              scope.setState({
+                createTenxFlowModal: false,
+                forEdit: false,
+                currentFlowId: null
+              },()=>{
+                loadData()
+              })
+              this.setState({
+                forEdit: false
+              })
+            },
+            isAsync: true
+          }
+        });
+        return
+      }
       createTenxFlowSingle(body, {
         success: {
           func: (res) => {
             scope.setState({
               createTenxFlowModal: false
             });
+            this.setState({
+              forEdit: false
+            })
             if(buildImage) {
               browserHistory.push(`/ci_cd/build_image/tenx_flow_build?${res.data.flowId}&showCard=${true}`)
               return
@@ -285,7 +438,7 @@ let CreateTenxFlow = React.createClass({
                 notification.error('非法的参数值')
                 break
               case 409:
-                notification.error('资源存在冲突，无法创建')
+                notification.error('已存在同名构建任务，无法创建')
                 break
               case 500:
                 notification.error('创建 TenxFlow 失败')
@@ -312,7 +465,8 @@ let CreateTenxFlow = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { scope, isFetching } = this.props;
+    const { scope, isFetching, flowInfo } = this.props;
+    const { currentFlow, forEdit } = this.state;
     if(isFetching) {
       return (
         <div className='loadingBox'>
@@ -325,6 +479,7 @@ let CreateTenxFlow = React.createClass({
       rules: [
         { validator: this.nameExists },
       ],
+      initialValue: scope.state.forEdit ? currentFlow&&currentFlow.name : ''
     });
     const radioFlowTypeProps = getFieldProps('radioFlow', {
       rules: [
@@ -338,21 +493,22 @@ let CreateTenxFlow = React.createClass({
         { validator: this.radioEmailCheck },
       ],
       onChange: this.onChangeAlertEmail,
-      initialValue: DefaultEmailAddress
+      initialValue: checkEmailType(this.state.emailList, this, 'init')
     });
     const checkEmailProps = getFieldProps('inputEmail', {
       rules: [
         { validator: this.emailInputCheck },
       ],
+      initialValue: this.state.emailList
     });
     return (
       <div id='CreateTenxFlow' key='CreateTenxFlow'>
         {this.props.buildImage ? <Alert message={<FormattedMessage {...menusText.buildImageToolTip} />} type='info' /> : ''}
         <Title title="TenxFlow" />
       <Form horizontal>
-        <div className='commonBox'>
+        <div className={classNames('commonBox',{'hide': scope.state.forEdit})}>
           <div className='title'>
-            <span><FormattedMessage {...menusText.create} /></span>
+            <span><FormattedMessage { ...menusText.create } /></span>
           </div>
           <div className='input'>
             <FormItem className='flowTypeForm'>
@@ -419,16 +575,16 @@ let CreateTenxFlow = React.createClass({
               </div>
               <div className='input alert'>
                 <FormItem className='checkBox'>
-                  <Checkbox {...getFieldProps('checkFirst', {valuePropName: 'checked', initialValue: false})} >
+                  <Checkbox  {...getFieldProps('checkFirst', { valuePropName: 'checked', initialValue: this.state.checkFirst }) } >
                     <FormattedMessage {...menusText.alertFirst} />
                   </Checkbox><br />
-                  <Checkbox {...getFieldProps('checkSecond', {valuePropName: 'checked', initialValue: false})} >
+                  <Checkbox  {...getFieldProps('checkSecond', { valuePropName: 'checked', initialValue: this.state.checkSecond }) } >
                     <FormattedMessage {...menusText.alertSecond} />
                   </Checkbox><br />
-                  <Checkbox {...getFieldProps('checkThird', {valuePropName: 'checked', initialValue: false})} >
+                  <Checkbox  {...getFieldProps('checkThird', { valuePropName: 'checked', initialValue: this.state.checkThird }) } >
                     <FormattedMessage {...menusText.alertThird} />
                   </Checkbox><br />
-                  <Checkbox {...getFieldProps('checkForth', {valuePropName: 'checked', initialValue: false})} >
+                  <Checkbox  {...getFieldProps('checkForth', { valuePropName: 'checked', initialValue: this.state.checkForth }) } >
                     <FormattedMessage {...menusText.alertForth} />
                   </Checkbox>
                 </FormItem>
@@ -443,7 +599,7 @@ let CreateTenxFlow = React.createClass({
           </Button>
           <Button size='large' type='primary' onClick={this.handleSubmit}>
             <i className='fa fa-cog' />&nbsp;
-            <FormattedMessage {...menusText.submit} />
+            <FormattedMessage {...menusText[scope.state.forEdit ? 'edit' : 'submit']} />
           </Button>
         </div>
       </Form>
@@ -458,7 +614,7 @@ function mapStateToProps(state, props) {
     DefaultEmailAddress = entities.loginUser.info.email
   }
   return {
-
+  
   }
 }
 
@@ -469,7 +625,9 @@ CreateTenxFlow.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  createTenxFlowSingle
+  createTenxFlowSingle,
+  updateTenxFlow,
+  getTenxFlowDetail
 })(injectIntl(CreateTenxFlow, {
   withRef: true,
 }));

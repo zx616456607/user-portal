@@ -115,7 +115,6 @@ const LivenessSetting = React.createClass({
                         <Col span={6}>
                           <FormItem key="livenessPort">
                             <InputNumber
-                              placeholder="请填写端口"
                               size="default"
                               {...livenessPortProps}
                               min={0}
@@ -126,7 +125,6 @@ const LivenessSetting = React.createClass({
                         <Col span={6}>
                           <FormItem key="livenessInitialDelaySeconds">
                             <InputNumber
-                              placeholder="请填写首次检查延时"
                               size="default"
                               {...livenessInitialDelaySecondsProps}
                               min={0}
@@ -139,7 +137,6 @@ const LivenessSetting = React.createClass({
                         <Col span={6}>
                           <FormItem key="livenessTimeoutSeconds">
                             <InputNumber
-                              placeholder="请填写检查超时"
                               size="default"
                               {...livenessTimeoutSecondsProps}
                               min={0}
@@ -152,7 +149,6 @@ const LivenessSetting = React.createClass({
                         <Col span={6}>
                           <FormItem key="livenessPeriodSeconds">
                             <InputNumber
-                              placeholder="请填写检查间隔"
                               size="default"
                               {...livenessPeriodSecondsProps}
                               min={0}
@@ -174,7 +170,6 @@ const LivenessSetting = React.createClass({
                             <Col span={6}>
                               <FormItem>
                                 <Input
-                                  placeholder="请填写 Path 路径"
                                   size="default"
                                   {...livenessPathProps}
                                 />

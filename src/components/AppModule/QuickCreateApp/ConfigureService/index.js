@@ -21,6 +21,7 @@ import {
   getOtherImageTag,
   loadOtherDetailTagConfig,
 } from '../../../../actions/app_center'
+import { loadRepositoriesTags, loadRepositoriesTagConfigInfo } from '../../../../actions/harbor'
 import QueueAnim from 'rc-queue-anim'
 import { appNameCheck, validateK8sResourceForServiceName } from '../../../../common/naming_validation'
 import {
@@ -87,7 +88,7 @@ let ConfigureService = React.createClass({
   loadImageTags(props) {
     const {
       location, loadImageDetailTag, getOtherImageTag,
-      form, currentFields, mode
+      form, currentFields, mode, loadRepositoriesTags
     } = props
     let { imageName } = props
     const { other } = location.query
@@ -115,29 +116,46 @@ let ConfigureService = React.createClass({
       })
       return
     }
+    loadRepositoriesTags(DEFAULT_REGISTRY, imageName, {
+       success: {
+         func: result => {
+           let imageTag = result.data[0]
+           if (result.data.indexOf(LATEST) > -1) {
+             imageTag = LATEST
+           }
+           setFieldsValue({
+             imageTag,
+           })
+           // load image config by tag
+           this.loadImageConfig(other, imageTag)
+         },
+         isAsync: true,
+       }
+     })
     // use DEFAULT_REGISTRY here!
-    loadImageDetailTag(DEFAULT_REGISTRY, imageName, {
-      success: {
-        func: result => {
-          let imageTag = result.data[0]
-          if (result.data.indexOf(LATEST) > -1) {
-            imageTag = LATEST
-          }
-          setFieldsValue({
-            imageTag,
-          })
-          // load image config by tag
-          this.loadImageConfig(other, imageTag)
-        },
-        isAsync: true,
-      }
-    })
+   // loadImageDetailTag(DEFAULT_REGISTRY, imageName, {
+   //   success: {
+   //     func: result => {
+   //       let imageTag = result.data[0]
+   //       if (result.data.indexOf(LATEST) > -1) {
+   //         imageTag = LATEST
+   //       }
+   //       setFieldsValue({
+   //         imageTag,
+   //       })
+   //       // load image config by tag
+   //       this.loadImageConfig(other, imageTag)
+   //     },
+   //     isAsync: true,
+   //   }
+   // })
   },
   loadImageConfig(other, imageTag) {
     const {
       mode,
       loadOtherDetailTagConfig,
-      loadImageDetailTagConfig,
+      //loadImageDetailTagConfig,
+      loadRepositoriesTagConfigInfo,
       imageName,
     } = this.props
     let loadImageConfigFunc
@@ -160,7 +178,7 @@ let ConfigureService = React.createClass({
       }
       loadImageConfigFunc = loadOtherDetailTagConfig.bind(this, imageTag, callback)
     } else {
-      loadImageConfigFunc = loadImageDetailTagConfig.bind(this, DEFAULT_REGISTRY, imageName, imageTag, callback)
+      loadImageConfigFunc = loadRepositoriesTagConfigInfo.bind(this, DEFAULT_REGISTRY, imageName, imageTag, callback)
     }
     loadImageConfigFunc()
   },
@@ -499,8 +517,9 @@ const createFormOpts = {
 ConfigureService = Form.create(createFormOpts)(ConfigureService)
 
 function mapStateToProps(state, props) {
-  const { quickCreateApp, entities, getImageTag } = state
-  const { imageTag, otherImageTag } = getImageTag
+  const { quickCreateApp, entities, getImageTag, harbor } = state
+  const { otherImageTag } = getImageTag
+  const { imageTags } = harbor
   const { imageName, location, id } = props
   const { fields } = quickCreateApp
   const currentFields = quickCreateApp.fields[id]
@@ -510,8 +529,8 @@ function mapStateToProps(state, props) {
     tags = otherImageTag.imageTag || []
     tagsIsFetching = otherImageTag.isFetching
   } else {
-    if (imageTag[DEFAULT_REGISTRY] && imageTag[DEFAULT_REGISTRY][imageName]) {
-      const currentImageTags = imageTag[DEFAULT_REGISTRY][imageName]
+    if (imageTags[DEFAULT_REGISTRY] && imageTags[DEFAULT_REGISTRY][imageName]) {
+      const currentImageTags = imageTags[DEFAULT_REGISTRY][imageName]
       tags = currentImageTags.tag || []
       tagsIsFetching = currentImageTags.isFetching
     }
@@ -522,7 +541,7 @@ function mapStateToProps(state, props) {
     current: entities.current,
     imageTags: {
       list: tags,
-      isFetching: tagsIsFetching,
+      isFetching: tagsIsFetching
     }
   }
 }
@@ -531,10 +550,12 @@ ConfigureService = connect(mapStateToProps, {
   setFormFields,
   checkAppName,
   checkServiceName,
-  loadImageDetailTag,
-  loadImageDetailTagConfig,
+  //loadImageDetailTag,
+  //loadImageDetailTagConfig,
   getOtherImageTag,
   loadOtherDetailTagConfig,
+  loadRepositoriesTagConfigInfo,
+  loadRepositoriesTags
 })(ConfigureService)
 
 export default ConfigureService

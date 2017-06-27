@@ -76,6 +76,7 @@ exports.updateCluster = function* () {
   const cluster = this.params.cluster
   const api = apiFactory.getK8sApi(loginUser)
   const body = this.request.body
+  body.clusterName = FilterEmoji(body.clusterName)
   const result = yield api.update(cluster, body)
   this.body = result
 }
@@ -100,7 +101,7 @@ exports.deleteCluster = function* () {
   let isCurrentClusterDefalut = false
   clusters.map(cluster => {
     if (cluster.isDefault === DEFAULT_CLUSTER_MARK) {
-      defaultClusterSum ++
+      defaultClusterSum++
       if (cluster.clusterID === clusterID) {
         isCurrentClusterDefalut = true
       }
@@ -147,7 +148,7 @@ exports.getClusterSummary = function* () {
 }
 
 // For bind node when create service(lite only)
-exports.getNodes = function* (){
+exports.getNodes = function* () {
   const loginUser = this.session.loginUser
   const cluster = this.params.cluster
   const spi = apiFactory.getSpi(loginUser)
@@ -211,7 +212,7 @@ exports.updateClusterPlugins = function* () {
   const cluster = this.params.cluster
   const pluginName = this.params.name
   const api = apiFactory.getK8sApi(this.session.loginUser)
-  if(this.query.reset != undefined) {
+  if (this.query.reset != undefined) {
     const result = yield api.updateBy([cluster, 'plugins', pluginName], {
       reset: this.query.reset
     })
@@ -221,7 +222,7 @@ exports.updateClusterPlugins = function* () {
     return
   }
   const body = this.request.body
-  if(body.cpu == undefined || body.memory == undefined || body.hostName == undefined) {
+  if (body.cpu == undefined || body.memory == undefined || body.hostName == undefined) {
     const err = new Error('cpu, memory, hostName is require')
     err.status = 400
     throw err
@@ -229,19 +230,19 @@ exports.updateClusterPlugins = function* () {
   const cpu = parseFloat(body.cpu) != 0 ? parseFloat(body.cpu) * 1000 : undefined
   const memory = parseInt(body.memory) != 0 ? parseInt(body.memory) : undefined
   const hostName = body.hostName != "" ? body.hostName : undefined
-  let requestBody =  {
+  let requestBody = {
     limit: {
     },
     request: {
     }
   }
-  if(cpu) {
+  if (cpu) {
     requestBody.limit.cpu = requestBody.request.cpu = cpu
   }
-  if(memory) {
+  if (memory) {
     requestBody.limit.memory = requestBody.request.memory = memory
   }
-  if(hostName) {
+  if (hostName) {
     requestBody.hostName = hostName
   }
   const result = yield api.updateBy([cluster, 'plugins', pluginName], null, requestBody)
@@ -252,7 +253,7 @@ exports.updateClusterPlugins = function* () {
 exports.createPlugins = function* () {
   const cluster = this.params.cluster
   const body = this.request.body
-  if(!body || !body.template || !body.pluginName) {
+  if (!body || !body.template || !body.pluginName) {
     const err = new Error('template and pluginName is require')
     err.status = 400
     throw err
@@ -261,7 +262,7 @@ exports.createPlugins = function* () {
   const templateApi = apiFactory.getTemplateApi(loginUser)
   const templateResult = yield templateApi.getBy([body.template])
   let templateContent = templateResult.data.content
-  if(!templateContent) {
+  if (!templateContent) {
     const err = new Error('Plugin template is null')
     err.status = 400
     throw err
@@ -279,7 +280,7 @@ exports.createPlugins = function* () {
 exports.batchStopPlugins = function* () {
   const cluster = this.params.cluster
   const body = this.request.body
-  if(!body || !body.pluginNames || body.pluginNames.length == 0) {
+  if (!body || !body.pluginNames || body.pluginNames.length == 0) {
     const err = new Error('pluginNames is require')
     err.status = 400
     throw err
@@ -294,7 +295,7 @@ exports.batchStopPlugins = function* () {
 exports.batchStartPlugins = function* () {
   const cluster = this.params.cluster
   const body = this.request.body
-  if(!body || !body.pluginNames || body.pluginNames.length == 0) {
+  if (!body || !body.pluginNames || body.pluginNames.length == 0) {
     const err = new Error('pluginNames is require')
     err.status = 400
     throw err
@@ -310,7 +311,7 @@ exports.batchStartPlugins = function* () {
 exports.batchDeletePlugins = function* () {
   const cluster = this.params.cluster
   const body = this.query.pluginNames
-  if(!body) {
+  if (!body) {
     const err = new Error('pluginNames is require')
     err.status = 400
     throw err
@@ -322,7 +323,7 @@ exports.batchDeletePlugins = function* () {
   this.body = result
 }
 
-exports.getClusterNetworkMode = function*() {
+exports.getClusterNetworkMode = function* () {
   const cluster = this.params.cluster
   const api = apiFactory.getK8sApi(this.session.loginUser)
   const result = yield api.getBy([cluster, 'network'])
@@ -341,3 +342,10 @@ function getRegistryURL() {
   // Default registry url
   return "localhost"
 }
+function FilterEmoji(str) {
+  var reg = /[^\u4e00-\u9fa5|\u0000-\u00ff|\u3002|\uFF1F|\uFF01|\uff0c|\u3001|\uff1b|\uff1a|\u3008-\u300f|\u2018|\u2019|\u201c|\u201d|\uff08|\uff09|\u2014|\u2026|\u2013|\uff0e]/g;
+  str = str.replace(reg, '');
+  return str
+}
+
+exports.FilterEmoji = FilterEmoji

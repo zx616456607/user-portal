@@ -11,6 +11,19 @@
     width: 100%;
     .leftBox {
       float: left;
+      button:first-of-type {
+        padding:0;
+        a{
+          color: white;
+          display: block;
+          height: 32px;
+          line-height: 32px;
+          width: 104px;
+        }
+      }
+      button:not(:first-of-type){
+        background-color: white !important;
+      }
       button {
         margin-right: 10px;
         i {
@@ -51,6 +64,7 @@
     .pageBox {
       float: right;
       height: 35px;
+      margin-right: 8px;
       .totalPage {
         float: left;
         margin-right: 8px;
@@ -134,13 +148,13 @@
       }
     }
     .actionBox {
-      width: 16%;
+      width: 130px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     .visitIp {
-      width: 22%;
+      width: 20%;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -231,7 +245,7 @@
           }
         }
         &:hover {
-          background-color: #F2F2F2;
+          background-color: #eaf8fe;
           .TipAppDomain{
             .more {
               use {

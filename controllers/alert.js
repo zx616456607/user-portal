@@ -12,6 +12,7 @@ const email = require('../utils/email')
 const logger = require('../utils/logger.js').getLogger('alert')
 const initGlobalConfig = require('../services/init_global_config')
 const co = require('co')
+const _ = require('lodash')
 
 exports.getRecordFilters = function* () {
   const cluster = this.params.cluster
@@ -94,16 +95,17 @@ exports.batchDeleteNotifyGroups = function* () {
 }
 
 exports.sendInvitation = function* () {
-	const method = 'alert.sendInvitation'
-	const loginUser = this.session.loginUser
-	const spi = apiFactory.getSpi(loginUser)
-	const result = yield spi.email.createBy(['invitations'], null, this.request.body)
-	// get email addr and code, then send out the code
-	const initConfig = yield initGlobalConfig.initGlobalConfig()
-	yield result.data.emails.map(function (item) {
-		return email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code,globalConfig.mail_server)
-	})
-	this.body = {}
+  const method = 'alert.sendInvitation'
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+  const result = yield spi.email.createBy(['invitations'], null, this.request.body)
+  // get email addr and code, then send out the code
+  const initConfig = yield initGlobalConfig.initGlobalConfig()
+  const transport = _.cloneDeep(globalConfig.mail_server)
+  yield result.data.emails.map(function (item) {
+    return email.sendNotifyGroupInvitationEmail(item.addr, loginUser.user, loginUser.email, item.code,transport)
+  })
+  this.body = {}
 }
 
 exports.acceptInvitation = function* () {
@@ -143,6 +145,15 @@ exports.checkEmailAcceptInvitation = function* () {
 
 
 /*--------------alert setting--------------------*/
+
+exports.checkExist = function* (){
+  const cluster = this.params.cluster
+  const strategyName = this.params.strategyName
+  const user = this.session.loginUser
+  const api = apiFactory.getK8sApi(user)
+  const result = yield api.getBy([cluster, 'alerts/strategies', strategyName, "existence"], null)
+  this.body = result
+}
 
 exports.getAlertSetting = function* () {
   const cluster = this.params.cluster
@@ -244,7 +255,7 @@ exports.getSettingListfromserviceorapp = function* () {
   const cluster = this.params.cluster
   const api = apiFactory.getK8sApi(this.session.loginUser)
   const queryBody = this.query
-  const body = yield  api.getBy([cluster, 'alerts/group-strategies'],queryBody)
+  const body = yield api.getBy([cluster, 'alerts/group-strategies'], queryBody)
   this.body = body
 }
 
@@ -416,7 +427,7 @@ exports.getTargetInstant = function* () {
     totalMemoryByte,
     parseFloat(results[1].data[name] / totalMemoryByte).toFixed(4)
   ]
-  
+
   this.body = {
     [strategyName]: {
       cpus: results[0].data[name],

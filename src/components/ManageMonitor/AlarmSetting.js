@@ -16,6 +16,8 @@ import { connect } from 'react-redux'
 import NotificationHandler from '../../common/notification_handler'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { getAlertSetting, deleteRecords, getSettingList, deleteSetting, batchEnable, batchDisable, ignoreSetting, getSettingInstant } from '../../actions/alert'
+import { loadServiceDetail } from '../../actions/services'
+import { getHostInfo } from '../../actions/cluster'
 import CreateAlarm from '../AppModule/AlarmModal'
 import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 import no_alarm from '../../assets/img/no_data/no_alarm.png'
@@ -184,7 +186,7 @@ let MyComponent = React.createClass({
     if (text ==3) {
       return <span className="stop"><i className="fa fa-circle" /> 忽略</span>
     }
-    return <span className="unknown"><i className="fa fa-circle" /> 告警</span>
+    return <span className="padding"><i className="fa fa-circle" /> 告警</span>
   },
   handOverlook() {
     const { currentStrategy, ignoreTime, ignoreSymbol } = this.state
@@ -375,6 +377,48 @@ let MyComponent = React.createClass({
       this.setState({lookModel: true, currentStrategy: list})
     }
   },
+  toProjectDetail(list) {
+    const { cluster, loadServiceDetail,getHostInfo } = this.props;
+    const notify = new NotificationHandler()
+    if (!list.targetType) {
+      loadServiceDetail(cluster.clusterID,list.targetName,{
+        success: {
+          func: ()=> {
+            browserHistory.push(`/app_manage/service?serName=${list.targetName}`)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err)=> {
+            if (err.statusCode === 404) {
+              notify.error('关联服务不存在或者已经被删除')
+            }
+          },
+          isAsync: true
+        }
+      })
+    }else {
+      const body = {
+        clusterID:cluster.clusterID,
+        clusterName: list.targetName
+      }
+      getHostInfo(body,{
+        success: {
+          func: ()=>{
+            browserHistory.push(`/cluster/${cluster.clusterID}/${list.targetName}`)
+          },
+          isAsync:true
+        },
+        failed: {
+          func: ()=>{
+            notify.error('关联节点不存在或者已被删除')
+          },
+          isAsync:true
+        }
+      })
+    }
+    
+  },
   render() {
     const { data } = this.state
     if(!data || data.length <= 0) return (<div className="text-center"><img src={no_alarm} />
@@ -387,7 +431,9 @@ let MyComponent = React.createClass({
              <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
               <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-down" /><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
               <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
-              <td onClick={()=> this.tableListMore(index)}>{list.targetName}</td>
+              <td >
+                <span className="targetName" onClick={()=>{this.toProjectDetail(list)}}>{list.targetName}</span>
+              </td>
               <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
               <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
               <td onClick={()=> this.tableListMore(index)}>{formatDate(list.createTime)}</td>
@@ -408,7 +454,9 @@ let MyComponent = React.createClass({
             <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
             <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-right" /><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
             <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
-            <td onClick={()=> this.tableListMore(index)}>{list.targetName}</td>
+            <td >
+              <span className="targetName" onClick={(e)=>{this.toProjectDetail(list,e)}}>{list.targetName}</span>
+            </td>
             <td onClick={()=> this.tableListMore(index)}>{this.formatStatus(list.statusCode)}</td>
             <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
             <td onClick={()=> this.tableListMore(index)}>{formatDate(list.createTime)}</td>
@@ -473,17 +521,21 @@ function myComponentMapStateToProp(state) {
     isFetching: false
   }
   let { settingInstant }  = state.alert
+  const { cluster } = state.entities.current;
   if(!settingInstant) {
     settingInstant = defaultInstant
   }
   return{
-    settingInstant
+    settingInstant,
+    cluster,
   }
 }
 
 MyComponent = connect(myComponentMapStateToProp, {
   getSettingInstant,
-  deleteRecords
+  deleteRecords,
+  loadServiceDetail,
+  getHostInfo
 })(MyComponent)
 
 
@@ -518,7 +570,7 @@ class AlarmSetting extends Component {
     let nextSpaceName = nextProps.space.spaceName;
     let preClusterID = this.props.clusterID;
     let nextClusterID = nextProps.clusterID;
-    
+
     if(preSpaceName !== nextSpaceName || preClusterID !== nextClusterID){
       getSettingList(nextClusterID, {
         from: DEFAULT_PAGE - 1,
@@ -930,10 +982,11 @@ class AlarmSetting extends Component {
               <i className="fa fa-plus" style={{marginRight:'5px'}}/>
               创建
             </Button>
-            <Button size="large" type="ghost" onClick={() => this.refreshPage()}><i className="fa fa-refresh" /> 刷新</Button>
-            <Button icon="caret-right" size="large" type="ghost" disabled={!this.state.canStart} onClick={() => this.showStart()}>启用</Button>
-            <Button size="large" type="ghost" disabled={!this.state.canStop} onClick={() => this.showStop()}><i className="fa fa-stop" /> &nbsp;停用</Button>
-            <Button icon="delete" type="ghost" disabled={this.state.isDelete} onClick={()=> this.setState({deleteModal: true})} size="large">删除</Button>
+
+            <Button size="large" type="ghost" disabled={!this.state.canStart} onClick={() => this.showStart()}><i className='fa fa-play' />启用</Button>
+            <Button size="large" type="ghost" disabled={!this.state.canStop} onClick={() => this.showStop()}><i className="fa fa-stop" />停用</Button>
+            <Button size="large" type="ghost" onClick={() => this.refreshPage()}><i className="fa fa-refresh" />刷新</Button>
+            <Button type="ghost" disabled={this.state.isDelete} onClick={()=> this.setState({deleteModal: true})} size="large"><i className='fa fa-trash-o' />删除</Button>
             {/*<Button icon="edit" type="ghost" disabled={!canEdit} size="large" onClick={() => this.editSetting()} >修改</Button>*/}
             <div className="inputGrop">
               <Input size="large" id="alarmSearch" placeholder="搜索" onPressEnter={()=> this.handSearch()}/>
@@ -954,14 +1007,14 @@ class AlarmSetting extends Component {
           }
           </div>
           <MyComponent data={this.props.setting} scope={this} funcs={{ deleteRecords: this.props.deleteRecords }} needUpdate={this.state.needUpdate} clusterID={this.props.clusterID}/>
-          <Modal title="创建告警策略" visible={this.state.alarmModal} width={580}
+          <Modal title={this.state.isEdit? "修改告警策略": "创建告警策略" } visible={this.state.alarmModal} width={580}
             className="alarmModal"
             onCancel={() => this.setState({ alarmModal: false, step: 1 })}
             maskClosable={false}
             footer={null}
           >
             <CreateAlarm funcs={modalFunc} strategy={editStrategy} isEdit={this.state.isEdit} isShow={this.state.alarmModal}
-              getSettingList={() => this.refreshPage()} />  {/*this.props.getSettingList(this.props.clusterID, { from: (this.state.currentPage - 1) * DEFAULT_PAGE_SIZE, size: DEFAULT_PAGE_SIZE })} />*/}
+              getSettingList={() => this.refreshPage()} />
           </Modal>
           {/* 通知组 */}
           <Modal title="创建新通知组" visible={this.state.createGroup}
@@ -1043,5 +1096,5 @@ export default connect(mapStateToProps, {
   deleteSetting,
   batchEnable,
   batchDisable,
-  ignoreSetting,
+  ignoreSetting
 })(AlarmSetting)

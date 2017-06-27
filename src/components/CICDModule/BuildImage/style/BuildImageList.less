@@ -42,7 +42,10 @@
       .name {
         padding-left: 44px;
         float: left;
-        width: 10%;
+        width: 12%;
+        @media(max-width:1350px){
+          padding-left: 28px;
+        }
         span {
           display: block;
           white-space: nowrap;
@@ -53,7 +56,7 @@
       .time {
         padding-left: 10px;
         float: left;
-        width: 10%;
+        width: 13%;
         .timeSpan {
           display: block;
           white-space: nowrap;
@@ -64,18 +67,7 @@
       .code {
         padding-left: 44px;
         float: left;
-        width: 18%;
-        span {
-          display: block;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-      }
-      .branch {
-        padding-left: 10px;
-        float: left;
-        width: 8%;
+        width: 28%;
         span {
           display: block;
           white-space: nowrap;
@@ -87,6 +79,9 @@
         padding-left: 44px;
         float: left;
         width: 15%;
+        @media(max-width:1350px){
+          padding-left: 20px;
+        }
         span {
           display: block;
           white-space: nowrap;
@@ -98,7 +93,7 @@
         padding-left: 10px;
         float: left;
         width: 10%;
-        .fa{margin-right: 5px;}
+        .fa{margin-right: 8px; }
       }
       .status-1{
         color: #f23e3f
@@ -117,6 +112,7 @@
           width:75px;
           height: 35px;
           margin-top: 5px;
+          padding-left: 0px;
           float: left;
           border-right:0;
           li{border:0;padding:0}
@@ -144,7 +140,7 @@
           margin-top: 10px;
         }
         &:hover {
-          background-color: #F8F8F8;
+          background-color: #eaf8fe;
         }
         &:last-child {
           border-bottom: 0;

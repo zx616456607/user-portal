@@ -19,8 +19,14 @@ import { appEnvCheck } from '../../../common/naming_validation'
 import { editServiceEnv } from '../../../actions/services'
 import NotificationHandler from '../../../common/notification_handler.js'
 import { Link } from 'react-router'
+
 const enterpriseFlag = ENTERPRISE_MODE == mode
 const FormItem = Form.Item
+const scheduleBySystem = 'ScheduleBySystem'
+const scheduleByHostNameOrIP = 'ScheduleByHostNameOrIP'
+const scheduleByLabels = 'ScheduleByLabels'
+const unknownSchedulePolicy = 'Error'
+
 class MyComponent extends Component {
   constructor(props){
     super(props)
@@ -113,6 +119,11 @@ class MyComponent extends Component {
     const { serviceDetail, cluster, editServiceEnv } = this.props
     const Notification = new NotificationHandler()
     this.setState({appEditLoading: true})
+    if(dataArray.length > 1 && (dataArray[dataArray.length-1].name == '' || dataArray[dataArray.length-1].value == '' )){
+      
+      new NotificationHandler().error("请先保存新增的环境变量")
+      return
+    }
     let body = {
       clusterId : cluster,
       service : serviceDetail.metadata.name,
@@ -199,6 +210,8 @@ class MyComponent extends Component {
       rowDisableArray,
       dataArray,
       saveBtnLoadingArray
+    },()=>{
+      document.getElementById(`envName${dataArray.length-1}`).focus()
     })
   }
 
@@ -212,7 +225,7 @@ class MyComponent extends Component {
 
   ModalDeleteOk(){
     const { rowDisableArray, dataArray, DeletingEnvIndex, saveBtnLoadingArray } = this.state
-    
+
     rowDisableArray.splice(DeletingEnvIndex,1)
     dataArray.splice(DeletingEnvIndex,1)
     saveBtnLoadingArray.splice(DeletingEnvIndex,1)
@@ -255,8 +268,8 @@ class MyComponent extends Component {
     } else {
       callback(new Error([errorMsg]));
     }
-  }  
-  
+  }
+
   templateTable(dataArray,rowDisableArray) {
     if(dataArray.length == 0) {
       return <div className='noData'>暂无环境变量</div>
@@ -276,7 +289,7 @@ class MyComponent extends Component {
             {
               rowDisableArray[index].disable
               ?<FormItem>
-                <Input {...getFieldProps(`envName${index}`, {
+                <Input id={`envName${index}`} {...getFieldProps(`envName${index}`, {
                   initialValue:env.name,
                   rules: [{ validator: this.envNameCheck },],
                 })} placeholder={env.name} size="default"/>
@@ -338,7 +351,7 @@ class MyComponent extends Component {
             </div>
             <div style={{ clear: 'both' }}></div>
           </div>
-  
+
         </div>
         <div>
           <Form>
@@ -391,12 +404,127 @@ MyComponent = connect(mapStateToProp, {
   editServiceEnv,
 })(MyComponent)
 
+class BindNodes extends Component {
+  constructor(props) {
+    super(props)
+    this.getSchedulingPolicy = this.getSchedulingPolicy.bind(this)
+    this.getNodeAffinityLabels = this.getNodeAffinityLabels.bind(this)
+    this.getNodeSelectorTarget = this.getNodeSelectorTarget.bind(this)
+    this.template = this.template.bind(this)
+    this.labelsTemplate = this.labelsTemplate.bind(this)
+    this.state = {
+      bindNodesData: {}
+    }
+  }
+
+  getSchedulingPolicy(data) {
+    const template = data.spec.template
+    const metadata = template.metadata
+    const spec = template.spec
+    const labels = this.getNodeAffinityLabels(metadata)
+    const node = this.getNodeSelectorTarget(spec)
+    const policy = {
+      type: scheduleBySystem,
+    }
+    if (labels && node) {
+      policy.type = unknownSchedulePolicy
+    } else if (labels) {
+      policy.type = scheduleByLabels
+      policy.labels = labels
+    } else if (node) {
+      policy.type = scheduleByHostNameOrIP
+      policy.node = node
+    }
+    return policy
+  }
+
+  getNodeSelectorTarget(spec) {
+    const hostNameKey = 'kubernetes.io/hostname'
+    if (!spec.hasOwnProperty('nodeSelector') || !spec.nodeSelector.hasOwnProperty(hostNameKey)) {
+      return null
+    }
+    return spec.nodeSelector[hostNameKey]
+  }
+
+  getNodeAffinityLabels(metadata) {
+    const affinityKey = 'scheduler.alpha.kubernetes.io/affinity'
+    if (!metadata.hasOwnProperty('annotations') || !metadata.annotations.hasOwnProperty(affinityKey)) {
+      return null
+    }
+    const affinity = JSON.parse(metadata.annotations[affinityKey])
+    const labels = affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms.reduce(
+      (expressions, term) => expressions.concat(term.matchExpressions), []).reduce(
+      (labels, expression) => labels.concat(expression.values.map(
+        value => ({
+          key: expression.key,
+          value
+        }))), [])
+    return labels.length > 0 ? labels : null
+  }
+
+  labelsTemplate(labels) {
+    let arr = labels.map((item, index) => {
+      return <div key={index} className='label'>
+        <span>{item.key}</span>
+        <span> : </span>
+        <span>{item.value}</span>
+      </div>
+    })
+    return arr
+  }
+
+  template() {
+    const { serviceDetail } = this.props
+    let bindNodesData = this.getSchedulingPolicy(serviceDetail)
+    switch (bindNodesData.type) {
+      case "ScheduleBySystem":
+        return <span>
+          <div className="commonTitle">--</div>
+          <div>系统默认调度</div>
+        </span>
+      case "ScheduleByHostNameOrIP":
+        return <span>
+          <div className="commonTitle">主机名及IP</div>
+          <div>{bindNodesData.node}</div>
+        </span>
+      case "ScheduleByLabels":
+        return <span>
+          <div className="commonTitle bindnodeTitle">主机标签</div>
+          <div>{this.labelsTemplate(bindNodesData.labels)}</div>
+        </span>
+      case "Error":
+      default:
+        return <span>
+          <div className="commonTitle">--</div>
+          <div>--</div>
+        </span>
+    }
+  }
+
+  render() {
+    return <div className='commonBox bindNodes'>
+      <span className="titleSpan">绑定节点</span>
+      <div className="titleBox">
+        <div className="commonTitle">
+          绑定方式
+        </div>
+        <div className="commonTitle">
+          绑定对象
+        </div>
+        <div style={{ clear: 'both' }}></div>
+      </div>
+      <div className='dataBox'>
+        {this.template()}
+      </div>
+    </div>
+  }
+}
 
 export default class AppServiceDetailInfo extends Component {
   constructor(props) {
     super(props)
     this.state={
-    
+
     }
   }
   getMount(container) {
@@ -547,6 +675,7 @@ export default class AppServiceDetailInfo extends Component {
             <div style={{ clear: 'both' }}></div>
           </div>
         </div>
+        <BindNodes serviceDetail={serviceDetail}/>
         <MyComponent
           ref="envComponent"
           serviceDetail={serviceDetail}

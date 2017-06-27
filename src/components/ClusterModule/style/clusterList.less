@@ -94,13 +94,18 @@
       }
     }
     .addBtn {
-      float: left;
-      margin-top: 3px;
-      margin-right: 15px;
-      padding: 5px 15px !important;
       position: absolute;
-      right: 4px;
+      right: 40px;
+      padding: 4px;
       z-index: 2;
+      button {
+        z-index: 2;
+      }
+    }
+    .tooltipBtn{
+      z-index: 2;
+      margin: 7px 4px;
+      background-color:rgba(0,0,0,0);
     }
 
     // nodeList
@@ -226,7 +231,7 @@
         .h4{min-width:70px;float: left;}
         .blod{font-size: 18px;}
         .ant-input{width:200px;}
-        .cluserName {float: left;width: calc(~"100% - 150px")}
+        .cluserName {position: absolute;left: 90px;width:180%;}
         .ant-form-explain{margin-left: 100px;}
         .ant-input {resize: none;width: calc(~"100% - 120px");}
       }

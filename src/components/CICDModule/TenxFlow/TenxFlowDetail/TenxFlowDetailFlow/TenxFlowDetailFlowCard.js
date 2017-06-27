@@ -339,18 +339,36 @@ class TenxFlowDetailFlowCard extends Component {
     });
   }
 
-  viewCicdBox(e) {
+  viewCicdBox(value, isSvn) {
     //this function for user change open cicd or not
     const { getTenxflowCIRules, UpdateTenxflowCIRules, flowId, config } = this.props;
     const _this = this;
     let notification = new NotificationHandler()
-    if (e) {
+    if (value) {
+      if (isSvn) {
+        let body = {
+          enabled: 1,
+        }
+        UpdateTenxflowCIRules(flowId, body, {
+          success: {
+            func: (res) => {
+              notification.success('持续集成', '开启持续集成成功');
+              _this.setState({
+                ciRulesOpened: true,
+              });
+            },
+            isAsync: true
+          }
+        })
+        return
+      }
       getTenxflowCIRules(flowId);
       this.setState({
         cicdSetModalShow: true,
       });
       return
     }
+    const _config = config.spec.ci.config || {}
     confirm({
       title: '确定关闭持续集成？',
       content: `关闭持续集成`,
@@ -361,7 +379,7 @@ class TenxFlowDetailFlowCard extends Component {
             branch: null,
             tag: null,
             mergeRequest: null,
-            buildCluster: config.spec.ci.config.buildCluster
+            buildCluster: _config.buildCluster
           }
         }
         UpdateTenxflowCIRules(flowId, body, {
@@ -506,7 +524,7 @@ class TenxFlowDetailFlowCard extends Component {
       disabled = true
     }
     const btn = currentStatusBtn(lastBuildStatus)
-    if ((lastBuildStatus && lastBuildStatus.status === 2) || project.repoType === 'svn') {
+    if (lastBuildStatus && lastBuildStatus.status === 2) {
       return (
         <Button size='large' type='primary' className='startBtn'
           onClick={this.buildFlow.bind(this, id, lastBuildStatus, name, null, null)}>
@@ -515,22 +533,32 @@ class TenxFlowDetailFlowCard extends Component {
       )
     }
     let targetElement = (
-      <Button size='large' type='primary' className='startBtn'
-        onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId)}>
+      <Button size='large' type='primary' className='startBtn' disabled={disabled}
+        onClick={() => {
+          if (project.repoType === 'svn') {
+            this.buildFlow(id, lastBuildStatus, name, null, null)
+            return
+          }
+          projectId && getRepoBranchesAndTagsByProjectId(projectId)
+        }}>
         {btn}
       </Button>
     )
     if (disabled) {
       targetElement = (
-        <Tooltip title="子任务依赖前面任务的输出，不能单独执行" placement="left">
-          <Button size='large' type='primary' className='startBtn'
-            onClick={() => projectId && getRepoBranchesAndTagsByProjectId(projectId)}
-            disabled={disabled}
-          >
-            {btn}
-          </Button>
+        <Tooltip
+          title="子任务依赖前面任务的输出，不能单独执行"
+          placement="left"
+          getTooltipContainer={() => document.getElementById('TenxFlowDetailFlow')}
+        >
+          <div className="disabledBoxForToolTip">
+            {targetElement}
+          </div>
         </Tooltip>
       )
+    }
+    if (project.repoType === 'svn') {
+      return targetElement
     }
     const tabs = []
     let loading
@@ -690,13 +718,24 @@ class TenxFlowDetailFlowCard extends Component {
             ] : null
           }
           {
-            (index == 0 && currentFlowEdit != index) ? [
-              <div className='cicdBox' key='cicdBox'>
-                <Switch onChange={this.viewCicdBox} checked={this.state.ciRulesOpened} />
-                <p className='switchTitile'><FormattedMessage {...menusText.cicd} /></p>
-                <p className='viewP' onClick={()=>this.viewCicdBoxP()}><FormattedMessage {...menusText.view} /></p>
-              </div>
-            ] : null
+            (index == 0 && currentFlowEdit != index) && (
+              (config.spec.project && config.spec.project.repoType === 'svn')
+              ? (
+                <Tooltip title="SVN 代码库不支持配置触发规则">
+                  <div className='cicdBox' key='cicdBox'>
+                    <Switch onChange={value => this.viewCicdBox(value, true)} checked={this.state.ciRulesOpened} />
+                    <p className='switchTitile' style={{color: '#ccc'}}><FormattedMessage {...menusText.cicd} /></p>
+                  </div>
+                </Tooltip>
+              )
+              : (
+                <div className='cicdBox' key='cicdBox'>
+                  <Switch onChange={this.viewCicdBox} checked={this.state.ciRulesOpened} />
+                  <p className='switchTitile'><FormattedMessage {...menusText.cicd} /></p>
+                  <p className='viewP' onClick={()=>this.viewCicdBoxP()}><FormattedMessage {...menusText.view} /></p>
+                </div>
+              )
+            )
           }
         </Card>
         {
@@ -715,9 +754,10 @@ class TenxFlowDetailFlowCard extends Component {
         <div style={{ clear: 'both' }}></div>
         <Modal className='tenxFlowCicdSetting'
           visible={this.state.cicdSetModalShow}
+          onCancel={()=>this.setState({cicdSetModalShow:false})}
           >
           <CICDSettingModal scope={scopeThis} flowId={flowId}
-            ciRules={ciRules} isFetching={isFetching} />
+            ciRules={ciRules} isFetching={isFetching} visible={this.state.cicdSetModalShow}/>
         </Modal>
         <Modal
           visible={this.state.TenxFlowDeployLogModal}

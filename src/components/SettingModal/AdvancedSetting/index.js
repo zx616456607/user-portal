@@ -47,10 +47,13 @@ class AdvancedSetting extends Component {
   }
 
   componentWillMount(){
-    const { cluster, space, loadTeamClustersList, getConfigurations } = this.props
+    const { cluster, space, loadTeamClustersList, getConfigurations, harbor } = this.props
     const { listNodes } = cluster
     this.handleListNodeStatus(listNodes)
     loadTeamClustersList(space.teamID, { size: 100 })
+    if(!harbor.hasAdminRole) {
+      return
+    }
     getConfigurations(DEFAULT_REGISTRY, {
       success: {
         func: (res) => {
@@ -338,14 +341,14 @@ class AdvancedSetting extends Component {
 
   render(){
     const { swicthChecked, Ipcheckbox, TagCheckbox, switchdisable, Tagdisabled, Ipdisabled, imageProjectRightIsEdit } = this.state
-    const { cluster, form, configurations } = this.props
+    const { cluster, form, configurations, harbor } = this.props
     const { listNodes } = cluster
     const { getFieldProps  } = form
-    if(!listNodes || (!configurations[DEFAULT_REGISTRY] || configurations[DEFAULT_REGISTRY].isFetching)) {
+    if(!listNodes || (harbor.hasAdminRole && (!configurations[DEFAULT_REGISTRY] || configurations[DEFAULT_REGISTRY].isFetching))) {
       return <div className='nodata'><Spin></Spin></div>
     }
     let projectCreationRestriction 
-    if(configurations[DEFAULT_REGISTRY].data) {
+    if(harbor.hasAdminRole && configurations[DEFAULT_REGISTRY].data) {
       projectCreationRestriction  = configurations[DEFAULT_REGISTRY].data.projectCreationRestriction
     }
     if(!projectCreationRestriction) {
@@ -396,7 +399,7 @@ class AdvancedSetting extends Component {
             </div>
           </div>
         </div>
-        <div className='imageprojectright'>
+        {harbor.hasAdminRole ? <div className='imageprojectright'>
           <div className="contentheader imageproject">仓库组创建权限</div>
           <div className="contentbody">
             <div className="alertRow">用来确定哪些用户有权限创建『仓库组』，默认为『所有人』，设置为『仅管理员』则只有系统管理员有权限</div>
@@ -421,7 +424,7 @@ class AdvancedSetting extends Component {
                 : <Button type="primary" onClick={this.handleImageProjectRight} disabled={!projectCreationRestriction.editable}>编辑</Button>
             }
           </div>
-        </div>
+        </div> : ''}
       </div>
 
       <Modal
@@ -453,13 +456,15 @@ AdvancedSetting = Form.create()(AdvancedSetting)
 
 function mapPropsToState(state,props) {
   const { cluster, space } = state.entities.current
+  const { harbor } = state.entities.loginUser.info
   const { result } = state.team.teamClusters || {}
   const { configurations } = state.harbor
   return {
     cluster,
     space,
     result,
-    configurations
+    configurations,
+    harbor
   }
 }
 

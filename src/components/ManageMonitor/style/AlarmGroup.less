@@ -28,6 +28,11 @@
   .alarmGroupHeader{
     padding:6px 0 20px 0;
     .ant-btn-ghost{margin-left: 8px;background: white;}
+    button{
+      i{
+        margin-right: 5px;
+      }
+    }
     .Search{
       width:170px;
       margin-left: 8px;
@@ -58,10 +63,10 @@
     .more.ant-popover-open {
       fill: #49b1e2;
     }
-    .disableBtn{
-      >button:nth-child(1){padding:0}
-    }
-    .normalBtn{button:nth-of-type(1){width: 60px;}}
+    // .disableBtn{
+    //   >button:nth-child(1){padding:0}
+    // }
+    // .normalBtn{button:nth-of-type(1){width: 60px;}}
   }
   .ant-spin-container {
     position: relative;
@@ -71,9 +76,11 @@
     top: -75px;
     right: -20px;
   }
-  .alarmGroupItem {line-height: 20px;}
-}
-.moDify {
-    margin-left: -16px;
-    margin-top: -10px;
+  .alarmGroupItem {
+    line-height: 20px;
+    span{
+      color : #49b1e2;
+      cursor: pointer;
+    }
   }
+}

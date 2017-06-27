@@ -414,7 +414,7 @@ class AppServiceDetail extends Component {
                 </div>
               </TabPane>
               <TabPane tab='告警策略' key='#strategy'>
-                <AlarmStrategy serviceName={service.metadata.name} cluster={service.cluster}/>
+                <AlarmStrategy serviceName={service.metadata.name} currentService={service} cluster={service.cluster}/>
               </TabPane>
               <TabPane tab='自动伸缩' key='#autoScale'>
                 <AppAutoScale
@@ -460,7 +460,8 @@ function mapStateToProps(state, props) {
   const {loginUser} = state.entities
   const {statusWatchWs} = state.entities.sockets
   const currentShowInstance = scope.state.currentShowInstance
-  const {cluster, metadata } = currentShowInstance
+  const  cluster = currentShowInstance && currentShowInstance.cluster
+  const  metadata  = currentShowInstance && currentShowInstance.metadata
   const serviceName = metadata ? metadata.name : ''
   const defaultService = {
     isFetching: false,

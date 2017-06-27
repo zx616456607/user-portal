@@ -17,7 +17,8 @@ import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import NotificationHandler from '../../../common/notification_handler'
 // import { loadUserDetail } from '../../../actions/user'
-import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
+import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN,  } from '../../../../constants'
+import { NEED_BUILD_IMAGE } from '../../../constants'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -32,11 +33,14 @@ function checkUrlSelectedKey(pathname) {
     }
     return [pathList[1], pathList[1] + '_default']
   } else {
-    if (pathList[1] == 'app_manage' && pathList[2] == 'detail') {
+    if (pathList[1] == 'app_manage' && pathList[2] == 'app_create') {
       return [pathList[1], pathList[1] + '_default']
     }
     if (pathList[1] == 'account' && pathList[2] == 'user') {
       return [pathList[1], 'member']
+    }
+    if (pathList[2] == 'coderepo') {
+      return [pathList[1], pathList[1] + '_default']
     }
     return [pathList[1], pathList[2]]
   }
@@ -295,7 +299,7 @@ class Sider extends Component {
                 </Tooltip>
               </li>
               <li onClick={()=> this.selectModel('app_center')}
-                className={currentKey == 'projects' ? 'selectedLi' : ''}>
+                className={currentKey == 'app_center' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='交付中心'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_center/projects'>
@@ -527,11 +531,13 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 代码仓库</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='build_image'>
-                    <Link to='/ci_cd/build_image'>
-                      <span><div className='sideCircle'></div> 构建镜像</span>
-                    </Link>
-                  </Menu.Item>
+                  {NEED_BUILD_IMAGE ?
+                    <Menu.Item key='build_image'>
+                      <Link to='/ci_cd/build_image'>
+                        <span><div className='sideCircle'></div> 构建镜像</span>
+                      </Link>
+                    </Menu.Item> : <Menu.Item key='integration-none' style={{ display: 'none' }}></Menu.Item>
+                  }
                   <Menu.Item key='tenx_flow'>
                     <Link to='/ci_cd/tenx_flow'>
                       <span><div className='sideCircle'></div> TenxFlow</span>

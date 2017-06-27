@@ -85,6 +85,13 @@ class CodeRepo extends Component {
             doSuccess()
             return
           }
+          if (statusCode === 403) {
+            notification.warn(`您没有权限删除该镜像`)
+            this.setState({
+              deleteRepoVisible: false,
+            })
+            return
+          }
           notification.error(`镜像删除失败`)
         },
       }
@@ -196,10 +203,11 @@ class CodeRepo extends Component {
     ]
 
     const paginationOpts = {
-      simple: true,
+      size: "small",
       pageSize: this.DEFAULT_QUERY.page_size,
       total: total,
-      onChange: current => this.loadRepos({ page: current })
+      onChange: current => this.loadRepos({ page: current }),
+      showTotal: total => `共计： ${total} 条`,
     }
 
     return (
@@ -209,17 +217,17 @@ class CodeRepo extends Component {
           <Button type="ghost" size="large" icon="cloud-download-o" onClick={()=> this.showDownload(true)}>下载镜像</Button>
 
           <Input
-            placeholder="搜索"
+            placeholder="按镜像名称搜索"
             className="search"
             size="large"
             onChange={e => this.setState({ searchInput: e.target.value })}
             onPressEnter={this.searchProjects}
           />
           <i className="fa fa-search" onClick={this.searchProjects}></i>
-          {total >0?
+          {/*{total >0?
           <span className="totalPage">共计：{total || 0} 条</span>
           :null
-          }
+          }*/}
         </div>
         <Table
           showHeader={false}

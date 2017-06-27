@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, Tooltip, Dropdown, Modal, Spin } from 'antd'
+import { Alert, Menu, Button, Card, Input, Tooltip, Dropdown, Modal, Spin, Icon } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -29,6 +29,7 @@ import NotificationHandler from '../../../common/notification_handler'
 import Socket from '../../Websocket/socketIo'
 import PopTabSelect from '../../PopTabSelect'
 import Title from '../../Title'
+import { parseQueryStringToObject } from '../../../common/tools'
 
 const PopTab = PopTabSelect.Tab;
 const PopOption = PopTabSelect.Option;
@@ -46,7 +47,7 @@ const menusText = defineMessages({
   },
   updateTime: {
     id: 'CICD.Tenxflow.TenxFlowList.updateTime',
-    defaultMessage: '更新时间',
+    defaultMessage: '上次构建时间',
   },
   status: {
     id: 'CICD.Tenxflow.TenxFlowList.status',
@@ -76,6 +77,10 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.TenxFlowList.delete',
     defaultMessage: '删除TenxFlow',
   },
+  edit: {
+    id: 'CICD.Tenxflow.TenxFlowList.edit',
+    defaultMessage: '修改TenxFlow',
+  },
   unUpdate: {
     id: 'CICD.Tenxflow.TenxFlowList.unUpdate',
     defaultMessage: '未更新',
@@ -100,7 +105,13 @@ let MyComponent = React.createClass({
       delFlowModal: false
     }
   },
-  operaMenuClick: function (item) {
+  operaMenuClick: function (item, Item) {
+    const { key } = Item;
+    const { openCreateTenxFlowModal, scope } = this.props;
+    if (key == 'editFlow') {
+      openCreateTenxFlowModal(item.flowId,true)
+      return
+    }
     //this function for user click the dropdown menu
     this.setState({ delFlowModal: true, item })
     return
@@ -199,10 +210,14 @@ let MyComponent = React.createClass({
     const { projectId, defaultBranch, stagesCount, repoType } = item
     const { repoBranchesAndTags } = this.props
     const dropdown = (
-      <Menu onClick={this.operaMenuClick.bind(this, item)}>
+      <Menu onClick={(Item)=>{this.operaMenuClick.call(this, item, Item)}}>
         <Menu.Item key='deleteFlow'>
-          <i className='fa fa-trash' style={{ lineHeight: '20px', marginRight: '5px' }} />&nbsp;
+          <i className='fa fa-trash' style={{ marginRight: '5px' }} />&nbsp;
           <FormattedMessage {...menusText.delete} style={{ display: 'inlineBlock' }} />
+        </Menu.Item>
+        <Menu.Item key='editFlow'>
+          <i className="anticon anticon-edit" style={{marginRight: '3px'}}/>&nbsp;
+          <FormattedMessage {...menusText.edit} style={{ display: 'inlineBlock' }} />
         </Menu.Item>
       </Menu>
     );
@@ -308,8 +323,8 @@ let MyComponent = React.createClass({
           </div>
           <div className='time'>
             <span className='timeSpan'>
-              <Tooltip placement='topLeft' title={item.updateTime ? dateFormat(item.updateTime) : dateFormat(item.createTime)}>
-                <span>{item.updateTime ? dateFormat(item.updateTime) : dateFormat(item.createTime)}</span>
+              <Tooltip placement='topLeft' title={item.lastBuildTime ? dateFormat(item.lastBuildTime) : '-'}>
+                <span>{item.lastBuildTime ? dateFormat(item.lastBuildTime) : '-'}</span>
               </Tooltip>
             </span>
           </div>
@@ -334,7 +349,7 @@ let MyComponent = React.createClass({
         <Modal title="删除TenxFlow操作" visible={this.state.delFlowModal}
           onOk={() => this.delFlowAction()} onCancel={() => this.setState({ delFlowModal: false })}
         >
-          <Alert message="请注意，删除TenxFlow，将清除项目的所有历史数据以及相关的镜像，且该操作不能被恢复" type="warning" showIcon />
+          <Alert message="请注意，删除 TenxFlow 将清除相关的历史构建数据，且该操作不能被恢复" type="warning" showIcon />
           <div className="modalColor" style={{ lineHeight: '30px' }}><i className="anticon anticon-question-circle-o" style={{ marginRight: '8px', marginLeft: '16px' }}></i>
             您确定要删除?
           </div>
@@ -360,7 +375,12 @@ class TenxFlowList extends Component {
       currentFlowId: null,
       flowList: [],
       searchingFlag: false,
-      searchValue:''
+      searchValue:'',
+      forEdit: false
+    }
+    const queryObj = parseQueryStringToObject(window.location.search)
+    if (queryObj.showCard == 'true') {
+      this.state.createTenxFlowModal = true
     }
   }
 
@@ -411,21 +431,27 @@ class TenxFlowList extends Component {
       });
     }
   }
-
-  openCreateTenxFlowModal() {
+  
+  openCreateTenxFlowModal(flowId,forEdit) {
     //this function for user open the modal of create new tenxflow
     this.setState({
-      createTenxFlowModal: true
+      currentFlowId: flowId ? flowId : null,
+      forEdit: forEdit ? forEdit : false
+    },()=>{
+      this.setState({
+        createTenxFlowModal: true,
+      },()=>{
+        document.getElementById('flowName').focus()
+      })
     });
-    setTimeout(function () {
-      document.getElementById('flowName').focus()
-    }, 500)
   }
 
   closeCreateTenxFlowModal() {
     //this function for user close the modal of create new tenxflow
     this.setState({
-      createTenxFlowModal: false
+      createTenxFlowModal: false,
+      forEdit: false,
+      currentFlowId: null
     });
   }
 
@@ -577,7 +603,7 @@ class TenxFlowList extends Component {
         <div id='TenxFlowList' key='TenxFlowList'>
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
           <div className='operaBox'>
-            <Button className='createBtn' size='large' type='primary' onClick={this.openCreateTenxFlowModal}>
+            <Button className='createBtn' size='large' type='primary' onClick={()=>this.openCreateTenxFlowModal(null,false)}>
               <i className='fa fa-plus' />&nbsp;
               <FormattedMessage {...menusText.create} />
             </Button>
@@ -602,7 +628,13 @@ class TenxFlowList extends Component {
                 <FormattedMessage {...menusText.opera} />
               </div>
             </div>
-            <MyComponent scope={scope} config={flowList} isFetching={isFetching} repoBranchesAndTags={repoBranchesAndTags} />
+            <MyComponent
+              scope={scope}
+              config={flowList}
+              isFetching={isFetching}
+              repoBranchesAndTags={repoBranchesAndTags}
+              openCreateTenxFlowModal={this.openCreateTenxFlowModal.bind(this)}
+            />
             {flowList.length < 1 && !searchingFlag ?
               <div className='loadingBox'>暂无数据</div> :
               (flowList.length < 1 && searchingFlag ?
@@ -615,7 +647,7 @@ class TenxFlowList extends Component {
           transitionName='move-right'
           onCancel={this.closeCreateTenxFlowModal}
         >
-          <CreateTenxFlow scope={scope} isFetching={isFetching} flowList={flowList} />
+          <CreateTenxFlow scope={scope}  flowList={flowList} currentFlowId={this.state.currentFlowId} modalShow={this.state.createTenxFlowModal} loadData={this.loadData.bind(this)}/>
         </Modal>
         <Modal
           visible={this.state.TenxFlowDeployLogModal}

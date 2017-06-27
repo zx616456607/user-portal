@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Card, Button, Tabs, Modal, message, Popover } from 'antd'
+import { Spin, Card, Button, Tabs, Modal, message, Popover, Tooltip, Icon } from 'antd'
 import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -88,6 +88,14 @@ const menusText = defineMessages({
   unUpdate: {
     id: 'CICD.Tenxflow.TenxFlowDetail.unUpdate',
     defaultMessage: '未更新',
+  },
+  tenxFlowtooltip: {
+    id: 'CICD.Tenxflow.TenxFlowDetailFlow.tooltip',
+    defaultMessage: 'TenxFlow流程定义：这里可以定义一个TenxFlow项目的执行流程，每个卡片对应一个子任务，分别执行代码编译、单元测试、集成测试和镜像构建等子任务，大部分流程以生成应用镜像作为结束。',
+  },
+  buildImageTooltip: {
+    id: 'CICD.Tenxflow.BuildImage.tooltip',
+    defaultMessage: '构建镜像是TenxFlow中常被创建的子任务，指可将源代码仓库包括代码GitHub、GitLab、Gogs、SVN中的代码通过代码库中的Dockerfile或云端的Dockerfile 构建成镜像，默认将构建后的镜像存放到镜像仓库--私有空间。',
   },
 });
 
@@ -280,7 +288,7 @@ class TenxFlowDetail extends Component {
             notification.error('镜像不存在，请先执行构建')
             return
           }
-          if(res.statusCode == 403) {
+          if(res.statusCode == 403 || res.statusCode == 401) {
             notification.error('没有权限访问该镜像')
             return
           }
@@ -370,7 +378,7 @@ class TenxFlowDetail extends Component {
     const { projectId, projectBranch } = this.state
     const { repoBranchesAndTags, flowInfo } = this.props
     const stageInfo = flowInfo.stageInfo || []
-    const isNoPop = stageInfo.length < 1 || stageInfo[0].spec.project.repoType === 'svn'
+    const isNoPop = stageInfo.length < 1 || !stageInfo[0].spec.project || stageInfo[0].spec.project.repoType === 'svn'
     const targetElement = (
       <Button
         size='large'
@@ -491,7 +499,7 @@ class TenxFlowDetail extends Component {
             <div style={{ clear: 'both' }}></div>
           </Card>
           <Tabs defaultActiveKey='1' size="small" onChange={(e) => this.handleChange(e)}>
-            <TabPane tab={this.state.isBuildImage ? '构建镜像任务' : 'TenxFlow流程定义'} key='1'>
+            <TabPane tab={this.state.isBuildImage ? <span>构建镜像任务<Tooltip title={<FormattedMessage {...menusText.buildImageTooltip} />}><Icon style={{marginLeft: '3px'}} type="question-circle-o" /></Tooltip></span> : <span>TenxFlow流程定义<Tooltip title={<FormattedMessage {...menusText.tenxFlowtooltip} />}><Icon style={{marginLeft: '5px'}} type="question-circle-o" /></Tooltip></span>} key='1'>
               <TenxFlowDetailFlow
                 scope={scope}
                 setStatus={this.setStatus}

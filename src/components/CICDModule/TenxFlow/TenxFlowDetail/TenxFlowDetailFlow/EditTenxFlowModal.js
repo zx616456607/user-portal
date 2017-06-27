@@ -264,7 +264,7 @@ let EditTenxFlowModal = React.createClass({
   getInitialState: function () {
     return {
       otherFlowType: 3,
-      useDockerfile: true,
+      useDockerfile: false,
       otherTag: false,
       envModalShow: null,
       ImageStoreType: false,
@@ -280,11 +280,31 @@ let EditTenxFlowModal = React.createClass({
       baseImage: [],
       updateDfBtnLoading: false,
       disabledBranchTag: false,
+      isFirstChangeTag: true,
+      isFirstChangeDockerfileType: true
     }
   },
   componentWillMount() {
     // const {getAvailableImage} = this.props
     // getAvailableImage()
+    const { config, form } = this.props
+    const { setFieldsValue, getFieldProps, getFieldValue } = form
+    if (config) {
+      const envs = config.spec.container.env
+      const imageEnvInputs = []
+      envs.forEach((env, index) => {
+        imageEnvInputs.push(index)
+        getFieldProps(`imageEnvName${index}`, {
+          initialValue: env.name
+        })
+        getFieldProps(`imageEnvValue${index}`, {
+          initialValue: env.value
+        })
+      })
+      getFieldProps('imageEnvInputs', {
+        initialValue: imageEnvInputs
+      })
+    }
     const { loadClusterList, loadProjectList } = this.props
     loadClusterList()
     loadProjectList(DEFAULT_REGISTRY, { page_size: 100 })
@@ -311,8 +331,9 @@ let EditTenxFlowModal = React.createClass({
       getDockerfiles(tempBody, {
         success: {
           func: (res) => {
+            const result = res.data.message || {}
             _this.setState({
-              dockerFileTextarea: res.data.message.content
+              dockerFileTextarea: result.content
             })
           },
           isAsync: true
@@ -361,16 +382,42 @@ let EditTenxFlowModal = React.createClass({
         }
       });
     }
+
     let serviceList = Boolean(config.spec.container.dependencies) ? config.spec.container.dependencies : [];
     if (serviceList) {
       serviceList.map((item, index) => {
-        uuid++;
         let keys = form.getFieldValue('services');
-        keys = keys.concat(uuid);
+        if (keys.indexOf(index) >= 0) {
+          return
+        }
+        keys = keys.concat(index);
         form.setFieldsValue({
           'services': keys
         });
-      });
+      })
+      const { getFieldProps, getFieldValue } = form
+      getFieldValue('services').forEach(k => {
+        const dependency = serviceList[k]
+        if(!dependency) return
+        form.getFieldProps('service' + index + 'inputs', {
+          initialValue: []
+        })
+        const inputs = []
+        if(dependency.env) {
+          dependency.env.forEach((env, index) => {
+            inputs.push(index)
+            getFieldProps(`service${k}inputName${index}`, {
+              initialValue: env.name
+            })
+            getFieldProps(`service${k}inputValue${index}`, {
+              initialValue: env.value
+            })
+          })
+        }
+        getFieldProps('service' + k + 'inputs', {
+          initialValue: inputs
+        })
+      })
     }
   },
   componentWillReceiveProps(nextProps){
@@ -409,25 +456,24 @@ let EditTenxFlowModal = React.createClass({
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
     const { stageList } = this.props.rootScope.props;
-    let errorMsg = appNameCheck(value, '子任务名称')
-    const self = this
-    if(errorMsg == 'success') {
-      let flag = false;
-      if (stageList.length > 0) {
-        stageList.map((item) => {
-          if (item.metadata.name == value && self.props.stageId !== item.metadata.id) {
-            flag = true;
-            errorMsg = appNameCheck(value, '子任务名称', true);
-            callback([new Error(errorMsg)]);
-          }
-        });
-      }
-      if (!flag) {
-        callback();
-      }
-    } else {
-      callback([new Error(errorMsg)]);
+    if (!value || !value.trim()) {
+      return callback()
     }
+    if (value.length < 3 || value.length > 63) {
+      return callback('子任务名称为 3~63 位字符')
+    }
+    let flag = false;
+    if (stageList.length > 0) {
+      stageList.map((item) => {
+        if (item.metadata.name == value && this.props.stageId !== item.metadata.id) {
+          flag = true;
+        }
+      });
+    }
+    if (flag) {
+      return callback('子任务名称已存在');
+    }
+    callback();
   },
   otherStoreUrlInput(rule, value, callback) {
     //this function for user selected other store and should be input the image store url
@@ -445,7 +491,7 @@ let EditTenxFlowModal = React.createClass({
       callback();
     }
   },
-  flowTypeChange(ins) {
+  flowTypeChange(ins, notResetShell) {
     // const ins = e.split('@')[1]
     this.props.form.resetFields(['otherFlowType', 'imageNameProps']);
     if (ins != 3) {
@@ -455,12 +501,18 @@ let EditTenxFlowModal = React.createClass({
         otherTag: false,
         ImageStoreType: false
       });
-    } else {
+    } else if(this.state.otherFlowType != ins) {
       this.setState({
         useDockerfile: true,
         otherTag: false,
         ImageStoreType: false
       });
+    }
+    if(notResetShell == true) {
+      this.setState({
+        otherFlowType: ins
+      })
+      return
     }
     // Clean the command entries
     this.props.form.setFieldsValue({ 'shellCodes': [0] });
@@ -633,6 +685,9 @@ let EditTenxFlowModal = React.createClass({
         otherTag: false
       });
     }
+    this.setState({
+      isFirstChangeTag: false
+    })
   },
   openCodeStoreModal() {
     //this function for user select code store and user must be select code modal
@@ -646,13 +701,30 @@ let EditTenxFlowModal = React.createClass({
       codeStoreModalShow: false
     });
   },
+  okCodeStoreModal() {
+    this.setState({
+      codeStoreModalShow: false
+    })
+  },
   deleteCodeStore() {
     //this function for user delete the code store
     this.setState({
       currentCodeStore: null,
       currentCodeStoreBranch: '',
-      currentCodeStoreName: ''
+      currentCodeStoreName: '',
+      useDockerfile: false
     })
+    const { form } = this.props
+    if (form.getFieldValue('imageTag') == '1') {
+      form.setFieldsValue({
+        imageTag: '2'
+      })
+      this.changeImageTagType({
+        target: {
+          value: 2
+        }
+      })
+    }
   },
   openDockerFileModal() {
     this.setState({
@@ -663,6 +735,15 @@ let EditTenxFlowModal = React.createClass({
     this.setState({
       dockerFileModalShow: false
     });
+    if (this.state.dockerFileTextarea) {
+      this.setState({
+        noDockerfileInput: false
+      })
+    } else {
+      this.setState({
+        noDockerfileInput: true
+      })
+    }
   },
   onChangeDockerFileTextarea(e) {
     this.setState({
@@ -702,6 +783,17 @@ let EditTenxFlowModal = React.createClass({
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
+        if (this.state.otherFlowType == 3 && !_this.state.currentCodeStore && !_this.state.dockerFileTextarea) {
+          this.setState({
+            noDockerfileInput: true
+          })
+          return
+        }
+        if (_this.state.currentCodeStore) {
+          this.setState({
+            noDockerfileInput: false
+          })
+        }
         let invalidDockerfile = Boolean(!_this.state.dockerFileTextarea && !_this.state.useDockerfile && this.state.otherFlowType == 3);
         _this.setState({
           noDockerfileInput: invalidDockerfile
@@ -752,6 +844,12 @@ let EditTenxFlowModal = React.createClass({
       }
       if (values.uniformRepo && !_this.state.currentCodeStore) {
         notification.error('请选择代码库')
+        return
+      }
+      if (this.state.otherFlowType == 3 && !_this.state.currentCodeStore && !_this.state.dockerFileTextarea) {
+        this.setState({
+          noDockerfileInput: true
+        })
         return
       }
       //this flag for all form error flag
@@ -886,7 +984,12 @@ let EditTenxFlowModal = React.createClass({
       }
       //if user select the image build type (3),the body will be add new body
       if (this.state.otherFlowType == 3) {
-        let dockerFileFrom = _this.state.useDockerfile ? 1 : 2
+        let dockerFileFrom
+        if (_this.state.currentCodeStore) {
+          dockerFileFrom = _this.state.useDockerfile ? 1 : 2
+        } else {
+          dockerFileFrom = 2
+        }
         // Get the projectId of harbor project
         let harborProjects = this.props.harborProjects.list || []
         let projectId = 0
@@ -915,7 +1018,7 @@ let EditTenxFlowModal = React.createClass({
         //   imageBuildBody.customRegistry = values.otherStoreUrl;
         // }
         let tmpDockerFileUrl = null;
-        if (!!!values.dockerFileUrl) {
+        if (!values.dockerFileUrl || !this.state.currentCodeStore) {
           tmpDockerFileUrl = '';
         } else {
           tmpDockerFileUrl = values.dockerFileUrl;
@@ -1017,7 +1120,7 @@ let EditTenxFlowModal = React.createClass({
     this.setState({
       addOtherImage: false
     })
-    browserHistory.push('/app_center')
+    browserHistory.push('/app_center/projects?addUserDefined=true')
   },
   cancelModal() {
     const { form } = this.props
@@ -1038,7 +1141,10 @@ let EditTenxFlowModal = React.createClass({
     return callback()
   },
   baseImageChange(key, tabKey, groupKey) {
-    const { setFieldsValue } = this.props.form
+    const { setFieldsValue, getFieldValue } = this.props.form
+    const oldImageName = getFieldValue('imageName')
+    const oldOtherFlowType = this.state.otherFlowType
+    if (oldOtherFlowType == groupKey && oldImageName == key) return
     this.setState({
       baseImageUrl: key,
       otherFlowType: groupKey,
@@ -1046,7 +1152,24 @@ let EditTenxFlowModal = React.createClass({
     setFieldsValue({
       imageName: key
     })
-    this.flowTypeChange(groupKey)
+    if(!oldImageName) {
+      this.flowTypeChange(groupKey, false)
+      return
+    }
+    let notResetShell = false
+    // if(oldImageName.indexOf(':') > 0 && oldOtherFlowType == groupKey) {
+    //   if(key.indexOf(':') > 0) {
+    //     let old = oldImageName.split(':')
+    //     let newKey = key.split(':')
+    //     if(old[0] == newKey[0] && old[1] != newKey[1]) {
+    //       notResetShell = true
+    //     }
+    //   }
+    // }
+    if(oldOtherFlowType == groupKey) {
+      notResetShell = true
+    }
+    this.flowTypeChange(groupKey, notResetShell)
   },
   setUniformRepo() {
     const {
@@ -1281,9 +1404,17 @@ let EditTenxFlowModal = React.createClass({
         <QueueAnim key={'shellCode' + i + 'Animate'}>
           <div className='serviceDetail' key={'shellCode' + i}>
             <FormItem className='serviceForm'>
-              <Input disabled={scopeThis.state.otherFlowType == 3 ? true : false} onKeyUp={() => this.addShellCode(i)} {...shellCodeProps} type='text' size='large' />
+              <Input
+                style={{ width: '220px' }}
+                disabled={scopeThis.state.otherFlowType == 3 ? true : false}
+                onKeyUp={() => this.addShellCode(i)}
+                {...shellCodeProps}
+                size='large'
+                type='textarea'
+                autosize
+              />
               {scopeThis.state.otherFlowType == 3 || scodes.length == 1 ? null : [
-                <Icon type='delete' onClick={() => this.removeShellCode(i)} />
+                <Icon className="removeShellCodeIcon" type='delete' onClick={() => this.removeShellCode(i)} />
               ]}
             </FormItem>
             <div style={{ clera: 'both' }}></div>
@@ -1368,7 +1499,7 @@ let EditTenxFlowModal = React.createClass({
     }
     const buildCluster = getFieldProps('buildCluster', {
       rules: [
-        { message: '请选择构建集群', required: isStandardMode() ? false : true}
+        { message: '请选择构建集群', required: isStandardMode() ? true : true}
       ],
       initialValue: currentBuildCluster
     })
@@ -1465,7 +1596,11 @@ let EditTenxFlowModal = React.createClass({
                 {/*<Select {...imageNameProps}>
                   {baseImage}
                 </Select>*/}
-                <PopTabSelect value={currenImageName || this.state.baseImageUrl} onChange={this.baseImageChange}>
+                <PopTabSelect
+                  value={currenImageName || this.state.baseImageUrl}
+                  onChange={this.baseImageChange}
+                  getTooltipContainer={() => document.getElementById('TenxFlowDetailFlow')}
+                >
                   {baseImagesNodes}
                 </PopTabSelect>
               </FormItem>
@@ -1514,8 +1649,8 @@ let EditTenxFlowModal = React.createClass({
                   </div>
                   <div className='input' style={{ height: '100px' }}>
                     <div className='operaBox' style={{ float: 'left', width: '500px' }}>
-                      <RadioGroup onChange={this.changeUseDockerFile} value={this.state.useDockerfile}>
-                        <Radio key='codeStore' value={true}>
+                       <RadioGroup onChange={this.changeUseDockerFile} value={this.state.currentCodeStore ? this.state.useDockerfile : false}>
+                          <Radio key='codeStore' value={true} disabled={!this.state.currentCodeStore}>
                           <span>使用代码仓库中的 Dockerfile</span>
                           <Tooltip title='请输入Dockerfile在代码仓库内的路径，其中 / 代表代码仓库的当前路径'>
                             <Icon className='dockerIcon' type='question-circle-o' style={{ marginLeft: '10px', cursor: 'pointer' }} />
@@ -1525,12 +1660,12 @@ let EditTenxFlowModal = React.createClass({
                       </RadioGroup>
                     </div>
                     {
-                      !this.state.useDockerfile ? [
+                      (this.state.currentCodeStore ? !this.state.useDockerfile : true) ? [
                         <QueueAnim key='useDockerFileAnimate' style={{ float: 'left' }}>
                           <div key='useDockerFileAnimateSecond'>
-                            <Button className={this.state.noDockerfileInput ? 'noCodeStoreButton' : null} type={this.state.dockerFileTextarea.length > 0 ? 'primary' : 'ghost'} size='large'
+                            <Button className={this.state.noDockerfileInput ? 'noCodeStoreButton' : null} type={(this.state.dockerFileTextarea && this.state.dockerFileTextarea.length > 0) ? 'primary' : 'ghost'} size='large'
                               onClick={this.openDockerFileModal}>
-                              {this.state.dockerFileTextarea.length > 0 ? [<span>编辑云端 Dockerfile</span>] : [<FormattedMessage {...menusText.createNewDockerFile} />]}
+                              {(this.state.dockerFileTextarea && this.state.dockerFileTextarea.length > 0) ? [<span>编辑云端 Dockerfile</span>] : [<FormattedMessage {...menusText.createNewDockerFile} />]}
                             </Button>
                             <span className={this.state.noDockerfileInput ? 'noCodeStoreSpan CodeStoreSpan' : 'CodeStoreSpan'}><FormattedMessage {...menusText.noDockerFileInput} /></span>
                           </div>
@@ -1579,8 +1714,8 @@ let EditTenxFlowModal = React.createClass({
                           (this.props.harborProjects.list || []).map(project => {
                             const currentRoleId = project[camelize('current_user_role_id')]
                             return (
-                              <Option key={project.name} disabled={currentRoleId != 1}>
-                                {project.name} {(currentRoleId == 2 || currentRoleId == 3) && '（访客）'}
+                              <Option key={project.name} disabled={currentRoleId === 3}>
+                                {project.name} {currentRoleId == 3 && '（访客）'}
                               </Option>
                             )}
                           )
@@ -1600,8 +1735,8 @@ let EditTenxFlowModal = React.createClass({
                   </div>
                   <div className='input'>
                     <FormItem style={{ float: 'left' }}>
-                      <RadioGroup {...getFieldProps('imageTag', { initialValue: (!!config.spec.build ? (config.spec.build.imageTagType + '') : '1'), onChange: this.changeImageTagType }) }>
-                        <Radio key='branch' value={'1'} disabled={this.state.disabledBranchTag}><FormattedMessage {...menusText.ImageTagByBranch} /></Radio>
+                     <RadioGroup {...getFieldProps('imageTag', { initialValue: (!!config.spec.build ? (config.spec.build.imageTagType + '') : '1'), onChange: this.changeImageTagType }) }>
+                        <Radio key='branch' value={'1'} disabled={this.state.disabledBranchTag || !this.state.currentCodeStore}><FormattedMessage {...menusText.ImageTagByBranch} /></Radio>
                         <Radio key='time' value={'2'}><FormattedMessage {...menusText.ImageTagByTime} /></Radio>
                         <Radio key='other' value={'3'}><FormattedMessage {...menusText.ImageTagByOther} /></Radio>
                       </RadioGroup>
@@ -1698,10 +1833,10 @@ let EditTenxFlowModal = React.createClass({
         </div>
         <Modal className='tenxFlowCodeStoreModal' title={<FormattedMessage {...menusText.codeStore} />}
           visible={this.state.codeStoreModalShow}
-          onOk={this.closeCodeStoreModal}
+          onOk={() => this.okCodeStoreModal()}
           onCancel={this.closeCodeStoreModal}
           >
-          <CodeStoreListModal scope={scopeThis} config={codeList} hadSelected={this.state.currentCodeStore} />
+          <CodeStoreListModal scope={scopeThis} config={codeList} hadSelected={this.state.currentCodeStore} okCallback={() => this.okCodeStoreModal()}/>
         </Modal>
          <Modal title="添加第三方仓库" visible={this.state.addOtherImage}
           onOk={()=> this.addOtherImage()} onCancel={()=> this.cancelModal()}
@@ -1735,6 +1870,18 @@ function mapStateToProps(state, props) {
     clusters = defaultClusterList
   }
   let harborProjects = state.harbor.projects && state.harbor.projects[DEFAULT_REGISTRY] || {}
+  const list = harborProjects.list || []
+  const newList = []
+  const visitorList = []
+  list.forEach(project => {
+    const currentRoleId = project[camelize('current_user_role_id')]
+    if (currentRoleId === 3) {
+      visitorList.push(project)
+      return
+    }
+    newList.push(project)
+  })
+  harborProjects.list = newList.concat(visitorList)
   return {
     clusters,
     clustersNodes,

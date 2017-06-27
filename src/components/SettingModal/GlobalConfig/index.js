@@ -224,10 +224,10 @@ let Emaill = React.createClass({
       ],
       initialValue: emailDetail.senderPassword
     });
-    // 是否安全
+    // 使用 TLS 安全协议
     const secureProps = getFieldProps('secure', {
       valuePropName: 'checked',
-      initialValue: emailDetail.secure
+      initialValue: emailDetail.secure || false
     });
 
     const emailID = getFieldProps('emailID', {
@@ -246,7 +246,7 @@ let Emaill = React.createClass({
               <div className="key">邮件服务器</div>
               <div className="key">邮箱</div>
               <div className="key">密码</div>
-              <div className="key">{/*是否安全*/}</div>
+              <div className="key">{/*使用 TLS 安全协议*/}</div>
             </div>
             <div className="contentForm">
               <Form horizontal className="contentFormMain">
@@ -269,7 +269,7 @@ let Emaill = React.createClass({
                       ? '安全'
                       : '非安全'*/
                     }
-                    是否安全
+                    使用 TLS 安全协议
                   </Checkbox>
                 </FormItem>
                 <FormItem>
@@ -660,7 +660,7 @@ let MirrorService = React.createClass({
             <div className="contentImg">
               <img src={MirrorImg} alt="镜像服务" />
             </div>
-            <div className="contentkeys"> 
+            <div className="contentkeys">
               <div className="key">镜像服务地址</div>
             </div>
             <div className="contentForm">
@@ -1047,7 +1047,7 @@ class GlobalConfig extends Component {
           <div className='titltitem'>③『存储服务』对应的【应用管理】中存储卷的相关配置；</div>
           <div className='titltitem'>④『持续集成』对应的是 CI/CD 中 TenxFlow 的相关功能配置；</div>
 					</div>
-        <Emaill setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
+        <Emaill sendEmailVerification={this.props.sendEmailVerification} setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} emailDisable={emailDisable} emailChange={this.emailChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.mail} />
         <MirrorService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} mirrorDisable={mirrorDisable} mirrorChange={this.mirrorChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.harbor} isValidConfig={this.props.isValidConfig}/>
         <StorageService setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cephDisable={cephDisable} cephChange={this.cephChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} config={globalConfig.rbd}  isValidConfig={this.props.isValidConfig} />
         <ConInter setGlobalConfig={(key, value) => this.setGlobalConfig(key, value)} cicdeditDisable={cicdeditDisable} cicdeditChange={this.cicdeditChange.bind(this)} saveGlobalConfig={saveGlobalConfig} updateGlobalConfig={saveGlobalConfig} cluster={cluster} cicdConfig={globalConfig.cicd} apiServer={globalConfig.apiServer} />

@@ -32,7 +32,7 @@ class Network extends Component {
     option.addYAxis('value', {
       formatter: '{value} KB/s'
     })
-    networkReceived.data.map((item) => {
+    networkReceived.data && networkReceived.data.map((item) => {
       let timeData = []
       let values = []
       item.metrics.map((metric) => {
@@ -43,7 +43,7 @@ class Network extends Component {
       option.setXAxisData(timeData)
       option.addSeries(values, `${item.containerName} 下载`)
     })
-    networkTransmitted.data.map((item) => {
+    networkTransmitted.data&&networkTransmitted.data.map((item) => {
       let timeData = []
       let values = []
       item.metrics.map((metric) => {
@@ -54,10 +54,10 @@ class Network extends Component {
       option.setXAxisData(timeData)
       option.addSeries(values, `${item.containerName} 上传`)
     })
-    option.setGirdForDataNetWork(networkTransmitted.data.length + networkReceived.data.length, events)
+    option.setGirdForDataNetWork(networkTransmitted.data && networkTransmitted.data.length + networkReceived.data.length, events)
     return (
       <ReactEcharts
-        style={{ height: formatGrid(networkTransmitted.data.length + networkReceived.data.length) }}
+        style={{ height: formatGrid(networkTransmitted.data && networkTransmitted.data.length + networkReceived.data.length) }}
         notMerge={true}
         option={option}
         showLoading={networkReceived.isFetching || networkTransmitted.isFetching}

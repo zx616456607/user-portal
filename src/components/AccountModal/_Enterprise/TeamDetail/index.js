@@ -8,13 +8,15 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Alert, Card, Icon, Button, Table, Menu, Dropdown, Modal, Input, Transfer, } from 'antd'
+import { Row, Col, Alert, Card, Popover, Icon, Button, Table, Menu, Dropdown, Modal, Input, Transfer, } from 'antd'
 import './style/TeamDetail.less'
-import { Link } from 'react-router'
+import { Link, browserHistory } from 'react-router'
+import { setCurrent } from '../../../../actions/entities'
 import {
   deleteTeam, createTeamspace, addTeamusers, removeTeamusers,
   loadTeamspaceList, loadTeamUserList, loadAllClustersList,
   deleteTeamspace, requestTeamCluster, checkTeamSpaceName,
+  loadTeamClustersList,
 } from '../../../../actions/team'
 import { connect } from 'react-redux'
 import MemberTransfer from '../../MemberTransfer'
@@ -23,6 +25,7 @@ import NotificationHandler from '../../../../common/notification_handler'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../../constants'
 import { parseAmount } from '../../../../common/tools'
 import SpaceRecharge  from '../Recharge/SpaceRecharge'
+import PopContent from '../../../PopSelect/Content'
 
 let MemberList = React.createClass({
   getInitialState() {
@@ -242,6 +245,8 @@ let TeamList = React.createClass({
   getInitialState() {
     return {
       sortSpaceOrder: true,
+      visible: false,
+      currentSpace: null,
     }
   },
   getSpaceSort(order, column) {
@@ -319,8 +324,33 @@ let TeamList = React.createClass({
     })
 
   },
+  handleVisibleChange(teamspace, visible) {
+    if (!visible) {
+      return
+    }
+    const { loadTeamClustersList } = this.props
+    loadTeamClustersList(teamspace.teamID)
+    this.setState({
+      currentSpace: teamspace
+    })
+  },
+  handleClusterChange(cluster) {
+    const { setCurrent } = this.props
+    const { currentSpace } = this.state
+    let notification = new NotificationHandler()
+    setCurrent({
+      team: {
+        teamID: currentSpace.teamID
+      },
+      space: currentSpace,
+      cluster,
+    })
+    let msg = `已进入空间 ${currentSpace.spaceName}（集群：${cluster.clusterName}）`
+    notification.success(msg)
+    browserHistory.push('/')
+  },
   render: function () {
-    const { teamSpacesList, teamSpacesTotal, current, scope } = this.props
+    const { teamSpacesList, teamSpacesTotal, current, scope, teamClusters, teamID } = this.props
     const {sortSpaceOrder} = this.state
     const pagination = {
       total: teamSpacesTotal,
@@ -332,6 +362,11 @@ let TeamList = React.createClass({
       onShowSizeChange: this.onShowSizeChange,
       onChange: this.onChange,
     }
+    let Search=false
+    let contentClusterList = []
+    if (teamID === teamSpacesList.teamID) {
+        contentClusterList = teamClusters
+      }
     const columns = [
       {
         title: (
@@ -388,6 +423,19 @@ let TeamList = React.createClass({
             </Button>
           :null
           }
+          <Popover
+              title="请选择集群"
+              trigger="click"
+              content={
+                <PopContent
+                Search={Search}
+                list={teamClusters}
+                onChange={this.handleClusterChange}
+                />
+              }
+              onVisibleChange={this.handleVisibleChange.bind(this, teamSpacesList[index])}>
+              <Button type="primary">进入空间</Button>
+            </Popover>
           </div>
         )
       },
@@ -484,6 +532,7 @@ class TeamDetail extends Component {
   }
   handleNewMemberOk() {
     const { addTeamusers, teamID, loadTeamUserList } = this.props
+    let nofity = new NotificationHandler()
     const { targetKeys, sortUser } = this.state
     if (targetKeys.length !== 0) {
       addTeamusers(teamID,
@@ -500,6 +549,13 @@ class TeamDetail extends Component {
               })
             },
             isAsync: true
+          },
+          failed: {
+            func: (err) => {
+              if (err.statusCode === 409) {
+                nofity.info('成员已添加')
+              }
+            }
           }
         })
     }
@@ -590,9 +646,9 @@ class TeamDetail extends Component {
     const {
       clusterList, teamUserList, teamUserIDList,
       teamSpacesList, teamName, teamID,
-      teamUsersTotal, teamSpacesTotal, removeTeamusers,
+      teamUsersTotal, teamSpacesTotal, removeTeamusers,loadTeamClustersList,
       loadTeamUserList, loadTeamspaceList, deleteTeamspace,
-      requestTeamCluster, loadAllClustersList, checkTeamSpaceName,
+      requestTeamCluster, loadAllClustersList, checkTeamSpaceName, teamClusters,
     } = this.props
     const { targetKeys, sortSpace, spaceCurrent, spacePageSize, spacePage, sortSpaceOrder } = this.state
     const funcs = {
@@ -670,6 +726,7 @@ class TeamDetail extends Component {
                 teamID={teamID}
                 removeTeamusers={removeTeamusers}
                 loadTeamUserList={loadTeamUserList}
+                loadTeamClustersList={loadTeamClustersList}
                 teamUsersTotal={teamUsersTotal} />
             </Row>
           </Col>
@@ -696,13 +753,17 @@ class TeamDetail extends Component {
             <Row>
               <TeamList teamSpacesList={teamSpacesList}
                 loadTeamspaceList={loadTeamspaceList}
+                loadTeamClustersList={loadTeamClustersList}
+                teamClusters={teamClusters}
                 teamID={teamID}
                 sortSpace={sortSpace}
                 current={spaceCurrent}
+                setCurrent={setCurrent}
                 spacePageSize={spacePageSize}
                 spacePage={spacePage}
                 teamSpacesTotal={teamSpacesTotal}
                 deleteTeamspace={deleteTeamspace}
+                clusterList={clusterList}
                 scope = {this}
                 onChange={this.handleSpaceChange} />
             </Row>
@@ -721,6 +782,7 @@ class TeamDetail extends Component {
   }
 }
 function mapStateToProp(state, props) {
+  const { teamClusters } = state.team
   let clusterData = []
   let clusterList = []
   let teamUserList = []
@@ -787,6 +849,7 @@ function mapStateToProp(state, props) {
     teamSpacesList: teamSpacesList,
     teamUserIDList: teamUserIDList,
     teamUsersTotal: teamUsersTotal,
+    teamClusters: (teamClusters.result ? teamClusters.result.data : []),
     teamSpacesTotal: teamSpacesTotal,
     userDetail
   }
@@ -802,4 +865,6 @@ export default connect(mapStateToProp, {
   deleteTeamspace,
   requestTeamCluster,
   checkTeamSpaceName,
+  loadTeamClustersList,
+  setCurrent,
 })(TeamDetail)

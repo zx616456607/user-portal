@@ -396,12 +396,11 @@ let AutoDeployService = React.createClass({
     }
     const content = (
       <a>
-        <Button type="primary" onClick={()=> browserHistory.push(`/app_manage/app_create/quick_create?imageType=privateImages&imageName=${this.state.image_name}`)}>马上创建</Button>
+        <Button type="primary" onClick={()=> browserHistory.push(`/app_manage/app_create/quick_create?searchImage=true&imageName=${this.state.image_name}`)}>马上创建</Button>
       </a>
     );
     const {clusterList, cdImageList} = this.props
-
-    const imageOptions = cdImageList.map(item => <Option key={item}>{item}</Option>)
+    const imageOptions = cdImageList.map(item => <Option key={item.imageName}>{item.imageName}</Option>)
     const clusterOptions = clusterList.map(list => <Option key={list.clusterID}>{list.clusterName}</Option>)
     const appListOptions = []
     if (this.state.serviceList.length > 0) {

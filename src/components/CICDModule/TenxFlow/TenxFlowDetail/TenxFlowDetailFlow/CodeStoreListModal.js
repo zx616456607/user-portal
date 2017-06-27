@@ -123,7 +123,7 @@ let CodeStoreListModal = React.createClass({
   },
   onSubmitCodeStore(id, name, e) {
     e.stopPropagation();
-    const { scope } = this.props;
+    const { scope, okCallback } = this.props;
     let tempList = this.state.projectList;
     let branch = null;
     let repoType = null
@@ -146,6 +146,9 @@ let CodeStoreListModal = React.createClass({
       codeStoreModalShow: false,
       noSelectedCodeStore: false
     });
+    if(okCallback) {
+      okCallback()
+    }
   },
   render() {
     const { formatMessage } = this.props.intl;
@@ -209,7 +212,7 @@ let CodeStoreListModal = React.createClass({
           <div style={{ clear:'both' }}></div>
         </div>
         <div className='codeList'>
-          {codeItems.length == 0 ? <span>暂无已激活的代码仓库，<Link to={this.props.isBuildImage ? `/ci_cd/coderepo?from=build_image&redirect=${window.location.pathname+window.location.search}` : `/ci_cd/repos` }>前去激活代码仓库</Link></span> : codeItems}
+          {codeItems.length == 0 ? <span>暂无已激活的代码仓库，<Link to={this.props.isBuildImage ? `/ci_cd/coderepo?from=build_image&redirect=${window.location.pathname+window.location.search}` : `/ci_cd/coderepo` }>前去激活代码仓库</Link></span> : codeItems}
         </div>
       </div>
     )

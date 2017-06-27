@@ -19,6 +19,11 @@ const FormItem = Form.Item
 const SubMenu = Menu.SubMenu;
 let uuid=0
 
+function range(begin, end) {
+  const count = end - begin
+  return Array.apply(null, Array(count)).map((_, index) => index + begin)
+}
+
 class TagDropdown extends Component {
   constructor(props) {
     super(props)
@@ -27,6 +32,7 @@ class TagDropdown extends Component {
     this.handelfooter = this.handelfooter.bind(this)
     this.handleMenuClick = this.handleMenuClick.bind(this)
     this.handleLabelButton = this.handleLabelButton.bind(this)
+    this.visibleChange = this.visibleChange.bind(this)
     this.state = {
       DropdownVisible: this.props.visible,
     }
@@ -91,30 +97,32 @@ class TagDropdown extends Component {
       item.values = newData[i]
       arr.push(item)
     }
-    if (arr.length == 0) {
-      return <Menu.Item className='notag'>暂无标签</Menu.Item>
+    let result = []
+    if (arr.length !== 0) {
+      let tagvalue = arr.map((item, index) => {
+        return item.values.map((itemson, indexson) => {
+          return (<Menu.Item className='tagvaluewidth' key={itemson.value}>
+            <Tooltip title={itemson.value} placement="topLeft">
+              <div className='name'>{itemson.value}</div>
+            </Tooltip>
+            <div className='num'>(<Tooltip title={itemson.targets.join(", ")}><span>{itemson.targets.length}</span></Tooltip>)</div>
+            <div className='select'><Icon type="check-circle-o" /></div>
+          </Menu.Item>)
+        })
+      })
+
+      result = arr.map((item, index) => {
+        return <SubMenu title={item.key} className='tagkeywidth' key={item.key}>
+          <Menu.Item className='selectMenutitle' key="tagvalue">
+            标签值
+          </Menu.Item>
+          {tagvalue[index]}
+        </SubMenu>
+      })
+    } else {
+      result =  <Menu.Item className='notag'>暂无标签</Menu.Item>
     }
 
-    let tagvalue = arr.map((item, index) => {
-      return item.values.map((itemson, indexson) => {
-        return (<Menu.Item className='tagvaluewidth' key={itemson.value}>
-          <Tooltip title={itemson.value} placement="topLeft">
-            <div className='name'>{itemson.value}</div>
-          </Tooltip>
-          <div className='num'>(<span>{item.values.length}</span>)</div>
-          <div className='select'><Icon type="check-circle-o" /></div>
-        </Menu.Item>)
-      })
-    })
-
-    let result = arr.map((item, index) => {
-      return <SubMenu title={item.key} className='tagkeywidth' key={item.key}>
-        <Menu.Item className='selectMenutitle' key="tagvalue">
-          标签值
-        </Menu.Item>
-        {tagvalue[index]}
-      </SubMenu>
-    })
     return (
       <Menu>
         <Menu.Item className='selectMenutitle' key="labelKey">
@@ -180,11 +188,24 @@ class TagDropdown extends Component {
     })
   }
 
+  visibleChange(visible) {
+    const { handleDropdownVisible } = this.props
+    handleDropdownVisible('onVisibleChange')
+    this.setState({
+      DropdownVisible: visible,
+    })
+  }
+
   render(){
     const { width } = this.props
     return (
       <div className='cluster__TagDropDown__Component'>
-        <Dropdown overlay={this.handelfooter()} trigger={['click']} className='cluster__TagDropDown__Component' visible={this.state.DropdownVisible}>
+        <Dropdown
+          overlay={this.handelfooter()}
+          trigger={['click']}
+          className='cluster__TagDropDown__Component'
+          visible={this.state.DropdownVisible}
+          onVisibleChange={(visible) => this.visibleChange(visible)}>
           <Button type="ghost" size="large" style={{width:{width},padding:'4px 12px'}} onClick={this.handleLabelButton}>
             {this.handleDropdownContext()}
           </Button>
@@ -200,8 +221,7 @@ class ManageTagModal extends Component {
     this.handlecallback = this.handlecallback.bind(this)
     this.handlecallbackHostList = this.handlecallbackHostList.bind(this)
     this.handleCreateLabelModal = this.handleCreateLabelModal.bind(this)
-    this.handleCancelLabelModal = this.handleCancelLabelModal.bind(this)
-    this.checkKey = this.checkKey.bind(this)
+    this.checkValue = this.checkValue.bind(this)
     this.handleDropdownVisible = this.handleDropdownVisible.bind(this)
     this.state = {
       createLabelModal: false,
@@ -210,7 +230,7 @@ class ManageTagModal extends Component {
   }
 
   handleCreateLabelModal() {
-    const { form, addLabels,clusterID } = this.props
+    const { form, addLabels,clusterID, getClusterLabel } = this.props
     form.validateFields((errors, values) => {
       if (errors) {
         return
@@ -221,39 +241,34 @@ class ManageTagModal extends Component {
         labels.push({
           key:values[`key${item}`],
           value:values[`value${item}`],
-          target:'node'
+          target:'node',
+          clusterID,
         })
       })
       notificat.spin('添加中...')
       addLabels(labels,clusterID,{
         success: {
           func:(ret)=> {
+            getClusterLabel(clusterID)
             notificat.close()
             notificat.success('添加成功！')
-          }
+            this.setState({
+              createLabelModal: false,
+            })
+          },
+          isAsync: true
         },
         failed:{
           func:(ret)=> {
             notificat.close()
             notificat.error('添加失败！')
           }
+        },
+        finally: {
+          func: () => uuid = 0
         }
       })
     })
-    setTimeout(()=> {
-      this.setState({
-        createLabelModal: false,
-        visible: true
-      })
-    },500)
-  }
-
-  handleCancelLabelModal() {
-    this.setState({
-      createLabelModal: false,
-      visible: true
-    })
-    this.props.form.resetFields()
   }
 
   handlecallback(obj) {
@@ -289,20 +304,21 @@ class ManageTagModal extends Component {
         }
         if(scope.props.nodes){
           let nodeList =[]
+          const multiMap = tag.reduce((mm, label) => {
+            const key = label.key
+            const value = label.value
+            if (mm.hasOwnProperty(key)) {
+              mm[key].push(value)
+            } else {
+              mm[key] = [value]
+            }
+            return mm
+          }, {})
           scope.props.nodes.nodes.map((node) => {
             let labels = node.objectMeta.labels
-            let isEqual = true
-            tag.every(item => {
-              if (!labels[item.key]) {
-                isEqual = false
-                return false
-              }
-              return true
-            })
-            if (isEqual) {
+            if (Object.getOwnPropertyNames(multiMap).every(key => multiMap[key].indexOf(labels[key]) !== -1)) {
               nodeList.push(node)
             }
-
           });
           // nodeList = Array.from(new Set(nodeList))
           scope.setState({
@@ -331,15 +347,26 @@ class ManageTagModal extends Component {
 
   handleDropdownVisible(obj){
     const { callbackHostList } = this.props
+    if(obj == 'onVisibleChange'){
+      this.setState({
+        visible: false
+      })
+      return
+    }
     switch(obj.key){
       case 'manageTag':
-        callbackHostList(obj)
         this.setState({
           visible: false
         })
+        callbackHostList(obj)
         return
       case 'createTag':
-        return this.setState({createLabelModal: true})
+        this.props.form.resetFields()
+        this.setState({
+          createLabelModal: true,
+          visible: false,
+        })
+        return
       case 'labelKey':
         return this.setState({
           visible: false
@@ -348,7 +375,6 @@ class ManageTagModal extends Component {
         return this.setState({
           visible: true
         })
-
     }
   }
 
@@ -375,7 +401,7 @@ class ManageTagModal extends Component {
       if (!!errors) {
         return
       }
-      uuid++
+      ++uuid
       let keys = form.getFieldValue('keys');
       keys = keys.concat(uuid)
       form.setFieldsValue({
@@ -398,16 +424,6 @@ class ManageTagModal extends Component {
       callback(new Error('以字母或数字开头和结尾中间可(_-)'))
       return
     }
-    let isExtentd
-    for (let item of this.props.labels) {
-      if (item.key === value) {
-        isExtentd = true
-        break
-      }
-    }
-    if (isExtentd) {
-      return callback(new Error('标签键已存在'))
-    }
     callback()
   }
   checkValue(rule, value, callback) {
@@ -422,6 +438,17 @@ class ManageTagModal extends Component {
     }
     if (Kubernetes.IsValidLabelValue(value).length >0) {
       callback(new Error('以字母或数字开头和结尾中间可(_-)'))
+      return
+    }
+    const { form, labels } = this.props
+    const key = form.getFieldValue(`key${uuid}`)
+    if (range(0, uuid).filter(
+        id => form.getFieldValue(`key${id}`) === key
+        && form.getFieldValue(`value${id}`) === value).length > 0) {
+      callback(new Error('标签已重复添加'))
+    }
+    if (labels.filter(label =>  label.key === key && label.value === value).length > 0) {
+      callback(new Error('标签已经存在'))
       return
     }
     callback()
@@ -462,33 +489,33 @@ class ManageTagModal extends Component {
     });
     return (
       <div id="cluster__ManageTagModal__Component">
-        <TagDropdown labels={this.props.labels} footer={this.props.footer} context={'hostlist'} callbackManegeTag={this.handlecallback} callbackHostList={this.handlecallbackHostList} width={'100px'} visible={this.state.visible}/>
+        <TagDropdown
+          labels={this.props.labels}
+          footer={this.props.footer}
+          context={'hostlist'}
+          callbackManegeTag={this.handlecallback}
+          callbackHostList={this.handlecallbackHostList}
+          handleDropdownVisible={this.handleDropdownVisible}
+          width={'100px'}
+          visible={this.state.visible}
+        />
 
         <Modal
           title="创建标签"
           visible={this.state.createLabelModal}
           onOk={this.handleCreateLabelModal}
-          onCancel={this.handleCancelLabelModal}
+          onCancel={() => this.setState({createLabelModal: false})}
           width="560px"
           wrapClassName="manageLabelModal"
           maskClosable={false}
         >
+          <div className='title'>
+            <div className='labelkey'>标签键</div>
+            <div className='labelvalue'>标签值</div>
+            <div className='handle'>操作</div>
+          </div>
           <Form inline>
-            <div className='title'>
-              <span className='labelkey'>标签键</span>
-              <span className='labelvalue'>标签值</span>
-              <span className='handle'>操作</span>
-            </div>
             <div className='body'>
-              {/*<Form.Item className='inputlabelkey'>
-                <Input placeholder="请输入标签键" className='width' />
-              </Form.Item>
-              <Form.Item className='inputlabelvalue'>
-                <Input placeholder="请输入标签值" className='width' />
-              </Form.Item>
-              <span className='inputhandle' onClick={this.handeldeleteNewLabel}>
-                <Icon type="delete"></Icon>
-              </span>*/}
               { formItems }
             </div>
             <div style={{clear:'both'}}>

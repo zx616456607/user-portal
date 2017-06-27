@@ -85,6 +85,7 @@ class RechargeRecord extends Component {
       userDetail,
       teamspaces,
       loadChargeRecord,
+      current
     } = this.props
     loadUserTeamspaceList(userID ? userID : 'default', { size: 100 }, {
       success: {
@@ -93,7 +94,20 @@ class RechargeRecord extends Component {
         isAsync: true
       }
     })
-    loadChargeRecord()
+    let currentNamespace = ''
+    let currentSpaceName= '我的空间'
+    let currentTeamName = ''
+    if (current.space && current.space.namespace) {
+      currentNamespace = current.space.namespace
+      currentSpaceName = current.space.spaceName || current.space.namespace
+      currentTeamName = current.space.teamName
+    }
+    this.setState({
+      currentSpaceName,
+      currentNamespace,
+      currentTeamName
+    })
+    loadChargeRecord(currentNamespace)
   }
   componentWillReceiveProps(nextProps) {
     const { notifyRule } = nextProps

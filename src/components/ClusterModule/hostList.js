@@ -18,8 +18,8 @@ import ManageLabelModal from './MangeLabelModal'
 import './style/hostList.less'
 import isEqual from 'lodash/isEqual'
 
-const MASTER = '主控节点/Master'
-const SLAVE = '计算节点/Slave'
+const MASTER = 'Master'
+const SLAVE = 'Slave'
 const SubMenu = Menu.SubMenu;
 
 function diskFormat(num) {
@@ -116,6 +116,33 @@ const MyComponent = React.createClass({
       })
     }
   },
+  getDiskStage(node) {
+    const conditions = node.conditions || []
+    let color = 'green'
+    let text = '健康'
+    conditions.forEach(condition => {
+      const { type, status } = condition
+      switch (type) {
+        case 'DiskPressure':
+          if (status !== 'False') {
+            color = 'yellow'
+            text = '不足'
+          }
+          break
+        case 'OutOfDisk':
+          if (status !== 'False') {
+            color = 'red'
+            text = '告警'
+          }
+          break
+        default:
+          break
+      }
+    })
+    return (
+      <Tag color={color}>{text}</Tag>
+    )
+  },
   render: function () {
     const { isFetching, containerList, nodeList, cpuMetric, memoryMetric, clusterID, license } = this.props
     const root = this
@@ -180,9 +207,9 @@ const MyComponent = React.createClass({
             <div className='bottomSpan'>{memoryUsed(item[camelize('memory_total_kb')], memoryMetric, item.objectMeta.name)}</div>
           </div>
           <div className='schedule commonTitle'>
-            <Switch style={{display:"block"}}
+            <Switch
               className='switchBox'
-              defaultChecked={item.schedulable}
+              checked={item.schedulable || false}
               checkedChildren='开'
               unCheckedChildren='关'
               disabled={index >= maxNodes}
@@ -210,7 +237,10 @@ const MyComponent = React.createClass({
               }
             </span>
           </div>
-          
+          <div className="diskState commonTitle">
+            {this.getDiskStage(item)}
+          </div>
+
           <div className='startTime commonTitle'>
             <Tooltip title={formatDate(item.objectMeta.creationTimestamp)}>
               <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
@@ -264,7 +294,8 @@ class hostList extends Component {
           let podCount = result.data.clusters.podCount;
           this.setState({
             nodeList: nodeList,
-            podCount: podCount
+            podCount: podCount,
+            summary: [],
           })
         },
         isAsync: true
@@ -463,7 +494,7 @@ class hostList extends Component {
             type='primary'
             onClick={()=> this.handleAddClusterNode()}
           >
-            <Icon type='plus' />
+            <i className="fa fa-plus" style={{marginRight:'5px'}}/>
             <span>添加主机节点</span>
           </Button>
           <Button className='terminalBtn' size='large' type='ghost' onClick={this.openTerminalModal}>
@@ -473,14 +504,21 @@ class hostList extends Component {
             <span>终端 | 集群管理</span>
           </Button>
           <Button type='ghost' size='large' className="refreshBtn" onClick={() => this.loadData()}>
-            <i className='fa fa-refresh' /> 刷新
+            <i className='fa fa-refresh' /> 刷 新
           </Button>
           <span className='searchBox'>
             <Input className='searchInput' size='large' placeholder='搜索' type='text' onPressEnter={() => this.searchNodes()} />
             <Icon type="search" className="fa" onClick={() => this.searchNodes()} />
           </span>
           <span className='selectlabel' id="cluster__hostlist__selectlabel">
-            <TagDropdown clusterID={this.props.clusterID} callbackHostList={this.handleDropdownTag} labels={labels} scope={scope} footer={true}/>
+            <TagDropdown
+              clusterID={this.props.clusterID}
+              callbackHostList={this.handleDropdownTag}
+              labels={labels}
+              scope={scope}
+              footer={true}
+              getClusterLabel={this.props.getClusterLabel}
+            />
           </span>
           {
             this.state.summary.length > 0
@@ -499,7 +537,7 @@ class hostList extends Component {
               <span>状态</span>
             </div>
             <div className='role commonTitle'>
-              <span>节点角色</span>
+              <span>角色</span>
             </div>
             <div className='alarm commonTitle'>
               <span>监控告警</span>
@@ -515,6 +553,9 @@ class hostList extends Component {
             </div>
             <div className='schedule commonTitle'>
               <span>调度状态</span>
+            </div>
+            <div className='diskState commonTitle'>
+              <span>磁盘情况</span>
             </div>
             <div className='startTime commonTitle'>
               <span>加入集群时间</span>

@@ -65,7 +65,7 @@ function fetchGetRole(id,callback){
 export const ROLE_UPDATE_REQUEST = 'ROLE_UPDATE_REQUEST'
 export const ROLE_UPDATE_SUCCESS = 'ROLE_UPDATE_SUCCESS'
 export const ROLE_UPDATE_FAILURE = 'ROLE_UPDATE_FAILURE'
-function fetchUpdateRole(body,function){
+function fetchUpdateRole(body,callback){
 	let endpoint = `${API_URL_PREFIX}/role`
 	return {
 		[FETCH_API]: {

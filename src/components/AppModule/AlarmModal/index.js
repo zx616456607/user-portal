@@ -18,12 +18,18 @@ import { getAllClusterNodes } from '../../../actions/cluster_node'
 import { loadNotifyGroups, addAlertSetting, updateAlertSetting, getAlertSetting } from '../../../actions/alert'
 import { ADMIN_ROLE } from '../../../../constants'
 import NotificationHandler from '../../../common/notification_handler'
+import { getAlertSettingExistence } from '../../../actions/alert'
 
 const Option = Select.Option
 const RadioGroup = Radio.Group
 let isUseing = false
 
 let FistStop = React.createClass({
+  getInitialState() {
+    return {
+      checkName: null
+    }
+  },
   componentWillMount() {
     const { loadAppList, appList, cluster, isFetchingApp, clusterNode, getAllClusterNodes, setParentState, loginUser, funcs } = this.props
     if (!appList || appList.length == 0) {
@@ -49,7 +55,27 @@ let FistStop = React.createClass({
        callback(new Error('请输入3~40位字符'))
        return
     }
-    callback()
+    const { cluster } = this.props
+    this.setState({checkName: 'validating'})
+    this.props.getAlertSettingExistence(cluster.clusterID,value,{
+      success: {
+        func:(res)=> {
+          if (res.data[value]) {
+            this.setState({checkName:'error'})
+            callback('策略名称重复')
+            return
+          }
+          this.setState({checkName:'success'})
+          callback()
+        }
+      },
+      failed: {
+        func:()=> {
+          this.setState({checkName:'warning'})
+          callback('服务异常，请稍后重试')
+        }
+      }
+    })
   },
   fistStopType(rule, value, callback) {
     if (!Boolean(value)) {
@@ -90,7 +116,6 @@ let FistStop = React.createClass({
         interval: getFieldValue('interval')
       })
       funcs.nextStep(2) // go step 2
-      this.setState({otherEnble:false})
     })
   },
   getAppOrNodeList() {
@@ -219,7 +244,6 @@ let FistStop = React.createClass({
           { whitespace: true },
           { validator: this.fistStopName }
         ],
-        initialValue: currentService ? currentService.metadata.name : ''
       });
       let initiaValue = 'node'
       if (currentService || currentApp) {
@@ -272,13 +296,13 @@ let FistStop = React.createClass({
 
     return (
       <Form className="paramsSetting">
-        <Form.Item label="名称" {...ItemLayout}>
+        <Form.Item label="名称" {...ItemLayout} validateStatus={this.state.checkName} hasFeedback>
           <Input {...nameProps} placeholder="请输入名称"/>
         </Form.Item>
         <Row>
           <Col span="12">
         <Form.Item label="类型" {...formItemLayout}>
-          <Select placeholder="请选择类型" {...typeProps} >
+          <Select placeholder="请选择类型" {...typeProps} disabled={currentApp || currentService}>
             { this.getTargetType()}
 
           </Select>
@@ -361,6 +385,7 @@ FistStop = connect(mapStateToProp, {
   loadServiceList,
   loadAppList,
   getAllClusterNodes,
+  getAlertSettingExistence,
 })(Form.create()(FistStop))
 
 // two step in cpu add rule
@@ -848,7 +873,6 @@ class AlarmModal extends Component {
       isSendEmail: 1,
       createGroup: false, // create alarm group modal
       showAlramGroup: true,
-      otherEnble: true
     }
   }
 
@@ -860,7 +884,7 @@ class AlarmModal extends Component {
     }
     if (isEdit) {
       getAlertSetting(cluster.clusterID, {
-        strategyName: strategy.strategyName
+        strategy: strategy.strategyID
       }, {
         success: {
           func: (res) => {
@@ -887,7 +911,7 @@ class AlarmModal extends Component {
       const { isEdit, strategy, getAlertSetting, cluster } = nextProps
       if (isEdit) {
         getAlertSetting(cluster.clusterID, {
-          strategyName: strategy.strategyName
+          strategy: strategy.strategyName
         }, {
           success: {
             func: (res) => {
@@ -899,20 +923,6 @@ class AlarmModal extends Component {
           isSendEmail: strategy.sendEmail
         })
       }
-    }
-  }
-  formetType(type) {
-    switch(type) {
-      case 'CPU利用率':
-        return 'cpu/usage_rate'
-      case '内存使用':
-        return 'memory/usage'
-      case '上传流量':
-        return 'network/tx_rate'
-      case '下载流量':
-        return 'network/rx_rate'
-      default:
-        return 'cpu/usage_rate'
     }
   }
   submitRule() {
@@ -972,29 +982,7 @@ class AlarmModal extends Component {
         // update
         // requestBody.strategyID = strategy.strategyID
         requestBody.enable = strategy.enable
-        if (this.state.otherEnble) {
-          requestBody = strategy
-          requestBody.specs= []
-          requestBody.sendEmail = this.state.isSendEmail
-          requestBody.disableNotifyEndTime='0s'
-          requestBody.receiversGroup = form.getFieldValue('notify')
-          setting.forEach(item => {
-            const obj = {
-              metricType: this.formetType(item.type),
-              value: parseInt(item.threshold),
-              operator: item.operation
-            }
-            if (obj.metricType == 'network/rx_rate' || obj.metricType == 'network/tx_rate') {
-              obj.value = obj.value * 1024
-            } else if (obj.metricType == 'memory/usage') {
-              obj.value = obj.value * 1024 * 1024
-            } else {
-              obj.value = obj.value * 100
-            }
-            obj.value = obj.value.toString()
-            requestBody.specs.push(obj)
-          })
-        }
+
         if(!this.state.isSendEmail) {
           delete requestBody.receiversGroup
         }
@@ -1127,6 +1115,7 @@ class AlarmModal extends Component {
     if (this.props.isFetching) {
       return <div className="loadingBox"><Spin size="large"></Spin></div>
     }
+
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 18 }

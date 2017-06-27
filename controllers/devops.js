@@ -13,6 +13,7 @@
 
 const apiFactory = require('../services/api_factory')
 const logger     = require('../utils/logger.js').getLogger("devops")
+const request    = require('request')
 
 /*
 Code repositories
@@ -358,6 +359,9 @@ exports.addManagedProject = function* () {
           err.status = 400
           throw err
         }
+        yield validateSVNAccount(body.address, body.username, body.password)
+      } else {
+        yield checkURLConnectivity(body.address)
       }
       break;
     default:
@@ -372,6 +376,68 @@ exports.addManagedProject = function* () {
   this.body = {
     data: result
   }
+}
+
+function* tryWithBasicAuth(repoURL, username, password) {
+  yield tryRequestWithAuth(repoURL, username, password, true)
+}
+
+function* tryWithDigestAuth(repoURL, username, password) {
+  yield tryRequestWithAuth(repoURL, username, password, false)
+}
+
+function tryRequestWithAuth(repoURL, username, password, sendImmediately) {
+  return new Promise((resolve, reject) => request.get(repoURL, {
+      auth: {
+        user: username,
+        pass: password,
+        sendImmediately
+      }
+    }, waitResponse.bind(null, resolve, reject))
+  )
+}
+
+function checkURLConnectivity(repoURL) {
+  return new Promise((resolve, reject) => request.get(repoURL, waitResponse.bind(null, resolve, reject)))
+}
+
+function waitResponse(resolve, reject, error, response, body) {
+  if (error) {
+    reject(error)
+    return
+  }
+  if (response.statusCode !== 200) {
+    error = new Error(JSON.stringify(body))
+    error.status = response.statusCode
+    reject(error)
+    return
+  } else {
+    resolve(body)
+  }
+}
+
+function* validateSVNAccount(repoURL, username, password) {
+  const uri = repoURL.endsWith('/') ? repoURL : `${repoURL}/`
+  const actions = [tryWithBasicAuth.bind(null, uri, username, password),
+    tryWithDigestAuth.bind(null, uri, username, password)]
+  const error = yield flow(actions)
+  if (error) {
+    throw error
+  }
+}
+
+function* flow(actions) {
+  const length = actions.length
+  let error = null
+  for (let i = 0; i < length; ++i) {
+    try {
+      yield actions[i]()
+      return null
+    } catch (err) {
+      error = err
+    }
+  }
+  return error
 }
 
 exports.listManagedProject = function* () {

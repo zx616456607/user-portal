@@ -17,7 +17,7 @@ import { Link,browserHistory } from 'react-router'
 import OtherSpace from './ImageCenter/OtherSpace'
 import TweenOne from 'rc-tween-one'
 import './style/Item.less'
-import { LoadOtherImage, addOtherStore, deleteOtherImage, } from '../../actions/app_center'
+import { LoadOtherImage, addOtherStore, } from '../../actions/app_center'
 import NotificationHandler from '../../common/notification_handler'
 import Title from '../Title'
 
@@ -47,7 +47,6 @@ let MyComponent = React.createClass({
       regPaused: true,
       regReverse: false,
       inputType: 'text',
-
     };
   },
   propTypes: {
@@ -336,6 +335,9 @@ class ImageCenter extends Component {
       otherImageHead: [], // other image store
       other: {}
     }
+    if(props.location.query.addUserDefined) {
+      this.state.createModalShow = true
+    }
   }
   setItem(type,other) {
     other = other || {}
@@ -442,5 +444,4 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps,{
   addOtherStore,
   LoadOtherImage,
-  deleteOtherImage
 })(ImageCenter)

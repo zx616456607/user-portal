@@ -108,7 +108,7 @@ class ManageLabelModal extends Component {
           if (ret.affectedPods.length !== 0 ) {
             Modal.confirm({
               width:460,
-              title: <span style={{fontWeight:500}}>当前标签被引用绑定，删除后会导致服务变为系统调度</span>,
+              title: <span style={{fontWeight:500}}>下列服务依赖此标签调度，从此主机删除此标签可能导致服务无法启动</span>,
               content: this.formetTable(ret.affectedPods),
               onOk() {
                 _this.beforeCloseLabel(key,value)
@@ -246,7 +246,7 @@ class ManageLabelModal extends Component {
   }
 
   handleAddLabel() {
-   const { form, addLabels, clusterID } = this.props
+   const { form, addLabels, clusterID, getClusterLabel } = this.props
    const _this = this
    form.validateFields((errors,values)=> {
      if (errors) {
@@ -259,9 +259,11 @@ class ManageLabelModal extends Component {
      addLabels([values],clusterID,{
        success:{
          func:(ret)=> {
+           getClusterLabel(clusterID)
            _this.setState({userCreateLabel:createLabel})
            form.resetFields()
-         }
+         },
+         isAsync: true
        },
        failed: {
          func:(res)=> {
@@ -324,7 +326,7 @@ class ManageLabelModal extends Component {
           onOk={this.handleManageLabelOk}
           onCancel={this.handleManageLabelCancel}
           wrapClassName="manageLabelModal"
-          width="585px"
+          width="600px"
           maskClosable={false}
         >
           <div className='labelcontainer'>

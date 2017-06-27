@@ -44,6 +44,7 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /^\/app_center\/?$/,
     /\/app_center\/stack_center/,
     /\/ci_cd/,
+    /\/manange_monitor/,
     /\/manange_monitor\/alarm_record/,
     /\/manange_monitor\/alarm_setting/,
     /\/manange_monitor\/alarm_group/,
@@ -162,7 +163,7 @@ class Header extends Component {
 
   handleSpaceChange(space) {
     const _this = this
-    const { loadTeamClustersList, setCurrent, current, showCluster } = this.props
+    const { loadTeamClustersList, setCurrent, current, showCluster, pathname } = this.props
     /*if (space.namespace === current.space.namespace) {
       return
     }*/
@@ -189,6 +190,9 @@ class Header extends Component {
           let isShowCluster = !!showCluster
           if (result.data.length === 1) {
             isShowCluster = false
+            if (pathname.match(/\//g).length > 2) {
+              browserHistory.push('/')
+            }
           }
           _this.setState({
             spacesVisible: false,
@@ -378,6 +382,7 @@ class Header extends Component {
     var faqUrl = docUrl + '/faq'
     const rotate = visible ? 'rotate180' : 'rotate0'
     let selectValue = mode === standard ? current.space.teamName : current.space.spaceName
+    let Search=true
     const content = (
       <div className='container'>
         {
@@ -418,6 +423,7 @@ class Header extends Component {
                 </div>
                 <div className="spaceBtn">
                   <PopSelect
+                    Search={Search}
                     title={selectTeam}
                     btnStyle={false}
                     special={true}

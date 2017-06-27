@@ -89,7 +89,7 @@ class CostRecord extends Component{
       teamListVisible: visible
     })
   }
-  transformDate(data){
+  transformDate(isFullDate){
     function _addZero(text) {
       return text.toString().length === 2 ? text : `0${text}`
     }
@@ -98,7 +98,7 @@ class CostRecord extends Component{
     let y = date.getFullYear()
     let m = date.getMonth() + 1
     let d = date.getDate()
-    if (data) {
+    if (isFullDate) {
       return (y + '-' + _addZero(m) + '-' + _addZero(d))
     }
     return (y+'-'+_addZero(m))
@@ -137,6 +137,7 @@ class CostRecord extends Component{
       loadConsumptionTrend,
       loadSpaceSummaryInDay,
       loadSpaceSummary,
+      current
     } = this.props
     loadUserTeamspaceList(loginUser.info.userID||userDetail.userID||'default',{ size: 100 }, {
       success: {
@@ -145,10 +146,23 @@ class CostRecord extends Component{
         isAsync: true
       }
     })
-    loadConsumptionDetail(this.state.currentNamespace, 0, this.state.consumptionDetailPageSize)
-    loadConsumptionTrend(this.state.currentNamespace)
-    loadSpaceSummaryInDay(this.state.currentNamespace)
-    loadSpaceSummary(this.state.currentNamespace)
+    let currentNamespace = ''
+    let currentSpaceName= '我的空间'
+    let currentTeamName = ''
+    if (current.space && current.space.namespace) {
+      currentNamespace = current.space.namespace
+      currentSpaceName = current.space.spaceName || current.space.namespace
+      currentTeamName = current.space.teamName
+    }
+    this.setState({
+      currentNamespace,
+      currentSpaceName,
+      currentTeamName
+    })
+    loadConsumptionDetail(currentNamespace, 0, this.state.consumptionDetailPageSize)
+    loadConsumptionTrend(currentNamespace)
+    loadSpaceSummaryInDay(currentNamespace)
+    loadSpaceSummary(currentNamespace)
   }
   render(){
     const _this = this
@@ -315,7 +329,7 @@ class CostRecord extends Component{
       </div>
     )
     let getSpaceCostBar = function() {
-      return getCostBar(spaceCostArr, spaceSummaryInDay, standard, _this.transformDate)
+      return getCostBar(spaceCostArr, spaceSummaryInDay, standard)
     }
     let convertDetailItems = function(itemsRaw) {
       if (!Array.isArray(itemsRaw)) {

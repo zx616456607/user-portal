@@ -90,6 +90,17 @@ exports.getRepositoriyConfig = function* () {
   const tag = this.params.tag
   const result = yield new Promise((resolve, reject) => {
     harbor.getRepositoriesManifest(repoName, tag, (err, statusCode, body) => {
+      if(statusCode != 200) {
+        let message = ''
+        if(body.errors) {
+          message = body.errors[0].message
+        } else {
+          message = body
+        }
+        const err = new Error(message)
+        err.status = statusCode
+        return reject(err)
+      }
       if(body.config) {
         body.config = JSON.parse(body.config)
       }
@@ -99,6 +110,9 @@ exports.getRepositoriyConfig = function* () {
         manifest.layers.forEach(layer => {
           size += layer.size
         })
+      }
+      if(!body.config) {
+        body.config = {}
       }
       body.config.size = size
       resolve(body.config)
@@ -111,7 +125,7 @@ exports.getRepositoriyConfig = function* () {
 }
 
 function _formatConfig(configInfo) {
-  const config = configInfo.config
+  const config = configInfo.config || {}
   const body = {
     defaultEnv: config.Env,
     mountPath: config.Volume,

@@ -339,7 +339,7 @@ class ContinueIntegration extends Component {
                     required: true, message: "请填写镜像地址"
                   }],
                   initialValue: value.imageUrl
-                }) } placeholder={value.imageUrl} size='large' disabled={disable[key].disable} />
+                }) } placeholder={'仓库组名/镜像名称:tag'} size='large' disabled={disable[key].disable} />
               </FormItem>]
           }
         </li>

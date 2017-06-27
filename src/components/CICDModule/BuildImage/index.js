@@ -49,7 +49,7 @@ let menusText = defineMessages({
   },
   updateTime: {
     id: 'CICD.Tenxflow.TenxFlowList.updateTime',
-    defaultMessage: '更新时间',
+    defaultMessage: '上次构建时间',
   },
   status: {
     id: 'CICD.Tenxflow.TenxFlowList.status',
@@ -260,15 +260,18 @@ let MyComponent = React.createClass({
     const { projectId, defaultBranch, stagesCount, repoType } = item
     const { repoBranchesAndTags } = this.props
     const dropdown = (
-      <Menu onClick={this.operaMenuClick.bind(this, item)}>
+      <Menu onClick={this.operaMenuClick.bind(this, item)} style={{width:'127px'}}>
         <Menu.Item key="deloylog111">
-          <FormattedMessage {...menusText.deloyLog} style={{ display: 'inlineBlock' }} />
+          <i className="anticon anticon-book" style={{marginRight: '5px'}}/>&nbsp;
+          <FormattedMessage {...menusText.deloyLog}/>
         </Menu.Item>
         <Menu.Item key="checkImage111">
-          <FormattedMessage {...menusText.checkImage} style={{ display: 'inlineBlock' }} />
+          <i className="anticon anticon-folder-open" style={{marginRight: '5px'}}/>&nbsp;
+          <FormattedMessage {...menusText.checkImage}/>
         </Menu.Item>
         <Menu.Item key='deleteFlow111'>
-          <FormattedMessage {...menusText.delete} style={{ display: 'inlineBlock' }} />
+          <i className="anticon anticon-delete" style={{marginRight: '5px'}}/>&nbsp;
+          <FormattedMessage {...menusText.delete}/>
         </Menu.Item>
       </Menu>
     );
@@ -363,9 +366,6 @@ let MyComponent = React.createClass({
       }
       return (
         <div className='tenxflowDetail' key={item.name} >
-          <div className="name" style={{width: '20px'}}>
-            <Checkbox onChange={(e) => this.props.changeCheckStatus(item.name, e)} checked={item.checked}/>
-          </div>
           <div className='name'>
             <Tooltip placement='topLeft' title={item.name}>
               <Link to={`/ci_cd/build_image/tenx_flow_build?${item.flowId}&${flowListState[index].status}`}>
@@ -375,8 +375,8 @@ let MyComponent = React.createClass({
           </div>
           <div className='time'>
             <span className='timeSpan'>
-              <Tooltip placement='topLeft' title={item.updateTime ? dateFormat(item.updateTime) : dateFormat(item.createTime)}>
-                <span>{item.updateTime ? dateFormat(item.updateTime) : dateFormat(item.createTime)}</span>
+              <Tooltip placement='topLeft' title={item.lastBuildTime ? dateFormat(item.lastBuildTime) : '-'}>
+                <span>{item.lastBuildTime ? dateFormat(item.lastBuildTime) : '-'}</span>
               </Tooltip>
             </span>
           </div>
@@ -384,13 +384,6 @@ let MyComponent = React.createClass({
             <span className='timeSpan'>
               <Tooltip placement='topLeft' title={item.address}>
                 <span>{item.address || '-'}</span>
-              </Tooltip>
-            </span>
-          </div>
-          <div className='branch'>
-            <span className='timeSpan'>
-              <Tooltip placement='topLeft' title={item.defaultBranch}>
-                <span>{item.defaultBranch || '-'}</span>
               </Tooltip>
             </span>
           </div>
@@ -492,11 +485,6 @@ class TenxFlowList extends Component {
     this.setState({
     //  websocket: <Socket url={cicdApi.host} protocol={cicdApi.protocol} path={cicdApi.statusPath} onSetup={(socket) => this.onSetup(socket)} />
     })
-    if(location.search == '?build_image=true'){
-      this.setState({
-        createTenxFlowModal: true
-      })
-    }
   }
   componentWillReceiveProps(nextProps) {
     const { isFetching, flowList, currentSpace } = nextProps;
@@ -771,19 +759,12 @@ class TenxFlowList extends Component {
               <i className='fa fa-plus' />&nbsp;
               <FormattedMessage {...menusText.create} />
             </Button>
-            <Button style={{marginLeft: "10px", backgroundColor: "transparent", color: "#666", borderColor: "#d9d9d9"}} className='createBtn' size='large' type='primary' onClick={() => this.openDeleteTenxFlowModal()}>
-              <i className='fa fa-trash-o' />&nbsp;
-              <FormattedMessage {...menusText.delete} />
-            </Button>
             <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' onChange={this.onSearchFlow} />
             <i className='fa fa-search'></i>
             <div style={{ clear: 'both' }}></div>
           </div>
           <Card className='tenxflowBox'>
             <div className='titleBox' >
-              <div className="name" style={{width: '2%'}}>
-                <Checkbox checked={this.state.allChecked}  onChange={(e) => this.onAllChange(e)}  ></Checkbox>
-              </div>
               <div className='name'>
                 <FormattedMessage {...menusText.name} />
               </div>
@@ -792,9 +773,6 @@ class TenxFlowList extends Component {
               </div>
               <div className='code'>
                 <FormattedMessage {...menusText.code} />
-              </div>
-              <div className='branch'>
-                <FormattedMessage {...menusText.branch} />
               </div>
               <div className='image'>
                 <FormattedMessage {...menusText.image} />

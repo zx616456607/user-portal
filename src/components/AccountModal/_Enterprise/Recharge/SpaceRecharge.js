@@ -12,6 +12,7 @@ import React, { Component } from 'react'
 import { InputNumber, Table, Icon, Button, Form } from 'antd'
 import { parseAmount } from '../../../../common/tools'
 import { connect } from 'react-redux'
+import cloneDeep from 'lodash/cloneDeep'
 import { chargeTeamspace } from '../../../../actions/charge'
 import { loadTeamspaceList } from '../../../../actions/team'
 import { loadUserTeamspaceDetailList } from '../../../../actions/user'
@@ -127,6 +128,17 @@ let SpaceRecharge = React.createClass({
     this.setState({number: value})
     callback()
   },
+  handClickRow(recode,index) {
+    const { selected } = this.props.parentScope.state;
+    let keys = cloneDeep(selected)
+    let result = keys.findIndex((n)=> n === index)
+    if (result > -1) {
+      keys.splice(result,1)
+    }else {
+      keys.push(index)
+    }
+    this.props.parentScope.setState({selected: keys})
+  },
   render () {
     const selected  = this.props.selected || []
     let disabled = true
@@ -172,8 +184,14 @@ let SpaceRecharge = React.createClass({
     return(
       <div className="spaceItem">
         <div className="alertRow" style={{margin: 0}}>Tips：可为团队中的各团队空间充值，全选可批量充值</div>
-        <Table rowSelection={rowSelection} columns={columns}
-          dataSource={teamSpacesList} pagination={false} className="wrapTable"/>
+        <Table
+          rowSelection={rowSelection}
+          columns={columns}
+          dataSource={teamSpacesList}
+          pagination={false}
+          className="wrapTable"
+          onRowClick={(recode,index)=>this.handClickRow(recode,index)}
+        />
         <Form>
         <div className="list">
           <span className="itemKey">充值金额</span>

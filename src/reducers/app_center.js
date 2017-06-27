@@ -315,7 +315,7 @@ function imageTag(state = {}, action) {
       const LATEST = 'latest'
       let data = merge([], Array.reverse(action.response.result.data))
       const latestTagIndex = data.indexOf(LATEST)
-      if (latestTagIndex > -1) {
+      if (latestTagIndex > 0) {
         data.splice(latestTagIndex,1)
         data.unshift(LATEST)
       }
@@ -470,9 +470,16 @@ function getOtherImageTag(state = {}, action) {
         isFetching: true
       })
     case ActionTypes.GET_OTHER_IMAGE_TAGS_SUCCESS:
+      const LATEST = 'latest'
+      let data = action.response.result.tags
+      const latestTagIndex = data.indexOf(LATEST)
+      if (latestTagIndex > 0) {
+        data.splice(latestTagIndex,1)
+        data.unshift(LATEST)
+      }
       return Object.assign({}, state, {
         isFetching: false,
-        imageTag: action.response.result.tags || null
+        imageTag: data || null
       })
     case ActionTypes.GET_OTHER_IMAGE_TAGS_FAILURE:
       return merge({}, defaultState, state, {
