@@ -87,7 +87,7 @@ const MyComponent = React.createClass({
         scope.setState({
           runBtn: false,
           stopBtn: true,
-          restartBtn: false,
+          restartBtn: true,
         })
       }
     } else if (checkedList.length > 1) {
@@ -112,7 +112,7 @@ const MyComponent = React.createClass({
         })
         if (pending) {
           scope.setState({
-            restartBtn: false
+            restartBtn: true
           })
         }
         return
@@ -177,7 +177,7 @@ const MyComponent = React.createClass({
           scope.setState({
             runBtn: false,
             stopBtn: true,
-            restartBtn: false,
+            restartBtn: true,
           })
         }
       } else if (checkedList.length > 1) {
@@ -202,7 +202,7 @@ const MyComponent = React.createClass({
           })
           if (pending) {
             scope.setState({
-              restartBtn: false
+              restartBtn: true
             })
           }
           return
@@ -337,7 +337,7 @@ const MyComponent = React.createClass({
     if (serviceList.length < 1) {
       return (
         <div className="loadingBox">
-          暂无数据
+          <Icon type="frown"/>&nbsp;暂无数据
         </div>
       )
     }

@@ -176,8 +176,11 @@ const MyComponent = React.createClass({
       return (
         <div className='podDetail' key={index} >
           {/*<div className='podDetail' key={`${item.objectMeta.name}-${index}`} >*/}
-          <div className='name commonTitle'>
-            <Link to={`/cluster/${clusterID}/${item.objectMeta.name}`}>{item.objectMeta.name}</Link>
+          <div className='name commonTitle namecursor' onClick={() => { browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`) }}>
+            <div className="hostname">
+              {item.objectMeta.name}
+            </div>
+            <div className="address">{item.address}</div>
           </div>
           <div className='status commonTitle'>
             <span className={item.ready == 'True' ? 'runningSpan' : 'errorSpan'}><i className='fa fa-circle' />&nbsp;&nbsp;{item.ready == 'True' ? '运行中' : '异常'}</span>
@@ -243,7 +246,7 @@ const MyComponent = React.createClass({
 
           <div className='startTime commonTitle'>
             <Tooltip title={formatDate(item.objectMeta.creationTimestamp)}>
-              <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
+              <span className="timeSpan">{calcuDate(item.objectMeta.creationTimestamp)}</span>
             </Tooltip>
           </div>
           <div className='opera commonTitle'>
@@ -531,7 +534,7 @@ class hostList extends Component {
         <div className='dataBox'>
           <div className='titleBox'>
             <div className='name commonTitle'>
-              <span>主机名称</span>
+              <span>名称/IP</span>
             </div>
             <div className='status commonTitle'>
               <span>状态</span>

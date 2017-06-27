@@ -28,7 +28,7 @@ export function getFieldsValues(fields) {
   return values
 }
 
-export function buildJson(fields, cluster, loginUser) {
+export function buildJson(fields, cluster, loginUser, imageConfigs) {
   const fieldsValues = getFieldsValues(fields)
   // 获取各字段值
   const {
@@ -50,6 +50,11 @@ export function buildJson(fields, cluster, loginUser) {
     argsKeys, // 启动命令的 keys(数组)
     imagePullPolicy, // 重新部署时拉取镜像的方式(Always, IfNotPresent)
     timeZone, // 时区设置
+    sourceType, // 日志采集-来源类型
+    name, // 日志采集
+    path, // 日志采集-日志目录
+    inregex, // 日志采集-采集规则
+    exregex, // 日志采集-排除规则
     livenessProtocol, // 高可用-协议类型
     livenessPort, // 高可用-端口
     livenessInitialDelaySeconds, // 高可用-首次检查延时
@@ -135,7 +140,11 @@ export function buildJson(fields, cluster, loginUser) {
     deployment.addContainerPort(serviceName, port, portProtocol)
   })
   // 设置进入点
-  if (command) {
+  let {
+    entrypoint,
+  } = imageConfigs
+  entrypoint = entrypoint && entrypoint.join(' ')
+  if (command && command !== entrypoint) {
     deployment.addContainerCommand(serviceName, command)
   }
   // 设置启动命令
@@ -153,6 +162,25 @@ export function buildJson(fields, cluster, loginUser) {
   // 设置时区
   if (timeZone) {
     deployment.syncTimeZoneWithNode(serviceName)
+  }
+  // 设置日志采集
+  if (sourceType === 'directory') {
+    let str = path
+    if(path.substring(path.length-1,path.length) == '/'){
+      str = path.substring(0,path.length-1)
+    }
+    let item = {
+      path: str,
+      inregex,
+      exregex
+    }
+    if (name) {
+      item.name = name
+    } else {
+      let name = 'volumename' + (Math.random() * 10000).toFixed(0)
+      item.name = name
+    }
+    deployment.setCollectLog(serviceName, item)
   }
   // 设置高可用
   if (livenessProtocol === 'HTTP' || livenessProtocol === 'TCP') {

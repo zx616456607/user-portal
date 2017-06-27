@@ -190,9 +190,9 @@ class Header extends Component {
           let isShowCluster = !!showCluster
           if (result.data.length === 1) {
             isShowCluster = false
-            if (pathname.match(/\//g).length > 2) {
-              browserHistory.push('/')
-            }
+          }
+          if (pathname.match(/\//g).length > 2) {
+            browserHistory.push('/')
           }
           _this.setState({
             spacesVisible: false,

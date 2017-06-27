@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  ZooKeeperDatabase module
+ *  StatefulCluster module
  *
  * v2.0 - 2016-10-18
  * @author GaoJian
@@ -23,12 +23,28 @@ import NotificationHandler from '../../common/notification_handler'
 import {formatDate} from '../../common/tools.js'
 import './style/MysqlCluster.less'
 import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
+import esImg from '../../assets/img/database_cache/elasticsearch.jpg'
 import noDbImgs from '../../assets/img/no_data/no_db.png'
 import Title from '../Title'
 
+const clusterTable = {
+  zookeeper: {
+    displayName: 'ZooKeeper',
+    image: zkImg,
+  },
+  elasticsearch: {
+    displayName: 'ElasticSearch',
+    image: esImg
+  },
+  mongodb: {
+    displayName: 'MongoDB',
+  },
+}
+
 let MyComponent = React.createClass({
   propTypes: {
-    config: React.PropTypes.array
+    config: React.PropTypes.array,
+    clusterType: React.PropTypes.string,
   },
   showDetailModal: function (database) {
     const {scope} = this.props;
@@ -39,8 +55,9 @@ let MyComponent = React.createClass({
     })
   },
   render: function () {
-    const {config, isFetching} = this.props;
+    const {config, isFetching, clusterType} = this.props;
     const canCreate = this.props.canCreate
+    const literal = clusterTable[clusterType]
     let title = ''
     if (!canCreate) {
       title = '尚未部署分布式存储，暂不能创建'
@@ -56,7 +73,7 @@ let MyComponent = React.createClass({
       return (
         <div className="text-center">
           <img src={noDbImgs}/>
-          <div>还没有 ZooKeeper 集群，创建一个！ <Tooltip title={title} placement="right">
+          <div>还没有 {literal.displayName} 集群，创建一个！ <Tooltip title={title} placement="right">
             <Button type="primary" size="large"
                     onClick={() => this.props.scope.createDatabaseShow()}
                     disabled={!canCreate}>创建集群</Button>
@@ -70,7 +87,7 @@ let MyComponent = React.createClass({
         <div className='List' key={index}>
           <div className='list-wrap'>
             <div className='detailHead'>
-              <img src={zkImg}/>
+              <img src={literal.image}/>
               <div className='detailName'>
                 {item.serivceName}
               </div>
@@ -116,7 +133,7 @@ let MyComponent = React.createClass({
   }
 });
 
-class ZooKeeper extends Component {
+class StatefulCluster extends Component {
   constructor() {
     super()
     this.createDatabaseShow = this.createDatabaseShow.bind(this);
@@ -130,6 +147,7 @@ class ZooKeeper extends Component {
   }
   clusterRefresh() {
     const _this = this
+    const {loadDbCacheList, cluster} = this.props
     this.props.loadMyStack(DEFAULT_REGISTRY, 'dbservice', {
       success: {
         func: (res) => {
@@ -139,16 +157,17 @@ class ZooKeeper extends Component {
         }
       }
     })
+    loadDbCacheList(cluster, 'zookeeper')
   }
   componentWillMount() {
-    const {loadDbCacheList, cluster} = this.props
+    const {loadDbCacheList, cluster, clusterType} = this.props
     if (cluster == undefined) {
       let notification = new NotificationHandler()
       notification.error('请选择集群', 'invalid cluster ID')
       return
     }
 
-    loadDbCacheList(cluster, 'zookeeper')
+    loadDbCacheList(cluster, clusterType)
   }
 
   componentDidMount() {
@@ -169,7 +188,7 @@ class ZooKeeper extends Component {
     if (current.space.namespace === this.props.current.space.namespace && current.cluster.clusterID === this.props.current.cluster.clusterID) {
       return
     }
-    this.props.loadDbCacheList(current.cluster.clusterID, 'zookeeper')
+    this.props.loadDbCacheList(current.cluster.clusterID, this.props.clusterType)
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -196,22 +215,24 @@ class ZooKeeper extends Component {
   }
 
   handSearch(e) {
+    const clusterType = this.props.clusterType
     if (e) {
-      this.props.searchDbservice('zookeeper', e.target.value)
+      this.props.searchDbservice(clusterType, e.target.value)
       return
     }
-    const names = this.refs.zookeeperRef.refs.input.value
-    this.props.searchDbservice('zookeeper', names)
+    const names = this.refs.searchInput.refs.input.value
+    this.props.searchDbservice(clusterType, names)
   }
 
   render() {
     const _this = this;
-    const {isFetching, databaseList} = this.props;
+    const {isFetching, databaseList, clusterType} = this.props;
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
     let title = ''
     const currentCluster = this.props.current.cluster
     const storage_type = currentCluster.storageTypes
+    const literal = clusterTable[clusterType]
     let canCreate = true
     if (!storage_type || storage_type.indexOf('rbd') < 0) canCreate = false
     if (!canCreate) {
@@ -219,26 +240,25 @@ class ZooKeeper extends Component {
     }
     return (
       <QueueAnim id='mysqlDatabase' type='right'>
-        <div className='databaseCol' key='ZooKeeper'>
-          <Title title="Zookeeper" />
+        <div className='databaseCol' key={literal.displayName}>
+          <Title title={literal.displayName} />
           <div className='databaseHead'>
             { mode === standard ?
-              <div className='alertRow'>您的 ZooKeeper 集群创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充值，继续使用。如无充值，1 周后资源会被彻底销毁，不可恢复。</div> :
+              <div className='alertRow'>您的 {literal.displayName} 集群创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充值，继续使用。如无充值，1 周后资源会被彻底销毁，不可恢复。</div> :
               <div></div>}
-            <Tooltip title={title} placement="right"><Button type='primary' size='large'
-                                                             onClick={this.createDatabaseShow} disabled={!canCreate}>
-              <i className='fa fa-plus'/>&nbsp;ZooKeeper集群
+            <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
+              <span><i className='fa fa-plus'/>&nbsp;{literal.displayName}集群</span>
             </Button></Tooltip>
             <Button style={{marginLeft:'20px',padding:'5px 15px'}} size='large' onClick={this.clusterRefresh} disabled={!canCreate}>
               <i className='fa fa-refresh' />&nbsp;刷 新
             </Button>
             <span className='rightSearch'>
-              <Input size='large' placeholder='搜索' style={{width: '180px', paddingRight: '28px'}} ref="zookeeperRef"
+              <Input size='large' placeholder='搜索' style={{width: '180px', paddingRight: '28px'}} ref="searchInput"
                      onPressEnter={(e) => this.handSearch(e)}/>
               <i className="fa fa-search cursor" onClick={() => this.handSearch()}/>
             </span>
           </div>
-          <MyComponent scope={_this} isFetching={isFetching} config={databaseList} canCreate={canCreate}/>
+          <MyComponent scope={_this} isFetching={isFetching} config={databaseList} clusterType={clusterType} canCreate={canCreate}/>
         </div>
         <Modal visible={this.state.detailModal}
                className='AppServiceDetail' transitionName='move-right'
@@ -256,7 +276,7 @@ class ZooKeeper extends Component {
                  this.setState({CreateDatabaseModalShow: false})
                } }
         >
-          <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={'zookeeper'}/>
+          <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType}/>
         </Modal>
       </QueueAnim>
     )
@@ -264,16 +284,16 @@ class ZooKeeper extends Component {
 }
 
 function mapStateToProps(state, props) {
+  const clusterType = /(?:^|\s)\/database_cache\/(.*?)_cluster(?:\s|$)/g.exec(props.location.pathname)[1]
   const {cluster} = state.entities.current
-  const defaultZooKeeperList = {
+  const defaultList = {
     isFetching: false,
     cluster: cluster.clusterID,
-    database: 'zookeeper',
-    databaseList: []
+    database: clusterType,
+    databaseList: [],
   }
-
   const {databaseAllList} = state.databaseCache
-  const {database, databaseList, isFetching} = databaseAllList.zookeeper || defaultZooKeeperList
+  const {database, databaseList, isFetching} = databaseAllList[clusterType] || defaultList
   const {current} = state.entities
   return {
     cluster: cluster.clusterID,
@@ -281,17 +301,18 @@ function mapStateToProps(state, props) {
     database,
     databaseList: databaseList,
     isFetching,
+    clusterType,
   }
 }
 
-ZooKeeper.propTypes = {
+StatefulCluster.propTypes = {
   intl: PropTypes.object.isRequired,
   isFetching: PropTypes.bool.isRequired,
   loadDbCacheList: PropTypes.func.isRequired,
   loadMyStack: PropTypes.func.isRequired
 }
 
-ZooKeeper = injectIntl(ZooKeeper, {
+StatefulCluster = injectIntl(StatefulCluster, {
   withRef: true,
 })
 
@@ -299,4 +320,4 @@ export default connect(mapStateToProps, {
   loadDbCacheList,
   loadMyStack,
   searchDbservice
-})(ZooKeeper)
+})(StatefulCluster)

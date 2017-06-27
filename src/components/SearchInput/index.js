@@ -128,7 +128,7 @@ class SearchInput extends Component{
     const { addBefore, defaultValue, placeholder, width, position, setStyle} = searchIntOption
     if(addBefore){
       let selectBefore = (
-        <Select defaultValue={defaultValue ? defaultValue : addBefore[0].key}
+        <Select className="Searchcategory" defaultValue={defaultValue ? defaultValue : addBefore[0].key}
                 style={{ width: 80}}
                 onChange={this.handleSelect}>
           {

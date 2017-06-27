@@ -41,12 +41,12 @@ let AllPermissions =  React.createClass ({
       title: '权限名称',
       dataIndex: 'name',
       key: 'name',
-      width: '50%',
+      width: '47%',
     }, {
       title: '权限描述',
       dataIndex: 'describe',
       key: 'describe',
-      width: '40%',
+      width: '38%',
     }, {
       title: '被角色引用次数',
       dataIndex: 'citationtimes',

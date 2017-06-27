@@ -36,6 +36,22 @@ class CreateItem extends Component {
     form.resetFields()
     func.scope.setState({createItem:false})
   }
+  projectNameExists(role, value, callback) {
+    if (!Boolean(value)) {
+      return callback('请输入仓库组名称')
+    }
+    if (value.length <3) {
+      return callback('仓库组名称至少3位字符')
+    }
+    if (value.length >30) {
+      return callback('仓库组名称长度不可超过30个字符')
+    }
+    if (!/^[a-z0-9]+(?:[_-][a-z0-9]+)*$/.test(value)) {
+      callback('请输入小写英文字母和数学开头和结尾，中间可[_-]')
+      return
+    }
+    callback()
+  }
   handOk() {
     const { form, func } = this.props
     form.validateFields((error, values)=> {
@@ -45,6 +61,7 @@ class CreateItem extends Component {
       func.createProject(DEFAULT_REGISTRY, values, {
         success: {
           func: () => {
+            notification.success(`仓库组 ${values.project_name} 创建成功`)
             func.loadData()
             func.scope.setState({ createItem:false })
             form.resetFields()
@@ -76,8 +93,7 @@ class CreateItem extends Component {
     }
     const itemName= getFieldProps('project_name',{
       rules: [
-        { required: true, min: 3, message: '仓库组至少为3个字符' },
-        // { validator: this.nameExists },
+        { validator: this.projectNameExists },
       ],
     })
     const projectPublic = getFieldProps('public',{
@@ -188,7 +204,6 @@ class Project extends Component {
     return (
       <div className="imageProject">
         <br />
-        <div className="alertRow">镜像仓库用于存放镜像，您可关联第三方镜像仓库，使用公开云中私有空间镜像；关联后，该仓库也用于存放通过 TenxFlow 构建出来的镜像</div>
         <QueueAnim>
           <div key="projects">
 

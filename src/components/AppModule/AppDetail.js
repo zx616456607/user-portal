@@ -284,7 +284,7 @@ class AppDetail extends Component {
                   <AlarmStrategy appName={appName} cluster={this.props.cluster} currentApp={currentApp}/>
                 </TabPane>
                 <TabPane tab="拓扑图" key="#topology">
-                  <Topology appName={appName} cluster={this.props.cluster} />
+                  <Topology appName={appName} cluster={this.props.cluster} teamspace={this.props.teamspace} />
                 </TabPane>
               </Tabs>
             </Card>
@@ -309,7 +309,7 @@ AppDetail.propTypes = {
 function mapStateToProps(state, props) {
   const { app_name } = props.params
   const { hash, pathname } = props.location
-  const { cluster } = state.entities.current
+  const { cluster,space } = state.entities.current
   const defaultApp = {
     isFetching: false,
     cluster: cluster.clusterID,
@@ -329,6 +329,7 @@ function mapStateToProps(state, props) {
     isFetching,
     hash,
     pathname,
+    teamspace: space.namespace,
     location: props.location
   }
 }

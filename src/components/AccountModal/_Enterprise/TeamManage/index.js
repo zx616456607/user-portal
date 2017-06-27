@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Alert, Button, Icon, Card, Table, Modal, Input, Tooltip, } from 'antd'
+import { Row, Col, Alert, Menu, Dropdown, Button, Icon, Card, Table, Modal, Input, Tooltip, } from 'antd'
 import './style/TeamManage.less'
 import { Link } from 'react-router'
 import SearchInput from '../../../SearchInput'
@@ -216,8 +216,8 @@ let TeamTable = React.createClass({
     let { sortedInfo, filteredInfo, targetKeys, sort } = this.state
     const { searchResult, notFound, filter } = this.props.scope.state
     const { data, scope, teamUserIDList } = this.props
-    sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
+    sortedInfo = sortedInfo || {}
     const pagination = {
       simple: true,
       total: this.props.scope.props.total,
@@ -256,6 +256,7 @@ let TeamTable = React.createClass({
         })
       },
     }
+
     const columns = [
       {
         title: (
@@ -273,7 +274,7 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'team',
         key: 'team',
-        width: '14%',
+        width: '16%',
         className: 'teamName',
         render: (text, record, index) => (
           <Link to={`/account/team/${record.team}/${record.key}`}>{text}</Link>
@@ -295,7 +296,7 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'member',
         key: 'member',
-        width: '15%',
+        width: '18%',
       },
       {
         title: (
@@ -313,7 +314,7 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'cluster',
         key: 'cluster',
-        width: '15%',
+        width: '18%',
       },
       {
         title: (
@@ -331,16 +332,42 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'space',
         key: 'space',
-        width: '15%',
+        width: '18%',
       },
       {
         title: '操作',
         key: 'operation',
-        width: '333px',
         render: (text, record, index) =>{
           return (
             <div className="addusers">
-              <Button icon="plus" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加成员</Button>
+              <div className="Deleterechargea">
+                <Button icon="plus" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加成员</Button>
+                <Button icon="delete" className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
+                {(this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN) ?
+                  <Button icon="pay-circle-o" className="addBtn" style={{marginLeft:'12px'}} onClick={() => this.btnRecharge(record.key)}>充值</Button>
+                :null
+                }
+              </div>
+              <div className="Deleterechargeb">
+                <Button icon="plus" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加成员</Button>
+                {
+                  this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN
+                  ? (
+                    <Dropdown.Button
+                      onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}
+                      overlay={
+                        <Menu className="Recharge" onClick={() => this.btnRecharge(record.key)}>
+                          <Menu.Item key="0"><Icon type="pay-circle-o" /> 充值</Menu.Item>
+                        </Menu>
+                      }
+                      type="ghost"
+                    >
+                      删除
+                    </Dropdown.Button>
+                  )
+                  : <Button icon="delete" className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
+                }
+              </div>
               <Modal title='添加成员'
                 visible={this.state.nowTeamID === record.key && this.state.addMember}
                 onOk={this.handleNewMemberOk}
@@ -353,11 +380,6 @@ let TeamTable = React.createClass({
                   teamID={record.key}
                   teamUserIDList={teamUserIDList} />
               </Modal>
-              <Button icon="delete" className="delBtn" onClick={() => this.setState({delTeamModal:true,teamID: record.key, teamName: record.team})}>删除</Button>
-              {(this.props.scope.props.userDetail.role == ROLE_SYS_ADMIN) ?
-                <Button className="addBtn" style={{marginLeft:'12px'}} onClick={() => this.btnRecharge(record.key)}>充值</Button>
-              :null
-              }
             </div>
           )
         }

@@ -4,6 +4,22 @@
   padding-left: 20px;
   padding-right: 20px;
   margin-bottom: 20px;
+  @media screen and (min-width:1120px){
+    .operationBoxa {
+      display:block;
+    }
+    .operationBoxb {
+      display:none;
+    }
+  }
+  @media screen and (max-width:1120px){
+    .operationBoxa {
+      display:none;
+    }
+    .operationBoxb {
+      display:block;
+    }
+  }
   .operationBox {
     width: 100%;
     min-height: 35px;
@@ -17,6 +33,10 @@
         i {
           margin-right: 5px;
         }
+      }
+      .Arrow {
+        margin-right:0px;
+        margin-left:5px;
       }
     }
     .rightBox {
@@ -215,4 +235,7 @@
     }
   }
 
+}
+.Moreoperation {
+  font-size:14px;
 }

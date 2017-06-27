@@ -12,7 +12,7 @@ import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, Dropdown, Modal,
 import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
-import { getGithubList, searchGithubList, addGithubRepo, notGithubProject, registryGithub, syncRepoList,getUserInfo } from '../../../actions/cicd_flow'
+import { getGithubList, searchGithubList, addGithubRepo, notGithubProject, registryGithub, syncRepoList,getUserInfo, getRepoList } from '../../../actions/cicd_flow'
 import { parseQueryStringToObject } from '../../../common/tools'
 
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -219,23 +219,23 @@ class GogsComponent extends Component {
 
   loadData() {
     const self = this
-    const { typeName } = this.props
+    const { typeName, getUserInfo } = this.props
     this.props.getGithubList(typeName, {
-      success: {
+        success: {
         func: (res) => {
           if (res.data.hasOwnProperty('results')) {
             const users = res.data.results[Object.keys(res.data.results)[0]].user
             self.setState({ users })
+            getUserInfo('gogs')
           }
-        }
+        },
+       isAsync: true
       }
     })
   }
 
   componentWillMount() {
     this.loadData()
-    const { getUserInfo } = this.props;
-    getUserInfo('gogs')
   }
 
   componentWillReceiveProps(nextProps) {
@@ -517,7 +517,8 @@ export default connect(mapStateToProps, {
   registryGithub,
   syncRepoList,
   searchGithubList,
-  notGithubProject
+  notGithubProject,
+  getRepoList
 })(injectIntl(GogsComponent, {
   withRef: true
 }))

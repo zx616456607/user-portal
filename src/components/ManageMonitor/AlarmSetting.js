@@ -336,7 +336,7 @@ let MyComponent = React.createClass({
           </div>
           <div className="lists">
             <span className="keys">内存</span>
-            <Progress percent={ data.memory[2] * 100 } strokeWidth={8} format={ () =>  parseInt(data.memory[1]/(1024*1024)) + 'MB'}   status={ data.memory[2]*100 > 80 ? 'exception' : ''} className="progress"/>
+            <Progress percent={ data.memory[2] * 100 } strokeWidth={8} format={ () =>  parseInt(data.memory[0]/(1024*1024)) + 'MB'}   status={ data.memory[2]*100 > 80 ? 'exception' : ''} className="progress"/>
           </div>
           <div className="lists">
             <span className="keys">流量</span>
@@ -391,7 +391,7 @@ let MyComponent = React.createClass({
         failed: {
           func: (err)=> {
             if (err.statusCode === 404) {
-              notify.error('关联服务不存在或者已经被删除')
+              notify.info('关联服务不存在或者已经被删除')
             }
           },
           isAsync: true
@@ -411,13 +411,13 @@ let MyComponent = React.createClass({
         },
         failed: {
           func: ()=>{
-            notify.error('关联节点不存在或者已被删除')
+            notify.info('关联节点不存在或者已被删除')
           },
           isAsync:true
         }
       })
     }
-    
+
   },
   render() {
     const { data } = this.state
@@ -438,7 +438,7 @@ let MyComponent = React.createClass({
               <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
               <td onClick={()=> this.tableListMore(index)}>{formatDate(list.createTime)}</td>
               <td onClick={()=> this.tableListMore(index)}>{list.updater}</td>
-             <td><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={ this.setIgnore(list) }>忽略</Dropdown.Button></td>
+             <td className='dropdownTd'><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={ this.setIgnore(list) }>忽略</Dropdown.Button></td>
             </tr>,
             <tr key={`list-${index}`} className="ant-table-expanded">
               <td style={{width:'5%',textAlign:'center'}}></td>
@@ -452,7 +452,7 @@ let MyComponent = React.createClass({
       return (
         <tr key={`list${index}`}>
             <td style={{width:'5%',textAlign:'center'}}><Checkbox checked={list.checked} onChange={(e)=> this.changeChecked(e, index)} /></td>
-            <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-right" /><Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
+            <td onClick={(e)=> this.tableListMore(index, e)}><Icon type="caret-right" />  <Link to={`/manange_monitor/alarm_setting/${encodeURIComponent(list.strategyID)}?name=${list.strategyName}`}>{list.strategyName}</Link></td>
             <td onClick={()=> this.tableListMore(index)}>{this.switchType(list.targetType)}</td>
             <td >
               <span className="targetName" onClick={(e)=>{this.toProjectDetail(list,e)}}>{list.targetName}</span>
@@ -461,7 +461,7 @@ let MyComponent = React.createClass({
             <td onClick={()=> this.tableListMore(index)}>{this.calcuTime(list.repeatInterval)}</td>
             <td onClick={()=> this.tableListMore(index)}>{formatDate(list.createTime)}</td>
             <td onClick={()=> this.tableListMore(index)}>{list.updater}</td>
-          <td><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={ this.setIgnore(list)}>忽略</Dropdown.Button></td>
+          <td className='dropdownTd'><Dropdown.Button type="ghost" overlay={ this.dropdowns(list) } onClick={ this.setIgnore(list)}>忽略</Dropdown.Button></td>
           </tr>
       )
     })

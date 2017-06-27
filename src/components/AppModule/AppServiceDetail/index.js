@@ -213,12 +213,12 @@ class AppServiceDetail extends Component {
     const { scope } = this.props
     const service = scope.state.currentShowInstance
     //当点击停止的时候，只有status为Running的时候才可以点击
-    //当点击重新部署的时候，只有status为Running的时候才可以点击
+    //当点击重新部署的时候，只有status不为Stopped的时候才可以点击
     //当状态为启动中的时候，只可进行删除操作
     if (service.status) {
       if (key === 'stop' && service.status.phase === 'Stopped') {
         return true
-      } else if (key === 'restart' && service.status.phase !== 'Running') {
+      } else if (key === 'restart' && service.status.phase === 'Stopped') {
         return true
       }
     }
@@ -429,7 +429,9 @@ class AppServiceDetail extends Component {
                   containers={containers}
                   serviceName={service.metadata.name}
                   cluster={service.cluster}
-                  serviceDetailmodalShow={serviceDetailmodalShow} />
+                  serviceDetailmodalShow={serviceDetailmodalShow}
+                  serviceDetail={serviceDetail}
+                relative/>
               </TabPane>
               <TabPane tab='事件' key='#events'>
                 <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} type={'replicaset'} serviceDetailmodalShow={serviceDetailmodalShow}/>

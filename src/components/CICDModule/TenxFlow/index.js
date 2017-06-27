@@ -346,7 +346,7 @@ let MyComponent = React.createClass({
     return (
       <div className='tenxflowList'>
         {items}
-        <Modal title="删除TenxFlow操作" visible={this.state.delFlowModal}
+        <Modal title="删除构建任务" visible={this.state.delFlowModal}
           onOk={() => this.delFlowAction()} onCancel={() => this.setState({ delFlowModal: false })}
         >
           <Alert message="请注意，删除 TenxFlow 将清除相关的历史构建数据，且该操作不能被恢复" type="warning" showIcon />

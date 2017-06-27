@@ -13,6 +13,9 @@ const tenantRoutes = [{
   path: 'integration',
   component: require('../components/IntegrationModule').default,
 },{
+    path: 'user/:user_id',
+    component: require('../components/TenantManage/UserInfo').default,
+  },{
     path: 'project_manage',
     component: require('../components/TenantManage/ProjectManage').default,
 },
@@ -23,6 +26,10 @@ const tenantRoutes = [{
   {
     path: 'allpermissions',
     component: require('../components/TenantManage/AllPermissions').default,
+  },
+  {
+    path: 'membermanagement',
+    component: require('../components/TenantManage/Membermanagement').default,
   },
   {
     path: 'project_manage/project_detail',

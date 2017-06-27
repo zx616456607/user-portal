@@ -42,11 +42,10 @@ let HostInfo = React.createClass({
   },
   componentWillMount() {
     const { func } = this.props
-    const _this = this
     func.getNodeLabels(func.clusterID,func.nodeName, {
       success: {
         func:(ret)=> {
-          _this.setState({nodeLabel: ret})
+          this.setState({nodeLabel: JSON.parse(ret.raw)})
         }
       }
     })
@@ -128,7 +127,7 @@ let HostInfo = React.createClass({
         title: '容器名称',
         dataIndex: 'objectMeta.name',
         key: 'name',
-        width:'250px',
+        width:'200px',
       }, {
         title: '状态',
         dataIndex: 'podPhase',
@@ -139,10 +138,10 @@ let HostInfo = React.createClass({
         title: '命名空间',
         dataIndex: 'objectMeta.namespace',
         key: 'address',
-        width:'100px',
       }, {
         title: '所属应用',
         dataIndex: `objectMeta.labels`,
+        width:'70px',
         key: 'apply',
         render: (text) => {
           if (text && text[LABEL_APPNAME]) {
@@ -233,6 +232,7 @@ let HostInfo = React.createClass({
               userCreateLabel= { func.nodeLabel }
               nodeName={ func.nodeName }
               clusterID= { func.clusterID }
+              labels={[this.state.nodeLabel]}
               isNode={true}
               footer={false}
             />
@@ -278,11 +278,10 @@ class ClusterDetail extends Component {
       clusterID,
       clusterName
     }
-    const _this = this
     this.props.getHostInfo(body, {
       success: {
         func:(res)=> {
-          _this.setState({schedulable: res.schedulable})
+          this.setState({schedulable: res.schedulable})
         }
       }
     })
@@ -292,7 +291,7 @@ class ClusterDetail extends Component {
     this.props.getNodesPodeList({ clusterID, clusterName }, {
       success: {
         func:(ret) => {
-          _this.setState({foreverPodNumber: ret.pods.length})
+          this.setState({foreverPodNumber: ret.pods.length})
         }
       }
     })
@@ -429,7 +428,7 @@ class ClusterDetail extends Component {
       <div id="clusterDetail">
         <Title title="基础设施"/>
         <div className="topRow" style={{ marginBottom: '20px', height: '50px', paddingTop: '20px' }}>
-          <Link className="back" to="/cluster"><span className="backjia"></span><span className="btn-back">返回</span></Link>
+          <span className="back" onClick={() => {browserHistory.push(`/cluster?clusterID=${fetchApi.clusterID}&from=clusterDetail`)}}><span className="backjia"></span><span className="btn-back">返回</span></span>
           <span className="title">主机详情 （{this.props.clusterName}）</span>
         </div>
         <Card className="ClusterInfo" bordered={false}>

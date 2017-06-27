@@ -369,8 +369,8 @@ class Sider extends Component {
                 <Tooltip placement='right' title='租户管理'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/tenant_manage'>
-                    <svg className='account commonImg'>
-                     <use xlinkHref='#message' />
+                    <svg className='commonImg'>
+                     <use xlinkHref='#tenantmanagement' />
                     </svg>
                   </Link>
                 </Tooltip>
@@ -579,6 +579,12 @@ class Sider extends Component {
                     </Link>
                   </Menu.Item>
 
+                  <Menu.Item key='elasticsearch_cluster'>
+                    <Link to='/database_cache/elasticsearch_cluster'>
+                      <span><div className='sideCircle'></div> ElasticSearch</span>
+                    </Link>
+                  </Menu.Item>
+
                   <div className='sline'></div>
                 </SubMenu>
                 {(role == ROLE_SYS_ADMIN) ?
@@ -690,8 +696,8 @@ class Sider extends Component {
                 <SubMenu key='tenant_manage'
                   title={
                     <span>
-                      <svg className='account commonImg'>
-                        <use xlinkHref='#message' />
+                      <svg className='commonImg'>
+                        <use xlinkHref='#tenantmanagement' />
                       </svg>
                       <span className='commonSiderSpan'>租户管理</span>
                       <div style={{ clear: 'both' }}></div>
@@ -703,17 +709,22 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 租户</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item key="membermanagement">
+                    <Link to='/tenant_manage/membermanagement'>
+                      <span><div className='sideCircle'></div> 成员管理</span>
+                    </Link>
+                  </Menu.Item>
                   <Menu.Item key='projectManage'>
                     <Link to='/tenant_manage/project_manage'>
                       <span><div className='sideCircle'></div> 项目管理</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item>
+                  <Menu.Item key='rolemanagement'>
                     <Link to='/tenant_manage/rolemanagement'>
                       <span><div className='sideCircle'></div> 角色管理</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item>
+                  <Menu.Item key='allpermissions'>
                     <Link to='/tenant_manage/allpermissions'>
                       <span><div className='sideCircle'></div> 所有权限</span>
                     </Link>

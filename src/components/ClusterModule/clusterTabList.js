@@ -96,9 +96,14 @@ class ClusterTabList extends Component {
   }
 
   componentDidMount() {
-    const { clusterID, getAddNodeCMD, getClusterSummary } = this.props
+    const { clusterID, getAddNodeCMD, getClusterSummary, location } = this.props
     getAddNodeCMD(clusterID)
     getClusterSummary(clusterID)
+    if(location &&　location.query.from == "clusterDetail"){
+      this.setState({
+        TabsactiveKey: "host"
+      })
+    }
   }
 
   copyAddNodeCMD() {
@@ -222,7 +227,7 @@ class ClusterTabList extends Component {
               <ClusterLabelManage callbackActiveKey={this.handleCallbackActiveKey}  clusterID={clusterID} />
             </TabPane>
 
-            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#plugin"></use></svg><span className='tablepanespan'>插件管理</span></div>} key="4">
+            <TabPane tab={<div className='tablepanediv'><svg className='size pluginSize select'><use xlinkHref="#plugin"></use></svg><span className='tablepanespan'>插件管理</span></div>} key="4">
               <ClusterPlugin cluster={cluster}
               />
             </TabPane>

@@ -263,7 +263,7 @@ let CreateDatabase = React.createClass({
     const passwdProps = getFieldProps('password', {
       rules: [
         {
-          required: true,
+          required: this.state.currentType !== 'elasticsearch',
           whitespace: true,
           message: '请填写密码'
         },
@@ -305,6 +305,9 @@ let CreateDatabase = React.createClass({
                 </Button>
                 <Button size='large' type={this.state.currentType == 'zookeeper' ? 'primary' : 'ghost'} onClick={this.selectDatabaseType.bind(this, 'zookeeper')}>
                   ZooKeeper
+                </Button>
+                <Button size='large' type={this.state.currentType == 'elasticsearch' ? 'primary' : 'ghost'} onClick={this.selectDatabaseType.bind(this, 'elasticsearch')}>
+                  ElasticSearch
                 </Button>
               </div>
               <div style={{ clear: 'both' }}></div>
@@ -370,7 +373,7 @@ let CreateDatabase = React.createClass({
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
-
+            {this.state.currentType == 'elasticsearch' ? null :
             <div className='commonBox'>
               <div className='title'>
                 <span>密码</span>
@@ -384,7 +387,7 @@ let CreateDatabase = React.createClass({
                 </FormItem>
               </div>
               <div style={{ clear: 'both' }}></div>
-            </div>
+            </div>}
             <div className="modal-price">
               <div className="price-left">
                 <div className="keys">实例：{parseAmount(this.props.resourcePrice['2x'] * this.props.resourcePrice.dbRatio, 4).fullAmount}/（个*小时）* { storageNumber } 个</div>
