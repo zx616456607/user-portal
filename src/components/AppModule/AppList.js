@@ -975,7 +975,7 @@ class AppList extends Component {
 
       return prefix + toggle
     }
-    
+
     const createButton = (<Button type='primary' size='large' onClick={() => browserHistory.push('/app_manage/app_create')}>
         <i className="fa fa-plus" />创建应用
       </Button>)
