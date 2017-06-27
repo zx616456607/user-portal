@@ -19,7 +19,7 @@ import { loadMirrorSafetyLayerinfo, loadMirrorSafetyScanStatus, loadMirrorSafety
 import { loadRepositoriesTags } from '../../../../actions/harbor'
 import { connect } from 'react-redux'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 import { browserHistory } from 'react-router'
 
 const TabPane = Tabs.TabPane

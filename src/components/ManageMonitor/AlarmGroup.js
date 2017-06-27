@@ -18,7 +18,7 @@ import CreateAlarm from '../AppModule/AlarmModal/CreateGroup'
 const InputGroup = Input.Group
 import { loadNotifyGroups, deleteNotifyGroups } from '../../actions/alert'
 import { setCurrent } from '../../actions/entities'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import { formatDate } from '../../common/tools'
@@ -139,7 +139,7 @@ class AlarmGroup extends Component {
         let tyag = <br/>
         if(document.body.scrollWidth<1300) {
           status=emails[0].status != 1 ? <p style={{color:'#f23e3f'}}>【未验证】</p> : null
-        }  
+        }
         return <div className='alarmGroupItem'>
           {item.addr}
           <span className='alarmGroupspan'>{!!item.desc ? ` (备注:${item.desc})` : ''}</span>

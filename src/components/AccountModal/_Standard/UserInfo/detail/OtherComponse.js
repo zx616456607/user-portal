@@ -11,7 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import { Button, Icon, Input, Upload, Form} from 'antd'
 import uploadFile from '../../../../../common/upload.js'
 import { IDValide } from '../../../../../common/naming_validation.js'
-import NotificationHandler from '../../../../../common/notification_handler.js'
+import NotificationHandler from '../../../../../components/Notification'
 const FormItem = Form.Item
 
 let OtherComponse = React.createClass({

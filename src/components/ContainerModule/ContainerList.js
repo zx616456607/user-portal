@@ -24,7 +24,7 @@ import { browserHistory } from 'react-router'
 import ContainerStatus from '../TenxStatus/ContainerStatus'
 import { addPodWatch, removePodWatch } from '../../containers/App/status'
 import { instanceExport } from '../../actions/instance_export'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import Title from '../Title'
 
 const ButtonGroup = Button.Group

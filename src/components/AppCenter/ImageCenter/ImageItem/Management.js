@@ -16,7 +16,7 @@ import { Modal, Form, Table, Button, Popover, Card, Input, Radio, Icon, Select, 
 import { loadProjectMembers, addProjectMember, deleteProjectMember, updateProjectMember } from '../../../../actions/harbor'
 import { loadUserList } from '../../../../actions/user'
 import { formatDate } from '../../../../common/tools'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 
 const notification = new NotificationHandler()
 const RadioGroup = Radio.Group

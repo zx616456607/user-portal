@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getProjectList, removeProject, searchProject, filterProject } from '../../../actions/cicd_flow'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import Title from '../../Title'
 
 import './style/CodeStore.less'

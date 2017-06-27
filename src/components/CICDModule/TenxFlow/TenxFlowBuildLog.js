@@ -17,7 +17,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getFlowBuildStageLogs, StopTenxflowBuild, getTenxflowBuildLastLogs } from '../../../actions/cicd_flow'
 import './style/TenxFlowBuildLog.less'
 import TenxFlowStageBuildLog from './TenxFlowStageBuildLog'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 
 const Panel = Collapse.Panel;
 
@@ -193,7 +193,7 @@ let MyComponent = React.createClass({
       if (!this.props.scope.props.loggingEnabled) {
         let notification = new NotificationHandler()
         notification.warn('尚未安装日志服务，无法查看日志')
-        return 
+        return
       }
       config[index].isFetching = true;
       scope.setState({
@@ -294,14 +294,14 @@ class TenxFlowBuildLog extends Component {
       currentLogList: []
     }
   }
-  
+
   componentWillMount() {
     const { logs } = this.props;
     this.setState({
       currentLogList: logs
     })
   }
-  
+
   componentWillReceiveProps(nextProps) {
     const { logs } = nextProps;
     if(!nextProps.isFetching) {

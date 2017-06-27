@@ -12,7 +12,7 @@ import { connect } from 'react-redux'
 import { Menu, Dropdown, Icon, Tooltip, Button, Modal, Form, Input, Tag } from 'antd'
 import { addLabels } from '../../actions/cluster_node'
 import { KubernetesValidator } from '../../common/naming_validation'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import './style/TagDropdown.less'
 import cloneDeep from 'lodash/cloneDeep'
 const FormItem = Form.Item
