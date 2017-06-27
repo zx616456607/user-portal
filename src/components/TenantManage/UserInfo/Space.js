@@ -17,6 +17,9 @@ import { connect } from 'react-redux'
 import PopContent from '../../PopSelect/Content'
 import NotificationHandler from '../../../common/notification_handler'
 import { parseAmount } from '../../../common/tools'
+import servicenumberImg from '../../../../static/img/servicenumber.svg'
+import applicationnumberImg from '../../../../static/img/applicationnumber.svg'
+import containercountImg from '../../../../static/img/containercount.svg'
 import SpaceRecharge from '../_Enterprise/Recharge/SpaceRecharge'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
 
@@ -32,29 +35,24 @@ let PersonalSpace = React.createClass({
     return (
       <div>
         <Row className="contentTop">
-          <Col span={4}>
-            <svg className="infSvg" style={{ marginRight: 8 }}>
-              <use xlinkHref="#settingapp" />
-            </svg>
-            <span className="infSvgTxt">应用</span>
+          <Col span={7}>
+            <div className="infImg">
+              <img style={{width:'100%'}} src={applicationnumberImg}/>
+            </div>
+            <span className="infImgTxt">应数： {appCount}个</span>
           </Col>
-          <Col span={4}>
-            <svg className="infSvg" style={{ marginRight: 8 }}>
-              <use xlinkHref="#settingservice" />
-            </svg>
-            <span className="infSvgTxt">服务</span>
+          <Col span={7}>
+            <div className="infImg">
+              <img style={{width:'100%'}} src={servicenumberImg}/>
+            </div>
+            <span className="infImgTxt">服务数： {serviceCount}个</span>
           </Col>
-          <Col span={4}>
-            <svg className="infSvg" style={{ marginRight: 8 }}>
-              <use xlinkHref="#settingcontainer" />
-            </svg>
-            <span className="infSvgTxt">容器</span>
+          <Col span={7}>
+            <div className="infImg">
+              <img style={{width:'100%'}} src={containercountImg}/>
+            </div>
+            <span className="infImgTxt">容器数： {containerCount}个</span>
           </Col>
-        </Row>
-        <Row className="contentList firstItem">
-          <Col span={4}> {appCount} </Col>
-          <Col span={4}> {serviceCount} </Col>
-          <Col span={4}> {containerCount} </Col>
         </Row>
       </div>
     )
@@ -232,44 +230,15 @@ export default class Space extends Component {
   render() {
     const {userDetail, appCount, serviceCount, containerCount, teamspaces} = this.props
     return (
-      <div id='Space'>
+      <div id='Spaces'>
+        <div className="Essentialinformation">个人项目资源</div>
         <Row className="spaceWrap">
-          <div className="spaceTitle">
-            <svg className="infSvg" style={{ marginRight: 8, color: 'black' }}>
-              <use xlinkHref="#settingperspace" />
-            </svg>
-            <span className="infSvgTxt">
-              {userDetail.userName}的个人空间
-            </span>
-          </div>
           <div className="spaceContent">
             <PersonalSpace appCount={appCount}
               serviceCount={serviceCount}
               containerCount={containerCount} />
           </div>
         </Row>
-        <Row className="spaceWrap">
-          <div className="spaceTitle">
-            <svg className="infSvg" style={{ marginRight: 8 }}>
-              <use xlinkHref="#settingteamspace" />
-            </svg>
-            <span className="infSvgTxt">
-              {userDetail.userName}的团队空间
-            </span>
-          </div>
-          <div className="spaceContent">
-            <TeamSpace teamspaces={teamspaces} scope={this} />
-          </div>
-        </Row>
-        {/* 空间充值 */}
-        <Modal title="团队空间充值" visible={this.state.spaceVisible}
-          onCancel={()=> this.setState({spaceVisible: false})}
-          width={600}
-          maskClosable={false}
-          footer={null}
-        >
-          <SpaceRecharge parentScope={this} selected={this.state.selected} teamSpacesList={this.props.teamspaces} teamList={'default'}/>
-        </Modal>
       </div>
     )
   }

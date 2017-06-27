@@ -1193,7 +1193,7 @@ let CreateTenxFlowModal = React.createClass({
         <QueueAnim key={'serviceName' + k + 'Animate'}>
           <div className='serviceDetail' key={'serviceName' + k}>
             <Form.Item className='commonItem'>
-              <Select {...serviceSelect} style={{ width: '220px' }} allowClear>
+              <Select {...serviceSelect} style={{ width: '220px' }} allowClear dropdownMatchSelectWidth={false}>
                 {serviceSelectList}
               </Select>
               <span className={emptyServiceEnvCheck(scopeThis.state.emptyServiceEnv, k) ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'}
@@ -1523,12 +1523,12 @@ let CreateTenxFlowModal = React.createClass({
                     <div style={{ clear: 'both' }} />
                     </FormItem>
                     <FormItem style={{ width:'220px' }}>
-                      <Select {...validOtherImage} style={{display: this.state.showOtherImage ? 'inline-block' : 'none'}}>
+                      <Select showSearch placeholder='请选择自定义仓库' {...validOtherImage} style={{display: this.state.showOtherImage ? 'inline-block' : 'none'}} dropdownMatchSelectWidth={false}>
                         {this.getOtherImage()}
                       </Select>
                     </FormItem>
                     <FormItem style={{ width: '220px'}}>
-                      <Select {...harborProjectProps} size='large' style={{display: !this.state.showOtherImage ? 'inline-block' : 'none'}}>
+                      <Select showSearch placeholder='请选择仓库组' {...harborProjectProps} size='large' style={{display: !this.state.showOtherImage ? 'inline-block' : 'none'}} dropdownMatchSelectWidth={false}>
                         {
                           (this.props.harborProjects.list || []).map(project => {
                             const currentRoleId = project[camelize('current_user_role_id')]

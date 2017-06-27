@@ -49,7 +49,7 @@ class UserInfo extends Component {
       memberFlag = true;
     }
     return (
-      <div id="UserInfo">
+      <div id="UserInfos">
         
         <Title title={userID ? '成员管理' : '我的帐户'} />
         <Row className="content">
