@@ -13,6 +13,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
 import { Modal, Form, Table, Button, Popover, Card, Input, Radio, Icon, Select, Spin } from 'antd'
+import classNames from 'classnames'
 import { loadProjectMembers, addProjectMember, deleteProjectMember, updateProjectMember } from '../../../../actions/harbor'
 import { loadUserList } from '../../../../actions/user'
 import { formatDate } from '../../../../common/tools'
@@ -27,6 +28,9 @@ class AddUserModal extends Component {
     super()
     this.cancel = this.cancel.bind(this)
     this.handModalOk = this.handModalOk.bind(this)
+    this.state = {
+      searchInput: '',
+    }
   }
 
   componentWillMount() {
@@ -92,6 +96,9 @@ class AddUserModal extends Component {
   }
 
   handleChange = value => {
+    this.setState({
+      searchInput: value,
+    })
     this.searchUser(value)
   }
 
@@ -142,13 +149,14 @@ class AddUserModal extends Component {
               combobox
               showArrow={false}
               style={{ width: '100%' }}
-              placeholder="请选择姓名"
+              placeholder="搜索并添加用户"
               optionFilterProp="children"
               notFoundContent="无法找到"
               defaultActiveFirstOption={false}
             >
               {this.renderUserOptions()}
             </Select>
+            <i className="fa fa-search selectIcon" onClick={() => this.searchUser(this.state.searchInput)}></i>
           </Form.Item>
           <Form.Item  {...formItemLayout} label="角色" className="createForm">
             <RadioGroup {...roleProps}>
