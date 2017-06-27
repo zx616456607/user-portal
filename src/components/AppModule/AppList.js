@@ -78,7 +78,7 @@ let MyComponent = React.createClass({
         parentScope.setState({
           runBtn: false,
           stopBtn: true,
-          restartBtn: false,
+          restartBtn: true,
         })
       }
     }
@@ -104,7 +104,7 @@ let MyComponent = React.createClass({
         })
         if(pending){
           parentScope.setState({
-            restartBtn: false
+            restartBtn: true
           })
         }
         return
@@ -975,7 +975,7 @@ class AppList extends Component {
 
       return prefix + toggle
     }
-    
+
     const createButton = (<Button type='primary' size='large' onClick={() => browserHistory.push('/app_manage/app_create')}>
         <i className="fa fa-plus" />创建应用
       </Button>)
