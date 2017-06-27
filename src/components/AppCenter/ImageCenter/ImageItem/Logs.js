@@ -131,6 +131,12 @@ class Logs extends Component {
         title: '标签',
         dataIndex: 'repoTag',
         key: 'repoTag',
+        render(value) {
+          if(value === 'N/A') {
+            return '-'
+          }
+          return value
+        }
       },{
         title: '操作',
         dataIndex: 'operation',
