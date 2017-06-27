@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getCloneVmConfig, createIntegrationVm } from '../../actions/integration'
 import './style/CreateVmModal.less'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 
 const createForm = Form.create;
 const FormItem = Form.Item;

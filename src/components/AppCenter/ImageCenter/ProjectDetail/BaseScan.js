@@ -14,7 +14,7 @@ import './style/BaseScan.less'
 import { connect } from 'react-redux'
 import { loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo } from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 
 const BaseScanDescription = React.createClass({
   render: function () {

@@ -14,7 +14,7 @@ import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import cloneDeep from 'lodash/cloneDeep'
 import { formatDate, isEmptyObject } from '../../common/tools'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import './style/AlarmDetail.less'
 import Title from '../Title'
 import { getAlertSetting, getSettingList, batchEnableEmail, batchDisableEmail, deleteRule } from '../../actions/alert'
@@ -244,7 +244,7 @@ class AlarmDetail extends Component {
         })
       },
     };
-    
+
     return (
       <div id="AlarmDetail">
         <QueueAnim type="right" className="AlarmDetail">
@@ -300,7 +300,7 @@ class AlarmDetail extends Component {
           >
             <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>策略删除后将不再发送邮件告警，是否确定删除？</div>
           </Modal>
-          
+
         </QueueAnim>
       </div>
     )

@@ -20,7 +20,7 @@ import './style/TenxFlowDetailFlow.less'
 import CreateTenxFlowModal from './TenxFlowDetailFlow/CreateTenxFlowModal.js'
 import TenxFlowDetailFlowCard from './TenxFlowDetailFlow/TenxFlowDetailFlowCard.js'
 import Socket from '../../../Websocket/socketIo'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 import ContinueIntegration from '../../../SettingModal/GlobalConfig/ContinueIntegration'
 import { parseQueryStringToObject } from '../../../../common/tools'
 

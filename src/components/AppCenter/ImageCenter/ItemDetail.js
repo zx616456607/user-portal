@@ -22,7 +22,7 @@ import ImageUpdate from './ImageItem/ImageUpdate'
 import { loadProjectDetail, loadProjectMembers } from '../../../actions/harbor'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import { camelize } from 'humps'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 
 const notification = new NotificationHandler()
 const TabPane = Tabs.TabPane

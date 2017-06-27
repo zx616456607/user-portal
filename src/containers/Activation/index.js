@@ -15,7 +15,7 @@ import { browserHistory } from 'react-router'
 import Top from '../../components/Top'
 import '../Login/Enterprise/style/Login.less'
 import { addLicense, loadLicensePlatform } from '../../actions/license'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 
 const createForm = Form.create
 const FormItem = Form.Item

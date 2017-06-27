@@ -25,7 +25,7 @@ import moment from 'moment'
 import './style/TenxFlowList.less'
 import cloneDeep from 'lodash/cloneDeep'
 import findIndex from 'lodash/findIndex'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import Socket from '../../Websocket/socketIo'
 import PopTabSelect from '../../PopTabSelect'
 import Title from '../../Title'
@@ -431,7 +431,7 @@ class TenxFlowList extends Component {
       });
     }
   }
-  
+
   openCreateTenxFlowModal(flowId,forEdit) {
     //this function for user open the modal of create new tenxflow
     this.setState({

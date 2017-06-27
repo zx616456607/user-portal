@@ -17,7 +17,7 @@ import { chargeTeamspace } from '../../../../actions/charge'
 import { loadTeamspaceList } from '../../../../actions/team'
 import { loadUserTeamspaceDetailList } from '../../../../actions/user'
 import './style/MemberAccount.less'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 import { MAX_CHARGE }  from '../../../../constants'
 
 let SpaceRecharge = React.createClass({

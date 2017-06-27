@@ -15,7 +15,7 @@ import { Modal, Tabs, Menu, Dropdown, Table, Icon, Button, Card, Input } from 'a
 import { Link, browserHistory } from 'react-router'
 import { camelize } from 'humps'
 import { loadProjectRepos, deleteRepo } from '../../../../actions/harbor'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 import '../style/CodeRepo.less'
 import ProjectDetail from '../ProjectDetail'
 

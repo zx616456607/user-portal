@@ -18,7 +18,7 @@ import './style/MirrorSafety.less'
 import { loadMirrorSafetyLayerinfo, loadImageDetailTag, loadMirrorSafetyScanStatus, loadMirrorSafetyScan, loadMirrorSafetyLyinsinfo, loadMirrorSafetyChairinfo } from '../../../../actions/app_center'
 import { connect } from 'react-redux'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 import { browserHistory } from 'react-router'
 
 const TabPane = Tabs.TabPane

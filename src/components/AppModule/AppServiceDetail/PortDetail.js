@@ -15,7 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import "./style/PortDetail.less"
 import { loadK8sService, clearK8sService, updateServicePort } from '../../../actions/services'
 import { isDomain } from '../../../common/tools'
-import NotificationHandler from '../../../common/notification_handler.js'
+import NotificationHandler from '../../../components/Notification'
 import findIndex from 'lodash/findIndex'
 import cloneDeep from 'lodash/cloneDeep'
 import { ANNOTATION_HTTPS, SERVICE_KUBE_NODE_PORT } from '../../../../constants'

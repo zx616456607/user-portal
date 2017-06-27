@@ -18,7 +18,7 @@ import CreateAlarm from '../AppModule/AlarmModal/CreateGroup'
 const InputGroup = Input.Group
 import { loadNotifyGroups, deleteNotifyGroups } from '../../actions/alert'
 import { setCurrent } from '../../actions/entities'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
 import { formatDate } from '../../common/tools'
@@ -135,7 +135,7 @@ class AlarmGroup extends Component {
     let content = '-'
     if (emails.length > 0) {
       content = emails.map(function(item) {
-        let status = emails[0].status != 1 ? <span style={{color:'#f23e3f'}}> 【未验证】</span> : null 
+        let status = emails[0].status != 1 ? <span style={{color:'#f23e3f'}}> 【未验证】</span> : null
         return <div className='alarmGroupItem'>
           <span className='alarmGroupspan'>{item.addr}{!!item.desc ? ` (备注:${item.desc})` : ''}</span>
           {status}

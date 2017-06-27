@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { parseQueryStringToObject } from '../../../common/tools'
 import { getGithubList, searchGithubList, addGithubRepo, notGithubProject, registryGithub, syncRepoList } from '../../../actions/cicd_flow'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 
 const TabPane = Tabs.TabPane
 

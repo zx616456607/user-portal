@@ -9,7 +9,7 @@
  */
 import React, { Component } from 'react'
 import { Modal,Alert,Icon,Button,Row,Col,Input } from 'antd'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import { browserHistory } from 'react-router'
 
 let message = (
@@ -29,7 +29,7 @@ export default class ExitTeamModal extends Component{
     this.handleExitTeamOk = this.handleExitTeamOk.bind(this)
     this.handleExitTeamCancel = this.handleExitTeamCancel.bind(this)
     this.state = {
-      
+
     }
   }
   handleExitTeamOk() {
