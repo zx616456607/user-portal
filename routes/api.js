@@ -84,6 +84,9 @@ module.exports = function (Router) {
   router.get('/project/:name/user',projectController.getProjectRelatedUsers)
   router.post('/project/:name/user',projectController.addProjectRelatedUsers)
   router.post('/project/:name/user/batch-delete',projectController.deleteProjectRelatedUsers)
+  router.put('/project/:name/user',projectController.updateProjectRelatedUsers)
+  router.get('/project/:name/role',projectController.getProjectRelatedRoles)
+  router.put('/project/:name/role',projectController.updateProjectRelatedRoles)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)

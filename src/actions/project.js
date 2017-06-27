@@ -404,3 +404,59 @@ export function DeleteProjectRelatedUsers(body, callback) {
 	}
 }
 
+
+
+export const PROJECT_ROLE_UPDATE_REQUEST = 'PROJECT_ROLE_UPDATE_REQUEST'
+export const PROJECT_ROLE_UPDATE_SUCCESS = 'PROJECT_ROLE_UPDATE_SUCCESS'
+export const PROJECT_ROLE_UPDATE_FAILURE = 'PROJECT_ROLE_UPDATE_FAILURE'
+// Fetches upgrade or renewals from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateProjectRelatedRoles(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/role`
+	return {
+		[FETCH_API]: {
+			types: [PROJECT_ROLE_UPDATE_REQUEST,PROJECT_ROLE_UPDATE_SUCCESS, PROJECT_ROLE_UPDATE_FAILURE],
+			endpoint,
+			schema: {},
+			options: {
+				method: 'PUT',
+				body: body.body
+			},
+		},
+		callback
+	}
+}
+// Fetches upgrade or renewals from API
+// Relies on Redux Thunk middleware.
+export function UpdateProjectRelatedRoles(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchUpdateProjectRelatedRoles(body, callback))
+	}
+}
+
+export const PROJECT_ROLE_GET_REQUEST = 'PROJECT_ROLE_GET_REQUEST'
+export const PROJECT_ROLE_GET_SUCCESS = 'PROJECT_ROLE_GET_SUCCESS'
+export const PROJECT_ROLE_GET_FAILURE = 'PROJECT_ROLE_GET_FAILURE'
+// Fetches upgrade or renewals from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchGetProjectRelatedRoles(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/role`
+	return {
+		[FETCH_API]: {
+			types: [PROJECT_ROLE_GET_REQUEST,PROJECT_ROLE_GET_SUCCESS, PROJECT_ROLE_GET_FAILURE],
+			endpoint,
+			schema: {},
+			options: {
+				method: 'GET'
+			},
+		},
+		callback
+	}
+}
+// Fetches upgrade or renewals from API
+// Relies on Redux Thunk middleware.
+export function GetProjectRelatedRoles(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchGetProjectRelatedRoles(body, callback))
+	}
+}

@@ -202,3 +202,53 @@ exports.deleteProjectRelatedUsers=function* () {
   this.status = response.statusCode
   this.body = response
 }
+
+exports.updateProjectRelatedUsers=function* () {
+  const project=this.request.body
+  const projectName=this.params.name
+  if (!project||!projectName) {
+    this.status = 400
+    this.body = {
+      message: 'request body nor projectName was  empty'
+    }
+    return
+  }
+  const loginUser = this.session.loginUser
+  const projectApi=apiFactory.getApi(loginUser)
+  const response=yield projectApi.project.updateBy([projectName,user],null,this.request.body)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.updateProjectRelatedRoles=function* () {
+  const project=this.request.body
+  const projectName=this.params.name
+  if (!project||!projectName) {
+    this.status = 400
+    this.body = {
+      message: 'request body nor projectName was  empty'
+    }
+    return
+  }
+  const loginUser = this.session.loginUser
+  const projectApi=apiFactory.getApi(loginUser)
+  const response=yield projectApi.project.updateBy([projectName,role],null,this.request.body)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.getProjectRelatedRoles=function* () {
+  const projectName=this.params.name
+  if (!projectName) {
+    this.status = 400
+    this.body = {
+  	  message: 'project name is empty'
+    }
+  return
+  }
+  const loginUser = this.session.loginUser
+  const projectApi=apiFactory.getApi(loginUser)
+  const response=yield projectApi.project.getBy([projectName,'role'],null)
+  this.status = response.statusCode
+  this.body = response
+}
