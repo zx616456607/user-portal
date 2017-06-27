@@ -405,6 +405,34 @@ export function DeleteProjectRelatedUsers(body, callback) {
 }
 
 
+export const PROJECT_USER_UPDATE_REQUEST = 'PROJECT_USER_UPDATE_REQUEST'
+export const PROJECT_USER_UPDATE_SUCCESS = 'PROJECT_USER_UPDATE_SUCCESS'
+export const PROJECT_USER_UPDATE_FAILURE = 'PROJECT_USER_UPDATE_FAILURE'
+// Fetches upgrade or renewals from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateProjectRelatedUsers(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/user`
+	return {
+		[FETCH_API]: {
+			types: [PROJECT_USER_UPDATE_REQUEST,PROJECT_USER_UPDATE_SUCCESS, PROJECT_USER_UPDATE_FAILURE],
+			endpoint,
+			schema: {},
+			options: {
+				method: 'PUT',
+				body: body.body
+			},
+		},
+		callback
+	}
+}
+// Fetches upgrade or renewals from API
+// Relies on Redux Thunk middleware.
+export function UpdateProjectRelatedUsers(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchUpdateProjectRelatedUsers(body, callback))
+	}
+}
+
 
 export const PROJECT_ROLE_UPDATE_REQUEST = 'PROJECT_ROLE_UPDATE_REQUEST'
 export const PROJECT_ROLE_UPDATE_SUCCESS = 'PROJECT_ROLE_UPDATE_SUCCESS'
