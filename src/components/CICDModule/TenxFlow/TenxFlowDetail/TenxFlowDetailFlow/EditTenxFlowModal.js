@@ -1369,7 +1369,7 @@ let EditTenxFlowModal = React.createClass({
         <QueueAnim key={'serviceName' + k + 'Animate'}>
           <div className='serviceDetail' key={'serviceName' + k}>
             <Form.Item className='commonItem'>
-              <Select {...serviceSelect} style={{ width: '220px' }} allowClear>
+              <Select {...serviceSelect} style={{ width: '220px' }} allowClear dropdownMatchSelectWidth={false}>
                 {serviceSelectList}
               </Select>
               <span className={emptyServiceEnvCheck(scopeThis.state.emptyServiceEnv, k) ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'}

@@ -254,7 +254,7 @@ class AlarmDetail extends Component {
             <span className="titleName">{strategyName}</span>
           </div>
           <Row gutter={16} className="details">
-            <Col span="6">
+            <Col className="Basicattributes" span="7">
               <Card style={{paddingBottom:'20px'}}>
                 <div className="title">基本属性</div>
                 <div className="baseAttr"><span className="keys">策略名称：</span><div className="ant-radio-group">{leftSetting.strategyName}</div></div>
@@ -278,7 +278,7 @@ class AlarmDetail extends Component {
                 <div className="baseAttr" style={{color: '#2DB7F5'}}>本服务暂不收费！</div>
               </Card>
             </Col>
-            <Col span="18">
+            <Col span="17">
               <Card style={{paddingBottom: 50}}>
                 <div className="title">规则</div>
                 <div style={{margin: '20px 30px'}}>

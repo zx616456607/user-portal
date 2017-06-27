@@ -800,18 +800,20 @@ let TwoStop = React.createClass({
                 <Option value="network/rx_rate">下载流量</Option>
               </Select>
             </Form.Item>
-            <Form.Item>
-              <Select {...getFieldProps(`used_rule@${key}`, {
-                rules: [{
-                  whitespace: true,
-                  validator: (rule, value, callback) => this.usedRule(rule, value, callback, key)
-                }],
-                initialValue: '>'
-              }) } style={{ width: 80 }} >
-                <Option value=">"><i className="fa fa-angle-right" style={{ fontSize: 16, marginLeft: 5 }} /></Option>
-                <Option value="<"><i className="fa fa-angle-left" style={{ fontSize: 16, marginLeft: 5 }} /></Option>
-              </Select>
-            </Form.Item>
+            <span className='secondItem'>
+              <Form.Item>
+                <Select {...getFieldProps(`used_rule@${key}`, {
+                  rules: [{
+                    whitespace: true,
+                    validator: (rule, value, callback) => this.usedRule(rule, value, callback, key)
+                  }],
+                  initialValue: '>'
+                }) } style={{ width: 80 }} >
+                  <Option value=">"><i className="fa fa-angle-right" style={{ fontSize: 16, marginLeft: 5 }} /></Option>
+                  <Option value="<"><i className="fa fa-angle-left" style={{ fontSize: 16, marginLeft: 5 }} /></Option>
+                </Select>
+              </Form.Item>
+            </span>
             <Form.Item>
               <InputNumber step={10} {...getFieldProps(`used_data@${key}`, {
                 rules: [{
