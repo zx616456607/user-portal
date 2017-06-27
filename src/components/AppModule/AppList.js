@@ -78,7 +78,7 @@ let MyComponent = React.createClass({
         parentScope.setState({
           runBtn: false,
           stopBtn: true,
-          restartBtn: true,
+          restartBtn: false,
         })
       }
     }
@@ -104,7 +104,7 @@ let MyComponent = React.createClass({
         })
         if(pending){
           parentScope.setState({
-            restartBtn: true
+            restartBtn: false
           })
         }
         return
