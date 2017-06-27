@@ -71,7 +71,8 @@ class CodeRepo extends Component {
       })
       this.loadRepos()
     }
-    deleteRepo(this.DEFAULT_QUERY, selectedRepo, {
+    let processedImageName = processImageName(selectedRepo)
+    deleteRepo(this.DEFAULT_QUERY, processedImageName, {
       success: {
         func: () => {
           doSuccess()
@@ -145,7 +146,7 @@ class CodeRepo extends Component {
               </div>
               <div className="contentBox">
                 <span className="title" onClick={()=> this.showImageDetail(row)}>
-                  {text}
+                  {text.substring(text.indexOf('/') + 1)}
                 </span>
               </div>
             </div>
@@ -286,6 +287,18 @@ class CodeRepo extends Component {
   }
 }
 
+function processImageName(name) {
+  let arr = name.split('/')
+  if (arr.length > 2) {
+    name = arr[0] + '/' + arr[1]
+    for (let i = 2; i < arr.length; i++) {
+      name += "%2F"
+
+      name += arr[i]
+    }
+  }
+  return name
+}
 function mapStateToProps(state, props) {
   const { harbor } = state
   return {
