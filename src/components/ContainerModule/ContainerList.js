@@ -217,12 +217,12 @@ let MyComponent = React.createClass({
             callback()
           }
           let imageName = projectName + '/' + exportImageName
-          let array = res.data.repository
+          let imageNameArray = res.data.repository
           this.setState({
             imageNameEqual: false
           })
-          for(let i = 0; i < array.length; i++){
-            if(imageName === array[i].repositoryName){
+          for(let i = 0; i < imageNameArray.length; i++){
+            if(imageName === imageNameArray[i].repositoryName){
               this.setState({
                 imageNameEqual: true
               })
@@ -234,13 +234,10 @@ let MyComponent = React.createClass({
                     this.setState({
                       imageTagEqual: false,
                     })
-                    for(let i = 0; i < imageTagArray.length; i++){
-                      if(imageTag == imageTagArray[i]){
-                        this.setState({
-                          imageTagEqual: true,
-                        })
-                        break
-                      }
+                    if(imageTagArray.indexOf(imageTag) > -1){
+                      this.setState({
+                        imageTagEqual: true,
+                      })
                     }
                   }
                 }
@@ -292,13 +289,10 @@ let MyComponent = React.createClass({
             this.setState({
               imageTagEqual: false,
             })
-            for(let i = 0; i < imageTagArray.length; i++){
-              if(value == imageTagArray[i]){
-                this.setState({
-                  imageTagEqual: true,
-                })
-                break
-              }
+            if(imageTagArray.indexOf(value) > -1){
+              this.setState({
+                imageTagEqual: true,
+              })
             }
           }
         }
@@ -485,6 +479,9 @@ let MyComponent = React.createClass({
           onOk={this.handleConfirmExportImage}
           onCancel={this.hanldeCancleExportImage}
         >
+          <div className='alertRow'>
+            选择仓库组并输入镜像地址，导出的镜像将推送到相应的镜像仓库中
+          </div>
           <div className='header'>
             <Form>
               <div className='float imagename'>选择仓库组</div>
@@ -533,16 +530,14 @@ let MyComponent = React.createClass({
               </span>
               <span className='imagecolor'>{this.formatImageInfo().imageName}</span>
               <span>:</span>
-              <span className='imagecolor'>{this.formatImageInfo().imageTag}</span>
+              <span className='imagecolor'>{this.formatImageInfo().imageTag}</span><br/>
               {
-                this.state.imageNameEqual && this.state.imageTagEqual && <span className='tips'><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>镜像已存在，继续使用会覆盖已有镜像</span>
+                this.state.imageNameEqual && this.state.imageTagEqual && <div className='tips'><i className="fa fa-exclamation-triangle icon" aria-hidden="true"></i>镜像已存在，继续使用会覆盖已有镜像</div>
               }
             </div>
           </div>
           <div className='footer'>
             <div className='item'>当前容器有映射 Volume 目录，此次导出的镜像<span className='color'>不包含 Volume 的存储目录</span></div>
-            <div><Icon type="exclamation-circle-o" style={{marginRight:'8px'}}/>
-              系统会按照上面输入的镜像地址，将导出的镜像推送到对应的仓库中。</div>
           </div>
         </Modal>
 
