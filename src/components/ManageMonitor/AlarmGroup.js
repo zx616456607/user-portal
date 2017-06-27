@@ -135,14 +135,9 @@ class AlarmGroup extends Component {
     let content = '-'
     if (emails.length > 0) {
       content = emails.map(function(item) {
-        let status = emails[0].status != 1 ? <span style={{color:'#f23e3f'}}> 【未验证】</span> : null
-        let tyag = <br/>
-        if(document.body.scrollWidth<1300) {
-          status=emails[0].status != 1 ? <p style={{color:'#f23e3f'}}>【未验证】</p> : null
-        }  
+        let status = emails[0].status != 1 ? <span style={{color:'#f23e3f'}}> 【未验证】</span> : null 
         return <div className='alarmGroupItem'>
-          {item.addr}
-          <span className='alarmGroupspan'>{!!item.desc ? ` (备注:${item.desc})` : ''}</span>
+          <span className='alarmGroupspan'>{item.addr}{!!item.desc ? ` (备注:${item.desc})` : ''}</span>
           {status}
         </div>
       })
@@ -265,16 +260,19 @@ class AlarmGroup extends Component {
     },{
       title:'描述',
       dataIndex:'desc',
-      width:'10%',
+      render: (text, record, index) => (
+        <div className='Overflow'>
+          {record.desc}
+        </div>
+      ),
     },{
       title:'邮箱',
       dataIndex:'receivers',
-      width:'30%',
-      render:receivers => this.getGroupEmails(receivers.email)
+      render:(receivers) => (<div>{this.getGroupEmails(receivers.email)}</div>)
     },{
       title:'创建时间',
       dataIndex:'createTime',
-      width:'20%',
+      width:'19%',
       render: text => formatDate(text),
     },{
       title:'关联策略',
