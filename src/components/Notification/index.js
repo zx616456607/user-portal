@@ -126,18 +126,32 @@ class Notification {
     })
   }
 
+  addNotification(key, content) {
+    setTimeout(() => {
+      store.dispatch({
+        type: 'ADD_NOTIFICATION',
+        key,
+        content,
+      })
+    })
+  }
+
   removeNotification(key) {
-    store.dispatch({
-      type: 'DELETE_NOTIFICATION',
-      key,
+    setTimeout(() => {
+      store.dispatch({
+        type: 'DELETE_NOTIFICATION',
+        key,
+      })
     })
   }
 
   updateNotification(key, content) {
-    store.dispatch({
-      type: 'UPDATE_NOTIFICATION',
-      key,
-      content,
+    setTimeout(() => {
+      store.dispatch({
+        type: 'UPDATE_NOTIFICATION',
+        key,
+        content,
+      })
     })
   }
 
@@ -155,16 +169,7 @@ class Notification {
       return
     }
     const key = camelize(`error${genRandomString(5)}`)
-    store.dispatch({
-      type: 'ADD_NOTIFICATION',
-      key,
-      content: {
-        message,
-        description,
-        duration,
-        count: 1,
-      }
-    })
+    this.addNotification(key, { message, description, duration, count: 1 })
     setTimeout(this.removeNotification.bind(this, key), duration * 1000)
     notification.error({
       message: <Header store={store} message={message} id={key} />,
