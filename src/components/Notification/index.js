@@ -92,7 +92,7 @@ class Notification {
         </div>
       ),
       description: desc,
-      duration: 120,
+      duration: duration || DEFAULT_CONFIG.duration,
     })
   }
 
