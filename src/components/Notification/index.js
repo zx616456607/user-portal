@@ -10,7 +10,7 @@
  */
 
 import React from 'react'
-import { Spin, notification, Badge } from 'antd'
+import { Spin, notification } from 'antd'
 import { genRandomString } from '../../common/tools'
 import { connect } from 'react-redux'
 import { camelize } from  'humps'
@@ -88,7 +88,7 @@ class Notification {
     notification.success({
       message: (
         <div style={{ fontSize: '13px', paddingRight: '20px', color: '#666'}}>
-          <Badge count={26}>{message}</Badge>
+          {message}
         </div>
       ),
       description: desc,
