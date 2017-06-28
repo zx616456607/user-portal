@@ -287,7 +287,19 @@ let CreateDatabase = React.createClass({
     const strongSize = getFieldValue('storageSelect');
     const hourPrice = parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio , 4)
     const countPrice = parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio * 24 * 30, 4)
-
+    const statefulApps = {
+      mysql: 'MySQL',
+      redis: 'Redis',
+      zookeeper: 'ZooKeeper',
+      elasticsearch: 'ElasticSearch',
+    }
+    const statefulAppOptions = Object.getOwnPropertyNames(statefulApps).map(
+      app => <Select.Option value={app} key={app}>{statefulApps[app]}</Select.Option>)
+    const statefulAppMenus = (
+      <Select defaultValue='mysql' value={this.state.currentType} onChange={this.selectDatabaseType.bind(this)}>
+        {statefulAppOptions}
+      </Select>
+    )
     return (
       <div id='CreateDatabase' type='right'>
         <Form horizontal>
@@ -297,18 +309,7 @@ let CreateDatabase = React.createClass({
                 <span>类型</span>
               </div>
               <div className='inputBox'>
-                <Button size='large' type={this.state.currentType == 'mysql' ? 'primary' : 'ghost'} onClick={this.selectDatabaseType.bind(this, 'mysql')}>
-                  MySQL
-                </Button>
-                <Button size='large' type={this.state.currentType == 'redis' ? 'primary' : 'ghost'} onClick={this.selectDatabaseType.bind(this, 'redis')}>
-                  Redis
-                </Button>
-                <Button size='large' type={this.state.currentType == 'zookeeper' ? 'primary' : 'ghost'} onClick={this.selectDatabaseType.bind(this, 'zookeeper')}>
-                  ZooKeeper
-                </Button>
-                <Button size='large' type={this.state.currentType == 'elasticsearch' ? 'primary' : 'ghost'} onClick={this.selectDatabaseType.bind(this, 'elasticsearch')}>
-                  ElasticSearch
-                </Button>
+                {statefulAppMenus}
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
