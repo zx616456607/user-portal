@@ -12,7 +12,7 @@ import { connect } from 'react-redux'
 import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Spin} from 'antd'
 import { changeUserInfo } from '../../../../../actions/user'
 import { loadLoginUserDetail } from '../../../../../actions/entities'
-import NotificationHandler from '../../../../../common/notification_handler'
+import NotificationHandler from '../../../../../components/Notification'
 
 const createForm = Form.create
 const FormItem = Form.Item

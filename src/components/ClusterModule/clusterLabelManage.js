@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { calcuDate } from '../../common/tools'
 import { KubernetesValidator } from '../../common/naming_validation'
 import cloneDeep from 'lodash/cloneDeep'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 
 const FormItem = Form.Item
 let uuid = 0

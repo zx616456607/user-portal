@@ -15,7 +15,7 @@ import { Link } from 'react-router'
 import { camelize } from 'humps'
 import { formatDate } from '../../../../common/tools'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 
 const notification = new NotificationHandler()
 

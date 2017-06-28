@@ -21,7 +21,7 @@ import {
 } from '../../../../actions/team'
 import CreateTeamModal from '../../CreateTeamModal'
 import DelTeamModal from '../../DelTeamModal'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 import ExitTeamModal from '../../ExitTeamModal'
 import CreateTeamSuccessModal from '../../CreateTeamSuccessModal'
 import InviteNewMemberModal from '../../InviteNewMemberModal'

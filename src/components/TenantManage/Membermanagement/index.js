@@ -17,7 +17,7 @@ import { chargeUser } from '../../../actions/charge'
 import { Link } from 'react-router'
 import { parseAmount } from '../../../common/tools'
 import CreateUserModal from '../CreateUserModal'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import MemberRecharge from '../../AccountModal/_Enterprise/Recharge'
 import { MAX_CHARGE }  from '../../../constants'
@@ -36,7 +36,7 @@ let MemberTable = React.createClass({
       sortBalance: true,
       sort: "a,userName",
       filter: "",
-      selectedRowKeys: [], 
+      selectedRowKeys: [],
     }
   },
 
@@ -223,7 +223,7 @@ let MemberTable = React.createClass({
       onChange: this.onSelectChange,
     };
     const { data, scope } = this.props
-    
+
     filteredInfo = filteredInfo || {}
     const pagination = {
       simple: true,
@@ -406,7 +406,7 @@ let MemberTable = React.createClass({
         <Table columns={columns}
           dataSource={searchResult.length === 0 ? data : searchResult}
           pagination={pagination}
-          rowSelection={rowSelection} 
+          rowSelection={rowSelection}
           onChange={this.onTableChange} />
           <Modal title="删除成员操作" visible={this.state.delModal}
             onOk={()=> this.delMember()} onCancel={()=> this.setState({delModal: false})}

@@ -18,7 +18,7 @@ import CreateGroup from '../AppModule/AlarmModal/CreateGroup'
 import { Icon, Button, Input, InputNumber, Select, Table, Dropdown, Modal, Menu, Pagination } from 'antd'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import './style/AlarmStrategy.less'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import cloneDeep from 'lodash/cloneDeep'
 const Option = Select.Option
 

@@ -68,7 +68,8 @@ class ServiceAPI extends Component {
   componentWillMount() {
     const { registry, loadRepositoriesTagConfigInfo } = this.props;
     const { fullname, imageTags} = this.props;
-    loadRepositoriesTagConfigInfo(registry, fullname, imageTags);
+    let processedName = processImageName(fullname)
+    loadRepositoriesTagConfigInfo(registry, processedName, imageTags);
   }
   render() {
     const { isFetching, configList } = this.props
@@ -149,6 +150,19 @@ class ServiceAPI extends Component {
     )
   }
 }
+
+function processImageName(name) {
+  let arr = name.split('/')
+  if (arr.length > 2) {
+    name = arr[0] + '/' + arr[1]
+    for (let i = 2; i < arr.length; i++) {
+      name += "%2F"
+      name += arr[i]
+    }
+  }
+  return name
+}
+
 
 function mapStateToProps(state, props) {
   const defaultImageDetailTagConfig = {

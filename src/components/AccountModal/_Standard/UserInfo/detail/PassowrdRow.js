@@ -12,7 +12,7 @@ import { Form, Input, Button, Row, Col } from 'antd'
 import classNames from 'classnames'
 import { connect } from 'react-redux'
 import { changeUserInfo } from '../../../../../actions/user.js'
-import NotificationHandler from '../../../../../common/notification_handler'
+import NotificationHandler from '../../../../../components/Notification'
 
 const createForm = Form.create
 const FormItem = Form.Item

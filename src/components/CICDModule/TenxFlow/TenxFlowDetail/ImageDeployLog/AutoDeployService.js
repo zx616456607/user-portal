@@ -16,7 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { gitCdRules, addCdRules, deleteCdRule, putCdRule, getCdInimage } from '../../../../../actions/cicd_flow'
 import { loadAppList } from '../../../../../actions/app_manage'
 import './style/AutoDeployService.less'
-import NotificationHandler from '../../../../../common/notification_handler'
+import NotificationHandler from '../../../../../components/Notification'
 
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
