@@ -73,7 +73,7 @@ class Notification {
       const item = notifications[key]
       if (item.message === message && item.description === description) {
         isExist = true
-        let count = item.count || 0
+        let count = item.count || 1
         count ++
         this.updateNotification(key, { count })
         break
@@ -143,26 +143,33 @@ class Notification {
 
   // Show error notification: message & description
   error(message, description, duration) {
+    description = description || ''
+    duration = duration || DEFAULT_CONFIG.duration
+    if (message && message.message) {
+      message = message.message
+    }
+    if (typeof message !== 'string') {
+      message = '请求错误'
+    }
     if (this.check(message, description)) {
       return
     }
     const key = camelize(`error${genRandomString(5)}`)
-    let desc = description || ''
-    let timeout = duration || DEFAULT_CONFIG.duration
     store.dispatch({
       type: 'ADD_NOTIFICATION',
       key,
       content: {
         message,
-        description: desc,
-        duration: timeout
+        description,
+        duration,
+        count: 1,
       }
     })
-    setTimeout(this.removeNotification.bind(this, key), timeout * 1000)
+    setTimeout(this.removeNotification.bind(this, key), duration * 1000)
     notification.error({
       message: <Header store={store} message={message} id={key} />,
-      description: desc,
-      duration: timeout
+      description,
+      duration,
     })
   }
 }

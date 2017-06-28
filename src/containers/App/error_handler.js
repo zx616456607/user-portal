@@ -79,11 +79,7 @@ export default function handler(error, intl) {
   if (error.message.code === 503) {
     MSG.error(message)
   } else {
-    notification.error({
-      message,
-      description,
-      duration
-    })
+    notification.error(message, description, duration)
   }
 
   // Formate error message
