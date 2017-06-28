@@ -22,7 +22,7 @@ import { mode } from '../../../../configs/model'
 import { STANDARD_MODE } from '../../../../configs/constants'
 import moment from 'moment'
 import merge from 'lodash/merge'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 
 const YESTERDAY = new Date(moment(moment().subtract(1, 'day')).format(DATE_PIRCKER_FORMAT))
 const standardFlag = (mode == STANDARD_MODE ? true : false);

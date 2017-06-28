@@ -12,7 +12,7 @@ import { Modal,Alert,Icon,Button,Row,Col,Input,Tag,Select } from 'antd'
 import TagsInput from 'react-tagsinput'
 import 'react-tagsinput/react-tagsinput.css'
 import {EMAIL_REG_EXP} from '../../../constants'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import { connect } from 'react-redux'
 
 
@@ -69,7 +69,7 @@ class InviteNewMemberModal extends Component{
     const { closeInviteModal } = this.props
     closeInviteModal()
   }
-  
+
   handleTagsChange (value){
     this.setState({
       tags:value
@@ -78,7 +78,7 @@ class InviteNewMemberModal extends Component{
   handleChangeInput(tag) {
     this.setState({tag})
   }
- 
+
   renderTag (props) {
     let {tag, key, disabled, onRemove, classNameRemove, getTagDisplayValue,...other} = props
     let {rightTags} = this.state

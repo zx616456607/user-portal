@@ -17,7 +17,7 @@ import { DEFAULT_REGISTRY } from '../../../../constants'
 import { updateTenxFlow } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailAlert.less'
 import { browserHistory } from 'react-router';
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 import Title from '../../../Title'
 
 const RadioGroup = Radio.Group;

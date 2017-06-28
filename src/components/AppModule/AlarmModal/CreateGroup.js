@@ -12,7 +12,7 @@ import React from 'react'
 import { Input, Form, Icon, Button, Modal } from 'antd'
 import { sendAlertNotifyInvitation, getAlertNotifyInvitationStatus, createNotifyGroup, modifyNotifyGroup, loadNotifyGroups } from '../../../actions/alert'
 import { connect } from 'react-redux'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 
 const EMAIL_STATUS_WAIT_ACCEPT = 0
 const EMAIL_STATUS_ACCEPTED = 1
@@ -111,7 +111,7 @@ let CreateAlarmGroup = React.createClass({
   },
   ruleEmail(k) {
     // send rule email
-    
+
     const _this = this
     let time = 60
     const { getFieldValue } = this.props.form

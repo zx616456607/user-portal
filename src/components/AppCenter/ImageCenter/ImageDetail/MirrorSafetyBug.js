@@ -15,7 +15,7 @@ import './style/MirrorSafetyBug.less'
 import { loadMirrorSafetyScan, loadMirrorSafetyChairinfo } from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { connect } from 'react-redux'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 import safetyBugImg from '../../../../assets/img/appCenter/mirrorSafety/safetybug.png'
 
 const TabPane = Tabs.TabPane

@@ -11,9 +11,11 @@
 */
 
 import React, { Component, PropTypes } from 'react'
-import { notification, message as MSG } from 'antd'
+import { message as MSG } from 'antd'
 import { defineMessages } from 'react-intl'
+import Notification from '../../components/Notification'
 
+const notification = new Notification()
 const messages = defineMessages({
   error: {
     id: 'App.error',

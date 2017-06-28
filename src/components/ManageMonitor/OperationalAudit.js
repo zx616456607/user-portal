@@ -18,7 +18,7 @@ import { formatDate } from '../../common/tools.js'
 import './style/OperationalAudit.less'
 import Title from '../Title'
 
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 const mode = require('../../../configs/model').mode
 const standard = require('../../../configs/constants').STANDARD_MODE
 

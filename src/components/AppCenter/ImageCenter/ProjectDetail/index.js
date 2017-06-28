@@ -20,7 +20,7 @@ import ImageVersion from './ImageVersion'
 import Attribute from './Attribute'
 import MirrorSafety from './Mirrorsafety'
 import './style/ImageDetailBox.less'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 import { camelize } from 'humps'
 
 const TabPane = Tabs.TabPane;

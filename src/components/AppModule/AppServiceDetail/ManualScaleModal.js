@@ -13,7 +13,7 @@ import './style/ManualScaleModal.less'
 import { Row, Col, Slider, InputNumber, Modal, Icon, Button, Spin, message } from 'antd'
 import { INSTANCE_MAX_NUM } from '../../../../constants'
 import { manualScaleService } from '../../../actions/services'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import { isStorageUsed } from '../../../common/tools'
 
 class ManualScaleModal extends Component {

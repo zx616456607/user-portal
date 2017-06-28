@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { addSvnManaged, getUserInfo } from '../../../actions/cicd_flow'
 import { appNameCheck } from '../../../common/naming_validation'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import './style/SvnComponent.less'
 const TabPane = Tabs.TabPane
 const FormItem = Form.Item;

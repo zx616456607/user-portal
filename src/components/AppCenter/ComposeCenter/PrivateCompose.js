@@ -18,7 +18,7 @@ import './style/PrivateCompose.less'
 import { loadMyStack, loadStackDetail, deleteMyStack, createStack, updateStack } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import { calcuDate } from '../../../common/tools'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 
 const menusText = defineMessages({
   composeAttr: {
