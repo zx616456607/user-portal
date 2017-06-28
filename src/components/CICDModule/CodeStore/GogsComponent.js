@@ -12,7 +12,7 @@ import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, Dropdown, Modal,
 import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
-import { getGithubList, searchGithubList, addGithubRepo, notGithubProject, registryGithub, syncRepoList,getUserInfo, getRepoList } from '../../../actions/cicd_flow'
+import { getGithubList, searchGithubList, addGithubRepo, notGithubProject, registryRepo, syncRepoList,getUserInfo, getRepoList } from '../../../actions/cicd_flow'
 import { parseQueryStringToObject } from '../../../common/tools'
 
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -223,13 +223,7 @@ class GogsComponent extends Component {
       success: {
         func: (res) => {
           if (res.data.hasOwnProperty('results')) {
-            getUserInfo('gogs',{
-              success:{
-                func:(ret)=> {
-                  this.setState({users: ret.data.results.username})
-                }
-              }
-            })
+            getUserInfo('gogs')
           }
         },
        isAsync: true
@@ -330,11 +324,6 @@ class GogsComponent extends Component {
       }
     })
   }
-  changeList(e) {
-    this.setState({
-      users: e
-    })
-  }
   registryGogs() {
     let url = this.state.regUrl
     const token = this.state.regToken
@@ -363,16 +352,16 @@ class GogsComponent extends Component {
     this.setState({
       loading: true
     })
-    const self = this
     notification.spin(`代码仓库添加中...`)
-    this.props.scope.props.registryRepo(config, {
+    this.props.registryRepo(config, {
       success: {
         func: () => {
           notification.close()
           notification.success(`代码仓库添加成功`)
-          self.setState({
+          this.setState({
             authorizeModal: false,
             loggedOut: false,
+            loading: false,
             regUrl: '',
             regToken: ''
           })
@@ -380,10 +369,10 @@ class GogsComponent extends Component {
             success: {
               func: (res) => {
                 if (res.data.hasOwnProperty('results')) {
-                  const users = res.data.results[Object.keys(res.data.results)[0]].user
-                  self.setState({ users })
+                  this.props.getUserInfo('gogs')
                 }
-              }
+              },
+              isAsync: true
             }
           })
         },
@@ -401,7 +390,7 @@ class GogsComponent extends Component {
           } else {
             notification.error(`代码仓库添加失败`, '仓库地址或者私有Token有误！')
           }
-          self.setState({ loading: false })
+          this.setState({ loading: false })
         }
       }
     })
@@ -472,7 +461,7 @@ class GogsComponent extends Component {
             <i className='fa fa-search' onClick={this.searchClick}></i>
           </div>
         </div>
-        <Tabs onChange={(e) => this.changeList(e)}>
+        <Tabs>
           {codeList}
         </Tabs>
         <Modal title="注销代码源操作" visible={this.state.removeModal}
@@ -517,7 +506,7 @@ export default connect(mapStateToProps, {
   getUserInfo,
   getGithubList,
   addGithubRepo,
-  registryGithub,
+  registryRepo,
   syncRepoList,
   searchGithubList,
   notGithubProject,
