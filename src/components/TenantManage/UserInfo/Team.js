@@ -31,8 +31,6 @@ let TeamList = React.createClass ({
       Removeteam: true,
       Removeobjects:record,
     })
-    console.log(11111111111111111111111)
-    console.log(this.state.Removeobjects)
   },
   render: function () {
     let firstRow = true
