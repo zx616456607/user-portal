@@ -17,7 +17,7 @@ import { loadServiceList } from '../../../actions/services'
 import { getAllClusterNodes } from '../../../actions/cluster_node'
 import { loadNotifyGroups, addAlertSetting, updateAlertSetting, getAlertSetting, getAlertSettingExistence } from '../../../actions/alert'
 import { ADMIN_ROLE } from '../../../../constants'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 
 const Option = Select.Option
 const RadioGroup = Radio.Group

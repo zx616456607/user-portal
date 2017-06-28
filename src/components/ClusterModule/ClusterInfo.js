@@ -12,7 +12,7 @@
 import React from 'react'
 import { Icon, Button, Card, Form, Input, Tooltip, Spin, Modal, Dropdown, Menu, Checkbox } from 'antd'
 import { updateCluster, loadClusterList, deleteCluster, updateClusterConfig } from '../../actions/cluster'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import { connect } from 'react-redux'
 import clusterImg from '../../assets/img/integration/cluster.png'
 import { IP_REGEX, HOST_REGEX, EMAIL_REG_EXP } from '../../../constants'

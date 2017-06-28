@@ -20,7 +20,7 @@ import DockerFile from './Dockerfile'
 import Attribute from './Attribute'
 import MirrorSafety from './Mirrorsafety'
 import './style/ImageDetailBox.less'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 import UpgradeModal from '../../../AccountModal/Version/UpgradeModal'
 
 const TabPane = Tabs.TabPane;

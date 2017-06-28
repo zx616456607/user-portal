@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
 import { updateUser } from '../../../actions/user'
 import { parseAmount } from '../../../common/tools'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import { ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN } from '../../../../constants'
 import MemberRecharge from '../_Enterprise/Recharge'
 import { chargeUser } from '../../../actions/charge'
@@ -305,7 +305,7 @@ class Information extends Component {
   render() {
     const { revisePass } = this.state
     const { form, userID, userDetail, updateUser, loginUser } = this.props
-    
+
     let roleName
     switch (userDetail.role) {
       case ROLE_TEAM_ADMIN:

@@ -21,7 +21,7 @@ import OtherSpace from './ImageCenter/OtherSpace.js'
 import './style/ImageCenter.less'
 import { LoadOtherImage, addOtherStore, getImageDetailInfo, getAppCenterBindUser } from '../../actions/app_center'
 import findIndex from 'lodash/findIndex'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import Title from '../Title'
 
 const TabPane = Tabs.TabPane;

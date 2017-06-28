@@ -17,7 +17,7 @@ import { ENTERPRISE_MODE } from '../../../../configs/constants'
 import { mode } from '../../../../configs/model'
 import { appEnvCheck } from '../../../common/naming_validation'
 import { editServiceEnv } from '../../../actions/services'
-import NotificationHandler from '../../../common/notification_handler.js'
+import NotificationHandler from '../../../components/Notification'
 import { Link } from 'react-router'
 
 const enterpriseFlag = ENTERPRISE_MODE == mode
@@ -120,7 +120,7 @@ class MyComponent extends Component {
     const Notification = new NotificationHandler()
     this.setState({appEditLoading: true})
     if(dataArray.length > 1 && (dataArray[dataArray.length-1].name == '' || dataArray[dataArray.length-1].value == '' )){
-      
+
       new NotificationHandler().error("请先保存新增的环境变量")
       return
     }

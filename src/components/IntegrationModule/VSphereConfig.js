@@ -15,7 +15,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Button, Input, Modal, Form, Spin } from 'antd'
 import { deleteIntegration, getIntegrationConfig, updateIntegrationConfig } from '../../actions/integration'
 import './style/VSphereConfig.less'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 
 const createForm = Form.create;
 const FormItem = Form.Item;

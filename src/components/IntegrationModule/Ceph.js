@@ -13,7 +13,7 @@ import { Card,Button,Icon,Input } from 'antd'
 import { connect } from 'react-redux'
 import { GetCalamariUrl,SetCalamariUrl } from '../../actions/storage'
 import './style/Ceph.less'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 
 
 class Ceph extends Component {

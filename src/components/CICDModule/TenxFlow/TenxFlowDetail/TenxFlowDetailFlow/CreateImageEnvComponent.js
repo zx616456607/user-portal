@@ -16,7 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { loadImageDetailTagConfig,  loadOtherDetailTagConfig } from '../../../../../actions/app_center'
 import { loadRepositoriesTagConfigInfo } from '../../../../../actions/harbor'
-import NotificationHandler from '../../../../../common/notification_handler'
+import NotificationHandler from '../../../../../components/Notification'
 import './style/CreateImageEnvComponent.less'
 
 const createForm = Form.create;

@@ -24,7 +24,7 @@ import { ROLE_SYS_ADMIN } from '../../../../../constants'
 
 import MemberTransfer from '../../MemberTransfer'
 import CreateTeamModal from '../../CreateTeamModal'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 import SpaceRecharge from '../Recharge/SpaceRecharge'
 import Title from '../../../Title'
 

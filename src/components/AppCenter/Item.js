@@ -18,7 +18,7 @@ import OtherSpace from './ImageCenter/OtherSpace'
 import TweenOne from 'rc-tween-one'
 import './style/Item.less'
 import { LoadOtherImage, addOtherStore, } from '../../actions/app_center'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import Title from '../Title'
 
 const createForm = Form.create;

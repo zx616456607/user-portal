@@ -13,7 +13,7 @@ import { Icon, Select, Button, Card, Form, Input, Tooltip, Spin, Modal, Dropdown
 import { getProxy, updateProxy, getClusterNodeAddr } from '../../actions/cluster'
 import { changeClusterIPsAndDomains } from '../../actions/entities'
 import { getAllClusterNodes } from '../../actions/cluster_node'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import { connect } from 'react-redux'
 import networkImg from '../../assets/img/integration/network.png'
 import mappingImg from '../../assets/img/integration/mapping.svg'
@@ -210,9 +210,9 @@ let NetworkConfiguration = React.createClass ({
 
     return arr.map(item => {
       return <div key={item} id="error-s" style={{display:'flex'}}>
-      
+
         <Form.Item style={{flex:'5'}}>
-          { editCluster ? 
+          { editCluster ?
               <Select style={{width:'100%'}} {...getFieldProps(`nodeSelect${item}`, {
                 initialValue: proxy.nodeProxys && proxy.nodeProxys[item] ? proxy.nodeProxys[item].host : '',
                 rules: [{
@@ -233,7 +233,7 @@ let NetworkConfiguration = React.createClass ({
             <span className="h5" style={{width: "100%",display:'inline-block'}}>{proxy.nodeProxys && proxy.nodeProxys[item] ? proxy.nodeProxys[item].host : ''}</span>
           }
           </Form.Item>
-          
+
           <Form.Item style={{flex:'5'}}>
             { editCluster ?
               <Input {...getFieldProps(`nodeIP${item}`,{
@@ -261,7 +261,7 @@ let NetworkConfiguration = React.createClass ({
               <span className="h5" style={{display:'inline-block',marginLeft:'-10px'}}>{proxy.nodeProxys && proxy.nodeProxys[item] ? proxy.nodeProxys[item].address : ''}</span>
             }
         </Form.Item>
-        
+
         {
           editCluster ?  <p className="delete-p"><Icon style={{paddingTop:'5px',paddingLeft:'5px',cursor:'pointer'}}  type="delete" onClick={() => this.handDelete(item)}/></p> : <span></span>
         }
@@ -379,11 +379,11 @@ let NetworkConfiguration = React.createClass ({
                 <Col xs={{span:12}}>代理节点</Col><Col style={{margin:'0px 0px 0px -10px'}} xs={{span:12}}>节点的网卡IP(多网卡时请确认)</Col>
               </Row>
                 {this.getItems()}
-                {editCluster ? 
+                {editCluster ?
                 <Form.Item className="increase">
                   <span onClick={this.add}><Icon type="plus-circle-o" /> 新增一条内网代理</span>
                 </Form.Item>
-                : 
+                :
                 <span></span>
                 }
               </div>
@@ -391,7 +391,7 @@ let NetworkConfiguration = React.createClass ({
             <Col style={{height:'100%'}} xs={{span:3}}>
               <div className="imgBox imgboxa">
                 <img style={{width:'100%'}} src={mappingImg}/>
-              </div> 
+              </div>
             </Col>
             <Col xs={{span:8}}>
               <div className="formItem extranet">
@@ -428,11 +428,11 @@ let NetworkConfiguration = React.createClass ({
                 </Form.Item>
               </div>
             </Col>
-          </Row>                         
+          </Row>
         </Form>
       </Card>
     )
-  } 
+  }
 })
 
 function mapStateToProps(state, props) {

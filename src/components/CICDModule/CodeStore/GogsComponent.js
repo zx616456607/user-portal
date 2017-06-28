@@ -16,7 +16,7 @@ import { getGithubList, searchGithubList, addGithubRepo, notGithubProject, regis
 import { parseQueryStringToObject } from '../../../common/tools'
 
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 
 const TabPane = Tabs.TabPane
 

@@ -15,7 +15,7 @@ import './style/CreateVolume.less'
 import { calcuDate, parseAmount, formatDate } from '../../common/tools'
 import { SnapshotClone, createStorage, loadStorageList } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL } from '../../constants'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 
 const messages = defineMessages({
   name: {

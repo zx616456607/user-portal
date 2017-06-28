@@ -23,7 +23,7 @@ import ContainerMonitior from './ContainerMonitior'
 import { browserHistory } from 'react-router'
 import ContainerStatus from '../TenxStatus/ContainerStatus'
 import { formatDate } from '../../common/tools'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import serverSVG from '../../assets/img/app.png'
 import Title from '../Title'
 

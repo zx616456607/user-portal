@@ -12,7 +12,7 @@ import React, { Component } from 'react'
 import { Card, Spin, Button, Icon } from 'antd'
 import DockerFileEditor from '../../../Editor/DockerFile'
 import cloneDeep from 'lodash/cloneDeep'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 
 let editorOptions = {
   readOnly: true
