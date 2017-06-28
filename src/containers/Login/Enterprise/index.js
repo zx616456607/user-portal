@@ -95,7 +95,7 @@ let Login = React.createClass({
             let msg = err.message.message || err.message
             let outdated = false
             if (err.statusCode == 401) {
-              msg = "用户名或者密码错误"
+              msg = "登录名或者密码错误"
             }
             if (err.statusCode == 451) {
               msg = null,
