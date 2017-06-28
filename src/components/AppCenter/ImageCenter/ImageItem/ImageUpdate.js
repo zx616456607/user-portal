@@ -516,7 +516,7 @@ class ImageUpdate extends Component {
       if(!!errors){
         return
       }
-      if(values.SelectTargetStore == "createNewstore"){
+      if(values.targetStoreType == "createNewstore"){
         let newStoremInfo = {
           name: values.NewTargetstoreName,
           endpoint: values.URLAddress,
@@ -534,7 +534,7 @@ class ImageUpdate extends Component {
           }
           this.setState({
             testLink: true,
-            testLinkResult: false,
+            testLinkResult: true,
           })
         })
         return
@@ -723,9 +723,6 @@ class ImageUpdate extends Component {
   handleRadioGroupChange(value){
     const { form } = this.props
     const { edit, currentRules } = this.state
-    form.setFieldsValue({
-      targetStoreType: value.target.value,
-    })
     this.setState({
       testLink: false,
     })
@@ -980,7 +977,8 @@ class ImageUpdate extends Component {
     })
 
     const targetStoreTypeProps = getFieldProps('targetStoreType',{
-      initialValue: 'createNewstore'
+      initialValue: 'createNewstore',
+      onChange: this.handleRadioGroupChange
     })
     const targetstoretype = getFieldValue('targetStoreType')
     let NewTargetstoreNameProps = getFieldProps('NewTargetstoreName')
@@ -1105,7 +1103,7 @@ class ImageUpdate extends Component {
               label={<span></span>}
               className='itemMarginBottom'
             >
-              <Radio.Group {...targetStoreTypeProps} onChange={this.handleRadioGroupChange}>
+              <Radio.Group {...targetStoreTypeProps}>
                 <Radio value="createNewstore" key="createNewstore" disabled={currentRulesEnabled}>新建目标仓库</Radio>
                 <Radio value="selectTargetStore" key="selectTargetStore">选择已有目标仓库</Radio>
               </Radio.Group>
@@ -1146,7 +1144,7 @@ class ImageUpdate extends Component {
               {...formItemLayout}
               label="密码"
             >
-              <Input size="large" {...passWordProps} disabled={this.state.editDisabled}/>
+              <Input type="password" size="large" {...passWordProps} disabled={this.state.editDisabled}/>
             </Form.Item>
             {
               edit
