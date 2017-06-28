@@ -140,7 +140,7 @@ class CodeList extends Component {
   notActive(id, index) {
     const parentScope = this.props.scope
     const loadingList = {}
-    const users = parentScope.state.users
+    const users = parentScope.props.users
     loadingList[index] = false
     this.setState({
       loadingList
@@ -174,8 +174,8 @@ class CodeList extends Component {
         </div>
       )
     }
-    let items = []
-    if (data) {
+    let items =(<div className="loadingBox"><i className="anticon anticon-frown"></i> 暂无数据</div>)
+    if (data && data.length >0) {
       items = data.map((item, index) => {
         return (
           <div className='CodeTable' key={item.name} >
@@ -197,9 +197,9 @@ class CodeList extends Component {
       });
     }
     return (
-      <QueueAnim type="right" key="detail-list">
+      <div className="detail-list">
         {items}
-      </QueueAnim>
+      </div>
     )
   }
 }
@@ -218,15 +218,18 @@ class GogsComponent extends Component {
   }
 
   loadData() {
-    const self = this
     const { typeName, getUserInfo } = this.props
     this.props.getGithubList(typeName, {
-        success: {
+      success: {
         func: (res) => {
           if (res.data.hasOwnProperty('results')) {
-            const users = res.data.results[Object.keys(res.data.results)[0]].user
-            self.setState({ users })
-            getUserInfo('gogs')
+            getUserInfo('gogs',{
+              success:{
+                func:(ret)=> {
+                  this.setState({users: ret.data.results.username})
+                }
+              }
+            })
           }
         },
        isAsync: true
@@ -285,7 +288,7 @@ class GogsComponent extends Component {
   }
   handleSearch(e) {
     const image = e.target.value
-    const users = this.state.users
+    const { users} = this.props
     this.setState({
       currentSearch: image
     })
@@ -293,7 +296,7 @@ class GogsComponent extends Component {
   }
   changeSearch(e) {
     const image = e.target.value
-    const users = this.state.users
+    const { users } = this.props
     this.setState({
       currentSearch: image
     })
@@ -303,7 +306,7 @@ class GogsComponent extends Component {
   }
   searchClick() {
     const image = this.state.currentSearch
-    const users = this.state.users
+    const { users } = this.props
     this.props.searchGithubList(users, image, this.props.typeName)
   }
   syncRepoList() {
@@ -454,7 +457,7 @@ class GogsComponent extends Component {
     return (
       <div key="github-Component" type="right"  id="gogList" className='codelink'>
         <div className="tableHead">
-          <Icon type="user" /> {this.state.users}
+          <Icon type="user" /> {this.props.users}
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={() => this.setState({ removeModal: true })} style={{ margin: '0 20px' }} />
           </Tooltip>
