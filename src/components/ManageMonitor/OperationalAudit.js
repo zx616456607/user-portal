@@ -215,6 +215,10 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.Labels',
     defaultMessage: '标签',
   },
+  DBCache: {
+    id: 'ManageMonitor.operationalAudit.DBCache',
+    defaultMessage: '数据库缓存',
+  },
   InstanceContainerMetrics: {
     id: 'ManageMonitor.operationalAudit.InstanceContainerMetrics',
     defaultMessage: '实例容器指标',
@@ -551,25 +555,29 @@ function returnOperationList(scope) {
       value: '21',
       label: (<FormattedMessage {...menusText.DisablEmail} />)
     },
-    { // 18
+    { // 19
       value: '22',
       label: (<FormattedMessage {...menusText.CreateOrUpdate} />)
     },
-    { // 18
+    { // 20
       value: '23',
       label: (<FormattedMessage {...menusText.ToggleEnable} />)
     },
-    { // 18
+    { // 21
       value: '24',
       label: (<FormattedMessage {...menusText.Ignore} />)
     },
-    { // 18
+    { // 22
       value: '25',
       label: (<FormattedMessage {...menusText.RollBack} />)
     },
-    { // 18
+    { // 23
       value: '26',
       label: (<FormattedMessage {...menusText.Clone} />)
+    },
+    { // 24
+      value: '27',
+      label: (<FormattedMessage {...menusText.Update}/>)
     }
   ];
   return operationalList;
@@ -767,6 +775,9 @@ function resourceFormat(resourceType, scope) {
       break;
     case '53':
       return formatMessage(menusText.Labels)
+      break;
+    case '54':
+      return formatMessage(menusText.DBCache)
       break;
     case '0':
       return formatMessage(menusText.Unknown)
@@ -1384,6 +1395,16 @@ class OperationalAudit extends Component {
         showOperationalList.push(operationalList[22]);
         showOperationalList.push(operationalList[23]);
         break;
+      case '53':
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[2]);
+        showOperationalList.push(operationalList[24]);
+        break;
+      case '54':
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[2]);
+        showOperationalList.push(operationalList[24]);
+        break;
       case '0':
         //Unknown
         showOperationalList = operationalList;
@@ -1655,7 +1676,16 @@ class OperationalAudit extends Component {
       }, {
         value: '52',
         label: formatMessage(menusText.Snapshot),
-      }, {
+      },
+      {
+        value: '53',
+        label: formatMessage(menusText.Labels),
+      },
+      {
+        value: '54',
+        label: formatMessage(menusText.DBCache),
+      },
+      {
         value: null,
         label: formatMessage(menusText.allResource)
       }];
