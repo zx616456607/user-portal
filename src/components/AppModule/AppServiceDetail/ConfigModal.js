@@ -47,7 +47,7 @@ function getCPUByMemory(memory) {
     case '8192':
       return '2'
     default:
-      return RESOURCES_CPU_DEFAULT
+      return RESOURCES_CPU_DEFAULT.toString()
   }
 }
 class ConfigModal extends Component {
@@ -88,7 +88,6 @@ class ConfigModal extends Component {
     } else {
       cpu = cpu.toString()
     }
-    cpu = cpu.toString()
     if (cpu.indexOf('m') > -1) {
       cpu = parseInt(cpu)
       cpu /= 1000
