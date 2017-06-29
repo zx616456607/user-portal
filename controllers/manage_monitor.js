@@ -99,7 +99,8 @@ exports.getServiceOfQueryLog = function* () {
     app.services.map((service) => {
       let tmpBody = {
         serviceName: service.metadata.name,
-        instanceNum: service.spec.replicas
+        instanceNum: service.spec.replicas,
+        annotations: service.spec.template.metadata
       }
       serviceList.push(tmpBody)
     });
