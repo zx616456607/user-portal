@@ -88,6 +88,7 @@ class ConfigModal extends Component {
     } else {
       cpu = cpu.toString()
     }
+    cpu = cpu.toString()
     if (cpu.indexOf('m') > -1) {
       cpu = parseInt(cpu)
       cpu /= 1000
