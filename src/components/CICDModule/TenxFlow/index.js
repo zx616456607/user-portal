@@ -185,11 +185,11 @@ let MyComponent = React.createClass({
           getTenxflowBuildDetailLogs(flowId, res.data.results.flowBuildId, {
             success: {
               func: (result) => {
-                const flowListState = cloneDeep(parentScope.state.flowListState)
-                flowListState[index].status = result.data.results.results[0].status
-                parentScope.setState({
-                  flowListState
-                })
+                // const flowListState = cloneDeep(parentScope.state.flowListState)
+                // flowListState[index].status = result.data.results.results[0].status
+                // parentScope.setState({
+                //   flowListState
+                // })
               }
             }
           })
@@ -291,7 +291,6 @@ let MyComponent = React.createClass({
   },
   render: function () {
     const { config, scope, isFetching } = this.props;
-    const { flowListState } = this.props.scope.state
     if (isFetching) {
       return (
         <div className='loadingBox'>
@@ -301,7 +300,7 @@ let MyComponent = React.createClass({
     }
     const items = config.map((item, index) => {
       let status = ''
-      switch (flowListState[index].status) {
+      switch (item.status) {
         case 0:
           status = '成功'
           break;
@@ -317,7 +316,7 @@ let MyComponent = React.createClass({
       return (
         <div className='tenxflowDetail' key={item.name} >
           <div className='name'>
-            <Link to={`/ci_cd/tenx_flow/tenx_flow_build?${item.flowId}&${flowListState[index].status}`}>
+            <Link to={`/ci_cd/tenx_flow/tenx_flow_build?${item.flowId}&${item.status}`}>
               <span>{item.name}</span>
             </Link>
           </div>
@@ -328,7 +327,7 @@ let MyComponent = React.createClass({
               </Tooltip>
             </span>
           </div>
-          <div className={`status status-` + `${flowListState[index].status}`}>
+          <div className={`status status-` + `${item.status}`}>
             <span><i className="fa fa-circle"></i>{status}</span>
           </div>
           <div className='oprea'>

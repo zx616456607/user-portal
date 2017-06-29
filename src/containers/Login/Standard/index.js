@@ -104,7 +104,7 @@ let Login = React.createClass({
               msg = "邀请码无效"
             }*/
             if (err.statusCode == 401) {
-              msg = "用户名或者密码错误"
+              msg = "登录名或者密码错误"
             }
             self.setState({
               submitting: false,
