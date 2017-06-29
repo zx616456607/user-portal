@@ -10,7 +10,7 @@
  */
 
 import React from 'react'
-import { Spin, notification, Badge } from 'antd'
+import { Spin, notification } from 'antd'
 import { genRandomString } from '../../common/tools'
 import { connect } from 'react-redux'
 import { camelize } from  'humps'
@@ -73,7 +73,7 @@ class Notification {
       const item = notifications[key]
       if (item.message === message && item.description === description) {
         isExist = true
-        let count = item.count || 0
+        let count = item.count || 1
         count ++
         this.updateNotification(key, { count })
         break
@@ -83,16 +83,16 @@ class Notification {
   }
 
   // Show success notification
-  success(message, description) {
+  success(message, description, duration) {
     let desc = description || ''
     notification.success({
       message: (
         <div style={{ fontSize: '13px', paddingRight: '20px', color: '#666'}}>
-          <Badge count={26}>{message}</Badge>
+          {message}
         </div>
       ),
       description: desc,
-      duration: 120,
+      duration: duration || DEFAULT_CONFIG.duration,
     })
   }
 
@@ -126,43 +126,55 @@ class Notification {
     })
   }
 
+  addNotification(key, content) {
+    setTimeout(() => {
+      store.dispatch({
+        type: 'ADD_NOTIFICATION',
+        key,
+        content,
+      })
+    })
+  }
+
   removeNotification(key) {
-    store.dispatch({
-      type: 'DELETE_NOTIFICATION',
-      key,
+    setTimeout(() => {
+      store.dispatch({
+        type: 'DELETE_NOTIFICATION',
+        key,
+      })
     })
   }
 
   updateNotification(key, content) {
-    store.dispatch({
-      type: 'UPDATE_NOTIFICATION',
-      key,
-      content,
+    setTimeout(() => {
+      store.dispatch({
+        type: 'UPDATE_NOTIFICATION',
+        key,
+        content,
+      })
     })
   }
 
   // Show error notification: message & description
   error(message, description, duration) {
+    description = description || ''
+    duration = duration || DEFAULT_CONFIG.duration
+    if (message && message.message) {
+      message = message.message
+    }
+    if (typeof message !== 'string') {
+      message = '请求错误'
+    }
     if (this.check(message, description)) {
       return
     }
     const key = camelize(`error${genRandomString(5)}`)
-    let desc = description || ''
-    let timeout = duration || DEFAULT_CONFIG.duration
-    store.dispatch({
-      type: 'ADD_NOTIFICATION',
-      key,
-      content: {
-        message,
-        description: desc,
-        duration: timeout
-      }
-    })
-    setTimeout(this.removeNotification.bind(this, key), timeout * 1000)
+    this.addNotification(key, { message, description, duration, count: 1 })
+    setTimeout(this.removeNotification.bind(this, key), duration * 1000)
     notification.error({
       message: <Header store={store} message={message} id={key} />,
-      description: desc,
-      duration: timeout
+      description,
+      duration,
     })
   }
 }

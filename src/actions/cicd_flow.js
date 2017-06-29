@@ -385,9 +385,9 @@ function fetchNotGithubProject(users, projectId, type, callback) {
   }
 }
 
-export function notGithubProject(users, id, callback) {
+export function notGithubProject(users, id, type, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchNotGithubProject(users, id, callback))
+    return dispatch(fetchNotGithubProject(users, id,type, callback))
   }
 }
 

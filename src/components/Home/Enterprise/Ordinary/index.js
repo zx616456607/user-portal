@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Radio, Icon, Spin, Tooltip, Progress, Button } from 'antd'
+import { Row, Col, Card, Radio, Icon, Spin, Tooltip, Progress, Button, Select } from 'antd'
 import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
@@ -137,7 +137,6 @@ let SvcState = React.createClass({
 class Ordinary extends Component {
   constructor(props) {
     super(props)
-    this.handleDataBaseClick = this.handleDataBaseClick.bind(this)
     this.handleSize = this.handleSize.bind(this)
     this.thousandBitSeparator = this.thousandBitSeparator.bind(this)
     this.loadClusterSummary = this.loadClusterSummary.bind(this)
@@ -148,6 +147,7 @@ class Ordinary extends Component {
       tab4: false,
       tab5: false,
       isTeam: false,
+      statefulApp: 'mysql',
     }
   }
 
@@ -168,6 +168,7 @@ class Ordinary extends Component {
     loadClusterInfo(clusterID)
     this.loadClusterSummary(clusterID)
   }
+
   componentWillReceiveProps(nextProps) {
     const { loadClusterInfo } = this.props
     const { current } = nextProps
@@ -183,58 +184,7 @@ class Ordinary extends Component {
       })
     }
   }
-  handleDataBaseClick(current) {
-    if (current === 'tab1') {
-      this.setState({
-        tab1: true,
-        tab2: false,
-        tab3: false,
-        tab4: false,
-        tab5: false,
-      })
-      return
-    }
-    if (current === 'tab2') {
-      this.setState({
-        tab1: false,
-        tab2: true,
-        tab3: false,
-        tab4: false,
-        tab5: false,
-      })
-      return
-    }
-    if (current === 'tab3') {
-      this.setState({
-        tab1: false,
-        tab2: false,
-        tab3: true,
-        tab4: false,
-        tab5: false,
-      })
-      return
-    }
-    if (current === 'tab4') {
-      this.setState({
-        tab1: false,
-        tab2: false,
-        tab3: false,
-        tab4: true,
-        tab5: false,
-      })
-      return
-    }
-    if (current === 'tab5') {
-      this.setState({
-        tab1: false,
-        tab2: false,
-        tab3: false,
-        tab4: false,
-        tab5: true,
-      })
-      return
-    }
-  }
+
   thousandBitSeparator(num) {
     return num && (num.toString().indexOf('.') != -1 ? num.toString().replace(/(\d)(?=(\d{3})+\.)/g, function ($0, $1) {
       return $1 + ",";
@@ -242,6 +192,7 @@ class Ordinary extends Component {
       return $1 + ",";
     }));
   }
+  
   handleSize(size) {
     if (!size) {
       return 0 + 'MB'
@@ -261,6 +212,7 @@ class Ordinary extends Component {
     result = this.thousandBitSeparator(Math.floor(size / (1024 * 1024 * 1024) * 100) / 100)
     return result + 'T'
   }
+
   render() {
     const { clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
       clusterNodeSummary, clusterDbServices, spaceName, clusterName, clusterNodeSpaceConsumption, clusterSummary, volumeSummary, clusterStaticSummary, isFetching, loginUser } = this.props
@@ -410,6 +362,42 @@ class Ordinary extends Component {
       elasticSearchStopped = failedCount + unknownCount
       elasticSearchOthers = pendingCount
     }
+    const statefulApps = {
+      mysql: "MySQL",
+      redis: "Redis",
+      zookeeper: "ZooKeeper",
+      elasticsearch: "ElasticSearch",
+    }
+    const statefulAppTabMapping = {
+      mysql: 'tab1',
+      mongo: 'tab2',
+      redis: 'tab3',
+      zookeeper: 'tab4',
+      elasticsearch: 'tab5',
+    }
+    const defaultState = {
+      tab1: false,
+      tab2: false,
+      tab3: false,
+      tab4: false,
+      tab5: false,
+      statefulApp: 'MySQL',
+    }
+    const onStatefulAppOptionClick = function (app) { 
+      const tab = statefulAppTabMapping[app]
+      const newState = {
+        [tab]: true,
+        statefulApp: statefulApps[app],
+      }
+      this.setState(Object.assign({}, defaultState, newState))
+    }
+    const statefulAppOptions = Object.getOwnPropertyNames(statefulApps).map(
+      app => <Select.Option value={app} key={app}>{statefulApps[app]}</Select.Option>)
+    const statefulAppMenus = (
+      <Select defaultValue={this.state.statefulApp} value={this.state.statefulApp} style={{ width: '80%', margin:'10px 10%' }} onChange={onStatefulAppOptionClick.bind(this)}>
+        {statefulAppOptions}
+      </Select>
+    )
     //集群mem、cpu和存储概况
     let clusterSummaryCapacity = clusterSummary.capacity
     let clusterSummaryUsed = clusterSummary.used
@@ -1484,12 +1472,7 @@ class Ordinary extends Component {
         <Row className="content" gutter={16} style={{ marginTop: 16 }}>
           <Col span={6} className='dataBase'>
             <Card title="数据库与缓存" bordered={false} bodyStyle={{ height: 200, padding:'15px 24px'}}>
-              <Row gutter={16}>
-                <Col span={8} onClick={() => this.handleDataBaseClick('tab1')} className={this.state.tab1 ? 'seleted' : ''}><Tooltip title="MySQL"><span className='dataBtn'>MySQL</span></Tooltip></Col>
-                <Col span={8} onClick={() => this.handleDataBaseClick('tab3')} className={this.state.tab3 ? 'seleted' : ''}><Tooltip title="Redis"><span className='dataBtn'>Redis</span></Tooltip></Col>
-                <Col span={8} onClick={() => this.handleDataBaseClick('tab4')} className={this.state.tab4 ? 'seleted' : ''}><Tooltip title="Zookeeper"><span className='dataBtn'>Zookeeper</span></Tooltip></Col>
-                <Col span={8} onClick={() => this.handleDataBaseClick('tab5')} className={this.state.tab5 ? 'seleted' : ''}><Tooltip title="ElasticSearch"><span className='dataBtn'>ElasticSearch</span></Tooltip></Col>
-              </Row>
+              {statefulAppMenus}
               <Row style={{ display: this.state.tab1 ? 'block' : 'none', height: 130 }}>
                 <Col span={12} className='dbImg'>
                   <img src={homeMySQL} alt="MySQL" />

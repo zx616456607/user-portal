@@ -17,15 +17,15 @@ import './style/Header.less'
 
 class Header extends React.Component {
   render() {
-    const { notification } = this.props
+    const { notification, message } = this.props
     const { count } = notification
     return (
       <div className="notification-header">
         <div className="header-left">
-          {this.props.message}
+          {message}
         </div>
         {
-          count > 0 && (
+          count > 1 && (
             <div className="header-right">
               <Badge count={count} />
             </div>

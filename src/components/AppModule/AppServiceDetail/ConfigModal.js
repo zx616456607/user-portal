@@ -47,7 +47,7 @@ function getCPUByMemory(memory) {
     case '8192':
       return '2'
     default:
-      return RESOURCES_CPU_DEFAULT
+      return RESOURCES_CPU_DEFAULT.toString()
   }
 }
 class ConfigModal extends Component {
