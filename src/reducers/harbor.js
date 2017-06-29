@@ -69,8 +69,12 @@ function projects(state = {}, action) {
         }
       })
     case ActionTypes.HARBOR_PROJECT_LIST_FAILURE:
-      return merge({}, defaultState, state, {
-        [registry]: { isFetching: false }
+      return Object.assign({}, defaultState, state, {
+        [registry]: {
+          isFetching: false,
+          list: [],
+          total: 0
+        }
       })
     default:
       return state
