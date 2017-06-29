@@ -53,8 +53,14 @@ exports.getProjectDetail=function* () {
 
 exports.listProject=function* () {
   const loginUser = this.session.loginUser
+  const query = this.query || {}
+  const filter = query.filter
+  const queryObj = {}
+  if (filter) {
+    queryObj.filter = filter
+  }
   const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.getBy(['list'],null)
+  const response=yield projectApi.project.getBy(['list'],queryObj)
   this.status = response.statusCode
   this.body = response
 }

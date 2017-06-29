@@ -1,5 +1,6 @@
 #account_projectManage {
   padding: 30px;
+  min-height: 900px;
   .addBtn {
     font-weight: normal;
     background-color: #2db7f5;
@@ -247,6 +248,27 @@
 
 .payModal{
   font-size: 14px;
+  table{
+    thead{
+      tr{
+        th{
+          //text-align: center;
+        }
+      }
+    }
+    tbody{
+      tr{
+        td{
+          //text-align: center;
+        }
+      }
+      .payTableRow{
+        .balanceColor{
+          color: #69bd67;
+        }
+      }
+    }
+  }
   .payBtnBox{
     dt{
       line-height: 30px;
@@ -337,6 +359,61 @@
       resize: none;
     }
 
+  }
+}
+#projectCreateStepOne{
+  .inputBox{
+    span:first-of-type{
+      width: 66px;
+    }
+  }
+  .dropDownBox{
+    width: 170px;
+    height: 36px;
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+    position: relative;
+    padding: 0 10px;
+    &>span{
+      line-height: 36px;
+      color: #999999;
+      &>i{
+        margin-left: 50px;
+      }
+    }
+    .dropDownInnerBox{
+      position: absolute;
+      top: 38px;
+      left: 0;
+      min-width: 200px;
+      border: 1px solid #cccccc;
+      border-radius: 3px;
+      z-index: 1;
+      background-color: #ffffff;
+      dl{
+        dt,dd{
+          height: 30px;
+          line-height: 30px;
+        }
+        dt{
+          padding: 0 10px;
+          background-color: #eeeeee;
+        }
+        dd{
+          padding: 0 20px;
+          &:hover{
+            background-color: #effdfe;
+          }
+        }
+      }
+      dl:first-of-type{
+        dd{
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+      }
+    }
   }
 }
 .createCharacterModal{

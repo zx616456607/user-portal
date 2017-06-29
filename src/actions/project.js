@@ -3,6 +3,7 @@
  */
 import { FETCH_API } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
+import { toQuerystring } from '../common/tools'
 export const PROJECT_CREATE_REQUEST = 'PROJECT_CREATE_REQUEST'
 export const PROJECT_CREATE_SUCCESS = 'PROJECT_CREATE_SUCCESS'
 export const PROJECT_CREATE_FAILURE = 'PROJECT_CREATE_FAILURE'
@@ -100,14 +101,14 @@ export const PROJECT_DELETE_FAILURE = 'PROJECT_DELETE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchDeleteProject(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project`
+	let endpoint = `${API_URL_PREFIX}/project/batch-delete`
 	return {
 		[FETCH_API]: {
 			types: [PROJECT_DELETE_REQUEST,PROJECT_DELETE_SUCCESS, PROJECT_DELETE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
-				method: 'DELETE',
+				method: 'POST',
 				body: body.body
 			},
 		},
@@ -129,7 +130,7 @@ export const PROJECT_DETAIL_FAILURE = 'PROJECT_DETAIL_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchGetProjectDetail(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/detail`
+	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/detail`
 	return {
 		[FETCH_API]: {
 			types: [PROJECT_DETAIL_REQUEST,PROJECT_DETAIL_SUCCESS, PROJECT_DETAIL_FAILURE],
@@ -155,26 +156,29 @@ export const PROJECT_LIST_SUCCESS = 'PROJECT_LIST_SUCCESS'
 export const PROJECT_LIST_FAILURE = 'PROJECT_LIST_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchListProject(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/list`
-	return {
-		[FETCH_API]: {
-			types: [PROJECT_LIST_REQUEST,PROJECT_LIST_SUCCESS, PROJECT_LIST_FAILURE],
-			endpoint,
-			schema: {},
-			options: {
-				method: 'GET'
-			},
-		},
-		callback
-	}
+function fetchListProject(body, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/project/list`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [PROJECT_LIST_REQUEST,PROJECT_LIST_SUCCESS, PROJECT_LIST_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'GET'
+      },
+    },
+    callback
+  }
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function ListProject(body, callback) {
-	return (dispatch) => {
-		return dispatch(fetchListProject(body, callback))
-	}
+export function ListProject(body, query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchListProject(body,query,callback))
+  }
 }
 
 
@@ -216,7 +220,7 @@ export const PROJECT_UPDATE_FAILURE = 'PROJECT_UPDATE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchUpdateProject(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project`
+	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}`
 	return {
 		[FETCH_API]: {
 			types: [PROJECT_UPDATE_REQUEST,PROJECT_UPDATE_SUCCESS, PROJECT_UPDATE_FAILURE],
