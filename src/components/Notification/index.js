@@ -83,7 +83,7 @@ class Notification {
   }
 
   // Show success notification
-  success(message, description) {
+  success(message, description, duration) {
     let desc = description || ''
     notification.success({
       message: (
