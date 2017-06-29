@@ -86,7 +86,7 @@ let MyComponent = React.createClass({
       const { setFieldsValue } = form
       setFieldsValue({
         'exportImageName': undefined,
-        'harborProjectName': undefined,
+        'harborProjectName': '',
         'exportImageVersion': 'latest',
       })
       this.props.funcs.loadProjectList(DEFAULT_REGISTRY, { page_size: 100 })
@@ -108,7 +108,7 @@ let MyComponent = React.createClass({
       body:{
         imagename: values.exportImageName,
         tag: values.exportImageVersion,
-        projectname: values.harborProjectName,
+        projectname: values.harborProjectName.split('/detail/')[0],
       },
       clusterID,
       containers:exportContainerName
@@ -196,7 +196,7 @@ let MyComponent = React.createClass({
     this.setState({
       exportImageModalSuccess : false
     })
-    browserHistory.push('/app_center')
+    browserHistory.push(`/app_center/projects/detail/${this.state.projectId}`)
   },
   hanldeClose(){
     this.setState({
@@ -209,7 +209,7 @@ let MyComponent = React.createClass({
       success: {
         func: (res) => {
           const { form } = this.props
-          let projectName = form.getFieldValue('harborProjectName')
+          let projectName = form.getFieldValue('harborProjectName').split('/detail/')[0]
           if(!projectName){
             return
           }
@@ -252,7 +252,7 @@ let MyComponent = React.createClass({
   },
   checkImageName(rule, value, callback){
     const { form } = this.props
-    let projectName = form.getFieldValue('harborProjectName')
+    let projectName = form.getFieldValue('harborProjectName').split('/detail/')[0]
     if(!projectName){
       return callback('请选择仓库组')
     }
@@ -279,7 +279,7 @@ let MyComponent = React.createClass({
       return callback('最多只能为128个字符')
     }
     if(this.state.imageNameEqual){
-      let projectName = form.getFieldValue('harborProjectName')
+      let projectName = form.getFieldValue('harborProjectName').split('/detail/')[0]
       let exporImageName = form.getFieldValue('exportImageName')
       let imageName = projectName + '/' + exporImageName
       loadRepositoriesTags(DEFAULT_REGISTRY, imageName, {
@@ -300,11 +300,13 @@ let MyComponent = React.createClass({
     }
     return callback()
   },
-  selectChange(){
+  selectChange(projects){
     const { form } = this.props
     const { getFieldValue } = form
     let exportImageName = getFieldValue("exportImageName")
     let exportImageTag = getFieldValue("exportImageVersion")
+    let projectId = projects.split('/detail/')[1]
+    this.setState({projectId})
     if(!exportImageName || !exportImageTag){
       return
     }
@@ -449,6 +451,7 @@ let MyComponent = React.createClass({
       rules: [
         { message: '请选择仓库组', required: true },
       ],
+      initialValue:'',
       onChange: this.selectChange
     })
     const exportImageName = getFieldProps('exportImageName',{
@@ -492,7 +495,7 @@ let MyComponent = React.createClass({
                       (this.props.harborProjects.list || []).map(project => {
                         const currentRoleId = project[camelize('current_user_role_id')]
                         return (
-                          <Option key={project.name} disabled={currentRoleId === 3}>
+                          <Option key={project.name + `/detail/${project.projectId}`} disabled={currentRoleId === 3}>
                             {project.name} {currentRoleId == 3 && '（访客）'}
                           </Option>
                         )}
@@ -524,7 +527,7 @@ let MyComponent = React.createClass({
               <span>
                 {
                   exportimageUrl
-                  ? <span>{exportimageUrl.registryConfig.server}/{getFieldValue('harborProjectName') || '仓库组名称'}/</span>
+                  ? <span>{exportimageUrl.registryConfig.server}/{getFieldValue('harborProjectName').split('/detail/')[0] || '仓库组名称'}/</span>
                   : <Spin></Spin>
                 }
               </span>
