@@ -855,6 +855,44 @@ exports.updateDockerfile = function* () {
   }
 }
 
+exports.createScripts = function* createScripts() {
+  const loginUser = this.session.loginUser
+  const body = this.request.body
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.createBy(["ci-scripts"], null, body)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.getScriptsById = function* createScripts() {
+  const loginUser = this.session.loginUser
+  const scripts_id = this.params.scripts_id
+  const body = this.request.body
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-scripts", scripts_id])
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.updateScriptsById = function* createScripts() {
+  const loginUser = this.session.loginUser
+  const scripts_id = this.params.scripts_id
+  const body = this.request.body
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.updateBy(["ci-scripts", scripts_id], null, body)
+
+  this.body = {
+    data: result
+  }
+}
+
 // Return the images that configured in stages of a flow
 // In most case, it should be one image
 exports.getImagesOfFlow = function* () {
