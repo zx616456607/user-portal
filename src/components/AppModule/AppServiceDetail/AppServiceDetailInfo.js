@@ -619,6 +619,14 @@ export default class AppServiceDetailInfo extends Component {
         </div>
       )
     }
+    let cpuFormatResult
+    if(serviceDetail.spec.template.spec && serviceDetail.spec.template.spec.containers[0] && serviceDetail.spec.template.spec.containers[0].resources && serviceDetail.spec.template.spec.containers[0].resources.requests){
+      cpuFormatResult = cpuFormat(serviceDetail.spec.template.spec.containers[0].resources.requests.memory, serviceDetail.spec.template.spec.containers[0].resources)
+    } else {
+      cpuFormatResult = '-'
+    }
+
+    console.log('serviceDetail=',serviceDetail)
     return (
       <Card id="AppServiceDetailInfo">
         <div className="info commonBox">
@@ -664,7 +672,7 @@ export default class AppServiceDetailInfo extends Component {
           </div>
           <div className="dataBox">
             <div className="commonTitle">
-              { cpuFormat(serviceDetail.spec.template.spec.containers[0].resources.requests.memory, serviceDetail.spec.template.spec.containers[0].resources) || '-'}
+              { cpuFormatResult }
             </div>
             <div className="commonTitle">
               { memoryFormat(serviceDetail.spec.template.spec.containers[0].resources)}
