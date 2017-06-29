@@ -220,12 +220,16 @@ let CreateDatabase = React.createClass({
         },
         failed: {
           func: (res)=> {
-            _this.setState({loading: false})
             if (res.statusCode == 409) {
               notification.error('数据库服务 ' + values.name + ' 同已有资源冲突，请修改名称后重试')
             } else {
               notification.error('创建数据库服务失败')
             }
+          }
+        },
+        finally: {
+          func:()=> {
+            this.setState({loading: false})
           }
         }
       });
@@ -296,7 +300,7 @@ let CreateDatabase = React.createClass({
     const statefulAppOptions = Object.getOwnPropertyNames(statefulApps).map(
       app => <Select.Option value={app} key={app}>{statefulApps[app]}</Select.Option>)
     const statefulAppMenus = (
-      <Select defaultValue='mysql' value={this.state.currentType} onChange={this.selectDatabaseType.bind(this)}>
+      <Select defaultValue='mysql' value={this.state.currentType} onChange={this.selectDatabaseType}>
         {statefulAppOptions}
       </Select>
     )
