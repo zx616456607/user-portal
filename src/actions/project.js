@@ -13,7 +13,7 @@ function fetchCreateProject(body, callback) {
 	let endpoint = `${API_URL_PREFIX}/project`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CREATE_REQUEST,PROJECT_CREATE_SUCCESS, PROJECT_CREATE_FAILURE],
+			types: [PROJECT_CREATE_REQUEST, PROJECT_CREATE_SUCCESS, PROJECT_CREATE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -44,7 +44,7 @@ function fetchCheckProjectExists(body, callback) {
 	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/check-exists`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CHECK_REQUEST,PROJECT_CHECK_SUCCESS, PROJECT_CHECK_FAILURE],
+			types: [PROJECT_CHECK_REQUEST, PROJECT_CHECK_SUCCESS, PROJECT_CHECK_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -58,7 +58,7 @@ function fetchCheckProjectExists(body, callback) {
 // Relies on Redux Thunk middleware.
 export function CheckProject(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchCheckProjectExists(body,callback))
+		return dispatch(fetchCheckProjectExists(body, callback))
 	}
 }
 
@@ -74,7 +74,7 @@ function fetchCheckProjectManager(callback) {
 	let endpoint = `${API_URL_PREFIX}/project/check-manager`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CHECK_MANAGER_REQUEST,PROJECT_CHECK_MANAGER_SUCCESS, PROJECT_CHECK_MANAGER_FAILURE],
+			types: [PROJECT_CHECK_MANAGER_REQUEST, PROJECT_CHECK_MANAGER_SUCCESS, PROJECT_CHECK_MANAGER_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -104,7 +104,7 @@ function fetchDeleteProject(body, callback) {
 	let endpoint = `${API_URL_PREFIX}/project`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_DELETE_REQUEST,PROJECT_DELETE_SUCCESS, PROJECT_DELETE_FAILURE],
+			types: [PROJECT_DELETE_REQUEST, PROJECT_DELETE_SUCCESS, PROJECT_DELETE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -133,7 +133,7 @@ function fetchGetProjectDetail(body, callback) {
 	let endpoint = `${API_URL_PREFIX}/project/detail`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_DETAIL_REQUEST,PROJECT_DETAIL_SUCCESS, PROJECT_DETAIL_FAILURE],
+			types: [PROJECT_DETAIL_REQUEST, PROJECT_DETAIL_SUCCESS, PROJECT_DETAIL_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -159,11 +159,11 @@ export const PROJECT_LIST_FAILURE = 'PROJECT_LIST_FAILURE'
 function fetchListProject(body, query, callback) {
 	let endpoint = `${API_URL_PREFIX}/project/list`
 	if (query) {
-    	endpoint += `?${toQuerystring(query)}`
-  	}
+		endpoint += `?${toQuerystring(query)}`
+	}
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_LIST_REQUEST,PROJECT_LIST_SUCCESS, PROJECT_LIST_FAILURE],
+			types: [PROJECT_LIST_REQUEST, PROJECT_LIST_SUCCESS, PROJECT_LIST_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -177,7 +177,7 @@ function fetchListProject(body, query, callback) {
 // Relies on Redux Thunk middleware.
 export function ListProject(body, query, callback) {
 	return (dispatch) => {
-		return dispatch(fetchListProject(body,query,callback))
+		return dispatch(fetchListProject(body, query, callback))
 	}
 }
 
@@ -192,7 +192,7 @@ function fetchListVisibleProject(body, callback) {
 	let endpoint = `${API_URL_PREFIX}/project/list-visible`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_LIST_VISIBLE_REQUEST,PROJECT_LIST_VISIBLE_SUCCESS, PROJECT_LIST_VISIBLE_FAILURE],
+			types: [PROJECT_LIST_VISIBLE_REQUEST, PROJECT_LIST_VISIBLE_SUCCESS, PROJECT_LIST_VISIBLE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -223,7 +223,7 @@ function fetchUpdateProject(body, callback) {
 	let endpoint = `${API_URL_PREFIX}/project`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_UPDATE_REQUEST,PROJECT_UPDATE_SUCCESS, PROJECT_UPDATE_FAILURE],
+			types: [PROJECT_UPDATE_REQUEST, PROJECT_UPDATE_SUCCESS, PROJECT_UPDATE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -251,7 +251,7 @@ function fetchGetProjectVisibleClusters(body, callback) {
 	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/visible-cluster`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CLUSTER_VISIBLE_GET_REQUEST,PROJECT_CLUSTER_VISIBLE_GET_SUCCESS, PROJECT_CLUSTER_VISIBLE_GET_FAILURE],
+			types: [PROJECT_CLUSTER_VISIBLE_GET_REQUEST, PROJECT_CLUSTER_VISIBLE_GET_SUCCESS, PROJECT_CLUSTER_VISIBLE_GET_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -274,14 +274,14 @@ export const PROJECT_CLUSTER_APPROVAL_GET_SUCCESS = 'PROJECT_CLUSTER_APPROVAL_GE
 export const PROJECT_CLUSTER_APPROVAL_GET_FAILURE = 'PROJECT_CLUSTER_APPROVAL_GET_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchGetProjectApprovalClusters(body,query,callback) {
+function fetchGetProjectApprovalClusters(body, query, callback) {
 	let endpoint = `${API_URL_PREFIX}/project/cluster`
 	if (query) {
-    	endpoint += `?${toQuerystring(query)}`
-  	}
+		endpoint += `?${toQuerystring(query)}`
+	}
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CLUSTER_APPROVAL_GET_REQUEST,PROJECT_CLUSTER_APPROVAL_GET_SUCCESS, PROJECT_CLUSTER_APPROVAL_GET_FAILURE],
+			types: [PROJECT_CLUSTER_APPROVAL_GET_REQUEST, PROJECT_CLUSTER_APPROVAL_GET_SUCCESS, PROJECT_CLUSTER_APPROVAL_GET_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -293,9 +293,9 @@ function fetchGetProjectApprovalClusters(body,query,callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function GetProjectApprovalClusters(body,query,callback) {
+export function GetProjectApprovalClusters(body, query, callback) {
 	return (dispatch) => {
-		return dispatch(fetchGetProjectApprovalClusters(body,query,callback))
+		return dispatch(fetchGetProjectApprovalClusters(body, query, callback))
 	}
 }
 
@@ -308,7 +308,7 @@ function fetchGetProjectAllClusters(body, callback) {
 	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/cluster`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CLUSTER_ALL_GET_REQUEST,PROJECT_CLUSTER_ALL_GET_SUCCESS, PROJECT_CLUSTER_ALL_GET_FAILURE],
+			types: [PROJECT_CLUSTER_ALL_GET_REQUEST, PROJECT_CLUSTER_ALL_GET_SUCCESS, PROJECT_CLUSTER_ALL_GET_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -335,7 +335,7 @@ function fetchUpdateProjectCluster(body, callback) {
 	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/cluster`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CLUSTER_UPDATE_REQUEST,PROJECT_CLUSTER_UPDATE_SUCCESS, PROJECT_CLUSTER_UPDATE_FAILURE],
+			types: [PROJECT_CLUSTER_UPDATE_REQUEST, PROJECT_CLUSTER_UPDATE_SUCCESS, PROJECT_CLUSTER_UPDATE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -364,7 +364,7 @@ function fetchUpdateProjectApprovalCluster(body, callback) {
 	let endpoint = `${API_URL_PREFIX}/project/cluster`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CLUSTER_APPROVAL_UPDATE_REQUEST,PROJECT_CLUSTER_APPROVAL_UPDATE_SUCCESS, PROJECT_CLUSTER_APPROVAL_UPDATE_FAILURE],
+			types: [PROJECT_CLUSTER_APPROVAL_UPDATE_REQUEST, PROJECT_CLUSTER_APPROVAL_UPDATE_SUCCESS, PROJECT_CLUSTER_APPROVAL_UPDATE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -392,7 +392,7 @@ function fetchGetProjectRelatedUsers(body, callback) {
 	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/user`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_USER_GET_REQUEST,PROJECT_USER_GET_SUCCESS, PROJECT_USER_GET_FAILURE],
+			types: [PROJECT_USER_GET_REQUEST, PROJECT_USER_GET_SUCCESS, PROJECT_USER_GET_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -419,7 +419,7 @@ function fetchAddProjectRelatedUsers(body, callback) {
 	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/user`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_USER_ADD_REQUEST,PROJECT_USER_ADD_SUCCESS, PROJECT_USER_ADD_FAILURE],
+			types: [PROJECT_USER_ADD_REQUEST, PROJECT_USER_ADD_SUCCESS, PROJECT_USER_ADD_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -448,7 +448,7 @@ function fetchDeleteProjectRelatedUsers(body, callback) {
 	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/user`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_USER_DELETE_REQUEST,PROJECT_USER_DELETE_SUCCESS, PROJECT_USER_DELETE_FAILURE],
+			types: [PROJECT_USER_DELETE_REQUEST, PROJECT_USER_DELETE_SUCCESS, PROJECT_USER_DELETE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -477,7 +477,7 @@ function fetchUpdateProjectRelatedUsers(body, callback) {
 	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/user`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_USER_UPDATE_REQUEST,PROJECT_USER_UPDATE_SUCCESS, PROJECT_USER_UPDATE_FAILURE],
+			types: [PROJECT_USER_UPDATE_REQUEST, PROJECT_USER_UPDATE_SUCCESS, PROJECT_USER_UPDATE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -506,7 +506,7 @@ function fetchUpdateProjectRelatedRoles(body, callback) {
 	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/role`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_ROLE_UPDATE_REQUEST,PROJECT_ROLE_UPDATE_SUCCESS, PROJECT_ROLE_UPDATE_FAILURE],
+			types: [PROJECT_ROLE_UPDATE_REQUEST, PROJECT_ROLE_UPDATE_SUCCESS, PROJECT_ROLE_UPDATE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -534,7 +534,7 @@ function fetchGetProjectRelatedRoles(body, callback) {
 	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/role`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_ROLE_GET_REQUEST,PROJECT_ROLE_GET_SUCCESS, PROJECT_ROLE_GET_FAILURE],
+			types: [PROJECT_ROLE_GET_REQUEST, PROJECT_ROLE_GET_SUCCESS, PROJECT_ROLE_GET_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
