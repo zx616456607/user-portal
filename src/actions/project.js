@@ -4,16 +4,16 @@
 
 import { toQuerystring } from '../common/tools'
 
-export const PROJECT_CREATE_REQUEST = 'PROJECT_CREATE_REQUEST'
-export const PROJECT_CREATE_SUCCESS = 'PROJECT_CREATE_SUCCESS'
-export const PROJECT_CREATE_FAILURE = 'PROJECT_CREATE_FAILURE'
+export const PROJECTS_CREATE_REQUEST = 'PROJECTS_CREATE_REQUEST'
+export const PROJECTS_CREATE_SUCCESS = 'PROJECTS_CREATE_SUCCESS'
+export const PROJECTS_CREATE_FAILURE = 'PROJECTS_CREATE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchCreateProject(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project`
+function fetchCreateProjects(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CREATE_REQUEST, PROJECT_CREATE_SUCCESS, PROJECT_CREATE_FAILURE],
+			types: [PROJECTS_CREATE_REQUEST, PROJECTS_CREATE_SUCCESS, PROJECTS_CREATE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -26,25 +26,25 @@ function fetchCreateProject(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function CreateProject(body, callback) {
+export function CreateProjects(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchCreateProject(body, callback))
+		return dispatch(fetchCreateProjects(body, callback))
 	}
 }
 
 
 
 
-export const PROJECT_CHECK_REQUEST = 'PROJECT_CHECK_REQUEST'
-export const PROJECT_CHECK_SUCCESS = 'PROJECT_CHECK_SUCCESS'
-export const PROJECT_CHECK_FAILURE = 'PROJECT_CHECK_FAILURE'
+export const PROJECTS_CHECK_REQUEST = 'PROJECTS_CHECK_REQUEST'
+export const PROJECTS_CHECK_SUCCESS = 'PROJECTS_CHECK_SUCCESS'
+export const PROJECTS_CHECK_FAILURE = 'PROJECTS_CHECK_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchCheckProjectExists(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/check-exists`
+function fetchCheckProjectsExists(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/check-exists`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CHECK_REQUEST, PROJECT_CHECK_SUCCESS, PROJECT_CHECK_FAILURE],
+			types: [PROJECTS_CHECK_REQUEST, PROJECTS_CHECK_SUCCESS, PROJECTS_CHECK_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -56,25 +56,25 @@ function fetchCheckProjectExists(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function CheckProject(body, callback) {
+export function CheckProjects(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchCheckProjectExists(body, callback))
+		return dispatch(fetchCheckProjectsExists(body, callback))
 	}
 }
 
 
 
 
-export const PROJECT_CHECK_MANAGER_REQUEST = 'PROJECT_CHECK_MANAGER_REQUEST'
-export const PROJECT_CHECK_MANAGER_SUCCESS = 'PROJECT_CHECK_MANAGER_SUCCESS'
-export const PROJECT_CHECK_MANAGER_FAILURE = 'PROJECT_CHECK_MANAGER_FAILURE'
+export const PROJECTS_CHECK_MANAGER_REQUEST = 'PROJECTS_CHECK_MANAGER_REQUEST'
+export const PROJECTS_CHECK_MANAGER_SUCCESS = 'PROJECTS_CHECK_MANAGER_SUCCESS'
+export const PROJECTS_CHECK_MANAGER_FAILURE = 'PROJECTS_CHECK_MANAGER_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchCheckProjectManager(callback) {
-	let endpoint = `${API_URL_PREFIX}/project/check-manager`
+function fetchCheckProjectsManager(callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/check-manager`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CHECK_MANAGER_REQUEST, PROJECT_CHECK_MANAGER_SUCCESS, PROJECT_CHECK_MANAGER_FAILURE],
+			types: [PROJECTS_CHECK_MANAGER_REQUEST, PROJECTS_CHECK_MANAGER_SUCCESS, PROJECTS_CHECK_MANAGER_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -86,25 +86,25 @@ function fetchCheckProjectManager(callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function CheckProjectManager(callback) {
+export function CheckProjectsManager(callback) {
 	return (dispatch) => {
-		return dispatch(fetchCheckProjectManager(callback))
+		return dispatch(fetchCheckProjectsManager(callback))
 	}
 }
 
 
 
 
-export const PROJECT_DELETE_REQUEST = 'PROJECT_DELETE_REQUEST'
-export const PROJECT_DELETE_SUCCESS = 'PROJECT_DELETE_SUCCESS'
-export const PROJECT_DELETE_FAILURE = 'PROJECT_DELETE_FAILURE'
+export const PROJECTS_DELETE_REQUEST = 'PROJECTS_DELETE_REQUEST'
+export const PROJECTS_DELETE_SUCCESS = 'PROJECTS_DELETE_SUCCESS'
+export const PROJECTS_DELETE_FAILURE = 'PROJECTS_DELETE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchDeleteProject(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project`
+function fetchDeleteProjects(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_DELETE_REQUEST, PROJECT_DELETE_SUCCESS, PROJECT_DELETE_FAILURE],
+			types: [PROJECTS_DELETE_REQUEST, PROJECTS_DELETE_SUCCESS, PROJECTS_DELETE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -117,23 +117,23 @@ function fetchDeleteProject(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function DeleteProject(body, callback) {
+export function DeleteProjects(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchDeleteProject(body, callback))
+		return dispatch(fetchDeleteProjects(body, callback))
 	}
 }
 
 
-export const PROJECT_DETAIL_REQUEST = 'PROJECT_DETAIL_REQUEST'
-export const PROJECT_DETAIL_SUCCESS = 'PROJECT_DETAIL_SUCCESS'
-export const PROJECT_DETAIL_FAILURE = 'PROJECT_DETAIL_FAILURE'
+export const PROJECTS_DETAIL_REQUEST = 'PROJECTS_DETAIL_REQUEST'
+export const PROJECTS_DETAIL_SUCCESS = 'PROJECTS_DETAIL_SUCCESS'
+export const PROJECTS_DETAIL_FAILURE = 'PROJECTS_DETAIL_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchGetProjectDetail(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/detail`
+function fetchGetProjectsDetail(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/detail`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_DETAIL_REQUEST, PROJECT_DETAIL_SUCCESS, PROJECT_DETAIL_FAILURE],
+			types: [PROJECTS_DETAIL_REQUEST, PROJECTS_DETAIL_SUCCESS, PROJECTS_DETAIL_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -145,25 +145,25 @@ function fetchGetProjectDetail(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function GetProjectDetail(body, callback) {
+export function GetProjectsDetail(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchGetProjectDetail(body, callback))
+		return dispatch(fetchGetProjectsDetail(body, callback))
 	}
 }
 
-export const PROJECT_LIST_REQUEST = 'PROJECT_LIST_REQUEST'
-export const PROJECT_LIST_SUCCESS = 'PROJECT_LIST_SUCCESS'
-export const PROJECT_LIST_FAILURE = 'PROJECT_LIST_FAILURE'
+export const PROJECTS_LIST_REQUEST = 'PROJECTS_LIST_REQUEST'
+export const PROJECTS_LIST_SUCCESS = 'PROJECTS_LIST_SUCCESS'
+export const PROJECTS_LIST_FAILURE = 'PROJECTS_LIST_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchListProject(body, query, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/list`
+function fetchListProjects(body, query, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/list`
 	if (query) {
 		endpoint += `?${toQuerystring(query)}`
 	}
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_LIST_REQUEST, PROJECT_LIST_SUCCESS, PROJECT_LIST_FAILURE],
+			types: [PROJECTS_LIST_REQUEST, PROJECTS_LIST_SUCCESS, PROJECTS_LIST_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -175,24 +175,24 @@ function fetchListProject(body, query, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function ListProject(body, query, callback) {
+export function ListProjects(body, query, callback) {
 	return (dispatch) => {
-		return dispatch(fetchListProject(body, query, callback))
+		return dispatch(fetchListProjects(body, query, callback))
 	}
 }
 
 
 
-export const PROJECT_LIST_VISIBLE_REQUEST = 'PROJECT_LIST_VISIBLE_REQUEST'
-export const PROJECT_LIST_VISIBLE_SUCCESS = 'PROJECT_LIST_VISIBLE_SUCCESS'
-export const PROJECT_LIST_VISIBLE_FAILURE = 'PROJECT_LIST_VISIBLE_FAILURE'
+export const PROJECTS_LIST_VISIBLE_REQUEST = 'PROJECTS_LIST_VISIBLE_REQUEST'
+export const PROJECTS_LIST_VISIBLE_SUCCESS = 'PROJECTS_LIST_VISIBLE_SUCCESS'
+export const PROJECTS_LIST_VISIBLE_FAILURE = 'PROJECTS_LIST_VISIBLE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchListVisibleProject(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/list-visible`
+function fetchListVisibleProjects(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/list-visible`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_LIST_VISIBLE_REQUEST, PROJECT_LIST_VISIBLE_SUCCESS, PROJECT_LIST_VISIBLE_FAILURE],
+			types: [PROJECTS_LIST_VISIBLE_REQUEST, PROJECTS_LIST_VISIBLE_SUCCESS, PROJECTS_LIST_VISIBLE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -204,9 +204,9 @@ function fetchListVisibleProject(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function ListVisibleProject(body, callback) {
+export function ListVisibleProjects(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchListVisibleProject(body, callback))
+		return dispatch(fetchListVisibleProjects(body, callback))
 	}
 }
 
@@ -214,16 +214,16 @@ export function ListVisibleProject(body, callback) {
 
 
 
-export const PROJECT_UPDATE_REQUEST = 'PROJECT_UPDATE_REQUEST'
-export const PROJECT_UPDATE_SUCCESS = 'PROJECT_UPDATE_SUCCESS'
-export const PROJECT_UPDATE_FAILURE = 'PROJECT_UPDATE_FAILURE'
+export const PROJECTS_UPDATE_REQUEST = 'PROJECTS_UPDATE_REQUEST'
+export const PROJECTS_UPDATE_SUCCESS = 'PROJECTS_UPDATE_SUCCESS'
+export const PROJECTS_UPDATE_FAILURE = 'PROJECTS_UPDATE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUpdateProject(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project`
+function fetchUpdateProjects(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_UPDATE_REQUEST, PROJECT_UPDATE_SUCCESS, PROJECT_UPDATE_FAILURE],
+			types: [PROJECTS_UPDATE_REQUEST, PROJECTS_UPDATE_SUCCESS, PROJECTS_UPDATE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -236,22 +236,22 @@ function fetchUpdateProject(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function UpdateProject(body, callback) {
+export function UpdateProjects(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchUpdateProject(body, callback))
+		return dispatch(fetchUpdateProjects(body, callback))
 	}
 }
 
-export const PROJECT_CLUSTER_VISIBLE_GET_REQUEST = 'PROJECT_CLUSTER_VISIBLE_GET_REQUEST'
-export const PROJECT_CLUSTER_VISIBLE_GET_SUCCESS = 'PROJECT_CLUSTER_VISIBLE_GET_SUCCESS'
-export const PROJECT_CLUSTER_VISIBLE_GET_FAILURE = 'PROJECT_CLUSTER_VISIBLE_GET_FAILURE'
+export const PROJECTS_CLUSTER_VISIBLE_GET_REQUEST = 'PROJECTS_CLUSTER_VISIBLE_GET_REQUEST'
+export const PROJECTS_CLUSTER_VISIBLE_GET_SUCCESS = 'PROJECTS_CLUSTER_VISIBLE_GET_SUCCESS'
+export const PROJECTS_CLUSTER_VISIBLE_GET_FAILURE = 'PROJECTS_CLUSTER_VISIBLE_GET_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchGetProjectVisibleClusters(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/visible-cluster`
+function fetchGetProjectsVisibleClusters(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/visible-cluster`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CLUSTER_VISIBLE_GET_REQUEST, PROJECT_CLUSTER_VISIBLE_GET_SUCCESS, PROJECT_CLUSTER_VISIBLE_GET_FAILURE],
+			types: [PROJECTS_CLUSTER_VISIBLE_GET_REQUEST, PROJECTS_CLUSTER_VISIBLE_GET_SUCCESS, PROJECTS_CLUSTER_VISIBLE_GET_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -263,25 +263,25 @@ function fetchGetProjectVisibleClusters(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function GetProjectVisibleClusters(body, callback) {
+export function GetProjectsVisibleClusters(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchGetProjectVisibleClusters(body, callback))
+		return dispatch(fetchGetProjectsVisibleClusters(body, callback))
 	}
 }
 
-export const PROJECT_CLUSTER_APPROVAL_GET_REQUEST = 'PROJECT_CLUSTER_APPROVAL_GET_REQUEST'
-export const PROJECT_CLUSTER_APPROVAL_GET_SUCCESS = 'PROJECT_CLUSTER_APPROVAL_GET_SUCCESS'
-export const PROJECT_CLUSTER_APPROVAL_GET_FAILURE = 'PROJECT_CLUSTER_APPROVAL_GET_FAILURE'
+export const PROJECTS_CLUSTER_APPROVAL_GET_REQUEST = 'PROJECTS_CLUSTER_APPROVAL_GET_REQUEST'
+export const PROJECTS_CLUSTER_APPROVAL_GET_SUCCESS = 'PROJECTS_CLUSTER_APPROVAL_GET_SUCCESS'
+export const PROJECTS_CLUSTER_APPROVAL_GET_FAILURE = 'PROJECTS_CLUSTER_APPROVAL_GET_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchGetProjectApprovalClusters(body, query, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/cluster`
+function fetchGetProjectsApprovalClusters(body, query, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/cluster`
 	if (query) {
 		endpoint += `?${toQuerystring(query)}`
 	}
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CLUSTER_APPROVAL_GET_REQUEST, PROJECT_CLUSTER_APPROVAL_GET_SUCCESS, PROJECT_CLUSTER_APPROVAL_GET_FAILURE],
+			types: [PROJECTS_CLUSTER_APPROVAL_GET_REQUEST, PROJECTS_CLUSTER_APPROVAL_GET_SUCCESS, PROJECTS_CLUSTER_APPROVAL_GET_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -293,22 +293,22 @@ function fetchGetProjectApprovalClusters(body, query, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function GetProjectApprovalClusters(body, query, callback) {
+export function GetProjectsApprovalClusters(body, query, callback) {
 	return (dispatch) => {
-		return dispatch(fetchGetProjectApprovalClusters(body, query, callback))
+		return dispatch(fetchGetProjectsApprovalClusters(body, query, callback))
 	}
 }
 
-export const PROJECT_CLUSTER_ALL_GET_REQUEST = 'PROJECT_CLUSTER_ALL_GET_REQUEST'
-export const PROJECT_CLUSTER_ALL_GET_SUCCESS = 'PROJECT_CLUSTER_ALL_GET_SUCCESS'
-export const PROJECT_CLUSTER_ALL_GET_FAILURE = 'PROJECT_CLUSTER_ALL_GET_FAILURE'
+export const PROJECTS_CLUSTER_ALL_GET_REQUEST = 'PROJECTS_CLUSTER_ALL_GET_REQUEST'
+export const PROJECTS_CLUSTER_ALL_GET_SUCCESS = 'PROJECTS_CLUSTER_ALL_GET_SUCCESS'
+export const PROJECTS_CLUSTER_ALL_GET_FAILURE = 'PROJECTS_CLUSTER_ALL_GET_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchGetProjectAllClusters(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/cluster`
+function fetchGetProjectsAllClusters(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/cluster`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CLUSTER_ALL_GET_REQUEST, PROJECT_CLUSTER_ALL_GET_SUCCESS, PROJECT_CLUSTER_ALL_GET_FAILURE],
+			types: [PROJECTS_CLUSTER_ALL_GET_REQUEST, PROJECTS_CLUSTER_ALL_GET_SUCCESS, PROJECTS_CLUSTER_ALL_GET_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -320,22 +320,22 @@ function fetchGetProjectAllClusters(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function GetProjectAllClusters(body, callback) {
+export function GetProjectsAllClusters(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchGetProjectAllClusters(body, callback))
+		return dispatch(fetchGetProjectsAllClusters(body, callback))
 	}
 }
 
-export const PROJECT_CLUSTER_UPDATE_REQUEST = 'PROJECT_CLUSTER_UPDATE_REQUEST'
-export const PROJECT_CLUSTER_UPDATE_SUCCESS = 'PROJECT_CLUSTER_UPDATE_SUCCESS'
-export const PROJECT_CLUSTER_UPDATE_FAILURE = 'PROJECT_CLUSTER_UPDATE_FAILURE'
+export const PROJECTS_CLUSTER_UPDATE_REQUEST = 'PROJECTS_CLUSTER_UPDATE_REQUEST'
+export const PROJECTS_CLUSTER_UPDATE_SUCCESS = 'PROJECTS_CLUSTER_UPDATE_SUCCESS'
+export const PROJECTS_CLUSTER_UPDATE_FAILURE = 'PROJECTS_CLUSTER_UPDATE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUpdateProjectCluster(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/cluster`
+function fetchUpdateProjectsCluster(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/cluster`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CLUSTER_UPDATE_REQUEST, PROJECT_CLUSTER_UPDATE_SUCCESS, PROJECT_CLUSTER_UPDATE_FAILURE],
+			types: [PROJECTS_CLUSTER_UPDATE_REQUEST, PROJECTS_CLUSTER_UPDATE_SUCCESS, PROJECTS_CLUSTER_UPDATE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -348,23 +348,23 @@ function fetchUpdateProjectCluster(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function UpdateProjectCluster(body, callback) {
+export function UpdateProjectsCluster(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchUpdateProjectCluster(body, callback))
+		return dispatch(fetchUpdateProjectsCluster(body, callback))
 	}
 }
 
 
-export const PROJECT_CLUSTER_APPROVAL_UPDATE_REQUEST = 'PROJECT_CLUSTER_APPROVAL_UPDATE_REQUEST'
-export const PROJECT_CLUSTER_APPROVAL_UPDATE_SUCCESS = 'PROJECT_CLUSTER_APPROVAL_UPDATE_SUCCESS'
-export const PROJECT_CLUSTER_APPROVAL_UPDATE_FAILURE = 'PROJECT_CLUSTER_APPROVAL_UPDATE_FAILURE'
+export const PROJECTS_CLUSTER_APPROVAL_UPDATE_REQUEST = 'PROJECTS_CLUSTER_APPROVAL_UPDATE_REQUEST'
+export const PROJECTS_CLUSTER_APPROVAL_UPDATE_SUCCESS = 'PROJECTS_CLUSTER_APPROVAL_UPDATE_SUCCESS'
+export const PROJECTS_CLUSTER_APPROVAL_UPDATE_FAILURE = 'PROJECTS_CLUSTER_APPROVAL_UPDATE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUpdateProjectApprovalCluster(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/cluster`
+function fetchUpdateProjectsApprovalCluster(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/cluster`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CLUSTER_APPROVAL_UPDATE_REQUEST, PROJECT_CLUSTER_APPROVAL_UPDATE_SUCCESS, PROJECT_CLUSTER_APPROVAL_UPDATE_FAILURE],
+			types: [PROJECTS_CLUSTER_APPROVAL_UPDATE_REQUEST, PROJECTS_CLUSTER_APPROVAL_UPDATE_SUCCESS, PROJECTS_CLUSTER_APPROVAL_UPDATE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -377,22 +377,22 @@ function fetchUpdateProjectApprovalCluster(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function UpdateProjectApprovalCluster(body, callback) {
+export function UpdateProjectsApprovalCluster(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchUpdateProjectApprovalCluster(body, callback))
+		return dispatch(fetchUpdateProjectsApprovalCluster(body, callback))
 	}
 }
 
-export const PROJECT_USER_GET_REQUEST = 'PROJECT_USER_GET_REQUEST'
-export const PROJECT_USER_GET_SUCCESS = 'PROJECT_USER_GET_SUCCESS'
-export const PROJECT_USER_GET_FAILURE = 'PROJECT_USER_GET_FAILURE'
+export const PROJECTS_USER_GET_REQUEST = 'PROJECTS_USER_GET_REQUEST'
+export const PROJECTS_USER_GET_SUCCESS = 'PROJECTS_USER_GET_SUCCESS'
+export const PROJECTS_USER_GET_FAILURE = 'PROJECTS_USER_GET_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchGetProjectRelatedUsers(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/user`
+function fetchGetProjectsRelatedUsers(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/user`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_USER_GET_REQUEST, PROJECT_USER_GET_SUCCESS, PROJECT_USER_GET_FAILURE],
+			types: [PROJECTS_USER_GET_REQUEST, PROJECTS_USER_GET_SUCCESS, PROJECTS_USER_GET_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -404,22 +404,22 @@ function fetchGetProjectRelatedUsers(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function GetProjectRelatedUsers(body, callback) {
+export function GetProjectsRelatedUsers(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchGetProjectRelatedUsers(body, callback))
+		return dispatch(fetchGetProjectsRelatedUsers(body, callback))
 	}
 }
 
-export const PROJECT_USER_ADD_REQUEST = 'PROJECT_USER_ADD_REQUEST'
-export const PROJECT_USER_ADD_SUCCESS = 'PROJECT_USER_ADD_SUCCESS'
-export const PROJECT_USER_ADD_FAILURE = 'PROJECT_USER_ADD_FAILURE'
+export const PROJECTS_USER_ADD_REQUEST = 'PROJECTS_USER_ADD_REQUEST'
+export const PROJECTS_USER_ADD_SUCCESS = 'PROJECTS_USER_ADD_SUCCESS'
+export const PROJECTS_USER_ADD_FAILURE = 'PROJECTS_USER_ADD_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchAddProjectRelatedUsers(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/user`
+function fetchAddProjectsRelatedUsers(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/user`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_USER_ADD_REQUEST, PROJECT_USER_ADD_SUCCESS, PROJECT_USER_ADD_FAILURE],
+			types: [PROJECTS_USER_ADD_REQUEST, PROJECTS_USER_ADD_SUCCESS, PROJECTS_USER_ADD_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -432,23 +432,23 @@ function fetchAddProjectRelatedUsers(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function AddProjectRelatedUsers(body, callback) {
+export function AddProjectsRelatedUsers(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchAddProjectRelatedUsers(body, callback))
+		return dispatch(fetchAddProjectsRelatedUsers(body, callback))
 	}
 }
 
 
-export const PROJECT_USER_DELETE_REQUEST = 'PROJECT_USER_DELETE_REQUEST'
-export const PROJECT_USER_DELETE_SUCCESS = 'PROJECT_USER_DELETE_SUCCESS'
-export const PROJECT_USER_DELETE_FAILURE = 'PROJECT_USER_DELETE_FAILURE'
+export const PROJECTS_USER_DELETE_REQUEST = 'PROJECTS_USER_DELETE_REQUEST'
+export const PROJECTS_USER_DELETE_SUCCESS = 'PROJECTS_USER_DELETE_SUCCESS'
+export const PROJECTS_USER_DELETE_FAILURE = 'PROJECTS_USER_DELETE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchDeleteProjectRelatedUsers(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/user`
+function fetchDeleteProjectsRelatedUsers(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/user`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_USER_DELETE_REQUEST, PROJECT_USER_DELETE_SUCCESS, PROJECT_USER_DELETE_FAILURE],
+			types: [PROJECTS_USER_DELETE_REQUEST, PROJECTS_USER_DELETE_SUCCESS, PROJECTS_USER_DELETE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -461,23 +461,23 @@ function fetchDeleteProjectRelatedUsers(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function DeleteProjectRelatedUsers(body, callback) {
+export function DeleteProjectsRelatedUsers(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchDeleteProjectRelatedUsers(body, callback))
+		return dispatch(fetchDeleteProjectsRelatedUsers(body, callback))
 	}
 }
 
 
-export const PROJECT_USER_UPDATE_REQUEST = 'PROJECT_USER_UPDATE_REQUEST'
-export const PROJECT_USER_UPDATE_SUCCESS = 'PROJECT_USER_UPDATE_SUCCESS'
-export const PROJECT_USER_UPDATE_FAILURE = 'PROJECT_USER_UPDATE_FAILURE'
+export const PROJECTS_USER_UPDATE_REQUEST = 'PROJECTS_USER_UPDATE_REQUEST'
+export const PROJECTS_USER_UPDATE_SUCCESS = 'PROJECTS_USER_UPDATE_SUCCESS'
+export const PROJECTS_USER_UPDATE_FAILURE = 'PROJECTS_USER_UPDATE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUpdateProjectRelatedUsers(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/user`
+function fetchUpdateProjectsRelatedUsers(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/user`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_USER_UPDATE_REQUEST, PROJECT_USER_UPDATE_SUCCESS, PROJECT_USER_UPDATE_FAILURE],
+			types: [PROJECTS_USER_UPDATE_REQUEST, PROJECTS_USER_UPDATE_SUCCESS, PROJECTS_USER_UPDATE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -490,23 +490,23 @@ function fetchUpdateProjectRelatedUsers(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function UpdateProjectRelatedUsers(body, callback) {
+export function UpdateProjectsRelatedUsers(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchUpdateProjectRelatedUsers(body, callback))
+		return dispatch(fetchUpdateProjectsRelatedUsers(body, callback))
 	}
 }
 
 
-export const PROJECT_ROLE_UPDATE_REQUEST = 'PROJECT_ROLE_UPDATE_REQUEST'
-export const PROJECT_ROLE_UPDATE_SUCCESS = 'PROJECT_ROLE_UPDATE_SUCCESS'
-export const PROJECT_ROLE_UPDATE_FAILURE = 'PROJECT_ROLE_UPDATE_FAILURE'
+export const PROJECTS_ROLE_UPDATE_REQUEST = 'PROJECTS_ROLE_UPDATE_REQUEST'
+export const PROJECTS_ROLE_UPDATE_SUCCESS = 'PROJECTS_ROLE_UPDATE_SUCCESS'
+export const PROJECTS_ROLE_UPDATE_FAILURE = 'PROJECTS_ROLE_UPDATE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUpdateProjectRelatedRoles(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/role`
+function fetchUpdateProjectsRelatedRoles(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/role`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_ROLE_UPDATE_REQUEST, PROJECT_ROLE_UPDATE_SUCCESS, PROJECT_ROLE_UPDATE_FAILURE],
+			types: [PROJECTS_ROLE_UPDATE_REQUEST, PROJECTS_ROLE_UPDATE_SUCCESS, PROJECTS_ROLE_UPDATE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -519,22 +519,22 @@ function fetchUpdateProjectRelatedRoles(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function UpdateProjectRelatedRoles(body, callback) {
+export function UpdateProjectsRelatedRoles(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchUpdateProjectRelatedRoles(body, callback))
+		return dispatch(fetchUpdateProjectsRelatedRoles(body, callback))
 	}
 }
 
-export const PROJECT_ROLE_GET_REQUEST = 'PROJECT_ROLE_GET_REQUEST'
-export const PROJECT_ROLE_GET_SUCCESS = 'PROJECT_ROLE_GET_SUCCESS'
-export const PROJECT_ROLE_GET_FAILURE = 'PROJECT_ROLE_GET_FAILURE'
+export const PROJECTS_ROLE_GET_REQUEST = 'PROJECTS_ROLE_GET_REQUEST'
+export const PROJECTS_ROLE_GET_SUCCESS = 'PROJECTS_ROLE_GET_SUCCESS'
+export const PROJECTS_ROLE_GET_FAILURE = 'PROJECTS_ROLE_GET_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchGetProjectRelatedRoles(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/role`
+function fetchGetProjectsRelatedRoles(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/${body.projectsName}/role`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_ROLE_GET_REQUEST, PROJECT_ROLE_GET_SUCCESS, PROJECT_ROLE_GET_FAILURE],
+			types: [PROJECTS_ROLE_GET_REQUEST, PROJECTS_ROLE_GET_SUCCESS, PROJECTS_ROLE_GET_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -546,8 +546,8 @@ function fetchGetProjectRelatedRoles(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function GetProjectRelatedRoles(body, callback) {
+export function GetProjectsRelatedRoles(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchGetProjectRelatedRoles(body, callback))
+		return dispatch(fetchGetProjectsRelatedRoles(body, callback))
 	}
 }
