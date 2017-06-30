@@ -488,6 +488,9 @@ let InstanceModal = React.createClass({
             <div className='allBtn' onClick={this.onSelectAllInstances}>
               <FormattedMessage {...menusText.allBtn} />
             </div>
+            <div className='confirmBtn' onClick={() => scope.setState({instancePopup: false})}>
+              确定
+            </div>
             <div className='cancelBtn' onClick={this.onCancelSelectedAllInstance}>
               <FormattedMessage {...menusText.cancelBtn} />
             </div>
@@ -1060,7 +1063,7 @@ class QueryLog extends Component {
               <Radio.Group>
                 <Radio
                   checked={this.state.logType == 'stdout'}
-                  onClick={() => {this.setState({logType: 'stdout', currentService: null})}}
+                  onClick={() => {this.setState({logType: 'stdout', currentService: null, currentInstance: [],instanceList: []})}}
                   value="stdout"
                   key="stdout"
                 >
@@ -1068,7 +1071,7 @@ class QueryLog extends Component {
                 </Radio>
                 <Radio
                   checked={this.state.logType == 'file'}
-                  onClick={() => {this.setState({logType: 'file', currentService: null})}}
+                  onClick={() => {this.setState({logType: 'file', currentService: null, currentInstance: [], instanceList: []})}}
                   value="file"
                   key="file"
                 >
