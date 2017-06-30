@@ -144,3 +144,23 @@ exports.getOemInfoApi = function (loginUser) {
   return api.oem
 }
 
+exports.getPermissionApi = function (loginUser){
+  const apiConfig = {
+    protocol: config.tenx_api.protocol,
+    host: config.tenx_api.host,
+    auth: loginUser
+  }
+  const api = new tenxApi(apiConfig)
+  return api.permission
+}
+
+exports.getRoleApi = function(loginUser){
+  const apiConfig = {
+    protocol: config.tenx_api.protocol,
+    host: config.tenx_api.host,
+    auth: loginUser
+  }
+  const api = new tenxApi(apiConfig)
+  return api.role
+}
+

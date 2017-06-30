@@ -17,7 +17,7 @@ import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { UpdateTenxflowCIRules } from '../../../../../actions/cicd_flow'
 import './style/CICDSettingModal.less'
 import { browserHistory } from 'react-router';
-import NotificationHandler from '../../../../../common/notification_handler'
+import NotificationHandler from '../../../../../components/Notification'
 
 
 const createForm = Form.create;

@@ -5,6 +5,23 @@
     border-bottom: 1px solid #e2e2e2;
     .teamTitle {
       height: 30px;
+      margin-bottom:10px;
+      button {
+        padding: 4px 8px;
+        margin-right:10px;
+        i {
+          font-weight:400;
+        }
+      }
+      .littleRight {
+        display:inline-block;
+        position : relative;
+        .littleLeft {
+          position: absolute;
+          top:5px;
+          left:165px;
+        }
+      }
     }
     .teamContent {
       padding-bottom: 50px;
@@ -23,6 +40,11 @@
           overflow: hidden;
         }
       }
+      th {
+        background:#fff;
+        font-weight:400;
+        border-bottom:1px solid #efefef;
+      }
     }
   }
   .firstItem {
@@ -39,5 +61,11 @@
     display: inline-block;
     height: 30px;
     line-height: 30px;
+  }
+  .Projectteam {
+    padding-top:10px;
+    .ant-tabs-nav {
+      margin-left:20px;
+    }
   }
 }

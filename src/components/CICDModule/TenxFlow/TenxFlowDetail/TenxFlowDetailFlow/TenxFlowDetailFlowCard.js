@@ -23,7 +23,7 @@ import EditTenxFlowModal from './EditTenxFlowModal.js'
 import CICDSettingModal from './CICDSettingModal.js'
 import StageBuildLog from './StageBuildLog.js'
 import SetStageFileLink from './SetStageFileLink.js'
-import NotificationHandler from '../../../../../common/notification_handler'
+import NotificationHandler from '../../../../../components/Notification'
 import PopTabSelect from '../../../../PopTabSelect'
 
 const PopTab = PopTabSelect.Tab;

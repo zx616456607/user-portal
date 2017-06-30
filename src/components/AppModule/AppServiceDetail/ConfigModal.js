@@ -15,7 +15,7 @@ import './style/ConfigModal.less'
 import { DEFAULT_CONTAINER_RESOURCES, DEFAULT_CONTAINER_RESOURCES_MEMORY, DEFAULT_CONTAINER_RESOURCES_CPU } from '../../../../constants'
 import { changeQuotaService } from '../../../actions/services'
 import { getResources } from '../../../../kubernetes/utils'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import { isStorageUsed } from '../../../common/tools'
 import {
   RESOURCES_MEMORY_MAX,
@@ -47,7 +47,7 @@ function getCPUByMemory(memory) {
     case '8192':
       return '2'
     default:
-      return RESOURCES_CPU_DEFAULT
+      return RESOURCES_CPU_DEFAULT.toString()
   }
 }
 class ConfigModal extends Component {

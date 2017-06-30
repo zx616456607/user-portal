@@ -11,7 +11,7 @@ import React, { Component } from 'react'
 import { Card, Button, Icon, message } from 'antd'
 import './style/DetailInfo.less'
 import MarkdownEditor from '../../../Editor/Markdown'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 
 export default class DetailInfo extends Component {
   constructor(props) {

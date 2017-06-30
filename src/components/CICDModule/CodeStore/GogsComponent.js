@@ -12,11 +12,11 @@ import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, Dropdown, Modal,
 import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
-import { getGithubList, searchGithubList, addGithubRepo, notGithubProject, registryGithub, syncRepoList,getUserInfo, getRepoList } from '../../../actions/cicd_flow'
+import { getGithubList, searchGithubList, addGithubRepo, notGithubProject, registryRepo, syncRepoList,getUserInfo, getRepoList } from '../../../actions/cicd_flow'
 import { parseQueryStringToObject } from '../../../common/tools'
 
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 
 const TabPane = Tabs.TabPane
 
@@ -140,7 +140,7 @@ class CodeList extends Component {
   notActive(id, index) {
     const parentScope = this.props.scope
     const loadingList = {}
-    const users = parentScope.state.users
+    const users = parentScope.props.users
     loadingList[index] = false
     this.setState({
       loadingList
@@ -174,8 +174,8 @@ class CodeList extends Component {
         </div>
       )
     }
-    let items = []
-    if (data) {
+    let items =(<div className="loadingBox"><i className="anticon anticon-frown"></i> 暂无数据</div>)
+    if (data && data.length >0) {
       items = data.map((item, index) => {
         return (
           <div className='CodeTable' key={item.name} >
@@ -197,9 +197,9 @@ class CodeList extends Component {
       });
     }
     return (
-      <QueueAnim type="right" key="detail-list">
+      <div className="detail-list">
         {items}
-      </QueueAnim>
+      </div>
     )
   }
 }
@@ -218,14 +218,11 @@ class GogsComponent extends Component {
   }
 
   loadData() {
-    const self = this
     const { typeName, getUserInfo } = this.props
     this.props.getGithubList(typeName, {
-        success: {
+      success: {
         func: (res) => {
           if (res.data.hasOwnProperty('results')) {
-            const users = res.data.results[Object.keys(res.data.results)[0]].user
-            self.setState({ users })
             getUserInfo('gogs')
           }
         },
@@ -285,7 +282,7 @@ class GogsComponent extends Component {
   }
   handleSearch(e) {
     const image = e.target.value
-    const users = this.state.users
+    const { users} = this.props
     this.setState({
       currentSearch: image
     })
@@ -293,7 +290,7 @@ class GogsComponent extends Component {
   }
   changeSearch(e) {
     const image = e.target.value
-    const users = this.state.users
+    const { users } = this.props
     this.setState({
       currentSearch: image
     })
@@ -303,7 +300,7 @@ class GogsComponent extends Component {
   }
   searchClick() {
     const image = this.state.currentSearch
-    const users = this.state.users
+    const { users } = this.props
     this.props.searchGithubList(users, image, this.props.typeName)
   }
   syncRepoList() {
@@ -325,11 +322,6 @@ class GogsComponent extends Component {
           notification.error(message.message)
         }
       }
-    })
-  }
-  changeList(e) {
-    this.setState({
-      users: e
     })
   }
   registryGogs() {
@@ -360,16 +352,16 @@ class GogsComponent extends Component {
     this.setState({
       loading: true
     })
-    const self = this
     notification.spin(`代码仓库添加中...`)
-    this.props.scope.props.registryRepo(config, {
+    this.props.registryRepo(config, {
       success: {
         func: () => {
           notification.close()
           notification.success(`代码仓库添加成功`)
-          self.setState({
+          this.setState({
             authorizeModal: false,
             loggedOut: false,
+            loading: false,
             regUrl: '',
             regToken: ''
           })
@@ -377,10 +369,10 @@ class GogsComponent extends Component {
             success: {
               func: (res) => {
                 if (res.data.hasOwnProperty('results')) {
-                  const users = res.data.results[Object.keys(res.data.results)[0]].user
-                  self.setState({ users })
+                  this.props.getUserInfo('gogs')
                 }
-              }
+              },
+              isAsync: true
             }
           })
         },
@@ -398,7 +390,7 @@ class GogsComponent extends Component {
           } else {
             notification.error(`代码仓库添加失败`, '仓库地址或者私有Token有误！')
           }
-          self.setState({ loading: false })
+          this.setState({ loading: false })
         }
       }
     })
@@ -454,7 +446,7 @@ class GogsComponent extends Component {
     return (
       <div key="github-Component" type="right"  id="gogList" className='codelink'>
         <div className="tableHead">
-          <Icon type="user" /> {this.state.users}
+          <Icon type="user" /> {this.props.users}
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={() => this.setState({ removeModal: true })} style={{ margin: '0 20px' }} />
           </Tooltip>
@@ -469,7 +461,7 @@ class GogsComponent extends Component {
             <i className='fa fa-search' onClick={this.searchClick}></i>
           </div>
         </div>
-        <Tabs onChange={(e) => this.changeList(e)}>
+        <Tabs>
           {codeList}
         </Tabs>
         <Modal title="注销代码源操作" visible={this.state.removeModal}
@@ -514,7 +506,7 @@ export default connect(mapStateToProps, {
   getUserInfo,
   getGithubList,
   addGithubRepo,
-  registryGithub,
+  registryRepo,
   syncRepoList,
   searchGithubList,
   notGithubProject,

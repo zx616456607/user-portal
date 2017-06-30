@@ -16,7 +16,7 @@ import ForwardImg from '../../../assets/img/appmanage/rollbackforward.jpg'
 import ArrowImg from '../../../assets/img/appmanage/arrow.png'
 import { loadStorageList, SnapshotList, SnapshotRollback, SnapshotDelete } from '../../../actions/storage'
 import { DEFAULT_IMAGE_POOL } from '../../../constants'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import { formatDate } from  '../../../common/tools'
 import Title from '../../Title'
 import { Link } from 'react-router'
@@ -423,7 +423,7 @@ class Snapshot extends Component {
         <Menu.Item key="cloneSnapshot">创建</Menu.Item>
       </Menu>
     })
-    
+
     const snapshotcolumns = [{
         title:'快照名称',
         key:'name',

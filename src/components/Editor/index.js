@@ -88,7 +88,7 @@ function matchClass(state, config) {
       if(config.mode == 'yaml') {
         return 'bigCodeMirror';
       }
-      if(config.mode == 'dockerfile') {
+      if(config.mode == 'dockerfile' || config.mode == 'shell') {
         return 'bigCodeMirror bigCodeMirrorNoEdit';
       }
     }

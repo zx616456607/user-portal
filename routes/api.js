@@ -40,6 +40,8 @@ const alertController = require('../controllers/alert')
 const labelController = require('../controllers/labels')
 const ldapController = require('../controllers/ldap_manage')
 const oemController = require('../controllers/oem_info')
+const permissionController = require('../controllers/permission')
+const roleController = require('../controllers/role')
 const projectController =require('../controllers/project')
 
 module.exports = function (Router) {
@@ -403,6 +405,9 @@ module.exports = function (Router) {
   router.get('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.getDockerfile)
   router.delete('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.removeDockerfile)
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.updateDockerfile)
+  router.post('/devops/ci-scripts', devopsController.createScripts)
+  router.get('/devops/ci-scripts/:scripts_id', devopsController.getScriptsById)
+  router.put('/devops/ci-scripts/:scripts_id', devopsController.updateScriptsById)
   // Available CI images
   router.get('/devops/ci/images', devopsController.getAvailableImages)
 
@@ -530,6 +535,24 @@ module.exports = function (Router) {
   router.put('/oem/info/default', oemController.restoreDefaultInfo)
   router.put('/oem/logo/default', oemController.restoreDefaultLogo)
   router.put('/oem/color/default', oemController.restoreDefaultColor)
+
+  //permission
+  router.get('/permission',permissionController.list)
+  router.get('/permission/:id/retrieve',permissionController.get)
+  router.get('/permission/withCount',permissionController.listWithCount)
+  router.get('/permission/:id/retrieve/withCount',permissionController.getWithCount)
+  router.get('/permission/:id/dependent',permissionController.getAllDependent)
+
+  //role
+  router.post('/role',roleController.create)
+  router.delete('/role/:id',roleController.remove)
+  router.put('/role',roleController.update)
+  router.put('/role/:id/addPermission',roleController.addPermission)
+  router.put('/role/:id/removePermission',roleController.removePermission)
+  router.get('/role/:id',roleController.get)
+  router.get('/role',roleController.list)
+  router.get('/role/:name/existence',roleController.existence)
+  router.get('/role/:id/allowUpdate',roleController.allowUpdate)
 
   return router.routes()
 }

@@ -17,7 +17,7 @@ import { Button, Alert, Card, Spin, Input, Tooltip, Dropdown, Menu, Select, Moda
 import { formatDate, calcuDate } from '../../common/tools'
 import './style/VmList.less'
 import CreateVmModal from './CreateVmModal'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import Title from '../Title'
 const ButtonGroup = Button.Group;
 const Option = Select.Option;

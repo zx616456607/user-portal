@@ -27,7 +27,7 @@ import SignalTwogreen from '../../../../assets/img/appCenter/mirrorSafety/signal
 import SignalOneRed from '../../../../assets/img/appCenter/mirrorSafety/signal1red.svg'
 import SignalOneyellow from '../../../../assets/img/appCenter/mirrorSafety/signal1yellow.svg'
 import SignalOnegreen from '../../../../assets/img/appCenter/mirrorSafety/signal1green.svg'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 
 const Option = Select.Option
 

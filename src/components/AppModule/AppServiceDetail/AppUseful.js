@@ -15,7 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import merge from 'lodash/merge'
 import "./style/AppUseful.less"
 import { changeServiceAvailability } from '../../../actions/services'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import { isStorageUsed } from '../../../common/tools'
 
 const InputGroup = Input.Group;

@@ -39,7 +39,7 @@ import yaml from 'js-yaml'
 import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
 import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import { SERVICE_KUBE_NODE_PORT } from '../../../constants'
 import Title from '../Title'
 
@@ -155,15 +155,26 @@ const MyComponent = React.createClass({
           runBtn: false,
           stopBtn: false,
           restartBtn: false,
+          redeploybtn: false,
         })
         return
       }
       if (checkedList.length === 1) {
+        if(checkedList[0].status.phase === 'Pending'){
+          scope.setState({
+            runBtn: false,
+            stopBtn: true,
+            restartBtn: false,
+            redeploybtn: true,
+          })
+          return
+        }
         if (checkedList[0].status.phase === 'Running') {
           scope.setState({
             runBtn: false,
             stopBtn: true,
             restartBtn: true,
+            redeploybtn: true,
           })
         }
         if (checkedList[0].status.phase === 'Stopped') {
@@ -171,13 +182,15 @@ const MyComponent = React.createClass({
             runBtn: true,
             stopBtn: false,
             restartBtn: false,
+            redeploybtn: false,
           })
         }
-        if (checkedList[0].status.phase === 'Pending' || checkedList[0].status.phase === 'Starting' || checkedList[0].status.phase === 'Deploying') {
+        if (checkedList[0].status.phase === 'Starting' || checkedList[0].status.phase === 'Deploying') {
           scope.setState({
             runBtn: false,
             stopBtn: true,
             restartBtn: true,
+            redeploybtn: true,
           })
         }
       } else if (checkedList.length > 1) {
@@ -199,6 +212,7 @@ const MyComponent = React.createClass({
             runBtn: false,
             stopBtn: true,
             restartBtn: true,
+            redeploybtn: true,
           })
           if (pending) {
             scope.setState({
@@ -212,6 +226,7 @@ const MyComponent = React.createClass({
             runBtn: true,
             stopBtn: false,
             restartBtn: false,
+            redeploybtn: false,
           })
           return
         }
@@ -219,6 +234,7 @@ const MyComponent = React.createClass({
           runBtn: true,
           stopBtn: true,
           restartBtn: true,
+          redeploybtn: true,
         })
         return
       }
@@ -259,21 +275,53 @@ const MyComponent = React.createClass({
   },
   serviceOperaClick(item, e) {
     const { scope } = this.props
-    scope.setState({
-      currentShowInstance: item,
-      donotUserCurrentShowInstance: false
-    })
+    const { serviceList } = scope.state
+    if(e.key == 'start' || e.key == 'stop' || e.key == 'restart' || e.key == 'batchRestartService' || e.key == 'delete'){
+      serviceList.map((service) => {
+        if (service.metadata.name === item.metadata.name) {
+          service.checked = true
+        } else {
+          service.checked = false
+        }
+      })
+    } else {
+      scope.setState({
+        currentShowInstance: item,
+        donotUserCurrentShowInstance: false
+      })
+    }
     switch (e.key) {
+      case 'start':
+        return scope.batchStartService()
+      case 'stop':
+        return scope.batchStopService()
+      case 'restart':
+        return scope.batchQuickRestartService()
+      case 'batchRestartService':
+        return scope.batchRestartService()
+      case 'delete':
+        return scope.batchDeleteServices()
+      case 'rollingUpdate':
+        return this.showRollingUpdateModal()
+      // 扩展
       case 'manualScale':
         return this.showManualScaleModal(item)
       case 'autoScale':
-        return this.showAutoScaleModal()
-      case 'rollingUpdate':
-        return this.showRollingUpdateModal()
+        return this.showServiceDetail('autoScale')
+      // 变更设置
       case 'config':
         return this.showConfigModal()
+      case 'basic':
+        return this.showServiceDetail('basic')
+      case 'ports':
+        return this.showServiceDetail('ports')
+      case 'livenessprobe':
+        return this.showServiceDetail('livenessprobe')
+      // 更多设置
+      case 'binddomain':
+        return this.showServiceDetail('binddomain')
       case 'https':
-        return this.showHttpsModal()
+        return this.showServiceDetail('https')
     }
   },
   showRollingUpdateModal() {
@@ -311,17 +359,11 @@ const MyComponent = React.createClass({
       manualScaleModalShow: true
     })
   },
-  showAutoScaleModal() {
+  showServiceDetail(item){
     const { scope } = this.props
+    let tabKeys = '#' + item
     scope.setState({
-      selectTab: '#autoScale',
-      modalShow: true,
-    })
-  },
-  showHttpsModal() {
-    const { scope } = this.props
-    scope.setState({
-      selectTab: '#https',
+      selectTab: tabKeys,
       modalShow: true,
     })
   },
@@ -344,29 +386,83 @@ const MyComponent = React.createClass({
     const items = serviceList.map((item) => {
       item.cluster = cluster
       let isHaveVolume = false
+      let redeployDisable = false
       if (item.spec.template.spec.volumes) {
         isHaveVolume = item.spec.template.spec.volumes.some(volume => {
           if (!volume) return false
           return volume.rbd
         })
       }
+      if(item.status.phase == 'Running' || item.status.phase == 'Pending'){
+        redeployDisable = true
+      }
       const dropdown = (
-        <Menu onClick={this.serviceOperaClick.bind(this, item)}>
-          <Menu.Item key="manualScale">
-            水平扩展
+        <Menu onClick={this.serviceOperaClick.bind(this, item)} style={{width:'100px'}} id="appservicelistDropdownMenu">
+          {
+            item.status.phase == "Stopped"
+              ? <Menu.Item key="start">
+              启动
+            </Menu.Item>
+              : <Menu.Item style={{display:'none'}}></Menu.Item>
+          }
+          {
+            item.status.phase == "Running" || item.status.phase == 'Pending'
+              ?<Menu.Item key="stop">
+              停止
+            </Menu.Item>
+              : <Menu.Item style={{display:'none'}}></Menu.Item>
+          }
+          {
+            item.status.phase == "Running"
+            ? <Menu.Item key="restart">
+              重启
+            </Menu.Item>
+            : <Menu.Item style={{display:'none'}}></Menu.Item>
+          }
+          {
+            redeployDisable
+            ? <Menu.Item key="batchRestartService">
+              重新部署
+            </Menu.Item>
+            : <Menu.Item style={{display:'none'}}></Menu.Item>
+          }
+          <Menu.Item key="delete">
+            删除
           </Menu.Item>
-          <Menu.Item key="autoScale">
-            自动伸缩
-          </Menu.Item>
+          <Menu.Divider key="baseline1" />
           <Menu.Item key="rollingUpdate" disabled={isHaveVolume}>
             灰度升级
           </Menu.Item>
-          <Menu.Item key="config">
-            更改配置
-          </Menu.Item>
-          <Menu.Item key="https" disabled={loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT}>
-            设置HTTPS
-          </Menu.Item>
+          <SubMenu title="扩展">
+            <Menu.Item key="manualScale" style={{width:'102px'}}>
+              水平扩展
+            </Menu.Item>
+            <Menu.Item key="autoScale">
+              自动伸缩
+            </Menu.Item>
+          </SubMenu>
+          <SubMenu title="变更设置">
+            <Menu.Item key="config">
+              更改配置
+            </Menu.Item>
+            <Menu.Item key="basic">
+              修改环境变量
+            </Menu.Item>
+            <Menu.Item key="ports">
+              修改端口
+            </Menu.Item>
+            <Menu.Item key="livenessprobe">
+              设置高可用
+            </Menu.Item>
+          </SubMenu>
+          <SubMenu title="更多设置">
+            <Menu.Item key="binddomain" style={{width:'102px'}}>
+              绑定域名
+            </Menu.Item>
+            <Menu.Item key="https" disabled={loginUser.info.proxyType == SERVICE_KUBE_NODE_PORT}>
+              设置HTTPS
+            </Menu.Item>
+          </SubMenu>
         </Menu>
       );
       const svcDomain = parseServiceDomain(item, bindingDomains, bindingIPs)
@@ -459,6 +555,7 @@ class AppServiceList extends Component {
       runBtn: false,
       stopBtn: false,
       restartBtn: false,
+      redeploybtn: false,
       StartServiceModal: false,
       StopServiceModal: false,
       RestarServiceModal: false,
@@ -715,7 +812,7 @@ class AppServiceList extends Component {
     }
 
     checkedServiceList.map((service, index) => {
-      if (service.status.phase === 'Running') {
+      if (service.status.phase === 'Running' || service.status.phase === 'Pending') {
         runningServices.push(service)
       }
     })
@@ -743,6 +840,7 @@ class AppServiceList extends Component {
             runBtn: false,
             stopBtn: false,
             restartBtn: false,
+            redeploybtn: false,
           })
         },
         isAsync: true
@@ -969,7 +1067,7 @@ class AppServiceList extends Component {
     let {
       modalShow, currentShowInstance, serviceList,
       selectTab, rollingUpdateModalShow, configModal,
-      manualScaleModalShow, runBtn, stopBtn, restartBtn,
+      manualScaleModalShow, runBtn, stopBtn, restartBtn, redeploybtn
     } = this.state
     const {
       name, pathname, page,
@@ -992,7 +1090,7 @@ class AppServiceList extends Component {
     }
     const operaMenu = (
       <Menu>
-        <Menu.Item key="0" disabled={!restartBtn}>
+        <Menu.Item key="0" disabled={!redeploybtn}>
           <span onClick={this.batchRestartService}>重新部署</span>
         </Menu.Item>
       </Menu>

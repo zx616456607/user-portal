@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { parseQueryStringToObject } from '../../../common/tools'
 import { getGithubList, searchGithubList, addGithubRepo, notGithubProject, registryGithub, syncRepoList } from '../../../actions/cicd_flow'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 
 const TabPane = Tabs.TabPane
 
@@ -99,7 +99,7 @@ class CodeList extends Component {
     })
     let notification = new NotificationHandler()
     item.repoUser = repoUser
-    this.props.scope.props.addGithubRepo(item, {
+    this.props.scope.props.addGithubRepo('github',item, {
       success: {
         func: () => {
           notification.success('激活成功')
@@ -141,7 +141,7 @@ class CodeList extends Component {
       loadingList
     })
     let notification = new NotificationHandler()
-    parentScope.props.notGithubProject(users, id, {
+    parentScope.props.notGithubProject(users, id,'github', {
       success: {
         func: () => {
           notification.success('解除激活成功')
@@ -195,9 +195,9 @@ class CodeList extends Component {
       items = (<div className="ant-table-placeholder"><i className="anticon anticon-frown"></i>暂无数据</div>)
     }
     return (
-      <QueueAnim type="right" key="detail-list">
+      <div className="githubList">
         {items}
-      </QueueAnim>
+      </div>
     )
   }
 }

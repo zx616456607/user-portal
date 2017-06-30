@@ -15,7 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import './style/CreateCompose.less'
 import YamlEditor from '../../Editor/Yaml'
 import { appNameCheck } from '../../../common/naming_validation'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 
 const createForm = Form.create;
 const FormItem = Form.Item;

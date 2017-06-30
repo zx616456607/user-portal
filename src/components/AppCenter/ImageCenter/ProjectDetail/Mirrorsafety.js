@@ -19,7 +19,7 @@ import { loadMirrorSafetyLayerinfo, loadMirrorSafetyScanStatus, loadMirrorSafety
 import { loadRepositoriesTags } from '../../../../actions/harbor'
 import { connect } from 'react-redux'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 import { browserHistory } from 'react-router'
 
 const TabPane = Tabs.TabPane
@@ -54,7 +54,8 @@ class MirrorSafety extends Component {
     if( mode === standard && envEdition == 0){
       return
     }
-    loadRepositoriesTags(registry, imageName)
+    let processedName = processImageName(imageName)
+    loadRepositoriesTags(registry, processedName)
     if (tagVersion !== '') {
       this.setState({
         tag: tagVersion,
@@ -78,7 +79,8 @@ class MirrorSafety extends Component {
       ActiveKeyNext = this.state.ActiveKey
     }
     if (this.state.imageName !== imageName) {
-      loadRepositoriesTags(registry, imageName)
+      let processedName = processImageName(imageName)
+      loadRepositoriesTags(registry, processedName)
       this.setState({
         TabsDisabled: true,
         imageName,
@@ -266,13 +268,26 @@ class MirrorSafety extends Component {
   }
 }
 
+function processImageName(name) {
+  let arr = name.split('/')
+  if (arr.length > 2) {
+    name = arr[0] + '/' + arr[1]
+    for (let i = 2; i < arr.length; i++) {
+      name += "%2F"
+      name += arr[i]
+    }
+  }
+  return name
+}
+
 function mapStateToProps(state, props) {
   const { entities, harbor,images} = state
   const { imageTags } = harbor
   const { imageInfo, imageName, imageType } = props
   let imgTag = []
-  if (imageTags[DEFAULT_REGISTRY] && imageTags[DEFAULT_REGISTRY][imageName]) {
-    imgTag = imageTags[DEFAULT_REGISTRY][imageName].tag || []
+  let processedName = processImageName(imageName)
+  if (imageTags[DEFAULT_REGISTRY] && imageTags[DEFAULT_REGISTRY][processedName]) {
+    imgTag = imageTags[DEFAULT_REGISTRY][processedName].tag || []
   }
   let mirrorScanUrl = ''
   if (images[imageType][DEFAULT_REGISTRY] && images[imageType][DEFAULT_REGISTRY].server) {

@@ -27,7 +27,7 @@ import TipSvcDomain from '../TipSvcDomain'
 import { addAppWatch, removeAppWatch } from '../../containers/App/status'
 import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import CreateAlarm from './AlarmModal'
 import CreateGroup from './AlarmModal/CreateGroup'
 import DeployEnvModal from '../DeployEnvModal'
@@ -78,7 +78,7 @@ let MyComponent = React.createClass({
         parentScope.setState({
           runBtn: false,
           stopBtn: true,
-          restartBtn: false,
+          restartBtn: true,
         })
       }
     }

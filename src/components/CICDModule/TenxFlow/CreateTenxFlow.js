@@ -16,7 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { createTenxFlowSingle, updateTenxFlow, getTenxFlowDetail } from '../../../actions/cicd_flow'
 import YamlEditor from '../../Editor/Yaml'
 import { appNameCheck } from '../../../common/naming_validation'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import './style/CreateTenxFlow.less'
 import { browserHistory } from 'react-router';
 import Title from '../../Title'
@@ -616,7 +616,7 @@ function mapStateToProps(state, props) {
     DefaultEmailAddress = entities.loginUser.info.email
   }
   return {
-  
+
   }
 }
 

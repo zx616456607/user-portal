@@ -21,7 +21,7 @@ import {
 } from 'antd'
 import { loadFreeVolume, createStorage } from '../../../../../actions/storage'
 import { volNameCheck } from '../../../../../common/naming_validation'
-import NotificationHandler from '../../../../../common/notification_handler'
+import NotificationHandler from '../../../../../components/Notification'
 import classNames from 'classnames'
 import './style/Storage.less'
 
