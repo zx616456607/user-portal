@@ -78,9 +78,15 @@ module.exports = function (Router) {
   router.put('/project/:name',projectController.updateProject)
   router.get('/project/:name/check-exists',projectController.checkProjectNameExists)
   router.get('/project/check-manager',projectController.checkProjectManager)
-  router.get('/project/:name/cluster',projectController.getProjectClusters)
-  router.post('/project/:name/cluster',projectController.addProjectClusters)
-  router.post('/project/:name/cluster/batch-delete',projectController.deleteProjectClusters)
+  // router.get('/project/:name/cluster',projectController.getProjectClusters)
+  // router.post('/project/:name/cluster',projectController.addProjectClusters)
+  // router.post('/project/:name/cluster/batch-delete',projectController.deleteProjectClusters)
+  router.get('/project/:name/cluster',projectController.getProjectAllClusters)
+  router.get('/project/:name/visible-cluster',projectController.getProjectAllClusters)
+  router.get('/project/approval-cluster',projectController.getProjectApprovalClusters)
+  router.put('/project/:name/cluster',projectController.updateProjectClusters)
+  router.put('/project/cluster',projectController.updateProjectApprovalClusters)
+
   router.get('/project/:name/user',projectController.getProjectRelatedUsers)
   router.post('/project/:name/user',projectController.addProjectRelatedUsers)
   router.post('/project/:name/user/batch-delete',projectController.deleteProjectRelatedUsers)
@@ -465,7 +471,7 @@ module.exports = function (Router) {
   // Charge
   router.post('/charge/user', chargeController.chargeUser)
   router.post('/charge/teamspace', chargeController.chargeTeamspace)
-
+  router.post('/charge/project', chargeController.chargeProject)
   //setting
   router.post('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
   router.put('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)

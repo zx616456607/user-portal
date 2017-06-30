@@ -53,8 +53,14 @@ exports.getProjectDetail=function* () {
 
 exports.listProject=function* () {
   const loginUser = this.session.loginUser
+  const query = this.query || {}
+  let filter = query.filter
+  let queryObj = {}
+  if (filter) {
+    queryObj.filter = filter
+  }
   const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.getBy(['list'],null)
+  const response=yield projectApi.project.getBy(['list'],queryObj)
   this.status = response.statusCode
   this.body = response
 }
@@ -106,7 +112,8 @@ exports.checkProjectManager=function* () {
   this.status = response.statusCode
   this.body = response
 }
-exports.getProjectClusters=function* () {
+
+exports.getProjectAllClusters=function* () {
   const projectName=this.params.name
   if (!projectName) {
     this.status = 400
@@ -122,39 +129,69 @@ exports.getProjectClusters=function* () {
   this.body = response
 }
 
-exports.addProjectClusters=function* () {
-  const project=this.request.body
+exports.getProjectVisibleClusters=function* () {
   const projectName=this.params.name
-  if (!project||!projectName) {
+  if (!projectName) {
     this.status = 400
     this.body = {
-      message: 'request body nor project name is empty'
+      message: 'project name is empty'
     }
     return
   }
   const loginUser = this.session.loginUser
   const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.createBy([projectName,'cluster'],null,this.request.body)
+  const response=yield projectApi.project.getBy([projectName,'visible-cluster'],null)
   this.status = response.statusCode
   this.body = response
 }
 
-exports.deleteProjectClusters=function* () {
-  const project=this.request.body
+exports.getProjectApprovalClusters=function* () {
+  const query = this.query || {}
+  let filter = query.filter
+  let queryObj = {}
+  if (filter) {
+    queryObj.filter = filter
+  }
+  const loginUser = this.session.loginUser
+  const projectApi=apiFactory.getApi(loginUser)
+  const response=yield projectApi.project.getBy(['approval-cluster'],queryObj)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.updateProjectClusters=function* () {
+  const cluster=this.request.body
   const projectName=this.params.name
-  if (!project||!projectName) {
+  if (!cluster||!projectName) {
     this.status = 400
     this.body = {
-	    message: 'request body nor project name is empty'
+      message: 'request body nor projectName was  empty'
     }
     return
   }
   const loginUser = this.session.loginUser
   const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.createBy([projectName,'cluster','batch-delete'],null,this.request.body)
+  const response=yield projectApi.project.updateBy([projectName,'cluster'],null,this.request.body)
   this.status = response.statusCode
   this.body = response
 }
+
+exports.updateProjectApprovalClusters=function* () {
+  const cluster=this.request.body
+  if (!cluster) {
+    this.status = 400
+    this.body = {
+      message: 'request body was empty'
+    }
+    return
+  }
+  const loginUser = this.session.loginUser
+  const projectApi=apiFactory.getApi(loginUser)
+  const response=yield projectApi.project.updateBy(['cluster'],null,this.request.body)
+  this.status = response.statusCode
+  this.body = response
+}
+
 exports.addProjectRelatedUsers=function* () {
   const project=this.request.body
   const projectName=this.params.name
