@@ -521,6 +521,8 @@
   "ManageMonitor.operationalAudit.runningError": "runningError",
   "ManageMonitor.operationalAudit.clusterTitle": "Cluster",
   "ManageMonitor.operationalAudit.areaTitle": "Area",
+  "ManageMonitor.operationalAudit.Labels": "Labels",
+  "ManageMonitor.operationalAudit.DBCache": "DB & Cache",
   "ManageMonitor.QueryLog.headTitle": "日志查询 | 时速云",
   "ManageMonitor.QueryLog.title": "Query Log",
   "ManageMonitor.QueryLog.user": "Space:",
