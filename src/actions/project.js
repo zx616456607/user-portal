@@ -242,16 +242,16 @@ export function UpdateProject(body, callback) {
 	}
 }
 
-export const PROJECT_CLUSTER_GET_REQUEST = 'PROJECT_CLUSTER_GET_REQUEST'
-export const PROJECT_CLUSTER_GET_SUCCESS = 'PROJECT_CLUSTER_GET_SUCCESS'
-export const PROJECT_CLUSTER_GET_FAILURE = 'PROJECT_CLUSTER_GET_FAILURE'
+export const PROJECT_CLUSTER_VISIBLE_GET_REQUEST = 'PROJECT_CLUSTER_VISIBLE_GET_REQUEST'
+export const PROJECT_CLUSTER_VISIBLE_GET_SUCCESS = 'PROJECT_CLUSTER_VISIBLE_GET_SUCCESS'
+export const PROJECT_CLUSTER_VISIBLE_GET_FAILURE = 'PROJECT_CLUSTER_VISIBLE_GET_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchGetProjectClusters(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/cluster`
+function fetchGetProjectVisibleClusters(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/visible-cluster`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CLUSTER_GET_REQUEST,PROJECT_CLUSTER_GET_SUCCESS, PROJECT_CLUSTER_GET_FAILURE],
+			types: [PROJECT_CLUSTER_VISIBLE_GET_REQUEST,PROJECT_CLUSTER_VISIBLE_GET_SUCCESS, PROJECT_CLUSTER_VISIBLE_GET_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
@@ -263,26 +263,83 @@ function fetchGetProjectClusters(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function GetProjectClusters(body, callback) {
+export function GetProjectVisibleClusters(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchGetProjectClusters(body, callback))
+		return dispatch(fetchGetProjectVisibleClusters(body, callback))
 	}
 }
 
-export const PROJECT_CLUSTER_ADD_REQUEST = 'PROJECT_CLUSTER_ADD_REQUEST'
-export const PROJECT_CLUSTER_ADD_SUCCESS = 'PROJECT_CLUSTER_ADD_SUCCESS'
-export const PROJECT_CLUSTER_ADD_FAILURE = 'PROJECT_CLUSTER_ADD_FAILURE'
+export const PROJECT_CLUSTER_APPROVAL_GET_REQUEST = 'PROJECT_CLUSTER_APPROVAL_GET_REQUEST'
+export const PROJECT_CLUSTER_APPROVAL_GET_SUCCESS = 'PROJECT_CLUSTER_APPROVAL_GET_SUCCESS'
+export const PROJECT_CLUSTER_APPROVAL_GET_FAILURE = 'PROJECT_CLUSTER_APPROVAL_GET_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchAddProjectClusters(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/cluster`
+function fetchGetProjectApprovalClusters(body,query,callback) {
+	let endpoint = `${API_URL_PREFIX}/project/cluster`
+	if (query) {
+    	endpoint += `?${toQuerystring(query)}`
+  	}
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CLUSTER_ADD_REQUEST,PROJECT_CLUSTER_ADD_SUCCESS, PROJECT_CLUSTER_ADD_FAILURE],
+			types: [PROJECT_CLUSTER_APPROVAL_GET_REQUEST,PROJECT_CLUSTER_APPROVAL_GET_SUCCESS, PROJECT_CLUSTER_APPROVAL_GET_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
-				method: 'POST',
+				method: 'GET'
+			},
+		},
+		callback
+	}
+}
+// Fetches upgrade or renewals from API
+// Relies on Redux Thunk middleware.
+export function GetProjectApprovalClusters(body,query,callback) {
+	return (dispatch) => {
+		return dispatch(fetchGetProjectApprovalClusters(body,query,callback))
+	}
+}
+
+export const PROJECT_CLUSTER_ALL_GET_REQUEST = 'PROJECT_CLUSTER_ALL_GET_REQUEST'
+export const PROJECT_CLUSTER_ALL_GET_SUCCESS = 'PROJECT_CLUSTER_ALL_GET_SUCCESS'
+export const PROJECT_CLUSTER_ALL_GET_FAILURE = 'PROJECT_CLUSTER_ALL_GET_FAILURE'
+// Fetches upgrade or renewals from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchGetProjectAllClusters(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/cluster`
+	return {
+		[FETCH_API]: {
+			types: [PROJECT_CLUSTER_ALL_GET_REQUEST,PROJECT_CLUSTER_ALL_GET_SUCCESS, PROJECT_CLUSTER_ALL_GET_FAILURE],
+			endpoint,
+			schema: {},
+			options: {
+				method: 'GET'
+			},
+		},
+		callback
+	}
+}
+// Fetches upgrade or renewals from API
+// Relies on Redux Thunk middleware.
+export function GetProjectAllClusters(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchGetProjectAllClusters(body, callback))
+	}
+}
+
+export const PROJECT_CLUSTER_UPDATE_REQUEST = 'PROJECT_CLUSTER_UPDATE_REQUEST'
+export const PROJECT_CLUSTER_UPDATE_SUCCESS = 'PROJECT_CLUSTER_UPDATE_SUCCESS'
+export const PROJECT_CLUSTER_UPDATE_FAILURE = 'PROJECT_CLUSTER_UPDATE_FAILURE'
+// Fetches upgrade or renewals from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateProjectCluster(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/cluster`
+	return {
+		[FETCH_API]: {
+			types: [PROJECT_CLUSTER_UPDATE_REQUEST,PROJECT_CLUSTER_UPDATE_SUCCESS, PROJECT_CLUSTER_UPDATE_FAILURE],
+			endpoint,
+			schema: {},
+			options: {
+				method: 'PUT',
 				body: body.body
 			},
 		},
@@ -291,27 +348,27 @@ function fetchAddProjectClusters(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function AddProjectClusters(body, callback) {
+export function UpdateProjectCluster(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchAddProjectClusters(body, callback))
+		return dispatch(fetchUpdateProjectCluster(body, callback))
 	}
 }
 
 
-export const PROJECT_CLUSTER_DELETE_REQUEST = 'PROJECT_CLUSTER_DELETE_REQUEST'
-export const PROJECT_CLUSTER_DELETE_SUCCESS = 'PROJECT_CLUSTER_DELETE_SUCCESS'
-export const PROJECT_CLUSTER_DELETE_FAILURE = 'PROJECT_CLUSTER_DELETE_FAILURE'
+export const PROJECT_CLUSTER_APPROVAL_UPDATE_REQUEST = 'PROJECT_CLUSTER_APPROVAL_UPDATE_REQUEST'
+export const PROJECT_CLUSTER_APPROVAL_UPDATE_SUCCESS = 'PROJECT_CLUSTER_APPROVAL_UPDATE_SUCCESS'
+export const PROJECT_CLUSTER_APPROVAL_UPDATE_FAILURE = 'PROJECT_CLUSTER_APPROVAL_UPDATE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchDeleteProjectClusters(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/cluster`
+function fetchUpdateProjectApprovalCluster(body, callback) {
+	let endpoint = `${API_URL_PREFIX}/project/cluster`
 	return {
 		[FETCH_API]: {
-			types: [PROJECT_CLUSTER_DELETE_REQUEST,PROJECT_CLUSTER_DELETE_SUCCESS, PROJECT_CLUSTER_DELETE_FAILURE],
+			types: [PROJECT_CLUSTER_APPROVAL_UPDATE_REQUEST,PROJECT_CLUSTER_APPROVAL_UPDATE_SUCCESS, PROJECT_CLUSTER_APPROVAL_UPDATE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
-				method: 'DELETE',
+				method: 'PUT',
 				body: body.body
 			},
 		},
@@ -320,9 +377,9 @@ function fetchDeleteProjectClusters(body, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function DeleteProjectClusters(body, callback) {
+export function UpdateProjectApprovalCluster(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchDeleteProjectClusters(body, callback))
+		return dispatch(fetchUpdateProjectApprovalCluster(body, callback))
 	}
 }
 
