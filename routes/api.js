@@ -40,8 +40,6 @@ const alertController = require('../controllers/alert')
 const labelController = require('../controllers/labels')
 const ldapController = require('../controllers/ldap_manage')
 const oemController = require('../controllers/oem_info')
-const permissionController = require('../controllers/permission')
-const roleController = require('../controllers/role')
 const projectController =require('../controllers/project')
 
 module.exports = function (Router) {
@@ -72,20 +70,26 @@ module.exports = function (Router) {
   router.get('/storage-pools/:cluster/volumes/calamari-url', volumeController.getCalamariUrl)
   router.post('/storage-pools/:cluster/volumes/calamari-url', volumeController.setCalamariUrl)
   // project
-  router.post('/project',projectController.createProject)
-  router.post('/project/batch-delete',projectController.deleteProject)
-  router.get('/project/:name/detail',projectController.getProjectDetail)
-  router.get('/project/list',projectController.listProject)
-  router.get('/project/list-visible',projectController.listVisibleProject)
-  router.put('/project/:name',projectController.updateProject)
-  router.get('/project/:name/check-exists',projectController.checkProjectNameExists)
-  router.get('/project/check-manager',projectController.checkProjectManager)
-  router.get('/project/:name/cluster',projectController.getProjectClusters)
-  router.post('/project/:name/cluster',projectController.addProjectClusters)
-  router.post('/project/:name/cluster/batch-delete',projectController.deleteProjectClusters)
-  router.get('/project/:name/user',projectController.getProjectRelatedUsers)
-  router.post('/project/:name/user',projectController.addProjectRelatedUsers)
-  router.post('/project/:name/user/batch-delete',projectController.deleteProjectRelatedUsers)
+  router.post('/projects',projectController.createProject)
+  router.post('/projects/batch-delete',projectController.deleteProjects)
+  router.get('/projects/:name/detail',projectController.getProjectDetail)
+  router.get('/projects/list',projectController.listProjects)
+  router.get('/projects/list-visible',projectController.listVisibleProjects)
+  router.put('/projects/:name',projectController.updateProject)
+  router.get('/projects/:name/check-exists',projectController.checkProjectNameExists)
+  router.get('/projects/check-manager',projectController.checkProjectManager)
+  router.get('/projects/:name/clusters',projectController.getProjectAllClusters)
+  router.get('/projects/:name/visible-clusters',projectController.getProjectAllClusters)
+  router.get('/projects/approval-clusters',projectController.getProjectApprovalClusters)
+  router.put('/projects/:name/clusters',projectController.updateProjectClusters)
+  router.put('/projects/clusters',projectController.updateProjectApprovalClusters)
+
+  router.get('/projects/:name/users',projectController.getProjectRelatedUsers)
+  router.post('/projects/:name/users',projectController.addProjectRelatedUsers)
+  router.post('/projects/:name/users/batch-delete',projectController.deleteProjectRelatedUsers)
+  router.put('/projects/:name/users',projectController.updateProjectRelatedUsers)
+  router.get('/projects/:name/roles',projectController.getProjectRelatedRoles)
+  router.put('/projects/:name/roles',projectController.updateProjectRelatedRoles)
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)
@@ -396,9 +400,6 @@ module.exports = function (Router) {
   router.get('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.getDockerfile)
   router.delete('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.removeDockerfile)
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.updateDockerfile)
-  router.post('/devops/ci-scripts', devopsController.createScripts)
-  router.get('/devops/ci-scripts/:scripts_id', devopsController.getScriptsById)
-  router.put('/devops/ci-scripts/:scripts_id', devopsController.updateScriptsById)
   // Available CI images
   router.get('/devops/ci/images', devopsController.getAvailableImages)
 
@@ -467,7 +468,7 @@ module.exports = function (Router) {
   // Charge
   router.post('/charge/user', chargeController.chargeUser)
   router.post('/charge/teamspace', chargeController.chargeTeamspace)
-
+  router.post('/charge/project', chargeController.chargeProject)
   //setting
   router.post('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
   router.put('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
@@ -526,24 +527,6 @@ module.exports = function (Router) {
   router.put('/oem/info/default', oemController.restoreDefaultInfo)
   router.put('/oem/logo/default', oemController.restoreDefaultLogo)
   router.put('/oem/color/default', oemController.restoreDefaultColor)
-
-  //permission
-  router.get('/permission',permissionController.list)
-  router.get('/permission/:id/retrieve',permissionController.get)
-  router.get('/permission/withCount',permissionController.listWithCount)
-  router.get('/permission/:id/retrieve/withCount',permissionController.getWithCount)
-  router.get('/permission/:id/dependent',permissionController.getAllDependent)
-
-  //role
-  router.post('/role',roleController.create)
-  router.delete('/role/:id',roleController.remove)
-  router.put('/role',roleController.update)
-  router.put('/role/:id/addPermission',roleController.addPermission)
-  router.put('/role/:id/removePermission',roleController.removePermission)
-  router.get('/role/:id',roleController.get)
-  router.get('/role',roleController.list)
-  router.get('/role/:name/existence',roleController.existence)
-  router.get('/role/:id/allowUpdate',roleController.allowUpdate)
 
   return router.routes()
 }

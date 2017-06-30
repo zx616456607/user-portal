@@ -70,3 +70,34 @@ export function chargeTeamspace(body, callback) {
     return dispatch(fetchChargeTeamspace(body, callback))
   }
 }
+
+
+export const CHARGE_PROJECT_REQUEST = 'CHARGE_PROJECT_REQUEST'
+export const CHARGE_PROJECT_SUCCESS = 'CHARGE_PROJECT_SUCCESS'
+export const CHARGE_PROJECT_FAILURE = 'CHARGE_PROJECT_FAILURE'
+
+// Charge project from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchChargeProject(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/charge/project`
+  return {
+    [FETCH_API]: {
+      types: [CHARGE_PROJECT_REQUEST, CHARGE_PROJECT_SUCCESS, CHARGE_PROJECT_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Charge project from API
+// Relies on Redux Thunk middleware.
+export function chargeProject(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchChargeProject(body, callback))
+  }
+}
