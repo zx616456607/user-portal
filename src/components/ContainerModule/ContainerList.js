@@ -253,9 +253,6 @@ let MyComponent = React.createClass({
   checkImageName(rule, value, callback){
     const { form } = this.props
     let projectName = form.getFieldValue('harborProjectName').split('/detail/')[0]
-    if(!projectName){
-      return callback('请选择仓库组')
-    }
     if(!value){
       return callback('请输入镜像地址')
     }
@@ -265,7 +262,10 @@ let MyComponent = React.createClass({
     if(value.length > 128){
       return callback('最多只能为128个字符')
     }
-    this.checkImageNameEqual(value, callback)
+    if(projectName){
+      return this.checkImageNameEqual(value, callback)
+    }
+    return callback()
   },
   checkImageVersion(rule, value, callback){
     const { loadRepositoriesTags, form } = this.props
