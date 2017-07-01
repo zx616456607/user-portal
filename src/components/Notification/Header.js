@@ -27,7 +27,7 @@ class Header extends React.Component {
         {
           count > 1 && (
             <div className="header-right">
-              <Badge count={count} />
+              <Badge style={{ backgroundColor: '#fff', color: '#999', borderColor: '#d9d9d9' }} count={count} />
             </div>
           )
         }
