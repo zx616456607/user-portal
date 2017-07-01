@@ -227,9 +227,20 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
             })
           }
         }
-        const volumeMounts = [{
-          mountPath: configMapMountPath,
-        }]
+        let volumeMounts = []
+        if (configMapIsWholeDir) {
+          volumeMounts.push({
+            mountPath: configMapMountPath,
+          })
+        } else {
+          configMapSubPathValues.map(value => {
+            volumeMounts.push({
+              name: `configmap-volume-${keyValue}`,
+              mountPath: configMapMountPath + '/' + value,
+              subPath: value,
+            })
+          })
+        }
         deployment.addContainerVolume(serviceName, volume, volumeMounts, configMapIsWholeDir)
       }
     })
