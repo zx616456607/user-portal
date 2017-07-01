@@ -57,8 +57,8 @@ exports.getProjectDetail = function* () {
 exports.listProjects = function* () {
   const loginUser = this.session.loginUser
   const query = this.query || {}
-  let filter = query.filter
-  let queryObj = {}
+  const filter = query.filter
+  const queryObj = {}
   if (filter) {
     queryObj.filter = filter
   }
@@ -150,8 +150,8 @@ exports.getProjectVisibleClusters = function* () {
 
 exports.getProjectApprovalClusters = function* () {
   const query = this.query || {}
-  let filter = query.filter
-  let queryObj = {}
+  const filter = query.filter
+  const queryObj = {}
   if (filter) {
     queryObj.filter = filter
   }

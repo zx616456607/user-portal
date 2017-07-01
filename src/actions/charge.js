@@ -71,7 +71,6 @@ export function chargeTeamspace(body, callback) {
   }
 }
 
-
 export const CHARGE_PROJECT_REQUEST = 'CHARGE_PROJECT_REQUEST'
 export const CHARGE_PROJECT_SUCCESS = 'CHARGE_PROJECT_SUCCESS'
 export const CHARGE_PROJECT_FAILURE = 'CHARGE_PROJECT_FAILURE'

@@ -472,6 +472,7 @@ module.exports = function (Router) {
   router.post('/charge/user', chargeController.chargeUser)
   router.post('/charge/teamspace', chargeController.chargeTeamspace)
   router.post('/charge/project', chargeController.chargeProject)
+
   //setting
   router.post('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
   router.put('/cluster/:cluster/type/:type/config', globalConfigController.changeGlobalConfig)
