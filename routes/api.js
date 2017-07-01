@@ -400,6 +400,9 @@ module.exports = function (Router) {
   router.get('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.getDockerfile)
   router.delete('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.removeDockerfile)
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.updateDockerfile)
+  router.post('/devops/ci-scripts', devopsController.createScripts)
+  router.get('/devops/ci-scripts/:scripts_id', devopsController.getScriptsById)
+  router.put('/devops/ci-scripts/:scripts_id', devopsController.updateScriptsById)
   // Available CI images
   router.get('/devops/ci/images', devopsController.getAvailableImages)
 
