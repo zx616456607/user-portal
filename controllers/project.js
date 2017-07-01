@@ -14,7 +14,7 @@ exports.createProject = function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.createBy([''], null, this.request.body)
+  const response = yield projectApi.projects.createBy([''], null, this.request.body)
   this.status = response.statusCode
   this.body = response
 }
@@ -30,7 +30,7 @@ exports.deleteProjects = function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.createBy(['batch-delete'], null, this.request.body)
+  const response = yield projectApi.projects.createBy(['batch-delete'], null, this.request.body)
   this.status = response.statusCode
   this.body = response
 }
@@ -46,7 +46,7 @@ exports.getProjectDetail = function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.getBy([projectName, 'detail'], null)
+  const response = yield projectApi.projects.getBy([projectName, 'detail'], null)
   this.status = response.statusCode
   this.body = response
 }
@@ -60,14 +60,14 @@ exports.listProjects = function* () {
     queryObj.filter = filter
   }
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.getBy(['list'], queryObj)
+  const response = yield projectApi.projects.getBy(['list'], queryObj)
   this.status = response.statusCode
   this.body = response
 }
 exports.listVisibleProjects = function* () {
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.getBy(['list-visible'], null)
+  const response = yield projectApi.projects.getBy(['list-visible'], null)
   this.status = response.statusCode
   this.body = response
 }
@@ -84,7 +84,7 @@ exports.updateProject = function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.updateBy([projectName], null, this.request.body)
+  const response = yield projectApi.projects.updateBy([projectName], null, this.request.body)
   this.status = response.statusCode
   this.body = response
 }
@@ -100,7 +100,7 @@ exports.checkProjectNameExists = function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.getBy([projectName, 'check-exists'], null)
+  const response = yield projectApi.projects.getBy([projectName, 'check-exists'], null)
   this.status = response.statusCode
   this.body = response
 }
@@ -108,7 +108,7 @@ exports.checkProjectNameExists = function* () {
 exports.checkProjectManager = function* () {
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.getBy(['check-manager'], null)
+  const response = yield projectApi.projects.getBy(['check-manager'], null)
   this.status = response.statusCode
   this.body = response
 }
@@ -124,7 +124,7 @@ exports.getProjectAllClusters = function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.getBy([projectName, 'clusters'], null)
+  const response = yield projectApi.projects.getBy([projectName, 'clusters'], null)
   this.status = response.statusCode
   this.body = response
 }
@@ -140,7 +140,7 @@ exports.getProjectVisibleClusters = function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.getBy([projectName, 'visible-clusters'], null)
+  const response = yield projectApi.projects.getBy([projectName, 'visible-clusters'], null)
   this.status = response.statusCode
   this.body = response
 }
@@ -154,7 +154,7 @@ exports.getProjectApprovalClusters = function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.getBy(['approval-clusters'], queryObj)
+  const response = yield projectApi.projects.getBy(['approval-clusters'], queryObj)
   this.status = response.statusCode
   this.body = response
 }
@@ -171,7 +171,7 @@ exports.updateProjectClusters = function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.updateBy([projectName, 'clusters'], null, this.request.body)
+  const response = yield projectApi.projects.updateBy([projectName, 'clusters'], null, this.request.body)
   this.status = response.statusCode
   this.body = response
 }
@@ -187,7 +187,7 @@ exports.updateProjectApprovalClusters = function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.updateBy(['clusters'], null, this.request.body)
+  const response = yield projectApi.projects.updateBy(['clusters'], null, this.request.body)
   this.status = response.statusCode
   this.body = response
 }
@@ -204,7 +204,7 @@ exports.addProjectRelatedUsers = function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.createBy([projectName, 'users'], null, this.request.body)
+  const response = yield projectApi.projects.createBy([projectName, 'users'], null, this.request.body)
   this.status = response.statusCode
   this.body = response
 }
@@ -219,7 +219,7 @@ exports.getProjectRelatedUsers = function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.getBy([projectName, 'users'], null)
+  const response = yield projectApi.projects.getBy([projectName, 'users'], null)
   this.status = response.statusCode
   this.body = response
 }
@@ -235,7 +235,7 @@ exports.deleteProjectRelatedUsers = function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.createBy([projectName, 'users', 'batch-delete'], null, this.request.body)
+  const response = yield projectApi.projects.createBy([projectName, 'users', 'batch-delete'], null, this.request.body)
   this.status = response.statusCode
   this.body = response
 }
@@ -252,7 +252,7 @@ exports.updateProjectRelatedUsers = function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.updateBy([projectName, 'users'], null, this.request.body)
+  const response = yield projectApi.projects.updateBy([projectName, 'users'], null, this.request.body)
   this.status = response.statusCode
   this.body = response
 }
@@ -269,7 +269,7 @@ exports.updateProjectRelatedRoles = function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.updateBy([projectName, 'roles'], null, this.request.body)
+  const response = yield projectApi.projects.updateBy([projectName, 'roles'], null, this.request.body)
   this.status = response.statusCode
   this.body = response
 }
@@ -285,7 +285,7 @@ exports.getProjectRelatedRoles = function* () {
   }
   const loginUser = this.session.loginUser
   const projectApi = apiFactory.getApi(loginUser)
-  const response = yield projectApi.project.getBy([projectName, 'roles'], null)
+  const response = yield projectApi.projects.getBy([projectName, 'roles'], null)
   this.status = response.statusCode
   this.body = response
 }
