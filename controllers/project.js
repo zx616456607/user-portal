@@ -1,7 +1,10 @@
+'use strict'
+
 /**
 * Created by dengqiaoling on 2017/6/6.
 */
 const apiFactory = require('../services/api_factory')
+
 
 exports.createProject = function* () {
   const project = this.request.body
