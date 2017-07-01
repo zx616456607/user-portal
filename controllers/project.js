@@ -1,7 +1,7 @@
 'use strict'
 
 /**
-* Created by dengqiaoling on 2017/6/6.
+* Created by houxz on 2017/6/6.
 */
 const apiFactory = require('../services/api_factory')
 
