@@ -25,6 +25,10 @@ const menuList = [
   {
     url: '/app_center/stack_center',
     name: '编排文件'
+  },
+  {
+    url: '/app_center/wrap_manage',
+    name: '应用包管理'
   }
 ]
 
@@ -47,7 +51,7 @@ export default class ImageCenter extends Component {
           key='ImageCenterSiderAnimate'
           type='left'
           >
-          <div className={ this.state.containerSiderStyle == 'normal' ?  'imageMenu CommonSecondMenu' : 'hiddenMenu imageMenu CommonSecondMenu'} key='imageSider'>
+          <div key="menu-appcenter" className={ this.state.containerSiderStyle == 'normal' ?  'imageMenu CommonSecondMenu' : 'hiddenMenu imageMenu CommonSecondMenu'} key='imageSider'>
             <SecondSider menuList={menuList} scope={scope} />
           </div>
         </QueueAnim>

@@ -2,11 +2,17 @@
  * Created by houxz on 2017/6/6.
  */
 
+import { FETCH_API } from '../middleware/api'
+import { API_URL_PREFIX } from '../constants'
 import { toQuerystring } from '../common/tools'
+
+
+
 
 export const PROJECTS_CREATE_REQUEST = 'PROJECTS_CREATE_REQUEST'
 export const PROJECTS_CREATE_SUCCESS = 'PROJECTS_CREATE_SUCCESS'
 export const PROJECTS_CREATE_FAILURE = 'PROJECTS_CREATE_FAILURE'
+
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchCreateProjects(body, callback) {
@@ -100,15 +106,16 @@ export const PROJECTS_DELETE_SUCCESS = 'PROJECTS_DELETE_SUCCESS'
 export const PROJECTS_DELETE_FAILURE = 'PROJECTS_DELETE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
+
 function fetchDeleteProjects(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/projects`
+  let endpoint = `${API_URL_PREFIX}/project/batch-delete`
 	return {
 		[FETCH_API]: {
 			types: [PROJECTS_DELETE_REQUEST, PROJECTS_DELETE_SUCCESS, PROJECTS_DELETE_FAILURE],
 			endpoint,
 			schema: {},
 			options: {
-				method: 'DELETE',
+				method: 'POST',
 				body: body.body
 			},
 		},
@@ -129,8 +136,9 @@ export const PROJECTS_DETAIL_SUCCESS = 'PROJECTS_DETAIL_SUCCESS'
 export const PROJECTS_DETAIL_FAILURE = 'PROJECTS_DETAIL_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
+
 function fetchGetProjectsDetail(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/projects/detail`
+  let endpoint = `${API_URL_PREFIX}/project/${body.projectName}/detail`
 	return {
 		[FETCH_API]: {
 			types: [PROJECTS_DETAIL_REQUEST, PROJECTS_DETAIL_SUCCESS, PROJECTS_DETAIL_FAILURE],
@@ -220,7 +228,7 @@ export const PROJECTS_UPDATE_FAILURE = 'PROJECTS_UPDATE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchUpdateProjects(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/projects`
+  let endpoint = `${API_URL_PREFIX}/project/${body.projectName}`
 	return {
 		[FETCH_API]: {
 			types: [PROJECTS_UPDATE_REQUEST, PROJECTS_UPDATE_SUCCESS, PROJECTS_UPDATE_FAILURE],

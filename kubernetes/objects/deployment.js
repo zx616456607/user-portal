@@ -355,7 +355,7 @@ class Deployment {
             items: volume.configMap.items.map((item) => {
               return {
                 // TODO: fix this later, be compatible with previous version
-                key: item.key.toLowerCase(),
+                key: item.key, // .toLowerCase(),
                 path: item.path
               }
             })
