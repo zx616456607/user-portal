@@ -15,7 +15,7 @@ import { updateClusterConfig } from '../../../actions/cluster'
 import { loadTeamClustersList } from '../../../actions/team'
 import { setCurrent } from '../../../actions/entities'
 import { updateConfigurations, getConfigurations } from '../../../actions/harbor'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import Title from '../../Title'
 
@@ -347,7 +347,7 @@ class AdvancedSetting extends Component {
     if(listNodes == undefined || (harbor.hasAdminRole && (!configurations[DEFAULT_REGISTRY] || configurations[DEFAULT_REGISTRY].isFetching))) {
       return <div className='nodata'><Spin></Spin></div>
     }
-    let projectCreationRestriction 
+    let projectCreationRestriction
     if(harbor.hasAdminRole && configurations[DEFAULT_REGISTRY].data) {
       projectCreationRestriction  = configurations[DEFAULT_REGISTRY].data.projectCreationRestriction
     }

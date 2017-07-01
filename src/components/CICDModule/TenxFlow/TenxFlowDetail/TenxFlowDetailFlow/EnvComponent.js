@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import NotificationHandler from '../../../../../common/notification_handler'
+import NotificationHandler from '../../../../../components/Notification'
 import { loadImageDetailTagConfig,  loadOtherDetailTagConfig } from '../../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { loadRepositoriesTagConfigInfo } from '../../../../../actions/harbor'
@@ -127,7 +127,7 @@ let EnvComponent = React.createClass({
     if (nextProps.visible != this.props.visible && nextProps.visible) {
       const arr = form.getFieldValue(['service' + index + 'inputs'])
       const i = arr[arr.length - 1]
-      setTimeout(() => { 
+      setTimeout(() => {
         if(document.getElementById(`service${index}inputName${i}`)) {
           document.getElementById(`service${index}inputName${i}`).focus()
         }
@@ -202,7 +202,7 @@ let EnvComponent = React.createClass({
     getFieldProps('service' + index + 'inputs', {
       initialValue: [0],
     });
-    
+
     const servicesInputItems = getFieldValue('service' + index + 'inputs').map((i) => {
       const servicesInputNameProps = getFieldProps(`service${index}inputName${i}`, {
         rules: [

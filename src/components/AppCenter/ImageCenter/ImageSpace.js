@@ -18,7 +18,7 @@ import { loadPrivateImageList, getImageDetailInfo, deleteImage, checkImage, sear
 import { DEFAULT_REGISTRY } from '../../../constants'
 import "./style/ImageSpace.less"
 import ImageDetailBox from './ImageDetail'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import noBindImg from '../../../assets/img/appCenter/noBind.png'
 
 const mode = require('../../../../configs/model').mode

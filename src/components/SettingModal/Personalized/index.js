@@ -15,7 +15,7 @@ import './style/Personalized.less'
 import tenxImgIcon from '../../../assets/img/icon/tenxImg.svg'
 import tenxColorIcon from '../../../assets/img/icon/tenxColor.svg'
 import tenxTextIcon from '../../../assets/img/icon/tenxText.svg'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import { getPersonalized,isCopyright,updateLogo,restoreDefault } from '../../../actions/personalized'
 import { setBackColor,loadLoginUserDetail } from '../../../actions/entities'
 

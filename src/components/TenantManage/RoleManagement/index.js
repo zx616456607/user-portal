@@ -235,6 +235,7 @@ let RoleManagement = React.createClass({
                 <p className="createRoles">备注<Input style={{width:'50%',marginLeft:'73px'}}/></p>
                 <p className="createRoles"><sapn className="PermissionSelection">权限选择</sapn>
                   <Transfer
+                  operations={['添加', '移除']}
                   dataSource={this.state.mockData}
                   targetKeys={this.state.targetKeys}
                   onChange={this.onhandleChange}
@@ -284,6 +285,7 @@ let RoleManagement = React.createClass({
           <p className="createRoles">备注<Input style={{width:'50%',marginLeft:'73px'}}/></p>
           <p className="createRoles"><sapn className="PermissionSelection">权限选择</sapn>
               <Transfer
+              operations={['添加', '移除']}
               dataSource={this.state.mockData}
               targetKeys={this.state.targetKeys}
               onChange={this.onhandleChange}

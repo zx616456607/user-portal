@@ -19,7 +19,7 @@ import './style/AlarmRecord.less'
 import { loadRecords, loadRecordsFilters, deleteRecords, getAlertSetting } from '../../actions/alert'
 import { loadServiceDetail } from '../../actions/services'
 import { getHostInfo } from '../../actions/cluster'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 const Option = Select.Option
 import { STANDARD_MODE } from '../../../configs/constants'
@@ -225,7 +225,7 @@ class AlarmRecord extends Component {
         }
       })
     }
-    
+
   }
   toAlarmDetail(record) {
     const { getAlertSetting, clusterID } = this.props

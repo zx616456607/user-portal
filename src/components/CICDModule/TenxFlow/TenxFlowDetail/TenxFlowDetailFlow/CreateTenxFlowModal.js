@@ -18,13 +18,14 @@ import { camelize } from 'humps'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { appNameCheck } from '../../../../../common/naming_validation'
 import DockerFileEditor from '../../../../Editor/DockerFile'
-import { createTenxFlowState, createDockerfile, getTenxFlowDetail } from '../../../../../actions/cicd_flow'
+import ShellEditor from '../../../../Editor/Shell'
+import { createTenxFlowState, createDockerfile, getTenxFlowDetail, createScripts } from '../../../../../actions/cicd_flow'
 import { loadProjectList } from '../../../../../actions/harbor'
 import './style/CreateTenxFlowModal.less'
 import EnvComponent from './EnvComponent.js'
 import CreateImageEnvComponent from './CreateImageEnvComponent.js'
 import CodeStoreListModal from './CodeStoreListModal.js'
-import NotificationHandler from '../../../../../common/notification_handler'
+import NotificationHandler from '../../../../../components/Notification'
 import { isStandardMode } from '../../../../../common/tools'
 import PopTabSelect from '../../../../PopTabSelect'
 import { loadClusterList } from '../../../../../actions/cluster'
@@ -268,7 +269,12 @@ let CreateTenxFlowModal = React.createClass({
       disabledBranchTag: false,
       groupKey: '3',
       isFirstChangeTag: true,
-      isFirstChangeDockerfileType: true
+      isFirstChangeDockerfileType: true,
+      isCreateScripts: true,
+      shellCodeType: 'scripts',
+      shellModalShow: false,
+      scriptsTextarea: '',
+      saveShellCodeBtnLoading: false,
     }
   },
   getUniformRepo() {
@@ -623,6 +629,18 @@ let CreateTenxFlowModal = React.createClass({
       dockerFileTextarea: e
     });
   },
+  saveShellCode() {
+    const notification = new NotificationHandler()
+    const { scriptsTextarea } = this.state
+    const firstLine = scriptsTextarea.split('\n')[0]
+    if (firstLine.indexOf('#!') !== 0) {
+      notification.error('格式错误', '请在首行填写 Shebang（声明解释器，例如 bash 环境填写 #!/bin/bash）')
+      return
+    }
+    this.setState({
+      shellModalShow: false,
+    })
+  },
   openImageEnvModal() {
     this.setState({
       ImageEnvModal: true
@@ -813,11 +831,13 @@ let CreateTenxFlowModal = React.createClass({
       //get shell code
       let shellLength = values.shellCodes;
       let shellList = [];
-      shellLength.map((item, index) => {
-        if (!!values['shellCode' + item]) {
-          shellList.push(values['shellCode' + item]);
-        }
-      });
+      if (_this.state.shellCodeType == 'cmd') {
+        shellLength.map((item, index) => {
+          if (!!values['shellCode' + item]) {
+            shellList.push(values['shellCode' + item]);
+          }
+        });
+      }
       let body = {
         'metadata': {
           'name': values.flowName,
@@ -897,48 +917,68 @@ let CreateTenxFlowModal = React.createClass({
         }
         body.spec.build = imageBuildBody;
       }
-      createTenxFlowState(flowId, body, {
-        success: {
-          func: (res) => {
-            if (typeof values.uniformRepo !== undefined) {
-              getTenxFlowDetail(flowId)
-            }
-            if (!_this.state.useDockerfile && _this.state.otherFlowType == 3) {
-              let dockerfilebody = {
-                content: _this.state.dockerFileTextarea,
-                flowId: flowId,
-                stageId: res.data.results.stageId
+      // 创建 stage
+      const _createTenxFlowState = function() {
+        createTenxFlowState(flowId, body, {
+          success: {
+            func: (res) => {
+              if (typeof values.uniformRepo !== undefined) {
+                getTenxFlowDetail(flowId)
               }
-              createDockerfile(dockerfilebody, {
-                success: {
-                  func: () => {
-                    scope.closeCreateNewFlow();
-                    getTenxFlowStateList(flowId, {
-                      success: {
-                        func: (results) => {
-                           _this.handWebSocket(scope, results)
+              if (!_this.state.useDockerfile && _this.state.otherFlowType == 3) {
+                let dockerfilebody = {
+                  content: _this.state.dockerFileTextarea,
+                  flowId: flowId,
+                  stageId: res.data.results.stageId
+                }
+                createDockerfile(dockerfilebody, {
+                  success: {
+                    func: () => {
+                      scope.closeCreateNewFlow();
+                      getTenxFlowStateList(flowId, {
+                        success: {
+                          func: (results) => {
+                            _this.handWebSocket(scope, results)
+                          }
                         }
-                      }
-                    })
-                  },
-                  isAsync: true
-                }
-              })
-            } else {
-              scope.closeCreateNewFlow();
-              getTenxFlowStateList(flowId, {
-                success: {
-                  func: (results) => {
-                    _this.handWebSocket(scope, results)
+                      })
+                    },
+                    isAsync: true
                   }
-                }
-              })
-            }
-            notification.success('创建成功');
+                })
+              } else {
+                scope.closeCreateNewFlow();
+                getTenxFlowStateList(flowId, {
+                  success: {
+                    func: (results) => {
+                      _this.handWebSocket(scope, results)
+                    }
+                  }
+                })
+              }
+              notification.success('创建成功');
+            },
+            isAsync: true
+          }
+        });
+      }
+      if (_this.state.shellCodeType === 'cmd') {
+        return _createTenxFlowState()
+      }
+      const { createScripts } = _this.props
+      const scripts = {
+        content: _this.state.scriptsTextarea,
+      }
+      // 创建 scripts
+      createScripts(scripts, {
+        success: {
+          func: res => {
+            body.spec.container.script_id = res.data.id
+            _createTenxFlowState()
           },
-          isAsync: true
+          isAsync: true,
         }
-      });
+      })
     });
   },
   handWebSocket(scope, res){
@@ -1451,7 +1491,37 @@ let CreateTenxFlowModal = React.createClass({
               <span><FormattedMessage {...menusText.shellCode} /></span>
             </div>
             <div className='input shellCode'>
-              {shellCodeItems}
+              <RadioGroup
+                value={this.state.shellCodeType}
+                disabled={this.state.otherFlowType == 3}
+                onChange={e => this.setState({ shellCodeType: e.target.value })}
+              >
+                <Radio value="scripts" key="scripts">使用脚本文件</Radio>
+                <Radio value="cmd" key="cmd">使用命令</Radio>
+              </RadioGroup>
+            </div>
+            <div style={{ clear: 'both' }} />
+            <div className='title'>
+            </div>
+            <div className='input shellCode'>
+            {
+              this.state.shellCodeType === 'scripts'
+              ? (
+                <Button
+                  size="large"
+                  disabled={this.state.otherFlowType == 3}
+                  type={(this.state.isCreateScripts) ? 'primary' : 'ghost'}
+                  onClick={() => this.setState({ shellModalShow: true })}
+                >
+                  {
+                    this.state.isCreateScripts
+                    ? '使用脚本文件'
+                    : '编辑脚本文件'
+                  }
+                </Button>
+              )
+              : <div>{shellCodeItems}</div>
+            }
             </div>
             <div style={{ clear: 'both' }} />
           </div>}
@@ -1645,6 +1715,27 @@ let CreateTenxFlowModal = React.createClass({
               </Button>
             </div>
           </Modal>
+          <Modal className='dockerFileEditModal'
+            title="创建脚本文件"
+            visible={this.state.shellModalShow}
+            maskClosable={false}
+            footer={null}
+            >
+            <ShellEditor
+              title="创建脚本文件"
+              value={this.state.scriptsTextarea}
+              callback={value => this.setState({ scriptsTextarea: value })}
+              options={defaultOptions}
+            />
+            <div className='btnBox'>
+              <Button size='large' type='primary' onClick={this.saveShellCode} loading={this.state.saveShellCodeBtnLoading}>
+                <span>保存并使用</span>
+              </Button>
+              <Button size='large' onClick={() => this.setState({ shellModalShow: false })}>
+                <span>取消</span>
+              </Button>
+            </div>
+          </Modal>
           <Modal className='tenxFlowImageEnvModal'
             title={<FormattedMessage {...menusText.envTitle} />}
             visible={this.state.ImageEnvModal}
@@ -1733,6 +1824,7 @@ export default connect(mapStateToProps, {
   loadClusterList,
   getAllClusterNodes,
   loadProjectList,
+  createScripts,
 })(injectIntl(CreateTenxFlowModal, {
   withRef: true,
 }));

@@ -17,7 +17,7 @@ import {
 import { loadAutoScale, deleteAutoScale, updateAutoScale } from '../../../actions/services'
 import { INSTANCE_AUTO_SCALE_MAX_CPU, INSTANCE_MAX_NUM } from '../../../../constants'
 import './style/AppAutoScale.less'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import { isStorageUsed, isEmptyObject } from '../../../common/tools'
 
 function loadData(props) {

@@ -339,7 +339,7 @@ let ServiceModal = React.createClass({
     });
   },
   render: function () {
-    const {service, scope, isFetching} = this.props;
+    const {service, scope, isFetching, logType} = this.props;
     let serviceList = null;
     if (isFetching) {
       return (
@@ -355,15 +355,31 @@ let ServiceModal = React.createClass({
         </div>
       )
     } else {
-      serviceList = this.state.currentList.map((item, index) => {
-        return (
-          <div className='serviceDetail' key={index} onClick={scope.onSelectService.bind(scope, item.serviceName)}>
-            <span className='leftSpan'>{item.serviceName}</span>
-            <span className='rightSpan'>{item.instanceNum}</span>
-            <span style={{ clear: 'both' }}></span>
+      let mapCurrentList = this.state.currentList
+      if(logType == 'file'){
+        mapCurrentList = this.state.currentList.filter((item, index) => {
+          if(item.annotations.annotations && item.annotations.annotations.applogs !== undefined){
+            return item
+          }
+        })
+      }
+      if(mapCurrentList.length == 0){
+        serviceList = (
+          <div className='loadingBox'>
+            <span>没数据哦</span>
           </div>
         )
-      });
+      } else {
+        serviceList = mapCurrentList.map((item, index) => {
+          return (
+            <div className='serviceDetail' key={index} onClick={scope.onSelectService.bind(scope, item.serviceName)}>
+              <span className='leftSpan'>{item.serviceName}</span>
+              <span className='rightSpan'>{item.instanceNum}</span>
+              <span style={{ clear: 'both' }}></span>
+            </div>
+          )
+        });
+      }
     }
     return (
       <div className='serviceModal'>
@@ -471,6 +487,9 @@ let InstanceModal = React.createClass({
           <div className='btnBox'>
             <div className='allBtn' onClick={this.onSelectAllInstances}>
               <FormattedMessage {...menusText.allBtn} />
+            </div>
+            <div className='confirmBtn' onClick={() => scope.setState({instancePopup: false})}>
+              确定
             </div>
             <div className='cancelBtn' onClick={this.onCancelSelectedAllInstance}>
               <FormattedMessage {...menusText.cancelBtn} />
@@ -1044,7 +1063,7 @@ class QueryLog extends Component {
               <Radio.Group>
                 <Radio
                   checked={this.state.logType == 'stdout'}
-                  onClick={() => {this.setState({logType: 'stdout'})}}
+                  onClick={() => {this.setState({logType: 'stdout', currentService: null, currentInstance: [],instanceList: []})}}
                   value="stdout"
                   key="stdout"
                 >
@@ -1052,7 +1071,7 @@ class QueryLog extends Component {
                 </Radio>
                 <Radio
                   checked={this.state.logType == 'file'}
-                  onClick={() => {this.setState({logType: 'file'})}}
+                  onClick={() => {this.setState({logType: 'file', currentService: null, currentInstance: [], instanceList: []})}}
                   value="file"
                   key="file"
                 >
@@ -1103,7 +1122,7 @@ class QueryLog extends Component {
             <div className='commonBox'>
               <span className='titleSpan'><FormattedMessage {...menusText.service} /></span>
               <Popover
-                content={<ServiceModal scope={scope} service={this.state.serviceList} isFetching={this.state.gettingSerivce} />}
+                content={<ServiceModal scope={scope} service={this.state.serviceList} isFetching={this.state.gettingSerivce} logType={this.state.logType}/>}
                 trigger='click'
                 placement='bottom'
                 getTooltipContainer={() => document.getElementById('QueryLog')}

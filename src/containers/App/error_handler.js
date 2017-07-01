@@ -11,9 +11,11 @@
 */
 
 import React, { Component, PropTypes } from 'react'
-import { notification, message as MSG } from 'antd'
+import { message as MSG } from 'antd'
 import { defineMessages } from 'react-intl'
+import Notification from '../../components/Notification'
 
+const notification = new Notification()
 const messages = defineMessages({
   error: {
     id: 'App.error',
@@ -77,11 +79,7 @@ export default function handler(error, intl) {
   if (error.message.code === 503) {
     MSG.error(message)
   } else {
-    notification.error({
-      message,
-      description,
-      duration
-    })
+    notification.error(message, description, duration)
   }
 
   // Formate error message

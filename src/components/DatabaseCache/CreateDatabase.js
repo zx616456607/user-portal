@@ -16,7 +16,7 @@ import { Input, Select, InputNumber, Button, Form, Icon ,message} from 'antd'
 import { CreateDbCluster ,loadDbCacheList} from '../../actions/database_cache'
 import { setCurrent } from '../../actions/entities'
 import { loadTeamClustersList } from '../../actions/team'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import { MY_SPACE } from '../../constants'
 import { parseAmount } from '../../common/tools.js'
 import './style/CreateDatabase.less'
@@ -220,12 +220,16 @@ let CreateDatabase = React.createClass({
         },
         failed: {
           func: (res)=> {
-            _this.setState({loading: false})
             if (res.statusCode == 409) {
               notification.error('数据库服务 ' + values.name + ' 同已有资源冲突，请修改名称后重试')
             } else {
               notification.error('创建数据库服务失败')
             }
+          }
+        },
+        finally: {
+          func:()=> {
+            this.setState({loading: false})
           }
         }
       });
@@ -287,7 +291,19 @@ let CreateDatabase = React.createClass({
     const strongSize = getFieldValue('storageSelect');
     const hourPrice = parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio , 4)
     const countPrice = parseAmount((strongSize /1024 * this.props.resourcePrice.storage * storageNumber + (storageNumber * this.props.resourcePrice['2x'])) * this.props.resourcePrice.dbRatio * 24 * 30, 4)
-
+    const statefulApps = {
+      mysql: 'MySQL',
+      redis: 'Redis',
+      zookeeper: 'ZooKeeper',
+      elasticsearch: 'ElasticSearch',
+    }
+    const statefulAppOptions = Object.getOwnPropertyNames(statefulApps).map(
+      app => <Select.Option value={app} key={app}>{statefulApps[app]}</Select.Option>)
+    const statefulAppMenus = (
+      <Select defaultValue='mysql' value={this.state.currentType} onChange={this.selectDatabaseType}>
+        {statefulAppOptions}
+      </Select>
+    )
     return (
       <div id='CreateDatabase' type='right'>
         <Form horizontal>
@@ -297,18 +313,7 @@ let CreateDatabase = React.createClass({
                 <span>类型</span>
               </div>
               <div className='inputBox'>
-                <Button size='large' type={this.state.currentType == 'mysql' ? 'primary' : 'ghost'} onClick={this.selectDatabaseType.bind(this, 'mysql')}>
-                  MySQL
-                </Button>
-                <Button size='large' type={this.state.currentType == 'redis' ? 'primary' : 'ghost'} onClick={this.selectDatabaseType.bind(this, 'redis')}>
-                  Redis
-                </Button>
-                <Button size='large' type={this.state.currentType == 'zookeeper' ? 'primary' : 'ghost'} onClick={this.selectDatabaseType.bind(this, 'zookeeper')}>
-                  ZooKeeper
-                </Button>
-                <Button size='large' type={this.state.currentType == 'elasticsearch' ? 'primary' : 'ghost'} onClick={this.selectDatabaseType.bind(this, 'elasticsearch')}>
-                  ElasticSearch
-                </Button>
+                {statefulAppMenus}
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>

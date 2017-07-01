@@ -16,7 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import cloneDeep from 'lodash/cloneDeep'
 import { getUploadFileUlr, uploadFileRequest, uploadFileSuccess, getStorageFileHistory, exportFile, uploadFileOptions } from '../../actions/storage'
 import './style/storage.less'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 
 const RadioGroup = Radio.Group
 const messages = defineMessages({
