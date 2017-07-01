@@ -38,7 +38,11 @@ const appCenterRoutes = [
         component: require('../components/AppCenter/ImageCenter/ItemDetail').default,
       }
     ]
-  }
+  },
+  {
+    path: 'wrap_manage',
+    component: require('../components/AppCenter/WrapManage').default,
+  },
 ]
 
 export default appCenterRoutes
