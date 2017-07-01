@@ -13,7 +13,7 @@ import './style/ProjectManage.less'
 import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, Steps, Transfer, InputNumber, Tree, Dropdown, Menu, Spin, Form } from 'antd'
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
-import { ListProject, DeleteProject, UpdateProject } from '../../../actions/project'
+import { ListProjects, DeleteProjects, UpdateProjects } from '../../../actions/project'
 import { chargeProject } from '../../../actions/charge'
 import Notification from '../../../components/Notification'
 import CommonSearchInput from '../../../components/CommonSearchInput'
@@ -137,9 +137,9 @@ class ProjectManage extends Component{
     })
   }
   refresh(loading) {
-    const { ListProject } = this.props;
+    const { ListProjects } = this.props;
     this.setState({[loading]:true})
-    ListProject({},{},{
+    ListProjects({},{},{
       success:{
         func: (result)=>{
           if (result.statusCode === 200) {
@@ -172,10 +172,10 @@ class ProjectManage extends Component{
     this.setState({selected:keys})
   }
   deleteProject(modal) {
-    const { DeleteProject } = this.props;
+    const { DeleteProjects } = this.props;
     const { deleteArr } = this.state;
     let notify = new Notification()
-    DeleteProject({
+    DeleteProjects({
       body:{
         projects:deleteArr,
       }
@@ -231,10 +231,10 @@ class ProjectManage extends Component{
     })
   }
   searchProject(value) {
-    const { ListProject } = this.props;
+    const { ListProjects } = this.props;
     this.setState({tableLoading:true})
     let filter =  'name,' + value
-    ListProject({},{
+    ListProjects({},{
      filter
     },{
       success:{
@@ -1160,9 +1160,9 @@ function mapStateToProps(state, props) {
   }
 }
 export default connect(mapStateToProps,{
-  ListProject,
-  DeleteProject,
-  UpdateProject,
+  ListProjects,
+  DeleteProjects,
+  UpdateProjects,
   chargeProject,
 })(ProjectManage);
 
