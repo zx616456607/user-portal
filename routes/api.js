@@ -41,6 +41,7 @@ const labelController = require('../controllers/labels')
 const ldapController = require('../controllers/ldap_manage')
 const oemController = require('../controllers/oem_info')
 const projectController =require('../controllers/project')
+const pkgController =require('../controllers/wrap_manage')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -531,6 +532,14 @@ module.exports = function (Router) {
   router.put('/oem/info/default', oemController.restoreDefaultInfo)
   router.put('/oem/logo/default', oemController.restoreDefaultLogo)
   router.put('/oem/color/default', oemController.restoreDefaultColor)
+
+  // package manage
+  router.get('/pkg', pkgController.getPkgManageList)
+  router.get('/pkg/:id', pkgController.downloadPkg)
+  router.post('/pkg/batch-delete', pkgController.deletePkg)
+  router.post('/:filename/:filetag/:filetype', pkgController.localUploadPkg)
+  router.post('/:filename/:filetag/:filetype/remote', pkgController.romoteUploadPkg)
+
 
   return router.routes()
 }

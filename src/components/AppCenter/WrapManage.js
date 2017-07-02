@@ -13,19 +13,30 @@ import React, { Component } from 'react'
 import { Modal, Table, Icon, Form, Radio, Button, Tabs, Card, Input, Upload, Select } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { Link, browserHistory } from 'react-router'
+import { connect } from 'react-redux'
 import Title from '../Title'
 import './style/AppWrapManage.less'
 import NotificationHandler from '../../components/Notification'
+import { formatDate } from '../../common/tools'
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE} from '../../../constants'
+
+import { wrapManageList, deleteWrapManage ,downloadWrap} from '../../actions/app_center'
 const RadioGroup = Radio.Group
 const Dragger = Upload.Dragger
 const TabPane = Tabs.TabPane
+let uploadFile = false // in upload file name
+
+// file type
+const wrapType = ['.jar','.war','.tar.gz','.zip']
+const wrapTypelist = ['jar','war','tar.gz','zip']
 
 class UploadModal extends Component {
   constructor(props) {
     super()
     this.state = {
       protocol: 'ftp',
-      type: 'local'
+      type: 'local',
+      fileType: 'jar'
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -34,13 +45,17 @@ class UploadModal extends Component {
     }
   }
   handleSubmit() {
-    this.props.form.validateFields((errors, values) => {
+    const { func,form } = this.props
+    form.validateFields((errors, values) => {
       if (!!errors) {
-        console.log('Errors in form!!!');
         return;
       }
-      console.log('Submit!!!');
-      console.log(values);
+      // if(this.state.resolve) {
+      //   this.state.resolve(true)
+      // }
+      func.uploadModal(false)
+      func.getList()
+
     });
   }
   changeprotocol = (e) => {
@@ -49,32 +64,76 @@ class UploadModal extends Component {
   changeTabs = (type)=> {
     this.setState({type})
   }
+  wraptypeList() {
+    return wrapTypelist.map(types => {
+      return <Select.Option value={types}>{types}</Select.Option>
+    })
+  }
+  validateVersion(rule, value, callback) {
+    if(!value) {
+      return callback('请输入版本')
+    }
+    return callback()
+  }
+  validateType(e) {
+    this.setState({fileType: e})
+  }
   render() {
     const { form, func} = this.props
-    const { type } = this.state
+    const { type,fileType } = this.state
     const isReq = type =='local' ? false : true
+    const wrapName = form.getFieldProps('wrapName',{
+      rules: [{required: true,whitespace: true, message: '请输入包名称'}]
+    })
     const versionLabel = form.getFieldProps('versionLabel',{
-      rules: [{required: true,whitespace: true, message: '请输入版本'}]
+      rules: [
+        {required: true, whitespace: true, message: '请输入版本'},
+        // {validator: this.validateVersion}
+      ],
+
     })
     const protocolUrl = form.getFieldProps('protocolUrl',{
       rules: [{required: isReq,whitespace: true, message: '请输入远程地址'}]
     })
     const formItemLayout = {
-      labelCol: { span: 4},
-      wrapperCol: { span: 20 },
+      labelCol: { span: 5},
+      wrapperCol: { span: 18 },
     }
+    const self = this
+    const fileName = form.getFieldValue('wrapName')
+    const fileTag = form.getFieldValue('versionLabel')
+    const actionUrl = `/api/v2/${fileName}/${fileTag}/${fileType}`
     const selfProps = {
       name: 'file',
-      showUploadList: false,
-      action: '/upload.do',
+      action: actionUrl,
       beforeUpload(file) {
-        console.log('file', file)
         const notificat = new NotificationHandler()
-        if (file.size > 5 * 1024 * 1024) {
-          notificat.error('文件大小应小于5M！')
+        if (!fileName || !fileTag) {
+          notificat.info('请先输入包名称和版本标签')
           return false
         }
-        return true
+        // form.validateFields((err, value) => {
+          // if(err) return false
+          let isType = false
+          wrapType.every(type => {
+            if (file.name.indexOf(type) > -1) {
+              isType = true
+              return false
+            }
+            return true
+          })
+          if (!isType) {
+            notificat.error('上传文件格式错误', '支持有：jar, tar.gz, war, zip')
+            return false
+          }
+          return true
+          // return new Promise((resolve, reject) => {
+          //   self.setState({
+          //     resolve: resolve
+          //   })
+          // })
+
+        // })
       }
     }
     return (
@@ -86,15 +145,17 @@ class UploadModal extends Component {
         className="uploadModal"
         >
         <Form>
-            <Form.Item {...formItemLayout} label="上传方式">
-            <Select defaultValue="jar" style={{ width: '300px' }}>
-              <Select.Option key="jar">Jar</Select.Option>
-              <Select.Option key="war">War</Select.Option>
+          <Form.Item {...formItemLayout} label="应用包名称">
+              <Input {...wrapName} placeholder="请输入名称来标记此次上传文件" style={{ width: '300px' }} />
+          </Form.Item>
+          <Form.Item {...formItemLayout} label="应用包格式">
+            <Select defaultValue={wrapTypelist[0]} style={{ width: '300px' }} onChange={(e) => this.validateType(e)}>
+              { this.wraptypeList() }
             </Select>
-            </Form.Item>
-            <Form.Item {...formItemLayout} label="版本标签">
+          </Form.Item>
+          <Form.Item {...formItemLayout} label="版本标签">
               <Input {...versionLabel} placeholder="请输入版本标签来标记此次上传文件" style={{ width: '300px' }} />
-            </Form.Item>
+          </Form.Item>
           <br />
           <Tabs defaultActiveKey="local" onChange={this.changeTabs} size="small">
             <TabPane tab="本地上传" key="local">
@@ -137,68 +198,105 @@ class WrapManage extends Component {
       selectedRowKeys: []
     }
   }
+  getList = (e)=> {
+    if (!e || e.target.value == '') {
+      this.props.wrapManageList()
+      return
+    }
+    const query = {
+      filter: `fileName contains ${e.target.value}`,
+    }
+    this.props.wrapManageList(query)
+  }
+  queryList = (e)=> {
+    this.props.wrapManageList(e)
+  }
+  componentWillMount() {
+    this.getList()
+  }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.space.namespace !== this.props.space.namespace) {
+      this.getList()
+    }
+  }
+
   uploadModal = (modal) => {
     this.setState({ uploadModal: modal })
+    setTimeout(()=> {
+      document.getElementById('wrapName').focus()
+    },200)
   }
-  deleteAction(status) {
-    this.setState({delAll: status})
+  deleteAction(status,id) {
+    id = [id] || null
+    this.setState({delAll: status,id})
   }
   deleteVersion = ()=> {
     const notificat = new NotificationHandler()
-    notificat.success('删除成功')
-    this.deleteAction(false)
+    const { id } = this.state
+    this.props.deleteWrapManage({ids: id},{
+      success: {
+        func:()=> {
+          notificat.success('删除成功')
+          this.getList()
+        },isAsync: true
+      },
+      failed: {
+        func: (err)=> {
+          notificat.error('删除失败',err.message.message || err.message)
+        }
+      },
+      finally: {
+        func:()=> {
+          this.deleteAction(false)
+        }
+      }
+    })
   }
   render() {
-    const dataSource = [
-      {
-        version: 'demo-2.1',
-        name: 'app-hello.jar',
-        type: 'Jar',
-        uploadTime: '2017-04-16:09:12:09'
-      }, {
-        version: 'demo-2.2',
-        name: 'app-hello.war',
-        type: 'War',
-        uploadTime: '2017-08-11:09:12:09'
-      }
-    ]
+    // jar war ,tar.gz zip
+    const dataSource = this.props.wrapList
     const columns = [
       {
-        title: '版本标签',
-        dataIndex: 'version',
-        key: 'version',
-        render: (text) => <Link>{text}</Link>
-      }, {
         title: '包名称',
-        dataIndex: 'name',
+        dataIndex: 'fileName',
         key: 'name',
+        width: '20%',
+        render: (text,row) => <a onClick={()=> this.props.downloadWrap(row.id)}>{text}</a>
+      }, {
+        title: '版本标签',
+        dataIndex: 'fileTag',
+        key: 'tag',
+        width: '20%',
       }, {
         title: '包类型',
-        dataIndex: 'type',
+        dataIndex: 'fileType',
         key: 'type',
       }, {
         title: '上传时间',
-        dataIndex: 'uploadTime',
-        key: 'uploadTime',
+        dataIndex: 'creationTime',
+        key: 'creationTime',
+        render: text => formatDate(text)
       }, {
         title: '操作',
         dataIndex: 'actions',
         key: 'actions',
-        render: () => [
+        width:'150px',
+        render: (e,row) => [
           <Button type="primary" key="1">部署</Button>,
-          <Button key="2" style={{ marginLeft: 10 }} onClick={()=> this.deleteAction(true)}>删除</Button>
+          <Button key="2" style={{ marginLeft: 10 }} onClick={()=> this.deleteAction(true,row.id)}>删除</Button>
          ]
       }
     ]
     const paginationOpts = {
       size: "small",
-      pageSize: 10,
-      total: dataSource.length,
+      pageSize: DEFAULT_PAGE_SIZE,
+      total: dataSource.total,
       // onChange: current => func.loadData({ page: current }),
       showTotal: total => `共计： ${total} 条 `,
     }
     const funcCallback = {
-      uploadModal: this.uploadModal
+      uploadModal: this.uploadModal,
+      getList: this.getList
     }
     const _this = this
     const rowSelection = {
@@ -217,12 +315,13 @@ class WrapManage extends Component {
         <div key="wrap_list" id="app_wrap_manage">
           <div className="btnRow">
             <Button size="large" type="primary" icon="plus" onClick={() => this.uploadModal(true)}>上传包文件</Button>
-            <Button size="large" style={{ margin: '0 10px' }}><i className='fa fa-refresh' />&nbsp;刷 新</Button>
+            <Button size="large" style={{ margin: '0 10px' }} onClick={()=> this.getList()}><i className='fa fa-refresh' />&nbsp;刷 新</Button>
             <Button size="large" onClick={()=> this.deleteAction(true)} icon="delete" style={{ marginRight: '10px' }} disabled={this.state.selectedRowKeys.length == 0}>删 除</Button>
-            <Input size="large" style={{ width: 180 }} placeholder="请输入包名称或标签搜索" />
+            <Input size="large" onPressEnter={(e)=> this.getList(e)} style={{ width: 180 }} placeholder="请输入包名称或标签搜索" ref="wrapSearch" />
+            <i className="fa fa-search btn-search" onClick={()=> this.getList()}/>
           </div>
           <Card className="wrap_content">
-            <Table className="strategyTable" rowSelection={rowSelection} dataSource={dataSource} columns={columns} pagination={paginationOpts} />
+            <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource.pkgs} columns={columns} pagination={paginationOpts} />
           </Card>
         </div>
 
@@ -238,4 +337,34 @@ class WrapManage extends Component {
   }
 }
 
-export default WrapManage
+function mapStateToProps(state,props) {
+  const { wrapList } = state.images
+  const { current } = state.entities
+  const { space } = current
+  const list = wrapList || {}
+  let datalist = {pkgs:[],total:0}
+  if (list.result) {
+    datalist = list.result.data
+  }
+  const { query, pathname } = props.location
+  let { page,size } = query
+  page = parseInt(page || DEFAULT_PAGE)
+  size = parseInt(size || DEFAULT_PAGE_SIZE)
+  if (isNaN(page) || page < DEFAULT_PAGE) {
+    page = DEFAULT_PAGE
+  }
+  if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
+    size = DEFAULT_PAGE_SIZE
+  }
+  return {
+    space,
+    wrapList: datalist,
+    isFetching: list.isFetching
+  }
+}
+
+export default connect(mapStateToProps,{
+  wrapManageList,
+  deleteWrapManage,
+  downloadWrap
+})(WrapManage)
