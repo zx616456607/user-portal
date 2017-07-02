@@ -2,7 +2,7 @@ import { Button, Form, Input, Row, Col, Modal} from 'antd';
 import React from 'react'
 import { USERNAME_REG_EXP_NEW } from '../../constants'
 import { validateK8sResource } from '../../common/naming_validation'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 const createForm = Form.create;
 const FormItem = Form.Item;
 

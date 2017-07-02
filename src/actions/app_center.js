@@ -10,6 +10,7 @@
 
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
+import { toQuerystring } from '../common/tools'
 
 export const IMAGE_PRIVATE_LIST_REQUEST = 'IMAGE_PRIVATE_LIST_REQUEST'
 export const IMAGE_PRIVATE_LIST_SUCCESS = 'IMAGE_PRIVATE_LIST_SUCCESS'
@@ -797,7 +798,79 @@ function processImageName(name) {
     for (let i = 2; i < arr.length; i++) {
       name += "%2F"
       name += arr[i]
-    }   
+    }
   }
   return name
+}
+
+export const GET_WRAP_MANAGE_LIST_REQUEST = 'GET_WRAP_MANAGE_LIST_REQUEST'
+export const GET_WRAP_MANAGE_LIST_SUCCESS = 'GET_WRAP_MANAGE_LIST_SUCCESS'
+export const GET_WRAP_MANAGE_LIST_FAILURE = 'GET_WRAP_MANAGE_LIST_FAILURE'
+
+function fetchWrapManageList(query,callback) {
+  let endpointUrl = `${API_URL_PREFIX}/pkg`
+  if (query) {
+    endpointUrl += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [GET_WRAP_MANAGE_LIST_REQUEST, GET_WRAP_MANAGE_LIST_SUCCESS, GET_WRAP_MANAGE_LIST_FAILURE],
+      endpoint: endpointUrl,
+      schema: Schemas.REGISTRYS,
+    },
+    callback
+  }
+}
+
+export function wrapManageList(query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchWrapManageList(query, callback))
+  }
+}
+
+export const DEL_WRAP_MANAGE_LIST_REQUEST = 'DEL_WRAP_MANAGE_LIST_REQUEST'
+export const DEL_WRAP_MANAGE_LIST_SUCCESS = 'DEL_WRAP_MANAGE_LIST_SUCCESS'
+export const DEL_WRAP_MANAGE_LIST_FAILURE = 'DEL_WRAP_MANAGE_LIST_FAILURE'
+
+function fetchDelwrapManage(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [DEL_WRAP_MANAGE_LIST_REQUEST, DEL_WRAP_MANAGE_LIST_SUCCESS, DEL_WRAP_MANAGE_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/pkg/batch-delete`,
+      options:{
+        method: 'POST',
+        body: body
+      },
+      schema: Schemas.REGISTRYS,
+    },
+    callback
+  }
+}
+
+export function deleteWrapManage(body, callback) {
+  return (dispatch)=> {
+    return dispatch(fetchDelwrapManage(body, callback))
+  }
+}
+
+const DOWNLOAD_WRAP_REQUEST = 'DOWNLOAD_WRAP_REQUEST'
+const DOWNLOAD_WRAP_SUCCESS = 'DOWNLOAD_WRAP_SUCCESS'
+const DOWNLOAD_WRAP_FAILURE = 'DOWNLOAD_WRAP_FAILURE'
+
+function fetchDownloadWrap(id) {
+  // Content-disposition
+  return {
+    [FETCH_API]: {
+      types: [DOWNLOAD_WRAP_REQUEST, DOWNLOAD_WRAP_SUCCESS, DOWNLOAD_WRAP_FAILURE],
+      endpoint: `${API_URL_PREFIX}/pkg/${id}`,
+      schema: Schemas.REGISTRYS,
+
+    }
+  }
+}
+
+export function downloadWrap(id) {
+  return (dispatch) => {
+    return dispatch(fetchDownloadWrap(id))
+  }
 }

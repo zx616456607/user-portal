@@ -18,7 +18,7 @@ import '../Login/Enterprise/style/Login.less'
 import { setAdminPassword } from '../../actions/admin'
 import { login } from '../../actions/entities'
 import { browserHistory } from 'react-router'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import { camelize } from 'humps'
 
 const createForm = Form.create

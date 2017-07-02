@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/clusterList.less'
 import ClusterTabList from './clusterTabList'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import { browserHistory } from 'react-router'
 import { ROLE_SYS_ADMIN, URL_REGEX, CLUSTER_PAGE, NO_CLUSTER_FLAG, DEFAULT_CLUSTER_MARK, IP_REGEX, HOST_REGEX } from '../../../constants'
 import { loadClusterList, getAddClusterCMD, createCluster } from '../../actions/cluster'
@@ -577,6 +577,7 @@ class ClusterList extends Component {
     this.onTabChange = this.onTabChange.bind(this)
     this.state = {
       createModal: false, // create cluster modal
+      clusterTabPaneKey: this.props.currentClusterID,
     }
   }
 
@@ -595,10 +596,15 @@ class ClusterList extends Component {
   }
 
   componentDidMount() {
-    const { loginUser, getAddClusterCMD } = this.props
+    const { loginUser, getAddClusterCMD, location } = this.props
     const { role } = loginUser
     if (!this.checkIsAdmin()) {
       browserHistory.push('/')
+    }
+    if(location && location.query && location.query.from == 'clusterDetail'){
+      this.setState({
+        clusterTabPaneKey: location.query.clusterID
+      })
     }
     getAddClusterCMD()
   }
@@ -612,6 +618,9 @@ class ClusterList extends Component {
   onTabChange(key) {
     const { changeActiveCluster } = this.props
     changeActiveCluster(key)
+    this.setState({
+      clusterTabPaneKey: key
+    })
   }
 
   render() {
@@ -634,9 +643,18 @@ class ClusterList extends Component {
 
     let ImageTabList = []
     clusters.forEach(cluster => {
+      let tabPaneTab = <div className='clusterDiv'>
+        <Tooltip title={cluster.clusterName}>
+          <span className='clustername'>{cluster.clusterName}</span>
+        </Tooltip>
+          { cluster.isBuilder && <Tooltip title='构建环境'><img src={CI} className='clusterImg'/></Tooltip> }
+        </div>
       if (cluster.clusterID) {
         ImageTabList.push(
-          <TabPane tab={<div className='clusterDiv'><Tooltip title={cluster.clusterName}><span className='clustername'>{cluster.clusterName}</span></Tooltip>{ cluster.isBuilder ? <Tooltip title='构建环境'><img src={CI} className='clusterImg'/></Tooltip> : <span></span>}</div>} key={cluster.clusterID}>
+          <TabPane
+            tab={tabPaneTab}
+            key={cluster.clusterID}
+          >
             <ClusterTabList cluster={cluster} location={location}/>
           </TabPane>
         )
@@ -673,7 +691,7 @@ class ClusterList extends Component {
               <Tabs
                 onChange={this.onTabChange}
                 key='ClusterTabs'
-                defaultActiveKey={currentClusterID}
+                activeKey={this.state.clusterTabPaneKey}
                 type="card"
                 style={{position:'relative'}}
                 tabBarExtraContent={

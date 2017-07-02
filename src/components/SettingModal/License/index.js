@@ -14,7 +14,7 @@ import { loadLicenseList, loadLicensePlatform, addLicense, loadMergedLicense } f
 import { connect } from 'react-redux'
 import { formatDate } from '../../../common/tools'
 import { DEFAULT_LICENSE } from '../../../../constants'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import { getPortalRealMode } from '../../../common/tools'
 import { LITE } from '../../../constants'
 import { camelize } from 'humps'

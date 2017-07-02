@@ -14,7 +14,7 @@ import { Menu, Button, InputNumber, Card, Form, Select, Input, Dropdown, Spin, M
 import './style/clusterPlugin.less'
 import './style/clusterLabelManege.less'
 import { getClusterPlugins, updateClusterPlugins } from '../../actions/cluster'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import { PLUGIN_DEFAULT_CONFIG } from '../../constants/index'
 import { camelize } from 'humps'
 import { getAllClusterNodes, deleteMiddleware, updateMiddleware, createMiddleware } from '../../actions/cluster'

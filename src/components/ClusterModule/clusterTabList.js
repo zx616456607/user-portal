@@ -30,7 +30,7 @@ import { getClusterSummary } from '../../actions/cluster'
 import { addTerminal } from '../../actions/terminal'
 import { NOT_AVAILABLE } from '../../constants'
 import './style/clusterTabList.less'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
 import AddClusterOrNodeModal from './AddClusterOrNodeModal'
@@ -227,7 +227,7 @@ class ClusterTabList extends Component {
               <ClusterLabelManage callbackActiveKey={this.handleCallbackActiveKey}  clusterID={clusterID} />
             </TabPane>
 
-            <TabPane tab={<div className='tablepanediv'><svg className='size select'><use xlinkHref="#plugin"></use></svg><span className='tablepanespan'>插件管理</span></div>} key="4">
+            <TabPane tab={<div className='tablepanediv'><svg className='size pluginSize select'><use xlinkHref="#plugin"></use></svg><span className='tablepanespan'>插件管理</span></div>} key="4">
               <ClusterPlugin cluster={cluster}
               />
             </TabPane>

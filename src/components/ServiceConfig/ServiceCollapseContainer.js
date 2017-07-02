@@ -14,7 +14,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 // import ConfigFile from './ServiceConfigFile'
 import { loadConfigName, updateConfigName, configGroupName, deleteConfigName, changeConfigFile } from '../../actions/configs'
 import { loadAppList } from '../../actions/app_manage'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import unionWith from 'lodash/unionWith'
@@ -78,11 +78,22 @@ function formatVolumeMounts(data, groupname, name) {
               const configMap = volumesMap[containers[k].volumeMounts[l].name]
               if (configMap.configMap.items) {
                 configMap.configMap.items.forEach(item => {
-                  volumeMounts = unionWith(volumeMounts, [{
-                    imageName: data[i].name,
-                    serviceName: data[i].services[j].metadata.name,
-                    mountPath: volumeMount.mountPath
-                  }], isEqual)
+                  // If it's not whole directory mount, match the subPath
+                  if (volumeMount.subPath) {
+                    if (volumeMount.subPath === name) {
+                      volumeMounts = unionWith(volumeMounts, [{
+                        imageName: data[i].name,
+                        serviceName: data[i].services[j].metadata.name,
+                        mountPath: volumeMount.mountPath
+                      }], isEqual)
+                    }
+                  } else {
+                    volumeMounts = unionWith(volumeMounts, [{
+                      imageName: data[i].name,
+                      serviceName: data[i].services[j].metadata.name,
+                      mountPath: volumeMount.mountPath
+                    }], isEqual)
+                  }
                 })
               } else {
                 volumeMounts = unionWith(volumeMounts, [{

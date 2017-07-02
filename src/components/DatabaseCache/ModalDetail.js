@@ -17,11 +17,12 @@ import { loadDbClusterDetail, deleteDatabaseCluster, putDbClusterDetail, loadDbC
 import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import { calcuDate, parseAmount} from '../../common/tools.js'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import { ANNOTATION_SVC_SCHEMA_PORTNAME } from '../../../constants'
 import mysqlImg from '../../assets/img/database_cache/mysql.png'
 import redisImg from '../../assets/img/database_cache/redis.jpg'
 import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
+import esImg from '../../assets/img/database_cache/elasticsearch.jpg'
 
 const Panel = Collapse.Panel;
 const ButtonGroup = Button.Group
@@ -275,18 +276,17 @@ class BaseInfo extends Component {
             <input className="databaseCodeInput" style={{ position: "absolute", opacity: "0" }} defaultValue= {externalUrl}/>
           </div>
           <div className='configList'><span className='listKey'>副本数：</span>{this.props.currentData.pending + this.props.currentData.running}/{this.props.currentData.desired}个</div>
-            <div><div className='configHead'>参数</div>
-              <ul className='parse-list'>
-                <li><span className='key'>参数名</span> <span className='value'>参数值</span></li>
-                <li><span className='key'>用户名：</span> <span className='value'>{ this.props.database === 'zookeeper' ? "super" : "root" }</span></li>
-                {this.state.database === 'elasticsearch' ? null :
-                this.state.passShow ?
-                  <li><span className='key'>密码：</span> <span className='value'>{ this.findPassword(podSpec) }</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
-                  :
-                  <li><span className='key'>密码：</span> <span className='value'>******</span><span className="pasBtn" onClick={() => this.setState({ passShow: true })}><i className="fa fa-eye"></i> 显示</span></li>
-                }
-              </ul>
-            </div>
+          {this.props.database === 'elasticsearch' ? null :
+          <div><div className='configHead'>参数</div>
+            <ul className='parse-list'>
+              <li><span className='key'>参数名</span> <span className='value'>参数值</span></li>
+              <li><span className='key'>用户名：</span> <span className='value'>{ this.props.database === 'zookeeper' ? "super" : "root" }</span></li>
+              {this.state.passShow ?
+              <li><span className='key'>密码：</span> <span className='value'>{ this.findPassword(podSpec) }</span><span className="pasBtn" onClick={() => this.setState({ passShow: false })}><i className="fa fa-eye-slash"></i> 隐藏</span></li>
+              :
+              <li><span className='key'>密码：</span> <span className='value'>******</span><span className="pasBtn" onClick={() => this.setState({ passShow: true })}><i className="fa fa-eye"></i> 显示</span></li>}
+            </ul>
+          </div>}
           <div className='configHead'>实例副本 <span>{this.props.currentData.desired}个 &nbsp;</span>
             <Popover content={modalContent} title={null} trigger="click" overlayClassName="putmodalPopover"
               visible={rootScope.state.putVisible} getTooltipContainer={()=> document.getElementById('AppServiceDetail')}
@@ -492,7 +492,8 @@ class ModalDetail extends Component {
     const logoMapping = {
       'mysql': mysqlImg,
       'redis': redisImg,
-      'zookeeper': zkImg
+      'zookeeper': zkImg,
+      'elasticsearch': esImg,
     }
     if (!(clusterType in logoMapping)) {
       return redisImg

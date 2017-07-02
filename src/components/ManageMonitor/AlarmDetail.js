@@ -14,7 +14,7 @@ import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import cloneDeep from 'lodash/cloneDeep'
 import { formatDate, isEmptyObject } from '../../common/tools'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import './style/AlarmDetail.less'
 import Title from '../Title'
 import { getAlertSetting, getSettingList, batchEnableEmail, batchDisableEmail, deleteRule } from '../../actions/alert'
@@ -244,7 +244,7 @@ class AlarmDetail extends Component {
         })
       },
     };
-    
+
     return (
       <div id="AlarmDetail">
         <QueueAnim type="right" className="AlarmDetail">
@@ -254,7 +254,7 @@ class AlarmDetail extends Component {
             <span className="titleName">{strategyName}</span>
           </div>
           <Row gutter={16} className="details">
-            <Col span="6">
+            <Col className="Basicattributes" span="7">
               <Card style={{paddingBottom:'20px'}}>
                 <div className="title">基本属性</div>
                 <div className="baseAttr"><span className="keys">策略名称：</span><div className="ant-radio-group">{leftSetting.strategyName}</div></div>
@@ -278,7 +278,7 @@ class AlarmDetail extends Component {
                 <div className="baseAttr" style={{color: '#2DB7F5'}}>本服务暂不收费！</div>
               </Card>
             </Col>
-            <Col span="18">
+            <Col span="17">
               <Card style={{paddingBottom: 50}}>
                 <div className="title">规则</div>
                 <div style={{margin: '20px 30px'}}>
@@ -300,7 +300,7 @@ class AlarmDetail extends Component {
           >
             <div className="confirmText"><i className="anticon anticon-question-circle-o" style={{marginRight: 10}}></i>策略删除后将不再发送邮件告警，是否确定删除？</div>
           </Modal>
-          
+
         </QueueAnim>
       </div>
     )

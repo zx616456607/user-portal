@@ -385,9 +385,9 @@ function fetchNotGithubProject(users, projectId, type, callback) {
   }
 }
 
-export function notGithubProject(users, id, callback) {
+export function notGithubProject(users, id, type, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchNotGithubProject(users, id, callback))
+    return dispatch(fetchNotGithubProject(users, id,type, callback))
   }
 }
 
@@ -527,6 +527,7 @@ export function getDockerfiles(flowInfo, callback) {
     return dispatch(fetchDockerfiles(flowInfo, callback))
   }
 }
+
 // update detail dockerfile
 export const PUT_DOCKER_FILES_REQUEST = 'PUT_DOCKER_FILES_REQUEST'
 export const PUT_DOCKER_FILES_SUCCESS = 'PUT_DOCKER_FILES_SUCCESS'
@@ -575,6 +576,78 @@ function fetchCreateDockerfile(flows, callback) {
 export function createDockerfile(flowInfo, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchCreateDockerfile(flowInfo, callback))
+  }
+}
+
+// scripts
+export const CREATE_CI_SCRIPTS_REQUEST = 'CREATE_CI_SCRIPTS_REQUEST'
+export const CREATE_CI_SCRIPTS_SUCCESS = 'CREATE_CI_SCRIPTS_SUCCESS'
+export const CREATE_CI_SCRIPTS_FAILURE = 'CREATE_CI_SCRIPTS_FAILURE'
+
+function fetchCreateScripts(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [CREATE_CI_SCRIPTS_REQUEST, CREATE_CI_SCRIPTS_SUCCESS, CREATE_CI_SCRIPTS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-scripts`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body,
+      }
+    },
+    callback
+  }
+}
+
+export function createScripts(scripts, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateScripts(scripts, callback))
+  }
+}
+
+export const GET_CI_SCRIPTS_BY_ID_REQUEST = 'GET_CI_SCRIPTS_BY_ID_REQUEST'
+export const GET_CI_SCRIPTS_BY_ID_SUCCESS = 'GET_CI_SCRIPTS_BY_ID_SUCCESS'
+export const GET_CI_SCRIPTS_BY_ID_FAILURE = 'GET_CI_SCRIPTS_BY_ID_FAILURE'
+
+function fetchGetScriptsById(id, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_CI_SCRIPTS_BY_ID_REQUEST, GET_CI_SCRIPTS_BY_ID_SUCCESS, GET_CI_SCRIPTS_BY_ID_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-scripts/${id}`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function getScriptsById(id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchGetScriptsById(id, callback))
+  }
+}
+
+export const UPDATE_CI_SCRIPTS_BY_ID_REQUEST = 'UPDATE_CI_SCRIPTS_BY_ID_REQUEST'
+export const UPDATE_CI_SCRIPTS_BY_ID_SUCCESS = 'UPDATE_CI_SCRIPTS_BY_ID_SUCCESS'
+export const UPDATE_CI_SCRIPTS_BY_ID_FAILURE = 'UPDATE_CI_SCRIPTS_BY_ID_FAILURE'
+
+function fetchUpdateScriptsById(id, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_CI_SCRIPTS_BY_ID_REQUEST, UPDATE_CI_SCRIPTS_BY_ID_SUCCESS, UPDATE_CI_SCRIPTS_BY_ID_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-scripts/${id}`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body,
+      }
+    },
+    callback
+  }
+}
+
+export function updateScriptsById(id, scripts, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateScriptsById(id, scripts, callback))
   }
 }
 

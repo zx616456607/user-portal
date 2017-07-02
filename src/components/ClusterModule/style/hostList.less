@@ -139,6 +139,28 @@
         cursor: pointer;
         color: #00a1e9;
       }
+      .imageList{
+        .ant-table-thead{
+          >tr{
+            >th{
+              background: #ffffff;
+              border-bottom: 1px solid #e9e9e9;
+              font-weight: normal;
+            }
+          }
+        }
+        .ant-table-tbody{
+          >tr{
+            >td{
+              padding:10px 0 10px 8px;
+            }
+          }
+          .nameIP{
+            cursor: pointer;
+            color: #00a1e9;
+          }
+        }
+      }
     }
     .podDetail{
       clear: both;
@@ -198,7 +220,7 @@
       min-width: 102px;
     }
     .alarm {
-      width: 6%;
+      //width: 6%;
       .managemoniter {
         width: 18px;height: 18px;
         fill: #C7CBCE;
@@ -264,6 +286,14 @@
       .commonTitle {
         height: 60px;
         line-height: 60px;
+        .hostname {
+          height: 30px;
+          line-height: 40px;
+        }
+        .address {
+          height: 30px;
+          line-height: 20px;
+        }
       }
       .name,
       .role,
@@ -272,6 +302,9 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        .timeSpan {
+          cursor: pointer
+        }
       }
       .ant-btn-ghost:first-child {
         position: relative;

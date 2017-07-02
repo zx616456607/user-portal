@@ -17,7 +17,7 @@ import DataTable from './DataTable'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
 import { loadProjectList, createProject, deleteProject, updateProject, loadSysteminfo } from '../../../../actions/harbor'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 
 const RadioGroup = Radio.Group
@@ -61,6 +61,7 @@ class CreateItem extends Component {
       func.createProject(DEFAULT_REGISTRY, values, {
         success: {
           func: () => {
+            notification.success(`仓库组 ${values.project_name} 创建成功`)
             func.loadData()
             func.scope.setState({ createItem:false })
             form.resetFields()

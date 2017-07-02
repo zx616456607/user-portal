@@ -17,7 +17,7 @@ import { Row, Col, Icon, Form, Button, Input, Spin, Checkbox, Table, Select, Mod
 import { getAvailableImage, addBaseImage, updateBaseImage, deleteBaseImage } from '../../../actions/cicd_flow'
 import { BASE_IMAGE_TYPE } from '../../../constants'
 import { ROLE_SYS_ADMIN } from '../../../../constants'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import './style/ContinueIntegration.less'
 
 const FormItem = Form.Item

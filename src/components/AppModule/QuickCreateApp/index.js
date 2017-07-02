@@ -19,7 +19,7 @@ import yaml from 'js-yaml'
 import SelectImage from './SelectImage'
 import ConfigureService from './ConfigureService'
 import ResourceQuotaModal from '../../ResourceQuotaModal'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import { genRandomString, toQuerystring, getResourceByMemory, parseAmount } from '../../../common/tools'
 import { removeFormFields, removeAllFormFields } from '../../../actions/quick_create_app'
 import { createApp } from '../../../actions/app_manage'
@@ -274,7 +274,7 @@ class QuickCreateApp extends Component {
     const template = []
     for (let key in fields) {
       if (fields.hasOwnProperty(key)) {
-        const json = buildJson(fields[key], current.cluster, loginUser)
+        const json = buildJson(fields[key], current.cluster, loginUser, this.imageConfigs)
         template.push(yaml.dump(json.deployment))
         template.push(yaml.dump(json.service))
       }
@@ -400,7 +400,11 @@ class QuickCreateApp extends Component {
           mode={this.configureMode}
           id={id}
           action={this.action}
-          callbackForm={form => this.form = form}
+          callback={(form, configs) => {
+              this.form = form
+              this.imageConfigs = configs
+            }
+          }
           {...{imageName, registryServer, appName}}
           {...this.props}
         />

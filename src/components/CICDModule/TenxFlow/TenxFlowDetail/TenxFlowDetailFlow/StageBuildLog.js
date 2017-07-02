@@ -17,7 +17,7 @@ import { getFlowBuildStageLogs, StopTenxflowBuild, getTenxflowBuildLastLogs } fr
 import moment from 'moment'
 import './style/StageBuildLog.less'
 import TenxFlowStageBuildLog from '../../TenxFlowStageBuildLog'
-import NotificationHandler from '../../../../../common/notification_handler'
+import NotificationHandler from '../../../../../components/Notification'
 
 const Panel = Collapse.Panel;
 
@@ -197,7 +197,7 @@ let MyComponent = React.createClass({
       if (!this.props.scope.props.loggingEnabled) {
         let notification = new NotificationHandler()
         notification.warn('尚未安装日志服务，无法查看日志')
-        return 
+        return
       }
       if(this.state.currentKey.length > e.length) return
       config[index].isFetching = true;

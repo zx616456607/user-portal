@@ -36,3 +36,16 @@ exports.chargeTeamspace = function* () {
   const result = yield spi.payments.createBy(['teamspace'], null, chargeInfo)
   this.body = result
 }
+
+exports.chargeProject = function* () {
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+  const chargeInfo = this.request.body
+  if (!chargeInfo || !chargeInfo.namespaces || !chargeInfo.amount) {
+    const err = new Error('namespaces and amount are required.')
+    err.status = 400
+    throw err
+  }
+  const result = yield spi.payments.createBy(['project'], null, chargeInfo)
+  this.body = result
+}

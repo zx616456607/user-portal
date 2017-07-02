@@ -18,7 +18,7 @@ import APIImg from '../../../assets/img/setting/globalconfigapi.png'
 import CephImg from '../../../assets/img/setting/globalconfigceph.png'
 import { connect } from 'react-redux'
 import { saveGlobalConfig, updateGlobalConfig, loadGlobalConfig, isValidConfig, sendEmailVerification } from '../../../actions/global_config'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import { getPortalRealMode } from '../../../common/tools'
 import { LITE } from '../../../constants'
 import ConIntergration from './ContinueIntegration'
@@ -623,7 +623,7 @@ let MirrorService = React.createClass({
       callback([new Error('请填写镜像服务地址')])
       return
     }
-    if (!/^(http:\/\/|https\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
+    if (!/^(http:\/\/|https:\/\/)([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9\-]+(:[0-9]{1,5})?$/.test(value) && !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?$/.test(value)) {
       return callback('请填入合法的镜像服务地址')
     }
     callback()

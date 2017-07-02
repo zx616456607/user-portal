@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { registerUser, sendRegisterPhoneCaptcha } from '../../actions/user'
 import { login } from '../../actions/entities'
 import { browserHistory } from 'react-router'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import QRCodeContent from '../../components/WechatQRCodeTicket/QRCodeContent'
 
 const TabPane = Tabs.TabPane

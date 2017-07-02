@@ -69,8 +69,13 @@ app.use(function* (next) {
   try {
     yield next
   } catch (err) {
-    logger.error('catch-error', err.stack)
-    logger.error('catch-error', JSON.stringify(err))
+    if (err && err.statusCode !== 200) {
+      // Skip the log if it's success code
+      logger.error('catch-error', err.stack)
+      logger.error('catch-error', JSON.stringify(err))
+    } else {
+      logger.warn('Skipping warning message...')
+    }
     let status = err.status || err.statusCode || err.code || 500
     let intStatus = parseInt(status)
     if (intStatus < 100 || isNaN(intStatus)) {

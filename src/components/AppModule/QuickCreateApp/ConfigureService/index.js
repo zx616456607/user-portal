@@ -42,7 +42,7 @@ const Option = Select.Option
 
 let ConfigureService = React.createClass({
   propTypes: {
-    callbackForm: PropTypes.func.isRequired,
+    callback: PropTypes.func.isRequired,
     mode: PropTypes.oneOf([ 'create', 'edit' ]),
   },
   getInitialState() {
@@ -51,9 +51,9 @@ let ConfigureService = React.createClass({
     }
   },
   componentWillMount() {
-    const { callbackForm, imageName, registryServer, form, mode, appName } = this.props
+    const { callback, imageName, registryServer, form, mode, appName } = this.props
     const { setFieldsValue } = form
-    callbackForm(form)
+    callback(form)
     if (mode === 'create') {
       const values = {
         imageUrl: `${registryServer}/${imageName}`,
@@ -187,7 +187,8 @@ let ConfigureService = React.createClass({
     this.setState({
       imageConfigs: configs,
     })
-    const { form } = this.props
+    const { callback, form } = this.props
+    callback(form, configs)
     const { setFieldsValue } = form
     let {
       mountPath,

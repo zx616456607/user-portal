@@ -18,7 +18,7 @@ import { IDValide } from '../../../../common/naming_validation.js'
 import { loadStandardUserCertificate } from '../../../../actions/user'
 import EnterpriseComponse from './detail/EnterpriseComponse'
 import OtherComponse from './detail/OtherComponse'
-import NotificationHandler from '../../../../common/notification_handler.js'
+import NotificationHandler from '../../../../components/Notification'
 import './style/Authentication.less'
 const TabPane = Tabs.TabPane
 const RadioGroup = Radio.Group
