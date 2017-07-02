@@ -127,4 +127,8 @@ module.exports = function (config) {
 
   // ~role
   this.role = collections.create('role')
+
+  // ~ pkg
+  this.pkg = collections.create('pkg')
+
 }
