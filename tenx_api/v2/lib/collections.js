@@ -209,6 +209,19 @@ module.exports = function (request) {
         method: 'POST'
       })
     }
+
+    downloadFile(paths, querys, options, callback) {
+      let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
+      return request({
+        endpoint,
+        streaming: true,
+        options,
+        returnAll: true,
+        method: 'GET',
+        dataType: null,
+        contentType: null,
+      })
+    }
   }
 
   this.create = (collection) => new Collections(collection)

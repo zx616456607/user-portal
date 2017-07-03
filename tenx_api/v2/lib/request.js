@@ -45,8 +45,8 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
     // options.headers = object.headers
     // options.data = object.data
     options.method = object.method
-    options.dataType = object.dataType || DEFAULT_DATATYPE
-    options.contentType = object.contentType || DEFAULT_DATATYPE
+    options.dataType = (typeof object.dataType !== 'undefined' ? object.dataType : DEFAULT_DATATYPE)
+    options.contentType = (typeof object.contentType !== 'undefined' ? object.contentType : DEFAULT_DATATYPE)
     options.timeout = object.timeout || timeout
     options.headers = object.headers
     options.data = object.data
@@ -71,6 +71,9 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
         function done(result) {
           logger.debug(`--> [${options.method || 'GET'}] ${url}`)
           logger.debug(`api result: ${JSON.stringify(result.data)}`)
+          if (object.returnAll) {
+            return result
+          }
           if (_isSuccess(result.res.statusCode)) {
             // data maybe null
             if (!result.data) {

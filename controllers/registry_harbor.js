@@ -92,7 +92,7 @@ exports.getRepositoriyConfig = function* () {
     harbor.getRepositoriesManifest(repoName, tag, (err, statusCode, body) => {
       if(statusCode != 200) {
         let message = ''
-        if(body.errors) {
+        if (body && body.errors) {
           message = body.errors[0].message
         } else {
           message = body

@@ -93,6 +93,28 @@
         box-shadow: 0 1px 6px rgba(100, 100, 100, 0.2);
       }
     }
+    .authorityBtn{
+      position: absolute;
+      right:160px;
+      top:7px;
+      z-index: 2;
+      border:1px solid #e9ecf1;
+      color: #57c5f7;
+      padding-left:30px;
+      button{
+        z-index: 2;
+      }
+      .OpenModalImage{
+        height:14px;
+        margin-right:5px;
+        position: absolute;
+        top:6px;
+        left:11px
+      }
+    }
+    .authorityBtn:hover{
+      border: 1px solid #57c5f7;
+    }
     .addBtn {
       position: absolute;
       right: 40px;
@@ -248,3 +270,82 @@
     margin-left: 10px;
 }
 
+.clusterAuthorityModal{
+  .ant-modal-footer{
+    .allclearBtn{
+      position: relative;
+      padding-left: 30px;
+      .clearIcon{
+        height: 15px;
+        width: 15px;
+        fill: #ffffff;
+        margin-right: 5px;
+        position: absolute;
+        left: 10px;
+        top: 6px;
+      }
+    }
+  }
+  .clusterstatusType{
+    text-align: center;
+    .typeBtn{
+      width:255px;
+      .clickwait{
+        height:14px;
+        width:14px;
+        margin-right:7px;
+        fill:#ffffff;
+      }
+    }
+  }
+  .clusterContainer{
+    margin-top: 16px;
+    width: 100%;
+    min-height: 298px;
+    .handlebox{
+      height:22px;
+    }
+    .checkBtn,
+    .crossBtn{
+      border-color:#b0b5b9;
+    }
+    .crossBtn{
+      margin-left:8px;
+    }
+    .checkBtn:hover{
+      background: #5db75d;
+      color:#ffffff;
+      border-color:#5db75d
+    }
+    .crossBtn:hover{
+      background: #f85a5b;
+      color:#ffffff;
+      border-color:#f85a5b;
+    }
+    .deleteIcon{
+      height:22px;
+      width:22px;
+      cursor: pointer;
+    }
+    .deleteIcon:hover{
+      fill:#57c5f7;
+    }
+    .ant-table-header{
+      background: #ffffff;
+    }
+    .ant-table-thead{
+      background: #ffffff;
+      > tr{
+        > th{
+          background: #ffffff;
+          font-weight:normal;
+          padding-top: 0;
+          padding-bottom:0;
+        }
+      }
+    }
+    .ant-table-placeholder{
+      border-bottom:none;
+    }
+  }
+}

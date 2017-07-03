@@ -18,7 +18,8 @@ import Title from '../Title'
 import './style/AppWrapManage.less'
 import NotificationHandler from '../../components/Notification'
 import { formatDate } from '../../common/tools'
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE} from '../../../constants'
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
+import { API_URL_PREFIX } from '../../constants'
 
 import { wrapManageList, deleteWrapManage ,downloadWrap} from '../../actions/app_center'
 const RadioGroup = Radio.Group
@@ -293,7 +294,7 @@ class WrapManage extends Component {
         dataIndex: 'fileName',
         key: 'name',
         width: '20%',
-        render: (text,row) => <a onClick={()=> this.props.downloadWrap(row.id)}>{text}</a>
+        render: (text,row) => <a target="_blank" href={`${API_URL_PREFIX}/pkg/${row.id}`}>{text}</a>
       }, {
         title: '版本标签',
         dataIndex: 'fileTag',
