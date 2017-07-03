@@ -5,6 +5,7 @@
 import { FETCH_API } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
 import { toQuerystring } from '../common/tools'
+import { 	Schemas } from '../middleware/api'
 
 
 
@@ -282,8 +283,8 @@ export const PROJECTS_CLUSTER_APPROVAL_GET_SUCCESS = 'PROJECTS_CLUSTER_APPROVAL_
 export const PROJECTS_CLUSTER_APPROVAL_GET_FAILURE = 'PROJECTS_CLUSTER_APPROVAL_GET_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchGetProjectsApprovalClusters(body, query, callback) {
-	let endpoint = `${API_URL_PREFIX}/projects/cluster`
+function fetchGetProjectsApprovalClusters(query, callback) {
+	let endpoint = `${API_URL_PREFIX}/projects/approval-clusters`
 	if (query) {
 		endpoint += `?${toQuerystring(query)}`
 	}
@@ -301,9 +302,9 @@ function fetchGetProjectsApprovalClusters(body, query, callback) {
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function GetProjectsApprovalClusters(body, query, callback) {
+export function GetProjectsApprovalClusters(query, callback) {
 	return (dispatch) => {
-		return dispatch(fetchGetProjectsApprovalClusters(body, query, callback))
+		return dispatch(fetchGetProjectsApprovalClusters(query, callback))
 	}
 }
 
@@ -369,7 +370,7 @@ export const PROJECTS_CLUSTER_APPROVAL_UPDATE_FAILURE = 'PROJECTS_CLUSTER_APPROV
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchUpdateProjectsApprovalCluster(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/projects/cluster`
+	let endpoint = `${API_URL_PREFIX}/projects/clusters`
 	return {
 		[FETCH_API]: {
 			types: [PROJECTS_CLUSTER_APPROVAL_UPDATE_REQUEST, PROJECTS_CLUSTER_APPROVAL_UPDATE_SUCCESS, PROJECTS_CLUSTER_APPROVAL_UPDATE_FAILURE],
@@ -377,7 +378,7 @@ function fetchUpdateProjectsApprovalCluster(body, callback) {
 			schema: {},
 			options: {
 				method: 'PUT',
-				body: body.body
+				body: body
 			},
 		},
 		callback
