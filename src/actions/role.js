@@ -129,8 +129,8 @@ export const ROLE_DELETE_FAILURE = 'ROLE_DELETE_FAILURE'
 
 // Fetches get delete from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchDeleteRole(id,query,callback){
-	let endpoint = `${API_URL_PREFIX}/role/%{id}`
+function fetchDeleteRole(body,query,callback){
+	let endpoint = `${API_URL_PREFIX}/role/${body.id}`
 	if (query) {
     endpoint += `?${toQuerystring(query)}`
   }
@@ -149,9 +149,9 @@ function fetchDeleteRole(id,query,callback){
 
 // Fetches delete role from API
 // Relies on Redux Thunk middleware.
-export function DeleteRole(body, callback) {
+export function DeleteRole(body,query, callback) {
 	return (dispatch) => {
-		return dispatch(fetchDeleteRole(body.id, body.body, callback))
+		return dispatch(fetchDeleteRole(body, query, callback))
 	}
 }
 
@@ -161,15 +161,16 @@ export const ROLE_ADDPERMISSION_FAILURE = 'ROLE_ADDPERMISSION_FAILURE'
 
 // Fetches add permission role from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchAddPermissionRole(id,body,callback){
-	let endpoint = `${API_URL_PREFIX}/role/${id}/addPermission`
+function fetchAddPermissionRole(body,callback){
+	let endpoint = `${API_URL_PREFIX}/role/${body.id}/addPermission`
+  let data = body.body
 	return {
 		[FETCH_API]: {
       types: [ROLE_ADDPERMISSION_REQUEST, ROLE_ADDPERMISSION_SUCCESS, ROLE_ADDPERMISSION_FAILURE],
       endpoint,
       options: {
         method: 'PUT',
-        body
+        data
       },
       schema: {},
     },
@@ -181,7 +182,7 @@ function fetchAddPermissionRole(id,body,callback){
 // Relies on Redux Thunk middleware.
 export function AddPermissionRole(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchAddPermissionRole(body.id, body.body, callback))
+		return dispatch(fetchAddPermissionRole(body, callback))
 	}
 }
 
@@ -192,15 +193,16 @@ export const ROLE_REMOVEPERMISSION_FAILURE = 'ROLE_REMOVEPERMISSION_FAILURE'
 
 // Fetches remove permission role from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchRemovePermissionRole(id,body,callback){
-	let endpoint = `${API_URL_PREFIX}/role/${id}/removePermission`
+function fetchRemovePermissionRole(body,callback){
+	let endpoint = `${API_URL_PREFIX}/role/${body.id}/removePermission`
+  let data = body.body
 	return {
 		[FETCH_API]: {
       types: [ROLE_REMOVEPERMISSION_REQUEST, ROLE_REMOVEPERMISSION_SUCCESS, ROLE_REMOVEPERMISSION_FAILURE],
       endpoint,
       options: {
         method: 'PUT',
-        body
+        data
       },
       schema: {},
     },
@@ -212,7 +214,7 @@ function fetchRemovePermissionRole(id,body,callback){
 // Relies on Redux Thunk middleware.
 export function RemovePermissionRole(body, callback) {
 	return (dispatch) => {
-		return dispatch(fetchRemovePermissionRole(body.id, body.body, callback))
+		return dispatch(fetchRemovePermissionRole(body, callback))
 	}
 }
 
@@ -221,8 +223,8 @@ export const ROLE_EXISTENCE_SUCCESS = 'ROLE_EXISTENCE_SUCCESS'
 export const ROLE_EXISTENCE_FAILURE = 'ROLE_EXISTENCE_FAILURE'
 // Fetches exist role from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchExistenceRole(name,callback){
-	let endpoint = `${API_URL_PREFIX}/role/${name}/existence`
+function fetchExistenceRole(body,callback){
+	let endpoint = `${API_URL_PREFIX}/role/${body.name}/existence`
 	return {
 		[FETCH_API]: {
       types: [ROLE_EXISTENCE_REQUEST, ROLE_EXISTENCE_SUCCESS, ROLE_EXISTENCE_FAILURE],
@@ -247,8 +249,8 @@ export const ROLE_ALLOWUPDATE_FAILURE = 'ROLE_ALLOWUPDATE_FAILURE'
 
 // Fetches allow update role from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchAllowUpdateRole(id,callback){
-	let endpoint = `${API_URL_PREFIX}/role/${id}/allowUpdate`
+function fetchAllowUpdateRole(body,callback){
+	let endpoint = `${API_URL_PREFIX}/role/${body.id}/allowUpdate`
 	return {
 		[FETCH_API]: {
       types: [ROLE_ALLOWUPDATE_REQUEST, ROLE_ALLOWUPDATE_SUCCESS, ROLE_ALLOWUPDATE_FAILURE],

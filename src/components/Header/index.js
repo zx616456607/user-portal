@@ -43,6 +43,7 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/database_cache/,
     /^\/app_center\/?$/,
     /\/app_center\/stack_center/,
+    /\/app_center\/wrap_manage/,
     /\/ci_cd/,
     /\/manange_monitor/,
     /\/manange_monitor\/alarm_record/,

@@ -39,8 +39,7 @@ export function Permission(body, callback) {
 
 // Fetches list permission and count from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-
-function fetchPermissionAndCount(callback) {
+function fetchPermissionAndCount(body,callback) {
 	return {
     [FETCH_API]: {
       types: [PERMISSION_LIST_REQUEST, PERMISSION_LIST_SUCCESS, PERMISSION_LIST_FAILURE],
@@ -65,8 +64,8 @@ export const PERMISSION_RETRIEVE_FAILURE = 'PERMISSION_RETRIEVE_FAILURE'
 
 // Fetches retrieve permission from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchRetrievePermission(id,callback){
-	let endpoint = `${API_URL_PREFIX}/permission/${id}/retrieve`
+function fetchRetrievePermission(body,callback){
+	let endpoint = `${API_URL_PREFIX}/permission/${body.id}/retrieve`
 	return {
     [FETCH_API]: {
       types: [PERMISSION_RETRIEVE_REQUEST, PERMISSION_RETRIEVE_SUCCESS, PERMISSION_RETRIEVE_FAILURE],
@@ -87,8 +86,8 @@ export function RetrievePermission(body, callback) {
 
 // Fetches retrieve permission and count from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchRetrievePermissionAndCount(id,callback){
-	let endpoint = `${API_URL_PREFIX}/permission/${id}/retrieve/withCount`
+function fetchRetrievePermissionAndCount(body,callback){
+	let endpoint = `${API_URL_PREFIX}/permission/${body.id}/retrieve/withCount`
 	return {
     [FETCH_API]: {
       types: [PERMISSION_RETRIEVE_REQUEST, PERMISSION_RETRIEVE_SUCCESS, PERMISSION_RETRIEVE_FAILURE],
@@ -113,8 +112,8 @@ export const PERMISSION_DEPENDENT_FAILURE = 'PERMISSION_DEPENDENT_FAILURE'
 
 // Fetches dependent from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchDependent(id,callback) {
-	let endpoint = `${API_URL_PREFIX}/permission/${id}/dependent`
+function fetchDependent(body,callback) {
+	let endpoint = `${API_URL_PREFIX}/permission/${body.id}/dependent`
 	return {
     [FETCH_API]: {
       types: [PERMISSION_DEPENDENT_REQUEST, PERMISSION_DEPENDENT_SUCCESS, PERMISSION_DEPENDENT_FAILURE],

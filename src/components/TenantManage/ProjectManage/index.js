@@ -968,7 +968,7 @@ class CreateStepSecond extends Component{
   }
   getPermission() {
     const { PermissionAndCount } = this.props;
-    PermissionAndCount({
+    PermissionAndCount({},{
       success:{
         func: (res)=>{
           if (res.data.statusCode === 200) {

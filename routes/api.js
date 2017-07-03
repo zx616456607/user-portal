@@ -43,6 +43,7 @@ const oemController = require('../controllers/oem_info')
 const projectController =require('../controllers/project')
 const permissionController = require('../controllers/permission')
 const roleController = require('../controllers/role')
+const pkgController =require('../controllers/wrap_manage')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -551,5 +552,13 @@ module.exports = function (Router) {
   router.get('/role',roleController.list)
   router.get('/role/:name/existence',roleController.existence)
   router.get('/role/:id/allowUpdate',roleController.allowUpdate)
+
+  // package manage
+  router.get('/pkg', pkgController.getPkgManageList)
+  router.get('/pkg/:id', pkgController.downloadPkg)
+  router.post('/pkg/batch-delete', pkgController.deletePkg)
+  router.post('/:filename/:filetag/:filetype', pkgController.localUploadPkg)
+  router.post('/:filename/:filetag/:filetype/remote', pkgController.romoteUploadPkg)
+  
   return router.routes()
 }
