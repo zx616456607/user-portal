@@ -63,11 +63,10 @@ function fetchListRole(callback){
 // Fetches list role from API
 // Relies on Redux Thunk middleware.
 export function ListRole(body, callback) {
-	return (dispatch) => {
-		return dispatch(fetchListRole(body, callback))
-	}
+  return (dispatch) => {
+    return dispatch(fetchListRole(body, callback))
+  }
 }
-
 export const ROLE_GET_REQUEST = 'ROLE_GET_REQUEST'
 export const ROLE_GET_SUCCESS = 'ROLE_GET_SUCCESS'
 export const ROLE_GET_FAILURE = 'ROLE_GET_FAILURE'

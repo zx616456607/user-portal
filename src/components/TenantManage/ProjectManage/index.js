@@ -14,21 +14,23 @@ import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, To
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
 import { ListProjects, DeleteProjects, UpdateProjects } from '../../../actions/project'
+import { ListRole, CreateRole, GetRole, ExistenceRole } from '../../../actions/role'
+import { PermissionAndCount } from '../../../actions/permission'
 import { chargeProject } from '../../../actions/charge'
 import Notification from '../../../components/Notification'
 import CommonSearchInput from '../../../components/CommonSearchInput'
 const InputGroup = Input.Group;
-
+import cloneDeep from 'lodash/cloneDeep'
 class ProjectManage extends Component{
   constructor(props) {
     super(props)
-    this.state={
+    this.state= {
       delModal: false,
-      delSingle:false,
-      paySingle:false,
-      payModal:false,
-      loading:false,
-      tableLoading:false,
+      delSingle: false,
+      paySingle: false,
+      payModal: false,
+      loading: false,
+      tableLoading: false,
       current: 0,
       payNumber: 10,
       selected: [],
@@ -37,10 +39,10 @@ class ProjectManage extends Component{
       deleteSinglePro: [],
       payArr: [],
       paySinglePro: [],
-      projectName:'',
-      description:'',
-      authorizedCluster:[],
-      Role:{}
+      projectName: '',
+      description: '',
+      authorizedCluster: [],
+      RoleKeys: []
     }
   }
   componentWillMount() {
@@ -51,6 +53,22 @@ class ProjectManage extends Component{
       projectName:name
     })
   }
+  componentWillReceiveProps(nextProps) {
+    const step = nextProps.location.query.step || '';
+    if (step) {
+      let newStep;
+      if (step === 'first') {
+        newStep = 0
+      } else if (step === 'second') {
+        newStep = 1
+      } else {
+        newStep = 2
+      }
+      this.setState({
+        current: newStep
+      })
+    }
+  }
   updateProjectDesc(desc) {
     this.setState({
       description:desc
@@ -59,6 +77,11 @@ class ProjectManage extends Component{
   updateCluster(arr) {
     this.setState({
       authorizedCluster:arr
+    })
+  }
+  updateRole(Role) {
+    this.setState({
+      RoleKeys:Role
     })
   }
   goStep(current) {
@@ -432,10 +455,10 @@ class ProjectManage extends Component{
               <CreateStepFirst clusters = { clusters } step = {step} updateProjectName={this.updateProjectName.bind(this)} updateProjectDesc={this.updateProjectDesc.bind(this)} updateCluster={this.updateCluster.bind(this)}/>
           </div>
           <div className={classNames({'hidden' : step !=='second'})}>
-            <CreateStepSecond projectName={projectName}/>
+            <CreateStepSecond scope={this} updateRole={this.updateRole.bind(this)}/>
           </div>
           <div className={classNames({'hidden' : step !=='third'})}>
-            <CreateStepThird/>
+            <CreateStepThird scope={this} updateRole={this.updateRole.bind(this)}/>
           </div>
         </div>
         
@@ -449,6 +472,28 @@ class ProjectManage extends Component{
     )
   }
 }
+
+function mapStateToProps(state, props) {
+  const { teamClusters } = state.team || { teamClusters : {}};
+  let defaultTeamClusters = {
+    isFetching: false,
+    result:{
+      data: []
+    }
+  }
+  const { isFetching, result} = teamClusters || defaultTeamClusters;
+  const { data } = result || [];
+  return {
+    clusters: data,
+    clustersFetching: isFetching
+  }
+}
+export default connect(mapStateToProps,{
+  ListProjects,
+  DeleteProjects,
+  UpdateProjects,
+  chargeProject,
+})(ProjectManage);
 
 class DelProjectTable extends Component{
   constructor(props){
@@ -621,28 +666,23 @@ class CreateStepFirst extends Component{
     super(props)
     this.state={
       dropVisible:false,
-      clusters: [],
       selectedClusters: [],
       choosableClusters: []
     }
   }
   componentWillMount() {
-    const { choosableClusters, selectedClusters } = this.state;
+    const { selectedClusters } = this.state;
     const { clusters, step } = this.props;
     if (step !== 'first') {
       this.setState({
         dropVisible:false
       })
     }
-    this.setState({
-      clusters
-    },()=>{
-      if (selectedClusters.length === 0) {
-        this.setState({
-          choosableClusters:clusters
-        })
-      }
-    })
+    if (selectedClusters.length === 0) {
+      this.setState({
+        choosableClusters:clusters
+      })
+    }
   }
   componentWillReceiveProps(nextProps) {
     const { selectedClusters } = this.state;
@@ -652,24 +692,25 @@ class CreateStepFirst extends Component{
         dropVisible:false
       })
     }
-    this.setState({
-      clusters
-    },()=>{
-      if (selectedClusters.length === 0) {
-        this.setState({
-          choosableClusters:clusters
-        })
-      }
-    })
+    if (selectedClusters.length === 0) {
+      this.setState({
+        choosableClusters:clusters
+      })
+    }
   }
-  addCluster(item) {
+  addCluster(item,flag) {
     const { choosableClusters, selectedClusters } = this.state;
     const { updateCluster } = this.props;
     let newChoose = new Set(choosableClusters.slice(0))
     let newSelected = new Set(selectedClusters.slice(0))
     let clusterArr = []
-    newSelected.add(item)
-    newChoose.delete(item)
+    if (flag) {
+      newSelected.add(item)
+      newChoose.delete(item)
+    }else {
+      newSelected.delete(item)
+      newChoose.add(item)
+    }
     this.setState({
       choosableClusters: Array.from(newChoose),
       selectedClusters: Array.from(newSelected)
@@ -678,19 +719,6 @@ class CreateStepFirst extends Component{
         clusterArr.push(value.clusterID)
       })
       updateCluster(clusterArr)
-      
-    })
-  }
-  deleteCluster(item) {
-    const { choosableClusters, selectedClusters } = this.state;
-    const { updateCluster } = this.props;
-    let newChoose = new Set(choosableClusters.slice(0))
-    let newSelected = new Set(selectedClusters.slice(0))
-    newSelected.delete(item)
-    newChoose.add(item)
-    this.setState({
-      choosableClusters: Array.from(newChoose),
-      selectedClusters: Array.from(newSelected)
     })
   }
   toggleDrop() {
@@ -736,7 +764,7 @@ class CreateStepFirst extends Component{
       [
         selectedClusters&&selectedClusters.map((item,index)=>{
           return(
-            <dd className="topList" key={item.clusterID}>{item.clusterName}<Icon onClick={()=>this.deleteCluster(item)} type="cross-circle-o" className="pointer" /></dd>
+            <dd className="topList" key={item.clusterID}>{item.clusterName}<Icon onClick={()=>this.addCluster(item,false)} type="cross-circle-o" className="pointer" /></dd>
           )
         })
       ]
@@ -745,7 +773,7 @@ class CreateStepFirst extends Component{
       [
         choosableClusters&&choosableClusters.map((item,index)=>{
           return (
-            <dd onClick={()=>this.addCluster(item)} className="bottomList pointer" key={item.clusterID}>{item.clusterName}</dd>
+            <dd onClick={()=>this.addCluster(item,true)} className="bottomList pointer" key={item.clusterID}>{item.clusterName}</dd>
           )
         })
       ]
@@ -804,51 +832,85 @@ CreateStepFirst = connect(mapStateToFristProp, {
 
 })(CreateStepFirst)
 
-const x = 3;
-const y = 2;
-const z = 1;
-const gDatas = [];
-
-const generateDatas = (_level, _preKey, _tns) => {
-  const preKey = _preKey || '0';
-  const tns = _tns || gDatas;
-  
-  const children = [];
-  for (let i = 0; i < x; i++) {
-    const key = `${preKey}-${i}`;
-    tns.push({ title: key, key });
-    if (i < y) {
-      children.push(key);
-    }
-  }
-  if (_level < 0) {
-    return tns;
-  }
-  const level = _level - 1;
-  children.forEach((key, index) => {
-    tns[index].children = [];
-    return generateDatas(level, key, tns[index].children);
-  });
-};
-generateDatas(z);
 class CreateStepSecond extends Component{
   constructor(props){
     super(props)
     this.state={
-      mockData: [],
       targetKeys: [],
       characterModal: false,
-      expandedKeys: ['0-0-0', '0-0-1'],
+      expandedKeys: [],
       autoExpandParent: true,
-      checkedKeys: ['0-0-0'],
+      checkedKeys: [],
       selectedKeys: [],
+      selectedList: [],
+      choosableList: [],
+      allPermission: []
     }
   }
-  componentDidMount(){
-    this.getMock();
+  componentWillMount() {
+    this.loadRoleList()
+     this.getPermission()
+  }
+  componentWillReceiveProps(nextProps) {
+    const { allPermission } = this.state;
+    this.loadRoleList()
+    if (!allPermission) {
+      this.getPermission()
+    }
+  }
+  generateDatas(_tns ) {
+    const tns = _tns;
+    const children = [];
+    for (let i = 0; i < tns.length; i++) {
+      const key = `${tns[i].id}`;
+      tns[i] = Object.assign(tns[i],{title: tns[i].desc,key: tns[i].id})
+      children.push(key);
+    }
+    children.forEach((key, index) => {
+      if (tns[index].children.length !== 0) {
+        return this.generateDatas(tns[index].children);
+      }
+    });
+  };
+  loadRoleList() {
+    const { ListRole, scope } = this.props;
+    const targetKeys = [];
+    const roleList = [];
+    ListRole({
+      success: {
+        func: (res)=> {
+          if (res.data.statusCode === 200) {
+            let result = res.data.data.items;
+            for (let i = 0 ; i < result.length; i++) {
+              const data = {
+                key: `${result[i].id},${result[i].comment}`,
+                title: result[i].comment,
+                description: result[i].comment,
+                chosen: false,
+              };
+              const newData = Object.assign({},result[i],data);
+              if (newData.chosen) {
+                targetKeys.push(data.key);
+              }
+              roleList.push(newData)
+            }
+            if (scope.state.RoleKeys.length > 0) {
+              this.setState({
+                targetKeys: scope.state.RoleKeys.slice(0)
+              })
+            } else {
+              this.setState({
+                choosableList:roleList,
+                targetKeys
+              })
+            }
+          }
+        },
+        isAsync: true
+      }
+    })
   }
   onExpand(expandedKeys) {
-    console.log('onExpand', arguments);
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
     // or, you can remove all expanded chilren keys.
     this.setState({
@@ -858,117 +920,211 @@ class CreateStepSecond extends Component{
   }
   onCheck(checkedKeys) {
     this.setState({
-      checkedKeys,
-      selectedKeys: ['0-3', '0-4'],
+      checkedKeys
     });
   }
   onSelect(selectedKeys, info) {
-    console.log('onSelect', info);
     this.setState({ selectedKeys });
-  }
-  getMock() {
-    const targetKeys = [];
-    const mockData = [];
-    for (let i = 0; i < 20; i++) {
-      const data = {
-        key: i,
-        title: `内容${i + 1}`,
-        description: `内容${i + 1}的描述`,
-        chosen: Math.random() * 2 > 1,
-      };
-      if (data.chosen) {
-        targetKeys.push(data.key);
-      }
-      mockData.push(data);
-    }
-    this.setState({ mockData, targetKeys });
   }
   filterOption(inputValue, option) {
     return option.description.indexOf(inputValue) > -1;
   }
-  handleChange(targetKeys) {
+  handleChange(targetKeys,d,m) {
+    const { updateRole } = this.props;
     this.setState({ targetKeys });
+    updateRole(targetKeys)
   }
   cancelModal() {
     this.setState({characterModal:false})
   }
-  createModal() {
-    this.setState({characterModal:false})
+  okCreateModal() {
+    const { CreateRole, ExistenceRole } = this.props;
+    const { checkedKeys } = this.state;
+    const { getFieldValue } = this.props.form;
+    let notify = new Notification()
+    let roleDesc = getFieldValue('roleDesc')
+    let roleName = getFieldValue('roleName')
+    ExistenceRole({
+      name: roleName
+    },{
+      success:{
+        func: (res) => {
+          if (res.data.statusCode === 200) {
+            if (res.data.data) {
+              return notify.info('该角色名称已经存在')
+            }
+            CreateRole({
+              name: roleName,
+              comment: roleDesc,
+              permission: checkedKeys
+            },{
+              success:{
+                func: (res) => {
+                  if (res.data.statusCode === 200) {
+                    notify.success('创建角色成功')
+                    this.loadRoleList()
+                    this.setState({characterModal:false})
+                  }
+                },
+                isAsync: true
+              }
+            })
+          }
+        },
+        isAsync: true
+      }
+    })
+  }
+  openCreateModal() {
+    this.setState({
+      characterModal:true
+    })
+  }
+  getPermission() {
+    const { PermissionAndCount } = this.props;
+    PermissionAndCount({},{
+      success:{
+        func: (res)=>{
+          if (res.data.statusCode === 200) {
+            let result = res.data.data.permission;
+            this.generateDatas(result)
+            this.setState({
+              allPermission:result
+            })
+          }
+        },
+        isAsync: true
+      }
+    })
+  }
+  roleName(rule, value, callback) {
+    let newValue = value.trim()
+    if (!Boolean(newValue)) {
+      callback(new Error('请输入名称'))
+      return
+    }
+    if (newValue.length < 3 || newValue.length > 21) {
+      callback(new Error('请输入3~21个字符'))
+      return
+    }
+    callback()
+  }
+  roleDesc(rule, value, callback) {
+    let newValue = value.trim()
+    if (!Boolean(newValue)) {
+      callback(new Error('请输入描述'))
+      return
+    }
+    if (newValue.length < 3 || newValue.length > 21) {
+      callback(new Error('请输入3~21个字符'))
+      return
+    }
+    callback()
+  }
+  renderItem(item) {
+    return(
+      <Row key={item&&item.key}>
+        <Col span={20}>{item&&item.comment}</Col>
+        <Col span={4}>{item&&item.count}</Col>
+      </Row>
+    )
   }
   render() {
     const TreeNode = Tree.TreeNode;
-    const { projectName } = this.props;
-    
+    const { scope } = this.props;
+    const { choosableList, targetKeys, allPermission } = this.state;
+    const { getFieldProps } = this.props.form;
+    const formItemLayout = {
+      labelCol: { span: 4 },
+      wrapperCol: { span: 15 },
+    };
     const loop = data => data.map((item) => {
       if (item.children) {
         return (
-          <TreeNode key={item.key} title={item.key} disableCheckbox={item.key === '0-0-0'}>
+          <TreeNode key={item.key} title={item.title}>
             {loop(item.children)}
           </TreeNode>
         );
       }
-      return <TreeNode key={item.key} title={item.key} />;
+      return <TreeNode key={item.key} title={item.title} />;
     });
     return (
       <div id="projectCreateStepSecond" className="projectCreateStepSecond">
         <Modal title="创建角色" wrapClassName="createCharacterModal" visible={this.state.characterModal} width={570}
           onCancel={()=> this.cancelModal()}
-          onOk={()=> this.createModal()}
+          onOk={()=> this.okCreateModal()}
         >
-          <div className="inputBox">
-            <span>角色名称</span>
-            <Input size="large" placeholder="请填写角色名称"/>
-          </div>
-          <div className="inputBox">
-            <span>备注</span>
-            <Input size="large"/>
-          </div>
+          <Form className="createRoleForm" form={this.props.form}>
+            <Form.Item label="名称" {...formItemLayout}>
+              <Input placeholder="请输入名称" {...getFieldProps(`roleName`, {
+                rules: [
+                  { validator: (rules,value,callback)=>this.roleName(rules,value,callback)}
+                ],
+                initialValue:  '',
+              }) }
+              />
+            </Form.Item>
+            <Form.Item label="描述" {...formItemLayout}>
+              <Input type="textarea" {...getFieldProps(`roleDesc`, {
+                rules: [
+                  { validator: (rules,value,callback)=>this.roleDesc(rules,value,callback)}
+                ],
+                initialValue: '',
+              }) }/>
+            </Form.Item>
+          </Form>
           <div className="authChoose">
-            <span>权限选择</span>
+            <span>权限选择 :</span>
             <div className="authBox inlineBlock">
               <div className="authTitle clearfix">可选权限 <div className="pull-right"><span style={{color:'#59c3f5'}}>14</span> 个权限</div></div>
               <div className="treeBox">
-                <Tree
-                  checkable
-                  onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
-                  autoExpandParent={this.state.autoExpandParent}
-                  onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
-                  onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
-                >
-                  {loop(gDatas)}
-                </Tree>
+                {
+                  allPermission.length > 0 &&
+                  <Tree
+                    checkable
+                    onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
+                    autoExpandParent={this.state.autoExpandParent}
+                    onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
+                    onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
+                  >
+                    {loop(allPermission)}
+                  </Tree>
+                }
               </div>
             </div>
           </div>
         </Modal>
         <div className="inputBox">
           <span>项目名称</span>
-          <input type="text" className="projectName" disabled={true} value={projectName&&projectName}/>
+          <input type="text" className="projectName" disabled={true} value={scope.state.projectName}/>
         </div>
         <div className="inputBox">
           <span>角色</span>
-          <Button type="primary" size="large" onClick={()=> this.setState({characterModal:true})}>创建新角色</Button>
+          <Button type="primary" size="large" onClick={()=>this.openCreateModal()}>创建新角色</Button>
         </div>
         <Transfer
-          dataSource={this.state.mockData}
+          dataSource={choosableList}
+          className="roleTrans"
           showSearch
           listStyle={{
             width: 300,
             height: 255,
           }}
           searchPlaceholde="请输入策略名搜索"
-          titles={['可选角色（个）', '已选角色（个）']}
-          operations={['移除', '添加']}
+          titles={['包含权限（个）', '包含权限（个）']}
+          operations={[ '添加','移除']}
           filterOption={this.filterOption.bind(this)}
-          targetKeys={this.state.targetKeys}
+          targetKeys={targetKeys}
           onChange={this.handleChange.bind(this)}
-          render={item => item.title}
+          rowKey={item => item.key}
+          render={(item)=>this.renderItem(item)}
         />
       </div>
     )
   }
 }
 
+CreateStepSecond = Form.create()(CreateStepSecond)
 function mapStateToSecondProp(state, props) {
   
   return {
@@ -977,24 +1133,42 @@ function mapStateToSecondProp(state, props) {
 }
 
 CreateStepSecond = connect(mapStateToSecondProp, {
-
+  ListRole,
+  CreateRole,
+  PermissionAndCount,
+  ExistenceRole,
 })(CreateStepSecond)
 
+let checkedKeysThird = []
 class CreateStepThird extends Component{
   constructor(props){
     super(props)
     this.state={
-      expandedKeys: ['0-0-0', '0-0-1'],
+      expandedKeys: [],
       autoExpandParent: true,
-      checkedKeys: ['0-0-0'],
+      checkedKeys: [],
       selectedKeys: [],
       connectModal: false,
       mockData: [],
       targetKeys: [],
+      currentRoleInfo: {},
+      currentRolePermission: []
     }
   }
   componentDidMount() {
     this.getMock();
+  }
+  componentWillReceiveProps(nextProps) {
+    const { scope } = nextProps;
+    let RoleKeys = scope.state.RoleKeys;
+    if ((RoleKeys.length > 0)) {
+        this.getCurrentRole(RoleKeys[0].split(',')[0])
+    } else {
+      this.setState({
+        currentRolePermission: [],
+        currentRoleInfo: {}
+      })
+    }
   }
   getMock() {
     const targetKeys = [];
@@ -1014,22 +1188,17 @@ class CreateStepThird extends Component{
     this.setState({ mockData, targetKeys });
   }
   onExpand(expandedKeys) {
-    console.log('onExpand', arguments);
-    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-    // or, you can remove all expanded chilren keys.
     this.setState({
       expandedKeys,
       autoExpandParent: false,
     });
   }
-  onCheck(checkedKeys) {
+  onCheckThird(checkedKeys){
     this.setState({
       checkedKeys,
-      selectedKeys: ['0-3', '0-4'],
     });
   }
   onSelect(selectedKeys, info) {
-    console.log('onSelect', info);
     this.setState({ selectedKeys });
   }
   closeModal() {
@@ -1044,44 +1213,83 @@ class CreateStepThird extends Component{
   handleChange(targetKeys) {
     this.setState({ targetKeys });
   }
-  render() {
-    const TreeNode = Tree.TreeNode;
-    const x = 3;
-    const y = 2;
-    const z = 1;
-    const gData = [];
-  
-    const generateData = (_level, _preKey, _tns) => {
-      const preKey = _preKey || '0';
-      const tns = _tns || gData;
-    
-      const children = [];
-      for (let i = 0; i < x; i++) {
-        const key = `${preKey}-${i}`;
-        tns.push({ title: key, key });
-        if (i < y) {
-          children.push(key);
+  generateDatas (_tns){
+    const tns = _tns;
+    const children = [];
+    for (let i = 0; i < tns.length; i++) {
+      const key = `${tns[i].id}`;
+      tns[i] = Object.assign(tns[i],{title: tns[i].desc,key: `${key}`})
+      children.push(key);
+      checkedKeysThird.push(key)
+    }
+    children.forEach((key, index) => {
+      if (tns[index].children&&(tns[index].children.length !== null)) {
+        return this.generateDatas(tns[index].children);
+      }
+    });
+  };
+  getCurrentRole(id) {
+    const { GetRole } = this.props;
+    const { currentRoleInfo } = this.state;
+    if (currentRoleInfo.role && (id === currentRoleInfo.role.id)) {
+      return
+    }
+    checkedKeysThird.length=0
+    this.setState({
+      checkedKeys:[],
+      expandedKeys: [],
+      currentRoleInfo: {},
+      currentRolePermission: []
+    },()=>{
+      GetRole({
+        id
+      },{
+        success: {
+          func: (res) =>{
+            if (res.data.statusCode === 200) {
+              let result = res.data.data;
+              this.generateDatas(result.permission.permission)
+              this.setState({
+                currentRoleInfo: result,
+                currentRolePermission: result.permission.permission,
+                expandedKeys: checkedKeysThird,
+                checkedKeys: checkedKeysThird
+              })
+            }
+          },
+          isAsync: true
         }
-      }
-      if (_level < 0) {
-        return tns;
-      }
-      const level = _level - 1;
-      children.forEach((key, index) => {
-        tns[index].children = [];
-        return generateData(level, key, tns[index].children);
-      });
-    };
-    generateData(z);
-    const loop = data => data.map((item) => {
+      })
+    })
+  }
+  deleteRole(e,item) {
+    checkedKeysThird.length = 0
+    e.stopPropagation()
+    const { scope, updateRole} = this.props;
+    let roleList = scope.state.RoleKeys.slice(0);
+    let roleSet = new Set(roleList);
+    roleSet.delete(item);
+    updateRole(Array.from(roleSet))
+  }
+  render() {
+    const { scope } = this.props;
+    const TreeNode = Tree.TreeNode;
+    const { currentRolePermission, currentRoleInfo } = this.state;
+    const roleList = scope.state.RoleKeys.length > 0 ? scope.state.RoleKeys.map((item)=>{
+        return (
+          <li onClick={()=>this.getCurrentRole.call(this,item.split(',')[0])} key={item.split(',')[1]}>{item.split(',')[1]}<Icon type="delete" onClick={(e)=>this.deleteRole(e,item)} className="pointer"/></li>
+        )
+      }) : <li className="pointer" onClick={()=>browserHistory.replace('/tenant_manage/project_manage?step=second')}>请选择角色</li>
+    
+    const loop = data => data.length >0 && data.map((item) => {
       if (item.children) {
         return (
-          <TreeNode key={item.key} title={item.key} disableCheckbox={item.key === '0-0-0'}>
+          <TreeNode key={item.key} title={item.title} disableCheckbox={true}>
             {loop(item.children)}
           </TreeNode>
         );
       }
-      return <TreeNode key={item.key} title={item.key} />;
+      return <TreeNode key={item.key} title={item.title} disableCheckbox={true}/>;
     });
     return (
       <div id="projectCreateStepThird">
@@ -1093,24 +1301,25 @@ class CreateStepThird extends Component{
           <span className="pull-left">已添加角色</span>
           <div className="pull-left characterBox">
             <ul className="characterListBox pull-left">
-              <li>开发123 <Icon type="delete" className="pointer"/></li>
-              <li>开发123 <Icon type="delete" className="pointer"/></li>
-              <li>开发123 <Icon type="delete" className="pointer"/></li>
-              <li>开发123 <Icon type="delete" className="pointer"/></li>
+              {roleList}
             </ul>
             <div className="inlineBlock pull-left rightBox">
               <div className="authBox inlineBlock">
-                <p className="authTitle">开发角色共 <span style={{color:'#59c3f5'}}>14</span> 个权限</p>
+                <p className="authTitle">{currentRoleInfo.role && currentRoleInfo.role.comment || '--' }共 <span style={{color:'#59c3f5'}}>{currentRolePermission.length > 0 && currentRolePermission.length || '--'}</span> 个权限</p>
                 <div className="treeBox">
-                  <Tree
-                    checkable
-                    onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
-                    autoExpandParent={this.state.autoExpandParent}
-                    onCheck={this.onCheck.bind(this)} checkedKeys={this.state.checkedKeys}
-                    onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
-                  >
-                    {loop(gData)}
-                  </Tree>
+                  {
+                    currentRolePermission.length > 0 && (
+                      <Tree
+                        checkable
+                        onExpand={this.onExpand.bind(this)} expandedKeys={this.state.expandedKeys}
+                        autoExpandParent={this.state.autoExpandParent}
+                        onCheck={this.onCheckThird.bind(this)} checkedKeys={this.state.checkedKeys}
+                        onSelect={this.onSelect.bind(this)} selectedKeys={this.state.selectedKeys}
+                      >
+                        {loop(currentRolePermission)}
+                      </Tree>
+                    )
+                  }
                 </div>
               </div>
               <div className="connectMemberBox inlineBlock">
@@ -1136,6 +1345,7 @@ class CreateStepThird extends Component{
             filterOption={this.filterOption.bind(this)}
             targetKeys={this.state.targetKeys}
             onChange={this.handleChange.bind(this)}
+            rowKey={item => item.key}
             render={item => item.title}
           />
         </Modal>
@@ -1144,25 +1354,13 @@ class CreateStepThird extends Component{
   }
 }
 
-function mapStateToProps(state, props) {
-  const { teamClusters } = state.team || { teamClusters : {}};
-  let defaultTeamClusters = {
-    isFetching: false,
-    result:{
-      data: []
-    }
-  }
-  const { isFetching, result} = teamClusters || defaultTeamClusters;
-  const { data } = result || [];
+function mapStateToThirdProp(state, props) {
+  
   return {
-    clusters: data,
-    clustersFetching: isFetching
+  
   }
 }
-export default connect(mapStateToProps,{
-  ListProjects,
-  DeleteProjects,
-  UpdateProjects,
-  chargeProject,
-})(ProjectManage);
 
+CreateStepThird = connect(mapStateToThirdProp, {
+  GetRole
+})(CreateStepThird)
