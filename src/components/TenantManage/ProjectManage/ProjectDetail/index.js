@@ -13,6 +13,9 @@ import classNames from 'classnames';
 import './style/ProjectDetail.less'
 import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, Steps, Transfer, InputNumber, Tree, Switch, Alert, Dropdown, Menu} from 'antd'
 import { browserHistory, Link} from 'react-router'
+import { connect } from 'react-redux'
+import { GetProjectsDetail, UpdateProjects, GetProjectsAllClusters, UpdateProjectsCluster } from '../../../../actions/project'
+
 
 const Option = Select.Option;
 let children = [];
@@ -20,9 +23,6 @@ for (let i = 10; i < 36; i++) {
   children.push(<Option key={i.toString(36) + i}>{i.toString(36) + i}</Option>);
 }
 
-function handleChange(value) {
-  console.log(`selected ${value}`);
-}
 
 const x = 3;
 const y = 2;
@@ -105,13 +105,10 @@ const data = [{
 }];
 const rowSelection = {
   onChange: (selectedRowKeys, selectedRows) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
   },
   onSelect: (record, selected, selectedRows) => {
-    console.log(record, selected, selectedRows);
   },
   onSelectAll: (selected, selectedRows, changeRows) => {
-    console.log(selected, selectedRows, changeRows);
   },
 };
 class ProjectDetail extends Component{
@@ -130,11 +127,53 @@ class ProjectDetail extends Component{
       mockData: [],
       targetKeys: [],
       characterModal:false,
-      payNumber:10
+      payNumber:10,
+      projectDetail:{},
+      projectClusters: [],
+      dropVisible: false,
+      UnRequest: 0
     }
   }
-  componentDidMount() {
+  componentWillMount() {
     this.getMock();
+    this.getProjectDetail();
+    this.getClustersWithStatus();
+  }
+  getClustersWithStatus() {
+    const { name } = this.props.location.query;
+    const { GetProjectsAllClusters } = this.props;
+    GetProjectsAllClusters({
+      projectsName: name
+    },{
+      success: {
+        func: (res) => {
+          if (res.statusCode === 200) {
+            this.setState({
+              projectClusters:res.data.clusters,
+            })
+          }
+        },
+        isAsync:true
+      }
+    })
+  }
+  getProjectDetail() {
+    const { name } = this.props.location.query;
+    const { GetProjectsDetail } = this.props;
+    GetProjectsDetail({
+      projectsName: name
+    },{
+      success: {
+        func: (res) => {
+          if (res.statusCode === 200) {
+            this.setState({
+              projectDetail:res
+            })
+          }
+        },
+        isAsync: true
+      }
+    })
   }
   getMock() {
     const targetKeys = [];
@@ -184,7 +223,6 @@ class ProjectDetail extends Component{
     this.setState({balanceWarning:false})
   }
   onExpand = (expandedKeys) => {
-    console.log('onExpand', arguments);
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
     // or, you can remove all expanded children keys.
     this.setState({
@@ -199,7 +237,6 @@ class ProjectDetail extends Component{
     });
   }
   onSelect = (selectedKeys, info) => {
-    console.log('onSelect', info);
     this.setState({ selectedKeys });
   }
   addCharacterOk() {
@@ -217,9 +254,6 @@ class ProjectDetail extends Component{
   changePayNumber(payNumber) {
     this.setState({payNumber})
   }
-  handleMenuClick(e) {
-    console.log(e)
-  }
   clusterStatus(status) {
     return (
       <span className={`projectDetailClusterStatus projectDetailClusterStatus${status}`}>
@@ -229,38 +263,35 @@ class ProjectDetail extends Component{
       </span>
     )
   }
+  toggleDrop() {
+    this.setState({
+      dropVisible:!this.state.dropVisible
+    })
+  }
+  updateProjectClusters(id,status) {
+    const { UpdateProjectsCluster } = this.props;
+    const { name } = this.props.location.query;
+    UpdateProjectsCluster({
+      projectsName:name,
+      body: {
+        clusters: {
+          [id]:status
+        }
+      }
+    },{
+      success: {
+        func: (res) => {
+          if (res.statusCode === 200) {
+            this.getClustersWithStatus()
+          }
+        },
+        isAsync: true
+      }
+    })
+  }
   render() {
-    const { payNumber } = this.state;
+    const { payNumber, projectDetail, projectClusters, dropVisible } = this.state;
     const TreeNode = Tree.TreeNode;
-    const menu = (
-        <Menu onClick={this.handleMenuClick} style={{maxWidth:'300px'}}>
-          <Menu.Item key="-1" disabled style={{color:'#666',background:'#eee'}}>已选集群（2）</Menu.Item>
-          <Menu.Item key="1">第一个菜单项
-            {this.clusterStatus(1)}
-            <Icon type="cross-circle-o" className="pull-right" style={{marginLeft:'10px'}}/>
-            <Tooltip placement="top" title='重新申请' >
-              <i className="fa fa-pencil-square-o pull-right fa-lg" aria-hidden="true"/>
-            </Tooltip>
-          </Menu.Item>
-          <Menu.Item key="2">第二个菜单项
-            {this.clusterStatus(2)}
-            <Icon type="cross-circle-o" className="pull-right" style={{marginLeft:'10px'}}/>
-            <Tooltip placement="top" title='重新申请' >
-              <i className="fa fa-pencil-square-o pull-right fa-lg" aria-hidden="true"/>
-            </Tooltip>
-          </Menu.Item>
-          <Menu.Item key="3">第三个菜单项
-            {this.clusterStatus(3)}
-            <Icon type="cross-circle-o" className="pull-right" style={{marginLeft:'10px'}}/>
-            <Tooltip placement="top" title='重新申请' >
-              <i className="fa fa-pencil-square-o pull-right fa-lg" aria-hidden="true"/>
-            </Tooltip>
-          </Menu.Item>
-          <Menu.Item key="0" disabled style={{color:'#666',background:'#eee'}}>可选集群（2）</Menu.Item>
-          <Menu.Item key="4">第四个菜单项</Menu.Item>
-          <Menu.Item key="5">第五个菜单项</Menu.Item>
-        </Menu>
-    );
     const loop = data => data.map((item) => {
       if (item.children) {
         return (
@@ -277,6 +308,76 @@ class ProjectDetail extends Component{
         <p>1. 每个有权限管理该项目的人都可设置该项目的余额预警提醒，该设置的提醒只针对设置者本人，以对设置者发邮件的方式提醒，方便及时为项目充值。</p>
         <p>2. 当项目余额小于该值时，每天邮件提醒一次。</p>
       </div>
+    )
+    const applying = (
+      [
+        projectClusters.length > 0 && projectClusters.map((item,index)=>{
+          if (item.status === 1) {
+            return(
+              <dd className="topList" key={item.cluster.clusterID}>
+                <span>{item.cluster.clusterName}</span>
+                <div>
+                  {this.clusterStatus(item.status)}
+                  <Icon type="cross-circle-o" className="pull-right pointer" style={{marginLeft:'10px'}} onClick={()=>this.updateProjectClusters(item.cluster.clusterID,0)}/>
+                </div>
+              </dd>
+            )
+          }
+        })
+      ]
+    )
+    const applied = (
+      [
+        projectClusters.length > 0 && projectClusters.map((item,index)=>{
+          if (item.status === 2) {
+            return(
+              <dd className="topList" key={item.cluster.clusterID}>
+                <span>{item.cluster.clusterName}</span>
+                <div>
+                  {this.clusterStatus(item.status)}
+                  {/*<Icon type="cross-circle-o" className="pull-right pointer" style={{marginLeft:'10px'}} onClick={()=>this.updateProjectClusters(item.cluster.clusterID,0)}/>*/}
+                </div>
+              </dd>
+            )
+          }
+        })
+      ]
+    )
+    const reject = (
+      [
+        projectClusters.length > 0 && projectClusters.map((item,index)=>{
+          if (item.status === 3) {
+            return(
+              <dd className="topList" key={item.cluster.clusterID}>
+                <span>{item.cluster.clusterName}</span>
+                <div>
+                  {this.clusterStatus(item.status)}
+                  <Tooltip placement="top" title='重新申请'>
+                    <i className="fa fa-pencil-square-o pull-right fa-lg pointer" aria-hidden="true" onClick={()=>this.updateProjectClusters(item.cluster.clusterID,1)}/>
+                  </Tooltip>
+                  <Icon type="cross-circle-o" className="pull-right pointer" style={{marginLeft:'10px'}} onClick={()=>this.updateProjectClusters(item.cluster.clusterID,0)}/>
+                </div>
+              </dd>
+            )
+          }
+        })
+      ]
+    )
+    const menuBottom = (
+      [
+        projectClusters.length > 0 && projectClusters.map((item,index)=>{
+          if (item.status === 0) {
+            return(
+              <dd className="topList lastList pointer" key={item.cluster.clusterID} onClick={()=>this.updateProjectClusters(item.cluster.clusterID,1)}>
+                <span>{item.cluster.clusterName}</span>
+                <div>
+                  {this.clusterStatus(item.status)}
+                </div>
+              </dd>
+            )
+          }
+        })
+      ]
     )
     return(
       <div className="projectDetailBox">
@@ -347,7 +448,7 @@ class ProjectDetail extends Component{
                   </Col>
                   <Col className='gutter-row' span={20}>
                     <div className="gutter-box">
-                      项目1
+                      {projectDetail&&projectDetail.projectName}
                     </div>
                   </Col>
                 </Row>
@@ -359,7 +460,7 @@ class ProjectDetail extends Component{
                   </Col>
                   <Col className='gutter-row' span={20}>
                     <div className="gutter-box">
-                      <span style={{marginRight:'30px'}}>58888T</span>
+                      <span style={{marginRight:'30px'}}>{projectDetail&&projectDetail.balance}</span>
                       <Button type="primary" size="large" onClick={this.paySingle.bind(this)}>充值</Button>
                     </div>
                   </Col>
@@ -392,11 +493,21 @@ class ProjectDetail extends Component{
                   </Col>
                   <Col className='gutter-row' span={20}>
                     <div className="gutter-box">
-                      <Dropdown overlay={menu} trigger={['click']}>
-                        <Button type="ghost" style={{ height:34, color:'#b0b0b0' }}>
-                          编辑授权集群 <Icon type="down" />
-                        </Button>
-                      </Dropdown>
+                      <div className="dropDownBox">
+                        <span className="pointer" onClick={()=>{this.toggleDrop()}}>编辑授权集群<i className="fa fa-caret-down pointer" aria-hidden="true"/></span>
+                        <div className={classNames("dropDownInnerBox",{'hide':!dropVisible})}>
+                          <dl className="dropDownTop">
+                            <dt className="topHeader">已申请集群（0）</dt>
+                            {applying}
+                            {applied}
+                            {reject}
+                          </dl>
+                          <dl className="dropDownBottom">
+                            <dt className="bottomHeader">可申请集群（0）</dt>
+                            {menuBottom}
+                          </dl>
+                        </div>
+                      </div>
                     </div>
                   </Col>
                 </Row>
@@ -424,7 +535,7 @@ class ProjectDetail extends Component{
                   </Col>
                   <Col className='gutter-row' span={20}>
                     <div className="gutter-box">
-                      2017-03-24
+                      {projectDetail&&projectDetail.creationTime}
                     </div>
                   </Col>
                 </Row>
@@ -436,7 +547,7 @@ class ProjectDetail extends Component{
                   </Col>
                   <Col className='gutter-row' span={20}>
                     <div className="gutter-box">
-                      2017-03-24
+                      {projectDetail&&projectDetail.updateTime}
                     </div>
                   </Col>
                 </Row>
@@ -457,7 +568,7 @@ class ProjectDetail extends Component{
                             </div>
                             :
                             <div>
-                              <span>我是一只小黄鱼</span>
+                              <span>{projectDetail&&projectDetail.description}</span>
                               <i className="anticon anticon-edit pointer" onClick={()=> this.editComment()}/>
                             </div>
                         }
@@ -475,19 +586,19 @@ class ProjectDetail extends Component{
               <Col className='gutter-row' span={8}>
                 <div className="gutter-box">
                   <i className="inlineBlock appNum"/>
-                  <span>应用数：12个</span>
+                  <span>应用数：{projectDetail&&projectDetail.appCount}个</span>
                 </div>
               </Col>
               <Col className='gutter-row' span={8}>
                 <div className="gutter-box">
                   <i className="inlineBlock serverNum"/>
-                  <span>服务数：12个</span>
+                  <span>服务数：{projectDetail&&projectDetail.serviceCount}个</span>
                 </div>
               </Col>
               <Col className='gutter-row' span={8}>
                 <div className="gutter-box">
                   <i className="inlineBlock containerNum"/>
-                  <span>容器数：12个</span>
+                  <span>容器数：{projectDetail&&projectDetail.containerCount}个</span>
                 </div>
               </Col>
             </Row>
@@ -571,6 +682,21 @@ class ProjectDetail extends Component{
     
   }
 }
+
+function mapStateToThirdProp(state, props) {
+  
+  return {
+  
+  }
+}
+
+export default ProjectDetail = connect(mapStateToThirdProp, {
+  GetProjectsDetail,
+  UpdateProjects,
+  GetProjectsAllClusters,
+  UpdateProjectsCluster
+})(ProjectDetail)
+
 const gDatas = [];
 
 const generateDatas = (_level, _preKey, _tns) => {
@@ -607,7 +733,6 @@ class CreateCharacter extends Component{
   }
   
   onExpand(expandedKeys) {
-    console.log('onExpand', arguments);
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
     // or, you can remove all expanded chilren keys.
     this.setState({
@@ -622,7 +747,6 @@ class CreateCharacter extends Component{
     });
   }
   onSelect(selectedKeys, info) {
-    console.log('onSelect', info);
     this.setState({ selectedKeys });
   }
   render() {
@@ -669,4 +793,4 @@ class CreateCharacter extends Component{
     )
   }
 }
-export default ProjectDetail;
+
