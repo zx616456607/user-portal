@@ -1140,21 +1140,14 @@ class CreateStepThird extends Component{
       currentRolePermission: []
     }
   }
-  componentWillMount() {
-    // const { scope } =  this.props;
-    // let RoleKeys = scope.state.RoleKeys;
-    // if (RoleKeys.length > 0) {
-    //   this.getCurrentRole(RoleKeys[0].split(',')[0])
-    // }
-  }
   componentDidMount() {
     this.getMock();
   }
   componentWillReceiveProps(nextProps) {
     const { scope } = nextProps;
     let RoleKeys = scope.state.RoleKeys;
-    if (RoleKeys.length > 0) {
-      this.getCurrentRole(RoleKeys[0].split(',')[0])
+    if ((RoleKeys.length > 0)) {
+        this.getCurrentRole(RoleKeys[0].split(',')[0])
     } else {
       this.setState({
         currentRolePermission: [],
@@ -1228,7 +1221,9 @@ class CreateStepThird extends Component{
     checkedKeysThird.length=0
     this.setState({
       checkedKeys:[],
-      expandedKeys: []
+      expandedKeys: [],
+      currentRoleInfo: {},
+      currentRolePermission: []
     },()=>{
       GetRole({
         id
@@ -1273,12 +1268,12 @@ class CreateStepThird extends Component{
     const loop = data => data.length >0 && data.map((item) => {
       if (item.children) {
         return (
-          <TreeNode key={item.key} title={item.title} disableCheckbox={false}>
+          <TreeNode key={item.key} title={item.title} disableCheckbox={true}>
             {loop(item.children)}
           </TreeNode>
         );
       }
-      return <TreeNode key={item.key} title={item.title} disableCheckbox={false}/>;
+      return <TreeNode key={item.key} title={item.title} disableCheckbox={true}/>;
     });
     return (
       <div id="projectCreateStepThird">
@@ -1294,7 +1289,7 @@ class CreateStepThird extends Component{
             </ul>
             <div className="inlineBlock pull-left rightBox">
               <div className="authBox inlineBlock">
-                <p className="authTitle">{'--'}共 <span style={{color:'#59c3f5'}}>14</span> 个权限</p>
+                <p className="authTitle">{currentRoleInfo.role && currentRoleInfo.role.comment || '--' }共 <span style={{color:'#59c3f5'}}>{currentRolePermission.length > 0 && currentRolePermission.length || '--'}</span> 个权限</p>
                 <div className="treeBox">
                   {
                     currentRolePermission.length > 0 && (
