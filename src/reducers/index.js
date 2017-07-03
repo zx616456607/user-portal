@@ -46,6 +46,7 @@ import personalized from './personalized'
 import ldap from './ldap'
 import harbor from './harbor'
 import notifications from './notifications'
+import projectAuthority from './project'
 
 import { LOGIN_EXPIRED_MESSAGE, PAYMENT_REQUIRED_CODE, UPGRADE_EDITION_REQUIRED_CODE, } from '../constants'
 
@@ -154,6 +155,7 @@ const rootReducer = combineReducers({
   ldap,
   harbor,
   notifications,
+  projectAuthority,
 })
 
 export default rootReducer
