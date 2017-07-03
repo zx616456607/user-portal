@@ -339,7 +339,7 @@
     display: -webkit-flex;
     align-items: center;
     -webkit-align-items: center;
-    span:first-of-type{
+    &>span:first-of-type{
       width: 90px;
     }
     .ant-input{
@@ -361,9 +361,15 @@
 
   }
 }
+.createRoleForm{
+  .ant-form-item-label{
+    text-align: left;
+    margin-right: 5px;
+  }
+}
 #projectCreateStepOne{
   .inputBox{
-    span:first-of-type{
+    &>span:first-of-type{
       width: 66px;
     }
   }
@@ -375,8 +381,11 @@
     position: relative;
     padding: 0 10px;
     &>span{
-      line-height: 36px;
+      height: 34px;
+      line-height: 34px;
       color: #999999;
+      display: block;
+      width: 100%;
       &>i{
         margin-left: 50px;
       }
@@ -413,6 +422,24 @@
           justify-content: space-between;
         }
       }
+    }
+  }
+}
+#projectCreateStepSecond{
+  .roleTrans{
+    .ant-transfer-list-body{
+      ul{
+        li{
+          display: flex;
+          align-items: center;
+          &>span{
+            flex: 0 1 400px;
+          }
+        }
+      }
+    }
+    .ant-row{
+
     }
   }
 }
@@ -469,8 +496,9 @@
           height: 40px;
           display: inline-flex;
           align-items: center;
-          justify-content: space-around;
+          justify-content: space-between;
           border-left: 2px solid white;
+          padding: 0 5px;
           &:hover{
             background-color: #effdff;
             color: #00a0ea;

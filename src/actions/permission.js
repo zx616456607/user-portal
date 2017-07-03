@@ -39,6 +39,7 @@ export function Permission(body, callback) {
 
 // Fetches list permission and count from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
+
 function fetchPermissionAndCount(callback) {
 	return {
     [FETCH_API]: {
