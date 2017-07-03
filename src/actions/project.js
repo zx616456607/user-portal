@@ -363,33 +363,32 @@ export function UpdateProjectsCluster(body, callback) {
 	}
 }
 
-
 export const PROJECTS_CLUSTER_APPROVAL_UPDATE_REQUEST = 'PROJECTS_CLUSTER_APPROVAL_UPDATE_REQUEST'
 export const PROJECTS_CLUSTER_APPROVAL_UPDATE_SUCCESS = 'PROJECTS_CLUSTER_APPROVAL_UPDATE_SUCCESS'
 export const PROJECTS_CLUSTER_APPROVAL_UPDATE_FAILURE = 'PROJECTS_CLUSTER_APPROVAL_UPDATE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUpdateProjectsApprovalCluster(body, callback) {
-	let endpoint = `${API_URL_PREFIX}/projects/clusters`
-	return {
-		[FETCH_API]: {
-			types: [PROJECTS_CLUSTER_APPROVAL_UPDATE_REQUEST, PROJECTS_CLUSTER_APPROVAL_UPDATE_SUCCESS, PROJECTS_CLUSTER_APPROVAL_UPDATE_FAILURE],
-			endpoint,
-			schema: {},
-			options: {
-				method: 'PUT',
-				body: body
-			},
-		},
-		callback
-	}
+function fetchUpdateProjectsApprovalCluster(body,callback) {
+  let endpoint = `${API_URL_PREFIX}/projects/clusters`
+  return {
+    [FETCH_API]: {
+      types: [PROJECTS_CLUSTER_APPROVAL_UPDATE_REQUEST,PROJECTS_CLUSTER_APPROVAL_UPDATE_SUCCESS,PROJECTS_CLUSTER_APPROVAL_UPDATE_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body: body
+      },
+    },
+    callback
+  }
 }
 // Fetches upgrade or renewals from API
 // Relies on Redux Thunk middleware.
-export function UpdateProjectsApprovalCluster(body, callback) {
-	return (dispatch) => {
-		return dispatch(fetchUpdateProjectsApprovalCluster(body, callback))
-	}
+export function UpdateProjectsApprovalCluster(body,callback) {
+  return (dispatch) => {
+    return dispatch(fetchUpdateProjectsApprovalCluster(body,callback))
+  }
 }
 
 export const PROJECTS_USER_GET_REQUEST = 'PROJECTS_USER_GET_REQUEST'
