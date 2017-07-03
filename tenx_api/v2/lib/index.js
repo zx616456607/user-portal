@@ -105,7 +105,7 @@ module.exports = function (config) {
   this.oem = collections.create('oem')
 
   // ~ project
-  this.project = collections.create('project')
+  this.projects = collections.create('projects')
 
   ////////////////////////////////////////////////////////////////////////////////////
   ///////////////  Standard mode (Public Clould Only) ////////////////////////////////
@@ -127,4 +127,8 @@ module.exports = function (config) {
 
   // ~role
   this.role = collections.create('role')
+
+  // ~ pkg
+  this.pkg = collections.create('pkg')
+
 }

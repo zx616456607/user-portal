@@ -1,19 +1,22 @@
 #app_wrap_manage {
   padding: 20px;
   position: relative;
+  .btnRow {
+    .btn-search{margin-left: -20px;font-size: 14px;color: #999;cursor: pointer;position: relative;}
+  }
   .wrap_content {
     margin-top: 20px;
     overflow: inherit;
+    .ant-spin-container{position: relative;}
     .ant-card-body {
-      padding-bottom: 40px;
+      padding: 0;
       padding-top: 10px;
-      overflow: inherit;
       .ant-table{
         overflow: inherit;
       }
       .ant-table-pagination {
         position: absolute;
-        right: 0;
+        right: -20px;
         top: -60px;
         li{margin-left: 6px;}
       }

@@ -16,7 +16,8 @@ export const PERMISSION_LIST_REQUEST = 'PERMISSION_LIST_REQUEST'
 export const PERMISSION_LIST_SUCCESS = 'PERMISSION_LIST_SUCCESS'
 export const PERMISSION_LIST_FAILURE = 'PERMISSION_LIST_FAILURE'
 
-// Fetches all permission.
+// Fetches list permission from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchPermission(callback) {
   return {
     [FETCH_API]: {
@@ -28,7 +29,17 @@ function fetchPermission(callback) {
   }
 }
 
-function fetchPermissionAndCount(callback) {
+// Fetches list permission  from API
+// Relies on Redux Thunk middleware.
+export function Permission(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchPermission(callback))
+	}
+}
+
+// Fetches list permission and count from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchPermissionAndCount(body,callback) {
 	return {
     [FETCH_API]: {
       types: [PERMISSION_LIST_REQUEST, PERMISSION_LIST_SUCCESS, PERMISSION_LIST_FAILURE],
@@ -39,12 +50,22 @@ function fetchPermissionAndCount(callback) {
   }
 }
 
+// Fetches list permission from and count API
+// Relies on Redux Thunk middleware.
+export function PermissionAndCount(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchPermissionAndCount(body, callback))
+	}
+}
+
 export const PERMISSION_RETRIEVE_REQUEST = 'PERMISSION_RETRIEVE_REQUEST'
 export const PERMISSION_RETRIEVE_SUCCESS = 'PERMISSION_RETRIEVE_SUCCESS'
 export const PERMISSION_RETRIEVE_FAILURE = 'PERMISSION_RETRIEVE_FAILURE'
 
-function fetchRetrievePermission(id,callback){
-	let endpoint = `${API_URL_PREFIX}/permission/${id}/retrieve`
+// Fetches retrieve permission from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchRetrievePermission(body,callback){
+	let endpoint = `${API_URL_PREFIX}/permission/${body.id}/retrieve`
 	return {
     [FETCH_API]: {
       types: [PERMISSION_RETRIEVE_REQUEST, PERMISSION_RETRIEVE_SUCCESS, PERMISSION_RETRIEVE_FAILURE],
@@ -55,8 +76,18 @@ function fetchRetrievePermission(id,callback){
   }
 }
 
-function fetchRetrievePermissionAndCount(id,callback){
-	let endpoint = `${API_URL_PREFIX}/permission/${id}/retrieve/withCount`
+// Fetches retrieve permission from API
+// Relies on Redux Thunk middleware.
+export function RetrievePermission(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchRetrievePermission(body, callback))
+	}
+}
+
+// Fetches retrieve permission and count from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchRetrievePermissionAndCount(body,callback){
+	let endpoint = `${API_URL_PREFIX}/permission/${body.id}/retrieve/withCount`
 	return {
     [FETCH_API]: {
       types: [PERMISSION_RETRIEVE_REQUEST, PERMISSION_RETRIEVE_SUCCESS, PERMISSION_RETRIEVE_FAILURE],
@@ -65,13 +96,24 @@ function fetchRetrievePermissionAndCount(id,callback){
     },
     callback
   }
+}
+
+// Fetches retrieve permission and count from API
+// Relies on Redux Thunk middleware.
+export function RetrievePermissionAndCount(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchRetrievePermissionAndCount(body, callback))
+	}
 }
 
 export const PERMISSION_DEPENDENT_REQUEST = 'PERMISSION_DEPENDENT_REQUEST'
 export const PERMISSION_DEPENDENT_SUCCESS = 'PERMISSION_DEPENDENT_SUCCESS'
 export const PERMISSION_DEPENDENT_FAILURE = 'PERMISSION_DEPENDENT_FAILURE'
-function fetchDependent(id,callback) {
-	let endpoint = `${API_URL_PREFIX}/permission/${id}/dependent`
+
+// Fetches dependent from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDependent(body,callback) {
+	let endpoint = `${API_URL_PREFIX}/permission/${body.id}/dependent`
 	return {
     [FETCH_API]: {
       types: [PERMISSION_DEPENDENT_REQUEST, PERMISSION_DEPENDENT_SUCCESS, PERMISSION_DEPENDENT_FAILURE],
@@ -80,4 +122,12 @@ function fetchDependent(id,callback) {
     },
     callback
   }
+}
+
+// Fetches dependent from API
+// Relies on Redux Thunk middleware.
+export function AllowUpdateRole(body, callback) {
+	return (dispatch) => {
+		return dispatch(fetchDependent(body, callback))
+	}
 }
