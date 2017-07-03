@@ -14,7 +14,7 @@ import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, To
 import { browserHistory, Link } from 'react-router'
 import { connect } from 'react-redux'
 import { ListProjects, DeleteProjects, UpdateProjects } from '../../../actions/project'
-import { ListRole, CreateRole, GetRole } from '../../../actions/role'
+import { ListRole, CreateRole, GetRole, ExistenceRole } from '../../../actions/role'
 import { PermissionAndCount } from '../../../actions/permission'
 import { chargeProject } from '../../../actions/charge'
 import Notification from '../../../components/Notification'
@@ -858,13 +858,13 @@ class CreateStepSecond extends Component{
       this.getPermission()
     }
   }
-  generateDatas = (_tns ) => {
+  generateDatas(_tns ) {
     const tns = _tns;
     const children = [];
     for (let i = 0; i < tns.length; i++) {
       const key = `${tns[i].id}`;
       tns[i] = Object.assign(tns[i],{title: tns[i].desc,key: tns[i].id})
-        children.push(key);
+      children.push(key);
     }
     children.forEach((key, index) => {
       if (tns[index].children.length !== 0) {
@@ -888,7 +888,7 @@ class CreateStepSecond extends Component{
                 description: result[i].comment,
                 chosen: false,
               };
-              const newData = Object.assign(result[i],data);
+              const newData = Object.assign({},result[i],data);
               if (newData.chosen) {
                 targetKeys.push(data.key);
               }
@@ -938,23 +938,37 @@ class CreateStepSecond extends Component{
     this.setState({characterModal:false})
   }
   okCreateModal() {
-    const { CreateRole } = this.props;
+    const { CreateRole, ExistenceRole } = this.props;
     const { checkedKeys } = this.state;
     const { getFieldValue } = this.props.form;
     let notify = new Notification()
     let roleDesc = getFieldValue('roleDesc')
     let roleName = getFieldValue('roleName')
-    CreateRole({
-      name: roleName,
-      comment: roleDesc,
-      permission: checkedKeys
+    ExistenceRole({
+      name: roleName
     },{
       success:{
         func: (res) => {
           if (res.data.statusCode === 200) {
-            notify.success('创建角色成功')
-            this.loadRoleList()
-            this.setState({characterModal:false})
+            if (res.data.data) {
+              return notify.info('该角色名称已经存在')
+            }
+            CreateRole({
+              name: roleName,
+              comment: roleDesc,
+              permission: checkedKeys
+            },{
+              success:{
+                func: (res) => {
+                  if (res.data.statusCode === 200) {
+                    notify.success('创建角色成功')
+                    this.loadRoleList()
+                    this.setState({characterModal:false})
+                  }
+                },
+                isAsync: true
+              }
+            })
           }
         },
         isAsync: true
@@ -973,10 +987,9 @@ class CreateStepSecond extends Component{
         func: (res)=>{
           if (res.data.statusCode === 200) {
             let result = res.data.data.permission;
+            this.generateDatas(result)
             this.setState({
               allPermission:result
-            },()=>{
-              this.generateDatas(this.state.allPermission)
             })
           }
         },
@@ -1010,7 +1023,7 @@ class CreateStepSecond extends Component{
   }
   renderItem(item) {
     return(
-      <Row>
+      <Row key={item&&item.key}>
         <Col span={20}>{item&&item.comment}</Col>
         <Col span={4}>{item&&item.count}</Col>
       </Row>
@@ -1020,7 +1033,7 @@ class CreateStepSecond extends Component{
     const TreeNode = Tree.TreeNode;
     const { scope } = this.props;
     const { choosableList, targetKeys, allPermission } = this.state;
-    const { getFieldProps, getFieldValue } = this.props.form;
+    const { getFieldProps } = this.props.form;
     const formItemLayout = {
       labelCol: { span: 4 },
       wrapperCol: { span: 15 },
@@ -1047,7 +1060,7 @@ class CreateStepSecond extends Component{
                 rules: [
                   { validator: (rules,value,callback)=>this.roleName(rules,value,callback)}
                 ],
-                initialValue:  ''
+                initialValue:  '',
               }) }
               />
             </Form.Item>
@@ -1103,6 +1116,7 @@ class CreateStepSecond extends Component{
           filterOption={this.filterOption.bind(this)}
           targetKeys={targetKeys}
           onChange={this.handleChange.bind(this)}
+          rowKey={item => item.key}
           render={(item)=>this.renderItem(item)}
         />
       </div>
@@ -1121,10 +1135,11 @@ function mapStateToSecondProp(state, props) {
 CreateStepSecond = connect(mapStateToSecondProp, {
   ListRole,
   CreateRole,
-  PermissionAndCount
+  PermissionAndCount,
+  ExistenceRole,
 })(CreateStepSecond)
+
 let checkedKeysThird = []
-const expandedKeysThird = []
 class CreateStepThird extends Component{
   constructor(props){
     super(props)
@@ -1173,8 +1188,6 @@ class CreateStepThird extends Component{
     this.setState({ mockData, targetKeys });
   }
   onExpand(expandedKeys) {
-    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-    // or, you can remove all expanded chilren keys.
     this.setState({
       expandedKeys,
       autoExpandParent: false,
@@ -1183,7 +1196,6 @@ class CreateStepThird extends Component{
   onCheckThird(checkedKeys){
     this.setState({
       checkedKeys,
-      // selectedKeys: ['0-3', '0-4'],
     });
   }
   onSelect(selectedKeys, info) {
@@ -1218,6 +1230,10 @@ class CreateStepThird extends Component{
   };
   getCurrentRole(id) {
     const { GetRole } = this.props;
+    const { currentRoleInfo } = this.state;
+    if (currentRoleInfo.role && (id === currentRoleInfo.role.id)) {
+      return
+    }
     checkedKeysThird.length=0
     this.setState({
       checkedKeys:[],
@@ -1259,7 +1275,7 @@ class CreateStepThird extends Component{
     const { scope } = this.props;
     const TreeNode = Tree.TreeNode;
     const { currentRolePermission, currentRoleInfo } = this.state;
-    const roleList = scope.state.RoleKeys.length > 0 ? scope.state.RoleKeys.map((item,index)=>{
+    const roleList = scope.state.RoleKeys.length > 0 ? scope.state.RoleKeys.map((item)=>{
         return (
           <li onClick={()=>this.getCurrentRole.call(this,item.split(',')[0])} key={item.split(',')[1]}>{item.split(',')[1]}<Icon type="delete" onClick={(e)=>this.deleteRole(e,item)} className="pointer"/></li>
         )
@@ -1329,6 +1345,7 @@ class CreateStepThird extends Component{
             filterOption={this.filterOption.bind(this)}
             targetKeys={this.state.targetKeys}
             onChange={this.handleChange.bind(this)}
+            rowKey={item => item.key}
             render={item => item.title}
           />
         </Modal>
