@@ -116,7 +116,7 @@ exports.addConfigsForFrontend = function (user, loginUser) {
   user.cicdApi = cicdConfig
   // Add if email configured
   const emailConfig = global.globalConfig.mail_server
-  user.emailConfiged = !!emailConfig.auth.user
+  user.emailConfiged = !!emailConfig.host
   // Add proxy type
   user.proxy_type = constants.PROXY_TYPE
   // Add registry config
