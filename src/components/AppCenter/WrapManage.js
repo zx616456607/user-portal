@@ -25,6 +25,7 @@ const RadioGroup = Radio.Group
 const Dragger = Upload.Dragger
 const TabPane = Tabs.TabPane
 let uploadFile = false // in upload file name
+const notificat = new NotificationHandler()
 
 // file type
 const wrapType = ['.jar','.war','.tar.gz','.zip']
@@ -46,15 +47,22 @@ class UploadModal extends Component {
   }
   handleSubmit() {
     const { func,form } = this.props
+    if (!uploadFile) {
+      notificat.info('请选择文件')
+      return
+    }
     form.validateFields((errors, values) => {
       if (!!errors) {
         return;
       }
-      // if(this.state.resolve) {
-      //   this.state.resolve(true)
-      // }
+      if(this.state.resolve) {
+        this.state.resolve(true)
+      }
+      uploadFile = false
       func.uploadModal(false)
-      func.getList()
+      notificat.success('操作成功','上传时间根据包大小决定，请稍后手动刷新')
+      // form.resetFields()
+      // func.getList()
 
     });
   }
@@ -69,26 +77,43 @@ class UploadModal extends Component {
       return <Select.Option value={types}>{types}</Select.Option>
     })
   }
-  validateVersion(rule, value, callback) {
+  validateName = (rule, value, callback)=> {
+    if (!value) {
+      return callback('请输入包名称')
+    }
+    if (value.length <3 || value.length >64) {
+      return callback('包名称长度为3~64位字符')
+    }
+    if (!/^[A-Za-z0-9]+[A-Za-z0-9_-]+[A-Za-z0-9]$/.test(value)) {
+      return callback('以英文字母和数字开头中间可[-_]')
+    }
+    this.setState({fileName: value})
+    return callback()
+  }
+  validateVersion = (rule, value, callback)=> {
     if(!value) {
       return callback('请输入版本')
     }
+    this.setState({fileTag: value})
     return callback()
   }
   validateType(e) {
     this.setState({fileType: e})
   }
   render() {
-    const { form, func} = this.props
-    const { type,fileType } = this.state
+    const { form, func } = this.props
+    const { type,fileType,fileName,fileTag } = this.state
     const isReq = type =='local' ? false : true
     const wrapName = form.getFieldProps('wrapName',{
-      rules: [{required: true,whitespace: true, message: '请输入包名称'}]
+      rules: [
+        { whitespace: true },
+        {validator: this.validateName}
+      ]
     })
     const versionLabel = form.getFieldProps('versionLabel',{
       rules: [
-        {required: true, whitespace: true, message: '请输入版本'},
-        // {validator: this.validateVersion}
+        { whitespace: true },
+        {validator: this.validateVersion}
       ],
 
     })
@@ -96,24 +121,23 @@ class UploadModal extends Component {
       rules: [{required: isReq,whitespace: true, message: '请输入远程地址'}]
     })
     const formItemLayout = {
-      labelCol: { span: 5},
+      labelCol: { span: 4},
       wrapperCol: { span: 18 },
     }
     const self = this
-    const fileName = form.getFieldValue('wrapName')
-    const fileTag = form.getFieldValue('versionLabel')
+    // const fileName = form.getFieldValue('wrapName')
+    // const fileTag = form.getFieldValue('versionLabel')
     const actionUrl = `/api/v2/${fileName}/${fileTag}/${fileType}`
     const selfProps = {
-      name: 'file',
+      name: 'pkg',
       action: actionUrl,
       beforeUpload(file) {
-        const notificat = new NotificationHandler()
         if (!fileName || !fileTag) {
           notificat.info('请先输入包名称和版本标签')
           return false
         }
         // form.validateFields((err, value) => {
-          // if(err) return false
+        //   if(err) return false
           let isType = false
           wrapType.every(type => {
             if (file.name.indexOf(type) > -1) {
@@ -126,12 +150,13 @@ class UploadModal extends Component {
             notificat.error('上传文件格式错误', '支持有：jar, tar.gz, war, zip')
             return false
           }
-          return true
-          // return new Promise((resolve, reject) => {
-          //   self.setState({
-          //     resolve: resolve
-          //   })
-          // })
+          uploadFile = file.name
+          // return true
+          return new Promise((resolve, reject) => {
+            self.setState({
+              resolve: resolve
+            })
+          })
 
         // })
       }
@@ -146,15 +171,15 @@ class UploadModal extends Component {
         >
         <Form>
           <Form.Item {...formItemLayout} label="应用包名称">
-              <Input {...wrapName} placeholder="请输入名称来标记此次上传文件" style={{ width: '300px' }} />
+              <Input {...wrapName} placeholder="请输入名称" />
           </Form.Item>
           <Form.Item {...formItemLayout} label="应用包格式">
-            <Select defaultValue={wrapTypelist[0]} style={{ width: '300px' }} onChange={(e) => this.validateType(e)}>
+            <Select defaultValue={wrapTypelist[0]} onChange={(e) => this.validateType(e)}>
               { this.wraptypeList() }
             </Select>
           </Form.Item>
           <Form.Item {...formItemLayout} label="版本标签">
-              <Input {...versionLabel} placeholder="请输入版本标签来标记此次上传文件" style={{ width: '300px' }} />
+              <Input {...versionLabel} placeholder="请输入版本标签来标记此次上传文件" />
           </Form.Item>
           <br />
           <Tabs defaultActiveKey="local" onChange={this.changeTabs} size="small">
@@ -162,6 +187,7 @@ class UploadModal extends Component {
               <div className="dragger">
                 <Dragger {...selfProps}>
                   拖动文件到这里以上传，或点击 <a>选择文件</a>
+                  {uploadFile ? <div>文件名称：{uploadFile}</div>: null}
                 </Dragger>
               </div>
             </TabPane>
@@ -208,8 +234,9 @@ class WrapManage extends Component {
     }
     this.props.wrapManageList(query)
   }
-  queryList = (e)=> {
-    this.props.wrapManageList(e)
+  loadData(page) {
+    const from = { from: page }
+    this.props.wrapManageList(from)
   }
   componentWillMount() {
     this.getList()
@@ -227,12 +254,17 @@ class WrapManage extends Component {
     },200)
   }
   deleteAction(status,id) {
-    id = [id] || null
-    this.setState({delAll: status,id})
+    if (status) {
+      id = [id]
+      this.setState({delAll: true,id})
+      return
+    }
+    this.setState({delAll: false})
   }
   deleteVersion = ()=> {
-    const notificat = new NotificationHandler()
+    // const notificat = new NotificationHandler()
     const { id } = this.state
+    this.setState({selectedRowKeys:[]})
     this.props.deleteWrapManage({ids: id},{
       success: {
         func:()=> {
@@ -291,7 +323,7 @@ class WrapManage extends Component {
       size: "small",
       pageSize: DEFAULT_PAGE_SIZE,
       total: dataSource.total,
-      // onChange: current => func.loadData({ page: current }),
+      onChange: current => this.loadData({ page: current }),
       showTotal: total => `共计： ${total} 条 `,
     }
     const funcCallback = {
@@ -302,10 +334,10 @@ class WrapManage extends Component {
     const rowSelection = {
       selectedRowKeys: this.state.selectedRowKeys, // 控制checkbox是否选中
       onChange(selectedRowKeys, selectedRows) {
-        // const strategyID = selectedRows.map((list)=> {
-        //   return list.strategyID
-        // })
-        _this.setState({ selectedRowKeys })
+        const ids = selectedRows.map(row => {
+          return row.id
+        })
+        _this.setState({ selectedRowKeys,id:ids })
       }
     }
 
@@ -316,7 +348,7 @@ class WrapManage extends Component {
           <div className="btnRow">
             <Button size="large" type="primary" icon="plus" onClick={() => this.uploadModal(true)}>上传包文件</Button>
             <Button size="large" style={{ margin: '0 10px' }} onClick={()=> this.getList()}><i className='fa fa-refresh' />&nbsp;刷 新</Button>
-            <Button size="large" onClick={()=> this.deleteAction(true)} icon="delete" style={{ marginRight: '10px' }} disabled={this.state.selectedRowKeys.length == 0}>删 除</Button>
+            <Button size="large" onClick={()=> this.setState({delAll: true})} icon="delete" style={{ marginRight: '10px' }} disabled={this.state.selectedRowKeys.length == 0}>删 除</Button>
             <Input size="large" onPressEnter={(e)=> this.getList(e)} style={{ width: 180 }} placeholder="请输入包名称或标签搜索" ref="wrapSearch" />
             <i className="fa fa-search btn-search" onClick={()=> this.getList()}/>
           </div>
