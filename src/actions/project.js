@@ -229,7 +229,7 @@ export const PROJECTS_UPDATE_FAILURE = 'PROJECTS_UPDATE_FAILURE'
 // Fetches upgrade or renewals from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchUpdateProjects(body, callback) {
-  let endpoint = `${API_URL_PREFIX}/project/${body.projectName}`
+  let endpoint = `${API_URL_PREFIX}/projects/${body.projectName}`
 	return {
 		[FETCH_API]: {
 			types: [PROJECTS_UPDATE_REQUEST, PROJECTS_UPDATE_SUCCESS, PROJECTS_UPDATE_FAILURE],
