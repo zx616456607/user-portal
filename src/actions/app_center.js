@@ -853,24 +853,30 @@ export function deleteWrapManage(body, callback) {
   }
 }
 
-const DOWNLOAD_WRAP_REQUEST = 'DOWNLOAD_WRAP_REQUEST'
-const DOWNLOAD_WRAP_SUCCESS = 'DOWNLOAD_WRAP_SUCCESS'
-const DOWNLOAD_WRAP_FAILURE = 'DOWNLOAD_WRAP_FAILURE'
+const UPLOAD_WRAP_REQUEST = 'UPLOAD_WRAP_REQUEST'
+const UPLOAD_WRAP_SUCCESS = 'UPLOAD_WRAP_SUCCESS'
+const UPLOAD_WRAP_FAILURE = 'UPLOAD_WRAP_FAILURE'
 
-function fetchDownloadWrap(id) {
-  // Content-disposition
+function fetchUploadWrap(body,callback) {
+  // fileName,fileTag,fileType
+  const {fileName,fileTag,fileType} = body
   return {
     [FETCH_API]: {
-      types: [DOWNLOAD_WRAP_REQUEST, DOWNLOAD_WRAP_SUCCESS, DOWNLOAD_WRAP_FAILURE],
-      endpoint: `${API_URL_PREFIX}/pkg/${id}`,
+      types: [UPLOAD_WRAP_REQUEST, UPLOAD_WRAP_SUCCESS, UPLOAD_WRAP_FAILURE],
+      endpoint: `${API_URL_PREFIX}/${fileName}/${fileTag}/${fileType}/remote`,
       schema: Schemas.REGISTRYS,
+      options:{
+        method:'POST',
+        body: body.body
+      }
 
-    }
+    },
+    callback
   }
 }
 
-export function downloadWrap(id) {
+export function uploadWrap(body, callback) {
   return (dispatch) => {
-    return dispatch(fetchDownloadWrap(id))
+    return dispatch(fetchUploadWrap(body, callback))
   }
 }
