@@ -287,7 +287,7 @@ class ProjectManage extends Component{
       title: '项目名',
       dataIndex: 'projectName',
       key: 'projectName',
-      render: (text) => <Link to="/tenant_manage/project_manage/project_detail">{text}</Link>,
+      render: (text) => <Link to={`/tenant_manage/project_manage/project_detail?name=${text}`}>{text}</Link>,
     }, {
       title: '项目角色',
       dataIndex: 'role',

@@ -1,5 +1,8 @@
 .projectDetailBox{
   padding: 20px 35px;
+  .ant-card{
+    overflow: visible;
+  }
   .goBackBox{
     font-size: 14px;
     height: 56px;
@@ -29,6 +32,60 @@
   .gutter-box{
     padding:10px 0;
     font-size: 14px;
+
+    .dropDownBox{
+      width: 170px;
+      height: 36px;
+      border: 1px solid #cccccc;
+      border-radius: 3px;
+      position: relative;
+      padding: 0 10px;
+      &>span{
+        height: 34px;
+        line-height: 34px;
+        color: #999999;
+        display: block;
+        width: 100%;
+        &>i{
+          margin-left: 50px;
+        }
+      }
+      .dropDownInnerBox{
+        position: absolute;
+        top: 38px;
+        left: 0;
+        min-width: 260px;
+        border: 1px solid #cccccc;
+        border-radius: 3px;
+        z-index: 1;
+        background-color: #ffffff;
+        dl{
+          dt,dd{
+            line-height: 30px;
+          }
+          dt{
+            padding: 0 10px;
+            background-color: #eeeeee;
+          }
+          dd{
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            &>span{
+              flex: 1 1 120px;
+            }
+            &>div{
+              display: inline-flex;
+              align-items: center;
+            }
+            &:hover{
+              background-color: #effdfe;
+            }
+          }
+        }
+      }
+    }
   }
   .alertBtn{
     margin-left: 10px;
@@ -200,17 +257,37 @@
       }
     }
   }
+
+}
+.projectDetailRoleTrans{
+  .ant-transfer-list-body{
+    ul{
+      li{
+        display: flex;
+        align-items: center;
+        &>span{
+          flex: 0 1 400px;
+        }
+      }
+    }
+  }
+  .ant-row{
+
+  }
 }
 .projectDetailClusterStatus{
   display: inline-block;
-  margin: 0 0 0 10px !important;
+  margin: 0 0 0 10px ;
   padding: 0 !important;
+  font-size: 12px;
 }
 .projectDetailClusterStatus1{
   color: #40bdf5;
+  margin-right: 16px;
 }
 .projectDetailClusterStatus2{
   color: #0dd86f;
+  margin-right: 50px;
 }
 .projectDetailClusterStatus3{
   color: #f1633b;
