@@ -24,7 +24,7 @@ import { formatDate } from '../../common/tools.js'
 // import './style/RedisCluster.less'
 import './style/MysqlCluster.less'
 import redisImg from '../../assets/img/database_cache/redis.jpg'
-import noDbImgs from '../../assets/img/no_data/no_db.png'
+import noDbImgs from '../../assets/img/database_cache/no_redis.png'
 import Title from '../Title'
 
 let MyComponent = React.createClass({
