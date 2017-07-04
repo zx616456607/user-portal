@@ -39,6 +39,9 @@ let CreateDatabase = React.createClass({
     if(!nextProps.scope.state.CreateDatabaseModalShow) {
       this.setState({onselectCluster: true, loading: false})
     }
+    this.setState({
+      currentType: nextProps.database,
+    })
   },
   onChangeCluster() {
     this.setState({onselectCluster: false})
