@@ -128,7 +128,7 @@ function _formatConfig(configInfo) {
   const config = configInfo.config || {}
   const body = {
     defaultEnv: config.Env,
-    mountPath: config.Volume,
+    mountPath: config.Volumes,
     cmd: config.Cmd,
     entrypoint: config.Entrypoint,
     sizeInfo: {
