@@ -136,7 +136,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:app_name/logs', appController.getAppLogs)
   router.get('/clusters/:cluster/apps/:app_name/existence', appController.checkAppName)
   router.get('/clusters/:cluster/services/:service/existence', serviceController.checkServiceName)
-  router.put('/clusters/:cluster/services/:service/group/:groupID', serviceController.setServiceProxyGroup)
+  router.put('/clusters/:cluster/services/:service/lbgroups/:groupID', serviceController.setServiceProxyGroup)
 
   // AppTemplates
   router.get('/templates', appTemplateController.listTemplates)

@@ -202,7 +202,7 @@ exports.setDefaultProxy = function* () {
   const cluster = this.params.cluster
   const groupID = this.params.groupID
   const api = apiFactory.getK8sApi(this.session.loginUser)
-  const result = yield api.updateBy([cluster, 'proxies', 'groupID', 'as_default'])
+  const result = yield api.updateBy([cluster, 'proxies', groupID, 'as_default'])
   this.body = {
     cluster,
     data: result.data
