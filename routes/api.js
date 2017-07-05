@@ -107,7 +107,9 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/nodes', clusterController.getNodes)
   router.get('/clusters/add-cluster-cmd', clusterController.getAddClusterCMD)
   router.get('/clusters/:cluster/proxies', middlewares.isAdminUser, clusterController.getProxy)
-  router.put('/clusters/:cluster/proxies', middlewares.isAdminUser, clusterController.updateProxy)
+  router.put('/clusters/:cluster/proxies', middlewares.isAdminUser, clusterController.updateProxies)
+  router.put('/clusters/:cluster/proxies/:groupID', middlewares.isAdminUser, clusterController.updateProxy)
+  router.put('/clusters/:cluster/proxies/:groupID/as_default', middlewares.isAdminUser, clusterController.updateProxy)
   router.get('/clusters/:cluster/node_addr', middlewares.isAdminUser, clusterController.getClusterNodeAddr)
   router.get('/clusters/:cluster/plugins', middlewares.isAdminUser, clusterController.getClusterPlugins)
   router.put('/clusters/:cluster/plugins/:name', middlewares.isAdminUser, clusterController.updateClusterPlugins)
@@ -134,6 +136,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:app_name/logs', appController.getAppLogs)
   router.get('/clusters/:cluster/apps/:app_name/existence', appController.checkAppName)
   router.get('/clusters/:cluster/services/:service/existence', serviceController.checkServiceName)
+  router.put('/clusters/:cluster/services/:service/group/:groupID', serviceController.setServiceProxyGroup)
 
   // AppTemplates
   router.get('/templates', appTemplateController.listTemplates)

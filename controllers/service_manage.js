@@ -445,6 +445,16 @@ exports.checkServiceName = function* () {
   this.body = response
 }
 
+exports.setServiceProxyGroup = function* () {
+  const cluster = this.params.cluster
+  const service = this.params.service
+  const groupID = this.params.groupID
+  const spi = apiFactory.getSpi(this.session.loginUser)
+  const response = yield spi.clusters.updateBy([cluster, 'services', service, 'group', groupID])
+  this.status = response.code
+  this.body = response
+}
+
 exports.getAllService = function*() {
   const cluster = this.params.cluster
 	let pageIndex = parseInt(this.query.pageIndex)
