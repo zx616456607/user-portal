@@ -12,6 +12,7 @@ const constants = require('../../constants')
 
 const TENXCLOUD_PREFIX = 'tenxcloud.com/'
 const TENX_SCHEMA_PORTNAME = 'tenxcloud.com/schemaPortname'
+const TENX_SCHEMA_LBGROUP= 'system/lbgroup'
 
 class Service {
   constructor(name, cluster) {
@@ -116,6 +117,13 @@ class Service {
         this.metadata.annotations[TENX_SCHEMA_PORTNAME] += ("/" + port)
       }
     }
+  }
+  // Add lbgroup info to service annotation
+  addLBGroupAnnotation(groupName) {
+    if (!this.metadata.annotations) {
+      this.metadata.annotations = {}
+    }
+    this.metadata.annotations[TENX_SCHEMA_LBGROUP] = groupName
   }
 }
 
