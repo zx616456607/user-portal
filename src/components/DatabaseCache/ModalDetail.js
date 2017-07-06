@@ -353,7 +353,7 @@ class VisitTypes extends Component{
   }
   componentWillReceiveProps(nextProps) {
     const { detailModal, isCurrentTab } = nextProps;
-    if (!detailModal || !isCurrentTab) {
+    if ((!detailModal && this.props.detailModal != nextProps.detailModal) || (!isCurrentTab && isCurrentTab != this.props.isCurrentTab)) {
       this.cancelEdit()
     }
   }
