@@ -109,7 +109,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/proxies', middlewares.isAdminUser, clusterController.getProxy)
   router.put('/clusters/:cluster/proxies', middlewares.isAdminUser, clusterController.updateProxies)
   router.put('/clusters/:cluster/proxies/:groupID', middlewares.isAdminUser, clusterController.updateProxy)
-  router.put('/clusters/:cluster/proxies/:groupID/as_default', middlewares.isAdminUser, clusterController.updateProxy)
+  router.put('/clusters/:cluster/proxies/:groupID/as_default', middlewares.isAdminUser, clusterController.setDefaultProxy)
   router.get('/clusters/:cluster/node_addr', middlewares.isAdminUser, clusterController.getClusterNodeAddr)
   router.get('/clusters/:cluster/plugins', middlewares.isAdminUser, clusterController.getClusterPlugins)
   router.put('/clusters/:cluster/plugins/:name', middlewares.isAdminUser, clusterController.updateClusterPlugins)
