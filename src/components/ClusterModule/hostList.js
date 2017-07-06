@@ -4,8 +4,8 @@
 import React, { Component, propTypes } from 'react'
 import { Link, browserHistory } from 'react-router'
 import { connect } from 'react-redux'
-import { Card, Button, Tooltip, Icon, Input, Select, Spin, Menu, Dropdown, Switch, Tag, Modal, Form } from 'antd'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
+import { Card, Button, Tooltip, Icon, Input, Select, Spin, Menu, Dropdown, Switch, Tag, Modal, Form, Table } from 'antd'
 import { formatDate, calcuDate } from '../../common/tools'
 import { camelize } from 'humps'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -146,51 +146,82 @@ const MyComponent = React.createClass({
   render: function () {
     const { isFetching, containerList, nodeList, cpuMetric, memoryMetric, clusterID, license } = this.props
     const root = this
-    if (isFetching) {
-      return (
-        <div className='loadingBox'>
-          <Spin size='large' />
-        </div>
-      )
-    }
-    if (nodeList.length === 0) {
-      return (
-        <div className="ant-table-placeholder"><i className="anticon anticon-frown"></i> 暂无数据</div>
-      )
-    }
-    const maxNodes = license[camelize('max_nodes')]
-    let items = nodeList.map((item, index) => {
-      const dropdown = (
-        <Menu disabled={item.isMaster ? true : false}
-          onClick={this.ShowDeleteClusterNodeModal.bind(this, item)}
-          style={{ width: '100px' }}
-        >
-          <Menu.Item key={'manage'+item.address}>
-            <span>管理标签</span>
-          </Menu.Item>
-          <Menu.Item key={'delete'+item.address}>
-            <span>删除节点</span>
-          </Menu.Item>
-        </Menu>
-      );
-      return (
-        <div className='podDetail' key={index} >
-          {/*<div className='podDetail' key={`${item.objectMeta.name}-${index}`} >*/}
-          <div className='name commonTitle namecursor' onClick={() => { browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`) }}>
+    let dropdown
+    let maxNodes
+    let column = [
+      {
+        title: '名称/IP'
+      },{
+        title: '状态'
+      },{
+        title: '角色'
+      },{
+        title: '监控告警'
+      },{
+        title: '容器数'
+      },{
+        title: 'CPU使用'
+      },{
+        title: '内存占用'
+      },{
+        title: '调度状态'
+      },{
+        title: '磁盘情况'
+      },{
+        title: '加入集群时间'
+      }, {
+        title: '操作'
+      }
+    ]
+    if(nodeList && nodeList.length !== 0){
+      maxNodes = license[camelize('max_nodes')]
+      dropdown = nodeList.map((item, index) => {
+        return (
+          <Menu disabled={item.isMaster ? true : false}
+            onClick={this.ShowDeleteClusterNodeModal.bind(this, item)}
+            style={{ width: '100px' }}
+          >
+            <Menu.Item key={'manage'+item.address}>
+              <span>管理标签</span>
+            </Menu.Item>
+            <Menu.Item key={'delete'+item.address}>
+              <span>删除节点</span>
+            </Menu.Item>
+          </Menu>
+        )
+      })
+      column = [
+        {
+          title: '名称/IP',
+          dataIndex: 'objectMeta.name',
+          render: (text, item, index) => <div onClick={() => { browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`) }} className='nameIP '>
             <div className="hostname">
               {item.objectMeta.name}
             </div>
             <div className="address">{item.address}</div>
-          </div>
-          <div className='status commonTitle'>
-            <span className={item.ready == 'True' ? 'runningSpan' : 'errorSpan'}><i className='fa fa-circle' />&nbsp;&nbsp;{item.ready == 'True' ? '运行中' : '异常'}</span>
-          </div>
-          <div className='role commonTitle'>
-            <Tooltip title={item.isMaster ? MASTER : SLAVE}>
-              <span>{item.isMaster ? MASTER : SLAVE}</span>
+          </div>,
+          sorter: (a, b) => (a.objectMeta.name).localeCompare(b.objectMeta.name)
+        },{
+          title: '状态',
+          dataIndex: 'ready',
+          render: (text) => <div>
+          <span className={text == 'True' ? 'runningSpan': 'errorSpan'}><i
+            className='fa fa-circle'/>&nbsp;&nbsp;{text == 'True' ? '运行中': '异常'}</span>
+          </div>,
+          sorter: (a, b) => readySorter(a.ready) - readySorter(b.ready)
+        },{
+          title: '角色',
+          dataIndex: 'isMaster',
+          render: (isMaster) => <div>
+            <Tooltip title={isMaster ? MASTER : SLAVE}>
+              <span>{isMaster ? MASTER : SLAVE}</span>
             </Tooltip>
-          </div>
-          <div className='alarm commonTitle'>
+          </div>,
+          sorter: (a, b) => isMasterSorter(a.isMaster) - isMasterSorter(b.isMaster)
+        },{
+          title: '监控告警',
+          dataIndex: 'objectMete',
+          render: (objectMeta, item, index) => <div className='alarm'>
             <Tooltip title="查看监控">
               <svg className="managemoniter" onClick={()=> browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}?tab=monitoring`)}><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#managemoniter"/></svg>
             </Tooltip>
@@ -198,68 +229,138 @@ const MyComponent = React.createClass({
               <Icon type="notification" />
             </Tooltip>
           </div>
-          <div className='container commonTitle'>
-            <span>{getContainerNum(item.objectMeta.name, containerList)}</span>
+        },{
+          title: '容器数',
+          dataIndex: 'objectMeta',
+          render: (objectMeta) => <div>
+            <span>{getContainerNum(objectMeta.name, containerList)}</span>
           </div>
-          <div className='cpu commonTitle'>
-            <div className='topSpan'>{item[camelize('cpu_total')] / 1000}核</div>
-            <div className='bottomSpan'>{cpuUsed(item[camelize('cpu_total')], cpuMetric, item.objectMeta.name)}</div>
+        },{
+          title: 'CPU使用',
+          render: (text, record, index) => <div>
+            <div className='topSpan'>{record[camelize('cpu_total')] / 1000}核</div>
+            <div className='bottomSpan'>{cpuUsed(record[camelize('cpu_total')], cpuMetric, record.objectMeta.name)}</div>
           </div>
-          <div className='memory commonTitle'>
+        },{
+          title: '内存占用',
+          render: (text, item, index) => <div>
             <div className='topSpan'>{diskFormat(item[camelize('memory_total_kb')])}</div>
             <div className='bottomSpan'>{memoryUsed(item[camelize('memory_total_kb')], memoryMetric, item.objectMeta.name)}</div>
           </div>
-          <div className='schedule commonTitle'>
+        },{
+          title: '调度状态',
+          dataIndex: 'schedulable',
+          render: (text, item, index) => <div>
             <Switch
               className='switchBox'
               checked={item.schedulable || false}
               checkedChildren='开'
               unCheckedChildren='关'
               disabled={index >= maxNodes}
-              onChange={this.changeSchedulable.bind(root, item.objectMeta.name)} />
+              onChange={this.changeSchedulable.bind(root, item.objectMeta.name)} /><br/>
             <span className='scheduleSpan'>
               {
                 item.schedulable
                   ? (
 
-                    <span>
+                  <span>
                       正常调度&nbsp;
                     <Tooltip title={`允许分配新容器`}>
                         <Icon type="question-circle-o" />
                       </Tooltip>
                     </span>
-                  )
+                )
                   : (
-                    <span>
+                  <span>
                       暂停调度&nbsp;
                     <Tooltip title={`不允许分配新容器，正常运行的不受影响`}>
                         <Icon type="question-circle-o" />
                       </Tooltip>
                     </span>
-                  )
+                )
               }
             </span>
-          </div>
-          <div className="diskState commonTitle">
-            {this.getDiskStage(item)}
-          </div>
-
-          <div className='startTime commonTitle'>
+          </div>,
+          sorter: (a, b) => isMasterSorter(a.schedulable) - isMasterSorter(b.schedulable)
+        },{
+          title: '磁盘情况',
+          dataIndex: 'conditions',
+          render: (text, item, index) => <div>{this.getDiskStage(item)}</div>,
+          sorter: (a, b) => diskSorter(a.conditions) - diskSorter(b.conditions)
+        },{
+          title: '加入集群时间',
+          dataIndex: 'objectMeta.creationTimestamp',
+          render: (text, item, index) => <div>
             <Tooltip title={formatDate(item.objectMeta.creationTimestamp)}>
               <span className="timeSpan">{calcuDate(item.objectMeta.creationTimestamp)}</span>
             </Tooltip>
-          </div>
-          <div className='opera commonTitle'>
-            <Dropdown.Button type="ghost" overlay={dropdown} onClick={() => browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`)}>
+          </div>,
+          sorter: (a, b) => soterCreateTime(a.objectMeta.creationTimestamp, b.objectMeta.creationTimestamp)
+        },{
+          title: '操作',
+          render: (text, item, index) => <div>
+            <Dropdown.Button type="ghost" overlay={dropdown[index]} onClick={() => browserHistory.push(`/cluster/${clusterID}/${item.objectMeta.name}`)}>
               主机详情
             </Dropdown.Button>
           </div>
-        </div>
-      );
-    });
+        }
+      ]
+    }
+    function readySorter(ready){
+      if(ready == 'True'){
+        return 1
+      }
+      return -1
+    }
+
+    function isMasterSorter(a){
+      if(a){
+        return 1
+      }
+      return -1
+    }
+
+    function diskSorter(conditions){
+      let conditionsArray = conditions || []
+      let sorterNumber = 1
+      conditionsArray.forEach(condition => {
+        const { type, status } = condition
+        switch (type) {
+          case 'DiskPressure':
+            if (status !== 'False') {
+              sorterNumber = 0
+            }
+            break
+          case 'OutOfDisk':
+            if (status !== 'False') {
+              sorterNumber = -1
+            }
+            break
+          default:
+            break
+        }
+      })
+      return sorterNumber
+    }
+
+    function soterCreateTime(a, b){
+      let oDate1 = new Date(a);
+      let oDate2 = new Date(b);
+      if(oDate1.getTime() > oDate2.getTime()){
+        return 1
+      } else {
+        return -1
+      }
+    }
+
     return (
       <div className='imageList'>
-        {items}
+        <Table
+          columns={column}
+          dataSource={nodeList}
+          pagination={false}
+          loading={isFetching}
+        />
       </div>
     );
   }
@@ -532,41 +633,6 @@ class hostList extends Component {
           }
         </div>
         <div className='dataBox'>
-          <div className='titleBox'>
-            <div className='name commonTitle'>
-              <span>名称/IP</span>
-            </div>
-            <div className='status commonTitle'>
-              <span>状态</span>
-            </div>
-            <div className='role commonTitle'>
-              <span>角色</span>
-            </div>
-            <div className='alarm commonTitle'>
-              <span>监控告警</span>
-            </div>
-            <div className='container commonTitle'>
-              <span>容器数</span>
-            </div>
-            <div className='cpu commonTitle'>
-              <span>CPU使用</span>
-            </div>
-            <div className='memory commonTitle'>
-              <span>内存占用</span>
-            </div>
-            <div className='schedule commonTitle'>
-              <span>调度状态</span>
-            </div>
-            <div className='diskState commonTitle'>
-              <span>磁盘情况</span>
-            </div>
-            <div className='startTime commonTitle'>
-              <span>加入集群时间</span>
-            </div>
-            <div className='opera commonTitle'>
-              <span>操作</span>
-            </div>
-          </div>
           <div className='datalist'>
             <MyComponent {...this.props} nodeList={this.state.nodeList} scope={scope}/>
           </div>

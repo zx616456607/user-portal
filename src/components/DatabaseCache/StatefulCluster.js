@@ -5,36 +5,39 @@
  *  StatefulCluster module
  *
  * v2.0 - 2016-10-18
- * @author GaoJian
+ * @author Lizheng
  * update by Bai Yu
  */
 
-import React, {Component, PropTypes} from 'react'
-import {connect} from 'react-redux'
-import QueueAnim from 'rc-queue-anim'
-import {Modal, Button, Icon, Input, Spin, Tooltip} from 'antd'
-import {injectIntl} from 'react-intl'
-import {loadDbCacheList, searchDbservice} from '../../actions/database_cache'
-import {loadMyStack} from '../../actions/app_center'
-import {DEFAULT_REGISTRY} from '../../../constants'
+import React, { Component, PropTypes } from 'react'
+import { connect } from 'react-redux'
+import { Modal, Button, Icon, Input, Spin, Tooltip } from 'antd'
+import { injectIntl } from 'react-intl'
+import { loadDbCacheList, searchDbservice } from '../../actions/database_cache'
+import { loadMyStack } from '../../actions/app_center'
+import { DEFAULT_REGISTRY } from '../../../constants'
 import ModalDetail from './ModalDetail.js'
 import CreateDatabase from './CreateDatabase.js'
-import NotificationHandler from '../../common/notification_handler'
-import {formatDate} from '../../common/tools.js'
+import NotificationHandler from '../../components/Notification'
+import { formatDate } from '../../common/tools.js'
 import './style/MysqlCluster.less'
 import zkImg from '../../assets/img/database_cache/zookeeper.jpg'
 import esImg from '../../assets/img/database_cache/elasticsearch.jpg'
-import noDbImgs from '../../assets/img/no_data/no_db.png'
+import noZookeeper from '../../assets/img/database_cache/no_zookeeper.png'
+import noElasticSearch from '../../assets/img/database_cache/no_elasticsearch.png'
+
 import Title from '../Title'
 
 const clusterTable = {
   zookeeper: {
     displayName: 'ZooKeeper',
     image: zkImg,
+    noDBImage: noZookeeper,
   },
   elasticsearch: {
     displayName: 'ElasticSearch',
-    image: esImg
+    image: esImg,
+    noDBImage: noElasticSearch,
   },
   mongodb: {
     displayName: 'MongoDB',
@@ -47,7 +50,7 @@ let MyComponent = React.createClass({
     clusterType: React.PropTypes.string,
   },
   showDetailModal: function (database) {
-    const {scope} = this.props;
+    const { scope } = this.props;
     scope.setState({
       detailModal: true,
       currentData: database,
@@ -55,7 +58,7 @@ let MyComponent = React.createClass({
     })
   },
   render: function () {
-    const {config, isFetching, clusterType} = this.props;
+    const { config, isFetching, clusterType } = this.props;
     const canCreate = this.props.canCreate
     const literal = clusterTable[clusterType]
     let title = ''
@@ -65,18 +68,18 @@ let MyComponent = React.createClass({
     if (isFetching) {
       return (
         <div className='loadingBox'>
-          <Spin size='large'/>
+          <Spin size='large' />
         </div>
       )
     }
     if (!config || config.length == 0) {
       return (
         <div className="text-center">
-          <img src={noDbImgs}/>
+          <img src={literal.noDBImage} />
           <div>还没有 {literal.displayName} 集群，创建一个！ <Tooltip title={title} placement="right">
             <Button type="primary" size="large"
-                    onClick={() => this.props.scope.createDatabaseShow()}
-                    disabled={!canCreate}>创建集群</Button>
+              onClick={() => this.props.scope.createDatabaseShow()}
+              disabled={!canCreate}>创建集群</Button>
           </Tooltip>
           </div>
         </div>
@@ -87,12 +90,12 @@ let MyComponent = React.createClass({
         <div className='List' key={index}>
           <div className='list-wrap'>
             <div className='detailHead'>
-              <img src={literal.image}/>
+              <img src={literal.image} />
               <div className='detailName'>
                 {item.serivceName}
               </div>
               <div className='detailName'>
-                <Button type='ghost' size='large' onClick={this.showDetailModal.bind(this, item)}><Icon type='bars'/>展开详情</Button>
+                <Button type='ghost' size='large' onClick={this.showDetailModal.bind(this, item)}><Icon type='bars' />展开详情</Button>
               </div>
             </div>
             <ul className='detailParse'>
@@ -111,14 +114,14 @@ let MyComponent = React.createClass({
                 }
               </li>
               <li><span className='listKey'>副本数</span>{item.pods.pending + item.pods.running}/{item.pods.desired}个
-                <div style={{clear: 'both'}}></div>
+                <div style={{ clear: 'both' }}></div>
               </li>
               <li>
                 <span className='listKey'>创建时间</span>
                 <span>{formatDate(item.objectMeta.creationTimestamp)}</span>
               </li>
-              <li><span className='listKey'>存储大小</span>{item.volumeSize ? item.volumeSize.replace('Mi','MB').replace('Gi','GB') : '0'}
-                <div style={{clear: 'both'}}></div>
+              <li><span className='listKey'>存储大小</span>{item.volumeSize ? item.volumeSize.replace('Mi', 'MB').replace('Gi', 'GB') : '0'}
+                <div style={{ clear: 'both' }}></div>
               </li>
             </ul>
           </div>
@@ -147,7 +150,7 @@ class StatefulCluster extends Component {
   }
   clusterRefresh() {
     const _this = this
-    const {loadDbCacheList, cluster} = this.props
+    const { loadDbCacheList, cluster, clusterType } = this.props
     this.props.loadMyStack(DEFAULT_REGISTRY, 'dbservice', {
       success: {
         func: (res) => {
@@ -157,10 +160,10 @@ class StatefulCluster extends Component {
         }
       }
     })
-    loadDbCacheList(cluster, 'zookeeper')
+    loadDbCacheList(cluster, clusterType)
   }
   componentWillMount() {
-    const {loadDbCacheList, cluster, clusterType} = this.props
+    const { loadDbCacheList, cluster, clusterType } = this.props
     if (cluster == undefined) {
       let notification = new NotificationHandler()
       notification.error('请选择集群', 'invalid cluster ID')
@@ -169,13 +172,11 @@ class StatefulCluster extends Component {
 
     loadDbCacheList(cluster, clusterType)
   }
-
   componentDidMount() {
-    const _this = this
     this.props.loadMyStack(DEFAULT_REGISTRY, 'dbservice', {
       success: {
         func: (res) => {
-          _this.setState({
+          this.setState({
             dbservice: res.data.data
           })
         }
@@ -184,7 +185,7 @@ class StatefulCluster extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const {form, current} = nextProps
+    const { form, current } = nextProps
     if (current.space.namespace === this.props.current.space.namespace && current.cluster.clusterID === this.props.current.cluster.clusterID) {
       return
     }
@@ -193,7 +194,7 @@ class StatefulCluster extends Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     if (!nextState.detailModal) {
-      this.setState({putVisible: false})
+      this.setState({ putVisible: false })
     }
     return nextState
   }
@@ -226,7 +227,7 @@ class StatefulCluster extends Component {
 
   render() {
     const _this = this;
-    const {isFetching, databaseList, clusterType} = this.props;
+    const { isFetching, databaseList, clusterType } = this.props;
     const standard = require('../../../configs/constants').STANDARD_MODE
     const mode = require('../../../configs/model').mode
     let title = ''
@@ -239,62 +240,62 @@ class StatefulCluster extends Component {
       title = '尚未部署分布式存储，暂不能创建'
     }
     return (
-      <QueueAnim id='mysqlDatabase' type='right'>
+      <div id='mysqlDatabase'>
         <div className='databaseCol' key={literal.displayName}>
           <Title title={literal.displayName} />
           <div className='databaseHead'>
-            { mode === standard ?
+            {mode === standard ?
               <div className='alertRow'>您的 {literal.displayName} 集群创建在时速云平台，如果帐户余额不足时，1 周内您可以进行充值，继续使用。如无充值，1 周后资源会被彻底销毁，不可恢复。</div> :
               <div></div>}
             <Tooltip title={title} placement="right"><Button type='primary' size='large' onClick={this.createDatabaseShow} disabled={!canCreate}>
-              <span><i className='fa fa-plus'/>&nbsp;{literal.displayName}集群</span>
+              <span><i className='fa fa-plus' />&nbsp;{literal.displayName}集群</span>
             </Button></Tooltip>
-            <Button style={{marginLeft:'20px',padding:'5px 15px'}} size='large' onClick={this.clusterRefresh} disabled={!canCreate}>
+            <Button style={{ marginLeft: '20px', padding: '5px 15px' }} size='large' onClick={this.clusterRefresh} disabled={!canCreate}>
               <i className='fa fa-refresh' />&nbsp;刷 新
             </Button>
             <span className='rightSearch'>
-              <Input size='large' placeholder='搜索' style={{width: '180px', paddingRight: '28px'}} ref="searchInput"
-                     onPressEnter={(e) => this.handSearch(e)}/>
-              <i className="fa fa-search cursor" onClick={() => this.handSearch()}/>
+              <Input size='large' placeholder='搜索' style={{ width: '180px', paddingRight: '28px' }} ref="searchInput"
+                onPressEnter={(e) => this.handSearch(e)} />
+              <i className="fa fa-search cursor" onClick={() => this.handSearch()} />
             </span>
           </div>
-          <MyComponent scope={_this} isFetching={isFetching} config={databaseList} clusterType={clusterType} canCreate={canCreate}/>
+          <MyComponent scope={_this} isFetching={isFetching} config={databaseList} clusterType={clusterType} canCreate={canCreate} />
         </div>
         <Modal visible={this.state.detailModal}
-               className='AppServiceDetail' transitionName='move-right'
-               onCancel={() => {
-                 this.setState({detailModal: false})
-               } }
+          className='AppServiceDetail' transitionName='move-right'
+          onCancel={() => {
+            this.setState({ detailModal: false })
+          }}
         >
-          <ModalDetail scope={_this} putVisible={ _this.state.putVisible } database={this.props.database}
-                       currentData={this.state.currentData} dbName={this.state.currentDatabase}/>
+          <ModalDetail scope={_this} putVisible={_this.state.putVisible} database={this.props.database}
+            currentData={this.state.currentData} dbName={this.state.currentDatabase} />
         </Modal>
         <Modal visible={this.state.CreateDatabaseModalShow}
-               className='CreateDatabaseModal' maskClosable={false}
-               title='创建数据库集群' width={600}
-               onCancel={() => {
-                 this.setState({CreateDatabaseModalShow: false})
-               } }
+          className='CreateDatabaseModal' maskClosable={false}
+          title='创建数据库集群' width={600}
+          onCancel={() => {
+            this.setState({ CreateDatabaseModalShow: false })
+          }}
         >
-          <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType}/>
+          <CreateDatabase scope={_this} dbservice={this.state.dbservice} database={clusterType} />
         </Modal>
-      </QueueAnim>
+      </div>
     )
   }
 }
 
 function mapStateToProps(state, props) {
   const clusterType = /(?:^|\s)\/database_cache\/(.*?)_cluster(?:\s|$)/g.exec(props.location.pathname)[1]
-  const {cluster} = state.entities.current
+  const { cluster } = state.entities.current
   const defaultList = {
     isFetching: false,
     cluster: cluster.clusterID,
     database: clusterType,
     databaseList: [],
   }
-  const {databaseAllList} = state.databaseCache
-  const {database, databaseList, isFetching} = databaseAllList[clusterType] || defaultList
-  const {current} = state.entities
+  const { databaseAllList } = state.databaseCache
+  const { database, databaseList, isFetching } = databaseAllList[clusterType] || defaultList
+  const { current } = state.entities
   return {
     cluster: cluster.clusterID,
     current,

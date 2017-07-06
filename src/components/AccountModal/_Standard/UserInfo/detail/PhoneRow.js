@@ -11,7 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Select } from 'antd'
 import { connect } from 'react-redux'
 import { sendRegisterPhoneCaptcha, changeUserInfo } from '../../../../../actions/user.js'
-import NotificationHandler from '../../../../../common/notification_handler.js'
+import NotificationHandler from '../../../../../components/Notification'
 const createForm = Form.create
 const FormItem = Form.Item
 import { PHONE_REGEX } from '../../../../../../constants'

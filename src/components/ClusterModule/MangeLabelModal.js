@@ -16,7 +16,7 @@ import { camelize } from 'humps'
 import { getClusterLabel, addLabels, editNodeLabels, getNodeLabels,checkLablesToService } from '../../actions/cluster_node'
 import { KubernetesValidator } from '../../common/naming_validation'
 import cloneDeep from 'lodash/cloneDeep'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 
 
 

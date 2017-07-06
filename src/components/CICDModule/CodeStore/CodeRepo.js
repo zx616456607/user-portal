@@ -19,7 +19,7 @@ import { getRepoType, getRepoList, addCodeRepo, notActiveProject, deleteRepo, re
 import GithubComponent from './GithubComponent'
 import GogsComponent from './GogsComponent'
 import SvnComponent from './SvnComponent'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import Title from '../../Title'
 
 const TabPane = Tabs.TabPane

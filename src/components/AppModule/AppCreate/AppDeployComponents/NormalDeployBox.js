@@ -29,7 +29,7 @@ import { checkServiceName } from '../../../../actions/app_manage'
 import { loadFreeVolume, createStorage } from '../../../../actions/storage'
 import { getNodes } from '../../../../actions/cluster_node'
 import "./style/NormalDeployBox.less"
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 import { volNameCheck } from '../../../../common/naming_validation'
 import { ENTERPRISE_MODE } from '../../../../../configs/constants'
 import { mode } from '../../../../../configs/model'

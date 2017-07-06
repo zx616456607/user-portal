@@ -18,11 +18,11 @@ import { loadMyStack } from '../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import ModalDetail from './ModalDetail.js'
 import CreateDatabase from './CreateDatabase.js'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import { formatDate } from '../../common/tools.js'
 import './style/MysqlCluster.less'
 import mysqlImg from '../../assets/img/database_cache/mysql.png'
-import noDbImgs from '../../assets/img/no_data/no_db.png'
+import noDbImgs from '../../assets/img/database_cache/no_mysql.png'
 import Title from '../Title'
 
 let MyComponent = React.createClass({

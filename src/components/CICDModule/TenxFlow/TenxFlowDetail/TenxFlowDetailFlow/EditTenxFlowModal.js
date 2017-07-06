@@ -18,14 +18,15 @@ import cloneDeep from 'lodash/cloneDeep'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { appNameCheck } from '../../../../../common/naming_validation'
 import DockerFileEditor from '../../../../Editor/DockerFile'
-import { updateTenxFlowState, getDockerfiles, setDockerfile, getAvailableImage, updateTenxFlow, getTenxFlowDetail, } from '../../../../../actions/cicd_flow'
+import ShellEditor from '../../../../Editor/Shell'
+import { updateTenxFlowState, getDockerfiles, setDockerfile, getAvailableImage, updateTenxFlow, getTenxFlowDetail, createScripts, updateScriptsById, getScriptsById } from '../../../../../actions/cicd_flow'
 import { loadProjectList } from '../../../../../actions/harbor'
 import './style/EditTenxFlowModal.less'
 import findIndex from 'lodash/findIndex'
 import EnvComponent from './CreateEnvComponent.js'
 import ImageEnvComponent from './ImageEnvComponent.js'
 import CodeStoreListModal from './CodeStoreListModal.js'
-import NotificationHandler from '../../../../../common/notification_handler'
+import NotificationHandler from '../../../../../components/Notification'
 import PopTabSelect from '../../../../PopTabSelect'
 import { loadClusterList } from '../../../../../actions/cluster'
 import { getAllClusterNodes } from '../../../../../actions/cluster_node'
@@ -262,6 +263,8 @@ let uuid = 0;
 let shellUid = 0;
 let EditTenxFlowModal = React.createClass({
   getInitialState: function () {
+    const { config } = this.props
+    const scriptsId = config.spec.container.scriptsId
     return {
       otherFlowType: 3,
       useDockerfile: false,
@@ -281,7 +284,12 @@ let EditTenxFlowModal = React.createClass({
       updateDfBtnLoading: false,
       disabledBranchTag: false,
       isFirstChangeTag: true,
-      isFirstChangeDockerfileType: true
+      isFirstChangeDockerfileType: true,
+      shellCodeType: (scriptsId ? 'scripts' : 'cmd'),
+      shellModalShow: false,
+      scriptsId,
+      scriptsTextarea: '',
+      saveShellCodeBtnLoading: false,
     }
   },
   componentWillMount() {
@@ -313,7 +321,7 @@ let EditTenxFlowModal = React.createClass({
     uuid = 0;
     shellUid = 0;
     const _this = this;
-    const { config, form, getDockerfiles, codeList, flowId, stageId } = this.props;
+    const { config, form, getDockerfiles, codeList, flowId, stageId, getScriptsById } = this.props;
     if (!config.spec.project) {
       config.spec.project = {
         id: null,
@@ -341,6 +349,20 @@ let EditTenxFlowModal = React.createClass({
         failed: {
           func: (res) => {
             // maybe can't get dockerfile, do not show error in page
+          }
+        }
+      })
+    }
+    // 获取脚本
+    const scriptsId = config.spec.container.scriptsId
+    if (scriptsId) {
+      getScriptsById(scriptsId, {
+        success: {
+          func: res => {
+            this.setState({
+              scriptsId: res.data.script.id,
+              scriptsTextarea: res.data.script.content
+            })
           }
         }
       })
@@ -750,6 +772,62 @@ let EditTenxFlowModal = React.createClass({
       dockerFileTextarea: e
     });
   },
+  saveShellCode() {
+    const notification = new NotificationHandler()
+    const { scriptsTextarea, scriptsId } = this.state
+    const firstLine = scriptsTextarea.split('\n')[0]
+    if (firstLine.indexOf('#!') !== 0) {
+      notification.error('格式错误', '请在首行填写 Shebang（声明解释器，例如 bash 环境填写 #!/bin/bash）')
+      return
+    }
+    const { createScripts, updateScriptsById } = this.props
+    this.setState({
+      saveShellCodeBtnLoading: true,
+    })
+    const body = {
+      content: scriptsTextarea,
+    }
+    // 编辑脚本
+    if (scriptsId) {
+      updateScriptsById(scriptsId, body, {
+        success: {
+          func: res => {
+            this.setState({
+              shellModalShow: false,
+            })
+            notification.success(`保存脚本成功`)
+          },
+        },
+        finally: {
+          func: () => {
+            this.setState({
+              saveShellCodeBtnLoading: false,
+            })
+          }
+        }
+      })
+      return
+    }
+    // 创建脚本
+    createScripts(body, {
+      success: {
+        func: res => {
+          this.setState({
+            shellModalShow: false,
+            scriptsId: res.data.id,
+          })
+          notification.success(`创建脚本成功`)
+        },
+      },
+      finally: {
+        func: () => {
+          this.setState({
+            saveShellCodeBtnLoading: false,
+          })
+        }
+      }
+    })
+  },
   openImageEnvModal() {
     this.setState({
       ImageEnvModal: true
@@ -944,11 +1022,13 @@ let EditTenxFlowModal = React.createClass({
       //get shell code
       let shellLength = values.shellCodes;
       let shellList = [];
-      shellLength.map((item, index) => {
-        if (!!values['shellCode' + item]) {
-          shellList.push(values['shellCode' + item]);
-        }
-      });
+      if (_this.state.shellCodeType === 'cmd' ) {
+        shellLength.map((item, index) => {
+          if (!!values['shellCode' + item]) {
+            shellList.push(values['shellCode' + item]);
+          }
+        });
+      }
       let cloneCofig = cloneDeep(config)
       if(!cloneCofig.spec.ci) {
         cloneCofig.spec.ci = {}
@@ -977,6 +1057,10 @@ let EditTenxFlowModal = React.createClass({
           ci: cloneCofig.spec.ci,
           uniformRepo: (values.uniformRepo ? 0 : 1),
         }
+      }
+      // 增加 scripts id
+      if (_this.state.shellCodeType === 'scripts') {
+        body.spec.container.scripts_id = _this.state.scriptsId
       }
       //if user select the customer type (5), ths customType must be input
       if (this.state.otherFlowType == 5) {
@@ -1369,7 +1453,7 @@ let EditTenxFlowModal = React.createClass({
         <QueueAnim key={'serviceName' + k + 'Animate'}>
           <div className='serviceDetail' key={'serviceName' + k}>
             <Form.Item className='commonItem'>
-              <Select {...serviceSelect} style={{ width: '220px' }} allowClear>
+              <Select {...serviceSelect} style={{ width: '220px' }} allowClear dropdownMatchSelectWidth={false}>
                 {serviceSelectList}
               </Select>
               <span className={emptyServiceEnvCheck(scopeThis.state.emptyServiceEnv, k) ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'}
@@ -1635,7 +1719,37 @@ let EditTenxFlowModal = React.createClass({
               <span><FormattedMessage {...menusText.shellCode} /></span>
             </div>
             <div className='input shellCode'>
-              {shellCodeItems}
+              <RadioGroup
+                value={this.state.shellCodeType}
+                disabled={this.state.otherFlowType == 3}
+                onChange={e => this.setState({ shellCodeType: e.target.value })}
+              >
+                <Radio value="scripts" key="scripts">使用脚本文件</Radio>
+                <Radio value="cmd" key="cmd">使用命令</Radio>
+              </RadioGroup>
+            </div>
+            <div style={{ clear: 'both' }} />
+            <div className='title'>
+            </div>
+            <div className='input shellCode'>
+            {
+              this.state.shellCodeType === 'scripts'
+              ? (
+                <Button
+                  size="large"
+                  disabled={this.state.otherFlowType == 3}
+                  type={(!this.state.scriptsId) ? 'primary' : 'ghost'}
+                  onClick={() => this.setState({ shellModalShow: true })}
+                >
+                  {
+                    !this.state.scriptsId
+                    ? '使用脚本文件'
+                    : '编辑脚本文件'
+                  }
+                </Button>
+              )
+              : <div>{shellCodeItems}</div>
+            }
             </div>
             <div style={{ clear: 'both' }} />
           </div>}
@@ -1814,6 +1928,27 @@ let EditTenxFlowModal = React.createClass({
               </Button>
             </div>
           </Modal>
+          <Modal className='dockerFileEditModal'
+            title="创建脚本文件"
+            visible={this.state.shellModalShow}
+            maskClosable={false}
+            footer={null}
+            >
+            <ShellEditor
+              title="创建脚本文件"
+              value={this.state.scriptsTextarea}
+              callback={value => this.setState({ scriptsTextarea: value })}
+              options={defaultOptions}
+            />
+            <div className='btnBox'>
+              <Button size='large' type='primary' onClick={this.saveShellCode} loading={this.state.saveShellCodeBtnLoading}>
+                <span>保存并使用</span>
+              </Button>
+              <Button size='large' onClick={() => this.setState({ shellModalShow: false })}>
+                <span>取消</span>
+              </Button>
+            </div>
+          </Modal>
           <Modal className='tenxFlowImageEnvModal'
             title={<FormattedMessage {...menusText.envTitle} />}
             visible={this.state.ImageEnvModal}
@@ -1905,6 +2040,9 @@ export default connect(mapStateToProps, {
   loadClusterList,
   getAllClusterNodes,
   loadProjectList,
+  createScripts,
+  updateScriptsById,
+  getScriptsById,
 })(injectIntl(EditTenxFlowModal, {
   withRef: true,
 }));

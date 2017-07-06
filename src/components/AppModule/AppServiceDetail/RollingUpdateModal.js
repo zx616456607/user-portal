@@ -14,7 +14,7 @@ import { Button, Card, Menu, Icon, Tooltip, Row, Col, Select, InputNumber, Alert
 import { loadRepositoriesTags } from '../../../actions/harbor'
 import { rollingUpdateService } from '../../../actions/services'
 import { connect } from 'react-redux'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 
 const Option = Select.Option
 const OptGroup = Select.OptGroup

@@ -12,19 +12,25 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
-import { Modal,Form, Table, Button, Popover, Card, Input,Radio,Icon } from 'antd'
+import { Modal, Form, Table, Button, Popover, Card, Input, Radio, Icon, Select, Spin } from 'antd'
+import classNames from 'classnames'
 import { loadProjectMembers, addProjectMember, deleteProjectMember, updateProjectMember } from '../../../../actions/harbor'
+import { loadUserList } from '../../../../actions/user'
 import { formatDate } from '../../../../common/tools'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 
 const notification = new NotificationHandler()
 const RadioGroup = Radio.Group
+const Option = Select.Option
 
 class AddUserModal extends Component {
   constructor(props) {
     super()
     this.cancel = this.cancel.bind(this)
     this.handModalOk = this.handModalOk.bind(this)
+    this.state = {
+      searchInput: '',
+    }
   }
 
   componentWillMount() {
@@ -73,16 +79,58 @@ class AddUserModal extends Component {
     })
   }
 
+  searchUser = username => {
+    const { loadUserList } = this.props
+    if (this.searchUserTimeout) {
+      clearTimeout(this.searchUserTimeout)
+      this.searchUserTimeout = null
+    }
+    const query = {
+      pageSize: 100,
+      sort: 'a,userName',
+      filter: `userName,${username}`,
+    }
+    this.searchUserTimeout = setTimeout(() => {
+      loadUserList(query)
+    }, 300)
+  }
+
+  handleChange = value => {
+    this.setState({
+      searchInput: value,
+    })
+    this.searchUser(value)
+  }
+
+  renderUserOptions = () => {
+    const { searchUserLoading, users } = this.props
+    if (searchUserLoading) {
+      return (
+        <Option disabled value="disabled">
+          <div style={{textAlign: 'center'}}>
+            <Spin size="small" />
+          </div>
+        </Option>
+      )
+    }
+    return users.map(user => (
+      <Option key={user.userName}>
+        {user.userName}
+      </Option>
+    ))
+  }
+
   render() {
     const formItemLayout= {
       labelCol: { span: 3 },
       wrapperCol: { span: 18 },
     }
     const { form, func} = this.props
-    const nameProps= form.getFieldProps('username',{
+    const nameProps= form.getFieldProps('username', {
       rules: [
         { required: true, message: '请输入姓名' },
       ],
+      onChange: this.handleChange,
     })
     const roleProps= form.getFieldProps('role',{
       initialValue: 1
@@ -94,8 +142,21 @@ class AddUserModal extends Component {
       >
         <br/>
         <Form className="itemCreateFrom">
-          <Form.Item  {...formItemLayout} label="姓名" className="createForm">
-            <Input placeholder="请输入姓名" {...nameProps} />
+          <Form.Item  {...formItemLayout} wrapperCol={{span: 11}} label="姓名" className="createForm">
+            {/*<Input placeholder="请输入姓名" {...nameProps} />*/}
+            <Select
+              {...nameProps}
+              combobox
+              showArrow={false}
+              style={{ width: '100%' }}
+              placeholder="搜索并添加用户"
+              optionFilterProp="children"
+              notFoundContent="无法找到"
+              defaultActiveFirstOption={false}
+            >
+              {this.renderUserOptions()}
+            </Select>
+            <i className="fa fa-search selectIcon" onClick={() => this.searchUser(this.state.searchInput)}></i>
           </Form.Item>
           <Form.Item  {...formItemLayout} label="角色" className="createForm">
             <RadioGroup {...roleProps}>
@@ -165,9 +226,11 @@ class Management extends Component {
 
   goAddUser() {
     this.setState({addUser: true})
-    setTimeout(()=> {
-      document.getElementById('username').focus()
-    },300)
+    setTimeout(() => {
+      const input = document.getElementsByClassName('ant-select-search__field')[0]
+      input && input.focus()
+      this.props.loadUserList()
+    }, 300)
   }
 
   handDeleteUser() {
@@ -346,10 +409,13 @@ class Management extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { harbor } = state
+  const { harbor, user } = state
+  const users = user.users || {}
   let harborProjects = harbor.projects && harbor.projects[props.registry] || {}
   return {
     harborProjects,
+    searchUserLoading: users.isFetching || false,
+    users: users.result && users.result.users || []
   }
 }
 
@@ -358,4 +424,5 @@ export default connect(mapStateToProps, {
   addProjectMember,
   deleteProjectMember,
   updateProjectMember,
+  loadUserList,
 })(Management)

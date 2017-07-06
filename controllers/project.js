@@ -1,42 +1,45 @@
+'use strict'
+
 /**
-* Created by dengqiaoling on 2017/6/6.
+* Created by houxz on 2017/6/6.
 */
 const apiFactory = require('../services/api_factory')
 
-exports.createProject=function* () {
-  const project=this.request.body
+
+exports.createProject = function* () {
+  const project = this.request.body
   if (!project.projectName) {
     this.status = 400
     this.body = {
-	  message: 'project name is empty'
+      message: 'project name is empty'
     }
     return
   }
   const loginUser = this.session.loginUser
-  const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.createBy([''],null,this.request.body)
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.createBy([''], null, this.request.body)
   this.status = response.statusCode
   this.body = response
 }
 
-exports.deleteProject=function* () {
-  const project=this.request.body
+exports.deleteProjects = function* () {
+  const project = this.request.body
   if (!project.projects) {
     this.status = 400
     this.body = {
       message: 'project names are empty'
     }
-  return
-}
+    return
+  }
   const loginUser = this.session.loginUser
-  const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.createBy(['batch-delete'],null,this.request.body)
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.createBy(['batch-delete'], null, this.request.body)
   this.status = response.statusCode
   this.body = response
 }
 
-exports.getProjectDetail=function* () {
-  const projectName=this.params.name
+exports.getProjectDetail = function* () {
+  const projectName = this.params.name
   if (!projectName) {
     this.status = 400
     this.body = {
@@ -45,46 +48,52 @@ exports.getProjectDetail=function* () {
     return
   }
   const loginUser = this.session.loginUser
-  const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.getBy([projectName,'detail'],null)
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy([projectName, 'detail'], null)
   this.status = response.statusCode
   this.body = response
 }
 
-exports.listProject=function* () {
+exports.listProjects = function* () {
   const loginUser = this.session.loginUser
-  const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.getBy(['list'],null)
+  const query = this.query || {}
+  const filter = query.filter
+  const queryObj = {}
+  if (filter) {
+    queryObj.filter = filter
+  }
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy(['list'], queryObj)
   this.status = response.statusCode
   this.body = response
 }
-exports.listVisibleProject=function* () {
+exports.listVisibleProjects = function* () {
   const loginUser = this.session.loginUser
-  const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.getBy(['list-visible'],null)
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy(['list-visible'], null)
   this.status = response.statusCode
   this.body = response
 }
 
-exports.updateProject=function* () {
-  const project=this.request.body
-  const projectName=this.params.name
-  if (!project||!projectName) {
+exports.updateProject = function* () {
+  const project = this.request.body
+  const projectName = this.params.name
+  if (!project || !projectName) {
     this.status = 400
     this.body = {
-      message: 'request body nor projectName was  empty'
+      message: 'request body or projectName was  empty'
     }
     return
   }
   const loginUser = this.session.loginUser
-  const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.updateBy([projectName],null,this.request.body)
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.updateBy([projectName], null, this.request.body)
   this.status = response.statusCode
   this.body = response
 }
 
-exports.checkProjectNameExists=function* () {
-  const projectName=this.params.name
+exports.checkProjectNameExists = function* () {
+  const projectName = this.params.name
   if (!projectName) {
     this.status = 400
     this.body = {
@@ -93,21 +102,22 @@ exports.checkProjectNameExists=function* () {
     return
   }
   const loginUser = this.session.loginUser
-  const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.getBy([projectName,'check-exists'],null)
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy([projectName, 'check-exists'], null)
   this.status = response.statusCode
   this.body = response
 }
 
-exports.checkProjectManager=function* () {
+exports.checkProjectManager = function* () {
   const loginUser = this.session.loginUser
-  const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.getBy(['check-manager'],null)
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy(['check-manager'], null)
   this.status = response.statusCode
   this.body = response
 }
-exports.getProjectClusters=function* () {
-  const projectName=this.params.name
+
+exports.getProjectAllClusters = function* () {
+  const projectName = this.params.name
   if (!projectName) {
     this.status = 400
     this.body = {
@@ -116,89 +126,169 @@ exports.getProjectClusters=function* () {
     return
   }
   const loginUser = this.session.loginUser
-  const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.getBy([projectName,'cluster'],null)
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy([projectName, 'clusters'], null)
   this.status = response.statusCode
   this.body = response
 }
 
-exports.addProjectClusters=function* () {
-  const project=this.request.body
-  const projectName=this.params.name
-  if (!project||!projectName) {
-    this.status = 400
-    this.body = {
-      message: 'request body nor project name is empty'
-    }
-    return
-  }
-  const loginUser = this.session.loginUser
-  const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.createBy([projectName,'cluster'],null,this.request.body)
-  this.status = response.statusCode
-  this.body = response
-}
-
-exports.deleteProjectClusters=function* () {
-  const project=this.request.body
-  const projectName=this.params.name
-  if (!project||!projectName) {
-    this.status = 400
-    this.body = {
-	    message: 'request body nor project name is empty'
-    }
-    return
-  }
-  const loginUser = this.session.loginUser
-  const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.createBy([projectName,'cluster','batch-delete'],null,this.request.body)
-  this.status = response.statusCode
-  this.body = response
-}
-exports.addProjectRelatedUsers=function* () {
-  const project=this.request.body
-  const projectName=this.params.name
-  if (!project||!projectName) {
-    this.status = 400
-    this.body = {
-	    message: 'request body nor project name is empty'
-    }
-    return
-  }
-  const loginUser = this.session.loginUser
-  const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.createBy([projectName,'user'],null,this.request.body)
-  this.status = response.statusCode
-  this.body = response
-}
-exports.getProjectRelatedUsers=function* () {
-  const projectName=this.params.name
+exports.getProjectVisibleClusters = function* () {
+  const projectName = this.params.name
   if (!projectName) {
     this.status = 400
     this.body = {
-  	  message: 'project name is empty'
-    }
-  return
-  }
-  const loginUser = this.session.loginUser
-  const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.getBy([projectName,'user'],null)
-  this.status = response.statusCode
-  this.body = response
-}
-exports.deleteProjectRelatedUsers=function* () {
-  const project=this.request.body
-  const projectName=this.params.name
-  if (!project||!projectName) {
-    this.status = 400
-    this.body = {
-      message: 'request body nor project name is empty'
+      message: 'project name is empty'
     }
     return
   }
   const loginUser = this.session.loginUser
-  const projectApi=apiFactory.getApi(loginUser)
-  const response=yield projectApi.project.createBy([projectName,'user','batch-delete'],null,this.request.body)
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy([projectName, 'visible-clusters'], null)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.getProjectApprovalClusters = function* () {
+  const query = this.query || {}
+  const filter = query.filter
+  const queryObj = {}
+  if (filter) {
+    queryObj.filter = filter
+  }
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy(['approval-clusters'], queryObj)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.updateProjectClusters = function* () {
+  const cluster = this.request.body
+  const projectName = this.params.name
+  if (!cluster || !projectName) {
+    this.status = 400
+    this.body = {
+      message: 'request body or projectName was  empty'
+    }
+    return
+  }
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.updateBy([projectName, 'clusters'], null, this.request.body)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.updateProjectApprovalClusters = function* () {
+  const cluster = this.request.body
+  if (!cluster) {
+    this.status = 400
+    this.body = {
+      message: 'request body was empty'
+    }
+    return
+  }
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.updateBy(['clusters'], null, this.request.body)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.addProjectRelatedUsers = function* () {
+  const project = this.request.body
+  const projectName = this.params.name
+  if (!project || !projectName) {
+    this.status = 400
+    this.body = {
+      message: 'request body or project name is empty'
+    }
+    return
+  }
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.createBy([projectName, 'users'], null, this.request.body)
+  this.status = response.statusCode
+  this.body = response
+}
+exports.getProjectRelatedUsers = function* () {
+  const projectName = this.params.name
+  if (!projectName) {
+    this.status = 400
+    this.body = {
+      message: 'project name is empty'
+    }
+    return
+  }
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy([projectName, 'users'], null)
+  this.status = response.statusCode
+  this.body = response
+}
+exports.deleteProjectRelatedUsers = function* () {
+  const project = this.request.body
+  const projectName = this.params.name
+  if (!project || !projectName) {
+    this.status = 400
+    this.body = {
+      message: 'request body or project name is empty'
+    }
+    return
+  }
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.createBy([projectName, 'users', 'batch-delete'], null, this.request.body)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.updateProjectRelatedUsers = function* () {
+  const project = this.request.body
+  const projectName = this.params.name
+  if (!project || !projectName) {
+    this.status = 400
+    this.body = {
+      message: 'request body or projectName was  empty'
+    }
+    return
+  }
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.updateBy([projectName, 'users'], null, this.request.body)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.updateProjectRelatedRoles = function* () {
+  const project = this.request.body
+  const projectName = this.params.name
+  if (!project || !projectName) {
+    this.status = 400
+    this.body = {
+      message: 'request body or projectName was  empty'
+    }
+    return
+  }
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.updateBy([projectName, 'roles'], null, this.request.body)
+  this.status = response.statusCode
+  this.body = response
+}
+
+exports.getProjectRelatedRoles = function* () {
+  const projectName = this.params.name
+  if (!projectName) {
+    this.status = 400
+    this.body = {
+      message: 'project name is empty'
+    }
+    return
+  }
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy([projectName, 'roles'], null)
   this.status = response.statusCode
   this.body = response
 }

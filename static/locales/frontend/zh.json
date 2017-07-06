@@ -530,6 +530,8 @@
   "ManageMonitor.operationalAudit.runningError": "未完成",
   "ManageMonitor.operationalAudit.clusterTitle": "集群名",
   "ManageMonitor.operationalAudit.areaTitle": "区域",
+  "ManageMonitor.operationalAudit.Labels": "标签",
+  "ManageMonitor.operationalAudit.DBCache": "数据库缓存",
   "ManageMonitor.QueryLog.headTitle": "日志查询 | 时速云",
   "ManageMonitor.QueryLog.title": "日志查询",
   "ManageMonitor.QueryLog.user": "空间：",

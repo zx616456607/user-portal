@@ -21,8 +21,12 @@ import { browserHistory } from 'react-router'
 import { syncHistoryWithStore } from 'react-router-redux'
 import Root from '../containers/Root'
 import configureStore from '../store/configureStore'
+import Notification from '../components/Notification'
+
+const notification  = new Notification()
 const store = configureStore()
 const history = syncHistoryWithStore(browserHistory, store)
+notification.init(store)
 
 render(
   <Root store={store} history={history} />,

@@ -8,16 +8,17 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, Tooltip, Spin, Alert, Checkbox, Steps } from 'antd'
+import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, Tooltip, Spin, Alert, Checkbox, Steps, Table } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/clusterList.less'
 import ClusterTabList from './clusterTabList'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import { browserHistory } from 'react-router'
 import { ROLE_SYS_ADMIN, URL_REGEX, CLUSTER_PAGE, NO_CLUSTER_FLAG, DEFAULT_CLUSTER_MARK, IP_REGEX, HOST_REGEX } from '../../../constants'
 import { loadClusterList, getAddClusterCMD, createCluster } from '../../actions/cluster'
+import { GetProjectsApprovalClusters, UpdateProjectsApprovalCluster } from '../../actions/project'
 import { loadLoginUserDetail } from '../../actions/entities'
 import { changeActiveCluster } from '../../actions/terminal'
 import { loadTeamClustersList } from '../../actions/team'
@@ -25,6 +26,8 @@ import { updateGlobalConfig, saveGlobalConfig, loadGlobalConfig, isValidConfig }
 import AddClusterOrNodeModalContent from './AddClusterOrNodeModal/Content'
 import { camelize } from 'humps'
 import CI from '../../assets/img/setting/shishi.png'
+import OpenModalImage from '../../assets/img/cluster/clusterAuthority.svg'
+import { calcuDate } from '../../common/tools'
 import Title from '../Title'
 
 const TabPane = Tabs.TabPane;
@@ -578,6 +581,8 @@ class ClusterList extends Component {
     this.state = {
       createModal: false, // create cluster modal
       clusterTabPaneKey: this.props.currentClusterID,
+      clusterAuthorityModalVisible: false,
+      clusterStatus: true,
     }
   }
 
@@ -621,6 +626,194 @@ class ClusterList extends Component {
     this.setState({
       clusterTabPaneKey: key
     })
+  }
+
+  loadProjectsApprovalClusters = num => {
+    const { GetProjectsApprovalClusters } = this.props
+    let filter = 'status,' + num
+    GetProjectsApprovalClusters({filter})
+  }
+
+  getProjectApprovalClustersList = status => {
+    switch(status){
+      case 'modal':
+        this.setState({
+          clusterAuthorityModalVisible: true,
+          clusterStatus: true
+        })
+        this.loadProjectsApprovalClusters(1)
+        return
+      case 'waiting':
+        this.setState({
+          clusterStatus: true
+        })
+        this.loadProjectsApprovalClusters(1)
+        return
+      case 'ready':
+        this.setState({
+          clusterStatus: false
+        })
+        this.loadProjectsApprovalClusters(2)
+        return
+      default:
+        return
+    }
+
+  }
+
+  formatUpdateProjectsApprovalClusterBody = (status, item, num) => {
+    if(status == 'allRefuse' || status == 'allpass' || status == 'allclear'){
+      const { projectsApprovalClustersList } = this.props
+      let dataArray = projectsApprovalClustersList.data
+      let clusterInfo = []
+      let projectObj = {}
+      for(let i = 0; i < dataArray.length; i++){
+        if(projectObj[dataArray[i].projectId]){
+          projectObj[dataArray[i].projectId].push(dataArray[i])
+        }else{
+          projectObj[dataArray[i].projectId] = [dataArray[i]]
+        }
+      }
+      for(let key in projectObj){
+        if(projectObj[key].length == 1){
+          clusterInfo.push({
+            project: key,
+            clusters: {
+              [projectObj[key][0].resourceID]: num
+            }
+          })
+        } else {
+          clusterInfo.push({
+            project: key,
+            clusters: {}
+          })
+          for(let i = 0; i<projectObj[key].length; i++){
+            clusterInfo[clusterInfo.length - 1].clusters[projectObj[key][i].resourceID] = num
+          }
+        }
+      }
+      return {clusterInfo}
+    }
+    return {
+      clusterInfo: [
+        {project: item.projectId,
+          clusters:{
+            [item.resourceID]: num
+          }
+        }
+      ]
+    }
+  }
+
+  loadUpdateProjectsApprovalCluster = (body, num, text) => {
+    const { UpdateProjectsApprovalCluster } = this.props
+    let noti = new NotificationHandler()
+    UpdateProjectsApprovalCluster(body, {
+      success: {
+        func: () => {
+          noti.success(text + '成功')
+          this.loadProjectsApprovalClusters(num)
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          noti.error(text + '失败，请稍后重试')
+        },
+        isAsync: true
+      }
+    })
+  }
+
+  handleClusterApproval = (status, item) => {
+    switch(status){
+      case 'check':
+        let checkbody = this.formatUpdateProjectsApprovalClusterBody('check', item, 2)
+        this.loadUpdateProjectsApprovalCluster(checkbody, 1, '审批')
+        return
+      case 'cross':
+        let crossbody = this.formatUpdateProjectsApprovalClusterBody('check', item, 3)
+        this.loadUpdateProjectsApprovalCluster(crossbody, 1, '审批')
+        return
+      case 'clear':
+        let clearbody = this.formatUpdateProjectsApprovalClusterBody('clear', item, 0)
+        this.loadUpdateProjectsApprovalCluster(clearbody, 2, '清除')
+        return
+      case 'allRefuse':
+        let allRefusebody = this.formatUpdateProjectsApprovalClusterBody('allRefuse', item, 3)
+        this.loadUpdateProjectsApprovalCluster(allRefusebody, 1, '全部审批')
+        return
+      case 'allpass':
+        let allpassbody = this.formatUpdateProjectsApprovalClusterBody('allpass', item, 2)
+        this.loadUpdateProjectsApprovalCluster(allpassbody, 1, '全部审批')
+        return
+      case 'allclear':
+        let allclearbody = this.formatUpdateProjectsApprovalClusterBody('allclear', item, 0)
+        this.loadUpdateProjectsApprovalCluster(allclearbody, 2, '全部清除')
+        return
+      default:
+        return
+    }
+  }
+
+  approvalClusterList = () => {
+    const { clusterStatus } = this.state
+    const { projectsApprovalClustersList } = this.props
+    const column = [
+      {
+        title: '项目名称',
+        dataIndex: 'projectName',
+        width: '35%',
+      },{
+        title: '集群名称',
+        dataIndex: 'clusterName',
+        width: '35%',
+      },{
+        title: '申请时间',
+        dataIndex: 'requestTime',
+        width: '15%',
+        render: (text, record, index) => {
+          return <div>{calcuDate(text)}</div>
+        }
+      },{
+        title: '操作',
+        width: '15%',
+        render: (text, record, index) => <div className='handlebox'>
+          {
+            clusterStatus
+            ? [<Button
+              shape="circle"
+              icon='check'
+              size='small'
+              className='checkBtn'
+              onClick={this.handleClusterApproval.bind(this, 'check', record)}
+              key="check"
+            ></Button>,
+            <Button
+              shape="circle"
+              icon='cross'
+              size='small'
+              className='crossBtn'
+              onClick={this.handleClusterApproval.bind(this, 'cross', record)}
+              key="cross"
+            ></Button>]
+            : <svg
+              className='deleteIcon'
+              onClick={this.handleClusterApproval.bind(this, 'clear', record)}
+            ><use xlinkHref="#delete"></use></svg>
+          }
+
+        </div>
+      }
+    ]
+    let datasource = projectsApprovalClustersList.data || []
+    return <Table
+      columns={column}
+      dataSource={datasource}
+      pagination={false}
+      scroll={{ y : 280}}
+      loading={projectsApprovalClustersList.isFetching}
+    />
   }
 
   render() {
@@ -695,7 +888,15 @@ class ClusterList extends Component {
                 type="card"
                 style={{position:'relative'}}
                 tabBarExtraContent={
-                  [<Tooltip
+                  [<Button
+                    className='authorityBtn'
+                    type="ghost"
+                    onClick={() => this.getProjectApprovalClustersList('modal')}
+                  >
+                    <img src={OpenModalImage} className='OpenModalImage'/>
+                    集群授权审批
+                  </Button>,
+                    <Tooltip
                     title={`当前许可证最多支持 ${maxClusters || '-'} 个 集群（目前已添加 ${clusterSum} 个）`}
                     placement="topLeft"
                   >
@@ -728,6 +929,68 @@ class ClusterList extends Component {
               暂无可用集群，请添加
             </div>)
           }
+          <Modal
+            title="集群授权审批"
+            visible={this.state.clusterAuthorityModalVisible}
+            closable={true}
+            onCancel={() => this.setState({clusterAuthorityModalVisible: false})}
+            width='650px'
+            maskClosable={false}
+            wrapClassName="clusterAuthorityModal"
+            footer={
+              this.state.clusterStatus
+              ? [<Button
+                icon="cross-circle-o"
+                size='large'
+                onClick={() => this.handleClusterApproval('allRefuse')}
+                key="allRefuse"
+              >全部拒绝</Button>,
+              <Button
+                type="primary"
+                icon='check-circle-o'
+                size='large'
+                onClick={() => this.handleClusterApproval('allpass')}
+                key="allpass"
+              >全部通过</Button>]
+            : <Button
+                type="primary"
+                size='large'
+                onClick={() => this.handleClusterApproval('allclear')}
+                key="allclear"
+                className='allclearBtn'
+              >
+                <svg
+                  className='clearIcon'
+                ><use xlinkHref="#delete"></use></svg>
+                清除审批记录</Button>
+            }
+          >
+            <div>
+              <div className='clusterstatusType'>
+                <Button.Group>
+                  <Button
+                    type={this.state.clusterStatus ? 'primary': 'default'}
+                    size='large'
+                    icon="edit"
+                    className='typeBtn'
+                    onClick={() => this.getProjectApprovalClustersList('waiting')}
+                    key="waiting"
+                  >待审批</Button>
+                  <Button
+                    type={!this.state.clusterStatus ? 'primary': 'default'}
+                    size='large'
+                    icon='check-circle-o'
+                    className='typeBtn'
+                    onClick={() => this.getProjectApprovalClustersList('ready')}
+                    key="ready"
+                  >已审批</Button>
+                </Button.Group>
+              </div>
+              <div className='clusterContainer'>
+                {this.approvalClusterList()}
+              </div>
+            </div>
+          </Modal>
         </div>
       </QueueAnim>
     )
@@ -739,11 +1002,12 @@ ClusterList.propTypes = {
 }
 
 function mapStateToProps(state, props) {
-  const { entities, cluster, cluster_nodes, globalConfig } = state
+  const { entities, cluster, cluster_nodes, globalConfig, projectAuthority } = state
   const { loginUser, current } = entities
   const { clusters, addClusterCMD } = cluster
   const { getAllClusterNodes } = cluster_nodes
   const getAllClusterNodesKeys = Object.keys(getAllClusterNodes)
+  const { projectsApprovalClustersList } = projectAuthority
   return {
     current,
     loginUser: loginUser.info,
@@ -754,6 +1018,7 @@ function mapStateToProps(state, props) {
     addClusterCMD: (addClusterCMD ? addClusterCMD.result : {}) || {},
     license: clusters.license || {},
     globalConfig: (globalConfig.globalConfig && globalConfig.globalConfig.result) ? globalConfig.globalConfig.result.data : [],
+    projectsApprovalClustersList,
   }
 }
 
@@ -768,6 +1033,8 @@ export default connect(mapStateToProps, {
   loadGlobalConfig,
   isValidConfig,
   saveGlobalConfig,
+  GetProjectsApprovalClusters,
+  UpdateProjectsApprovalCluster,
 })(injectIntl(ClusterList, {
   withRef: true,
 }))

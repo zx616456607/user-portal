@@ -19,6 +19,9 @@ const menuList = [
     url: '/tenant_manage',
     name: '租户'
   },{
+    url: '/tenant_manage/membermanagement',
+    name: '成员管理'
+  },{
     url: '/tenant_manage/rolemanagement',
     name: '角色管理'
   },{

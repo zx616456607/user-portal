@@ -16,7 +16,7 @@ import union from 'lodash/union'
 import filter from 'lodash/filter'
 import "./style/BindDomain.less"
 import { loadServiceDomain, serviceBindDomain, clearServiceDomain, deleteServiceDomain, loadServiceDetail, loadK8sService } from '../../../actions/services'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import { ANNOTATION_HTTPS } from '../../../../constants'
 import { camelize } from 'humps'
 

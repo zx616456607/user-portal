@@ -9,7 +9,6 @@
  */
 import React, { Component, PropTypes } from 'react'
 import SecondSider from '../../components/SecondSider'
-import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppCenter.less'
 
@@ -25,6 +24,10 @@ const menuList = [
   {
     url: '/app_center/stack_center',
     name: '编排文件'
+  },
+  {
+    url: '/app_center/wrap_manage',
+    name: '应用包管理'
   }
 ]
 

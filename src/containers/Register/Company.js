@@ -14,7 +14,7 @@ import { registerUser, sendRegisterPhoneCaptcha } from '../../actions/user'
 import { browserHistory } from 'react-router'
 import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../constants'
 import { PHONE_REGEX } from '../../../constants'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 
 const createForm = Form.create
 const FormItem = Form.Item

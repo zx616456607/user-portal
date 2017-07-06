@@ -13,7 +13,7 @@ import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row } from 'an
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP_NEW, EMAIL_REG_EXP } from '../../../constants'
 import { browserHistory } from 'react-router'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -39,7 +39,7 @@ let NotLogUser = React.createClass({
       btnState: true,
     }
   },
-  
+
   handleSubmit(e) {
     e.preventDefault()
     const { form, redirect, registerUserAndJoinTeam, code } = this.props
@@ -361,7 +361,7 @@ let NotLogUser = React.createClass({
           <div className={"intName intOnFocus"}>邮箱</div>
           <Input placeholder={email} disabled />
         </FormItem>
-        
+
         <FormItem
           {...formItemLayout}
           hasFeedback

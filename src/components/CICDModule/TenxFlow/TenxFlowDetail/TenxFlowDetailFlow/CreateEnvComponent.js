@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
-import NotificationHandler from '../../../../../common/notification_handler'
+import NotificationHandler from '../../../../../components/Notification'
 import { loadImageDetailTagConfig,  loadOtherDetailTagConfig } from '../../../../../actions/app_center'
 import { loadRepositoriesTagConfigInfo } from '../../../../../actions/harbor'
 import './style/EnvComponent.less'
@@ -104,9 +104,9 @@ let CreateEnvComponent = React.createClass({
           const notify = new NotificationHandler()
           if (res.message == 'Failed to find any tag' || res.statusCode == 404) {
             notify.error('获取基础镜像信息失败，请检查镜像是否存在')
-            return
+          } else {
+            notify.error('获取基础镜像信息失败: ' + res.statusCode)
           }
-          notify.error(res.message)
         }
       }
     })
@@ -166,7 +166,7 @@ let CreateEnvComponent = React.createClass({
     if (nextProps.visible != this.props.visible && nextProps.visible) {
       const arr = form.getFieldValue(['service' + index + 'inputs'])
       const i = arr[arr.length - 1]
-      setTimeout(() => { 
+      setTimeout(() => {
         if(document.getElementById(`service${index}inputName${i}`)) {
           document.getElementById(`service${index}inputName${i}`).focus()
         }
@@ -233,7 +233,7 @@ let CreateEnvComponent = React.createClass({
     getFieldProps('service' + index + 'inputs', {
       initialValue: [0],
     });
-    
+
     const servicesInputItems = getFieldValue('service' + index + 'inputs').map((i) => {
       const servicesInputNameProps = getFieldProps(`service${index}inputName${i}`, {
         rules: [

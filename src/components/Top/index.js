@@ -11,12 +11,17 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import './style/Top.less'
 import { Link } from 'react-router'
+import { getPortalRealMode } from '../../common/tools'
+import { LITE } from '../../constants'
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
 
 export default class Top extends Component {
   constructor (props) {
   	super(props)
+    this.state = {
+      type: getPortalRealMode(),
+    }
   }
 
   render(){
@@ -66,16 +71,20 @@ export default class Top extends Component {
               <img src={this.props.loginLogo} style={{height:40}}/>
             </a>
           </div>
-          <div className='topNav'>
-            <div className='log'>
-              <div className='navItem' style={{marginLeft: 0}}>
-                <a href='https://www.tenxcloud.com' target='_blank'>官网首页</a>
+          {
+            this.state.type === LITE && (
+              <div className='topNav'>
+                <div className='log'>
+                  <div className='navItem' style={{marginLeft: 0}}>
+                    <a href='https://www.tenxcloud.com' target='_blank'>官网首页</a>
+                  </div>
+                  <div className='navItem' style={{marginLeft: 0}}>
+                    <a href='http://docs.tenxcloud.com' target='_blank'>文档中心</a>
+                  </div>
+                </div>
               </div>
-              <div className='navItem' style={{marginLeft: 0}}>
-                <a href='http://docs.tenxcloud.com' target='_blank'>文档中心</a>
-              </div>
-            </div>
-          </div>
+            )
+          }
         </div>
       </div>
     )

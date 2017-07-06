@@ -7,7 +7,7 @@
  * v0.1 - 2016-12-19
  * @author YangYuBiao
  */
-import NotificationHandler from './notification_handler.js'
+import NotificationHandler from '../components/Notification'
 export default function uploadFile(file, options, callback) {
   const defaultOptions = {
     fileType: ['gif', 'jpg', 'jpeg', 'png', 'bmp'],

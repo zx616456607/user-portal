@@ -28,7 +28,7 @@ export function getFieldsValues(fields) {
   return values
 }
 
-export function buildJson(fields, cluster, loginUser) {
+export function buildJson(fields, cluster, loginUser, imageConfigs) {
   const fieldsValues = getFieldsValues(fields)
   // 获取各字段值
   const {
@@ -139,8 +139,14 @@ export function buildJson(fields, cluster, loginUser) {
     }
     deployment.addContainerPort(serviceName, port, portProtocol)
   })
+  // TODO: Add the lbgroup info to annotation, group id or 'none'
+  service.addLBGroupAnnotation("none")
   // 设置进入点
-  if (command) {
+  let {
+    entrypoint,
+  } = imageConfigs
+  entrypoint = entrypoint && entrypoint.join(' ')
+  if (command && command !== entrypoint) {
     deployment.addContainerCommand(serviceName, command)
   }
   // 设置启动命令
@@ -223,9 +229,20 @@ export function buildJson(fields, cluster, loginUser) {
             })
           }
         }
-        const volumeMounts = [{
-          mountPath: configMapMountPath,
-        }]
+        let volumeMounts = []
+        if (configMapIsWholeDir) {
+          volumeMounts.push({
+            mountPath: configMapMountPath,
+          })
+        } else {
+          configMapSubPathValues.map(value => {
+            volumeMounts.push({
+              name: `configmap-volume-${keyValue}`,
+              mountPath: configMapMountPath + '/' + value,
+              subPath: value,
+            })
+          })
+        }
         deployment.addContainerVolume(serviceName, volume, volumeMounts, configMapIsWholeDir)
       }
     })

@@ -17,7 +17,7 @@ import DataTable from './DataTable'
 import { connect } from 'react-redux'
 import { camelize } from 'humps'
 import { loadProjectList, createProject, deleteProject, updateProject, loadSysteminfo } from '../../../../actions/harbor'
-import NotificationHandler from '../../../../common/notification_handler'
+import NotificationHandler from '../../../../components/Notification'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 
 const RadioGroup = Radio.Group

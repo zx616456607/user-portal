@@ -12,7 +12,7 @@ import React, { PropTypes } from 'react'
 import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory } from 'react-router'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 import { Link } from 'react-router'
 
 const createForm = Form.create

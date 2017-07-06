@@ -15,7 +15,7 @@ import './style/sider.less'
 import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, uploadFileOptions, getVolumeBindInfo, changeStorageDetail } from '../../../actions/storage'
 import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
-import NotificationHandler from '../../../common/notification_handler'
+import NotificationHandler from '../../../components/Notification'
 // import { loadUserDetail } from '../../../actions/user'
 import { ROLE_USER, ROLE_TEAM_ADMIN, ROLE_SYS_ADMIN,  } from '../../../../constants'
 import { NEED_BUILD_IMAGE } from '../../../constants'
@@ -369,8 +369,8 @@ class Sider extends Component {
                 <Tooltip placement='right' title='租户管理'
                   getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/tenant_manage'>
-                    <svg className='account commonImg'>
-                     <use xlinkHref='#message' />
+                    <svg className='commonImg'>
+                     <use xlinkHref='#tenantmanagement' />
                     </svg>
                   </Link>
                 </Tooltip>
@@ -511,6 +511,11 @@ class Sider extends Component {
                   <Menu.Item key='stack_center'>
                     <Link to='/app_center/stack_center'>
                       <span><div className='sideCircle'></div> 编排文件</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='wrap_manage'>
+                    <Link to='/app_center/wrap_manage'>
+                      <span><div className='sideCircle'></div> 应用包管理</span>
                     </Link>
                   </Menu.Item>
                   <div className='sline'></div>
@@ -696,8 +701,8 @@ class Sider extends Component {
                 <SubMenu key='tenant_manage'
                   title={
                     <span>
-                      <svg className='account commonImg'>
-                        <use xlinkHref='#message' />
+                      <svg className='commonImg'>
+                        <use xlinkHref='#tenantmanagement' />
                       </svg>
                       <span className='commonSiderSpan'>租户管理</span>
                       <div style={{ clear: 'both' }}></div>
@@ -709,17 +714,22 @@ class Sider extends Component {
                       <span><div className='sideCircle'></div> 租户</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item key="membermanagement">
+                    <Link to='/tenant_manage/membermanagement'>
+                      <span><div className='sideCircle'></div> 成员管理</span>
+                    </Link>
+                  </Menu.Item>
                   <Menu.Item key='projectManage'>
                     <Link to='/tenant_manage/project_manage'>
                       <span><div className='sideCircle'></div> 项目管理</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item>
+                  <Menu.Item key='rolemanagement'>
                     <Link to='/tenant_manage/rolemanagement'>
                       <span><div className='sideCircle'></div> 角色管理</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item>
+                  <Menu.Item key='allpermissions'>
                     <Link to='/tenant_manage/allpermissions'>
                       <span><div className='sideCircle'></div> 所有权限</span>
                     </Link>

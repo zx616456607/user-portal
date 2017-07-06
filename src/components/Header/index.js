@@ -22,7 +22,7 @@ import { getCookie, isEmptyObject, getVersion, getPortalRealMode } from '../../c
 import { USER_CURRENT_CONFIG } from '../../../constants'
 import { MY_SPACE, SESSION_STORAGE_TENX_HIDE_DOT_KEY, LITE } from '../../constants'
 import { browserHistory, Link } from 'react-router'
-import NotificationHandler from '../../common/notification_handler'
+import NotificationHandler from '../../components/Notification'
 import UserPanel from './UserPanel'
 import backOldBtn from '../../assets/img/headerBackOldArrow.png'
 import Airplane from '../../assets/img/quickentry/quick.png'
@@ -43,6 +43,7 @@ const SPACE_CLUSTER_PATHNAME_MAP = {
     /\/database_cache/,
     /^\/app_center\/?$/,
     /\/app_center\/stack_center/,
+    /\/app_center\/wrap_manage/,
     /\/ci_cd/,
     /\/manange_monitor/,
     /\/manange_monitor\/alarm_record/,

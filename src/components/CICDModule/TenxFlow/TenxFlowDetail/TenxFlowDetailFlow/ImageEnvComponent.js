@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
-import NotificationHandler from '../../../../../common/notification_handler'
+import NotificationHandler from '../../../../../components/Notification'
 import { loadImageDetailTagConfig,  loadOtherDetailTagConfig } from '../../../../../actions/app_center'
 import { loadRepositoriesTagConfigInfo } from '../../../../../actions/harbor'
 import './style/ImageEnvComponent.less'
@@ -90,7 +90,8 @@ let ImageEnvComponent = React.createClass({
           const notify = new NotificationHandler()
           if (res.message == 'Failed to find any tag' || res.statusCode == 404) {
             notify.error('获取基础镜像信息失败，请检查镜像是否存在')
-            return
+          } else {
+            notify.error('获取基础镜像信息失败: ' + res.statusCode)
           }
         }
       }

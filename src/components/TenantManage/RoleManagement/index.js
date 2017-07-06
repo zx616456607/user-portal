@@ -143,7 +143,7 @@ let RoleManagement = React.createClass({
     const rolecolumns = [{
       title: '角色名称',
       dataIndex: 'Rolename',
-      width:'14%',
+      width:'13%',
       render: text => <Link to="/tenant_manage/rolemanagement/rolename/TID">{text}</Link>,
     }, {
       title: '创建人',
@@ -163,7 +163,7 @@ let RoleManagement = React.createClass({
     }, {
       title: '创建时间 / 更新时间',
       dataIndex: 'Times',
-      width:'22%',
+      width:'20%',
       filters: [{
         text: '2017',
         value: '2017',
@@ -235,6 +235,7 @@ let RoleManagement = React.createClass({
                 <p className="createRoles">备注<Input style={{width:'50%',marginLeft:'73px'}}/></p>
                 <p className="createRoles"><sapn className="PermissionSelection">权限选择</sapn>
                   <Transfer
+                  operations={['添加', '移除']}
                   dataSource={this.state.mockData}
                   targetKeys={this.state.targetKeys}
                   onChange={this.onhandleChange}
@@ -284,6 +285,7 @@ let RoleManagement = React.createClass({
           <p className="createRoles">备注<Input style={{width:'50%',marginLeft:'73px'}}/></p>
           <p className="createRoles"><sapn className="PermissionSelection">权限选择</sapn>
               <Transfer
+              operations={['添加', '移除']}
               dataSource={this.state.mockData}
               targetKeys={this.state.targetKeys}
               onChange={this.onhandleChange}

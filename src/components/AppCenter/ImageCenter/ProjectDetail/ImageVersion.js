@@ -69,7 +69,8 @@ class ImageVersion extends Component {
   componentWillMount() {
     const { loadRepositoriesTags, loadRepositoriesTagConfigInfo } = this.props
     const imageDetail = this.props.config
-    loadRepositoriesTags(DEFAULT_REGISTRY, imageDetail.name)
+    let processedName = processImageName(imageDetail.name)
+    loadRepositoriesTags(DEFAULT_REGISTRY, processedName)
   }
 
   componentWillReceiveProps(nextPorps) {
@@ -80,7 +81,8 @@ class ImageVersion extends Component {
     const newImageDetail = nextPorps.config;
     const { loadRepositoriesTags } = this.props
     if (newImageDetail.name != oldImageDatail.name) {
-      loadRepositoriesTags(DEFAULT_REGISTRY, newImageDetail.name)
+      let processedName = processImageName(newImageDetail.name)
+      loadRepositoriesTags(DEFAULT_REGISTRY, processedName)
     }
   }
 
@@ -96,6 +98,19 @@ class ImageVersion extends Component {
   }
 }
 
+function processImageName(name) {
+  let arr = name.split('/')
+  if (arr.length > 2) {
+    name = arr[0] + '/' + arr[1]
+    for (let i = 2; i < arr.length; i++) {
+      name += "%2F"
+
+      name += arr[i]
+    }
+  }
+  return name
+}
+
 function mapStateToProps(state, props) {
   const defaultImageDetailTag = {
     isFetching: false,
@@ -103,9 +118,10 @@ function mapStateToProps(state, props) {
     tag: [],
   }
   const { imageTags } = state.harbor
+  let processedName = processImageName(props.config.name)
   let targetImageTag = {}
   if (imageTags[DEFAULT_REGISTRY]) {
-    targetImageTag = imageTags[DEFAULT_REGISTRY][props.config.name] || {}
+    targetImageTag = imageTags[DEFAULT_REGISTRY][processedName] || {}
   }
   const { tag, server } = targetImageTag || defaultImageDetailTag
   return {
