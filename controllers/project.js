@@ -292,3 +292,11 @@ exports.getProjectRelatedRoles = function* () {
   this.status = response.statusCode
   this.body = response
 }
+
+exports.getProjectMembers = function* () {
+  const loginUser = this.session.loginUser
+  const projectApi = apiFactory.getApi(loginUser)
+  const response = yield projectApi.projects.getBy(['members'], null)
+  this.status = response.statusCode
+  this.body = response
+}

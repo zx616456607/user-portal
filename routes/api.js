@@ -86,13 +86,15 @@ module.exports = function (Router) {
   router.get('/projects/approval-clusters',projectController.getProjectApprovalClusters)
   router.put('/projects/:name/clusters',projectController.updateProjectClusters)
   router.put('/projects/clusters',projectController.updateProjectApprovalClusters)
-
+  router.get('/projects/members',projectController.getProjectMembers)
   router.get('/projects/:name/users',projectController.getProjectRelatedUsers)
   router.post('/projects/:name/users',projectController.addProjectRelatedUsers)
   router.post('/projects/:name/users/batch-delete',projectController.deleteProjectRelatedUsers)
   router.put('/projects/:name/users',projectController.updateProjectRelatedUsers)
   router.get('/projects/:name/roles',projectController.getProjectRelatedRoles)
   router.put('/projects/:name/roles',projectController.updateProjectRelatedRoles)
+
+  
 
   // Clusters
   router.get('/clusters', clusterController.getClusters)

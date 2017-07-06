@@ -941,6 +941,9 @@ function formatResourceName(resourceName, resourceId) {
     if (newBody.strategyName) {
       return newBody.strategyName
     }
+    if (newBody.imagename) {
+      return newBody.imagename
+    }
     if (newBody.strategyIDs && Array.isArray(newBody.strategyIDs) && newBody.strategyIDs.length > 0) {
       return newBody.strategyIDs.join(",")
     }
