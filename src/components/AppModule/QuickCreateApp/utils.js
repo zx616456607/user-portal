@@ -124,6 +124,10 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
   // 设置端口
   const service = new Service(serviceName, cluster)
   const { proxyType } = loginUser
+
+  let groupID = publicNetwork || internaletwork || "none"
+  service.addLBGroupAnnotation(groupID)
+
   portsKeys.forEach(key => {
     if (key.deleted) {
       return
@@ -135,16 +139,16 @@ export function buildJson(fields, cluster, loginUser, imageConfigs) {
     const mappingPort = fieldsValues[`${MAPPING_PORT}${keyValue}`]
     const mappingPortType = fieldsValues[`${MAPPING_PORTTYPE}${keyValue}`]
     service.addPort(proxyType, name, portProtocol, port, port, mappingPort)
-    if (mappingPortType === 'special') {
-      service.addPortAnnotation(name, portProtocol, mappingPort)
-    } else {
-      service.addPortAnnotation(name, portProtocol)
+    if (groupID !== 'none') {
+      // No need to expose ports if network mode is 'none'
+      if (mappingPortType === 'special') {
+        service.addPortAnnotation(name, portProtocol, mappingPort)
+      } else {
+        service.addPortAnnotation(name, portProtocol)
+      }
     }
     deployment.addContainerPort(serviceName, port, portProtocol)
   })
-  // TODO: Add the lbgroup info to annotation, group id or 'none'
-  let groupID = publicNetwork || internaletwork || "none"
-  service.addLBGroupAnnotation(groupID)
   // 设置进入点
   let {
     entrypoint,
