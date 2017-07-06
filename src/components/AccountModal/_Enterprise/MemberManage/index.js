@@ -559,7 +559,7 @@ class MemberManage extends Component {
         { key: 'tel', value: '手机号' },
         { key: 'email', value: '邮箱' },
       ],
-      defaultValue: 'name',
+      defaultSearchValue: 'name',
       placeholder: '请输入关键词搜索',
     }
     const funcs = {
