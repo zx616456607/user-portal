@@ -21,8 +21,8 @@ import image from '../../../assets/img/app/image.png'
 import imageHover from '../../../assets/img/app/imageHover.png'
 import appStore from '../../../assets/img/app/appStore.png'
 import appStoreHover from '../../../assets/img/app/appStoreHover.png'
-import composeFile from '../../../assets/img/app/composeFile.png'
-import composeFileHover from '../../../assets/img/app/composeFileHover.png'
+import wrapManageHover from '../../../assets/img/app/wrapManageHover.png'
+import wrapManage from '../../../assets/img/app/wrapManage.png'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -65,14 +65,28 @@ class CreateModel extends Component {
 
   selectCreateModel(currentSelect) {
     //user select current create model,so that current selected model's css will be change
-    let linkUrl = "";
-    if (currentSelect == "quick") {
-      linkUrl = "quick_create"
-    } else if (currentSelect == "store") {
-      linkUrl = "app_store"
-    } else if (currentSelect == "layout") {
-      linkUrl = "compose_file"
+    let linkUrl = ""
+    // compose_file
+    switch(currentSelect) {
+      case 'quick_create': {
+        linkUrl = 'quick_create'
+        break
+      }
+      case 'store': {
+        linkUrl = "app_store"
+        break
+      }
+      case 'layout': {
+        linkUrl = "compose_file"
+        break
+      }
+      case 'deploy_wrap': {
+        linkUrl = "deploy_wrap"
+        break
+      }
+      default: linkUrl = 'quick_create'
     }
+
     const parentScope = this.props.scope;
     this.setState({
       createModel: currentSelect,
@@ -159,7 +173,10 @@ class CreateModel extends Component {
       if (!!errors) {
         return
       }
-      const url = `/app_manage/app_create/${linkUrl}`
+      let url = `/app_manage/app_create/${linkUrl}`
+      if (linkUrl === 'deploy_wrap') {
+        url = '/app_manage/deploy_wrap'
+      }
       browserHistory.push(url)
     })
   }
@@ -216,11 +233,11 @@ class CreateModel extends Component {
                 </svg>
                 <i className="fa fa-check"></i>
               </div>
-              <div className={createModel == "layout" ? "layout commonBox selectedBox" : "layout commonBox"} onClick={this.selectCreateModel.bind(this, "layout")}>
-                <img src={createModel == "layout" ? composeFileHover : composeFile} />
+              <div className={createModel == "deploy_wrap" ? "deploy_wrap commonBox selectedBox" : "deploy_wrap commonBox"} onClick={this.selectCreateModel.bind(this, "deploy_wrap")}>
+                <img src={createModel == "deploy_wrap" ? wrapManageHover : wrapManage} />
                 <div className="infoBox">
-                  <p>编排文件</p>
-                  <span>通过编排文件创建应用</span>
+                  <p>应用包部署</p>
+                  <span>通过应用包文件创建应用</span>
                 </div>
                 <svg className="commonSelectedImg">
                   <use xlinkHref="#appcreatemodelselect" />
