@@ -20,7 +20,7 @@ import NotificationHandler from '../../components/Notification'
 import { formatDate } from '../../common/tools'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { API_URL_PREFIX } from '../../constants'
-
+import WrapListTable from './AppWrap/WrapListTable'
 import { wrapManageList, deleteWrapManage, uploadWrap } from '../../actions/app_center'
 const RadioGroup = Radio.Group
 const Dragger = Upload.Dragger
@@ -74,24 +74,15 @@ class UploadModal extends Component {
         this.setState({fileCallback:fileCallback})
         return
       }
-      let fileType = 'war'
-      let isType = false
-      wrapType.every((types, index)=> {
-        if (/\.(jar|war|tar|tar.gz|zip)$/.test(values.protocolUrl)) {
-          fileType = wrapTypelist[index]
-          isType = true
-          return false
-        }
-        return true
-      })
+      let isType = values.protocolUrl.match(/\.(jar|war|tar|tar.gz|zip)$/)
       if (!isType) {
-        notificat.error('上传文件地址格式错误', '支持：'+ wrapTypelist.join(', '))
+        notificat.error('上传文件地址格式错误', '支持：'+ wrapTypelist.join('、')+'文件格式')
         return
       }
       const body = {
         fileName:values.wrapName,
         fileTag: values.versionLabel,
-        fileType: fileType,
+        fileType: isType[1],
         body:{
           sourceURL: values.protocolUrl,
           userName: values.username,
@@ -205,14 +196,7 @@ class UploadModal extends Component {
         return callback(`请以ftp协议开头，如：${protocol}://www.demo.com/app.jar`)
       }
     }
-    let fileType
-    wrapType.every((types, index)=> {
-      if (/\.(jar|war|tar|tar.gz|zip)$/.test(value)) {
-        fileType = wrapTypelist[index]
-        return false
-      }
-      return true
-    })
+    let fileType = value.match(/\.(jar|war|tar|tar.gz|zip)$/)
     if (!fileType) {
       return callback(`文件格式错误，如：${protocol}://www.demo.com/app.jar`)
     }
@@ -262,22 +246,16 @@ class UploadModal extends Component {
           return false
         }
         // x-tar x-gzip zip java-archive war=''
-        let fileType = 'war'
+        // let fileType = 'war'
         let isType = false
-        wrapType.every((type, index)=> {
-          if (/\.(jar|war|tar|tar.gz|zip)$/.test(file.name)) {
-            isType = true
-            fileType = wrapTypelist[index]
-            return false
-          }
-          return true
-        })
+
+        isType = file.name.match(/\.(jar|war|tar|tar.gz|zip)$/)
 
         if (!isType) {
-          notificat.error('上传文件格式错误', '支持：'+ wrapTypelist.join(', '))
+          notificat.error('上传文件格式错误', '支持：'+ wrapTypelist.join('、')+'文件格式')
           return false
         }
-        self.setState({fileType})
+        self.setState({fileType: isType[1]})
         uploadFile = file.name // show upload file name
         // return true
         return new Promise((resolve, reject) => {
@@ -380,14 +358,14 @@ class WrapManage extends Component {
     }
     this.props.wrapManageList(from)
   }
-  componentWillMount() {
-    this.loadData()
-  }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.space.namespace !== this.props.space.namespace) {
-      this.loadData()
-    }
-  }
+  // componentWillMount() {
+  //   this.loadData()
+  // }
+  // componentWillReceiveProps(nextProps) {
+  //   if (nextProps.space.namespace !== this.props.space.namespace) {
+  //     this.loadData()
+  //   }
+  // }
 
   uploadModal = (modal) => {
     this.setState({ uploadModal: modal })
@@ -395,7 +373,7 @@ class WrapManage extends Component {
       document.getElementById('wrapName').focus()
     },200)
   }
-  deleteAction(status,id) {
+deleteAction(status,id) {
     if (status) {
       id = [id]
       this.setState({delAll: true,id})
@@ -467,18 +445,14 @@ class WrapManage extends Component {
          ]
       }
     ]
-    const paginationOpts = {
-      size: "small",
-      pageSize: DEFAULT_PAGE_SIZE,
-      current: this.state.page,
-      total: dataSource.total,
-      onChange: current => this.loadData(current),
-      showTotal: total => `共计： ${total} 条 `,
-    }
+
     const funcCallback = {
       uploadModal: this.uploadModal,
       getList: this.getList,
       uploadWrap: this.props.uploadWrap
+    }
+    const func = {
+      scope: this
     }
     const _this = this
     const rowSelection = {
@@ -502,9 +476,7 @@ class WrapManage extends Component {
             <Input size="large" onPressEnter={()=> this.getList(true)} style={{ width: 180 }} placeholder="请输入包名称或标签搜索" ref="wrapSearch" />
             <i className="fa fa-search btn-search" onClick={()=> this.getList(true)}/>
           </div>
-          <Card className="wrap_content">
-            <Table className="strategyTable" loading={this.props.isFetching} rowSelection={rowSelection} dataSource={dataSource.pkgs} columns={columns} pagination={paginationOpts} />
-          </Card>
+          <WrapListTable func={func} />
         </div>
 
         <UploadForm func={funcCallback} visible={this.state.uploadModal}/>
@@ -520,29 +492,7 @@ class WrapManage extends Component {
 }
 
 function mapStateToProps(state,props) {
-  const { wrapList } = state.images
-  const { current } = state.entities
-  const { space } = current
-  const list = wrapList || {}
-  let datalist = {pkgs:[],total:0}
-  if (list.result) {
-    datalist = list.result.data
-  }
-  const { query, pathname } = props.location
-  let { page,size } = query
-  page = parseInt(page || DEFAULT_PAGE)
-  size = parseInt(size || DEFAULT_PAGE_SIZE)
-  if (isNaN(page) || page < DEFAULT_PAGE) {
-    page = DEFAULT_PAGE
-  }
-  if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
-    size = DEFAULT_PAGE_SIZE
-  }
-  return {
-    space,
-    wrapList: datalist,
-    isFetching: list.isFetching
-  }
+  return props
 }
 
 export default connect(mapStateToProps,{
