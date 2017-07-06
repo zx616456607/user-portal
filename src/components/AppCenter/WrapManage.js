@@ -53,7 +53,17 @@ class UploadModal extends Component {
       notificat.info('请选择文件')
       return
     }
-    form.validateFields((errors, values) => {
+    // local upload
+    let validateFields = ['wrapName','versionLabel']
+    // remote http upload
+    if (this.state.type !== 'local') {
+      validateFields.push('protocolUrl')
+      // remote ftp upload
+      if (this.state.protocol == 'ftp') {
+        validateFields.push('username','password')
+      }
+    }
+    form.validateFields(validateFields,(errors,values) => {
       if (!!errors) {
         return;
       }
@@ -67,7 +77,7 @@ class UploadModal extends Component {
       let fileType = 'war'
       let isType = false
       wrapType.every((types, index)=> {
-        if (values.protocolUrl.lastIndexOf(types)> -1) {
+        if (/\.(jar|war|tar|tar.gz|zip)$/.test(values.protocolUrl)) {
           fileType = wrapTypelist[index]
           isType = true
           return false
@@ -88,7 +98,11 @@ class UploadModal extends Component {
           password: values.password
         }
       }
-      this.setState({fileCallback: true})
+
+      const fileCallback = notificat.spin('上传中...')
+
+      this.setState({fileCallback: fileCallback})
+
       func.uploadWrap(body,{
         success:{
           func:()=> {
@@ -107,15 +121,26 @@ class UploadModal extends Component {
               notificat.error('上传失败','远程上传的文件和本地的包名称已存在')
               return
             }
-            if (err.message.code == 400) {
-              notificat.error('上传失败','用户名或密码错误')
-              return
+            if (err.message) {
+              if (err.message.message == 'LOGIN_ERROR') {
+                notificat.error('上传失败','用户名或密码错误')
+                return
+              }
+              if (err.message.message == 'NETWORK_ERROR') {
+                notificat.error('上传失败','地址有误')
+                return
+              }
+              if (err.message.message == 'NO_SUCH_FILE') {
+                notificat.error('上传失败','未找到文件')
+                return
+              }
             }
             notificat.error('上传失败',err.message.message || err.message)
           }
         },
         finally: {
           func:() => {
+            this.state.fileCallback()
             this.setState({fileCallback: false})
           }
         }
@@ -130,6 +155,7 @@ class UploadModal extends Component {
   }
   changeprotocol = (e) => {
     this.setState({protocol: e.target.value})
+    this.props.form.resetFields(['protocolUrl'])
   }
   changeTabs = (type)=> {
     this.setState({type})
@@ -149,23 +175,53 @@ class UploadModal extends Component {
     return callback()
   }
   validateVersion = (rule, value, callback)=> {
-    if(!value) {
+    if (!value) {
       return callback('请输入版本')
     }
-    if (value.length >64) {
-      return callback('包名称长度为1~64位字符')
+    if (!/^([a-z0-9]+((?:[._]|__|[-]*)[a-z0-9]+)*)?$/.test(value)){
+      return callback('由小写字母或数字开头和结尾中间可[._-]')
     }
-    if (!/^[A-Za-z0-9]+[A-Za-z0-9_-]+[A-Za-z0-9]$/.test(value)) {
-      return callback('以英文字母和数字开头中间可[-_]')
+    if (value.length > 128){
+      return callback('最多只能为128个字符')
     }
     this.setState({fileTag: value})
     return callback()
   }
-
+  checkedUrl = (rule, value, callback)=> {
+    if (!value) {
+      return callback('请输入地址')
+    }
+    if (/^https:/.test(value)) {
+      return callback('暂不支持https')
+    }
+    let protocol = 'ftp'
+    if (this.state.protocol !== 'ftp') {
+      protocol= 'http'
+      if (!/^http:\/\/?/.test(value)) {
+        return callback(`请以http协议开头，如：${protocol}://www.demo.com/app.jar`)
+      }
+    } else {
+      if (!/^ftp:\/\/?/.test(value)) {
+        return callback(`请以ftp协议开头，如：${protocol}://www.demo.com/app.jar`)
+      }
+    }
+    let fileType
+    wrapType.every((types, index)=> {
+      if (/\.(jar|war|tar|tar.gz|zip)$/.test(value)) {
+        fileType = wrapTypelist[index]
+        return false
+      }
+      return true
+    })
+    if (!fileType) {
+      return callback(`文件格式错误，如：${protocol}://www.demo.com/app.jar`)
+    }
+    return callback()
+  }
   render() {
     const { form, func } = this.props
-    const { type,fileType,fileName,fileTag } = this.state
-    const isReq = type =='local' ? false : true
+    const { fileType,fileName,fileTag } = this.state
+    // const isReq = type =='local' ? false : true
     const wrapName = form.getFieldProps('wrapName',{
       rules: [
         { whitespace: true },
@@ -179,7 +235,9 @@ class UploadModal extends Component {
       ],
     })
     const protocolUrl = form.getFieldProps('protocolUrl',{
-      rules: [{required: isReq,whitespace: true, message: '请输入远程地址'}]
+      rules: [
+        {validator: this.checkedUrl}
+      ]
     })
     const username = form.getFieldProps('username',{
       rules: [{whitespace: true }]
@@ -207,7 +265,7 @@ class UploadModal extends Component {
         let fileType = 'war'
         let isType = false
         wrapType.every((type, index)=> {
-          if (file.name.lastIndexOf(type) > -1) {
+          if (/\.(jar|war|tar|tar.gz|zip)$/.test(file.name)) {
             isType = true
             fileType = wrapTypelist[index]
             return false
@@ -250,11 +308,11 @@ class UploadModal extends Component {
         >
         <Form>
           <Form.Item {...formItemLayout} label="应用包名称">
-              <Input {...wrapName} placeholder="请输入名称" />
+            <Input {...wrapName} placeholder="请输入名称" />
           </Form.Item>
 
           <Form.Item {...formItemLayout} label="版本标签">
-              <Input {...versionLabel} placeholder="请输入版本标签来标记此次上传文件" />
+            <Input {...versionLabel} placeholder="请输入版本标签来标记此次上传文件" />
           </Form.Item>
           <Tabs defaultActiveKey="local" onChange={this.changeTabs} size="small">
             <TabPane tab="本地上传" key="local">
@@ -269,11 +327,11 @@ class UploadModal extends Component {
               <Form.Item {...formItemLayout} label="协议">
               <RadioGroup onChange={this.changeprotocol} value={this.state.protocol}>
                 <Radio key="ftp" value="ftp">ftp</Radio>
-                <Radio key="http|https" value="http|https">http | https</Radio>
+                <Radio key="http" value="http">http</Radio>
               </RadioGroup>
               </Form.Item>
-              <Form.Item {...formItemLayout} label="地址">
-                <Input {...protocolUrl} placeholder="请输入远程文件地址，如 ftp://server.helloworld.jar" />
+              <Form.Item {...formItemLayout} label={<span><span style={{color:'red',fontFamily: 'SimSun'}}>*</span> 地址</span>}>
+                <Input {...protocolUrl} placeholder={`请输入远程文件地址，如 ${this.state.protocol}://www.demo.com/app.jar`} />
               </Form.Item>
               {this.state.protocol === 'ftp'?
               [<Form.Item {...formItemLayout} label="用户名" key="ftp">
@@ -348,14 +406,18 @@ class WrapManage extends Component {
   deleteVersion = ()=> {
     // const notificat = new NotificationHandler()
     const { id,page } = this.state
+    const { wrapList } = this.props
     this.setState({selectedRowKeys:[]})
     this.props.deleteWrapManage({ids: id},{
       success: {
         func:()=> {
           notificat.success('删除成功')
-          if (this.props.wrapList.total - 10 <= id.length) {
+          let newPage = Math.floor((wrapList.total - id.length) / DEFAULT_PAGE_SIZE)
+          if (newPage < page) {
             this.loadData(page -1)
+            return
           }
+          this.loadData(page)
         },isAsync: true
       },
       failed: {
@@ -408,6 +470,7 @@ class WrapManage extends Component {
     const paginationOpts = {
       size: "small",
       pageSize: DEFAULT_PAGE_SIZE,
+      current: this.state.page,
       total: dataSource.total,
       onChange: current => this.loadData(current),
       showTotal: total => `共计： ${total} 条 `,
