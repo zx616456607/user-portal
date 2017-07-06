@@ -13,8 +13,10 @@ import { Alert, Card, Input, Button, Select,form, Radio, Icon, Modal, Tooltip } 
 import { Link } from 'react-router'
 import classNames from 'classnames'
 import { connect } from 'react-redux'
+import { camelize } from 'humps'
 import "./style/VisitType.less"
-import { loadServiceDomain, serviceBindDomain, clearServiceDomain, deleteServiceDomain, loadServiceDetail, loadK8sService } from '../../../actions/services'
+import { setServiceProxyGroup } from '../../../actions/services'
+import { getProxy } from '../../../actions/cluster'
 import NotificationHandler from '../../../common/notification_handler'
 import { parseServiceDomain } from '../../parseDomain'
 const RadioGroup = Radio.Group;
@@ -30,24 +32,58 @@ class VisitType extends Component{
       deleteHint: true,
       svcDomain: [],
       copyStatus: false,
-      isInternal: false
+      isInternal: false,
+      addrHide: false,
+      proxyArr: [],
+      currentProxy: [],
+      groupID:'',
+      selectValue: ''
     }
   }
   componentWillMount() {
-    const { service, bindingDomains, bindingIPs } = this.props;
-    console.log('parse=============')
-    console.log(parseServiceDomain(service,bindingDomains,bindingIPs))
+    const { service, bindingDomains, bindingIPs, getProxy, cluster } = this.props;
+    console.log(service)
+    getProxy(cluster,true,{
+      success: {
+        func: (res) => {
+          this.setState({
+            proxyArr:res[camelize(cluster)].data
+          },()=>{
+            this.selectProxyArr('public')
+          })
+        },
+        isAsync: true
+      },
+    })
     this.setState({
       svcDomain:parseServiceDomain(service,bindingDomains,bindingIPs)
     })
   }
-  onChange(e) {
-    console.log('radio checked', e.target.value);
+  selectProxyArr(type) {
+    const { proxyArr } = this.state;
+    let data = proxyArr.slice(0)
+    data = data.filter((item)=>{
+      return item.type === type
+    })
     this.setState({
-      value: e.target.value,
-      selectDis: false
+      currentProxy: data
+    })
+  }
+  onChange(e) {
+    let value = e.target.value;
+    let flag;
+    if (value === 1) {
+      flag = 'public'
+    } else if (value === 2) {
+      flag = 'private'
+    }
+    this.selectProxyArr(flag)
+    this.setState({
+      value: value,
+      selectDis: false,
+      selectValue: null
     });
-    if (e.target.value === 3){
+    if (value === 3){
       this.info()
       this.setState({
         selectDis:true
@@ -61,19 +97,53 @@ class VisitType extends Component{
     });
   }
   saveEdit() {
+    const { value, groupID } = this.state;
+    const { service, setServiceProxyGroup, cluster } = this.props;
+    setServiceProxyGroup({
+      cluster,
+      service: service.metadata.name,
+      groupID
+    },{
+      success: {
+        func: (res) => {
+          console.log(res)
+        },
+        isAsync: true
+      }
+    })
     this.setState({
       disabled: true,
       forEdit:false
     });
+    if (value === 3) {
+      this.setState({
+        addrHide: true,
+      })
+    } else if (value ===1) {
+      this.setState({
+        isInternal:false,
+        addrHide: false
+      })
+    } else {
+      this.setState({
+        isInternal:true,
+        addrHide: false
+      })
+    }
   }
   cancelEdit() {
     this.setState({
       disabled: true,
-      forEdit:false
+      forEdit:false,
+      value: 1
     });
+    this.selectProxyArr('public')
   }
   handleChange(value) {
-    console.log(value)
+    this.setState({
+      groupID: value,
+      selectValue: value
+    })
   }
   copyTest() {
     let target = document.getElementsByClassName('copyTest')[0];
@@ -96,12 +166,11 @@ class VisitType extends Component{
     Modal.info({
       title: <div className="deleteHintTitle">请注意若将访问方式切换为【仅在集群内访问】，已映射的服务端口将会被释放</div>,
       width: 460,
-      
       onOk() {},
     });
   }
   render() {
-    const { value, disabled, forEdit, selectDis, deleteHint, svcDomain, copyStatus,isInternal } = this.state;
+    const { value, disabled, forEdit, selectDis, deleteHint, svcDomain, copyStatus,isInternal, addrHide, currentProxy, selectValue } = this.state;
     const domainList = svcDomain && svcDomain.map((item,index)=>{
       if (item.isInternal === isInternal) {
         return (
@@ -115,6 +184,11 @@ class VisitType extends Component{
         )
       }
     })
+    const proxyNode = currentProxy.length > 0 ? currentProxy.map((item,index)=>{
+        return (
+          <Option key={item.id} value={item.id}>{item.address}</Option>
+        )
+    }):null
     return (
       <Card id="visitTypePage">
         <div className="visitTypeTopBox">
@@ -133,13 +207,22 @@ class VisitType extends Component{
                 <Radio key="b" value={2} disabled={disabled}>内网访问</Radio>
                 <Radio key="c" value={3} disabled={disabled}>仅在集群内访问</Radio>
               </RadioGroup>
-              <p className="typeHint">服务可通过公网访问；“确保集群内节点有外网宽带，否则创建服务失败”；选择一个公用网络出口</p>
+              <p className="typeHint">
+                {
+                  value === 1 ? '服务可通过公网访问；“确保集群内节点有外网宽带，否则创建服务失败”；选择一个公用网络出口':''
+                }
+                {
+                  value === 2 ? '服务可通过内网访问；':''
+                }
+                {
+                  value === 3 ? '服务仅提供给集群内其他服务访问；':''
+                }
+              </p>
               <div className={classNames("inlineBlock selectBox",{'hide': selectDis})}>
-                <Select defaultValue="lucy" size="large" style={{ width: 180 }} onChange={this.handleChange.bind(this)} disabled={disabled}>
-                  <Option key="jack" value="jack">Jack</Option>
-                  <Option key="lucy" value="lucy">Lucy</Option>
-                  <Option key="disabled" value="disabled">Disabled</Option>
-                  <Option key="yiminghe" value="yiminghe">yiminghe</Option>
+                <Select size="large" style={{ width: 180 }} onChange={this.handleChange.bind(this)} disabled={disabled}
+                  getPopupContainer={()=>document.getElementsByClassName('selectBox')[0]} value={selectValue}
+                >
+                  {proxyNode}
                 </Select>
               </div>
               <div className={classNames("inlineBlock deleteHint",{'hide': deleteHint})}><i className="fa fa-exclamation-triangle" aria-hidden="true"/>该网络出口已被管理员删除，请选择其他网络出口或方式</div>
@@ -150,8 +233,8 @@ class VisitType extends Component{
           <div className="visitTypeTitle">访问地址</div>
           <div className="visitAddrInnerBox">
             <input type="text" className="copyTest" style={{opacity:0}}/>
-            <dl className="addrListBox">
-              <dt className="addrListTitle"><Icon type="link"/>出口地址</dt>
+            <dl className={classNames("addrListBox",{'hide':addrHide})}>
+              <dt className="addrListTitle"><Icon type="link"/>{isInternal ? '内网' : '公网'}地址</dt>
               {domainList}
             </dl>
             <dl className="addrListBox">
@@ -173,5 +256,7 @@ function mapSateToProp(state) {
 }
 
 VisitType = connect(mapSateToProp, {
+  setServiceProxyGroup,
+  getProxy
 })(VisitType)
 export default VisitType;
