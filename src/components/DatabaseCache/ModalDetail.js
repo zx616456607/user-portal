@@ -340,16 +340,22 @@ class VisitTypes extends Component{
     });
   }
   saveEdit() {
-    const { value, groupid } = this.state;
+    const { groupid, initValue } = this.state;
+    let value = this.state.value
+    if(!value) {
+      value = this.state.initValue
+    }
     const { databaseInfo, setServiceProxyGroup, clusterID, form, scope } = this.props;
-    form.validateFields((err, value) => {
+    form.validateFields((err, values) => {
       if(err) {
         return
       }
       let groupID = 'none'
-      if(this.state.value == 2) {
+      if(value == 2) {
         groupID = form.getFieldValue('groupID')
       }
+      const notification = new NotificationHandler()
+      notification.spin('保存中更改中')
       setServiceProxyGroup({
         cluster: clusterID,
         service: databaseInfo.serviceInfo.externalName,
@@ -357,11 +363,15 @@ class VisitTypes extends Component{
       },{
         success: {
           func: (res) => {
+            notification.close()
+            notification.success('出口方式更改成功')
             const { loadDbClusterDetail } = scope.props
-            loadDbClusterDetail(clusterID, databaseInfo.objectMeta.name)
+            setTimeout(() => {
+              loadDbClusterDetail(clusterID, databaseInfo.objectMeta.name, false)
+            }, 0)
             this.setState({
               disabled: true,
-              foredit:false
+              forEdit:false
             });
             if (value ===1) {
               this.setState({
@@ -391,7 +401,18 @@ class VisitTypes extends Component{
               })
             }
           },
-          isAsync: true
+          isAsync: false
+        },
+        failed: (res) => {
+          notification.close()
+          let message = '更改出口方式失败'
+          if(res.message) {
+            message = res.message
+          }
+          if(res.message && res.message.message) {
+            message = res.message.message
+          }
+          notification.error(message)
         }
       })
     })
