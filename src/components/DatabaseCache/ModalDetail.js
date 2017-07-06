@@ -328,13 +328,13 @@ class VisitTypes extends Component{
     if(lbinfo == 'none') {
       this.setState({
         initValue: 1,
-        initSelectDics: true
+        initSelectDis: true
       })
     } else {
       this.setState({
         initValue: 2,
         initGroupID: lbinfo,
-        initSelectDics: false,
+        initSelectDis: false,
       })
     }
     getProxy(clusterID,true,{
@@ -417,19 +417,19 @@ class VisitTypes extends Component{
             if (value ===1) {
               this.setState({
                 initValue: 1,
-                initSelectDics: true
+                initSelectDis: true
               })
               this.setState({
                 isinternal:false,
                 addrhide: false,
                 value: undefined,
-                selectDics: undefined
+                selectDis: undefined
               })
             } else {
               this.setState({
                 initValue: 2,
                 initGroupID: groupID,
-                initSelectDics: false
+                initSelectDis: false
               })
               form.setFieldsValue({
                 groupID
@@ -438,7 +438,7 @@ class VisitTypes extends Component{
                 isinternal:true,
                 addrhide: false,
                 value: undefined,
-                selectDics: undefined
+                selectDis: undefined
               })
             }
           },
@@ -495,7 +495,7 @@ class VisitTypes extends Component{
   }
   render() {
     const { bindingIPs, domainSuffix, databaseInfo ,dbName } = this.props
-    const { value, disabled, forEdit, selectDis, deleteHint, svcDomain, copyStatus,isInternal, addrHide, proxyArr, selectValue, initValue, initGroupID, initSelectDics } = this.state;
+    const { value, disabled, forEdit, selectDis, deleteHint, svcDomain, copyStatus,isInternal, addrHide, proxyArr, selectValue, initValue, initGroupID, initSelectDis } = this.state;
     const { form } = this.props
     const domainList = svcDomain && svcDomain.map((item,index)=>{
         if (item.isInternal === isInternal) {
@@ -555,7 +555,7 @@ class VisitTypes extends Component{
       }
     }
     const radioValue = value || initValue
-    const hide = selectDis == undefined ? initSelectDics : selectDis
+    const hide = selectDis == undefined ? initSelectDis : selectDis
     return (
       <Card id="visitsTypePage">
         <div className="visitTypeTopBox">
