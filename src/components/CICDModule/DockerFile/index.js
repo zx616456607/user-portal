@@ -18,6 +18,7 @@ import DockerFileEditor from '../../Editor/DockerFile'
 import './style/DockerFile.less'
 import NotificationHandler from '../../../components/Notification'
 import Title from '../../Title'
+import DockerfileModal from '../DockerfileModal'
 
 const editorOptions = {
   readOnly: false
@@ -60,7 +61,12 @@ const MyComponent = React.createClass({
     scope: React.PropTypes.object
   },
   getInitialState() {
-    return { showDockerFileModal: false, editDockerFileModal: false, }
+    return {
+      showDockerFileModal: false,
+      editDockerFileModal: false,
+      currentDockerfileType: null,
+      currentDockerfileId: null,
+    }
   },
   operaMenuClick: function (item, e) {
     //this function for user click the dropdown menu
@@ -74,16 +80,20 @@ const MyComponent = React.createClass({
             self.setState({
               showDockerFileModal: true,
               dockerfiles: result.content,
-              dockerfileId: item
+              dockerfileId: item,
+              currentDockerfileType: 0,
             })
             return
           }
           self.setState({
             editDockerFileModal: true,
             dockerfiles: result.content,
-            dockerfileId: item
+            dockerfileId: item,
+            currentDockerfileType: result.type,
+            currentDockerfileId: item,
           })
-        }
+        },
+        isAsync: true,
       },
       failed: {
         func: (res) => {
@@ -208,9 +218,18 @@ const MyComponent = React.createClass({
           </div>
         </Modal>
 
-        <Modal maskClosable={false} className='dockerFileEditModal' title="Dockerfile" width="600px" visible={this.state.editDockerFileModal}
-          onCancel={() => this.closeModal()} footer={null}
-          >
+        <Modal
+          maskClosable={false}
+          className='dockerFileEditModal'
+          title="Dockerfile"
+          width="600px"
+          visible={
+            this.state.editDockerFileModal &&
+            this.state.currentDockerfileType === 0
+          }
+          onCancel={() => this.closeModal()}
+          footer={null}
+        >
           <div style={{ minHeight: '300px' }}>
             <DockerFileEditor value={this.state.dockerfiles} callback={this.onChangeDockerFile} options={editorOptions} />
           </div>
@@ -223,6 +242,20 @@ const MyComponent = React.createClass({
             </Button>
           </div>
         </Modal>
+        <DockerfileModal
+          visible={
+            this.state.editDockerFileModal &&
+            this.state.currentDockerfileType === 1
+          }
+          onCancel={() => this.closeModal()}
+          onChange={
+            (value, submit) => this.setState({dockerfiles: value}, () => {
+              submit && this.editDockerFile()
+            })
+          }
+          defaultValue={this.state.dockerfiles}
+          id={this.state.currentDockerfileId}
+        />
       </div>
     );
   }
