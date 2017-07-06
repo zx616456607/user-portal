@@ -1765,7 +1765,11 @@ let CreateTenxFlowModal = React.createClass({
               this.state.dockerFileModalShow
             }
             onCancel={this.closeDockerFileModal}
-            onChange={value => this.setState({dockerFileTextarea: value})}
+            onChange={
+              (value, submit) => this.setState({dockerFileTextarea: value}, () => {
+                submit && this.closeDockerFileModal()
+              })
+            }
           />
           <Modal className='dockerFileEditModal'
             title="创建脚本文件"
