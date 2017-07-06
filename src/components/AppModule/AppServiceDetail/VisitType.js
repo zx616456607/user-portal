@@ -42,7 +42,6 @@ class VisitType extends Component{
   }
   componentWillMount() {
     const { service, bindingDomains, bindingIPs, getProxy, cluster } = this.props;
-    console.log(service)
     getProxy(cluster,true,{
       success: {
         func: (res) => {
@@ -58,6 +57,12 @@ class VisitType extends Component{
     this.setState({
       svcDomain:parseServiceDomain(service,bindingDomains,bindingIPs)
     })
+  }
+  componentWillReceiveProps(nextProps) {
+    const { serviceDetailmodalShow, isCurrentTab } = nextProps;
+    if (!serviceDetailmodalShow || !isCurrentTab) {
+      this.cancelEdit()
+    }
   }
   selectProxyArr(type) {
     const { proxyArr } = this.state;
@@ -185,6 +190,7 @@ class VisitType extends Component{
       }
     })
     const proxyNode = currentProxy.length > 0 ? currentProxy.map((item,index)=>{
+      console.log(item)
         return (
           <Option key={item.id} value={item.id}>{item.address}</Option>
         )

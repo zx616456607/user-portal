@@ -449,8 +449,8 @@ exports.setServiceProxyGroup = function* () {
   const cluster = this.params.cluster
   const service = this.params.service
   const groupID = this.params.groupID
-  const spi = apiFactory.getSpi(this.session.loginUser)
-  const response = yield spi.clusters.updateBy([cluster, 'services', service, 'lbgroups', groupID])
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const response = yield api.updateBy([cluster, 'services', service, 'lbgroups', groupID])
   this.status = response.code
   this.body = response
 }

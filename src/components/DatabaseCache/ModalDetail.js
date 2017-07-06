@@ -296,8 +296,15 @@ class VisitTypes extends Component{
       },
     })
     // this.setState({
-    //    svcDomain:parseServiceDomain(service,bindingDomains,bindingIPs)
+    //    svcDomain:parseServiceDomain('test',bindingDomains,bindingIPs)
     // })
+  }
+  componentWillReceiveProps(nextProps) {
+    const { detailModal, isCurrentTab } = nextProps;
+    console.log(detailModal,isCurrentTab)
+    if (!detailModal || !isCurrentTab) {
+      this.cancelEdit()
+    }
   }
   selectProxyArr(type) {
     const { proxyArr } = this.state;
@@ -373,7 +380,8 @@ class VisitTypes extends Component{
     this.setState({
       disabled: true,
       forEdit:false,
-      value: 1
+      value: 1,
+      selectDis: true
     });
     this.selectProxyArr('incluster')
   }
@@ -402,6 +410,7 @@ class VisitTypes extends Component{
   }
   render() {
     const { value, disabled, forEdit, selectDis, deleteHint, svcDomain, copyStatus,isInternal, addrHide, currentProxy, selectValue } = this.state;
+    
     const domainList = svcDomain && svcDomain.map((item,index)=>{
         if (item.isInternal === isInternal) {
           return (
@@ -457,13 +466,22 @@ class VisitTypes extends Component{
           <div className="visitTypeTitle">访问地址</div>
           <div className="visitAddrInnerBox">
             <input type="text" className="copyTest" style={{opacity:0}}/>
-            <dl className={classNames("addrListBox",{'hide':addrHide})}>
-              <dt className="addrListTitle"><Icon type="link"/>出口地址</dt>
-              {/*{domainList}*/}
-            </dl>
+            <div className={classNames("outPutBox",{'hide':addrHide})}>
+              <Icon type="link"/>出口地址：
+              <span className="domain">www-user-1.harbor.master1.com:21632</span>
+              <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this)} onClick={this.copyTest.bind(this)}/>
+              </Tooltip>
+            </div>
             <dl className="addrListBox">
               <dt className="addrListTitle"><Icon type="link"/>集群内实例访问地址</dt>
-              {/*{domainList}*/}
+              <dd className="addrList">
+                www-0：
+                <span className="domain">www-user-1.harbor.master1.com:21632</span>
+                <Tooltip placement='top' title={copyStatus ? '复制成功' : '点击复制'}>
+                  <Icon type="copy" onMouseLeave={this.returnDefaultTooltip.bind(this)} onMouseEnter={this.startCopyCode.bind(this)} onClick={this.copyTest.bind(this)}/>
+                </Tooltip>
+              </dd>
             </dl>
           </div>
         </div>
@@ -762,7 +780,8 @@ class ModalDetail extends Component {
               </TabPane>
               { SHOW_BILLING ?
                 [<TabPane tab='访问方式' key='#VisitType'>
-                   <VisitTypes domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                 <VisitTypes isCurrentTab={this.state.activeTabKey==='#VisitType'} domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} detailModal={this.props.detailModal}
+                              databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
                  </TabPane>,
                  <TabPane tab='事件' key='#events'>
                    <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
@@ -772,8 +791,9 @@ class ModalDetail extends Component {
                  </TabPane>]
                 :
                 [<TabPane tab='访问方式' key='#VisitType'>
-                   <VisitTypes domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
-                </TabPane>,
+                 <VisitTypes isCurrentTab={this.state.activeTabKey==='#VisitType'} domainSuffix={domainSuffix} bindingIPs={bindingIPs} currentData={this.props.currentData.pods} detailModal={this.props.detailModal}
+                            databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
+                 </TabPane>,
                 <TabPane tab='事件' key='#events'>
                   <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} type={'dbservice'}/>
                 </TabPane>]

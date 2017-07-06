@@ -490,10 +490,26 @@
     .visitAddrInnerBox{
       padding: 0 15px;
       margin-top: 30px;
+      .outPutBox{
+        margin-bottom: 20px;
+        &>i{
+          font-size: 16px;
+          margin-right: 10px;
+        }
+        .domain{
+          margin-left: 35px;
+        }
+        .anticon-copy{
+          cursor: pointer;
+          font-size: 16px !important;
+          color: @themeColor;
+          margin-left: 10px;
+        }
+      }
       .addrListBox{
         margin-bottom: 20px;
         .addrListTitle{
-          margin-bottom: 25px !important;
+          margin-bottom: 15px !important;
           i{
             font-size: 16px;
             margin-right: 10px;
@@ -501,6 +517,7 @@
         }
         .addrList{
           margin: 10px 0;
+          padding-left: 30px;
           .domain{
             margin-left: 35px;
           }
